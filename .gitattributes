@@ -1,0 +1,4 @@
+# GitHub Linguist — exclude generated/vendored artifacts from language stats
+*.html linguist-generated=true
+workspace/** linguist-vendored=true
+docs/** linguist-documentation=true

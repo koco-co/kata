@@ -1,0 +1,25 @@
+# Dependencies and local secrets
+node_modules/
+.env
+.env.local
+config.json
+config/repo-branch-mapping.yaml
+
+# Hidden runtime root
+.kata/
+**/.kata/
+.worktrees/
+
+# Feature runtime products
+workspace/*/features/*/results/
+workspace/*/features/*/.debug/
+workspace/*/features/*/tmp/staging/
+workspace/*/features/*/tmp/edit-report.md
+workspace/*/features/*/tmp/probe-report.md
+
+# System and build
+.DS_Store
+*.log
+dist/
+*.tsbuildinfo
+.tide/
