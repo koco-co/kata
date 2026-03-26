@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {},
+    "types": ["node"]
+  },
+  "include": ["plugins/**/*.ts", "scripts/**/*.ts", "lib/**/*.ts"],
+  "exclude": ["node_modules", "workspace"]
+}

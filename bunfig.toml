@@ -1,0 +1,3 @@
+[test]
+root = "engine"
+test_patterns = ["*.test.ts"]
