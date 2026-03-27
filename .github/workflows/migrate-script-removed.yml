@@ -1,0 +1,15 @@
+name: migrate-script-removed
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Forbid re-adding obsolete migration script tree
+        run: |
+          if [ -d engine/src/cli/migrate-v2 ] || [ -f engine/src/cli/migrate-v2.ts ] || [ -f engine/src/cli/migrate.ts ]; then
+            echo "::error::obsolete migrate-v2 script tree was deleted in Phase 8. Keep migration support in the tested kata migrate command."
+            exit 1
+          fi

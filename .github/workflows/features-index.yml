@@ -1,0 +1,28 @@
+name: features-index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'workspace/**/features/*/metadata.yaml'
+      - 'workspace/**/features/*/manifest.json'
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: kata features index --all
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --exit-code workspace/; then
+            git add workspace/
+            git commit -m "chore: auto-regen features INDEX.md"
+            git push
+          fi
