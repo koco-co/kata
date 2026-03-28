@@ -1,0 +1,294 @@
+<!--
+  禅道富文本编辑器兼容模板
+  - 全部使用 inline style，无 <style> 块
+  - 使用 table 布局替代 flexbox/grid
+  - 无 CSS 变量、伪元素、渐变
+  - 兼容禅道 CKEditor / UEditor 渲染
+-->
+<table cellpadding="0" cellspacing="0" style="width:100%;max-width:900px;border-collapse:collapse;font-family:Arial,'Microsoft YaHei',sans-serif;font-size:14px;line-height:1.6;color:#1a202c;">
+
+  <!-- Header -->
+  <tr>
+    <td style="padding:20px 24px;background:#1e293b;color:#fff;border-radius:6px 6px 0 0;">
+      <div style="font-size:20px;font-weight:bold;margin-bottom:10px;">{{title}}</div>
+      <div style="font-size:12px;color:#cbd5e1;">
+        {{analysis_time}}
+        &nbsp;&nbsp;
+        <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:bold;color:#fff;{{#eq severityClass 'critical'}}background:#ef4444;{{/eq}}{{#eq severityClass 'major'}}background:#ea580c;{{/eq}}{{#eq severityClass 'normal'}}background:#f59e0b;{{/eq}}{{#eq severityClass 'low'}}background:#6b7280;{{/eq}}">{{severity}}</span>
+        &nbsp;
+        <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:bold;color:#fff;{{#eq problem_type '代码问题'}}background:#3b82f6;{{/eq}}{{#eq problem_type '环境问题'}}background:#22c55e;{{/eq}}{{#eq problem_type '混合'}}background:#8b5cf6;{{/eq}}">{{problem_type}}</span>
+        {{#if environment.deploy_env}}&nbsp;&nbsp;{{environment.deploy_env}}{{/if}}
+      </div>
+    </td>
+  </tr>
+
+  <!-- Summary -->
+  <tr>
+    <td style="padding:16px 24px;background:#fef2f2;border-left:4px solid #ef4444;">
+      <strong>根因概述：</strong>{{summary}}
+    </td>
+  </tr>
+
+  {{#if confidence}}
+  <tr>
+    <td style="padding:12px 24px;{{#eq confidence 'high'}}background:#ecfdf5;border-left:4px solid #16a34a;color:#14532d;{{/eq}}{{#eq confidence 'medium'}}background:#fffbeb;border-left:4px solid #f59e0b;color:#78350f;{{/eq}}{{#eq confidence 'low'}}background:#fef2f2;border-left:4px solid #ef4444;color:#7f1d1d;{{/eq}}">
+      <strong>根因置信度：</strong>
+      <span style="display:inline-block;padding:1px 10px;margin:0 4px;border-radius:10px;font-size:11px;font-weight:bold;color:#fff;{{#eq confidence 'high'}}background:#16a34a;{{/eq}}{{#eq confidence 'medium'}}background:#f59e0b;{{/eq}}{{#eq confidence 'low'}}background:#ef4444;{{/eq}}">{{confidence}}</span>
+      {{#if confidence_reason}}<span style="font-size:12px;">（{{confidence_reason}}）</span>{{/if}}
+    </td>
+  </tr>
+  {{/if}}
+
+  <tr><td style="height:16px;"></td></tr>
+
+  <!-- 请求信息 -->
+  {{#if request_info}}
+  <tr>
+    <td style="padding:0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;">
+        <tr>
+          <td colspan="2" style="padding:12px 16px;font-size:15px;font-weight:bold;background:#f8fafc;border-bottom:2px solid #3b82f6;">
+            请求信息
+          </td>
+        </tr>
+        {{#if request_info.method}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">方法</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{request_info.method}}</td>
+        </tr>
+        {{/if}}
+        {{#if request_info.url}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">URL</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;word-break:break-all;"><code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:13px;">{{request_info.url}}</code></td>
+        </tr>
+        {{/if}}
+        {{#if request_info.params}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">关键参数</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{request_info.params}}</td>
+        </tr>
+        {{/if}}
+        {{#if request_info.status_code}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">响应状态</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{request_info.status_code}}</td>
+        </tr>
+        {{/if}}
+        {{#if request_info.response_preview}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">响应预览</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;word-break:break-all;"><code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:13px;">{{request_info.response_preview}}</code></td>
+        </tr>
+        {{/if}}
+      </table>
+    </td>
+  </tr>
+
+  <tr><td style="height:16px;"></td></tr>
+  {{/if}}
+
+  <!-- 异常堆栈解析 -->
+  {{#if stack_trace}}
+  <tr>
+    <td style="padding:0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;">
+        <tr>
+          <td colspan="2" style="padding:12px 16px;font-size:15px;font-weight:bold;background:#f8fafc;border-bottom:2px solid #3b82f6;">
+            异常堆栈解析
+          </td>
+        </tr>
+        {{#if stack_trace.exception_type}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">异常类型</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;"><code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:13px;">{{stack_trace.exception_type}}</code></td>
+        </tr>
+        {{/if}}
+        {{#if stack_trace.exception_message}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">异常消息</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;word-break:break-all;"><code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:13px;">{{stack_trace.exception_message}}</code></td>
+        </tr>
+        {{/if}}
+        {{#if stack_trace.trigger_handler}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">触发处理器</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;"><code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:13px;">{{stack_trace.trigger_handler}}</code></td>
+        </tr>
+        {{/if}}
+        {{#if stack_trace.root_cause_frame}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">根因帧</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;"><code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:13px;">{{stack_trace.root_cause_frame}}</code></td>
+        </tr>
+        {{/if}}
+        {{#if stack_trace.note}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">说明</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{stack_trace.note}}</td>
+        </tr>
+        {{/if}}
+      </table>
+    </td>
+  </tr>
+
+  <!-- 调用链 -->
+  {{#if stack_trace.call_chain}}
+  <tr>
+    <td style="padding:16px 0 0 0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;">
+        <tr>
+          <td style="padding:12px 16px;font-size:15px;font-weight:bold;background:#f8fafc;border-bottom:2px solid #3b82f6;">
+            调用链（从入口到根因）
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px;">
+            <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px;font-family:Consolas,Monaco,monospace;">
+              {{#each stack_trace.call_chain}}
+              <tr>
+                <td style="padding:8px 12px;width:24px;vertical-align:top;text-align:center;">
+                  {{#if this.is_root}}<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;"></span>{{else}}{{#if this.is_entry}}<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3b82f6;"></span>{{else}}<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e2e8f0;"></span>{{/if}}{{/if}}
+                </td>
+                <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;">
+                  <strong {{#if this.is_root}}style="color:#ef4444"{{/if}}>{{this.class}}</strong>.{{this.method}} (line {{this.line}})
+                  <br><span style="color:#64748b;font-size:12px;">{{this.description}}</span>
+                  {{#if this.error}}<br><span style="color:#ef4444;font-size:12px;">{{this.error}}</span>{{/if}}
+                </td>
+              </tr>
+              {{/each}}
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  {{/if}}
+
+  <tr><td style="height:16px;"></td></tr>
+  {{/if}}
+
+  <!-- 根因代码定位 -->
+  {{#if code_location}}
+  <tr>
+    <td style="padding:0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;">
+        <tr>
+          <td style="padding:12px 16px;font-size:15px;font-weight:bold;background:#f8fafc;border-bottom:2px solid #3b82f6;">
+            根因代码定位
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px;">
+            {{#if code_location.file}}
+            <p style="font-size:12px;color:#64748b;margin-bottom:8px;word-break:break-all;">
+              <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;">{{code_location.file}}</code>
+            </p>
+            {{/if}}
+            {{#if code_location.snippet}}
+            <pre style="background:#1e293b;color:#e2e8f0;padding:14px 16px;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-all;">{{code_location.snippet}}</pre>
+            {{/if}}
+            {{#if code_location.analysis}}
+            <p style="font-size:14px;font-weight:bold;margin-top:16px;">问题分析：</p>
+            <p style="font-size:13px;color:#64748b;margin-top:4px;">{{code_location.analysis}}</p>
+            {{/if}}
+            {{#if code_location.evidence}}
+            <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px 16px;margin-top:16px;">
+              <strong style="color:#b45309;">环境证据：</strong> {{code_location.evidence}}
+              {{#if code_location.evidence_code}}
+              <pre style="background:#1e293b;color:#e2e8f0;padding:12px 14px;margin-top:8px;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-all;">{{code_location.evidence_code}}</pre>
+              {{/if}}
+            </div>
+            {{/if}}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr><td style="height:16px;"></td></tr>
+  {{/if}}
+
+  <!-- 修复建议 -->
+  {{#if fix_suggestions}}
+  <tr>
+    <td style="padding:0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;">
+        <tr>
+          <td style="padding:12px 16px;font-size:15px;font-weight:bold;background:#f8fafc;border-bottom:2px solid #3b82f6;">
+            修复建议
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px;">
+            <p style="font-size:12px;color:#64748b;margin-bottom:12px;">以下建议基于 AI 分析，仅供参考。</p>
+            {{#each fix_suggestions}}
+            <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;margin-bottom:12px;">
+              <tr>
+                <td style="padding:12px 16px;">
+                  <div style="margin-bottom:8px;">
+                    <span style="display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;font-weight:bold;{{#eq priority 1}}background:#fef2f2;color:#ef4444;{{/eq}}{{#eq priority 2}}background:#fffbeb;color:#b45309;{{/eq}}{{#eq priority 3}}background:#f0fdf4;color:#15803d;{{/eq}}">P{{priority}} {{priority_label}}</span>
+                    &nbsp;<strong style="font-size:14px;">{{title}}</strong>
+                  </div>
+                  {{#if location}}<p style="font-size:13px;color:#64748b;margin-bottom:4px;"><strong>位置：</strong> {{location}}</p>{{/if}}
+                  {{#if action}}<p style="font-size:13px;color:#64748b;margin-bottom:4px;"><strong>修改：</strong> {{action}}</p>{{/if}}
+                  {{#if detail}}<pre style="background:#1e293b;color:#e2e8f0;padding:12px 14px;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-all;margin:8px 0;">{{detail}}</pre>{{/if}}
+                  {{#if reason}}<p style="font-size:13px;color:#64748b;margin-bottom:0;"><strong>原因：</strong> {{reason}}</p>{{/if}}
+                </td>
+              </tr>
+            </table>
+            {{/each}}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr><td style="height:16px;"></td></tr>
+  {{/if}}
+
+  <!-- 环境信息 -->
+  <tr>
+    <td style="padding:0;">
+      <table cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e2e8f0;border-collapse:collapse;">
+        <tr>
+          <td colspan="2" style="padding:12px 16px;font-size:15px;font-weight:bold;background:#f8fafc;border-bottom:2px solid #3b82f6;">
+            环境信息
+          </td>
+        </tr>
+        {{#if environment.java_version}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">JDK 版本</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{environment.java_version}}</td>
+        </tr>
+        {{/if}}
+        {{#if environment.framework}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">框架</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{environment.framework}}</td>
+        </tr>
+        {{/if}}
+        {{#if environment.deploy_env}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">部署环境</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;">{{environment.deploy_env}}</td>
+        </tr>
+        {{/if}}
+        {{#if environment.source_ref}}
+        <tr>
+          <td style="padding:8px 16px;width:100px;font-weight:bold;color:#64748b;border-bottom:1px solid #e2e8f0;white-space:nowrap;">源码参考</td>
+          <td style="padding:8px 16px;border-bottom:1px solid #e2e8f0;word-break:break-all;">{{environment.source_ref}}</td>
+        </tr>
+        {{/if}}
+      </table>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="padding:20px 0;text-align:center;font-size:11px;color:#9ca3af;">
+      Generated by kata bug-report skill &middot; {{analysis_time}}
+    </td>
+  </tr>
+
+</table>
