@@ -1,0 +1,60 @@
+# 蓝湖 PRD 导入插件
+
+从蓝湖 URL 自动爬取需求页面内容、截图和设计稿，转化为 PRD Markdown。
+
+## 功能
+
+- 解析蓝湖分享链接并提取页面元数据
+- 自动截取 Axure 设计稿和设计说明
+- 将需求描述转化为 Markdown 格式
+- 支持多页面需求聚合
+
+## 环境配置
+
+在项目根目录 `.env` 文件中配置：
+
+```env
+# 蓝湖登录 Cookie（必填）
+KATA_LANHU_COOKIE="lanhu_session_id=xxx; path=/; secure"
+```
+
+## 获取 KATA_LANHU_COOKIE
+
+1. 使用浏览器访问 https://lanhuapp.com
+2. 登录账号
+3. 打开浏览器开发者工具 → 应用 → Cookie
+4. 复制 `lanhu_session_id` 的完整值
+5. 粘贴到 `.env` 文件
+
+## 用法
+
+```bash
+# 从蓝湖 URL 导入需求
+bun run plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --output workspace/features/{{YM}}-{{SLUG}}/
+
+# 或通过 kata 命令
+生成测试用例 https://lanhuapp.com/web/#/item/...
+```
+
+## 输出格式
+
+生成的 PRD 文件包含：
+
+- YAML front-matter（需求元数据）
+- Markdown 需求描述
+- 嵌入的设计稿截图（存储在 `workspace/images/`）
+
+## Replay Fixtures
+
+Deterministic Lanhu fixtures are available under `engine/tests/fixtures/lanhu/` for CI and offline use:
+
+```bash
+# Use replay fixture instead of live fetch
+bun run plugins/lanhu/fetch.ts --fixture engine/tests/fixtures/lanhu/sample/source-snapshot.json
+```
+
+### Adding New Fixtures
+
+1. Run a real Lanhu fetch with `KATA_LANHU_COOKIE` set
+2. Copy the output `source-snapshot.json` and `content.md` to a new directory under `engine/tests/fixtures/lanhu/{name}/`
+3. Verify the fixture works in replay mode
