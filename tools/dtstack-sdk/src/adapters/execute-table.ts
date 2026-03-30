@@ -1,0 +1,134 @@
+/**
+ * Playwright 适配器：建表 + 同步元数据
+ *
+ * 用于测试脚本中一键完成「执行 SQL → 同步元数据」流程。
+ * 内部调用 dtstack-cli 执行 SQL，通过 page.evaluate 同步元数据。
+ */
+
+import { execSync } from "node:child_process";
+import { unlinkSync, writeFileSync } from "node:fs";
+import type { Page } from "@playwright/test";
+
+export interface ExecuteTableOptions {
+  /** 要执行的 SQL（DDL + DML） */
+  sql: string;
+  /** 表名（用于元数据查找与同步） */
+  tableName: string;
+  /** 数据源类型：SparkThrift / Doris */
+  datasource: "SparkThrift" | "Doris";
+  /** 质量项目名称，默认 pw_test */
+  project?: string;
+  /** 环境名，默认 ltqc */
+  env?: string;
+  /** 数据库名，默认 pw_test */
+  database?: string;
+  /** 质量项目 ID（X-Valid-Project-ID / pid），默认读取 DATAASSETS_PROJECT_ID 环境变量 */
+  projectId?: number;
+  /** 数据源 ID（元数据同步用），读取 DATAASSETS_DATASOURCE_ID 环境变量 */
+  dataSourceId?: string;
+  /** 数据源类型编号，默认 45（SparkThrift） */
+  dataSourceType?: number;
+}
+
+/**
+ * 执行 SQL 并同步元数据。
+ *
+ * 使用方式：
+ *   import { executeTableSQL } from "dtstack-sdk/adapters/playwright";
+ *
+ *   await executeTableSQL(page, {
+ *     sql: `DROP TABLE IF EXISTS my_table; CREATE TABLE ...; INSERT INTO ... VALUES ...;`,
+ *     tableName: "my_table",
+ *     datasource: "SparkThrift",
+ *   });
+ *
+ * 流程：
+ *   1. 将 SQL 写入临时文件
+ *   2. 调用 `dtstack-cli sql exec` 执行
+ *   3. 通过 `page.evaluate` 检查元数据是否存在
+ *   4. 不存在则调用元数据同步 API + 等待 15s
+ *
+ * 注意：调用前 page 必须在目标域名上（如已导航到数据资产页面），
+ * 否则 `page.evaluate` 中的 fetch 会因缺少 cookie 而失败。
+ */
+export async function executeTableSQL(page: Page, options: ExecuteTableOptions): Promise<void> {
+  const { sql, tableName, datasource } = options;
+  const project = options.project ?? "pw_test";
+  const env = options.env ?? "ltqc";
+  const database = options.database ?? "pw_test";
+  const projectId = options.projectId ?? (Number(process.env.DATAASSETS_PROJECT_ID) || 92);
+  const dataSourceId = options.dataSourceId ?? process.env.DATAASSETS_DATASOURCE_ID ?? "547";
+  const dataSourceType = options.dataSourceType ?? 45;
+
+  // 1. 从浏览器获取最新 cookie（比 .env 里的更新鲜）
+  const browserCookies = await page.context().cookies();
+  const browserCookieStr = browserCookies.map((c) => `${c.name}=${c.value}`).join("; ");
+  const cookie = browserCookieStr || process.env[`${env.toUpperCase()}_COOKIE`] || "";
+
+  const sqlFile = `/tmp/${tableName}.sql`;
+  writeFileSync(sqlFile, sql);
+  try {
+    execSync(
+      `DTSTACK_COOKIE="${cookie}" ./node_modules/.bin/dtstack-cli sql exec ` +
+        `--project ${project} --datasource ${datasource} ` +
+        `--file ${sqlFile} --on-exists warn --on-missing warn --env ${env}`,
+      { stdio: "pipe", timeout: 120000 },
+    );
+  } finally {
+    unlinkSync(sqlFile);
+  }
+
+  const pid = String(projectId);
+
+  // 2. 检查元数据是否已同步
+  const exists = await page.evaluate(
+    async ({ tName, pId }: { tName: string; pId: string }) => {
+      const r = await fetch("/dassets/v1/datamap/queryDetail", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json;charset=UTF-8",
+          "X-Valid-Project-ID": pId,
+        },
+        body: JSON.stringify({
+          current: 1,
+          size: 10,
+          metaType: 1,
+          search: tName,
+          field: "hot",
+          asc: false,
+        }),
+      });
+      const d = (await r.json()) as {
+        data?: { records?: Array<{ tableName?: string }> };
+      };
+      return (d?.data?.records ?? []).some((rec) => rec.tableName === tName);
+    },
+    { tName: tableName, pId: pid },
+  );
+
+  if (!exists) {
+    await page.evaluate(
+      async ({ tName, db, dsId, dsType, pId }) => {
+        await fetch("/dmetadata/v1/syncTask/add", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "content-type": "application/json;charset=UTF-8",
+            "X-Valid-Project-ID": pId,
+          },
+          body: JSON.stringify({
+            dataSourceId: dsId,
+            dataSourceType: dsType,
+            dbList: [db],
+            tableList: [{ dbName: db, tableName: tName }],
+            syncFilterTermConfigDTO: { syncMetaContent: 0, pastConfiguration: 1 },
+            taskType: 0,
+          }),
+        });
+      },
+      { tName: tableName, db: database, dsId: dataSourceId, dsType: dataSourceType, pId: pid },
+    );
+    await page.waitForTimeout(15000);
+  }
+}

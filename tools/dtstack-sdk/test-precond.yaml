@@ -1,0 +1,7 @@
+tables:
+  - name: test_precond_final
+    sql: |
+      CREATE TABLE pw_test.test_precond_final (
+        id INT,
+        info STRING
+      ) STORED AS PARQUET;

@@ -1,0 +1,37 @@
+tables:
+  - name: quality_test_num
+    sql: |
+      CREATE TABLE pw_test.quality_test_num (
+        id INT,
+        score DOUBLE,
+        category STRING
+      ) STORED AS PARQUET;
+  - name: quality_test_str
+    sql: |
+      CREATE TABLE pw_test.quality_test_str (
+        id INT,
+        score_str STRING,
+        category STRING
+      ) STORED AS PARQUET;
+  - name: quality_test_sample
+    sql: |
+      CREATE TABLE pw_test.quality_test_sample (
+        id INT,
+        score DOUBLE,
+        category STRING
+      ) STORED AS PARQUET;
+  - name: quality_test_partition
+    sql: |
+      CREATE TABLE pw_test.quality_test_partition (
+        id INT,
+        score DOUBLE,
+        category STRING
+      )
+      PARTITIONED BY (dt STRING)
+      STORED AS PARQUET;
+  - name: quality_test_enum_pass
+    sql: |
+      CREATE TABLE pw_test.quality_test_enum_pass (
+        id INT,
+        category STRING
+      ) STORED AS PARQUET;
