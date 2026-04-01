@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "TelemetryEvent@1",
+  "type": "object",
+  "required": ["event_id", "event_kind", "run_id"],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": { "type": "string", "maxLength": 256 },
+    "event_kind": {
+      "type": "string",
+      "enum": [
+        "skill_trigger",
+        "prompt_call",
+        "agent_run",
+        "plugin_call",
+        "policy_block",
+        "schema_reject",
+        "handoff_received",
+        "failure"
+      ]
+    },
+    "run_id": { "type": "string", "maxLength": 64 },
+    "skill_id": { "type": "string", "maxLength": 256 },
+    "skill_version": { "type": "integer", "minimum": 1 },
+    "workflow_id": { "type": "string", "maxLength": 256 },
+    "agent_id": { "type": "string", "maxLength": 256 },
+    "prompt_id": { "type": "string", "maxLength": 256 },
+    "plugin_id": { "type": "string", "maxLength": 256 },
+    "input_tokens": { "type": "integer", "minimum": 0 },
+    "output_tokens": { "type": "integer", "minimum": 0 },
+    "status": { "type": "string", "enum": ["success", "partial", "failed", "blocked"] },
+    "rule_id": { "type": "string", "maxLength": 256 },
+    "hashed_artifact_ref": { "type": "string", "maxLength": 128 }
+  }
+}

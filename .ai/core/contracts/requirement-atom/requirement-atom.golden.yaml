@@ -1,0 +1,21 @@
+schema_ref: RequirementAtom@1
+id: atom-datasource-type-fields
+title: SparkThrift and Doris datasource required fields differ
+source_refs:
+  - lanhu.fixture:datasource-form#sha256:947d4c2d1db745733c0ee6905724af4e92b9bf94952a017a915b8afa4ca7694f
+subject: datasource creation form
+condition: user selects SparkThrift or Doris as datasource type
+action: system renders type-specific connection fields
+expected_result: SparkThrift shows thrift connection fields and Doris shows FE address, port, and account permission fields.
+field_rules:
+  - SparkThrift requires thrift host and port.
+  - Doris requires FE address, port, username, and password.
+state_rules:
+  - Switching datasource type refreshes visible required fields.
+permissions:
+  - user can create datasource
+data_dependencies:
+  - dataAssets env profile
+evidence_kind: lanhu_observed
+ambiguity_class: defaultable_unknown
+confidence: medium

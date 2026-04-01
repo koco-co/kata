@@ -1,0 +1,13 @@
+terms:
+  - id: skill
+    zh-CN: 技能
+    en-US: skill
+  - id: workflow
+    zh-CN: 工作流
+    en-US: workflow
+  - id: projection
+    zh-CN: 投影
+    en-US: projection
+  - id: guard
+    zh-CN: 守卫
+    en-US: guard

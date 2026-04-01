@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PromptContract@1",
+  "type": "object",
+  "required": [
+    "id",
+    "schema_ref",
+    "locale",
+    "model_lock",
+    "input_schema",
+    "output_schema",
+    "rendering",
+    "prefill",
+    "fallback",
+    "hallucination_policy"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*@[0-9]+$" },
+    "schema_ref": { "type": "string", "const": "PromptContract@1" },
+    "locale": { "type": "string", "minLength": 1 },
+    "model_lock": {
+      "type": "object",
+      "required": ["required_capabilities", "minimum_context_tokens"],
+      "additionalProperties": false,
+      "properties": {
+        "required_capabilities": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "minimum_context_tokens": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "input_schema": {
+      "type": "object",
+      "required": ["name", "required"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "required": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": ["name", "required"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "required": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "rendering": {
+      "type": "object",
+      "required": ["role_sections", "boundaries"],
+      "additionalProperties": false,
+      "properties": {
+        "role_sections": {
+          "type": "object",
+          "required": ["system", "user"],
+          "additionalProperties": false,
+          "properties": {
+            "system": { "type": "string", "minLength": 1 },
+            "user": { "type": "string", "minLength": 1 }
+          }
+        },
+        "boundaries": {
+          "type": "object",
+          "required": ["untrusted_context_tag", "source_ref_tag"],
+          "additionalProperties": false,
+          "properties": {
+            "untrusted_context_tag": { "type": "string", "minLength": 1 },
+            "source_ref_tag": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "prefill": {
+      "type": "object",
+      "required": ["enabled", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "text": { "type": "string" }
+      }
+    },
+    "fallback": {
+      "type": "object",
+      "required": ["deterministic_parse", "on_schema_error"],
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_parse": { "type": "boolean" },
+        "on_schema_error": { "type": "string", "minLength": 1 }
+      }
+    },
+    "hallucination_policy": {
+      "type": "object",
+      "required": ["unknown_fact", "missing_source_ref"],
+      "additionalProperties": false,
+      "properties": {
+        "unknown_fact": { "type": "string", "minLength": 1 },
+        "missing_source_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "few_shots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "purpose", "content"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*@[0-9]+$" },
+          "purpose": { "type": "string", "minLength": 1 },
+          "content": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "cache_breakpoints": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["id", "after", "min_tokens"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "after": { "type": "string", "enum": ["system", "user", "tools", "context"] },
+          "min_tokens": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "model_routing": {
+      "type": "object",
+      "required": ["primary"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "object",
+          "required": ["provider", "model_id", "fallback_strategy"],
+          "additionalProperties": false,
+          "properties": {
+            "provider": { "type": "string", "enum": ["anthropic"] },
+            "model_id": { "type": "string", "minLength": 1 },
+            "fallback_strategy": {
+              "type": "string",
+              "enum": ["refuse_with_budget_report", "downgrade", "retry_once"]
+            }
+          }
+        },
+        "fallback": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["provider", "model_id", "condition"],
+            "additionalProperties": false,
+            "properties": {
+              "provider": { "type": "string", "enum": ["anthropic"] },
+              "model_id": { "type": "string", "minLength": 1 },
+              "condition": {
+                "type": "string",
+                "enum": ["budget_low", "primary_unavailable", "context_overflow"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "model_id": { "type": "string", "minLength": 1 }
+  }
+}

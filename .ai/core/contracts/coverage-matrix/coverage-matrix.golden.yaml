@@ -1,0 +1,10 @@
+schema_ref: CoverageMatrix@1
+id: cm-datasource-type-fields
+title: Datasource type-specific required fields
+coverage_type: positive
+requirement_atom_ids:
+  - atom-datasource-type-fields
+risk_level: P1
+evidence_status: defaulted
+manual_case_allowed: true
+automation_allowed: true

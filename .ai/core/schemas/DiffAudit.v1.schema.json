@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DiffAudit@1",
+  "type": "object",
+  "required": [
+    "base_revision",
+    "current_revision_at_apply",
+    "base_mismatch",
+    "apply_policy",
+    "pre_run_dirty_paths",
+    "sandbox_changed_paths",
+    "main_workspace_changed_paths",
+    "outside_sandbox_changed_paths",
+    "undeclared_target_paths",
+    "result"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "base_revision": { "type": "string", "minLength": 1 },
+    "current_revision_at_apply": { "type": "string", "minLength": 1 },
+    "base_mismatch": { "type": "boolean" },
+    "apply_policy": {
+      "type": "string",
+      "enum": ["strict_base", "three_way_merge", "rebase_then_validate"]
+    },
+    "pre_run_dirty_paths": { "type": "array", "items": { "type": "string" } },
+    "sandbox_changed_paths": { "type": "array", "items": { "type": "string" } },
+    "main_workspace_changed_paths": { "type": "array", "items": { "type": "string" } },
+    "outside_sandbox_changed_paths": { "type": "array", "items": { "type": "string" } },
+    "undeclared_target_paths": { "type": "array", "items": { "type": "string" } },
+    "result": { "type": "string", "enum": ["clean", "blocked", "rolled_back"] }
+  }
+}

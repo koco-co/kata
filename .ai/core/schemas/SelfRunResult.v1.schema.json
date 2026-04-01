@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SelfRunResult@1",
+  "type": "object",
+  "required": ["schema_ref", "command", "exit_code", "status", "artifacts"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_ref": { "type": "string", "const": "SelfRunResult@1" },
+    "command": { "type": "string" },
+    "exit_code": { "type": "integer" },
+    "status": { "type": "string", "minLength": 1 },
+    "artifacts": { "type": "array", "items": { "type": "string" } }
+  }
+}

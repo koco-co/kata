@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PluginManifest@1",
+  "type": "object",
+  "required": [
+    "id",
+    "schema_ref",
+    "package_root",
+    "capability",
+    "argv_schema",
+    "output_schema",
+    "timeout_ms",
+    "artifact_staging",
+    "capability_required"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*@[0-9]+$" },
+    "schema_ref": { "type": "string", "const": "PluginManifest@1" },
+    "package_root": {
+      "type": "string",
+      "pattern": "^\\.ai/core/plugins/[A-Za-z0-9][A-Za-z0-9_-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
+    },
+    "capability": {
+      "type": "object",
+      "required": ["kind", "network", "secrets"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["fixture_reader", "source_provider", "notification_sink"]
+        },
+        "network": { "type": "boolean" },
+        "secrets": { "type": "boolean" },
+        "isolation": { "type": "string", "enum": ["os_sandbox"] }
+      }
+    },
+    "argv_schema": {
+      "type": "object",
+      "required": ["required"],
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "output_schema": { "type": "string", "minLength": 1 },
+    "timeout_ms": { "type": "integer", "minimum": 1 },
+    "artifact_staging": {
+      "type": "object",
+      "required": ["enabled", "root"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "root": { "type": "string", "const": ".ai/runs/staging", "pattern": "^\\.ai/runs/staging$" }
+      }
+    },
+    "capability_required": {
+      "type": "object",
+      "required": ["fs_read", "fs_write", "net", "secret_refs"],
+      "additionalProperties": false,
+      "properties": {
+        "fs_read": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "fs_write": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "net": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "secret_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

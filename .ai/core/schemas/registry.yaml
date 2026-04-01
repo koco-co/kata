@@ -1,0 +1,94 @@
+schemas:
+  - id: PrdSource@1
+    version: 1
+    path: .ai/core/schemas/PrdSource.v1.schema.json
+  - id: SkillContract@1
+    version: 1
+    path: .ai/core/schemas/SkillContract.v1.schema.json
+  - id: PromptContract@1
+    version: 1
+    path: .ai/core/schemas/PromptContract.v1.schema.json
+  - id: WorkflowContract@1
+    version: 1
+    path: .ai/core/schemas/WorkflowContract.v1.schema.json
+  - id: AgentContract@1
+    version: 1
+    path: .ai/core/schemas/AgentContract.v1.schema.json
+  - id: PluginManifest@1
+    version: 1
+    path: .ai/core/schemas/PluginManifest.v1.schema.json
+  - id: SourceRef@1
+    version: 1
+    path: .ai/core/schemas/SourceRef.v1.schema.json
+  - id: SourceSnapshot@1
+    version: 1
+    path: .ai/core/schemas/SourceSnapshot.v1.schema.json
+  - id: HandoffEnvelope@1
+    version: 1
+    path: .ai/core/schemas/HandoffEnvelope.v1.schema.json
+  - id: Provenance@1
+    version: 1
+    path: .ai/core/schemas/Provenance.v1.schema.json
+  - id: TelemetryEvent@1
+    version: 1
+    path: .ai/core/schemas/TelemetryEvent.v1.schema.json
+  - id: DiffAudit@1
+    version: 1
+    path: .ai/core/schemas/DiffAudit.v1.schema.json
+  - id: ContextEnvelope@1
+    version: 1
+    path: .ai/core/schemas/ContextEnvelope.v1.schema.json
+  - id: AgentRun@1
+    version: 1
+    path: .ai/core/schemas/AgentRun.v1.schema.json
+  - id: PluginRun@1
+    version: 1
+    path: .ai/core/schemas/PluginRun.v1.schema.json
+  - id: LLMJudgeEval@1
+    version: 1
+    path: .ai/core/schemas/LLMJudgeEval.v1.schema.json
+  - id: BlockedEnvelope@1
+    version: 1
+    path: .ai/core/schemas/BlockedEnvelope.v1.schema.json
+  - id: SubagentConstraints@1
+    version: 1
+    path: .ai/core/schemas/SubagentConstraints.v1.schema.json
+  - id: SourceConsent@1
+    version: 1
+    path: .ai/core/schemas/SourceConsent.v1.schema.json
+  - id: UiAutomationIntent@1
+    version: 1
+    path: .ai/core/schemas/UiAutomationIntent.v1.schema.json
+  - id: UiAutomationPreflight@1
+    version: 1
+    path: .ai/core/schemas/UiAutomationPreflight.v1.schema.json
+  - id: UiProbeSnapshot@1
+    version: 1
+    path: .ai/core/schemas/UiProbeSnapshot.v1.schema.json
+  - id: PlanReconciliation@1
+    version: 1
+    path: .ai/core/schemas/PlanReconciliation.v1.schema.json
+  - id: PlaywrightScriptManifest@1
+    version: 1
+    path: .ai/core/schemas/PlaywrightScriptManifest.v1.schema.json
+  - id: SelfRunResult@1
+    version: 1
+    path: .ai/core/schemas/SelfRunResult.v1.schema.json
+  - id: UiRunTriage@1
+    version: 1
+    path: .ai/core/schemas/UiRunTriage.v1.schema.json
+  - id: RepairAttemptLog@1
+    version: 1
+    path: .ai/core/schemas/RepairAttemptLog.v1.schema.json
+  - id: FeatureMetadata@1
+    version: 1
+    path: .ai/core/schemas/FeatureMetadata.v1.schema.json
+  - id: FeatureManifest@2
+    version: 2
+    path: .ai/core/schemas/FeatureManifest.v2.schema.json
+  - id: PlaywrightAutomationHandoff@2
+    version: 2
+    path: .ai/core/schemas/PlaywrightAutomationHandoff.v2.schema.json
+  - id: SourceRefRegistry@1
+    version: 1
+    path: .ai/core/schemas/SourceRefRegistry.v1.schema.json

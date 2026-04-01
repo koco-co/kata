@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PlanReconciliation@1",
+  "type": "object",
+  "required": ["schema_ref", "status", "conflicts", "adjustments", "next_phase"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_ref": { "type": "string", "const": "PlanReconciliation@1" },
+    "status": { "type": "string", "minLength": 1 },
+    "conflicts": { "type": "array", "items": { "type": "string" } },
+    "adjustments": { "type": "array", "items": { "type": "string" } },
+    "next_phase": { "type": "string" }
+  }
+}

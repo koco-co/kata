@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "HandoffEnvelope@1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "from_agent",
+    "to_agent",
+    "status",
+    "summary",
+    "artifacts",
+    "issues",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "from_agent": { "type": "string", "minLength": 1 },
+    "to_agent": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["done", "done_with_concerns", "blocked", "needs_context"]
+    },
+    "summary": { "type": "string" },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "severity": { "type": "string", "enum": ["error", "warning"] },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["sourceRefs"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:(?:prd\\.file|command\\.output):[A-Za-z0-9][A-Za-z0-9._-]*|(?:knowledge\\.entry|repo\\.line|case\\.archive|workspace\\.config|lanhu\\.fixture):[A-Za-z0-9][A-Za-z0-9._:-]*)#sha256:[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

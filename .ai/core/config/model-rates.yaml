@@ -1,0 +1,4 @@
+schema_version: 1
+last_updated: "2026-05-08"
+rates:
+  - "local-p0-fixture@1: kata-fixture, zero-rate fixture entry for P0 workflow budget checks"

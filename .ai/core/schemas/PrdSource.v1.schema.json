@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PrdSource@1",
+  "title": "PRD Source",
+  "description": "The input source for a PRD, design document, or Lanhu/Axure prototype URL used to generate test cases.",
+  "type": "object",
+  "required": ["kind"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "type": "string",
+      "description": "The type of PRD source.",
+      "enum": ["lanhu_url", "prd_file", "fixture"]
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "The URL when kind is lanhu_url."
+    },
+    "path": {
+      "type": "string",
+      "description": "The local file path when kind is prd_file."
+    },
+    "fixture_name": {
+      "type": "string",
+      "description": "The fixture name when kind is fixture."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "lanhu_url" } } },
+      "then": { "required": ["url"] }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "prd_file" } } },
+      "then": { "required": ["path"] }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "fixture" } } },
+      "then": { "required": ["fixture_name"] }
+    }
+  ]
+}

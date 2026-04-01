@@ -1,0 +1,16 @@
+schema_ref: AutomationIntent@1
+case_id: case-datasource-create-sparkthrift-doris
+title: Create SparkThrift and Doris datasources with type-specific fields
+automation_status: ready
+entry_page_hint: dataAssets datasource management
+data_setup:
+  - login as datasource manager
+visible_assertions:
+  - SparkThrift required fields are visible after selecting SparkThrift.
+  - Doris required fields are visible after selecting Doris.
+stable_text_anchors:
+  - SparkThrift
+  - Doris
+pending_blockers: []
+source_refs:
+  - lanhu.fixture:datasource-form#sha256:947d4c2d1db745733c0ee6905724af4e92b9bf94952a017a915b8afa4ca7694f

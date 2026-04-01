@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "BlockedEnvelope@1",
+  "type": "object",
+  "required": ["schema_version", "status", "items", "summary", "must_not_bypass_without_envelope"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["needs_confirmation", "invalid_input", "needs_project_selection"]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "type", "question"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "severity": {
+            "type": "string",
+            "enum": ["blocking_unknown", "defaultable_unknown", "invalid_input"]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "field_enum",
+              "navigation_path",
+              "permission_role",
+              "data_source",
+              "button_name",
+              "missing_writer_input",
+              "project_ambiguous",
+              "environment_blocker",
+              "consent_required",
+              "other"
+            ]
+          },
+          "question": { "type": "string", "minLength": 1 },
+          "recommended_option": { "type": "string" },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "description"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "description": { "type": "string", "minLength": 1 },
+                "reason": { "type": "string" }
+              }
+            }
+          },
+          "context": { "type": "string" }
+        }
+      }
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "must_not_bypass_without_envelope": { "type": "boolean", "const": true }
+  }
+}

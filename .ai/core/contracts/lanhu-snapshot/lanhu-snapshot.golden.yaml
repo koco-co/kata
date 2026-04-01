@@ -1,0 +1,11 @@
+schema_ref: LanhuAxureSnapshot@1
+id: lanhu-datasource-snapshot
+title: SparkThrift and Doris datasource form
+source_ref: lanhu.fixture:datasource-form#sha256:947d4c2d1db745733c0ee6905724af4e92b9bf94952a017a915b8afa4ca7694f
+pages:
+  - datasource creation
+observed_text:
+  - SparkThrift
+  - Doris
+interaction_hints:
+  - datasource type changes visible required fields

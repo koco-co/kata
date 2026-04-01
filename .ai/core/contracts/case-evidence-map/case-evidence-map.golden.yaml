@@ -1,0 +1,10 @@
+schema_ref: CaseEvidenceMap@1
+case_id: case-datasource-create-sparkthrift-doris
+coverage_matrix_ids:
+  - cm-datasource-type-fields
+requirement_atom_ids:
+  - atom-datasource-type-fields
+assertions:
+  - SparkThrift and Doris show different required connection fields.
+source_refs:
+  - lanhu.fixture:datasource-form#sha256:947d4c2d1db745733c0ee6905724af4e92b9bf94952a017a915b8afa4ca7694f

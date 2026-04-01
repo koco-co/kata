@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "UiRunTriage@1",
+  "type": "object",
+  "required": ["schema_ref", "classification", "evidence", "next_action"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_ref": { "type": "string", "const": "UiRunTriage@1" },
+    "classification": { "type": "string" },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "next_action": { "type": "string" }
+  }
+}
