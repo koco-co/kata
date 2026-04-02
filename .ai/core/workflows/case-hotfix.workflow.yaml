@@ -1,0 +1,64 @@
+id: case-hotfix@1
+schema_ref: WorkflowContract@1
+entry_skill: case-hotfix@1
+failure_mode: staged_until_final_success
+inputs:
+  request:
+    kind: request
+    required: true
+  project:
+    kind: workspace_id
+    required: false
+budgets:
+  total_run_budget_tokens: 16000
+  total_run_budget_usd_cents: 80
+  aggregation_budget_tokens: 2000
+  rate_card_ref: local-ga-core@1
+black_box_fixtures:
+  - .ai/core/evals/workflows/case-hotfix/happy-path.json
+steps:
+  - id: intake
+    uses: agent:case-hotfix-worker@1
+    prompt: case-hotfix-prompt@1
+    output_schema: BugRecord@1
+    input_patterns:
+      zentao_url: "regex:bug-view-\\d+"
+      bare_id: "regex:^\\d+$"
+      partial: "other_text_with_id"
+    behavior: auto_extract_or_ask
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: false
+  - id: resolve_bug_source
+    requires:
+      - intake
+    output_schema: ResolvedBugSource@1
+  - id: identify_fix_scope
+    requires:
+      - resolve_bug_source
+    output_schema: FixScope@1
+  - id: map_regression_risk
+    requires:
+      - identify_fix_scope
+    output_schema: RegressionRiskMap@1
+  - id: draft_cases
+    requires:
+      - map_regression_risk
+    output_schema: HotfixCaseBundle@1
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_skip: ["fix_scope_analysis"]
+      must_use_blocked_envelope: true
+  - id: review_cases
+    requires:
+      - draft_cases
+    gates:
+      - notes.exists
+  - id: output
+    requires:
+      - review_cases
+    gates:
+      - archive.exists
+      - notify_plugin: kata plugin-loader notify --event case-hotfix-completed --data '{}' || true
+failure_policy:
+  missing_evidence: ask_one_clarifying_question

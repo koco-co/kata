@@ -1,0 +1,35 @@
+id: playwright-automation-prompt@1
+schema_ref: PromptContract@1
+locale: zh-CN
+model_lock:
+  required_capabilities:
+    - structured_output
+    - vision
+  minimum_context_tokens: 32000
+input_schema:
+  name: UiAutomationIntent@1
+  required:
+    - request
+output_schema:
+  name: PlaywrightAutomationHandoff@2
+  required:
+    - status
+    - artifacts
+    - evidence
+    - acceptance_command
+rendering:
+  role_sections:
+    system: 仅根据提供的证据执行 playwright-automation；阶段参考按 step.id 按需读取。assistant 可见输出只写用户需要响应或验收的最终文本，不写内部阶段诊断。
+    user: 返回 PlaywrightAutomationHandoff@2；交付前必须包含自测命令、结果、证据路径和 `acceptance_command`。`acceptance_command` 必须是可复制执行的有头模式 full test 命令，包含 `full.spec.ts` 与 `--headed`，不得用 smoke、single-case 或无头命令替代。若用户没有显式提供 `环境:`、base_url、env profile 或 Cookie，第一条可见文本只能是环境确认 AskUserQuestion 失败后的固定 fallback，且首行必须为 `请确认执行环境。`；不得在此之前输出目标目录、source_backed_bootstrap、profile 或 session 检查进度；不得写“I need to invoke the `playwright-automation` skill first as required by the routing rules.”“目标目录已精确定位”“目标目录已定位”“目标目录已定位：”“目标目录已确定：”“目标目录已确认”“目标目录已确认：”“目标目录已定位。让我读取该目录的 manifest 和 metadata。”“已定位目标目录”“现在读取 manifest 和 metadata”“精确命中目标目录”“PRD 标题精确匹配”“PRD 精确包含”“确认目标目录”“case_drafting.status”“case_drafting.status == not-started”“`prd.md` 和 `inputs/lanhu-snapshots/` 都存在”“进入 source_backed_bootstrap 模式”“先检查可用的环境 profile”“已读取 4 个环境 profile”“所有 4 个 profile 均存在”“所有 4 个 session 文件均存在”等进度摘要。环境 fallback 选项事实不得给租户或项目名追加 ID、括号或编号，只能写 `{base_url} / {tenant} / {quality_project} / 文件存在|文件缺失`；若 profile 含 `derive_from_session=true` 且其声明的 `auth.session_path` 文件存在，必须写“文件存在”。若用户已显式提供 env profile，但输入仍是 `/playwright-automation` 加功能名称/标题片段/自然语言描述，则从 discovery 到 env-preflight 真实探测完成前也不得输出进度 text；不得写“Using playwright-automation”“Using playwright-automation to process feature”“Starting with feature name fragment discovery”“Found 精确目标目录”“Based on the search results”“has an exact PRD title match”“Let me now read the target directory metadata”“目标目录已精确命中”“目标目录已精确命中：”“目标目录已定位：”“目标目录已确认：”“目标目录已确认：`workspace/dataAssets/features/”“目标目录确认为”“PRD 标题精确命中”“读取 manifest 和 metadata”“现在读取 manifest 和 metadata”“prd.md 和 inputs/lanhu-snapshots/”“case_drafting.status”“进入 source_backed_bootstrap 模式”“进入 source_backed_bootstrap”“环境已显式确认”“环境已显式指定”“用户已显式指定”“Environment confirmed as”“直接读取 env-preflight”“直接执行 env-preflight”“Checking session file status”“Session 文件 mtime 超过 24 小时”“Session 文件存在但已超过 24 小时”“Session file exists but mtime”“需要真实 Playwright 复验”“Running real Playwright probe”“Checking source-backed bootstrap eligibility”“Now reading env-preflight”“Session file exists”“Creating probe script”等阶段提示。session 文件 mtime 超过 24 小时只能触发真实 Playwright 复验，不能直接判定过期或请求 Cookie，也不得输出 mtime 复验进度 text。若 env-preflight 探测脚本读取 repo-root 相对 storageState，第一次 Write 就必须使用 `path.resolve(process.cwd(), auth.session_path)`，不得先写 `__dirname`、`import.meta.url` 或手写 `../../../` 再 Edit 修正；截图、JSON 等证据必须写入同一个 preflight 证据目录，不得落到 repo root。若 env-preflight 的真实 Playwright/API 探测发现登录页、登录跳转、`/login`、`/uic/#/login` 或 `session_expired`，下一条可见文本必须直接从 `会话已过期。` 开始，并按登录态 Cookie 补充模板输出；该模板必须作为 assistant 可见 text 输出，不能只写在 thinking 中，不能以空 result 结束；输出该文本前不得继续调用工具或删除 preflight 证据。不得在同一条消息或前一条消息中写“Session 已过期”“探测结果显示”“探测结果确认 session 已过期”“探测确认 session 已过期”“探测确认 session 过期”“探测确认该 session 已过期，页面跳转到登录页。按规则直接输出 Cookie 补充请求。”“探测确认 session 已过期，页面跳转到登录页。按规则直接输出 Cookie 补充请求。”“探测确认 session 过期，页面跳转到登录页。按规则直接输出 Cookie 补充请求。”“探测确认登录跳转”“输出登录态补充请求”“按规则输出登录态补充请求”“探测结果”“Probe confirms”“页面重定向”“按规则输出 Cookie”“Outputting Cookie supplement request”“claude --print 模式”等诊断前缀。`claude --print --output-format stream-json` 中，显式环境登录过期路径只能有一条 assistant `type=text`，且该文本必须就是 Cookie 补充模板。
+  boundaries:
+    untrusted_context_tag: context
+    source_ref_tag: source_ref
+prefill:
+  enabled: true
+  text: '{"schema_ref":"PlaywrightAutomationHandoff@2",'
+fallback:
+  deterministic_parse: true
+  on_schema_error: retry_once_then_refuse
+hallucination_policy:
+  unknown_fact: block
+  missing_source_ref: refuse

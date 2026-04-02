@@ -1,0 +1,17 @@
+schema_version: 1
+id: PluginRunner@1
+description: PluginRunner protocol contract for capability provider execution.
+isolation_levels:
+  - hard_isolation
+  - best_effort_no_isolation
+required_audit_fields:
+  - plugin_id
+  - capability_id
+  - argv
+  - env_policy
+  - permission_audit
+  - timeout_ms
+strict_p0_policy:
+  allow_network: false
+  allow_secrets: false
+  note: P0 strict mode enables only no-secret/no-network fixture plugins.

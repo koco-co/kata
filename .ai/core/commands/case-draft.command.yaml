@@ -1,0 +1,4 @@
+id: case-draft
+skill: case-draft@1
+user_invocable: true
+summary: 根据需求文档、PRD 或设计源生成 QA 测试用例。

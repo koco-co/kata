@@ -1,0 +1,41 @@
+id: case-hotfix-prompt@1
+schema_ref: PromptContract@1
+locale: zh-CN
+model_lock:
+  required_capabilities:
+    - structured_output
+  minimum_context_tokens: 16000
+input_schema:
+  name: GeneratingHotfixCasesInput@1
+  required:
+    - request
+output_schema:
+  name: GeneratingHotfixCasesOutput@1
+  required:
+    - result
+    - pending_items
+rendering:
+  role_sections:
+    system: 仅根据提供的证据执行 case-hotfix；输出目标是可直接执行的 Hotfix 回归用例 archive，不是缺陷分析报告。
+    user: 返回结构化结果，未解决的事实放入 pending_items。archive 必须只生成 1 条 Hotfix 用例，并沿用历史 Hotfix 格式：frontmatter、模块层级、前置条件、用例步骤表；md 不得包含 SourceRefs 或 bug.record 引用，证据只写同名 .source_refs.json。frontmatter 必须包含 zentao_url；keywords 第 6 段写具体问题原因。前置条件统一放入单个无语言标记代码块，SQL 不写固定库名/schema 前缀。
+  boundaries:
+    untrusted_context_tag: context
+    source_ref_tag: source_ref
+prefill:
+  enabled: true
+  text: '{"result":'
+fallback:
+  deterministic_parse: true
+  on_schema_error: retry_once_then_refuse
+hallucination_policy:
+  unknown_fact: put_in_pending_items
+  missing_source_ref: refuse
+model_routing:
+  primary:
+    provider: anthropic
+    model_id: claude-sonnet-4-6
+    fallback_strategy: refuse_with_budget_report
+  fallback:
+    - provider: anthropic
+      model_id: claude-haiku-4-5-20251001
+      condition: budget_low

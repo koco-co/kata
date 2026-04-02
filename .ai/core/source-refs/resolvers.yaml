@@ -1,0 +1,29 @@
+resolvers:
+  - id: prd.file@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotFileRef
+    mutable_source: true
+    stale_hash_policy: block
+  - id: command.output@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotCommandOutputRef
+    mutable_source: true
+    stale_hash_policy: block
+  - id: knowledge.entry@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotKnowledgeEntryRef
+    mutable_source: true
+    stale_hash_policy: block
+  - id: repo.line@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotRepoLineRef
+    mutable_source: true
+    stale_hash_policy: block
+  - id: case.archive@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotCaseArchiveRef
+    mutable_source: true
+    stale_hash_policy: block
+  - id: workspace.config@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotWorkspaceConfigRef
+    mutable_source: true
+    stale_hash_policy: block
+  - id: lanhu.fixture@1
+    implementation: engine/src/source-ref/resolvers.ts#snapshotLanhuFixtureRef
+    mutable_source: true
+    stale_hash_policy: block

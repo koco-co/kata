@@ -1,0 +1,4 @@
+id: bug-file
+skill: bug-file@1
+user_invocable: true
+summary: 根据观察到的失败现象生成有证据支持的 bug 报告。

@@ -1,0 +1,14 @@
+schema_version: 1
+id: AgentRunner@1
+description: AgentRunner protocol contract for worker/reviewer dispatch.
+runner_kinds:
+  - worktree_patch
+  - read_only
+required_audit_fields:
+  - sandbox_kind
+  - base_revision
+  - pre_run_diff_hash
+  - post_run_diff_audit
+apply_policy: parent_only_integration
+cancel_policy: cancel_on_exception
+rollback_policy: git_reset_hard

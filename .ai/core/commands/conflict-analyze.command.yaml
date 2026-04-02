@@ -1,0 +1,4 @@
+id: conflict-analyze
+skill: conflict-analyze@1
+user_invocable: true
+summary: 分析合并冲突并生成解决方案说明。

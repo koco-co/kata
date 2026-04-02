@@ -1,0 +1,4 @@
+id: case-edit
+skill: case-edit@1
+user_invocable: true
+summary: 编辑、同步、转换或标准化已有 QA 用例产物。

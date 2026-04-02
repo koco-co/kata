@@ -1,0 +1,209 @@
+id: case-draft-from-prd@1
+schema_ref: WorkflowContract@1
+entry_skill: case-draft@1
+failure_mode: staged_until_final_success
+inputs:
+  prd:
+    kind: lanhu_url_or_file_or_fixture
+    required: true
+  source_consent:
+    kind: source_consent
+    required: false
+budgets:
+  total_run_budget_tokens: 24000
+  aggregation_budget_tokens: 6000
+  total_run_budget_usd_cents: 120
+  rate_card_ref: local-p0-fixture@1
+outputs:
+  - workspace/${project}/features/${feature_id}/enhanced.md
+  - workspace/${project}/features/${feature_id}/confirmation-package.md
+  - workspace/${project}/features/${feature_id}/archive.md
+  - workspace/${project}/features/${feature_id}/cases.xmind
+  - workspace/${project}/features/${feature_id}/archive.draft.md
+  - workspace/${project}/features/${feature_id}/unresolved-summary.md
+  - workspace/${project}/features/${feature_id}/manifest.json#automation
+black_box_fixtures:
+  - .ai/core/evals/workflows/case-draft-from-prd/happy-path.json
+steps:
+  - id: source-intake
+    uses: plugin:lanhu.design-source@1
+    output_schema: LanhuAxureSnapshot@1
+    input_patterns:
+      lanhu_url: accepted design source URL
+      axure_url: accepted Axure design source URL
+      prd_markdown: accepted Markdown PRD source
+      screenshot: accepted screenshot source
+      local_fixture: accepted local fixture source
+      user_feature_description: accepted freeform feature description source
+    output_slots:
+      - source_snapshot
+      - source_refs
+      - content_hashes
+      - page_hierarchy
+      - extracted_text
+      - component_hints
+      - interaction_hints
+    gates:
+      - source_snapshot.exists || source_snapshot.kind == "fixture"
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: false
+
+  - id: module-identify
+    output_schema: ModuleIdentity@1
+    requires:
+      - source_snapshot
+      - workspace_config
+      - repository_profiles
+      - project_knowledge
+    gates:
+      - project.resolved || feature_slug.startsWith("unresolved--")
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: false
+
+  - id: historical-context
+    output_schema: HistoricalContextPack@1
+    output:
+      repo_read_condition: source_consent.granted == true
+      no_consent_behavior: emit skipped HistoricalContextPack with scoping notes
+      allowed_scopes:
+        - workspace/${project}/knowledge/**
+        - workspace/${project}/features/**
+        - .kata/repos/${project}/**
+      repos:
+        must_read_only_repos: true
+        max_relevant_files_per_module: 3
+        search_by:
+          - module_name
+          - page_title_keywords
+          - field_labels
+    gates:
+      - historical_context.cannot_confirm_new_behavior
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: true
+      may_not_write: [".kata/repos/**"]
+
+  - id: requirement-atomize
+    ref: atomization-guide.md
+    outputs:
+      - manifest.json#case_drafting.requirement_atoms
+      - archive.md#section=requirement-atoms (rendered, not authoritative)
+    gates:
+      - requirement_atoms.all(atom => atom.source_refs.length > 0)
+      - requirement_atoms.all(atom => atom.evidence_kind in [product_confirmed, lanhu_observed, history_inferred, tester_assumption])
+
+  - id: ambiguity-scan
+    output_schema: AmbiguityScanReport@1
+    output:
+      scan_dimensions:
+        - data_source
+        - historical_data_impact
+        - test_scope
+        - prd_reasonableness
+        - field_definitions
+        - interaction_logic
+        - navigation_path
+        - state_transitions
+        - permission_control
+        - exception_handling
+    gates:
+      - requirement_atoms.all(atom => atom.ambiguity_class != null)
+      - requirement_atoms.all(atom => atom.confidence in [high, medium, low])
+
+  - id: confirmation-package
+    output_schema: ConfirmationPackage@1
+    output:
+      artifacts:
+        - workspace/${project}/features/${feature_id}/confirmation-package.md
+    gates:
+      - confirmation_questions.all(q => q.affected_atoms.length > 0)
+      - confirmation_questions.all(q => q.impact_if_unanswered != null)
+
+  - id: product-feedback-merge
+    output_schema: EnhancedPrd@1
+    iteration:
+      max_rounds: 3
+      back_to: ambiguity-scan
+      scope: affected_atoms_only
+    routing_signals:
+      product_feedback_iteration:
+        indicators:
+          - unanswered confirmation questions affect atoms
+          - product answers update prior assumptions
+        requires_all: false
+        behavior: repeat ambiguity-scan for affected_atoms_only, max_rounds 3
+    gates:
+      - product_answers.only_explicit_acceptance_sets_product_confirmed
+      - accepted_recommendations.all(a => a.basis != null)
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      must_use_blocked_envelope: true
+
+  - id: coverage-matrix
+    output_schema: CoverageMatrix@1
+    gates:
+      - coverage_matrix.all(item => item.requirement_atom_ids.length > 0)
+      - coverage_matrix.all(item => item.evidence_status in [confirmed, defaulted, inferred, pending, blocked])
+
+  - id: case-draft
+    uses: agent:case-draft-worker@1
+    prompt: designing-case-matrix@1
+    output_schema: DraftCaseSet@1
+    gates:
+      - kata cases validate ${feature_id} --project ${project} --check-source-refs prd.file,lanhu.fixture
+      - draft_cases.all(c => c.requirement_atom_ids.length > 0)
+      - draft_cases.none(c => c.steps.any(step => step.atom.ambiguity_class == "blocking_unknown"))
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: true
+      must_use_blocked_envelope: true
+
+  - id: case-review
+    uses: agent:case-reviewer@1
+    output_schema: CaseReviewReport@1
+    gates:
+      - kata source-ref batch --refs-json ${source_refs_json}
+      - review.unsupported_claims == 0
+      - review.blocking_unknown_in_final_steps == 0
+      - review.history_inferred_as_product_confirmed == 0
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: true
+      must_use_blocked_envelope: true
+
+  - id: output
+    output:
+      always:
+        - workspace/${project}/features/${feature_id}/enhanced.md
+        - workspace/${project}/features/${feature_id}/confirmation-package.md
+      when_zero_blocking:
+        - workspace/${project}/features/${feature_id}/archive.md
+        - workspace/${project}/features/${feature_id}/cases.xmind
+      when_blocking_remain:
+        - workspace/${project}/features/${feature_id}/archive.draft.md
+        - workspace/${project}/features/${feature_id}/unresolved-summary.md
+    gates:
+      - enhanced.exists
+      - confirmation_package.exists
+      - blocking_pending.count == 0 ? archive.exists && xmind.exists : archive_draft.exists && unresolved_summary.exists
+      - notify_plugin: kata plugin-loader notify --event case-draft-from-prd-completed --data '{}' || true
+
+  - id: automation-handoff
+    ref: automation-handoff-spec.md
+    outputs:
+      - manifest.json#automation.intents
+      - archive.md#section=automation-handoff (rendered)
+    # No feature-root handoff Markdown; per-run handoff files are produced by playwright-automation.
+    gates:
+      - manifest.automation.intents.filter(i => i.automation_status == "ready").length > 0
+      - manifest.automation.intents.none(i => i.automation_status in ["deferred", "blocked"] and i.downstream_selected == true)
+aggregation:
+  aggregation_budget_tokens: 6000
+  default_read_mode: compressed_context
+allowed_next_actors:
+  - case-reviewer@1
+failure_policy:
+  missing_evidence: refuse_missing_evidence@1
+  budget_exhausted: refuse_with_budget_report

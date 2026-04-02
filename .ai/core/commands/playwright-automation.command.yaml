@@ -1,0 +1,4 @@
+id: playwright-automation
+skill: playwright-automation@1
+user_invocable: true
+summary: 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。

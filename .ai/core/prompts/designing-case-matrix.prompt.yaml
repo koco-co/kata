@@ -1,0 +1,54 @@
+id: designing-case-matrix@1
+schema_ref: PromptContract@1
+locale: zh-CN
+model_lock:
+  required_capabilities:
+    - structured_output
+    - long_context
+  minimum_context_tokens: 32000
+input_schema:
+  name: DesigningCaseMatrixInput@1
+  required:
+    - requirement_text
+    - source_refs
+output_schema:
+  name: DesigningCaseMatrixOutput@1
+  required:
+    - cases
+    - pending_items
+rendering:
+  role_sections:
+    system: 你仅根据提供的需求生成有依据的 QA 测试用例。
+    user: 使用提供的 ContextEnvelope 和 SourceRef ID。不要依赖记忆或示例作为事实。
+  boundaries:
+    untrusted_context_tag: context
+    source_ref_tag: source_ref
+prefill:
+  enabled: true
+  text: '{"cases":'
+fallback:
+  deterministic_parse: true
+  on_schema_error: retry_once_then_refuse
+hallucination_policy:
+  unknown_fact: put_in_pending_items
+  missing_source_ref: refuse
+few_shots:
+  - id: minimal-case-row@1
+    purpose: format_only
+    content: '{"module":"login","scenario":"valid credentials","source_refs":["prd.file:demo#sha256:example"]}'
+cache_breakpoints:
+  - id: kata-system
+    after: system
+    min_tokens: 1024
+  - id: kata-context
+    after: context
+    min_tokens: 4096
+model_routing:
+  primary:
+    provider: anthropic
+    model_id: claude-sonnet-4-6
+    fallback_strategy: refuse_with_budget_report
+  fallback:
+    - provider: anthropic
+      model_id: claude-haiku-4-5-20251001
+      condition: budget_low

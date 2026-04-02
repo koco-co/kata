@@ -1,0 +1,4 @@
+id: case-hotfix
+skill: case-hotfix@1
+user_invocable: true
+summary: 根据 bug 或修复记录生成 hotfix 回归用例。

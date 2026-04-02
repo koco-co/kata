@@ -1,0 +1,60 @@
+id: conflict-analyze@1
+schema_ref: WorkflowContract@1
+entry_skill: conflict-analyze@1
+failure_mode: staged_until_final_success
+inputs:
+  request:
+    kind: request
+    required: true
+  project:
+    kind: workspace_id
+    required: false
+budgets:
+  total_run_budget_tokens: 16000
+  total_run_budget_usd_cents: 80
+  aggregation_budget_tokens: 2000
+  rate_card_ref: local-ga-core@1
+black_box_fixtures:
+  - .ai/core/evals/workflows/conflict-analyze/happy-path.json
+steps:
+  - id: intake
+    uses: agent:conflict-analyze-worker@1
+    prompt: conflict-analyze-prompt@1
+    output_schema: ConflictSource@1
+    routing_signals:
+      has_conflict_markers:
+        indicators: ["<<<<<<< HEAD", "=======", ">>>>>>>"]
+        requires_all: true
+      ambiguous:
+        behavior: ask_user_for_complete_block
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: false
+  - id: parse_conflict
+    requires:
+      - intake
+    output_schema: ParsedConflict@1
+  - id: classify_conflict
+    requires:
+      - parse_conflict
+    output_schema: ConflictClassification@1
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      must_use_blocked_envelope: true
+  - id: explain_sides
+    requires:
+      - classify_conflict
+    output_schema: ConflictSidesExplanation@1
+  - id: propose_resolution
+    requires:
+      - explain_sides
+    output_schema: ResolutionProposal@1
+  - id: validate_resolution
+    requires:
+      - propose_resolution
+    gates:
+      - resolution_proposal.exists
+      - conflict_markers_resolved == true || user_asked_to_keep
+      - notify_plugin: kata plugin-loader notify --event conflict-analyze-completed --data '{}' || true
+failure_policy:
+  missing_evidence: ask_one_clarifying_question

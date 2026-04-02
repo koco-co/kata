@@ -1,0 +1,13 @@
+scan:
+  roots:
+    - .agents/**
+    - .claude/**
+    - AGENTS.md
+    - CLAUDE.md
+    - GEMINI.md
+  dispositions:
+    - generated
+    - copied_vendor
+    - local_exception
+    - deleted
+  non_core_legacy:
