@@ -1,0 +1,59 @@
+schema_version: 1
+created_at: "2026-05-08"
+reviewed_at: "2026-05-08"
+assets:
+  - id: ai-core-contracts
+    path: .ai/core/**
+    description: AI 工作流真相源，定义技能、代理、工作流、插件合约。
+  - id: project-workspace
+    path: workspace/{project}/**
+    description: 项目工作区，包含产物和知识库。
+  - id: read-only-repos
+    path: .kata/repos/{project}/**
+    description: 只读源仓库，kata 工作流不得写入或提交。
+  - id: runtime-projections
+    path: .claude/** | .agents/** | CLAUDE.md | AGENTS.md
+    description: 运行时投影文件，从 .ai/core 生成。
+trust_boundaries:
+  - id: ai-core-source-of-truth
+    description: .ai/core/ 是唯一真相源；投影文件不得包含 .ai/core 之外的逻辑。
+  - id: workspace-isolation
+    description: 每个项目的 workspace/ 隔离；跨项目访问需要显式授权。
+  - id: repo-read-only
+    description: .kata/repos/{project}/ 下源仓库为只读；kata 代理和插件不得写入。
+risks:
+  - id: runtime.prompt_drift
+    description: 运行时提示与 .ai/core 契约不同步。
+    controls:
+      - projection_hash_preflight
+      - projection_inventory_check
+      - overlay_expiry
+    accepted_residual: false
+  - id: prompt_injection.grounded_inputs
+    description: 通过用户 PRD、仓库内容或命令输出注入的提示。
+    controls:
+      - context_envelope_delimiters
+      - source_ref_provenance
+      - write_policy_path_gates
+    accepted_residual: false
+  - id: worker.writes_outside_scope
+    description: 工作代理写入声明路径之外。
+    controls:
+      - agent_runner_sandbox
+      - diff_audit
+      - parent_only_integration
+    accepted_residual: false
+  - id: plugin.secret_leak
+    description: 插件通过日志、stderr 或未清理的输出泄露密钥。
+    controls:
+      - env_policy_secrets_strip_all
+      - permission_audit
+      - best_effort_no_isolation_trusted_builtin_only
+    accepted_residual: false
+accepted_residual_risks:
+  - id: plugin.best_effort_not_boundary
+    statement: "静态和 best_effort_no_isolation 插件不是安全边界。P0 仅将其用于严格发布模式下无秘密/无网络的 fixture 流程。"
+    owner: ai-core-maintainers
+    reviewed_at: "2026-05-08"
+    next_review_due: "2026-08-08"
+    release_constraint: "仅允许用于无秘密/无网络的 fixture 流程"

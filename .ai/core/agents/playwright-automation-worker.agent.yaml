@@ -1,0 +1,25 @@
+# 执行 Playwright UI 自动化的归一化、规划、探测、生成、运行、归因和修复闭环。
+id: playwright-automation-worker@1
+schema_ref: AgentContract@1
+role: worker
+runner: local
+write_capability: staged_artifacts_only
+allowed_tools:
+  - read_file
+  - write_artifact
+  - run_command
+  - ask_user
+read_scope:
+  - .ai/core/**
+  - workspace/**
+  - .agents/skills/playwright-cli/**
+  - .claude/skills/playwright-cli/**
+write_scope:
+  - workspace/**
+forbidden_scope:
+  - .kata/repos/**
+handoff_schema: PlaywrightAutomationHandoff@2
+review_gates:
+  - env-preflight.before_browser
+  - ui-probe.before_generation
+  - self-run.before_handoff
