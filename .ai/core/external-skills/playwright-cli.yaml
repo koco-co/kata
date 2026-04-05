@@ -1,0 +1,22 @@
+id: playwright-cli
+canonical_name: playwright-cli
+kind: vendor-skill
+source:
+  install_command:
+    - npx
+    - skills
+    - add
+    - https://github.com/microsoft/playwright-cli
+    - --skill
+    - playwright-cli
+  upstream_repo: https://github.com/microsoft/playwright-cli
+  pin: 3a1bafc8b4e973c72d0364eb5b427d1ce0aa8317
+freeze:
+  manifest: .ai/vendor-skills/playwright-cli/manifest.yaml
+  manifest_hash: sha256:195b5fef32745bd9ffe2a58732f254f943794b252d93126e957166a545cf1d54
+  artifact_root: .ai/vendor-skills/playwright-cli/files
+projection:
+  preserve_byte_for_byte: true
+  runtimes:
+    - claude
+    - codex
