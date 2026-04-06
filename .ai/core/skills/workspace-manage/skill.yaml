@@ -1,0 +1,70 @@
+id: workspace-manage@1
+name: workspace-manage
+kind: product-skill
+schema_version: 1
+skill_version: 1
+status: active
+description:
+  summary: kata 功能菜单，与工作区的创建、初始化、自检及收尾。
+  must_trigger_when:
+    - 用户询问 kata 的能力、功能菜单、帮助内容或命令列表。
+    - 用户要求创建、初始化、自检、收尾或修复 kata 项目工作区。
+  must_not_trigger_when:
+    - 用户希望生成 QA 测试用例，或编辑已有用例。
+    - 用户希望维护项目知识、扫描代码变更，或做 UI 自动化。
+outputs:
+  - menu
+  - workspace
+inputs:
+  project:
+    required: false
+    kind: workspace_id
+  request:
+    required: true
+    kind: request
+allowed_tools:
+  - read_file
+  - write_artifact
+  - ask_user
+context_budget:
+  core_tokens: 900
+  reference_tokens: 5000
+  evidence_tokens: 8000
+  overflow_policy:
+    order:
+      - informative_references
+      - few_shots
+      - evidence_context
+      - normative_references
+    preserve:
+      - hard_rules
+      - failure_policy
+      - evidence
+    on_overflow: summarize_then_drop_lowest_priority
+body:
+  always_load:
+    routing_summary:
+      - 统管 kata 项目工作区，确保产物落入预期位置。
+    hard_rules:
+      - 所有生成的产物，写入 workspace/{project}/ 之下。
+      - .kata/repos/{project}/** 为只读源仓库，详见 .ai/core/rules/repo-readonly.md。
+references:
+  - path: references/project-layout.md
+    type: normative
+    generated_from: body.always_load.hard_rules
+    load_phases:
+      - inspect_workspace
+      - plan_change
+      - stage_workspace_update
+      - verify_workspace
+    purpose: 自检、创建或修复工作区时，先厘清目录边界与写入位置。
+    load_when: step.id in [inspect_workspace, plan_change, stage_workspace_update, verify_workspace] and outputs.ids contains workspace
+evidence:
+  source_refs_required: true
+  distinguish_fact_inference_assumption: true
+  required_source_refs:
+    - workspace.config@1
+  stale_ref_policy: block
+failure_policy:
+  missing_project: ask_one_clarifying_question
+  unsafe_workspace_path: refuse

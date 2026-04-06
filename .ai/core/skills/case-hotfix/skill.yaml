@@ -1,0 +1,82 @@
+id: case-hotfix@1
+name: case-hotfix
+kind: product-skill
+schema_version: 1
+skill_version: 1
+status: deprecated
+description:
+  summary: 依据已知 bug、issue 记录或修复说明，产出聚焦于修复路径的 hotfix 回归用例。
+  must_trigger_when:
+    - 用户给出 bug ID、issue URL、缺陷描述或修复说明。
+    - 用户希望为已修复的缺陷补足回归覆盖。
+  must_not_trigger_when:
+    - 用户要求基于原始失败证据撰写通用 bug 报告。
+    - 用户希望对完整 PRD 产出测试用例。
+outputs:
+  - archive
+  - notes
+inputs:
+  report:
+    required: true
+    kind: file_or_text
+  project:
+    required: false
+    kind: workspace_id
+allowed_tools:
+  - read_file
+  - write_artifact
+  - ask_user
+context_budget:
+  core_tokens: 900
+  reference_tokens: 5000
+  evidence_tokens: 8000
+  overflow_policy:
+    order:
+      - informative_references
+      - few_shots
+      - evidence_context
+      - normative_references
+    preserve:
+      - hard_rules
+      - failure_policy
+      - evidence
+    on_overflow: summarize_then_drop_lowest_priority
+body:
+  always_load:
+    routing_summary:
+      - 以 bug 记录为输入，产出聚焦修复路径的 hotfix 回归用例。
+    hard_rules:
+      - Hotfix archive 必须只包含 1 条用例；不要拆成多条回归用例或完整套件。
+      - 用这一条用例覆盖修复路径本身；相邻回归风险点只能合并为同一条用例内的必要步骤或预期检查。
+      - 范围未定的问题一律入 pending_items，不得擅自外延。
+      - Hotfix 输出必须是可直接执行的 archive.md，不得只输出缺陷分析报告、原因说明或自然语言总结。
+      - Hotfix md 不得包含 SourceRefs、bug.record@N、[bug.record@N] 或任何 SourceRef 引用；md 只保留人类可读用例内容。
+      - Hotfix 必须输出为独立目录；目录名为 hotfix_{fix_branch_or_bug_id}-{short-title}，目录内只保留一个 archive.md、必要 JSON 文件和 .temp/。
+      - SourceRefs 只能写入 hotfix 目录内的 source_refs.json；不得使用散落在 issues 目录下的同名 .source_refs.json。
+      - 原始抓取证据必须写入 hotfix 目录内的 .temp；不得写入仓库根级 workspace/.temp，也不得写入 .kata 作为该 Hotfix 的交付证据目录。
+      - frontmatter 必须包含 zentao_url；keywords 第 6 段必须写证据中的具体问题原因，不得写“代码缺陷”等泛化原因。
+      - 前置条件必须使用单个无语言标记的代码块；部署包、权限、数据准备、SQL 都放入该代码块，不得使用 ```sql。
+      - 前置条件必须优先给出可复制执行的 SQL；涉及特定数据状态时必须同时包含建表语句和插入语句。
+      - SQL 不得写固定库名/schema 前缀；数据库选择写成前置条件说明，SQL 直接使用裸表名。
+      - Spark SQL 不得生成所有字段均为分区字段的 CREATE TABLE；Spark 会因 ALL_PARTITION_COLUMNS_NOT_ALLOWED 拒绝执行，必须改为 Hive CLI / HMS / 已有数据源预置该边界表。
+      - 主缺陷复现表必须保持证据要求的特殊数据形态；不得为了让 SQL 在 Spark 中通过而添加普通字段，也不得用相邻回归表替代主复现场景。
+      - Archive 结构必须沿用历史 Hotfix 产物：frontmatter、模块层级、前置条件、用例步骤表。
+references:
+  - path: references/hotfix-archive-format.md
+    type: normative
+    generated_from: workspace/dataAssets/_shared/rules/hotfix-*.md and historical Hotfix archives
+    load_phases:
+      - draft_cases
+      - review_cases
+      - output
+    purpose: Apply executable Hotfix archive format, prerequisite SQL, and historical case layout before writing or reviewing archive output.
+    load_when: outputs.ids contains archive
+evidence:
+  source_refs_required: true
+  distinguish_fact_inference_assumption: false
+  required_source_refs:
+    - bug.record@1
+  stale_ref_policy: block
+failure_policy:
+  missing_bug_context: ask_one_clarifying_question
+  ambiguous_fix_scope: produce_pending_items

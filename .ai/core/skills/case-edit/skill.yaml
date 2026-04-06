@@ -1,0 +1,70 @@
+id: case-edit@1
+name: case-edit
+kind: product-skill
+schema_version: 1
+skill_version: 1
+status: active
+description:
+  summary: 对已有 QA 用例产物进行编辑、同步、标准化或格式间转换。
+  must_trigger_when:
+    - 用户希望对已有测试用例做修改、编辑、同步、标准化、归档或格式转换。
+    - 用户给出 XMind、CSV 或既有 Archive MD 用例产物的路径。
+  must_not_trigger_when:
+    - 用户希望依 PRD 或需求源产出新的测试用例。
+    - 用户希望基于已有用例创建或运行 Playwright 自动化。
+outputs:
+  - archive
+  - xmind
+  - normalized
+inputs:
+  artifact:
+    required: true
+    kind: file
+  project:
+    required: false
+    kind: workspace_id
+allowed_tools:
+  - read_file
+  - write_artifact
+  - ask_user
+context_budget:
+  core_tokens: 900
+  reference_tokens: 5000
+  evidence_tokens: 8000
+  overflow_policy:
+    order:
+      - informative_references
+      - few_shots
+      - evidence_context
+      - normative_references
+    preserve:
+      - hard_rules
+      - failure_policy
+      - evidence
+    on_overflow: summarize_then_drop_lowest_priority
+body:
+  always_load:
+    routing_summary:
+      - 编辑或同步用例产物——语义不变是底线。
+    hard_rules:
+      - 编辑或同步用例时，原有语义须完整保留。
+      - 缺失的前置条件、步骤或预期结果，不得凭空补造。
+references:
+  - path: references/archive-xmind-sync.md
+    type: normative
+    generated_from: body.always_load.hard_rules
+    load_phases:
+      - plan_edit
+      - preview_diff
+      - output
+    purpose: 规划编辑、预览差异或导出用例时，保持 Archive 与 XMind 之间的一致性。
+    load_when: step.id in [plan_edit, preview_diff, output] and outputs.ids contains archive
+evidence:
+  source_refs_required: true
+  distinguish_fact_inference_assumption: true
+  required_source_refs:
+    - case.archive@1
+  stale_ref_policy: block
+failure_policy:
+  missing_artifact: ask_for_file_path
+  ambiguous_edit: ask_one_clarifying_question

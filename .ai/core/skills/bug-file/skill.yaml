@@ -1,0 +1,58 @@
+id: bug-file@1
+name: bug-file
+kind: product-skill
+schema_version: 1
+skill_version: 1
+status: deprecated
+description:
+  summary: 把可复现的运行时错误、控制台失败、堆栈与 HTTP 失败等 bug 证据，整理为可执行的 bug 报告。
+  must_trigger_when:
+    - 用户给出异常堆栈、控制台错误、HTTP 失败或其他可复现的 bug 证据。
+    - 用户要求依据观察到的现象，撰写或结构化 bug 报告。
+  must_not_trigger_when:
+    - 用户提供的内容是需做冲突分析的合并冲突标记。
+    - 用户希望基于既有 bug 记录产出 hotfix 回归用例。
+outputs:
+  - report
+inputs:
+  clue:
+    required: true
+    kind: file_or_text
+  project:
+    required: false
+    kind: workspace_id
+allowed_tools:
+  - read_file
+  - write_artifact
+  - ask_user
+context_budget:
+  core_tokens: 900
+  reference_tokens: 5000
+  evidence_tokens: 8000
+  overflow_policy:
+    order:
+      - informative_references
+      - few_shots
+      - evidence_context
+      - normative_references
+    preserve:
+      - hard_rules
+      - failure_policy
+      - evidence
+    on_overflow: summarize_then_drop_lowest_priority
+body:
+  always_load:
+    routing_summary:
+      - 把失败证据收束为结构化 bug 报告——凡无证据者，一律不入文。
+    hard_rules:
+      - 实际行为、预期行为、复现步骤、影响范围——四者须分项陈述，不得合并。
+      - 缺乏证据时，不得凭空虚构日志、负责人、模块或根因。
+evidence:
+  source_refs_required: true
+  distinguish_fact_inference_assumption: false
+  required_source_refs:
+    - bug.evidence@1
+  stale_ref_policy: block
+failure_policy:
+  missing_reproduction: ask_one_clarifying_question
+  insufficient_evidence: produce_pending_items

@@ -1,0 +1,59 @@
+id: conflict-analyze@1
+name: conflict-analyze
+kind: product-skill
+schema_version: 1
+skill_version: 1
+status: deprecated
+description:
+  summary: 分析源代码或文档的合并冲突，产出面向解决方案的冲突报告。
+  must_trigger_when:
+    - 用户给出带有合并冲突标记的文本。
+    - 用户要求剖析冲突成因、竞争性变更或可靠的解决路径。
+  must_not_trigger_when:
+    - 用户要求报告运行时 bug，但内容并不含冲突标记。
+    - 用户要求依需求生成新的 QA 用例。
+outputs:
+  - verdict
+  - remedy
+inputs:
+  conflict:
+    required: true
+    kind: file_or_text
+  project:
+    required: false
+    kind: workspace_id
+allowed_tools:
+  - read_file
+  - write_artifact
+  - ask_user
+context_budget:
+  core_tokens: 900
+  reference_tokens: 5000
+  evidence_tokens: 8000
+  overflow_policy:
+    order:
+      - informative_references
+      - few_shots
+      - evidence_context
+      - normative_references
+    preserve:
+      - hard_rules
+      - failure_policy
+      - evidence
+    on_overflow: summarize_then_drop_lowest_priority
+body:
+  always_load:
+    routing_summary:
+      - 剖析合并冲突——先陈述双方意图，再给出解决方案。
+    hard_rules:
+      - 给出解决方案之前，先陈述冲突双方各自的意图与依据。
+      - .kata/repos/{project}/** 为只读源仓库，详见 .ai/core/rules/repo-readonly.md。
+evidence:
+  source_refs_required: true
+  distinguish_fact_inference_assumption: false
+  required_source_refs:
+    - conflict.diff@1
+  stale_ref_policy: block
+failure_policy:
+  missing_conflict_markers: ask_for_file_path
+  unsafe_resolution: produce_pending_items
