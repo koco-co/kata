@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "workflow_id": "bug-file@1",
+  "command": "/bug-file",
+  "input": "页面白屏，控制台报错：TypeError: Cannot read properties of undefined (reading 'name') at Object.render (https://app.example.com/main.js:1:23456)",
+  "expected_first_stages": ["intake", "normalize_evidence"],
+  "forbidden_phrases": []
+}

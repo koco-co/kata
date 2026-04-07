@@ -1,0 +1,441 @@
+files:
+  - path: .agents/INDEX.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/commands
+  - path: .agents/skills/bug-file/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/bug-file/skill.yaml
+  - path: .agents/skills/case-draft/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/skill.yaml
+  - path: .agents/skills/case-draft/references/ambiguity-decision-tree.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/ambiguity-decision-tree.md
+  - path: .agents/skills/case-draft/references/atomization-guide.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/atomization-guide.md
+  - path: .agents/skills/case-draft/references/automation-handoff-spec.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/automation-handoff-spec.md
+  - path: .agents/skills/case-draft/references/case-review-evidence-gates.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/case-review-evidence-gates.md
+  - path: .agents/skills/case-draft/references/confirmation-package-template.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/confirmation-package-template.md
+  - path: .agents/skills/case-draft/references/coverage-matrix-guide.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/coverage-matrix-guide.md
+  - path: .agents/skills/case-draft/references/error-fallback-paths.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/error-fallback-paths.md
+  - path: .agents/skills/case-draft/references/execution-protocol.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/execution-protocol.md
+  - path: .agents/skills/case-draft/references/historical-context.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/historical-context.md
+  - path: .agents/skills/case-draft/references/module-identify.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .agents/skills/case-draft/references/quality-reviewer-prompt.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/quality-reviewer-prompt.md
+  - path: .agents/skills/case-draft/references/source-intake-protocol.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/source-intake-protocol.md
+  - path: .agents/skills/case-draft/references/spec-reviewer-prompt.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/spec-reviewer-prompt.md
+  - path: .agents/skills/case-draft/references/worker-prompt.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .agents/skills/case-edit/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-edit/skill.yaml
+  - path: .agents/skills/case-edit/references/archive-xmind-sync.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
+  - path: .agents/skills/case-hotfix/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-hotfix/skill.yaml
+  - path: .agents/skills/case-hotfix/references/hotfix-archive-format.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-hotfix/references/hotfix-archive-format.md
+  - path: .agents/skills/conflict-analyze/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/conflict-analyze/skill.yaml
+  - path: .agents/skills/diff-scan/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/diff-scan/skill.yaml
+  - path: .agents/skills/knowledge-curate/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/knowledge-curate/skill.yaml
+  - path: .agents/skills/knowledge-curate/references/knowledge-rules.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/knowledge-curate/references/knowledge-rules.md
+  - path: .agents/skills/playwright-automation/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/skill.yaml
+  - path: .agents/skills/playwright-automation/references/case-normalize.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/case-normalize.md
+  - path: .agents/skills/playwright-automation/references/env-preflight.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/env-preflight.md
+  - path: .agents/skills/playwright-automation/references/execution-protocol.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/execution-protocol.md
+  - path: .agents/skills/playwright-automation/references/handoff.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/handoff.md
+  - path: .agents/skills/playwright-automation/references/plan-reconcile.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/plan-reconcile.md
+  - path: .agents/skills/playwright-automation/references/playwright-generate.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/playwright-generate.md
+  - path: .agents/skills/playwright-automation/references/quality-gate.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/quality-gate.md
+  - path: .agents/skills/playwright-automation/references/quality-reviewer-prompt.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/quality-reviewer-prompt.md
+  - path: .agents/skills/playwright-automation/references/repair-loop.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/repair-loop.md
+  - path: .agents/skills/playwright-automation/references/run-triage.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/run-triage.md
+  - path: .agents/skills/playwright-automation/references/self-run.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/self-run.md
+  - path: .agents/skills/playwright-automation/references/spec-reviewer-prompt.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/spec-reviewer-prompt.md
+  - path: .agents/skills/playwright-automation/references/ui-plan.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/ui-plan.md
+  - path: .agents/skills/playwright-automation/references/ui-probe.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/ui-probe.md
+  - path: .agents/skills/playwright-automation/references/worker-prompt.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/worker-prompt.md
+  - path: .agents/skills/playwright-cli/SKILL.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/SKILL.md
+  - path: .agents/skills/playwright-cli/references/element-attributes.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/element-attributes.md
+  - path: .agents/skills/playwright-cli/references/playwright-tests.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/playwright-tests.md
+  - path: .agents/skills/playwright-cli/references/request-mocking.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/request-mocking.md
+  - path: .agents/skills/playwright-cli/references/running-code.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/running-code.md
+  - path: .agents/skills/playwright-cli/references/session-management.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/session-management.md
+  - path: .agents/skills/playwright-cli/references/spec-driven-testing.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/spec-driven-testing.md
+  - path: .agents/skills/playwright-cli/references/storage-state.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/storage-state.md
+  - path: .agents/skills/playwright-cli/references/test-generation.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/test-generation.md
+  - path: .agents/skills/playwright-cli/references/tracing.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/tracing.md
+  - path: .agents/skills/playwright-cli/references/video-recording.md
+    runtime: codex
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/video-recording.md
+  - path: .agents/skills/workspace-manage/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/workspace-manage/skill.yaml
+  - path: .agents/skills/workspace-manage/references/project-layout.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/workspace-manage/references/project-layout.md
+  - path: .claude/INDEX.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/commands
+  - path: .claude/skills/bug-file/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/bug-file/skill.yaml
+  - path: .claude/skills/case-draft/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/skill.yaml
+  - path: .claude/skills/case-draft/references/ambiguity-decision-tree.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/ambiguity-decision-tree.md
+  - path: .claude/skills/case-draft/references/atomization-guide.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/atomization-guide.md
+  - path: .claude/skills/case-draft/references/automation-handoff-spec.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/automation-handoff-spec.md
+  - path: .claude/skills/case-draft/references/case-review-evidence-gates.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/case-review-evidence-gates.md
+  - path: .claude/skills/case-draft/references/confirmation-package-template.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/confirmation-package-template.md
+  - path: .claude/skills/case-draft/references/coverage-matrix-guide.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/coverage-matrix-guide.md
+  - path: .claude/skills/case-draft/references/error-fallback-paths.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/error-fallback-paths.md
+  - path: .claude/skills/case-draft/references/execution-protocol.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/execution-protocol.md
+  - path: .claude/skills/case-draft/references/historical-context.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/historical-context.md
+  - path: .claude/skills/case-draft/references/module-identify.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .claude/skills/case-draft/references/quality-reviewer-prompt.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/quality-reviewer-prompt.md
+  - path: .claude/skills/case-draft/references/source-intake-protocol.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/source-intake-protocol.md
+  - path: .claude/skills/case-draft/references/spec-reviewer-prompt.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/spec-reviewer-prompt.md
+  - path: .claude/skills/case-draft/references/worker-prompt.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .claude/skills/case-edit/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-edit/skill.yaml
+  - path: .claude/skills/case-edit/references/archive-xmind-sync.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
+  - path: .claude/skills/case-hotfix/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-hotfix/skill.yaml
+  - path: .claude/skills/case-hotfix/references/hotfix-archive-format.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-hotfix/references/hotfix-archive-format.md
+  - path: .claude/skills/conflict-analyze/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/conflict-analyze/skill.yaml
+  - path: .claude/skills/diff-scan/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/diff-scan/skill.yaml
+  - path: .claude/skills/knowledge-curate/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/knowledge-curate/skill.yaml
+  - path: .claude/skills/knowledge-curate/references/knowledge-rules.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/knowledge-curate/references/knowledge-rules.md
+  - path: .claude/skills/playwright-automation/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/skill.yaml
+  - path: .claude/skills/playwright-automation/references/case-normalize.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/case-normalize.md
+  - path: .claude/skills/playwright-automation/references/env-preflight.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/env-preflight.md
+  - path: .claude/skills/playwright-automation/references/execution-protocol.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/execution-protocol.md
+  - path: .claude/skills/playwright-automation/references/handoff.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/handoff.md
+  - path: .claude/skills/playwright-automation/references/plan-reconcile.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/plan-reconcile.md
+  - path: .claude/skills/playwright-automation/references/playwright-generate.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/playwright-generate.md
+  - path: .claude/skills/playwright-automation/references/quality-gate.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/quality-gate.md
+  - path: .claude/skills/playwright-automation/references/quality-reviewer-prompt.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/quality-reviewer-prompt.md
+  - path: .claude/skills/playwright-automation/references/repair-loop.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/repair-loop.md
+  - path: .claude/skills/playwright-automation/references/run-triage.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/run-triage.md
+  - path: .claude/skills/playwright-automation/references/self-run.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/self-run.md
+  - path: .claude/skills/playwright-automation/references/spec-reviewer-prompt.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/spec-reviewer-prompt.md
+  - path: .claude/skills/playwright-automation/references/ui-plan.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/ui-plan.md
+  - path: .claude/skills/playwright-automation/references/ui-probe.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/ui-probe.md
+  - path: .claude/skills/playwright-automation/references/worker-prompt.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/worker-prompt.md
+  - path: .claude/skills/playwright-cli/SKILL.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/SKILL.md
+  - path: .claude/skills/playwright-cli/references/element-attributes.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/element-attributes.md
+  - path: .claude/skills/playwright-cli/references/playwright-tests.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/playwright-tests.md
+  - path: .claude/skills/playwright-cli/references/request-mocking.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/request-mocking.md
+  - path: .claude/skills/playwright-cli/references/running-code.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/running-code.md
+  - path: .claude/skills/playwright-cli/references/session-management.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/session-management.md
+  - path: .claude/skills/playwright-cli/references/spec-driven-testing.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/spec-driven-testing.md
+  - path: .claude/skills/playwright-cli/references/storage-state.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/storage-state.md
+  - path: .claude/skills/playwright-cli/references/test-generation.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/test-generation.md
+  - path: .claude/skills/playwright-cli/references/tracing.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/tracing.md
+  - path: .claude/skills/playwright-cli/references/video-recording.md
+    runtime: claude
+    disposition: copied_vendor
+    source: .ai/vendor-skills/playwright-cli/files/references/video-recording.md
+  - path: .claude/skills/workspace-manage/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/workspace-manage/skill.yaml
+  - path: .claude/skills/workspace-manage/references/project-layout.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/workspace-manage/references/project-layout.md
+  - path: AGENTS.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/commands
+  - path: CLAUDE.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/commands

@@ -1,0 +1,556 @@
+{
+  "schema_version": 1,
+  "generated_at": "1970-01-01T00:00:00.000Z",
+  "files": [
+    {
+      "path": ".agents/INDEX.md",
+      "disposition": "generated",
+      "sha256": "8ee844a73f7b67a7c3c7a9c3d4129568b16c28afb93c0ef9ccf169c2abbab4cd"
+    },
+    {
+      "path": ".agents/skills/bug-file/SKILL.md",
+      "disposition": "generated",
+      "sha256": "a154290e9afb8d23668983c30b7b2fc610df4768f53adcb80edda324f4695ac6"
+    },
+    {
+      "path": ".agents/skills/case-draft/SKILL.md",
+      "disposition": "generated",
+      "sha256": "a5d3ca26ebdcc41518a0b244e091d1f833f303ea7903e849ca98f9ab04c61940"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
+      "disposition": "generated",
+      "sha256": "110985dd6e53206f9b15ad4425928211cf1a7edd573f51863b739cf734a29b86"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/atomization-guide.md",
+      "disposition": "generated",
+      "sha256": "9487faf9d0621d0f532294e1fbd47c71ef85f0d23adf3ddc69a32fc04b247d28"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/automation-handoff-spec.md",
+      "disposition": "generated",
+      "sha256": "4e12b042d3b860564c9659ff109c2ff0cabe741da4a74c6355b0e37af008770b"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/case-review-evidence-gates.md",
+      "disposition": "generated",
+      "sha256": "45a516377c9f66599be6243290f2a9b07c19ac64e9ce708b77b6c1a52245b4af"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/confirmation-package-template.md",
+      "disposition": "generated",
+      "sha256": "4b973a7b42a544cdb0e9f8badc859341dc53636af816845dd5230c6f35fbfbf8"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/coverage-matrix-guide.md",
+      "disposition": "generated",
+      "sha256": "b7d6180c55d0107ca255c7132f72fc61f098f13c65a3ebddc8de4119d3e66ba4"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/error-fallback-paths.md",
+      "disposition": "generated",
+      "sha256": "9e0b95d42ab23330c4e5c42dcd85c7ed7bea2ca66ea3a6b9b81174d2feb4c6e0"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/execution-protocol.md",
+      "disposition": "generated",
+      "sha256": "ffaa4219951a45f475f8ab8554c7235316468f39031b811ce989cb86e9d866b8"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/historical-context.md",
+      "disposition": "generated",
+      "sha256": "dbf6cbf1d8aa907995c63ba614d49bdb432e37973e9ec4817fd837e00910cd4c"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/module-identify.md",
+      "disposition": "generated",
+      "sha256": "ae59b84723bc55d057079e8038ee1024b0cb97a748314195c03981793ce1d120"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/quality-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
+      "disposition": "generated",
+      "sha256": "601764550c4db1b710e75c6fd3626308dd3d785245a6645f514145588b67b68c"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/spec-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "32b10169d25a8557526ff78cee36c45806d6b1a9a8e34936757ea5bb25bfe8d1"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/worker-prompt.md",
+      "disposition": "generated",
+      "sha256": "50311e4e2aaacf8d5beb1864ca010c3b2230d7879708e2cfc96e06e3c2704c3d"
+    },
+    {
+      "path": ".agents/skills/case-edit/SKILL.md",
+      "disposition": "generated",
+      "sha256": "6c04b83072ecde8bc45717109a0c151ff295181f8b902744216ca76e834fb299"
+    },
+    {
+      "path": ".agents/skills/case-edit/references/archive-xmind-sync.md",
+      "disposition": "generated",
+      "sha256": "c16e15dfc3f0a5142a70e0f389a1952bd402b313f872275ee6243018e51d0b0e"
+    },
+    {
+      "path": ".agents/skills/case-hotfix/SKILL.md",
+      "disposition": "generated",
+      "sha256": "c4129f07144ae0a47f4e9cd9be237bd66a2fc191fb309f13cbc999d160725ef7"
+    },
+    {
+      "path": ".agents/skills/case-hotfix/references/hotfix-archive-format.md",
+      "disposition": "generated",
+      "sha256": "9d1d765c3cd49548c17dcdaf1fb27dabefbc549f8d5a9440eca06ef07b27b058"
+    },
+    {
+      "path": ".agents/skills/conflict-analyze/SKILL.md",
+      "disposition": "generated",
+      "sha256": "34c949205c25255858aebcc99c953d46870d9d569aa1313c11954d60ccf04b46"
+    },
+    {
+      "path": ".agents/skills/diff-scan/SKILL.md",
+      "disposition": "generated",
+      "sha256": "bafdefd7e665fc6a5c374c9a40aebdfc9362fc6e6830f406fb574209d5fd648c"
+    },
+    {
+      "path": ".agents/skills/knowledge-curate/SKILL.md",
+      "disposition": "generated",
+      "sha256": "d47e10650a51992df49dc5bb6c420989969bed47de07ecaf56a9c846eacd2161"
+    },
+    {
+      "path": ".agents/skills/knowledge-curate/references/knowledge-rules.md",
+      "disposition": "generated",
+      "sha256": "6ff73ea043a2dafed9e4ea25f1a6c6ab0e4dce8fe2374af48fc7f19365789b80"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/SKILL.md",
+      "disposition": "generated",
+      "sha256": "9fb638cbf7d0a1127c8de9f5a50a6bfee54a7e595e6b286d80799bd4459e4d6c"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/case-normalize.md",
+      "disposition": "generated",
+      "sha256": "88032e42cfa501dfbad9918a316d166238f22f13286c937a55d0644b69cf0713"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/env-preflight.md",
+      "disposition": "generated",
+      "sha256": "77163ab7076eb6e8f90a866f6a19b687cb50a1f38951e040ffb72fe37af83ad1"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/execution-protocol.md",
+      "disposition": "generated",
+      "sha256": "f28ce74df50fe0f5388cc5349c6419313e7b788d6658a1b628e6863d98e36c2c"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/handoff.md",
+      "disposition": "generated",
+      "sha256": "0e666d065733438fafa77c6212b8538892186f2903b04001f2f579221b72735f"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/plan-reconcile.md",
+      "disposition": "generated",
+      "sha256": "9e6e526f2e93d50c4fe829634db2c3cf91733d64c8bc506d58377f8ee9d6852b"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/playwright-generate.md",
+      "disposition": "generated",
+      "sha256": "22fc551150800cef73a17b0a572b21f0de6f195f3efb01c905d11198c8930081"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/quality-gate.md",
+      "disposition": "generated",
+      "sha256": "a9025c65c43c646d38153acb1afbff311f9c48b538f37e8d554c04b95ce9fe7d"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/quality-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "acbec43dd6b5d9dbbbbd9b5e2171e1ca277812c77b2f51aef0ce97b52f678f5e"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/repair-loop.md",
+      "disposition": "generated",
+      "sha256": "15c11ed5d4f68063112d1fc46431735fa99da14c31c3f7bf3c6afe8ad10b5a50"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/run-triage.md",
+      "disposition": "generated",
+      "sha256": "4504ed9727a8e8fe99e54f42146d139100f7772f636d572f4495c25b742198bb"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/self-run.md",
+      "disposition": "generated",
+      "sha256": "246a934d0fe4d607266597c086edb7e0c6092de6d704076215f3eb736f214b0e"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/spec-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "bd9152c9ef9cad05a9816c70dc646a2c34aea81a8628b167e87acb5ff962887c"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/ui-plan.md",
+      "disposition": "generated",
+      "sha256": "c1bc4c24d91fa1040864e380fcc3dd36fccefe5b5851e754217f42e2f9272aeb"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/ui-probe.md",
+      "disposition": "generated",
+      "sha256": "ed7d5b751f4c08d85e05423e8f1b31e189087eb4204a5b68f797e0ff85b8df2e"
+    },
+    {
+      "path": ".agents/skills/playwright-automation/references/worker-prompt.md",
+      "disposition": "generated",
+      "sha256": "3f3014bfb3b6dc9aaeaa9474301ad3b0b4033f3a0c7c5f81bdabaaa6e186b629"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/SKILL.md",
+      "disposition": "copied_vendor",
+      "sha256": "75143af12b0201983322b9ddfca7aaee32d4ee8e03189f8d2a23aba1d6295c23"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/element-attributes.md",
+      "disposition": "copied_vendor",
+      "sha256": "bf19aa4671e0a50a0fefa9c790f39124e803060eefe395042b723c29fcb7faa2"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/playwright-tests.md",
+      "disposition": "copied_vendor",
+      "sha256": "c5b0719fef2cfdff50bd744051b2f9afc119775db4b48e9b2882c1cf3886797c"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/request-mocking.md",
+      "disposition": "copied_vendor",
+      "sha256": "54e801c9663fc2b6d68ceb058cb1c360724c2499f42acc7852a68e83e5b5f37c"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/running-code.md",
+      "disposition": "copied_vendor",
+      "sha256": "d95c539a5990b71d02d8bdf1d9414df16191eb6cff95b0063820518b7a13dcb2"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/session-management.md",
+      "disposition": "copied_vendor",
+      "sha256": "cd3e261b8763bf952f1e371b876cb78d054379afec85482f9250633e1b7e6c44"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/spec-driven-testing.md",
+      "disposition": "copied_vendor",
+      "sha256": "48cfac3c178c24c75c19f0c59bab8ee05fd50c110b9916446992ffd4b17a7d1e"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/storage-state.md",
+      "disposition": "copied_vendor",
+      "sha256": "1122778c9b13b44bddebb4476a7f99d918afd31757be8b4fade3cb09c3d48c99"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/test-generation.md",
+      "disposition": "copied_vendor",
+      "sha256": "2a9c4d94effa31b05cf367dfa8bbace8874a3bc9799987ad2b03269af224d299"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/tracing.md",
+      "disposition": "copied_vendor",
+      "sha256": "792e0ac7705e56ac48df84c0f5400221ce86107897c671590a64a4ea6a82508e"
+    },
+    {
+      "path": ".agents/skills/playwright-cli/references/video-recording.md",
+      "disposition": "copied_vendor",
+      "sha256": "0cea7708999aa663701917615889a84cbc05200718bb161de9a5366a826c2b4d"
+    },
+    {
+      "path": ".agents/skills/workspace-manage/SKILL.md",
+      "disposition": "generated",
+      "sha256": "952529bc495f0c2142b1088ba2c6e3be1837c8cfd44f7777d7faa1a804e74571"
+    },
+    {
+      "path": ".agents/skills/workspace-manage/references/project-layout.md",
+      "disposition": "generated",
+      "sha256": "e1487eceb95ed9e338516c5710807eb5da2da1bf60dadcf2ab2635ad8dea06bf"
+    },
+    {
+      "path": ".claude/INDEX.md",
+      "disposition": "generated",
+      "sha256": "8ee844a73f7b67a7c3c7a9c3d4129568b16c28afb93c0ef9ccf169c2abbab4cd"
+    },
+    {
+      "path": ".claude/skills/bug-file/SKILL.md",
+      "disposition": "generated",
+      "sha256": "a154290e9afb8d23668983c30b7b2fc610df4768f53adcb80edda324f4695ac6"
+    },
+    {
+      "path": ".claude/skills/case-draft/SKILL.md",
+      "disposition": "generated",
+      "sha256": "a5d3ca26ebdcc41518a0b244e091d1f833f303ea7903e849ca98f9ab04c61940"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
+      "disposition": "generated",
+      "sha256": "110985dd6e53206f9b15ad4425928211cf1a7edd573f51863b739cf734a29b86"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/atomization-guide.md",
+      "disposition": "generated",
+      "sha256": "9487faf9d0621d0f532294e1fbd47c71ef85f0d23adf3ddc69a32fc04b247d28"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/automation-handoff-spec.md",
+      "disposition": "generated",
+      "sha256": "4e12b042d3b860564c9659ff109c2ff0cabe741da4a74c6355b0e37af008770b"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/case-review-evidence-gates.md",
+      "disposition": "generated",
+      "sha256": "45a516377c9f66599be6243290f2a9b07c19ac64e9ce708b77b6c1a52245b4af"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/confirmation-package-template.md",
+      "disposition": "generated",
+      "sha256": "4b973a7b42a544cdb0e9f8badc859341dc53636af816845dd5230c6f35fbfbf8"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/coverage-matrix-guide.md",
+      "disposition": "generated",
+      "sha256": "b7d6180c55d0107ca255c7132f72fc61f098f13c65a3ebddc8de4119d3e66ba4"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/error-fallback-paths.md",
+      "disposition": "generated",
+      "sha256": "9e0b95d42ab23330c4e5c42dcd85c7ed7bea2ca66ea3a6b9b81174d2feb4c6e0"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/execution-protocol.md",
+      "disposition": "generated",
+      "sha256": "ffaa4219951a45f475f8ab8554c7235316468f39031b811ce989cb86e9d866b8"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/historical-context.md",
+      "disposition": "generated",
+      "sha256": "dbf6cbf1d8aa907995c63ba614d49bdb432e37973e9ec4817fd837e00910cd4c"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/module-identify.md",
+      "disposition": "generated",
+      "sha256": "ae59b84723bc55d057079e8038ee1024b0cb97a748314195c03981793ce1d120"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/source-intake-protocol.md",
+      "disposition": "generated",
+      "sha256": "601764550c4db1b710e75c6fd3626308dd3d785245a6645f514145588b67b68c"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "32b10169d25a8557526ff78cee36c45806d6b1a9a8e34936757ea5bb25bfe8d1"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/worker-prompt.md",
+      "disposition": "generated",
+      "sha256": "50311e4e2aaacf8d5beb1864ca010c3b2230d7879708e2cfc96e06e3c2704c3d"
+    },
+    {
+      "path": ".claude/skills/case-edit/SKILL.md",
+      "disposition": "generated",
+      "sha256": "6c04b83072ecde8bc45717109a0c151ff295181f8b902744216ca76e834fb299"
+    },
+    {
+      "path": ".claude/skills/case-edit/references/archive-xmind-sync.md",
+      "disposition": "generated",
+      "sha256": "c16e15dfc3f0a5142a70e0f389a1952bd402b313f872275ee6243018e51d0b0e"
+    },
+    {
+      "path": ".claude/skills/case-hotfix/SKILL.md",
+      "disposition": "generated",
+      "sha256": "c4129f07144ae0a47f4e9cd9be237bd66a2fc191fb309f13cbc999d160725ef7"
+    },
+    {
+      "path": ".claude/skills/case-hotfix/references/hotfix-archive-format.md",
+      "disposition": "generated",
+      "sha256": "9d1d765c3cd49548c17dcdaf1fb27dabefbc549f8d5a9440eca06ef07b27b058"
+    },
+    {
+      "path": ".claude/skills/conflict-analyze/SKILL.md",
+      "disposition": "generated",
+      "sha256": "34c949205c25255858aebcc99c953d46870d9d569aa1313c11954d60ccf04b46"
+    },
+    {
+      "path": ".claude/skills/diff-scan/SKILL.md",
+      "disposition": "generated",
+      "sha256": "bafdefd7e665fc6a5c374c9a40aebdfc9362fc6e6830f406fb574209d5fd648c"
+    },
+    {
+      "path": ".claude/skills/knowledge-curate/SKILL.md",
+      "disposition": "generated",
+      "sha256": "d47e10650a51992df49dc5bb6c420989969bed47de07ecaf56a9c846eacd2161"
+    },
+    {
+      "path": ".claude/skills/knowledge-curate/references/knowledge-rules.md",
+      "disposition": "generated",
+      "sha256": "6ff73ea043a2dafed9e4ea25f1a6c6ab0e4dce8fe2374af48fc7f19365789b80"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/SKILL.md",
+      "disposition": "generated",
+      "sha256": "9fb638cbf7d0a1127c8de9f5a50a6bfee54a7e595e6b286d80799bd4459e4d6c"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/case-normalize.md",
+      "disposition": "generated",
+      "sha256": "88032e42cfa501dfbad9918a316d166238f22f13286c937a55d0644b69cf0713"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/env-preflight.md",
+      "disposition": "generated",
+      "sha256": "77163ab7076eb6e8f90a866f6a19b687cb50a1f38951e040ffb72fe37af83ad1"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/execution-protocol.md",
+      "disposition": "generated",
+      "sha256": "f28ce74df50fe0f5388cc5349c6419313e7b788d6658a1b628e6863d98e36c2c"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/handoff.md",
+      "disposition": "generated",
+      "sha256": "0e666d065733438fafa77c6212b8538892186f2903b04001f2f579221b72735f"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/plan-reconcile.md",
+      "disposition": "generated",
+      "sha256": "9e6e526f2e93d50c4fe829634db2c3cf91733d64c8bc506d58377f8ee9d6852b"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/playwright-generate.md",
+      "disposition": "generated",
+      "sha256": "22fc551150800cef73a17b0a572b21f0de6f195f3efb01c905d11198c8930081"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/quality-gate.md",
+      "disposition": "generated",
+      "sha256": "a9025c65c43c646d38153acb1afbff311f9c48b538f37e8d554c04b95ce9fe7d"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/quality-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "acbec43dd6b5d9dbbbbd9b5e2171e1ca277812c77b2f51aef0ce97b52f678f5e"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/repair-loop.md",
+      "disposition": "generated",
+      "sha256": "15c11ed5d4f68063112d1fc46431735fa99da14c31c3f7bf3c6afe8ad10b5a50"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/run-triage.md",
+      "disposition": "generated",
+      "sha256": "4504ed9727a8e8fe99e54f42146d139100f7772f636d572f4495c25b742198bb"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/self-run.md",
+      "disposition": "generated",
+      "sha256": "246a934d0fe4d607266597c086edb7e0c6092de6d704076215f3eb736f214b0e"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/spec-reviewer-prompt.md",
+      "disposition": "generated",
+      "sha256": "bd9152c9ef9cad05a9816c70dc646a2c34aea81a8628b167e87acb5ff962887c"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/ui-plan.md",
+      "disposition": "generated",
+      "sha256": "c1bc4c24d91fa1040864e380fcc3dd36fccefe5b5851e754217f42e2f9272aeb"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/ui-probe.md",
+      "disposition": "generated",
+      "sha256": "ed7d5b751f4c08d85e05423e8f1b31e189087eb4204a5b68f797e0ff85b8df2e"
+    },
+    {
+      "path": ".claude/skills/playwright-automation/references/worker-prompt.md",
+      "disposition": "generated",
+      "sha256": "3f3014bfb3b6dc9aaeaa9474301ad3b0b4033f3a0c7c5f81bdabaaa6e186b629"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/SKILL.md",
+      "disposition": "copied_vendor",
+      "sha256": "75143af12b0201983322b9ddfca7aaee32d4ee8e03189f8d2a23aba1d6295c23"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/element-attributes.md",
+      "disposition": "copied_vendor",
+      "sha256": "bf19aa4671e0a50a0fefa9c790f39124e803060eefe395042b723c29fcb7faa2"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/playwright-tests.md",
+      "disposition": "copied_vendor",
+      "sha256": "c5b0719fef2cfdff50bd744051b2f9afc119775db4b48e9b2882c1cf3886797c"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/request-mocking.md",
+      "disposition": "copied_vendor",
+      "sha256": "54e801c9663fc2b6d68ceb058cb1c360724c2499f42acc7852a68e83e5b5f37c"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/running-code.md",
+      "disposition": "copied_vendor",
+      "sha256": "d95c539a5990b71d02d8bdf1d9414df16191eb6cff95b0063820518b7a13dcb2"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/session-management.md",
+      "disposition": "copied_vendor",
+      "sha256": "cd3e261b8763bf952f1e371b876cb78d054379afec85482f9250633e1b7e6c44"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/spec-driven-testing.md",
+      "disposition": "copied_vendor",
+      "sha256": "48cfac3c178c24c75c19f0c59bab8ee05fd50c110b9916446992ffd4b17a7d1e"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/storage-state.md",
+      "disposition": "copied_vendor",
+      "sha256": "1122778c9b13b44bddebb4476a7f99d918afd31757be8b4fade3cb09c3d48c99"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/test-generation.md",
+      "disposition": "copied_vendor",
+      "sha256": "2a9c4d94effa31b05cf367dfa8bbace8874a3bc9799987ad2b03269af224d299"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/tracing.md",
+      "disposition": "copied_vendor",
+      "sha256": "792e0ac7705e56ac48df84c0f5400221ce86107897c671590a64a4ea6a82508e"
+    },
+    {
+      "path": ".claude/skills/playwright-cli/references/video-recording.md",
+      "disposition": "copied_vendor",
+      "sha256": "0cea7708999aa663701917615889a84cbc05200718bb161de9a5366a826c2b4d"
+    },
+    {
+      "path": ".claude/skills/workspace-manage/SKILL.md",
+      "disposition": "generated",
+      "sha256": "952529bc495f0c2142b1088ba2c6e3be1837c8cfd44f7777d7faa1a804e74571"
+    },
+    {
+      "path": ".claude/skills/workspace-manage/references/project-layout.md",
+      "disposition": "generated",
+      "sha256": "e1487eceb95ed9e338516c5710807eb5da2da1bf60dadcf2ab2635ad8dea06bf"
+    },
+    {
+      "path": "AGENTS.md",
+      "disposition": "generated",
+      "sha256": "6121c4a529ba9e5d28b0e23e1cb9f1747d3a693d8591f12c57bb8c4a27679947"
+    },
+    {
+      "path": "CLAUDE.md",
+      "disposition": "generated",
+      "sha256": "6121c4a529ba9e5d28b0e23e1cb9f1747d3a693d8591f12c57bb8c4a27679947"
+    }
+  ]
+}

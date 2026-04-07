@@ -1,0 +1,44 @@
+{
+  "inputs": [
+    {
+      "text": "Generate regression test cases from the payment PRD",
+      "expected_skill_id": "case-draft@1"
+    },
+    {
+      "text": "Generate test cases from this Lanhu prototype: https://lanhuapp.com/web/#/item/project/product?tid=xxx&pid=xxx&docId=xxx",
+      "expected_skill_id": "case-draft@1"
+    },
+    {
+      "text": "Sync the archive MD with the latest XMind changes",
+      "expected_skill_id": "case-edit@1"
+    },
+    {
+      "text": "Find the business terms for the reporting module",
+      "expected_skill_id": "knowledge-curate@1"
+    },
+    {
+      "text": "Show the kata feature menu",
+      "expected_skill_id": "workspace-manage@1"
+    },
+    {
+      "text": "Console error: TypeError on user profile page, file a bug report",
+      "expected_skill_id": "bug-file@1"
+    },
+    {
+      "text": "Analyze the git merge conflict in feature/user-auth",
+      "expected_skill_id": "conflict-analyze@1"
+    },
+    {
+      "text": "Generate hotfix regression cases for the login fix",
+      "expected_skill_id": "case-hotfix@1"
+    },
+    {
+      "text": "Plan UI automation coverage, generate Playwright scripts, and triage run failures",
+      "expected_skill_id": "playwright-automation@1"
+    },
+    {
+      "text": "Scan the latest diff for reproducible defects",
+      "expected_skill_id": "diff-scan@1"
+    }
+  ]
+}

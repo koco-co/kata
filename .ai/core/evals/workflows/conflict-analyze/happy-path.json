@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "workflow_id": "conflict-analyze@1",
+  "command": "/conflict-analyze",
+  "input": "请分析以下合并冲突：\n<<<<<<< HEAD\nconst timeout = 5000\n=======\nconst timeout = 10000\n>>>>>>> feature/timeout",
+  "expected_first_stages": ["intake", "parse_conflict"],
+  "forbidden_phrases": ["请提供更多上下文"],
+  "must_not_write": [".kata/repos/**"]
+}

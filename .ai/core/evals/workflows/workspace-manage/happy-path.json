@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "workflow_id": "workspace-manage@1",
+  "command": "/workspace-manage",
+  "input": "请查看 demo 项目的工作区状态",
+  "expected_first_stages": ["intake", "inspect_workspace"],
+  "forbidden_phrases": []
+}

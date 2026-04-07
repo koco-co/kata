@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "workflow_id": "case-hotfix@1",
+  "command": "/case-hotfix",
+  "input": "请为禅道BUG #12345 生成hotfix回归用例",
+  "expected_first_stages": ["intake", "resolve_bug_source"],
+  "forbidden_phrases": []
+}

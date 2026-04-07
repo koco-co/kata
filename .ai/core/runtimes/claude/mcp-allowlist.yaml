@@ -1,0 +1,6 @@
+schema_version: 1
+runtime: claude
+servers:
+  - "memory: blocked_for_kata_workflows"
+  - "fetch: read_only"
+  - "playwright: read_only"

@@ -1,0 +1,77 @@
+suite: ga-core
+cases:
+  - id: cross-skill-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/cross-skill-routing.json
+    expected:
+      status: passed
+  - id: maintaining-case-artifacts-not-prd
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/maintaining-case-artifacts-not-prd.json
+    expected:
+      status: passed
+      skill_id: case-edit@1
+  - id: knowledge-not-code-search
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/knowledge-not-code-search.json
+    expected:
+      status: passed
+      skill_id: knowledge-curate@1
+  - id: workspace-not-specific-workflow
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/workspace-not-specific-workflow.json
+    expected:
+      status: passed
+      skill_id: workspace-manage@1
+  - id: reporting-bugs-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/reporting-bugs-routing.json
+    expected:
+      status: passed
+      skill_id: bug-file@1
+  - id: scanning-code-changes-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/scanning-code-changes-routing.json
+    expected:
+      status: passed
+      skill_id: diff-scan@1
+  - id: generating-playwright-tests-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/generating-playwright-tests-routing.json
+    expected:
+      status: passed
+      skill_id: playwright-automation@1
+  - id: planning-ui-automation-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/planning-ui-automation-routing.json
+    expected:
+      status: passed
+      skill_id: playwright-automation@1
+      rule_ids:
+        - trigger.route_skill
+  - id: triaging-playwright-run-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/triaging-playwright-run-routing.json
+    expected:
+      status: passed
+      skill_id: playwright-automation@1
+      rule_ids:
+        - trigger.route_skill

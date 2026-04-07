@@ -1,0 +1,18 @@
+suite: case-draft
+cases:
+  - id: sparse-lanhu-only
+    fixture: fixtures/sparse-lanhu-only.json
+  - id: lanhu-plus-history
+    fixture: fixtures/lanhu-plus-history.json
+  - id: conflicting-history
+    fixture: fixtures/conflicting-history.json
+  - id: inferable-project
+    fixture: fixtures/inferable-project.json
+  - id: multi-candidate-project
+    fixture: fixtures/multi-candidate-project.json
+  - id: non-blocking-pending
+    fixture: fixtures/non-blocking-pending.json
+  - id: blocking-unknown
+    fixture: fixtures/blocking-unknown.json
+  - id: automation-deferred
+    fixture: fixtures/automation-deferred.json

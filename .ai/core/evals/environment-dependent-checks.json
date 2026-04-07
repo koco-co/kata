@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "checks": [
+    {
+      "area": "report-to-pdf",
+      "command": "KATA_RUN_BROWSER_PDF_TESTS=1 bun test --cwd engine tests/report-to-pdf.test.ts",
+      "dependency": "Chromium host permissions for Playwright PDF rendering",
+      "failure_signature": "bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer",
+      "default_suite_policy": "not_run_by_default"
+    },
+    {
+      "area": "behavioral-evals-record",
+      "command": "bun run engine/src/ai-core/behavioral-evals-cli.ts --mode record",
+      "dependency": "DEEPSEEK_API_KEY environment variable for LLM-as-judge cassette recording",
+      "failure_signature": "DEEPSEEK_API_KEY is required",
+      "default_suite_policy": "not_run_by_default"
+    }
+  ]
+}

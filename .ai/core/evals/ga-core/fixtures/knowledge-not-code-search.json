@@ -1,0 +1,4 @@
+{
+  "input": "这个业务规则记到知识库里，下次生成用例要引用",
+  "expected_skill_id": "knowledge-curate@1"
+}

@@ -1,0 +1,8 @@
+schema_version: 1
+runtime: codex
+tools:
+  - "Read: read_only"
+  - "Edit: write_staging_only"
+  - "Write: write_staging_only"
+  - "Bash: requires_user_approval"
+  - "Agent: requires_user_approval"

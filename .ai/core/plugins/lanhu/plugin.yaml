@@ -1,0 +1,25 @@
+id: lanhu.design-source@1
+schema_ref: PluginManifest@1
+package_root: .ai/core/plugins/lanhu
+capability:
+  kind: source_provider
+  network: true
+  secrets: true
+  isolation: os_sandbox
+argv_schema:
+  required:
+    - url
+output_schema: SourceSnapshot@1
+timeout_ms: 180000
+artifact_staging:
+  enabled: true
+  root: .ai/runs/staging
+capability_required:
+  fs_read: []
+  fs_write:
+    - workspace
+  net:
+    - lanhu.com
+    - '*.lanhu.com'
+  secret_refs:
+    - KATA_LANHU_COOKIE

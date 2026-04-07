@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "workflow_id": "case-draft-from-prd@1",
+  "command": "/case-draft",
+  "input": "请根据 https://lanhuapp.com/web/#/item/project/board/detail?pid=12345 生成测试用例",
+  "expected_first_stages": ["init", "probe"],
+  "forbidden_phrases": [
+    "请提供 PRD",
+    "是否有 PRD 文档",
+    "本地 PRD",
+    "离线 PRD",
+    "导出的设计源",
+    "provide a PRD",
+    "offline PRD",
+    "local PRD"
+  ],
+  "must_not_write": [".kata/repos/**"]
+}

@@ -1,0 +1,5 @@
+{
+  "id": "workflow-missing",
+  "expected_rule_ids": ["workflow.ga_core_missing"],
+  "remove_workflow": "workspace-manage.workflow.yaml"
+}

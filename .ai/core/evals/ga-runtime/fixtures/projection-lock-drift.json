@@ -1,0 +1,6 @@
+{
+  "id": "projection-lock-drift",
+  "expected_rule_ids": ["projection_lock.hash_mismatch"],
+  "mutate_path": ".agents/skills/case-edit/SKILL.md",
+  "mutated_content": "ga-runtime projection lock drift\n"
+}

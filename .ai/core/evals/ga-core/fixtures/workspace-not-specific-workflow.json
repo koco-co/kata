@@ -1,0 +1,4 @@
+{
+  "input": "kata 有哪些功能，帮我初始化一个新项目",
+  "expected_skill_id": "workspace-manage@1"
+}

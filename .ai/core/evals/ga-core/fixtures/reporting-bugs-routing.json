@@ -1,0 +1,8 @@
+{
+  "inputs": [
+    {
+      "text": "登录页面报错 500，帮我写 Bug 报告",
+      "expected_skill_id": "bug-file@1"
+    }
+  ]
+}

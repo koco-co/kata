@@ -1,0 +1,28 @@
+{
+  "suite": "behavioral",
+  "cases": [
+    {
+      "id": "case-draft-quality@1",
+      "subset": "fast-deterministic",
+      "kind": "llm-as-judge",
+      "subject_skill": "case-draft@1",
+      "input_fixture": "fixtures/user-center-prd.json",
+      "rubric": {
+        "criteria": [
+          "每条生成的测试用例必须标注 source_ref，不得编造 PRD 中不存在的功能需求",
+          "PRD 中未明确描述的内容（如 F4 的 acceptance_criteria 为 null）必须放入 pending_items，禁止自行补充",
+          "few-shot 示例中的具体内容（如 demo 模块名、用户名）不得出现在生成结果中"
+        ],
+        "threshold": 0.85
+      },
+      "judge_model": {
+        "provider": "deepseek",
+        "model_id": "deepseek-chat",
+        "base_url": "https://api.deepseek.com/v1",
+        "api_key_env": "DEEPSEEK_API_KEY"
+      },
+      "samples": 3,
+      "aggregation": "majority"
+    }
+  ]
+}

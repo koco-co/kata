@@ -1,0 +1,12 @@
+preflight:
+  checks:
+    - projection.check
+    - projection.inventory
+    - projection.lock
+    - config.resolve
+  runtimes:
+    codex:
+      enforced_startup_hook: true
+    claude:
+      enforced_startup_hook: false
+      hard_guarantee_scope: kata-entrypoints-only

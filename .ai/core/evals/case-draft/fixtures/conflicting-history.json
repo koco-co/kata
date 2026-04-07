@@ -1,0 +1,25 @@
+{
+  "id": "conflicting-history",
+  "input": {
+    "sources": [
+      {
+        "type": "lanhu_url",
+        "label": "新增数据源弹窗"
+      },
+      {
+        "type": "historical_context",
+        "label": "旧版 Doris 数据源规则"
+      }
+    ],
+    "conflict": "Lanhu 展示 SparkThrift，历史规则指向 Doris 必填字段。"
+  },
+  "expected": {
+    "confirmation_package_generated": true,
+    "product_confirmation_question_count": 1,
+    "question_topic": "确认 SparkThrift 与 Doris 字段规则差异",
+    "has_blocking_unknown": true,
+    "final_archive_generated": false,
+    "unsupported_claim_rate": 0
+  },
+  "expected_rule_ids": []
+}

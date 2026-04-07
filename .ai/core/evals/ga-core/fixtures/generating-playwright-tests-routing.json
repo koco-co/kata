@@ -1,0 +1,8 @@
+{
+  "inputs": [
+    {
+      "text": "根据这个 Archive MD 生成 Playwright 自动化脚本",
+      "expected_skill_id": "playwright-automation@1"
+    }
+  ]
+}

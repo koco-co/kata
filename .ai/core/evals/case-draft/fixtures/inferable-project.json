@@ -1,0 +1,20 @@
+{
+  "id": "inferable-project",
+  "input": {
+    "sources": [
+      {
+        "type": "lanhu_url",
+        "label": "数据资产 / 数据源管理 / 新建"
+      }
+    ],
+    "workspace_projects": ["dataAssets", "streamCompute"],
+    "project_signal": "URL path and page title both contain data-assets datasource."
+  },
+  "expected": {
+    "inferred_project": "dataAssets",
+    "project_question_count": 0,
+    "confirmation_package_generated": true,
+    "unsupported_claim_rate": 0
+  },
+  "expected_rule_ids": []
+}

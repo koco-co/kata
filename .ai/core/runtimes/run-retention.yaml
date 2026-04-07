@@ -1,0 +1,8 @@
+schema_version: 1
+default_retention_days: 7
+default_max_bytes: 5368709120
+preserve_on_failure_days: 30
+preserve_tags:
+  - release-evidence
+  - audit-fixture
+gc_command: "kata runs gc"

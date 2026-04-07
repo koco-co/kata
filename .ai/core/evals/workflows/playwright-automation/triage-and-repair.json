@@ -1,0 +1,8 @@
+{
+  "schema_ref": "WorkflowEval@1",
+  "workflow_id": "playwright-automation@1",
+  "command": "/playwright-automation",
+  "input": "Playwright 失败日志显示 getByRole(button, name=保存) 超时，请归因并修复",
+  "expected_entry_mode": "triage_and_repair",
+  "required_steps": ["run-triage", "repair-loop", "handoff"]
+}

@@ -1,0 +1,22 @@
+# P0 模型能力锁
+# 锁定 P0 核心 workflow 的模型能力要求
+schema_version: 1
+primary_runtimes:
+  - claude
+  - kata_codex
+models:
+  - alias: case_generation_primary
+    required_capabilities:
+      - tool_use
+      - long_context
+      - schema_constrained_output
+    min_context_window_tokens: 32000
+    resolution_source: runtime_adapter_fixture
+    resolved_at: "2026-05-08"
+  - alias: analysis_primary
+    required_capabilities:
+      - tool_use
+      - long_context
+    min_context_window_tokens: 24000
+    resolution_source: runtime_adapter_fixture
+    resolved_at: "2026-05-08"

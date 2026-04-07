@@ -1,0 +1,78 @@
+suite: p0
+cases:
+  - id: trigger-routing
+    subset: fast-deterministic
+    kind: trigger-routing
+    input:
+      fixture: fixtures/trigger-routing.json
+    expected:
+      status: passed
+      skill_id: case-draft@1
+      command_alias: case-draft
+      rule_ids:
+        - trigger.route_alias
+  - id: missing-evidence
+    subset: fast-deterministic
+    kind: missing-evidence
+    input:
+      fixture: fixtures/missing-evidence.md
+    expected:
+      status: blocked
+      rule_ids:
+        - missing_source_ref
+  - id: weak-assertion
+    subset: fast-deterministic
+    kind: weak-assertion
+    input:
+      fixture: fixtures/weak-assertion.md
+    expected:
+      status: blocked
+      rule_ids:
+        - weak_playwright_assertion
+  - id: projection-drift
+    subset: fast-deterministic
+    kind: projection-drift
+    input:
+      fixture: fixtures/projection-drift.json
+    expected:
+      status: blocked
+      rule_ids:
+        - projection.drift
+  - id: plugin-permission
+    subset: fast-deterministic
+    kind: plugin-permission
+    input:
+      fixture: fixtures/plugin-permission.yaml
+    expected:
+      status: blocked
+      rule_ids:
+        - contract.schema_invalid
+      required_messages:
+        - PluginManifest package_root must stay under .ai/core/plugins without dot segments.
+  - id: source-ref-stale
+    subset: fast-deterministic
+    kind: source-ref-stale
+    input:
+      fixture: fixtures/source-ref-stale.json
+    expected:
+      status: blocked
+      rule_ids:
+        - source_ref.stale_hash
+  - id: telemetry-privacy
+    subset: fast-deterministic
+    kind: telemetry-privacy
+    input:
+      fixture: fixtures/telemetry-privacy.json
+    expected:
+      status: blocked
+      rule_ids:
+        - telemetry.secret_like_value_blocked
+  - id: budget-refusal
+    subset: fast-deterministic
+    kind: budget-refusal
+    input:
+      fixture: fixtures/budget-refusal.json
+    expected:
+      status: blocked
+      rule_ids:
+        - budget.exhausted

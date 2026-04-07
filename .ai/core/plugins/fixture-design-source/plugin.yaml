@@ -1,0 +1,21 @@
+id: fixture-design-source.fetch-design-doc@1
+schema_ref: PluginManifest@1
+package_root: .ai/core/plugins/fixture-design-source
+capability:
+  kind: fixture_reader
+  network: false
+  secrets: false
+argv_schema:
+  required:
+    - fixtureName
+output_schema: SourceSnapshot@1
+timeout_ms: 1000
+artifact_staging:
+  enabled: true
+  root: .ai/runs/staging
+capability_required:
+  fs_read:
+    - .ai/core/plugins/fixture-design-source/fixtures
+  fs_write: []
+  net: []
+  secret_refs: []

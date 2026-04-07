@@ -1,0 +1,17 @@
+{
+  "schema_ref": "WorkflowEval@1",
+  "workflow_id": "playwright-automation@1",
+  "command": "/playwright-automation",
+  "input": "继续执行 workspace/dataAssets/ui-plan.json 并生成 Playwright 脚本",
+  "expected_entry_mode": "continue_from_plan",
+  "required_steps": [
+    "env-preflight",
+    "ui-probe",
+    "plan-reconcile",
+    "playwright-generate",
+    "self-run",
+    "run-triage",
+    "repair-loop",
+    "handoff"
+  ]
+}

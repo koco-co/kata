@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "workflow_id": "case-edit@1",
+  "command": "/case-edit",
+  "input": "请将 workspace/demo/docs/test-cases/archive.md 中的用例 '登录验证' 的步骤3修改为'输入验证码后点击登录按钮'",
+  "expected_first_stages": ["intake", "parse_artifact"],
+  "forbidden_phrases": ["直接写入", "直接修改"],
+  "must_not_write": [".kata/repos/**"]
+}
