@@ -1,0 +1,106 @@
+{
+  "verdict": "fail",
+  "round": 1,
+  "max_rounds": 5,
+  "total_cases": 4,
+  "issues_count": 8,
+  "issues": [
+    {
+      "rule": "FC02",
+      "rule_name": "首步格式",
+      "case_title": "【P2】验证列表页默认加载",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "step",
+      "step_number": 1,
+      "current": "进入模块A -> 页面A",
+      "problem": "导航路径缺少【】包裹，使用 '->' 而非 '→'，缺少等待条件",
+      "expected_pattern": "进入【模块A → 页面A】页面，等待列表数据加载完成",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC04",
+      "rule_name": "模糊词",
+      "case_title": "【P2】验证列表页默认加载",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "expected",
+      "step_number": 1,
+      "current": "页面加载正常",
+      "problem": "预期结果包含模糊词「正常」",
+      "expected_pattern": "页面加载完成，列表显示 N 条数据",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC06",
+      "rule_name": "预期可断言",
+      "case_title": "【P2】验证列表页默认加载",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "expected",
+      "step_number": 2,
+      "current": "数据显示正确",
+      "problem": "预期结果使用空洞表述「显示正确」，无法转为 expect() 断言",
+      "expected_pattern": "列表展示 N 条记录，表头包含「名称」「类型」「创建时间」列",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC01",
+      "rule_name": "标题格式",
+      "case_title": "【P3】验证搜索功能",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "title",
+      "step_number": null,
+      "current": "【P3】验证搜索功能",
+      "problem": "优先级 P3 不在允许范围内（仅允许 P0/P1/P2）",
+      "expected_pattern": "【P0】验证... 或 【P1】验证... 或 【P2】验证...",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC07",
+      "rule_name": "步骤三要素",
+      "case_title": "【P3】验证搜索功能",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "step",
+      "step_number": 2,
+      "current": "搜索商品",
+      "problem": "缺少操作位置、操作对象、具体值三要素",
+      "expected_pattern": "在页面顶部搜索栏的「商品名称」输入框中输入\"运动鞋\"，点击【搜索】按钮，等待列表刷新",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC01",
+      "rule_name": "标题格式",
+      "case_title": "验证新增功能",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "title",
+      "step_number": null,
+      "current": "验证新增功能",
+      "problem": "标题缺少优先级前缀【Px】",
+      "expected_pattern": "【P1】验证新增功能",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC09",
+      "rule_name": "前置条件操作化",
+      "case_title": "验证新增功能",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "precondition",
+      "step_number": null,
+      "current": "已配置数据源",
+      "problem": "前置条件使用「已配置」模糊表述，未说明在哪个页面、如何配置",
+      "expected_pattern": "在【系统管理 → 数据源管理】页面已新增 Doris 数据源（host=10.0.0.1, port=9030, database=qa_test）",
+      "severity": "hard_violation"
+    },
+    {
+      "rule": "FC05",
+      "rule_name": "测试数据真实性",
+      "case_title": "【P1】验证删除功能",
+      "location": { "module": "模块A", "page": "页面A", "group": "功能点A" },
+      "field": "step",
+      "step_number": 2,
+      "current": "选择某个记录，点击【删除】",
+      "problem": "「某个记录」未指定具体对象名称",
+      "expected_pattern": "在列表中勾选「2026春季新款运动鞋」记录，点击操作列的【删除】按钮",
+      "severity": "hard_violation"
+    }
+  ],
+  "summary": "共检查 4 条用例，发现 8 处偏差（FC01: 2, FC02: 1, FC04: 1, FC05: 1, FC06: 1, FC07: 1, FC09: 1）。verdict: fail。"
+}

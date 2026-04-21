@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "schema_version": "1.0",
+    "project": "dataAssets",
+    "repo": "dt-insight-engine",
+    "base_branch": "release_6.3.x",
+    "head_branch": "release_6.3.0_dev",
+    "base_commit": "abc123def456789012345678901234567890aaaa",
+    "head_commit": "ffffeeeeddddccccbbbbaaaa999988887777aaaa",
+    "scan_time": "2026-04-29T10:00:00Z",
+    "reviewer": null,
+    "related_feature": null,
+    "diff_stats": { "files": 2, "additions": 18, "deletions": 6 },
+    "summary": "fixture for snapshot rendering"
+  },
+  "report": {
+    "schema_version": "1.0",
+    "meta_ref": "./meta.json",
+    "bugs": [
+      {
+        "id": "b-001",
+        "title": "Tag bulk delete skips reference check",
+        "severity": "major",
+        "type": "data",
+        "module": "Tag Center",
+        "location": {
+          "file": "src/main/java/com/dtstack/TagService.java",
+          "line": 156,
+          "function": "batchDelete"
+        },
+        "phenomenon": "Tags referenced by tables are physically deleted, leaving dangling tag_id pointers.",
+        "reproduction_steps": [
+          "1. Open Tag Center page",
+          "2. Select referenced tags",
+          "3. Click bulk delete and confirm",
+          "4. Inspect related table — tag_id is null"
+        ],
+        "expected": "Pre-delete reference check should warn user.",
+        "actual": "Silent physical delete.",
+        "root_cause": "ReferenceCheckInterceptor was removed in this diff",
+        "evidence": {
+          "diff_hunk": "@@ -148,8 +148,2 @@ public void batchDelete(List<Long> ids) {\n-    referenceCheck(ids);\n     repo.deleteAll(ids);\n }"
+        },
+        "suggestion": "Restore referenceCheck() call at batchDelete entry point.",
+        "confidence": 0.85,
+        "confidence_reason": "Diff explicitly removes the check; sibling services keep it.",
+        "tags": ["regression", "data-loss-risk"]
+      }
+    ]
+  }
+}

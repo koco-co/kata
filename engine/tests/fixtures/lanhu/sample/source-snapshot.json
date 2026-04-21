@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "source_ref": "lanhu.fixture:sample#sha256:aafee52519ae01b0ea75b62d06d04262143a74c9049c026cde0f409649447eed",
+  "source_kind": "lanhu_url",
+  "title": "示例 Lanhu 原型",
+  "content_path": "content.md",
+  "assets": []
+}
