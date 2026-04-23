@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>customltem/dt-center-assets · 静态扫描报告 (origin/release_6.3.x_ltqc → origin/test_6.3.x_ltqc_v6.4.10_2)</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+    --critical:#dc2626; --major:#ea580c; --normal:#f59e0b; --minor:#6b7280;
+    --code-bg:#0f172a; --code-fg:#e2e8f0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  /* E1 sticky nav */
+  nav.toc{background:#fff;border-right:1px solid var(--border);position:sticky;top:0;
+          height:100vh;overflow-y:auto;padding:24px 16px}
+  nav.toc h2{font-size:13px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;
+             letter-spacing:.5px}
+  nav.toc .group{margin-bottom:18px}
+  nav.toc .group-title{font-weight:600;font-size:13px;color:var(--text);margin-bottom:6px}
+  nav.toc a{display:block;color:var(--muted);font-size:13px;padding:4px 8px;border-radius:6px;
+            text-decoration:none;border-left:3px solid transparent}
+  nav.toc a:hover,nav.toc a.active{color:var(--text);background:#f1f5f9}
+  nav.toc a.sev-critical{border-left-color:var(--critical)}
+  nav.toc a.sev-major{border-left-color:var(--major)}
+  nav.toc a.sev-normal{border-left-color:var(--normal)}
+  nav.toc a.sev-minor{border-left-color:var(--minor)}
+  main{padding:32px 40px;max-width:1200px}
+  /* Header */
+  .header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;
+          border-radius:12px;padding:28px 32px;margin-bottom:20px}
+  .header h1{font-size:20px;font-weight:600;margin-bottom:8px}
+  .header .meta-line{font-size:13px;opacity:.85;display:flex;gap:16px;flex-wrap:wrap}
+  .header .meta-line span{display:inline-flex;gap:6px;align-items:center}
+  /* E4 Summary */
+  .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+  .stat .num{font-size:28px;font-weight:700}
+  .stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .stat .bar{height:6px;background:#e2e8f0;border-radius:3px;margin-top:10px;overflow:hidden}
+  .stat .bar-fill{height:100%;background:var(--critical);transition:width .3s}
+  .stat.s-critical .bar-fill{background:var(--critical)}
+  .stat.s-major .bar-fill{background:var(--major)}
+  .stat.s-normal .bar-fill{background:var(--normal)}
+  .stat.s-minor .bar-fill{background:var(--minor)}
+  /* Meta card */
+  .meta-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+             padding:20px 24px;margin-bottom:20px}
+  .meta-card h3{font-size:14px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;
+                letter-spacing:.5px}
+  .meta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 24px}
+  .meta-grid .row{display:flex;gap:8px;font-size:13px}
+  .meta-grid .row .k{color:var(--muted);min-width:120px}
+  .meta-grid .row .v{font-weight:500;font-family:"JetBrains Mono",Menlo,monospace}
+  /* Bug card with E3 severity left-rail */
+  .bug{background:var(--card);border:1px solid var(--border);border-radius:10px;
+       padding:24px;margin-bottom:16px;border-left-width:4px;border-left-style:solid;
+       scroll-margin-top:20px}
+  .bug.sev-critical{border-left-color:var(--critical)}
+  .bug.sev-major{border-left-color:var(--major)}
+  .bug.sev-normal{border-left-color:var(--normal)}
+  .bug.sev-minor{border-left-color:var(--minor)}
+  .bug-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+            margin-bottom:14px}
+  .bug-head .title{font-size:16px;font-weight:600}
+  .bug-head .id{font-size:12px;color:var(--muted);font-family:Menlo,monospace;margin-right:8px}
+  .badges{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;
+         font-weight:600;color:#fff}
+  .badge.sev-critical,.tag.sev-critical{background:var(--critical)}
+  .badge.sev-major,.tag.sev-major{background:var(--major)}
+  .badge.sev-normal,.tag.sev-normal{background:var(--normal)}
+  .badge.sev-minor,.tag.sev-minor{background:var(--minor)}
+  .badge.type{background:#3b82f6}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;
+       background:#e2e8f0;color:var(--text);margin-right:4px}
+  .section{margin-top:14px}
+  .section .label{font-size:12px;color:var(--muted);text-transform:uppercase;
+                  letter-spacing:.5px;margin-bottom:6px}
+  .section .body{font-size:14px}
+  /* E2 step bubbles */
+  .steps{list-style:none;margin-top:8px}
+  .steps li{position:relative;padding-left:36px;padding-bottom:10px;border-left:2px dashed #cbd5e1;
+            margin-left:12px;font-size:14px}
+  .steps li:last-child{border-left-color:transparent;padding-bottom:0}
+  .steps li::before{content:counter(step);counter-increment:step;
+                    position:absolute;left:-13px;top:-2px;
+                    width:24px;height:24px;border-radius:50%;background:#3b82f6;color:#fff;
+                    font-size:12px;font-weight:600;display:flex;align-items:center;
+                    justify-content:center}
+  ol.steps{counter-reset:step}
+  /* Code blocks */
+  pre.diff{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:8px;
+           font-family:"JetBrains Mono",Menlo,monospace;font-size:12.5px;line-height:1.55;
+           overflow-x:auto;margin-top:6px;white-space:pre}
+  .file-loc{font-family:Menlo,monospace;font-size:13px;background:#f1f5f9;padding:3px 8px;
+            border-radius:4px;color:#0f172a;cursor:pointer;border:1px solid var(--border)}
+  .file-loc:hover{background:#e2e8f0}
+  .copied{color:#10b981;font-size:11px;margin-left:8px}
+  /* Print */
+  @media print{
+    body{background:#fff}
+    .layout{grid-template-columns:1fr}
+    nav.toc{display:none}
+    .bug{break-inside:avoid;page-break-inside:avoid;border:1px solid #999}
+    .header{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  /* Mobile collapses sidebar */
+  @media (max-width: 900px){
+    .layout{grid-template-columns:1fr}
+    nav.toc{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--border)}
+    .summary{grid-template-columns:repeat(2,1fr)}
+    main{padding:20px}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc">
+    <h2>导航</h2>
+    <div class="group">
+      <div class="group-title">质量校验-规则模板</div>
+      <a href="#b-001" class="sev-major">b-001 · MonitorRuleTemplateService.incrementInit() 遗漏新 functionId 46/47/49/50/51，已有项目无法增量获得新内置规则模板</a>
+    </div>
+    <div class="group">
+      <div class="group-title">质量校验-通用配置-JSON格式校验</div>
+      <a href="#b-002" class="sev-minor">b-002 · JsonValidationConfigService.checkBasicParam value 长度超限时错误提示为「必填项未填写」而非「长度超限」</a>
+      <a href="#b-003" class="sev-major">b-003 · deleteJsonFormatBatch 参数校验检查了错误字段 getId() 而非 getIds()，校验形同虚设</a>
+    </div>
+    <div class="group">
+      <div class="group-title">质量校验-取值范围&amp;枚举范围</div>
+      <a href="#b-004" class="sev-major">b-004 · ValueEnumRangeFunctionServiceImpl 单边配置（仅有取值/仅有枚举）时生成挂起运算符的无效 SQL</a>
+    </div>
+  </nav>
+  <main>
+    <div class="header">
+      <h1>customltem/dt-center-assets · 静态扫描报告</h1>
+      <div class="meta-line">
+        <span>分支对比：<code>origin/release_6.3.x_ltqc</code> → <code>origin/test_6.3.x_ltqc_v6.4.10_2</code></span>
+        <span>扫描时间：2026-04-30T08:09:41.573Z</span>
+        <span>扫描人：—</span>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="stat"><div class="num">4</div><div class="lbl">总数</div>
+        <div class="bar"><div class="bar-fill" style="width:100%"></div></div></div>
+      <div class="stat s-critical"><div class="num">0</div><div class="lbl">Critical</div>
+        <div class="bar"><div class="bar-fill" style="width:0%"></div></div></div>
+      <div class="stat s-major"><div class="num">3</div><div class="lbl">Major</div>
+        <div class="bar"><div class="bar-fill" style="width:75%"></div></div></div>
+      <div class="stat s-normal"><div class="num">0</div><div class="lbl">Normal</div>
+        <div class="bar"><div class="bar-fill" style="width:0%"></div></div></div>
+      <div class="stat s-minor"><div class="num">1</div><div class="lbl">Minor</div>
+        <div class="bar"><div class="bar-fill" style="width:25%"></div></div></div>
+    </div>
+
+    <div class="meta-card">
+      <h3>基本信息</h3>
+      <div class="meta-grid">
+        <div class="row"><span class="k">项目</span><span class="v">dataAssets</span></div>
+        <div class="row"><span class="k">仓库</span><span class="v">customltem/dt-center-assets</span></div>
+        <div class="row"><span class="k">基线 commit</span><span class="v">93c79863</span></div>
+        <div class="row"><span class="k">提测 commit</span><span class="v">41bead1f</span></div>
+        <div class="row"><span class="k">diff 文件数</span><span class="v">97</span></div>
+        <div class="row"><span class="k">diff 增/删</span><span class="v">+6531 / -99</span></div>
+        <div class="row"><span class="k">关联需求</span><span class="v">—</span></div>
+        <div class="row"><span class="k">平均可信度</span><span class="v">84%</span></div>
+      </div>
+      
+    </div>
+
+    <article id="b-001" class="bug sev-major">
+      <div class="bug-head">
+        <div>
+          <span class="id">b-001</span>
+          <span class="title">MonitorRuleTemplateService.incrementInit() 遗漏新 functionId 46/47/49/50/51，已有项目无法增量获得新内置规则模板</span>
+        </div>
+        <div class="badges">
+          <span class="badge sev-major">major</span>
+          <span class="badge type">logic</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="label">位置</div>
+        <span class="file-loc" data-copy="service/src/main/java/com/dtstack/assets/service/valid/impl/MonitorRuleTemplateService.java:136"
+              onclick="copyLoc(this)">service/src/main/java/com/dtstack/assets/service/valid/impl/MonitorRuleTemplateService.java:136 · incrementInit()</span>
+        <span class="tag sev-major">质量校验-规则模板</span>
+      </div>
+      <div class="section"><div class="label">现象</div><div class="body">已有项目（非新建）调用 incrementInit() 时，仅筛选 functionId IN (42,43,44,45) 的内置规则模板进行增量传播，新补充的 functionId 46(key范围校验)/47(字段值计算对比)/49(取值范围&amp;枚举范围)/50(多表字段值对比)/51(格式-json格式校验) 全部未被纳入，导致已有项目中无法出现这些新规则类型的系统预置模板。</div></div>
+      <div class="section"><div class="label">复现步骤</div>
+        <ol class="steps">
+          <li>将一个已有项目部署本次版本并执行 SQL 迁移（系统级模板表 assets_dq_monitor_rule_template 已写入 46/47/49/50/51 的 -1,-1 记录）</li><li>系统管理员或后台定时任务调用 MonitorRuleTemplateService.incrementInit()</li><li>incrementInit() 仅查询 functionId IN (42,43,44,45) 的系统模板，跳过 46/47/49/50/51</li><li>检查该已有项目的项目级模板表，确认缺少新规则类型的系统内置模板</li>
+        </ol>
+      </div>
+      <div class="section"><div class="label">期望</div><div class="body">incrementInit() 应将新 functionId (46,47,49,50,51) 也纳入查询范围，使已有项目获得所有新内置规则模板</div></div>
+      <div class="section"><div class="label">实际</div><div class="body">incrementInit() 硬编码查询 Arrays.asList(42,43,44,45)，新 functionId 全部遗漏，已有项目无法获得新模板</div></div>
+      <div class="section"><div class="label">根因</div><div class="body">本次 diff 在 init() 中改用基于 functionId 的差量初始化，但 incrementInit() 的硬编码筛选列表 &#x60;Arrays.asList(42,43,44,45)&#x60; 未被同步更新以包含新的 functionId 46/47/49/50/51</div></div>
+      <div class="section"><div class="label">建议</div><div class="body">将 incrementInit() 中的 Arrays.asList(42,43,44,45) 扩展为包含 46,47,49,50,51，或去掉硬编码列表直接查询所有 functionId</div></div>
+      <div class="section"><div class="label">证据 · diff</div>
+        <pre class="diff">@@ -69,55 +69,69 @@ public class MonitorRuleTemplateService extends BaseService&lt;MonitorRuleTemplateD
+     public void incrementInit(){
+         List&lt;MonitorRuleTemplate&gt; ruleTemplates &#x3D; lambdaQuery()
+                 .select(MonitorRuleTemplate::getProjectId,MonitorRuleTemplate::getTenantId)
+                 .eq(MonitorRuleTemplate::getIsDeleted,0)
+                 .ge(MonitorRuleTemplate::getProjectId,0)
+                 .groupBy(MonitorRuleTemplate::getProjectId,MonitorRuleTemplate::getTenantId).list();
+         if (Langs.isEmpty(ruleTemplates)){
+             return;
+         }
+         log.info(&quot;增量初始化内置规则&quot;);
+         List&lt;MonitorRuleTemplate&gt; incrementTemplates &#x3D; lambdaQuery().eq(MonitorRuleTemplate::getTenantId,-1)
+                 .eq(MonitorRuleTemplate::getProjectId,-1)
+                 .in(MonitorRuleTemplate::getFunctionId, Arrays.asList(42,43,44,45)).list();</pre>
+      </div>
+      <div class="section"><div class="label">可信度</div>
+        <div class="body">85% — init() 已改为差量初始化，但同类的 incrementInit() 仍使用旧硬编码列表；新功能模板 46/47/49/50/51 已被 SQL 迁移写入系统表</div>
+      </div>
+    </article>
+    <article id="b-002" class="bug sev-minor">
+      <div class="bug-head">
+        <div>
+          <span class="id">b-002</span>
+          <span class="title">JsonValidationConfigService.checkBasicParam value 长度超限时错误提示为「必填项未填写」而非「长度超限」</span>
+        </div>
+        <div class="badges">
+          <span class="badge sev-minor">minor</span>
+          <span class="badge type">logic</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="label">位置</div>
+        <span class="file-loc" data-copy="service/src/main/java/com/dtstack/assets/service/valid/impl/JsonValidationConfigService.java:1193"
+              onclick="copyLoc(this)">service/src/main/java/com/dtstack/assets/service/valid/impl/JsonValidationConfigService.java:1193 · checkBasicParam()</span>
+        <span class="tag sev-minor">质量校验-通用配置-JSON格式校验</span>
+      </div>
+      <div class="section"><div class="label">现象</div><div class="body">当导入 Excel 中 value 字段的字符串长度超过 255 字符时，系统错误地提示「必填项未填写」，而实际错误是长度越界，给用户造成误导。</div></div>
+      <div class="section"><div class="label">复现步骤</div>
+        <ol class="steps">
+          <li>进入「通用配置 &gt; json格式校验管理」页面，点击「导入」</li><li>上传一个包含 value 字段内容超过 255 字符的 Excel 文件</li><li>系统在校验环节发现 value 长度 &gt; 255 但填入「必填项未填写」而非「长度超限」</li><li>用户看到错误提示后会误以为该字段为空，产生困惑</li>
+        </ol>
+      </div>
+      <div class="section"><div class="label">期望</div><div class="body">当 value 字段非空但长度 &gt; 255 时，错误信息应显示「长度超限」</div></div>
+      <div class="section"><div class="label">实际</div><div class="body">当 value 字段非空但长度 &gt; 255 时，错误信息显示「必填项未填写」</div></div>
+      <div class="section"><div class="label">根因</div><div class="body">checkBasicParam() 中 value 字段的长度校验分支使用了错误的错误文案「必填项未填写」，与同一方法中 name 字段的「长度超限」对比可见是复制粘贴错误</div></div>
+      <div class="section"><div class="label">建议</div><div class="body">将第 1193 行的 errors.put(valueCol, &quot;必填项未填写&quot;) 改为 errors.put(valueCol, &quot;长度超限&quot;)</div></div>
+      <div class="section"><div class="label">证据 · diff</div>
+        <pre class="diff">@@ -0,0 +1,1326 @@
++        if (StringUtils.isNotEmpty(name) &amp;&amp; name.length() &gt; 255) {
++            errors.put(nameCol, &quot;长度超限&quot;);
++        }
++        if (StringUtils.isNotEmpty(value) &amp;&amp; value.length() &gt; 255) {
++            errors.put(valueCol, &quot;必填项未填写&quot;);
++        }</pre>
+      </div>
+      <div class="section"><div class="label">可信度</div>
+        <div class="body">95% — 同一方法中 name 字段的同条件校验正确使用了「长度超限」；错误文案与条件自相矛盾</div>
+      </div>
+    </article>
+    <article id="b-003" class="bug sev-major">
+      <div class="bug-head">
+        <div>
+          <span class="id">b-003</span>
+          <span class="title">deleteJsonFormatBatch 参数校验检查了错误字段 getId() 而非 getIds()，校验形同虚设</span>
+        </div>
+        <div class="badges">
+          <span class="badge sev-major">major</span>
+          <span class="badge type">logic</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="label">位置</div>
+        <span class="file-loc" data-copy="web/src/main/java/com/dtstack/assets/controller/valid/JsonValidationConfigController.java:106"
+              onclick="copyLoc(this)">web/src/main/java/com/dtstack/assets/controller/valid/JsonValidationConfigController.java:106 · deleteJsonFormatBatch()</span>
+        <span class="tag sev-major">质量校验-通用配置-JSON格式校验</span>
+      </div>
+      <div class="section"><div class="label">现象</div><div class="body">批量删除接口的 checkParams() 使用 Checks.nonNull(param.getId(), ...) 校验参数，但 id 是 long 基本类型（永远不为 null），真正需要校验的 ids 列表 (getIds()) 却未被检查。当请求传入空/未传 ids 时校验仍通过，服务层静默返回 false，用户无感知删除失败。</div></div>
+      <div class="section"><div class="label">复现步骤</div>
+        <ol class="steps">
+          <li>调用 POST /deleteBatch 传入 {&quot;ids&quot;: []} 但不传 id 字段（或传任意 id 值）</li><li>checkParams() 中 Checks.nonNull(param.getId(), ...) 因 id 为基本类型 long（默认0）永不为 null，校验通过</li><li>process() 调用 jsonValidationConfigService.deleteBatchByIds(param.getIds())，因 ids 为空列表返回 false</li><li>客户端收到 {code: 200, data: false}，无法区分是真正的删除失败还是参数错误</li>
+        </ol>
+      </div>
+      <div class="section"><div class="label">期望</div><div class="body">校验应检查 param.getIds() 非空且非空列表，而非检查基本类型 param.getId()</div></div>
+      <div class="section"><div class="label">实际</div><div class="body">校验检查永不为 null 的 param.getId()（long 基本类型），真正应校验的 param.getIds() 未被检查</div></div>
+      <div class="section"><div class="label">根因</div><div class="body">deleteJsonFormatBatch 的 checkParams() 中将参数校验写为 Checks.nonNull(param.getId(), ...)，但从 JsonFormatDeleteParam 定义看 long id 为基本类型不可能为 null，且 service 调用的是 param.getIds()，校验目标与业务逻辑使用的字段不一致</div></div>
+      <div class="section"><div class="label">建议</div><div class="body">将 checkParams() 中的 Checks.nonNull(param.getId(), ...) 改为 Checks.nonNull(param.getIds(), &quot;ids 不能为空&quot;) 并增加非空判断</div></div>
+      <div class="section"><div class="label">证据 · diff</div>
+        <pre class="diff">@@ -0,0 +1,259 @@
++            protected void checkParams() throws IllegalArgumentException {
++                Checks.nonNull(param.getId(), &quot;Id 不能为空&quot;);
++            }
++            @Override
++            protected Boolean process() throws BizException {
++                return jsonValidationConfigService.deleteBatchByIds(param.getIds());
++            }</pre>
+      </div>
+      <div class="section"><div class="label">可信度</div>
+        <div class="body">90% — 字段定义 private long id 为基本类型，Lombok 生成 getId() 永不为 null；service 层方法参数为 List&lt;Long&gt; ids；校验写错字段是确定的编程失误</div>
+      </div>
+    </article>
+    <article id="b-004" class="bug sev-major">
+      <div class="bug-head">
+        <div>
+          <span class="id">b-004</span>
+          <span class="title">ValueEnumRangeFunctionServiceImpl 单边配置（仅有取值/仅有枚举）时生成挂起运算符的无效 SQL</span>
+        </div>
+        <div class="badges">
+          <span class="badge sev-major">major</span>
+          <span class="badge type">logic</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="label">位置</div>
+        <span class="file-loc" data-copy="service/src/main/java/com/dtstack/assets/service/valid/function/Impl/ValueEnumRangeFunctionServiceImpl.java:83"
+              onclick="copyLoc(this)">service/src/main/java/com/dtstack/assets/service/valid/function/Impl/ValueEnumRangeFunctionServiceImpl.java:83 · generateValueEnumRangeConditions()</span>
+        <span class="tag sev-major">质量校验-取值范围&amp;枚举范围</span>
+      </div>
+      <div class="section"><div class="label">现象</div><div class="body">当用户仅配置取值范围或仅配置枚举范围时，generateValueEnumRangeConditions() 生成形如 ((col&gt;1) AND  ) 或 (  AND col IN (&#x27;1&#x27;,&#x27;2&#x27;,&#x27;3&#x27;)) 的 SQL，其中 AND/OR 运算符缺少另一侧操作数，导致 SQL 执行失败。</div></div>
+      <div class="section"><div class="label">复现步骤</div>
+        <ol class="steps">
+          <li>新建一条「取值范围&amp;枚举范围」质量规则（functionId&#x3D;49）</li><li>仅填写取值范围（如 &gt;1 且 &lt;10），不填写枚举值</li><li>保存规则并触发校验执行</li><li>generateValueEnumRangeConditions() 生成无效 SQL，执行时报语法错误</li>
+        </ol>
+      </div>
+      <div class="section"><div class="label">期望</div><div class="body">当仅配置取值范围时，应只输出取值范围 SQL；当仅配置枚举范围时，应只输出枚举范围 SQL；当两者都配置时，才用 AND/OR 连接</div></div>
+      <div class="section"><div class="label">实际</div><div class="body">无论范围是否为空，始终执行 String.format(&quot;(%s %s %s)&quot;, valueSql, operator, enumSql)，空侧以空字符串替代，导致运算符一侧无有效操作数</div></div>
+      <div class="section"><div class="label">根因</div><div class="body">buildValueRangeSql 和 buildEnumRangeSql 在入参为 null 时返回空字符串，但 generateValueEnumRangeConditions 的最终格式始终将运算符拼在中间，未判断两侧是否为空</div></div>
+      <div class="section"><div class="label">建议</div><div class="body">在 return 前增加条件判断：如果 valueSql 为空则直接返回 enumSql，如果 enumSql 为空则直接返回 valueSql，两者非空才拼接 operator</div></div>
+      <div class="section"><div class="label">证据 · diff</div>
+        <pre class="diff">@@ -0,0 +1,130 @@
++    private String generateValueEnumRangeConditions(FunctionBO functionBO) {
++        ValueEnumRangeConfig config &#x3D; (ValueEnumRangeConfig) functionConfigFactory.generateFunctionConfig(49L, functionBO.getExpansion());
++        ValueEnumRangeDTO valueEnumRangeDTO &#x3D; config.getValueEnumRangeDTO();
++        if (Objects.isNull(valueEnumRangeDTO)) { return null; }
++        Range valueRange &#x3D; valueEnumRangeDTO.getValueRange();
++        EnumRangeDTO enumRange &#x3D; valueEnumRangeDTO.getEnumRange();
++        String valueSql &#x3D; buildValueRangeSql(valueRange, columnStr);
++        String enumSql &#x3D; buildEnumRangeSql(enumRange, columnStr);
++        return String.format(&quot;(%s %s %s)&quot;, valueSql, MonitorRuleUtil.OPERATOR_REVERSE_MAP.get(valueEnumRangeDTO.getCondition()), enumSql);
++    }</pre>
+      </div>
+      <div class="section"><div class="label">可信度</div>
+        <div class="body">65% — 代码显式对 null 做了空串处理说明开发者预期过单边 null 的可能性；但 UI 层是否允许仅配置单边无法从代码层面完全确认</div>
+      </div>
+    </article>
+  </main>
+</div>
+<script>
+  function copyLoc(el){
+    const v = el.getAttribute('data-copy');
+    navigator.clipboard.writeText(v).then(()=>{
+      const m = document.createElement('span');
+      m.className='copied';m.textContent='✓ 已复制';
+      el.parentNode.appendChild(m);
+      setTimeout(()=>m.remove(),1500);
+    });
+  }
+  // active TOC link on scroll
+  const links = document.querySelectorAll('nav.toc a');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id));
+      }
+    });
+  },{rootMargin:'-50% 0px -50% 0px'});
+  document.querySelectorAll('article.bug').forEach(b=>obs.observe(b));
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+---
+title: 172.16.122.52 DataAssets DOM
+type: module
+tags: [selector, dataAssets, 数据地图, 热门标签, 字段标签]
+confidence: high
+source: ui.probe.snapshot@2026-05-13-ci63-datamap
+updated: 2026-05-13
+---
+
+# 172.16.122.52 DataAssets DOM
+
+## 数据地图路由
+
+- 数据地图首页为 `#/metaDataCenter`，页面正文包含 `热门标签`、`热门查询`，热门标签接口为 `/dassets/v1/datamap/hotLabel/list`。
+- 数据地图搜索页为 `#/metaDataSearch`，顶部结果类型选择器为 `.searchResult__header--select`。选择 `字段` 后筛选区显示 `字段标签`；选择 `数据表` 时显示 `表标签`。
+
+## 标签接口
+
+- 表详情页添加表标签请求 `/dassets/v1/label/addBindLabel`，payload 包含 `labelType: 1`, `metaType: 1`, `metaId: tableId`。
+- 字段标签请求同接口，payload 包含 `labelType: 2`, `metaType: 2`, `metaId: tableId`, `columnId`。
+- 删除绑定标签使用 `/dassets/v1/label/deleteByBindLabelId`，payload 为 `{ ids: [bindId] }`。
+
+## 选择器
+
+- 字段/表标签筛选框可通过 `.ant-form-item` 包含文本 `字段标签` 或 `表标签` 后定位内部 `.ant-select`。
+- Ant Select 下拉选项为 `.ant-select-dropdown .ant-select-item-option-content`。

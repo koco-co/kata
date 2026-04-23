@@ -1,0 +1,10 @@
+{
+  "cookies": [
+    { "name": "dt_tenant_id", "value": "10481", "domain": "example.test", "path": "/" },
+    { "name": "dt_tenant_name", "value": "pw_test", "domain": "example.test", "path": "/" },
+    { "name": "dt_user_id", "value": "1", "domain": "example.test", "path": "/" },
+    { "name": "dt_username", "value": "admin", "domain": "example.test", "path": "/" },
+    { "name": "dt_token", "value": "redacted-token", "domain": "example.test", "path": "/" }
+  ],
+  "origins": []
+}

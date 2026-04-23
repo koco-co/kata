@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "meta_ref": "./meta.json",
+  "bugs": [
+    {
+      "title": "MonitorRuleTemplateService.incrementInit() 遗漏新 functionId 46/47/49/50/51，已有项目无法增量获得新内置规则模板",
+      "severity": "major",
+      "type": "logic",
+      "module": "质量校验-规则模板",
+      "location": {
+        "file": "service/src/main/java/com/dtstack/assets/service/valid/impl/MonitorRuleTemplateService.java",
+        "line": 136,
+        "function": "incrementInit"
+      },
+      "phenomenon": "已有项目（非新建）调用 incrementInit() 时，仅筛选 functionId IN (42,43,44,45) 的内置规则模板进行增量传播，新补充的 functionId 46(key范围校验)/47(字段值计算对比)/49(取值范围&枚举范围)/50(多表字段值对比)/51(格式-json格式校验) 全部未被纳入，导致已有项目中无法出现这些新规则类型的系统预置模板。",
+      "reproduction_steps": [
+        "1. 将一个已有项目部署本次版本并执行 SQL 迁移（系统级模板表 assets_dq_monitor_rule_template 已写入 46/47/49/50/51 的 -1,-1 记录）",
+        "2. 系统管理员或后台定时任务调用 MonitorRuleTemplateService.incrementInit()",
+        "3. incrementInit() 仅查询 functionId IN (42,43,44,45) 的系统模板，跳过 46/47/49/50/51",
+        "4. 检查该已有项目的项目级模板表，确认缺少新规则类型的系统内置模板"
+      ],
+      "expected": "incrementInit() 应将新 functionId (46,47,49,50,51) 也纳入查询范围，使已有项目获得所有新内置规则模板",
+      "actual": "incrementInit() 硬编码查询 Arrays.asList(42,43,44,45)，新 functionId 全部遗漏，已有项目无法获得新模板",
+      "root_cause": "本次 diff 在 init() 中改用基于 functionId 的差量初始化，但 incrementInit() 的硬编码筛选列表 `Arrays.asList(42,43,44,45)` 未被同步更新以包含新的 functionId 46/47/49/50/51",
+      "evidence": {
+        "diff_hunk": "@@ -69,55 +69,69 @@ public class MonitorRuleTemplateService extends BaseService<MonitorRuleTemplateD\n     public void incrementInit(){\n         List<MonitorRuleTemplate> ruleTemplates = lambdaQuery()\n                 .select(MonitorRuleTemplate::getProjectId,MonitorRuleTemplate::getTenantId)\n                 .eq(MonitorRuleTemplate::getIsDeleted,0)\n                 .ge(MonitorRuleTemplate::getProjectId,0)\n                 .groupBy(MonitorRuleTemplate::getProjectId,MonitorRuleTemplate::getTenantId).list();\n         if (Langs.isEmpty(ruleTemplates)){\n             return;\n         }\n         log.info(\"增量初始化内置规则\");\n         List<MonitorRuleTemplate> incrementTemplates = lambdaQuery().eq(MonitorRuleTemplate::getTenantId,-1)\n                 .eq(MonitorRuleTemplate::getProjectId,-1)\n                 .in(MonitorRuleTemplate::getFunctionId, Arrays.asList(42,43,44,45)).list();"
+      },
+      "suggestion": "将 incrementInit() 中的 Arrays.asList(42,43,44,45) 扩展为包含 46,47,49,50,51，或去掉硬编码列表直接查询所有 functionId",
+      "confidence": 0.85,
+      "confidence_reason": "init() 已改为差量初始化，但同类的 incrementInit() 仍使用旧硬编码列表；新功能模板 46/47/49/50/51 已被 SQL 迁移写入系统表",
+      "id": "b-001"
+    },
+    {
+      "title": "JsonValidationConfigService.checkBasicParam value 长度超限时错误提示为「必填项未填写」而非「长度超限」",
+      "severity": "minor",
+      "type": "logic",
+      "module": "质量校验-通用配置-JSON格式校验",
+      "location": {
+        "file": "service/src/main/java/com/dtstack/assets/service/valid/impl/JsonValidationConfigService.java",
+        "line": 1193,
+        "function": "checkBasicParam"
+      },
+      "phenomenon": "当导入 Excel 中 value 字段的字符串长度超过 255 字符时，系统错误地提示「必填项未填写」，而实际错误是长度越界，给用户造成误导。",
+      "reproduction_steps": [
+        "1. 进入「通用配置 > json格式校验管理」页面，点击「导入」",
+        "2. 上传一个包含 value 字段内容超过 255 字符的 Excel 文件",
+        "3. 系统在校验环节发现 value 长度 > 255 但填入「必填项未填写」而非「长度超限」",
+        "4. 用户看到错误提示后会误以为该字段为空，产生困惑"
+      ],
+      "expected": "当 value 字段非空但长度 > 255 时，错误信息应显示「长度超限」",
+      "actual": "当 value 字段非空但长度 > 255 时，错误信息显示「必填项未填写」",
+      "root_cause": "checkBasicParam() 中 value 字段的长度校验分支使用了错误的错误文案「必填项未填写」，与同一方法中 name 字段的「长度超限」对比可见是复制粘贴错误",
+      "evidence": {
+        "diff_hunk": "@@ -0,0 +1,1326 @@\n+        if (StringUtils.isNotEmpty(name) && name.length() > 255) {\n+            errors.put(nameCol, \"长度超限\");\n+        }\n+        if (StringUtils.isNotEmpty(value) && value.length() > 255) {\n+            errors.put(valueCol, \"必填项未填写\");\n+        }"
+      },
+      "suggestion": "将第 1193 行的 errors.put(valueCol, \"必填项未填写\") 改为 errors.put(valueCol, \"长度超限\")",
+      "confidence": 0.95,
+      "confidence_reason": "同一方法中 name 字段的同条件校验正确使用了「长度超限」；错误文案与条件自相矛盾",
+      "id": "b-002"
+    },
+    {
+      "title": "deleteJsonFormatBatch 参数校验检查了错误字段 getId() 而非 getIds()，校验形同虚设",
+      "severity": "major",
+      "type": "logic",
+      "module": "质量校验-通用配置-JSON格式校验",
+      "location": {
+        "file": "web/src/main/java/com/dtstack/assets/controller/valid/JsonValidationConfigController.java",
+        "line": 106,
+        "function": "deleteJsonFormatBatch"
+      },
+      "phenomenon": "批量删除接口的 checkParams() 使用 Checks.nonNull(param.getId(), ...) 校验参数，但 id 是 long 基本类型（永远不为 null），真正需要校验的 ids 列表 (getIds()) 却未被检查。当请求传入空/未传 ids 时校验仍通过，服务层静默返回 false，用户无感知删除失败。",
+      "reproduction_steps": [
+        "1. 调用 POST /deleteBatch 传入 {\"ids\": []} 但不传 id 字段（或传任意 id 值）",
+        "2. checkParams() 中 Checks.nonNull(param.getId(), ...) 因 id 为基本类型 long（默认0）永不为 null，校验通过",
+        "3. process() 调用 jsonValidationConfigService.deleteBatchByIds(param.getIds())，因 ids 为空列表返回 false",
+        "4. 客户端收到 {code: 200, data: false}，无法区分是真正的删除失败还是参数错误"
+      ],
+      "expected": "校验应检查 param.getIds() 非空且非空列表，而非检查基本类型 param.getId()",
+      "actual": "校验检查永不为 null 的 param.getId()（long 基本类型），真正应校验的 param.getIds() 未被检查",
+      "root_cause": "deleteJsonFormatBatch 的 checkParams() 中将参数校验写为 Checks.nonNull(param.getId(), ...)，但从 JsonFormatDeleteParam 定义看 long id 为基本类型不可能为 null，且 service 调用的是 param.getIds()，校验目标与业务逻辑使用的字段不一致",
+      "evidence": {
+        "diff_hunk": "@@ -0,0 +1,259 @@\n+            protected void checkParams() throws IllegalArgumentException {\n+                Checks.nonNull(param.getId(), \"Id 不能为空\");\n+            }\n+            @Override\n+            protected Boolean process() throws BizException {\n+                return jsonValidationConfigService.deleteBatchByIds(param.getIds());\n+            }"
+      },
+      "suggestion": "将 checkParams() 中的 Checks.nonNull(param.getId(), ...) 改为 Checks.nonNull(param.getIds(), \"ids 不能为空\") 并增加非空判断",
+      "confidence": 0.9,
+      "confidence_reason": "字段定义 private long id 为基本类型，Lombok 生成 getId() 永不为 null；service 层方法参数为 List<Long> ids；校验写错字段是确定的编程失误",
+      "id": "b-003"
+    },
+    {
+      "title": "ValueEnumRangeFunctionServiceImpl 单边配置（仅有取值/仅有枚举）时生成挂起运算符的无效 SQL",
+      "severity": "major",
+      "type": "logic",
+      "module": "质量校验-取值范围&枚举范围",
+      "location": {
+        "file": "service/src/main/java/com/dtstack/assets/service/valid/function/Impl/ValueEnumRangeFunctionServiceImpl.java",
+        "line": 83,
+        "function": "generateValueEnumRangeConditions"
+      },
+      "phenomenon": "当用户仅配置取值范围或仅配置枚举范围时，generateValueEnumRangeConditions() 生成形如 ((col>1) AND  ) 或 (  AND col IN ('1','2','3')) 的 SQL，其中 AND/OR 运算符缺少另一侧操作数，导致 SQL 执行失败。",
+      "reproduction_steps": [
+        "1. 新建一条「取值范围&枚举范围」质量规则（functionId=49）",
+        "2. 仅填写取值范围（如 >1 且 <10），不填写枚举值",
+        "3. 保存规则并触发校验执行",
+        "4. generateValueEnumRangeConditions() 生成无效 SQL，执行时报语法错误"
+      ],
+      "expected": "当仅配置取值范围时，应只输出取值范围 SQL；当仅配置枚举范围时，应只输出枚举范围 SQL；当两者都配置时，才用 AND/OR 连接",
+      "actual": "无论范围是否为空，始终执行 String.format(\"(%s %s %s)\", valueSql, operator, enumSql)，空侧以空字符串替代，导致运算符一侧无有效操作数",
+      "root_cause": "buildValueRangeSql 和 buildEnumRangeSql 在入参为 null 时返回空字符串，但 generateValueEnumRangeConditions 的最终格式始终将运算符拼在中间，未判断两侧是否为空",
+      "evidence": {
+        "diff_hunk": "@@ -0,0 +1,130 @@\n+    private String generateValueEnumRangeConditions(FunctionBO functionBO) {\n+        ValueEnumRangeConfig config = (ValueEnumRangeConfig) functionConfigFactory.generateFunctionConfig(49L, functionBO.getExpansion());\n+        ValueEnumRangeDTO valueEnumRangeDTO = config.getValueEnumRangeDTO();\n+        if (Objects.isNull(valueEnumRangeDTO)) { return null; }\n+        Range valueRange = valueEnumRangeDTO.getValueRange();\n+        EnumRangeDTO enumRange = valueEnumRangeDTO.getEnumRange();\n+        String valueSql = buildValueRangeSql(valueRange, columnStr);\n+        String enumSql = buildEnumRangeSql(enumRange, columnStr);\n+        return String.format(\"(%s %s %s)\", valueSql, MonitorRuleUtil.OPERATOR_REVERSE_MAP.get(valueEnumRangeDTO.getCondition()), enumSql);\n+    }"
+      },
+      "suggestion": "在 return 前增加条件判断：如果 valueSql 为空则直接返回 enumSql，如果 enumSql 为空则直接返回 valueSql，两者非空才拼接 operator",
+      "confidence": 0.65,
+      "confidence_reason": "代码显式对 null 做了空串处理说明开发者预期过单边 null 的可能性；但 UI 层是否允许仅配置单边无法从代码层面完全确认",
+      "id": "b-004"
+    }
+  ]
+}

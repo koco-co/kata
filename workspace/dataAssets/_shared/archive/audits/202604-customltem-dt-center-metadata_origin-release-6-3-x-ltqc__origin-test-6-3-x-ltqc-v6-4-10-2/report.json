@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "meta_ref": "./meta.json",
+  "bugs": [
+    {
+      "title": "同步任务运行中被删除时，syncJobStatus 触发 NullPointerException 导致后续所有 job 状态更新中断",
+      "severity": "critical",
+      "type": "state",
+      "module": "元数据同步",
+      "location": {
+        "file": "service/src/main/java/com/dtstack/metadata/service/sync/SyncJobStatusService.java",
+        "line": 195,
+        "function": "syncJobStatus"
+      },
+      "phenomenon": "当周期同步任务(SyncTask)被删除但仍有运行中的 SyncJob 时，syncJobStatus() 后台轮询方法中 taskIdMap.get(job.getTaskId()) 返回 null，后续调用 alertService.sendPeriodSyncFailedAlert(dataSourceId, syncTask, syncJob) 时访问 syncTask.getId() 空指针异常，导致外层 for 循环中断，该数据源下所有尚未处理的 job 状态更新全部跳过。",
+      "reproduction_steps": [
+        "1. 管理员为某数据源创建一个周期同步任务(SyncTask)，确保其调度已开启。",
+        "2. 等待该任务触发，SyncJob 进入 SYNCING 运行中状态，jobList 查询包含该 job。",
+        "3. 在 SyncJob 仍在运行期间，管理员在同步任务管理页面删除该 SyncTask。",
+        "4. 后台 syncJobStatus() 定时轮询执行：syncTaskService.listByIds(taskIds) 返回空列表，taskIdMap 为空。",
+        "5. 代码进入 job 循环，taskIdMap.get(job.getTaskId()) 返回 null，直接调用 alertService.sendPeriodSyncFailedAlert(dataSourceId, null, syncJob)。",
+        "6. syncTask.getId() 在 sendPeriodSyncFailedAlert 内部抛出 NullPointerException，无 try-catch 兜底，异常穿透至外层 for 循环，该数据源后续所有待处理的 job 均被跳过。"
+      ],
+      "expected": "当同步任务已删除时，应跳过告警发送流程，继续正常处理 job 状态更新（如将 job 置为失败或已完成）。",
+      "actual": "因 syncTask 为 null 触发 NPE，该数据源整个 for 循环被中断，剩余所有 job 状态不再更新，部分 job 永久卡在 SYNCING 状态。",
+      "root_cause": "新增的 taskIdMap 查询在 SyncTask 被删除后返回 null，但调用方未做 null 检测，且新版 sendPeriodSyncFailedAlert 直接解引用 syncTask.getId() 无容错。旧版本原本传 Long taskId 不存在此问题。",
+      "evidence": {
+        "diff_hunk": "@@ -111,58 +112,63 @@ public class SyncJobStatusService {\n+            Set<Long> taskIds = jobList.stream().map(SyncJob::getTaskId).collect(Collectors.toSet());\n+            List<SyncTask> syncTasks = syncTaskService.listByIds(taskIds);\n+            Map<Long,SyncTask> taskIdMap = syncTasks.stream().collect(Collectors.toMap(SyncTask::getId, Function.identity()));\n...\n+                    SyncTask syncTask = taskIdMap.get(job.getTaskId());\n...\n-                                        alertService.sendPeriodSyncFailedAlert(dataSourceId, syncJob.getTaskId());\n+                                        alertService.sendPeriodSyncFailedAlert(dataSourceId,syncTask, syncJob);\n...\n@@ -178,41 +184,41 @@ public class SyncJobStatusService {\n-                                        alertService.sendPeriodSyncFailedAlert(dataSourceId, syncJob.getTaskId());\n+                                        alertService.sendPeriodSyncFailedAlert(dataSourceId, syncTask,syncJob);\n@@ -238,92 +244,92 @@ public class SyncJobStatusService {\n-                                        alertService.sendPeriodSyncFailedAlert(dataSourceId, syncJob.getTaskId());\n+                                        alertService.sendPeriodSyncFailedAlert(dataSourceId, syncTask,syncJob);\n@@ -388,41 +388,41 @@ public class SyncJobStatusService {\n-                                alertService.sendPeriodSyncFailedAlert(dataSourceId, syncJob.getTaskId());\n+                                alertService.sendPeriodSyncFailedAlert(dataSourceId, syncTask,syncJob);"
+      },
+      "suggestion": "在获取 syncTask 后添加 null 判断：if (syncTask == null) { log.warn(...); continue; }。同时在新版 sendPeriodSyncFailedAlert 方法内对 syncTask 参数增加防御性 null 检查。",
+      "confidence": 0.85,
+      "confidence_reason": "NPE 路径完全由 diff 中新增代码暴露：taskIdMap 构建 + 取值 + 传参至新方法签名；旧方法传 Long 值无此风险。触发条件为任务在运行中被删除，属正常运维场景。diff 中 4 处调用全部同步替换，且测试代码 doNothing().when(...).sendPeriodSyncFailedAlert(anyLong(), null, null) 印证开发者已意识到 null 入参可能。",
+      "id": "b-001"
+    }
+  ]
+}

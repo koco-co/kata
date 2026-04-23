@@ -1,0 +1,11 @@
+enum:
+  - dq
+  - security
+  - metadata
+  - modeling
+  - standard
+  - assets
+  - multimodal
+  - generalConfig
+  - lifecycle
+  - lineage
