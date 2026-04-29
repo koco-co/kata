@@ -1,0 +1,52 @@
+// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t15-json
+// intent: SR-INTENT-MIGRATED
+// probe: SR-UI-PROBE-MIGRATED
+// page: _shared/pages/PLACEHOLDER-page.ts
+// META: {"id":"t15","priority":"P0","title":"【P0】验证格式-json格式校验校验不通过主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看失败明细"}
+import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { P0_FAIL_SCENARIO } from "../data/test-data";
+import {
+  ensureExecutedJsonTask,
+  getTaskDetailRuleCard,
+  openTaskInstanceDetail,
+  openTaskRuleDetailDataDrawer,
+  waitForVisibleTaskRow,
+} from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-task-helpers";
+import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+import { buildValidationKeyLabelPattern } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/validation-key-label";
+import { isFailLikeValidationStatus } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/validation-result-status";
+
+test.use({
+  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
+});
+test.setTimeout(600000);
+
+describeByDatasource("校验结果查询", () => {
+  test("验证格式-json格式校验校验不通过主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看失败明细", async ({
+    page,
+  }) => {
+    await ensureExecutedJsonTask(page, P0_FAIL_SCENARIO);
+    const instanceRow = await waitForVisibleTaskRow(page, P0_FAIL_SCENARIO.taskName);
+    expect(
+      isFailLikeValidationStatus(await instanceRow.innerText()),
+      "expected validation result row to show a fail-like status",
+    ).toBe(true);
+
+    const detailDrawer = await openTaskInstanceDetail(page, instanceRow);
+    const ruleCard = getTaskDetailRuleCard(detailDrawer, "格式-json格式校验");
+
+    await expect(ruleCard).toBeVisible({ timeout: 10000 });
+    await expect(ruleCard).toContainText("有效性校验");
+    await expect(ruleCard).toContainText("格式-json格式校验");
+    await expect(ruleCard).toContainText(buildValidationKeyLabelPattern("person-name"));
+    await expect(ruleCard).toContainText(buildValidationKeyLabelPattern("person-age"));
+    await expect(detailDrawer).toContainText(/校验未通过|校验不通过/);
+
+    const dataDrawer = await openTaskRuleDetailDataDrawer(page, detailDrawer);
+    await expect(dataDrawer).toContainText('"name":"Tom"', { timeout: 15000 });
+    await expect(dataDrawer).toContainText('"age":"1000"', { timeout: 15000 });
+    await expect(dataDrawer).not.toContainText('"name":"张三","age":"25"', {
+      timeout: 15000,
+    });
+  });
+});

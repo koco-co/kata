@@ -1,0 +1,37 @@
+// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t28-json
+// intent: SR-INTENT-MIGRATED
+// probe: SR-UI-PROBE-MIGRATED
+// page: _shared/pages/PLACEHOLDER-page.ts
+// META: {"id":"t28","priority":"P1","title":"【P1】验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验通过场景）"}
+import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { REPORT_PASS_SCENARIO } from "../data/test-data";
+import {
+  getQualityReportRuleRow,
+  openPreparedQualityReport,
+} from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-task-helpers";
+import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+
+test.use({
+  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
+});
+test.setTimeout(600000);
+
+describeByDatasource("数据质量报告", () => {
+  test("验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验通过场景）", async ({
+    page,
+  }) => {
+    const detail = await openPreparedQualityReport(page, REPORT_PASS_SCENARIO);
+    const ruleRow = getQualityReportRuleRow(page, "格式-json格式校验");
+    const detailAction = ruleRow.locator("button, a").filter({ hasText: "查看详情" });
+
+    await expect(detail).toBeVisible({ timeout: 10000 });
+    await expect(ruleRow).toBeVisible({ timeout: 10000 });
+    await expect(ruleRow).toContainText("有效性校验");
+    await expect(ruleRow).toContainText("格式-json格式校验");
+    await expect(ruleRow).toContainText(/校验通过/);
+    await expect(ruleRow).toContainText("--");
+    await expect(ruleRow).toContainText(/meta-version/);
+    await expect(ruleRow).toContainText(/value格式要求/);
+    await expect(detailAction).toHaveCount(0);
+  });
+});
