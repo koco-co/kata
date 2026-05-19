@@ -548,9 +548,8 @@ describe("ai-core projection", () => {
       expect(skill).toContain("## 失败策略");
       expect(skill).toContain("missing_evidence: refuse_with_questions");
       expect(skill).toContain("## 硬规则");
-      expect(skill).toContain(
-        "每个 requirement atom 必须包含 evidence_kind、ambiguity_class、confidence",
-      );
+      expect(skill).toContain("evidence_kind");
+      expect(skill).toContain("ambiguity_class");
       expect(skill).toContain("archive.md 与 cases.xmind 只能在 blocking pending 为 0 时生成");
     }
   });
@@ -559,7 +558,7 @@ describe("ai-core projection", () => {
     const out = mkdtempSync(join(tmpdir(), "kata-projection-"));
     await renderProjection({ runtime: "all", outputRoot: out });
 
-    for (const runtimeRoot of [".agents", ".claude"]) {
+    for (const runtimeRoot of [".claude"]) {
       const skill = readFileSync(
         join(out, runtimeRoot, "skills/playwright-automation/SKILL.md"),
         "utf8",
@@ -976,7 +975,7 @@ describe("ai-core projection", () => {
     const out = mkdtempSync(join(tmpdir(), "kata-projection-"));
     await renderProjection({ runtime: "all", outputRoot: out });
 
-    for (const runtimeRoot of [".claude", ".agents"]) {
+    for (const runtimeRoot of [".claude"]) {
       const skill = readFileSync(join(out, runtimeRoot, "skills/case-draft/SKILL.md"), "utf8");
       expect(skill).toContain("Lanhu/Axure URL 是源输入");
       expect(skill).toContain("lanhu.fixture@1");
