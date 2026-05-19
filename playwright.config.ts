@@ -41,6 +41,11 @@ loadDotEnv();
 // 1. KATA_ACTIVE_FEATURE + KATA_ACTIVE_PROJECT → feature 级
 // 2. KATA_ACTIVE_PROJECT                       → 项目级（无 feature 时）
 // 3. 都未设置                                   → fallback 至仓库根（仅本地兼容期）
+// CLAUDE.md §Feature Directory Naming: enforce lowercase ASCII feature ids so
+// a stale .env.local can't redirect Playwright outputDir into Chinese / 【】
+// directories created from raw archive CSV titles.
+const FEATURE_ID_RE = /^\d{4}-?(?:\d{2}|XX)(?:-[a-z][a-z0-9-]*)+$/;
+
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
   const project = env.KATA_ACTIVE_PROJECT;
   const feature = env.KATA_ACTIVE_FEATURE;
@@ -48,6 +53,11 @@ export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
     throw new Error("[playwright.config] KATA_ACTIVE_PROJECT is required.");
   }
   if (feature) {
+    if (!FEATURE_ID_RE.test(feature)) {
+      throw new Error(
+        `[playwright.config] invalid KATA_ACTIVE_FEATURE '${feature}': must match YYYY[-]MM-{slug-segments} (lowercase ASCII). Check .env.local for stale value.`,
+      );
+    }
     return `workspace/${project}/features/${feature}/tests/.runs/test-results`;
   }
   return `workspace/${project}/.runs/test-results`;

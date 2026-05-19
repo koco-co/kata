@@ -1220,17 +1220,31 @@ function parseL1Title(title: string): { name: string; caseId?: string } {
   return parseTitleAndCaseId(title);
 }
 
-/** Sanitize L1 title for use as filename — preserve【】, remove ticket suffix, strip unsafe chars */
+// Deterministic djb2-style short hash; gives stable disambiguator for titles that
+// reduce to the same ASCII fragment (or no ASCII at all).
+function shortTitleHash(text: string): string {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) + hash + text.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(36).padStart(6, "0").slice(0, 8);
+}
+
+/**
+ * Sanitize L1 title into a CLAUDE.md-compliant slug (lowercase ASCII, hyphen-separated,
+ * leading letter). Non-ASCII titles fall back to `case-{hash}` so paths stay stable
+ * but never leak Chinese / 【】 into the filesystem (see assertFeatureId in lib/paths.ts).
+ */
 function sanitizeFilename(title: string): string {
   const { name } = parseL1Title(title);
-  return (
-    name
-      .replace(/[/\\:*?"<>|]/g, "-")
-      .replace(/\s+/g, "")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "")
-      .trim() || "未命名"
-  );
+  const ascii = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  const hash = shortTitleHash(name);
+  if (ascii && /^[a-z]/.test(ascii)) return `${ascii}-${hash}`;
+  if (ascii) return `case-${ascii}-${hash}`;
+  return `case-${hash}`;
 }
 
 function buildUniqueFeatureArchivePath(

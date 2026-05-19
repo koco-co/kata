@@ -347,8 +347,29 @@ describe("listProjects", () => {
 
 describe("featureDir / featureFile (new v3 API)", () => {
   test("featureDir returns workspace/{p}/features/{ym}-{slug}/", () => {
-    const result = featureDir("dataAssets", "202604", "【test】slug-with-中文");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/202604-【test】slug-with-中文$/);
+    const result = featureDir("dataAssets", "202604", "myslug");
+    expect(result).toMatch(/workspace\/dataAssets\/features\/202604-myslug$/);
+  });
+
+  test("featureDir accepts dashed yyyymm (2026-04) and multi-segment slugs", () => {
+    const result = featureDir("dataAssets", "2026-04", "general-json-config");
+    expect(result).toMatch(/workspace\/dataAssets\/features\/2026-04-general-json-config$/);
+  });
+
+  test("featureDir accepts the 2099-XX placeholder month", () => {
+    const result = featureDir("dataAssets", "2099-XX", "draft-slug");
+    expect(result).toMatch(/workspace\/dataAssets\/features\/2099-XX-draft-slug$/);
+  });
+
+  test("featureDir rejects slugs containing Chinese / 【】 (CLAUDE.md §Feature Directory Naming)", () => {
+    expect(() => featureDir("dataAssets", "202604", "【test】slug-with-中文")).toThrow(
+      /invalid feature id/,
+    );
+  });
+
+  test("featureDir rejects uppercase or whitespace in slug", () => {
+    expect(() => featureDir("dataAssets", "202604", "MySlug")).toThrow(/invalid feature id/);
+    expect(() => featureDir("dataAssets", "202604", "my slug")).toThrow(/invalid feature id/);
   });
 
   test("featureFile joins additional segments", () => {
