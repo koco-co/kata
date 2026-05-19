@@ -23,3 +23,4 @@ workspace/*/features/*/tmp/probe-report.md
 dist/
 *.tsbuildinfo
 .tide/
+tmp/
