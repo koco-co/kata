@@ -12,6 +12,7 @@ description:
   must_not_trigger_when:
     - 用户提供的内容是需做冲突分析的合并冲突标记。
     - 用户希望基于既有 bug 记录产出 hotfix 回归用例。
+    - 用户只给出 ZenTao bug URL、bug-view URL、bug ID 或其他已登记 issue 记录；这类输入优先路由到 case-hotfix，由 case-hotfix 决定是否能生成回归用例或输出 pending_items。
 outputs:
   - report
 inputs:

@@ -605,7 +605,7 @@ describe("p0 golden evals", () => {
     const result = await runGaCoreGoldenEvals({ subset: "fast-deterministic" });
     expect(result.pass).toBe(true);
     expect(result.passed).toBe(result.total);
-    expect(result.telemetry.trigger_route_attempts).toBe(18);
+    expect(result.telemetry.trigger_route_attempts).toBe(19);
     expect(result.telemetry.trigger_hit_rate).toBe(1);
   });
 

@@ -8,6 +8,7 @@ description:
   summary: 依据已知 bug、issue 记录或修复说明，产出聚焦于修复路径的 hotfix 回归用例。
   must_trigger_when:
     - 用户给出 bug ID、issue URL、缺陷描述或修复说明。
+    - 用户只给出 ZenTao bug URL、bug-view URL、bug ID 或其他已登记 issue 记录，即使没有显式写出“hotfix”或“回归用例”。
     - 用户希望为已修复的缺陷补足回归覆盖。
   must_not_trigger_when:
     - 用户要求基于原始失败证据撰写通用 bug 报告。

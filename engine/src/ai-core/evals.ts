@@ -1020,6 +1020,8 @@ function evalRouteGaCoreSkill(
   }
   if (
     normalized.includes("hotfix") ||
+    normalized.includes("zentao/bug-view-") ||
+    normalized.includes("bug-view-") ||
     input.includes("禅道") ||
     input.includes("回归用例") ||
     input.includes("修复验证")

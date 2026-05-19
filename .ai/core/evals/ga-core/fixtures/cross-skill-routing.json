@@ -33,6 +33,10 @@
       "expected_skill_id": "case-hotfix@1"
     },
     {
+      "text": "http://zenpms.dtstack.cn/zentao/bug-view-151262.html",
+      "expected_skill_id": "case-hotfix@1"
+    },
+    {
       "text": "规划 UI 自动化覆盖、生成 Playwright 脚本并对运行失败归因修复",
       "expected_skill_id": "playwright-automation@1"
     },

@@ -243,6 +243,8 @@ describe("ai-core projection", () => {
       expect(doc).toContain("## Routing");
       expect(doc).toContain("If the input is only a Lanhu/Axure URL");
       expect(doc).toContain("dispatch to `case-draft` silently");
+      expect(doc).toContain("If the input is only a ZenTao bug URL");
+      expect(doc).toContain("dispatch to `case-hotfix`");
       expect(doc).toContain("If `/playwright-automation` lacks an explicit environment");
       expect(doc).toContain("follow the environment confirmation protocol in the skill");
       expect(doc).toContain(
