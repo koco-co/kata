@@ -81,9 +81,25 @@ function declaredReferencePaths(skill: ProductSkillProjectionContract): string[]
   ].sort();
 }
 
-function renderRoutingSummary(skill: ProductSkillProjectionContract): string[] {
-  if (skill.routingSummary.length === 0) return [];
-  return ["## 路由摘要", "", ...skill.routingSummary.map((s) => `- ${s}`), ""];
+function renderRoutingSummary(
+  skill: ProductSkillProjectionContract,
+  runtime: ProjectionRuntime,
+): string[] {
+  const lines =
+    runtime === "codex" && skill.codexOverrides.routingSummary.length > 0
+      ? skill.codexOverrides.routingSummary
+      : skill.routingSummary;
+  if (lines.length === 0) return [];
+  return ["## 路由摘要", "", ...lines.map((s) => `- ${s}`), ""];
+}
+
+function effectiveHardRules(
+  skill: ProductSkillProjectionContract,
+  runtime: ProjectionRuntime,
+): string[] {
+  return runtime === "codex" && skill.codexOverrides.hardRules.length > 0
+    ? skill.codexOverrides.hardRules
+    : skill.hardRules;
 }
 
 function renderInputs(skill: ProductSkillProjectionContract): string[] {
@@ -221,6 +237,7 @@ function renderSkillContent(
   skill: ProductSkillProjectionContract,
   generatedHeader: string,
   callGraph: SkillCallGraph | undefined,
+  runtime: ProjectionRuntime,
 ): string {
   return [
     "---",
@@ -234,7 +251,7 @@ function renderSkillContent(
     "",
     "证据事实必须引用 SourceRef ID。",
     "",
-    ...renderRoutingSummary(skill),
+    ...renderRoutingSummary(skill, runtime),
     ...renderInputs(skill),
     ...renderCallGraph(callGraph),
     ...renderListSection("触发条件", skill.mustTriggerWhen),
@@ -250,7 +267,7 @@ function renderSkillContent(
     ...renderKeyValueSection("失败策略", skill.failurePolicy),
     "## 硬规则",
     "",
-    ...skill.hardRules.map((rule) => `- ${rule}`),
+    ...effectiveHardRules(skill, runtime).map((rule) => `- ${rule}`),
     "",
   ].join("\n");
 }
@@ -300,7 +317,12 @@ export function renderProductSkill(
   const files: RenderedSkillFile[] = [
     {
       path: skillProjectionPath(options.runtime, skill.name),
-      content: renderSkillContent(skill, options.generatedHeader, options.callGraph),
+      content: renderSkillContent(
+        skill,
+        options.generatedHeader,
+        options.callGraph,
+        options.runtime,
+      ),
     },
   ];
 

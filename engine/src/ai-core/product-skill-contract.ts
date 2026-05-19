@@ -58,6 +58,10 @@ export type ProductSkillProjectionContract = {
   fewShots: SkillFewShot[];
   evidencePolicy: Record<string, string | string[]>;
   failurePolicy: Record<string, string | string[]>;
+  codexOverrides: {
+    routingSummary: string[];
+    hardRules: string[];
+  };
 };
 
 type ProductSkillParserScope =
@@ -290,6 +294,8 @@ function containerKindFor(path: string[]): ProductSkillParserScope["kind"] {
     key === "body.always_load.routing_summary" ||
     key === "body.always_load.hard_rules" ||
     key === "body.hard_rules" ||
+    key === "body.codex_override.routing_summary" ||
+    key === "body.codex_override.hard_rules" ||
     key.startsWith("evidence.") ||
     key.startsWith("failure_policy.")
   ) {
@@ -368,6 +374,12 @@ function appendProjectionListValue(
       return;
     case "body.hard_rules":
       contract.hardRules.push(value);
+      return;
+    case "body.codex_override.routing_summary":
+      contract.codexOverrides.routingSummary.push(value);
+      return;
+    case "body.codex_override.hard_rules":
+      contract.codexOverrides.hardRules.push(value);
       return;
     default: {
       const p0 = path[0];
@@ -600,6 +612,7 @@ export function parseProductSkillContract(
     fewShots: [],
     evidencePolicy: {},
     failurePolicy: {},
+    codexOverrides: { routingSummary: [], hardRules: [] },
   };
   const scopes: ProductSkillParserScope[] = [
     { kind: "map", path: [], childIndent: 0, seenKeys: new Set<string>() },

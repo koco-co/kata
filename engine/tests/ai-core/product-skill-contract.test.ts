@@ -116,6 +116,37 @@ describe("product skill contract parser", () => {
     });
   });
 
+  it("parses optional body.codex_override into codexOverrides", () => {
+    const text = VALID.replace(
+      "    hard_rules:\n      - Do not invent facts.",
+      [
+        "    hard_rules:",
+        "      - Do not invent facts.",
+        "  codex_override:",
+        "    routing_summary:",
+        "      - Codex routing line.",
+        "    hard_rules:",
+        "      - Codex-only rule one.",
+        "      - Codex-only rule two.",
+      ].join("\n"),
+    );
+    const result = parseProductSkillContract(text, ".ai/core/skills/case-draft/skill.yaml");
+
+    expect(result.ok).toBe(true);
+    expect(result.value?.codexOverrides).toEqual({
+      routingSummary: ["Codex routing line."],
+      hardRules: ["Codex-only rule one.", "Codex-only rule two."],
+    });
+    expect(result.value?.hardRules).toEqual(["Do not invent facts."]);
+    expect(result.value?.routingSummary).toEqual(["Generate QA cases from grounded requirements."]);
+  });
+
+  it("defaults codexOverrides to empty arrays when body.codex_override absent", () => {
+    const result = parseProductSkillContract(VALID, ".ai/core/skills/case-draft/skill.yaml");
+    expect(result.ok).toBe(true);
+    expect(result.value?.codexOverrides).toEqual({ routingSummary: [], hardRules: [] });
+  });
+
   it("fails closed on duplicate nested keys", () => {
     const text = VALID.replace(
       "  summary: Generate QA test cases.",

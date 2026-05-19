@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const repoRoot = process.cwd();
@@ -51,7 +52,7 @@ for (const name of Object.keys(env)) {
 
 for (const args of commands) {
   const result = spawnSync("bun", ["--no-env-file", kataBin, ...args], {
-    cwd: "/private/tmp",
+    cwd: tmpdir(),
     env,
     stdio: "inherit",
   });
