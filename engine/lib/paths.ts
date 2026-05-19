@@ -22,12 +22,28 @@ export function projectPath(project: string, ...segments: string[]): string {
 
 // ── v3 path functions (spec §4.3) ────────────────────────────────────────────
 
+// CLAUDE.md §Feature Directory Naming: YYYY[-]MM[-{customer}]-{module}-{slug}
+// with each post-date segment in lowercase ASCII (a-z, 0-9, hyphen). YYYY-MM may
+// be `2099-XX` as a placeholder. This guards against Chinese / 【】 leaking from
+// archive CSV titles (see history-convert.ts) into mkdir paths.
+const FEATURE_ID_RE = /^\d{4}-?(?:\d{2}|XX)(?:-[a-z][a-z0-9-]*)+$/;
+
+export function assertFeatureId(featureId: string): void {
+  if (!FEATURE_ID_RE.test(featureId)) {
+    throw new Error(
+      `[paths] invalid feature id '${featureId}': must match YYYY[-]MM-{slug-segments} with lowercase ASCII slugs (CLAUDE.md §Feature Directory Naming).`,
+    );
+  }
+}
+
 /**
  * Feature directory: workspace/{project}/features/{yyyymm}-{slug}/.
  * The unit of a PRD's derived artifacts (prd.md, archive.md, cases.xmind, tests/, ...).
  */
 export function featureDir(project: string, yyyymm: string, slug: string): string {
-  return join(projectDir(project), "features", `${yyyymm}-${slug}`);
+  const featureId = `${yyyymm}-${slug}`;
+  assertFeatureId(featureId);
+  return join(projectDir(project), "features", featureId);
 }
 
 /**
