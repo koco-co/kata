@@ -1,0 +1,17 @@
+local_context:
+  audited_paths:
+    - AGENTS.local.md
+    - CLAUDE.local.md
+    - .claude/settings.local.json
+  forbidden_patterns:
+    - must
+    - never
+    - required
+    - 禁止
+    - 必须
+    - route to
+    - write scope
+    - write-scope
+    - plugin permission
+    - plugin permissions
+  advisory_only_when_pre_session_hook_missing: true

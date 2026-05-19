@@ -1,0 +1,12 @@
+{
+  "name": "dataAssets",
+  "description": "数据资产治理平台",
+  "repos": [
+    "dt-insight-engine",
+    "dt-insight-front",
+    "dt-insight-plat",
+    "dt-insight-qa",
+    "dt-insight-web",
+    "customltem"
+  ]
+}
