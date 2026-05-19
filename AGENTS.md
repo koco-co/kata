@@ -49,6 +49,14 @@
 - `.kata/repos/{project}/**` is read-only evidence (详见 `.ai/core/rules/repo-readonly.md`); kata workflows must not push, commit, or mutate source repositories.
 - Runtime projections are generated from `.ai/core/**`; edit `.ai/core` contracts, then render projection.
 
+## Case Artifact QA
+
+- When creating or editing Archive Markdown, XMind, CSV-derived cases, or normalized QA artifacts, run a self-audit before delivery; do not rely on the user to find formatting or business-rule defects.
+- Archive Markdown and XMind must be generated or updated from the same case model, then compared field-by-field: version/module, requirement, title, priority/marker, preconditions, steps, and expected results must match.
+- XMind readability is part of acceptance: split dense action chains and configuration lists with real newlines. A single XMind node line must not pack multiple action clauses or three or more quoted configuration/display items such as `「字段」...「统计函数」...「过滤条件」...`.
+- For data-quality `规则任务管理` cases, explicitly verify and encode the prerequisite flow: first create/configure the required rule set, rule package, or monitoring rule in `规则集管理`; then reference it from `规则任务管理`, usually via `导入规则包`.
+- After QA artifact edits, run artifact-specific checks: case count and priority distribution, Markdown/XMind consistency, XMind marker distribution, stale terminology/menu-name residue, and any domain-rule scans relevant to the touched module.
+
 ## Feature Directory Naming
 
 `workspace/{project}/features/` 下的目录命名遵循 `YYYY-MM[-{customer}]-{module}-{slug}`：

@@ -538,18 +538,33 @@ function mergeCommandIndexBlock(
   if (pattern.test(current)) {
     const next = current.replace(pattern, block);
     const withRoutingGuard = ensureRoutingGuardSection(coreRoot, next);
+    const withCaseArtifactQa = ensureCaseArtifactQaSection(withRoutingGuard);
     return {
       ok: true,
-      value: withRoutingGuard.endsWith("\n") ? withRoutingGuard : `${withRoutingGuard}\n`,
+      value: withCaseArtifactQa.endsWith("\n") ? withCaseArtifactQa : `${withCaseArtifactQa}\n`,
       issues: [],
     };
   }
   const separator = current.endsWith("\n\n") ? "" : current.endsWith("\n") ? "\n" : "\n\n";
+  const withRoutingGuard = ensureRoutingGuardSection(coreRoot, `${current}${separator}${block}\n`);
+  const withCaseArtifactQa = ensureCaseArtifactQaSection(withRoutingGuard);
   return {
     ok: true,
-    value: ensureRoutingGuardSection(coreRoot, `${current}${separator}${block}\n`),
+    value: withCaseArtifactQa,
     issues: [],
   };
+}
+
+function caseArtifactQaSection(): string {
+  return [
+    "## Case Artifact QA",
+    "",
+    "- When creating or editing Archive Markdown, XMind, CSV-derived cases, or normalized QA artifacts, run a self-audit before delivery; do not rely on the user to find formatting or business-rule defects.",
+    "- Archive Markdown and XMind must be generated or updated from the same case model, then compared field-by-field: version/module, requirement, title, priority/marker, preconditions, steps, and expected results must match.",
+    "- XMind readability is part of acceptance: split dense action chains and configuration lists with real newlines. A single XMind node line must not pack multiple action clauses or three or more quoted configuration/display items such as `「字段」...「统计函数」...「过滤条件」...`.",
+    "- For data-quality `规则任务管理` cases, explicitly verify and encode the prerequisite flow: first create/configure the required rule set, rule package, or monitoring rule in `规则集管理`; then reference it from `规则任务管理`, usually via `导入规则包`.",
+    "- After QA artifact edits, run artifact-specific checks: case count and priority distribution, Markdown/XMind consistency, XMind marker distribution, stale terminology/menu-name residue, and any domain-rule scans relevant to the touched module.",
+  ].join("\n");
 }
 
 function renderRootRuntimeDoc(coreRoot: string, commandIndexBlock: string): string {
@@ -579,6 +594,8 @@ function renderRootRuntimeDoc(coreRoot: string, commandIndexBlock: string): stri
     "- `.kata/repos/{project}/**` is read-only source evidence; kata workflows must not push, commit, or mutate source repositories.",
     "- Runtime projections are generated from `.ai/core/**`; edit `.ai/core` contracts, then render projection.",
     "",
+    caseArtifactQaSection(),
+    "",
     "## Commit Convention",
     "",
     "- Use Conventional Commits: `<type>: <emoji> <description>`, where type is one of `feat | fix | refactor | docs | test | chore | perf | ci`.",
@@ -589,6 +606,45 @@ function renderRootRuntimeDoc(coreRoot: string, commandIndexBlock: string): stri
     "- Keep PR titles in the same style and ≤ 70 characters; put details in the body and end with a Test plan checklist.",
     "",
   ].join("\n");
+}
+
+function ensureCaseArtifactQaSection(current: string): string {
+  const section = caseArtifactQaSection();
+  const heading = "## Case Artifact QA";
+  if (current.includes(heading)) {
+    const existingIndex = current.indexOf(heading);
+    const afterExisting = current.slice(existingIndex + heading.length);
+    const nextHeadingMatch = afterExisting.match(/\n## [^\n]+/);
+    const endIndex = nextHeadingMatch
+      ? existingIndex + heading.length + (nextHeadingMatch.index ?? 0)
+      : current.length;
+    const before = current.slice(0, existingIndex).replace(/\s*$/, "\n\n");
+    const after = current.slice(endIndex).replace(/^\s*/, "");
+    return `${before}${section}\n\n${after}`;
+  }
+
+  const workspaceHeading = "## Workspace Boundary";
+  const workspaceIndex = current.indexOf(workspaceHeading);
+  if (workspaceIndex >= 0) {
+    const afterWorkspace = current.slice(workspaceIndex + workspaceHeading.length);
+    const nextHeadingMatch = afterWorkspace.match(/\n## [^\n]+/);
+    const insertIndex = nextHeadingMatch
+      ? workspaceIndex + workspaceHeading.length + (nextHeadingMatch.index ?? 0)
+      : current.length;
+    const before = current.slice(0, insertIndex).replace(/\s*$/, "\n\n");
+    const after = current.slice(insertIndex).replace(/^\s*/, "");
+    return `${before}${section}\n\n${after}`;
+  }
+
+  const buildHeading = "## Build";
+  const buildIndex = current.indexOf(buildHeading);
+  if (buildIndex >= 0) {
+    const before = current.slice(0, buildIndex).replace(/\s*$/, "\n\n");
+    const after = current.slice(buildIndex).replace(/^\s*/, "");
+    return `${before}${section}\n\n${after}`;
+  }
+
+  return current.endsWith("\n") ? `${current}${section}\n` : `${current}\n\n${section}\n`;
 }
 
 function ensureRoutingGuardSection(coreRoot: string, current: string): string {
