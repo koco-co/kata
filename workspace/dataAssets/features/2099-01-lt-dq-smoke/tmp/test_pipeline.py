@@ -10,6 +10,7 @@ THIS = Path(__file__).resolve().parent
 
 def _load(name: str):
     spec = importlib.util.spec_from_file_location(name, THIS / f"{name}.py")
+    assert spec is not None and spec.loader is not None
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
