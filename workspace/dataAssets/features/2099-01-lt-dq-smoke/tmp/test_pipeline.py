@@ -256,5 +256,20 @@ class TestRenderA(unittest.TestCase):
         self.assertIn("##### 【P1】验证任务创建", md)
 
 
+class TestParseExistingMd(unittest.TestCase):
+    def test_parse_module_cases(self):
+        md = (
+            "## 元数据\n\n"
+            "##### 【P2】验证 X\n\n> 前置条件\n\n```\n无\n```\n\n"
+            "> 用例步骤\n\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n"
+            "| 1 | 进入概览 | 成功 |\n"
+        )
+        mod_name, cases = pipeline.parse_existing_module(md)
+        self.assertEqual(mod_name, "元数据")
+        self.assertEqual(len(cases), 1)
+        self.assertEqual(cases[0].priority, "P2")
+        self.assertEqual(cases[0].steps[0].step, "进入总览")
+
+
 if __name__ == "__main__":
     unittest.main()

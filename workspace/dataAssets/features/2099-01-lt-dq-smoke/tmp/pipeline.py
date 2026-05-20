@@ -188,3 +188,71 @@ def render_a_md(cases: list[Case], kept_modules_md: list[str]) -> str:
         out += [m.rstrip(), ""]
     out += [render_dq_module_md(cases), ""]
     return "\n".join(out).rstrip() + "\n"
+
+
+_CASE_HEAD = re.compile(r"^##### 【(P\d)】(.+)$")
+
+
+def parse_existing_module(block: str) -> tuple[str, list[Case]]:
+    """Parse one `## 模块` block of the existing A.md into Case objects,
+    re-applying menu rename so output is normalized."""
+    lines = block.split("\n")
+    mod_name = ""
+    cases: list[Case] = []
+    cur: Case | None = None
+    section = None
+    in_fence = False
+    pre: list[str] = []
+    rows: list[Step] = []
+    header_seen = False
+    submodule = ""
+
+    def flush():
+        nonlocal cur, pre, rows, header_seen
+        if cur is not None:
+            cur.preconditions = "\n".join(pre).strip() or "无"
+            cur.steps = rows
+            cases.append(cur)
+        cur, pre, rows, header_seen = None, [], [], False
+
+    for line in lines:
+        if line.startswith("## ") and not line.startswith("### "):
+            mod_name = rules.apply_menu_rename(line[3:].strip())
+            continue
+        if line.startswith("### "):
+            flush()
+            submodule = rules.apply_menu_rename(line[4:].strip())
+            continue
+        m = _CASE_HEAD.match(line)
+        if m:
+            flush()
+            cur = Case("", "", "", mod_name, submodule,
+                       rules.apply_menu_rename(m.group(2).strip()), m.group(1),
+                       "无", [])
+            section = None
+            continue
+        if cur is None:
+            continue
+        if re.match(r"^>\s*前置条件", line):
+            section, in_fence = "pre", False
+            continue
+        if re.match(r"^>\s*用例步骤", line):
+            section, header_seen = "steps", False
+            continue
+        if section == "pre":
+            if line.startswith("```"):
+                in_fence = not in_fence
+            elif in_fence:
+                pre.append(line)
+        elif section == "steps":
+            if re.match(r"^\|\s*编号\s*\|", line) or re.match(r"^\|\s*-+\s*\|", line):
+                header_seen = True
+                continue
+            if header_seen and line.startswith("|"):
+                cells = [c.strip() for c in line.strip().strip("|").split("|")]
+                if len(cells) >= 3:
+                    rows.append(Step(len(rows) + 1,
+                                     rules.apply_menu_rename(cells[1].replace("\\|", "|")),
+                                     rules.apply_menu_rename(cells[2].replace("\\|", "|"))))
+    flush()
+    return mod_name, cases
