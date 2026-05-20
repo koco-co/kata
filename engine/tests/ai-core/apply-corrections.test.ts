@@ -57,3 +57,17 @@ describe("apply-corrections reference defines the protocol", () => {
     expect(ref).toContain("CaseCorrections@1");
   });
 });
+
+describe("case-edit skill.yaml exposes apply-corrections", () => {
+  it("declares apply_corrections as an output", () => {
+    const yaml = read(".ai/core/skills/case-edit/skill.yaml");
+    expect(yaml).toMatch(/outputs:[\s\S]*- apply_corrections/);
+  });
+
+  it("references apply-corrections.md with phase apply-corrections", () => {
+    const yaml = read(".ai/core/skills/case-edit/skill.yaml");
+    expect(yaml).toContain("references/apply-corrections.md");
+    expect(yaml).toMatch(/load_phases:[\s\S]*- apply-corrections/);
+    expect(yaml).toContain("step.id == apply-corrections");
+  });
+});
