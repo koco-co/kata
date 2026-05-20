@@ -238,6 +238,47 @@ def write_xmind(path, root_title: str, l1_nodes: list[dict]) -> None:
         z.writestr("manifest.json", _json.dumps(_MANIFEST, ensure_ascii=False))
 
 
+def build_b_l1_nodes(cases: list[Case]) -> list[dict]:
+    grouped: "OrderedDict[str, OrderedDict[str, list[Case]]]" = OrderedDict()
+    for c in cases:
+        grouped.setdefault(c.version, OrderedDict()).setdefault(
+            c.requirement_name, []).append(c)
+    nodes = []
+    for version, reqs in grouped.items():
+        req_nodes = []
+        for req, items in reqs.items():
+            req_nodes.append({"id": _nid(), "title": req,
+                              "children": {"attached": [case_to_node(c) for c in items]}})
+        nodes.append({"id": _nid(), "title": version,
+                      "children": {"attached": req_nodes}})
+    return nodes
+
+
+def build_a_dq_node(cases: list[Case]) -> dict:
+    by_sub: "OrderedDict[str, list[Case]]" = OrderedDict()
+    for c in cases:
+        by_sub.setdefault(c.submodule or "总览", []).append(c)
+    subs = [{"id": _nid(), "title": sub,
+             "children": {"attached": [case_to_node(c) for c in items]}}
+            for sub, items in by_sub.items()]
+    return {"id": _nid(), "title": "数据质量", "children": {"attached": subs}}
+
+
+def build_a_module_node(mod_name: str, cases: list[Case]) -> dict:
+    by_sub: "OrderedDict[str, list[Case]]" = OrderedDict()
+    for c in cases:
+        by_sub.setdefault(c.submodule, []).append(c)
+    children = []
+    for sub, items in by_sub.items():
+        case_nodes = [case_to_node(c) for c in items]
+        if sub:
+            children.append({"id": _nid(), "title": sub,
+                             "children": {"attached": case_nodes}})
+        else:
+            children.extend(case_nodes)
+    return {"id": _nid(), "title": mod_name, "children": {"attached": children}}
+
+
 _CASE_HEAD = re.compile(r"^##### 【(P\d)】(.+)$")
 
 

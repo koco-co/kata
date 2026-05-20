@@ -306,5 +306,25 @@ class TestXmind(unittest.TestCase):
             out.unlink(missing_ok=True)
 
 
+class TestXmindTree(unittest.TestCase):
+    def test_b_tree_version_requirement(self):
+        cases = [pipeline.Case("v6.4.3", "1", "需求甲", "数据质量", "报告",
+                               "验证X", "P1", "无", [pipeline.Step(1, "a", "b")])]
+        nodes = pipeline.build_b_l1_nodes(cases)
+        self.assertEqual(nodes[0]["title"], "v6.4.3")
+        req = nodes[0]["children"]["attached"][0]
+        self.assertEqual(req["title"], "需求甲")
+        self.assertEqual(req["children"]["attached"][0]["title"], "验证X")
+
+    def test_a_tree_module_submodule(self):
+        cases = [pipeline.Case("v1", "1", "r", "数据质量", "规则任务管理",
+                               "验证Y", "P1", "无", [pipeline.Step(1, "a", "b")])]
+        node = pipeline.build_a_dq_node(cases)
+        self.assertEqual(node["title"], "数据质量")
+        sub = node["children"]["attached"][0]
+        self.assertEqual(sub["title"], "规则任务管理")
+        self.assertEqual(sub["children"]["attached"][0]["title"], "验证Y")
+
+
 if __name__ == "__main__":
     unittest.main()
