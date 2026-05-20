@@ -21,6 +21,7 @@
   "scripts": {
     "console": "bun apps/console/server.ts",
     "mcp": "bun apps/mcp/server.ts",
+    "test:apps": "bun test ./apps",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "lint": "biome check engine/src engine/tests .claude/agents .claude/skills plugins tools rules",
