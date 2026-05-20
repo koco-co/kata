@@ -1,19 +1,16 @@
 /**
- * kata MCP tool registry.
- *
- * Each tool exposes a slice of the kata engine's read surface so agents can
- * query the QA workspace structurally instead of crawling folders. The same
- * registry backs the in-platform agent (P3) and external Claude Code / Codex
- * via `claude -p --mcp-config`. Read-only — no tool mutates the workspace.
+ * Read-only MCP tool registry backed by the kata catalog read layer.
+ * Transport adapters should dispatch through this table without mutating workspaces.
  */
 import {
+  type FeatureFilters,
   getFeature,
   listFeatures,
   listProjectSummaries,
+  listSkills,
   parseXmind,
   readTextArtifact,
-} from "../shared/catalog.ts";
-import { listSkills } from "../shared/skills.ts";
+} from "../core/catalog/index.ts";
 
 export interface JsonSchema {
   readonly type: "object";
@@ -28,11 +25,19 @@ export interface ToolDef {
   readonly handler: (args: Record<string, unknown>) => Promise<unknown> | unknown;
 }
 
-function str(args: Record<string, unknown>, key: string, required = true): string {
+function requiredString(args: Record<string, unknown>, key: string): string {
   const value = args[key];
-  if (typeof value !== "string" || value === "") {
-    if (required) throw new Error(`Missing required string argument: ${key}`);
-    return "";
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`Missing required string argument: ${key}`);
+  }
+  return value;
+}
+
+function optionalString(args: Record<string, unknown>, key: string): string | undefined {
+  const value = args[key];
+  if (value === undefined) return undefined;
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`Invalid string argument: ${key}`);
   }
   return value;
 }
@@ -48,6 +53,17 @@ const FEATURE_FILTER_KEYS = [
   "lastRun",
 ] as const;
 
+function featureFilters(args: Record<string, unknown>): FeatureFilters {
+  const filters: FeatureFilters = {};
+  for (const key of FEATURE_FILTER_KEYS) {
+    const value = optionalString(args, key);
+    if (value !== undefined) {
+      filters[key] = value;
+    }
+  }
+  return filters;
+}
+
 export const TOOLS: readonly ToolDef[] = [
   {
     name: "kata_list_projects",
@@ -58,83 +74,79 @@ export const TOOLS: readonly ToolDef[] = [
   {
     name: "kata_list_features",
     description:
-      "List QA features in a project. Returns id, display name, modules, status, automation status and last run. Supports filtering by module/customer/version/owner/status/automationStatus/lastRun.",
+      "List QA features in a project, optionally filtered by metadata or automation status.",
     inputSchema: {
       type: "object",
       properties: {
-        project: { type: "string", description: "Project name (see kata_list_projects)." },
-        module: { type: "string" },
-        customer: { type: "string" },
-        version: { type: "string" },
-        owner: { type: "string" },
-        createdAfter: { type: "string", description: "yyyy-mm lower bound on created_at." },
-        status: { type: "string" },
         automationStatus: { type: "string" },
+        createdAfter: { type: "string", description: "yyyy-mm lower bound on created_at." },
+        customer: { type: "string" },
         lastRun: { type: "string" },
+        module: { type: "string" },
+        owner: { type: "string" },
+        project: { type: "string", description: "Project name from kata_list_projects." },
+        status: { type: "string" },
+        version: { type: "string" },
       },
       required: ["project"],
     },
-    handler: (args) => {
-      const project = str(args, "project");
-      const filters: Record<string, string> = {};
-      for (const key of FEATURE_FILTER_KEYS) {
-        const value = str(args, key, false);
-        if (value) filters[key] = value;
-      }
-      return listFeatures(project, filters);
-    },
+    handler: (args) => listFeatures(requiredString(args, "project"), featureFilters(args)),
   },
   {
     name: "kata_get_feature",
-    description:
-      "Get full detail for one feature: metadata.yaml, manifest.json, available artifacts and recent run ids.",
+    description: "Get metadata, manifest, available artifacts, and recent runs for a feature.",
     inputSchema: {
       type: "object",
       properties: {
-        project: { type: "string" },
-        featureId: { type: "string", description: "e.g. 2026-02-dq-rule-task-edit-partition" },
+        featureId: { type: "string", description: "Feature directory id." },
+        project: { type: "string", description: "Project name from kata_list_projects." },
       },
       required: ["project", "featureId"],
     },
-    handler: (args) => getFeature(str(args, "project"), str(args, "featureId")),
+    handler: (args) =>
+      getFeature(requiredString(args, "project"), requiredString(args, "featureId")),
   },
   {
     name: "kata_read_artifact",
-    description:
-      "Read a text artifact of a feature (archive.md, metadata.yaml, manifest.json, prd.md, enhanced.md, confirmation-package.md, unresolved-summary.md, source-facts.json, archive.draft.md, resolved.md).",
+    description: "Read an allowed text artifact from a feature directory.",
     inputSchema: {
       type: "object",
       properties: {
-        project: { type: "string" },
-        featureId: { type: "string" },
-        name: { type: "string", description: "Artifact file name from the allowed set." },
+        featureId: { type: "string", description: "Feature directory id." },
+        name: { type: "string", description: "Allowed artifact file name." },
+        project: { type: "string", description: "Project name from kata_list_projects." },
       },
       required: ["project", "featureId", "name"],
     },
     handler: (args) =>
-      readTextArtifact(str(args, "project"), str(args, "featureId"), str(args, "name")),
+      readTextArtifact(
+        requiredString(args, "project"),
+        requiredString(args, "featureId"),
+        requiredString(args, "name"),
+      ),
   },
   {
     name: "kata_get_cases",
-    description:
-      "Get the test-case mind map (cases.xmind) of a feature parsed as a topic tree, including priority markers and notes.",
+    description: "Read cases.xmind for a feature as a parsed topic tree.",
     inputSchema: {
       type: "object",
       properties: {
-        project: { type: "string" },
-        featureId: { type: "string" },
+        featureId: { type: "string", description: "Feature directory id." },
+        project: { type: "string", description: "Project name from kata_list_projects." },
       },
       required: ["project", "featureId"],
     },
-    handler: (args) => parseXmind(str(args, "project"), str(args, "featureId")),
+    handler: (args) =>
+      parseXmind(requiredString(args, "project"), requiredString(args, "featureId")),
   },
   {
     name: "kata_list_skills",
-    description:
-      "List kata QA skills (case-draft, case-edit, bug-file, ...) with their trigger conditions, inputs and outputs, so an agent can route work to the right skill.",
+    description: "List kata QA skills with routing inputs, outputs, and trigger conditions.",
     inputSchema: { type: "object", properties: {} },
     handler: () => listSkills(),
   },
 ];
 
-export const TOOL_BY_NAME: ReadonlyMap<string, ToolDef> = new Map(TOOLS.map((t) => [t.name, t]));
+export const TOOL_BY_NAME: ReadonlyMap<string, ToolDef> = new Map(
+  TOOLS.map((tool) => [tool.name, tool]),
+);
