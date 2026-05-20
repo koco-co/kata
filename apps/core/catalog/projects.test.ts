@@ -1,6 +1,6 @@
+import { afterEach, beforeEach, expect, test } from "bun:test";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, beforeEach, expect, test } from "bun:test";
 import { makeWorkspace, type Workspace } from "../test-helpers.ts";
 import { listProjectSummaries } from "./projects.ts";
 

@@ -58,7 +58,10 @@ test("readTextArtifact rejects symlinked project directories and listArtifacts s
   const outsideProject = join(ws.root, "outside-project");
   const projectDir = join(ws.root, "demo");
   mkdirSync(join(outsideProject, "features", "2026-01-dq-alpha"), { recursive: true });
-  writeFileSync(join(outsideProject, "features", "2026-01-dq-alpha", "archive.md"), "outside archive\n");
+  writeFileSync(
+    join(outsideProject, "features", "2026-01-dq-alpha", "archive.md"),
+    "outside archive\n",
+  );
   rmSync(projectDir, { recursive: true, force: true });
   symlinkSync(outsideProject, projectDir, "dir");
 

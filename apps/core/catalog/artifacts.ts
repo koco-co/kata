@@ -13,7 +13,12 @@ import {
 
 function featureComponents(project: string, featureId: string): string[] {
   const workspace = workspaceDir();
-  return [workspace, join(workspace, project), join(workspace, project, "features"), featurePath(project, featureId)];
+  return [
+    workspace,
+    join(workspace, project),
+    join(workspace, project, "features"),
+    featurePath(project, featureId),
+  ];
 }
 
 function safeFeatureDir(project: string, featureId: string): string | null {
