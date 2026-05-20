@@ -64,5 +64,92 @@ class TestMenuRename(unittest.TestCase):
         self.assertEqual(rules.apply_menu_rename("数据质量报告"), "数据质量报告")
 
 
+class TestFillExpected(unittest.TestCase):
+    def test_fill_default_for_step_without_expected(self):
+        pairs = [(1, "查看文件类型支持提示", ""), (2, "点击确定", "弹窗关闭")]
+        out = rules.fill_empty_expected(pairs)
+        self.assertEqual(out[0], (1, "查看文件类型支持提示", "操作成功"))
+        self.assertEqual(out[1], (2, "点击确定", "弹窗关闭"))
+
+    def test_no_fill_when_step_empty(self):
+        pairs = [(1, "", "")]
+        self.assertEqual(rules.fill_empty_expected(pairs), [(1, "", "")])
+
+
+class TestRulesetPrereq(unittest.TestCase):
+    def test_detect_trigger(self):
+        steps = ["进入规则任务管理，点击新建监控规则", "配置监控规则", "保存"]
+        self.assertTrue(rules.needs_ruleset_prereq(steps))
+
+    def test_no_trigger_when_import_present(self):
+        steps = ["新建监控规则", "点击导入规则包，选择规则包", "保存"]
+        self.assertFalse(rules.needs_ruleset_prereq(steps))
+
+    def test_no_trigger_for_ruleset_feature_case(self):
+        self.assertFalse(
+            rules.needs_ruleset_prereq(["新建监控规则"], title="验证规则集详情数据正确")
+        )
+
+    def test_append_precondition(self):
+        pre = "无"
+        new_pre = rules.append_ruleset_precondition(pre)
+        self.assertIn("规则集管理", new_pre)
+        self.assertIn("导入规则包", new_pre)
+        self.assertEqual(rules.append_ruleset_precondition(new_pre), new_pre)
+
+
+class TestTitleHelpers(unittest.TestCase):
+    def test_strip_requirement_id_only_removes_zentao_id(self):
+        self.assertEqual(
+            rules.strip_requirement_id("内置规则丰富-准确性校验规则(#14682)"),
+            "内置规则丰富-准确性校验规则",
+        )
+        self.assertEqual(
+            rules.strip_requirement_id("分区设置(sparkThrift/hive数据源)(#9695)"),
+            "分区设置(sparkThrift/hive数据源)",
+        )
+
+    def test_strip_title_prefix(self):
+        prefixes = {"数据质量", "质量报告", "校验结果查询"}
+        self.assertEqual(
+            rules.strip_title_prefix("数据质量 质量报告 验证查询功能正常", prefixes),
+            "验证查询功能正常",
+        )
+        self.assertEqual(
+            rules.strip_title_prefix("验证查询功能正常", prefixes),
+            "验证查询功能正常",
+        )
+
+    def test_normalize_title(self):
+        a = rules.normalize_title("【P1】验证「数据质量报告」查询 ")
+        b = rules.normalize_title("验证(数据质量报告)查询")
+        self.assertEqual(a, b)
+
+
+class TestScanners(unittest.TestCase):
+    def test_scan_empty_step(self):
+        pairs = [(1, "", "某预期"), (2, "点击", "成功")]
+        self.assertEqual(rules.scan_empty_steps(pairs), [1])
+
+    def test_scan_residual_old_menu(self):
+        hits = rules.scan_residual_old_menu("进入任务实例查询页面")
+        self.assertIn("任务实例查询", hits)
+        self.assertEqual(rules.scan_residual_old_menu("进入校验结果查询"), [])
+
+    def test_scan_datasource_loss(self):
+        miss = rules.scan_datasource_loss(
+            "分区设置(sparkThrift/hive数据源)", "仅 hive 数据源相关步骤"
+        )
+        self.assertEqual(miss, ["sparkThrift"])
+        self.assertEqual(
+            rules.scan_datasource_loss("普通标题", "无数据源声明"), []
+        )
+
+    def test_scan_packed_config_line(self):
+        line = "「字段」a「统计函数」b「过滤条件」c"
+        self.assertTrue(rules.is_packed_config_line(line))
+        self.assertFalse(rules.is_packed_config_line("「字段」a"))
+
+
 if __name__ == "__main__":
     unittest.main()
