@@ -119,3 +119,14 @@ def extract_dir(csv_dir: Path) -> list[Case]:
                 if c is not None:
                     cases.append(c)
     return cases
+
+
+def render_case_md(c: Case) -> str:
+    lines = [f"##### 【{c.priority}】{c.title}", "", "> 前置条件", "", "```"]
+    lines.append((c.preconditions or "无").strip() or "无")
+    lines += ["```", "", "> 用例步骤", "", "| 编号 | 步骤 | 预期 |", "| --- | --- | --- |"]
+    for s in c.steps:
+        lines.append(
+            f"| {s.idx} | {rules.cell_to_md(s.step.strip())} | {rules.cell_to_md(s.expected.strip())} |"
+        )
+    return "\n".join(lines)

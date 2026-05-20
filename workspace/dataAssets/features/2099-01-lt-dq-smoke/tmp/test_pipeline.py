@@ -203,5 +203,22 @@ class TestDedup(unittest.TestCase):
         self.assertEqual(len(pipeline.dedup([a, b])), 2)
 
 
+class TestRenderCase(unittest.TestCase):
+    def test_render_block(self):
+        c = pipeline.Case(
+            version="v1", requirement_id="1", requirement_name="r",
+            module="数据质量", submodule="数据质量报告",
+            title="验证查询功能正常", priority="P1", preconditions="无",
+            steps=[pipeline.Step(1, "进入页面", "进入成功"),
+                   pipeline.Step(2, ' 点击"<" ', "向前翻页")],
+        )
+        md = pipeline.render_case_md(c)
+        self.assertIn("##### 【P1】验证查询功能正常", md)
+        self.assertIn("> 前置条件", md)
+        self.assertIn("> 用例步骤", md)
+        self.assertIn("| 编号 | 步骤 | 预期 |", md)
+        self.assertIn('| 2 | 点击"<" | 向前翻页 |', md)
+
+
 if __name__ == "__main__":
     unittest.main()
