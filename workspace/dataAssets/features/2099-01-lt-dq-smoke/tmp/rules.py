@@ -47,3 +47,19 @@ def cell_to_md(text: str) -> str:
         .replace("\r", "\n")
         .replace("\n", "<br>")
     )
+
+
+def apply_menu_rename(text: str) -> str:
+    """Apply context-guarded menu renames to standardize terminology.
+
+    Guards prevent incorrect replacements:
+    - 质量报告 → 数据质量报告: only when not already prefixed and not part of "管理"
+    """
+    if not text:
+        return text
+    # 质量报告 → 数据质量报告：不在「数据质量报告」之中、不在「质量报告管理」之中时才改
+    text = re.sub(r"(?<!数据)质量报告(?!管理)", "数据质量报告", text)
+    text = text.replace("规则任务配置", "规则任务管理")
+    text = text.replace("任务实例查询", "校验结果查询")
+    text = text.replace("概览", "总览")
+    return text

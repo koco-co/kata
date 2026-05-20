@@ -50,5 +50,19 @@ class TestCellToMd(unittest.TestCase):
         self.assertEqual(rules.cell_to_md(""), "")
 
 
+class TestMenuRename(unittest.TestCase):
+    def test_simple_renames(self):
+        self.assertEqual(rules.apply_menu_rename("进入概览页"), "进入总览页")
+        self.assertEqual(rules.apply_menu_rename("规则任务配置"), "规则任务管理")
+        self.assertEqual(rules.apply_menu_rename("任务实例查询"), "校验结果查询")
+
+    def test_report_rename_with_guards(self):
+        self.assertEqual(rules.apply_menu_rename("查看质量报告"), "查看数据质量报告")
+        # 不改具体页面名「质量报告管理」
+        self.assertEqual(rules.apply_menu_rename("质量报告管理"), "质量报告管理")
+        # 不重复加前缀
+        self.assertEqual(rules.apply_menu_rename("数据质量报告"), "数据质量报告")
+
+
 if __name__ == "__main__":
     unittest.main()
