@@ -84,7 +84,8 @@ const ENV_ALIASES: Record<string, string> = {
 
 function normalizeEnvName(envName: string): string {
   const trimmed = envName.trim();
-  return ENV_ALIASES[trimmed.toLowerCase()] ?? trimmed;
+  const withoutExtension = trimmed.replace(/\.ya?ml$/i, "");
+  return ENV_ALIASES[withoutExtension.toLowerCase()] ?? withoutExtension;
 }
 
 function camelKey(key: string): string {
@@ -147,7 +148,7 @@ function repoRoot(opts?: LoadDataAssetsProfileOptions): string {
 
 function resolveProfilePath(path: string, opts?: LoadDataAssetsProfileOptions): string {
   if (path.startsWith("/")) return path;
-  if (path.startsWith(".auth/") || path.startsWith("workspace/")) {
+  if (path.startsWith(".auth/") || path.startsWith(".kata/") || path.startsWith("workspace/")) {
     return resolve(repoRoot(opts), path);
   }
   return resolve(workspaceRoot(opts), path);
