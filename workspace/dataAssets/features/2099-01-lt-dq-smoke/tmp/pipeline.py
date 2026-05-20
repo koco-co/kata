@@ -78,7 +78,7 @@ def row_to_case(row: dict[str, str], version: str) -> Case | None:
         submodule=submodule,
         title=title,
         priority=_priority(row.get("优先级", "")),
-        preconditions=(row.get("前置条件") or "").strip(),
+        preconditions=rules.apply_menu_rename((row.get("前置条件") or "").strip()),
         steps=steps,
     )
 
