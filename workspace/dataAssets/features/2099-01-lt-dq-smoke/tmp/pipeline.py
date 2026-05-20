@@ -266,10 +266,23 @@ def case_to_node(c: Case) -> dict:
 
 
 def write_xmind(path, root_title: str, l1_nodes: list[dict]) -> None:
-    root = {"id": _nid(), "class": "topic", "title": root_title,
-            "structureClass": "org.xmind.ui.logic.right",
-            "children": {"attached": l1_nodes}}
-    sheet = {"id": _nid(), "class": "sheet", "title": root_title, "rootTopic": root}
+    root_id = _nid()
+    right_n = (len(l1_nodes) + 1) // 2
+    root = {
+        "id": root_id, "class": "topic", "title": root_title,
+        "structureClass": "org.xmind.ui.map.unbalanced",
+        "extensions": [{
+            "provider": "org.xmind.ui.map.unbalanced",
+            "content": [{"name": "right-number", "content": str(right_n)}],
+        }],
+        "children": {"attached": l1_nodes},
+    }
+    sheet = {
+        "id": _nid(), "revisionId": _nid(), "class": "sheet",
+        "title": "画布 1", "rootTopic": root,
+        "arrangeableLayerOrder": [root_id],
+        "zones": [], "theme": {},
+    }
     content = [sheet]
     with _zip.ZipFile(path, "w", _zip.ZIP_DEFLATED) as z:
         z.writestr("content.json", _json.dumps(content, ensure_ascii=False, separators=(",", ":")))
