@@ -345,3 +345,25 @@ def parse_existing_module(block: str) -> tuple[str, list[Case]]:
                                      rules.apply_menu_rename(cells[2].replace("\\|", "|"))))
     flush()
     return mod_name, cases
+
+
+def apply_selection(cases: list[Case], selection: dict) -> list[Case]:
+    """selection: {requirement_name: "*" | [case_title, ...]}.
+    Returns selected cases preserving the order within `cases`."""
+    wanted: dict[str, set[str] | str] = {}
+    for req, val in selection.items():
+        wanted[req] = "*" if val == "*" else {rules.normalize_title(t) for t in val}
+    out = []
+    for c in cases:
+        sel = wanted.get(c.requirement_name)
+        if sel is None:
+            continue
+        if sel == "*" or rules.normalize_title(c.title) in sel:
+            out.append(c)
+    return out
+
+
+def load_yaml(path) -> dict:
+    import yaml
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}

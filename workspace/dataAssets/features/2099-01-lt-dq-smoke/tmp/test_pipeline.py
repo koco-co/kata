@@ -326,5 +326,21 @@ class TestXmindTree(unittest.TestCase):
         self.assertEqual(sub["children"]["attached"][0]["title"], "验证Y")
 
 
+class TestSelection(unittest.TestCase):
+    def test_select_by_title(self):
+        cases = [
+            pipeline.Case("v1", "1", "需求甲", "数据质量", "报告", "验证X", "P1", "无", []),
+            pipeline.Case("v1", "1", "需求甲", "数据质量", "报告", "验证Y", "P1", "无", []),
+        ]
+        sel = {"需求甲": ["验证X"]}
+        out = pipeline.apply_selection(cases, sel)
+        self.assertEqual([c.title for c in out], ["验证X"])
+
+    def test_select_all_marker(self):
+        cases = [pipeline.Case("v1", "1", "需求甲", "数据质量", "报告", "验证X", "P1", "无", [])]
+        out = pipeline.apply_selection(cases, {"需求甲": "*"})
+        self.assertEqual(len(out), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
