@@ -161,12 +161,12 @@ class TestRowToCase(unittest.TestCase):
     def test_basic_row(self):
         row = {
             "用例标题": "数据质量 质量报告 验证「质量报告」查询功能正常",
-            "相关需求": "元数据、数据质量支持doris3.x(#9346)",
+            "相关需求": "",
             "前置条件": "无",
             "步骤": '1. 进入概览\n2. 点击"<"',
             "预期": "1. 成功\n2. 向前翻页",
             "优先级": "P1",
-            "所属模块": "数据质量/质量报告",
+            "所属模块": "/版本迭代测试用例/v6.4.3/元数据、数据质量支持doris3.x(#9346)",
         }
         c = pipeline.row_to_case(row, version="v6.4.3")
         self.assertEqual(c.version, "v6.4.3")
@@ -177,9 +177,63 @@ class TestRowToCase(unittest.TestCase):
         self.assertEqual(c.steps[0].step, "进入总览")
         self.assertEqual(c.steps[1].step, '点击"<"')
         self.assertEqual(c.steps[1].expected, "向前翻页")
+        # module/submodule: single filtered seg → fallback module
+        self.assertEqual(c.module, "数据质量")
+        self.assertEqual(c.submodule, "")
+
+    def test_basic_row_with_submodule(self):
+        """Path with 2 filtered segs: module=first, submodule='' (last seg is req_name).
+        Path with 3+ filtered segs: module=first, submodule=second."""
+        row = {
+            "用例标题": "验证X",
+            "相关需求": "",
+            "前置条件": "无",
+            "步骤": "1. a",
+            "预期": "1. b",
+            "优先级": "P2",
+            "所属模块": "/版本迭代测试用例/v6.4.4/多模态-文件管理/文件编目(#9586)",
+        }
+        c = pipeline.row_to_case(row, version="v6.4.4")
+        self.assertEqual(c.requirement_id, "9586")
+        self.assertEqual(c.requirement_name, "文件编目")
+        # 2 filtered segs ["多模态-文件管理", "文件编目"] → module=first, submodule=""
+        self.assertEqual(c.module, "多模态-文件管理")
+        self.assertEqual(c.submodule, "")
+
+    def test_basic_row_three_filtered_segs(self):
+        """Path with 3 filtered segs produces module + submodule + req_name."""
+        row = {
+            "用例标题": "验证Y",
+            "相关需求": "",
+            "前置条件": "无",
+            "步骤": "1. a",
+            "预期": "1. b",
+            "优先级": "P2",
+            "所属模块": "/版本迭代测试用例/v6.4.4/数据质量/规则集管理/验证功能(#1234)",
+        }
+        c = pipeline.row_to_case(row, version="v6.4.4")
+        self.assertEqual(c.requirement_id, "1234")
+        self.assertEqual(c.requirement_name, "验证功能")
+        self.assertEqual(c.module, "数据质量")
+        self.assertEqual(c.submodule, "规则集管理")
+
+    def test_paren_protected_slash(self):
+        """Slashes inside parentheses are not split points."""
+        row = {
+            "用例标题": "验证分区",
+            "相关需求": "",
+            "前置条件": "无",
+            "步骤": "1. a",
+            "预期": "1. b",
+            "优先级": "P2",
+            "所属模块": "/版本迭代测试用例/v6.4.5/岚图/分区设置支持选择框配置动态分区参数(sparkThrift/hive数据源)(#9695)",
+        }
+        c = pipeline.row_to_case(row, version="v6.4.5")
+        self.assertEqual(c.requirement_id, "9695")
+        self.assertEqual(c.requirement_name, "分区设置支持选择框配置动态分区参数(sparkThrift/hive数据源)")
 
     def test_priority_default_p2(self):
-        row = {"用例标题": "x", "相关需求": "需求(#1)", "前置条件": "",
+        row = {"用例标题": "x", "相关需求": "", "前置条件": "",
                "步骤": "1. a", "预期": "1. b", "优先级": "", "所属模块": ""}
         self.assertEqual(pipeline.row_to_case(row, "v1").priority, "P2")
 
@@ -370,9 +424,9 @@ class TestCliEndToEnd(unittest.TestCase):
             w = csvmod.writer(f)
             w.writerow(["用例标题", "相关需求", "前置条件", "步骤", "预期",
                         "优先级", "所属模块"])
-            w.writerow(["验证查询", "支持doris3.x(#9346)", "无",
+            w.writerow(["验证查询", "", "无",
                         '1. 进入\n2. 点击"<"', "1. 成功\n2. 向前翻页",
-                        "P1", "数据质量/报告"])
+                        "P1", "/版本迭代测试用例/v6.4.3/支持doris3.x(#9346)"])
         try:
             cases = pipeline.dedup(pipeline.extract_dir(tmpdir))
             md = pipeline.render_b_md(cases, "测试集")

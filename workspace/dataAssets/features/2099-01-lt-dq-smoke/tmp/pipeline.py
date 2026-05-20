@@ -45,14 +45,43 @@ def _priority(raw: str) -> str:
     return m.group(0) if m else "P2"
 
 
+def _split_protected(s: str) -> list[str]:
+    """Split on '/' but treat anything inside () as opaque."""
+    parts, buf, depth = [], [], 0
+    for ch in s:
+        if ch == "(":
+            depth += 1
+            buf.append(ch)
+        elif ch == ")":
+            depth = max(0, depth - 1)
+            buf.append(ch)
+        elif ch == "/" and depth == 0:
+            parts.append("".join(buf))
+            buf = []
+        else:
+            buf.append(ch)
+    parts.append("".join(buf))
+    return [p for p in parts if p]
+
+
 def row_to_case(row: dict[str, str], version: str) -> Case | None:
     raw_title = (row.get("用例标题") or "").strip()
     if not raw_title:
         return None
-    req_raw = (row.get("相关需求") or "").strip()
-    rid_m = re.search(r"\(#(\d+)\)", req_raw)
+
+    # Extract requirement from 所属模块 path
+    module_path = (row.get("所属模块") or "").strip()
+    rid_m = re.search(r"\(#(\d+)\)\s*$", module_path)
     req_id = rid_m.group(1) if rid_m else ""
-    req_name = rules.strip_requirement_id(req_raw)
+    clean_path = re.sub(r"\s*\(#\d+\)\s*$", "", module_path)
+    segs = _split_protected(clean_path)
+    # Drop leading "版本迭代测试用例" and version-like segments (vX.Y.Z)
+    filtered = [
+        s for s in segs
+        if s != "版本迭代测试用例" and not re.fullmatch(r"v\d+(\.\d+)*", s)
+    ]
+    req_name = filtered[-1] if filtered else ""
+    req_name = rules.apply_menu_rename(rules.strip_requirement_id(req_name))
 
     pairs = rules.pair_steps(row.get("步骤", ""), row.get("预期", ""))
     pairs = rules.fill_empty_expected(pairs)
@@ -65,15 +94,14 @@ def row_to_case(row: dict[str, str], version: str) -> Case | None:
     title = rules.strip_title_prefix(raw_title, TITLE_PREFIXES)
     title = rules.apply_menu_rename(title)
 
-    module_raw = (row.get("所属模块") or "").strip()
-    parts = re.split(r"[\/>，,]", module_raw)
-    module = rules.apply_menu_rename(parts[0].strip()) if parts else ""
-    submodule = rules.apply_menu_rename(parts[1].strip()) if len(parts) > 1 else ""
+    # module/submodule: use filtered path segments if available, else fallback
+    module = rules.apply_menu_rename(filtered[0]) if len(filtered) >= 2 else "数据质量"
+    submodule = rules.apply_menu_rename(filtered[1]) if len(filtered) >= 3 else ""
 
     return Case(
         version=version,
         requirement_id=req_id,
-        requirement_name=rules.apply_menu_rename(req_name),
+        requirement_name=req_name,
         module=module,
         submodule=submodule,
         title=title,
