@@ -92,3 +92,6 @@ schemas:
   - id: SourceRefRegistry@1
     version: 1
     path: .ai/core/schemas/SourceRefRegistry.v1.schema.json
+  - id: CaseCorrections@1
+    version: 1
+    path: .ai/core/schemas/CaseCorrections.v1.schema.json
