@@ -220,5 +220,24 @@ class TestRenderCase(unittest.TestCase):
         self.assertIn('| 2 | 点击"<" | 向前翻页 |', md)
 
 
+class TestRenderB(unittest.TestCase):
+    def test_grouping_and_no_id(self):
+        cases = [
+            pipeline.Case("v6.4.3", "9346", "支持doris3.x", "数据质量", "报告",
+                          "验证A", "P1", "无", [pipeline.Step(1, "a", "b")]),
+            pipeline.Case("v6.4.3", "9346", "支持doris3.x", "数据质量", "报告",
+                          "验证B", "P2", "无", [pipeline.Step(1, "a", "b")]),
+            pipeline.Case("v6.4.4", "9341", "报告管理", "数据质量", "报告",
+                          "验证C", "P1", "无", [pipeline.Step(1, "a", "b")]),
+        ]
+        md = pipeline.render_b_md(cases, suite_name="岚图已上线需求主流程用例")
+        self.assertIn("case_count: 3", md)
+        self.assertIn("## v6.4.3", md)
+        self.assertIn("### 支持doris3.x", md)
+        self.assertNotIn("(#9346)", md)
+        self.assertIn("## v6.4.4", md)
+        self.assertLess(md.index("## v6.4.3"), md.index("## v6.4.4"))
+
+
 if __name__ == "__main__":
     unittest.main()

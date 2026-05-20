@@ -130,3 +130,34 @@ def render_case_md(c: Case) -> str:
             f"| {s.idx} | {rules.cell_to_md(s.step.strip())} | {rules.cell_to_md(s.expected.strip())} |"
         )
     return "\n".join(lines)
+
+
+from collections import OrderedDict
+
+
+def _frontmatter(suite_name: str, description: str, tags: list[str], count: int) -> list[str]:
+    out = ["---", f'suite_name: "{suite_name}"', f'description: "{description}"', "tags:"]
+    out += [f'  - "{t}"' for t in tags]
+    out += ['create_at: "2026-05-20"', 'status: "草稿"', f"case_count: {count}", "---", ""]
+    return out
+
+
+def render_b_md(cases: list[Case], suite_name: str) -> str:
+    grouped: "OrderedDict[str, OrderedDict[str, list[Case]]]" = OrderedDict()
+    for c in cases:
+        grouped.setdefault(c.version, OrderedDict()).setdefault(
+            c.requirement_name, []
+        ).append(c)
+    out = _frontmatter(
+        suite_name,
+        "从 ltqc 历史用例语义精选的岚图已上线需求主流程用例（从 CSV 重抽）",
+        ["主流程", "岚图", "数据质量"],
+        len(cases),
+    )
+    for version, reqs in grouped.items():
+        out += [f"## {version}", ""]
+        for req, items in reqs.items():
+            out += [f"### {req}", ""]
+            for c in items:
+                out += [render_case_md(c), ""]
+    return "\n".join(out).rstrip() + "\n"
