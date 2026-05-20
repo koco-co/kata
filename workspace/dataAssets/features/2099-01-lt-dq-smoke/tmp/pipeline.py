@@ -40,9 +40,17 @@ class Case:
     steps: list[Step] = field(default_factory=list)
 
 
+_DIGIT_TO_P = {"1": "P0", "2": "P1", "3": "P2", "4": "P3"}
+
+
 def _priority(raw: str) -> str:
-    m = re.search(r"P\d", (raw or "").upper())
-    return m.group(0) if m else "P2"
+    raw = (raw or "").strip().upper()
+    m = re.search(r"P([0-9])", raw)
+    if m:
+        return "P" + m.group(1)
+    if raw in _DIGIT_TO_P:
+        return _DIGIT_TO_P[raw]
+    return "P2"
 
 
 def _split_protected(s: str) -> list[str]:
@@ -439,7 +447,17 @@ def build_all(feat: Path) -> dict:
         a_l1_nodes.append(build_a_module_node(mod_name, cases))
 
     a_pick = load_yaml(feat / "tmp" / "selection" / "a-dq-pick.yaml")
-    dq_cases = apply_selection(all_cases, a_pick) if a_pick else []
+    raw_dq = apply_selection(all_cases, a_pick) if a_pick else []
+    # A target: 150–300 cases. Filter to P0 (highest priority), then cap N per requirement.
+    A_PER_REQ_CAP = 5
+    p0_only = [c for c in raw_dq if c.priority == "P0"]
+    from collections import Counter
+    seen: Counter = Counter()
+    dq_cases = []
+    for c in p0_only:
+        if seen[c.requirement_name] < A_PER_REQ_CAP:
+            dq_cases.append(c)
+            seen[c.requirement_name] += 1
     a_md = render_a_md(dq_cases, kept_md)
     (feat / "岚图主流程用例整理.md").write_text(a_md, encoding="utf-8")
     a_l1_nodes.append(build_a_dq_node(dq_cases))
