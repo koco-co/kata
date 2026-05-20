@@ -89,3 +89,20 @@ describe("playwright-automation skill.yaml exposes case-feedback", () => {
     expect(yaml).toContain("step.id == case-feedback");
   });
 });
+
+describe("handoff reference documents Case Feedback section", () => {
+  it("mentions case-corrections-summary.json as the sidecar", () => {
+    const ref = read(".ai/core/skills/playwright-automation/references/handoff.md");
+    expect(ref).toContain("case-corrections-summary.json");
+  });
+
+  it("includes the apply-corrections command form", () => {
+    const ref = read(".ai/core/skills/playwright-automation/references/handoff.md");
+    expect(ref).toContain("/case-edit apply-corrections");
+  });
+
+  it("notes the Case Feedback section is rendered conditionally", () => {
+    const ref = read(".ai/core/skills/playwright-automation/references/handoff.md");
+    expect(ref).toMatch(/Case Feedback/);
+  });
+});
