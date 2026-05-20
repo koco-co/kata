@@ -360,5 +360,31 @@ class TestValidate(unittest.TestCase):
         self.assertEqual(validate.check_case_count(md), [])
 
 
+class TestCliEndToEnd(unittest.TestCase):
+    def test_build_b_from_csv(self):
+        import csv as csvmod
+        tmpdir = THIS / "_csv_test"
+        tmpdir.mkdir(exist_ok=True)
+        csv_path = tmpdir / "v643.csv"
+        with csv_path.open("w", newline="", encoding="utf-8") as f:
+            w = csvmod.writer(f)
+            w.writerow(["用例标题", "相关需求", "前置条件", "步骤", "预期",
+                        "优先级", "所属模块"])
+            w.writerow(["验证查询", "支持doris3.x(#9346)", "无",
+                        '1. 进入\n2. 点击"<"', "1. 成功\n2. 向前翻页",
+                        "P1", "数据质量/报告"])
+        try:
+            cases = pipeline.dedup(pipeline.extract_dir(tmpdir))
+            md = pipeline.render_b_md(cases, "测试集")
+            self.assertIn("### 支持doris3.x", md)
+            self.assertIn('| 2 | 点击"<" | 向前翻页 |', md)
+            xpath = tmpdir / "out.xmind"
+            pipeline.write_xmind(xpath, "测试集", pipeline.build_b_l1_nodes(cases))
+            self.assertTrue(xpath.exists())
+        finally:
+            import shutil
+            shutil.rmtree(tmpdir)
+
+
 if __name__ == "__main__":
     unittest.main()

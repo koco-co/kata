@@ -367,3 +367,67 @@ def load_yaml(path) -> dict:
     import yaml
     with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
+
+
+def _split_modules(md_body: str) -> "OrderedDict[str, str]":
+    """Split an A.md body into {module_name: block} by top-level `## `."""
+    blocks: "OrderedDict[str, str]" = OrderedDict()
+    cur_name: str | None = None
+    cur: list[str] = []
+    for line in md_body.split("\n"):
+        if line.startswith("## ") and not line.startswith("### "):
+            if cur_name is not None:
+                blocks[cur_name] = "\n".join(cur)
+            cur_name, cur = line[3:].strip(), [line]
+        elif cur_name is not None:
+            cur.append(line)
+    if cur_name is not None:
+        blocks[cur_name] = "\n".join(cur)
+    return blocks
+
+
+def build_all(feat: Path) -> dict:
+    csv_dir = feat / "tmp" / "assets-csv"
+    all_cases = dedup(extract_dir(csv_dir))
+
+    b_sel = load_yaml(feat / "tmp" / "selection" / "b-select.yaml")
+    b_cases = apply_selection(all_cases, b_sel) if b_sel else all_cases
+    b_md = render_b_md(b_cases, "岚图已上线需求主流程用例")
+    (feat / "岚图已上线需求主流程用例.md").write_text(b_md, encoding="utf-8")
+    write_xmind(feat / "岚图已上线需求主流程用例.xmind",
+                "岚图已上线需求主流程用例", build_b_l1_nodes(b_cases))
+
+    existing = (feat / "岚图主流程用例整理.md").read_text(encoding="utf-8")
+    body = existing.split("\n---\n", 1)[-1]
+    kept_md: list[str] = []
+    a_l1_nodes: list[dict] = []
+    for name, block in _split_modules(body).items():
+        if name == "数据质量":
+            continue
+        mod_name, cases = parse_existing_module(block)
+        kept_md.append("\n".join(
+            [f"## {mod_name}", ""] + sum(([render_case_md(c), ""] for c in cases), [])
+        ).rstrip() + "\n")
+        a_l1_nodes.append(build_a_module_node(mod_name, cases))
+
+    a_pick = load_yaml(feat / "tmp" / "selection" / "a-dq-pick.yaml")
+    dq_cases = apply_selection(all_cases, a_pick) if a_pick else []
+    a_md = render_a_md(dq_cases, kept_md)
+    (feat / "岚图主流程用例整理.md").write_text(a_md, encoding="utf-8")
+    a_l1_nodes.append(build_a_dq_node(dq_cases))
+    write_xmind(feat / "岚图主流程用例整理.xmind",
+                "岚图主流程用例集合", a_l1_nodes)
+
+    return {"b_cases": len(b_cases), "a_dq_cases": len(dq_cases)}
+
+
+def main(argv: list[str]) -> int:
+    feat = Path(argv[1]) if len(argv) > 1 else Path(__file__).resolve().parent.parent
+    result = build_all(feat)
+    print(result)
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    raise SystemExit(main(sys.argv))
