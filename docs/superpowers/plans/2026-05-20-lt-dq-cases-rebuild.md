@@ -10,6 +10,8 @@
 
 **工作约定（非 worktree）：** 源 `assets-csv/` 未跟踪、无法随 worktree 携带，本任务在 `main` 直接进行。所有脚本/配置/工作文件落 `workspace/dataAssets/features/2099-01-lt-dq-smoke/tmp/`（已跟踪）。交付物（A/B 的 md+xmind）在 feature 根目录（已跟踪）。下文路径以仓库根 `/Users/poco/Projects/kata` 为基准；`FEAT=workspace/dataAssets/features/2099-01-lt-dq-smoke`。
 
+**目录现状（用户已移动）：** 源 CSV 现位于 `$FEAT/tmp/assets-csv/`（连同 `_handoff/`、`ltqc-csv/` 也已移入 `tmp/`）。因此管道读取的 `csv_dir = $FEAT/tmp/assets-csv`；脚本从 `$FEAT/tmp/` 运行时相对路径为 `assets-csv`。交付物仍在 feature 根目录。
+
 ---
 
 ## File Structure
@@ -1701,7 +1703,7 @@ def _split_modules(md_body: str) -> "OrderedDict[str, str]":
 
 
 def build_all(feat: Path) -> dict:
-    csv_dir = feat / "assets-csv"
+    csv_dir = feat / "tmp" / "assets-csv"  # 用户已将源 CSV 移入 tmp/
     all_cases = dedup(extract_dir(csv_dir))
 
     # B: 全量数据质量需求集，按 selection 过滤（默认全收）
@@ -1778,7 +1780,7 @@ import importlib.util, pathlib
 p=pathlib.Path('pipeline.py'); s=importlib.util.spec_from_file_location('p',p)
 m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
 import collections
-cases=m.dedup(m.extract_dir(pathlib.Path('..')/'assets-csv'))
+cases=m.dedup(m.extract_dir(pathlib.Path('assets-csv')))  # 从 tmp/ 运行，源 CSV 在 tmp/assets-csv
 by=collections.OrderedDict()
 for c in cases: by.setdefault(c.requirement_name, []).append(c)
 for r,items in by.items():
