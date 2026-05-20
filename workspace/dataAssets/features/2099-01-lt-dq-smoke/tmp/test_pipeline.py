@@ -239,5 +239,22 @@ class TestRenderB(unittest.TestCase):
         self.assertLess(md.index("## v6.4.3"), md.index("## v6.4.4"))
 
 
+class TestRenderA(unittest.TestCase):
+    def test_dq_module_with_submodules(self):
+        cases = [
+            pipeline.Case("v1", "1", "r", "数据质量", "规则任务管理",
+                          "验证任务创建", "P1", "无", [pipeline.Step(1, "a", "b")]),
+            pipeline.Case("v1", "1", "r", "数据质量", "规则集管理",
+                          "验证规则集", "P1", "无", [pipeline.Step(1, "a", "b")]),
+        ]
+        kept = "## 资产盘点\n\n##### 【P3】验证旧用例\n\n> 前置条件\n\n```\n无\n```\n"
+        md = pipeline.render_a_md(cases, kept_modules_md=[kept])
+        self.assertIn("## 资产盘点", md)
+        self.assertIn("## 数据质量", md)
+        self.assertIn("### 规则任务管理", md)
+        self.assertIn("### 规则集管理", md)
+        self.assertIn("##### 【P1】验证任务创建", md)
+
+
 if __name__ == "__main__":
     unittest.main()

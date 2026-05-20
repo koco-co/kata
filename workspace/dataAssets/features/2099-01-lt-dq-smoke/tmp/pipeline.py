@@ -161,3 +161,30 @@ def render_b_md(cases: list[Case], suite_name: str) -> str:
             for c in items:
                 out += [render_case_md(c), ""]
     return "\n".join(out).rstrip() + "\n"
+
+
+def render_dq_module_md(cases: list[Case]) -> str:
+    by_sub: "OrderedDict[str, list[Case]]" = OrderedDict()
+    for c in cases:
+        by_sub.setdefault(c.submodule or "总览", []).append(c)
+    out = ["## 数据质量", ""]
+    for sub, items in by_sub.items():
+        out += [f"### {sub}", ""]
+        for c in items:
+            out += [render_case_md(c), ""]
+    return "\n".join(out).rstrip() + "\n"
+
+
+def render_a_md(cases: list[Case], kept_modules_md: list[str]) -> str:
+    total = sum(m.count("\n##### ") + m.startswith("##### ") for m in kept_modules_md)
+    total += len(cases)
+    out = _frontmatter(
+        "岚图主流程用例集合",
+        "数据资产岚图定制版主流程回归测试用例（数据质量从 CSV 重抽富化）",
+        ["主流程", "回归", "岚图", "定制"],
+        total,
+    )
+    for m in kept_modules_md:
+        out += [m.rstrip(), ""]
+    out += [render_dq_module_md(cases), ""]
+    return "\n".join(out).rstrip() + "\n"
