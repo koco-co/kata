@@ -35,3 +35,15 @@ def pair_steps(step_cell: str, expected_cell: str) -> list[tuple[int, str, str]]
         return [(1, s, e)] if (s or e) else []
     idxs = sorted(set(steps) | set(exps))
     return [(i, steps.get(i, "").strip(), exps.get(i, "").strip()) for i in idxs]
+
+
+def cell_to_md(text: str) -> str:
+    """Render a step/expected/precondition value into a single md table cell."""
+    if not text:
+        return ""
+    return (
+        text.replace("|", "\\|")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+        .replace("\n", "<br>")
+    )

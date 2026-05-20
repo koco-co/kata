@@ -39,5 +39,16 @@ class TestPairing(unittest.TestCase):
         self.assertEqual(pairs, [(1, "只有一步", "只有一个预期")])
 
 
+class TestCellToMd(unittest.TestCase):
+    def test_newline_to_br_and_pipe_escape(self):
+        self.assertEqual(rules.cell_to_md("a\nb|c"), "a<br>b\\|c")
+
+    def test_angle_brackets_preserved(self):
+        self.assertEqual(rules.cell_to_md('点击"<"'), '点击"<"')
+
+    def test_empty(self):
+        self.assertEqual(rules.cell_to_md(""), "")
+
+
 if __name__ == "__main__":
     unittest.main()
