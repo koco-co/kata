@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
@@ -12,11 +13,13 @@ def _load(name: str):
     spec = importlib.util.spec_from_file_location(name, THIS / f"{name}.py")
     assert spec is not None and spec.loader is not None
     mod = importlib.util.module_from_spec(spec)
+    sys.modules[name] = mod
     spec.loader.exec_module(mod)
     return mod
 
 
 rules = _load("rules")
+pipeline = _load("pipeline")
 
 
 class TestPairing(unittest.TestCase):
@@ -149,6 +152,33 @@ class TestScanners(unittest.TestCase):
         line = "「字段」a「统计函数」b「过滤条件」c"
         self.assertTrue(rules.is_packed_config_line(line))
         self.assertFalse(rules.is_packed_config_line("「字段」a"))
+
+
+class TestRowToCase(unittest.TestCase):
+    def test_basic_row(self):
+        row = {
+            "用例标题": "数据质量 质量报告 验证「质量报告」查询功能正常",
+            "相关需求": "元数据、数据质量支持doris3.x(#9346)",
+            "前置条件": "无",
+            "步骤": '1. 进入概览\n2. 点击"<"',
+            "预期": "1. 成功\n2. 向前翻页",
+            "优先级": "P1",
+            "所属模块": "数据质量/质量报告",
+        }
+        c = pipeline.row_to_case(row, version="v6.4.3")
+        self.assertEqual(c.version, "v6.4.3")
+        self.assertEqual(c.requirement_id, "9346")
+        self.assertEqual(c.requirement_name, "元数据、数据质量支持doris3.x")
+        self.assertEqual(c.priority, "P1")
+        self.assertEqual(c.title, "验证「数据质量报告」查询功能正常")
+        self.assertEqual(c.steps[0].step, "进入总览")
+        self.assertEqual(c.steps[1].step, '点击"<"')
+        self.assertEqual(c.steps[1].expected, "向前翻页")
+
+    def test_priority_default_p2(self):
+        row = {"用例标题": "x", "相关需求": "需求(#1)", "前置条件": "",
+               "步骤": "1. a", "预期": "1. b", "优先级": "", "所属模块": ""}
+        self.assertEqual(pipeline.row_to_case(row, "v1").priority, "P2")
 
 
 if __name__ == "__main__":
