@@ -252,8 +252,9 @@ def case_to_node(c: Case) -> dict:
     for s in c.steps:
         exp_node = {"id": _nid(), "title": _xmind_text(s.expected), "branch": "folded"}
         steps.append({"id": _nid(), "title": _xmind_text(s.step),
+                      "branch": "folded",
                       "children": {"attached": [exp_node]}})
-    node: dict = {"id": _nid(), "title": _xmind_text(c.title)}
+    node: dict = {"id": _nid(), "title": _xmind_text(c.title), "branch": "folded"}
     pre = (c.preconditions or "").strip()
     if pre and pre != "无":
         node["notes"] = {"plain": {"content": _xmind_text(pre)}}
@@ -299,9 +300,9 @@ def build_b_l1_nodes(cases: list[Case]) -> list[dict]:
     for version, reqs in grouped.items():
         req_nodes = []
         for req, items in reqs.items():
-            req_nodes.append({"id": _nid(), "title": req,
+            req_nodes.append({"id": _nid(), "title": req, "branch": "folded",
                               "children": {"attached": [case_to_node(c) for c in items]}})
-        nodes.append({"id": _nid(), "title": version,
+        nodes.append({"id": _nid(), "title": version, "branch": "folded",
                       "children": {"attached": req_nodes}})
     return nodes
 
@@ -310,10 +311,11 @@ def build_a_dq_node(cases: list[Case]) -> dict:
     by_req: "OrderedDict[str, list[Case]]" = OrderedDict()
     for c in cases:
         by_req.setdefault(c.requirement_name or "未分组", []).append(c)
-    subs = [{"id": _nid(), "title": req,
+    subs = [{"id": _nid(), "title": req, "branch": "folded",
              "children": {"attached": [case_to_node(c) for c in items]}}
             for req, items in by_req.items()]
-    return {"id": _nid(), "title": "数据质量", "children": {"attached": subs}}
+    return {"id": _nid(), "title": "数据质量", "branch": "folded",
+            "children": {"attached": subs}}
 
 
 def build_a_module_node(mod_name: str, cases: list[Case]) -> dict:
@@ -324,11 +326,12 @@ def build_a_module_node(mod_name: str, cases: list[Case]) -> dict:
     for sub, items in by_sub.items():
         case_nodes = [case_to_node(c) for c in items]
         if sub:
-            children.append({"id": _nid(), "title": sub,
+            children.append({"id": _nid(), "title": sub, "branch": "folded",
                              "children": {"attached": case_nodes}})
         else:
             children.extend(case_nodes)
-    return {"id": _nid(), "title": mod_name, "children": {"attached": children}}
+    return {"id": _nid(), "title": mod_name, "branch": "folded",
+            "children": {"attached": children}}
 
 
 _CASE_HEAD = re.compile(r"^##### 【(P\d)】(.+)$")
