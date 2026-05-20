@@ -217,7 +217,7 @@ def case_to_node(c: Case) -> dict:
         exp_node = {"id": _nid(), "title": _xmind_text(s.expected), "branch": "folded"}
         steps.append({"id": _nid(), "title": _xmind_text(s.step),
                       "children": {"attached": [exp_node]}})
-    node = {"id": _nid(), "title": _xmind_text(c.title)}
+    node: dict = {"id": _nid(), "title": _xmind_text(c.title)}
     marker = MARKER_MAP.get(c.priority)
     if marker:
         node["markers"] = [{"markerId": marker}]
