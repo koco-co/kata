@@ -81,3 +81,41 @@ def row_to_case(row: dict[str, str], version: str) -> Case | None:
         preconditions=(row.get("前置条件") or "").strip(),
         steps=steps,
     )
+
+
+import csv as _csv
+
+CSV_GLOB = "v*.csv"
+
+
+def _content_len(c: Case) -> int:
+    return len(c.preconditions) + sum(len(s.step) + len(s.expected) for s in c.steps)
+
+
+def dedup(cases: list[Case]) -> list[Case]:
+    """Drop cross-version duplicates by normalized title,
+    keeping the richest variant. Cases with same title but different step
+    sequences are still merged (richer wins)."""
+    best: dict[str, Case] = {}
+    order: list[str] = []
+    for c in cases:
+        key = rules.normalize_title(c.title)
+        if key not in best:
+            best[key] = c
+            order.append(key)
+        elif _content_len(c) > _content_len(best[key]):
+            best[key] = c
+    return [best[k] for k in order]
+
+
+def extract_dir(csv_dir: Path) -> list[Case]:
+    cases: list[Case] = []
+    for path in sorted(Path(csv_dir).glob(CSV_GLOB)):
+        version = "v" + re.sub(r"^v", "", path.stem).replace("64", "6.4.", 1) \
+            if re.fullmatch(r"v\d+", path.stem) else path.stem
+        with path.open(newline="", encoding="utf-8") as f:
+            for row in _csv.DictReader(f):
+                c = row_to_case(row, version)
+                if c is not None:
+                    cases.append(c)
+    return cases

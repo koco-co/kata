@@ -181,5 +181,27 @@ class TestRowToCase(unittest.TestCase):
         self.assertEqual(pipeline.row_to_case(row, "v1").priority, "P2")
 
 
+class TestDedup(unittest.TestCase):
+    def _case(self, title, steps, version="v1"):
+        return pipeline.Case(
+            version=version, requirement_id="1", requirement_name="r",
+            module="数据质量", submodule="数据质量报告", title=title,
+            priority="P1", preconditions="无",
+            steps=[pipeline.Step(i + 1, s, "ok") for i, s in enumerate(steps)],
+        )
+
+    def test_dedup_keeps_richest(self):
+        a = self._case("验证查询", ["进入"], version="v6.4.3")
+        b = self._case("验证查询", ["进入", "更多步骤"], version="v6.4.9")
+        out = pipeline.dedup([a, b])
+        self.assertEqual(len(out), 1)
+        self.assertEqual(len(out[0].steps), 2)
+
+    def test_distinct_kept(self):
+        a = self._case("验证查询", ["进入"])
+        b = self._case("验证下载", ["进入"])
+        self.assertEqual(len(pipeline.dedup([a, b])), 2)
+
+
 if __name__ == "__main__":
     unittest.main()
