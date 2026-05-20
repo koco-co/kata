@@ -200,12 +200,12 @@ def render_b_md(cases: list[Case], suite_name: str) -> str:
 
 
 def render_dq_module_md(cases: list[Case]) -> str:
-    by_sub: "OrderedDict[str, list[Case]]" = OrderedDict()
+    by_req: "OrderedDict[str, list[Case]]" = OrderedDict()
     for c in cases:
-        by_sub.setdefault(c.submodule or "总览", []).append(c)
-    out = ["## 数据质量", ""]
-    for sub, items in by_sub.items():
-        out += [f"### {sub}", ""]
+        by_req.setdefault(c.requirement_name or "未分组", []).append(c)
+    out = ["### 数据质量", ""]
+    for req, items in by_req.items():
+        out += [f"#### {req}", ""]
         for c in items:
             out += [render_case_md(c), ""]
     return "\n".join(out).rstrip() + "\n"
@@ -254,6 +254,9 @@ def case_to_node(c: Case) -> dict:
         steps.append({"id": _nid(), "title": _xmind_text(s.step),
                       "children": {"attached": [exp_node]}})
     node: dict = {"id": _nid(), "title": _xmind_text(c.title)}
+    pre = (c.preconditions or "").strip()
+    if pre and pre != "无":
+        node["notes"] = {"plain": {"content": _xmind_text(pre)}}
     marker = MARKER_MAP.get(c.priority)
     if marker:
         node["markers"] = [{"markerId": marker}]
@@ -291,12 +294,12 @@ def build_b_l1_nodes(cases: list[Case]) -> list[dict]:
 
 
 def build_a_dq_node(cases: list[Case]) -> dict:
-    by_sub: "OrderedDict[str, list[Case]]" = OrderedDict()
+    by_req: "OrderedDict[str, list[Case]]" = OrderedDict()
     for c in cases:
-        by_sub.setdefault(c.submodule or "总览", []).append(c)
-    subs = [{"id": _nid(), "title": sub,
+        by_req.setdefault(c.requirement_name or "未分组", []).append(c)
+    subs = [{"id": _nid(), "title": req,
              "children": {"attached": [case_to_node(c) for c in items]}}
-            for sub, items in by_sub.items()]
+            for req, items in by_req.items()]
     return {"id": _nid(), "title": "数据质量", "children": {"attached": subs}}
 
 
@@ -341,12 +344,14 @@ def parse_existing_module(block: str) -> tuple[str, list[Case]]:
         cur, pre, rows, header_seen = None, [], [], False
 
     for line in lines:
-        if line.startswith("## ") and not line.startswith("### "):
-            mod_name = rules.apply_menu_rename(line[3:].strip())
-            continue
-        if line.startswith("### "):
+        if line.startswith("### ") and not line.startswith("#### "):
             flush()
-            submodule = rules.apply_menu_rename(line[4:].strip())
+            mod_name = rules.apply_menu_rename(line[4:].strip())
+            submodule = ""
+            continue
+        if line.startswith("#### "):
+            flush()
+            submodule = rules.apply_menu_rename(line[5:].strip())
             continue
         m = _CASE_HEAD.match(line)
         if m:
@@ -406,15 +411,15 @@ def load_yaml(path) -> dict:
 
 
 def _split_modules(md_body: str) -> "OrderedDict[str, str]":
-    """Split an A.md body into {module_name: block} by top-level `## `."""
+    """Split an A.md body into {module_name: block} by `### ` module headers."""
     blocks: "OrderedDict[str, str]" = OrderedDict()
     cur_name: str | None = None
     cur: list[str] = []
     for line in md_body.split("\n"):
-        if line.startswith("## ") and not line.startswith("### "):
+        if line.startswith("### ") and not line.startswith("#### "):
             if cur_name is not None:
                 blocks[cur_name] = "\n".join(cur)
-            cur_name, cur = line[3:].strip(), [line]
+            cur_name, cur = line[4:].strip(), [line]
         elif cur_name is not None:
             cur.append(line)
     if cur_name is not None:
@@ -442,7 +447,7 @@ def build_all(feat: Path) -> dict:
             continue
         mod_name, cases = parse_existing_module(block)
         kept_md.append("\n".join(
-            [f"## {mod_name}", ""] + sum(([render_case_md(c), ""] for c in cases), [])
+            [f"### {mod_name}", ""] + sum(([render_case_md(c), ""] for c in cases), [])
         ).rstrip() + "\n")
         a_l1_nodes.append(build_a_module_node(mod_name, cases))
 

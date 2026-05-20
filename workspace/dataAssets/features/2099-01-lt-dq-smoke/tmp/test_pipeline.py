@@ -297,26 +297,26 @@ class TestRenderB(unittest.TestCase):
 
 
 class TestRenderA(unittest.TestCase):
-    def test_dq_module_with_submodules(self):
+    def test_dq_module_with_requirement_groups(self):
         cases = [
-            pipeline.Case("v1", "1", "r", "数据质量", "规则任务管理",
+            pipeline.Case("v1", "1", "需求甲", "数据质量", "规则任务管理",
                           "验证任务创建", "P1", "无", [pipeline.Step(1, "a", "b")]),
-            pipeline.Case("v1", "1", "r", "数据质量", "规则集管理",
+            pipeline.Case("v1", "1", "需求乙", "数据质量", "规则集管理",
                           "验证规则集", "P1", "无", [pipeline.Step(1, "a", "b")]),
         ]
-        kept = "## 资产盘点\n\n##### 【P3】验证旧用例\n\n> 前置条件\n\n```\n无\n```\n"
+        kept = "### 资产盘点\n\n##### 【P3】验证旧用例\n\n> 前置条件\n\n```\n无\n```\n"
         md = pipeline.render_a_md(cases, kept_modules_md=[kept])
-        self.assertIn("## 资产盘点", md)
-        self.assertIn("## 数据质量", md)
-        self.assertIn("### 规则任务管理", md)
-        self.assertIn("### 规则集管理", md)
+        self.assertIn("### 资产盘点", md)
+        self.assertIn("### 数据质量", md)
+        self.assertIn("#### 需求甲", md)
+        self.assertIn("#### 需求乙", md)
         self.assertIn("##### 【P1】验证任务创建", md)
 
 
 class TestParseExistingMd(unittest.TestCase):
     def test_parse_module_cases(self):
         md = (
-            "## 元数据\n\n"
+            "### 元数据\n\n"
             "##### 【P2】验证 X\n\n> 前置条件\n\n```\n无\n```\n\n"
             "> 用例步骤\n\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n"
             "| 1 | 进入概览 | 成功 |\n"
@@ -371,14 +371,23 @@ class TestXmindTree(unittest.TestCase):
         self.assertEqual(req["title"], "需求甲")
         self.assertEqual(req["children"]["attached"][0]["title"], "验证X")
 
-    def test_a_tree_module_submodule(self):
-        cases = [pipeline.Case("v1", "1", "r", "数据质量", "规则任务管理",
+    def test_a_tree_module_requirement(self):
+        cases = [pipeline.Case("v1", "1", "需求甲", "数据质量", "规则任务管理",
                                "验证Y", "P1", "无", [pipeline.Step(1, "a", "b")])]
         node = pipeline.build_a_dq_node(cases)
         self.assertEqual(node["title"], "数据质量")
         sub = node["children"]["attached"][0]
-        self.assertEqual(sub["title"], "规则任务管理")
+        self.assertEqual(sub["title"], "需求甲")
         self.assertEqual(sub["children"]["attached"][0]["title"], "验证Y")
+
+    def test_case_node_notes_for_precondition(self):
+        c = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证X", "P1",
+                          "已登录\nSparkThrift2.x", [pipeline.Step(1, "a", "b")])
+        node = pipeline.case_to_node(c)
+        self.assertEqual(node["notes"]["plain"]["content"], "已登录\nSparkThrift2.x")
+        c2 = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证Y", "P1",
+                           "无", [pipeline.Step(1, "a", "b")])
+        self.assertNotIn("notes", pipeline.case_to_node(c2))
 
 
 class TestSelection(unittest.TestCase):
