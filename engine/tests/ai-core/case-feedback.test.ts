@@ -75,3 +75,17 @@ describe("case-feedback reference exists and covers required protocol", () => {
     expect(ref).toMatch(/不得.*xmind|禁止.*xmind/);
   });
 });
+
+describe("playwright-automation skill.yaml exposes case-feedback", () => {
+  it("declares case_corrections as an output", () => {
+    const yaml = read(".ai/core/skills/playwright-automation/skill.yaml");
+    expect(yaml).toMatch(/outputs:[\s\S]*- case_corrections/);
+  });
+
+  it("references case-feedback.md with phase case-feedback", () => {
+    const yaml = read(".ai/core/skills/playwright-automation/skill.yaml");
+    expect(yaml).toContain("references/case-feedback.md");
+    expect(yaml).toMatch(/load_phases:[\s\S]*- case-feedback/);
+    expect(yaml).toContain("step.id == case-feedback");
+  });
+});

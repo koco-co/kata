@@ -19,6 +19,7 @@ outputs:
   - script
   - run
   - handoff
+  - case_corrections
 inputs:
   request:
     required: true
@@ -240,6 +241,12 @@ references:
       - repair-loop
     purpose: 脚本内容质量审查（选择器、断言、复用度）。
     load_when: step.id in [playwright-generate, repair-loop]
+  - path: references/case-feedback.md
+    type: normative
+    load_phases:
+      - case-feedback
+    purpose: 生成 case-corrections.md 与 case-corrections-summary.json，覆盖 8 类 category、3 级 confidence、跨轮去重。
+    load_when: step.id == case-feedback
 evidence:
   source_refs_required: true
   distinguish_fact_inference_assumption: true
