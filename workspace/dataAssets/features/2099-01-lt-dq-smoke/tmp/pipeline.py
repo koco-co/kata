@@ -190,6 +190,54 @@ def render_a_md(cases: list[Case], kept_modules_md: list[str]) -> str:
     return "\n".join(out).rstrip() + "\n"
 
 
+import json as _json
+import uuid
+import zipfile as _zip
+
+MARKER_MAP = {"P0": "priority-1", "P1": "priority-2", "P2": "priority-3", "P3": "priority-4"}
+_METADATA = {"dataStructureVersion": "3",
+             "creator": {"name": "kata-ltqc", "version": "1"},
+             "layoutEngineVersion": "5"}
+_MANIFEST = {"file-entries": {"content.json": {}, "metadata.json": {}}}
+
+
+def _nid() -> str:
+    return uuid.uuid4().hex
+
+
+def _xmind_text(text: str) -> str:
+    """xmind 节点文本：<br> 还原为换行；连续配置项列表（「…」三项以上）拆行。"""
+    t = (text or "").replace("<br>", "\n")
+    return t
+
+
+def case_to_node(c: Case) -> dict:
+    steps = []
+    for s in c.steps:
+        exp_node = {"id": _nid(), "title": _xmind_text(s.expected), "branch": "folded"}
+        steps.append({"id": _nid(), "title": _xmind_text(s.step),
+                      "children": {"attached": [exp_node]}})
+    node = {"id": _nid(), "title": _xmind_text(c.title)}
+    marker = MARKER_MAP.get(c.priority)
+    if marker:
+        node["markers"] = [{"markerId": marker}]
+    if steps:
+        node["children"] = {"attached": steps}
+    return node
+
+
+def write_xmind(path, root_title: str, l1_nodes: list[dict]) -> None:
+    root = {"id": _nid(), "class": "topic", "title": root_title,
+            "structureClass": "org.xmind.ui.logic.right",
+            "children": {"attached": l1_nodes}}
+    sheet = {"id": _nid(), "class": "sheet", "title": root_title, "rootTopic": root}
+    content = [sheet]
+    with _zip.ZipFile(path, "w", _zip.ZIP_DEFLATED) as z:
+        z.writestr("content.json", _json.dumps(content, ensure_ascii=False, separators=(",", ":")))
+        z.writestr("metadata.json", _json.dumps(_METADATA, ensure_ascii=False))
+        z.writestr("manifest.json", _json.dumps(_MANIFEST, ensure_ascii=False))
+
+
 _CASE_HEAD = re.compile(r"^##### 【(P\d)】(.+)$")
 
 

@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import unittest
+import zipfile
 from pathlib import Path
 
 THIS = Path(__file__).resolve().parent
@@ -269,6 +271,39 @@ class TestParseExistingMd(unittest.TestCase):
         self.assertEqual(len(cases), 1)
         self.assertEqual(cases[0].priority, "P2")
         self.assertEqual(cases[0].steps[0].step, "进入总览")
+
+
+class TestXmind(unittest.TestCase):
+    def test_marker_map(self):
+        self.assertEqual(pipeline.MARKER_MAP["P0"], "priority-1")
+        self.assertEqual(pipeline.MARKER_MAP["P1"], "priority-2")
+        self.assertEqual(pipeline.MARKER_MAP["P2"], "priority-3")
+        self.assertEqual(pipeline.MARKER_MAP["P3"], "priority-4")
+
+    def test_case_node_structure(self):
+        c = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证X", "P1",
+                          "无", [pipeline.Step(1, "进入", "成功")])
+        node = pipeline.case_to_node(c)
+        self.assertEqual(node["title"], "验证X")
+        self.assertEqual(node["markers"], [{"markerId": "priority-2"}])
+        step = node["children"]["attached"][0]
+        self.assertEqual(step["title"], "进入")
+        self.assertEqual(step["children"]["attached"][0]["title"], "成功")
+
+    def test_write_and_reopen(self):
+        out = THIS / "_xmind_test.xmind"
+        try:
+            pipeline.write_xmind(out, root_title="T",
+                                 l1_nodes=[{"id": "x", "title": "L1"}])
+            with zipfile.ZipFile(out) as z:
+                names = set(z.namelist())
+                self.assertIn("content.json", names)
+                self.assertIn("metadata.json", names)
+                self.assertIn("manifest.json", names)
+                content = json.loads(z.read("content.json"))
+                self.assertEqual(content[0]["rootTopic"]["title"], "T")
+        finally:
+            out.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
