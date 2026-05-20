@@ -393,6 +393,12 @@ describe("product skill contract parser", () => {
     expect(formatReference).toContain("主缺陷复现表仍必须是所有字段均为分区字段");
     expect(formatReference).toContain("不得用普通字段 + 分区字段的相邻回归表替代");
     expect(formatReference).toContain("不得写入仓库根级 `workspace/.temp`");
+    expect(formatReference).toContain(
+      "6.3 | 数据质量 | SparkThrift | | 6.3 | 增量sql中完整性校验json格式校验sql模板未考虑到分区",
+    );
+    expect(formatReference).toContain("第 5 段必须归一化为最低修复大版本");
+    expect(formatReference).toContain("不得写 `v6.3.41_ltqc`");
+    expect(formatReference).toContain("不得写成「代码缺陷」「需求变更」「配置错误」等分类词");
     expect(formatReference).not.toContain("Archive 正文必须包含 `## SourceRefs`");
   });
 

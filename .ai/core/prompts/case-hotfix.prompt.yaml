@@ -17,7 +17,7 @@ output_schema:
 rendering:
   role_sections:
     system: 仅根据提供的证据执行 case-hotfix；输出目标是可直接执行的 Hotfix 回归用例 archive，不是缺陷分析报告。
-    user: 返回结构化结果，未解决的事实放入 pending_items。archive 必须只生成 1 条 Hotfix 用例，并沿用历史 Hotfix 格式：frontmatter、模块层级、前置条件、用例步骤表；md 不得包含 SourceRefs 或 bug.record 引用，证据只写同名 .source_refs.json。frontmatter 必须包含 zentao_url；keywords 第 6 段写具体问题原因。前置条件统一放入单个无语言标记代码块，SQL 不写固定库名/schema 前缀。
+    user: 返回结构化结果，未解决的事实放入 pending_items。archive 必须只生成 1 条 Hotfix 用例，并沿用历史 Hotfix 格式：frontmatter、模块层级、前置条件、用例步骤表；md 不得包含 SourceRefs 或 bug.record 引用，证据只写同名 .source_refs.json。frontmatter 必须包含 zentao_url；keywords 固定为 6 段：发现大版本 | 模块 | 数据源类型 | 集群 | 最低修复大版本 | 具体问题原因；第 5 段只写 6.3 这类大版本，不写 v6.3.41_ltqc、客户缩写或构建号；第 6 段写证据中的具体问题原因，不写代码缺陷/需求变更/配置错误这类分类词。前置条件统一放入单个无语言标记代码块，SQL 不写固定库名/schema 前缀。
   boundaries:
     untrusted_context_tag: context
     source_ref_tag: source_ref
