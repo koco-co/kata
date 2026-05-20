@@ -188,8 +188,10 @@ by_category:
 
 - **archive 已被人工改过**：apply 时若 `doc_claim` 在 archive 找不到精确匹配 → 跳过该条 + apply-log 记 `skipped: source_changed`，不阻塞其他条目。
 - **同一 feature 多次反哺**：每个 run-id 独立一份 corrections.md，互不覆盖。
-- **跨轮去重**：playwright-automation 生成新 corrections 时扫描该 feature 下所有历史 `case-corrections-applied.md`，按 `(case_ref, doc_claim, proposed_change)` 三元组去重，避免滚雪球。
-- **rejected 反复出现**：若一条 correction 在历史轮被 `rejected`，新一轮再次生成时在 corrections.md 中填充 `previously_rejected: <prev_run_id>`，作为提示但不强制阻断（用户可能改主意）。
+- **跨轮去重**：playwright-automation 生成新 corrections 时扫描该 feature 下所有历史 run-id：
+  - `case-corrections-applied.md` 中已 applied 的条目 → 按 `(case_ref, doc_claim, proposed_change)` 三元组**直接过滤**，不再生成。
+  - 历史 `case-corrections.md` 中 `status: rejected` 的条目 → 按同三元组**保留生成**，但填充 `previously_rejected: <prev_run_id>` 标记。
+- **rejected 反复出现**：filed `previously_rejected` 作为提示，让用户审批时能看到"上次拒绝过"，但不强制阻断（用户可能改主意）。同一三元组若被 reject ≥3 次，新一轮直接过滤（视为终态噪音）。
 
 ## 7. 受影响文件清单
 
