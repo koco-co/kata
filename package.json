@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/your-org/kata#readme",
   "scripts": {
+    "console": "bun apps/console/server.ts",
+    "mcp": "bun apps/mcp/server.ts",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "lint": "biome check engine/src engine/tests .claude/agents .claude/skills plugins tools rules",

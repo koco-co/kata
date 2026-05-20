@@ -276,6 +276,43 @@ class TestRenderCase(unittest.TestCase):
         self.assertIn("| 编号 | 步骤 | 预期 |", md)
         self.assertIn('| 2 | 点击"<" | 向前翻页 |', md)
 
+    def test_precondition_block_expands_br(self):
+        c = pipeline.Case(
+            version="v1", requirement_id="1", requirement_name="r",
+            module="数据质量", submodule="数据质量报告",
+            title="验证查询功能正常", priority="P1", preconditions="第一行<br />第二行<br/>第三行",
+            steps=[],
+        )
+        md = pipeline.render_case_md(c)
+        self.assertIn("第一行\n第二行\n第三行", md)
+        self.assertNotIn("<br", md)
+
+    def test_empty_step_and_expected_are_explicit_placeholders(self):
+        c = pipeline.Case(
+            version="v1", requirement_id="1", requirement_name="r",
+            module="数据质量", submodule="数据质量报告",
+            title="验证查询功能正常", priority="P1", preconditions="无",
+            steps=[pipeline.Step(1, "", "")],
+        )
+        md = pipeline.render_case_md(c)
+        node = pipeline.case_to_node(c)
+        step = node["children"]["attached"][0]
+        self.assertIn(pipeline.EMPTY_STEP_TEXT, md)
+        self.assertIn(pipeline.EMPTY_EXPECTED_TEXT, md)
+        self.assertEqual(step["title"], pipeline.EMPTY_STEP_TEXT)
+        self.assertEqual(step["children"]["attached"][0]["title"], pipeline.EMPTY_EXPECTED_TEXT)
+
+    def test_precondition_nested_code_fence_uses_longer_outer_fence(self):
+        c = pipeline.Case(
+            version="v1", requirement_id="1", requirement_name="r",
+            module="数据质量", submodule="数据质量报告",
+            title="验证查询功能正常", priority="P1",
+            preconditions="说明\n```csv\nid\n1\n```",
+            steps=[],
+        )
+        md = pipeline.render_case_md(c)
+        self.assertIn("\n````\n说明\n```csv\nid\n1\n```\n````\n", md)
+
 
 class TestRenderB(unittest.TestCase):
     def test_grouping_and_no_id(self):
@@ -327,23 +364,80 @@ class TestParseExistingMd(unittest.TestCase):
         self.assertEqual(cases[0].priority, "P2")
         self.assertEqual(cases[0].steps[0].step, "进入总览")
 
+    def test_parse_nested_precondition_fence(self):
+        md = (
+            "### 数据质量\n\n"
+            "##### 【P1】验证 X\n\n> 前置条件\n\n````\n"
+            "说明\n```csv\nid\n1\n```\n````\n\n"
+            "> 用例步骤\n\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n"
+            "| 1 | 进入 | 成功 |\n"
+        )
+        _mod, cases = pipeline.parse_existing_module(md)
+        self.assertEqual(cases[0].preconditions, "说明\n```csv\nid\n1\n```")
+
 
 class TestXmind(unittest.TestCase):
     def test_marker_map(self):
-        self.assertEqual(pipeline.MARKER_MAP["P0"], "priority-1")
-        self.assertEqual(pipeline.MARKER_MAP["P1"], "priority-2")
-        self.assertEqual(pipeline.MARKER_MAP["P2"], "priority-3")
-        self.assertEqual(pipeline.MARKER_MAP["P3"], "priority-4")
+        self.assertEqual(pipeline.ONLINE_MARKER_MAP["P0"], "priority-1")
+        self.assertEqual(pipeline.ONLINE_MARKER_MAP["P1"], "priority-2")
+        self.assertEqual(pipeline.ONLINE_MARKER_MAP["P2"], "priority-3")
+        self.assertEqual(pipeline.ONLINE_MARKER_MAP["P3"], "priority-4")
+        self.assertEqual(pipeline.MAINFLOW_MARKER_MAP["P0"], "priority-1")
+        self.assertEqual(pipeline.MAINFLOW_MARKER_MAP["P1"], "priority-1")
+        self.assertEqual(pipeline.MAINFLOW_MARKER_MAP["P2"], "priority-2")
+        self.assertEqual(pipeline.MAINFLOW_MARKER_MAP["P3"], "priority-3")
 
     def test_case_node_structure(self):
         c = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证X", "P1",
                           "无", [pipeline.Step(1, "进入", "成功")])
         node = pipeline.case_to_node(c)
+        self.assertEqual(node["class"], "topic")
         self.assertEqual(node["title"], "验证X")
         self.assertEqual(node["markers"], [{"markerId": "priority-2"}])
         step = node["children"]["attached"][0]
+        self.assertEqual(step["class"], "topic")
         self.assertEqual(step["title"], "进入")
         self.assertEqual(step["children"]["attached"][0]["title"], "成功")
+
+    def test_case_node_accepts_mainflow_marker_map(self):
+        c = pipeline.Case("v1", "1", "r", "资产盘点", "",
+                          "验证第一次进入资产平台弹【资产功能引导】弹窗", "P3",
+                          "无", [pipeline.Step(1, "进入", "成功")])
+        node = pipeline.case_to_node(c, pipeline.MAINFLOW_MARKER_MAP)
+        self.assertEqual(node["markers"], [{"markerId": "priority-3"}])
+
+    def test_xmind_text_normalizes_line_endings(self):
+        self.assertEqual(pipeline._xmind_text("a\r\nb\rc<br>d<br />e<br/>f"), "a\nb\nc\nd\ne\nf")
+
+    def test_long_precondition_is_chunked_instead_of_single_note(self):
+        long_pre = "\n".join(f"SQL line {i}: " + "x" * 120 for i in range(140))
+        c = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证X", "P1",
+                          long_pre, [pipeline.Step(1, "进入", "成功")])
+        node = pipeline.case_to_node(c)
+        self.assertNotIn("notes", node)
+        pre_node = node["children"]["attached"][0]
+        self.assertEqual(pre_node["title"], "前置条件")
+        chunks = pre_node["children"]["attached"]
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(len(chunk["title"]) <= pipeline.XMIND_CHUNK_LIMIT + 16
+                            for chunk in chunks))
+
+    def test_chunk_text_round_trips_blank_and_long_lines(self):
+        text = "a\n\nb\n" + ("x" * (pipeline.XMIND_CHUNK_LIMIT + 20))
+        chunks = pipeline._chunk_text(text)
+        self.assertGreater(len(chunks), 1)
+        self.assertEqual("".join(chunks), pipeline._xmind_text(text).strip())
+
+    def test_long_step_title_is_chunked(self):
+        long_step = "SQL验证:" + "x" * (pipeline.XMIND_TITLE_LIMIT + 100)
+        c = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证X", "P1",
+                          "无", [pipeline.Step(1, long_step, "成功")])
+        node = pipeline.case_to_node(c)
+        step = node["children"]["attached"][0]
+        self.assertIn("内容较长", step["title"])
+        self.assertLess(len(step["title"]), 320)
+        self.assertEqual(step["children"]["attached"][0]["title"], "完整内容")
+        self.assertEqual(step["children"]["attached"][-1]["title"], "成功")
 
     def test_write_and_reopen(self):
         out = THIS / "_xmind_test.xmind"
@@ -354,9 +448,14 @@ class TestXmind(unittest.TestCase):
                 names = set(z.namelist())
                 self.assertIn("content.json", names)
                 self.assertIn("metadata.json", names)
+                self.assertIn("resources/", names)
                 self.assertIn("manifest.json", names)
                 content = json.loads(z.read("content.json"))
                 self.assertEqual(content[0]["rootTopic"]["title"], "T")
+                self.assertEqual(
+                    content[0]["rootTopic"]["children"]["attached"][0]["class"],
+                    "topic",
+                )
         finally:
             out.unlink(missing_ok=True)
 
@@ -388,6 +487,70 @@ class TestXmindTree(unittest.TestCase):
         c2 = pipeline.Case("v1", "1", "r", "数据质量", "报告", "验证Y", "P1",
                            "无", [pipeline.Step(1, "a", "b")])
         self.assertNotIn("notes", pipeline.case_to_node(c2))
+
+    def test_mainflow_uses_reference_hierarchy(self):
+        ref = THIS / "_mainflow_ref.xmind"
+        try:
+            old_dq = pipeline.Case("v1", "1", "旧需求", "数据质量", "",
+                                   "旧数据质量用例", "P1", "无",
+                                   [pipeline.Step(1, "old", "old")])
+            ref_nodes = [
+                pipeline._topic("元数据", [
+                    pipeline._topic("数据地图", [
+                        pipeline.case_to_node(
+                            pipeline.Case("v1", "1", "旧需求", "元数据", "",
+                                          "旧数据地图用例", "P1", "无",
+                                          [pipeline.Step(1, "old", "old")]),
+                            pipeline.MAINFLOW_MARKER_MAP,
+                        )
+                    ])
+                ]),
+                pipeline._topic("数据质量", [
+                    pipeline._topic("总览", [pipeline.case_to_node(old_dq, pipeline.MAINFLOW_MARKER_MAP)]),
+                    pipeline._topic("数据质量报告"),
+                ]),
+            ]
+            pipeline.write_xmind(ref, "岚图主流程用例集合", ref_nodes)
+            cases = [
+                pipeline.Case("v1", "1", "【数据地图】查询优化", "数据质量", "",
+                              "数据地图 字段结果页 验证字段查询", "P0", "无",
+                              [pipeline.Step(1, "new", "new")]),
+                pipeline.Case("v1", "2", "【数据质量】报告搜索优化", "数据质量", "",
+                              "报告详情页 验证报告筛选", "P0", "无",
+                              [pipeline.Step(1, "new", "new")]),
+            ]
+            kept_cases = [
+                pipeline.Case("v1", "1", "旧需求", "元数据", "",
+                              "旧数据地图用例", "P1", "新前置",
+                              [pipeline.Step(1, "kept", "kept")]),
+            ]
+            nodes = pipeline.build_a_l1_nodes_from_reference(ref, cases, kept_cases)
+            metadata = next(n for n in nodes if n["title"] == "元数据")
+            data_map = metadata["children"]["attached"][0]
+            self.assertEqual(data_map["title"], "数据地图")
+            self.assertEqual(len(data_map["children"]["attached"]), 2)
+            kept = next(n for n in data_map["children"]["attached"] if n["title"] == "旧数据地图用例")
+            self.assertEqual(kept["notes"]["plain"]["content"], "新前置")
+            self.assertEqual(kept["children"]["attached"][0]["title"], "kept")
+            dq = next(n for n in nodes if n["title"] == "数据质量")
+            overview = next(n for n in dq["children"]["attached"] if n["title"] == "总览")
+            self.assertNotIn("children", overview)
+            report = next(n for n in dq["children"]["attached"] if n["title"] == "数据质量报告")
+            self.assertEqual(report["children"]["attached"][0]["title"], "报告详情页 验证报告筛选")
+        finally:
+            ref.unlink(missing_ok=True)
+
+    def test_reference_mainflow_xmind_falls_back_to_tmp_source(self):
+        import shutil
+        base = THIS / "_reference_lookup"
+        feat = base / "2099-01-lt-dq-smoke"
+        ref = feat / "tmp" / "ltqc-csv" / "岚图主流程用例整理.xmind"
+        try:
+            ref.parent.mkdir(parents=True, exist_ok=True)
+            ref.write_text("x", encoding="utf-8")
+            self.assertEqual(pipeline.reference_mainflow_xmind(feat), ref)
+        finally:
+            shutil.rmtree(base, ignore_errors=True)
 
 
 class TestSelection(unittest.TestCase):
@@ -421,6 +584,184 @@ class TestValidate(unittest.TestCase):
     def test_clean_doc_passes(self):
         md = '---\ncase_count: 1\n---\n\n## M\n\n##### 【P1】验证 X\n'
         self.assertEqual(validate.check_case_count(md), [])
+
+    def test_expected_marker_distribution_mainflow(self):
+        md = (
+            "##### 【P0】最高\n"
+            "##### 【P1】高\n"
+            "##### 【P2】中\n"
+            "##### 【P3】低\n"
+        )
+        self.assertEqual(
+            validate.expected_marker_distribution(md, "岚图主流程用例整理.md"),
+            {"priority-1": 2, "priority-2": 1, "priority-3": 1},
+        )
+
+    def test_expected_marker_distribution_online(self):
+        md = "##### 【P0】最高\n##### 【P1】高\n##### 【P2】中\n"
+        self.assertEqual(
+            validate.expected_marker_distribution(md, "岚图已上线需求主流程用例.md"),
+            {"priority-1": 1, "priority-2": 1, "priority-3": 1},
+        )
+
+    def test_field_consistency_detects_step_mismatch(self):
+        out = THIS / "_field_mismatch.xmind"
+        md = (
+            "##### 【P1】验证 X\n\n> 前置条件\n\n```\n无\n```\n\n"
+            "> 用例步骤\n\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n"
+            "| 1 | 进入 | 成功 |\n"
+        )
+        try:
+            c = pipeline.Case("v1", "1", "需求", "数据质量", "报告",
+                              "验证 X", "P1", "无",
+                              [pipeline.Step(1, "进入", "失败")])
+            pipeline.write_xmind(out, "测试集", [pipeline._topic("需求", [
+                pipeline.case_to_node(c, pipeline.ONLINE_MARKER_MAP)
+            ])])
+            issues = validate.check_md_xmind_field_consistency(
+                md, "岚图已上线需求主流程用例.md", out
+            )
+            self.assertTrue(any("field mismatch" in issue for issue in issues))
+        finally:
+            out.unlink(missing_ok=True)
+
+    def test_mainflow_hierarchy_detects_flattened_module(self):
+        out = THIS / "_flat_mainflow.xmind"
+        modules = []
+        for name in validate.MAINFLOW_HIERARCHY:
+            child = {"id": name, "class": "topic", "title": name}
+            if name == "元数据":
+                child["children"] = {"attached": [{
+                    "id": "case",
+                    "class": "topic",
+                    "title": "被铺平的用例",
+                    "markers": [{"markerId": "priority-1"}],
+                }]}
+            elif validate.MAINFLOW_HIERARCHY[name]:
+                child["children"] = {"attached": [
+                    {"id": f"{name}-{item}", "class": "topic", "title": item}
+                    for item in validate.MAINFLOW_HIERARCHY[name]
+                ]}
+            modules.append(child)
+        content = [{
+            "rootTopic": {
+                "id": "root",
+                "class": "topic",
+                "title": "岚图主流程用例集合",
+                "children": {"attached": modules},
+            }
+        }]
+        try:
+            with zipfile.ZipFile(out, "w") as z:
+                z.writestr("content.json", json.dumps(content, ensure_ascii=False))
+            issues = validate.check_mainflow_hierarchy(out)
+            self.assertTrue(any(
+                "direct case nodes" in issue or "directory skeleton mismatch" in issue
+                for issue in issues
+            ))
+        finally:
+            out.unlink(missing_ok=True)
+
+    def test_mainflow_hierarchy_compares_reference_skeleton(self):
+        import shutil
+        base = THIS / "_hierarchy_compare"
+        ref = base / "岚图主流程用例整理.xmind"
+        feature = base / "feature"
+        cur = feature / "岚图主流程用例整理.xmind"
+        ref_content = [{
+            "rootTopic": {
+                "id": "root",
+                "class": "topic",
+                "title": "岚图主流程用例集合",
+                "children": {"attached": [{
+                    "id": "m",
+                    "class": "topic",
+                    "title": "元数据",
+                    "children": {"attached": [{"id": "menu", "class": "topic", "title": "数据地图"}]},
+                }]},
+            }
+        }]
+        cur_content = [{
+            "rootTopic": {
+                "id": "root",
+                "class": "topic",
+                "title": "岚图主流程用例集合",
+                "children": {"attached": [{
+                    "id": "m",
+                    "class": "topic",
+                    "title": "元数据",
+                    "children": {"attached": [{"id": "wrong", "class": "topic", "title": "错误菜单"}]},
+                }]},
+            }
+        }]
+        try:
+            feature.mkdir(parents=True, exist_ok=True)
+            with zipfile.ZipFile(ref, "w") as z:
+                z.writestr("content.json", json.dumps(ref_content, ensure_ascii=False))
+            with zipfile.ZipFile(cur, "w") as z:
+                z.writestr("content.json", json.dumps(cur_content, ensure_ascii=False))
+            issues = validate.check_mainflow_hierarchy(cur)
+            self.assertTrue(any("directory skeleton mismatch" in issue for issue in issues))
+        finally:
+            shutil.rmtree(base, ignore_errors=True)
+
+    def test_mainflow_hierarchy_uses_tmp_source_reference(self):
+        import shutil
+        base = THIS / "_hierarchy_tmp_compare"
+        feature = base / "feature"
+        tmp_ref = feature / "tmp" / "ltqc-csv" / "岚图主流程用例整理.xmind"
+        cur = feature / "岚图主流程用例整理.xmind"
+        ref_content = [{
+            "rootTopic": {
+                "id": "root",
+                "class": "topic",
+                "title": "岚图主流程用例集合",
+                "children": {"attached": [{
+                    "id": "m",
+                    "class": "topic",
+                    "title": "元数据",
+                    "children": {"attached": [{"id": "menu", "class": "topic", "title": "数据地图"}]},
+                }]},
+            }
+        }]
+        try:
+            tmp_ref.parent.mkdir(parents=True, exist_ok=True)
+            with zipfile.ZipFile(tmp_ref, "w") as z:
+                z.writestr("content.json", json.dumps(ref_content, ensure_ascii=False))
+            with zipfile.ZipFile(cur, "w") as z:
+                z.writestr("content.json", json.dumps(ref_content, ensure_ascii=False))
+            self.assertEqual(validate.check_mainflow_hierarchy(cur), [])
+        finally:
+            shutil.rmtree(base, ignore_errors=True)
+
+    def test_xmind_structure_issues_detect_opening_risks(self):
+        out = THIS / "_bad_structure.xmind"
+        content = [{
+            "rootTopic": {
+                "title": "root",
+                "children": {
+                    "attached": [{
+                        "title": "x" * (validate.MAX_XMIND_TITLE_LEN + 1),
+                        "markers": [{"markerId": "priority-1"}],
+                        "notes": {"plain": {
+                            "content": "n" * (validate.MAX_XMIND_NOTE_LEN + 1)
+                        }},
+                    }]
+                },
+            }
+        }]
+        try:
+            with zipfile.ZipFile(out, "w") as z:
+                z.writestr("content.json", json.dumps(content, ensure_ascii=False))
+                z.writestr("metadata.json", "{}")
+                z.writestr("manifest.json", "{}")
+            issues = validate.xmind_structure_issues(out)
+            self.assertTrue(any("missing resources" in issue for issue in issues))
+            self.assertTrue(any("missing class" in issue for issue in issues))
+            self.assertTrue(any("title too long" in issue for issue in issues))
+            self.assertTrue(any("note too long" in issue for issue in issues))
+        finally:
+            out.unlink(missing_ok=True)
 
 
 class TestCliEndToEnd(unittest.TestCase):

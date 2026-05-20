@@ -90,12 +90,12 @@
     {
       "path": ".agents/skills/case-edit/SKILL.md",
       "disposition": "generated",
-      "sha256": "b1d311956f6149bc33dec80421ec1d4ce52625c56c729e3a40ed11b81d40150a"
+      "sha256": "9ec092c91716c834dffad8c07f7f84427b14de02eb11cc8dd7fdd33e3c30f5b8"
     },
     {
       "path": ".agents/skills/case-edit/references/archive-xmind-sync.md",
       "disposition": "generated",
-      "sha256": "ebd30d83612ae9cb84ee2c85df16a4a5818456962ea3555f91dbbb5a48a85bef"
+      "sha256": "6d17aaec238bcb426664fc1ecca100d1ab3561a0b2a9e3eb8b49b546645bce2a"
     },
     {
       "path": ".agents/skills/case-hotfix/SKILL.md",
@@ -360,12 +360,12 @@
     {
       "path": ".claude/skills/case-edit/SKILL.md",
       "disposition": "generated",
-      "sha256": "b1d311956f6149bc33dec80421ec1d4ce52625c56c729e3a40ed11b81d40150a"
+      "sha256": "9ec092c91716c834dffad8c07f7f84427b14de02eb11cc8dd7fdd33e3c30f5b8"
     },
     {
       "path": ".claude/skills/case-edit/references/archive-xmind-sync.md",
       "disposition": "generated",
-      "sha256": "ebd30d83612ae9cb84ee2c85df16a4a5818456962ea3555f91dbbb5a48a85bef"
+      "sha256": "6d17aaec238bcb426664fc1ecca100d1ab3561a0b2a9e3eb8b49b546645bce2a"
     },
     {
       "path": ".claude/skills/case-hotfix/SKILL.md",

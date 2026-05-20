@@ -19,7 +19,7 @@ const DISPOSITIONS = new Set<ProjectionDisposition>([
 
 const RUNTIMES = new Set<ProjectionRuntimeName>(["claude", "codex", "root"]);
 const ROOT_RUNTIME_DOCS = ["AGENTS.md", "CLAUDE.md", "GEMINI.md"];
-const LOCAL_RUNTIME_FILES = new Set([".claude/settings.local.json"]);
+const LOCAL_RUNTIME_FILES = new Set([".claude/settings.local.json", ".claude/launch.json"]);
 const PROJECTION_INVENTORY_ROW_KEYS = new Set([
   "path",
   "runtime",

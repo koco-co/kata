@@ -246,6 +246,7 @@ describe("projection inventory", () => {
     writeFileSync(join(root, ".claude/skills/custom/SKILL.md"), "# Custom\n");
     writeFileSync(join(root, ".claude/.DS_Store"), "macos\n");
     writeFileSync(join(root, ".claude/settings.local.json"), "{}\n");
+    writeFileSync(join(root, ".claude/launch.json"), "{}\n");
     writeFileSync(join(root, ".claude/scheduled_tasks.lock"), "{}\n");
     writeFileSync(join(root, "AGENTS.md"), "# Agents\n");
     const files = scanRuntimeFiles(root);

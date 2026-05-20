@@ -120,8 +120,11 @@ def row_to_case(row: dict[str, str], version: str) -> Case | None:
 
 
 import csv as _csv
+import copy as _copy
 
 CSV_GLOB = "v*.csv"
+EMPTY_STEP_TEXT = "（步骤为空）"
+EMPTY_EXPECTED_TEXT = "（预期为空）"
 
 
 def _content_len(c: Case) -> int:
@@ -157,13 +160,32 @@ def extract_dir(csv_dir: Path) -> list[Case]:
     return cases
 
 
+def _md_block_text(text: str) -> str:
+    normalized = (
+        (text or "无")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+    )
+    normalized = re.sub(r"<br\s*/?>", "\n", normalized, flags=re.I)
+    return normalized.strip() or "无"
+
+
+def _md_code_fence(text: str) -> str:
+    runs = [len(m.group(0)) for m in re.finditer(r"`{3,}", text or "")]
+    return "`" * max(3, max(runs, default=2) + 1)
+
+
 def render_case_md(c: Case) -> str:
-    lines = [f"##### 【{c.priority}】{c.title}", "", "> 前置条件", "", "```"]
-    lines.append((c.preconditions or "无").strip() or "无")
-    lines += ["```", "", "> 用例步骤", "", "| 编号 | 步骤 | 预期 |", "| --- | --- | --- |"]
+    pre_text = _md_block_text(c.preconditions)
+    fence = _md_code_fence(pre_text)
+    lines = [f"##### 【{c.priority}】{c.title}", "", "> 前置条件", "", fence]
+    lines.append(pre_text)
+    lines += [fence, "", "> 用例步骤", "", "| 编号 | 步骤 | 预期 |", "| --- | --- | --- |"]
     for s in c.steps:
+        step_text = s.step.strip() or EMPTY_STEP_TEXT
+        expected_text = s.expected.strip() or EMPTY_EXPECTED_TEXT
         lines.append(
-            f"| {s.idx} | {rules.cell_to_md(s.step.strip())} | {rules.cell_to_md(s.expected.strip())} |"
+            f"| {s.idx} | {rules.cell_to_md(step_text)} | {rules.cell_to_md(expected_text)} |"
         )
     return "\n".join(lines)
 
@@ -230,11 +252,17 @@ import json as _json
 import uuid
 import zipfile as _zip
 
-MARKER_MAP = {"P0": "priority-1", "P1": "priority-2", "P2": "priority-3", "P3": "priority-4"}
+ONLINE_MARKER_MAP = {"P0": "priority-1", "P1": "priority-2", "P2": "priority-3", "P3": "priority-4"}
+MAINFLOW_MARKER_MAP = {"P0": "priority-1", "P1": "priority-1", "P2": "priority-2", "P3": "priority-3"}
+MARKER_MAP = ONLINE_MARKER_MAP
+PRIORITY_MARKERS = set(ONLINE_MARKER_MAP.values()) | set(MAINFLOW_MARKER_MAP.values())
 _METADATA = {"dataStructureVersion": "3",
              "creator": {"name": "kata-ltqc", "version": "1"},
              "layoutEngineVersion": "5"}
 _MANIFEST = {"file-entries": {"content.json": {}, "metadata.json": {}}}
+XMIND_NOTE_INLINE_LIMIT = 12000
+XMIND_TITLE_LIMIT = 1800
+XMIND_CHUNK_LIMIT = 900
 
 
 def _nid() -> str:
@@ -243,27 +271,220 @@ def _nid() -> str:
 
 def _xmind_text(text: str) -> str:
     """xmind 节点文本：<br> 还原为换行；连续配置项列表（「…」三项以上）拆行。"""
-    t = (text or "").replace("<br>", "\n")
+    t = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    t = re.sub(r"<br\s*/?>", "\n", t, flags=re.I)
     return t
 
 
-def case_to_node(c: Case) -> dict:
+def _chunk_text(text: str, limit: int = XMIND_CHUNK_LIMIT) -> list[str]:
+    t = _xmind_text(text).strip()
+    if not t:
+        return []
+    chunks: list[str] = []
+    start = 0
+    while start < len(t):
+        end = min(start + limit, len(t))
+        if end < len(t):
+            newline = t.rfind("\n", start + 1, end + 1)
+            if newline > start:
+                end = newline + 1
+        chunks.append(t[start:end])
+        start = end
+    return chunks
+
+
+def _topic(title: str, children: list[dict] | None = None, branch: str = "folded") -> dict:
+    node: dict = {
+        "id": _nid(),
+        "class": "topic",
+        "title": _xmind_text(title),
+        "branch": branch,
+    }
+    if children:
+        node["children"] = {"attached": children}
+    return node
+
+
+def _chunk_parent(title: str, text: str) -> dict:
+    chunks = _chunk_text(text)
+    children = [
+        _topic(f"{idx}/{len(chunks)}\n{chunk}")
+        for idx, chunk in enumerate(chunks, start=1)
+    ]
+    return _topic(title, children)
+
+
+def _text_topic(text: str, label: str) -> dict:
+    t = _xmind_text(text).strip()
+    if len(t) <= XMIND_TITLE_LIMIT:
+        return _topic(t or label)
+    summary = t[:240].rstrip() + "..."
+    return _topic(
+        f"{label}（内容较长，展开查看完整内容）\n{summary}",
+        [_chunk_parent("完整内容", t)],
+    )
+
+
+def _ensure_topic_class(node: dict) -> dict:
+    node.setdefault("class", "topic")
+    for child in node.get("children", {}).get("attached", []) or []:
+        _ensure_topic_class(child)
+    return node
+
+
+def _is_priority_case_node(node: dict) -> bool:
+    return any(
+        marker.get("markerId") in PRIORITY_MARKERS
+        for marker in node.get("markers", []) or []
+    )
+
+
+def _clone_reference_node(node: dict, clear_priority_cases: bool = False) -> dict:
+    cloned = _copy.deepcopy(node)
+    cloned.setdefault("class", "topic")
+    children = []
+    for child in node.get("children", {}).get("attached", []) or []:
+        if clear_priority_cases and _is_priority_case_node(child):
+            continue
+        children.append(_clone_reference_node(child, clear_priority_cases))
+    if children:
+        cloned["children"] = {"attached": children}
+    else:
+        cloned.pop("children", None)
+    return cloned
+
+
+def _reference_case_paths(reference_xmind: Path) -> dict[str, list[str]]:
+    with _zip.ZipFile(reference_xmind) as z:
+        content = _json.loads(z.read("content.json"))
+    root = content[0]["rootTopic"]
+    paths: dict[str, list[str]] = {}
+
+    def walk(node: dict, parents: list[str]) -> None:
+        if _is_priority_case_node(node):
+            title = node.get("title", "") or ""
+            paths.setdefault(title, parents)
+            return
+        current = parents
+        if node is not root:
+            current = parents + [node.get("title", "") or ""]
+        for child in node.get("children", {}).get("attached", []) or []:
+            walk(child, current)
+
+    walk(root, [])
+    return paths
+
+
+def case_to_node(c: Case, marker_map: dict[str, str] | None = None) -> dict:
+    marker_map = marker_map or MARKER_MAP
     steps = []
     for s in c.steps:
-        exp_node = {"id": _nid(), "title": _xmind_text(s.expected), "branch": "folded"}
-        steps.append({"id": _nid(), "title": _xmind_text(s.step),
-                      "branch": "folded",
-                      "children": {"attached": [exp_node]}})
-    node: dict = {"id": _nid(), "title": _xmind_text(c.title), "branch": "folded"}
+        exp_node = _text_topic(s.expected.strip() or EMPTY_EXPECTED_TEXT, f"预期 {s.idx}")
+        step_node = _text_topic(s.step.strip() or EMPTY_STEP_TEXT, f"步骤 {s.idx}")
+        step_node["children"] = {
+            "attached": step_node.get("children", {}).get("attached", []) + [exp_node]
+        }
+        steps.append(step_node)
+    node: dict = _topic(c.title)
     pre = (c.preconditions or "").strip()
+    pre_children: list[dict] = []
     if pre and pre != "无":
-        node["notes"] = {"plain": {"content": _xmind_text(pre)}}
-    marker = MARKER_MAP.get(c.priority)
+        pre_text = _xmind_text(pre)
+        if len(pre_text) <= XMIND_NOTE_INLINE_LIMIT:
+            node["notes"] = {"plain": {"content": pre_text}}
+        else:
+            pre_children.append(_chunk_parent("前置条件", pre_text))
+    marker = marker_map.get(c.priority)
     if marker:
         node["markers"] = [{"markerId": marker}]
-    if steps:
-        node["children"] = {"attached": steps}
+    children = pre_children + steps
+    if children:
+        node["children"] = {"attached": children}
     return node
+
+
+def _find_child(node: dict, title: str) -> dict | None:
+    for child in node.get("children", {}).get("attached", []) or []:
+        if child.get("title") == title:
+            return child
+    return None
+
+
+def _ensure_child(node: dict, title: str) -> dict:
+    child = _find_child(node, title)
+    if child is not None:
+        return child
+    child = _topic(title)
+    node.setdefault("children", {}).setdefault("attached", []).append(child)
+    return child
+
+
+def _ensure_path(l1_nodes: list[dict], path: list[str]) -> dict:
+    node = None
+    for child in l1_nodes:
+        if child.get("title") == path[0]:
+            node = child
+            break
+    if node is None:
+        node = _topic(path[0])
+        l1_nodes.append(node)
+    for title in path[1:]:
+        node = _ensure_child(node, title)
+    return node
+
+
+def _mainflow_bucket_path(c: Case) -> list[str]:
+    text = f"{c.requirement_name} {c.title}"
+    if "元数据同步" in text:
+        return ["元数据", "元数据同步"]
+    if "数据地图" in text or "标签结果页" in text or "指标结果页" in text or "字段结果页" in text:
+        return ["元数据", "数据地图"]
+    if "落标" in text or "数据标准" in c.requirement_name:
+        return ["数据标准", "落标检查"]
+    if "总览" in text or "看板" in text:
+        return ["数据质量", "总览"]
+    if "通用配置" in text or "json格式" in text or "报告关联维表" in text:
+        if "报告关联维表" in text:
+            return ["数据质量", "通用配置", "报告关联维表设置"]
+        return ["数据质量", "通用配置", "json格式校验管理"]
+    if "项目" in text or "菜单名称" in text or "权限点" in text:
+        return ["数据质量", "项目管理", "项目信息"]
+    if "报告" in text or "已生成报告" in text or "已配置报告" in text:
+        return ["数据质量", "数据质量报告"]
+    if "校验结果" in text or "明细" in text or "日志" in text or "实例详情" in text or "结果详情" in text:
+        return ["数据质量", "校验结果查询"]
+    if "规则任务" in text or "监控规则" in text or "调度" in text or "分区" in text or "抽样" in text or "离线任务" in text or "导入规则包" in text:
+        return ["数据质量", "规则任务管理"]
+    if "规则集" in text or "规则配置" in text:
+        return ["数据质量", "规则集管理"]
+    if "规则库" in text or "内置规则" in text or "自定义sql" in text or "自定义SQL" in text or "自定义正则" in text:
+        return ["数据质量", "规则库配置"]
+    return ["数据质量", "规则任务管理"]
+
+
+def build_a_l1_nodes_from_reference(
+    reference_xmind: Path,
+    cases: list[Case],
+    kept_cases: list[Case] | None = None,
+) -> list[dict]:
+    with _zip.ZipFile(reference_xmind) as z:
+        content = _json.loads(z.read("content.json"))
+    ref_root = content[0]["rootTopic"]
+    ref_paths = _reference_case_paths(reference_xmind)
+    l1_nodes = []
+    for child in ref_root.get("children", {}).get("attached", []) or []:
+        l1_nodes.append(_clone_reference_node(child, clear_priority_cases=True))
+    for c in kept_cases or []:
+        target = _ensure_path(l1_nodes, ref_paths.get(c.title, [c.module or "未分组"]))
+        target.setdefault("children", {}).setdefault("attached", []).append(
+            case_to_node(c, MAINFLOW_MARKER_MAP)
+        )
+    for c in cases:
+        target = _ensure_path(l1_nodes, _mainflow_bucket_path(c))
+        target.setdefault("children", {}).setdefault("attached", []).append(
+            case_to_node(c, MAINFLOW_MARKER_MAP)
+        )
+    return [_ensure_topic_class(node) for node in l1_nodes]
 
 
 def write_xmind(path, root_title: str, l1_nodes: list[dict]) -> None:
@@ -276,7 +497,7 @@ def write_xmind(path, root_title: str, l1_nodes: list[dict]) -> None:
             "provider": "org.xmind.ui.map.unbalanced",
             "content": [{"name": "right-number", "content": str(right_n)}],
         }],
-        "children": {"attached": l1_nodes},
+        "children": {"attached": [_ensure_topic_class(n) for n in l1_nodes]},
     }
     sheet = {
         "id": _nid(), "revisionId": _nid(), "class": "sheet",
@@ -285,9 +506,10 @@ def write_xmind(path, root_title: str, l1_nodes: list[dict]) -> None:
         "zones": [], "theme": {},
     }
     content = [sheet]
-    with _zip.ZipFile(path, "w", _zip.ZIP_DEFLATED) as z:
+    with _zip.ZipFile(path, "w", _zip.ZIP_STORED) as z:
         z.writestr("content.json", _json.dumps(content, ensure_ascii=False, separators=(",", ":")))
         z.writestr("metadata.json", _json.dumps(_METADATA, ensure_ascii=False))
+        z.writestr("resources/", "")
         z.writestr("manifest.json", _json.dumps(_MANIFEST, ensure_ascii=False))
 
 
@@ -300,10 +522,8 @@ def build_b_l1_nodes(cases: list[Case]) -> list[dict]:
     for version, reqs in grouped.items():
         req_nodes = []
         for req, items in reqs.items():
-            req_nodes.append({"id": _nid(), "title": req, "branch": "folded",
-                              "children": {"attached": [case_to_node(c) for c in items]}})
-        nodes.append({"id": _nid(), "title": version, "branch": "folded",
-                      "children": {"attached": req_nodes}})
+            req_nodes.append(_topic(req, [case_to_node(c, ONLINE_MARKER_MAP) for c in items]))
+        nodes.append(_topic(version, req_nodes))
     return nodes
 
 
@@ -311,11 +531,8 @@ def build_a_dq_node(cases: list[Case]) -> dict:
     by_req: "OrderedDict[str, list[Case]]" = OrderedDict()
     for c in cases:
         by_req.setdefault(c.requirement_name or "未分组", []).append(c)
-    subs = [{"id": _nid(), "title": req, "branch": "folded",
-             "children": {"attached": [case_to_node(c) for c in items]}}
-            for req, items in by_req.items()]
-    return {"id": _nid(), "title": "数据质量", "branch": "folded",
-            "children": {"attached": subs}}
+    subs = [_topic(req, [case_to_node(c, MAINFLOW_MARKER_MAP) for c in items]) for req, items in by_req.items()]
+    return _topic("数据质量", subs)
 
 
 def build_a_module_node(mod_name: str, cases: list[Case]) -> dict:
@@ -324,14 +541,12 @@ def build_a_module_node(mod_name: str, cases: list[Case]) -> dict:
         by_sub.setdefault(c.submodule, []).append(c)
     children = []
     for sub, items in by_sub.items():
-        case_nodes = [case_to_node(c) for c in items]
+        case_nodes = [case_to_node(c, MAINFLOW_MARKER_MAP) for c in items]
         if sub:
-            children.append({"id": _nid(), "title": sub, "branch": "folded",
-                             "children": {"attached": case_nodes}})
+            children.append(_topic(sub, case_nodes))
         else:
             children.extend(case_nodes)
-    return {"id": _nid(), "title": mod_name, "branch": "folded",
-            "children": {"attached": children}}
+    return _topic(mod_name, children)
 
 
 _CASE_HEAD = re.compile(r"^##### 【(P\d)】(.+)$")
@@ -346,6 +561,7 @@ def parse_existing_module(block: str) -> tuple[str, list[Case]]:
     cur: Case | None = None
     section = None
     in_fence = False
+    fence_marker = ""
     pre: list[str] = []
     rows: list[Step] = []
     header_seen = False
@@ -386,8 +602,13 @@ def parse_existing_module(block: str) -> tuple[str, list[Case]]:
             section, header_seen = "steps", False
             continue
         if section == "pre":
-            if line.startswith("```"):
-                in_fence = not in_fence
+            fence = re.match(r"^(`{3,})\s*$", line)
+            if fence and not in_fence:
+                fence_marker = fence.group(1)
+                in_fence = True
+            elif in_fence and line.strip() == fence_marker:
+                in_fence = False
+                fence_marker = ""
             elif in_fence:
                 pre.append(line)
         elif section == "steps":
@@ -426,6 +647,19 @@ def load_yaml(path) -> dict:
         return yaml.safe_load(f) or {}
 
 
+def reference_mainflow_xmind(feat: Path) -> Path | None:
+    name = "岚图主流程用例整理.xmind"
+    candidates = [
+        feat.parent / name,
+        feat.parent.parent / name,
+        feat / "tmp" / "ltqc-csv" / name,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def _split_modules(md_body: str) -> "OrderedDict[str, str]":
     """Split an A.md body into {module_name: block} by `### ` module headers."""
     blocks: "OrderedDict[str, str]" = OrderedDict()
@@ -457,15 +691,15 @@ def build_all(feat: Path) -> dict:
     existing = (feat / "岚图主流程用例整理.md").read_text(encoding="utf-8")
     body = existing.split("\n---\n", 1)[-1]
     kept_md: list[str] = []
-    a_l1_nodes: list[dict] = []
+    kept_cases: list[Case] = []
     for name, block in _split_modules(body).items():
         if name == "数据质量":
             continue
         mod_name, cases = parse_existing_module(block)
+        kept_cases.extend(cases)
         kept_md.append("\n".join(
             [f"### {mod_name}", ""] + sum(([render_case_md(c), ""] for c in cases), [])
         ).rstrip() + "\n")
-        a_l1_nodes.append(build_a_module_node(mod_name, cases))
 
     a_pick = load_yaml(feat / "tmp" / "selection" / "a-dq-pick.yaml")
     raw_dq = apply_selection(all_cases, a_pick) if a_pick else []
@@ -481,7 +715,11 @@ def build_all(feat: Path) -> dict:
             seen[c.requirement_name] += 1
     a_md = render_a_md(dq_cases, kept_md)
     (feat / "岚图主流程用例整理.md").write_text(a_md, encoding="utf-8")
-    a_l1_nodes.append(build_a_dq_node(dq_cases))
+    reference_xmind = reference_mainflow_xmind(feat)
+    if reference_xmind is not None:
+        a_l1_nodes = build_a_l1_nodes_from_reference(reference_xmind, dq_cases, kept_cases)
+    else:
+        a_l1_nodes = [build_a_dq_node(dq_cases)]
     write_xmind(feat / "岚图主流程用例整理.xmind",
                 "岚图主流程用例集合", a_l1_nodes)
 
