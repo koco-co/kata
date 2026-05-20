@@ -22,6 +22,7 @@ def _load(name: str):
 
 rules = _load("rules")
 pipeline = _load("pipeline")
+validate = _load("validate")
 
 
 class TestPairing(unittest.TestCase):
@@ -340,6 +341,23 @@ class TestSelection(unittest.TestCase):
         cases = [pipeline.Case("v1", "1", "需求甲", "数据质量", "报告", "验证X", "P1", "无", [])]
         out = pipeline.apply_selection(cases, {"需求甲": "*"})
         self.assertEqual(len(out), 1)
+
+
+class TestValidate(unittest.TestCase):
+    def test_case_count_mismatch(self):
+        md = '---\ncase_count: 2\n---\n\n## M\n\n##### 【P1】a\n'
+        issues = validate.check_case_count(md)
+        self.assertTrue(any("case count" in i for i in issues))
+
+    def test_placeholder_and_old_menu(self):
+        md = "## M\n\n##### 【P1】TODO 待补充\n步骤进入任务实例查询\n"
+        issues = validate.check_placeholders(md) + validate.check_old_menu(md)
+        self.assertTrue(any("placeholder" in i for i in issues))
+        self.assertTrue(any("任务实例查询" in i for i in issues))
+
+    def test_clean_doc_passes(self):
+        md = '---\ncase_count: 1\n---\n\n## M\n\n##### 【P1】验证 X\n'
+        self.assertEqual(validate.check_case_count(md), [])
 
 
 if __name__ == "__main__":
