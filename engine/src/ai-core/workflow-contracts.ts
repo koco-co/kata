@@ -21,6 +21,7 @@ const REQUIRED_GA_CORE_WORKFLOWS = new Map<string, string>([
   [contractId("case-hotfix"), contractId("case-hotfix")],
   [contractId("playwright-automation"), contractId("playwright-automation")],
   [contractId("diff-scan"), contractId("diff-scan")],
+  [contractId("infra-diagnose"), contractId("infra-diagnose")],
 ]);
 
 function contractId(name: string): string {

@@ -34,6 +34,7 @@ const COMMAND_ORDER = [
   "case-hotfix",
   "playwright-automation",
   "diff-scan",
+  "infra-diagnose",
 ] as const;
 
 const COMMAND_AREAS: Record<string, { zh: string; en: string }> = {
@@ -46,6 +47,7 @@ const COMMAND_AREAS: Record<string, { zh: string; en: string }> = {
   "case-hotfix": { zh: "缺陷与变更", en: "Defects and changes" },
   "playwright-automation": { zh: "UI 自动化", en: "UI automation" },
   "diff-scan": { zh: "代码扫描", en: "Code scanning" },
+  "infra-diagnose": { zh: "故障排查", en: "Infra diagnosis" },
 };
 
 const COMMAND_EN_SUMMARIES: Record<string, string> = {
@@ -59,6 +61,8 @@ const COMMAND_EN_SUMMARIES: Record<string, string> = {
   "playwright-automation":
     "Plan, generate, run, triage, and repair Playwright UI automation before handoff.",
   "diff-scan": "Scan code diffs for reproducible defects.",
+  "infra-diagnose":
+    "SSH into servers to diagnose and fix datasource/server connectivity failures.",
 };
 
 function hash(text: string): string {

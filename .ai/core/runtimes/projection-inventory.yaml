@@ -91,6 +91,22 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/diff-scan/skill.yaml
+  - path: .agents/skills/infra-diagnose/SKILL.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/skill.yaml
+  - path: .agents/skills/infra-diagnose/references/diagnostic-playbook.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/references/diagnostic-playbook.md
+  - path: .agents/skills/infra-diagnose/references/knowledge-format.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/references/knowledge-format.md
+  - path: .agents/skills/infra-diagnose/references/ssh-protocol.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/references/ssh-protocol.md
   - path: .agents/skills/knowledge-curate/SKILL.md
     runtime: codex
     disposition: generated
@@ -307,6 +323,22 @@ files:
     runtime: claude
     disposition: generated
     source: .ai/core/skills/diff-scan/skill.yaml
+  - path: .claude/skills/infra-diagnose/SKILL.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/skill.yaml
+  - path: .claude/skills/infra-diagnose/references/diagnostic-playbook.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/references/diagnostic-playbook.md
+  - path: .claude/skills/infra-diagnose/references/knowledge-format.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/references/knowledge-format.md
+  - path: .claude/skills/infra-diagnose/references/ssh-protocol.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/infra-diagnose/references/ssh-protocol.md
   - path: .claude/skills/knowledge-curate/SKILL.md
     runtime: claude
     disposition: generated

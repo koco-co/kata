@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "workflow_id": "infra-diagnose@1",
+  "command": "/infra-diagnose",
+  "input": "Failed to get database connection: Could not open client transport with JDBC Uri: jdbc:hive2://172.16.124.114:10000/: java.net.NoRouteToHostException: No route to host (Host unreachable)",
+  "expected_first_stages": ["intake", "lookup_knowledge"],
+  "forbidden_phrases": []
+}

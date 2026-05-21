@@ -94,7 +94,8 @@ bunx playwright install
 | `/case-hotfix` | 缺陷与变更 | `case-hotfix@1` | 根据 bug 或修复记录生成 hotfix 回归用例。 |
 | `/playwright-automation` | UI 自动化 | `playwright-automation@1` | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。 |
 | `/diff-scan` | 代码扫描 | `diff-scan@1` | 扫描代码 diff 发现可复现的缺陷。 |
-<!-- ai-core:hash 0305a52443587d033c22b5c2d531a007aebe2c4075acfcd79282a4968ad8a1c9 -->
+| `/infra-diagnose` | 故障排查 | `infra-diagnose@1` | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
+<!-- ai-core:hash a672d754e4fd8c1b3c150be3c47210120211826a307c4a0ac0c39d2ceaca3da5 -->
 <!-- ai-core:end command-index -->
 
 常见入口：

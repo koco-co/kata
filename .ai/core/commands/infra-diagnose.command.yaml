@@ -1,0 +1,4 @@
+id: infra-diagnose
+skill: infra-diagnose@1
+user_invocable: true
+summary: SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。

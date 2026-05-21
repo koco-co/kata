@@ -80,6 +80,18 @@ files:
   - path: .agents/skills/diff-scan/SKILL.md
     runtime: codex
     source: .ai/core/skills/diff-scan/skill.yaml
+  - path: .agents/skills/infra-diagnose/SKILL.md
+    runtime: codex
+    source: .ai/core/skills/infra-diagnose/skill.yaml
+  - path: .agents/skills/infra-diagnose/references/diagnostic-playbook.md
+    runtime: codex
+    source: .ai/core/skills/infra-diagnose/references/diagnostic-playbook.md
+  - path: .agents/skills/infra-diagnose/references/ssh-protocol.md
+    runtime: codex
+    source: .ai/core/skills/infra-diagnose/references/ssh-protocol.md
+  - path: .agents/skills/infra-diagnose/references/knowledge-format.md
+    runtime: codex
+    source: .ai/core/skills/infra-diagnose/references/knowledge-format.md
   - path: .agents/skills/playwright-automation/SKILL.md
     runtime: codex
     source: .ai/core/skills/playwright-automation/skill.yaml
@@ -206,6 +218,18 @@ files:
   - path: .claude/skills/diff-scan/SKILL.md
     runtime: claude
     source: .ai/core/skills/diff-scan/skill.yaml
+  - path: .claude/skills/infra-diagnose/SKILL.md
+    runtime: claude
+    source: .ai/core/skills/infra-diagnose/skill.yaml
+  - path: .claude/skills/infra-diagnose/references/diagnostic-playbook.md
+    runtime: claude
+    source: .ai/core/skills/infra-diagnose/references/diagnostic-playbook.md
+  - path: .claude/skills/infra-diagnose/references/ssh-protocol.md
+    runtime: claude
+    source: .ai/core/skills/infra-diagnose/references/ssh-protocol.md
+  - path: .claude/skills/infra-diagnose/references/knowledge-format.md
+    runtime: claude
+    source: .ai/core/skills/infra-diagnose/references/knowledge-format.md
   - path: .claude/skills/playwright-automation/SKILL.md
     runtime: claude
     source: .ai/core/skills/playwright-automation/skill.yaml

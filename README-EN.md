@@ -94,7 +94,8 @@ The table below is generated from `.ai/core/commands/*.command.yaml`; it is the 
 | `/case-hotfix` | Defects and changes | `case-hotfix@1` | Generate hotfix regression cases from bugs or fix records. |
 | `/playwright-automation` | UI automation | `playwright-automation@1` | Plan, generate, run, triage, and repair Playwright UI automation before handoff. |
 | `/diff-scan` | Code scanning | `diff-scan@1` | Scan code diffs for reproducible defects. |
-<!-- ai-core:hash d34f0ac9d63b2d43eeb2729b7fae1c5d331b68da41b47a86a8fe2396298b355c -->
+| `/infra-diagnose` | Infra diagnosis | `infra-diagnose@1` | SSH into servers to diagnose and fix datasource/server connectivity failures. |
+<!-- ai-core:hash 2d3aee943263895aa5fea9eb96576a355222df28576de1a3579e3660ce4da0ab -->
 <!-- ai-core:end command-index -->
 
 Common entry points:
