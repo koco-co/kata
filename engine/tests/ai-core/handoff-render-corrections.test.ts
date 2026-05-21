@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeAll, afterAll } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runHandoffRender } from "../../src/cli/handoff-render.ts";
@@ -10,7 +10,12 @@ const validHandoff = {
   run_id: "20260520-1500-abcdef12",
   status: "passed",
   intent_id: "SR-INTENT-XYZ",
-  source_refs: { intent: "SR-INTENT-XYZ", env: "SR-ENV-1", probe: "SR-PROBE-1", self_run: "SR-RUN-1" },
+  source_refs: {
+    intent: "SR-INTENT-XYZ",
+    env: "SR-ENV-1",
+    probe: "SR-PROBE-1",
+    self_run: "SR-RUN-1",
+  },
   run_command: "npx playwright test ... --headed",
   acceptance_command:
     "KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'features/x/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
@@ -90,7 +95,9 @@ describe("handoff render Case Feedback section", () => {
     });
     const md = readFileSync(join(runDir, "handoff.md"), "utf8");
     expect(md).toContain("## Case Feedback");
-    expect(md).toContain("corrections: results/20260520-1500-abcdef12/case-corrections.md (7 pending)");
+    expect(md).toContain(
+      "corrections: results/20260520-1500-abcdef12/case-corrections.md (7 pending)",
+    );
     expect(md).toContain("ui_text_drift=4");
     expect(md).toContain("business_rule=2");
     expect(md).toContain("/case-edit apply-corrections");
@@ -102,9 +109,7 @@ describe("handoff render Case Feedback section", () => {
       JSON.stringify({
         ...validSummary,
         total: 0,
-        by_category: Object.fromEntries(
-          Object.keys(validSummary.by_category).map((k) => [k, 0]),
-        ),
+        by_category: Object.fromEntries(Object.keys(validSummary.by_category).map((k) => [k, 0])),
       }),
       "utf8",
     );
