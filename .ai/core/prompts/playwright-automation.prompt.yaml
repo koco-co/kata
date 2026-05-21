@@ -40,3 +40,12 @@ cache_breakpoints:
   - id: kata-context
     after: context
     min_tokens: 4096
+model_routing:
+  primary:
+    provider: anthropic
+    model_id: claude-sonnet-4-6
+    fallback_strategy: refuse_with_budget_report
+  fallback:
+    - provider: anthropic
+      model_id: claude-haiku-4-5-20251001
+      condition: budget_low
