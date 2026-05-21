@@ -106,7 +106,7 @@
 - 全量检查：`bun run check`（biome check）。
 - 自动修复：`bun run check:fix`（修格式 + import 排序）。
 - 项目特定 lint：`bun run lint:ai-core`、`bun run lint:agents`、`bun run lint:paths`、`bun run lint:cases`。
-- CI 等价：`bun run ci`（lint + lint:debris + lint:agents + lint:paths + lint:ai-core + type-check + test）。
+- 默认交付只要求与改动范围相关的测试、lint 或 type-check。
 
 ## Commit Convention
 
