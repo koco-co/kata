@@ -78,3 +78,21 @@ describe("case-edit workflow defines apply-corrections step", () => {
     expect(wf).toMatch(/-\s+id:\s+apply-corrections\b/);
   });
 });
+
+describe("archive-xmind-sync covers corrections-triggered sync", () => {
+  it("references case-corrections.md as a sync trigger", () => {
+    const ref = read(".ai/core/skills/case-edit/references/archive-xmind-sync.md");
+    expect(ref).toContain("case-corrections.md");
+  });
+
+  it("uses case_ref xmind path for node lookup", () => {
+    const ref = read(".ai/core/skills/case-edit/references/archive-xmind-sync.md");
+    expect(ref).toContain("case_ref");
+    expect(ref).toMatch(/xmind 节点|xmind path/);
+  });
+
+  it("specifies rollback when xmind sync fails", () => {
+    const ref = read(".ai/core/skills/case-edit/references/archive-xmind-sync.md");
+    expect(ref).toMatch(/回滚|rollback/);
+  });
+});
