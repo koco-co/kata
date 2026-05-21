@@ -106,3 +106,15 @@ describe("handoff reference documents Case Feedback section", () => {
     expect(ref).toMatch(/Case Feedback/);
   });
 });
+
+describe("playwright-automation workflow defines case-feedback step", () => {
+  it("workflow yaml declares case-feedback step id", () => {
+    const wf = read(".ai/core/workflows/playwright-automation.workflow.yaml");
+    expect(wf).toMatch(/-\s+id:\s+case-feedback\b/);
+  });
+
+  it("case-feedback step references CaseCorrections@1 output schema", () => {
+    const wf = read(".ai/core/workflows/playwright-automation.workflow.yaml");
+    expect(wf).toMatch(/case-feedback[\s\S]{0,200}output_schema:\s*CaseCorrections@1/);
+  });
+});

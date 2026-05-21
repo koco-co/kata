@@ -71,3 +71,10 @@ describe("case-edit skill.yaml exposes apply-corrections", () => {
     expect(yaml).toContain("step.id == apply-corrections");
   });
 });
+
+describe("case-edit workflow defines apply-corrections step", () => {
+  it("workflow yaml declares apply-corrections step id", () => {
+    const wf = read(".ai/core/workflows/case-edit.workflow.yaml");
+    expect(wf).toMatch(/-\s+id:\s+apply-corrections\b/);
+  });
+});

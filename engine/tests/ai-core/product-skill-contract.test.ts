@@ -430,6 +430,7 @@ describe("product skill contract parser", () => {
       "references/worker-prompt.md",
       "references/spec-reviewer-prompt.md",
       "references/quality-reviewer-prompt.md",
+      "references/case-feedback.md",
     ]);
     expect(result.value.hardRules.length).toBeGreaterThan(0);
   });
