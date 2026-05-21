@@ -15,7 +15,9 @@ workspace/*/features/*/results/
 workspace/*/features/*/.debug/
 
 # System and build
-.DS_Store
+**/.DS_Store
+*.pyc
+__pycache__/
 *.log
 dist/
 *.tsbuildinfo
