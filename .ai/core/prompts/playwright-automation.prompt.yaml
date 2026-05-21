@@ -33,3 +33,10 @@ fallback:
 hallucination_policy:
   unknown_fact: block
   missing_source_ref: refuse
+cache_breakpoints:
+  - id: kata-system
+    after: system
+    min_tokens: 1024
+  - id: kata-context
+    after: context
+    min_tokens: 4096
