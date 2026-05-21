@@ -30,6 +30,13 @@ fallback:
 hallucination_policy:
   unknown_fact: put_in_pending_items
   missing_source_ref: put_in_pending_items
+cache_breakpoints:
+  - id: kata-system
+    after: system
+    min_tokens: 1024
+  - id: kata-context
+    after: context
+    min_tokens: 4096
 model_routing:
   primary:
     provider: anthropic
