@@ -54,6 +54,7 @@ type CommandContract = {
 const COMMAND_INDEX_START = "<!-- ai-core:start command-index -->";
 const COMMAND_INDEX_END = "<!-- ai-core:end command-index -->";
 const ROUTING_HEADING = "## Routing";
+const ROUTING_HEADING_CN = "## 路由规则";
 const LEGACY_ROUTING_GUARD_HEADING = "## Routing Guard";
 const ROUTING_GUARD_SOURCE_PATH = "rules/routing-guard.md";
 
@@ -558,13 +559,9 @@ function mergeCommandIndexBlock(
 
 function caseArtifactQaSection(): string {
   return [
-    "## Case Artifact QA",
+    "## 关键约束",
     "",
-    "- When creating or editing Archive Markdown, XMind, CSV-derived cases, or normalized QA artifacts, run a self-audit before delivery; do not rely on the user to find formatting or business-rule defects.",
-    "- Archive Markdown and XMind must be generated or updated from the same case model, then compared field-by-field: version/module, requirement, title, priority/marker, preconditions, steps, and expected results must match.",
-    "- XMind readability is part of acceptance: split dense action chains and configuration lists with real newlines. A single XMind node line must not pack multiple action clauses or three or more quoted configuration/display items such as `「字段」...「统计函数」...「过滤条件」...`.",
-    "- For data-quality `规则任务管理` cases, explicitly verify and encode the prerequisite flow: first create/configure the required rule set, rule package, or monitoring rule in `规则集管理`; then reference it from `规则任务管理`, usually via `导入规则包`.",
-    "- After QA artifact edits, run artifact-specific checks: case count and priority distribution, Markdown/XMind consistency, XMind marker distribution, stale terminology/menu-name residue, and any domain-rule scans relevant to the touched module.",
+    "- **产物自检**：QA 产物（Archives/XMind/CSV）交付前必须自检字段一致性和可读性，详见 `.ai/core/rules/case-qa.md`。",
   ].join("\n");
 }
 
@@ -583,65 +580,65 @@ function renderRootRuntimeDoc(coreRoot: string, commandIndexBlock: string): stri
     "",
     commandIndexBlock,
     "",
-    "## Runtime Context",
+    "## 构建与测试",
     "",
-    "- Local context may personalize tone or declared project defaults only.",
-    "- Local context cannot define routing, policy, write scope, plugin permissions, evidence requirements, or output schemas.",
-    "- Project rules and knowledge are loaded through declared `.ai/core` context channels; docs are historical inputs only.",
+    "- Runtime：[Bun](https://bun.sh) ≥ 1.3；装依赖：`bun install`（自动安装 workspaces：`engine`、`tools/dtstack-sdk`）。",
+    "- 全量测试：`bun test`；局部：`bun test engine/tests/<area>`；子集：`bun run test:ai-core`。",
+    "- Lint 检查：`bun run check`（biome）；自动修复：`bun run check:fix`。",
+    "- 投影渲染：`bun engine/bin/kata ai-core projection render`（源契约变更后必须运行）。",
     "",
-    "## Workspace Boundary",
+    "## 关键约束",
     "",
-    "- Generated PRD, XMind, Archive, reports, and test artifacts are written under `workspace/{project}/`.",
-    "- `workspace/{project}/.kata/repos/**` is read-only source evidence; kata workflows must not push, commit, or mutate source repositories.",
-    "- Runtime projections are generated from `.ai/core/**`; edit `.ai/core` contracts, then render projection.",
+    "- **Worktree 优先**：所有改动走 `.worktrees/<slug>`，验证通过后合并回 main 并推送。详见 `.ai/core/rules/git-workflow.md`。",
+    "- **改后即测**：代码/配置改动后必须跑相关测试；失败必须修复，不得跳过或推迟。详见 `.ai/core/rules/testing.md`。",
+    "- **Commit 规范**：Conventional Commits（`type: emoji description`），type 小写，description ≤72 字符。",
+    "- **命名规范**：Feature 目录 `YYYY-MM[-{customer}]-{module}-{slug}`。详见 `.ai/core/rules/naming-convention.md`。",
+    "- **产物自检**：QA 产物（Archives/XMind/CSV）交付前必须自检字段一致性和可读性。详见 `.ai/core/rules/case-qa.md`。",
     "",
-    caseArtifactQaSection(),
+    "## 详细规则（按需加载）",
     "",
-    "## Commit Convention",
+    "以下规则文件仅在相关任务时按需读取，不占用每次会话入口 token：",
     "",
-    "- Use Conventional Commits: `<type>: <emoji> <description>`, where type is one of `feat | fix | refactor | docs | test | chore | perf | ci`.",
-    "- Recommended emoji: `feat` ✨, `fix` 🩹, `refactor` ♻️, `docs` 📝, `test` ✅, `chore` 🔧, `perf` ⚡, `ci` 🚦.",
-    "- Keep type/scope lowercase; write a short English verb phrase for description, ≤ 72 characters, for example `fix: 🩹 normalize case archive paths`.",
-    "- Use the body to explain why, impact, and verification; do not repeat the title's what.",
-    "- Do not add AI signatures or co-author trailers to commit messages.",
-    "- Keep PR titles in the same style and ≤ 70 characters; put details in the body and end with a Test plan checklist.",
+    "| 规则 | 路径 | 适用场景 |",
+    "|------|------|----------|",
+    "| 测试规范 | `.ai/core/rules/testing.md` | 编写/修改测试 |",
+    "| Git 工作流 | `.ai/core/rules/git-workflow.md` | 创建分支/合并 |",
+    "| 命名约定 | `.ai/core/rules/naming-convention.md` | 创建 feature 目录 |",
+    "| 产物 QA | `.ai/core/rules/case-qa.md` | 生成/编辑 QA 产物 |",
+    "| 工作区边界 | `.ai/core/rules/workspace-boundary.md` | 读写 workspace 文件 |",
     "",
   ].join("\n");
 }
 
 function ensureCaseArtifactQaSection(current: string): string {
   const section = caseArtifactQaSection();
-  const heading = "## Case Artifact QA";
-  if (current.includes(heading)) {
-    const existingIndex = current.indexOf(heading);
-    const afterExisting = current.slice(existingIndex + heading.length);
+  const oldHeading = "## Case Artifact QA";
+  const newHeading = "## 关键约束";
+
+  if (current.includes(newHeading)) return current;
+
+  if (current.includes(oldHeading)) {
+    const existingIndex = current.indexOf(oldHeading);
+    const afterExisting = current.slice(existingIndex + oldHeading.length);
     const nextHeadingMatch = afterExisting.match(/\n## [^\n]+/);
     const endIndex = nextHeadingMatch
-      ? existingIndex + heading.length + (nextHeadingMatch.index ?? 0)
+      ? existingIndex + oldHeading.length + (nextHeadingMatch.index ?? 0)
       : current.length;
     const before = current.slice(0, existingIndex).replace(/\s*$/, "\n\n");
     const after = current.slice(endIndex).replace(/^\s*/, "");
     return `${before}${section}\n\n${after}`;
   }
 
-  const workspaceHeading = "## Workspace Boundary";
-  const workspaceIndex = current.indexOf(workspaceHeading);
-  if (workspaceIndex >= 0) {
-    const afterWorkspace = current.slice(workspaceIndex + workspaceHeading.length);
-    const nextHeadingMatch = afterWorkspace.match(/\n## [^\n]+/);
+  const anchor = "## 命令索引";
+  const anchorIndex = current.indexOf(anchor);
+  if (anchorIndex >= 0) {
+    const afterAnchor = current.slice(anchorIndex + anchor.length);
+    const nextHeadingMatch = afterAnchor.match(/\n## [^\n]+/);
     const insertIndex = nextHeadingMatch
-      ? workspaceIndex + workspaceHeading.length + (nextHeadingMatch.index ?? 0)
+      ? anchorIndex + anchor.length + (nextHeadingMatch.index ?? 0)
       : current.length;
     const before = current.slice(0, insertIndex).replace(/\s*$/, "\n\n");
     const after = current.slice(insertIndex).replace(/^\s*/, "");
-    return `${before}${section}\n\n${after}`;
-  }
-
-  const buildHeading = "## Build";
-  const buildIndex = current.indexOf(buildHeading);
-  if (buildIndex >= 0) {
-    const before = current.slice(0, buildIndex).replace(/\s*$/, "\n\n");
-    const after = current.slice(buildIndex).replace(/^\s*/, "");
     return `${before}${section}\n\n${after}`;
   }
 
@@ -650,7 +647,7 @@ function ensureCaseArtifactQaSection(current: string): string {
 
 function ensureRoutingGuardSection(coreRoot: string, current: string): string {
   const section = loadRoutingGuardSection(coreRoot);
-  const existingHeading = [ROUTING_HEADING, LEGACY_ROUTING_GUARD_HEADING].find((heading) =>
+  const existingHeading = [ROUTING_HEADING, ROUTING_HEADING_CN, LEGACY_ROUTING_GUARD_HEADING].find((heading) =>
     current.includes(heading),
   );
   if (existingHeading) {

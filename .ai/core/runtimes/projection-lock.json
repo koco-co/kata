@@ -605,12 +605,12 @@
     {
       "path": "AGENTS.md",
       "disposition": "generated",
-      "sha256": "0f302c3da780e88208a176a156097142fd6ec81c1307c03f62c204c49b8f2396"
+      "sha256": "01c9406866595de4f34a42fa3be33cb25c26a08253d8b98f0da89690d8fe3399"
     },
     {
       "path": "CLAUDE.md",
       "disposition": "generated",
-      "sha256": "0f302c3da780e88208a176a156097142fd6ec81c1307c03f62c204c49b8f2396"
+      "sha256": "01c9406866595de4f34a42fa3be33cb25c26a08253d8b98f0da89690d8fe3399"
     }
   ]
 }
