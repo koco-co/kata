@@ -42,6 +42,7 @@ generated_files:
   - .claude/skills/playwright-automation/references/worker-prompt.md
   - .claude/skills/playwright-automation/references/spec-reviewer-prompt.md
   - .claude/skills/playwright-automation/references/quality-reviewer-prompt.md
+  - .claude/skills/playwright-automation/references/case-feedback.md
   - .claude/skills/playwright-automation/SKILL.md
   - .claude/skills/case-draft/references/source-intake-protocol.md
   - .claude/skills/case-draft/references/module-identify.md
@@ -59,6 +60,7 @@ generated_files:
   - .claude/skills/case-draft/references/quality-reviewer-prompt.md
   - .claude/skills/case-draft/SKILL.md
   - .claude/skills/case-edit/references/archive-xmind-sync.md
+  - .claude/skills/case-edit/references/apply-corrections.md
   - .claude/skills/case-edit/SKILL.md
   - .claude/skills/workspace-manage/references/project-layout.md
   - .claude/skills/workspace-manage/SKILL.md

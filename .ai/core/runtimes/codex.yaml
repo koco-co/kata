@@ -40,6 +40,7 @@ generated_files:
   - .agents/skills/playwright-automation/references/worker-prompt.md
   - .agents/skills/playwright-automation/references/spec-reviewer-prompt.md
   - .agents/skills/playwright-automation/references/quality-reviewer-prompt.md
+  - .agents/skills/playwright-automation/references/case-feedback.md
   - .agents/skills/playwright-automation/SKILL.md
   - .agents/skills/case-draft/references/source-intake-protocol.md
   - .agents/skills/case-draft/references/module-identify.md
@@ -57,6 +58,7 @@ generated_files:
   - .agents/skills/case-draft/references/quality-reviewer-prompt.md
   - .agents/skills/case-draft/SKILL.md
   - .agents/skills/case-edit/references/archive-xmind-sync.md
+  - .agents/skills/case-edit/references/apply-corrections.md
   - .agents/skills/case-edit/SKILL.md
   - .agents/skills/workspace-manage/references/project-layout.md
   - .agents/skills/workspace-manage/SKILL.md

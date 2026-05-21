@@ -5,7 +5,7 @@ describe("legacy projection diff", () => {
   it("reports generated and vendor counts without retained historical migration rows", async () => {
     const report = await diffLegacyProjection({ runtime: "all" });
     expect(report).toEqual({
-      generated: 88,
+      generated: 92,
       copied_vendor: 22,
       local_exception: 0,
       deleted: 0,
@@ -14,13 +14,13 @@ describe("legacy projection diff", () => {
 
   it("reports runtime-specific disposition counts", async () => {
     await expect(diffLegacyProjection({ runtime: "codex" })).resolves.toEqual({
-      generated: 44,
+      generated: 46,
       copied_vendor: 11,
       local_exception: 0,
       deleted: 0,
     });
     await expect(diffLegacyProjection({ runtime: "claude" })).resolves.toEqual({
-      generated: 44,
+      generated: 46,
       copied_vendor: 11,
       local_exception: 0,
       deleted: 0,

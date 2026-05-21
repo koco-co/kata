@@ -37,9 +37,10 @@ plan-reconcile 的输入是：ui-plan（文档用例规划）+ ui-probe（真实
 当文档用例与 live UI 证据冲突时：
 
 1. **以 live UI 证据为准**。Archive MD 和 PRD 是需求文档，不是真实 UI 事实。
-2. **调整文档（不修改 archive.md）**：在脚本中基于 live UI 证据编写断言，而不是基于文档文字。
-3. **保留差异记录**：在 reconciliation 输出中写明 "文档说 X，UI 是 Y，已按 UI Y 调整"。
-4. **不修改 archive.md 或 test-point-checklist.md**：文档是历史记录，调整的是脚本行为。
+2. **调整脚本基于 live UI 编写断言**。脚本永远跟着真实 UI 走。
+3. **不直接修改 archive.md**：plan-reconcile 阶段不动 archive 内容，而是把发现的差异以结构化条目记入本次 run 的 `case-corrections.md`，由 `/case-edit apply-corrections` 在 case-feedback step 之后处理审批和回写。`case-corrections.md` 的字段定义见 `references/case-feedback.md`。
+4. **不修改 test-point-checklist.md**：测试点清单不变，避免与 case-draft 契约打架。
+5. **保留差异记录**：在 reconciliation 输出中写明 "文档说 X，UI 是 Y，已按 UI Y 调整脚本并入 corrections"。
 
 ### 第四步：输出
 
