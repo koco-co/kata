@@ -58,9 +58,41 @@ describe("apply-corrections reference defines the protocol", () => {
   });
 });
 
+describe("case-edit skill.yaml exposes apply-corrections", () => {
+  it("declares apply_corrections as an output", () => {
+    const yaml = read(".ai/core/skills/case-edit/skill.yaml");
+    expect(yaml).toMatch(/outputs:[\s\S]*- apply_corrections/);
+  });
+
+  it("references apply-corrections.md with phase apply-corrections", () => {
+    const yaml = read(".ai/core/skills/case-edit/skill.yaml");
+    expect(yaml).toContain("references/apply-corrections.md");
+    expect(yaml).toMatch(/load_phases:[\s\S]*- apply-corrections/);
+    expect(yaml).toContain("step.id == apply-corrections");
+  });
+});
+
 describe("case-edit workflow defines apply-corrections step", () => {
   it("workflow yaml declares apply-corrections step id", () => {
     const wf = read(".ai/core/workflows/case-edit.workflow.yaml");
     expect(wf).toMatch(/-\s+id:\s+apply-corrections\b/);
+  });
+});
+
+describe("archive-xmind-sync covers corrections-triggered sync", () => {
+  it("references case-corrections.md as a sync trigger", () => {
+    const ref = read(".ai/core/skills/case-edit/references/archive-xmind-sync.md");
+    expect(ref).toContain("case-corrections.md");
+  });
+
+  it("uses case_ref xmind path for node lookup", () => {
+    const ref = read(".ai/core/skills/case-edit/references/archive-xmind-sync.md");
+    expect(ref).toContain("case_ref");
+    expect(ref).toMatch(/xmind 节点|xmind path/);
+  });
+
+  it("specifies rollback when xmind sync fails", () => {
+    const ref = read(".ai/core/skills/case-edit/references/archive-xmind-sync.md");
+    expect(ref).toMatch(/回滚|rollback/);
   });
 });

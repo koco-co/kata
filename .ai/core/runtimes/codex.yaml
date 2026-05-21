@@ -25,7 +25,6 @@ generated_files:
   - .agents/skills/conflict-analyze/SKILL.md
   - .agents/skills/case-hotfix/SKILL.md
   - .agents/skills/case-hotfix/references/hotfix-archive-format.md
-  - .agents/skills/playwright-automation/references/case-feedback.md
   - .agents/skills/playwright-automation/references/case-normalize.md
   - .agents/skills/playwright-automation/references/env-preflight.md
   - .agents/skills/playwright-automation/references/ui-plan.md
@@ -41,6 +40,7 @@ generated_files:
   - .agents/skills/playwright-automation/references/worker-prompt.md
   - .agents/skills/playwright-automation/references/spec-reviewer-prompt.md
   - .agents/skills/playwright-automation/references/quality-reviewer-prompt.md
+  - .agents/skills/playwright-automation/references/case-feedback.md
   - .agents/skills/playwright-automation/SKILL.md
   - .agents/skills/case-draft/references/source-intake-protocol.md
   - .agents/skills/case-draft/references/module-identify.md

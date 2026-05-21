@@ -38,6 +38,17 @@ None.
 None.
 {{/if}}
 
+{{#if case_feedback}}
+## Case Feedback
+{{#if case_feedback.is_empty}}
+- corrections: none
+{{else}}
+- corrections: {{{case_feedback.corrections_md}}} ({{case_feedback.total}} pending)
+- by_category: {{{case_feedback.by_category_line}}}
+- 应用命令：{{{case_feedback.apply_command}}}
+{{/if}}
+
+{{/if}}
 ## Run Command
 ```
 {{{run_command}}}

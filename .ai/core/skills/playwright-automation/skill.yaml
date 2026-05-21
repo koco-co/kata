@@ -19,6 +19,7 @@ outputs:
   - script
   - run
   - handoff
+  - case_corrections
 inputs:
   request:
     required: true
@@ -244,7 +245,7 @@ references:
     type: normative
     load_phases:
       - case-feedback
-    purpose: 收集通过或失败用例的修正建议并输出标准化修正清单。
+    purpose: 生成 case-corrections.md 与 case-corrections-summary.json，覆盖 8 类 category、3 级 confidence、跨轮去重。
     load_when: step.id == case-feedback
 evidence:
   source_refs_required: true

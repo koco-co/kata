@@ -13,3 +13,9 @@ XMind 可读性与打开性能属于验收标准。生成或编辑 XMind 时，�
 编辑诉求模糊时，须先以一个澄清问题确认意图，之后再触碰用例语义。源产物冲突时，以用户指定的来源为权威；未解决的分歧记入 pending items。
 
 本 skill 不得依据 PRD 生成新的需求覆盖——新的 PRD 到用例生成，须路由至 case-draft product skill。
+
+## corrections 触发的同步
+
+当 `/case-edit apply-corrections` 在落地阶段调用本同步契约时，xmind 节点定位以 `case-corrections.md` 中每条 correction 的 `case_ref` 字段为权威：`case_ref` 形如 `archive.md#L120 / cases.xmind 节点 数据质量 > 概览 > P0-1`，本同步过程必须按"cases.xmind 节点"分号后给出的节点路径直接定位 xmind topic，再把已修改的 archive 文本同步到该 topic 的 title/notes，不得重新解析 archive 全文反推映射。
+
+同步前先快照 archive.md（可用 `git stash` 或临时副本）；若同步后 archive↔xmind 自检（数量、优先级、标题、前置条件、步骤、预期 6 项一致）失败，必须回滚 archive 改动到快照点，并在 apply-log 中标记 `failed_xmind_sync`，对应 correction status 不得置 applied。

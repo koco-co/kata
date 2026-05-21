@@ -16,6 +16,7 @@ outputs:
   - archive
   - xmind
   - normalized
+  - apply_corrections
 inputs:
   artifact:
     required: true
@@ -67,7 +68,7 @@ references:
     type: normative
     load_phases:
       - apply-corrections
-    purpose: 应用来自 playwright-automation case-feedback 步骤的修正建议到用例产物。
+    purpose: 加载 case-corrections.md + sidecar，进行 dry-run summary 三选一，按 status=approved 回写 archive.md，调用 archive-xmind-sync 同步 xmind，写 apply-log。
     load_when: step.id == apply-corrections
 evidence:
   source_refs_required: true
