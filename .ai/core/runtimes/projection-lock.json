@@ -105,12 +105,12 @@
     {
       "path": ".agents/skills/case-hotfix/SKILL.md",
       "disposition": "generated",
-      "sha256": "47c7dea6577c2906e13859f335bca2401d41bd6a35927c983a636d7d9d9eab6b"
+      "sha256": "c9ecbb80f842d74d43d989fe2270cf55d0c43d084834d5b786911d4347a93f3c"
     },
     {
       "path": ".agents/skills/case-hotfix/references/hotfix-archive-format.md",
       "disposition": "generated",
-      "sha256": "bcfe1ee984c6fd676040c3c02b95a0140af13a7790f365b0af2f6894498a9803"
+      "sha256": "ac6b8f7ad8efd9a24a14dfe482e73eef841d86caf69c2c2cfca1612b44772adf"
     },
     {
       "path": ".agents/skills/conflict-analyze/SKILL.md",
@@ -385,12 +385,12 @@
     {
       "path": ".claude/skills/case-hotfix/SKILL.md",
       "disposition": "generated",
-      "sha256": "47c7dea6577c2906e13859f335bca2401d41bd6a35927c983a636d7d9d9eab6b"
+      "sha256": "c9ecbb80f842d74d43d989fe2270cf55d0c43d084834d5b786911d4347a93f3c"
     },
     {
       "path": ".claude/skills/case-hotfix/references/hotfix-archive-format.md",
       "disposition": "generated",
-      "sha256": "bcfe1ee984c6fd676040c3c02b95a0140af13a7790f365b0af2f6894498a9803"
+      "sha256": "ac6b8f7ad8efd9a24a14dfe482e73eef841d86caf69c2c2cfca1612b44772adf"
     },
     {
       "path": ".claude/skills/conflict-analyze/SKILL.md",
