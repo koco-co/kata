@@ -90,6 +90,7 @@ const EXPECTED_WORKFLOWS = [
   "case-hotfix@1",
   "conflict-analyze@1",
   "diff-scan@1",
+  "infra-diagnose@1",
   "knowledge-curate@1",
   "playwright-automation@1",
   "workspace-manage@1",

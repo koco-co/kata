@@ -16,8 +16,8 @@ describe("AI Core docs renderer", () => {
 
     expect(blockIds(zh)).toEqual(["command-index", "runtime-support"]);
     expect(blockIds(en)).toEqual(["command-index", "runtime-support"]);
-    expect(commandRows(zh)).toHaveLength(9);
-    expect(commandRows(en)).toHaveLength(9);
+    expect(commandRows(zh)).toHaveLength(10);
+    expect(commandRows(en)).toHaveLength(10);
     expect(zh).toContain("`/workspace-manage`");
     expect(en).toContain("Show the feature menu and manage kata project workspaces.");
     const changelog = readFileSync(join(out, "CHANGELOG.md"), "utf8");

@@ -65,6 +65,10 @@ const generatedProjectionPaths = [
   ".claude/skills/workspace-manage/references/project-layout.md",
   ".claude/skills/bug-file/SKILL.md",
   ".claude/skills/diff-scan/SKILL.md",
+  ".claude/skills/infra-diagnose/SKILL.md",
+  ".claude/skills/infra-diagnose/references/diagnostic-playbook.md",
+  ".claude/skills/infra-diagnose/references/ssh-protocol.md",
+  ".claude/skills/infra-diagnose/references/knowledge-format.md",
   "AGENTS.md",
   ".agents/skills/conflict-analyze/SKILL.md",
   ".agents/skills/case-hotfix/SKILL.md",
@@ -110,6 +114,10 @@ const generatedProjectionPaths = [
   ".agents/skills/workspace-manage/references/project-layout.md",
   ".agents/skills/bug-file/SKILL.md",
   ".agents/skills/diff-scan/SKILL.md",
+  ".agents/skills/infra-diagnose/SKILL.md",
+  ".agents/skills/infra-diagnose/references/diagnostic-playbook.md",
+  ".agents/skills/infra-diagnose/references/ssh-protocol.md",
+  ".agents/skills/infra-diagnose/references/knowledge-format.md",
 ];
 const vendorProjectionPaths = [
   ".claude/skills/playwright-cli/SKILL.md",
@@ -125,6 +133,7 @@ const productSkills = [
   "workspace-manage",
   "bug-file",
   "diff-scan",
+  "infra-diagnose",
 ];
 
 function inventoryRows(): Array<{ path: string; disposition: string }> {

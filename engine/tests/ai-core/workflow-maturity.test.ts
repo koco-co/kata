@@ -11,17 +11,18 @@ const EXPECTED_WORKFLOWS = [
   "case-hotfix@1",
   "conflict-analyze@1",
   "diff-scan@1",
+  "infra-diagnose@1",
   "knowledge-curate@1",
   "playwright-automation@1",
   "workspace-manage@1",
 ];
 
 describe("workflow maturity audit", () => {
-  it("classifies all 9 GA-core workflows", () => {
+  it("classifies all 10 GA-core workflows", () => {
     const result = auditWorkflowMaturity();
     const report = result.value!;
 
-    expect(report.activeWorkflows).toHaveLength(9);
+    expect(report.activeWorkflows).toHaveLength(10);
     expect(report.activeWorkflows.sort()).toEqual(EXPECTED_WORKFLOWS);
     expect(result.issues).toEqual([]);
   });

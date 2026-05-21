@@ -68,6 +68,10 @@ generated_files:
   - .claude/skills/knowledge-curate/SKILL.md
   - .claude/skills/bug-file/SKILL.md
   - .claude/skills/diff-scan/SKILL.md
+  - .claude/skills/infra-diagnose/SKILL.md
+  - .claude/skills/infra-diagnose/references/diagnostic-playbook.md
+  - .claude/skills/infra-diagnose/references/ssh-protocol.md
+  - .claude/skills/infra-diagnose/references/knowledge-format.md
   - CLAUDE.md
 copied_vendor_files:
   - .claude/skills/playwright-cli/SKILL.md

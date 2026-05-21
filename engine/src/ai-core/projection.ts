@@ -71,6 +71,7 @@ const COMMAND_INDEX_ORDER = [
   "case-hotfix",
   "playwright-automation",
   "diff-scan",
+  "infra-diagnose",
 ];
 const COMMAND_INDEX_IDS = new Set(COMMAND_INDEX_ORDER);
 
