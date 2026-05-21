@@ -66,6 +66,10 @@ generated_files:
   - .agents/skills/knowledge-curate/SKILL.md
   - .agents/skills/bug-file/SKILL.md
   - .agents/skills/diff-scan/SKILL.md
+  - .agents/skills/infra-diagnose/SKILL.md
+  - .agents/skills/infra-diagnose/references/diagnostic-playbook.md
+  - .agents/skills/infra-diagnose/references/ssh-protocol.md
+  - .agents/skills/infra-diagnose/references/knowledge-format.md
   - AGENTS.md
 copied_vendor_files:
   - .agents/skills/playwright-cli/SKILL.md

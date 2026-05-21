@@ -29,6 +29,7 @@ const gaWorkflowSkillMirrorIds = new Set([
   contractId("case-hotfix"),
   contractId("playwright-automation"),
   contractId("diff-scan"),
+  contractId("infra-diagnose"),
 ]);
 const SCHEMA_REGISTRY_ROW_KEYS = ["id", "version", "path"];
 const GUARD_REGISTRY_ROW_KEYS = ["id", "kind", "implementation"];

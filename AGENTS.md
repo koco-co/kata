@@ -29,6 +29,7 @@
 | /case-hotfix | case-hotfix@1 | 根据 bug 或修复记录生成 hotfix 回归用例。 |
 | /playwright-automation | playwright-automation@1 | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。 |
 | /diff-scan | diff-scan@1 | 扫描代码 diff 发现可复现的缺陷。 |
+| /infra-diagnose | infra-diagnose@1 | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
 <!-- ai-core:end command-index -->
 
 ## 其他命令

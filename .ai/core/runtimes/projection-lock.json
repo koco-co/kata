@@ -5,7 +5,7 @@
     {
       "path": ".agents/INDEX.md",
       "disposition": "generated",
-      "sha256": "8ee844a73f7b67a7c3c7a9c3d4129568b16c28afb93c0ef9ccf169c2abbab4cd"
+      "sha256": "0ec340f56b69599b0633228fa5488b845145930f4941695024df0bb83938d2b3"
     },
     {
       "path": ".agents/skills/bug-file/SKILL.md",
@@ -121,6 +121,26 @@
       "path": ".agents/skills/diff-scan/SKILL.md",
       "disposition": "generated",
       "sha256": "be21670d078176296a329e1a1b0998d6d6a94c9dbf4e5c8933b36efb0820be1c"
+    },
+    {
+      "path": ".agents/skills/infra-diagnose/SKILL.md",
+      "disposition": "generated",
+      "sha256": "6a50f67169ab0e079241355438d1cef8d734d61ac283b70770457100567c2619"
+    },
+    {
+      "path": ".agents/skills/infra-diagnose/references/diagnostic-playbook.md",
+      "disposition": "generated",
+      "sha256": "699e3974d2ebc9fd68bde0025e6af2bbfd61c86b3a6386dbb896895b4bf10b12"
+    },
+    {
+      "path": ".agents/skills/infra-diagnose/references/knowledge-format.md",
+      "disposition": "generated",
+      "sha256": "edfd406ac334df249a1a86286e9b5a1a05aed28c91bde29812a8cc82e83548e9"
+    },
+    {
+      "path": ".agents/skills/infra-diagnose/references/ssh-protocol.md",
+      "disposition": "generated",
+      "sha256": "7f9ed26bf7c1fbff125f1ed64aceb9cbe1bc69e67e7094279d602450d1ae986a"
     },
     {
       "path": ".agents/skills/knowledge-curate/SKILL.md",
@@ -285,7 +305,7 @@
     {
       "path": ".claude/INDEX.md",
       "disposition": "generated",
-      "sha256": "8ee844a73f7b67a7c3c7a9c3d4129568b16c28afb93c0ef9ccf169c2abbab4cd"
+      "sha256": "0ec340f56b69599b0633228fa5488b845145930f4941695024df0bb83938d2b3"
     },
     {
       "path": ".claude/skills/bug-file/SKILL.md",
@@ -401,6 +421,26 @@
       "path": ".claude/skills/diff-scan/SKILL.md",
       "disposition": "generated",
       "sha256": "be21670d078176296a329e1a1b0998d6d6a94c9dbf4e5c8933b36efb0820be1c"
+    },
+    {
+      "path": ".claude/skills/infra-diagnose/SKILL.md",
+      "disposition": "generated",
+      "sha256": "6a50f67169ab0e079241355438d1cef8d734d61ac283b70770457100567c2619"
+    },
+    {
+      "path": ".claude/skills/infra-diagnose/references/diagnostic-playbook.md",
+      "disposition": "generated",
+      "sha256": "699e3974d2ebc9fd68bde0025e6af2bbfd61c86b3a6386dbb896895b4bf10b12"
+    },
+    {
+      "path": ".claude/skills/infra-diagnose/references/knowledge-format.md",
+      "disposition": "generated",
+      "sha256": "edfd406ac334df249a1a86286e9b5a1a05aed28c91bde29812a8cc82e83548e9"
+    },
+    {
+      "path": ".claude/skills/infra-diagnose/references/ssh-protocol.md",
+      "disposition": "generated",
+      "sha256": "7f9ed26bf7c1fbff125f1ed64aceb9cbe1bc69e67e7094279d602450d1ae986a"
     },
     {
       "path": ".claude/skills/knowledge-curate/SKILL.md",
@@ -565,12 +605,12 @@
     {
       "path": "AGENTS.md",
       "disposition": "generated",
-      "sha256": "0a1bb305de03f82c0c0438e7f980e13783a598135dd86102154b2b1b8d2a43ae"
+      "sha256": "03b19688cca47e9a8df8a0d9dcb803d1c4764ff7c6e564c518969ad96bbaa0bd"
     },
     {
       "path": "CLAUDE.md",
       "disposition": "generated",
-      "sha256": "0a1bb305de03f82c0c0438e7f980e13783a598135dd86102154b2b1b8d2a43ae"
+      "sha256": "03b19688cca47e9a8df8a0d9dcb803d1c4764ff7c6e564c518969ad96bbaa0bd"
     }
   ]
 }

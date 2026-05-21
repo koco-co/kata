@@ -61,8 +61,7 @@ const COMMAND_EN_SUMMARIES: Record<string, string> = {
   "playwright-automation":
     "Plan, generate, run, triage, and repair Playwright UI automation before handoff.",
   "diff-scan": "Scan code diffs for reproducible defects.",
-  "infra-diagnose":
-    "SSH into servers to diagnose and fix datasource/server connectivity failures.",
+  "infra-diagnose": "SSH into servers to diagnose and fix datasource/server connectivity failures.",
 };
 
 function hash(text: string): string {
