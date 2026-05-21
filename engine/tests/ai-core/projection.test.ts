@@ -226,10 +226,10 @@ describe("ai-core projection", () => {
       expect(doc).toContain("<!-- ai-core:start command-index -->");
       expect(doc).toContain("<!-- ai-core:end command-index -->");
       expect(doc).toContain("| /workspace-manage | workspace-manage@1 |");
-      expect(doc).toContain("## Runtime Context");
-      expect(doc).toContain("## Workspace Boundary");
-      expect(doc).toContain("## Commit Convention");
-      expect(doc).toContain("`<type>: <emoji> <description>`");
+      expect(doc).toContain("## 构建与测试");
+      expect(doc).toContain("## 关键约束");
+      expect(doc).toContain("**Commit 规范**");
+      expect(doc).toContain("`type: emoji description`");
     }
   });
 
@@ -242,8 +242,8 @@ describe("ai-core projection", () => {
     expect(agents).toContain("## 命令索引");
     expect(agents).toContain("<!-- ai-core:start command-index -->");
     expect(agents).toContain("<!-- ai-core:end command-index -->");
-    expect(agents).toContain("## Runtime Context");
-    expect(agents).toContain("## Workspace Boundary");
+    expect(agents).toContain("## 构建与测试");
+    expect(agents).toContain("## 关键约束");
   });
 
   it("projects a compact root routing guard without workflow banlists", async () => {
@@ -253,15 +253,15 @@ describe("ai-core projection", () => {
     expect(result.ok).toBe(true);
     for (const runtimeDoc of ["AGENTS.md", "CLAUDE.md"]) {
       const doc = readFileSync(join(out, runtimeDoc), "utf8");
-      expect(doc).toContain("## Routing");
-      expect(doc).toContain("If the input is only a Lanhu/Axure URL");
-      expect(doc).toContain("dispatch to `case-draft` silently");
-      expect(doc).toContain("If the input is only a ZenTao bug URL");
-      expect(doc).toContain("dispatch to `case-hotfix`");
-      expect(doc).toContain("If `/playwright-automation` lacks an explicit environment");
-      expect(doc).toContain("follow the environment confirmation protocol in the skill");
+      expect(doc).toContain("## 路由规则");
+      expect(doc).toContain("仅输入 Lanhu/Axure URL");
+      expect(doc).toContain("静默转发到 `case-draft`");
+      expect(doc).toContain("仅输入 ZenTao bug URL");
+      expect(doc).toContain("转发到 `case-hotfix`");
+      expect(doc).toContain("/playwright-automation` 缺少环境参数");
+      expect(doc).toContain("按 skill 内置环境确认协议处理");
       expect(doc).toContain(
-        "Detailed output contracts, fallback templates, and regression constraints live in `.ai/core/skills/**` and tests",
+        "详细输出契约、回退模板和回归约束见 `.ai/core/skills/**` 与对应测试",
       );
 
       expect(doc).not.toContain("## Routing Guard");
