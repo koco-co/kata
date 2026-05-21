@@ -201,8 +201,24 @@ export function testsDir(project: string): string {
   return join(projectDir(project), "tests");
 }
 
+export function projectKataDir(project: string): string {
+  return join(projectDir(project), ".kata");
+}
+
 export function reposDir(project: string): string {
-  return join(kataRoot(), "repos", project);
+  return join(projectKataDir(project), "repos");
+}
+
+export function authDir(project: string): string {
+  return join(projectKataDir(project), "auth");
+}
+
+export function authSessionDir(project: string): string {
+  return join(authDir(project), project);
+}
+
+export function authSessionPath(project: string, env: string): string {
+  return join(authSessionDir(project), `session-${env}.json`);
 }
 
 export function tempDir(project: string): string {

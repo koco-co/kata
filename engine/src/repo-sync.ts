@@ -3,7 +3,7 @@
  * repo-sync.ts — Sync source code repositories.
  *
  * Usage:
- *   kata repo-sync sync --url <git-url> --branch <branch> [--base-dir .kata/repos/dataAssets]
+ *   kata repo-sync sync --url <git-url> --branch <branch> [--base-dir workspace/dataAssets/.kata/repos]
  *   kata repo-sync sync-profile --name <profile>
  *   kata repo-sync --help
  */
@@ -12,7 +12,8 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createCli } from "../lib/cli-runner.ts";
-import { parseGitUrl, repoRoot } from "../lib/paths.ts";
+import { getEnv } from "../lib/env.ts";
+import { parseGitUrl, repoRoot, reposDir } from "../lib/paths.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ function runSync(opts: {
     process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
     process.exit(1);
   }
-  const baseDir = opts.baseDir ?? `.kata/repos/${opts.project}`;
+  const baseDir = opts.baseDir ? resolve(repoRoot(), opts.baseDir) : reposDir(opts.project ?? "");
 
   if (!url || !branch) {
     const out: ErrorOutput = {
@@ -83,7 +84,7 @@ function runSync(opts: {
     process.exit(1);
   }
 
-  const absoluteBase = resolve(repoRoot(), baseDir);
+  const absoluteBase = baseDir;
   const targetDir = join(absoluteBase, group, repo);
 
   // Clone if not present
@@ -155,7 +156,21 @@ function runSync(opts: {
   process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
 }
 
-function runSyncProfile(opts: { name: string }): void {
+function defaultProjectFromConfig(raw: Record<string, unknown>): string | undefined {
+  const projects = raw.projects as Record<string, unknown> | undefined;
+  if (!projects) return undefined;
+  if (Object.hasOwn(projects, "dataAssets")) return "dataAssets";
+  return Object.keys(projects)[0];
+}
+
+function resolveProfileRepoPath(project: string | undefined, repoPath: string): string {
+  if (repoPath.startsWith(".repos/") && project) {
+    return join(reposDir(project), repoPath.slice(".repos/".length));
+  }
+  return resolve(repoRoot(), repoPath);
+}
+
+function runSyncProfile(opts: { name: string; project?: string }): void {
   const configPath = join(repoRoot(), "config.json");
   if (!existsSync(configPath)) {
     const out: ErrorOutput = {
@@ -167,9 +182,20 @@ function runSyncProfile(opts: { name: string }): void {
   }
 
   let profiles: Record<string, { repos: Array<{ path: string; branch: string }> }>;
+  let project: string | undefined;
   try {
     const raw = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
-    profiles = (raw.repo_profiles ?? {}) as typeof profiles;
+    project = opts.project ?? getEnv("KATA_ACTIVE_PROJECT") ?? defaultProjectFromConfig(raw);
+    const projects = raw.projects as
+      | Record<
+          string,
+          { repo_profiles?: Record<string, { repos: Array<{ path: string; branch: string }> }> }
+        >
+      | undefined;
+    profiles =
+      project && projects?.[project]?.repo_profiles
+        ? projects[project].repo_profiles
+        : ((raw.repo_profiles ?? {}) as typeof profiles);
   } catch (err) {
     const out: ErrorOutput = {
       error: `Failed to parse config.json: ${err}`,
@@ -195,7 +221,7 @@ function runSyncProfile(opts: { name: string }): void {
   const errors: ErrorOutput[] = [];
 
   for (const repoRef of profile.repos) {
-    const absolutePath = resolve(repoRoot(), repoRef.path);
+    const absolutePath = resolveProfileRepoPath(project, repoRef.path);
     const parts = repoRef.path.split("/");
     const repoName = parts.pop() ?? "";
     const groupName = parts.pop() ?? "";
@@ -235,7 +261,7 @@ function runSyncProfile(opts: { name: string }): void {
     }
   }
 
-  const output = { profile: opts.name, synced: results, errors };
+  const output = { project, profile: opts.name, synced: results, errors };
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 
   if (errors.length > 0 && results.length === 0) {
@@ -268,8 +294,9 @@ export const program = createCli({
           description: "Profile name (e.g. 岚图)",
           required: true,
         },
+        { flag: "--project <name>", description: "Project name (defaults to active/dataAssets)" },
       ],
-      action: runSyncProfile,
+      action: (opts: { name: string; project?: string }) => runSyncProfile(opts),
     },
   ],
 });

@@ -33,6 +33,6 @@ Automation handoff is a double-track result:
 
 ## Source Repositories
 
-Source repositories are read-only evidence under `.kata/repos/{project}/**`.
+Source repositories are read-only evidence under `workspace/{project}/.kata/repos/**`.
 
 Kata workflows must not push, commit, or mutate source repositories.

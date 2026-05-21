@@ -24,7 +24,7 @@
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 
 ## UI 知识沉淀
 

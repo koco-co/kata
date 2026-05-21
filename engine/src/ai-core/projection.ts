@@ -591,7 +591,7 @@ function renderRootRuntimeDoc(coreRoot: string, commandIndexBlock: string): stri
     "## Workspace Boundary",
     "",
     "- Generated PRD, XMind, Archive, reports, and test artifacts are written under `workspace/{project}/`.",
-    "- `.kata/repos/{project}/**` is read-only source evidence; kata workflows must not push, commit, or mutate source repositories.",
+    "- `workspace/{project}/.kata/repos/**` is read-only source evidence; kata workflows must not push, commit, or mutate source repositories.",
     "- Runtime projections are generated from `.ai/core/**`; edit `.ai/core` contracts, then render projection.",
     "",
     caseArtifactQaSection(),

@@ -140,41 +140,53 @@ function scanPlugins(root: string): PluginStatus[] {
 }
 
 function scanRepos(root: string): RepoEntry[] {
-  const reposPath = join(root, ".kata", "repos");
-  if (!existsSync(reposPath)) return [];
-
   const repos: RepoEntry[] = [];
+  const workspacePath = join(root, "workspace");
+  if (!existsSync(workspacePath)) return repos;
 
-  let groups: string[] = [];
+  let projects: string[] = [];
   try {
-    groups = readdirSync(reposPath);
+    projects = readdirSync(workspacePath);
   } catch {
-    return [];
+    return repos;
   }
 
-  for (const group of groups) {
-    const groupPath = join(reposPath, group);
+  const reposPaths = projects
+    .map((project) => join(workspacePath, project, ".kata", "repos"))
+    .filter((path) => existsSync(path));
+
+  for (const reposPath of reposPaths) {
+    let groups: string[] = [];
     try {
-      if (!statSync(groupPath).isDirectory()) continue;
+      groups = readdirSync(reposPath);
     } catch {
       continue;
     }
 
-    let repoNames: string[] = [];
-    try {
-      repoNames = readdirSync(groupPath);
-    } catch {
-      continue;
-    }
-
-    for (const repo of repoNames) {
-      const repoPath = join(groupPath, repo);
+    for (const group of groups) {
+      const groupPath = join(reposPath, group);
       try {
-        if (!statSync(repoPath).isDirectory()) continue;
+        if (!statSync(groupPath).isDirectory()) continue;
       } catch {
         continue;
       }
-      repos.push({ group, repo, path: repoPath });
+
+      let repoNames: string[] = [];
+      try {
+        repoNames = readdirSync(groupPath);
+      } catch {
+        continue;
+      }
+
+      for (const repo of repoNames) {
+        const repoPath = join(groupPath, repo);
+        try {
+          if (!statSync(repoPath).isDirectory()) continue;
+        } catch {
+          continue;
+        }
+        repos.push({ group, repo, path: repoPath });
+      }
     }
   }
 
@@ -309,7 +321,7 @@ function runVerify(): VerifyResult {
     checks.push({
       name: "源码仓库",
       status: "skip",
-      detail: ".kata/repos/ 下无仓库（可选）",
+      detail: "workspace/{project}/.kata/repos/ 下无仓库（可选）",
     });
   }
 

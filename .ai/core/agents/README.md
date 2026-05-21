@@ -32,7 +32,9 @@ read_scope:
 write_scope:
   - workspace/**
 forbidden_scope:
+  - workspace/*/.kata/repos/**
   - .kata/repos/**
+  - workspace/*/.repos/**
   - .agents/**
   - .claude/**
 handoff_schema: HandoffEnvelope@1

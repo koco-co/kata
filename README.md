@@ -41,7 +41,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 
 - `.ai/core/**` 是 skills、commands、workflows、agents、prompts、schemas 和 runtime guard 的唯一声明源。
 - `.agents/**` 与 `.claude/**` 是生成投影，分别服务 kata Codex runtime 和 Claude Code runtime。
-- 所有项目产物写入 `workspace/{project}/`；源码证据位于 `.kata/repos/{project}/**` 且只读。
+- 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
 - `playwright-cli` 保持 vendor skill 原名，用于真实浏览器自动化；kata-owned product skill 不复用旧聚合命名。
 
 ## 快速开始
@@ -131,8 +131,8 @@ Kata 的 4.0 架构以 `.ai/core` 合约源为控制面，以 `engine` 为执行
 | `.agents/**` | kata Codex runtime 投影目录，由 `.ai/core` 生成；不要手工改生成内容。 |
 | `.claude/**` | Claude Code runtime 投影目录，由 `.ai/core` 生成；不要手工改生成内容。 |
 | `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |
-| `.kata/repos/{project}/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
-<!-- ai-core:hash 1b70f8ca6a3f68e6bf379d665db71eaf582bb318d2f52768d4e1093954268a63 -->
+| `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
+<!-- ai-core:hash b23e46b4e8d1681afde9c035f4b87c2e22691a3d5b03e1c1e1b334a3450fe977 -->
 <!-- ai-core:end runtime-support -->
 
 工作流执行时，agent 先读取 `.ai/core` 合约和 runtime 投影，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、secret ref、projection lock、parser boundary audit 和 golden evals 都由 AI Core gate 统一校验。
@@ -160,7 +160,7 @@ kata/
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # 独立工具包
 ├── templates/       # 项目骨架与输出模板
-└── workspace/       # 用户项目产物；源码副本位于 .kata/repos/{project}/
+└── workspace/       # 用户项目产物；源码副本位于 workspace/{project}/.kata/repos/
 ```
 
 ## 开发与验证

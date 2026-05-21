@@ -11,7 +11,11 @@ import {
 } from "../../../../_shared/pages/2099-01-lt-dq-smoke/assets-inventory-page";
 import { ASSETS_INVENTORY_SCOPE, SR_2099_01_AI_001 } from "../data/assets-inventory-contract";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? ".kata/auth/dataAssets/session-ltqc-local.json" });
+test.use({
+  storageState:
+    process.env.UI_AUTOTEST_SESSION_PATH ??
+    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
+});
 test.setTimeout(90000);
 
 test("【P1】资产盘点页展示已接入数据源统计 Shell", async ({ page, step }) => {
@@ -31,4 +35,3 @@ test("【P1】运维触发后已接入数据源卡片保持可核验", async ({ 
     await expectAssetsInventoryShell(page, SR_2099_01_AI_001);
   });
 });
-

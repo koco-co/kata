@@ -138,7 +138,7 @@ export const program = createCli({
         { flag: "--project <name>", description: "project name", required: true },
         {
           flag: "--repo <name>",
-          description: "repo dir under .kata/repos/{project}/",
+          description: "repo dir under workspace/{project}/.kata/repos/",
           required: true,
         },
         {

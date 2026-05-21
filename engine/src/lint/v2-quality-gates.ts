@@ -96,7 +96,11 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
       if (!/\.(?:ts|tsx|md|json|yaml)$/.test(file)) continue;
       files += 1;
       const content = readFileSync(file, "utf-8");
-      if (content.includes(`.auth/${project}/`) || content.includes(".auth/session.json")) {
+      if (
+        content.includes(`.auth/${project}/`) ||
+        content.includes(".auth/session.json") ||
+        content.includes(`.kata/auth/${project}/`)
+      ) {
         violations.push(
           violation(
             file,
@@ -104,7 +108,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
             `Auth storageState must live under workspace/${project}/.kata/auth/.`,
             "fail",
             1,
-            ".auth/",
+            "legacy auth path",
           ),
         );
       }
@@ -122,12 +126,13 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
       files += 1;
       const profile = parse(readFileSync(file, "utf-8")) as any;
       const sessionPath = profile?.auth?.session_path;
-      if (typeof sessionPath === "string" && !sessionPath.startsWith(".kata/auth/")) {
+      const expectedPrefix = `workspace/${project}/.kata/auth/`;
+      if (typeof sessionPath === "string" && !sessionPath.startsWith(expectedPrefix)) {
         violations.push(
           violation(
             file,
             "env_profile_compliance",
-            "auth.session_path must be project-relative under .kata/auth/.",
+            `auth.session_path must be repo-root relative under ${expectedPrefix}.`,
             "fail",
             1,
             sessionPath,

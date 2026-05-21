@@ -78,7 +78,7 @@ repair_eligible:
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 - 不得将失败归因为 `test script error` 而不检查实际错误类型。
 - 不得跳过 trace/截图检查直接归类。
 - 不得将产品 bug 强行归为 script 错误以进入 repair-loop。

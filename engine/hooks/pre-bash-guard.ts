@@ -26,8 +26,9 @@ const PATTERNS: Pattern[] = [
     reason: "rm -rf / variant detected",
   },
   {
-    regex: /(?:\.repos\/|\.kata\/repos\/).*git\s+push|git\s+push.*(?:\.repos\/|\.kata\/repos\/)/,
-    reason: ".kata/repos/ is read-only source evidence — never push",
+    regex:
+      /(?:\.repos\/|\.kata\/repos\/|workspace\/[^/\s]+\/\.kata\/repos\/).*git\s+push|git\s+push.*(?:\.repos\/|\.kata\/repos\/|workspace\/[^/\s]+\/\.kata\/repos\/)/,
+    reason: "workspace/{project}/.kata/repos/ is read-only source repository evidence — never push",
   },
 ];
 

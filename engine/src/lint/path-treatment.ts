@@ -37,6 +37,7 @@ const SCAN_SUFFIXES = [".md", ".ts", ".tsx", ".js", ".json"];
 const EXCLUDED_PATH_FRAGMENTS = [
   "node_modules",
   "/.repos/",
+  "/.kata/repos/",
   "/dist/",
   "/.runs/",
   // workspace/ data dirs — actual files, not references

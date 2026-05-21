@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "no
 import { basename, dirname, resolve } from "node:path";
 import { createCli } from "../lib/cli-runner.ts";
 import { parseFrontMatter } from "../lib/frontmatter.ts";
-import { probeCachePath, repoRoot } from "../lib/paths.ts";
+import { probeCachePath, repoRoot, reposDir } from "../lib/paths.ts";
 import {
   type ArchiveSearchHit,
   buildCacheEntry,
@@ -90,7 +90,7 @@ function collectSource(
   if (repo.path.startsWith("/")) {
     repoPath = repo.path;
   } else {
-    repoPath = resolve(repoRoot(), ".kata", "repos", project, repo.path);
+    repoPath = resolve(reposDir(project), repo.path);
   }
 
   if (!existsSync(repoPath)) return null;

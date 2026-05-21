@@ -9,7 +9,7 @@ urls:
   portal_base_url: "http://10.82.12.8/portal"
 
 auth:
-  session_path: ".kata/auth/dataAssets/session-ltqc-test.json"
+  session_path: "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-test.json"
   tenant_id: 10451
   tenant_name: "test"
   derive_from_session: true
