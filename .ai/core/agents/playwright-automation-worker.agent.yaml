@@ -17,7 +17,9 @@ read_scope:
 write_scope:
   - workspace/**
 forbidden_scope:
+  - workspace/*/.kata/repos/**
   - .kata/repos/**
+  - workspace/*/.repos/**
 handoff_schema: PlaywrightAutomationHandoff@2
 review_gates:
   - env-preflight.before_browser

@@ -47,7 +47,7 @@ body:
       - 统管 kata 项目工作区，确保产物落入预期位置。
     hard_rules:
       - 所有生成的产物，写入 workspace/{project}/ 之下。
-      - .kata/repos/{project}/** 为只读源仓库，详见 .ai/core/rules/repo-readonly.md。
+      - workspace/{project}/.kata/repos/** 为只读源仓库，详见 .ai/core/rules/repo-readonly.md。
 references:
   - path: references/project-layout.md
     type: normative

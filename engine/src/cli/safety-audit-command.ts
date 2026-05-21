@@ -5,7 +5,8 @@ const rmWorkspacePattern = new RegExp(
   `${rmWithRecursiveForce}\\s+(?:--\\s+)?(?:\\.\\/)?workspace(?:\\/|\\b)`,
 );
 const rmRootPattern = new RegExp(`${rmWithRecursiveForce}\\s+(?:--\\s+)?\\/(?:\\s|$|\\*)`);
-const reposPathSegmentPattern = /(?:^|[\s'"]|\/)(?:\.repos(?:\/|\b)|\.kata\/repos(?:\/|\b))/;
+const reposPathSegmentPattern =
+  /(?:^|[\s'"]|\/)(?:\.repos(?:\/|\b)|\.kata\/repos(?:\/|\b)|workspace\/[^/\s'"]+\/\.kata\/repos(?:\/|\b))/;
 const mutatingGitInSegmentPattern =
   /\bgit\b[^;&|]*\s(?:push|commit|add|rm|mv|checkout|switch|reset|clean|rebase|merge|pull|cherry-pick|stash|apply|am|restore)\b/;
 

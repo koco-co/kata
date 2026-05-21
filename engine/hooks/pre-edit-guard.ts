@@ -12,7 +12,11 @@ if (process.env.KATA_BYPASS_HOOK === "1") process.exit(0);
 const filePath = payload.tool_input?.file_path;
 if (!filePath) process.exit(0);
 
-if (filePath.includes("/.repos/") || filePath.includes("/.kata/repos/")) {
+if (
+  filePath.includes("/.repos/") ||
+  filePath.includes("/.kata/repos/") ||
+  /(?:^|\/)workspace\/[^/]+\/\.kata\/repos(?:\/|$)/.test(filePath)
+) {
   console.error(
     `[pre-edit-guard] BLOCKED: writes to source repository evidence are forbidden. Path: ${filePath}`,
   );

@@ -12,7 +12,10 @@ import { BatchApi } from "../src/core/platform/batch";
 import { ProjectApi } from "../src/core/platform/project";
 
 const BASE_URL = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
-const SESSION_FILE = join(import.meta.dirname, "../../../.auth/dataAssets/session-ltqc.json");
+const SESSION_FILE = join(
+  import.meta.dirname,
+  "../../../workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
+);
 const PROJECT_NAME = "pw_test";
 const DATASOURCE_TYPE = "sparkthrift";
 

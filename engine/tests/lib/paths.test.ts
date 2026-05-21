@@ -5,6 +5,9 @@ import {
   agentRuntimeRoot,
   agentsDir,
   archiveDir,
+  authDir,
+  authSessionDir,
+  authSessionPath,
   commandsDir,
   currentYYYYMM,
   enhancedMd,
@@ -22,6 +25,7 @@ import {
   probeCacheDir,
   probeCachePath,
   projectDir,
+  projectKataDir,
   projectPath,
   projectRulesDir,
   projectShared,
@@ -259,9 +263,33 @@ describe("testsDir", () => {
 });
 
 describe("reposDir", () => {
-  it("returns .kata/repos/{project}", () => {
+  it("returns workspace/{project}/.kata/repos", () => {
     const dir = reposDir("dataAssets");
-    expect(dir.endsWith(".kata/repos/dataAssets")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/.kata/repos")).toBeTruthy();
+  });
+});
+
+describe("project-local .kata auth paths", () => {
+  it("returns workspace/{project}/.kata", () => {
+    expect(projectKataDir("dataAssets").endsWith("workspace/dataAssets/.kata")).toBeTruthy();
+  });
+
+  it("returns workspace/{project}/.kata/auth", () => {
+    expect(authDir("dataAssets").endsWith("workspace/dataAssets/.kata/auth")).toBeTruthy();
+  });
+
+  it("returns workspace/{project}/.kata/auth/{project}", () => {
+    expect(
+      authSessionDir("dataAssets").endsWith("workspace/dataAssets/.kata/auth/dataAssets"),
+    ).toBeTruthy();
+  });
+
+  it("returns workspace/{project}/.kata/auth/{project}/session-{env}.json", () => {
+    expect(
+      authSessionPath("dataAssets", "ltqc-local").endsWith(
+        "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
+      ),
+    ).toBeTruthy();
   });
 });
 

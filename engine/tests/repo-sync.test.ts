@@ -64,7 +64,7 @@ describe("repo-sync target directory calculation", () => {
 
     // The target suffix stays group/repo under the configured evidence root.
     const expectedSuffix = `customItem/dt-center-assets`;
-    const computedPath = `.kata/repos/dataAssets/${group}/${repo}`;
+    const computedPath = `workspace/dataAssets/.kata/repos/${group}/${repo}`;
     expect(computedPath.endsWith(expectedSuffix)).toBeTruthy();
   });
 
@@ -72,9 +72,9 @@ describe("repo-sync target directory calculation", () => {
     const url = "http://gitlab.dtstack.com/customItem/dt-center-assets.git";
     const { group, repo } = parseGitUrl(url);
 
-    // With --project dataAssets, base-dir becomes .kata/repos/dataAssets.
-    const computedPath = `.kata/repos/dataAssets/${group}/${repo}`;
-    expect(computedPath).toBe(".kata/repos/dataAssets/customItem/dt-center-assets");
+    // With --project dataAssets, base-dir becomes workspace/dataAssets/.kata/repos.
+    const computedPath = `workspace/dataAssets/.kata/repos/${group}/${repo}`;
+    expect(computedPath).toBe("workspace/dataAssets/.kata/repos/customItem/dt-center-assets");
   });
 });
 

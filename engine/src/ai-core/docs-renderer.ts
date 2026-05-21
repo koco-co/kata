@@ -313,7 +313,7 @@ function renderRuntimeSupport(target: string): string {
       "| `.agents/**` | kata Codex runtime 投影目录，由 `.ai/core` 生成；不要手工改生成内容。 |",
       "| `.claude/**` | Claude Code runtime 投影目录，由 `.ai/core` 生成；不要手工改生成内容。 |",
       "| `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |",
-      "| `.kata/repos/{project}/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |",
+      "| `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |",
     ].join("\n");
   }
   return [
@@ -323,7 +323,7 @@ function renderRuntimeSupport(target: string): string {
     "| `.agents/**` | kata Codex runtime projection generated from `.ai/core`; do not edit generated content by hand. |",
     "| `.claude/**` | Claude Code runtime projection generated from `.ai/core`; do not edit generated content by hand. |",
     "| `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |",
-    "| `.kata/repos/{project}/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |",
+    "| `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |",
   ].join("\n");
 }
 

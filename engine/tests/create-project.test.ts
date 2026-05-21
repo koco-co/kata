@@ -53,7 +53,7 @@ describe("create-project create --dry-run", () => {
     expect(Array.isArray(data.will_create.dirs)).toBeTruthy();
     expect(Array.isArray(data.will_create.files)).toBeTruthy();
     expect(Array.isArray(data.will_create.gitkeeps)).toBeTruthy();
-    expect(data.will_create.dirs.length).toBe(10);
+    expect(data.will_create.dirs.length).toBe(11);
     // Disk must remain untouched
     expect(existsSync(join(TEST_WORKSPACE_ROOT, "newProj"))).toBe(false);
     // Config must remain unchanged
@@ -79,7 +79,8 @@ describe("create-project create --dry-run", () => {
       "knowledge",
       "knowledge/modules",
       "knowledge/pitfalls",
-      ".repos",
+      ".kata/repos",
+      ".kata/auth",
     ])
       mkdirSync(join(projDir, d), { recursive: true });
     for (const g of [
@@ -90,7 +91,6 @@ describe("create-project create --dry-run", () => {
       "tests",
       "knowledge/modules",
       "knowledge/pitfalls",
-      ".repos",
     ])
       writeFileSync(join(projDir, g, ".gitkeep"), "");
     writeFileSync(join(projDir, "rules", "README.md"), "# complete");
@@ -132,8 +132,8 @@ describe("create-project scan", () => {
     expect(data.valid_name).toBe(true);
     expect(data.exists).toBe(false);
     expect(data.skeleton_complete).toBe(false);
-    expect(data.missing_dirs.length).toBe(10);
-    expect(data.missing_gitkeeps.length).toBe(8);
+    expect(data.missing_dirs.length).toBe(11);
+    expect(data.missing_gitkeeps.length).toBe(7);
     expect(data.missing_files.length).toBe(3);
     expect(data.config_registered).toBe(false);
   });
@@ -162,7 +162,8 @@ describe("create-project scan", () => {
       "knowledge",
       "knowledge/modules",
       "knowledge/pitfalls",
-      ".repos",
+      ".kata/repos",
+      ".kata/auth",
     ];
     for (const d of dirs) mkdirSync(join(projDir, d), { recursive: true });
     const gks = [
@@ -173,7 +174,6 @@ describe("create-project scan", () => {
       "tests",
       "knowledge/modules",
       "knowledge/pitfalls",
-      ".repos",
     ];
     for (const g of gks) writeFileSync(join(projDir, g, ".gitkeep"), "");
     writeFileSync(join(projDir, "rules", "README.md"), "# fullProj rules");
@@ -218,7 +218,8 @@ describe("create-project create --confirmed", () => {
       "knowledge",
       "knowledge/modules",
       "knowledge/pitfalls",
-      ".repos",
+      ".kata/repos",
+      ".kata/auth",
     ]) {
       expect(existsSync(join(projDir, d))).toBeTruthy();
     }
@@ -369,7 +370,7 @@ describe("create-project clone-repo", () => {
     expect(stderr).toMatch(/project not found|does not exist/i);
   });
 
-  it("clones bare repo into .kata/repos/<project>/<group>/<repo>", () => {
+  it("clones bare repo into workspace/<project>/.kata/repos/<group>/<repo>", () => {
     runCp(["create", "--project", "withRepo", "--confirmed"]);
 
     const { stdout, code } = runCp([
@@ -385,7 +386,7 @@ describe("create-project clone-repo", () => {
     expect(data.repo).toBe("demo");
     expect(data.branch).toBe("main");
     expect(data.local_path.endsWith("/demo")).toBeTruthy();
-    expect(data.local_path).toContain("/.kata/repos/withRepo/");
+    expect(data.local_path).toContain("/workspace/withRepo/.kata/repos/");
     expect(existsSync(join(data.local_path))).toBeTruthy();
   });
 

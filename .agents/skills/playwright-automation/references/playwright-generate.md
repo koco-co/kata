@@ -46,7 +46,7 @@ This does not mark case-draft complete; handoff must say the script was generate
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 
 ## 生成与调试协议
 
@@ -88,14 +88,14 @@ This does not mark case-draft complete; handoff must say the script was generate
 生成 case 文件时，**禁止使用其他 feature 中看到的 root-level auth session 作为 storageState 路径**。
 
 发现路径污染的方法：
-- legacy feature case 文件曾使用错误的 root-level auth session（缺少 v2 `.kata/auth/` 前缀）
+- legacy feature case 文件曾使用错误的 root-level auth session（缺少 `workspace/{project}/.kata/auth/` 前缀）
 - 当你参考现有 feature 模式时，必须使用当前 env profile 的正确 session 路径
-- 正确路径：repo-root `.kata/auth/{project}/session-{env}.json`，并通过当前 env profile 的 `auth.session_path` 引用。不得把 `.kata/auth/...` 解析为 `workspace/{project}/.kata/...`。
+- 正确路径：repo-root 相对 `workspace/{project}/.kata/auth/{project}/session-{env}.json`，并通过当前 env profile 的 `auth.session_path` 引用。
 
 ```bash
 # 检查 session 路径是否正确
 grep -c "root-level auth session" tests/cases/*.ts 2>/dev/null  # 应为 0
-grep -c ".kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # 应 > 0
+grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # 应 > 0
 ```
 
 ### 目录与 runner 约束
@@ -140,7 +140,7 @@ grep -c ".kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # 应 > 0
 升级前必须完成全部检查，并把结果作为提问消息的一部分：
 - [ ] 已读 spec 完整源码
 - [ ] 已对当前 case 用 `--list` + headless 至少各跑 1 次，附错误输出片段
-- [ ] 已检查 `.kata/auth/` storage state 是否存在且未过期
+- [ ] 已检查 `workspace/{project}/.kata/auth/` storage state 是否存在且未过期
 - [ ] 已比对 baseline case 的 selector/等待/fixture 模式，并说明本 case 哪里偏离
 - [ ] 已识别失败类型（selector/数据/时序/环境/真 bug），并陈述判断依据
 - [ ] 已列出主会话不可控的外部依赖（后端服务/测试账号/数据准备/网络）

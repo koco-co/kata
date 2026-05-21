@@ -17,6 +17,18 @@ describe("pre-edit-guard hook (H1)", () => {
     expect(r.stderr).toContain("source repository evidence");
   });
 
+  test("blocks Edit on workspace/{p}/.kata/repos/", () => {
+    const input = JSON.stringify({
+      tool_name: "Edit",
+      tool_input: {
+        file_path: join(REPO, "workspace/dataAssets/.kata/repos/group/repo/src/index.ts"),
+      },
+    });
+    const r = spawnSync("bun", ["run", HOOK], { input, encoding: "utf8" });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain("source repository evidence");
+  });
+
   test("allows Edit on workspace/{p}/features/", () => {
     const input = JSON.stringify({
       tool_name: "Edit",

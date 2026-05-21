@@ -70,7 +70,7 @@ steps:
       allowed_scopes:
         - workspace/${project}/knowledge/**
         - workspace/${project}/features/**
-        - .kata/repos/${project}/**
+        - workspace/${project}/.kata/repos/**
       repos:
         must_read_only_repos: true
         max_relevant_files_per_module: 3
@@ -83,7 +83,7 @@ steps:
     subagent_constraints:
       schema_ref: SubagentConstraints@1
       may_not_ask_user: true
-      may_not_write: [".kata/repos/**"]
+      may_not_write: ["workspace/*/.kata/repos/**", ".kata/repos/**", "workspace/*/.repos/**"]
 
   - id: requirement-atomize
     ref: atomization-guide.md

@@ -131,7 +131,7 @@ environment:
 - **禁止**读取的文件：
   - `workspace/dataAssets/features/` 下除目标目录外的任何其他 feature
   - `workspace/{project}/_shared/env/*.yaml`（将在 env-preflight 阶段读取）
-  - `.kata/repos/**`（只在需要源码佐证时按需读取）
+  - `workspace/*/.kata/repos/**`（只在需要源码佐证时按需读取）
   - `references/**` 下除 case-normalize.md 外的其他 reference
 - 硬约束：读取不超过目标 feature 目录 + SKILL.md + 本 reference
 
@@ -139,7 +139,7 @@ environment:
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 - 不得批量读取无关历史 feature。
 - 不得在 case-normalize 阶段读取 `_shared/env/*.yaml`（这是 env-preflight 的职责）。
 - 不得在 case-normalize 阶段读取 Lanhu 截图、运行 OCR、创建临时 Python/Node 环境，或为了理解 UI 安装新依赖。

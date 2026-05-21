@@ -21,8 +21,8 @@ beforeEach(() => {
   process.env.KATA_WORKSPACE_ROOT = WS;
   process.env.KATA_ROOT_OVERRIDE = WS;
 
-  // create a fake .kata/repos/{project}/{repo} fixture
-  REPO = join(WS, ".kata", "repos", PROJECT, "demo");
+  // create a fake workspace/{project}/.kata/repos/{repo} fixture
+  REPO = join(WS, PROJECT, ".kata", "repos", "demo");
   execSync(`mkdir -p "${REPO}"`);
   execSync(`git init -q -b main "${REPO}"`);
   git('config user.email "t@t.com"', REPO);

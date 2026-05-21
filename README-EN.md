@@ -131,8 +131,8 @@ Kata 4.0 uses `.ai/core` as the contract control plane, `engine` as the executio
 | `.agents/**` | kata Codex runtime projection generated from `.ai/core`; do not edit generated content by hand. |
 | `.claude/**` | Claude Code runtime projection generated from `.ai/core`; do not edit generated content by hand. |
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
-| `.kata/repos/{project}/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
-<!-- ai-core:hash 10c565ed5964e782b42fee889824d775405d4019a533b078b5756dcb927fa3ed -->
+| `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
+<!-- ai-core:hash 97fcb86f90d99c917e6960b9421c1983666d8733ba1da2a09b3e728093daccdd -->
 <!-- ai-core:end runtime-support -->
 
 At runtime, agents read `.ai/core` contracts and runtime projections, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, secret refs, projection locks, parser boundary audits, and golden evals are checked by AI Core gates.

@@ -68,7 +68,7 @@ probe_evidence_ref: SR-UI-PROBE-001
 
 - 不得把用户文字（Archive MD 描述）当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 - 不得在未见 UI 证据的情况下声称 "aligned"。
 - 不得在出现差异时强行保持一致（覆盖 UI 的事实）。
 - 不得在 `blocked` / `blocked_by_ui_probe` / `needs_user_decision` 状态后继续生成 Playwright 脚本或创建任何测试文件。

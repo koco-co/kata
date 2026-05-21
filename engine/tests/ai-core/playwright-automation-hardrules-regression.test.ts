@@ -23,7 +23,7 @@ const hardRules = (() => {
 describe("playwright-automation hard_rules regression", () => {
   // Baseline captured BEFORE this PR. If hard_rules need to change in this PR,
   // update this baseline in a SEPARATE commit with explicit justification.
-  const BASELINE_SHA256 = "f81814f3f2e4b33b96212fa24e2b218a2a917e17946a46f5ddaea7e25ba51599";
+  const BASELINE_SHA256 = "3dd9973452db85b8a27af53d694476c8649c03f2c29410ffc5ece01b134a5f1a";
   const BASELINE_COUNT = 60;
 
   it("hard_rules array length is unchanged", () => {

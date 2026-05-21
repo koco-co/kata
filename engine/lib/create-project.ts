@@ -15,7 +15,8 @@ export const SKELETON_SPEC = {
     "knowledge",
     "knowledge/modules",
     "knowledge/pitfalls",
-    ".repos",
+    ".kata/repos",
+    ".kata/auth",
   ],
   gitkeep_dirs: [
     "features",
@@ -25,7 +26,6 @@ export const SKELETON_SPEC = {
     "tests",
     "knowledge/modules",
     "knowledge/pitfalls",
-    ".repos",
   ],
   template_files: {
     "rules/README.md": "rules/README.md",

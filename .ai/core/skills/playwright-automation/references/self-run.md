@@ -80,7 +80,7 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 - 不得跳过 `--list` 直接运行。
 - 不得用不带文件参数的全量 Playwright 运行做调试。
 - 只运行 `smoke.spec.ts` 不得宣称端到端自动化完成。

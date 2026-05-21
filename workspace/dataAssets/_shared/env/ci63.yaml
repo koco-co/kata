@@ -9,7 +9,7 @@ urls:
   portal_base_url: "http://172.16.122.52/portal"
 
 auth:
-  session_path: ".kata/auth/dataAssets/session-ci63.json"
+  session_path: "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json"
   tenant_id: 10449
   tenant_name: "hadoop2"
   derive_from_session: true

@@ -9,7 +9,9 @@ read_scope:
   - .ai/core/**
   - workspace/**
 forbidden_scope:
+  - workspace/*/.kata/repos/**
   - .kata/repos/**
+  - workspace/*/.repos/**
 handoff_schema: HandoffEnvelope@1
 review_gates:
   - schema_guard.require_provenance@1
