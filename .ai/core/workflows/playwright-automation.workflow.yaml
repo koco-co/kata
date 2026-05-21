@@ -27,6 +27,7 @@ budgets:
     self-run: 1200
     run-triage: 2800
     repair-loop: 2800
+    case-feedback: 1500
     handoff: 1000
   repair_limits:
     max_attempts_per_spec: 3
@@ -94,6 +95,13 @@ steps:
     output_schema: RepairAttemptLog@1
     gates:
       - repair.attempts <= 3
+  - id: case-feedback
+    requires:
+      - run-triage
+    condition: run_triage.completed == true
+    output_schema: CaseCorrections@1
+    gates:
+      - case_feedback.completed == true
   - id: handoff
     requires:
       - self-run

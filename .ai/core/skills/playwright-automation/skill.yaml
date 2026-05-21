@@ -240,6 +240,12 @@ references:
       - repair-loop
     purpose: 脚本内容质量审查（选择器、断言、复用度）。
     load_when: step.id in [playwright-generate, repair-loop]
+  - path: references/case-feedback.md
+    type: normative
+    load_phases:
+      - case-feedback
+    purpose: 收集通过或失败用例的修正建议并输出标准化修正清单。
+    load_when: step.id == case-feedback
 evidence:
   source_refs_required: true
   distinguish_fact_inference_assumption: true

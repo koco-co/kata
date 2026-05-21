@@ -63,6 +63,12 @@ references:
       - output
     purpose: 规划编辑、预览差异或导出用例时，保持 Archive 与 XMind 之间的一致性。
     load_when: step.id in [plan_edit, preview_diff, output] and outputs.ids contains archive
+  - path: references/apply-corrections.md
+    type: normative
+    load_phases:
+      - apply-corrections
+    purpose: 应用来自 playwright-automation case-feedback 步骤的修正建议到用例产物。
+    load_when: step.id == apply-corrections
 evidence:
   source_refs_required: true
   distinguish_fact_inference_assumption: true

@@ -52,5 +52,9 @@ steps:
     gates:
       - archive.exists || xmind.exists
       - notify_plugin: kata plugin-loader notify --event case-edit-completed --data '{}' || true
+  - id: apply-corrections
+    output_schema: CaseCorrections@1
+    gates:
+      - apply_corrections.completed == true
 failure_policy:
   missing_evidence: ask_one_clarifying_question
