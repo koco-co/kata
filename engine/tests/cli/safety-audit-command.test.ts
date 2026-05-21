@@ -21,6 +21,18 @@ describe("safety audit-command", () => {
     expect(result.stderr).toContain("source repository evidence");
   });
 
+  test("blocks git push from workspace project .kata/repos", () => {
+    const result = spawnKataCli([
+      "safety",
+      "audit-command",
+      "--command",
+      "cd workspace/dataAssets/.kata/repos/x/foo && git push",
+    ]);
+
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain("source repository evidence");
+  });
+
   test("blocks git push from .kata/repos root", () => {
     const result = spawnKataCli([
       "safety",
@@ -75,6 +87,18 @@ describe("safety audit-command", () => {
       "audit-command",
       "--command",
       "cd .kata/repos/x/foo && git status",
+    ]);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("allowed");
+  });
+
+  test("allows read-only git status under workspace project .kata/repos", () => {
+    const result = spawnKataCli([
+      "safety",
+      "audit-command",
+      "--command",
+      "cd workspace/dataAssets/.kata/repos/x/foo && git status",
     ]);
 
     expect(result.status).toBe(0);

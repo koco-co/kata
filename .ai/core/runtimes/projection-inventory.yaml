@@ -71,6 +71,10 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/case-edit/skill.yaml
+  - path: .agents/skills/case-edit/references/apply-corrections.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-edit/references/apply-corrections.md
   - path: .agents/skills/case-edit/references/archive-xmind-sync.md
     runtime: codex
     disposition: generated
@@ -119,6 +123,10 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/playwright-automation/skill.yaml
+  - path: .agents/skills/playwright-automation/references/case-feedback.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/case-feedback.md
   - path: .agents/skills/playwright-automation/references/case-normalize.md
     runtime: codex
     disposition: generated
@@ -303,6 +311,10 @@ files:
     runtime: claude
     disposition: generated
     source: .ai/core/skills/case-edit/skill.yaml
+  - path: .claude/skills/case-edit/references/apply-corrections.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-edit/references/apply-corrections.md
   - path: .claude/skills/case-edit/references/archive-xmind-sync.md
     runtime: claude
     disposition: generated
@@ -351,6 +363,10 @@ files:
     runtime: claude
     disposition: generated
     source: .ai/core/skills/playwright-automation/skill.yaml
+  - path: .claude/skills/playwright-automation/references/case-feedback.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/playwright-automation/references/case-feedback.md
   - path: .claude/skills/playwright-automation/references/case-normalize.md
     runtime: claude
     disposition: generated

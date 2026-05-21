@@ -56,6 +56,9 @@ files:
   - path: .agents/skills/case-draft/SKILL.md
     runtime: codex
     source: .ai/core/skills/case-draft/skill.yaml
+  - path: .agents/skills/case-edit/references/apply-corrections.md
+    runtime: codex
+    source: .ai/core/skills/case-edit/references/apply-corrections.md
   - path: .agents/skills/case-edit/references/archive-xmind-sync.md
     runtime: codex
     source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
@@ -95,6 +98,9 @@ files:
   - path: .agents/skills/playwright-automation/SKILL.md
     runtime: codex
     source: .ai/core/skills/playwright-automation/skill.yaml
+  - path: .agents/skills/playwright-automation/references/case-feedback.md
+    runtime: codex
+    source: .ai/core/skills/playwright-automation/references/case-feedback.md
   - path: .agents/skills/playwright-automation/references/case-normalize.md
     runtime: codex
     source: .ai/core/skills/playwright-automation/references/case-normalize.md
@@ -194,6 +200,9 @@ files:
   - path: .claude/skills/case-draft/SKILL.md
     runtime: claude
     source: .ai/core/skills/case-draft/skill.yaml
+  - path: .claude/skills/case-edit/references/apply-corrections.md
+    runtime: claude
+    source: .ai/core/skills/case-edit/references/apply-corrections.md
   - path: .claude/skills/case-edit/references/archive-xmind-sync.md
     runtime: claude
     source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
@@ -233,6 +242,9 @@ files:
   - path: .claude/skills/playwright-automation/SKILL.md
     runtime: claude
     source: .ai/core/skills/playwright-automation/skill.yaml
+  - path: .claude/skills/playwright-automation/references/case-feedback.md
+    runtime: claude
+    source: .ai/core/skills/playwright-automation/references/case-feedback.md
   - path: .claude/skills/playwright-automation/references/case-normalize.md
     runtime: claude
     source: .ai/core/skills/playwright-automation/references/case-normalize.md

@@ -14,6 +14,16 @@ describe("WritePolicy P0 slice", () => {
     expect(result.reason).toBe("repos_read_only");
   });
 
+  it("blocks writes under workspace project .kata/repos", () => {
+    const result = evaluateWrite({
+      path: "workspace/demo/.kata/repos/app/src/index.ts",
+      declaredWriteScopes: ["workspace/*/features/**"],
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe("repos_read_only");
+  });
+
   it("blocks unsafe absolute paths", () => {
     const result = evaluateWrite({
       path: join(repoRoot(), "workspace/demo/features/a.md"),

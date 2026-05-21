@@ -106,7 +106,7 @@ page.on('response', async (res) => {
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
-- 不得修改 `.kata/repos/{project}/**`。
+- 不得修改 `workspace/{project}/.kata/repos/**`。
 - 不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")` 做页面等待。
 - 不得将 Screenshot 证据替代 DOM 文本证据（截图用作视觉辅助，DOM 文本用作断言依据）。
 - 不得在探查阶段修改目标页面的数据（创建、编辑、删除操作）。

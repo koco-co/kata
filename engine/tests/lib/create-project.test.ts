@@ -133,12 +133,12 @@ describe("configJsonPath", () => {
 });
 
 describe("SKELETON_SPEC shape", () => {
-  it("has 10 directories", () => {
-    expect(SKELETON_SPEC.dirs.length).toBe(10);
+  it("has 11 directories", () => {
+    expect(SKELETON_SPEC.dirs.length).toBe(11);
   });
 
-  it("has 8 gitkeep directories", () => {
-    expect(SKELETON_SPEC.gitkeep_dirs.length).toBe(8);
+  it("has 7 gitkeep directories", () => {
+    expect(SKELETON_SPEC.gitkeep_dirs.length).toBe(7);
   });
 
   it("has 3 template files", () => {
@@ -168,10 +168,10 @@ describe("resolveSkeletonPaths", () => {
     expect(r.templates.every((t) => t.dst_abs.startsWith(`${projDir}/`))).toBeTruthy();
   });
 
-  it("produces 10 dirs, 8 gitkeeps, 3 templates", () => {
+  it("produces 11 dirs, 7 gitkeeps, 3 templates", () => {
     const r = resolveSkeletonPaths("/tmp/foo");
-    expect(r.dirs.length).toBe(10);
-    expect(r.gitkeeps.length).toBe(8);
+    expect(r.dirs.length).toBe(11);
+    expect(r.gitkeeps.length).toBe(7);
     expect(r.templates.length).toBe(3);
   });
 });
@@ -207,8 +207,8 @@ describe("diffProjectSkeleton", () => {
   it("empty project: exists=false, all missing", () => {
     const diff = diffProjectSkeleton(EMPTY_PROJ, TPL);
     expect(diff.exists).toBe(false);
-    expect(diff.missing_dirs.length).toBe(10);
-    expect(diff.missing_gitkeeps.length).toBe(8);
+    expect(diff.missing_dirs.length).toBe(11);
+    expect(diff.missing_gitkeeps.length).toBe(7);
     expect(diff.missing_files.length).toBe(3);
     expect(diff.skeleton_complete).toBe(false);
   });

@@ -62,6 +62,16 @@ describe("pre-bash-guard hook (H2)", () => {
     expect(r.stderr).toContain(".kata/repos/");
   });
 
+  test("blocks git push from workspace/{p}/.kata/repos/", () => {
+    const input = JSON.stringify({
+      tool_name: "Bash",
+      tool_input: { command: "cd workspace/dataAssets/.kata/repos/x/foo && git push origin main" },
+    });
+    const r = spawnSync("bun", ["run", HOOK], { input, encoding: "utf8" });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain("source repository evidence");
+  });
+
   test("allows git status in workspace/", () => {
     const input = JSON.stringify({
       tool_name: "Bash",

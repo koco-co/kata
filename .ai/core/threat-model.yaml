@@ -9,7 +9,7 @@ assets:
     path: workspace/{project}/**
     description: 项目工作区，包含产物和知识库。
   - id: read-only-repos
-    path: .kata/repos/{project}/**
+    path: workspace/{project}/.kata/repos/**
     description: 只读源仓库，kata 工作流不得写入或提交。
   - id: runtime-projections
     path: .claude/** | .agents/** | CLAUDE.md | AGENTS.md
@@ -20,7 +20,7 @@ trust_boundaries:
   - id: workspace-isolation
     description: 每个项目的 workspace/ 隔离；跨项目访问需要显式授权。
   - id: repo-read-only
-    description: .kata/repos/{project}/ 下源仓库为只读；kata 代理和插件不得写入。
+    description: workspace/{project}/.kata/repos/ 下源仓库为只读；kata 代理和插件不得写入。
 risks:
   - id: runtime.prompt_drift
     description: 运行时提示与 .ai/core 契约不同步。

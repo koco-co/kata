@@ -41,6 +41,7 @@ function walk(dir: string, out: string[]): void {
       dir.includes("/reports/") ||
       dir.includes("/.temp/") ||
       dir.includes("/.repos/") ||
+      /\/workspace\/[^/]+\/\.kata\/repos(?:\/|$)/.test(dir) ||
       dir.includes("/.kata/repos/")
     )
       return;

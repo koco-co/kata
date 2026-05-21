@@ -14,5 +14,5 @@
     "offline PRD",
     "local PRD"
   ],
-  "must_not_write": [".kata/repos/**"]
+  "must_not_write": ["workspace/*/.kata/repos/**", ".kata/repos/**", "workspace/*/.repos/**"]
 }

@@ -53,7 +53,7 @@ function normalizeRelativePath(path: string): {
 }
 
 function isReposPath(path: string): boolean {
-  return /^(?:workspace\/[^/]+\/\.repos|\.kata\/repos)(?:\/|$)/i.test(path);
+  return /^(?:workspace\/[^/]+\/(?:\.repos|\.kata\/repos)|\.kata\/repos)(?:\/|$)/i.test(path);
 }
 
 function isProtectedContractPath(path: string): boolean {

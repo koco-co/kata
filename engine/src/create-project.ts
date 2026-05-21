@@ -302,7 +302,7 @@ export const program = createCli({
     },
     {
       name: "clone-repo",
-      description: "克隆源码仓库到 .kata/repos/{project} 目录",
+      description: "克隆源码仓库到 workspace/{project}/.kata/repos 目录",
       options: [
         { flag: "--project <name>", description: "项目名", required: true },
         { flag: "--url <git-url>", description: "Git URL", required: true },

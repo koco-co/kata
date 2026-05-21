@@ -155,13 +155,13 @@ function resolveRepo(anchor: string, ctx: ResolveContext): ResolveResult {
   }
 
   if (ctx.workspaceDir !== undefined && ctx.projectName !== undefined) {
-    const reposDir = join(ctx.workspaceDir, ctx.projectName, ".repos");
+    const reposDir = join(ctx.workspaceDir, ctx.projectName, ".kata", "repos");
     const tryAbs = join(reposDir, relPath);
     if (existsSync(tryAbs)) return { ok: true };
   }
 
   return {
     ok: false,
-    reason: `repo 未在 ctx.repos 或 workspace/.repos 中找到: ${firstSeg}`,
+    reason: `repo 未在 ctx.repos 或 workspace/{project}/.kata/repos 中找到: ${firstSeg}`,
   };
 }
