@@ -1,4 +1,4 @@
-// spec: features/2026-02-zhi-liang-gui-ze/archive.md#case=t02-monitor-new-rule-categories
+// spec: features/rule-library/archive.md#case=t02-monitor-new-rule-categories
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -6,7 +6,7 @@
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-UI-PROBE-003, SR-SELF-RUN-001
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { EXPECTED_RULE_CATEGORIES, SOURCE_REFS } from "../data/rule-library-contract";
-import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../_shared/pages/2026-02-zhi-liang-gui-ze/rule-library-page";
+import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../_shared/pages/rule-library/rule-library-page";
 
 test.use({
   storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json",

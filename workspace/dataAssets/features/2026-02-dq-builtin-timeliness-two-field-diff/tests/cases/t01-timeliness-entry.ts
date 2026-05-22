@@ -1,4 +1,4 @@
-// spec: features/2026-02-shi-xiao-xing-ji-shi-xing/archive.md#case=t01-timeliness-entry
+// spec: features/timeliness-monitor/archive.md#case=t01-timeliness-entry
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -12,7 +12,7 @@ import {
   fillMonitorObject,
   gotoMonitorRuleCreate,
   gotoMonitorRulesStep,
-} from "../../../../_shared/pages/2026-02-shi-xiao-xing-ji-shi-xing/timeliness-monitor-page";
+} from "../../../../_shared/pages/timeliness-monitor/timeliness-monitor-page";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(180000);

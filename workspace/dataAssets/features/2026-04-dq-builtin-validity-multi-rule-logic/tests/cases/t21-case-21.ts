@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-duo-gui-ze/archive.md#case=t21-case-21
+// spec: features/validity-multi-rule-logic/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -9,7 +9,7 @@ import {
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../data/test-data";
-import { gotoRuleBase } from "../../../../_shared/pages/2026-04-you-xiao-xing-duo-gui-ze/rule-editor-helpers";
+import { gotoRuleBase } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(120000);

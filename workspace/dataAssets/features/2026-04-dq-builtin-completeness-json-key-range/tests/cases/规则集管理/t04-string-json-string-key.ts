@@ -1,11 +1,11 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t04-string-json-string-key
+// spec: features/completeness-json-key-range/archive.md#case=t04-string-json-string-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t10","priority":"P1","title":"验证string字段可配置且非json/string字段不可选择key范围校验"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../_shared/helpers";
-import { addRuleToPackage } from "../../../../../_shared/pages/2026-04-you-xiao-xing-duo-gui-ze/rule-editor-helpers";
+import { addRuleToPackage } from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -17,7 +17,7 @@ import {
   SCENARIOS,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 for (const datasource of ACTIVE_DATASOURCES) {
   test.describe(`${"【内置规则丰富】完整性，json中key值范围校验 - 字段类型限制"} - ${datasource.reportName}`, () => {

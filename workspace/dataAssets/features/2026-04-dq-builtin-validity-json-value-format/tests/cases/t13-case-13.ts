@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t13-case-13
+// spec: features/validity-json-value-format/archive.md#case=t13-case-13
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -12,7 +12,7 @@ import {
   createRuleSetDraft,
   getRulePackageSection,
   saveRuleSet,
-} from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-utils";
+} from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 

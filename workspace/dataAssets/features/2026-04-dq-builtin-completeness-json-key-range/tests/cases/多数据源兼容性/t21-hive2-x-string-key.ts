@@ -1,4 +1,4 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t21-hive2-x-string-key
+// spec: features/completeness-json-key-range/archive.md#case=t21-hive2-x-string-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -14,7 +14,7 @@ import {
   createRuleSetDraft,
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/key-range-utils";
+} from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";
 const PAGE_NAME = "规则集管理";

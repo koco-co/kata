@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t44-key
+// spec: features/json-config-helper/archive.md#case=t44-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -22,7 +22,7 @@ import {
   deleteKey,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

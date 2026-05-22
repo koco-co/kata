@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t11-json-string-json
+// spec: features/validity-json-value-format/archive.md#case=t11-json-string-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -6,9 +6,9 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
-import { prepareJsonRuleSetDraft } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-suite-helpers";
-import { addRuleToPackage } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/rule-editor-base";
-import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+import { prepareJsonRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { addRuleToPackage } from "../../../../_shared/pages/validity-json-value-format/rule-editor-base";
+import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 import { FORMAT_JSON_VERIFICATION_FUNC } from "../data/test-data-15694";
 
 const MULTI_TYPE_TABLE = "quality_test_json_multi_type";

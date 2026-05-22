@@ -1,4 +1,4 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t16-key
+// spec: features/completeness-json-key-range/archive.md#case=t16-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -20,7 +20,7 @@ import {
   resolveEffectiveQualityProjectId,
   setCurrentDatasource,
 } from "../../data/test-data";
-import type { MonitorDatasourceConfig } from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/key-range-utils";
+import type { MonitorDatasourceConfig } from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,
@@ -29,12 +29,12 @@ import {
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
   saveRuleSet,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/key-range-utils";
+} from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 import {
   executeTaskFromList,
   getTableRowByTaskName,
   gotoValidationResults,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/task-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.setTimeout(600000);
 

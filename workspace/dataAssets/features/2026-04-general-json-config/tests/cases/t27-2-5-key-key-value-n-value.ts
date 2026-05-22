@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t27-2-5-key-key-value-n-value
+// spec: features/json-config-helper/archive.md#case=t27-2-5-key-key-value-n-value
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -17,7 +17,7 @@ import {
   expandRow,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function dismissWelcomeDialog(page: import("@playwright/test").Page) {
   const dialog = page.locator("dialog, .ant-modal").filter({ hasText: "欢迎使用" });

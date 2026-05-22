@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t20-key
+// spec: features/validity-json-value-format/archive.md#case=t20-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -11,11 +11,11 @@ import {
   getValidationKeyState,
   openScenarioRuleSetPackage,
   openValidationKeyDropdown,
-} from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-suite-helpers";
-import { ensureJsonFormatTask } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-task-helpers";
-import { deleteKey, gotoJsonConfigPage } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
-import { saveRuleSet } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/rule-editor-base";
-import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+} from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { ensureJsonFormatTask } from "../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
+import { deleteKey, gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { saveRuleSet } from "../../../../_shared/pages/validity-json-value-format/rule-editor-base";
+import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
 test.use({
   storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",

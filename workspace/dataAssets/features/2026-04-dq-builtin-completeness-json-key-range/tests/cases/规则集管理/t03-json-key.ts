@@ -1,4 +1,4 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t03-json-key
+// spec: features/completeness-json-key-range/archive.md#case=t03-json-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -6,8 +6,8 @@
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import {
   gotoRuleSetList,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/key-range-utils";
-import { ensureMainScenarioRuleSet, SCENARIOS } from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+import { ensureMainScenarioRuleSet, SCENARIOS } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 import {
   ensureRuleTasks,
   executeTaskFromList,
@@ -16,7 +16,7 @@ import {
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/task-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);

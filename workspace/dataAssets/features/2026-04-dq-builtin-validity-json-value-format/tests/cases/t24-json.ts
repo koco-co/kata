@@ -1,11 +1,11 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t24-json
+// spec: features/validity-json-value-format/archive.md#case=t24-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"【P1】验证规则库中「格式-json格式校验」内置规则展示信息正确"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoRuleBaseAndSearch } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-suite-helpers";
-import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+import { gotoRuleBaseAndSearch } from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
 test.use({
   storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",

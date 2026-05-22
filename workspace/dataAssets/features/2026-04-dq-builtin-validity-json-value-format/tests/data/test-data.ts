@@ -1,14 +1,14 @@
 import type { Page } from "@playwright/test";
 import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
 import { applyRuntimeCookies } from "../../../../_shared/helpers/test-setup";
-import type { DatasourceConfig as BaseDatasourceConfig } from "../../../2026-04-you-xiao-xing-duo-gui-ze/tests/data/test-data";
+import type { DatasourceConfig as BaseDatasourceConfig } from "../../../validity-multi-rule-logic/tests/data/test-data";
 import { buildSparkFixtureSql, versionJsonFixtureName } from "./json-fixture-sql";
-import { runRetriablePreconditions } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-suite-preconditions";
+import { runRetriablePreconditions } from "../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
 import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
 
 const ENV = getEnvConfig();
 
-const base = await import("../../../2026-04-you-xiao-xing-duo-gui-ze/tests/data/test-data");
+const base = await import("../../../validity-multi-rule-logic/tests/data/test-data");
 
 export type DatasourceConfig = BaseDatasourceConfig;
 export const ACTIVE_DATASOURCES = base.ACTIVE_DATASOURCES;

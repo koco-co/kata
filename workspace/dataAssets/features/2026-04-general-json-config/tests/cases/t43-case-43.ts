@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t43-case-43
+// spec: features/json-config-helper/archive.md#case=t43-case-43
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -8,7 +8,7 @@ import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function createInvalidImportXlsx(filePath: string) {
   const workbook = new ExcelJS.Workbook();
