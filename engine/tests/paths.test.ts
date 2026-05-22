@@ -47,35 +47,35 @@ describe("kata paths", () => {
 import { describe, expect, test } from "bun:test";
 import {
   enhancedMd,
+  featureDir,
   originalPrdMd,
-  prdDir,
   prdImagesDir,
   resolvedMd,
   sourceFactsJson,
 } from "../lib/paths.ts";
 
 describe("enhanced doc paths", () => {
-  test("prdDir returns {project}/features/{yyyymm}-{slug}/ (v3 redirect)", () => {
-    const p = prdDir("dataAssets", "202604", "my-prd");
+  test("featureDir returns {project}/features/{yyyymm}-{slug}/", () => {
+    const p = featureDir("dataAssets", "202604", "my-prd");
     expect(p).toMatch(/workspace\/dataAssets\/features\/202604-my-prd$/);
   });
 
-  test("enhancedMd is {prdDir}/enhanced.md", () => {
+  test("enhancedMd is {featureDir}/enhanced.md", () => {
     const p = enhancedMd("dataAssets", "202604", "my-prd");
     expect(p).toMatch(/my-prd\/enhanced\.md$/);
   });
 
-  test("sourceFactsJson is {prdDir}/source-facts.json", () => {
+  test("sourceFactsJson is {featureDir}/source-facts.json", () => {
     expect(sourceFactsJson("dataAssets", "202604", "my-prd")).toMatch(
       /my-prd\/source-facts\.json$/,
     );
   });
 
-  test("resolvedMd is {prdDir}/resolved.md", () => {
+  test("resolvedMd is {featureDir}/resolved.md", () => {
     expect(resolvedMd("dataAssets", "202604", "my-prd")).toMatch(/my-prd\/resolved\.md$/);
   });
 
-  test("prdImagesDir is {prdDir}/images/", () => {
+  test("prdImagesDir is {featureDir}/images/", () => {
     expect(prdImagesDir("dataAssets", "202604", "my-prd")).toMatch(/my-prd\/images$/);
   });
 

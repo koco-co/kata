@@ -17,7 +17,7 @@ import type {
   SourceFacts,
 } from "./enhanced-doc-types.ts";
 import { isPendingSeverity, SOURCE_FACTS_BLOB_THRESHOLD } from "./enhanced-doc-types.ts";
-import { enhancedMd, prdDir, resolvedMd, sourceFactsJson } from "./paths.ts";
+import { enhancedMd, featureDir, resolvedMd, sourceFactsJson } from "./paths.ts";
 
 // ---- Block markers ----
 const OVERVIEW_BEGIN = "<!-- overview-begin -->";
@@ -128,7 +128,7 @@ export function initDoc(
     status: "discussing",
     project,
     prd_slug: slug,
-    prd_dir: prdDir(project, yyyymm, slug),
+    prd_dir: featureDir(project, yyyymm, slug),
     pending_count: 0,
     resolved_count: 0,
     defaulted_count: 0,
