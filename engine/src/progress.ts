@@ -352,7 +352,7 @@ function runArtifactGet(opts: { project: string; session: string; key: string })
 
 export const program = createCli({
   name: "progress",
-  description: "kata 工作流统一进度引擎",
+  description: "Unified task progress engine for kata workflows",
   commands: [
     {
       name: "session-create",

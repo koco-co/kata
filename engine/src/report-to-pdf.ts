@@ -444,7 +444,7 @@ export async function convertReportToPdf(options: ConvertOptions): Promise<Conve
 
 export const program = createCli({
   name: "report-to-pdf",
-  description: "将 monocart HTML/JSON 报告转换为独立 PDF",
+  description: "Convert monocart HTML/JSON report to a self-contained PDF",
   rootAction: {
     arguments: [
       {

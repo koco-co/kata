@@ -53,7 +53,7 @@ import { program as xmindPatch } from "../xmind-patch.ts";
 
 const kata = new Command()
   .name("kata")
-  .description("kata 统一 CLI — 调度 engine/src/ 下的脚本")
+  .description("kata unified CLI — dispatch engine/src/ scripts")
   .showHelpAfterError();
 
 kata.addCommand(archiveGen);
@@ -82,7 +82,7 @@ kata.addCommand(scanReport);
 // db-cli 懒加载：仅在调用 db 命令时导入（避免 better-sqlite3 缺失导致全部命令无法启动）
 kata.addCommand(
   new Command("db")
-    .description("数据库操作")
+    .description("Database operations")
     .allowUnknownOption()
     .allowExcessArguments(true)
     .action(async (_opts: unknown, _command: Command) => {
@@ -94,7 +94,7 @@ kata.addCommand(
 // knowledge-keeper: knowledge-curate 的别名
 kata.addCommand(
   new Command("knowledge-keeper")
-    .description("知识沉淀 CLI（knowledge-curate 别名）")
+    .description("Knowledge management CLI (alias for knowledge-curate)")
     .allowUnknownOption()
     .allowExcessArguments(true)
     .action((_opts: unknown, _command: Command) => {

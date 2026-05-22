@@ -304,7 +304,7 @@ function runBuild(opts: {
 
 export const program = createCli({
   name: "writer-context-builder",
-  description: "按模块切分 PRD，为每个 writer 构建精简上下文",
+  description: "Slice PRD by module and build lean context for each writer",
   commands: [
     {
       name: "build",

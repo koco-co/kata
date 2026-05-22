@@ -278,23 +278,23 @@ function runCloneRepo(project: string, url: string, branch: string): void {
 
 export const program = createCli({
   name: "create-project",
-  description: "创建新项目或补齐残缺项目骨架",
+  description: "Create or repair a project skeleton",
   commands: [
     {
       name: "scan",
-      description: "扫描项目骨架与目标态的差异",
-      options: [{ flag: "--project <name>", description: "项目名", required: true }],
+      description: "Diff the current skeleton against target",
+      options: [{ flag: "--project <name>", description: "Project name", required: true }],
       action: (opts: { project: string }) => {
         runScan(opts.project);
       },
     },
     {
       name: "create",
-      description: "创建或补齐项目骨架",
+      description: "Create or repair a project skeleton",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--dry-run", description: "预览将要创建的内容，不落盘" },
-        { flag: "--confirmed", description: "真实执行写入" },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--dry-run", description: "Preview changes without writing" },
+        { flag: "--confirmed", description: "Actually write to disk" },
       ],
       action: (opts: { project: string; dryRun?: boolean; confirmed?: boolean }) => {
         runCreate(opts.project, opts.dryRun === true, opts.confirmed === true);
@@ -302,13 +302,13 @@ export const program = createCli({
     },
     {
       name: "clone-repo",
-      description: "克隆源码仓库到 workspace/{project}/.kata/repos 目录",
+      description: "Clone source repo into workspace/{project}/.kata/repos",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
         { flag: "--url <git-url>", description: "Git URL", required: true },
         {
           flag: "--branch <branch>",
-          description: "分支（默认 main）",
+          description: "Branch (default: main)",
           defaultValue: "",
         },
       ],

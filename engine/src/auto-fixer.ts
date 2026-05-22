@@ -253,25 +253,25 @@ function runFix(opts: { input: string; issues: string; output: string }): void {
 
 export const program = createCli({
   name: "auto-fixer",
-  description: "对 reviewer 审查发现的规则性问题执行自动修正",
+  description: "Auto-fix rule violations found by reviewer",
   commands: [
     {
       name: "fix",
-      description: "执行自动修正",
+      description: "Run auto-fix",
       options: [
         {
           flag: "--input <path>",
-          description: "writer JSON 输入路径",
+          description: "Writer JSON input path",
           required: true,
         },
         {
           flag: "--issues <path>",
-          description: "issues JSON 输入路径",
+          description: "Issues JSON input path",
           required: true,
         },
         {
           flag: "--output <path>",
-          description: "修正后 JSON 输出路径",
+          description: "Fixed JSON output path",
           required: true,
         },
       ],

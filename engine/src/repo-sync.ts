@@ -271,7 +271,7 @@ function runSyncProfile(opts: { name: string; project?: string }): void {
 
 export const program = createCli({
   name: "repo-sync",
-  description: "克隆或更新源码仓库到本地",
+  description: "Clone or update source repos locally",
   rootAction: {
     options: [
       { flag: "--url <git-url>", description: "Git repository URL" },
