@@ -20,6 +20,7 @@ const APPROVED_PARSER_MODULE_PATHS = new Set([
   "engine/src/ai-core/yaml-contract.ts",
   "engine/src/ai-core/yaml-helpers.ts",
   "engine/src/ai-core/product-skill-contract.ts",
+  "engine/src/ai-core/product-skill-contract/parser.ts",
   "engine/src/ai-core/plugin-manifest-contract.ts",
 ]);
 const TOP_LEVEL_BLOCK_NAME = "<top-level>";
@@ -27,6 +28,8 @@ const TRANSITIONAL_AD_HOC_YAML_READER_FUNCTIONS = new Map<string, ReadonlySet<st
   // Transitional exact-path and exact-function exceptions for committed legacy readers only.
   // New ad hoc YAML readers in these files must be explicitly migrated or listed here by name.
   ["engine/src/ai-core/evals.ts", new Set(["normalizeGoldenRows", "readSkillRouting"])],
+  ["engine/src/ai-core/evals/golden-parser.ts", new Set(["normalizeGoldenRows"])],
+  ["engine/src/ai-core/evals/fixtures.ts", new Set(["readSkillRouting"])],
   [
     "engine/src/ai-core/behavioral-evals.ts",
     new Set([

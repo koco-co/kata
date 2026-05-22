@@ -1,5 +1,5 @@
+import { requiredTopLevel } from "./contract-schema-utils.ts";
 import type { AiCoreIssue } from "./types.ts";
-import { contractIssue, isPlainRecord, parseTopLevelFields, rejectUnknownFields, requiredTopLevel, topLevelYamlIssues } from "./contract-schema-utils.ts";
 
 export type ContractSchemaSummary = {
   checkedFiles: string[];
@@ -38,7 +38,11 @@ export const DOC_BLOCK_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 export const SKILL_ORCHESTRATION_FIELDS = ["plugin_calls", "agent_dispatch", "workflow_steps"];
 export const DOC_BLOCK_SOURCES = new Set([".ai/core", ".ai/core/commands", ".ai/core/runtimes"]);
 export const DOC_BLOCK_TARGETS = new Set(["README.md", "README-EN.md", "CHANGELOG.md"]);
-export const SUPPORTED_DOC_BLOCK_IDS = new Set(["command-index", "runtime-support", "release-summary"]);
+export const SUPPORTED_DOC_BLOCK_IDS = new Set([
+  "command-index",
+  "runtime-support",
+  "release-summary",
+]);
 export const SOURCE_REF_TYPES = new Set([
   "lanhu_url",
   "axure_url",
@@ -558,28 +562,38 @@ export const historicalContextPackSpec: ContractFieldSpec = {
   },
 };
 
-export const iterativeCaseDraftContractRoutes: Array<{ pattern: RegExp; spec: ContractFieldSpec }> = [
-  { pattern: /^\.ai\/core\/contracts\/requirement-atom\/[^/]+\.yaml$/, spec: requirementAtomSpec },
-  {
-    pattern: /^\.ai\/core\/contracts\/confirmation-question\/[^/]+\.yaml$/,
-    spec: confirmationQuestionSpec,
-  },
-  {
-    pattern: /^\.ai\/core\/contracts\/confirmation-package\/[^/]+\.yaml$/,
-    spec: confirmationPackageSpec,
-  },
-  { pattern: /^\.ai\/core\/contracts\/coverage-matrix\/[^/]+\.yaml$/, spec: coverageMatrixSpec },
-  { pattern: /^\.ai\/core\/contracts\/case-evidence-map\/[^/]+\.yaml$/, spec: caseEvidenceMapSpec },
-  {
-    pattern: /^\.ai\/core\/contracts\/automation-intent\/[^/]+\.yaml$/,
-    spec: automationIntentSpec,
-  },
-  { pattern: /^\.ai\/core\/contracts\/lanhu-snapshot\/[^/]+\.yaml$/, spec: lanhuAxureSnapshotSpec },
-  {
-    pattern: /^\.ai\/core\/contracts\/historical-context\/[^/]+\.yaml$/,
-    spec: historicalContextPackSpec,
-  },
-];
+export const iterativeCaseDraftContractRoutes: Array<{ pattern: RegExp; spec: ContractFieldSpec }> =
+  [
+    {
+      pattern: /^\.ai\/core\/contracts\/requirement-atom\/[^/]+\.yaml$/,
+      spec: requirementAtomSpec,
+    },
+    {
+      pattern: /^\.ai\/core\/contracts\/confirmation-question\/[^/]+\.yaml$/,
+      spec: confirmationQuestionSpec,
+    },
+    {
+      pattern: /^\.ai\/core\/contracts\/confirmation-package\/[^/]+\.yaml$/,
+      spec: confirmationPackageSpec,
+    },
+    { pattern: /^\.ai\/core\/contracts\/coverage-matrix\/[^/]+\.yaml$/, spec: coverageMatrixSpec },
+    {
+      pattern: /^\.ai\/core\/contracts\/case-evidence-map\/[^/]+\.yaml$/,
+      spec: caseEvidenceMapSpec,
+    },
+    {
+      pattern: /^\.ai\/core\/contracts\/automation-intent\/[^/]+\.yaml$/,
+      spec: automationIntentSpec,
+    },
+    {
+      pattern: /^\.ai\/core\/contracts\/lanhu-snapshot\/[^/]+\.yaml$/,
+      spec: lanhuAxureSnapshotSpec,
+    },
+    {
+      pattern: /^\.ai\/core\/contracts\/historical-context\/[^/]+\.yaml$/,
+      spec: historicalContextPackSpec,
+    },
+  ];
 export const runtimeContractFields = new Set([
   "runtime",
   "projection_root",
