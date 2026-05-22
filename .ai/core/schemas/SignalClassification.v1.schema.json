@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SignalClassification@1",
+  "type": "object",
+  "required": ["schema_ref"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_ref": { "type": "string", "const": "SignalClassification@1" }
+  }
+}
