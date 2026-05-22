@@ -7,6 +7,8 @@
 import { dispatch, type JsonRpcRequest } from "./dispatch.ts";
 import { TOOLS } from "./tools.ts";
 
+const PARSE_ERROR = -32700;
+
 function log(...args: unknown[]): void {
   process.stderr.write(`[kata-mcp] ${args.join(" ")}\n`);
 }
@@ -19,13 +21,26 @@ async function handleLine(line: string): Promise<void> {
   const trimmed = line.trim();
   if (trimmed === "") return;
 
+  let request: JsonRpcRequest;
   try {
-    const response = await dispatch(JSON.parse(trimmed) as JsonRpcRequest);
+    request = JSON.parse(trimmed) as JsonRpcRequest;
+  } catch (error) {
+    log("parse error:", error instanceof Error ? error.message : String(error));
+    send({
+      jsonrpc: "2.0",
+      id: null,
+      error: { code: PARSE_ERROR, message: "Parse error" },
+    });
+    return;
+  }
+
+  try {
+    const response = await dispatch(request);
     if (response !== null) {
       send(response as unknown as Record<string, unknown>);
     }
   } catch (error) {
-    log("parse/handle error:", error instanceof Error ? error.message : String(error));
+    log("handle error:", error instanceof Error ? error.message : String(error));
   }
 }
 

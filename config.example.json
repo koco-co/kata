@@ -1,4 +1,5 @@
 {
+  "_comment": "Copy this file to config.json and replace placeholders. Paths that start with .repos/ resolve under workspace/<project>/.kata/repos/ for project-scoped repo profiles.",
   "projects": {
     "dataAssets": {
       "repo_profiles": {
@@ -7,6 +8,10 @@
             {
               "path": ".repos/group/repo-name",
               "branch": "release_x.x.x"
+            },
+            {
+              "path": ".repos/another-group/another-repo",
+              "branch": "main"
             }
           ]
         }
