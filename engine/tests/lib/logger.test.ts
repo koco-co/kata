@@ -57,4 +57,31 @@ describe("logger", () => {
     expect(getLogLevel()).toBe("debug");
     setLogLevel("info");
   });
+
+  it("writes messages at or above the active level to stderr", async () => {
+    const originalWrite = process.stderr.write;
+    const { createLogger, setLogLevel } = await import("../../lib/logger.ts");
+    let stderr = "";
+    process.stderr.write = ((chunk: string | Uint8Array) => {
+      stderr += String(chunk);
+      return true;
+    }) as typeof process.stderr.write;
+
+    try {
+      setLogLevel("warn");
+      const log = createLogger("unit");
+      log.debug("hidden debug");
+      log.info("hidden info");
+      log.warn("visible warn");
+      log.error("visible error");
+    } finally {
+      setLogLevel("info");
+      process.stderr.write = originalWrite;
+    }
+
+    expect(stderr).not.toContain("hidden debug");
+    expect(stderr).not.toContain("hidden info");
+    expect(stderr).toContain("[unit] WARN : visible warn\n");
+    expect(stderr).toContain("[unit] ERROR: visible error\n");
+  });
 });

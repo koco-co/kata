@@ -1,4 +1,4 @@
-import type { AiCoreIssue, AiCoreResult } from "../../ai-core/types.ts";
+import type { AiCoreResult } from "../../ai-core/types.ts";
 import type { CapabilityRequired } from "./capability-spec.ts";
 import { checkFsAccess, checkNetworkAccess, parseCapabilityRequired } from "./capability-spec.ts";
 import {
@@ -11,7 +11,7 @@ export type SandboxRunInput = {
   pluginId: string;
   capabilityRequired: CapabilityRequired;
   secretSources?: SecretSourceEntry[];
-  pluginFn: () => Promise<unknown>;
+  pluginFn: (auditor: SandboxAuditor) => Promise<unknown>;
 };
 
 export type SandboxAuditEntry = {
@@ -34,17 +34,6 @@ export type SandboxAuditor = {
   checkFsWrite: (path: string) => CapabilityCheckResult;
   resolveSecret: (ref: string) => string | undefined;
 };
-
-function _capabilityCheckResult(
-  allowed: boolean,
-  code: string,
-  message: string,
-): { allowed: boolean; violations: AiCoreIssue[] } {
-  return {
-    allowed,
-    violations: allowed ? [] : [{ code, severity: "error", message, path: "sandbox" }],
-  };
-}
 
 export function createSandboxAuditor(
   cap: CapabilityRequired,
@@ -103,8 +92,7 @@ export async function runInSandbox(
   }
 
   try {
-    // Run plugin with sandbox auditor in context
-    const output = await input.pluginFn();
+    const output = await input.pluginFn(auditor);
 
     // Check audit for violations
     const violations = auditor.audit.filter((e) => !e.allowed);

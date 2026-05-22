@@ -132,9 +132,11 @@ ${params.subjectOutput}
     }
 
     const parsed = parseJudgeOutput(content);
-    if (!parsed.ok) return { ok: false, issues: parsed.issues };
+    if (!parsed.ok || parsed.value === undefined) {
+      return { ok: false, issues: parsed.issues };
+    }
 
-    const { score, rationale } = parsed.value!;
+    const { score, rationale } = parsed.value;
     return {
       ok: true,
       value: {
@@ -176,7 +178,20 @@ export async function runJudgeWithSamples(params: {
       config: params.config,
     });
     if (!result.ok) return result;
-    results.push(result.value!);
+    if (result.value === undefined) {
+      return {
+        ok: false,
+        issues: [
+          {
+            code: "judge.invalid_output",
+            severity: "error",
+            message: "Judge returned no result value.",
+            path: "judge",
+          },
+        ],
+      };
+    }
+    results.push(result.value);
   }
 
   if (params.aggregation === "average") {
@@ -259,6 +274,9 @@ function parseJudgeOutput(content: string): AiCoreResult<JudgeOutput> {
     typeof parsed !== "object" ||
     parsed === null ||
     typeof (parsed as Record<string, unknown>).score !== "number" ||
+    !Number.isFinite((parsed as Record<string, unknown>).score) ||
+    ((parsed as Record<string, unknown>).score as number) < 0 ||
+    ((parsed as Record<string, unknown>).score as number) > 1 ||
     typeof (parsed as Record<string, unknown>).rationale !== "string"
   ) {
     return {
