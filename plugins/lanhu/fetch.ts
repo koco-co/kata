@@ -11,7 +11,7 @@
  *   bun run plugins/lanhu/fetch.ts --help
  */
 
-import { execSync } from "node:child_process";
+import { type SpawnSyncOptionsWithStringEncoding, spawnSync } from "node:child_process";
 import {
   copyFileSync,
   createWriteStream,
@@ -115,6 +115,38 @@ interface RunOptions {
   project?: string;
   baseDir?: string;
   pagesFilter?: string;
+}
+
+interface CommandFailure {
+  stderr?: string;
+  message?: string;
+}
+
+function runCommand(
+  command: string,
+  args: string[],
+  options: SpawnSyncOptionsWithStringEncoding,
+): string {
+  const result = spawnSync(command, args, {
+    ...options,
+    shell: false,
+  });
+
+  if (result.error) {
+    throw {
+      stderr: result.stderr,
+      message: result.error.message,
+    } satisfies CommandFailure;
+  }
+
+  if (result.status !== 0) {
+    throw {
+      stderr: result.stderr,
+      message: `${command} exited with status ${result.status ?? "unknown"}`,
+    } satisfies CommandFailure;
+  }
+
+  return result.stdout;
 }
 
 // ─── URL Parsing ─────────────────────────────────────────────────────────────
@@ -412,7 +444,8 @@ function ensureLanhuMcpReady(projectRoot: string): void {
 
   const setupScript = join(projectRoot, "plugins/lanhu/mcp-bridge/setup.sh");
   try {
-    execSync(`bash "${setupScript}"`, {
+    runCommand("bash", [setupScript], {
+      encoding: "utf8",
       stdio: "pipe",
       cwd: projectRoot,
     });
@@ -476,24 +509,18 @@ function tryCallBridgeListPages(
 ): BridgeListOutput | BridgeCallError {
   const bridgeScript = resolve(projectRoot, "plugins/lanhu/mcp-bridge/bridge.py");
   const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
-  const cmd = [
-    `"uv"`,
-    `"run"`,
-    `"python"`,
-    `"${bridgeScript}"`,
-    `"--url"`,
-    `"${rawUrl}"`,
-    `"--list-pages"`,
-  ].join(" ");
-
   try {
-    const stdout = execSync(cmd, {
-      cwd: mcpDir,
-      env: buildLanhuBridgeEnv(cookie),
-      encoding: "utf8",
-      stdio: ["pipe", "pipe", "pipe"],
-      timeout: 60_000,
-    });
+    const stdout = runCommand(
+      "uv",
+      ["run", "python", bridgeScript, "--url", rawUrl, "--list-pages"],
+      {
+        cwd: mcpDir,
+        env: buildLanhuBridgeEnv(cookie),
+        encoding: "utf8",
+        stdio: ["pipe", "pipe", "pipe"],
+        timeout: 60_000,
+      },
+    );
 
     return JSON.parse(stdout) as BridgeListOutput;
   } catch (err) {
@@ -555,18 +582,16 @@ function tryCallBridge(
   const bridgeScript = resolve(projectRoot, "plugins/lanhu/mcp-bridge/bridge.py");
   const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
 
-  const args = [`uv`, `run`, `python`, bridgeScript, `--url`, rawUrl];
+  const args = ["run", "python", bridgeScript, "--url", rawUrl];
   if (pageId) {
-    args.push(`--page-id`, pageId);
+    args.push("--page-id", pageId);
   }
   if (pageNames) {
-    args.push(`--page-names`, pageNames);
+    args.push("--page-names", pageNames);
   }
 
-  const cmd = args.map((a) => `"${a}"`).join(" ");
-
   try {
-    const stdout = execSync(cmd, {
+    const stdout = runCommand("uv", args, {
       cwd: mcpDir,
       env: buildLanhuBridgeEnv(cookie),
       encoding: "utf8",
@@ -587,20 +612,10 @@ function refreshCookie(projectRoot: string, targetUrl: string): string | null {
   const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
   const envPath = resolve(projectRoot, ".env");
 
-  const args = [
-    `uv`,
-    `run`,
-    `python`,
-    refreshScript,
-    `--target-url`,
-    targetUrl,
-    `--update-env`,
-    envPath,
-  ];
-  const cmd = args.map((a) => `"${a}"`).join(" ");
+  const args = ["run", "python", refreshScript, "--target-url", targetUrl, "--update-env", envPath];
 
   try {
-    const newCookie = execSync(cmd, {
+    const newCookie = runCommand("uv", args, {
       cwd: mcpDir,
       encoding: "utf8",
       stdio: ["inherit", "pipe", "inherit"],

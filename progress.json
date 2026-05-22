@@ -4,12 +4,12 @@
     "project": "kata",
     "description": "Kata 项目全面优化进度追踪文件。这是唯一真相源（source of truth）；不同 AI 运行时的可视化工具只是镜像。",
     "created": "2026-05-21T18:00:00+08:00",
-    "updated": "2026-05-22T11:00:00+08:00",
+    "updated": "2026-05-22T12:01:26+08:00",
     "total_tasks": 34,
-    "completed_tasks": 17,
+    "completed_tasks": 18,
     "in_progress_tasks": 0,
     "planned_tasks": 0,
-    "pending_tasks": 17,
+    "pending_tasks": 16,
     "blocked_tasks": 0,
     "reading_guide": {
       "_note": "=== AI 读取本文件的标准方式。每次新窗口第一件事就是执行这些命令 ===",
@@ -168,10 +168,10 @@
     "P4": {
       "name": "代码质量与安全",
       "description": "超大文件拆分、类型安全修复、死代码清理、模块系统统一、CLI 输出规范统一、命令注入修复、凭据清理。",
-      "status": "pending",
+      "status": "in_progress",
       "order": 4,
       "task_count": 8,
-      "started": null,
+      "started": "2026-05-22T11:47:49+08:00",
       "completed": null
     },
     "P5": {
@@ -1143,7 +1143,7 @@
       "title": "安全修复：命令注入与凭据管理",
       "description": "修复 4 处 execSync 字符串拼接命令注入：execute-table.ts（1 处）、fetch.ts（3 处）改用 execFileSync/spawnSync + 参数数组 + shell:false。清理 .env.local 中的生产 JWT。修复 Zentao 插件 TOKEN vs PASSWORD 命名不一致。审查 .env 中的内部 GitLab URL。添加 .env.local 到 .gitignore 审计。",
       "category": "security",
-      "status": "pending",
+      "status": "completed",
       "priority": "critical",
       "depends_on": [],
       "blocks": [],
@@ -1153,23 +1153,45 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
+      "worktree": "/Users/poco/Projects/kata/.worktrees/p4-06-security-command-creds",
+      "branch": "codex-p4-06-security-command-creds",
       "assigned_agent": null,
       "e2e_verification": "bun test 全量通过；grep 确认无 execSync 字符串拼接；.env.local 不含 JWT",
-      "resolution": null,
+      "resolution": "Replaced scoped execSync shell string command construction with execFileSync/spawnSync argument arrays and shell:false in execute-table.ts and lanhu fetch bridge calls. Aligned Zentao AI Core plugin secret_refs with runtime env names. Added a P4-06 regression test. Confirmed .env.local is ignored and removed JWT-like values from local /Users/poco/Projects/kata/.env.local without printing secrets. Reviewed /Users/poco/Projects/kata/.env: KATA_SOURCE_REPOS still contains an internal GitLab URL and KATA_LANHU_COOKIE remains a JWT-like local credential; both are ignored local env values, not tracked changes.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T12:01:26+08:00",
+      "completed": "2026-05-22T12:01:26+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；grep 确认无 execSync 字符串拼接；.env.local 不含 JWT",
-        "commands": [],
-        "results": [],
-        "artifacts": [],
+        "commands": [
+          "bun test",
+          "rg execSync in scoped command files",
+          "secret-safe JWT/GitLab audit for root .env.local and .env",
+          "rg .env.local in .gitignore",
+          "bun engine/bin/kata ai-core projection render",
+          "bun run type-check",
+          "biome check touched files"
+        ],
+        "results": [
+          "exit_code=0; 1713 pass, 0 fail, 1 skip; 5449 expect() calls; 1714 tests across 172 files",
+          "exit_code=1; no execSync( matches in plugins/lanhu/fetch.ts or tools/dtstack-sdk/src/adapters/execute-table.ts",
+          "exit_code=0; .env.local no jwt-like or gitlab-url values detected; .env has gitlab-url:KATA_SOURCE_REPOS and jwt-like:KATA_LANHU_COOKIE",
+          "exit_code=0; .gitignore line 4 contains .env.local",
+          "exit_code=0; ai-core projection render passed",
+          "exit_code=0; tsc --noEmit passed",
+          "exit_code=0; checked 4 touched files, no fixes applied"
+        ],
+        "artifacts": [
+          "engine/tests/security-command-hardening.test.ts",
+          "plugins/lanhu/fetch.ts",
+          "tools/dtstack-sdk/src/adapters/execute-table.ts",
+          ".ai/core/plugins/zentao/plugin.json",
+          "/Users/poco/Projects/kata/.env.local"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
-      "commit_message": null,
+      "commit_message": "fix: 🔒 harden command execution and zentao secrets",
       "merge_commit_sha": null
     },
     "P4-07": {
