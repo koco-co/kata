@@ -1,5 +1,6 @@
 export const SR_2099_01_AI_001 = "SR-2099-01-AI-001";
 export const SR_2099_01_AI_002 = "SR-2099-01-AI-002";
+export const SR_2099_01_AI_003 = "SR-2099-01-AI-003";
 
 export const ASSETS_INVENTORY_SCOPE = {
   featureId: "2099-01-lt-dq-main-flow",
@@ -21,4 +22,13 @@ export const ASSETS_INVENTORY_CHART_SCOPE = {
   ],
   route: "/assetsStatistics",
   projectId: 92,
+} as const;
+
+export const ASSETS_INVENTORY_TREND_SCOPE = {
+  featureId: "2099-01-lt-dq-main-flow",
+  archivePath: "workspace/dataAssets/features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md",
+  titles: ["验证元数据变化趋势图数据正确", "验证资产查询趋势图数据正确"],
+  route: "/assetsStatistics",
+  projectId: 92,
+  liveUiSearchMetricLabel: "按登录人次",
 } as const;

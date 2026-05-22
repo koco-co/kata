@@ -13,3 +13,4 @@ import "../cases/t06-model-build-table-shell";
 import "../cases/t07-data-quality-shell";
 import "../cases/t08-data-security-shell";
 import "../cases/t09-platform-management-shell";
+import "../cases/t10-assets-inventory-trends";
