@@ -202,12 +202,7 @@ function workflowHasFixtureReference(workflow: ParsedWorkflow): boolean {
 }
 
 function classifyMaturity(workflow: ParsedWorkflow): MaturityLevel {
-  const {
-    steps,
-    hasFailurePolicy: hasFailurePolicyField,
-    hasGates: hasGatesField,
-    rateCardRef,
-  } = workflow;
+  const { steps, hasFailurePolicy: hasFailurePolicyField, hasGates: hasGatesField } = workflow;
   const stepCount = steps.length;
   const hasOutputSchemas = steps.some((step) => step.outputSchema !== undefined);
   const hasFixtureReference = workflowHasFixtureReference(workflow);

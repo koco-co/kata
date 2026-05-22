@@ -2,6 +2,9 @@ import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import * as ts from "typescript";
+import { repoRoot } from "../lib/paths.ts";
+
+const ROOT = repoRoot();
 
 const TARGET_ENTRY_FILES = [
   "engine/src/history-convert.ts",
@@ -26,8 +29,9 @@ const TARGET_SPLIT_DIRS = [
 ];
 
 function collectTsFiles(dir: string): string[] {
+  const absoluteDir = path.join(ROOT, dir);
   try {
-    const stat = statSync(dir);
+    const stat = statSync(absoluteDir);
     if (!stat.isDirectory()) {
       return [];
     }
@@ -36,10 +40,10 @@ function collectTsFiles(dir: string): string[] {
   }
 
   const files: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const entryPath = path.join(dir, entry.name);
+  for (const entry of readdirSync(absoluteDir, { withFileTypes: true })) {
+    const entryPath = path.join(absoluteDir, entry.name);
     if (entry.isDirectory()) {
-      files.push(...collectTsFiles(entryPath));
+      files.push(...collectTsFiles(path.relative(ROOT, entryPath)));
     } else if (entry.isFile() && entry.name.endsWith(".ts")) {
       files.push(entryPath);
     }
@@ -49,14 +53,14 @@ function collectTsFiles(dir: string): string[] {
 
 test("P4-01 split source files stay within size budgets", () => {
   const files = [
-    ...TARGET_ENTRY_FILES,
+    ...TARGET_ENTRY_FILES.map((filePath) => path.join(ROOT, filePath)),
     ...TARGET_SPLIT_DIRS.flatMap((dir) => collectTsFiles(dir)),
   ].sort();
   const uniqueFiles = [...new Set(files)];
 
   const oversizedFiles = uniqueFiles.flatMap((filePath) => {
     const lines = readFileSync(filePath, "utf8").split(/\r?\n/).length;
-    return lines > 800 ? [`${filePath} ${lines}`] : [];
+    return lines > 800 ? [`${path.relative(ROOT, filePath)} ${lines}`] : [];
   });
 
   expect(oversizedFiles).toEqual([]);
@@ -78,7 +82,7 @@ function functionName(node: ts.Node, sourceFile: ts.SourceFile): string {
 
 test("P4-01 split source functions stay within readability budgets", () => {
   const files = [
-    ...TARGET_ENTRY_FILES,
+    ...TARGET_ENTRY_FILES.map((filePath) => path.join(ROOT, filePath)),
     ...TARGET_SPLIT_DIRS.flatMap((dir) => collectTsFiles(dir)),
   ].sort();
   const uniqueFiles = [...new Set(files)];
@@ -102,7 +106,10 @@ test("P4-01 split source functions stay within readability budgets", () => {
         const lineCount = end - start + 1;
         if (lineCount > 50) {
           oversizedFunctions.push(
-            `${filePath}:${start}-${end} ${functionName(node, sourceFile)} ${lineCount}`,
+            `${path.relative(ROOT, filePath)}:${start}-${end} ${functionName(
+              node,
+              sourceFile,
+            )} ${lineCount}`,
           );
         }
       }

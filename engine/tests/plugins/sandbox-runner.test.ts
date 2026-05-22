@@ -206,6 +206,43 @@ describe("sandbox runner", () => {
       expect((result.value?.output as Record<string, unknown>).data).toBe("success");
     });
 
+    it("passes the auditor to plugins and returns compliant audit entries", async () => {
+      const result = await runInSandbox({
+        pluginId: "audited-plugin@1",
+        capabilityRequired: strictCap,
+        pluginFn: async (auditor) => {
+          const net = auditor.checkNet("https://lanhu.com/api/data");
+          const fsRead = auditor.checkFsRead(".ai/core/plugins/fixtures/test.md");
+          return { net: net.allowed, fsRead: fsRead.allowed };
+        },
+      });
+
+      expect(result.ok).toBe(true);
+      expect(result.value?.audit).toEqual([
+        { kind: "net_access", target: "https://lanhu.com/api/data", allowed: true },
+        { kind: "fs_read", target: ".ai/core/plugins/fixtures/test.md", allowed: true },
+      ]);
+    });
+
+    it("rejects plugin runs with audited sandbox violations", async () => {
+      const result = await runInSandbox({
+        pluginId: "violating-plugin@1",
+        capabilityRequired: strictCap,
+        pluginFn: async (auditor) => {
+          auditor.checkNet("https://evil.com/steal");
+          auditor.checkFsWrite("/etc/passwd");
+          return { ok: true };
+        },
+      });
+
+      expect(result.ok).toBe(false);
+      expect(result.issues.map((issue) => issue.code)).toEqual([
+        "sandbox.net_access_violation",
+        "sandbox.fs_write_violation",
+      ]);
+      expect(result.issues[0].message).toContain("https://evil.com/steal");
+    });
+
     it("rejects plugin that throws an error", async () => {
       const result = await runInSandbox({
         pluginId: "bad-plugin@1",

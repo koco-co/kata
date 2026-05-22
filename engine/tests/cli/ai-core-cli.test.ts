@@ -25,6 +25,31 @@ const INVALID_PARSER_BOUNDARY_PATH = resolve(
 );
 
 describe("kata ai-core", () => {
+  it("buildAiCoreCommand registers the expected top-level subcommands", async () => {
+    const { buildAiCoreCommand } = await import("../../src/cli/ai-core.ts");
+
+    const commandNames = buildAiCoreCommand()
+      .commands.map((command) => command.name())
+      .sort();
+
+    expect(commandNames).toEqual([
+      "baseline",
+      "case-draft",
+      "context",
+      "docs",
+      "evals",
+      "gate",
+      "import-records",
+      "lint",
+      "parser",
+      "preflight",
+      "projection",
+      "schemas-compat-check",
+      "vendor",
+      "workflow-maturity",
+    ]);
+  });
+
   it("synthesizes a gate issue when a check fails without issues", async () => {
     const { gateResultIssues } = await import("../../src/cli/ai-core.ts");
 
