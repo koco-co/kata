@@ -1,6 +1,6 @@
 {
   "schema": "FeatureManifest@2",
-  "feature_id": "2099-01-lt-dq-smoke",
+  "feature_id": "2099-01-lt-dq-main-flow",
   "case_drafting": {
     "status": "completed",
     "archive_path": "岚图主流程用例整理.md",
@@ -17,7 +17,7 @@
   "files": {
     "archive": "岚图主流程用例整理.md",
     "xmind": "岚图主流程用例整理.xmind",
-    "tests_root": null,
+    "tests_root": "tests",
     "latest_results": null
   }
 }

@@ -56,7 +56,7 @@ export const METADATA_SCOPE = {
   projectId: 92,
   projectName: "pw_test",
   baseUrl: "http://shuzhan63-test-ltqc.k8s.dtstack.cn/dataAssets",
-  storageState: "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
+  storageState: "workspace/dataAssets/.kata/auth/session.json",
   searchTable: "test_table",
   searchChinese: "测试表",
   searchDatabase: "test_database",

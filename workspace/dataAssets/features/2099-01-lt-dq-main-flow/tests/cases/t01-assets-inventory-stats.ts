@@ -1,20 +1,21 @@
-// spec: features/2099-01-lt-dq-smoke/岚图主流程用例整理.md#L34-L48
-// intent: SR-2099-01-AI-001
-// probe: results/preflight-260519-01/playwright/preflight/probe4-discoveries.json
-// page: _shared/pages/2099-01-lt-dq-smoke/assets-inventory-page.ts
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L34-L48
+// intent: SR-INTENT-2099-01-AI-001
+// probe: SR-UI-PROBE-20260522-ASSETS-001
+// page: _shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page.ts
+// generated_at: 2026-05-22T03:01:13Z
 // META: {"id":"AI-001","priority":"P1","title":"验证已接入数据源统计数据正确"}
 // SourceRefs: SR-2099-01-AI-001, SR-ENV-PREFLIGHT-001, SR-UI-PROBE-001, SR-SELF-RUN-001
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import {
   expectAssetsInventoryShell,
   gotoAssetsInventory,
-} from "../../../../_shared/pages/2099-01-lt-dq-smoke/assets-inventory-page";
+} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
 import { ASSETS_INVENTORY_SCOPE, SR_2099_01_AI_001 } from "../data/assets-inventory-contract";
 
 test.use({
   storageState:
     process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
+    "workspace/dataAssets/.kata/auth/session.json",
 });
 test.setTimeout(90000);
 
