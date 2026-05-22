@@ -22,12 +22,51 @@ export interface ExecuteTableOptions {
   env?: string;
   /** 数据库名，默认 pw_test */
   database?: string;
-  /** 质量项目 ID（X-Valid-Project-ID / pid），默认读取 DATAASSETS_PROJECT_ID 环境变量 */
+  /** 质量项目 ID（X-Valid-Project-ID / pid），默认读取 KATA_DATAASSETS_PROJECT_ID 环境变量 */
   projectId?: number;
-  /** 数据源 ID（元数据同步用），读取 DATAASSETS_DATASOURCE_ID 环境变量 */
+  /** 数据源 ID（元数据同步用），默认读取 KATA_DATAASSETS_DATASOURCE_ID 环境变量 */
   dataSourceId?: string;
   /** 数据源类型编号，默认 45（SparkThrift） */
   dataSourceType?: number;
+}
+
+interface ExecuteTableDefaults {
+  readonly project: string;
+  readonly env: string;
+  readonly database: string;
+  readonly projectId: number;
+  readonly dataSourceId: string;
+  readonly dataSourceType: number;
+}
+
+function numericEnv(value: string | undefined): number | undefined {
+  if (value === undefined || value.trim() === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+export function resolveExecuteTableDefaults(
+  options: Pick<
+    Partial<ExecuteTableOptions>,
+    "project" | "env" | "database" | "projectId" | "dataSourceId" | "dataSourceType"
+  >,
+): ExecuteTableDefaults {
+  return {
+    project: options.project ?? "pw_test",
+    env: options.env ?? "ltqc",
+    database: options.database ?? "pw_test",
+    projectId:
+      options.projectId ??
+      numericEnv(process.env.KATA_DATAASSETS_PROJECT_ID) ??
+      numericEnv(process.env.DATAASSETS_PROJECT_ID) ??
+      92,
+    dataSourceId:
+      options.dataSourceId ??
+      process.env.KATA_DATAASSETS_DATASOURCE_ID ??
+      process.env.DATAASSETS_DATASOURCE_ID ??
+      "547",
+    dataSourceType: options.dataSourceType ?? 45,
+  };
 }
 
 /**
@@ -53,12 +92,8 @@ export interface ExecuteTableOptions {
  */
 export async function executeTableSQL(page: Page, options: ExecuteTableOptions): Promise<void> {
   const { sql, tableName, datasource } = options;
-  const project = options.project ?? "pw_test";
-  const env = options.env ?? "ltqc";
-  const database = options.database ?? "pw_test";
-  const projectId = options.projectId ?? (Number(process.env.DATAASSETS_PROJECT_ID) || 92);
-  const dataSourceId = options.dataSourceId ?? process.env.DATAASSETS_DATASOURCE_ID ?? "547";
-  const dataSourceType = options.dataSourceType ?? 45;
+  const { project, env, database, projectId, dataSourceId, dataSourceType } =
+    resolveExecuteTableDefaults(options);
 
   // 1. 从浏览器获取最新 cookie（比 .env 里的更新鲜）
   const browserCookies = await page.context().cookies();
