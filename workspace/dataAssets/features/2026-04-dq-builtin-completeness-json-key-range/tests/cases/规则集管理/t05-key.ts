@@ -1,11 +1,11 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t05-key
+// spec: features/completeness-json-key-range/archive.md#case=t05-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t12","priority":"P1","title":"验证key范围校验表单必填提示"}
 import { test } from "../../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../_shared/helpers";
-import { addRuleToPackage } from "../../../../../_shared/pages/2026-04-you-xiao-xing-duo-gui-ze/rule-editor-helpers";
+import { addRuleToPackage } from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -18,7 +18,7 @@ import {
   selectRuleFunction,
   setVerificationContent,
   startRuleSetDraft,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 for (const datasource of ACTIVE_DATASOURCES) {
   test.describe(`${"【内置规则丰富】完整性，json中key值范围校验 - 表单校验"} - ${datasource.reportName}`, () => {

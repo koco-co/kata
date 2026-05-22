@@ -1,4 +1,4 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t29-key
+// spec: features/completeness-json-key-range/archive.md#case=t29-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts

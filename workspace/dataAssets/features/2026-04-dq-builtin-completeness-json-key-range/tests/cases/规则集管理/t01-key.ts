@@ -1,11 +1,11 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t01-key
+// spec: features/completeness-json-key-range/archive.md#case=t01-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P0","title":"验证统计函数选择key范围校验后字段选择变为单选"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../_shared/helpers";
-import { addRuleToPackage } from "../../../../../_shared/pages/2026-04-you-xiao-xing-duo-gui-ze/rule-editor-helpers";
+import { addRuleToPackage } from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -18,7 +18,7 @@ import {
   selectFieldValues,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);

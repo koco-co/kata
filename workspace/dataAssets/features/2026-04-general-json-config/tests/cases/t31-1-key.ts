@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t31-1-key
+// spec: features/json-config-helper/archive.md#case=t31-1-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -15,7 +15,7 @@ import {
   ensureRowVisibleByKey,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function createImportXlsx(
   filePath: string,

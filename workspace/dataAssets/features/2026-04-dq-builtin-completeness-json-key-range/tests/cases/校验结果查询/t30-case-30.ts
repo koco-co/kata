@@ -1,4 +1,4 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t30-case-30
+// spec: features/completeness-json-key-range/archive.md#case=t30-case-30
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -10,7 +10,7 @@ import {
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/task-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);

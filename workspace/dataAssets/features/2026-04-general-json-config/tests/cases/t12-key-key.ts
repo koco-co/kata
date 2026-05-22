@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t12-key-key
+// spec: features/json-config-helper/archive.md#case=t12-key-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -13,7 +13,7 @@ import {
   expandRow,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 /** 精确匹配 key 列文本的行定位器（对抗脏数据：key 列第一个 td 的 cell 精确匹配） */
 function rowByExactKey(page: import("@playwright/test").Page, keyName: string) {

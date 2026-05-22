@@ -1,4 +1,4 @@
-// spec: features/2026-02-zhi-liang-gui-ze/archive.md#case=t01-rule-base-entry
+// spec: features/rule-library/archive.md#case=t01-rule-base-entry
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -6,7 +6,7 @@
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-001, SR-UI-PROBE-002, SR-SELF-RUN-001
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { EXPECTED_RULE_BASE_TEXT, SOURCE_REFS } from "../data/rule-library-contract";
-import { gotoRuleBaseCandidate } from "../../../../_shared/pages/2026-02-zhi-liang-gui-ze/rule-library-page";
+import { gotoRuleBaseCandidate } from "../../../../_shared/pages/rule-library/rule-library-page";
 
 test.use({
   storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json",

@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t29-json
+// spec: features/validity-json-value-format/archive.md#case=t29-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -9,8 +9,8 @@ import {
   getQualityReportRuleRow,
   openPreparedQualityReport,
   openQualityReportRuleDetail,
-} from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-task-helpers";
-import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+} from "../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
+import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
 test.use({
   storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",

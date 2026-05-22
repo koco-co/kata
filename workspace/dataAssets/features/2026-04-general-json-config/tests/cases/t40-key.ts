@@ -1,11 +1,11 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t40-key
+// spec: features/json-config-helper/archive.md#case=t40-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t40","priority":"P1","title":"【P1】验证大数据量场景key记录下载数量是否存在限制"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { confirmPopconfirm, waitForTableLoaded } from "../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 // 注意：简化为验证导出功能不报错。
 // 完整验证（下载条数限制）需结合大量数据并解析 xlsx，超出 E2E 范围，建议手动验证。

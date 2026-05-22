@@ -1,11 +1,11 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t39-key-1000
+// spec: features/json-config-helper/archive.md#case=t39-key-1000
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t39","priority":"P2","title":"【P2】验证key数量达1000条以上时列表加载和搜索性能正常"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName, waitForTableLoaded } from "../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 // 注意：这是性能测试，不需要创建1000条数据。
 // 只验证当前列表加载和搜索响应时间。

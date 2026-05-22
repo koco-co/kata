@@ -1,17 +1,17 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t33-case-33
+// spec: features/completeness-json-key-range/archive.md#case=t33-case-33
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t33","priority":"P1","title":"验证校验不通过时查看明细：标题、字段标红及全字段展示"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
-import { expectDetailTitle } from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+import { expectDetailTitle } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 import {
   ensureRuleTasks,
   executeTaskFromList,
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/task-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);

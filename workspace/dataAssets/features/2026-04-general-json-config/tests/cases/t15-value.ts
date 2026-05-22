@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t15-value
+// spec: features/json-config-helper/archive.md#case=t15-value
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -11,7 +11,7 @@ import {
   fillValueFormat,
   gotoJsonConfigPage,
   waitModal,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证value格式有内容时正则测试控件显示及匹配通过失败场景", { tag: "@serial" }, async ({

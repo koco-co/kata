@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t08-case-08
+// spec: features/json-config-helper/archive.md#case=t08-case-08
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -16,7 +16,7 @@ import {
   gotoJsonConfigPage,
   searchKey,
   waitModal,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证新增子层级完整流程", async ({ page, step }) => {

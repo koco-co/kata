@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t46-xlsx-2-sheet-key-key-key
+// spec: features/json-config-helper/archive.md#case=t46-xlsx-2-sheet-key-key-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -15,7 +15,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { buildImportXlsx, gotoJsonConfigPage } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { buildImportXlsx, gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证导入 xlsx 第 2 个 sheet 页的第一层级 key 名不存在时，标红列应为「第一层级 key 名」而非「key」", {

@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t23-xlsx
+// spec: features/json-config-helper/archive.md#case=t23-xlsx
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -6,7 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { clickHeaderButton, gotoJsonConfigPage, waitModal } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { clickHeaderButton, gotoJsonConfigPage, waitModal } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证导入非xlsx格式文件时报错", { tag: "@serial" }, async ({ page, step }) => {

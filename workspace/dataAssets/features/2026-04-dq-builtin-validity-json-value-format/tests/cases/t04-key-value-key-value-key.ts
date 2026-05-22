@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t04-key-value-key-value-key
+// spec: features/validity-json-value-format/archive.md#case=t04-key-value-key-value-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -6,7 +6,7 @@
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
 import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
-import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-utils";
+import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 

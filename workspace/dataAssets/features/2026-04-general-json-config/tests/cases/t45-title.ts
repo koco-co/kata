@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t45-title
+// spec: features/json-config-helper/archive.md#case=t45-title
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -13,7 +13,7 @@ import {
   gotoJsonConfigPage,
   searchKey,
   waitModal,
-} from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证编辑页与新增页表单结构保持一致（字段顺序、必填项、title 拼接中文名称）", async ({

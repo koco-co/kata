@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t36-case-36
+// spec: features/json-config-helper/archive.md#case=t36-case-36
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -9,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { confirmPopconfirm, waitForTableLoaded } from "../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 function cellToString(cell: ExcelJS.Cell): string {
   const v = cell.value;

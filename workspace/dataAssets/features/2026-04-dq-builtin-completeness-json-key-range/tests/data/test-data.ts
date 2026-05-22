@@ -12,7 +12,7 @@ import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
 import {
   clearCurrentDatasource as clearLegacyDatasource,
   setCurrentDatasource as setLegacyDatasource,
-} from "../../../2026-04-you-xiao-xing-duo-gui-ze/tests/data/test-data";
+} from "../../../validity-multi-rule-logic/tests/data/test-data";
 
 const ENV = getEnvConfig();
 

@@ -1,4 +1,4 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t02-method-switch
+// spec: features/completeness-json-key-range/archive.md#case=t02-method-switch
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -8,7 +8,7 @@ import { selectAntOption } from "../../../../../_shared/helpers";
 import {
   addRuleToPackage,
   saveRuleSet,
-} from "../../../../../_shared/pages/2026-04-you-xiao-xing-duo-gui-ze/rule-editor-helpers";
+} from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -21,7 +21,7 @@ import {
   openScenarioEditor,
   SCENARIOS,
   seedScenarioRuleSet,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 import {
   executeTaskFromList,
   getTaskDetailRuleCard,
@@ -29,7 +29,7 @@ import {
   openTaskInstanceDetail,
   openTaskRuleDetailDataDrawer,
   waitForTaskInstanceFinished,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/task-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.use({
   storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",

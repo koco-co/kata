@@ -1,4 +1,4 @@
-// spec: features/2026-05-shu-ju-zi-chan/archive.md#case=t04-quality-report-project-menu-contract
+// spec: features/assets-v63-regression/archive.md#case=t04-quality-report-project-menu-contract
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -11,7 +11,7 @@ import {
   expectDataQualityShell,
   expectTexts,
   gotoDataQualityPage,
-} from "../../../../_shared/pages/2026-05-shu-ju-zi-chan/v63-regression-page";
+} from "../../../../_shared/pages/assets-v63-regression/v63-regression-page";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json" });
 test.setTimeout(90000);

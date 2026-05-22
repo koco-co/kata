@@ -1,10 +1,10 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t32-case-32
+// spec: features/completeness-json-key-range/archive.md#case=t32-case-32
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t32","priority":"P1","title":"验证规则库中新增key范围校验内置规则展示信息正确"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
-import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);

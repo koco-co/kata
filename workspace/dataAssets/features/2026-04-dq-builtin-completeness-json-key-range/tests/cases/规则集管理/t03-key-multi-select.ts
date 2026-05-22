@@ -1,11 +1,11 @@
-// spec: features/2026-04-wan-zheng-xing-json-key/archive.md#case=t03-key-multi-select
+// spec: features/completeness-json-key-range/archive.md#case=t03-key-multi-select
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t3","priority":"P1","title":"【P1】验证校验内容支持多选和全选操作"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../_shared/helpers";
-import { addRuleToPackage } from "../../../../../_shared/pages/2026-04-you-xiao-xing-duo-gui-ze/rule-editor-helpers";
+import { addRuleToPackage } from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -17,7 +17,7 @@ import {
   selectRuleFunction,
   setVerificationContent,
   startRuleSetDraft,
-} from "../../../../../_shared/pages/2026-04-wan-zheng-xing-json-key/suite-helpers";
+} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 /**
  * Open the verification content TreeSelect dropdown and expand all tree nodes.

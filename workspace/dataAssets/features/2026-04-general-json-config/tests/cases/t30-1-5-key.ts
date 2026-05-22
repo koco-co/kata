@@ -1,4 +1,4 @@
-// spec: features/2026-04-tong-yong-j-s/archive.md#case=t30-1-5-key
+// spec: features/json-config-helper/archive.md#case=t30-1-5-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -9,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { deleteKey, gotoJsonConfigPage, searchKey } from "../../../../_shared/pages/2026-04-tong-yong-j-s/json-config-helpers";
+import { deleteKey, gotoJsonConfigPage, searchKey } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function createImportXlsx(
   filePath: string,

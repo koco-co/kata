@@ -1,4 +1,4 @@
-// spec: features/2026-04-you-xiao-xing-json-value/archive.md#case=t07-key-200-200
+// spec: features/validity-json-value-format/archive.md#case=t07-key-200-200
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
@@ -11,8 +11,8 @@ import {
   openValidationKeyDropdown,
   prepareJsonRuleSetDraft,
   searchValidationKey,
-} from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/json-format-suite-helpers";
-import { describeByDatasource } from "../../../../_shared/pages/2026-04-you-xiao-xing-json-value/suite-case-helpers";
+} from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
 const RULE_CONFIG_TABLE = "quality_test_json_rule_config";
 
