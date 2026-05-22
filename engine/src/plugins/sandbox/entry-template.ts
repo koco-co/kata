@@ -8,6 +8,9 @@
  * with --experimental-permission flags.
  */
 
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
+
 export type SandboxEnv = {
   ALLOWED_NET_HOSTS: string;
   ALLOWED_FS_READ_PATHS: string;
@@ -17,6 +20,10 @@ export type SandboxEnv = {
 
 const SANDBOX_NET_PREFIX = "__SANDBOX_NET_DENIED__ ";
 const SANDBOX_FS_PREFIX = "__SANDBOX_FS_DENIED__ ";
+
+type FetchInput = Parameters<typeof globalThis.fetch>[0];
+type FetchInit = Parameters<typeof globalThis.fetch>[1];
+type SandboxedFetch = (input: FetchInput, init?: FetchInit) => ReturnType<typeof globalThis.fetch>;
 
 function parseEnv(key: string, defaultValue = ""): string {
   return process.env[key] ?? defaultValue;
@@ -41,13 +48,10 @@ function pathAllowed(allowedPaths: string[], target: string): boolean {
   });
 }
 
-export function createSandboxedFetch(): typeof globalThis.fetch {
+export function createSandboxedFetch(): SandboxedFetch {
   const allowedHosts = parseEnv("ALLOWED_NET_HOSTS").split(",").filter(Boolean);
 
-  return async function sandboxedFetch(
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ): Promise<Response> {
+  return async function sandboxedFetch(input: FetchInput, init?: FetchInit): Promise<Response> {
     let url: string;
     if (typeof input === "string") {
       url = input;
@@ -73,8 +77,6 @@ export function createSandboxedFetch(): typeof globalThis.fetch {
 }
 
 export function createSandboxedReadFileSync(allowedPaths: string[]): (path: string) => string {
-  const { readFileSync } = require("node:fs") as typeof import("node:fs");
-
   return function sandboxedReadFileSync(path: string): string {
     if (!pathAllowed(allowedPaths, path)) {
       throw new Error(`${SANDBOX_FS_PREFIX}Read access denied: ${path}`);
@@ -86,9 +88,6 @@ export function createSandboxedReadFileSync(allowedPaths: string[]): (path: stri
 export function createSandboxedWriteFileSync(
   allowedPaths: string[],
 ): (path: string, content: string) => void {
-  const { writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
-  const { dirname } = require("node:path") as typeof import("node:path");
-
   return function sandboxedWriteFileSync(path: string, content: string): void {
     if (!pathAllowed(allowedPaths, path)) {
       throw new Error(`${SANDBOX_FS_PREFIX}Write access denied: ${path}`);
