@@ -29,6 +29,29 @@ interface FixReport {
   total: number;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isTestStep(value: unknown): value is TestStep {
+  return isRecord(value) && typeof value.step === "string" && typeof value.expected === "string";
+}
+
+function isTestCase(value: unknown): value is TestCase {
+  return (
+    isRecord(value) &&
+    typeof value.title === "string" &&
+    typeof value.priority === "string" &&
+    (value.preconditions === undefined || typeof value.preconditions === "string") &&
+    Array.isArray(value.steps) &&
+    value.steps.every(isTestStep)
+  );
+}
+
+function isIntermediateJson(value: unknown): value is IntermediateJson {
+  return isRecord(value) && isRecord(value.meta) && Array.isArray(value.modules);
+}
+
 // ─── Path resolver ────────────────────────────────────────────────────────────
 
 /**
@@ -43,13 +66,18 @@ function resolveCasePath(data: IntermediateJson, casePath: string): TestCase | n
       .split(".")
       .filter(Boolean);
 
-    // biome-ignore lint/suspicious/noExplicitAny: deep access into dynamic path
-    let current: any = data;
+    let current: unknown = data;
     for (const seg of segments) {
-      if (current == null) return null;
+      if (Array.isArray(current)) {
+        const index = Number(seg);
+        if (!Number.isInteger(index) || index < 0 || index >= current.length) return null;
+        current = current[index];
+        continue;
+      }
+      if (!isRecord(current) || !(seg in current)) return null;
       current = current[seg];
     }
-    return current as TestCase;
+    return isTestCase(current) ? current : null;
   } catch {
     return null;
   }
@@ -69,20 +97,22 @@ function setAtPath(
     .split(".")
     .filter(Boolean);
 
-  // biome-ignore lint/suspicious/noExplicitAny: deep set into dynamic path
-  function deepSet(obj: any, segs: string[]): any {
-    if (segs.length === 0) return updater(obj as TestCase);
+  function deepSet(obj: unknown, segs: readonly string[]): unknown {
+    if (segs.length === 0) return isTestCase(obj) ? updater(obj) : obj;
     const [head, ...tail] = segs;
     if (Array.isArray(obj)) {
       const idx = Number(head);
+      if (!Number.isInteger(idx) || idx < 0 || idx >= obj.length) return obj;
       const updated = [...obj];
       updated[idx] = deepSet(obj[idx], tail);
       return updated;
     }
+    if (!isRecord(obj) || !(head in obj)) return obj;
     return { ...obj, [head]: deepSet(obj[head], tail) };
   }
 
-  return deepSet(data, segments) as IntermediateJson;
+  const updated = deepSet(data, segments);
+  return isIntermediateJson(updated) ? updated : data;
 }
 
 // ─── Fix rules ────────────────────────────────────────────────────────────────
@@ -91,7 +121,7 @@ function setAtPath(
 function fixFC01(tc: TestCase): TestCase {
   const prefix = `【${tc.priority}】`;
   if (tc.title.startsWith(prefix)) return tc;
-  // Remove any existing 【...】 prefix first to avoid wrong prefix duplication
+  // Remove an existing 【...】 prefix first to avoid wrong prefix duplication
   const stripped = tc.title.replace(/^【[^】]+】/, "");
   return { ...tc, title: `${prefix}${stripped}` };
 }

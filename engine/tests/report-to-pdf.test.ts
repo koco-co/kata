@@ -204,6 +204,11 @@ describe("findCases", () => {
     const cases = findCases([{ title: "suite", type: "suite" }]);
     expect(cases.length).toBe(0);
   });
+
+  it("ignores malformed case rows without a status", () => {
+    const cases = findCases([{ title: "incomplete case", type: "case" }]);
+    expect(cases.length).toBe(0);
+  });
 });
 
 describe("buildPrintableHtml", () => {

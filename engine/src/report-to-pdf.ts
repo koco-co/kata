@@ -84,11 +84,42 @@ interface ConvertResult {
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
+function isAttachment(value: unknown): value is Attachment {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "name" in value &&
+    "path" in value &&
+    "contentType" in value &&
+    typeof value.name === "string" &&
+    typeof value.path === "string" &&
+    typeof value.contentType === "string"
+  );
+}
+
+function isRenderableCase(row: TestRow): row is TestRow & Required<Pick<TestRow, "status">> {
+  return (
+    row.type === "case" &&
+    typeof row.status === "string" &&
+    (row.duration === undefined || typeof row.duration === "number") &&
+    (row.attachments === undefined || row.attachments.every(isAttachment)) &&
+    (row.errorId === undefined || typeof row.errorId === "string") &&
+    (row.errorNum === undefined || typeof row.errorNum === "number")
+  );
+}
+
 export function findCases(rows: readonly TestRow[]): readonly TestCase[] {
   const cases: TestCase[] = [];
   for (const row of rows) {
-    if (row.type === "case") {
-      cases.push(row as unknown as TestCase);
+    if (isRenderableCase(row)) {
+      cases.push({
+        title: row.title,
+        status: row.status,
+        duration: row.duration,
+        attachments: row.attachments,
+        errorId: row.errorId,
+        errorNum: row.errorNum,
+      });
     }
     if (row.subs) {
       cases.push(...findCases(row.subs));

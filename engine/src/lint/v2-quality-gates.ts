@@ -34,6 +34,19 @@ function projectDirs(workspaceRoot: string): string[] {
     .map((entry) => entry.name);
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function getNestedValue(value: unknown, path: readonly string[]): unknown {
+  let current = value;
+  for (const segment of path) {
+    if (!isRecord(current)) return undefined;
+    current = current[segment];
+  }
+  return current;
+}
+
 export function lintNoEnvLocal(workspaceRoot: string): CaseLintReport {
   const glob = new Glob(join(workspaceRoot, "*/features/*/.env.local"));
   const violations = [...glob.scanSync()].map((file) =>
@@ -124,8 +137,8 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
     const envDir = join(workspaceRoot, project, "_shared/env");
     for (const file of walkFiles(envDir).filter((item) => item.endsWith(".yaml"))) {
       files += 1;
-      const profile = parse(readFileSync(file, "utf-8")) as any;
-      const sessionPath = profile?.auth?.session_path;
+      const profile = parse(readFileSync(file, "utf-8")) as unknown;
+      const sessionPath = getNestedValue(profile, ["auth", "session_path"]);
       const expectedPrefix = `workspace/${project}/.kata/auth/`;
       if (typeof sessionPath === "string" && !sessionPath.startsWith(expectedPrefix)) {
         violations.push(
@@ -139,7 +152,9 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
           ),
         );
       }
-      if (profile?.env === "ltqc-prod" && profile?.runtime?.allow_write !== false) {
+      const env = getNestedValue(profile, ["env"]);
+      const allowWrite = getNestedValue(profile, ["runtime", "allow_write"]);
+      if (env === "ltqc-prod" && allowWrite !== false) {
         violations.push(
           violation(
             file,
