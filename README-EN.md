@@ -98,13 +98,41 @@ The table below is generated from `.ai/core/commands/*.command.yaml`; it is the 
 <!-- ai-core:hash 2d3aee943263895aa5fea9eb96576a355222df28576de1a3579e3660ce4da0ab -->
 <!-- ai-core:end command-index -->
 
-Common entry points:
+### Usage examples
 
-- New projects, menus, and workspace checks: `/workspace-manage`
-- Generate cases from PRDs or design sources: `/case-draft`
-- Sync or convert existing case artifacts: `/case-edit`
-- Maintain business knowledge: `/knowledge-curate`
-- UI automation: use `/playwright-automation` for planning, generation, execution, and triage
+Run these commands directly in the Claude Code or Codex runtime:
+
+```bash
+# 1. Workspace — show the feature menu and manage project workspaces
+/workspace-manage
+
+# 2. Case generation — generate test cases from PRDs, Lanhu URLs, or Axure links
+/case-draft
+
+# 3. Case editing — sync, convert, or normalize Archive MD / XMind / CSV artifacts
+/case-edit
+
+# 4. Knowledge management — query or update project business rules and terms
+/knowledge-curate
+
+# 5. UI automation — generate, run, triage, and repair Playwright tests
+/playwright-automation
+
+# 6. Bug report — turn observed failures into evidence-backed bug reports
+/bug-file
+
+# 7. Conflict analysis — analyze merge conflicts and produce resolution notes
+/conflict-analyze
+
+# 8. Hotfix regression cases — generate regression tests from bugs or fix records
+/case-hotfix
+
+# 9. Code scanning — scan code diffs for reproducible defects
+/diff-scan
+
+# 10. Infra diagnosis — SSH into servers to diagnose connectivity failures
+/infra-diagnose
+```
 
 ## Architecture
 
@@ -157,6 +185,7 @@ kata/
 ├── .ai/core/        # AI Core contract source
 ├── .agents/         # kata Codex runtime projection
 ├── .claude/         # Claude Code runtime projection
+├── docs/            # Architecture, ADR, audit, skill, and troubleshooting docs
 ├── engine/          # CLI, AI Core checks, workflow support, and tests
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # standalone toolkits

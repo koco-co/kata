@@ -12,7 +12,7 @@ Kata 4.0 是一个面向 QA 工作流的 AI Core runtime 项目。它不把能�
 
 - 将 QA 工作流拆成可审计、可测试、可投影的 product skills。
 - 让技能、命令、workflow、agent、prompt、schema、guard、eval 和 runtime 文档来自同一个 AI Core 源。
-- 让项目产物写入 `workspace/{project}/**`，把 `workspace/{project}/.repos/**` 固定为只读源码证据。
+- 让项目产物写入 `workspace/{project}/**`，把 `workspace/{project}/.kata/repos/**` 固定为只读源码证据。
 - 让插件只通过声明过的 hook 接入，不越过 workflow 和写入边界。
 - 让 README、runtime skills、root agent docs 等公开入口能由合约生成或校验，避免文档漂移。
 
@@ -59,7 +59,7 @@ Kata 4.0 是一个面向 QA 工作流的 AI Core runtime 项目。它不把能�
 
 ## 3. 能力模型
 
-Kata 4.0 的用户能力以 `.ai/core/commands/*.command.yaml` 为准。当前 user-invocable command 共 11 个：
+Kata 4.0 的用户能力以 `.ai/core/commands/*.command.yaml` 为准。当前 user-invocable command 共 10 个：
 
 | 领域 | 命令 | Skill |
 | --- | --- | --- |
@@ -70,10 +70,9 @@ Kata 4.0 的用户能力以 `.ai/core/commands/*.command.yaml` 为准。当前 u
 | 缺陷与变更 | `/bug-file` | `bug-file@1` |
 | 缺陷与变更 | `/conflict-analyze` | `conflict-analyze@1` |
 | 缺陷与变更 | `/case-hotfix` | `case-hotfix@1` |
-| UI 自动化 | `/ui-plan` | `ui-plan@1` |
-| UI 自动化 | `/playwright-gen` | `playwright-gen@1` |
-| UI 自动化 | `/run-triage` | `run-triage@1` |
+| UI 自动化 | `/playwright-automation` | `playwright-automation@1` |
 | 代码扫描 | `/diff-scan` | `diff-scan@1` |
+| 故障排查 | `/infra-diagnose` | `infra-diagnose@1` |
 
 `playwright-cli` 是 vendor skill，保留原名。它用于真实浏览器自动化，不参与 kata-owned product skill 命名体系。
 
@@ -206,7 +205,7 @@ Projection lock 记录生成文件和 copied vendor 文件的 hash，用于防�
 - Playwright 脚本与运行产物。
 - 项目业务知识。
 
-`workspace/{project}/.repos/**` 是只读证据目录。Kata workflow 可以读取源码、diff、配置和上下文，但不能在这里 push、commit 或写业务文件。
+`workspace/{project}/.kata/repos/**` 是只读证据目录。Kata workflow 可以读取源码、diff、配置和上下文，但不能在这里 push、commit 或写业务文件。
 
 ### 6.3 Write Policy
 
@@ -214,7 +213,7 @@ Projection lock 记录生成文件和 copied vendor 文件的 hash，用于防�
 
 - 阻止 unsafe absolute path。
 - 阻止 path traversal。
-- 阻止 `.repos/**` 写入。
+- 阻止 `.kata/repos/**` 写入。
 - 阻止受保护的 `.ai/core/**` runtime contract 被 workflow 执行路径直接改写。
 - 允许已声明 workspace feature write scope。
 
@@ -330,6 +329,6 @@ bun --no-env-file engine/bin/kata ai-core projection check --runtime all
 - 不保留旧聚合 skill 作为 active runtime surface。
 - 不让 local context 覆盖 runtime policy。
 - 不让插件凭据以裸值写入合约或文档。
-- 不让 `.repos/**` 成为写入目标。
+- 不让 `.kata/repos/**` 成为写入目标。
 
 这些边界是架构约束，不是临时实现细节。
