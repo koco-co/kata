@@ -4,12 +4,12 @@
     "project": "kata",
     "description": "Kata 项目全面优化进度追踪文件。这是唯一真相源（source of truth）；不同 AI 运行时的可视化工具只是镜像。",
     "created": "2026-05-21T18:00:00+08:00",
-    "updated": "2026-05-22T14:35:20+08:00",
+    "updated": "2026-05-22T16:21:50+08:00",
     "total_tasks": 34,
-    "completed_tasks": 22,
+    "completed_tasks": 26,
     "in_progress_tasks": 0,
     "planned_tasks": 0,
-    "pending_tasks": 12,
+    "pending_tasks": 8,
     "blocked_tasks": 0,
     "reading_guide": {
       "_note": "=== AI 读取本文件的标准方式。每次新窗口第一件事就是执行这些命令 ===",
@@ -989,7 +989,7 @@
       "title": "死代码与空函数清理",
       "description": "清理：runDiscussValidate 空 stub 函数、deleteWorkflowState 空函数体、_textIncludes 未使用函数、agents-sync.ts/agents-drift.ts 空 export {} 文件、prdDir() 弃用但仍被调用的函数、重复的 env var 回退 bug（KATA_TARGET_ENV ?? KATA_TARGET_ENV）。需逐个确认是否真的无用。",
       "category": "code_quality",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "depends_on": [],
       "blocks": [],
@@ -999,24 +999,40 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
-      "assigned_agent": null,
+      "worktree": ".worktrees/p4-03-dead-code-cleanup",
+      "branch": "codex/p4-03-dead-code-cleanup",
+      "assigned_agent": "subagent:019e4e6f-8b04-7002-bc6d-7ee9c1ba03ca",
       "e2e_verification": "bun test 全量通过；bun run check 通过；grep 确认无残留引用",
-      "resolution": null,
+      "resolution": "Removed obsolete discuss/state/cases validation stubs and unused helpers, removed the deprecated prdDir export and production call, fixed KATA_TARGET_ENV self-fallback to use ACTIVE_ENV, and added static regression coverage for the cleaned-up dead code targets.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T15:08:17+08:00",
+      "completed": "2026-05-22T15:08:17+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；bun run check 通过；grep 确认无残留引用",
-        "commands": [],
-        "results": [],
-        "artifacts": [],
+        "commands": [
+          "rg -n 'runDiscussValidate|deleteWorkflowState|_textIncludes|KATA_TARGET_ENV \\?\\? KATA_TARGET_ENV|KATA_TARGET_ENV\\s*\\?\\?\\s*process\\.env\\.KATA_TARGET_ENV' engine/src engine/lib",
+          "rg -n '\\bprdDir\\b' engine/src engine/lib",
+          "bun test engine/tests/dead-code-cleanup.test.ts engine/tests/paths.test.ts engine/tests/run-tests-notify.test.ts engine/tests/case-signal-analyzer.test.ts engine/tests/discuss-cli.test.ts engine/tests/cli/cases-validate.test.ts",
+          "bun run type-check",
+          "bun biome check engine/src/discuss.ts engine/lib/state.ts engine/src/cli/cases-validate.ts engine/lib/paths.ts engine/lib/enhanced-doc-store.ts engine/src/run-tests-notify.ts engine/tests/dead-code-cleanup.test.ts engine/tests/paths.test.ts engine/tests/case-signal-analyzer.test.ts",
+          "bun run check",
+          "bun test"
+        ],
+        "results": [
+          "exit 1; no target dead-code/env fallback matches",
+          "exit 1; no prdDir references under engine/src or engine/lib",
+          "exit 0; 67 pass, 0 fail, 156 expect() calls across 6 files",
+          "exit 0; tsc --noEmit",
+          "exit 0; Checked 9 files, 3 existing warnings, 0 errors",
+          "worker exit 0; Biome checked 621 files, 174 warnings, 0 errors",
+          "worker exit 0; 1725 pass, 1 skip, 0 fail"
+        ],
+        "artifacts": ["engine/tests/dead-code-cleanup.test.ts"],
         "unverified_remainder": null
       },
-      "commit_sha": null,
-      "commit_message": null,
-      "merge_commit_sha": null
+      "commit_sha": "2ebeb6770aaf23088e635362bb76f5c90eb3789b",
+      "commit_message": "refactor: 🧹 remove dead code",
+      "merge_commit_sha": "6a85ceb4048b1a355037c7b813377cd68e3c8284"
     },
     "P4-04": {
       "id": "P4-04",
@@ -1069,7 +1085,7 @@
       "title": "CLI 输出规范统一",
       "description": "多个 CLI 文件混用 console.log 和 process.stdout.write。统一为：machine-readable 输出用 process.stdout.write(JSON)，user-facing 输出用 console.log。修复 scan-report.ts 中错误用 stdout 写 error 的问题（应改用 stderr）。消除 console.log 残留调试输出。",
       "category": "code_quality",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "depends_on": [],
       "blocks": [],
@@ -1079,24 +1095,41 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
-      "assigned_agent": null,
+      "worktree": ".worktrees/p4-05-cli-output",
+      "branch": "codex/p4-05-cli-output",
+      "assigned_agent": "subagent:019e4e6f-b678-7040-83a6-91439ef8bb86",
       "e2e_verification": "bun test 全量通过；bun run lint 通过；CLI JSON 输出可被 jq 解析",
-      "resolution": null,
+      "resolution": "Normalized CLI output so machine-readable JSON paths use outputJson/process.stdout.write(JSON), user-facing status text uses console.log, scan-report validation errors stay on stderr with empty stdout, and discuss validate no longer leaves debug output. Added a static CLI output style regression.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T15:08:17+08:00",
+      "completed": "2026-05-22T15:08:17+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；bun run lint 通过；CLI JSON 输出可被 jq 解析",
-        "commands": [],
-        "results": [],
-        "artifacts": [],
+        "commands": [
+          "bun test engine/tests/cli/output-style.test.ts engine/tests/scan-report/cli.test.ts",
+          "bun engine/bin/kata features ls --format json | jq -e 'type == \"array\"'",
+          "bun run type-check",
+          "bun biome check <23 changed files>",
+          "bun run check",
+          "bun test"
+        ],
+        "results": [
+          "exit 0; 16 pass, 0 fail, 46 expect() calls across 2 files",
+          "exit 0; jq output true",
+          "exit 0; tsc --noEmit",
+          "exit 0; Checked 23 files, 0 errors",
+          "worker exit 0; Biome checked 621 files, 173 warnings, 0 errors; project has no bun run lint script, used bun run check as equivalent",
+          "worker exit 0; 1725 pass, 1 skip, 0 fail"
+        ],
+        "artifacts": [
+          "engine/tests/cli/output-style.test.ts",
+          "engine/tests/scan-report/cli.test.ts"
+        ],
         "unverified_remainder": null
       },
-      "commit_sha": null,
-      "commit_message": null,
-      "merge_commit_sha": null
+      "commit_sha": "0c1595f9999b24fa145ee2a50033101fc34decbf",
+      "commit_message": "refactor: 🖨️ normalize cli output",
+      "merge_commit_sha": "563ede03ce6fe9e1490156d0aec1afbc2a5b5a10"
     },
     "P4-06": {
       "id": "P4-06",
@@ -1196,7 +1229,7 @@
       "title": "测试覆盖率补齐（高风险模块）",
       "description": "engine/src 中 25% 文件无测试覆盖，包括高风险模块：judge.ts（LLM-as-judge 逻辑）、runner.ts（plugin sandbox runner）、secret-injector.ts（secret 处理）、containment.ts（containment 逻辑）、ai-core.ts（主 CLI 入口的子函数）。每个文件评估风险、编写单元测试。同时补充 engine/lib 中 48% 未覆盖的工具函数测试。",
       "category": "testing",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
       "depends_on": ["P4-01", "P4-02"],
       "blocks": ["P5-02"],
@@ -1206,24 +1239,43 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
-      "assigned_agent": null,
+      "worktree": ".worktrees/p5-01-test-coverage",
+      "branch": "codex/p5-01-test-coverage",
+      "assigned_agent": "codex",
       "e2e_verification": "bun test 全量通过；coverage ≥80%",
-      "resolution": null,
+      "resolution": "Expanded high-risk coverage for AI Core judge, sandbox runner, AI Core CLI registration, and engine lib CLI/logger helpers. Tightened judge score validation to reject values outside 0..1, passed sandbox auditors into plugin functions so audited violations are enforceable, and made the large-file split regression path-stable under coverage mode. Fresh Bun coverage is 88.44% functions and 84.63% lines.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T16:21:50+08:00",
+      "completed": "2026-05-22T16:21:50+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；coverage ≥80%",
-        "commands": [],
-        "results": [],
-        "artifacts": [],
+        "commands": [
+          "bun test --cwd engine tests/ai-core/judge.test.ts tests/plugins/sandbox-runner.test.ts tests/large-file-split.test.ts tests/cli/ai-core-cli.test.ts tests/lib/cli.test.ts tests/lib/logger.test.ts tests/ai-core/workflow-maturity.test.ts",
+          "bun run type-check",
+          "bun run check",
+          "bun test",
+          "bun test --coverage --cwd engine"
+        ],
+        "results": [
+          "exit 0; 94 pass, 0 fail, 327 expect() calls across 7 files",
+          "exit 0; tsc --noEmit",
+          "exit 0; Biome checked 627 files, 170 warnings, 0 errors",
+          "exit 0; 1744 pass, 1 skip, 0 fail, 5328 expect() calls, 1745 tests across 180 files",
+          "exit 0; 1744 pass, 1 skip, 0 fail, 5328 expect() calls, All files 88.44% funcs / 84.63% lines"
+        ],
+        "artifacts": [
+          "engine/tests/ai-core/judge.test.ts",
+          "engine/tests/plugins/sandbox-runner.test.ts",
+          "engine/tests/cli/ai-core-cli.test.ts",
+          "engine/tests/lib/cli.test.ts",
+          "engine/tests/lib/logger.test.ts",
+          "engine/tests/large-file-split.test.ts"
+        ],
         "unverified_remainder": null
       },
-      "commit_sha": null,
-      "commit_message": null,
-      "merge_commit_sha": null
+      "commit_sha": "87a037bc6502317225316a230fccaa04bdabec73",
+      "commit_message": "test: 🧪 expand high-risk coverage",
+      "merge_commit_sha": "472968ac996762438e0d990f8b6e684a68421e0a"
     },
     "P5-02": {
       "id": "P5-02",
@@ -1336,7 +1388,7 @@
       "title": "配置与 .env.example 对齐",
       "description": ".env.example 缺少 KATA_DATAASSETS_PROJECT_ID、KATA_DATAASSETS_DATASOURCE_ID、KATA_SERVER_WORKSPACE_PATH、KATA_REPO_BRANCH_MAPPING_PATH、KATA_DINGTALK_KEYWORD 等变量。INSTALL.md 引用不存在的 .env.envs.example。修复 config.example.json 使其能作为文档参考。修复 MCP JSON-RPC parse error 不返回响应的问题。",
       "category": "config",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "depends_on": [],
       "blocks": [],
@@ -1346,24 +1398,48 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
-      "assigned_agent": null,
+      "worktree": ".worktrees/p5-05-config-env-docs",
+      "branch": "codex/p5-05-config-env-docs",
+      "assigned_agent": "subagent:019e4e6f-ea1e-7ba0-8473-4c57bb06f6ee",
       "e2e_verification": "bun run check 通过；新用户按 INSTALL.md 可完成安装",
-      "resolution": null,
+      "resolution": "Aligned environment and config examples by documenting the missing DataAssets, server workspace, branch mapping, and DingTalk variables; added .env.envs.example and matching .gitignore coverage; updated INSTALL copy steps; made config.example.json parseable as a reference; returned JSON-RPC parse error responses from the MCP stdio server; and made DataAssets table defaults prefer KATA-prefixed env vars with legacy fallback.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T15:08:17+08:00",
+      "completed": "2026-05-22T15:08:17+08:00",
       "verification": {
         "declared_scope": "bun run check 通过；新用户按 INSTALL.md 可完成安装",
-        "commands": [],
-        "results": [],
-        "artifacts": [],
-        "unverified_remainder": null
+        "commands": [
+          "bun test ./apps/mcp",
+          "bun test --cwd engine tests/config-examples.test.ts tests/config.test.ts",
+          "bun test --cwd tools/dtstack-sdk ./__tests__/adapters/execute-table.test.ts ./__tests__/adapters/playwright.test.ts",
+          "bun run type-check",
+          "bun -e 'JSON.parse(await Bun.file(\"config.example.json\").text()); console.log(\"config.example.json parse ok\")'",
+          "git diff --check",
+          "bun run check"
+        ],
+        "results": [
+          "exit 0; 16 pass, 0 fail, 87 expect() calls across 3 files",
+          "exit 0; 19 pass, 0 fail, 44 expect() calls across 2 files",
+          "exit 0; 4 pass, 0 fail, 6 expect() calls across 2 files",
+          "exit 0; tsc --noEmit",
+          "exit 0; config.example.json parse ok",
+          "exit 0; no whitespace errors",
+          "worker exit 0; Biome checked 623 files, 174 warnings, 0 errors"
+        ],
+        "artifacts": [
+          ".env.example",
+          ".env.envs.example",
+          "INSTALL.md",
+          "config.example.json",
+          "apps/mcp/server.test.ts",
+          "engine/tests/config-examples.test.ts",
+          "tools/dtstack-sdk/__tests__/adapters/execute-table.test.ts"
+        ],
+        "unverified_remainder": "Fresh-machine new user installation following INSTALL.md was not executed; verification covered referenced example files, JSON parsing, config tests, MCP parse-error behavior, DataAssets env fallback, type-check, and check."
       },
-      "commit_sha": null,
-      "commit_message": null,
-      "merge_commit_sha": null
+      "commit_sha": "6207644f4a16248f24e559f99a698b813d1b8707",
+      "commit_message": "fix: 🧰 align config examples",
+      "merge_commit_sha": "95d7de4e6a89c3e7dfd4a9efee4ba38ab4880f8b"
     },
     "P5-06": {
       "id": "P5-06",
