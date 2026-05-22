@@ -36,21 +36,6 @@ import { enhancedMd } from "../lib/paths.ts";
 // CLI wiring
 // ============================================================================
 
-// ── Callable action for noun-verb port ──────────────────────────────────────
-
-export interface DiscussValidateContext {
-  project: string;
-  featureId: string;
-  workspace: string;
-  checkSourceRefs: string[];
-}
-
-export async function runDiscussValidate(ctx: DiscussValidateContext): Promise<void> {
-  // TODO: Move existing validate action body here from the Commander .action() handler
-  // For now, stub that logs the context — the real logic stays in the .action() wrapper
-  console.log(`discuss validate: project=${ctx.project} featureId=${ctx.featureId}`);
-}
-
 const ENHANCED_STATUSES = [
   "discussing",
   "pending-review",
