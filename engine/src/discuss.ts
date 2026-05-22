@@ -46,15 +46,6 @@ const ENHANCED_STATUSES = [
   "completed",
 ] as const satisfies readonly EnhancedStatus[];
 
-const ENHANCED_STATUSES = [
-  "discussing",
-  "pending-review",
-  "ready",
-  "analyzing",
-  "writing",
-  "completed",
-] as const satisfies readonly EnhancedStatus[];
-
 const COMPLETE_STATUSES = ["pending-review", "ready"] as const satisfies readonly EnhancedStatus[];
 
 type CompleteStatus = (typeof COMPLETE_STATUSES)[number];

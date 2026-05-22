@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { KATA_CLI } from "./cli-runner.ts";
+import { testEnv } from "./cli-runner.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
 
@@ -10,7 +11,7 @@ function run(args: string[]): { stdout: string; stderr: string; code: number } {
     const stdout = execFileSync(KATA_CLI, args, {
       cwd: REPO_ROOT,
       encoding: "utf8",
-      env: { ...process.env },
+      env: testEnv(),
     });
     return { stdout, stderr: "", code: 0 };
   } catch (err: unknown) {
@@ -36,7 +37,7 @@ describe("kata CLI", () => {
 
   it("top-level --help shows description", () => {
     const { stdout } = run(["--help"]);
-    expect(stdout).toMatch(/kata 统一 CLI/);
+    expect(stdout).toMatch(/kata unified CLI/);
   });
 
   it("unknown subcommand exits non-zero", () => {

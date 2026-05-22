@@ -6,7 +6,7 @@ export const KATA_CLI = resolve(import.meta.dirname, "../bin/kata");
 const RAW_SECRET_ENV_PATTERN =
   /^KATA_.*(?:COOKIE|PASSWORD|PASS|TOKEN|SECRET|WEBHOOK|PRIVATE|CREDENTIAL|API_KEY)/i;
 
-function testEnv(overrides?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+export function testEnv(overrides?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   const env = { ...process.env };
   for (const name of Object.keys(env)) {
     if (RAW_SECRET_ENV_PATTERN.test(name)) {
