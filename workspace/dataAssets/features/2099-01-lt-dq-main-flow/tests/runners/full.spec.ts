@@ -10,3 +10,6 @@ import "../cases/t03-metadata-data-map-shell";
 import "../cases/t04-metadata-sync-model-shell";
 import "../cases/t05-standard-statistic-check-shell";
 import "../cases/t06-model-build-table-shell";
+import "../cases/t07-data-quality-shell";
+import "../cases/t08-data-security-shell";
+import "../cases/t09-platform-management-shell";

@@ -47,7 +47,8 @@ export function runTestAudit(): AuditReport {
   // Match format: "  (fail) test > name [time]" or "TypeError: ... at (file:line:col)"
   const failLines = stdout.matchAll(/\(fail\)\s+(.+?)\s+\[[\d.]+\w+\]/g);
   for (const m of failLines) {
-    const testName = m[1]!;
+    const testName = m[1];
+    if (!testName) continue;
     const vio = classify(testName, stdout);
     if (vio) buckets[vio.bucket].push(vio);
   }
@@ -62,7 +63,8 @@ function classify(
   // Extract file:line from the fail context
   const fileMatch = testName.match(/^([^\s>]+)/);
   if (!fileMatch) return null;
-  const fileSlug = fileMatch[1]!;
+  const fileSlug = fileMatch[1];
+  if (!fileSlug) return null;
 
   // Reconstruct file path dynamically
   const enginePath = escapeRegex(join(repoRoot(), "engine"));
@@ -75,7 +77,8 @@ function classify(
   // E5: TypeScript syntax errors
   if (stdout.includes("SyntaxError") || stdout.includes("TypeError:")) {
     const errLines = stdout.match(new RegExp(`error:.*${escapeRegex(fileSlug)}.*`, "m"));
-    if (errLines && /SyntaxError|TypeError/.test(errLines[0]!)) {
+    const errorLine = errLines?.[0];
+    if (errorLine && /SyntaxError|TypeError/.test(errorLine)) {
       const lineM = errLines[0]?.match(/\((\d+):/);
       return { bucket: "E5", file: fileSlug, line: lineM ? Number(lineM[1]) : 0, reason };
     }

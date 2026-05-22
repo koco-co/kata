@@ -9,6 +9,7 @@ import { test } from "../../../../_shared/fixtures/step-screenshot";
 import {
   expectAssetsInventoryShell,
   gotoAssetsInventory,
+  triggerAssetsInventoryScheduleJob,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
 import { ASSETS_INVENTORY_SCOPE, SR_2099_01_AI_001 } from "../data/assets-inventory-contract";
 
@@ -17,7 +18,7 @@ test.use({
     process.env.UI_AUTOTEST_SESSION_PATH ??
     "workspace/dataAssets/.kata/auth/session.json",
 });
-test.setTimeout(90000);
+test.setTimeout(15 * 60 * 1000);
 
 test("【P1】资产盘点页展示已接入数据源统计 Shell", async ({ page, step }) => {
   await step("步骤1: 进入资产盘点页面 → 统计接口响应且页面 Shell 正常", async () => {
@@ -27,12 +28,17 @@ test("【P1】资产盘点页展示已接入数据源统计 Shell", async ({ pag
 });
 
 test("【P1】运维触发后已接入数据源卡片保持可核验", async ({ page, step }) => {
-  await step("步骤1: 进入资产盘点页面 → 已接入数据源卡片可见", async () => {
+  test.setTimeout(15 * 60 * 1000);
+
+  await step("步骤1: 调用 saveOneDayDataDistribution 调度接口 → 接口调用成功", async () => {
+    await triggerAssetsInventoryScheduleJob(page, "saveOneDayDataDistribution", SR_2099_01_AI_001);
+  });
+
+  await step("步骤2: 进入资产盘点页面 → 已接入数据源卡片可见", async () => {
     await gotoAssetsInventory(page, undefined, ASSETS_INVENTORY_SCOPE.projectId);
   });
 
-  await step("步骤2: 查看已接入数据源统计 → 数据源类型和统计值可核验", async () => {
-    // note: 原用例要求在资产服务器执行 localhost:8876 curl，自动化不执行运维操作，改为 UI 侧统计 Shell 合同断言。
+  await step("步骤3: 查看已接入数据源统计 → 数据源类型和统计值可核验", async () => {
     await expectAssetsInventoryShell(page, SR_2099_01_AI_001);
   });
 });

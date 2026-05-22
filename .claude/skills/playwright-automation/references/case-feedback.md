@@ -32,6 +32,10 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 - `confidence: medium` — 有 probe 证据但需主观判断（如"模糊步骤"是否应改）。
 - `confidence: low` — 仅基于失败归因推断，无直接 UI 证据；产出但默认建议人工先判定。
 
+## 服务器侧操作缺口
+
+当 archive 用例明确要求在服务器、pod、容器或 `localhost:<port>` 执行 `curl`、脚本、调度任务等非浏览器操作时，不得仅因当前 Playwright UI 会话没有该操作通道，就生成把原步骤改成"已由运维或测试数据准备流程完成"之类的语义降级 correction。应保留原步骤语义，并在 handoff 或 case-corrections 中把缺口描述为需要确认具体执行通道（SSH 主机、Kubernetes namespace/pod、Kuboard 入口、端口映射或可调用 oracle）。只有用户确认该服务器侧操作不需要或产品流程已经变更时，才可提出改写 archive 的 proposed_change。
+
 ## case-corrections.md 结构
 
 每个 run 一份，frontmatter + 若干 correction 段落：

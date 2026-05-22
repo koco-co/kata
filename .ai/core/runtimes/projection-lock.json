@@ -160,7 +160,7 @@
     {
       "path": ".agents/skills/playwright-automation/references/case-feedback.md",
       "disposition": "generated",
-      "sha256": "9eeb56e05ec705b95f80669699306e916a519893ff0bb8f0d463d2415c357076"
+      "sha256": "2d92e9e121bad21f307599bb9b450befe6374ae0a51833eb7727fcb96be5465a"
     },
     {
       "path": ".agents/skills/playwright-automation/references/case-normalize.md",
@@ -460,7 +460,7 @@
     {
       "path": ".claude/skills/playwright-automation/references/case-feedback.md",
       "disposition": "generated",
-      "sha256": "9eeb56e05ec705b95f80669699306e916a519893ff0bb8f0d463d2415c357076"
+      "sha256": "2d92e9e121bad21f307599bb9b450befe6374ae0a51833eb7727fcb96be5465a"
     },
     {
       "path": ".claude/skills/playwright-automation/references/case-normalize.md",

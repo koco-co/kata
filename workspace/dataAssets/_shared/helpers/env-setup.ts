@@ -32,6 +32,19 @@ export function normalizeDataAssetsBaseUrl(): string {
   return getEnvConfig().urls.dataAssetsBaseUrl;
 }
 
+export function normalizeDataAssetsApiBaseUrl(baseUrl = getEnvConfig().urls.baseUrl): string {
+  const parsed = new URL(baseUrl);
+  const cleanPath = parsed.pathname.replace(/\/$/, "");
+  const productIndex = cleanPath.indexOf("/dataAssets");
+  const apiPath = productIndex >= 0 ? cleanPath.slice(0, productIndex) : cleanPath;
+  return `${parsed.origin}${apiPath}`;
+}
+
+export function buildDataAssetsApiUrl(path: string, baseUrl?: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${normalizeDataAssetsApiBaseUrl(baseUrl)}${normalizedPath}`;
+}
+
 export function normalizeOfflineBaseUrl(): string {
   return getEnvConfig().urls.offlineBaseUrl;
 }
