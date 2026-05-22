@@ -10,7 +10,7 @@ export interface AgentModelConfig {
   description: string;
 }
 
-/** 按任务类型推荐模型 */
+/** Recommend model tier by task type */
 export const MODEL_RECOMMENDATIONS: Record<string, AgentModelConfig> = {
   // 轻量任务 → Haiku (快速、低成本)
   "format-check": {

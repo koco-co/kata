@@ -481,7 +481,7 @@ async function cmdDelete(opts: { file: string; title: string; dryRun?: boolean }
 
 export const program = createCli({
   name: "xmind-patch",
-  description: "搜索、查看、修改、新增和删除 .xmind 文件中的测试用例",
+  description: "Search, view, modify, add and delete test cases in .xmind files",
   commands: [
     {
       name: "search",

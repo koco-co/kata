@@ -113,14 +113,14 @@ function invalidStatusError(statuses: readonly string[]): string {
 
 export const program = createCli({
   name: "discuss",
-  description: "PRD 需求讨论 enhanced.md 管理 CLI (v3)",
+  description: "PRD discussion enhanced.md management CLI (v3)",
   commands: [
     {
       name: "init",
-      description: "创建 enhanced.md 骨架",
+      description: "Create enhanced.md skeleton",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份 YYYYMM", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month YYYYMM", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
       ],
       action: (opts: { project: string; yyyymm: string; prdSlug: string }) => {
@@ -130,10 +130,10 @@ export const program = createCli({
     },
     {
       name: "read",
-      description: "读取 enhanced.md",
+      description: "Read enhanced.md",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
       ],
       action: (opts: { project: string; yyyymm: string; prdSlug: string }) => {
@@ -143,12 +143,12 @@ export const program = createCli({
     },
     {
       name: "set-status",
-      description: "切换 frontmatter.status",
+      description: "Update frontmatter.status",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
-        { flag: "--status <s>", description: "新状态", required: true },
+        { flag: "--status <s>", description: "New status", required: true },
       ],
       action: (opts: SetStatusOptions) => {
         if (!isEnhancedStatus(opts.status)) {
@@ -163,15 +163,15 @@ export const program = createCli({
     },
     {
       name: "set-section",
-      description: "按锚点替换小节正文",
+      description: "Replace section body by anchor",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
-        { flag: "--anchor <a>", description: "目标锚点", required: true },
+        { flag: "--anchor <a>", description: "Target anchor", required: true },
         {
           flag: "--content <str>",
-          description: "Markdown 正文",
+          description: "Markdown body",
           required: true,
         },
       ],
@@ -188,14 +188,14 @@ export const program = createCli({
     },
     {
       name: "add-section",
-      description: "在 §2 或 §3 下新增小节",
+      description: "Add section under §2 or §3",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
-        { flag: "--parent-level <n>", description: "2 或 3", required: true },
-        { flag: "--title <s>", description: "小节标题", required: true },
-        { flag: "--body <s>", description: "小节正文", required: true },
+        { flag: "--parent-level <n>", description: "2 or 3", required: true },
+        { flag: "--title <s>", description: "Section title", required: true },
+        { flag: "--body <s>", description: "Section body", required: true },
       ],
       action: (opts: {
         project: string;
@@ -215,14 +215,14 @@ export const program = createCli({
     },
     {
       name: "set-source-facts",
-      description: "写入 Appendix A 源码事实表（自动外溢 >64KB）",
+      description: "Write Appendix A source facts (auto-spill >64KB)",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         {
           flag: "--content <json>",
-          description: "SourceFacts JSON 或 @<path>",
+          description: "SourceFacts JSON or @<path>",
           required: true,
         },
       ],
@@ -236,16 +236,16 @@ export const program = createCli({
     },
     {
       name: "add-pending",
-      description: "新增待确认项 Q",
+      description: "Add a pending question Q",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
-        { flag: "--location <anchor>", description: "锚点", required: true },
-        { flag: "--label <s>", description: "位置标签", required: true },
-        { flag: "--question <s>", description: "问题文本", required: true },
-        { flag: "--recommended <s>", description: "推荐方案", required: true },
-        { flag: "--expected <s>", description: "预期", required: true },
+        { flag: "--location <anchor>", description: "Anchor", required: true },
+        { flag: "--label <s>", description: "Location label", required: true },
+        { flag: "--question <s>", description: "Question text", required: true },
+        { flag: "--recommended <s>", description: "Recommended solution", required: true },
+        { flag: "--expected <s>", description: "Expected outcome", required: true },
         {
           flag: "--severity <s>",
           description: PENDING_SEVERITIES.join(" | "),
@@ -270,20 +270,20 @@ export const program = createCli({
     },
     {
       name: "resolve",
-      description: "解决一条 Q（套 <del>）",
+      description: "Resolve a question Q (wraps in <del>)",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         {
           flag: "--id <qid>",
           description: "Q ID (q1, q2, ...)",
           required: true,
         },
-        { flag: "--answer <s>", description: "回答", required: true },
+        { flag: "--answer <s>", description: "Answer", required: true },
         {
           flag: "--as-default",
-          description: "标记为默认采用",
+          description: "Mark as default resolution",
           defaultValue: false,
         },
       ],
@@ -297,10 +297,10 @@ export const program = createCli({
     },
     {
       name: "list-pending",
-      description: "列出待确认项",
+      description: "List pending questions",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         {
           flag: "--format <f>",
@@ -309,7 +309,7 @@ export const program = createCli({
         },
         {
           flag: "--include-resolved",
-          description: "包含已解决",
+          description: "Include resolved",
           defaultValue: false,
         },
       ],
@@ -328,12 +328,12 @@ export const program = createCli({
     },
     {
       name: "compact",
-      description: "归档 resolved Q 到 resolved.md",
+      description: "Archive resolved Qs to resolved.md",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
-        { flag: "--threshold <n>", description: "阈值", defaultValue: "50" },
+        { flag: "--threshold <n>", description: "Threshold", defaultValue: "50" },
       ],
       action: (opts: CompactOptions) => {
         const moved = compactDoc(opts.project, opts.yyyymm, opts.prdSlug, {
@@ -344,24 +344,24 @@ export const program = createCli({
     },
     {
       name: "validate",
-      description: "校验 enhanced.md 完整性",
+      description: "Validate enhanced.md completeness",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         {
           flag: "--require-zero-pending",
-          description: "pending>0 则退 3",
+          description: "Exit 3 if pending > 0",
           defaultValue: false,
         },
         {
           flag: "--require-zero-blocking-pending",
-          description: "blocking pending>0 则退 3",
+          description: "Exit 3 if blocking pending > 0",
           defaultValue: false,
         },
         {
           flag: "--check-source-refs <csv>",
-          description: "逗号分隔的 source_ref 列表",
+          description: "Comma-separated source_ref list",
           defaultValue: "",
         },
       ],
@@ -383,18 +383,18 @@ export const program = createCli({
     },
     {
       name: "complete",
-      description: "完成讨论，更新 knowledge_dropped 和状态",
+      description: "Complete discussion, update knowledge_dropped and status",
       options: [
-        { flag: "--project <name>", description: "项目名", required: true },
-        { flag: "--yyyymm <ym>", description: "月份 YYYYMM", required: true },
+        { flag: "--project <name>", description: "Project name", required: true },
+        { flag: "--yyyymm <ym>", description: "Month YYYYMM", required: true },
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         {
           flag: "--knowledge-summary <json>",
-          description: "知识摘要 JSON 数组",
+          description: "Knowledge summary JSON array",
         },
         {
           flag: "--status <s>",
-          description: "完成状态：pending-review | ready",
+          description: "Completion status: pending-review | ready",
           defaultValue: "pending-review",
         },
       ],

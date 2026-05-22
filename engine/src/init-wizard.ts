@@ -338,11 +338,11 @@ function runVerify(): VerifyResult {
 
 const program = new Command();
 
-program.name("init-wizard").description("kata v3 环境检查工具").version("3.0.0");
+program.name("init-wizard").description("kata v3 environment checker").version("3.0.0");
 
 program
   .command("scan")
-  .description("扫描项目环境并输出 JSON 结果")
+  .description("Scan project environment and output JSON")
   .action(() => {
     try {
       const result = runScan();
@@ -355,7 +355,7 @@ program
 
 program
   .command("verify")
-  .description("以状态表格式输出环境检查结果")
+  .description("Output environment check results as a status table")
   .action(() => {
     try {
       const result = runVerify();

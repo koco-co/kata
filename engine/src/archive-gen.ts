@@ -525,7 +525,7 @@ function validateArchiveMarkdown(filePath: string): ValidateResult {
 
 export const program = createCli({
   name: "archive-gen",
-  description: "将中间 JSON 转换为 Archive Markdown，或搜索已有归档",
+  description: "Convert intermediate JSON to Archive Markdown, or search existing archives",
   commands: [
     {
       name: "convert",

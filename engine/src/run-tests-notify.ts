@@ -291,12 +291,12 @@ async function main(pwArgs: readonly string[]): Promise<void> {
 
 export const program = createCli({
   name: "run-tests-notify",
-  description: "跑 Playwright，自动刷新 Allure HTML 报告并推送 IM 通知",
+  description: "Run Playwright, auto-refresh Allure HTML report and push IM notification",
   rootAction: {
     arguments: [
       {
         name: "playwrightArgs",
-        description: "Playwright 参数（透传）",
+        description: "Playwright arguments (passthrough)",
         required: false,
         variadic: true,
       },
