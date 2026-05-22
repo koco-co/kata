@@ -119,16 +119,6 @@ export function prdsDir(project: string): string {
   return join(projectDir(project), "prds");
 }
 
-let warnedPrdDir = false;
-/** @deprecated since v3 — use featureDir(project, yyyymm, slug). Returns features/{ym}-{slug}/. */
-export function prdDir(project: string, yyyymm: string, slug: string): string {
-  if (!warnedPrdDir) {
-    console.warn("[paths] prdDir() is deprecated; use featureDir() (spec §6.3)");
-    warnedPrdDir = true;
-  }
-  return featureDir(project, yyyymm, slug);
-}
-
 let warnedEnhancedMd = false;
 /** @deprecated since v3 — use featureFile(..., "enhanced.md"). */
 export function enhancedMd(project: string, yyyymm: string, slug: string): string {

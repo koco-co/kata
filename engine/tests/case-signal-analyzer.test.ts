@@ -22,12 +22,12 @@ confidence: 0.2
 （无字段定义表）
 `;
 
-function prdDir(): string {
+function fixturePrdDir(): string {
   return join(repoRoot, "workspace", project, "prds", "202604");
 }
 
 function prdPath(): string {
-  return join(prdDir(), "smoke-probe.md");
+  return join(fixturePrdDir(), "smoke-probe.md");
 }
 
 function cacheDir(): string {
@@ -47,7 +47,7 @@ function runCli(args: string[]): ReturnType<typeof spawnSync> {
 
 beforeEach(() => {
   // Create fixture PRD
-  mkdirSync(prdDir(), { recursive: true });
+  mkdirSync(fixturePrdDir(), { recursive: true });
   writeFileSync(prdPath(), PRD_CONTENT, "utf8");
 });
 

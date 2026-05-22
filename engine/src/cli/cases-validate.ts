@@ -67,10 +67,6 @@ function firstLine(path: string): string | undefined {
   return readFileSync(path, "utf-8").split(/\r?\n/, 1)[0];
 }
 
-function _textIncludes(path: string, pattern: string): boolean {
-  return existsSync(path) && readFileSync(path, "utf-8").includes(pattern);
-}
-
 function extractLanhuPageId(text: string): string | undefined {
   const match = text.match(/[?&]pageId=([A-Za-z0-9]+)/);
   return match?.[1];

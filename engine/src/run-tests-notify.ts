@@ -66,7 +66,7 @@ export function extractTenantFromCookie(cookie: string | undefined): string | un
 }
 
 function resolvePaths(): Paths {
-  const env = (process.env.KATA_TARGET_ENV ?? process.env.KATA_TARGET_ENV ?? "ltqc").toLowerCase();
+  const env = (process.env.KATA_TARGET_ENV ?? process.env.ACTIVE_ENV ?? "ltqc").toLowerCase();
   const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
   const suiteName = process.env.KATA_SUITE_NAME ?? "report";
   const yyyymm = new Date().toISOString().slice(0, 7).replace(/-/g, "");

@@ -23,10 +23,3 @@ export function loadWorkflowState(
   if (!existsSync(path)) return null;
   return JSON.parse(readFileSync(path, "utf8"));
 }
-
-export function deleteWorkflowState(project: string, workflow: string, prdSlug: string): void {
-  const path = join(stateDir(project), `${workflow}-${prdSlug}.json`);
-  if (existsSync(path)) {
-    /* 留给 cleanup 脚本处理 */
-  }
-}
