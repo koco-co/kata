@@ -170,6 +170,25 @@ describe("discuss CLI — new subcommands", () => {
     const r = await $`bun ${CLI} read --project ${P} --yyyymm ${YM} --prd-slug ${SLUG}`.quiet();
     expect(JSON.parse(r.stdout.toString()).frontmatter.status).toBe("analyzing");
   });
+
+  test("set-status rejects unknown status with JSON error", async () => {
+    await $`bun ${CLI} init --project ${P} --yyyymm ${YM} --prd-slug ${SLUG}`.quiet();
+
+    const r =
+      await $`bun ${CLI} set-status --project ${P} --yyyymm ${YM} --prd-slug ${SLUG} --status invalid-status`
+        .nothrow()
+        .quiet();
+
+    expect(r.exitCode).not.toBe(0);
+    expect(JSON.parse(r.stdout.toString())).toEqual({
+      ok: false,
+      error:
+        "invalid status, must be one of: discussing, pending-review, ready, analyzing, writing, completed",
+    });
+
+    const read = await $`bun ${CLI} read --project ${P} --yyyymm ${YM} --prd-slug ${SLUG}`.quiet();
+    expect(JSON.parse(read.stdout.toString()).frontmatter.status).toBe("discussing");
+  });
 });
 
 describe("discuss CLI — complete subcommand", () => {

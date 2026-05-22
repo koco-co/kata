@@ -98,7 +98,7 @@ describe("auto-fixer fix — FC01 标题缺少优先级前缀", () => {
       }),
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "fix",
       "--input",
       writerPath,
@@ -191,7 +191,7 @@ describe("auto-fixer fix — FC03 步骤内容含编号前缀", () => {
       }),
     );
 
-    const { code, stderr } = run([
+    const { code } = run([
       "fix",
       "--input",
       writerPath,
@@ -290,7 +290,7 @@ describe("auto-fixer fix — F13 预期结果含模糊兜底", () => {
       }),
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "fix",
       "--input",
       writerPath,
@@ -438,7 +438,7 @@ describe("auto-fixer fix — F12 预期结果多项未编号", () => {
       }),
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "fix",
       "--input",
       writerPath,
@@ -586,7 +586,7 @@ describe("auto-fixer fix — manual=true 的问题跳过不修改", () => {
       }),
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "fix",
       "--input",
       writerPath,
@@ -609,6 +609,53 @@ describe("auto-fixer fix — manual=true 的问题跳过不修改", () => {
   });
 });
 
+// ─── invalid case_path 跳过 ───────────────────────────────────────────────────
+
+describe("auto-fixer fix — case_path 未指向测试用例时跳过", () => {
+  it("不把非 TestCase 对象传入 fixer", () => {
+    const writerJson = makeWriterJson({
+      title: "验证默认加载列表页",
+      priority: "P0",
+    });
+    const writerPath = join(TMP_DIR, "invalid-path-writer.json");
+    const issuesPath = join(TMP_DIR, "invalid-path-issues.json");
+    const outputPath = join(TMP_DIR, "invalid-path-output.json");
+
+    writeFileSync(writerPath, JSON.stringify(writerJson, null, 2));
+    writeFileSync(
+      issuesPath,
+      JSON.stringify({
+        issues: [
+          {
+            rule: "FC01",
+            case_path: "modules[0]",
+            description: "路径指向模块而不是用例",
+          },
+        ],
+      }),
+    );
+
+    const { code, stdout } = run([
+      "fix",
+      "--input",
+      writerPath,
+      "--issues",
+      issuesPath,
+      "--output",
+      outputPath,
+    ]);
+
+    expect(code).toBe(0);
+    const output = JSON.parse(readFileSync(outputPath, "utf8"));
+    expect(output).toEqual(writerJson);
+
+    const report = JSON.parse(stdout) as { fixed: number; skipped_manual: number; total: number };
+    expect(report.fixed).toBe(0);
+    expect(report.skipped_manual).toBe(0);
+    expect(report.total).toBe(1);
+  });
+});
+
 // ─── 无问题时输入输出一致 ─────────────────────────────────────────────────────
 
 describe("auto-fixer fix — 无问题时输入输出一致", () => {
@@ -624,7 +671,7 @@ describe("auto-fixer fix — 无问题时输入输出一致", () => {
     writeFileSync(writerPath, JSON.stringify(writerJson, null, 2));
     writeFileSync(issuesPath, JSON.stringify({ issues: [] }));
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "fix",
       "--input",
       writerPath,
@@ -677,7 +724,7 @@ describe("auto-fixer fix — 混合 issues 正确统计", () => {
       }),
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "fix",
       "--input",
       writerPath,

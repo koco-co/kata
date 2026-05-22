@@ -51,6 +51,71 @@ export async function runDiscussValidate(ctx: DiscussValidateContext): Promise<v
   console.log(`discuss validate: project=${ctx.project} featureId=${ctx.featureId}`);
 }
 
+const ENHANCED_STATUSES = [
+  "discussing",
+  "pending-review",
+  "ready",
+  "analyzing",
+  "writing",
+  "completed",
+] as const satisfies readonly EnhancedStatus[];
+
+const COMPLETE_STATUSES = ["pending-review", "ready"] as const satisfies readonly EnhancedStatus[];
+
+type CompleteStatus = (typeof COMPLETE_STATUSES)[number];
+
+interface BaseDocOptions {
+  project: string;
+  yyyymm: string;
+  prdSlug: string;
+}
+
+interface SetStatusOptions extends BaseDocOptions {
+  status: string;
+}
+
+interface AddPendingOptions extends BaseDocOptions {
+  location: string;
+  label: string;
+  question: string;
+  recommended: string;
+  expected: string;
+  severity: string;
+}
+
+interface ResolveOptions extends BaseDocOptions {
+  id: string;
+  answer: string;
+  asDefault?: boolean;
+}
+
+interface ListPendingOptions extends BaseDocOptions {
+  format?: string;
+  includeResolved?: boolean;
+}
+
+interface CompactOptions extends BaseDocOptions {
+  threshold?: string;
+}
+
+interface ValidateOptions extends BaseDocOptions {
+  requireZeroPending?: boolean;
+  requireZeroBlockingPending?: boolean;
+  checkSourceRefs?: string;
+}
+
+function isEnhancedStatus(value: string): value is EnhancedStatus {
+  return (ENHANCED_STATUSES as readonly string[]).includes(value);
+}
+
+function isCompleteStatus(value: string): value is CompleteStatus {
+  return (COMPLETE_STATUSES as readonly string[]).includes(value);
+}
+
+function invalidStatusError(statuses: readonly string[]): string {
+  return `invalid status, must be one of: ${statuses.join(", ")}`;
+}
+
 export const program = createCli({
   name: "discuss",
   description: "PRD 需求讨论 enhanced.md 管理 CLI (v3)",
@@ -90,8 +155,14 @@ export const program = createCli({
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         { flag: "--status <s>", description: "新状态", required: true },
       ],
-      action: (opts: { project: string; yyyymm: string; prdSlug: string; status: string }) => {
-        setStatus(opts.project, opts.yyyymm, opts.prdSlug, opts.status as any);
+      action: (opts: SetStatusOptions) => {
+        if (!isEnhancedStatus(opts.status)) {
+          process.stdout.write(
+            `${JSON.stringify({ ok: false, error: invalidStatusError(ENHANCED_STATUSES) })}\n`,
+          );
+          process.exit(1);
+        }
+        setStatus(opts.project, opts.yyyymm, opts.prdSlug, opts.status);
         process.stdout.write(`${JSON.stringify({ ok: true })}\n`);
       },
     },
@@ -186,7 +257,7 @@ export const program = createCli({
           required: true,
         },
       ],
-      action: (opts: any) => {
+      action: (opts: AddPendingOptions) => {
         if (!isPendingSeverity(opts.severity)) {
           process.stdout.write(`${JSON.stringify({ ok: false, error: "invalid severity" })}\n`);
           process.exit(1);
@@ -221,7 +292,7 @@ export const program = createCli({
           defaultValue: false,
         },
       ],
-      action: (opts: any) => {
+      action: (opts: ResolveOptions) => {
         resolvePending(opts.project, opts.yyyymm, opts.prdSlug, opts.id, {
           answer: opts.answer,
           asDefault: !!opts.asDefault,
@@ -247,7 +318,7 @@ export const program = createCli({
           defaultValue: false,
         },
       ],
-      action: (opts: any) => {
+      action: (opts: ListPendingOptions) => {
         const items = listPending(opts.project, opts.yyyymm, opts.prdSlug, {
           includeResolved: !!opts.includeResolved,
         });
@@ -269,7 +340,7 @@ export const program = createCli({
         { flag: "--prd-slug <slug>", description: "PRD slug", required: true },
         { flag: "--threshold <n>", description: "阈值", defaultValue: "50" },
       ],
-      action: (opts: any) => {
+      action: (opts: CompactOptions) => {
         const moved = compactDoc(opts.project, opts.yyyymm, opts.prdSlug, {
           threshold: Number(opts.threshold),
         });
@@ -299,7 +370,7 @@ export const program = createCli({
           defaultValue: "",
         },
       ],
-      action: (opts: any) => {
+      action: (opts: ValidateOptions) => {
         const r = validateDoc(opts.project, opts.yyyymm, opts.prdSlug, {
           requireZeroPending: !!opts.requireZeroPending,
           requireZeroBlockingPending: !!opts.requireZeroBlockingPending,
@@ -347,10 +418,9 @@ export const program = createCli({
           process.exit(1);
         }
 
-        const validStatuses: EnhancedStatus[] = ["pending-review", "ready"];
-        if (opts.status && !validStatuses.includes(opts.status as EnhancedStatus)) {
+        if (opts.status && !isCompleteStatus(opts.status)) {
           process.stdout.write(
-            `${JSON.stringify({ ok: false, error: "invalid status, must be one of: pending-review, ready" })}\n`,
+            `${JSON.stringify({ ok: false, error: invalidStatusError(COMPLETE_STATUSES) })}\n`,
           );
           process.exit(1);
         }
@@ -371,7 +441,7 @@ export const program = createCli({
 
         // Read, validate frontmatter, and write back
         const raw = readFileSync(docPath, "utf8");
-        let parsed;
+        let parsed: ReturnType<typeof matter>;
         try {
           parsed = matter(raw);
         } catch {
