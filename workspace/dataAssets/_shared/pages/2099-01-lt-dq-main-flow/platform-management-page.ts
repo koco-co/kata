@@ -42,7 +42,6 @@ export async function gotoPlatformPage(page: Page, path: string): Promise<void> 
     timeout: 60000,
   });
   await injectProject(page);
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => undefined);
 }
 
 export async function expectDataSourceManageShell(page: Page, sourceRef: string): Promise<void> {
@@ -111,7 +110,6 @@ async function expectPlatformPage(page: Page, sourceRef: string, target: Platfor
 
   if (target.clickText) {
     await page.getByText(target.clickText, { exact: true }).first().click({ timeout: 15000 });
-    await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => undefined);
   }
 
   const body = page.locator("body");

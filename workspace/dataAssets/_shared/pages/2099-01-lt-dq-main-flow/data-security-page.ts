@@ -41,7 +41,6 @@ export async function gotoDataSecurityPage(page: Page, path: string): Promise<vo
     timeout: 60000,
   });
   await injectProject(page);
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => undefined);
 }
 
 export async function expectDataPermissionAssignShell(page: Page, sourceRef: string): Promise<void> {

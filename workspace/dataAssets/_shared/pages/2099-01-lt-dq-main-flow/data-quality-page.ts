@@ -40,7 +40,6 @@ export async function gotoDataQualityPage(page: Page, path: string): Promise<voi
     timeout: 60000,
   });
   await injectProject(page);
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => undefined);
 }
 
 export async function expectDataQualityOverviewShell(page: Page, sourceRef: string): Promise<void> {
