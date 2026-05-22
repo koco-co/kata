@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import { outputJson } from "../../lib/cli.ts";
 import { runEnvCheck } from "./env-check.ts";
 
 export function buildEnvCommand(): Command {
@@ -10,7 +11,7 @@ export function buildEnvCommand(): Command {
     .requiredOption("--env <name>", "env profile name")
     .action(async (opts: { project: string; env: string }) => {
       const r = await runEnvCheck(opts);
-      console.log(JSON.stringify(r, null, 2));
+      outputJson(r);
       if (!r.dtstackReachable) process.exit(2);
     });
   return env;

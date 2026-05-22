@@ -85,7 +85,16 @@ describe("scan-report CLI — create", () => {
       .quiet()
       .nothrow();
     expect(r.exitCode).toBe(1);
+    expect(r.stdout.toString()).toBe("");
     expect(r.stderr.toString()).toContain("not found");
+  });
+
+  test("commander validation errors go to stderr without stdout", async () => {
+    const r = await $`bun ${CLI} create --project ${PROJECT}`.quiet().nothrow();
+
+    expect(r.exitCode).toBe(1);
+    expect(r.stdout.toString()).toBe("");
+    expect(r.stderr.toString()).toContain("required option '--repo <name>' not specified");
   });
 });
 

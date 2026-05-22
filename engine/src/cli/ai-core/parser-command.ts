@@ -16,6 +16,6 @@ export function registerParserCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("ai-core parser boundary audit passed\n");
+      console.log("ai-core parser boundary audit passed");
     });
 }

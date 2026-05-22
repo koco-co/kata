@@ -32,6 +32,6 @@ export function registerImportRecordsCommand(aiCore: Command): void {
         process.stdout.write(`${JSON.stringify(records, null, 2)}\n`);
         return;
       }
-      process.stdout.write(`ai-core import records: ${records.length}\n`);
+      console.log(`ai-core import records: ${records.length}`);
     });
 }

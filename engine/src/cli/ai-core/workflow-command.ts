@@ -16,9 +16,9 @@ export function registerWorkflowCommand(aiCore: Command): void {
       if (opts.json === true) {
         process.stdout.write(`${JSON.stringify(result.value, null, 2)}\n`);
       } else {
-        process.stdout.write(`Active workflows: ${result.value?.activeWorkflows.length}\n`);
+        console.log(`Active workflows: ${result.value?.activeWorkflows.length}`);
         if (result.ok) {
-          process.stdout.write("All workflows meet required maturity levels\n");
+          console.log("All workflows meet required maturity levels");
         } else {
           writeAiCoreIssues(result.issues);
           process.exitCode = 1;

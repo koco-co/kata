@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import { outputJson } from "../../lib/cli.ts";
 import {
   type AgentRuntime,
   agentsDir,
@@ -71,7 +72,7 @@ export function buildAgentsCommand(): Command {
     .action((opts: { json: boolean }) => {
       const report = auditAgentRuntimeDrift();
       if (opts.json) {
-        console.log(JSON.stringify(report, null, 2));
+        outputJson(report);
         return;
       }
 
@@ -112,7 +113,7 @@ export function buildAgentsCommand(): Command {
         write: opts.write,
         force: opts.force,
       });
-      console.log(JSON.stringify(result, null, 2));
+      outputJson(result);
       if (result.actions.some((action) => action.action === "conflict")) process.exitCode = 1;
     });
 

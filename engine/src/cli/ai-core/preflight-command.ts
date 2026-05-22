@@ -20,6 +20,6 @@ export function registerPreflightCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("ai-core preflight passed\n");
+      console.log("ai-core preflight passed");
     });
 }

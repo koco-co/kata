@@ -92,10 +92,10 @@ function writeBaselineReport(
     return;
   }
 
-  process.stdout.write(
-    `ai-core deterministic baseline failures: ${deterministicFailures?.length ?? "unavailable"}\n`,
+  console.log(
+    `ai-core deterministic baseline failures: ${deterministicFailures?.length ?? "unavailable"}`,
   );
-  process.stdout.write(
-    `ai-core environment-dependent checks: ${environmentDependentChecks?.length ?? "unavailable"}\n`,
+  console.log(
+    `ai-core environment-dependent checks: ${environmentDependentChecks?.length ?? "unavailable"}`,
   );
 }

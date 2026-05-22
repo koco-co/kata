@@ -23,7 +23,7 @@ export function registerVendorCommand(aiCore: Command): void {
         return;
       }
       process.exitCode = 0;
-      process.stdout.write("ai-core vendor freeze passed\n");
+      console.log("ai-core vendor freeze passed");
     });
 
   vendor
@@ -36,8 +36,8 @@ export function registerVendorCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write(
-        "Run upstream install into .ai/vendor-skills/playwright-cli/cache before freeze: npx skills add https://github.com/microsoft/playwright-cli --skill playwright-cli\n",
+      console.log(
+        "Run upstream install into .ai/vendor-skills/playwright-cli/cache before freeze: npx skills add https://github.com/microsoft/playwright-cli --skill playwright-cli",
       );
     });
   aiCore.addCommand(vendor);

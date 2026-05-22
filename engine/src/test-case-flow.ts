@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Command } from "commander";
+import { outputJson } from "../lib/cli.ts";
 import { resolveProject } from "./test-case-flow/project-resolver";
 import {
   checkResumeSession,
@@ -12,7 +13,7 @@ import {
   saveSessionState,
 } from "./test-case-flow/session";
 import { createSourceConsent } from "./test-case-flow/source-consent";
-import { resolveTestCaseSource } from "./test-case-flow/source-resolver";
+import { resolveTestCaseSource, type TestCaseSource } from "./test-case-flow/source-resolver";
 
 function workspaceRoot(): string {
   return resolve(process.cwd(), "workspace");
@@ -49,16 +50,15 @@ export function registerTestCaseFlow(program: Command): void {
       const jsonOutput: boolean = options.json || false;
 
       // 1. Resolve source
-      let source;
+      let source: TestCaseSource;
       try {
         source = resolveTestCaseSource(sourceRaw);
       } catch (err) {
-        const msg = JSON.stringify({
+        outputJson({
           status: "invalid_input",
           error: String(err),
           source: { value: sourceRaw },
         });
-        console.log(msg);
         return;
       }
 
@@ -74,13 +74,12 @@ export function registerTestCaseFlow(program: Command): void {
       const projectName = "project" in projectResult ? projectResult.project : null;
 
       if (!projectName) {
-        const msg = JSON.stringify({
+        outputJson({
           status: projectResult.status || "needs_project_selection",
           source,
           candidates: "candidates" in projectResult ? projectResult.candidates : workspaceProjects,
           reason: projectResult.reason || "Project selection required",
         });
-        console.log(msg);
         return;
       }
 
@@ -97,12 +96,11 @@ export function registerTestCaseFlow(program: Command): void {
       if (options.resume) {
         const resume = checkResumeSession({ sessionId: options.resume });
         if (resume.exists) {
-          const msg = JSON.stringify({
+          outputJson({
             status: "resumed",
             sessionId: options.resume,
             lastStep: resume.lastStep,
           });
-          console.log(msg);
           return;
         }
       }
@@ -127,7 +125,7 @@ export function registerTestCaseFlow(program: Command): void {
           consent,
         };
         if (jsonOutput) {
-          console.log(JSON.stringify(envelope, null, 2));
+          outputJson(envelope);
         } else {
           console.log(`Source: ${source.kind} (${source.value})`);
           console.log(`Project: ${projectName}`);
@@ -150,7 +148,7 @@ export function registerTestCaseFlow(program: Command): void {
       };
 
       if (jsonOutput) {
-        console.log(JSON.stringify(envelope, null, 2));
+        outputJson(envelope);
       } else {
         console.log(`Session started: ${sessionId}`);
         console.log(`Source: ${source.kind} (${source.value})`);
@@ -167,20 +165,18 @@ export function registerTestCaseFlow(program: Command): void {
     .action(async (options) => {
       const sessionId: string = options.session || "";
       if (!sessionId) {
-        const msg = JSON.stringify({ error: "session ID required" });
-        console.log(msg);
+        outputJson({ error: "session ID required" });
         return;
       }
 
       const session = loadSessionState(sessionId);
       if (!session) {
-        const msg = JSON.stringify({ error: "Session not found", sessionId });
-        console.log(msg);
+        outputJson({ error: "Session not found", sessionId });
         return;
       }
 
       if (options.json) {
-        console.log(JSON.stringify(session, null, 2));
+        outputJson(session);
       } else {
         console.log(`Session: ${session.sessionId}`);
         console.log(`Project: ${session.project}`);
@@ -196,15 +192,13 @@ export function registerTestCaseFlow(program: Command): void {
     .action(async (options) => {
       const sessionId: string = options.session || "";
       if (!sessionId) {
-        const msg = JSON.stringify({ error: "session ID required" });
-        console.log(msg);
+        outputJson({ error: "session ID required" });
         return;
       }
 
       const session = loadSessionState(sessionId);
       if (!session) {
-        const msg = JSON.stringify({ error: "Session not found", sessionId });
-        console.log(msg);
+        outputJson({ error: "Session not found", sessionId });
         return;
       }
 
@@ -232,7 +226,7 @@ export function registerTestCaseFlow(program: Command): void {
       };
 
       if (options.json) {
-        console.log(JSON.stringify(envelope, null, 2));
+        outputJson(envelope);
       } else {
         console.log(`Session: ${sessionId}`);
         console.log(`Next step: ${nextStep.next_step}${nextStep.blocked ? " (BLOCKED)" : ""}`);

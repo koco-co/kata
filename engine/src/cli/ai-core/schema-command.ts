@@ -14,6 +14,6 @@ export function registerSchemaCompatCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("schemas compat check passed\n");
+      console.log("schemas compat check passed");
     });
 }
