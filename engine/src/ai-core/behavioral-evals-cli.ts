@@ -1,3 +1,4 @@
+import { outputJson } from "../../lib/cli.ts";
 import { runBehavioralEvals } from "./behavioral-evals.ts";
 
 const args = process.argv.slice(2);
@@ -15,7 +16,7 @@ if (mode === "record" && !process.env.DEEPSEEK_API_KEY) {
 }
 
 const result = await runBehavioralEvals({ mode });
-console.log(JSON.stringify(result, null, 2));
+outputJson(result);
 
 if (!result.pass) {
   process.exit(1);

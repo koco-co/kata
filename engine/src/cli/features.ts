@@ -1,6 +1,7 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { Command } from "commander";
+import { outputJson } from "../../lib/cli.ts";
 import { repoRoot } from "../../lib/paths.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLint } from "./features-lint.ts";
@@ -68,7 +69,7 @@ export function buildFeaturesCommand(): Command {
         lastRun: opts.lastRun,
       });
       if (opts.format === "json") {
-        console.log(JSON.stringify(rows, null, 2));
+        outputJson(rows);
       } else if (opts.format === "md") {
         console.log("| ID | Display | Status | Modules | Automation | Last Run |");
         console.log("|---|---|---|---|---|---|");
@@ -94,7 +95,7 @@ export function buildFeaturesCommand(): Command {
         featureId,
         workspaceRoot: join(repoRoot(), "workspace"),
       });
-      console.log(JSON.stringify(d, null, 2));
+      outputJson(d);
     });
 
   features

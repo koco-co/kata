@@ -16,7 +16,7 @@ export function registerDocsCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("ai-core docs render passed\n");
+      console.log("ai-core docs render passed");
     });
   docs
     .command("check")
@@ -30,7 +30,7 @@ export function registerDocsCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("ai-core docs check passed\n");
+      console.log("ai-core docs check passed");
     });
   aiCore.addCommand(docs);
 }

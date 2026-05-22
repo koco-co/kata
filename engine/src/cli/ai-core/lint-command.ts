@@ -23,6 +23,6 @@ export function registerLintCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("ai-core lint passed\n");
+      console.log("ai-core lint passed");
     });
 }
