@@ -1,5 +1,6 @@
 # Dependencies and local secrets
 node_modules/
+package-lock.json
 .env
 .env.local
 config.json
@@ -13,6 +14,7 @@ config/repo-branch-mapping.yaml
 # Feature runtime products
 workspace/*/features/*/results/
 workspace/*/features/*/.debug/
+.playwright-cli/*.yml
 
 # System and build
 **/.DS_Store
