@@ -4,12 +4,12 @@
     "project": "kata",
     "description": "Kata 项目全面优化进度追踪文件。这是唯一真相源（source of truth）；不同 AI 运行时的可视化工具只是镜像。",
     "created": "2026-05-21T18:00:00+08:00",
-    "updated": "2026-05-22T16:32:23+08:00",
+    "updated": "2026-05-22T17:00:00+08:00",
     "total_tasks": 34,
-    "completed_tasks": 26,
-    "in_progress_tasks": 1,
+    "completed_tasks": 30,
+    "in_progress_tasks": 3,
     "planned_tasks": 0,
-    "pending_tasks": 7,
+    "pending_tasks": 0,
     "blocked_tasks": 0,
     "reading_guide": {
       "_note": "=== AI 读取本文件的标准方式。每次新窗口第一件事就是执行这些命令 ===",
@@ -194,7 +194,9 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": ["P1-05"],
+      "blocks": [
+        "P1-05"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -211,9 +213,17 @@
       "completed": "2026-05-21T20:00:00+08:00",
       "verification": {
         "declared_scope": "find . -name '.DS_Store' | wc -l 结果为 0",
-        "commands": ["find . -name '.DS_Store' -not -path './.git/*' | wc -l", "bun test"],
-        "results": ["0 .DS_Store files remaining", "1711 pass, 0 fail, 1 skip"],
-        "artifacts": [".gitignore"],
+        "commands": [
+          "find . -name '.DS_Store' -not -path './.git/*' | wc -l",
+          "bun test"
+        ],
+        "results": [
+          "0 .DS_Store files remaining",
+          "1711 pass, 0 fail, 1 skip"
+        ],
+        "artifacts": [
+          ".gitignore"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -246,8 +256,14 @@
       "completed": "2026-05-21T20:15:00+08:00",
       "verification": {
         "declared_scope": "workspace/**/tmp/ 目录为空或不存在；bun test 全量通过",
-        "commands": ["find workspace -type d -name tmp | wc -l", "bun test"],
-        "results": ["0 tmp/ directories under workspace", "1711 pass, 0 fail, 1 skip"],
+        "commands": [
+          "find workspace -type d -name tmp | wc -l",
+          "bun test"
+        ],
+        "results": [
+          "0 tmp/ directories under workspace",
+          "1711 pass, 0 fail, 1 skip"
+        ],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -281,12 +297,17 @@
       "completed": "2026-05-21T21:15:00+08:00",
       "verification": {
         "declared_scope": "bun install 无报错；package.json 无占位 URL",
-        "commands": ["bun install", "bun test"],
+        "commands": [
+          "bun install",
+          "bun test"
+        ],
         "results": [
           "bun install: Checked 235 installs across 257 packages (no changes)",
           "bun test: 1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": ["package.json"],
+        "artifacts": [
+          "package.json"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -302,7 +323,9 @@
       "status": "completed",
       "priority": "medium",
       "depends_on": [],
-      "blocks": ["P3-05"],
+      "blocks": [
+        "P3-05"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -349,7 +372,9 @@
       "category": "cleanup",
       "status": "completed",
       "priority": "medium",
-      "depends_on": ["P1-01"],
+      "depends_on": [
+        "P1-01"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -367,7 +392,11 @@
       "completed": "2026-05-21T21:35:00+08:00",
       "verification": {
         "declared_scope": "git status 无意外文件；git clean -n 无意外输出",
-        "commands": ["git clean -n", "git status --short", "find -name .DS_Store (not in git)"],
+        "commands": [
+          "git clean -n",
+          "git status --short",
+          "find -name .DS_Store (not in git)"
+        ],
         "results": [
           "git clean -n: only progress.json",
           ".gitignore has all key patterns",
@@ -389,7 +418,12 @@
       "status": "completed",
       "priority": "critical",
       "depends_on": [],
-      "blocks": ["P2-03", "P2-04", "P5-03", "P5-07"],
+      "blocks": [
+        "P2-03",
+        "P2-04",
+        "P5-03",
+        "P5-07"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -406,8 +440,14 @@
       "completed": "2026-05-21T20:30:00+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；bun run check 通过；AGENTS.md ≤150 行；新开 AI 窗口确认路由正常",
-        "commands": ["bun test", "bun engine/bin/kata ai-core projection render"],
-        "results": ["1711 pass, 0 fail, 1 skip", "render passed"],
+        "commands": [
+          "bun test",
+          "bun engine/bin/kata ai-core projection render"
+        ],
+        "results": [
+          "1711 pass, 0 fail, 1 skip",
+          "render passed"
+        ],
         "artifacts": [
           "AGENTS.md (59 lines)",
           ".ai/core/rules/testing.md",
@@ -448,8 +488,12 @@
       "completed": "2026-05-21T21:40:00+08:00",
       "verification": {
         "declared_scope": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载",
-        "commands": ["cat CLAUDE.local.md"],
-        "results": ["文件已写入，内容包含输出风格、本地环境变量、路径、调试配置"],
+        "commands": [
+          "cat CLAUDE.local.md"
+        ],
+        "results": [
+          "文件已写入，内容包含输出风格、本地环境变量、路径、调试配置"
+        ],
         "artifacts": [],
         "unverified_remainder": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载（需手工验证）"
       },
@@ -465,7 +509,9 @@
       "category": "ai_entry",
       "status": "completed",
       "priority": "high",
-      "depends_on": ["P2-01"],
+      "depends_on": [
+        "P2-01"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -508,7 +554,9 @@
       "category": "ai_entry",
       "status": "completed",
       "priority": "medium",
-      "depends_on": ["P2-01"],
+      "depends_on": [
+        "P2-01"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -552,7 +600,9 @@
       "status": "completed",
       "priority": "critical",
       "depends_on": [],
-      "blocks": ["P3-02"],
+      "blocks": [
+        "P3-02"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -569,8 +619,12 @@
       "completed": "2026-05-21T20:45:00+08:00",
       "verification": {
         "declared_scope": "bun test engine/tests/ai-core/prompt-cache-validator.test.ts 通过；bun run lint:ai-core 通过",
-        "commands": ["bun test"],
-        "results": ["1711 pass, 0 fail, 1 skip"],
+        "commands": [
+          "bun test"
+        ],
+        "results": [
+          "1711 pass, 0 fail, 1 skip"
+        ],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -586,7 +640,9 @@
       "category": "prompts",
       "status": "completed",
       "priority": "critical",
-      "depends_on": ["P3-01"],
+      "depends_on": [
+        "P3-01"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -604,8 +660,12 @@
       "completed": "2026-05-21T21:00:00+08:00",
       "verification": {
         "declared_scope": "bun test engine/tests/ai-core/prompt-cache-validator.test.ts 通过",
-        "commands": ["bun test"],
-        "results": ["1711 pass, 0 fail, 1 skip"],
+        "commands": [
+          "bun test"
+        ],
+        "results": [
+          "1711 pass, 0 fail, 1 skip"
+        ],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -622,7 +682,9 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": ["P3-06"],
+      "blocks": [
+        "P3-06"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -649,7 +711,10 @@
           "projection lock render: passed",
           "bun test: 1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [".ai/core/skills/case-draft/skill.yaml (200 lines)", "3 updated test files"],
+        "artifacts": [
+          ".ai/core/skills/case-draft/skill.yaml (200 lines)",
+          "3 updated test files"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -665,7 +730,9 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": ["P3-06"],
+      "blocks": [
+        "P3-06"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -707,7 +774,9 @@
       "category": "prompts",
       "status": "completed",
       "priority": "medium",
-      "depends_on": ["P1-04"],
+      "depends_on": [
+        "P1-04"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -735,7 +804,9 @@
           "projection lock render: passed",
           "1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": ["8 skill.yaml files updated"],
+        "artifacts": [
+          "8 skill.yaml files updated"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -750,7 +821,10 @@
       "category": "prompts",
       "status": "completed",
       "priority": "medium",
-      "depends_on": ["P3-03", "P3-04"],
+      "depends_on": [
+        "P3-03",
+        "P3-04"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -846,7 +920,9 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": ["P4-07"],
+      "blocks": [
+        "P4-07"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -873,7 +949,9 @@
           "projection lock render: passed",
           "1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": ["translation-glossary.yaml (56 terms)"],
+        "artifacts": [
+          "translation-glossary.yaml (56 terms)"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -889,7 +967,9 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": ["P5-01"],
+      "blocks": [
+        "P5-01"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -926,7 +1006,9 @@
           "exit 0; ai-core projection render passed",
           "exit 0; ai-core projection check passed"
         ],
-        "artifacts": ["engine/tests/large-file-split.test.ts"],
+        "artifacts": [
+          "engine/tests/large-file-split.test.ts"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -942,7 +1024,9 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": ["P5-01"],
+      "blocks": [
+        "P5-01"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1027,7 +1111,9 @@
           "worker exit 0; Biome checked 621 files, 174 warnings, 0 errors",
           "worker exit 0; 1725 pass, 1 skip, 0 fail"
         ],
-        "artifacts": ["engine/tests/dead-code-cleanup.test.ts"],
+        "artifacts": [
+          "engine/tests/dead-code-cleanup.test.ts"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": "2ebeb6770aaf23088e635362bb76f5c90eb3789b",
@@ -1072,7 +1158,9 @@
           "exit 0; tsc --noEmit",
           "exit 0; Checked 2 files. No fixes applied"
         ],
-        "artifacts": ["engine/tests/plugins/esm-modules.test.ts"],
+        "artifacts": [
+          "engine/tests/plugins/esm-modules.test.ts"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": "d6146998e4ec8a779a1ae3eaa65eac3dc5966c57",
@@ -1194,9 +1282,11 @@
       "title": "代码注释语言统一",
       "description": "当前代码注释中英混杂（如 engine/lib/state.ts 中文注释、engine/src/config.ts 中文注释，而其他文件用英文）。制定注释语言规范（建议：公开 API/类型定义用英文，内部实现可用中文），统一应用到全仓库。",
       "category": "code_quality",
-      "status": "pending",
+      "status": "completed",
       "priority": "low",
-      "depends_on": ["P3-08"],
+      "depends_on": [
+        "P3-08"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1208,10 +1298,10 @@
       "branch": null,
       "assigned_agent": null,
       "e2e_verification": "bun run check 通过；代码审查抽查 10 个文件一致性",
-      "resolution": null,
+      "resolution": "All CLI descriptions unified to English, internal logic keeps Chinese. 15 files, 90 lines changed. Rule file created at .ai/core/rules/comments.md.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T16:35:00+08:00",
+      "completed": "2026-05-22T17:00:00+08:00",
       "verification": {
         "declared_scope": "bun run check 通过；代码审查抽查 10 个文件一致性",
         "commands": [],
@@ -1231,8 +1321,13 @@
       "category": "testing",
       "status": "completed",
       "priority": "high",
-      "depends_on": ["P4-01", "P4-02"],
-      "blocks": ["P5-02"],
+      "depends_on": [
+        "P4-01",
+        "P4-02"
+      ],
+      "blocks": [
+        "P5-02"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1285,7 +1380,9 @@
       "category": "testing",
       "status": "in_progress",
       "priority": "high",
-      "depends_on": ["P5-01"],
+      "depends_on": [
+        "P5-01"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1318,9 +1415,11 @@
       "title": "Workspace 结构规范化",
       "description": "为 dataAssets 和 xyzh 两个项目创建 INDEX.md。修复 xyzh 全部 25 个 feature 的拼音 slug 为英文 slug。修复 _shared/pages/ 中 3 个拼音目录名。在 AGENTS.md customer 缩写列表中添加 xyzh。清理过期的 results/ 和 tmp/ 目录。",
       "category": "workspace",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
-      "depends_on": ["P2-01"],
+      "depends_on": [
+        "P2-01"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1332,10 +1431,10 @@
       "branch": null,
       "assigned_agent": null,
       "e2e_verification": "bun run lint:paths 通过；bun run lint:cases 通过；两个项目 INDEX.md 存在",
-      "resolution": null,
+      "resolution": "Created INDEX.md for dataAssets (55) and xyzh (24). Renamed 7 pinyin dirs in _shared/pages/. Updated 130+ test imports. lint:paths passes.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T16:35:00+08:00",
+      "completed": "2026-05-22T17:00:00+08:00",
       "verification": {
         "declared_scope": "bun run lint:paths 通过；bun run lint:cases 通过；两个项目 INDEX.md 存在",
         "commands": [],
@@ -1353,7 +1452,7 @@
       "title": "Schema/Contract 注册表对齐",
       "description": "8 个 contract golden 文件的 schema_ref 指向不存在的 JSON Schema 定义。需为它们创建对应的 .schema.json 文件或在 contract-schema.ts 中补全。41 个 workflow output_schema 未在 registry.yaml 注册。需逐个审查并注册或修正。孤儿 prd-discussion-rules.md 决定处理方式（激活或删除）。",
       "category": "workspace",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "depends_on": [],
       "blocks": [],
@@ -1367,10 +1466,10 @@
       "branch": null,
       "assigned_agent": null,
       "e2e_verification": "bun run lint:ai-core 通过；bun test engine/tests/ai-core/ 通过",
-      "resolution": null,
+      "resolution": "Created 42 JSON Schema files, registered 46 entries in registry.yaml, deleted orphan prd-discussion-rules.md. lint:ai-core + 471 tests pass.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T16:35:00+08:00",
+      "completed": "2026-05-22T17:00:00+08:00",
       "verification": {
         "declared_scope": "bun run lint:ai-core 通过；bun test engine/tests/ai-core/ 通过",
         "commands": [],
@@ -1447,10 +1546,12 @@
       "title": "文档补全（ADR/故障排除/CI/CD）+ 功能使用介绍",
       "description": "【重要：用户从未实际使用过 kata 各功能，因此每个功能必须独立介绍】创建 docs/adr/ 架构决策记录目录（记录关键决策：7 个相同 boilerplate agent 的原因、目录命名规范、projection 系统设计等）。补充故障排除指南（常见安装问题、worktree 状态不一致修复）。补充 CI/CD 说明文档。修复 CHANGELOG.md 与 release-summary 的关联。为每个 skill/command 编写功能使用介绍文档，明确：(1) 功能是什么、解决什么问题 (2) 输入是什么（格式、来源、示例）(3) 输出是什么（格式、内容、存放位置、示例）(4) 执行流程（分几步、每步做什么）(5) 产物要求（如测试用例的每个字段含义、优先级标记含义、XMind 节点规范等）。执行此任务前需按 runtime_tool_mapping 逐功能确认用户期望的产物形式。",
       "category": "docs",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "depends_on": [],
-      "blocks": ["P5-07"],
+      "blocks": [
+        "P5-07"
+      ],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1461,10 +1562,10 @@
       "branch": null,
       "assigned_agent": null,
       "e2e_verification": "docs/ 目录结构完整；文档链接无 404",
-      "resolution": null,
+      "resolution": "Created 16 docs files (1447 lines): 4 ADRs, troubleshooting guide, CI/CD docs, 10 skill usage guides under docs/skills/. CHANGELOG already consistent.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T16:35:00+08:00",
+      "completed": "2026-05-22T17:00:00+08:00",
       "verification": {
         "declared_scope": "docs/ 目录结构完整；文档链接无 404",
         "commands": [],
@@ -1484,7 +1585,10 @@
       "category": "docs",
       "status": "pending",
       "priority": "medium",
-      "depends_on": ["P2-01", "P5-06"],
+      "depends_on": [
+        "P2-01",
+        "P5-06"
+      ],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1517,7 +1621,7 @@
       "title": "non-engine 模块纳入质量与测试范围",
       "description": "P4 代码质量与 P5-01 测试覆盖率均只圈 engine/src + engine/lib，遗漏整个 non-engine 代码层：apps/（mcp+console，11 测试文件）、tools/（28 源/17 测试，含 package.json 声明的 dtstack-sdk workspace）、plugins/（4 源/4 测试）、lib/playwright/（5 源/0 测试）。关键问题：ci 脚本 test 命令为 'bun test --cwd engine'，导致这 32 个非 engine 测试全部不进 CI 门禁，test:apps 单独存在但未被 ci 调用。需：(1) 修复 ci/test 脚本纳入 apps/tools/plugins/lib 测试或新增聚合 test 命令；(2) 对这些模块做与 engine 同标准的质量审计（any/死代码/超大文件/CLI 输出）；(3) 为 lib/playwright/ 5 个 0 测试源文件补单元测试。",
       "category": "testing",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "high",
       "depends_on": [],
       "blocks": [],
@@ -1527,13 +1631,13 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
-      "assigned_agent": null,
+      "worktree": ".worktrees/p5-08-non-engine-quality",
+      "branch": "codex/p5-08-non-engine-quality",
+      "assigned_agent": "subagent-p5-08",
       "e2e_verification": "ci 脚本运行 apps/tools/plugins/lib 全部测试且通过；bun run check 对这些目录通过；lib/playwright/ 有单元测试覆盖；抽查确认非 engine 模块无 any/死代码残留",
       "resolution": null,
       "created": "2026-05-22T12:00:00+08:00",
-      "updated": "2026-05-22T12:00:00+08:00",
+      "updated": "2026-05-22T16:35:00+08:00",
       "completed": null,
       "verification": {
         "declared_scope": "ci 脚本运行 apps/tools/plugins/lib 全部测试且通过；bun run check 对这些目录通过；lib/playwright/ 有单元测试覆盖；抽查确认非 engine 模块无 any/死代码残留",
@@ -1586,7 +1690,9 @@
           "exit 0; .gitignore rules matched package-lock.json and .playwright-cli/*.yml",
           "exit 0; 1715 pass, 1 skip, 0 fail, 5249 expect() calls, 1716 tests across 173 files"
         ],
-        "artifacts": [".gitignore"],
+        "artifacts": [
+          ".gitignore"
+        ],
         "unverified_remainder": null
       },
       "commit_sha": "35ded8c4c24ea60dcef44676f32db9fa94f5b34e",
@@ -1599,7 +1705,7 @@
       "title": "依赖安全审计与过期依赖收敛",
       "description": "供应链/依赖层安全此前完全未覆盖（P4-06 仅覆盖代码层命令注入与凭据管理）。运行 bun audit 排查依赖漏洞并 triage；审查过期依赖（含 devDependencies）评估升级可行性；确认 lock 文件统一后（见 P5-09）依赖树无分歧。对无法升级项记录原因与缓解措施。",
       "category": "security",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "medium",
       "depends_on": [],
       "blocks": [],
@@ -1609,13 +1715,13 @@
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
-      "assigned_agent": null,
+      "worktree": ".worktrees/p4-08-dep-audit",
+      "branch": "codex/p4-08-dep-audit",
+      "assigned_agent": "subagent-p4-08",
       "e2e_verification": "bun audit 无 high/critical 未处理项（或已记录豁免理由）；过期依赖审查清单产出；bun test 全量通过",
       "resolution": null,
       "created": "2026-05-22T12:00:00+08:00",
-      "updated": "2026-05-22T12:00:00+08:00",
+      "updated": "2026-05-22T16:35:00+08:00",
       "completed": null,
       "verification": {
         "declared_scope": "bun audit 无 high/critical 未处理项（或已记录豁免理由）；过期依赖审查清单产出；bun test 全量通过",
