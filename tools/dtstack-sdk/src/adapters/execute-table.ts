@@ -5,7 +5,7 @@
  * 内部调用 dtstack-cli 执行 SQL，通过 page.evaluate 同步元数据。
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { unlinkSync, writeFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 
@@ -68,11 +68,30 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
   const sqlFile = `/tmp/${tableName}.sql`;
   writeFileSync(sqlFile, sql);
   try {
-    execSync(
-      `DTSTACK_COOKIE="${cookie}" ./node_modules/.bin/dtstack-cli sql exec ` +
-        `--project ${project} --datasource ${datasource} ` +
-        `--file ${sqlFile} --on-exists warn --on-missing warn --env ${env}`,
-      { stdio: "pipe", timeout: 120000 },
+    execFileSync(
+      "./node_modules/.bin/dtstack-cli",
+      [
+        "sql",
+        "exec",
+        "--project",
+        project,
+        "--datasource",
+        datasource,
+        "--file",
+        sqlFile,
+        "--on-exists",
+        "warn",
+        "--on-missing",
+        "warn",
+        "--env",
+        env,
+      ],
+      {
+        env: { ...process.env, DTSTACK_COOKIE: cookie },
+        shell: false,
+        stdio: "pipe",
+        timeout: 120000,
+      },
     );
   } finally {
     unlinkSync(sqlFile);
