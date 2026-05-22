@@ -4,7 +4,7 @@
     "project": "kata",
     "description": "Kata 项目全面优化进度追踪文件。这是唯一真相源（source of truth）；不同 AI 运行时的可视化工具只是镜像。",
     "created": "2026-05-21T18:00:00+08:00",
-    "updated": "2026-05-22T10:53:46+08:00",
+    "updated": "2026-05-22T11:00:00+08:00",
     "total_tasks": 34,
     "completed_tasks": 17,
     "in_progress_tasks": 0,
@@ -81,7 +81,7 @@
       "method": "jq 命令直接操作 JSON",
       "step1_find_next_id": "jq '.tasks | keys | map(select(startswith(\"P\"))) | sort | .[-1]' progress.json   # 找到最后一个任务 ID",
       "step2_compute_new_id": "根据上一步结果计算新 ID，如最后是 P3-08，新任务在 P3 阶段则为 P3-09；如果是新发现类型放 P5，则为 P5-08",
-      "step3_add_task": "新增任务必须包含标准字段：id/phase/title/description/category/status/priority/depends_on/blocks/source/writing_plan/worktree/branch/assigned_agent/e2e_verification/verification/resolution/created/updated/completed。同步更新 _meta.total_tasks、对应状态计数、phases.<phase>.task_count、_meta.updated。",
+      "step3_add_task": "新增任务必须包含标准字段：id/phase/title/description/category/status/priority/depends_on/blocks/source/writing_plan/worktree/branch/assigned_agent/commit_sha/commit_message/merge_commit_sha/e2e_verification/verification/resolution/created/updated/completed。同步更新 _meta.total_tasks、对应状态计数、phases.<phase>.task_count、_meta.updated。",
       "step4_add_dependency": "如果新任务需要等当前任务完成，在新任务 depends_on 中加入当前任务 ID；同时在当前任务 blocks 中加入新任务 ID，保持依赖双向一致。",
       "step5_validate": "新增后运行 reading_guide.step7_validate_counts，并检查所有 depends_on 都存在且对应任务 blocks 反向包含当前任务。",
       "step6_notify_user": "通过 text 告知用户：发现新问题，已添加任务 X-XX 到 progress.json",
@@ -225,7 +225,10 @@
           ".gitignore"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P1-02": {
       "id": "P1-02",
@@ -263,7 +266,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P1-03": {
       "id": "P1-03",
@@ -303,7 +309,10 @@
           "package.json"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P1-04": {
       "id": "P1-04",
@@ -350,7 +359,10 @@
           ".ai/core/skills/conflict-analyze/skill.yaml"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P1-05": {
       "id": "P1-05",
@@ -392,7 +404,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P2-01": {
       "id": "P2-01",
@@ -442,7 +457,10 @@
           ".ai/core/rules/workspace-boundary.md"
         ],
         "unverified_remainder": "新开 AI 窗口确认路由正常（需手工验证）"
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P2-02": {
       "id": "P2-02",
@@ -478,7 +496,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载（需手工验证）"
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P2-03": {
       "id": "P2-03",
@@ -520,7 +541,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P2-04": {
       "id": "P2-04",
@@ -562,7 +586,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-01": {
       "id": "P3-01",
@@ -600,7 +627,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-02": {
       "id": "P3-02",
@@ -638,7 +668,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-03": {
       "id": "P3-03",
@@ -683,7 +716,10 @@
           "3 updated test files"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-04": {
       "id": "P3-04",
@@ -725,7 +761,10 @@
         ],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-05": {
       "id": "P3-05",
@@ -769,7 +808,10 @@
           "8 skill.yaml files updated"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-06": {
       "id": "P3-06",
@@ -816,7 +858,10 @@
           "6 updated test files"
         ],
         "unverified_remainder": "手工评估 prompt 可读性提升"
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-07": {
       "id": "P3-07",
@@ -861,7 +906,10 @@
           "3 updated test files"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P3-08": {
       "id": "P3-08",
@@ -905,7 +953,10 @@
           "translation-glossary.yaml (56 terms)"
         ],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-01": {
       "id": "P4-01",
@@ -939,7 +990,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-02": {
       "id": "P4-02",
@@ -973,7 +1027,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-03": {
       "id": "P4-03",
@@ -1005,7 +1062,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-04": {
       "id": "P4-04",
@@ -1037,7 +1097,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-05": {
       "id": "P4-05",
@@ -1069,7 +1132,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-06": {
       "id": "P4-06",
@@ -1101,7 +1167,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-07": {
       "id": "P4-07",
@@ -1135,7 +1204,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-01": {
       "id": "P5-01",
@@ -1172,7 +1244,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-02": {
       "id": "P5-02",
@@ -1206,7 +1281,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-03": {
       "id": "P5-03",
@@ -1240,7 +1318,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-04": {
       "id": "P5-04",
@@ -1272,7 +1353,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-05": {
       "id": "P5-05",
@@ -1304,7 +1388,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-06": {
       "id": "P5-06",
@@ -1338,7 +1425,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-07": {
       "id": "P5-07",
@@ -1373,7 +1463,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-08": {
       "id": "P5-08",
@@ -1405,7 +1498,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P5-09": {
       "id": "P5-09",
@@ -1437,7 +1533,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     },
     "P4-08": {
       "id": "P4-08",
@@ -1469,7 +1568,10 @@
         "results": [],
         "artifacts": [],
         "unverified_remainder": null
-      }
+      },
+      "commit_sha": null,
+      "commit_message": null,
+      "merge_commit_sha": null
     }
   },
   "_hard_principles": {
@@ -1481,7 +1583,9 @@
       "PROGRESS_SYNC: 每次 TaskCreate/TaskUpdate/update_plan 等可视化状态变更后，必须同步更新 progress.json。progress.json 是断点续传的唯一依据，过期的 JSON 状态会导致后续 AI 恢复错误的任务。",
       "DEPENDENCY_FIRST: 任务的 depends_on 中任何任务未完成（status != completed），该任务不得开始。依赖任务完成后必须已合并回 main 且清理 worktree，下一个任务在新 worktree 中开始。",
       "TRACKED_SOURCE_OF_TRUTH: progress.json 必须随任务变更纳入版本控制；如果它仍是 untracked，交付时必须明确提醒。",
-      "PENDING_QUESTIONS_GATE: 执行任何任务前（步骤 1 之后），必须检查该任务是否存在 pending_questions 数组且其中有 answered_at == null 的条目。如果存在未回答的问题：(a) 任务状态保持 blocked (b) blocked_reason 写明等待用户回答 (c) 将问题列表按顺序展示给用户 (d) 不得继续后续步骤。所有问题 answered 后，将 status 改回 pending 方可继续。问题被回答时记录 answered_at 和 answer 字段。"
+      "PENDING_QUESTIONS_GATE: 执行任何任务前（步骤 1 之后），必须检查该任务是否存在 pending_questions 数组且其中有 answered_at == null 的条目。如果存在未回答的问题：(a) 任务状态保持 blocked (b) blocked_reason 写明等待用户回答 (c) 将问题列表按顺序展示给用户 (d) 不得继续后续步骤。所有问题 answered 后，将 status 改回 pending 方可继续。问题被回答时记录 answered_at 和 answer 字段。",
+      "CLAUDE_WORKTREE_GATE: Claude Code 执行任何会写文件的操作前，必须先使用并严格遵循 superpowers:using-git-worktrees 技能（/Users/poco/.codex/plugins/cache/openai-curated/superpowers/004da724/skills/using-git-worktrees/SKILL.md）。不得只手写几条 git 命令替代该技能流程；必须按技能 Step 0 检测现有隔离、Step 1 创建/进入隔离 worktree、Step 3 项目 setup、Step 4 clean baseline 验证的顺序执行。只有该技能报告 Worktree ready 后，才允许 Edit/Write/apply_patch/projection render/格式化/测试生成物写入，包括 progress.json。",
+      "COMPLETION_METADATA_GATE: 任务不得标记 completed，除非 worktree 是 .worktrees 下的绝对路径，branch 非空，commit_sha 非空，commit_message 非空，并且 verification.results 记录实际命令 exit code 与通过/失败/跳过计数。缺任一项只能保持 pending/planned/in_progress/blocked。"
     ]
   },
   "_pending_questions_schema": {
@@ -1504,11 +1608,47 @@
       "6. 如果用户对某个问题回复'不知道/不确定'：记录 answer 为 'USER_UNSURE'，标记为已处理（answered_at 填入时间），继续下一个问题"
     ]
   },
+  "_workflow_enforcement": {
+    "description": "防止 Claude Code 或其他 agent 在根目录直接写入、无 worktree/commit 却标记完成的硬闸。Claude Code 的 canonical 流程必须是 superpowers:using-git-worktrees，不允许自造简化版。",
+    "applies_from": "2026-05-22T11:00:00+08:00",
+    "canonical_claude_code_workflow": {
+      "skill_name": "superpowers:using-git-worktrees",
+      "skill_path": "/Users/poco/.codex/plugins/cache/openai-curated/superpowers/004da724/skills/using-git-worktrees/SKILL.md",
+      "instruction": "Claude Code 必须先读取并遵循该 skill；progress.json 不重复定义替代流程，以下步骤只是该 skill 的执行摘要和证据要求。"
+    },
+    "required_skill_steps_before_write": [
+      "Step 0 Detect Existing Isolation：运行 git rev-parse --git-dir、git rev-parse --git-common-dir、git branch --show-current，并用 git rev-parse --show-superproject-working-tree 排除 submodule 误判。",
+      "Step 1 Create Isolated Workspace：如果不在 linked worktree，优先使用平台 native worktree 工具；没有 native 工具时才使用 git worktree fallback，并按 skill 规则选择 .worktrees/<branch>、确认 .worktrees 被 git ignore。",
+      "Step 3 Project Setup：进入 worktree 后按项目类型执行 setup；本项目使用 Bun，不得用 npm/yarn 混跑。",
+      "Step 4 Verify Clean Baseline：在 worktree 中运行项目合适的 baseline 验证；失败时报告失败并等待用户决策，不得继续实现。",
+      "Report：必须输出/记录 Worktree ready at <full-path>、branch、baseline 验证命令和结果。"
+    ],
+    "pre_write_gate": [
+      "任何写文件动作前，Claude Code 必须已完成 canonical_claude_code_workflow.required_skill_steps_before_write。",
+      "如果当前路径仍是仓库根目录，禁止写入；必须回到 superpowers:using-git-worktrees Step 0/1。",
+      "禁止把根目录 progress.json 手工编辑当成任务完成；progress.json 更新也必须在任务 worktree 中提交并合并回 main。",
+      "若已经误在根目录写入，必须立即报告违规证据，按 superpowers:using-git-worktrees 流程迁移到 worktree 后重新提交；不得继续在根目录补救。"
+    ],
+    "completion_required_fields": [
+      "worktree",
+      "branch",
+      "commit_sha",
+      "commit_message",
+      "verification.commands",
+      "verification.results"
+    ],
+    "audit_commands": {
+      "completed_missing_worktree_or_commit": "jq -r '.tasks | to_entries[] | select(.value.status == \"completed\" and (((.value.worktree // \"\") | contains(\"/.worktrees/\") | not) or ((.value.branch // \"\") == \"\") or ((.value.commit_sha // \"\") == \"\") or ((.value.commit_message // \"\") == \"\"))) | .key' progress.json",
+      "completed_missing_verification_results": "jq -r '.tasks | to_entries[] | select(.value.status == \"completed\" and ((.value.verification.results // []) | length == 0)) | .key' progress.json"
+    },
+    "legacy_note": "applies_from 之前已标记 completed 但缺少 worktree/commit 元数据的任务属于历史流程违规，后续不得新增同类 completed 记录；能找到证据时应回填。"
+  },
   "_execution_protocol": {
     "description": "每个任务的执行流程规范。主 agent 遵循此流程，子 agent 执行步骤 7-10。",
     "per_task_flow": [
       "0. 【可视化】主 agent 按 runtime_tool_mapping 创建该任务的可视化条目并标记 in_progress",
       "1. 【读取】从 progress.json 确认任务详情、依赖已完成、无阻塞",
+      "1.1【写入前硬闸】★ Claude Code 必须读取并执行 superpowers:using-git-worktrees（/Users/poco/.codex/plugins/cache/openai-curated/superpowers/004da724/skills/using-git-worktrees/SKILL.md），按该 skill 的 Step 0/1/3/4 完成隔离 worktree、setup 和 clean baseline 验证。未得到该 skill 的 Worktree ready 结果前，不得 Edit/Write/apply_patch/projection render/格式化/测试生成物写入。",
       "1.5【提问检查】★ 检查任务 pending_questions 字段：如果存在且包含 answered_at == null 的条目 → status 保持/改为 blocked，blocked_reason 写入原因，逐个展示未回答问题（每次一个，用户回答后再展示下一个），停止后续步骤。全部已回答 → status 改回 pending，继续。",
       "2. 【调研】先用 rg/本地代码阅读深度探索相关代码库；只有涉及外部最佳实践、最新信息或用户明确要求时才使用 WebSearch。",
       "3. 【确认方案】需要用户决策时提供 2-3 个方案选项，标注推荐及理由，并按 runtime_tool_mapping 等待用户选择。",
@@ -1516,12 +1656,12 @@
       "5. 【评估】基于调研结果判断是否确实存在可优化点。如果无优化空间，如实报告用户并提议跳过此任务。",
       "6. 【计划】调用 superpowers:writing-plans 编写 Writing Plan，明确：要改哪些文件、怎么改、验收标准（含 e2e 验证命令）",
       "7. 【更新】更新 progress.json：writing_plan.path + writing_plan.status → planned；如 task.status 改为 planned，必须同步 _meta.planned_tasks/_meta.pending_tasks",
-      "8. 【隔离】调用 superpowers:using-git-worktrees 创建隔离 worktree",
-      "9. 【更新】Edit progress.json：worktree + branch + status → in_progress",
+      "8. 【隔离复核】按 superpowers:using-git-worktrees Step 0 复核当前仍在同一个隔离 worktree 中；如果没有，立即停止并回到步骤 1.1，不得继续实现。",
+      "9. 【更新】Edit progress.json：worktree + branch + status → in_progress；worktree 必须是 .worktrees 下绝对路径，branch 必须非空。",
       "10.【实现】在 worktree 中实现变更。主 agent 决定：复杂任务派发 subagent（subagent-driven-development），简单任务自行执行（executing-plans）。Subagent 收到任务后：先读 progress.json 了解上下文 → 创建自己的子任务列表 → 实现 → 回报结果",
       "11.【验证】bun test + bun run check 全部通过。按 e2e_verification 字段执行验收。验证失败时自动诊断修复，同一任务最多 3 轮；3 轮后仍失败 → status → blocked，blocked_reason 写明失败信息和已尝试的修复，等待用户决策。通过后写入 verification 对象。",
       "12.【合并】git merge --no-ff 回 main，git push origin main，清理 worktree",
-      "13.【更新】Edit progress.json：status → completed，resolution 记录结果，verification 记录证据，更新 _meta 计数。运行时可视化条目标记 completed",
+      "13.【更新】Edit progress.json：status → completed 前必须写入 worktree、branch、commit_sha、commit_message、verification 证据；缺任一项不得 completed，只能 blocked 并写 blocked_reason。完成后 resolution 记录结果，更新 _meta 计数。运行时可视化条目标记 completed",
       "14.【循环】回到步骤 0，处理下一个可执行任务"
     ],
     "worktree_naming": ".worktrees/<task-id-lowercase>-<short-slug>",
