@@ -9,15 +9,15 @@
     "coverage_matrix_path": null
   },
   "automation": {
-    "status": "not-started",
+    "status": "in-progress",
     "intents": [],
     "last_handoff_path": null,
-    "last_run_status": "not-run"
+    "last_run_status": "preflight-ready"
   },
   "files": {
     "archive": "岚图已上线需求主流程用例.md",
     "xmind": "岚图已上线需求主流程用例.xmind",
-    "tests_root": null,
-    "latest_results": null
+    "tests_root": "tests",
+    "latest_results": "results/preflight-260522-01"
   }
 }
