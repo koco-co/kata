@@ -98,13 +98,41 @@ bunx playwright install
 <!-- ai-core:hash a672d754e4fd8c1b3c150be3c47210120211826a307c4a0ac0c39d2ceaca3da5 -->
 <!-- ai-core:end command-index -->
 
-常见入口：
+### 功能使用示例
 
-- 新项目、菜单、工作区检查：`/workspace-manage`
-- 从 PRD 或设计源生成用例：`/case-draft`
-- 同步或转换已有用例产物：`/case-edit`
-- 维护业务知识：`/knowledge-curate`
-- UI 自动化：使用 `/playwright-automation` 统一处理规划、生成、运行和归因
+以下命令在 Claude Code 或 Codex runtime 中直接输入：
+
+```bash
+# 1. 工作区管理 — 首次使用查看功能菜单或管理项目工作区
+/workspace-manage
+
+# 2. 用例生成 — 提供 PRD、Lanhu URL 或 Axure 链接生成测试用例
+/case-draft
+
+# 3. 用例编辑 — 同步、转换或标准化已有 Archive MD / XMind / CSV 用例
+/case-edit
+
+# 4. 知识管理 — 查询或更新项目业务规则和术语
+/knowledge-curate
+
+# 5. UI 自动化 — 生成、运行、归因和修复 Playwright 自动化测试
+/playwright-automation
+
+# 6. Bug 报告 — 根据失败现象生成有证据支持的 bug 报告
+/bug-file
+
+# 7. 冲突分析 — 分析合并冲突并生成解决方案说明
+/conflict-analyze
+
+# 8. Hotfix 回归用例 — 根据 bug 或修复记录生成回归用例
+/case-hotfix
+
+# 9. 代码扫描 — 扫描源码 diff 发现可复现的缺陷
+/diff-scan
+
+# 10. 故障排查 — SSH 登录服务器排查连通性故障
+/infra-diagnose
+```
 
 ## 架构
 
@@ -157,6 +185,7 @@ kata/
 ├── .ai/core/        # AI Core 合约源
 ├── .agents/         # kata Codex runtime 投影
 ├── .claude/         # Claude Code runtime 投影
+├── docs/            # 架构、ADR、审计、技能和排查文档
 ├── engine/          # CLI、AI Core 校验、工作流支撑代码和测试
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # 独立工具包
@@ -179,10 +208,10 @@ bun run lint:ai-core
 bun --no-env-file test --cwd engine
 
 # 重新生成 README/CHANGELOG 中的 AI Core 托管块
-bun --no-env-file kata ai-core:docs render
+bun --no-env-file engine/bin/kata ai-core docs render
 
 # 检查托管块是否漂移
-bun --no-env-file kata ai-core:docs check
+bun --no-env-file engine/bin/kata ai-core docs check
 ```
 
 变更 runtime 内容时，优先修改 `.ai/core/**`，再运行 projection/docs/gate 命令生成并校验投影；不要直接手工编辑 `.agents/**` 或 `.claude/**` 里的生成内容。

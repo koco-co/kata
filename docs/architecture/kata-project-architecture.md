@@ -24,22 +24,25 @@ Kata 是一个面向 QA 生产链路的 coding-agent runtime 项目。它把“�
 | Runtime 投影层 | `.agents/**`, `.claude/**` | 从 `.ai/core` 生成 Codex 与 Claude Code 可加载的 skills、agents、索引和入口文档。 |
 | Engine 执行层 | `engine/**` | 提供 `kata`、配置解析、AI Core 校验、投影渲染、报告生成、XMind/Archive/知识/源码分析等能力。 |
 | 插件层 | `plugins/**` | 通过 hook 接入 Lanhu、Zentao、通知等外部系统，不能绕过合约和写入边界。 |
+| 文档层 | `docs/**` | 架构设计、ADR、审计报告、技能文档和故障排查指南。 |
 | 工具与模板层 | `tools/**`, `templates/**`, `lib/**` | 提供外部前置工具、输出模板、项目骨架和共享工具库。 |
-| Workspace 产物层 | `workspace/{project}/**` | 存放用户项目产物；其中 `.repos/**` 只作为源码证据读取。 |
+| Workspace 产物层 | `workspace/{project}/**` | 存放用户项目产物；其中 `.kata/repos/**` 只作为源码证据读取。 |
 
 ## 2. 用户能力面
 
 4.0 的 active surface 以 `.ai/core/commands/*.command.yaml` 中 `user_invocable: true` 的命令为准。README 的命令表由 AI Core docs renderer 生成，避免手工漂移。
 
-当前能力分为五组：
+当前能力分为七组：
 
 | 能力组 | 命令 |
 | --- | --- |
 | 工作区 | `/workspace-manage` |
 | 用例生成与维护 | `/case-draft`, `/case-edit` |
 | 知识管理 | `/knowledge-curate` |
-| 缺陷与变更 | `/bug-file`, `/conflict-analyze`, `/case-hotfix`, `/diff-scan` |
-| UI 自动化 | `/ui-plan`, `/playwright-gen`, `/run-triage` |
+| 缺陷与变更 | `/bug-file`, `/conflict-analyze`, `/case-hotfix` |
+| UI 自动化 | `/playwright-automation` |
+| 代码扫描 | `/diff-scan` |
+| 故障排查 | `/infra-diagnose` |
 
 `playwright-cli` 是 vendor skill，保留上游规范名称。它负责真实浏览器自动化，不属于 kata-owned product skill 命名体系。
 
@@ -56,7 +59,7 @@ Kata 是一个面向 QA 生产链路的 coding-agent runtime 项目。它把“�
 3. Engine 加载 `.ai/core` 合约，校验 skill、workflow、agent、prompt、schema、guard。
 4. Workflow 按步骤调用 agent、prompt、plugin 和 SourceRef resolver。
 5. 中间结果先进入 staging 或受控写入接口。
-6. WritePolicy 检查 workspace scope、`.repos/**` 只读边界、path traversal、absolute path 和 runtime contract 写入。
+6. WritePolicy 检查 workspace scope、`.kata/repos/**` 只读边界、path traversal、absolute path 和 runtime contract 写入。
 7. 成功后写入 `workspace/{project}/`，并输出报告、用例、脚本或知识更新。
 
 这个链路的关键点是：**AI 可以参与生成内容，但不能临时发明运行规则、写入范围、插件权限或输出格式**。这些都必须由 `.ai/core` 合约声明并通过 gate 检查。
@@ -126,9 +129,9 @@ Workspace 是业务产物区。它可以包含：
 - `project.json`、项目配置和本地知识。
 - 需求派生物、Archive MD、XMind、报告。
 - UI 自动化计划、Playwright 脚本和运行结果。
-- `.repos/**` 源码副本。
+- `.kata/repos/**` 源码副本。
 
-其中 `.repos/**` 是只读证据目录。Kata workflow 可以读取源码、diff、配置和测试结果，但不能在这里 commit、push 或写业务文件。
+其中 `.kata/repos/**` 是只读证据目录。Kata workflow 可以读取源码、diff、配置和测试结果，但不能在这里 commit、push 或写业务文件。
 
 ### 4.6 `tools/**`, `templates/**`, `lib/**`
 
@@ -161,7 +164,7 @@ Kata 的写入模型遵循“先声明、再执行、失败关闭”：
 | 目标 | 策略 |
 | --- | --- |
 | `workspace/{project}/**` | 允许声明范围内的业务产物写入。 |
-| `workspace/{project}/.repos/**` | 只读，作为源码证据和 diff 来源。 |
+| `workspace/{project}/.kata/repos/**` | 只读，作为源码证据和 diff 来源。 |
 | `.ai/core/**` | 只能由人工或明确的开发任务修改，workflow 运行路径不得直接改写。 |
 | `.agents/**`, `.claude/**` | 由 projection 生成；手工漂移应被检测。 |
 | 绝对路径 / path traversal / symlink escape | 默认阻断。 |
