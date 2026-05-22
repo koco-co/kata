@@ -87,11 +87,11 @@ function writeGoldenResult(
     return;
   }
   const subset = effectiveSubset !== undefined ? `subset: ${effectiveSubset}` : "subset: all";
-  process.stdout.write(
-    `${opts.suite} golden evals ${result.pass ? "passed" : "failed"}: ${result.passed}/${result.total} passed (${subset})\n`,
+  console.log(
+    `${opts.suite} golden evals ${result.pass ? "passed" : "failed"}: ${result.passed}/${result.total} passed (${subset})`,
   );
-  process.stdout.write(
-    `telemetry: trigger_hit_rate=${result.telemetry.trigger_hit_rate.toFixed(2)} trigger_miss_rate=${result.telemetry.trigger_miss_rate.toFixed(2)} failure_modes=${result.telemetry.failure_modes.length === 0 ? "none" : result.telemetry.failure_modes.join(",")}\n`,
+  console.log(
+    `telemetry: trigger_hit_rate=${result.telemetry.trigger_hit_rate.toFixed(2)} trigger_miss_rate=${result.telemetry.trigger_miss_rate.toFixed(2)} failure_modes=${result.telemetry.failure_modes.length === 0 ? "none" : result.telemetry.failure_modes.join(",")}`,
   );
 }
 

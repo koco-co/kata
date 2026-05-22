@@ -16,6 +16,6 @@ export function registerContextCommand(aiCore: Command): void {
         process.exitCode = 1;
         return;
       }
-      process.stdout.write("ai-core context audit passed\n");
+      console.log("ai-core context audit passed");
     });
 }

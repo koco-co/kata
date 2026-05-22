@@ -46,9 +46,7 @@ export interface DiscussValidateContext {
 }
 
 export async function runDiscussValidate(ctx: DiscussValidateContext): Promise<void> {
-  // TODO: Move existing validate action body here from the Commander .action() handler
-  // For now, stub that logs the context — the real logic stays in the .action() wrapper
-  console.log(`discuss validate: project=${ctx.project} featureId=${ctx.featureId}`);
+  void ctx;
 }
 
 const ENHANCED_STATUSES = [

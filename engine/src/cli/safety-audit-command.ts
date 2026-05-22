@@ -42,7 +42,7 @@ export function buildSafetyCommand(): Command {
         process.exit(2);
       }
 
-      process.stdout.write("[safety:audit-command] allowed\n");
+      console.log("[safety:audit-command] allowed");
     });
   return safety;
 }

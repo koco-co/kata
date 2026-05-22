@@ -88,7 +88,7 @@ async function runP0Gate(context: BasicGateContext): Promise<void> {
     ...goldenSummaryIssues(evals, "p0"),
   ];
   if (writeBlockingIssues(issues)) return;
-  process.stdout.write("ai-core p0 gate passed\n");
+  console.log("ai-core p0 gate passed");
 }
 
 async function runGaCoreImportGate(context: BasicGateContext): Promise<void> {
@@ -328,9 +328,9 @@ function writeBlockingIssues(issues: AiCoreIssue[]): boolean {
 }
 
 function writeImportGateSummary(p0Evals: P0GoldenSummary, gaCoreEvals: P0GoldenSummary): void {
-  process.stdout.write(`p0 golden evals: ${p0Evals.passed}/${p0Evals.total} passed\n`);
-  process.stdout.write(`ga-core golden evals: ${gaCoreEvals.passed}/${gaCoreEvals.total} passed\n`);
-  process.stdout.write("ai-core ga-core-import gate passed\n");
+  console.log(`p0 golden evals: ${p0Evals.passed}/${p0Evals.total} passed`);
+  console.log(`ga-core golden evals: ${gaCoreEvals.passed}/${gaCoreEvals.total} passed`);
+  console.log("ai-core ga-core-import gate passed");
 }
 
 function writeRuntimeGateSummary(
@@ -338,34 +338,32 @@ function writeRuntimeGateSummary(
   completion: CompletionChecks,
   scope: GateScope,
 ): void {
-  process.stdout.write(
-    `p0 golden evals: ${checks.p0Evals.passed}/${checks.p0Evals.total} passed\n`,
+  console.log(`p0 golden evals: ${checks.p0Evals.passed}/${checks.p0Evals.total} passed`);
+  console.log(
+    `ga-core golden evals: ${checks.gaCoreEvals.passed}/${checks.gaCoreEvals.total} passed`,
   );
-  process.stdout.write(
-    `ga-core golden evals: ${checks.gaCoreEvals.passed}/${checks.gaCoreEvals.total} passed\n`,
-  );
-  process.stdout.write(
-    `ga-runtime golden evals: ${checks.gaRuntimeEvals.passed}/${checks.gaRuntimeEvals.total} passed\n`,
+  console.log(
+    `ga-runtime golden evals: ${checks.gaRuntimeEvals.passed}/${checks.gaRuntimeEvals.total} passed`,
   );
   if (scope !== "ga-completion") {
-    process.stdout.write("ai-core ga-core-runtime gate passed\n");
+    console.log("ai-core ga-core-runtime gate passed");
     return;
   }
   writeCompletionSummary(completion);
 }
 
 function writeCompletionSummary(completion: CompletionChecks): void {
-  process.stdout.write(
-    `deterministic baseline failures: ${completion.baseline.deterministicFailures.length}\n`,
+  console.log(
+    `deterministic baseline failures: ${completion.baseline.deterministicFailures.length}`,
   );
-  process.stdout.write(
-    `environment-dependent checks: ${completion.baseline.environmentDependentChecks.length}\n`,
+  console.log(
+    `environment-dependent checks: ${completion.baseline.environmentDependentChecks.length}`,
   );
-  process.stdout.write(
-    `case-draft sparse PRD evals: ${completion.caseDraftWorkflowEvals.value?.passed ?? 0}/${completion.caseDraftWorkflowEvals.value?.total ?? 0} passed\n`,
+  console.log(
+    `case-draft sparse PRD evals: ${completion.caseDraftWorkflowEvals.value?.passed ?? 0}/${completion.caseDraftWorkflowEvals.value?.total ?? 0} passed`,
   );
-  process.stdout.write(
-    `baseline decision: ${completion.baseline.deterministicFailures.length === 0 ? "no deterministic failures documented" : "deterministic failures remain documented"}\n`,
+  console.log(
+    `baseline decision: ${completion.baseline.deterministicFailures.length === 0 ? "no deterministic failures documented" : "deterministic failures remain documented"}`,
   );
-  process.stdout.write("ai-core ga-completion gate passed\n");
+  console.log("ai-core ga-completion gate passed");
 }

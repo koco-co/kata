@@ -93,7 +93,7 @@ async function runProjectionRenderCommand(opts: {
     process.exitCode = 1;
     return;
   }
-  process.stdout.write(`ai-core projection render passed\n`);
+  console.log("ai-core projection render passed");
 }
 
 async function runProjectionCheckCommand(opts: {
@@ -111,7 +111,7 @@ async function runProjectionCheckCommand(opts: {
     process.exitCode = 1;
     return;
   }
-  process.stdout.write(`ai-core projection check passed\n`);
+  console.log("ai-core projection check passed");
 }
 
 function runProjectionInventoryCommand(opts: { json?: boolean }): void {
@@ -127,13 +127,13 @@ function runProjectionInventoryCommand(opts: { json?: boolean }): void {
     process.exitCode = 1;
     return;
   }
-  if (opts.json !== true) process.stdout.write("ai-core projection inventory passed\n");
+  if (opts.json !== true) console.log("ai-core projection inventory passed");
 }
 
 function runProjectionInventoryRewriteCommand(): void {
   if (failOnInvalidConfig()) return;
   rewriteProjectionInventoryFromLedgers();
-  process.stdout.write("ai-core projection inventory rewrite passed\n");
+  console.log("ai-core projection inventory rewrite passed");
 }
 
 async function runProjectionLockCommand(action: string): Promise<void> {
@@ -148,7 +148,7 @@ async function runProjectionLockCommand(action: string): Promise<void> {
   const lockPath = join(repoRoot(), ".ai/core/runtimes/projection-lock.json");
   if (action === "render") {
     writeProjectionLock(lockPath);
-    process.stdout.write("ai-core projection lock render passed\n");
+    console.log("ai-core projection lock render passed");
     return;
   }
   const lock = readProjectionLock(lockPath);
@@ -163,7 +163,7 @@ async function runProjectionLockCommand(action: string): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  process.stdout.write("ai-core projection lock check passed\n");
+  console.log("ai-core projection lock check passed");
 }
 
 async function runProjectionDiffCommand(opts: { runtime: string; json?: boolean }): Promise<void> {
@@ -177,7 +177,7 @@ async function runProjectionDiffCommand(opts: { runtime: string; json?: boolean 
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     return;
   }
-  process.stdout.write(`ai-core projection diff: ${JSON.stringify(report)}\n`);
+  console.log(`ai-core projection diff: ${JSON.stringify(report)}`);
 }
 
 function rejectProjectionRuntime(prefix: string, runtime: string): void {

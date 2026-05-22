@@ -16,8 +16,8 @@ export function registerCaseDraftCommand(aiCore: Command): void {
       } else {
         const passed = result.value?.passed ?? 0;
         const total = result.value?.total ?? 0;
-        process.stdout.write(
-          `case-draft sparse PRD evals ${result.ok ? "passed" : "failed"}: ${passed}/${total} passed\n`,
+        console.log(
+          `case-draft sparse PRD evals ${result.ok ? "passed" : "failed"}: ${passed}/${total} passed`,
         );
       }
       if (!result.ok) {
