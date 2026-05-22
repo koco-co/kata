@@ -149,7 +149,7 @@ steps:
 
   - id: case-draft
     uses: agent:case-draft-worker@1
-    prompt: designing-case-matrix@1
+    prompt: case-draft-prompt@1
     output_schema: DraftCaseSet@1
     gates:
       - kata cases validate ${feature_id} --project ${project} --check-source-refs prd.file,lanhu.fixture

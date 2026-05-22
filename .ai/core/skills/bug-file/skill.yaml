@@ -3,7 +3,7 @@ name: bug-file
 kind: product-skill
 schema_version: 1
 skill_version: 1
-status: deprecated
+status: active
 description:
   summary: 把可复现的运行时错误、控制台失败、堆栈与 HTTP 失败等 bug 证据，整理为可执行的 bug 报告。
   must_trigger_when:
@@ -43,6 +43,12 @@ context_budget:
     on_overflow: summarize_then_drop_lowest_priority
 body:
   always_load:
+    routing_summary:
+      - 把失败证据收束为结构化 bug 报告——凡无证据者，一律不入文。
+    hard_rules:
+      - 实际行为、预期行为、复现步骤、影响范围——四者须分项陈述，不得合并。
+      - 缺乏证据时，不得凭空虚构日志、负责人、模块或根因。
+  codex_override:
     routing_summary:
       - 把失败证据收束为结构化 bug 报告——凡无证据者，一律不入文。
     hard_rules:

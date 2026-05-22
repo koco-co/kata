@@ -1,4 +1,4 @@
-id: designing-case-matrix@1
+id: case-draft-prompt@1
 schema_ref: PromptContract@1
 locale: zh-CN
 model_lock:

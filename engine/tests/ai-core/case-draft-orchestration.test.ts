@@ -32,8 +32,8 @@ describe("case-draft subagent orchestration surface", () => {
   it("hard_rules contain the new SourceRef layering rule", () => {
     const yaml = parse(read(".ai/core/skills/case-draft/skill.yaml")) as any;
     const joined = yaml.body.always_load.hard_rules.join("\n");
-    expect(joined).toContain("requirement_atoms 中引用 SourceRef ID");
-    expect(joined).toContain("不得显式包含 SourceRef");
+    expect(joined).toContain("requirement_atoms 中的 SourceRef ID 引用");
+    expect(joined).toContain("SourceRef 标识");
     expect(joined).toContain("case_id");
     expect(joined).toContain("requirement_atom_ids");
   });

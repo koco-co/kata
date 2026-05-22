@@ -3,7 +3,7 @@ name: diff-scan
 kind: product-skill
 schema_version: 1
 skill_version: 1
-status: deprecated
+status: active
 description:
   summary: 扫描源代码 diff，只报告可复现、有证据支撑的缺陷。
   must_trigger_when:
@@ -43,6 +43,12 @@ context_budget:
     on_overflow: summarize_then_drop_lowest_priority
 body:
   always_load:
+    routing_summary:
+      - 扫描代码 diff，定位可复现缺陷；源仓库一律不改。
+    hard_rules:
+      - 仅报告能依据所给 diff 与周边代码复现的 bug。
+      - workspace/{project}/.kata/repos/** 为只读源仓库，详见 .ai/core/rules/repo-readonly.md。
+  codex_override:
     routing_summary:
       - 扫描代码 diff，定位可复现缺陷；源仓库一律不改。
     hard_rules:

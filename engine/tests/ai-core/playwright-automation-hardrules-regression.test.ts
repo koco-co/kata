@@ -21,10 +21,10 @@ const hardRules = (() => {
 })();
 
 describe("playwright-automation hard_rules regression", () => {
-  // Baseline captured BEFORE this PR. If hard_rules need to change in this PR,
-  // update this baseline in a SEPARATE commit with explicit justification.
-  const BASELINE_SHA256 = "3dd9973452db85b8a27af53d694476c8649c03f2c29410ffc5ece01b134a5f1a";
-  const BASELINE_COUNT = 60;
+  // Baseline updated 2026-05-22: P3-04 — thinned env-preflight rules (delegated to references/env-preflight.md).
+  // Baseline updated 2026-05-22: P3-06 — negative constraints reframed as positive guidance; pipeline order made explicit.
+  const BASELINE_SHA256 = "6ceee3165102232308e4eec269eede0d4749ef863898837a69b53d22cf9434e7";
+  const BASELINE_COUNT = 14;
 
   it("hard_rules array length is unchanged", () => {
     expect(hardRules.length).toBe(BASELINE_COUNT);

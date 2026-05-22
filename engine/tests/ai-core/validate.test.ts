@@ -189,10 +189,10 @@ describe("ai-core schema registry", () => {
     ]);
     expect(core.prompts.map((prompt) => prompt.id).sort()).toEqual([
       "bug-file-prompt@1",
+      "case-draft-prompt@1",
       "case-edit-prompt@1",
       "case-hotfix-prompt@1",
       "conflict-analyze-prompt@1",
-      "designing-case-matrix@1",
       "diff-scan-prompt@1",
       "infra-diagnose-prompt@1",
       "knowledge-curate-prompt@1",
@@ -548,7 +548,7 @@ describe("ai-core schema registry", () => {
     );
   });
 
-  it("declares the P0 prompt contract fields used by designing-case-matrix", () => {
+  it("declares the P0 prompt contract fields used by case-draft-prompt", () => {
     const schema = JSON.parse(
       readFileSync(join(repoRoot(), ".ai/core/schemas/PromptContract.v1.schema.json"), "utf8"),
     );

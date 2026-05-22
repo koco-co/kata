@@ -1,4 +1,5 @@
 terms:
+  # ── 核心架构 ──
   - id: skill
     zh-CN: 技能
     en-US: skill
@@ -11,3 +12,161 @@ terms:
   - id: guard
     zh-CN: 守卫
     en-US: guard
+  - id: prompt
+    zh-CN: 提示词
+    en-US: prompt
+  - id: agent
+    zh-CN: 智能体
+    en-US: agent
+  - id: contract
+    zh-CN: 契约
+    en-US: contract
+  - id: schema
+    zh-CN: 模式
+    en-US: schema
+  - id: runtime
+    zh-CN: 运行时
+    en-US: runtime
+  - id: reference
+    zh-CN: 参考文件
+    en-US: reference
+  - id: sandbox
+    zh-CN: 沙箱
+    en-US: sandbox
+  - id: plugin
+    zh-CN: 插件
+    en-US: plugin
+  - id: hook
+    zh-CN: 钩子
+    en-US: hook
+  # ── 路由与加载 ──
+  - id: routing
+    zh-CN: 路由
+    en-US: routing
+  - id: routing-summary
+    zh-CN: 路由摘要
+    en-US: routing summary
+  - id: must-trigger-when
+    zh-CN: 触发条件
+    en-US: must trigger when
+  - id: must-not-trigger-when
+    zh-CN: 排除条件
+    en-US: must not trigger when
+  - id: always-load
+    zh-CN: 始终加载
+    en-US: always load
+  - id: codex-override
+    zh-CN: Codex 覆写
+    en-US: Codex override
+  - id: hard-rule
+    zh-CN: 硬规则
+    en-US: hard rule
+  - id: cache-breakpoint
+    zh-CN: 缓存断点
+    en-US: cache breakpoint
+  - id: model-routing
+    zh-CN: 模型路由
+    en-US: model routing
+  - id: context-budget
+    zh-CN: 上下文预算
+    en-US: context budget
+  - id: overflow-policy
+    zh-CN: 溢出策略
+    en-US: overflow policy
+  - id: failure-policy
+    zh-CN: 失败策略
+    en-US: failure policy
+  # ── 工作区与项目 ──
+  - id: workspace
+    zh-CN: 工作区
+    en-US: workspace
+  - id: feature
+    zh-CN: 特性
+    en-US: feature
+  - id: manifest
+    zh-CN: 清单
+    en-US: manifest
+  - id: metadata
+    zh-CN: 元数据
+    en-US: metadata
+  - id: repository
+    zh-CN: 仓库
+    en-US: repository
+  - id: customer
+    zh-CN: 客户
+    en-US: customer
+  - id: module
+    zh-CN: 模块
+    en-US: module
+  # ── QA 领域 ──
+  - id: case
+    zh-CN: 用例
+    en-US: case
+  - id: evidence
+    zh-CN: 证据
+    en-US: evidence
+  - id: source-ref
+    zh-CN: 源引用
+    en-US: source reference
+  - id: fixture
+    zh-CN: 测试夹具
+    en-US: fixture
+  - id: assertion
+    zh-CN: 断言
+    en-US: assertion
+  - id: locator
+    zh-CN: 定位器
+    en-US: locator
+  - id: archive
+    zh-CN: 归档
+    en-US: archive
+  - id: xmind
+    zh-CN: 思维导图
+    en-US: XMind
+  - id: prd
+    zh-CN: 产品需求文档
+    en-US: PRD
+  # ── 用例生成 ──
+  - id: requirement
+    zh-CN: 需求
+    en-US: requirement
+  - id: atom
+    zh-CN: 原子
+    en-US: atom
+  - id: ambiguity
+    zh-CN: 歧义
+    en-US: ambiguity
+  - id: coverage
+    zh-CN: 覆盖
+    en-US: coverage
+  - id: confirmation-package
+    zh-CN: 确认包
+    en-US: confirmation package
+  # ── 自动化管线 ──
+  - id: env-preflight
+    zh-CN: 环境预检
+    en-US: environment preflight
+  - id: ui-probe
+    zh-CN: UI 探测
+    en-US: UI probe
+  - id: plan-reconcile
+    zh-CN: 计划对账
+    en-US: plan reconcile
+  - id: self-run
+    zh-CN: 自运行
+    en-US: self run
+  - id: triage
+    zh-CN: 归因
+    en-US: triage
+  - id: handoff
+    zh-CN: 交付
+    en-US: handoff
+  - id: gate
+    zh-CN: 门禁
+    en-US: gate
+  - id: diff
+    zh-CN: 差异
+    en-US: diff
+  - id: hotfix
+    zh-CN: 热修复
+    en-US: hotfix

@@ -48,6 +48,12 @@ body:
     hard_rules:
       - 项目知识统一存于 workspace/{project}/knowledge/** 之下。
       - 未明确选定项目之前，不得跨项目编辑知识。
+  codex_override:
+    routing_summary:
+      - 查询与维护项目业务知识；知识统一沉淀于 workspace/{project}/knowledge/ 之下。
+    hard_rules:
+      - 项目知识统一存于 workspace/{project}/knowledge/** 之下。
+      - 未明确选定项目之前，不得跨项目编辑知识。
 references:
   - path: references/knowledge-rules.md
     type: normative

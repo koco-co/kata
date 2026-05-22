@@ -3,7 +3,7 @@ name: conflict-analyze
 kind: product-skill
 schema_version: 1
 skill_version: 1
-status: deprecated
+status: active
 description:
   summary: 分析源代码或文档的合并冲突，产出面向解决方案的冲突报告。
   must_trigger_when:
@@ -43,6 +43,12 @@ context_budget:
     on_overflow: summarize_then_drop_lowest_priority
 body:
   always_load:
+    routing_summary:
+      - 剖析合并冲突——先陈述双方意图，再给出解决方案。
+    hard_rules:
+      - 给出解决方案之前，先陈述冲突双方各自的意图与依据。
+      - workspace/{project}/.kata/repos/** 为只读源仓库，详见 .ai/core/rules/repo-readonly.md。
+  codex_override:
     routing_summary:
       - 剖析合并冲突——先陈述双方意图，再给出解决方案。
     hard_rules:

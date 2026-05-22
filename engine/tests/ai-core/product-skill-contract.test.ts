@@ -323,13 +323,13 @@ describe("product skill contract parser", () => {
 
     const hardRules = result.value.hardRules.join("\n");
     for (const required of [
-      "Lanhu/Axure URL 是源输入，须先抓取",
+      "Lanhu/Axure URL 的 source-intake、token 搜索顺序、抓取降级",
       "项目未指定时先自行推断",
-      "历史上下文不得确认新增行为",
-      "每个 requirement atom 必须包含 evidence_kind、ambiguity_class、confidence",
-      "archive.md 与 cases.xmind 只能在 blocking pending 为 0 时生成",
-      "仍有 blocking pending 时只输出草稿与确认类产物",
-      "automation_status=ready 的 AutomationIntent@1 可交给 playwright-automation@1",
+      "历史上下文：history_inferred 作为参考证据使用",
+      "每个 requirement atom 携带 evidence_kind、ambiguity_class、confidence",
+      "archive.md 与 cases.xmind 在 blocking pending 清零后生成",
+      "blocking pending 非零时只输出草稿与确认类产物",
+      "automation_status=ready 的 AutomationIntent@1 移交 playwright-automation@1",
     ]) {
       expect(hardRules).toContain(required);
     }

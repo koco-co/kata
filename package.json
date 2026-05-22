@@ -12,12 +12,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-org/kata.git"
+    "url": "git+https://github.com/koco-co/kata.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/kata/issues"
+    "url": "https://github.com/koco-co/kata/issues"
   },
-  "homepage": "https://github.com/your-org/kata#readme",
+  "homepage": "https://github.com/koco-co/kata#readme",
   "scripts": {
     "console": "bun apps/console/server.ts",
     "mcp": "bun apps/mcp/server.ts",
@@ -44,8 +44,6 @@
   "dependencies": {
     "commander": "^13.1.0",
     "exceljs": "^4.4.0",
-    "gray-matter": "^4.0.3",
-    "handlebars": "^4.7.8",
     "jszip": "^3.10.1",
     "nodemailer": "^8.0.4",
     "sharp": "^0.33.5",

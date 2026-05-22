@@ -285,7 +285,7 @@ describe("ai-core projection", () => {
     const row = index.split(/\r?\n/).find((line) => line.startsWith("| /case-draft |"));
     expect(row).toContain("case-draft-worker@1");
     expect(row).toContain("case-reviewer@1");
-    expect(row).toContain("designing-case-matrix@1");
+    expect(row).toContain("case-draft-prompt@1");
     expect(row).toContain("lanhu.design-source@1");
   });
 
@@ -563,7 +563,7 @@ describe("ai-core projection", () => {
       expect(skill).toContain("## 硬规则");
       expect(skill).toContain("evidence_kind");
       expect(skill).toContain("ambiguity_class");
-      expect(skill).toContain("archive.md 与 cases.xmind 只能在 blocking pending 为 0 时生成");
+      expect(skill).toContain("archive.md 与 cases.xmind 在 blocking pending 清零后生成");
     }
   });
 
@@ -576,198 +576,31 @@ describe("ai-core projection", () => {
         join(out, runtimeRoot, "skills/playwright-automation/SKILL.md"),
         "utf8",
       );
-      expect(skill).toContain("用户回复只有 `确认`");
-      expect(skill).toContain("必须视为确认默认推荐环境 `ltqc-local.yaml`");
-      expect(skill).toContain("不得再次调用环境确认 AskUserQuestion");
-      expect(skill).toContain("目标目录已精确定位");
-      expect(skill).toContain("目标目录已定位到");
-      expect(skill).toContain("用户附带的 `确认`");
-      expect(skill).toContain("必须先按行检查最后一个非空行");
-      expect(skill).toContain("不得当作标题关键词、功能名称、自然语言描述或新一轮无环境请求");
-      expect(skill).toContain("已剥离尾部");
-      expect(skill).toContain("开始两段式名称片段发现");
-      expect(skill).toContain("Session 文件存在但 mtime 超过 24 小时");
-      expect(skill).toContain("Session 文件存在但 mtime 34h > 24h");
-      expect(skill).toContain("最终 blocker 文本的第一个字符必须就是 `会话已过期。` 的 `会`");
-      expect(skill).toContain("探测确认跳转登录页");
-      expect(skill).toContain("探测确认登录跳转");
-      expect(skill).toContain("ENV_CONFIRMATION_FALLBACK_STOP");
-      expect(skill).toContain("禁止在环境确认 fallback 路径中调用 TodoWrite");
-      expect(skill).toContain("NO_PERMISSION_DIRECT_TEXT_GATE");
-      expect(skill).toContain("探测确认已登录但无 dataAssets 产品权限");
-      expect(skill).toContain("不得再调用权限阻塞 AskUserQuestion");
-      expect(skill).toContain("PREFLIGHT_TOOL_DENIAL_SENTINEL");
-      expect(skill).toContain("PREFLIGHT_TOOL_DENIED_BLOCKER_EXACT_FORMAT");
-      expect(skill).toContain(
-        "第一行必须严格等于 `blocked_by_environment: tool_permission_denied`",
-      );
-      expect(skill).toContain("不得写成 `blocked_by_environment / tool_permission_denied`");
-      expect(skill).toContain("fenced code block 语言必须严格为 `shell`");
-      expect(skill).toContain("不得写成 `bash`");
-      expect(skill).toContain("PREFLIGHT_TOOL_DENIED_NO_POST_READ");
-      expect(skill).toContain(
-        "不得为了确认 `env_profile_file`、`project`、`featureId`、`profile.project`",
-      );
-      expect(skill).toContain("禁止 `Read workspace/dataAssets/_shared/env/ltqc-local.yaml`");
-      expect(skill).toContain("即使 thinking 已写出“Let me output this blocker”");
-      expect(skill).toContain("PREFLIGHT_TOOL_DENIED_NO_POST_DIAGNOSTICS");
-      expect(skill).toContain("description 为 `Get repo root` 的 `pwd`");
-      expect(skill).toContain('description 为 `Test basic command availability` 的 `echo "test"`');
-      expect(skill).toContain("NO NO NO! I just violated the rule");
-      expect(skill).toContain("`mkdir -p` 被工具策略阻止，必须停止 env-preflight 阶段。");
-      expect(skill).toContain("PREFLIGHT_MTIME_PROGRESS_SILENT");
-      expect(skill).toContain("Session file mtime ~36.7h > 24h");
-      expect(skill).toContain("使用字面量 run-id");
-      expect(skill).toContain("PREFLIGHT_APPROVAL_PROMPT_IS_DENIAL");
-      expect(skill).toContain("`The following parts require approval`");
-      expect(skill).toContain("不得解释为“还不是 denial”“只是 approval prompt”“可换个命令继续试”");
-      expect(skill).toContain('TaskStop、`task_id="placeholder"`');
-      expect(skill).toContain("下一次 assistant action 必须立刻是最终 text");
-      expect(skill).toContain(
-        "不得在同一 assistant message 中批量发起 `pwd` 与 run-id/evidence 相关 Bash",
-      );
-      expect(skill).toContain(
-        "也不得在同一 assistant message 中同时发起 run-id generation 与 evidence directory creation",
-      );
-      expect(skill).toContain("必须先等待 run-id tool_result，确认未拒绝后才能创建 evidence 目录");
-      expect(skill).toContain("若同一批 tool_result 中一个成功、另一个包含拒绝信号，拒绝信号优先");
-      expect(skill).toContain("首次拒绝后不得调用 TodoWrite");
-      expect(skill).toContain("不得维护 todo 状态");
-      expect(skill).toContain("不得写“Todos have been modified”");
-      expect(skill).toContain('不得用 `echo "test"` 或任何 basic command availability probe');
-      expect(skill).toContain("“I already violated”“I can't undo”“STOP NOW”");
-      expect(skill).toContain("下一次 action 也不得是 TodoWrite 或 Bash");
-      expect(skill).toContain(
-        "首次拒绝后的下一次 assistant message 必须只包含一个 `type=text` content item",
-      );
-      expect(skill).toContain("不得包含 `type=thinking` 或任何 tool_use");
-      expect(skill).toContain(
-        '不得再运行 `date`、`mkdir`、`mktemp`、`pwd`、`ls`、`test -d`、`echo "test"`',
-      );
-      expect(skill).toContain("不得为了“Let me simplify”“simpler approach”“format it properly”");
-      expect(skill).toContain(
-        "“false positive”“allowed working directories”“check current working directory”“results directory exists”",
-      );
-      expect(skill).toContain(
-        "“确认测试文件”“feature 目录内容”“tests/runners/full.spec.ts 是否存在”“handoff 命令路径”",
-      );
-      expect(skill).toContain(
-        "ls workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/",
-      );
-      expect(skill).toContain("Check if feature directory contents reveal tests existence");
-      expect(skill).toContain('`echo "preflight-$(date +%s | md5 | head -c 8)"`');
-      expect(skill).toContain('`openssl rand`、`uuidgen` 或 `echo "test"`');
-      expect(skill).toContain("blocker 命令只使用已知的 env profile 文件名、project 和 featureId");
-      expect(skill).toContain(
-        "不得在模板前写“根据硬规则”“mkdir 被工具策略拒绝”“必须停止 env-preflight 阶段”等解释",
-      );
-      expect(skill).toContain("不得把整个 blocker 包进一个 fenced code block");
-      expect(skill).toContain("ENV_PREFLIGHT_PERMISSION_DENIED_STOP");
-      expect(skill).toContain("session mtime/age calculation");
-      expect(skill).toContain(
-        '必须用 `stat -f "%m" <session_path>` 与独立 `date +%s` 两个简单命令分别取值',
-      );
-      expect(skill).toContain('不得用 `echo $(( $(date +%s) - $(stat -f "%m" ... ) ))`');
-      expect(skill).toContain("PREFLIGHT_RUN_ID_LITERAL");
-      expect(skill).toContain("run-id generation 不得依赖 shell 随机数、hash、管道或命令替换");
-      expect(skill).toContain("优先在内部推理中选择一个已知字面量 run-id");
-      expect(skill).toContain("PREFLIGHT_EVIDENCE_DIR_RELATIVE");
-      expect(skill).toContain(
-        "命令必须形如 `mkdir -p workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/results/<run-id>/playwright/preflight`",
-      );
-      expect(skill).toContain("不得使用 `<REPO_ROOT>/workspace/...` 绝对路径");
-      expect(skill).toContain("不得运行 `test -f .../.gitkeep`");
-      expect(skill).toContain("输出 `not_needed` 的探测命令");
-      expect(skill).toContain("run-id generation");
-      expect(skill).toContain("第一次拒绝即为终止信号");
-      expect(skill).toContain("was blocked");
-      expect(skill).toContain("Contains command_substitution");
-      expect(skill).toContain("Contains simple_expansion");
-      expect(skill).toContain("This Bash command contains multiple operations");
-      expect(skill).toContain("Unhandled node type");
-      expect(skill).toContain("contains multiple operations");
-      expect(skill).toContain("不得区分“交互模式/非交互模式”");
-      expect(skill).toContain("不得把用户回复“确认”解释为允许继续请求工具权限");
-      expect(skill).toContain("不得把 approval prompt、hasn't granted it yet、was blocked");
-      expect(skill).toContain("换个命令继续算 mtime");
-      expect(skill).toContain("换个命令生成 run ID");
-      expect(skill).toContain("换个命令生成更简单 run ID");
-      expect(skill).toContain("simple approach");
-      expect(skill).toContain("用户还没机会 approve");
-      expect(skill).toContain("首次拒绝后的下一次 assistant action 必须是唯一最终 text");
-      expect(skill).toContain("即使 thinking 中已经决定“输出 blocker/stop/no more tool calls”");
-      expect(skill).toContain(
-        "下一次 action 也不得是 `pwd`、`ls`、run-id retry、placeholder command、Read reference 或任何 tool_use",
-      );
-      expect(skill).toContain("不得先输出一条解释 text 再继续 tool_use");
-      expect(skill).toContain(
-        "不得再出现任何 Bash/Read/Write/Edit/Glob/Grep/WebFetch/curl/Playwright probe tool_use",
-      );
-      expect(skill).toContain('不得继续运行 `stat -f "%Sm"`');
-      expect(skill).toContain("`openssl rand`、`uuidgen`、`date`");
-      expect(skill).toContain("`date +%s | md5 | head -c 8`");
-      expect(skill).toContain(
-        'FEATURE="workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare"',
-      );
-      expect(skill).toContain(
-        "`echo $$ | md5sum 2>/dev/null || uuidgen 2>/dev/null | head -c 8 || date +%s | head -c 8`",
-      );
-      expect(skill).toContain("md5、md5sum、head、mkdir、重复 mkdir");
-      expect(skill).toContain('不得继续运行 `pwd`、`echo "test"`、`ls`');
-      expect(skill).toContain("`test -d`、`npm ls`、`ls node_modules/playwright`");
-      expect(skill).toContain("测试文件存在性检查");
-      expect(skill).toContain("handoff 命令路径检查");
-      expect(skill).toContain("重新 Read env-preflight reference");
-      expect(skill).toContain("feature directory contents 检查");
-      expect(skill).toContain("`npx playwright --version`");
-      expect(skill).toContain("`playwright_available`");
-      expect(skill).toContain("证据目录创建权限不足，环境预检无法继续。");
-      expect(skill).toContain("裸 `tool_permission_denied`");
-      expect(skill).toContain("Placeholder command");
-      expect(skill).toContain("Let me simplify the command");
-      expect(skill).toContain("Let me try using a single command approach");
-      expect(skill).toContain("不得把 `This command requires approval` 解读为");
-      expect(skill).toContain("Let me just try something minimal to see what's allowed");
-      expect(skill).toContain("Let me verify the values");
-      expect(skill).toContain("Wait, I need to check what the project is");
-      expect(skill).toContain("the path IS under <REPO_ROOT>");
-      expect(skill).toContain("The directory IS under <REPO_ROOT>");
-      expect(skill).toContain("allowed working directory is `<REPO_ROOT>`");
-      expect(skill).toContain("Check current working directory");
-      expect(skill).toContain("Check if results directory exists");
-      expect(skill).toContain("The results directory doesn't exist");
-      expect(skill).toContain("先检查当前 working directory");
-      expect(skill).toContain("先看看 results 是否存在");
-      expect(skill).toContain("So `ls` works");
-      expect(skill).toContain("根据硬规则");
-      expect(skill).toContain("第一次工具权限拒绝即为终止信号");
-      expect(skill).toContain("env-preflight 阶段工具策略阻止");
-      expect(skill).toContain("由于工具策略阻止");
-      expect(skill).toContain("正在等待必要的权限批准");
-      expect(skill).toContain("需要你批准");
-      expect(skill).toContain("请确认必需的写入权限后重试");
-      expect(skill).toContain("请先批准必要的写入权限后重试");
-      expect(skill).toContain("手动运行验证");
-      expect(skill).toContain("手动验收命令");
-      expect(skill).toContain("第一行第一个字符必须是 `b`");
-      expect(skill).toContain(
-        "第一行同时包含 `blocked_by_environment` 和 `tool_permission_denied`",
-      );
-      expect(skill).toContain("第三行 `有头模式 full test 人工验收命令：`");
-      expect(skill).toContain("KATA_DATAASSETS_ENV=<env_profile_file>");
-      expect(skill).toContain("必须是已确认的完整 env profile 文件名");
-      expect(skill).toContain("path.resolve(process.cwd(), auth.session_path)");
-      expect(skill).toContain("禁止硬编码 repo root");
-      expect(skill).toContain("创建当前 feature 证据目录时必须从 repo root 使用相对路径");
-      expect(skill).toContain("不得用 `<REPO_ROOT>/...` 绝对路径作为 `mkdir -p` 目标");
-      expect(skill).toContain("若第一轮标题关键词搜索无命中");
-      expect(skill).toContain("不得退回 `ls workspace/dataAssets/features/ | grep ...`");
-      expect(skill).toContain(
-        "No matches at all. Let me try even broader - search without glob restrictions to see if the feature directories exist.",
-      );
-      expect(skill).toContain(
-        "ls workspace/dataAssets/features/ | grep -i 'reasonab\\|builtin\\|calc\\|field'",
-      );
+      // P3-04: env-preflight detailed rules now delegated to references/env-preflight.md.
+      // SKILL.md hard_rules section keeps the delegation + core constraints.
+      expect(skill).toContain("严格遵循 references/env-preflight.md");
+      expect(skill).toContain("skill.yaml 不逐条重复");
+      expect(skill).toContain("名称片段 discovery 分两段执行");
+      expect(skill).toContain("不枚举");
+      expect(skill).toContain("静默 bootstrap");
+      expect(skill).toContain("AskUserQuestion");
+      expect(skill).toContain("默认推荐");
+      expect(skill).toContain("ltqc-local.yaml");
+      expect(skill).toContain("请确认执行环境");
+      expect(skill).toContain("env-preflight");
+      expect(skill).toContain("session 有效性");
+      expect(skill).toContain("真实 Playwright 探测");
+      expect(skill).toContain("blocked_by_case_draft_required");
+      expect(skill).toContain("AutomationIntent 表示可自动化意图");
+      expect(skill).toContain("执行管线");
+      expect(skill).toContain("无 ui-probe 证据时不生成最终 Playwright 脚本");
+      expect(skill).toContain("无 self-run 结果时不交付成功结论");
+      expect(skill).toContain("失败处理：先归类");
+      expect(skill).toContain("弱断言");
+      expect(skill).toContain("workspace/<project>/_shared/env/*.yaml");
+      expect(skill).toContain("smoke.spec.ts");
+      expect(skill).toContain("full.spec.ts");
+      expect(skill).toContain("references/env-preflight.md");
 
       const envPreflight = readFileSync(
         join(out, runtimeRoot, "skills/playwright-automation/references/env-preflight.md"),
@@ -989,131 +822,25 @@ describe("ai-core projection", () => {
     await renderProjection({ runtime: "all", outputRoot: out });
 
     for (const runtimeRoot of [".claude"]) {
+      // P3-03: Lanhu/Axure detailed rules now delegated to references/error-fallback-paths.md.
+      // SKILL.md hard_rules section keeps the delegation + general constraints.
       const skill = readFileSync(join(out, runtimeRoot, "skills/case-draft/SKILL.md"), "utf8");
-      expect(skill).toContain("Lanhu/Axure URL 是源输入");
-      expect(skill).toContain("lanhu.fixture@1");
-      expect(skill).toContain("必须先执行本地同源缓存 token search");
-      expect(skill).toContain("不得在这些搜索前调用 `mcp__fetch__fetch_html`");
-      expect(skill).toContain(
-        "错误顺序示例：Skill → Read `source-intake-protocol.md` → `mcp__fetch__fetch_html`",
-      );
-      expect(skill).toContain("章节标题必须使用中文");
-      expect(skill).toContain("confirmation-package.md 第一行必须严格等于 `## 原始 URL`");
-      expect(skill).toContain("必须使用 fenced code block");
-      expect(skill).toContain("不得把 URL 写成 inline code");
-      expect(skill).toContain("SourceRefs 中不得再次以内联代码重复完整 URL");
-      expect(skill).toContain("不得在 `阻塞草稿产物路径：` 前添加反引号");
-      expect(skill).toContain("`archive.draft.md` 的标题也不得包含“待确认”");
-      expect(skill).toContain("不得创建 `workspace/{project}/features/{feature_id}/inputs`");
-      expect(skill).toContain("不得写成 `pageId=7afabbf5f0cf4d0680704ab3b5f20295`");
-      expect(skill).toContain("不得写成 `docId=fc0fee93-74f5-4eff-a769-99e68506b296`");
-      expect(skill).toContain("不得写成 `pid=7de90493-e80f-4592-a263-38fb2d2e98c0`");
-      expect(skill).toContain("同一条输入或紧随其后的用户回复已经提供功能/页面名称");
-      expect(skill).toContain("不得再次输出固定问题“这个 Lanhu 页面对应的功能/页面名称是什么？”");
-      expect(skill).toContain("下一条 assistant 文本消息必须是阻塞草稿路径加当前首要问题");
-      expect(skill).toContain("功能/页面名称尚未提供时才使用固定两行模板");
-      expect(skill).toContain(
-        "若 `mkdir -p`、目录存在性检查、Bash 或 Write 在阻塞产物创建阶段首次遇到上述权限拒绝",
-      );
-      expect(skill).toContain("工具权限受限，未能写入阻塞草稿产物。");
-      expect(skill).toContain("不得输出授权请求、权限说明清单、已完成分析摘要");
-      expect(skill).toContain("This command requires approval");
-      expect(skill).toContain("This Bash command contains multiple operations");
-      expect(skill).toContain(
-        "Claude requested permissions to use mcp__fetch__fetch_html, but you haven't granted it yet",
-      );
-      expect(skill).toContain("不得把 `haven't granted it yet` 当作可等待授权");
-      expect(skill).toContain(
-        "抓取/能力检查必须一次只调用一个 fetch/WebFetch/MCP fetch/浏览器/设计源工具",
-      );
-      expect(skill).toContain(
-        "不得在同一 assistant 消息或同一批 tool_use 中并发调用 `mcp__fetch__fetch_html` 与 `mcp__fetch__fetch_markdown`",
-      );
-      expect(skill).toContain("补充搜索计数时，如果 Bash/rg/count 命令返回");
-      expect(skill).toContain("不得把 `rg ... | wc -l` 改写为无管道 `rg -c`");
-      expect(skill).toContain(
-        "不得把 `workspace/*/features` 缩窄为 `workspace/{project}/features` 后重试",
-      );
-      expect(skill).toContain("不得并发继续对 pageId/docId/pid 发起替代 Bash 计数");
-      expect(skill).toContain("不得为了精确数字继续试探权限");
-      expect(skill).toContain(
-        "抓取/能力检查首次遇到上述权限拒绝后，不得再次调用同一 URL 的任何 fetch、WebFetch、MCP fetch、浏览器或设计源变体",
-      );
-      expect(skill).toContain(
-        "不得写 “Let me read the error-fallback-paths.md reference”“go into the error-fallback paths”“Let me wait for them to be approved”",
-      );
-      expect(skill).toContain("不得重试绝对路径或相对路径 `mkdir -p`");
-      expect(skill).toContain("不得执行 `test -d`");
-      expect(skill).toContain("不得因为错误文本提到 `allowed working directories`");
-      expect(skill).toContain(
-        "不得尝试 “Write directly” 或 “Write might create the directory automatically”",
-      );
-      expect(skill).toContain("不得再次 Write `confirmation-package.md`");
-      expect(skill).not.toContain("写完阻塞产物后，下一条 assistant 文本消息必须是两行最终模板");
-      expect(skill).toContain(
-        "每一次 Write file_path 都必须直接复用本轮 `mkdir -p` 成功创建的精确目录字符串",
-      );
-      expect(skill).toContain("不得用 `rm -rf`、`mv`、`cp` 或二次 Write 自行清理/搬迁错误目录");
-      expect(skill).toContain("I need to fix a critical error");
-      expect(skill).toContain(
-        "不得为确认目录存在、查找格式样例、查看已有 feature 名称或参考现有产物而执行父级 feature 目录枚举",
-      );
-      expect(skill).toContain("如果这一次 `mkdir -p` 返回 `was blocked`");
-      expect(skill).toContain("mkdir 命令本身必须严格使用 repo-root 相对路径");
-      expect(skill).toContain("不得使用 `<REPO_ROOT>/workspace/{project}/features/{feature_id}`");
-      expect(skill).toContain(
-        "不得调用 `mkdir -p <REPO_ROOT>/workspace/dataAssets/features/2026-05-unresolved-lanhu-7afabbf5`",
-      );
-      expect(skill).toContain("下一条 assistant message 必须只包含一个 `type=text` content item");
-      expect(skill).toContain("不得包含 `type=thinking`");
-      expect(skill).toContain("不得先产生新的 thinking 分析、错误解释、路径诊断或规则复述");
-      expect(skill).toContain("不得尝试 Write 让目录自动创建");
-      expect(skill).toContain("The path IS within");
-      expect(skill).toContain("The error says it's within");
-      expect(skill).toContain("Wait, the error says");
-      expect(skill).toContain("Let me read the error more carefully");
-      expect(skill).toContain(
-        "maybe writing a file will create the parent directories automatically",
-      );
-      expect(skill).toContain("不得读取 `references/confirmation-package-template.md`");
-      expect(skill).toContain("不得再读取其他 `references/**`");
-      expect(skill).toContain("maybe the user will grant permission this time");
-      expect(skill).toContain("不得再调用 Read 补读 `references/source-intake-protocol.md`");
-      expect(skill).toContain("这个禁止覆盖按需加载表和“进入 error-fallback-paths”的一般读取时机");
-      expect(skill).toContain(
-        "即使本文件尚未读取、即使 Read 会被允许，也不得在抓取拒绝后读取 `references/error-fallback-paths.md`",
-      );
-      expect(skill).toContain("Let me read the error-fallback-paths.md reference");
-      expect(skill).toContain("go into the error-fallback paths");
-      expect(skill).toContain(
-        "后立即进入阻塞产物 `mkdir -p workspace/{project}/features/{feature_id}/`",
-      );
-      expect(skill).toContain("“立即进入”表示下一次工具调用必须是这条 `mkdir -p`");
-      expect(skill).toContain("不得在其前补跑 `Grep` count、`rg` count、Bash count");
-      expect(skill).toContain("读取相邻 `metadata.yaml`、模块推断、命中数精确化");
-      expect(skill).toContain("Let me use Grep with count mode");
-      expect(skill).toContain("Let me read the metadata.yaml files");
-      expect(skill).toContain("I need to count the pid hits");
-      expect(skill).toContain("Now I have the counts");
-      expect(skill).toContain("不得写 `Hits: 多个`、`总命中 >5`");
-      expect(skill).toContain(
-        "每个非 0 命中搜索 SourceRef 必须在同一 SourceRef 内容中列出用于判断的样例路径",
-      );
-      expect(skill).toContain("不得只写“4 命中”“22 命中”“均为 prd.md”");
-      expect(skill).toContain("必须对 URL token search 命中的精确路径逐个调用 Read");
-      expect(skill).toContain("不得先用 `ls`、`test -f`");
-      expect(skill).toContain("不得把 `ls .../metadata.yaml`");
-      expect(skill).toContain("不得给固定问题追加 `（pending）`");
-      expect(skill).toContain("Draft/unresolved");
-      expect(skill).not.toContain("不直接获取外部来源");
-      expect(skill).toContain("references/source-intake-protocol.md");
-      expect(skill).toContain("references/coverage-matrix-guide.md");
-      expect(
-        readFileSync(
-          join(out, runtimeRoot, "skills/case-draft/references/coverage-matrix-guide.md"),
-          "utf8",
-        ),
-      ).toContain("coverage-matrix");
+      expect(skill).toContain("source-intake、token 搜索顺序");
+      expect(skill).toContain('references/error-fallback-paths.md');
+      expect(skill).toContain('skill.yaml 不逐条重复');
+      expect(skill).toContain('lanhu.fixture@1');
+      expect(skill).toContain('项目未指定时先自行推断');
+      expect(skill).toContain('历史上下文：history_inferred 作为参考证据使用');
+      expect(skill).toContain('evidence_kind、ambiguity_class、confidence');
+      expect(skill).toContain('archive.md 与 cases.xmind 在 blocking pending 清零后');
+      expect(skill).toContain('blocking pending 非零时只输出草稿与确认类产物');
+      expect(skill).toContain('automation_status=ready');
+      expect(skill).toContain('Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent');
+      expect(skill).toContain('few-shot 作为格式参照使用');
+      expect(skill).toContain('Slug fallback');
+      expect(skill).not.toContain('不直接获取外部来源');
+      expect(skill).toContain('references/source-intake-protocol.md');
+      expect(skill).toContain('references/coverage-matrix-guide.md');
       const sourceIntake = readFileSync(
         join(out, runtimeRoot, "skills/case-draft/references/source-intake-protocol.md"),
         "utf8",
