@@ -4,12 +4,12 @@
     "project": "kata",
     "description": "Kata 项目全面优化进度追踪文件。这是唯一真相源（source of truth）；不同 AI 运行时的可视化工具只是镜像。",
     "created": "2026-05-21T18:00:00+08:00",
-    "updated": "2026-05-22T12:01:26+08:00",
+    "updated": "2026-05-22T14:05:48+08:00",
     "total_tasks": 34,
-    "completed_tasks": 18,
+    "completed_tasks": 19,
     "in_progress_tasks": 0,
     "planned_tasks": 0,
-    "pending_tasks": 16,
+    "pending_tasks": 15,
     "blocked_tasks": 0,
     "reading_guide": {
       "_note": "=== AI 读取本文件的标准方式。每次新窗口第一件事就是执行这些命令 ===",
@@ -177,7 +177,7 @@
     "P5": {
       "name": "测试、工作区与文档",
       "description": "测试覆盖率补齐、测试质量强化、Workspace 结构规范化、Schema/Contract 对齐、.env.example 对齐、文档补全与 README 整理。",
-      "status": "pending",
+      "status": "in_progress",
       "order": 5,
       "task_count": 9,
       "started": null,
@@ -194,17 +194,15 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P1-05"
-      ],
+      "blocks": ["P1-05"],
       "source": "audit",
       "writing_plan": {
         "path": null,
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
+      "worktree": ".worktrees/p4-01-large-file-split",
+      "branch": "codex/p4-01-large-file-split",
       "assigned_agent": null,
       "e2e_verification": "find . -name '.DS_Store' | wc -l 结果为 0",
       "resolution": "Deleted 40 .DS_Store files. Updated .gitignore: changed .DS_Store to **/.DS_Store, added *.pyc and __pycache__/.",
@@ -213,17 +211,9 @@
       "completed": "2026-05-21T20:00:00+08:00",
       "verification": {
         "declared_scope": "find . -name '.DS_Store' | wc -l 结果为 0",
-        "commands": [
-          "find . -name '.DS_Store' -not -path './.git/*' | wc -l",
-          "bun test"
-        ],
-        "results": [
-          "0 .DS_Store files remaining",
-          "1711 pass, 0 fail, 1 skip"
-        ],
-        "artifacts": [
-          ".gitignore"
-        ],
+        "commands": ["find . -name '.DS_Store' -not -path './.git/*' | wc -l", "bun test"],
+        "results": ["0 .DS_Store files remaining", "1711 pass, 0 fail, 1 skip"],
+        "artifacts": [".gitignore"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -256,14 +246,8 @@
       "completed": "2026-05-21T20:15:00+08:00",
       "verification": {
         "declared_scope": "workspace/**/tmp/ 目录为空或不存在；bun test 全量通过",
-        "commands": [
-          "find workspace -type d -name tmp | wc -l",
-          "bun test"
-        ],
-        "results": [
-          "0 tmp/ directories under workspace",
-          "1711 pass, 0 fail, 1 skip"
-        ],
+        "commands": ["find workspace -type d -name tmp | wc -l", "bun test"],
+        "results": ["0 tmp/ directories under workspace", "1711 pass, 0 fail, 1 skip"],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -297,17 +281,12 @@
       "completed": "2026-05-21T21:15:00+08:00",
       "verification": {
         "declared_scope": "bun install 无报错；package.json 无占位 URL",
-        "commands": [
-          "bun install",
-          "bun test"
-        ],
+        "commands": ["bun install", "bun test"],
         "results": [
           "bun install: Checked 235 installs across 257 packages (no changes)",
           "bun test: 1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          "package.json"
-        ],
+        "artifacts": ["package.json"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -323,9 +302,7 @@
       "status": "completed",
       "priority": "medium",
       "depends_on": [],
-      "blocks": [
-        "P3-05"
-      ],
+      "blocks": ["P3-05"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -372,9 +349,7 @@
       "category": "cleanup",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P1-01"
-      ],
+      "depends_on": ["P1-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -392,11 +367,7 @@
       "completed": "2026-05-21T21:35:00+08:00",
       "verification": {
         "declared_scope": "git status 无意外文件；git clean -n 无意外输出",
-        "commands": [
-          "git clean -n",
-          "git status --short",
-          "find -name .DS_Store (not in git)"
-        ],
+        "commands": ["git clean -n", "git status --short", "find -name .DS_Store (not in git)"],
         "results": [
           "git clean -n: only progress.json",
           ".gitignore has all key patterns",
@@ -418,12 +389,7 @@
       "status": "completed",
       "priority": "critical",
       "depends_on": [],
-      "blocks": [
-        "P2-03",
-        "P2-04",
-        "P5-03",
-        "P5-07"
-      ],
+      "blocks": ["P2-03", "P2-04", "P5-03", "P5-07"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -440,14 +406,8 @@
       "completed": "2026-05-21T20:30:00+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；bun run check 通过；AGENTS.md ≤150 行；新开 AI 窗口确认路由正常",
-        "commands": [
-          "bun test",
-          "bun engine/bin/kata ai-core projection render"
-        ],
-        "results": [
-          "1711 pass, 0 fail, 1 skip",
-          "render passed"
-        ],
+        "commands": ["bun test", "bun engine/bin/kata ai-core projection render"],
+        "results": ["1711 pass, 0 fail, 1 skip", "render passed"],
         "artifacts": [
           "AGENTS.md (59 lines)",
           ".ai/core/rules/testing.md",
@@ -488,12 +448,8 @@
       "completed": "2026-05-21T21:40:00+08:00",
       "verification": {
         "declared_scope": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载",
-        "commands": [
-          "cat CLAUDE.local.md"
-        ],
-        "results": [
-          "文件已写入，内容包含输出风格、本地环境变量、路径、调试配置"
-        ],
+        "commands": ["cat CLAUDE.local.md"],
+        "results": ["文件已写入，内容包含输出风格、本地环境变量、路径、调试配置"],
         "artifacts": [],
         "unverified_remainder": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载（需手工验证）"
       },
@@ -509,9 +465,7 @@
       "category": "ai_entry",
       "status": "completed",
       "priority": "high",
-      "depends_on": [
-        "P2-01"
-      ],
+      "depends_on": ["P2-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -554,9 +508,7 @@
       "category": "ai_entry",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P2-01"
-      ],
+      "depends_on": ["P2-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -600,9 +552,7 @@
       "status": "completed",
       "priority": "critical",
       "depends_on": [],
-      "blocks": [
-        "P3-02"
-      ],
+      "blocks": ["P3-02"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -619,12 +569,8 @@
       "completed": "2026-05-21T20:45:00+08:00",
       "verification": {
         "declared_scope": "bun test engine/tests/ai-core/prompt-cache-validator.test.ts 通过；bun run lint:ai-core 通过",
-        "commands": [
-          "bun test"
-        ],
-        "results": [
-          "1711 pass, 0 fail, 1 skip"
-        ],
+        "commands": ["bun test"],
+        "results": ["1711 pass, 0 fail, 1 skip"],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -640,9 +586,7 @@
       "category": "prompts",
       "status": "completed",
       "priority": "critical",
-      "depends_on": [
-        "P3-01"
-      ],
+      "depends_on": ["P3-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -660,12 +604,8 @@
       "completed": "2026-05-21T21:00:00+08:00",
       "verification": {
         "declared_scope": "bun test engine/tests/ai-core/prompt-cache-validator.test.ts 通过",
-        "commands": [
-          "bun test"
-        ],
-        "results": [
-          "1711 pass, 0 fail, 1 skip"
-        ],
+        "commands": ["bun test"],
+        "results": ["1711 pass, 0 fail, 1 skip"],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -682,9 +622,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P3-06"
-      ],
+      "blocks": ["P3-06"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -711,10 +649,7 @@
           "projection lock render: passed",
           "bun test: 1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          ".ai/core/skills/case-draft/skill.yaml (200 lines)",
-          "3 updated test files"
-        ],
+        "artifacts": [".ai/core/skills/case-draft/skill.yaml (200 lines)", "3 updated test files"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -730,9 +665,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P3-06"
-      ],
+      "blocks": ["P3-06"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -774,9 +707,7 @@
       "category": "prompts",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P1-04"
-      ],
+      "depends_on": ["P1-04"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -804,9 +735,7 @@
           "projection lock render: passed",
           "1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          "8 skill.yaml files updated"
-        ],
+        "artifacts": ["8 skill.yaml files updated"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -821,10 +750,7 @@
       "category": "prompts",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P3-03",
-        "P3-04"
-      ],
+      "depends_on": ["P3-03", "P3-04"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -920,9 +846,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P4-07"
-      ],
+      "blocks": ["P4-07"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -949,9 +873,7 @@
           "projection lock render: passed",
           "1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          "translation-glossary.yaml (56 terms)"
-        ],
+        "artifacts": ["translation-glossary.yaml (56 terms)"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -964,31 +886,47 @@
       "title": "超大文件拆分",
       "description": "8 个文件超 800 行：history-convert.ts（1942 行）、evals.ts（1835 行）、contract-schema.ts（1641 行）、projection.ts（1396 行）、knowledge-curate.ts（1157 行）、ai-core.ts（943 行）、xmind-gen.ts（917 行）、product-skill-contract.ts（837 行）。每个文件需分析职责、提取独立模块、拆分为 ≤800 行的多个文件。同时拆分 >50 行的超大函数。需深度调研每个文件的最佳拆分策略。",
       "category": "code_quality",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P5-01"
-      ],
+      "blocks": ["P5-01"],
       "source": "audit",
       "writing_plan": {
         "path": null,
         "status": "not_started",
         "completed": null
       },
-      "worktree": null,
-      "branch": null,
+      "worktree": ".worktrees/p4-01-large-file-split",
+      "branch": "codex/p4-01-large-file-split",
       "assigned_agent": null,
       "e2e_verification": "bun test 全量通过；bun run check 通过；所有文件 ≤800 行",
-      "resolution": null,
+      "resolution": "Split the 8 oversized P4 entry files into thin facades plus focused module directories. Added an AST regression that enforces <=800-line files and <=50-line functions across the P4-01 split scope. Fixed split-time regressions in history-convert XMind name collection and formatted adjacent ai-core projection/spec files required by project checks.",
       "created": "2026-05-21T18:00:00+08:00",
-      "updated": "2026-05-21T18:00:00+08:00",
-      "completed": null,
+      "updated": "2026-05-22T14:05:48+08:00",
+      "completed": "2026-05-22T14:05:48+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；bun run check 通过；所有文件 ≤800 行",
-        "commands": [],
-        "results": [],
-        "artifacts": [],
+        "commands": [
+          "bun test engine/tests/large-file-split.test.ts",
+          "bun test ./engine/tests/history-convert.test.ts ./engine/tests/xmind/gen.test.ts ./engine/tests/knowledge-curate.test.ts ./engine/tests/ai-core/evals.test.ts ./engine/tests/ai-core/projection.test.ts ./engine/tests/ai-core/contract-schema.test.ts ./engine/tests/ai-core/product-skill-contract.test.ts ./engine/tests/ai-core/parser-boundary-audit.test.ts ./engine/tests/cli/ai-core-cli.test.ts ./engine/tests/large-file-split.test.ts",
+          "bun engine/bin/kata ai-core parser audit",
+          "bun run type-check",
+          "bun run check",
+          "bun test",
+          "bun engine/bin/kata ai-core projection render",
+          "bun engine/bin/kata ai-core projection check"
+        ],
+        "results": [
+          "exit 0; 2 pass, 0 fail, 2 expect() calls",
+          "exit 0; 275 pass, 0 fail, 1741 expect() calls",
+          "exit 0; ai-core parser boundary audit passed",
+          "exit 0; tsc --noEmit",
+          "exit 0; biome check .; 189 warnings, 0 errors",
+          "exit 0; 1715 pass, 1 skip, 0 fail, 5249 expect() calls across 173 files",
+          "exit 0; ai-core projection render passed",
+          "exit 0; ai-core projection check passed"
+        ],
+        "artifacts": ["engine/tests/large-file-split.test.ts"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -1004,9 +942,7 @@
       "status": "pending",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P5-01"
-      ],
+      "blocks": ["P5-01"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1202,9 +1138,7 @@
       "category": "code_quality",
       "status": "pending",
       "priority": "low",
-      "depends_on": [
-        "P3-08"
-      ],
+      "depends_on": ["P3-08"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1239,13 +1173,8 @@
       "category": "testing",
       "status": "pending",
       "priority": "high",
-      "depends_on": [
-        "P4-01",
-        "P4-02"
-      ],
-      "blocks": [
-        "P5-02"
-      ],
+      "depends_on": ["P4-01", "P4-02"],
+      "blocks": ["P5-02"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1279,9 +1208,7 @@
       "category": "testing",
       "status": "pending",
       "priority": "high",
-      "depends_on": [
-        "P5-01"
-      ],
+      "depends_on": ["P5-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1316,9 +1243,7 @@
       "category": "workspace",
       "status": "pending",
       "priority": "high",
-      "depends_on": [
-        "P2-01"
-      ],
+      "depends_on": ["P2-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1424,9 +1349,7 @@
       "status": "pending",
       "priority": "medium",
       "depends_on": [],
-      "blocks": [
-        "P5-07"
-      ],
+      "blocks": ["P5-07"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1460,10 +1383,7 @@
       "category": "docs",
       "status": "pending",
       "priority": "medium",
-      "depends_on": [
-        "P2-01",
-        "P5-06"
-      ],
+      "depends_on": ["P2-01", "P5-06"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
