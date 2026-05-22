@@ -260,9 +260,7 @@ describe("ai-core projection", () => {
       expect(doc).toContain("转发到 `case-hotfix`");
       expect(doc).toContain("/playwright-automation` 缺少环境参数");
       expect(doc).toContain("按 skill 内置环境确认协议处理");
-      expect(doc).toContain(
-        "详细输出契约、回退模板和回归约束见 `.ai/core/skills/**` 与对应测试",
-      );
+      expect(doc).toContain("详细输出契约、回退模板和回归约束见 `.ai/core/skills/**` 与对应测试");
 
       expect(doc).not.toContain("## Routing Guard");
       expect(doc).not.toContain("`Using playwright-automation`");
@@ -826,21 +824,21 @@ describe("ai-core projection", () => {
       // SKILL.md hard_rules section keeps the delegation + general constraints.
       const skill = readFileSync(join(out, runtimeRoot, "skills/case-draft/SKILL.md"), "utf8");
       expect(skill).toContain("source-intake、token 搜索顺序");
-      expect(skill).toContain('references/error-fallback-paths.md');
-      expect(skill).toContain('skill.yaml 不逐条重复');
-      expect(skill).toContain('lanhu.fixture@1');
-      expect(skill).toContain('项目未指定时先自行推断');
-      expect(skill).toContain('历史上下文：history_inferred 作为参考证据使用');
-      expect(skill).toContain('evidence_kind、ambiguity_class、confidence');
-      expect(skill).toContain('archive.md 与 cases.xmind 在 blocking pending 清零后');
-      expect(skill).toContain('blocking pending 非零时只输出草稿与确认类产物');
-      expect(skill).toContain('automation_status=ready');
-      expect(skill).toContain('Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent');
-      expect(skill).toContain('few-shot 作为格式参照使用');
-      expect(skill).toContain('Slug fallback');
-      expect(skill).not.toContain('不直接获取外部来源');
-      expect(skill).toContain('references/source-intake-protocol.md');
-      expect(skill).toContain('references/coverage-matrix-guide.md');
+      expect(skill).toContain("references/error-fallback-paths.md");
+      expect(skill).toContain("skill.yaml 不逐条重复");
+      expect(skill).toContain("lanhu.fixture@1");
+      expect(skill).toContain("项目未指定时先自行推断");
+      expect(skill).toContain("历史上下文：history_inferred 作为参考证据使用");
+      expect(skill).toContain("evidence_kind、ambiguity_class、confidence");
+      expect(skill).toContain("archive.md 与 cases.xmind 在 blocking pending 清零后");
+      expect(skill).toContain("blocking pending 非零时只输出草稿与确认类产物");
+      expect(skill).toContain("automation_status=ready");
+      expect(skill).toContain("Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent");
+      expect(skill).toContain("few-shot 作为格式参照使用");
+      expect(skill).toContain("Slug fallback");
+      expect(skill).not.toContain("不直接获取外部来源");
+      expect(skill).toContain("references/source-intake-protocol.md");
+      expect(skill).toContain("references/coverage-matrix-guide.md");
       const sourceIntake = readFileSync(
         join(out, runtimeRoot, "skills/case-draft/references/source-intake-protocol.md"),
         "utf8",
