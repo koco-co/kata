@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AutomationIntent@1",
+  "type": "object",
+  "required": [
+    "schema_ref",
+    "case_id",
+    "title",
+    "automation_status",
+    "entry_page_hint",
+    "data_setup",
+    "visible_assertions",
+    "stable_text_anchors",
+    "pending_blockers",
+    "source_refs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_ref": { "type": "string", "const": "AutomationIntent@1" },
+    "id": { "type": "string" },
+    "case_id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "automation_status": { "type": "string", "enum": ["ready", "deferred", "blocked"] },
+    "entry_page_hint": { "type": "string" },
+    "data_setup": { "type": "array", "items": { "type": "string" } },
+    "visible_assertions": { "type": "array", "items": { "type": "string" } },
+    "stable_text_anchors": { "type": "array", "items": { "type": "string" } },
+    "pending_blockers": { "type": "array", "items": { "type": "string" } },
+    "source_refs": { "type": "array", "items": { "type": "string" } }
+  }
+}
