@@ -13,6 +13,34 @@ type DqPageTarget = {
   apiPaths?: readonly string[];
 };
 
+type DqRuleTaskRecord = {
+  tableName?: string;
+  ruleName?: string;
+  sourceTypeName?: string;
+  dataName?: string;
+  assetsPeriodTypeName?: string;
+  periodTypeName?: string;
+  recentNotifyNum?: number | string;
+  modifyUser?: string[] | string;
+  gmtModified?: string;
+  isClosed?: number;
+  associated?: number;
+};
+
+type DqRuleTaskPageQuery = {
+  success?: boolean;
+  code?: number;
+  data?: {
+    data?: DqRuleTaskRecord[];
+    rows?: DqRuleTaskRecord[];
+    list?: DqRuleTaskRecord[];
+    records?: DqRuleTaskRecord[];
+    total?: number;
+    totalCount?: number;
+    count?: number;
+  };
+};
+
 async function installProject(page: Page): Promise<void> {
   await page.addInitScript(
     ([assetKey, dqKey, projectId]) => {
@@ -177,6 +205,77 @@ export async function expectDataQualityRuleShell(page: Page, sourceRef: string):
     ],
     apiPaths: ["/dassets/v1/valid/monitor/pageQuery"],
   });
+}
+
+export async function expectDataQualityRuleTaskListContract(page: Page, sourceRef: string): Promise<void> {
+  const pageQueryResponse = page.waitForResponse(
+    (response) => response.url().includes("/dassets/v1/valid/monitor/pageQuery") && response.status() === 200,
+    { timeout: 60000 },
+  );
+  await gotoDataQualityPage(page, "/dq/rule");
+
+  await expect(page, `${sourceRef}: 规则任务管理应保持在 /dq/rule 路由`).toHaveURL(/\/dq\/rule/, {
+    timeout: 30000,
+  });
+  const body = page.locator("body");
+  for (const label of ["规则任务管理", "最近修改人", "我收藏的表", "新建监控规则"]) {
+    await expect(body, `${sourceRef}: 规则任务管理页面应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  for (const header of [
+    "表",
+    "任务名称",
+    "数据源",
+    "执行周期",
+    "规则状态",
+    "是否关联任务",
+    "最近30天告警数",
+    "最近修改人",
+    "最近修改时间",
+    "操作",
+  ]) {
+    await expect(body, `${sourceRef}: 规则任务列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+
+  const payload = (await (await pageQueryResponse).json()) as DqRuleTaskPageQuery;
+  expect(payload.success ?? payload.code === 1, `${sourceRef}: monitor/pageQuery 应返回成功状态`).toBe(true);
+  const records = getDqRuleTaskRecords(payload);
+  expect(records.length, `${sourceRef}: monitor/pageQuery 应返回至少一条规则任务记录`).toBeGreaterThan(0);
+  expect(getDqRuleTaskTotal(payload), `${sourceRef}: monitor/pageQuery total 应覆盖当前返回记录数`).toBeGreaterThanOrEqual(
+    records.length,
+  );
+
+  const firstRecord = records[0];
+  const tableName = expectNonEmptyString(firstRecord.tableName, `${sourceRef}: API 首条记录应包含 tableName`);
+  const ruleName = expectNonEmptyString(firstRecord.ruleName, `${sourceRef}: API 首条记录应包含 ruleName`);
+  const dataSource = [
+    expectNonEmptyString(firstRecord.sourceTypeName, `${sourceRef}: API 首条记录应包含 sourceTypeName`),
+    expectNonEmptyString(firstRecord.dataName, `${sourceRef}: API 首条记录应包含 dataName`),
+  ].join(" / ");
+  const period = expectNonEmptyString(
+    firstRecord.assetsPeriodTypeName ?? firstRecord.periodTypeName,
+    `${sourceRef}: API 首条记录应包含执行周期`,
+  );
+  const status = formatDqRuleTaskStatus(firstRecord.isClosed, sourceRef);
+  const associated = formatDqRuleTaskAssociated(firstRecord.associated, sourceRef);
+  const recentNotifyNum = String(firstRecord.recentNotifyNum);
+  expect(recentNotifyNum, `${sourceRef}: API 首条记录应包含最近30天告警数`).toMatch(/^\d+$/);
+  const modifyUser = formatDqRuleTaskModifyUser(firstRecord.modifyUser, sourceRef);
+  const gmtModified = expectNonEmptyString(firstRecord.gmtModified, `${sourceRef}: API 首条记录应包含最近修改时间`);
+
+  const firstRecordRow = page.locator(".ant-table-tbody tr", { hasText: ruleName }).filter({ hasText: tableName }).first();
+  await expect(firstRecordRow, `${sourceRef}: 规则任务列表应展示 API 首条记录 ${ruleName}`).toBeVisible({
+    timeout: 30000,
+  });
+  for (const expectedText of [tableName, ruleName, dataSource, period, status, associated, recentNotifyNum, modifyUser, gmtModified]) {
+    await expect(firstRecordRow, `${sourceRef}: API 首条记录字段「${expectedText}」应在表格行中展示`).toContainText(
+      expectedText,
+      { timeout: 30000 },
+    );
+  }
 }
 
 export async function expectDataQualityResultShell(page: Page, sourceRef: string): Promise<void> {
@@ -728,4 +827,36 @@ async function expectDqApiPaths(
       },
     )
     .toEqual([...apiPaths]);
+}
+
+function getDqRuleTaskRecords(payload: DqRuleTaskPageQuery): DqRuleTaskRecord[] {
+  return payload.data?.data ?? payload.data?.rows ?? payload.data?.list ?? payload.data?.records ?? [];
+}
+
+function getDqRuleTaskTotal(payload: DqRuleTaskPageQuery): number {
+  return payload.data?.total ?? payload.data?.totalCount ?? payload.data?.count ?? 0;
+}
+
+function expectNonEmptyString(value: unknown, message: string): string {
+  expect(typeof value, message).toBe("string");
+  const text = value as string;
+  expect(text.length, message).toBeGreaterThan(0);
+  return text;
+}
+
+function formatDqRuleTaskStatus(isClosed: unknown, sourceRef: string): string {
+  expect([0, 1], `${sourceRef}: API isClosed 应为 0 或 1`).toContain(isClosed);
+  return isClosed === 0 ? "已开启检测" : "已关闭检测";
+}
+
+function formatDqRuleTaskAssociated(associated: unknown, sourceRef: string): string {
+  expect([0, 1], `${sourceRef}: API associated 应为 0 或 1`).toContain(associated);
+  return associated === 1 ? "是" : "否";
+}
+
+function formatDqRuleTaskModifyUser(modifyUser: unknown, sourceRef: string): string {
+  if (Array.isArray(modifyUser)) {
+    return expectNonEmptyString(modifyUser[0], `${sourceRef}: API modifyUser 应包含最近修改人`);
+  }
+  return expectNonEmptyString(modifyUser, `${sourceRef}: API modifyUser 应包含最近修改人`);
 }
