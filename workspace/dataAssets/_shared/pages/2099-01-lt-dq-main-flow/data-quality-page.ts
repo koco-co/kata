@@ -521,6 +521,127 @@ export async function expectDataQualityRuleBaseBuiltInRulesShell(
   });
 }
 
+export async function expectDataQualityCommonConfigJsonShell(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/generalConfig/jsonValidationConfig");
+
+  const body = page.locator("body");
+  for (const label of ["通用配置", "json格式校验管理"]) {
+    await expect(body, `${sourceRef}: json格式校验管理页面应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  for (const label of ["导入", "导出", "新增"]) {
+    await expectDqCompactButton(page, label, sourceRef);
+  }
+
+  for (const header of [
+    "key",
+    "中文名称",
+    "value格式",
+    "数据源类型",
+    "创建人",
+    "创建时间",
+    "更新人",
+    "更新时间",
+    "操作",
+  ]) {
+    await expect(body, `${sourceRef}: json格式校验管理列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+
+  await expectDqApiPaths(page, sourceRef, "/dq/generalConfig/jsonValidationConfig 列表", [
+    "/dassets/v1/valid/jsonValidationConfig/getTreeByPage",
+  ]);
+}
+
+export async function expectDataQualityCommonConfigJsonImportModalShell(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/generalConfig/jsonValidationConfig");
+  await clickDqCompactButton(page, "导入", sourceRef);
+
+  const modal = page.locator(".ant-modal:visible").last();
+  await expect(modal, `${sourceRef}: 导入弹窗应打开`).toBeVisible({ timeout: 30000 });
+  for (const label of ["导入", "重复处理规则", "重复则跳过", "上传文件"]) {
+    await expect(modal, `${sourceRef}: 导入弹窗应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  await expect(
+    modal.locator("input[type='file']").first(),
+    `${sourceRef}: 导入弹窗应包含文件上传控件`,
+  ).toBeAttached({ timeout: 30000 });
+  await closeDqModal(page, sourceRef);
+}
+
+export async function expectDataQualityCommonConfigJsonExportConfirmShell(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/generalConfig/jsonValidationConfig");
+  await clickDqCompactButton(page, "导出", sourceRef);
+
+  const body = page.locator("body");
+  await expect(
+    body,
+    `${sourceRef}: 导出只验证确认壳，不点击确认下载`,
+  ).toContainText("请确认是否导出列表数据", { timeout: 30000 });
+  await clickDqCompactButton(page, "取消", sourceRef);
+}
+
+export async function expectDataQualityCommonConfigJsonAddRegexShell(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/generalConfig/jsonValidationConfig");
+  await clickDqCompactButton(page, "新增", sourceRef);
+
+  const modal = page.locator(".ant-modal:visible").last();
+  await expect(modal, `${sourceRef}: 新增弹窗应打开`).toBeVisible({ timeout: 30000 });
+  for (const label of ["新建", "key", "中文名称", "value格式", "数据源类型"]) {
+    await expect(modal, `${sourceRef}: 新增弹窗应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  await expect(modal, `${sourceRef}: 数据源类型默认应展示 SparkThrift2.x`).toContainText(
+    /SparkThrift2\.x|sparkthrift2\.x/i,
+    { timeout: 30000 },
+  );
+  await expect(
+    modal.getByText("测试数据", { exact: true }),
+    `${sourceRef}: 未填写 value格式 前不展示测试数据输入`,
+  ).toHaveCount(0);
+
+  const valueFormatInput = modal
+    .locator(".ant-form-item")
+    .filter({ hasText: "value格式" })
+    .locator("input")
+    .first();
+  await valueFormatInput.fill("^[a-zA-Z]+$");
+
+  await expect(modal, `${sourceRef}: value格式填写后应展示正则测试区域`).toContainText("测试数据", {
+    timeout: 30000,
+  });
+  const testDataInput = modal.locator("textarea").first();
+  await expect(testDataInput, `${sourceRef}: 正则测试输入框应可见`).toBeVisible({ timeout: 30000 });
+  await testDataInput.fill("testValue");
+
+  const regexTestButton = modal.getByRole("button", { name: /正则匹配测试/ }).first();
+  await expect(regexTestButton, `${sourceRef}: 正则匹配测试按钮应可见`).toBeVisible({
+    timeout: 30000,
+  });
+  await regexTestButton.click();
+  await expect(modal, `${sourceRef}: 正则匹配测试应显示成功结果`).toContainText(/符合正则|匹配成功/, {
+    timeout: 30000,
+  });
+  await closeDqModal(page, sourceRef);
+}
+
 export async function expectMetadataIntegrityShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {
     path: "/integrityAnalysis",
@@ -540,6 +661,31 @@ async function clickDqText(page: Page, label: string, sourceRef: string): Promis
   await expect(page.locator("body"), `${sourceRef}: 点击「${label}」后页面主体应仍可见`).toBeVisible({
     timeout: 30000,
   });
+}
+
+async function clickDqCompactButton(page: Page, label: string, sourceRef: string): Promise<void> {
+  const spacedLabel = label.split("").join("\\s*");
+  await page
+    .getByRole("button", { name: new RegExp(`^${spacedLabel}$`) })
+    .first()
+    .click({ timeout: 30000 });
+  await expect(page.locator("body"), `${sourceRef}: 点击「${label}」后页面主体应仍可见`).toBeVisible({
+    timeout: 30000,
+  });
+}
+
+async function expectDqCompactButton(page: Page, label: string, sourceRef: string): Promise<void> {
+  const spacedLabel = label.split("").join("\\s*");
+  await expect(
+    page.getByRole("button", { name: new RegExp(`^${spacedLabel}$`) }).first(),
+    `${sourceRef}: 应展示「${label}」按钮`,
+  ).toBeVisible({ timeout: 30000 });
+}
+
+async function closeDqModal(page: Page, sourceRef: string): Promise<void> {
+  const modal = page.locator(".ant-modal:visible").last();
+  await modal.locator(".ant-modal-close").first().click({ timeout: 30000 });
+  await expect(modal, `${sourceRef}: 弹窗应关闭且未提交`).toBeHidden({ timeout: 30000 });
 }
 
 async function expectDqPage(page: Page, sourceRef: string, target: DqPageTarget): Promise<void> {

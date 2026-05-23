@@ -23,3 +23,5 @@ import "../cases/t16-metadata-data-map-secondary-shell";
 import "../cases/t17-data-quality-overview-dashboard";
 import "../cases/t17-metadata-table-detail-shell";
 import "../cases/t18-standard-data-standard-detail-shell";
+import "../cases/t19-metadata-data-catalog-actions-shell";
+import "../cases/t20-data-quality-common-config-json-shell";
