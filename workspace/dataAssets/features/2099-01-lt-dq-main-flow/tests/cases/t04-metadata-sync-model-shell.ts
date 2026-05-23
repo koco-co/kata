@@ -16,7 +16,7 @@ import { SR_2099_01_MD_002, SR_2099_01_MD_003 } from "../data/metadata-contract"
 test.use({
   storageState:
     process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/session.json",
+    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
 });
 test.setTimeout(90000);
 

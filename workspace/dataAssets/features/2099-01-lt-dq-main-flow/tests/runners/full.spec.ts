@@ -15,3 +15,5 @@ import "../cases/t08-data-security-shell";
 import "../cases/t09-platform-management-shell";
 import "../cases/t10-assets-inventory-trends";
 import "../cases/t11-model-build-table-type-hdfs";
+import "../cases/t12-metadata-search-statistics";
+import "../cases/t13-data-quality-report-config";

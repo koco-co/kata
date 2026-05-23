@@ -16,7 +16,7 @@ import { ASSETS_INVENTORY_SCOPE, SR_2099_01_AI_001 } from "../data/assets-invent
 test.use({
   storageState:
     process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/session.json",
+    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
 });
 test.setTimeout(15 * 60 * 1000);
 
