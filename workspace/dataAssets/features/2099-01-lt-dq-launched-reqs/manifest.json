@@ -9,15 +9,29 @@
     "coverage_matrix_path": null
   },
   "automation": {
-    "status": "in-progress",
-    "intents": [],
-    "last_handoff_path": null,
-    "last_run_status": "preflight-ready"
+    "status": "ready",
+    "intents": [
+      {
+        "intent_id": "SR-INTENT-LT-DQ-LAUNCHED-REQS-FULL",
+        "case_files": [
+          "tests/runners/full.spec.ts",
+          "tests/cases/lr-assets-full.spec.ts",
+          "tests/cases/lr-metadata-current-ui.spec.ts",
+          "tests/cases/lr-platform-current-ui.spec.ts",
+          "tests/cases/lr-quality-current-ui.spec.ts",
+          "tests/cases/lr-security-v644-permission-current-session.ts",
+          "tests/cases/lr-standard-current-ui.spec.ts"
+        ],
+        "automation_status": "ready"
+      }
+    ],
+    "last_handoff_path": "results/full-260523-05/handoff.md",
+    "last_run_status": "passing"
   },
   "files": {
     "archive": "岚图已上线需求主流程用例.md",
     "xmind": "岚图已上线需求主流程用例.xmind",
     "tests_root": "tests",
-    "latest_results": "results/preflight-260522-01"
+    "latest_results": "results/full-260523-05"
   }
 }
