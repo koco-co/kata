@@ -162,6 +162,47 @@ export async function expectDataQualityGeneratedReportTab(page: Page, sourceRef:
   ]);
 }
 
+export async function expectDataQualityResultFilterContract(page: Page, sourceRef: string): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/taskQuery");
+
+  const body = page.locator("body");
+  for (const label of ["校验结果查询", "计划时间", "最近修改人", "我收藏的表"]) {
+    await expect(body, `${sourceRef}: 校验结果查询筛选区应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+
+  for (const placeholder of ["请输入表名/任务名称搜索", "开始日期", "结束日期"]) {
+    await expect(
+      page.getByPlaceholder(placeholder).first(),
+      `${sourceRef}: 校验结果查询应展示占位符「${placeholder}」`,
+    ).toBeVisible({ timeout: 30000 });
+  }
+
+  for (const header of [
+    "表",
+    "任务名称",
+    "状态",
+    "数据源",
+    "执行周期",
+    "计划时间",
+    "开始时间",
+    "结束时间",
+    "运行时长",
+    "提交人",
+    "最近修改人",
+    "操作",
+  ]) {
+    await expect(body, `${sourceRef}: 校验结果查询列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+
+  await expectDqApiPaths(page, sourceRef, "/dq/taskQuery 筛选列表", [
+    "/dassets/v1/valid/monitorRecord/pageQuery",
+  ]);
+}
+
 export async function expectDataQualityReportCreateEntry(page: Page, sourceRef: string): Promise<void> {
   await gotoDataQualityPage(page, "/dq/qualityReport");
   await clickDqText(page, "已配置报告", sourceRef);
@@ -248,6 +289,39 @@ export async function expectDataQualityRuleSetCreateEntry(page: Page, sourceRef:
   ]);
 }
 
+export async function expectDataQualityRuleSetFilterContract(page: Page, sourceRef: string): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/ruleSet");
+
+  const body = page.locator("body");
+  await expect(body, `${sourceRef}: 规则集管理应展示新建规则集入口`).toContainText("新建规则集", {
+    timeout: 30000,
+  });
+  await expect(
+    page.getByPlaceholder("输入表名搜索").first(),
+    `${sourceRef}: 规则集管理应展示表名搜索输入框`,
+  ).toBeVisible({ timeout: 30000 });
+
+  for (const header of [
+    "表名",
+    "所属数据库",
+    "所属数据源",
+    "规则包数量",
+    "规则数量",
+    "规则集描述",
+    "更新人",
+    "更新时间",
+    "操作",
+  ]) {
+    await expect(body, `${sourceRef}: 规则集管理列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+
+  await expectDqApiPaths(page, sourceRef, "/dq/ruleSet 筛选列表", [
+    "/dassets/v1/valid/monitorRuleSet/pageQuery",
+  ]);
+}
+
 export async function expectDataQualityRuleBaseShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {
     path: "/dq/ruleBase",
@@ -255,6 +329,67 @@ export async function expectDataQualityRuleBaseShell(page: Page, sourceRef: stri
     tableHeaders: ["规则名称", "规则解释", "规则分类", "关联范围", "关联规则数", "规则状态", "规则描述"],
     apiPaths: ["/dassets/v1/valid/monitorRuleTemplate/pageQuery"],
   });
+}
+
+export async function expectDataQualityRuleBaseCustomRegexContract(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/ruleBase");
+  await clickDqText(page, "自定义正则", sourceRef);
+
+  const body = page.locator("body");
+  for (const label of ["自定义正则", "新增自定义正则", "规则名称", "规则分类", "关联范围", "关联规则数", "规则描述"]) {
+    await expect(body, `${sourceRef}: 自定义正则列表应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  await expect(
+    page.locator("input[placeholder='请输入规则名称进行搜索']:visible").first(),
+    `${sourceRef}: 自定义正则列表应展示规则名称搜索输入框`,
+  ).toBeVisible({ timeout: 30000 });
+}
+
+export async function expectDataQualityGeneratedReportFilterContract(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/qualityReport");
+  await clickDqText(page, "已生成报告", sourceRef);
+
+  const body = page.locator("body");
+  for (const label of ["已生成报告", "报告名称", "数据表", "生成时间", "报告状态"]) {
+    await expect(body, `${sourceRef}: 已生成报告筛选区应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+
+  for (const placeholder of ["请输入报告名称", "请输入数据表名", "开始日期", "结束日期"]) {
+    await expect(
+      page.getByPlaceholder(placeholder).first(),
+      `${sourceRef}: 已生成报告应展示占位符「${placeholder}」`,
+    ).toBeVisible({ timeout: 30000 });
+  }
+
+  for (const header of [
+    "报告名称",
+    "报告类型",
+    "关联数据表",
+    "生成样式",
+    "规则范围",
+    "数据周期",
+    "报告状态",
+    "生成时间",
+    "操作",
+  ]) {
+    await expect(body, `${sourceRef}: 已生成报告列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+
+  await expectDqApiPaths(page, sourceRef, "/dq/qualityReport 已生成报告筛选列表", [
+    "/dassets/v1/valid/monitorReportRecord/pageList",
+  ]);
 }
 
 export async function expectDataQualityRuleBaseCustomSqlTemplate(page: Page, sourceRef: string): Promise<void> {

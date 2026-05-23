@@ -17,3 +17,6 @@ import "../cases/t10-assets-inventory-trends";
 import "../cases/t11-model-build-table-type-hdfs";
 import "../cases/t12-metadata-search-statistics";
 import "../cases/t13-data-quality-report-config";
+import "../cases/t14-standard-directory-mapping-shell";
+import "../cases/t15-data-quality-result-filters";
+import "../cases/t16-metadata-data-map-secondary-shell";
