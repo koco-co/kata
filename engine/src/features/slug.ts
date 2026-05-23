@@ -54,9 +54,7 @@ export function sanitizeSlug(input: string): string {
     .replace(/-{2,}/g, "-");
 }
 
-export type SlugSource =
-  | { kind: "lanhu"; pageId?: string }
-  | { kind: "prd"; filename?: string };
+export type SlugSource = { kind: "lanhu"; pageId?: string } | { kind: "prd"; filename?: string };
 
 export function deriveSlugFromSource(source: SlugSource): string | null {
   if (source.kind === "lanhu" && source.pageId) {
@@ -65,7 +63,9 @@ export function deriveSlugFromSource(source: SlugSource): string | null {
   if (source.kind === "prd" && source.filename) {
     const base = source.filename.replace(/\.[^.]+$/, "");
     const slug = sanitizeSlug(base);
-    return isValidSlug(slug) ? slug.slice(0, 32).replace(/-+$/, "") : null;
+    if (!isValidSlug(slug)) return null;
+	    const truncated = slug.slice(0, 32).replace(/-+$/, "");
+	    return isValidSlug(truncated) ? truncated : null;
   }
   return null;
 }
