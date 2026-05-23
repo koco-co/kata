@@ -165,11 +165,12 @@ describe("GA-core workflow contracts", () => {
     expect(result.issues.map((issue) => issue.code)).toContain("workflow_contract.duplicate");
   });
 
-  it("case-draft-from-prd has the iterative 12-step sequence", () => {
+  it("case-draft-from-prd has the iterative 13-step sequence", () => {
     const stepIds = parseWorkflowStepIds(CASE_DRAFT_WORKFLOW_PATH);
     expect(stepIds).toEqual([
       "source-intake",
       "module-identify",
+      "source-confirm",
       "historical-context",
       "requirement-atomize",
       "ambiguity-scan",

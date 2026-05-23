@@ -1,8 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
-import { KATA_CLI } from "./cli-runner.ts";
-import { testEnv } from "./cli-runner.ts";
+import { KATA_CLI, testEnv } from "./cli-runner.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
 

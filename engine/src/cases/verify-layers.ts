@@ -5,7 +5,7 @@ import {
   loadCoverageMatrixValidator,
   loadFeatureManifestValidator,
   loadFeatureMetadataValidator,
-  loadSourceSnapshotValidator,
+  loadFeatureSourceSnapshotValidator,
 } from "../schemas/loaders.ts";
 import type { ResolvedTarget } from "../source-ref/resolve-target.ts";
 import { sourceRefKind } from "../source-ref/resolve-target.ts";
@@ -39,7 +39,7 @@ export function verifyStableCoreArtifacts(input: { featureDir: string; status: s
 
 const STRUCTURED_SCHEMA_FILES: { file: string; loader: () => (d: unknown) => boolean; kind: "json" | "yaml"; array?: boolean }[] = [
   { file: "metadata.yaml", loader: loadFeatureMetadataValidator, kind: "yaml" },
-  { file: "source-snapshot.json", loader: loadSourceSnapshotValidator, kind: "json" },
+  { file: "source-snapshot.json", loader: loadFeatureSourceSnapshotValidator, kind: "json" },
   { file: "coverage-matrix.json", loader: loadCoverageMatrixValidator, kind: "json", array: true },
 ];
 

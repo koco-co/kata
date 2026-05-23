@@ -194,9 +194,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P1-05"
-      ],
+      "blocks": ["P1-05"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -213,17 +211,9 @@
       "completed": "2026-05-21T20:00:00+08:00",
       "verification": {
         "declared_scope": "find . -name '.DS_Store' | wc -l 结果为 0",
-        "commands": [
-          "find . -name '.DS_Store' -not -path './.git/*' | wc -l",
-          "bun test"
-        ],
-        "results": [
-          "0 .DS_Store files remaining",
-          "1711 pass, 0 fail, 1 skip"
-        ],
-        "artifacts": [
-          ".gitignore"
-        ],
+        "commands": ["find . -name '.DS_Store' -not -path './.git/*' | wc -l", "bun test"],
+        "results": ["0 .DS_Store files remaining", "1711 pass, 0 fail, 1 skip"],
+        "artifacts": [".gitignore"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -256,14 +246,8 @@
       "completed": "2026-05-21T20:15:00+08:00",
       "verification": {
         "declared_scope": "workspace/**/tmp/ 目录为空或不存在；bun test 全量通过",
-        "commands": [
-          "find workspace -type d -name tmp | wc -l",
-          "bun test"
-        ],
-        "results": [
-          "0 tmp/ directories under workspace",
-          "1711 pass, 0 fail, 1 skip"
-        ],
+        "commands": ["find workspace -type d -name tmp | wc -l", "bun test"],
+        "results": ["0 tmp/ directories under workspace", "1711 pass, 0 fail, 1 skip"],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -297,17 +281,12 @@
       "completed": "2026-05-21T21:15:00+08:00",
       "verification": {
         "declared_scope": "bun install 无报错；package.json 无占位 URL",
-        "commands": [
-          "bun install",
-          "bun test"
-        ],
+        "commands": ["bun install", "bun test"],
         "results": [
           "bun install: Checked 235 installs across 257 packages (no changes)",
           "bun test: 1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          "package.json"
-        ],
+        "artifacts": ["package.json"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -323,9 +302,7 @@
       "status": "completed",
       "priority": "medium",
       "depends_on": [],
-      "blocks": [
-        "P3-05"
-      ],
+      "blocks": ["P3-05"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -372,9 +349,7 @@
       "category": "cleanup",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P1-01"
-      ],
+      "depends_on": ["P1-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -392,11 +367,7 @@
       "completed": "2026-05-21T21:35:00+08:00",
       "verification": {
         "declared_scope": "git status 无意外文件；git clean -n 无意外输出",
-        "commands": [
-          "git clean -n",
-          "git status --short",
-          "find -name .DS_Store (not in git)"
-        ],
+        "commands": ["git clean -n", "git status --short", "find -name .DS_Store (not in git)"],
         "results": [
           "git clean -n: only progress.json",
           ".gitignore has all key patterns",
@@ -418,12 +389,7 @@
       "status": "completed",
       "priority": "critical",
       "depends_on": [],
-      "blocks": [
-        "P2-03",
-        "P2-04",
-        "P5-03",
-        "P5-07"
-      ],
+      "blocks": ["P2-03", "P2-04", "P5-03", "P5-07"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -440,14 +406,8 @@
       "completed": "2026-05-21T20:30:00+08:00",
       "verification": {
         "declared_scope": "bun test 全量通过；bun run check 通过；AGENTS.md ≤150 行；新开 AI 窗口确认路由正常",
-        "commands": [
-          "bun test",
-          "bun engine/bin/kata ai-core projection render"
-        ],
-        "results": [
-          "1711 pass, 0 fail, 1 skip",
-          "render passed"
-        ],
+        "commands": ["bun test", "bun engine/bin/kata ai-core projection render"],
+        "results": ["1711 pass, 0 fail, 1 skip", "render passed"],
         "artifacts": [
           "AGENTS.md (59 lines)",
           ".ai/core/rules/testing.md",
@@ -488,12 +448,8 @@
       "completed": "2026-05-21T21:40:00+08:00",
       "verification": {
         "declared_scope": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载",
-        "commands": [
-          "cat CLAUDE.local.md"
-        ],
-        "results": [
-          "文件已写入，内容包含输出风格、本地环境变量、路径、调试配置"
-        ],
+        "commands": ["cat CLAUDE.local.md"],
+        "results": ["文件已写入，内容包含输出风格、本地环境变量、路径、调试配置"],
         "artifacts": [],
         "unverified_remainder": "新开 AI 窗口确认 CLAUDE.local.md 被正确加载（需手工验证）"
       },
@@ -509,9 +465,7 @@
       "category": "ai_entry",
       "status": "completed",
       "priority": "high",
-      "depends_on": [
-        "P2-01"
-      ],
+      "depends_on": ["P2-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -554,9 +508,7 @@
       "category": "ai_entry",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P2-01"
-      ],
+      "depends_on": ["P2-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -600,9 +552,7 @@
       "status": "completed",
       "priority": "critical",
       "depends_on": [],
-      "blocks": [
-        "P3-02"
-      ],
+      "blocks": ["P3-02"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -619,12 +569,8 @@
       "completed": "2026-05-21T20:45:00+08:00",
       "verification": {
         "declared_scope": "bun test engine/tests/ai-core/prompt-cache-validator.test.ts 通过；bun run lint:ai-core 通过",
-        "commands": [
-          "bun test"
-        ],
-        "results": [
-          "1711 pass, 0 fail, 1 skip"
-        ],
+        "commands": ["bun test"],
+        "results": ["1711 pass, 0 fail, 1 skip"],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -640,9 +586,7 @@
       "category": "prompts",
       "status": "completed",
       "priority": "critical",
-      "depends_on": [
-        "P3-01"
-      ],
+      "depends_on": ["P3-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -660,12 +604,8 @@
       "completed": "2026-05-21T21:00:00+08:00",
       "verification": {
         "declared_scope": "bun test engine/tests/ai-core/prompt-cache-validator.test.ts 通过",
-        "commands": [
-          "bun test"
-        ],
-        "results": [
-          "1711 pass, 0 fail, 1 skip"
-        ],
+        "commands": ["bun test"],
+        "results": ["1711 pass, 0 fail, 1 skip"],
         "artifacts": [],
         "unverified_remainder": null
       },
@@ -682,9 +622,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P3-06"
-      ],
+      "blocks": ["P3-06"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -711,10 +649,7 @@
           "projection lock render: passed",
           "bun test: 1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          ".ai/core/skills/case-draft/skill.yaml (200 lines)",
-          "3 updated test files"
-        ],
+        "artifacts": [".ai/core/skills/case-draft/skill.yaml (200 lines)", "3 updated test files"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -730,9 +665,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P3-06"
-      ],
+      "blocks": ["P3-06"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -774,9 +707,7 @@
       "category": "prompts",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P1-04"
-      ],
+      "depends_on": ["P1-04"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -804,9 +735,7 @@
           "projection lock render: passed",
           "1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          "8 skill.yaml files updated"
-        ],
+        "artifacts": ["8 skill.yaml files updated"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -821,10 +750,7 @@
       "category": "prompts",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P3-03",
-        "P3-04"
-      ],
+      "depends_on": ["P3-03", "P3-04"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -920,9 +846,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P4-07"
-      ],
+      "blocks": ["P4-07"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -949,9 +873,7 @@
           "projection lock render: passed",
           "1711 pass, 0 fail, 1 skip"
         ],
-        "artifacts": [
-          "translation-glossary.yaml (56 terms)"
-        ],
+        "artifacts": ["translation-glossary.yaml (56 terms)"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -967,9 +889,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P5-01"
-      ],
+      "blocks": ["P5-01"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1006,9 +926,7 @@
           "exit 0; ai-core projection render passed",
           "exit 0; ai-core projection check passed"
         ],
-        "artifacts": [
-          "engine/tests/large-file-split.test.ts"
-        ],
+        "artifacts": ["engine/tests/large-file-split.test.ts"],
         "unverified_remainder": null
       },
       "commit_sha": null,
@@ -1024,9 +942,7 @@
       "status": "completed",
       "priority": "high",
       "depends_on": [],
-      "blocks": [
-        "P5-01"
-      ],
+      "blocks": ["P5-01"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1111,9 +1027,7 @@
           "worker exit 0; Biome checked 621 files, 174 warnings, 0 errors",
           "worker exit 0; 1725 pass, 1 skip, 0 fail"
         ],
-        "artifacts": [
-          "engine/tests/dead-code-cleanup.test.ts"
-        ],
+        "artifacts": ["engine/tests/dead-code-cleanup.test.ts"],
         "unverified_remainder": null
       },
       "commit_sha": "2ebeb6770aaf23088e635362bb76f5c90eb3789b",
@@ -1158,9 +1072,7 @@
           "exit 0; tsc --noEmit",
           "exit 0; Checked 2 files. No fixes applied"
         ],
-        "artifacts": [
-          "engine/tests/plugins/esm-modules.test.ts"
-        ],
+        "artifacts": ["engine/tests/plugins/esm-modules.test.ts"],
         "unverified_remainder": null
       },
       "commit_sha": "d6146998e4ec8a779a1ae3eaa65eac3dc5966c57",
@@ -1284,9 +1196,7 @@
       "category": "code_quality",
       "status": "completed",
       "priority": "low",
-      "depends_on": [
-        "P3-08"
-      ],
+      "depends_on": ["P3-08"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1321,13 +1231,8 @@
       "category": "testing",
       "status": "completed",
       "priority": "high",
-      "depends_on": [
-        "P4-01",
-        "P4-02"
-      ],
-      "blocks": [
-        "P5-02"
-      ],
+      "depends_on": ["P4-01", "P4-02"],
+      "blocks": ["P5-02"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1380,9 +1285,7 @@
       "category": "testing",
       "status": "completed",
       "priority": "high",
-      "depends_on": [
-        "P5-01"
-      ],
+      "depends_on": ["P5-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1430,9 +1333,7 @@
       "category": "workspace",
       "status": "completed",
       "priority": "high",
-      "depends_on": [
-        "P2-01"
-      ],
+      "depends_on": ["P2-01"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1562,9 +1463,7 @@
       "status": "completed",
       "priority": "medium",
       "depends_on": [],
-      "blocks": [
-        "P5-07"
-      ],
+      "blocks": ["P5-07"],
       "source": "audit",
       "writing_plan": {
         "path": null,
@@ -1598,10 +1497,7 @@
       "category": "docs",
       "status": "completed",
       "priority": "medium",
-      "depends_on": [
-        "P2-01",
-        "P5-06"
-      ],
+      "depends_on": ["P2-01", "P5-06"],
       "blocks": [],
       "source": "audit",
       "writing_plan": {
@@ -1718,9 +1614,7 @@
           "exit 0; .gitignore rules matched package-lock.json and .playwright-cli/*.yml",
           "exit 0; 1715 pass, 1 skip, 0 fail, 5249 expect() calls, 1716 tests across 173 files"
         ],
-        "artifacts": [
-          ".gitignore"
-        ],
+        "artifacts": [".gitignore"],
         "unverified_remainder": null
       },
       "commit_sha": "35ded8c4c24ea60dcef44676f32db9fa94f5b34e",

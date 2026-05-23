@@ -40,7 +40,7 @@ describe("runCasesVerify", () => {
     ].join("\n"));
     writeFileSync(join(dir, "cases.xmind"), "PK");
     writeFileSync(join(dir, "source-snapshot.json"), JSON.stringify({
-      schema: "SourceSnapshot@1", feature_id: featureId,
+      schema: "FeatureSourceSnapshot@1", feature_id: featureId,
       lanhu: { url: "https://lanhuapp.com/x", page_id: "p1" },
       confirmed_source_repos: [{ group: "customltem", project: "dt-insight-studio", branch: "main", role: "frontend" }],
       knowledge_refs: ["terms"],

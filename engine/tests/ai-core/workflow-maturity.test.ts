@@ -34,7 +34,7 @@ describe("workflow maturity audit", () => {
 
     expect(entry).toBeDefined();
     expect(entry.level).toBe("L3");
-    expect(entry.stepCount).toBe(12);
+    expect(entry.stepCount).toBe(13);
     expect(entry.hasOutputSchemas).toBe(true);
     expect(entry.hasFailurePolicy).toBe(true);
     expect(entry.hasFixtureReference).toBe(true);

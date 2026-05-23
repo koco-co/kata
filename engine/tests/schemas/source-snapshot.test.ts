@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { loadSourceSnapshotValidator } from "../../src/schemas/loaders.ts";
+import { loadFeatureSourceSnapshotValidator } from "../../src/schemas/loaders.ts";
 
-describe("SourceSnapshot@1", () => {
-  const validate = loadSourceSnapshotValidator();
+describe("FeatureSourceSnapshot@1", () => {
+  const validate = loadFeatureSourceSnapshotValidator();
   const base = {
-    schema: "SourceSnapshot@1",
+    schema: "FeatureSourceSnapshot@1",
     feature_id: "2026-05-lt-dq",
     lanhu: { url: "https://lanhuapp.com/...", page_id: "cd882ee83c4d440d878b49cc31f67cb6" },
     confirmed_source_repos: [{ group: "customltem", project: "dt-insight-studio", branch: "dataAssets/release_6.3.x_ltqc", role: "frontend" }],

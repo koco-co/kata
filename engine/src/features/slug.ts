@@ -64,8 +64,8 @@ export function deriveSlugFromSource(source: SlugSource): string | null {
     const base = source.filename.replace(/\.[^.]+$/, "");
     const slug = sanitizeSlug(base);
     if (!isValidSlug(slug)) return null;
-	    const truncated = slug.slice(0, 32).replace(/-+$/, "");
-	    return isValidSlug(truncated) ? truncated : null;
+    const truncated = slug.slice(0, 32).replace(/-+$/, "");
+    return isValidSlug(truncated) ? truncated : null;
   }
   return null;
 }

@@ -604,7 +604,7 @@ function parseFixtureYaml(text: string): { id?: string } {
     expect(json.status).toBe(0);
     const report = JSON.parse(json.stdout);
     expect(report).toEqual({
-      generated: 100,
+      generated: 102,
       copied_vendor: 22,
       local_exception: 0,
       deleted: 0,

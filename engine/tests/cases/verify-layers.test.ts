@@ -104,7 +104,7 @@ describe("verifyStableCoreArtifacts", () => {
 
 describe("verifyStructuredSchemas", () => {
   const validSnapshot = {
-    schema: "SourceSnapshot@1", feature_id: "2026-05-lt-dq",
+    schema: "FeatureSourceSnapshot@1", feature_id: "2026-05-lt-dq",
     lanhu: { url: "https://lanhuapp.com/x", page_id: "p1" },
     confirmed_source_repos: [{ group: "g", project: "dt-insight-studio", branch: "main", role: "frontend" }],
     knowledge_refs: ["terms"],
@@ -127,8 +127,8 @@ describe("verifyStructuredSchemas", () => {
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 
-  it("fails when source-snapshot.json violates SourceSnapshot@1 (repo missing branch)", () => {
-    const dir = seedStructured({ snapshot: { schema: "SourceSnapshot@1", feature_id: "2026-05-lt-dq", lanhu: { url: "u", page_id: "p1" }, confirmed_source_repos: [{ group: "g", project: "p" }], knowledge_refs: [] } });
+  it("fails when source-snapshot.json violates FeatureSourceSnapshot@1 (repo missing branch)", () => {
+    const dir = seedStructured({ snapshot: { schema: "FeatureSourceSnapshot@1", feature_id: "2026-05-lt-dq", lanhu: { url: "u", page_id: "p1" }, confirmed_source_repos: [{ group: "g", project: "p" }], knowledge_refs: [] } });
     try {
       const issues = verifyStructuredSchemas({ featureDir: dir, status: "completed" });
       expect(issues.some((i) => i.layer === "L1" && i.rule === "structured_schema_invalid" && i.message.includes("source-snapshot.json"))).toBe(true);
