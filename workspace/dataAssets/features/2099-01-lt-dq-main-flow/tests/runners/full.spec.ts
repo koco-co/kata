@@ -28,3 +28,7 @@ import "../cases/t20-data-quality-common-config-json-shell";
 import "../cases/t21-metadata-sort-controls-shell";
 import "../cases/t22-standard-industry-template-shell";
 import "../cases/t23-data-quality-rule-task-list-contract";
+import "../cases/t24-metadata-table-detail-range-shell";
+import "../cases/t25-standard-basis-code-database-shell";
+import "../cases/t26-metadata-table-detail-actions-shell";
+import "../cases/t26-data-quality-ruleset-config-shell";

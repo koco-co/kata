@@ -41,6 +41,25 @@ type DqRuleTaskPageQuery = {
   };
 };
 
+type DqRuleSetRecord = {
+  id?: string | number;
+  tableName?: string;
+  packageCount?: number | string;
+  ruleCount?: number | string;
+};
+
+type DqRuleSetPageQuery = {
+  success?: boolean;
+  code?: number;
+  data?: {
+    contentList?: DqRuleSetRecord[];
+    data?: DqRuleSetRecord[];
+    rows?: DqRuleSetRecord[];
+    list?: DqRuleSetRecord[];
+    records?: DqRuleSetRecord[];
+  };
+};
+
 async function installProject(page: Page): Promise<void> {
   await page.addInitScript(
     ([assetKey, dqKey, projectId]) => {
@@ -498,6 +517,47 @@ export async function expectDataQualityRuleSetFilterContract(page: Page, sourceR
   ]);
 }
 
+export async function expectDataQualityRuleSetConfigShell(page: Page, sourceRef: string): Promise<void> {
+  const pageQueryResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("/dassets/v1/valid/monitorRuleSet/pageQuery") && response.status() === 200,
+    { timeout: 60000 },
+  );
+  await gotoDataQualityPage(page, "/dq/ruleSet");
+  const payload = (await (await pageQueryResponse).json()) as DqRuleSetPageQuery;
+  expect(payload.success ?? payload.code === 1, `${sourceRef}: monitorRuleSet/pageQuery 应返回成功状态`).toBe(true);
+  const records = getDqRuleSetRecords(payload);
+  expect(records.length, `${sourceRef}: 规则集列表 API 应返回可编辑记录`).toBeGreaterThan(0);
+
+  const rangeRecord = expectDqRuleSetRecord(
+    records.find((record) => /^quality_test_(num|str|enum_pass)$/.test(String(record.tableName ?? ""))),
+    `${sourceRef}: 应存在取值范围&枚举范围规则集 fixture`,
+  );
+  const keyRangeRecord = expectDqRuleSetRecord(
+    records.find((record) => /key_range|json_key/i.test(String(record.tableName ?? ""))),
+    `${sourceRef}: 应存在 key范围校验规则集 fixture`,
+  );
+
+  await expectDqRuleSetEditShell(page, sourceRef, rangeRecord, "取值范围&枚举范围", [
+    "添加规则",
+    "字段",
+    /统计函数|统计规则/,
+    "取值范围设置",
+    "枚举值设置",
+    "取值范围和枚举值的关系",
+    "强弱规则",
+  ]);
+  await expectDqRuleSetEditShell(page, sourceRef, keyRangeRecord, "key范围校验", [
+    "添加规则",
+    "生效范围",
+    "字段",
+    "统计函数",
+    "校验方法",
+    "校验内容",
+    "强弱规则",
+  ]);
+}
+
 export async function expectDataQualityRuleBaseShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {
     path: "/dq/ruleBase",
@@ -835,6 +895,51 @@ function getDqRuleTaskRecords(payload: DqRuleTaskPageQuery): DqRuleTaskRecord[] 
 
 function getDqRuleTaskTotal(payload: DqRuleTaskPageQuery): number {
   return payload.data?.total ?? payload.data?.totalCount ?? payload.data?.count ?? 0;
+}
+
+function getDqRuleSetRecords(payload: DqRuleSetPageQuery): DqRuleSetRecord[] {
+  return (
+    payload.data?.contentList ??
+    payload.data?.data ??
+    payload.data?.rows ??
+    payload.data?.list ??
+    payload.data?.records ??
+    []
+  );
+}
+
+function expectDqRuleSetRecord(record: DqRuleSetRecord | undefined, message: string): DqRuleSetRecord {
+  expect(record, message).toBeTruthy();
+  expect(record?.id, `${message}: 记录应包含 id`).toBeTruthy();
+  expect(Number(record?.packageCount), `${message}: 记录应包含规则包`).toBeGreaterThan(0);
+  expect(Number(record?.ruleCount), `${message}: 记录应包含规则`).toBeGreaterThan(0);
+  return record as DqRuleSetRecord;
+}
+
+async function expectDqRuleSetEditShell(
+  page: Page,
+  sourceRef: string,
+  record: DqRuleSetRecord,
+  ruleName: string,
+  expectedLabels: readonly (string | RegExp)[],
+): Promise<void> {
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${record.id}?projectId=${PROJECT_ID}`);
+  const body = page.locator("body");
+  await expect(body, `${sourceRef}: 规则集编辑页应打开 ${record.tableName}`).toContainText("编辑规则集", {
+    timeout: 30000,
+  });
+  if (!(await page.getByText("添加规则", { exact: true }).first().isVisible())) {
+    await clickDqCompactButton(page, "下一步", sourceRef);
+  }
+
+  await expect(body, `${sourceRef}: ${ruleName} 规则集应进入监控规则配置页`).toContainText("监控规则", {
+    timeout: 30000,
+  });
+  for (const label of expectedLabels) {
+    await expect(body, `${sourceRef}: ${ruleName} 配置壳应展示「${String(label)}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
 }
 
 function expectNonEmptyString(value: unknown, message: string): string {
