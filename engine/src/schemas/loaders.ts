@@ -24,3 +24,5 @@ export const loadFeatureManifestValidator = () => loadSchema("FeatureManifest.v2
 export const loadHandoffV2Validator = () =>
   loadSchema("PlaywrightAutomationHandoff.v2.schema.json");
 export const loadSourceRefRegistryValidator = () => loadSchema("SourceRefRegistry.v1.schema.json");
+export const loadSourceSnapshotValidator = () => loadSchema("SourceSnapshot.v1.schema.json");
+export const loadCoverageMatrixValidator = () => loadSchema("CoverageMatrix.v1.schema.json");
