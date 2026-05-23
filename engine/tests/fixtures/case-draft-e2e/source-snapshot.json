@@ -1,0 +1,14 @@
+{
+  "schema": "SourceSnapshot@1",
+  "feature_id": "2026-05-lanhu-cd882ee8",
+  "lanhu": {
+    "url": "https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&versionId=84d0f3b9-9e0a-4416-be96-865ca70a7350&docId=fc0fee93-74f5-4eff-a769-99e68506b296&docType=axure&pageId=cd882ee83c4d440d878b49cc31f67cb6",
+    "page_id": "cd882ee83c4d440d878b49cc31f67cb6"
+  },
+  "confirmed_source_repos": [
+    { "group": "customltem", "project": "dt-insight-studio", "branch": "dataAssets/release_6.3.x_ltqc", "role": "frontend" },
+    { "group": "customltem", "project": "dt-center-assets", "branch": "release_6.3.x_ltqc", "role": "backend" }
+  ],
+  "knowledge_refs": ["terms", "source-repo-map"],
+  "slug_source": "lanhu:cd882ee8"
+}
