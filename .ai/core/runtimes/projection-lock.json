@@ -55,7 +55,7 @@
     {
       "path": ".agents/skills/case-draft/references/execution-protocol.md",
       "disposition": "generated",
-      "sha256": "ffaa4219951a45f475f8ab8554c7235316468f39031b811ce989cb86e9d866b8"
+      "sha256": "5095fff78e2be5219c72674fbce4fb48a00350a019f5b915e2be9c03c0c1c1b0"
     },
     {
       "path": ".agents/skills/case-draft/references/historical-context.md",
@@ -355,7 +355,7 @@
     {
       "path": ".claude/skills/case-draft/references/execution-protocol.md",
       "disposition": "generated",
-      "sha256": "ffaa4219951a45f475f8ab8554c7235316468f39031b811ce989cb86e9d866b8"
+      "sha256": "5095fff78e2be5219c72674fbce4fb48a00350a019f5b915e2be9c03c0c1c1b0"
     },
     {
       "path": ".claude/skills/case-draft/references/historical-context.md",
