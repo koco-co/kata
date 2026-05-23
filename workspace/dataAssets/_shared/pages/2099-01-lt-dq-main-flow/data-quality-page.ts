@@ -174,6 +174,27 @@ export async function expectDataQualityRuleBaseShell(page: Page, sourceRef: stri
   });
 }
 
+export async function expectDataQualityRuleBaseBuiltInRulesShell(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  await expectDqPage(page, sourceRef, {
+    path: "/dq/ruleBase",
+    labels: [
+      "规则库配置",
+      "内置规则",
+      "多表字段值对比",
+      "字段值计算对比",
+      "规则名称",
+      "规则解释",
+      "规则分类",
+      "关联范围",
+      "规则状态",
+    ],
+    apiPaths: ["/dassets/v1/valid/monitorRuleTemplate/pageQuery"],
+  });
+}
+
 export async function expectMetadataIntegrityShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {
     path: "/integrityAnalysis",
