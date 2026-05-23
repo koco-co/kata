@@ -21,6 +21,7 @@ import {
   lintSpecStructureValid,
 } from "../lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "../lint/weak-assertion.ts";
+import { registerCasesCompare } from "./cases-compare.ts";
 import { registerCasesValidate, runCasesValidate } from "./cases-validate.ts";
 import { registerCasesVerify } from "./cases-verify.ts";
 import { runFeaturesLint } from "./features-lint.ts";
@@ -158,6 +159,7 @@ export function buildCasesCommand(): Command {
         opts.severity === "fail-only" ? all.filter((v) => v.severity !== "warn") : all;
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);
     });
+  registerCasesCompare(cases);
   registerCasesVerify(cases);
   return cases;
 }
