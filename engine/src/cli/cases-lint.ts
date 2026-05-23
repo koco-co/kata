@@ -22,6 +22,7 @@ import {
 } from "../lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "../lint/weak-assertion.ts";
 import { registerCasesValidate, runCasesValidate } from "./cases-validate.ts";
+import { registerCasesVerify } from "./cases-verify.ts";
 import { runFeaturesLint } from "./features-lint.ts";
 
 export async function lintLanhuBlockedDrafts(
@@ -157,5 +158,6 @@ export function buildCasesCommand(): Command {
         opts.severity === "fail-only" ? all.filter((v) => v.severity !== "warn") : all;
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);
     });
+  registerCasesVerify(cases);
   return cases;
 }
