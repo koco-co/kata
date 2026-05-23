@@ -20,3 +20,6 @@ import "../cases/t13-data-quality-report-config";
 import "../cases/t14-standard-directory-mapping-shell";
 import "../cases/t15-data-quality-result-filters";
 import "../cases/t16-metadata-data-map-secondary-shell";
+import "../cases/t17-data-quality-overview-dashboard";
+import "../cases/t17-metadata-table-detail-shell";
+import "../cases/t18-standard-data-standard-detail-shell";

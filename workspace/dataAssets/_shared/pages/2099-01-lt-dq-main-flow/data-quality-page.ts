@@ -82,6 +82,83 @@ export async function expectDataQualityOverviewShell(page: Page, sourceRef: stri
   });
 }
 
+export async function expectDataQualityOverviewDashboardContract(
+  page: Page,
+  sourceRef: string,
+): Promise<void> {
+  const overviewApiPaths = [
+    "/dassets/v1/valid/monitorOverview/countRecord",
+    "/dassets/v1/valid/monitorOverview/getRuleDistribution",
+    "/dassets/v1/valid/monitorOverview/listRecentError",
+    "/dassets/v1/valid/monitorOverview/countErrorTopRecord",
+  ] as const;
+  await gotoDataQualityPage(page, "/dq/overview");
+
+  const body = page.locator("body");
+  for (const label of [
+    "数据质量概览",
+    "规则数",
+    "规则集总数",
+    "规则任务数",
+    "校验通过数/校验异常数",
+    "规则库分布",
+    "已配置规则分类",
+    "校验异常top排名",
+    "近期校验异常结果",
+  ]) {
+    await expect(body, `${sourceRef}: 数据质量总览应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+
+  for (const header of [
+    "数据表",
+    "所属数据库",
+    "所属数据源",
+    "任务名称",
+    "状态",
+    "执行周期",
+    "计划时间",
+    "开始时间",
+    "结束时间",
+    "操作",
+  ]) {
+    await expect(body, `${sourceRef}: 近期校验异常结果列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+
+  await expect(
+    page.locator("canvas, svg").filter({ visible: true }).first(),
+    `${sourceRef}: 总览趋势/分布/排行图表应渲染为可见图形容器`,
+  ).toBeVisible({ timeout: 30000 });
+
+  await expect
+    .poll(
+      () => page.locator("canvas, svg").filter({ visible: true }).count(),
+      {
+        message: `${sourceRef}: 总览应至少渲染 3 个可见图形容器`,
+        timeout: 30000,
+      },
+    )
+    .toBeGreaterThanOrEqual(3);
+
+  await expectDqApiPaths(page, sourceRef, "/dq/overview 总览数据接口", overviewApiPaths);
+}
+
+export async function expectDataQualityOverviewMoreLink(page: Page, sourceRef: string): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/overview");
+  await clickDqText(page, "查看更多", sourceRef);
+  await expect(page, `${sourceRef}: 近期校验异常结果「查看更多」应跳转至校验结果查询`).toHaveURL(
+    /\/dq\/taskQuery/,
+    { timeout: 30000 },
+  );
+  await expect(page.locator("body"), `${sourceRef}: 跳转后应展示校验结果查询页面`).toContainText(
+    "校验结果查询",
+    { timeout: 30000 },
+  );
+}
+
 export async function expectDataQualityRuleShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {
     path: "/dq/rule",
