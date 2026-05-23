@@ -16,7 +16,7 @@ const baseManifest = {
     status: "completed",
     archive_path: "archive.md",
     xmind_path: "cases.xmind",
-    requirement_atoms: [{ id: "RA-001", source_ref: "prd.file:s-1#sha256:abc" }],
+    requirement_atoms: [{ id: "RA-001", source_ref: "prd.file:s-1#sha256:abc", ambiguity_class: "confirmed", confidence: "high" }],
     coverage_matrix_path: "archive.md#coverage-matrix",
   },
   automation: {
@@ -60,5 +60,51 @@ describe("FeatureManifest@2", () => {
   it("requires feature_id to match slug regex", () => {
     const bad = { ...baseManifest, feature_id: "BAD-ID" };
     expect(validate(bad)).toBe(false);
+  });
+
+  it("rejects completed case_drafting with empty requirement_atoms", () => {
+    const bad = {
+      ...baseManifest,
+      case_drafting: { ...baseManifest.case_drafting, status: "completed", requirement_atoms: [] },
+    };
+    expect(validate(bad)).toBe(false);
+  });
+
+  it("rejects completed case_drafting with null coverage_matrix_path", () => {
+    const bad = {
+      ...baseManifest,
+      case_drafting: { ...baseManifest.case_drafting, status: "completed", coverage_matrix_path: null },
+    };
+    expect(validate(bad)).toBe(false);
+  });
+
+  it("still accepts not-started case_drafting with empty atoms", () => {
+    const ok = {
+      ...baseManifest,
+      case_drafting: { status: "not-started", archive_path: null, xmind_path: null, requirement_atoms: [], coverage_matrix_path: null },
+    };
+    expect(validate(ok)).toBe(true);
+  });
+
+  it("rejects completed atom missing ambiguity_class/confidence", () => {
+    const bad = {
+      ...baseManifest,
+      case_drafting: {
+        status: "completed", archive_path: "archive.md", xmind_path: "cases.xmind", coverage_matrix_path: "coverage-matrix.json",
+        requirement_atoms: [{ id: "RA-1", source_ref: "lanhu.fixture:f#sha256:" + "a".repeat(64) }],
+      },
+    };
+    expect(validate(bad)).toBe(false);
+  });
+
+  it("accepts completed atom with enrichment fields", () => {
+    const ok = {
+      ...baseManifest,
+      case_drafting: {
+        status: "completed", archive_path: "archive.md", xmind_path: "cases.xmind", coverage_matrix_path: "coverage-matrix.json",
+        requirement_atoms: [{ id: "RA-1", source_ref: "lanhu.fixture:f#sha256:" + "a".repeat(64), title: "登录", ambiguity_class: "confirmed", confidence: "high" }],
+      },
+    };
+    expect(validate(ok)).toBe(true);
   });
 });
