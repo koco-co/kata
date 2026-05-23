@@ -20,6 +20,15 @@ outputs:
   - archive.draft.md
   - unresolved-summary.md
   - manifest.json#automation
+required_inputs:
+  - kind: requirement_source
+    required: true
+  - kind: knowledge.entry
+    required: true
+  - kind: repo.line
+    required: true
+  - kind: case.archive
+    required: false
 inputs:
   prd:
     required: true
@@ -51,8 +60,8 @@ context_budget:
 body:
   always_load:
     routing_summary:
-      - 固定执行 source-intake → module-identify → historical-context → requirement-atomize → ambiguity-scan → confirmation-package → product-feedback-merge → coverage-matrix → case-draft → case-review → output → automation-handoff。
-      - Archive、XMind、草稿、确认包与自动化意图 manifest 均落到 workspace/{project}/features/{YYYY-MM-english-slug}/。
+      - 固定执行 source-intake → module-identify → source-confirm → historical-context → requirement-atomize → ambiguity-scan → confirmation-package → product-feedback-merge → coverage-matrix → case-draft → case-review → output → automation-handoff。
+      - Archive、XMind、草稿、确认包与自动化意图 manifest 落到引擎经 'kata features resolve' 计算并写入 metadata.yaml/source-snapshot 的固定 feature 目录；不在提示词中拼接路径。
       - 阶段内任务编排：source-intake 与 module-identify 完成且不在 Lanhu/Axure error-fallback 路径下时，按 references/execution-protocol.md 创建 TodoWrite、按 references/worker-prompt.md 派发 Worker、按 references/spec-reviewer-prompt.md 与 references/quality-reviewer-prompt.md 二阶段审查；Lanhu/Axure 阻塞草稿、source-intake 抓取静默期与所有 BlockedEnvelope 路径下禁用。
     hard_rules:
       - Lanhu/Axure URL 的 source-intake、token 搜索顺序、抓取降级、阻塞草稿产物格式、fallback 回复模板与权限拒绝行为严格遵循 references/error-fallback-paths.md；该文件内规则与本节等效，skill.yaml 不逐条重复。
@@ -69,17 +78,6 @@ body:
       - few-shot 作为格式参照使用，不包含需求事实或历史事实依据。
       - feature 目录 slug：含中文、全角标点、空格、长度超限或多模块串联描述的字符串降级为 `YYYY-MM[-{customer}]-unresolved-{module}-{8-hex}` 兜底，原文写入 metadata.yaml notes；规范命名见 references/error-fallback-paths.md「Slug fallback」节。
   codex_override:
-    routing_summary:
-      - 串联 source-intake、module-identify、historical-context、requirement-atomize、ambiguity-scan、coverage-matrix、confirmation-package、product-feedback-merge、case-draft、case-review；archive、XMind、草稿、确认包与自动化意图 manifest 落到 `workspace/{project}/features/{YYYY-MM-english-slug}/`。
-    hard_rules:
-      - Lanhu/Axure URL 的 source-intake、token 搜索顺序、抓取降级、阻塞草稿产物与 fallback 行为严格遵循 references/error-fallback-paths.md。
-      - 项目未指定时先自行推断 workspace 项目；仅在无候选或多候选无法消歧时询问用户。
-      - 每个 requirement atom 携带 evidence_kind、ambiguity_class、confidence 和至少一个 source_ref。
-      - archive.md 与 cases.xmind 在 blocking pending 清零后生成；blocking pending 非零时只输出草稿产物。
-      - manifest.json#automation.intents[] 中 automation_status=ready 的 AutomationIntent@1 移交 playwright-automation@1。
-      - Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent，不直接向用户提问。
-      - few-shot 作为格式参照使用，不包含需求事实或历史事实依据。
-      - feature 目录 slug 命名见 references/error-fallback-paths.md「Slug fallback」节。
 references:
   - path: references/source-intake-protocol.md
     type: normative
@@ -93,6 +91,12 @@ references:
       - module-identify
     purpose: 在追问前根据 workspace 配置、仓库画像、知识库与源页面路径推断项目和模块。
     load_when: step.id == module-identify
+  - path: references/source-confirm.md
+    type: normative
+    load_phases:
+      - source-confirm
+    purpose: 在 module-identify 产出稳定上下文后，一轮确认前后端源码 triple 并写入 metadata.yaml/source-snapshot。
+    load_when: step.id == source-confirm
   - path: references/historical-context.md
     type: normative
     load_phases:

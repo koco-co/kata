@@ -118,6 +118,7 @@ export const skillContractSpec: ContractFieldSpec = {
     "description",
     "outputs",
     "inputs",
+    "required_inputs",
     "allowed_tools",
     "context_budget",
     "evidence",

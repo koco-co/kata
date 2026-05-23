@@ -61,6 +61,7 @@ const skillContractSpec: ContractSpec = {
     "description",
     "outputs",
     "inputs",
+    "required_inputs",
     "allowed_tools",
     "context_budget",
     "evidence",
