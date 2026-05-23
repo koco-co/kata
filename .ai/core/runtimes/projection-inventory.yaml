@@ -67,6 +67,14 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .claude/skills/case-draft/references/source-confirm.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/source-confirm.md
+  - path: .agents/skills/case-draft/references/source-confirm.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/source-confirm.md
   - path: .agents/skills/case-edit/SKILL.md
     runtime: codex
     disposition: generated

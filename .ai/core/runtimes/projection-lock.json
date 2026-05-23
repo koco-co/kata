@@ -15,7 +15,7 @@
     {
       "path": ".agents/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "43aabfb997a95a11f527f127dbfc0c12d83913d47d2c81835feb04c7b046bffa"
+      "sha256": "34c99b15adfb14ac8c76a60f695ad8f51ae1607a5ffcc9e0c71970bc15237691"
     },
     {
       "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -71,6 +71,11 @@
       "path": ".agents/skills/case-draft/references/quality-reviewer-prompt.md",
       "disposition": "generated",
       "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/source-confirm.md",
+      "disposition": "generated",
+      "sha256": "5551913cefee3e7980b9ed681b347dccc33a837871b779a51787345288149c16"
     },
     {
       "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
@@ -315,7 +320,7 @@
     {
       "path": ".claude/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "6ffdfd2b976785f8b16655b23de228b779a05bc1c00e8ac99c65d8b7d0083e9a"
+      "sha256": "34c99b15adfb14ac8c76a60f695ad8f51ae1607a5ffcc9e0c71970bc15237691"
     },
     {
       "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -371,6 +376,11 @@
       "path": ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
       "disposition": "generated",
       "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/source-confirm.md",
+      "disposition": "generated",
+      "sha256": "5551913cefee3e7980b9ed681b347dccc33a837871b779a51787345288149c16"
     },
     {
       "path": ".claude/skills/case-draft/references/source-intake-protocol.md",
