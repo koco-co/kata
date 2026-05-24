@@ -49,6 +49,7 @@ describe("gate: handoff_double_track", () => {
       quality_gates: [{ name: "handoff_double_track", status: "passed" }],
       unresolved_blockers: [],
       next_actions: [],
+      excluded_cases: [],
     };
   }
 

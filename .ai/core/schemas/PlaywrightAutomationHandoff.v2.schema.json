@@ -15,7 +15,8 @@
     "results",
     "quality_gates",
     "unresolved_blockers",
-    "next_actions"
+    "next_actions",
+    "excluded_cases"
   ],
   "additionalProperties": false,
   "properties": {
@@ -93,6 +94,23 @@
         }
       }
     },
-    "next_actions": { "type": "array", "items": { "type": "string" } }
+    "next_actions": { "type": "array", "items": { "type": "string" } },
+    "excluded_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "reason_category"],
+        "additionalProperties": false,
+        "properties": {
+          "case_id": { "type": "string", "minLength": 1 },
+          "reason_category": {
+            "type": "string",
+            "enum": ["env", "data_prep", "external_system", "tenant_mismatch", "ui_missing"]
+          },
+          "evidence_path": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
   }
 }
