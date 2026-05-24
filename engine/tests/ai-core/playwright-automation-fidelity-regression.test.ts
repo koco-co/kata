@@ -12,9 +12,7 @@ describe("playwright-automation fidelity contract regression", () => {
   });
 
   it("case-normalize.md removed the simplify-to-contract-test option", () => {
-    expect(read("case-normalize.md")).not.toContain(
-      "简化为「进入页面验证 UI 元素存在」的契约测试",
-    );
+    expect(read("case-normalize.md")).not.toContain("简化为「进入页面验证 UI 元素存在」的契约测试");
   });
 
   it("case-normalize.md points excluded cases at handoff.excluded_cases not remaining_risks", () => {
