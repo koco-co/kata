@@ -3,9 +3,10 @@ import type { AiCoreIssue, AiCoreResult } from "../ai-core/types.ts";
 
 const SHA256_PATTERN = /#sha256:([a-f0-9]{64})$/;
 const CANONICAL_SOURCE_REF_PATTERN =
-  /^(?:(?:prd\.file|command\.output):[A-Za-z0-9][A-Za-z0-9._-]*|(?:knowledge\.entry|repo\.line|case\.archive|workspace\.config|lanhu\.fixture):[A-Za-z0-9][A-Za-z0-9._:-]*)#sha256:[a-f0-9]{64}$/;
+  /^(?:(?:prd\.file|command\.output):[A-Za-z0-9][A-Za-z0-9._-]*|(?:knowledge\.entry|case\.archive|workspace\.config|lanhu\.fixture):[A-Za-z0-9][A-Za-z0-9._:-]*|repo\.line:(?!.*:\/\/)[A-Za-z0-9][A-Za-z0-9._:/@-]*)#sha256:[a-f0-9]{64}$/;
 const LEGACY_SOURCE_REF_ID_SUFFIX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
+const REPO_LINE_SOURCE_REF_ID_SUFFIX_PATTERN = /^(?!.*:\/\/)[A-Za-z0-9][A-Za-z0-9._:/@-]*$/;
 
 function issue(code: string, message: string, path: string): AiCoreIssue {
   return { code, severity: "error", message, path };
@@ -46,7 +47,7 @@ export function snapshotKnowledgeEntryRef(input: { id: string; content: string }
 }
 
 export function snapshotRepoLineRef(input: { id: string; content: string }): string {
-  assertId("repo.line", input.id, "repo line", GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN);
+  assertId("repo.line", input.id, "repo line", REPO_LINE_SOURCE_REF_ID_SUFFIX_PATTERN);
   return snapshotRef(input);
 }
 

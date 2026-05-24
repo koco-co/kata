@@ -101,4 +101,26 @@ describe("runFeaturesResolve", () => {
     expect(r.featureId).toBe("2026-05-lt-dq");
     expect(r.reused).toBe(true);
   });
+
+  it("reuses a Lanhu-derived dir after source-confirm records the documented slug_source", () => {
+    const a = runFeaturesResolve({
+      project: "dataAssets",
+      source: { kind: "lanhu", pageId: "cd882ee8" },
+      module: "dq",
+      workspaceRoot: ws,
+      now,
+    });
+    writeFileSync(join(a.featureDir, "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:cd882ee8" }));
+
+    const b = runFeaturesResolve({
+      project: "dataAssets",
+      source: { kind: "lanhu", pageId: "cd882ee8" },
+      module: "dq",
+      workspaceRoot: ws,
+      now,
+    });
+
+    expect(b.featureId).toBe(a.featureId);
+    expect(b.reused).toBe(true);
+  });
 });

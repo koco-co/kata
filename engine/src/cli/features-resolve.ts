@@ -55,10 +55,22 @@ function recordedSlugSource(dir: string): string | undefined {
   }
 }
 
+function defaultSlugSourceKey(ctx: FeaturesResolveContext): string {
+  if (ctx.slugSourceKey) return ctx.slugSourceKey;
+  if (ctx.source?.kind === "lanhu" && ctx.source.pageId) {
+    return `lanhu:${ctx.source.pageId.slice(0, 8).toLowerCase()}`;
+  }
+  if (ctx.source?.kind === "prd" && ctx.source.filename) {
+    return `prd:${ctx.source.filename}`;
+  }
+  if (ctx.slug) return `slug:${ctx.slug}`;
+  return `fallback:${ctx.module}:${ctx.seed ?? JSON.stringify(ctx.source ?? {})}`;
+}
+
 export function runFeaturesResolve(ctx: FeaturesResolveContext): FeaturesResolveResult {
   const now = ctx.now ?? new Date();
   const baseSlug = chooseSlug(ctx);
-  const sourceKey = ctx.slugSourceKey ?? ctx.slug ?? JSON.stringify(ctx.source ?? {});
+  const sourceKey = defaultSlugSourceKey(ctx);
   const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
   const month = yyyyMm(now);
 

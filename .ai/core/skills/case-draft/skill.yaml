@@ -77,7 +77,7 @@ body:
       - manifest.json#automation.intents[] 中 automation_status=ready 的 AutomationIntent@1 移交 playwright-automation@1；deferred 与 blocked 只留在 manifest 与报告中。
       - Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent，不直接向用户提问。
       - few-shot 作为格式参照使用，不包含需求事实或历史事实依据。
-      - feature 目录 slug：含中文、全角标点、空格、长度超限或多模块串联描述的字符串降级为 `YYYY-MM[-{customer}]-unresolved-{module}-{8-hex}` 兜底，原文写入 metadata.yaml notes；规范命名见 references/error-fallback-paths.md「Slug fallback」节。
+      - slug 兜底由 `kata features resolve` 引擎处理（hexFallbackSlug），模型无需也不应自行实现。
   codex_override:
 references:
   - path: references/source-intake-protocol.md
@@ -96,7 +96,7 @@ references:
     type: normative
     load_phases:
       - source-confirm
-    purpose: 在 module-identify 产出稳定上下文后，一轮确认前后端源码 triple 并写入 metadata.yaml/source-snapshot。
+    purpose: 在 module-identify 产出稳定上下文后，一轮确认前后端源码 triple 并写入 source-snapshot。
     load_when: step.id == source-confirm
   - path: references/historical-context.md
     type: normative

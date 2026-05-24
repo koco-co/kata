@@ -837,7 +837,7 @@ describe("ai-core projection", () => {
       expect(skill).toContain("automation_status=ready");
       expect(skill).toContain("Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent");
       expect(skill).toContain("few-shot 作为格式参照使用");
-      expect(skill).toContain("Slug fallback");
+      expect(skill).toContain("slug 兜底由 `kata features resolve` 引擎处理");
       expect(skill).not.toContain("不直接获取外部来源");
       expect(skill).toContain("references/source-intake-protocol.md");
       expect(skill).toContain("references/coverage-matrix-guide.md");

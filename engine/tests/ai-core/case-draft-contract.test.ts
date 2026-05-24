@@ -28,6 +28,13 @@ describe("case-draft contract parity", () => {
     expect(codex).not.toContain("{YYYY-MM-english-slug}");
   });
 
+  it("does not instruct models to implement slug fallback or write metadata notes", () => {
+    expect(claude).not.toContain("metadata.yaml notes");
+    expect(codex).not.toContain("metadata.yaml notes");
+    expect(claude).not.toContain("feature 目录 slug：含中文");
+    expect(codex).not.toContain("feature 目录 slug：含中文");
+  });
+
   it("both runtimes' execution-protocol invokes the engine for the path (Gap 4)", () => {
     const claudeEp = readFileSync(join(repoRoot(), ".claude/skills/case-draft/references/execution-protocol.md"), "utf-8");
     const codexEp = readFileSync(join(repoRoot(), ".agents/skills/case-draft/references/execution-protocol.md"), "utf-8");

@@ -24,7 +24,7 @@ export function buildCodexArgs(o: InvokeOpts): string[] {
 export function invokeClaude(o: InvokeOpts): InvokeResult {
   const r = spawnSync("claude", buildClaudeArgs(o), {
     cwd: o.cwd,
-    env: o.env,
+    env: o.env ?? process.env,
     encoding: "utf-8",
     timeout: o.timeoutMs ?? 1_800_000,
   });
@@ -38,7 +38,7 @@ export function invokeClaude(o: InvokeOpts): InvokeResult {
 export function invokeCodex(o: InvokeOpts): InvokeResult {
   const r = spawnSync("codex", buildCodexArgs(o), {
     cwd: o.cwd,
-    env: o.env,
+    env: o.env ?? process.env,
     encoding: "utf-8",
     timeout: o.timeoutMs ?? 1_800_000,
   });

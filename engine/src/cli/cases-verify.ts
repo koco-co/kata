@@ -12,7 +12,7 @@ import {
   verifyStableCoreArtifacts,
   verifyStructuredSchemas,
 } from "../cases/verify-layers.ts";
-import { resolveSourceRefTarget } from "../source-ref/resolve-target.ts";
+import { type ConfirmedSourceRepo, resolveSourceRefTarget } from "../source-ref/resolve-target.ts";
 import { extractCaseRecords } from "../cases/case-extract.ts";
 
 export interface CasesVerifyContext {
@@ -39,10 +39,10 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
   issues.push(...verifyStructuredSchemas({ featureDir: dir, status }));
 
   const snapshotPath = join(dir, "source-snapshot.json");
-  let confirmedRepos: string[] = [];
+  let confirmedRepos: ConfirmedSourceRepo[] = [];
   if (existsSync(snapshotPath)) {
     const snap = JSON.parse(readFileSync(snapshotPath, "utf-8"));
-    confirmedRepos = Array.isArray(snap.confirmed_source_repos) ? snap.confirmed_source_repos.map((r: { project: string }) => r.project) : [];
+    confirmedRepos = Array.isArray(snap.confirmed_source_repos) ? snap.confirmed_source_repos : [];
     if (status === "completed" && confirmedRepos.length === 0) {
       issues.push({ layer: "L2", rule: "source_repos_unconfirmed", message: "source-snapshot.json 未确认任何源码 triple", fix: "在 source-confirm 一轮确认前后端 group/project/branch" });
     }

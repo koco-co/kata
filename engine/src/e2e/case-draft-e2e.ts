@@ -29,8 +29,8 @@ export async function runCaseDraftE2e(o: E2eOpts): Promise<E2eResult> {
   mkdirSync(claudeRoot, { recursive: true });
   mkdirSync(codexRoot, { recursive: true });
 
-  invokeClaude({ prompt: prompt.replace("{runtimeRoot}", claudeRoot), cwd: claudeRoot });
-  invokeCodex({ prompt: prompt.replace("{runtimeRoot}", codexRoot), cwd: codexRoot });
+  const claudeRun = invokeClaude({ prompt: prompt.replace("{runtimeRoot}", claudeRoot), cwd: claudeRoot });
+  const codexRun = invokeCodex({ prompt: prompt.replace("{runtimeRoot}", codexRoot), cwd: codexRoot });
 
   const v1 = await runCasesVerify({
     project: o.project,
@@ -45,10 +45,10 @@ export async function runCaseDraftE2e(o: E2eOpts): Promise<E2eResult> {
     requiredKinds: o.requiredKinds,
   });
   const cmp = runCasesCompare({
-    leftDir: join(claudeRoot, o.project, "features", o.featureId),
-    rightDir: join(codexRoot, o.project, "features", o.featureId),
+    leftDir: join(claudeRoot, "workspace", o.project, "features", o.featureId),
+    rightDir: join(codexRoot, "workspace", o.project, "features", o.featureId),
     threshold: o.threshold,
   });
 
-  return { verifyClaude: v1, verifyCodex: v2, compare: cmp, ok: v1.ok && v2.ok && !cmp.fail };
+  return { verifyClaude: v1, verifyCodex: v2, compare: cmp, ok: claudeRun.ok && codexRun.ok && v1.ok && v2.ok && !cmp.fail };
 }

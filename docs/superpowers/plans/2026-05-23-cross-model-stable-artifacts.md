@@ -198,7 +198,7 @@ describe("runFeaturesResolve", () => {
     // pre-create a dir recorded as coming from a different slug source
     const dir = join(ws, "dataAssets/features/2026-05-lt-dq");
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "metadata.yaml"), stringify({ notes: { slug_source: "prd:other.md" } }));
+    writeFileSync(join(dir, "source-snapshot.json"), JSON.stringify({ slug_source: "prd:other.md" }));
     const r = runFeaturesResolve({ project: "dataAssets", slug: "lt-dq", slugSourceKey: "lanhu:7af", module: "dq", workspaceRoot: ws, now });
     expect(r.featureId).toBe("2026-05-lt-dq-2");
   });
@@ -1272,7 +1272,7 @@ Procedure:
    > 前端: <group>/<repo>@<branch>
    > 后端: <group>/<repo>@<branch>
 3. If `.kata/repos` already contains the confirmed repos, present them as the default; if missing, request them (give clone guidance) or record a blocking todo.
-4. Write the confirmed triples into metadata.yaml under `source_repos:` and include them in the source_snapshot. These become required inputs for verification (repo.line source_refs must resolve into these repos).
+4. Write the confirmed triples into `source-snapshot.json#confirmed_source_repos[]` and record `source-snapshot.json#slug_source`. Keep `metadata.yaml` limited to its schema fields, with the Lanhu/PRD source in `metadata.yaml#inputs`. These become required inputs for verification (repo.line source_refs must resolve into these confirmed triples).
 
 Do NOT proceed to historical-context until the triples are confirmed or explicitly deferred as blocking.
 ```
@@ -1297,7 +1297,7 @@ In `body.always_load.routing_summary`, change the step chain to insert `source-c
 固定执行 source-intake → module-identify → source-confirm → historical-context → requirement-atomize → ambiguity-scan → confirmation-package → product-feedback-merge → coverage-matrix → case-draft → case-review → output → automation-handoff。
 ```
 
-Replace the path template line `workspace/{project}/features/{YYYY-MM-english-slug}/` with: `Archive、XMind、草稿、确认包与自动化意图 manifest 落到引擎经 'kata features resolve' 计算并写入 metadata.yaml/source_snapshot 的固定 feature 目录；不在提示词中拼接路径。`
+Replace the path template line `workspace/{project}/features/{YYYY-MM-english-slug}/` with: `首步执行 kata features resolve，从返回 JSON 取 featureDir 作为所有产物的唯一写入根目录；featureId 写入 metadata.yaml#id，slug 来源写入 source-snapshot.json#slug_source；禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。`
 
 - [ ] **Step 2: Add `required_inputs` under the skill body**
 
@@ -1328,7 +1328,7 @@ In `references:`, add:
     type: normative
     load_phases:
       - source-confirm
-    purpose: 在 module-identify 产出稳定上下文后，一轮确认前后端源码 triple 并写入 metadata.yaml/source_snapshot。
+    purpose: 在 module-identify 产出稳定上下文后，一轮确认前后端源码 triple 并写入 source-snapshot。
     load_when: step.id == source-confirm
 ```
 
