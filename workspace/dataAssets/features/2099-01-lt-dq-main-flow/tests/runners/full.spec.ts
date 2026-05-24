@@ -39,3 +39,4 @@ import "../cases/t29-data-quality-sampling-config-shell";
 import "../cases/t30-standard-check-task-result-shell";
 import "../cases/t31-standard-statistic-status-count";
 import "../cases/t32-metadata-datamap-overview-stats";
+import "../cases/t33-metadata-table-detail-sidebar-shell";
