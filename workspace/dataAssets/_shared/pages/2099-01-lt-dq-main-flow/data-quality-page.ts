@@ -459,6 +459,32 @@ export async function expectDataQualityRuleTaskCreateEntry(page: Page, sourceRef
   }
 }
 
+export async function expectDataQualitySamplingConfigShell(page: Page, sourceRef: string): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/rule");
+  await clickDqText(page, "新建监控规则", sourceRef);
+  await expect(page, `${sourceRef}: 新建监控规则应进入 /dq/rule/add`).toHaveURL(/\/dq\/rule\/add/);
+
+  const main = page.locator("main, .ant-layout-content").first();
+  const shell = (await main.count()) > 0 ? main : page.locator("body");
+  for (const label of ["新建单表校验规则", "监控对象", "规则名称", "数据预览"]) {
+    await expect(shell, `${sourceRef}: 新建监控规则页面应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  await expect(
+    shell.getByRole("button", { name: /数据预览/ }).first(),
+    `${sourceRef}: 数据预览按钮应可见但不点击`,
+  ).toBeVisible({ timeout: 30000 });
+  await expect(
+    shell,
+    `${sourceRef}: 数据预览区域应展示抽样检查设置配置项`,
+  ).toContainText(/抽样检查(设置|配置)/, { timeout: 30000 });
+  await expect(
+    shell.locator(".ant-switch, [role='switch']").first(),
+    `${sourceRef}: 抽样检查设置开关应可见但不切换`,
+  ).toBeVisible({ timeout: 30000 });
+}
+
 export async function expectDataQualityRuleSetCreateEntry(page: Page, sourceRef: string): Promise<void> {
   await gotoDataQualityPage(page, "/dq/ruleSet");
   await clickDqText(page, "新建规则集", sourceRef);

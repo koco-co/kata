@@ -53,6 +53,52 @@ export async function expectDataPermissionAssignShell(page: Page, sourceRef: str
   });
 }
 
+export async function expectDataPermissionRecycleListShell(page: Page, sourceRef: string): Promise<void> {
+  await gotoDataSecurityPage(page, "/dataAuth/permissionAssign");
+  expect(page.url(), `${sourceRef}: 权限回收列表不应被重定向到其他路由`).toContain("#/dataAuth/permissionAssign");
+
+  const body = page.locator("body");
+  for (const label of ["数据安全", "数据权限管理", "权限分配", "权限回收"]) {
+    await expect(body, `${sourceRef}: 权限回收入口应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+
+  const recycleTab = page
+    .locator(".ant-tabs-tab, [role='tab'], button")
+    .filter({ hasText: /^权限回收$/ })
+    .first();
+  await expect(recycleTab, `${sourceRef}: 应展示权限回收 tab`).toBeVisible({ timeout: 30000 });
+  const recycleListResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/dmetadata/v1/dataPermission/pageQueryPermissionRecycling") &&
+      response.request().method() === "POST",
+    { timeout: 30000 },
+  );
+  await recycleTab.click();
+  const recycleListResponse = await recycleListResponsePromise;
+  expect(recycleListResponse.status(), `${sourceRef}: 权限回收列表接口状态码应小于 500`).toBeLessThan(500);
+
+  await expect(
+    page.locator(".ant-tabs-tab-active, [role='tab'][aria-selected='true']").filter({ hasText: "权限回收" }).first(),
+    `${sourceRef}: 点击后权限回收 tab 应处于选中态`,
+  ).toBeVisible({ timeout: 30000 });
+
+  for (const label of ["数据源", "数据库", "数据表", "表权限", "申请人", "重 置", "查 询"]) {
+    await expect(body, `${sourceRef}: 权限回收筛选区应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+
+  const tableHeader = page.locator(".ant-table-thead").filter({ hasText: "审批时间" }).first();
+  await expect(tableHeader, `${sourceRef}: 权限回收列表表头应渲染`).toBeVisible({ timeout: 30000 });
+  for (const header of ["申请人", "数据源", "数据库", "数据表", "表权限", "有效期", "状态", "审批时间", "操作"]) {
+    await expect(tableHeader, `${sourceRef}: 权限回收列表应展示列「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+}
+
 export async function expectDataDesensitizationRuleShell(page: Page, sourceRef: string): Promise<void> {
   await expectSecurityPage(page, sourceRef, {
     path: "/dataDesensitization",
