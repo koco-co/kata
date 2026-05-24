@@ -37,3 +37,4 @@ import "../cases/t28-metadata-hot-tags-query-shell";
 import "../cases/t28-data-security-extra-shell";
 import "../cases/t29-data-quality-sampling-config-shell";
 import "../cases/t30-standard-check-task-result-shell";
+import "../cases/t31-standard-statistic-status-count";
