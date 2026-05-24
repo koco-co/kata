@@ -48,6 +48,15 @@ This does not mark case-draft complete; handoff must say the script was generate
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
 
+## 覆盖忠实度（强制）
+
+生成的每条 spec 必须忠实于源用例：
+
+- 用例的每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落为真实页面动作，不得丢弃；
+- 用例写明的 `expected_visible_result`/预期结果必须断言为真实业务结果，禁止用 `toBeVisible`/`toContainText` 等可见性/存在性断言代替；
+- 禁止把业务流程用例简化为「进入页面看菜单/字段/元素是否存在」的 surface 契约测试；
+- 当前环境确实无法忠实实现并跑通的用例，走诚实阻塞/排除并记入 `handoff.excluded_cases`（含 `reason_category` + 原因），不得用 surface 断言假通过。
+
 ## 生成与调试协议
 
 ### 模式判定

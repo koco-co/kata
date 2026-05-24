@@ -23,6 +23,16 @@ quality reviewer 不重复 spec reviewer 的结构检查，只审查脚本内容
 - 禁止 `test.skip()` 掩盖未确认行为
 - 断言必须验证用户可见状态或业务结果；仅非显然的技术性断言需要语义注释
 
+### 覆盖忠实度（fidelity）
+
+逐条把生成 spec 的动作/断言对账源用例的 `steps` 与 `expected_visible_result`/`assertions`：
+
+- 用例含创建/导入/运行/下载等业务动作步骤，但 spec 只有导航 + 可见性断言、零状态变更动作 → high
+- spec 用 `toBeVisible`/`toContainText` 等代替了用例写明的 `expected_visible_result` → high
+- 业务流程用例被简化为「进页面看元素存在」的 surface 契约测试 → high
+
+high 必修；当前环境确实无法忠实实现的用例应转诚实排除（记入 `handoff.excluded_cases`），不得用 surface 断言假通过。
+
 ### 修复闭环
 
 - repair-loop 中的修复不得在原 case 文件中添加 wider locator
@@ -43,7 +53,7 @@ quality reviewer 不重复 spec reviewer 的结构检查，只审查脚本内容
   "issues": [
     {
       "severity": "high | medium | low",
-      "category": "selector | assertion | repair | reuse",
+      "category": "selector | assertion | repair | reuse | fidelity",
       "where": "<file>:<line>",
       "evidence": "...",
       "fix_hint": "..."

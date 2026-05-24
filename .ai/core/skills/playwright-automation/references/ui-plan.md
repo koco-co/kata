@@ -17,7 +17,7 @@
 1. 必须先完成 env-preflight，并确认使用的 env profile；用户只给短提示时，`ltqc-local.yaml` 存在则 askuser 默认推荐它。
 2. 环境确认后，才允许读取当前目标 feature 目录下的 `prd.md` 与 `inputs/lanhu-snapshots/**`；不得读取其他 feature 的 PRD、截图、archive 或 tests。
 3. `prd.md` 与截图只能产出 `case_claim` / `design_source`：用于推断页面入口、按钮文案、表单意图和最小 P0 自动化范围；不得把它们写成 observed UI 事实。
-4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并把计划收敛为可由真实 UI probe 验证的最小 full runner：页面可达、项目上下文正确、核心入口/表单元素可见。若真实 UI probe 不支持 PRD 中的深链路，应在 plan-reconcile 中降级或阻塞，不能用弱断言凑通过。
+4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并按用例步骤与预期规划忠实覆盖：每条在范围内用例的动作步骤都要落为真实页面动作，预期结果都要落为真实业务断言。即便 bootstrap，也不得把计划收敛为「页面可达 + 元素可见」的 surface runner。若真实 UI probe 不支持 PRD 中的深链路，应在 plan-reconcile 中判 `blocked`/`needs_user_decision`，或转诚实排除（记入 `handoff.excluded_cases` + `reason_category` + 原因）；不得降级为 surface 断言或用弱断言凑通过。
 5. 不得生成最终 `archive.md` 或 `test-point-checklist.md`；Playwright 脚本的 SourceRef 必须指向 `prd.md` 或 `source_backed_bootstrap` intent，并在 handoff 中注明 case-draft 仍未完成。
 
 ## 禁止
