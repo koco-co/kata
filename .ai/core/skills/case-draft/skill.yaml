@@ -61,11 +61,12 @@ body:
   always_load:
     routing_summary:
       - 固定执行 source-intake → module-identify → source-confirm → historical-context → requirement-atomize → ambiguity-scan → confirmation-package → product-feedback-merge → coverage-matrix → case-draft → case-review → output → automation-handoff。
-      - Archive、XMind、草稿、确认包与自动化意图 manifest 落到引擎经 'kata features resolve' 计算并写入 metadata.yaml/source-snapshot 的固定 feature 目录；不在提示词中拼接路径。
+      - 首步执行 `bun engine/bin/kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
       - 阶段内任务编排：source-intake 与 module-identify 完成且不在 Lanhu/Axure error-fallback 路径下时，按 references/execution-protocol.md 创建 TodoWrite、按 references/worker-prompt.md 派发 Worker、按 references/spec-reviewer-prompt.md 与 references/quality-reviewer-prompt.md 二阶段审查；Lanhu/Axure 阻塞草稿、source-intake 抓取静默期与所有 BlockedEnvelope 路径下禁用。
     hard_rules:
       - Lanhu/Axure URL 的 source-intake、token 搜索顺序、抓取降级、阻塞草稿产物格式、fallback 回复模板与权限拒绝行为严格遵循 references/error-fallback-paths.md；该文件内规则与本节等效，skill.yaml 不逐条重复。
       - 项目未指定时先自行推断 workspace 项目；仅在无候选或多候选无法消歧时询问用户。
+      - 所有产物必须写入 `kata features resolve` 返回的 featureDir，禁止模型自行拼接 feature 目录路径。违者视为未完成。
       - 历史上下文：history_inferred 作为参考证据使用，新增行为的确认以产品反馈为准。
       - 每个 requirement atom 携带 evidence_kind、ambiguity_class、confidence 和至少一个 source_ref。
       - 证据事实通过 manifest.json#case_drafting.requirement_atoms 中的 SourceRef ID 引用；轻量路径用 { id, source_ref }，完整路径按各自的 schema 保留 source_refs、case_id 与 requirement_atom_ids。
