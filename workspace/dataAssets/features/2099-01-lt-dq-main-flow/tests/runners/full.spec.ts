@@ -41,3 +41,4 @@ import "../cases/t31-standard-statistic-status-count";
 import "../cases/t32-metadata-datamap-overview-stats";
 import "../cases/t33-metadata-table-detail-sidebar-shell";
 import "../cases/t34-standard-mapping-boundaries-shell";
+import "../cases/t35-standard-directory-create-edit-shell";
