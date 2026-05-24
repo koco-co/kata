@@ -1,10 +1,12 @@
 // spec: features/2099-01-lt-dq-launched-reqs/results/inventory.json#area=metadata
-// intent: src.intent.inventory.metadata@1
-// probe: results/260522-lr-metadata-probe-01/playwright/ui-probe/probe-retry-2.json
+// intent: SR-INTENT-LT-DQ-LAUNCHED-REQS-METADATA
+// probe: SR-UI-PROBE-20260522-LR-METADATA-001
 // page: _shared/pages/2099-01-lt-dq-launched-reqs/metadata/metadata-page.ts
 // page: _shared/pages/2099-01-lt-dq-launched-reqs/quality/quality-page.ts
 // page: _shared/pages/2099-01-lt-dq-launched-reqs/platform/launched-platform-page.ts
 // generated_at: 2026-05-23T00:00:00.000Z
+// probe_evidence: results/260522-lr-metadata-probe-01/playwright/ui-probe/probe-retry-2.json
+// SourceRefs: SR-INTENT-LT-DQ-LAUNCHED-REQS-METADATA, SR-UI-PROBE-20260522-LR-METADATA-001, src.intent.inventory.metadata@1, results/260522-lr-metadata-probe-01/playwright/ui-probe/probe-retry-2.json
 import { readFileSync } from "node:fs";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
@@ -70,7 +72,6 @@ test.describe("元数据 / metadata current UI coverage", () => {
   let metadata: MetadataPage;
   let platform: LaunchedPlatformPage;
   let quality: QualityPage;
-  const verifiedSurfaces = new Set<string>();
 
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext({ storageState: getEnvConfig().auth.sessionPath });
@@ -98,18 +99,15 @@ test.describe("元数据 / metadata current UI coverage", () => {
       expect(sourceIndex, `${caseItem.id}: source order index should be retained`).toBeGreaterThanOrEqual(0);
 
       const key = coverageKey(coverage);
-      if (!verifiedSurfaces.has(key)) {
-        const sourceRef = `${caseItem.id}: ${caseItem.source_ref} -> ${METADATA_SOURCE_REFS.inventory} -> ${coverage.probe}`;
-        if (coverage.kind === "metadata") {
-          await metadata.expectCaseSurface(coverage.surface, sourceRef);
-        } else if (coverage.kind === "quality") {
-          await quality.expectCaseSurface(coverage.surface, sourceRef);
-        } else if (coverage.surface === "generalConfigMenu") {
-          await platform.expectGeneralConfigMenu(sourceRef);
-        } else {
-          throw new Error(`${caseItem.id}: unsupported platform surface ${coverage.surface}`);
-        }
-        verifiedSurfaces.add(key);
+      const sourceRef = `${caseItem.id}: ${caseItem.source_ref} -> ${METADATA_SOURCE_REFS.inventory} -> ${coverage.probe} -> ${key}`;
+      if (coverage.kind === "metadata") {
+        await metadata.expectCaseSurface(coverage.surface, sourceRef);
+      } else if (coverage.kind === "quality") {
+        await quality.expectCaseSurface(coverage.surface, sourceRef);
+      } else if (coverage.surface === "generalConfigMenu") {
+        await platform.expectGeneralConfigMenu(sourceRef);
+      } else {
+        throw new Error(`${caseItem.id}: unsupported platform surface ${coverage.surface}`);
       }
     });
   }

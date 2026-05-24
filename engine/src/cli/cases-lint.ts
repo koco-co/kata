@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
-import { join, normalize, sep } from "node:path";
+import { isAbsolute, join, normalize, sep } from "node:path";
 import { Command } from "commander";
 import { repoRoot } from "../../lib/paths.ts";
 import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
@@ -23,6 +23,19 @@ import {
 import { lintWeakAssertion } from "../lint/weak-assertion.ts";
 import { registerCasesValidate, runCasesValidate } from "./cases-validate.ts";
 import { runFeaturesLint } from "./features-lint.ts";
+
+type CasesLintAggregateViolation = {
+  file: string;
+  rule: string;
+  message?: string;
+  lineNumber?: number;
+  matched?: string;
+  severity?: "warn" | "fail";
+};
+
+type CasesLintAggregateReport = {
+  violations: CasesLintAggregateViolation[];
+};
 
 export async function lintLanhuBlockedDrafts(
   workspaceRoot: string,
@@ -59,6 +72,27 @@ export async function lintLanhuBlockedDrafts(
   return { violations };
 }
 
+export function normalizeLintScope(scope: string): string {
+  return normalize(isAbsolute(scope) ? scope : join(repoRoot(), scope));
+}
+
+function isWorkspaceRootScope(scope: string, workspaceRoot: string): boolean {
+  return normalize(scope) === normalize(workspaceRoot);
+}
+
+export function filterViolationsByScope<T extends { file: string }>(
+  violations: T[],
+  scope: string,
+  workspaceRoot = join(repoRoot(), "workspace"),
+): T[] {
+  const normalizedScope = normalize(scope);
+  if (isWorkspaceRootScope(normalizedScope, workspaceRoot)) return violations;
+  return violations.filter((violation) => {
+    const file = normalize(violation.file);
+    return file === normalizedScope || file.startsWith(`${normalizedScope}${sep}`);
+  });
+}
+
 export function buildCasesCommand(): Command {
   const cases = new Command("cases").description("用例级操作");
   registerCasesValidate(cases);
@@ -69,7 +103,7 @@ export function buildCasesCommand(): Command {
     .option("--severity <level>", "filter exit-code by severity (all|fail-only)", "all")
     .option("--scope <p>", "scan path", join(repoRoot(), "workspace"))
     .action(async (opts: { exitCode: boolean; severity: string; scope: string }) => {
-      const normalizedScope = normalize(opts.scope);
+      const normalizedScope = normalizeLintScope(opts.scope);
       const featureMarker = `${sep}features${sep}`;
       const markerIndex = normalizedScope.indexOf(featureMarker);
       const workspaceMarker = `${sep}workspace${sep}`;
@@ -125,14 +159,14 @@ export function buildCasesCommand(): Command {
       );
 
       // ── case-level lint checks ──
-      const reports: any[] = [
+      const reports: CasesLintAggregateReport[] = [
         lanhuBlockedDraftReport,
         caseMdSourceRefLeakReport,
-        lintWeakAssertion(opts.scope),
-        lintHardcodePath(opts.scope),
-        lintDebugFileNaming(opts.scope),
+        lintWeakAssertion(normalizedScope),
+        lintHardcodePath(normalizedScope),
+        lintDebugFileNaming(normalizedScope),
         lintOwnerSkillDup(join(repoRoot(), ".claude", "agents")),
-        lintCaseTraceabilityHeader(opts.scope),
+        lintCaseTraceabilityHeader(normalizedScope),
         lintNoEnvLocal(workspaceLintRoot),
         lintRunnerIsAggregator(workspaceLintRoot),
         lintCasesInCasesDir(workspaceLintRoot),
@@ -140,12 +174,16 @@ export function buildCasesCommand(): Command {
         lintEnvProfileCompliance(workspaceLintRoot),
         lintNoDanglingHelpers(workspaceLintRoot),
         lintSpecStructureValid(workspaceLintRoot),
-        lintNoFeatureLocalHelpers(opts.scope),
-        lintNoDebugInCases(opts.scope),
-        lintHandoffDoubleTrack(opts.scope),
+        lintNoFeatureLocalHelpers(normalizedScope),
+        lintNoDebugInCases(normalizedScope),
+        lintHandoffDoubleTrack(workspaceLintRoot),
         lintSourceRefRegistry(workspaceLintRoot),
       ];
-      const all = [...featureViolations, ...reports.flatMap((r) => r.violations)];
+      const all = filterViolationsByScope(
+        [...featureViolations, ...reports.flatMap((r) => r.violations)],
+        normalizedScope,
+        workspaceLintRoot,
+      );
       for (const v of all) {
         const rel = v.file.replace(repoRoot(), ".");
         const line = "lineNumber" in v && v.lineNumber ? v.lineNumber : "-";

@@ -74,6 +74,9 @@ export class LaunchedAssetsPage {
 
   async openMetadataEnvironmentConfigDialog(sourceRef: string): Promise<void> {
     await this.page.getByRole("button", { name: "环境参数配置" }).click();
+    await expect(this.overlay(), `${sourceRef}: environment parameter dialog container should be visible`).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(this.overlay(), `${sourceRef}: environment parameter dialog should open`).toContainText(
       /环境参数|Spark|spark/i,
       { timeout: 30_000 },
@@ -109,6 +112,6 @@ export class LaunchedAssetsPage {
   }
 
   private overlay(): Locator {
-    return this.page.locator(".ant-modal, .ant-drawer, .ant-popover, body").last();
+    return this.page.locator(".ant-modal, .ant-drawer, .ant-popover").last();
   }
 }

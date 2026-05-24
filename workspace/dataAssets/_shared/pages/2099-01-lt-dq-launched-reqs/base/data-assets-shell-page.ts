@@ -71,7 +71,6 @@ export class DataAssetsShellPage {
       timeout: 60_000,
     });
     await this.applyProjectContext();
-    await this.page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => undefined);
     await expect(
       this.page.locator("body"),
       `${sourceRef}: dataAssets shell should not show login page`,

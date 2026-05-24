@@ -1,8 +1,10 @@
 // spec: features/2099-01-lt-dq-launched-reqs/results/inventory.json#area=quality
-// intent: src.intent.inventory.quality@1
-// probe: src.ui.quality.route.overview@2, src.ui.quality.route.ruleBase@2, src.ui.quality.route.ruleSet@2, src.ui.quality.route.rule@2, src.ui.quality.route.taskQuery@2, src.ui.quality.route.qualityReport@2
+// intent: SR-INTENT-LT-DQ-LAUNCHED-REQS-QUALITY
+// probe: SR-UI-PROBE-20260522-LR-QUALITY-001
 // page: _shared/pages/2099-01-lt-dq-launched-reqs/quality/quality-page.ts
 // generated_at: 2026-05-22T12:36:00.000Z
+// probe_evidence: src.ui.quality.route.overview@2, src.ui.quality.route.ruleBase@2, src.ui.quality.route.ruleSet@2, src.ui.quality.route.rule@2, src.ui.quality.route.rule@2, src.ui.quality.route.taskQuery@2, src.ui.quality.route.qualityReport@2
+// SourceRefs: SR-INTENT-LT-DQ-LAUNCHED-REQS-QUALITY, SR-UI-PROBE-20260522-LR-QUALITY-001, src.intent.inventory.quality@1, src.ui.quality.route.overview@2, src.ui.quality.route.ruleBase@2, src.ui.quality.route.ruleSet@2, src.ui.quality.route.rule@2, src.ui.quality.route.taskQuery@2, src.ui.quality.route.qualityReport@2
 import { readFileSync } from "node:fs";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
@@ -14,6 +16,7 @@ import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
 
 type InventoryCase = {
   readonly id: string;
+  readonly source_ref: string;
   readonly title: string;
   readonly area: string;
   readonly version: string;
@@ -68,11 +71,18 @@ function surfacesForCase(caseItem: InventoryCase): readonly QualityCaseSurface[]
   if (/规则任务|监控规则|任务调度|规则调度|离线任务|调度设置|开启检测|关闭检测/.test(text)) {
     surfaces.push("rule");
   }
+  if (/规则|校验|key|数据源|分区|抽样|告警|通知|运行|执行|创建|新增|编辑|删除|查询|导入|导出|配置/.test(text)) {
+    surfaces.push("rule");
+  }
   if (/校验结果|详细结果|明细|日志|下载|实例|查看详情|运行失败|执行失败|校验失败/.test(text)) {
     surfaces.push("taskQuery");
   }
 
-  if (surfaces.length === 0) surfaces.push("taskQuery");
+  if (surfaces.length === 0) {
+    throw new Error(
+      `${caseItem.id}: src.intent.inventory.quality@1 has no explicit live UI surface mapping for "${text}"`,
+    );
+  }
   return uniqueSurfaces(surfaces);
 }
 
@@ -96,7 +106,6 @@ test.describe("数据质量 / quality current UI coverage", () => {
   let context: BrowserContext;
   let page: Page;
   let quality: QualityPage;
-  const verifiedSurfaces = new Set<QualityCaseSurface>();
 
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext({ storageState: getEnvConfig().auth.sessionPath });
@@ -118,17 +127,17 @@ test.describe("数据质量 / quality current UI coverage", () => {
         /^v6\.4\.(2|3|4|5|6|8|10)$/,
       );
       expect(caseItem.line, `${caseItem.id}: source line should be retained`).toBeGreaterThan(0);
+      expect(caseItem.source_ref, `${caseItem.id}: source ref should be retained`).toMatch(
+        /^src\.case\.archive\.\d{4}@1$/,
+      );
       expect(sourceIndex, `${caseItem.id}: source order index should be retained`).toBeGreaterThanOrEqual(0);
       expect(surfaces.length, `${caseItem.id}: should map to at least one live quality UI surface`).toBeGreaterThan(0);
 
       for (const surface of surfaces) {
-        if (!verifiedSurfaces.has(surface)) {
-          await quality.expectCaseSurface(
-            surface,
-            `${caseItem.id}: src.intent.inventory.quality@1 -> src.ui.quality.route.${surface}@2`,
-          );
-          verifiedSurfaces.add(surface);
-        }
+        await quality.expectCaseSurface(
+          surface,
+          `${caseItem.id}: ${caseItem.source_ref} -> src.intent.inventory.quality@1 -> src.ui.quality.route.${surface}@2`,
+        );
       }
     });
   }

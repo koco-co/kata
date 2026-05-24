@@ -1,8 +1,10 @@
 // spec: features/2099-01-lt-dq-launched-reqs/results/inventory.json#area=standard
-// intent: src.intent.inventory.standard@1
-// probe: src.ui.standard.route.data-standard@1, src.ui.standard.route.standard-mapping@1, src.ui.standard.route.standard-check@1
+// intent: SR-INTENT-LT-DQ-LAUNCHED-REQS-STANDARD
+// probe: SR-UI-PROBE-20260522-LR-STANDARD-001
 // page: _shared/pages/2099-01-lt-dq-launched-reqs/standard/standard-page.ts
 // generated_at: 2026-05-22T12:24:00.000Z
+// probe_evidence: src.ui.standard.route.data-standard@1, src.ui.standard.route.standard-mapping@1, src.ui.standard.route.standard-check@1
+// SourceRefs: SR-INTENT-LT-DQ-LAUNCHED-REQS-STANDARD, SR-UI-PROBE-20260522-LR-STANDARD-001, src.intent.inventory.standard@1, src.ui.standard.route.data-standard@1, src.ui.standard.route.standard-mapping@1, src.ui.standard.route.standard-check@1
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
@@ -13,6 +15,7 @@ import {
 
 type InventoryCase = {
   readonly id: string;
+  readonly source_ref: string;
   readonly title: string;
   readonly area: string;
   readonly version: string;
@@ -57,9 +60,12 @@ test.describe("数据标准 / standard current UI coverage", () => {
       const standard = new StandardPage(page);
       await standard.expectCaseSurface(
         surface,
-        `${caseItem.id}: src.intent.inventory.standard@1 -> src.ui.standard.route.${surface === "definition" ? "data-standard" : surface === "mapping" ? "standard-mapping" : "standard-check"}@1`,
+        `${caseItem.id}: ${caseItem.source_ref} -> src.intent.inventory.standard@1 -> src.ui.standard.route.${surface === "definition" ? "data-standard" : surface === "mapping" ? "standard-mapping" : "standard-check"}@1`,
       );
 
+      expect(caseItem.source_ref, `${caseItem.id}: source ref should be retained`).toMatch(
+        /^src\.case\.archive\.\d{4}@1$/,
+      );
       expect(caseItem.version, `${caseItem.id}: inventory version should be present`).toMatch(/^v6\.4\.6$/);
       expect(caseItem.title, `${caseItem.id}: inventory title should remain traceable`).toContain("数据标准");
     });

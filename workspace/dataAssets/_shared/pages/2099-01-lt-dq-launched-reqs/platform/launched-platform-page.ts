@@ -30,7 +30,7 @@ export class LaunchedPlatformPage {
       "操作",
     ]);
     await expect(
-      this.page.locator(".ant-table-tbody, body").first(),
+      this.page.locator(".ant-table-tbody").first(),
       `${sourceRef}: json validation config should show configured key rows`,
     ).toContainText(/SparkThrift2\.x|Doris3\.x/, { timeout: 30_000 });
   }

@@ -14,8 +14,25 @@ function collectResultDirs(workspaceRoot: string): string[] {
   if (!existsSync(featuresDir)) return [];
   const dirs: string[] = [];
   for (const feat of readdirSync(featuresDir)) {
-    const resultsDir = join(featuresDir, feat, "results");
+    const featureDir = join(featuresDir, feat);
+    const resultsDir = join(featureDir, "results");
     if (!existsSync(resultsDir)) continue;
+    const manifestPath = join(featureDir, "manifest.json");
+    if (existsSync(manifestPath)) {
+      try {
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+        const latest = manifest?.files?.latest_results;
+        if (typeof latest === "string" && latest.startsWith("results/")) {
+          const latestDir = join(featureDir, latest);
+          if (existsSync(latestDir) && statSync(latestDir).isDirectory()) {
+            dirs.push(latestDir);
+            continue;
+          }
+        }
+      } catch {
+        // Fall back to scanning all result directories when manifest cannot be read.
+      }
+    }
     for (const run of readdirSync(resultsDir)) {
       const runDir = join(resultsDir, run);
       if (statSync(runDir).isDirectory()) {

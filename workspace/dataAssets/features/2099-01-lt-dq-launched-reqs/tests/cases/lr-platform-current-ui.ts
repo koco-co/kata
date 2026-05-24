@@ -1,8 +1,10 @@
 // spec: features/2099-01-lt-dq-launched-reqs/results/inventory.json#area=platform
-// intent: src.intent.inventory.platform@1
-// probe: results/260522-lr-platform-probe-01/playwright/ui-probe/probe.json
+// intent: SR-INTENT-LT-DQ-LAUNCHED-REQS-PLATFORM
+// probe: SR-UI-PROBE-20260522-LR-PLATFORM-001
 // page: _shared/pages/2099-01-lt-dq-launched-reqs/platform/launched-platform-page.ts
-// SourceRefs: src.ui.lr-platform.json-config@1, src.ui.lr-platform.report-dimension@1, src.ui.lr-platform.notification-setting@1, src.ui.lr-platform.notification-record@1
+// generated_at: 2026-05-22T12:30:00.000Z
+// probe_evidence: results/260522-lr-platform-probe-01/playwright/ui-probe/probe.json
+// SourceRefs: SR-INTENT-LT-DQ-LAUNCHED-REQS-PLATFORM, SR-UI-PROBE-20260522-LR-PLATFORM-001, src.ui.lr-platform.json-config@1, src.ui.lr-platform.report-dimension@1, src.ui.lr-platform.notification-setting@1, src.ui.lr-platform.notification-record@1
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 

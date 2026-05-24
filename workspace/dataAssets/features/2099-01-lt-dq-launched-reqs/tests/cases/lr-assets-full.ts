@@ -1,9 +1,13 @@
 // spec: features/2099-01-lt-dq-launched-reqs/岚图已上线需求主流程用例.md#assets
+// intent: SR-INTENT-LT-DQ-LAUNCHED-REQS-ASSETS
+// probe: SR-UI-PROBE-20260522-LR-ASSETS-001
+// page: _shared/pages/2099-01-lt-dq-launched-reqs/assets/launched-assets-page.ts
+// generated_at: 2026-05-22T12:20:00.000Z
 // inventory: results/inventory.json area=assets
-// probe: results/260522-lr-assets-probe-01/playwright/ui-probe/probe.json
-// interaction_probe: results/260522-lr-assets-probe-01/playwright/ui-probe/interaction-probe.json
+// probe_evidence: results/260522-lr-assets-probe-01/playwright/ui-probe/probe.json
+// interaction_probe_evidence: results/260522-lr-assets-probe-01/playwright/ui-probe/interaction-probe.json
 // META: {"area":"assets","case_count":8,"title":"资产盘点 area launched requirements bounded UI automation"}
-// SourceRefs: src.case.archive.0023@1, src.case.archive.0024@1, src.case.archive.0157@1, src.case.archive.0158@1, src.case.archive.0159@1, src.case.archive.0160@1, src.case.archive.0161@1, src.case.archive.0162@1, src.ui.lr-assets.interaction.data-map-field-click@1, src.ui.lr-assets.interaction.metadata-sync-edit-schedule@1, src.ui.lr-assets.interaction.standard-check-new@1
+// SourceRefs: SR-INTENT-LT-DQ-LAUNCHED-REQS-ASSETS, SR-UI-PROBE-20260522-LR-ASSETS-001, src.case.archive.0023@1, src.case.archive.0024@1, src.case.archive.0157@1, src.case.archive.0158@1, src.case.archive.0159@1, src.case.archive.0160@1, src.case.archive.0161@1, src.case.archive.0162@1, src.ui.lr-assets.interaction.data-map-field-click@1, src.ui.lr-assets.interaction.metadata-sync-edit-schedule@1, src.ui.lr-assets.interaction.standard-check-new@1
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { LaunchedAssetsPage } from "../../../../_shared/pages/2099-01-lt-dq-launched-reqs/assets/launched-assets-page";
 import { getEnvConfig } from "../../../../_shared/runtime/env-profile";

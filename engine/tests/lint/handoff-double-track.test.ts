@@ -18,6 +18,19 @@ describe("gate: handoff_double_track", () => {
     if (opts.md !== undefined) writeFileSync(join(dir, "handoff.md"), opts.md);
   }
 
+  function seedManifestLatestResults(latestResults: string) {
+    const featureDir = join(scratch, "dataAssets/features/2026-04-x");
+    mkdirSync(featureDir, { recursive: true });
+    writeFileSync(
+      join(featureDir, "manifest.json"),
+      JSON.stringify({
+        schema: "FeatureManifest@2",
+        feature_id: "2026-04-x",
+        files: { latest_results: latestResults },
+      }),
+    );
+  }
+
   function validHandoff() {
     return {
       schema: "PlaywrightAutomationHandoff@2",
@@ -139,5 +152,20 @@ describe("gate: handoff_double_track", () => {
     });
     const r = lintHandoffDoubleTrack(scratch);
     expect(r.violations.some((v) => v.rule === "handoff_md_acceptance_command_invalid")).toBe(true);
+  });
+
+  it("checks only manifest latest_results when declared", () => {
+    seedManifestLatestResults("results/20260510-1430-aaaaaaaa");
+    seedRun({
+      json: JSON.stringify(validHandoff()),
+      md: validHandoffMd(),
+    });
+    const staleDir = join(scratch, "dataAssets/features/2026-04-x/results/20260509-1430-bbbbbbbb");
+    mkdirSync(staleDir, { recursive: true });
+    writeFileSync(join(staleDir, "handoff.json"), "{}");
+
+    const r = lintHandoffDoubleTrack(scratch);
+
+    expect(r.violations).toEqual([]);
   });
 });

@@ -2,11 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "CaseEvidenceMap@1",
   "type": "object",
-  "required": [
-    "schema_ref",
-    "case_id",
-    "source_refs"
-  ],
+  "required": ["schema_ref", "case_id", "source_refs"],
   "additionalProperties": false,
   "properties": {
     "schema_ref": { "type": "string", "const": "CaseEvidenceMap@1" },

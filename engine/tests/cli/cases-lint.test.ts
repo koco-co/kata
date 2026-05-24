@@ -1,10 +1,16 @@
 import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, normalize } from "node:path";
 import JSZip from "jszip";
-import { lintLanhuBlockedDrafts } from "../../src/cli/cases-lint.ts";
+import {
+  filterViolationsByScope,
+  lintLanhuBlockedDrafts,
+  normalizeLintScope,
+} from "../../src/cli/cases-lint.ts";
 import { lintCaseMdSourceRefLeak } from "../../src/lint/case-md-sourceref-leak.ts";
+
+const repoRoot = join(import.meta.dirname, "../../..");
 
 function blockedLanhuManifest(featureId: string) {
   return {
@@ -26,6 +32,33 @@ function blockedLanhuManifest(featureId: string) {
 }
 
 describe("kata cases lint", () => {
+  it("normalizes relative lint scope under the repo root", () => {
+    expect(normalizeLintScope("workspace/dataAssets/features/2026-05-scope")).toBe(
+      normalize(join(repoRoot, "workspace/dataAssets/features/2026-05-scope")),
+    );
+  });
+
+  it("filters aggregate lint violations to the requested scope", () => {
+    const workspaceRoot = join(repoRoot, "workspace");
+    const scopedFeature = join(workspaceRoot, "dataAssets/features/2026-05-scope");
+    const inside = {
+      file: join(scopedFeature, "tests/cases/a.ts"),
+      rule: "inside",
+    };
+    const outside = {
+      file: join(workspaceRoot, "dataAssets/features/2026-05-other/tests/cases/b.ts"),
+      rule: "outside",
+    };
+
+    expect(filterViolationsByScope([inside, outside], scopedFeature, workspaceRoot)).toEqual([
+      inside,
+    ]);
+    expect(filterViolationsByScope([inside, outside], workspaceRoot, workspaceRoot)).toEqual([
+      inside,
+      outside,
+    ]);
+  });
+
   it("includes unresolved Lanhu blocked draft validation", async () => {
     const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
     try {

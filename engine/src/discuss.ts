@@ -36,16 +36,6 @@ import { enhancedMd } from "../lib/paths.ts";
 // CLI wiring
 // ============================================================================
 
-
-const ENHANCED_STATUSES = [
-  "discussing",
-  "pending-review",
-  "ready",
-  "analyzing",
-  "writing",
-  "completed",
-] as const satisfies readonly EnhancedStatus[];
-
 const ENHANCED_STATUSES = [
   "discussing",
   "pending-review",

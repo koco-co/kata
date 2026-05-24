@@ -2,11 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "LanhuAxureSnapshot@1",
   "type": "object",
-  "required": [
-    "schema_ref",
-    "id",
-    "pages"
-  ],
+  "required": ["schema_ref", "id", "pages"],
   "additionalProperties": false,
   "properties": {
     "schema_ref": { "type": "string", "const": "LanhuAxureSnapshot@1" },

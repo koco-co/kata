@@ -2,11 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "HistoricalContextPack@1",
   "type": "object",
-  "required": [
-    "schema_ref",
-    "id",
-    "candidate_modules"
-  ],
+  "required": ["schema_ref", "id", "candidate_modules"],
   "additionalProperties": false,
   "properties": {
     "schema_ref": { "type": "string", "const": "HistoricalContextPack@1" },

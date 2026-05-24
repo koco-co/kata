@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintEnvProfileCompliance } from "../../src/lint/v2-quality-gates.ts";
+import { lintEnvProfileCompliance, lintSessionCompliant } from "../../src/lint/v2-quality-gates.ts";
 
 describe("lintEnvProfileCompliance", () => {
   let scratch: string;
@@ -61,6 +61,46 @@ describe("lintEnvProfileCompliance", () => {
       expect.objectContaining({
         rule: "env_profile_compliance",
         message: "ltqc-prod must keep runtime.allow_write=false.",
+      }),
+    );
+  });
+});
+
+describe("lintSessionCompliant", () => {
+  let scratch: string;
+
+  beforeEach(() => {
+    scratch = mkdtempSync(join(tmpdir(), "v2-quality-gates-"));
+  });
+
+  afterEach(() => {
+    rmSync(scratch, { recursive: true, force: true });
+  });
+
+  it("allows repo-root relative workspace project auth paths", () => {
+    const featureDir = join(scratch, "dataAssets", "features", "2026-05-session-path");
+    mkdirSync(featureDir, { recursive: true });
+    writeFileSync(
+      join(featureDir, "notes.md"),
+      "session: workspace/dataAssets/.kata/auth/dataAssets/session.json\n",
+    );
+
+    const report = lintSessionCompliant(scratch);
+
+    expect(report.violations).toEqual([]);
+  });
+
+  it("reports bare project .kata auth paths", () => {
+    const featureDir = join(scratch, "dataAssets", "features", "2026-05-session-path");
+    mkdirSync(featureDir, { recursive: true });
+    writeFileSync(join(featureDir, "notes.md"), "session: .kata/auth/dataAssets/session.json\n");
+
+    const report = lintSessionCompliant(scratch);
+
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "session_compliant",
+        lineNumber: 1,
       }),
     );
   });
