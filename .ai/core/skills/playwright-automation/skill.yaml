@@ -73,6 +73,7 @@ body:
       - 新生成的 feature 自动化产出：`tests/runners/smoke.spec.ts` + `tests/runners/full.spec.ts`；case 写入 `tests/cases/`；共享页面对象/helper 写入 `_shared/`（非 feature-local）。
       - 交付以目标 `full.spec.ts` 全量通过为准；仅 smoke 通过不视为端到端自动化完成。
       - Reference 按需加载：仅当 workflow 进入对应 step 时读取对应 reference；scripts/、src/、lib/ 等内部实现文件不在读取范围内。
+      - 覆盖忠实度：生成的 spec 必须把每条在范围内用例的步骤实现为真实页面动作、把每条 expected_visible_result/assertions 断言为真实业务结果并真跑通；禁止用导航加可见性断言（toBeVisible/toContainText 等）代替用例写明的业务动作与预期结果，禁止把业务流程用例简化为「进入页面验证元素存在」的 surface 契约测试。无法忠实实现并跑通的用例走诚实阻塞/排除并把原因写入 handoff.excluded_cases（含 reason_category），不得用 surface 断言假通过。
   codex_override:
     routing_summary:
       - 处理 UI 自动化的规划、真实页面探测、Playwright 生成、运行归因与修复闭环。
@@ -85,6 +86,7 @@ body:
       - 环境通过 `workspace/<project>/_shared/env/*.yaml` profile 表达；不为交付新建 `.env.local`。
       - 交付以目标 `full.spec.ts` 全量通过为准；仅 smoke 通过不视为完成。
       - 失败断言反映真实问题；AutomationIntent 表示可自动化意图，不替代真实 UI 证据。
+      - 覆盖忠实度：spec 忠实实现用例步骤与预期并跑通；禁止用可见性断言代替业务动作/预期结果，禁止简化为 surface 契约测试；无法忠实跑通的用例走诚实排除并记入 handoff.excluded_cases，不得 surface 假通过。
 references:
   - path: references/case-normalize.md
     type: normative
