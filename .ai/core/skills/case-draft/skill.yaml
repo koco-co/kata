@@ -64,6 +64,7 @@ body:
       - 首步执行 `bun engine/bin/kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
       - 阶段内任务编排：source-intake 与 module-identify 完成且不在 Lanhu/Axure error-fallback 路径下时，按 references/execution-protocol.md 创建 TodoWrite、按 references/worker-prompt.md 派发 Worker、按 references/spec-reviewer-prompt.md 与 references/quality-reviewer-prompt.md 二阶段审查；Lanhu/Axure 阻塞草稿、source-intake 抓取静默期与所有 BlockedEnvelope 路径下禁用。
     hard_rules:
+      - Lanhu/Axure URL 输入：从第一条 assistant 消息起即全程静默执行 source-intake，禁止任何技能宣告（如「使用 case-draft 处理这个需求源…」）、处理计划、阶段/进度叙述、抓取或落盘说明；唯一允许的面向用户文本是最终阻塞两行模板，或解除阻塞后的最终交付。静默范围、产物格式与权限拒绝行为详见 references/error-fallback-paths.md。
       - Lanhu/Axure URL 的 source-intake、token 搜索顺序、抓取降级、阻塞草稿产物格式、fallback 回复模板与权限拒绝行为严格遵循 references/error-fallback-paths.md；该文件内规则与本节等效，skill.yaml 不逐条重复。
       - 项目未指定时先自行推断 workspace 项目；仅在无候选或多候选无法消歧时询问用户。
       - 所有产物必须写入 `kata features resolve` 返回的 featureDir，禁止模型自行拼接 feature 目录路径。违者视为未完成。
