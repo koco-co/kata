@@ -17,11 +17,20 @@ const ORDER = [
 ];
 
 let body = "";
+let seenDQ = false;
 for (const name of ORDER) {
   const f = join(fragDir, name + ".md");
   let c = readFileSync(f, "utf8")
     .replace(/<!-- self-check:.*?-->/g, "")
     .trim();
+  // Strip duplicate "## 数据质量" headers from DQ fragments
+  if (name.startsWith("dq-")) {
+    if (seenDQ) {
+      c = c.replace(/^## 数据质量\n/, "");
+    } else {
+      seenDQ = true;
+    }
+  }
   body += c + "\n\n";
 }
 
