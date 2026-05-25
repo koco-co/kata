@@ -5,7 +5,7 @@
     "status": "completed",
     "archive_path": "archive.md",
     "xmind_path": "cases.xmind",
-    "coverage_matrix_path": "coverage-matrix.json",
+    "coverage_matrix_path": ".process/coverage-matrix.json",
     "requirement_atoms": [
       { "id": "RA-1", "source_ref": "lanhu.fixture:page#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "title": "页面布局", "ambiguity_class": "confirmed", "confidence": "high" }
     ]

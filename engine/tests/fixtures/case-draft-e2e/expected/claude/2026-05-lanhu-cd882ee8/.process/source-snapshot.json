@@ -1,0 +1,8 @@
+{
+  "schema": "FeatureSourceSnapshot@1",
+  "feature_id": "2026-05-lanhu-cd882ee8",
+  "lanhu": { "url": "https://lanhuapp.com/x", "page_id": "p1" },
+  "confirmed_source_repos": [{ "group": "customltem", "project": "dt-insight-studio", "branch": "main", "role": "frontend" }],
+  "knowledge_refs": ["terms"],
+  "slug_source": "lanhu:cd882ee8"
+}

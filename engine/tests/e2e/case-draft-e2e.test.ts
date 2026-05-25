@@ -34,7 +34,8 @@ inputs: [{kind: lanhu, ref: 'https://lanhuapp.com/x'}]
 relates_to: []
 emits: {}
 YAML
-cat > "$feature/source-snapshot.json" <<'JSON'
+mkdir -p "$feature/.process"
+cat > "$feature/.process/source-snapshot.json" <<'JSON'
 {
   "schema": "FeatureSourceSnapshot@1",
   "feature_id": "2026-05-lanhu-cd882ee8",
@@ -44,7 +45,7 @@ cat > "$feature/source-snapshot.json" <<'JSON'
   "slug_source": "lanhu:cd882ee8"
 }
 JSON
-cat > "$feature/coverage-matrix.json" <<'JSON'
+cat > "$feature/.process/coverage-matrix.json" <<'JSON'
 [
   {
     "schema_ref": "CoverageMatrix@1",
@@ -67,7 +68,7 @@ cat > "$feature/manifest.json" <<'JSON'
     "status": "completed",
     "archive_path": "archive.md",
     "xmind_path": "cases.xmind",
-    "coverage_matrix_path": "coverage-matrix.json",
+    "coverage_matrix_path": ".process/coverage-matrix.json",
     "requirement_atoms": [
       { "id": "RA-1", "source_ref": "lanhu.fixture:f#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ambiguity_class": "confirmed", "confidence": "high" },
       { "id": "RA-2", "source_ref": "knowledge.entry:terms#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ambiguity_class": "confirmed", "confidence": "high" },
