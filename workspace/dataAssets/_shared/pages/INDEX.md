@@ -1,5 +1,6 @@
 # Shared Page Objects
 
+- `2099-01-lt-dq-launched-reqs/base/data-assets-shell-page.ts` — 岚图已上线需求自动化共用 DataAssets 壳层、项目上下文与域导航页对象。
 - `2099-01-lt-dq-main-flow/assets-inventory-page.ts` — 资产盘点统计与 UI 合同页对象。
 - `2099-01-lt-dq-main-flow/metadata-*.ts` — 元数据数据地图、订阅、同步、血缘与详情 Shell 页对象。
 - `2099-01-lt-dq-main-flow/standard-page.ts` — 数据标准统计与落标检查 Shell 页对象。
