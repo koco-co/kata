@@ -188,6 +188,14 @@ references:
       - case-draft
     purpose: 在允许的阶段内派发 case-draft Worker 时，限定输入字段、写入范围、状态 envelope 与证据分层规则。
     load_when: step.id in [historical-context, requirement-atomize, case-draft]
+  - path: references/output-standard.md
+    type: normative
+    load_phases:
+      - case-draft
+      - case-review
+      - output
+    purpose: case-draft 产物正确性标准（文件集/frontmatter/标题/括号/内容质量/证据底线）的唯一来源。
+    load_when: step.id in [case-draft, case-review, output]
 few_shots:
   - path: references/confirmation-package-template.md
     load_phases:
