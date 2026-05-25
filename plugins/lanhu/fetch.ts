@@ -40,6 +40,7 @@ interface LanhuQueryParams {
   docId?: string;
   image?: string;
   versionId?: string;
+  pageId?: string;
   [key: string]: string | undefined;
 }
 
@@ -109,6 +110,11 @@ interface ParsedRequirement {
   project: string;
   requirementId: string;
   requirementName: string;
+}
+
+interface RequirementCandidate {
+  page: BridgeListPage;
+  parsed: ParsedRequirement;
 }
 
 interface RunOptions {
@@ -336,6 +342,22 @@ function parseRequirementFromPageName(pageName: string, pagePath: string): Parse
   const requirementName = pageName.replace(/^\d+/, "").replace(/\//g, "_");
 
   return { project, requirementId, requirementName };
+}
+
+export function selectRequirementsForFetch(
+  allRequirements: RequirementCandidate[],
+  options: { pageId?: string; pagesFilter?: string },
+): RequirementCandidate[] {
+  if (options.pagesFilter) {
+    const filterIds = new Set(options.pagesFilter.split(",").map((id) => id.trim()));
+    return allRequirements.filter((r) => filterIds.has(r.parsed.requirementId));
+  }
+
+  if (options.pageId) {
+    return allRequirements.filter((r) => r.page.id === options.pageId);
+  }
+
+  return allRequirements;
 }
 
 export function inferKataProjectFromLanhuProjects(
@@ -730,18 +752,15 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
     parsed: parseRequirementFromPageName(page.name, page.path),
   }));
 
-  // 6. Filter by --pages if specified
-  const filterIds = options.pagesFilter
-    ? new Set(options.pagesFilter.split(",").map((id) => id.trim()))
-    : null;
-
-  const selectedRequirements = filterIds
-    ? allRequirements.filter((r) => filterIds.has(r.parsed.requirementId))
-    : allRequirements;
+  // 6. Prefer explicit --pages; otherwise use URL pageId to avoid exporting the whole Axure doc.
+  const selectedRequirements = selectRequirementsForFetch(allRequirements, {
+    pageId: parsed.params.pageId,
+    pagesFilter: options.pagesFilter,
+  });
 
   if (selectedRequirements.length === 0) {
     const err: ErrorOutput = {
-      error: `No requirements matched the filter: ${options.pagesFilter}`,
+      error: `No requirements matched the filter: ${options.pagesFilter ?? parsed.params.pageId ?? ""}`,
       code: "NO_MATCHING_REQUIREMENTS",
     };
     process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
