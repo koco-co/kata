@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runFeaturesResolve } from "../../src/cli/features-resolve.ts";
@@ -13,7 +13,7 @@ describe("runFeaturesResolve", () => {
   });
   afterEach(() => rmSync(ws, { recursive: true, force: true }));
 
-  it("prefers an explicit slug", () => {
+  it("prefers an explicit slug and creates .process/ dir", () => {
     const r = runFeaturesResolve({
       project: "dataAssets",
       slug: "lt-dq-rule-set",
@@ -24,6 +24,7 @@ describe("runFeaturesResolve", () => {
     expect(r.featureId).toBe("2026-05-lt-dq-rule-set");
     expect(r.featureDir).toBe(join(ws, "dataAssets/features/2026-05-lt-dq-rule-set"));
     expect(r.reused).toBe(false);
+    expect(existsSync(join(r.featureDir, ".process"))).toBe(true);
   });
 
   it("derives from a non-model source field when no slug given", () => {
@@ -71,8 +72,9 @@ describe("runFeaturesResolve", () => {
   it("appends a deterministic suffix on a different-source collision", () => {
     const dir = join(ws, "dataAssets/features/2026-05-lt-dq");
     mkdirSync(dir, { recursive: true });
+    mkdirSync(join(dir, ".process"), { recursive: true });
     writeFileSync(
-      join(dir, "source-snapshot.json"),
+      join(dir, ".process", "source-snapshot.json"),
       JSON.stringify({ slug_source: "prd:other.md" }),
     );
     const r = runFeaturesResolve({
@@ -89,7 +91,8 @@ describe("runFeaturesResolve", () => {
   it("reuses an existing dir whose recorded slug_source matches the current source", () => {
     const dir = join(ws, "dataAssets/features/2026-05-lt-dq");
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:7af" }));
+    mkdirSync(join(dir, ".process"), { recursive: true });
+    writeFileSync(join(dir, ".process", "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:7af" }));
     const r = runFeaturesResolve({
       project: "dataAssets",
       slug: "lt-dq",
@@ -110,7 +113,7 @@ describe("runFeaturesResolve", () => {
       workspaceRoot: ws,
       now,
     });
-    writeFileSync(join(a.featureDir, "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:cd882ee8" }));
+    writeFileSync(join(a.featureDir, ".process", "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:cd882ee8" }));
 
     const b = runFeaturesResolve({
       project: "dataAssets",
