@@ -8,7 +8,7 @@
     "requirement_atoms": [
       {
         "id": "RA-LT-DQ-MAIN-FLOW",
-        "source_ref": "case.archive:lt-dq-main-flow#sha256:09a7152f826f5cd6b1e63d6a12c21673221794b703f56065c49c80318e880ba9",
+        "source_ref": "case.archive:lt-dq-main-flow#sha256:a3f913394e9316af2659d2573c9f59ac053dcc217d72c087b3842bbfa08647c0",
         "ambiguity_class": "none",
         "confidence": "high"
       }
