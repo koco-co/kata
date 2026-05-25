@@ -15,7 +15,7 @@
     {
       "path": ".agents/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "d722b0319223ca9ec9a6fa68b0ff9ae5568ccc7ea6d12d495fb04d91dba0e369"
+      "sha256": "ba7192cf593cb4b42acdfce3614e3a55f66165f5349412630dbd33f366c1a8e6"
     },
     {
       "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -50,7 +50,7 @@
     {
       "path": ".agents/skills/case-draft/references/error-fallback-paths.md",
       "disposition": "generated",
-      "sha256": "31f1850124d0d3b6db29161b5dc0d8ca9451b46b8e74fde249385a7ad273bb1b"
+      "sha256": "a3d3f5bee61bf0a1f2846be4e6d019be63087918e8391da05a30ae8e9e2e6952"
     },
     {
       "path": ".agents/skills/case-draft/references/execution-protocol.md",
@@ -85,7 +85,7 @@
     {
       "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
       "disposition": "generated",
-      "sha256": "bdb24798771c7544621745b0335af469a951828014399f6b18dbf1efef60069b"
+      "sha256": "bdfb11446b94986e381145dab29a0f333ac27cef97afbee937ad301317c007f1"
     },
     {
       "path": ".agents/skills/case-draft/references/spec-reviewer-prompt.md",
@@ -325,7 +325,7 @@
     {
       "path": ".claude/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "d722b0319223ca9ec9a6fa68b0ff9ae5568ccc7ea6d12d495fb04d91dba0e369"
+      "sha256": "ba7192cf593cb4b42acdfce3614e3a55f66165f5349412630dbd33f366c1a8e6"
     },
     {
       "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -360,7 +360,7 @@
     {
       "path": ".claude/skills/case-draft/references/error-fallback-paths.md",
       "disposition": "generated",
-      "sha256": "31f1850124d0d3b6db29161b5dc0d8ca9451b46b8e74fde249385a7ad273bb1b"
+      "sha256": "a3d3f5bee61bf0a1f2846be4e6d019be63087918e8391da05a30ae8e9e2e6952"
     },
     {
       "path": ".claude/skills/case-draft/references/execution-protocol.md",
@@ -395,7 +395,7 @@
     {
       "path": ".claude/skills/case-draft/references/source-intake-protocol.md",
       "disposition": "generated",
-      "sha256": "bdb24798771c7544621745b0335af469a951828014399f6b18dbf1efef60069b"
+      "sha256": "bdfb11446b94986e381145dab29a0f333ac27cef97afbee937ad301317c007f1"
     },
     {
       "path": ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
