@@ -2,12 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "ConfirmationPackage@1",
   "type": "object",
-  "required": [
-    "schema_ref",
-    "id",
-    "questions",
-    "blocking_count"
-  ],
+  "required": ["schema_ref", "id", "questions", "blocking_count"],
   "additionalProperties": false,
   "properties": {
     "schema_ref": { "type": "string", "const": "ConfirmationPackage@1" },

@@ -24,8 +24,10 @@ const hardRules = (() => {
 
 describe("case-draft hard_rules regression", () => {
   // Baseline updated 2026-05-22: P3-06 — negative constraints reframed as positive guidance; giant rule #5 split into 4 independent rules.
-  const BASELINE_SHA256 = "4d00007464e5394a82d165f902f6f50cb401348aa444973190a3903c9871dcc9";
-  const BASELINE_COUNT = 13;
+  // Updated 2026-05-25: +5 output-standard rules (file-set, no machine id in title, bracket semantics, no weak expected, evidence floor).
+  // Updated 2026-05-25: +1 Lanhu/Axure silent-intake rule surfaced into always_load so the silence rule governs the first message (was buried in error-fallback reference).
+  const BASELINE_SHA256 = "63ca7431da403304c56603cbf8af3297c4fa96cfea3d03ca23b5d747873e2506";
+  const BASELINE_COUNT = 20;
 
   it("hard_rules array length is unchanged", () => {
     expect(hardRules.length).toBe(BASELINE_COUNT);

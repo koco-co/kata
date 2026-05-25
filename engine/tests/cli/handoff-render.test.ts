@@ -38,10 +38,29 @@ describe("kata handoff render", () => {
         quality_gates: [{ name: "no_weak_assertions", status: "passed" }],
         unresolved_blockers: [],
         next_actions: [],
+        excluded_cases: [
+          { case_id: "P0-3", reason_category: "data_prep", detail: "需后台任务完成" },
+        ],
       }),
     );
   });
   afterEach(() => rmSync(scratch, { recursive: true, force: true }));
+
+  it("renders excluded cases section", async () => {
+    await runHandoffRender({
+      project: "dataAssets",
+      featureId: "2026-04-x",
+      runId: "20260510-1430-aaaaaaaa",
+      workspaceRoot: scratch,
+    });
+    const md = readFileSync(
+      join(scratch, "dataAssets/features/2026-04-x/results/20260510-1430-aaaaaaaa/handoff.md"),
+      "utf-8",
+    );
+    expect(md).toContain("## Excluded Cases");
+    expect(md).toContain("[data_prep] case=P0-3");
+    expect(md).toContain("需后台任务完成");
+  });
 
   it("renders handoff.md with generated header and key fields", async () => {
     await runHandoffRender({

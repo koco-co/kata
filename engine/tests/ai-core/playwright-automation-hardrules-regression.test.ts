@@ -23,8 +23,9 @@ const hardRules = (() => {
 describe("playwright-automation hard_rules regression", () => {
   // Baseline updated 2026-05-22: P3-04 — thinned env-preflight rules (delegated to references/env-preflight.md).
   // Baseline updated 2026-05-22: P3-06 — negative constraints reframed as positive guidance; pipeline order made explicit.
-  const BASELINE_SHA256 = "6ceee3165102232308e4eec269eede0d4749ef863898837a69b53d22cf9434e7";
-  const BASELINE_COUNT = 14;
+  // Baseline updated 2026-05-24: 覆盖忠实度 hard_rule 新增（surface 降级逃生舱收口）。
+  const BASELINE_SHA256 = "eb6dfe9516c9be03a5605fe4eca5fd1a8467e0058512431e015af8e0b3d6306d";
+  const BASELINE_COUNT = 15;
 
   it("hard_rules array length is unchanged", () => {
     expect(hardRules.length).toBe(BASELINE_COUNT);

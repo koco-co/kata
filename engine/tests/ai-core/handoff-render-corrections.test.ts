@@ -24,6 +24,7 @@ const validHandoff = {
   quality_gates: [],
   unresolved_blockers: [],
   next_actions: [],
+  excluded_cases: [],
 };
 
 const validSummary = {

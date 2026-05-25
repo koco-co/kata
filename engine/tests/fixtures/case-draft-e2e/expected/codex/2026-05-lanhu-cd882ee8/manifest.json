@@ -1,0 +1,31 @@
+{
+  "schema": "FeatureManifest@2",
+  "feature_id": "2026-05-lanhu-cd882ee8",
+  "case_drafting": {
+    "status": "completed",
+    "archive_path": "archive.md",
+    "xmind_path": "cases.xmind",
+    "coverage_matrix_path": ".process/coverage-matrix.json",
+    "requirement_atoms": [
+      {
+        "id": "RA-1",
+        "source_ref": "lanhu.fixture:page#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "title": "页面布局",
+        "ambiguity_class": "confirmed",
+        "confidence": "high"
+      }
+    ]
+  },
+  "automation": {
+    "status": "not-started",
+    "intents": [],
+    "last_handoff_path": null,
+    "last_run_status": "not-run"
+  },
+  "files": {
+    "archive": "archive.md",
+    "xmind": "cases.xmind",
+    "tests_root": null,
+    "latest_results": null
+  }
+}

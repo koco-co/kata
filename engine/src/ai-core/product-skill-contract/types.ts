@@ -62,6 +62,7 @@ export type ProductSkillProjectionContract = {
     routingSummary: string[];
     hardRules: string[];
   };
+  requiredInputs: Array<{ kind: string; required: string }>;
 };
 
 export type ProductSkillParserScope =

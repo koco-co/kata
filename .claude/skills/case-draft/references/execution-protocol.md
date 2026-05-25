@@ -29,15 +29,29 @@ Worker 编排必须等到以下引用文件全部存在后才允许启用：`ref
 | output | quality-reviewer 替代 |
 | automation-handoff | 主会话 |
 
-## TodoWrite 编排
+## Deterministic path resolution (engine-owned — both runtimes)
+
+After module-identify yields a stable {project, module} and source-confirm pins the source triple, resolve the feature path from the engine — NEVER concatenate it in-prompt:
+
+    kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json
+
+(use `--prd-file <name>` instead of `--lanhu-page` for a PRD source; `--slug <slug>` only when the user gave one explicitly.)
+
+Consume the returned JSON `{ featureId, featureDir, reused }`:
+- `featureDir` is the single write root for the 4 delivery artifacts (manifest.json, metadata.yaml, archive.md, cases.xmind). Machine-layer files go under `.process/` (.process/source-snapshot.json, .process/coverage-matrix.json) and never pollute the feature root.
+- write `featureId` to `metadata.yaml#id`, and the slug origin to `.process/source-snapshot.json#slug_source` (e.g. `lanhu:<pageId-prefix>`).
+
+Both runtimes MUST run this command and use its stdout — this is what makes the path byte-identical across models.
+
+## 运行时任务可视化工具（Claude Code: TodoWrite；Codex: update_plan） 编排
 
 进入 Worker 编排可用窗口后：
-1. 主 Skill 一次性创建 12 项 TodoWrite
+1. 主 Skill 一次性创建 12 项 运行时任务可视化工具（Claude Code: TodoWrite；Codex: update_plan）
 2. 每阶段开始时把对应 todo 标 `in_progress`，完成后标 `completed`
 
 ## Worker 派发协议
 
-按 `references/worker-prompt.md` 模板构造 prompt。重阶段使用 Agent tool，subagent_type=general-purpose。
+按 `references/worker-prompt.md` 模板构造 prompt。重阶段使用运行时子代理派发（Claude Code: Agent tool subagent_type=general-purpose；Codex: spawn_agent + send_input + wait_agent）。
 
 Worker 必须返回稳定 status envelope；阻塞状态使用 `status=BLOCKED` 且原因写入 `blocked.kind`。
 

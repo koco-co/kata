@@ -17,6 +17,9 @@ files:
   - path: .agents/skills/case-draft/references/module-identify.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .agents/skills/case-draft/references/output-standard.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/output-standard.md
   - path: .agents/skills/case-draft/references/historical-context.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/historical-context.md
@@ -47,6 +50,9 @@ files:
   - path: .agents/skills/case-draft/references/worker-prompt.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .agents/skills/case-draft/references/source-confirm.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/source-confirm.md
   - path: .agents/skills/case-draft/references/spec-reviewer-prompt.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/spec-reviewer-prompt.md
@@ -161,6 +167,9 @@ files:
   - path: .claude/skills/case-draft/references/module-identify.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .claude/skills/case-draft/references/output-standard.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/output-standard.md
   - path: .claude/skills/case-draft/references/historical-context.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/historical-context.md
@@ -191,6 +200,9 @@ files:
   - path: .claude/skills/case-draft/references/worker-prompt.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .claude/skills/case-draft/references/source-confirm.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/source-confirm.md
   - path: .claude/skills/case-draft/references/spec-reviewer-prompt.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/spec-reviewer-prompt.md

@@ -38,6 +38,7 @@ Lanhu/Axure URL 抓取失败时，只有满足以下全部条件才允许向用�
 - 创建阻塞产物的 `manifest.json` 时必须使用本节给出的最小形态；不得为了格式参考读取任一既有 workspace feature 的 `manifest.json`、`metadata.yaml`、`archive.md` 或 `prd.md`。
 - 必须写入 `confirmation-package.md`、`archive.draft.md`、`unresolved-summary.md`、`manifest.json`；不得产出最终 `archive.md` 或 `cases.xmind`。
 - `confirmation-package.md` 必须列明：原始 URL、解析出的 URL 参数、已检查的精确搜索项、命中的相邻 feature、抓取失败原因、需要用户补充的最小材料。所有证据事实必须带 SourceRef ID（例如 `SR-LANHU-URL-001`、`SR-LOCAL-SEARCH-001`、`SR-ADJACENT-001`、`SR-FETCH-FAIL-001`），不得只写裸事实。
+- 若用户随 Lanhu/Axure URL 一并提供参考源码/源码仓库 URL，必须在 `## SourceRefs` 中逐条以 `SR-SRC-REF-00x` 记录每条完整 repo URL（逐字保留分支与路径）作为 source-confirm 阶段的源码 triple 证据；这些 repo URL 不出现在 `## 原始 URL`，因此必须在 SR-SRC-REF 内容里逐字写出，不适用 SR-LANHU-URL 的「见上方原始 URL」省略规则。不得丢弃、不得改写、不得降级为「可读源码路径或本地 clone」这类通用 deferred 套话；用户已提供源码 URL 时，`## 可选后续材料` 不得再列「可读源码路径或本地 clone」。这些 SR-SRC-REF 只进入 `## SourceRefs`，不改变阻塞草稿其余固定章节，也不进入最终阻塞两行回复。
 - `confirmation-package.md` 第一行必须严格等于 `## 原始 URL`；不得在其前添加 `# Confirmation Package`、标题、前言、空行或横线。章节标题必须使用中文规范标题：`## 原始 URL`、`## URL 参数`、`## SourceRefs`、`## 项目推断`、`## 模块推断`、`## 需要用户补充的信息`、`## 可选后续材料`。不得使用英文替代标题，例如 `## Source URL`、`## URL Parameters`、`## Deferred`。
 - `confirmation-package.md` 的原始 URL 必须使用 fenced code block，代码块必须只包含一行 URL，且该行必须等于用户输入或规范化后的单一 URL；不得把 URL 写成 inline code，不得把 query 参数拆成多行、缩进参数、移除 `?`/`&`、改写 hash 路由或把参数重新排版。SourceRefs 中不得再次以内联代码重复完整 URL；`SR-LANHU-URL-001` 的内容只能写“见上方原始 URL”或等价短描述。
 - `confirmation-package.md` 的原始 URL、参数表、搜索 token、artifact 目录与 `manifest.feature_id` 必须以首条用户输入 URL 的结构化解析结果为唯一真源；不得使用后续 WebFetch、`mcp__fetch__fetch_html`、readable 等工具调用参数或工具回显 URL 反向覆盖。若后续 tool_use URL 因模型重写出现 `pageId` 增删字符（例如把 `7afabbf5f0cf4d0680704ab3b5f20295` 写成 `7afabbf5f0cf4d06807004ab3b5f20295`），artifact 中必须继续使用用户输入的原始 `pageId=7afabbf5f0cf4d0680704ab3b5f20295`，不得记录变体。
@@ -75,6 +76,27 @@ PRD、Markdown、自然语言、设计稿（非 Lanhu/Axure URL）等所有非 L
 - 禁止把用户原文（含中文、全角标点、空格、拼音串联、>32 字符的英文串联）直接作为 `{slug}` 写入 `mkdir -p`；禁止把中文描述、待评估说明、模块候选作为 feature 目录名或目录子层级。
 - 用户原文、原始中文描述、被丢弃的拼音 slug 必须写入 `<feature_id>/metadata.yaml` 的 `notes:` 字段（结构：`notes.legacy_slug:`、`notes.description_zh:`），供后续审计追溯，不得只保留在 thinking 或聊天中。
 - 若 `mkdir -p` 命令字符串包含任一非 ASCII 字符或全角标点，必须在调用前停下来重新生成合规 `feature_id`；不得带着违规字符调用 `mkdir`。
+
+## 证据底线
+
+当以下关键设计证据无法获取时，**不得据此推断产出最终 archive.md 或 cases.xmind**，必须通过 `ask_user` 一次性批量索要缺失材料：
+
+- Lanhu 设计内容抓取失败（WebFetch/插件/浏览器均无法提取有效设计内容，且无同源本地缓存）
+- 确认的源码仓库不可读（路径不存在、无权限、分支不可达）
+
+`ask_user` 索要的材料清单必须包含以下选项，不得拆分到多轮提问：
+
+- 「贴 Lanhu 设计内容/导出」
+- 「提供 Lanhu cookie 或可读链接」
+- 「上传设计截图」
+- 「给可读源码路径/分支或把仓库 clone 到 `.kata/repos`」
+
+索要材料时必须按以下顺序写，不得多轮分次追问：
+
+1. 依输入类型选 1–2 项最精准的材料；例如 Lanhu URL 抓取失败只列出前三项，源码不可读只列第四项。
+2. 陈述当前阻塞状态，指明只有拿到真实证据后才能解除阻塞。
+
+只有拿到用户提供的真实证据（设计内容文本/截图/可读源码）后，才允许解除阻塞、产出最终 `archive.md` 与 `cases.xmind`。阻塞期间必须维持 blocking 草稿，落 `.process/archive.draft.md`。不得把阻塞状态的草稿改名为 `archive.md` 或 `cases.xmind`。
 
 ## 禁止
 - 不得吞掉失败并继续产出最终 archive.md 或 cases.xmind。

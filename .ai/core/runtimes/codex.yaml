@@ -54,6 +54,8 @@ generated_files:
   - .agents/skills/case-draft/references/error-fallback-paths.md
   - .agents/skills/case-draft/references/execution-protocol.md
   - .agents/skills/case-draft/references/worker-prompt.md
+  - .agents/skills/case-draft/references/output-standard.md
+  - .agents/skills/case-draft/references/source-confirm.md
   - .agents/skills/case-draft/references/spec-reviewer-prompt.md
   - .agents/skills/case-draft/references/quality-reviewer-prompt.md
   - .agents/skills/case-draft/SKILL.md

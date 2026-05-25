@@ -62,6 +62,17 @@ steps:
       schema_ref: SubagentConstraints@1
       may_not_ask_user: false
 
+  - id: source-confirm
+    output_schema: FeatureSourceSnapshot@1
+    requires:
+      - module_identity
+      - workspace_config
+      - repository_profiles
+      - project_knowledge
+    subagent_constraints:
+      schema_ref: SubagentConstraints@1
+      may_not_ask_user: false
+
   - id: historical-context
     output_schema: HistoricalContextPack@1
     output:

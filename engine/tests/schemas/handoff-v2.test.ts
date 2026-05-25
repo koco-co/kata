@@ -42,6 +42,7 @@ const base = {
   quality_gates: [{ name: "no_weak_assertions", status: "passed" }],
   unresolved_blockers: [],
   next_actions: [],
+  excluded_cases: [],
 };
 
 describe("PlaywrightAutomationHandoff@2", () => {
@@ -70,5 +71,31 @@ describe("PlaywrightAutomationHandoff@2", () => {
 
   it("requires source_refs.intent", () => {
     expect(validate({ ...base, source_refs: { env: "x", probe: "y", self_run: "z" } })).toBe(false);
+  });
+
+  it("accepts excluded_cases as empty array", () => {
+    expect(validate({ ...base, excluded_cases: [] })).toBe(true);
+  });
+
+  it("accepts a valid excluded case entry", () => {
+    expect(
+      validate({
+        ...base,
+        excluded_cases: [
+          { case_id: "P0-3", reason_category: "data_prep", detail: "需后台任务完成" },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it("requires excluded_cases", () => {
+    const { excluded_cases: _excluded, ...missing } = base;
+    expect(validate(missing)).toBe(false);
+  });
+
+  it("rejects unknown excluded reason_category", () => {
+    expect(
+      validate({ ...base, excluded_cases: [{ case_id: "P0-3", reason_category: "whatever" }] }),
+    ).toBe(false);
   });
 });

@@ -29,6 +29,15 @@
 None.
 {{/if}}
 
+## Excluded Cases
+{{#if excluded_cases.length}}
+{{#each excluded_cases}}
+- [{{reason_category}}] case={{case_id}}{{#if detail}} — {{detail}}{{/if}}{{#if evidence_path}} (evidence={{evidence_path}}){{/if}}
+{{/each}}
+{{else}}
+None.
+{{/if}}
+
 ## Next Actions
 {{#if next_actions.length}}
 {{#each next_actions}}

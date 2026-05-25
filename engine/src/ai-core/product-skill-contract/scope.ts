@@ -50,6 +50,10 @@ export function finalizeScope(
   if (pk === "few_shots") {
     finalizeFewShotRow(v, contract, path, issues);
   }
+
+  if (pk === "required_inputs") {
+    finalizeRequiredInputRow(v, contract, path, issues);
+  }
 }
 
 function finalizeSectionRow(
@@ -137,6 +141,27 @@ function finalizeCommandAliasRow(
     reason: stringField(v.reason),
     removeAfter: stringField(v.remove_after),
   });
+}
+
+function finalizeRequiredInputRow(
+  v: Record<string, unknown>,
+  contract: ProductSkillProjectionContract,
+  path: string,
+  issues: AiCoreIssue[],
+): void {
+  const kind = stringField(v.kind);
+  const required = stringField(v.required);
+  if (!kind || !required) {
+    issues.push(
+      issue(
+        "product_skill.invalid_required_input",
+        "Product skill required_input requires kind and required.",
+        path,
+      ),
+    );
+    return;
+  }
+  contract.requiredInputs.push({ kind, required });
 }
 
 function finalizeFewShotRow(

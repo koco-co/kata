@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, normalize, sep } from "node:path";
 import { Command } from "commander";
 import { repoRoot } from "../../lib/paths.ts";
+import { lintArchiveOutputStandard } from "../lint/archive-output-standard.ts";
 import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "../lint/case-traceability-header.ts";
 import { lintDebugFileNaming } from "../lint/debug-file-naming.ts";
@@ -21,7 +22,10 @@ import {
   lintSpecStructureValid,
 } from "../lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "../lint/weak-assertion.ts";
+import { registerCasesCompare } from "./cases-compare.ts";
+import { registerCasesE2e } from "./cases-e2e.ts";
 import { registerCasesValidate, runCasesValidate } from "./cases-validate.ts";
+import { registerCasesVerify } from "./cases-verify.ts";
 import { runFeaturesLint } from "./features-lint.ts";
 
 export async function lintLanhuBlockedDrafts(
@@ -144,6 +148,9 @@ export function buildCasesCommand(): Command {
         lintNoDebugInCases(opts.scope),
         lintHandoffDoubleTrack(opts.scope),
         lintSourceRefRegistry(workspaceLintRoot),
+        ...projects.map((project) =>
+          lintArchiveOutputStandard(join(workspaceLintRoot, project, "features")),
+        ),
       ];
       const all = [...featureViolations, ...reports.flatMap((r) => r.violations)];
       for (const v of all) {
@@ -157,5 +164,8 @@ export function buildCasesCommand(): Command {
         opts.severity === "fail-only" ? all.filter((v) => v.severity !== "warn") : all;
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);
     });
+  registerCasesCompare(cases);
+  registerCasesE2e(cases);
+  registerCasesVerify(cases);
   return cases;
 }
