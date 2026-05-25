@@ -108,28 +108,22 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
     for (const file of walkFiles(join(workspaceRoot, project, "features"))) {
       if (!/\.(?:ts|tsx|md|json|yaml)$/.test(file)) continue;
       files += 1;
-      const lines = readFileSync(file, "utf-8").split("\n");
-      for (let index = 0; index < lines.length; index++) {
-        const line = lines[index] ?? "";
-        const hasLegacyKataAuth =
-          line.includes(`.kata/auth/${project}/`) &&
-          !line.includes(`workspace/${project}/.kata/auth/${project}/`);
-        if (
-          line.includes(`.auth/${project}/`) ||
-          line.includes(".auth/session.json") ||
-          hasLegacyKataAuth
-        ) {
-          violations.push(
-            violation(
-              file,
-              "session_compliant",
-              `Auth storageState must live under workspace/${project}/.kata/auth/.`,
-              "fail",
-              index + 1,
-              "legacy auth path",
-            ),
-          );
-        }
+      const content = readFileSync(file, "utf-8");
+      if (
+        content.includes(`.auth/${project}/`) ||
+        content.includes(".auth/session.json") ||
+        content.includes(`.kata/auth/${project}/`)
+      ) {
+        violations.push(
+          violation(
+            file,
+            "session_compliant",
+            `Auth storageState must live under workspace/${project}/.kata/auth/.`,
+            "fail",
+            1,
+            "legacy auth path",
+          ),
+        );
       }
     }
   }
