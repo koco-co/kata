@@ -3,7 +3,9 @@ import { extractSourceFactSet, jaccard } from "../../src/cases/source-fact-set.t
 
 const SHA = "a".repeat(64);
 function manifest(refs: string[]) {
-  return { case_drafting: { requirement_atoms: refs.map((r, i) => ({ id: `RA-${i}`, source_ref: r })) } };
+  return {
+    case_drafting: { requirement_atoms: refs.map((r, i) => ({ id: `RA-${i}`, source_ref: r })) },
+  };
 }
 
 describe("extractSourceFactSet", () => {

@@ -46,7 +46,7 @@ function chooseSlug(ctx: FeaturesResolveContext): string {
 }
 
 function recordedSlugSource(dir: string): string | undefined {
-  const snapPath = join(dir, "source-snapshot.json");
+  const snapPath = join(dir, ".process", "source-snapshot.json");
   if (!existsSync(snapPath)) return undefined;
   try {
     return JSON.parse(readFileSync(snapPath, "utf-8"))?.slug_source;
@@ -80,6 +80,7 @@ export function runFeaturesResolve(ctx: FeaturesResolveContext): FeaturesResolve
     const featureDir = join(featuresDir, featureId);
     if (!existsSync(featureDir)) {
       mkdirSync(featureDir, { recursive: true });
+      mkdirSync(join(featureDir, ".process"), { recursive: true });
       return { featureId, featureDir, reused: false };
     }
     const recorded = recordedSlugSource(featureDir);

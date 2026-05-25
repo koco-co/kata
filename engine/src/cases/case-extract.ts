@@ -22,14 +22,19 @@ export function extractCaseRecords(featureDir: string): CaseRecord[] {
       const tagMatch = title.match(/\[([A-Za-z0-9,\-\s]+)\]$/);
       const atomIds = tagMatch ? tagMatch[1].split(",").map((s) => s.trim()) : [];
       const cleanTitle = tagMatch ? title.slice(0, tagMatch.index!).trim() : title;
-      current = { case_id: `C${cases.length + 1}`, requirement_atom_ids: atomIds, steps: [], expected: "", title: cleanTitle };
+      current = {
+        case_id: `C${cases.length + 1}`,
+        requirement_atom_ids: atomIds,
+        steps: [],
+        expected: "",
+        title: cleanTitle,
+      };
       continue;
     }
     if (current && line.trim().startsWith("- step:")) {
       const parts = line.split("/ expected:");
       current.steps.push(parts[0].replace("- step:", "").trim());
       if (parts[1]) current.expected = parts[1].trim();
-      continue;
     }
   }
   if (current) cases.push(current);

@@ -51,6 +51,10 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .agents/skills/case-draft/references/output-standard.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/output-standard.md
   - path: .agents/skills/case-draft/references/quality-reviewer-prompt.md
     runtime: codex
     disposition: generated
@@ -295,6 +299,10 @@ files:
     runtime: claude
     disposition: generated
     source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .claude/skills/case-draft/references/output-standard.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/output-standard.md
   - path: .claude/skills/case-draft/references/quality-reviewer-prompt.md
     runtime: claude
     disposition: generated

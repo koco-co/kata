@@ -17,6 +17,9 @@ files:
   - path: .agents/skills/case-draft/references/module-identify.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .agents/skills/case-draft/references/output-standard.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/output-standard.md
   - path: .agents/skills/case-draft/references/historical-context.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/historical-context.md
@@ -164,6 +167,9 @@ files:
   - path: .claude/skills/case-draft/references/module-identify.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/module-identify.md
+  - path: .claude/skills/case-draft/references/output-standard.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/output-standard.md
   - path: .claude/skills/case-draft/references/historical-context.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/historical-context.md

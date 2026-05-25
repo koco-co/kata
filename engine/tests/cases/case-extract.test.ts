@@ -6,7 +6,9 @@ import { extractCaseRecords } from "../../src/cases/case-extract.ts";
 
 describe("extractCaseRecords", () => {
   let dir: string;
-  beforeEach(() => { dir = mkdtempSync(join(tmpdir(), "kata-extract-")); });
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "kata-extract-"));
+  });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
   it("returns empty for no archive.md", () => {
@@ -14,13 +16,16 @@ describe("extractCaseRecords", () => {
   });
 
   it("parses cases with traceability tags", () => {
-    writeFileSync(join(dir, "archive.md"), [
-      "# Cases",
-      "## Login [RA-1]",
-      "- step: click login / expected: page loads",
-      "## Dashboard [RA-1, RA-2]",
-      "- step: view dashboard / expected: widgets visible",
-    ].join("\n"));
+    writeFileSync(
+      join(dir, "archive.md"),
+      [
+        "# Cases",
+        "## Login [RA-1]",
+        "- step: click login / expected: page loads",
+        "## Dashboard [RA-1, RA-2]",
+        "- step: view dashboard / expected: widgets visible",
+      ].join("\n"),
+    );
     const cases = extractCaseRecords(dir);
     expect(cases).toHaveLength(2);
     expect(cases[0].case_id).toBe("C1");

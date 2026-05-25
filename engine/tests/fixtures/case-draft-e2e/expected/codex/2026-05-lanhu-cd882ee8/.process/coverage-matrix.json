@@ -1,0 +1,13 @@
+[
+  {
+    "schema_ref": "CoverageMatrix@1",
+    "id": "CM-1",
+    "title": "cov",
+    "coverage_type": "functional",
+    "requirement_atom_ids": ["RA-1", "RA-2", "RA-3"],
+    "risk_level": "high",
+    "evidence_status": "covered",
+    "manual_case_allowed": true,
+    "automation_allowed": true
+  }
+]

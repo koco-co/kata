@@ -64,7 +64,12 @@ describe("kata cases validate", () => {
             archive_path: "archive.md",
             xmind_path: null,
             requirement_atoms: [
-              { id: "RA-001", source_ref: `prd.file:demo#sha256:${"a".repeat(64)}`, ambiguity_class: "confirmed", confidence: "high" },
+              {
+                id: "RA-001",
+                source_ref: `prd.file:demo#sha256:${"a".repeat(64)}`,
+                ambiguity_class: "confirmed",
+                confidence: "high",
+              },
             ],
             coverage_matrix_path: "coverage-matrix.json",
           },

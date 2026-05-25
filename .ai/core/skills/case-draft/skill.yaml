@@ -78,6 +78,11 @@ body:
       - Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent，不直接向用户提问。
       - few-shot 作为格式参照使用，不包含需求事实或历史事实依据。
       - slug 兜底由 `kata features resolve` 引擎处理（hexFallbackSlug），模型无需也不应自行实现。
+      - 交付层仅 archive.md、cases.xmind、metadata.yaml、manifest.json 四件落 feature 根；source-snapshot.json、coverage-matrix.json 及过程/证据产物一律落 .process/，详见 references/output-standard.md。
+      - archive.md/cases.xmind 用例标题禁止任何机器标识（TC-ID、SR-、RA-）；标题仅 `【Pn】` 前缀 + 自然中文动宾句。
+      - 括号语义：`【】` 专用于 `【Pn】` 优先级前缀，`「」` 用于所有 UI/菜单/选项/字段名。
+      - 每条用例每步预期必须具体可验，禁止「页面正常打开」之类空泛断言作为唯一预期。
+      - 证据底线：Lanhu 设计内容或相关源码读取失败时，用 ask_user 一次性批量索要缺口，不得凭历史/推断产出最终 archive.md/cases.xmind。
   codex_override:
 references:
   - path: references/source-intake-protocol.md
@@ -188,6 +193,14 @@ references:
       - case-draft
     purpose: 在允许的阶段内派发 case-draft Worker 时，限定输入字段、写入范围、状态 envelope 与证据分层规则。
     load_when: step.id in [historical-context, requirement-atomize, case-draft]
+  - path: references/output-standard.md
+    type: normative
+    load_phases:
+      - case-draft
+      - case-review
+      - output
+    purpose: case-draft 产物正确性标准（文件集/frontmatter/标题/括号/内容质量/证据底线）的唯一来源。
+    load_when: step.id in [case-draft, case-review, output]
 few_shots:
   - path: references/confirmation-package-template.md
     load_phases:

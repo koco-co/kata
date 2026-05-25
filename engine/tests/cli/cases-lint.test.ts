@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import JSZip from "jszip";
 import { lintLanhuBlockedDrafts } from "../../src/cli/cases-lint.ts";
+import { lintArchiveOutputStandard } from "../../src/lint/archive-output-standard.ts";
 import { lintCaseMdSourceRefLeak } from "../../src/lint/case-md-sourceref-leak.ts";
 
 function blockedLanhuManifest(featureId: string) {
@@ -363,6 +364,38 @@ describe("kata cases lint", () => {
       expect(result.violations).toHaveLength(1);
       expect(result.violations[0]?.file).toBe(join(featureDir, "archive.draft.md"));
       expect(result.violations[0]?.matched).toBe("SR-PRD-001");
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("flags archive title with machine identifiers (TC-/SR-/RA-)", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
+    try {
+      const featureId = "2026-05-output-standard";
+      const featureDir = join(scratch, "dataAssets/features", featureId);
+      mkdirSync(featureDir, { recursive: true });
+      writeFileSync(
+        join(featureDir, "archive.md"),
+        [
+          "---",
+          "suite_name: test",
+          "---",
+          "# 用例",
+          "",
+          "##### 【P1】TC-100 登录成功进入资产列表",
+          "步骤 1: 打开登录页",
+          "",
+          "##### 【P2】用户管理-编辑用户信息",
+          "步骤 1: 点击编辑",
+        ].join("\n"),
+      );
+
+      const result = lintArchiveOutputStandard(join(scratch, "dataAssets", "features"));
+      expect(result.violations.map((v) => v.rule)).toContain("archive-title-machine-id");
+      expect(result.violations.some((v) => v.matched?.includes("TC-100"))).toBe(true);
+      expect(result.violations.every((v) => v.severity === "fail")).toBe(true);
+      expect(result.passed).toBe(false);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }

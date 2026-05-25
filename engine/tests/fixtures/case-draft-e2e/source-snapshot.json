@@ -6,8 +6,18 @@
     "page_id": "cd882ee83c4d440d878b49cc31f67cb6"
   },
   "confirmed_source_repos": [
-    { "group": "customltem", "project": "dt-insight-studio", "branch": "dataAssets/release_6.3.x_ltqc", "role": "frontend" },
-    { "group": "customltem", "project": "dt-center-assets", "branch": "release_6.3.x_ltqc", "role": "backend" }
+    {
+      "group": "customltem",
+      "project": "dt-insight-studio",
+      "branch": "dataAssets/release_6.3.x_ltqc",
+      "role": "frontend"
+    },
+    {
+      "group": "customltem",
+      "project": "dt-center-assets",
+      "branch": "release_6.3.x_ltqc",
+      "role": "backend"
+    }
   ],
   "knowledge_refs": ["terms", "source-repo-map"],
   "slug_source": "lanhu:cd882ee8"

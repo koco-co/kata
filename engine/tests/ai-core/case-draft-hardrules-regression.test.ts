@@ -24,8 +24,9 @@ const hardRules = (() => {
 
 describe("case-draft hard_rules regression", () => {
   // Baseline updated 2026-05-22: P3-06 — negative constraints reframed as positive guidance; giant rule #5 split into 4 independent rules.
-  const BASELINE_SHA256 = "d833400514ef54bb84a46ac6c24128ed1daf05c03454f21d0c6e2b72efd17d6a";
-  const BASELINE_COUNT = 14;
+  // Updated 2026-05-25: +5 output-standard rules (file-set, no machine id in title, bracket semantics, no weak expected, evidence floor).
+  const BASELINE_SHA256 = "6cd9e0fa3e7f2039cb889caf33653f3f668368085557350cc820dc83c4891358";
+  const BASELINE_COUNT = 19;
 
   it("hard_rules array length is unchanged", () => {
     expect(hardRules.length).toBe(BASELINE_COUNT);

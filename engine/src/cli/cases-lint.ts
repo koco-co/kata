@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, normalize, sep } from "node:path";
 import { Command } from "commander";
 import { repoRoot } from "../../lib/paths.ts";
+import { lintArchiveOutputStandard } from "../lint/archive-output-standard.ts";
 import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "../lint/case-traceability-header.ts";
 import { lintDebugFileNaming } from "../lint/debug-file-naming.ts";
@@ -147,6 +148,9 @@ export function buildCasesCommand(): Command {
         lintNoDebugInCases(opts.scope),
         lintHandoffDoubleTrack(opts.scope),
         lintSourceRefRegistry(workspaceLintRoot),
+        ...projects.map((project) =>
+          lintArchiveOutputStandard(join(workspaceLintRoot, project, "features")),
+        ),
       ];
       const all = [...featureViolations, ...reports.flatMap((r) => r.violations)];
       for (const v of all) {
