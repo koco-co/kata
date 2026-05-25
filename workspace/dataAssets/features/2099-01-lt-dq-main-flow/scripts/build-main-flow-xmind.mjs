@@ -24,6 +24,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
 const defaultInput = join(featureDir, "岚图主流程用例整理.md");
 const defaultOutput = join(featureDir, "岚图主流程用例整理.xmind");
+const defaultReference = join(featureDir, "tmp", "ltqc-csv", "岚图主流程用例整理.xmind");
 
 function argValue(flag, fallback) {
   const index = process.argv.indexOf(flag);
@@ -403,6 +404,9 @@ function ensurePath(l1Nodes, path) {
 
 function fallbackPath(testCase) {
   const text = `${testCase.module} ${testCase.submodule} ${testCase.title}`;
+  if (/数据地图/.test(text)) return ["元数据", "数据地图"];
+  if (/元数据同步/.test(text)) return ["元数据", "元数据同步"];
+  if (/落标检查|dbc标准/i.test(text)) return ["数据标准", "落标检查"];
   if (testCase.module === "资产盘点") return ["资产盘点"];
   if (testCase.module === "元数据") {
     if (/元数据同步/.test(text)) return ["元数据", "元数据同步"];
@@ -420,8 +424,8 @@ function fallbackPath(testCase) {
   }
   if (testCase.module === "数据模型") {
     if (/规范设计/.test(text)) return ["数据模型", "规范建表", "规范设计"];
-    if (/我的模型/.test(text)) return ["数据模型", "授权与审批", "我的模型"];
     if (/授权|审批/.test(text)) return ["数据模型", "授权与审批"];
+    if (/我的模型/.test(text)) return ["数据模型", "授权与审批"];
     return ["数据模型", "规范建表"];
   }
   if (testCase.module === "数据安全") {
@@ -443,9 +447,13 @@ function fallbackPath(testCase) {
   if (/项目|菜单名称|权限点/.test(text)) return ["数据质量", "项目管理", "项目信息"];
   if (/报告|已生成报告|已配置报告/.test(text)) return ["数据质量", "数据质量报告"];
   if (/校验结果|明细|日志|实例详情|结果详情/.test(text)) return ["数据质量", "校验结果查询"];
+  if (/详细结果表/.test(text)) return ["数据质量", "校验结果查询"];
   if (/规则任务|监控规则|调度|分区|抽样|离线任务|导入规则包/.test(text)) return ["数据质量", "规则任务管理"];
   if (/规则集|规则配置/.test(text)) return ["数据质量", "规则集管理"];
-  if (/规则库|内置规则|自定义sql|自定义SQL|自定义正则/.test(text)) return ["数据质量", "规则库配置"];
+  if (/规则库|内置规则|自定义sql|自定义SQL|自定义正则|正则匹配测试/.test(text)) return ["数据质量", "规则库配置"];
+  if (/完整性校验|统计性校验|有效性校验|字段值校验|异常值检测|比对细节设置/.test(text)) {
+    return ["数据质量", "规则库配置"];
+  }
   return testCase.submodule ? [testCase.module, testCase.submodule] : [testCase.module || "未分组"];
 }
 
@@ -570,7 +578,7 @@ function assertStats(stats) {
 async function main() {
   const input = argValue("--input", defaultInput);
   const output = argValue("--output", defaultOutput);
-  const reference = argValue("--reference", output);
+  const reference = argValue("--reference", existsSync(defaultReference) ? defaultReference : output);
   const parsed = parseArchive(readFileSync(input, "utf8"));
   const referenceRoot = await loadReferenceRoot(reference);
   const l1Nodes = buildTreeWithReference(parsed, referenceRoot);
