@@ -3,8 +3,10 @@
 - 日期：2026-05-25
 - 试点 Skill：`case-draft@1`
 - 试点项目：`workspace/dataAssets`
-- 状态：待用户复核
+- 状态：待用户复核（v2，已对齐 cross-model 合并后基线）
 - 证据来源：codex session `019e5ccf-e644-7e12-ad3b-80d693510f84`（2026-05-25 真跑，需求 `15662【数据地图】支持筛选数据表是否绑定数据目录`）
+
+> **基线变更（2026-05-25 会话中）**：`feat/cross-model-stable-artifacts` 分支已合并入 main（HEAD `359e2d850`）。跨模型稳定实现**已落地**：工作流统一（`codex_override` 已空，两 runtime 同流程）、`kata features resolve` 确定性算路径（消除目录改名）、新增 source-confirm 步骤 + `required_inputs`、`kata cases verify/compare/e2e` 三层硬门已实现。本 spec v2 在此基线上定义"正确性"层，并据用户决策调整文件集契约（见 §3）。
 
 ## 1. 背景与问题
 
@@ -22,9 +24,9 @@
 
 ### 与「跨模型稳定产物」spec 的关系（已确认）
 
-仓库已有 `docs/superpowers/specs/2026-05-23-cross-model-stable-artifacts-design.md`（规划完成、实现未开始）。其主轴是**跨模型稳定**（路径一致 + schema 一致），并明确把内容正确性降为次要（"语义等价为次要""不逐字节"）。
+仓库已有 `docs/superpowers/specs/2026-05-23-cross-model-stable-artifacts-design.md`，其实现**已合并入 main**（见上方基线变更）。其主轴是**跨模型稳定**（路径一致 + schema 一致），并明确把内容正确性降为次要（"语义等价为次要""不逐字节"）。
 
-**用户决策：先定「对」再谈稳定。** 本次以**产物正确性**为唯一主线，把"正确产物"重新定义为硬标准并写进 skill；跨模型稳定 spec 降为后续，且**必须反过来遵从本次定义的正确契约**（稳定半成品没有意义）。
+**用户决策：先定「对」再谈稳定。** 本次以**产物正确性**为唯一主线，把"正确产物"重新定义为硬标准并写进 skill。已合并的稳定层**保留**（路径确定性、统一工作流是净收益），但其文件集契约**必须遵从本次的正确契约**——即把机器层稳定文件（`source-snapshot.json` / `coverage-matrix.json`）从 feature 目录移入 `.process/`，并相应改造已合并的 `verify/compare/e2e`（见 §3、§5）。合并**未触及**的正确性缺陷（标题机器标识、括号语义、空预期、证据底线）由本次新增，与稳定层互补。
 
 ## 2. 目标
 
@@ -38,10 +40,11 @@
 | 决策点 | 结论 |
 |---|---|
 | 正确性基准来源 | 仓库无可直接照搬的样板（既有产物用户也不认）。**由本 spec 重新定义**，用户复核。 |
-| 与稳定 spec 关系 | **先定「对」**；稳定 spec 后续做、且遵从本契约。 |
+| 与稳定层关系 | 稳定层**已合并**、保留；其文件集契约改造为遵从本"4 文件干净"契约（改 verify/compare/e2e 路径）。 |
 | 证据底线 | 关键设计证据（Lanhu 设计内容 / 相关源码）读不到 → **不出最终档**，**用 AskUser 一次性批量向用户索要**（贴内容 / 给 cookie / 传截图 / 给可读源码路径）；仅历史/推断不足以支撑"新增行为"的最终用例。 |
 | 交付层文件集 | **4 件**：`archive.md` + `cases.xmind` + `metadata.yaml` + `manifest.json`。 |
-| 过程/证据产物 | **全部移到 `{feature_id}/.process/` 隐藏子目录**（`confirmation-package` / `enhanced` / `coverage-matrix` / `case-evidence-map` / `unresolved-summary` / `tmp` 等）。保留可追溯性；跨模型 spec 的机器文件（`source-snapshot.json` / `coverage-matrix.json`）以后也住这里。 |
+| 机器层稳定文件 | `source-snapshot.json` + `coverage-matrix.json` **移入 `{feature_id}/.process/`**。**改动已合并的** `cases verify/compare/e2e` 与 `engine/src/cases/verify-layers.ts`（`STABLE_CORE_ARTIFACTS`/`STRUCTURED_SCHEMA_FILES`）、`source-ref/resolve-target.ts`、`cli/features-resolve.ts` 去 `.process/` 定位。 |
+| 过程/证据产物 | **全部移到 `{feature_id}/.process/`**（`confirmation-package` / `enhanced` / `case-evidence-map` / `unresolved-summary` / `archive.draft.md` / `tmp` 等）。保留可追溯性，不污染交付层。 |
 | 括号语义 | `【】` **专用于** `【Pn】` 优先级前缀；`「」` **用于所有** UI/菜单/选项/字段名。消除仓库混用。 |
 | 标题规范 | 用例标题**禁止任何机器标识**（TC-ID / SR- / RA-）；自然中文动宾句 + `【Pn】` 前缀。 |
 | frontmatter | 保留有消费方的字段，砍无消费方的（`product` / `description` / `dev_version`）。 |
@@ -63,9 +66,12 @@
 | `metadata.yaml` | feature 元数据（kata 索引，`FeatureMetadata@1`） |
 | `manifest.json` | 产物索引 + automation 状态（`FeatureManifest@2`） |
 
-**`.process/` 隐藏子目录（过程/证据，不污染交付层）**
+**`.process/` 隐藏子目录（机器层稳定文件 + 过程/证据，不污染交付层）**
 
-`confirmation-package.md`、`enhanced.md`、`coverage-matrix.*`、`case-evidence-map.json`、`unresolved-summary.md`、`archive.draft.md`、`tmp/` 等，全部落此。条件产物仅在对应分支触发时产出（如 blocking 草稿、产品确认包）。
+- 机器层稳定文件（已合并稳定层产出，移入此处）：`source-snapshot.json`、`coverage-matrix.json`。
+- 过程/证据：`confirmation-package.md`、`enhanced.md`、`case-evidence-map.json`、`unresolved-summary.md`、`archive.draft.md`、`tmp/` 等。
+
+条件产物仅在对应分支触发时产出（如 blocking 草稿、产品确认包）。`manifest.json#case_drafting.coverage_matrix_path` 指向 `.process/coverage-matrix.json`。
 
 ### 4.2 archive.md 格式规范（硬）
 
@@ -109,20 +115,20 @@ origin: "case-draft"
 
 **前置条件 + 步骤**（沿用 `xmind-gen` 已固定的解析契约，不改）：
 
-```
+````
 > 前置条件
 
-​```
+```
 1. 已登录并有数据地图访问权限
 2. 存在已绑定/未绑定数据目录的数据表
-​```
+```
 
 > 用例步骤
 
 | 编号 | 步骤 | 预期 |
 | ---- | ---- | ---- |
 | 1 | … | … |
-```
+````
 
 ### 4.3 用例内容质量基准（硬）
 
@@ -154,16 +160,29 @@ origin: "case-draft"
 3. **`hard_rules` 增**：① 括号语义；② 标题禁机器标识；③ 空预期禁令；④ 证据底线 AskUser；⑤ 文件集边界（交付 4 件 + `.process/`）；⑥ 章节层级语义。
 4. **`codex_override` 同步**：两 runtime 同标准（与 §1 跨模型根因一致，本次先保证"同一正确标准"）。
 5. **收尾硬校验门**：扩展 `engine/src/cli/cases-lint.ts`（或新增 archive 格式校验）：
-   - 交付层只有 4 件、无过程文件泄漏；
+   - 交付层只有 4 件、无过程文件泄漏（机器层文件应在 `.process/`，不在 feature 根）；
    - 标题无机器标识、`【Pn】` 合规、括号语义；
-   - 每条用例有步骤 + 具体预期；
+   - 每条用例有步骤 + 具体预期（弱预期如「页面正常打开」作为唯一断言判 warn/fail）；
    - frontmatter 字段集合规；
    - 不过 → 退出码非零 → skill 未完成。
 
+### 5.6 改造已合并的稳定层（文件集相对位置）
+
+把机器层稳定文件从 feature 根移入 `.process/`，同步改动（blast radius 已核对）：
+
+- `engine/src/cases/verify-layers.ts`：`STABLE_CORE_ARTIFACTS` 与 `STRUCTURED_SCHEMA_FILES` 对 `source-snapshot.json`/`coverage-matrix.json` 用 `.process/` 前缀定位；`coverage_hole`/`stable_core_missing` 提示文案同步。
+- `engine/src/cli/cases-verify.ts`：L2 `source-snapshot.json`、L3 `coverage-matrix.json` 路径加 `.process/`。
+- `engine/src/source-ref/resolve-target.ts`：读 `source-snapshot.json#confirmed_source_repos` 处加 `.process/`。
+- `engine/src/cli/features-resolve.ts`：读 `source-snapshot.json` 处加 `.process/`；`features resolve` 负责确保 `.process/` 目录存在。
+- `engine/src/cli/cases-compare.ts` / `cases-e2e.ts`：稳定核心文件集断言与快照路径同步（e2e fixture 的 expected 目录把两文件移入 `.process/`）。
+- references：`execution-protocol.md`、`source-confirm.md`、`coverage-matrix-guide.md`、`worker-prompt.md` 中写入路径改为 `.process/`。
+- 测试同步：`cli/cases-verify.test.ts`、`cases/verify-layers.test.ts`、`cli/cases-compare.test.ts`、`cli/features-resolve.test.ts`、`schemas/feature-manifest.test.ts`、`e2e/case-draft-e2e.test.ts`、`test-case-flow/lanhu-replay.test.ts` 及 e2e expected fixtures。
+
 ## 6. 范围边界（YAGNI）
 
-- **只做 case-draft 输出标准 + skill 改造 + 收尾校验门**。
-- **不做**跨模型 `compare` / `e2e harness` / `source-snapshot.json` / `coverage-matrix.json`（属稳定 spec 后续）。
+- **做**：case-draft 输出正确性标准 + skill 改造 + 收尾校验门 + 把机器层稳定文件移入 `.process/`（改造已合并的 verify/compare/e2e 路径）。
+- **不重新实现**已合并的跨模型稳定层（`verify/compare/e2e`/`features resolve`/`source-confirm` 已存在）——只改其文件相对位置与新增正确性校验。
+- 不改变稳定层的语义（schema 强校验、L1/L2/L3 判定逻辑、跨模型比对算法）；仅改文件落点与提示文案。
 - 不批量回刷既有 50+ feature 到新标准（按需逐个，非本次）。
 - 不引入 LLM-judge。
 
@@ -175,7 +194,8 @@ origin: "case-draft"
 
 ## 8. 验收标准（Definition of Done）
 
-1. `references/output-standard.md` 落地，`skill.yaml` `outputs:`/`hard_rules`/`codex_override` 按 §5 更新，`projection render` + `lock render` 通过，`bun run lint:ai-core` 通过。
-2. 收尾校验门可用：交付层 4 件、无过程泄漏、标题无机器标识、括号语义、空预期禁令、frontmatter 合规——各有过/不过单测。
+1. `references/output-standard.md` 落地，`skill.yaml` `outputs:`/`hard_rules` 按 §5 更新（`codex_override` 已空，保持），`projection render` + `lock render` 通过，`bun run lint:ai-core` 通过，`case-draft-hardrules-regression.test.ts` 基线（count/sha256）更新。
+2. 收尾校验门可用：交付层 4 件、无过程/机器文件泄漏到 feature 根、标题无机器标识、括号语义、空预期禁令、frontmatter 合规——各有过/不过单测。
 3. 证据底线生效：源读取失败时走 AskUser 索要、不产最终档——有对应测试或 fixture。
-4. 用同一需求重跑（或回放 codex fixture），产物符合 §4 全部标准。
+4. **机器层文件移入 `.process/` 后稳定层仍绿**：`cases verify/compare/e2e` 及 §5.6 所列全部测试通过；e2e expected fixtures 的两文件已在 `.process/`；`features resolve` 创建 `.process/`。
+5. 用同一需求重跑（或回放 codex fixture），产物符合 §4 全部标准。
