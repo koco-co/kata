@@ -7,6 +7,7 @@ import { test } from "../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataQualityOverviewShell,
   expectDataQualityReportShell,
+  expectDataQualityRuleBaseBuiltInRulesShell,
   expectDataQualityResultShell,
   expectDataQualityRuleBaseShell,
   expectDataQualityRuleSetShell,
@@ -45,5 +46,14 @@ test("【P0/P1/P2】数据质量菜单、规则任务、报告与规则库 Shell
 
   await step("步骤6: 进入元数据质量完整度分析 → 质量统计和分析列表可见", async () => {
     await expectMetadataIntegrityShell(page, "SR-2099-01-DQ-001");
+  });
+});
+
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7974,L8537
+// intent: SR-2099-01-DQ-RULEBASE-001
+// probe: results/20260523-1500-mf-quality-rulebase-01/playwright/ui-probe/probe.json
+test("【P0】数据质量规则库内置规则新增项 Shell 可核验", async ({ page, step }) => {
+  await step("步骤1: 进入规则库配置内置规则列表 → 新增内置规则名称和列表字段可见", async () => {
+    await expectDataQualityRuleBaseBuiltInRulesShell(page, "SR-2099-01-DQ-RULEBASE-001");
   });
 });
