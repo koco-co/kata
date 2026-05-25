@@ -108,7 +108,7 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
       return { found: false };
     case "lanhu.fixture": {
       if (!ctx.featureDir) return { found: false };
-      const snapPath = join(ctx.featureDir, "source-snapshot.json");
+      const snapPath = join(ctx.featureDir, ".process", "source-snapshot.json");
       if (!existsSync(snapPath)) return { found: false, path: snapPath };
       const snap = JSON.parse(readFileSync(snapPath, "utf-8"));
       return snap.lanhu ? { found: true, path: snapPath } : { found: false, path: snapPath };

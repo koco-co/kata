@@ -38,7 +38,7 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
   issues.push(...verifyStableCoreArtifacts({ featureDir: dir, status }));
   issues.push(...verifyStructuredSchemas({ featureDir: dir, status }));
 
-  const snapshotPath = join(dir, "source-snapshot.json");
+  const snapshotPath = join(dir, ".process", "source-snapshot.json");
   let confirmedRepos: ConfirmedSourceRepo[] = [];
   if (existsSync(snapshotPath)) {
     const snap = JSON.parse(readFileSync(snapshotPath, "utf-8"));
@@ -61,7 +61,7 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
   const cases: CaseRecord[] = extractCaseRecords(dir);
   issues.push(...verifyL3Quality({ cases, atomIds }));
 
-  const coveragePath = join(dir, "coverage-matrix.json");
+  const coveragePath = join(dir, ".process", "coverage-matrix.json");
   if (existsSync(coveragePath)) {
     try {
       const parsed = JSON.parse(readFileSync(coveragePath, "utf-8"));

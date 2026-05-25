@@ -39,13 +39,14 @@ describe("runCasesVerify", () => {
       "",
     ].join("\n"));
     writeFileSync(join(dir, "cases.xmind"), "PK");
-    writeFileSync(join(dir, "source-snapshot.json"), JSON.stringify({
+    mkdirSync(join(dir, ".process"), { recursive: true });
+    writeFileSync(join(dir, ".process", "source-snapshot.json"), JSON.stringify({
       schema: "FeatureSourceSnapshot@1", feature_id: featureId,
       lanhu: { url: "https://lanhuapp.com/x", page_id: "p1" },
       confirmed_source_repos: [{ group: "customltem", project: "dt-insight-studio", branch: "main", role: "frontend" }],
       knowledge_refs: ["terms"],
     }, null, 2));
-    writeFileSync(join(dir, "coverage-matrix.json"), JSON.stringify([
+    writeFileSync(join(dir, ".process", "coverage-matrix.json"), JSON.stringify([
       { schema_ref: "CoverageMatrix@1", id: "CM-1", title: "cov", coverage_type: "functional", requirement_atom_ids: ["RA-1", "RA-2", "RA-3"], risk_level: "high", evidence_status: "covered", manual_case_allowed: true, automation_allowed: true },
     ], null, 2));
     return dir;
