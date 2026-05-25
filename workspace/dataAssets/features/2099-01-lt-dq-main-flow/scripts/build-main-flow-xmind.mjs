@@ -24,7 +24,6 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
 const defaultInput = join(featureDir, "岚图主流程用例整理.md");
 const defaultOutput = join(featureDir, "岚图主流程用例整理.xmind");
-const defaultReference = join(featureDir, "tmp", "ltqc-csv", "岚图主流程用例整理.xmind");
 
 function argValue(flag, fallback) {
   const index = process.argv.indexOf(flag);
@@ -578,7 +577,7 @@ function assertStats(stats) {
 async function main() {
   const input = argValue("--input", defaultInput);
   const output = argValue("--output", defaultOutput);
-  const reference = argValue("--reference", existsSync(defaultReference) ? defaultReference : output);
+  const reference = argValue("--reference", output);
   const parsed = parseArchive(readFileSync(input, "utf8"));
   const referenceRoot = await loadReferenceRoot(reference);
   const l1Nodes = buildTreeWithReference(parsed, referenceRoot);
