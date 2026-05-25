@@ -101,6 +101,15 @@ describe("SourceRef P0 resolvers", () => {
     }
   });
 
+  it("supports repo.line refs that include confirmed group/project/branch identity", () => {
+    const ref = snapshotRepoLineRef({
+      id: "repo.line:customltem/dt-insight-studio@dataAssets/release_6.3.x_ltqc:src/x.ts:10",
+      content: "export const value = 1;",
+    });
+
+    expect(isCanonicalSourceRef(ref)).toBe(true);
+  });
+
   it("rejects malformed GA-core resolver ids while minting source refs", () => {
     expect(() =>
       snapshotKnowledgeEntryRef({ id: "knowledge.entry::bad", content: "Business fact" }),

@@ -15,7 +15,7 @@
     {
       "path": ".agents/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "43aabfb997a95a11f527f127dbfc0c12d83913d47d2c81835feb04c7b046bffa"
+      "sha256": "cef637142798d4689ad0334a13424644214679dc463a05b4a586c650e59c245c"
     },
     {
       "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -55,7 +55,7 @@
     {
       "path": ".agents/skills/case-draft/references/execution-protocol.md",
       "disposition": "generated",
-      "sha256": "ffaa4219951a45f475f8ab8554c7235316468f39031b811ce989cb86e9d866b8"
+      "sha256": "5095fff78e2be5219c72674fbce4fb48a00350a019f5b915e2be9c03c0c1c1b0"
     },
     {
       "path": ".agents/skills/case-draft/references/historical-context.md",
@@ -71,6 +71,11 @@
       "path": ".agents/skills/case-draft/references/quality-reviewer-prompt.md",
       "disposition": "generated",
       "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+    },
+    {
+      "path": ".agents/skills/case-draft/references/source-confirm.md",
+      "disposition": "generated",
+      "sha256": "1c697aade09555a3573c5d80d3e3925429d3302e9954e848d31c8965d4c4626c"
     },
     {
       "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
@@ -315,7 +320,7 @@
     {
       "path": ".claude/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "6ffdfd2b976785f8b16655b23de228b779a05bc1c00e8ac99c65d8b7d0083e9a"
+      "sha256": "cef637142798d4689ad0334a13424644214679dc463a05b4a586c650e59c245c"
     },
     {
       "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -355,7 +360,7 @@
     {
       "path": ".claude/skills/case-draft/references/execution-protocol.md",
       "disposition": "generated",
-      "sha256": "ffaa4219951a45f475f8ab8554c7235316468f39031b811ce989cb86e9d866b8"
+      "sha256": "5095fff78e2be5219c72674fbce4fb48a00350a019f5b915e2be9c03c0c1c1b0"
     },
     {
       "path": ".claude/skills/case-draft/references/historical-context.md",
@@ -371,6 +376,11 @@
       "path": ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
       "disposition": "generated",
       "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+    },
+    {
+      "path": ".claude/skills/case-draft/references/source-confirm.md",
+      "disposition": "generated",
+      "sha256": "1c697aade09555a3573c5d80d3e3925429d3302e9954e848d31c8965d4c4626c"
     },
     {
       "path": ".claude/skills/case-draft/references/source-intake-protocol.md",

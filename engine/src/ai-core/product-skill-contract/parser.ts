@@ -66,6 +66,7 @@ function createProductSkillParseContext(path: string): ProductSkillParseContext 
       evidencePolicy: {},
       failurePolicy: {},
       codexOverrides: { routingSummary: [], hardRules: [] },
+      requiredInputs: [],
     },
     scopes: [{ kind: "map", path: [], childIndent: 0, seenKeys: new Set<string>() }],
   };

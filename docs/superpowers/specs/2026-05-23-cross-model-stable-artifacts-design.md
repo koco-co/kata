@@ -86,7 +86,7 @@ Lanhu URL ──┐
      > 后端: `customltem/dt-center-assets@release_6.3.x_ltqc`
    - 推荐项来源:① 优先查**知识库登记的「开发版本→仓库+分支」映射**(由 Lanhu/Axure PRD 里的「开发版本」关键词命中,如 `6.3岚图定制化分支` → 上面两仓库);② 未登记则 LLM 语义兜底;③ 无论哪种都过这一轮 AskUser 人工确认。
    - `.kata/repos` 已有该仓库则带推荐项;缺失则索要(给出 clone 指引或阻塞为待办)。
-   - 确认结果写入 `metadata.yaml`(确定性输入记录),并纳入 source_snapshot。
+   - 确认结果写入 `source-snapshot.json#confirmed_source_repos[]`(确定性输入记录),并纳入 source_snapshot；`metadata.yaml` 只记录需求源输入。
 3. **引擎计算 feature_id**:工作流不再让模型取 slug,改为调 `kata features resolve`(见部件二)拿到固定 `feature_id` 与目录,模型只往既定路径写。
 4. **显式声明 `required_inputs`**:在 `skill.yaml` 增加 required 输入类别(`prd|lanhu` / `knowledge` / `source_code` / `history`),供校验门 L2 据此判定「输入消费证明」。
 5. **收紧 output schema**:修订 `FeatureManifest` 等 schema,堵住空证据层——例如 `case_drafting.status == completed` 时强制 `requirement_atoms` 非空、每个 atom 至少一个 `source_ref`、`coverage_matrix_path` 非空。
@@ -110,12 +110,12 @@ source_snapshot 装配:把已确认的源码 triple、知识库相关条目、La
 
 - **L1 结构/schema**:产物文件集合齐全;字段、序列化顺序符合 schema;`archive.md`/`cases.xmind` 人类可读层**无 SourceRef 泄漏**(SR-、csv::、SourceRef 字符串只许在结构化层)。
 - **L2 输入消费证明**(最有价值的一层):
-  - 源码 triple 已确认且记录在 `metadata.yaml`;
+  - 源码 triple 已确认且记录在 `source-snapshot.json#confirmed_source_repos[]`;
   - source_snapshot 含知识库 + 源码 + 需求源 + 历史(按 `required_inputs`);
   - `manifest.json#case_drafting.requirement_atoms` 的 `source_ref` **跨越所有 required 输入类别**(不能只挂 Lanhu),即存在 kind 为 `knowledge` / `source_code` 的引用。
   - **可追溯性怎么判定**(L2 的硬核):每个 `source_ref` 的 ID 必须**解析到真实存在的目标**,否则判 FAIL——
     - `kind=knowledge` → ID 能在 `workspace/{project}/_shared/knowledge/**` 下 find 到对应条目(文件或锚点);
-    - `kind=source_code` → 引用形如 `{repo}@{branch}:{path}[:{line}]`,`{repo}` 须是本轮已确认的 triple 之一,且 `{path}` 在 `.kata/repos/**` 对应仓库中存在;
+    - `kind=repo.line`/`source_code` → 引用形如 `{group}/{repo}@{branch}:{path}[:{line}]`,`{group}/{repo}@{branch}` 须是本轮已确认的 triple 之一,且 `{path}` 在 `.kata/repos/{group}/{repo}/**` 对应仓库中存在;
     - `kind=lanhu`/`prd` → token/锚点能在冻结的 source_snapshot 中定位。
   - 即:L2 不只看「有没有挂引用」,而是看「引用**指得回**真实输入」。
 - **L3 内容质量(确定性规则)**:每条用例有步骤 + 预期;每条用例可追溯到 ≥1 个 `requirement_atom`(`case_id` ↔ `requirement_atom_ids` 对账);覆盖矩阵无空洞;标题非空且无冗余前缀残留。

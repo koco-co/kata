@@ -181,7 +181,8 @@ export function containerKindFor(path: string[]): ProductSkillParserScope["kind"
     key === "body.load_when" ||
     key === "body.sections" ||
     key === "references" ||
-    key === "few_shots"
+    key === "few_shots" ||
+    key === "required_inputs"
   ) {
     return "row-list";
   }

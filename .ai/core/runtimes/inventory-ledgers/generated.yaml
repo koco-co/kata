@@ -47,6 +47,9 @@ files:
   - path: .agents/skills/case-draft/references/worker-prompt.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .agents/skills/case-draft/references/source-confirm.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/source-confirm.md
   - path: .agents/skills/case-draft/references/spec-reviewer-prompt.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/spec-reviewer-prompt.md
@@ -191,6 +194,9 @@ files:
   - path: .claude/skills/case-draft/references/worker-prompt.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/worker-prompt.md
+  - path: .claude/skills/case-draft/references/source-confirm.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/source-confirm.md
   - path: .claude/skills/case-draft/references/spec-reviewer-prompt.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/spec-reviewer-prompt.md

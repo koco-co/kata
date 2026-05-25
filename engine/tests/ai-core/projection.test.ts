@@ -58,6 +58,7 @@ const generatedProjectionPaths = [
   ".claude/skills/case-draft/references/execution-protocol.md",
   ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
   ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
+  ".claude/skills/case-draft/references/source-confirm.md",
   ".claude/skills/case-draft/references/worker-prompt.md",
   ".claude/skills/knowledge-curate/SKILL.md",
   ".claude/skills/knowledge-curate/references/knowledge-rules.md",
@@ -107,6 +108,7 @@ const generatedProjectionPaths = [
   ".agents/skills/case-draft/references/execution-protocol.md",
   ".agents/skills/case-draft/references/quality-reviewer-prompt.md",
   ".agents/skills/case-draft/references/spec-reviewer-prompt.md",
+  ".agents/skills/case-draft/references/source-confirm.md",
   ".agents/skills/case-draft/references/worker-prompt.md",
   ".agents/skills/knowledge-curate/SKILL.md",
   ".agents/skills/knowledge-curate/references/knowledge-rules.md",
@@ -835,7 +837,7 @@ describe("ai-core projection", () => {
       expect(skill).toContain("automation_status=ready");
       expect(skill).toContain("Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent");
       expect(skill).toContain("few-shot 作为格式参照使用");
-      expect(skill).toContain("Slug fallback");
+      expect(skill).toContain("slug 兜底由 `kata features resolve` 引擎处理");
       expect(skill).not.toContain("不直接获取外部来源");
       expect(skill).toContain("references/source-intake-protocol.md");
       expect(skill).toContain("references/coverage-matrix-guide.md");

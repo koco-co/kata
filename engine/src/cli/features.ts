@@ -7,6 +7,7 @@ import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLint } from "./features-lint.ts";
 import { runFeaturesLs } from "./features-ls.ts";
 import { runFeaturesNew } from "./features-new.ts";
+import { runFeaturesResolve } from "./features-resolve.ts";
 import { runFeaturesShow } from "./features-show.ts";
 
 export function buildFeaturesCommand(): Command {
@@ -152,6 +153,31 @@ export function buildFeaturesCommand(): Command {
         });
       }
       console.log("INDEX.md regenerated");
+    });
+
+  features
+    .command("resolve")
+    .description("确定性计算 feature_id 与目录(不创建文件)")
+    .requiredOption("--project <name>", "项目名")
+    .requiredOption("--module <name>", "模块名 (module-identify 产出)")
+    .option("--slug <slug>", "显式 slug (最高优先级)")
+    .option("--lanhu-page <id>", "Lanhu pageId (派生来源)")
+    .option("--prd-file <name>", "PRD 文件名 (派生来源)")
+    .option("--json", "输出 JSON", false)
+    .action((opts: Record<string, string | boolean>) => {
+      const source = opts.lanhuPage
+        ? { kind: "lanhu" as const, pageId: String(opts.lanhuPage) }
+        : opts.prdFile
+          ? { kind: "prd" as const, filename: String(opts.prdFile) }
+          : undefined;
+      const result = runFeaturesResolve({
+        project: String(opts.project),
+        module: String(opts.module),
+        slug: opts.slug ? String(opts.slug) : undefined,
+        source,
+        workspaceRoot: join(repoRoot(), "workspace"),
+      });
+      console.log(opts.json ? JSON.stringify(result) : `${result.featureId}\t${result.featureDir}`);
     });
 
   return features;
