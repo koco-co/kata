@@ -12,6 +12,7 @@ import {
   htmlToMarkdown,
   inferKataProjectFromLanhuProjects,
   parseLanhuUrl,
+  selectRequirementsForFetch,
   slugify,
 } from "../fetch.ts";
 
@@ -182,6 +183,51 @@ describe("inferKataProjectFromLanhuProjects", () => {
     });
 
     assert.equal(inferKataProjectFromLanhuProjects(configText, ["岚图"]), undefined);
+  });
+});
+
+// ─── Page selection ──────────────────────────────────────────────────────────
+
+describe("selectRequirementsForFetch", () => {
+  it("uses URL pageId to select one Axure requirement instead of exporting the full document", () => {
+    const selected = selectRequirementsForFetch(
+      [
+        {
+          page: {
+            id: "cd882ee83c4d440d878b49cc31f67cb6",
+            name: "15698【数据地图】查询优化",
+            path: "岚图/15698【数据地图】查询优化",
+            requirement_id: "15698",
+          },
+          parsed: {
+            project: "岚图",
+            requirementId: "15698",
+            requirementName: "【数据地图】查询优化",
+          },
+        },
+        {
+          page: {
+            id: "5ff4dd80f815449d9bf323d5b7490f36",
+            name: "15662【数据地图】支持筛选数据表是否绑定数据目录",
+            path: "岚图/15662【数据地图】支持筛选数据表是否绑定数据目录",
+            requirement_id: "15662",
+          },
+          parsed: {
+            project: "岚图",
+            requirementId: "15662",
+            requirementName: "【数据地图】支持筛选数据表是否绑定数据目录",
+          },
+        },
+      ],
+      {
+        pageId: "5ff4dd80f815449d9bf323d5b7490f36",
+      },
+    );
+
+    assert.deepEqual(
+      selected.map((item) => item.parsed.requirementId),
+      ["15662"],
+    );
   });
 });
 
