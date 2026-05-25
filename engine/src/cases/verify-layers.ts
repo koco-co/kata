@@ -20,8 +20,8 @@ export interface VerifyIssue {
 export const STABLE_CORE_ARTIFACTS = [
   "manifest.json",
   "metadata.yaml",
-  "source-snapshot.json",
-  "coverage-matrix.json",
+  ".process/source-snapshot.json",
+  ".process/coverage-matrix.json",
   "archive.md",
   "cases.xmind",
 ] as const;
@@ -39,8 +39,8 @@ export function verifyStableCoreArtifacts(input: { featureDir: string; status: s
 
 const STRUCTURED_SCHEMA_FILES: { file: string; loader: () => (d: unknown) => boolean; kind: "json" | "yaml"; array?: boolean }[] = [
   { file: "metadata.yaml", loader: loadFeatureMetadataValidator, kind: "yaml" },
-  { file: "source-snapshot.json", loader: loadFeatureSourceSnapshotValidator, kind: "json" },
-  { file: "coverage-matrix.json", loader: loadCoverageMatrixValidator, kind: "json", array: true },
+  { file: ".process/source-snapshot.json", loader: loadFeatureSourceSnapshotValidator, kind: "json" },
+  { file: ".process/coverage-matrix.json", loader: loadCoverageMatrixValidator, kind: "json", array: true },
 ];
 
 export function verifyStructuredSchemas(input: { featureDir: string; status: string }): VerifyIssue[] {
@@ -152,7 +152,7 @@ export function verifyCoverageHoles(input: { coverageRows: CoverageRow[]; atomId
   }
   for (const id of input.atomIds) {
     if (!covered.has(id)) {
-      issues.push({ layer: "L3", rule: "coverage_hole", message: `requirement_atom ${id} 无任何 coverage 行覆盖`, fix: "在 coverage-matrix.json 增加覆盖该 atom 的行" });
+      issues.push({ layer: "L3", rule: "coverage_hole", message: `requirement_atom ${id} 无任何 coverage 行覆盖`, fix: "在 .process/coverage-matrix.json 增加覆盖该 atom 的行" });
     }
   }
   return issues;

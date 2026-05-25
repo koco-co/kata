@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { STABLE_CORE_ARTIFACTS, verifyCoverageHoles, verifyL1Structure, verifyL2Inputs, verifyL3Quality, verifyStableCoreArtifacts, verifyStructuredSchemas } from "../../src/cases/verify-layers.ts";
@@ -77,7 +77,7 @@ describe("verifyStableCoreArtifacts", () => {
     try {
       for (const f of ["manifest.json", "metadata.yaml", "archive.md"]) writeFileSync(join(dir, f), "x");
       const issues = verifyStableCoreArtifacts({ featureDir: dir, status: "completed" });
-      expect(issues.some((i) => i.layer === "L1" && i.rule === "stable_core_missing" && i.message.includes("cases.xmind"))).toBe(true);
+      expect(issues.some((i) => i.layer === "L1" && i.rule === "stable_core_missing" && i.message.includes(".process/source-snapshot.json"))).toBe(true);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -85,6 +85,7 @@ describe("verifyStableCoreArtifacts", () => {
   it("passes when all stable-core artifacts exist", () => {
     const dir = mkdtempSync(join(tmpdir(), "kata-core-"));
     try {
+      mkdirSync(join(dir, ".process"), { recursive: true });
       for (const f of STABLE_CORE_ARTIFACTS) writeFileSync(join(dir, f), "x");
       expect(verifyStableCoreArtifacts({ featureDir: dir, status: "completed" })).toHaveLength(0);
     } finally {
@@ -115,8 +116,10 @@ describe("verifyStructuredSchemas", () => {
   function seedStructured(overrides: { snapshot?: unknown; coverage?: unknown; metadata?: string }) {
     const dir = mkdtempSync(join(tmpdir(), "kata-struct-"));
     writeFileSync(join(dir, "metadata.yaml"), overrides.metadata ?? validMetadata);
-    writeFileSync(join(dir, "source-snapshot.json"), JSON.stringify(overrides.snapshot ?? validSnapshot));
-    writeFileSync(join(dir, "coverage-matrix.json"), JSON.stringify(overrides.coverage ?? validCoverage));
+    const proc = join(dir, ".process");
+    mkdirSync(proc, { recursive: true });
+    writeFileSync(join(proc, "source-snapshot.json"), JSON.stringify(overrides.snapshot ?? validSnapshot));
+    writeFileSync(join(proc, "coverage-matrix.json"), JSON.stringify(overrides.coverage ?? validCoverage));
     return dir;
   }
 
