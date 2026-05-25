@@ -15,7 +15,7 @@
     {
       "path": ".agents/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "4aeef2992fddbff46c3e0e721060196ee1f7ea9e4ec2a9c7d6b2761d0ea12e0c"
+      "sha256": "d722b0319223ca9ec9a6fa68b0ff9ae5568ccc7ea6d12d495fb04d91dba0e369"
     },
     {
       "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -325,7 +325,7 @@
     {
       "path": ".claude/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "4aeef2992fddbff46c3e0e721060196ee1f7ea9e4ec2a9c7d6b2761d0ea12e0c"
+      "sha256": "d722b0319223ca9ec9a6fa68b0ff9ae5568ccc7ea6d12d495fb04d91dba0e369"
     },
     {
       "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
