@@ -47,6 +47,23 @@ test("LR-0024 字段结果页支持进入组合查询结果页面", async ({ pag
   });
 });
 
+test("LR-DataMap-Field 字段结果页关键字、目录、精确/模糊匹配业务联动可核验", async ({ page, step }) => {
+  const assets = new LaunchedAssetsPage(page);
+
+  await step("步骤1: 进入数据地图并打开字段结果页", async () => {
+    await assets.gotoDataMap(ASSETS_SOURCE_REFS.lrDataMapFieldDirectory);
+    await assets.openFieldResults(ASSETS_SOURCE_REFS.dataMapProbe);
+    await assets.expectFieldResultCatalogShell(ASSETS_SOURCE_REFS.lrDataMapFieldDirectory);
+  });
+
+  await step("步骤2: 通过接口核验字段目录组合查询业务结果", async () => {
+    await assets.expectFieldDirectoryBusinessFlow(
+      ASSETS_SOURCE_REFS.lrDataMapFieldDirectory,
+      ASSETS_SCOPE.dataMapFieldFixtures,
+    );
+  });
+});
+
 test("LR-0157 编辑元数据同步任务展示环境参数配置入口", async ({ page, step }) => {
   const assets = new LaunchedAssetsPage(page);
 

@@ -5,8 +5,13 @@
     "status": "completed",
     "archive_path": "岚图已上线需求主流程用例.md",
     "xmind_path": "岚图已上线需求主流程用例.xmind",
-    "requirement_atoms": [],
-    "coverage_matrix_path": null
+    "requirement_atoms": [
+      {
+        "id": "RA-LT-DQ-LAUNCHED-REQS",
+        "source_ref": "case.archive:lt-dq-launched-reqs#sha256:e177a18d9d03435fe18664066ad7b49f3ff093379b242a844b05cc4b2e8e372a"
+      }
+    ],
+    "coverage_matrix_path": "岚图已上线需求主流程用例.md"
   },
   "automation": {
     "status": "ready",
@@ -25,13 +30,13 @@
         "automation_status": "ready"
       }
     ],
-    "last_handoff_path": "results/full-260524-03/handoff.md",
+    "last_handoff_path": "results/full-260525-01/handoff.json",
     "last_run_status": "passing"
   },
   "files": {
     "archive": "岚图已上线需求主流程用例.md",
     "xmind": "岚图已上线需求主流程用例.xmind",
     "tests_root": "tests",
-    "latest_results": "results/full-260524-03"
+    "latest_results": "results/full-260525-01"
   }
 }
