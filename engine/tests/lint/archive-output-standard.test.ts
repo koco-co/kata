@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { lintArchiveOutputStandard } from "../../src/lint/archive-output-standard.ts";
@@ -82,7 +82,9 @@ describe("lintArchiveOutputStandard", () => {
   });
 
   test("flags deprecated frontmatter field", () => {
-    const root = tmp({ "archive.md": GOOD_ARCHIVE.replace('status: "草稿"', 'status: "草稿"\nproduct: "dataAssets"') });
+    const root = tmp({
+      "archive.md": GOOD_ARCHIVE.replace('status: "草稿"', 'status: "草稿"\nproduct: "dataAssets"'),
+    });
     const r = lintArchiveOutputStandard(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-frontmatter-deprecated")).toBe(true);
   });

@@ -4,14 +4,26 @@ import type { CaseLintReport, CaseLintViolation } from "./types.ts";
 
 const MACHINE_FILES = ["source-snapshot.json", "coverage-matrix.json"];
 const ALLOWED_FRONTMATTER = new Set([
-  "suite_name", "root_name", "module", "prd_version", "prd_id",
-  "tags", "status", "create_at", "case_count", "origin",
+  "suite_name",
+  "root_name",
+  "module",
+  "prd_version",
+  "prd_id",
+  "tags",
+  "status",
+  "create_at",
+  "case_count",
+  "origin",
 ]);
 const TITLE_MACHINE_ID_RE = /\b(TC|SR|RA)-[A-Z0-9]/;
 const PRIORITY_RE = /^【P\d+】/;
 
 function isDir(p: string): boolean {
-  try { return statSync(p).isDirectory(); } catch { return false; }
+  try {
+    return statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 function scanArchive(featureDir: string, violations: CaseLintViolation[]): void {
@@ -25,12 +37,26 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
     const line = lines[i]!;
 
     // frontmatter field whitelist
-    if (i === 0 && line.trim() === "---") { inFrontmatter = true; continue; }
+    if (i === 0 && line.trim() === "---") {
+      inFrontmatter = true;
+      continue;
+    }
     if (inFrontmatter && !frontmatterDone) {
-      if (line.trim() === "---") { frontmatterDone = true; inFrontmatter = false; continue; }
+      if (line.trim() === "---") {
+        frontmatterDone = true;
+        inFrontmatter = false;
+        continue;
+      }
       const kv = line.match(/^(\w[\w_]*)\s*:/);
       if (kv && !ALLOWED_FRONTMATTER.has(kv[1]!)) {
-        violations.push({ rule: "archive-frontmatter-deprecated", file: archivePath, lineNumber: i + 1, matched: kv[1]!, severity: "warn", message: `frontmatter 字段 "${kv[1]}" 不在允许集，去除或改用 references/output-standard.md 规定字段` });
+        violations.push({
+          rule: "archive-frontmatter-deprecated",
+          file: archivePath,
+          lineNumber: i + 1,
+          matched: kv[1]!,
+          severity: "warn",
+          message: `frontmatter 字段 "${kv[1]}" 不在允许集，去除或改用 references/output-standard.md 规定字段`,
+        });
       }
       continue;
     }
@@ -41,12 +67,26 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
       const title = h5[1]!.trim();
       const afterPriority = title.replace(PRIORITY_RE, "").trim();
       if (TITLE_MACHINE_ID_RE.test(afterPriority)) {
-        violations.push({ rule: "archive-title-machine-id", file: archivePath, lineNumber: i + 1, matched: afterPriority.slice(0, 24), severity: "fail", message: "用例标题禁止机器标识（TC-/SR-/RA-）" });
+        violations.push({
+          rule: "archive-title-machine-id",
+          file: archivePath,
+          lineNumber: i + 1,
+          matched: afterPriority.slice(0, 24),
+          severity: "fail",
+          message: "用例标题禁止机器标识（TC-/SR-/RA-）",
+        });
       }
       // bracket semantics: 【】 only allowed as 【Pn】 prefix
       const stripped = title.replace(PRIORITY_RE, "");
       if (stripped.includes("【")) {
-        violations.push({ rule: "archive-bracket-semantics", file: archivePath, lineNumber: i + 1, matched: "【", severity: "warn", message: "标题中【】仅用于【Pn】优先级前缀，UI 名用「」" });
+        violations.push({
+          rule: "archive-bracket-semantics",
+          file: archivePath,
+          lineNumber: i + 1,
+          matched: "【",
+          severity: "warn",
+          message: "标题中【】仅用于【Pn】优先级前缀，UI 名用「」",
+        });
       }
     }
   }
@@ -55,7 +95,14 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
 function scanMachineFilesInRoot(featureDir: string, violations: CaseLintViolation[]): void {
   for (const f of MACHINE_FILES) {
     if (existsSync(join(featureDir, f))) {
-      violations.push({ rule: "archive-machine-file-in-root", file: join(featureDir, f), lineNumber: 1, matched: f, severity: "fail", message: `${f} 必须落 .process/，禁止污染 feature 根` });
+      violations.push({
+        rule: "archive-machine-file-in-root",
+        file: join(featureDir, f),
+        lineNumber: 1,
+        matched: f,
+        severity: "fail",
+        message: `${f} 必须落 .process/，禁止污染 feature 根`,
+      });
     }
   }
 }

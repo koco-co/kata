@@ -76,6 +76,27 @@ PRD、Markdown、自然语言、设计稿（非 Lanhu/Axure URL）等所有非 L
 - 用户原文、原始中文描述、被丢弃的拼音 slug 必须写入 `<feature_id>/metadata.yaml` 的 `notes:` 字段（结构：`notes.legacy_slug:`、`notes.description_zh:`），供后续审计追溯，不得只保留在 thinking 或聊天中。
 - 若 `mkdir -p` 命令字符串包含任一非 ASCII 字符或全角标点，必须在调用前停下来重新生成合规 `feature_id`；不得带着违规字符调用 `mkdir`。
 
+## 证据底线
+
+当以下关键设计证据无法获取时，**不得据此推断产出最终 archive.md 或 cases.xmind**，必须通过 `ask_user` 一次性批量索要缺失材料：
+
+- Lanhu 设计内容抓取失败（WebFetch/插件/浏览器均无法提取有效设计内容，且无同源本地缓存）
+- 确认的源码仓库不可读（路径不存在、无权限、分支不可达）
+
+`ask_user` 索要的材料清单必须包含以下选项，不得拆分到多轮提问：
+
+- 「贴 Lanhu 设计内容/导出」
+- 「提供 Lanhu cookie 或可读链接」
+- 「上传设计截图」
+- 「给可读源码路径/分支或把仓库 clone 到 `.kata/repos`」
+
+索要材料时必须按以下顺序写，不得多轮分次追问：
+
+1. 依输入类型选 1–2 项最精准的材料；例如 Lanhu URL 抓取失败只列出前三项，源码不可读只列第四项。
+2. 陈述当前阻塞状态，指明只有拿到真实证据后才能解除阻塞。
+
+只有拿到用户提供的真实证据（设计内容文本/截图/可读源码）后，才允许解除阻塞、产出最终 `archive.md` 与 `cases.xmind`。阻塞期间必须维持 blocking 草稿，落 `.process/archive.draft.md`。不得把阻塞状态的草稿改名为 `archive.md` 或 `cases.xmind`。
+
 ## 禁止
 - 不得吞掉失败并继续产出最终 archive.md 或 cases.xmind。
 - 不得要求 subagent 直接向用户提问。
