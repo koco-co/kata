@@ -95,7 +95,7 @@ DONE 示例：
   "blocked": {
     "kind": "missing_evidence",
     "evidence_paths": [
-      "workspace/dataAssets/features/example/source-snapshot.json"
+      "workspace/dataAssets/features/example/.process/source-snapshot.json"
     ],
     "context": {
       "stage": "requirement-atomize",

@@ -5,7 +5,7 @@ coverage-matrix 与 case-draft 阶段读取。在 atoms 完成分类后生成覆
 - RequirementAtomList、AmbiguityScanReport、EnhancedPrd。
 - 产品确认项、默认项、历史推断项、pending 或 blocked 项。
 ## 输出
-- CoverageMatrix。
+- CoverageMatrix → `.process/coverage-matrix.json` (`.process/` keeps machine-layer files separate from delivery artifacts)。
 - DraftCaseSet，每条用例包含 requirement_atom_ids、source_refs、evidence_status、preconditions、steps、expected_results。
 - pending 或 blocked coverage 只能进入草稿或 unresolved summary。
 ## 禁止

@@ -38,8 +38,8 @@ After module-identify yields a stable {project, module} and source-confirm pins 
 (use `--prd-file <name>` instead of `--lanhu-page` for a PRD source; `--slug <slug>` only when the user gave one explicitly.)
 
 Consume the returned JSON `{ featureId, featureDir, reused }`:
-- `featureDir` is the single write root for ALL artifacts (manifest.json, metadata.yaml, source-snapshot.json, coverage-matrix.json, archive.md, cases.xmind).
-- write `featureId` to `metadata.yaml#id`, and the slug origin to `source-snapshot.json#slug_source` (e.g. `lanhu:<pageId-prefix>`).
+- `featureDir` is the single write root for the 4 delivery artifacts (manifest.json, metadata.yaml, archive.md, cases.xmind). Machine-layer files go under `.process/` (.process/source-snapshot.json, .process/coverage-matrix.json) and never pollute the feature root.
+- write `featureId` to `metadata.yaml#id`, and the slug origin to `.process/source-snapshot.json#slug_source` (e.g. `lanhu:<pageId-prefix>`).
 
 Both runtimes MUST run this command and use its stdout — this is what makes the path byte-identical across models.
 
