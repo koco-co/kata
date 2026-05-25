@@ -2,8 +2,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 
 export type SourceRefKind =
-  | "prd.file" | "command.output" | "knowledge.entry"
-  | "repo.line" | "case.archive" | "workspace.config" | "lanhu.fixture";
+  | "prd.file"
+  | "command.output"
+  | "knowledge.entry"
+  | "repo.line"
+  | "case.archive"
+  | "workspace.config"
+  | "lanhu.fixture";
 
 export interface ResolveCtx {
   workspaceRoot: string;
@@ -40,7 +45,10 @@ function safeRelativePath(path: string): boolean {
   return path !== "" && !isAbsolute(path) && !path.split(/[\\/]/).includes("..");
 }
 
-function confirmedProjectMatch(repo: string, confirmedRepos?: (string | ConfirmedSourceRepo)[]): ConfirmedSourceRepo[] {
+function confirmedProjectMatch(
+  repo: string,
+  confirmedRepos?: (string | ConfirmedSourceRepo)[],
+): ConfirmedSourceRepo[] {
   if (!confirmedRepos) return [];
   const matches: ConfirmedSourceRepo[] = [];
   for (const r of confirmedRepos) {
@@ -68,7 +76,9 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
   const kind = sourceRefKind(ref);
   const id = refId(ref);
   const read = (p: string): ResolvedTarget =>
-    existsSync(p) ? { found: true, content: readFileSync(p, "utf-8"), path: p } : { found: false, path: p };
+    existsSync(p)
+      ? { found: true, content: readFileSync(p, "utf-8"), path: p }
+      : { found: false, path: p };
 
   switch (kind) {
     case "knowledge.entry": {
@@ -82,8 +92,11 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
         const [, group, repoProject, branch, rawPath] = scoped;
         const filePath = rawPath.replace(/:\d+$/, "");
         if (!safeRelativePath(filePath)) return { found: false };
-        if (!confirmedTripleMatch({ group, project: repoProject, branch }, ctx.confirmedRepos)) return { found: false };
-        return read(join(ctx.workspaceRoot, ctx.project, ".kata", "repos", group, repoProject, filePath));
+        if (!confirmedTripleMatch({ group, project: repoProject, branch }, ctx.confirmedRepos))
+          return { found: false };
+        return read(
+          join(ctx.workspaceRoot, ctx.project, ".kata", "repos", group, repoProject, filePath),
+        );
       }
 
       const filePart = id.replace(/:\d+$/, "");
@@ -95,7 +108,9 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
       if (legacy.found) return legacy;
       for (const match of matches) {
         if (match.group) {
-          const scopedLegacy = read(join(ctx.workspaceRoot, ctx.project, ".kata", "repos", match.group, filePart));
+          const scopedLegacy = read(
+            join(ctx.workspaceRoot, ctx.project, ".kata", "repos", match.group, filePart),
+          );
           if (scopedLegacy.found) return scopedLegacy;
         }
       }

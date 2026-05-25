@@ -50,7 +50,7 @@
     {
       "path": ".agents/skills/case-draft/references/error-fallback-paths.md",
       "disposition": "generated",
-      "sha256": "9e0b95d42ab23330c4e5c42dcd85c7ed7bea2ca66ea3a6b9b81174d2feb4c6e0"
+      "sha256": "31f1850124d0d3b6db29161b5dc0d8ca9451b46b8e74fde249385a7ad273bb1b"
     },
     {
       "path": ".agents/skills/case-draft/references/execution-protocol.md",
@@ -85,7 +85,7 @@
     {
       "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
       "disposition": "generated",
-      "sha256": "601764550c4db1b710e75c6fd3626308dd3d785245a6645f514145588b67b68c"
+      "sha256": "bdb24798771c7544621745b0335af469a951828014399f6b18dbf1efef60069b"
     },
     {
       "path": ".agents/skills/case-draft/references/spec-reviewer-prompt.md",
@@ -360,7 +360,7 @@
     {
       "path": ".claude/skills/case-draft/references/error-fallback-paths.md",
       "disposition": "generated",
-      "sha256": "9e0b95d42ab23330c4e5c42dcd85c7ed7bea2ca66ea3a6b9b81174d2feb4c6e0"
+      "sha256": "31f1850124d0d3b6db29161b5dc0d8ca9451b46b8e74fde249385a7ad273bb1b"
     },
     {
       "path": ".claude/skills/case-draft/references/execution-protocol.md",
@@ -395,7 +395,7 @@
     {
       "path": ".claude/skills/case-draft/references/source-intake-protocol.md",
       "disposition": "generated",
-      "sha256": "601764550c4db1b710e75c6fd3626308dd3d785245a6645f514145588b67b68c"
+      "sha256": "bdb24798771c7544621745b0335af469a951828014399f6b18dbf1efef60069b"
     },
     {
       "path": ".claude/skills/case-draft/references/spec-reviewer-prompt.md",

@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, normalize, sep } from "node:path";
 import { Command } from "commander";
 import { repoRoot } from "../../lib/paths.ts";
+import { lintArchiveOutputStandard } from "../lint/archive-output-standard.ts";
 import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "../lint/case-traceability-header.ts";
 import { lintDebugFileNaming } from "../lint/debug-file-naming.ts";
@@ -20,7 +21,6 @@ import {
   lintSessionCompliant,
   lintSpecStructureValid,
 } from "../lint/v2-quality-gates.ts";
-import { lintArchiveOutputStandard } from "../lint/archive-output-standard.ts";
 import { lintWeakAssertion } from "../lint/weak-assertion.ts";
 import { registerCasesCompare } from "./cases-compare.ts";
 import { registerCasesE2e } from "./cases-e2e.ts";

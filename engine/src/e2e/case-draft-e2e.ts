@@ -1,8 +1,8 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { invokeClaude, invokeCodex } from "./runtime-invoke.ts";
-import { runCasesVerify } from "../cli/cases-verify.ts";
 import { runCasesCompare } from "../cli/cases-compare.ts";
+import { runCasesVerify } from "../cli/cases-verify.ts";
+import { invokeClaude, invokeCodex } from "./runtime-invoke.ts";
 
 export interface E2eOpts {
   project: string;
@@ -22,15 +22,20 @@ export interface E2eResult {
 }
 
 export async function runCaseDraftE2e(o: E2eOpts): Promise<E2eResult> {
-  const prompt =
-    `Run case-draft for project ${o.project} feature ${o.featureId} consuming the frozen source-snapshot at ${o.snapshotPath}. Write artifacts under {runtimeRoot}/workspace/${o.project}/features/${o.featureId}/.`;
+  const prompt = `Run case-draft for project ${o.project} feature ${o.featureId} consuming the frozen source-snapshot at ${o.snapshotPath}. Write artifacts under {runtimeRoot}/workspace/${o.project}/features/${o.featureId}/.`;
   const claudeRoot = join(o.outRoot, "claude");
   const codexRoot = join(o.outRoot, "codex");
   mkdirSync(claudeRoot, { recursive: true });
   mkdirSync(codexRoot, { recursive: true });
 
-  const claudeRun = invokeClaude({ prompt: prompt.replace("{runtimeRoot}", claudeRoot), cwd: claudeRoot });
-  const codexRun = invokeCodex({ prompt: prompt.replace("{runtimeRoot}", codexRoot), cwd: codexRoot });
+  const claudeRun = invokeClaude({
+    prompt: prompt.replace("{runtimeRoot}", claudeRoot),
+    cwd: claudeRoot,
+  });
+  const codexRun = invokeCodex({
+    prompt: prompt.replace("{runtimeRoot}", codexRoot),
+    cwd: codexRoot,
+  });
 
   const v1 = await runCasesVerify({
     project: o.project,
@@ -50,5 +55,10 @@ export async function runCaseDraftE2e(o: E2eOpts): Promise<E2eResult> {
     threshold: o.threshold,
   });
 
-  return { verifyClaude: v1, verifyCodex: v2, compare: cmp, ok: claudeRun.ok && codexRun.ok && v1.ok && v2.ok && !cmp.fail };
+  return {
+    verifyClaude: v1,
+    verifyCodex: v2,
+    compare: cmp,
+    ok: claudeRun.ok && codexRun.ok && v1.ok && v2.ok && !cmp.fail,
+  };
 }

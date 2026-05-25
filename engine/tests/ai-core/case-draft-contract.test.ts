@@ -8,8 +8,15 @@ function section(md: string, heading: string): string {
   const start = lines.findIndex((l) => l.trim() === heading);
   if (start < 0) return "";
   let end = lines.length;
-  for (let i = start + 1; i < lines.length; i++) if (/^#{1,3}\s/.test(lines[i])) { end = i; break; }
-  return lines.slice(start + 1, end).join("\n").trim();
+  for (let i = start + 1; i < lines.length; i++)
+    if (/^#{1,3}\s/.test(lines[i])) {
+      end = i;
+      break;
+    }
+  return lines
+    .slice(start + 1, end)
+    .join("\n")
+    .trim();
 }
 
 describe("case-draft contract parity", () => {
@@ -36,8 +43,14 @@ describe("case-draft contract parity", () => {
   });
 
   it("both runtimes' execution-protocol invokes the engine for the path (Gap 4)", () => {
-    const claudeEp = readFileSync(join(repoRoot(), ".claude/skills/case-draft/references/execution-protocol.md"), "utf-8");
-    const codexEp = readFileSync(join(repoRoot(), ".agents/skills/case-draft/references/execution-protocol.md"), "utf-8");
+    const claudeEp = readFileSync(
+      join(repoRoot(), ".claude/skills/case-draft/references/execution-protocol.md"),
+      "utf-8",
+    );
+    const codexEp = readFileSync(
+      join(repoRoot(), ".agents/skills/case-draft/references/execution-protocol.md"),
+      "utf-8",
+    );
     expect(claudeEp).toContain("kata features resolve");
     expect(codexEp).toContain("kata features resolve");
   });

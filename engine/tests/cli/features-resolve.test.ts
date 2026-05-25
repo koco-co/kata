@@ -92,7 +92,10 @@ describe("runFeaturesResolve", () => {
     const dir = join(ws, "dataAssets/features/2026-05-lt-dq");
     mkdirSync(dir, { recursive: true });
     mkdirSync(join(dir, ".process"), { recursive: true });
-    writeFileSync(join(dir, ".process", "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:7af" }));
+    writeFileSync(
+      join(dir, ".process", "source-snapshot.json"),
+      JSON.stringify({ slug_source: "lanhu:7af" }),
+    );
     const r = runFeaturesResolve({
       project: "dataAssets",
       slug: "lt-dq",
@@ -113,7 +116,10 @@ describe("runFeaturesResolve", () => {
       workspaceRoot: ws,
       now,
     });
-    writeFileSync(join(a.featureDir, ".process", "source-snapshot.json"), JSON.stringify({ slug_source: "lanhu:cd882ee8" }));
+    writeFileSync(
+      join(a.featureDir, ".process", "source-snapshot.json"),
+      JSON.stringify({ slug_source: "lanhu:cd882ee8" }),
+    );
 
     const b = runFeaturesResolve({
       project: "dataAssets",

@@ -7,7 +7,14 @@ describe("FeatureSourceSnapshot@1", () => {
     schema: "FeatureSourceSnapshot@1",
     feature_id: "2026-05-lt-dq",
     lanhu: { url: "https://lanhuapp.com/...", page_id: "cd882ee83c4d440d878b49cc31f67cb6" },
-    confirmed_source_repos: [{ group: "customltem", project: "dt-insight-studio", branch: "dataAssets/release_6.3.x_ltqc", role: "frontend" }],
+    confirmed_source_repos: [
+      {
+        group: "customltem",
+        project: "dt-insight-studio",
+        branch: "dataAssets/release_6.3.x_ltqc",
+        role: "frontend",
+      },
+    ],
     knowledge_refs: ["terms"],
   };
   it("accepts a complete snapshot", () => {
@@ -18,6 +25,8 @@ describe("FeatureSourceSnapshot@1", () => {
     expect(validate({ ...base, confirmed_source_repos: [] })).toBe(true);
   });
   it("rejects a repo missing branch", () => {
-    expect(validate({ ...base, confirmed_source_repos: [{ group: "g", project: "p" }] })).toBe(false);
+    expect(validate({ ...base, confirmed_source_repos: [{ group: "g", project: "p" }] })).toBe(
+      false,
+    );
   });
 });
