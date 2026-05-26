@@ -485,6 +485,7 @@ function classifyIssues(markdown, cases) {
         if (/^[-+]?\d+(?:[.,]\d+)?$/.test(inside)) continue;
         if (/^[A-Za-z0-9_\-.@]+$/.test(inside) && !/[一-鿿]/.test(inside)) continue;
         if (/^[-+]?\d+(?:\.\d+)?\s*[,，]\s*[-+]?\d+(?:\.\d+)?$/.test(inside)) continue;
+        if (/^\\{1,2}u[0-9a-fA-F]{4}\s*-\s*\\{1,2}u[0-9a-fA-F]{4}$/.test(inside)) continue;
         add("ascii_bracket_button_misuse", "do not use [xxx] as button/field marker; use 「」", {
           ...ref,
           line: step.line,
