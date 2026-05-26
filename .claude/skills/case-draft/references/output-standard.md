@@ -99,3 +99,4 @@ suite_name / root_name / module / prd_version / prd_id / tags / status / create_
 
 20. (硬) 交付结论必须明确区分验证范围：静态格式、数量、XMind 同步或规则矩阵检查只能证明产物结构满足约束；未读取源码、DOM 配置或未在真实平台/数据源执行时，不得宣称用例业务配置、控件路径或规则运行结果已被完整验证。
 21. (硬) 用户明确提供或要求参考源码、DOM 结构、环境 YAML、截图中的表单控件时，批量生成或编辑用例前必须先读取这些证据源并建立表单字段基线；步骤中不得出现源码/DOM/截图中不存在的表单字段、配置项或控件名称，除非明确标注为前置数据或后台配置。
+22. (硬) 表单字段基线必须进入 case-review：表单类用例的字段、选项、按钮、配置项应能追溯到 repo.line、workspace.config、screenshot 或平台 DOM/YAML 证据；仅有历史用例、few-shot 或模板时，不得产出最终 archive.md/cases.xmind。

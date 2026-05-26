@@ -34,6 +34,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 > 你不得使用旧映射字段 `requirement_id`；用例追溯必须使用 `case_id` 与 `requirement_atom_ids`。
 > Worker 的 `blocked.kind` 只能是 `missing_evidence`、`ambiguous_requirement`、`history_only`。
 > `source_intake_failed` 仅属于主 Skill 的 source-intake/error-fallback，不属于 Worker `blocked.kind`。
+> 当任务涉及表单类用例，且用户或 source_snapshot 提供了源码、平台 DOM/YAML、环境配置或截图证据时，你必须先使用这些证据中的表单字段基线；不得写入基线中不存在的字段、选项、按钮或配置项。缺少或无法读取基线时返回 `BLOCKED`，`blocked.kind="missing_evidence"`。
 
 ## Status Envelope
 

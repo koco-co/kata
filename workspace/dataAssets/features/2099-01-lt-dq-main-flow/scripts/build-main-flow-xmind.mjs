@@ -13,6 +13,8 @@ const MAX_TOPICS = 25000;
 const MAX_DEPTH = 8;
 const ROOT_STRUCTURE_CLASS = "org.xmind.ui.logic.right";
 const MARKER_MAP = { P0: "priority-1", P1: "priority-1", P2: "priority-2", P3: "priority-3" };
+const DQ_RULE_FLOW_NODE = "规则集管理&规则任务管理&校验结果查询";
+const DQ_RULE_FLOW_SINGLE_NODES = new Set(["规则集管理", "规则任务管理", "校验结果查询"]);
 const METADATA = {
   dataStructureVersion: "3",
   creator: { name: "kata-ltqc", version: "1" },
@@ -205,7 +207,7 @@ function parseArchive(markdown) {
     }
 
     if (section === "preconditions") {
-      const fence = line.match(/^(`{3,})\s*$/);
+      const fence = line.match(/^(`{3,})(?:[A-Za-z0-9_-]+)?\s*$/);
       if (fence && !inFence) {
         fenceMarker = fence[1];
         inFence = true;
@@ -403,6 +405,8 @@ function ensurePath(l1Nodes, path) {
 
 function fallbackPath(testCase) {
   const text = `${testCase.module} ${testCase.submodule} ${testCase.title}`;
+  const forced = forcedPath(testCase);
+  if (forced) return forced;
   if (/数据地图/.test(text)) return ["元数据", "数据地图"];
   if (/元数据同步/.test(text)) return ["元数据", "元数据同步"];
   if (/落标检查|dbc标准/i.test(text)) return ["数据标准", "落标检查"];
@@ -456,6 +460,39 @@ function fallbackPath(testCase) {
   return testCase.submodule ? [testCase.module, testCase.submodule] : [testCase.module || "未分组"];
 }
 
+function forcedPath(testCase) {
+  const text = `${testCase.module} ${testCase.submodule} ${testCase.title}`;
+  if (text.includes(DQ_RULE_FLOW_NODE)) {
+    return ["数据质量", DQ_RULE_FLOW_NODE];
+  }
+  return null;
+}
+
+function normalizeDqRuleFlowPath(path) {
+  if (path?.[0] === "数据质量" && DQ_RULE_FLOW_SINGLE_NODES.has(path[1])) {
+    return ["数据质量", DQ_RULE_FLOW_NODE, ...path.slice(2)];
+  }
+  return path;
+}
+
+function pruneDqRuleFlowSingleNodes(l1Nodes) {
+  const dq = l1Nodes.find((node) => String(node.title ?? "") === "数据质量");
+  if (!dq?.children?.attached) return;
+  dq.children.attached = dq.children.attached.filter((node) => !DQ_RULE_FLOW_SINGLE_NODES.has(String(node.title ?? "")));
+}
+
+function orderDqRuleFlowNode(l1Nodes) {
+  const dq = l1Nodes.find((node) => String(node.title ?? "") === "数据质量");
+  if (!dq?.children?.attached) return;
+  const nodes = dq.children.attached;
+  const ruleFlowIndex = nodes.findIndex((node) => String(node.title ?? "") === DQ_RULE_FLOW_NODE);
+  const ruleLibraryIndex = nodes.findIndex((node) => String(node.title ?? "") === "规则库配置");
+  if (ruleFlowIndex === -1 || ruleLibraryIndex === -1 || ruleFlowIndex === ruleLibraryIndex + 1) return;
+  const [ruleFlow] = nodes.splice(ruleFlowIndex, 1);
+  const nextRuleLibraryIndex = nodes.findIndex((node) => String(node.title ?? "") === "规则库配置");
+  nodes.splice(nextRuleLibraryIndex + 1, 0, ruleFlow);
+}
+
 function buildTreeWithReference(parsed, referenceRoot) {
   if (!referenceRoot) return buildTree(parsed);
   const maps = referencePathMaps(referenceRoot);
@@ -465,15 +502,19 @@ function buildTreeWithReference(parsed, referenceRoot) {
 
   for (const testCase of parsed.cases) {
     const markerKey = `${testCase.markerId}\u0000${testCase.title}`;
-    const path =
-      maps.byMarkerAndTitle.get(markerKey)?.shift() ??
-      maps.byTitle.get(testCase.title)?.shift() ??
-      fallbackPath(testCase);
+    const path = normalizeDqRuleFlowPath(
+      forcedPath(testCase) ??
+        maps.byMarkerAndTitle.get(markerKey)?.shift() ??
+        maps.byTitle.get(testCase.title)?.shift() ??
+        fallbackPath(testCase),
+    );
     const target = ensurePath(l1Nodes, path);
     target.children ??= { attached: [] };
     target.children.attached.push(caseNode(testCase));
   }
 
+  pruneDqRuleFlowSingleNodes(l1Nodes);
+  orderDqRuleFlowNode(l1Nodes);
   return l1Nodes;
 }
 

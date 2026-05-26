@@ -134,6 +134,17 @@ Report `kind: "history_misclassified"` when `history_inferred` evidence is
 presented as `product_confirmed`, or when history-only evidence is used to
 confirm new product behavior without a product-confirmed or Lanhu-observed atom.
 
+## Platform/Source Form Baseline Lint
+
+When the user request, source-snapshot, or requirement atoms mention source code,
+platform DOM/YAML, environment YAML, or screenshots as required references for
+form-driven cases, mechanically check that final cases have corresponding
+repo.line/workspace.config/screenshot evidence or an extracted form-field
+baseline. Report `kind: "missing_form_baseline"` when form steps contain field
+labels, options, buttons, or configuration items but no source/DOM baseline is
+present. Report `kind: "unsupported_form_field"` when a step contains a field or
+option explicitly absent from that baseline.
+
 ## Output Format
 
 Return JSON only:
