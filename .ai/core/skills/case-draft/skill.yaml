@@ -80,10 +80,7 @@ body:
       - few-shot 作为格式参照使用，不包含需求事实或历史事实依据。
       - slug 兜底由 `kata features resolve` 引擎处理（hexFallbackSlug），模型无需也不应自行实现。
       - 交付层仅 archive.md、cases.xmind、metadata.yaml、manifest.json 四件落 feature 根；source-snapshot.json、coverage-matrix.json 及过程/证据产物一律落 .process/，详见 references/output-standard.md。
-      - archive.md/cases.xmind 用例标题禁止任何机器标识（TC-ID、SR-、RA-）；标题仅 `【Pn】` 前缀 + 自然中文动宾句。
-      - 括号语义：`【】` 专用于 `【Pn】` 优先级前缀，`「」` 用于所有 UI/菜单/选项/字段名。
-      - 每条用例每步预期必须具体可验，禁止「页面正常打开」之类空泛断言作为唯一预期。
-      - 证据底线：Lanhu 设计内容或相关源码读取失败时，用 ask_user 一次性批量索要缺口，不得凭历史/推断产出最终 archive.md/cases.xmind。
+      - 用例级节点格式与内容质量条款以 references/output-standard.md#用例级节点格式（Case-Level Normative） 为准；该文件标 (硬) 的条款均视为 hard_rule。证据底线：Lanhu 设计内容或相关源码读取失败时，用 ask_user 一次性批量索要缺口，不得凭历史/推断产出最终 archive.md/cases.xmind。
   codex_override:
 references:
   - path: references/source-intake-protocol.md
@@ -209,6 +206,20 @@ few_shots:
     purpose: 仅供确认包问题组织格式参考，不作需求事实来源。
     load_when: step.id == confirmation-package
     max_tokens: 1200
+  - path: references/fewshots/case-format-sample.md
+    load_phases:
+      - case-draft
+      - output
+    purpose: 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。
+    load_when: step.id in [case-draft, output]
+    max_tokens: 3000
+  - path: references/fewshots/case-format-sample.xmind.md
+    load_phases:
+      - case-draft
+      - output
+    purpose: XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。
+    load_when: step.id in [case-draft, output]
+    max_tokens: 1500
 evidence:
   source_refs_required: true
   distinguish_fact_inference_assumption: true
