@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 查询、更新与维护项目的业务知识、规则、术语、踩坑与模块事实。
+  summary: 用户要求查询、记录或维护项目业务知识、规则、术语或模块事实。
   must_trigger_when:
     - 用户希望记录、维护、更新或写入项目业务知识、规则或术语。
     - 用户希望查询业务规则、术语、模块知识或项目业务概念。

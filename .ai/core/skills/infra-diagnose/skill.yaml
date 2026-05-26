@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 通过 SSH 登录目标服务器，排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识以便复用。
+  summary: 出现数据源、数据库或服务器连通性故障并需要 SSH 诊断。
   must_trigger_when:
     - 出现数据源或服务器连通性报错，需登服务器排查修复。
     - JDBC/数据库连接报 No route to host、超时或被拒绝。

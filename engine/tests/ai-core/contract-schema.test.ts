@@ -71,6 +71,50 @@ describe("AI Core contract schema validation", () => {
     );
   });
 
+  it("rejects verbose prompt role sections", async () => {
+    const result = await validateAllAiCoreContracts({
+      virtualFiles: {
+        ".ai/core/prompts/bad.prompt.yaml": [
+          "id: bad-prompt@1",
+          "schema_ref: PromptContract@1",
+          "locale: zh-CN",
+          "model_lock:",
+          "  required_capabilities:",
+          "    - structured_output",
+          "  minimum_context_tokens: 32000",
+          "input_schema:",
+          "  name: SomeInput@1",
+          "  required:",
+          "    - source_refs",
+          "output_schema:",
+          "  name: SomeOutput@1",
+          "  required:",
+          "    - result",
+          "rendering:",
+          "  role_sections:",
+          "    system: 仅根据提供的证据执行。",
+          `    user: ${"返回结构化结果。".repeat(40)}`,
+          "  boundaries:",
+          "    untrusted_context_tag: context",
+          "    source_ref_tag: source_ref",
+          "prefill:",
+          "  enabled: true",
+          "  text: ''",
+          "fallback:",
+          "  deterministic_parse: true",
+          "  on_schema_error: retry_once_then_refuse",
+          "hallucination_policy:",
+          "  unknown_fact: put_in_pending_items",
+          "  missing_source_ref: refuse",
+          "",
+        ].join("\n"),
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain("prompt.role_section_too_verbose");
+  });
+
   it("accepts iterative case-draft contract golden fixtures", async () => {
     const sourceRef =
       "lanhu.fixture:datasource-form#sha256:947d4c2d1db745733c0ee6905724af4e92b9bf94952a017a915b8afa4ca7694f";

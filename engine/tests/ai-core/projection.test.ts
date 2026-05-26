@@ -616,206 +616,44 @@ describe("ai-core projection", () => {
         join(out, runtimeRoot, "skills/playwright-automation/references/env-preflight.md"),
         "utf8",
       );
-      expect(envPreflight).toContain("用户回复只有 `确认`");
+      expect(envPreflight).toContain("若最后一个非空行是 `确认`");
       expect(envPreflight).toContain("直接等价于用户选择 `ltqc-local.yaml`");
       expect(envPreflight).toContain("必须在目标 discovery 和环境判断之前先按行解析原始输入");
       expect(envPreflight).toContain("立即设置 `env_profile=ltqc-local.yaml`");
-      expect(envPreflight).toContain("已剥离尾部");
-      expect(envPreflight).toContain("探测确认登录跳转");
-      expect(envPreflight).toContain("Session 文件存在但 mtime 34h > 24h");
-      expect(envPreflight).toContain("唯一可见文本必须直接从 `会话已过期。` 开始");
-      expect(envPreflight).toContain("只输出一次 no_permission 直接文本 blocker");
       expect(envPreflight).toContain("fallback 必须是本轮最后一个 assistant action");
-      expect(envPreflight).toContain("不得以“探测确认已登录但无 dataAssets 产品权限”");
-      expect(envPreflight).toContain("不得追加 tenant/project ID");
-      expect(envPreflight).toContain("最终 blocker 文本的第一个字符必须就是模板首字");
-      expect(envPreflight).toContain("### 最高优先级：工具拒绝哨兵");
-      expect(envPreflight).toContain(
-        "第一行必须严格等于 `blocked_by_environment: tool_permission_denied`",
-      );
-      expect(envPreflight).toContain("不得写成 `blocked_by_environment / tool_permission_denied`");
-      expect(envPreflight).toContain("fenced code block 语言必须严格为 `shell`");
-      expect(envPreflight).toContain("不得写成 `bash`");
-      expect(envPreflight).toContain(
-        "不得为了确认 `env_profile_file`、`project`、`featureId`、`profile.project`",
-      );
-      expect(envPreflight).toContain("`Read workspace/dataAssets/_shared/env/ltqc-local.yaml`");
-      expect(envPreflight).toContain(
-        "必须只使用拒绝前已经知道的 env profile 文件名、project 和 featureId",
-      );
-      expect(envPreflight).toContain("Session file mtime ~36.7h > 24h");
-      expect(envPreflight).toContain("使用字面量 run-id");
-      expect(envPreflight).toContain("NO NO NO! I just violated the rule");
-      expect(envPreflight).toContain("description 为 `Get repo root` 的 `pwd`");
-      expect(envPreflight).toContain(
-        'description 为 `Test basic command availability` 的 `echo "test"`',
-      );
-      expect(envPreflight).toContain("`mkdir -p` 被工具策略阻止");
-      expect(envPreflight).toContain("`The following parts require approval`");
-      expect(envPreflight).toContain("不得换用 `openssl rand` 或 TaskStop");
-      expect(envPreflight).toContain(
-        "run-id generation 不得依赖 shell 随机数、hash、管道或命令替换",
-      );
-      expect(envPreflight).toContain("优先在内部推理中选择一个已知字面量 run-id");
-      expect(envPreflight).toContain(
-        "命令必须形如 `mkdir -p workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/results/<run-id>/playwright/preflight`",
-      );
-      expect(envPreflight).toContain("不得使用 `<REPO_ROOT>/workspace/...` 绝对路径");
-      expect(envPreflight).toContain("不得运行 `test -f .../.gitkeep`");
-      expect(envPreflight).toContain("输出 `not_needed` 的探测命令");
+      expect(envPreflight).toContain("## 工具拒绝哨兵");
+      expect(envPreflight).toContain("The following parts require approval");
       expect(envPreflight).toContain("下一次 assistant action 必须立刻是最终 text");
-      expect(envPreflight).toContain(
-        "不得在同一 assistant message 中批量发起 `pwd` 与 run-id/evidence 相关 Bash",
-      );
-      expect(envPreflight).toContain(
-        "也不得在同一 assistant message 中同时发起 run-id generation 与 evidence directory creation",
-      );
-      expect(envPreflight).toContain(
-        "必须先等待 run-id tool_result，确认未拒绝后才能创建 evidence 目录",
-      );
-      expect(envPreflight).toContain(
-        "若同一批 tool_result 中一个成功、另一个包含拒绝信号，拒绝信号优先",
-      );
-      expect(envPreflight).toContain("首次拒绝后不得调用 TodoWrite");
-      expect(envPreflight).toContain("不得维护 todo 状态");
-      expect(envPreflight).toContain("不得写“Todos have been modified”");
-      expect(envPreflight).toContain(
-        '不得用 `echo "test"` 或任何 basic command availability probe',
-      );
-      expect(envPreflight).toContain("“I already violated”“I can't undo”“STOP NOW”");
-      expect(envPreflight).toContain(
-        '下一次 action 也不得是 TodoWrite、TaskStop、Bash、`pwd`、`echo "test"` 或任何 tool_use',
-      );
       expect(envPreflight).toContain(
         "首次拒绝后的下一次 assistant message 必须只包含一个 `type=text` content item",
       );
-      expect(envPreflight).toContain("不得包含 `type=thinking` 或任何 tool_use");
       expect(envPreflight).toContain(
-        '不得再运行 `date`、`mkdir`、`mktemp`、`pwd`、`ls`、`test -d`、`echo "test"`',
+        "第一行必须严格等于 `blocked_by_environment: tool_permission_denied`",
       );
-      expect(envPreflight).toContain(
-        "不得为了“Let me simplify”“simpler approach”“format it properly”",
-      );
-      expect(envPreflight).toContain(
-        "“false positive”“allowed working directories”“check current working directory”“results directory exists”",
-      );
-      expect(envPreflight).toContain(
-        "“确认测试文件”“feature 目录内容”“tests/runners/full.spec.ts 是否存在”“handoff 命令路径”",
-      );
-      expect(envPreflight).toContain(
-        "ls workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/",
-      );
-      expect(envPreflight).toContain("Check if feature directory contents reveal tests existence");
-      expect(envPreflight).toContain('`echo "preflight-$(date +%s | md5 | head -c 8)"`');
-      expect(envPreflight).toContain('`openssl rand`、`uuidgen`、`TaskStop` 或 `echo "test"`');
-      expect(envPreflight).toContain(
-        "blocker 命令只使用已知的 env profile 文件名、project 和 featureId",
-      );
-      expect(envPreflight).toContain(
-        "不得在模板前写“根据硬规则”“mkdir 被工具策略拒绝”“`mkdir -p` 被工具策略阻止”“必须停止 env-preflight 阶段”等解释",
-      );
-      expect(envPreflight).toContain("不得把整个 blocker 包进一个 fenced code block");
-      expect(envPreflight).toContain("blocked_by_environment: tool_permission_denied");
-      expect(envPreflight).toContain("第一次拒绝即为终止信号");
-      expect(envPreflight).toContain("工具权限或工具策略拒绝");
-      expect(envPreflight).toContain("session mtime/age calculation");
-      expect(envPreflight).toContain(
-        '先用 `stat -f "%m" <session_path>` 或等价单命令读取 mtime epoch',
-      );
-      expect(envPreflight).toContain("再用独立的 `date +%s` 读取当前 epoch");
-      expect(envPreflight).toContain(
-        '不得把 `date` 和 `stat` 组合进 `echo $(( $(date +%s) - $(stat -f "%m" ... ) ))`',
-      );
-      expect(envPreflight).toContain("run-id generation");
-      expect(envPreflight).toContain("was blocked");
-      expect(envPreflight).toContain("Contains command_substitution");
-      expect(envPreflight).toContain("Contains simple_expansion");
-      expect(envPreflight).toContain("This Bash command contains multiple operations");
-      expect(envPreflight).toContain("Unhandled node type");
-      expect(envPreflight).toContain("contains multiple operations");
-      expect(envPreflight).toContain("不得区分“交互模式/非交互模式”");
-      expect(envPreflight).toContain("不得把用户回复“确认”解释为允许继续请求工具权限");
-      expect(envPreflight).toContain(
-        "不得把 approval prompt、`hasn't granted it yet`、`was blocked`",
-      );
-      expect(envPreflight).toContain("换个命令继续算 mtime");
-      expect(envPreflight).toContain("换个命令生成 run ID");
-      expect(envPreflight).toContain("换个命令生成更简单 run ID");
-      expect(envPreflight).toContain("simple approach");
-      expect(envPreflight).toContain("用户还没机会 approve");
-      expect(envPreflight).toContain(
-        "不得在首次拒绝后继续调用 Bash、Read、Write、Edit、Glob、Grep、WebFetch、curl、TaskStop 或 Playwright probe",
-      );
-      expect(envPreflight).toContain("首次拒绝后的下一次 assistant action 必须是唯一最终 text");
-      expect(envPreflight).toContain(
-        "即使 thinking 中已经决定“输出 blocker/stop/no more tool calls”",
-      );
-      expect(envPreflight).toContain(
-        "下一次 action 也不得是 `pwd`、`ls`、run-id retry、placeholder command、TaskStop、Read reference、`Read workspace/dataAssets/_shared/env/ltqc-local.yaml`",
-      );
-      expect(envPreflight).toContain("不得先输出一条解释 text 再继续 tool_use");
-      expect(envPreflight).toContain("不得再出现任何 tool_use");
-      expect(envPreflight).toContain('不得继续用 `stat -f "%Sm"`');
-      expect(envPreflight).toContain("`openssl rand`、`uuidgen`、`date`");
-      expect(envPreflight).toContain("`date +%s | md5 | head -c 8`");
-      expect(envPreflight).toContain(
-        'FEATURE="workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare"',
-      );
-      expect(envPreflight).toContain(
-        "`echo $$ | md5sum 2>/dev/null || uuidgen 2>/dev/null | head -c 8 || date +%s | head -c 8`",
-      );
-      expect(envPreflight).toContain("md5、md5sum、head、`mkdir -p`、重复 mkdir");
-      expect(envPreflight).toContain(
-        '不得继续运行 `pwd`、description 为 `Get repo root` 的 `pwd`、`echo "test"`、description 为 `Test basic command availability` 的 `echo "test"`',
-      );
-      expect(envPreflight).toContain("测试文件存在性检查");
-      expect(envPreflight).toContain("handoff 命令路径检查");
-      expect(envPreflight).toContain("重新 Read env-preflight reference");
-      expect(envPreflight).toContain("feature directory contents 检查");
-      expect(envPreflight).toContain("`npx playwright --version`");
-      expect(envPreflight).toContain("`playwright_available`");
-      expect(envPreflight).toContain("证据目录创建权限不足，环境预检无法继续。");
-      expect(envPreflight).toContain("裸 `tool_permission_denied`");
-      expect(envPreflight).toContain("Placeholder command");
-      expect(envPreflight).toContain("Let me simplify the command");
-      expect(envPreflight).toContain("Let me try using a single command approach");
-      expect(envPreflight).toContain(
-        "不得把 `This command requires approval`、`This Bash command contains multiple operations` 或 `The following parts require approval` 解读为",
-      );
-      expect(envPreflight).toContain("Let me just try something minimal to see what's allowed");
-      expect(envPreflight).toContain("Let me verify the values");
-      expect(envPreflight).toContain("Wait, I need to check what the project is");
-      expect(envPreflight).toContain("the path IS under <REPO_ROOT>");
-      expect(envPreflight).toContain("The directory IS under <REPO_ROOT>");
-      expect(envPreflight).toContain("allowed working directory is `<REPO_ROOT>`");
-      expect(envPreflight).toContain("Check current working directory");
-      expect(envPreflight).toContain("Check if results directory exists");
-      expect(envPreflight).toContain("The results directory doesn't exist");
-      expect(envPreflight).toContain("先检查当前 working directory");
-      expect(envPreflight).toContain("先看看 results 是否存在");
-      expect(envPreflight).toContain("So `ls` works");
-      expect(envPreflight).toContain("根据硬规则");
-      expect(envPreflight).toContain("第一次工具权限拒绝即为终止信号");
-      expect(envPreflight).toContain("env-preflight 阶段工具策略阻止");
-      expect(envPreflight).toContain("创建当前 feature 证据目录时必须从 repo root 使用相对路径");
-      expect(envPreflight).toContain("不得用 `<REPO_ROOT>/...` 绝对路径作为 `mkdir -p` 目标");
-      expect(envPreflight).toContain("由于工具策略阻止");
-      expect(envPreflight).toContain("请确认批准以上操作");
-      expect(envPreflight).toContain("需要你批准");
-      expect(envPreflight).toContain("请确认必需的写入权限后重试");
-      expect(envPreflight).toContain("请先批准必要的写入权限后重试");
-      expect(envPreflight).toContain("手动运行验证");
-      expect(envPreflight).toContain("手动验收命令");
-      expect(envPreflight).toContain("最终可见文本必须严格使用以下结构");
-      expect(envPreflight).toContain("第一个字符必须是 `b`");
-      expect(envPreflight).toContain("有头模式 full test 人工验收命令：");
+      expect(envPreflight).toContain("fenced code block 语言必须严格为 `shell`");
       expect(envPreflight).toContain(
         "KATA_DATAASSETS_ENV=<env_profile_file> KATA_ACTIVE_PROJECT=<project>",
       );
-      expect(envPreflight).toContain("不得使用裸 env 名");
+      expect(envPreflight).toContain(
+        "blocker 命令只使用拒绝前已经知道的 env profile 文件名、project 和 featureId",
+      );
+      expect(envPreflight).toContain("mtime 只能用独立简单命令读取");
+      expect(envPreflight).toContain('stat -f "%m" <session_path>');
+      expect(envPreflight).toContain("date +%s");
+      expect(envPreflight).toContain("不得使用 command substitution");
+      expect(envPreflight).toContain("唯一可见文本必须直接从 `会话已过期。` 开始");
+      expect(envPreflight).toContain("no_permission 只输出一次直接文本 blocker");
+      expect(envPreflight).toContain("run-id 使用内部选择的字面量");
+      expect(envPreflight).toContain("不得调用随机数、hash、管道或命令替换生成");
+      expect(envPreflight).toContain("repo-root 相对路径");
       expect(envPreflight).toContain("path.resolve(process.cwd(), auth.session_path)");
-      expect(envPreflight).toContain("const REPO_ROOT = '<REPO_ROOT>'");
-      expect(envPreflight).toContain("path.resolve(REPO_ROOT, ...)");
+      expect(envPreflight).toContain("不得硬编码 repo root");
+      expect(envPreflight).not.toContain("NO NO NO! I just violated the rule");
+      expect(envPreflight).not.toContain("Let me simplify");
+      expect(envPreflight).not.toContain("description 为 `Get repo root`");
+      expect(envPreflight).not.toContain("const REPO_ROOT = '<REPO_ROOT>'");
+      expect(envPreflight).not.toContain("path.resolve(REPO_ROOT, ...)");
+      expect(envPreflight).not.toContain("请确认批准以上操作");
 
       const handoff = readFileSync(
         join(out, runtimeRoot, "skills/playwright-automation/references/handoff.md"),
@@ -846,7 +684,7 @@ describe("ai-core projection", () => {
       expect(skill).toContain("blocking pending 非零时只输出草稿与确认类产物");
       expect(skill).toContain("automation_status=ready");
       expect(skill).toContain("Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent");
-      expect(skill).toContain("few-shot 作为格式参照使用");
+      expect(skill).toContain("few-shot 只可作为格式参考");
       expect(skill).toContain("slug 兜底由 `kata features resolve` 引擎处理");
       expect(skill).not.toContain("不直接获取外部来源");
       expect(skill).toContain("references/source-intake-protocol.md");
@@ -867,15 +705,15 @@ describe("ai-core projection", () => {
       expect(sourceIntake).toContain(
         "不得同时调用 `mcp__fetch__fetch_html` 与 `mcp__fetch__fetch_markdown`",
       );
-      expect(sourceIntake).toContain("第一次抓取或能力检查返回 `requires approval`");
+      expect(sourceIntake).toContain("首次抓取或能力检查遇到权限拒绝");
       expect(sourceIntake).toContain(
         "立即停止同一 URL 的全部 fetch/WebFetch/MCP fetch/浏览器/设计源变体尝试",
       );
       expect(sourceIntake).toContain(
         "不得等待授权、不得切换 readable/html/markdown/txt 或 WebFetch 重试",
       );
-      expect(sourceIntake).toContain("补充计数的 Bash/rg/count 命令返回 `requires approval`");
-      expect(sourceIntake).toContain("不得把 `rg ... | wc -l` 改写为无管道 `rg -c`");
+      expect(sourceIntake).toContain("若补充计数的 Bash/rg/count 命令返回 `requires approval`");
+      expect(sourceIntake).toContain("计数审批拒绝后不得把 `rg ... | wc -l` 改写为无管道 `rg -c`");
       const errorFallback = readFileSync(
         join(out, runtimeRoot, "skills/case-draft/references/error-fallback-paths.md"),
         "utf8",
@@ -883,7 +721,7 @@ describe("ai-core projection", () => {
       expect(errorFallback).toContain("不得使用英文替代标题");
       expect(errorFallback).toContain("不得请求“授权必要的工具权限”");
       expect(errorFallback).toContain("若这一次 `mkdir -p` 返回 `was blocked`");
-      expect(errorFallback).toContain("mkdir 命令本身必须严格使用 repo-root 相对路径");
+      expect(errorFallback).toContain("mkdir 命令必须严格使用 repo-root 相对路径");
       expect(errorFallback).toContain(
         "不得使用 `<REPO_ROOT>/workspace/{project}/features/{feature_id}`",
       );
@@ -896,12 +734,8 @@ describe("ai-core projection", () => {
       expect(errorFallback).toContain("不得包含 `type=thinking`");
       expect(errorFallback).toContain("不得先产生新的 thinking 分析、错误解释、路径诊断或规则复述");
       expect(errorFallback).toContain("不得重试相对/绝对 `mkdir -p`");
-      expect(errorFallback).toContain("The error says it's within");
-      expect(errorFallback).toContain("Wait, the error says");
-      expect(errorFallback).toContain("Let me read the error more carefully");
-      expect(errorFallback).toContain("try using Write instead");
       expect(errorFallback).toContain("不得再读取其他 `references/**`");
-      expect(errorFallback).toContain("maybe the user will grant permission this time");
+      expect(errorFallback).toContain("reference 权限拒绝后");
       expect(errorFallback).toContain(
         "不得再调用 Read 补读 `references/source-intake-protocol.md`",
       );
@@ -911,19 +745,15 @@ describe("ai-core projection", () => {
       expect(errorFallback).toContain(
         "即使本文件尚未读取、即使 Read 会被允许，也不得在抓取拒绝后读取 `references/error-fallback-paths.md`",
       );
-      expect(errorFallback).toContain("Let me read the error-fallback-paths.md reference");
-      expect(errorFallback).toContain("go into the error-fallback paths");
+      expect(errorFallback).toContain("只把这一次权限拒绝作为抓取 SourceRef 的 `observed_error`");
       expect(errorFallback).toContain(
-        "后立即进入阻塞产物 `mkdir -p workspace/{project}/features/{feature_id}/`",
+        "立即进入阻塞产物 `mkdir -p workspace/{project}/features/{feature_id}/`",
       );
       expect(errorFallback).toContain("“立即进入”表示下一次工具调用必须是这条 `mkdir -p`");
       expect(errorFallback).toContain("不得在其前补跑 `Grep` count、`rg` count、Bash count");
       expect(errorFallback).toContain("读取相邻 `metadata.yaml`、模块推断、命中数精确化");
-      expect(errorFallback).toContain("Let me use Grep with count mode");
-      expect(errorFallback).toContain("Let me read the metadata.yaml files");
-      expect(errorFallback).toContain("I need to count the pid hits");
-      expect(errorFallback).toContain("Now I have the counts");
-      expect(errorFallback).toContain("Claude requested permissions to write to");
+      expect(errorFallback).toContain("不得在抓取拒绝后补计数、读相邻 metadata、扩充样例");
+      expect(errorFallback).toContain("明确指向任一 MCP fetch 或 Write 未授权的等价文本");
       expect(errorFallback).toContain(
         "同一 assistant 消息或同一批 tool_use 中只能包含一个 fetch/WebFetch/MCP fetch/浏览器/设计源工具调用",
       );
@@ -931,7 +761,7 @@ describe("ai-core projection", () => {
         "不得并发或同批调用 `mcp__fetch__fetch_html` 与 `mcp__fetch__fetch_markdown`",
       );
       expect(errorFallback).toContain("补充计数的 Bash/rg/count 命令一旦返回 `requires approval`");
-      expect(errorFallback).toContain("不得并发继续对 pageId/docId/pid 发起替代 Bash 计数");
+      expect(errorFallback).toContain("计数审批拒绝后不得把 `rg ... | wc -l` 改写为无管道 `rg -c`");
       expect(errorFallback).toContain(
         "不得改试 `mcp__fetch__fetch_html`、`mcp__fetch__fetch_markdown`、`mcp__fetch__fetch_readable`、`mcp__fetch__fetch_txt` 或 `WebFetch`",
       );
@@ -942,7 +772,13 @@ describe("ai-core projection", () => {
       expect(errorFallback).toContain(
         "不得尝试 “Write directly” 或 “Write might create the directory automatically”",
       );
+      expect(errorFallback).toContain("不得再次 Write `confirmation-package.md`");
       expect(errorFallback).toContain("不得把权限拒绝后续包装成“再尝试”“等待授权”或“换一种方式”");
+      expect(errorFallback).not.toContain("Let me");
+      expect(errorFallback).not.toContain("maybe the user will grant permission");
+      expect(errorFallback).not.toContain("The error says");
+      expect(errorFallback).not.toContain("try using Write");
+      expect(errorFallback).not.toContain("I need to count");
       const reviewGate = readFileSync(
         join(out, runtimeRoot, "skills/case-draft/references/case-review-evidence-gates.md"),
         "utf8",

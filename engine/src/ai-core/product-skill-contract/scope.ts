@@ -1,6 +1,7 @@
 import type { AiCoreIssue } from "../types.ts";
 import type { ProductSkillParserScope, ProductSkillProjectionContract } from "./types.ts";
 import {
+  DESCRIPTION_TRIGGER_PATTERN,
   DESCRIPTION_WORKFLOW_PATTERN,
   isSafeReferencePath,
   issue,
@@ -256,11 +257,14 @@ export function validateRequiredFields(
 }
 
 export function validateDescriptionSummary(summary: string, path: string): AiCoreIssue[] {
-  if (!DESCRIPTION_WORKFLOW_PATTERN.test(summary)) return [];
+  const trimmed = summary.trim();
+  if (DESCRIPTION_TRIGGER_PATTERN.test(trimmed) && !DESCRIPTION_WORKFLOW_PATTERN.test(trimmed)) {
+    return [];
+  }
   return [
     issue(
       "product_skill.description_not_trigger_only",
-      "Product skill description.summary must describe trigger semantics only, not workflow or loading instructions.",
+      "Product skill description.summary must be trigger-framed and must not include workflow or loading instructions.",
       path,
     ),
   ];

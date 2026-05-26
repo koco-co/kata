@@ -13,7 +13,14 @@ Procedure:
    > 前端: <group>/<repo>@<branch>
    > 后端: <group>/<repo>@<branch>
 3. If `.kata/repos` already contains the confirmed repos, present them as the default; if missing, request them (give clone guidance) or record a blocking todo.
-4. Write the confirmed triples into **`.process/source-snapshot.json#confirmed_source_repos[]`** (`FeatureSourceSnapshot@1`), each `{group, project, branch, role}`. Also record **`.process/source-snapshot.json#slug_source`** — the stable identity of the slug origin passed to `kata features resolve` (e.g. `lanhu:cd882ee8` / `prd:15696.txt`) so a later different-source request at the same path is detected (Gap 1 collision rule). Do NOT write either to `metadata.yaml` — `FeatureMetadata@1` is `additionalProperties:false` with no `source_repos`/`notes` field. The Lanhu URL goes to `metadata.yaml#inputs` (`kind: lanhu`). These confirmed repos become required inputs for verification (repo.line source_refs must resolve into one of them — see L2).
-5. If the user provides source repo paths, platform DOM files, `*-local.yaml`, environment YAML, screenshots of forms, or says to "参考源码/DOM/平台结构", record those evidence items in source-snapshot as required read targets. Before case-draft, read them and extract a concise form-field baseline: page/module, visible labels, required fields, option names, buttons, and fields that are explicitly absent. If any required target is unreadable, block and ask for the missing path/content; do not defer by using history, few-shot, or guessed form fields.
+4. Write the confirmed triples into **`.process/source-snapshot.json#confirmed_source_repos[]`** (`FeatureSourceSnapshot@1`), each `{group, project, branch, role}`.
+   - Also record **`.process/source-snapshot.json#slug_source`**: the stable identity of the slug origin passed to `kata features resolve`, such as `lanhu:cd882ee8` or `prd:15696.txt`.
+   - `slug_source` lets a later different-source request at the same path trigger the Gap 1 collision rule.
+   - Do NOT write either field to `metadata.yaml`; `FeatureMetadata@1` is `additionalProperties:false` and has no `source_repos` or `notes` field.
+   - The Lanhu URL goes to `metadata.yaml#inputs` with `kind: lanhu`.
+   - These confirmed repos become required verification inputs: `repo.line` source_refs must resolve into one of them. See L2.
+5. If the user provides source repo paths, platform DOM files, `*-local.yaml`, environment YAML, screenshots of forms, or says to "参考源码/DOM/平台结构", record those evidence items in source-snapshot as required read targets.
+   - Before case-draft, read them and extract a concise form-field baseline: page/module, visible labels, required fields, option names, buttons, and fields that are explicitly absent.
+   - If any required target is unreadable, block and ask for the missing path/content; do not defer by using history, few-shot, or guessed form fields.
 
 Do NOT proceed to historical-context until the triples are confirmed or explicitly deferred as blocking.

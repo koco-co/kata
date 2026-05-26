@@ -10,12 +10,12 @@
     {
       "path": ".agents/skills/bug-file/SKILL.md",
       "disposition": "generated",
-      "sha256": "3d4459d6db92f0a12850080ce56f0634ec8b30166665a7babd5ff75199d612e4"
+      "sha256": "f7f658571efe036a5a48f9615f5016d4392d3318c7e56b6bdc9df9afafb07b0c"
     },
     {
       "path": ".agents/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "59486f98aa7d4710659e6debd1b220afa9b802b7f706809b220bbbeb7bb32695"
+      "sha256": "64f1cf4b437175284c06f4cf61e97cee62cecb623e6fdfd5c80608d75f71d7ff"
     },
     {
       "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -50,7 +50,7 @@
     {
       "path": ".agents/skills/case-draft/references/error-fallback-paths.md",
       "disposition": "generated",
-      "sha256": "a3d3f5bee61bf0a1f2846be4e6d019be63087918e8391da05a30ae8e9e2e6952"
+      "sha256": "7bdca752471591980105decbe815867b0ddd056924fd726246620e60b28000bb"
     },
     {
       "path": ".agents/skills/case-draft/references/execution-protocol.md",
@@ -90,12 +90,12 @@
     {
       "path": ".agents/skills/case-draft/references/source-confirm.md",
       "disposition": "generated",
-      "sha256": "c0053daa346e452991a9651662ea2bccb5607ae33792ccff4c334c32fdcf2490"
+      "sha256": "4d8208dbd57e73743e645b573102679af901b2762c181e7c7212b91b0ed18698"
     },
     {
       "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
       "disposition": "generated",
-      "sha256": "9aa5c7d83f12c12534a296bf6f28adb72e63936a8f7f13699d251abb09a831af"
+      "sha256": "f8469ab056fe70f4fd0e330dd3ef02d97c919cecb1fe349e84814e2155195f7b"
     },
     {
       "path": ".agents/skills/case-draft/references/spec-reviewer-prompt.md",
@@ -110,7 +110,7 @@
     {
       "path": ".agents/skills/case-edit/SKILL.md",
       "disposition": "generated",
-      "sha256": "b8540ac3ef92c8d9005c34203726eb499e3267525272deea67cabe38254b6310"
+      "sha256": "3b816c92cf99bec10c80b3465403febd10eb60f2853098db1b3e55594133633b"
     },
     {
       "path": ".agents/skills/case-edit/references/apply-corrections.md",
@@ -135,7 +135,7 @@
     {
       "path": ".agents/skills/case-hotfix/SKILL.md",
       "disposition": "generated",
-      "sha256": "fb459c2400a1b3b781eafc859852d71aac52abdf89ab2a1e3ac58aa04178a404"
+      "sha256": "c6c44687ed7561f5a8585a3fa4d04c5c21356b555b2ffbc84657dcd254dc5d18"
     },
     {
       "path": ".agents/skills/case-hotfix/references/hotfix-archive-format.md",
@@ -145,17 +145,17 @@
     {
       "path": ".agents/skills/conflict-analyze/SKILL.md",
       "disposition": "generated",
-      "sha256": "eb3eb67d9a38f7da5d0364f519441ca1ca57e355b3b1f3ddcb704de55eebd415"
+      "sha256": "03b90b0762da6012179d21aed9f036b513a89b7a81f12e2f0ae1d7d17eebf495"
     },
     {
       "path": ".agents/skills/diff-scan/SKILL.md",
       "disposition": "generated",
-      "sha256": "e6c7eb42345766d6642e469e95d4cd2c838f9821eafe89d1b62d7c8a3cc6845a"
+      "sha256": "3ef764534aa183c6047bb7dcffa92b39bdbdf043dca6cfd2b934a4c378e5f94e"
     },
     {
       "path": ".agents/skills/infra-diagnose/SKILL.md",
       "disposition": "generated",
-      "sha256": "98f8be62691dea6756c6785514dcc6ec60e1c4b4e687843668eb09a42eb0ed44"
+      "sha256": "ad4ab49a11f7f6fe8d8d3259f783f878ed0697b73c09960ab843a0725eafea1f"
     },
     {
       "path": ".agents/skills/infra-diagnose/references/diagnostic-playbook.md",
@@ -175,7 +175,7 @@
     {
       "path": ".agents/skills/knowledge-curate/SKILL.md",
       "disposition": "generated",
-      "sha256": "4a775eafc41621474176dfb386e5380a528ab055a5052b5dd5bd84dacc23a789"
+      "sha256": "76730b17e1c859bcd666ba3f329d258dfaf72b4ccf7597e155d82c9444490c9f"
     },
     {
       "path": ".agents/skills/knowledge-curate/references/knowledge-rules.md",
@@ -185,7 +185,7 @@
     {
       "path": ".agents/skills/playwright-automation/SKILL.md",
       "disposition": "generated",
-      "sha256": "54d8f95c0a7d328768f7f258f81b5c76b72748408aa04a9f9bdc40ec71ce689e"
+      "sha256": "62065416da41b63679c760af87ead7f23ab2c18a22483b7d153d1ca3c4e0e85b"
     },
     {
       "path": ".agents/skills/playwright-automation/references/case-feedback.md",
@@ -195,12 +195,12 @@
     {
       "path": ".agents/skills/playwright-automation/references/case-normalize.md",
       "disposition": "generated",
-      "sha256": "5c58d7c4b9a29f81f0d4499910df0a700be63df56235886d58444f43b46afc1b"
+      "sha256": "ad021f8c9dd4000461848ed378341cbfdec3382d0cdf5cc57f401e138962dae3"
     },
     {
       "path": ".agents/skills/playwright-automation/references/env-preflight.md",
       "disposition": "generated",
-      "sha256": "7207ea0182ffac773057844fb7e7a6fab3957e8d7cdde273e6707db364c421a9"
+      "sha256": "52ca9241fef061b3a948114fce6f69353d8ec03c761db4bbbf1de2e2e659d19b"
     },
     {
       "path": ".agents/skills/playwright-automation/references/execution-protocol.md",
@@ -325,7 +325,7 @@
     {
       "path": ".agents/skills/workspace-manage/SKILL.md",
       "disposition": "generated",
-      "sha256": "64cd0d70b6586d1394bc9c58c6657de43fec0e671224d500cc9b503160a5e42b"
+      "sha256": "7f6725455bd0a8e9b10e163d05a7f5a5cc267e74618d1be844e50f14c8a60385"
     },
     {
       "path": ".agents/skills/workspace-manage/references/project-layout.md",
@@ -340,12 +340,12 @@
     {
       "path": ".claude/skills/bug-file/SKILL.md",
       "disposition": "generated",
-      "sha256": "3d4459d6db92f0a12850080ce56f0634ec8b30166665a7babd5ff75199d612e4"
+      "sha256": "f7f658571efe036a5a48f9615f5016d4392d3318c7e56b6bdc9df9afafb07b0c"
     },
     {
       "path": ".claude/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "59486f98aa7d4710659e6debd1b220afa9b802b7f706809b220bbbeb7bb32695"
+      "sha256": "64f1cf4b437175284c06f4cf61e97cee62cecb623e6fdfd5c80608d75f71d7ff"
     },
     {
       "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -380,7 +380,7 @@
     {
       "path": ".claude/skills/case-draft/references/error-fallback-paths.md",
       "disposition": "generated",
-      "sha256": "a3d3f5bee61bf0a1f2846be4e6d019be63087918e8391da05a30ae8e9e2e6952"
+      "sha256": "7bdca752471591980105decbe815867b0ddd056924fd726246620e60b28000bb"
     },
     {
       "path": ".claude/skills/case-draft/references/execution-protocol.md",
@@ -420,12 +420,12 @@
     {
       "path": ".claude/skills/case-draft/references/source-confirm.md",
       "disposition": "generated",
-      "sha256": "c0053daa346e452991a9651662ea2bccb5607ae33792ccff4c334c32fdcf2490"
+      "sha256": "4d8208dbd57e73743e645b573102679af901b2762c181e7c7212b91b0ed18698"
     },
     {
       "path": ".claude/skills/case-draft/references/source-intake-protocol.md",
       "disposition": "generated",
-      "sha256": "9aa5c7d83f12c12534a296bf6f28adb72e63936a8f7f13699d251abb09a831af"
+      "sha256": "f8469ab056fe70f4fd0e330dd3ef02d97c919cecb1fe349e84814e2155195f7b"
     },
     {
       "path": ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
@@ -440,7 +440,7 @@
     {
       "path": ".claude/skills/case-edit/SKILL.md",
       "disposition": "generated",
-      "sha256": "b8540ac3ef92c8d9005c34203726eb499e3267525272deea67cabe38254b6310"
+      "sha256": "3b816c92cf99bec10c80b3465403febd10eb60f2853098db1b3e55594133633b"
     },
     {
       "path": ".claude/skills/case-edit/references/apply-corrections.md",
@@ -465,7 +465,7 @@
     {
       "path": ".claude/skills/case-hotfix/SKILL.md",
       "disposition": "generated",
-      "sha256": "8cc621ee603de6f4515538ada87eb2f5d3a46ee2c78f7e4b84d748a87d2d3e3b"
+      "sha256": "2089397bb04561b3daa8535ef67e08d251721be22a7a9637e0d5f09a54f3adbc"
     },
     {
       "path": ".claude/skills/case-hotfix/references/hotfix-archive-format.md",
@@ -475,17 +475,17 @@
     {
       "path": ".claude/skills/conflict-analyze/SKILL.md",
       "disposition": "generated",
-      "sha256": "eb3eb67d9a38f7da5d0364f519441ca1ca57e355b3b1f3ddcb704de55eebd415"
+      "sha256": "03b90b0762da6012179d21aed9f036b513a89b7a81f12e2f0ae1d7d17eebf495"
     },
     {
       "path": ".claude/skills/diff-scan/SKILL.md",
       "disposition": "generated",
-      "sha256": "e6c7eb42345766d6642e469e95d4cd2c838f9821eafe89d1b62d7c8a3cc6845a"
+      "sha256": "3ef764534aa183c6047bb7dcffa92b39bdbdf043dca6cfd2b934a4c378e5f94e"
     },
     {
       "path": ".claude/skills/infra-diagnose/SKILL.md",
       "disposition": "generated",
-      "sha256": "98f8be62691dea6756c6785514dcc6ec60e1c4b4e687843668eb09a42eb0ed44"
+      "sha256": "ad4ab49a11f7f6fe8d8d3259f783f878ed0697b73c09960ab843a0725eafea1f"
     },
     {
       "path": ".claude/skills/infra-diagnose/references/diagnostic-playbook.md",
@@ -505,7 +505,7 @@
     {
       "path": ".claude/skills/knowledge-curate/SKILL.md",
       "disposition": "generated",
-      "sha256": "4a775eafc41621474176dfb386e5380a528ab055a5052b5dd5bd84dacc23a789"
+      "sha256": "76730b17e1c859bcd666ba3f329d258dfaf72b4ccf7597e155d82c9444490c9f"
     },
     {
       "path": ".claude/skills/knowledge-curate/references/knowledge-rules.md",
@@ -515,7 +515,7 @@
     {
       "path": ".claude/skills/playwright-automation/SKILL.md",
       "disposition": "generated",
-      "sha256": "bc2b89186b8a9f0f307783c3ca5b871ad652fe2ba6f4cb11320bf693edbe6f34"
+      "sha256": "cb0073cf0af2e84d8f0b6d0488c9526f045ba7c70e0b3a2388d3206638b0612c"
     },
     {
       "path": ".claude/skills/playwright-automation/references/case-feedback.md",
@@ -525,12 +525,12 @@
     {
       "path": ".claude/skills/playwright-automation/references/case-normalize.md",
       "disposition": "generated",
-      "sha256": "5c58d7c4b9a29f81f0d4499910df0a700be63df56235886d58444f43b46afc1b"
+      "sha256": "ad021f8c9dd4000461848ed378341cbfdec3382d0cdf5cc57f401e138962dae3"
     },
     {
       "path": ".claude/skills/playwright-automation/references/env-preflight.md",
       "disposition": "generated",
-      "sha256": "7207ea0182ffac773057844fb7e7a6fab3957e8d7cdde273e6707db364c421a9"
+      "sha256": "52ca9241fef061b3a948114fce6f69353d8ec03c761db4bbbf1de2e2e659d19b"
     },
     {
       "path": ".claude/skills/playwright-automation/references/execution-protocol.md",
@@ -655,7 +655,7 @@
     {
       "path": ".claude/skills/workspace-manage/SKILL.md",
       "disposition": "generated",
-      "sha256": "64cd0d70b6586d1394bc9c58c6657de43fec0e671224d500cc9b503160a5e42b"
+      "sha256": "7f6725455bd0a8e9b10e163d05a7f5a5cc267e74618d1be844e50f14c8a60385"
     },
     {
       "path": ".claude/skills/workspace-manage/references/project-layout.md",

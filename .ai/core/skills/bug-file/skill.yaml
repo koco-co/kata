@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 把可复现的运行时错误、控制台失败、堆栈与 HTTP 失败等 bug 证据，整理为可执行的 bug 报告。
+  summary: 用户提供可复现 bug 证据并要求整理缺陷报告。
   must_trigger_when:
     - 用户给出异常堆栈、控制台错误、HTTP 失败或其他可复现的 bug 证据。
     - 用户要求依据观察到的现象，撰写或结构化 bug 报告。

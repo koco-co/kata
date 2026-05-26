@@ -3,6 +3,8 @@ import { basename, join } from "node:path";
 import { contractIssue, isPlainRecord, rejectUnknownFields } from "../contract-schema-utils.ts";
 import type { AiCoreIssue } from "../types.ts";
 
+const MAX_ROLE_SECTION_CHARS = 240;
+
 export function validatePromptContractShape(path: string, text: string): AiCoreIssue[] {
   const bun = (globalThis as { Bun?: { YAML?: { parse: (text: string) => unknown } } }).Bun;
   if (!bun?.YAML?.parse) {
@@ -89,6 +91,25 @@ function validateRenderingRoleSections(
   rejectUnknownFields(roleSections, "rendering.role_sections", ["system", "user"], path, issues);
   requireString(roleSections, "system", "rendering.role_sections", path, issues);
   requireString(roleSections, "user", "rendering.role_sections", path, issues);
+  validateRoleSectionLength(roleSections, "system", path, issues);
+  validateRoleSectionLength(roleSections, "user", path, issues);
+}
+
+function validateRoleSectionLength(
+  roleSections: Record<string, unknown>,
+  key: "system" | "user",
+  path: string,
+  issues: AiCoreIssue[],
+): void {
+  const value = roleSections[key];
+  if (typeof value !== "string" || value.length <= MAX_ROLE_SECTION_CHARS) return;
+  issues.push(
+    contractIssue(
+      "prompt.role_section_too_verbose",
+      `rendering.role_sections.${key} must stay concise and move workflow details to skill references (${value.length}/${MAX_ROLE_SECTION_CHARS} chars).`,
+      path,
+    ),
+  );
 }
 
 function validateRenderingBoundaries(

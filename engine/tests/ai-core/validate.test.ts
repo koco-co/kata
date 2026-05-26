@@ -207,9 +207,8 @@ describe("ai-core schema registry", () => {
     if (!playwrightPromptPath) throw new Error("Missing playwright automation prompt path.");
     const playwrightPromptText = readFileSync(join(repoRoot(), playwrightPromptPath), "utf8");
     expect(playwrightPromptText).toContain("- acceptance_command");
-    expect(playwrightPromptText).toContain(
-      "acceptance_command` 必须是可复制执行的有头模式 full test 命令",
-    );
+    expect(playwrightPromptText).toContain("PlaywrightAutomationHandoff@2");
+    expect(playwrightPromptText).toContain("playwright-automation references 分阶段加载");
     expect(core.workflows.map((workflow) => workflow.id).sort()).toEqual([
       "bug-file@1",
       "case-draft-from-prd@1",

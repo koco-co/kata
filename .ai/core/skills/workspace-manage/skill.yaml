@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: kata 功能菜单，与工作区的创建、初始化、自检及收尾。
+  summary: 用户询问 kata 功能菜单、命令帮助，或要求创建、自检或收尾工作区。
   must_trigger_when:
     - 用户询问 kata 的能力、功能菜单、帮助内容或命令列表。
     - 用户要求创建、初始化、自检、收尾或修复 kata 项目工作区。

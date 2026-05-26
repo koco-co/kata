@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 生成、修复或验证 Playwright UI 自动化，并在交付前完成真实浏览器运行与失败归因。
+  summary: 用户要求生成、修复、验证或运行 Playwright UI 自动化。
   must_trigger_when:
     - 用户希望生成、修复、验证或运行 Playwright UI 自动化。
     - 用户提供 MD 用例、PRD、Lanhu、脚本或失败结果来推进 UI 自动化。

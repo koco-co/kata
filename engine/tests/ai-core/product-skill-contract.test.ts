@@ -10,7 +10,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: Generate QA test cases.
+  summary: 用户要求生成 QA 测试用例。
   must_trigger_when:
     - User asks for test cases.
   must_not_trigger_when:
@@ -81,7 +81,7 @@ describe("product skill contract parser", () => {
     expect(result.ok).toBe(true);
     expect(result.value).toMatchObject({
       name: "case-draft",
-      summary: "Generate QA test cases.",
+      summary: "用户要求生成 QA 测试用例。",
       mustTriggerWhen: ["User asks for test cases."],
       mustNotTriggerWhen: ["User asks for browser automation."],
       outputs: ["archive"],
@@ -149,8 +149,8 @@ describe("product skill contract parser", () => {
 
   it("fails closed on duplicate nested keys", () => {
     const text = VALID.replace(
-      "  summary: Generate QA test cases.",
-      "  summary: Generate QA test cases.\n  summary: Duplicate.",
+      "  summary: 用户要求生成 QA 测试用例。",
+      "  summary: 用户要求生成 QA 测试用例。\n  summary: Duplicate.",
     );
     const result = parseProductSkillContract(text, "bad.yaml");
 
@@ -218,8 +218,21 @@ describe("product skill contract parser", () => {
 
   it("fails closed when description summary contains workflow instructions", () => {
     const text = VALID.replace(
-      "  summary: Generate QA test cases.",
+      "  summary: 用户要求生成 QA 测试用例。",
       "  summary: 先读取 PRD 然后输出测试用例。",
+    );
+    const result = parseProductSkillContract(text, "bad.yaml");
+
+    expect(result.ok).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "product_skill.description_not_trigger_only",
+    );
+  });
+
+  it("fails closed when description summary is not trigger framed", () => {
+    const text = VALID.replace(
+      "  summary: 用户要求生成 QA 测试用例。",
+      "  summary: Generate QA test cases.",
     );
     const result = parseProductSkillContract(text, "bad.yaml");
 
@@ -259,11 +272,14 @@ describe("product skill contract parser", () => {
     const cases: Array<[string, string]> = [
       [
         "yaml.unsupported_indentation",
-        VALID.replace("  summary: Generate QA test cases.", "\tsummary: Generate QA test cases."),
+        VALID.replace(
+          "  summary: 用户要求生成 QA 测试用例。",
+          "\tsummary: 用户要求生成 QA 测试用例。",
+        ),
       ],
       [
         "yaml.unsupported_block_scalar",
-        VALID.replace("  summary: Generate QA test cases.", "  summary: |"),
+        VALID.replace("  summary: 用户要求生成 QA 测试用例。", "  summary: |"),
       ],
       [
         "yaml.unsupported_flow_collection",

@@ -93,8 +93,10 @@ export type ParsedScalar = { ok: true; value: string } | { ok: false; issue: AiC
 export const KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_-]*$/;
 export const PHASE_PATTERN = /^[a-z][a-z0-9_-]*$/;
 export const MAX_REFERENCE_PURPOSE_LENGTH = 160;
+export const DESCRIPTION_TRIGGER_PATTERN =
+  /^(用户|当用户|仅输入|输入|提供|出现|收到|需要|请求|要求|遇到)/;
 export const DESCRIPTION_WORKFLOW_PATTERN =
-  /(先|然后|步骤|执行顺序|workflow|读取|输出|禁止|必须|不得|工具|调用)/i;
+  /(先|然后|接着|最后|步骤|执行顺序|workflow|读取|输出|禁止|必须|不得|工具|调用|TodoWrite|references\/)/i;
 
 export function issue(code: string, message: string, path: string): AiCoreIssue {
   return { code, severity: "error", message, path };

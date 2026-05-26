@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 对已有 QA 用例产物进行编辑、同步、标准化或格式间转换。
+  summary: 用户提供既有 Archive、XMind 或 CSV 用例产物并要求编辑、同步或转换。
   must_trigger_when:
     - 用户希望对已有测试用例做修改、编辑、同步、标准化、归档或格式转换。
     - 用户给出 XMind、CSV 或既有 Archive MD 用例产物的路径。

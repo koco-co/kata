@@ -11,9 +11,9 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: Trigger when verifying renderer runtime swap behavior.
+  summary: 用户要求验证 renderer runtime swap 行为。
   must_trigger_when:
-    - Test setup requests rendering.
+    - 用户要求渲染测试 fixture。
   must_not_trigger_when:
     - Test setup omits skill.yaml.
 outputs:

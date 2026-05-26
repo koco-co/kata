@@ -4,7 +4,11 @@
 
 1. **Primary:** `features/<featureId>/manifest.json#automation.intents[]` where `automation_status: ready`. Iterate these directly.
 2. **Case-draft archive:** when `archive.md` + `test-point-checklist.md` exist and `case_drafting.status == completed`, normalize from the archive.
-3. **Source-backed bootstrap:** if a feature directory exists and lacks the case-draft automation baseline, but the same exact target directory contains `prd.md` and `inputs/lanhu-snapshots/`, emit `source_backed_bootstrap` and proceed to `env-preflight` before reading those source files. The pre-env source-material check must be exact-path existence only (`test -f <target>/prd.md`, `test -d <target>/inputs/lanhu-snapshots`, or equivalent metadata from the exact target); do not list, glob, find, read, or enumerate screenshot filenames. This is for short `/playwright-automation <title>` prompts where the user expects environment confirmation and a real UI probe.
+3. **Source-backed bootstrap:** use only when a feature directory lacks the case-draft automation baseline, but the same exact target directory contains `prd.md` and `inputs/lanhu-snapshots/`.
+   - Emit `source_backed_bootstrap` and proceed to `env-preflight` before reading those source files.
+   - The pre-env source-material check must be exact-path existence only: `test -f <target>/prd.md`, `test -d <target>/inputs/lanhu-snapshots`, or equivalent exact-target metadata.
+   - Do not list, glob, find, read, or enumerate screenshot filenames.
+   - This path is for short `/playwright-automation <title>` prompts where the user expects environment confirmation and a real UI probe.
 4. **Fallback:** only if the user passes a raw `archive.md` path, a raw PRD path, or a Lanhu link that has no feature directory yet, perform free-form inference as before.
 5. **Hard stop:** if a feature directory exists but has neither a case-draft automation baseline nor source-backed materials, do not infer UI from unrelated PRD/screenshots. Return `blocked_by_case_draft_required` and ask for `/case-draft` completion first.
 
@@ -32,7 +36,13 @@ cookie: {cookie_string}
 1. 从需求字段提取需求名称或路径
 2. 检查 `workspace/dataAssets/features/` 下是否有匹配目录：
    - 若给出完整路径前缀 → 直接定位
-   - 若只给名称 → 先抽取 2-6 个标题关键词，使用带 `-g` 限定的内容搜索，例如 `rg -n "内置规则丰富|合理性|单表|字段值|计算关系|字段值的计算关系对比" workspace/dataAssets/features -g "manifest.json" -g "metadata.yaml" -g "archive.md" -g "prd.md"`，再从搜索输出中按标题精确度选择命中目录；不得优先选择 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录，除非用户明确输入该目录名。若搜索输出中某目录的 `prd.md`、`metadata.yaml` 或 `manifest.json` 命中行包含用户标题的核心连续短语（例如 `【内置规则丰富】合理性，单表，字段值的计算关系对比` 或 `15529【内置规则丰富】合理性，单表，字段值的计算关系对比`），该目录为唯一精确目标；不得选择只匹配“单表/字段值/对比”等泛化词的历史 archive 目录。对于输入 `【内置规则丰富】合理性，单表，字段值的计算关系对比`，必须选择 `workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/`，不得选择 `workspace/dataAssets/features/2025-09-dq-single-table-field-compare/`。
+   - 若只给名称，先抽取 2-6 个标题关键词，使用带 `-g` 限定的内容搜索。
+   - 示例：`rg -n "内置规则丰富|合理性|单表|字段值|计算关系|字段值的计算关系对比" workspace/dataAssets/features -g "manifest.json" -g "metadata.yaml" -g "archive.md" -g "prd.md"`。
+   - 从搜索输出中按标题精确度选择命中目录；不得优先选择 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录，除非用户明确输入该目录名。
+   - 若搜索输出中某目录的 `prd.md`、`metadata.yaml` 或 `manifest.json` 命中行包含用户标题的核心连续短语，该目录为唯一精确目标。
+   - 核心连续短语示例：`【内置规则丰富】合理性，单表，字段值的计算关系对比` 或 `15529【内置规则丰富】合理性，单表，字段值的计算关系对比`。
+   - 不得选择只匹配“单表/字段值/对比”等泛化词的历史 archive 目录。
+   - 对于输入 `【内置规则丰富】合理性，单表，字段值的计算关系对比`，必须选择 `workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/`，不得选择 `workspace/dataAssets/features/2025-09-dq-single-table-field-compare/`。
    - 禁止通过 `ls workspace/dataAssets/features/ | head`、`ls ... | grep`、`ls -t ...`、`find workspace/dataAssets/features` 或 Glob 枚举目录名来定位需求
 3. 读取目标需求目录下的文件结构：
    - 只检查当前需求目录下的 `archive.md`、`test-point-checklist.md`、`prd.md`、`inputs/lanhu-snapshots/` 是否存在；`prd.md` 与 `inputs/lanhu-snapshots/` 的 source-backed 判断只能用 exact-path existence checks（如 `test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`），不得读取 `prd.md` 正文或截图内容，不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**` 或枚举截图文件名

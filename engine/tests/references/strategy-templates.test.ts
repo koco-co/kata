@@ -21,7 +21,7 @@ describe("case-draft runtime references", () => {
 
   test("projects the design-aligned product skill name", () => {
     expect(skill).toContain("name: case-draft");
-    expect(skill).toContain("few-shot 作为格式参照使用");
+    expect(skill).toContain("few-shot 只可作为格式参考");
     expect(existsSync(oldSkillPath)).toBe(false);
   });
 

@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 分析源代码或文档的合并冲突，产出面向解决方案的冲突报告。
+  summary: 用户提供合并冲突标记并要求分析冲突或给出解决方案。
   must_trigger_when:
     - 用户给出带有合并冲突标记的文本。
     - 用户要求剖析冲突成因、竞争性变更或可靠的解决路径。

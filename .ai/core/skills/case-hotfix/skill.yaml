@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 依据已知 bug、issue 记录或修复说明，产出聚焦于修复路径的 hotfix 回归用例。
+  summary: 用户提供 bug、issue、Zentao 记录或修复说明并要求 hotfix 回归用例。
   must_trigger_when:
     - 用户给出 bug ID、issue URL、缺陷描述或修复说明。
     - 用户只给出 ZenTao bug URL、bug-view URL、bug ID 或其他已登记 issue 记录，即使没有显式写出“hotfix”或“回归用例”。

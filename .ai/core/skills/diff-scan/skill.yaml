@@ -5,7 +5,7 @@ schema_version: 1
 skill_version: 1
 status: active
 description:
-  summary: 扫描源代码 diff，只报告可复现、有证据支撑的缺陷。
+  summary: 用户要求扫描 diff、分支或变更文件中的可复现缺陷。
   must_trigger_when:
     - 用户要求对代码做静态扫描、diff 扫描，或在代码变更中查找 bug。
     - 用户给出仓库 diff、分支对或变更文件集供检查。
