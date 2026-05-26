@@ -117,6 +117,7 @@ function parseCases(markdown) {
   let version = "";
   let section = "";
   let current = null;
+  let outerFence = null;
 
   function finishCase(endLine) {
     if (!current) return;
@@ -126,13 +127,42 @@ function parseCases(markdown) {
     current = null;
   }
 
+  function parseFence(line) {
+    const match = line.trim().match(/^(`{3,}|~{3,})/);
+    return match
+      ? {
+          marker: match[1][0],
+          length: match[1].length,
+        }
+      : null;
+  }
+
+  function updateOuterFence(line) {
+    const fence = parseFence(line);
+    if (!fence) return;
+    if (!outerFence) {
+      outerFence = fence;
+      return;
+    }
+    if (fence.marker === outerFence.marker && fence.length >= outerFence.length) {
+      outerFence = null;
+    }
+  }
+
   lines.forEach((line, index) => {
     const lineNumber = index + 1;
+    if (outerFence) {
+      if (current) current.lines.push(line);
+      updateOuterFence(line);
+      return;
+    }
+
     const versionMatch = line.match(/^##\s+(v6\.4\.\d+)\s*$/);
     if (versionMatch) {
       finishCase(lineNumber - 1);
       version = versionMatch[1];
       section = "";
+      updateOuterFence(line);
       return;
     }
 
@@ -140,6 +170,7 @@ function parseCases(markdown) {
     if (sectionMatch) {
       finishCase(lineNumber - 1);
       section = sectionMatch[1].trim();
+      updateOuterFence(line);
       return;
     }
 
@@ -157,15 +188,19 @@ function parseCases(markdown) {
         lines: [line],
         body: "",
         preconditions: "",
+        preconditionLines: [],
         steps: [],
         preconditionHeaderCount: 0,
         stepsHeaderCount: 0,
         preconditionFenceLine: "",
+        preconditionFenceLineNumber: null,
       };
+      updateOuterFence(line);
       return;
     }
 
     if (current) current.lines.push(line);
+    updateOuterFence(line);
   });
   finishCase(lines.length);
 
@@ -181,15 +216,28 @@ function parseCases(markdown) {
       const fenceIndex = preLines.findIndex((line) => /^`{3,}/.test(line.trim()));
       if (fenceIndex !== -1) {
         testCase.preconditionFenceLine = preLines[fenceIndex].trim();
+        testCase.preconditionFenceLineNumber = testCase.line + preIndex + 1 + fenceIndex;
         const fence = testCase.preconditionFenceLine.match(/^(`{3,})/)?.[1] ?? "";
         const closeIndex = preLines.findIndex(
           (line, index) => index > fenceIndex && line.trim() === fence,
         );
+        const contentStart = fenceIndex + 1;
+        const contentEnd = closeIndex === -1 ? preLines.length : closeIndex;
+        testCase.preconditionLines = preLines
+          .slice(contentStart, contentEnd)
+          .map((line, offset) => ({
+            line: testCase.line + preIndex + 1 + contentStart + offset,
+            text: line,
+          }));
         testCase.preconditions =
           closeIndex === -1
-            ? preLines.slice(fenceIndex + 1).join("\n").trim()
-            : preLines.slice(fenceIndex + 1, closeIndex).join("\n").trim();
+            ? preLines.slice(contentStart).join("\n").trim()
+            : preLines.slice(contentStart, closeIndex).join("\n").trim();
       } else {
+        testCase.preconditionLines = preLines.map((line, offset) => ({
+          line: testCase.line + preIndex + 1 + offset,
+          text: line,
+        }));
         testCase.preconditions = preLines.join("\n").trim();
       }
     }
@@ -275,6 +323,7 @@ function classifyIssues(markdown, cases) {
     if (testCase.preconditionFenceLine !== "```sql") {
       add("precondition_fence_language", "precondition fence must be exactly ```sql", {
         ...ref,
+        line: testCase.preconditionFenceLineNumber ?? testCase.line,
         fence: testCase.preconditionFenceLine || null,
       });
     }
@@ -332,8 +381,19 @@ function classifyIssues(markdown, cases) {
       add("pre_v648_dq_chain_missing_ruleset", "old DQ chain case mentions DQ task/report/result terms without ruleset management", ref);
     }
 
-    if (/规则描述\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i.test(bodyText)) {
-      add("empty_rule_description", "rule description is empty or placeholder text", ref);
+    const emptyRuleDescriptionPattern = /规则描述\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i;
+    const emptyRuleDescriptionLine = [
+      ...testCase.preconditionLines,
+      ...testCase.steps.flatMap((step) => [
+        { line: step.line, text: step.step },
+        { line: step.line, text: step.expected },
+      ]),
+    ].find((entry) => emptyRuleDescriptionPattern.test(textOnly(entry.text)))?.line;
+    if (emptyRuleDescriptionPattern.test(bodyText)) {
+      add("empty_rule_description", "rule description is empty or placeholder text", {
+        ...ref,
+        line: emptyRuleDescriptionLine ?? testCase.line,
+      });
     }
   }
 
@@ -380,4 +440,9 @@ function main() {
   }
 }
 
-main();
+try {
+  main();
+} catch (error) {
+  console.error(`error: ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
+}
