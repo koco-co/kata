@@ -60,9 +60,13 @@ generated_files:
   - .claude/skills/case-draft/references/source-confirm.md
   - .claude/skills/case-draft/references/spec-reviewer-prompt.md
   - .claude/skills/case-draft/references/quality-reviewer-prompt.md
+  - .claude/skills/case-draft/references/fewshots/case-format-sample.md
+  - .claude/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - .claude/skills/case-draft/SKILL.md
   - .claude/skills/case-edit/references/archive-xmind-sync.md
   - .claude/skills/case-edit/references/apply-corrections.md
+  - .claude/skills/case-edit/references/fewshots/case-format-sample.md
+  - .claude/skills/case-edit/references/fewshots/case-format-sample.xmind.md
   - .claude/skills/case-edit/SKILL.md
   - .claude/skills/workspace-manage/references/project-layout.md
   - .claude/skills/workspace-manage/SKILL.md
