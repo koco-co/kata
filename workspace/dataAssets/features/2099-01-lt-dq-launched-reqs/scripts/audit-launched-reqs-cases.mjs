@@ -373,15 +373,17 @@ function classifyIssues(markdown, cases) {
     });
 
     const bodyText = textOnly([testCase.title, testCase.preconditions, ...testCase.steps.flatMap((step) => [step.step, step.expected])].join("\n"));
+    const isDataStandardCheckCase = bodyText.includes("数据标准") && bodyText.includes("落标检查");
     if (
       OLD_RULESET_VERSIONS.has(testCase.version) &&
+      !isDataStandardCheckCase &&
       DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
       !bodyText.includes("规则集管理")
     ) {
       add("pre_v648_dq_chain_missing_ruleset", "old DQ chain case mentions DQ task/report/result terms without ruleset management", ref);
     }
 
-    const emptyRuleDescriptionPattern = /规则描述\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i;
+    const emptyRuleDescriptionPattern = /(?:规则集描述|规则描述|备注)\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i;
     const emptyRuleDescriptionLine = [
       ...testCase.preconditionLines,
       ...testCase.steps.flatMap((step) => [
