@@ -50,6 +50,36 @@ const WEAK_EXPECTED_ONLY = new Set([
   "正常显示",
   "展示正常",
 ]);
+const WEAK_EXPECTED_TEMPLATE_PHRASES = [
+  "页面路由进入目标菜单",
+  "页面标题或列表主区域可见",
+  "页面提示操作成功",
+  "目标记录状态或列表内容按本次操作更新",
+];
+const HALLUCINATED_FILLER_STEP_PATTERNS = [
+  /^前提条件标示$/,
+  /^前提标示$/,
+  /^占位说明$/,
+  /^操作占位$/,
+];
+const STEP_API_CALL_PATTERNS = [
+  /\bcurl\b/i,
+  /\bhttps?:\/\//,
+  /\b(?:POST|GET|PUT|DELETE|PATCH)\s+\/[A-Za-z0-9_\-\/{}]+/,
+];
+const NAVIGATION_DASH_SEPARATOR = /【[^】]+】\s*[-－–—]\s*【[^】]+】/;
+const BUTTON_BRACKET_TRAILING = /【[^】→]+】\s*按钮/;
+const CLICK_BRACKET_NON_NAV = /(?:^|[^→])点击\s*【([^】]+)】/g;
+const SELECT_BRACKET_NON_NAV = /(?:^|[^→])(?:选择|新增|新建|输入|配置|开启|关闭)\s*【([^】]+)】/g;
+const SQUARE_BRACKET_BUTTON = /(?<![A-Za-z0-9_])\[([^\]\n]{1,30})\]/g;
+const ENGLISH_BRACKETS_WHITELIST = new Set([
+  "1.96",
+  "-1.96",
+  "P0",
+  "P1",
+  "P2",
+  "P3",
+]);
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
@@ -287,6 +317,17 @@ function classifyIssues(markdown, cases) {
     issues.push({ rule, message, ...details });
   }
 
+  const subsectionHeaderCount = String(markdown ?? "")
+    .split("\n")
+    .filter((line) => /^####\s+\S/.test(line)).length;
+  if (subsectionHeaderCount === 0) {
+    add(
+      "missing_subsection_header",
+      "document must contain level-4 (####) subsection headers between module and case",
+      { actual: subsectionHeaderCount },
+    );
+  }
+
   if (frontmatterCaseCount !== EXPECTED_CASE_COUNT) {
     add("frontmatter_case_count", `frontmatter case_count is ${frontmatterCaseCount}`, {
       expected: EXPECTED_CASE_COUNT,
@@ -382,6 +423,95 @@ function classifyIssues(markdown, cases) {
           ...ref,
           line: step.line,
           actual: stepText,
+        });
+      }
+
+      const stepAndExpected = `${stepText}\n${textOnly(step.expected)}`;
+
+      for (const pattern of HALLUCINATED_FILLER_STEP_PATTERNS) {
+        if (pattern.test(stepText.trim())) {
+          add("hallucinated_filler_step", "step text appears to be auto-generated placeholder filler", {
+            ...ref,
+            line: step.line,
+            actual: stepText,
+          });
+          break;
+        }
+      }
+
+      if (STEP_API_CALL_PATTERNS.some((pattern) => pattern.test(stepAndExpected))) {
+        add("step_contains_api_call", "step body must describe UI actions, not raw API/curl calls", {
+          ...ref,
+          line: step.line,
+          actual: stepText,
+        });
+      }
+
+      if (NAVIGATION_DASH_SEPARATOR.test(stepAndExpected)) {
+        add("navigation_dash_separator", "navigation path between brackets must use ' → ', not '-'", {
+          ...ref,
+          line: step.line,
+          actual: stepText,
+        });
+      }
+
+      if (BUTTON_BRACKET_TRAILING.test(stepAndExpected)) {
+        add("bracket_button_misuse", "button names must use 「」 not 【】 (matched: 【...】按钮)", {
+          ...ref,
+          line: step.line,
+          actual: stepText,
+        });
+      }
+
+      for (const regex of [CLICK_BRACKET_NON_NAV, SELECT_BRACKET_NON_NAV]) {
+        regex.lastIndex = 0;
+        let match;
+        while ((match = regex.exec(stepAndExpected)) !== null) {
+          if (!match[1] || match[1].includes("→")) continue;
+          add("bracket_button_misuse", "button names must use 「」 not 【】", {
+            ...ref,
+            line: step.line,
+            actual: match[0].trim(),
+          });
+          break;
+        }
+      }
+
+      let sbMatch;
+      SQUARE_BRACKET_BUTTON.lastIndex = 0;
+      while ((sbMatch = SQUARE_BRACKET_BUTTON.exec(stepAndExpected)) !== null) {
+        const inside = sbMatch[1].trim();
+        if (!inside || ENGLISH_BRACKETS_WHITELIST.has(inside)) continue;
+        if (/^[-+]?\d+(?:[.,]\d+)?$/.test(inside)) continue;
+        if (/^[A-Za-z0-9_\-.@]+$/.test(inside) && !/[一-鿿]/.test(inside)) continue;
+        if (/^[-+]?\d+(?:\.\d+)?\s*[,，]\s*[-+]?\d+(?:\.\d+)?$/.test(inside)) continue;
+        add("ascii_bracket_button_misuse", "do not use [xxx] as button/field marker; use 「」", {
+          ...ref,
+          line: step.line,
+          actual: `[${inside}]`,
+        });
+        break;
+      }
+
+      const expectedRaw = textOnly(step.expected);
+      const expectedAfterNumber = expectedRaw.replace(/^\d+\)\s*/, "");
+      if (WEAK_EXPECTED_TEMPLATE_PHRASES.some((phrase) => expectedAfterNumber.startsWith(phrase))) {
+        add("weak_expected_template", "expected result uses a generic template phrase without case-specific assertion", {
+          ...ref,
+          line: step.line,
+          actual: expectedRaw,
+        });
+      }
+
+      const stepCell = String(step.step ?? "");
+      const stepCellTextLen = textOnly(stepCell).length;
+      const hasMultiSubpoints = /(?:^|[^0-9])\b[2-9]\)/.test(textOnly(stepCell));
+      const hasLineBreak = /<br\s*\/?>/i.test(stepCell);
+      if (stepCellTextLen > 80 && hasMultiSubpoints && !hasLineBreak) {
+        add("step_cell_no_linebreak", "multi-subpoint step cell must use <br> between subpoints", {
+          ...ref,
+          line: step.line,
+          actual: textOnly(stepCell).slice(0, 80),
         });
       }
     });
