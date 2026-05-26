@@ -26,8 +26,9 @@ describe("case-draft hard_rules regression", () => {
   // Baseline updated 2026-05-22: P3-06 — negative constraints reframed as positive guidance; giant rule #5 split into 4 independent rules.
   // Updated 2026-05-25: +5 output-standard rules (file-set, no machine id in title, bracket semantics, no weak expected, evidence floor).
   // Updated 2026-05-25: +1 Lanhu/Axure silent-intake rule surfaced into always_load so the silence rule governs the first message (was buried in error-fallback reference).
-  const BASELINE_SHA256 = "63ca7431da403304c56603cbf8af3297c4fa96cfea3d03ca23b5d747873e2506";
-  const BASELINE_COUNT = 20;
+  // Updated 2026-05-26: -3 rules collapsed into SSOT pointer (case-level format moved to output-standard.md#用例级节点格式; evidence-floor merged into the pointer line).
+  const BASELINE_SHA256 = "328b29f6dd1b368591a33520da0cb0589f643e27038bca278fb098d507721d23";
+  const BASELINE_COUNT = 17;
 
   it("hard_rules array length is unchanged", () => {
     expect(hardRules.length).toBe(BASELINE_COUNT);
