@@ -1,6 +1,6 @@
 # case-draft 输出产物标准（normative）
 
-> 本文件中带 `(硬)` 的条款均为 hard_rules。文末「## 用例级节点格式（Case-Level Normative）」节是用例级格式 SSOT：case-qa.md、archive-xmind-sync.md、case-draft skill.yaml、case-edit skill.yaml 在用例级条款上一律反向引用本节，发生冲突以本节为准。
+> 本文件中带 `(硬)` 的条款均为 hard_rules。文末「## 用例级节点格式（Case-Level Normative）」节是用例级格式 SSOT：`.ai/core/rules/case-qa.md`、`.ai/core/skills/case-edit/references/archive-xmind-sync.md`、`.ai/core/skills/case-draft/skill.yaml`、`.ai/core/skills/case-edit/skill.yaml` 在用例级条款上一律反向引用本节，发生冲突以本节为准。
 
 ## 文件集
 - 交付层（feature 根，仅 4 件）：archive.md、cases.xmind、metadata.yaml、manifest.json。
@@ -11,7 +11,7 @@ suite_name / root_name / module / prd_version / prd_id / tags / status / create_
 禁止 product / description / dev_version 等无消费方字段。prd_id 与 case_id 统一用 prd_id。
 
 ## 章节层级（映射 xmind-gen 树）
-`## 模块` → `### 页面` → `#### 子分组(可选)` → `##### 【Pn】用例`。
+详见文末「## 用例级节点格式（Case-Level Normative）」节通用 Markdown 用例节点规则 1（SSOT）。
 
 ## 用例标题（硬）
 - 必带 `【Pn】` 前缀（工具解析优先级）。
@@ -19,8 +19,7 @@ suite_name / root_name / module / prd_version / prd_id / tags / status / create_
 - 自然中文动宾句。
 
 ## 括号语义（硬）
-- `【】` 专用于 `【Pn】` 优先级前缀。
-- `「」` 用于所有 UI/菜单/选项/字段名。
+详见文末「## 用例级节点格式（Case-Level Normative）」节通用 Markdown 用例节点规则 4（SSOT）。
 
 ## 用例内容质量（硬）
 - 每条用例 ≥1 前置条件、≥1 步骤，每步预期具体可验；禁止「页面正常打开」作为唯一断言。
@@ -39,21 +38,22 @@ suite_name / root_name / module / prd_version / prd_id / tags / status / create_
 ## 用例级节点格式（Case-Level Normative）
 
 本节是用例级（H5 用例标题及其所有子节点）格式的唯一权威源（SSOT）。
-- `.ai/core/rules/case-qa.md`、`case-edit/references/archive-xmind-sync.md`、case-draft skill.yaml、case-edit skill.yaml 中如出现条款冲突，以本节为准。
+- `.ai/core/rules/case-qa.md`、`.ai/core/skills/case-edit/references/archive-xmind-sync.md`、`.ai/core/skills/case-draft/skill.yaml`、`.ai/core/skills/case-edit/skill.yaml` 中如出现条款冲突，以本节为准。
 - 标 `(硬)` 的条款均视为 hard_rule，违反必须阻塞产出。
+- 其他后续新增的 case 相关规则/技能/投影文件如涉及用例级条款，同等以本节为准。
 
 ### 通用 — Markdown 用例节点
 
 1. (硬) 层级：`## 一级模块` → `### 二级模块` → `#### 子分组(可选)` → `##### 【Pn】用例标题`。用例 = H5。
 2. (硬) 标题结构：`【Pn】+ 验证动词 + 验证对象 + 验证场景/结果`。验证对象内可嵌套业务括号 `【...】`（如规则名、字段类型）。
 3. (硬) 标题禁机器标识：TC-ID、SR-、RA- 等一律不进标题。
-4. (硬) 括号语义：`【】` 专用于 `【Pn】` 与业务子括号；`「」` 专用于 UI/菜单/按钮/字段/选项名。
+4. (硬) 括号语义：`【】` 用于 `【Pn】` 优先级前缀、业务子括号（如规则名）以及菜单/页面导航路径（如 `进入【数据质量 → 规则任务管理】`）；`「」` 专用于 UI/按钮/字段/选项/单据/标签页名。
 5. (硬) 用例正文按顺序包含两个 blockquote 段落，且只能出现一次：
    - `> 前置条件` → 紧跟一个 ` ```sql ` 代码块。
    - `> 用例步骤` → 紧跟一个三列表格 `| 编号 | 步骤 | 预期 |`。
 6. (硬) 前置条件代码块内部结构：
    - 顶部 `/* ... */` 多行 SQL 注释，逐条编号描述「依赖的环境/数据源/通用配置/SQL 准备目的」。
-   - 紧随可执行 SQL（USE / DROP / CREATE / INSERT / SELECT）；每条验证用 SELECT 末尾用 `-- 预期结果：N` 行内注释标注期望返回。
+   - 紧随可执行 SQL（USE / DROP / CREATE / INSERT / SELECT）；凡用于验证的 SELECT，末尾必须用 `-- 预期结果：N` 行内注释标注期望返回行数。
    - 环境差异项（数据库/Schema/表/库）一律用 `${SchemaA}` 等占位符；不得硬编码租户库名。
    - 非 SQL 的说明文字必须写在 `/* ... */` 注释块内，不得与可执行 SQL 混排。
 7. (硬) 步骤表格规则：
@@ -75,7 +75,7 @@ suite_name / root_name / module / prd_version / prd_id / tags / status / create_
    | `【P2】` | `priority-3` |
    | `【P3】` | `priority-4` |
 
-10. (硬) 用例 topic 的 `notes.plain.content` = Markdown 前置条件代码块**裸内容**（含 `/* */` 注释 + SQL，不带 ```sql 围栏）。
+10. (硬) 用例 topic 的 `notes.plain.content` = Markdown 前置条件代码块的**裸内容**（含 `/* */` 注释 + SQL 本体，剥离三引号 sql 围栏与结尾三引号）。
 11. (硬) 用例 topic 的 attached children = 步骤列表；每个步骤是一个 child topic，title = markdown 表「步骤」单元格的**真实换行**版本（把 `<br>` 还原为 `\n`，把 `<br>- ` 还原为 `\n- `）。
 12. (硬) 每个步骤 topic 下挂**一个**预期 grandchild topic，title = markdown 表「预期」单元格的真实换行版本。
 13. (硬) XMind 节点 title 与 notes 内一律禁出现 `<br>`。超长 SQL/前置/步骤/预期需要拆成 children 或 notes，不得堆进单 title。
