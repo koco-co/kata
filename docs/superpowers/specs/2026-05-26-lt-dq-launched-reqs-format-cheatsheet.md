@@ -23,15 +23,37 @@
 
 任何字段名、按钮名、菜单路径、接口路径、枚举值，写入用例前必须在以下来源**真实查到**：
 
-| 证据源 | 路径 | 用法 |
+| 证据源 | 路径（worktree 内可达） | 用法 |
 |---|---|---|
-| 前端源码 | `workspace/dataAssets/.kata/repos/customltem/dt-insight-studio/apps/dataAssets/src` | `grep -r "字段名"` 看 i18n / placeholder / label |
+| 前端源码 | `workspace/dataAssets/.kata/repos/customltem/dt-insight-studio` | `grep -r "字段名" apps/dataAssets/src` 看 i18n / placeholder / label |
 | 后端源码 | `workspace/dataAssets/.kata/repos/customltem/dt-center-assets` | 看 controller / DTO / enum 校对接口名和参数枚举 |
-| 实时 DOM | playwright 用 `workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json` 登录 | 查页面控件实际文案、字段 placeholder |
+| 实时 DOM | `workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json` | playwright 用此 session 登录目标环境查 DOM |
 | DOM 知识库 | `workspace/dataAssets/_shared/knowledge/sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md` | 已有的 DOM 索引，优先查这里 |
 | 模块知识库 | `workspace/dataAssets/_shared/knowledge/modules/data-quality.md` | 业务术语和链路理解 |
 
-**找不到证据时**：在用例尾部 `> 待确认` 段写明（不要新增 `> 待确认` 块结构，写在前置条件 `/* ... */` 注释内或单独 `> 待确认` blockquote），禁止猜测。
+**找不到证据时**：在前置条件 `/* ... */` 注释内或单独 `> 待确认` blockquote 写明，禁止猜测。
+
+### `.kata` 一次性 setup（worktree 必做）
+
+`.kata/` 在仓库根 `.gitignore`，git worktree 创建时**不会复制**——所以 codex 在 worktree 里默认读不到前后端源码和 session，必须手动 symlink 到 main：
+
+```bash
+ln -s /Users/poco/Projects/kata/workspace/dataAssets/.kata \
+      <worktree-root>/workspace/dataAssets/.kata
+# 把该 symlink 加入 git 仓库 exclude（避免 git status 噪音）
+echo "workspace/dataAssets/.kata" >> /Users/poco/Projects/kata/.git/info/exclude
+```
+
+对当前 worktree `lt-dq-launched-reqs-case-cleanup` 已完成此 setup（symlink 已建、exclude 已加）。
+
+如果 codex 报「文件不存在」「无法 grep 字段名」「找不到 session」，**第一件事是验证 `.kata` symlink 可达**：
+
+```bash
+ls workspace/dataAssets/.kata/repos/customltem/dt-insight-studio/apps/dataAssets/src | head -3
+ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
+```
+
+两条都成功才能开始整改。任何失败立即报告，不得继续猜字段名。
 
 ---
 
