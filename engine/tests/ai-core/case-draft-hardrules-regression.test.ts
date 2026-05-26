@@ -27,8 +27,9 @@ describe("case-draft hard_rules regression", () => {
   // Updated 2026-05-25: +5 output-standard rules (file-set, no machine id in title, bracket semantics, no weak expected, evidence floor).
   // Updated 2026-05-25: +1 Lanhu/Axure silent-intake rule surfaced into always_load so the silence rule governs the first message (was buried in error-fallback reference).
   // Updated 2026-05-26: -3 rules collapsed into SSOT pointer (case-level format moved to output-standard.md#用例级节点格式; evidence-floor merged into the pointer line).
-  const BASELINE_SHA256 = "328b29f6dd1b368591a33520da0cb0589f643e27038bca278fb098d507721d23";
-  const BASELINE_COUNT = 17;
+  // Updated 2026-05-26: +1 form-field baseline rule requiring explicit UI/config evidence before form-case generation.
+  const BASELINE_SHA256 = "50b174e4ec6e50d3c6a2e69dca9830b501f7a1d2d09888720cd3b02e5eb60a50";
+  const BASELINE_COUNT = 18;
 
   it("hard_rules array length is unchanged", () => {
     expect(hardRules.length).toBe(BASELINE_COUNT);

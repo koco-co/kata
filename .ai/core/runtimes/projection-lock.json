@@ -15,7 +15,7 @@
     {
       "path": ".agents/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "81ccb98f7c1f003a9eaaf7d0713b51efe0fd26ddd66e0cec9972995fafb544b9"
+      "sha256": "59486f98aa7d4710659e6debd1b220afa9b802b7f706809b220bbbeb7bb32695"
     },
     {
       "path": ".agents/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -80,17 +80,17 @@
     {
       "path": ".agents/skills/case-draft/references/output-standard.md",
       "disposition": "generated",
-      "sha256": "eb25fa43dccafec1c954bfddcdaebc665be2e45068be32d168ce9668bd169eb9"
+      "sha256": "67394736a8094e49b250b7da36a9f4ea3d5213c5c6cf7d786606aea6b36dedf8"
     },
     {
       "path": ".agents/skills/case-draft/references/quality-reviewer-prompt.md",
       "disposition": "generated",
-      "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+      "sha256": "2ea882f2c24b317d1cf9b68d325631e7acd06c8d429c554a9d6e8d428ddc196f"
     },
     {
       "path": ".agents/skills/case-draft/references/source-confirm.md",
       "disposition": "generated",
-      "sha256": "0ff23318b70746fda96c5068a8e2c425afa9164dd137bc130409f3770fdd379c"
+      "sha256": "c0053daa346e452991a9651662ea2bccb5607ae33792ccff4c334c32fdcf2490"
     },
     {
       "path": ".agents/skills/case-draft/references/source-intake-protocol.md",
@@ -100,17 +100,17 @@
     {
       "path": ".agents/skills/case-draft/references/spec-reviewer-prompt.md",
       "disposition": "generated",
-      "sha256": "32b10169d25a8557526ff78cee36c45806d6b1a9a8e34936757ea5bb25bfe8d1"
+      "sha256": "57732206d5cd084445deeaef3305298acf6cb5bfb36c668eabf9bace383503aa"
     },
     {
       "path": ".agents/skills/case-draft/references/worker-prompt.md",
       "disposition": "generated",
-      "sha256": "3ca85b1a99d48c1a43b93b09d75ba0363cbca9bab2c627bb57cf0b0d12aaa1a3"
+      "sha256": "3d8e39c19dac6120b092ecfac592d11f1f29dbd4bb6c70c1134c6d30d262e0f3"
     },
     {
       "path": ".agents/skills/case-edit/SKILL.md",
       "disposition": "generated",
-      "sha256": "cacd7a03ce69cf44c5b085ec2988a8ebc3b0c78c38adbb3e04f72eec0fd1934a"
+      "sha256": "b8540ac3ef92c8d9005c34203726eb499e3267525272deea67cabe38254b6310"
     },
     {
       "path": ".agents/skills/case-edit/references/apply-corrections.md",
@@ -345,7 +345,7 @@
     {
       "path": ".claude/skills/case-draft/SKILL.md",
       "disposition": "generated",
-      "sha256": "81ccb98f7c1f003a9eaaf7d0713b51efe0fd26ddd66e0cec9972995fafb544b9"
+      "sha256": "59486f98aa7d4710659e6debd1b220afa9b802b7f706809b220bbbeb7bb32695"
     },
     {
       "path": ".claude/skills/case-draft/references/ambiguity-decision-tree.md",
@@ -410,17 +410,17 @@
     {
       "path": ".claude/skills/case-draft/references/output-standard.md",
       "disposition": "generated",
-      "sha256": "eb25fa43dccafec1c954bfddcdaebc665be2e45068be32d168ce9668bd169eb9"
+      "sha256": "67394736a8094e49b250b7da36a9f4ea3d5213c5c6cf7d786606aea6b36dedf8"
     },
     {
       "path": ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
       "disposition": "generated",
-      "sha256": "f562b90460c58332bbe774e5fe70bf767f486818c50d092e928882cb1c78662f"
+      "sha256": "2ea882f2c24b317d1cf9b68d325631e7acd06c8d429c554a9d6e8d428ddc196f"
     },
     {
       "path": ".claude/skills/case-draft/references/source-confirm.md",
       "disposition": "generated",
-      "sha256": "0ff23318b70746fda96c5068a8e2c425afa9164dd137bc130409f3770fdd379c"
+      "sha256": "c0053daa346e452991a9651662ea2bccb5607ae33792ccff4c334c32fdcf2490"
     },
     {
       "path": ".claude/skills/case-draft/references/source-intake-protocol.md",
@@ -430,17 +430,17 @@
     {
       "path": ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
       "disposition": "generated",
-      "sha256": "32b10169d25a8557526ff78cee36c45806d6b1a9a8e34936757ea5bb25bfe8d1"
+      "sha256": "57732206d5cd084445deeaef3305298acf6cb5bfb36c668eabf9bace383503aa"
     },
     {
       "path": ".claude/skills/case-draft/references/worker-prompt.md",
       "disposition": "generated",
-      "sha256": "3ca85b1a99d48c1a43b93b09d75ba0363cbca9bab2c627bb57cf0b0d12aaa1a3"
+      "sha256": "3d8e39c19dac6120b092ecfac592d11f1f29dbd4bb6c70c1134c6d30d262e0f3"
     },
     {
       "path": ".claude/skills/case-edit/SKILL.md",
       "disposition": "generated",
-      "sha256": "cacd7a03ce69cf44c5b085ec2988a8ebc3b0c78c38adbb3e04f72eec0fd1934a"
+      "sha256": "b8540ac3ef92c8d9005c34203726eb499e3267525272deea67cabe38254b6310"
     },
     {
       "path": ".claude/skills/case-edit/references/apply-corrections.md",
