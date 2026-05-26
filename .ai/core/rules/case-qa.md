@@ -6,7 +6,7 @@
 
 ## 一致性自检维度
 
-Archive Markdown 与 XMind 必须从同一用例模型生成/更新，逐字段比对以下六维必须一致：
+Archive Markdown 与 XMind 必须从同一用例模型生成/更新，逐字段比对以下各维必须一致：
 
 - 版本/模块
 - 需求
