@@ -80,7 +80,7 @@
     {
       "path": ".agents/skills/case-draft/references/output-standard.md",
       "disposition": "generated",
-      "sha256": "a97980c9fe5c9c250b696d7ab8177adb31f31c3937d8a758296043bad73aec12"
+      "sha256": "eb25fa43dccafec1c954bfddcdaebc665be2e45068be32d168ce9668bd169eb9"
     },
     {
       "path": ".agents/skills/case-draft/references/quality-reviewer-prompt.md",
@@ -410,7 +410,7 @@
     {
       "path": ".claude/skills/case-draft/references/output-standard.md",
       "disposition": "generated",
-      "sha256": "a97980c9fe5c9c250b696d7ab8177adb31f31c3937d8a758296043bad73aec12"
+      "sha256": "eb25fa43dccafec1c954bfddcdaebc665be2e45068be32d168ce9668bd169eb9"
     },
     {
       "path": ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
