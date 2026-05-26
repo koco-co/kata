@@ -58,9 +58,13 @@ generated_files:
   - .agents/skills/case-draft/references/source-confirm.md
   - .agents/skills/case-draft/references/spec-reviewer-prompt.md
   - .agents/skills/case-draft/references/quality-reviewer-prompt.md
+  - .agents/skills/case-draft/references/fewshots/case-format-sample.md
+  - .agents/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - .agents/skills/case-draft/SKILL.md
   - .agents/skills/case-edit/references/archive-xmind-sync.md
   - .agents/skills/case-edit/references/apply-corrections.md
+  - .agents/skills/case-edit/references/fewshots/case-format-sample.md
+  - .agents/skills/case-edit/references/fewshots/case-format-sample.xmind.md
   - .agents/skills/case-edit/SKILL.md
   - .agents/skills/workspace-manage/references/project-layout.md
   - .agents/skills/workspace-manage/SKILL.md

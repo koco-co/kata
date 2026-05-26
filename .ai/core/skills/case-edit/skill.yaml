@@ -51,9 +51,8 @@ body:
       - 编辑或同步用例时，原有语义须完整保留。
       - 缺失的前置条件、步骤或预期结果，不得凭空补造。
       - 交付前必须自审 Archive Markdown 与 XMind 的数量、优先级、标题、前置条件、步骤和预期一致性，不得依赖用户人工发现格式或业务规则问题。
-      - XMind 可读性属于验收标准：连续动作、配置项或展示项必须用真实换行拆开，单个节点行不得塞入多个动作子句或三个及以上引号项。
-      - XMind 打开性能属于验收标准：超长 SQL、前置条件、步骤或预期不得塞进单个 topic title 或 note；必须拆成可展开分块节点，并用校验脚本限制最大 title/note 长度与 topic 结构完整性。
-      - 涉及数据质量「规则任务管理」的用例必须体现先在「规则集管理」创建/配置规则集、规则包或监控规则，再在「规则任务管理」引用或导入规则包。
+      - 用户明确指定用例标题或历史标题包含业务括号（如「验证【规则名】...」）时，必须原样保留业务括号内容，不得按通用标题规则移除。
+      - 用例级节点格式与可读性以 .ai/core/skills/case-draft/references/output-standard.md#用例级节点格式（Case-Level Normative） 为准；DQ 规则任务管理类用例额外遵循该节「数据质量子集」段。
   codex_override:
     routing_summary:
       - 编辑或同步用例产物——语义不变是底线。
@@ -61,9 +60,23 @@ body:
       - 编辑或同步用例时，原有语义须完整保留。
       - 缺失的前置条件、步骤或预期结果，不得凭空补造。
       - 交付前必须自审 Archive Markdown 与 XMind 的数量、优先级、标题、前置条件、步骤和预期一致性，不得依赖用户人工发现格式或业务规则问题。
-      - XMind 可读性属于验收标准：连续动作、配置项或展示项必须用真实换行拆开，单个节点行不得塞入多个动作子句或三个及以上引号项。
-      - XMind 打开性能属于验收标准：超长 SQL、前置条件、步骤或预期不得塞进单个 topic title 或 note；必须拆成可展开分块节点，并用校验脚本限制最大 title/note 长度与 topic 结构完整性。
-      - 涉及数据质量「规则任务管理」的用例必须体现先在「规则集管理」创建/配置规则集、规则包或监控规则，再在「规则任务管理」引用或导入规则包。
+      - 用户明确指定用例标题或历史标题包含业务括号（如「验证【规则名】...」）时，必须原样保留业务括号内容，不得按通用标题规则移除。
+      - 用例级节点格式与可读性以 .ai/core/skills/case-draft/references/output-standard.md#用例级节点格式（Case-Level Normative） 为准；DQ 规则任务管理类用例额外遵循该节「数据质量子集」段。
+few_shots:
+  - path: references/fewshots/case-format-sample.md
+    load_phases:
+      - plan_edit
+      - output
+    purpose: 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。
+    load_when: step.id in [plan_edit, output]
+    max_tokens: 3000
+  - path: references/fewshots/case-format-sample.xmind.md
+    load_phases:
+      - plan_edit
+      - output
+    purpose: XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。
+    load_when: step.id in [plan_edit, output]
+    max_tokens: 1500
 references:
   - path: references/archive-xmind-sync.md
     type: normative

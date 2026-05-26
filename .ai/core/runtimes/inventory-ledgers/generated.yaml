@@ -59,6 +59,12 @@ files:
   - path: .agents/skills/case-draft/references/quality-reviewer-prompt.md
     runtime: codex
     source: .ai/core/skills/case-draft/references/quality-reviewer-prompt.md
+  - path: .agents/skills/case-draft/references/fewshots/case-format-sample.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .agents/skills/case-draft/references/fewshots/case-format-sample.xmind.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .agents/skills/case-draft/SKILL.md
     runtime: codex
     source: .ai/core/skills/case-draft/skill.yaml
@@ -68,6 +74,12 @@ files:
   - path: .agents/skills/case-edit/references/archive-xmind-sync.md
     runtime: codex
     source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
+  - path: .agents/skills/case-edit/references/fewshots/case-format-sample.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .agents/skills/case-edit/references/fewshots/case-format-sample.xmind.md
+    runtime: codex
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .agents/skills/case-edit/SKILL.md
     runtime: codex
     source: .ai/core/skills/case-edit/skill.yaml
@@ -209,6 +221,12 @@ files:
   - path: .claude/skills/case-draft/references/quality-reviewer-prompt.md
     runtime: claude
     source: .ai/core/skills/case-draft/references/quality-reviewer-prompt.md
+  - path: .claude/skills/case-draft/references/fewshots/case-format-sample.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .claude/skills/case-draft/references/fewshots/case-format-sample.xmind.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .claude/skills/case-draft/SKILL.md
     runtime: claude
     source: .ai/core/skills/case-draft/skill.yaml
@@ -218,6 +236,12 @@ files:
   - path: .claude/skills/case-edit/references/archive-xmind-sync.md
     runtime: claude
     source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
+  - path: .claude/skills/case-edit/references/fewshots/case-format-sample.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .claude/skills/case-edit/references/fewshots/case-format-sample.xmind.md
+    runtime: claude
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .claude/skills/case-edit/SKILL.md
     runtime: claude
     source: .ai/core/skills/case-edit/skill.yaml

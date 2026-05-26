@@ -65,12 +65,14 @@ const MARKER_TO_PRIORITY: Record<string, string> = {
   "priority-1": "P0",
   "priority-2": "P1",
   "priority-3": "P2",
+  "priority-4": "P3",
 };
 
 const PRIORITY_TO_MARKER: Record<string, string> = {
   P0: "priority-1",
   P1: "priority-2",
   P2: "priority-3",
+  P3: "priority-4",
 };
 
 // ─── XMind I/O ────────────────────────────────────────────────────────────────

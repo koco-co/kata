@@ -43,6 +43,14 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/case-draft/references/execution-protocol.md
+  - path: .agents/skills/case-draft/references/fewshots/case-format-sample.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .agents/skills/case-draft/references/fewshots/case-format-sample.xmind.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .agents/skills/case-draft/references/historical-context.md
     runtime: codex
     disposition: generated
@@ -87,6 +95,14 @@ files:
     runtime: codex
     disposition: generated
     source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
+  - path: .agents/skills/case-edit/references/fewshots/case-format-sample.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .agents/skills/case-edit/references/fewshots/case-format-sample.xmind.md
+    runtime: codex
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .agents/skills/case-hotfix/SKILL.md
     runtime: codex
     disposition: generated
@@ -291,6 +307,14 @@ files:
     runtime: claude
     disposition: generated
     source: .ai/core/skills/case-draft/references/execution-protocol.md
+  - path: .claude/skills/case-draft/references/fewshots/case-format-sample.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .claude/skills/case-draft/references/fewshots/case-format-sample.xmind.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .claude/skills/case-draft/references/historical-context.md
     runtime: claude
     disposition: generated
@@ -335,6 +359,14 @@ files:
     runtime: claude
     disposition: generated
     source: .ai/core/skills/case-edit/references/archive-xmind-sync.md
+  - path: .claude/skills/case-edit/references/fewshots/case-format-sample.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.md
+  - path: .claude/skills/case-edit/references/fewshots/case-format-sample.xmind.md
+    runtime: claude
+    disposition: generated
+    source: .ai/core/skills/case-draft/references/fewshots/case-format-sample.xmind.md
   - path: .claude/skills/case-hotfix/SKILL.md
     runtime: claude
     disposition: generated
