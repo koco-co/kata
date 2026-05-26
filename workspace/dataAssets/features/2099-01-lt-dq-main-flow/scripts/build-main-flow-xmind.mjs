@@ -465,6 +465,9 @@ function forcedPath(testCase) {
   if (text.includes(DQ_RULE_FLOW_NODE)) {
     return ["数据质量", DQ_RULE_FLOW_NODE];
   }
+  if (testCase.module === "数据质量" && testCase.submodule === "数据质量报告") {
+    return ["数据质量", "数据质量报告"];
+  }
   return null;
 }
 
