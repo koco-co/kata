@@ -272,10 +272,10 @@ function classifyIssues(markdown, cases) {
       });
     }
 
-    if (testCase.preconditionFenceLine && !/^`{3,}$/.test(testCase.preconditionFenceLine)) {
-      add("precondition_fence_language", "precondition fence must not declare a language", {
+    if (testCase.preconditionFenceLine !== "```sql") {
+      add("precondition_fence_language", "precondition fence must be exactly ```sql", {
         ...ref,
-        fence: testCase.preconditionFenceLine,
+        fence: testCase.preconditionFenceLine || null,
       });
     }
 
@@ -296,28 +296,34 @@ function classifyIssues(markdown, cases) {
       }
 
       const expectedText = textOnly(step.expected);
-      if (/^\s*(?:\d+[.)）、]|[（(]\d+[）)])\s*/.test(expectedText)) {
-        add("expected_numbering", "expected result should not start with a numbered list marker", {
+      if (!expectedText.startsWith("1)")) {
+        add("expected_numbering", "expected result must start with literal 1)", {
           ...ref,
           line: step.line,
           actual: expectedText,
         });
       }
 
-      if (WEAK_EXPECTED_ONLY.has(expectedText)) {
+      const expectedWithoutLeadingNumber = expectedText.replace(/^1\)\s*/, "");
+      if (WEAK_EXPECTED_ONLY.has(expectedWithoutLeadingNumber)) {
         add("weak_expected_only", "expected result is too weak when used alone", {
           ...ref,
           line: step.line,
           actual: expectedText,
         });
       }
+
+      const stepText = textOnly(step.step);
+      if (/^进入「(?:[^」]*[-－–—][^」]*|[^」]+」[-－–—]「[^」]+」)/.test(stepText)) {
+        add("old_navigation_quote_style", "navigation step should use 【模块 → 页面】 style", {
+          ...ref,
+          line: step.line,
+          actual: stepText,
+        });
+      }
     });
 
     const bodyText = textOnly([testCase.title, testCase.preconditions, ...testCase.steps.flatMap((step) => [step.step, step.expected])].join("\n"));
-    if (/进入[「"][^」"\n]*(?:-|－|–|—)[^」"\n]*[」"]/.test(bodyText)) {
-      add("old_navigation_quote_style", "navigation path should use 【模块 → 页面】 style", ref);
-    }
-
     if (
       OLD_RULESET_VERSIONS.has(testCase.version) &&
       DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
@@ -326,7 +332,7 @@ function classifyIssues(markdown, cases) {
       add("pre_v648_dq_chain_missing_ruleset", "old DQ chain case mentions DQ task/report/result terms without ruleset management", ref);
     }
 
-    if (/规则描述\s*[:：=]\s*(?:无|空|N\/A|NA|none)\b/i.test(bodyText)) {
+    if (/规则描述\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i.test(bodyText)) {
       add("empty_rule_description", "rule description is empty or placeholder text", ref);
     }
   }
