@@ -111,9 +111,8 @@
 
 #### D. `case-draft/skill.yaml#body.always_load.hard_rules`
 
-- 保留 14 条中除「用例标题禁机器标识」「括号语义」「每步预期具体可验」「证据底线（最后一条）」之外的全部条款（结构性规则不动）。
-- 改写：上述四条收敛为单条：「用例级节点格式与内容质量条款以 `references/output-standard.md#用例级节点格式（Case-Level Normative）` 为准；output-standard.md 中标 `(硬)` 的条款均视为 hard_rule。」
-- 不动：few-shot 格式参照行为说明、Lanhu/Axure 静默执行等。
+- 保留：现有所有结构性 hard_rules（Lanhu/Axure 静默执行、error-fallback、项目推断、产物写入 featureDir、历史上下文、requirement atom 字段、证据通过 manifest、archive 正文只保留人类可读、case_id 对账、blocking pending 豁免、archive 在 blocking 清零后生成、manifest automation、subagent 阻塞回传、few-shot 格式参照、slug 兜底、交付层四件等）。
+- 改写：「archive 标题禁机器标识 + 括号语义」「每条用例每步预期具体可验」「证据底线（最后一条）」三条收敛为单条：「用例级节点格式与内容质量条款以 `references/output-standard.md#用例级节点格式（Case-Level Normative）` 为准；output-standard.md 中标 `(硬)` 的条款均视为 hard_rule。」
 
 #### E. `case-edit/skill.yaml#body.always_load.hard_rules` 与 `codex_override.hard_rules`
 
@@ -179,6 +178,6 @@
 ## 6. 风险与回滚
 
 - 风险 1：hard_rules 从十几条压成「指针 + 一句」后，未来 prompt 渲染 / hard_rules 计数测试可能基线漂移 → 同步基线即可。
-- 风险 2：fewshot 引入后 case-draft 在 case-draft / output 阶段 token 增加约 4500 → 在 `context_budget` 的 `few_shots: 5000` 内（具体见 skill.yaml），可控。
+- 风险 2：fewshot 引入后 case-draft / case-edit 在相关阶段 token 增加约 4500（md ≤3000 + xmind ≤1500）。case-draft 现有 `context_budget.reference_tokens: 5000` 与 overflow_policy 的 few_shots 优先级最低（最先 drop），可控；case-edit 现有 budget 字段同结构，实施时若发现 budget 超限按 overflow_policy 自然降级即可。
 - 风险 3：xmind fewshot 用 ASCII 描述而非真 xmind，若模型仍误生成 `<br>` 节点 → 由 `case-qa.md` 自审 + `bun engine/bin/kata` 一致性检查兜底。
 - 回滚：单 commit revert 即可还原四个文件的瘦身与 fewshot 引入。
