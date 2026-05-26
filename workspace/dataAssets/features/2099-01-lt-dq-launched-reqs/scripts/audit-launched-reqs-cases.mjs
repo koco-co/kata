@@ -26,6 +26,20 @@ const DQ_CHAIN_TERMS = [
   "质量评估汇总",
   "脏数据明细",
 ];
+const OLD_RULESET_UNSUPPORTED_TERMS = [
+  "规则集管理",
+  "新建规则集",
+  "新增规则集",
+  "编辑规则集",
+  "导入规则包",
+  "规则包名称",
+  "规则包数量",
+];
+const DIRECT_EXECUTE_PATTERNS = [
+  /点击任务【立即执行】/,
+  /点击【立即执行】按钮/,
+  /点击(?:任务|操作列|.*列表).*【立即执行】/,
+];
 const WEAK_EXPECTED_ONLY = new Set([
   "进入成功",
   "保存成功",
@@ -374,13 +388,55 @@ function classifyIssues(markdown, cases) {
 
     const bodyText = textOnly([testCase.title, testCase.preconditions, ...testCase.steps.flatMap((step) => [step.step, step.expected])].join("\n"));
     const isDataStandardCheckCase = bodyText.includes("数据标准") && bodyText.includes("落标检查");
+    if (!/^\s*\/\*/.test(testCase.preconditions)) {
+      add("precondition_missing_comment_block", "precondition SQL must start with a /* ... */ comment block", ref);
+    }
+
+    if (!/\bUSE\s+\$\{SchemaA\}/i.test(testCase.preconditions)) {
+      add("precondition_missing_schema_placeholder", "precondition SQL must use USE ${SchemaA}", ref);
+    }
+
+    if (!/--\s*预期结果：\s*\d+/.test(testCase.preconditions)) {
+      add("precondition_missing_expected_select", "precondition SQL must include at least one SELECT expectation comment", ref);
+    }
+
+    if (/quality_test_db|qa_test|hive_test_db/.test(bodyText)) {
+      add("hardcoded_schema", "case must not hardcode test database/schema names", ref);
+    }
+
+    if (/业务链路要求/.test(bodyText)) {
+      add("generic_dq_chain_text", "case must not use generic DQ chain placeholder text", ref);
+    }
+
+    if (/新增并立即执行|保存并立即执行/.test(bodyText)) {
+      add("old_save_and_execute_button", "case must not use removed save-and-execute button wording", ref);
+    }
+
+    if (DIRECT_EXECUTE_PATTERNS.some((pattern) => pattern.test(bodyText))) {
+      add("direct_execute_without_drawer", "immediate execution should use table-detail drawer rule management entry", ref);
+    }
+
+    if (/规则任务管理 → 监控对象/.test(bodyText)) {
+      add("monitor_object_as_menu_path", "monitor object is a wizard step, not a navigation menu path", ref);
+    }
+
     if (
       OLD_RULESET_VERSIONS.has(testCase.version) &&
       !isDataStandardCheckCase &&
-      DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
-      !bodyText.includes("规则集管理")
+      OLD_RULESET_UNSUPPORTED_TERMS.some((term) => bodyText.includes(term))
     ) {
-      add("pre_v648_dq_chain_missing_ruleset", "old DQ chain case mentions DQ task/report/result terms without ruleset management", ref);
+      add("pre_v648_ruleset_not_supported", "v6.4.2-v6.4.6 cases must not use rule-set management wording", ref);
+    }
+
+    const shouldUseRuleSetFlow =
+      !OLD_RULESET_VERSIONS.has(testCase.version) &&
+      !/菜单名称|页面菜单/.test(bodyText) &&
+      !testCase.title.includes("总览") &&
+      DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
+      (/新建监控规则|立即执行|任务运行|任务正常运行|实例详情|脏数据|校验结果|分区信息改变/.test(bodyText) ||
+        testCase.title.includes("主流程"));
+    if (shouldUseRuleSetFlow && (!bodyText.includes("规则集管理") || !bodyText.includes("规则包"))) {
+      add("post_v648_dq_chain_missing_ruleset", "v6.4.8+ DQ task cases should include rule-set and rule-package flow", ref);
     }
 
     const emptyRuleDescriptionPattern = /(?:规则集描述|规则描述|备注)\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i;
