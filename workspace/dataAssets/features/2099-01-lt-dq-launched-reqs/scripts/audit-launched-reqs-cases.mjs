@@ -26,15 +26,6 @@ const DQ_CHAIN_TERMS = [
   "质量评估汇总",
   "脏数据明细",
 ];
-const OLD_RULESET_UNSUPPORTED_TERMS = [
-  "规则集管理",
-  "新建规则集",
-  "新增规则集",
-  "编辑规则集",
-  "导入规则包",
-  "规则包名称",
-  "规则包数量",
-];
 const DIRECT_EXECUTE_PATTERNS = [
   /点击任务【立即执行】/,
   /点击【立即执行】按钮/,
@@ -554,9 +545,10 @@ function classifyIssues(markdown, cases) {
     if (
       OLD_RULESET_VERSIONS.has(testCase.version) &&
       !isDataStandardCheckCase &&
-      OLD_RULESET_UNSUPPORTED_TERMS.some((term) => bodyText.includes(term))
+      DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
+      (!bodyText.includes("规则集管理") || !bodyText.includes("规则包") || !bodyText.includes("导入规则包"))
     ) {
-      add("pre_v648_ruleset_not_supported", "v6.4.2-v6.4.6 cases must not use rule-set management wording", ref);
+      add("pre_v648_dq_chain_missing_ruleset", "v6.4.2-v6.4.6 DQ rule-task/result/report cases must explain ruleset-to-task source chain", ref);
     }
 
     const shouldUseRuleSetFlow =
