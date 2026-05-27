@@ -13,6 +13,7 @@ config/repo-branch-mapping.yaml
 .worktrees/
 
 # Feature runtime products
+workspace/*/features/*/.process/
 workspace/*/features/*/results/
 workspace/*/features/*/.debug/
 .playwright-cli/*.yml
