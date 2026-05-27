@@ -261,7 +261,7 @@ function parseArchiveCases(markdown) {
     }
 
     if (section === "preconditions") {
-      const fence = line.match(/^(`{3,})\s*$/);
+      const fence = line.match(/^(`{3,})(?:[A-Za-z0-9_-]+)?\s*$/);
       if (fence && !inFence) {
         fenceMarker = fence[1];
         inFence = true;
