@@ -40,7 +40,7 @@
 
 - `docs/skills/contracts/runtime-skill-sync.md`：人工可读的双 runtime 同步规则。
 - `docs/skills/contracts/runtime-sync-exceptions.yaml`：允许的单边差异清单，初始为空数组。
-- `docs/skills/contracts/output-artifacts.md`：第一版共同产物规则。
+- `docs/skills/contracts/output-artifacts.md`：第一版共同要求和当前产物矩阵。
 - `docs/skills/contracts/verification-scope.md`：第一版共同验证规则。
 - `docs/skills/contracts/routes/case-draft.yaml`：case-draft 路由样例。
 - `docs/skills/contracts/routes/case-hotfix.yaml`：case-hotfix 路由样例。
@@ -178,6 +178,12 @@ Create `docs/skills/contracts/runtime-skill-sync.md`:
 Create `docs/skills/contracts/runtime-sync-exceptions.yaml`:
 
 ```yaml
+# Schema:
+# - skill: skill name, for example case-draft
+# - side: runtime side with intentional one-sided change, for example claude or codex
+# - file: affected file path
+# - reason: why the exception is allowed
+# - reviewer: required-before-merge
 exceptions: []
 ```
 
@@ -188,18 +194,26 @@ Create `docs/skills/contracts/output-artifacts.md`:
 ```markdown
 # 产物规范
 
-本文件定义生成测试用例的 QA skills 共同交付物清单和格式要求，适用于 `case-draft`、`case-edit`、`case-hotfix`。
+本文件定义生成测试用例的 QA skills 共同要求和当前产物矩阵，适用于 `case-draft`、`case-edit`、`case-hotfix`。
 不适用于 `bug-file`、`conflict-analyze`、`diff-scan`、`infra-diagnose`、`knowledge-curate`、`workspace-manage`、`playwright-automation`、`playwright-cli`；这些 skill 的产物规则在 Phase 2 单独补齐。
 
-## 共同产物
+## 共同要求
 
-- Archive MD：用例文档，含 feature metadata、source refs、用例树
-- XMind：思维导图格式用例，与 Archive 内容一致
-- CSV：表格格式用例，适用于批量导入
+- 产物清单以各 skill 当前 `SKILL.md` 和 references 为准。
+- Phase 1 只记录稳定基线，不替代各 skill 的细化产物规则。
+- 不把 CSV 作为 `case-draft`、`case-edit`、`case-hotfix` 三者共同必产物；CSV 仅在本次 skill 明确生成或转换时纳入交付范围。
+
+## 当前产物矩阵
+
+| Skill | 当前稳定产物 | 条件与边界 |
+| --- | --- | --- |
+| `case-draft` | `archive.md`、`cases.xmind`、`metadata.yaml`、`manifest.json` | blocking pending 非零时只输出确认/草稿类产物。 |
+| `case-edit` | `archive`、`xmind` | CSV 可以作为输入或转换语义出现，Phase 1 不强制输出 CSV。 |
+| `case-hotfix` | `archive`、`notes` | 目录内保留一个 `archive.md`、必要 JSON 文件和 `.temp/`；`archive.md` 禁止 SourceRef 字符串，SourceRefs 写入 `source_refs.json`。 |
 
 ## 质量要求
 
-- 字段一致性：Archive/XMind/CSV 的用例标题、步骤、预期结果必须一致
+- 字段一致性：只在本次实际声明或生成的产物之间检查用例标题、步骤、预期结果一致性。
 - 可读性：产物需经人工可直接审阅，不依赖工具解析
 ```
 
@@ -216,8 +230,15 @@ Create `docs/skills/contracts/verification-scope.md`:
 ## 通用验证项
 
 - 产物文件存在且可解析
-- 产物字段一致性（Archive ⇔ XMind ⇔ CSV）
+- 只验证本次 skill 实际声明或生成的产物。
+- Archive 与 XMind 一致性只在两者都应生成时检查。
+- CSV 只在本次明确生成或转换时检查。
 - 无未完成标记残留（包括常见英文待办词和中文待确认词）
+
+## SourceRef 放置边界
+
+- `case-draft`：人类可读产物不含 SourceRef 字符串。
+- `case-hotfix`：`archive.md` 不含 SourceRef 字符串，SourceRefs 写入 `source_refs.json`。
 
 ## 未验证范围声明
 
@@ -961,6 +982,6 @@ package.json
 - [ ] 新增检查器有单元测试和 CLI 测试。
 - [ ] exceptions schema 校验覆盖了必填字段、side 值、禁止豁免的语义类别。
 - [ ] `check:skills` 存在，但没有接进 `check` 或 `ci`。
-- [ ] `output-artifacts.md` 和 `verification-scope.md` 已限定为 `case-draft`、`case-edit`、`case-hotfix` 的第一版共同规则。
+- [ ] `output-artifacts.md` 和 `verification-scope.md` 已限定为 `case-draft`、`case-edit`、`case-hotfix` 的第一版共同要求，并避免把 CSV 写成三者共同必产物。
 - [ ] route-check 实现显式标注延期到 Phase 2。
 - [ ] 每个任务都有明确命令和预期结果。
