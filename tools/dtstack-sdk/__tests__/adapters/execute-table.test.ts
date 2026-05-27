@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { resolveExecuteTableDefaults } from "../../src/adapters/execute-table";
+import { existsSync } from "node:fs";
+import { resolveDtstackCliInvocation, resolveExecuteTableDefaults } from "../../src/adapters/execute-table";
 
 const ENV_KEYS = [
   "KATA_DATAASSETS_PROJECT_ID",
@@ -49,5 +50,18 @@ describe("execute-table defaults", () => {
 
     expect(defaults.projectId).toBe(456);
     expect(defaults.dataSourceId).toBe("ds-legacy");
+  });
+
+  test("resolves a usable dtstack-cli invocation", () => {
+    const invocation = resolveDtstackCliInvocation();
+
+    if (existsSync("./node_modules/.bin/dtstack-cli")) {
+      expect(invocation).toEqual({ command: "./node_modules/.bin/dtstack-cli", argsPrefix: [] });
+    } else {
+      expect(invocation).toEqual({
+        command: "bun",
+        argsPrefix: ["tools/dtstack-sdk/src/cli.ts"],
+      });
+    }
   });
 });

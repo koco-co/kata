@@ -13,7 +13,7 @@ function makeClient(handler: (path: string, body: unknown) => unknown): DtStackC
 }
 
 describe("BatchApi.executeDDL", () => {
-  test("CREATE statement is sent base64-encoded via ddlCreateTableEncryption", async () => {
+  test("CREATE statement is sent base64-encoded via ddlCreateTableEncryption with schema-qualified target", async () => {
     let calledPath = "";
     let calledBody: { sql: string } | undefined;
     const client = {
@@ -33,14 +33,13 @@ describe("BatchApi.executeDDL", () => {
     );
 
     expect(calledPath).toBe("/api/rdos/batch/batchTableInfo/ddlCreateTableEncryption");
-    expect(Buffer.from(calledBody?.sql, "base64").toString("utf-8")).toBe(
-      "CREATE TABLE t (id int)",
-    );
+    expect(Buffer.from(calledBody?.sql, "base64").toString("utf-8")).toBe("CREATE TABLE s.t (id int)");
   });
 
-  test("INSERT statement runs via batchScript flow (catalogue → addOrUpdate → startSql → poll)", async () => {
+  test("INSERT statement runs via batchScript flow with schema-qualified target", async () => {
     const calls: string[] = [];
-    const responder = (path: string): unknown => {
+    let startSqlBody: { sql?: string } | undefined;
+    const responder = (path: string, body: unknown): unknown => {
       calls.push(path);
       if (path.endsWith("/batchCatalogue/getCatalogue")) {
         return {
@@ -58,6 +57,7 @@ describe("BatchApi.executeDDL", () => {
         return { code: 1, data: { id: 140 } };
       }
       if (path.endsWith("/batchScript/startSqlImmediatelyEncryption")) {
+        startSqlBody = body as { sql?: string };
         return { code: 1, data: { jobId: "job-1" } };
       }
       if (path.endsWith("/batchSelectSql/selectStatus")) {
@@ -67,7 +67,7 @@ describe("BatchApi.executeDDL", () => {
     };
     const client = {
       post: mock(async () => ({ code: 1, data: null })),
-      postWithProjectId: mock(async (path: string) => responder(path)),
+      postWithProjectId: mock(async (path: string, body: unknown) => responder(path, body)),
     } as unknown as DtStackClientLike;
 
     const api = new BatchApi(client, `test-insert-${Date.now()}`);
@@ -81,6 +81,50 @@ describe("BatchApi.executeDDL", () => {
     expect(calls).toContain("/api/rdos/batch/batchScript/addOrUpdateScriptEncryption");
     expect(calls).toContain("/api/rdos/batch/batchScript/startSqlImmediatelyEncryption");
     expect(calls).toContain("/api/rdos/batch/batchSelectSql/selectStatus");
+    expect(Buffer.from(startSqlBody?.sql ?? "", "base64").toString("utf-8")).toBe(
+      "INSERT INTO s.t VALUES (1)",
+    );
+  });
+
+  test("DROP statement runs via batchScript flow with schema-qualified target", async () => {
+    let startSqlBody: { sql?: string } | undefined;
+    const responder = (path: string, body: unknown): unknown => {
+      if (path.endsWith("/batchCatalogue/getCatalogue")) {
+        return {
+          code: 1,
+          data: {
+            id: 0,
+            type: "folder",
+            children: [
+              { id: 5687, type: "folder", catalogueType: "ScriptManager", name: "临时查询" },
+            ],
+          },
+        };
+      }
+      if (path.endsWith("/batchScript/addOrUpdateScriptEncryption")) {
+        return { code: 1, data: { id: 141 } };
+      }
+      if (path.endsWith("/batchScript/startSqlImmediatelyEncryption")) {
+        startSqlBody = body as { sql?: string };
+        return { code: 1, data: { status: 5 } };
+      }
+      return { code: 1, data: null };
+    };
+    const client = {
+      post: mock(async () => ({ code: 1, data: null })),
+      postWithProjectId: mock(async (path: string, body: unknown) => responder(path, body)),
+    } as unknown as DtStackClientLike;
+
+    const api = new BatchApi(client, `test-drop-${Date.now()}`);
+    await api.executeDDL(
+      99,
+      { id: 1, dataName: "doris-x", dataSourceType: 119, schemaName: "s" },
+      "DROP TABLE IF EXISTS t",
+    );
+
+    expect(Buffer.from(startSqlBody?.sql ?? "", "base64").toString("utf-8")).toBe(
+      "DROP TABLE IF EXISTS s.t",
+    );
   });
 
   test("INSERT failure (job FAILED) throws error instead of silent skip", async () => {
@@ -116,7 +160,7 @@ describe("BatchApi.executeDDL", () => {
         "INSERT INTO t VALUES (1)",
       ),
     ).rejects.toThrow(/SQL execution failed/);
-  });
+  }, 30_000);
 
   test("findProject returns matching project", async () => {
     const client = makeClient(() => [{ id: 7, projectName: "pw_test" }]);

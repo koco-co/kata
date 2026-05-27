@@ -1,10 +1,10 @@
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L942-L1115
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L942,#L956,#L977,#L994,#L1050,#L1074,#L1092,#L1115,#L3157,#L3172,#L3186,#L3200
 // intent: SR-INTENT-2099-01-MD-026
 // probe: results/20260523-1930-mf-metadata-table-detail-actions-01/probe-detail.png
 // page: inline shell assertions; metadata table detail action entries
 // generated_at: 2026-05-23T19:30:00+08:00
 // META: {"id":"MD-026","priority":"P1/P2/P3","title":"元数据数据表详情页操作入口与表结构动作 Shell 可核验"}
-// SourceRefs: SR-2099-01-MD-026, SR-UI-PROBE-20260523-MF-METADATA-TABLE-DETAIL-ACTIONS-001, SR-SELF-RUN-20260523-MF-METADATA-TABLE-DETAIL-ACTIONS-001
+// SourceRefs: SR-2099-01-MD-DETAIL-UI-L942, SR-2099-01-MD-DETAIL-DELETE-L956, SR-2099-01-MD-DETAIL-EXPORT-L977, SR-2099-01-MD-DETAIL-SUBSCRIBE-L994, SR-2099-01-MD-DETAIL-FIELD-PAGING-L1050, SR-2099-01-MD-DETAIL-CREATE-SQL-L1074, SR-2099-01-MD-DETAIL-BATCH-EDIT-L1092, SR-2099-01-MD-DETAIL-ADD-TAG-L1115, SR-2099-01-MD-SUBSCRIBE-CREATE-L3157, SR-2099-01-MD-SUBSCRIBE-DETAIL-L3172, SR-2099-01-MD-SUBSCRIBE-EDIT-L3186, SR-2099-01-MD-SUBSCRIBE-MODAL-L3200, SR-2099-01-MD-026, SR-UI-PROBE-20260523-MF-METADATA-TABLE-DETAIL-ACTIONS-001, SR-SELF-RUN-20260523-MF-METADATA-TABLE-DETAIL-ACTIONS-001
 import { expect, type Locator, type Page, type Response } from "@playwright/test";
 
 import { test } from "../../../../_shared/fixtures/step-screenshot";
@@ -22,28 +22,35 @@ test("【P1/P2/P3】元数据数据表详情页操作入口与表结构动作 Sh
   step,
 }) => {
   await step("步骤1: 搜索并打开稳定数据表 → 表详情页操作入口可见", async () => {
-    await openMetadataTableDetail(page, "test_table", "SR-2099-01-MD-026");
-    await expectTableDetailActionEntries(page, "test_table", "SR-2099-01-MD-026");
+    await openMetadataTableDetail(page, "test_table", "SR-2099-01-MD-DETAIL-UI-L942");
+    await expectTableDetailActionEntries(page, "test_table", "SR-2099-01-MD-DETAIL-UI-L942");
   });
 
   await step("步骤2: 点击表名复制图标 → 页面提示复制成功且不读取剪贴板", async () => {
-    await copyTableNameViaUiMessage(page, "SR-2099-01-MD-026");
+    await copyTableNameViaUiMessage(page, "SR-2099-01-MD-DETAIL-UI-L942");
   });
 
   await step("步骤3: 打开删除/导出/订阅入口 → 仅校验弹窗 Shell 后取消", async () => {
-    await expectDeleteExportSubscribeShells(page, "test_table", "SR-2099-01-MD-026");
+    await expectDeleteExportSubscribeShells(
+      page,
+      "test_table",
+      "SR-2099-01-MD-DETAIL-DELETE-L956, SR-2099-01-MD-DETAIL-EXPORT-L977, SR-2099-01-MD-DETAIL-SUBSCRIBE-L994",
+    );
   });
 
   await step("步骤4: 查看表结构字段列表并搜索 id → 字段接口与列表 Shell 可核验", async () => {
-    await expectFieldListSearchAndPagination(page, "SR-2099-01-MD-026");
+    await expectFieldListSearchAndPagination(page, "SR-2099-01-MD-DETAIL-FIELD-PAGING-L1050");
   });
 
   await step("步骤5: 切换建表语句 → 建表语句入口 Shell 可见且不执行底层 SQL", async () => {
-    await expectCreateTableSqlEntry(page, "SR-2099-01-MD-026");
+    await expectCreateTableSqlEntry(page, "SR-2099-01-MD-DETAIL-CREATE-SQL-L1074");
   });
 
   await step("步骤6: 打开批量编辑和添加标签入口 → 编辑/标签 Shell 可见但不保存", async () => {
-    await expectBatchEditAndAddTagShells(page, "SR-2099-01-MD-026");
+    await expectBatchEditAndAddTagShells(
+      page,
+      "SR-2099-01-MD-DETAIL-BATCH-EDIT-L1092, SR-2099-01-MD-DETAIL-ADD-TAG-L1115",
+    );
   });
 });
 

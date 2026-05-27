@@ -1,0 +1,89 @@
+# Core SparkThrift tables for 2099-01 data-quality report/rule-task flows.
+# Keep platform objects (rule sets, rule tasks, generated reports) in UI/API fixtures.
+tables:
+  - name: dwd_supplier_info_di
+    sql: |
+      DROP TABLE IF EXISTS dwd_supplier_info_di;
+
+      CREATE TABLE dwd_supplier_info_di (
+        supplier_id STRING COMMENT '供应商ID',
+        supplier_code STRING COMMENT '供应商编码',
+        supplier_name STRING COMMENT '供应商名称',
+        contact_phone STRING COMMENT '联系电话',
+        status STRING COMMENT '状态',
+        updated_at STRING COMMENT '更新时间'
+      )
+      COMMENT '数据质量主流程供应商主数据表'
+      PARTITIONED BY (dt STRING COMMENT '业务日期')
+      STORED AS ORC;
+
+  - name: dwd_vehicle_order_di
+    sql: |
+      DROP TABLE IF EXISTS dwd_vehicle_order_di;
+
+      CREATE TABLE dwd_vehicle_order_di (
+        order_id STRING COMMENT '订单ID',
+        vin STRING COMMENT '车辆识别代码',
+        supplier_code STRING COMMENT '供应商编码',
+        final_price DECIMAL(20,3) COMMENT '成交价',
+        order_status STRING COMMENT '订单状态',
+        updated_at STRING COMMENT '更新时间'
+      )
+      COMMENT '数据质量主流程车辆订单表'
+      PARTITIONED BY (dt STRING COMMENT '业务日期')
+      STORED AS ORC;
+
+  - name: dwd_vehicle_quality_di
+    sql: |
+      DROP TABLE IF EXISTS dwd_vehicle_quality_di;
+
+      CREATE TABLE dwd_vehicle_quality_di (
+        vehicle_id STRING COMMENT '车辆ID',
+        vin STRING COMMENT '车辆识别代码',
+        info_json STRING COMMENT '车辆信息JSON',
+        mileage BIGINT COMMENT '里程',
+        battery_loss_rate DECIMAL(10,3) COMMENT '电池衰减率',
+        supplier_code STRING COMMENT '供应商编码',
+        event_time STRING COMMENT '事件时间'
+      )
+      COMMENT '数据质量主流程车辆质量分区表'
+      PARTITIONED BY (stat_date STRING COMMENT '业务日期', hour STRING COMMENT '小时')
+      STORED AS ORC;
+
+  - name: json_report_fail
+    sql: |
+      DROP TABLE IF EXISTS json_report_fail;
+
+      CREATE TABLE json_report_fail (
+        id STRING COMMENT '主键',
+        info_json STRING COMMENT 'JSON内容',
+        owner_phone STRING COMMENT '手机号',
+        created_at STRING COMMENT '创建时间'
+      )
+      COMMENT '数据质量报告主流程JSON失败表'
+      STORED AS ORC;
+
+  - name: json_format_test
+    sql: |
+      DROP TABLE IF EXISTS json_format_test;
+
+      CREATE TABLE json_format_test (
+        id STRING COMMENT '主键',
+        info_json STRING COMMENT 'JSON内容',
+        owner_email STRING COMMENT '邮箱',
+        created_at STRING COMMENT '创建时间'
+      )
+      COMMENT '数据质量报告主流程JSON格式表'
+      STORED AS ORC;
+
+  - name: quality_fail
+    sql: |
+      DROP TABLE IF EXISTS quality_fail;
+
+      CREATE TABLE quality_fail (
+        id STRING COMMENT '主键',
+        quality_value STRING COMMENT '失败值',
+        created_at STRING COMMENT '创建时间'
+      )
+      COMMENT '数据质量失败日志前置表'
+      STORED AS ORC;
