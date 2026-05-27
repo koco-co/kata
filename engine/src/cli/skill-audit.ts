@@ -10,6 +10,7 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
+import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
 
 export function buildSkillsCommand(): Command {
@@ -20,14 +21,19 @@ export function buildSkillsCommand(): Command {
     .option("--exit-code", "exit non-zero on any violation", false)
     .action((opts: { exitCode: boolean }) => {
       const root = repoRoot();
-      const report = checkRuntimeSkillSync(root);
-      const text = formatRuntimeSkillSyncReport(report, root);
-      if (report.passed) {
+      const skillSyncReport = checkRuntimeSkillSync(root);
+      const detachReport = checkRuntimeDetach(root);
+      const text = [
+        formatRuntimeSkillSyncReport(skillSyncReport, root),
+        formatRuntimeDetachReport(detachReport, root),
+      ].join("\n");
+      const passed = skillSyncReport.passed && detachReport.passed;
+      if (passed) {
         console.log(text);
       } else {
         process.stderr.write(`${text}\n`);
       }
-      if (opts.exitCode && !report.passed) process.exit(1);
+      if (opts.exitCode && !passed) process.exit(1);
     });
   skills
     .command("audit")
