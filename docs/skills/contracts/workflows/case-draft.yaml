@@ -1,0 +1,70 @@
+name: case-draft
+version: 1
+entry: /case-draft
+description: 根据 PRD、Lanhu、Axure 或功能描述生成 QA 用例的完整流程;本 yaml 是该 workflow 的唯一规范源。
+steps:
+  - id: source-intake
+    next: [module-identify]
+    blackboard_outputs: [sources, source_refs]
+    references:
+      - .claude/skills/case-draft/SKILL.md
+      - .agents/skills/case-draft/SKILL.md
+    failure_modes:
+      - SOURCE_FETCH_BLOCKED
+      - LANHU_AUTH_REQUIRED
+    human_gates: []
+    verification: []
+  - id: module-identify
+    next: [source-confirm]
+    blackboard_inputs: [sources, source_refs]
+    blackboard_outputs: [decisions]
+    failure_modes:
+      - MODULE_AMBIGUOUS
+    human_gates: []
+  - id: source-confirm
+    next: [historical-context]
+    blackboard_inputs: [sources, decisions]
+    blackboard_outputs: [open_questions]
+    human_gates:
+      - ambiguous_source_requires_user_confirmation
+  - id: historical-context
+    next: [requirement-atomize]
+    blackboard_inputs: [sources, decisions]
+    blackboard_outputs: [decisions]
+  - id: requirement-atomize
+    next: [ambiguity-scan]
+    blackboard_inputs: [sources, decisions]
+    blackboard_outputs: [decisions]
+  - id: ambiguity-scan
+    next: [confirmation-package]
+    blackboard_inputs: [decisions]
+    blackboard_outputs: [open_questions]
+  - id: confirmation-package
+    next: [product-feedback-merge]
+    blackboard_inputs: [open_questions]
+    blackboard_outputs: [open_questions]
+    human_gates:
+      - confirmation_package_requires_user_decision
+  - id: product-feedback-merge
+    next: [coverage-matrix]
+    blackboard_inputs: [open_questions, decisions]
+    blackboard_outputs: [decisions]
+  - id: coverage-matrix
+    next: [case-draft]
+    blackboard_inputs: [decisions]
+    blackboard_outputs: [coverage]
+  - id: case-draft
+    next: [case-review]
+    blackboard_inputs: [decisions, coverage, source_refs]
+    blackboard_outputs: [artifacts]
+  - id: case-review
+    next: [output]
+    blackboard_inputs: [artifacts, coverage]
+    blackboard_outputs: [open_questions, verification]
+  - id: output
+    next: [automation-handoff]
+    blackboard_inputs: [artifacts, verification]
+    blackboard_outputs: [artifacts]
+  - id: automation-handoff
+    blackboard_inputs: [artifacts]
+    blackboard_outputs: [handoff]
