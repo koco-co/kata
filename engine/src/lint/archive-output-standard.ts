@@ -110,9 +110,11 @@ function scanMachineFilesInRoot(featureDir: string, violations: CaseLintViolatio
 export function lintArchiveOutputStandard(featuresGlobRoot: string): CaseLintReport {
   const violations: CaseLintViolation[] = [];
   let files = 0;
-  // featuresGlobRoot 形如 <workspace>/<project>/features ；逐 feature 目录扫描
+  // featuresGlobRoot may be <workspace>/<project>/features or one feature dir.
   const roots: string[] = [];
-  if (isDir(featuresGlobRoot) && featuresGlobRoot.endsWith("features")) {
+  if (isDir(featuresGlobRoot) && existsSync(join(featuresGlobRoot, "archive.md"))) {
+    roots.push(featuresGlobRoot);
+  } else if (isDir(featuresGlobRoot) && featuresGlobRoot.endsWith("features")) {
     roots.push(featuresGlobRoot);
   } else if (isDir(featuresGlobRoot)) {
     for (const proj of readdirSync(featuresGlobRoot)) {
@@ -121,6 +123,12 @@ export function lintArchiveOutputStandard(featuresGlobRoot: string): CaseLintRep
     }
   }
   for (const fr of roots) {
+    if (existsSync(join(fr, "archive.md"))) {
+      files += 1;
+      scanArchive(fr, violations);
+      scanMachineFilesInRoot(fr, violations);
+      continue;
+    }
     for (const fid of readdirSync(fr)) {
       const fdir = join(fr, fid);
       if (!isDir(fdir)) continue;

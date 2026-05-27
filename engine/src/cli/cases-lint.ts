@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
-import { join, normalize, sep } from "node:path";
+import { isAbsolute, join, normalize, sep } from "node:path";
 import { Command } from "commander";
 import { repoRoot } from "../../lib/paths.ts";
 import { lintArchiveOutputStandard } from "../lint/archive-output-standard.ts";
@@ -73,7 +73,7 @@ export function buildCasesCommand(): Command {
     .option("--severity <level>", "filter exit-code by severity (all|fail-only)", "all")
     .option("--scope <p>", "scan path", join(repoRoot(), "workspace"))
     .action(async (opts: { exitCode: boolean; severity: string; scope: string }) => {
-      const normalizedScope = normalize(opts.scope);
+      const normalizedScope = normalize(isAbsolute(opts.scope) ? opts.scope : join(repoRoot(), opts.scope));
       const featureMarker = `${sep}features${sep}`;
       const markerIndex = normalizedScope.indexOf(featureMarker);
       const workspaceMarker = `${sep}workspace${sep}`;
@@ -87,6 +87,7 @@ export function buildCasesCommand(): Command {
           ? normalizedScope.slice(markerIndex + featureMarker.length).split(sep)[0]
           : undefined;
       const workspaceLintRoot = join(repoRoot(), "workspace");
+      const isFeatureScoped = Boolean(scopedProject && scopedFeatureId);
       const projects =
         scopedProject && existsSync(join(workspaceLintRoot, scopedProject))
           ? [scopedProject]
@@ -129,28 +130,35 @@ export function buildCasesCommand(): Command {
       );
 
       // ── case-level lint checks ──
+      const workspaceWideReports = isFeatureScoped
+        ? []
+        : [
+            lintOwnerSkillDup(join(repoRoot(), ".claude", "agents")),
+            lintNoEnvLocal(workspaceLintRoot),
+            lintRunnerIsAggregator(workspaceLintRoot),
+            lintCasesInCasesDir(workspaceLintRoot),
+            lintSessionCompliant(workspaceLintRoot),
+            lintEnvProfileCompliance(workspaceLintRoot),
+            lintNoDanglingHelpers(workspaceLintRoot),
+            lintSpecStructureValid(workspaceLintRoot),
+            lintSourceRefRegistry(workspaceLintRoot),
+          ];
+      const archiveOutputRoots =
+        scopedProject && scopedFeatureId
+          ? [join(workspaceLintRoot, scopedProject, "features", scopedFeatureId)]
+          : projects.map((project) => join(workspaceLintRoot, project, "features"));
       const reports: any[] = [
         lanhuBlockedDraftReport,
         caseMdSourceRefLeakReport,
         lintWeakAssertion(opts.scope),
         lintHardcodePath(opts.scope),
         lintDebugFileNaming(opts.scope),
-        lintOwnerSkillDup(join(repoRoot(), ".claude", "agents")),
         lintCaseTraceabilityHeader(opts.scope),
-        lintNoEnvLocal(workspaceLintRoot),
-        lintRunnerIsAggregator(workspaceLintRoot),
-        lintCasesInCasesDir(workspaceLintRoot),
-        lintSessionCompliant(workspaceLintRoot),
-        lintEnvProfileCompliance(workspaceLintRoot),
-        lintNoDanglingHelpers(workspaceLintRoot),
-        lintSpecStructureValid(workspaceLintRoot),
         lintNoFeatureLocalHelpers(opts.scope),
         lintNoDebugInCases(opts.scope),
         lintHandoffDoubleTrack(opts.scope),
-        lintSourceRefRegistry(workspaceLintRoot),
-        ...projects.map((project) =>
-          lintArchiveOutputStandard(join(workspaceLintRoot, project, "features")),
-        ),
+        ...workspaceWideReports,
+        ...archiveOutputRoots.map((root) => lintArchiveOutputStandard(root)),
       ];
       const all = [...featureViolations, ...reports.flatMap((r) => r.violations)];
       for (const v of all) {

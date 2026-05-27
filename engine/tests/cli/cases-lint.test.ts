@@ -400,4 +400,30 @@ describe("kata cases lint", () => {
       rmSync(scratch, { recursive: true, force: true });
     }
   });
+
+  it("accepts a single feature directory for archive output lint", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
+    try {
+      const featureId = "2026-05-output-standard-feature-scope";
+      const featureDir = join(scratch, "dataAssets/features", featureId);
+      mkdirSync(featureDir, { recursive: true });
+      writeFileSync(
+        join(featureDir, "archive.md"),
+        [
+          "---",
+          "suite_name: test",
+          "---",
+          "# 用例",
+          "",
+          "##### 【P1】TC-100 登录成功进入资产列表",
+        ].join("\n"),
+      );
+
+      const result = lintArchiveOutputStandard(featureDir);
+      expect(result.files).toBe(1);
+      expect(result.violations.map((v) => v.rule)).toContain("archive-title-machine-id");
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
 });
