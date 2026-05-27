@@ -56,6 +56,11 @@ describe("runtime detach check", () => {
     writeRuntimeFile(root, ".agents/INDEX.md", "# Codex index\n");
     writeSkill(root, ".claude", "case-draft");
     writeSkill(root, ".agents", "case-draft");
+    writeRuntimeFile(
+      root,
+      ".agents/skills/case-draft/references/fewshots/case-format-sample.md",
+      "# Case format sample\n\nUse readable archive fields.\n",
+    );
 
     const report = checkRuntimeDetach(root);
     expect(report.passed).toBe(true);
@@ -104,6 +109,25 @@ describe("runtime detach check", () => {
     const report = checkRuntimeDetach(root);
     expect(report.violations.some((v) => v.rule === "RUNTIME_GENERATED_MARKER")).toBe(true);
     expect(report.violations.some((v) => v.rule === "RUNTIME_AI_CORE_REFERENCE")).toBe(true);
+  });
+
+  test("flags active ai-core references in nested skill reference markdown", () => {
+    const root = makeRoot();
+    writeDetachedEntries(root);
+    writeRuntimeFile(
+      root,
+      ".agents/skills/case-draft/references/fewshots/case-format-sample.md",
+      "# Case format sample\n\nSSOT: .ai/core/skills/case-draft/references/output-standard.md\n",
+    );
+
+    const report = checkRuntimeDetach(root);
+    expect(report.passed).toBe(false);
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "RUNTIME_AI_CORE_REFERENCE",
+        path: join(root, ".agents/skills/case-draft/references/fewshots/case-format-sample.md"),
+      }),
+    );
   });
 
   test("formats detach failures with relative paths", () => {

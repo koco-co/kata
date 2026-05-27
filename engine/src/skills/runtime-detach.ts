@@ -141,11 +141,32 @@ function collectSkillFiles(root: string, runtimeDir: ".claude" | ".agents"): str
   const skillsRoot = join(root, runtimeDir, "skills");
   if (!existsSync(skillsRoot)) return [];
 
-  return readdirSync(skillsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort()
-    .map((name) => join(skillsRoot, name, "SKILL.md"));
+  const stat = lstatSync(skillsRoot);
+  if (!stat.isDirectory() || stat.isSymbolicLink()) return [];
+
+  return collectMarkdownFiles(skillsRoot);
+}
+
+function collectMarkdownFiles(dir: string): string[] {
+  const paths: string[] = [];
+
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )) {
+    if (entry.isSymbolicLink()) continue;
+
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      paths.push(...collectMarkdownFiles(path));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(".md")) {
+      paths.push(path);
+    }
+  }
+
+  return paths;
 }
 
 export function formatRuntimeDetachReport(report: RuntimeDetachReport, root: string): string {
