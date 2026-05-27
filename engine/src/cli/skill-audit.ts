@@ -10,9 +10,25 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
+import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
 
 export function buildSkillsCommand(): Command {
   const skills = new Command("skills").description("Skills 审查操作");
+  skills
+    .command("sync-check")
+    .description("检查 .claude 与 .agents 的 skill 是否同步")
+    .option("--exit-code", "exit non-zero on any violation", false)
+    .action((opts: { exitCode: boolean }) => {
+      const root = repoRoot();
+      const report = checkRuntimeSkillSync(root);
+      const text = formatRuntimeSkillSyncReport(report, root);
+      if (report.passed) {
+        console.log(text);
+      } else {
+        process.stderr.write(`${text}\n`);
+      }
+      if (opts.exitCode && !report.passed) process.exit(1);
+    });
   skills
     .command("audit")
     .description("审查 skills SKILL.md + references 契约与 agents frontmatter")
