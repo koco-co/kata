@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kata.local/schemas/blackboard-state.json",
+  "title": "Blackboard State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sources",
+    "source_refs",
+    "decisions",
+    "open_questions",
+    "artifacts",
+    "coverage",
+    "verification",
+    "handoff"
+  ],
+  "properties": {
+    "sources": {
+      "type": "array",
+      "description": "原始素材清单",
+      "items": { "type": "object" }
+    },
+    "source_refs": {
+      "type": "array",
+      "description": "可追溯 SourceRef 列表,每条必须含 id/type/location",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "location"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "type": "string" },
+          "location": { "type": "string" },
+          "collected_at": { "type": "string" },
+          "validity": { "type": "string" }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "description": "AI 关键判断,必须区分 fact/inference/assumption",
+      "items": {
+        "type": "object",
+        "required": ["kind", "statement"],
+        "properties": {
+          "kind": { "enum": ["fact", "inference", "assumption"] },
+          "statement": { "type": "string" },
+          "evidence": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "description": "阻塞项与澄清项",
+      "items": {
+        "type": "object",
+        "required": ["question", "raised_by"],
+        "properties": {
+          "question": { "type": "string" },
+          "raised_by": { "type": "string" },
+          "status": { "enum": ["open", "answered", "deferred"] }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "本次产生或修改的产物路径",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind"],
+        "properties": {
+          "path": { "type": "string" },
+          "kind": { "type": "string" }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "覆盖矩阵;空对象代表本次 skill 不产 coverage"
+    },
+    "verification": {
+      "type": "array",
+      "description": "已执行命令与退出码",
+      "items": {
+        "type": "object",
+        "required": ["command", "exit_code"],
+        "properties": {
+          "command": { "type": "string" },
+          "exit_code": { "type": "integer" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "description": "交接信息;空对象代表本次 skill 是终态"
+    }
+  }
+}
