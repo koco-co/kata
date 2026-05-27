@@ -1,10 +1,10 @@
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L1034-L1250
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L1034,#L1137,#L1155,#L1174,#L1203,#L1217,#L1234,#L1250
 // intent: SR-INTENT-2099-01-MD-024
 // probe: results/20260523-2015-mf-metadata-detail-range-01/playwright/ui-probe/probe.json
 // page: inline shell assertions; metadata shell project bootstrap
 // generated_at: 2026-05-23T20:15:00+08:00
 // META: {"id":"MD-024","priority":"P1/P2/P3","title":"元数据表详情 L1034-L1250 只读 Shell 合约可核验"}
-// SourceRefs: SR-2099-01-MD-024, SR-UI-PROBE-20260523-MF-METADATA-DETAIL-RANGE-001, SR-SELF-RUN-20260523-MF-METADATA-DETAIL-RANGE-001
+// SourceRefs: SR-2099-01-MD-024, SR-2099-01-MD-DETAIL-QUALITY-SCORE-L1137, SR-2099-01-MD-DETAIL-DATA-PREVIEW-L1155, SR-2099-01-MD-DETAIL-LINEAGE-L1174, SR-2099-01-MD-DETAIL-TASK-DEPENDENCY-L1203, SR-2099-01-MD-DETAIL-FILE-GOVERNANCE-L1217, SR-2099-01-MD-DETAIL-VERSION-CHANGE-L1234, SR-2099-01-MD-DETAIL-OPERATION-RECORD-L1250, SR-UI-PROBE-20260523-MF-METADATA-DETAIL-RANGE-001, SR-SELF-RUN-20260523-MF-METADATA-DETAIL-RANGE-001
 import { expect, type Page, type Response } from "@playwright/test";
 
 import { test } from "../../../../_shared/fixtures/step-screenshot";
@@ -35,39 +35,39 @@ test("【P1/P2/P3】元数据表详情 L1034-L1250 只读 Shell 合约可核验"
   await step("步骤3: 查看建表语句与质量评分条件 → 建表页签可见且无质量评分 fixture", async () => {
     await clickTab(page, "建表语句", "SR-2099-01-MD-024");
     await expectCreateTableSqlShell(page, "SR-2099-01-MD-024");
-    await expect(page.locator("body"), "SR-2099-01-MD-024: 当前 fixture 未展示数据质量评分").not.toContainText(
+    await expect(page.locator("body"), "SR-2099-01-MD-DETAIL-QUALITY-SCORE-L1137: 当前 fixture 未展示数据质量评分").not.toContainText(
       "数据质量评分",
     );
   });
 
   await step("步骤4: 查看数据预览 → 当前 fixture 空状态可见", async () => {
-    await clickTopLevelTabAndWait(page, "数据预览", /dataSource\/judgeOpenDataPreviewByParam/, "SR-2099-01-MD-024");
-    await expectDataPreviewShell(page, "SR-2099-01-MD-024");
+    await clickTopLevelTabAndWait(page, "数据预览", /dataSource\/judgeOpenDataPreviewByParam/, "SR-2099-01-MD-DETAIL-DATA-PREVIEW-L1155");
+    await expectDataPreviewShell(page, "SR-2099-01-MD-DETAIL-DATA-PREVIEW-L1155");
   });
 
   await step("步骤5: 查看血缘关系 → 表级/字段级血缘工具 Shell 可见", async () => {
-    await clickTopLevelTabAndWait(page, "血缘关系", /lineage\/tableLineage/, "SR-2099-01-MD-024");
-    await expectLineageShell(page, "SR-2099-01-MD-024");
+    await clickTopLevelTabAndWait(page, "血缘关系", /lineage\/tableLineage/, "SR-2099-01-MD-DETAIL-LINEAGE-L1174");
+    await expectLineageShell(page, "SR-2099-01-MD-DETAIL-LINEAGE-L1174");
   });
 
   await step("步骤6: 查看任务依赖 → 离线/实时任务列表 Shell 可见", async () => {
-    await clickTopLevelTabAndWait(page, "任务依赖", /dataMap\/tableRely\/page/, "SR-2099-01-MD-024");
-    await expectTaskDependencyShell(page, "SR-2099-01-MD-024");
+    await clickTopLevelTabAndWait(page, "任务依赖", /dataMap\/tableRely\/page/, "SR-2099-01-MD-DETAIL-TASK-DEPENDENCY-L1203");
+    await expectTaskDependencyShell(page, "SR-2099-01-MD-DETAIL-TASK-DEPENDENCY-L1203");
   });
 
   await step("步骤7: 查看文件治理 → 治理记录表头和分页 Shell 可见", async () => {
-    await clickTab(page, "文件治理", "SR-2099-01-MD-024");
-    await expectFileGovernanceShell(page, "SR-2099-01-MD-024");
+    await clickTab(page, "文件治理", "SR-2099-01-MD-DETAIL-FILE-GOVERNANCE-L1217");
+    await expectFileGovernanceShell(page, "SR-2099-01-MD-DETAIL-FILE-GOVERNANCE-L1217");
   });
 
   await step("步骤8: 查看版本变更 → 版本表头、空状态和对比入口可见", async () => {
-    await clickTab(page, "版本变更", "SR-2099-01-MD-024");
-    await expectVersionChangeShell(page, "SR-2099-01-MD-024");
+    await clickTab(page, "版本变更", "SR-2099-01-MD-DETAIL-VERSION-CHANGE-L1234");
+    await expectVersionChangeShell(page, "SR-2099-01-MD-DETAIL-VERSION-CHANGE-L1234");
   });
 
   await step("步骤9: 查看操作记录 → 查询条件、表头和空状态可见", async () => {
-    await clickTab(page, "操作记录", "SR-2099-01-MD-024");
-    await expectOperationRecordShell(page, "SR-2099-01-MD-024");
+    await clickTab(page, "操作记录", "SR-2099-01-MD-DETAIL-OPERATION-RECORD-L1250");
+    await expectOperationRecordShell(page, "SR-2099-01-MD-DETAIL-OPERATION-RECORD-L1250");
   });
 });
 

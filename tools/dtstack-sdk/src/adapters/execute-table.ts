@@ -6,7 +6,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 
 export interface ExecuteTableOptions {
@@ -37,6 +37,12 @@ interface ExecuteTableDefaults {
   readonly projectId: number;
   readonly dataSourceId: string;
   readonly dataSourceType: number;
+}
+
+export function resolveDtstackCliInvocation(): { command: string; argsPrefix: string[] } {
+  const localBin = "./node_modules/.bin/dtstack-cli";
+  if (existsSync(localBin)) return { command: localBin, argsPrefix: [] };
+  return { command: "bun", argsPrefix: ["tools/dtstack-sdk/src/cli.ts"] };
 }
 
 function numericEnv(value: string | undefined): number | undefined {
@@ -102,10 +108,12 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
 
   const sqlFile = `/tmp/${tableName}.sql`;
   writeFileSync(sqlFile, sql);
+  const cli = resolveDtstackCliInvocation();
   try {
     execFileSync(
-      "./node_modules/.bin/dtstack-cli",
+      cli.command,
       [
+        ...cli.argsPrefix,
         "sql",
         "exec",
         "--project",

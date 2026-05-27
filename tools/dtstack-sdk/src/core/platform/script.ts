@@ -17,8 +17,9 @@ import type { DtStackClientLike } from "../http/client";
 const SCRIPT_NAME = "__kata_precond__";
 
 // BatchTaskStatus 终态码（来自平台 enum）
-const TERMINAL_STATUS = new Set([5, 7, 8, 9, 12, 13]);
+const TERMINAL_STATUS = new Set([5, 7, 8, 9, 12, 13, 16]);
 const SUCCESS_STATUS = new Set([5, 12]);
+const DEFAULT_SQL_TIMEOUT_MS = 600_000;
 
 interface CatalogueNode {
   readonly id: number;
@@ -220,7 +221,7 @@ export class BatchScriptRunner {
    * 同步执行单条 SQL：提交 → 轮询 → 终态
    * 失败/超时抛错。
    */
-  async executeSync(projectId: number, sql: string, timeoutMs = 180_000): Promise<void> {
+  async executeSync(projectId: number, sql: string, timeoutMs = DEFAULT_SQL_TIMEOUT_MS): Promise<void> {
     const scriptId = await this.ensureScriptId(projectId);
     try {
       const jobId = await this.submitSql(projectId, scriptId, sql);

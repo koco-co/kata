@@ -1,0 +1,15 @@
+# SourceRefs: SR-2099-01-DQ-GENERAL-CONFIG-DIMENSION-L7750, SR-2099-01-DQ-GENERAL-CONFIG-DIMENSION-L7769
+tables:
+  - name: dim_voyah_vehicle_info
+    sql: |
+      DROP TABLE IF EXISTS dim_voyah_vehicle_info;
+
+      CREATE TABLE dim_voyah_vehicle_info (
+        vin STRING COMMENT '车辆识别代码',
+        vehicle_count BIGINT COMMENT '车辆数统计字段',
+        car_series_code STRING COMMENT '车系关联字段',
+        car_model_code STRING COMMENT '车型关联字段',
+        power_type STRING COMMENT '动力类型关联字段'
+      )
+      COMMENT '岚图数据质量报告车辆信息维表'
+      STORED AS ORC;

@@ -103,6 +103,40 @@ export function getDatasourceAliases(datasourceType: string): {
   }
 }
 
+function qualifySqlTarget(stmt: string, targetSchema?: string | null): string {
+  if (!targetSchema) return stmt;
+  const schema = targetSchema.trim();
+  if (!schema) return stmt;
+
+  const qualify = (prefix: string, tableName: string): string => {
+    if (tableName.includes(".")) return `${prefix}${tableName}`;
+    return `${prefix}${schema}.${tableName}`;
+  };
+
+  if (isDropStatement(stmt)) {
+    return stmt.replace(
+      /^(\s*DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?)([A-Za-z][\w.]*)(?=\s|;|$)/i,
+      (_match, prefix: string, tableName: string) => qualify(prefix, tableName),
+    );
+  }
+
+  if (isCreateStatement(stmt)) {
+    return stmt.replace(
+      /^(\s*CREATE\s+(?:EXTERNAL\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?)([A-Za-z][\w.]*)(?=\s|\(|;|$)/i,
+      (_match, prefix: string, tableName: string) => qualify(prefix, tableName),
+    );
+  }
+
+  if (isInsertStatement(stmt)) {
+    return stmt.replace(
+      /^(\s*INSERT\s+(?:INTO|OVERWRITE)\s+(?:TABLE\s+)?)([A-Za-z][\w.]*)(?=\s|;|$)/i,
+      (_match, prefix: string, tableName: string) => qualify(prefix, tableName),
+    );
+  }
+
+  return stmt;
+}
+
 export class BatchApi {
   private readonly scriptRunner: BatchScriptRunner;
 
@@ -202,18 +236,22 @@ export class BatchApi {
 
       try {
         if (isCreate) {
-          await this.executeSqlViaDdlApi(projectId, datasource, stmt, targetSchema ?? "");
+          await this.executeSqlViaDdlApi(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
         } else if (isInsert) {
           // INSERT 通过 scriptRunner，但表刚创建后引擎可能还看不到（catalog 同步延迟）；
           // 用 backoff 重试，避免 INSERT 静默失败导致校验跑在空表上。
-          await this.executeWithRetry(() => this.scriptRunner.executeSync(projectId, stmt), {
-            attempts: 5,
-            delayMs: 1500,
-          });
+          const executableStmt = qualifySqlTarget(stmt, targetSchema);
+          await this.executeWithRetry(
+            () => this.scriptRunner.executeSync(projectId, executableStmt),
+            {
+              attempts: 5,
+              delayMs: 1500,
+            },
+          );
         } else if (isDrop) {
           // DROP 语句尝试执行，如果失败则忽略（表可能不存在）
           try {
-            await this.executeCustomSql(projectId, datasource, stmt, targetSchema ?? "");
+            await this.scriptRunner.executeSync(projectId, qualifySqlTarget(stmt, targetSchema));
           } catch (dropError) {
             const dropMessage = (dropError as Error).message;
             if (isMissingObjectError(dropMessage)) {
@@ -241,9 +279,9 @@ export class BatchApi {
         // 对于其他语句，尝试使用另一个 API 作为 fallback
         try {
           if (isCreate) {
-            await this.executeCustomSql(projectId, datasource, stmt, targetSchema ?? "");
+            await this.executeCustomSql(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
           } else {
-            await this.executeSqlViaDdlApi(projectId, datasource, stmt, targetSchema ?? "");
+            await this.executeSqlViaDdlApi(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
           }
         } catch (fallbackError) {
           const details = [message, (fallbackError as Error).message].join(" | fallback: ");
