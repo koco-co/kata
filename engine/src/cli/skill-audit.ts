@@ -12,6 +12,7 @@ import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
+import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
 
 export function buildSkillsCommand(): Command {
   const skills = new Command("skills").description("Skills 审查操作");
@@ -21,13 +22,15 @@ export function buildSkillsCommand(): Command {
     .option("--exit-code", "exit non-zero on any violation", false)
     .action((opts: { exitCode: boolean }) => {
       const root = repoRoot();
-      const skillSyncReport = checkRuntimeSkillSync(root);
+      const skillReport = checkRuntimeSkillSync(root);
       const detachReport = checkRuntimeDetach(root);
+      const workflowReport = checkWorkflows(root);
+      const passed = skillReport.passed && detachReport.passed && workflowReport.passed;
       const text = [
-        formatRuntimeSkillSyncReport(skillSyncReport, root),
+        formatRuntimeSkillSyncReport(skillReport, root),
         formatRuntimeDetachReport(detachReport, root),
+        formatWorkflowCheckReport(workflowReport, root),
       ].join("\n");
-      const passed = skillSyncReport.passed && detachReport.passed;
       if (passed) {
         console.log(text);
       } else {
