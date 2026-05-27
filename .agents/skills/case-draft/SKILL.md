@@ -10,9 +10,10 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 
 ## 路由摘要
 
-- 固定执行 source-intake → module-identify → source-confirm → historical-context → requirement-atomize → ambiguity-scan → confirmation-package → product-feedback-merge → coverage-matrix → case-draft → case-review → output → automation-handoff。
+- workflow 唯一规范源：`docs/skills/contracts/workflows/case-draft.yaml`；人工 review 文档：`docs/skills/workflows/case-draft.md`。两份必须保持一致，由 `engine/src/skills/workflow-check.ts` 校验。
+- 流程编排、步骤集合、blackboard 输入输出、失败模式、人工确认节点均以上述 yaml 为准；本 SKILL.md 不再内嵌步骤列表，避免出现第二份规范源。
 - 首步执行 `bun engine/bin/kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
-- 阶段内任务编排：source-intake 与 module-identify 完成且不在 Lanhu/Axure error-fallback 路径下时，按 references/execution-protocol.md 创建 TodoWrite、按 references/worker-prompt.md 派发 Worker、按 references/spec-reviewer-prompt.md 与 references/quality-reviewer-prompt.md 二阶段审查；Lanhu/Axure 阻塞草稿、source-intake 抓取静默期与所有 BlockedEnvelope 路径下禁用。
+- 阶段内任务编排细节见 yaml 步骤的 references 字段与对应 reference 文档（execution-protocol、worker-prompt、spec-reviewer-prompt、quality-reviewer-prompt）。
 
 ## 输入
 
