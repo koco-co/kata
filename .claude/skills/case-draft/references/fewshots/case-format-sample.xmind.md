@@ -1,6 +1,6 @@
 <!--
 XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
-SSOT：output-standard.md#用例级节点格式（Case-Level Normative）
+SSOT：../output-standard.md#用例级节点格式（Case-Level Normative）
 配套 md fewshot：./case-format-sample.md
 
 为什么用 ASCII 树状而非真 .xmind：
