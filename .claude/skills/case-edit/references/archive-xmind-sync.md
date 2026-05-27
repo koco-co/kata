@@ -6,7 +6,7 @@
 
 交付前必须主动自审，不得把格式、同步或业务规则缺陷留给用户人工发现。至少校验：Archive frontmatter `case_count` 与实际用例数一致；Archive 与 XMind 的版本/模块、需求、标题、优先级/marker、前置条件、步骤、预期逐条一致；XMind priority marker 分布符合预期；旧术语、旧菜单名或用户指定替换项无残留。
 
-用例级节点的所有格式细节（标题与括号语义、前置条件 SQL 注释块、`${SchemaA}` 占位符、步骤表格写法、XMind topic 镜像/priority marker/notes 约束、数据质量「规则集 → 规则任务」前置链、分区切换正负样本规则、规则描述必填等）一律以 `.ai/core/skills/case-draft/references/output-standard.md#用例级节点格式（Case-Level Normative）` 为准；DQ 规则任务管理类用例额外遵循该节「数据质量子集」段。
+用例级节点的所有格式细节（标题与括号语义、前置条件 SQL 注释块、`${SchemaA}` 占位符、步骤表格写法、XMind topic 镜像/priority marker/notes 约束、数据质量「规则集 → 规则任务」前置链、分区切换正负样本规则、规则描述必填等）一律以 `case-draft/references/output-standard.md#用例级节点格式（Case-Level Normative）` 为准；DQ 规则任务管理类用例额外遵循该节「数据质量子集」段。
 
 编辑诉求模糊时，须先以一个澄清问题确认意图，之后再触碰用例语义。源产物冲突时，以用户指定的来源为权威；未解决的分歧记入 pending items。
 
