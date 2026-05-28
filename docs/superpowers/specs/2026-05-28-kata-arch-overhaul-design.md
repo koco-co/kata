@@ -13,7 +13,7 @@
 把 kata 从「11 个独立 Claude skill + CLI helper engine」升级为 **Event-sourced QA Agent Runtime**：
 
 - skill 仍是 LLM 推理主体（保 Claude-native 触发机制）
-- workflow YAML 升级为 **phase contract**（不是执行器，不接管 LLM dispatch）
+- workflow YAML 升级为 **phase contract**（不自执行；engine 的 **Phase Dispatcher** 按 contract 显式 spawn subagent 并传 model/effort）
 - **append-only JSONL event journal** 是 backbone 脊柱
 - **blackboard 升级为 validator-enforced 状态**（每个 phase 只能写 contract 声明的 output slot）
 - plugin / MCP / notify / audit 全部从 events 投影
@@ -463,6 +463,9 @@ default_model: sonnet                         # sonnet | opus | haiku
 default_effort: high                          # low | medium | high
 
 metadata:
+  # event_kinds_emitted = skill 显式声明的事件子集；engine 始终额外自动 emit
+  # subagent_dispatched / subagent_completed / subagent_failed（来自 Phase Dispatcher）
+  # 和 projection_failed（来自 staged transaction），无需在此重复声明
   event_kinds_emitted: [phase_entered, phase_exited, decision_made, artifact_written, validator_failed, blocked, handoff_emitted]
   artifact_kinds_produced: [archive, xmind, metadata, manifest]
 
@@ -474,7 +477,7 @@ steps:
     failure_modes: [missing_source, unauthorized]
 
   - id: case-draft
-    dispatch: subagent
+    dispatch: subagent                          # → 触发 subagent_dispatched + subagent_completed/failed（auto）
     model: sonnet
     effort: high
     # subagent_type 未声明，使用 SKILL.md agent 默认（general-purpose）
@@ -926,7 +929,7 @@ kata events project <run_id>
 |---|---|---|
 | 1 | `refactor: ✨ retire codex runtime mirror + catalog shim` | 删 `.agents/contracts/`、`.agents/rules/`；保 `.agents/skills/` 加 README 占位；**新增 `apps/core/catalog/compat-shim.ts`**：从 `.claude/contracts/skill-manifest.yaml` 合成同形 `SkillSummary`，保 MCP `kata_list_skills` 响应 contract 不变（I1）；解耦 `engine/src/skills/runtime-sync.ts`、`apps/core/catalog/skills.ts`、`engine/src/cli/skill-audit.ts`；移除 `AGENTS.md` 对 contracts/rules 引用 |
 | 2 | `refactor: ✨ prune dead apps and yaml` | 删 `apps/console/`、`runtime-sync-exceptions.yaml`、`routes/*.yaml`（11 份）、`progress.json` |
-| 3 | `refactor: ✨ promote skill graph to manifest` | `skill-graph.yaml → skill-manifest.yaml`；新增 facets 索引；扩 Claude `frontmatter-policy` allowlist（加 `argument-hint`，**不动 Codex allowlist**）；删 `engine/src/skills/route-check.ts` |
+| 3 | `refactor: ✨ promote skill graph to manifest` | `skill-graph.yaml → skill-manifest.yaml`；新增 facets 索引；**扩 Claude `frontmatter-policy` allowlist 加 `argument-hint`；扩 Codex allowlist 加 `when_to_use` 和 `disable-model-invocation`**（与 §6.1 字段表一致；其余 Codex 不接受字段如 model/effort/paths/context/agent 仍走 `agents/openai.yaml`）；同步更新 `engine/tests/skills/frontmatter-check.test.ts` 接受新字段；删 `engine/src/skills/route-check.ts` |
 | 4.a | `refactor: ✨ workflow schema v2 parser` | 扩 `engine/src/skills/workflow-schema.ts` 支持 v2 字段（top-level `default_dispatch/default_model/default_effort/metadata`、step `dispatch/model/effort/subagent_type/blackboard_outputs_by_mode/validators_by_mode` 等），保 v1 fallback；新增 slot registry `.claude/contracts/schemas/blackboard-slots.json`；扩 tests（F1 拆分第一步） |
 | 4.b | `refactor: ✨ migrate all workflows to v2` | 迁现有 4 个 workflow.yaml（case-draft / case-edit / case-hotfix / playwright-automation）到 v2；新建 defect-analyze workflow.yaml；新建 infra-diagnose / knowledge-curate / workspace-manage workflow.yaml（F1 拆分第二步） |
 | 4.c | `feat: 🧩 enable workflow v2 lint` | 启 enum + filename + slot 一致性 lint；重写 `.claude/contracts/blackboard/state-model.md`（删「不强制校验」声明）；blackboard validator hard-on（F1 拆分第三步） |
