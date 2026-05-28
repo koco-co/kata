@@ -39,18 +39,18 @@
 
 ## 命令索引
 
-| Command | Skill | Summary |
-| --- | --- | --- |
-| /workspace-manage | workspace-manage | 显示 kata 功能菜单和管理项目工作区。 |
-| /case-draft | case-draft | 根据需求文档、PRD 或设计源生成 QA 测试用例。 |
-| /case-edit | case-edit | 编辑、同步、转换或标准化已有 QA 用例产物。 |
-| /knowledge-curate | knowledge-curate | 查询或更新项目业务知识和规则。 |
-| /bug-file | bug-file | 根据观察到的失败现象生成有证据支持的 bug 报告。 |
-| /conflict-analyze | conflict-analyze | 分析合并冲突并生成解决方案说明。 |
-| /case-hotfix | case-hotfix | 根据 bug 或修复记录生成 hotfix 回归用例。 |
-| /playwright-automation | playwright-automation | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。 |
-| /diff-scan | diff-scan | 扫描代码 diff 发现可复现的缺陷。 |
-| /infra-diagnose | infra-diagnose | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
+| Command                | Skill                 | Summary                                                                |
+| ---------------------- | --------------------- | ---------------------------------------------------------------------- |
+| /workspace-manage      | workspace-manage      | 显示 kata 功能菜单和管理项目工作区。                                   |
+| /case-draft            | case-draft            | 根据需求文档、PRD 或设计源生成 QA 测试用例。                           |
+| /case-edit             | case-edit             | 编辑、同步、转换或标准化已有 QA 用例产物。                             |
+| /knowledge-curate      | knowledge-curate      | 查询或更新项目业务知识和规则。                                         |
+| /bug-file              | bug-file              | 根据观察到的失败现象生成有证据支持的 bug 报告。                        |
+| /conflict-analyze      | conflict-analyze      | 分析合并冲突并生成解决方案说明。                                       |
+| /case-hotfix           | case-hotfix           | 根据 bug 或修复记录生成 hotfix 回归用例。                              |
+| /playwright-automation | playwright-automation | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。            |
+| /diff-scan             | diff-scan             | 扫描代码 diff 发现可复现的缺陷。                                       |
+| /infra-diagnose        | infra-diagnose        | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
 
 ## 构建与测试
 
