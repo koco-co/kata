@@ -1,17 +1,16 @@
-# kata 命令调用图
+# Codex Runtime 命令索引
 
+每行映射：command → skill → workflow 规范来源 → 主要产物。workflow 详情见 `.agents/contracts/workflows/`，skill 路由样例见 `.agents/contracts/routes/`，Codex 扩展配置见各 skill 目录的 `agents/openai.yaml`。
 
-每行映射：command → skill → workflow → 下游 agents/prompts/plugins → 输出。冷启动时优先读取本表，无需遍历 commands/。
-
-| Command | Skill | Workflow | Agents | Prompts | Plugins | Outputs |
-| --- | --- | --- | --- | --- | --- | --- |
-| /workspace-manage | workspace-manage | workspace-manage@1 | workspace-manage-worker@1 | workspace-manage-prompt@1 | - | menu, workspace |
-| /case-draft | case-draft | case-draft-from-prd@1 | case-draft-worker@1, case-reviewer@1 | case-draft-prompt@1 | lanhu.design-source@1 | enhanced.md, confirmation-package.md, archive.md, cases.xmind, archive.draft.md, unresolved-summary.md, manifest.json#automation |
-| /case-edit | case-edit | case-edit@1 | case-edit-worker@1 | case-edit-prompt@1 | - | archive, xmind, normalized, apply_corrections |
-| /knowledge-curate | knowledge-curate | knowledge-curate@1 | knowledge-curate-worker@1 | knowledge-curate-prompt@1 | - | answer, entry |
-| /bug-file | bug-file | bug-file@1 | bug-file-worker@1 | bug-file-prompt@1 | - | report |
-| /conflict-analyze | conflict-analyze | conflict-analyze@1 | conflict-analyze-worker@1 | conflict-analyze-prompt@1 | - | verdict, remedy |
-| /case-hotfix | case-hotfix | case-hotfix@1 | case-hotfix-worker@1 | case-hotfix-prompt@1 | - | archive, notes |
-| /playwright-automation | playwright-automation | playwright-automation@1 | playwright-automation-worker@1 | playwright-automation-prompt@1 | - | plan, script, run, handoff, case_corrections |
-| /diff-scan | diff-scan | diff-scan@1 | diff-scan-worker@1 | diff-scan-prompt@1 | - | findings, report |
-| /infra-diagnose | infra-diagnose | infra-diagnose@1 | infra-diagnose-worker@1 | infra-diagnose-prompt@1 | - | diagnosis |
+| Command | Skill | Workflow 规范来源 | 主要产物 |
+| --- | --- | --- | --- |
+| /workspace-manage | workspace-manage | - | 功能菜单、工作区状态 |
+| /case-draft | case-draft | `.agents/contracts/workflows/case-draft.yaml` | archive.md、cases.xmind、metadata.yaml、manifest.json |
+| /case-edit | case-edit | `.agents/contracts/workflows/case-edit.yaml` | archive、xmind |
+| /knowledge-curate | knowledge-curate | - | 知识条目、查询结果 |
+| /bug-file | bug-file | - | 缺陷报告 |
+| /conflict-analyze | conflict-analyze | - | 冲突分析结论、解决方案 |
+| /case-hotfix | case-hotfix | `.agents/contracts/workflows/case-hotfix.yaml` | archive、notes |
+| /playwright-automation | playwright-automation | `.agents/contracts/workflows/playwright-automation.yaml` | 测试脚本、运行结果、handoff |
+| /diff-scan | diff-scan | - | 缺陷发现报告 |
+| /infra-diagnose | infra-diagnose | - | 诊断报告 |

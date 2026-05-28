@@ -7,9 +7,8 @@
 ## Runtime 同步硬规则
 
 - Claude 与 Codex 同等优先；任一 runtime 下 skill 不可用，视为该 skill 整体不可用。
-- 修改 `.claude/**` 的 skill、reference、script、workflow、blackboard、router、产物规则或验证口径时，必须同步评估另一套 `.agents/**`。
-- 修改 `.agents/**` 的同类内容时，也必须同步评估另一套 `.claude/**`。
-- 如果只改单边，必须在提交说明中写明另一侧无需变更的具体理由；结构性例外写入 `docs/skills/contracts/runtime-sync-exceptions.yaml`。
+- 修改 `.claude/**` 或 `.agents/**` 中任一 runtime 提示词、reference、script、workflow 或路由规则时，必须同步评估另一套 agent 架构中的对应提示词，并在需要时同步修改；若确认另一侧无需变更，提交说明必须写明具体理由。
+- 结构性例外写入 `.claude/contracts/runtime-sync-exceptions.yaml`。
 - 不要求两边文件逐字一致，但用户入口语义、交付产物清单、验证口径和证据底线必须一致。
 
 ## Claude Code Runtime 规则
@@ -37,7 +36,7 @@
 ### 无匹配回退
 
 - 无 skill 匹配的请求由 AI 自行处理，不强制套用 skill 路由。
-- 共同同步契约见 `docs/skills/contracts/runtime-skill-sync.md`。
+- 共同同步契约见 `.claude/contracts/runtime-skill-sync.md`。
 
 ## 命令索引
 
@@ -73,3 +72,4 @@
 - 改后即测：代码、配置、runtime skill 或入口文件变更后必须跑相关测试；失败必须修复。
 - Commit 规范：Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符。
 - QA 产物交付前必须声明已验证范围和未验证范围，不得把局部通过说成全量通过。
+- 详细 Git、测试、命名、QA 产物和工作区边界规则见 `.claude/rules/project-workflow-rules.md`。

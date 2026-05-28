@@ -1,0 +1,13 @@
+{
+  "name": "notify",
+  "description": "IM 通知插件：钉钉/飞书/企微/邮件",
+  "env_required_any": [
+    "KATA_DINGTALK_WEBHOOK_URL",
+    "KATA_FEISHU_WEBHOOK_URL",
+    "KATA_WECOM_WEBHOOK_URL",
+    "KATA_SMTP_HOST"
+  ],
+  "commands": {
+    "send": "bun run plugins/notify/send.ts --event {{event}} --data '{{json}}'"
+  }
+}

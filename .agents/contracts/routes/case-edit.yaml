@@ -1,0 +1,10 @@
+skill: case-edit
+entry: /case-edit
+should_trigger:
+  - "把这个已有 Archive 同步成 XMind"
+  - "标准化这份 CSV 用例产物"
+should_not_trigger:
+  - "根据这个 PRD 生成一套新测试用例"
+  - "bug 12345 已修复，补回归用例"
+clarify:
+  - "帮我处理一下这个用例文件"

@@ -1,6 +1,16 @@
 ---
 name: case-draft
 description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要求生成 QA 用例。
+when_to_use: 用户提供需求文档、设计源或功能描述并要求生成 QA 测试用例时使用。
+user-invocable: true
+model: sonnet
+effort: high
+context: fork
+agent: general-purpose
+paths:
+  - "**/*.md"
+  - "**/*.json"
+  - "**/*.png"
 ---
 
 # case-draft
@@ -10,23 +20,10 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 
 ## 路由摘要
 
-- workflow 唯一规范源：`docs/skills/contracts/workflows/case-draft.yaml`；人工 review 文档：`docs/skills/workflows/case-draft.md`。两份必须保持一致，由 `engine/src/skills/workflow-check.ts` 校验。
+- workflow 唯一规范源：`.claude/contracts/workflows/case-draft.yaml`；人工 review 文档：`.claude/workflows/case-draft.md`。两份必须保持一致，由 `engine/src/skills/workflow-check.ts` 校验。
 - 流程编排、步骤集合、blackboard 输入输出、失败模式、人工确认节点均以上述 yaml 为准；本 SKILL.md 不再内嵌步骤列表，避免出现第二份规范源。
 - 首步执行 `bun engine/bin/kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
 - 阶段内任务编排细节（execution-protocol / worker-prompt / spec-reviewer-prompt / quality-reviewer-prompt）见下方"## 按需加载协议"表对应阶段行；Lanhu/Axure 阻塞与 error-fallback 路径下禁用。
-
-## 输入
-
-- prd (required, kind=file_url_or_fixture, schema=PrdSource@1)
-- project (optional, kind=workspace_id)
-
-## 调用图
-
-- 上游命令: /case-draft
-- 下游 workflow: case-draft-from-prd@1
-- 下游 agents: case-draft-worker@1, case-reviewer@1
-- 下游 prompts: case-draft-prompt@1
-- 下游 plugins: lanhu.design-source@1
 
 ## 触发条件
 
@@ -37,42 +34,6 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 
 - 用户只是要做 Archive MD、XMind 或 CSV 之间的格式转换。
 - 用户要基于已有用例生成或修复 Playwright 自动化脚本。
-
-## 输出
-
-- enhanced.md
-- confirmation-package.md
-- archive.md
-- cases.xmind
-- archive.draft.md
-- unresolved-summary.md
-- manifest.json#automation
-
-## 允许的工具
-
-- read_file
-- run_command
-- write_artifact
-- ask_user
-
-## 上下文预算
-
-```yaml
-core_tokens: 900
-reference_tokens: 5000
-evidence_tokens: 8000
-overflow_policy:
-  order:
-    - informative_references
-    - few_shots
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
 
 ## 按需加载协议
 
@@ -86,7 +47,7 @@ overflow_policy:
 | source-intake | `step.id == source-intake` | references/source-intake-protocol.md | 规范 | 接收 Lanhu、Axure、PRD、截图、fixture 或自然语言需求源时，建立 source_snapshot、source_refs 与抓取失败处理。 |
 | module-identify | `step.id == module-identify` | references/module-identify.md | 规范 | 在追问前根据 workspace 配置、仓库画像、知识库与源页面路径推断项目和模块。 |
 | source-confirm | `step.id == source-confirm` | references/source-confirm.md | 规范 | 在 module-identify 产出稳定上下文后，一轮确认前后端源码 triple 并写入 source-snapshot。 |
-| historical-context | `step.id == historical-context` | references/historical-context.md | 规范 | 在用户授权后读取历史用例、知识库与只读源码证据，并标明历史证据不能确认新增行为。 |
+| historical-context | `step.id == historical-context` | references/historical-context.md | 规范 | 在用户授权后读取历史用例、知识库与只读源码证据，并标明历史证据无法确认新增行为。 |
 | requirement-atomize | `step.id == requirement-atomize` | references/atomization-guide.md | 规范 | 将源事实、历史推断与测试假设拆为带 evidence_kind、ambiguity_class、confidence 的 requirement atoms。 |
 | ambiguity-scan, product-feedback-merge | `step.id in [ambiguity-scan, product-feedback-merge]` | references/ambiguity-decision-tree.md | 规范 | 识别 blocking、defaultable、inferred 与 confirmed 情形，并限定反馈合并后的重扫范围。 |
 | confirmation-package, product-feedback-merge | `step.id in [confirmation-package, product-feedback-merge]` | references/confirmation-package-template.md | 规范 | 输出面向产品确认的问题包，并将显式回复合并回 enhanced PRD。 |
@@ -102,20 +63,6 @@ overflow_policy:
 | confirmation-package | `step.id == confirmation-package` | references/confirmation-package-template.md | few-shot | 仅供确认包问题组织格式参考，不作需求事实来源。 |
 | case-draft, output | `step.id in [case-draft, output]` | references/fewshots/case-format-sample.md | few-shot | 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。 |
 | case-draft, output | `step.id in [case-draft, output]` | references/fewshots/case-format-sample.xmind.md | few-shot | XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。 |
-
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: true
-- required_source_refs:
-  - prd.file@1
-  - lanhu.fixture@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_evidence: refuse_with_questions
-- ambiguous_requirement: produce_pending_items
 
 ## 硬规则
 

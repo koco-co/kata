@@ -1,0 +1,9 @@
+{
+  "name": "zentao",
+  "description": "禅道 Bug 集成插件：从禅道链接提取 Bug 信息和修复分支",
+  "env_required": ["KATA_ZENTAO_BASE_URL", "KATA_ZENTAO_ACCOUNT", "KATA_ZENTAO_PASSWORD"],
+  "url_patterns": ["zentao", "zenpms"],
+  "commands": {
+    "fetch": "bun run plugins/zentao/fetch.ts --bug-id {{bug_id}} --output {{output_dir}}"
+  }
+}

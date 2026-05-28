@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SourceRefRegistry@1",
+  "type": "object",
+  "required": ["schema", "prefixes"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "type": "string", "const": "SourceRefRegistry@1" },
+    "prefixes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["prefix", "description", "generated_by", "generated_at_step", "pattern"],
+        "additionalProperties": false,
+        "properties": {
+          "prefix": { "type": "string", "pattern": "^SR-[A-Z][A-Z-]*$" },
+          "description": { "type": "string", "minLength": 1 },
+          "generated_by": { "type": "string", "pattern": "^skill:[a-z-]+$" },
+          "generated_at_step": { "type": "string", "minLength": 1 },
+          "pattern": { "type": "string", "minLength": 1 },
+          "consumed_by": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

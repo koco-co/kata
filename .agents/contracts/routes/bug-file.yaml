@@ -1,0 +1,10 @@
+skill: bug-file
+entry: /bug-file
+should_trigger:
+  - "这个失败可以复现，帮我整理 bug 报告"
+  - "根据这些截图和日志写缺陷单"
+should_not_trigger:
+  - "这个 bug 已修复，生成 hotfix 回归用例"
+  - "扫描这个 diff 里有没有缺陷"
+clarify:
+  - "帮我处理一下这个问题"

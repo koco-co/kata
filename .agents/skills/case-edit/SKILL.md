@@ -12,18 +12,6 @@ description: 用户提供既有 Archive、XMind 或 CSV 用例产物并要求编
 
 - 编辑或同步用例产物——语义不变是底线。
 
-## 输入
-
-- artifact (required, kind=file)
-- project (optional, kind=workspace_id)
-
-## 调用图
-
-- 上游命令: /case-edit
-- 下游 workflow: case-edit@1
-- 下游 agents: case-edit-worker@1
-- 下游 prompts: case-edit-prompt@1
-
 ## 触发条件
 
 - 用户希望对已有测试用例做修改、编辑、同步、标准化、归档或格式转换。
@@ -33,38 +21,6 @@ description: 用户提供既有 Archive、XMind 或 CSV 用例产物并要求编
 
 - 用户希望依 PRD 或需求源产出新的测试用例。
 - 用户希望基于已有用例创建或运行 Playwright 自动化。
-
-## 输出
-
-- archive
-- xmind
-- normalized
-- apply_corrections
-
-## 允许的工具
-
-- read_file
-- write_artifact
-- ask_user
-
-## 上下文预算
-
-```yaml
-core_tokens: 900
-reference_tokens: 5000
-evidence_tokens: 8000
-overflow_policy:
-  order:
-    - informative_references
-    - few_shots
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
 
 ## 按需加载协议
 
@@ -80,19 +36,6 @@ overflow_policy:
 | plan_edit, output | `step.id in [plan_edit, output]` | references/fewshots/case-format-sample.md | few-shot | 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。 |
 | plan_edit, output | `step.id in [plan_edit, output]` | references/fewshots/case-format-sample.xmind.md | few-shot | XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。 |
 
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: true
-- required_source_refs:
-  - case.archive@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_artifact: ask_for_file_path
-- ambiguous_edit: ask_one_clarifying_question
-
 ## 硬规则
 
 - 编辑或同步用例时，原有语义须完整保留。
@@ -101,4 +44,4 @@ overflow_policy:
 - 表单字段、按钮、Tab、下拉选项和枚举值必须逐字匹配证据中的实际文案；不得将「sql」归一成「SQL」、不得把「字段」写成「字段级」、不得用动作泛称替代按钮全称。
 - 交付前必须自审 Archive Markdown 与 XMind 的数量、优先级、标题、前置条件、步骤和预期一致性，不得依赖用户人工发现格式或业务规则问题。
 - 用户明确指定用例标题或历史标题包含业务括号（如「验证【规则名】...」）时，必须原样保留业务括号内容，不得按通用标题规则移除。
-- 用例级节点格式与可读性以 docs/skills/contracts/output-artifacts.md 的当前产物矩阵和字段一致性要求为底线；DQ 规则任务管理类用例必须保持 Archive 与 XMind 的标题、步骤、预期结果一致，不得因格式转换丢失业务语义。
+- 用例级节点格式与可读性以 .agents/contracts/output-artifacts.md 的当前产物矩阵和字段一致性要求为底线；DQ 规则任务管理类用例必须保持 Archive 与 XMind 的标题、步骤、预期结果一致，不得因格式转换丢失业务语义。

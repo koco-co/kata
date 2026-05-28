@@ -1,0 +1,7 @@
+# Schema:
+# - skill: skill name, for example case-draft
+# - side: runtime side with intentional one-sided change, for example claude or codex
+# - file: affected file path
+# - reason: why the exception is allowed
+# - reviewer: required-before-merge
+exceptions: []
