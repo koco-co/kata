@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { join } from "node:path";
-import { repoRoot } from "../../src/ai-core/paths.ts";
+import { repoRoot } from "../../lib/paths.ts";
 import { evaluateWrite } from "../../src/policy/write-policy.ts";
 
 describe("WritePolicy P0 slice", () => {
@@ -36,7 +36,7 @@ describe("WritePolicy P0 slice", () => {
 
   it("allows declared workspace feature writes", () => {
     const result = evaluateWrite({
-      path: "workspace/demo/features/202605-ai-core/cases.md",
+      path: "workspace/demo/features/202605-runtime/cases.md",
       declaredWriteScopes: ["workspace/*/features/**"],
     });
 
@@ -63,18 +63,21 @@ describe("WritePolicy P0 slice", () => {
     expect(result.reason).toBe("repos_read_only");
   });
 
-  it("blocks protected AI Core contracts before exact scope matching", () => {
+  it("blocks protected shared contracts before exact scope matching", () => {
     const result = evaluateWrite({
-      path: ".ai/core/guards/registry.yaml",
-      declaredWriteScopes: [".ai/core/guards/registry.yaml"],
+      path: "docs/skills/contracts/rules/testing.md",
+      declaredWriteScopes: ["docs/skills/contracts/rules/testing.md"],
     });
 
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe("protected_contract");
   });
 
-  it("blocks protected AI Core contracts case-insensitively", () => {
-    const paths = [".AI/core/guards/registry.yaml", ".ai/Core/guards/registry.yaml"];
+  it("blocks protected shared contracts case-insensitively", () => {
+    const paths = [
+      "Docs/skills/contracts/rules/testing.md",
+      "docs/Skills/contracts/rules/testing.md",
+    ];
 
     for (const path of paths) {
       const result = evaluateWrite({ path, declaredWriteScopes: [path] });
@@ -95,7 +98,7 @@ describe("WritePolicy P0 slice", () => {
 
   it("allows project-specific feature write scopes", () => {
     const result = evaluateWrite({
-      path: "workspace/demo/features/202605-ai-core/cases.md",
+      path: "workspace/demo/features/202605-runtime/cases.md",
       declaredWriteScopes: ["workspace/demo/features/**"],
     });
 

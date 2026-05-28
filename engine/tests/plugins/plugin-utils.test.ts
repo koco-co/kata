@@ -5,15 +5,15 @@ import { join } from "node:path";
 import { loadAllPlugins } from "../../lib/plugin-utils.ts";
 
 describe("plugin runtime metadata", () => {
-  it("loads plugins from AI Core runtime metadata without legacy plugin.json", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-ai-core-plugin-"));
+  it("loads plugins from contract runtime metadata without legacy plugin.json", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-runtime-plugin-"));
     const lanhu = join(root, "lanhu");
     mkdirSync(lanhu, { recursive: true });
     writeFileSync(
       join(lanhu, "runtime.json"),
       JSON.stringify({
         name: "lanhu",
-        description: "AI Core Lanhu adapter",
+        description: "Contract Lanhu adapter",
         env_required: ["KATA_LANHU_COOKIE"],
         url_patterns: ["lanhuapp.com"],
         commands: {
@@ -30,8 +30,8 @@ describe("plugin runtime metadata", () => {
     expect(plugins[0].data.commands?.fetch).toContain("plugins/lanhu/fetch.ts");
   });
 
-  it("reports legacy plugin.json drift against AI Core runtime metadata", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-ai-core-plugin-drift-"));
+  it("reports legacy plugin.json drift against contract runtime metadata", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-runtime-plugin-drift-"));
     const lanhu = join(root, "lanhu");
     mkdirSync(lanhu, { recursive: true });
     writeFileSync(
@@ -39,7 +39,7 @@ describe("plugin runtime metadata", () => {
       JSON.stringify({
         name: "lanhu",
         url_patterns: ["lanhuapp.com"],
-        commands: { fetch: "ai-core-command" },
+        commands: { fetch: "runtime-command" },
       }),
     );
     writeFileSync(

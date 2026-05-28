@@ -1,4 +1,0 @@
-{
-  "input": "这次 Playwright trace 显示测试运行失败，请归因并继续修复",
-  "expected_skill_id": "playwright-automation@1"
-}

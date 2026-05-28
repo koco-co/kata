@@ -1,6 +1,10 @@
 ---
 name: playwright-cli
 description: Automate browser interactions, test web pages and work with Playwright tests.
+when_to_use: Use when automating browser interactions or running Playwright CLI workflows.
+user-invocable: true
+model: sonnet
+effort: low
 allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
 ---
 

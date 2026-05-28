@@ -10,9 +10,45 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
+import { checkRoutes, formatRouteCheckReport } from "../skills/route-check.ts";
+import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
+import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
+import { checkSkillGraph, formatSkillGraphCheckReport } from "../skills/skill-graph-check.ts";
+import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
 
 export function buildSkillsCommand(): Command {
   const skills = new Command("skills").description("Skills 审查操作");
+  skills
+    .command("sync-check")
+    .description("检查 .claude 与 .agents 的 skill 是否同步")
+    .option("--exit-code", "exit non-zero on any violation", false)
+    .action((opts: { exitCode: boolean }) => {
+      const root = repoRoot();
+      const skillReport = checkRuntimeSkillSync(root);
+      const detachReport = checkRuntimeDetach(root);
+      const routeReport = checkRoutes(root);
+      const graphReport = checkSkillGraph(root);
+      const workflowReport = checkWorkflows(root);
+      const passed =
+        skillReport.passed &&
+        detachReport.passed &&
+        routeReport.passed &&
+        graphReport.passed &&
+        workflowReport.passed;
+      const text = [
+        formatRuntimeSkillSyncReport(skillReport, root),
+        formatRuntimeDetachReport(detachReport, root),
+        formatRouteCheckReport(routeReport, root),
+        formatSkillGraphCheckReport(graphReport, root),
+        formatWorkflowCheckReport(workflowReport, root),
+      ].join("\n");
+      if (passed) {
+        console.log(text);
+      } else {
+        process.stderr.write(`${text}\n`);
+      }
+      if (opts.exitCode && !passed) process.exit(1);
+    });
   skills
     .command("audit")
     .description("审查 skills SKILL.md + references 契约与 agents frontmatter")

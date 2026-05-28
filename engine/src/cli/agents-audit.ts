@@ -67,7 +67,7 @@ export function buildAgentsCommand(): Command {
   // agents drift
   agents
     .command("drift")
-    .description("只读审计 .claude 与 .agents 的双栈投影漂移")
+    .description("只读审计 .claude 与 .agents 的双 runtime 漂移")
     .option("--json", "emit JSON report", false)
     .action((opts: { json: boolean }) => {
       const report = auditAgentRuntimeDrift();
@@ -98,7 +98,7 @@ export function buildAgentsCommand(): Command {
   // agents sync (with rollback subcommand)
   const sync = agents
     .command("sync")
-    .description("同步 .claude 到 .agents 的双栈投影")
+    .description("同步 .claude 到 .agents 的双 runtime 文件")
     .option("--from <runtime>", "source agent runtime: claude", "claude")
     .option("--to <runtime>", "target agent runtime: codex", "codex")
     .option("--dry-run", "plan changes without writing", false)

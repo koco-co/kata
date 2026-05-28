@@ -147,7 +147,7 @@ function comparePluginRuntimeMetadata(
   return [
     {
       code: "plugin_runtime.legacy_drift",
-      message: `Legacy plugin runtime metadata for ${pluginName} differs from AI Core runtime metadata.`,
+      message: `Legacy plugin runtime metadata for ${pluginName} differs from contract runtime metadata.`,
       path,
     },
   ];

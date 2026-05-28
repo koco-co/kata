@@ -17,7 +17,7 @@ function violation(
 }
 
 describe("paths audit known-safe files", () => {
-  test("skips runtime projection docs that intentionally mention workspace templates", () => {
+  test("skips runtime docs that intentionally mention workspace templates", () => {
     expect(isKnownSafe(violation("/repo/.agents/agents/regression-runner-agent.md", "P-S3"))).toBe(
       true,
     );
@@ -34,7 +34,7 @@ describe("paths audit known-safe files", () => {
     ).toBe(true);
   });
 
-  test("does not skip stale script path violations in runtime projection docs", () => {
+  test("does not skip stale script path violations in runtime docs", () => {
     expect(
       isKnownSafe(violation("/repo/.agents/skills/example/SKILL.md", "P-S1", ".claude/scripts/")),
     ).toBe(false);

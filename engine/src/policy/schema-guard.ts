@@ -1,4 +1,4 @@
-import type { AiCoreIssue, AiCoreResult } from "../ai-core/types.ts";
+import type { KataIssue, KataResult } from "../result-types.ts";
 import { isCanonicalSourceRef } from "../source-ref/resolvers.ts";
 
 const HANDOFF_STATUSES = new Set(["done", "done_with_concerns", "blocked", "needs_context"]);
@@ -17,7 +17,7 @@ const ARTIFACT_FIELDS = new Set(["path", "kind"]);
 const ISSUE_FIELDS = new Set(["severity", "message"]);
 const PROVENANCE_FIELDS = new Set(["sourceRefs"]);
 
-function issue(code: string, message: string, path: string): AiCoreIssue {
+function issue(code: string, message: string, path: string): KataIssue {
   return {
     code,
     severity: "error",
@@ -34,7 +34,7 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 function requiredNonEmptyStringIssue(
   envelope: Record<string, unknown> | undefined,
   field: string,
-): AiCoreIssue | undefined {
+): KataIssue | undefined {
   const value = envelope?.[field];
   if (typeof value === "string" && value.trim().length > 0) return undefined;
   return issue(
@@ -47,7 +47,7 @@ function requiredNonEmptyStringIssue(
 function requiredStringIssue(
   envelope: Record<string, unknown> | undefined,
   field: string,
-): AiCoreIssue | undefined {
+): KataIssue | undefined {
   if (typeof envelope?.[field] === "string") return undefined;
   return issue(`${field}_missing`, `HandoffEnvelope requires ${field}.`, `handoff.${field}`);
 }
@@ -93,9 +93,9 @@ function isValidProvenance(value: unknown): boolean {
   );
 }
 
-export function validateHandoffEnvelope(value: unknown): AiCoreResult<unknown> {
+export function validateHandoffEnvelope(value: unknown): KataResult<unknown> {
   const envelope = asRecord(value);
-  const issues: AiCoreIssue[] = [];
+  const issues: KataIssue[] = [];
 
   if (envelope && hasUnexpectedKeys(envelope, HANDOFF_FIELDS)) {
     issues.push(

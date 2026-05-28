@@ -19,7 +19,7 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
 
 If the actual self-run used a headless command, keep that evidence in `run_command`, but still print this `--headed` full test command for human acceptance. Never declare E2E completion without this command in the final user-facing text.
 
-Schema reference: `.ai/core/schemas/PlaywrightAutomationHandoff.v2.schema.json`.
+Schema reference: `PlaywrightAutomationHandoff.v2`.
 
 ## Case Feedback section
 

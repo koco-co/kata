@@ -1,0 +1,10 @@
+skill: diff-scan
+entry: /diff-scan
+should_trigger:
+  - "扫描这个分支 diff 里的可复现缺陷"
+  - "帮我 review 这次改动有没有 bug"
+should_not_trigger:
+  - "分析这段合并冲突怎么解决"
+  - "根据 PRD 生成测试用例"
+clarify:
+  - "帮我看一下这次改动"

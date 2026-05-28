@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { createCli } from "../lib/cli-runner.ts";
-import { aiCorePluginsDir, pluginsDir } from "../lib/paths.ts";
+import { contractPluginsDir, pluginsDir } from "../lib/paths.ts";
 import { loadAllPlugins } from "../lib/plugin-utils.ts";
 import { resolveProject } from "./test-case-flow/project-resolver.ts";
 import { createSessionId, saveSessionState } from "./test-case-flow/session.ts";
@@ -57,7 +57,7 @@ function resolveDesignPlugin(
   name?: string;
 } {
   if (source.kind !== "lanhu_url") return { matched: false };
-  const plugins = loadAllPlugins(aiCorePluginsDir(), { legacyRoot: pluginsDir() });
+  const plugins = loadAllPlugins(contractPluginsDir(), { legacyRoot: pluginsDir() });
   const plugin = plugins.find((candidate) =>
     matchesUrlPattern(source.value, candidate.data.url_patterns ?? []),
   );

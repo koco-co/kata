@@ -5,7 +5,7 @@
  * Subcommands:
  *   create / add-bug / update-bug / update-bug-steps / remove-bug / set-meta / show / render
  *
- * Contract: .ai/core/skills/diff-scan/skill.yaml
+ * Contract: .agents/skills/diff-scan/SKILL.md and .claude/skills/diff-scan/SKILL.md
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";

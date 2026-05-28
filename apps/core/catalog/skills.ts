@@ -1,29 +1,44 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { repoRoot } from "kata-engine";
-import { parseDocument } from "yaml";
+import { basename, dirname, join, resolve } from "node:path";
+import YAML, { parseDocument } from "yaml";
 import type { SkillSummary } from "../types.ts";
 
 interface YamlParseIssue {
-  readonly code?: string;
   readonly message: string;
-  readonly linePos?: readonly [{ readonly line: number; readonly col: number }, ...unknown[]];
+}
+
+interface RuntimeSkillDoc {
+  readonly name: string;
+  readonly description: string | null;
+}
+
+interface SkillContracts {
+  readonly graph: Record<string, { consumes?: unknown; produces?: unknown }>;
+  readonly routesRoot: string;
 }
 
 function skillsRoot(): string {
-  return join(repoRoot(), ".ai/core/skills");
+  return join(currentRepoRoot(), ".agents/skills");
+}
+
+function contractsRoot(): string {
+  return join(currentRepoRoot(), "docs/skills/contracts");
+}
+
+function currentRepoRoot(): string {
+  let current = resolve(process.cwd());
+  while (true) {
+    if (existsSync(join(current, "package.json")) && existsSync(join(current, "engine"))) {
+      return current;
+    }
+    const parent = dirname(current);
+    if (parent === current) return resolve(process.cwd());
+    current = parent;
+  }
 }
 
 function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
-}
-
-function asObject(value: unknown, field: string): Record<string, unknown> {
-  if (value === undefined) return {};
-  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-  throw new Error(`Invalid skill ${field}`);
 }
 
 function skillId(value: unknown): string {
@@ -40,58 +55,28 @@ function skillName(value: unknown): string {
   return value;
 }
 
-function indentation(line: string): number {
-  return line.length - line.trimStart().length;
-}
+function readFrontmatter(path: string): Record<string, unknown> {
+  const text = readFileSync(path, "utf-8");
+  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  if (!match) throw new Error(`${path}: SKILL.md frontmatter is required`);
 
-function isRecoverableHardRulesScalar(text: string, error: YamlParseIssue): boolean {
-  if (error.code !== "BAD_SCALAR_START") return false;
-  const line = error.linePos?.[0]?.line;
-  if (line === undefined) return false;
-  const lines = text.split(/\r?\n/);
-  const sourceLine = lines[line - 1] ?? "";
-  if (!sourceLine.trimStart().startsWith("- `")) return false;
-
-  let foundHardRules = false;
-  const hardRulesIndent = 4;
-  for (let index = line - 2; index >= 0; index -= 1) {
-    const current = lines[index] ?? "";
-    if (current.trim() === "") continue;
-    if (!foundHardRules) {
-      if (indentation(current) <= hardRulesIndent && current.trim() !== "hard_rules:") return false;
-      if (indentation(current) === hardRulesIndent && current.trim() === "hard_rules:") {
-        foundHardRules = true;
-      }
-      continue;
-    }
-    if (indentation(current) === 0) return current.trim() === "body:";
+  const doc = parseDocument(match[1] ?? "");
+  if (doc.errors.length > 0) {
+    throw new Error(`${path}: ${firstYamlError(doc.errors)}`);
   }
-  return false;
+  return (doc.toJS() ?? {}) as Record<string, unknown>;
 }
 
-function fatalYamlErrors(
-  text: string,
-  errors: readonly YamlParseIssue[],
-  allowHardRulesRecovery: boolean,
-): YamlParseIssue[] {
-  if (!allowHardRulesRecovery) return [...errors];
-  return errors.filter((error) => !isRecoverableHardRulesScalar(text, error));
+function firstYamlError(errors: readonly YamlParseIssue[]): string {
+  return errors[0]?.message ?? "YAML parse error";
 }
 
-function toSummary(doc: Record<string, unknown>, path: string): SkillSummary {
-  const description = asObject(doc.description, "description");
-  const inputs = asObject(doc.inputs, "inputs");
+function readRuntimeSkill(path: string): RuntimeSkillDoc {
+  const data = readFrontmatter(path);
   try {
     return {
-      id: skillId(doc.id),
-      name: skillName(doc.name),
-      kind: typeof doc.kind === "string" ? doc.kind : null,
-      status: typeof doc.status === "string" ? doc.status : null,
-      summary: typeof description.summary === "string" ? description.summary : null,
-      mustTriggerWhen: asStringArray(description.must_trigger_when),
-      mustNotTriggerWhen: asStringArray(description.must_not_trigger_when),
-      inputs: Object.keys(inputs),
-      outputs: asStringArray(doc.outputs),
+      name: skillName(data.name),
+      description: typeof data.description === "string" ? data.description : null,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -99,35 +84,83 @@ function toSummary(doc: Record<string, unknown>, path: string): SkillSummary {
   }
 }
 
-export function listSkills(): SkillSummary[] {
-  return listSkillsFromRoot(skillsRoot());
+function readContracts(root: string): SkillContracts {
+  return {
+    graph: readSkillGraph(join(root, "skill-graph.yaml")),
+    routesRoot: join(root, "routes"),
+  };
 }
 
-export function listSkillsFromRoot(root: string): SkillSummary[] {
+function readSkillGraph(path: string): Record<string, { consumes?: unknown; produces?: unknown }> {
+  if (!existsSync(path)) return {};
+  const parsed = YAML.parse(readFileSync(path, "utf-8"));
+  const skills =
+    parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as { skills?: unknown }).skills
+      : undefined;
+  return skills && typeof skills === "object" && !Array.isArray(skills)
+    ? (skills as Record<string, { consumes?: unknown; produces?: unknown }>)
+    : {};
+}
+
+function readRouteLists(
+  routesRoot: string,
+  id: string,
+): Pick<SkillSummary, "mustTriggerWhen" | "mustNotTriggerWhen"> {
+  const path = join(routesRoot, `${id}.yaml`);
+  if (!existsSync(path)) return { mustTriggerWhen: [], mustNotTriggerWhen: [] };
+  const parsed = YAML.parse(readFileSync(path, "utf-8"));
+  return {
+    mustTriggerWhen: asStringArray((parsed as { should_trigger?: unknown })?.should_trigger),
+    mustNotTriggerWhen: asStringArray(
+      (parsed as { should_not_trigger?: unknown })?.should_not_trigger,
+    ),
+  };
+}
+
+function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContracts): SkillSummary {
+  const route = readRouteLists(contracts.routesRoot, id);
+  const graphEntry = contracts.graph[id] ?? {};
+  return {
+    id,
+    name: doc.name,
+    kind: "runtime-skill",
+    status: "active",
+    summary: doc.description,
+    mustTriggerWhen: route.mustTriggerWhen,
+    mustNotTriggerWhen: route.mustNotTriggerWhen,
+    inputs: asStringArray(graphEntry.consumes),
+    outputs: asStringArray(graphEntry.produces),
+  };
+}
+
+export function listSkills(): SkillSummary[] {
+  return listSkillsFromRoot(skillsRoot(), contractsRoot());
+}
+
+export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummary[] {
   if (!existsSync(root)) return [];
-  const allowHardRulesRecovery = resolve(root) === resolve(skillsRoot());
+  const contracts = contractRoot ? readContracts(contractRoot) : { graph: {}, routesRoot: "" };
   const ids = new Set<string>();
   const skills = readdirSync(root)
     .filter((name) => statSync(join(root, name)).isDirectory())
-    .map((name) => join(root, name, "skill.yaml"))
+    .map((name) => join(root, name, "SKILL.md"))
     .filter((path) => existsSync(path))
     .map((path) => {
-      // strict:false tolerates backtick-prefixed scalars in body.hard_rules;
-      // we only consume top-level fields, which recover cleanly.
-      const text = readFileSync(path, "utf-8");
-      const doc = parseDocument(text, {
-        strict: false,
-      });
-      const fatalErrors = fatalYamlErrors(text, doc.errors, allowHardRulesRecovery);
-      if (fatalErrors.length > 0) {
-        throw new Error(`${path}: ${fatalErrors[0]?.message ?? "YAML parse error"}`);
+      const doc = readRuntimeSkill(path);
+      const id = skillId(doc.name);
+      if (id !== basename(join(path, ".."))) {
+        throw new Error(`${path}: skill name must match directory name`);
       }
-      return toSummary((doc.toJS() ?? {}) as Record<string, unknown>, path);
+      return toSummary(id, doc, contracts);
     })
     .sort((a, b) => a.id.localeCompare(b.id));
+
   for (const skill of skills) {
     if (ids.has(skill.id)) throw new Error(`${root}: Duplicate skill id: ${skill.id}`);
     ids.add(skill.id);
   }
   return skills;
 }
+
+export const __test__ = { readFrontmatter };

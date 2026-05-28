@@ -13,7 +13,7 @@
 
 import { createCli } from "../lib/cli-runner.ts";
 import { getEnv } from "../lib/env.ts";
-import { aiCorePluginsDir, pluginsDir } from "../lib/paths.ts";
+import { contractPluginsDir, pluginsDir } from "../lib/paths.ts";
 import { loadAllPlugins } from "../lib/plugin-utils.ts";
 
 function shellEscape(value: string): string {
@@ -27,7 +27,7 @@ function matchesUrlPattern(url: string, patterns: string[]): boolean {
 // ── list ──────────────────────────────────────────────────────────────────────
 
 function runList(): void {
-  const plugins = loadAllPlugins(aiCorePluginsDir(), { legacyRoot: pluginsDir() });
+  const plugins = loadAllPlugins(contractPluginsDir(), { legacyRoot: pluginsDir() });
   const output = plugins.map(({ name, active, data }) => ({
     name,
     active,
@@ -40,7 +40,7 @@ function runList(): void {
 // ── check ─────────────────────────────────────────────────────────────────────
 
 function runCheck(opts: { input: string }): void {
-  const plugins = loadAllPlugins(aiCorePluginsDir(), { legacyRoot: pluginsDir() });
+  const plugins = loadAllPlugins(contractPluginsDir(), { legacyRoot: pluginsDir() });
 
   for (const plugin of plugins) {
     if (!plugin.active) continue;
@@ -77,7 +77,7 @@ function renderPluginCommand(
 }
 
 function runResolve(opts: { url: string; project?: string; outputDir?: string }): void {
-  const plugins = loadAllPlugins(aiCorePluginsDir(), { legacyRoot: pluginsDir() });
+  const plugins = loadAllPlugins(contractPluginsDir(), { legacyRoot: pluginsDir() });
 
   for (const plugin of plugins) {
     if (!plugin.active) continue;
@@ -117,7 +117,7 @@ function runResolve(opts: { url: string; project?: string; outputDir?: string })
 // ── notify ────────────────────────────────────────────────────────────────────
 
 function runNotify(opts: { event: string; data: string }): void {
-  const plugins = loadAllPlugins(aiCorePluginsDir(), { legacyRoot: pluginsDir() });
+  const plugins = loadAllPlugins(contractPluginsDir(), { legacyRoot: pluginsDir() });
   const notifyPlugin = plugins.find((p) => p.name === "notify");
 
   if (!notifyPlugin?.active) {

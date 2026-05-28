@@ -1,0 +1,18 @@
+schema: FeatureMetadata@1
+id: 【v647】【数据质量】任务时长限制
+display_name: 【202604】【数据质量】任务时长限制
+status: active
+created_at: 2026-05-14
+updated_at: 2026-05-14
+modules:
+  - dq
+customers:
+  - standard
+versions: []
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: true

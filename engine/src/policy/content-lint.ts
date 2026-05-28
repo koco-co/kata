@@ -1,7 +1,7 @@
-import type { AiCoreIssue, AiCoreResult } from "../ai-core/types.ts";
+import type { KataIssue, KataResult } from "../result-types.ts";
 import { isCanonicalSourceRef } from "../source-ref/resolvers.ts";
 
-function issue(code: string, message: string): AiCoreIssue {
+function issue(code: string, message: string): KataIssue {
   return {
     code,
     severity: "error",
@@ -69,8 +69,8 @@ function extractCandidateRefs(value: string): string[] {
   return value.split(",").map((item) => item.trim());
 }
 
-export function lintArtifactContent(content: string): AiCoreResult<null> {
-  const issues: AiCoreIssue[] = [];
+export function lintArtifactContent(content: string): KataResult<null> {
+  const issues: KataIssue[] = [];
 
   const lines = content.split("\n");
   const hasWeakAssertion = lines.some(

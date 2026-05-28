@@ -1,9 +1,0 @@
-{
-  "id": "zentao.issue-source@1",
-  "capability_required": {
-    "net": [],
-    "fs_read": [],
-    "fs_write": [],
-    "secret_refs": ["KATA_ZENTAO_BASE_URL", "KATA_ZENTAO_ACCOUNT", "KATA_ZENTAO_PASSWORD"]
-  }
-}

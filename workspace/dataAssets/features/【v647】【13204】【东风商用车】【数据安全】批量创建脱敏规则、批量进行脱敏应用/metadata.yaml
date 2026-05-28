@@ -1,0 +1,19 @@
+schema: FeatureMetadata@1
+id: 2026-01-dfsyc-数据安全-批量脱敏规则
+display_name: 【202601】【东风商用车】【数据安全】【数据质量】批量脱敏规则
+status: active
+created_at: 2026-05-14
+updated_at: 2026-05-14
+modules:
+  - security
+  - dq
+customers:
+  - dongfeng
+versions: []
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: true

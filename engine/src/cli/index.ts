@@ -113,7 +113,6 @@ kata.addCommand(xmindPatch);
 
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "./agents-audit.ts";
-import { buildAiCoreCommand } from "./ai-core.ts";
 import { buildCasesCommand } from "./cases-lint.ts";
 import { buildCodemodCommand } from "./codemod-apply.ts";
 import { buildEnvCommand } from "./env.ts";
@@ -130,7 +129,6 @@ kata.addCommand(buildPathsCommand());
 kata.addCommand(buildSkillsCommand());
 kata.addCommand(buildSafetyCommand());
 kata.addCommand(buildCodemodCommand());
-kata.addCommand(buildAiCoreCommand());
 kata.addCommand(buildFeaturesCommand());
 kata.addCommand(buildResultsCommand());
 kata.addCommand(buildHandoffCommand());
@@ -153,7 +151,6 @@ const publicV2Commands = new Set([
   "skills",
   "safety",
   "codemod",
-  "ai-core",
   "features",
   "results",
   "handoff",
@@ -165,10 +162,7 @@ for (const command of kata.commands) {
   }
 }
 
-const rootCommand = process.argv[2];
-if (rootCommand !== "ai-core") {
-  initEnv();
-}
+initEnv();
 
 kata.parseAsync(process.argv).catch((err) => {
   process.stderr.write(`[kata] Unexpected error: ${err}\n`);

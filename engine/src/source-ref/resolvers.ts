@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { AiCoreIssue, AiCoreResult } from "../ai-core/types.ts";
+import type { KataIssue, KataResult } from "../result-types.ts";
 
 const SHA256_PATTERN = /#sha256:([a-f0-9]{64})$/;
 const CANONICAL_SOURCE_REF_PATTERN =
@@ -8,7 +8,7 @@ const LEGACY_SOURCE_REF_ID_SUFFIX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const REPO_LINE_SOURCE_REF_ID_SUFFIX_PATTERN = /^(?!.*:\/\/)[A-Za-z0-9][A-Za-z0-9._:/@-]*$/;
 
-function issue(code: string, message: string, path: string): AiCoreIssue {
+function issue(code: string, message: string, path: string): KataIssue {
   return { code, severity: "error", message, path };
 }
 
@@ -66,10 +66,7 @@ export function snapshotLanhuFixtureRef(input: { id: string; content: string }):
   return snapshotRef(input);
 }
 
-export function validateSourceRefFreshness(
-  ref: unknown,
-  currentContent: string,
-): AiCoreResult<null> {
+export function validateSourceRefFreshness(ref: unknown, currentContent: string): KataResult<null> {
   if (typeof ref !== "string") {
     return {
       ok: false,

@@ -1,4 +1,4 @@
-import type { AiCoreResult } from "../../ai-core/types.ts";
+import type { KataResult } from "../../result-types.ts";
 import type { CapabilityRequired } from "./capability-spec.ts";
 import { checkFsAccess, checkNetworkAccess, parseCapabilityRequired } from "./capability-spec.ts";
 import {
@@ -74,9 +74,7 @@ export function createSandboxAuditor(
   };
 }
 
-export async function runInSandbox(
-  input: SandboxRunInput,
-): Promise<AiCoreResult<SandboxRunResult>> {
+export async function runInSandbox(input: SandboxRunInput): Promise<KataResult<SandboxRunResult>> {
   const auditor = createSandboxAuditor(input.capabilityRequired, input.secretSources);
 
   // Validate secret refs are resolvable
@@ -135,6 +133,6 @@ export async function runInSandbox(
 
 export function validatePluginCapabilities(
   manifestCapabilityRequired: unknown,
-): AiCoreResult<CapabilityRequired> {
+): KataResult<CapabilityRequired> {
   return parseCapabilityRequired(manifestCapabilityRequired);
 }

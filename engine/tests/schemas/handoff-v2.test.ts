@@ -6,7 +6,7 @@ import { repoRoot } from "../../lib/paths.ts";
 
 const schema = JSON.parse(
   readFileSync(
-    join(repoRoot(), ".ai/core/schemas/PlaywrightAutomationHandoff.v2.schema.json"),
+    join(repoRoot(), "docs/skills/contracts/schemas/PlaywrightAutomationHandoff.v2.schema.json"),
     "utf-8",
   ),
 );

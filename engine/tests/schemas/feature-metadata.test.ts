@@ -4,7 +4,7 @@ import { join } from "node:path";
 import Ajv from "ajv";
 import { repoRoot } from "../../lib/paths.ts";
 
-const schemaPath = join(repoRoot(), ".ai/core/schemas/FeatureMetadata.v1.schema.json");
+const schemaPath = join(repoRoot(), "docs/skills/contracts/schemas/FeatureMetadata.v1.schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));
 const ajv = new Ajv({ strict: false, validateSchema: false });
 const validate = ajv.compile(schema);

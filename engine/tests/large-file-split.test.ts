@@ -8,24 +8,18 @@ const ROOT = repoRoot();
 
 const TARGET_ENTRY_FILES = [
   "engine/src/history-convert.ts",
-  "engine/src/ai-core/evals.ts",
-  "engine/src/ai-core/contract-schema.ts",
-  "engine/src/ai-core/projection.ts",
   "engine/src/knowledge-curate.ts",
-  "engine/src/cli/ai-core.ts",
   "engine/src/xmind-gen.ts",
-  "engine/src/ai-core/product-skill-contract.ts",
+  "engine/src/skills/runtime-sync.ts",
+  "engine/src/skills/route-check.ts",
+  "engine/src/skills/skill-graph-check.ts",
+  "engine/src/skills/workflow-check.ts",
 ];
 
 const TARGET_SPLIT_DIRS = [
   "engine/src/history-convert",
-  "engine/src/ai-core/evals",
-  "engine/src/ai-core/contract-schema",
-  "engine/src/ai-core/projection",
   "engine/src/knowledge-curate",
-  "engine/src/cli/ai-core",
   "engine/src/xmind-gen",
-  "engine/src/ai-core/product-skill-contract",
 ];
 
 function collectTsFiles(dir: string): string[] {

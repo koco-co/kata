@@ -1,0 +1,10 @@
+skill: knowledge-curate
+entry: /knowledge-curate
+should_trigger:
+  - "记录这个项目业务规则"
+  - "查询这个模块术语是什么意思"
+should_not_trigger:
+  - "根据这个 PRD 生成测试用例"
+  - "扫描代码 diff 是否有缺陷"
+clarify:
+  - "这个概念是什么"

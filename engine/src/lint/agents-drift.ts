@@ -93,7 +93,7 @@ function compareArea(
         sourcePath,
         targetPath,
         status: "missing-target",
-        summary: "Codex projection is missing this source file",
+        summary: "Codex runtime is missing this source file",
       });
       continue;
     }

@@ -17,7 +17,10 @@ const tmplPath = join(repoRoot(), "engine/templates/handoff.md.hbs");
 const tmpl = Handlebars.compile(readFileSync(tmplPath, "utf-8"));
 const validate = loadHandoffV2Validator();
 
-const correctionsSchemaPath = join(repoRoot(), ".ai/core/schemas/CaseCorrections.v1.schema.json");
+const correctionsSchemaPath = join(
+  repoRoot(),
+  "docs/skills/contracts/schemas/CaseCorrections.v1.schema.json",
+);
 const correctionsAjv = new Ajv2020({ strict: false });
 addFormats(correctionsAjv);
 const validateCorrections = correctionsAjv.compile(

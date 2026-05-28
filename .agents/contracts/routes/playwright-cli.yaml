@@ -1,0 +1,10 @@
+skill: playwright-cli
+entry: /playwright-cli
+should_trigger:
+  - "用 playwright-cli 打开页面并截图"
+  - "运行 Playwright CLI 检查这个本地页面"
+should_not_trigger:
+  - "生成完整 Playwright 自动化交付件"
+  - "写一份手工 QA 用例"
+clarify:
+  - "帮我用浏览器测一下"
