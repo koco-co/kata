@@ -27,5 +27,3 @@ Slot 声明集中在 `.claude/contracts/schemas/blackboard-slots.json`；新增 
 历史 v1 workflow 使用以下 8 个槽位（registry 中 `v1_legacy` 字段）；P3 完成 v2 迁移后会从 registry 移除。
 
 - `sources`、`source_refs`、`decisions`、`open_questions`、`artifacts`、`coverage`、`verification`、`handoff`
-</content>
-</invoke>
