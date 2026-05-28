@@ -6,4 +6,5 @@ import { registerArchivePending } from "./archive-inventory";
 registerArchivePending({
   title: "Data Quality pending Playwright conversion inventory",
   module: "数据质量",
+  matchTitles: true,
 });

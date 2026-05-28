@@ -5,4 +5,5 @@ import { registerArchivePending } from "./archive-inventory";
 
 registerArchivePending({
   title: "Archive pending Playwright conversion inventory",
+  excludeModules: ["数据质量"],
 });

@@ -61,12 +61,14 @@ test("【P0/P1/P2】数据质量校验结果、规则集、规则库正则与报
   });
 });
 
+// archive-title: 验证【数据质量报告-已生成报告】报告名称、数据表与生成时间组合筛选正常
 test("【P0】数据质量报告已生成报告名称、数据表与生成时间组合筛选可核验", async ({ page }) => {
   await expectDataQualityGeneratedReportCombinedFilterContract(page, "SR-2099-01-DQ-REPORT-GENERATED-FILTER-L8711");
 });
 
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8730
 // SourceRefs: SR-2099-01-DQ-REPORT-GENERATED-STATUS-L8730, SR-UI-PROBE-20260527-DQ-REPORT-GENERATED-STATUS-L8730-001
+// archive-title: 验证【数据质量报告-已生成报告】报告状态筛选与状态展示正常
 test("【P0】数据质量报告已生成报告状态筛选与状态展示正常", async ({ page }) => {
   await expectDataQualityGeneratedReportStatusFilterContract(
     page,

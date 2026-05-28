@@ -20,10 +20,12 @@ test.use({
 });
 test.setTimeout(3 * 60 * 1000);
 
+// archive-title: 验证【项目管理-项目信息】项目列表、创建与编辑功能正常
 test("【P0】数据质量项目管理项目信息创建与编辑可核验", async ({ page }) => {
   await expectDataQualityProjectCreateEditContract(page, "SR-2099-01-DQ-PROJECT-L8919");
 });
 
+// archive-title: 验证【项目管理-项目信息】项目删除与置顶功能正常
 test("【P1】数据质量项目管理项目信息置顶与删除可核验", async ({ page }) => {
   await expectDataQualityProjectPinDeleteContract(page, "SR-2099-01-DQ-PROJECT-L8938");
 });

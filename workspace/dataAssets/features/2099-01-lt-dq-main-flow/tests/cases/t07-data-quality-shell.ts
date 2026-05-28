@@ -166,6 +166,7 @@ test("【P0】数据质量规则库自定义 SQL 模版详情编辑与引用保�
   });
 });
 
+// archive-title: 验证【数据质量-菜单名称】历史项目菜单名称正确修改
 test("【P0】数据质量历史项目菜单名称与新路由可核验", async ({ page }) => {
   await expectDataQualityMenuRenameContract(page, "SR-2099-01-DQ-MENU-L9053");
 });

@@ -397,6 +397,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     failExpectedValue: "25%",
     dirtyEvidence: ["LTV202601150003AA", "重复"],
   },
+  // archive-title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(唯一+或+单字段)
   {
     archiveLine: 11303,
     title: "唯一性校验-多表唯一性判断(唯一+或)",
@@ -417,6 +418,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     failExpectedValue: "1",
     dirtyEvidence: ["LTV202601150003AA", "dwd_voyah_dq_rule_24_ref"],
   },
+  // archive-title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(允许重复+且+多字段)
   {
     archiveLine: 11441,
     title: "唯一性校验-多表唯一性判断(允许重复+且)",
