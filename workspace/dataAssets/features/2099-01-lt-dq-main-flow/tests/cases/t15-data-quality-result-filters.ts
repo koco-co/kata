@@ -35,6 +35,7 @@ test.setTimeout(15 * 60 * 1000);
 const DQ_CORE_PRECOND_FILE =
   "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/precond/data-quality-core-tables.yaml";
 
+test.describe("数据质量校验结果与报告筛选", () => {
 test.beforeEach(() => {
   ensureDtstackPreconditionFile(
     "dq-core-result-report-tables",
@@ -161,4 +162,5 @@ test("【P2】校验结果查询校验失败时查看日志与下载日志正常
     page,
     "SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L7943",
   );
+});
 });

@@ -16,6 +16,7 @@ test.setTimeout(15 * 60 * 1000);
 const DQ_CORE_PRECOND_FILE =
   "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/precond/data-quality-core-tables.yaml";
 
+test.describe("数据质量规则任务超时处理", () => {
 test.beforeEach(() => {
   ensureDtstackPreconditionFile(
     "dq-core-rule-task-tables",
@@ -34,4 +35,5 @@ test("【P2】数据质量规则任务管理运行时长大于超时时间时任
       "SR-2099-01-DQ-RULE-TASK-TIMEOUT-HANDLING-L7924",
     );
   });
+});
 });
