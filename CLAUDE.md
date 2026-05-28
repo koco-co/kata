@@ -65,9 +65,17 @@
 - 常用变量名：`KATA_ZENTAO_PASSWORD`、`KATA_LANHU_COOKIE`、`KATA_LANHU_PASSWORD`、`KATA_TARGET_ENV`。
 - 详细日志：`KATA_DEBUG=true bun engine/bin/kata <command>`。
 
+## 代码变动请求标准流程
+
+- 涉及代码、配置、runtime 或文档契约变更时，先提交主工作树现有改动，再用 `git worktree add --detach .worktrees/<slug> main` 创建 detached worktree；不得为任务新建分支。
+- worktree 创建后按任务需要 symlink 必要 ignored runtime 目录；`workspace/{project}/.kata/repos/**` 即使通过 symlink 共享也保持只读。
+- 验证通过后用 `git merge --no-ff <sha>` 合入 main，无问题后执行 `git push origin main`，最后 `git worktree remove .worktrees/<slug>` 清理。
+- 多任务默认使用 `superpowers:subagent-driven-development`；Claude Code 使用 TaskCreate/TaskUpdate 或当前客户端暴露的 TodoWrite，Codex 使用 `update_plan` 维护任务列表。
+- 提交必须使用固定 type/emoji 映射，例如 `refactor: ✨ ...`；临时通知页面固定标题为 `【KATA 工作通知】`；完整枚举、通知格式和合并清理步骤见 `.claude/rules/project-workflow-rules.md`。
+
 ## 关键约束
 
-- Worktree 优先：所有改动走 `.worktrees/<slug>`，验证通过后合并回 main。
+- Worktree 优先：所有改动走 detached worktree，验证通过后合并回 main。
 - 改后即测：代码、配置、runtime skill 或入口文件变更后必须跑相关测试；失败必须修复。
 - Commit 规范：Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符。
 - QA 产物交付前必须声明已验证范围和未验证范围，不得把局部通过说成全量通过。
