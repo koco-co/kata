@@ -1,3 +1,6 @@
+# 注：本 workflow 各 step 的 references 字段仅列入 SKILL.md 作为入口锚点；
+# 完整的「按需加载」reference 文件清单维护在两份 SKILL.md 的「按需加载协议」段。
+# 如果将来要在 yaml 里完整化 references，必须同步更新 SKILL.md 表与 workflow-check 校验逻辑。
 name: case-draft
 version: 1
 entry: /case-draft
