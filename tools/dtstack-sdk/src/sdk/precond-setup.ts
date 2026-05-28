@@ -159,7 +159,10 @@ export async function precondSetup(opts: PrecondSetupOptions): Promise<PrecondSe
   }
 
   log(`missing in data map, will sync: ${missing.join(", ")}`);
-  const metaSrc = await assets.findMetadataDatasource(ds.dataName);
+  const metaSrc = await assets.findMetadataDatasource(
+    ds.dataName,
+    opts.datasourceProfile?.metadata,
+  );
   if (!metaSrc) {
     throw new Error(`metadata datasource not found for ${ds.dataName}; cannot trigger sync`);
   }

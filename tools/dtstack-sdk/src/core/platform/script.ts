@@ -16,8 +16,9 @@ import type { DtStackClientLike } from "../http/client";
 
 const SCRIPT_NAME = "__kata_precond__";
 
-// BatchTaskStatus 终态码（来自平台 enum）
-const TERMINAL_STATUS = new Set([5, 7, 8, 9, 12, 13, 16]);
+// BatchTaskStatus 终态码。ltqc-local 的 selectStatus 会短暂返回 16 后继续变成 4/5，
+// 因此 16 不能作为失败终态处理。
+const TERMINAL_STATUS = new Set([5, 7, 8, 9, 12, 13]);
 const SUCCESS_STATUS = new Set([5, 12]);
 const DEFAULT_SQL_TIMEOUT_MS = 600_000;
 
@@ -40,6 +41,20 @@ interface StartSqlResp {
 interface StatusResp {
   readonly status?: number;
   readonly msg?: string;
+}
+
+interface ScriptSqlContext {
+  readonly sourceId?: number;
+  readonly targetSchema?: string;
+  readonly syncTask?: boolean;
+}
+
+function stringifyDetails(value: unknown): string {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 }
 
 function toBase64(s: string): string {
@@ -161,6 +176,7 @@ export class BatchScriptRunner {
     projectId: number,
     scriptId: number,
     sql: string,
+    context?: ScriptSqlContext,
   ): Promise<string | null> {
     const resp = await this.client.postWithProjectId<StartSqlResp>(
       "/api/rdos/batch/batchScript/startSqlImmediatelyEncryption",
@@ -170,6 +186,9 @@ export class BatchScriptRunner {
         isCheckDDL: 0,
         taskParams: "",
         queryLimit: 1000,
+        ...(context?.sourceId !== undefined ? { sourceId: context.sourceId } : {}),
+        ...(context?.targetSchema !== undefined ? { targetSchema: context.targetSchema } : {}),
+        ...(context?.syncTask !== undefined ? { syncTask: context.syncTask } : {}),
       },
       projectId,
     );
@@ -183,7 +202,11 @@ export class BatchScriptRunner {
     if (data.status !== undefined) {
       if (SUCCESS_STATUS.has(data.status)) return null;
       if (TERMINAL_STATUS.has(data.status)) {
-        throw new Error(`SQL failed sync (status=${data.status} msg=${data.msg ?? ""})`);
+        throw new Error(
+          `SQL failed sync (status=${data.status} msg=${data.msg ?? ""} data=${stringifyDetails(
+            data,
+          )})`,
+        );
       }
     }
     // 没有 jobId 也没有 status，但有 msg 说明有问题（如「脚本不存在」）
@@ -210,7 +233,9 @@ export class BatchScriptRunner {
       if (TERMINAL_STATUS.has(status)) {
         if (SUCCESS_STATUS.has(status)) return;
         throw new Error(
-          `SQL job ${jobId} terminated with status=${status} msg=${resp.data?.msg ?? ""}`,
+          `SQL job ${jobId} terminated with status=${status} msg=${
+            resp.data?.msg ?? ""
+          } data=${stringifyDetails(resp.data)}`,
         );
       }
     }
@@ -221,10 +246,15 @@ export class BatchScriptRunner {
    * 同步执行单条 SQL：提交 → 轮询 → 终态
    * 失败/超时抛错。
    */
-  async executeSync(projectId: number, sql: string, timeoutMs = DEFAULT_SQL_TIMEOUT_MS): Promise<void> {
+  async executeSync(
+    projectId: number,
+    sql: string,
+    timeoutMs = DEFAULT_SQL_TIMEOUT_MS,
+    context?: ScriptSqlContext,
+  ): Promise<void> {
     const scriptId = await this.ensureScriptId(projectId);
     try {
-      const jobId = await this.submitSql(projectId, scriptId, sql);
+      const jobId = await this.submitSql(projectId, scriptId, sql, context);
       if (jobId) await this.pollUntilDone(projectId, jobId, timeoutMs);
     } catch (err) {
       // 缓存的 scriptId 可能被人删掉，下次重试时强制重建

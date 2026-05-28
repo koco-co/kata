@@ -97,7 +97,7 @@ describe("precondSetup", () => {
         case "/dmetadata/v1/dataSource/listMetadataDataSource":
           return {
             code: 1,
-            data: [{ dataSourceId: 547, dataSourceName: "spark-x", dataSourceType: 45 }],
+            data: [{ dataSourceId: 547, dataSourceName: "renamed-spark-x", dataSourceType: 45 }],
           };
         case "/dmetadata/v1/syncTask/add":
           return { code: 1, data: true };
@@ -120,6 +120,7 @@ describe("precondSetup", () => {
       client,
       project: "pw_test",
       datasource: "SparkThrift",
+      datasourceProfile: { metadata: { id: 547, name: "pw_test_HADOOP", typeId: 45 } },
       tables: [{ name: "t1", sql: "CREATE TABLE t1 (id int)" }],
       syncTimeoutMs: 10_000,
     });

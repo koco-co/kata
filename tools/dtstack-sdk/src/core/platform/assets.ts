@@ -15,6 +15,12 @@ export interface MetadataSource {
   readonly dataSourceType: number;
 }
 
+export interface MetadataDatasourceProfile {
+  readonly id?: number;
+  readonly name?: string;
+  readonly typeId?: number;
+}
+
 export interface DataMapTable {
   readonly id?: number;
   readonly tableName: string;
@@ -100,15 +106,36 @@ export class AssetsApi {
     }
   }
 
-  async findMetadataDatasource(name: string): Promise<MetadataSource | null> {
+  async findMetadataDatasource(
+    name: string,
+    profile?: MetadataDatasourceProfile,
+  ): Promise<MetadataSource | null> {
     const resp = await this.client.post<MetadataSource[]>(
       "/dmetadata/v1/dataSource/listMetadataDataSource",
       { type: 0 },
     );
-    if (resp.code !== 1 || !resp.data) return null;
-    return (
-      resp.data.find((ds) => ds.dataSourceName.toLowerCase().includes(name.toLowerCase())) ?? null
-    );
+    if (resp.code !== 1) {
+      throw new Error(
+        `List metadata datasource failed: code=${resp.code} message=${resp.message ?? ""}`,
+      );
+    }
+    if (!resp.data) return null;
+    const exact = resp.data.find((ds) => {
+      if (profile?.id !== undefined && ds.dataSourceId === profile.id) return true;
+      if (profile?.name && ds.dataSourceName === profile.name) return true;
+      return false;
+    });
+    if (exact) return exact;
+
+    const profileName = profile?.name?.toLowerCase();
+    const fallback = resp.data.find((ds) => {
+      const dsName = ds.dataSourceName.toLowerCase();
+      if (dsName.includes(name.toLowerCase())) return true;
+      if (profileName && dsName.includes(profileName)) return true;
+      if (profile?.typeId !== undefined && ds.dataSourceType === profile.typeId) return true;
+      return false;
+    });
+    return fallback ?? null;
   }
 
   async queryDataMap(tableName: string): Promise<DataMapTable | null> {

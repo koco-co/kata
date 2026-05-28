@@ -205,6 +205,11 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
           aliases: optionalCsv(values["datasource-aliases"]),
           database: (values.database as string | undefined) ?? (values.db as string | undefined),
           schema: values.schema as string | undefined,
+          metadata: {
+            id: optionalNumber(values["metadata-datasource-id"]),
+            name: values["metadata-datasource-name"] as string | undefined,
+            typeId: optionalNumber(values["metadata-datasource-type-id"]),
+          },
         },
         database: (values.database as string | undefined) ?? (values.db as string | undefined),
         tablesFromFile: values["tables-from"] as string | undefined,

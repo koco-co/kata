@@ -17,6 +17,9 @@ type SparkThriftPreconditionProfile = {
   datasourceName: string;
   datasourceTypeId: number;
   datasourceAliases: readonly string[];
+  metadataDatasourceId?: number;
+  metadataDatasourceName?: string;
+  metadataDatasourceTypeId?: number;
   database: string;
   schema: string;
   preconditionType: string;
@@ -131,6 +134,9 @@ function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
     datasourceName: datasource.batch.name,
     datasourceTypeId: datasource.batch.typeId,
     datasourceAliases: datasource.aliases,
+    metadataDatasourceId: datasource.metadata?.id,
+    metadataDatasourceName: datasource.metadata?.name,
+    metadataDatasourceTypeId: datasource.metadata?.typeId,
     database: datasource.batch.database ?? datasource.sql.database,
     schema: datasource.batch.schema ?? datasource.sql.schema,
     preconditionType: datasource.preconditionType,
@@ -171,6 +177,15 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
     String(preconditionProfile.datasourceTypeId),
     "--datasource-aliases",
     preconditionProfile.datasourceAliases.join(","),
+    ...(preconditionProfile.metadataDatasourceId
+      ? ["--metadata-datasource-id", String(preconditionProfile.metadataDatasourceId)]
+      : []),
+    ...(preconditionProfile.metadataDatasourceName
+      ? ["--metadata-datasource-name", preconditionProfile.metadataDatasourceName]
+      : []),
+    ...(preconditionProfile.metadataDatasourceTypeId
+      ? ["--metadata-datasource-type-id", String(preconditionProfile.metadataDatasourceTypeId)]
+      : []),
     "--database",
     preconditionProfile.database,
     "--schema",

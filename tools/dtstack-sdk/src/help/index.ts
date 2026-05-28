@@ -122,6 +122,12 @@ OPTIONS
       --datasource-name <n>   Exact Batch datasource name
       --datasource-type-id <id>
                               Datasource type ID used as a fallback matcher
+      --metadata-datasource-id <id>
+                              Exact metadata datasource ID for sync task
+      --metadata-datasource-name <n>
+                              Exact metadata datasource name for sync task
+      --metadata-datasource-type-id <id>
+                              Metadata datasource type ID fallback matcher
       --database <name>       Target database/schema for DDL, DML and metadata sync
       --tables-from <path>    YAML file with tables (see schema below)
       --skip-sync             Skip step 4-7 (DDL only)
