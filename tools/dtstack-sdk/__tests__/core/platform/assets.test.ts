@@ -77,6 +77,27 @@ describe("AssetsApi", () => {
     });
   });
 
+  test("findMetadataDatasource prefers configured datasource id", async () => {
+    const post = mock(async () => ({
+      code: 1,
+      data: [
+        { dataSourceId: 1, dataSourceName: "other", dataSourceType: 45 },
+        { dataSourceId: 547, dataSourceName: "renamed-source", dataSourceType: 45 },
+      ],
+    }));
+    const api = new AssetsApi({ post } as unknown as DtStackClientLike);
+    const result = await api.findMetadataDatasource("pw_test_HADOOP", { id: 547 });
+    expect(result?.dataSourceName).toBe("renamed-source");
+  });
+
+  test("findMetadataDatasource surfaces authentication failures", async () => {
+    const post = mock(async () => ({ code: 5, message: "无此用户", data: null }));
+    const api = new AssetsApi({ post } as unknown as DtStackClientLike);
+    await expect(api.findMetadataDatasource("pw_test_HADOOP")).rejects.toThrow(
+      /code=5 message=无此用户/,
+    );
+  });
+
   test("addSyncTask is a no-op when tableNames is empty", async () => {
     const post = mock(async () => ({ code: 1, data: true }));
     const api = new AssetsApi({ post } as unknown as DtStackClientLike);

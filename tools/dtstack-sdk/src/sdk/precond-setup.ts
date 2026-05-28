@@ -3,7 +3,7 @@ import { parse } from "yaml";
 import type { DtStackClientLike } from "../core/http/client";
 import { AssetsApi } from "../core/platform/assets";
 import { BatchApi, resolveSchemaName } from "../core/platform/batch";
-import { ProjectApi } from "../core/platform/project";
+import { type Project, ProjectApi } from "../core/platform/project";
 
 export interface PrecondTable {
   readonly name: string;
@@ -69,14 +69,26 @@ export async function precondSetup(opts: PrecondSetupOptions): Promise<PrecondSe
   const assets = new AssetsApi(opts.client);
 
   log(`ensure project: ${opts.project}`);
-  let project;
+  let project: Project;
   if (opts.projectId) {
-    // 直接通过项目 ID 查找
     const allProjects = await projects.list();
     log(`available projects: ${allProjects.map((p) => `${p.id}:${p.projectName}`).join(", ")}`);
-    project = allProjects.find((p) => p.id === opts.projectId) ?? null;
-    if (!project) {
-      throw new Error(`project with ID ${opts.projectId} not found`);
+    const projectById = allProjects.find((p) => p.id === opts.projectId) ?? null;
+    const projectByName =
+      allProjects.find((p) => p.projectName === opts.project || p.projectAlias === opts.project) ??
+      null;
+    if (projectById) {
+      project = projectById;
+    } else if (projectByName) {
+      log(
+        `project ID ${opts.projectId} not visible; fallback to project ${projectByName.projectName}(id=${projectByName.id})`,
+      );
+      project = projectByName;
+    } else if (opts.autoCreate !== false) {
+      log(`project ID ${opts.projectId} not visible; fallback to create/find ${opts.project}`);
+      project = await projects.ensureProject({ name: opts.project });
+    } else {
+      throw new Error(`project with ID ${opts.projectId} or name ${opts.project} not found`);
     }
   } else {
     project =
@@ -95,9 +107,11 @@ export async function precondSetup(opts: PrecondSetupOptions): Promise<PrecondSe
   }
 
   const tablesCreated: string[] = [];
+  const targetSchema =
+    opts.database ?? opts.datasourceProfile?.database ?? opts.datasourceProfile?.schema;
   for (const t of tables) {
     log(`DDL: ${t.name}`);
-    await batch.executeDDL(project.id, ds, t.sql);
+    await batch.executeDDL(project.id, ds, t.sql, targetSchema);
     tablesCreated.push(t.name);
   }
 
@@ -145,7 +159,10 @@ export async function precondSetup(opts: PrecondSetupOptions): Promise<PrecondSe
   }
 
   log(`missing in data map, will sync: ${missing.join(", ")}`);
-  const metaSrc = await assets.findMetadataDatasource(ds.dataName);
+  const metaSrc = await assets.findMetadataDatasource(
+    ds.dataName,
+    opts.datasourceProfile?.metadata,
+  );
   if (!metaSrc) {
     throw new Error(`metadata datasource not found for ${ds.dataName}; cannot trigger sync`);
   }

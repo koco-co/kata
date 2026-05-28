@@ -2,10 +2,28 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { loadDataAssetsEnvProfile } from "../../../../_shared/runtime/env-profile";
 
 const DEFAULT_SESSION_PATH = "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json";
 const DEFAULT_LTQC_BASE_URL = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
 const preparedPreconditionGroups = new Set<string>();
+
+type SparkThriftPreconditionProfile = {
+  sessionPath: string;
+  baseUrl: string;
+  projectId: number;
+  projectName: string;
+  datasourceId: number;
+  datasourceName: string;
+  datasourceTypeId: number;
+  datasourceAliases: readonly string[];
+  metadataDatasourceId?: number;
+  metadataDatasourceName?: string;
+  metadataDatasourceTypeId?: number;
+  database: string;
+  schema: string;
+  preconditionType: string;
+};
 
 type PrecondTableFixture = {
   name: string;
@@ -93,11 +111,46 @@ function serializePreconditionTables(tables: readonly PrecondTableFixture[]): st
   return `${chunks.join("\n")}\n`;
 }
 
+function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
+  const profile = loadDataAssetsEnvProfile();
+  const datasource =
+    Object.values(profile.datasources).find(
+      (item) => item.preconditionType.toLowerCase() === "sparkthrift",
+    ) ?? profile.datasources.sparkthrift;
+  if (!datasource) {
+    throw new Error(`${profile.env}: 未配置 SparkThrift 前置数据源`);
+  }
+  const projectName = profile.auth.tenantName ?? profile.projects.offline.name;
+  const projectId =
+    projectName === profile.projects.quality.name
+      ? profile.projects.quality.id
+      : profile.projects.offline.id;
+  return {
+    sessionPath: profile.auth.sessionPath,
+    baseUrl: profile.urls.baseUrl,
+    projectId,
+    projectName,
+    datasourceId: datasource.batch.id,
+    datasourceName: datasource.batch.name,
+    datasourceTypeId: datasource.batch.typeId,
+    datasourceAliases: datasource.aliases,
+    metadataDatasourceId: datasource.metadata?.id,
+    metadataDatasourceName: datasource.metadata?.name,
+    metadataDatasourceTypeId: datasource.metadata?.typeId,
+    database: datasource.batch.database ?? datasource.sql.database,
+    schema: datasource.batch.schema ?? datasource.sql.schema,
+    preconditionType: datasource.preconditionType,
+  };
+}
+
 function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): void {
-  const sessionPath = process.env.UI_AUTOTEST_SESSION_PATH ?? DEFAULT_SESSION_PATH;
+  const preconditionProfile = loadSparkThriftPreconditionProfile();
+  const sessionPath =
+    process.env.UI_AUTOTEST_SESSION_PATH ?? preconditionProfile.sessionPath ?? DEFAULT_SESSION_PATH;
   const state = JSON.parse(readFileSync(sessionPath, "utf8")) as {
     cookies?: Array<{ name: string; value: string }>;
   };
+  assertSessionCookieFresh(state, sessionPath, sourceRef);
   const cookie = (state.cookies ?? []).map((item) => `${item.name}=${item.value}`).join("; ");
   if (!cookie) {
     throw new Error(`${sourceRef}: 无法从 ${sessionPath} 读取 dtstack-cli 所需 cookie`);
@@ -112,9 +165,32 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
     "--env",
     "ltqc",
     "--project",
-    "pw_test",
+    preconditionProfile.projectName,
+    "--project-id",
+    String(preconditionProfile.projectId),
     "--datasource",
-    "SparkThrift",
+    preconditionProfile.preconditionType,
+    "--datasource-id",
+    String(preconditionProfile.datasourceId),
+    "--datasource-name",
+    preconditionProfile.datasourceName,
+    "--datasource-type-id",
+    String(preconditionProfile.datasourceTypeId),
+    "--datasource-aliases",
+    preconditionProfile.datasourceAliases.join(","),
+    ...(preconditionProfile.metadataDatasourceId
+      ? ["--metadata-datasource-id", String(preconditionProfile.metadataDatasourceId)]
+      : []),
+    ...(preconditionProfile.metadataDatasourceName
+      ? ["--metadata-datasource-name", preconditionProfile.metadataDatasourceName]
+      : []),
+    ...(preconditionProfile.metadataDatasourceTypeId
+      ? ["--metadata-datasource-type-id", String(preconditionProfile.metadataDatasourceTypeId)]
+      : []),
+    "--database",
+    preconditionProfile.database,
+    "--schema",
+    preconditionProfile.schema,
     "--tables-from",
     tablesFile,
     "--sync-timeout",
@@ -126,7 +202,7 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
     env: {
       ...process.env,
       DTSTACK_COOKIE: cookie,
-      LTQC_BASE_URL: process.env.LTQC_BASE_URL ?? DEFAULT_LTQC_BASE_URL,
+      LTQC_BASE_URL: process.env.LTQC_BASE_URL ?? preconditionProfile.baseUrl ?? DEFAULT_LTQC_BASE_URL,
     },
     encoding: "utf8",
     timeout: Number(process.env.KATA_DQ_PRECOND_TIMEOUT_MS ?? 1_800_000),
@@ -144,4 +220,52 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
         .join("\n"),
     );
   }
+}
+
+function assertSessionCookieFresh(
+  state: { cookies?: Array<{ name: string; value: string }> },
+  sessionPath: string,
+  sourceRef: string,
+): void {
+  const token = state.cookies?.find((item) => item.name === "dt_token")?.value;
+  if (!token) return;
+
+  const payload = parseJwtPayload(token);
+  if (!payload?.exp) return;
+
+  const expiresAtMs = payload.exp * 1000;
+  if (Date.now() < expiresAtMs) return;
+
+  throw new Error(
+    [
+      `${sourceRef}: ltqc-local session 已过期，请刷新 ${sessionPath}`,
+      `dt_token exp=${formatShanghaiTime(expiresAtMs)}`,
+      `now=${formatShanghaiTime(Date.now())}`,
+    ].join("\n"),
+  );
+}
+
+function parseJwtPayload(token: string): { exp?: number } | null {
+  const payload = token.split(".")[1];
+  if (!payload) return null;
+  try {
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    return JSON.parse(Buffer.from(padded, "base64").toString("utf8")) as { exp?: number };
+  } catch {
+    return null;
+  }
+}
+
+function formatShanghaiTime(ms: number): string {
+  return `${new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(new Date(ms))} CST`;
 }

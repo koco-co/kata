@@ -7,7 +7,6 @@ import "../cases/t15-data-quality-result-filters";
 import "../cases/t17-data-quality-overview-dashboard";
 import "../cases/t20-data-quality-common-config-json-shell";
 import "../cases/t23-data-quality-rule-task-list-contract";
-import "../cases/t29-data-quality-sampling-config-shell";
 import "../cases/t30-data-quality-project-management";
 import "../cases/t31-data-quality-permissions";
 import "../cases/t32-data-quality-sparkthrift-completeness-validation";

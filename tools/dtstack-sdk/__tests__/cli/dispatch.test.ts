@@ -66,8 +66,20 @@ describe("CLI dispatch (dry-run)", () => {
       "setup",
       "--project",
       "p",
+      "--project-id",
+      "69",
       "--datasource",
       "Doris",
+      "--datasource-id",
+      "9",
+      "--datasource-name",
+      "pw_test_HADOOP",
+      "--metadata-datasource-id",
+      "547",
+      "--metadata-datasource-name",
+      "pw_test_HADOOP",
+      "--database",
+      "pw_test",
       "--tables-from",
       "tables.yaml",
     ]);
@@ -76,6 +88,12 @@ describe("CLI dispatch (dry-run)", () => {
     expect(out).toMatchObject({
       command: "precond setup",
       project: "p",
+      "project-id": "69",
+      "datasource-id": "9",
+      "datasource-name": "pw_test_HADOOP",
+      "metadata-datasource-id": "547",
+      "metadata-datasource-name": "pw_test_HADOOP",
+      database: "pw_test",
       tablesFrom: "tables.yaml",
     });
   });

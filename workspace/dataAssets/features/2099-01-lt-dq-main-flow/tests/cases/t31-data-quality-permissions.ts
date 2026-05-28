@@ -1,9 +1,9 @@
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L9017,#L9035
-// intent: SR-INTENT-2099-01-DQ-PERMISSIONS-L9017-L9035
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8346,#L8364
+// intent: SR-INTENT-2099-01-DQ-PERMISSIONS-L8346-L8364
 // probe: SR-UI-PROBE-20260527-DQ-PERMISSIONS-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-27T00:00:00Z
-// SourceRefs: SR-2099-01-DQ-PERMISSIONS-L9017, SR-2099-01-DQ-PERMISSIONS-L9035, SR-UI-PROBE-20260527-DQ-PERMISSIONS-001
+// SourceRefs: SR-2099-01-DQ-PERMISSIONS-L8346, SR-2099-01-DQ-PERMISSIONS-L8364, SR-UI-PROBE-20260527-DQ-PERMISSIONS-001
 import { existsSync } from "node:fs";
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import {
@@ -33,7 +33,7 @@ test("【P0】数据质量权限控制通用配置页面权限控制正确", asy
       await expectDataQualityCommonConfigPermissionContract(
         page,
         limitedPage,
-        "SR-2099-01-DQ-PERMISSIONS-L9017",
+        "SR-2099-01-DQ-PERMISSIONS-L8346",
       );
     });
   } finally {
@@ -54,7 +54,7 @@ test("【P0】数据质量权限控制规则库配置页面权限控制正确", 
       await expectDataQualityRuleBasePermissionContract(
         page,
         limitedPage,
-        "SR-2099-01-DQ-PERMISSIONS-L9035",
+        "SR-2099-01-DQ-PERMISSIONS-L8364",
       );
     });
   } finally {

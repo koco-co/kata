@@ -1,9 +1,9 @@
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L9073,#L9166,#L9259,#L9352,#L9445,#L9538,#L9631,#L9725,#L9862,#L10000,#L10093,#L10186,#L10279,#L10372,#L10465,#L10558,#L10651,#L10744,#L10837,#L10930,#L11023,#L11117,#L11210,#L11303,#L11441,#L11579,#L11672,#L11765,#L11858,#L11952,#L12046,#L12140,#L12234,#L12373,#L12467,#L12561,#L12699,#L12837,#L12930,#L13023,#L13116,#L13209,#L13302,#L13395,#L13533
-// intent: SR-INTENT-2099-01-DQ-SPARKTHRIFT-VALIDATION-L9073-L13533
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8402,#L8496,#L8589,#L8682,#L8775,#L8868,#L8961,#L9055,#L9192,#L9330,#L9423,#L9517,#L9610,#L9703,#L9796,#L9889,#L9982,#L10075,#L10168,#L10261,#L10354,#L10448,#L10541,#L10634,#L10773,#L10911,#L11004,#L11097,#L11190,#L11284,#L11378,#L11472,#L11566,#L11705,#L11799,#L11893,#L12031,#L12169,#L12262,#L12355,#L12448,#L12541,#L12634,#L12727,#L12865
+// intent: SR-INTENT-2099-01-DQ-SPARKTHRIFT-VALIDATION-L8402-L12865
 // probe: SR-UI-PROBE-20260527-DQ-SPARKTHRIFT-COMPLETENESS-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-27T00:00:00Z
-// SourceRefs: SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9073, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9166, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9259, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9352, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9445, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9538, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9631, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9725, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9862, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10000, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10093, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10186, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10279, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10372, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10465, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10558, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10651, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10744, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10837, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10930, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L11023, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L11117, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L11210, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L11303, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L11441, SR-2099-01-DQ-SPARKTHRIFT-STATISTICAL-L11579, SR-2099-01-DQ-SPARKTHRIFT-STATISTICAL-L11672, SR-2099-01-DQ-SPARKTHRIFT-STATISTICAL-L11765, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11858, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11952, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L12046, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L12140, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L12234, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L12373, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L12467, SR-2099-01-DQ-SPARKTHRIFT-CONSISTENCY-L12561, SR-2099-01-DQ-SPARKTHRIFT-CONSISTENCY-L12699, SR-2099-01-DQ-SPARKTHRIFT-TIMELINESS-L12837, SR-2099-01-DQ-SPARKTHRIFT-TIMELINESS-L12930, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L13023, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L13116, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L13209, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L13302, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L13395, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L13533, SR-UI-PROBE-20260527-DQ-SPARKTHRIFT-COMPLETENESS-001
+// SourceRefs: SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8402, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8496, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8589, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8682, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8775, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8868, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L8961, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9055, SR-2099-01-DQ-SPARKTHRIFT-COMPLETENESS-L9192, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9330, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9423, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9517, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9610, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9703, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9796, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9889, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L9982, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10075, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10168, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10261, SR-2099-01-DQ-SPARKTHRIFT-VALIDITY-L10354, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L10448, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L10541, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L10634, SR-2099-01-DQ-SPARKTHRIFT-UNIQUENESS-L10773, SR-2099-01-DQ-SPARKTHRIFT-STATISTICAL-L10911, SR-2099-01-DQ-SPARKTHRIFT-STATISTICAL-L11004, SR-2099-01-DQ-SPARKTHRIFT-STATISTICAL-L11097, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11190, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11284, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11378, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11472, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11566, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11705, SR-2099-01-DQ-SPARKTHRIFT-CUSTOMSQL-L11799, SR-2099-01-DQ-SPARKTHRIFT-CONSISTENCY-L11893, SR-2099-01-DQ-SPARKTHRIFT-CONSISTENCY-L12031, SR-2099-01-DQ-SPARKTHRIFT-TIMELINESS-L12169, SR-2099-01-DQ-SPARKTHRIFT-TIMELINESS-L12262, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L12355, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L12448, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L12541, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L12634, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L12727, SR-2099-01-DQ-SPARKTHRIFT-REASONABLENESS-L12865, SR-UI-PROBE-20260527-DQ-SPARKTHRIFT-COMPLETENESS-001
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import {
   expectSparkThriftQualityRuleValidationContract,
@@ -23,7 +23,7 @@ const PRECOND_TABLES_FILE =
 
 const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
   {
-    archiveLine: 9073,
+    archiveLine: 8402,
     title: "完整性校验-字段级-空值数",
     tableName: "dwd_voyah_dq_rule_01_main",
     ruleCategory: "完整性校验",
@@ -37,9 +37,22 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_01_F003", "car_model_name"],
+    fusionChecks: {
+      ruleSetListAndConfiguredTableFilter: true,
+      t1BeforeImmediateWithEnvParams: [
+        { name: "logLevel", value: "ERROR" },
+        { name: "spark.executor.cores", value: "2" },
+        { name: "spark.executor.instances", value: "2" },
+        { name: "spark.executor.memory", value: "2g" },
+        { name: "spark.sql.shuffle.partitions", value: "10" },
+        { name: "spark.network.timeout", value: "300s" },
+        { name: "spark.driver.maxResultSize", value: "2g" },
+      ],
+      passHasNoDirtyDetail: true,
+    },
   },
   {
-    archiveLine: 9166,
+    archiveLine: 8496,
     title: "完整性校验-字段级-空值率",
     tableName: "dwd_voyah_dq_rule_02_main",
     ruleCategory: "完整性校验",
@@ -54,9 +67,13 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0%",
     failExpectedValue: "25%",
     dirtyEvidence: ["ORD_02_F003", "car_model_name"],
+    fusionChecks: {
+      ruleSetDetail: true,
+      taskDetectionToggle: true,
+    },
   },
   {
-    archiveLine: 9259,
+    archiveLine: 8589,
     title: "完整性校验-字段级-空串数",
     tableName: "dwd_voyah_dq_rule_03_main",
     ruleCategory: "完整性校验",
@@ -70,9 +87,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_03_F003", "delivery_center"],
+    fusionChecks: {
+      ruleSetPackageNameManagement: true,
+    },
   },
   {
-    archiveLine: 9352,
+    archiveLine: 8682,
     title: "完整性校验-字段级-空串率",
     tableName: "dwd_voyah_dq_rule_04_main",
     ruleCategory: "完整性校验",
@@ -87,9 +107,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0%",
     failExpectedValue: "25%",
     dirtyEvidence: ["ORD_04_F003", "delivery_center"],
+    fusionChecks: {
+      ruleSetGlobalParams: true,
+    },
   },
   {
-    archiveLine: 9445,
+    archiveLine: 8775,
     title: "完整性校验-字段级-字段取值校验",
     tableName: "dwd_voyah_dq_rule_05_main",
     ruleCategory: "完整性校验",
@@ -104,9 +127,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "全部 final_price >= 0",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_05_F003", "-100.000"],
+    fusionChecks: {
+      ruleSetRuleEdit: true,
+    },
   },
   {
-    archiveLine: 9538,
+    archiveLine: 8868,
     title: "完整性校验-字段级-key范围校验",
     tableName: "dwd_voyah_dq_rule_06_main",
     ruleCategory: "完整性校验",
@@ -120,9 +146,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "key 全部不存在",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_06_F003", "debug.errorCode"],
+    fusionChecks: {
+      dirtyDetail: { highlightedColumns: ["json_payload"] },
+    },
   },
   {
-    archiveLine: 9631,
+    archiveLine: 8961,
     title: "完整性校验-单表-表行数",
     tableName: "dwd_voyah_dq_rule_07_main",
     ruleCategory: "完整性校验",
@@ -136,9 +165,17 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "4",
     failExpectedValue: "5",
     dirtyEvidence: ["5", "stat_date"],
+    fusionChecks: {
+      partitionModesVisible: true,
+      samplingRows: "10",
+      failByEditingExistingTask: {
+        partitionMode: "manual",
+        deleteRuleSetBeforeRun: true,
+      },
+    },
   },
   {
-    archiveLine: 9725,
+    archiveLine: 9055,
     title: "完整性校验-多表数据行数对比",
     tableName: "dwd_voyah_dq_rule_08_main",
     comparisonTableName: "dwd_voyah_dq_rule_08_ref",
@@ -155,7 +192,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_08_F004", "dwd_voyah_dq_rule_08_ref"],
   },
   {
-    archiveLine: 9862,
+    archiveLine: 9192,
     title: "完整性校验-多表数据内容对比",
     tableName: "dwd_voyah_dq_rule_09_main",
     comparisonTableName: "dwd_voyah_dq_rule_09_ref",
@@ -176,7 +213,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["LTV202601150003AA", "MISMATCH_MODEL"],
   },
   {
-    archiveLine: 10000,
+    archiveLine: 9330,
     title: "有效性校验-数值-取值范围",
     tableName: "dwd_voyah_dq_rule_10_main",
     ruleCategory: "有效性校验",
@@ -191,7 +228,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_10_F003", "-100.000"],
   },
   {
-    archiveLine: 10093,
+    archiveLine: 9423,
     title: "有效性校验-格式-身份证号",
     tableName: "dwd_voyah_dq_rule_11_main",
     ruleCategory: "有效性校验",
@@ -206,7 +243,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_11_F003", "ABC123"],
   },
   {
-    archiveLine: 10186,
+    archiveLine: 9517,
     title: "有效性校验-格式-手机号",
     tableName: "dwd_voyah_dq_rule_12_main",
     ruleCategory: "有效性校验",
@@ -221,7 +258,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_12_F003", "10086"],
   },
   {
-    archiveLine: 10279,
+    archiveLine: 9610,
     title: "有效性校验-格式-邮箱",
     tableName: "dwd_voyah_dq_rule_13_main",
     ruleCategory: "有效性校验",
@@ -236,7 +273,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_13_F003", "owner-at-example"],
   },
   {
-    archiveLine: 10372,
+    archiveLine: 9703,
     title: "有效性校验-字符串长度",
     tableName: "dwd_voyah_dq_rule_14_main",
     ruleCategory: "有效性校验",
@@ -251,7 +288,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_14_F003", "LTV202601150003AATOOLONG"],
   },
   {
-    archiveLine: 10465,
+    archiveLine: 9796,
     title: "有效性校验-数据精度",
     tableName: "dwd_voyah_dq_rule_15_main",
     ruleCategory: "有效性校验",
@@ -270,7 +307,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_15_F003", "252800.123"],
   },
   {
-    archiveLine: 10558,
+    archiveLine: 9889,
     title: "有效性校验-枚举值",
     tableName: "dwd_voyah_dq_rule_16_main",
     ruleCategory: "有效性校验",
@@ -285,7 +322,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_16_F003", "DIESEL"],
   },
   {
-    archiveLine: 10651,
+    archiveLine: 9982,
     title: "有效性校验-格式-日期格式-date",
     tableName: "dwd_voyah_dq_rule_17_main",
     ruleCategory: "有效性校验",
@@ -301,7 +338,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_17_F003", "2026/01/15"],
   },
   {
-    archiveLine: 10744,
+    archiveLine: 10075,
     title: "有效性校验-格式-日期格式-date time",
     tableName: "dwd_voyah_dq_rule_18_main",
     ruleCategory: "有效性校验",
@@ -317,7 +354,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_18_F003", "2026/01/15 10:00"],
   },
   {
-    archiveLine: 10837,
+    archiveLine: 10168,
     title: "有效性校验-格式校验-自定义正则",
     tableName: "dwd_voyah_dq_rule_19_main",
     ruleCategory: "有效性校验",
@@ -333,7 +370,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_19_F003", "BAD202601150003AA"],
   },
   {
-    archiveLine: 10930,
+    archiveLine: 10261,
     title: "有效性校验-取值范围&枚举范围",
     tableName: "dwd_voyah_dq_rule_20_main",
     ruleCategory: "有效性校验",
@@ -350,9 +387,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "异常记录数实际值为 0",
     failExpectedValue: "异常记录数实际值为 1",
     dirtyEvidence: ["ORD_20_F003", "-100.000"],
+    fusionChecks: {
+      dirtyDetail: { highlightedColumns: ["final_price"], verifyDownloadEntry: true },
+    },
   },
   {
-    archiveLine: 11023,
+    archiveLine: 10354,
     title: "有效性校验-格式-json格式校验",
     tableName: "dwd_voyah_dq_rule_21_main",
     ruleCategory: "有效性校验",
@@ -365,9 +405,13 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "JSON 合法且 key 存在",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_21_F003", "json_payload"],
+    fusionChecks: {
+      dirtyDetail: { highlightedColumns: ["json_payload"] },
+      passHasNoDirtyDetail: true,
+    },
   },
   {
-    archiveLine: 11117,
+    archiveLine: 10448,
     title: "唯一性校验-重复数",
     tableName: "dwd_voyah_dq_rule_22_main",
     ruleCategory: "唯一性校验",
@@ -380,9 +424,13 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0",
     failExpectedValue: "1",
     dirtyEvidence: ["LTV202601150003AA", "重复"],
+    fusionChecks: {
+      monitorRecordTableSearch: true,
+      samplingRows: "10",
+    },
   },
   {
-    archiveLine: 11210,
+    archiveLine: 10541,
     title: "唯一性校验-重复率",
     tableName: "dwd_voyah_dq_rule_23_main",
     ruleCategory: "唯一性校验",
@@ -399,7 +447,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
   },
   // archive-title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(唯一+或+单字段)
   {
-    archiveLine: 11303,
+    archiveLine: 10634,
     title: "唯一性校验-多表唯一性判断(唯一+或)",
     tableName: "dwd_voyah_dq_rule_24_main",
     comparisonTableName: "dwd_voyah_dq_rule_24_ref",
@@ -417,10 +465,13 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0",
     failExpectedValue: "1",
     dirtyEvidence: ["LTV202601150003AA", "dwd_voyah_dq_rule_24_ref"],
+    fusionChecks: {
+      sameTableSecondTask: true,
+    },
   },
   // archive-title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(允许重复+且+多字段)
   {
-    archiveLine: 11441,
+    archiveLine: 10773,
     title: "唯一性校验-多表唯一性判断(允许重复+且)",
     tableName: "dwd_voyah_dq_rule_25_main",
     comparisonTableName: "dwd_voyah_dq_rule_25_ref",
@@ -441,7 +492,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["vin", "order_id"],
   },
   {
-    archiveLine: 11579,
+    archiveLine: 10911,
     title: "统计性校验-异常值检测-IQR离群点数量",
     tableName: "dwd_voyah_dq_rule_26_main",
     ruleCategory: "统计性校验",
@@ -456,7 +507,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_26_F004", "999999.000"],
   },
   {
-    archiveLine: 11672,
+    archiveLine: 11004,
     title: "统计性校验-异常值检测-IQR离群点占比",
     tableName: "dwd_voyah_dq_rule_27_main",
     ruleCategory: "统计性校验",
@@ -471,7 +522,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_27_F004", "999999.000"],
   },
   {
-    archiveLine: 11765,
+    archiveLine: 11097,
     title: "统计性校验-异常值检测-Z-score置信区间",
     tableName: "dwd_voyah_dq_rule_28_main",
     ruleCategory: "统计性校验",
@@ -486,7 +537,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_28_F004", "999999.000"],
   },
   {
-    archiveLine: 11858,
+    archiveLine: 11190,
     title: "自定义SQL-完整性校验",
     tableName: "dwd_voyah_dq_rule_29_main",
     ruleCategory: "完整性校验",
@@ -508,9 +559,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_29_F003", "car_model_name"],
+    fusionChecks: {
+      dirtyDetail: { highlightedColumns: ["car_model_name"], verifyDownloadEntry: true },
+    },
   },
   {
-    archiveLine: 11952,
+    archiveLine: 11284,
     title: "自定义SQL-有效性校验",
     tableName: "dwd_voyah_dq_rule_30_main",
     ruleCategory: "有效性校验",
@@ -534,7 +588,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_30_F003", "-100.000"],
   },
   {
-    archiveLine: 12046,
+    archiveLine: 11378,
     title: "自定义SQL-唯一性校验",
     tableName: "dwd_voyah_dq_rule_31_main",
     ruleCategory: "唯一性校验",
@@ -558,7 +612,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["LTV202601150003AA", "重复"],
   },
   {
-    archiveLine: 12140,
+    archiveLine: 11472,
     title: "自定义SQL-统计性校验",
     tableName: "dwd_voyah_dq_rule_32_main",
     ruleCategory: "统计性校验",
@@ -582,7 +636,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_32_F004", "999999.000"],
   },
   {
-    archiveLine: 12234,
+    archiveLine: 11566,
     title: "自定义SQL-一致性校验",
     tableName: "dwd_voyah_dq_rule_33_main",
     comparisonTableName: "dwd_voyah_dq_rule_33_ref",
@@ -612,7 +666,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["LTV202601150003AA", "car_model_code"],
   },
   {
-    archiveLine: 12373,
+    archiveLine: 11705,
     title: "自定义SQL-时效性校验",
     tableName: "dwd_voyah_dq_rule_34_main",
     ruleCategory: "时效性校验",
@@ -636,7 +690,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_34_F003", "2026-01-13 08:00:00"],
   },
   {
-    archiveLine: 12467,
+    archiveLine: 11799,
     title: "自定义SQL-合理性校验",
     tableName: "dwd_voyah_dq_rule_35_main",
     ruleCategory: "合理性校验",
@@ -660,7 +714,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_35_F003", "final_price"],
   },
   {
-    archiveLine: 12561,
+    archiveLine: 11893,
     title: "一致性校验-多表数据一致性比对",
     tableName: "dwd_voyah_dq_rule_36_main",
     comparisonTableName: "dwd_voyah_dq_rule_36_ref",
@@ -680,7 +734,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["LTV202601150003AA", "car_model_code", "power_type"],
   },
   {
-    archiveLine: 12699,
+    archiveLine: 12031,
     title: "一致性校验-多表数据一致性比对(多主键+or)",
     tableName: "dwd_voyah_dq_rule_36_multi_main",
     comparisonTableName: "dwd_voyah_dq_rule_36_multi_ref",
@@ -700,7 +754,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["LTV202601150003AA", "PASSION", "car_model_code"],
   },
   {
-    archiveLine: 12837,
+    archiveLine: 12169,
     title: "时效性校验-周期性校验（单字段时间差校验）",
     tableName: "dwd_voyah_dq_rule_37_main",
     ruleCategory: "时效性校验",
@@ -716,7 +770,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_37_F003", "2026-01-13 08:00:00"],
   },
   {
-    archiveLine: 12930,
+    archiveLine: 12262,
     title: "时效性校验-及时性校验（多字段时间差校验）",
     tableName: "dwd_voyah_dq_rule_38_main",
     ruleCategory: "时效性校验",
@@ -735,7 +789,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_38_F003", "90"],
   },
   {
-    archiveLine: 13023,
+    archiveLine: 12355,
     title: "合理性校验-数据变化趋势-单调递增",
     tableName: "dwd_voyah_dq_rule_39_main",
     ruleCategory: "合理性校验",
@@ -751,9 +805,12 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "里程按 event_time 单调递增",
     failExpectedValue: "1",
     dirtyEvidence: ["ORD_39_F003", "mileage"],
+    fusionChecks: {
+      dirtyDetail: { highlightedColumns: ["mileage"], verifyDownloadEntry: true },
+    },
   },
   {
-    archiveLine: 13116,
+    archiveLine: 12448,
     title: "合理性校验-数据变化趋势-单调递减",
     tableName: "dwd_voyah_dq_rule_40_main",
     ruleCategory: "合理性校验",
@@ -771,7 +828,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_40_F003", "battery_loss_rate"],
   },
   {
-    archiveLine: 13209,
+    archiveLine: 12541,
     title: "合理性校验-字段值计算对比-计算结果与字段对比",
     tableName: "dwd_voyah_dq_rule_41_main",
     ruleCategory: "合理性校验",
@@ -790,7 +847,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_41_F003", "final_price"],
   },
   {
-    archiveLine: 13302,
+    archiveLine: 12634,
     title: "合理性校验-字段值计算对比-计算结果值判断",
     tableName: "dwd_voyah_dq_rule_42_main",
     ruleCategory: "合理性校验",
@@ -809,7 +866,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["ORD_42_F003", "guide_price-final_price"],
   },
   {
-    archiveLine: 13395,
+    archiveLine: 12727,
     title: "合理性校验-多表字段值对比-计算结果对比",
     tableName: "dwd_voyah_dq_rule_43_main",
     comparisonTableName: "dwd_voyah_dq_rule_43_ref",
@@ -834,7 +891,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     dirtyEvidence: ["LTV202601150003AA", "计算结果不一致"],
   },
   {
-    archiveLine: 13533,
+    archiveLine: 12865,
     title: "合理性校验-多表字段值对比-计算结果值判断",
     tableName: "dwd_voyah_dq_rule_44_main",
     comparisonTableName: "dwd_voyah_dq_rule_44_ref",

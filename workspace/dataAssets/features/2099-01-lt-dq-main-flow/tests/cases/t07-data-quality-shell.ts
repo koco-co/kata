@@ -1,4 +1,4 @@
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L3217,#L3236,#L3253,#L3268,#L9053,L13124-L13170
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7452,#L7575,#L7632,#L7924,#L7945,#L7966,#L8382,#L8402
 // intent: SR-INTENT-2099-01-DQ-001
 // probe: SR-UI-PROBE-20260522-DQ-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
@@ -168,5 +168,5 @@ test("【P0】数据质量规则库自定义 SQL 模版详情编辑与引用保�
 
 // archive-title: 验证【数据质量-菜单名称】历史项目菜单名称正确修改
 test("【P0】数据质量历史项目菜单名称与新路由可核验", async ({ page }) => {
-  await expectDataQualityMenuRenameContract(page, "SR-2099-01-DQ-MENU-L9053");
+  await expectDataQualityMenuRenameContract(page, "SR-2099-01-DQ-MENU-L8382");
 });

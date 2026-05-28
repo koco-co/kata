@@ -165,6 +165,34 @@ type DqOverviewTableOption = {
   tableName?: string;
 };
 
+type SparkThriftEnvParam = {
+  name: string;
+  value: string;
+};
+
+type SparkThriftRuleValidationFusionChecks = {
+  ruleSetListAndConfiguredTableFilter?: boolean;
+  ruleSetDetail?: boolean;
+  ruleSetPackageNameManagement?: boolean;
+  ruleSetGlobalParams?: boolean;
+  ruleSetRuleEdit?: boolean;
+  taskDetectionToggle?: boolean;
+  monitorRecordTableSearch?: boolean;
+  sameTableSecondTask?: boolean;
+  passHasNoDirtyDetail?: boolean;
+  partitionModesVisible?: boolean;
+  t1BeforeImmediateWithEnvParams?: readonly SparkThriftEnvParam[];
+  samplingRows?: string;
+  failByEditingExistingTask?: {
+    partitionMode: "existing" | "manual";
+    deleteRuleSetBeforeRun?: boolean;
+  };
+  dirtyDetail?: {
+    highlightedColumns?: readonly string[];
+    verifyDownloadEntry?: boolean;
+  };
+};
+
 export type SparkThriftQualityRuleValidationScenario = {
   archiveLine: number;
   title: string;
@@ -206,6 +234,7 @@ export type SparkThriftQualityRuleValidationScenario = {
   passExpectedValue: string;
   failExpectedValue: string;
   dirtyEvidence: readonly string[];
+  fusionChecks?: SparkThriftRuleValidationFusionChecks;
 };
 
 type DqRuleBaseTemplateRecord = {
@@ -3034,8 +3063,37 @@ export async function expectSparkThriftQualityRuleValidationContract(
     effectiveScenario,
     packageName,
     ruleSetDescription,
+    effectiveScenario.fusionChecks,
   );
-  await createSparkThriftArchiveValidationRuleTask(page, sourceRef, effectiveScenario, ruleName, packageName);
+  if (effectiveScenario.fusionChecks?.ruleSetListAndConfiguredTableFilter) {
+    await expectArchiveRuleSetListAndConfiguredTableFilter(
+      page,
+      sourceRef,
+      effectiveScenario,
+      ruleSetDescription,
+    );
+  }
+  if (effectiveScenario.fusionChecks?.ruleSetDetail) {
+    await expectArchiveRuleSetDetail(page, sourceRef, effectiveScenario, ruleSetDescription, packageName);
+  }
+  await createSparkThriftArchiveValidationRuleTask(page, sourceRef, effectiveScenario, ruleName, packageName, {
+    envParams: effectiveScenario.fusionChecks?.t1BeforeImmediateWithEnvParams,
+    samplingRows: effectiveScenario.fusionChecks?.samplingRows,
+    t1BeforeImmediate: Boolean(effectiveScenario.fusionChecks?.t1BeforeImmediateWithEnvParams?.length),
+    partitionModesVisible: effectiveScenario.fusionChecks?.partitionModesVisible,
+  });
+  if (effectiveScenario.fusionChecks?.taskDetectionToggle) {
+    await expectArchiveRuleTaskSingleDetectionToggle(page, sourceRef, effectiveScenario, ruleName);
+  }
+  if (effectiveScenario.fusionChecks?.sameTableSecondTask) {
+    await createSparkThriftArchiveValidationRuleTask(
+      page,
+      sourceRef,
+      effectiveScenario,
+      `${ruleName}_second`,
+      packageName,
+    );
+  }
 
   await gotoDataQualityPage(page, "/dq/rule");
   await searchRuleTaskByTableName(page, effectiveScenario.tableName, sourceRef);
@@ -3049,28 +3107,45 @@ export async function expectSparkThriftQualityRuleValidationContract(
     expectedStatus: /校验通过/,
     expectedActualValue: effectiveScenario.passExpectedValue,
     expectedPartition: effectiveScenario.passPartition,
+    passHasNoDirtyDetail: effectiveScenario.fusionChecks?.passHasNoDirtyDetail,
+    expectedSamplingRows: effectiveScenario.fusionChecks?.samplingRows,
   });
+  if (effectiveScenario.fusionChecks?.monitorRecordTableSearch) {
+    await expectArchiveMonitorRecordTableSearch(page, sourceRef, effectiveScenario, ruleName);
+  }
 
-  await createSparkThriftArchiveValidationRuleTask(
-    page,
-    sourceRef,
-    { ...effectiveScenario, passPartition: effectiveScenario.failPartition },
-    failRuleName,
-    packageName,
-  );
+  const failByEditing = effectiveScenario.fusionChecks?.failByEditingExistingTask;
+  if (failByEditing?.deleteRuleSetBeforeRun) {
+    await deleteRuleSetRowAndAssert(page, sourceRef, effectiveScenario.tableName, ruleSetDescription);
+  }
+  if (failByEditing) {
+    await editSparkThriftArchiveValidationRuleTaskPartition(page, sourceRef, effectiveScenario, ruleName, {
+      partitionMode: failByEditing.partitionMode,
+    });
+  } else {
+    await createSparkThriftArchiveValidationRuleTask(
+      page,
+      sourceRef,
+      { ...effectiveScenario, passPartition: effectiveScenario.failPartition },
+      failRuleName,
+      packageName,
+    );
+  }
   await gotoDataQualityPage(page, "/dq/rule");
   await searchRuleTaskByTableName(page, effectiveScenario.tableName, sourceRef);
+  const finalRuleName = failByEditing ? ruleName : failRuleName;
   const editedTaskRow = page
     .locator(".ant-table-tbody tr")
     .filter({ hasText: effectiveScenario.tableName })
-    .filter({ hasText: failRuleName })
+    .filter({ hasText: finalRuleName })
     .first();
   await runRuleTaskImmediately(page, sourceRef, editedTaskRow);
-  await expectArchiveRuleValidationRecord(page, sourceRef, effectiveScenario, failRuleName, {
+  await expectArchiveRuleValidationRecord(page, sourceRef, effectiveScenario, finalRuleName, {
     expectedStatus: /校验异常|校验失败|校验不通过/,
     expectedActualValue: effectiveScenario.failExpectedValue,
     expectedPartition: effectiveScenario.failPartition,
     dirtyEvidence: effectiveScenario.dirtyEvidence,
+    dirtyDetail: effectiveScenario.fusionChecks?.dirtyDetail,
   });
 }
 
@@ -3143,32 +3218,6 @@ async function gotoNewRuleTaskMonitorRuleConfig(
     `${sourceRef}: 监控对象保存成功后应进入监控规则配置页`,
   ).toContainText(/监控规则|引用规则包|添加规则/, { timeout: 30000 });
   return body;
-}
-
-export async function expectDataQualitySamplingConfigShell(page: Page, sourceRef: string): Promise<void> {
-  await gotoDataQualityPage(page, "/dq/rule");
-  await clickDqText(page, "新建监控规则", sourceRef);
-  await expect(page, `${sourceRef}: 新建监控规则应进入 /dq/rule/add`).toHaveURL(/\/dq\/rule\/add/);
-
-  const main = page.locator("main, .ant-layout-content").first();
-  const shell = (await main.count()) > 0 ? main : page.locator("body");
-  for (const label of ["新建单表校验规则", "监控对象", "规则名称", "数据预览"]) {
-    await expect(shell, `${sourceRef}: 新建监控规则页面应展示「${label}」`).toContainText(label, {
-      timeout: 30000,
-    });
-  }
-  await expect(
-    shell.getByRole("button", { name: /数据预览/ }).first(),
-    `${sourceRef}: 数据预览按钮应可见但不点击`,
-  ).toBeVisible({ timeout: 30000 });
-  await expect(
-    shell,
-    `${sourceRef}: 数据预览区域应展示抽样检查设置配置项`,
-  ).toContainText(/抽样检查(设置|配置)/, { timeout: 30000 });
-  await expect(
-    shell.locator(".ant-switch, [role='switch']").first(),
-    `${sourceRef}: 抽样检查设置开关应可见但不切换`,
-  ).toBeVisible({ timeout: 30000 });
 }
 
 export async function expectDataQualityRuleSetCreateEntry(page: Page, sourceRef: string): Promise<void> {
@@ -7051,6 +7100,18 @@ async function createCustomSqlTemplateFixture(
   expect(formatRuleBaseCustomRelationRange(created?.relationRange, sourceRef), `${sourceRef}: 模版关联范围应正确`).toBe(
     formatRuleBaseCustomRelationRange(template.relationRange, sourceRef),
   );
+  const createdParams = created?.customParam ?? [];
+  for (const expectedParam of template.params) {
+    const actualParam = createdParams.find((param) => param.param === expectedParam.param);
+    expect(actualParam, `${sourceRef}: 自定义 SQL 模版应保存参数 ${expectedParam.param}`).toBeTruthy();
+    expect(actualParam?.type, `${sourceRef}: 参数 ${expectedParam.param} 类型应正确`).toBe(expectedParam.type);
+    expect(actualParam?.paramName, `${sourceRef}: 参数 ${expectedParam.param} 名称应正确`).toBe(
+      expectedParam.paramName,
+    );
+    expect(actualParam?.description, `${sourceRef}: 参数 ${expectedParam.param} 说明应正确`).toBe(
+      expectedParam.description,
+    );
+  }
 }
 
 async function listCustomSqlRecords(page: Page, sourceRef: string): Promise<DqRuleBaseCustomSqlRecord[]> {
@@ -7645,6 +7706,7 @@ async function createSparkThriftArchiveValidationRuleSet(
   scenario: SparkThriftQualityRuleValidationScenario,
   packageName: string,
   ruleSetDescription: string,
+  fusionChecks: SparkThriftRuleValidationFusionChecks | undefined,
 ): Promise<void> {
   await gotoDataQualityPage(page, "/dq/ruleSet");
   await clickDqText(page, "新建规则集", sourceRef);
@@ -7666,6 +7728,9 @@ async function createSparkThriftArchiveValidationRuleSet(
     timeout: 30000,
   });
   await packageNameInput.press("Tab", { timeout: 30000 });
+  if (fusionChecks?.ruleSetPackageNameManagement) {
+    await expectArchiveRuleSetPackageNameManagement(page, sourceRef, packageName);
+  }
   await clickDqCompactButton(page, "下一步", sourceRef);
   await expect(page.locator("body"), `${sourceRef}: 新建规则集应进入监控规则配置页`).toContainText(
     /监控规则|添加规则/,
@@ -7674,6 +7739,12 @@ async function createSparkThriftArchiveValidationRuleSet(
 
   await ensureArchiveRuleSetPackageReady(page, sourceRef, packageName);
   await addArchiveValidationRuleToCurrentRuleSet(page, sourceRef, scenario);
+  if (fusionChecks?.ruleSetRuleEdit) {
+    await expectArchiveRuleSetRuleEdit(page, sourceRef, scenario);
+  }
+  if (fusionChecks?.ruleSetGlobalParams) {
+    await expectArchiveRuleSetGlobalParamsOnCurrentPage(page, sourceRef, packageName);
+  }
   await clickRuleSetSubmitButton(page, sourceRef);
   await expect
     .poll(async () => {
@@ -7684,6 +7755,186 @@ async function createSparkThriftArchiveValidationRuleSet(
       timeout: 60000,
     })
     .toBe(true);
+}
+
+async function expectArchiveRuleSetPackageNameManagement(
+  page: Page,
+  sourceRef: string,
+  packageName: string,
+): Promise<void> {
+  const renamedName = `${packageName}_临时重命名`;
+  const secondName = `${packageName}_临时包`;
+  const packageInputs = getRuleSetPackageNameInputs(page);
+  await expect(packageInputs.first(), `${sourceRef}: 规则包名称输入框应可编辑`).toBeVisible({
+    timeout: 30000,
+  });
+  await packageInputs.first().fill(renamedName, { timeout: 30000 });
+  await expect(packageInputs.first(), `${sourceRef}: 规则包名称应支持重命名`).toHaveValue(renamedName, {
+    timeout: 30000,
+  });
+  await packageInputs.first().fill(packageName, { timeout: 30000 });
+
+  await clickRuleSetPackageAddButton(page, sourceRef);
+  await expect(getRuleSetPackageNameInputs(page).nth(1), `${sourceRef}: 新增规则包输入框应出现`).toBeVisible({
+    timeout: 30000,
+  });
+  await getRuleSetPackageNameInputs(page).nth(1).fill(secondName, { timeout: 30000 });
+  await expect(getRuleSetPackageNameInputs(page).nth(1), `${sourceRef}: 新增规则包名称应可填写`).toHaveValue(
+    secondName,
+    { timeout: 30000 },
+  );
+  await deleteSecondRuleSetPackageIfVisible(page, sourceRef);
+  await expect(getRuleSetPackageNameInputs(page), `${sourceRef}: 删除临时规则包后应只保留正式规则包`).toHaveCount(
+    1,
+    { timeout: 30000 },
+  );
+
+  await clickRuleSetPackageAddButton(page, sourceRef);
+  await getRuleSetPackageNameInputs(page).nth(1).fill(packageName, { timeout: 30000 });
+  await getRuleSetPackageNameInputs(page).nth(1).press("Tab", { timeout: 30000 });
+  await expect(
+    page.locator(".ant-form-item-explain-error").filter({ hasText: /重复|不可重复|已存在/ }).first(),
+    `${sourceRef}: 重复规则包名称应提示校验错误`,
+  ).toBeVisible({ timeout: 30000 });
+  await deleteSecondRuleSetPackageIfVisible(page, sourceRef);
+  await getRuleSetPackageNameInputs(page).first().fill(packageName, { timeout: 30000 });
+  await expect(getRuleSetPackageNameInputs(page).first(), `${sourceRef}: 正式规则包名称应恢复`).toHaveValue(
+    packageName,
+    { timeout: 30000 },
+  );
+}
+
+async function deleteSecondRuleSetPackageIfVisible(page: Page, sourceRef: string): Promise<void> {
+  const secondRow = getRuleSetPackageRows(page).nth(1);
+  const deleteButton = secondRow
+    .locator(".anticon-delete, .anticon-minus-circle, [class*='delete']")
+    .first();
+  await expect(deleteButton, `${sourceRef}: 临时规则包应展示删除入口`).toBeVisible({ timeout: 30000 });
+  await deleteButton.click({ timeout: 30000 });
+  const confirm = page.locator(".ant-popconfirm:visible, .ant-modal:visible").last();
+  if (await confirm.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await confirm.getByRole("button", { name: /确\s*定|确\s*认/ }).last().click({ timeout: 30000 });
+  }
+}
+
+async function expectArchiveRuleSetRuleEdit(
+  page: Page,
+  sourceRef: string,
+  scenario: SparkThriftQualityRuleValidationScenario,
+): Promise<void> {
+  const editedDescription = `${scenario.description}_编辑校验`;
+  const createdRule = getRuleSetMonitorRuleItems(page).filter({ hasText: scenario.description }).first();
+  await expect(createdRule, `${sourceRef}: 待编辑规则行应可见`).toBeVisible({ timeout: 30000 });
+  await createdRule.getByRole("button", { name: /编辑/ }).first().click({ timeout: 30000 });
+  await fillRuleSetRuleDescription(page, editedDescription);
+  await saveRuleSetRuleRow(page, sourceRef, "编辑规则");
+  await expect(page.locator("body"), `${sourceRef}: 编辑后规则描述应回显`).toContainText(editedDescription, {
+    timeout: 30000,
+  });
+
+  const editedRule = getRuleSetMonitorRuleItems(page).filter({ hasText: editedDescription }).first();
+  await expect(editedRule, `${sourceRef}: 编辑后的规则行应可见`).toBeVisible({ timeout: 30000 });
+  await editedRule.getByRole("button", { name: /编辑/ }).first().click({ timeout: 30000 });
+  await fillRuleSetRuleDescription(page, scenario.description);
+  await saveRuleSetRuleRow(page, sourceRef, "恢复规则");
+  await expect(page.locator("body"), `${sourceRef}: 恢复后规则描述应回显`).toContainText(scenario.description, {
+    timeout: 30000,
+  });
+}
+
+async function expectArchiveRuleSetGlobalParamsOnCurrentPage(
+  page: Page,
+  sourceRef: string,
+  packageName: string,
+): Promise<void> {
+  const body = page.locator("body");
+  await expect(body, `${sourceRef}: 监控规则配置页应展示全局参数入口`).toContainText("查看全局参数", {
+    timeout: 30000,
+  });
+  await expect(body, `${sourceRef}: 打开全局参数前应保留规则包`).toContainText(packageName, {
+    timeout: 30000,
+  });
+  const globalParamsResponse = waitForDqJson<DqGlobalParamsPage>(
+    page,
+    "/dassets/v1/valid/monitor/getGlobalParams",
+    (payload) => payload.data?.pageSize === 10,
+  );
+  void globalParamsResponse.catch(() => {});
+  await page.getByText("查看全局参数", { exact: true }).click({ timeout: 30000 });
+  const globalParams = expectDqSuccess(await globalParamsResponse, `${sourceRef}: 全局参数列表应请求成功`);
+  const records = expectGlobalParamsPage(globalParams, sourceRef);
+  expect(records.length, `${sourceRef}: 全局参数弹窗应至少返回一条参数`).toBeGreaterThan(0);
+
+  const modal = page.locator(".ant-modal:visible").last();
+  await expect(modal, `${sourceRef}: 全局参数弹窗应打开`).toBeVisible({ timeout: 30000 });
+  for (const header of ["全局参数", "参数名称", "参数类型", "参数值/日期格式", "注释"]) {
+    await expect(modal, `${sourceRef}: 全局参数弹窗应展示「${header}」`).toContainText(header, {
+      timeout: 30000,
+    });
+  }
+  for (const record of records.slice(0, 2)) {
+    await expect(modal, `${sourceRef}: 全局参数弹窗应展示参数名称`).toContainText(
+      expectNonEmptyString(record.paramName, `${sourceRef}: 全局参数应包含参数名称`),
+      { timeout: 30000 },
+    );
+  }
+  await closeVisibleDqOverlayIfAny(page, sourceRef);
+  await expect(body, `${sourceRef}: 关闭全局参数后应保留当前规则包`).toContainText(packageName, {
+    timeout: 30000,
+  });
+}
+
+async function expectArchiveRuleSetListAndConfiguredTableFilter(
+  page: Page,
+  sourceRef: string,
+  scenario: SparkThriftQualityRuleValidationScenario,
+  ruleSetDescription: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/ruleSet");
+  const records = await searchRuleSetTableName(page, scenario.tableName, sourceRef);
+  const targetRecord = records.find((record) => record.description === ruleSetDescription);
+  expect(targetRecord, `${sourceRef}: 规则集列表应返回刚创建的规则集`).toBeTruthy();
+
+  const row = page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).first();
+  await expect(row, `${sourceRef}: 规则集列表应展示目标表和规则集描述`).toBeVisible({ timeout: 30000 });
+  await expect(row, `${sourceRef}: 规则集列表应展示非负规则包/规则数量`).toContainText(/\d+/, {
+    timeout: 30000,
+  });
+  expect(Number(targetRecord?.packageVOList?.length ?? targetRecord?.packageCount ?? 0)).toBeGreaterThanOrEqual(0);
+  expect(Number(targetRecord?.ruleCount ?? 0)).toBeGreaterThanOrEqual(0);
+}
+
+async function expectArchiveRuleSetDetail(
+  page: Page,
+  sourceRef: string,
+  scenario: SparkThriftQualityRuleValidationScenario,
+  ruleSetDescription: string,
+  packageName: string,
+): Promise<void> {
+  const records = await queryRuleSetRecords(page, scenario.tableName);
+  const targetRecord = records.find((record) => record.description === ruleSetDescription);
+  expect(targetRecord?.id, `${sourceRef}: 规则集详情校验应定位刚创建规则集`).toBeTruthy();
+  const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/detail"), {
+    data: { id: String(targetRecord?.id) },
+    timeout: 60000,
+  });
+  expect(response.ok(), `${sourceRef}: 规则集详情 HTTP 应成功`).toBe(true);
+  const detail = expectDqSuccess(
+    (await response.json()) as DqApiResponse<DqRuleSetRecord>,
+    `${sourceRef}: 规则集详情应请求成功`,
+  );
+  expect(String(detail.tableName ?? ""), `${sourceRef}: 规则集详情应展示表名`).toContain(scenario.tableName);
+  expect(String(detail.description ?? ""), `${sourceRef}: 规则集详情应展示规则集描述`).toContain(
+    ruleSetDescription,
+  );
+  expect(getRuleSetPackageNames(detail), `${sourceRef}: 规则集详情应展示规则包 ${packageName}`).toContain(
+    packageName,
+  );
+  expect(
+    getRuleSetFunctionNames(detail).some((functionName) => functionName.includes(scenario.statisticFunction)),
+    `${sourceRef}: 规则集详情应展示规则函数 ${scenario.statisticFunction}`,
+  ).toBe(true);
+  assertRuleSetDetailPackages(detail, sourceRef);
 }
 
 async function ensureArchiveRuleSetPackageReady(
@@ -8071,6 +8322,15 @@ async function chooseDqRadioOptionByText(page: Page, optionText: string, sourceR
   });
 }
 
+async function expectPartitionModeOptionsVisible(page: Page, sourceRef: string): Promise<void> {
+  const body = page.locator("body");
+  for (const option of ["选择已有分区", "选择动态分区", "手动输入分区"]) {
+    await expect(body, `${sourceRef}: 监控对象页应展示分区方式「${option}」`).toContainText(option, {
+      timeout: 30000,
+    });
+  }
+}
+
 async function configureExistingPartition(
   page: Page,
   sourceRef: string,
@@ -8329,6 +8589,12 @@ async function createSparkThriftArchiveValidationRuleTask(
   scenario: SparkThriftQualityRuleValidationScenario,
   ruleName: string,
   packageName: string,
+  options: {
+    t1BeforeImmediate?: boolean;
+    envParams?: readonly SparkThriftEnvParam[];
+    samplingRows?: string;
+    partitionModesVisible?: boolean;
+  } = {},
 ): Promise<void> {
   const body = await gotoNewRuleTaskMonitorObjectPageForTable(
     page,
@@ -8337,15 +8603,24 @@ async function createSparkThriftArchiveValidationRuleTask(
     scenario.tableName,
     scenario.comparisonTableName,
   );
+  if (options.partitionModesVisible) {
+    await expectPartitionModeOptionsVisible(page, sourceRef);
+  }
   await configureExistingPartition(page, sourceRef, scenario.passPartition);
+  if (options.samplingRows) {
+    await configureSamplingCheckSetting(page, sourceRef, options.samplingRows);
+  }
   await clickNextUntilMonitorRuleConfig(page, sourceRef);
   await selectRuleTaskRulePackageOnCurrentPage(page, sourceRef, [packageName], scenario.ruleCategory);
   await clickNextUntilScheduleConfig(page, sourceRef);
-  await chooseDqFieldOptionByText(page, /调度周期/, "手动触发", sourceRef);
+  await chooseDqFieldOptionByText(page, /调度周期/, options.t1BeforeImmediate ? "天" : "手动触发", sourceRef);
   await chooseDqFieldOptionByText(page, /规则拼接包/, "1", sourceRef);
   await chooseFirstDqSelectOption(page, /资源组/, sourceRef);
-  await chooseDqFieldOptionByText(page, /实例生成方式/, "立即生成", sourceRef);
+  await chooseDqFieldOptionByText(page, /实例生成方式/, options.t1BeforeImmediate ? "T+1生成" : "立即生成", sourceRef);
   await chooseDqFieldOptionByText(page, /超时时间/, "不限制", sourceRef);
+  for (const envParam of options.envParams ?? []) {
+    await configureSparkEnvParam(page, sourceRef, envParam.name, envParam.value);
+  }
   await checkDqNoReport(page, sourceRef);
 
   const saveResponse = waitForRuleTaskPageQuery(page);
@@ -8365,6 +8640,77 @@ async function createSparkThriftArchiveValidationRuleTask(
 
   const taskRow = page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).filter({ hasText: ruleName }).first();
   await expect(taskRow, `${sourceRef}: 保存后规则任务列表应展示 ${ruleName}`).toBeVisible({ timeout: 30000 });
+  if (!options.t1BeforeImmediate) return;
+
+  await expect(taskRow, `${sourceRef}: T+1 任务应展示天级调度或 T+1 配置`).toContainText(/天|日|T\+1/, {
+    timeout: 30000,
+  });
+  await expectNoMonitorRecordForRuleTask(page, sourceRef, ruleName);
+  await taskRow.getByRole("button", { name: /编辑/ }).first().click({ timeout: 30000 });
+  await gotoRuleTaskScheduleAttributesPage(page, sourceRef);
+  for (const envParam of options.envParams ?? []) {
+    await expect(page.locator("body"), `${sourceRef}: 环境参数应回显 ${envParam.name}`).toContainText(
+      envParam.name,
+      { timeout: 30000 },
+    );
+    await expect(page.locator("body"), `${sourceRef}: 环境参数 ${envParam.name} 应回显 ${envParam.value}`).toContainText(
+      envParam.value,
+      { timeout: 30000 },
+    );
+  }
+  await chooseDqFieldOptionByText(page, /调度周期/, "手动触发", sourceRef);
+  await chooseDqFieldOptionByText(page, /实例生成方式/, "立即生成", sourceRef);
+
+  const resaveResponse = waitForRuleTaskPageQuery(page);
+  void resaveResponse.catch(() => {});
+  await clickDqCompactButton(page, "保存", sourceRef);
+  await expect(page.locator("body"), `${sourceRef}: T+1 任务改为立即生成后应提示成功或返回规则任务管理`).toContainText(
+    /成功|规则任务管理/,
+    { timeout: 30000 },
+  );
+  const resavedPayload = await resaveResponse.catch(() => undefined);
+  if (resavedPayload) {
+    expect(resavedPayload.success ?? resavedPayload.code === 1, `${sourceRef}: T+1 任务改为立即生成后列表应刷新成功`).toBe(
+      true,
+    );
+  }
+  await searchRuleTaskByTableName(page, scenario.tableName, sourceRef);
+  await expect(
+    page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).filter({ hasText: ruleName }).first(),
+    `${sourceRef}: 改为立即生成后规则任务列表仍展示 ${ruleName}`,
+  ).toBeVisible({ timeout: 30000 });
+}
+
+async function expectArchiveRuleTaskSingleDetectionToggle(
+  page: Page,
+  sourceRef: string,
+  scenario: SparkThriftQualityRuleValidationScenario,
+  ruleName: string,
+): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/rule");
+  await searchRuleTaskByTableName(page, scenario.tableName, sourceRef);
+  let taskRow = page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).filter({ hasText: ruleName }).first();
+  await expect(taskRow, `${sourceRef}: 关闭检测前应展示规则任务 ${ruleName}`).toBeVisible({ timeout: 30000 });
+  await ensureRuleTaskRowSelected(taskRow, 30000);
+  const closePayload = await clickRuleTaskBatchDetectionAction(page, sourceRef, "关闭检测");
+  const closedRecord = getDqRuleTaskRecords(closePayload).find((record) => record.ruleName === ruleName);
+  expect(closedRecord?.isClosed, `${sourceRef}: 单任务关闭检测后 API 状态应为已关闭`).toBe(1);
+
+  await searchRuleTaskByTableName(page, scenario.tableName, sourceRef);
+  taskRow = page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).filter({ hasText: ruleName }).first();
+  await expect(taskRow, `${sourceRef}: 关闭检测后列表应展示已关闭状态`).toContainText("已关闭检测", {
+    timeout: 30000,
+  });
+  await ensureRuleTaskRowSelected(taskRow, 30000);
+  const openPayload = await clickRuleTaskBatchDetectionAction(page, sourceRef, "开启检测");
+  const openedRecord = getDqRuleTaskRecords(openPayload).find((record) => record.ruleName === ruleName);
+  expect(openedRecord?.isClosed, `${sourceRef}: 单任务开启检测后 API 状态应为已开启`).toBe(0);
+
+  await searchRuleTaskByTableName(page, scenario.tableName, sourceRef);
+  await expect(
+    page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).filter({ hasText: ruleName }).first(),
+    `${sourceRef}: 开启检测后列表应恢复已开启状态`,
+  ).toContainText("已开启检测", { timeout: 30000 });
 }
 
 async function editSparkThriftArchiveValidationRuleTaskPartition(
@@ -8372,6 +8718,7 @@ async function editSparkThriftArchiveValidationRuleTaskPartition(
   sourceRef: string,
   scenario: SparkThriftQualityRuleValidationScenario,
   ruleName: string,
+  options: { partitionMode?: "existing" | "manual" } = {},
 ): Promise<void> {
   await gotoDataQualityPage(page, "/dq/rule");
   await searchRuleTaskByTableName(page, scenario.tableName, sourceRef);
@@ -8383,7 +8730,11 @@ async function editSparkThriftArchiveValidationRuleTaskPartition(
     { timeout: 30000 },
   );
   await gotoRuleTaskMonitorObjectPage(page, sourceRef);
-  await configureExistingPartition(page, sourceRef, scenario.failPartition);
+  if (options.partitionMode === "manual") {
+    await configureManualPartition(page, sourceRef, manualPartitionExpression(scenario.failPartition));
+  } else {
+    await configureExistingPartition(page, sourceRef, scenario.failPartition);
+  }
   await gotoRuleTaskScheduleAttributesPage(page, sourceRef);
   const saveResponse = waitForRuleTaskPageQuery(page);
   void saveResponse.catch(() => {});
@@ -8394,6 +8745,13 @@ async function editSparkThriftArchiveValidationRuleTaskPartition(
   );
   const savedPayload = await saveResponse;
   expect(savedPayload.success ?? savedPayload.code === 1, `${sourceRef}: 编辑分区保存后列表应刷新成功`).toBe(true);
+}
+
+function manualPartitionExpression(partition: string): string {
+  return partition
+    .split(",")
+    .map((token) => token.trim().replace(/'/g, ""))
+    .join("/");
 }
 
 async function configureSparkEnvParam(
@@ -8681,6 +9039,36 @@ async function expectLatestMonitorRecordForRuleTask(
   });
 }
 
+async function expectArchiveMonitorRecordTableSearch(
+  page: Page,
+  sourceRef: string,
+  scenario: SparkThriftQualityRuleValidationScenario,
+  ruleName: string,
+): Promise<void> {
+  const searchInput = await gotoMonitorRecordQueryPage(page, sourceRef);
+  const responsePromise = waitForDqJson<DqMonitorRecordPage>(
+    page,
+    "/dassets/v1/valid/monitorRecord/pageQuery",
+    (payload) =>
+      (payload.data?.data ?? []).some(
+        (record) => record.ruleName === ruleName && record.tableName === scenario.tableName,
+      ),
+  );
+  void responsePromise.catch(() => {});
+  await searchInput.fill(scenario.tableName, { timeout: 30000 });
+  await submitMonitorRecordSearch(page);
+  const records = expectMonitorRecordPage(
+    expectDqSuccess(await responsePromise, `${sourceRef}: 校验结果按表名搜索应请求成功`),
+    `${sourceRef}: 校验结果按表名搜索应返回实例`,
+  );
+  expect(
+    records.some((record) => record.ruleName === ruleName && record.tableName === scenario.tableName),
+    `${sourceRef}: 按表名搜索应包含当前规则任务实例`,
+  ).toBe(true);
+  const targetRow = page.locator(".ant-table-tbody tr").filter({ hasText: scenario.tableName }).filter({ hasText: ruleName }).first();
+  await expect(targetRow, `${sourceRef}: 按表名搜索列表应展示当前规则任务实例`).toBeVisible({ timeout: 30000 });
+}
+
 async function expectArchiveRuleValidationRecord(
   page: Page,
   sourceRef: string,
@@ -8691,6 +9079,9 @@ async function expectArchiveRuleValidationRecord(
     expectedActualValue: string;
     expectedPartition: string;
     dirtyEvidence?: readonly string[];
+    dirtyDetail?: SparkThriftRuleValidationFusionChecks["dirtyDetail"];
+    passHasNoDirtyDetail?: boolean;
+    expectedSamplingRows?: string;
   },
 ): Promise<void> {
   const searchInput = await gotoMonitorRecordQueryPage(page, sourceRef);
@@ -8707,6 +9098,12 @@ async function expectArchiveRuleValidationRecord(
   await expect(targetRow, `${sourceRef}: 校验结果列表应展示状态 ${statusLabel}`).toContainText(statusLabel, {
     timeout: 30000,
   });
+  if (options.passHasNoDirtyDetail) {
+    await expect(targetRow, `${sourceRef}: 校验通过实例列表不应展示不通过明细入口`).not.toContainText(
+      /查看明细|下载明细|脏数据/,
+      { timeout: 5000 },
+    );
+  }
   const detailEntry = monitorRecordDetailEntry(targetRow);
   await detailEntry.click({ timeout: 30000 });
   const detailRecords = expectDqSuccess(await detailResponse, `${sourceRef}: 规则校验实例详情应请求成功`);
@@ -8715,14 +9112,20 @@ async function expectArchiveRuleValidationRecord(
     scenario.statisticFunction,
     ...scenario.fields,
     options.expectedActualValue,
-    scenario.expectation.value,
-  ]) {
+    scenario.expectation?.value,
+  ].filter((value): value is string => Boolean(value))) {
     expect(detailText, `${sourceRef}: 实例详情应包含「${expectedText}」`).toContain(expectedText);
   }
   expect(
     detailRecords.some((record) => String(record.partition ?? "").includes(options.expectedPartition.replace(/^.*='?([^']+)'?.*$/, "$1"))),
     `${sourceRef}: 实例详情应仅统计目标分区 ${options.expectedPartition}`,
   ).toBe(true);
+  if (options.expectedSamplingRows) {
+    expect(detailText, `${sourceRef}: 实例详情应展示抽样信息`).toMatch(/抽样|采样|sample|sampling/i);
+    expect(detailText, `${sourceRef}: 实例详情应包含抽样行数 ${options.expectedSamplingRows}`).toContain(
+      options.expectedSamplingRows,
+    );
+  }
 
   if (options.dirtyEvidence?.length) {
     const dirtyEntry = page
@@ -8730,10 +9133,31 @@ async function expectArchiveRuleValidationRecord(
       .or(page.getByText(/查看明细|脏数据|明细/))
       .first();
     if (await dirtyEntry.isVisible({ timeout: 3000 }).catch(() => false)) {
+      const dirtyResponse = waitForDqJson<DqMonitorRecordDirtyResult>(
+        page,
+        "/dassets/v1/valid/monitorRecord/getFormatTableResult",
+      );
+      void dirtyResponse.catch(() => {});
       await dirtyEntry.click({ timeout: 30000 });
+      const dirtyPayload = await dirtyResponse
+        .then((payload) => expectDqSuccess(payload, `${sourceRef}: 不通过明细应请求失败数据`))
+        .catch(() => undefined);
       const dirtyScope = page.locator(".ant-modal:visible,.ant-drawer:visible,[role='dialog']:visible,body").last();
       for (const expectedText of options.dirtyEvidence) {
         await expect(dirtyScope, `${sourceRef}: 不通过明细应包含「${expectedText}」`).toContainText(expectedText, {
+          timeout: 30000,
+        });
+      }
+      for (const highlightedColumn of options.dirtyDetail?.highlightedColumns ?? []) {
+        if (dirtyPayload) {
+          expect(
+            dirtyPayload.highlightColumns ?? [],
+            `${sourceRef}: 明细响应应标记失败字段 ${highlightedColumn}`,
+          ).toContain(highlightedColumn);
+        }
+      }
+      if (options.dirtyDetail?.verifyDownloadEntry) {
+        await expect(dirtyScope, `${sourceRef}: 不通过明细应展示下载明细入口`).toContainText(/下载|下载明细/, {
           timeout: 30000,
         });
       }

@@ -137,6 +137,13 @@ function qualifySqlTarget(stmt: string, targetSchema?: string | null): string {
   return stmt;
 }
 
+function extractQualifiedSchema(stmt: string): string | undefined {
+  const match = stmt.match(
+    /^\s*(?:DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?|CREATE\s+(?:EXTERNAL\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?|INSERT\s+(?:INTO|OVERWRITE)\s+(?:TABLE\s+)?)([A-Za-z][\w]*)\.[A-Za-z][\w]*/i,
+  );
+  return match?.[1];
+}
+
 export class BatchApi {
   private readonly scriptRunner: BatchScriptRunner;
 
@@ -224,8 +231,13 @@ export class BatchApi {
    * - DROP / INSERT / 其它 DML 走 batchScript/startSqlImmediatelyEncryption
    *   （提交 SQL 任务 → 轮询 selectStatus 直到终态，失败抛错）
    */
-  async executeDDL(projectId: number, datasource: BatchDatasource, sql: string): Promise<void> {
-    const targetSchema = resolveSchemaName(datasource);
+  async executeDDL(
+    projectId: number,
+    datasource: BatchDatasource,
+    sql: string,
+    schemaOverride?: string,
+  ): Promise<void> {
+    const targetSchema = schemaOverride ?? resolveSchemaName(datasource);
 
     const statements = splitStatements(sql);
 
@@ -233,16 +245,27 @@ export class BatchApi {
       const isDrop = isDropStatement(stmt);
       const isCreate = isCreateStatement(stmt);
       const isInsert = isInsertStatement(stmt);
+      const qualifiedStmt = qualifySqlTarget(stmt, targetSchema);
+      const executionSchema = targetSchema ?? extractQualifiedSchema(qualifiedStmt);
 
       try {
         if (isCreate) {
-          await this.executeSqlViaDdlApi(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
+          await this.executeSqlViaDdlApi(
+            projectId,
+            datasource,
+            qualifiedStmt,
+            executionSchema ?? "",
+          );
         } else if (isInsert) {
           // INSERT 通过 scriptRunner，但表刚创建后引擎可能还看不到（catalog 同步延迟）；
           // 用 backoff 重试，避免 INSERT 静默失败导致校验跑在空表上。
-          const executableStmt = qualifySqlTarget(stmt, targetSchema);
           await this.executeWithRetry(
-            () => this.scriptRunner.executeSync(projectId, executableStmt),
+            () =>
+              this.scriptRunner.executeSync(projectId, qualifiedStmt, undefined, {
+                sourceId: datasource.id,
+                targetSchema: executionSchema,
+                syncTask: true,
+              }),
             {
               attempts: 5,
               delayMs: 1500,
@@ -251,7 +274,7 @@ export class BatchApi {
         } else if (isDrop) {
           // DROP 语句尝试执行，如果失败则忽略（表可能不存在）
           try {
-            await this.scriptRunner.executeSync(projectId, qualifySqlTarget(stmt, targetSchema));
+            await this.scriptRunner.executeSync(projectId, qualifiedStmt);
           } catch (dropError) {
             const dropMessage = (dropError as Error).message;
             if (isMissingObjectError(dropMessage)) {
@@ -262,7 +285,7 @@ export class BatchApi {
           }
         } else {
           // 其他语句通过 customSQL 执行
-          await this.executeCustomSql(projectId, datasource, stmt, targetSchema ?? "");
+          await this.executeCustomSql(projectId, datasource, stmt, executionSchema ?? "");
         }
       } catch (err) {
         const message = (err as Error).message;
@@ -279,9 +302,19 @@ export class BatchApi {
         // 对于其他语句，尝试使用另一个 API 作为 fallback
         try {
           if (isCreate) {
-            await this.executeCustomSql(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
+            await this.executeCustomSql(
+              projectId,
+              datasource,
+              qualifiedStmt,
+              executionSchema ?? "",
+            );
           } else {
-            await this.executeSqlViaDdlApi(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
+            await this.executeSqlViaDdlApi(
+              projectId,
+              datasource,
+              qualifiedStmt,
+              executionSchema ?? "",
+            );
           }
         } catch (fallbackError) {
           const details = [message, (fallbackError as Error).message].join(" | fallback: ");

@@ -34,7 +34,6 @@ import "../cases/t26-metadata-table-detail-actions-shell";
 import "../cases/t27-data-quality-datamap-result-search-shell";
 import "../cases/t28-metadata-hot-tags-query-shell";
 import "../cases/t28-data-security-extra-shell";
-import "../cases/t29-data-quality-sampling-config-shell";
 import "../cases/t30-data-quality-project-management";
 import "../cases/t30-standard-check-task-result-shell";
 import "../cases/t31-data-quality-permissions";
