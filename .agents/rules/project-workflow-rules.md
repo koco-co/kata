@@ -4,9 +4,59 @@
 
 ## Git 工作流
 
-- 默认在 `.worktrees/<slug>` 中工作，不在主工作树直接改代码。
-- 合并回 `main` 前必须完成相关验证并说明已验证范围。
-- 合并和推送前检查工作树状态，避免带入无关文件。
+- 用户请求涉及代码、配置、runtime 或文档契约变更时，先提交主工作树现有改动：如存在 tracked 或 untracked 改动，必须完整提交当前主工作树状态（`git add -A` + `git commit -m "chore: 🧹 save pre-worktree local changes"`）。这是 pre-worktree 执行前快照，不做范围过滤。
+- 默认在 detached worktree 中工作，不在主工作树直接改代码，也不得为任务新建分支。
+- 创建命令固定为 `git worktree add --detach .worktrees/<slug> main`；创建后按任务需要 symlink 必要 ignored runtime 目录。
+- 实现、验证和按任务分批 commit 全部在 worktree 内完成。
+- 合并回 `main` 前必须记录 worktree HEAD SHA，回主工作树执行 `git merge --no-ff <sha>`。
+- 合并后必须完成相关验证并说明已验证范围；无问题后 `git push origin main`。
+- 推送完成后清理 worktree：`git worktree remove .worktrees/<slug>`；detached worktree 无分支删除步骤。
+- pre-worktree 快照后，worktree 内后续任务提交必须按任务分批并检查状态，避免把实现阶段产生的无关文件带入任务 commit；远端不可用时记录阻塞，不得静默跳过。
+
+## 多任务执行与任务列表
+
+- 多任务或可拆分任务默认使用 `superpowers:subagent-driven-development`：每个任务 fresh implementer，先做 spec review，再做 code quality review，通过后提交并更新任务列表。
+- Codex 使用 `update_plan` 维护可视化任务列表。
+- Claude Code 使用 TaskCreate/TaskUpdate；若当前客户端暴露为 TodoWrite，则按 TodoWrite 名称执行同等语义。
+- Reviewer 发现问题时必须回到 implementer 修复并重审；不得跳过 spec review 或 quality review。
+
+## Commit 规范
+
+- Commit message 固定为 `type: emoji description`；type 小写，description 不超过 72 个字符。
+- type 与 emoji 必须使用下表唯一映射，不得按历史习惯或个人偏好替换。
+
+| Type | Emoji |
+| --- | --- |
+| `feat` | `🧩` |
+| `fix` | `🩹` |
+| `refactor` | `✨` |
+| `docs` | `📝` |
+| `test` | `🧪` |
+| `chore` | `🧹` |
+| `style` | `🎨` |
+| `build` | `🏗️` |
+| `ci` | `👷` |
+| `perf` | `⚡` |
+| `revert` | `⏪` |
+| `merge` | `🔀` |
+
+## 临时通知页面
+
+需要输出临时通知页面时，必须只输出下列固定格式，不得夹带无关内容：
+
+```text
+【KATA 工作通知】
+任务: <task>
+阶段: <preflight|worktree|implement|verify|commit|merge|cleanup|blocked>
+状态: <running|done|blocked|failed>
+Worktree: <absolute path | none>
+Commit: <sha | none>
+验证: <command>; exit=<code>; pass=<n>; fail=<n>; skip=<n>
+产物: <paths | none>
+阻塞: <reason | none>
+下一步: <next action | none>
+更新时间: <YYYY-MM-DD HH:mm:ss TZ>
+```
 
 ## 测试规范
 
