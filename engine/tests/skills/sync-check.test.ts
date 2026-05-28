@@ -41,25 +41,18 @@ function writeCodexOpenAi(root: string, name: string, body?: string): void {
 
 describe("runtime skill sync check", () => {
   test("checkRuntimeSkillSync passes even without runtime-sync-exceptions.yaml", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-no-exceptions-"));
-    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
-    mkdirSync(join(root, ".agents/skills/case-draft/agents"), { recursive: true });
-    writeFileSync(
-      join(root, ".claude/skills/case-draft/SKILL.md"),
-      `---\nname: case-draft\ndescription: gen\n---\n`,
-    );
-    writeFileSync(
-      join(root, ".agents/skills/case-draft/SKILL.md"),
-      `---\nname: case-draft\ndescription: gen\n---\n`,
-    );
-    writeFileSync(
-      join(root, ".agents/skills/case-draft/agents/openai.yaml"),
-      `policy:\n  allow_implicit_invocation: true\n`,
-    );
-    // 故意不创建 runtime-sync-exceptions.yaml
+    // makeRoot 不写 runtime-sync-exceptions.yaml；这里也不补写，验证 sync-check
+    // 不再依赖该 yaml。
+    const root = makeRoot();
+    const skill = `---\nname: case-draft\ndescription: gen\n---\n`;
+    writeSkill(root, ".claude", "case-draft", skill);
+    writeSkill(root, ".agents", "case-draft", skill);
+    writeCodexOpenAi(root, "case-draft");
+
     const report = checkRuntimeSkillSync(root);
+
     expect(report.passed).toBe(true);
-    rmSync(root, { recursive: true, force: true });
+    expect(report.violations).toEqual([]);
   });
 
   test("passes when Claude and Codex skill names match and both allow allowed-tools", () => {
