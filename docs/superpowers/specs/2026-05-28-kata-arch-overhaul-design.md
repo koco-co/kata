@@ -51,7 +51,7 @@
 ┌──────────────────────┐                ┌────────────────────────────┐
 │   Event Writer       │ ─── append ──▶ │  Event Journal (JSONL)     │
 │   (atomic / seq /    │                │  per-feature/per-session   │
-│    fail-closed)      │                │  + events.index.jsonl      │
+│    staged tx)        │                │  + events.index.jsonl      │
 └──────────┬───────────┘                └────────────┬───────────────┘
            │                                          │
            ▼                                          ▼
@@ -60,6 +60,14 @@
 │  Validator           │              │  .claude/contracts/workflows/  │
 │  + Snapshot          │              │  .claude/contracts/schemas/    │
 └──────────┬───────────┘              └─────────────────────────────────┘
+           │
+           ▼
+┌──────────────────────┐  spawn  ┌──────────────────────────┐
+│  Phase Dispatcher    │ ──────▶ │  Claude Agent /          │
+│  (reads workflow,    │         │  Codex subagent          │
+│   spawns subagent    │  ◀───── │  with per-phase          │
+│   per dispatch)      │  events │  model & effort          │
+└──────────────────────┘         └──────────────────────────┘
            │ project
            ▼
 ┌──────────────────────┐  ┌──────────────┐  ┌──────────────────┐
@@ -88,6 +96,7 @@
 | Feature Event Index | 跨 session 的 feature 级摘要 | `workspace/<project>/features/<feature>/events.index.jsonl` |
 | Blackboard Snapshot | 最新 blackboard 状态 | `workspace/<project>/features/<feature>/blackboard.json` |
 | Notify Projection | last-event projection → 临时通知 | `workspace/<project>/.kata/notify/<run_id>.md` |
+| **Phase Dispatcher** | 读 workflow.yaml 当前 step；若 `dispatch: subagent` 则 spawn Claude Agent / Codex subagent 并传 model/effort/subagent_type；若 `dispatch: inline` 则不做事，让 orchestrator 跑（解决 F3：per-phase model 的执行主体） | `engine/src/runtime/phase-dispatcher.ts` |
 | MCP Catalog Server | read-only 外部入口 | `apps/mcp/` |
 | CLI | engine 命令 + 新 `kata events` | `engine/bin/kata` + `engine/src/cli/` |
 | Engine | CLI dispatcher + plugin runner + event writer + validator + projector | `engine/` |
@@ -243,26 +252,71 @@ kata/
 
 ## 6 SKILL 设计
 
-### 6.1 SKILL.md frontmatter 终稿（10 字段）
+### 6.1 SKILL.md frontmatter（runtime-specific 字段表）
+
+Claude 与 Codex 的 frontmatter allowlist 不同，需分层管理（codex 总审 F4）：
+
+| 字段 | Claude allowlist | Codex allowlist | 说明 |
+|---|---|---|---|
+| `name` | ✅ 必填 | ✅ 必填 | kebab-case 唯一 id |
+| `description` | ✅ 必填 | ✅ 必填 | 主路由文本，≤ 200 字 |
+| `allowed-tools` | ✅ | ✅ | 工具白名单 |
+| `when_to_use` | ✅ | ✅ | 触发提示（与 description 互补） |
+| `disable-model-invocation` | ✅ | ✅ | 禁用 implicit model invocation |
+| `argument-hint` | ✅（新加 allowlist） | ❌ | kata help 渲染；Claude Code 不直接消费 |
+| `user-invocable` | ✅ | ❌ | slash-command 暴露开关 |
+| `model` | ✅ | ❌（走 agents/openai.yaml） | inline phase & orchestrator session 默认 |
+| `effort` | ✅ | ❌（走 agents/openai.yaml） | 默认 effort |
+| `paths` | ✅ | ❌ | 工作路径白名单 |
+| `context` | ✅ | ❌ | fork \| inherit |
+| `agent` | ✅ | ❌ | 默认 subagent 类型（仅 fork 上下文使用） |
+
+**Claude SKILL.md 示例（case-draft）**：
 
 ```yaml
 ---
-name: case-draft                                    # kebab-case, 单一 skill id
-description: >                                      # 用户语义触发文本，<= 200 字，给 Claude 路由用
+name: case-draft                                    # 唯一 id
+description: >
   用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要求生成 QA 测试用例时使用。
-argument-hint: <lanhu-url | axure-url | prd-path>   # 新：kata help 渲染（Claude Code 不直接消费）
-user-invocable: true                                # /case-draft 是否暴露为 slash command
-model: sonnet                                       # inline phase & orchestrator session 默认
-effort: high                                        # 默认
-paths:                                              # 工作路径白名单
+argument-hint: <lanhu-url | axure-url | prd-path>   # 新增 allowlist
+user-invocable: true
+model: sonnet                                       # inline phase & orchestrator 默认
+effort: high
+paths:
   - .claude/skills/case-draft/**
   - .claude/skills/_shared/**
   - .claude/contracts/workflows/case-draft.yaml
   - .claude/contracts/schemas/event.json
   - workspace/**
-context: fork                                       # fork | inherit
-agent: general-purpose                              # 默认 subagent 类型（仅 fork 上下文使用）
+context: fork
+agent: general-purpose                              # 默认 subagent 类型
 ---
+```
+
+**Codex SKILL.md 示例（Phase 5 重写后）**：
+
+```yaml
+---
+name: case-draft
+description: >
+  用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要求生成 QA 测试用例时使用。
+allowed-tools: [Bash, Read, Edit, Write, Grep, Glob]
+---
+
+# Codex SKILL.md body 内容（runtime-specific）
+# phases/reviewers/workers/rules/fewshots 子目录通过 symlink 共享 .claude/skills/<id>/
+```
+
+**Codex runtime 配置（`agents/openai.yaml`）**：
+
+```yaml
+# .agents/skills/case-draft/agents/openai.yaml
+model: gpt-5-codex
+effort: high
+implicit_invocation_policy: enabled
+sandbox_capabilities:
+  - workspace_write
+  - network_outbound: [https://lanhuapp.com/**]
 ```
 
 **字段不进 frontmatter**：
@@ -270,7 +324,7 @@ agent: general-purpose                              # 默认 subagent 类型（�
 - `phase_contract` → 删除；engine 按约定 `workflows/<skill-id>.yaml` 自动 resolve
 
 **新 lint**：
-- `argument-hint` 加入 `frontmatter-policy` allowlist
+- `argument-hint` 加入 Claude `frontmatter-policy` allowlist（Codex allowlist 不动）
 - SKILL.md 文件名 stem `SKILL.md`、目录名 `<id>`、frontmatter `name`、`workflows/<id>.yaml` 文件名、`workflow.yaml` 的 `name` 字段——五者必须严格一致
 
 ### 6.2 SKILL.md body 模板
@@ -456,12 +510,28 @@ steps:
     failure_modes: [io_error, validator_failed]
 ```
 
-### 6.9 per-phase model 语义（明文化）
+### 6.9 per-phase model 语义（执行主体明文化，解决 F3）
 
-| Dispatch | model/effort 来源 |
-|---|---|
-| `dispatch: inline` | 用 SKILL.md frontmatter `model` / `effort`，**忽略**且**warn** step 上的 `model/effort`（schema 一致但实际无 enforcement） |
-| `dispatch: subagent` | 用 step `model/effort`，缺省 fallback 到 `default_model/default_effort`，再 fallback 到 SKILL.md `model/effort` |
+| Dispatch | 执行主体 | model/effort 生效路径 |
+|---|---|---|
+| `dispatch: inline` | Orchestrator（Claude session 本体） | 用 SKILL.md frontmatter `model` / `effort`；step 上的 `model/effort` warn 而非 fail（schema 一致但无 enforcement） |
+| `dispatch: subagent` | **Phase Dispatcher** spawn Claude Agent / Codex subagent | 用 step `model/effort`，缺省 fallback `default_model/default_effort`，再 fallback SKILL.md `model/effort`；Phase Dispatcher 通过 Agent 工具 `model` 参数传值 |
+
+**关键约束**：`dispatch: subagent` 必须由 engine 提供的 Phase Dispatcher（`engine/src/runtime/phase-dispatcher.ts`）显式 spawn，**不依赖 LLM 自己用 Agent 工具发起**——否则 model/effort 字段就是装饰品。Phase Dispatcher 是 E backbone 的实际执行轴心：
+
+```
+Orchestrator (Claude session, SKILL.md model)
+   │
+   │ phase = case-draft, dispatch = subagent, model = sonnet, effort = high
+   ▼
+Phase Dispatcher (engine/src/runtime/phase-dispatcher.ts)
+   │ spawn via Agent tool with model=sonnet, effort=high
+   ▼
+Subagent (general-purpose, sonnet/high)
+   │ emit events through event-writer
+   ▼
+Event Journal + Blackboard projection
+```
 
 ### 6.10 playwright-automation per-phase model
 
@@ -577,7 +647,7 @@ agent: general-purpose
     └── diff-mode.md
 ```
 
-**workflow.yaml**（节选）：
+**workflow.yaml**（mode-specific schema，解决 I3：保 conflict-analyze 的 dual-intent + resolution-plan）：
 
 ```yaml
 name: defect-analyze
@@ -588,7 +658,7 @@ default_effort: high
 
 metadata:
   event_kinds_emitted: [phase_entered, phase_exited, decision_made, artifact_written, validator_failed, blocked, handoff_emitted]
-  artifact_kinds_produced: [defect-report]
+  artifact_kinds_produced: [defect-report, conflict-resolution-plan]   # mode-specific 输出
 
 steps:
   - id: intake
@@ -609,17 +679,40 @@ steps:
     effort: high
     workers: [analyzer]
     blackboard_inputs: [mode, severity, category, scope, user_input]
-    blackboard_outputs: [root_cause, evidence_refs, impacted_areas]
-    validators: [analysis-schema, source-ref-coverage]
+    # mode-specific outputs
+    blackboard_outputs_by_mode:
+      bug:      [root_cause, evidence_refs, impacted_areas]
+      diff:     [root_cause, evidence_refs, impacted_areas]
+      conflict: [side_a_intent, side_b_intent, resolution_plan, evidence_refs]   # 保 dual-intent
+    validators_by_mode:
+      bug:      [analysis-schema, source-ref-coverage]
+      diff:     [analysis-schema, source-ref-coverage]
+      conflict: [conflict-analysis-schema, dual-intent-coverage, source-ref-coverage]
     reviewers: [spec-reviewer]
 
   - id: emit
     dispatch: inline
-    blackboard_inputs: [root_cause, evidence_refs, impacted_areas, severity, category, scope]
-    blackboard_outputs: [defect_report_path]
-    validators: [artifact-defect-report]
+    blackboard_inputs_by_mode:
+      bug:      [mode, root_cause, evidence_refs, impacted_areas, severity, category, scope]
+      diff:     [mode, root_cause, evidence_refs, impacted_areas, severity, category, scope]
+      conflict: [mode, side_a_intent, side_b_intent, resolution_plan, evidence_refs, severity, category, scope]
+    blackboard_outputs_by_mode:
+      bug:      [defect_report_path]
+      diff:     [defect_report_path]
+      conflict: [conflict_resolution_plan_path]
+    validators_by_mode:
+      bug:      [artifact-defect-report]
+      diff:     [artifact-defect-report]
+      conflict: [artifact-conflict-resolution-plan]
     reviewers: [quality-reviewer]
 ```
+
+`phases/§3-analyze.md` 必须包含 mode-specific 分支说明：
+- `mode = bug | diff`：通常路径，输出 root_cause + evidence_refs + impacted_areas
+- `mode = conflict`：**必须先陈述双方意图**（side_a_intent / side_b_intent）再给出 resolution_plan，沿用原 conflict-analyze 硬规则
+- `mode = conflict` 产物是 `conflict-resolution-plan.md`，不是 `defect-report.md`
+
+Schema 文件需新建 `.claude/contracts/schemas/artifact-conflict-resolution-plan.json` 与 `defect-report` schema 并列。
 
 ## 7 Plugin Manifest Schema 终稿
 
@@ -739,29 +832,52 @@ workspace/<project>/.kata/notify/<run_id>.md   # last-event projection
 }
 ```
 
-### 9.3 event_kind 枚举（14 个）
+### 9.3 event_kind 枚举（19 个）
 
 ```
 session_started / session_ended
 phase_entered / phase_exited
 decision_made / artifact_written
 command_ran / plugin_invoked / plugin_failed
-validator_failed / blocked / human_gate_resolved
-handoff_emitted / skill_routed
+validator_failed / blocked
+human_gate_opened / human_gate_resolved
+subagent_dispatched / subagent_completed / subagent_failed
+handoff_emitted / skill_routed / projection_failed
 ```
 
 旧 6 粗粒度（artifact / policy / plugin / agent / source_ref / config）映射弃用。
 
-### 9.4 Write 语义
+**新增 5 个的理由（codex 总审 I2）**：
+- `human_gate_opened`：与 `human_gate_resolved` 配对，让 audit 可重放等待历史
+- `subagent_dispatched` / `subagent_completed` / `subagent_failed`：Phase Dispatcher 派遣 subagent 的全生命周期可观测
+- `projection_failed`：blackboard / notify projection 异常时的 compensating event（与 staged transaction 配套，见 §9.4）
 
-| 要点 | 实现 |
+### 9.4 Write 语义（staged transaction，解决 F2）
+
+JSONL append 不可回滚——一旦写入就是历史。因此 "rollback" 必须重新定义为 **staged transaction + compensating event**：
+
+| 阶段 | 实现 |
 |---|---|
 | Per-session 单 writer | `engine/src/runtime/session.ts` 维护 `run_id → writer` 映射 |
 | 单调 seq | writer 内部递增 |
 | Atomic append | tmp file + fsync + rename |
-| Fail-closed | 写失败必须 throw，artifact 事务回滚（write event → 写 artifact → 写 blackboard_delta 任一失败 rollback） |
-| Index 同步 | event 写入 jsonl 后立即 append `events.index.jsonl` 一行摘要 |
-| Schema validation | 写入前必须通过 `engine/src/runtime/event-validator.ts`（升级 telemetry validator，14 event_kinds + 完整 envelope） |
+| **Staged transaction**（写产物 + 事件 + 投影） | 三阶段：(1) **stage**：写临时 artifact 文件 + 计算 sha256 hash + 通过 artifact validator；(2) **commit**：atomic-rename 临时文件到目标路径 + append `artifact_written` event（含 hashed_artifact_ref）；(3) **project**：应用 blackboard_delta + 写 `events.index.jsonl` 摘要 |
+| **Fail-closed** | 任一阶段失败立即 throw 不进下一步；已 append 的 event **不删除**；compensating event（`projection_failed` 或 `validator_failed`）追加；blackboard.json 保留为最后成功 projection 状态 |
+| Index 并发（S2） | `events.index.jsonl` 用 `O_APPEND` + advisory file lock 写入；如观察到 cross-process 大并发，改为异步 projector 从所有 session logs 重建 index（rebuild 是幂等的） |
+| Schema validation | 写入前必须通过 `engine/src/runtime/event-validator.ts`（升级 telemetry validator，19 event_kinds + 完整 envelope） |
+
+**事务示意**：
+
+```
+phase 想写 artifact:
+  1. stage:   tmp file 写入 + sha256 = X
+     失败 → throw, no event written
+  2. commit:  rename tmp → final + append "artifact_written" event (seq=N, hashed_artifact_ref=X)
+     append 成功后 artifact 视为存在
+  3. project: blackboard.json 应用 delta + events.index append "ts run_id skill phase artifact_written ..."
+     project 失败 → append "projection_failed" event (seq=N+1, status=failed, references seq=N)
+                  → blackboard.json 保留 stage-2 之前的最后成功 projection
+```
 
 ### 9.5 Blackboard projection
 
@@ -790,33 +906,38 @@ kata events project <run_id>
 
 ## 10 新增 lint（`bun run check:skills`）
 
-1. SKILL.md frontmatter 字段 ∈ allowlist（含新 `argument-hint`）
-2. SKILL.md 文件名 / 目录名 / frontmatter name / workflows/<name>.yaml 文件名 / workflow.yaml `name` 五者一致
+1. **Claude SKILL.md frontmatter** 字段 ∈ Claude allowlist（含新 `argument-hint`）；**Codex SKILL.md frontmatter** 字段 ∈ Codex allowlist（保持 `name/description/allowed-tools/when_to_use/disable-model-invocation`）
+2. SKILL.md 文件名 / 目录名 / frontmatter name / `workflows/<name>.yaml` 文件名 / workflow.yaml `name` 五者一致
 3. workflow.yaml: `dispatch ∈ {inline, subagent}` per step
 4. workflow.yaml: `model ∈ {sonnet, opus, haiku}` per step（若声明）
 5. workflow.yaml: `effort ∈ {low, medium, high}` per step（若声明）
 6. workflow.yaml: step 上 `subagent_type` 若声明，必须 == SKILL.md `agent` 或属于已知 subagent 列表
-7. SKILL.md / phase / reviewer / worker / rule / fewshot 文件长度上限
-8. plugin manifest `capability_required` 4 个子字段全部显式
-9. event_kind ∈ 14 枚举
+7. workflow.yaml: blackboard slot 必须在 `.claude/contracts/schemas/blackboard-slots.json` registry 中声明
+8. SKILL.md / phase / reviewer / worker / rule / fewshot 文件长度上限
+9. plugin manifest `capability_required` 4 个子字段全部显式（缺字段 hard error，不再 warning）
+10. event_kind ∈ 19 枚举
+11. Codex `agents/openai.yaml` 必须存在（每个 Codex SKILL.md 同目录有 `agents/openai.yaml`，含 model/effort/sandbox_capabilities）
 
 ## 11 Cleanup Migration Path（10 commits + Phase 5）
 
-### P1 Cleanup（5 commits）
+### P1 Cleanup（7 commits — 含 F1/I1 拆分）
 
 | # | Commit | 影响 |
 |---|---|---|
-| 1 | `refactor: ✨ retire codex runtime mirror` | 删 `.agents/contracts/`、`.agents/rules/`；保 `.agents/skills/` 加 README 占位；解耦 `engine/src/skills/runtime-sync.ts`、`apps/core/catalog/skills.ts`、`engine/src/cli/skill-audit.ts`；移除 `AGENTS.md` 对 contracts/rules 引用 |
+| 1 | `refactor: ✨ retire codex runtime mirror + catalog shim` | 删 `.agents/contracts/`、`.agents/rules/`；保 `.agents/skills/` 加 README 占位；**新增 `apps/core/catalog/compat-shim.ts`**：从 `.claude/contracts/skill-manifest.yaml` 合成同形 `SkillSummary`，保 MCP `kata_list_skills` 响应 contract 不变（I1）；解耦 `engine/src/skills/runtime-sync.ts`、`apps/core/catalog/skills.ts`、`engine/src/cli/skill-audit.ts`；移除 `AGENTS.md` 对 contracts/rules 引用 |
 | 2 | `refactor: ✨ prune dead apps and yaml` | 删 `apps/console/`、`runtime-sync-exceptions.yaml`、`routes/*.yaml`（11 份）、`progress.json` |
-| 3 | `refactor: ✨ promote skill graph to manifest` | `skill-graph.yaml → skill-manifest.yaml`；新增 facets 索引；扩 `frontmatter-policy` allowlist（加 `argument-hint`）；删 `engine/src/skills/route-check.ts` |
-| 4 | `refactor: ✨ define phase contract boundary` | 扩 `engine/src/skills/workflow-schema.ts`（top-level default_* + step dispatch/model/effort/subagent_type + metadata）；扩 `workflow-check.ts` 加 enum + filename 一致性；重写 `.claude/contracts/blackboard/state-model.md`（删「不强制校验」） |
+| 3 | `refactor: ✨ promote skill graph to manifest` | `skill-graph.yaml → skill-manifest.yaml`；新增 facets 索引；扩 Claude `frontmatter-policy` allowlist（加 `argument-hint`，**不动 Codex allowlist**）；删 `engine/src/skills/route-check.ts` |
+| 4.a | `refactor: ✨ workflow schema v2 parser` | 扩 `engine/src/skills/workflow-schema.ts` 支持 v2 字段（top-level `default_dispatch/default_model/default_effort/metadata`、step `dispatch/model/effort/subagent_type/blackboard_outputs_by_mode/validators_by_mode` 等），保 v1 fallback；新增 slot registry `.claude/contracts/schemas/blackboard-slots.json`；扩 tests（F1 拆分第一步） |
+| 4.b | `refactor: ✨ migrate all workflows to v2` | 迁现有 4 个 workflow.yaml（case-draft / case-edit / case-hotfix / playwright-automation）到 v2；新建 defect-analyze workflow.yaml；新建 infra-diagnose / knowledge-curate / workspace-manage workflow.yaml（F1 拆分第二步） |
+| 4.c | `feat: 🧩 enable workflow v2 lint` | 启 enum + filename + slot 一致性 lint；重写 `.claude/contracts/blackboard/state-model.md`（删「不强制校验」声明）；blackboard validator hard-on（F1 拆分第三步） |
 | 5 | `refactor: ✨ collapse qa playwright overlap` | `case-qa.md` 三合一到 `.claude/skills/_shared/`；删 `.claude/skills/playwright-cli/`；不重叠 cli 内容浓缩到 `.claude/skills/playwright-automation/references/cli-essentials.md`；更新 `skill-manifest.yaml` |
 
-### P2 Event journal core（1 commit）
+### P2 Event journal core（2 commits）
 
 | # | Commit | 影响 |
 |---|---|---|
-| 6 | `feat: 🧩 event journal core` | 新建 `engine/src/runtime/{event-writer,event-validator,session,blackboard,projector}.ts`；新 `engine/src/cli/events.ts`；升级 telemetry validator 到 14 event_kinds + 完整 envelope schema；fail-closed + 单调 seq + atomic append |
+| 6.a | `feat: 🧩 event journal core (writer + validator + session)` | 新建 `engine/src/runtime/{event-writer,event-validator,session}.ts`；升级 telemetry validator 到 19 event_kinds + 完整 envelope schema；staged transaction + 单调 seq + atomic append；events.index 用 file lock |
+| 6.b | `feat: 🧩 blackboard + projector + cli + phase dispatcher` | 新建 `engine/src/runtime/{blackboard,projector,phase-dispatcher}.ts`；新 `engine/src/cli/events.ts`（tail / replay / stats / validate / project）；Phase Dispatcher 显式 spawn Claude Agent / Codex subagent 并传 model/effort（解决 F3） |
 
 ### P3 Skill migration（2 commits，可拆 sub-commits）
 
@@ -829,14 +950,15 @@ kata events project <run_id>
 
 | # | Commit | 影响 |
 |---|---|---|
-| 9 | `feat: 🧩 plugin sdk and hook installer` | 扩 `plugin-manifest.ts` 解析 facets；新 `engine/src/plugins/event-subscriber.ts`；hooks 5 个迁入 `engine/src/hooks/`；新 `installer.ts` + `cli/hooks.ts`；3 个现有 plugin manifest 升级 |
-| 10 | `refactor: ✨ upgrade mcp catalog scanning` | `apps/mcp/tools.ts` 扫描 plugin `mcp_exports` 自动注册；新增 `kata_query_events` MCP tool |
+| 9 | `feat: 🧩 plugin sdk and hook installer` | 扩 `plugin-manifest.ts` 加 v2 schema **同时保 v1 兼容 adapter**（兼容现有 `url_patterns + commands.fetch` 直到所有 plugin 迁完，解决 I4）；`capability_required` 缺字段从 warning 改 hard error；新 `engine/src/plugins/event-subscriber.ts`；hooks 5 个迁入 `engine/src/hooks/`；新 `installer.ts` + `cli/hooks.ts`；3 个现有 plugin manifest 升级到 v2 |
+| 10 | `refactor: ✨ upgrade mcp catalog scanning` | **新 `apps/mcp/registry.ts`**：built-in TOOLS + 从 plugin `mcp_exports` 动态注册 + 新 `kata_query_events` MCP tool（I5）；所有 export 必须 read-only（运行时 capability 检查） |
 
-### P5 Codex runtime adapt（1 commit）
+### P5 Codex runtime adapt（2 commits — 前置 spike 解决 I6）
 
 | # | Commit | 影响 |
 |---|---|---|
-| 11 | `feat: 🧩 codex runtime via symlink` | `.agents/skills/<id>/SKILL.md` 重写适配 Codex；其它子目录全 symlink 到 `.claude/skills/<id>/`；删 `.agents/README` 的 placeholder note；更新 `apps/core/catalog/skills.ts` 双 runtime union；实测 Codex CLI 是否正确解引用 symlink |
+| 11.spike | `chore: 🧹 codex symlink spike (single skill)` | 用一个最简 skill（如 `workspace-manage`）实测 Codex CLI 对 `.agents/skills/<id>/{phases,reviewers,...}` 符号链接的解引用、context 限制、prompt 渲染；spike 记录写入 `docs/superpowers/specs/codex-symlink-spike-result.md`；spike 不合入主分支（独立 branch 或 detached 验证） |
+| 11 | `feat: 🧩 codex runtime via symlink (if spike pass)` | spike **通过**：按零拷贝策略落地，`.agents/skills/<id>/SKILL.md` 重写适配 Codex + `agents/openai.yaml` 配置 model/effort/sandbox（解决 F4）；其它子目录全 symlink 到 `.claude/skills/<id>/`；删 `.agents/README` 的 placeholder note；更新 `apps/core/catalog/skills.ts` 双 runtime union。spike **不通过**：改为脚本同步策略（`bun kata skills sync-codex`），工期重估并写入 Roadmap |
 
 ### P6 Polish（1–3 commits）
 
@@ -848,24 +970,56 @@ kata events project <run_id>
 
 | Phase | Commits | 工作量估计 | 关键交付 |
 |---|---|---|---|
-| P1 Cleanup | 1–5 | M（~1 周） | 仓库结构干净、契约升级 schema |
-| P2 Event core | 6 | L（~1–2 周） | E backbone 脊柱可用，CLI tail/replay |
-| P3 Skill migration | 7–8 | XL（~2–3 周） | 8 skill 全转 β-lite + emit events |
-| P4 Plugin/Hook/MCP | 9–10 | L（~1–2 周） | 插件 SDK 完整、hook installer、MCP 自动扫描 |
-| P5 Codex adapt | 11 | M（~1 周） | runtime-portable 验证 |
+| P1 Cleanup | 1, 2, 3, 4.a, 4.b, 4.c, 5（7 commits） | M+（~1.5 周） | 仓库结构干净、contracts/schema/lint v2 完整 |
+| P2 Event core | 6.a, 6.b（2 commits） | L（~1–2 周） | E backbone 脊柱 + Phase Dispatcher 可用，CLI tail/replay |
+| P3 Skill migration | 7, 8（2 commits，每 skill sub-commit） | XL（~2–3 周） | 8 skill 全转 β-lite + emit events |
+| P4 Plugin/Hook/MCP | 9, 10（2 commits） | L（~1–2 周） | 插件 SDK v2 + 兼容 adapter、hook installer、MCP 自动扫描 |
+| P5 Codex adapt | 11.spike, 11（2 commits） | M（~1 周，含 spike） | runtime-portable 验证（spike 通过则零拷贝；不过则脚本同步并重估） |
 | P6 Polish | 12+ | S（~3 天） | 简历 doc / metric snapshots |
 
-**单人总工期：4–6 周**。
+**单人总工期：4.5–7 周**（吸收 codex 总审修正后比初版多 0.5–1 周）。
+
+### 12.1 旧模块 → 新模块迁移表（解决 S3）
+
+| 旧 | 新 | Phase |
+|---|---|---|
+| `engine/src/plugin-loader.ts` | `engine/src/plugins/plugin-manifest.ts` + v1 adapter | P4#9 |
+| `engine/lib/plugin-utils.ts` | `engine/src/plugins/plugin-manifest.ts` | P4#9 |
+| `engine/hooks/*.ts` | `engine/src/hooks/*.ts` | P4#9 |
+| `engine/lib/hooks.ts` | `engine/src/hooks/installer.ts` | P4#9 |
+| `engine/src/telemetry/runtime-telemetry.ts` | `engine/src/runtime/event-validator.ts`（升级 19 event_kinds） | P2#6.a |
+| `engine/src/skills/skill-graph-check.ts` | `engine/src/skills/manifest-loader.ts` | P1#3 |
+| `engine/src/skills/route-check.ts` | （删除） | P1#3 |
+| `engine/src/skills/workflow-check.ts` | `engine/src/skills/validator.ts`（v2 enum + filename + slot） | P1#4.a / 4.c |
+| `engine/src/skills/runtime-sync.ts` | （effectively deprecated；Codex 适配后改为双 runtime 一致性 check） | P1#1 |
+| `engine/src/skills/workflow-schema.ts` | （extended v2） | P1#4.a |
+| `apps/mcp/tools.ts`（静态 TOOLS） | `apps/mcp/registry.ts`（dynamic） | P4#10 |
+| `.claude/contracts/skill-graph.yaml` | `.claude/contracts/skill-manifest.yaml` | P1#3 |
+| `.claude/contracts/routes/*.yaml`（11 份） | （删除，并入 manifest） | P1#3 |
+| `.claude/contracts/runtime-sync-exceptions.yaml` | （删除，空文件） | P1#2 |
+| `.claude/contracts/blackboard/state-model.md` | （重写：删「不强制校验」） | P1#4.c |
+| `progress.json` | （删除） | P1#2 |
+| `.agents/contracts/` | （删除，symlink reuse via `.agents/skills/`） | P1#1 |
+| `.agents/rules/` | （删除，symlink reuse via `.agents/skills/`） | P1#1 |
+| `apps/console/` | （删除） | P1#2 |
+| `.claude/skills/playwright-cli/` | merged into `playwright-automation/references/cli-essentials.md` | P1#5 |
+| `.claude/skills/{bug-file,conflict-analyze,diff-scan}/` | merged into `defect-analyze/` | P3#8 |
+| `.claude/skills/*/rules/case-qa.md`（3 份） | `.claude/skills/_shared/case-qa.md` | P1#5 |
 
 ## 13 风险
 
-1. **per-phase model 实际收益不确定**：subagent dispatch 有启动延迟，sonnet/haiku 混合若实际省不了多少成本或换不来质量提升，P3 实测后简化为单 model
-2. **event_kind 枚举可能再扩**：14 个不够时升 `schema_version: 2`
+1. **per-phase model 实际收益不确定**：Phase Dispatcher spawn subagent 有启动延迟，sonnet/haiku 混合若实际省不了多少成本或换不来质量提升，P3 实测后简化为单 model
+2. **event_kind 枚举可能再扩**：19 个不够时升 `schema_version: 2`
 3. **blackboard validator 严格度**：太严 LLM 写不进，太松失去 contract 价值；P2 实施时 tuning
-4. **`apps/core` 解耦 `.agents` 读取**：小心处理 catalog skill list 接口，避免破坏 MCP catalog
-5. **`.claude/contracts/blackboard/state-model.md` 自带「不强制校验」声明**与新 validator 政策冲突——必须在 P1#4 commit 中重写
-6. **Phase 2 Codex 适配**：依赖 symlink 在 Codex CLI 是否正确解引用，需在 P5 实测；若不支持改 bind-mount 或脚本同步
-7. **migrate case-draft 难度**：现有 case-draft 已有 spec/quality reviewer + worker prompt + workflow yaml，β-lite 迁移需保 spec/quality reviewer 行为等价；建议先把 reviewer prompt 1:1 移到 `reviewers/`，再调 phase 拆分
+4. **`apps/core` 解耦 `.agents` 读取**：catalog compat-shim（P1#1）必须保 `kata_list_skills` 响应字段 schema 不变，避免破坏外部 MCP client
+5. **`.claude/contracts/blackboard/state-model.md` 自带「不强制校验」声明**与新 validator 政策冲突——P1#4.c 重写
+6. **P5 Codex symlink 适配**：依赖 symlink 在 Codex CLI 是否正确解引用，P5 前置 spike commit 实测；不支持则改脚本同步（`bun kata skills sync-codex`），工期 +0.5–1 周
+7. **migrate case-draft 难度**：现有 case-draft 已有 spec/quality reviewer + worker prompt + workflow yaml，β-lite 迁移需保 reviewer 行为等价；建议先 1:1 移到 `reviewers/` 目录，再调 phase 拆分
+8. **F1 workflow v2 滚动迁移风险**：v2 parser 必须保 v1 fallback 直到所有 workflow.yaml 迁完（P1#4.b 完成）才能 enable 强 lint（P1#4.c）；若中途 commit 顺序错，会 cascade 失败
+9. **F2 staged transaction 复杂度**：三阶段事务实现错会导致 event journal 与 artifact / blackboard 不一致；P2#6.a 必须有专门测试覆盖 stage / commit / project 三种失败路径 + recover 路径
+10. **F3 Phase Dispatcher 与 Claude 原生 Agent 工具**：实测 Agent 工具的 `model` 参数是否每次都被尊重，是否有静默 downgrade；P2#6.b 实施时验证
+11. **F4 Codex runtime 字段差异**：Codex `agents/openai.yaml` 字段未在 kata 历史 lint 覆盖，P1#3 加扩展 + P5 完整生效；中间状态 Codex skill 可能临时跑不起来
+12. **I3 defect-analyze mode-specific schema 复杂度**：`blackboard_outputs_by_mode` / `validators_by_mode` 是 workflow v2 的新 feature，P1#4.a 实现复杂度提高；建议先单 mode 验证再扩
 
 ## 14 开放问题（不阻 design 通过）
 
@@ -881,17 +1035,22 @@ kata events project <run_id>
 | 标准 | 测量 |
 |---|---|
 | skill 数量 11 → 8 | `ls .claude/skills/` |
-| 重复 case-qa 消除 | `_shared/case-qa.md` 存在 + 三 skill 引用 |
+| 重复 case-qa 消除 | `_shared/case-qa.md` 存在 + 三 case-* skill 引用 |
 | 死代码清除 | apps/console、playwright-cli、routes、progress.json 不存在 |
-| Event journal 工作 | 跑一次 case-draft，verify `workspace/<project>/features/<feature>/events/<run_id>.jsonl` 有完整 phase_entered/artifact_written 事件序列 |
-| Blackboard validator 强制 | 故意 step output 写入未声明 slot → emit `validator_failed` |
-| Notify projection 工作 | events 写入后 `.kata/notify/<run_id>.md` 1 秒内更新 |
+| Event journal 工作 | 跑一次 case-draft，verify `workspace/<project>/features/<feature>/events/<run_id>.jsonl` 有完整 phase_entered / subagent_dispatched / artifact_written / phase_exited 事件序列 |
+| Event schema | 所有写入事件 ∈ 19 event_kind 枚举，validator 通过 |
+| Staged transaction | 故意让 artifact validator 失败 → 临时文件未 rename，event 也未 append，blackboard.json 保持旧态；故意让 projection 失败 → append `projection_failed` event，blackboard.json 保留最后成功投影 |
+| Blackboard validator 强制 | 故意 step output 写入未声明 slot → emit `validator_failed` 并阻断后续 |
+| Phase Dispatcher | dispatch=subagent 的 phase 实测产生 `subagent_dispatched` + `subagent_completed/failed` 事件；Agent 工具传入的 model 与 workflow.yaml step.model 一致（log 比对） |
+| Notify projection | events 写入后 `.kata/notify/<run_id>.md` 1 秒内更新；中途读取不见半写状态（atomic rename 验证） |
 | CLI 可用 | `kata events tail / replay / stats / validate / project` 全部 exit 0 |
-| Hook installer 工作 | `kata hooks install` 后 `.claude/settings.json` 含 kata-managed block；`kata hooks uninstall` 干净移除 |
-| Plugin manifest 升级 | lanhu / zentao / notify 都符合新 schema，`bun run check:skills` 通过 |
-| MCP 扫描 | apps/mcp/tools list 包含动态注册的 plugin mcp_exports + `kata_query_events` |
-| Codex runtime adapt | `.agents/skills/<id>/SKILL.md` 全部存在，子目录 symlink 工作；Codex CLI 实跑 case-draft 产生 events |
-| 简历级文档 | README 含 E backbone 架构图、metric snapshot、双 runtime 说明 |
+| Hook installer 工作 | `kata hooks install` 后 `.claude/settings.json` 含 `_managed_by: kata` block；`kata hooks uninstall` 干净移除；不写 `.claude/settings.local.json` |
+| Plugin manifest 升级 | lanhu / zentao / notify 都符合 v2 schema，capability 4 子字段全显式；v1 adapter 在迁移期保活 |
+| MCP 扫描 | `apps/mcp/registry.ts` 启动时扫描 plugin mcp_exports + 暴露 `kata_query_events`；外部 MCP client 可调 |
+| Catalog shim | 删 `.agents/contracts/` 后 `kata_list_skills` MCP 响应字段 schema 不变（保 inputs/outputs/triggers） |
+| defect-analyze mode-specific | bug/diff mode 产 `defect-report.md`；conflict mode 产 `conflict-resolution-plan.md` 且含 side_a_intent + side_b_intent |
+| Codex runtime adapt | `.agents/skills/<id>/SKILL.md` 全部存在 + `agents/openai.yaml` 配置；子目录 symlink 工作（或脚本同步替代方案）；Codex CLI 实跑 case-draft 产生 events |
+| 简历级文档 | README 含 E backbone 架构图、metric snapshot、双 runtime 说明、Phase Dispatcher 设计说明 |
 
 ## 16 Out of Scope（本 design 不覆盖）
 
