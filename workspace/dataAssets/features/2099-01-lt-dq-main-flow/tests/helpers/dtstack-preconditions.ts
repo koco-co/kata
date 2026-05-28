@@ -150,6 +150,7 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
   const state = JSON.parse(readFileSync(sessionPath, "utf8")) as {
     cookies?: Array<{ name: string; value: string }>;
   };
+  assertSessionCookieFresh(state, sessionPath, sourceRef);
   const cookie = (state.cookies ?? []).map((item) => `${item.name}=${item.value}`).join("; ");
   if (!cookie) {
     throw new Error(`${sourceRef}: 无法从 ${sessionPath} 读取 dtstack-cli 所需 cookie`);
@@ -219,4 +220,52 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
         .join("\n"),
     );
   }
+}
+
+function assertSessionCookieFresh(
+  state: { cookies?: Array<{ name: string; value: string }> },
+  sessionPath: string,
+  sourceRef: string,
+): void {
+  const token = state.cookies?.find((item) => item.name === "dt_token")?.value;
+  if (!token) return;
+
+  const payload = parseJwtPayload(token);
+  if (!payload?.exp) return;
+
+  const expiresAtMs = payload.exp * 1000;
+  if (Date.now() < expiresAtMs) return;
+
+  throw new Error(
+    [
+      `${sourceRef}: ltqc-local session 已过期，请刷新 ${sessionPath}`,
+      `dt_token exp=${formatShanghaiTime(expiresAtMs)}`,
+      `now=${formatShanghaiTime(Date.now())}`,
+    ].join("\n"),
+  );
+}
+
+function parseJwtPayload(token: string): { exp?: number } | null {
+  const payload = token.split(".")[1];
+  if (!payload) return null;
+  try {
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    return JSON.parse(Buffer.from(padded, "base64").toString("utf8")) as { exp?: number };
+  } catch {
+    return null;
+  }
+}
+
+function formatShanghaiTime(ms: number): string {
+  return `${new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(new Date(ms))} CST`;
 }
