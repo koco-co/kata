@@ -1,11 +1,18 @@
 # Feature 目录命名规范
 
-`workspace/{project}/features/` 下的目录命名遵循 `YYYY-MM[-{customer}]-{module}-{slug}`。
+`workspace/{project}/features/` 下的目录命名格式：`YYYY-MM[-{customer}]-{模块}-{描述}`
 
 ## 字段规则
 
-- `YYYY-MM` 必须与 `INDEX.md` 中文显示名 `【YYYYMM】` 一致；占位/草稿用 `2099-XX`。
+- `YYYY-MM`：需求交付月份；占位/草稿用 `2099-XX`。
 - `{customer}`（可选）：定制化客户用拼音首字母缩写（如 `dfsyc`、`tj`、`sc`、`yht`、`lt`、`ltqc`、`jg717`、`zdxx`、`gate2`）；标品省略此段。
-- `{module}` 和 `{slug}` 一律英文（lowercase ASCII，连字符分隔），不得用中文拼音。
-- `{module}` 取 metadata.yaml `modules` 的英文简写：`dq`、`metadata`、`modeling`、`general`、`assets`、`standard`、`lineage`、`security`、`multimodal`、`lifecycle`。
+- `{模块}`：中文模块名（如 `数据质量`、`元数据`、`数据模型`、`通用配置`、`数据安全`、`数据标准`、`数据资产`、`血缘`、`多模态`、`生命周期`）。
+- `{描述}`：中文短语，简洁描述需求主题，连字符分隔多个词组。
 - 跨月同名目录视为不同批次，保留独立目录，不合并。
+
+## 示例
+
+- `2026-02-数据质量-一致性多表校验`
+- `2026-01-dfsyc-通用配置-名称修改`
+- `2026-03-元数据-适配Spark-Kyuubi模式`
+- `2099-XX-数据质量-主流程用例整理`（草稿占位）
