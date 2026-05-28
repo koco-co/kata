@@ -35,7 +35,7 @@ export function checkWorkflows(root: string): WorkflowCheckReport {
 
   for (const entry of readdirSync(yamlDir, { withFileTypes: true })) {
     if (!entry.isFile() || !entry.name.endsWith(".yaml")) continue;
-    checkWorkflowFile(yamlDir, entry.name, violations);
+    checkWorkflowFile(yamlDir, entry.name, root, violations);
   }
 
   return { passed: violations.length === 0, violations };
@@ -44,13 +44,14 @@ export function checkWorkflows(root: string): WorkflowCheckReport {
 function checkWorkflowFile(
   yamlDir: string,
   fileName: string,
+  root: string,
   violations: WorkflowCheckViolation[],
 ): void {
   const yamlPath = join(yamlDir, fileName);
   const workflow = readWorkflowYaml(yamlPath, violations);
   if (!workflow) return;
 
-  validateWorkflowSchema(workflow, yamlPath, violations);
+  validateWorkflowSchema(workflow, yamlPath, root, violations);
 }
 
 function readWorkflowYaml(
@@ -72,9 +73,15 @@ function readWorkflowYaml(
 function validateWorkflowSchema(
   workflow: Workflow,
   yamlPath: string,
+  root: string,
   violations: WorkflowCheckViolation[],
 ): void {
-  for (const schemaError of validateWorkflow(workflow)) {
+  for (const schemaError of validateWorkflow(workflow, root)) {
+    if (schemaError.startsWith("[v2-warn]")) {
+      // 本 commit 软校验：v2 警告写 stderr，不计入 violations；4.c 才提升为 hard error
+      process.stderr.write(`workflow ${yamlPath}: ${schemaError}\n`);
+      continue;
+    }
     pushWorkflowViolation(violations, "WORKFLOW_SCHEMA_ERROR", yamlPath, schemaError);
   }
 }

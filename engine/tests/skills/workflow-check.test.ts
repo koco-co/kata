@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { checkWorkflows, formatWorkflowCheckReport } from "../../src/skills/workflow-check.ts";
+import { resetSlotCache } from "../../src/skills/workflow-schema.ts";
 
 const tempRoots: string[] = [];
 
@@ -88,5 +89,66 @@ describe("workflow check", () => {
     const text = formatWorkflowCheckReport(checkWorkflows(root), root);
     expect(text).toContain("workflow check failed");
     expect(text).toContain(".claude/contracts/workflows");
+  });
+
+  test("v2 workflow with soft warnings still reports passed=true", () => {
+    resetSlotCache();
+    const root = makeRoot();
+    // 写一个 v2 workflow，含 registry 未声明的 slot 与未知 dispatch
+    writeFile(
+      root,
+      ".claude/contracts/workflows/case-draft.yaml",
+      [
+        "name: case-draft",
+        "version: 2",
+        "default_dispatch: inline",
+        "default_model: sonnet",
+        "default_effort: high",
+        "steps:",
+        "  - id: source-intake",
+        "    dispatch: inline",
+        "    blackboard_inputs: [user_input]",
+        "    blackboard_outputs: [source_refs]",
+        "    failure_modes: [missing_source]",
+        "  - id: case-draft",
+        "    dispatch: magical",
+        "    model: sonnet",
+        "    effort: high",
+        "    workers: [case-worker]",
+        "    blackboard_inputs: [source_refs]",
+        "    blackboard_outputs: [definitely_unknown_slot]",
+        "    failure_modes: [worker_timeout]",
+        "",
+      ].join("\n"),
+    );
+
+    // 提供 minimal slot registry，让 user_input/source_refs 在 v2 集合内
+    writeFile(
+      root,
+      ".claude/contracts/schemas/blackboard-slots.json",
+      JSON.stringify({
+        v1_legacy: ["sources", "source_refs", "decisions", "artifacts", "handoff"],
+        v2: ["user_input", "source_refs"],
+      }),
+    );
+
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    const captured: string[] = [];
+    process.stderr.write = ((chunk: string | Uint8Array): boolean => {
+      captured.push(typeof chunk === "string" ? chunk : Buffer.from(chunk).toString());
+      return true;
+    }) as typeof process.stderr.write;
+    try {
+      const report = checkWorkflows(root);
+      expect(report.passed).toBe(true);
+      expect(report.violations).toEqual([]);
+      const stderr = captured.join("");
+      expect(stderr).toContain("[v2-warn]");
+      expect(stderr).toContain("definitely_unknown_slot");
+      expect(stderr).toContain("dispatch 'magical'");
+    } finally {
+      process.stderr.write = originalWrite;
+      resetSlotCache();
+    }
   });
 });
