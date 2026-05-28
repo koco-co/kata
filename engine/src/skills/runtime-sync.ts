@@ -52,6 +52,11 @@ const BLOCKED_REASON_PATTERNS = [
   /\bverification\b/i,
   /\bvalidation\b/i,
   /\bscope\b/i,
+  /\bdelivery\b/i,
+  /交付/,
+  /产物/,
+  /验证/,
+  /语义/,
 ];
 
 export function checkRuntimeSkillSync(root: string): RuntimeSkillSyncReport {

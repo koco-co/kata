@@ -194,4 +194,48 @@ description: Demo skill
       }),
     ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
   });
+
+  test("validateExceptionEntry rejects English reasons mentioning behaviour", () => {
+    expect(
+      validateExceptionEntry({
+        skill: "demo",
+        side: "codex",
+        file: ".agents/skills/demo/SKILL.md",
+        reason: "behaviour differs slightly",
+        reviewer: "required-before-merge",
+      }),
+    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
+  });
+
+  test("validateExceptionEntry rejects Chinese reasons about artifacts or verification", () => {
+    expect(
+      validateExceptionEntry({
+        skill: "demo",
+        side: "codex",
+        file: ".agents/skills/demo/SKILL.md",
+        reason: "产物不同",
+        reviewer: "required-before-merge",
+      }),
+    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
+
+    expect(
+      validateExceptionEntry({
+        skill: "demo",
+        side: "codex",
+        file: ".agents/skills/demo/SKILL.md",
+        reason: "验证口径差异",
+        reviewer: "required-before-merge",
+      }),
+    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
+
+    expect(
+      validateExceptionEntry({
+        skill: "demo",
+        side: "codex",
+        file: ".agents/skills/demo/SKILL.md",
+        reason: "语义不对齐",
+        reviewer: "required-before-merge",
+      }),
+    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
+  });
 });
