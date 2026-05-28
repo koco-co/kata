@@ -1,5 +1,5 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8402,#L8496,#L8589,#L8682,#L8775,#L8868,#L8961,#L9055,#L9192,#L9330,#L9423,#L9517,#L9610,#L9703,#L9796,#L9889,#L9982,#L10075,#L10168,#L10261,#L10354,#L10448,#L10541,#L10634,#L10773,#L10911,#L11004,#L11097,#L11190,#L11284,#L11378,#L11472,#L11566,#L11705,#L11799,#L11893,#L12031,#L12169,#L12262,#L12355,#L12448,#L12541,#L12634,#L12727,#L12865
-// intent: SR-INTENT-2099-01-DQ-SPARKTHRIFT-VALIDATION-L9073-L13533
+// intent: SR-INTENT-2099-01-DQ-SPARKTHRIFT-VALIDATION-L8402-L12865
 // probe: SR-UI-PROBE-20260527-DQ-SPARKTHRIFT-COMPLETENESS-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-27T00:00:00Z
@@ -48,6 +48,7 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
         { name: "spark.network.timeout", value: "300s" },
         { name: "spark.driver.maxResultSize", value: "2g" },
       ],
+      passHasNoDirtyDetail: true,
     },
   },
   {
@@ -464,6 +465,9 @@ const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
     passExpectedValue: "0",
     failExpectedValue: "1",
     dirtyEvidence: ["LTV202601150003AA", "dwd_voyah_dq_rule_24_ref"],
+    fusionChecks: {
+      sameTableSecondTask: true,
+    },
   },
   // archive-title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(允许重复+且+多字段)
   {

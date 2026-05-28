@@ -178,6 +178,7 @@ type SparkThriftRuleValidationFusionChecks = {
   ruleSetRuleEdit?: boolean;
   taskDetectionToggle?: boolean;
   monitorRecordTableSearch?: boolean;
+  sameTableSecondTask?: boolean;
   passHasNoDirtyDetail?: boolean;
   partitionModesVisible?: boolean;
   t1BeforeImmediateWithEnvParams?: readonly SparkThriftEnvParam[];
@@ -3083,6 +3084,15 @@ export async function expectSparkThriftQualityRuleValidationContract(
   });
   if (effectiveScenario.fusionChecks?.taskDetectionToggle) {
     await expectArchiveRuleTaskSingleDetectionToggle(page, sourceRef, effectiveScenario, ruleName);
+  }
+  if (effectiveScenario.fusionChecks?.sameTableSecondTask) {
+    await createSparkThriftArchiveValidationRuleTask(
+      page,
+      sourceRef,
+      effectiveScenario,
+      `${ruleName}_second`,
+      packageName,
+    );
   }
 
   await gotoDataQualityPage(page, "/dq/rule");
