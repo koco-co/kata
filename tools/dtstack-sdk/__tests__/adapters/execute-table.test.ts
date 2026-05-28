@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
-import { resolveDtstackCliInvocation, resolveExecuteTableDefaults } from "../../src/adapters/execute-table";
+import {
+  resolveDtstackCliInvocation,
+  resolveExecuteTableDefaults,
+} from "../../src/adapters/execute-table";
 
 const ENV_KEYS = [
   "KATA_DATAASSETS_PROJECT_ID",

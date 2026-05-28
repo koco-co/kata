@@ -39,8 +39,8 @@
 
   <rect x="705" y="115" width="260" height="225" class="box contract"/>
   <text x="835" y="150" text-anchor="middle" class="label">Shared Contracts</text>
-  <text x="835" y="182" text-anchor="middle" class="body">Router: routes/*.yaml</text>
-  <text x="835" y="207" text-anchor="middle" class="body">Graph: skill-graph.yaml</text>
+  <text x="835" y="182" text-anchor="middle" class="body">Manifest: skill-manifest.yaml</text>
+  <text x="835" y="207" text-anchor="middle" class="body">Routing: manifest.routing.*</text>
   <text x="835" y="232" text-anchor="middle" class="body">Workflow: workflows/*.yaml</text>
   <text x="835" y="257" text-anchor="middle" class="body">Blackboard: schema + review docs</text>
   <text x="835" y="282" text-anchor="middle" class="body">Rules, schemas, plugins metadata</text>

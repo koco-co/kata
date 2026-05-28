@@ -10,10 +10,9 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
-import { checkRoutes, formatRouteCheckReport } from "../skills/route-check.ts";
+import { loadSkillManifest } from "../skills/manifest-loader.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
-import { checkSkillGraph, formatSkillGraphCheckReport } from "../skills/skill-graph-check.ts";
 import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
 
 export function buildSkillsCommand(): Command {
@@ -26,20 +25,23 @@ export function buildSkillsCommand(): Command {
       const root = repoRoot();
       const skillReport = checkRuntimeSkillSync(root);
       const detachReport = checkRuntimeDetach(root);
-      const routeReport = checkRoutes(root);
-      const graphReport = checkSkillGraph(root);
       const workflowReport = checkWorkflows(root);
+      const manifestLines: string[] = [];
+      let manifestPassed = true;
+      try {
+        loadSkillManifest(root);
+        manifestLines.push("skill manifest check passed");
+      } catch (error) {
+        manifestPassed = false;
+        const message = error instanceof Error ? error.message : String(error);
+        manifestLines.push("skill manifest check failed", `SKILL_MANIFEST_INVALID: ${message}`);
+      }
       const passed =
-        skillReport.passed &&
-        detachReport.passed &&
-        routeReport.passed &&
-        graphReport.passed &&
-        workflowReport.passed;
+        skillReport.passed && detachReport.passed && manifestPassed && workflowReport.passed;
       const text = [
         formatRuntimeSkillSyncReport(skillReport, root),
         formatRuntimeDetachReport(detachReport, root),
-        formatRouteCheckReport(routeReport, root),
-        formatSkillGraphCheckReport(graphReport, root),
+        manifestLines.join("\n"),
         formatWorkflowCheckReport(workflowReport, root),
       ].join("\n");
       if (passed) {

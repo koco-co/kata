@@ -115,7 +115,7 @@ description: d
     );
   });
 
-  test("allows Claude when_to_use but rejects it on Codex SKILL.md", () => {
+  test("allows when_to_use on both Claude and Codex SKILL.md", () => {
     const root = makeRoot();
 
     writeSkill(
@@ -138,7 +138,7 @@ when_to_use: use when editing existing test artifacts
       `---
 name: case-edit
 description: d
-when_to_use: invalid on Codex
+when_to_use: use when editing existing test artifacts
 ---
 
 # case-edit
@@ -148,18 +148,9 @@ when_to_use: invalid on Codex
 
     const report = checkRuntimeSkillSync(root);
 
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "UNSUPPORTED_FRONTMATTER",
-        side: "codex",
-        path: ".agents/skills/case-edit/SKILL.md",
-        message: "unsupported frontmatter fields: when_to_use",
-      }),
-    );
     expect(report.violations).not.toContainEqual(
       expect.objectContaining({
         rule: "UNSUPPORTED_FRONTMATTER",
-        side: "claude",
       }),
     );
   });
@@ -428,5 +419,4 @@ name: demo
       }),
     );
   });
-
 });

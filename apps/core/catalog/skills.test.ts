@@ -88,14 +88,24 @@ test("listSkillsFromRoot reads .claude contracts and ignores missing .agents con
       join(root, ".claude/skills/case-draft/SKILL.md"),
       `---\nname: case-draft\ndescription: gen QA cases\n---\nbody\n`,
     );
-    mkdirSync(join(root, ".claude/contracts/routes"), { recursive: true });
+    mkdirSync(join(root, ".claude/contracts"), { recursive: true });
     writeFileSync(
-      join(root, ".claude/contracts/skill-graph.yaml"),
-      `skills:\n  case-draft:\n    user_entry: /case-draft\n    consumes: [prd-source]\n    produces: [archive-md]\n    related: []\n`,
-    );
-    writeFileSync(
-      join(root, ".claude/contracts/routes/case-draft.yaml"),
-      `skill: case-draft\nentry: /case-draft\nshould_trigger: [draft a case]\nshould_not_trigger: [hotfix]\nclarify: [confirm scope]\n`,
+      join(root, ".claude/contracts/skill-manifest.yaml"),
+      `version: 1
+generated_for: claude+codex
+facets: { by_input: {}, by_output: {} }
+skills:
+  case-draft:
+    user_entry: /case-draft
+    dataflow:
+      consumes: [prd-source]
+      produces: [archive-md]
+      related: []
+    routing:
+      must_trigger_when: ["draft a case"]
+      must_not_trigger_when: ["hotfix"]
+      clarify: ["confirm scope"]
+`,
     );
     // NB: .agents/contracts/ intentionally not created — shim must cope.
     const skillsRoot = join(root, ".claude/skills");
@@ -107,6 +117,46 @@ test("listSkillsFromRoot reads .claude contracts and ignores missing .agents con
     expect(summaries[0]?.outputs).toEqual(["archive-md"]);
     expect(summaries[0]?.mustTriggerWhen).toEqual(["draft a case"]);
     expect(summaries[0]?.mustNotTriggerWhen).toEqual(["hotfix"]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("listSkillsFromRoot reads skill-manifest.yaml when present", () => {
+  const root = mkdtempSync(join(tmpdir(), "kata-shim-manifest-"));
+  try {
+    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
+    writeFileSync(
+      join(root, ".claude/skills/case-draft/SKILL.md"),
+      `---\nname: case-draft\ndescription: gen\n---\n`,
+    );
+    mkdirSync(join(root, ".claude/contracts"), { recursive: true });
+    writeFileSync(
+      join(root, ".claude/contracts/skill-manifest.yaml"),
+      `version: 1
+generated_for: claude+codex
+facets: { by_input: {}, by_output: {} }
+skills:
+  case-draft:
+    user_entry: /case-draft
+    dataflow:
+      consumes: [prd-source]
+      produces: [archive-md]
+      related: []
+    routing:
+      must_trigger_when: ["gen"]
+      must_not_trigger_when: ["edit"]
+      clarify: ["scope"]
+`,
+    );
+    const summaries = listSkillsFromRoot(
+      join(root, ".claude/skills"),
+      join(root, ".claude/contracts"),
+    );
+    expect(summaries[0]?.mustTriggerWhen).toEqual(["gen"]);
+    expect(summaries[0]?.mustNotTriggerWhen).toEqual(["edit"]);
+    expect(summaries[0]?.inputs).toEqual(["prd-source"]);
+    expect(summaries[0]?.outputs).toEqual(["archive-md"]);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

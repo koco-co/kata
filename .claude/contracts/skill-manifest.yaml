@@ -1,0 +1,209 @@
+version: 1
+generated_for: claude+codex
+facets:
+  by_input:
+    archive-md: [case-edit]
+    browser-target: [playwright-cli]
+    business-knowledge: [knowledge-curate]
+    bug-record: [case-hotfix]
+    code-diff: [diff-scan]
+    connectivity-failure: [infra-diagnose]
+    csv: [case-edit]
+    design-source: [case-draft]
+    env-profile: [playwright-automation]
+    failure-evidence: [bug-file]
+    fix-scope: [case-hotfix]
+    merge-conflict: [conflict-analyze]
+    prd-source: [case-draft]
+    project-rules: [knowledge-curate]
+    qa-cases: [playwright-automation]
+    server-context: [infra-diagnose]
+    source-refs: [case-draft]
+    ui-evidence: [playwright-automation]
+    workspace-request: [workspace-manage]
+    xmind: [case-edit]
+  by_output:
+    archive-md: [case-draft]
+    browser-observation: [playwright-cli]
+    bug-report: [bug-file]
+    conflict-resolution-plan: [conflict-analyze]
+    diagnosis: [infra-diagnose]
+    hotfix-regression-case: [case-hotfix]
+    knowledge-entry: [infra-diagnose, knowledge-curate]
+    manifest: [case-draft]
+    metadata: [case-draft]
+    normalized-archive: [case-edit]
+    playwright-tests: [playwright-automation]
+    remediation-plan: [infra-diagnose]
+    reproducible-defect-report: [diff-scan]
+    run-handoff: [playwright-automation]
+    synchronized-xmind: [case-edit]
+    workspace-state: [workspace-manage]
+    xmind: [case-draft]
+skills:
+  bug-file:
+    user_entry: /bug-file
+    dataflow:
+      consumes: [failure-evidence]
+      produces: [bug-report]
+      related: [case-hotfix, diff-scan]
+    routing:
+      must_trigger_when:
+        - "这个失败可以复现，帮我整理 bug 报告"
+        - "根据这些截图和日志写缺陷单"
+      must_not_trigger_when:
+        - "这个 bug 已修复，生成 hotfix 回归用例"
+        - "扫描这个 diff 里有没有缺陷"
+      clarify:
+        - "帮我处理一下这个问题"
+  case-draft:
+    user_entry: /case-draft
+    dataflow:
+      consumes: [prd-source, design-source, source-refs]
+      produces: [archive-md, xmind, metadata, manifest]
+      related: [case-edit, playwright-automation, knowledge-curate]
+    routing:
+      must_trigger_when:
+        - "根据这个 PRD 生成 QA 用例"
+        - "这个 Lanhu 页面帮我出测试用例"
+        - "根据 Axure 原型补一份 Archive 和 XMind"
+      must_not_trigger_when:
+        - "把这个已有 Archive 转成 XMind"
+        - "这个 bug 已修复，生成 hotfix 回归用例"
+      clarify:
+        - "帮我补一下用例"
+  case-edit:
+    user_entry: /case-edit
+    dataflow:
+      consumes: [archive-md, xmind, csv]
+      produces: [normalized-archive, synchronized-xmind]
+      related: [case-draft, case-hotfix]
+    routing:
+      must_trigger_when:
+        - "把这个已有 Archive 同步成 XMind"
+        - "标准化这份 CSV 用例产物"
+      must_not_trigger_when:
+        - "根据这个 PRD 生成一套新测试用例"
+        - "bug 12345 已修复，补回归用例"
+      clarify:
+        - "帮我处理一下这个用例文件"
+  case-hotfix:
+    user_entry: /case-hotfix
+    dataflow:
+      consumes: [bug-record, fix-scope]
+      produces: [hotfix-regression-case]
+      related: [bug-file, case-edit]
+    routing:
+      must_trigger_when:
+        - "bug 12345 已修复，帮我生成 hotfix 回归用例"
+        - "这个 ZenTao 缺陷修完了，补一条回归用例"
+      must_not_trigger_when:
+        - "我发现一个新 bug，帮我写缺陷报告"
+        - "根据 PRD 生成完整测试用例"
+      clarify:
+        - "这个问题修好了，补一下用例"
+  conflict-analyze:
+    user_entry: /conflict-analyze
+    dataflow:
+      consumes: [merge-conflict]
+      produces: [conflict-resolution-plan]
+      related: [diff-scan]
+    routing:
+      must_trigger_when:
+        - "分析这段合并冲突并给出解决方案"
+        - "这些 conflict markers 应该怎么合"
+      must_not_trigger_when:
+        - "扫描这个 diff 有没有可复现缺陷"
+        - "帮我写一个 bug 报告"
+      clarify:
+        - "帮我看看这个冲突"
+  diff-scan:
+    user_entry: /diff-scan
+    dataflow:
+      consumes: [code-diff]
+      produces: [reproducible-defect-report]
+      related: [bug-file, conflict-analyze]
+    routing:
+      must_trigger_when:
+        - "扫描这个分支 diff 里的可复现缺陷"
+        - "帮我 review 这次改动有没有 bug"
+      must_not_trigger_when:
+        - "分析这段合并冲突怎么解决"
+        - "根据 PRD 生成测试用例"
+      clarify:
+        - "帮我看一下这次改动"
+  infra-diagnose:
+    user_entry: /infra-diagnose
+    dataflow:
+      consumes: [connectivity-failure, server-context]
+      produces: [diagnosis, remediation-plan, knowledge-entry]
+      related: [knowledge-curate]
+    routing:
+      must_trigger_when:
+        - "数据源连不上，帮我 SSH 到服务器排查"
+        - "生产环境接口超时，需要诊断服务器连通性"
+      must_not_trigger_when:
+        - "根据接口变更补测试用例"
+        - "整理一个可复现 bug 报告"
+      clarify:
+        - "帮我看看环境问题"
+  knowledge-curate:
+    user_entry: /knowledge-curate
+    dataflow:
+      consumes: [business-knowledge, project-rules]
+      produces: [knowledge-entry]
+      related: [case-draft, infra-diagnose]
+    routing:
+      must_trigger_when:
+        - "记录这个项目业务规则"
+        - "查询这个模块术语是什么意思"
+      must_not_trigger_when:
+        - "根据这个 PRD 生成测试用例"
+        - "扫描代码 diff 是否有缺陷"
+      clarify:
+        - "这个概念是什么"
+  playwright-automation:
+    user_entry: /playwright-automation
+    dataflow:
+      consumes: [qa-cases, ui-evidence, env-profile]
+      produces: [playwright-tests, run-handoff]
+      related: [case-draft, playwright-cli]
+    routing:
+      must_trigger_when:
+        - "生成一套 Playwright UI 自动化并运行验证"
+        - "修复这个 Playwright 用例失败"
+      must_not_trigger_when:
+        - "只用浏览器帮我打开 localhost 看一眼"
+        - "根据 PRD 写手工测试用例"
+      clarify:
+        - "帮我自动化这个页面"
+  playwright-cli:
+    user_entry: /playwright-cli
+    dataflow:
+      consumes: [browser-target]
+      produces: [browser-observation]
+      related: [playwright-automation]
+    routing:
+      must_trigger_when:
+        - "用 playwright-cli 打开页面并截图"
+        - "运行 Playwright CLI 检查这个本地页面"
+      must_not_trigger_when:
+        - "生成完整 Playwright 自动化交付件"
+        - "写一份手工 QA 用例"
+      clarify:
+        - "帮我用浏览器测一下"
+  workspace-manage:
+    user_entry: /workspace-manage
+    dataflow:
+      consumes: [workspace-request]
+      produces: [workspace-state]
+      related: [case-draft, knowledge-curate]
+    routing:
+      must_trigger_when:
+        - "显示 kata 功能菜单"
+        - "创建并自检这个项目工作区"
+      must_not_trigger_when:
+        - "根据 PRD 生成测试用例"
+        - "扫描 diff 里的缺陷"
+      clarify:
+        - "帮我管理一下工作区"

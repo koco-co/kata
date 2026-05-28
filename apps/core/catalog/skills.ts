@@ -1,7 +1,7 @@
-// Phase 1: catalog reads .claude single-source via compat-shim; Phase 2 will route through skill-manifest.yaml.
+// Phase 1: catalog reads .claude single-source via compat-shim backed by skill-manifest.yaml.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
-import YAML, { parseDocument } from "yaml";
+import { parseDocument } from "yaml";
 import type { SkillSummary } from "../types.ts";
 import { readClaudeSkillContracts, type SkillContractsRead } from "./compat-shim.ts";
 
@@ -32,10 +32,6 @@ function currentRepoRoot(): string {
     if (parent === current) return resolve(process.cwd());
     current = parent;
   }
-}
-
-function asStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
 function skillId(value: unknown): string {
@@ -81,34 +77,23 @@ function readRuntimeSkill(path: string): RuntimeSkillDoc {
   }
 }
 
-function readRouteLists(
-  routesRoot: string,
-  id: string,
-): Pick<SkillSummary, "mustTriggerWhen" | "mustNotTriggerWhen"> {
-  const path = join(routesRoot, `${id}.yaml`);
-  if (!existsSync(path)) return { mustTriggerWhen: [], mustNotTriggerWhen: [] };
-  const parsed = YAML.parse(readFileSync(path, "utf-8"));
-  return {
-    mustTriggerWhen: asStringArray((parsed as { should_trigger?: unknown })?.should_trigger),
-    mustNotTriggerWhen: asStringArray(
-      (parsed as { should_not_trigger?: unknown })?.should_not_trigger,
-    ),
-  };
-}
-
 function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContractsRead): SkillSummary {
-  const route = readRouteLists(contracts.routesRoot, id);
-  const graphEntry = contracts.graph[id] ?? {};
+  const entry = contracts.entries[id] ?? {
+    consumes: [],
+    produces: [],
+    mustTriggerWhen: [],
+    mustNotTriggerWhen: [],
+  };
   return {
     id,
     name: doc.name,
     kind: "runtime-skill",
     status: "active",
     summary: doc.description,
-    mustTriggerWhen: route.mustTriggerWhen,
-    mustNotTriggerWhen: route.mustNotTriggerWhen,
-    inputs: asStringArray(graphEntry.consumes),
-    outputs: asStringArray(graphEntry.produces),
+    mustTriggerWhen: entry.mustTriggerWhen,
+    mustNotTriggerWhen: entry.mustNotTriggerWhen,
+    inputs: entry.consumes,
+    outputs: entry.produces,
   };
 }
 
@@ -120,7 +105,7 @@ export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummar
   if (!existsSync(root)) return [];
   const contracts: SkillContractsRead = contractRoot
     ? readClaudeSkillContracts(contractRoot)
-    : { graph: {}, routesRoot: "" };
+    : { entries: {} };
   const ids = new Set<string>();
   const skills = readdirSync(root)
     .filter((name) => statSync(join(root, name)).isDirectory())
