@@ -53,6 +53,8 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 | confirmation-package | `step.id == confirmation-package` | references/confirmation-package-template.md | few-shot | 仅供确认包问题组织格式参考，不作需求事实来源。 |
 | case-draft, output | `step.id in [case-draft, output]` | references/fewshots/case-format-sample.md | few-shot | 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。 |
 | case-draft, output | `step.id in [case-draft, output]` | references/fewshots/case-format-sample.xmind.md | few-shot | XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。 |
+| module-identify | `step.id == module-identify and feature_dir_is_new` | rules/naming-convention.md | 规则 | 新建 feature 目录时的命名格式（YYYY-MM[-{customer}]-{module}-{slug}）与客户缩写列表。 |
+| case-review, output | `step.id in [case-review, output]` | rules/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
 
 ## 硬规则
 
