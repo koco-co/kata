@@ -25,6 +25,15 @@ export { runFeaturesLs } from "./cli/features-ls.ts";
 export type { FeaturesShowContext } from "./cli/features-show.ts";
 export { runFeaturesShow } from "./cli/features-show.ts";
 
+// ── Skill manifest (read) ───────────────────────────
+export type {
+  SkillDataflow,
+  SkillManifest,
+  SkillManifestEntry,
+  SkillRouting,
+} from "./skills/manifest-loader.ts";
+export { loadSkillManifest } from "./skills/manifest-loader.ts";
+
 // ── Project metadata ───────────────────────────────
 
 export const KATA_ENGINE_VERSION = "3.0.0-alpha.1" as const;

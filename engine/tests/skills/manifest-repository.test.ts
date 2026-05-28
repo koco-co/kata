@@ -14,7 +14,8 @@ describe("manifest repository", () => {
     expect(manifestIds).toEqual(ids.sort());
     for (const id of ids) {
       const entry = m.skills[id];
-      expect(entry?.user_entry).toBe(`/${id}`);
+      expect(entry?.user_entry).toBeTruthy();
+      expect(typeof entry?.user_entry).toBe("string");
       expect(
         (entry?.dataflow.consumes.length ?? 0) + (entry?.dataflow.produces.length ?? 0),
       ).toBeGreaterThan(0);

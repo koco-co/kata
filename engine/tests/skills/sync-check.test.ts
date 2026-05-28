@@ -115,6 +115,9 @@ description: d
     );
   });
 
+  // WHY: Codex frontmatter allowlist now permits `when_to_use` per
+  // engine/src/skills/frontmatter-policy.ts; replaces the previous
+  // "rejects on Codex" expectation.
   test("allows when_to_use on both Claude and Codex SKILL.md", () => {
     const root = makeRoot();
 

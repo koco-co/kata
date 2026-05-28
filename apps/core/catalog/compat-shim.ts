@@ -1,7 +1,6 @@
 // apps/core/catalog/compat-shim.ts
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import YAML from "yaml";
+import { dirname } from "node:path";
+import { loadSkillManifest } from "kata-engine";
 
 export interface SkillContractsRead {
   readonly entries: Record<
@@ -15,39 +14,25 @@ export interface SkillContractsRead {
   >;
 }
 
-// Phase 1 shim: reads .claude/contracts/skill-manifest.yaml.
-// Public signature is stable — apps/core/catalog/skills.ts maps `entries[id]`
-// straight onto SkillSummary fields.
+// Phase 1 shim: projects engine's skill-manifest into the 4-field shape the
+// catalog needs. Signature is stable across manifest evolution.
 export function readClaudeSkillContracts(contractsRoot: string): SkillContractsRead {
-  const path = join(contractsRoot, "skill-manifest.yaml");
-  if (!existsSync(path)) return { entries: {} };
-  const parsed = YAML.parse(readFileSync(path, "utf-8")) as {
-    skills?: Record<string, unknown>;
-  } | null;
-  const skills = (parsed?.skills ?? {}) as Record<string, ManifestSkillEntry>;
+  // contractsRoot 形如 <root>/.claude/contracts；loadSkillManifest 期望 repo root。
+  const root = dirname(dirname(contractsRoot));
+  let manifest;
+  try {
+    manifest = loadSkillManifest(root);
+  } catch {
+    return { entries: {} };
+  }
   const entries: SkillContractsRead["entries"] = {};
-  for (const [id, raw] of Object.entries(skills)) {
+  for (const [id, entry] of Object.entries(manifest.skills)) {
     entries[id] = {
-      consumes: arr(raw?.dataflow?.consumes),
-      produces: arr(raw?.dataflow?.produces),
-      mustTriggerWhen: arr(raw?.routing?.must_trigger_when),
-      mustNotTriggerWhen: arr(raw?.routing?.must_not_trigger_when),
+      consumes: entry.dataflow.consumes,
+      produces: entry.dataflow.produces,
+      mustTriggerWhen: entry.routing.must_trigger_when,
+      mustNotTriggerWhen: entry.routing.must_not_trigger_when,
     };
   }
   return { entries };
-}
-
-interface ManifestSkillEntry {
-  dataflow?: {
-    consumes?: unknown;
-    produces?: unknown;
-  };
-  routing?: {
-    must_trigger_when?: unknown;
-    must_not_trigger_when?: unknown;
-  };
-}
-
-function arr(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
