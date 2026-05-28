@@ -10,6 +10,7 @@ Slot 声明集中在 `.claude/contracts/schemas/blackboard-slots.json`；新增 
 - 写入语义按 slot 类型：数组类追加；对象类全量覆盖。
 - 任一被下游 `blackboard_inputs` 引用的 slot 为空 → 下游 phase 必须 emit `validator_failed`，不可静默继续。
 - mode-specific 写入用 `blackboard_outputs_by_mode`（spec §6.12）；engine 按当前 blackboard 中的 `mode` slot 值选择分支。
+- mode-specific 校验用 `validators_by_mode`：每个 mode 列出该分支专属的 validator id（spec §6.12）。
 
 ## 跨 runtime 一致性
 

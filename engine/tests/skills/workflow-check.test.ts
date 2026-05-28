@@ -7,7 +7,7 @@ import {
   formatWorkflowCheckReport,
   TRANSITION_PREFIX,
 } from "../../src/skills/workflow-check.ts";
-import { resetSlotCache, V2_WARN_PREFIX } from "../../src/skills/workflow-schema.ts";
+import { resetSlotCache } from "../../src/skills/workflow-schema.ts";
 
 const tempRoots: string[] = [];
 
@@ -252,8 +252,8 @@ describe("workflow check", () => {
       expect(messages.some((m) => m.includes("definitely_unknown_slot"))).toBe(true);
       expect(report.violations.every((v) => v.rule === "WORKFLOW_SCHEMA_ERROR")).toBe(true);
       const stderr = captured.join("");
-      // 不再向 stderr 写 v2 软警告
-      expect(stderr).not.toContain(V2_WARN_PREFIX);
+      // v2 lint hard-on 后不再向 stderr 写 "[v2-warn]" 软警告，也不应混入 [transition] 噪音
+      expect(stderr).not.toContain("[v2-warn]");
       expect(stderr).not.toContain(TRANSITION_PREFIX);
     } finally {
       process.stderr.write = originalWrite;

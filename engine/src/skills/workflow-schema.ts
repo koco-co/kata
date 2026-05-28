@@ -2,9 +2,6 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import YAML from "yaml";
 
-/** Shared prefix for v2 soft warnings; downstream filters route by this prefix. */
-export const V2_WARN_PREFIX = "[v2-warn]";
-
 export const BLACKBOARD_SLOTS = [
   "sources",
   "source_refs",

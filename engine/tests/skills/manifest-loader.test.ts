@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { repoRoot } from "../../lib/paths.ts";
 import {
   loadSkillManifest,
+  MANIFEST_WORKFLOW_EXCLUSIONS,
   validateManifestAgainstWorkflows,
 } from "../../src/skills/manifest-loader.ts";
 
@@ -131,6 +133,16 @@ skills:
       expect(errors).toEqual([]);
     } finally {
       rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  test("MANIFEST_WORKFLOW_EXCLUSIONS only contains skills present in the manifest", () => {
+    // 当 Commit 5 从 manifest 删 playwright-cli 或 P3 fuse defect-analyze 删 manifest entry 时，
+    // 这个测试会 fail，提醒 implementer 同步删 EXCLUSIONS 中的对应行
+    const manifest = loadSkillManifest(repoRoot());
+    const manifestIds = new Set(Object.keys(manifest.skills));
+    for (const excluded of MANIFEST_WORKFLOW_EXCLUSIONS) {
+      expect(manifestIds.has(excluded)).toBe(true);
     }
   });
 });
