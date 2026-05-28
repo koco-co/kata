@@ -16,8 +16,9 @@
 
 ## 命名约定
 
-- Feature 目录命名使用 `YYYY-MM[-{customer}]-{module}-{slug}`。
-- slug 由小写字母、数字和短横线组成，表达模块和任务含义。
+- Feature 目录命名格式：`【v{version}】[【{lanhu-prd-id}】][【{customer}】]【{module}】{description}`。
+- 版本号由 `kata features resolve` 引擎填入；模型不得自行拼接版本号。
+- 详细规则见 `.claude/skills/case-draft/rules/naming-convention.md`。
 - 已有 feature 目录优先复用，不为同一需求创建平行目录。
 
 ## QA 产物自检
