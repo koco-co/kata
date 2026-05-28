@@ -1,4 +1,10 @@
 # spec §6.8 终稿；v2 schema 由 engine/src/skills/workflow-schema.ts 校验。
+#
+# 5-phase 结构与 spec §6.8 一致；spec §6.7 的「§2-atomize」phase
+# 在本 workflow 内被 fuse 进 case-draft step：worker 一次产出 atoms + draft_archive，
+# 因此 case-draft step 显式声明 blackboard_outputs=[atoms, draft_archive]
+# 让 atoms 仍可被下游或 review 链消费。其余字段（model、effort、validators、
+# failure_modes、artifact_kinds_produced 包含 metadata）逐字对齐 spec §6.8。
 name: case-draft
 version: 2
 default_dispatch: inline
@@ -17,6 +23,7 @@ metadata:
   artifact_kinds_produced:
     - archive
     - xmind
+    - metadata
     - manifest
 
 steps:
@@ -24,7 +31,7 @@ steps:
     dispatch: inline
     blackboard_inputs: [user_input]
     blackboard_outputs: [source_refs]
-    failure_modes: [missing_source]
+    failure_modes: [missing_source, unauthorized]
 
   - id: case-draft
     dispatch: subagent
@@ -32,8 +39,8 @@ steps:
     effort: high
     workers: [case-worker]
     blackboard_inputs: [source_refs]
-    blackboard_outputs: [draft_archive]
-    failure_modes: [worker_timeout]
+    blackboard_outputs: [atoms, draft_archive]
+    failure_modes: [worker_timeout, schema_mismatch]
 
   - id: spec-review
     dispatch: subagent
@@ -47,16 +54,16 @@ steps:
 
   - id: quality-review
     dispatch: subagent
-    model: haiku
-    effort: low
+    model: sonnet
+    effort: medium
     reviewers: [quality-reviewer]
     blackboard_inputs: [draft_archive, spec_verdict]
     blackboard_outputs: [quality_verdict, quality_violations]
-    failure_modes: [verdict_invalid]
+    failure_modes: [coverage_gap]
 
   - id: output
     dispatch: inline
     blackboard_inputs: [draft_archive, spec_verdict, quality_verdict]
     blackboard_outputs: [archive_path, xmind_path, manifest_path]
-    validators: [archive-format, xmind-mapping]
-    failure_modes: [io_error]
+    validators: [archive-format, xmind-mapping, manifest-required]
+    failure_modes: [io_error, validator_failed]

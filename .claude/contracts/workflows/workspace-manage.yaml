@@ -26,5 +26,8 @@ steps:
   - id: render
     dispatch: inline
     blackboard_inputs: [workspace_state]
+    # WHY: render 是终端展示步（菜单/状态打印到 console + .kata/notify projection），
+    # 对 blackboard 不留新槽位；只通过 artifact_written 事件感知副作用。
+    # spec §6.7 workspace-manage 行无 reviewers/workers，无下游消费者读取 render 产出。
     blackboard_outputs: []
     failure_modes: [io_error]

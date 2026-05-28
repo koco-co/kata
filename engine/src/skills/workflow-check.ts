@@ -7,7 +7,7 @@ import {
   type Workflow,
 } from "./workflow-schema.ts";
 
-/** Stderr-only marker for P1 → P3 过渡期：workflow 已落地但对应 skill 目录尚未生成。 */
+/** Stderr-only marker for P1→P3 transition workflow contracts (skill dir not yet provisioned). */
 export const TRANSITION_PREFIX = "[transition]";
 
 export type WorkflowCheckRule =

@@ -50,7 +50,6 @@
         "resolution_plan",
         "defect_report_path",
         "conflict_resolution_plan_path",
-        "feature_id",
         "bug_record",
         "fix_scope",
         "hotfix_archive_path",

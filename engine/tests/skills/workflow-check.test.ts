@@ -55,6 +55,8 @@ describe("workflow check", () => {
   test("passes valid runtime workflow yaml", () => {
     const root = makeRoot();
     writeFile(root, ".claude/contracts/workflows/case-draft.yaml", VALID_YAML);
+    // 同步建出 skill 目录避免触发 [transition] stderr 警告
+    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
 
     const report = checkWorkflows(root);
     expect(report.passed).toBe(true);
@@ -81,6 +83,8 @@ describe("workflow check", () => {
       ".claude/contracts/workflows/bad.yaml",
       "name: bad\nversion: 1\nentry: /bad\ndescription: x\nsteps:\n  - id: a\n    next: [missing]\n    blackboard_inputs: []\n    blackboard_outputs: []\n    references: []\n    failure_modes: []\n    human_gates: []\n    verification: []\n",
     );
+    // 同步建出 skill 目录避免触发 [transition] stderr 警告
+    mkdirSync(join(root, ".claude/skills/bad"), { recursive: true });
 
     const report = checkWorkflows(root);
     expect(report.passed).toBe(false);
@@ -230,6 +234,8 @@ describe("workflow check", () => {
         v2: ["user_input", "source_refs"],
       }),
     );
+    // 同步建出 skill 目录，确保本用例只校验 v2-warn，不混入 [transition] 噪音
+    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
 
     const originalWrite = process.stderr.write.bind(process.stderr);
     const captured: string[] = [];
@@ -245,6 +251,7 @@ describe("workflow check", () => {
       expect(stderr).toContain(V2_WARN_PREFIX);
       expect(stderr).toContain("definitely_unknown_slot");
       expect(stderr).toContain("dispatch 'magical'");
+      expect(stderr).not.toContain(TRANSITION_PREFIX);
     } finally {
       process.stderr.write = originalWrite;
       resetSlotCache();
