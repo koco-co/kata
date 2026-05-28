@@ -8,7 +8,6 @@
 
 - Claude 与 Codex 同等优先；任一 runtime 下 skill 不可用，视为该 skill 整体不可用。
 - 修改 `.claude/**` 或 `.agents/**` 中任一 runtime 提示词、reference、script、workflow 或路由规则时，必须同步评估另一套 agent 架构中的对应提示词，并在需要时同步修改；若确认另一侧无需变更，提交说明必须写明具体理由。
-- 结构性例外写入 `.agents/contracts/runtime-sync-exceptions.yaml`。
 - 不要求两边文件逐字一致，但用户入口语义、交付产物清单、验证口径和证据底线必须一致。
 
 ## Codex Runtime 规则
@@ -36,7 +35,6 @@
 ### 无匹配回退
 
 - 无 skill 匹配的请求由 AI 自行处理，不强制套用 skill 路由。
-- 共同同步契约见 `.agents/contracts/runtime-skill-sync.md`。
 
 ## 命令索引
 

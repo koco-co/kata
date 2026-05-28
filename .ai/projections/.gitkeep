@@ -1,3 +1,0 @@
-# Non-runtime projection targets (cursor, windsurf, etc.)
-# Design: .ai/core/projections/ holds preview/export targets outside the runtime set.
-# Active runtimes (claude, codex) are under .ai/core/runtimes/.

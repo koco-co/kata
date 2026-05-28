@@ -1,6 +1,6 @@
 /**
  * Type contracts for diff-scan reports.
- * Source of truth: .ai/core/skills/diff-scan/skill.yaml.
+ * Source of truth: docs/skills/contracts/skill-graph.yaml and runtime SKILL.md files.
  */
 
 export const SCAN_REPORT_SCHEMA_VERSION = "1.0" as const;

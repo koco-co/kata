@@ -32,6 +32,15 @@ export interface Workflow {
   steps: WorkflowStep[];
 }
 
+const REQUIRED_STEP_ARRAY_FIELDS = [
+  "blackboard_inputs",
+  "blackboard_outputs",
+  "references",
+  "failure_modes",
+  "human_gates",
+  "verification",
+] as const;
+
 export function parseWorkflow(text: string): Workflow {
   const data = YAML.parse(text) as Partial<Workflow> | null;
   return {
@@ -69,6 +78,16 @@ export function validateWorkflow(workflow: Workflow): string[] {
   }
 
   for (const step of workflow.steps) {
+    for (const field of REQUIRED_STEP_ARRAY_FIELDS) {
+      if (!(field in step)) {
+        errors.push(`step '${step.id}' is missing required field: ${field}`);
+        continue;
+      }
+      if (!Array.isArray(step[field])) {
+        errors.push(`step '${step.id}' field '${field}' must be an array`);
+      }
+    }
+
     for (const next of step.next ?? []) {
       if (!ids.has(next)) {
         errors.push(`step '${step.id}' references unknown step id '${next}'`);

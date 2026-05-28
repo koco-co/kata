@@ -57,7 +57,7 @@ function isReposPath(path: string): boolean {
 }
 
 function isProtectedContractPath(path: string): boolean {
-  return /^\.ai\/core(?:\/|$)/i.test(path);
+  return /^docs\/skills\/contracts(?:\/|$)/i.test(path);
 }
 
 function matchesWorkspaceFeature(path: string): boolean {

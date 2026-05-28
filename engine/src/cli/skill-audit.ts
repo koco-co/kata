@@ -10,8 +10,10 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
+import { checkRoutes, formatRouteCheckReport } from "../skills/route-check.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
+import { checkSkillGraph, formatSkillGraphCheckReport } from "../skills/skill-graph-check.ts";
 import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
 
 export function buildSkillsCommand(): Command {
@@ -24,11 +26,20 @@ export function buildSkillsCommand(): Command {
       const root = repoRoot();
       const skillReport = checkRuntimeSkillSync(root);
       const detachReport = checkRuntimeDetach(root);
+      const routeReport = checkRoutes(root);
+      const graphReport = checkSkillGraph(root);
       const workflowReport = checkWorkflows(root);
-      const passed = skillReport.passed && detachReport.passed && workflowReport.passed;
+      const passed =
+        skillReport.passed &&
+        detachReport.passed &&
+        routeReport.passed &&
+        graphReport.passed &&
+        workflowReport.passed;
       const text = [
         formatRuntimeSkillSyncReport(skillReport, root),
         formatRuntimeDetachReport(detachReport, root),
+        formatRouteCheckReport(routeReport, root),
+        formatSkillGraphCheckReport(graphReport, root),
         formatWorkflowCheckReport(workflowReport, root),
       ].join("\n");
       if (passed) {

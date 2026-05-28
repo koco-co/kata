@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 describe("auditAgentRuntimeDrift", () => {
-  test("reports files missing from codex projection", () => {
+  test("reports files missing from codex runtime", () => {
     write(join(ROOT, ".claude/skills/foo/SKILL.md"), "claude\n");
     write(
       join(ROOT, ".agents/drift-policy.json"),

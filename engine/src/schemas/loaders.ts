@@ -12,7 +12,7 @@ const validatorCache = new Map<string, ValidateFunction>();
 function loadSchema(filename: string): ValidateFunction {
   const cached = validatorCache.get(filename);
   if (cached) return cached;
-  const path = join(repoRoot(), ".ai/core/schemas", filename);
+  const path = join(repoRoot(), "docs/skills/contracts/schemas", filename);
   const schema = JSON.parse(readFileSync(path, "utf-8"));
   const fn = ajv.compile(schema);
   validatorCache.set(filename, fn);

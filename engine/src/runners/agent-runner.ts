@@ -1,8 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
-import type { AiCoreIssue, AiCoreResult } from "../ai-core/types.ts";
 import { validateHandoffEnvelope } from "../policy/schema-guard.ts";
+import type { KataIssue, KataResult } from "../result-types.ts";
 import { isCanonicalSourceRef, validateSourceRefFreshness } from "../source-ref/resolvers.ts";
 
 const RUN_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
@@ -36,7 +36,7 @@ export type PatchOnlyAgentRecord = {
   stagedPatchPath: string;
 };
 
-function issue(code: string, message: string, path: string): AiCoreIssue {
+function issue(code: string, message: string, path: string): KataIssue {
   return { code, severity: "error", message, path };
 }
 
@@ -57,7 +57,7 @@ function isContainedPath(root: string, path: string): boolean {
   return rel === "" || (!rel.startsWith("..") && !rel.includes(`..${sep}`) && !isAbsolute(rel));
 }
 
-function resolveStagedPatchPath(stagingRoot: string, relativePath: string): AiCoreResult<string> {
+function resolveStagedPatchPath(stagingRoot: string, relativePath: string): KataResult<string> {
   const root = resolve(stagingRoot);
   const fullPath = resolve(root, relativePath);
   if (!isContainedPath(root, fullPath)) {
@@ -104,8 +104,8 @@ function sourceContentFor(
   return sourceContents?.[sourceRef] ?? sourceContents?.[sourceRefId(sourceRef)];
 }
 
-function validateSourceRefEvidence(input: PatchOnlyAgentInput): AiCoreIssue[] {
-  const issues: AiCoreIssue[] = [];
+function validateSourceRefEvidence(input: PatchOnlyAgentInput): KataIssue[] {
+  const issues: KataIssue[] = [];
 
   for (const sourceRef of input.sourceRefs) {
     const currentContent = sourceContentFor(sourceRef, input.sourceContents);
@@ -131,8 +131,8 @@ function validateSourceRefEvidence(input: PatchOnlyAgentInput): AiCoreIssue[] {
 
 export async function runPatchOnlyAgent(
   input: PatchOnlyAgentInput,
-): Promise<AiCoreResult<PatchOnlyAgentRecord>> {
-  const issues: AiCoreIssue[] = [];
+): Promise<KataResult<PatchOnlyAgentRecord>> {
+  const issues: KataIssue[] = [];
   const runId = input.runId ?? "local";
 
   if (!input.patch.startsWith("diff --git")) {

@@ -3,7 +3,7 @@ name: schema-check
 on:
   push:
     paths:
-      - '.ai/core/schemas/**'
+      - 'docs/skills/contracts/schemas/**'
       - 'engine/src/schemas/**'
 
 jobs:

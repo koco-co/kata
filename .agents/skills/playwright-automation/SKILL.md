@@ -12,19 +12,6 @@ description: 用户要求生成、修复、验证或运行 Playwright UI 自动�
 
 - 处理 UI 自动化的规划、真实页面探测、Playwright 生成、运行归因与修复闭环。
 
-## 输入
-
-- request (required, kind=file_or_text, schema=UiAutomationIntent@1)
-- project (optional, kind=workspace_id)
-- automation_intent (optional, kind=file, schema=AutomationIntent@1)
-
-## 调用图
-
-- 上游命令: /playwright-automation
-- 下游 workflow: playwright-automation@1
-- 下游 agents: playwright-automation-worker@1
-- 下游 prompts: playwright-automation-prompt@1
-
 ## 触发条件
 
 - 用户希望生成、修复、验证或运行 Playwright UI 自动化。
@@ -36,41 +23,6 @@ description: 用户要求生成、修复、验证或运行 Playwright UI 自动�
 - 用户只想手动操作浏览器而不生成或修复测试。
 - 用户只需要非 UI 的 QA 用例编写。
 - 用户只需要静态代码扫描。
-
-## 输出
-
-- plan
-- script
-- run
-- handoff
-- case_corrections
-
-## 允许的工具
-
-- read_file
-- write_artifact
-- ask_user
-- run_command
-
-## 上下文预算
-
-```yaml
-core_tokens: 1200
-reference_tokens: 8000
-evidence_tokens: 12000
-overflow_policy:
-  order:
-    - few_shots
-    - informative_references
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - source_refs
-    - self_run_evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
 
 ## 按需加载协议
 
@@ -97,24 +49,6 @@ overflow_policy:
 | ui-probe, playwright-generate, self-run, repair-loop | `step.id in [ui-probe, playwright-generate, self-run, repair-loop]` | references/spec-reviewer-prompt.md | 规范 | 阶段产物 spec 合规机械检查清单与输出 schema。 |
 | playwright-generate, repair-loop | `step.id in [playwright-generate, repair-loop]` | references/quality-reviewer-prompt.md | 规范 | 脚本内容质量审查（选择器、断言、复用度）。 |
 | case-feedback | `step.id == case-feedback` | references/case-feedback.md | 规范 | 生成 case-corrections.md 与 case-corrections-summary.json，覆盖 8 类 category、3 级 confidence、跨轮去重。 |
-
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: true
-- required_source_refs:
-  - ui.automation.intent@1
-  - ui.probe.snapshot@1
-  - self.run.result@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_environment: blocked_by_env
-- missing_probe_evidence: return_to_ui_probe
-- run_failed: enter_run_triage
-- repair_limit_reached: failed
-- unknown_failure: failed
 
 ## 硬规则
 

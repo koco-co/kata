@@ -6,15 +6,28 @@ import {
   findUnsupportedFrontmatterFields,
 } from "../../src/skills/frontmatter-policy.ts";
 
-const CURRENT_FIELDS = ["name", "description", "allowed-tools"];
+const CLAUDE_FIELDS = [
+  "name",
+  "description",
+  "allowed-tools",
+  "when_to_use",
+  "user-invocable",
+  "disable-model-invocation",
+  "model",
+  "effort",
+  "paths",
+  "context",
+  "agent",
+];
+const CODEX_FIELDS = ["name", "description", "allowed-tools"];
 
 describe("skill frontmatter policy", () => {
-  test("Claude skill frontmatter whitelist is the phase 1 field set", () => {
-    expect([...CLAUDE_SKILL_FRONTMATTER_FIELDS]).toEqual(CURRENT_FIELDS);
+  test("Claude skill frontmatter whitelist includes native skill fields", () => {
+    expect([...CLAUDE_SKILL_FRONTMATTER_FIELDS]).toEqual(CLAUDE_FIELDS);
   });
 
-  test("Codex skill frontmatter whitelist is the phase 1 field set", () => {
-    expect([...CODEX_SKILL_FRONTMATTER_FIELDS]).toEqual(CURRENT_FIELDS);
+  test("Codex skill frontmatter whitelist excludes Claude-only when_to_use", () => {
+    expect([...CODEX_SKILL_FRONTMATTER_FIELDS]).toEqual(CODEX_FIELDS);
   });
 
   test("flags Codex model as unsupported", () => {
@@ -27,17 +40,41 @@ describe("skill frontmatter policy", () => {
     ).toEqual(["model"]);
   });
 
-  test("flags Claude slash-command frontmatter fields as unsupported", () => {
+  test("flags unrecognized slash-command frontmatter fields as unsupported", () => {
     expect(
       findUnsupportedFrontmatterFields("claude", {
         name: "demo",
         description: "Demo skill",
         "argument-hint": "FILE",
         arguments: true,
-        "disable-model-invocation": true,
-        "user-invocable": true,
       }),
-    ).toEqual(["argument-hint", "arguments", "disable-model-invocation", "user-invocable"]);
+    ).toEqual(["argument-hint", "arguments"]);
+  });
+
+  test("allows user-invocable and disable-model-invocation in Claude SKILL.md", () => {
+    expect(
+      findUnsupportedFrontmatterFields("claude", {
+        name: "demo",
+        description: "Demo skill",
+        "user-invocable": true,
+        "disable-model-invocation": false,
+      }),
+    ).toEqual([]);
+  });
+
+  test("allows Claude runtime-native orchestration fields", () => {
+    expect(
+      findUnsupportedFrontmatterFields("claude", {
+        name: "demo",
+        description: "Demo skill",
+        when_to_use: "Before a task",
+        paths: ["workspace/**"],
+        model: "sonnet",
+        effort: "high",
+        context: "fork",
+        agent: "general-purpose",
+      }),
+    ).toEqual([]);
   });
 
   test("flags unconfirmed Claude frontmatter fields as unsupported", () => {
@@ -46,12 +83,26 @@ describe("skill frontmatter policy", () => {
         name: "demo",
         description: "Demo skill",
         when_to_use: "Before a task",
-        paths: ["references/example.md"],
-        model: "sonnet",
-        effort: "high",
         hooks: {},
       }),
-    ).toEqual(["effort", "hooks", "model", "paths", "when_to_use"]);
+    ).toEqual(["hooks"]);
+  });
+
+  test("allows Claude when_to_use but rejects it for Codex", () => {
+    expect(
+      findUnsupportedFrontmatterFields("claude", {
+        name: "demo",
+        description: "Demo skill",
+        when_to_use: "Use when the task needs this skill.",
+      }),
+    ).toEqual([]);
+    expect(
+      findUnsupportedFrontmatterFields("codex", {
+        name: "demo",
+        description: "Demo skill",
+        when_to_use: "Invalid on Codex.",
+      }),
+    ).toEqual(["when_to_use"]);
   });
 
   test("allows allowed-tools for both runtimes", () => {

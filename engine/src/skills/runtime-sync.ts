@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import matter from "gray-matter";
+import YAML from "yaml";
 
 import { findUnsupportedFrontmatterFields, type SkillRuntime } from "./frontmatter-policy.ts";
 
@@ -10,11 +11,19 @@ export type RuntimeSkillViolationRule =
   | "FRONTMATTER_PARSE_ERROR"
   | "SKILL_NAME_MISSING"
   | "SKILL_NAME_MISMATCH"
-  | "UNSUPPORTED_FRONTMATTER";
+  | "SKILL_DESCRIPTION_MISSING"
+  | "UNSUPPORTED_FRONTMATTER"
+  | "DECORATIVE_CONTRACT_SECTION"
+  | "CODEX_OPENAI_CONFIG_MISSING"
+  | "CODEX_OPENAI_CONFIG_PARSE_ERROR"
+  | "CODEX_OPENAI_CONFIG_INVALID"
+  | "RUNTIME_SYNC_EXCEPTION_MISSING"
+  | "RUNTIME_SYNC_EXCEPTION_PARSE_ERROR"
+  | "RUNTIME_SYNC_EXCEPTION_INVALID";
 
 export type RuntimeSkillViolation = {
   rule: RuntimeSkillViolationRule;
-  side: SkillRuntime;
+  side?: SkillRuntime;
   skill: string;
   path: string;
   message: string;
@@ -42,6 +51,8 @@ const RUNTIME_DIRS: Record<SkillRuntime, ".claude" | ".agents"> = {
   codex: ".agents",
 };
 
+const EXCEPTIONS_PATH = "docs/skills/contracts/runtime-sync-exceptions.yaml";
+
 const BLOCKED_REASON_PATTERNS = [
   /\buser\b/i,
   /\bsemantic/i,
@@ -59,11 +70,32 @@ const BLOCKED_REASON_PATTERNS = [
   /语义/,
 ];
 
+const DECORATIVE_CONTRACT_PATTERNS = [
+  /^## 输出$/m,
+  /^## 输入$/m,
+  /^## 允许的工具$/m,
+  /^## 上下文预算$/m,
+  /^## 调用图$/m,
+  /^## 证据策略$/m,
+  /^## 失败策略$/m,
+  /\bcore_tokens:/,
+  /\breference_tokens:/,
+  /\bevidence_tokens:/,
+  /\boverflow_policy:/,
+  /\bsource_refs_required:/,
+  /\bstale_ref_policy:/,
+  /下游 agents:/,
+  /下游 prompts:/,
+  /-worker@1/,
+  /-prompt@1/,
+] as const;
+
 export function checkRuntimeSkillSync(root: string): RuntimeSkillSyncReport {
   const violations: RuntimeSkillViolation[] = [];
+  const exceptions = readRuntimeSyncExceptions(root, violations);
   const records: Record<SkillRuntime, RuntimeSkillRecord[]> = {
-    claude: readRuntimeSkills(root, "claude", violations),
-    codex: readRuntimeSkills(root, "codex", violations),
+    claude: readRuntimeSkills(root, "claude", violations, exceptions),
+    codex: readRuntimeSkills(root, "codex", violations, exceptions),
   };
 
   const claudeNames = new Set(records.claude.map((record) => record.dirName));
@@ -100,13 +132,14 @@ function readRuntimeSkills(
   root: string,
   side: SkillRuntime,
   violations: RuntimeSkillViolation[],
+  exceptions: RuntimeSyncExceptionEntry[],
 ): RuntimeSkillRecord[] {
   const skillsRoot = join(root, RUNTIME_DIRS[side], "skills");
   if (!existsSync(skillsRoot)) return [];
 
   return readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .map((entry) => readRuntimeSkill(root, side, entry.name, violations));
+    .map((entry) => readRuntimeSkill(root, side, entry.name, violations, exceptions));
 }
 
 function readRuntimeSkill(
@@ -114,67 +147,354 @@ function readRuntimeSkill(
   side: SkillRuntime,
   dirName: string,
   violations: RuntimeSkillViolation[],
+  exceptions: RuntimeSyncExceptionEntry[],
 ): RuntimeSkillRecord {
   const skillPath = join(root, RUNTIME_DIRS[side], "skills", dirName, "SKILL.md");
   const displayPath = relative(root, skillPath);
   const record = { dirName };
 
   if (!existsSync(skillPath)) {
-    violations.push({
-      rule: "SKILL_MD_MISSING",
+    pushRuntimeViolation(
+      violations,
+      "SKILL_MD_MISSING",
       side,
-      skill: dirName,
-      path: displayPath,
-      message: "SKILL.md is missing",
-    });
+      dirName,
+      displayPath,
+      "SKILL.md is missing",
+    );
     return record;
   }
 
-  let parsed: matter.GrayMatterFile<string>;
-  try {
-    parsed = matter(readFileSync(skillPath, "utf8"));
-  } catch (error) {
-    violations.push({
-      rule: "FRONTMATTER_PARSE_ERROR",
-      side,
-      skill: dirName,
-      path: displayPath,
-      message: `frontmatter parse failed: ${error instanceof Error ? error.message : String(error)}`,
-    });
-    return record;
-  }
+  const parsed = readSkillFrontmatter(skillPath, side, dirName, displayPath, violations);
+  if (!parsed) return record;
 
-  const frontmatterName = parsed.data.name;
-  if (typeof frontmatterName !== "string" || frontmatterName.trim() === "") {
-    violations.push({
-      rule: "SKILL_NAME_MISSING",
-      side,
-      skill: dirName,
-      path: displayPath,
-      message: "frontmatter name is required",
-    });
-  } else if (frontmatterName !== dirName) {
-    violations.push({
-      rule: "SKILL_NAME_MISMATCH",
-      side,
-      skill: dirName,
-      path: displayPath,
-      message: `frontmatter name ${frontmatterName} does not match skill directory ${dirName}`,
-    });
-  }
-
-  const unsupportedFields = findUnsupportedFrontmatterFields(side, parsed.data);
-  if (unsupportedFields.length > 0) {
-    violations.push({
-      rule: "UNSUPPORTED_FRONTMATTER",
-      side,
-      skill: dirName,
-      path: displayPath,
-      message: `unsupported frontmatter fields: ${unsupportedFields.join(", ")}`,
-    });
-  }
-
+  validateSkillFrontmatter(side, dirName, displayPath, parsed, violations);
+  validateNoDecorativeContractSections(side, dirName, displayPath, parsed.content, violations);
+  if (side === "codex") checkCodexOpenAiConfig(root, dirName, violations, exceptions);
   return record;
+}
+
+function readSkillFrontmatter(
+  skillPath: string,
+  side: SkillRuntime,
+  dirName: string,
+  displayPath: string,
+  violations: RuntimeSkillViolation[],
+): matter.GrayMatterFile<string> | undefined {
+  try {
+    return matter(readFileSync(skillPath, "utf8"));
+  } catch (error) {
+    pushRuntimeViolation(
+      violations,
+      "FRONTMATTER_PARSE_ERROR",
+      side,
+      dirName,
+      displayPath,
+      `frontmatter parse failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+function validateSkillFrontmatter(
+  side: SkillRuntime,
+  dirName: string,
+  displayPath: string,
+  parsed: matter.GrayMatterFile<string>,
+  violations: RuntimeSkillViolation[],
+): void {
+  validateSkillName(side, dirName, displayPath, parsed.data.name, violations);
+  validateSkillDescription(side, dirName, displayPath, parsed.data.description, violations);
+  validateSupportedFrontmatterFields(side, dirName, displayPath, parsed.data, violations);
+}
+
+function validateSkillName(
+  side: SkillRuntime,
+  dirName: string,
+  displayPath: string,
+  frontmatterName: unknown,
+  violations: RuntimeSkillViolation[],
+): void {
+  if (typeof frontmatterName !== "string" || frontmatterName.trim() === "") {
+    pushRuntimeViolation(
+      violations,
+      "SKILL_NAME_MISSING",
+      side,
+      dirName,
+      displayPath,
+      "frontmatter name is required",
+    );
+  } else if (frontmatterName !== dirName) {
+    pushRuntimeViolation(
+      violations,
+      "SKILL_NAME_MISMATCH",
+      side,
+      dirName,
+      displayPath,
+      `frontmatter name ${frontmatterName} does not match skill directory ${dirName}`,
+    );
+  }
+}
+
+function validateSkillDescription(
+  side: SkillRuntime,
+  dirName: string,
+  displayPath: string,
+  frontmatterDescription: unknown,
+  violations: RuntimeSkillViolation[],
+): void {
+  if (typeof frontmatterDescription !== "string" || frontmatterDescription.trim() === "") {
+    pushRuntimeViolation(
+      violations,
+      "SKILL_DESCRIPTION_MISSING",
+      side,
+      dirName,
+      displayPath,
+      "frontmatter description is required",
+    );
+  }
+}
+
+function validateSupportedFrontmatterFields(
+  side: SkillRuntime,
+  dirName: string,
+  displayPath: string,
+  data: Record<string, unknown>,
+  violations: RuntimeSkillViolation[],
+): void {
+  const unsupportedFields = findUnsupportedFrontmatterFields(side, data);
+  if (unsupportedFields.length > 0) {
+    pushRuntimeViolation(
+      violations,
+      "UNSUPPORTED_FRONTMATTER",
+      side,
+      dirName,
+      displayPath,
+      `unsupported frontmatter fields: ${unsupportedFields.join(", ")}`,
+    );
+  }
+}
+
+function validateNoDecorativeContractSections(
+  side: SkillRuntime,
+  dirName: string,
+  displayPath: string,
+  content: string,
+  violations: RuntimeSkillViolation[],
+): void {
+  const matched = DECORATIVE_CONTRACT_PATTERNS.find((pattern) => pattern.test(content));
+  if (!matched) return;
+
+  pushRuntimeViolation(
+    violations,
+    "DECORATIVE_CONTRACT_SECTION",
+    side,
+    dirName,
+    displayPath,
+    `SKILL.md still contains decorative contract text (${String(matched)}); move enforceable rules to workflow, blackboard, references, or runtime-native config`,
+  );
+}
+
+function checkCodexOpenAiConfig(
+  root: string,
+  dirName: string,
+  violations: RuntimeSkillViolation[],
+  exceptions: RuntimeSyncExceptionEntry[],
+): void {
+  const configPath = join(root, ".agents", "skills", dirName, "agents", "openai.yaml");
+  const displayPath = relative(root, configPath);
+  if (hasRuntimeSyncException(exceptions, dirName, "codex", displayPath)) return;
+
+  if (!existsSync(configPath)) {
+    pushRuntimeViolation(
+      violations,
+      "CODEX_OPENAI_CONFIG_MISSING",
+      "codex",
+      dirName,
+      displayPath,
+      "Codex agents/openai.yaml is required",
+    );
+    return;
+  }
+
+  const parsed = readCodexOpenAiConfig(configPath, dirName, displayPath, violations);
+  if (parsed === undefined) return;
+
+  validateCodexOpenAiPolicy(parsed, dirName, displayPath, violations);
+}
+
+function readCodexOpenAiConfig(
+  configPath: string,
+  dirName: string,
+  displayPath: string,
+  violations: RuntimeSkillViolation[],
+): unknown {
+  try {
+    return YAML.parse(readFileSync(configPath, "utf8"));
+  } catch (error) {
+    pushRuntimeViolation(
+      violations,
+      "CODEX_OPENAI_CONFIG_PARSE_ERROR",
+      "codex",
+      dirName,
+      displayPath,
+      `failed to parse openai.yaml: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+function validateCodexOpenAiPolicy(
+  parsed: unknown,
+  dirName: string,
+  displayPath: string,
+  violations: RuntimeSkillViolation[],
+): void {
+  const policy =
+    parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as { policy?: unknown }).policy
+      : undefined;
+  const allowImplicitInvocation =
+    policy && typeof policy === "object" && !Array.isArray(policy)
+      ? (policy as { allow_implicit_invocation?: unknown }).allow_implicit_invocation
+      : undefined;
+
+  if (typeof allowImplicitInvocation !== "boolean") {
+    pushRuntimeViolation(
+      violations,
+      "CODEX_OPENAI_CONFIG_INVALID",
+      "codex",
+      dirName,
+      displayPath,
+      "policy.allow_implicit_invocation must be a boolean",
+    );
+  }
+}
+
+function readRuntimeSyncExceptions(
+  root: string,
+  violations: RuntimeSkillViolation[],
+): RuntimeSyncExceptionEntry[] {
+  const path = join(root, EXCEPTIONS_PATH);
+  if (!existsSync(path)) {
+    pushRuntimeViolation(
+      violations,
+      "RUNTIME_SYNC_EXCEPTION_MISSING",
+      undefined,
+      "*",
+      EXCEPTIONS_PATH,
+      "runtime sync exceptions file is required",
+    );
+    return [];
+  }
+
+  const displayPath = relative(root, path);
+  const parsed = readRuntimeSyncExceptionYaml(path, displayPath, violations);
+  if (parsed === undefined) return [];
+
+  const exceptions = readRuntimeSyncExceptionArray(parsed, displayPath, violations);
+  if (!exceptions) return [];
+
+  return collectValidRuntimeSyncExceptions(exceptions, displayPath, violations);
+}
+
+function readRuntimeSyncExceptionYaml(
+  path: string,
+  displayPath: string,
+  violations: RuntimeSkillViolation[],
+): unknown {
+  try {
+    return YAML.parse(readFileSync(path, "utf8"));
+  } catch (error) {
+    pushRuntimeViolation(
+      violations,
+      "RUNTIME_SYNC_EXCEPTION_PARSE_ERROR",
+      undefined,
+      "*",
+      displayPath,
+      `failed to parse runtime sync exceptions: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+}
+
+function readRuntimeSyncExceptionArray(
+  parsed: unknown,
+  displayPath: string,
+  violations: RuntimeSkillViolation[],
+): unknown[] | undefined {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    pushRuntimeViolation(
+      violations,
+      "RUNTIME_SYNC_EXCEPTION_INVALID",
+      undefined,
+      "*",
+      displayPath,
+      "exceptions file must be an object",
+    );
+    return;
+  }
+
+  const exceptions = (parsed as { exceptions?: unknown }).exceptions;
+  if (Array.isArray(exceptions)) return exceptions;
+
+  pushRuntimeViolation(
+    violations,
+    "RUNTIME_SYNC_EXCEPTION_INVALID",
+    undefined,
+    "*",
+    displayPath,
+    "exceptions must be an array",
+  );
+}
+
+function collectValidRuntimeSyncExceptions(
+  exceptions: unknown[],
+  displayPath: string,
+  violations: RuntimeSkillViolation[],
+): RuntimeSyncExceptionEntry[] {
+  const validEntries: RuntimeSyncExceptionEntry[] = [];
+  exceptions.forEach((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      pushRuntimeViolation(
+        violations,
+        "RUNTIME_SYNC_EXCEPTION_INVALID",
+        undefined,
+        "*",
+        displayPath,
+        `exceptions[${index}] must be an object`,
+      );
+      return;
+    }
+
+    const candidate = entry as Partial<Record<keyof RuntimeSyncExceptionEntry, unknown>>;
+    const errors = validateExceptionEntry(candidate);
+    for (const error of errors) {
+      pushRuntimeViolation(
+        violations,
+        "RUNTIME_SYNC_EXCEPTION_INVALID",
+        undefined,
+        String((entry as { skill?: unknown }).skill ?? "*"),
+        displayPath,
+        `exceptions[${index}] ${error}`,
+      );
+    }
+    if (errors.length === 0) {
+      validEntries.push(candidate as RuntimeSyncExceptionEntry);
+    }
+  });
+
+  return validEntries;
+}
+
+function pushRuntimeViolation(
+  violations: RuntimeSkillViolation[],
+  rule: RuntimeSkillViolationRule,
+  side: SkillRuntime | undefined,
+  skill: string,
+  path: string,
+  message: string,
+): void {
+  violations.push({ rule, side, skill, path, message });
 }
 
 // Exported now so Phase 2 can wire exception validation into the repository check.
@@ -209,6 +529,17 @@ export function validateExceptionEntry(
 
 function isPresentString(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== "";
+}
+
+function hasRuntimeSyncException(
+  exceptions: RuntimeSyncExceptionEntry[],
+  skill: string,
+  side: SkillRuntime,
+  file: string,
+): boolean {
+  return exceptions.some(
+    (entry) => entry.skill === skill && entry.side === side && entry.file === file,
+  );
 }
 
 export function formatRuntimeSkillSyncReport(report: RuntimeSkillSyncReport, root: string): string {

@@ -1,4 +1,0 @@
-id: diff-scan
-skill: diff-scan@1
-user_invocable: true
-summary: 扫描代码 diff 发现可复现的缺陷。

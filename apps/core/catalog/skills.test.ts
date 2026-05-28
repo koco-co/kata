@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { listSkills, listSkillsFromRoot } from "./skills.ts";
 
-function writeSkill(root: string, dir: string, yaml: string): void {
+function writeSkill(root: string, dir: string, frontmatter: string): void {
   const skillDir = join(root, dir);
   mkdirSync(skillDir, { recursive: true });
-  writeFileSync(join(skillDir, "skill.yaml"), yaml);
+  writeFileSync(join(skillDir, "SKILL.md"), `---\n${frontmatter}\n---\n\n# ${dir}\n`);
 }
 
 function fixtureRoot(): string {
@@ -29,55 +29,53 @@ test("listSkills parses case-draft inputs/outputs without throwing on backtick s
   expect(draft?.id).toBe("case-draft");
   expect(draft?.name).toBe("case-draft");
   expect(draft?.status).toBe("active");
-  expect(draft?.kind).toBe("product-skill");
+  expect(draft?.kind).toBe("runtime-skill");
   expect(draft?.summary?.length).toBeGreaterThan(0);
-  expect(draft?.inputs).toContain("prd");
-  expect(draft?.inputs).toContain("project");
-  expect(draft?.outputs).toContain("archive.md");
-  expect(draft?.outputs).toContain("cases.xmind");
+  expect(draft?.inputs).toContain("prd-source");
+  expect(draft?.inputs).toContain("user-input");
+  expect(draft?.outputs).toContain("archive-md");
+  expect(draft?.outputs).toContain("xmind");
   expect(draft?.mustTriggerWhen.length).toBeGreaterThan(0);
   expect(draft?.mustNotTriggerWhen.length).toBeGreaterThan(0);
 });
 
-test("listSkillsFromRoot rejects duplicate normalized skill ids", () => {
+test("listSkillsFromRoot parses fixture runtime skills sorted by id", () => {
   const root = fixtureRoot();
-  writeSkill(root, "foo-v1", "id: foo@1\nname: foo\n");
-  writeSkill(root, "foo-v2", "id: foo@2\nname: foo v2\n");
+  writeSkill(root, "beta", "name: beta\ndescription: Beta skill\n");
+  writeSkill(root, "alpha", "name: alpha\ndescription: Alpha skill\n");
 
-  expect(() => listSkillsFromRoot(root)).toThrow(/duplicate skill id/i);
+  expect(listSkillsFromRoot(root).map((skill) => skill.id)).toEqual(["alpha", "beta"]);
 });
 
-test("listSkillsFromRoot rejects skills with missing ids", () => {
+test("listSkillsFromRoot rejects skills without SKILL.md frontmatter", () => {
   const root = fixtureRoot();
-  writeSkill(root, "missing-id", "name: missing-id\n");
+  const skillDir = join(root, "missing-frontmatter");
+  mkdirSync(skillDir, { recursive: true });
+  writeFileSync(join(skillDir, "SKILL.md"), "# missing-frontmatter\n");
 
-  expect(() => listSkillsFromRoot(root)).toThrow(/skill id/i);
+  expect(() => listSkillsFromRoot(root)).toThrow(/frontmatter/i);
 });
 
 test("listSkillsFromRoot rejects skills with missing or empty names", () => {
   const missingRoot = fixtureRoot();
-  writeSkill(missingRoot, "missing-name", "id: missing-name@1\n");
+  writeSkill(missingRoot, "missing-name", "description: missing name\n");
   expect(() => listSkillsFromRoot(missingRoot)).toThrow(/skill name/i);
 
   const emptyRoot = fixtureRoot();
-  writeSkill(emptyRoot, "empty-name", 'id: empty-name@1\nname: ""\n');
+  writeSkill(emptyRoot, "empty-name", 'name: ""\n');
   expect(() => listSkillsFromRoot(emptyRoot)).toThrow(/skill name/i);
 });
 
-test("listSkillsFromRoot rejects parser errors with skill path context", () => {
+test("listSkillsFromRoot rejects parser errors with SKILL.md path context", () => {
   const root = fixtureRoot();
-  writeSkill(root, "malformed", "id: malformed@1\nname: malformed\noutputs: [archive.md\n");
+  writeSkill(root, "malformed", "name: [malformed\n");
 
-  expect(() => listSkillsFromRoot(root)).toThrow(/skill\.yaml/);
+  expect(() => listSkillsFromRoot(root)).toThrow(/SKILL\.md/);
 });
 
-test("listSkillsFromRoot rejects body hard_rules scalar parser errors in fixture roots", () => {
+test("listSkillsFromRoot rejects names that do not match skill directories", () => {
   const root = fixtureRoot();
-  writeSkill(
-    root,
-    "hard-rules",
-    "id: hard-rules@1\nname: hard-rules\nbody:\n  always_load:\n    hard_rules:\n      - `bad`\n",
-  );
+  writeSkill(root, "name-mismatch", "name: another-name\n");
 
-  expect(() => listSkillsFromRoot(root)).toThrow(/skill\.yaml/);
+  expect(() => listSkillsFromRoot(root)).toThrow(/match directory/i);
 });

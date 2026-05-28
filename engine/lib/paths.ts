@@ -251,8 +251,8 @@ export function pluginsDir(): string {
   return resolve(repoRoot(), "plugins");
 }
 
-export function aiCorePluginsDir(): string {
-  return resolve(repoRoot(), ".ai/core/plugins");
+export function contractPluginsDir(): string {
+  return resolve(repoRoot(), "docs/skills/contracts/plugins");
 }
 
 export function templatesDir(): string {

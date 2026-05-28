@@ -1,8 +1,0 @@
-{
-  "inputs": [
-    {
-      "text": "扫描这个 MR 的代码修改找隐患",
-      "expected_skill_id": "diff-scan@1"
-    }
-  ]
-}

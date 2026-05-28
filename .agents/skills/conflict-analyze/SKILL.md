@@ -12,18 +12,6 @@ description: 用户提供合并冲突标记并要求分析冲突或给出解决�
 
 - 剖析合并冲突——先陈述双方意图，再给出解决方案。
 
-## 输入
-
-- conflict (required, kind=file_or_text)
-- project (optional, kind=workspace_id)
-
-## 调用图
-
-- 上游命令: /conflict-analyze
-- 下游 workflow: conflict-analyze@1
-- 下游 agents: conflict-analyze-worker@1
-- 下游 prompts: conflict-analyze-prompt@1
-
 ## 触发条件
 
 - 用户给出带有合并冲突标记的文本。
@@ -34,36 +22,6 @@ description: 用户提供合并冲突标记并要求分析冲突或给出解决�
 - 用户要求报告运行时 bug，但内容并不含冲突标记。
 - 用户要求依需求生成新的 QA 用例。
 
-## 输出
-
-- verdict
-- remedy
-
-## 允许的工具
-
-- read_file
-- write_artifact
-- ask_user
-
-## 上下文预算
-
-```yaml
-core_tokens: 900
-reference_tokens: 5000
-evidence_tokens: 8000
-overflow_policy:
-  order:
-    - informative_references
-    - few_shots
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
-
 ## 按需加载协议
 
 - 默认只读取当前 SKILL.md。
@@ -72,19 +30,6 @@ overflow_policy:
 - 没有命中的 reference 不得读取；few-shot 只可作为格式参考，不得作为领域事实证据。
 
 无外部参考；仅使用当前 SKILL.md 与任务证据。
-
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: false
-- required_source_refs:
-  - conflict.diff@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_conflict_markers: ask_for_file_path
-- unsafe_resolution: produce_pending_items
 
 ## 硬规则
 

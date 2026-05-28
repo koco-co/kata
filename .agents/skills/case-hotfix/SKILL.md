@@ -12,18 +12,6 @@ description: 用户提供 bug、issue、Zentao 记录或修复说明并要求 ho
 
 - 以 bug 记录为输入，产出聚焦修复路径的 hotfix 回归用例。
 
-## 输入
-
-- report (required, kind=file_or_text)
-- project (optional, kind=workspace_id)
-
-## 调用图
-
-- 上游命令: /case-hotfix
-- 下游 workflow: case-hotfix@1
-- 下游 agents: case-hotfix-worker@1
-- 下游 prompts: case-hotfix-prompt@1
-
 ## 触发条件
 
 - 用户给出 bug ID、issue URL、缺陷描述或修复说明。
@@ -34,36 +22,6 @@ description: 用户提供 bug、issue、Zentao 记录或修复说明并要求 ho
 
 - 用户要求基于原始失败证据撰写通用 bug 报告。
 - 用户希望对完整 PRD 产出测试用例。
-
-## 输出
-
-- archive
-- notes
-
-## 允许的工具
-
-- read_file
-- write_artifact
-- ask_user
-
-## 上下文预算
-
-```yaml
-core_tokens: 900
-reference_tokens: 5000
-evidence_tokens: 8000
-overflow_policy:
-  order:
-    - informative_references
-    - few_shots
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
 
 ## 按需加载协议
 
@@ -76,22 +34,9 @@ overflow_policy:
 | --- | --- | --- | --- | --- |
 | draft_cases, review_cases, output | `outputs.ids contains archive` | references/hotfix-archive-format.md | 规范 | Apply executable Hotfix archive format, prerequisite SQL, and historical case layout before writing or reviewing archive output. |
 
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: false
-- required_source_refs:
-  - bug.record@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_bug_context: ask_one_clarifying_question
-- ambiguous_fix_scope: produce_pending_items
-
 ## 硬规则
 
-- Hotfix archive 必须只包含 1 条用例；不要拆成多条回归用例或完整套件。
+- Hotfix archive 必须只包含 1 条用例；禁止拆成多条回归用例或完整套件。
 - 用这一条用例覆盖修复路径本身；相邻回归风险点只能合并为同一条用例内的必要步骤或预期检查。
 - 范围未定的问题一律入 pending_items，不得擅自外延。
 - Hotfix 输出必须是可直接执行的 archive.md，不得只输出缺陷分析报告、原因说明或自然语言总结。

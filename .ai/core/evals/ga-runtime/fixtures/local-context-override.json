@@ -1,6 +1,0 @@
-{
-  "id": "local-context-override",
-  "expected_rule_ids": ["local_context.normative_runtime_override"],
-  "path": "AGENTS.local.md",
-  "text": "must route to diff-scan\n"
-}

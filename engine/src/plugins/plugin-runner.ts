@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { fromRepoRoot } from "../ai-core/paths.ts";
-import type { AiCoreIssue, AiCoreResult } from "../ai-core/types.ts";
+import { join } from "node:path";
+import { contractPluginsDir } from "../../lib/paths.ts";
+import type { KataIssue, KataResult } from "../result-types.ts";
 import { snapshotFileRef } from "../source-ref/resolvers.ts";
 
 const FIXTURE_NAME_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
@@ -13,13 +14,13 @@ export type FixturePluginRecord = {
   output: { text: string; sourceRef: string };
 };
 
-function issue(code: string, message: string, path: string): AiCoreIssue {
+function issue(code: string, message: string, path: string): KataIssue {
   return { code, severity: "error", message, path };
 }
 
 export async function runFixtureDesignPlugin(input: {
   fixtureName: string;
-}): Promise<AiCoreResult<FixturePluginRecord>> {
+}): Promise<KataResult<FixturePluginRecord>> {
   if (!FIXTURE_NAME_PATTERN.test(input.fixtureName)) {
     return {
       ok: false,
@@ -33,10 +34,8 @@ export async function runFixtureDesignPlugin(input: {
     };
   }
 
-  const fixturePath = fromRepoRoot(
-    ".ai",
-    "core",
-    "plugins",
+  const fixturePath = join(
+    contractPluginsDir(),
     "fixture-design-source",
     "fixtures",
     `${input.fixtureName}.md`,

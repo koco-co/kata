@@ -12,18 +12,6 @@ description: 用户询问 kata 功能菜单、命令帮助，或要求创建、�
 
 - 统管 kata 项目工作区，确保产物落入预期位置。
 
-## 输入
-
-- project (optional, kind=workspace_id)
-- request (required, kind=request)
-
-## 调用图
-
-- 上游命令: /workspace-manage
-- 下游 workflow: workspace-manage@1
-- 下游 agents: workspace-manage-worker@1
-- 下游 prompts: workspace-manage-prompt@1
-
 ## 触发条件
 
 - 用户询问 kata 的能力、功能菜单、帮助内容或命令列表。
@@ -33,36 +21,6 @@ description: 用户询问 kata 功能菜单、命令帮助，或要求创建、�
 
 - 用户希望生成 QA 测试用例，或编辑已有用例。
 - 用户希望维护项目知识、扫描代码变更，或做 UI 自动化。
-
-## 输出
-
-- menu
-- workspace
-
-## 允许的工具
-
-- read_file
-- write_artifact
-- ask_user
-
-## 上下文预算
-
-```yaml
-core_tokens: 900
-reference_tokens: 5000
-evidence_tokens: 8000
-overflow_policy:
-  order:
-    - informative_references
-    - few_shots
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
 
 ## 按需加载协议
 
@@ -74,19 +32,6 @@ overflow_policy:
 | 阶段 | 条件 | 文件 | 类型 | 用途 |
 | --- | --- | --- | --- | --- |
 | inspect_workspace, plan_change, stage_workspace_update, verify_workspace | `step.id in [inspect_workspace, plan_change, stage_workspace_update, verify_workspace] and outputs.ids contains workspace` | references/project-layout.md | 规范 | 自检、创建或修复工作区时，先厘清目录边界与写入位置。 |
-
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: true
-- required_source_refs:
-  - workspace.config@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_project: ask_one_clarifying_question
-- unsafe_workspace_path: refuse
 
 ## 硬规则
 

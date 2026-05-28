@@ -7,7 +7,8 @@ export type WorkflowCheckRule =
   | "WORKFLOW_SCHEMA_ERROR"
   | "WORKFLOW_REVIEW_MISSING"
   | "WORKFLOW_REVIEW_CANONICAL_MISSING"
-  | "WORKFLOW_REVIEW_STEP_MISMATCH";
+  | "WORKFLOW_REVIEW_STEP_MISMATCH"
+  | "WORKFLOW_REVIEW_DETAIL_MISSING";
 
 export interface WorkflowCheckViolation {
   rule: WorkflowCheckRule;
@@ -30,62 +31,132 @@ export function checkWorkflows(root: string): WorkflowCheckReport {
 
   for (const entry of readdirSync(yamlDir, { withFileTypes: true })) {
     if (!entry.isFile() || !entry.name.endsWith(".yaml")) continue;
-    const yamlPath = join(yamlDir, entry.name);
-    const reviewPath = join(root, WORKFLOWS_REVIEW_DIR, entry.name.replace(/\.yaml$/, ".md"));
-
-    let workflow: Workflow;
-    try {
-      workflow = parseWorkflow(readFileSync(yamlPath, "utf8"));
-    } catch (error) {
-      violations.push({
-        rule: "WORKFLOW_PARSE_ERROR",
-        path: yamlPath,
-        message: `failed to parse workflow yaml: ${(error as Error).message}`,
-      });
-      continue;
-    }
-
-    for (const schemaError of validateWorkflow(workflow)) {
-      violations.push({
-        rule: "WORKFLOW_SCHEMA_ERROR",
-        path: yamlPath,
-        message: schemaError,
-      });
-    }
-
-    if (!existsSync(reviewPath)) {
-      violations.push({
-        rule: "WORKFLOW_REVIEW_MISSING",
-        path: reviewPath,
-        message: `review document is required for workflow '${workflow.name}'.`,
-      });
-      continue;
-    }
-
-    const reviewText = readFileSync(reviewPath, "utf8");
-    const canonicalRef = `docs/skills/contracts/workflows/${entry.name}`;
-    if (!reviewText.includes(canonicalRef)) {
-      violations.push({
-        rule: "WORKFLOW_REVIEW_CANONICAL_MISSING",
-        path: reviewPath,
-        message: `review document must reference canonical source '${canonicalRef}'.`,
-      });
-    }
-
-    const yamlIds = workflow.steps.map((step) => step.id);
-    const reviewIds = extractReviewStepIds(reviewText);
-    const sortedYaml = [...yamlIds].sort().join(",");
-    const sortedReview = [...reviewIds].sort().join(",");
-    if (sortedYaml !== sortedReview) {
-      violations.push({
-        rule: "WORKFLOW_REVIEW_STEP_MISMATCH",
-        path: reviewPath,
-        message: `review steps [${sortedReview}] do not match yaml steps [${sortedYaml}].`,
-      });
-    }
+    checkWorkflowFile(root, yamlDir, entry.name, violations);
   }
 
   return { passed: violations.length === 0, violations };
+}
+
+function checkWorkflowFile(
+  root: string,
+  yamlDir: string,
+  fileName: string,
+  violations: WorkflowCheckViolation[],
+): void {
+  const yamlPath = join(yamlDir, fileName);
+  const reviewPath = join(root, WORKFLOWS_REVIEW_DIR, fileName.replace(/\.yaml$/, ".md"));
+  const workflow = readWorkflowYaml(yamlPath, violations);
+  if (!workflow) return;
+
+  validateWorkflowSchema(workflow, yamlPath, violations);
+  validateWorkflowReview(fileName, workflow, reviewPath, violations);
+}
+
+function readWorkflowYaml(
+  yamlPath: string,
+  violations: WorkflowCheckViolation[],
+): Workflow | undefined {
+  try {
+    return parseWorkflow(readFileSync(yamlPath, "utf8"));
+  } catch (error) {
+    pushWorkflowViolation(
+      violations,
+      "WORKFLOW_PARSE_ERROR",
+      yamlPath,
+      `failed to parse workflow yaml: ${(error as Error).message}`,
+    );
+  }
+}
+
+function validateWorkflowSchema(
+  workflow: Workflow,
+  yamlPath: string,
+  violations: WorkflowCheckViolation[],
+): void {
+  for (const schemaError of validateWorkflow(workflow)) {
+    pushWorkflowViolation(violations, "WORKFLOW_SCHEMA_ERROR", yamlPath, schemaError);
+  }
+}
+
+function validateWorkflowReview(
+  fileName: string,
+  workflow: Workflow,
+  reviewPath: string,
+  violations: WorkflowCheckViolation[],
+): void {
+  if (!existsSync(reviewPath)) {
+    pushWorkflowViolation(
+      violations,
+      "WORKFLOW_REVIEW_MISSING",
+      reviewPath,
+      `review document is required for workflow '${workflow.name}'.`,
+    );
+    return;
+  }
+
+  const reviewText = readFileSync(reviewPath, "utf8");
+  validateWorkflowReviewCanonical(fileName, reviewPath, reviewText, violations);
+  validateWorkflowReviewSteps(workflow, reviewPath, reviewText, violations);
+  validateWorkflowReviewDetails(workflow, reviewPath, reviewText, violations);
+}
+
+function validateWorkflowReviewCanonical(
+  fileName: string,
+  reviewPath: string,
+  reviewText: string,
+  violations: WorkflowCheckViolation[],
+): void {
+  const canonicalRef = `docs/skills/contracts/workflows/${fileName}`;
+  if (reviewText.includes(canonicalRef)) return;
+  pushWorkflowViolation(
+    violations,
+    "WORKFLOW_REVIEW_CANONICAL_MISSING",
+    reviewPath,
+    `review document must reference canonical source '${canonicalRef}'.`,
+  );
+}
+
+function validateWorkflowReviewSteps(
+  workflow: Workflow,
+  reviewPath: string,
+  reviewText: string,
+  violations: WorkflowCheckViolation[],
+): void {
+  const yamlIds = workflow.steps.map((step) => step.id);
+  const reviewIds = extractReviewStepIds(reviewText);
+  if (yamlIds.join(",") === reviewIds.join(",")) return;
+  pushWorkflowViolation(
+    violations,
+    "WORKFLOW_REVIEW_STEP_MISMATCH",
+    reviewPath,
+    `review steps [${reviewIds.join(",")}] do not match yaml steps [${yamlIds.join(",")}].`,
+  );
+}
+
+function validateWorkflowReviewDetails(
+  workflow: Workflow,
+  reviewPath: string,
+  reviewText: string,
+  violations: WorkflowCheckViolation[],
+): void {
+  for (const detail of collectReviewRequiredDetails(workflow)) {
+    if (reviewText.includes(detail)) continue;
+    pushWorkflowViolation(
+      violations,
+      "WORKFLOW_REVIEW_DETAIL_MISSING",
+      reviewPath,
+      `review document must mention yaml detail '${detail}'.`,
+    );
+  }
+}
+
+function collectReviewRequiredDetails(workflow: Workflow): string[] {
+  const details = new Set<string>();
+  for (const step of workflow.steps) {
+    for (const mode of step.failure_modes ?? []) details.add(mode);
+    for (const gate of step.human_gates ?? []) details.add(gate);
+  }
+  return [...details].sort();
 }
 
 function extractReviewStepIds(reviewText: string): string[] {
@@ -103,6 +174,15 @@ function extractReviewStepIds(reviewText: string): string[] {
     }
   }
   return ids;
+}
+
+function pushWorkflowViolation(
+  violations: WorkflowCheckViolation[],
+  rule: WorkflowCheckRule,
+  path: string,
+  message: string,
+): void {
+  violations.push({ rule, path, message });
 }
 
 export function formatWorkflowCheckReport(report: WorkflowCheckReport, root: string): string {

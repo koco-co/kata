@@ -1,13 +1,13 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Kata-4.0_AI_Core-2563EB?style=for-the-badge">
-  <img alt="Kata 4.0 AI Core" src="https://img.shields.io/badge/Kata-4.0_AI_Core-2563EB?style=for-the-badge">
+  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Kata-4.0_Runtime-2563EB?style=for-the-badge">
+  <img alt="Kata 4.0 Runtime" src="https://img.shields.io/badge/Kata-4.0_Runtime-2563EB?style=for-the-badge">
 </picture>
 
 # Kata
 
-### AI Core driven QA workflows and coding-agent runtimes
+### SKILL + Router + Graph + Workflow + Blackboard driven QA runtimes
 
 Kata turns QA work into auditable product skills: it can derive test cases, reports, Playwright scripts, and project knowledge from PRDs, design sources, bugs, code diffs, UI cases, and test results.
 
@@ -26,7 +26,7 @@ Kata turns QA work into auditable product skills: it can derive test cases, repo
 
 ## 30-second overview
 
-Kata is not a single script. It is a contract-driven AI Core workflow system:
+Kata is not a single script. It is an auditable QA workflow orchestration system:
 
 ```text
 PRD / Lanhu / design source ── /case-draft ───────> Archive MD + XMind
@@ -39,8 +39,8 @@ Code diff ──────────────────── /diff-sca
 
 Core principles:
 
-- `.ai/core/**` is the source of truth for skills, commands, workflows, agents, prompts, schemas, and runtime guards.
-- `.agents/**` and `.claude/**` are generated projections for the kata Codex runtime and Claude Code runtime.
+- `.agents/**` and `.claude/**` are first-class runtime directories for the kata Codex runtime and Claude Code runtime.
+- `docs/skills/contracts/**` carries shared schemas, routes, the skill graph, workflows, plugin metadata, and project rule contracts.
 - Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
 - `playwright-cli` keeps its vendor skill name for real browser automation; kata-owned product skills do not reuse old aggregate names.
 
@@ -80,9 +80,8 @@ Then open Claude Code or Codex and run:
 
 ## Current capabilities
 
-The table below is generated from `.ai/core/commands/*.command.yaml`; it is the README source of truth for user-invocable commands.
+The table below is the current public capability surface. Runtime entrypoints are `AGENTS.md`, `CLAUDE.md`, `.agents/**`, and `.claude/**`.
 
-<!-- ai-core:start command-index -->
 | Command | Area | Skill | Summary |
 | --- | --- | --- | --- |
 | `/workspace-manage` | Workspace | `workspace-manage@1` | Show the feature menu and manage kata project workspaces. |
@@ -95,8 +94,6 @@ The table below is generated from `.ai/core/commands/*.command.yaml`; it is the 
 | `/playwright-automation` | UI automation | `playwright-automation@1` | Plan, generate, run, triage, and repair Playwright UI automation before handoff. |
 | `/diff-scan` | Code scanning | `diff-scan@1` | Scan code diffs for reproducible defects. |
 | `/infra-diagnose` | Infra diagnosis | `infra-diagnose@1` | SSH into servers to diagnose and fix datasource/server connectivity failures. |
-<!-- ai-core:hash 2d3aee943263895aa5fea9eb96576a355222df28576de1a3579e3660ce4da0ab -->
-<!-- ai-core:end command-index -->
 
 ### Usage examples
 
@@ -136,35 +133,31 @@ Run these commands directly in the Claude Code or Codex runtime:
 
 ## Architecture
 
-See the detailed [Kata 4.0 project architecture design](./docs/architecture/kata-project-architecture.md); the AI Core subsystem is documented in [AI Core architecture design](./docs/architecture/ai-core-architecture.md).
+See the detailed [Kata 4.0 project architecture design](./docs/architecture/kata-project-architecture.md).
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata 4.0 uses `.ai/core` as the contract control plane, `engine` as the execution and verification layer, `.agents` / `.claude` as runtime projections, and `workspace/{project}` as the artifact area:
+Kata uses `.agents/**` and `.claude/**` as first-class runtime implementations, `docs/skills/contracts/**` for shared contracts, `engine` as the execution and verification layer, and `workspace/{project}` as the artifact area:
 
 ```text
-.ai/core contracts
-  ├─ skills / commands / workflows
-  ├─ agents / prompts / schemas / guards
-  ├─ runtime manifests / projection inventory
-  └─ evals / docs generated blocks
-        │
-        ├──> .agents/**  kata Codex runtime projection
-        └──> .claude/**  Claude Code runtime projection
+docs/skills/contracts
+  ├─ schemas / routes / skill graph / workflows / rules
+  └─ sync exceptions
+
+.agents/**   kata Codex runtime skills
+.claude/**   Claude Code runtime skills
+engine/**    CLI, validators, tests, and workflow support
 ```
 
-<!-- ai-core:start runtime-support -->
 | Runtime / Boundary | Current responsibility |
 | --- | --- |
-| `.ai/core/**` | AI Core contract source for skills, commands, workflows, agents, prompts, schemas, guards, and runtime manifests. |
-| `.agents/**` | kata Codex runtime projection generated from `.ai/core`; do not edit generated content by hand. |
-| `.claude/**` | Claude Code runtime projection generated from `.ai/core`; do not edit generated content by hand. |
+| `.agents/**` | kata Codex runtime skills and references, maintained as a first-class runtime. |
+| `.claude/**` | Claude Code runtime skills and references, maintained as a first-class runtime. |
+| `docs/skills/contracts/**` | Shared schemas, routes, the skill graph, workflows, plugin metadata, sync exceptions, and project rule contracts. |
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
 | `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
-<!-- ai-core:hash 97fcb86f90d99c917e6960b9421c1983666d8733ba1da2a09b3e728093daccdd -->
-<!-- ai-core:end runtime-support -->
 
-At runtime, agents read `.ai/core` contracts and runtime projections, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, secret refs, projection locks, parser boundary audits, and golden evals are checked by AI Core gates.
+At runtime, agents read their runtime skill plus `docs/skills/contracts/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
 
 ## Plugins
 
@@ -182,11 +175,10 @@ Put credentials in `.env`. `.env.example` lists the supported `KATA_*` variables
 
 ```text
 kata/
-├── .ai/core/        # AI Core contract source
-├── .agents/         # kata Codex runtime projection
-├── .claude/         # Claude Code runtime projection
+├── .agents/         # kata Codex runtime skills
+├── .claude/         # Claude Code runtime skills
 ├── docs/            # Architecture, ADR, audit, skill, and troubleshooting docs
-├── engine/          # CLI, AI Core checks, workflow support, and tests
+├── engine/          # CLI, runtime checks, workflow support, and tests
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # standalone toolkits
 ├── templates/       # project skeletons and output templates
@@ -198,23 +190,14 @@ kata/
 Common commands:
 
 ```bash
-# AI Core focused tests
-bun run test:ai-core
-
-# AI Core lint/gates/docs/parser/projection chain
-bun run lint:ai-core
-
 # Full engine test suite
 bun --no-env-file test --cwd engine
 
-# Regenerate AI Core managed README/CHANGELOG blocks
-bun --no-env-file engine/bin/kata ai-core docs render
-
-# Check managed block drift
-bun --no-env-file engine/bin/kata ai-core docs check
+# Check runtime skill sync, detach, route, graph, and workflow contracts
+bun run check:skills
 ```
 
-When changing runtime behavior, edit `.ai/core/**` first, then run projection/docs/gate commands to regenerate and verify projections. Do not hand-edit generated content under `.agents/**` or `.claude/**`.
+Shared schemas, workflows, plugin metadata, and project rules live under `docs/skills/contracts/**`.
 
 ## License
 

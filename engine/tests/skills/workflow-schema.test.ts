@@ -9,6 +9,7 @@ description: 根据需求源生成 QA 用例的完整流程。
 steps:
   - id: source-intake
     next: [module-identify]
+    blackboard_inputs: []
     blackboard_outputs: [sources, source_refs]
     references: [.claude/skills/case-draft/SKILL.md]
     failure_modes: [SOURCE_FETCH_BLOCKED]
@@ -18,9 +19,17 @@ steps:
     next: [output]
     blackboard_inputs: [sources]
     blackboard_outputs: [decisions]
+    references: []
+    failure_modes: []
+    human_gates: []
+    verification: []
   - id: output
     blackboard_inputs: [sources, decisions]
     blackboard_outputs: [artifacts, handoff]
+    references: []
+    failure_modes: []
+    human_gates: []
+    verification: []
 `;
 
 describe("workflow schema", () => {
@@ -94,6 +103,24 @@ steps:
 `);
     const errors = validateWorkflow(workflow);
     expect(errors.some((e) => e.includes("unknown blackboard slot 'made_up_slot'"))).toBe(true);
+  });
+
+  test("flags steps that omit required workflow metadata fields", () => {
+    const workflow = parseWorkflow(`
+name: x
+version: 1
+entry: /x
+description: x
+steps:
+  - id: a
+    blackboard_outputs: [artifacts]
+`);
+    const errors = validateWorkflow(workflow);
+    expect(errors).toContain("step 'a' is missing required field: blackboard_inputs");
+    expect(errors).toContain("step 'a' is missing required field: references");
+    expect(errors).toContain("step 'a' is missing required field: failure_modes");
+    expect(errors).toContain("step 'a' is missing required field: human_gates");
+    expect(errors).toContain("step 'a' is missing required field: verification");
   });
 
   test("flags missing required top-level fields", () => {

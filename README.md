@@ -1,13 +1,13 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Kata-4.0_AI_Core-2563EB?style=for-the-badge">
-  <img alt="Kata 4.0 AI Core" src="https://img.shields.io/badge/Kata-4.0_AI_Core-2563EB?style=for-the-badge">
+  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Kata-4.0_Runtime-2563EB?style=for-the-badge">
+  <img alt="Kata 4.0 Runtime" src="https://img.shields.io/badge/Kata-4.0_Runtime-2563EB?style=for-the-badge">
 </picture>
 
 # Kata
 
-### AI Core 驱动的 QA 工作流与 Coding-Agent Runtime
+### SKILL + Router + Graph + Workflow + Blackboard 驱动的 QA Runtime
 
 Kata 把 QA 过程拆成可审计的 product skills：从 PRD、设计源、bug、源码 diff、UI 用例和测试结果中生成测试用例、报告、Playwright 脚本和项目知识。
 
@@ -26,7 +26,7 @@ Kata 把 QA 过程拆成可审计的 product skills：从 PRD、设计源、bug�
 
 ## 30 秒概览
 
-Kata 不是单个脚本，而是一套 AI Core 合约化工作流：
+Kata 不是单个脚本，而是一套可审计的 QA 工作流编排系统：
 
 ```text
 PRD / Lanhu / 设计源 ─── /case-draft ───────> Archive MD + XMind
@@ -39,8 +39,8 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 
 核心原则：
 
-- `.ai/core/**` 是 skills、commands、workflows、agents、prompts、schemas 和 runtime guard 的唯一声明源。
-- `.agents/**` 与 `.claude/**` 是生成投影，分别服务 kata Codex runtime 和 Claude Code runtime。
+- `.agents/**` 与 `.claude/**` 是一等 runtime 目录，分别服务 kata Codex runtime 和 Claude Code runtime。
+- `docs/skills/contracts/**` 承接共享 schema、route、skill graph、workflow、插件 metadata 和项目规则契约。
 - 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
 - `playwright-cli` 保持 vendor skill 原名，用于真实浏览器自动化；kata-owned product skill 不复用旧聚合命名。
 
@@ -80,9 +80,8 @@ bunx playwright install
 
 ## 当前能力
 
-以下命令来自 `.ai/core/commands/*.command.yaml`，是 README 的当前能力口径。
+以下命令是当前公开能力口径；runtime 入口以 `AGENTS.md`、`CLAUDE.md`、`.agents/**` 与 `.claude/**` 为准。
 
-<!-- ai-core:start command-index -->
 | 命令 | 领域 | Skill | 说明 |
 | --- | --- | --- | --- |
 | `/workspace-manage` | 工作区 | `workspace-manage@1` | 显示 kata 功能菜单和管理项目工作区。 |
@@ -95,8 +94,6 @@ bunx playwright install
 | `/playwright-automation` | UI 自动化 | `playwright-automation@1` | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。 |
 | `/diff-scan` | 代码扫描 | `diff-scan@1` | 扫描代码 diff 发现可复现的缺陷。 |
 | `/infra-diagnose` | 故障排查 | `infra-diagnose@1` | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
-<!-- ai-core:hash a672d754e4fd8c1b3c150be3c47210120211826a307c4a0ac0c39d2ceaca3da5 -->
-<!-- ai-core:end command-index -->
 
 ### 功能使用示例
 
@@ -136,35 +133,31 @@ bunx playwright install
 
 ## 架构
 
-详细设计见 [Kata 4.0 整体项目架构设计说明](./docs/architecture/kata-project-architecture.md)；AI Core 子系统细节见 [AI Core 架构设计说明](./docs/architecture/ai-core-architecture.md)。
+详细设计见 [Kata 4.0 整体项目架构设计说明](./docs/architecture/kata-project-architecture.md)。
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata 的 4.0 架构以 `.ai/core` 合约源为控制面，以 `engine` 为执行与校验层，以 `.agents` / `.claude` 为 runtime 投影，以 `workspace/{project}` 为业务产物区：
+Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现，以 `docs/skills/contracts/**` 承接共享契约，以 `engine` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
 
 ```text
-.ai/core contracts
-  ├─ skills / commands / workflows
-  ├─ agents / prompts / schemas / guards
-  ├─ runtime manifests / projection inventory
-  └─ evals / docs generated blocks
-        │
-        ├──> .agents/**  kata Codex runtime projection
-        └──> .claude/**  Claude Code runtime projection
+docs/skills/contracts
+  ├─ schemas / routes / skill graph / workflows / rules
+  └─ sync exceptions
+
+.agents/**   kata Codex runtime skills
+.claude/**   Claude Code runtime skills
+engine/**    CLI, validators, tests, and workflow support
 ```
 
-<!-- ai-core:start runtime-support -->
 | Runtime / 边界 | 当前职责 |
 | --- | --- |
-| `.ai/core/**` | AI Core 合约源：skills、commands、workflows、agents、prompts、schemas、guards、runtime manifests。 |
-| `.agents/**` | kata Codex runtime 投影目录，由 `.ai/core` 生成；不要手工改生成内容。 |
-| `.claude/**` | Claude Code runtime 投影目录，由 `.ai/core` 生成；不要手工改生成内容。 |
+| `.agents/**` | kata Codex runtime skill 与 reference 目录，一等维护。 |
+| `.claude/**` | Claude Code runtime skill 与 reference 目录，一等维护。 |
+| `docs/skills/contracts/**` | 共享 schema、route、skill graph、workflow、插件 metadata、同步例外和项目规则契约。 |
 | `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |
 | `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
-<!-- ai-core:hash b23e46b4e8d1681afde9c035f4b87c2e22691a3d5b03e1c1e1b334a3450fe977 -->
-<!-- ai-core:end runtime-support -->
 
-工作流执行时，agent 先读取 `.ai/core` 合约和 runtime 投影，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、secret ref、projection lock、parser boundary audit 和 golden evals 都由 AI Core gate 统一校验。
+工作流执行时，agent 读取对应 runtime skill 和 `docs/skills/contracts/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 engine 与 runtime 检查器校验。
 
 ## 插件
 
@@ -182,11 +175,10 @@ Kata 的 4.0 架构以 `.ai/core` 合约源为控制面，以 `engine` 为执行
 
 ```text
 kata/
-├── .ai/core/        # AI Core 合约源
-├── .agents/         # kata Codex runtime 投影
-├── .claude/         # Claude Code runtime 投影
+├── .agents/         # kata Codex runtime skills
+├── .claude/         # Claude Code runtime skills
 ├── docs/            # 架构、ADR、审计、技能和排查文档
-├── engine/          # CLI、AI Core 校验、工作流支撑代码和测试
+├── engine/          # CLI、runtime 校验、工作流支撑代码和测试
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # 独立工具包
 ├── templates/       # 项目骨架与输出模板
@@ -198,23 +190,14 @@ kata/
 常用命令：
 
 ```bash
-# AI Core 聚焦测试
-bun run test:ai-core
-
-# AI Core lint/gates/docs/parser/projection 全链路
-bun run lint:ai-core
-
 # 全量 engine 测试
 bun --no-env-file test --cwd engine
 
-# 重新生成 README/CHANGELOG 中的 AI Core 托管块
-bun --no-env-file engine/bin/kata ai-core docs render
-
-# 检查托管块是否漂移
-bun --no-env-file engine/bin/kata ai-core docs check
+# 检查 runtime skill 同步、detach、route、graph 和 workflow 契约
+bun run check:skills
 ```
 
-变更 runtime 内容时，优先修改 `.ai/core/**`，再运行 projection/docs/gate 命令生成并校验投影；不要直接手工编辑 `.agents/**` 或 `.claude/**` 里的生成内容。
+共享 schema、workflow、插件 metadata 和项目规则落在 `docs/skills/contracts/**`。
 
 ## License
 

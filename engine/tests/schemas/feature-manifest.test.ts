@@ -5,7 +5,10 @@ import Ajv from "ajv";
 import { repoRoot } from "../../lib/paths.ts";
 
 const schema = JSON.parse(
-  readFileSync(join(repoRoot(), ".ai/core/schemas/FeatureManifest.v2.schema.json"), "utf-8"),
+  readFileSync(
+    join(repoRoot(), "docs/skills/contracts/schemas/FeatureManifest.v2.schema.json"),
+    "utf-8",
+  ),
 );
 const validate = new Ajv({ strict: false, validateSchema: false }).compile(schema);
 
@@ -111,7 +114,7 @@ describe("FeatureManifest@2", () => {
         archive_path: "archive.md",
         xmind_path: "cases.xmind",
         coverage_matrix_path: "coverage-matrix.json",
-        requirement_atoms: [{ id: "RA-1", source_ref: "lanhu.fixture:f#sha256:" + "a".repeat(64) }],
+        requirement_atoms: [{ id: "RA-1", source_ref: `lanhu.fixture:f#sha256:${"a".repeat(64)}` }],
       },
     };
     expect(validate(bad)).toBe(false);
@@ -128,7 +131,7 @@ describe("FeatureManifest@2", () => {
         requirement_atoms: [
           {
             id: "RA-1",
-            source_ref: "lanhu.fixture:f#sha256:" + "a".repeat(64),
+            source_ref: `lanhu.fixture:f#sha256:${"a".repeat(64)}`,
             title: "登录",
             ambiguity_class: "confirmed",
             confidence: "high",

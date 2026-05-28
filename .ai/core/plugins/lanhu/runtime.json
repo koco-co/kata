@@ -1,9 +1,0 @@
-{
-  "name": "lanhu",
-  "description": "蓝湖 PRD 导入插件：从蓝湖 URL 爬取需求文档内容和截图",
-  "env_required": ["KATA_LANHU_COOKIE"],
-  "url_patterns": ["lanhuapp.com"],
-  "commands": {
-    "fetch": "bun run plugins/lanhu/fetch.ts --url {{url}} --project {{project}}"
-  }
-}

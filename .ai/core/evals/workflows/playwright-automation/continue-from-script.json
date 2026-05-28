@@ -1,8 +1,0 @@
-{
-  "schema_ref": "WorkflowEval@1",
-  "workflow_id": "playwright-automation@1",
-  "command": "/playwright-automation",
-  "input": "运行并验证 workspace/dataAssets/features/demo/tests/smoke.spec.ts",
-  "expected_entry_mode": "continue_from_script",
-  "required_steps": ["self-run", "run-triage", "repair-loop", "handoff"]
-}

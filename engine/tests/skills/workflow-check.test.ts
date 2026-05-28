@@ -25,10 +25,19 @@ description: 根据需求源生成 QA 用例的完整流程。
 steps:
   - id: source-intake
     next: [output]
+    blackboard_inputs: []
     blackboard_outputs: [sources, source_refs]
+    references: []
+    failure_modes: []
+    human_gates: []
+    verification: []
   - id: output
     blackboard_inputs: [sources, source_refs]
     blackboard_outputs: [artifacts, handoff]
+    references: []
+    failure_modes: []
+    human_gates: []
+    verification: []
 `;
 
 const VALID_REVIEW_MD = `# case-draft workflow
@@ -64,7 +73,7 @@ describe("workflow check", () => {
     writeFile(
       root,
       "docs/skills/contracts/workflows/bad.yaml",
-      "name: bad\nversion: 1\nentry: /bad\ndescription: x\nsteps:\n  - id: a\n    next: [missing]\n",
+      "name: bad\nversion: 1\nentry: /bad\ndescription: x\nsteps:\n  - id: a\n    next: [missing]\n    blackboard_inputs: []\n    blackboard_outputs: []\n    references: []\n    failure_modes: []\n    human_gates: []\n    verification: []\n",
     );
 
     const report = checkWorkflows(root);
@@ -99,6 +108,74 @@ describe("workflow check", () => {
 
     const report = checkWorkflows(root);
     expect(report.violations.some((v) => v.rule === "WORKFLOW_REVIEW_STEP_MISMATCH")).toBe(true);
+  });
+
+  test("flags review md step order out of sync with yaml", () => {
+    const root = makeRoot();
+    writeFile(root, "docs/skills/contracts/workflows/case-draft.yaml", VALID_YAML);
+    writeFile(
+      root,
+      "docs/skills/workflows/case-draft.md",
+      `# case-draft workflow
+
+> 唯一规范源:docs/skills/contracts/workflows/case-draft.yaml
+
+## Steps
+
+- output
+- source-intake
+`,
+    );
+
+    const report = checkWorkflows(root);
+    expect(report.violations.some((v) => v.rule === "WORKFLOW_REVIEW_STEP_MISMATCH")).toBe(true);
+  });
+
+  test("flags review md missing yaml failure modes or human gates", () => {
+    const root = makeRoot();
+    writeFile(
+      root,
+      "docs/skills/contracts/workflows/case-draft.yaml",
+      `name: case-draft
+version: 1
+entry: /case-draft
+description: 根据需求源生成 QA 用例的完整流程。
+steps:
+  - id: source-intake
+    blackboard_inputs: []
+    blackboard_outputs: [sources]
+    references: []
+    failure_modes: [SOURCE_FETCH_BLOCKED]
+    human_gates: [source_requires_confirmation]
+    verification: []
+`,
+    );
+    writeFile(
+      root,
+      "docs/skills/workflows/case-draft.md",
+      `# case-draft workflow
+
+> 唯一规范源:docs/skills/contracts/workflows/case-draft.yaml
+
+## Steps
+
+- source-intake
+`,
+    );
+
+    const report = checkWorkflows(root);
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "WORKFLOW_REVIEW_DETAIL_MISSING",
+        message: "review document must mention yaml detail 'SOURCE_FETCH_BLOCKED'.",
+      }),
+    );
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "WORKFLOW_REVIEW_DETAIL_MISSING",
+        message: "review document must mention yaml detail 'source_requires_confirmation'.",
+      }),
+    );
   });
 
   test("flags review md missing canonical source pointer", () => {

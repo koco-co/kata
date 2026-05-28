@@ -21,10 +21,14 @@ describe("P4-06 command execution hardening", () => {
   });
 
   it("keeps Zentao plugin secret names aligned with runtime env names", () => {
-    const manifest = JSON.parse(readRepoFile(".ai/core/plugins/zentao/plugin.json")) as {
+    const manifest = JSON.parse(
+      readRepoFile("docs/skills/contracts/plugins/zentao/plugin.json"),
+    ) as {
       capability_required: { secret_refs: string[] };
     };
-    const runtime = JSON.parse(readRepoFile(".ai/core/plugins/zentao/runtime.json")) as {
+    const runtime = JSON.parse(
+      readRepoFile("docs/skills/contracts/plugins/zentao/runtime.json"),
+    ) as {
       env_required: string[];
     };
 

@@ -1,10 +1,10 @@
-import type { AiCoreResult } from "../ai-core/types.ts";
 import type { CapabilityRequired } from "../plugins/sandbox/capability-spec.ts";
 import {
   checkFsAccess,
   checkNetworkAccess,
   parseCapabilityRequired,
 } from "../plugins/sandbox/capability-spec.ts";
+import type { KataResult } from "../result-types.ts";
 
 export type SandboxIsolationPolicy = {
   pluginId: string;
@@ -17,7 +17,7 @@ export type SandboxIsolationPolicy = {
 export function enforceSandboxIsolation(manifest: {
   id: string;
   capability_required?: unknown;
-}): AiCoreResult<SandboxIsolationPolicy> {
+}): KataResult<SandboxIsolationPolicy> {
   if (!manifest.capability_required) {
     return {
       ok: true,
@@ -62,7 +62,7 @@ export function enforceSandboxIsolation(manifest: {
 export function enforceNetworkAllowlist(
   policy: SandboxIsolationPolicy,
   targetUrl: string,
-): AiCoreResult<null> {
+): KataResult<null> {
   const result = checkNetworkAccess(policy.capability.net, targetUrl);
   if (!result.allowed) {
     return { ok: false, value: null, issues: result.violations };
@@ -74,7 +74,7 @@ export function enforceFsCapability(
   policy: SandboxIsolationPolicy,
   targetPath: string,
   mode: "read" | "write",
-): AiCoreResult<null> {
+): KataResult<null> {
   const allowedPaths = mode === "read" ? policy.capability.fs_read : policy.capability.fs_write;
   const result = checkFsAccess(allowedPaths, targetPath);
   if (!result.allowed) {

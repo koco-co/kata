@@ -11,7 +11,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createCli } from "../lib/cli-runner.ts";
 import { getEnv } from "../lib/env.ts";
-import { aiCorePluginsDir, pluginsDir, repoRoot } from "../lib/paths.ts";
+import { contractPluginsDir, pluginsDir, repoRoot } from "../lib/paths.ts";
 import { loadAllPlugins } from "../lib/plugin-utils.ts";
 
 interface PluginEntry {
@@ -79,7 +79,7 @@ function buildConfig(): ConfigOutput {
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 
-  const plugins = scanPlugins(aiCorePluginsDir(), pluginsDir());
+  const plugins = scanPlugins(contractPluginsDir(), pluginsDir());
   const projects = readProjectConfigs();
 
   return {
@@ -102,7 +102,7 @@ function runShow(): void {
 
 export const program = createCli({
   name: "config",
-  description: "输出合并后的工作区配置 JSON（读取 .env + 扫描 .ai/core/plugins/）",
+  description: "输出合并后的工作区配置 JSON（读取 .env + 扫描插件 runtime manifest）",
   rootAction: {
     action: () => runShow(),
   },

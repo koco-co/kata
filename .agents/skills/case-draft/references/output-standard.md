@@ -1,6 +1,6 @@
 # case-draft 输出产物标准（normative）
 
-> 本文件中带 `(硬)` 的条款均为 hard_rules。文末「## 用例级节点格式（Case-Level Normative）」节是用例级格式 SSOT：旧投影规则、case-edit 同步参考与 skill 配置如出现条款冲突，以本节为准。
+> 本文件中带 `(硬)` 的条款均为 hard_rules。文末「## 用例级节点格式（Case-Level Normative）」节是用例级格式 SSOT：runtime 规则、case-edit 同步参考与 skill 配置如出现条款冲突，以本节为准。
 
 ## 文件集
 - 交付层（feature 根，仅 4 件）：archive.md、cases.xmind、metadata.yaml、manifest.json。
@@ -38,9 +38,9 @@ suite_name / root_name / module / prd_version / prd_id / tags / status / create_
 ## 用例级节点格式（Case-Level Normative）
 
 本节是用例级（H5 用例标题及其所有子节点）格式的唯一权威源（SSOT）。
-- 旧投影规则、case-edit 同步参考与 skill 配置如出现条款冲突，以本节为准。
+- runtime 规则、case-edit 同步参考与 skill 配置如出现条款冲突，以本节为准。
 - 标 `(硬)` 的条款均视为 hard_rule，违反必须阻塞产出。
-- 其他后续新增的 case 相关规则/技能/投影文件如涉及用例级条款，同等以本节为准。
+- 其他后续新增的 case 相关规则/技能/runtime 文件如涉及用例级条款，同等以本节为准。
 
 ### 通用 — Markdown 用例节点
 

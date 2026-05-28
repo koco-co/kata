@@ -4,7 +4,7 @@ import { checkRuntimeDetach, formatRuntimeDetachReport } from "../../src/skills/
 import { checkRuntimeSkillSync } from "../../src/skills/runtime-sync.ts";
 
 describe("repository runtime detach contract", () => {
-  test("repository runtime files are detached from ai-core projection", () => {
+  test("repository runtime files are detached from retired source roots", () => {
     const root = repoRoot();
     const report = checkRuntimeDetach(root);
     expect(formatRuntimeDetachReport(report, root)).toBe("runtime detach passed");

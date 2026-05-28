@@ -1,6 +1,19 @@
 ---
 name: diff-scan
 description: 用户要求扫描 diff、分支或变更文件中的可复现缺陷。
+when_to_use: 用户要求扫描 diff、分支或变更文件中的可复现缺陷时使用。
+user-invocable: true
+model: sonnet
+effort: high
+context: fork
+agent: general-purpose
+paths:
+  - "**/*.diff"
+  - "**/*.patch"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
 ---
 
 # diff-scan
@@ -12,18 +25,6 @@ description: 用户要求扫描 diff、分支或变更文件中的可复现缺�
 
 - 扫描代码 diff，定位可复现缺陷；源仓库一律不改。
 
-## 输入
-
-- diff (required, kind=repo_or_diff)
-- project (optional, kind=workspace_id)
-
-## 调用图
-
-- 上游命令: /diff-scan
-- 下游 workflow: diff-scan@1
-- 下游 agents: diff-scan-worker@1
-- 下游 prompts: diff-scan-prompt@1
-
 ## 触发条件
 
 - 用户要求对代码做静态扫描、diff 扫描，或在代码变更中查找 bug。
@@ -34,36 +35,6 @@ description: 用户要求扫描 diff、分支或变更文件中的可复现缺�
 - 用户要求一般性的代码讲解，且未指明 diff 目标。
 - 用户要求依据 PRD 需求生成 QA 用例。
 
-## 输出
-
-- findings
-- report
-
-## 允许的工具
-
-- read_file
-- write_artifact
-- ask_user
-
-## 上下文预算
-
-```yaml
-core_tokens: 900
-reference_tokens: 5000
-evidence_tokens: 8000
-overflow_policy:
-  order:
-    - informative_references
-    - few_shots
-    - evidence_context
-    - normative_references
-  preserve:
-    - hard_rules
-    - failure_policy
-    - evidence
-  on_overflow: summarize_then_drop_lowest_priority
-```
-
 ## 按需加载协议
 
 - 默认只读取当前 SKILL.md。
@@ -72,19 +43,6 @@ overflow_policy:
 - 没有命中的 reference 不得读取；few-shot 只可作为格式参考，不得作为领域事实证据。
 
 无外部参考；仅使用当前 SKILL.md 与任务证据。
-
-## 证据策略
-
-- source_refs_required: true
-- distinguish_fact_inference_assumption: false
-- required_source_refs:
-  - repo.diff@1
-- stale_ref_policy: block
-
-## 失败策略
-
-- missing_diff: ask_for_branch_or_diff
-- unreproducible_risk: omit_from_bug_list
 
 ## 硬规则
 

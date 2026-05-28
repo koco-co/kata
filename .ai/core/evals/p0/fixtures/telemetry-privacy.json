@@ -1,6 +1,0 @@
-{
-  "event_id": "evt-p0-telemetry",
-  "event_kind": "policy",
-  "run_id": "token=test-stub",
-  "status": "blocked"
-}

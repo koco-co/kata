@@ -31,7 +31,7 @@
     "format": "biome check --fix .",
     "lint:debris": "bun run scripts/lint/check-debug-files.ts && bun run scripts/lint/check-stale-paths.ts && bun run scripts/lint/check-runtime-artifacts.ts",
     "type-check": "tsc --noEmit",
-    "ci": "bun run lint && bun run lint:debris && bun run lint:agents && bun run lint:paths && bun run lint:ai-core && bun run lint:agents:codex && bun run lint:skills:codex && bun run type-check && bun run test && bun run test:apps && bun run test:plugins && bun run test:tools",
+    "ci": "bun run lint && bun run lint:debris && bun run lint:agents && bun run lint:paths && bun run check:skills && bun run lint:agents:codex && bun run lint:skills:codex && bun run type-check && bun run test && bun run test:apps && bun run test:plugins && bun run test:tools",
     "test": "bun test --cwd engine",
     "test:watch": "bun test --watch --cwd engine",
     "lint:agents": "kata agents audit --exit-code --severity fail-only",
@@ -40,8 +40,6 @@
     "lint:skills:codex": "kata skills audit --runtime codex --exit-code",
     "lint:agents:drift": "kata agents drift --json",
     "lint:paths": "kata paths audit --exit-code",
-    "lint:ai-core": "bun --no-env-file scripts/run-ai-core-lint.ts",
-    "test:ai-core": "bun test --cwd engine tests/ai-core/ tests/policy/ tests/plugins/ tests/runners/ tests/config/ tests/telemetry/ tests/source-ref/ tests/cli/ai-core-cli.test.ts",
     "lint:cases": "kata cases lint --exit-code --severity fail-only --scope workspace",
     "test:e2e:fixture": "bun test engine/tests/e2e/case-draft-e2e.test.ts engine/tests/e2e/runtime-invoke.test.ts"
   },

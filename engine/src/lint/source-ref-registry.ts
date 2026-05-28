@@ -17,7 +17,7 @@ let cache: PrefixEntry[] | null = null;
 
 export function getRegisteredPrefixes(): PrefixEntry[] {
   if (cache) return cache;
-  const path = join(repoRoot(), ".ai/core/schemas/source-ref-registry.yaml");
+  const path = join(repoRoot(), "docs/skills/contracts/schemas/source-ref-registry.yaml");
   const data = parse(readFileSync(path, "utf-8"));
   cache = data.prefixes as PrefixEntry[];
   return cache;

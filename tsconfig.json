@@ -4,8 +4,8 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {},
-    "types": ["node"],
-    "ignoreDeprecations": "6.0"
+    "types": ["node", "bun"],
+    "ignoreDeprecations": "5.0"
   },
   "include": ["plugins/**/*.ts", "scripts/**/*.ts", "lib/**/*.ts"],
   "exclude": ["node_modules", "workspace"]

@@ -1,1 +1,0 @@
-../../../case-draft/references/fewshots/case-format-sample.xmind.md

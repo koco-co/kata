@@ -26,4 +26,4 @@ Blackboard 是 skill workflow 跨步骤共享的状态容器。第一版只把�
 ## 跨 runtime 一致性
 
 - 两个 runtime 的 workflow YAML 必须引用同一份 blackboard schema；不允许在某个 runtime 侧悄悄扩展槽位。
-- 新增槽位需要同时改本文档、JSON schema、以及任何引用它的 workflow YAML，并在 `runtime-sync-exceptions.yaml` 之外的协调说明里写明用途。
+- 新增槽位需要同时改本文档、JSON schema 以及任何引用它的 workflow YAML，并在提交说明中写明用途。

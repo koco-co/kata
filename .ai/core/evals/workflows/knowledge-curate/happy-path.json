@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "workflow_id": "knowledge-curate@1",
-  "command": "/knowledge-curate",
-  "input": "请记住：测试环境域名统一使用 .test.dtstack.cn 后缀，生产环境使用 .dtstack.cn",
-  "expected_first_stages": ["intake", "resolve_project"],
-  "forbidden_phrases": ["直接写入知识库"]
-}

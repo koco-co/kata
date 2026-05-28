@@ -12,8 +12,6 @@
   },
   "scripts": {
     "test": "bun test tests",
-    "test:behavioral": "bun run engine/src/ai-core/behavioral-evals-cli.ts --mode replay",
-    "evals:record": "bun run engine/src/ai-core/behavioral-evals-cli.ts --mode record",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

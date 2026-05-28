@@ -1,4 +1,4 @@
-import type { AiCoreIssue, AiCoreResult } from "../../ai-core/types.ts";
+import type { KataIssue, KataResult } from "../../result-types.ts";
 
 export type CapabilityRequired = {
   fs_read: string[];
@@ -9,12 +9,12 @@ export type CapabilityRequired = {
 
 export type CapabilityCheckResult = {
   allowed: boolean;
-  violations: AiCoreIssue[];
+  violations: KataIssue[];
 };
 
 const WILDCARD_PATTERN = /^(\*\.)?[a-zA-Z0-9][-a-zA-Z0-9.]*$/;
 
-export function parseCapabilityRequired(raw: unknown): AiCoreResult<CapabilityRequired> {
+export function parseCapabilityRequired(raw: unknown): KataResult<CapabilityRequired> {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     return {
       ok: false,
@@ -35,7 +35,7 @@ export function parseCapabilityRequired(raw: unknown): AiCoreResult<CapabilityRe
   const net = parseStringArray(obj.net, "capability_required.net");
   const secret_refs = parseStringArray(obj.secret_refs, "capability_required.secret_refs");
 
-  const issues: AiCoreIssue[] = [];
+  const issues: KataIssue[] = [];
   if (!fs_read.ok) issues.push(...fs_read.issues);
   if (!fs_write.ok) issues.push(...fs_write.issues);
   if (!net.ok) issues.push(...net.issues);
@@ -136,7 +136,7 @@ function matchHostPattern(pattern: string, hostname: string): boolean {
   return false;
 }
 
-function parseStringArray(value: unknown, path: string): AiCoreResult<string[]> {
+function parseStringArray(value: unknown, path: string): KataResult<string[]> {
   if (value === undefined || value === null) {
     return { ok: true, value: [], issues: [] };
   }

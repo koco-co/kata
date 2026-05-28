@@ -1,4 +1,4 @@
-import type { AiCoreIssue } from "../../ai-core/types.ts";
+import type { KataIssue } from "../../result-types.ts";
 
 export type SecretChannel = {
   resolve: (ref: string) => string | undefined;
@@ -65,8 +65,8 @@ export function createSecretChannel(
   };
 }
 
-export function validateSecretRefs(declaredRefs: string[], resolvedKeys: string[]): AiCoreIssue[] {
-  const issues: AiCoreIssue[] = [];
+export function validateSecretRefs(declaredRefs: string[], resolvedKeys: string[]): KataIssue[] {
+  const issues: KataIssue[] = [];
   for (const ref of declaredRefs) {
     if (!resolvedKeys.includes(ref)) {
       issues.push({
