@@ -1,6 +1,11 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseWorkflow, validateWorkflow, type Workflow } from "./workflow-schema.ts";
+import {
+  parseWorkflow,
+  V2_WARN_PREFIX,
+  validateWorkflow,
+  type Workflow,
+} from "./workflow-schema.ts";
 
 export type WorkflowCheckRule =
   | "WORKFLOW_PARSE_ERROR"
@@ -77,7 +82,7 @@ function validateWorkflowSchema(
   violations: WorkflowCheckViolation[],
 ): void {
   for (const schemaError of validateWorkflow(workflow, root)) {
-    if (schemaError.startsWith("[v2-warn]")) {
+    if (schemaError.startsWith(V2_WARN_PREFIX)) {
       // 本 commit 软校验：v2 警告写 stderr，不计入 violations；4.c 才提升为 hard error
       process.stderr.write(`workflow ${yamlPath}: ${schemaError}\n`);
       continue;

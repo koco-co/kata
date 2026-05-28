@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { checkWorkflows, formatWorkflowCheckReport } from "../../src/skills/workflow-check.ts";
-import { resetSlotCache } from "../../src/skills/workflow-schema.ts";
+import { resetSlotCache, V2_WARN_PREFIX } from "../../src/skills/workflow-schema.ts";
 
 const tempRoots: string[] = [];
 
@@ -143,7 +143,7 @@ describe("workflow check", () => {
       expect(report.passed).toBe(true);
       expect(report.violations).toEqual([]);
       const stderr = captured.join("");
-      expect(stderr).toContain("[v2-warn]");
+      expect(stderr).toContain(V2_WARN_PREFIX);
       expect(stderr).toContain("definitely_unknown_slot");
       expect(stderr).toContain("dispatch 'magical'");
     } finally {

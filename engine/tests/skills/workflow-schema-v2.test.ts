@@ -1,5 +1,14 @@
-import { describe, expect, test } from "bun:test";
-import { parseWorkflow, validateWorkflow } from "../../src/skills/workflow-schema.ts";
+import { afterEach, describe, expect, test } from "bun:test";
+import { resolve } from "node:path";
+import {
+  parseWorkflow,
+  resetSlotCache,
+  V2_WARN_PREFIX,
+  validateWorkflow,
+} from "../../src/skills/workflow-schema.ts";
+
+// engine/tests/skills/ → 上溯 3 层定位 worktree root；避免依赖 process.cwd
+const PROJECT_ROOT = resolve(import.meta.dir, "../../..");
 
 const V2 = `
 name: case-draft
@@ -33,6 +42,10 @@ steps:
 `;
 
 describe("workflow schema v2", () => {
+  afterEach(() => {
+    resetSlotCache();
+  });
+
   test("parses top-level v2 fields", () => {
     const wf = parseWorkflow(V2);
     expect(wf.version).toBe(2);
@@ -53,14 +66,16 @@ describe("workflow schema v2", () => {
   });
 
   test("validate v2 passes when slots are in registry", () => {
-    const errors = validateWorkflow(parseWorkflow(V2));
+    const errors = validateWorkflow(parseWorkflow(V2), PROJECT_ROOT);
     expect(errors).toEqual([]);
   });
 
   test("validate v2 warns on unknown dispatch enum (soft)", () => {
     const bad = V2.replace("dispatch: subagent", "dispatch: magical");
-    const errors = validateWorkflow(parseWorkflow(bad));
-    expect(errors.some((e) => e.startsWith("[v2-warn] step 'case-draft' dispatch"))).toBe(true);
+    const errors = validateWorkflow(parseWorkflow(bad), PROJECT_ROOT);
+    expect(errors.some((e) => e.startsWith(`${V2_WARN_PREFIX} step 'case-draft' dispatch`))).toBe(
+      true,
+    );
   });
 
   test("v2 with blackboard_outputs_by_mode parses mode-specific outputs", () => {

@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, parse as parsePath } from "node:path";
+import { join } from "node:path";
 import YAML from "yaml";
+
+/** Shared prefix for v2 soft warnings; downstream filters route by this prefix. */
+export const V2_WARN_PREFIX = "[v2-warn]";
 
 export const BLACKBOARD_SLOTS = [
   "sources",
@@ -79,29 +82,13 @@ interface SlotRegistryDoc {
   };
 }
 
-function findSlotRegistry(start: string): string | undefined {
-  // 先尝试给定目录；否则向上回溯到文件系统根
-  const rootSentinel = parsePath(start).root;
-  let dir = start;
-  while (true) {
-    const candidate = join(dir, SLOT_REGISTRY_PATH);
-    if (existsSync(candidate)) return candidate;
-    if (dir === rootSentinel) return undefined;
-    const parent = dirname(dir);
-    if (parent === dir) return undefined;
-    dir = parent;
-  }
-}
-
 /** Load the union of v1_legacy + v2 blackboard slots from the registry file. */
 export function loadBlackboardSlots(root: string): Set<string> {
   if (cachedSlots) return cachedSlots;
-  // 优先 root 直系路径；缺失时向上回溯查找（兼容从 engine/ 子目录运行测试）
-  const directPath = join(root, SLOT_REGISTRY_PATH);
-  const registryPath = existsSync(directPath) ? directPath : findSlotRegistry(root);
-  if (!registryPath) return new Set<string>(BLACKBOARD_SLOTS);
+  const registryPath = join(root, SLOT_REGISTRY_PATH);
+  if (!existsSync(registryPath)) return new Set<string>(BLACKBOARD_SLOTS);
   const doc = JSON.parse(readFileSync(registryPath, "utf8")) as SlotRegistryDoc;
-  // 兼容两种存放方式：顶层 v1_legacy/v2 数组，或 JSON Schema properties.<key>.const 数组
+  // 优先支持 flat 键（test fixtures），fallback JSON Schema layout（production registry 用 properties.<k>.const）
   const v1 = doc.v1_legacy ?? doc.properties?.v1_legacy?.const ?? [];
   const v2 = doc.v2 ?? doc.properties?.v2?.const ?? [];
   cachedSlots = new Set<string>([...v1, ...v2]);
@@ -131,27 +118,37 @@ export function parseWorkflow(text: string): Workflow {
   };
 }
 
+const NORMALIZABLE_STEP_KEYS = [
+  // v1 字段
+  "next",
+  "blackboard_inputs",
+  "blackboard_outputs",
+  "references",
+  "failure_modes",
+  "human_gates",
+  "verification",
+  // v2 字段
+  "dispatch",
+  "model",
+  "effort",
+  "subagent_type",
+  "workers",
+  "reviewers",
+  "validators",
+  "blackboard_inputs_by_mode",
+  "blackboard_outputs_by_mode",
+  "validators_by_mode",
+] as const satisfies readonly (keyof WorkflowStep)[];
+
+// 透传 v1+v2 已知字段、丢弃未知键并跳过 undefined，保留 `in step` 语义供 v1 missing-field 校验使用。
 function normalizeStep(raw: WorkflowStep): WorkflowStep {
-  return {
-    id: raw.id,
-    next: raw.next,
-    blackboard_inputs: raw.blackboard_inputs,
-    blackboard_outputs: raw.blackboard_outputs,
-    references: raw.references,
-    failure_modes: raw.failure_modes,
-    human_gates: raw.human_gates,
-    verification: raw.verification,
-    dispatch: raw.dispatch,
-    model: raw.model,
-    effort: raw.effort,
-    subagent_type: raw.subagent_type,
-    workers: raw.workers,
-    reviewers: raw.reviewers,
-    validators: raw.validators,
-    blackboard_inputs_by_mode: raw.blackboard_inputs_by_mode,
-    blackboard_outputs_by_mode: raw.blackboard_outputs_by_mode,
-    validators_by_mode: raw.validators_by_mode,
-  };
+  const out: WorkflowStep = { id: raw.id };
+  for (const key of NORMALIZABLE_STEP_KEYS) {
+    if (raw[key] !== undefined) {
+      (out as Record<string, unknown>)[key] = raw[key];
+    }
+  }
+  return out;
 }
 
 export function validateWorkflow(workflow: Workflow, root?: string): string[] {
@@ -186,7 +183,7 @@ function validateWorkflowV1(workflow: Workflow): string[] {
 
   for (const step of workflow.steps) {
     for (const field of REQUIRED_STEP_ARRAY_FIELDS) {
-      if (!(field in step) || step[field] === undefined) {
+      if (!(field in step)) {
         errors.push(`step '${step.id}' is missing required field: ${field}`);
         continue;
       }
@@ -225,7 +222,8 @@ function validateWorkflowV2(workflow: Workflow, root?: string): string[] {
     errs.push("workflow must declare at least one step");
     return errs;
   }
-  const slots = loadBlackboardSlots(root ?? process.cwd());
+  // 未传 root 时退回 v1 8 个 slot；production 调用方 (workflow-check) 始终透传 root
+  const slots = root ? loadBlackboardSlots(root) : new Set<string>(BLACKBOARD_SLOTS);
   const ids = new Set<string>();
   for (const step of workflow.steps) {
     if (!step.id) {
@@ -236,14 +234,18 @@ function validateWorkflowV2(workflow: Workflow, root?: string): string[] {
     ids.add(step.id);
     if (step.dispatch && !VALID_DISPATCH.has(step.dispatch)) {
       warns.push(
-        `[v2-warn] step '${step.id}' dispatch '${step.dispatch}' not in {inline, subagent}`,
+        `${V2_WARN_PREFIX} step '${step.id}' dispatch '${step.dispatch}' not in {inline, subagent}`,
       );
     }
     if (step.model && !VALID_MODEL.has(step.model)) {
-      warns.push(`[v2-warn] step '${step.id}' model '${step.model}' not in {sonnet, opus, haiku}`);
+      warns.push(
+        `${V2_WARN_PREFIX} step '${step.id}' model '${step.model}' not in {sonnet, opus, haiku}`,
+      );
     }
     if (step.effort && !VALID_EFFORT.has(step.effort)) {
-      warns.push(`[v2-warn] step '${step.id}' effort '${step.effort}' not in {low, medium, high}`);
+      warns.push(
+        `${V2_WARN_PREFIX} step '${step.id}' effort '${step.effort}' not in {low, medium, high}`,
+      );
     }
     const stepSlots = [
       ...(step.blackboard_inputs ?? []),
@@ -253,7 +255,7 @@ function validateWorkflowV2(workflow: Workflow, root?: string): string[] {
     ];
     for (const slot of stepSlots) {
       if (!slots.has(slot)) {
-        warns.push(`[v2-warn] step '${step.id}' uses unknown blackboard slot '${slot}'`);
+        warns.push(`${V2_WARN_PREFIX} step '${step.id}' uses unknown blackboard slot '${slot}'`);
       }
     }
   }
