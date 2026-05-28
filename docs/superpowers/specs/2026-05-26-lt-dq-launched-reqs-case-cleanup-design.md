@@ -24,8 +24,8 @@
 
 ## Sources Of Truth
 
-- 格式硬规则：`.ai/core/skills/case-draft/references/output-standard.md#用例级节点格式（Case-Level Normative）`。
-- QA 自检规则：`.ai/core/rules/case-qa.md`。
+- 格式硬规则：`.agents/skills/case-draft/rules/case-qa.md` 与 `.agents/contracts/output-artifacts.md`。
+- QA 自检规则：`.agents/skills/case-draft/rules/case-qa.md`。
 - 参考样例：`workspace/dataAssets/features/2099-01-lt-dq-main-flow/tmp/lt-dq-rule-task-44-cases.md`。
 - 目标产物：`workspace/dataAssets/features/2099-01-lt-dq-launched-reqs/岚图已上线需求主流程用例.md` 和 `.xmind`。
 - DOM 与自动化证据：`workspace/dataAssets/_shared/knowledge/sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md`、`workspace/dataAssets/_shared/pages/**`、目标 feature 现有 Playwright cases。

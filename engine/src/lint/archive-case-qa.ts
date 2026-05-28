@@ -33,9 +33,7 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
 
   let inFrontmatter = false;
   let frontmatterDone = false;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!;
-
+  for (const [i, line] of lines.entries()) {
     // frontmatter field whitelist
     if (i === 0 && line.trim() === "---") {
       inFrontmatter = true;
@@ -48,14 +46,15 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
         continue;
       }
       const kv = line.match(/^(\w[\w_]*)\s*:/);
-      if (kv && !ALLOWED_FRONTMATTER.has(kv[1]!)) {
+      const key = kv?.[1];
+      if (key && !ALLOWED_FRONTMATTER.has(key)) {
         violations.push({
           rule: "archive-frontmatter-deprecated",
           file: archivePath,
           lineNumber: i + 1,
-          matched: kv[1]!,
+          matched: key,
           severity: "warn",
-          message: `frontmatter 字段 "${kv[1]}" 不在允许集，去除或改用 references/output-standard.md 规定字段`,
+          message: `frontmatter 字段 "${key}" 不在允许集，去除或改用当前 case-qa/output-artifacts 规定字段`,
         });
       }
       continue;
@@ -63,8 +62,9 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
 
     // case heading: ##### 【Pn】title
     const h5 = line.match(/^#####\s+(.+)$/);
-    if (h5) {
-      const title = h5[1]!.trim();
+    const heading = h5?.[1];
+    if (heading) {
+      const title = heading.trim();
       const afterPriority = title.replace(PRIORITY_RE, "").trim();
       if (TITLE_MACHINE_ID_RE.test(afterPriority)) {
         violations.push({
@@ -107,7 +107,7 @@ function scanMachineFilesInRoot(featureDir: string, violations: CaseLintViolatio
   }
 }
 
-export function lintArchiveOutputStandard(featuresGlobRoot: string): CaseLintReport {
+export function lintArchiveCaseQa(featuresGlobRoot: string): CaseLintReport {
   const violations: CaseLintViolation[] = [];
   let files = 0;
   // featuresGlobRoot may be <workspace>/<project>/features or one feature dir.

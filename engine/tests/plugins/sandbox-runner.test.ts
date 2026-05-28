@@ -20,13 +20,13 @@ describe("capability-spec", () => {
     it("parses a valid capability spec", () => {
       const result = parseCapabilityRequired({
         net: ["api.example.com", "*.example.com"],
-        fs_read: ["docs/skills/contracts/plugins/test/fixtures"],
+        fs_read: ["plugins/test/fixtures"],
         fs_write: [".kata/plugin-staging"],
         secret_refs: ["KATA_TEST_KEY"],
       });
       expect(result.ok).toBe(true);
       expect(result.value?.net).toEqual(["api.example.com", "*.example.com"]);
-      expect(result.value?.fs_read).toEqual(["docs/skills/contracts/plugins/test/fixtures"]);
+      expect(result.value?.fs_read).toEqual(["plugins/test/fixtures"]);
     });
 
     it("returns empty arrays for missing fields", () => {
@@ -159,7 +159,7 @@ describe("secret-injector", () => {
 describe("sandbox runner", () => {
   const strictCap: CapabilityRequired = {
     net: ["lanhu.com", "*.lanhu.com"],
-    fs_read: ["docs/skills/contracts/plugins"],
+    fs_read: ["plugins"],
     fs_write: [".kata/plugin-staging"],
     secret_refs: [],
   };
@@ -183,7 +183,7 @@ describe("sandbox runner", () => {
 
     it("audits allowed fs reads", () => {
       const auditor = createSandboxAuditor(strictCap);
-      const result = auditor.checkFsRead("docs/skills/contracts/plugins/fixtures/test.md");
+      const result = auditor.checkFsRead("plugins/fixtures/test.md");
       expect(result.allowed).toBe(true);
     });
 
@@ -212,7 +212,7 @@ describe("sandbox runner", () => {
         capabilityRequired: strictCap,
         pluginFn: async (auditor) => {
           const net = auditor.checkNet("https://lanhu.com/api/data");
-          const fsRead = auditor.checkFsRead("docs/skills/contracts/plugins/fixtures/test.md");
+          const fsRead = auditor.checkFsRead("plugins/fixtures/test.md");
           return { net: net.allowed, fsRead: fsRead.allowed };
         },
       });
@@ -222,7 +222,7 @@ describe("sandbox runner", () => {
         { kind: "net_access", target: "https://lanhu.com/api/data", allowed: true },
         {
           kind: "fs_read",
-          target: "docs/skills/contracts/plugins/fixtures/test.md",
+          target: "plugins/fixtures/test.md",
           allowed: true,
         },
       ]);
@@ -279,7 +279,7 @@ describe("sandbox runner", () => {
     it("validates capability_required from manifest", () => {
       const result = validatePluginCapabilities({
         net: ["lanhu.com", "*.lanhu.com"],
-        fs_read: ["docs/skills/contracts/plugins"],
+        fs_read: ["plugins"],
         fs_write: [],
         secret_refs: ["KATA_LANHU_COOKIE"],
       });

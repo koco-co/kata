@@ -251,8 +251,20 @@ export function pluginsDir(): string {
   return resolve(repoRoot(), "plugins");
 }
 
+export function contractsDir(): string {
+  return resolve(repoRoot(), ".claude/contracts");
+}
+
+export function contractPath(...segments: string[]): string {
+  return resolve(contractsDir(), ...segments);
+}
+
+export function contractDisplayPath(...segments: string[]): string {
+  return [".claude/contracts", ...segments].join("/");
+}
+
 export function contractPluginsDir(): string {
-  return resolve(repoRoot(), "docs/skills/contracts/plugins");
+  return pluginsDir();
 }
 
 export function templatesDir(): string {

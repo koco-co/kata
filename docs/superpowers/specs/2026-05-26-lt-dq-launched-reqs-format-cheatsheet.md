@@ -2,8 +2,8 @@
 
 本文件是本批 1216 条用例整改的**执行手册**，不是新的 SSOT。
 
-- 框架级 SSOT：`.ai/core/skills/case-draft/references/output-standard.md`「用例级节点格式（Case-Level Normative）」节（22 条 hard rules）。
-- 自检规则文档：`.ai/core/rules/case-qa.md`。
+- 框架级 SSOT：`.agents/skills/case-draft/rules/case-qa.md` 与 `.agents/contracts/output-artifacts.md`。
+- 自检规则文档：`.agents/skills/case-draft/rules/case-qa.md`。
 - 机器校验脚本：`workspace/dataAssets/features/2099-01-lt-dq-launched-reqs/scripts/audit-launched-reqs-cases.mjs`。
 - 当前基线：3451 条违规（详见 `results/audit-baseline.json`，未入 git）。
 - 冲突原则：本表与 SSOT 冲突时以 SSOT 为准；本表只作为「针对本批的反例 + 修复模板」存在。
@@ -14,7 +14,7 @@
   - `岚图已上线需求主流程用例.md`
   - `岚图已上线需求主流程用例.xmind`（由 md 重新生成，不手改）
   - `scripts/audit-launched-reqs-cases.mjs`（只允许扩规则，不删既有规则）
-- **禁动路径**：`.agents/**`、`.ai/**`、`.claude/**`、`engine/**`、`tools/**`、其它 feature 目录（特别是 `2099-01-lt-dq-main-flow/**`）。若发现需要改这些路径，停下汇报，不得自行修改。
+- **禁动路径**：`.agents/**`、`.claude/**`、`engine/**`、`tools/**`、其它 feature 目录（特别是 `2099-01-lt-dq-main-flow/**`）。若发现需要改这些路径，停下汇报，不得自行修改。
 - **范围切分**：
   - **格式整理**：v6.4.2 ~ v6.4.10 **全部** 7 个版本都做（不是只动 v6.4.2~v6.4.6）。
   - **补规则集链路**：仅 v6.4.2 ~ v6.4.6 这 5 个版本的 DQ 规则任务类用例做（v6.4.8 之后历史上已有规则集，不需要补）。
@@ -63,7 +63,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R1. bracket_button_misuse — 按钮误用 `【】`（1634 处）
 
-- **SSOT**：output-standard.md 规则 4（硬）「`【】` 用于优先级前缀、业务子括号、菜单/页面导航路径；`「」` 专用于 UI/按钮/字段/选项/单据/标签页名」。
+- **SSOT**：当前 case-qa / output-artifacts 规则 4（硬）「`【】` 用于优先级前缀、业务子括号、菜单/页面导航路径；`「」` 专用于 UI/按钮/字段/选项/单据/标签页名」。
 
 **❌ 反例**（v6.4.10 / v6.4.2 大量）：
 ```
@@ -83,7 +83,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R2. weak_expected_template — 弱预期模板话术（1088 处）
 
-- **SSOT**：output-standard.md 规则 7（硬）「禁用『页面正常打开』之类空泛断言作为唯一预期」+ 规则 11/12（XMind 镜像也不得堆模板）。
+- **SSOT**：当前 case-qa / output-artifacts 规则 7（硬）「禁用『页面正常打开』之类空泛断言作为唯一预期」+ 规则 11/12（XMind 镜像也不得堆模板）。
 
 **❌ 反例**（codex 一段模板灌满全文）：
 ```
@@ -129,7 +129,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R4. navigation_dash_separator — 导航用 `-` 分隔（248 处）
 
-- **SSOT**：output-standard.md 规则 4 + 规则 7「进入路径用 `进入【模块 → 页面】`」。
+- **SSOT**：当前 case-qa / output-artifacts 规则 4 + 规则 7「进入路径用 `进入【模块 → 页面】`」。
 
 **❌ 反例**：
 ```
@@ -147,7 +147,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R5. step_cell_no_linebreak — 步骤多子点合一行未换行（17 处）
 
-- **SSOT**：output-standard.md 规则 7「配置项以 `<br>- ` 拆行」。
+- **SSOT**：当前 case-qa / output-artifacts 规则 7「配置项以 `<br>- ` 拆行」。
 
 **❌ 反例**（v6.4.8）：
 ```
@@ -163,7 +163,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R6. missing_subsection_header — 缺 4 级 `#### 子模块` 标题（文档级 1 处）
 
-- **SSOT**：output-standard.md 规则 1（硬）「`## 一级模块` → `### 二级模块` → `#### 子分组(可选)` → `##### 【Pn】用例标题`」。
+- **SSOT**：当前 case-qa / output-artifacts 规则 1（硬）「`## 一级模块` → `### 二级模块` → `#### 子分组(可选)` → `##### 【Pn】用例标题`」。
 
 **当前结构**（错）：
 ```
@@ -184,7 +184,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R7. step_contains_api_call — 步骤含 curl/接口调用（1 处）
 
-- **SSOT**：output-standard.md 规则 7「步骤=用户在 UI 上的操作」+ 规则 6「数据准备 SQL 放前置条件代码块」。
+- **SSOT**：当前 case-qa / output-artifacts 规则 7「步骤=用户在 UI 上的操作」+ 规则 6「数据准备 SQL 放前置条件代码块」。
 
 **❌ 反例**（v6.4.10 第 1 条 P1 用例）：
 ```
@@ -208,7 +208,7 @@ ls workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json
 
 ### R8. hallucinated_filler_step — 幻觉占位步骤（1 处）
 
-- **SSOT**：output-standard.md 规则 7 + 规则 20（不得宣称未验证内容）。
+- **SSOT**：当前 case-qa / output-artifacts 规则 7 + 规则 20（不得宣称未验证内容）。
 
 **❌ 反例**（v6.4.6 临时保存类用例）：
 ```

@@ -4,20 +4,20 @@ import { resolve } from "node:path";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
 const skillPath = resolve(repoRoot, ".claude/skills/case-draft/SKILL.md");
-const sourceIntakePath = resolve(
+const specReviewerPath = resolve(
   repoRoot,
-  ".claude/skills/case-draft/references/source-intake-protocol.md",
+  ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
 );
-const reviewGatesPath = resolve(
+const qualityReviewerPath = resolve(
   repoRoot,
-  ".claude/skills/case-draft/references/case-review-evidence-gates.md",
+  ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
 );
 const oldSkillPath = resolve(repoRoot, ".claude/skills/obsolete-skill/SKILL.md");
 
 describe("case-draft runtime references", () => {
   const skill = readFileSync(skillPath, "utf8");
-  const sourceIntake = readFileSync(sourceIntakePath, "utf8");
-  const reviewGates = readFileSync(reviewGatesPath, "utf8");
+  const specReviewer = readFileSync(specReviewerPath, "utf8");
+  const qualityReviewer = readFileSync(qualityReviewerPath, "utf8");
 
   test("projects the design-aligned product skill name", () => {
     expect(skill).toContain("name: case-draft");
@@ -25,10 +25,10 @@ describe("case-draft runtime references", () => {
     expect(existsSync(oldSkillPath)).toBe(false);
   });
 
-  test("keeps source intake and evidence gates as references", () => {
-    expect(sourceIntake).toContain("Lanhu URL 本身即为源输入");
-    expect(sourceIntake).toContain("source_snapshot");
-    expect(reviewGates).toContain("unsupported_claims");
-    expect(reviewGates).toContain("blocking pending 非 0");
+  test("keeps current reviewer references loadable", () => {
+    expect(specReviewer).toContain("SourceRef");
+    expect(specReviewer).toContain("blocking");
+    expect(qualityReviewer).toContain("用例内容质量");
+    expect(qualityReviewer).toContain("case_id");
   });
 });

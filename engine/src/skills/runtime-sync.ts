@@ -51,7 +51,7 @@ const RUNTIME_DIRS: Record<SkillRuntime, ".claude" | ".agents"> = {
   codex: ".agents",
 };
 
-const EXCEPTIONS_PATH = "docs/skills/contracts/runtime-sync-exceptions.yaml";
+const EXCEPTIONS_PATH = ".claude/contracts/runtime-sync-exceptions.yaml";
 
 const BLOCKED_REASON_PATTERNS = [
   /\buser\b/i,

@@ -1,10 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { contractPath } from "../../lib/paths.ts";
 
-const SCHEMA_PATH = join(repoRoot(), "docs/skills/contracts/schemas/blackboard-state.json");
-const STATE_MODEL_PATH = join(repoRoot(), "docs/skills/blackboard/state-model.md");
+const SCHEMA_PATH = contractPath("schemas", "blackboard-state.json");
+const STATE_MODEL_PATH = contractPath("blackboard", "state-model.md");
 
 const REQUIRED_SLOTS = [
   "sources",

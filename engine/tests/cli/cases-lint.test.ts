@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import JSZip from "jszip";
 import { lintLanhuBlockedDrafts } from "../../src/cli/cases-lint.ts";
-import { lintArchiveOutputStandard } from "../../src/lint/archive-output-standard.ts";
+import { lintArchiveCaseQa } from "../../src/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "../../src/lint/case-md-sourceref-leak.ts";
 
 function blockedLanhuManifest(featureId: string) {
@@ -372,7 +372,7 @@ describe("kata cases lint", () => {
   it("flags archive title with machine identifiers (TC-/SR-/RA-)", () => {
     const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
     try {
-      const featureId = "2026-05-output-standard";
+      const featureId = "2026-05-case-qa";
       const featureDir = join(scratch, "dataAssets/features", featureId);
       mkdirSync(featureDir, { recursive: true });
       writeFileSync(
@@ -391,7 +391,7 @@ describe("kata cases lint", () => {
         ].join("\n"),
       );
 
-      const result = lintArchiveOutputStandard(join(scratch, "dataAssets", "features"));
+      const result = lintArchiveCaseQa(join(scratch, "dataAssets", "features"));
       expect(result.violations.map((v) => v.rule)).toContain("archive-title-machine-id");
       expect(result.violations.some((v) => v.matched?.includes("TC-100"))).toBe(true);
       expect(result.violations.every((v) => v.severity === "fail")).toBe(true);
@@ -404,7 +404,7 @@ describe("kata cases lint", () => {
   it("accepts a single feature directory for archive output lint", () => {
     const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
     try {
-      const featureId = "2026-05-output-standard-feature-scope";
+      const featureId = "2026-05-case-qa-feature-scope";
       const featureDir = join(scratch, "dataAssets/features", featureId);
       mkdirSync(featureDir, { recursive: true });
       writeFileSync(
@@ -419,7 +419,7 @@ describe("kata cases lint", () => {
         ].join("\n"),
       );
 
-      const result = lintArchiveOutputStandard(featureDir);
+      const result = lintArchiveCaseQa(featureDir);
       expect(result.files).toBe(1);
       expect(result.violations.map((v) => v.rule)).toContain("archive-title-machine-id");
     } finally {

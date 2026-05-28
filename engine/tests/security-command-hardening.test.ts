@@ -20,21 +20,18 @@ describe("P4-06 command execution hardening", () => {
     }
   });
 
-  it("keeps Zentao plugin secret names aligned with runtime env names", () => {
-    const manifest = JSON.parse(
-      readRepoFile("docs/skills/contracts/plugins/zentao/plugin.json"),
-    ) as {
-      capability_required: { secret_refs: string[] };
-    };
-    const runtime = JSON.parse(
-      readRepoFile("docs/skills/contracts/plugins/zentao/runtime.json"),
-    ) as {
+  it("keeps Zentao plugin secret names aligned with current env names", () => {
+    const manifest = JSON.parse(readRepoFile("plugins/zentao/plugin.json")) as {
       env_required: string[];
     };
 
-    expect(manifest.capability_required.secret_refs).not.toContain("KATA_ZENTAO_TOKEN");
-    expect(manifest.capability_required.secret_refs).toEqual(
-      expect.arrayContaining(runtime.env_required),
+    expect(manifest.env_required).not.toContain("KATA_ZENTAO_TOKEN");
+    expect(manifest.env_required).toEqual(
+      expect.arrayContaining([
+        "KATA_ZENTAO_BASE_URL",
+        "KATA_ZENTAO_ACCOUNT",
+        "KATA_ZENTAO_PASSWORD",
+      ]),
     );
   });
 });

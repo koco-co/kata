@@ -3,7 +3,8 @@ name: schema-check
 on:
   push:
     paths:
-      - 'docs/skills/contracts/schemas/**'
+      - '.claude/contracts/schemas/**'
+      - '.agents/contracts/schemas/**'
       - 'engine/src/schemas/**'
 
 jobs:

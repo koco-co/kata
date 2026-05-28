@@ -1,19 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import Ajv from "ajv";
 import { parse } from "yaml";
-import { repoRoot } from "../../lib/paths.ts";
+import { contractPath } from "../../lib/paths.ts";
 
 const schema = JSON.parse(
-  readFileSync(
-    join(repoRoot(), "docs/skills/contracts/schemas/SourceRefRegistry.v1.schema.json"),
-    "utf-8",
-  ),
+  readFileSync(contractPath("schemas", "SourceRefRegistry.v1.schema.json"), "utf-8"),
 );
-const registry = parse(
-  readFileSync(join(repoRoot(), "docs/skills/contracts/schemas/source-ref-registry.yaml"), "utf-8"),
-);
+const registry = parse(readFileSync(contractPath("schemas", "source-ref-registry.yaml"), "utf-8"));
 const validate = new Ajv({ strict: false, validateSchema: false }).compile(schema);
 
 describe("SourceRefRegistry@1", () => {

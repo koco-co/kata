@@ -2,7 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, normalize, sep } from "node:path";
 import { Command } from "commander";
 import { repoRoot } from "../../lib/paths.ts";
-import { lintArchiveOutputStandard } from "../lint/archive-output-standard.ts";
+import { lintArchiveCaseQa } from "../lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "../lint/case-traceability-header.ts";
 import { lintDebugFileNaming } from "../lint/debug-file-naming.ts";
@@ -12,6 +12,7 @@ import { lintNoDebugInCases } from "../lint/no-debug-in-cases.ts";
 import { lintNoFeatureLocalHelpers } from "../lint/no-feature-local-helpers.ts";
 import { lintOwnerSkillDup } from "../lint/owner-skill-dup.ts";
 import { lintSourceRefRegistry } from "../lint/source-ref-registry.ts";
+import type { CaseLintViolation, Violation } from "../lint/types.ts";
 import {
   lintCasesInCasesDir,
   lintEnvProfileCompliance,
@@ -32,8 +33,8 @@ export async function lintLanhuBlockedDrafts(
   workspaceRoot: string,
   projects: string[],
   scopedFeatureId?: string,
-) {
-  const violations = [];
+): Promise<{ violations: CaseLintViolation[] }> {
+  const violations: CaseLintViolation[] = [];
   for (const project of projects) {
     const featuresDir = join(workspaceRoot, project, "features");
     if (!existsSync(featuresDir)) continue;
@@ -73,7 +74,9 @@ export function buildCasesCommand(): Command {
     .option("--severity <level>", "filter exit-code by severity (all|fail-only)", "all")
     .option("--scope <p>", "scan path", join(repoRoot(), "workspace"))
     .action(async (opts: { exitCode: boolean; severity: string; scope: string }) => {
-      const normalizedScope = normalize(isAbsolute(opts.scope) ? opts.scope : join(repoRoot(), opts.scope));
+      const normalizedScope = normalize(
+        isAbsolute(opts.scope) ? opts.scope : join(repoRoot(), opts.scope),
+      );
       const featureMarker = `${sep}features${sep}`;
       const markerIndex = normalizedScope.indexOf(featureMarker);
       const workspaceMarker = `${sep}workspace${sep}`;
@@ -147,7 +150,7 @@ export function buildCasesCommand(): Command {
         scopedProject && scopedFeatureId
           ? [join(workspaceLintRoot, scopedProject, "features", scopedFeatureId)]
           : projects.map((project) => join(workspaceLintRoot, project, "features"));
-      const reports: any[] = [
+      const reports: Array<{ violations: Array<CaseLintViolation | Violation> }> = [
         lanhuBlockedDraftReport,
         caseMdSourceRefLeakReport,
         lintWeakAssertion(opts.scope),
@@ -158,7 +161,7 @@ export function buildCasesCommand(): Command {
         lintNoDebugInCases(opts.scope),
         lintHandoffDoubleTrack(opts.scope),
         ...workspaceWideReports,
-        ...archiveOutputRoots.map((root) => lintArchiveOutputStandard(root)),
+        ...archiveOutputRoots.map((root) => lintArchiveCaseQa(root)),
       ];
       const all = [...featureViolations, ...reports.flatMap((r) => r.violations)];
       for (const v of all) {

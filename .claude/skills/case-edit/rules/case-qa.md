@@ -27,7 +27,7 @@ Archive Markdown 与 XMind 必须从同一用例模型生成/更新，逐字段�
 当前置数据实际是业务准备链路或页面操作（例如新增报告、生成报告、执行规则任务、准备明细数据、确认状态记录）时，必须放入用例步骤的第 1 步或前几步，并在预期中写明准备结果；前置条件只保留环境、权限、数据源、维表等跨用例基础依赖。
 前置条件不得写“本组用例需要的数据均在用例步骤中准备或确认”这类元说明；如果没有可核对的前置数据，就不要用一句说明占位。
 
-用例级节点的所有格式细节（标题三段式、前置条件 SQL 注释块、`${SchemaA}` 占位符、步骤=单页面、预期编号写法、XMind topic 镜像与 priority marker 对照、数据质量「规则集 → 规则任务」前置链、分区切换正负样本约束等）一律以 `.agents/skills/case-draft/references/output-standard.md` 与 `.claude/skills/case-draft/references/output-standard.md` 的 runtime 版本为准。
+用例级节点的所有格式细节（标题三段式、前置条件 SQL 注释块、`${SchemaA}` 占位符、步骤=单页面、预期编号写法、XMind topic 镜像与 priority marker 对照、数据质量「规则集 → 规则任务」前置链、分区切换正负样本约束等）一律以同侧 `case-draft` 的 `rules/case-qa.md`、`contracts/output-artifacts.md` 与 `references/fewshots/case-format-sample.md` 当前 runtime 版本为准。
 
 ## 产物变更后检查
 

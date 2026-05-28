@@ -22,8 +22,8 @@
   - Local deterministic audit for counts, Markdown structure, weak assertions, old navigation syntax, and pre-v6.4.8 DQ rule-task chain gaps.
 - Read-only evidence:
   - `workspace/dataAssets/features/2099-01-lt-dq-main-flow/tmp/lt-dq-rule-task-44-cases.md`
-  - `.ai/core/skills/case-draft/references/output-standard.md`
-  - `.ai/core/rules/case-qa.md`
+  - `.agents/skills/case-draft/rules/case-qa.md`
+  - `.agents/contracts/output-artifacts.md`
   - `workspace/dataAssets/_shared/knowledge/sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md`
   - `workspace/dataAssets/_shared/knowledge/modules/data-quality.md`
   - `workspace/dataAssets/_shared/pages/2099-01-lt-dq-launched-reqs/**`

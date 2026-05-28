@@ -3,7 +3,7 @@ import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import Handlebars from "handlebars";
-import { repoRoot } from "../../lib/paths.ts";
+import { contractPath, repoRoot } from "../../lib/paths.ts";
 import { loadHandoffV2Validator } from "../schemas/loaders.ts";
 
 export interface HandoffRenderContext {
@@ -17,10 +17,7 @@ const tmplPath = join(repoRoot(), "engine/templates/handoff.md.hbs");
 const tmpl = Handlebars.compile(readFileSync(tmplPath, "utf-8"));
 const validate = loadHandoffV2Validator();
 
-const correctionsSchemaPath = join(
-  repoRoot(),
-  "docs/skills/contracts/schemas/CaseCorrections.v1.schema.json",
-);
+const correctionsSchemaPath = contractPath("schemas", "CaseCorrections.v1.schema.json");
 const correctionsAjv = new Ajv2020({ strict: false });
 addFormats(correctionsAjv);
 const validateCorrections = correctionsAjv.compile(

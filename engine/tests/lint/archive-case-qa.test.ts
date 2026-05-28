@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintArchiveOutputStandard } from "../../src/lint/archive-output-standard.ts";
+import { lintArchiveCaseQa } from "../../src/lint/archive-case-qa.ts";
 
 function feature(files: Record<string, string>, dirs: string[] = []): string {
   const root = mkdtempSync(join(tmpdir(), "aos-"));
@@ -42,7 +42,7 @@ origin: "case-draft"
 | 1 | 选择「已绑定」 | 列表仅展示已绑定数据表 |
 `;
 
-describe("lintArchiveOutputStandard", () => {
+describe("lintArchiveCaseQa", () => {
   const roots: string[] = [];
 
   afterEach(() => {
@@ -59,25 +59,25 @@ describe("lintArchiveOutputStandard", () => {
 
   test("flags TC-ID in case title", () => {
     const root = tmp({ "archive.md": GOOD_ARCHIVE.replace("验证选择", "TC-DM-001 验证选择") });
-    const r = lintArchiveOutputStandard(join(root, "p", "features"));
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-title-machine-id")).toBe(true);
   });
 
   test("flags bracket semantics violation", () => {
     const root = tmp({ "archive.md": GOOD_ARCHIVE.replace("「已绑定」", "【已绑定】") });
-    const r = lintArchiveOutputStandard(join(root, "p", "features"));
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-bracket-semantics")).toBe(true);
   });
 
   test("passes multi-digit priority P10 without bracket false positive", () => {
     const root = tmp({ "archive.md": GOOD_ARCHIVE.replace("【P0】", "【P10】") });
-    const r = lintArchiveOutputStandard(join(root, "p", "features"));
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-bracket-semantics")).toBe(false);
   });
 
   test("flags machine file in feature root", () => {
     const root = tmp({ "archive.md": GOOD_ARCHIVE, "source-snapshot.json": "{}" });
-    const r = lintArchiveOutputStandard(join(root, "p", "features"));
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-machine-file-in-root")).toBe(true);
   });
 
@@ -85,13 +85,13 @@ describe("lintArchiveOutputStandard", () => {
     const root = tmp({
       "archive.md": GOOD_ARCHIVE.replace('status: "草稿"', 'status: "草稿"\nproduct: "dataAssets"'),
     });
-    const r = lintArchiveOutputStandard(join(root, "p", "features"));
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-frontmatter-deprecated")).toBe(true);
   });
 
   test("passes a clean archive", () => {
     const root = tmp({ "archive.md": GOOD_ARCHIVE }, [".process"]);
-    const r = lintArchiveOutputStandard(join(root, "p", "features"));
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.passed).toBe(true);
   });
 });

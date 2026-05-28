@@ -13,8 +13,6 @@ steps:
     references:
       - .claude/skills/case-draft/SKILL.md
       - .agents/skills/case-draft/SKILL.md
-      - references/source-intake-protocol.md
-      - references/error-fallback-paths.md
     failure_modes:
       - SOURCE_FETCH_BLOCKED
       - LANHU_AUTH_REQUIRED
@@ -24,9 +22,7 @@ steps:
     next: [source-confirm]
     blackboard_inputs: [sources, source_refs]
     blackboard_outputs: [decisions]
-    references:
-      - references/module-identify.md
-      - references/error-fallback-paths.md
+    references: []
     failure_modes:
       - MODULE_AMBIGUOUS
     human_gates: []
@@ -35,8 +31,7 @@ steps:
     next: [historical-context]
     blackboard_inputs: [sources, decisions]
     blackboard_outputs: [open_questions]
-    references:
-      - references/source-confirm.md
+    references: []
     failure_modes: []
     human_gates:
       - ambiguous_source_requires_user_confirmation
@@ -45,10 +40,7 @@ steps:
     next: [requirement-atomize]
     blackboard_inputs: [sources, decisions]
     blackboard_outputs: [decisions]
-    references:
-      - references/historical-context.md
-      - references/execution-protocol.md
-      - references/error-fallback-paths.md
+    references: []
     failure_modes: []
     human_gates: []
     verification: [historical_evidence_boundaries_recorded]
@@ -57,8 +49,6 @@ steps:
     blackboard_inputs: [sources, decisions]
     blackboard_outputs: [decisions]
     references:
-      - references/atomization-guide.md
-      - references/execution-protocol.md
       - references/worker-prompt.md
     failure_modes: []
     human_gates: []
@@ -67,8 +57,7 @@ steps:
     next: [confirmation-package]
     blackboard_inputs: [decisions]
     blackboard_outputs: [open_questions]
-    references:
-      - references/ambiguity-decision-tree.md
+    references: []
     failure_modes: []
     human_gates: []
     verification: [ambiguities_classified]
@@ -76,9 +65,7 @@ steps:
     next: [product-feedback-merge]
     blackboard_inputs: [open_questions]
     blackboard_outputs: [open_questions]
-    references:
-      - references/confirmation-package-template.md
-      - references/error-fallback-paths.md
+    references: []
     failure_modes: []
     human_gates:
       - confirmation_package_requires_user_decision
@@ -87,9 +74,7 @@ steps:
     next: [coverage-matrix]
     blackboard_inputs: [open_questions, decisions]
     blackboard_outputs: [decisions]
-    references:
-      - references/ambiguity-decision-tree.md
-      - references/confirmation-package-template.md
+    references: []
     failure_modes: []
     human_gates: []
     verification: [feedback_merge_scope_recorded]
@@ -97,8 +82,7 @@ steps:
     next: [case-draft]
     blackboard_inputs: [decisions]
     blackboard_outputs: [coverage]
-    references:
-      - references/coverage-matrix-guide.md
+    references: []
     failure_modes: []
     human_gates: []
     verification: [coverage_matrix_links_requirement_atoms]
@@ -107,12 +91,9 @@ steps:
     blackboard_inputs: [decisions, coverage, source_refs]
     blackboard_outputs: [artifacts]
     references:
-      - references/coverage-matrix-guide.md
       - references/spec-reviewer-prompt.md
       - references/quality-reviewer-prompt.md
-      - references/execution-protocol.md
       - references/worker-prompt.md
-      - references/output-standard.md
       - references/fewshots/case-format-sample.md
       - references/fewshots/case-format-sample.xmind.md
     failure_modes: []
@@ -125,8 +106,6 @@ steps:
     references:
       - references/spec-reviewer-prompt.md
       - references/quality-reviewer-prompt.md
-      - references/case-review-evidence-gates.md
-      - references/execution-protocol.md
     failure_modes: []
     human_gates: []
     verification: [review_gates_recorded]
@@ -135,19 +114,15 @@ steps:
     blackboard_inputs: [artifacts, verification]
     blackboard_outputs: [artifacts]
     references:
+      - .claude/contracts/output-artifacts.md
       - references/quality-reviewer-prompt.md
-      - references/case-review-evidence-gates.md
-      - references/output-standard.md
-      - references/error-fallback-paths.md
     failure_modes: []
     human_gates: []
     verification: [deliverable_files_verified]
   - id: automation-handoff
     blackboard_inputs: [artifacts]
     blackboard_outputs: [handoff]
-    references:
-      - references/automation-handoff-spec.md
-      - references/error-fallback-paths.md
+    references: []
     failure_modes: []
     human_gates: []
     verification: [automation_intents_filtered]

@@ -20,7 +20,7 @@ export interface RouteCheckReport {
   violations: RouteCheckViolation[];
 }
 
-const ROUTES_DIR = "docs/skills/contracts/routes";
+const ROUTES_DIR = ".claude/contracts/routes";
 const RUNTIME_SKILL_DIRS = [".claude/skills", ".agents/skills"] as const;
 const SAMPLE_FIELDS = ["should_trigger", "should_not_trigger", "clarify"] as const;
 

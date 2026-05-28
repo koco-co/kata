@@ -2,13 +2,14 @@
 
 输入 `/workspace-manage` 查看功能菜单；首次安装见仓库根目录 `INSTALL.md`。
 
-`.claude/` 是 Claude Code runtime 实现目录；`.agents/` 是 Codex runtime 实现目录。两套目录完全手写、完全分开维护，不得把 `.ai` 作为当前规范来源。
+`.claude/` 是 Claude Code runtime 实现目录；`.agents/` 是 Codex runtime 实现目录。两套目录完全手写、完全分开维护。
 
 ## Runtime 同步硬规则
 
 - Claude 与 Codex 同等优先；任一 runtime 下 skill 不可用，视为该 skill 整体不可用。
 - 修改 `.claude/**` 或 `.agents/**` 中任一 runtime 提示词、reference、script、workflow 或路由规则时，必须同步评估另一套 agent 架构中的对应提示词，并在需要时同步修改；若确认另一侧无需变更，提交说明必须写明具体理由。
 - 不要求两边文件逐字一致，但用户入口语义、交付产物清单、验证口径和证据底线必须一致。
+- 两套 runtime 需要复用同一份 agent 文档、reference 或规则文件时，优先使用 symlink 保持单一文件来源；不得抽取到第三方共享文档目录。
 
 ## Claude Code Runtime 规则
 

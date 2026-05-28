@@ -9,10 +9,10 @@
 
 ### Added
 
-- Added Router contracts under `docs/skills/contracts/routes/*.yaml`.
-- Added `docs/skills/contracts/skill-graph.yaml` as the shared skill graph.
-- Added workflow contracts and review docs for case-draft, case-edit, case-hotfix, and playwright-automation.
-- Added Blackboard schema/review documentation as the shared workflow state model.
+- Added Router contracts under runtime `contracts/routes/*.yaml`.
+- Added runtime `contracts/skill-graph.yaml` as the skill graph.
+- Added workflow contracts for case-draft, case-edit, case-hotfix, and playwright-automation.
+- Added Blackboard schema and state model under runtime `contracts/**`.
 - Added `bun run check:skills` coverage for runtime sync, runtime detach, route, skill graph, and workflow checks.
 
 ### Changed

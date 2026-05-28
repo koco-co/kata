@@ -40,7 +40,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 核心原则：
 
 - `.agents/**` 与 `.claude/**` 是一等 runtime 目录，分别服务 kata Codex runtime 和 Claude Code runtime。
-- `docs/skills/contracts/**` 承接共享 schema、route、skill graph、workflow、插件 metadata 和项目规则契约。
+- 两套 runtime 的 contracts 分别位于 `.agents/contracts/**` 与 `.claude/contracts/**`；复用同一份 agent 文档时使用 symlink 保持单一文件来源。
 - 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
 - `playwright-cli` 保持 vendor skill 原名，用于真实浏览器自动化；kata-owned product skill 不复用旧聚合命名。
 
@@ -133,19 +133,13 @@ bunx playwright install
 
 ## 架构
 
-详细设计见 [Kata 4.0 整体项目架构设计说明](./docs/architecture/kata-project-architecture.md)。
-
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现，以 `docs/skills/contracts/**` 承接共享契约，以 `engine` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
+Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现，以 runtime 内部 contracts 承接 schema、route、skill graph、workflow 与 blackboard，以 `engine` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
 
 ```text
-docs/skills/contracts
-  ├─ schemas / routes / skill graph / workflows / rules
-  └─ sync exceptions
-
-.agents/**   kata Codex runtime skills
-.claude/**   Claude Code runtime skills
+.agents/    kata Codex runtime skills and contracts
+.claude/    Claude Code runtime skills and contracts
 engine/**    CLI, validators, tests, and workflow support
 ```
 
@@ -153,11 +147,11 @@ engine/**    CLI, validators, tests, and workflow support
 | --- | --- |
 | `.agents/**` | kata Codex runtime skill 与 reference 目录，一等维护。 |
 | `.claude/**` | Claude Code runtime skill 与 reference 目录，一等维护。 |
-| `docs/skills/contracts/**` | 共享 schema、route、skill graph、workflow、插件 metadata、同步例外和项目规则契约。 |
+| `.agents/contracts/**` / `.claude/contracts/**` | runtime contracts；共享内容优先用 symlink 复用单一文件来源。 |
 | `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |
 | `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
 
-工作流执行时，agent 读取对应 runtime skill 和 `docs/skills/contracts/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 engine 与 runtime 检查器校验。
+工作流执行时，agent 读取对应 runtime skill 和同侧 `contracts/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 engine 与 runtime 检查器校验。
 
 ## 插件
 
@@ -197,7 +191,7 @@ bun --no-env-file test --cwd engine
 bun run check:skills
 ```
 
-共享 schema、workflow、插件 metadata 和项目规则落在 `docs/skills/contracts/**`。
+schema、workflow、skill graph、blackboard 和同步例外落在 runtime `contracts/**`；共享内容使用 symlink 复用。
 
 ## License
 

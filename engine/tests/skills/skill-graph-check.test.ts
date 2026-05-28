@@ -28,7 +28,7 @@ function writeRuntimeSkill(root: string, name: string): void {
 }
 
 function writeGraph(root: string, body: string): void {
-  const dir = join(root, "docs", "skills", "contracts");
+  const dir = join(root, ".claude", "contracts");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "skill-graph.yaml"), body);
 }
@@ -63,7 +63,7 @@ describe("skill graph check", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "SKILL_GRAPH_MISSING",
-        path: "docs/skills/contracts/skill-graph.yaml",
+        path: ".claude/contracts/skill-graph.yaml",
       }),
     );
   });

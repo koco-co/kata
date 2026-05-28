@@ -25,7 +25,7 @@ function writeRuntimeSkill(root: string, name: string): void {
 }
 
 function writeRoute(root: string, name: string, body?: string): void {
-  const dir = join(root, "docs", "skills", "contracts", "routes");
+  const dir = join(root, ".claude", "contracts", "routes");
   mkdirSync(dir, { recursive: true });
   writeFileSync(
     join(dir, `${name}.yaml`),
@@ -63,7 +63,7 @@ describe("route check", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "ROUTE_CONTRACT_MISSING",
-        path: "docs/skills/contracts/routes/case-edit.yaml",
+        path: ".claude/contracts/routes/case-edit.yaml",
       }),
     );
   });
@@ -89,7 +89,7 @@ clarify:
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "ROUTE_SAMPLE_MISSING",
-        path: "docs/skills/contracts/routes/case-edit.yaml",
+        path: ".claude/contracts/routes/case-edit.yaml",
         message: "should_trigger must contain at least one sample",
       }),
     );
@@ -117,7 +117,7 @@ clarify:
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "ROUTE_ENTRY_MISMATCH",
-        path: "docs/skills/contracts/routes/case-edit.yaml",
+        path: ".claude/contracts/routes/case-edit.yaml",
         message: "entry must be /case-edit",
       }),
     );

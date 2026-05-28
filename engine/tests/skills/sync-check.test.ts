@@ -20,7 +20,7 @@ afterEach(() => {
 function makeRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-runtime-sync-"));
   tempRoots.push(root);
-  const contractsDir = join(root, "docs", "skills", "contracts");
+  const contractsDir = join(root, ".claude", "contracts");
   mkdirSync(contractsDir, { recursive: true });
   writeFileSync(join(contractsDir, "runtime-sync-exceptions.yaml"), "exceptions: []\n");
   return root;
@@ -420,7 +420,7 @@ name: demo
 
   test("validates runtime-sync-exceptions.yaml when present", () => {
     const root = makeRoot();
-    const contractsDir = join(root, "docs", "skills", "contracts");
+    const contractsDir = join(root, ".claude", "contracts");
     mkdirSync(contractsDir, { recursive: true });
     writeFileSync(
       join(contractsDir, "runtime-sync-exceptions.yaml"),
@@ -439,7 +439,7 @@ name: demo
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "RUNTIME_SYNC_EXCEPTION_INVALID",
-        path: "docs/skills/contracts/runtime-sync-exceptions.yaml",
+        path: ".claude/contracts/runtime-sync-exceptions.yaml",
         message:
           "exceptions[0] reason cannot waive user semantics, output artifacts, or verification scope",
       }),
@@ -448,7 +448,7 @@ name: demo
 
   test("reports RUNTIME_SYNC_EXCEPTION_MISSING when exceptions file is absent", () => {
     const root = makeRoot();
-    rmSync(join(root, "docs", "skills", "contracts", "runtime-sync-exceptions.yaml"));
+    rmSync(join(root, ".claude", "contracts", "runtime-sync-exceptions.yaml"));
 
     const report = checkRuntimeSkillSync(root);
 
@@ -456,7 +456,7 @@ name: demo
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "RUNTIME_SYNC_EXCEPTION_MISSING",
-        path: "docs/skills/contracts/runtime-sync-exceptions.yaml",
+        path: ".claude/contracts/runtime-sync-exceptions.yaml",
         message: "runtime sync exceptions file is required",
       }),
     );

@@ -41,7 +41,7 @@
 - `docs/superpowers/plans/.process/**`（如有，作为机器层产物）
 
 **禁动路径**：
-- `.agents/**`、`.ai/**`、`.claude/**`（这些是 kata runtime 投影，整改不需要碰）
+- `.agents/**`、`.claude/**`（这些是 kata runtime 目录，整改不需要碰）
 - `engine/**`、`tools/**`
 - `workspace/dataAssets/features/2099-01-lt-dq-main-flow/**`（另一个 feature，不在本次范围）
 - 其它任何 feature 目录
@@ -230,7 +230,7 @@ R13 按 cheatsheet R13 的 6 步链路重写 v6.4.2~v6.4.6 的 DQ 用例，每�
    产物：`docs/superpowers/plans/.process/phase-4-walkthrough.md`
 2. 跑 `bun workspace/dataAssets/features/2099-01-lt-dq-launched-reqs/scripts/build-delivery-xmind.mjs` 重新生成 XMind。
 3. 跑 audit `--strict`，退出码必须 = 0。
-4. 跑 case-qa 自检（参考 `.ai/core/rules/case-qa.md` 一致性维度）。
+4. 跑 case-qa 自检（参考 `.agents/skills/case-draft/rules/case-qa.md` 一致性维度）。
 5. 输出最终交付报告 `docs/superpowers/plans/2026-05-26-lt-dq-launched-reqs-case-cleanup-deliverable.md`，包含：
    - audit 0 违规截图
    - XMind 与 Markdown 一致性自检结果

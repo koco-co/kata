@@ -40,7 +40,7 @@ Code diff ──────────────────── /diff-sca
 Core principles:
 
 - `.agents/**` and `.claude/**` are first-class runtime directories for the kata Codex runtime and Claude Code runtime.
-- `docs/skills/contracts/**` carries shared schemas, routes, the skill graph, workflows, plugin metadata, and project rule contracts.
+- Runtime contracts live under `.agents/contracts/**` and `.claude/contracts/**`; shared agent documents use symlinks to keep a single file source.
 - Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
 - `playwright-cli` keeps its vendor skill name for real browser automation; kata-owned product skills do not reuse old aggregate names.
 
@@ -133,19 +133,13 @@ Run these commands directly in the Claude Code or Codex runtime:
 
 ## Architecture
 
-See the detailed [Kata 4.0 project architecture design](./docs/architecture/kata-project-architecture.md).
-
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata uses `.agents/**` and `.claude/**` as first-class runtime implementations, `docs/skills/contracts/**` for shared contracts, `engine` as the execution and verification layer, and `workspace/{project}` as the artifact area:
+Kata uses `.agents/**` and `.claude/**` as first-class runtime implementations, runtime-local contracts for schemas, routes, the skill graph, workflows, and the blackboard, `engine` as the execution and verification layer, and `workspace/{project}` as the artifact area:
 
 ```text
-docs/skills/contracts
-  ├─ schemas / routes / skill graph / workflows / rules
-  └─ sync exceptions
-
-.agents/**   kata Codex runtime skills
-.claude/**   Claude Code runtime skills
+.agents/    kata Codex runtime skills and contracts
+.claude/    Claude Code runtime skills and contracts
 engine/**    CLI, validators, tests, and workflow support
 ```
 
@@ -153,11 +147,11 @@ engine/**    CLI, validators, tests, and workflow support
 | --- | --- |
 | `.agents/**` | kata Codex runtime skills and references, maintained as a first-class runtime. |
 | `.claude/**` | Claude Code runtime skills and references, maintained as a first-class runtime. |
-| `docs/skills/contracts/**` | Shared schemas, routes, the skill graph, workflows, plugin metadata, sync exceptions, and project rule contracts. |
+| `.agents/contracts/**` / `.claude/contracts/**` | Runtime contracts; shared content should use symlinks to keep a single file source. |
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
 | `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
 
-At runtime, agents read their runtime skill plus `docs/skills/contracts/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
+At runtime, agents read their runtime skill plus same-side `contracts/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
 
 ## Plugins
 
@@ -197,7 +191,7 @@ bun --no-env-file test --cwd engine
 bun run check:skills
 ```
 
-Shared schemas, workflows, plugin metadata, and project rules live under `docs/skills/contracts/**`.
+Schemas, workflows, the skill graph, the blackboard, and sync exceptions live under runtime `contracts/**`; shared content is reused through symlinks.
 
 ## License
 

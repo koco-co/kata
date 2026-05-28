@@ -6,7 +6,8 @@ on:
       - 'workspace/**/features/**'
       - 'engine/src/lint/**'
       - 'engine/src/cli/features-*.ts'
-      - 'docs/skills/contracts/schemas/**'
+      - '.claude/contracts/schemas/**'
+      - '.agents/contracts/schemas/**'
 
 jobs:
   lint:

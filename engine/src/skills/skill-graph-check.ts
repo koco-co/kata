@@ -21,7 +21,7 @@ export interface SkillGraphCheckReport {
   violations: SkillGraphCheckViolation[];
 }
 
-const GRAPH_PATH = "docs/skills/contracts/skill-graph.yaml";
+const GRAPH_PATH = ".claude/contracts/skill-graph.yaml";
 const RUNTIME_SKILL_DIRS = [".claude/skills", ".agents/skills"] as const;
 
 export function checkSkillGraph(root: string): SkillGraphCheckReport {

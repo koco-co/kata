@@ -10,7 +10,7 @@ source_ref/schema/`case_id` 对账、结构字段存在性或 blocking pending �
   fallback、BlockedEnvelope 或 prompt 存在性门禁冲突，写入 `out_of_scope`，不得写入
   `issues`。
 - 不在 forbidden path 上补跑 quality review：Lanhu/Axure source-intake/fallback、仍有
-  blocking pending、或 execution-protocol 前置引用文件缺失时，只记录 `out_of_scope`。
+  blocking pending、或 Worker 派发前置条件缺失时，只记录 `out_of_scope`。
 - 只做内容质量判断。若问题本质是 SourceRef 层级、FeatureManifest@2 轻量
   `{ id, source_ref }` 形状、CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
   合规问题，记录到 `out_of_scope`，交由 spec reviewer。

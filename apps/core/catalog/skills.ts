@@ -22,7 +22,7 @@ function skillsRoot(): string {
 }
 
 function contractsRoot(): string {
-  return join(currentRepoRoot(), "docs/skills/contracts");
+  return join(currentRepoRoot(), ".agents/contracts");
 }
 
 function currentRepoRoot(): string {

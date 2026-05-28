@@ -65,8 +65,8 @@ describe("WritePolicy P0 slice", () => {
 
   it("blocks protected shared contracts before exact scope matching", () => {
     const result = evaluateWrite({
-      path: "docs/skills/contracts/rules/testing.md",
-      declaredWriteScopes: ["docs/skills/contracts/rules/testing.md"],
+      path: ".claude/contracts/rules/testing.md",
+      declaredWriteScopes: [".claude/contracts/rules/testing.md"],
     });
 
     expect(result.allowed).toBe(false);
@@ -74,10 +74,7 @@ describe("WritePolicy P0 slice", () => {
   });
 
   it("blocks protected shared contracts case-insensitively", () => {
-    const paths = [
-      "Docs/skills/contracts/rules/testing.md",
-      "docs/Skills/contracts/rules/testing.md",
-    ];
+    const paths = [".Claude/contracts/rules/testing.md", ".agents/Contracts/rules/testing.md"];
 
     for (const path of paths) {
       const result = evaluateWrite({ path, declaredWriteScopes: [path] });
