@@ -3108,6 +3108,7 @@ export async function expectSparkThriftQualityRuleValidationContract(
     expectedActualValue: effectiveScenario.passExpectedValue,
     expectedPartition: effectiveScenario.passPartition,
     passHasNoDirtyDetail: effectiveScenario.fusionChecks?.passHasNoDirtyDetail,
+    expectedSamplingRows: effectiveScenario.fusionChecks?.samplingRows,
   });
   if (effectiveScenario.fusionChecks?.monitorRecordTableSearch) {
     await expectArchiveMonitorRecordTableSearch(page, sourceRef, effectiveScenario, ruleName);
@@ -3217,32 +3218,6 @@ async function gotoNewRuleTaskMonitorRuleConfig(
     `${sourceRef}: 监控对象保存成功后应进入监控规则配置页`,
   ).toContainText(/监控规则|引用规则包|添加规则/, { timeout: 30000 });
   return body;
-}
-
-export async function expectDataQualitySamplingConfigShell(page: Page, sourceRef: string): Promise<void> {
-  await gotoDataQualityPage(page, "/dq/rule");
-  await clickDqText(page, "新建监控规则", sourceRef);
-  await expect(page, `${sourceRef}: 新建监控规则应进入 /dq/rule/add`).toHaveURL(/\/dq\/rule\/add/);
-
-  const main = page.locator("main, .ant-layout-content").first();
-  const shell = (await main.count()) > 0 ? main : page.locator("body");
-  for (const label of ["新建单表校验规则", "监控对象", "规则名称", "数据预览"]) {
-    await expect(shell, `${sourceRef}: 新建监控规则页面应展示「${label}」`).toContainText(label, {
-      timeout: 30000,
-    });
-  }
-  await expect(
-    shell.getByRole("button", { name: /数据预览/ }).first(),
-    `${sourceRef}: 数据预览按钮应可见但不点击`,
-  ).toBeVisible({ timeout: 30000 });
-  await expect(
-    shell,
-    `${sourceRef}: 数据预览区域应展示抽样检查设置配置项`,
-  ).toContainText(/抽样检查(设置|配置)/, { timeout: 30000 });
-  await expect(
-    shell.locator(".ant-switch, [role='switch']").first(),
-    `${sourceRef}: 抽样检查设置开关应可见但不切换`,
-  ).toBeVisible({ timeout: 30000 });
 }
 
 export async function expectDataQualityRuleSetCreateEntry(page: Page, sourceRef: string): Promise<void> {
@@ -9106,6 +9081,7 @@ async function expectArchiveRuleValidationRecord(
     dirtyEvidence?: readonly string[];
     dirtyDetail?: SparkThriftRuleValidationFusionChecks["dirtyDetail"];
     passHasNoDirtyDetail?: boolean;
+    expectedSamplingRows?: string;
   },
 ): Promise<void> {
   const searchInput = await gotoMonitorRecordQueryPage(page, sourceRef);
@@ -9144,6 +9120,12 @@ async function expectArchiveRuleValidationRecord(
     detailRecords.some((record) => String(record.partition ?? "").includes(options.expectedPartition.replace(/^.*='?([^']+)'?.*$/, "$1"))),
     `${sourceRef}: 实例详情应仅统计目标分区 ${options.expectedPartition}`,
   ).toBe(true);
+  if (options.expectedSamplingRows) {
+    expect(detailText, `${sourceRef}: 实例详情应展示抽样信息`).toMatch(/抽样|采样|sample|sampling/i);
+    expect(detailText, `${sourceRef}: 实例详情应包含抽样行数 ${options.expectedSamplingRows}`).toContain(
+      options.expectedSamplingRows,
+    );
+  }
 
   if (options.dirtyEvidence?.length) {
     const dirtyEntry = page
