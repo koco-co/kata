@@ -54,6 +54,31 @@ describe("precondSetup", () => {
     expect(result.tablesCreated).toEqual(["t1"]);
   });
 
+  test("falls back to project name when configured projectId is stale", async () => {
+    const client = makeClient({
+      "/api/rdos/common/project/getProjects": [{ id: 202, projectName: "p1" }],
+      "/api/rdos/batch/batchDataSource/list": [
+        { id: 9, dataName: "doris-x", dataSourceType: 119, schemaName: "s" },
+      ],
+    });
+    const result = await precondSetup({
+      client,
+      project: "p1",
+      projectId: 69,
+      datasource: "Doris",
+      tables: [{ name: "t1", sql: "CREATE TABLE t1 (id int)" }],
+      skipSync: true,
+    });
+
+    expect(result.projectId).toBe(202);
+    expect(result.tablesCreated).toEqual(["t1"]);
+    expect(client.postWithProjectId).toHaveBeenCalledWith(
+      "/api/rdos/batch/batchDataSource/list",
+      { projectId: 202, syncTask: true },
+      202,
+    );
+  });
+
   test("syncs missing tables via addSyncTask + pollDataMapTables", async () => {
     let dataMapHits = 0;
     const post = mock(async (path: string) => {

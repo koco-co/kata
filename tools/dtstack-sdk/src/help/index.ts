@@ -116,7 +116,13 @@ WHAT IT DOES (in order)
 
 OPTIONS
       --project <name>        Project name (required)
+      --project-id <id>       Exact Batch project ID; avoids duplicate-name matches
       --datasource <type>     Doris | MySQL | Hive | SparkThrift (required)
+      --datasource-id <id>    Exact Batch datasource ID
+      --datasource-name <n>   Exact Batch datasource name
+      --datasource-type-id <id>
+                              Datasource type ID used as a fallback matcher
+      --database <name>       Target database/schema for DDL, DML and metadata sync
       --tables-from <path>    YAML file with tables (see schema below)
       --skip-sync             Skip step 4-7 (DDL only)
       --sync-timeout <sec>    Data map poll timeout (default: 180)

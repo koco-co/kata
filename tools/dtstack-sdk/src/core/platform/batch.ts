@@ -224,8 +224,13 @@ export class BatchApi {
    * - DROP / INSERT / 其它 DML 走 batchScript/startSqlImmediatelyEncryption
    *   （提交 SQL 任务 → 轮询 selectStatus 直到终态，失败抛错）
    */
-  async executeDDL(projectId: number, datasource: BatchDatasource, sql: string): Promise<void> {
-    const targetSchema = resolveSchemaName(datasource);
+  async executeDDL(
+    projectId: number,
+    datasource: BatchDatasource,
+    sql: string,
+    schemaOverride?: string,
+  ): Promise<void> {
+    const targetSchema = schemaOverride ?? resolveSchemaName(datasource);
 
     const statements = splitStatements(sql);
 
@@ -236,7 +241,12 @@ export class BatchApi {
 
       try {
         if (isCreate) {
-          await this.executeSqlViaDdlApi(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
+          await this.executeSqlViaDdlApi(
+            projectId,
+            datasource,
+            qualifySqlTarget(stmt, targetSchema),
+            targetSchema ?? "",
+          );
         } else if (isInsert) {
           // INSERT 通过 scriptRunner，但表刚创建后引擎可能还看不到（catalog 同步延迟）；
           // 用 backoff 重试，避免 INSERT 静默失败导致校验跑在空表上。
@@ -279,9 +289,19 @@ export class BatchApi {
         // 对于其他语句，尝试使用另一个 API 作为 fallback
         try {
           if (isCreate) {
-            await this.executeCustomSql(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
+            await this.executeCustomSql(
+              projectId,
+              datasource,
+              qualifySqlTarget(stmt, targetSchema),
+              targetSchema ?? "",
+            );
           } else {
-            await this.executeSqlViaDdlApi(projectId, datasource, qualifySqlTarget(stmt, targetSchema), targetSchema ?? "");
+            await this.executeSqlViaDdlApi(
+              projectId,
+              datasource,
+              qualifySqlTarget(stmt, targetSchema),
+              targetSchema ?? "",
+            );
           }
         } catch (fallbackError) {
           const details = [message, (fallbackError as Error).message].join(" | fallback: ");

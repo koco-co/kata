@@ -2,10 +2,25 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { loadDataAssetsEnvProfile } from "../../../../_shared/runtime/env-profile";
 
 const DEFAULT_SESSION_PATH = "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json";
 const DEFAULT_LTQC_BASE_URL = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
 const preparedPreconditionGroups = new Set<string>();
+
+type SparkThriftPreconditionProfile = {
+  sessionPath: string;
+  baseUrl: string;
+  projectId: number;
+  projectName: string;
+  datasourceId: number;
+  datasourceName: string;
+  datasourceTypeId: number;
+  datasourceAliases: readonly string[];
+  database: string;
+  schema: string;
+  preconditionType: string;
+};
 
 type PrecondTableFixture = {
   name: string;
@@ -93,8 +108,39 @@ function serializePreconditionTables(tables: readonly PrecondTableFixture[]): st
   return `${chunks.join("\n")}\n`;
 }
 
+function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
+  const profile = loadDataAssetsEnvProfile();
+  const datasource =
+    Object.values(profile.datasources).find(
+      (item) => item.preconditionType.toLowerCase() === "sparkthrift",
+    ) ?? profile.datasources.sparkthrift;
+  if (!datasource) {
+    throw new Error(`${profile.env}: 未配置 SparkThrift 前置数据源`);
+  }
+  const projectName = profile.auth.tenantName ?? profile.projects.offline.name;
+  const projectId =
+    projectName === profile.projects.quality.name
+      ? profile.projects.quality.id
+      : profile.projects.offline.id;
+  return {
+    sessionPath: profile.auth.sessionPath,
+    baseUrl: profile.urls.baseUrl,
+    projectId,
+    projectName,
+    datasourceId: datasource.batch.id,
+    datasourceName: datasource.batch.name,
+    datasourceTypeId: datasource.batch.typeId,
+    datasourceAliases: datasource.aliases,
+    database: datasource.batch.database ?? datasource.sql.database,
+    schema: datasource.batch.schema ?? datasource.sql.schema,
+    preconditionType: datasource.preconditionType,
+  };
+}
+
 function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): void {
-  const sessionPath = process.env.UI_AUTOTEST_SESSION_PATH ?? DEFAULT_SESSION_PATH;
+  const preconditionProfile = loadSparkThriftPreconditionProfile();
+  const sessionPath =
+    process.env.UI_AUTOTEST_SESSION_PATH ?? preconditionProfile.sessionPath ?? DEFAULT_SESSION_PATH;
   const state = JSON.parse(readFileSync(sessionPath, "utf8")) as {
     cookies?: Array<{ name: string; value: string }>;
   };
@@ -112,9 +158,23 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
     "--env",
     "ltqc",
     "--project",
-    "pw_test",
+    preconditionProfile.projectName,
+    "--project-id",
+    String(preconditionProfile.projectId),
     "--datasource",
-    "SparkThrift",
+    preconditionProfile.preconditionType,
+    "--datasource-id",
+    String(preconditionProfile.datasourceId),
+    "--datasource-name",
+    preconditionProfile.datasourceName,
+    "--datasource-type-id",
+    String(preconditionProfile.datasourceTypeId),
+    "--datasource-aliases",
+    preconditionProfile.datasourceAliases.join(","),
+    "--database",
+    preconditionProfile.database,
+    "--schema",
+    preconditionProfile.schema,
     "--tables-from",
     tablesFile,
     "--sync-timeout",
@@ -126,7 +186,7 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
     env: {
       ...process.env,
       DTSTACK_COOKIE: cookie,
-      LTQC_BASE_URL: process.env.LTQC_BASE_URL ?? DEFAULT_LTQC_BASE_URL,
+      LTQC_BASE_URL: process.env.LTQC_BASE_URL ?? preconditionProfile.baseUrl ?? DEFAULT_LTQC_BASE_URL,
     },
     encoding: "utf8",
     timeout: Number(process.env.KATA_DQ_PRECOND_TIMEOUT_MS ?? 1_800_000),

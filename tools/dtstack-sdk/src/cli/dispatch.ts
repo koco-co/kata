@@ -11,6 +11,23 @@ import { parseFlags } from "./parse-args";
 
 const DRY_RUN = process.env.DTSTACK_CLI_TEST_DRY === "1";
 
+function optionalNumber(value: unknown): number | undefined {
+  if (value === undefined || value === "") return undefined;
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue) || numberValue <= 0) {
+    throw new Error(`expected positive number, got ${String(value)}`);
+  }
+  return numberValue;
+}
+
+function optionalCsv(value: unknown): string[] | undefined {
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 /**
  * 解析配置文件路径。
  * 优先级：--config 参数 > DTSTACK_CONFIG 环境变量 > dtstack-cli.yaml（存在时）
@@ -161,6 +178,7 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
       }
       process.stdout.write(ok ? "ok\n" : "fail\n");
       process.exit(ok ? 0 : 1);
+      return;
     }
     case "project ensure": {
       const client = await buildClient(config, env);
@@ -178,8 +196,17 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
       const result = await precondSetup({
         client,
         project: values.project as string,
+        projectId: optionalNumber(values["project-id"]),
         datasource: values.datasource as string,
-        database: values.db as string | undefined,
+        datasourceProfile: {
+          id: optionalNumber(values["datasource-id"]),
+          name: values["datasource-name"] as string | undefined,
+          typeId: optionalNumber(values["datasource-type-id"]),
+          aliases: optionalCsv(values["datasource-aliases"]),
+          database: (values.database as string | undefined) ?? (values.db as string | undefined),
+          schema: values.schema as string | undefined,
+        },
+        database: (values.database as string | undefined) ?? (values.db as string | undefined),
         tablesFromFile: values["tables-from"] as string | undefined,
         skipSync: Boolean(values["skip-sync"]),
         syncTimeoutMs: values["sync-timeout"] ? Number(values["sync-timeout"]) * 1000 : undefined,
