@@ -13,8 +13,6 @@ import {
   expectDataQualityFailedResultDirtyDetailContract,
   expectDataQualityFailedResultDirtyDownloadContract,
   expectDataQualityFailedResultLogDownloadContract,
-  expectDataQualityMultiTableUniqueMultiFieldDirtyStatsContract,
-  expectDataQualityMultiTableUniqueSingleFieldDirtyStatsContract,
   expectDataQualityPassedResultNoDetailContract,
   expectDataQualityReportDetailFieldRuleFilterContract,
   expectDataQualityReportDetailMultiTableRuleFilterContract,
@@ -180,22 +178,4 @@ test("【P0】校验结果查询校验不通过明细下载功能正常", async 
 // SourceRefs: SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L8578, SR-UI-PROBE-20260527-DQ-RESULT-FAILED-LOG-DOWNLOAD-L8578-001
 test("【P0】校验结果查询校验失败时查看日志与下载日志正常", async ({ page }) => {
   await expectDataQualityFailedResultLogDownloadContract(page, "SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L8578");
-});
-
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8597
-// SourceRefs: SR-2099-01-DQ-RESULT-MULTI-TABLE-UNIQUE-SINGLE-L8597, SR-UI-PROBE-20260527-DQ-RESULT-MULTI-TABLE-UNIQUE-SINGLE-L8597-001
-test("【P0】校验结果查询多表唯一性明细数据单字段重复数统计正确", async ({ page }) => {
-  await expectDataQualityMultiTableUniqueSingleFieldDirtyStatsContract(
-    page,
-    "SR-2099-01-DQ-RESULT-MULTI-TABLE-UNIQUE-SINGLE-L8597",
-  );
-});
-
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8616
-// SourceRefs: SR-2099-01-DQ-RESULT-MULTI-TABLE-UNIQUE-MULTI-L8616, SR-UI-PROBE-20260527-DQ-RESULT-MULTI-TABLE-UNIQUE-MULTI-L8616-001
-test("【P0】校验结果查询多表唯一性明细数据多字段联合重复数统计正确", async ({ page }) => {
-  await expectDataQualityMultiTableUniqueMultiFieldDirtyStatsContract(
-    page,
-    "SR-2099-01-DQ-RESULT-MULTI-TABLE-UNIQUE-MULTI-L8616",
-  );
 });

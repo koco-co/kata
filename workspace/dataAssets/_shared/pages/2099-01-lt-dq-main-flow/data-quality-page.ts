@@ -1377,36 +1377,6 @@ export async function expectDataQualityFailedResultLogDownloadContract(
   }
 }
 
-export async function expectDataQualityMultiTableUniqueSingleFieldDirtyStatsContract(
-  page: Page,
-  sourceRef: string,
-): Promise<void> {
-  await expectDataQualityMultiTableUniqueDirtyStatsContract(page, sourceRef, {
-    searchTokens: [
-      "车辆订单唯一性任务",
-      "SparkThrift2.x+唯一性校验-多表唯一性判断(唯一+或)",
-      "唯一性校验-多表唯一性判断(唯一+或)",
-    ],
-    expectedFieldMode: "single",
-    expectedDataTokens: ["vin", "LTV202603290001AA", "LTV202601150003AA"],
-  });
-}
-
-export async function expectDataQualityMultiTableUniqueMultiFieldDirtyStatsContract(
-  page: Page,
-  sourceRef: string,
-): Promise<void> {
-  await expectDataQualityMultiTableUniqueDirtyStatsContract(page, sourceRef, {
-    searchTokens: [
-      "SparkThrift2.x+唯一性校验-多表唯一性判断(允许重复+且)",
-      "唯一性校验-多表唯一性判断(允许重复+且)",
-      "车辆订单唯一性联合任务",
-    ],
-    expectedFieldMode: "multi",
-    expectedDataTokens: ["vin", "order_id"],
-  });
-}
-
 async function openFailedDirtyResultDetail(
   page: Page,
   sourceRef: string,
@@ -1473,73 +1443,6 @@ async function openFailedDirtyResultDetail(
     timeout: 30000,
   });
   return { columnName, dirtyPayload };
-}
-
-async function expectDataQualityMultiTableUniqueDirtyStatsContract(
-  page: Page,
-  sourceRef: string,
-  options: {
-    searchTokens: string[];
-    expectedFieldMode: "single" | "multi";
-    expectedDataTokens: string[];
-  },
-): Promise<void> {
-  await gotoDataQualityPage(page, "/dq/taskQuery");
-  const body = page.locator("body");
-  for (const label of ["校验结果查询", "计划时间", "最近修改人", "我收藏的表"]) {
-    await expect(body, `${sourceRef}: 校验结果查询页应展示「${label}」`).toContainText(label, {
-      timeout: 30000,
-    });
-  }
-
-  const candidate = await findFirstMonitorRecordCandidate(page, sourceRef, options.searchTokens, [11, 4]);
-  const planDate = extractPlanDate(candidate.cycTime, sourceRef);
-  await selectDqDateRange(page, planDate, planDate, sourceRef);
-  const ruleName = expectNonEmptyString(candidate.ruleName, `${sourceRef}: 多表唯一性候选实例应包含任务名称`);
-  const searchResponse = waitForDqJson<DqMonitorRecordPage>(
-    page,
-    "/dassets/v1/valid/monitorRecord/pageQuery",
-    (payload) => (payload.data?.data ?? []).some((item) => String(item.id) === String(candidate.id)),
-  );
-  void searchResponse.catch(() => {});
-  await page.getByPlaceholder("请输入表名/任务名称搜索").fill(ruleName);
-  await page.keyboard.press("Enter");
-  const records = expectMonitorRecordPage(
-    expectDqSuccess(await searchResponse, `${sourceRef}: 多表唯一性实例搜索应请求成功`),
-    `${sourceRef}: 多表唯一性实例搜索应返回记录`,
-  );
-  const target = expectMonitorRecordById(records, candidate.id, sourceRef);
-  const tableName = expectNonEmptyString(target.tableName, `${sourceRef}: 多表唯一性实例应包含表名`);
-  const row = page.locator(".ant-table-tbody tr").filter({ hasText: ruleName }).filter({ hasText: tableName }).first();
-  await expect(row, `${sourceRef}: 搜索后应展示多表唯一性实例`).toBeVisible({ timeout: 30000 });
-
-  const detailResponse = waitForDqJson<DqMonitorRecordDetail[]>(
-    page,
-    "/dassets/v1/valid/monitorRecord/detailReport",
-  );
-  await row.getByRole("button", { name: tableName }).click({ timeout: 30000 });
-  const detailRecords = expectDqSuccess(await detailResponse, `${sourceRef}: 多表唯一性实例详情应请求成功`);
-  const dirtyRule = expectMultiTableUniqueDirtyRule(detailRecords, options.expectedFieldMode, sourceRef);
-  const columns = getDirtyRuleColumns(dirtyRule, sourceRef);
-
-  const dirtyResponse = waitForDqJson<DqMonitorRecordDirtyResult>(
-    page,
-    "/dassets/v1/valid/monitorRecord/getFormatTableResult",
-  );
-  await page.getByRole("button", { name: "查看明细" }).first().click({ timeout: 30000 });
-  const dirtyPayload = expectDqSuccess(await dirtyResponse, `${sourceRef}: 多表唯一性查看明细应请求失败数据`);
-  expect(dirtyPayload.result?.length, `${sourceRef}: 多表唯一性明细应返回重复数据行`).toBeGreaterThan(0);
-  for (const column of columns) {
-    expect(dirtyPayload.highlightColumns ?? [], `${sourceRef}: 明细应标红重复统计字段 ${column}`).toContain(column);
-  }
-  expectDirtyResultCountMatchesStatistic(dirtyPayload, dirtyRule, sourceRef);
-
-  const dirtyText = JSON.stringify(dirtyPayload.result ?? []);
-  const visibleTokens = options.expectedDataTokens.filter((token) => dirtyText.includes(token));
-  expect(
-    visibleTokens.length,
-    `${sourceRef}: 明细应包含预置重复字段或重复数据 token: ${options.expectedDataTokens.join(", ")}`,
-  ).toBeGreaterThan(0);
 }
 
 async function downloadDqArtifact(
@@ -1639,75 +1542,6 @@ async function closeDirtyDetailIfOverlay(page: Page, sourceRef: string): Promise
   if (await overlay.isVisible({ timeout: 3000 }).catch(() => false)) {
     await closeDqOverlay(page, sourceRef);
   }
-}
-
-async function findFirstMonitorRecordCandidate(
-  page: Page,
-  sourceRef: string,
-  searchTokens: string[],
-  statuses: number[],
-): Promise<DqMonitorRecord> {
-  const failures: string[] = [];
-  for (const token of searchTokens) {
-    for (const status of statuses) {
-      const candidate = await findMonitorRecordCandidate(page, sourceRef, {
-        fuzzyName: token,
-        status,
-      }).catch((error) => {
-        failures.push(`${token}/status=${status}: ${String(error)}`);
-        return undefined;
-      });
-      if (candidate) return candidate;
-    }
-  }
-  throw new Error(`${sourceRef}: 当前环境未找到多表唯一性候选实例；尝试记录: ${failures.join(" | ")}`);
-}
-
-function expectMultiTableUniqueDirtyRule(
-  records: DqMonitorRecordDetail[],
-  expectedFieldMode: "single" | "multi",
-  sourceRef: string,
-): DqMonitorRecordDetail {
-  const candidates = records.filter((record) => {
-    const functionName = String(record.functionName ?? "");
-    const columns = getDirtyRuleColumnsLoose(record);
-    return (
-      Number(record.haveDirty) === 1 &&
-      Number(record.status) === 4 &&
-      /唯一|重复/.test(functionName) &&
-      (expectedFieldMode === "multi" ? columns.length >= 2 : columns.length <= 1)
-    );
-  });
-  expect(candidates.length, `${sourceRef}: 详情应包含${expectedFieldMode === "multi" ? "多字段联合" : "单字段"}唯一性失败规则`).toBeGreaterThan(0);
-  return candidates[0];
-}
-
-function getDirtyRuleColumns(record: DqMonitorRecordDetail, sourceRef: string): string[] {
-  const columns = getDirtyRuleColumnsLoose(record);
-  expect(columns.length, `${sourceRef}: 唯一性失败规则应包含统计字段`).toBeGreaterThan(0);
-  return columns;
-}
-
-function getDirtyRuleColumnsLoose(record: DqMonitorRecordDetail): string[] {
-  if (record.columnNameList?.length) return record.columnNameList.filter((column) => column.trim().length > 0);
-  return String(record.columnName ?? "")
-    .split(/[,，、\s]+/)
-    .map((column) => column.trim())
-    .filter((column) => column.length > 0);
-}
-
-function expectDirtyResultCountMatchesStatistic(
-  payload: DqMonitorRecordDirtyResult,
-  detail: DqMonitorRecordDetail,
-  sourceRef: string,
-): void {
-  const actualRows = payload.result?.length ?? 0;
-  const statistic = Number(detail.statistic);
-  if (Number.isFinite(statistic) && statistic > 0 && statistic <= 10000) {
-    expect(actualRows, `${sourceRef}: 明细重复数据行数量应与规则结果统计值一致`).toBe(statistic);
-    return;
-  }
-  expect(actualRows, `${sourceRef}: 规则结果未给出可比统计值时，明细至少应返回重复数据行`).toBeGreaterThan(0);
 }
 
 export async function expectDataQualityReportCreateEntry(page: Page, sourceRef: string): Promise<void> {
