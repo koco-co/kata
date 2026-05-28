@@ -22,7 +22,7 @@
     },
     "source_refs": {
       "type": "array",
-      "description": "可追溯 SourceRef 列表,每条必须含 id/type/location",
+      "description": "可追溯 SourceRef 列表，每条必须含 id/type/location",
       "items": {
         "type": "object",
         "required": ["id", "type", "location"],
@@ -37,7 +37,7 @@
     },
     "decisions": {
       "type": "array",
-      "description": "AI 关键判断,必须区分 fact/inference/assumption",
+      "description": "AI 关键判断，必须区分 fact/inference/assumption",
       "items": {
         "type": "object",
         "required": ["kind", "statement"],
@@ -75,7 +75,7 @@
     },
     "coverage": {
       "type": "object",
-      "description": "覆盖矩阵;空对象代表本次 skill 不产 coverage"
+      "description": "覆盖矩阵；空对象代表本次 skill 不产 coverage"
     },
     "verification": {
       "type": "array",
@@ -92,7 +92,7 @@
     },
     "handoff": {
       "type": "object",
-      "description": "交接信息;空对象代表本次 skill 是终态"
+      "description": "交接信息；空对象代表本次 skill 是终态"
     }
   }
 }
