@@ -7,6 +7,9 @@ import {
   type Workflow,
 } from "./workflow-schema.ts";
 
+/** Stderr-only marker for P1 → P3 过渡期：workflow 已落地但对应 skill 目录尚未生成。 */
+export const TRANSITION_PREFIX = "[transition]";
+
 export type WorkflowCheckRule =
   | "WORKFLOW_PARSE_ERROR"
   | "WORKFLOW_SCHEMA_ERROR"
@@ -57,6 +60,18 @@ function checkWorkflowFile(
   if (!workflow) return;
 
   validateWorkflowSchema(workflow, yamlPath, root, violations);
+  emitSkillDirTransitionWarning(workflow, yamlPath, root);
+}
+
+// P1 期间 workflow 可先于 SKILL.md 落地（P3 才补 .claude/skills/<id>/）。
+// 这里只 warn 不算 violation，让 sync-check 仍然 pass。
+function emitSkillDirTransitionWarning(workflow: Workflow, yamlPath: string, root: string): void {
+  if (!workflow.name) return;
+  const skillDir = join(root, ".claude/skills", workflow.name);
+  if (existsSync(skillDir)) return;
+  process.stderr.write(
+    `workflow ${yamlPath}: ${TRANSITION_PREFIX} workflow contract for skill '${workflow.name}' exists but .claude/skills/${workflow.name}/ is missing (P3 will populate)\n`,
+  );
 }
 
 function readWorkflowYaml(

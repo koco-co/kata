@@ -1,0 +1,38 @@
+# spec §6.7 knowledge-curate phases: §1-parse / §2-categorize / §3-write
+# spec §6.11：default haiku（I/O 为主）。
+# v2 schema 由 engine/src/skills/workflow-schema.ts 校验。
+name: knowledge-curate
+version: 2
+default_dispatch: inline
+default_model: haiku
+default_effort: low
+
+metadata:
+  event_kinds_emitted:
+    - phase_entered
+    - phase_exited
+    - artifact_written
+    - validator_failed
+    - handoff_emitted
+  artifact_kinds_produced:
+    - knowledge_entry
+
+steps:
+  - id: parse
+    dispatch: inline
+    blackboard_inputs: [user_input]
+    blackboard_outputs: [kb_query]
+    failure_modes: [unsupported_query]
+
+  - id: categorize
+    dispatch: inline
+    blackboard_inputs: [kb_query]
+    blackboard_outputs: [kb_match]
+    failure_modes: [category_unknown]
+
+  - id: write
+    dispatch: inline
+    blackboard_inputs: [kb_query, kb_match]
+    blackboard_outputs: [kb_write_path]
+    validators: [knowledge-entry-schema]
+    failure_modes: [io_error]

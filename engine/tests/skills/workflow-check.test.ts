@@ -2,7 +2,11 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { checkWorkflows, formatWorkflowCheckReport } from "../../src/skills/workflow-check.ts";
+import {
+  checkWorkflows,
+  formatWorkflowCheckReport,
+  TRANSITION_PREFIX,
+} from "../../src/skills/workflow-check.ts";
 import { resetSlotCache, V2_WARN_PREFIX } from "../../src/skills/workflow-schema.ts";
 
 const tempRoots: string[] = [];
@@ -89,6 +93,101 @@ describe("workflow check", () => {
     const text = formatWorkflowCheckReport(checkWorkflows(root), root);
     expect(text).toContain("workflow check failed");
     expect(text).toContain(".claude/contracts/workflows");
+  });
+
+  test("transition warning when workflow has no matching skill dir is stderr-only", () => {
+    resetSlotCache();
+    const root = makeRoot();
+    // 写一个合法 v2 workflow，name 指向尚未存在的 skill 目录
+    writeFile(
+      root,
+      ".claude/contracts/workflows/defect-analyze.yaml",
+      [
+        "name: defect-analyze",
+        "version: 2",
+        "default_dispatch: inline",
+        "default_model: sonnet",
+        "default_effort: high",
+        "steps:",
+        "  - id: intake",
+        "    dispatch: inline",
+        "    blackboard_inputs: [user_input]",
+        "    blackboard_outputs: [mode]",
+        "    failure_modes: [ambiguous_input]",
+        "",
+      ].join("\n"),
+    );
+    writeFile(
+      root,
+      ".claude/contracts/schemas/blackboard-slots.json",
+      JSON.stringify({ v1_legacy: [], v2: ["user_input", "mode"] }),
+    );
+
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    const captured: string[] = [];
+    process.stderr.write = ((chunk: string | Uint8Array): boolean => {
+      captured.push(typeof chunk === "string" ? chunk : Buffer.from(chunk).toString());
+      return true;
+    }) as typeof process.stderr.write;
+    try {
+      const report = checkWorkflows(root);
+      // 过渡 warning 不进 violations，sync-check 仍然 pass
+      expect(report.passed).toBe(true);
+      expect(report.violations).toEqual([]);
+      const stderr = captured.join("");
+      expect(stderr).toContain(TRANSITION_PREFIX);
+      expect(stderr).toContain("defect-analyze");
+      expect(stderr).toContain(".claude/skills/defect-analyze/");
+    } finally {
+      process.stderr.write = originalWrite;
+      resetSlotCache();
+    }
+  });
+
+  test("no transition warning when skill dir exists alongside workflow", () => {
+    resetSlotCache();
+    const root = makeRoot();
+    writeFile(
+      root,
+      ".claude/contracts/workflows/case-edit.yaml",
+      [
+        "name: case-edit",
+        "version: 2",
+        "default_dispatch: inline",
+        "default_model: sonnet",
+        "default_effort: high",
+        "steps:",
+        "  - id: parse",
+        "    dispatch: inline",
+        "    blackboard_inputs: [user_input]",
+        "    blackboard_outputs: [source_refs]",
+        "    failure_modes: [unsupported_format]",
+        "",
+      ].join("\n"),
+    );
+    // 同步建出 skill 目录占位
+    mkdirSync(join(root, ".claude/skills/case-edit"), { recursive: true });
+    writeFile(
+      root,
+      ".claude/contracts/schemas/blackboard-slots.json",
+      JSON.stringify({ v1_legacy: ["source_refs"], v2: ["user_input", "source_refs"] }),
+    );
+
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    const captured: string[] = [];
+    process.stderr.write = ((chunk: string | Uint8Array): boolean => {
+      captured.push(typeof chunk === "string" ? chunk : Buffer.from(chunk).toString());
+      return true;
+    }) as typeof process.stderr.write;
+    try {
+      const report = checkWorkflows(root);
+      expect(report.passed).toBe(true);
+      const stderr = captured.join("");
+      expect(stderr).not.toContain(TRANSITION_PREFIX);
+    } finally {
+      process.stderr.write = originalWrite;
+      resetSlotCache();
+    }
   });
 
   test("v2 workflow with soft warnings still reports passed=true", () => {

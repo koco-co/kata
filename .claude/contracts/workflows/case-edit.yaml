@@ -1,66 +1,53 @@
+# spec §6.7 case-edit phases: §1-parse / §2-diff / §3-apply（合并 spec-review 进 review gate）。
+# v2 schema 由 engine/src/skills/workflow-schema.ts 校验。
 name: case-edit
-version: 1
-entry: /case-edit
-description: 编辑、同步、转换或标准化已有 QA 用例产物；本 yaml 是该 workflow 的唯一规范源。
+version: 2
+default_dispatch: inline
+default_model: sonnet
+default_effort: high
+
+metadata:
+  event_kinds_emitted:
+    - phase_entered
+    - phase_exited
+    - decision_made
+    - artifact_written
+    - validator_failed
+    - blocked
+    - handoff_emitted
+  artifact_kinds_produced:
+    - archive
+    - xmind
+
 steps:
-  - id: artifact-intake
-    next: [plan_edit]
-    blackboard_inputs: []
-    blackboard_outputs: [sources, source_refs, artifacts]
-    references:
-      - .claude/skills/case-edit/SKILL.md
-      - .agents/skills/case-edit/SKILL.md
-      - .claude/contracts/output-artifacts.md
-    failure_modes:
-      - ARTIFACT_MISSING
-    human_gates:
-      - ASK_FOR_TARGET_ARTIFACT
-    verification: [input_artifact_paths_recorded]
-  - id: plan_edit
-    next: [preview_diff]
-    blackboard_inputs: [sources, source_refs, artifacts]
-    blackboard_outputs: [decisions, coverage]
-    references:
-      - references/archive-xmind-sync.md
-      - references/fewshots/case-format-sample.md
-      - references/fewshots/case-format-sample.xmind.md
-    failure_modes:
-      - AMBIGUOUS_EDIT_SCOPE
-    human_gates:
-      - ASK_FOR_EDIT_SCOPE
-    verification: [edit_plan_preserves_case_semantics]
-  - id: preview_diff
-    next: [apply-corrections]
-    blackboard_inputs: [artifacts, decisions, coverage]
-    blackboard_outputs: [open_questions, verification]
-    references:
-      - references/archive-xmind-sync.md
-    failure_modes:
-      - PREVIEW_DIFF_UNREADABLE
-    human_gates:
-      - CONFIRM_SEMANTIC_CHANGE
-    verification: [archive_xmind_diff_preview_recorded]
-  - id: apply-corrections
-    next: [output]
-    blackboard_inputs: [artifacts, decisions, verification]
-    blackboard_outputs: [artifacts, verification]
-    references:
-      - references/apply-corrections.md
-      - references/archive-xmind-sync.md
-    failure_modes:
-      - CORRECTION_SOURCE_CHANGED
-      - XMIND_SYNC_FAILED
-    human_gates:
-      - CONFIRM_APPLY_APPROVED_CORRECTIONS
-    verification: [approved_corrections_applied_and_logged]
-  - id: output
-    blackboard_inputs: [artifacts, verification]
-    blackboard_outputs: [handoff]
-    references:
-      - .claude/contracts/output-artifacts.md
-      - references/fewshots/case-format-sample.md
-      - references/fewshots/case-format-sample.xmind.md
-    failure_modes:
-      - OUTPUT_QA_FAILED
-    human_gates: []
-    verification: [final_artifact_consistency_checked]
+  - id: parse
+    dispatch: inline
+    blackboard_inputs: [user_input]
+    blackboard_outputs: [source_refs, atoms]
+    failure_modes: [unsupported_format]
+
+  - id: diff
+    dispatch: subagent
+    model: sonnet
+    effort: high
+    workers: [edit-worker]
+    blackboard_inputs: [atoms]
+    blackboard_outputs: [draft_archive]
+    failure_modes: [worker_timeout]
+
+  - id: spec-review
+    dispatch: subagent
+    model: haiku
+    effort: low
+    reviewers: [spec-reviewer]
+    blackboard_inputs: [draft_archive]
+    blackboard_outputs: [spec_verdict, spec_violations]
+    validators: [archive-schema]
+    failure_modes: [verdict_invalid]
+
+  - id: apply
+    dispatch: inline
+    blackboard_inputs: [draft_archive, spec_verdict]
+    blackboard_outputs: [archive_path, xmind_path]
+    validators: [archive-format, xmind-mapping]
+    failure_modes: [io_error]
