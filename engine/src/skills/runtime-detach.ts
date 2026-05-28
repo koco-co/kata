@@ -42,25 +42,10 @@ const ENTRY_REQUIRED_PHRASES = [
   "refactor: ✨",
   "【KATA 工作通知】",
 ] as const;
+// Phase 1: .agents/rules/* were retired alongside .agents/contracts/. The
+// Codex runtime now reads workflow guardrails from .claude/rules/* (see
+// .agents/README.md). Phase 2 will reintroduce Codex-specific entries here.
 const DETAIL_RULE_FILES = [
-  {
-    relPath: ".agents/rules/project-workflow-rules.md",
-    requiredPhrases: [
-      "git worktree add --detach",
-      "detached worktree",
-      "不得为任务新建分支",
-      "提交主工作树现有改动",
-      "symlink 必要 ignored runtime 目录",
-      "git merge --no-ff <sha>",
-      "git push origin main",
-      "git worktree remove .worktrees/<slug>",
-      "superpowers:subagent-driven-development",
-      "TaskCreate/TaskUpdate",
-      "update_plan",
-      "| `refactor` | `✨` |",
-      "【KATA 工作通知】",
-    ] as const,
-  },
   {
     relPath: ".claude/rules/project-workflow-rules.md",
     requiredPhrases: [
@@ -77,19 +62,6 @@ const DETAIL_RULE_FILES = [
       "update_plan",
       "| `refactor` | `✨` |",
       "【KATA 工作通知】",
-    ] as const,
-  },
-  {
-    relPath: ".agents/rules/git-workflow.md",
-    requiredPhrases: [
-      "git worktree add --detach",
-      "detached worktree",
-      "不得为任务新建分支",
-      "提交主工作树现有改动",
-      "symlink 必要 ignored runtime 目录",
-      "git merge --no-ff <sha>",
-      "git push origin main",
-      "git worktree remove .worktrees/<slug>",
     ] as const,
   },
   {

@@ -1,7 +1,9 @@
+// Phase 1: catalog reads .claude single-source via compat-shim; Phase 2 will route through skill-manifest.yaml.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import YAML, { parseDocument } from "yaml";
 import type { SkillSummary } from "../types.ts";
+import { readClaudeSkillContracts, type SkillContractsRead } from "./compat-shim.ts";
 
 interface YamlParseIssue {
   readonly message: string;
@@ -12,17 +14,12 @@ interface RuntimeSkillDoc {
   readonly description: string | null;
 }
 
-interface SkillContracts {
-  readonly graph: Record<string, { consumes?: unknown; produces?: unknown }>;
-  readonly routesRoot: string;
-}
-
 function skillsRoot(): string {
-  return join(currentRepoRoot(), ".agents/skills");
+  return join(currentRepoRoot(), ".claude/skills");
 }
 
 function contractsRoot(): string {
-  return join(currentRepoRoot(), ".agents/contracts");
+  return join(currentRepoRoot(), ".claude/contracts");
 }
 
 function currentRepoRoot(): string {
@@ -84,25 +81,6 @@ function readRuntimeSkill(path: string): RuntimeSkillDoc {
   }
 }
 
-function readContracts(root: string): SkillContracts {
-  return {
-    graph: readSkillGraph(join(root, "skill-graph.yaml")),
-    routesRoot: join(root, "routes"),
-  };
-}
-
-function readSkillGraph(path: string): Record<string, { consumes?: unknown; produces?: unknown }> {
-  if (!existsSync(path)) return {};
-  const parsed = YAML.parse(readFileSync(path, "utf-8"));
-  const skills =
-    parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as { skills?: unknown }).skills
-      : undefined;
-  return skills && typeof skills === "object" && !Array.isArray(skills)
-    ? (skills as Record<string, { consumes?: unknown; produces?: unknown }>)
-    : {};
-}
-
 function readRouteLists(
   routesRoot: string,
   id: string,
@@ -118,7 +96,7 @@ function readRouteLists(
   };
 }
 
-function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContracts): SkillSummary {
+function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContractsRead): SkillSummary {
   const route = readRouteLists(contracts.routesRoot, id);
   const graphEntry = contracts.graph[id] ?? {};
   return {
@@ -140,7 +118,9 @@ export function listSkills(): SkillSummary[] {
 
 export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummary[] {
   if (!existsSync(root)) return [];
-  const contracts = contractRoot ? readContracts(contractRoot) : { graph: {}, routesRoot: "" };
+  const contracts: SkillContractsRead = contractRoot
+    ? readClaudeSkillContracts(contractRoot)
+    : { graph: {}, routesRoot: "" };
   const ids = new Set<string>();
   const skills = readdirSync(root)
     .filter((name) => statSync(join(root, name)).isDirectory())

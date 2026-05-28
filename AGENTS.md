@@ -10,13 +10,7 @@
 - 修改 `.claude/**` 或 `.agents/**` 中任一 runtime 提示词、reference、script、workflow 或路由规则时，必须同步评估另一套 agent 架构中的对应提示词，并在需要时同步修改；若确认另一侧无需变更，提交说明必须写明具体理由。
 - 不要求两边文件逐字一致，但用户入口语义、交付产物清单、验证口径和证据底线必须一致。
 - 两套 runtime 需要复用同一份 agent 文档、reference 或规则文件时，优先使用 symlink 保持单一文件来源；不得抽取到第三方共享文档目录。
-
-## Codex Runtime 规则
-
-- Codex skill 的稳定触发信息来自 `.agents/skills/<name>/SKILL.md` frontmatter 的 `name` 与 `description`。
-- `allowed-tools` 只保留当前 `playwright-cli` 基线；隐式调用策略由 `agents/openai.yaml` 声明。
-- 不把 Claude slash-command frontmatter 字段写入 Codex `SKILL.md`。
-- `/skill` 名继续可用；显式 `/case-draft`、`/case-edit` 等命令按下方路由表处理。
+- Phase 1 期间 Codex runtime 仅占位；详见 `.agents/README.md`。
 
 ## 路由规则
 
@@ -71,7 +65,7 @@
 - worktree 创建后按任务需要 symlink 必要 ignored runtime 目录；`workspace/{project}/.kata/repos/**` 即使通过 symlink 共享也保持只读。
 - 验证通过后用 `git merge --no-ff <sha>` 合入 main，无问题后执行 `git push origin main`，最后 `git worktree remove .worktrees/<slug>` 清理。
 - 多任务默认使用 `superpowers:subagent-driven-development`；Codex 使用 `update_plan` 维护任务列表，Claude Code 使用 TaskCreate/TaskUpdate 或当前客户端暴露的 TodoWrite。
-- 提交必须使用固定 type/emoji 映射，例如 `refactor: ✨ ...`；临时通知页面固定标题为 `【KATA 工作通知】`；完整枚举、通知格式和合并清理步骤见 `.agents/rules/project-workflow-rules.md`。
+- 提交必须使用固定 type/emoji 映射，例如 `refactor: ✨ ...`；临时通知页面固定标题为 `【KATA 工作通知】`；完整枚举、通知格式和合并清理步骤见 `.claude/rules/project-workflow-rules.md`（Codex runtime 一并按此执行，详见 `.agents/README.md`）。
 
 ## 关键约束
 
@@ -79,4 +73,4 @@
 - 改后即测：代码、配置、runtime skill 或入口文件变更后必须跑相关测试；失败必须修复。
 - Commit 规范：Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符。
 - QA 产物交付前必须声明已验证范围和未验证范围，不得把局部通过说成全量通过。
-- 详细 Git、测试、命名、QA 产物和工作区边界规则见 `.agents/rules/project-workflow-rules.md`。
+- 详细 Git、测试、命名、QA 产物和工作区边界规则见 `.claude/rules/project-workflow-rules.md`。

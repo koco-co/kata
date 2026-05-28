@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { listSkills, listSkillsFromRoot } from "./skills.ts";
@@ -32,7 +32,7 @@ test("listSkills parses case-draft inputs/outputs without throwing on backtick s
   expect(draft?.kind).toBe("runtime-skill");
   expect(draft?.summary?.length).toBeGreaterThan(0);
   expect(draft?.inputs).toContain("prd-source");
-  expect(draft?.inputs).toContain("user-input");
+  expect(draft?.inputs).toContain("design-source");
   expect(draft?.outputs).toContain("archive-md");
   expect(draft?.outputs).toContain("xmind");
   expect(draft?.mustTriggerWhen.length).toBeGreaterThan(0);
@@ -78,4 +78,43 @@ test("listSkillsFromRoot rejects names that do not match skill directories", () 
   writeSkill(root, "name-mismatch", "name: another-name\n");
 
   expect(() => listSkillsFromRoot(root)).toThrow(/match directory/i);
+});
+
+test("listSkillsFromRoot reads .claude contracts and ignores missing .agents contracts", () => {
+  const root = mkdtempSync(join(tmpdir(), "kata-skills-shim-"));
+  try {
+    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
+    writeFileSync(
+      join(root, ".claude/skills/case-draft/SKILL.md"),
+      `---\nname: case-draft\ndescription: gen QA cases\n---\nbody\n`,
+    );
+    mkdirSync(join(root, ".claude/contracts/routes"), { recursive: true });
+    writeFileSync(
+      join(root, ".claude/contracts/skill-graph.yaml"),
+      `skills:\n  case-draft:\n    user_entry: /case-draft\n    consumes: [prd-source]\n    produces: [archive-md]\n    related: []\n`,
+    );
+    writeFileSync(
+      join(root, ".claude/contracts/routes/case-draft.yaml"),
+      `skill: case-draft\nentry: /case-draft\nshould_trigger: [draft a case]\nshould_not_trigger: [hotfix]\nclarify: [confirm scope]\n`,
+    );
+    // NB: .agents/contracts/ intentionally not created — shim must cope.
+    const skillsRoot = join(root, ".claude/skills");
+    const contractsRoot = join(root, ".claude/contracts");
+    const summaries = listSkillsFromRoot(skillsRoot, contractsRoot);
+    expect(summaries).toHaveLength(1);
+    expect(summaries[0]?.id).toBe("case-draft");
+    expect(summaries[0]?.inputs).toEqual(["prd-source"]);
+    expect(summaries[0]?.outputs).toEqual(["archive-md"]);
+    expect(summaries[0]?.mustTriggerWhen).toEqual(["draft a case"]);
+    expect(summaries[0]?.mustNotTriggerWhen).toEqual(["hotfix"]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("listSkills() default roots resolve via .claude/contracts not .agents", () => {
+  const summaries = listSkills();
+  expect(Array.isArray(summaries)).toBe(true);
+  expect(summaries.length).toBeGreaterThan(0);
+  expect(summaries.every((s) => typeof s.id === "string")).toBe(true);
 });
