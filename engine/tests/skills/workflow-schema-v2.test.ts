@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 import {
   parseWorkflow,
   resetSlotCache,
-  V2_WARN_PREFIX,
   validateWorkflow,
 } from "../../src/skills/workflow-schema.ts";
 
@@ -70,11 +69,37 @@ describe("workflow schema v2", () => {
     expect(errors).toEqual([]);
   });
 
-  test("validate v2 warns on unknown dispatch enum (soft)", () => {
+  test("validate v2 rejects unknown dispatch (hard)", () => {
     const bad = V2.replace("dispatch: subagent", "dispatch: magical");
     const errors = validateWorkflow(parseWorkflow(bad), PROJECT_ROOT);
-    expect(errors.some((e) => e.startsWith(`${V2_WARN_PREFIX} step 'case-draft' dispatch`))).toBe(
-      true,
+    expect(errors).toContain("step 'case-draft' dispatch 'magical' not in {inline, subagent}");
+    expect(errors.every((e) => !e.startsWith("[v2-warn]"))).toBe(true);
+  });
+
+  test("validate v2 rejects unknown model (hard)", () => {
+    const bad = V2.replace("model: sonnet\n    effort: high", "model: gpt5\n    effort: high");
+    const errors = validateWorkflow(parseWorkflow(bad), PROJECT_ROOT);
+    expect(errors).toContain("step 'case-draft' model 'gpt5' not in {sonnet, opus, haiku}");
+  });
+
+  test("validate v2 rejects unknown effort (hard)", () => {
+    // 仅替换 case-draft step 上的 effort，避免误改 default_effort
+    const bad = V2.replace(
+      "    model: sonnet\n    effort: high",
+      "    model: sonnet\n    effort: extreme",
+    );
+    const errors = validateWorkflow(parseWorkflow(bad), PROJECT_ROOT);
+    expect(errors).toContain("step 'case-draft' effort 'extreme' not in {low, medium, high}");
+  });
+
+  test("validate v2 rejects unknown blackboard slot (hard)", () => {
+    const bad = V2.replace(
+      "blackboard_outputs: [draft_archive]",
+      "blackboard_outputs: [definitely_unknown_slot]",
+    );
+    const errors = validateWorkflow(parseWorkflow(bad), PROJECT_ROOT);
+    expect(errors).toContain(
+      "step 'case-draft' uses unknown blackboard slot 'definitely_unknown_slot'",
     );
   });
 

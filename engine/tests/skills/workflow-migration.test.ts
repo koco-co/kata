@@ -48,12 +48,12 @@ describe("workflow migration", () => {
     const files = readdirSync(WORKFLOW_DIR).filter((n) => n.endsWith(".yaml"));
     for (const f of files) {
       const wf = parseWorkflow(readFileSync(join(WORKFLOW_DIR, f), "utf8"));
-      const messages = validateWorkflow(wf, repoRoot());
-      const hardErrors = messages.filter((m) => !m.startsWith("[v2-warn]"));
-      if (hardErrors.length > 0) {
-        throw new Error(`workflow ${f} has hard errors:\n${hardErrors.join("\n")}`);
+      // v2 lint hard-on：validateWorkflow 返回的全部消息均为 hard error，不再过滤 [v2-warn]
+      const errors = validateWorkflow(wf, repoRoot());
+      if (errors.length > 0) {
+        throw new Error(`workflow ${f} has hard errors:\n${errors.join("\n")}`);
       }
-      expect(hardErrors).toEqual([]);
+      expect(errors).toEqual([]);
     }
   });
 });

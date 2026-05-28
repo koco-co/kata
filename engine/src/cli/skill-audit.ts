@@ -10,7 +10,7 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
-import { loadSkillManifest } from "../skills/manifest-loader.ts";
+import { loadSkillManifest, validateManifestAgainstWorkflows } from "../skills/manifest-loader.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
 import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
@@ -36,14 +36,36 @@ export function buildSkillsCommand(): Command {
         const message = error instanceof Error ? error.message : String(error);
         manifestLines.push("skill manifest check failed", `SKILL_MANIFEST_INVALID: ${message}`);
       }
+      // 仅在 manifest 加载成功后才能比对 ↔ workflow；加载失败时不重复报错
+      let manifestWorkflowPassed = true;
+      const manifestWorkflowLines: string[] = [];
+      if (manifestPassed) {
+        const manifestWorkflowErrors = validateManifestAgainstWorkflows(root);
+        if (manifestWorkflowErrors.length === 0) {
+          manifestWorkflowLines.push("manifest ↔ workflow consistency passed");
+        } else {
+          manifestWorkflowPassed = false;
+          manifestWorkflowLines.push(
+            "manifest ↔ workflow consistency failed",
+            ...manifestWorkflowErrors,
+          );
+        }
+      }
       const passed =
-        skillReport.passed && detachReport.passed && manifestPassed && workflowReport.passed;
+        skillReport.passed &&
+        detachReport.passed &&
+        manifestPassed &&
+        manifestWorkflowPassed &&
+        workflowReport.passed;
       const text = [
         formatRuntimeSkillSyncReport(skillReport, root),
         formatRuntimeDetachReport(detachReport, root),
         manifestLines.join("\n"),
+        manifestWorkflowLines.join("\n"),
         formatWorkflowCheckReport(workflowReport, root),
-      ].join("\n");
+      ]
+        .filter((s) => s.length > 0)
+        .join("\n");
       if (passed) {
         console.log(text);
       } else {

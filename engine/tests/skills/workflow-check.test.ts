@@ -194,7 +194,7 @@ describe("workflow check", () => {
     }
   });
 
-  test("v2 workflow with soft warnings still reports passed=true", () => {
+  test("v2 lint hard-on: unknown enum and unknown slot fail with violations", () => {
     resetSlotCache();
     const root = makeRoot();
     // 写一个 v2 workflow，含 registry 未声明的 slot 与未知 dispatch
@@ -234,7 +234,7 @@ describe("workflow check", () => {
         v2: ["user_input", "source_refs"],
       }),
     );
-    // 同步建出 skill 目录，确保本用例只校验 v2-warn，不混入 [transition] 噪音
+    // 同步建出 skill 目录，避免混入 [transition] 噪音
     mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
 
     const originalWrite = process.stderr.write.bind(process.stderr);
@@ -245,12 +245,15 @@ describe("workflow check", () => {
     }) as typeof process.stderr.write;
     try {
       const report = checkWorkflows(root);
-      expect(report.passed).toBe(true);
-      expect(report.violations).toEqual([]);
+      // v2 lint 已 hard-on：所有 v2 校验失败都进 violations，不再走 stderr 软警告
+      expect(report.passed).toBe(false);
+      const messages = report.violations.map((v) => v.message);
+      expect(messages.some((m) => m.includes("dispatch 'magical'"))).toBe(true);
+      expect(messages.some((m) => m.includes("definitely_unknown_slot"))).toBe(true);
+      expect(report.violations.every((v) => v.rule === "WORKFLOW_SCHEMA_ERROR")).toBe(true);
       const stderr = captured.join("");
-      expect(stderr).toContain(V2_WARN_PREFIX);
-      expect(stderr).toContain("definitely_unknown_slot");
-      expect(stderr).toContain("dispatch 'magical'");
+      // 不再向 stderr 写 v2 软警告
+      expect(stderr).not.toContain(V2_WARN_PREFIX);
       expect(stderr).not.toContain(TRANSITION_PREFIX);
     } finally {
       process.stderr.write = originalWrite;

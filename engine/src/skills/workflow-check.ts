@@ -1,11 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  parseWorkflow,
-  V2_WARN_PREFIX,
-  validateWorkflow,
-  type Workflow,
-} from "./workflow-schema.ts";
+import { parseWorkflow, validateWorkflow, type Workflow } from "./workflow-schema.ts";
 
 /** Stderr-only marker for P1→P3 transition workflow contracts (skill dir not yet provisioned). */
 export const TRANSITION_PREFIX = "[transition]";
@@ -59,6 +54,17 @@ function checkWorkflowFile(
   const workflow = readWorkflowYaml(yamlPath, violations);
   if (!workflow) return;
 
+  // 文件名 stem 必须与 workflow.name 一致，避免 manifest ↔ workflow ↔ skill 目录三方失同步
+  const stem = fileName.replace(/\.yaml$/, "");
+  if (workflow.name && workflow.name !== stem) {
+    pushWorkflowViolation(
+      violations,
+      "WORKFLOW_SCHEMA_ERROR",
+      yamlPath,
+      `filename stem '${stem}' must match workflow name '${workflow.name}'`,
+    );
+  }
+
   validateWorkflowSchema(workflow, yamlPath, root, violations);
   emitSkillDirTransitionWarning(workflow, yamlPath, root);
 }
@@ -96,12 +102,8 @@ function validateWorkflowSchema(
   root: string,
   violations: WorkflowCheckViolation[],
 ): void {
+  // v2 lint hard-on：所有 schema 校验失败统一作为 violation 上报，不再走 stderr 软警告
   for (const schemaError of validateWorkflow(workflow, root)) {
-    if (schemaError.startsWith(V2_WARN_PREFIX)) {
-      // 本 commit 软校验：v2 警告写 stderr，不计入 violations；4.c 才提升为 hard error
-      process.stderr.write(`workflow ${yamlPath}: ${schemaError}\n`);
-      continue;
-    }
     pushWorkflowViolation(violations, "WORKFLOW_SCHEMA_ERROR", yamlPath, schemaError);
   }
 }

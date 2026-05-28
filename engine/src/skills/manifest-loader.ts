@@ -2,6 +2,18 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import YAML from "yaml";
 
+// WHY: Phase 1 transitional state — bug-file / conflict-analyze / diff-scan 三个 skill
+// 在 spec §6.12 中被 fuse 进 defect-analyze 单 workflow，因此 manifest 仍有 entry
+// 但没有独立 workflow.yaml（共用 defect-analyze.yaml）。playwright-cli 则在 Commit 5
+// 整体删除（spec §11 P1#5）。三类 transitional skill 暂跳过 manifest ↔ workflow 一致性
+// 校验，P3 落地 defect-analyze 与 Commit 5 删 playwright-cli 后这条豁免应同步清理。
+const MANIFEST_WORKFLOW_EXCLUSIONS = new Set<string>([
+  "bug-file",
+  "conflict-analyze",
+  "diff-scan",
+  "playwright-cli",
+]);
+
 export interface SkillRouting {
   must_trigger_when: string[];
   must_not_trigger_when: string[];
@@ -81,4 +93,20 @@ function normalizeSkills(raw: Record<string, unknown>): Record<string, SkillMani
 
 function arr(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
+}
+
+/** Verify every manifest skill id resolves to a workflow yaml under .claude/contracts/workflows/. */
+export function validateManifestAgainstWorkflows(root: string): string[] {
+  const errs: string[] = [];
+  const manifest = loadSkillManifest(root);
+  for (const id of Object.keys(manifest.skills)) {
+    if (MANIFEST_WORKFLOW_EXCLUSIONS.has(id)) continue;
+    const workflowPath = join(root, ".claude/contracts/workflows", `${id}.yaml`);
+    if (!existsSync(workflowPath)) {
+      errs.push(
+        `skill '${id}' in manifest has no workflow at .claude/contracts/workflows/${id}.yaml`,
+      );
+    }
+  }
+  return errs;
 }

@@ -215,7 +215,6 @@ const VALID_MODEL = new Set(["sonnet", "opus", "haiku"]);
 const VALID_EFFORT = new Set(["low", "medium", "high"]);
 
 function validateWorkflowV2(workflow: Workflow, root?: string): string[] {
-  const warns: string[] = [];
   const errs: string[] = [];
   if (!workflow.name) errs.push("missing required field: name");
   if (workflow.steps.length === 0) {
@@ -233,19 +232,13 @@ function validateWorkflowV2(workflow: Workflow, root?: string): string[] {
     if (ids.has(step.id)) errs.push(`duplicate step id '${step.id}'`);
     ids.add(step.id);
     if (step.dispatch && !VALID_DISPATCH.has(step.dispatch)) {
-      warns.push(
-        `${V2_WARN_PREFIX} step '${step.id}' dispatch '${step.dispatch}' not in {inline, subagent}`,
-      );
+      errs.push(`step '${step.id}' dispatch '${step.dispatch}' not in {inline, subagent}`);
     }
     if (step.model && !VALID_MODEL.has(step.model)) {
-      warns.push(
-        `${V2_WARN_PREFIX} step '${step.id}' model '${step.model}' not in {sonnet, opus, haiku}`,
-      );
+      errs.push(`step '${step.id}' model '${step.model}' not in {sonnet, opus, haiku}`);
     }
     if (step.effort && !VALID_EFFORT.has(step.effort)) {
-      warns.push(
-        `${V2_WARN_PREFIX} step '${step.id}' effort '${step.effort}' not in {low, medium, high}`,
-      );
+      errs.push(`step '${step.id}' effort '${step.effort}' not in {low, medium, high}`);
     }
     const stepSlots = [
       ...(step.blackboard_inputs ?? []),
@@ -255,9 +248,9 @@ function validateWorkflowV2(workflow: Workflow, root?: string): string[] {
     ];
     for (const slot of stepSlots) {
       if (!slots.has(slot)) {
-        warns.push(`${V2_WARN_PREFIX} step '${step.id}' uses unknown blackboard slot '${slot}'`);
+        errs.push(`step '${step.id}' uses unknown blackboard slot '${slot}'`);
       }
     }
   }
-  return [...errs, ...warns];
+  return errs;
 }
