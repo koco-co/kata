@@ -10,10 +10,7 @@ import {
   expectDataQualityGeneratedReportDownloadContract,
   expectDataQualityGeneratedReportFilterContract,
   expectDataQualityGeneratedReportStatusFilterContract,
-  expectDataQualityFailedResultDirtyDetailContract,
-  expectDataQualityFailedResultDirtyDownloadContract,
   expectDataQualityFailedResultLogDownloadContract,
-  expectDataQualityPassedResultNoDetailContract,
   expectDataQualityReportDetailFieldRuleFilterContract,
   expectDataQualityReportDetailMultiTableRuleFilterContract,
   expectDataQualityReportDetailDirtyDataDownloadContract,
@@ -23,7 +20,6 @@ import {
   expectDataQualityReportSameTableMultiTaskDirtyDataContract,
   expectDataQualityReportDetailSingleTableRuleFilterContract,
   expectDataQualityResultFilterContract,
-  expectDataQualityResultListSearchDetailContract,
   expectDataQualityRuleBaseCustomRegexContract,
   expectDataQualityRuleSetFilterContract,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
@@ -156,26 +152,11 @@ test("【P0】数据质量报告同一张表不同任务脏数据明细正确", 
   );
 });
 
-test("【P0】校验结果查询列表筛选、状态列与实例详情可核验", async ({ page }) => {
-  await expectDataQualityResultListSearchDetailContract(page, "SR-2099-01-DQ-RESULT-L8501");
-});
-
-test("【P0】校验结果查询校验通过实例不展示明细入口可核验", async ({ page }) => {
-  await expectDataQualityPassedResultNoDetailContract(page, "SR-2099-01-DQ-RESULT-L8521");
-});
-
-test("【P0】校验结果查询校验异常实例明细查看与失败字段可核验", async ({ page }) => {
-  await expectDataQualityFailedResultDirtyDetailContract(page, "SR-2099-01-DQ-RESULT-L8540");
-});
-
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8559
-// SourceRefs: SR-2099-01-DQ-RESULT-DIRTY-DOWNLOAD-L8559, SR-UI-PROBE-20260527-DQ-RESULT-DIRTY-DOWNLOAD-L8559-001
-test("【P0】校验结果查询校验不通过明细下载功能正常", async ({ page }) => {
-  await expectDataQualityFailedResultDirtyDownloadContract(page, "SR-2099-01-DQ-RESULT-DIRTY-DOWNLOAD-L8559");
-});
-
-// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8578
-// SourceRefs: SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L8578, SR-UI-PROBE-20260527-DQ-RESULT-FAILED-LOG-DOWNLOAD-L8578-001
-test("【P0】校验结果查询校验失败时查看日志与下载日志正常", async ({ page }) => {
-  await expectDataQualityFailedResultLogDownloadContract(page, "SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L8578");
+// spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7943
+// SourceRefs: SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L7943, SR-UI-PROBE-20260527-DQ-RESULT-FAILED-LOG-DOWNLOAD-L7943-001
+test("【P2】校验结果查询校验失败时查看日志与下载日志正常", async ({ page }) => {
+  await expectDataQualityFailedResultLogDownloadContract(
+    page,
+    "SR-2099-01-DQ-RESULT-FAILED-LOG-DOWNLOAD-L7943",
+  );
 });

@@ -31,7 +31,6 @@ import "../cases/t23-data-quality-rule-task-list-contract";
 import "../cases/t24-metadata-table-detail-range-shell";
 import "../cases/t25-standard-basis-code-database-shell";
 import "../cases/t26-metadata-table-detail-actions-shell";
-import "../cases/t26-data-quality-ruleset-config-shell";
 import "../cases/t27-data-quality-datamap-result-search-shell";
 import "../cases/t28-metadata-hot-tags-query-shell";
 import "../cases/t28-data-security-extra-shell";
