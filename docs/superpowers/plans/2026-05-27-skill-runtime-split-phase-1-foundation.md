@@ -100,7 +100,7 @@ Expected：至少命中 1 次。
 Run:
 
 ```bash
-rg -n "待[定]|占[位]|以[后]再说|未[确]定" docs/superpowers/specs/2026-05-27-skill-runtime-split-workflow-redesign.md
+rg -n "待定|占位|以后再说|未确定" docs/superpowers/specs/2026-05-27-skill-runtime-split-workflow-redesign.md
 git diff --check
 ```
 
