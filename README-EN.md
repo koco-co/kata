@@ -40,7 +40,7 @@ Code diff ──────────────────── /diff-sca
 Core principles:
 
 - `.agents/**` and `.claude/**` are first-class runtime directories for the kata Codex runtime and Claude Code runtime.
-- Runtime contracts live under `.agents/contracts/**` and `.claude/contracts/**`; shared agent documents use symlinks to keep a single file source.
+- Runtime contracts have a single source at `.claude/contracts/**`; during Phase 1 the Codex runtime is a placeholder only (see `.agents/README.md`), and Phase 2 will reuse the same contracts via symlinks.
 - Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
 - `playwright-cli` keeps its vendor skill name for real browser automation; kata-owned product skills do not reuse old aggregate names.
 
@@ -147,11 +147,11 @@ engine/**    CLI, validators, tests, and workflow support
 | --- | --- |
 | `.agents/**` | kata Codex runtime skills and references, maintained as a first-class runtime. |
 | `.claude/**` | Claude Code runtime skills and references, maintained as a first-class runtime. |
-| `.agents/contracts/**` / `.claude/contracts/**` | Runtime contracts; shared content should use symlinks to keep a single file source. |
+| `.claude/contracts/**` | Single source of runtime contracts shared by both runtimes; during Phase 1 the Codex runtime is a placeholder (see `.agents/README.md`), and Phase 2 will reuse the same files via symlinks. |
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
 | `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
 
-At runtime, agents read their runtime skill plus same-side `contracts/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
+At runtime, agents read their runtime skill plus the shared `.claude/contracts/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
 
 ## Plugins
 
