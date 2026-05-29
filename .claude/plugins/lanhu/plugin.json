@@ -7,7 +7,7 @@
     "case-draft:init": "input-adapter"
   },
   "commands": {
-    "fetch": "bun run plugins/lanhu/fetch.ts --url {{url}} --project {{project}}"
+    "fetch": "bun run .claude/plugins/lanhu/fetch.ts --url {{url}} --project {{project}}"
   },
   "url_patterns": ["lanhuapp.com"]
 }

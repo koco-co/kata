@@ -3,7 +3,7 @@ import { join } from "node:path";
 import type { Command } from "commander";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { loadFeatureManifestValidator } from "@shared/schemas/loaders.ts";
-import { isCanonicalSourceRef } from "../source-ref/resolvers.ts";
+import { isCanonicalSourceRef } from "@shared/lib/source-ref/resolvers.ts";
 
 export interface CasesValidateIssue {
   rule: string;

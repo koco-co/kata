@@ -1,4 +1,4 @@
-import type { KataIssue } from "../../result-types.ts";
+import type { KataIssue } from "@shared/lib/result-types.ts";
 
 export type SecretChannel = {
   resolve: (ref: string) => string | undefined;

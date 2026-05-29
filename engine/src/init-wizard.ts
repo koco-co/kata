@@ -80,7 +80,7 @@ function parseNodeMajor(version: string): number {
 }
 
 function scanPlugins(root: string): PluginStatus[] {
-  const pluginsPath = join(root, "plugins");
+  const pluginsPath = join(root, ".claude/plugins");
   if (!existsSync(pluginsPath)) return [];
 
   const results: PluginStatus[] = [];

@@ -1,4 +1,4 @@
-import type { KataIssue, KataResult } from "../../result-types.ts";
+import type { KataIssue, KataResult } from "@shared/lib/result-types.ts";
 
 export type CapabilityRequired = {
   fs_read: string[];

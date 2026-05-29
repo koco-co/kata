@@ -272,7 +272,7 @@ async function main(pwArgs: readonly string[]): Promise<void> {
     failedCases: effectiveStats.failedCases,
   };
 
-  const notifyScript = resolve(repoRoot(), "plugins/notify/send.ts");
+  const notifyScript = resolve(repoRoot(), ".claude/plugins/notify/send.ts");
   const notifyCode = await runCommand("bun", [
     "run",
     notifyScript,

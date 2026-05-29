@@ -2,8 +2,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { validateHandoffEnvelope } from "../policy/schema-guard.ts";
-import type { KataIssue, KataResult } from "../result-types.ts";
-import { isCanonicalSourceRef, validateSourceRefFreshness } from "../source-ref/resolvers.ts";
+import type { KataIssue, KataResult } from "@shared/lib/result-types.ts";
+import { isCanonicalSourceRef, validateSourceRefFreshness } from "@shared/lib/source-ref/resolvers.ts";
 
 const RUN_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 

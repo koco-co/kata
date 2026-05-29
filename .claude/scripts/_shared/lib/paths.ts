@@ -248,7 +248,7 @@ export function scriptsDir(): string {
 }
 
 export function pluginsDir(): string {
-  return resolve(repoRoot(), "plugins");
+  return resolve(repoRoot(), ".claude/plugins");
 }
 
 export function contractsDir(): string {

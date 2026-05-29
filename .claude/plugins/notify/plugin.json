@@ -12,6 +12,6 @@
     "*:output": "post-action"
   },
   "commands": {
-    "send": "bun run plugins/notify/send.ts --event {{event}} --data '{{json}}'"
+    "send": "bun run .claude/plugins/notify/send.ts --event {{event}} --data '{{json}}'"
   }
 }

@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { contractPluginsDir } from "@shared/lib/paths.ts";
-import type { KataIssue, KataResult } from "../result-types.ts";
-import { snapshotFileRef } from "../source-ref/resolvers.ts";
+import { pluginsDir } from "@shared/lib/paths.ts";
+import type { KataIssue, KataResult } from "@shared/lib/result-types.ts";
+import { snapshotFileRef } from "@shared/lib/source-ref/resolvers.ts";
 
 const FIXTURE_NAME_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
 const PLUGIN_NAME = "fixture-design-source.fetch-design-doc";
@@ -35,7 +35,7 @@ export async function runFixtureDesignPlugin(input: {
   }
 
   const fixturePath = join(
-    contractPluginsDir(),
+    pluginsDir(),
     "fixture-design-source",
     "fixtures",
     `${input.fixtureName}.md`,

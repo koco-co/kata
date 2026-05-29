@@ -7,8 +7,8 @@ import {
   loadFeatureMetadataValidator,
   loadFeatureSourceSnapshotValidator,
 } from "@shared/schemas/loaders.ts";
-import type { ResolvedTarget } from "../source-ref/resolve-target.ts";
-import { sourceRefKind } from "../source-ref/resolve-target.ts";
+import type { ResolvedTarget } from "@shared/lib/source-ref/resolve-target.ts";
+import { sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
 
 export interface VerifyIssue {
   layer: "L1" | "L2" | "L3";

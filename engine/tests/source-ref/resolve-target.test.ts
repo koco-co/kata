@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { resolveSourceRefTarget, sourceRefKind } from "../../src/source-ref/resolve-target.ts";
+import { resolveSourceRefTarget, sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
 
 describe("sourceRefKind", () => {
   it("extracts the scheme", () => {

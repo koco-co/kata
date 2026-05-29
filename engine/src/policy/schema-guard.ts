@@ -1,5 +1,5 @@
-import type { KataIssue, KataResult } from "../result-types.ts";
-import { isCanonicalSourceRef } from "../source-ref/resolvers.ts";
+import type { KataIssue, KataResult } from "@shared/lib/result-types.ts";
+import { isCanonicalSourceRef } from "@shared/lib/source-ref/resolvers.ts";
 
 const HANDOFF_STATUSES = new Set(["done", "done_with_concerns", "blocked", "needs_context"]);
 const ISSUE_SEVERITIES = new Set(["error", "warning"]);

@@ -1,5 +1,5 @@
-import type { KataResult } from "../../result-types.ts";
-import type { CapabilityRequired } from "./capability-spec.ts";
+import type { KataResult } from "@shared/lib/result-types.ts";
+import type { CapabilityRequired, CapabilityCheckResult } from "./capability-spec.ts";
 import { checkFsAccess, checkNetworkAccess, parseCapabilityRequired } from "./capability-spec.ts";
 import {
   createSecretChannel,

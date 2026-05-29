@@ -13,7 +13,7 @@ import {
   verifyStableCoreArtifacts,
   verifyStructuredSchemas,
 } from "../cases/verify-layers.ts";
-import { type ConfirmedSourceRepo, resolveSourceRefTarget } from "../source-ref/resolve-target.ts";
+import { type ConfirmedSourceRepo, resolveSourceRefTarget } from "@shared/lib/source-ref/resolve-target.ts";
 
 export interface CasesVerifyContext {
   project: string;

@@ -9,7 +9,7 @@ import {
   snapshotRepoLineRef,
   snapshotWorkspaceConfigRef,
   validateSourceRefFreshness,
-} from "../../src/source-ref/resolvers.ts";
+} from "@shared/lib/source-ref/resolvers.ts";
 
 describe("SourceRef P0 resolvers", () => {
   it("creates a hash-backed PRD file ref and blocks stale hashes", () => {
