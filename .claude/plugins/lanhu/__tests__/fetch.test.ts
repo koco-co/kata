@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
@@ -18,7 +18,7 @@ import {
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const FETCH_TS = resolve(__dirname, "../fetch.ts");
-const PROJECT_ROOT = resolve(__dirname, "../../../");
+const PROJECT_ROOT = resolve(__dirname, "../../../..");
 
 const TMP_DIR = join(tmpdir(), `lanhu-fetch-test-${process.pid}`);
 
@@ -38,6 +38,15 @@ describe("buildLanhuBridgeEnv", () => {
     assert.equal(env.KATA_LANHU_COOKIE, "session=fresh-cookie");
     assert.equal(env.LANHU_COOKIE, "session=fresh-cookie");
     assert.equal(env.DDS_COOKIE, "session=fresh-cookie");
+  });
+});
+
+describe("Lanhu bridge runtime paths", () => {
+  it("does not reference the legacy root plugins/lanhu/mcp-bridge path", () => {
+    const source = readFileSync(FETCH_TS, "utf8");
+
+    assert.ok(source.includes(".claude/plugins/lanhu/mcp-bridge"));
+    assert.equal(source.match(/["']plugins\/lanhu\/mcp-bridge/g), null);
   });
 });
 

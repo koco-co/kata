@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
- * plugins/lanhu/fetch.ts — 蓝湖 PRD 内容 + 截图抓取器 (bridge adapter)
+ * .claude/plugins/lanhu/fetch.ts — 蓝湖 PRD 内容 + 截图抓取器 (bridge adapter)
  *
- * Calls plugins/lanhu/mcp-bridge/bridge.py via subprocess to fetch PRD content,
+ * Calls .claude/plugins/lanhu/mcp-bridge/bridge.py via subprocess to fetch PRD content,
  * then downloads images and produces per-requirement PRD files.
  *
  * Usage:
- *   bun run plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --base-dir workspace/prds
- *   bun run plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --pages "15525,15529"
- *   bun run plugins/lanhu/fetch.ts --help
+ *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --base-dir workspace/prds
+ *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --pages "15525,15529"
+ *   bun run .claude/plugins/lanhu/fetch.ts --help
  */
 
 import { type SpawnSyncOptionsWithStringEncoding, spawnSync } from "node:child_process";
@@ -26,11 +26,13 @@ import { basename, extname, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import { getEnv, initEnv } from "@shared/lib/env.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
 import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const LANHU_BRIDGE_RELATIVE_DIR = ".claude/plugins/lanhu/mcp-bridge";
+const LANHU_MCP_RELATIVE_DIR = `${LANHU_BRIDGE_RELATIVE_DIR}/lanhu-mcp`;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -450,21 +452,21 @@ function parseTxtSections(txtFiles: string[]): ParsedTxtSections {
 // ─── Bridge Helpers ──────────────────────────────────────────────────────────
 
 function ensureLanhuMcpReady(projectRoot: string): void {
-  const mcpDir = join(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
+  const mcpDir = join(projectRoot, LANHU_MCP_RELATIVE_DIR);
   const venvPath = join(mcpDir, ".venv");
   if (existsSync(venvPath)) return;
 
-  // Check if the submodule directory exists at all
+  // Check if the bundled lanhu-mcp directory exists at all
   if (!existsSync(mcpDir)) {
     process.stderr.write(
-      "[lanhu] 外部依赖缺失: lanhu-mcp 子模块未初始化。\n" +
+      "[lanhu] 外部依赖缺失: lanhu-mcp 目录不存在。\n" +
         "[lanhu] Lanhu/Axure PRD 抓取需要此依赖。\n" +
-        "[lanhu] 请运行: git submodule update --init --recursive\n",
+        `[lanhu] 请确认 ${LANHU_MCP_RELATIVE_DIR} 已存在。\n`,
     );
     process.exit(1);
   }
 
-  const setupScript = join(projectRoot, "plugins/lanhu/mcp-bridge/setup.sh");
+  const setupScript = join(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "setup.sh");
   try {
     runCommand("bash", [setupScript], {
       encoding: "utf8",
@@ -529,8 +531,8 @@ function tryCallBridgeListPages(
   rawUrl: string,
   cookie: string,
 ): BridgeListOutput | BridgeCallError {
-  const bridgeScript = resolve(projectRoot, "plugins/lanhu/mcp-bridge/bridge.py");
-  const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
+  const bridgeScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "bridge.py");
+  const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
   try {
     const stdout = runCommand(
       "uv",
@@ -601,8 +603,8 @@ function tryCallBridge(
   cookie: string,
   pageNames?: string,
 ): BridgeOutput | BridgeCallError {
-  const bridgeScript = resolve(projectRoot, "plugins/lanhu/mcp-bridge/bridge.py");
-  const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
+  const bridgeScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "bridge.py");
+  const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
 
   const args = ["run", "python", bridgeScript, "--url", rawUrl];
   if (pageId) {
@@ -630,8 +632,8 @@ function tryCallBridge(
 // ─── Cookie Refresh ─────────────────────────────────────────────────────────
 
 function refreshCookie(projectRoot: string, targetUrl: string): string | null {
-  const refreshScript = resolve(projectRoot, "plugins/lanhu/mcp-bridge/refresh-cookie.py");
-  const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
+  const refreshScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "refresh-cookie.py");
+  const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
   const envPath = resolve(projectRoot, ".env");
 
   const args = ["run", "python", refreshScript, "--target-url", targetUrl, "--update-env", envPath];
@@ -704,8 +706,8 @@ function callBridgeWithRetry(
 // ─── Main Logic ───────────────────────────────────────────────────────────────
 
 async function run(rawUrl: string, options: RunOptions): Promise<void> {
-  // 1. Load .env from project root (two levels up from plugins/lanhu/)
-  const projectRoot = resolve(__dirname, "../../");
+  // 1. Load .env from repository root.
+  const projectRoot = repoRoot();
   initEnv(resolve(projectRoot, ".env"));
 
   let cookie = getEnv("KATA_LANHU_COOKIE") ?? "";
@@ -795,7 +797,7 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
 
     // Try to find Axure resource images for this page
     const docId = parsed.params.docId ?? "";
-    const mcpDir = resolve(projectRoot, "plugins/lanhu/mcp-bridge/lanhu-mcp");
+    const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
     const axureImagesBase = join(mcpDir, "data", `axure_extract_${docId.slice(0, 8)}`, "images");
     // The page folder name in Axure resources uses the original page name (with ID prefix)
     const axurePageDir = existsSync(axureImagesBase)
