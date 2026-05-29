@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { resolveProject } from "../../src/test-case-flow/project-resolver";
+import { resolveProject } from "@skills/case-draft/scripts/test-case-flow/project-resolver.ts";
 
 describe("resolveProject", () => {
   it("uses explicit project name when provided", () => {

@@ -18,14 +18,14 @@
  */
 
 import { initEnv } from "@shared/lib/env.ts";
+import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
+import { program as caseSignalAnalyzer } from "@skills/case-draft/scripts/case-signal-analyzer.ts";
+import { program as caseStrategyResolver } from "@skills/case-draft/scripts/case-strategy-resolver.ts";
 import { Command } from "commander";
 
 // 大部分模块静态加载（无昂贵依赖）
 import { program as archiveGen } from "../archive-gen.ts";
 import { program as autoFixer } from "../auto-fixer.ts";
-import { program as caseDraft } from "../case-draft.ts";
-import { program as caseSignalAnalyzer } from "../case-signal-analyzer.ts";
-import { program as caseStrategyResolver } from "../case-strategy-resolver.ts";
 import { program as config } from "../config.ts";
 import { program as createProject } from "../create-project.ts";
 import { program as discuss } from "../discuss.ts";
@@ -141,7 +141,7 @@ import { registerTestBucketAudit } from "./test-bucket-audit.ts";
 registerTestBucketAudit(kata);
 
 // ── Test Case Flow ──────────────────────────────────────────
-import { registerTestCaseFlow } from "../test-case-flow.ts";
+import { registerTestCaseFlow } from "@skills/case-draft/scripts/test-case-flow.ts";
 
 registerTestCaseFlow(kata);
 

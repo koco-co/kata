@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { resolveTestCaseSource } from "../../src/test-case-flow/source-resolver";
+import { resolveTestCaseSource } from "@skills/case-draft/scripts/test-case-flow/source-resolver.ts";
 
 describe("resolveTestCaseSource", () => {
   it("treats Lanhu URLs as PRD design sources", () => {

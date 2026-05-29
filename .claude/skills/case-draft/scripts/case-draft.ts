@@ -85,10 +85,10 @@ function buildStartEnvelope(options: CaseDraftStartOptions): Record<string, unkn
 
   if (!projectName) {
     return {
-      status: projectResult.status || "needs_project_selection",
+      status: ("status" in projectResult && projectResult.status) || "needs_project_selection",
       source,
       candidates: "candidates" in projectResult ? projectResult.candidates : [],
-      reason: projectResult.reason || "Project selection required",
+      reason: ("reason" in projectResult && projectResult.reason) || "Project selection required",
     };
   }
 
