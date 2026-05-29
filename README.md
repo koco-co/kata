@@ -32,9 +32,8 @@ Kata 不是单个脚本，而是一套可审计的 QA 工作流编排系统：
 PRD / Lanhu / 设计源 ─── /case-draft ───────> Archive MD + XMind
 已有用例产物 ─────────── /case-edit ──> 规范化、同步、转换
 项目业务知识 ─────────── /knowledge-curate ──> 查询、更新、维护
-失败证据 / Bug / 冲突 ── /bug-file 等命令 ───────> 报告、Hotfix 回归用例、冲突分析
+失败证据 / Bug / 冲突 / diff ── /defect-analyze ──> 缺陷报告、冲突解决方案
 UI 用例 / 测试结果 ───── /playwright-automation ────> UI 计划、Playwright 脚本、失败归因
-源码 diff ───────────── /diff-scan ───────> 可复现缺陷报告
 ```
 
 核心原则：
@@ -88,11 +87,9 @@ bunx playwright install
 | `/case-draft` | 用例生成 | `case-draft@1` | 根据需求文档、PRD 或设计源生成 QA 测试用例。 |
 | `/case-edit` | 用例维护 | `case-edit@1` | 编辑、同步、转换或标准化已有 QA 用例产物。 |
 | `/knowledge-curate` | 知识管理 | `knowledge-curate@1` | 查询或更新项目业务知识和规则。 |
-| `/bug-file` | 缺陷与变更 | `bug-file@1` | 根据观察到的失败现象生成有证据支持的 bug 报告。 |
-| `/conflict-analyze` | 缺陷与变更 | `conflict-analyze@1` | 分析合并冲突并生成解决方案说明。 |
+| `/defect-analyze` | 缺陷与变更 | `defect-analyze@1` | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。 |
 | `/case-hotfix` | 缺陷与变更 | `case-hotfix@1` | 根据 bug 或修复记录生成 hotfix 回归用例。 |
 | `/playwright-automation` | UI 自动化 | `playwright-automation@1` | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。 |
-| `/diff-scan` | 代码扫描 | `diff-scan@1` | 扫描代码 diff 发现可复现的缺陷。 |
 | `/infra-diagnose` | 故障排查 | `infra-diagnose@1` | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
 
 ### 功能使用示例
@@ -115,19 +112,13 @@ bunx playwright install
 # 5. UI 自动化 — 生成、运行、归因和修复 Playwright 自动化测试
 /playwright-automation
 
-# 6. Bug 报告 — 根据失败现象生成有证据支持的 bug 报告
-/bug-file
+# 6. 缺陷分析 — bug 证据 / 合并冲突 / 代码 diff 三模式缺陷分诊
+/defect-analyze
 
-# 7. 冲突分析 — 分析合并冲突并生成解决方案说明
-/conflict-analyze
-
-# 8. Hotfix 回归用例 — 根据 bug 或修复记录生成回归用例
+# 7. Hotfix 回归用例 — 根据 bug 或修复记录生成回归用例
 /case-hotfix
 
-# 9. 代码扫描 — 扫描源码 diff 发现可复现的缺陷
-/diff-scan
-
-# 10. 故障排查 — SSH 登录服务器排查连通性故障
+# 8. 故障排查 — SSH 登录服务器排查连通性故障
 /infra-diagnose
 ```
 

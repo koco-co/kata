@@ -18,7 +18,7 @@ test("listSkills returns the kata skills sorted by id with parsed fields", () =>
   const skills = listSkills();
   const ids = skills.map((s) => s.id);
   expect(ids).toContain("case-draft");
-  expect(ids).toContain("bug-file");
+  expect(ids).toContain("defect-analyze");
   // sorted ascending
   expect([...ids]).toEqual([...ids].sort((a, b) => a.localeCompare(b)));
 });

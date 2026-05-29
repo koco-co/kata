@@ -3,10 +3,8 @@ export const AVAILABLE_HOOKS = {
   "case-draft:output": "After case-draft produces output",
   "case-hotfix:init": "Before case-hotfix skill starts",
   "case-hotfix:output": "After case-hotfix produces output",
-  "bug-file:init": "Before bug-file skill starts",
-  "bug-file:output": "After bug-file produces output",
-  "conflict-analyze:init": "Before conflict-analyze skill starts",
-  "conflict-analyze:output": "After conflict-analyze produces output",
+  "defect-analyze:init": "Before defect-analyze skill starts",
+  "defect-analyze:output": "After defect-analyze produces output",
   "*:output": "After any skill produces output (wildcard)",
 } as const;
 

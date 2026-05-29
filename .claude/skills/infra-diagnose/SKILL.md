@@ -24,7 +24,7 @@ effort: high
 
 ## 不触发条件
 
-- 纯前端运行时报错且无需登服务器，应走 bug-file。
+- 纯前端运行时报错且无需登服务器，应走 defect-analyze。
 - 仅查询或更新业务知识与规则，应走 knowledge-curate。
 - 仅需编写用例、扫描代码或做 UI 自动化。
 

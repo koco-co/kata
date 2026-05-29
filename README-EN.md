@@ -32,9 +32,8 @@ Kata is not a single script. It is an auditable QA workflow orchestration system
 PRD / Lanhu / design source ── /case-draft ───────> Archive MD + XMind
 Existing case artifacts ────── /case-edit ──> Normalize, sync, convert
 Project business knowledge ─── /knowledge-curate ──> Query, update, maintain
-Failure / bug / conflict ───── /bug-file and peers ────> Reports, hotfix cases, conflict notes
+Failure / bug / conflict / diff ── /defect-analyze ──> Defect reports, conflict resolutions
 UI cases / test results ────── /playwright-automation ─> UI plans, Playwright scripts, triage
-Code diff ──────────────────── /diff-scan ───────> Reproducible defect reports
 ```
 
 Core principles:
@@ -88,11 +87,9 @@ The table below is the current public capability surface. Runtime entrypoints ar
 | `/case-draft` | Case generation | `case-draft@1` | Generate QA test cases from requirements, PRDs, or design sources. |
 | `/case-edit` | Case maintenance | `case-edit@1` | Edit, sync, convert, or normalize existing QA case artifacts. |
 | `/knowledge-curate` | Knowledge | `knowledge-curate@1` | Query or update project business knowledge and rules. |
-| `/bug-file` | Defects and changes | `bug-file@1` | Turn observed failures into evidence-backed bug reports. |
-| `/conflict-analyze` | Defects and changes | `conflict-analyze@1` | Analyze merge conflicts and produce resolution notes. |
+| `/defect-analyze` | Defects and changes | `defect-analyze@1` | Triage bug evidence, merge conflicts, and code diffs in one skill. |
 | `/case-hotfix` | Defects and changes | `case-hotfix@1` | Generate hotfix regression cases from bugs or fix records. |
 | `/playwright-automation` | UI automation | `playwright-automation@1` | Plan, generate, run, triage, and repair Playwright UI automation before handoff. |
-| `/diff-scan` | Code scanning | `diff-scan@1` | Scan code diffs for reproducible defects. |
 | `/infra-diagnose` | Infra diagnosis | `infra-diagnose@1` | SSH into servers to diagnose and fix datasource/server connectivity failures. |
 
 ### Usage examples
@@ -115,19 +112,13 @@ Run these commands directly in the Claude Code or Codex runtime:
 # 5. UI automation — generate, run, triage, and repair Playwright tests
 /playwright-automation
 
-# 6. Bug report — turn observed failures into evidence-backed bug reports
-/bug-file
+# 6. Defect analysis — triage bug evidence, merge conflicts, and code diffs
+/defect-analyze
 
-# 7. Conflict analysis — analyze merge conflicts and produce resolution notes
-/conflict-analyze
-
-# 8. Hotfix regression cases — generate regression tests from bugs or fix records
+# 7. Hotfix regression cases — generate regression tests from bugs or fix records
 /case-hotfix
 
-# 9. Code scanning — scan code diffs for reproducible defects
-/diff-scan
-
-# 10. Infra diagnosis — SSH into servers to diagnose connectivity failures
+# 8. Infra diagnosis — SSH into servers to diagnose connectivity failures
 /infra-diagnose
 ```
 

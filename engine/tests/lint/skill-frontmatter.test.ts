@@ -7,7 +7,7 @@ const KNOWN_SKILLS = new Set([
   "case-draft",
   "ui-plan",
   "case-edit",
-  "bug-file",
+  "defect-analyze",
   "knowledge-curate",
   "playwright-cli",
   "workspace-manage",

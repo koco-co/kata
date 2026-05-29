@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
 /**
- * scan-report.ts — kata module for diff-scan reports.
+ * scan-report.ts — kata module for defect-analyze diff-mode reports.
  *
  * Subcommands:
  *   create / add-bug / update-bug / update-bug-steps / remove-bug / set-meta / show / render
  *
- * Contract: .agents/skills/diff-scan/SKILL.md and .claude/skills/diff-scan/SKILL.md
+ * Contract: .agents/skills/defect-analyze/SKILL.md and .claude/skills/defect-analyze/SKILL.md
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -133,7 +133,7 @@ async function actionCreate(opts: CreateOpts): Promise<void> {
 
 export const program = createCli({
   name: "scan-report",
-  description: "diff-scan report CRUD + render (spec §4.1)",
+  description: "defect-analyze diff-mode report CRUD + render (spec §4.1)",
   commands: [
     {
       name: "create",
