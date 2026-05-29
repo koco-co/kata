@@ -6,11 +6,11 @@ const repoRoot = resolve(import.meta.dirname, "../../..");
 const skillPath = resolve(repoRoot, ".claude/skills/case-draft/SKILL.md");
 const specReviewerPath = resolve(
   repoRoot,
-  ".claude/skills/case-draft/references/spec-reviewer-prompt.md",
+  ".claude/skills/case-draft/prompts/agent-spec-reviewer.md",
 );
 const qualityReviewerPath = resolve(
   repoRoot,
-  ".claude/skills/case-draft/references/quality-reviewer-prompt.md",
+  ".claude/skills/case-draft/prompts/agent-quality-reviewer.md",
 );
 const oldSkillPath = resolve(repoRoot, ".claude/skills/obsolete-skill/SKILL.md");
 

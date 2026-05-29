@@ -22,7 +22,7 @@ paths:
 ## 路由摘要
 
 - 统一处理 UI 自动化规划、真实页面探测、Playwright 生成、运行归因和修复闭环。
-- 阶段内任务编排：用户确认 env 且 env-preflight 无 blocker 后，按 references/execution-protocol.md 创建 TodoWrite 子任务、按 references/worker-prompt.md 派发 Worker、按 references/spec-reviewer-prompt.md 与 references/quality-reviewer-prompt.md 二阶段审查；silent-mode、env-preflight 全阶段、所有 BLOCKED 模板路径下禁止该协议。
+- 阶段内任务编排：用户确认 env 且 env-preflight 无 blocker 后，按 references/execution-protocol.md 创建 TodoWrite 子任务、按 prompts/agent-worker.md 派发 Worker、按 prompts/agent-spec-reviewer.md 与 prompts/agent-quality-reviewer.md 二阶段审查；silent-mode、env-preflight 全阶段、所有 BLOCKED 模板路径下禁止该协议。
 
 ## 触发条件
 
@@ -45,26 +45,26 @@ paths:
 
 | 阶段 | 条件 | 文件 | 类型 | 用途 |
 | --- | --- | --- | --- | --- |
-| case-normalize | `step.id == case-normalize` | references/case-normalize.md | 规范 | 将 MD、Archive、PRD、Lanhu、脚本或失败结果归一化为 UiAutomationIntent。 |
-| env-preflight | `step.id == env-preflight` | references/env-preflight.md | 规范 | 校验 base URL、登录态、项目、数据源、权限与浏览器依赖。 |
-| ui-plan | `step.id == ui-plan` | references/ui-plan.md | 规范 | 规划覆盖范围、可见断言、fixture、选择器策略和风险。 |
-| ui-probe | `step.id == ui-probe` | references/ui-probe.md | 规范 | 通过真实浏览器收集页面、可访问性、截图、网络与 locator 证据。 |
-| plan-reconcile | `step.id == plan-reconcile` | references/plan-reconcile.md | 规范 | 对账书面用例与真实 UI，输出继续、调整、提问或阻塞。 |
-| playwright-generate | `step.id == playwright-generate` | references/playwright-generate.md | 规范 | 基于对账后的计划和 UI 证据生成或修复 Playwright 脚本。 |
-| self-run | `step.id == self-run` | references/self-run.md | 规范 | 运行目标 spec 并记录命令、退出码、输出与报告路径。 |
-| run-triage | `step.id == run-triage` | references/run-triage.md | 规范 | 将失败归类为产品、脚本、数据、权限、环境、未知或需用户决策。 |
-| repair-loop | `step.id == repair-loop` | references/repair-loop.md | 规范 | 执行有限修复循环并保留每次修复证据。 |
-| quality-gate | `step.id == quality-gate` | references/quality-gate.md | 规范 | 检查脚本结构、断言完整性、session 合规、manifest、handoff 双轨等 15 项质量门禁。 |
-| handoff | `step.id == handoff` | references/handoff.md | 参考 | 输出通过、阻塞、部分完成或修复耗尽的最终交付报告。 |
+| case-normalize | `step.id == case-normalize` | phases/§1-case-normalize.md | 规范 | 将 MD、Archive、PRD、Lanhu、脚本或失败结果归一化为 UiAutomationIntent。 |
+| env-preflight | `step.id == env-preflight` | phases/§2-env-preflight.md | 规范 | 校验 base URL、登录态、项目、数据源、权限与浏览器依赖。 |
+| ui-plan | `step.id == ui-plan` | phases/§3-ui-plan.md | 规范 | 规划覆盖范围、可见断言、fixture、选择器策略和风险。 |
+| ui-probe | `step.id == ui-probe` | phases/§4-ui-probe.md | 规范 | 通过真实浏览器收集页面、可访问性、截图、网络与 locator 证据。 |
+| plan-reconcile | `step.id == plan-reconcile` | phases/§5-plan-reconcile.md | 规范 | 对账书面用例与真实 UI，输出继续、调整、提问或阻塞。 |
+| playwright-generate | `step.id == playwright-generate` | phases/§6-playwright-generate.md | 规范 | 基于对账后的计划和 UI 证据生成或修复 Playwright 脚本。 |
+| self-run | `step.id == self-run` | phases/§7-self-run.md | 规范 | 运行目标 spec 并记录命令、退出码、输出与报告路径。 |
+| run-triage | `step.id == run-triage` | phases/§8-run-triage.md | 规范 | 将失败归类为产品、脚本、数据、权限、环境、未知或需用户决策。 |
+| repair-loop | `step.id == repair-loop` | phases/§9-repair-loop.md | 规范 | 执行有限修复循环并保留每次修复证据。 |
+| quality-gate | `step.id == quality-gate` | phases/§10-quality-gate.md | 规范 | 检查脚本结构、断言完整性、session 合规、manifest、handoff 双轨等 15 项质量门禁。 |
+| handoff | `step.id == handoff` | phases/§11-handoff.md | 参考 | 输出通过、阻塞、部分完成或修复耗尽的最终交付报告。 |
 | ui-probe, playwright-generate, self-run, repair-loop | `step.id in [ui-probe, playwright-generate, self-run, repair-loop]` | references/execution-protocol.md | 规范 | 阶段内 TodoWrite 编排、Worker 派发、二阶段 Review 协议；只在用户确认 env 且无 blocker 后生效。 |
-| ui-probe, playwright-generate, self-run, repair-loop | `step.id in [ui-probe, playwright-generate, self-run, repair-loop]` | references/worker-prompt.md | 规范 | Worker subagent prompt 模板与 status envelope schema。 |
-| ui-probe, playwright-generate, self-run, repair-loop | `step.id in [ui-probe, playwright-generate, self-run, repair-loop]` | references/spec-reviewer-prompt.md | 规范 | 阶段产物 spec 合规机械检查清单与输出 schema。 |
-| playwright-generate, repair-loop | `step.id in [playwright-generate, repair-loop]` | references/quality-reviewer-prompt.md | 规范 | 脚本内容质量审查（选择器、断言、复用度）。 |
-| case-feedback | `step.id == case-feedback` | references/case-feedback.md | 规范 | 生成 case-corrections.md 与 case-corrections-summary.json，覆盖 8 类 category、3 级 confidence、跨轮去重。 |
+| ui-probe, playwright-generate, self-run, repair-loop | `step.id in [ui-probe, playwright-generate, self-run, repair-loop]` | prompts/agent-worker.md | 规范 | Worker subagent prompt 模板与 status envelope schema。 |
+| ui-probe, playwright-generate, self-run, repair-loop | `step.id in [ui-probe, playwright-generate, self-run, repair-loop]` | prompts/agent-spec-reviewer.md | 规范 | 阶段产物 spec 合规机械检查清单与输出 schema。 |
+| playwright-generate, repair-loop | `step.id in [playwright-generate, repair-loop]` | prompts/agent-quality-reviewer.md | 规范 | 脚本内容质量审查（选择器、断言、复用度）。 |
+| case-feedback | `step.id == case-feedback` | phases/§12-case-feedback.md | 规范 | 生成 case-corrections.md 与 case-corrections-summary.json，覆盖 8 类 category、3 级 confidence、跨轮去重。 |
 
 ## 硬规则
 
-- env-preflight 阶段的权限拒绝（`requires approval`、`was blocked`、`hasn't granted it yet`、`Contains command_substitution`、`Unhandled node type`）、静默模式、环境确认 AskUserQuestion 格式、session mtime 探测、登录态补充模板、no_permission 模板与 tool_permission_denied blocker 严格遵循 references/env-preflight.md；该文件内规则与本节等效，skill.yaml 不逐条重复。
+- env-preflight 阶段的权限拒绝（`requires approval`、`was blocked`、`hasn't granted it yet`、`Contains command_substitution`、`Unhandled node type`）、静默模式、环境确认 AskUserQuestion 格式、session mtime 探测、登录态补充模板、no_permission 模板与 tool_permission_denied blocker 严格遵循 phases/§2-env-preflight.md；该文件内规则与本节等效，skill.yaml 不逐条重复。
 - 名称片段 discovery 分两段执行：先用关键词在 `manifest.json`、`metadata.yaml`、`archive.md`、`prd.md` 中精确搜索定位唯一目标目录；定位后读取该目录的 manifest/metadata 与状态文件。初始 discovery 阶段仅搜索定位，不枚举 `workspace/{project}/features/` 或其他候选目录。
 - 用户无显式 env profile 时进入静默 bootstrap：环境确认通过 AskUserQuestion 一次性发起，默认推荐 `ltqc-local.yaml`，确认前保持静默。AskUserQuestion 不可用时输出固定 fallback，第一行为 `请确认执行环境。`。
 - 用户已显式提供 env profile 或回复"确认"接受默认时，直接读取对应 profile 执行 env-preflight；从 discovery 到最终 blocker 之前保持静默。

@@ -16,7 +16,7 @@ The fallback path emits a warning `manifest_missing_fallback_inference` so we ca
 
 ## 读取时机
 
-仅当当前 workflow step id 等于 `case-normalize` 时读取。不得批量读取 `references/**`。
+仅当当前 workflow step id 等于 `case-normalize` 时读取。不得批量读取 `phases/**`。
 
 ## 协议
 
@@ -137,13 +137,13 @@ environment:
 
 ### 第五步：只读限制确认
 
-- 当前阶段已读取的文件：SKILL.md + case-normalize.md + 目标 feature 目录下 `archive.md` + 已有 `tests/` 文件
+- 当前阶段已读取的文件：SKILL.md + phases/§1-case-normalize.md + 目标 feature 目录下 `archive.md` + 已有 `tests/` 文件
 - **禁止**读取的文件：
   - `workspace/dataAssets/features/` 下除目标目录外的任何其他 feature
   - `workspace/{project}/_shared/env/*.yaml`（将在 env-preflight 阶段读取）
   - `workspace/*/.kata/repos/**`（只在需要源码佐证时按需读取）
-  - `references/**` 下除 case-normalize.md 外的其他 reference
-- 硬约束：读取不超过目标 feature 目录 + SKILL.md + 本 reference
+  - `phases/**` 下除 §1-case-normalize.md 外的其他步骤规范，以及 `references/**` 下的跨阶段参考
+- 硬约束：读取不超过目标 feature 目录 + SKILL.md + 本阶段规范
 
 ## 禁止
 

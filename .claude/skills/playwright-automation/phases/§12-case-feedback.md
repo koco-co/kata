@@ -2,7 +2,7 @@
 
 ## 读取时机
 
-仅当当前 workflow step id 等于 `case-feedback` 时读取。不得批量读取 `references/**`。
+仅当当前 workflow step id 等于 `case-feedback` 时读取。不得批量读取 `phases/**`。
 
 ## 协议
 
