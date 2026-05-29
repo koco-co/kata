@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../../src/skills/runtime-detach.ts";
 import { checkRuntimeSkillSync } from "../../src/skills/runtime-sync.ts";
 

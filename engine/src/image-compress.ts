@@ -10,7 +10,7 @@
 import { execSync } from "node:child_process";
 import { readdirSync, statSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import { contractPluginsDir, pluginsDir } from "../lib/paths.ts";
-import { loadAllPlugins } from "../lib/plugin-utils.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { contractPluginsDir, pluginsDir } from "@shared/lib/paths.ts";
+import { loadAllPlugins } from "@shared/lib/plugin-utils.ts";
 import { resolveProject } from "./test-case-flow/project-resolver.ts";
 import { createSessionId, saveSessionState } from "./test-case-flow/session.ts";
 import { createSourceConsent } from "./test-case-flow/source-consent.ts";

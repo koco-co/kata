@@ -38,10 +38,10 @@
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { type AllureStats, collectAllureStats, snapshotResultFiles } from "../lib/allure-stats.ts";
-import { createCli } from "../lib/cli-runner.ts";
-import { getEnv, initEnv } from "../lib/env.ts";
-import { repoRoot } from "../lib/paths.ts";
+import { type AllureStats, collectAllureStats, snapshotResultFiles } from "@shared/lib/allure-stats.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { getEnv, initEnv } from "@shared/lib/env.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 interface Paths {
   env: string;

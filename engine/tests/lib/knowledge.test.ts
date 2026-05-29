@@ -18,7 +18,7 @@ import {
   searchPitfalls,
   serializeFrontmatter,
   todayIso,
-} from "../../lib/knowledge.ts";
+} from "@shared/lib/knowledge.ts";
 
 describe("parseFrontmatter", () => {
   it("parses a valid frontmatter block", () => {

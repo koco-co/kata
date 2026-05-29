@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import Ajv from "ajv";
 import { parse } from "yaml";
-import { contractPath } from "../../lib/paths.ts";
+import { contractPath } from "@shared/lib/paths.ts";
 
 const schema = JSON.parse(
   readFileSync(contractPath("schemas", "SourceRefRegistry.v1.schema.json"), "utf-8"),

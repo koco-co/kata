@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { execSync } from "node:child_process";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 describe("kata features resolve (CLI)", () => {
   it("is registered as a subcommand", () => {

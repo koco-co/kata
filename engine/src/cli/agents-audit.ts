@@ -1,12 +1,12 @@
 import { Command } from "commander";
-import { outputJson } from "../../lib/cli.ts";
+import { outputJson } from "@shared/lib/cli.ts";
 import {
   type AgentRuntime,
   agentsDir,
   parseAgentRuntimeSelector,
   repoRoot,
   resolveAgentRuntime,
-} from "../../lib/paths.ts";
+} from "@shared/lib/paths.ts";
 import { lintAgentNaming } from "../lint/agent-naming.ts";
 import { lintAgentShape } from "../lint/agent-shape.ts";
 import { auditAgentRuntimeDrift, type DriftStatus } from "../lint/agents-drift.ts";

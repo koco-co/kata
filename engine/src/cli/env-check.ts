@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "yaml";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 export interface EnvProbeResult {
   ok: boolean;

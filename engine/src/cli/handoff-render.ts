@@ -3,7 +3,7 @@ import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import Handlebars from "handlebars";
-import { contractPath, repoRoot } from "../../lib/paths.ts";
+import { contractPath, repoRoot } from "@shared/lib/paths.ts";
 import { loadHandoffV2Validator } from "../schemas/loaders.ts";
 
 export interface HandoffRenderContext {

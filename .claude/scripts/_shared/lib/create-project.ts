@@ -108,7 +108,7 @@ export function validateProjectName(name: string): ValidationResult {
 }
 
 function repoRootFromLib(): string {
-  return resolve(fileURLToPath(import.meta.url), "../../../..");
+  return resolve(fileURLToPath(import.meta.url), "../../../../..");
 }
 
 export function configJsonPath(): string {

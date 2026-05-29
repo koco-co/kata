@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import {
   loadSkillManifest,
   MANIFEST_WORKFLOW_EXCLUSIONS,

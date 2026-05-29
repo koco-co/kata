@@ -10,7 +10,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createCli } from "../lib/cli-runner.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 import {
   configJsonPath,
   diffProjectSkeleton,
@@ -20,8 +20,8 @@ import {
   SKELETON_SPEC,
   TEMPLATE_ROOT_REL,
   validateProjectName,
-} from "../lib/create-project.ts";
-import { knowledgeDir, parseGitUrl, projectDir, reposDir } from "../lib/paths.ts";
+} from "@shared/lib/create-project.ts";
+import { knowledgeDir, parseGitUrl, projectDir, reposDir } from "@shared/lib/paths.ts";
 
 function repoRoot(): string {
   return resolve(fileURLToPath(import.meta.url), "../../..");

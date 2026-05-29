@@ -40,7 +40,7 @@ import {
   testsDir,
   xmindDir,
   xmindPath,
-} from "../../lib/paths.ts";
+} from "@shared/lib/paths.ts";
 
 const OLD_AGENT_RUNTIME = process.env.KATA_AGENT_RUNTIME;
 

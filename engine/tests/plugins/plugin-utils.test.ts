@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadAllPlugins } from "../../lib/plugin-utils.ts";
+import { loadAllPlugins } from "@shared/lib/plugin-utils.ts";
 
 describe("plugin runtime metadata", () => {
   it("loads plugins from contract runtime metadata without legacy plugin.json", () => {

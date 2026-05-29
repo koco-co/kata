@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import Ajv from "ajv";
-import { contractPath } from "../../lib/paths.ts";
+import { contractPath } from "@shared/lib/paths.ts";
 
 const schemaPath = contractPath("schemas", "FeatureMetadata.v1.schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));

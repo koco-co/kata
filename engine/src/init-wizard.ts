@@ -11,7 +11,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
-import { initEnv } from "../lib/env.ts";
+import { initEnv } from "@shared/lib/env.ts";
 
 // ---------------------------------------------------------------------------
 // Paths

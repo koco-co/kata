@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { contractPluginsDir } from "../../lib/paths.ts";
+import { contractPluginsDir } from "@shared/lib/paths.ts";
 import type { KataIssue, KataResult } from "../result-types.ts";
 import { snapshotFileRef } from "../source-ref/resolvers.ts";
 

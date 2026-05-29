@@ -12,15 +12,15 @@ import {
   parseFrontmatter,
   serializeFrontmatter,
   todayIso,
-} from "../../lib/knowledge.ts";
+} from "@shared/lib/knowledge.ts";
 import {
   appendAudit,
   buildAuditRecord,
   type Conflict,
   detectBodyRewrite,
   saveSnapshot,
-} from "../../lib/knowledge-guard.ts";
-import { knowledgePath } from "../../lib/paths.ts";
+} from "@shared/lib/knowledge-guard.ts";
+import { knowledgePath } from "@shared/lib/paths.ts";
 import { upsertOverviewSection, upsertTermRow, writeIndexFile } from "./index-data.ts";
 
 export interface UpdateContentShape {

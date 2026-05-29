@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { getEnv } from "./env.ts";
 
 export function repoRoot(): string {
-  return resolve(fileURLToPath(import.meta.url), "../../..");
+  return resolve(fileURLToPath(import.meta.url), "../../../../..");
 }
 
 export function workspaceDir(): string {

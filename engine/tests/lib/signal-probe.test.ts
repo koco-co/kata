@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import type { ArchiveSearchHit, SignalEntry, SignalProfile } from "../../lib/signal-probe.ts";
+import type { ArchiveSearchHit, SignalEntry, SignalProfile } from "@shared/lib/signal-probe.ts";
 import {
   buildCacheEntry,
   classifyHistory,
@@ -10,7 +10,7 @@ import {
   computeFieldFillRate,
   firstModuleKebab,
   isCacheValid,
-} from "../../lib/signal-probe.ts";
+} from "@shared/lib/signal-probe.ts";
 
 // ---------------------------------------------------------------------------
 // classifySource

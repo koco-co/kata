@@ -13,8 +13,8 @@ import {
   parseFrontmatter,
   searchPitfalls,
   type TermRow,
-} from "../../lib/knowledge.ts";
-import { knowledgeDir, knowledgePath } from "../../lib/paths.ts";
+} from "@shared/lib/knowledge.ts";
+import { knowledgeDir, knowledgePath } from "@shared/lib/paths.ts";
 import { parseTermsTable, scanEntries, writeIndexFile } from "./index-data.ts";
 
 export function runReadCore(opts: { project: string }): void {

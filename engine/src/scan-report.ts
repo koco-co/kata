@@ -10,10 +10,10 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import { auditDir, auditFile, currentYYYYMM, reposDir } from "../lib/paths.ts";
-import { fetchAndDiff } from "../lib/scan-report-diff.ts";
-import { renderScanReport } from "../lib/scan-report-render.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { auditDir, auditFile, currentYYYYMM, reposDir } from "@shared/lib/paths.ts";
+import { fetchAndDiff } from "@shared/lib/scan-report-diff.ts";
+import { renderScanReport } from "@shared/lib/scan-report-render.ts";
 import {
   addBug,
   initAudit,
@@ -24,8 +24,8 @@ import {
   setMeta,
   updateBugField,
   updateBugSteps,
-} from "../lib/scan-report-store.ts";
-import { type AuditMeta, type Bug, SCAN_REPORT_SCHEMA_VERSION } from "../lib/scan-report-types.ts";
+} from "@shared/lib/scan-report-store.ts";
+import { type AuditMeta, type Bug, SCAN_REPORT_SCHEMA_VERSION } from "@shared/lib/scan-report-types.ts";
 
 function ensureParent(p: string): void {
   const d = dirname(p);

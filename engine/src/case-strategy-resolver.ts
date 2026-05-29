@@ -8,15 +8,15 @@
  *     [--output json|summary]
  */
 import { readFileSync } from "node:fs";
-import { createCli } from "../lib/cli-runner.ts";
-import type { SignalProfile } from "../lib/signal-probe.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import type { SignalProfile } from "@shared/lib/signal-probe.ts";
 import {
   buildOverrides,
   composeResolution,
   STRATEGY_NAMES,
   type StrategyId,
   type StrategyResolution,
-} from "../lib/strategy-router.ts";
+} from "@shared/lib/strategy-router.ts";
 
 function runResolve(opts: { profile: string; forceStrategy?: string; output: string }): void {
   // 读取 profile raw

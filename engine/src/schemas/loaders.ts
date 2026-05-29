@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import type { ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
-import { contractPath } from "../../lib/paths.ts";
+import { contractPath } from "@shared/lib/paths.ts";
 
 const ajv = addFormats(new Ajv2020({ strict: true, allErrors: true }));
 

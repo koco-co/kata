@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 const CLI = join(repoRoot(), "engine/src/scan-report.ts");
 

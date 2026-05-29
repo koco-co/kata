@@ -12,8 +12,8 @@
 import { existsSync } from "node:fs";
 import type { MarkerId, TopicBuilder } from "xmind-generator";
 import { Marker, RootTopic, Topic, Workbook, writeLocalFile } from "xmind-generator";
-import { loadXmindRules } from "../../lib/rules.ts";
-import type { IntermediateJson, Meta, Module, Page, TestCase } from "../../lib/types.ts";
+import { loadXmindRules } from "@shared/lib/rules.ts";
+import type { IntermediateJson, Meta, Module, Page, TestCase } from "@shared/lib/types.ts";
 
 export type WriteMode = "create" | "append" | "replace";
 export type RootAwareMeta = Meta & { root_name?: string };

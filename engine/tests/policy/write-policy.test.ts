@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { evaluateWrite } from "../../src/policy/write-policy.ts";
 
 describe("WritePolicy P0 slice", () => {

@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 export const workspaceRoot = (project: string) => join(repoRoot(), "workspace", project);
 

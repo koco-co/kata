@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { checkWorkflows, formatWorkflowCheckReport } from "../../src/skills/workflow-check.ts";
 
 describe("repository workflow contract", () => {

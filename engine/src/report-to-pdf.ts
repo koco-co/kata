@@ -17,7 +17,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 
 // ─── Types ───────────────────────────────────────────────────────────
 

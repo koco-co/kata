@@ -11,7 +11,7 @@
 
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { splitMdTableRow } from "../../lib/md-table.ts";
+import { splitMdTableRow } from "@shared/lib/md-table.ts";
 import type {
   IntermediateJson,
   Module,
@@ -19,7 +19,7 @@ import type {
   SubGroup,
   TestCase,
   TestStep,
-} from "../../lib/types.ts";
+} from "@shared/lib/types.ts";
 import type { RootAwareMeta } from "./render.ts";
 import { UNCLASSIFIED } from "./render.ts";
 

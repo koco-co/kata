@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { parseWorkflow, validateWorkflow } from "../../src/skills/workflow-schema.ts";
 
 const WORKFLOW_DIR = join(repoRoot(), ".claude/contracts/workflows");

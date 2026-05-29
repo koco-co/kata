@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { Command } from "commander";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { runResultsPath } from "./results-path.ts";
 import { runResultsPrune } from "./results-prune.ts";
 import { runResultsPublish } from "./results-publish.ts";

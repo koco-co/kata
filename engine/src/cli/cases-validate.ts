@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Command } from "commander";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { loadFeatureManifestValidator } from "../schemas/loaders.ts";
 import { isCanonicalSourceRef } from "../source-ref/resolvers.ts";
 

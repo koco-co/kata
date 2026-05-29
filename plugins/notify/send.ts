@@ -12,7 +12,7 @@ import crypto from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
-import { getEnv, initEnv } from "../../engine/lib/env.ts";
+import { getEnv, initEnv } from "@shared/lib/env.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 

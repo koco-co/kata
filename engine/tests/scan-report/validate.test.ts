@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import type { Bug } from "../../lib/scan-report-types.ts";
-import { validateBug } from "../../lib/scan-report-validate.ts";
+import type { Bug } from "@shared/lib/scan-report-types.ts";
+import { validateBug } from "@shared/lib/scan-report-validate.ts";
 
 function makeValid(): Bug {
   return {

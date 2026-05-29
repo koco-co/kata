@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 interface Violation {
   file: string;

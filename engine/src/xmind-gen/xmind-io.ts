@@ -11,7 +11,7 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import JSZip from "jszip";
-import type { IntermediateJson, Page, TestCase } from "../../lib/types.ts";
+import type { IntermediateJson, Page, TestCase } from "@shared/lib/types.ts";
 import type { RenderOptions } from "./render.ts";
 import {
   buildCaseNote,

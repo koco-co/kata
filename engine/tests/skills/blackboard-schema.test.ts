@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { contractPath } from "../../lib/paths.ts";
+import { contractPath } from "@shared/lib/paths.ts";
 
 const SCHEMA_PATH = contractPath("schemas", "blackboard-state.json");
 const STATE_MODEL_PATH = contractPath("blackboard", "state-model.md");

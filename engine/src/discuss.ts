@@ -10,7 +10,7 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import matter from "gray-matter";
-import { createCli } from "../lib/cli-runner.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 import {
   addPending,
   addSection,
@@ -23,14 +23,14 @@ import {
   setSourceFacts,
   setStatus,
   validateDoc,
-} from "../lib/enhanced-doc-store.ts";
+} from "@shared/lib/enhanced-doc-store.ts";
 import {
   type EnhancedFrontmatter,
   type EnhancedStatus,
   isPendingSeverity,
   PENDING_SEVERITIES,
-} from "../lib/enhanced-doc-types.ts";
-import { enhancedMd } from "../lib/paths.ts";
+} from "@shared/lib/enhanced-doc-types.ts";
+import { enhancedMd } from "@shared/lib/paths.ts";
 
 // ============================================================================
 // CLI wiring

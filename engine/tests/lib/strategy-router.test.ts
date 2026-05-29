@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import type { SignalEntry, SignalLevel, SignalProfile } from "../../lib/signal-probe.ts";
-import type { StrategyId } from "../../lib/strategy-router.ts";
+import type { SignalEntry, SignalLevel, SignalProfile } from "@shared/lib/signal-probe.ts";
+import type { StrategyId } from "@shared/lib/strategy-router.ts";
 import {
   buildOverrides,
   composeResolution,
   STRATEGY_NAMES,
   selectStrategy,
-} from "../../lib/strategy-router.ts";
+} from "@shared/lib/strategy-router.ts";
 
 // ---------------------------------------------------------------------------
 // Test helper

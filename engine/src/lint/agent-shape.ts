@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { AgentRuntime } from "../../lib/paths.ts";
+import type { AgentRuntime } from "@shared/lib/paths.ts";
 import type { AgentReport, AgentViolation } from "./types.ts";
 
 const WARN_LINES = 300;

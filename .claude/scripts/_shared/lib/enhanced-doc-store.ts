@@ -538,7 +538,7 @@ export function validateDoc(
   if (fm.pending_count !== waitingCount) {
     issues.push(`pending_count mismatch: frontmatter=${fm.pending_count}, §4=${waitingCount}`);
   }
-  const blockingPendingMetadata = (fm as Record<string, unknown>).blocking_pending_count;
+  const blockingPendingMetadata = (fm as unknown as Record<string, unknown>).blocking_pending_count;
   if (
     typeof blockingPendingMetadata === "number" &&
     blockingPendingMetadata !== blockingWaitingCount

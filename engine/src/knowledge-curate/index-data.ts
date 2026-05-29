@@ -17,8 +17,8 @@ import {
   renderIndex,
   type TermRow,
   todayIso,
-} from "../../lib/knowledge.ts";
-import { knowledgeDir } from "../../lib/paths.ts";
+} from "@shared/lib/knowledge.ts";
+import { knowledgeDir } from "@shared/lib/paths.ts";
 
 export function scanEntries(dir: string): IndexEntry[] {
   if (!existsSync(dir)) return [];

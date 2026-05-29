@@ -17,7 +17,7 @@ export {
   projectDir,
   repoRoot,
   workspaceDir,
-} from "../lib/paths.ts";
+} from "@shared/lib/paths.ts";
 
 // ── Feature catalog (read) ──────────────────────────
 export type { FeatureRow, FeaturesLsContext } from "./cli/features-ls.ts";

@@ -13,9 +13,9 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import { getEnv } from "../lib/env.ts";
-import { type ResolveContext, resolveSourceRef } from "../lib/source-ref.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { getEnv } from "@shared/lib/env.ts";
+import { type ResolveContext, resolveSourceRef } from "@shared/lib/source-ref.ts";
 
 function buildCtx(opts: Record<string, unknown>): ResolveContext {
   const projectName = (opts.project as string | undefined) ?? undefined;

@@ -7,7 +7,7 @@ import {
   parseAgentRuntimeSelector,
   repoRoot,
   skillsDir,
-} from "../../lib/paths.ts";
+} from "@shared/lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
 import { loadSkillManifest, validateManifestAgainstWorkflows } from "../skills/manifest-loader.ts";

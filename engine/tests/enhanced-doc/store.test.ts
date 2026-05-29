@@ -15,8 +15,8 @@ import {
   setStatus,
   validateDoc,
   writeFrontmatter,
-} from "../../lib/enhanced-doc-store.ts";
-import { enhancedMd, repoRoot, resolvedMd, sourceFactsJson } from "../../lib/paths.ts";
+} from "@shared/lib/enhanced-doc-store.ts";
+import { enhancedMd, repoRoot, resolvedMd, sourceFactsJson } from "@shared/lib/paths.ts";
 
 const TEST_PROJECT = "test-d1-project";
 const TEST_YM = "202604";

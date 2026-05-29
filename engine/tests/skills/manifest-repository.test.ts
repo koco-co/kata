@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { loadSkillManifest } from "../../src/skills/manifest-loader.ts";
 
 describe("manifest repository", () => {

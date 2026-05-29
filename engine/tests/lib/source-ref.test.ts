@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseSourceRef, resolveSourceRef } from "../../lib/source-ref.ts";
+import { parseSourceRef, resolveSourceRef } from "@shared/lib/source-ref.ts";
 
 describe("parseSourceRef", () => {
   it("parses prd scheme with section number", () => {

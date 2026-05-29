@@ -17,7 +17,7 @@
  */
 
 import { Command } from "commander";
-import { initEnv } from "../../lib/env.ts";
+import { initEnv } from "@shared/lib/env.ts";
 
 // 大部分模块静态加载（无昂贵依赖）
 import { program as archiveGen } from "../archive-gen.ts";

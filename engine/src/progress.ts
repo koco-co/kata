@@ -2,8 +2,8 @@
  * progress.ts — unified task progress engine CLI.
  */
 import { basename } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import type { TaskInput, TaskUpdatePatch } from "../lib/progress-store.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import type { TaskInput, TaskUpdatePatch } from "@shared/lib/progress-store.ts";
 import {
   addTasks,
   createSession,
@@ -20,9 +20,9 @@ import {
   updateTask,
   withSessionLock,
   writeSession,
-} from "../lib/progress-store.ts";
-import type { TaskStatus } from "../lib/progress-types.ts";
-import { ExitCode } from "../lib/progress-types.ts";
+} from "@shared/lib/progress-store.ts";
+import type { TaskStatus } from "@shared/lib/progress-types.ts";
+import { ExitCode } from "@shared/lib/progress-types.ts";
 
 function slugFromPath(p: string): string {
   return basename(p, ".md").replace(/\.[^.]+$/, "");

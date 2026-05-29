@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import * as ts from "typescript";
-import { repoRoot } from "../lib/paths.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 const ROOT = repoRoot();
 
