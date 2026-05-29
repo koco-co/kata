@@ -107,8 +107,9 @@ export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummar
     ? readClaudeSkillContracts(contractRoot)
     : { entries: {} };
   const ids = new Set<string>();
+  // 过滤 `_` 前缀目录（如 `_shared/`），它们是聚合资源目录，不是 skill
   const skills = readdirSync(root)
-    .filter((name) => statSync(join(root, name)).isDirectory())
+    .filter((name) => !name.startsWith("_") && statSync(join(root, name)).isDirectory())
     .map((name) => join(root, name, "SKILL.md"))
     .filter((path) => existsSync(path))
     .map((path) => {

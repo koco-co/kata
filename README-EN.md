@@ -42,7 +42,7 @@ Core principles:
 - `.agents/**` and `.claude/**` are first-class runtime directories for the kata Codex runtime and Claude Code runtime.
 - Runtime contracts have a single source at `.claude/contracts/**`; during Phase 1 the Codex runtime is a placeholder only (see `.agents/README.md`), and Phase 2 will reuse the same contracts via symlinks.
 - Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
-- `playwright-cli` keeps its vendor skill name for real browser automation; kata-owned product skills do not reuse old aggregate names.
+- Browser automation is driven by the `playwright-automation` skill; a condensed CLI cheat sheet lives at `.claude/skills/playwright-automation/references/cli-essentials.md`.
 
 ## Quick start
 

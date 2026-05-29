@@ -43,7 +43,7 @@ paths:
 | apply-corrections | `step.id == apply-corrections` | references/apply-corrections.md | 规范 | 加载 case-corrections.md + sidecar，进行 dry-run summary 三选一，按 status=approved 回写 archive.md，调用 archive-xmind-sync 同步 xmind，写 apply-log。 |
 | plan_edit, output | `step.id in [plan_edit, output]` | references/fewshots/case-format-sample.md | few-shot | 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。 |
 | plan_edit, output | `step.id in [plan_edit, output]` | references/fewshots/case-format-sample.xmind.md | few-shot | XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。 |
-| output | `step.id == output` | rules/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
+| output | `step.id == output` | .claude/skills/_shared/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
 
 ## 硬规则
 

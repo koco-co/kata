@@ -105,8 +105,9 @@ function readRuntimeSkills(
   const skillsRoot = join(root, RUNTIME_DIRS[side], "skills");
   if (!existsSync(skillsRoot)) return [];
 
+  // 过滤 `_` 前缀目录（如 `_shared/`），它们是聚合资源目录，不是 skill
   return readdirSync(skillsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"))
     .map((entry) => readRuntimeSkill(root, side, entry.name, violations));
 }
 

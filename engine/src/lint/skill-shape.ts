@@ -7,7 +7,9 @@ import type { SkillReport, SkillViolation } from "./types.ts";
 const ALLOWED_TOP_LEVEL_FILES = new Set(["SKILL.md"]);
 const ALLOWED_TOP_LEVEL_DIRS = new Set(["references"]);
 const SKILL_MD_LINE_LIMIT = 140;
-const VENDOR_SKILLS = new Set(["playwright-cli"]);
+// VENDOR_SKILLS 用于豁免第三方 vendor skill 的 SKILL.md 行数限制；
+// Commit 5 删 playwright-cli 后当前没有 vendor skill 需要豁免，集合为空但保留扩展点。
+const VENDOR_SKILLS = new Set<string>();
 const CODEX_FORBIDDEN_SKILL_DIRECTIVES = [
   "TaskCreate",
   "TaskUpdate",

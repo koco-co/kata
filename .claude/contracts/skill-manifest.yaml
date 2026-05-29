@@ -3,7 +3,6 @@ generated_for: claude+codex
 facets:
   by_input:
     archive-md: [case-edit]
-    browser-target: [playwright-cli]
     business-knowledge: [knowledge-curate]
     bug-record: [case-hotfix]
     code-diff: [diff-scan]
@@ -24,7 +23,6 @@ facets:
     xmind: [case-edit]
   by_output:
     archive-md: [case-draft]
-    browser-observation: [playwright-cli]
     bug-report: [bug-file]
     conflict-resolution-plan: [conflict-analyze]
     diagnosis: [infra-diagnose]
@@ -167,7 +165,7 @@ skills:
     dataflow:
       consumes: [qa-cases, ui-evidence, env-profile]
       produces: [playwright-tests, run-handoff]
-      related: [case-draft, playwright-cli]
+      related: [case-draft]
     routing:
       must_trigger_when:
         - "生成一套 Playwright UI 自动化并运行验证"
@@ -177,21 +175,6 @@ skills:
         - "根据 PRD 写手工测试用例"
       clarify:
         - "帮我自动化这个页面"
-  playwright-cli:
-    user_entry: /playwright-cli
-    dataflow:
-      consumes: [browser-target]
-      produces: [browser-observation]
-      related: [playwright-automation]
-    routing:
-      must_trigger_when:
-        - "用 playwright-cli 打开页面并截图"
-        - "运行 Playwright CLI 检查这个本地页面"
-      must_not_trigger_when:
-        - "生成完整 Playwright 自动化交付件"
-        - "写一份手工 QA 用例"
-      clarify:
-        - "帮我用浏览器测一下"
   workspace-manage:
     user_entry: /workspace-manage
     dataflow:

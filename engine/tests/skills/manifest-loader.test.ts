@@ -123,10 +123,6 @@ skills:
     user_entry: /diff-scan
     dataflow: { consumes: [], produces: [], related: [] }
     routing: { must_trigger_when: [], must_not_trigger_when: [], clarify: [] }
-  playwright-cli:
-    user_entry: /playwright-cli
-    dataflow: { consumes: [], produces: [], related: [] }
-    routing: { must_trigger_when: [], must_not_trigger_when: [], clarify: [] }
 `,
       );
       const errors = validateManifestAgainstWorkflows(root);

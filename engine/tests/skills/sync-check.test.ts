@@ -391,6 +391,25 @@ description: Demo skill
     );
   });
 
+  test("_shared directory in .claude/skills is not treated as a skill", () => {
+    const root = makeRoot();
+    // 写一个 `_shared/case-qa.md`，模拟跨 skill 共享资源目录
+    const sharedDir = join(root, ".claude/skills/_shared");
+    mkdirSync(sharedDir, { recursive: true });
+    writeFileSync(join(sharedDir, "case-qa.md"), "shared rules");
+
+    // 写一个真实 skill，确保 sync-check 不会因 `_shared` 缺 SKILL.md 报错
+    const skill = `---\nname: case-draft\ndescription: gen\n---\n`;
+    writeSkill(root, ".claude", "case-draft", skill);
+    writeSkill(root, ".agents", "case-draft", skill);
+    writeCodexOpenAi(root, "case-draft");
+
+    const report = checkRuntimeSkillSync(root);
+
+    expect(report.passed).toBe(true);
+    expect(report.violations.find((v) => v.skill === "_shared")).toBeUndefined();
+  });
+
   test("reports SKILL_DESCRIPTION_MISSING when description is absent", () => {
     const root = makeRoot();
     const skill = `---

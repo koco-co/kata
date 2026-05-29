@@ -4,16 +4,14 @@ import YAML from "yaml";
 
 // WHY: Phase 1 transitional state — bug-file / conflict-analyze / diff-scan 三个 skill
 // 在 spec §6.12 中被 fuse 进 defect-analyze 单 workflow，因此 manifest 仍有 entry
-// 但没有独立 workflow.yaml（共用 defect-analyze.yaml）。playwright-cli 则在 Commit 5
-// 整体删除（spec §11 P1#5）。三类 transitional skill 暂跳过 manifest ↔ workflow 一致性
-// 校验，P3 落地 defect-analyze 与 Commit 5 删 playwright-cli 后这条豁免应同步清理。
+// 但没有独立 workflow.yaml（共用 defect-analyze.yaml）。这三类 transitional skill
+// 暂跳过 manifest ↔ workflow 一致性校验，P3 落地 defect-analyze 后这条豁免应同步清理。
 // 配套 guard test (engine/tests/skills/manifest-loader.test.ts) 校验本集合的每个 id
-// 仍在 manifest 中，避免 Commit 5/P3 删 manifest entry 后这里被遗忘。
+// 仍在 manifest 中，避免 P3 删 manifest entry 后这里被遗忘。
 export const MANIFEST_WORKFLOW_EXCLUSIONS = new Set<string>([
   "bug-file", // TODO(p3-defect-analyze): remove when fused skill workflow ships
   "conflict-analyze", // TODO(p3-defect-analyze): remove when fused skill workflow ships
   "diff-scan", // TODO(p3-defect-analyze): remove when fused skill workflow ships
-  "playwright-cli", // TODO(p1-commit5): remove when manifest entry is dropped
 ]);
 
 export interface SkillRouting {

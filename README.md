@@ -42,7 +42,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 - `.agents/**` 与 `.claude/**` 是一等 runtime 目录，分别服务 kata Codex runtime 和 Claude Code runtime。
 - 两套 runtime 的 contracts 统一以 `.claude/contracts/**` 为单一来源；Phase 1 期间 Codex runtime 仅占位，详见 `.agents/README.md`，Phase 2 将通过 symlink 复用同一份契约。
 - 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
-- `playwright-cli` 保持 vendor skill 原名，用于真实浏览器自动化；kata-owned product skill 不复用旧聚合命名。
+- 浏览器自动化通过 `playwright-automation` skill 完成；常用 CLI 速查见 `.claude/skills/playwright-automation/references/cli-essentials.md`。
 
 ## 快速开始
 

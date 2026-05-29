@@ -8,7 +8,10 @@ describe("manifest repository", () => {
   test("manifest covers every skill in .claude/skills", () => {
     const root = repoRoot();
     const skillsDir = join(root, ".claude/skills");
-    const ids = readdirSync(skillsDir).filter((n) => statSync(join(skillsDir, n)).isDirectory());
+    // 过滤 `_` 前缀目录（如 `_shared/`），与 runtime-sync.ts / apps/core/catalog/skills.ts 一致
+    const ids = readdirSync(skillsDir).filter(
+      (n) => !n.startsWith("_") && statSync(join(skillsDir, n)).isDirectory(),
+    );
     const m = loadSkillManifest(root);
     const manifestIds = Object.keys(m.skills).sort();
     expect(manifestIds).toEqual(ids.sort());
