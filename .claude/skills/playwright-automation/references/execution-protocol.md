@@ -35,9 +35,9 @@
 
 ## Worker 派发协议
 
-运行时安全：仅当 `references/worker-prompt.md`、`references/spec-reviewer-prompt.md`、`references/quality-reviewer-prompt.md` 均存在时，才允许启用 Worker 编排与二阶段 Review；任一模板缺失时不得派 Worker，不得进入模板驱动 review。
+运行时安全：仅当 `prompts/agent-worker.md`、`prompts/agent-spec-reviewer.md`、`prompts/agent-quality-reviewer.md` 均存在时，才允许启用 Worker 编排与二阶段 Review；任一模板缺失时不得派 Worker，不得进入模板驱动 review。
 
-按 `references/worker-prompt.md` 模板构造 prompt。
+按 `prompts/agent-worker.md` 模板构造 prompt。
 重阶段使用 Agent tool，subagent_type=general-purpose；model 按任务复杂度选择：
 - ui-probe / self-run → standard
 - playwright-generate / repair-loop → strong
@@ -45,8 +45,8 @@
 ## 二阶段 Review 协议
 
 每个重阶段产物落盘后：
-1. spec-reviewer（主会话执行，按 `references/spec-reviewer-prompt.md`）
-2. spec 通过 → quality-reviewer（Agent，按 `references/quality-reviewer-prompt.md`）
+1. spec-reviewer（主会话执行，按 `prompts/agent-spec-reviewer.md`）
+2. spec 通过 → quality-reviewer（Agent，按 `prompts/agent-quality-reviewer.md`）
 3. 任一 reviewer 不通过 → Worker 修复 → re-review
 
 ## Review Loop 上限
