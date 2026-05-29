@@ -30,6 +30,16 @@ const ALLOWED_FRONTMATTER = new Set([
   "disable-model-invocation",
 ]);
 const SKILL_MD_CAP = 100;
+// 目录级长度上限（行）——按当前全仓库最大值留足余量的防膨胀守卫，非强制拆分阈值
+const DIR_LINE_CAPS: Record<string, number> = {
+  phases: 260,
+  prompts: 220,
+  references: 260,
+  fewshots: 200,
+  rules: 120,
+};
+// phases 文件名规范：§<数字>-<kebab>.md
+const PHASE_NAME_RE = /^§\d+-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
 // 从 CLAUDE.md 命令索引表收集 skill id（第 2 列 Skill）
 function commandIndexSkills(root: string): Set<string> {
@@ -53,6 +63,24 @@ function referencedPhaseFiles(body: string): string[] {
   let m: RegExpExecArray | null;
   while ((m = re.exec(body)) !== null) out.add(m[1]);
   return [...out];
+}
+
+// 扫描 skill 子目录内 .md 文件，套用长度上限与（phases）命名规则
+function lintSkillDir(skill: string, dir: string, sub: string, cap: number): StructureViolation[] {
+  const out: StructureViolation[] = [];
+  const target = join(dir, sub);
+  if (!existsSync(target)) return out;
+  for (const f of readdirSync(target).filter((x) => x.endsWith(".md"))) {
+    const p = join(target, f);
+    const n = readFileSync(p, "utf-8").split("\n").length;
+    if (n > cap) {
+      out.push({ rule: "SK-LEN-DIR", skill, path: p, message: `${sub}/${f} ${n} 行 > ${cap}` });
+    }
+    if (sub === "phases" && !PHASE_NAME_RE.test(f)) {
+      out.push({ rule: "SK-PHASE-NAME", skill, path: p, message: `phases/${f} 不符 §N-<step>.md` });
+    }
+  }
+  return out;
 }
 
 export function lintSkillStructure(root: string = repoRoot()): StructureReport {
@@ -102,7 +130,7 @@ export function lintSkillStructure(root: string = repoRoot()): StructureReport {
         });
       }
     }
-    // 5 长度：SKILL.md ≤ 100（其余目录上限随 Bundle-2 内容成形后启用）
+    // 5 长度：SKILL.md ≤ 100；各子目录长度上限见 DIR_LINE_CAPS（规则 SK-LEN-DIR）
     const n = raw.split("\n").length;
     if (n > SKILL_MD_CAP) {
       v.push({
@@ -132,6 +160,10 @@ export function lintSkillStructure(root: string = repoRoot()): StructureReport {
           });
         }
       }
+    }
+    // 6 目录级长度上限 + phases 命名
+    for (const [sub, cap] of Object.entries(DIR_LINE_CAPS)) {
+      v.push(...lintSkillDir(skill, dir, sub, cap));
     }
   }
   return { passed: v.length === 0, violations: v };
