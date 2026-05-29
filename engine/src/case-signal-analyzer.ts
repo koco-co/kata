@@ -25,7 +25,7 @@ import {
   type ProbeCacheEntry,
   type SignalProfile,
   type SourceAnalyzeOutput,
-} from "@shared/lib/signal-probe.ts";
+} from "@skills/case-draft/scripts/lib/signal-probe.ts";
 
 // ---------------------------------------------------------------------------
 // Sub-command invoker
