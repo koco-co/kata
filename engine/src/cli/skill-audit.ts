@@ -15,6 +15,19 @@ import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
 import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
 
+/**
+ * List skill directory names under `skillsRoot`, skipping `_`-prefixed aggregate
+ * directories (e.g. `_shared/`) the same way runtime-sync, manifest-repository,
+ * and apps/core/catalog enumerate skills. Returns `[]` when the root is absent.
+ */
+export function listSkillDirNames(skillsRoot: string): string[] {
+  if (!existsSync(skillsRoot)) return [];
+  // 过滤 `_` 前缀目录（如 `_shared/`），与 runtime-sync.ts / apps/core/catalog/skills.ts 一致
+  return readdirSync(skillsRoot).filter(
+    (f) => !f.startsWith("_") && statSync(join(skillsRoot, f)).isDirectory(),
+  );
+}
+
 export function buildSkillsCommand(): Command {
   const skills = new Command("skills").description("Skills 审查操作");
   skills
@@ -88,9 +101,7 @@ export function buildSkillsCommand(): Command {
       for (const runtime of runtimes) {
         const skillsRoot = skillsDir(runtime);
         const agentsRoot = agentsDir(runtime);
-        const skills = existsSync(skillsRoot)
-          ? readdirSync(skillsRoot).filter((f) => statSync(join(skillsRoot, f)).isDirectory())
-          : [];
+        const skills = listSkillDirNames(skillsRoot);
         const knownSkillSet = new Set(skills);
 
         console.log(`\n== Skill shape (runtime=${runtime}, S1-S9) ==`);
