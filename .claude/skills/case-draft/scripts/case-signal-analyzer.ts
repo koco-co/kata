@@ -25,7 +25,7 @@ import {
   type ProbeCacheEntry,
   type SignalProfile,
   type SourceAnalyzeOutput,
-} from "@shared/lib/signal-probe.ts";
+} from "@skills/case-draft/scripts/lib/signal-probe.ts";
 
 // ---------------------------------------------------------------------------
 // Sub-command invoker
@@ -299,16 +299,18 @@ async function runProbe(opts: {
   const prdSlug = basename(prdPath).replace(/\.md$/, "");
   const cachePath = probeCachePath(opts.project, prdSlug);
   const prdMtimeMs = statSync(prdPath).mtimeMs;
-  const probeScriptPath = resolve(repoRoot(), "engine/src/case-signal-analyzer.ts");
+  const probeScriptPath = resolve(
+    repoRoot(),
+    ".claude/skills/case-draft/scripts/case-signal-analyzer.ts",
+  );
   const probeScriptMtimeMs = statSync(probeScriptPath).mtimeMs;
 
   // Check cache
   if (!noCache) {
     const cached = resolveCache(cachePath);
-    if (isCacheValid(cached, prdMtimeMs, probeScriptMtimeMs)) {
+    if (cached && isCacheValid(cached, prdMtimeMs, probeScriptMtimeMs)) {
       process.stderr.write("[case-signal-analyzer] cache hit\n");
-      const profile = cached?.profile;
-      outputProfile(profile, opts.output);
+      outputProfile(cached.profile, opts.output);
       return;
     }
   }

@@ -8,7 +8,7 @@ import {
   checkResumeSession,
   createSessionId,
   saveSessionState,
-} from "../../src/test-case-flow/session";
+} from "@skills/case-draft/scripts/test-case-flow/session.ts";
 
 describe("TestCaseFlowSession", () => {
   it("createSessionId includes project prefix", () => {

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runHandoffRender } from "../../src/cli/handoff-render.ts";
+import { runHandoffRender } from "@skills/playwright-automation/scripts/handoff-render.ts";
 
 describe("kata handoff render", () => {
   let scratch: string;

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { createSourceConsent, grantSourceConsent } from "../../src/test-case-flow/source-consent";
+import {
+  createSourceConsent,
+  grantSourceConsent,
+} from "@skills/case-draft/scripts/test-case-flow/source-consent.ts";
 
 describe("SourceConsent", () => {
   it("defaults to not granted", () => {

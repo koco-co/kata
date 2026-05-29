@@ -16,7 +16,7 @@ function walkTs(dir: string): string[] {
 const cliSourceFiles = [
   ...walkTs(join(sourceRoot, "cli")),
   join(sourceRoot, "scan-report.ts"),
-  join(sourceRoot, "test-case-flow.ts"),
+  join(repoRoot, ".claude/skills/case-draft/scripts/test-case-flow.ts"),
 ];
 
 function lineNumber(source: string, index: number): number {

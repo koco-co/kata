@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { registerTestCaseFlow } from "@skills/case-draft/scripts/test-case-flow.ts";
 import { Command } from "commander";
-import { registerTestCaseFlow } from "../../src/test-case-flow";
 
 describe("test-case-flow CLI registration", () => {
   it("registers test-case-flow command", () => {

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { evaluateKnowledgeDropped, evaluateNextStep } from "../../src/test-case-flow/session";
+import {
+  evaluateKnowledgeDropped,
+  evaluateNextStep,
+} from "@skills/case-draft/scripts/test-case-flow/session.ts";
 
 describe("Enhanced PRD gates", () => {
   it("detects pending items and blocks progress", () => {
