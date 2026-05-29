@@ -40,7 +40,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 核心原则：
 
 - `.agents/**` 与 `.claude/**` 是一等 runtime 目录，分别服务 kata Codex runtime 和 Claude Code runtime。
-- 两套 runtime 的 contracts 统一以 `.claude/contracts/**` 为单一来源；Phase 1 期间 Codex runtime 仅占位，详见 `.agents/README.md`，Phase 2 将通过 symlink 复用同一份契约。
+- 两套 runtime 共享的代码底盘位于 `.claude/scripts/_shared/**`（lib / schemas / plugin-runtime / cli / lint），共享提示词位于 `.claude/prompt/_shared/**`；Phase 1 期间 Codex runtime 仅占位，详见 `.agents/README.md`，Phase 2 将通过 symlink 复用同一份共享资源。
 - 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
 - 浏览器自动化通过 `playwright-automation` skill 完成；常用 CLI 速查见 `.claude/skills/playwright-automation/references/cli-essentials.md`。
 
@@ -147,11 +147,11 @@ engine/**    CLI, validators, tests, and workflow support
 | --- | --- |
 | `.agents/**` | kata Codex runtime skill 与 reference 目录，一等维护。 |
 | `.claude/**` | Claude Code runtime skill 与 reference 目录，一等维护。 |
-| `.claude/contracts/**` | 两套 runtime 共用的 contracts 单一来源；Phase 1 期间 Codex runtime 仅占位（详见 `.agents/README.md`），Phase 2 将通过 symlink 复用。 |
+| `.claude/scripts/_shared/**` | 两套 runtime 共享的代码底盘（lib / schemas / plugin-runtime / cli / lint）与 `.claude/prompt/_shared/**` 共享提示词；Phase 1 期间 Codex runtime 仅占位（详见 `.agents/README.md`），Phase 2 将通过 symlink 复用。 |
 | `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |
 | `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
 
-工作流执行时，agent 读取对应 runtime skill 和共享的 `.claude/contracts/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 engine 与 runtime 检查器校验。
+工作流执行时，agent 读取对应 runtime skill 和共享底盘 `.claude/scripts/_shared/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 engine 与 runtime 检查器校验。
 
 ## 插件
 

@@ -40,7 +40,7 @@ Code diff ──────────────────── /diff-sca
 Core principles:
 
 - `.agents/**` and `.claude/**` are first-class runtime directories for the kata Codex runtime and Claude Code runtime.
-- Runtime contracts have a single source at `.claude/contracts/**`; during Phase 1 the Codex runtime is a placeholder only (see `.agents/README.md`), and Phase 2 will reuse the same contracts via symlinks.
+- Both runtimes share a code chassis at `.claude/scripts/_shared/**` (lib / schemas / plugin-runtime / cli / lint) and shared prompts at `.claude/prompt/_shared/**`; during Phase 1 the Codex runtime is a placeholder only (see `.agents/README.md`), and Phase 2 will reuse the same shared assets via symlinks.
 - Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
 - Browser automation is driven by the `playwright-automation` skill; a condensed CLI cheat sheet lives at `.claude/skills/playwright-automation/references/cli-essentials.md`.
 
@@ -147,11 +147,11 @@ engine/**    CLI, validators, tests, and workflow support
 | --- | --- |
 | `.agents/**` | kata Codex runtime skills and references, maintained as a first-class runtime. |
 | `.claude/**` | Claude Code runtime skills and references, maintained as a first-class runtime. |
-| `.claude/contracts/**` | Single source of runtime contracts shared by both runtimes; during Phase 1 the Codex runtime is a placeholder (see `.agents/README.md`), and Phase 2 will reuse the same files via symlinks. |
+| `.claude/scripts/_shared/**` | Shared code chassis for both runtimes (lib / schemas / plugin-runtime / cli / lint) plus shared prompts at `.claude/prompt/_shared/**`; during Phase 1 the Codex runtime is a placeholder (see `.agents/README.md`), and Phase 2 will reuse the same files via symlinks. |
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
 | `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
 
-At runtime, agents read their runtime skill plus the shared `.claude/contracts/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
+At runtime, agents read their runtime skill plus the shared chassis `.claude/scripts/_shared/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
 
 ## Plugins
 
