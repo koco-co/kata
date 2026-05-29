@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { loadFeatureSourceSnapshotValidator } from "../../src/schemas/loaders.ts";
+import { loadFeatureSourceSnapshotValidator } from "@shared/schemas/loaders.ts";
 
 describe("FeatureSourceSnapshot@1", () => {
   const validate = loadFeatureSourceSnapshotValidator();

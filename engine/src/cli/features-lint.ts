@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "yaml";
-import { loadFeatureManifestValidator, loadFeatureMetadataValidator } from "../schemas/loaders.ts";
+import { loadFeatureManifestValidator, loadFeatureMetadataValidator } from "@shared/schemas/loaders.ts";
 
 export interface FeaturesLintContext {
   project: string;

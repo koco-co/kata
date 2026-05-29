@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse, stringify } from "yaml";
 import { runFeaturesNew } from "../../src/cli/features-new.ts";
-import { loadFeatureMetadataValidator } from "../../src/schemas/loaders.ts";
+import { loadFeatureMetadataValidator } from "@shared/schemas/loaders.ts";
 
 describe("kata features new", () => {
   let scratch: string;

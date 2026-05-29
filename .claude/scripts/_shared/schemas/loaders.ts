@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import type { ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
-import { contractPath } from "@shared/lib/paths.ts";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 
 const ajv = addFormats(new Ajv2020({ strict: true, allErrors: true }));
 
@@ -11,7 +11,7 @@ const validatorCache = new Map<string, ValidateFunction>();
 function loadSchema(filename: string): ValidateFunction {
   const cached = validatorCache.get(filename);
   if (cached) return cached;
-  const path = contractPath("schemas", filename);
+  const path = sharedSchemasPath(filename);
   const schema = JSON.parse(readFileSync(path, "utf-8"));
   const fn = ajv.compile(schema);
   validatorCache.set(filename, fn);

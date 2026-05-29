@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Glob } from "bun";
 import { parse } from "yaml";
-import { contractPath } from "@shared/lib/paths.ts";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import type { CaseLintReport } from "./types.ts";
 
 interface PrefixEntry {
@@ -17,7 +17,7 @@ let cache: PrefixEntry[] | null = null;
 
 export function getRegisteredPrefixes(): PrefixEntry[] {
   if (cache) return cache;
-  const path = contractPath("schemas", "source-ref-registry.yaml");
+  const path = sharedSchemasPath("source-ref-registry.yaml");
   const data = parse(readFileSync(path, "utf-8"));
   cache = data.prefixes as PrefixEntry[];
   return cache;

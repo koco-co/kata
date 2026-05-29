@@ -4,7 +4,7 @@ import {
   loadFeatureMetadataValidator,
   loadHandoffV2Validator,
   loadSourceRefRegistryValidator,
-} from "../../src/schemas/loaders.ts";
+} from "@shared/schemas/loaders.ts";
 
 describe("schema loaders", () => {
   it("loads FeatureMetadata validator", () => {

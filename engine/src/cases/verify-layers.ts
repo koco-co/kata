@@ -6,7 +6,7 @@ import {
   loadFeatureManifestValidator,
   loadFeatureMetadataValidator,
   loadFeatureSourceSnapshotValidator,
-} from "../schemas/loaders.ts";
+} from "@shared/schemas/loaders.ts";
 import type { ResolvedTarget } from "../source-ref/resolve-target.ts";
 import { sourceRefKind } from "../source-ref/resolve-target.ts";
 
