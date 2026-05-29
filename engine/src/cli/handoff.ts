@@ -1,6 +1,6 @@
 import { join } from "node:path";
-import { Command } from "commander";
 import { repoRoot } from "@shared/lib/paths.ts";
+import { Command } from "commander";
 import { runHandoffRender } from "./handoff-render.ts";
 
 export function buildHandoffCommand(): Command {

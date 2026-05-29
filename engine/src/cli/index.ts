@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * kata.ts — Unified entry point for kata scripts.
  *
@@ -16,8 +17,8 @@
  * commander `program`. Registered below via addCommand().
  */
 
-import { Command } from "commander";
 import { initEnv } from "@shared/lib/env.ts";
+import { Command } from "commander";
 
 // 大部分模块静态加载（无昂贵依赖）
 import { program as archiveGen } from "../archive-gen.ts";

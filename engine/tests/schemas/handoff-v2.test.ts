@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
-import Ajv from "ajv";
 import { sharedSchemasPath } from "@shared/lib/paths.ts";
+import Ajv from "ajv";
 
 const schema = JSON.parse(
   readFileSync(sharedSchemasPath("PlaywrightAutomationHandoff.v2.schema.json"), "utf-8"),

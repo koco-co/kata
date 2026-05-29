@@ -25,7 +25,11 @@ import {
   updateBugField,
   updateBugSteps,
 } from "@shared/lib/scan-report-store.ts";
-import { type AuditMeta, type Bug, SCAN_REPORT_SCHEMA_VERSION } from "@shared/lib/scan-report-types.ts";
+import {
+  type AuditMeta,
+  type Bug,
+  SCAN_REPORT_SCHEMA_VERSION,
+} from "@shared/lib/scan-report-types.ts";
 
 function ensureParent(p: string): void {
   const d = dirname(p);

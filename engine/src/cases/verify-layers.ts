@@ -1,14 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parse as parseYaml } from "yaml";
+import type { ResolvedTarget } from "@shared/lib/source-ref/resolve-target.ts";
+import { sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
 import {
   loadCoverageMatrixValidator,
   loadFeatureManifestValidator,
   loadFeatureMetadataValidator,
   loadFeatureSourceSnapshotValidator,
 } from "@shared/schemas/loaders.ts";
-import type { ResolvedTarget } from "@shared/lib/source-ref/resolve-target.ts";
-import { sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
+import { parse as parseYaml } from "yaml";
 
 export interface VerifyIssue {
   layer: "L1" | "L2" | "L3";

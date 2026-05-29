@@ -10,8 +10,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Command } from "commander";
 import { initEnv } from "@shared/lib/env.ts";
+import { Command } from "commander";
 
 // ---------------------------------------------------------------------------
 // Paths

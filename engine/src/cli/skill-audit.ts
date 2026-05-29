@@ -1,6 +1,5 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { Command } from "commander";
 import {
   type AgentRuntime,
   agentsDir,
@@ -9,6 +8,7 @@ import {
   skillsDir,
 } from "@shared/lib/paths.ts";
 import { formatStructureReport, lintSkillStructure } from "@shared/lint/skill-structure.ts";
+import { Command } from "commander";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";

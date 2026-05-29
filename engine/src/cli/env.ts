@@ -1,5 +1,5 @@
-import { Command } from "commander";
 import { outputJson } from "@shared/lib/cli.ts";
+import { Command } from "commander";
 import { runEnvCheck } from "./env-check.ts";
 
 export function buildEnvCommand(): Command {

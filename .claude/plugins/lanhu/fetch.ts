@@ -25,9 +25,9 @@ import {
 import { basename, extname, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
+import { getEnv, initEnv } from "@shared/lib/env.ts";
 import { Command } from "commander";
 import sharp from "sharp";
-import { getEnv, initEnv } from "@shared/lib/env.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = fileURLToPath(new URL(".", import.meta.url));

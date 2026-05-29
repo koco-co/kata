@@ -4,6 +4,13 @@
     "rootDir": ".",
     "types": ["node", "bun"]
   },
-  "include": ["scripts/**/*.ts", "lib/**/*.ts", ".claude/scripts/**/*.ts", ".claude/plugins/**/*.ts", ".claude/skills/**/scripts/**/*.ts", ".claude/skills/**/tests/**/*.ts"],
+  "include": [
+    "scripts/**/*.ts",
+    "lib/**/*.ts",
+    ".claude/scripts/**/*.ts",
+    ".claude/plugins/**/*.ts",
+    ".claude/skills/**/scripts/**/*.ts",
+    ".claude/skills/**/tests/**/*.ts"
+  ],
   "exclude": ["node_modules", "workspace"]
 }

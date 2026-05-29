@@ -8,8 +8,8 @@
  */
 
 import { readFileSync } from "node:fs";
-import JSZip from "jszip";
 import { buildMarkdown, todayString } from "@shared/lib/frontmatter.ts";
+import JSZip from "jszip";
 import { extractDevVersions } from "./csv.ts";
 import { parseL1Title } from "./paths.ts";
 import { inferTags } from "./tags.ts";

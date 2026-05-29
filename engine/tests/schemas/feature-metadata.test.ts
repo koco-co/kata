@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
-import Ajv from "ajv";
 import { sharedSchemasPath } from "@shared/lib/paths.ts";
+import Ajv from "ajv";
 
 const schemaPath = sharedSchemasPath("FeatureMetadata.v1.schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));

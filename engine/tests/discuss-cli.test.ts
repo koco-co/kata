@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { $ } from "bun";
 import { repoRoot } from "@shared/lib/paths.ts";
+import { $ } from "bun";
 
 const P = "test-d1-cli";
 const YM = "202604";

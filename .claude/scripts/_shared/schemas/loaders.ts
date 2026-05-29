@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import type { ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
-import { sharedSchemasPath } from "@shared/lib/paths.ts";
 
 const ajv = addFormats(new Ajv2020({ strict: true, allErrors: true }));
 

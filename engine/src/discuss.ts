@@ -9,7 +9,6 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import matter from "gray-matter";
 import { createCli } from "@shared/lib/cli-runner.ts";
 import {
   addPending,
@@ -31,6 +30,7 @@ import {
   PENDING_SEVERITIES,
 } from "@shared/lib/enhanced-doc-types.ts";
 import { enhancedMd } from "@shared/lib/paths.ts";
+import matter from "gray-matter";
 
 // ============================================================================
 // CLI wiring

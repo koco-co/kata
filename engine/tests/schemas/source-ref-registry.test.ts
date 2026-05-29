@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import Ajv from "ajv";
 import { parse } from "yaml";
-import { sharedSchemasPath } from "@shared/lib/paths.ts";
 
 const schema = JSON.parse(
   readFileSync(sharedSchemasPath("SourceRefRegistry.v1.schema.json"), "utf-8"),

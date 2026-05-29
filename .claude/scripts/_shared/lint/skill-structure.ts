@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import matter from "gray-matter";
 import { repoRoot, skillsDir } from "@shared/lib/paths.ts";
+import matter from "gray-matter";
 
 export interface StructureViolation {
   rule: string;
@@ -16,8 +16,18 @@ export interface StructureReport {
 
 // Claude frontmatter 字段白名单（§8.3）
 const ALLOWED_FRONTMATTER = new Set([
-  "name", "description", "when_to_use", "user-invocable", "model", "effort",
-  "context", "agent", "paths", "argument-hint", "allowed-tools", "disable-model-invocation",
+  "name",
+  "description",
+  "when_to_use",
+  "user-invocable",
+  "model",
+  "effort",
+  "context",
+  "agent",
+  "paths",
+  "argument-hint",
+  "allowed-tools",
+  "disable-model-invocation",
 ]);
 const SKILL_MD_CAP = 100;
 
@@ -67,21 +77,40 @@ export function lintSkillStructure(root: string = repoRoot()): StructureReport {
 
     // 1 命名一致：目录名 == frontmatter name == CLAUDE.md 命令索引
     if (data.name !== skill) {
-      v.push({ rule: "SK-NAME-DIR", skill, path: skillMd, message: `name='${String(data.name)}' != 目录 '${skill}'` });
+      v.push({
+        rule: "SK-NAME-DIR",
+        skill,
+        path: skillMd,
+        message: `name='${String(data.name)}' != 目录 '${skill}'`,
+      });
     }
     if (typeof data.name === "string" && !indexed.has(data.name)) {
-      v.push({ rule: "SK-NAME-INDEX", skill, message: `name '${data.name}' 不在 CLAUDE.md 命令索引` });
+      v.push({
+        rule: "SK-NAME-INDEX",
+        skill,
+        message: `name '${data.name}' 不在 CLAUDE.md 命令索引`,
+      });
     }
     // 4 frontmatter 白名单
     for (const key of Object.keys(data)) {
       if (!ALLOWED_FRONTMATTER.has(key)) {
-        v.push({ rule: "SK-FM-WHITELIST", skill, path: skillMd, message: `非法 frontmatter 字段 '${key}'` });
+        v.push({
+          rule: "SK-FM-WHITELIST",
+          skill,
+          path: skillMd,
+          message: `非法 frontmatter 字段 '${key}'`,
+        });
       }
     }
     // 5 长度：SKILL.md ≤ 100（其余目录上限随 Bundle-2 内容成形后启用）
     const n = raw.split("\n").length;
     if (n > SKILL_MD_CAP) {
-      v.push({ rule: "SK-LEN-SKILL", skill, path: skillMd, message: `SKILL.md ${n} 行 > ${SKILL_MD_CAP}` });
+      v.push({
+        rule: "SK-LEN-SKILL",
+        skill,
+        path: skillMd,
+        message: `SKILL.md ${n} 行 > ${SKILL_MD_CAP}`,
+      });
     }
     // 2 phase 完整：SKILL.md 引用的 phase 文件必须存在
     const phasesDir = join(dir, "phases");
@@ -95,7 +124,12 @@ export function lintSkillStructure(root: string = repoRoot()): StructureReport {
     if (existsSync(promptsDir)) {
       for (const f of readdirSync(promptsDir).filter((x) => x.endsWith(".md"))) {
         if (!/^agent-.+\.md$/.test(f)) {
-          v.push({ rule: "SK-PROMPT-NAME", skill, path: join(promptsDir, f), message: `prompts/${f} 不符 agent-<step>.md` });
+          v.push({
+            rule: "SK-PROMPT-NAME",
+            skill,
+            path: join(promptsDir, f),
+            message: `prompts/${f} 不符 agent-<step>.md`,
+          });
         }
       }
     }

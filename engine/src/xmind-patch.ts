@@ -12,9 +12,9 @@
 
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import JSZip from "jszip";
 import { createCli } from "@shared/lib/cli-runner.ts";
 import { repoRoot, validateFilePath } from "@shared/lib/paths.ts";
+import JSZip from "jszip";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

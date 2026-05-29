@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import { Glob } from "bun";
 import { parse } from "yaml";
-import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import type { CaseLintReport } from "./types.ts";
 
 interface PrefixEntry {

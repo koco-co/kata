@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { repoRoot, sharedSchemasPath } from "@shared/lib/paths.ts";
+import { loadHandoffV2Validator } from "@shared/schemas/loaders.ts";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import Handlebars from "handlebars";
-import { repoRoot, sharedSchemasPath } from "@shared/lib/paths.ts";
-import { loadHandoffV2Validator } from "@shared/schemas/loaders.ts";
 
 export interface HandoffRenderContext {
   project: string;
