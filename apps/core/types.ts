@@ -32,10 +32,6 @@ export interface SkillSummary {
   readonly kind: string | null;
   readonly status: string | null;
   readonly summary: string | null;
-  readonly mustTriggerWhen: readonly string[];
-  readonly mustNotTriggerWhen: readonly string[];
-  readonly inputs: readonly string[];
-  readonly outputs: readonly string[];
 }
 
 export interface FeatureDetail {

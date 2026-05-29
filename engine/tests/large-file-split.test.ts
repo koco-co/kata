@@ -11,8 +11,6 @@ const TARGET_ENTRY_FILES = [
   "engine/src/knowledge-curate.ts",
   "engine/src/xmind-gen.ts",
   "engine/src/skills/runtime-sync.ts",
-  "engine/src/skills/manifest-loader.ts",
-  "engine/src/skills/workflow-check.ts",
 ];
 
 const TARGET_SPLIT_DIRS = [

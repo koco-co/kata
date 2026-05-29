@@ -6,4 +6,4 @@
 - 不得 mv、不得 rm、不得改 file mode。
 - 仅可 read 与 grep。
 
-该规则由 runtime skill hard rules、`.claude/contracts/workflows/**`、项目入口文档和相关 engine 写入策略共同强制。
+该规则由 runtime skill hard rules、项目入口文档和相关 engine 写入策略共同强制。

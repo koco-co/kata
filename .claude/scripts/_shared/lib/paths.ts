@@ -251,14 +251,6 @@ export function pluginsDir(): string {
   return resolve(repoRoot(), ".claude/plugins");
 }
 
-export function contractsDir(): string {
-  return resolve(repoRoot(), ".claude/contracts");
-}
-
-export function contractPath(...segments: string[]): string {
-  return resolve(contractsDir(), ...segments);
-}
-
 /** Absolute path to the shared chassis root (.claude/scripts/_shared). */
 export function sharedRoot(): string {
   return resolve(repoRoot(), ".claude/scripts/_shared");
@@ -267,10 +259,6 @@ export function sharedRoot(): string {
 /** Absolute path under .claude/scripts/_shared/schemas/. */
 export function sharedSchemasPath(...segments: string[]): string {
   return resolve(sharedRoot(), "schemas", ...segments);
-}
-
-export function contractDisplayPath(...segments: string[]): string {
-  return [".claude/contracts", ...segments].join("/");
 }
 
 export function contractPluginsDir(): string {

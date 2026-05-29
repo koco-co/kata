@@ -1,6 +1,6 @@
 /**
  * Type contracts for diff-scan reports.
- * Source of truth: runtime SKILL.md files and `.claude/contracts/skill-manifest.yaml`.
+ * Source of truth: runtime SKILL.md files.
  */
 
 export const SCAN_REPORT_SCHEMA_VERSION = "1.0" as const;

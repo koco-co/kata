@@ -16,4 +16,4 @@
 ### 无匹配回退
 
 - 无 skill 匹配的请求由 AI 自行处理，不强制套用 skill 路由。
-- 详细输出契约、回退模板和回归约束见 `.agents/skills/**`、`.claude/skills/**`、`.claude/contracts/**` 与对应测试。
+- 详细输出契约、回退模板和回归约束见 `.agents/skills/**`、`.claude/skills/**` 与对应测试。

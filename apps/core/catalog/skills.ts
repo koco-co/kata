@@ -1,9 +1,8 @@
-// Phase 1: catalog reads .claude single-source via compat-shim backed by skill-manifest.yaml.
+// Catalog reads each skill's SKILL.md frontmatter directly as the source of truth.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { parseDocument } from "yaml";
 import type { SkillSummary } from "../types.ts";
-import { readClaudeSkillContracts, type SkillContractsRead } from "./compat-shim.ts";
 
 interface YamlParseIssue {
   readonly message: string;
@@ -16,10 +15,6 @@ interface RuntimeSkillDoc {
 
 function skillsRoot(): string {
   return join(currentRepoRoot(), ".claude/skills");
-}
-
-function contractsRoot(): string {
-  return join(currentRepoRoot(), ".claude/contracts");
 }
 
 function currentRepoRoot(): string {
@@ -77,35 +72,22 @@ function readRuntimeSkill(path: string): RuntimeSkillDoc {
   }
 }
 
-function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContractsRead): SkillSummary {
-  const entry = contracts.entries[id] ?? {
-    consumes: [],
-    produces: [],
-    mustTriggerWhen: [],
-    mustNotTriggerWhen: [],
-  };
+function toSummary(id: string, doc: RuntimeSkillDoc): SkillSummary {
   return {
     id,
     name: doc.name,
     kind: "runtime-skill",
     status: "active",
     summary: doc.description,
-    mustTriggerWhen: entry.mustTriggerWhen,
-    mustNotTriggerWhen: entry.mustNotTriggerWhen,
-    inputs: entry.consumes,
-    outputs: entry.produces,
   };
 }
 
 export function listSkills(): SkillSummary[] {
-  return listSkillsFromRoot(skillsRoot(), contractsRoot());
+  return listSkillsFromRoot(skillsRoot());
 }
 
-export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummary[] {
+export function listSkillsFromRoot(root: string): SkillSummary[] {
   if (!existsSync(root)) return [];
-  const contracts: SkillContractsRead = contractRoot
-    ? readClaudeSkillContracts(contractRoot)
-    : { entries: {} };
   const ids = new Set<string>();
   // 过滤 `_` 前缀目录（如 `_shared/`），它们是聚合资源目录，不是 skill
   const skills = readdirSync(root)
@@ -118,7 +100,7 @@ export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummar
       if (id !== basename(join(path, ".."))) {
         throw new Error(`${path}: skill name must match directory name`);
       }
-      return toSummary(id, doc, contracts);
+      return toSummary(id, doc);
     })
     .sort((a, b) => a.id.localeCompare(b.id));
 

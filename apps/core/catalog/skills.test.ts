@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { listSkills, listSkillsFromRoot } from "./skills.ts";
@@ -23,7 +23,7 @@ test("listSkills returns the kata skills sorted by id with parsed fields", () =>
   expect([...ids]).toEqual([...ids].sort((a, b) => a.localeCompare(b)));
 });
 
-test("listSkills parses case-draft inputs/outputs without throwing on backtick scalars", () => {
+test("listSkills returns case-draft with parsed frontmatter fields", () => {
   const draft = listSkills().find((s) => s.id === "case-draft");
   expect(draft).toBeDefined();
   expect(draft?.id).toBe("case-draft");
@@ -31,12 +31,6 @@ test("listSkills parses case-draft inputs/outputs without throwing on backtick s
   expect(draft?.status).toBe("active");
   expect(draft?.kind).toBe("runtime-skill");
   expect(draft?.summary?.length).toBeGreaterThan(0);
-  expect(draft?.inputs).toContain("prd-source");
-  expect(draft?.inputs).toContain("design-source");
-  expect(draft?.outputs).toContain("archive-md");
-  expect(draft?.outputs).toContain("xmind");
-  expect(draft?.mustTriggerWhen.length).toBeGreaterThan(0);
-  expect(draft?.mustNotTriggerWhen.length).toBeGreaterThan(0);
 });
 
 test("listSkillsFromRoot parses fixture runtime skills sorted by id", () => {
@@ -80,89 +74,7 @@ test("listSkillsFromRoot rejects names that do not match skill directories", () 
   expect(() => listSkillsFromRoot(root)).toThrow(/match directory/i);
 });
 
-test("listSkillsFromRoot reads .claude contracts and ignores missing .agents contracts", () => {
-  const root = mkdtempSync(join(tmpdir(), "kata-skills-shim-"));
-  try {
-    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
-    writeFileSync(
-      join(root, ".claude/skills/case-draft/SKILL.md"),
-      `---\nname: case-draft\ndescription: gen QA cases\n---\nbody\n`,
-    );
-    mkdirSync(join(root, ".claude/contracts"), { recursive: true });
-    writeFileSync(
-      join(root, ".claude/contracts/skill-manifest.yaml"),
-      `version: 1
-generated_for: claude+codex
-facets: { by_input: {}, by_output: {} }
-skills:
-  case-draft:
-    user_entry: /case-draft
-    dataflow:
-      consumes: [prd-source]
-      produces: [archive-md]
-      related: []
-    routing:
-      must_trigger_when: ["draft a case"]
-      must_not_trigger_when: ["hotfix"]
-      clarify: ["confirm scope"]
-`,
-    );
-    // NB: .agents/contracts/ intentionally not created — shim must cope.
-    const skillsRoot = join(root, ".claude/skills");
-    const contractsRoot = join(root, ".claude/contracts");
-    const summaries = listSkillsFromRoot(skillsRoot, contractsRoot);
-    expect(summaries).toHaveLength(1);
-    expect(summaries[0]?.id).toBe("case-draft");
-    expect(summaries[0]?.inputs).toEqual(["prd-source"]);
-    expect(summaries[0]?.outputs).toEqual(["archive-md"]);
-    expect(summaries[0]?.mustTriggerWhen).toEqual(["draft a case"]);
-    expect(summaries[0]?.mustNotTriggerWhen).toEqual(["hotfix"]);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test("listSkillsFromRoot reads skill-manifest.yaml when present", () => {
-  const root = mkdtempSync(join(tmpdir(), "kata-shim-manifest-"));
-  try {
-    mkdirSync(join(root, ".claude/skills/case-draft"), { recursive: true });
-    writeFileSync(
-      join(root, ".claude/skills/case-draft/SKILL.md"),
-      `---\nname: case-draft\ndescription: gen\n---\n`,
-    );
-    mkdirSync(join(root, ".claude/contracts"), { recursive: true });
-    writeFileSync(
-      join(root, ".claude/contracts/skill-manifest.yaml"),
-      `version: 1
-generated_for: claude+codex
-facets: { by_input: {}, by_output: {} }
-skills:
-  case-draft:
-    user_entry: /case-draft
-    dataflow:
-      consumes: [prd-source]
-      produces: [archive-md]
-      related: []
-    routing:
-      must_trigger_when: ["gen"]
-      must_not_trigger_when: ["edit"]
-      clarify: ["scope"]
-`,
-    );
-    const summaries = listSkillsFromRoot(
-      join(root, ".claude/skills"),
-      join(root, ".claude/contracts"),
-    );
-    expect(summaries[0]?.mustTriggerWhen).toEqual(["gen"]);
-    expect(summaries[0]?.mustNotTriggerWhen).toEqual(["edit"]);
-    expect(summaries[0]?.inputs).toEqual(["prd-source"]);
-    expect(summaries[0]?.outputs).toEqual(["archive-md"]);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test("listSkills() default roots resolve via .claude/contracts not .agents", () => {
+test("listSkills() returns active runtime skills", () => {
   const summaries = listSkills();
   expect(Array.isArray(summaries)).toBe(true);
   expect(summaries.length).toBeGreaterThan(0);
