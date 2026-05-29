@@ -1,12 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "rootDir": ".",
-    "paths": {},
-    "types": ["node", "bun"],
-    "ignoreDeprecations": "5.0"
+    "types": ["node", "bun"]
   },
-  "include": ["plugins/**/*.ts", "scripts/**/*.ts", "lib/**/*.ts"],
+  "include": ["plugins/**/*.ts", "scripts/**/*.ts", "lib/**/*.ts", ".claude/scripts/**/*.ts", ".claude/skills/**/scripts/**/*.ts", ".claude/skills/**/tests/**/*.ts"],
   "exclude": ["node_modules", "workspace"]
 }

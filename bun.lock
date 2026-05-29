@@ -5,12 +5,18 @@
     "": {
       "name": "qa-flow",
       "dependencies": {
+        "ajv": "^8.20.0",
+        "ajv-formats": "^3.0.1",
         "commander": "^13.1.0",
         "exceljs": "^4.4.0",
+        "gray-matter": "^4.0.3",
+        "handlebars": "^4.7.9",
         "jszip": "^3.10.1",
         "nodemailer": "^8.0.7",
+        "pinyin-pro": "^3.28.1",
         "sharp": "^0.34.5",
         "xmind-generator": "^1.0.1",
+        "yaml": "^2.9.0",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.4.15",
