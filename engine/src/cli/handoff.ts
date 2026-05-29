@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
+import { runHandoffRender } from "@skills/playwright-automation/scripts/handoff-render.ts";
 import { Command } from "commander";
-import { runHandoffRender } from "./handoff-render.ts";
 
 export function buildHandoffCommand(): Command {
   const handoff = new Command("handoff").description("Handoff 渲染与校验");

@@ -13,7 +13,7 @@ export interface HandoffRenderContext {
   workspaceRoot: string;
 }
 
-const tmplPath = join(repoRoot(), "engine/templates/handoff.md.hbs");
+const tmplPath = join(repoRoot(), ".claude/skills/playwright-automation/templates/handoff.md.hbs");
 const tmpl = Handlebars.compile(readFileSync(tmplPath, "utf-8"));
 const validate = loadHandoffV2Validator();
 
@@ -37,13 +37,19 @@ function loadCaseFeedback(runDir: string): CaseFeedbackContext | null {
   if (!existsSync(sidecarPath)) {
     return null;
   }
-  const summary = JSON.parse(readFileSync(sidecarPath, "utf-8"));
-  if (!validateCorrections(summary)) {
+  const parsed = JSON.parse(readFileSync(sidecarPath, "utf-8"));
+  if (!validateCorrections(parsed)) {
     throw new Error(
       `case-corrections-summary.json invalid (CaseCorrections@1): ${JSON.stringify(validateCorrections.errors)}`,
     );
   }
-  const byCategory = summary.by_category as Record<string, number>;
+  const summary = parsed as {
+    total: number;
+    corrections_md: string;
+    apply_command: string;
+    by_category: Record<string, number>;
+  };
+  const byCategory = summary.by_category;
   const byCategoryLine = Object.entries(byCategory)
     .filter(([, n]) => n > 0)
     .map(([k, n]) => `${k}=${n}`)
@@ -73,6 +79,10 @@ export async function runHandoffRender(ctx: HandoffRenderContext): Promise<{ pat
   }
   const caseFeedback = loadCaseFeedback(runDir);
   const mdPath = join(runDir, "handoff.md");
-  writeFileSync(mdPath, tmpl({ ...data, case_feedback: caseFeedback }), "utf-8");
+  writeFileSync(
+    mdPath,
+    tmpl({ ...(data as Record<string, unknown>), case_feedback: caseFeedback }),
+    "utf-8",
+  );
   return { path: mdPath };
 }
