@@ -8,7 +8,7 @@ let output = "";
 try {
   output = execSync(
     "git grep -n -E 'docs/refactor/' -- " +
-      "':!docs/superpowers/specs/' ':!REFACTOR_STATUS.md' ':!scripts/lint/'",
+      "':!docs/superpowers/specs/' ':!REFACTOR_STATUS.md' ':!.claude/scripts/lint/'",
     { encoding: "utf8" },
   );
 } catch (e: unknown) {

@@ -31,7 +31,7 @@
     "check:skills": "bun .claude/scripts/_shared/bin/kata skills sync-check --exit-code",
     "lint": "biome check engine/src engine/tests .claude/agents .claude/skills .claude/plugins tools rules",
     "format": "biome check --fix .",
-    "lint:debris": "bun run scripts/lint/check-debug-files.ts && bun run scripts/lint/check-stale-paths.ts && bun run scripts/lint/check-runtime-artifacts.ts",
+    "lint:debris": "bun run .claude/scripts/lint/check-debug-files.ts && bun run .claude/scripts/lint/check-stale-paths.ts && bun run .claude/scripts/lint/check-runtime-artifacts.ts",
     "type-check": "tsc --noEmit",
     "ci": "bun run lint && bun run lint:debris && bun run lint:agents && bun run lint:paths && bun run check:skills && bun run lint:agents:codex && bun run lint:skills:codex && bun run type-check && bun run test && bun run test:apps && bun run test:plugins && bun run test:tools",
     "test": "bun test --cwd engine",
