@@ -7,7 +7,6 @@ import type { SkillReport, SkillViolation } from "./types.ts";
 const ALLOWED_TOP_LEVEL_FILES = new Set(["SKILL.md"]);
 const ALLOWED_TOP_LEVEL_DIRS = new Set(["references"]);
 const SKILL_MD_LINE_LIMIT = 140;
-const VENDOR_SKILLS = new Set(["playwright-cli"]);
 const CODEX_FORBIDDEN_SKILL_DIRECTIVES = [
   "TaskCreate",
   "TaskUpdate",
@@ -43,7 +42,7 @@ export function lintSkillShape(
     const rawSkillMd = readFileSync(skillMd, "utf8");
     // S4: SKILL.md exceeds the project line limit
     const lines = rawSkillMd.split("\n").length;
-    if (!VENDOR_SKILLS.has(skillName) && lines > SKILL_MD_LINE_LIMIT) {
+    if (lines > SKILL_MD_LINE_LIMIT) {
       violations.push({
         rule: "S4",
         skillDir,

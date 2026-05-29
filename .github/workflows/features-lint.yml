@@ -7,7 +7,6 @@ on:
       - 'engine/src/lint/**'
       - 'engine/src/cli/features-*.ts'
       - '.claude/contracts/schemas/**'
-      - '.agents/contracts/schemas/**'
 
 jobs:
   lint:

@@ -1,60 +1,60 @@
+# spec §6.7 case-hotfix phases: §1-bug-parse / §2-scope / §3-draft / §4-output
+# 加 spec-review 子步对应 §6.11 hotfix spec-review: haiku 覆写。
+# v2 schema 由 engine/src/skills/workflow-schema.ts 校验。
 name: case-hotfix
-version: 1
-entry: /case-hotfix
-description: 根据 bug、issue、ZenTao 记录或修复说明生成 hotfix 回归用例；本 yaml 是该 workflow 的唯一规范源。
+version: 2
+default_dispatch: inline
+default_model: sonnet
+default_effort: high
+
+metadata:
+  event_kinds_emitted:
+    - phase_entered
+    - phase_exited
+    - decision_made
+    - artifact_written
+    - validator_failed
+    - blocked
+    - handoff_emitted
+  artifact_kinds_produced:
+    - archive
+    - xmind
+
 steps:
-  - id: bug-intake
-    next: [fix-scope]
-    blackboard_inputs: []
-    blackboard_outputs: [sources, source_refs]
-    references:
-      - .claude/skills/case-hotfix/SKILL.md
-      - .agents/skills/case-hotfix/SKILL.md
-    failure_modes:
-      - BUG_RECORD_MISSING
-    human_gates:
-      - ASK_FOR_BUG_RECORD
-    verification: [bug_record_source_ref_recorded]
-  - id: fix-scope
-    next: [draft_cases]
-    blackboard_inputs: [sources, source_refs]
-    blackboard_outputs: [decisions, open_questions]
-    references:
-      - references/hotfix-archive-format.md
-    failure_modes:
-      - FIX_SCOPE_MISSING
-      - BUG_NOT_FIXED
-    human_gates:
-      - ASK_FOR_FIX_SCOPE
-    verification: [fix_scope_or_pending_items_recorded]
-  - id: draft_cases
-    next: [review_cases]
-    blackboard_inputs: [sources, source_refs, decisions]
-    blackboard_outputs: [artifacts, coverage]
-    references:
-      - references/hotfix-archive-format.md
-      - .claude/contracts/output-artifacts.md
-    failure_modes:
-      - HOTFIX_ARCHIVE_FORMAT_INVALID
-    human_gates: []
-    verification: [single_hotfix_case_covers_fix_path]
-  - id: review_cases
-    next: [output]
-    blackboard_inputs: [artifacts, coverage]
-    blackboard_outputs: [verification, open_questions]
-    references:
-      - references/hotfix-archive-format.md
-    failure_modes:
-      - HOTFIX_SCOPE_OVEREXPANDED
-      - SOURCE_REF_LEAKED_TO_ARCHIVE
-    human_gates: []
-    verification: [hotfix_hard_rules_checked]
+  - id: bug-parse
+    dispatch: inline
+    blackboard_inputs: [user_input]
+    blackboard_outputs: [bug_record, source_refs]
+    failure_modes: [bug_record_missing]
+
+  - id: scope
+    dispatch: inline
+    blackboard_inputs: [bug_record, source_refs]
+    blackboard_outputs: [fix_scope]
+    failure_modes: [fix_scope_missing]
+
+  - id: draft
+    dispatch: subagent
+    model: sonnet
+    effort: high
+    workers: [hotfix-worker]
+    blackboard_inputs: [bug_record, fix_scope, source_refs]
+    blackboard_outputs: [draft_archive]
+    failure_modes: [worker_timeout]
+
+  - id: spec-review
+    dispatch: subagent
+    model: haiku
+    effort: low
+    reviewers: [spec-reviewer]
+    blackboard_inputs: [draft_archive]
+    blackboard_outputs: [spec_verdict, spec_violations]
+    validators: [archive-schema]
+    failure_modes: [verdict_invalid]
+
   - id: output
-    blackboard_inputs: [artifacts, verification]
-    blackboard_outputs: [handoff]
-    references:
-      - .claude/contracts/output-artifacts.md
-    failure_modes:
-      - OUTPUT_QA_FAILED
-    human_gates: []
-    verification: [hotfix_archive_and_sidecars_verified]
+    dispatch: inline
+    blackboard_inputs: [draft_archive, spec_verdict]
+    blackboard_outputs: [archive_path, hotfix_archive_path]
+    validators: [archive-format]
+    failure_modes: [io_error]

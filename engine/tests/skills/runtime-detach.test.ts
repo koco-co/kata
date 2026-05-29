@@ -72,10 +72,9 @@ function writeLegacyDetachedEntries(root: string): void {
 }
 
 function writeWorkflowRuleFiles(root: string, body: string): void {
-  for (const runtimeDir of [".agents", ".claude"] as const) {
-    writeRuntimeFile(root, `${runtimeDir}/rules/project-workflow-rules.md`, body);
-    writeRuntimeFile(root, `${runtimeDir}/rules/git-workflow.md`, body);
-  }
+  // Phase 1: only .claude/rules/* is enforced; .agents/rules/* was retired.
+  writeRuntimeFile(root, `.claude/rules/project-workflow-rules.md`, body);
+  writeRuntimeFile(root, `.claude/rules/git-workflow.md`, body);
 }
 
 function writeSkill(
@@ -166,7 +165,7 @@ describe("runtime detach check", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "RUNTIME_SYNC_RULE_MISSING",
-        path: join(root, ".agents/rules/project-workflow-rules.md"),
+        path: join(root, ".claude/rules/project-workflow-rules.md"),
       }),
     );
     expect(report.violations).toContainEqual(

@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - '.claude/contracts/schemas/**'
-      - '.agents/contracts/schemas/**'
       - 'engine/src/schemas/**'
 
 jobs:

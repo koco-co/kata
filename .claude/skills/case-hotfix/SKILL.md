@@ -41,7 +41,7 @@ paths:
 | 阶段 | 条件 | 文件 | 类型 | 用途 |
 | --- | --- | --- | --- | --- |
 | draft_cases, review_cases, output | `outputs.ids contains archive` | references/hotfix-archive-format.md | 规范 | Apply executable Hotfix archive format, prerequisite SQL, and historical case layout before writing or reviewing archive output. |
-| output | `step.id == output` | rules/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
+| output | `step.id == output` | .claude/skills/_shared/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
 
 ## 硬规则
 

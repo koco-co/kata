@@ -1,150 +1,72 @@
+# spec §6.10 playwright-automation per-phase model：7 phases。
+# v2 schema 由 engine/src/skills/workflow-schema.ts 校验。
 name: playwright-automation
-version: 1
-entry: /playwright-automation
-description: 生成、修复、验证或运行 Playwright UI 自动化；本 yaml 是该 workflow 的唯一规范源。
+version: 2
+default_dispatch: inline
+default_model: sonnet
+default_effort: high
+
+metadata:
+  event_kinds_emitted:
+    - phase_entered
+    - phase_exited
+    - decision_made
+    - artifact_written
+    - validator_failed
+    - blocked
+    - handoff_emitted
+  artifact_kinds_produced:
+    - playwright_tests
+    - run_handoff
+
 steps:
-  - id: case-normalize
-    next: [env-preflight]
-    blackboard_inputs: []
-    blackboard_outputs: [sources, source_refs, decisions]
-    references:
-      - references/case-normalize.md
-      - .claude/skills/playwright-automation/SKILL.md
-      - .agents/skills/playwright-automation/SKILL.md
-    failure_modes:
-      - AUTOMATION_INTENT_MISSING
-    human_gates:
-      - ASK_FOR_AUTOMATION_INTENT
-    verification: [ui_automation_intent_recorded]
-  - id: env-preflight
-    next: [ui-plan]
-    blackboard_inputs: [sources, decisions]
-    blackboard_outputs: [decisions, open_questions, verification]
-    references:
-      - references/env-preflight.md
-    failure_modes:
-      - ENV_PROFILE_MISSING
-      - TOOL_PERMISSION_DENIED
-      - LOGIN_SESSION_MISSING
-    human_gates:
-      - CONFIRM_ENV_PROFILE
-    verification: [environment_preflight_result_recorded]
-  - id: ui-plan
-    next: [ui-probe]
-    blackboard_inputs: [sources, decisions, verification]
-    blackboard_outputs: [coverage, decisions]
-    references:
-      - references/ui-plan.md
-    failure_modes:
-      - AUTOMATION_SCOPE_AMBIGUOUS
-    human_gates:
-      - ASK_FOR_AUTOMATION_SCOPE
-    verification: [ui_plan_covers_requested_cases]
-  - id: ui-probe
-    next: [plan-reconcile]
-    blackboard_inputs: [coverage, decisions]
-    blackboard_outputs: [sources, source_refs, verification]
-    references:
-      - references/ui-probe.md
-      - references/execution-protocol.md
-      - references/worker-prompt.md
-      - references/spec-reviewer-prompt.md
-    failure_modes:
-      - UI_PROBE_BLOCKED
-      - MISSING_PROBE_EVIDENCE
-    human_gates: []
-    verification: [real_ui_probe_evidence_recorded]
-  - id: plan-reconcile
-    next: [playwright-generate]
-    blackboard_inputs: [coverage, source_refs, verification]
-    blackboard_outputs: [decisions, open_questions]
-    references:
-      - references/plan-reconcile.md
-    failure_modes:
-      - PLAN_UI_MISMATCH
-    human_gates:
-      - ASK_FOR_UI_PLAN_DECISION
-    verification: [reconcile_status_recorded]
-  - id: playwright-generate
-    next: [self-run]
-    blackboard_inputs: [decisions, source_refs]
-    blackboard_outputs: [artifacts, verification]
-    references:
-      - references/playwright-generate.md
-      - references/execution-protocol.md
-      - references/worker-prompt.md
-      - references/spec-reviewer-prompt.md
-      - references/quality-reviewer-prompt.md
-    failure_modes:
-      - SCRIPT_GENERATION_BLOCKED
-    human_gates: []
-    verification: [playwright_specs_generated_from_probe_evidence]
-  - id: self-run
-    next: [run-triage]
-    blackboard_inputs: [artifacts, verification]
-    blackboard_outputs: [verification, source_refs]
-    references:
-      - references/self-run.md
-      - references/execution-protocol.md
-      - references/worker-prompt.md
-      - references/spec-reviewer-prompt.md
-    failure_modes:
-      - SELF_RUN_FAILED
-    human_gates: []
-    verification: [command_exit_code_and_report_paths_recorded]
-  - id: run-triage
-    next: [repair-loop]
-    blackboard_inputs: [verification, source_refs]
-    blackboard_outputs: [decisions, open_questions]
-    references:
-      - references/run-triage.md
-    failure_modes:
-      - UNKNOWN_FAILURE
-      - PRODUCT_FAILURE
-      - ENV_FAILURE
-    human_gates:
-      - ASK_FOR_FAILURE_DECISION
-    verification: [failure_category_recorded]
-  - id: repair-loop
-    next: [quality-gate]
-    blackboard_inputs: [artifacts, decisions, verification]
-    blackboard_outputs: [artifacts, verification]
-    references:
-      - references/repair-loop.md
-      - references/execution-protocol.md
-      - references/worker-prompt.md
-      - references/spec-reviewer-prompt.md
-      - references/quality-reviewer-prompt.md
-    failure_modes:
-      - REPAIR_LIMIT_REACHED
-    human_gates: []
-    verification: [repair_attempts_and_results_recorded]
-  - id: quality-gate
-    next: [case-feedback]
-    blackboard_inputs: [artifacts, verification]
-    blackboard_outputs: [verification, open_questions]
-    references:
-      - references/quality-gate.md
-    failure_modes:
-      - QUALITY_GATE_FAILED
-    human_gates: []
-    verification: [quality_gate_result_recorded]
-  - id: case-feedback
-    next: [handoff]
-    blackboard_inputs: [artifacts, verification, open_questions]
-    blackboard_outputs: [artifacts, handoff]
-    references:
-      - references/case-feedback.md
-    failure_modes:
-      - CASE_FEEDBACK_UNWRITABLE
-    human_gates: []
-    verification: [case_corrections_summary_recorded]
+  - id: preflight
+    dispatch: inline
+    blackboard_inputs: [user_input]
+    blackboard_outputs: [env_profile]
+    failure_modes: [env_profile_missing]
+
+  - id: probe
+    dispatch: inline
+    blackboard_inputs: [env_profile, qa_cases]
+    blackboard_outputs: [ui_evidence, source_refs]
+    failure_modes: [probe_failed]
+
+  - id: generate
+    dispatch: subagent
+    model: sonnet
+    effort: high
+    workers: [playwright-worker]
+    blackboard_inputs: [qa_cases, ui_evidence, source_refs]
+    blackboard_outputs: [playwright_tests]
+    failure_modes: [worker_timeout]
+
+  - id: run
+    dispatch: inline
+    blackboard_inputs: [playwright_tests, env_profile]
+    blackboard_outputs: [run_handoff]
+    failure_modes: [run_failed]
+
+  - id: repair
+    dispatch: subagent
+    model: sonnet
+    effort: high
+    workers: [playwright-worker]
+    blackboard_inputs: [playwright_tests, run_handoff, ui_evidence]
+    blackboard_outputs: [playwright_tests]
+    failure_modes: [repair_limit_reached]
+
+  - id: quality
+    dispatch: subagent
+    model: haiku
+    effort: low
+    reviewers: [quality-reviewer]
+    blackboard_inputs: [playwright_tests, run_handoff]
+    blackboard_outputs: [quality_verdict, quality_violations]
+    failure_modes: [verdict_invalid]
+
   - id: handoff
-    blackboard_inputs: [artifacts, handoff, verification]
-    blackboard_outputs: [handoff]
-    references:
-      - references/handoff.md
-    failure_modes:
-      - HANDOFF_INCOMPLETE
-    human_gates: []
-    verification: [handoff_status_and_unverified_scope_recorded]
+    dispatch: inline
+    blackboard_inputs: [playwright_tests, run_handoff, quality_verdict]
+    blackboard_outputs: [run_handoff]
+    failure_modes: [io_error]

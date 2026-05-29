@@ -10,7 +10,7 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 
 ## 路由摘要
 
-- workflow 唯一规范源：`.agents/contracts/workflows/case-draft.yaml`。
+- workflow 唯一规范源：`.claude/contracts/workflows/case-draft.yaml`（两套 runtime 共用；Codex runtime 当前为 Phase 2 占位，详见 `.agents/README.md`）。
 - 流程编排、步骤集合、blackboard 输入输出、失败模式、人工确认节点均以上述 yaml 为准；本 SKILL.md 不再内嵌步骤列表，避免出现第二份规范源。
 - 首步执行 `bun engine/bin/kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
 - 阶段内任务编排细节（worker-prompt / spec-reviewer-prompt / quality-reviewer-prompt）见下方"## 按需加载协议"表对应阶段行；Lanhu/Axure 阻塞与 error-fallback 路径下禁用。
@@ -58,6 +58,6 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 - manifest.json#automation.intents[] 中 automation_status=ready 的 AutomationIntent@1 移交 playwright-automation@1；deferred 与 blocked 只留在 manifest 与报告中。
 - Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent，不直接向用户提问。
 - slug 兜底由 `kata features resolve` 引擎处理（hexFallbackSlug），模型无需也不应自行实现。
-- 交付层仅 archive.md、cases.xmind、metadata.yaml、manifest.json 四件落 feature 根；source-snapshot.json、coverage-matrix.json 及过程/证据产物一律落 .process/。产物清单以 .agents/contracts/output-artifacts.md 与 rules/case-qa.md 为准。
+- 交付层仅 archive.md、cases.xmind、metadata.yaml、manifest.json 四件落 feature 根；source-snapshot.json、coverage-matrix.json 及过程/证据产物一律落 .process/。产物清单以 .claude/contracts/output-artifacts.md 与 rules/case-qa.md 为准。
 - 用例级节点格式与内容质量条款以 rules/case-qa.md 和 references/fewshots/case-format-sample.md 为准；证据底线：Lanhu 设计内容或相关源码读取失败时，用 ask_user 一次性批量索要缺口，不得凭历史/推断产出最终 archive.md/cases.xmind。
 - 用户明确给出或要求参考源码、平台 DOM/YAML、环境配置、截图中的表单控件时，这些证据必须进入 source-confirm / historical-context / case-draft 的必读证据；生成表单类用例前必须先建立“表单字段基线”，不得在步骤中写入源码、DOM/YAML 或截图不存在的字段、选项、按钮或配置项。证据不可读时必须阻塞，不得用历史用例、few-shot 或模板补齐。

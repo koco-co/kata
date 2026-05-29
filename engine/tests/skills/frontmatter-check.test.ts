@@ -13,13 +13,20 @@ const CLAUDE_FIELDS = [
   "when_to_use",
   "user-invocable",
   "disable-model-invocation",
+  "argument-hint",
   "model",
   "effort",
   "paths",
   "context",
   "agent",
 ];
-const CODEX_FIELDS = ["name", "description", "allowed-tools"];
+const CODEX_FIELDS = [
+  "name",
+  "description",
+  "allowed-tools",
+  "when_to_use",
+  "disable-model-invocation",
+];
 
 describe("skill frontmatter policy", () => {
   test("Claude skill frontmatter whitelist includes native skill fields", () => {
@@ -45,10 +52,30 @@ describe("skill frontmatter policy", () => {
       findUnsupportedFrontmatterFields("claude", {
         name: "demo",
         description: "Demo skill",
-        "argument-hint": "FILE",
         arguments: true,
       }),
-    ).toEqual(["argument-hint", "arguments"]);
+    ).toEqual(["arguments"]);
+  });
+
+  test("Claude allowlist accepts argument-hint", () => {
+    expect(
+      findUnsupportedFrontmatterFields("claude", {
+        name: "demo",
+        description: "Demo",
+        "argument-hint": "<file>",
+      }),
+    ).toEqual([]);
+  });
+
+  test("Codex allowlist accepts when_to_use and disable-model-invocation", () => {
+    expect(
+      findUnsupportedFrontmatterFields("codex", {
+        name: "demo",
+        description: "Demo",
+        when_to_use: "after probe",
+        "disable-model-invocation": true,
+      }),
+    ).toEqual([]);
   });
 
   test("allows user-invocable and disable-model-invocation in Claude SKILL.md", () => {
@@ -88,7 +115,7 @@ describe("skill frontmatter policy", () => {
     ).toEqual(["hooks"]);
   });
 
-  test("allows Claude when_to_use but rejects it for Codex", () => {
+  test("allows when_to_use on both Claude and Codex", () => {
     expect(
       findUnsupportedFrontmatterFields("claude", {
         name: "demo",
@@ -100,9 +127,9 @@ describe("skill frontmatter policy", () => {
       findUnsupportedFrontmatterFields("codex", {
         name: "demo",
         description: "Demo skill",
-        when_to_use: "Invalid on Codex.",
+        when_to_use: "Use when the task needs this skill.",
       }),
-    ).toEqual(["when_to_use"]);
+    ).toEqual([]);
   });
 
   test("allows allowed-tools for both runtimes", () => {

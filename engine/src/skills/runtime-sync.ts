@@ -16,10 +16,7 @@ export type RuntimeSkillViolationRule =
   | "DECORATIVE_CONTRACT_SECTION"
   | "CODEX_OPENAI_CONFIG_MISSING"
   | "CODEX_OPENAI_CONFIG_PARSE_ERROR"
-  | "CODEX_OPENAI_CONFIG_INVALID"
-  | "RUNTIME_SYNC_EXCEPTION_MISSING"
-  | "RUNTIME_SYNC_EXCEPTION_PARSE_ERROR"
-  | "RUNTIME_SYNC_EXCEPTION_INVALID";
+  | "CODEX_OPENAI_CONFIG_INVALID";
 
 export type RuntimeSkillViolation = {
   rule: RuntimeSkillViolationRule;
@@ -34,14 +31,6 @@ export type RuntimeSkillSyncReport = {
   violations: RuntimeSkillViolation[];
 };
 
-export type RuntimeSyncExceptionEntry = {
-  skill: string;
-  side: SkillRuntime;
-  file: string;
-  reason: string;
-  reviewer: "required-before-merge";
-};
-
 type RuntimeSkillRecord = {
   dirName: string;
 };
@@ -50,25 +39,6 @@ const RUNTIME_DIRS: Record<SkillRuntime, ".claude" | ".agents"> = {
   claude: ".claude",
   codex: ".agents",
 };
-
-const EXCEPTIONS_PATH = ".claude/contracts/runtime-sync-exceptions.yaml";
-
-const BLOCKED_REASON_PATTERNS = [
-  /\buser\b/i,
-  /\bsemantic/i,
-  /\bbehaviou?r/i,
-  /\boutput\b/i,
-  /\bartifact/i,
-  /\bproduct\b/i,
-  /\bverification\b/i,
-  /\bvalidation\b/i,
-  /\bscope\b/i,
-  /\bdelivery\b/i,
-  /交付/,
-  /产物/,
-  /验证/,
-  /语义/,
-];
 
 const DECORATIVE_CONTRACT_PATTERNS = [
   /^## 输出$/m,
@@ -92,10 +62,9 @@ const DECORATIVE_CONTRACT_PATTERNS = [
 
 export function checkRuntimeSkillSync(root: string): RuntimeSkillSyncReport {
   const violations: RuntimeSkillViolation[] = [];
-  const exceptions = readRuntimeSyncExceptions(root, violations);
   const records: Record<SkillRuntime, RuntimeSkillRecord[]> = {
-    claude: readRuntimeSkills(root, "claude", violations, exceptions),
-    codex: readRuntimeSkills(root, "codex", violations, exceptions),
+    claude: readRuntimeSkills(root, "claude", violations),
+    codex: readRuntimeSkills(root, "codex", violations),
   };
 
   const claudeNames = new Set(records.claude.map((record) => record.dirName));
@@ -132,14 +101,14 @@ function readRuntimeSkills(
   root: string,
   side: SkillRuntime,
   violations: RuntimeSkillViolation[],
-  exceptions: RuntimeSyncExceptionEntry[],
 ): RuntimeSkillRecord[] {
   const skillsRoot = join(root, RUNTIME_DIRS[side], "skills");
   if (!existsSync(skillsRoot)) return [];
 
+  // 过滤 `_` 前缀目录（如 `_shared/`），它们是聚合资源目录，不是 skill
   return readdirSync(skillsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => readRuntimeSkill(root, side, entry.name, violations, exceptions));
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"))
+    .map((entry) => readRuntimeSkill(root, side, entry.name, violations));
 }
 
 function readRuntimeSkill(
@@ -147,7 +116,6 @@ function readRuntimeSkill(
   side: SkillRuntime,
   dirName: string,
   violations: RuntimeSkillViolation[],
-  exceptions: RuntimeSyncExceptionEntry[],
 ): RuntimeSkillRecord {
   const skillPath = join(root, RUNTIME_DIRS[side], "skills", dirName, "SKILL.md");
   const displayPath = relative(root, skillPath);
@@ -170,7 +138,7 @@ function readRuntimeSkill(
 
   validateSkillFrontmatter(side, dirName, displayPath, parsed, violations);
   validateNoDecorativeContractSections(side, dirName, displayPath, parsed.content, violations);
-  if (side === "codex") checkCodexOpenAiConfig(root, dirName, violations, exceptions);
+  if (side === "codex") checkCodexOpenAiConfig(root, dirName, violations);
   return record;
 }
 
@@ -298,11 +266,9 @@ function checkCodexOpenAiConfig(
   root: string,
   dirName: string,
   violations: RuntimeSkillViolation[],
-  exceptions: RuntimeSyncExceptionEntry[],
 ): void {
   const configPath = join(root, ".agents", "skills", dirName, "agents", "openai.yaml");
   const displayPath = relative(root, configPath);
-  if (hasRuntimeSyncException(exceptions, dirName, "codex", displayPath)) return;
 
   if (!existsSync(configPath)) {
     pushRuntimeViolation(
@@ -369,123 +335,6 @@ function validateCodexOpenAiPolicy(
   }
 }
 
-function readRuntimeSyncExceptions(
-  root: string,
-  violations: RuntimeSkillViolation[],
-): RuntimeSyncExceptionEntry[] {
-  const path = join(root, EXCEPTIONS_PATH);
-  if (!existsSync(path)) {
-    pushRuntimeViolation(
-      violations,
-      "RUNTIME_SYNC_EXCEPTION_MISSING",
-      undefined,
-      "*",
-      EXCEPTIONS_PATH,
-      "runtime sync exceptions file is required",
-    );
-    return [];
-  }
-
-  const displayPath = relative(root, path);
-  const parsed = readRuntimeSyncExceptionYaml(path, displayPath, violations);
-  if (parsed === undefined) return [];
-
-  const exceptions = readRuntimeSyncExceptionArray(parsed, displayPath, violations);
-  if (!exceptions) return [];
-
-  return collectValidRuntimeSyncExceptions(exceptions, displayPath, violations);
-}
-
-function readRuntimeSyncExceptionYaml(
-  path: string,
-  displayPath: string,
-  violations: RuntimeSkillViolation[],
-): unknown {
-  try {
-    return YAML.parse(readFileSync(path, "utf8"));
-  } catch (error) {
-    pushRuntimeViolation(
-      violations,
-      "RUNTIME_SYNC_EXCEPTION_PARSE_ERROR",
-      undefined,
-      "*",
-      displayPath,
-      `failed to parse runtime sync exceptions: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
-    );
-  }
-}
-
-function readRuntimeSyncExceptionArray(
-  parsed: unknown,
-  displayPath: string,
-  violations: RuntimeSkillViolation[],
-): unknown[] | undefined {
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    pushRuntimeViolation(
-      violations,
-      "RUNTIME_SYNC_EXCEPTION_INVALID",
-      undefined,
-      "*",
-      displayPath,
-      "exceptions file must be an object",
-    );
-    return;
-  }
-
-  const exceptions = (parsed as { exceptions?: unknown }).exceptions;
-  if (Array.isArray(exceptions)) return exceptions;
-
-  pushRuntimeViolation(
-    violations,
-    "RUNTIME_SYNC_EXCEPTION_INVALID",
-    undefined,
-    "*",
-    displayPath,
-    "exceptions must be an array",
-  );
-}
-
-function collectValidRuntimeSyncExceptions(
-  exceptions: unknown[],
-  displayPath: string,
-  violations: RuntimeSkillViolation[],
-): RuntimeSyncExceptionEntry[] {
-  const validEntries: RuntimeSyncExceptionEntry[] = [];
-  exceptions.forEach((entry, index) => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-      pushRuntimeViolation(
-        violations,
-        "RUNTIME_SYNC_EXCEPTION_INVALID",
-        undefined,
-        "*",
-        displayPath,
-        `exceptions[${index}] must be an object`,
-      );
-      return;
-    }
-
-    const candidate = entry as Partial<Record<keyof RuntimeSyncExceptionEntry, unknown>>;
-    const errors = validateExceptionEntry(candidate);
-    for (const error of errors) {
-      pushRuntimeViolation(
-        violations,
-        "RUNTIME_SYNC_EXCEPTION_INVALID",
-        undefined,
-        String((entry as { skill?: unknown }).skill ?? "*"),
-        displayPath,
-        `exceptions[${index}] ${error}`,
-      );
-    }
-    if (errors.length === 0) {
-      validEntries.push(candidate as RuntimeSyncExceptionEntry);
-    }
-  });
-
-  return validEntries;
-}
-
 function pushRuntimeViolation(
   violations: RuntimeSkillViolation[],
   rule: RuntimeSkillViolationRule,
@@ -495,51 +344,6 @@ function pushRuntimeViolation(
   message: string,
 ): void {
   violations.push({ rule, side, skill, path, message });
-}
-
-// Exported now so Phase 2 can wire exception validation into the repository check.
-export function validateExceptionEntry(
-  entry: Partial<Record<keyof RuntimeSyncExceptionEntry, unknown>>,
-): string[] {
-  const errors: string[] = [];
-
-  if (!isPresentString(entry.skill)) errors.push("skill is required");
-  if (!isPresentString(entry.side)) errors.push("side is required");
-  if (!isPresentString(entry.file)) errors.push("file is required");
-  if (!isPresentString(entry.reason)) errors.push("reason is required");
-  if (!isPresentString(entry.reviewer)) errors.push("reviewer is required");
-
-  if (isPresentString(entry.side) && entry.side !== "claude" && entry.side !== "codex") {
-    errors.push("side must be claude or codex");
-  }
-
-  if (isPresentString(entry.reviewer) && entry.reviewer !== "required-before-merge") {
-    errors.push("reviewer must be required-before-merge");
-  }
-
-  if (
-    isPresentString(entry.reason) &&
-    BLOCKED_REASON_PATTERNS.some((pattern) => pattern.test(entry.reason))
-  ) {
-    errors.push("reason cannot waive user semantics, output artifacts, or verification scope");
-  }
-
-  return errors;
-}
-
-function isPresentString(value: unknown): value is string {
-  return typeof value === "string" && value.trim() !== "";
-}
-
-function hasRuntimeSyncException(
-  exceptions: RuntimeSyncExceptionEntry[],
-  skill: string,
-  side: SkillRuntime,
-  file: string,
-): boolean {
-  return exceptions.some(
-    (entry) => entry.skill === skill && entry.side === side && entry.file === file,
-  );
 }
 
 export function formatRuntimeSkillSyncReport(report: RuntimeSkillSyncReport, root: string): string {

@@ -8,7 +8,6 @@ test("kata skills sync-check runs all configured checks against the repository",
   expect(result.status).toBe(0);
   expect(output).toContain("runtime skill sync");
   expect(output).toContain("runtime detach");
-  expect(output).toContain("route check");
-  expect(output).toContain("skill graph check");
+  expect(output).toContain("skill manifest check");
   expect(output).toContain("workflow check");
 });

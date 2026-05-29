@@ -1,7 +1,9 @@
+// Phase 1: catalog reads .claude single-source via compat-shim backed by skill-manifest.yaml.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
-import YAML, { parseDocument } from "yaml";
+import { parseDocument } from "yaml";
 import type { SkillSummary } from "../types.ts";
+import { readClaudeSkillContracts, type SkillContractsRead } from "./compat-shim.ts";
 
 interface YamlParseIssue {
   readonly message: string;
@@ -12,17 +14,12 @@ interface RuntimeSkillDoc {
   readonly description: string | null;
 }
 
-interface SkillContracts {
-  readonly graph: Record<string, { consumes?: unknown; produces?: unknown }>;
-  readonly routesRoot: string;
-}
-
 function skillsRoot(): string {
-  return join(currentRepoRoot(), ".agents/skills");
+  return join(currentRepoRoot(), ".claude/skills");
 }
 
 function contractsRoot(): string {
-  return join(currentRepoRoot(), ".agents/contracts");
+  return join(currentRepoRoot(), ".claude/contracts");
 }
 
 function currentRepoRoot(): string {
@@ -35,10 +32,6 @@ function currentRepoRoot(): string {
     if (parent === current) return resolve(process.cwd());
     current = parent;
   }
-}
-
-function asStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
 function skillId(value: unknown): string {
@@ -84,53 +77,23 @@ function readRuntimeSkill(path: string): RuntimeSkillDoc {
   }
 }
 
-function readContracts(root: string): SkillContracts {
-  return {
-    graph: readSkillGraph(join(root, "skill-graph.yaml")),
-    routesRoot: join(root, "routes"),
+function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContractsRead): SkillSummary {
+  const entry = contracts.entries[id] ?? {
+    consumes: [],
+    produces: [],
+    mustTriggerWhen: [],
+    mustNotTriggerWhen: [],
   };
-}
-
-function readSkillGraph(path: string): Record<string, { consumes?: unknown; produces?: unknown }> {
-  if (!existsSync(path)) return {};
-  const parsed = YAML.parse(readFileSync(path, "utf-8"));
-  const skills =
-    parsed && typeof parsed === "object" && !Array.isArray(parsed)
-      ? (parsed as { skills?: unknown }).skills
-      : undefined;
-  return skills && typeof skills === "object" && !Array.isArray(skills)
-    ? (skills as Record<string, { consumes?: unknown; produces?: unknown }>)
-    : {};
-}
-
-function readRouteLists(
-  routesRoot: string,
-  id: string,
-): Pick<SkillSummary, "mustTriggerWhen" | "mustNotTriggerWhen"> {
-  const path = join(routesRoot, `${id}.yaml`);
-  if (!existsSync(path)) return { mustTriggerWhen: [], mustNotTriggerWhen: [] };
-  const parsed = YAML.parse(readFileSync(path, "utf-8"));
-  return {
-    mustTriggerWhen: asStringArray((parsed as { should_trigger?: unknown })?.should_trigger),
-    mustNotTriggerWhen: asStringArray(
-      (parsed as { should_not_trigger?: unknown })?.should_not_trigger,
-    ),
-  };
-}
-
-function toSummary(id: string, doc: RuntimeSkillDoc, contracts: SkillContracts): SkillSummary {
-  const route = readRouteLists(contracts.routesRoot, id);
-  const graphEntry = contracts.graph[id] ?? {};
   return {
     id,
     name: doc.name,
     kind: "runtime-skill",
     status: "active",
     summary: doc.description,
-    mustTriggerWhen: route.mustTriggerWhen,
-    mustNotTriggerWhen: route.mustNotTriggerWhen,
-    inputs: asStringArray(graphEntry.consumes),
-    outputs: asStringArray(graphEntry.produces),
+    mustTriggerWhen: entry.mustTriggerWhen,
+    mustNotTriggerWhen: entry.mustNotTriggerWhen,
+    inputs: entry.consumes,
+    outputs: entry.produces,
   };
 }
 
@@ -140,10 +103,13 @@ export function listSkills(): SkillSummary[] {
 
 export function listSkillsFromRoot(root: string, contractRoot = ""): SkillSummary[] {
   if (!existsSync(root)) return [];
-  const contracts = contractRoot ? readContracts(contractRoot) : { graph: {}, routesRoot: "" };
+  const contracts: SkillContractsRead = contractRoot
+    ? readClaudeSkillContracts(contractRoot)
+    : { entries: {} };
   const ids = new Set<string>();
+  // 过滤 `_` 前缀目录（如 `_shared/`），它们是聚合资源目录，不是 skill
   const skills = readdirSync(root)
-    .filter((name) => statSync(join(root, name)).isDirectory())
+    .filter((name) => !name.startsWith("_") && statSync(join(root, name)).isDirectory())
     .map((name) => join(root, name, "SKILL.md"))
     .filter((path) => existsSync(path))
     .map((path) => {

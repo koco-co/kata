@@ -1,128 +1,69 @@
-# 注：本 workflow 各 step 的 references 字段仅列入 SKILL.md 作为入口锚点；
-# 完整的「按需加载」reference 文件清单维护在两份 SKILL.md 的「按需加载协议」段。
-# 如果将来要在 yaml 里完整化 references，必须同步更新 SKILL.md 表与 workflow-check 校验逻辑。
+# spec §6.8 终稿；v2 schema 由 engine/src/skills/workflow-schema.ts 校验。
+#
+# 5-phase 结构与 spec §6.8 一致；spec §6.7 的「§2-atomize」phase
+# 在本 workflow 内被 fuse 进 case-draft step：worker 一次产出 atoms + draft_archive，
+# 因此 case-draft step 显式声明 blackboard_outputs=[atoms, draft_archive]
+# 让 atoms 仍可被下游或 review 链消费。其余字段（model、effort、validators、
+# failure_modes、artifact_kinds_produced 包含 metadata）逐字对齐 spec §6.8。
 name: case-draft
-version: 1
-entry: /case-draft
-description: 根据 PRD、Lanhu、Axure 或功能描述生成 QA 用例的完整流程；本 yaml 是该 workflow 的唯一规范源。
+version: 2
+default_dispatch: inline
+default_model: sonnet
+default_effort: high
+
+metadata:
+  event_kinds_emitted:
+    - phase_entered
+    - phase_exited
+    - decision_made
+    - artifact_written
+    - validator_failed
+    - blocked
+    - handoff_emitted
+  artifact_kinds_produced:
+    - archive
+    - xmind
+    - metadata
+    - manifest
+
 steps:
   - id: source-intake
-    next: [module-identify]
-    blackboard_inputs: []
-    blackboard_outputs: [sources, source_refs]
-    references:
-      - .claude/skills/case-draft/SKILL.md
-      - .agents/skills/case-draft/SKILL.md
-    failure_modes:
-      - SOURCE_FETCH_BLOCKED
-      - LANHU_AUTH_REQUIRED
-    human_gates: []
-    verification: [sources_and_source_refs_recorded]
-  - id: module-identify
-    next: [source-confirm]
-    blackboard_inputs: [sources, source_refs]
-    blackboard_outputs: [decisions]
-    references: []
-    failure_modes:
-      - MODULE_AMBIGUOUS
-    human_gates: []
-    verification: [project_module_decision_recorded]
-  - id: source-confirm
-    next: [historical-context]
-    blackboard_inputs: [sources, decisions]
-    blackboard_outputs: [open_questions]
-    references: []
-    failure_modes: []
-    human_gates:
-      - ambiguous_source_requires_user_confirmation
-    verification: [source_confirmation_questions_recorded]
-  - id: historical-context
-    next: [requirement-atomize]
-    blackboard_inputs: [sources, decisions]
-    blackboard_outputs: [decisions]
-    references: []
-    failure_modes: []
-    human_gates: []
-    verification: [historical_evidence_boundaries_recorded]
-  - id: requirement-atomize
-    next: [ambiguity-scan]
-    blackboard_inputs: [sources, decisions]
-    blackboard_outputs: [decisions]
-    references:
-      - references/worker-prompt.md
-    failure_modes: []
-    human_gates: []
-    verification: [requirement_atoms_have_source_refs]
-  - id: ambiguity-scan
-    next: [confirmation-package]
-    blackboard_inputs: [decisions]
-    blackboard_outputs: [open_questions]
-    references: []
-    failure_modes: []
-    human_gates: []
-    verification: [ambiguities_classified]
-  - id: confirmation-package
-    next: [product-feedback-merge]
-    blackboard_inputs: [open_questions]
-    blackboard_outputs: [open_questions]
-    references: []
-    failure_modes: []
-    human_gates:
-      - confirmation_package_requires_user_decision
-    verification: [blocking_questions_packaged]
-  - id: product-feedback-merge
-    next: [coverage-matrix]
-    blackboard_inputs: [open_questions, decisions]
-    blackboard_outputs: [decisions]
-    references: []
-    failure_modes: []
-    human_gates: []
-    verification: [feedback_merge_scope_recorded]
-  - id: coverage-matrix
-    next: [case-draft]
-    blackboard_inputs: [decisions]
-    blackboard_outputs: [coverage]
-    references: []
-    failure_modes: []
-    human_gates: []
-    verification: [coverage_matrix_links_requirement_atoms]
+    dispatch: inline
+    blackboard_inputs: [user_input]
+    blackboard_outputs: [source_refs]
+    failure_modes: [missing_source, unauthorized]
+
   - id: case-draft
-    next: [case-review]
-    blackboard_inputs: [decisions, coverage, source_refs]
-    blackboard_outputs: [artifacts]
-    references:
-      - references/spec-reviewer-prompt.md
-      - references/quality-reviewer-prompt.md
-      - references/worker-prompt.md
-      - references/fewshots/case-format-sample.md
-      - references/fewshots/case-format-sample.xmind.md
-    failure_modes: []
-    human_gates: []
-    verification: [draft_artifacts_have_case_ids_and_atom_links]
-  - id: case-review
-    next: [output]
-    blackboard_inputs: [artifacts, coverage]
-    blackboard_outputs: [open_questions, verification]
-    references:
-      - references/spec-reviewer-prompt.md
-      - references/quality-reviewer-prompt.md
-    failure_modes: []
-    human_gates: []
-    verification: [review_gates_recorded]
+    dispatch: subagent
+    model: sonnet
+    effort: high
+    workers: [case-worker]
+    blackboard_inputs: [source_refs]
+    blackboard_outputs: [atoms, draft_archive]
+    failure_modes: [worker_timeout, schema_mismatch]
+
+  - id: spec-review
+    dispatch: subagent
+    model: haiku
+    effort: low
+    reviewers: [spec-reviewer]
+    blackboard_inputs: [draft_archive]
+    blackboard_outputs: [spec_verdict, spec_violations]
+    validators: [archive-schema]
+    failure_modes: [verdict_invalid]
+
+  - id: quality-review
+    dispatch: subagent
+    model: sonnet
+    effort: medium
+    reviewers: [quality-reviewer]
+    blackboard_inputs: [draft_archive, spec_verdict]
+    blackboard_outputs: [quality_verdict, quality_violations]
+    failure_modes: [coverage_gap]
+
   - id: output
-    next: [automation-handoff]
-    blackboard_inputs: [artifacts, verification]
-    blackboard_outputs: [artifacts]
-    references:
-      - .claude/contracts/output-artifacts.md
-      - references/quality-reviewer-prompt.md
-    failure_modes: []
-    human_gates: []
-    verification: [deliverable_files_verified]
-  - id: automation-handoff
-    blackboard_inputs: [artifacts]
-    blackboard_outputs: [handoff]
-    references: []
-    failure_modes: []
-    human_gates: []
-    verification: [automation_intents_filtered]
+    dispatch: inline
+    blackboard_inputs: [draft_archive, spec_verdict, quality_verdict]
+    blackboard_outputs: [archive_path, xmind_path, manifest_path]
+    validators: [archive-format, xmind-mapping, manifest-required]
+    failure_modes: [io_error, validator_failed]

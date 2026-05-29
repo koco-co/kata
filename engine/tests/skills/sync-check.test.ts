@@ -6,7 +6,6 @@ import { join } from "node:path";
 import {
   checkRuntimeSkillSync,
   formatRuntimeSkillSyncReport,
-  validateExceptionEntry,
 } from "../../src/skills/runtime-sync.ts";
 
 const tempRoots: string[] = [];
@@ -20,9 +19,6 @@ afterEach(() => {
 function makeRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-runtime-sync-"));
   tempRoots.push(root);
-  const contractsDir = join(root, ".claude", "contracts");
-  mkdirSync(contractsDir, { recursive: true });
-  writeFileSync(join(contractsDir, "runtime-sync-exceptions.yaml"), "exceptions: []\n");
   return root;
 }
 
@@ -44,6 +40,21 @@ function writeCodexOpenAi(root: string, name: string, body?: string): void {
 }
 
 describe("runtime skill sync check", () => {
+  test("checkRuntimeSkillSync passes even without runtime-sync-exceptions.yaml", () => {
+    // makeRoot 不写 runtime-sync-exceptions.yaml；这里也不补写，验证 sync-check
+    // 不再依赖该 yaml。
+    const root = makeRoot();
+    const skill = `---\nname: case-draft\ndescription: gen\n---\n`;
+    writeSkill(root, ".claude", "case-draft", skill);
+    writeSkill(root, ".agents", "case-draft", skill);
+    writeCodexOpenAi(root, "case-draft");
+
+    const report = checkRuntimeSkillSync(root);
+
+    expect(report.passed).toBe(true);
+    expect(report.violations).toEqual([]);
+  });
+
   test("passes when Claude and Codex skill names match and both allow allowed-tools", () => {
     const root = makeRoot();
     const skill = `---
@@ -104,7 +115,10 @@ description: d
     );
   });
 
-  test("allows Claude when_to_use but rejects it on Codex SKILL.md", () => {
+  // WHY: Codex frontmatter allowlist now permits `when_to_use` per
+  // engine/src/skills/frontmatter-policy.ts; replaces the previous
+  // "rejects on Codex" expectation.
+  test("allows when_to_use on both Claude and Codex SKILL.md", () => {
     const root = makeRoot();
 
     writeSkill(
@@ -127,7 +141,7 @@ when_to_use: use when editing existing test artifacts
       `---
 name: case-edit
 description: d
-when_to_use: invalid on Codex
+when_to_use: use when editing existing test artifacts
 ---
 
 # case-edit
@@ -137,18 +151,9 @@ when_to_use: invalid on Codex
 
     const report = checkRuntimeSkillSync(root);
 
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "UNSUPPORTED_FRONTMATTER",
-        side: "codex",
-        path: ".agents/skills/case-edit/SKILL.md",
-        message: "unsupported frontmatter fields: when_to_use",
-      }),
-    );
     expect(report.violations).not.toContainEqual(
       expect.objectContaining({
         rule: "UNSUPPORTED_FRONTMATTER",
-        side: "claude",
       }),
     );
   });
@@ -386,6 +391,25 @@ description: Demo skill
     );
   });
 
+  test("_shared directory in .claude/skills is not treated as a skill", () => {
+    const root = makeRoot();
+    // 写一个 `_shared/case-qa.md`，模拟跨 skill 共享资源目录
+    const sharedDir = join(root, ".claude/skills/_shared");
+    mkdirSync(sharedDir, { recursive: true });
+    writeFileSync(join(sharedDir, "case-qa.md"), "shared rules");
+
+    // 写一个真实 skill，确保 sync-check 不会因 `_shared` 缺 SKILL.md 报错
+    const skill = `---\nname: case-draft\ndescription: gen\n---\n`;
+    writeSkill(root, ".claude", "case-draft", skill);
+    writeSkill(root, ".agents", "case-draft", skill);
+    writeCodexOpenAi(root, "case-draft");
+
+    const report = checkRuntimeSkillSync(root);
+
+    expect(report.passed).toBe(true);
+    expect(report.violations.find((v) => v.skill === "_shared")).toBeUndefined();
+  });
+
   test("reports SKILL_DESCRIPTION_MISSING when description is absent", () => {
     const root = makeRoot();
     const skill = `---
@@ -416,125 +440,5 @@ name: demo
         message: "frontmatter description is required",
       }),
     );
-  });
-
-  test("validates runtime-sync-exceptions.yaml when present", () => {
-    const root = makeRoot();
-    const contractsDir = join(root, ".claude", "contracts");
-    mkdirSync(contractsDir, { recursive: true });
-    writeFileSync(
-      join(contractsDir, "runtime-sync-exceptions.yaml"),
-      `exceptions:
-  - skill: demo
-    side: codex
-    file: .agents/skills/demo/SKILL.md
-    reason: different output spec
-    reviewer: required-before-merge
-`,
-    );
-
-    const report = checkRuntimeSkillSync(root);
-
-    expect(report.passed).toBe(false);
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "RUNTIME_SYNC_EXCEPTION_INVALID",
-        path: ".claude/contracts/runtime-sync-exceptions.yaml",
-        message:
-          "exceptions[0] reason cannot waive user semantics, output artifacts, or verification scope",
-      }),
-    );
-  });
-
-  test("reports RUNTIME_SYNC_EXCEPTION_MISSING when exceptions file is absent", () => {
-    const root = makeRoot();
-    rmSync(join(root, ".claude", "contracts", "runtime-sync-exceptions.yaml"));
-
-    const report = checkRuntimeSkillSync(root);
-
-    expect(report.passed).toBe(false);
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "RUNTIME_SYNC_EXCEPTION_MISSING",
-        path: ".claude/contracts/runtime-sync-exceptions.yaml",
-        message: "runtime sync exceptions file is required",
-      }),
-    );
-  });
-
-  test("validateExceptionEntry checks required fields, side values, and reviewer values", () => {
-    expect(validateExceptionEntry({})).toEqual([
-      "skill is required",
-      "side is required",
-      "file is required",
-      "reason is required",
-      "reviewer is required",
-    ]);
-
-    expect(
-      validateExceptionEntry({
-        skill: "demo",
-        side: "other",
-        file: ".agents/skills/demo/SKILL.md",
-        reason: "temporary migration gap",
-        reviewer: "optional",
-      }),
-    ).toEqual(["side must be claude or codex", "reviewer must be required-before-merge"]);
-  });
-
-  test("validateExceptionEntry rejects reasons that describe user semantics or output differences", () => {
-    expect(
-      validateExceptionEntry({
-        skill: "demo",
-        side: "codex",
-        file: ".agents/skills/demo/SKILL.md",
-        reason: "different output spec",
-        reviewer: "required-before-merge",
-      }),
-    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
-  });
-
-  test("validateExceptionEntry rejects English reasons mentioning behaviour", () => {
-    expect(
-      validateExceptionEntry({
-        skill: "demo",
-        side: "codex",
-        file: ".agents/skills/demo/SKILL.md",
-        reason: "behaviour differs slightly",
-        reviewer: "required-before-merge",
-      }),
-    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
-  });
-
-  test("validateExceptionEntry rejects Chinese reasons about artifacts or verification", () => {
-    expect(
-      validateExceptionEntry({
-        skill: "demo",
-        side: "codex",
-        file: ".agents/skills/demo/SKILL.md",
-        reason: "产物不同",
-        reviewer: "required-before-merge",
-      }),
-    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
-
-    expect(
-      validateExceptionEntry({
-        skill: "demo",
-        side: "codex",
-        file: ".agents/skills/demo/SKILL.md",
-        reason: "验证口径差异",
-        reviewer: "required-before-merge",
-      }),
-    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
-
-    expect(
-      validateExceptionEntry({
-        skill: "demo",
-        side: "codex",
-        file: ".agents/skills/demo/SKILL.md",
-        reason: "语义不对齐",
-        reviewer: "required-before-merge",
-      }),
-    ).toContain("reason cannot waive user semantics, output artifacts, or verification scope");
   });
 });

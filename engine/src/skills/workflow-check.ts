@@ -2,6 +2,9 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseWorkflow, validateWorkflow, type Workflow } from "./workflow-schema.ts";
 
+/** Stderr-only marker for P1→P3 transition workflow contracts (skill dir not yet provisioned). */
+export const TRANSITION_PREFIX = "[transition]";
+
 export type WorkflowCheckRule =
   | "WORKFLOW_PARSE_ERROR"
   | "WORKFLOW_SCHEMA_ERROR"
@@ -35,7 +38,7 @@ export function checkWorkflows(root: string): WorkflowCheckReport {
 
   for (const entry of readdirSync(yamlDir, { withFileTypes: true })) {
     if (!entry.isFile() || !entry.name.endsWith(".yaml")) continue;
-    checkWorkflowFile(yamlDir, entry.name, violations);
+    checkWorkflowFile(yamlDir, entry.name, root, violations);
   }
 
   return { passed: violations.length === 0, violations };
@@ -44,13 +47,37 @@ export function checkWorkflows(root: string): WorkflowCheckReport {
 function checkWorkflowFile(
   yamlDir: string,
   fileName: string,
+  root: string,
   violations: WorkflowCheckViolation[],
 ): void {
   const yamlPath = join(yamlDir, fileName);
   const workflow = readWorkflowYaml(yamlPath, violations);
   if (!workflow) return;
 
-  validateWorkflowSchema(workflow, yamlPath, violations);
+  // 文件名 stem 必须与 workflow.name 一致，避免 manifest ↔ workflow ↔ skill 目录三方失同步
+  const stem = fileName.replace(/\.yaml$/, "");
+  if (workflow.name && workflow.name !== stem) {
+    pushWorkflowViolation(
+      violations,
+      "WORKFLOW_SCHEMA_ERROR",
+      yamlPath,
+      `filename stem '${stem}' must match workflow name '${workflow.name}'`,
+    );
+  }
+
+  validateWorkflowSchema(workflow, yamlPath, root, violations);
+  emitSkillDirTransitionWarning(workflow, yamlPath, root);
+}
+
+// P1 期间 workflow 可先于 SKILL.md 落地（P3 才补 .claude/skills/<id>/）。
+// 这里只 warn 不算 violation，让 sync-check 仍然 pass。
+function emitSkillDirTransitionWarning(workflow: Workflow, yamlPath: string, root: string): void {
+  if (!workflow.name) return;
+  const skillDir = join(root, ".claude/skills", workflow.name);
+  if (existsSync(skillDir)) return;
+  process.stderr.write(
+    `workflow ${yamlPath}: ${TRANSITION_PREFIX} workflow contract for skill '${workflow.name}' exists but .claude/skills/${workflow.name}/ is missing (P3 will populate)\n`,
+  );
 }
 
 function readWorkflowYaml(
@@ -72,9 +99,11 @@ function readWorkflowYaml(
 function validateWorkflowSchema(
   workflow: Workflow,
   yamlPath: string,
+  root: string,
   violations: WorkflowCheckViolation[],
 ): void {
-  for (const schemaError of validateWorkflow(workflow)) {
+  // v2 lint hard-on：所有 schema 校验失败统一作为 violation 上报，不再走 stderr 软警告
+  for (const schemaError of validateWorkflow(workflow, root)) {
     pushWorkflowViolation(violations, "WORKFLOW_SCHEMA_ERROR", yamlPath, schemaError);
   }
 }

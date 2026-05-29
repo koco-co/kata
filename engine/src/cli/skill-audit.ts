@@ -10,11 +10,23 @@ import {
 } from "../../lib/paths.ts";
 import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
 import { lintSkillShape } from "../lint/skill-shape.ts";
-import { checkRoutes, formatRouteCheckReport } from "../skills/route-check.ts";
+import { loadSkillManifest, validateManifestAgainstWorkflows } from "../skills/manifest-loader.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
-import { checkSkillGraph, formatSkillGraphCheckReport } from "../skills/skill-graph-check.ts";
 import { checkWorkflows, formatWorkflowCheckReport } from "../skills/workflow-check.ts";
+
+/**
+ * List skill directory names under `skillsRoot`, skipping `_`-prefixed aggregate
+ * directories (e.g. `_shared/`) the same way runtime-sync, manifest-repository,
+ * and apps/core/catalog enumerate skills. Returns `[]` when the root is absent.
+ */
+export function listSkillDirNames(skillsRoot: string): string[] {
+  if (!existsSync(skillsRoot)) return [];
+  // 过滤 `_` 前缀目录（如 `_shared/`），与 runtime-sync.ts / apps/core/catalog/skills.ts 一致
+  return readdirSync(skillsRoot).filter(
+    (f) => !f.startsWith("_") && statSync(join(skillsRoot, f)).isDirectory(),
+  );
+}
 
 export function buildSkillsCommand(): Command {
   const skills = new Command("skills").description("Skills 审查操作");
@@ -26,22 +38,47 @@ export function buildSkillsCommand(): Command {
       const root = repoRoot();
       const skillReport = checkRuntimeSkillSync(root);
       const detachReport = checkRuntimeDetach(root);
-      const routeReport = checkRoutes(root);
-      const graphReport = checkSkillGraph(root);
       const workflowReport = checkWorkflows(root);
+      const manifestLines: string[] = [];
+      let manifestPassed = true;
+      try {
+        loadSkillManifest(root);
+        manifestLines.push("skill manifest check passed");
+      } catch (error) {
+        manifestPassed = false;
+        const message = error instanceof Error ? error.message : String(error);
+        manifestLines.push("skill manifest check failed", `SKILL_MANIFEST_INVALID: ${message}`);
+      }
+      // 仅在 manifest 加载成功后才能比对 ↔ workflow；加载失败时不重复报错
+      let manifestWorkflowPassed = true;
+      const manifestWorkflowLines: string[] = [];
+      if (manifestPassed) {
+        const manifestWorkflowErrors = validateManifestAgainstWorkflows(root);
+        if (manifestWorkflowErrors.length === 0) {
+          manifestWorkflowLines.push("manifest ↔ workflow consistency passed");
+        } else {
+          manifestWorkflowPassed = false;
+          manifestWorkflowLines.push(
+            "manifest ↔ workflow consistency failed",
+            ...manifestWorkflowErrors,
+          );
+        }
+      }
       const passed =
         skillReport.passed &&
         detachReport.passed &&
-        routeReport.passed &&
-        graphReport.passed &&
+        manifestPassed &&
+        manifestWorkflowPassed &&
         workflowReport.passed;
       const text = [
         formatRuntimeSkillSyncReport(skillReport, root),
         formatRuntimeDetachReport(detachReport, root),
-        formatRouteCheckReport(routeReport, root),
-        formatSkillGraphCheckReport(graphReport, root),
+        manifestLines.join("\n"),
+        manifestWorkflowLines.join("\n"),
         formatWorkflowCheckReport(workflowReport, root),
-      ].join("\n");
+      ]
+        .filter((s) => s.length > 0)
+        .join("\n");
       if (passed) {
         console.log(text);
       } else {
@@ -64,9 +101,7 @@ export function buildSkillsCommand(): Command {
       for (const runtime of runtimes) {
         const skillsRoot = skillsDir(runtime);
         const agentsRoot = agentsDir(runtime);
-        const skills = existsSync(skillsRoot)
-          ? readdirSync(skillsRoot).filter((f) => statSync(join(skillsRoot, f)).isDirectory())
-          : [];
+        const skills = listSkillDirNames(skillsRoot);
         const knownSkillSet = new Set(skills);
 
         console.log(`\n== Skill shape (runtime=${runtime}, S1-S9) ==`);
