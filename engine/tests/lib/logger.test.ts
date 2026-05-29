@@ -6,7 +6,7 @@ afterEach(() => {
 
 describe("logger", () => {
   it("createLogger returns object with 4 methods", async () => {
-    const { createLogger } = await import("../../lib/logger.ts");
+    const { createLogger } = await import("@shared/lib/logger.ts");
     const log = createLogger("test");
     expect(typeof log.debug).toBe("function");
     expect(typeof log.info).toBe("function");
@@ -15,7 +15,7 @@ describe("logger", () => {
   });
 
   it("setLogLevel / getLogLevel roundtrip", async () => {
-    const { setLogLevel, getLogLevel } = await import("../../lib/logger.ts");
+    const { setLogLevel, getLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("error");
     expect(getLogLevel()).toBe("error");
     setLogLevel("debug");
@@ -24,7 +24,7 @@ describe("logger", () => {
   });
 
   it("initLogLevel applies LOG_LEVEL env var", async () => {
-    const { initLogLevel, getLogLevel, setLogLevel } = await import("../../lib/logger.ts");
+    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
     process.env.LOG_LEVEL = "error";
     initLogLevel();
@@ -33,7 +33,7 @@ describe("logger", () => {
   });
 
   it("initLogLevel with invalid value keeps current level", async () => {
-    const { initLogLevel, getLogLevel, setLogLevel } = await import("../../lib/logger.ts");
+    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
     process.env.LOG_LEVEL = "garbage";
     initLogLevel();
@@ -41,7 +41,7 @@ describe("logger", () => {
   });
 
   it("initLogLevel with LOG_LEVEL unset is a no-op", async () => {
-    const { initLogLevel, getLogLevel, setLogLevel } = await import("../../lib/logger.ts");
+    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("warn");
     delete process.env.LOG_LEVEL;
     initLogLevel();
@@ -50,7 +50,7 @@ describe("logger", () => {
   });
 
   it("initLogLevel is case-insensitive", async () => {
-    const { initLogLevel, getLogLevel, setLogLevel } = await import("../../lib/logger.ts");
+    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
     process.env.LOG_LEVEL = "DEBUG";
     initLogLevel();
@@ -60,7 +60,7 @@ describe("logger", () => {
 
   it("writes messages at or above the active level to stderr", async () => {
     const originalWrite = process.stderr.write;
-    const { createLogger, setLogLevel } = await import("../../lib/logger.ts");
+    const { createLogger, setLogLevel } = await import("@shared/lib/logger.ts");
     let stderr = "";
     process.stderr.write = ((chunk: string | Uint8Array) => {
       stderr += String(chunk);

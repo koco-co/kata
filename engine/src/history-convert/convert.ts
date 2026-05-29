@@ -9,7 +9,7 @@
 
 import { existsSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname } from "node:path";
-import { currentYYYYMM, featureDir, featureFile } from "../../lib/paths.ts";
+import { currentYYYYMM, featureDir, featureFile } from "@shared/lib/paths.ts";
 import { csvRowsToArchives, parseCsvFile, parseModulePath } from "./csv.ts";
 import { buildUniqueFeatureArchivePath, computeOutputDir } from "./paths.ts";
 import type { CsvRow, FileConvertResult } from "./types.ts";

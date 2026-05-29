@@ -6,7 +6,7 @@
  * Actions: read-core | read-module | read-pitfall | write | update | index | lint
  */
 
-import { createCli } from "../../lib/cli-runner.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 import {
   CONFIDENCE_LEVELS,
   ENTRY_TYPES,

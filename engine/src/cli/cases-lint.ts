@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, normalize, sep } from "node:path";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
-import { repoRoot } from "../../lib/paths.ts";
 import { lintArchiveCaseQa } from "../lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "../lint/case-traceability-header.ts";

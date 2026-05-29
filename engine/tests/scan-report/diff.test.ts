@@ -3,7 +3,7 @@ import { execSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { computeDiffStats, fetchAndDiff, resolveCommit } from "../../lib/scan-report-diff.ts";
+import { computeDiffStats, fetchAndDiff, resolveCommit } from "@shared/lib/scan-report-diff.ts";
 
 let REPO = "";
 

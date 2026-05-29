@@ -229,7 +229,7 @@ describe("plugin-loader.ts resolve", () => {
 
     expect(code).toBe(0);
     const result = JSON.parse(stdout) as { command: string };
-    expect(result.command).toContain("plugins/lanhu/fetch.ts");
+    expect(result.command).toContain(".claude/plugins/lanhu/fetch.ts");
     expect(result.command).toContain("--project 'auto'");
     expect(result.command).not.toContain("{{output_dir}}");
     expect(result.command).not.toContain("{{output}}");

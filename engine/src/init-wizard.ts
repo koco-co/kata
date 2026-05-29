@@ -10,8 +10,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { initEnv } from "@shared/lib/env.ts";
 import { Command } from "commander";
-import { initEnv } from "../lib/env.ts";
 
 // ---------------------------------------------------------------------------
 // Paths
@@ -80,7 +80,7 @@ function parseNodeMajor(version: string): number {
 }
 
 function scanPlugins(root: string): PluginStatus[] {
-  const pluginsPath = join(root, "plugins");
+  const pluginsPath = join(root, ".claude/plugins");
   if (!existsSync(pluginsPath)) return [];
 
   const results: PluginStatus[] = [];

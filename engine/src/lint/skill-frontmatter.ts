@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
+import type { AgentRuntime } from "@shared/lib/paths.ts";
 import matter from "gray-matter";
-import type { AgentRuntime } from "../../lib/paths.ts";
 import type { SkillReport, SkillViolation } from "./types.ts";
 
 const REF_LINK_REGEX_BY_RUNTIME: Record<AgentRuntime, RegExp> = {

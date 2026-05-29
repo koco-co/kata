@@ -11,6 +11,11 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "declaration": false,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["./.claude/scripts/_shared/*"]
+    },
+    "ignoreDeprecations": "6.0"
   }
 }

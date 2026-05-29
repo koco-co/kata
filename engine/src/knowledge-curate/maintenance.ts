@@ -15,7 +15,7 @@ import {
   lintChecks,
   parseContentJson,
   parseFrontmatter,
-} from "../../lib/knowledge.ts";
+} from "@shared/lib/knowledge.ts";
 import {
   appendAudit,
   buildAuditRecord,
@@ -26,8 +26,8 @@ import {
   readAuditLog,
   readSnapshot,
   saveSnapshot,
-} from "../../lib/knowledge-guard.ts";
-import { knowledgeDir, knowledgePath } from "../../lib/paths.ts";
+} from "@shared/lib/knowledge-guard.ts";
+import { knowledgeDir, knowledgePath } from "@shared/lib/paths.ts";
 import { writeIndexFile } from "./index-data.ts";
 
 export function runVerify(opts: { project: string; type: string; content: string }): void {

@@ -1,0 +1,4 @@
+#!/usr/bin/env bun
+// kata CLI 入口（组合根）。过渡期复用 engine 注册中心；
+// 命令模块随各 skill 迁移逐步移入 .claude/skills/<name>/scripts/ 与 @shared/cli/。
+await import("../../../../engine/src/cli/index.ts");

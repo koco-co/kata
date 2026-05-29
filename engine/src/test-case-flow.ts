@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import { outputJson } from "@shared/lib/cli.ts";
 import type { Command } from "commander";
-import { outputJson } from "../lib/cli.ts";
 import { resolveProject } from "./test-case-flow/project-resolver";
 import {
   checkResumeSession,

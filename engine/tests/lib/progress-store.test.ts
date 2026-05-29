@@ -22,8 +22,8 @@ import {
   updateTask,
   withSessionLock,
   writeSession,
-} from "../../lib/progress-store.ts";
-import type { Session } from "../../lib/progress-types.ts";
+} from "@shared/lib/progress-store.ts";
+import type { Session } from "@shared/lib/progress-types.ts";
 
 const TMP = join(tmpdir(), `progress-store-test-${process.pid}`);
 

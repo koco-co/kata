@@ -12,7 +12,7 @@ describe("P4-06 command execution hardening", () => {
   it("keeps scoped integration command runners off execSync shell strings", () => {
     const scopedFiles = [
       "tools/dtstack-sdk/src/adapters/execute-table.ts",
-      "plugins/lanhu/fetch.ts",
+      ".claude/plugins/lanhu/fetch.ts",
     ];
 
     for (const file of scopedFiles) {
@@ -21,7 +21,7 @@ describe("P4-06 command execution hardening", () => {
   });
 
   it("keeps Zentao plugin secret names aligned with current env names", () => {
-    const manifest = JSON.parse(readRepoFile("plugins/zentao/plugin.json")) as {
+    const manifest = JSON.parse(readRepoFile(".claude/plugins/zentao/plugin.json")) as {
       env_required: string[];
     };
 

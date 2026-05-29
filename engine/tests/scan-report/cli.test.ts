@@ -3,8 +3,8 @@ import { execSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { $ } from "bun";
-import { repoRoot } from "../../lib/paths.ts";
 
 const CLI = join(repoRoot(), "engine/src/scan-report.ts");
 

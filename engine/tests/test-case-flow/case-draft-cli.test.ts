@@ -40,7 +40,7 @@ describe("case-draft CLI entry", () => {
     expect(payload.source.kind).toBe("lanhu_url");
     expect(payload.plugin.matched).toBe(true);
     expect(payload.plugin.name).toBe("lanhu");
-    expect(payload.plugin.fetchCommand).toContain("plugins/lanhu/fetch.ts");
+    expect(payload.plugin.fetchCommand).toContain(".claude/plugins/lanhu/fetch.ts");
     expect(existsSync(join(cwd, ".kata", "sessions"))).toBe(false);
   });
 });

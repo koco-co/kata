@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { repoRoot } from "../../lib/paths.ts";
-import { renderScanReport } from "../../lib/scan-report-render.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
+import { renderScanReport } from "@shared/lib/scan-report-render.ts";
 
 describe("renderScanReport", () => {
   const fixturePath = join(repoRoot(), "engine/tests/fixtures/scan-report-sample.json");

@@ -16,9 +16,9 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
-import { errorExit, outputJson } from "../lib/cli.ts";
-import { createCli } from "../lib/cli-runner.ts";
-import { tempDir } from "../lib/paths.ts";
+import { errorExit, outputJson } from "@shared/lib/cli.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { tempDir } from "@shared/lib/paths.ts";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

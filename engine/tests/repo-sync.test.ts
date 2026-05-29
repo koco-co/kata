@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
-import { parseGitUrl } from "../lib/paths.ts";
+import { parseGitUrl } from "@shared/lib/paths.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
 

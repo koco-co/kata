@@ -1,10 +1,10 @@
-import type { CapabilityRequired } from "../plugins/sandbox/capability-spec.ts";
+import type { KataResult } from "@shared/lib/result-types.ts";
+import type { CapabilityRequired } from "@shared/plugin-runtime/sandbox/capability-spec.ts";
 import {
   checkFsAccess,
   checkNetworkAccess,
   parseCapabilityRequired,
-} from "../plugins/sandbox/capability-spec.ts";
-import type { KataResult } from "../result-types.ts";
+} from "@shared/plugin-runtime/sandbox/capability-spec.ts";
 
 export type SandboxIsolationPolicy = {
   pluginId: string;

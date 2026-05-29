@@ -7,8 +7,8 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import type { IntermediateJson, TestCase, TestStep } from "../lib/types.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import type { IntermediateJson, TestCase, TestStep } from "@shared/lib/types.ts";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

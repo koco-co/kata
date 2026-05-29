@@ -9,8 +9,8 @@
 
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { buildMarkdown, todayString } from "../../lib/frontmatter.ts";
-import { currentYYYYMM } from "../../lib/paths.ts";
+import { buildMarkdown, todayString } from "@shared/lib/frontmatter.ts";
+import { currentYYYYMM } from "@shared/lib/paths.ts";
 import { sanitizeFilename } from "./paths.ts";
 import { inferTags } from "./tags.ts";
 import type { CsvRow } from "./types.ts";

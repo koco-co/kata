@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { parseFrontMatter } from "../lib/frontmatter.ts";
+import { parseFrontMatter } from "@shared/lib/frontmatter.ts";
 import { KATA_CLI } from "./cli-runner.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");

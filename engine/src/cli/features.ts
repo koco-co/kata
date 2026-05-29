@@ -1,8 +1,8 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { outputJson } from "@shared/lib/cli.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
-import { outputJson } from "../../lib/cli.ts";
-import { repoRoot } from "../../lib/paths.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLint } from "./features-lint.ts";
 import { runFeaturesLs } from "./features-ls.ts";

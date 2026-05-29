@@ -9,9 +9,9 @@
 
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, resolve } from "node:path";
-import { createCli } from "../../lib/cli-runner.ts";
-import { buildMarkdown, todayString } from "../../lib/frontmatter.ts";
-import { repoRoot, validateFilePath } from "../../lib/paths.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { buildMarkdown, todayString } from "@shared/lib/frontmatter.ts";
+import { repoRoot, validateFilePath } from "@shared/lib/paths.ts";
 import {
   comparableVersionForRow,
   convertCsvRowsToResults,

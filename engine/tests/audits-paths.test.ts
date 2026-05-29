@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { auditDir, auditFile, repoRoot } from "../lib/paths.ts";
+import { auditDir, auditFile, repoRoot } from "@shared/lib/paths.ts";
 
 describe("audit paths", () => {
   test("auditDir resolves under workspace/{project}/audits/{ym}-{slug}", () => {

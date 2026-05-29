@@ -12,7 +12,7 @@ afterEach(() => {
 
 describe("cli output helpers", () => {
   it("writes pretty JSON plus a trailing newline to stdout", async () => {
-    const { outputJson } = await import("../../lib/cli.ts");
+    const { outputJson } = await import("@shared/lib/cli.ts");
     let stdout = "";
     process.stdout.write = ((chunk: string | Uint8Array) => {
       stdout += String(chunk);
@@ -25,7 +25,7 @@ describe("cli output helpers", () => {
   });
 
   it("writes errors to stderr and exits with the requested code", async () => {
-    const { errorExit } = await import("../../lib/cli.ts");
+    const { errorExit } = await import("@shared/lib/cli.ts");
     let stderr = "";
     let exitCode: string | number | null | undefined;
     process.stderr.write = ((chunk: string | Uint8Array) => {

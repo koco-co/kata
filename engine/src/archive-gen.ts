@@ -11,18 +11,18 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
-import Handlebars from "handlebars";
-import { createCli } from "../lib/cli-runner.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 import {
   buildMarkdown,
   type FrontMatter,
   parseFrontMatter,
   serializeFrontMatter,
   todayString,
-} from "../lib/frontmatter.ts";
-import { repoRoot, validateFilePath } from "../lib/paths.ts";
-import { buildRootName } from "../lib/rules.ts";
-import type { IntermediateJson, Meta, Module, TestCase } from "../lib/types.ts";
+} from "@shared/lib/frontmatter.ts";
+import { repoRoot, validateFilePath } from "@shared/lib/paths.ts";
+import { buildRootName } from "@shared/lib/rules.ts";
+import type { IntermediateJson, Meta, Module, TestCase } from "@shared/lib/types.ts";
+import Handlebars from "handlebars";
 
 interface ConvertResult {
   output_path: string;

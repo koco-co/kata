@@ -11,8 +11,8 @@ import {
   removeBug,
   setMeta,
   updateBugField,
-} from "../../lib/scan-report-store.ts";
-import type { AuditMeta, Bug } from "../../lib/scan-report-types.ts";
+} from "@shared/lib/scan-report-store.ts";
+import type { AuditMeta, Bug } from "@shared/lib/scan-report-types.ts";
 
 let WS = "";
 

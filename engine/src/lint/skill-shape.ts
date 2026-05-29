@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import type { AgentRuntime } from "@shared/lib/paths.ts";
 import matter from "gray-matter";
-import type { AgentRuntime } from "../../lib/paths.ts";
 import type { SkillReport, SkillViolation } from "./types.ts";
 
 const ALLOWED_TOP_LEVEL_FILES = new Set(["SKILL.md"]);

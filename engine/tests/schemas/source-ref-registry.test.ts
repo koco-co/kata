@@ -1,13 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import Ajv from "ajv";
 import { parse } from "yaml";
-import { contractPath } from "../../lib/paths.ts";
 
 const schema = JSON.parse(
-  readFileSync(contractPath("schemas", "SourceRefRegistry.v1.schema.json"), "utf-8"),
+  readFileSync(sharedSchemasPath("SourceRefRegistry.v1.schema.json"), "utf-8"),
 );
-const registry = parse(readFileSync(contractPath("schemas", "source-ref-registry.yaml"), "utf-8"));
+const registry = parse(readFileSync(sharedSchemasPath("source-ref-registry.yaml"), "utf-8"));
 const validate = new Ajv({ strict: false, validateSchema: false }).compile(schema);
 
 describe("SourceRefRegistry@1", () => {

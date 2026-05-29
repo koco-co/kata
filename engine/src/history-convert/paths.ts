@@ -9,7 +9,7 @@
 
 import { readdirSync, statSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
-import { featureFile, repoRoot } from "../../lib/paths.ts";
+import { featureFile, repoRoot } from "@shared/lib/paths.ts";
 import { parseTitleAndCaseId } from "./csv.ts";
 
 export function scanDirectory(dir: string, moduleFilter?: string): string[] {

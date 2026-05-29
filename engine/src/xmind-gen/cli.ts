@@ -19,9 +19,9 @@ import {
   writeFileSync,
 } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
-import { createCli } from "../../lib/cli-runner.ts";
-import { repoRoot, validateFilePath } from "../../lib/paths.ts";
-import type { IntermediateJson } from "../../lib/types.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { repoRoot, validateFilePath } from "@shared/lib/paths.ts";
+import type { IntermediateJson } from "@shared/lib/types.ts";
 import { archiveToJson } from "./archive.ts";
 import type { OutputResult, RenderOptions, WriteMode } from "./render.ts";
 import { buildL1Title, buildRootTitle, countCases, createXmind, validateInput } from "./render.ts";

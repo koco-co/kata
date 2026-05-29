@@ -11,9 +11,9 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import { getEnv } from "../lib/env.ts";
-import { parseGitUrl, repoRoot, reposDir } from "../lib/paths.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { getEnv } from "@shared/lib/env.ts";
+import { parseGitUrl, repoRoot, reposDir } from "@shared/lib/paths.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

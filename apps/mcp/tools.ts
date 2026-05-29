@@ -141,7 +141,7 @@ export const TOOLS: readonly ToolDef[] = [
   },
   {
     name: "kata_list_skills",
-    description: "List kata QA skills with routing inputs, outputs, and trigger conditions.",
+    description: "List kata QA skills (id, name, summary).",
     inputSchema: { type: "object", properties: {} },
     handler: () => listSkills(),
   },

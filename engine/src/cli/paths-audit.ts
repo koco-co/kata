@@ -1,5 +1,5 @@
+import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
-import { repoRoot } from "../../lib/paths.ts";
 import { lintPaths } from "../lint/path-treatment.ts";
 import type { PathViolation } from "../lint/types.ts";
 

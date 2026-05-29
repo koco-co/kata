@@ -7,9 +7,9 @@ import { spawnSync } from "node:child_process";
  */
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import { parseFrontMatter } from "../lib/frontmatter.ts";
-import { probeCachePath, repoRoot, reposDir } from "../lib/paths.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { parseFrontMatter } from "@shared/lib/frontmatter.ts";
+import { probeCachePath, repoRoot, reposDir } from "@shared/lib/paths.ts";
 import {
   type ArchiveSearchHit,
   buildCacheEntry,
@@ -25,7 +25,7 @@ import {
   type ProbeCacheEntry,
   type SignalProfile,
   type SourceAnalyzeOutput,
-} from "../lib/signal-probe.ts";
+} from "@shared/lib/signal-probe.ts";
 
 // ---------------------------------------------------------------------------
 // Sub-command invoker

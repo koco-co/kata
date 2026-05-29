@@ -11,10 +11,10 @@
  *   kata plugin-loader --help
  */
 
-import { createCli } from "../lib/cli-runner.ts";
-import { getEnv } from "../lib/env.ts";
-import { contractPluginsDir, pluginsDir } from "../lib/paths.ts";
-import { loadAllPlugins } from "../lib/plugin-utils.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { getEnv } from "@shared/lib/env.ts";
+import { contractPluginsDir, pluginsDir } from "@shared/lib/paths.ts";
+import { loadAllPlugins } from "@shared/lib/plugin-utils.ts";
 
 function shellEscape(value: string): string {
   return `'${value.replace(/'/g, "'\\''")}'`;

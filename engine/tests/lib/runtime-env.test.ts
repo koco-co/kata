@@ -3,7 +3,7 @@ import {
   parseAgentRuntimeSelector,
   requireConcreteAgentRuntime,
   resolveAgentRuntime,
-} from "../../lib/paths.ts";
+} from "@shared/lib/paths.ts";
 
 const OLD_ENV = process.env.KATA_AGENT_RUNTIME;
 

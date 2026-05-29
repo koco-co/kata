@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve, sep } from "node:path";
-import type { AgentRuntime } from "../../lib/paths.ts";
+import type { AgentRuntime } from "@shared/lib/paths.ts";
 import { auditAgentRuntimeDrift, type DriftPair } from "./agents-drift.ts";
 
 export type SyncActionKind = "create" | "overwrite" | "skip" | "conflict";

@@ -18,17 +18,20 @@
     "url": "https://github.com/koco-co/kata/issues"
   },
   "homepage": "https://github.com/koco-co/kata#readme",
+  "bin": {
+    "kata": ".claude/scripts/_shared/bin/kata"
+  },
   "scripts": {
     "mcp": "bun apps/mcp/server.ts",
     "test:apps": "bun test ./apps",
-    "test:plugins": "bun test ./plugins",
+    "test:plugins": "bun test ./.claude/plugins",
     "test:tools": "bun test --cwd tools/dtstack-sdk",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
-    "check:skills": "bun engine/bin/kata skills sync-check --exit-code",
-    "lint": "biome check engine/src engine/tests .claude/agents .claude/skills plugins tools rules",
+    "check:skills": "bun .claude/scripts/_shared/bin/kata skills sync-check --exit-code",
+    "lint": "biome check engine/src engine/tests .claude/agents .claude/skills .claude/plugins tools rules",
     "format": "biome check --fix .",
-    "lint:debris": "bun run scripts/lint/check-debug-files.ts && bun run scripts/lint/check-stale-paths.ts && bun run scripts/lint/check-runtime-artifacts.ts",
+    "lint:debris": "bun run .claude/scripts/lint/check-debug-files.ts && bun run .claude/scripts/lint/check-stale-paths.ts && bun run .claude/scripts/lint/check-runtime-artifacts.ts",
     "type-check": "tsc --noEmit",
     "ci": "bun run lint && bun run lint:debris && bun run lint:agents && bun run lint:paths && bun run check:skills && bun run lint:agents:codex && bun run lint:skills:codex && bun run type-check && bun run test && bun run test:apps && bun run test:plugins && bun run test:tools",
     "test": "bun test --cwd engine",
@@ -43,12 +46,18 @@
     "test:e2e:fixture": "bun test engine/tests/e2e/case-draft-e2e.test.ts engine/tests/e2e/runtime-invoke.test.ts"
   },
   "dependencies": {
-    "commander": "^13.1.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "commander": "^14.0.3",
     "exceljs": "^4.4.0",
+    "gray-matter": "^4.0.3",
+    "handlebars": "^4.7.9",
     "jszip": "^3.10.1",
     "nodemailer": "^8.0.7",
+    "pinyin-pro": "^3.28.1",
     "sharp": "^0.34.5",
-    "xmind-generator": "^1.0.1"
+    "xmind-generator": "^1.0.1",
+    "yaml": "^2.9.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",

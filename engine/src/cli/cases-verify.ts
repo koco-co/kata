@@ -1,5 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  type ConfirmedSourceRepo,
+  resolveSourceRefTarget,
+} from "@shared/lib/source-ref/resolve-target.ts";
 import type { Command } from "commander";
 import { extractCaseRecords } from "../cases/case-extract.ts";
 import {
@@ -13,7 +17,6 @@ import {
   verifyStableCoreArtifacts,
   verifyStructuredSchemas,
 } from "../cases/verify-layers.ts";
-import { type ConfirmedSourceRepo, resolveSourceRefTarget } from "../source-ref/resolve-target.ts";
 
 export interface CasesVerifyContext {
   project: string;

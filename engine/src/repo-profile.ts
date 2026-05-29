@@ -10,8 +10,8 @@
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { createCli } from "../lib/cli-runner.ts";
-import { repoRoot } from "../lib/paths.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

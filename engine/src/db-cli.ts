@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
+import { getDb } from "@shared/lib/client.ts";
+import { initDatabase } from "@shared/lib/init.ts";
 import { Command } from "commander";
-import { getDb } from "../lib/client.ts";
-import { initDatabase } from "../lib/init.ts";
 
 export const program = new Command("db").description("SQLite 数据库管理").showHelpAfterError();
 

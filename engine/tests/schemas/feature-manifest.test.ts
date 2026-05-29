@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
+import { sharedSchemasPath } from "@shared/lib/paths.ts";
 import Ajv from "ajv";
-import { contractPath } from "../../lib/paths.ts";
 
 const schema = JSON.parse(
-  readFileSync(contractPath("schemas", "FeatureManifest.v2.schema.json"), "utf-8"),
+  readFileSync(sharedSchemasPath("FeatureManifest.v2.schema.json"), "utf-8"),
 );
 const validate = new Ajv({ strict: false, validateSchema: false }).compile(schema);
 

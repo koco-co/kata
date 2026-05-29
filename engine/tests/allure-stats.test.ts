@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { collectAllureStats, snapshotResultFiles } from "../lib/allure-stats.ts";
+import { collectAllureStats, snapshotResultFiles } from "@shared/lib/allure-stats.ts";
 
 const TMP = join(tmpdir(), `kata-allure-stats-${process.pid}`);
 

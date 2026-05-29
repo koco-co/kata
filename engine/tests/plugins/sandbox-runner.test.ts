@@ -1,19 +1,19 @@
 import { describe, expect, it } from "bun:test";
-import type { CapabilityRequired } from "../../src/plugins/sandbox/capability-spec.ts";
+import type { CapabilityRequired } from "@shared/plugin-runtime/sandbox/capability-spec.ts";
 import {
   checkFsAccess,
   checkNetworkAccess,
   parseCapabilityRequired,
-} from "../../src/plugins/sandbox/capability-spec.ts";
+} from "@shared/plugin-runtime/sandbox/capability-spec.ts";
 import {
   createSandboxAuditor,
   runInSandbox,
   validatePluginCapabilities,
-} from "../../src/plugins/sandbox/runner.ts";
+} from "@shared/plugin-runtime/sandbox/runner.ts";
 import {
   createSecretChannel,
   loadSecretSources,
-} from "../../src/plugins/sandbox/secret-injector.ts";
+} from "@shared/plugin-runtime/sandbox/secret-injector.ts";
 
 describe("capability-spec", () => {
   describe("parseCapabilityRequired", () => {

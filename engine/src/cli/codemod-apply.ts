@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
-import { repoRoot } from "../../lib/paths.ts";
 import { fixStandaloneTruthy, fixTruthyCorruption } from "../codemod/fix-truthy-corruption.ts";
 import { transformNodeTestToBunTest } from "../codemod/node-test-to-bun-test.ts";
 import { stripMatcherMessage } from "../codemod/strip-matcher-message.ts";
