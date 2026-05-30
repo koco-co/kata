@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runFeaturesShow } from "@shared/cli/features-show.ts";
 import { stringify } from "yaml";
-import { runFeaturesShow } from "../../src/cli/features-show.ts";
 
 describe("kata features show", () => {
   let scratch: string;

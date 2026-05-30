@@ -113,11 +113,11 @@ kata.addCommand(xmindGen);
 kata.addCommand(xmindPatch);
 
 import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
+import { buildFeaturesCommand } from "@shared/cli/features.ts";
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "./agents-audit.ts";
 import { buildCodemodCommand } from "./codemod-apply.ts";
 import { buildEnvCommand } from "./env.ts";
-import { buildFeaturesCommand } from "./features.ts";
 import { buildHandoffCommand } from "./handoff.ts";
 import { buildPathsCommand } from "./paths-audit.ts";
 import { buildResultsCommand } from "./results.ts";

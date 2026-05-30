@@ -11,6 +11,11 @@
  *   actual implementation lives in src/domain/).
  */
 
+// ── Feature catalog (read) ──────────────────────────
+export type { FeatureRow, FeaturesLsContext } from "@shared/cli/features-ls.ts";
+export { runFeaturesLs } from "@shared/cli/features-ls.ts";
+export type { FeaturesShowContext } from "@shared/cli/features-show.ts";
+export { runFeaturesShow } from "@shared/cli/features-show.ts";
 // ── Path resolution ─────────────────────────────────
 export {
   listProjects,
@@ -18,12 +23,6 @@ export {
   repoRoot,
   workspaceDir,
 } from "@shared/lib/paths.ts";
-
-// ── Feature catalog (read) ──────────────────────────
-export type { FeatureRow, FeaturesLsContext } from "./cli/features-ls.ts";
-export { runFeaturesLs } from "./cli/features-ls.ts";
-export type { FeaturesShowContext } from "./cli/features-show.ts";
-export { runFeaturesShow } from "./cli/features-show.ts";
 
 // ── Project metadata ───────────────────────────────
 

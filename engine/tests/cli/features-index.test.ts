@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runFeaturesIndex } from "@shared/cli/features-index.ts";
 import { stringify } from "yaml";
-import { runFeaturesIndex } from "../../src/cli/features-index.ts";
 
 function seed(
   scratch: string,
