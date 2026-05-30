@@ -31,8 +31,7 @@ export const MODEL_RECOMMENDATIONS: Record<string, AgentModelConfig> = {
     description: "PRD 增强（图片识别、要点提取）",
   },
   writer: { tier: "sonnet", description: "测试用例编写 Sub-Agent" },
-  "bug-file": { tier: "sonnet", description: "Bug 报告分析（后端/前端）" },
-  "conflict-analyze": { tier: "sonnet", description: "合并冲突分析" },
+  "defect-analyze": { tier: "sonnet", description: "缺陷分诊（bug / 冲突 / diff 三模式）" },
   "case-hotfix": { tier: "sonnet", description: "Hotfix 用例生成" },
   standardize: { tier: "sonnet", description: "历史用例标准化" },
 

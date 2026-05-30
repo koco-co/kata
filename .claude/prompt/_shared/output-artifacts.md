@@ -1,7 +1,7 @@
 # 产物规范
 
 本文件定义生成测试用例的 QA skills 共同要求和当前产物矩阵，适用于 `case-draft`、`case-edit`、`case-hotfix`。
-不适用于 `bug-file`、`conflict-analyze`、`diff-scan`、`infra-diagnose`、`knowledge-curate`、`workspace-manage`、`playwright-automation`；这些 skill 的产物规则在 Phase 2 单独补齐。
+不适用于 `defect-analyze`、`infra-diagnose`、`knowledge-curate`、`workspace-manage`、`playwright-automation`；这些 skill 的产物规则在 Phase 2 单独补齐。
 
 ## 共同要求
 

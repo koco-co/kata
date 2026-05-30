@@ -43,7 +43,7 @@ afterEach(() => {
   delete process.env.KATA_ROOT_OVERRIDE;
 });
 
-describe("diff-scan E2E orchestration (mock agent output)", () => {
+describe("defect-analyze diff-mode E2E orchestration (mock agent output)", () => {
   test("create → mock-add 2 bugs → render → HTML contains both", async () => {
     const r1 = await $`bun ${CLI} create --project ${PROJECT} --repo demo \
       --base-branch release_6.3.x --head-branch release_6.3.0_dev \

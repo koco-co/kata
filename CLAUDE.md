@@ -23,7 +23,7 @@
 
 - 使用下方命令索引作为公开 slash-command 路由表。
 - 仅输入 Lanhu/Axure URL → 静默转发到 `case-draft`，由 case-draft 产生首个用户可见结果。
-- 仅输入 ZenTao bug URL/bug-view URL/bug ID → 转发到 `case-hotfix`；若记录未修复或缺少修复范围，由该 skill 生成待办项而非回退到 `bug-file`。
+- 仅输入 ZenTao bug URL/bug-view URL/bug ID → 转发到 `case-hotfix`；若记录未修复或缺少修复范围，由该 skill 生成待办项而非回退到 `defect-analyze`。
 - 用户提供 XMind/CSV/Archive MD 用例产物路径或要求编辑/同步/标准化已有用例 → 转发到 `case-edit`。
 - 用户要求记录、查询、维护项目业务知识/规则/术语，或询问 "XX 是什么"（涉及项目特定业务概念）→ 静默触发 `knowledge-curate`。
 - `/playwright-automation` 缺少环境参数时，按 skill 内置环境确认协议处理后再开始发现、预检或浏览器操作。
@@ -46,11 +46,9 @@
 | /case-draft            | case-draft            | 根据需求文档、PRD 或设计源生成 QA 测试用例。                           |
 | /case-edit             | case-edit             | 编辑、同步、转换或标准化已有 QA 用例产物。                             |
 | /knowledge-curate      | knowledge-curate      | 查询或更新项目业务知识和规则。                                         |
-| /bug-file              | bug-file              | 根据观察到的失败现象生成有证据支持的 bug 报告。                        |
-| /conflict-analyze      | conflict-analyze      | 分析合并冲突并生成解决方案说明。                                       |
 | /case-hotfix           | case-hotfix           | 根据 bug 或修复记录生成 hotfix 回归用例。                              |
 | /playwright-automation | playwright-automation | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。            |
-| /diff-scan             | diff-scan             | 扫描代码 diff 发现可复现的缺陷。                                       |
+| /defect-analyze        | defect-analyze        | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。               |
 | /infra-diagnose        | infra-diagnose        | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
 
 ## 构建与测试
