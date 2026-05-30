@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { buildClaudeArgs, buildCodexArgs } from "../../src/e2e/runtime-invoke.ts";
+import { buildClaudeArgs, buildCodexArgs } from "@shared/lib/e2e/runtime-invoke.ts";
 
 describe("runtime arg builders", () => {
   it("builds claude headless args", () => {
