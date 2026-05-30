@@ -112,9 +112,9 @@ kata.addCommand(writerContextBuilder);
 kata.addCommand(xmindGen);
 kata.addCommand(xmindPatch);
 
+import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "./agents-audit.ts";
-import { buildCasesCommand } from "./cases-lint.ts";
 import { buildCodemodCommand } from "./codemod-apply.ts";
 import { buildEnvCommand } from "./env.ts";
 import { buildFeaturesCommand } from "./features.ts";

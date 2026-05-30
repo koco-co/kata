@@ -1,8 +1,10 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, normalize, sep } from "node:path";
 import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
+import { registerCasesE2e } from "@shared/cli/cases-e2e.ts";
 import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
+import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
@@ -26,8 +28,6 @@ import {
 } from "@shared/lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "@shared/lint/weak-assertion.ts";
 import { Command } from "commander";
-import { registerCasesE2e } from "./cases-e2e.ts";
-import { runFeaturesLint } from "./features-lint.ts";
 
 export async function lintLanhuBlockedDrafts(
   workspaceRoot: string,
@@ -172,7 +172,9 @@ export function buildCasesCommand(): Command {
       }
       console.log(`\n[cases lint] violations=${all.length}`);
       const exitableViolations =
-        opts.severity === "fail-only" ? all.filter((v) => v.severity !== "warn") : all;
+        opts.severity === "fail-only"
+          ? all.filter((v) => !("severity" in v) || v.severity !== "warn")
+          : all;
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);
     });
   registerCasesCompare(cases);

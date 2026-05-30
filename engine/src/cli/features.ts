@@ -1,10 +1,10 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 import { outputJson } from "@shared/lib/cli.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
 import { runFeaturesIndex } from "./features-index.ts";
-import { runFeaturesLint } from "./features-lint.ts";
 import { runFeaturesLs } from "./features-ls.ts";
 import { runFeaturesNew } from "./features-new.ts";
 import { runFeaturesResolve } from "./features-resolve.ts";

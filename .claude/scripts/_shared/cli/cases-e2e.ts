@@ -1,6 +1,6 @@
 import { join } from "node:path";
+import { runCaseDraftE2e } from "@shared/lib/e2e/case-draft-e2e.ts";
 import type { Command } from "commander";
-import { runCaseDraftE2e } from "../e2e/case-draft-e2e.ts";
 
 export function registerCasesE2e(cases: Command): void {
   cases
