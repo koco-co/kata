@@ -2,7 +2,7 @@
 
 ## 读取时机
 
-仅当当前 workflow step id 等于 `playwright-generate` 时读取。不得批量读取 `phases/**`。
+进入 `playwright-generate` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
 
 进入本文件前必须已完成本轮 plan-reconcile，且 status 必须为 `aligned` 或 `plan_adjusted`。若 status 为 `blocked`、`blocked_by_ui_probe`、`needs_user_decision`，或 ui-probe 因 3 次探测预算耗尽而没有确认核心 UI 事实，禁止读取本文件；已经误读本文件时也必须立即停止，不得检查/创建 tests、page object、runner 或“预自动化脚本”，直接回到 handoff 输出阻塞证据。
 

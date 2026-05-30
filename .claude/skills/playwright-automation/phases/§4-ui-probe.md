@@ -2,7 +2,7 @@
 
 ## 读取时机
 
-仅当当前 workflow step id 等于 `ui-probe` 时读取。不得批量读取 `phases/**`。
+进入 `ui-probe` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
 
 ## 协议
 

@@ -1,5 +1,5 @@
 <!--
-用例级节点格式 fewshot — 仅供 case-draft / case-edit 在 case-draft / output / plan_edit 阶段参考格式
+用例级节点格式 fewshot — 仅供 case-draft / case-edit 参考用例节点格式，不作需求事实来源
 取材：workspace/dataAssets/features/2099-01-lt-dq-main-flow/tmp/lt-dq-main-flow-sample.md
 SSOT：.claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot
 

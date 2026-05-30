@@ -1,6 +1,6 @@
 # Worker Prompt Template (case-draft)
 
-主 Skill 只在 `SKILL.md` 按需加载协议与 workflow 允许的 Worker 窗口派发本模板：`historical-context`、`requirement-atomize`、`case-draft`。Lanhu/Axure URL-only silent-mode、source-intake/error-fallback、任何 BlockedEnvelope 路径均禁止派发 Worker、TodoWrite 或 Agent。
+主 Skill 只在 SKILL.md 工作流允许的 Worker 窗口派发本模板：`historical-context`、`requirement-atomize`、`case-draft`。Lanhu/Axure URL-only silent-mode、source-intake/error-fallback、任何 BlockedEnvelope 路径均禁止派发 Worker、TodoWrite 或 Agent。
 
 BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 
