@@ -1,7 +1,7 @@
 ---
 name: workspace-manage
-description: 用户询问 kata 功能菜单、命令帮助，或要求创建、自检或收尾工作区。
-when_to_use: 用户询问 kata 功能菜单、命令帮助，或要求创建、自检或收尾工作区时使用。
+description: 展示 kata 功能菜单/命令帮助，或创建、自检、收尾、修复项目工作区。用户问 kata 能做什么、要 init/自检工作区时用。
+when_to_use: 触发短语如「kata 能干嘛」「功能菜单」「初始化工作区」「自检/收尾工作区」。仅生成或编辑用例走 case-*；维护业务知识走 knowledge-curate。
 user-invocable: true
 model: sonnet
 effort: medium
@@ -13,35 +13,25 @@ paths:
 
 # workspace-manage
 
+统管 kata 项目工作区：回答能力/菜单类提问，并确保创建、自检、收尾的产出都落在约定目录边界内。
 
-证据事实必须引用 SourceRef ID。
+## 路由边界
 
-## 路由摘要
+- 触发：询问 kata 能力/功能菜单/命令帮助；创建、初始化、自检、收尾或修复工作区。
+- 改走：生成或编辑 QA 用例 → case-draft / case-edit；维护业务知识 → knowledge-curate；UI 自动化 → playwright-automation。
 
-- 统管 kata 项目工作区，确保产物落入预期位置。
+## 工作流
 
-## 触发条件
+1. 能力/菜单类提问：按命令索引直接回答，无需改动工作区。
+2. 工作区操作前先读 `references/project-layout.md` 厘清目录边界与写入位置，再创建 / 自检 / 收尾。
 
-- 用户询问 kata 的能力、功能菜单、帮助内容或命令列表。
-- 用户要求创建、初始化、自检、收尾或修复 kata 项目工作区。
+## 何时加载哪个文件
 
-## 不触发条件
+| 文件 | 何时读 | 作用 |
+| --- | --- | --- |
+| references/project-layout.md | 创建 / 自检 / 修复工作区前 | 目录边界与产物写入位置 |
 
-- 用户希望生成 QA 测试用例，或编辑已有用例。
-- 用户希望维护项目知识、扫描代码变更，或做 UI 自动化。
+## 硬规则（不变量）
 
-## 按需加载协议
-
-- 默认只读取当前 SKILL.md。
-- 禁止批量读取 references/**。
-- 只有当前阶段命中表格中的阶段与条件时，才读取对应文件。
-- 没有命中的 reference 不得读取；few-shot 只可作为格式参考，不得作为领域事实证据。
-
-| 阶段 | 条件 | 文件 | 类型 | 用途 |
-| --- | --- | --- | --- | --- |
-| inspect_workspace, plan_change, stage_workspace_update, verify_workspace | `step.id in [inspect_workspace, plan_change, stage_workspace_update, verify_workspace] and outputs.ids contains workspace` | references/project-layout.md | 规范 | 自检、创建或修复工作区时，先厘清目录边界与写入位置。 |
-
-## 硬规则
-
-- 所有生成的产物，写入 workspace/{project}/ 之下。
-- workspace/{project}/.kata/repos/** 为只读源仓库；如需修改源仓库，必须先获得用户明确确认，并在源仓库工作区内操作。
+- 生成的产物一律写入 `workspace/{project}/` 之下。
+- `workspace/{project}/.kata/repos/**` 为只读源仓库；需改动须先获用户明确确认，并在源仓库工作区内操作。

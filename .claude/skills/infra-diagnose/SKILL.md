@@ -1,7 +1,7 @@
 ---
 name: infra-diagnose
-description: 出现数据源、数据库或服务器连通性故障并需要 SSH 诊断。
-when_to_use: 出现数据源、数据库或服务器连通性故障并需要 SSH 诊断时使用。
+description: SSH 登机排查并修复数据源/数据库/服务器连通性故障（如 JDBC No route to host、连接超时或被拒），并沉淀凭据与排查知识。
+when_to_use: 出现数据源或服务器连通性报错、需登机排查时用。纯前端运行时报错且无需登机 → defect-analyze；只查改业务知识 → knowledge-curate。
 user-invocable: true
 model: sonnet
 effort: high
@@ -9,46 +9,32 @@ effort: high
 
 # infra-diagnose
 
+收到数据源/服务器故障线索后：先查本地知识库，再 SSH 只读诊断定位根因，破坏性修复前确认，最后把结论沉淀回知识库。
 
-证据事实必须引用 SourceRef ID。
+## 路由边界
 
-## 路由摘要
+- 触发：数据源/服务器连通性报错需登机；JDBC/数据库报 No route to host、超时或被拒；用户要求 SSH 诊断或修复。
+- 改走：纯前端运行时报错且无需登机 → defect-analyze；仅查询/更新业务知识 → knowledge-curate。
 
-- 收到数据源/服务器故障线索后，先查本地知识库，再 SSH 登机只读诊断，破坏性修复前确认，最后沉淀知识。
+## 工作流
 
-## 触发条件
+1. 先检索 `.kata/infra/knowledge/`（按报错关键词、主机、端口）；命中既有条目优先复用其方案。
+2. 未命中：读 `references/diagnostic-playbook.md` 按报错类型分步只读诊断；登机规约见 `references/ssh-protocol.md`。
+3. 定位根因或完成修复后，按 `references/knowledge-format.md` 写回知识条目，下次同类问题可直接复用。
 
-- 出现数据源或服务器连通性报错，需登服务器排查修复。
-- JDBC/数据库连接报 No route to host、超时或被拒绝。
-- 用户要求 SSH 进服务器诊断或修复基础设施故障。
+## 何时加载哪个文件
 
-## 不触发条件
+| 文件 | 何时读 | 作用 |
+| --- | --- | --- |
+| references/diagnostic-playbook.md | 自行排查时 | 按报错类型的分步只读诊断与对症修复 |
+| references/ssh-protocol.md | 需要登机时 | SSH 连接、凭据读取/补充、破坏性命令门控 |
+| references/knowledge-format.md | 收尾沉淀时 | 知识条目检索流程与落盘格式 |
 
-- 纯前端运行时报错且无需登服务器，应走 defect-analyze。
-- 仅查询或更新业务知识与规则，应走 knowledge-curate。
-- 仅需编写用例、扫描代码或做 UI 自动化。
+## 硬规则（不变量）
 
-## 按需加载协议
-
-- 默认只读取当前 SKILL.md。
-- 禁止批量读取 references/**。
-- 只有当前阶段命中表格中的阶段与条件时，才读取对应文件。
-- 没有命中的 reference 不得读取；few-shot 只可作为格式参考，不得作为领域事实证据。
-
-| 阶段 | 条件 | 文件 | 类型 | 用途 |
-| --- | --- | --- | --- | --- |
-| diagnose | `step.id == diagnose` | references/diagnostic-playbook.md | 规范 | 按报错类型给出分步只读诊断与对症修复路径，含 Hive No route to host 等典型案例。 |
-| diagnose, propose_or_apply_fix | `step.id in [diagnose, propose_or_apply_fix]` | references/ssh-protocol.md | 规范 | SSH 连接、凭据读取与缺失补充、破坏性命令确认门控的执行规约。 |
-| lookup_knowledge, record_knowledge | `step.id in [lookup_knowledge, record_knowledge]` | references/knowledge-format.md | 规范 | 排查知识库的检索流程与条目落盘格式，保证先查后做、收尾沉淀。 |
-
-## 硬规则
-
-- 排查前先检索 `.kata/infra/knowledge/`（按报错关键词、主机、端口）；命中既有条目则优先复用其方案，未命中才自行排查。
-- 凭据从 `.kata/infra/credentials.yaml` 按 host 读取；缺失时先用默认 `root`/`Abc!@#135` 试连，仍失败用 ask_user 询问。
-- 问到的用户名/密码/主机映射立即写回 `.kata/infra/credentials.yaml`，下次不再询问同一主机。
-- JDBC URL（如 `jdbc:hive2://host:10000/`）一般无账号密码；只从中解析主机与端口，禁止凭空补凭据。
-- SSH 统一用 `SSHPASS=<pw> sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 root@<host>`；禁止把明文密码拼进 ps 可见的命令行。
-- 只读诊断（ping/nc/telnet/systemctl status/journalctl/netstat/ss/docker ps 等）自动执行；破坏性操作（重启/改防火墙/kill/改配置）须先告知命令并经用户确认。
-- 根因必须有命令输出支撑，区分事实与推断，无证据不臆造根因或负责人。
-- 定位根因或修复后，把症状、报错原文、根因、排查命令与输出摘要、解决方案、主机端口写入 `.kata/infra/knowledge/` 新条目。
-- 禁止改动 `.kata/repos/**` 源码仓库；本技能只操作目标服务器与本地 `.kata/infra/`。
+- 凭据从 `.kata/infra/credentials.yaml` 按 host 读取；缺失先用默认 `root`/`Abc!@#135` 试连，仍失败再直接询问用户并立即写回，下次不再问同一主机。
+- JDBC URL（如 `jdbc:hive2://host:10000/`）只解析主机与端口，不携带账号密码——不据此编造凭据。
+- SSH 统一 `SSHPASS=<pw> sshpass -e ssh ...`，密码经环境变量传入，不写进 `ps` 可见的命令行。
+- 只读诊断（ping/nc/systemctl status/journalctl/ss/ps 等）可自动执行；破坏性操作（重启/改防火墙/kill/改配置）须先告知命令与影响、经用户确认，执行后复测。
+- 根因必须有命令输出支撑，区分事实与推断；无证据不臆造根因或负责人。
+- 只操作目标服务器与本地 `.kata/infra/`，不得改动 `.kata/repos/**` 源仓库。
