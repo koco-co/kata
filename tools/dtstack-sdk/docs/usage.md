@@ -144,6 +144,7 @@ WHAT IT DOES (in order)
 
 OPTIONS
       --project <name>        Project name (required)
+      --project-id <id>       Exact Batch project ID; avoids duplicate-name matches
       --datasource <type>     Doris | MySQL | Hive | SparkThrift (required)
       --datasource-id <id>    Exact Batch datasource ID
       --datasource-name <n>   Exact Batch datasource name
