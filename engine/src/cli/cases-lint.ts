@@ -27,7 +27,7 @@ import {
 import { lintWeakAssertion } from "@shared/lint/weak-assertion.ts";
 import { Command } from "commander";
 import { registerCasesE2e } from "./cases-e2e.ts";
-import { runFeaturesLint } from "./features-lint.ts";
+import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 
 export async function lintLanhuBlockedDrafts(
   workspaceRoot: string,

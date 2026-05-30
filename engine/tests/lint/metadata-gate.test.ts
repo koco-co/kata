@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runFeaturesLint } from "../../src/cli/features-lint.ts";
+import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 
 describe("gate: metadata_present_and_valid", () => {
   let scratch: string;

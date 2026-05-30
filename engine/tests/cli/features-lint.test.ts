@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { stringify } from "yaml";
-import { runFeaturesLint } from "../../src/cli/features-lint.ts";
+import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 
 describe("kata features lint", () => {
   let scratch: string;
