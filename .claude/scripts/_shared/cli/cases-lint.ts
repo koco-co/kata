@@ -26,7 +26,7 @@ import {
 } from "@shared/lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "@shared/lint/weak-assertion.ts";
 import { Command } from "commander";
-import { registerCasesE2e } from "./cases-e2e.ts";
+import { registerCasesE2e } from "@shared/cli/cases-e2e.ts";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 
 export async function lintLanhuBlockedDrafts(
@@ -172,7 +172,9 @@ export function buildCasesCommand(): Command {
       }
       console.log(`\n[cases lint] violations=${all.length}`);
       const exitableViolations =
-        opts.severity === "fail-only" ? all.filter((v) => v.severity !== "warn") : all;
+        opts.severity === "fail-only"
+          ? all.filter((v) => !("severity" in v) || v.severity !== "warn")
+          : all;
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);
     });
   registerCasesCompare(cases);
