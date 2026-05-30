@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runResultsPrune } from "../../src/cli/results-prune.ts";
+import { runResultsPrune } from "@shared/cli/results-prune.ts";
 
 describe("kata results prune", () => {
   let scratch: string;

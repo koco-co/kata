@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runEnvCheck } from "../../src/cli/env-check.ts";
+import { runEnvCheck } from "@shared/cli/env-check.ts";
 
 describe("kata env check", () => {
   it("returns ok object with required keys", async () => {

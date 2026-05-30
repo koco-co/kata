@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { isKnownSafe } from "@shared/cli/paths-audit.ts";
 import type { PathViolation } from "@shared/lint/types.ts";
-import { isKnownSafe } from "../../src/cli/paths-audit.ts";
 
 function violation(
   file: string,
