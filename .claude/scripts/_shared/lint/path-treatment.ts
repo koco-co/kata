@@ -15,7 +15,7 @@ const RULES: RuleDef[] = [
   {
     id: "P-S2",
     regex: /bun\s+test\s+\.\/\.claude\/scripts\/__tests__/g,
-    message: "stale `bun test ./.claude/scripts/__tests__`; use `bun test --cwd engine`",
+    message: "stale `bun test ./.claude/scripts/__tests__`; use `bun test`",
   },
   {
     id: "P-S3",
@@ -34,17 +34,17 @@ const EXCLUDED_PATH_FRAGMENTS = [
   "/.runs/",
   // workspace/ data dirs — actual files, not references
   "/workspace/",
-  // engine test fixture data (v2 paths as test input for backward-compat migration logic)
-  "engine/tests/fixtures/",
+  // test fixture data (v2 paths as test input for backward-compat migration logic)
+  ".claude/scripts/_shared/tests/fixtures/",
   // v2 path strings used as fixture input data — test v2 path resolution in migration logic
   // These are NOT real code paths; they're literal strings passed to path helpers.
-  "engine/tests/lib/signal-probe.test.ts",
-  "engine/tests/lib/paths.test.ts",
-  "engine/tests/lib/progress-store.test.ts",
-  "engine/tests/plan.test.ts",
-  "engine/tests/progress.test.ts",
-  "engine/tests/run-tests-notify.test.ts",
-  "engine/tests/search-filter.test.ts",
+  ".claude/scripts/_shared/tests/lib/signal-probe.test.ts",
+  ".claude/scripts/_shared/tests/lib/paths.test.ts",
+  ".claude/scripts/_shared/tests/lib/progress-store.test.ts",
+  ".claude/scripts/_shared/tests/plan.test.ts",
+  ".claude/scripts/_shared/tests/progress.test.ts",
+  ".claude/scripts/_shared/tests/run-tests-notify.test.ts",
+  ".claude/scripts/_shared/tests/search-filter.test.ts",
   // plugins test files — reference v2 paths as input data
   "plugins/",
   // old refactor log files

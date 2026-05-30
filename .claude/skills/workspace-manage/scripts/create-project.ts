@@ -24,7 +24,7 @@ import {
 import { knowledgeDir, parseGitUrl, projectDir, reposDir } from "@shared/lib/paths.ts";
 
 function repoRoot(): string {
-  return resolve(fileURLToPath(import.meta.url), "../../../..");
+  return resolve(fileURLToPath(import.meta.url), "../../../../..");
 }
 
 function readConfig(): Record<string, unknown> {
