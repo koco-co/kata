@@ -11,7 +11,7 @@ describe("P4-03 dead code cleanup", () => {
   test("removes obsolete stubs and unused helpers", () => {
     expect(source("engine/src/discuss.ts")).not.toContain("runDiscussValidate");
     expect(source(".claude/scripts/_shared/lib/state.ts")).not.toContain("deleteWorkflowState");
-    expect(source("engine/src/cli/cases-validate.ts")).not.toContain("_textIncludes");
+    expect(source(".claude/scripts/_shared/cli/cases-validate.ts")).not.toContain("_textIncludes");
   });
 
   test("does not keep empty lint module placeholders", () => {

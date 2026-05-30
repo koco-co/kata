@@ -1,7 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { runCasesCompare } from "../cli/cases-compare.ts";
-import { runCasesVerify } from "../cli/cases-verify.ts";
+import { runCasesCompare } from "@shared/cli/cases-compare.ts";
+import { runCasesVerify } from "@shared/cli/cases-verify.ts";
 import { invokeClaude, invokeCodex } from "./runtime-invoke.ts";
 
 export interface E2eOpts {

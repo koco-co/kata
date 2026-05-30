@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
-import { runCasesValidate } from "../../src/cli/cases-validate.ts";
+import { runCasesValidate } from "@shared/cli/cases-validate.ts";
 
 describe("kata cases validate", () => {
   function blockedLanhuManifest(featureId: string) {
