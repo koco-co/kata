@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { extractSourceFactSet, jaccard } from "@shared/lib/cases/source-fact-set.ts";
+import { STABLE_CORE_ARTIFACTS } from "@shared/lib/cases/verify-layers.ts";
 import type { Command } from "commander";
-import { extractSourceFactSet, jaccard } from "../cases/source-fact-set.ts";
-import { STABLE_CORE_ARTIFACTS } from "../cases/verify-layers.ts";
 
 export interface CasesCompareContext {
   leftDir: string;

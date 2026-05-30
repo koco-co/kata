@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runCasesCompare } from "@shared/cli/cases-compare.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
-import { runCasesCompare } from "../../src/cli/cases-compare.ts";
 import { runCaseDraftE2e } from "../../src/e2e/case-draft-e2e.ts";
 
 function writeFakeRuntime(binPath: string): void {

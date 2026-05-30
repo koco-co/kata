@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runCasesCompare } from "../../src/cli/cases-compare.ts";
+import { runCasesCompare } from "@shared/cli/cases-compare.ts";
 
 const SHA = "a".repeat(64);
 function writeManifest(dir: string, featureId: string, refs: string[]) {
