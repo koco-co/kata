@@ -9,14 +9,14 @@ const ROOT = repoRoot();
 const TARGET_ENTRY_FILES = [
   "engine/src/history-convert.ts",
   "engine/src/knowledge-curate.ts",
-  "engine/src/xmind-gen.ts",
+  ".claude/scripts/_shared/cli/xmind-gen.ts",
   "engine/src/skills/runtime-sync.ts",
 ];
 
 const TARGET_SPLIT_DIRS = [
   "engine/src/history-convert",
   "engine/src/knowledge-curate",
-  "engine/src/xmind-gen",
+  ".claude/scripts/_shared/cli/xmind-gen",
 ];
 
 function collectTsFiles(dir: string): string[] {

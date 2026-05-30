@@ -18,6 +18,7 @@
  */
 
 import { program as archiveGen } from "@shared/cli/archive-gen.ts";
+import { program as xmindGen } from "@shared/cli/xmind-gen.ts";
 import { program as xmindPatch } from "@shared/cli/xmind-patch.ts";
 import { initEnv } from "@shared/lib/env.ts";
 import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
@@ -50,7 +51,6 @@ import { program as searchFilter } from "../search-filter.ts";
 import { program as sourceAnalyze } from "../source-analyze.ts";
 import { program as sourceRef } from "../source-ref.ts";
 import { program as writerContextBuilder } from "../writer-context-builder.ts";
-import { program as xmindGen } from "../xmind-gen.ts";
 
 const kata = new Command()
   .name("kata")
