@@ -17,6 +17,8 @@
  * commander `program`. Registered below via addCommand().
  */
 
+import { program as archiveGen } from "@shared/cli/archive-gen.ts";
+import { program as xmindPatch } from "@shared/cli/xmind-patch.ts";
 import { initEnv } from "@shared/lib/env.ts";
 import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
 import { program as caseSignalAnalyzer } from "@skills/case-draft/scripts/case-signal-analyzer.ts";
@@ -24,7 +26,6 @@ import { program as caseStrategyResolver } from "@skills/case-draft/scripts/case
 import { Command } from "commander";
 
 // 大部分模块静态加载（无昂贵依赖）
-import { program as archiveGen } from "../archive-gen.ts";
 import { program as autoFixer } from "../auto-fixer.ts";
 import { program as config } from "../config.ts";
 import { program as createProject } from "../create-project.ts";
@@ -50,7 +51,6 @@ import { program as sourceAnalyze } from "../source-analyze.ts";
 import { program as sourceRef } from "../source-ref.ts";
 import { program as writerContextBuilder } from "../writer-context-builder.ts";
 import { program as xmindGen } from "../xmind-gen.ts";
-import { program as xmindPatch } from "../xmind-patch.ts";
 
 const kata = new Command()
   .name("kata")
