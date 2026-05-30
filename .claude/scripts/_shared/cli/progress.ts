@@ -265,7 +265,7 @@ function runTaskQuery(opts: {
         ].join("\t"),
       ),
     ];
-    process.stdout.write(`${lines.join("\n")}\n`);
+    console.log(lines.join("\n"));
     return;
   }
   emit(results);
