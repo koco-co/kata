@@ -3,8 +3,8 @@ import { execSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { repoRoot } from "@shared/lib/paths.ts";
 import { runCasesValidate } from "@shared/cli/cases-validate.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 describe("kata cases validate", () => {
   function blockedLanhuManifest(featureId: string) {

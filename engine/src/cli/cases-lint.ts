@@ -1,5 +1,8 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, normalize, sep } from "node:path";
+import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
+import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
+import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
 import { lintArchiveCaseQa } from "../lint/archive-case-qa.ts";
@@ -23,10 +26,7 @@ import {
   lintSpecStructureValid,
 } from "../lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "../lint/weak-assertion.ts";
-import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
 import { registerCasesE2e } from "./cases-e2e.ts";
-import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
-import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
 import { runFeaturesLint } from "./features-lint.ts";
 
 export async function lintLanhuBlockedDrafts(
