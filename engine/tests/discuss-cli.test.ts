@@ -7,7 +7,7 @@ import { $ } from "bun";
 const P = "test-d1-cli";
 const YM = "202604";
 const SLUG = "cli-slug";
-const CLI = join(repoRoot(), "engine/src/discuss.ts");
+const CLI = join(repoRoot(), ".claude/skills/case-draft/scripts/discuss.ts");
 
 function cleanup() {
   const ws = join(repoRoot(), "workspace", P);

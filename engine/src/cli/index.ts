@@ -30,26 +30,26 @@ import { program as sourceRef } from "@shared/cli/source-ref.ts";
 import { program as xmindGen } from "@shared/cli/xmind-gen.ts";
 import { program as xmindPatch } from "@shared/cli/xmind-patch.ts";
 import { initEnv } from "@shared/lib/env.ts";
+// 大部分模块静态加载（无昂贵依赖）
+import { program as autoFixer } from "@skills/case-draft/scripts/auto-fixer.ts";
 import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
 import { program as caseSignalAnalyzer } from "@skills/case-draft/scripts/case-signal-analyzer.ts";
 import { program as caseStrategyResolver } from "@skills/case-draft/scripts/case-strategy-resolver.ts";
+import { program as discuss } from "@skills/case-draft/scripts/discuss.ts";
+import { program as formatCheckScript } from "@skills/case-draft/scripts/format-check-script.ts";
+import { program as formatReportLocator } from "@skills/case-draft/scripts/format-report-locator.ts";
+import { program as prdFrontmatter } from "@skills/case-draft/scripts/prd-frontmatter.ts";
+import { program as searchFilter } from "@skills/case-draft/scripts/search-filter.ts";
+import { program as sourceAnalyze } from "@skills/case-draft/scripts/source-analyze.ts";
+import { program as writerContextBuilder } from "@skills/case-draft/scripts/writer-context-builder.ts";
 import { program as historyConvert } from "@skills/case-edit/scripts/history-convert.ts";
 import { program as scanReport } from "@skills/defect-analyze/scripts/scan-report.ts";
 import { program as managingProjectKnowledge } from "@skills/knowledge-curate/scripts/knowledge-curate.ts";
+import { program as reportToPdf } from "@skills/playwright-automation/scripts/report-to-pdf.ts";
+import { program as runTestsNotify } from "@skills/playwright-automation/scripts/run-tests-notify.ts";
+import { program as createProject } from "@skills/workspace-manage/scripts/create-project.ts";
+import { program as initWizard } from "@skills/workspace-manage/scripts/init-wizard.ts";
 import { Command } from "commander";
-// 大部分模块静态加载（无昂贵依赖）
-import { program as autoFixer } from "../auto-fixer.ts";
-import { program as createProject } from "../create-project.ts";
-import { program as discuss } from "../discuss.ts";
-import { program as formatCheckScript } from "../format-check-script.ts";
-import { program as formatReportLocator } from "../format-report-locator.ts";
-import { program as initWizard } from "../init-wizard.ts";
-import { program as prdFrontmatter } from "../prd-frontmatter.ts";
-import { program as reportToPdf } from "../report-to-pdf.ts";
-import { program as runTestsNotify } from "../run-tests-notify.ts";
-import { program as searchFilter } from "../search-filter.ts";
-import { program as sourceAnalyze } from "../source-analyze.ts";
-import { program as writerContextBuilder } from "../writer-context-builder.ts";
 
 const kata = new Command()
   .name("kata")

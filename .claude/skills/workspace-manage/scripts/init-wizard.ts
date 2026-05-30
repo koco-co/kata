@@ -18,9 +18,9 @@ import { Command } from "commander";
 // ---------------------------------------------------------------------------
 
 function repoRoot(): string {
-  // This file is at engine/src/init-wizard.ts
-  // 3 levels up → repo root
-  return resolve(fileURLToPath(import.meta.url), "../../..");
+  // This file is at .claude/skills/workspace-manage/scripts/init-wizard.ts
+  // 4 levels up → repo root
+  return resolve(fileURLToPath(import.meta.url), "../../../..");
 }
 
 // ---------------------------------------------------------------------------
