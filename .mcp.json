@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "kata": {
-      "command": "bun",
-      "args": ["apps/mcp/server.ts"]
-    }
-  }
-}
