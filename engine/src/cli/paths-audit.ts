@@ -1,7 +1,7 @@
 import { repoRoot } from "@shared/lib/paths.ts";
+import { lintPaths } from "@shared/lint/path-treatment.ts";
+import type { PathViolation } from "@shared/lint/types.ts";
 import { Command } from "commander";
-import { lintPaths } from "../lint/path-treatment.ts";
-import type { PathViolation } from "../lint/types.ts";
 
 function isWorkspaceTemplateDoc(file: string): boolean {
   return (
@@ -21,7 +21,7 @@ function isWorkspaceTemplateDoc(file: string): boolean {
 export function isKnownSafe(v: PathViolation): boolean {
   const { file, rule } = v;
   return (
-    file.includes("engine/src/lint/") || // lint self-references
+    file.includes(".claude/scripts/_shared/lint/") || // lint self-references
     file.includes("engine/tests/lint/") || // deliberate lint test fixtures
     file.includes("engine/tests/cli/paths-audit.test.ts") || // deliberate CLI lint fixtures
     file.includes(".claude/settings.local.json") ||

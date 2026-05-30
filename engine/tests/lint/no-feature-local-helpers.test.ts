@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintNoFeatureLocalHelpers } from "../../src/lint/no-feature-local-helpers.ts";
+import { lintNoFeatureLocalHelpers } from "@shared/lint/no-feature-local-helpers.ts";
 
 describe("gate: no_feature_local_helpers", () => {
   let scratch: string;

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintEnvProfileCompliance } from "../../src/lint/v2-quality-gates.ts";
+import { lintEnvProfileCompliance } from "@shared/lint/v2-quality-gates.ts";
 
 describe("lintEnvProfileCompliance", () => {
   let scratch: string;

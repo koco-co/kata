@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintArchiveCaseQa } from "../../src/lint/archive-case-qa.ts";
+import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 
 function feature(files: Record<string, string>, dirs: string[] = []): string {
   const root = mkdtempSync(join(tmpdir(), "aos-"));

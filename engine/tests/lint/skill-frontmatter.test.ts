@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintAgentFrontmatter } from "../../src/lint/skill-frontmatter.ts";
+import { lintAgentFrontmatter } from "@shared/lint/skill-frontmatter.ts";
 
 const FX = join(import.meta.dirname, "fixtures");
 const KNOWN_SKILLS = new Set([

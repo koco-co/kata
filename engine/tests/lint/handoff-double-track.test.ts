@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintHandoffDoubleTrack } from "../../src/lint/handoff-double-track.ts";
+import { lintHandoffDoubleTrack } from "@shared/lint/handoff-double-track.ts";
 
 describe("gate: handoff_double_track", () => {
   let scratch: string;

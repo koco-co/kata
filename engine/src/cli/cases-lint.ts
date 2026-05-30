@@ -4,18 +4,17 @@ import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
 import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
-import { Command } from "commander";
-import { lintArchiveCaseQa } from "../lint/archive-case-qa.ts";
-import { lintCaseMdSourceRefLeak } from "../lint/case-md-sourceref-leak.ts";
-import { lintCaseTraceabilityHeader } from "../lint/case-traceability-header.ts";
-import { lintDebugFileNaming } from "../lint/debug-file-naming.ts";
-import { lintHandoffDoubleTrack } from "../lint/handoff-double-track.ts";
-import { lintHardcodePath } from "../lint/hardcode-path.ts";
-import { lintNoDebugInCases } from "../lint/no-debug-in-cases.ts";
-import { lintNoFeatureLocalHelpers } from "../lint/no-feature-local-helpers.ts";
-import { lintOwnerSkillDup } from "../lint/owner-skill-dup.ts";
-import { lintSourceRefRegistry } from "../lint/source-ref-registry.ts";
-import type { CaseLintViolation, Violation } from "../lint/types.ts";
+import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
+import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
+import { lintCaseTraceabilityHeader } from "@shared/lint/case-traceability-header.ts";
+import { lintDebugFileNaming } from "@shared/lint/debug-file-naming.ts";
+import { lintHandoffDoubleTrack } from "@shared/lint/handoff-double-track.ts";
+import { lintHardcodePath } from "@shared/lint/hardcode-path.ts";
+import { lintNoDebugInCases } from "@shared/lint/no-debug-in-cases.ts";
+import { lintNoFeatureLocalHelpers } from "@shared/lint/no-feature-local-helpers.ts";
+import { lintOwnerSkillDup } from "@shared/lint/owner-skill-dup.ts";
+import { lintSourceRefRegistry } from "@shared/lint/source-ref-registry.ts";
+import type { CaseLintViolation, Violation } from "@shared/lint/types.ts";
 import {
   lintCasesInCasesDir,
   lintEnvProfileCompliance,
@@ -24,8 +23,9 @@ import {
   lintRunnerIsAggregator,
   lintSessionCompliant,
   lintSpecStructureValid,
-} from "../lint/v2-quality-gates.ts";
-import { lintWeakAssertion } from "../lint/weak-assertion.ts";
+} from "@shared/lint/v2-quality-gates.ts";
+import { lintWeakAssertion } from "@shared/lint/weak-assertion.ts";
+import { Command } from "commander";
 import { registerCasesE2e } from "./cases-e2e.ts";
 import { runFeaturesLint } from "./features-lint.ts";
 

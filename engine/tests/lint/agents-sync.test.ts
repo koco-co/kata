@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { rollbackAgentsSync, runAgentsSync } from "../../src/lint/agents-sync.ts";
+import { rollbackAgentsSync, runAgentsSync } from "@shared/lint/agents-sync.ts";
 
 const ROOT = join(tmpdir(), `kata-agents-sync-${process.pid}`);
 

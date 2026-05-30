@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintWeakAssertion } from "../../src/lint/weak-assertion.ts";
+import { lintWeakAssertion } from "@shared/lint/weak-assertion.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

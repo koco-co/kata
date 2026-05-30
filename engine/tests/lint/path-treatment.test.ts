@@ -2,7 +2,7 @@ import { afterAll, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintPaths } from "../../src/lint/path-treatment.ts";
+import { lintPaths } from "@shared/lint/path-treatment.ts";
 
 const FX = join(import.meta.dirname, "fixtures");
 

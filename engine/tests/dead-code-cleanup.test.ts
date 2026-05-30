@@ -15,7 +15,10 @@ describe("P4-03 dead code cleanup", () => {
   });
 
   test("does not keep empty lint module placeholders", () => {
-    for (const path of ["engine/src/lint/agents-sync.ts", "engine/src/lint/agents-drift.ts"]) {
+    for (const path of [
+      ".claude/scripts/_shared/lint/agents-sync.ts",
+      ".claude/scripts/_shared/lint/agents-drift.ts",
+    ]) {
       expect(source(path).trim()).not.toBe("export {};");
     }
   });

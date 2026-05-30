@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintSkillShape } from "../../src/lint/skill-shape.ts";
+import { lintSkillShape } from "@shared/lint/skill-shape.ts";
 
 const FX = join(import.meta.dirname, "fixtures");
 

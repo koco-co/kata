@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintNoDebugInCases } from "../../src/lint/no-debug-in-cases.ts";
+import { lintNoDebugInCases } from "@shared/lint/no-debug-in-cases.ts";
 
 describe("gate: no_debug_in_cases", () => {
   let scratch: string;

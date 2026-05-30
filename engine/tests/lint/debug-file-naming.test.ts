@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintDebugFileNaming } from "../../src/lint/debug-file-naming.ts";
+import { lintDebugFileNaming } from "@shared/lint/debug-file-naming.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

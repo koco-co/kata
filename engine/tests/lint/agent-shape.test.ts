@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintAgentShape } from "../../src/lint/agent-shape.ts";
+import { lintAgentShape } from "@shared/lint/agent-shape.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

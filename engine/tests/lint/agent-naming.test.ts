@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintAgentNaming } from "../../src/lint/agent-naming.ts";
+import { lintAgentNaming } from "@shared/lint/agent-naming.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

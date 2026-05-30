@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'workspace/**/features/**'
-      - 'engine/src/lint/**'
+      - '.claude/scripts/_shared/lint/**'
       - 'engine/src/cli/features-*.ts'
       - '.claude/scripts/_shared/schemas/**'
 
