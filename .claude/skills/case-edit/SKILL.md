@@ -28,12 +28,12 @@ paths:
 
 ## 何时加载哪个文件
 
-| 文件 | 何时读 | 作用 |
-| --- | --- | --- |
-| references/archive-xmind-sync.md | 跨 Archive/XMind/CSV 编辑或导出前 | 字段保真、自审清单、同步契约 |
-| references/apply-corrections.md | 仅 `apply-corrections` 子命令 | 加载 corrections → dry-run → 回写 → 同步 |
-| references/fewshots/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源 |
-| .claude/prompt/_shared/case-qa.md | 交付前自审 | Archive/XMind 字段一致性与可执行性维度 |
+| 文件                                      | 何时读                            | 作用                                     |
+| ----------------------------------------- | --------------------------------- | ---------------------------------------- |
+| references/archive-xmind-sync.md          | 跨 Archive/XMind/CSV 编辑或导出前 | 字段保真、自审清单、同步契约             |
+| references/apply-corrections.md           | 仅 `apply-corrections` 子命令     | 加载 corrections → dry-run → 回写 → 同步 |
+| references/fewshots/case-format-sample.md | 需要用例节点格式参照时            | 格式样例（含 DQ 子集），不作事实来源     |
+| .claude/prompt/\_shared/case-qa.md        | 交付前自审                        | Archive/XMind 字段一致性与可执行性维度   |
 
 ## 硬规则（不变量）
 

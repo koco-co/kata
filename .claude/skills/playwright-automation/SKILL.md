@@ -30,29 +30,29 @@ paths:
 
 case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile → playwright-generate → self-run → run-triage → repair-loop → quality-gate → handoff（可选 case-feedback）。
 
-| Phase | 文件 | 简介 |
-| --- | --- | --- |
-| §1 case-normalize | phases/§1-case-normalize.md | MD/Archive/PRD/Lanhu/脚本/失败结果 → UiAutomationIntent |
-| §2 env-preflight | phases/§2-env-preflight.md | base URL、登录态、项目、数据源、权限、浏览器依赖校验 |
-| §3 ui-plan | phases/§3-ui-plan.md | 覆盖范围、可见断言、fixture、选择器策略与风险 |
-| §4 ui-probe | phases/§4-ui-probe.md | 真实浏览器收集页面/可访问性/截图/网络/locator 证据 |
-| §5 plan-reconcile | phases/§5-plan-reconcile.md | 书面用例对账真实 UI：继续/调整/提问/阻塞 |
-| §6 playwright-generate | phases/§6-playwright-generate.md | 据对账计划与 UI 证据生成或修复脚本 |
-| §7 self-run | phases/§7-self-run.md | 跑目标 spec，记录命令/退出码/输出/报告路径 |
-| §8 run-triage | phases/§8-run-triage.md | 失败归类：产品/脚本/数据/权限/环境/未知/需决策 |
-| §9 repair-loop | phases/§9-repair-loop.md | 有限修复循环，保留每次修复证据 |
-| §10 quality-gate | phases/§10-quality-gate.md | 脚本结构、断言、session、handoff 等 15 项门禁 |
-| §11 handoff | phases/§11-handoff.md | 通过/阻塞/部分/修复耗尽的最终交付报告 |
-| §12 case-feedback | phases/§12-case-feedback.md | 生成 case-corrections（8 类 category、3 级 confidence、跨轮去重） |
+| Phase                  | 文件                             | 简介                                                              |
+| ---------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| §1 case-normalize      | phases/§1-case-normalize.md      | MD/Archive/PRD/Lanhu/脚本/失败结果 → UiAutomationIntent           |
+| §2 env-preflight       | phases/§2-env-preflight.md       | base URL、登录态、项目、数据源、权限、浏览器依赖校验              |
+| §3 ui-plan             | phases/§3-ui-plan.md             | 覆盖范围、可见断言、fixture、选择器策略与风险                     |
+| §4 ui-probe            | phases/§4-ui-probe.md            | 真实浏览器收集页面/可访问性/截图/网络/locator 证据                |
+| §5 plan-reconcile      | phases/§5-plan-reconcile.md      | 书面用例对账真实 UI：继续/调整/提问/阻塞                          |
+| §6 playwright-generate | phases/§6-playwright-generate.md | 据对账计划与 UI 证据生成或修复脚本                                |
+| §7 self-run            | phases/§7-self-run.md            | 跑目标 spec，记录命令/退出码/输出/报告路径                        |
+| §8 run-triage          | phases/§8-run-triage.md          | 失败归类：产品/脚本/数据/权限/环境/未知/需决策                    |
+| §9 repair-loop         | phases/§9-repair-loop.md         | 有限修复循环，保留每次修复证据                                    |
+| §10 quality-gate       | phases/§10-quality-gate.md       | 脚本结构、断言、session、handoff 等 15 项门禁                     |
+| §11 handoff            | phases/§11-handoff.md            | 通过/阻塞/部分/修复耗尽的最终交付报告                             |
+| §12 case-feedback      | phases/§12-case-feedback.md      | 生成 case-corrections（8 类 category、3 级 confidence、跨轮去重） |
 
 ## 何时加载哪个文件
 
-| 文件 | 何时读 | 作用 |
-| --- | --- | --- |
-| references/execution-protocol.md | env 确认且无 blocker 后的重阶段 | TodoWrite 可见编排、Worker 派发、二阶段 review |
-| prompts/agent-worker.md | ui-probe/generate/self-run/repair 派 Worker 时 | Worker 模板与 Status/BlockedEnvelope |
-| prompts/agent-spec-reviewer.md | 重阶段产物落盘后 | spec 合规机械检查 |
-| prompts/agent-quality-reviewer.md | generate/repair 后 | 脚本质量（选择器、断言、复用度） |
+| 文件                              | 何时读                                         | 作用                                           |
+| --------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| references/execution-protocol.md  | env 确认且无 blocker 后的重阶段                | TodoWrite 可见编排、Worker 派发、二阶段 review |
+| prompts/agent-worker.md           | ui-probe/generate/self-run/repair 派 Worker 时 | Worker 模板与 Status/BlockedEnvelope           |
+| prompts/agent-spec-reviewer.md    | 重阶段产物落盘后                               | spec 合规机械检查                              |
+| prompts/agent-quality-reviewer.md | generate/repair 后                             | 脚本质量（选择器、断言、复用度）               |
 
 ## 硬规则（不变量）
 

@@ -24,11 +24,11 @@ effort: high
 
 ## 何时加载哪个文件
 
-| 文件 | 何时读 | 作用 |
-| --- | --- | --- |
-| references/diagnostic-playbook.md | 自行排查时 | 按报错类型的分步只读诊断与对症修复 |
-| references/ssh-protocol.md | 需要登机时 | SSH 连接、凭据读取/补充、破坏性命令门控 |
-| references/knowledge-format.md | 收尾沉淀时 | 知识条目检索流程与落盘格式 |
+| 文件                              | 何时读     | 作用                                    |
+| --------------------------------- | ---------- | --------------------------------------- |
+| references/diagnostic-playbook.md | 自行排查时 | 按报错类型的分步只读诊断与对症修复      |
+| references/ssh-protocol.md        | 需要登机时 | SSH 连接、凭据读取/补充、破坏性命令门控 |
+| references/knowledge-format.md    | 收尾沉淀时 | 知识条目检索流程与落盘格式              |
 
 ## 硬规则（不变量）
 
