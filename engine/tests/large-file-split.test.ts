@@ -7,14 +7,14 @@ import * as ts from "typescript";
 const ROOT = repoRoot();
 
 const TARGET_ENTRY_FILES = [
-  "engine/src/history-convert.ts",
+  ".claude/skills/case-edit/scripts/history-convert.ts",
   "engine/src/knowledge-curate.ts",
   ".claude/scripts/_shared/cli/xmind-gen.ts",
   "engine/src/skills/runtime-sync.ts",
 ];
 
 const TARGET_SPLIT_DIRS = [
-  "engine/src/history-convert",
+  ".claude/skills/case-edit/scripts/history-convert",
   "engine/src/knowledge-curate",
   ".claude/scripts/_shared/cli/xmind-gen",
 ];
