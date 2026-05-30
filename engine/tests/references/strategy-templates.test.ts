@@ -21,7 +21,8 @@ describe("case-draft runtime references", () => {
 
   test("projects the design-aligned product skill name", () => {
     expect(skill).toContain("name: case-draft");
-    expect(skill).toContain("few-shot 只可作为格式参考");
+    // few-shot 仅作格式参考、不作证据来源的不变量（措辞随提示词优化更新，语义不变）
+    expect(skill).toContain("不作事实来源");
     expect(existsSync(oldSkillPath)).toBe(false);
   });
 
