@@ -34,9 +34,15 @@ describe("paths audit known-safe files", () => {
     ).toBe(true);
   });
 
-  test("does not skip stale script path violations in runtime docs", () => {
+  test("does not skip stale script invocations in runtime docs", () => {
     expect(
-      isKnownSafe(violation("/repo/.agents/skills/example/SKILL.md", "P-S1", ".claude/scripts/")),
+      isKnownSafe(
+        violation(
+          "/repo/.agents/skills/example/SKILL.md",
+          "P-S2",
+          "bun test ./.claude/scripts/__tests__",
+        ),
+      ),
     ).toBe(false);
   });
 });
