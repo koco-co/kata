@@ -18,6 +18,15 @@
  */
 
 import { program as archiveGen } from "@shared/cli/archive-gen.ts";
+import { program as config } from "@shared/cli/config.ts";
+import { program as imageCompress } from "@shared/cli/image-compress.ts";
+import { program as plan } from "@shared/cli/plan.ts";
+import { program as pluginLoader } from "@shared/cli/plugin-loader.ts";
+import { program as progress } from "@shared/cli/progress.ts";
+import { program as repoProfile } from "@shared/cli/repo-profile.ts";
+import { program as repoSync } from "@shared/cli/repo-sync.ts";
+import { program as ruleLoader } from "@shared/cli/rule-loader.ts";
+import { program as sourceRef } from "@shared/cli/source-ref.ts";
 import { program as xmindGen } from "@shared/cli/xmind-gen.ts";
 import { program as xmindPatch } from "@shared/cli/xmind-patch.ts";
 import { initEnv } from "@shared/lib/env.ts";
@@ -30,25 +39,16 @@ import { program as managingProjectKnowledge } from "@skills/knowledge-curate/sc
 import { Command } from "commander";
 // 大部分模块静态加载（无昂贵依赖）
 import { program as autoFixer } from "../auto-fixer.ts";
-import { program as config } from "../config.ts";
 import { program as createProject } from "../create-project.ts";
 import { program as discuss } from "../discuss.ts";
 import { program as formatCheckScript } from "../format-check-script.ts";
 import { program as formatReportLocator } from "../format-report-locator.ts";
-import { program as imageCompress } from "../image-compress.ts";
 import { program as initWizard } from "../init-wizard.ts";
-import { program as plan } from "../plan.ts";
-import { program as pluginLoader } from "../plugin-loader.ts";
 import { program as prdFrontmatter } from "../prd-frontmatter.ts";
-import { program as progress } from "../progress.ts";
-import { program as repoProfile } from "../repo-profile.ts";
-import { program as repoSync } from "../repo-sync.ts";
 import { program as reportToPdf } from "../report-to-pdf.ts";
-import { program as ruleLoader } from "../rule-loader.ts";
 import { program as runTestsNotify } from "../run-tests-notify.ts";
 import { program as searchFilter } from "../search-filter.ts";
 import { program as sourceAnalyze } from "../source-analyze.ts";
-import { program as sourceRef } from "../source-ref.ts";
 import { program as writerContextBuilder } from "../writer-context-builder.ts";
 
 const kata = new Command()
@@ -86,7 +86,7 @@ kata.addCommand(
     .allowUnknownOption()
     .allowExcessArguments(true)
     .action(async (_opts: unknown, _command: Command) => {
-      const { program: dbCliModule } = await import("../db-cli.ts");
+      const { program: dbCliModule } = await import("@shared/cli/db.ts");
       // 用真实命令替换当前占位命令
       await dbCliModule.parseAsync(process.argv.slice(2).filter((a) => a !== "db"));
     }),
