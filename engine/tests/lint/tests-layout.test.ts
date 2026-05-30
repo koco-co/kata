@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintFeatureTests } from "../../src/lint/tests-layout.ts";
+import { lintFeatureTests } from "@shared/lint/tests-layout.ts";
 
 const FX = join(import.meta.dirname, "fixtures/violating-tests");
 

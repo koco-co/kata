@@ -6,11 +6,11 @@ import {
   repoRoot,
   resolveAgentRuntime,
 } from "@shared/lib/paths.ts";
+import { lintAgentNaming } from "@shared/lint/agent-naming.ts";
+import { lintAgentShape } from "@shared/lint/agent-shape.ts";
+import { auditAgentRuntimeDrift, type DriftStatus } from "@shared/lint/agents-drift.ts";
+import { rollbackAgentsSync, runAgentsSync } from "@shared/lint/agents-sync.ts";
 import { Command } from "commander";
-import { lintAgentNaming } from "../lint/agent-naming.ts";
-import { lintAgentShape } from "../lint/agent-shape.ts";
-import { auditAgentRuntimeDrift, type DriftStatus } from "../lint/agents-drift.ts";
-import { rollbackAgentsSync, runAgentsSync } from "../lint/agents-sync.ts";
 
 interface SyncCliOptions {
   from: string;

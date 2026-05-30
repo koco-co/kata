@@ -6,7 +6,7 @@ import {
   getRegisteredPrefixes,
   isRegisteredPrefix,
   lintSourceRefRegistry,
-} from "../../src/lint/source-ref-registry.ts";
+} from "@shared/lint/source-ref-registry.ts";
 
 describe("SourceRefRegistry loader", () => {
   it("returns 4 prefixes", () => {

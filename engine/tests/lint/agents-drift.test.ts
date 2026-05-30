@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { auditAgentRuntimeDrift } from "../../src/lint/agents-drift.ts";
+import { auditAgentRuntimeDrift } from "@shared/lint/agents-drift.ts";
 
 const ROOT = join(tmpdir(), `kata-agents-drift-${process.pid}`);
 

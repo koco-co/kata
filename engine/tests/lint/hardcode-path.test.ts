@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintHardcodePath } from "../../src/lint/hardcode-path.ts";
+import { lintHardcodePath } from "@shared/lint/hardcode-path.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

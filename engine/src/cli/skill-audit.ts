@@ -7,10 +7,10 @@ import {
   repoRoot,
   skillsDir,
 } from "@shared/lib/paths.ts";
+import { lintAgentFrontmatter } from "@shared/lint/skill-frontmatter.ts";
+import { lintSkillShape } from "@shared/lint/skill-shape.ts";
 import { formatStructureReport, lintSkillStructure } from "@shared/lint/skill-structure.ts";
 import { Command } from "commander";
-import { lintAgentFrontmatter } from "../lint/skill-frontmatter.ts";
-import { lintSkillShape } from "../lint/skill-shape.ts";
 import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
 import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
 

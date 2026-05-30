@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { lintOwnerSkillDup } from "../../src/lint/owner-skill-dup.ts";
+import { lintOwnerSkillDup } from "@shared/lint/owner-skill-dup.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 
