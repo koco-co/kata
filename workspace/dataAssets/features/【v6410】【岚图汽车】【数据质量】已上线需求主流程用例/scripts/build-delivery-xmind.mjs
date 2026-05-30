@@ -648,9 +648,8 @@ async function main() {
 
   try {
     execFileSync(
-      "bun",
+      "kata",
       [
-        join(repoRoot, "engine/bin/kata"),
         "xmind-gen",
         "--input",
         input,

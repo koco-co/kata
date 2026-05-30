@@ -24,7 +24,7 @@ bun install
 kata config
 
 # 4. 运行测试（必须全绿）
-bun test --cwd engine
+bun test
 
 # 5. （可选）UI 自动化需要时安装 Playwright
 bunx playwright install

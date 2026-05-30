@@ -24,6 +24,6 @@
 
 模板使用 Handlebars 语法。可用变量参见各脚本的数据模型定义：
 
-- Archive: `engine/lib/types.ts` — `IntermediateJson`
+- Archive: `.claude/scripts/_shared/lib/types.ts` — `IntermediateJson`
 - Bug Report: bug-report / hotfix-case-gen skill 派发的 agent 输出 JSON 结构
-- Scan Report: `engine/lib/scan-report-types.ts` — `AuditMeta` / `ScanReport` / `Bug`
+- Scan Report: `.claude/scripts/_shared/lib/scan-report-types.ts` — `AuditMeta` / `ScanReport` / `Bug`

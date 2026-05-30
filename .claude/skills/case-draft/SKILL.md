@@ -5,7 +5,7 @@ when_to_use: 给出 Lanhu/Axure URL、Markdown PRD、截图、fixture 或功能�
 user-invocable: true
 model: sonnet
 effort: high
-allowed-tools: Bash(bun engine/bin/kata *)
+allowed-tools: Bash(kata *)
 paths:
   - "**/*.md"
   - "**/*.json"
