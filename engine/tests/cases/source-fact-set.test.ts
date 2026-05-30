@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { extractSourceFactSet, jaccard } from "../../src/cases/source-fact-set.ts";
+import { extractSourceFactSet, jaccard } from "@shared/lib/cases/source-fact-set.ts";
 
 const SHA = "a".repeat(64);
 function manifest(refs: string[]) {

@@ -10,7 +10,7 @@ import {
   verifyL3Quality,
   verifyStableCoreArtifacts,
   verifyStructuredSchemas,
-} from "../../src/cases/verify-layers.ts";
+} from "@shared/lib/cases/verify-layers.ts";
 
 const SHA = "a".repeat(64);
 const atom = (id: string, ref: string) => ({
