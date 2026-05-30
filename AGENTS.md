@@ -47,7 +47,7 @@
 ## 构建与测试
 
 - Runtime：Bun >= 1.3；装依赖：`bun install`。
-- 全量测试：`bun test`；局部测试：`bun test engine/tests/<area>`。
+- 全量测试：`bun test`；局部测试：`bun test .claude/scripts/_shared/tests/<area>`。
 - Lint 检查：`bun run check`；自动修复：`bun run check:fix`。
 - Skill 同步检查：`bun run check:skills`。
 
@@ -55,7 +55,7 @@
 
 - 敏感环境变量放 `.env.local` 或用户级配置，不写入项目入口文档。
 - 常用变量名：`KATA_ZENTAO_PASSWORD`、`KATA_LANHU_COOKIE`、`KATA_LANHU_PASSWORD`、`KATA_TARGET_ENV`。
-- 详细日志：`KATA_DEBUG=true bun engine/bin/kata <command>`。
+- 详细日志：`KATA_DEBUG=true kata <command>`。
 
 ## 代码变动请求标准流程
 

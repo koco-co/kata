@@ -62,7 +62,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 bun install
 [ -f .env ] || cp .env.example .env
 kata config
-bun test --cwd engine
+bun test
 ```
 
 仅在需要真实浏览器或 Playwright 用例执行时安装浏览器：
@@ -126,12 +126,12 @@ bunx playwright install
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现，以 runtime 内部 contracts 承接 schema、route、skill graph、workflow 与 blackboard，以 `engine` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
+Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现，以 runtime 内部 contracts 承接 schema、route、skill graph、workflow 与 blackboard，以 `.claude/scripts/_shared/**` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
 
 ```text
 .agents/    kata Codex runtime skills and contracts
 .claude/    Claude Code runtime skills and contracts
-engine/**    CLI, validators, tests, and workflow support
+.claude/scripts/_shared/**    CLI, validators, tests, and workflow support
 ```
 
 | Runtime / 边界 | 当前职责 |
@@ -142,7 +142,7 @@ engine/**    CLI, validators, tests, and workflow support
 | `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |
 | `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
 
-工作流执行时，agent 读取对应 runtime skill 和共享底盘 `.claude/scripts/_shared/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 engine 与 runtime 检查器校验。
+工作流执行时，agent 读取对应 runtime skill 和共享底盘 `.claude/scripts/_shared/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 `.claude/scripts/_shared/**` 校验器与 runtime 检查器共同校验。
 
 ## 插件
 
@@ -163,7 +163,7 @@ kata/
 ├── .agents/         # kata Codex runtime skills
 ├── .claude/         # Claude Code runtime skills
 ├── docs/            # 架构、ADR、审计、技能和排查文档
-├── engine/          # CLI、runtime 校验、工作流支撑代码和测试
+├── .claude/scripts/_shared/  # CLI、runtime 校验、工作流支撑代码和测试
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # 独立工具包
 ├── templates/       # 项目骨架与输出模板
@@ -175,8 +175,8 @@ kata/
 常用命令：
 
 ```bash
-# 全量 engine 测试
-bun --no-env-file test --cwd engine
+# 全量测试
+bun --no-env-file test
 
 # 检查 runtime skill 同步、detach、route、graph 和 workflow 契约
 bun run check:skills

@@ -244,7 +244,7 @@ export function knowledgePitfallsDir(project: string): string {
 }
 
 export function scriptsDir(): string {
-  return resolve(repoRoot(), "engine/src");
+  return resolve(repoRoot(), ".claude/scripts/_shared");
 }
 
 export function pluginsDir(): string {
@@ -263,10 +263,6 @@ export function sharedSchemasPath(...segments: string[]): string {
 
 export function contractPluginsDir(): string {
   return pluginsDir();
-}
-
-export function templatesDir(): string {
-  return resolve(repoRoot(), "templates");
 }
 
 export type AgentRuntime = "claude" | "codex";

@@ -46,15 +46,15 @@ bun run plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --out
 
 ## Replay Fixtures
 
-Deterministic Lanhu fixtures are available under `engine/tests/fixtures/lanhu/` for CI and offline use:
+Deterministic Lanhu fixtures are available under `.claude/scripts/_shared/tests/fixtures/lanhu/` for CI and offline use:
 
 ```bash
 # Use replay fixture instead of live fetch
-bun run plugins/lanhu/fetch.ts --fixture engine/tests/fixtures/lanhu/sample/source-snapshot.json
+bun run plugins/lanhu/fetch.ts --fixture .claude/scripts/_shared/tests/fixtures/lanhu/sample/source-snapshot.json
 ```
 
 ### Adding New Fixtures
 
 1. Run a real Lanhu fetch with `KATA_LANHU_COOKIE` set
-2. Copy the output `source-snapshot.json` and `content.md` to a new directory under `engine/tests/fixtures/lanhu/{name}/`
+2. Copy the output `source-snapshot.json` and `content.md` to a new directory under `.claude/scripts/_shared/tests/fixtures/lanhu/{name}/`
 3. Verify the fixture works in replay mode

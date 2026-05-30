@@ -229,7 +229,7 @@ export async function processMdFile(
   if (jsonOnly) {
     const jsonPath = join(tmpDir, `${fname}.json`);
     writeFileSync(jsonPath, JSON.stringify(data, null, 2), "utf-8");
-    process.stdout.write(`JSON: ${jsonPath} (${caseCount} cases)\n`);
+    console.log(`JSON: ${jsonPath} (${caseCount} cases)`);
     return;
   }
 
@@ -249,5 +249,5 @@ export async function processMdFile(
     return;
   }
 
-  process.stdout.write(`XMind: ${resolve(xmindPath)} (${caseCount} cases)\n`);
+  console.log(`XMind: ${resolve(xmindPath)} (${caseCount} cases)`);
 }

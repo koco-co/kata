@@ -33,7 +33,7 @@ export function buildCodemodCommand(): Command {
     .command("node-test")
     .description("转换引擎测试文件（node:test→bun:test 等）")
     .option("--apply", "write changes (default: dry-run)", false)
-    .option("--scope <p>", "scan path", join(repoRoot(), "engine"))
+    .option("--scope <p>", "scan path", join(repoRoot(), ".claude/scripts/_shared"))
     .option("--mode <m>", "transformation mode (node-test|strip-msg|fix-truthy)", "node-test")
     .action((opts: { apply: boolean; scope: string; mode: string }) => {
       const isStrip = opts.mode === "strip-msg";
@@ -51,9 +51,9 @@ export function buildCodemodCommand(): Command {
 
       const files: string[] = [];
       if (isFixTruthy) {
-        // fix-truthy must scan both engine/tests/ and engine/src/**/__tests__/
-        findTestFiles(join(repoRoot(), "engine", "tests"), files, indicator);
-        findTestFiles(join(repoRoot(), "engine", "src"), files, indicator);
+        // fix-truthy must scan both _shared/tests/ and _shared/**/__tests__/
+        findTestFiles(join(repoRoot(), ".claude/scripts/_shared/tests"), files, indicator);
+        findTestFiles(join(repoRoot(), ".claude/scripts/_shared"), files, indicator);
       } else {
         findTestFiles(opts.scope, files, indicator);
       }

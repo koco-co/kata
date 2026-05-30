@@ -11,7 +11,7 @@ description: 用户提供 PRD、设计稿、Lanhu、Axure 或功能描述并要�
 ## 路由摘要
 
 - 流程编排、步骤集合、blackboard 输入输出、失败模式与人工确认节点以本 SKILL.md 的「## 按需加载协议」表及其引用的 prompts/references 为准（skill 自包含，无外部 workflow 规范源；Codex runtime 当前为 Phase 2 占位，详见 `.agents/README.md`）。
-- 首步执行 `bun engine/bin/kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
+- 首步执行 `kata features resolve --project <project> --module <module> --lanhu-page <pageId> --json`，从返回的 JSON 取 featureDir 作为所有产物的唯一写入根。featureId 写入 metadata.yaml#id。禁止自行拼接 workspace/{project}/features/{YYYY-MM-xxx} 路径。
 - 阶段内任务编排细节（worker-prompt / spec-reviewer-prompt / quality-reviewer-prompt）见下方"## 按需加载协议"表对应阶段行；Lanhu/Axure 阻塞与 error-fallback 路径下禁用。
 
 ## 触发条件

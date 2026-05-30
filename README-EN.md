@@ -62,7 +62,7 @@ Start with [INSTALL.md](./INSTALL.md) when setting up a new machine. Manual setu
 bun install
 [ -f .env ] || cp .env.example .env
 kata config
-bun test --cwd engine
+bun test
 ```
 
 Install browsers only when you need real browser automation or Playwright execution:
@@ -126,12 +126,12 @@ Run these commands directly in the Claude Code or Codex runtime:
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata uses `.agents/**` and `.claude/**` as first-class runtime implementations, runtime-local contracts for schemas, routes, the skill graph, workflows, and the blackboard, `engine` as the execution and verification layer, and `workspace/{project}` as the artifact area:
+Kata uses `.agents/**` and `.claude/**` as first-class runtime implementations, runtime-local contracts for schemas, routes, the skill graph, workflows, and the blackboard, `.claude/scripts/_shared/**` as the execution and verification layer, and `workspace/{project}` as the artifact area:
 
 ```text
 .agents/    kata Codex runtime skills and contracts
 .claude/    Claude Code runtime skills and contracts
-engine/**    CLI, validators, tests, and workflow support
+.claude/scripts/_shared/**    CLI, validators, tests, and workflow support
 ```
 
 | Runtime / Boundary | Current responsibility |
@@ -142,7 +142,7 @@ engine/**    CLI, validators, tests, and workflow support
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
 | `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
 
-At runtime, agents read their runtime skill plus the shared chassis `.claude/scripts/_shared/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by engine validators and runtime checks.
+At runtime, agents read their runtime skill plus the shared chassis `.claude/scripts/_shared/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by `.claude/scripts/_shared/**` validators and runtime checks.
 
 ## Plugins
 
@@ -163,7 +163,7 @@ kata/
 ├── .agents/         # kata Codex runtime skills
 ├── .claude/         # Claude Code runtime skills
 ├── docs/            # Architecture, ADR, audit, skill, and troubleshooting docs
-├── engine/          # CLI, runtime checks, workflow support, and tests
+├── .claude/scripts/_shared/  # CLI, runtime checks, workflow support, and tests
 ├── plugins/         # lanhu / zentao / notify
 ├── tools/           # standalone toolkits
 ├── templates/       # project skeletons and output templates
@@ -175,8 +175,8 @@ kata/
 Common commands:
 
 ```bash
-# Full engine test suite
-bun --no-env-file test --cwd engine
+# Full test suite
+bun --no-env-file test
 
 # Check runtime skill sync, detach, route, graph, and workflow contracts
 bun run check:skills

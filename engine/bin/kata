@@ -1,3 +1,0 @@
-#!/usr/bin/env bun
-// bin shim — invokes engine/src/cli/index.ts
-await import("../src/cli/index.ts");

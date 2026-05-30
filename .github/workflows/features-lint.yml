@@ -5,7 +5,7 @@ on:
     paths:
       - 'workspace/**/features/**'
       - '.claude/scripts/_shared/lint/**'
-      - 'engine/src/cli/features-*.ts'
+      - '.claude/scripts/_shared/cli/features-*.ts'
       - '.claude/scripts/_shared/schemas/**'
 
 jobs:

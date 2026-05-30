@@ -21,8 +21,7 @@ interface AuditReport {
 
 /** Run bun test, capture stdout, parse the report. */
 export function runTestAudit(): AuditReport {
-  const engineRoot = join(repoRoot(), "engine");
-  const result = spawnSync("bun", ["test", "--cwd", engineRoot], {
+  const result = spawnSync("bun", ["test"], {
     encoding: "utf8",
     maxBuffer: 10 * 1024 * 1024,
   });
@@ -67,8 +66,8 @@ function classify(
   if (!fileSlug) return null;
 
   // Reconstruct file path dynamically
-  const enginePath = escapeRegex(join(repoRoot(), "engine"));
-  const fullPath = stdout.match(new RegExp(`${enginePath}/(tests/[^:]+):(\\d+)`));
+  const sharedPath = escapeRegex(join(repoRoot(), ".claude/scripts/_shared"));
+  const fullPath = stdout.match(new RegExp(`${sharedPath}/(tests/[^:]+):(\\d+)`));
   const line = fullPath ? Number(fullPath[2]) : 0;
 
   // Heuristic classification

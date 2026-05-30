@@ -32,7 +32,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function invokeJson(args: string[], stdin?: string): unknown | null {
-  // Convert "engine/src/xxx.ts" first arg to kata subcommand name
+  // Convert ".claude/skills/.../xxx.ts" first arg to kata subcommand name
   const [scriptPath, ...rest] = args;
   const subcommand = scriptPath.replace(/^.*\/([^/]+)\.ts$/, "$1");
   const result = spawnSync("kata", [subcommand, ...rest], {
@@ -121,7 +121,7 @@ function collectSource(
   if (keywords.length === 0) return null;
 
   const result = invokeJson([
-    "engine/src/source-analyze.ts",
+    ".claude/skills/case-draft/scripts/source-analyze.ts",
     "analyze",
     "--repo",
     repoPath,
@@ -146,7 +146,7 @@ function collectHistory(project: string, frontMatter: Record<string, unknown>): 
 
   // Call archive-gen search
   const searchRaw = invokeJson([
-    "engine/src/archive-gen.ts",
+    ".claude/scripts/_shared/cli/archive-gen.ts",
     "search",
     "--query",
     query,
@@ -175,7 +175,7 @@ function collectHistory(project: string, frontMatter: Record<string, unknown>): 
 
   // Pass through search-filter for deduplication/sorting
   const filterRaw = invokeJson(
-    ["engine/src/search-filter.ts", "filter", "--top", "5"],
+    [".claude/skills/case-draft/scripts/search-filter.ts", "filter", "--top", "5"],
     JSON.stringify(searchArr),
   );
 

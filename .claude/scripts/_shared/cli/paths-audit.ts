@@ -22,8 +22,8 @@ export function isKnownSafe(v: PathViolation): boolean {
   const { file, rule } = v;
   return (
     file.includes(".claude/scripts/_shared/lint/") || // lint self-references
-    file.includes("engine/tests/lint/") || // deliberate lint test fixtures
-    file.includes("engine/tests/cli/paths-audit.test.ts") || // deliberate CLI lint fixtures
+    file.includes(".claude/scripts/_shared/tests/lint/") || // deliberate lint test fixtures
+    file.includes(".claude/scripts/_shared/tests/cli/paths-audit.test.ts") || // deliberate CLI lint fixtures
     file.includes(".claude/settings.local.json") ||
     (rule === "P-S3" && isWorkspaceTemplateDoc(file))
   );
