@@ -1,3 +1,0 @@
-#!/usr/bin/env bun
-// bin shim — forwards to _shared/cli/index.ts (canonical entry point post-migration)
-await import("../../.claude/scripts/_shared/cli/index.ts");
