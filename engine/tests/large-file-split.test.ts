@@ -8,14 +8,14 @@ const ROOT = repoRoot();
 
 const TARGET_ENTRY_FILES = [
   ".claude/skills/case-edit/scripts/history-convert.ts",
-  "engine/src/knowledge-curate.ts",
+  ".claude/skills/knowledge-curate/scripts/knowledge-curate.ts",
   ".claude/scripts/_shared/cli/xmind-gen.ts",
   "engine/src/skills/runtime-sync.ts",
 ];
 
 const TARGET_SPLIT_DIRS = [
   ".claude/skills/case-edit/scripts/history-convert",
-  "engine/src/knowledge-curate",
+  ".claude/skills/knowledge-curate/scripts/knowledge-curate",
   ".claude/scripts/_shared/cli/xmind-gen",
 ];
 

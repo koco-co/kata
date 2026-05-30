@@ -217,7 +217,12 @@ function collectKnowledge(
   moduleName: string | null;
 } {
   // read-core
-  const coreRaw = invokeJson(["engine/src/knowledge-curate.ts", "read-core", "--project", project]);
+  const coreRaw = invokeJson([
+    ".claude/skills/knowledge-curate/scripts/knowledge-curate.ts",
+    "read-core",
+    "--project",
+    project,
+  ]);
 
   let core: KnowledgeReadCore | null = null;
   if (coreRaw !== null && typeof coreRaw === "object") {
@@ -257,7 +262,7 @@ function collectKnowledge(
     );
     if (existsSync(moduleFilePath)) {
       const moduleRaw = invokeJson([
-        "engine/src/knowledge-curate.ts",
+        ".claude/skills/knowledge-curate/scripts/knowledge-curate.ts",
         "read-module",
         "--project",
         project,

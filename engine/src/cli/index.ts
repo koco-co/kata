@@ -25,6 +25,7 @@ import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
 import { program as caseSignalAnalyzer } from "@skills/case-draft/scripts/case-signal-analyzer.ts";
 import { program as caseStrategyResolver } from "@skills/case-draft/scripts/case-strategy-resolver.ts";
 import { program as historyConvert } from "@skills/case-edit/scripts/history-convert.ts";
+import { program as managingProjectKnowledge } from "@skills/knowledge-curate/scripts/knowledge-curate.ts";
 import { Command } from "commander";
 // 大部分模块静态加载（无昂贵依赖）
 import { program as autoFixer } from "../auto-fixer.ts";
@@ -35,7 +36,6 @@ import { program as formatCheckScript } from "../format-check-script.ts";
 import { program as formatReportLocator } from "../format-report-locator.ts";
 import { program as imageCompress } from "../image-compress.ts";
 import { program as initWizard } from "../init-wizard.ts";
-import { program as managingProjectKnowledge } from "../knowledge-curate.ts";
 import { program as plan } from "../plan.ts";
 import { program as pluginLoader } from "../plugin-loader.ts";
 import { program as prdFrontmatter } from "../prd-frontmatter.ts";
