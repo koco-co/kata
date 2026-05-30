@@ -6,7 +6,7 @@ import { join } from "node:path";
 import {
   checkRuntimeSkillSync,
   formatRuntimeSkillSyncReport,
-} from "../../src/skills/runtime-sync.ts";
+} from "@shared/lib/skills/runtime-sync.ts";
 
 const tempRoots: string[] = [];
 
@@ -116,7 +116,7 @@ description: d
   });
 
   // WHY: Codex frontmatter allowlist now permits `when_to_use` per
-  // engine/src/skills/frontmatter-policy.ts; replaces the previous
+  // .claude/scripts/_shared/lib/skills/frontmatter-policy.ts; replaces the previous
   // "rejects on Codex" expectation.
   test("allows when_to_use on both Claude and Codex SKILL.md", () => {
     const root = makeRoot();

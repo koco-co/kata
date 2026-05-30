@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { transformNodeTestToBunTest } from "../../src/codemod/node-test-to-bun-test.ts";
+import { transformNodeTestToBunTest } from "@shared/lib/codemod/node-test-to-bun-test.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

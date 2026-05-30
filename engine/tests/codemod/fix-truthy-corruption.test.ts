@@ -4,7 +4,7 @@ import { join } from "node:path";
 import {
   fixStandaloneTruthy,
   fixTruthyCorruption,
-} from "../../src/codemod/fix-truthy-corruption.ts";
+} from "@shared/lib/codemod/fix-truthy-corruption.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

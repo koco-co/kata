@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { validateTelemetryEvent } from "../../src/telemetry/runtime-telemetry.ts";
+import { validateTelemetryEvent } from "@shared/lib/telemetry/runtime-telemetry.ts";
 
 describe("runtime telemetry", () => {
   it("accepts a closed-schema hashed artifact event", () => {

@@ -10,7 +10,7 @@ const TARGET_ENTRY_FILES = [
   ".claude/skills/case-edit/scripts/history-convert.ts",
   ".claude/skills/knowledge-curate/scripts/knowledge-curate.ts",
   ".claude/scripts/_shared/cli/xmind-gen.ts",
-  "engine/src/skills/runtime-sync.ts",
+  ".claude/scripts/_shared/lib/skills/runtime-sync.ts",
 ];
 
 const TARGET_SPLIT_DIRS = [

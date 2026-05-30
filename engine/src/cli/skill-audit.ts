@@ -7,12 +7,18 @@ import {
   repoRoot,
   skillsDir,
 } from "@shared/lib/paths.ts";
+import {
+  checkRuntimeDetach,
+  formatRuntimeDetachReport,
+} from "@shared/lib/skills/runtime-detach.ts";
+import {
+  checkRuntimeSkillSync,
+  formatRuntimeSkillSyncReport,
+} from "@shared/lib/skills/runtime-sync.ts";
 import { lintAgentFrontmatter } from "@shared/lint/skill-frontmatter.ts";
 import { lintSkillShape } from "@shared/lint/skill-shape.ts";
 import { formatStructureReport, lintSkillStructure } from "@shared/lint/skill-structure.ts";
 import { Command } from "commander";
-import { checkRuntimeDetach, formatRuntimeDetachReport } from "../skills/runtime-detach.ts";
-import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/runtime-sync.ts";
 
 /**
  * List skill directory names under `skillsRoot`, skipping `_`-prefixed aggregate

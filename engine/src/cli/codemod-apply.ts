@@ -1,10 +1,13 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  fixStandaloneTruthy,
+  fixTruthyCorruption,
+} from "@shared/lib/codemod/fix-truthy-corruption.ts";
+import { transformNodeTestToBunTest } from "@shared/lib/codemod/node-test-to-bun-test.ts";
+import { stripMatcherMessage } from "@shared/lib/codemod/strip-matcher-message.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
-import { fixStandaloneTruthy, fixTruthyCorruption } from "../codemod/fix-truthy-corruption.ts";
-import { transformNodeTestToBunTest } from "../codemod/node-test-to-bun-test.ts";
-import { stripMatcherMessage } from "../codemod/strip-matcher-message.ts";
 
 function findTestFiles(root: string, out: string[], indicator: RegExp): void {
   try {

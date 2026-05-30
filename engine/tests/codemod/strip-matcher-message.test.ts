@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { stripMatcherMessage } from "../../src/codemod/strip-matcher-message.ts";
+import { stripMatcherMessage } from "@shared/lib/codemod/strip-matcher-message.ts";
 
 const FIX = join(import.meta.dirname, "fixtures");
 

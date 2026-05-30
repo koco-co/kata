@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { validateHandoffEnvelope } from "../../src/policy/schema-guard.ts";
+import { validateHandoffEnvelope } from "@shared/lib/policy/schema-guard.ts";
 
 const VALID_SOURCE_REF = `prd.file:demo#sha256:${"a".repeat(64)}`;
 

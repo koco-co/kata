@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { isRuntimeConfigEnvName, resolveRuntimeConfig } from "../../src/config/runtime-config.ts";
+import { isRuntimeConfigEnvName, resolveRuntimeConfig } from "@shared/lib/config/runtime-config.ts";
 
 describe("runtime config resolver", () => {
   it("does not retain a legacy-env migration surface", () => {

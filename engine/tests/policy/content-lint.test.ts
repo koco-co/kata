@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { lintArtifactContent } from "../../src/policy/content-lint.ts";
+import { lintArtifactContent } from "@shared/lib/policy/content-lint.ts";
 
 const HASH_A = "a".repeat(64);
 const HASH_B = "b".repeat(64);
