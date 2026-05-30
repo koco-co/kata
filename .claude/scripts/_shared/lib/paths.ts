@@ -244,7 +244,7 @@ export function knowledgePitfallsDir(project: string): string {
 }
 
 export function scriptsDir(): string {
-  return resolve(repoRoot(), "engine/src");
+  return resolve(repoRoot(), ".claude/scripts/_shared");
 }
 
 export function pluginsDir(): string {

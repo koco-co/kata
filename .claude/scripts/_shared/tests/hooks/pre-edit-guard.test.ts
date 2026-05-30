@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
 
-const HOOK = join(import.meta.dirname, "../../../../../engine/hooks/pre-edit-guard.ts");
+const HOOK = join(import.meta.dirname, "../../../../../.claude/hooks/pre-edit-guard.ts");
 const REPO = repoRoot();
 
 describe("pre-edit-guard hook (H1)", () => {

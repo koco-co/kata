@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
-const HOOK = join(import.meta.dirname, "../../../../../engine/hooks/post-edit-md-link.ts");
+const HOOK = join(import.meta.dirname, "../../../../../.claude/hooks/post-edit-md-link.ts");
 
 describe("post-edit-md-link hook (H4)", () => {
   test("warns on broken relative link", () => {

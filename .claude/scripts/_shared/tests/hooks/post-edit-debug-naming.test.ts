@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
-const HOOK = join(import.meta.dirname, "../../../../../engine/hooks/post-edit-debug-naming.ts");
+const HOOK = join(import.meta.dirname, "../../../../../.claude/hooks/post-edit-debug-naming.ts");
 
 describe("post-edit-debug-naming hook (H3)", () => {
   test("warns on t99-debug.spec.ts in cases/", () => {
