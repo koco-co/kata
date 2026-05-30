@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { generateRunId } from "../../src/features/run-id.ts";
+import { generateRunId } from "@shared/lib/features/run-id.ts";
 
 describe("run-id generator", () => {
   it("produces YYYYMMDD-HHmm-xxxxxxxx", () => {

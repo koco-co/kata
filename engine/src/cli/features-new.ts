@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildFeatureId, isValidSlug } from "@shared/lib/features/slug.ts";
 import { parse, stringify } from "yaml";
-import { buildFeatureId, isValidSlug } from "../features/slug.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 
 export interface FeaturesNewContext {

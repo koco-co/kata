@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { deriveSlugFromSource, hexFallbackSlug } from "../../src/features/slug.ts";
+import { deriveSlugFromSource, hexFallbackSlug } from "@shared/lib/features/slug.ts";
 
 describe("deriveSlugFromSource", () => {
   it("derives a valid slug from a Lanhu pageId", () => {

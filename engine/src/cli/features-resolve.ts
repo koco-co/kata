@@ -7,7 +7,7 @@ import {
   isValidSlug,
   type SlugSource,
   sanitizeSlug,
-} from "../features/slug.ts";
+} from "@shared/lib/features/slug.ts";
 
 export interface FeaturesResolveContext {
   project: string;
