@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
-import { evaluateWrite } from "../../src/policy/write-policy.ts";
+import { evaluateWrite } from "@shared/lib/policy/write-policy.ts";
 
 describe("WritePolicy P0 slice", () => {
   it("blocks writes under .repos", () => {

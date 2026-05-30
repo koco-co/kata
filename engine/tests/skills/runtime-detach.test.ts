@@ -3,7 +3,10 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
-import { checkRuntimeDetach, formatRuntimeDetachReport } from "../../src/skills/runtime-detach.ts";
+import {
+  checkRuntimeDetach,
+  formatRuntimeDetachReport,
+} from "@shared/lib/skills/runtime-detach.ts";
 
 const tempRoots: string[] = [];
 

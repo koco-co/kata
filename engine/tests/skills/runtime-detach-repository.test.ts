@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { repoRoot } from "@shared/lib/paths.ts";
-import { checkRuntimeDetach, formatRuntimeDetachReport } from "../../src/skills/runtime-detach.ts";
-import { checkRuntimeSkillSync } from "../../src/skills/runtime-sync.ts";
+import {
+  checkRuntimeDetach,
+  formatRuntimeDetachReport,
+} from "@shared/lib/skills/runtime-detach.ts";
+import { checkRuntimeSkillSync } from "@shared/lib/skills/runtime-sync.ts";
 
 describe("repository runtime detach contract", () => {
   test("repository runtime files are detached from retired source roots", () => {

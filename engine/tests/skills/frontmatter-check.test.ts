@@ -4,7 +4,7 @@ import {
   CLAUDE_SKILL_FRONTMATTER_FIELDS,
   CODEX_SKILL_FRONTMATTER_FIELDS,
   findUnsupportedFrontmatterFields,
-} from "../../src/skills/frontmatter-policy.ts";
+} from "@shared/lib/skills/frontmatter-policy.ts";
 
 const CLAUDE_FIELDS = [
   "name",

@@ -2,9 +2,9 @@ import { describe, expect, it } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { validateHandoffEnvelope } from "@shared/lib/policy/schema-guard.ts";
+import { runPatchOnlyAgent } from "@shared/lib/runners/agent-runner.ts";
 import { snapshotFileRef } from "@shared/lib/source-ref/resolvers.ts";
-import { validateHandoffEnvelope } from "../../src/policy/schema-guard.ts";
-import { runPatchOnlyAgent } from "../../src/runners/agent-runner.ts";
 
 const PATCH = "diff --git a/workspace/demo/features/a.md b/workspace/demo/features/a.md\n";
 
