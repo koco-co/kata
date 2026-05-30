@@ -1,7 +1,7 @@
 ---
 name: case-hotfix
-description: 用户提供 bug、issue、Zentao 记录或修复说明并要求 hotfix 回归用例。
-when_to_use: 用户提供 bug、issue、Zentao 记录或修复说明并要求 hotfix 回归用例时使用。
+description: 以 bug 记录/修复说明为输入，产出聚焦修复路径的单条 hotfix 回归用例（可直接执行的 archive.md）。给出 bug ID/issue/ZenTao 记录时用。
+when_to_use: 给出 bug ID、issue URL、缺陷描述或修复说明（含只给 ZenTao bug URL/bug-view/bug ID、未明说 hotfix）时用。要通用 bug 报告或依 PRD 产用例的不在此。
 user-invocable: true
 model: sonnet
 effort: medium
@@ -13,51 +13,31 @@ paths:
 
 # case-hotfix
 
+以 bug 记录为输入，产出一条聚焦修复路径、可直接交付执行的 hotfix 回归用例。
 
-证据事实必须引用 SourceRef ID。
+## 路由边界
 
-## 路由摘要
+- 触发：bug ID、issue URL、缺陷描述、修复说明，或仅 ZenTao bug URL/bug-view/bug ID（未明说 hotfix 也算）。
+- 改走：要基于原始失败证据写通用 bug 报告 → defect-analyze；依完整 PRD 产用例 → case-draft。
 
-- 以 bug 记录为输入，产出聚焦修复路径的 hotfix 回归用例。
+## 工作流
 
-## 触发条件
+1. 抓取 bug 证据，定位修复路径与受影响页面/字段。
+2. 写 archive 前读 `references/hotfix-archive-format.md`（目录、frontmatter keywords、前置条件 SQL、Spark 边界等全部细则）。
+3. 输出独立 hotfix 目录：一个 archive.md + source_refs.json + .temp/；交付前按 `.claude/prompt/_shared/case-qa.md` 自审。
 
-- 用户给出 bug ID、issue URL、缺陷描述或修复说明。
-- 用户只给出 ZenTao bug URL、bug-view URL、bug ID 或其他已登记 issue 记录，即使没有显式写出“hotfix”或“回归用例”。
-- 用户希望为已修复的缺陷补足回归覆盖。
+## 何时加载哪个文件
 
-## 不触发条件
+| 文件 | 何时读 | 作用 |
+| --- | --- | --- |
+| references/hotfix-archive-format.md | 写或复核 archive 前 | 目录/frontmatter/keywords/前置条件 SQL/Spark 全分区等可执行格式 |
+| .claude/prompt/_shared/case-qa.md | 交付前自审 | Archive 字段一致性、标题、前置条件可执行性 |
 
-- 用户要求基于原始失败证据撰写通用 bug 报告。
-- 用户希望对完整 PRD 产出测试用例。
+## 硬规则（不变量）
 
-## 按需加载协议
-
-- 默认只读取当前 SKILL.md。
-- 禁止批量读取 references/**。
-- 只有当前阶段命中表格中的阶段与条件时，才读取对应文件。
-- 没有命中的 reference 不得读取；few-shot 只可作为格式参考，不得作为领域事实证据。
-
-| 阶段 | 条件 | 文件 | 类型 | 用途 |
-| --- | --- | --- | --- | --- |
-| draft_cases, review_cases, output | `outputs.ids contains archive` | references/hotfix-archive-format.md | 规范 | Apply executable Hotfix archive format, prerequisite SQL, and historical case layout before writing or reviewing archive output. |
-| output | `step.id == output` | .claude/skills/_shared/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
-
-## 硬规则
-
-- Hotfix archive 必须只包含 1 条用例；禁止拆成多条回归用例或完整套件。
-- 用这一条用例覆盖修复路径本身；相邻回归风险点只能合并为同一条用例内的必要步骤或预期检查。
-- 范围未定的问题一律入 pending_items，不得擅自外延。
-- Hotfix 输出必须是可直接执行的 archive.md，不得只输出缺陷分析报告、原因说明或自然语言总结。
-- Hotfix md 不得包含 SourceRefs、bug.record@N、[bug.record@N] 或任何 SourceRef 引用；md 只保留人类可读用例内容。
-- Hotfix 必须输出为独立目录；目录名为 hotfix_{fix_branch_or_bug_id}-{short-title}，目录内只保留一个 archive.md、必要 JSON 文件和 .temp/。
-- SourceRefs 只能写入 hotfix 目录内的 source_refs.json；不得使用散落在 issues 目录下的同名 .source_refs.json。
-- 原始抓取证据必须写入 hotfix 目录内的 .temp；不得写入仓库根级 workspace/.temp，也不得写入 .kata 作为该 Hotfix 的交付证据目录。
-- 具体页面路径、按钮名称、字段 label、控件名称和交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则 SourceRef 支撑；若只来自历史用例或项目规则，不得宣称为本次真实页面探测结果，必须在 source_refs.json 中标明证据来源与未验证边界。
-- frontmatter 必须包含 zentao_url；keywords 第 5 段必须归一化为最低修复大版本，不得写构建号、客户缩写或修复分支名；第 6 段必须写证据中的具体问题原因，不得写“代码缺陷”等泛化原因。
-- 前置条件必须使用单个无语言标记的代码块；部署包、权限、数据准备、SQL 都放入该代码块，不得使用 ```sql。
-- 前置条件必须优先给出可复制执行的 SQL；涉及特定数据状态时必须同时包含建表语句和插入语句。
-- SQL 不得写固定库名/schema 前缀；数据库选择写成前置条件说明，SQL 直接使用裸表名。
-- Spark SQL 不得生成所有字段均为分区字段的 CREATE TABLE；Spark 会因 ALL_PARTITION_COLUMNS_NOT_ALLOWED 拒绝执行，必须改为 Hive CLI / HMS / 已有数据源预置该边界表。
-- 主缺陷复现表必须保持证据要求的特殊数据形态；不得为了让 SQL 在 Spark 中通过而添加普通字段，也不得用相邻回归表替代主复现场景。
-- Archive 结构必须沿用历史 Hotfix 产物：frontmatter、模块层级、前置条件、用例步骤表。
+- 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身，相邻回归风险点并入同一条用例的步骤或预期检查，不拆套件——hotfix 要的是窄而准的回归点，不是全量覆盖。
+- 必须输出可直接执行的 archive.md（前置条件 + 步骤表），不得只给缺陷分析/原因说明/自然语言总结。
+- 范围未定的问题一律入 `pending_items`，不外延到证据没支撑的模块/数据源/版本。
+- 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则支撑；仅来自历史用例/规则时在 source_refs.json 标明来源与未验证边界，不冒充本次真实探测。
+- 证据分层：archive.md 只留人类可读用例内容（不含任何 SourceRef 引用）；SourceRefs 只写本 hotfix 目录内的 source_refs.json；原始抓取证据只落本目录 .temp/，不写仓库根 workspace/.temp 也不写 .kata。
+- frontmatter 必须含 zentao_url；目录命名 `hotfix_{fix_branch_or_bug_id}-{short-title}`；keywords 6 段、前置条件 SQL/Spark 写法等细则严格按 `references/hotfix-archive-format.md`，不在此重复。

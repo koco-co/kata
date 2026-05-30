@@ -1,6 +1,6 @@
 # Hotfix Archive Format
 
-仅当当前工作流进入 `draft_cases`、`review_cases` 或 `output`，且输出包含 `archive` 时读取。不得批量读取 `references/**`。
+写或复核 hotfix archive 前读本文，掌握可执行格式、前置条件 SQL 与历史用例布局。
 
 ## 输出定位
 

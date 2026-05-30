@@ -1,6 +1,6 @@
 <!--
 XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
-SSOT：.claude/skills/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot
+SSOT：.claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot
 配套 md fewshot：./case-format-sample.md
 
 为什么用 ASCII 树状而非真 .xmind：
