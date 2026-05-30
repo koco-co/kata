@@ -82,7 +82,7 @@ export function migrateLegacyHistorys(projectDirAbs: string): LegacyMigrationRes
   return { renamed: true, from: legacy, to: current };
 }
 
-export const TEMPLATE_ROOT_REL = "templates/project-skeleton";
+export const TEMPLATE_ROOT_REL = ".claude/skills/workspace-manage/templates/project-skeleton";
 
 const NAME_REGEX = /^[A-Za-z][A-Za-z0-9-]*$/;
 

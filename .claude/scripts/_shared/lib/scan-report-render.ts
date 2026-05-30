@@ -82,7 +82,7 @@ let cachedTemplate: HandlebarsTemplateDelegate | null = null;
 function getTemplate(): HandlebarsTemplateDelegate {
   if (cachedTemplate) return cachedTemplate;
   registerHelpers();
-  const path = join(repoRoot(), "templates", "scan-report.html.hbs");
+  const path = join(repoRoot(), ".claude/skills/defect-analyze/templates/scan-report.html.hbs");
   const src = readFileSync(path, "utf8");
   cachedTemplate = Handlebars.compile(src);
   return cachedTemplate;

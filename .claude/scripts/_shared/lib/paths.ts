@@ -265,10 +265,6 @@ export function contractPluginsDir(): string {
   return pluginsDir();
 }
 
-export function templatesDir(): string {
-  return resolve(repoRoot(), "templates");
-}
-
 export type AgentRuntime = "claude" | "codex";
 export type AgentRuntimeSelector = AgentRuntime | "all";
 
