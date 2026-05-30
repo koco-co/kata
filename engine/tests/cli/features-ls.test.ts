@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runFeaturesLs } from "@shared/cli/features-ls.ts";
 import { stringify } from "yaml";
-import { runFeaturesLs } from "../../src/cli/features-ls.ts";
 
 function seedFeature(
   root: string,

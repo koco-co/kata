@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { generateRunId } from "../features/run-id.ts";
+import { generateRunId } from "@shared/lib/features/run-id.ts";
 
 export interface ResultsPathContext {
   project: string;

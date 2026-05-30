@@ -5,7 +5,7 @@ import {
   kataRoot,
   resultsDir,
   sharedRoot,
-} from "../../src/features/paths.ts";
+} from "@shared/lib/features/paths.ts";
 
 describe("feature paths", () => {
   it("computes featuresRoot under project", () => {

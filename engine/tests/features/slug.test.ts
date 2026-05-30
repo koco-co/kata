@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { buildFeatureId, isValidSlug, sanitizeSlug } from "../../src/features/slug.ts";
+import { buildFeatureId, isValidSlug, sanitizeSlug } from "@shared/lib/features/slug.ts";
 
 describe("slug utilities", () => {
   it("validates ascii kebab-case slug", () => {

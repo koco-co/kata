@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runFeaturesNew } from "@shared/cli/features-new.ts";
 import { loadFeatureMetadataValidator } from "@shared/schemas/loaders.ts";
 import { parse, stringify } from "yaml";
-import { runFeaturesNew } from "../../src/cli/features-new.ts";
 
 describe("kata features new", () => {
   let scratch: string;
