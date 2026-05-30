@@ -25,11 +25,25 @@ GLOBAL OPTIONS
       --json           Print machine-readable JSON output
       --verbose        Print debug logs
 
+CONFIG SOURCE PRIORITY
+  1. --config <path>         Explicit config file path
+  2. $DTSTACK_CONFIG         Env var pointing to config file
+  3. dtstack-cli.yaml         Default config file (if exists)
+  4. Env vars                Auto-build from {ENV}_BASE_URL (if no file)
+
 ENVIRONMENT
-  DTSTACK_DEFAULT_ENV       Default --env if omitted
+  ACTIVE_ENV                Default --env if omitted (优先级最高)
+  DTSTACK_DEFAULT_ENV       Default --env if omitted (fallback)
   DTSTACK_COOKIE            Override cached cookie (CI use)
   DTSTACK_USERNAME / DTSTACK_PASSWORD   Auto-login fallback
   DTSTACK_CONFIG            Override default config file path
+  {ENV}_BASE_URL            Base URL for env, e.g. LTQC_BASE_URL
+
+NOTE
+  Config file 和 env var 二选一即可：
+  - 有 dtstack-cli.yaml → 读文件
+  - 无文件 → 读 {ENV}_BASE_URL 环境变量（Playwright 体系已自带）
+  不需要创建 dtstack-cli.yaml。
 `;
 
 export const SQL_EXEC_HELP = `\
