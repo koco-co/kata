@@ -1,29 +1,21 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import type { PathReport, PathViolation } from "./types.ts";
+import type { PathReport, PathRuleId, PathViolation } from "./types.ts";
 
 interface RuleDef {
-  id: "P-S1" | "P-S2" | "P-S3" | "P-S4";
+  id: PathRuleId;
   regex: RegExp;
   message: string;
 }
 
+// P-S1（`.claude/scripts/` 引用）与 P-S4（`bun run .claude/scripts/...`）在 bundle 迁移后退役：
+// `.claude/scripts/` 已成为 canonical 代码家（`bin.kata` + `bun run .claude/scripts/lint/*`），
+// 原本指向 `engine/src/` 的告警方向被彻底反转。保留 P-S2/P-S3，它们仍捕获真正陈旧的模式。
 const RULES: RuleDef[] = [
-  // P-S2 must come before P-S1 (more specific match)
   {
     id: "P-S2",
     regex: /bun\s+test\s+\.\/\.claude\/scripts\/__tests__/g,
     message: "stale `bun test ./.claude/scripts/__tests__`; use `bun test --cwd engine`",
-  },
-  {
-    id: "P-S4",
-    regex: /bun\s+run\s+\.claude\/scripts\//g,
-    message: "stale `bun run .claude/scripts/...`; use `kata {subcommand}` or `bunx kata ...`",
-  },
-  {
-    id: "P-S1",
-    regex: /\.claude\/scripts\//g,
-    message: "stale `.claude/scripts/` reference; use `engine/src/` or specific relocated path",
   },
   {
     id: "P-S3",
@@ -70,21 +62,26 @@ const EXCLUDED_PATH_FRAGMENTS = [
   "docs/audit/",
 ];
 
-function isExcluded(filePath: string): boolean {
+function isExcluded(filePath: string, scanRoot: string): boolean {
+  // detached worktrees 固定挂在 repo root 下的 .worktrees/<slug>；只排除 scanRoot 之下的
+  // .worktrees/，这样在 .worktrees 路径中检出的仓库（含本仓测试夹具）不会被整体跳过。
+  const rel = filePath.startsWith(scanRoot) ? filePath.slice(scanRoot.length) : filePath;
+  if (rel === "/.worktrees" || rel.startsWith("/.worktrees/")) return true;
   return EXCLUDED_PATH_FRAGMENTS.some((frag) => filePath.includes(frag));
 }
 
-function walk(root: string, out: string[]): void {
+function walk(root: string, scanRoot: string, out: string[]): void {
   try {
     const st = statSync(root);
     if (st.isFile()) {
-      if (SCAN_SUFFIXES.some((s) => root.endsWith(s)) && !isExcluded(root)) out.push(root);
+      if (SCAN_SUFFIXES.some((s) => root.endsWith(s)) && !isExcluded(root, scanRoot))
+        out.push(root);
       return;
     }
     if (!st.isDirectory()) return;
-    if (isExcluded(root)) return;
+    if (isExcluded(root, scanRoot)) return;
     for (const entry of readdirSync(root, { withFileTypes: true })) {
-      walk(join(root, entry.name), out);
+      walk(join(root, entry.name), scanRoot, out);
     }
   } catch {
     // skip inaccessible paths (broken symlinks, permissions, etc.)
@@ -93,7 +90,7 @@ function walk(root: string, out: string[]): void {
 
 export function lintPaths(scanPath: string): PathReport {
   const files: string[] = [];
-  walk(scanPath, files);
+  walk(scanPath, scanPath, files);
   const violations: PathViolation[] = [];
 
   for (const file of files) {
