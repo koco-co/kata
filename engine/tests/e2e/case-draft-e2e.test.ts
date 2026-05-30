@@ -3,8 +3,8 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runCasesCompare } from "@shared/cli/cases-compare.ts";
-import { repoRoot } from "@shared/lib/paths.ts";
 import { runCaseDraftE2e } from "@shared/lib/e2e/case-draft-e2e.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 function writeFakeRuntime(binPath: string): void {
   writeFileSync(

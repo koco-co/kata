@@ -2,10 +2,10 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { lintLanhuBlockedDrafts } from "@shared/cli/cases-lint.ts";
 import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
 import JSZip from "jszip";
-import { lintLanhuBlockedDrafts } from "@shared/cli/cases-lint.ts";
 
 function blockedLanhuManifest(featureId: string) {
   return {
