@@ -15,7 +15,6 @@ paths:
 
 # case-draft
 
-
 证据事实必须引用 SourceRef ID。
 
 ## 路由摘要
@@ -41,15 +40,15 @@ paths:
 - 只有当前阶段命中表格中的阶段与条件时，才读取对应文件。
 - 没有命中的 reference 不得读取；few-shot 只可作为格式参考，不得作为领域事实证据。
 
-| 阶段 | 条件 | 文件 | 类型 | 用途 |
-| --- | --- | --- | --- | --- |
-| case-draft, case-review | `step.id in [case-draft, case-review]` | prompts/agent-spec-reviewer.md | 规范 | 机械复核 spec 合规、SourceRef 分层、`case_id` 对账与 blocking pending。 |
-| case-draft, output | `step.id in [case-draft, output]` | prompts/agent-quality-reviewer.md | 规范 | 审查用例内容质量，包括步骤完整性、标题可读性、覆盖质量与表述一致性。 |
-| historical-context, requirement-atomize, case-draft | `step.id in [historical-context, requirement-atomize, case-draft]` | prompts/agent-worker.md | 规范 | 在允许的阶段内派发 case-draft Worker 时，限定输入字段、写入范围、状态 envelope 与证据分层规则。 |
-| case-draft, output | `step.id in [case-draft, output]` | fewshots/case-format-sample.md | few-shot | 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。 |
-| case-draft, output | `step.id in [case-draft, output]` | fewshots/case-format-sample.xmind.md | few-shot | XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。 |
-| module-identify | `step.id == module-identify and feature_dir_is_new` | rules/naming-convention.md | 规则 | 新建 feature 目录时的命名格式与客户缩写列表。 |
-| case-review, output | `step.id in [case-review, output]` | .claude/prompt/_shared/case-qa.md | 规则 | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。 |
+| 阶段                                                | 条件                                                               | 文件                                 | 类型     | 用途                                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ | -------- | ----------------------------------------------------------------------------------------------- |
+| case-draft, case-review                             | `step.id in [case-draft, case-review]`                             | prompts/agent-spec-reviewer.md       | 规范     | 机械复核 spec 合规、SourceRef 分层、`case_id` 对账与 blocking pending。                         |
+| case-draft, output                                  | `step.id in [case-draft, output]`                                  | prompts/agent-quality-reviewer.md    | 规范     | 审查用例内容质量，包括步骤完整性、标题可读性、覆盖质量与表述一致性。                            |
+| historical-context, requirement-atomize, case-draft | `step.id in [historical-context, requirement-atomize, case-draft]` | prompts/agent-worker.md              | 规范     | 在允许的阶段内派发 case-draft Worker 时，限定输入字段、写入范围、状态 envelope 与证据分层规则。 |
+| case-draft, output                                  | `step.id in [case-draft, output]`                                  | fewshots/case-format-sample.md       | few-shot | 用例级节点格式参照（含 DQ 子集），仅用于格式参考，不作需求事实来源。                            |
+| case-draft, output                                  | `step.id in [case-draft, output]`                                  | fewshots/case-format-sample.xmind.md | few-shot | XMind 用例 topic 与 md 用例的映射对照（ASCII 树状示意，非真 .xmind）。                          |
+| module-identify                                     | `step.id == module-identify and feature_dir_is_new`                | rules/naming-convention.md           | 规则     | 新建 feature 目录时的命名格式与客户缩写列表。                                                   |
+| case-review, output                                 | `step.id in [case-review, output]`                                 | .claude/prompt/\_shared/case-qa.md   | 规则     | 交付前 Archive/XMind 自检维度：字段一致性、标题格式、前置条件可执行性、表单字段逐字匹配。       |
 
 ## 硬规则
 
@@ -67,6 +66,6 @@ paths:
 - manifest.json#automation.intents[] 中 automation_status=ready 的 AutomationIntent@1 移交 playwright-automation@1；deferred 与 blocked 只留在 manifest 与报告中。
 - Subagent 遇阻塞时通过 BlockedEnvelope 回传主 agent，不直接向用户提问。
 - slug 兜底由 `kata features resolve` 引擎处理（hexFallbackSlug），模型无需也不应自行实现。
-- 交付层仅 archive.md、cases.xmind、metadata.yaml、manifest.json 四件落 feature 根；source-snapshot.json、coverage-matrix.json 及过程/证据产物一律落 .process/。产物清单以 .claude/prompt/_shared/output-artifacts.md 与 .claude/prompt/_shared/case-qa.md 为准。
-- 用例级节点格式与内容质量条款以 .claude/prompt/_shared/case-qa.md 和 fewshots/case-format-sample.md 为准；证据底线：Lanhu 设计内容或相关源码读取失败时，用 ask_user 一次性批量索要缺口，不得凭历史/推断产出最终 archive.md/cases.xmind。
+- 交付层仅 archive.md、cases.xmind、metadata.yaml、manifest.json 四件落 feature 根；source-snapshot.json、coverage-matrix.json 及过程/证据产物一律落 .process/。产物清单以 .claude/prompt/\_shared/output-artifacts.md 与 .claude/prompt/\_shared/case-qa.md 为准。
+- 用例级节点格式与内容质量条款以 .claude/prompt/\_shared/case-qa.md 和 fewshots/case-format-sample.md 为准；证据底线：Lanhu 设计内容或相关源码读取失败时，用 ask_user 一次性批量索要缺口，不得凭历史/推断产出最终 archive.md/cases.xmind。
 - 用户明确给出或要求参考源码、平台 DOM/YAML、环境配置、截图中的表单控件时，这些证据必须进入 source-confirm / historical-context / case-draft 的必读证据；生成表单类用例前必须先建立“表单字段基线”，不得在步骤中写入源码、DOM/YAML 或截图不存在的字段、选项、按钮或配置项。证据不可读时必须阻塞，不得用历史用例、few-shot 或模板补齐。
