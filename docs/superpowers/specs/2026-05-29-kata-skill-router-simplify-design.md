@@ -4,9 +4,31 @@
 |---|---|
 | 起草日期 | 2026-05-29 |
 | 作者 | koco + Claude（brainstorming） |
-| 状态 | Design 待用户复核 → 转 `superpowers:writing-plans` |
+| 状态 | **部分实现**——§6 删除 / §6.2 合并 / §7 薄 lint / §13 入口同步已落地；§4 / §8「phases 骨架」结构决策**已被后续 bundle-migration 取代**。详见下方〔实现现状回填〕 |
 | 取代 | `docs/superpowers/specs/2026-05-28-kata-arch-overhaul-design.md`（Event-sourced Runtime 版,过度设计,作废） |
 | 范围 | Claude Code runtime（Phase 1）；`.agents/` Codex runtime 保持 Phase-2 占位 |
+
+> ## 〔实现现状回填 · 2026-05-30〕
+>
+> 本 spec **部分实现**。其「负空间」（删除 / 合并 / 薄 lint / 入口同步）已落地并于 2026-05-30 复验通过；但 §4「统一 phases 骨架」与 §8「defect-analyze phases 结构」这一**正向结构处方已被后续 bundle-migration initiative 取代**，不再按本文原样落地。阅读本文请以下表「文档 → 现状」映射为准，勿据 §4 / §8 推断当前 skill 目录结构。
+>
+> | 本文章节 | 状态 | 现状 |
+> |---|---|---|
+> | §1–§3 定位与架构原则 | ✅ 采纳 | 「LLM 驱动 engine、engine 不驱动 LLM」「文件系统即状态」等原则保留 |
+> | §6.1 删除映射 | ✅ 已实现 | `apps/`（含 mcp/catalog）、`.claude/contracts/`、`skill-manifest.yaml`、manifest-loader / workflow-schema / workflow-check / projection-targets、api.ts 的 `SkillManifest` re-export 均不存在 |
+> | §6.2 skill 11→8 合并 | ✅ 已实现 | 8 skill；defect-analyze 三模式（bug/conflict/diff）合并完成 |
+> | §7 薄 lint | ✅ 已实现（口径演进） | `kata skills sync-check` 三关（runtime-sync / detach / structure）。**行数上限已演进**：SKILL.md ≤100、phases ≤260、references ≤260、rules ≤120、fewshots ≤200——与本文 §4 / §7 标值（phase ≤150 / reference ≤200 / rule ≤80 / fewshot ≤100）不同，以 lint 实现为准 |
+> | §13 入口文档同步 | ✅ 已实现 | `CLAUDE.md` / `AGENTS.md` 命令索引 = 同一组 8 skill |
+> | **§4 统一 phases 骨架 · §8 defect-analyze phases** | ⚠️ **已被取代** | bundle-migration 改为「自包含 skill bundle」（`SKILL.md` + `scripts/` + 按需 `references/` `prompts/`）。8 skill 中**仅 playwright-automation 保留 `phases/`**；defect-analyze 为 `SKILL.md` + `scripts/`，无 §8 所绘 §1–§4 phase 文件 |
+> | **§4.1 frontmatter `context: fork` + `agent`** | ⚠️ **已背离** | case-draft / playwright-automation 去除整 skill fork，改主上下文可见执行 + TodoWrite 进度（2026-05-30 提示词优化，用户确认） |
+> | §5 engine 保留 · §6.3 保留不动 | ✅ 仍有效 | engine/ 与 templates/ **按本文设计保留**；二者的物理消解属**另一独立 bundle-migration initiative**（其最后一步 engine 物理删除尚未执行），不在本 spec 范围——故二者当前仍存在是符合本文设计的 |
+>
+> **§13 验收复验（2026-05-30，命令均实跑）：**
+> - `bun run check:skills` → exit 0（runtime-sync / detach / structure 三关全过）。
+> - `bun test` → 1358 pass / 1 skip / 0 fail（1359 tests / 160 files）。
+> - defect-analyze **conflict 模式实跑** → 产出 `conflict-resolution-plan.md`，含 `side_a` / `side_b` / `resolution_plan`（满足 §13 conflict 验收行）。
+> - case-draft **生成链实跑** → `kata features resolve`（确定性 featureDir）+ `kata xmind-gen`（合法 `cases.xmind`，zip+content.json，用例标题保真）+ `kata archive-gen convert`（`archive.md`，frontmatter/case_count 字段对账一致）+ `kata archive-gen validate`（`issues: []`）。
+> - **未做（诚实声明）**：依赖 Lanhu/ZenTao 实时源、需登录态的「真·迁移前后等价对比」未做；defect-analyze 的 bug/diff → `defect-report.md` 分支未单独实跑（其 `scan-report.ts` 由单测覆盖）。
 
 ## 1 Executive Summary
 
