@@ -16,12 +16,12 @@ import { checkRuntimeSkillSync, formatRuntimeSkillSyncReport } from "../skills/r
 
 /**
  * List skill directory names under `skillsRoot`, skipping `_`-prefixed aggregate
- * directories (e.g. `_shared/`) the same way runtime-sync, manifest-repository,
- * and apps/core/catalog enumerate skills. Returns `[]` when the root is absent.
+ * directories (e.g. `_shared/`) the same way runtime-sync enumerates skills.
+ * Returns `[]` when the root is absent.
  */
 export function listSkillDirNames(skillsRoot: string): string[] {
   if (!existsSync(skillsRoot)) return [];
-  // 过滤 `_` 前缀目录（如 `_shared/`），与 runtime-sync.ts / apps/core/catalog/skills.ts 一致
+  // 过滤 `_` 前缀目录（如 `_shared/`），与 runtime-sync.ts 一致
   return readdirSync(skillsRoot).filter(
     (f) => !f.startsWith("_") && statSync(join(skillsRoot, f)).isDirectory(),
   );
