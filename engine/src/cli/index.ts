@@ -111,17 +111,17 @@ kata.addCommand(writerContextBuilder);
 kata.addCommand(xmindGen);
 kata.addCommand(xmindPatch);
 
-import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
-import { buildFeaturesCommand } from "@shared/cli/features.ts";
 // ── Noun-verb style commands ─────────────────────────────────
-import { buildAgentsCommand } from "./agents-audit.ts";
-import { buildCodemodCommand } from "./codemod-apply.ts";
-import { buildEnvCommand } from "./env.ts";
-import { buildHandoffCommand } from "./handoff.ts";
-import { buildPathsCommand } from "./paths-audit.ts";
-import { buildResultsCommand } from "./results.ts";
-import { buildSafetyCommand } from "./safety-audit-command.ts";
-import { buildSkillsCommand } from "./skill-audit.ts";
+import { buildAgentsCommand } from "@shared/cli/agents-audit.ts";
+import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
+import { buildCodemodCommand } from "@shared/cli/codemod-apply.ts";
+import { buildEnvCommand } from "@shared/cli/env.ts";
+import { buildFeaturesCommand } from "@shared/cli/features.ts";
+import { buildHandoffCommand } from "@shared/cli/handoff.ts";
+import { buildPathsCommand } from "@shared/cli/paths-audit.ts";
+import { buildResultsCommand } from "@shared/cli/results.ts";
+import { buildSafetyCommand } from "@shared/cli/safety-audit-command.ts";
+import { buildSkillsCommand } from "@shared/cli/skill-audit.ts";
 
 kata.addCommand(buildAgentsCommand());
 kata.addCommand(buildCasesCommand());
@@ -135,7 +135,7 @@ kata.addCommand(buildHandoffCommand());
 kata.addCommand(buildEnvCommand());
 
 // ── Test bucket audit ────────────────────────────────────────
-import { registerTestBucketAudit } from "./test-bucket-audit.ts";
+import { registerTestBucketAudit } from "@shared/cli/test-bucket-audit.ts";
 
 registerTestBucketAudit(kata);
 

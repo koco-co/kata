@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runResultsPath } from "../../src/cli/results-path.ts";
+import { runResultsPath } from "@shared/cli/results-path.ts";
 
 describe("kata results path", () => {
   it("returns a feature/results/<run-id> path with --new-run", async () => {

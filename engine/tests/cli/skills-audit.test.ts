@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { listSkillDirNames } from "../../src/cli/skill-audit.ts";
+import { listSkillDirNames } from "@shared/cli/skill-audit.ts";
 
 const tempRoots: string[] = [];
 
