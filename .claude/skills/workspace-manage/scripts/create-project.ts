@@ -203,7 +203,8 @@ function applyCreate(project: string): {
 
   // Invoke project knowledge index generation.
   const indexPath = join(knowledgeDir(project), "_index.md");
-  const kk = spawnSync("kata", ["knowledge-curate", "index", "--project", project], {
+  const kataScript = join(repoRoot(), ".claude/scripts/_shared/bin/kata");
+  const kk = spawnSync(process.execPath, [kataScript, "knowledge-curate", "index", "--project", project], {
     cwd: repoRoot(),
     env: process.env,
     encoding: "utf8",

@@ -53,7 +53,7 @@ import { Command } from "commander";
 
 const kata = new Command()
   .name("kata")
-  .description("kata unified CLI — dispatch engine/src/ scripts")
+  .description("kata unified CLI")
   .showHelpAfterError();
 
 kata.addCommand(archiveGen);

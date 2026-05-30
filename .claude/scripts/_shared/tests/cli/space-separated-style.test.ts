@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 const repoRoot = join(import.meta.dirname, "../../../../..");
 const kata = (args: string) =>
-  execSync(`bun ${join(repoRoot, "engine/bin/kata")} ${args}`, {
+  execSync(`bun ${join(repoRoot, ".claude/scripts/_shared/bin/kata")} ${args}`, {
     encoding: "utf-8",
     stdio: ["pipe", "pipe", "pipe"],
   });

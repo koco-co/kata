@@ -7,7 +7,7 @@ const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
 function run(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync("bun", ["engine/bin/kata", "repo-sync", ...args], {
+    const stdout = execFileSync("bun", [".claude/scripts/_shared/bin/kata", "repo-sync", ...args], {
       cwd: REPO_ROOT,
       encoding: "utf8",
     });

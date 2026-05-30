@@ -27,7 +27,7 @@ describe("kata cases validate", () => {
   }
 
   it("exposes validate subcommand", () => {
-    const out = execSync(`bun ${join(repoRoot(), "engine/bin/kata")} cases --help`, {
+    const out = execSync(`bun ${join(repoRoot(), ".claude/scripts/_shared/bin/kata")} cases --help`, {
       encoding: "utf-8",
     });
     expect(out).toContain("validate");
