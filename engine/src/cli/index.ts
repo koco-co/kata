@@ -25,6 +25,7 @@ import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
 import { program as caseSignalAnalyzer } from "@skills/case-draft/scripts/case-signal-analyzer.ts";
 import { program as caseStrategyResolver } from "@skills/case-draft/scripts/case-strategy-resolver.ts";
 import { program as historyConvert } from "@skills/case-edit/scripts/history-convert.ts";
+import { program as scanReport } from "@skills/defect-analyze/scripts/scan-report.ts";
 import { program as managingProjectKnowledge } from "@skills/knowledge-curate/scripts/knowledge-curate.ts";
 import { Command } from "commander";
 // 大部分模块静态加载（无昂贵依赖）
@@ -45,7 +46,6 @@ import { program as repoSync } from "../repo-sync.ts";
 import { program as reportToPdf } from "../report-to-pdf.ts";
 import { program as ruleLoader } from "../rule-loader.ts";
 import { program as runTestsNotify } from "../run-tests-notify.ts";
-import { program as scanReport } from "../scan-report.ts";
 import { program as searchFilter } from "../search-filter.ts";
 import { program as sourceAnalyze } from "../source-analyze.ts";
 import { program as sourceRef } from "../source-ref.ts";

@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { $ } from "bun";
 
-const CLI = join(repoRoot(), "engine/src/scan-report.ts");
+const CLI = join(repoRoot(), ".claude/skills/defect-analyze/scripts/scan-report.ts");
 let WS = "";
 let REPO = "";
 const PROJECT = "scan-e2e";
