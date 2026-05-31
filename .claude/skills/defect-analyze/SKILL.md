@@ -2,6 +2,7 @@
 name: defect-analyze
 description: 三模式缺陷分诊——bug 证据→根因报告、合并冲突→解决方案、代码 diff→静态缺陷扫描。给出可复现证据并要结构化分析时用。
 when_to_use: 给出异常堆栈/控制台错误/HTTP 失败、带冲突标记的文本、或仓库 diff/分支对要扫描时用。已登记的 ZenTao bug URL/ID → 改走 case-hotfix。
+argument-hint: "<异常堆栈 | 冲突文本 | diff/分支对>"
 user-invocable: true
 model: sonnet
 effort: medium

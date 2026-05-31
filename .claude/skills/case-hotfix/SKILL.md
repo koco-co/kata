@@ -2,6 +2,7 @@
 name: case-hotfix
 description: 以 bug 记录/修复说明为输入，产出聚焦修复路径的单条 hotfix 回归用例（可直接执行的 archive.md）。给出 bug ID/issue/ZenTao 记录时用。
 when_to_use: 给出 bug ID、issue URL、缺陷描述或修复说明（含只给 ZenTao bug URL/bug-view/bug ID、未明说 hotfix）时用。要通用 bug 报告或依 PRD 产用例的不在此。
+argument-hint: "<ZenTao bug URL | bug-view-NNN | bug ID>"
 user-invocable: true
 model: sonnet
 effort: medium

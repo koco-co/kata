@@ -2,6 +2,7 @@
 name: case-draft
 description: 依需求文档/PRD/设计稿/Lanhu/Axure/功能描述生成、扩写或复核 QA 测试用例，产出 archive.md + cases.xmind。给出需求源时用。
 when_to_use: 给出 Lanhu/Axure URL、Markdown PRD、截图、fixture 或功能描述要产用例时用。只在 Archive/XMind/CSV 间转换 → case-edit；基于用例做自动化 → playwright-automation。
+argument-hint: "<Lanhu/Axure URL | Markdown PRD 路径 | 截图 | 功能描述>"
 user-invocable: true
 model: sonnet
 effort: high

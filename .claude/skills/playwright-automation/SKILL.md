@@ -2,6 +2,7 @@
 name: playwright-automation
 description: 生成、修复、验证并真实运行 Playwright UI 自动化——规划→真实页面探测→生成→运行归因→修复闭环，交付前必跑通。
 when_to_use: 给出 MD 用例/PRD/Lanhu/脚本/失败结果要推进或修复 UI 自动化时用。只手动操作浏览器、只写非 UI 用例、只做静态扫描的不在此。
+argument-hint: "<需求目录路径/目录名 | MD 用例 | 脚本 | 失败结果>"
 user-invocable: true
 model: sonnet
 effort: high
