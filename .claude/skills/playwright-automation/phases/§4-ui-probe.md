@@ -22,14 +22,14 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 
 1. 使用 `browser.newContext({ storageState: env.session_path })` 创建浏览器上下文
 2. 打开 ui-plan 中目标 URL hash（如 `#/dq/rule`、`#/metaDataSync`）
-3. 等待 `networkidle` + 额外 2-3 秒让 Ant Design 渲染完成
+3. 等待 `networkidle` + 额外 2-3 秒让 Ant Design 渲染完成（**仅限 probe 探测脚本**；交付 spec 禁用此 band-aid，改 web-first 断言）
 4. 验证 URL hash 正确，未被重定向到登录页
 
 ### 第二步：采集页面证据
 
 按以下顺序逐项采集，每项注明 SourceRef：
 
-> 辅助工具（见 `references/cli-essentials.md`）：snapshot 未暴露的 id/class/data-* 属性用 `locator.evaluate(el => el.getAttribute(...))` 取；用 `page.on('console')` / `page.on('requestfailed')` 同步收集 JS 错误与失败请求作为诊断证据；注册 `page.on('dialog', d => d.dismiss())` 防原生 dialog 卡死探测流程；证据不足时截图后 AskUserQuestion 一次性确认，不靠多轮文字追问。探测边界态可临时 `page.route` stub **非被测**依赖，禁止改被测业务接口返回或改页面数据。可选：`bunx playwright-cli` 做交互式探索/codegen 加速（token 高效）；但其输出须按 `references/cli-essentials.md` 文末「可选 @playwright/cli」边界规则重新落为 probe 证据，不替代 probe.mjs 证据，也不放宽本阶段 ≤3 脚本预算。
+> 辅助工具（见 `references/cli-essentials.md`）：snapshot 未暴露的 id/class/data-* 属性用 `locator.evaluate(el => el.getAttribute(...))` 取；用 `page.on('console')` / `page.on('requestfailed')` 同步收集 JS 错误与失败请求作为诊断证据；注册 `page.on('dialog', d => d.dismiss())` 防原生 dialog 卡死探测流程；证据不足时截图后 AskUserQuestion 一次性确认，不靠多轮文字追问。探测边界态可临时 `page.route` stub **非被测**依赖，禁止改被测业务接口返回或改页面数据。可选：`bunx playwright-cli` 做交互式探索/codegen 加速（token 高效）；但其输出须按 `references/cli-essentials.md` 文末「可选 @playwright/cli」边界规则重新落为 probe 证据，不替代 probe.mjs 证据，也不放宽本阶段 ≤3 脚本预算。遇 iframe 元素用 `page.frames()` 先列出所有 frame 再用 `frameLocator` 探测（见 cli-essentials §iframe）；遇链接触发新标签用 `waitForEvent('popup')` 捕获（见 cli-essentials §多页）。
 
 | 证据类型 | 采集方法 | 用途 |
 |----------|----------|------|
@@ -109,7 +109,7 @@ page.on('response', async (res) => {
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
-- 不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")` 做页面等待。
+- 不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")` 做 probe 页面等待；探测脚本可用 networkidle，但**不得将此写法迁移进交付 spec**。
 - 不得将 Screenshot 证据替代 DOM 文本证据（截图用作视觉辅助，DOM 文本用作断言依据）。
 - 不得在探查阶段修改目标页面的数据（创建、编辑、删除操作）。
 - 不得读取历史 feature 测试或截图来弥补当前 ui-probe 证据不足。

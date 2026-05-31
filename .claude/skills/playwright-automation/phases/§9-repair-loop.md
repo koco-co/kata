@@ -15,10 +15,11 @@
 > 改代码前先读诊断证据（见 `references/cli-essentials.md`）：在 probe/spec 里注册
 > `page.on('console')` / `page.on('requestfailed')` 读 app 侧 JS 错误与失败请求，
 > 再结合 Playwright trace 定位根因，避免盲目修改 locator。
+> 可视化 trace：`npx playwright show-trace results/<run-id>/playwright/.../trace.zip`
 
 1. **Selector 找不到**：
    - 在浏览器 DevTools 中确认元素实际位置
-   - 检查 iframe/shadow DOM 是否需要穿透
+   - 检查 iframe/shadow DOM 是否需要穿透（iframe 用 `page.frameLocator(selector)`，见 `references/cli-essentials.md §iframe`）
    - 检查是否有动态 class 名（如 `ant-btn css-xxx` 中的 hash）
    - 优先使用 `getByRole`、`getByText`、`getByLabel` 而非 CSS selector
    - 必要时使用 `page.locator()` 配合 `:has-text()` 或 `nth=`
@@ -62,7 +63,14 @@
 - 每个 locator 内部重试最多 2 次（使用 Playwright 内置重试，非手动 try/catch）
 - 达到限制仍未通过 → 标记为 `repair_exhausted`，进入 handoff
 
-### 第四步：禁止
+### 第四步：Healing 决策原则
+
+修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
+
+- **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
+- **`product` 类**（功能 / 文案 / 业务规则漂移）→ 用户可见变化：**不在此处硬改断言迁就产品漂移**；转 handoff 阻塞 + 触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再修用例。把产品漂移当技术问题硬改断言，等于假通过，违反覆盖忠实度规则。
+
+### 第五步：禁止
 
 - **禁止**使用 `test.skip()` 或 `test.fixme()` 跳过失败
 - **禁止**使用 try/catch 吞掉失败断言

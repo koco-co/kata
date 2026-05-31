@@ -55,6 +55,7 @@ This does not mark case-draft complete; handoff must say the script was generate
 - 用例的每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落为真实页面动作，不得丢弃；
 - 用例写明的 `expected_visible_result`/预期结果必须断言为真实业务结果，禁止用 `toBeVisible`/`toContainText` 等可见性/存在性断言代替；
 - 禁止把业务流程用例简化为「进入页面看菜单/字段/元素是否存在」的 surface 契约测试；
+- 用例含「导出/详情/查看在新标签打开」时，必须用 popup 模式捕获新页（见 cli-essentials §多页）并在新页内断言业务结果，不得只断当前页仍可见某按钮；
 - 当前环境确实无法忠实实现并跑通的用例，走诚实阻塞/排除并记入 `handoff.excluded_cases`（含 `reason_category` + 原因），不得用 surface 断言假通过。
 
 > 断言工具（见 `references/cli-essentials.md`）：断言优先 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 强断言，期望值用 `locator.textContent()/inputValue()` 在 ui-probe 阶段捕获；locator 优先 `getByRole/getByTestId/getByLabel`。**不得用 `page.route` mock 被测业务接口返回来换取断言通过。** 凡来自 `@playwright/cli` codegen 的 locator 或代码片段，落 spec 前必须对照 ui-probe 证据重新验证，并改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）；codegen 产出是草稿，不是可直接交付的 spec。
@@ -115,6 +116,7 @@ grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # �
 - `tests/runners/smoke.spec.ts` 与 `tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写进 runner。
 - P0/P1 具体用例写入 `tests/cases/t{nn}-{slug}.ts`，共享页面对象写入 `_shared/pages/`，共享接口/模板解析 helper 写入 `_shared/helpers/`。
 - 新生成脚本不得只交付 smoke；必须同时提供 full runner。若 full 因产品/环境阻塞不能覆盖深链路，必须在 handoff 中写明阻塞分类和已运行命令。
+- **串行标注**：有共享状态 / 创建-校验-删除链路 / 依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称里带 `@serial` 标签（`scripts/run-tests-notify.ts` 的 two-phase runner 会过滤出这类用例强制 `workers=1` 串行跑，避免数据互污）。case 间用 `beforeEach`/`afterEach` 干净恢复前置态，不依赖执行顺序。
 
 ### RED -> GREEN 节律
 
@@ -130,7 +132,7 @@ grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # �
 
 | 场景 | 正确方式 | 禁止方式 |
 |------|----------|----------|
-| 页面加载完成 | `page.waitForLoadState("networkidle")` | `page.waitForTimeout(3000)` |
+| 页面加载完成 | `expect(locator).toBeVisible({ timeout: 15000 })` / `page.waitForResponse()` / `page.waitForURL()` | `page.waitForLoadState("networkidle")`（band-aid，§9 明令禁止）/ `page.waitForTimeout(3000)` |
 | 元素可见 | `expect(locator).toBeVisible({ timeout: 15000 })` | `page.waitForTimeout(2000)` |
 | 导航完成 | `page.waitForURL()` | 裸 `waitForTimeout` |
 | API 响应到达 | `page.waitForResponse()` | `waitForTimeout` |
