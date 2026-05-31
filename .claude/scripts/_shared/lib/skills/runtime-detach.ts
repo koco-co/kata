@@ -20,7 +20,7 @@ export interface RuntimeDetachReport {
   violations: RuntimeDetachViolation[];
 }
 
-const ENTRY_FILES = ["AGENTS.md", "CLAUDE.md"] as const;
+const ENTRY_FILES = ["CLAUDE.md"] as const;
 // Uses includes() substring matching so minor formatting differences do not break the contract.
 const ENTRY_REQUIRED_PHRASES = [
   "git worktree add --detach",
@@ -85,13 +85,7 @@ export function checkRuntimeDetach(root: string): RuntimeDetachReport {
 }
 
 function checkEntryFiles(root: string, violations: RuntimeDetachViolation[]): void {
-  // Codex runtime 已退役时（.agents 目录不存在）跳过 AGENTS.md 检查
-  const codexRetired = !existsSync(join(root, ".agents"));
-  const entryFilesToCheck = codexRetired
-    ? (ENTRY_FILES.filter((f) => f !== "AGENTS.md") as readonly string[])
-    : ENTRY_FILES;
-
-  for (const relPath of entryFilesToCheck) {
+  for (const relPath of ENTRY_FILES) {
     const path = join(root, relPath);
 
     if (!existsSync(path)) {
@@ -215,13 +209,11 @@ function collectRuntimeTextFiles(root: string): string[] {
     ...ENTRY_FILES.map((entry) => join(root, entry)),
     ...DETAIL_RULE_FILES.map((ruleFile) => join(root, ruleFile.relPath)),
     join(root, ".claude", "INDEX.md"),
-    join(root, ".agents", "INDEX.md"),
     ...collectSkillFiles(root, ".claude"),
-    ...collectSkillFiles(root, ".agents"),
   ];
 }
 
-function collectSkillFiles(root: string, runtimeDir: ".claude" | ".agents"): string[] {
+function collectSkillFiles(root: string, runtimeDir: ".claude"): string[] {
   const skillsRoot = join(root, runtimeDir, "skills");
   if (!existsSync(skillsRoot)) return [];
 

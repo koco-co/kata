@@ -25,12 +25,7 @@ test("S4: SKILL.md > line limit flagged", () => {
   expect(r.violations.some((v) => v.rule === "S4")).toBe(true);
 });
 
-test("codex runtime requires SKILL.md name and description frontmatter", () => {
-  const r = lintSkillShape(join(FX, "skill-bad/codex-missing-frontmatter"), { runtime: "codex" });
-  expect(r.violations.some((v) => v.rule === "S8")).toBe(true);
-});
-
-test("codex runtime flags Claude-only hard directives in skill body", () => {
-  const r = lintSkillShape(join(FX, "skill-bad/codex-claude-directive"), { runtime: "codex" });
-  expect(r.violations.some((v) => v.rule === "S9" && v.message.includes("TaskUpdate"))).toBe(true);
+test("S5: scripts/ subdir allowed (no violation)", () => {
+  const r = lintSkillShape(join(FX, "skill-good/skill-good-with-scripts"));
+  expect(r.violations.some((v) => v.rule === "S5" && v.path?.endsWith("scripts"))).toBe(false);
 });

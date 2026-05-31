@@ -72,7 +72,10 @@ describe("CLI output style", () => {
   });
 
   it("does not leave debug console output in discuss validate", () => {
-    const discuss = readFileSync(join(repoRoot, ".claude/skills/case-draft/scripts/discuss.ts"), "utf8");
+    const discuss = readFileSync(
+      join(repoRoot, ".claude/skills/case-draft/scripts/discuss.ts"),
+      "utf8",
+    );
 
     expect(discuss).not.toContain("discuss validate:");
   });

@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
-  agentRuntimeRoot,
   agentsDir,
   archiveDir,
   authDir,
@@ -33,7 +32,6 @@ import {
   repoRoot,
   reportsDir,
   reposDir,
-  resolveAgentRuntime,
   scriptsDir,
   skillsDir,
   tempDir,
@@ -41,13 +39,6 @@ import {
   xmindDir,
   xmindPath,
 } from "@shared/lib/paths.ts";
-
-const OLD_AGENT_RUNTIME = process.env.KATA_AGENT_RUNTIME;
-
-afterEach(() => {
-  if (OLD_AGENT_RUNTIME === undefined) delete process.env.KATA_AGENT_RUNTIME;
-  else process.env.KATA_AGENT_RUNTIME = OLD_AGENT_RUNTIME;
-});
 
 describe("parseGitUrl", () => {
   it("extracts group and repo from http gitlab URL with .git suffix", () => {
@@ -134,62 +125,29 @@ describe("scriptsDir", () => {
 
 describe("skillsDir", () => {
   it("points to .claude/skills inside the repo root", () => {
-    delete process.env.KATA_AGENT_RUNTIME;
     const dir = skillsDir();
     expect(dir.endsWith(".claude/skills")).toBeTruthy();
   });
 
-  it("points to .agents/skills when runtime is codex", () => {
-    const dir = skillsDir("codex");
-    expect(dir.endsWith(".agents/skills")).toBeTruthy();
+  it("supports root override", () => {
+    const root = "/tmp/kata-root";
+    expect(skillsDir(root)).toBe(join(root, ".claude", "skills"));
   });
 });
 
-describe("agent runtime paths", () => {
-  it("defaults to claude for backward compatibility", () => {
-    delete process.env.KATA_AGENT_RUNTIME;
-    expect(resolveAgentRuntime()).toBe("claude");
-    expect(agentRuntimeRoot().endsWith(".claude")).toBeTruthy();
+describe("agentsDir / commandsDir", () => {
+  it("agentsDir points to .claude/agents inside the repo root", () => {
+    expect(agentsDir().endsWith(".claude/agents")).toBeTruthy();
   });
 
-  it("uses KATA_AGENT_RUNTIME=codex when no explicit runtime is provided", () => {
-    process.env.KATA_AGENT_RUNTIME = "codex";
-    expect(resolveAgentRuntime()).toBe("codex");
-    expect(agentRuntimeRoot().endsWith(".agents")).toBeTruthy();
+  it("commandsDir points to .claude/commands inside the repo root", () => {
+    expect(commandsDir().endsWith(".claude/commands")).toBeTruthy();
   });
 
-  it("explicit runtime overrides KATA_AGENT_RUNTIME", () => {
-    process.env.KATA_AGENT_RUNTIME = "codex";
-    expect(resolveAgentRuntime("claude")).toBe("claude");
-    expect(agentRuntimeRoot("claude").endsWith(".claude")).toBeTruthy();
-  });
-
-  it("returns runtime-aware agents and commands dirs", () => {
-    expect(agentsDir("claude").endsWith(".claude/agents")).toBeTruthy();
-    expect(agentsDir("codex").endsWith(".agents/agents")).toBeTruthy();
-    expect(commandsDir("claude").endsWith(".claude/commands")).toBeTruthy();
-    expect(commandsDir("codex").endsWith(".agents/commands")).toBeTruthy();
-  });
-
-  it("supports root override for runtime paths", () => {
-    const root = "/tmp/kata-runtime-root";
-    expect(agentRuntimeRoot("claude", root)).toBe(join(root, ".claude"));
-    expect(agentRuntimeRoot("codex", root)).toBe(join(root, ".agents"));
-    expect(skillsDir("codex", root)).toBe(join(root, ".agents", "skills"));
-    expect(agentsDir("codex", root)).toBe(join(root, ".agents", "agents"));
-    expect(commandsDir("codex", root)).toBe(join(root, ".agents", "commands"));
-  });
-
-  it("throws on invalid explicit runtime", () => {
-    expect(() => resolveAgentRuntime("bad-runtime")).toThrow("Invalid agent runtime");
-  });
-
-  it("rejects all for concrete path helpers from environment", () => {
-    process.env.KATA_AGENT_RUNTIME = "all";
-    expect(() => agentRuntimeRoot()).toThrow("Invalid agent runtime");
-    expect(() => skillsDir()).toThrow("Invalid agent runtime");
-    expect(() => agentsDir()).toThrow("Invalid agent runtime");
-    expect(() => commandsDir()).toThrow("Invalid agent runtime");
+  it("supports root override for agentsDir and commandsDir", () => {
+    const root = "/tmp/kata-root";
+    expect(agentsDir(root)).toBe(join(root, ".claude", "agents"));
+    expect(commandsDir(root)).toBe(join(root, ".claude", "commands"));
   });
 });
 
@@ -336,7 +294,9 @@ describe("knowledgeDir", () => {
 describe("knowledgePath", () => {
   it("joins segments under knowledge dir", () => {
     const p = knowledgePath("dataAssets", "modules", "data-source.md");
-    expect(p.endsWith("workspace/dataAssets/_shared/knowledge/modules/data-source.md")).toBeTruthy();
+    expect(
+      p.endsWith("workspace/dataAssets/_shared/knowledge/modules/data-source.md"),
+    ).toBeTruthy();
   });
 
   it("returns knowledge dir itself when no segments", () => {
@@ -426,7 +386,9 @@ describe("projectShared (new v3 API)", () => {
 describe("incidentDir / regressionDir (new v3 API)", () => {
   test("incidentDir returns workspace/{p}/_shared/archive/issues/{date}-{slug}/", () => {
     const result = incidentDir("dataAssets", "20260428", "console-error");
-    expect(result).toMatch(/workspace\/dataAssets\/_shared\/archive\/issues\/20260428-console-error$/);
+    expect(result).toMatch(
+      /workspace\/dataAssets\/_shared\/archive\/issues\/20260428-console-error$/,
+    );
   });
 
   test("regressionDir returns workspace/{p}/_shared/archive/regressions/{date}-{batch}/", () => {

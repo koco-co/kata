@@ -88,10 +88,10 @@ JSON
 
 describe("case-draft e2e (fixture replay)", () => {
   const base = join(repoRoot(), ".claude/scripts/_shared/tests/fixtures/case-draft-e2e/expected");
-  it("frozen claude vs codex manifests pass compare (no FAIL)", () => {
+  it("frozen claude manifest passes compare (no FAIL)", () => {
     const r = runCasesCompare({
       leftDir: join(base, "claude", "2026-05-lanhu-cd882ee8"),
-      rightDir: join(base, "codex", "2026-05-lanhu-cd882ee8"),
+      rightDir: join(base, "claude", "2026-05-lanhu-cd882ee8"),
       threshold: 0.9,
     });
     expect(r.fail).toBe(false);
@@ -102,7 +102,6 @@ describe("case-draft e2e (fixture replay)", () => {
     const bin = join(root, "bin");
     mkdirSync(bin, { recursive: true });
     writeFakeRuntime(join(bin, "claude"));
-    writeFakeRuntime(join(bin, "codex"));
     const oldPath = process.env.PATH;
     process.env.PATH = `${bin}:${oldPath ?? ""}`;
     try {

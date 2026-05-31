@@ -8,11 +8,6 @@
 
 - `workspace/{project}/.kata/repos/**` 为只读证据源，kata 工作流不得推送、提交或修改源仓库。
 
-## Runtime 双栈
-
-- `.agents/**` 与 `.claude/**` 是分别维护的 runtime 实现目录。
-- 双 runtime 同步入口要求只在根目录 `AGENTS.md` 与 `CLAUDE.md` 维护。
-
 ## Runtime Context
 
 - Local context 只能个性化语气或声明的项目默认值。

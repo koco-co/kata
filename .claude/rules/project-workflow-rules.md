@@ -1,6 +1,6 @@
 # Project Workflow Rules
 
-本文件承接 runtime 入口中的项目级工作规则。`AGENTS.md` 与 `CLAUDE.md` 只保留摘要；需要细节时按本文件执行。
+本文件承接 runtime 入口中的项目级工作规则。`CLAUDE.md` 只保留摘要；需要细节时按本文件执行。
 
 ## Git 工作流
 
@@ -16,8 +16,7 @@
 ## 多任务执行与任务列表
 
 - 多任务或可拆分任务默认使用 `superpowers:subagent-driven-development`：每个任务 fresh implementer，先做 spec review，再做 code quality review，通过后提交并更新任务列表。
-- Claude Code 使用 TaskCreate/TaskUpdate；若当前客户端暴露为 TodoWrite，则按 TodoWrite 名称执行同等语义。
-- Codex 使用 `update_plan` 维护可视化任务列表。
+- Claude Code 使用 TaskCreate/TaskUpdate；若当前客户端暴露为 TodoWrite，则按 TodoWrite 名称执行同等语义；支持 update_plan 的客户端可用 update_plan 维护可视化任务列表。
 - Reviewer 发现问题时必须回到 implementer 修复并重审；不得跳过 spec review 或 quality review。
 
 ## Commit 规范

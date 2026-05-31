@@ -5,7 +5,10 @@ import { repoRoot } from "@shared/lib/paths.ts";
 import { renderScanReport } from "@shared/lib/scan-report-render.ts";
 
 describe("renderScanReport", () => {
-  const fixturePath = join(repoRoot(), ".claude/scripts/_shared/tests/fixtures/scan-report-sample.json");
+  const fixturePath = join(
+    repoRoot(),
+    ".claude/scripts/_shared/tests/fixtures/scan-report-sample.json",
+  );
   const fixture = JSON.parse(readFileSync(fixturePath, "utf8"));
 
   test("produces an HTML doc with required structural anchors", () => {

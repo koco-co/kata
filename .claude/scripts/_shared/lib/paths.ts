@@ -20,7 +20,7 @@ export function projectPath(project: string, ...segments: string[]): string {
   return join(projectDir(project), ...segments);
 }
 
-// ── v3 path functions (spec §4.3) ────────────────────────────────────────────
+// ── v3 path functions ────────────────────────────────────────────────────────
 
 // CLAUDE.md §Feature Directory Naming: YYYY[-]MM[-{customer}]-{module}-{slug}
 // with each post-date segment in lowercase ASCII (a-z, 0-9, hyphen). YYYY-MM may
@@ -123,9 +123,7 @@ let warnedEnhancedMd = false;
 /** @deprecated since v3 — use featureFile(..., "enhanced.md"). */
 export function enhancedMd(project: string, yyyymm: string, slug: string): string {
   if (!warnedEnhancedMd) {
-    console.warn(
-      "[paths] enhancedMd() is deprecated; use featureFile(..., 'enhanced.md') (spec §6.3)",
-    );
+    console.warn("[paths] enhancedMd() is deprecated; use featureFile(..., 'enhanced.md')");
     warnedEnhancedMd = true;
   }
   return featureFile(project, yyyymm, slug, "enhanced.md");
@@ -136,7 +134,7 @@ let warnedSourceFactsJson = false;
 export function sourceFactsJson(project: string, yyyymm: string, slug: string): string {
   if (!warnedSourceFactsJson) {
     console.warn(
-      "[paths] sourceFactsJson() is deprecated; use featureFile(..., 'source-facts.json') (spec §6.3)",
+      "[paths] sourceFactsJson() is deprecated; use featureFile(..., 'source-facts.json')",
     );
     warnedSourceFactsJson = true;
   }
@@ -147,9 +145,7 @@ let warnedResolvedMd = false;
 /** @deprecated since v3 — use featureFile(..., "resolved.md"). */
 export function resolvedMd(project: string, yyyymm: string, slug: string): string {
   if (!warnedResolvedMd) {
-    console.warn(
-      "[paths] resolvedMd() is deprecated; use featureFile(..., 'resolved.md') (spec §6.3)",
-    );
+    console.warn("[paths] resolvedMd() is deprecated; use featureFile(..., 'resolved.md')");
     warnedResolvedMd = true;
   }
   return featureFile(project, yyyymm, slug, "resolved.md");
@@ -159,9 +155,7 @@ let warnedPrdImagesDir = false;
 /** @deprecated since v3 — use featureFile(..., "images"). */
 export function prdImagesDir(project: string, yyyymm: string, slug: string): string {
   if (!warnedPrdImagesDir) {
-    console.warn(
-      "[paths] prdImagesDir() is deprecated; use featureFile(..., 'images') (spec §6.3)",
-    );
+    console.warn("[paths] prdImagesDir() is deprecated; use featureFile(..., 'images')");
     warnedPrdImagesDir = true;
   }
   return featureFile(project, yyyymm, slug, "images");
@@ -171,9 +165,7 @@ let warnedOriginalPrdMd = false;
 /** @deprecated since v3 — use featureFile(..., "prd.md"). Note rename: original.md → prd.md. */
 export function originalPrdMd(project: string, yyyymm: string, slug: string): string {
   if (!warnedOriginalPrdMd) {
-    console.warn(
-      "[paths] originalPrdMd() is deprecated; use featureFile(..., 'prd.md') (spec §6.3)",
-    );
+    console.warn("[paths] originalPrdMd() is deprecated; use featureFile(..., 'prd.md')");
     warnedOriginalPrdMd = true;
   }
   return featureFile(project, yyyymm, slug, "prd.md");
@@ -265,46 +257,16 @@ export function contractPluginsDir(): string {
   return pluginsDir();
 }
 
-export type AgentRuntime = "claude" | "codex";
-export type AgentRuntimeSelector = AgentRuntime | "all";
-
-const AGENT_RUNTIMES = new Set(["claude", "codex"]);
-
-export function resolveAgentRuntime(runtime?: AgentRuntime | string): AgentRuntime {
-  const candidate = runtime ?? getEnv("KATA_AGENT_RUNTIME") ?? "claude";
-  if (AGENT_RUNTIMES.has(candidate)) return candidate as AgentRuntime;
-  throw new Error(`Invalid agent runtime '${candidate}'. Expected claude or codex.`);
+export function skillsDir(root: string = repoRoot()): string {
+  return join(root, ".claude", "skills");
 }
 
-export function parseAgentRuntimeSelector(runtime?: string): AgentRuntimeSelector {
-  const candidate = runtime ?? getEnv("KATA_AGENT_RUNTIME") ?? "claude";
-  if (candidate === "all") return "all";
-  return resolveAgentRuntime(candidate);
+export function agentsDir(root: string = repoRoot()): string {
+  return join(root, ".claude", "agents");
 }
 
-export function requireConcreteAgentRuntime(runtime?: string): AgentRuntime {
-  const selector = parseAgentRuntimeSelector(runtime);
-  if (selector === "all") {
-    throw new Error("This command requires a concrete runtime: claude or codex.");
-  }
-  return selector;
-}
-
-export function agentRuntimeRoot(runtime?: AgentRuntime, root: string = repoRoot()): string {
-  const resolved = resolveAgentRuntime(runtime);
-  return resolve(root, resolved === "claude" ? ".claude" : ".agents");
-}
-
-export function skillsDir(runtime?: AgentRuntime, root: string = repoRoot()): string {
-  return join(agentRuntimeRoot(runtime, root), "skills");
-}
-
-export function agentsDir(runtime?: AgentRuntime, root: string = repoRoot()): string {
-  return join(agentRuntimeRoot(runtime, root), "agents");
-}
-
-export function commandsDir(runtime?: AgentRuntime, root: string = repoRoot()): string {
-  return join(agentRuntimeRoot(runtime, root), "commands");
+export function commandsDir(root: string = repoRoot()): string {
+  return join(root, ".claude", "commands");
 }
 
 export function currentYYYYMM(): string {

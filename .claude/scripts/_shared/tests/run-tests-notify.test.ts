@@ -1,5 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { buildPhasePlans, extractTenantFromCookie } from "@skills/playwright-automation/scripts/run-tests-notify.ts";
+import {
+  buildPhasePlans,
+  extractTenantFromCookie,
+} from "@skills/playwright-automation/scripts/run-tests-notify.ts";
 
 describe("extractTenantFromCookie", () => {
   it("parses dt_tenant_name from a real DTStack cookie", () => {

@@ -51,10 +51,7 @@ import { program as createProject } from "@skills/workspace-manage/scripts/creat
 import { program as initWizard } from "@skills/workspace-manage/scripts/init-wizard.ts";
 import { Command } from "commander";
 
-const kata = new Command()
-  .name("kata")
-  .description("kata unified CLI")
-  .showHelpAfterError();
+const kata = new Command().name("kata").description("kata unified CLI").showHelpAfterError();
 
 kata.addCommand(archiveGen);
 kata.addCommand(autoFixer);

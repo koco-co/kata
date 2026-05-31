@@ -179,20 +179,14 @@ export interface ValidationResult {
   enumViolations: { field: string; value: unknown; allowed: string[] }[];
 }
 
-export function validateEventData(
-  event: string,
-  data: NotifyData,
-): ValidationResult {
+export function validateEventData(event: string, data: NotifyData): ValidationResult {
   const schema = EVENT_SCHEMAS[event];
   if (!schema) {
     return { missingRequired: [], unknownFields: [], enumViolations: [] };
   }
   const known = new Set(schema.fields.map((f) => f.name));
   const missingRequired = schema.fields
-    .filter(
-      (f) =>
-        f.required && (data[f.name] === undefined || data[f.name] === null),
-    )
+    .filter((f) => f.required && (data[f.name] === undefined || data[f.name] === null))
     .map((f) => f.name);
   const unknownFields = Object.keys(data).filter((k) => !known.has(k));
   const enumViolations = schema.fields
@@ -213,8 +207,7 @@ export function describeEvent(event: string): string {
   const typeWidth = Math.max(...schema.fields.map((f) => f.type.length));
   for (const f of schema.fields) {
     const flag = f.required ? "*" : " ";
-    const enumHint =
-      f.type === "enum" && f.enum ? `  [${f.enum.join(" | ")}]` : "";
+    const enumHint = f.type === "enum" && f.enum ? `  [${f.enum.join(" | ")}]` : "";
     lines.push(
       `  ${flag} ${f.name.padEnd(nameWidth)}  ${f.type.padEnd(typeWidth)}  ${f.desc}${enumHint}`,
     );
@@ -225,9 +218,7 @@ export function describeEvent(event: string): string {
 
 export function listAllEvents(): string {
   const lines = ["全部事件类型:"];
-  const nameWidth = Math.max(
-    ...Object.keys(EVENT_SCHEMAS).map((n) => n.length),
-  );
+  const nameWidth = Math.max(...Object.keys(EVENT_SCHEMAS).map((n) => n.length));
   for (const [name, schema] of Object.entries(EVENT_SCHEMAS)) {
     lines.push(`  ${name.padEnd(nameWidth)}  ${schema.summary}`);
   }
@@ -248,10 +239,7 @@ export interface SendResult {
 
 // ── Message Formatting ───────────────────────────────────────────────────────
 
-export function formatMessage(
-  event: EventType,
-  data: NotifyData,
-): FormattedMessage {
+export function formatMessage(event: EventType, data: NotifyData): FormattedMessage {
   const timestamp = new Date().toLocaleString("zh-CN", {
     timeZone: "Asia/Shanghai",
   });
@@ -263,11 +251,7 @@ export function formatMessage(
   return { title, text };
 }
 
-function formatByEvent(
-  event: EventType,
-  data: NotifyData,
-  timestamp: string,
-): string {
+function formatByEvent(event: EventType, data: NotifyData, timestamp: string): string {
   switch (event) {
     case "case-generated":
       return [
@@ -323,9 +307,7 @@ function formatByEvent(
         `| 👤 需人工决策 | ${manual} |`,
         `| 📄 报告 | ${data.reportFile ?? "-"} |`,
         "",
-        data.branches
-          ? `**🔀 分支：** ${(data.branches as string[]).join(" ← ")}`
-          : "",
+        data.branches ? `**🔀 分支：** ${(data.branches as string[]).join(" ← ")}` : "",
         "",
         `---`,
         `🕐 ${timestamp} · Kata`,
@@ -474,8 +456,7 @@ function formatUiTestCompleted(data: NotifyData, timestamp: string): string {
 
   const failedTotal = failed + broken;
   const statusIcon = failedTotal > 0 ? "🔴" : passed > 0 ? "🟢" : "⚪";
-  const statusText =
-    failedTotal > 0 ? "存在失败" : passed > 0 ? "全部通过" : "无通过用例";
+  const statusText = failedTotal > 0 ? "存在失败" : passed > 0 ? "全部通过" : "无通过用例";
 
   const envLabel = data.envLabel ? String(data.envLabel) : "";
   const envCode = data.env ? String(data.env) : "";
@@ -620,11 +601,7 @@ export function detectChannels(): ChannelConfig {
 
 export function isEmailEnabled(cfg: ChannelConfig): boolean {
   return Boolean(
-    cfg.email.host &&
-    cfg.email.user &&
-    cfg.email.pass &&
-    cfg.email.from &&
-    cfg.email.to,
+    cfg.email.host && cfg.email.user && cfg.email.pass && cfg.email.from && cfg.email.to,
   );
 }
 
@@ -635,23 +612,15 @@ function buildDingtalkUrl(baseUrl: string, signSecret?: string): string {
 
   const timestamp = Date.now();
   const stringToSign = `${timestamp}\n${signSecret}`;
-  const sign = crypto
-    .createHmac("sha256", signSecret)
-    .update(stringToSign)
-    .digest("base64");
+  const sign = crypto.createHmac("sha256", signSecret).update(stringToSign).digest("base64");
   const encodedSign = encodeURIComponent(sign);
 
   return `${baseUrl}&timestamp=${timestamp}&sign=${encodedSign}`;
 }
 
-async function sendDingtalk(
-  cfg: ChannelConfig,
-  msg: FormattedMessage,
-): Promise<void> {
+async function sendDingtalk(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
   const url = buildDingtalkUrl(cfg.dingtalk!, cfg.dingtalkSignSecret);
-  const title = cfg.dingtalkKeyword
-    ? `${cfg.dingtalkKeyword} ${msg.title}`
-    : msg.title;
+  const title = cfg.dingtalkKeyword ? `${cfg.dingtalkKeyword} ${msg.title}` : msg.title;
 
   const body = {
     msgtype: "markdown",
@@ -676,10 +645,7 @@ async function sendDingtalk(
 
 // ── Feishu ───────────────────────────────────────────────────────────────────
 
-async function sendFeishu(
-  cfg: ChannelConfig,
-  msg: FormattedMessage,
-): Promise<void> {
+async function sendFeishu(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
   const body = {
     msg_type: "post",
     content: {
@@ -710,10 +676,7 @@ async function sendFeishu(
 
 // ── WeCom ────────────────────────────────────────────────────────────────────
 
-async function sendWecom(
-  cfg: ChannelConfig,
-  msg: FormattedMessage,
-): Promise<void> {
+async function sendWecom(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
   const body = {
     msgtype: "markdown",
     markdown: { content: msg.text },
@@ -737,10 +700,7 @@ async function sendWecom(
 
 // ── Email ────────────────────────────────────────────────────────────────────
 
-async function sendEmail(
-  cfg: ChannelConfig,
-  msg: FormattedMessage,
-): Promise<void> {
+async function sendEmail(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
   const { email } = cfg;
   // Dynamic import to avoid loading nodemailer when not needed
   const nodemailer = await import("nodemailer");
@@ -840,11 +800,7 @@ async function main(): Promise<void> {
     .description("kata IM 通知发送工具")
     .version("1.0.0")
     .option("-e, --event <type>", "事件类型 (使用 --list-events 查看所有)")
-    .option(
-      "-d, --data <json>",
-      "事件数据 (JSON 字符串，字段见 --describe <event>)",
-      "{}",
-    )
+    .option("-d, --data <json>", "事件数据 (JSON 字符串，字段见 --describe <event>)", "{}")
     .option("--dry-run", "仅格式化消息，不实际发送")
     .option("--list-events", "列出所有支持的事件类型")
     .option("--describe <event>", "打印某个事件支持的字段、类型和必填项")
@@ -884,9 +840,7 @@ ${listAllEvents()}
   }
 
   if (!opts.event) {
-    process.stderr.write(
-      "[notify] --event 必填（或使用 --list-events / --describe）\n",
-    );
+    process.stderr.write("[notify] --event 必填（或使用 --list-events / --describe）\n");
     process.exit(1);
   }
 
@@ -919,9 +873,7 @@ ${listAllEvents()}
         `[notify] 字段 "${v.field}" 值 "${v.value}" 不在枚举范围: [${v.allowed.join(", ")}]\n`,
       );
     }
-    process.stderr.write(
-      `[notify] 提示: 运行 \`--describe ${opts.event}\` 查看完整 schema\n`,
-    );
+    process.stderr.write(`[notify] 提示: 运行 \`--describe ${opts.event}\` 查看完整 schema\n`);
     if (opts.strict) {
       process.exit(1);
     }
@@ -937,9 +889,7 @@ ${listAllEvents()}
 }
 
 // Only run CLI when this file is executed directly (not imported as a module)
-const isMain =
-  process.argv[1] &&
-  fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 if (isMain) {
   main().catch((err: unknown) => {
     process.stderr.write(`[notify] Fatal error: ${err}\n`);

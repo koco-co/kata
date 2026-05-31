@@ -5,7 +5,7 @@ import type { Command } from "commander";
 export function registerCasesE2e(cases: Command): void {
   cases
     .command("e2e")
-    .description("跨模型 e2e 稳定性验证 (双 runtime 真跑)")
+    .description("case-draft e2e 验证 (claude 真跑)")
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--feature <id>", "feature_id")
     .requiredOption("--snapshot <path>", "frozen source-snapshot.json 路径")
@@ -36,9 +36,6 @@ export function registerCasesE2e(cases: Command): void {
         });
         console.log(
           `verifyClaude: ${r.verifyClaude.ok ? "OK" : `${r.verifyClaude.issues.length} issues`}`,
-        );
-        console.log(
-          `verifyCodex: ${r.verifyCodex.ok ? "OK" : `${r.verifyCodex.issues.length} issues`}`,
         );
         console.log(
           `compare: ${r.compare.fail ? "FAIL" : "OK"} jaccard=${r.compare.jaccard.toFixed(3)}`,

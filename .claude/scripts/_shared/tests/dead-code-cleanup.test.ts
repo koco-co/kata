@@ -9,18 +9,11 @@ function source(path: string): string {
 
 describe("P4-03 dead code cleanup", () => {
   test("removes obsolete stubs and unused helpers", () => {
-    expect(source(".claude/skills/case-draft/scripts/discuss.ts")).not.toContain("runDiscussValidate");
+    expect(source(".claude/skills/case-draft/scripts/discuss.ts")).not.toContain(
+      "runDiscussValidate",
+    );
     expect(source(".claude/scripts/_shared/lib/state.ts")).not.toContain("deleteWorkflowState");
     expect(source(".claude/scripts/_shared/cli/cases-validate.ts")).not.toContain("_textIncludes");
-  });
-
-  test("does not keep empty lint module placeholders", () => {
-    for (const path of [
-      ".claude/scripts/_shared/lint/agents-sync.ts",
-      ".claude/scripts/_shared/lint/agents-drift.ts",
-    ]) {
-      expect(source(path).trim()).not.toBe("export {};");
-    }
   });
 
   test("removes deprecated prdDir API and production calls", () => {
@@ -29,8 +22,8 @@ describe("P4-03 dead code cleanup", () => {
   });
 
   test("does not self-fallback KATA_TARGET_ENV", () => {
-    expect(source(".claude/skills/playwright-automation/scripts/run-tests-notify.ts")).not.toContain(
-      "KATA_TARGET_ENV ?? process.env.KATA_TARGET_ENV",
-    );
+    expect(
+      source(".claude/skills/playwright-automation/scripts/run-tests-notify.ts"),
+    ).not.toContain("KATA_TARGET_ENV ?? process.env.KATA_TARGET_ENV");
   });
 });

@@ -14,7 +14,6 @@ Kata 把 QA 过程拆成可审计的 product skills：从 PRD、设计源、bug�
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Bun](https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Skills-7C3AED?style=flat-square)](https://claude.com/claude-code)
-[![Codex](https://img.shields.io/badge/Codex-runtime-111827?style=flat-square)](./AGENTS.md)
 [![Version](https://img.shields.io/badge/version-4.0.0--alpha.1-blue.svg?style=flat-square)](./package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 
@@ -38,8 +37,8 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 
 核心原则：
 
-- `.agents/**` 与 `.claude/**` 是一等 runtime 目录，分别服务 kata Codex runtime 和 Claude Code runtime。
-- 两套 runtime 共享的代码底盘位于 `.claude/scripts/_shared/**`（lib / schemas / plugin-runtime / cli / lint），共享提示词位于 `.claude/prompt/_shared/**`；Phase 1 期间 Codex runtime 仅占位，详见 `.agents/README.md`，Phase 2 将通过 symlink 复用同一份共享资源。
+- `.claude/**` 是一等 runtime 目录，服务 kata Claude Code runtime。
+- runtime 代码底盘位于 `.claude/scripts/_shared/**`（lib / schemas / plugin-runtime / cli / lint），共享提示词位于 `.claude/prompt/_shared/**`。
 - 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
 - 浏览器自动化通过 `playwright-automation` skill 完成；原生 Playwright API 速查见 `.claude/skills/playwright-automation/references/cli-essentials.md`。
 
@@ -52,7 +51,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 | Node.js | `>= 22.0.0` | 运行 TypeScript/Bun 工具链 |
 | Bun | 已安装 | 安装依赖、运行测试和 CLI |
 | Git | 已安装 | 管理仓库与项目源码证据 |
-| Claude Code 或 Codex | 推荐 | 使用 `.claude/**` / `.agents/**` runtime skills |
+| Claude Code | 推荐 | 使用 `.claude/**` runtime skills |
 
 ### 安装
 
@@ -71,7 +70,7 @@ bun test
 bunx playwright install
 ```
 
-完成后，在 Claude Code 或 Codex 中输入：
+完成后，在 Claude Code 中输入：
 
 ```text
 /workspace-manage
@@ -79,7 +78,7 @@ bunx playwright install
 
 ## 当前能力
 
-以下命令是当前公开能力口径；runtime 入口以 `AGENTS.md`、`CLAUDE.md`、`.agents/**` 与 `.claude/**` 为准。
+以下命令是当前公开能力口径；runtime 入口以 `CLAUDE.md` 与 `.claude/**` 为准。
 
 | 命令 | 领域 | Skill | 说明 |
 | --- | --- | --- | --- |
@@ -94,7 +93,7 @@ bunx playwright install
 
 ### 功能使用示例
 
-以下命令在 Claude Code 或 Codex runtime 中直接输入：
+以下命令在 Claude Code runtime 中直接输入：
 
 ```bash
 # 1. 工作区管理 — 首次使用查看功能菜单或管理项目工作区
@@ -126,19 +125,17 @@ bunx playwright install
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现，以 runtime 内部 contracts 承接 schema、route、skill graph、workflow 与 blackboard，以 `.claude/scripts/_shared/**` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
+Kata 的当前 runtime 架构以 `.claude/**` 为一等实现，以 runtime 内部 contracts 承接 schema、route、skill graph、workflow 与 blackboard，以 `.claude/scripts/_shared/**` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
 
 ```text
-.agents/    kata Codex runtime skills and contracts
 .claude/    Claude Code runtime skills and contracts
 .claude/scripts/_shared/**    CLI, validators, tests, and workflow support
 ```
 
 | Runtime / 边界 | 当前职责 |
 | --- | --- |
-| `.agents/**` | kata Codex runtime skill 与 reference 目录，一等维护。 |
 | `.claude/**` | Claude Code runtime skill 与 reference 目录，一等维护。 |
-| `.claude/scripts/_shared/**` | 两套 runtime 共享的代码底盘（lib / schemas / plugin-runtime / cli / lint）与 `.claude/prompt/_shared/**` 共享提示词；Phase 1 期间 Codex runtime 仅占位（详见 `.agents/README.md`），Phase 2 将通过 symlink 复用。 |
+| `.claude/scripts/_shared/**` | runtime 代码底盘（lib / schemas / plugin-runtime / cli / lint）与 `.claude/prompt/_shared/**` 共享提示词。 |
 | `workspace/{project}/**` | 项目产物目录，存放 PRD 派生物、Archive MD、XMind、报告、Playwright 产物和项目知识。 |
 | `workspace/{project}/.kata/repos/**` | 源码证据目录，只读；kata workflow 不在这里 push、commit 或写业务文件。 |
 
@@ -160,7 +157,6 @@ Kata 的当前 runtime 架构以 `.agents/**` 与 `.claude/**` 为一等实现�
 
 ```text
 kata/
-├── .agents/         # kata Codex runtime skills
 ├── .claude/         # Claude Code runtime skills
 ├── docs/            # 架构、ADR、审计、技能和排查文档
 ├── .claude/scripts/_shared/  # CLI、runtime 校验、工作流支撑代码和测试

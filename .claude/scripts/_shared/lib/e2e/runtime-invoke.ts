@@ -17,26 +17,8 @@ export function buildClaudeArgs(o: InvokeOpts): string[] {
   return ["-p", o.prompt, "--permission-mode", "acceptEdits"];
 }
 
-export function buildCodexArgs(o: InvokeOpts): string[] {
-  return ["exec", o.prompt];
-}
-
 export function invokeClaude(o: InvokeOpts): InvokeResult {
   const r = spawnSync("claude", buildClaudeArgs(o), {
-    cwd: o.cwd,
-    env: o.env ?? process.env,
-    encoding: "utf-8",
-    timeout: o.timeoutMs ?? 1_800_000,
-  });
-  return {
-    ok: r.status === 0,
-    stdout: r.stdout ?? "",
-    stderr: r.stderr ?? "",
-  };
-}
-
-export function invokeCodex(o: InvokeOpts): InvokeResult {
-  const r = spawnSync("codex", buildCodexArgs(o), {
     cwd: o.cwd,
     env: o.env ?? process.env,
     encoding: "utf-8",

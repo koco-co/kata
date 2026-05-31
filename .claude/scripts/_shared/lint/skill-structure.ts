@@ -14,7 +14,7 @@ export interface StructureReport {
   violations: StructureViolation[];
 }
 
-// Claude frontmatter 字段白名单（§8.3）
+// Claude frontmatter 字段白名单（与 frontmatter-policy.ts 对齐）
 const ALLOWED_FRONTMATTER = new Set([
   "name",
   "description",
@@ -24,7 +24,6 @@ const ALLOWED_FRONTMATTER = new Set([
   "effort",
   "context",
   "agent",
-  "paths",
   "argument-hint",
   "allowed-tools",
   "disable-model-invocation",
@@ -85,7 +84,7 @@ function lintSkillDir(skill: string, dir: string, sub: string, cap: number): Str
 
 export function lintSkillStructure(root: string = repoRoot()): StructureReport {
   const v: StructureViolation[] = [];
-  const skillsRoot = skillsDir("claude", root);
+  const skillsRoot = skillsDir(root);
   if (!existsSync(skillsRoot)) return { passed: true, violations: v };
   const indexed = commandIndexSkills(root);
   const dirs = readdirSync(skillsRoot).filter(
