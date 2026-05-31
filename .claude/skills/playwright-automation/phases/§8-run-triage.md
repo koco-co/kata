@@ -9,7 +9,7 @@
 ### 第一步：收集失败证据
 
 1. 读取 `full.spec.ts` 的运行输出（stdout + stderr），提取每个失败 test 的名称和错误消息
-2. 读取 Playwright trace/截图（`results/<run-id>/playwright/` 下对应 spec 目录）
+2. 读取 Playwright trace/截图（`results/<run-id>/playwright/` 下对应 spec 目录）；可视化 trace 查看：`npx playwright show-trace results/<run-id>/playwright/.../trace.zip`
 3. 检查错误消息是否为：
    - TimeoutError（等待超时）
    - 断言失败（expect 返回值不匹配）

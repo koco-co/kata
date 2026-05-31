@@ -15,6 +15,7 @@
 > 改代码前先读诊断证据（见 `references/cli-essentials.md`）：在 probe/spec 里注册
 > `page.on('console')` / `page.on('requestfailed')` 读 app 侧 JS 错误与失败请求，
 > 再结合 Playwright trace 定位根因，避免盲目修改 locator。
+> 可视化 trace：`npx playwright show-trace results/<run-id>/playwright/.../trace.zip`
 
 1. **Selector 找不到**：
    - 在浏览器 DevTools 中确认元素实际位置
