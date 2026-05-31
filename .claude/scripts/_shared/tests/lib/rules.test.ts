@@ -5,7 +5,7 @@ import { buildRootName, loadXmindRules } from "@shared/lib/rules.ts";
 
 const ROOT = resolve(import.meta.dirname, "../../../../..");
 const PROJECT = "test-rules-project";
-const PROJECT_RULES_DIR = join(ROOT, "workspace", PROJECT, "rules");
+const PROJECT_RULES_DIR = join(ROOT, "workspace", PROJECT, "_shared", "rules");
 
 beforeEach(() => {
   mkdirSync(PROJECT_RULES_DIR, { recursive: true });

@@ -41,7 +41,7 @@ function writeGlobalRule(filename: string, content: string): void {
 }
 
 function writeProjectRule(project: string, filename: string, content: string): void {
-  const dir = join(KATA_WORKSPACE_ROOT, project, "rules");
+  const dir = join(KATA_WORKSPACE_ROOT, project, "_shared", "rules");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, filename), content, "utf8");
 }

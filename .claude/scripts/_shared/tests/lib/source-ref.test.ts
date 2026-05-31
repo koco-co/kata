@@ -64,9 +64,9 @@ describe("resolveSourceRef — prd / knowledge / repo schemes", () => {
 
   const wsDir = join(tmp, "ws");
   const projName = "proj-c";
-  mkdirSync(join(wsDir, projName, "knowledge"), { recursive: true });
-  writeFileSync(join(wsDir, projName, "knowledge", "overview.md"), "# overview");
-  mkdirSync(join(wsDir, projName, "knowledge", "term"), { recursive: true });
+  mkdirSync(join(wsDir, projName, "_shared", "knowledge"), { recursive: true });
+  writeFileSync(join(wsDir, projName, "_shared", "knowledge", "overview.md"), "# overview");
+  mkdirSync(join(wsDir, projName, "_shared", "knowledge", "term"), { recursive: true });
 
   const repoDir = join(tmp, "repo-studio");
   mkdirSync(join(repoDir, "src", "approval"), { recursive: true });

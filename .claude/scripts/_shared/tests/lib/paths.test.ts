@@ -320,42 +320,42 @@ describe("probeCachePath", () => {
 });
 
 describe("projectRulesDir", () => {
-  it("returns workspace/{project}/rules", () => {
+  it("returns workspace/{project}/_shared/rules", () => {
     const dir = projectRulesDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/rules")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/rules")).toBeTruthy();
   });
 });
 
 describe("knowledgeDir", () => {
-  it("returns <workspace>/<project>/knowledge", () => {
+  it("returns <workspace>/<project>/_shared/knowledge", () => {
     const dir = knowledgeDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/knowledge")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/knowledge")).toBeTruthy();
   });
 });
 
 describe("knowledgePath", () => {
   it("joins segments under knowledge dir", () => {
     const p = knowledgePath("dataAssets", "modules", "data-source.md");
-    expect(p.endsWith("workspace/dataAssets/knowledge/modules/data-source.md")).toBeTruthy();
+    expect(p.endsWith("workspace/dataAssets/_shared/knowledge/modules/data-source.md")).toBeTruthy();
   });
 
   it("returns knowledge dir itself when no segments", () => {
     const p = knowledgePath("dataAssets");
-    expect(p.endsWith("workspace/dataAssets/knowledge")).toBeTruthy();
+    expect(p.endsWith("workspace/dataAssets/_shared/knowledge")).toBeTruthy();
   });
 });
 
 describe("knowledgeModulesDir", () => {
   it("returns <knowledge>/modules", () => {
     const dir = knowledgeModulesDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/knowledge/modules")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/knowledge/modules")).toBeTruthy();
   });
 });
 
 describe("knowledgePitfallsDir", () => {
   it("returns <knowledge>/pitfalls", () => {
     const dir = knowledgePitfallsDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/knowledge/pitfalls")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/knowledge/pitfalls")).toBeTruthy();
   });
 });
 
@@ -412,14 +412,14 @@ describe("featureDir / featureFile (new v3 API)", () => {
 });
 
 describe("projectShared (new v3 API)", () => {
-  test("projectShared returns workspace/{p}/shared/{kind}/...", () => {
+  test("projectShared returns workspace/{p}/_shared/{kind}/...", () => {
     const result = projectShared("dataAssets", "fixtures", "auth", "session.json");
-    expect(result).toMatch(/workspace\/dataAssets\/shared\/fixtures\/auth\/session\.json$/);
+    expect(result).toMatch(/workspace\/dataAssets\/_shared\/fixtures\/auth\/session\.json$/);
   });
 
   test("projectShared with no segments returns the kind dir", () => {
     const result = projectShared("dataAssets", "helpers");
-    expect(result).toMatch(/workspace\/dataAssets\/shared\/helpers$/);
+    expect(result).toMatch(/workspace\/dataAssets\/_shared\/helpers$/);
   });
 });
 
