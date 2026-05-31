@@ -22,21 +22,10 @@ function makeRoot(): string {
   return root;
 }
 
-function writeSkill(
-  root: string,
-  runtimeDir: ".claude" | ".agents",
-  name: string,
-  body: string,
-): void {
-  const dir = join(root, runtimeDir, "skills", name);
+function writeSkill(root: string, name: string, body: string): void {
+  const dir = join(root, ".claude", "skills", name);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "SKILL.md"), body);
-}
-
-function writeCodexOpenAi(root: string, name: string, body?: string): void {
-  const dir = join(root, ".agents", "skills", name, "agents");
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, "openai.yaml"), body ?? "policy:\n  allow_implicit_invocation: true\n");
 }
 
 describe("runtime skill sync check", () => {
@@ -45,9 +34,7 @@ describe("runtime skill sync check", () => {
     // 不再依赖该 yaml。
     const root = makeRoot();
     const skill = `---\nname: case-draft\ndescription: gen\n---\n`;
-    writeSkill(root, ".claude", "case-draft", skill);
-    writeSkill(root, ".agents", "case-draft", skill);
-    writeCodexOpenAi(root, "case-draft");
+    writeSkill(root, "case-draft", skill);
 
     const report = checkRuntimeSkillSync(root);
 
@@ -55,7 +42,7 @@ describe("runtime skill sync check", () => {
     expect(report.violations).toEqual([]);
   });
 
-  test("passes when Claude and Codex skill names match and both allow allowed-tools", () => {
+  test("passes when skill has allowed-tools frontmatter field", () => {
     const root = makeRoot();
     const skill = `---
 name: demo
@@ -66,9 +53,7 @@ allowed-tools: Read, Bash
 # Demo
 `;
 
-    writeSkill(root, ".claude", "demo", skill);
-    writeSkill(root, ".agents", "demo", skill);
-    writeCodexOpenAi(root, "demo");
+    writeSkill(root, "demo", skill);
 
     const report = checkRuntimeSkillSync(root);
 
@@ -76,54 +61,13 @@ allowed-tools: Read, Bash
     expect(formatRuntimeSkillSyncReport(report, root)).toBe("runtime skill sync passed");
   });
 
-  test("requires Codex openai.yaml for runtime skills", () => {
+  // WHY: frontmatter allowlist permits `when_to_use` per
+  // .claude/scripts/_shared/lib/skills/frontmatter-policy.ts
+  test("allows when_to_use in Claude SKILL.md", () => {
     const root = makeRoot();
 
     writeSkill(
       root,
-      ".claude",
-      "case-draft",
-      `---
-name: case-draft
-description: d
-when_to_use: use for QA case drafting
----
-
-# case-draft
-`,
-    );
-    writeSkill(
-      root,
-      ".agents",
-      "case-draft",
-      `---
-name: case-draft
-description: d
----
-
-# case-draft
-`,
-    );
-
-    const report = checkRuntimeSkillSync(root);
-
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "CODEX_OPENAI_CONFIG_MISSING",
-        path: ".agents/skills/case-draft/agents/openai.yaml",
-      }),
-    );
-  });
-
-  // WHY: Codex frontmatter allowlist now permits `when_to_use` per
-  // .claude/scripts/_shared/lib/skills/frontmatter-policy.ts; replaces the previous
-  // "rejects on Codex" expectation.
-  test("allows when_to_use on both Claude and Codex SKILL.md", () => {
-    const root = makeRoot();
-
-    writeSkill(
-      root,
-      ".claude",
       "case-edit",
       `---
 name: case-edit
@@ -134,20 +78,6 @@ when_to_use: use when editing existing test artifacts
 # case-edit
 `,
     );
-    writeSkill(
-      root,
-      ".agents",
-      "case-edit",
-      `---
-name: case-edit
-description: d
-when_to_use: use when editing existing test artifacts
----
-
-# case-edit
-`,
-    );
-    writeCodexOpenAi(root, "case-edit");
 
     const report = checkRuntimeSkillSync(root);
 
@@ -163,7 +93,6 @@ when_to_use: use when editing existing test artifacts
 
     writeSkill(
       root,
-      ".claude",
       "demo",
       `---
 name: demo
@@ -186,19 +115,6 @@ overflow_policy:
 - 下游 prompts: demo-prompt@1
 `,
     );
-    writeSkill(
-      root,
-      ".agents",
-      "demo",
-      `---
-name: demo
-description: Demo skill
----
-
-# Demo
-`,
-    );
-    writeCodexOpenAi(root, "demo");
 
     const report = checkRuntimeSkillSync(root);
 
@@ -216,7 +132,6 @@ description: Demo skill
 
     writeSkill(
       root,
-      ".claude",
       "demo",
       `---
 name: demo
@@ -232,19 +147,6 @@ description: Demo skill
 - 下游 prompts: demo-prompt@1
 `,
     );
-    writeSkill(
-      root,
-      ".agents",
-      "demo",
-      `---
-name: demo
-description: Demo skill
----
-
-# Demo
-`,
-    );
-    writeCodexOpenAi(root, "demo");
 
     const report = checkRuntimeSkillSync(root);
 
@@ -257,91 +159,11 @@ description: Demo skill
     );
   });
 
-  test("requires Codex openai.yaml implicit invocation policy boolean", () => {
-    const root = makeRoot();
-    const skill = `---
-name: demo
-description: Demo skill
----
-
-# Demo
-`;
-
-    writeSkill(root, ".claude", "demo", skill);
-    writeSkill(root, ".agents", "demo", skill);
-    writeCodexOpenAi(root, "demo", "policy:\n  allow_implicit_invocation: yes\n");
-
-    const report = checkRuntimeSkillSync(root);
-
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "CODEX_OPENAI_CONFIG_INVALID",
-        path: ".agents/skills/demo/agents/openai.yaml",
-        message: "policy.allow_implicit_invocation must be a boolean",
-      }),
-    );
-  });
-
-  test("reports RUNTIME_SKILL_MISSING when counterpart skill is missing (codex present)", () => {
-    const root = makeRoot();
-
-    writeSkill(
-      root,
-      ".claude",
-      "claude-only",
-      `---
-name: claude-only
-description: Claude only
----
-
-# Claude only
-`,
-    );
-    // 注册一个 Codex skill 使 .agents/skills 目录存在，但 claude-only 无对应物
-    writeSkill(root, ".agents", "other-skill", `---\nname: other-skill\ndescription: other\n---\n`);
-    writeCodexOpenAi(root, "other-skill");
-
-    const report = checkRuntimeSkillSync(root);
-
-    expect(report.passed).toBe(false);
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "RUNTIME_SKILL_MISSING",
-        path: ".agents/skills/claude-only",
-      }),
-    );
-  });
-
-  test("passes when .agents/skills directory does not exist (codex retired)", () => {
-    const root = makeRoot();
-
-    writeSkill(root, ".claude", "case-draft", `---\nname: case-draft\ndescription: gen\n---\n`);
-    // 不创建任何 .agents 目录，模拟 Codex runtime 已退役
-
-    const report = checkRuntimeSkillSync(root);
-
-    expect(report.passed).toBe(true);
-    expect(report.violations).toEqual([]);
-  });
-
   test("reports UNSUPPORTED_FRONTMATTER for unrecognized frontmatter fields", () => {
     const root = makeRoot();
 
     writeSkill(
       root,
-      ".claude",
-      "demo",
-      `---
-name: demo
-description: Demo skill
----
-
-# Demo
-`,
-    );
-    writeSkill(
-      root,
-      ".agents",
       "demo",
       `---
 name: demo
@@ -352,7 +174,6 @@ hooks: {}
 # Demo
 `,
     );
-    writeCodexOpenAi(root, "demo");
 
     const report = checkRuntimeSkillSync(root);
 
@@ -360,7 +181,7 @@ hooks: {}
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "UNSUPPORTED_FRONTMATTER",
-        path: ".agents/skills/demo/SKILL.md",
+        path: ".claude/skills/demo/SKILL.md",
         message: "unsupported frontmatter fields: hooks",
       }),
     );
@@ -371,22 +192,9 @@ hooks: {}
 
     writeSkill(
       root,
-      ".claude",
       "demo",
       `---
 name: other-demo
-description: Demo skill
----
-
-# Demo
-`,
-    );
-    writeSkill(
-      root,
-      ".agents",
-      "demo",
-      `---
-name: demo
 description: Demo skill
 ---
 
@@ -415,9 +223,7 @@ description: Demo skill
 
     // 写一个真实 skill，确保 sync-check 不会因 `_shared` 缺 SKILL.md 报错
     const skill = `---\nname: case-draft\ndescription: gen\n---\n`;
-    writeSkill(root, ".claude", "case-draft", skill);
-    writeSkill(root, ".agents", "case-draft", skill);
-    writeCodexOpenAi(root, "case-draft");
+    writeSkill(root, "case-draft", skill);
 
     const report = checkRuntimeSkillSync(root);
 
@@ -434,9 +240,7 @@ name: demo
 # Demo
 `;
 
-    writeSkill(root, ".claude", "demo", skill);
-    writeSkill(root, ".agents", "demo", skill);
-    writeCodexOpenAi(root, "demo");
+    writeSkill(root, "demo", skill);
 
     const report = checkRuntimeSkillSync(root);
 
@@ -445,13 +249,6 @@ name: demo
       expect.objectContaining({
         rule: "SKILL_DESCRIPTION_MISSING",
         path: ".claude/skills/demo/SKILL.md",
-        message: "frontmatter description is required",
-      }),
-    );
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "SKILL_DESCRIPTION_MISSING",
-        path: ".agents/skills/demo/SKILL.md",
         message: "frontmatter description is required",
       }),
     );
