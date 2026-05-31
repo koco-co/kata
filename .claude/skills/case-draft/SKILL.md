@@ -6,10 +6,6 @@ user-invocable: true
 model: sonnet
 effort: high
 allowed-tools: Bash(kata *)
-paths:
-  - "**/*.md"
-  - "**/*.json"
-  - "**/*.png"
 ---
 
 # case-draft

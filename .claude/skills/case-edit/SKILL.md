@@ -5,10 +5,6 @@ when_to_use: 给出 XMind/CSV/Archive MD 用例路径，或要求修改/同步/�
 user-invocable: true
 model: sonnet
 effort: medium
-paths:
-  - "**/*.md"
-  - "**/*.xmind"
-  - "**/*.csv"
 ---
 
 # case-edit

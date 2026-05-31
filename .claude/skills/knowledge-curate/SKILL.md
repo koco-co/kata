@@ -5,8 +5,6 @@ when_to_use: 触发短语如「记一下这个规则」「XX 术语什么意思�
 user-invocable: true
 model: sonnet
 effort: medium
-paths:
-  - "workspace/**/_shared/knowledge/**"
 ---
 
 # knowledge-curate

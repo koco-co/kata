@@ -5,13 +5,6 @@ when_to_use: 给出异常堆栈/控制台错误/HTTP 失败、带冲突标记的
 user-invocable: true
 model: sonnet
 effort: medium
-paths:
-  - "**/*.diff"
-  - "**/*.patch"
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.js"
-  - "**/*.jsx"
 ---
 
 # defect-analyze

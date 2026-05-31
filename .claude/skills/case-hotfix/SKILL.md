@@ -5,10 +5,6 @@ when_to_use: 给出 bug ID、issue URL、缺陷描述或修复说明（含只给
 user-invocable: true
 model: sonnet
 effort: medium
-paths:
-  - "**/*.md"
-  - "**/*bug*"
-  - "**/*issue*"
 ---
 
 # case-hotfix

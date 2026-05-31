@@ -6,11 +6,6 @@ user-invocable: true
 model: sonnet
 effort: high
 allowed-tools: Bash(kata *)
-paths:
-  - "**/*.spec.ts"
-  - "**/*.test.ts"
-  - "**/playwright.config.*"
-  - "**/*.md"
 ---
 
 # playwright-automation

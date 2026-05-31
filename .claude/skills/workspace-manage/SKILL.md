@@ -5,10 +5,6 @@ when_to_use: 触发短语如「kata 能干嘛」「功能菜单」「初始化�
 user-invocable: true
 model: sonnet
 effort: medium
-paths:
-  - "workspace/**"
-  - ".claude/**"
-  - ".agents/**"
 ---
 
 # workspace-manage
