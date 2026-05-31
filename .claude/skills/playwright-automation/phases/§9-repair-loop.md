@@ -12,6 +12,10 @@
 
 #### script 类失败修复
 
+> 改代码前先读诊断证据（见 `references/cli-essentials.md`）：在 probe/spec 里注册
+> `page.on('console')` / `page.on('requestfailed')` 读 app 侧 JS 错误与失败请求，
+> 再结合 Playwright trace 定位根因，避免盲目修改 locator。
+
 1. **Selector 找不到**：
    - 在浏览器 DevTools 中确认元素实际位置
    - 检查 iframe/shadow DOM 是否需要穿透
@@ -20,8 +24,8 @@
    - 必要时使用 `page.locator()` 配合 `:has-text()` 或 `nth=`
 2. **等待超时**：
    - 检查是否有 loading spinner / skeleton 未消失
-   - 添加 `waitForLoadState("networkidle")`
-   - 使用 `toBeVisible({ timeout: 15000 })` 替代裸 `waitForSelector`
+   - 改用具体等待目标：`expect(locator).toBeVisible({ timeout: 15000 })`、`page.waitForResponse(/api\/xxx/)`、`page.waitForURL('**/xxx')`
+   - **禁止**用 `waitForLoadState("networkidle")` 作为超时 band-aid——networkidle 不可靠，会掩盖真实等待条件（Playwright 官方 Heal 原则）
 3. **页面导航失败**：
    - 检查是否有重定向链
    - 确认 storageState 未过期

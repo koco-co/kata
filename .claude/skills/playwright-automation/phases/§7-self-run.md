@@ -11,7 +11,7 @@
 在真实运行之前，必须先执行 `--list` 确认 spec 文件可被 Playwright 正确解析：
 
 ```bash
-KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'tests/runners/full.spec.ts' --list --project=chromium
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'tests/runners/full.spec.ts' --list --project=chromium
 ```
 
 输出应包含所有预期 case 名称和行号。若：
@@ -22,7 +22,7 @@ KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'te
 ### 第二步：运行目标 full.spec.ts
 
 ```bash
-KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'tests/runners/full.spec.ts' --project=chromium --reporter=line
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'tests/runners/full.spec.ts' --project=chromium --reporter=line
 ```
 
 运行要求：
@@ -68,7 +68,7 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
    ```
 2. Execute:
    ```bash
-   KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
+   PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
      npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' \
      --output="$RUN_PATH/playwright" \
      --reporter=line,json,allure

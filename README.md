@@ -41,7 +41,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 - `.agents/**` 与 `.claude/**` 是一等 runtime 目录，分别服务 kata Codex runtime 和 Claude Code runtime。
 - 两套 runtime 共享的代码底盘位于 `.claude/scripts/_shared/**`（lib / schemas / plugin-runtime / cli / lint），共享提示词位于 `.claude/prompt/_shared/**`；Phase 1 期间 Codex runtime 仅占位，详见 `.agents/README.md`，Phase 2 将通过 symlink 复用同一份共享资源。
 - 所有项目产物写入 `workspace/{project}/`；源码证据位于 `workspace/{project}/.kata/repos/**` 且只读。
-- 浏览器自动化通过 `playwright-automation` skill 完成；常用 CLI 速查见 `.claude/skills/playwright-automation/references/cli-essentials.md`。
+- 浏览器自动化通过 `playwright-automation` skill 完成；原生 Playwright API 速查见 `.claude/skills/playwright-automation/references/cli-essentials.md`。
 
 ## 快速开始
 

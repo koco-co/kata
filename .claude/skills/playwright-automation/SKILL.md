@@ -49,6 +49,7 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 
 | 文件                              | 何时读                                         | 作用                                           |
 | --------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| references/cli-essentials.md      | ui-probe/generate/repair 阶段需要 API 速查时   | 原生 Playwright API：探测/属性/断言/mock/trace |
 | references/execution-protocol.md  | env 确认且无 blocker 后的重阶段                | TodoWrite 可见编排、Worker 派发、二阶段 review |
 | prompts/agent-worker.md           | ui-probe/generate/self-run/repair 派 Worker 时 | Worker 模板与 Status/BlockedEnvelope           |
 | prompts/agent-spec-reviewer.md    | 重阶段产物落盘后                               | spec 合规机械检查                              |

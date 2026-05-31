@@ -57,6 +57,8 @@ This does not mark case-draft complete; handoff must say the script was generate
 - 禁止把业务流程用例简化为「进入页面看菜单/字段/元素是否存在」的 surface 契约测试；
 - 当前环境确实无法忠实实现并跑通的用例，走诚实阻塞/排除并记入 `handoff.excluded_cases`（含 `reason_category` + 原因），不得用 surface 断言假通过。
 
+> 断言工具（见 `references/cli-essentials.md`）：断言优先 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 强断言，期望值用 `locator.textContent()/inputValue()` 在 ui-probe 阶段捕获；locator 优先 `getByRole/getByTestId/getByLabel`。**不得用 `page.route` mock 被测业务接口返回来换取断言通过。**
+
 ## 生成与调试协议
 
 ### 模式判定
