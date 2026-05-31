@@ -1,7 +1,6 @@
 ---
 name: knowledge-curate
-description: 要查询、记录或维护项目业务知识、规则、术语、模块事实，或问「XX 是什么」(项目业务概念)时用；统一沉淀于 _shared/knowledge/。
-when_to_use: 触发短语如「记一下这个规则」「XX 术语什么意思」「更新模块知识」。只问源码实现细节、或要写编用例、扫 diff、做 UI 自动化的不在此。
+description: 查询、记录或维护项目业务知识、规则、术语、模块事实，或问「XX 是什么」(项目业务概念)，统一沉淀于 _shared/knowledge/。触发短语如「记一下这个规则」「XX 术语什么意思」「更新模块知识」。只问源码实现细节，或要写编用例、扫 diff、做 UI 自动化的改走对应 case-*/defect-analyze/playwright-automation。
 argument-hint: '<业务术语 | 规则描述 | "XX 是什么">'
 user-invocable: true
 model: sonnet
@@ -14,8 +13,10 @@ effort: medium
 
 ## 路由边界
 
-- 触发：记录 / 更新 / 写入业务知识、规则、术语；查询业务概念或「XX 是什么」。
-- 改走：纯源码实现细节问答（非业务知识）→ 由 AI 直接答；生成或编辑用例 → case-*。
+description 已覆盖触发场景；此处只说明改走目标：
+
+- 纯源码实现细节问答（非业务知识）→ 由 AI 直接答。
+- 生成或编辑用例 → case-*。
 
 ## 工作流
 
@@ -31,5 +32,5 @@ effort: medium
 ## 硬规则（不变量）
 
 - 业务知识存于 `workspace/{project}/_shared/knowledge/**`，项目规则存于 `workspace/{project}/_shared/rules/**`——两者分仓，不混写。
-- 未明确选定项目前不得跨项目编辑知识。
+- 未明确选定项目前不得跨项目编辑知识——跨项目写入会污染其它项目的知识库。
 - 查询结果回指知识条目的 SourceRef ID；无证据支撑的根因/事实不写入。
