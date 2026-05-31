@@ -169,6 +169,53 @@ URL pattern 速查：`**/api/users`（精确路径）、`**/api/*/details`（通
 
 ---
 
+## iframe / frameLocator（§4 ui-probe + §6 generate 用）
+
+```javascript
+// 按 selector 定位 iframe 内的元素（frameLocator 返回 Locator，支持链式调用）
+const frame = page.frameLocator('iframe[name="report"]');
+await frame.locator('[data-testid="table-row"]').first().click();
+
+// 按 URL 定位（适合动态 name 的第三方嵌入）
+const frameByUrl = page.frameLocator('iframe[src*="/embed/"]');
+await expect(frameByUrl.getByRole("heading")).toHaveText("报表标题");
+
+// 多层 iframe（逐级链式）
+const innerFrame = page.frameLocator('#outer-frame').frameLocator('#inner-frame');
+
+// 访问 Frame 对象（需要 page.evaluate 等低层操作时）
+const frame2 = page.frame({ url: /report/ }) ?? page.frame('report-frame');
+```
+
+探测时遇到元素在 iframe 内：在 §4 probe 脚本里先 `page.frames()` 列出所有 frame URL 确认目标，再用 `frameLocator` 采集证据。
+
+---
+
+## 多页 / popup 处理（§4 ui-probe + §6 generate 用）
+
+```typescript
+// 触发动作前注册监听（必须在触发动作之前，否则会错过 popup 事件）
+const [popup] = await Promise.all([
+  page.waitForEvent("popup"),
+  page.getByRole("link", { name: "在新标签打开" }).click(),
+]);
+await popup.waitForLoadState();
+
+// 断言新页内容
+await expect(popup.getByRole("heading")).toHaveText("详情页标题");
+await expect(popup).toHaveURL(/\/detail\//);
+
+// 通过 context 监听所有新页（适合测试同一 context 下批量弹出）
+context.on("page", async (newPage) => {
+  await newPage.waitForLoadState();
+  // 对每个新页执行检查
+});
+```
+
+**覆盖忠实度**：用例步骤含「导出/详情/查看新开页」时，必须对新页内容断言，不得只断当前页仍可见某元素。
+
+---
+
 ## 文件下载处理（§6 playwright-generate 用）
 
 ```typescript

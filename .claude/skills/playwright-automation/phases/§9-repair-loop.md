@@ -18,7 +18,7 @@
 
 1. **Selector 找不到**：
    - 在浏览器 DevTools 中确认元素实际位置
-   - 检查 iframe/shadow DOM 是否需要穿透
+   - 检查 iframe/shadow DOM 是否需要穿透（iframe 用 `page.frameLocator(selector)`，见 `references/cli-essentials.md §iframe`）
    - 检查是否有动态 class 名（如 `ant-btn css-xxx` 中的 hash）
    - 优先使用 `getByRole`、`getByText`、`getByLabel` 而非 CSS selector
    - 必要时使用 `page.locator()` 配合 `:has-text()` 或 `nth=`
