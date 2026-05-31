@@ -58,10 +58,7 @@ function writeDetachedEntries(root: string): void {
 
 function writeLegacyDetachedEntries(root: string): void {
   // CLAUDE.md with only legacy content (missing all required workflow phrases)
-  const legacy = [
-    "Claude 与 Codex 同等优先。",
-    "不要求两边文件逐字一致。",
-  ].join("\n");
+  const legacy = ["Claude 与 Codex 同等优先。", "不要求两边文件逐字一致。"].join("\n");
   writeRuntimeFile(root, "CLAUDE.md", `# CLAUDE.md\n\n${legacy}\n`);
 }
 
@@ -71,12 +68,7 @@ function writeWorkflowRuleFiles(root: string, body: string): void {
   writeRuntimeFile(root, `.claude/rules/git-workflow.md`, body);
 }
 
-function writeSkill(
-  root: string,
-  runtimeDir: ".claude",
-  name: string,
-  body = "",
-): void {
+function writeSkill(root: string, runtimeDir: ".claude", name: string, body = ""): void {
   writeRuntimeFile(
     root,
     `${runtimeDir}/skills/${name}/SKILL.md`,

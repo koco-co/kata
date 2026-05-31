@@ -17,9 +17,7 @@ export const CLAUDE_SKILL_FRONTMATTER_FIELDS: ReadonlySet<string> = new Set(
   CLAUDE_SKILL_FRONTMATTER_FIELD_LIST,
 );
 
-export function findUnsupportedFrontmatterFields(
-  frontmatter: Record<string, unknown>,
-): string[] {
+export function findUnsupportedFrontmatterFields(frontmatter: Record<string, unknown>): string[] {
   return Object.keys(frontmatter)
     .filter((field) => !CLAUDE_SKILL_FRONTMATTER_FIELDS.has(field))
     .sort();

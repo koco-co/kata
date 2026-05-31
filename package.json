@@ -27,7 +27,7 @@
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "check:skills": "bun .claude/scripts/_shared/bin/kata skills sync-check --exit-code",
-    "lint": "biome check .claude/agents .claude/skills .claude/plugins .claude/scripts tools rules",
+    "lint": "biome check .claude/skills .claude/plugins .claude/scripts tools",
     "format": "biome check --fix .",
     "lint:debris": "bun run .claude/scripts/lint/check-debug-files.ts && bun run .claude/scripts/lint/check-stale-paths.ts && bun run .claude/scripts/lint/check-runtime-artifacts.ts",
     "type-check": "tsc --noEmit",

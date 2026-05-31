@@ -57,7 +57,10 @@ export function checkRuntimeSkillSync(root: string): RuntimeSkillSyncReport {
   return { passed: violations.length === 0, violations };
 }
 
-function readRuntimeSkills(root: string, violations: RuntimeSkillViolation[]): RuntimeSkillRecord[] {
+function readRuntimeSkills(
+  root: string,
+  violations: RuntimeSkillViolation[],
+): RuntimeSkillRecord[] {
   const skillsRoot = join(root, ".claude", "skills");
   if (!existsSync(skillsRoot)) return [];
 
