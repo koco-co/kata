@@ -4,7 +4,7 @@
 
 - 读取时机
 - 协议
-- Debug artifact isolation (mandatory)
+- 调试产物隔离（强制）
 
 ## 读取时机
 
@@ -106,11 +106,11 @@ remaining_failures:
     reason: "修复耗尽说明"
 ```
 
-## Debug artifact isolation (mandatory)
+## 调试产物隔离（强制）
 
-- Debug specs created during repair-loop must live under `features/<featureId>/.debug/probe-<timestamp>.spec.ts`.
-- Never put `t01-debug.spec.ts`, `*-repro.spec.ts`, or `diag_*.ts` into `tests/cases/`.
-- For runtime debug captures (HAR / screenshots / trace), use `testInfo.outputPath()` inside `.debug/`.
-- On successful repair, the `.debug/` directory is automatically pruned. On failed repair, `.debug/` content is preserved for blocker triage in the next handoff.
+- repair-loop 期间创建的调试 spec 必须放在 `features/<featureId>/.debug/probe-<timestamp>.spec.ts` 下。
+- 绝不把 `t01-debug.spec.ts`、`*-repro.spec.ts` 或 `diag_*.ts` 放进 `tests/cases/`。
+- 运行期调试捕获（HAR / 截图 / trace）须用 `.debug/` 内的 `testInfo.outputPath()`。
+- 修复成功后 `.debug/` 目录自动清理；修复失败则保留 `.debug/` 内容，供下一次 handoff 做阻塞分诊。
 
-Quality gate `no_debug_in_cases` enforces naming.
+质量门 `no_debug_in_cases` 强制命名约束。

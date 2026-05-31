@@ -2,24 +2,24 @@
 
 ## Contents
 
-- Input precedence
+- 输入优先级
 - 读取时机
 - 协议
 - 禁止
 
-## Input precedence
+## 输入优先级
 
-1. **Primary:** `features/<featureId>/manifest.json#automation.intents[]` where `automation_status: ready`. Iterate these directly.
-2. **Case-draft archive:** when `archive.md` + `test-point-checklist.md` exist and `case_drafting.status == completed`, normalize from the archive.
-3. **Source-backed bootstrap:** use only when a feature directory lacks the case-draft automation baseline, but the same exact target directory contains `prd.md` and `inputs/lanhu-snapshots/`.
-   - Emit `source_backed_bootstrap` and proceed to `env-preflight` before reading those source files.
-   - The pre-env source-material check must be exact-path existence only: `test -f <target>/prd.md`, `test -d <target>/inputs/lanhu-snapshots`, or equivalent exact-target metadata.
-   - Do not list, glob, find, read, or enumerate screenshot filenames.
-   - This path is for short `/playwright-automation <title>` prompts where the user expects environment confirmation and a real UI probe.
-4. **Fallback:** only if the user passes a raw `archive.md` path, a raw PRD path, or a Lanhu link that has no feature directory yet, perform free-form inference as before.
-5. **Hard stop:** if a feature directory exists but has neither a case-draft automation baseline nor source-backed materials, do not infer UI from unrelated PRD/screenshots. Return `blocked_by_case_draft_required` and ask for `/case-draft` completion first.
+1. **主源：** `features/<featureId>/manifest.json#automation.intents[]` 中 `automation_status: ready` 的项，直接逐条迭代。
+2. **case-draft 归档：** 当 `archive.md` + `test-point-checklist.md` 存在且 `case_drafting.status == completed` 时，从归档归一化。
+3. **源材料 bootstrap：** 仅当 feature 目录缺少 case-draft 自动化基线，但同一目标目录内含 `prd.md` 与 `inputs/lanhu-snapshots/` 时使用。
+   - 发出 `source_backed_bootstrap`，并在读取这些源文件前先进入 `env-preflight`。
+   - 进入 env 前的源材料检查只能做精确路径存在性判断：`test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots` 或等价的精确目标元数据。
+   - 不得 list、glob、find、读取或枚举截图文件名。
+   - 此路径用于 `/playwright-automation <title>` 这类短提示——用户期望先确认环境再做真实 UI probe。
+4. **兜底：** 仅当用户传入裸 `archive.md` 路径、裸 PRD 路径，或尚无 feature 目录的 Lanhu 链接时，才像以前一样做自由推断。
+5. **硬停：** 若 feature 目录存在但既无 case-draft 自动化基线也无源材料，不得从无关 PRD/截图推断 UI。返回 `blocked_by_case_draft_required` 并要求先完成 `/case-draft`。
 
-The fallback path emits a warning `manifest_missing_fallback_inference` so we can track usage and migrate stragglers.
+兜底路径会发出 `manifest_missing_fallback_inference` 告警，便于追踪使用情况并逐步迁移残留项。
 
 ## 读取时机
 

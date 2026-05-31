@@ -3,13 +3,13 @@
 ## Contents
 
 - 读取时机
-- Reverse-traceability header (mandatory)
+- 反向可追溯头（强制）
 - 输出
 - 禁止
 - 覆盖忠实度（强制）
 - 生成与调试协议
 - UI 知识沉淀
-- Page object location (mandatory)
+- page object 位置（强制）
 
 ## 读取时机
 
@@ -17,9 +17,9 @@
 
 进入本文件前必须已完成本轮 plan-reconcile，且 status 必须为 `aligned` 或 `plan_adjusted`。若 status 为 `blocked`、`blocked_by_ui_probe`、`needs_user_decision`，或 ui-probe 因 3 次探测预算耗尽而没有确认核心 UI 事实，禁止读取本文件；已经误读本文件时也必须立即停止，不得检查/创建 tests、page object、runner 或“预自动化脚本”，直接回到 handoff 输出阻塞证据。
 
-## Reverse-traceability header (mandatory)
+## 反向可追溯头（强制）
 
-Every generated `t*.ts` file MUST begin with 5 single-line comments before any imports:
+每个生成的 `t*.ts` 文件必须在任何 import 之前，以 5 行单行注释开头：
 
 ```ts
 // spec: features/<featureId>/archive.md#case=<case-id>
@@ -29,21 +29,21 @@ Every generated `t*.ts` file MUST begin with 5 single-line comments before any i
 // generated_at: <ISO8601 UTC timestamp>
 ```
 
-`page:` lines reference `_shared/pages/`. If multiple pages are used, list one per line:
+`page:` 行引用 `_shared/pages/`。若用到多个 page，每行列一个：
 ```ts
 // page: _shared/pages/dq-rule-page.ts
 // page: _shared/pages/dq-task-page.ts
 ```
 
-Quality gate `case_traceability_header` rejects specs missing any of these lines.
+质量门 `case_traceability_header` 会拒绝缺少其中任一行的 spec。
 
-When `mode: source_backed_bootstrap` is used and `archive.md` does not exist yet, the `spec:` line MUST point to the current target source instead:
+当使用 `mode: source_backed_bootstrap` 且 `archive.md` 尚不存在时，`spec:` 行必须改为指向当前目标源：
 
 ```ts
 // spec: features/<featureId>/prd.md#source-backed-bootstrap
 ```
 
-This does not mark case-draft complete; handoff must say the script was generated from source-backed bootstrap evidence and still needs `/case-draft` for final archive traceability.
+这不代表 case-draft 已完成；handoff 必须说明脚本由 source-backed bootstrap 证据生成，仍需 `/case-draft` 补齐最终归档可追溯性。
 
 ## 输出
 
@@ -183,10 +183,6 @@ grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # �
 | 未完成环境探测就声称「环境不可用」 | 抽象判断不构成升级条件 |
 | 给用户的选项里包含不确定语（需核对/待确认） | 选项 = 已 ready 的决策点 |
 
-### 部分参考
-
-参考 `playwright-automation@1` 的 `per-case-debug-sop.md` 完整内容。
-
 ## UI 知识沉淀
 
 调试 playwright 脚本时，若选择器失败源于 DOM 结构差异，须沉淀为 `module` 类型写入 `sites/{domain}/`。
@@ -201,12 +197,12 @@ kata knowledge-curate read-pitfall --project {{project}} --query "selector"
 - 发现新站点选择器模式，须先查询知识库；有匹配则不重复写入
 - 站点级知识不得写入项目级 overview 或 terms 中
 
-## Page object location (mandatory)
+## page object 位置（强制）
 
-- ALL page objects live in `workspace/<project>/_shared/pages/<page-domain>-page.ts`.
-- It is **forbidden** to create or modify feature-local helper directories; shared page objects belong under `workspace/<project>/_shared/pages/<featureId>/`, and shared helpers belong under `workspace/<project>/_shared/helpers/`.
-- When a page object for the target domain already exists, REUSE it; do not regenerate or fork.
-- Shared helper changes must live in `workspace/<project>/_shared/helpers/`.
-- New page objects must update `_shared/pages/INDEX.md`.
+- 所有 page object 一律放在 `workspace/<project>/_shared/pages/<page-domain>-page.ts`。
+- **禁止**创建或修改 feature 本地 helper 目录；共享 page object 归 `workspace/<project>/_shared/pages/<featureId>/`，共享 helper 归 `workspace/<project>/_shared/helpers/`。
+- 目标 domain 已有 page object 时必须复用，不得重新生成或分叉。
+- 共享 helper 的改动必须落在 `workspace/<project>/_shared/helpers/`。
+- 新增 page object 必须更新 `_shared/pages/INDEX.md`。
 
-Quality gate `no_feature_local_helpers` enforces this.
+质量门 `no_feature_local_helpers` 强制此约束。
