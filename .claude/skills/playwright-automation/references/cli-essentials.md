@@ -13,32 +13,39 @@ kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newCo
 const context = await browser.newContext({ storageState: env.session_path });
 const page = await context.newPage();
 await page.goto(targetUrl);
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 
 // API 证据采集——被动监听，不拦截
 const apiCalls = [];
-page.on('response', async (res) => {
+page.on("response", async (res) => {
   if (/\/dassets\//.test(res.url()))
-    apiCalls.push({ url: res.url().replace(baseUrl, ''), status: res.status() });
+    apiCalls.push({
+      url: res.url().replace(baseUrl, ""),
+      status: res.status(),
+    });
 });
 
 // 控制台错误与失败请求诊断（§9 repair-loop 也适用）
 const consoleErrors = [];
-page.on('console', msg => {
-  if (msg.type() === 'error') consoleErrors.push(msg.text());
+page.on("console", (msg) => {
+  if (msg.type() === "error") consoleErrors.push(msg.text());
 });
-page.on('requestfailed', req => {
-  consoleErrors.push(`FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText}`);
+page.on("requestfailed", (req) => {
+  consoleErrors.push(
+    `FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText}`,
+  );
 });
 
 // Dialog 防卡——原生 dialog 会阻塞所有后续操作
-page.on('dialog', dialog => dialog.dismiss());
+page.on("dialog", (dialog) => dialog.dismiss());
 
 // DOM 证据采集
-const headers = await page.locator('.ant-table-thead th')
-  .evaluateAll(els => els.map(e => e.textContent?.trim()));
-const buttons  = await page.locator('button')
-  .evaluateAll(els => els.map(e => e.textContent?.trim()));
+const headers = await page
+  .locator(".ant-table-thead th")
+  .evaluateAll((els) => els.map((e) => e.textContent?.trim()));
+const buttons = await page
+  .locator("button")
+  .evaluateAll((els) => els.map((e) => e.textContent?.trim()));
 ```
 
 ---
@@ -49,22 +56,27 @@ snapshot 未暴露 `id`/`class`/`data-*`/计算样式时，用 `evaluate` 直接
 
 ```javascript
 // data-testid（选 locator 锚点首选）
-const testId = await page.locator('[aria-label="提交"]')
-  .evaluate(el => el.getAttribute('data-testid'));
+const testId = await page
+  .locator('[aria-label="提交"]')
+  .evaluate((el) => el.getAttribute("data-testid"));
 
 // id、class、aria-label
-const id    = await page.locator('.target').evaluate(el => el.id);
-const cls   = await page.locator('.target').evaluate(el => el.className);
-const label = await page.locator('button').first()
-  .evaluate(el => el.getAttribute('aria-label'));
+const id = await page.locator(".target").evaluate((el) => el.id);
+const cls = await page.locator(".target").evaluate((el) => el.className);
+const label = await page
+  .locator("button")
+  .first()
+  .evaluate((el) => el.getAttribute("aria-label"));
 
 // 计算样式（确认元素是否实际渲染可见）
-const display = await page.locator('.panel')
-  .evaluate(el => getComputedStyle(el).display);
+const display = await page
+  .locator(".panel")
+  .evaluate((el) => getComputedStyle(el).display);
 
 // 批量取所有匹配元素的某属性
-const testIds = await page.locator('[data-testid]')
-  .evaluateAll(els => els.map(e => e.getAttribute('data-testid')));
+const testIds = await page
+  .locator("[data-testid]")
+  .evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
 ```
 
 **锚点优先级**：`data-testid` > `aria-label` > `getByRole` > CSS class（避免动态 hash class）。
@@ -75,22 +87,22 @@ const testIds = await page.locator('[data-testid]')
 
 ```typescript
 // 优先语义 locator（比 CSS 稳定）
-page.getByRole('button', { name: '提交' })
-page.getByTestId('submit-button')
-page.getByLabel('用户名')
-page.locator('[data-testid="rule-name"]')
+page.getByRole("button", { name: "提交" });
+page.getByTestId("submit-button");
+page.getByLabel("用户名");
+page.locator('[data-testid="rule-name"]');
 
 // 在 ui-probe 阶段捕获期望值（用于写断言）
-const text  = await page.locator('[data-testid="status"]').textContent();   // → toHaveText
-const value = await page.locator('input[name="ruleCode"]').inputValue();    // → toHaveValue
+const text = await page.locator('[data-testid="status"]').textContent(); // → toHaveText
+const value = await page.locator('input[name="ruleCode"]').inputValue(); // → toHaveValue
 
 // 断言优先级：从强到弱，尽量用最强匹配
-await expect(page.getByRole('table')).toMatchAriaSnapshot(`
+await expect(page.getByRole("table")).toMatchAriaSnapshot(`
   - rowgroup:
     - row "规则名称 状态 操作"
 `);
-await expect(page.locator('[data-testid="rule-status"]')).toHaveText('启用');
-await expect(page.locator('input[name="ruleCode"]')).toHaveValue('DQ_001');
+await expect(page.locator('[data-testid="rule-status"]')).toHaveText("启用");
+await expect(page.locator('input[name="ruleCode"]')).toHaveValue("DQ_001");
 await expect(page.locator('[data-testid="checkbox"]')).toBeChecked();
 await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅兜底
 ```
@@ -106,18 +118,22 @@ await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅
 
 ```javascript
 // 静态 stub（屏蔽外部图片/资源）
-await page.route('**/*.{png,jpg,svg}', route => route.fulfill({ status: 404 }));
+await page.route("**/*.{png,jpg,svg}", (route) =>
+  route.fulfill({ status: 404 }),
+);
 
 // 条件响应（按请求体分流）
-await page.route('**/api/login', route => {
+await page.route("**/api/login", (route) => {
   const body = route.request().postDataJSON();
-  route.fulfill(body.username === 'admin'
-    ? { body: JSON.stringify({ token: 'mock-token' }) }
-    : { status: 401, body: JSON.stringify({ error: 'Invalid' }) });
+  route.fulfill(
+    body.username === "admin"
+      ? { body: JSON.stringify({ token: "mock-token" }) }
+      : { status: 401, body: JSON.stringify({ error: "Invalid" }) },
+  );
 });
 
 // 改写真实响应（保留真实调用，仅修改部分字段）
-await page.route('**/api/user', async route => {
+await page.route("**/api/user", async (route) => {
   const response = await route.fetch();
   const json = await response.json();
   await route.fulfill({ response, json: { ...json, isPremium: true } });
@@ -125,16 +141,18 @@ await page.route('**/api/user', async route => {
 
 // 注入失败态（探测错误处理路径）
 // abort reason: connectionrefused | timedout | connectionreset | internetdisconnected
-await page.route('**/api/slow-resource', route => route.abort('internetdisconnected'));
+await page.route("**/api/slow-resource", (route) =>
+  route.abort("internetdisconnected"),
+);
 
 // 延时模拟（探测加载状态 UI）
-await page.route('**/api/heavy', async route => {
-  await new Promise(r => setTimeout(r, 3000));
+await page.route("**/api/heavy", async (route) => {
+  await new Promise((r) => setTimeout(r, 3000));
   await route.fulfill({ body: JSON.stringify({ data: [] }) });
 });
 
 // 清理（测试结束或不再需要时）
-await page.unroute('**/api/login');
+await page.unroute("**/api/login");
 await page.unrouteAll();
 ```
 
@@ -156,7 +174,10 @@ await context.tracing.stop({ path: `results/${runId}/playwright/trace.zip` });
 // Video：录制回放证据，context.close() 时自动落盘
 const context = await browser.newContext({
   storageState: env.session_path,
-  recordVideo: { dir: `results/${runId}/playwright/videos/`, size: { width: 1280, height: 800 } },
+  recordVideo: {
+    dir: `results/${runId}/playwright/videos/`,
+    size: { width: 1280, height: 800 },
+  },
 });
 ```
 
@@ -170,11 +191,14 @@ const context = await browser.newContext({
 
 ```typescript
 // 截图后通过 AskUserQuestion 让用户描述目标入口
-await page.screenshot({ path: `results/${runId}/playwright/ui-probe/page-current.png`, fullPage: true });
+await page.screenshot({
+  path: `results/${runId}/playwright/ui-probe/page-current.png`,
+  fullPage: true,
+});
 // → AskUserQuestion：「截图已保存，请描述目标操作入口的文字/位置」
 
 // 对疑似区域截图（缩小范围后）
-await page.locator('[data-testid="toolbar"]').screenshot({ path: '...' });
+await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 ```
 
 **原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不要多轮文字追问。

@@ -12,23 +12,24 @@
 
 ## 阶段调度表
 
-| 阶段 | 调度 |
-| --- | --- |
-| case-normalize | 主会话 |
-| env-preflight | 主会话 |
-| ui-plan | 主会话 |
-| ui-probe | Agent |
-| plan-reconcile | 主会话 |
-| playwright-generate | Agent |
-| self-run | Agent |
-| run-triage | 主会话 |
-| repair-loop | Agent（每次修复一个 fresh subagent）|
-| quality-gate | spec-reviewer + quality-reviewer 替代 |
-| handoff | 主会话 |
+| 阶段                | 调度                                  |
+| ------------------- | ------------------------------------- |
+| case-normalize      | 主会话                                |
+| env-preflight       | 主会话                                |
+| ui-plan             | 主会话                                |
+| ui-probe            | Agent                                 |
+| plan-reconcile      | 主会话                                |
+| playwright-generate | Agent                                 |
+| self-run            | Agent                                 |
+| run-triage          | 主会话                                |
+| repair-loop         | Agent（每次修复一个 fresh subagent）  |
+| quality-gate        | spec-reviewer + quality-reviewer 替代 |
+| handoff             | 主会话                                |
 
 ## TodoWrite 编排
 
 进入 Worker 编排可用窗口后：
+
 1. 主 Skill 一次性创建 11 项 TodoWrite，对应上表阶段
 2. 已在窗口开启前完成的阶段，创建后立即标 `completed`；后续阶段开始时把对应 todo 标 `in_progress`，完成后标 `completed`
 3. Worker 不读 SKILL.md，不维护 TodoWrite
@@ -39,12 +40,14 @@
 
 按 `prompts/agent-worker.md` 模板构造 prompt。
 重阶段使用 Agent tool，subagent_type=general-purpose；model 按任务复杂度选择：
+
 - ui-probe / self-run → standard
 - playwright-generate / repair-loop → strong
 
 ## 二阶段 Review 协议
 
 每个重阶段产物落盘后：
+
 1. spec-reviewer（主会话执行，按 `prompts/agent-spec-reviewer.md`）
 2. spec 通过 → quality-reviewer（Agent，按 `prompts/agent-quality-reviewer.md`）
 3. 任一 reviewer 不通过 → Worker 修复 → re-review
@@ -58,12 +61,12 @@
 
 ## Worker Status 处置
 
-| Status | 主 Skill 动作 |
-| --- | --- |
-| DONE | 进入 spec review |
-| DONE_WITH_CONCERNS | 记录到 manifest.json#stage_history；进入 spec review |
-| NEEDS_CONTEXT | 主 Skill 补 context 重派 |
-| BLOCKED | 查 `blocked.kind` → 找对应硬规则模板输出，不进入 review |
+| Status             | 主 Skill 动作                                           |
+| ------------------ | ------------------------------------------------------- |
+| DONE               | 进入 spec review                                        |
+| DONE_WITH_CONCERNS | 记录到 manifest.json#stage_history；进入 spec review    |
+| NEEDS_CONTEXT      | 主 Skill 补 context 重派                                |
+| BLOCKED            | 查 `blocked.kind` → 找对应硬规则模板输出，不进入 review |
 
 BlockedEnvelope JSON schema：
 
