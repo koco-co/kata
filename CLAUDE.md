@@ -2,15 +2,7 @@
 
 输入 `/workspace-manage` 查看功能菜单；首次安装见仓库根目录 `INSTALL.md`。
 
-`.claude/` 是 Claude Code runtime 实现目录；`.agents/` 是 Codex runtime 实现目录。Phase 1 期间 Claude runtime 完整可用，Codex runtime 仅占位（详见 `.agents/README.md`），两套目录的可用部分仍分别手写维护。
-
-## Runtime 同步硬规则
-
-- Claude 与 Codex 同等优先；任一 runtime 下 skill 不可用，视为该 skill 整体不可用。
-- 修改 `.claude/**` 或 `.agents/**` 中任一 runtime 提示词、reference、script、workflow 或路由规则时，必须同步评估另一套 agent 架构中的对应提示词，并在需要时同步修改；若确认另一侧无需变更，提交说明必须写明具体理由。
-- 不要求两边文件逐字一致，但用户入口语义、交付产物清单、验证口径和证据底线必须一致。
-- 两套 runtime 需要复用同一份 agent 文档、reference 或规则文件时，优先使用 symlink 保持单一文件来源；不得抽取到第三方共享文档目录。
-- Phase 1 期间 Codex runtime 仅占位；详见 `.agents/README.md`。Phase 1 同步评估义务对 Codex 侧降级为「确认 `.agents/README.md` 仍准确描述占位状态」，Phase 2 完成后恢复对称手写要求。
+`.claude/` 是 Claude Code runtime 实现目录。
 
 ## Claude Code Runtime 规则
 
@@ -69,7 +61,7 @@
 - 涉及代码、配置、runtime 或文档契约变更时，先提交主工作树现有改动，再用 `git worktree add --detach .worktrees/<slug> main` 创建 detached worktree；不得为任务新建分支。
 - worktree 创建后按任务需要 symlink 必要 ignored runtime 目录；`workspace/{project}/.kata/repos/**` 即使通过 symlink 共享也保持只读。
 - 验证通过后用 `git merge --no-ff <sha>` 合入 main，无问题后执行 `git push origin main`，最后 `git worktree remove .worktrees/<slug>` 清理。
-- 多任务默认使用 `superpowers:subagent-driven-development`；Claude Code 使用 TaskCreate/TaskUpdate 或当前客户端暴露的 TodoWrite，Codex 使用 `update_plan` 维护任务列表。
+- 多任务默认使用 `superpowers:subagent-driven-development`；Claude Code 使用 TaskCreate/TaskUpdate 或当前客户端暴露的 TodoWrite。
 - 提交必须使用固定 type/emoji 映射，例如 `refactor: ✨ ...`；临时通知页面固定标题为 `【KATA 工作通知】`；完整枚举、通知格式和合并清理步骤见 `.claude/rules/project-workflow-rules.md`。
 
 ## 关键约束

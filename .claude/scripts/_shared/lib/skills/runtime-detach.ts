@@ -23,11 +23,6 @@ export interface RuntimeDetachReport {
 const ENTRY_FILES = ["AGENTS.md", "CLAUDE.md"] as const;
 // Uses includes() substring matching so minor formatting differences do not break the contract.
 const ENTRY_REQUIRED_PHRASES = [
-  "Claude 与 Codex 同等优先",
-  "同步评估另一套",
-  "不要求两边文件逐字一致",
-  "优先使用 symlink",
-  "不得抽取到第三方共享文档目录",
   "git worktree add --detach",
   "detached worktree",
   "不得为任务新建分支",
@@ -38,13 +33,9 @@ const ENTRY_REQUIRED_PHRASES = [
   "git worktree remove .worktrees/<slug>",
   "superpowers:subagent-driven-development",
   "TaskCreate/TaskUpdate",
-  "update_plan",
   "refactor: ✨",
   "【KATA 工作通知】",
 ] as const;
-// Phase 1: .agents/rules/* were retired alongside .agents/contracts/. The
-// Codex runtime now reads workflow guardrails from .claude/rules/* (see
-// .agents/README.md). Phase 2 will reintroduce Codex-specific entries here.
 const DETAIL_RULE_FILES = [
   {
     relPath: ".claude/rules/project-workflow-rules.md",
