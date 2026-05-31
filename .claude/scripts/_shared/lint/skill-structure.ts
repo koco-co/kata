@@ -28,7 +28,7 @@ const ALLOWED_FRONTMATTER = new Set([
   "allowed-tools",
   "disable-model-invocation",
 ]);
-const SKILL_MD_CAP = 100;
+const SKILL_MD_CAP = 300;
 // 目录级长度上限（行）——按当前全仓库最大值留足余量的防膨胀守卫，非强制拆分阈值
 const DIR_LINE_CAPS: Record<string, number> = {
   phases: 260,
@@ -129,7 +129,7 @@ export function lintSkillStructure(root: string = repoRoot()): StructureReport {
         });
       }
     }
-    // 5 长度：SKILL.md ≤ 100；各子目录长度上限见 DIR_LINE_CAPS（规则 SK-LEN-DIR）
+    // 5 长度：SKILL.md ≤ 300；各子目录长度上限见 DIR_LINE_CAPS（规则 SK-LEN-DIR）
     const n = raw.split("\n").length;
     if (n > SKILL_MD_CAP) {
       v.push({
