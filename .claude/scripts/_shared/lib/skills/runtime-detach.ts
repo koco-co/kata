@@ -94,7 +94,13 @@ export function checkRuntimeDetach(root: string): RuntimeDetachReport {
 }
 
 function checkEntryFiles(root: string, violations: RuntimeDetachViolation[]): void {
-  for (const relPath of ENTRY_FILES) {
+  // Codex runtime 已退役时（.agents 目录不存在）跳过 AGENTS.md 检查
+  const codexRetired = !existsSync(join(root, ".agents"));
+  const entryFilesToCheck = codexRetired
+    ? (ENTRY_FILES.filter((f) => f !== "AGENTS.md") as readonly string[])
+    : ENTRY_FILES;
+
+  for (const relPath of entryFilesToCheck) {
     const path = join(root, relPath);
 
     if (!existsSync(path)) {

@@ -142,6 +142,8 @@ describe("runtime detach check", () => {
 
   test("flags missing code-change workflow guardrails in entry files", () => {
     const root = makeRoot();
+    // 模拟 Codex runtime 存在（.agents 目录在）——令 AGENTS.md 参与校验
+    mkdirSync(join(root, ".agents"), { recursive: true });
     writeLegacyDetachedEntries(root);
 
     const report = checkRuntimeDetach(root);
@@ -157,6 +159,18 @@ describe("runtime detach check", () => {
         path: join(root, "CLAUDE.md"),
       }),
     );
+  });
+
+  test("skips AGENTS.md check when .agents directory is absent (codex retired)", () => {
+    const root = makeRoot();
+    // 不创建 .agents 目录，模拟 Codex runtime 已退役
+    writeDetachedEntries(root);
+
+    const report = checkRuntimeDetach(root);
+    // 不得报 AGENTS.md 相关 violation
+    expect(report.violations.some((v) => v.path.includes("AGENTS.md"))).toBe(false);
+    // CLAUDE.md 仍照常校验，完整短语时应通过
+    expect(report.passed).toBe(true);
   });
 
   test("flags missing code-change workflow guardrails in detailed rule files", () => {
@@ -222,6 +236,8 @@ describe("runtime detach check", () => {
 
   test("formats detach failures with relative paths", () => {
     const root = makeRoot();
+    // 模拟 Codex runtime 存在（.agents 目录在）——令 AGENTS.md 参与校验
+    mkdirSync(join(root, ".agents"), { recursive: true });
     writeRuntimeFile(root, "AGENTS.md", "# AGENTS.md\n");
     writeRuntimeFile(root, "CLAUDE.md", "# CLAUDE.md\n");
 
