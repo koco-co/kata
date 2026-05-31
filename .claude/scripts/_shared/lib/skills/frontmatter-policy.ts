@@ -21,7 +21,6 @@ const CLAUDE_SKILL_FRONTMATTER_FIELD_LIST = [
   "argument-hint",
   "model",
   "effort",
-  "paths",
   "context",
   "agent",
 ] as const;

@@ -16,7 +16,6 @@ const CLAUDE_FIELDS = [
   "argument-hint",
   "model",
   "effort",
-  "paths",
   "context",
   "agent",
 ];
@@ -95,7 +94,6 @@ describe("skill frontmatter policy", () => {
         name: "demo",
         description: "Demo skill",
         when_to_use: "Before a task",
-        paths: ["workspace/**"],
         model: "sonnet",
         effort: "high",
         context: "fork",
