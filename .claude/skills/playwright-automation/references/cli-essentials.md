@@ -1,6 +1,6 @@
 # Playwright 原生 API 速查
 
-kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**不使用也不依赖 `playwright-cli` 交互式二进制**（仓库未安装该包）。
+kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**交付脚本一律原生 `@playwright/test`**；`@playwright/cli` 仅作 §4 ui-probe 可选交互探索助手，其产物不直接进交付物（边界规则见文末）。
 
 完整 Playwright API 见 https://playwright.dev/docs/api/class-page。
 
@@ -46,6 +46,15 @@ const headers = await page
 const buttons = await page
   .locator("button")
   .evaluateAll((els) => els.map((e) => e.textContent?.trim()));
+
+// 上下文能力：权限授予 / 媒体仿真（探测需授权或响应式分支时用）
+const context = await browser.newContext({
+  storageState: env.session_path,
+  permissions: ["geolocation", "notifications"], // 需要授权的 Web API
+  colorScheme: "dark",       // 探测深色模式分支
+  reducedMotion: "reduce",   // 探测减少动画分支
+  // forcedColors: "active",  // 探测高对比度模式
+});
 ```
 
 ---
@@ -160,6 +169,30 @@ URL pattern 速查：`**/api/users`（精确路径）、`**/api/*/details`（通
 
 ---
 
+## 文件下载处理（§6 playwright-generate 用）
+
+```typescript
+// 触发下载前注册监听（必须在触发动作之前）
+const downloadPromise = page.waitForEvent("download");
+await page.getByRole("button", { name: "导出" }).click();
+const download = await downloadPromise;
+
+// 保存到 results 证据目录
+const savePath = `results/${runId}/playwright/downloads/${download.suggestedFilename()}`;
+await download.saveAs(savePath);
+
+// 断言文件名符合预期
+expect(download.suggestedFilename()).toMatch(/^report_\d{8}\.xlsx$/);
+
+// 失败时读取错误原因
+const failure = await download.failure();
+if (failure) throw new Error(`下载失败: ${failure}`);
+```
+
+`download.path()` 返回临时路径（context 关闭前有效）；`download.saveAs()` 持久保存。
+
+---
+
 ## Tracing 与 Video（context 选项形式）
 
 ```javascript
@@ -183,11 +216,13 @@ const context = await browser.newContext({
 
 **取舍**：trace 调试失败步骤（含 DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证（`page.screenshot({ path: '...', fullPage: true })`）。
 
+**证据目录清理**：trace/video 文件占盘，`results/` 目录 7 天前的文件可定期清理：`find results -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
+
 ---
 
-## 用户视觉确认（代替 show --annotate）
+## 用户视觉确认
 
-原生 Playwright 无交互式标注等价物。证据不足时的替代方案：
+证据不足时的原生方案：
 
 ```typescript
 // 截图后通过 AskUserQuestion 让用户描述目标入口
@@ -202,3 +237,23 @@ await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 ```
 
 **原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不要多轮文字追问。
+
+带标注的 proof-of-work 演示视频（`showChapter`/`showOverlay`）可用 `@playwright/cli` 的 `run-code` 实现，属于**可选演示产物**，非交付物必需。
+
+---
+
+## 可选：`@playwright/cli` 交互式探索（仅 §4 ui-probe，禁止进交付物）
+
+`@playwright/cli`（`bunx playwright-cli`，0.1.x 早期 API）已作为 devDependency 安装，可作为 §4 token 高效交互探索助手。**以下边界必须遵守**：
+
+1. **仅用于 ui-probe 阶段**的交互探索、页面 snapshot、codegen 起草 locator，不用于任何其他阶段。
+2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**——会话唯一真相仍是 `env profile` + `auth.session_path` storageState（§2 env-preflight 硬规则）。
+3. **codegen / snapshot 产出是草稿**：必须经 ui-probe 真实证据（DOM 文本 / API）重新验证、改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）才能进 spec。
+4. **不替代 `probe.mjs` 证据要求**，也不绕过「每 ui-probe step ≤3 个探测脚本」预算。
+
+```bash
+# 探索示例（ui-probe 阶段可用）
+bunx playwright-cli open https://example.com
+bunx playwright-cli snapshot          # 查看可访问性树，辅助选择 locator
+# codegen 产出仅供参考，改写为 probe.mjs + .spec.ts 后才算证据
+```

@@ -20,6 +20,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^2.4.15",
+        "@playwright/cli": "0.1.13",
         "@playwright/test": "^1.60.0",
         "@types/better-sqlite3": "^7.6.13",
         "@types/bun": "latest",
@@ -137,6 +138,8 @@
     "@img/sharp-win32-ia32": ["@img/sharp-win32-ia32@0.34.5", "https://registry.npmmirror.com/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.34.5.tgz", { "os": "win32", "cpu": "ia32" }, "sha512-FV9m/7NmeCmSHDD5j4+4pNI8Cp3aW+JvLoXcTUo0IqyjSfAZJ8dIUmijx1qaJsIiU+Hosw6xM5KijAWRJCSgNg=="],
 
     "@img/sharp-win32-x64": ["@img/sharp-win32-x64@0.34.5", "https://registry.npmmirror.com/@img/sharp-win32-x64/-/sharp-win32-x64-0.34.5.tgz", { "os": "win32", "cpu": "x64" }, "sha512-+29YMsqY2/9eFEiW93eqWnuLcWcufowXewwSNIT6UwZdUUCrM3oFjMWH/Z6/TMmb4hlFenmfAVbpWeup2jryCw=="],
+
+    "@playwright/cli": ["@playwright/cli@0.1.13", "https://registry.npmmirror.com/@playwright/cli/-/cli-0.1.13.tgz", { "dependencies": { "playwright": "1.61.0-alpha-1778188671000", "playwright-core": "1.61.0-alpha-1778188671000" }, "bin": { "playwright-cli": "playwright-cli.js" } }, "sha512-ntG80HgWp9y5HUDApoucNXx1Ny6YlCaRJdGpZZeY43Oh8Q+Iivs0hlEcGhnW/bEwsTkw72JxxlzEMOLwH42a9g=="],
 
     "@playwright/test": ["@playwright/test@1.60.0", "https://registry.npmmirror.com/@playwright/test/-/test-1.60.0.tgz", { "dependencies": { "playwright": "1.60.0" }, "bin": { "playwright": "cli.js" } }, "sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag=="],
 
@@ -434,9 +437,9 @@
 
     "pinyin-pro": ["pinyin-pro@3.28.1", "https://registry.npmmirror.com/pinyin-pro/-/pinyin-pro-3.28.1.tgz", {}, "sha512-oqz8ulwRgtUXRi0vbqEfGNly19zpyCxYrjhkk5TibGcgSW6eNwS5woajCXRwqURi8Ehc2yOFTiB4uNoZ+NJOnA=="],
 
-    "playwright": ["playwright@1.60.0", "https://registry.npmmirror.com/playwright/-/playwright-1.60.0.tgz", { "dependencies": { "playwright-core": "1.60.0" }, "optionalDependencies": { "fsevents": "2.3.2" }, "bin": { "playwright": "cli.js" } }, "sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA=="],
+    "playwright": ["playwright@1.61.0-alpha-1778188671000", "https://registry.npmmirror.com/playwright/-/playwright-1.61.0-alpha-1778188671000.tgz", { "dependencies": { "playwright-core": "1.61.0-alpha-1778188671000" }, "optionalDependencies": { "fsevents": "2.3.2" }, "bin": { "playwright": "cli.js" } }, "sha512-A6fFc7ExLRmvm0ZHqCyY2uHXSvEdpb8W+/HyIPK4ecRqNil8Mc1Vig1WFYoqk82x3+U9Qb571fQE95wgKqIQ1g=="],
 
-    "playwright-core": ["playwright-core@1.60.0", "https://registry.npmmirror.com/playwright-core/-/playwright-core-1.60.0.tgz", { "bin": { "playwright-core": "cli.js" } }, "sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA=="],
+    "playwright-core": ["playwright-core@1.61.0-alpha-1778188671000", "https://registry.npmmirror.com/playwright-core/-/playwright-core-1.61.0-alpha-1778188671000.tgz", { "bin": { "playwright-core": "cli.js" } }, "sha512-nsw2Crz0uZS3IRHiEcOXUt+RaKB/Hna+GAD4oD6cPqCHfJfW77cJdgktC0jzp3Ndyv23EJI3bcWSqFIiqSNE5A=="],
 
     "process-nextick-args": ["process-nextick-args@2.0.1", "https://registry.npmmirror.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz", {}, "sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag=="],
 
@@ -532,6 +535,8 @@
 
     "@fast-csv/parse/@types/node": ["@types/node@14.18.63", "https://registry.npmmirror.com/@types/node/-/node-14.18.63.tgz", {}, "sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ=="],
 
+    "@playwright/test/playwright": ["playwright@1.60.0", "https://registry.npmmirror.com/playwright/-/playwright-1.60.0.tgz", { "dependencies": { "playwright-core": "1.60.0" }, "optionalDependencies": { "fsevents": "2.3.2" }, "bin": { "playwright": "cli.js" } }, "sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA=="],
+
     "@types/better-sqlite3/@types/node": ["@types/node@25.5.2", "https://registry.npmmirror.com/@types/node/-/node-25.5.2.tgz", { "dependencies": { "undici-types": "~7.18.0" } }, "sha512-tO4ZIRKNC+MDWV4qKVZe3Ql/woTnmHDr5JD8UI5hn2pwBrHEwOEMZK7WlNb5RKB6EoJ02gwmQS9OrjuFnZYdpg=="],
 
     "@types/nodemailer/@types/node": ["@types/node@25.5.2", "https://registry.npmmirror.com/@types/node/-/node-25.5.2.tgz", { "dependencies": { "undici-types": "~7.18.0" } }, "sha512-tO4ZIRKNC+MDWV4qKVZe3Ql/woTnmHDr5JD8UI5hn2pwBrHEwOEMZK7WlNb5RKB6EoJ02gwmQS9OrjuFnZYdpg=="],
@@ -557,6 +562,8 @@
     "unzipper/readable-stream": ["readable-stream@2.3.8", "https://registry.npmmirror.com/readable-stream/-/readable-stream-2.3.8.tgz", { "dependencies": { "core-util-is": "~1.0.0", "inherits": "~2.0.3", "isarray": "~1.0.0", "process-nextick-args": "~2.0.0", "safe-buffer": "~5.1.1", "string_decoder": "~1.1.1", "util-deprecate": "~1.0.1" } }, "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA=="],
 
     "zip-stream/archiver-utils": ["archiver-utils@3.0.4", "https://registry.npmmirror.com/archiver-utils/-/archiver-utils-3.0.4.tgz", { "dependencies": { "glob": "^7.2.3", "graceful-fs": "^4.2.0", "lazystream": "^1.0.0", "lodash.defaults": "^4.2.0", "lodash.difference": "^4.5.0", "lodash.flatten": "^4.4.0", "lodash.isplainobject": "^4.0.6", "lodash.union": "^4.6.0", "normalize-path": "^3.0.0", "readable-stream": "^3.6.0" } }, "sha512-KVgf4XQVrTjhyWmx6cte4RxonPLR9onExufI1jhvw/MQ4BB6IsZD5gT8Lq+u/+pRkWna/6JoHpiQioaqFP5Rzw=="],
+
+    "@playwright/test/playwright/playwright-core": ["playwright-core@1.60.0", "https://registry.npmmirror.com/playwright-core/-/playwright-core-1.60.0.tgz", { "bin": { "playwright-core": "cli.js" } }, "sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA=="],
 
     "@types/better-sqlite3/@types/node/undici-types": ["undici-types@7.18.2", "https://registry.npmmirror.com/undici-types/-/undici-types-7.18.2.tgz", {}, "sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w=="],
 
