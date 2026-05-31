@@ -115,6 +115,7 @@ grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # �
 - `tests/runners/smoke.spec.ts` 与 `tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写进 runner。
 - P0/P1 具体用例写入 `tests/cases/t{nn}-{slug}.ts`，共享页面对象写入 `_shared/pages/`，共享接口/模板解析 helper 写入 `_shared/helpers/`。
 - 新生成脚本不得只交付 smoke；必须同时提供 full runner。若 full 因产品/环境阻塞不能覆盖深链路，必须在 handoff 中写明阻塞分类和已运行命令。
+- **串行标注**：有共享状态 / 创建-校验-删除链路 / 依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称里带 `@serial` 标签（`scripts/run-tests-notify.ts` 的 two-phase runner 会过滤出这类用例强制 `workers=1` 串行跑，避免数据互污）。case 间用 `beforeEach`/`afterEach` 干净恢复前置态，不依赖执行顺序。
 
 ### RED -> GREEN 节律
 

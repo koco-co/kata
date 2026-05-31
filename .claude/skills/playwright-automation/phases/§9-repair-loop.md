@@ -62,7 +62,14 @@
 - 每个 locator 内部重试最多 2 次（使用 Playwright 内置重试，非手动 try/catch）
 - 达到限制仍未通过 → 标记为 `repair_exhausted`，进入 handoff
 
-### 第四步：禁止
+### 第四步：Healing 决策原则
+
+修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
+
+- **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
+- **`product` 类**（功能 / 文案 / 业务规则漂移）→ 用户可见变化：**不在此处硬改断言迁就产品漂移**；转 handoff 阻塞 + 触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再修用例。把产品漂移当技术问题硬改断言，等于假通过，违反覆盖忠实度规则。
+
+### 第五步：禁止
 
 - **禁止**使用 `test.skip()` 或 `test.fixme()` 跳过失败
 - **禁止**使用 try/catch 吞掉失败断言
