@@ -46,4 +46,4 @@ bunx playwright install
 
 ## 安装完成
 
-回到 Claude Code 或 Codex 输入 `/workspace-manage` 查看功能菜单。
+回到 Claude Code 输入 `/workspace-manage` 查看功能菜单。

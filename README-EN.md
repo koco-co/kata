@@ -14,7 +14,6 @@ Kata turns QA work into auditable product skills: it can derive test cases, repo
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Bun](https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Skills-7C3AED?style=flat-square)](https://claude.com/claude-code)
-[![Codex](https://img.shields.io/badge/Codex-runtime-111827?style=flat-square)](./AGENTS.md)
 [![Version](https://img.shields.io/badge/version-4.0.0--alpha.1-blue.svg?style=flat-square)](./package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 
@@ -38,8 +37,8 @@ UI cases / test results ────── /playwright-automation ─> UI plans,
 
 Core principles:
 
-- `.agents/**` and `.claude/**` are first-class runtime directories for the kata Codex runtime and Claude Code runtime.
-- Both runtimes share a code chassis at `.claude/scripts/_shared/**` (lib / schemas / plugin-runtime / cli / lint) and shared prompts at `.claude/prompt/_shared/**`; during Phase 1 the Codex runtime is a placeholder only (see `.agents/README.md`), and Phase 2 will reuse the same shared assets via symlinks.
+- `.claude/**` is the first-class runtime directory for the kata Claude Code runtime.
+- The runtime code chassis lives at `.claude/scripts/_shared/**` (lib / schemas / plugin-runtime / cli / lint) with shared prompts at `.claude/prompt/_shared/**`.
 - Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
 - Browser automation is driven by the `playwright-automation` skill; a native Playwright API cheat sheet lives at `.claude/skills/playwright-automation/references/cli-essentials.md`.
 
@@ -52,7 +51,7 @@ Core principles:
 | Node.js | `>= 22.0.0` | Runs the TypeScript/Bun toolchain |
 | Bun | Installed | Installs dependencies and runs tests/CLI commands |
 | Git | Installed | Manages this repo and project source evidence |
-| Claude Code or Codex | Recommended | Uses the `.claude/**` / `.agents/**` runtime skills |
+| Claude Code | Recommended | Uses the `.claude/**` runtime skills |
 
 ### Install
 
@@ -71,7 +70,7 @@ Install browsers only when you need real browser automation or Playwright execut
 bunx playwright install
 ```
 
-Then open Claude Code or Codex and run:
+Then open Claude Code and run:
 
 ```text
 /workspace-manage
@@ -79,7 +78,7 @@ Then open Claude Code or Codex and run:
 
 ## Current capabilities
 
-The table below is the current public capability surface. Runtime entrypoints are `AGENTS.md`, `CLAUDE.md`, `.agents/**`, and `.claude/**`.
+The table below is the current public capability surface. Runtime entrypoints are `CLAUDE.md` and `.claude/**`.
 
 | Command | Area | Skill | Summary |
 | --- | --- | --- | --- |
@@ -94,7 +93,7 @@ The table below is the current public capability surface. Runtime entrypoints ar
 
 ### Usage examples
 
-Run these commands directly in the Claude Code or Codex runtime:
+Run these commands directly in Claude Code:
 
 ```bash
 # 1. Workspace — show the feature menu and manage project workspaces
@@ -126,19 +125,17 @@ Run these commands directly in the Claude Code or Codex runtime:
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata uses `.agents/**` and `.claude/**` as first-class runtime implementations, runtime-local contracts for schemas, routes, the skill graph, workflows, and the blackboard, `.claude/scripts/_shared/**` as the execution and verification layer, and `workspace/{project}` as the artifact area:
+Kata uses `.claude/**` as the first-class runtime implementation, runtime-local contracts for schemas, routes, the skill graph, workflows, and the blackboard, `.claude/scripts/_shared/**` as the execution and verification layer, and `workspace/{project}` as the artifact area:
 
 ```text
-.agents/    kata Codex runtime skills and contracts
 .claude/    Claude Code runtime skills and contracts
 .claude/scripts/_shared/**    CLI, validators, tests, and workflow support
 ```
 
 | Runtime / Boundary | Current responsibility |
 | --- | --- |
-| `.agents/**` | kata Codex runtime skills and references, maintained as a first-class runtime. |
-| `.claude/**` | Claude Code runtime skills and references, maintained as a first-class runtime. |
-| `.claude/scripts/_shared/**` | Shared code chassis for both runtimes (lib / schemas / plugin-runtime / cli / lint) plus shared prompts at `.claude/prompt/_shared/**`; during Phase 1 the Codex runtime is a placeholder (see `.agents/README.md`), and Phase 2 will reuse the same files via symlinks. |
+| `.claude/**` | Claude Code runtime skills and references, maintained as the first-class runtime. |
+| `.claude/scripts/_shared/**` | Runtime code chassis (lib / schemas / plugin-runtime / cli / lint) plus shared prompts at `.claude/prompt/_shared/**`. |
 | `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
 | `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
 
@@ -160,7 +157,6 @@ Put credentials in `.env`. `.env.example` lists the supported `KATA_*` variables
 
 ```text
 kata/
-├── .agents/         # kata Codex runtime skills
 ├── .claude/         # Claude Code runtime skills
 ├── docs/            # Architecture, ADR, audit, skill, and troubleshooting docs
 ├── .claude/scripts/_shared/  # CLI, runtime checks, workflow support, and tests

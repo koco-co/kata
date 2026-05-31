@@ -5,7 +5,7 @@
 ### Breaking
 
 - Removed the retired generated runtime source and its CLI/test/lint compatibility surface.
-- Claude Code and Codex now maintain `.claude/**` and `.agents/**` directly as independent runtime implementations.
+- Claude Code maintains `.claude/**` as the single runtime implementation.
 
 ### Added
 
@@ -18,7 +18,7 @@
 ### Changed
 
 - Project architecture now follows `SKILL + Router + Graph + Workflow + Blackboard`.
-- `AGENTS.md` and `CLAUDE.md` are hand-maintained public entrypoints and contain the only root-level note requiring dual-runtime prompt synchronization.
+- `CLAUDE.md` is the hand-maintained public entrypoint for the Claude Code runtime.
 
 ## 3.0.0-alpha.1 (2026-04-29)
 
@@ -28,7 +28,7 @@
 - **Workspace reorg**: `prds/archive/xmind/` -> `features/{ym}-{slug}/` aggregation.
 - **Testing**: migrated from `node:test` to `bun:test`.
 - **CLI tools**: bucket-audit, fix-truthy codemod, skills audit, paths audit, cases lint.
-- **Runtime audit**: Claude Code and Codex dual-runtime design and audit commands.
+- **Runtime audit**: Claude Code runtime design and audit commands.
 - **Hooks**: Claude Code hooks for bash/edit lifecycle checks.
 - **Skills**: Product skills on a SKILL/workflow/rules/references contract.
 - **Docs**: README and CLAUDE.md updated for v3 workspace layout.
