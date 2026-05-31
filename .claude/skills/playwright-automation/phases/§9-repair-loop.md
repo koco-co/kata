@@ -1,5 +1,11 @@
 # repair-loop
 
+## Contents
+
+- 读取时机
+- 协议
+- Debug artifact isolation (mandatory)
+
 ## 读取时机
 
 进入 `repair-loop` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
@@ -79,7 +85,7 @@
 - **禁止**在未读完整失败证据前直接修改代码
 - **禁止**每次修复都全量运行 Playwright suite
 
-### 第五步：输出
+### 第六步：输出
 
 写入 `RepairAttemptLog@1` schema，包含：
 

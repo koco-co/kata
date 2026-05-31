@@ -1,5 +1,16 @@
 # playwright-generate
 
+## Contents
+
+- 读取时机
+- Reverse-traceability header (mandatory)
+- 输出
+- 禁止
+- 覆盖忠实度（强制）
+- 生成与调试协议
+- UI 知识沉淀
+- Page object location (mandatory)
+
 ## 读取时机
 
 进入 `playwright-generate` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
@@ -33,8 +44,6 @@ When `mode: source_backed_bootstrap` is used and `archive.md` does not exist yet
 ```
 
 This does not mark case-draft complete; handoff must say the script was generated from source-backed bootstrap evidence and still needs `/case-draft` for final archive traceability.
-
-## 输出
 
 ## 输出
 

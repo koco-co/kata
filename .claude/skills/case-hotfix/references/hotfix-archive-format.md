@@ -2,6 +2,17 @@
 
 写或复核 hotfix archive 前读本文，掌握可执行格式、前置条件 SQL 与历史用例布局。
 
+## Contents
+
+- 输出定位
+- 文件位置
+- 临时证据位置
+- Frontmatter
+- SourceRefs JSON
+- 用例结构
+- 前置条件（含 Spark 全分区字段表）
+- 覆盖范围
+
 ## 输出定位
 
 Hotfix 产物必须是可直接执行的回归用例 archive，不是缺陷分析报告。每个 Hotfix archive 只写 1 条用例。

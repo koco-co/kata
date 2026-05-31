@@ -4,7 +4,18 @@ kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newCo
 
 完整 Playwright API 见 https://playwright.dev/docs/api/class-page。
 
----
+## Contents
+
+- 探测上下文与证据采集（§4 ui-probe 用）
+- 元素属性检视（§4 ui-probe 用）
+- Locator 与强断言（§6 playwright-generate 用）
+- 请求 mock（page.route）
+- iframe / frameLocator
+- 多页 / popup 处理
+- 文件下载处理
+- Tracing 与 Video
+- 用户视觉确认
+- 可选：`@playwright/cli` 交互式探索（仅 §4 ui-probe，禁止进交付物）
 
 ## 探测上下文与证据采集（§4 ui-probe 用）
 
@@ -35,8 +46,6 @@ page.on("dialog", (d) => d.dismiss());
 const headers = await page.locator(".ant-table-thead th").evaluateAll((els) => els.map((e) => e.textContent?.trim()));
 const buttons = await page.locator("button").evaluateAll((els) => els.map((e) => e.textContent?.trim()));
 ```
-
----
 
 ## 元素属性检视（§4 ui-probe 用）
 
@@ -69,8 +78,6 @@ const testIds = await page
 
 **锚点优先级**：`data-testid` > `aria-label` > `getByRole` > CSS class（避免动态 hash class）。
 
----
-
 ## Locator 与强断言（§6 playwright-generate 用）
 
 ```typescript
@@ -96,8 +103,6 @@ await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅
 ```
 
 `toMatchAriaSnapshot` 要点：只写断言所需的关键节点，不要求全量 snapshot；不稳定值（ID、时间戳）用正则（`/ \d+ 条记录/`）；文本断言时 locator 不应包含被断言文本本身（优先 `getByTestId`/`getByLabel` + `toHaveText`）。
-
----
 
 ## 请求 mock（page.route）
 
@@ -146,8 +151,6 @@ await page.unrouteAll();
 
 URL pattern 速查：`**/api/users`（精确路径）、`**/api/*/details`（通配段）、`**/*.{png,jpg}`（扩展名）、`**/search?q=*`（含参数）。
 
----
-
 ## iframe / frameLocator（§4 ui-probe + §6 generate 用）
 
 ```javascript
@@ -161,8 +164,6 @@ const frameByUrl = page.frameLocator('iframe[src*="/embed/"]');
 ```
 
 探测时遇到 iframe 元素：先 `page.frames()` 列出所有 frame URL 确认目标，再用 `frameLocator` 采集证据。
-
----
 
 ## 多页 / popup 处理（§4 ui-probe + §6 generate 用）
 
@@ -179,8 +180,6 @@ await expect(popup).toHaveURL(/\/detail\//);
 
 **覆盖忠实度**：用例含「导出/详情/查看新开页」时必须在 popup 页断言业务结果，不得只断当前页。
 
----
-
 ## 文件下载处理（§6 playwright-generate 用）
 
 ```typescript
@@ -192,8 +191,6 @@ await download.saveAs(`results/${runId}/playwright/downloads/${download.suggeste
 expect(download.suggestedFilename()).toMatch(/^report_\d{8}\.xlsx$/);
 // download.path() = 临时路径（context 关闭前有效）；download.failure() 可取失败原因
 ```
-
----
 
 ## Tracing 与 Video（context 选项形式）
 
@@ -218,8 +215,6 @@ const context = await browser.newContext({
 
 **取舍**：trace 调试失败步骤（DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证。**清理**：`find results -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
 
----
-
 ## 用户视觉确认
 证据不足时的原生方案：
 
@@ -238,8 +233,6 @@ await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 **原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不要多轮文字追问。
 
 带标注的 proof-of-work 演示视频（`showChapter`/`showOverlay`）可用 `@playwright/cli` 的 `run-code` 实现，属于**可选演示产物**，非交付物必需。
-
----
 
 ## 可选：`@playwright/cli` 交互式探索（仅 §4 ui-probe，禁止进交付物）
 

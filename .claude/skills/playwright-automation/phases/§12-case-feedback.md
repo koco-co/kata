@@ -1,5 +1,18 @@
 # case-feedback
 
+## Contents
+
+- 读取时机
+- 协议
+- 8 类 category
+- 3 级 confidence
+- 服务器侧操作缺口
+- case-corrections.md 结构
+- sidecar summary json
+- 跨轮去重
+- 输出阈值
+- 禁止
+
 ## 读取时机
 
 进入 `case-feedback` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。

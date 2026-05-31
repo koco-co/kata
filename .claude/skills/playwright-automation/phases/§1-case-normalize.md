@@ -1,5 +1,12 @@
 # case-normalize
 
+## Contents
+
+- Input precedence
+- 读取时机
+- 协议
+- 禁止
+
 ## Input precedence
 
 1. **Primary:** `features/<featureId>/manifest.json#automation.intents[]` where `automation_status: ready`. Iterate these directly.
