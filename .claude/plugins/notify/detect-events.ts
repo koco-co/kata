@@ -52,8 +52,7 @@ const PATTERN_RULES: readonly PatternRule[] = [
     }),
   },
   {
-    pattern:
-      /^workspace\/[^/]+\/_shared\/published-reports\/bugs\/\d{8}\/.*\.html$/,
+    pattern: /^workspace\/[^/]+\/_shared\/published-reports\/bugs\/\d{8}\/.*\.html$/,
     event: "bug-file",
     extract: (files) => ({
       reportFile: files.join(", "),
@@ -61,8 +60,7 @@ const PATTERN_RULES: readonly PatternRule[] = [
     }),
   },
   {
-    pattern:
-      /^workspace\/[^/]+\/_shared\/published-reports\/conflicts\/\d{8}\/.*\.html$/,
+    pattern: /^workspace\/[^/]+\/_shared\/published-reports\/conflicts\/\d{8}\/.*\.html$/,
     event: "conflict-analyzed",
     extract: (files) => ({
       reportFile: files.join(", "),
@@ -70,8 +68,7 @@ const PATTERN_RULES: readonly PatternRule[] = [
     }),
   },
   {
-    pattern:
-      /^workspace\/[^/]+\/_shared\/published-reports\/playwright\/\d{8}\//,
+    pattern: /^workspace\/[^/]+\/_shared\/published-reports\/playwright\/\d{8}\//,
     event: "ui-test-completed",
     extract: (files) => ({
       reportFile: files[0],
@@ -123,9 +120,7 @@ export function getChangedFiles(cwd: string): ChangedFile[] {
   }
 }
 
-export function matchEvents(
-  changedFiles: readonly ChangedFile[],
-): DetectedEvent[] {
+export function matchEvents(changedFiles: readonly ChangedFile[]): DetectedEvent[] {
   const raw: DetectedEvent[] = [];
 
   for (const rule of PATTERN_RULES) {
@@ -151,9 +146,7 @@ export function matchEvents(
     const archiveEvent = raw[archiveIdx];
     caseEvent.data = {
       ...caseEvent.data,
-      archiveFile:
-        (archiveEvent.data.files as string) ??
-        `${archiveEvent.data.fileCount} file(s)`,
+      archiveFile: (archiveEvent.data.files as string) ?? `${archiveEvent.data.fileCount} file(s)`,
     };
     return raw.filter((_, i) => i !== archiveIdx);
   }
@@ -163,9 +156,7 @@ export function matchEvents(
 
 export function hasAnyChannel(): boolean {
   const cfg = detectChannels();
-  return Boolean(
-    cfg.dingtalk || cfg.feishu || cfg.wecom || isEmailEnabled(cfg),
-  );
+  return Boolean(cfg.dingtalk || cfg.feishu || cfg.wecom || isEmailEnabled(cfg));
 }
 
 // ── Main ────────────────────────────────────────────────────────────────────
@@ -188,9 +179,7 @@ async function main(): Promise<void> {
 
   for (const { event, data } of events) {
     if (dryRun) {
-      process.stderr.write(
-        `[detect] would notify: ${event} ${JSON.stringify(data)}\n`,
-      );
+      process.stderr.write(`[detect] would notify: ${event} ${JSON.stringify(data)}\n`);
     } else {
       await sendNotification(event, data);
     }
@@ -198,18 +187,13 @@ async function main(): Promise<void> {
 
   if (dryRun) {
     process.stdout.write(
-      JSON.stringify(
-        { detected: events.length, events: events.map((e) => e.event) },
-        null,
-        2,
-      ) + "\n",
+      JSON.stringify({ detected: events.length, events: events.map((e) => e.event) }, null, 2) +
+        "\n",
     );
   }
 }
 
-const isMain =
-  process.argv[1] &&
-  fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 if (isMain) {
   main().catch((err: unknown) => {
     // Stop hooks must not block — swallow errors silently

@@ -1,10 +1,6 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import {
-  agentsDir,
-  repoRoot,
-  skillsDir,
-} from "@shared/lib/paths.ts";
+import { agentsDir, repoRoot, skillsDir } from "@shared/lib/paths.ts";
 import {
   checkRuntimeDetach,
   formatRuntimeDetachReport,
@@ -95,9 +91,7 @@ export function buildSkillsCommand(): Command {
         }
       }
 
-      console.log(
-        `\n[skills audit] skills=${skillList.length} agents=${agentFiles.length}`,
-      );
+      console.log(`\n[skills audit] skills=${skillList.length} agents=${agentFiles.length}`);
 
       console.log(`\n[skills audit] total violations=${totalViolations}`);
       if (opts.exitCode && totalViolations > 0) process.exit(1);

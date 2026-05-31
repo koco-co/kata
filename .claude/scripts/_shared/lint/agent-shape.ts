@@ -17,10 +17,7 @@ function walk(dir: string, out: string[]): void {
   }
 }
 
-export function lintAgentShape(
-  scanPath: string,
-  opts: Record<string, unknown> = {},
-): AgentReport {
+export function lintAgentShape(scanPath: string, opts: Record<string, unknown> = {}): AgentReport {
   const files: string[] = [];
   walk(scanPath, files);
   const violations: AgentViolation[] = [];

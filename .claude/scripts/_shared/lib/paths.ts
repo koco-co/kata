@@ -123,9 +123,7 @@ let warnedEnhancedMd = false;
 /** @deprecated since v3 — use featureFile(..., "enhanced.md"). */
 export function enhancedMd(project: string, yyyymm: string, slug: string): string {
   if (!warnedEnhancedMd) {
-    console.warn(
-      "[paths] enhancedMd() is deprecated; use featureFile(..., 'enhanced.md')",
-    );
+    console.warn("[paths] enhancedMd() is deprecated; use featureFile(..., 'enhanced.md')");
     warnedEnhancedMd = true;
   }
   return featureFile(project, yyyymm, slug, "enhanced.md");
@@ -147,9 +145,7 @@ let warnedResolvedMd = false;
 /** @deprecated since v3 — use featureFile(..., "resolved.md"). */
 export function resolvedMd(project: string, yyyymm: string, slug: string): string {
   if (!warnedResolvedMd) {
-    console.warn(
-      "[paths] resolvedMd() is deprecated; use featureFile(..., 'resolved.md')",
-    );
+    console.warn("[paths] resolvedMd() is deprecated; use featureFile(..., 'resolved.md')");
     warnedResolvedMd = true;
   }
   return featureFile(project, yyyymm, slug, "resolved.md");
@@ -159,9 +155,7 @@ let warnedPrdImagesDir = false;
 /** @deprecated since v3 — use featureFile(..., "images"). */
 export function prdImagesDir(project: string, yyyymm: string, slug: string): string {
   if (!warnedPrdImagesDir) {
-    console.warn(
-      "[paths] prdImagesDir() is deprecated; use featureFile(..., 'images')",
-    );
+    console.warn("[paths] prdImagesDir() is deprecated; use featureFile(..., 'images')");
     warnedPrdImagesDir = true;
   }
   return featureFile(project, yyyymm, slug, "images");
@@ -171,9 +165,7 @@ let warnedOriginalPrdMd = false;
 /** @deprecated since v3 — use featureFile(..., "prd.md"). Note rename: original.md → prd.md. */
 export function originalPrdMd(project: string, yyyymm: string, slug: string): string {
   if (!warnedOriginalPrdMd) {
-    console.warn(
-      "[paths] originalPrdMd() is deprecated; use featureFile(..., 'prd.md')",
-    );
+    console.warn("[paths] originalPrdMd() is deprecated; use featureFile(..., 'prd.md')");
     warnedOriginalPrdMd = true;
   }
   return featureFile(project, yyyymm, slug, "prd.md");

@@ -1,7 +1,4 @@
-import {
-  agentsDir,
-  repoRoot,
-} from "@shared/lib/paths.ts";
+import { agentsDir, repoRoot } from "@shared/lib/paths.ts";
 import { lintAgentNaming } from "@shared/lint/agent-naming.ts";
 import { lintAgentShape } from "@shared/lint/agent-shape.ts";
 import { Command } from "commander";
@@ -25,9 +22,7 @@ export function buildAgentsCommand(): Command {
         const detail = v.lineCount ? `(${v.lineCount} lines)` : v.matched ? `[${v.matched}]` : "";
         console.log(`${rel}: [${v.rule}] ${detail} ${v.message}`);
       }
-      console.log(
-        `\n[agents audit] scanned=${shape.agents} violations=${all.length}`,
-      );
+      console.log(`\n[agents audit] scanned=${shape.agents} violations=${all.length}`);
       const exitableViolations =
         opts.severity === "fail-only" ? all.filter((v) => v.severity !== "warn") : all;
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);

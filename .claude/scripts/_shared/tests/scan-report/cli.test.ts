@@ -287,7 +287,15 @@ describe("scan-report CLI — render & auto-render", () => {
       .quiet()
       .nothrow();
     const { slug, yyyymm } = JSON.parse(r1.stdout.toString());
-    const html = join(WS, PROJECT, "_shared", "archive", "audits", `${yyyymm}-${slug}`, "report.html");
+    const html = join(
+      WS,
+      PROJECT,
+      "_shared",
+      "archive",
+      "audits",
+      `${yyyymm}-${slug}`,
+      "report.html",
+    );
     expect(existsSync(html)).toBe(true);
     const empty = readFileSync(html, "utf8");
     expect(empty).toContain("静态扫描报告");
@@ -328,7 +336,15 @@ describe("scan-report CLI — render & auto-render", () => {
       .quiet()
       .nothrow();
     const { slug, yyyymm } = JSON.parse(r1.stdout.toString());
-    const html = join(WS, PROJECT, "_shared", "archive", "audits", `${yyyymm}-${slug}`, "report.html");
+    const html = join(
+      WS,
+      PROJECT,
+      "_shared",
+      "archive",
+      "audits",
+      `${yyyymm}-${slug}`,
+      "report.html",
+    );
     const before = readFileSync(html, "utf8");
 
     const f = join(WS, "bug.json");

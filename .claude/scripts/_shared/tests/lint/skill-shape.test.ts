@@ -24,4 +24,3 @@ test("S4: SKILL.md > line limit flagged", () => {
   const r = lintSkillShape(join(FX, "skill-bad/skill-oversized-skill-md"));
   expect(r.violations.some((v) => v.rule === "S4")).toBe(true);
 });
-

@@ -294,7 +294,9 @@ describe("knowledgeDir", () => {
 describe("knowledgePath", () => {
   it("joins segments under knowledge dir", () => {
     const p = knowledgePath("dataAssets", "modules", "data-source.md");
-    expect(p.endsWith("workspace/dataAssets/_shared/knowledge/modules/data-source.md")).toBeTruthy();
+    expect(
+      p.endsWith("workspace/dataAssets/_shared/knowledge/modules/data-source.md"),
+    ).toBeTruthy();
   });
 
   it("returns knowledge dir itself when no segments", () => {
@@ -384,7 +386,9 @@ describe("projectShared (new v3 API)", () => {
 describe("incidentDir / regressionDir (new v3 API)", () => {
   test("incidentDir returns workspace/{p}/_shared/archive/issues/{date}-{slug}/", () => {
     const result = incidentDir("dataAssets", "20260428", "console-error");
-    expect(result).toMatch(/workspace\/dataAssets\/_shared\/archive\/issues\/20260428-console-error$/);
+    expect(result).toMatch(
+      /workspace\/dataAssets\/_shared\/archive\/issues\/20260428-console-error$/,
+    );
   });
 
   test("regressionDir returns workspace/{p}/_shared/archive/regressions/{date}-{batch}/", () => {

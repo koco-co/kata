@@ -11,16 +11,20 @@ const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
 function runCp(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync("bun", [".claude/scripts/_shared/bin/kata", "create-project", ...args], {
-      cwd: REPO_ROOT,
-      encoding: "utf8",
-      env: {
-        ...process.env,
-        KATA_WORKSPACE_ROOT: TEST_WORKSPACE_ROOT,
-        KATA_ROOT_OVERRIDE: TMP,
-        CONFIG_JSON_PATH: CONFIG_PATH,
+    const stdout = execFileSync(
+      "bun",
+      [".claude/scripts/_shared/bin/kata", "create-project", ...args],
+      {
+        cwd: REPO_ROOT,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          KATA_WORKSPACE_ROOT: TEST_WORKSPACE_ROOT,
+          KATA_ROOT_OVERRIDE: TMP,
+          CONFIG_JSON_PATH: CONFIG_PATH,
+        },
       },
-    });
+    );
     return { stdout, stderr: "", code: 0 };
   } catch (err: unknown) {
     const e = err as { stdout?: string; stderr?: string; status?: number };
@@ -254,7 +258,13 @@ describe("create-project create --confirmed", () => {
 
   it("preserves user-edited files during partial repair", () => {
     runCp(["create", "--project", "partial", "--confirmed"]);
-    const overviewPath = join(TEST_WORKSPACE_ROOT, "partial", "_shared", "knowledge", "overview.md");
+    const overviewPath = join(
+      TEST_WORKSPACE_ROOT,
+      "partial",
+      "_shared",
+      "knowledge",
+      "overview.md",
+    );
     // Write content with a frontmatter block so project knowledge index will not
     // auto-fix it — the test intent is to verify create-project does NOT
     // overwrite existing files, not to freeze the exact byte content.
@@ -269,7 +279,9 @@ describe("create-project create --confirmed", () => {
     expect(code).toBe(0);
     const data = JSON.parse(stdout);
     expect(Array.isArray(data.created_dirs)).toBeTruthy();
-    expect(data.created_dirs.some((p: string) => p.endsWith("_shared/knowledge/modules"))).toBeTruthy();
+    expect(
+      data.created_dirs.some((p: string) => p.endsWith("_shared/knowledge/modules")),
+    ).toBeTruthy();
     const content = readFileSync(overviewPath, "utf8");
     // create-project must not have replaced user content with the template
     expect(!content.includes("partial 业务概览")).toBeTruthy();

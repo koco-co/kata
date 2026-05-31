@@ -32,4 +32,3 @@ test("A4: cross-skill reference flagged", () => {
   const r = lintAgentFrontmatter(join(FX, "agents-bad/cross-skill-ref.md"), KNOWN_SKILLS);
   expect(r.violations.some((v) => v.rule === "A4")).toBe(true);
 });
-
