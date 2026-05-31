@@ -9,8 +9,11 @@ kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newCo
 ## 探测上下文与证据采集（§4 ui-probe 用）
 
 ```javascript
-// 带 storageState 创建上下文（来自 env profile 的 auth.session_path）
-const context = await browser.newContext({ storageState: env.session_path });
+// 创建上下文（storageState 来自 env profile；可选加权限/媒体仿真）
+const context = await browser.newContext({
+  storageState: env.session_path,
+  // permissions: ["geolocation"], colorScheme: "dark", reducedMotion: "reduce"
+});
 const page = await context.newPage();
 await page.goto(targetUrl);
 await page.waitForLoadState("networkidle"); // probe 探测可用；交付 spec 改 web-first 断言（见 §6 等待策略表）
@@ -19,42 +22,18 @@ await page.waitForLoadState("networkidle"); // probe 探测可用；交付 spec 
 const apiCalls = [];
 page.on("response", async (res) => {
   if (/\/dassets\//.test(res.url()))
-    apiCalls.push({
-      url: res.url().replace(baseUrl, ""),
-      status: res.status(),
-    });
+    apiCalls.push({ url: res.url().replace(baseUrl, ""), status: res.status() });
 });
 
 // 控制台错误与失败请求诊断（§9 repair-loop 也适用）
 const consoleErrors = [];
-page.on("console", (msg) => {
-  if (msg.type() === "error") consoleErrors.push(msg.text());
-});
-page.on("requestfailed", (req) => {
-  consoleErrors.push(
-    `FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText}`,
-  );
-});
+page.on("console", (msg) => { if (msg.type() === "error") consoleErrors.push(msg.text()); });
+page.on("requestfailed", (req) => { consoleErrors.push(`FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText}`); });
 
-// Dialog 防卡——原生 dialog 会阻塞所有后续操作
-page.on("dialog", (dialog) => dialog.dismiss());
-
-// DOM 证据采集
-const headers = await page
-  .locator(".ant-table-thead th")
-  .evaluateAll((els) => els.map((e) => e.textContent?.trim()));
-const buttons = await page
-  .locator("button")
-  .evaluateAll((els) => els.map((e) => e.textContent?.trim()));
-
-// 上下文能力：权限授予 / 媒体仿真（探测需授权或响应式分支时用）
-const context = await browser.newContext({
-  storageState: env.session_path,
-  permissions: ["geolocation", "notifications"], // 需要授权的 Web API
-  colorScheme: "dark",       // 探测深色模式分支
-  reducedMotion: "reduce",   // 探测减少动画分支
-  // forcedColors: "active",  // 探测高对比度模式
-});
+// Dialog 防卡；DOM 证据采集（表头 + 按钮）
+page.on("dialog", (d) => d.dismiss());
+const headers = await page.locator(".ant-table-thead th").evaluateAll((els) => els.map((e) => e.textContent?.trim()));
+const buttons = await page.locator("button").evaluateAll((els) => els.map((e) => e.textContent?.trim()));
 ```
 
 ---
@@ -172,71 +151,47 @@ URL pattern 速查：`**/api/users`（精确路径）、`**/api/*/details`（通
 ## iframe / frameLocator（§4 ui-probe + §6 generate 用）
 
 ```javascript
-// 按 selector 定位 iframe 内的元素（frameLocator 返回 Locator，支持链式调用）
+// 按 selector 定位 iframe 内元素（frameLocator 返回 Locator，支持链式断言）
 const frame = page.frameLocator('iframe[name="report"]');
 await frame.locator('[data-testid="table-row"]').first().click();
+await expect(frame.getByRole("heading")).toHaveText("报表标题");
 
-// 按 URL 定位（适合动态 name 的第三方嵌入）
+// 按 src URL 定位（动态 name 的第三方嵌入）
 const frameByUrl = page.frameLocator('iframe[src*="/embed/"]');
-await expect(frameByUrl.getByRole("heading")).toHaveText("报表标题");
-
-// 多层 iframe（逐级链式）
-const innerFrame = page.frameLocator('#outer-frame').frameLocator('#inner-frame');
-
-// 访问 Frame 对象（需要 page.evaluate 等低层操作时）
-const frame2 = page.frame({ url: /report/ }) ?? page.frame('report-frame');
 ```
 
-探测时遇到元素在 iframe 内：在 §4 probe 脚本里先 `page.frames()` 列出所有 frame URL 确认目标，再用 `frameLocator` 采集证据。
+探测时遇到 iframe 元素：先 `page.frames()` 列出所有 frame URL 确认目标，再用 `frameLocator` 采集证据。
 
 ---
 
 ## 多页 / popup 处理（§4 ui-probe + §6 generate 用）
 
 ```typescript
-// 触发动作前注册监听（必须在触发动作之前，否则会错过 popup 事件）
+// 必须在触发动作之前注册监听，否则错过 popup 事件
 const [popup] = await Promise.all([
   page.waitForEvent("popup"),
   page.getByRole("link", { name: "在新标签打开" }).click(),
 ]);
 await popup.waitForLoadState();
-
-// 断言新页内容
 await expect(popup.getByRole("heading")).toHaveText("详情页标题");
 await expect(popup).toHaveURL(/\/detail\//);
-
-// 通过 context 监听所有新页（适合测试同一 context 下批量弹出）
-context.on("page", async (newPage) => {
-  await newPage.waitForLoadState();
-  // 对每个新页执行检查
-});
 ```
 
-**覆盖忠实度**：用例步骤含「导出/详情/查看新开页」时，必须对新页内容断言，不得只断当前页仍可见某元素。
+**覆盖忠实度**：用例含「导出/详情/查看新开页」时必须在 popup 页断言业务结果，不得只断当前页。
 
 ---
 
 ## 文件下载处理（§6 playwright-generate 用）
 
 ```typescript
-// 触发下载前注册监听（必须在触发动作之前）
+// 必须在触发动作之前注册监听
 const downloadPromise = page.waitForEvent("download");
 await page.getByRole("button", { name: "导出" }).click();
 const download = await downloadPromise;
-
-// 保存到 results 证据目录
-const savePath = `results/${runId}/playwright/downloads/${download.suggestedFilename()}`;
-await download.saveAs(savePath);
-
-// 断言文件名符合预期
+await download.saveAs(`results/${runId}/playwright/downloads/${download.suggestedFilename()}`);
 expect(download.suggestedFilename()).toMatch(/^report_\d{8}\.xlsx$/);
-
-// 失败时读取错误原因
-const failure = await download.failure();
-if (failure) throw new Error(`下载失败: ${failure}`);
+// download.path() = 临时路径（context 关闭前有效）；download.failure() 可取失败原因
 ```
-
-`download.path()` 返回临时路径（context 关闭前有效）；`download.saveAs()` 持久保存。
 
 ---
 
@@ -261,14 +216,11 @@ const context = await browser.newContext({
 });
 ```
 
-**取舍**：trace 调试失败步骤（含 DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证（`page.screenshot({ path: '...', fullPage: true })`）。
-
-**证据目录清理**：trace/video 文件占盘，`results/` 目录 7 天前的文件可定期清理：`find results -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
+**取舍**：trace 调试失败步骤（DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证。**清理**：`find results -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
 
 ---
 
 ## 用户视觉确认
-
 证据不足时的原生方案：
 
 ```typescript
