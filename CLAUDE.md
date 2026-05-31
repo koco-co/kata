@@ -24,7 +24,8 @@
 ### 多技能匹配优先级
 
 - 精确格式/URL/路径匹配 > 意图关键词匹配 > 通用请求。
-- 各 skill 的 `must_not_trigger_when` 优先级高于 `must_trigger_when`；must_not_trigger_when 明确排除的场景不路由到该 skill。
+- 触发信号来自每个 skill SKILL.md frontmatter 的 `description`（关键词 + 改走目标），不存在 `must_trigger_when`/`must_not_trigger_when` 等字段。
+- description 里的「改走/不在此」声明优先于触发关键词：命中某 skill 的改走条件时按改走目标路由，不停留在该 skill。
 - 同一输入命中多个 skill 且无法判定时，按上述顺序选择优先 skill；仍不确定时向用户确认意图。
 
 ### 无匹配回退
