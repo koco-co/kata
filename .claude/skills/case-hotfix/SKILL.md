@@ -1,6 +1,6 @@
 ---
 name: case-hotfix
-description: 以 bug 记录/修复说明为输入，产出聚焦修复路径的单条 hotfix 回归用例（可直接执行的 archive.md）。给出 bug ID/issue/ZenTao 记录时用。
+description: 拿到 bug ID、ZenTao bug URL(zenpms.dtstack.cn/bug-view-NNN) 或修复说明，要产出聚焦修复路径的单条 hotfix 回归用例(可直接执行的 archive.md)时用。
 when_to_use: 给出 bug ID、issue URL、缺陷描述或修复说明时用；含只发 zenpms.dtstack.cn/.../bug-view-NNN.html URL 或 bug ID、零文字也直接触发。要通用 bug 报告或依 PRD 产用例的不在此。
 argument-hint: "<ZenTao bug URL | bug-view-NNN | bug ID>"
 user-invocable: true

@@ -1,6 +1,6 @@
 ---
 name: case-draft
-description: 依需求文档/PRD/设计稿/Lanhu/Axure/功能描述生成、扩写或复核 QA 测试用例，产出 archive.md + cases.xmind。给出需求源时用。
+description: 拿到 Lanhu/Axure 链接(lanhuapp.com)、PRD、设计稿、截图或功能描述等需求源，要生成/扩写/复核 QA 测试用例时用；产出 archive.md + cases.xmind。
 when_to_use: 给出 lanhuapp.com 链接（含 axure/产品设计 URL）、Markdown PRD、截图、fixture 或功能描述要产用例时用；只发一条 Lanhu/Axure 链接零文字也直接触发。只在 Archive/XMind/CSV 间转换 → case-edit；基于用例做自动化 → playwright-automation。
 argument-hint: "<Lanhu/Axure URL | Markdown PRD 路径 | 截图 | 功能描述>"
 user-invocable: true
