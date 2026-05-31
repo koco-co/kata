@@ -24,11 +24,6 @@ function writeRuntimeFile(root: string, rel: string, body: string): void {
 
 function writeDetachedEntries(root: string): void {
   const shared = [
-    "Claude 与 Codex 同等优先。",
-    "修改任一 runtime 必须同步评估另一套。",
-    "不要求两边文件逐字一致。",
-    "优先使用 symlink 保持单一文件来源。",
-    "不得抽取到第三方共享文档目录。",
     "代码变动前先提交主工作树现有改动。",
     "使用 git worktree add --detach 创建 detached worktree。",
     "不得为任务新建分支。",
@@ -41,7 +36,6 @@ function writeDetachedEntries(root: string): void {
     "Commit 映射固定包含 refactor: ✨。",
     "临时通知页面标题为【KATA 工作通知】。",
   ].join("\n");
-  writeRuntimeFile(root, "AGENTS.md", `# AGENTS.md\n\n${shared}\n`);
   writeRuntimeFile(root, "CLAUDE.md", `# CLAUDE.md\n\n${shared}\n`);
   writeWorkflowRuleFiles(
     root,
@@ -63,15 +57,12 @@ function writeDetachedEntries(root: string): void {
 }
 
 function writeLegacyDetachedEntries(root: string): void {
-  const shared = [
+  // CLAUDE.md with only legacy content (missing all required workflow phrases)
+  const legacy = [
     "Claude 与 Codex 同等优先。",
-    "修改任一 runtime 必须同步评估另一套。",
     "不要求两边文件逐字一致。",
-    "优先使用 symlink 保持单一文件来源。",
-    "不得抽取到第三方共享文档目录。",
   ].join("\n");
-  writeRuntimeFile(root, "AGENTS.md", `# AGENTS.md\n\n${shared}\n`);
-  writeRuntimeFile(root, "CLAUDE.md", `# CLAUDE.md\n\n${shared}\n`);
+  writeRuntimeFile(root, "CLAUDE.md", `# CLAUDE.md\n\n${legacy}\n`);
 }
 
 function writeWorkflowRuleFiles(root: string, body: string): void {
@@ -82,7 +73,7 @@ function writeWorkflowRuleFiles(root: string, body: string): void {
 
 function writeSkill(
   root: string,
-  runtimeDir: ".claude" | ".agents",
+  runtimeDir: ".claude",
   name: string,
   body = "",
 ): void {
@@ -104,12 +95,10 @@ describe("runtime detach check", () => {
     const root = makeRoot();
     writeDetachedEntries(root);
     writeRuntimeFile(root, ".claude/INDEX.md", "# Claude index\n");
-    writeRuntimeFile(root, ".agents/INDEX.md", "# Codex index\n");
     writeSkill(root, ".claude", "case-draft");
-    writeSkill(root, ".agents", "case-draft");
     writeRuntimeFile(
       root,
-      ".agents/skills/case-draft/references/fewshots/case-format-sample.md",
+      ".claude/skills/case-draft/references/fewshots/case-format-sample.md",
       "# Case format sample\n\nUse readable archive fields.\n",
     );
 
@@ -121,8 +110,8 @@ describe("runtime detach check", () => {
 
   test("flags CLAUDE.md symlink and CLAUDE.local.md", () => {
     const root = makeRoot();
-    writeRuntimeFile(root, "AGENTS.md", "# AGENTS.md\n");
-    symlinkSync("AGENTS.md", join(root, "CLAUDE.md"));
+    writeRuntimeFile(root, "CLAUDE.md.source", "# source\n");
+    symlinkSync("CLAUDE.md.source", join(root, "CLAUDE.md"));
     writeRuntimeFile(root, "CLAUDE.local.md", "# local\n");
 
     const report = checkRuntimeDetach(root);
@@ -133,7 +122,6 @@ describe("runtime detach check", () => {
 
   test("flags missing synchronization rule in entry files", () => {
     const root = makeRoot();
-    writeRuntimeFile(root, "AGENTS.md", "# AGENTS.md\n");
     writeRuntimeFile(root, "CLAUDE.md", "# CLAUDE.md\n");
 
     const report = checkRuntimeDetach(root);
@@ -142,35 +130,15 @@ describe("runtime detach check", () => {
 
   test("flags missing code-change workflow guardrails in entry files", () => {
     const root = makeRoot();
-    // 模拟 Codex runtime 存在（.agents 目录在）——令 AGENTS.md 参与校验
-    mkdirSync(join(root, ".agents"), { recursive: true });
     writeLegacyDetachedEntries(root);
 
     const report = checkRuntimeDetach(root);
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "RUNTIME_SYNC_RULE_MISSING",
-        path: join(root, "AGENTS.md"),
-      }),
-    );
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "RUNTIME_SYNC_RULE_MISSING",
         path: join(root, "CLAUDE.md"),
       }),
     );
-  });
-
-  test("skips AGENTS.md check when .agents directory is absent (codex retired)", () => {
-    const root = makeRoot();
-    // 不创建 .agents 目录，模拟 Codex runtime 已退役
-    writeDetachedEntries(root);
-
-    const report = checkRuntimeDetach(root);
-    // 不得报 AGENTS.md 相关 violation
-    expect(report.violations.some((v) => v.path.includes("AGENTS.md"))).toBe(false);
-    // CLAUDE.md 仍照常校验，完整短语时应通过
-    expect(report.passed).toBe(true);
   });
 
   test("flags missing code-change workflow guardrails in detailed rule files", () => {
@@ -198,7 +166,7 @@ describe("runtime detach check", () => {
     writeDetachedEntries(root);
     writeRuntimeFile(
       root,
-      ".agents/skills/case-edit/SKILL.md",
+      ".claude/skills/case-edit/SKILL.md",
       [
         "---",
         "name: case-edit",
@@ -220,7 +188,7 @@ describe("runtime detach check", () => {
     writeDetachedEntries(root);
     writeRuntimeFile(
       root,
-      ".agents/skills/case-draft/references/fewshots/case-format-sample.md",
+      ".claude/skills/case-draft/references/fewshots/case-format-sample.md",
       "# Case format sample\n\nSSOT: legacy-runtime-source/skills/case-draft/references/retired-format.md\n",
     );
 
@@ -229,20 +197,17 @@ describe("runtime detach check", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "RUNTIME_RETIRED_SOURCE_REFERENCE",
-        path: join(root, ".agents/skills/case-draft/references/fewshots/case-format-sample.md"),
+        path: join(root, ".claude/skills/case-draft/references/fewshots/case-format-sample.md"),
       }),
     );
   });
 
   test("formats detach failures with relative paths", () => {
     const root = makeRoot();
-    // 模拟 Codex runtime 存在（.agents 目录在）——令 AGENTS.md 参与校验
-    mkdirSync(join(root, ".agents"), { recursive: true });
-    writeRuntimeFile(root, "AGENTS.md", "# AGENTS.md\n");
     writeRuntimeFile(root, "CLAUDE.md", "# CLAUDE.md\n");
 
     const text = formatRuntimeDetachReport(checkRuntimeDetach(root), root);
     expect(text).toContain("runtime detach failed");
-    expect(text).toContain("AGENTS.md");
+    expect(text).toContain("CLAUDE.md");
   });
 });
