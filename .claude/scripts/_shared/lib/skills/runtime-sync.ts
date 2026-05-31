@@ -70,15 +70,19 @@ export function checkRuntimeSkillSync(root: string): RuntimeSkillSyncReport {
   const claudeNames = new Set(records.claude.map((record) => record.dirName));
   const codexNames = new Set(records.codex.map((record) => record.dirName));
 
-  for (const name of [...claudeNames].sort()) {
-    if (!codexNames.has(name)) {
-      violations.push({
-        rule: "RUNTIME_SKILL_MISSING",
-        side: "codex",
-        skill: name,
-        path: join(".agents", "skills", name),
-        message: `missing Codex counterpart for Claude skill ${name}`,
-      });
+  // Codex runtime 已退役时（.agents/skills 目录不存在）跳过 Claude→Codex 对称校验
+  const codexPresent = existsSync(join(root, RUNTIME_DIRS.codex, "skills"));
+  if (codexPresent) {
+    for (const name of [...claudeNames].sort()) {
+      if (!codexNames.has(name)) {
+        violations.push({
+          rule: "RUNTIME_SKILL_MISSING",
+          side: "codex",
+          skill: name,
+          path: join(".agents", "skills", name),
+          message: `missing Codex counterpart for Claude skill ${name}`,
+        });
+      }
     }
   }
 

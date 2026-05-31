@@ -214,37 +214,37 @@ describe("projectPath", () => {
 });
 
 describe("xmindDir", () => {
-  it("returns workspace/{project}/xmind", () => {
+  it("returns workspace/{project}/_shared/archive/xmind", () => {
     const dir = xmindDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/xmind")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/archive/xmind")).toBeTruthy();
   });
 });
 
 describe("xmindPath", () => {
   it("joins segments under xmind dir", () => {
     const p = xmindPath("dataAssets", "202604", "test.xmind");
-    expect(p.endsWith("workspace/dataAssets/xmind/202604/test.xmind")).toBeTruthy();
+    expect(p.endsWith("workspace/dataAssets/_shared/archive/xmind/202604/test.xmind")).toBeTruthy();
   });
 });
 
 describe("archiveDir", () => {
-  it("returns workspace/{project}/archive", () => {
+  it("returns workspace/{project}/_shared/archive", () => {
     const dir = archiveDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/archive")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/archive")).toBeTruthy();
   });
 });
 
 describe("prdsDir", () => {
-  it("returns workspace/{project}/prds", () => {
+  it("returns workspace/{project}/_shared/archive/history/prds", () => {
     const dir = prdsDir("xyzh");
-    expect(dir.endsWith("workspace/xyzh/prds")).toBeTruthy();
+    expect(dir.endsWith("workspace/xyzh/_shared/archive/history/prds")).toBeTruthy();
   });
 });
 
 describe("issuesDir", () => {
-  it("returns workspace/{project}/issues", () => {
+  it("returns workspace/{project}/_shared/archive/issues", () => {
     const dir = issuesDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/issues")).toBeTruthy();
+    expect(dir.endsWith("workspace/dataAssets/_shared/archive/issues")).toBeTruthy();
   });
 });
 
@@ -424,14 +424,14 @@ describe("projectShared (new v3 API)", () => {
 });
 
 describe("incidentDir / regressionDir (new v3 API)", () => {
-  test("incidentDir returns workspace/{p}/incidents/{date}-{slug}/", () => {
+  test("incidentDir returns workspace/{p}/_shared/archive/issues/{date}-{slug}/", () => {
     const result = incidentDir("dataAssets", "20260428", "console-error");
-    expect(result).toMatch(/workspace\/dataAssets\/incidents\/20260428-console-error$/);
+    expect(result).toMatch(/workspace\/dataAssets\/_shared\/archive\/issues\/20260428-console-error$/);
   });
 
-  test("regressionDir returns workspace/{p}/regressions/{date}-{batch}/", () => {
+  test("regressionDir returns workspace/{p}/_shared/archive/regressions/{date}-{batch}/", () => {
     const result = regressionDir("dataAssets", "20260428", "smoke");
-    expect(result).toMatch(/workspace\/dataAssets\/regressions\/20260428-smoke$/);
+    expect(result).toMatch(/workspace\/dataAssets\/_shared\/archive\/regressions\/20260428-smoke$/);
   });
 });
 

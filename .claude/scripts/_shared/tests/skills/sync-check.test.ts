@@ -282,7 +282,7 @@ description: Demo skill
     );
   });
 
-  test("reports RUNTIME_SKILL_MISSING when counterpart skill is missing", () => {
+  test("reports RUNTIME_SKILL_MISSING when counterpart skill is missing (codex present)", () => {
     const root = makeRoot();
 
     writeSkill(
@@ -297,6 +297,9 @@ description: Claude only
 # Claude only
 `,
     );
+    // 注册一个 Codex skill 使 .agents/skills 目录存在，但 claude-only 无对应物
+    writeSkill(root, ".agents", "other-skill", `---\nname: other-skill\ndescription: other\n---\n`);
+    writeCodexOpenAi(root, "other-skill");
 
     const report = checkRuntimeSkillSync(root);
 
@@ -307,6 +310,18 @@ description: Claude only
         path: ".agents/skills/claude-only",
       }),
     );
+  });
+
+  test("passes when .agents/skills directory does not exist (codex retired)", () => {
+    const root = makeRoot();
+
+    writeSkill(root, ".claude", "case-draft", `---\nname: case-draft\ndescription: gen\n---\n`);
+    // 不创建任何 .agents 目录，模拟 Codex runtime 已退役
+
+    const report = checkRuntimeSkillSync(root);
+
+    expect(report.passed).toBe(true);
+    expect(report.violations).toEqual([]);
   });
 
   test("reports UNSUPPORTED_FRONTMATTER for Codex model frontmatter", () => {
