@@ -324,7 +324,7 @@ description: Claude only
     expect(report.violations).toEqual([]);
   });
 
-  test("reports UNSUPPORTED_FRONTMATTER for Codex model frontmatter", () => {
+  test("reports UNSUPPORTED_FRONTMATTER for unrecognized frontmatter fields", () => {
     const root = makeRoot();
 
     writeSkill(
@@ -346,7 +346,7 @@ description: Demo skill
       `---
 name: demo
 description: Demo skill
-model: gpt-5
+hooks: {}
 ---
 
 # Demo
@@ -361,7 +361,7 @@ model: gpt-5
       expect.objectContaining({
         rule: "UNSUPPORTED_FRONTMATTER",
         path: ".agents/skills/demo/SKILL.md",
-        message: "unsupported frontmatter fields: model",
+        message: "unsupported frontmatter fields: hooks",
       }),
     );
   });

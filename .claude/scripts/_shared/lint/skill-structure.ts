@@ -14,7 +14,7 @@ export interface StructureReport {
   violations: StructureViolation[];
 }
 
-// Claude frontmatter 字段白名单（§8.3）
+// Claude frontmatter 字段白名单（与 frontmatter-policy.ts 对齐）
 const ALLOWED_FRONTMATTER = new Set([
   "name",
   "description",
@@ -24,7 +24,6 @@ const ALLOWED_FRONTMATTER = new Set([
   "effort",
   "context",
   "agent",
-  "paths",
   "argument-hint",
   "allowed-tools",
   "disable-model-invocation",

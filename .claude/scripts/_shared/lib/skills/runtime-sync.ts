@@ -3,7 +3,9 @@ import { join, relative } from "node:path";
 import matter from "gray-matter";
 import YAML from "yaml";
 
-import { findUnsupportedFrontmatterFields, type SkillRuntime } from "./frontmatter-policy.ts";
+import { findUnsupportedFrontmatterFields } from "./frontmatter-policy.ts";
+
+type SkillRuntime = "claude" | "codex";
 
 export type RuntimeSkillViolationRule =
   | "RUNTIME_SKILL_MISSING"
@@ -233,7 +235,7 @@ function validateSupportedFrontmatterFields(
   data: Record<string, unknown>,
   violations: RuntimeSkillViolation[],
 ): void {
-  const unsupportedFields = findUnsupportedFrontmatterFields(side, data);
+  const unsupportedFields = findUnsupportedFrontmatterFields(data);
   if (unsupportedFields.length > 0) {
     pushRuntimeViolation(
       violations,
