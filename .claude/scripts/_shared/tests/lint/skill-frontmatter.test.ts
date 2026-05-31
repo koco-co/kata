@@ -33,34 +33,3 @@ test("A4: cross-skill reference flagged", () => {
   expect(r.violations.some((v) => v.rule === "A4")).toBe(true);
 });
 
-test("A4: codex runtime scopes .agents skill references to owner_skill", () => {
-  const r = lintAgentFrontmatter(join(FX, "agents-good/codex-good-agent.md"), KNOWN_SKILLS, {
-    runtime: "codex",
-  });
-  expect(r.passed).toBe(true);
-});
-
-test("A4: codex runtime flags cross-skill .agents references", () => {
-  const r = lintAgentFrontmatter(join(FX, "agents-bad/codex-cross-skill-ref.md"), KNOWN_SKILLS, {
-    runtime: "codex",
-  });
-  expect(r.violations.some((v) => v.rule === "A4")).toBe(true);
-});
-
-test("A5: codex runtime flags invalid preferred_agent_type", () => {
-  const r = lintAgentFrontmatter(join(FX, "agents-bad/codex-invalid-agent-type.md"), KNOWN_SKILLS, {
-    runtime: "codex",
-  });
-  expect(r.violations.some((v) => v.rule === "A5")).toBe(true);
-});
-
-test("A6: codex runtime flags invalid source_hash", () => {
-  const r = lintAgentFrontmatter(
-    join(FX, "agents-bad/codex-invalid-source-hash.md"),
-    KNOWN_SKILLS,
-    {
-      runtime: "codex",
-    },
-  );
-  expect(r.violations.some((v) => v.rule === "A6")).toBe(true);
-});

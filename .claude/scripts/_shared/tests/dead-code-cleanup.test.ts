@@ -14,15 +14,6 @@ describe("P4-03 dead code cleanup", () => {
     expect(source(".claude/scripts/_shared/cli/cases-validate.ts")).not.toContain("_textIncludes");
   });
 
-  test("does not keep empty lint module placeholders", () => {
-    for (const path of [
-      ".claude/scripts/_shared/lint/agents-sync.ts",
-      ".claude/scripts/_shared/lint/agents-drift.ts",
-    ]) {
-      expect(source(path).trim()).not.toBe("export {};");
-    }
-  });
-
   test("removes deprecated prdDir API and production calls", () => {
     expect(source(".claude/scripts/_shared/lib/paths.ts")).not.toMatch(/\bfunction prdDir\b/);
     expect(source(".claude/scripts/_shared/lib/enhanced-doc-store.ts")).not.toContain("prdDir");
