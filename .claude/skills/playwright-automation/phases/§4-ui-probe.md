@@ -22,7 +22,7 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 
 1. 使用 `browser.newContext({ storageState: env.session_path })` 创建浏览器上下文
 2. 打开 ui-plan 中目标 URL hash（如 `#/dq/rule`、`#/metaDataSync`）
-3. 等待 `networkidle` + 额外 2-3 秒让 Ant Design 渲染完成
+3. 等待 `networkidle` + 额外 2-3 秒让 Ant Design 渲染完成（**仅限 probe 探测脚本**；交付 spec 禁用此 band-aid，改 web-first 断言）
 4. 验证 URL hash 正确，未被重定向到登录页
 
 ### 第二步：采集页面证据
@@ -109,7 +109,7 @@ page.on('response', async (res) => {
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
-- 不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")` 做页面等待。
+- 不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")` 做 probe 页面等待；探测脚本可用 networkidle，但**不得将此写法迁移进交付 spec**。
 - 不得将 Screenshot 证据替代 DOM 文本证据（截图用作视觉辅助，DOM 文本用作断言依据）。
 - 不得在探查阶段修改目标页面的数据（创建、编辑、删除操作）。
 - 不得读取历史 feature 测试或截图来弥补当前 ui-probe 证据不足。

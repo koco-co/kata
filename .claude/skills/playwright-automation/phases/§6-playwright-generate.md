@@ -130,7 +130,7 @@ grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # �
 
 | 场景 | 正确方式 | 禁止方式 |
 |------|----------|----------|
-| 页面加载完成 | `page.waitForLoadState("networkidle")` | `page.waitForTimeout(3000)` |
+| 页面加载完成 | `expect(locator).toBeVisible({ timeout: 15000 })` / `page.waitForResponse()` / `page.waitForURL()` | `page.waitForLoadState("networkidle")`（band-aid，§9 明令禁止）/ `page.waitForTimeout(3000)` |
 | 元素可见 | `expect(locator).toBeVisible({ timeout: 15000 })` | `page.waitForTimeout(2000)` |
 | 导航完成 | `page.waitForURL()` | 裸 `waitForTimeout` |
 | API 响应到达 | `page.waitForResponse()` | `waitForTimeout` |

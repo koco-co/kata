@@ -13,7 +13,7 @@ kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newCo
 const context = await browser.newContext({ storageState: env.session_path });
 const page = await context.newPage();
 await page.goto(targetUrl);
-await page.waitForLoadState("networkidle");
+await page.waitForLoadState("networkidle"); // probe 探测可用；交付 spec 改 web-first 断言（见 §6 等待策略表）
 
 // API 证据采集——被动监听，不拦截
 const apiCalls = [];
