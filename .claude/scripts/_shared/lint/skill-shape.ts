@@ -1,38 +1,18 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import type { AgentRuntime } from "@shared/lib/paths.ts";
-import matter from "gray-matter";
 import type { SkillReport, SkillViolation } from "./types.ts";
 
 const ALLOWED_TOP_LEVEL_FILES = new Set(["SKILL.md"]);
 const ALLOWED_TOP_LEVEL_DIRS = new Set(["references"]);
 const SKILL_MD_LINE_LIMIT = 140;
-const CODEX_FORBIDDEN_SKILL_DIRECTIVES = [
-  "TaskCreate",
-  "TaskUpdate",
-  "AskUserQuestion",
-  "${CLAUDE_SKILL_DIR}",
-  ".claude/skills/",
-  ".claude/agents/",
-  "Read tool",
-  "Grep tool",
-  "Glob tool",
-  "Bash tool",
-  "Edit tool",
-  "Write tool",
-  "model: sonnet",
-  "model: opus",
-  "model: haiku",
-];
 const REFERENCE_NON_MD_EXCEPTIONS: Record<string, Set<string>> = {};
 
 export function lintSkillShape(
   skillDir: string,
-  opts: { runtime?: AgentRuntime } = {},
+  opts: Record<string, unknown> = {},
 ): SkillReport {
   const violations: SkillViolation[] = [];
   const skillName = basename(skillDir);
-  const runtime = opts.runtime ?? "claude";
 
   // S1: SKILL.md missing
   const skillMd = join(skillDir, "SKILL.md");
@@ -49,9 +29,6 @@ export function lintSkillShape(
         path: skillMd,
         message: `SKILL.md has ${lines} lines (limit ${SKILL_MD_LINE_LIMIT})`,
       });
-    }
-    if (runtime === "codex") {
-      lintCodexSkillMd(skillDir, skillMd, rawSkillMd, violations);
     }
   }
 
@@ -98,51 +75,6 @@ export function lintSkillShape(
   }
 
   return { skillDir, violations, passed: violations.length === 0 };
-}
-
-function lintCodexSkillMd(
-  skillDir: string,
-  skillMd: string,
-  rawSkillMd: string,
-  violations: SkillViolation[],
-): void {
-  let parsed;
-  try {
-    parsed = matter(rawSkillMd);
-  } catch {
-    violations.push({
-      rule: "S8",
-      skillDir,
-      path: skillMd,
-      message: "SKILL.md frontmatter parse error",
-    });
-    return;
-  }
-  const name = parsed.data?.name;
-  const description = parsed.data?.description;
-  if (
-    typeof name !== "string" ||
-    name.trim() === "" ||
-    typeof description !== "string" ||
-    description.trim() === ""
-  ) {
-    violations.push({
-      rule: "S8",
-      skillDir,
-      path: skillMd,
-      message: "Codex SKILL.md frontmatter must include non-empty name and description",
-    });
-  }
-  for (const token of CODEX_FORBIDDEN_SKILL_DIRECTIVES) {
-    if (rawSkillMd.includes(token)) {
-      violations.push({
-        rule: "S9",
-        skillDir,
-        path: skillMd,
-        message: `Codex SKILL.md contains Claude-only directive '${token}'`,
-      });
-    }
-  }
 }
 
 function walkAll(dir: string): string[] {

@@ -1,19 +1,9 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { AgentRuntime } from "@shared/lib/paths.ts";
 import type { AgentReport, AgentViolation } from "./types.ts";
 
 const WARN_LINES = 300;
 const FAIL_LINES = 500;
-const CODEX_FORBIDDEN_AGENT_DIRECTIVES = [
-  "TaskCreate",
-  "TaskUpdate",
-  "${CLAUDE_SKILL_DIR}",
-  "AskUserQuestion",
-  "subagent_type",
-  "Task tool",
-  "Agent tool",
-];
 
 function walk(dir: string, out: string[]): void {
   try {
@@ -29,7 +19,7 @@ function walk(dir: string, out: string[]): void {
 
 export function lintAgentShape(
   scanPath: string,
-  opts: { runtime?: AgentRuntime } = {},
+  opts: Record<string, unknown> = {},
 ): AgentReport {
   const files: string[] = [];
   walk(scanPath, files);
@@ -44,7 +34,7 @@ export function lintAgentShape(
         file,
         lineCount: lines,
         severity: "fail",
-        message: `agent body ${lines} lines >= ${FAIL_LINES} (A1 fail); split into sub-agents per spec §10.2`,
+        message: `agent body ${lines} lines >= ${FAIL_LINES} (A1 fail); split into sub-agents`,
       });
     } else if (lines > WARN_LINES) {
       violations.push({
@@ -54,19 +44,6 @@ export function lintAgentShape(
         severity: "warn",
         message: `agent body ${lines} lines > ${WARN_LINES} (A1 warn); extract sections to references/`,
       });
-    }
-    if (opts.runtime === "codex") {
-      for (const token of CODEX_FORBIDDEN_AGENT_DIRECTIVES) {
-        if (content.includes(token)) {
-          violations.push({
-            rule: "A6",
-            file,
-            matched: token,
-            severity: "fail",
-            message: `Codex agent prompt contains Claude-only directive '${token}'`,
-          });
-        }
-      }
     }
   }
   return { scanRoot: scanPath, agents: files.length, violations, passed: violations.length === 0 };

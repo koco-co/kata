@@ -33,10 +33,4 @@ describe("lintAgentShape (A1)", () => {
     expect(r.violations.every((v) => v.severity === "warn" || v.severity === "fail")).toBe(true);
   });
 
-  test("codex runtime flags Claude-only hard directives", () => {
-    const r = lintAgentShape(join(FIX, "agent-shape-bad"), { runtime: "codex" });
-    const matches = r.violations.filter((v) => v.rule === "A6");
-    expect(matches.length).toBeGreaterThan(0);
-    expect(matches[0]?.matched).toContain("TaskCreate");
-  });
 });
