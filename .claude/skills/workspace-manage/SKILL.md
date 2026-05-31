@@ -1,6 +1,6 @@
 ---
 name: workspace-manage
-description: 展示 kata 功能菜单/命令帮助，或创建、自检、收尾、修复项目工作区。用户问 kata 能做什么、要 init/自检工作区时用。
+description: 问 kata 能做什么/要看功能菜单命令帮助，或要创建、初始化、自检、收尾、修复项目工作区时用。
 when_to_use: 触发短语如「kata 能干嘛」「功能菜单」「初始化工作区」「自检/收尾工作区」。仅生成或编辑用例走 case-*；维护业务知识走 knowledge-curate。
 argument-hint: "<功能菜单 | init | 自检 | 收尾 | 修复>"
 user-invocable: true

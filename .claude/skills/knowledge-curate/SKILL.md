@@ -1,6 +1,6 @@
 ---
 name: knowledge-curate
-description: 查询、记录或维护项目业务知识、规则、术语与模块事实，统一沉淀于 workspace/{project}/_shared/knowledge/。用户问「XX 是什么」或要写入业务规则时用。
+description: 要查询、记录或维护项目业务知识、规则、术语、模块事实，或问「XX 是什么」(项目业务概念)时用；统一沉淀于 _shared/knowledge/。
 when_to_use: 触发短语如「记一下这个规则」「XX 术语什么意思」「更新模块知识」。只问源码实现细节、或要写编用例、扫 diff、做 UI 自动化的不在此。
 argument-hint: '<业务术语 | 规则描述 | "XX 是什么">'
 user-invocable: true
