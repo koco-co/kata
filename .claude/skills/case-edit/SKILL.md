@@ -1,7 +1,7 @@
 ---
 name: case-edit
-description: 编辑、同步、标准化或在 Archive MD / XMind / CSV 间转换既有 QA 用例产物——语义不变是底线。给出已有用例产物路径时用。
-when_to_use: 给出 XMind/CSV/Archive MD 用例路径，或要求修改/同步/归档/格式转换已有用例时用。依 PRD 产新用例 → case-draft；基于用例做自动化 → playwright-automation。
+description: 编辑、同步、标准化或在 Archive MD / XMind / CSV 间转换既有 QA 用例产物——语义不变是底线。给出用例产物文件（.xmind/.csv/archive.md）路径时用。
+when_to_use: 给出 XMind/CSV/Archive MD 用例产物文件路径，或要求修改/同步/归档/格式转换已有用例时用。依 PRD 产新用例 → case-draft；只给需求目录路径/目录名 → playwright-automation。
 argument-hint: "<用例产物文件路径 .xmind/.csv/archive.md>"
 user-invocable: true
 model: sonnet
