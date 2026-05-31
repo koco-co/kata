@@ -1,121 +1,180 @@
-# Playwright CLI 速查
+# Playwright 原生 API 速查
 
-本文件是 Phase 1 删 playwright-cli 后保留的 CLI 速查；完整 playwright SDK 文档见 https://playwright.dev/docs/api/class-page。
-本文件仅覆盖 playwright-automation 在生成、修复、自检自动化时常用的 4 个 CLI 子主题；CLI 安装与高级用法回看 https://playwright.dev/docs/intro。
+kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**不使用也不依赖 `playwright-cli` 交互式二进制**（仓库未安装该包）。
 
-## Base commands
+完整 Playwright API 见 https://playwright.dev/docs/api/class-page。
 
-最常用的浏览器驱动命令；ref（如 `e5`）来自 `snapshot` 输出，可与 css/role/testid locator 并用。
+---
 
-```bash
-# 会话生命周期
-playwright-cli open                       # 打开默认浏览器
-playwright-cli open https://example.com   # 打开并跳转
-playwright-cli goto https://example.com   # 已打开的会话内跳转
-playwright-cli snapshot                   # 取页面快照（带 ref）
-playwright-cli close                      # 关闭浏览器
+## 探测上下文与证据采集（§4 ui-probe 用）
 
-# 元素交互
-playwright-cli click e15
-playwright-cli fill e5 "user@example.com" --submit
-playwright-cli select e9 "option-value"
-playwright-cli check e12 / uncheck e12
+```javascript
+// 带 storageState 创建上下文（来自 env profile 的 auth.session_path）
+const context = await browser.newContext({ storageState: env.session_path });
+const page = await context.newPage();
+await page.goto(targetUrl);
+await page.waitForLoadState('networkidle');
 
-# 键盘 / 鼠标
-playwright-cli press Enter
-playwright-cli press ArrowDown
-playwright-cli mousemove 150 300
+// API 证据采集——被动监听，不拦截
+const apiCalls = [];
+page.on('response', async (res) => {
+  if (/\/dassets\//.test(res.url()))
+    apiCalls.push({ url: res.url().replace(baseUrl, ''), status: res.status() });
+});
 
-# 截图与导出
-playwright-cli screenshot --filename=page.png
-playwright-cli pdf --filename=page.pdf
+// 控制台错误与失败请求诊断（§9 repair-loop 也适用）
+const consoleErrors = [];
+page.on('console', msg => {
+  if (msg.type() === 'error') consoleErrors.push(msg.text());
+});
+page.on('requestfailed', req => {
+  consoleErrors.push(`FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText}`);
+});
+
+// Dialog 防卡——原生 dialog 会阻塞所有后续操作
+page.on('dialog', dialog => dialog.dismiss());
+
+// DOM 证据采集
+const headers = await page.locator('.ant-table-thead th')
+  .evaluateAll(els => els.map(e => e.textContent?.trim()));
+const buttons  = await page.locator('button')
+  .evaluateAll(els => els.map(e => e.textContent?.trim()));
 ```
 
-`--raw` 全局选项仅返回结果值，便于 pipe 到 jq/diff；`--json` 把每条回复包成 JSON。
-locator 可写 `"#main > button"`、`"getByRole('button', { name: 'Submit' })"`、`"getByTestId('submit-button')"`。
+---
 
-## Running custom code (page.evaluate)
+## 元素属性检视（§4 ui-probe 用）
 
-需要执行 CLI 子命令未覆盖的 Playwright API 时，用 `run-code`：
+snapshot 未暴露 `id`/`class`/`data-*`/计算样式时，用 `evaluate` 直接读 DOM：
 
-```bash
-playwright-cli run-code "async page => { /* 任意 Playwright code */ }"
-playwright-cli run-code --filename=./script.js
+```javascript
+// data-testid（选 locator 锚点首选）
+const testId = await page.locator('[aria-label="提交"]')
+  .evaluate(el => el.getAttribute('data-testid'));
+
+// id、class、aria-label
+const id    = await page.locator('.target').evaluate(el => el.id);
+const cls   = await page.locator('.target').evaluate(el => el.className);
+const label = await page.locator('button').first()
+  .evaluate(el => el.getAttribute('aria-label'));
+
+// 计算样式（确认元素是否实际渲染可见）
+const display = await page.locator('.panel')
+  .evaluate(el => getComputedStyle(el).display);
+
+// 批量取所有匹配元素的某属性
+const testIds = await page.locator('[data-testid]')
+  .evaluateAll(els => els.map(e => e.getAttribute('data-testid')));
 ```
 
-约束：必须是单个函数表达式；内部不支持 `import/export/require`；返回值会原样回写。
+**锚点优先级**：`data-testid` > `aria-label` > `getByRole` > CSS class（避免动态 hash class）。
 
-常用场景速查：
+---
 
-```bash
-# 授权与定位
-playwright-cli run-code "async page => {
-  await page.context().grantPermissions(['geolocation']);
-  await page.context().setGeolocation({ latitude: 31.23, longitude: 121.47 });
-}"
+## Locator 与强断言（§6 playwright-generate 用）
 
-# 等待策略
-playwright-cli run-code "async page => {
-  await page.waitForLoadState('networkidle');
-  await page.waitForFunction(() => window.appReady === true);
-}"
+```typescript
+// 优先语义 locator（比 CSS 稳定）
+page.getByRole('button', { name: '提交' })
+page.getByTestId('submit-button')
+page.getByLabel('用户名')
+page.locator('[data-testid="rule-name"]')
 
-# iframe / 下载 / 剪贴板
-playwright-cli run-code "async page => {
-  const frame = page.locator('iframe#my-iframe').contentFrame();
-  await frame.locator('button').click();
-}"
+// 在 ui-probe 阶段捕获期望值（用于写断言）
+const text  = await page.locator('[data-testid="status"]').textContent();   // → toHaveText
+const value = await page.locator('input[name="ruleCode"]').inputValue();    // → toHaveValue
+
+// 断言优先级：从强到弱，尽量用最强匹配
+await expect(page.getByRole('table')).toMatchAriaSnapshot(`
+  - rowgroup:
+    - row "规则名称 状态 操作"
+`);
+await expect(page.locator('[data-testid="rule-status"]')).toHaveText('启用');
+await expect(page.locator('input[name="ruleCode"]')).toHaveValue('DQ_001');
+await expect(page.locator('[data-testid="checkbox"]')).toBeChecked();
+await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅兜底
 ```
 
-## Tracing
+`toMatchAriaSnapshot` 要点：只写断言所需的关键节点，不要求全量 snapshot；不稳定值（ID、时间戳）用正则（`/ \d+ 条记录/`）；文本断言时 locator 不应包含被断言文本本身（优先 `getByTestId`/`getByLabel` + `toHaveText`）。
 
-捕捉详细执行轨迹，调试失败步骤、性能或留存证据：
+---
 
-```bash
-playwright-cli tracing-start
-# … 一系列动作 …
-playwright-cli tracing-stop
+## 请求 mock（page.route）
+
+> ⚠️ **kata 护栏**：仅用于探测边界态、隔离不稳定的第三方/非被测依赖、构造前置数据态。
+> **禁止 mock 被测业务接口的返回来让断言通过**——等于 surface 假通过，违反 §6 覆盖忠实度与 quality-gate。
+
+```javascript
+// 静态 stub（屏蔽外部图片/资源）
+await page.route('**/*.{png,jpg,svg}', route => route.fulfill({ status: 404 }));
+
+// 条件响应（按请求体分流）
+await page.route('**/api/login', route => {
+  const body = route.request().postDataJSON();
+  route.fulfill(body.username === 'admin'
+    ? { body: JSON.stringify({ token: 'mock-token' }) }
+    : { status: 401, body: JSON.stringify({ error: 'Invalid' }) });
+});
+
+// 改写真实响应（保留真实调用，仅修改部分字段）
+await page.route('**/api/user', async route => {
+  const response = await route.fetch();
+  const json = await response.json();
+  await route.fulfill({ response, json: { ...json, isPremium: true } });
+});
+
+// 注入失败态（探测错误处理路径）
+// abort reason: connectionrefused | timedout | connectionreset | internetdisconnected
+await page.route('**/api/slow-resource', route => route.abort('internetdisconnected'));
+
+// 延时模拟（探测加载状态 UI）
+await page.route('**/api/heavy', async route => {
+  await new Promise(r => setTimeout(r, 3000));
+  await route.fulfill({ body: JSON.stringify({ data: [] }) });
+});
+
+// 清理（测试结束或不再需要时）
+await page.unroute('**/api/login');
+await page.unrouteAll();
 ```
 
-输出会写入 `traces/` 目录：
-- `trace-{ts}.trace`：动作日志、DOM snapshot、截图、控制台与时间线
-- `trace-{ts}.network`：完整请求/响应、headers、body、TTFB 等时序
-- `resources/`：缓存的图片/字体/样式/脚本，用于重放
+URL pattern 速查：`**/api/users`（精确路径）、`**/api/*/details`（通配段）、`**/*.{png,jpg}`（扩展名）、`**/search?q=*`（含参数）。
 
-最佳实践：
-- 在出问题之前就 start，覆盖完整流程
-- 用 `find .playwright-cli/traces -mtime +7 -delete` 清理历史 trace 控制磁盘
-- 录制本身有 IO 开销，不要长时间挂着
+---
 
-trace 适合调试 + 分析；video 适合演示与回放；screenshot 适合即时取证。
+## Tracing 与 Video（context 选项形式）
 
-## Video recording
+```javascript
+// Tracing：context 层面控制，覆盖完整执行流程
+await context.tracing.start({ screenshots: true, snapshots: true });
+// … 操作 …
+await context.tracing.stop({ path: `results/${runId}/playwright/trace.zip` });
 
-把会话录制成 WebM（VP8/VP9），用于复盘、文档或 hand-off 证据：
+// 或在 playwright.config.ts 全局开启（推荐 CI）
+// use: { trace: 'on-first-retry' }
 
-```bash
-playwright-cli open
-playwright-cli video-start recordings/login-flow.webm
-playwright-cli video-chapter "Step 1" --description="Open homepage" --duration=2000
-playwright-cli goto https://example.com
-playwright-cli click e1
-playwright-cli video-chapter "Step 2" --description="Fill form" --duration=2000
-playwright-cli fill e2 "test input"
-playwright-cli video-stop
+// Video：录制回放证据，context.close() 时自动落盘
+const context = await browser.newContext({
+  storageState: env.session_path,
+  recordVideo: { dir: `results/${runId}/playwright/videos/`, size: { width: 1280, height: 800 } },
+});
 ```
 
-需要细粒度叙事时，用 `run-code` 调用 `page.screencast.*` 一气呵成：
+**取舍**：trace 调试失败步骤（含 DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证（`page.screenshot({ path: '...', fullPage: true })`）。
 
-```js
-async page => {
-  await page.screencast.start({ path: 'video.webm', size: { width: 1280, height: 800 } });
-  await page.screencast.showChapter('Adding Todo', { description: '展示新增', duration: 2000 });
-  await page.getByRole('textbox', { name: 'What needs to be done?' })
-    .pressSequentially('Walk the dog', { delay: 60 });
-  await page.getByRole('textbox', { name: 'What needs to be done?' }).press('Enter');
-  await page.screencast.stop();
-}
+---
+
+## 用户视觉确认（代替 show --annotate）
+
+原生 Playwright 无交互式标注等价物。证据不足时的替代方案：
+
+```typescript
+// 截图后通过 AskUserQuestion 让用户描述目标入口
+await page.screenshot({ path: `results/${runId}/playwright/ui-probe/page-current.png`, fullPage: true });
+// → AskUserQuestion：「截图已保存，请描述目标操作入口的文字/位置」
+
+// 对疑似区域截图（缩小范围后）
+await page.locator('[data-testid="toolbar"]').screenshot({ path: '...' });
 ```
 
-`page.screencast.showOverlay(html, { duration? })` 可叠加自定义 HTML（`pointer-events: none`，不挡点击）；返回值含 `dispose()` 用于手动撤销。
-录制带轻量开销；输出体积明显大于 trace，留意磁盘占用。
+**原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不要多轮文字追问。
