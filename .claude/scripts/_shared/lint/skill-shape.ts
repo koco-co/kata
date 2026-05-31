@@ -3,8 +3,17 @@ import { basename, join } from "node:path";
 import type { SkillReport, SkillViolation } from "./types.ts";
 
 const ALLOWED_TOP_LEVEL_FILES = new Set(["SKILL.md"]);
-const ALLOWED_TOP_LEVEL_DIRS = new Set(["references"]);
-const SKILL_MD_LINE_LIMIT = 140;
+// 与 skill-structure.ts 认可的目录保持一致
+const ALLOWED_TOP_LEVEL_DIRS = new Set([
+  "phases",
+  "prompts",
+  "references",
+  "fewshots",
+  "rules",
+  "scripts",
+  "templates",
+]);
+const SKILL_MD_LINE_LIMIT = 100;
 const REFERENCE_NON_MD_EXCEPTIONS: Record<string, Set<string>> = {};
 
 export function lintSkillShape(skillDir: string, opts: Record<string, unknown> = {}): SkillReport {
@@ -39,7 +48,7 @@ export function lintSkillShape(skillDir: string, opts: Record<string, unknown> =
           rule: "S5",
           skillDir,
           path: full,
-          message: `forbidden subdir '${entry.name}'; only 'references/' allowed`,
+          message: `forbidden subdir '${entry.name}'; allowed: phases/prompts/references/fewshots/rules/scripts/templates`,
         });
       } else if (entry.name === "references") {
         // S7: non-.md files in references/
@@ -65,7 +74,7 @@ export function lintSkillShape(skillDir: string, opts: Record<string, unknown> =
           rule: "S6",
           skillDir,
           path: full,
-          message: `forbidden top-level file '${entry.name}'; only SKILL.md and references/ are allowed`,
+          message: `forbidden top-level file '${entry.name}'; only SKILL.md allowed at top level`,
         });
       }
     }

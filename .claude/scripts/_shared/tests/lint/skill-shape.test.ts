@@ -24,3 +24,8 @@ test("S4: SKILL.md > line limit flagged", () => {
   const r = lintSkillShape(join(FX, "skill-bad/skill-oversized-skill-md"));
   expect(r.violations.some((v) => v.rule === "S4")).toBe(true);
 });
+
+test("S5: scripts/ subdir allowed (no violation)", () => {
+  const r = lintSkillShape(join(FX, "skill-good/skill-good-with-scripts"));
+  expect(r.violations.some((v) => v.rule === "S5" && v.path?.endsWith("scripts"))).toBe(false);
+});
