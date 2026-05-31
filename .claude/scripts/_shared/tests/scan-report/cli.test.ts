@@ -56,7 +56,7 @@ describe("scan-report CLI — create", () => {
       .nothrow();
     expect(r.exitCode).toBe(0);
 
-    const auditRoot = join(WS, PROJECT, "audits");
+    const auditRoot = join(WS, PROJECT, "_shared", "archive", "audits");
     const dirs = readdirSync(auditRoot);
     expect(dirs.length).toBe(1);
     const dir = join(auditRoot, dirs[0]);
@@ -287,7 +287,7 @@ describe("scan-report CLI — render & auto-render", () => {
       .quiet()
       .nothrow();
     const { slug, yyyymm } = JSON.parse(r1.stdout.toString());
-    const html = join(WS, PROJECT, "audits", `${yyyymm}-${slug}`, "report.html");
+    const html = join(WS, PROJECT, "_shared", "archive", "audits", `${yyyymm}-${slug}`, "report.html");
     expect(existsSync(html)).toBe(true);
     const empty = readFileSync(html, "utf8");
     expect(empty).toContain("静态扫描报告");
@@ -328,7 +328,7 @@ describe("scan-report CLI — render & auto-render", () => {
       .quiet()
       .nothrow();
     const { slug, yyyymm } = JSON.parse(r1.stdout.toString());
-    const html = join(WS, PROJECT, "audits", `${yyyymm}-${slug}`, "report.html");
+    const html = join(WS, PROJECT, "_shared", "archive", "audits", `${yyyymm}-${slug}`, "report.html");
     const before = readFileSync(html, "utf8");
 
     const f = join(WS, "bug.json");

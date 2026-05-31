@@ -72,26 +72,26 @@ export function projectShared(
 
 /**
  * Non-PRD-derived bucket for ad-hoc bug reports / console errors.
- * workspace/{project}/incidents/{yyyymmdd}-{slug}/.
+ * workspace/{project}/_shared/archive/issues/{yyyymmdd}-{slug}/.
  */
 export function incidentDir(project: string, yyyymmdd: string, slug: string): string {
-  return join(projectDir(project), "incidents", `${yyyymmdd}-${slug}`);
+  return join(projectDir(project), "_shared", "archive", "issues", `${yyyymmdd}-${slug}`);
 }
 
 /**
  * Periodic regression / smoke test batches.
- * workspace/{project}/regressions/{yyyymmdd}-{batch}/.
+ * workspace/{project}/_shared/archive/regressions/{yyyymmdd}-{batch}/.
  */
 export function regressionDir(project: string, yyyymmdd: string, batch: string): string {
-  return join(projectDir(project), "regressions", `${yyyymmdd}-${batch}`);
+  return join(projectDir(project), "_shared", "archive", "regressions", `${yyyymmdd}-${batch}`);
 }
 
 /**
  * Static scan audit bucket. Diff-based scan reports for a given branch pair.
- * workspace/{project}/audits/{yyyymm}-{slug}/.
+ * workspace/{project}/_shared/archive/audits/{yyyymm}-{slug}/.
  */
 export function auditDir(project: string, yyyymm: string, slug: string): string {
-  return join(projectDir(project), "audits", `${yyyymm}-${slug}`);
+  return join(projectDir(project), "_shared", "archive", "audits", `${yyyymm}-${slug}`);
 }
 
 export function auditFile(
@@ -104,7 +104,7 @@ export function auditFile(
 }
 
 export function xmindDir(project: string): string {
-  return join(projectDir(project), "xmind");
+  return join(projectDir(project), "_shared", "archive", "xmind");
 }
 
 export function xmindPath(project: string, ...segments: string[]): string {
@@ -112,11 +112,11 @@ export function xmindPath(project: string, ...segments: string[]): string {
 }
 
 export function archiveDir(project: string): string {
-  return join(projectDir(project), "archive");
+  return join(projectDir(project), "_shared", "archive");
 }
 
 export function prdsDir(project: string): string {
-  return join(projectDir(project), "prds");
+  return join(projectDir(project), "_shared", "archive", "history", "prds");
 }
 
 let warnedEnhancedMd = false;
@@ -180,7 +180,7 @@ export function originalPrdMd(project: string, yyyymm: string, slug: string): st
 }
 
 export function issuesDir(project: string): string {
-  return join(projectDir(project), "issues");
+  return join(projectDir(project), "_shared", "archive", "issues");
 }
 
 export function reportsDir(project: string): string {

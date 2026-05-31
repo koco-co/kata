@@ -67,8 +67,8 @@ function makeBug(id = "b-001"): Bug {
 describe("scan-report-store", () => {
   test("initAudit creates audit dir + meta.json + empty report.json", () => {
     initAudit("p1", "202604", "slug-a", makeMeta());
-    expect(existsSync(join(WS, "p1", "audits", "202604-slug-a", "meta.json"))).toBe(true);
-    expect(existsSync(join(WS, "p1", "audits", "202604-slug-a", "report.json"))).toBe(true);
+    expect(existsSync(join(WS, "p1", "_shared", "archive", "audits", "202604-slug-a", "meta.json"))).toBe(true);
+    expect(existsSync(join(WS, "p1", "_shared", "archive", "audits", "202604-slug-a", "report.json"))).toBe(true);
     const r = readReport("p1", "202604", "slug-a");
     expect(r.bugs).toEqual([]);
   });

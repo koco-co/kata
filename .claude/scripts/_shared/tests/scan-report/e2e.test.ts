@@ -119,7 +119,7 @@ describe("defect-analyze diff-mode E2E orchestration (mock agent output)", () =>
       .nothrow();
     expect(r4.exitCode).toBe(0);
 
-    const htmlPath = join(WS, PROJECT, "audits", `${yyyymm}-${slug}`, "report.html");
+    const htmlPath = join(WS, PROJECT, "_shared", "archive", "audits", `${yyyymm}-${slug}`, "report.html");
     const html = readFileSync(htmlPath, "utf8");
     expect(html).toContain("Tag bulk delete reference check missing");
     expect(html).not.toContain("Bug with bad confidence");
