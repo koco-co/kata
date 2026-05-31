@@ -29,6 +29,8 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 
 按以下顺序逐项采集，每项注明 SourceRef：
 
+> 辅助工具（见 `references/cli-essentials.md`）：snapshot 未暴露的 id/class/data-* 属性用 `locator.evaluate(el => el.getAttribute(...))` 取；用 `page.on('console')` / `page.on('requestfailed')` 同步收集 JS 错误与失败请求作为诊断证据；注册 `page.on('dialog', d => d.dismiss())` 防原生 dialog 卡死探测流程；证据不足时截图后 AskUserQuestion 一次性确认，不靠多轮文字追问。探测边界态可临时 `page.route` stub **非被测**依赖，禁止改被测业务接口返回或改页面数据。
+
 | 证据类型 | 采集方法 | 用途 |
 |----------|----------|------|
 | **URL 和标题** | `page.url()` + `page.title()` | 确认路由正确 |
