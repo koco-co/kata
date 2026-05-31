@@ -1,7 +1,6 @@
 ---
 name: case-edit
-description: 拿到既有用例产物文件(.xmind/.csv/archive.md)路径，要编辑、同步、标准化或在 Archive·XMind·CSV 间转换时用；语义不变是底线。
-when_to_use: 给出 XMind/CSV/Archive MD 用例产物文件路径，或要求修改/同步/归档/格式转换已有用例时用。依 PRD 产新用例 → case-draft；只给需求目录路径/目录名 → playwright-automation。
+description: 拿到既有用例产物文件(.xmind/.csv/archive.md)路径，编辑、同步、归档、标准化或在 Archive·XMind·CSV 间转换，语义不变是底线。依 PRD/需求源产新用例改用 case-draft；只给需求功能目录路径/目录名改用 playwright-automation。
 argument-hint: "<用例产物文件路径 .xmind/.csv/archive.md>"
 user-invocable: true
 model: sonnet
@@ -14,8 +13,10 @@ effort: medium
 
 ## 路由边界
 
-- 触发：对已有用例做修改/编辑/同步/标准化/归档/格式转换；给出 XMind、CSV 或 Archive MD 路径。
-- 改走：依 PRD/需求源产新用例 → case-draft；基于用例创建或运行 Playwright → playwright-automation。
+description 已覆盖触发场景；此处只说明改走目标：
+
+- 依 PRD/需求源产新用例 → case-draft。
+- 基于用例创建或运行 Playwright，或只给需求功能目录路径/目录名 → playwright-automation。
 
 ## 工作流
 
@@ -30,11 +31,11 @@ effort: medium
 | references/archive-xmind-sync.md          | 跨 Archive/XMind/CSV 编辑或导出前 | 字段保真、自审清单、同步契约             |
 | references/apply-corrections.md           | 仅 `apply-corrections` 子命令     | 加载 corrections → dry-run → 回写 → 同步 |
 | references/fewshots/case-format-sample.md | 需要用例节点格式参照时            | 格式样例（含 DQ 子集），不作事实来源     |
-| .claude/prompt/\_shared/case-qa.md        | 交付前自审                        | Archive/XMind 字段一致性与可执行性维度   |
+| .claude/prompt/_shared/case-qa.md         | 交付前自审（共享引用）            | Archive/XMind 字段一致性与可执行性维度   |
 
 ## 硬规则（不变量）
 
-- 原有语义完整保留；缺失的前置条件/步骤/预期不得凭空补造，取不到证据时标「待确认」。
+- 原有语义完整保留；缺失的前置条件/步骤/预期不得凭空补造，取不到证据时标「待确认」——case-edit 只搬运/转换语义，不创造新事实。
 - 表单字段、按钮、Tab、下拉选项、枚举值逐字匹配证据原文——「sql」不归一成「SQL」、「字段」不写成「字段级」、不用动作泛称替代按钮全称（QA 要照文案逐字核对）。
 - 用户指定或历史标题里的业务括号（如「验证【规则名】…」）原样保留，不按通用标题规则移除。
 - 交付前自审 Archive 与 XMind 的数量、优先级、标题、前置条件、步骤、预期一致；细则见 `references/archive-xmind-sync.md`，不把缺陷留给用户人工发现。

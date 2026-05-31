@@ -1,7 +1,6 @@
 ---
 name: workspace-manage
-description: 问 kata 能做什么/要看功能菜单命令帮助，或要创建、初始化、自检、收尾、修复项目工作区时用。
-when_to_use: 触发短语如「kata 能干嘛」「功能菜单」「初始化工作区」「自检/收尾工作区」。仅生成或编辑用例走 case-*；维护业务知识走 knowledge-curate。
+description: 回答 kata 能力/功能菜单/命令帮助类提问，或创建、初始化、自检、收尾、修复项目工作区。触发短语如「kata 能干嘛」「功能菜单」「初始化工作区」「自检/收尾工作区」。仅生成或编辑用例改走 case-*；维护业务知识改走 knowledge-curate；UI 自动化改走 playwright-automation。
 argument-hint: "<功能菜单 | init | 自检 | 收尾 | 修复>"
 user-invocable: true
 model: sonnet
@@ -14,8 +13,11 @@ effort: medium
 
 ## 路由边界
 
-- 触发：询问 kata 能力/功能菜单/命令帮助；创建、初始化、自检、收尾或修复工作区。
-- 改走：生成或编辑 QA 用例 → case-draft / case-edit；维护业务知识 → knowledge-curate；UI 自动化 → playwright-automation。
+description 已覆盖触发场景；此处只说明改走目标：
+
+- 生成或编辑 QA 用例 → case-draft / case-edit。
+- 维护业务知识 → knowledge-curate。
+- UI 自动化 → playwright-automation。
 
 ## 工作流
 
