@@ -122,7 +122,7 @@ function resolveKnowledge(anchor: string, ctx: ResolveContext): ResolveResult {
   if (!ALLOWED.has(type)) {
     return { ok: false, reason: `knowledge 锚点 type 非法: ${type}` };
   }
-  const kdir = join(ctx.workspaceDir, ctx.projectName, "knowledge");
+  const kdir = join(ctx.workspaceDir, ctx.projectName, "_shared", "knowledge");
   if (!existsSync(kdir)) {
     return { ok: false, reason: `knowledge 目录不存在: ${kdir}` };
   }

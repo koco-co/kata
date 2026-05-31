@@ -10,7 +10,7 @@
  *
  * Usage:
  *   kata report-to-pdf <path-to-html-or-json>
- *   kata report-to-pdf workspace/reports/playwright/202604/xxx/xxx.html
+ *   kata report-to-pdf workspace/{project}/_shared/published-reports/202604/playwright/xxx/xxx.html
  *
  * Output: PDF file alongside the source file (same name, .pdf extension).
  */

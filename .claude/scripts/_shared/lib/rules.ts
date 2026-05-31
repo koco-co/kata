@@ -8,7 +8,7 @@ export interface XmindRules {
 }
 
 // 中性默认值。如需带产品名前缀（如「数据资产v6.4.10迭代用例(#23)」），
-// 在项目级 `workspace/{project}/rules/xmind-structure.md` 中 override
+// 在项目级 `workspace/{project}/_shared/rules/xmind-structure.md` 中 override
 // `root_title_template` 与 `iteration_id` 即可。模板支持 {{project_name}}、{{prd_version}}、{{iteration_id}} 三个占位符。
 const DEFAULTS: XmindRules = {
   root_title_template: "{{project_name}}v{{prd_version}}迭代用例(#{{iteration_id}})",

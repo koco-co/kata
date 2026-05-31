@@ -75,10 +75,10 @@ describe("create-project create --dry-run", () => {
       "history",
       "reports",
       "tests",
-      "rules",
-      "knowledge",
-      "knowledge/modules",
-      "knowledge/pitfalls",
+      "_shared/rules",
+      "_shared/knowledge",
+      "_shared/knowledge/modules",
+      "_shared/knowledge/pitfalls",
       ".kata/repos",
       ".kata/auth",
     ])
@@ -89,13 +89,13 @@ describe("create-project create --dry-run", () => {
       "history",
       "reports",
       "tests",
-      "knowledge/modules",
-      "knowledge/pitfalls",
+      "_shared/knowledge/modules",
+      "_shared/knowledge/pitfalls",
     ])
       writeFileSync(join(projDir, g, ".gitkeep"), "");
-    writeFileSync(join(projDir, "rules", "README.md"), "# complete");
-    writeFileSync(join(projDir, "knowledge", "overview.md"), "# complete");
-    writeFileSync(join(projDir, "knowledge", "terms.md"), "# complete");
+    writeFileSync(join(projDir, "_shared", "rules", "README.md"), "# complete");
+    writeFileSync(join(projDir, "_shared", "knowledge", "overview.md"), "# complete");
+    writeFileSync(join(projDir, "_shared", "knowledge", "terms.md"), "# complete");
     writeFileSync(
       CONFIG_PATH,
       JSON.stringify({ projects: { complete: { repo_profiles: {} } } }, null, 2),
@@ -158,10 +158,10 @@ describe("create-project scan", () => {
       "history",
       "reports",
       "tests",
-      "rules",
-      "knowledge",
-      "knowledge/modules",
-      "knowledge/pitfalls",
+      "_shared/rules",
+      "_shared/knowledge",
+      "_shared/knowledge/modules",
+      "_shared/knowledge/pitfalls",
       ".kata/repos",
       ".kata/auth",
     ];
@@ -172,13 +172,13 @@ describe("create-project scan", () => {
       "history",
       "reports",
       "tests",
-      "knowledge/modules",
-      "knowledge/pitfalls",
+      "_shared/knowledge/modules",
+      "_shared/knowledge/pitfalls",
     ];
     for (const g of gks) writeFileSync(join(projDir, g, ".gitkeep"), "");
-    writeFileSync(join(projDir, "rules", "README.md"), "# fullProj rules");
-    writeFileSync(join(projDir, "knowledge", "overview.md"), "# fullProj overview");
-    writeFileSync(join(projDir, "knowledge", "terms.md"), "# fullProj terms");
+    writeFileSync(join(projDir, "_shared", "rules", "README.md"), "# fullProj rules");
+    writeFileSync(join(projDir, "_shared", "knowledge", "overview.md"), "# fullProj overview");
+    writeFileSync(join(projDir, "_shared", "knowledge", "terms.md"), "# fullProj terms");
 
     void tplRoot;
 
@@ -205,7 +205,7 @@ describe("create-project create --confirmed", () => {
     expect(data.project).toBe("fresh");
     expect(data.registered_config).toBe(true);
     expect(data.index_generated).toBe(true);
-    expect(data.index_path.endsWith("knowledge/_index.md")).toBeTruthy();
+    expect(data.index_path.endsWith("_shared/knowledge/_index.md")).toBeTruthy();
 
     const projDir = join(TEST_WORKSPACE_ROOT, "fresh");
     for (const d of [
@@ -214,10 +214,10 @@ describe("create-project create --confirmed", () => {
       "history",
       "reports",
       "tests",
-      "rules",
-      "knowledge",
-      "knowledge/modules",
-      "knowledge/pitfalls",
+      "_shared/rules",
+      "_shared/knowledge",
+      "_shared/knowledge/modules",
+      "_shared/knowledge/pitfalls",
       ".kata/repos",
       ".kata/auth",
     ]) {
@@ -227,13 +227,13 @@ describe("create-project create --confirmed", () => {
     expect(existsSync(join(projDir, "prds"))).toBe(false);
     expect(existsSync(join(projDir, "archive"))).toBe(false);
     expect(existsSync(join(projDir, "xmind"))).toBe(false);
-    expect(existsSync(join(projDir, "knowledge", "modules"))).toBeTruthy();
-    const rulesReadme = readFileSync(join(projDir, "rules", "README.md"), "utf8");
+    expect(existsSync(join(projDir, "_shared", "knowledge", "modules"))).toBeTruthy();
+    const rulesReadme = readFileSync(join(projDir, "_shared", "rules", "README.md"), "utf8");
     expect(rulesReadme).toMatch(/# fresh 项目级规则/);
-    const overview = readFileSync(join(projDir, "knowledge", "overview.md"), "utf8");
+    const overview = readFileSync(join(projDir, "_shared", "knowledge", "overview.md"), "utf8");
     expect(overview).toMatch(/# fresh 业务概览/);
-    expect(existsSync(join(projDir, "knowledge"))).toBeTruthy();
-    const indexContent = readFileSync(join(projDir, "knowledge", "_index.md"), "utf8");
+    expect(existsSync(join(projDir, "_shared", "knowledge"))).toBeTruthy();
+    const indexContent = readFileSync(join(projDir, "_shared", "knowledge", "_index.md"), "utf8");
     expect(indexContent).toMatch(/last-indexed/);
     const cfg = JSON.parse(readFileSync(CONFIG_PATH, "utf8"));
     expect(cfg.projects.fresh).toEqual({ repo_profiles: {} });
@@ -241,7 +241,7 @@ describe("create-project create --confirmed", () => {
 
   it("is idempotent: second run returns skipped=true and does not touch disk", () => {
     runCp(["create", "--project", "again", "--confirmed"]);
-    const overviewPath = join(TEST_WORKSPACE_ROOT, "again", "knowledge", "overview.md");
+    const overviewPath = join(TEST_WORKSPACE_ROOT, "again", "_shared", "knowledge", "overview.md");
     const before = readFileSync(overviewPath, "utf8");
 
     const { stdout, code } = runCp(["create", "--project", "again", "--confirmed"]);
@@ -254,14 +254,14 @@ describe("create-project create --confirmed", () => {
 
   it("preserves user-edited files during partial repair", () => {
     runCp(["create", "--project", "partial", "--confirmed"]);
-    const overviewPath = join(TEST_WORKSPACE_ROOT, "partial", "knowledge", "overview.md");
+    const overviewPath = join(TEST_WORKSPACE_ROOT, "partial", "_shared", "knowledge", "overview.md");
     // Write content with a frontmatter block so project knowledge index will not
     // auto-fix it — the test intent is to verify create-project does NOT
     // overwrite existing files, not to freeze the exact byte content.
     const userContent =
       '---\ntitle: user-customised\ntype: overview\ntags: []\nconfidence: high\nsource: ""\nupdated: 2026-04-18\n---\n\n# user-customised content';
     writeFileSync(overviewPath, userContent);
-    rmSync(join(TEST_WORKSPACE_ROOT, "partial", "knowledge", "modules"), {
+    rmSync(join(TEST_WORKSPACE_ROOT, "partial", "_shared", "knowledge", "modules"), {
       recursive: true,
     });
 
@@ -269,7 +269,7 @@ describe("create-project create --confirmed", () => {
     expect(code).toBe(0);
     const data = JSON.parse(stdout);
     expect(Array.isArray(data.created_dirs)).toBeTruthy();
-    expect(data.created_dirs.some((p: string) => p.endsWith("knowledge/modules"))).toBeTruthy();
+    expect(data.created_dirs.some((p: string) => p.endsWith("_shared/knowledge/modules"))).toBeTruthy();
     const content = readFileSync(overviewPath, "utf8");
     // create-project must not have replaced user content with the template
     expect(!content.includes("partial 业务概览")).toBeTruthy();

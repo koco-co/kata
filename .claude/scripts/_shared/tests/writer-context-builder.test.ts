@@ -300,6 +300,7 @@ const FIXTURE_KNOWLEDGE_DIR = join(
   REPO_ROOT_FOR_FIXTURE,
   "workspace",
   FIXTURE_PROJECT,
+  "_shared",
   "knowledge",
 );
 

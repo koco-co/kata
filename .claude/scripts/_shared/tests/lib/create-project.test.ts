@@ -155,7 +155,7 @@ describe("SKELETON_SPEC shape", () => {
   });
 
   it("template_files dst paths are not in gitkeep_dirs' directories of same file", () => {
-    expect(!SKELETON_SPEC.gitkeep_dirs.includes("rules")).toBeTruthy();
+    expect(!SKELETON_SPEC.gitkeep_dirs.includes("_shared/rules")).toBeTruthy();
   });
 });
 
@@ -223,14 +223,14 @@ describe("diffProjectSkeleton", () => {
   });
 
   it("partial project: only missing what's absent", () => {
-    rmSync(join(FULL_PROJ, "knowledge", "modules"), { recursive: true });
+    rmSync(join(FULL_PROJ, "_shared", "knowledge", "modules"), { recursive: true });
     const diff = diffProjectSkeleton(FULL_PROJ, TPL);
     expect(diff.exists).toBe(true);
-    expect(diff.missing_dirs).toEqual(["knowledge/modules"]);
-    expect(diff.missing_gitkeeps).toEqual(["knowledge/modules/.gitkeep"]);
+    expect(diff.missing_dirs).toEqual(["_shared/knowledge/modules"]);
+    expect(diff.missing_gitkeeps).toEqual(["_shared/knowledge/modules/.gitkeep"]);
     expect(diff.skeleton_complete).toBe(false);
-    mkdirSync(join(FULL_PROJ, "knowledge", "modules"), { recursive: true });
-    writeFileSync(join(FULL_PROJ, "knowledge", "modules", ".gitkeep"), "");
+    mkdirSync(join(FULL_PROJ, "_shared", "knowledge", "modules"), { recursive: true });
+    writeFileSync(join(FULL_PROJ, "_shared", "knowledge", "modules", ".gitkeep"), "");
   });
 });
 

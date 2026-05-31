@@ -59,7 +59,7 @@ export function featureFile(
 }
 
 /**
- * Project-level shared resources: workspace/{project}/shared/{kind}/...
+ * Project-level shared resources: workspace/{project}/_shared/{kind}/...
  * kind ∈ {"helpers", "fixtures", "pages"}.
  */
 export function projectShared(
@@ -67,7 +67,7 @@ export function projectShared(
   kind: "helpers" | "fixtures" | "pages",
   ...segments: string[]
 ): string {
-  return join(projectDir(project), "shared", kind, ...segments);
+  return join(projectDir(project), "_shared", kind, ...segments);
 }
 
 /**
@@ -224,11 +224,11 @@ export function probeCachePath(project: string, prdSlug: string): string {
 }
 
 export function projectRulesDir(project: string): string {
-  return join(projectDir(project), "rules");
+  return join(projectDir(project), "_shared", "rules");
 }
 
 export function knowledgeDir(project: string): string {
-  return join(projectDir(project), "knowledge");
+  return join(projectDir(project), "_shared", "knowledge");
 }
 
 export function knowledgePath(project: string, ...segments: string[]): string {

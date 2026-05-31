@@ -8,7 +8,7 @@ import { KATA_CLI } from "./cli-runner";
 const TMP = join(tmpdir(), `kata-project-knowledge-test-${process.pid}`);
 const TEST_WORKSPACE_ROOT = join(TMP, "workspace");
 const PROJECT = "project-knowledge-fixture";
-const PROJECT_KNOWLEDGE = join(TEST_WORKSPACE_ROOT, PROJECT, "knowledge");
+const PROJECT_KNOWLEDGE = join(TEST_WORKSPACE_ROOT, PROJECT, "_shared", "knowledge");
 
 function runProjectKnowledge(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
