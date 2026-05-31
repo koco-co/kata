@@ -2,6 +2,7 @@
 name: infra-diagnose
 description: SSH 登机排查并修复数据源/数据库/服务器连通性故障（如 JDBC No route to host、连接超时或被拒），并沉淀凭据与排查知识。
 when_to_use: 出现数据源或服务器连通性报错、需登机排查时用。纯前端运行时报错且无需登机 → defect-analyze；只查改业务知识 → knowledge-curate。
+argument-hint: "<数据源/服务器报错 | 主机 | JDBC 错误>"
 user-invocable: true
 model: sonnet
 effort: high
