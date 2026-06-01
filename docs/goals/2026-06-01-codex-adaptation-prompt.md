@@ -1,15 +1,3 @@
-# 把 kata 的 8 个 skill 适配到 codex（交给 codex 的提示词）
-
-- 日期：2026-06-01
-- 用法：把下方「提示词正文」整段复制给 codex（一个 codex 窗口 + 一个 worktree 跑完）。
-- 与 `kata-skill-goals.md` 的关系：本文件取代旧 goal 的阶段 4（codex 适配）。旧 goal 的阶段 1-3（`.claude` 去黑话 + 官方规范重写）已完成并 push main；旧 goal 阶段 4 让 codex「从 git 还原 codex 契约门禁代码」的步骤**已失效**——那套契约（`frontmatter-policy.ts` 的 CODEX 白名单、`skill-shape.ts` 的 codex 规则、`--runtime codex`、`lint:skills:codex` / `lint:agents:codex`、`skill-audit.ts`）已随退休提交 `155736def` 删除。本文件改用「codex 原生 skill 机制重建 + 照搬 `.claude` 内容」，范围为适配（阶段 4）+ 适配后 E2E 对账（阶段 5），不做全库审计。
-
----
-
-## 提示词正文
-
-# 把 kata 的 8 个 skill 适配到 codex（单任务，一个 codex 窗口 + 一个 worktree 跑完）
-
 ## 你是谁 / 最高约束
 
 - 你是资深 agent-runtime 工程师 + 提示词工程师。用 `update_plan` 维护可视任务列表，分阶段推进、不跳步、不颠倒顺序。
