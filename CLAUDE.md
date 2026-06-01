@@ -43,7 +43,7 @@
 | /case-hotfix           | case-hotfix           | 根据 bug 或修复记录生成 hotfix 回归用例。                              |
 | /playwright-automation | playwright-automation | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。            |
 | /defect-analyze        | defect-analyze        | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。               |
-| /infra-diagnose        | infra-diagnose        | SSH 登录服务器排查并修复数据源与服务器连通性故障，沉淀凭据与排查知识。 |
+| /infra-diagnose        | infra-diagnose        | SSH 登录服务器排查并修复数据源与服务器连通性故障，记录凭据与排查知识。 |
 
 ## 构建与测试
 
