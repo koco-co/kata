@@ -1,6 +1,6 @@
 ---
 name: infra-diagnose
-description: 出现数据源/数据库/服务器连通性报错(如 JDBC No route to host、连接超时或被拒)，SSH 登机只读排查并修复，并沉淀凭据与排查知识。纯前端运行时报错且无需登机改用 defect-analyze；只查改业务知识改用 knowledge-curate。
+description: 出现数据源/数据库/服务器连通性报错(如 JDBC No route to host、连接超时或被拒)，SSH 登机只读排查并修复，并记录凭据与排查知识。纯前端运行时报错且无需登机改用 defect-analyze；只查改业务知识改用 knowledge-curate。
 argument-hint: "<数据源/服务器报错 | 主机 | JDBC 错误>"
 user-invocable: true
 model: sonnet
@@ -9,7 +9,7 @@ effort: high
 
 # infra-diagnose
 
-收到数据源/服务器故障线索后：先查本地知识库，再 SSH 只读诊断定位根因，破坏性修复前确认，最后把结论沉淀回知识库。
+收到数据源/服务器故障线索后：先查本地知识库，再 SSH 只读诊断定位根因，破坏性修复前确认，最后把结论写回知识库。
 
 ## 路由边界
 
@@ -30,7 +30,7 @@ description 已覆盖触发场景；此处只说明改走目标：
 | --------------------------------- | ---------- | --------------------------------------- |
 | references/diagnostic-playbook.md | 自行排查时 | 按报错类型的分步只读诊断与对症修复      |
 | references/ssh-protocol.md        | 需要登机时 | SSH 连接、凭据读取/补充、破坏性命令门控 |
-| references/knowledge-format.md    | 收尾沉淀时 | 知识条目检索流程与落盘格式              |
+| references/knowledge-format.md    | 收尾记录时 | 知识条目检索流程与落盘格式              |
 
 ## 硬规则（不变量）
 
