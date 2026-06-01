@@ -19,6 +19,10 @@ export interface Violation {
 }
 
 const SLUG_RE = /^\d{4}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// 人类标签命名约定: 【v{版本}】[【lanhu/客户】]【{模块}】{描述}。dataAssets 历史目录用此中文约定,
+// 目录名只是人类路由把手, 机器主键是 manifest.feature_id(slug)。文法须与 FeatureMetadata.v1#id
+// 的 CJK 分支保持一致(见 schemas/FeatureMetadata.v1.schema.json 与 rules/naming-convention.md)。
+const CJK_LABEL_RE = /^【v\d+】(?:【[^【】]+】){1,3}[^【】]+$/;
 
 function loadEnum(sharedRoot: string, file: string): string[] {
   const path = join(sharedRoot, "_meta", file);
@@ -47,11 +51,12 @@ export async function runFeaturesLint(
     const dir = join(featuresDir, name);
     if (name === "INDEX.md" || !existsSync(dir) || !statSync(dir).isDirectory()) continue;
 
-    if (!SLUG_RE.test(name)) {
+    const isCjkLabel = CJK_LABEL_RE.test(name);
+    if (!SLUG_RE.test(name) && !isCjkLabel) {
       violations.push({
         feature: name,
         rule: "dir_name_invalid",
-        message: `Directory name does not match ^\\d{4}-\\d{2}-[a-z0-9-]+$`,
+        message: `Directory name must be a slug (^\\d{4}-\\d{2}-[a-z0-9-]+$) or a 【v…】 human label`,
       });
       continue;
     }
@@ -85,7 +90,8 @@ export async function runFeaturesLint(
       });
     }
 
-    if (meta.id !== name) {
+    // CJK 人类标签目录的机器主键是 manifest.feature_id(slug), 目录名不要求等于 metadata.id。
+    if (!isCjkLabel && meta.id !== name) {
       violations.push({
         feature: name,
         rule: "id_dir_mismatch",
@@ -130,7 +136,7 @@ export async function runFeaturesLint(
           message: JSON.stringify(manifestValidator.errors),
         });
       } else {
-        if (manifest.feature_id !== name) {
+        if (!isCjkLabel && manifest.feature_id !== name) {
           violations.push({
             feature: name,
             rule: "manifest_id_mismatch",

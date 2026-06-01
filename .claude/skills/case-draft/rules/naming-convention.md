@@ -22,3 +22,9 @@
 - `【v647】【数据质量】规则任务支持编辑分区信息`
 - `【v647】【12801】【岚图汽车】【数据质量】Spark任务调参`
 - `【v647】【岚图汽车】【数据质量】主流程用例整理`（草稿占位，无 lanhu-prd-id）
+
+## 目录名与机器主键的关系
+
+- 目录名是**人类可读标签**：可用上述中文约定，也可用引擎产出的 slug（`{yyyymm}-{slug}`，如 `2026-04-dq-json-config`）。`kata cases lint` 两种都接受。
+- 机器主键是 `manifest.json` 的 `feature_id`（始终为 slug），被 `INDEX.md` 与跨 feature 引用。中文目录的 `feature_id` 仍是 slug，目录名不要求等于它。
+- 因此对中文目录，lint 不强制 `目录名 == metadata.id` 或 `目录名 == feature_id`；但 `feature_id` 必须是合法 slug，schema 与枚举校验照常生效。
