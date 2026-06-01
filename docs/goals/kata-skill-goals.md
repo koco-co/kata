@@ -1,5 +1,7 @@
 # kata Skill 体系优化 Goal（单任务，交给 Codex 一个窗口执行）
 
+> **⚠️ 部分作废（2026-06-01）**：阶段 1-3（`.claude` 去黑话 + 官方 Skill 规范重写）已完成并 push main；阶段 4「让 codex 从 git 还原 codex 契约门禁代码」**已失效**——那套契约（`frontmatter-policy.ts` 的 CODEX 白名单、`skill-shape.ts` 的 codex 规则、`--runtime codex`、`lint:skills:codex` / `lint:agents:codex`、`skill-audit.ts`）已随退休提交 `155736def` 删除，不存在可还原的「仍在代码里的 codex 契约」。codex 适配请改用最新方案：[`2026-06-01-codex-adaptation-prompt.md`](2026-06-01-codex-adaptation-prompt.md)（codex 原生 skill 机制重建 + 照搬 `.claude` 内容，范围为适配 + 适配后 E2E 对账）。本文件其余阶段的执行机制、E2E 驱动、凭据清单仍可参考。
+
 一个任务、一个 Codex 窗口、一个 worktree 跑完全部：
 
 理解并 E2E 真跑现有 8 个 skill（建立行为基线）→ 优化 `.claude/` 全部提示词 → 适配到 codex 体系(`.agents`) →
