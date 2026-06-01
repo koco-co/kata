@@ -6,4 +6,4 @@
 - 不得 mv、不得 rm、不得改 file mode。
 - 仅可 read 与 grep。
 
-该规则由 runtime skill hard rules、项目入口文档和相关 engine 写入策略共同强制。
+Claude Code 内的 Edit/Write/Bash 由 `pre-edit-guard`/`pre-bash-guard` 自动拦截（见 INSTALL.md）；命令行直接操作不经 hook，仍须遵守本规则。
