@@ -30,7 +30,7 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 
 | category | 触发证据 | 典型问题描述 |
 |---|---|---|
-| `ui_text_drift` | live UI 文案与 archive 描述不一致 | 菜单名/按钮名/字段名漂移 |
+| `ui_text_drift` | live UI 文案与 archive 描述不一致 | 菜单名/按钮名/字段名变了 |
 | `business_rule` | run-triage 明确归类为 archive 描述错；或 probe 显示行为差异 | 前置条件错、步骤顺序错、预期错 |
 | `ambiguous_step` | ui-probe 反复无法定位 | "配置好规则后..." 这类无法落地为操作的描述 |
 | `dependency_missing` | probe 显式跳转到前置页或提示缺资源 | 用例未声明的必备前置（如先建规则集） |

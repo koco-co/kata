@@ -1,6 +1,6 @@
-# 排查知识库：先查后做，收尾沉淀
+# 排查知识库：先查后做，收尾记录
 
-排查知识沉淀在本地 `.kata/infra/knowledge/`（`.kata/` 已被 `.gitignore` 忽略，可含真实 IP 与命令）。每个问题一个 Markdown 条目，文件名用 `YYYYMMDD-<关键词>.md`（如 `20260521-hive-no-route-to-host.md`）。
+排查知识记录在本地 `.kata/infra/knowledge/`（`.kata/` 已被 `.gitignore` 忽略，可含真实 IP 与命令）。每个问题一个 Markdown 条目，文件名用 `YYYYMMDD-<关键词>.md`（如 `20260521-hive-no-route-to-host.md`）。
 
 ## 排查前：检索（lookup）
 
@@ -12,7 +12,7 @@
 
 目录不存在时先创建 `.kata/infra/knowledge/`。
 
-## 排查后：沉淀（record）
+## 排查后：记录（record）
 
 定位到根因或完成修复后，写入/更新条目，字段齐全：
 

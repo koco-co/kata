@@ -4,7 +4,7 @@
 
 ## 凭据来源（按优先级）
 
-1. **本地凭据库** `.kata/infra/credentials.yaml`：按 host 查找已沉淀的 `username`/`password`/`port`。
+1. **本地凭据库** `.kata/infra/credentials.yaml`：按 host 查找已记录的 `username`/`password`/`port`。
 2. **默认凭据**：未命中时先用 `root` / `Abc!@#135` 试连。
 3. **询问用户**：默认凭据仍失败（鉴权错误）时，直接询问用户该主机的用户名/密码（或非默认端口）——凭据是自由文本，用普通追问即可，不必套 AskUserQuestion 选项。
    - 问到后**立即写回** `.kata/infra/credentials.yaml`，下次同一主机不再询问。

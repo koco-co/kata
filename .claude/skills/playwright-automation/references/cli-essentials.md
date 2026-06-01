@@ -52,7 +52,7 @@ const buttons = await page.locator("button").evaluateAll((els) => els.map((e) =>
 snapshot 未暴露 `id`/`class`/`data-*`/计算样式时，用 `evaluate` 直接读 DOM：
 
 ```javascript
-// data-testid（选 locator 锚点首选）
+// data-testid（选 locator 首选）
 const testId = await page
   .locator('[aria-label="提交"]')
   .evaluate((el) => el.getAttribute("data-testid"));
@@ -76,7 +76,7 @@ const testIds = await page
   .evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
 ```
 
-**锚点优先级**：`data-testid` > `aria-label` > `getByRole` > CSS class（避免动态 hash class）。
+**定位点优先级**：`data-testid` > `aria-label` > `getByRole` > CSS class（避免动态 hash class）。
 
 ## Locator 与强断言（§6 playwright-generate 用）
 
@@ -107,7 +107,7 @@ await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅
 ## 请求 mock（page.route）
 
 > ⚠️ **kata 护栏**：仅用于探测边界态、隔离不稳定的第三方/非被测依赖、构造前置数据态。
-> **禁止 mock 被测业务接口的返回来让断言通过**——等于 surface 假通过，违反 §6 覆盖忠实度与 quality-gate。
+> **禁止 mock 被测业务接口的返回来让断言通过**——等于表面通过，违反 §6 步骤与断言的真实性与 quality-gate。
 
 ```javascript
 // 静态 stub（屏蔽外部图片/资源）
@@ -178,7 +178,7 @@ await expect(popup.getByRole("heading")).toHaveText("详情页标题");
 await expect(popup).toHaveURL(/\/detail\//);
 ```
 
-**覆盖忠实度**：用例含「导出/详情/查看新开页」时必须在 popup 页断言业务结果，不得只断当前页。
+**步骤与断言的真实性**：用例含「导出/详情/查看新开页」时必须在 popup 页断言业务结果，不得只断当前页。
 
 ## 文件下载处理（§6 playwright-generate 用）
 

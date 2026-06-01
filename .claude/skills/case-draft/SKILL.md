@@ -24,7 +24,7 @@ description 已覆盖触发场景；此处只说明改走目标与特例行为�
 
 非静默路径用 TodoWrite 建可见阶段进度，逐阶段推进：
 
-1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir 作为所有产物唯一写入根，featureId 写 metadata.yaml#id。禁止自行拼接 feature 目录路径（版本号/slug 由引擎处理）。
+1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir 作为所有产物唯一写入根，featureId 写 metadata.yaml#id。禁止自行拼接 feature 目录路径。
 2. **historical-context / requirement-atomize / case-draft**：这三阶段按 `prompts/agent-worker.md` 派发 Worker 做重活；Worker 以 Status/BlockedEnvelope 回传，遇阻不直接问用户。
 3. **case-review → output**：spec review（主会话，`prompts/agent-spec-reviewer.md`）通过后派 quality review（fresh subagent，`prompts/agent-quality-reviewer.md`）；blocking pending 清零后才生成 archive.md / cases.xmind。
 

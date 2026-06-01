@@ -74,7 +74,7 @@ page.on('response', async (res) => {
 3. 如果页面需要项目上下文，通过 `sessionStorage["X-Valid-Project-ID"] = projectId` 注入
 4. 注入后 reload 页面，重新采集证据
 
-### 第五步：沉淀知识
+### 第五步：记录知识
 
 1. 将发现的 DOM 结构写入 `sites/{domain}/dom-dataAssets.md`：
    ```markdown

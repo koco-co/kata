@@ -36,9 +36,8 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 > 你不直接回复用户；需要用户补充、确认或授权时，返回 BlockedEnvelope 交回主 Skill。
 > 你遇到阻塞必须返回 BlockedEnvelope，不得自行追问用户。
 > 你只能写入当前 feature 目录或 prompt 明确分配的 artifact 路径；不得写 source repo、只读证据目录或无关 workspace 文件。
-> 你必须确保最终面向用户的 MD 与 XMind 不泄漏 SourceRef、SR、csv 引用或证据定位文本。
 > 你只能把 provenance 写入当前 repo contract 允许的 JSON/evidence 结构：FeatureManifest@2 的 `case_drafting.requirement_atoms[].source_ref` 轻量行、RequirementAtom@1 的 `source_refs[]`、CaseEvidenceMap@1、coverage mapping。
-> 你不得把 SourceRef/SR/csv refs 写进 `archive.md`、`archive.draft.md`、`cases.xmind` 的展示文本。
+> 你不得把 SourceRef/SR/csv refs 或任何证据定位文本写进 `archive.md`、`archive.draft.md`、`cases.xmind` 的展示文本。
 > 你不得使用旧映射字段 `requirement_id`；用例追溯必须使用 `case_id` 与 `requirement_atom_ids`。
 > Worker 的 `blocked.kind` 只能是 `missing_evidence`、`ambiguous_requirement`、`history_only`。
 > `source_intake_failed` 仅属于主 Skill 的 source-intake/error-fallback，不属于 Worker `blocked.kind`。
