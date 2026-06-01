@@ -74,7 +74,7 @@
 修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
 
 - **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
-- **`product` 类**（功能 / 文案 / 业务规则漂移）→ 用户可见变化：**不在此处硬改断言迁就产品漂移**；转 handoff 阻塞 + 触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再修用例。把产品漂移当技术问题硬改断言，等于假通过，违反覆盖忠实度规则。
+- **`product` 类**（功能 / 文案 / 业务规则变了）→ 用户可见变化：**不在此处硬改断言迁就产品行为的变化**；转 handoff 阻塞 + 触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再修用例。把产品行为的变化当技术问题硬改断言，等于假通过，违反步骤与断言的真实性规则。
 
 ### 第五步：禁止
 

@@ -6,9 +6,9 @@
 - 反向可追溯头（强制）
 - 输出
 - 禁止
-- 覆盖忠实度（强制）
+- 步骤与断言的真实性（强制）
 - 生成与调试协议
-- UI 知识沉淀
+- UI 知识记录
 - page object 位置（强制）
 
 ## 读取时机
@@ -57,15 +57,15 @@
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
 
-## 覆盖忠实度（强制）
+## 步骤与断言的真实性（强制）
 
-生成的每条 spec 必须忠实于源用例：
+生成的每条 spec 必须真实还原源用例：
 
 - 用例的每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落为真实页面动作，不得丢弃；
 - 用例写明的 `expected_visible_result`/预期结果必须断言为真实业务结果，禁止用 `toBeVisible`/`toContainText` 等可见性/存在性断言代替；
-- 禁止把业务流程用例简化为「进入页面看菜单/字段/元素是否存在」的 surface 契约测试；
+- 禁止把业务流程用例简化为「进入页面看菜单/字段/元素是否存在」的只测页面表层不测业务结果的测试；
 - 用例含「导出/详情/查看在新标签打开」时，必须用 popup 模式捕获新页（见 cli-essentials §多页）并在新页内断言业务结果，不得只断当前页仍可见某按钮；
-- 当前环境确实无法忠实实现并跑通的用例，走诚实阻塞/排除并记入 `handoff.excluded_cases`（含 `reason_category` + 原因），不得用 surface 断言假通过。
+- 当前环境确实无法真实实现并跑通的用例，走诚实阻塞/排除并记入 `handoff.excluded_cases`（含 `reason_category` + 原因），不得用表面通过。
 
 > 断言工具（见 `references/cli-essentials.md`）：断言优先 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 强断言，期望值用 `locator.textContent()/inputValue()` 在 ui-probe 阶段捕获；locator 优先 `getByRole/getByTestId/getByLabel`。**不得用 `page.route` mock 被测业务接口返回来换取断言通过。** 凡来自 `@playwright/cli` codegen 的 locator 或代码片段，落 spec 前必须对照 ui-probe 证据重新验证，并改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）；codegen 产出是草稿，不是可直接交付的 spec。
 
@@ -183,9 +183,9 @@ grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # �
 | 未完成环境探测就声称「环境不可用」 | 抽象判断不构成升级条件 |
 | 给用户的选项里包含不确定语（需核对/待确认） | 选项 = 已 ready 的决策点 |
 
-## UI 知识沉淀
+## UI 知识记录
 
-调试 playwright 脚本时，若选择器失败源于 DOM 结构差异，须沉淀为 `module` 类型写入 `sites/{domain}/`。
+调试 playwright 脚本时，若选择器失败源于 DOM 结构差异，须记录为 `module` 类型写入 `sites/{domain}/`。
 
 查询已有知识：
 ```bash

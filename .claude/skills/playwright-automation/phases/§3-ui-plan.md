@@ -17,7 +17,7 @@
 1. 必须先完成 env-preflight，并确认使用的 env profile；用户只给短提示时，`ltqc-local.yaml` 存在则 askuser 默认推荐它。
 2. 环境确认后，才允许读取当前目标 feature 目录下的 `prd.md` 与 `inputs/lanhu-snapshots/**`；不得读取其他 feature 的 PRD、截图、archive 或 tests。
 3. `prd.md` 与截图只能产出 `case_claim` / `design_source`：用于推断页面入口、按钮文案、表单意图和最小 P0 自动化范围；不得把它们写成 observed UI 事实。
-4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并按用例步骤与预期规划忠实覆盖：每条在范围内用例的动作步骤都要落为真实页面动作，预期结果都要落为真实业务断言。即便 bootstrap，也不得把计划收敛为「页面可达 + 元素可见」的 surface runner。若真实 UI probe 不支持 PRD 中的深链路，应在 plan-reconcile 中判 `blocked`/`needs_user_decision`，或转诚实排除（记入 `handoff.excluded_cases` + `reason_category` + 原因）；不得降级为 surface 断言或用弱断言凑通过。
+4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并按用例步骤与预期规划真实覆盖：每条在范围内用例的动作步骤都要落为真实页面动作，预期结果都要落为真实业务断言。即便 bootstrap，也不得把计划缩小为「页面可达 + 元素可见」的表层 runner。若真实 UI probe 不支持 PRD 中的深链路，应在 plan-reconcile 中判 `blocked`/`needs_user_decision`，或转诚实排除（记入 `handoff.excluded_cases` + `reason_category` + 原因）；不得降级为弱断言或用弱断言凑通过。
 5. 不得生成最终 `archive.md` 或 `test-point-checklist.md`；Playwright 脚本的 SourceRef 必须指向 `prd.md` 或 `source_backed_bootstrap` intent，并在 handoff 中注明 case-draft 仍未完成。
 
 ## 禁止
@@ -26,9 +26,9 @@
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
 
-## UI 知识沉淀
+## UI 知识记录
 
-规划选择器、页面结构、站点域行为和踩坑时，须沉淀入 knowledge 库。
+规划选择器、页面结构、站点域行为和踩坑时，须记录入 knowledge 库。
 
 | 类型 | 识别信号 | 示例 |
 |---|---|---|
@@ -41,7 +41,7 @@
 
 硬约束：
 - 发现新站点选择器模式，须先查询知识库；有匹配则不重复写入。
-- 调试 playwright 脚本时，若选择器失败源于 DOM 结构差异，须沉淀为 `module` 类型写入 `sites/{domain}/`。
+- 调试 playwright 脚本时，若选择器失败源于 DOM 结构差异，须记录为 `module` 类型写入 `sites/{domain}/`。
 - 站点级知识不得写入项目级 overview 或 terms 中。
 
 ## dataAssets 前置条件计划

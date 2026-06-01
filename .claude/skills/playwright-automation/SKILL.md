@@ -10,7 +10,7 @@ allowed-tools: Bash(kata *)
 
 # playwright-automation
 
-统一处理 UI 自动化的规划、真实页面探测、Playwright 生成、运行归因与修复闭环；无真实证据不出最终脚本，无 self-run 不下成功结论。
+统一处理 UI 自动化的规划、真实页面探测、Playwright 生成、运行归因与修复；无真实证据不出最终脚本，无 self-run 不下成功结论。
 
 ## 路由边界
 
@@ -68,7 +68,7 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 - 环境用 `workspace/<project>/_shared/env/*.yaml` profile；新建前先查是否已有匹配 base_url+tenant，不为交付新建 `.env.local`。
 - 产出布局：smoke.spec.ts + full.spec.ts 落 tests/runners/，case 落 tests/cases/，共享页面对象/helper 落 `_shared/`。
 - 交付以目标 full.spec.ts 全量通过为准，仅 smoke 通过不算完成。
-- 覆盖忠实度：每条在范围用例的步骤必须实现为真实页面动作。
-- 覆盖忠实度：每条 expected_visible_result 必须断言为真实业务结果并真跑通。
-- 禁止用「导航+可见性断言」代替业务动作与预期，禁止把业务流程简化为 surface 契约测试——surface 测试证明不了业务结果正确。
-- 无法忠实实现的用例走诚实阻塞/排除并写 handoff.excluded_cases（含 reason_category），不假通过。
+- 步骤与断言的真实性：每条在范围用例的步骤必须实现为真实页面动作。
+- 步骤与断言的真实性：每条 expected_visible_result 必须断言为真实业务结果并真跑通。
+- 禁止用「导航+可见性断言」代替业务动作与预期，禁止把业务流程简化为只测页面表层不测业务结果的测试——只测页面表层证明不了业务结果正确。
+- 无法真实实现的用例走诚实阻塞/排除并写 handoff.excluded_cases（含 reason_category），不假通过。

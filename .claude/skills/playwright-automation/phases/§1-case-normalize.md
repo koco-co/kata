@@ -101,9 +101,9 @@ cookie: {cookie_string}
 | **依赖手动操作** | 步骤包含人工操作（如"新增元数据同步任务，立即执行"需要创建资源、等待后台任务完成） | 如果无法用 API + 浏览器操作组合实现，标记为 `requires_data_prep`，放入 deferred |
 | **依赖外部系统** | 步骤涉及第三方系统（如数据库表清理、外部调度） | 标记为 `blocked_by_data_dependency`，从自动化范围排除 |
 | **仅可手动验证** | 预期结果无法通过 DOM 断言验证（如"表中有数据"需要检查 DB） | 排除，记录为 `offline_verification` |
-| **P0 级复杂 E2E** | P0 case 涉及多步资源创建 + 状态轮询 + 条件分支 | 必须按用例步骤忠实自动化；不得简化为「进入页面验证元素存在」的 surface 契约测试。当前环境确实无法忠实实现并跑通时，标记 `blocked_by_*` 并记入 `handoff.excluded_cases`（含 `reason_category` + 原因） |
+| **P0 级复杂 E2E** | P0 case 涉及多步资源创建 + 状态轮询 + 条件分支 | 必须按用例步骤真实自动化；不得简化为「进入页面验证元素存在」的只测页面表层不测业务结果的测试。当前环境确实无法真实实现并跑通时，标记 `blocked_by_*` 并记入 `handoff.excluded_cases`（含 `reason_category` + 原因） |
 
-**排除的用例必须记入 handoff 的 `excluded_cases` 字段**（每条含 `case_id` + `reason_category`（`env`/`data_prep`/`external_system`/`tenant_mismatch`/`ui_missing`）+ 原因；表格中 `offline_verification` 类归 `external_system`），不得静默丢弃，也不得用 surface 断言假通过代替。
+**排除的用例必须记入 handoff 的 `excluded_cases` 字段**（每条含 `case_id` + `reason_category`（`env`/`data_prep`/`external_system`/`tenant_mismatch`/`ui_missing`）+ 原因；表格中 `offline_verification` 类归 `external_system`），不得静默丢弃，也不得用表面通过代替。
 
 ### 第五步：提取 UiAutomationIntent
 
