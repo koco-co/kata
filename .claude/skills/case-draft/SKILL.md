@@ -24,7 +24,7 @@ description 已覆盖触发场景；此处只说明改走目标与特例行为�
 
 非静默路径用 TodoWrite 建可见阶段进度，逐阶段推进：
 
-1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir 作为所有产物唯一写入根，featureId 写 metadata.yaml#id。禁止自行拼接 feature 目录路径。
+1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir，featureId 写 metadata.yaml#id。
 2. **historical-context / requirement-atomize / case-draft**：这三阶段按 `prompts/agent-worker.md` 派发 Worker 做重活；Worker 以 Status/BlockedEnvelope 回传，遇阻不直接问用户。
 3. **case-review → output**：spec review（主会话，`prompts/agent-spec-reviewer.md`）通过后派 quality review（fresh subagent，`prompts/agent-quality-reviewer.md`）；blocking pending 清零后才生成 archive.md / cases.xmind。
 
@@ -41,10 +41,10 @@ description 已覆盖触发场景；此处只说明改走目标与特例行为�
 
 ## 硬规则（不变量）
 
-- 所有产物写入 `kata features resolve` 返回的 featureDir；自行拼接 feature 路径视为未完成——版本号/slug 由引擎决定，手拼会偏离唯一目录。
+- 所有产物写入 `kata features resolve` 返回的 featureDir。
 - 每个 requirement atom 带 evidence_kind、ambiguity_class、confidence 与 ≥1 个 source_ref。
 - 事实通过 manifest.json#case_drafting.requirement_atoms 的 SourceRef ID 引用：轻量行写 `{id, source_ref}`，完整路径保留在 source_refs / case_id / requirement_atom_ids。
-- 证据分层：archive.md / archive.draft.md / cases.xmind 正文只留人类可读用例内容；SourceRef 标识（SR-、csv::、SourceRef 串）只存结构化数据层——证据泄漏进正文会污染人类可读用例。
+- 证据分层：archive.md / archive.draft.md / cases.xmind 正文只留人类可读用例内容；SourceRef 标识（SR-、csv::、SourceRef 串）只存结构化数据层。
 - 用例↔证据用 case_id 与 requirement_atom_ids 对账，不用单一字段组合做唯一键——单字段组合会撞键、对不准证据。
 - blocking pending 非零时只出草稿与确认类产物（confirmation-package.md / archive.draft.md / unresolved-summary.md，error-fallback 下豁免并保留 URL token 表与 SourceRef ID）；清零后才生成 archive.md 与 cases.xmind——带未决项的正式产物等于把缺口当结论交付。
 - history_inferred 仅作参考证据，新增行为以产品反馈为准；manifest.json#automation.intents[] 中 ready 的 AutomationIntent 移交 playwright-automation。

@@ -44,6 +44,15 @@ bunx playwright install
 | 消息通知 | `KATA_DINGTALK_WEBHOOK_URL` / `KATA_DINGTALK_KEYWORD` / `KATA_FEISHU_WEBHOOK_URL` / `KATA_WECOM_WEBHOOK_URL` |
 | SMTP 邮件 | `KATA_SMTP_HOST` / `KATA_SMTP_USER` / `KATA_SMTP_PASS` / `KATA_SMTP_FROM` / `KATA_SMTP_TO` |
 
+## 安全守卫（仓库自带）
+
+仓库内置 `.claude/settings.json`，把 `pre-edit-guard` / `pre-bash-guard` 挂进 Claude Code 的 `PreToolUse`：
+
+- `pre-edit-guard`：拦截对源仓库证据 `workspace/{project}/.kata/repos/**` 的 Edit/Write。
+- `pre-bash-guard`：拦截 `rm -rf workspace/`、`rm -rf /`、以及对 `.kata/repos/` 的 git push。
+
+首次在 Claude Code 打开本项目时会提示批准这些项目级 hook（安全机制），批准后即生效。紧急情况可用 `KATA_BYPASS_HOOK=1` 临时绕过。命令行直接操作不经 Claude Code，不受 hook 约束，仍以 `.claude/rules/repo-readonly.md` 为准。
+
 ## 安装完成
 
 回到 Claude Code 输入 `/workspace-manage` 查看功能菜单。

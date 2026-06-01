@@ -3,6 +3,17 @@
 > 只读审计产出，供拍板用；本文件不改任何 prompt。动手改走 worktree。
 > 日期：2026-06-01。承接「.claude 去黑话重写」之后的第二类问题。
 
+## 执行期更正（2026-06-01 实施后回填）
+
+本审计有一处**事实错误**，执行期实测后更正，记录在此（原文各节保留以存推理过程）：
+
+- **§1.3 / §4 ②-1 错判「无 lint 校验 feature 目录名 / `metadata.yaml#id`」。** 实际 `runFeaturesLint`（`.claude/scripts/_shared/cli/features-lint.ts`）早已校验两者：`SLUG_RE`（与 `lib/features/slug.ts` 完全一致）→ `dir_name_invalid`；`meta.id !== name` → `id_dir_mismatch`。且已挂进 `cases-lint.ts`（`lint:cases`，fail severity），并有 `features-lint.test.ts` / `metadata-gate.test.ts` / `manifest-gate.test.ts` 覆盖。**②-1 无需新增 lint**；用户点名的「禁止自行拼接」已由该守卫在 verify 时兜底，故直接删祈求语（已落地）。
+- **该守卫不在 `ci`。** `lint:cases` 未进 `package.json` 的 `ci` 脚本，故守卫靠「改后即测」纪律 / 手动跑，非 CI 阻断。
+- **接 `ci` 被存量阻塞。** 实跑 `kata cases lint --severity fail-only --scope workspace` = **541 条 fail**（106 `dir_name_invalid` + 134 `session_compliant` + 40 `manifest_schema_invalid` + …），直接接 ci 会全红。
+- **两套冲突的命名约定。** `workspace/dataAssets/features/` 用中文 `【v…】【module】description`（`naming-convention.md` 文档化约定，`metadata.id` 亦为中文且 = 目录名）；`workspace/xyzh/` 用 ASCII `yyyy-mm-slug`（守卫 + 5 个 schema + `features-resolve` 只认这种）。守卫把 53 个合法中文目录全判 `dir_name_invalid`。用户拍板「支持中文」→ 作为**独立 contract 任务**放宽 5 schema（FeatureMetadata/FeatureManifest/CaseCorrections/PlaywrightAutomationHandoff/FeatureSourceSnapshot）+ 2 regex，不在本轮。
+
+**本轮（prose-mech worktree）实际落地**：① case-draft 删 feature 路径祈求语 + 去重（A1）；② 挂 `pre-edit-guard` / `pre-bash-guard` 进 committed `.claude/settings.json` + 测试 + INSTALL（②′）；③ repo-readonly 末行改引真实 hook；④ case-draft 删 1 处 lint 已兜的 SourceRef 泄漏说理（①-2 安全子集）。**未做**：①-3 playwright 跨 phase 弱断言去重——按 round-1 已定 P0 教训（phase 隔离阅读，跨 phase 删说理 = 语义回退）DROP；其唯一候选 intra-SKILL 切口经核实 `lintWeakAssertion` 只窄覆盖 `.toBeTruthy()` / `.filter(Boolean)`（warn 级），说理非冗余、保留。①-2 全树 43 处「——」中其余 41 处为隔离阅读 point-of-use / 规则定义 / 示例 / 无机制兜底的判断说明，删之即 P0 回退，保留。
+
 ## 0. 这份审计回答什么
 
 用户的批评（一针见血）：**有些 prose 是在「指望大模型遵守」一条本可由工具确定性保证的约束——既啰嗦，又用错了机制。**
