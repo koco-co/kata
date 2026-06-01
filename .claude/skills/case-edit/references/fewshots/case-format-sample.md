@@ -3,7 +3,7 @@
 取材：workspace/dataAssets/features/2099-01-lt-dq-main-flow/tmp/lt-dq-main-flow-sample.md
 SSOT：.claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot
 
-格式速查（看完此条 P0 用例即可对齐所有要点）：
+格式速查（看完此条 P0 用例即可掌握所有要点）：
 - 标题：【Pn】+ 验证动词 + 验证对象【业务括号】+ 验证场景
 - 前置条件：> 前置条件 + ```sql 块（顶部 /* ... */ 多行注释说明环境与目的；可执行 SQL；SELECT 末尾 -- 预期结果：N）
 - 步骤表格：| 编号 | 步骤 | 预期 |，步骤=「动作 + 冒号 + <br>- 配置列表」，预期=「1) 2) 编号断言」
