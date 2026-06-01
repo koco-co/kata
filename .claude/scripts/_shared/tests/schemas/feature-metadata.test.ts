@@ -33,6 +33,51 @@ describe("FeatureMetadata@1", () => {
     expect(validate(bad)).toBe(false);
   });
 
+  // ── 方案A: id 允许 CJK 人类标签约定 【v{版本}】[【...】]【{模块}】{描述} ──
+
+  it("accepts a CJK human-label id", () => {
+    const ok = {
+      schema: "FeatureMetadata@1",
+      id: "【v647】【数据质量】控制每个规则开关",
+      display_name: "控制每个规则开关",
+      status: "active",
+      created_at: "2026-04-15",
+      updated_at: "2026-05-10",
+      modules: ["dq"],
+      customers: ["standard"],
+      versions: ["v6.4"],
+      owners: ["koco"],
+      inputs: [],
+      relates_to: [],
+      emits: { cases_xmind: true, archive: true, playwright_tests: true },
+    };
+    expect(validate(ok)).toBe(true);
+  });
+
+  it("still accepts a slug id", () => {
+    const ok = {
+      schema: "FeatureMetadata@1",
+      id: "2026-04-dq-json-config",
+      display_name: "x",
+      status: "active",
+      created_at: "2026-04-15",
+      updated_at: "2026-05-10",
+      modules: ["dq"],
+      customers: ["standard"],
+      versions: ["v6.4"],
+      owners: ["koco"],
+      inputs: [],
+      relates_to: [],
+      emits: {},
+    };
+    expect(validate(ok)).toBe(true);
+  });
+
+  it("rejects a CJK id missing the version bracket", () => {
+    const bad = { schema: "FeatureMetadata@1", id: "【数据质量】控制每个规则开关" };
+    expect(validate(bad)).toBe(false);
+  });
+
   it("rejects status outside enum", () => {
     const bad = {
       schema: "FeatureMetadata@1",
