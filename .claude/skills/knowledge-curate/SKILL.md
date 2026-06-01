@@ -1,6 +1,6 @@
 ---
 name: knowledge-curate
-description: 查询、记录或维护项目业务知识、规则、术语、模块事实，或问「XX 是什么」(项目业务概念)，统一沉淀于 _shared/knowledge/。触发短语如「记一下这个规则」「XX 术语什么意思」「更新模块知识」。只问源码实现细节，或要写编用例、扫 diff、做 UI 自动化的改走对应 case-*/defect-analyze/playwright-automation。
+description: 查询、记录或维护项目业务知识、规则、术语、模块事实，或问「XX 是什么」(项目业务概念)，统一记录于 _shared/knowledge/。触发短语如「记一下这个规则」「XX 术语什么意思」「更新模块知识」。只问源码实现细节，或要写编用例、扫 diff、做 UI 自动化的改走对应 case-*/defect-analyze/playwright-automation。
 argument-hint: '<业务术语 | 规则描述 | "XX 是什么">'
 user-invocable: true
 model: sonnet
@@ -9,7 +9,7 @@ effort: medium
 
 # knowledge-curate
 
-查询与维护项目业务知识：把业务事实 / 规则 / 术语沉淀到 `workspace/{project}/_shared/knowledge/`，查询时回指证据。
+查询与维护项目业务知识：把业务事实 / 规则 / 术语记录到 `workspace/{project}/_shared/knowledge/`，查询时回指证据。
 
 ## 路由边界
 
@@ -27,7 +27,7 @@ description 已覆盖触发场景；此处只说明改走目标：
 
 | 文件 | 何时读 | 作用 |
 | --- | --- | --- |
-| references/knowledge-rules.md | 查询或写入知识条目前 | 分类规约、分仓边界与沉淀流程 |
+| references/knowledge-rules.md | 查询或写入知识条目前 | 分类规约、分仓边界与记录流程 |
 
 ## 硬规则（不变量）
 
