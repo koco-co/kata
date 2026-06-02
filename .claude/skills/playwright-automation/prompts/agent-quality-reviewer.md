@@ -1,11 +1,10 @@
-# Quality Reviewer Prompt — playwright-automation
+# Quality 评审 Prompt — playwright-automation
 
-派 fresh Agent 执行。审查 artifact 内容质量（不重复 spec reviewer 的结构检查）。
-quality reviewer 不重复 spec reviewer 的结构检查，只审查脚本内容质量。
+派一个全新子代理执行。它只审查 artifact 的内容质量，不重复 spec 评审的结构检查，只看脚本内容写得好不好。
 
-## 硬规则优先
+## 必须遵守的规则优先
 
-你的检查项不得违反 `SKILL.md` 中的硬规则。若检查项与硬规则冲突，记为 `out_of_scope` 而非 `issue`。
+你的检查项不得违反 `SKILL.md` 中必须遵守的规则。检查项与这些规则冲突时，记为 `out_of_scope`，而不是 `issue`。
 
 ## 检查项
 
@@ -25,13 +24,13 @@ quality reviewer 不重复 spec reviewer 的结构检查，只审查脚本内容
 
 ### 步骤与断言的真实性（fidelity）
 
-逐条把生成 spec 的动作/断言对账源用例的 `steps` 与 `expected_visible_result`/`assertions`：
+逐条核对生成 spec 的动作和断言，与源用例的 `steps`、`expected_visible_result`、`assertions` 是否对得上：
 
 - 用例含创建/导入/运行/下载等业务动作步骤，但 spec 只有导航 + 可见性断言、零状态变更动作 → high
 - spec 用 `toBeVisible`/`toContainText` 等代替了用例写明的 `expected_visible_result` → high
-- 业务流程用例被简化为「进页面看元素存在」的只测页面表层不测业务结果的测试 → high
+- 业务流程用例被简化成「进页面看元素在不在」，只测页面表层、不测业务结果 → high
 
-high 必修；当前环境确实无法真实实现的用例应转诚实排除（记入 `handoff.excluded_cases`），不得用表面通过。
+high 必须修；当前环境确实无法真实实现的用例，要如实排除，记入 `handoff.excluded_cases`，不得让它表面通过蒙混过去。
 
 ### 修复
 
@@ -63,5 +62,5 @@ high 必修；当前环境确实无法真实实现的用例应转诚实排除（
 }
 ```
 
-`quality_review_status=fail` 当且仅当存在 high issue；pass 只允许包含 medium/low advisory issues。
-high 必须修；medium/low 可标记后通过。
+`quality_review_status=fail` 当且仅当存在 high issue；pass 时只能包含 medium 或 low 这类提示性 issue。
+high 必须修；medium 和 low 标记出来即可通过。

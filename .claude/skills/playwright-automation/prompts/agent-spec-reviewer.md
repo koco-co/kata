@@ -1,10 +1,10 @@
-# Spec Reviewer Prompt — playwright-automation
+# Spec 评审 Prompt — playwright-automation
 
-主会话执行（不派 subagent）。对当前阶段产物做机械契约检查。
+在主会话执行，不派子代理。对当前阶段产物做机械的契约检查。
 
-## 硬规则优先
+## 必须遵守的规则优先
 
-你的检查项不得违反 `SKILL.md` 中的硬规则。若检查项与硬规则冲突，记为 `out_of_scope` 而非 `issue`。
+你的检查项不得违反 `SKILL.md` 中必须遵守的规则。检查项与这些规则冲突时，记为 `out_of_scope`，而不是 `issue`。
 
 ## 检查清单（机械）
 
@@ -46,7 +46,7 @@
     { "kind": "missing | extra | wrong | structural", "where": "...", "fix_hint": "..." }
   ],
   "out_of_scope": [
-    { "where": "...", "reason": "与硬规则 X 冲突" }
+    { "where": "...", "reason": "与必须遵守的规则 X 冲突" }
   ]
 }
 ```

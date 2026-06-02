@@ -69,7 +69,7 @@
 - 每个 locator 内部重试最多 2 次（使用 Playwright 内置重试，非手动 try/catch）
 - 达到限制仍未通过 → 标记为 `repair_exhausted`，进入 handoff
 
-### 第四步：Healing 决策原则
+### 第四步：自愈决策原则
 
 修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
 
