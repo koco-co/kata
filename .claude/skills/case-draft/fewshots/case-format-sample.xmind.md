@@ -1,7 +1,7 @@
 <!--
 XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
-SSOT：.claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot
-配套 md fewshot：./case-format-sample.md
+SSOT 为 .claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot。
+配套的 md fewshot 见 ./case-format-sample.md。
 
 为什么用 ASCII 树状而非真 .xmind：
 - 真 .xmind 是 zip + JSON，模型只能看到压缩后的 JSON 文本，结构反而被掩盖；
