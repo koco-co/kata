@@ -11,7 +11,7 @@ function readRepoFile(path: string): string {
 describe("P4-06 command execution hardening", () => {
   it("keeps scoped integration command runners off execSync shell strings", () => {
     const scopedFiles = [
-      "tools/dtstack-sdk/src/adapters/execute-table.ts",
+      ".claude/packages/dtstack/src/adapters/execute-table.ts",
       ".claude/plugins/lanhu/fetch.ts",
     ];
 

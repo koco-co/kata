@@ -38,5 +38,5 @@ datasources:
 ## 测试
 
 ```bash
-bun test tools/dtstack-sdk/__tests__
+bun test .claude/packages/dtstack/__tests__
 ```

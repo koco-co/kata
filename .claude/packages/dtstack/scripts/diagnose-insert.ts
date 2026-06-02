@@ -2,7 +2,7 @@
  * 端到端验证：跑 t16 风格的 SQL（DROP + CREATE + INSERT），
  * 通过新封装的 BatchApi.executeDDL 路径。
  *
- * 运行：bun run tools/dtstack-sdk/scripts/diagnose-insert.ts
+ * 运行：bun run .claude/packages/dtstack/scripts/diagnose-insert.ts
  */
 
 import { readFileSync } from "node:fs";
@@ -14,7 +14,7 @@ import { ProjectApi } from "../src/core/platform/project";
 const BASE_URL = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
 const SESSION_FILE = join(
   import.meta.dirname,
-  "../../../workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
+  "../../../../workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
 );
 const PROJECT_NAME = "pw_test";
 const DATASOURCE_TYPE = "sparkthrift";

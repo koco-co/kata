@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    "tools/dtstack-sdk",
+    ".claude/packages/dtstack",
     ".claude/scripts/_shared"
   ],
   "description": "AI-driven QA workflows codified as reusable kata, powered by Claude Code runtime skills.",
@@ -23,11 +23,11 @@
   },
   "scripts": {
     "test:plugins": "bun test ./.claude/plugins",
-    "test:tools": "bun test --cwd tools/dtstack-sdk",
+    "test:tools": "bun test --cwd .claude/packages/dtstack",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "check:skills": "bun .claude/scripts/_shared/bin/kata skills sync-check --exit-code",
-    "lint": "biome check .claude/skills .claude/plugins .claude/scripts tools",
+    "lint": "biome check .claude/skills .claude/plugins .claude/scripts .claude/packages",
     "format": "biome check --fix .",
     "lint:debris": "bun run .claude/scripts/lint/check-debug-files.ts && bun run .claude/scripts/lint/check-stale-paths.ts && bun run .claude/scripts/lint/check-runtime-artifacts.ts",
     "type-check": "tsc --noEmit",

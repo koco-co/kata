@@ -159,7 +159,7 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
   const localBin = "./node_modules/.bin/dtstack-cli";
   const command = existsSync(localBin) ? localBin : "bun";
   const args = [
-    ...(existsSync(localBin) ? [] : ["tools/dtstack-sdk/src/cli.ts"]),
+    ...(existsSync(localBin) ? [] : [".claude/packages/dtstack/src/cli.ts"]),
     "precond",
     "setup",
     "--env",

@@ -161,7 +161,6 @@ kata/
 ├── docs/            # Architecture, ADR, audit, skill, and troubleshooting docs
 ├── .claude/scripts/_shared/  # CLI, runtime checks, workflow support, and tests
 ├── plugins/         # lanhu / zentao / notify
-├── tools/           # standalone toolkits
 ├── templates/       # project skeletons and output templates
 └── workspace/       # user project artifacts; source copies live in .kata/repos/{project}/
 ```
