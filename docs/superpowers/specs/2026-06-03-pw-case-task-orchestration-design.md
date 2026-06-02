@@ -17,21 +17,20 @@ playwright-generate → self-run → run-triage → repair-loop → quality-gate
 
 ## 目标
 
-把固定的阶段进度，换成一份**动态、按用例、可并行、分模型**的任务清单：
+**保留现有 phase 流水线当骨架**（normalize→preflight→…→handoff 顺序与逻辑照走），只优化三件事，得到一份**动态、中段按用例、可并行、分模型**的任务清单：
 
-- 第 1 个 task 是「前置条件处理」；
-- 之后每条用例一个 task，**task 标题 = 用例标题**；
-- 列表不固定：用例跑挂可**动态新增修复 task**；
-- 这些 task **支持限并发并行派发**；
-- 前置复杂 → 主 agent/opus 亲自做；用例简单 → 派 sonnet 子代理。
+- ① **任务可视化命名优化**：整体任务名更易读，第一块是「前置条件处理」；
+- ② **中间脚本生成段改 per-case**：`playwright-generate` + `self-run` + `repair` 在可视化里展开成**逐用例任务**，**task 名 = 用例标题**；列表不固定，用例跑挂可**动态新增修复 task**；这些 task **支持限并发并行派发**；
+- ③ **派发与模型分层**：主 agent 只做**编排/派发**，不下场做实现——前置复杂 → 派 **opus 子代理**；中间用例脚本简单 → 派 **sonnet 子代理**。
 
 ## 范围
 
 **只改编排与可视化层，不改 phase 内容。**
 
+- 不动：**phase 流水线本身**——normalize→preflight→…→handoff 的顺序与逻辑照走。
 - 不动：各 phase「做什么」——env-preflight 探测项、ui-probe 证据规则、generate 真实性红线（禁弱断言/禁 try-catch/禁 test.skip）、triage 分类、修复预算、quality-gate 的 15 项 lint。
-- 不动：硬闸门——静默模式 / env-preflight 全程 / 任何 BLOCKED 模板之前，禁止派子代理、禁止建任务列表。
-- 改：把「11 phase TodoWrite」重绑成「前置 + N 用例 + 汇总」的动态任务清单，并据此做模型分层、限并发、动态修复派发。
+- 不动：硬闸门——静默模式 / env-preflight 全程 / 任何 BLOCKED 模板之前，禁止派子代理、禁止建任务列表。**`env-preflight` 仍留主会话**（它是「是否允许派子代理」的判定闸门，不能塞进任何子代理）。
+- 改：① 任务可视化命名优化；② 中间脚本生成段（generate/self-run/repair）的可视化展开成 per-case 任务（task 名 = 用例标题）；③ 派发与模型分层（前置 = opus 子代理、用例 = sonnet 子代理、主 agent 仅编排）；④ 失败动态新增修复任务、限并发并行。
 
 ## 现状盘点（实现锚点）
 
@@ -46,11 +45,12 @@ playwright-generate → self-run → run-triage → repair-loop → quality-gate
 ```
 env 确认 + env-preflight（无 blocker）
         │
-   ┌────▼─────────────────────────────────────┐
-   │ Task 0「前置条件处理」 ← opus / 主 agent  │  · 真实页面探测 ui-probe
-   │   · 登录态 storageState                   │  · 共享页面对象 / helper / fixture
-   │   · 用例任务清单（含读/写分类校正）       │  · 复杂，主 agent 亲自做
-   └────┬─────────────────────────────────────┘
+  （env-preflight 在主会话通过，是派子代理的前提；以下均由主 agent 编排派发）
+   ┌──────────────────────────────────────────────┐
+   │「前置条件处理」 ← 主 agent 派发的 opus 子代理 │  · 真实页面探测 ui-probe
+   │   · 登录态 storageState                       │  · 共享页面对象 / helper / fixture
+   │   · 用例任务清单（含读/写分类校正）           │  · 主 agent 自己不下场做实现
+   └────┬─────────────────────────────────────────┘
         │  限并发派发（默认同时 3 条）
    ┌────▼────┐ ┌─────────┐ ┌─────────┐
    │用例1 task│ │用例2 task│ │用例N task│ ← sonnet 子代理，标题=用例标题
@@ -58,7 +58,7 @@ env 确认 + env-preflight（无 blocker）
    └────┬────┘ └────┬────┘ └────┬────┘
         │红          │绿          │红
    ┌────▼─────┐                ┌─▼────────┐
-   │修复 task │ ← sonnet,      │修复 task │  连 2 次红 → 升级 opus/主 agent
+   │修复 task │ ← sonnet,      │修复 task │  连 2 次红 → 升级 opus 子代理
    │(动态新增)│   ≤3 次预算    │(动态新增)│
    └──────────┘                └──────────┘
         │
@@ -71,15 +71,15 @@ env 确认 + env-preflight（无 blocker）
 
 ### 任务清单生命周期
 
-env 确认且 env-preflight 无 blocker 后，主 agent：
+env 确认且 env-preflight（主会话）无 blocker 后，主 agent 作为**纯编排者**：
 
 1. 跑 `kata` 子命令生成用例任务清单（见「脚本契约」），据此一次性建任务列表：`前置条件处理` + `N 条用例` + `汇总 & 质量闸门`。窗口开启前已完成的阶段（env-preflight）按现有约定建后立即标 completed。
-2. **前置 task** 标 in_progress，由主 agent / opus 亲自做完。
-3. 前置完成 → 按并发上限派发用例 task。
-4. 用例 task 红 → 主 agent triage 后**动态 append** 一个 `修复: <标题>` task。
+2. **前置条件处理** 标 in_progress，主 agent **派给 opus 子代理**（覆盖 env-preflight 通过后的重前段：ui-probe + 共享层 + 用例清单校正）；主 agent 自己不下场做实现。
+3. 前置完成 → 按并发上限**派发用例 task 给 sonnet 子代理**。
+4. 用例 task 红 → 主 agent triage 后**动态 append** 一个 `修复: <标题>` task（派 sonnet 子代理）。
 5. 全部用例绿 → `汇总 & 质量闸门` task。
 
-> 任务列表机制：Claude Code 用 TaskCreate/TaskUpdate，客户端只暴露 TodoWrite 时按 TodoWrite 等同语义执行；并行派发用同一条消息里多次 Agent 调用，每个 Agent 用 `model` 指定 sonnet/opus；动态新增即 append 一项。
+> 任务列表机制：Claude Code 用 TaskCreate/TaskUpdate，客户端只暴露 TodoWrite 时按 TodoWrite 等同语义执行；并行派发用同一条消息里多次 Agent 调用，每个 Agent 用 `model` 指定 sonnet/opus；动态新增即 append 一项。**主 agent 全程只编排（建/更任务、派子代理、triage、动态加修复任务），不亲自写探测/脚本/修复。**
 
 ## 脚本契约：`scripts/build-case-tasks.ts`（新增）
 
@@ -114,9 +114,11 @@ env 确认且 env-preflight 无 blocker 后，主 agent：
 
 | 任务 | 执行者 | 模型 | 内容 |
 |---|---|---|---|
-| 前置条件处理 | 主 agent 亲自 | opus | ui-probe 真实证据 + 共享页面对象/helper/fixture + 登录态 storageState + 读写分类校正 |
-| 每条用例 | 子代理 | sonnet | plan-reconcile(该用例) → 生成 `tests/cases/<id>.spec.ts` → self-run → 回报 Status 信封 |
-| 修复 | 子代理 → 升级主 agent | sonnet → opus | 见「动态修复与升级」 |
+| env-preflight | 主会话 | （宿主） | 维持现状；它是「是否允许派子代理」的硬闸门，不可塞进子代理 |
+| 编排/派发 | 主 agent | （宿主） | 建/更任务列表、派子代理、triage、动态新增修复任务；不下场做实现 |
+| 前置条件处理 | 子代理 | opus | env-preflight 通过后：ui-probe 真实证据 + 共享页面对象/helper/fixture + 登录态 storageState + 读写分类校正 |
+| 每条用例 | sonnet 子代理 | sonnet | plan-reconcile(该用例) → 生成 `tests/cases/<id>.spec.ts` → self-run → 回报 Status 信封 |
+| 修复 | sonnet 子代理 → 升级 opus 子代理 | sonnet → opus | 见「动态修复与升级」 |
 
 ## 并发安全
 
@@ -130,7 +132,7 @@ env 确认且 env-preflight 无 blocker 后，主 agent：
 
 - 用例 self-run 红 → 主 agent triage（产品/脚本/数据/权限/环境/未知/需决策）→ append `修复: <标题>` task。失败与修复在列表里都可见，不闷在子代理里偷偷重试。
 - 修复 task：**sonnet** 子代理，带失败证据 + triage 分类，沿用 **≤3 次/用例** 修复预算（与现有规则一致）。
-- **连 2 次仍红 → 自动升级**成 `升级修复: <标题>`，交 **opus / 主 agent** 接管该用例（贴合「复杂才上 opus」）。
+- **连 2 次仍红 → 自动升级**成 `升级修复: <标题>`，主 agent 改派 **opus 子代理**接管该用例（贴合「复杂才上 opus」）。
 - 超预算仍红 → 诚实阻塞/排除，记 `handoff.excluded_cases`（含 `reason_category`），不弱断言凑绿。
 
 ## 汇总、评审与交付
@@ -142,9 +144,9 @@ env 确认且 env-preflight 无 blocker 后，主 agent：
 ## 改动文件清单
 
 - 新增 `.claude/skills/playwright-automation/scripts/build-case-tasks.ts` + 注册进 `.claude/scripts/_shared/cli/index.ts` + 单测（`.claude/scripts/_shared/tests/` 下）。
-- 重写 `references/execution-protocol.md` 的「TodoWrite 进度维护」「阶段调度表」段：11 phase todo → 用例任务清单 + 模型分层 + 限并发 + 动态修复。保持 ≤260 行。
-- 微调 `SKILL.md`「公开进度」规则两行 + phase 表注解（说明可视化已按用例组织）。保持 ≤300 行。
-- `prompts/agent-worker.md` 增加「按用例 scope 工作 + 唯一 fixture 数据 + 自清理」约束；新增 `prompts/agent-precondition.md`（前置 task 模板，opus）。
+- 调整 `references/execution-protocol.md`：**保留阶段调度表骨架**；进度维护改为「命名优化 + 中间 generate/self-run/repair 段展开成 per-case 任务」；补模型分层（前置=opus 子代理 / 用例=sonnet 子代理 / 主 agent 仅编排）、限并发、动态修复。保持 ≤260 行。
+- 微调 `SKILL.md`「公开进度」规则两行 + phase 表注解（说明中间段可视化已按用例组织、派发分层）。保持 ≤300 行。
+- `prompts/agent-worker.md` 增加「按用例 scope 工作 + 唯一 fixture 数据 + 自清理」约束；新增 `prompts/agent-precondition.md`（前置 opus 子代理模板）。
 
 ## 约束与验证
 
@@ -155,12 +157,13 @@ env 确认且 env-preflight 无 blocker 后，主 agent：
 
 ## 决策记录（本次已确认）
 
-1. 改造深度：编排层重做，phase 内容不动。
-2. 隔离/汇总：每用例独立 `tests/cases/<id>.spec.ts`，汇总跑全量绿，`full.spec.ts` = barrel。
-3. 并发安全：限并发（默认 3）+ 写数据用例唯一 fixture 数据 + 自清理。
-4. 修复策略：sonnet 修，连 2 次红升级 opus，≤3 次预算超限诚实排除。
-5. 落地方式：脚本生成确定性任务清单 + 提示词编排（方案 B）。
-6. 评审归置：用例只靠 self-run，机械 lint + 语义评审集中在汇总。
+1. 改造深度：**保留 phase 流水线骨架**；只优化任务可视化命名 + 中间脚本生成段（generate/self-run/repair）改 per-case + 派发与模型分层 + 失败动态新增修复。
+2. 派发与模型：主 agent 只编排/派发，不下场做实现；前置条件 = **opus 子代理**（env-preflight 仍留主会话当硬闸门），用例脚本 = **sonnet 子代理**，升级修复 = **opus 子代理**。
+3. 隔离/汇总：每用例独立 `tests/cases/<id>.spec.ts`，汇总跑全量绿，`full.spec.ts` = barrel。
+4. 并发安全：限并发（默认 3）+ 写数据用例唯一 fixture 数据 + 自清理。
+5. 修复策略：sonnet 修，连 2 次红升级 opus 子代理，≤3 次预算超限诚实排除。
+6. 落地方式：脚本生成确定性任务清单 + 提示词编排（方案 B）。
+7. 评审归置：用例只靠 self-run，机械 lint + 语义评审集中在汇总。
 
 ## 未决 / 实现期再定
 
