@@ -1,0 +1,196 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】主流程用例整理/tests/runners/smoke.spec.ts >> 【P1】数据模型建表表类型与 hdfs 存储路径交互可核验
+- Location: workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】主流程用例整理/tests/cases/t11-model-build-table-type-hdfs.ts:19:1
+
+# Error details
+
+```
+Test timeout of 120000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img [ref=e8]
+        - generic [ref=e10]:
+          - img "logo" [ref=e12]
+          - generic [ref=e14]: DataAssets
+      - menu [ref=e17]:
+        - menuitem "资产盘点" [ref=e18] [cursor=pointer]:
+          - link "资产盘点" [ref=e20]:
+            - /url: "#/assetsStatistics"
+        - menuitem "元数据" [ref=e21] [cursor=pointer]:
+          - link "元数据" [ref=e23]:
+            - /url: "#/metaDataCenter"
+        - menuitem "数据标准" [ref=e24] [cursor=pointer]:
+          - link "数据标准" [ref=e26]:
+            - /url: "#/standardStatistic"
+        - menuitem "数据模型" [ref=e27] [cursor=pointer]:
+          - link "数据模型" [ref=e29]:
+            - /url: "#/builtSpecificationTable"
+        - menuitem "数据质量" [ref=e30] [cursor=pointer]:
+          - link "数据质量" [ref=e32]:
+            - /url: "#/dq/overview"
+        - menuitem "数据安全" [ref=e33] [cursor=pointer]:
+          - link "数据安全" [ref=e35]:
+            - /url: "#/dataAuth/permissionAssign"
+        - menuitem "平台管理" [ref=e36] [cursor=pointer]:
+          - link "平台管理" [ref=e38]:
+            - /url: "#/dataSourceManage"
+        - menuitem [disabled]:
+          - img:
+            - img
+    - list [ref=e40]:
+      - button [ref=e41] [cursor=pointer]:
+        - img [ref=e43]
+      - generic "帮助文档" [ref=e51] [cursor=pointer]:
+        - link "question-circle" [ref=e52]:
+          - /url: /helpSite/docs/assets/root/summary/
+          - img "question-circle" [ref=e53]:
+            - img [ref=e54]
+      - link "message" [ref=e56] [cursor=pointer]:
+        - /url: http://shuzhan63-test-ltqc.k8s.dtstack.cn/portal/#/message?app=dataAssets
+        - img "message" [ref=e58]:
+          - img [ref=e59]
+      - img "setting" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+      - generic "admin@dtstack.com" [ref=e66] [cursor=pointer]
+  - generic [ref=e68]:
+    - complementary [ref=e69]:
+      - generic [ref=e70]:
+        - img [ref=e72] [cursor=pointer]
+        - menu [ref=e75]:
+          - menuitem "规范建表" [expanded] [ref=e76] [cursor=pointer]:
+            - generic [ref=e78]:
+              - img [ref=e79]
+              - generic [ref=e82]: 规范建表
+          - list [ref=e83]:
+            - menuitem "建表" [ref=e84] [cursor=pointer]:
+              - link "建表" [ref=e86]:
+                - /url: "#/builtSpecificationTable"
+                - generic [ref=e89]: 建表
+            - menuitem "规范设计" [ref=e90] [cursor=pointer]:
+              - link "规范设计" [ref=e92]:
+                - /url: "#/specificationDesign"
+                - generic [ref=e95]: 规范设计
+          - menuitem "授权与审批" [ref=e96] [cursor=pointer]:
+            - generic [ref=e98]:
+              - img [ref=e99]
+              - generic [ref=e102]: 授权与审批
+    - main [ref=e104]:
+      - generic [ref=e105]:
+        - navigation [ref=e107]:
+          - list [ref=e108]:
+            - listitem [ref=e109]:
+              - link "规范建表" [ref=e111] [cursor=pointer]:
+                - /url: "#/builtSpecificationTable"
+              - img "right" [ref=e113]:
+                - img [ref=e114]
+            - listitem [ref=e116]: 新建表
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - generic [ref=e122]:
+              - generic [ref=e123]: "1"
+              - generic [ref=e125]: 基础信息
+            - generic [ref=e127]:
+              - generic [ref=e128]: "2"
+              - generic [ref=e130]: 表结构
+          - generic [ref=e132]:
+            - generic [ref=e138]: 数仓层级
+            - generic [ref=e139]:
+              - generic [ref=e142]:
+                - generic "写入数据源" [ref=e144]: "* 写入数据源"
+                - generic [ref=e148] [cursor=pointer]:
+                  - generic: pw_test_HADOOP
+                  - generic [ref=e149]:
+                    - combobox "* 写入数据源" [active] [ref=e151]
+                    - generic "pw_test_HADOOP" [ref=e152]
+                  - generic:
+                    - img:
+                      - img
+              - generic [ref=e155]:
+                - generic "写入数据库" [ref=e157]: "* 写入数据库"
+                - generic [ref=e161] [cursor=pointer]:
+                  - generic [ref=e162]:
+                    - combobox "* 写入数据库" [ref=e164]
+                    - generic: 请选择数据库
+                  - generic:
+                    - img:
+                      - img
+              - generic [ref=e167]:
+                - generic "数仓层级" [ref=e169]
+                - generic [ref=e173] [cursor=pointer]:
+                  - generic [ref=e174]:
+                    - combobox "数仓层级" [ref=e176]
+                    - generic: 请选择数仓层级
+                  - generic:
+                    - img:
+                      - img
+            - generic [ref=e182]: 表信息
+            - generic [ref=e183]:
+              - generic [ref=e186]:
+                - generic "表名" [ref=e188]: "* 表名"
+                - textbox "支持小写英文/数字/下划线" [ref=e193]
+              - generic [ref=e196]:
+                - generic "表中文名" [ref=e198]: "* 表中文名"
+                - textbox "* 表中文名" [ref=e202]:
+                  - /placeholder: 请输入表中文名
+              - generic [ref=e205]:
+                - generic "存储格式" [ref=e207]: "* 存储格式"
+                - generic [ref=e211]:
+                  - generic [ref=e212] [cursor=pointer]:
+                    - radio "PARQUET" [checked] [ref=e214]
+                    - generic [ref=e216]: PARQUET
+                  - generic [ref=e217] [cursor=pointer]:
+                    - radio "ORC" [ref=e219]
+                    - generic [ref=e221]: ORC
+                  - generic [ref=e222] [cursor=pointer]:
+                    - radio "TEXTFILE" [ref=e224]
+                    - generic [ref=e226]: TEXTFILE
+              - generic [ref=e229]:
+                - generic [ref=e231]:
+                  - text: "*"
+                  - generic [ref=e232]:
+                    - text: 生命周期
+                    - img [ref=e234]
+                - generic [ref=e240]:
+                  - generic [ref=e241]:
+                    - generic [ref=e242]:
+                      - button "Increase Value" [disabled] [ref=e243]:
+                        - img "up" [ref=e244]:
+                          - img [ref=e245]
+                      - button "Decrease Value" [ref=e247] [cursor=pointer]:
+                        - img "down" [ref=e248]:
+                          - img [ref=e249]
+                    - spinbutton "* 生命周期" [ref=e252]: "9999"
+                  - generic [ref=e253]: 天
+              - generic [ref=e256]:
+                - generic "表类型" [ref=e258]
+                - generic [ref=e262]:
+                  - generic [ref=e263] [cursor=pointer]:
+                    - radio "内部表" [checked] [ref=e265]
+                    - generic [ref=e267]: 内部表
+                  - generic [ref=e268] [cursor=pointer]:
+                    - radio "外部表" [ref=e270]
+                    - generic [ref=e272]: 外部表
+              - generic [ref=e275]:
+                - generic "hdfs存储路径" [ref=e277]
+                - textbox "hdfs存储路径" [ref=e281]:
+                  - /placeholder: 请输入存储路径
+          - generic [ref=e283]:
+            - button "取 消" [ref=e285] [cursor=pointer]:
+              - generic [ref=e286]: 取 消
+            - button "下一步" [ref=e288] [cursor=pointer]:
+              - generic [ref=e289]: 下一步
+```

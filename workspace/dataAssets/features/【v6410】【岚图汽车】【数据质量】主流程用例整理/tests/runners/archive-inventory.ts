@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "@playwright/test";
 
-const FEATURE_DIR = "workspace/dataAssets/features/2099-01-lt-dq-main-flow";
+const FEATURE_DIR = "workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】主流程用例整理";
 const ARCHIVE_PATH = join(FEATURE_DIR, "岚图主流程用例整理.md");
 const CASES_DIR = join(FEATURE_DIR, "tests/cases");
 

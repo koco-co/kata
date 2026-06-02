@@ -10985,3 +10985,46 @@ function formatMonitorRecordStatus(status: unknown, sourceRef: string): string {
   expect(label, `${sourceRef}: monitorRecord status=${String(status)} 应为已知状态`).toBeTruthy();
   return label as string;
 }
+
+// ─── 数据质量规则任务新建页抽样检查设置 Shell（t29） ───
+
+export async function expectDataQualitySamplingConfigShell(page: Page, sourceRef: string): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/rule/add");
+  await expect(page, `${sourceRef}: 新建监控规则应进入 /dq/rule/add`).toHaveURL(/\/dq\/rule\/add/);
+  const body = page.locator("body");
+  for (const label of ["新建单表校验规则", "监控对象", "规则名称", "选择数据源", "下一步"]) {
+    await expect(body, `${sourceRef}: 新建监控规则页面应展示「${label}」`).toContainText(label, {
+      timeout: 30000,
+    });
+  }
+  // 核验数据预览与抽样检查设置入口可见
+  await expect(body, `${sourceRef}: 新建监控规则页面应展示数据预览区域`).toContainText(/数据预览/, {
+    timeout: 30000,
+  });
+  const samplingArea = page
+    .locator(".ant-form-item, .ant-row, .ant-card, section, div")
+    .filter({ hasText: /抽样检查|抽样行数|采样行数/ })
+    .first();
+  const samplingVisible = await samplingArea.isVisible({ timeout: 5000 }).catch(() => false);
+  if (!samplingVisible) {
+    // 点击数据预览区域展开抽样配置（按钮形式入口）
+    const previewButton = page.getByRole("button", { name: /数据预览/ }).first();
+    const previewVisible = await previewButton.isVisible({ timeout: 3000 }).catch(() => false);
+    if (previewVisible) await previewButton.click().catch(() => {});
+  }
+  await expect(
+    page
+      .locator(".ant-form-item, .ant-row, .ant-card, section, div")
+      .filter({ hasText: /抽样检查|抽样行数|采样行数/ })
+      .first(),
+    `${sourceRef}: 新建监控规则页面应展示抽样检查设置区域`,
+  ).toBeVisible({ timeout: 30000 });
+  // 抽样检查开关可见
+  const samplingSwitch = page
+    .locator(".ant-form-item, .ant-row, .ant-card, section, div")
+    .filter({ hasText: /抽样检查|抽样行数|采样行数/ })
+    .first()
+    .locator(".ant-switch, [role='switch']")
+    .first();
+  await expect(samplingSwitch, `${sourceRef}: 抽样检查设置开关应可见`).toBeVisible({ timeout: 15000 });
+}
