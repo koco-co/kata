@@ -51,7 +51,8 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 | --------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
 | references/cli-essentials.md      | ui-probe/generate/repair 阶段需要 API 速查时   | 原生 Playwright API：探测/属性/断言/mock/trace/下载；含 @playwright/cli 可选探索边界 |
 | references/execution-protocol.md  | env 确认且无 blocker 后的重阶段                | per-case 任务编排与公开进度、子代理派发、汇总集中评审 |
-| prompts/agent-worker.md           | ui-probe/generate/self-run/repair 派执行子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
+| prompts/agent-precondition.md     | 前置条件处理阶段（env-preflight 通过后）         | 前置 opus 子代理模板：ui-probe 探测 + 共享层 + 用例清单校正 |
+| prompts/agent-worker.md           | 用例 generate/self-run/repair 派子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
 | prompts/agent-spec-reviewer.md    | 汇总 & 质量闸门阶段                            | spec 合规机械检查                              |
 | prompts/agent-quality-reviewer.md | 汇总 & 质量闸门阶段（spec 通过后）             | 脚本质量（选择器、断言、复用度）               |
 
