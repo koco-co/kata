@@ -1,5 +1,9 @@
-import { describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
+  buildCaseTaskList,
   classifyMutation,
   isSerialCase,
   parseArchiveCases,
@@ -101,5 +105,82 @@ describe("parseArchiveCases", () => {
     );
     expect(cases[0].priority).toBe("P?");
     expect(cases[0].title).toBe("无优先级的用例标题");
+  });
+});
+
+const TMP = join(tmpdir(), `kata-case-tasks-${process.pid}`);
+
+beforeAll(() => {
+  mkdirSync(TMP, { recursive: true });
+});
+afterAll(() => {
+  rmSync(TMP, { recursive: true, force: true });
+});
+
+function makeFeature(name: string, manifest: object, archive?: string): string {
+  const dir = join(TMP, name);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  if (archive) writeFileSync(join(dir, "archive.md"), archive);
+  return dir;
+}
+
+describe("buildCaseTaskList", () => {
+  it("intents 为空时退回解析 archive.md", () => {
+    const dir = makeFeature(
+      "f-archive",
+      {
+        feature_id: "demo-archive",
+        automation: { intents: [] },
+        files: { archive: "archive.md" },
+      },
+      ARCHIVE_SNIPPET,
+    );
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("archive_md");
+    expect(list.feature_id).toBe("demo-archive");
+    expect(list.case_count).toBe(3);
+    expect(list.cases[1].mutates_data).toBe(true);
+  });
+
+  it("intents 有 ready 项时优先用 intents", () => {
+    const dir = makeFeature("f-intents", {
+      feature_id: "demo-intents",
+      automation: {
+        intents: [
+          { id: "I1", title: "新增规则并保存", automation_status: "ready" },
+          { id: "I2", title: "查看规则列表", automation_status: "ready" },
+        ],
+      },
+      files: { archive: "archive.md" },
+    });
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("manifest_intents");
+    expect(list.case_count).toBe(2);
+    expect(list.cases[0].title).toBe("新增规则并保存");
+    expect(list.cases[0].mutates_data).toBe(true);
+    expect(list.cases[1].mutates_data).toBe(false);
+  });
+
+  it("混合状态 intents 只取 ready 项", () => {
+    const dir = makeFeature("f-mixed", {
+      feature_id: "demo-mixed",
+      automation: {
+        intents: [
+          { id: "I1", title: "新增规则并保存", automation_status: "ready" },
+          { id: "I2", title: "查看规则列表", automation_status: "ready" },
+          { id: "I3", title: "草稿用例不应出现", automation_status: "draft" },
+        ],
+      },
+      files: { archive: "archive.md" },
+    });
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("manifest_intents");
+    expect(list.case_count).toBe(2);
+    expect(list.cases.map((c) => c.title)).not.toContain("草稿用例不应出现");
+  });
+
+  it("manifest 缺失时抛错", () => {
+    expect(() => buildCaseTaskList(join(TMP, "does-not-exist"))).toThrow();
   });
 });
