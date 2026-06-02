@@ -103,6 +103,14 @@ export function auditFile(
   return join(auditDir(project, yyyymm, slug), ...segments);
 }
 
+/**
+ * Bug/conflict defect report bucket. HTML reports for bug & conflict modes.
+ * workspace/{project}/_shared/archive/defects/{yyyymm}-{slug}/.
+ */
+export function defectDir(project: string, yyyymm: string, slug: string): string {
+  return join(projectDir(project), "_shared", "archive", "defects", `${yyyymm}-${slug}`);
+}
+
 export function xmindDir(project: string): string {
   return join(projectDir(project), "_shared", "archive", "xmind");
 }

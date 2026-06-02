@@ -21,9 +21,9 @@ description 已覆盖触发场景；此处只说明改走目标：
 
 ## 模式分诊（工作流）
 
-- `bug`：异常堆栈、控制台错误、HTTP 失败等可复现 bug 证据 → 产 `defect-report.md`。
-- `conflict`：带合并冲突标记的文本 → 产 `conflict-resolution-plan.md`。
-- `diff`：仓库 diff / 分支对 / 变更文件集要求静态扫描 → fork 一个 general-purpose 子代理执行扫描，产 `defect-report.md`。
+- `bug`：异常堆栈、控制台错误、HTTP 失败等可复现 bug 证据 → 组装 BugReport JSON → `kata defect-report render-bug`（默认 full variant，可切 simple/zentao）产 `report.html`。
+- `conflict`：带合并冲突标记的文本 → 组装 ConflictReport JSON → `kata defect-report render-conflict` 产 `report.html`。
+- `diff`：仓库 diff / 分支对 / 变更文件集要求静态扫描 → fork 一个 general-purpose 子代理执行扫描，经 `kata scan-report` 产 `report.html`。
 
 ## 硬规则（不变量）
 
@@ -35,5 +35,6 @@ description 已覆盖触发场景；此处只说明改走目标：
 
 ## 产物
 
-- bug / diff 模式 → `defect-report.md`（根因 + evidence_refs + impacted_areas）。
-- conflict 模式 → `conflict-resolution-plan.md`（含 side_a / side_b 与 resolution_plan）。
+- bug 模式 → `report.html`（bug-report 模版，默认 full variant；根因 + evidence_refs + impacted_areas 编入 JSON）。
+- diff 模式 → `report.html`（scan-report 模版，根因 + evidence_refs + impacted_areas）。
+- conflict 模式 → `report.html`（conflict-report 模版，含 side_a / side_b 与 resolution_plan）。
