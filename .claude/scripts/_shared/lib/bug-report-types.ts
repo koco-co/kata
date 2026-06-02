@@ -95,6 +95,9 @@ export interface ConflictItem {
 }
 
 export interface ManualDecision {
+  conflict_id?: string;
+  file?: string;
+  description?: string;
   recommended?: string;
   options?: string[];
 }

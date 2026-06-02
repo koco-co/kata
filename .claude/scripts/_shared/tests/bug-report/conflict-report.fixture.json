@@ -1,0 +1,51 @@
+{
+  "title": "release_6.3.x 合并 feature/order-refactor 冲突",
+  "analysis_time": "2026-06-02T10:00:00Z",
+  "branches": { "head": "release_6.3.x", "incoming": "feature/order-refactor" },
+  "summary": {
+    "total_conflicts": 2,
+    "manual_required": 1,
+    "auto_resolvable": 1,
+    "files_affected": ["OrderService.java", "pom.xml"]
+  },
+  "conflicts": [
+    {
+      "id": "c-001",
+      "conflict_id": "OrderService#calculateTotal",
+      "file": "OrderService.java",
+      "line_range": "80-95",
+      "type": "逻辑冲突",
+      "description": "两边都改了总价计算",
+      "head_intent": "加优惠券判空",
+      "incoming_intent": "改税率计算顺序",
+      "branches": { "head": "release_6.3.x", "incoming": "feature/order-refactor" },
+      "decision_basis": "两处修改正交，可合并",
+      "suggestion": "保留判空 + 新税率顺序",
+      "merged_code": "if (couponList != null) { ... } applyTax();",
+      "resolution": "manual"
+    },
+    {
+      "id": "c-002",
+      "conflict_id": "pom.xml#deps",
+      "file": "pom.xml",
+      "line_range": "30-34",
+      "type": "依赖冲突",
+      "description": "版本号冲突",
+      "head_intent": "升级到 2.7.5",
+      "incoming_intent": "保持 2.7.3",
+      "branches": { "head": "release_6.3.x", "incoming": "feature/order-refactor" },
+      "decision_basis": "取较高版本",
+      "suggestion": "用 2.7.5",
+      "resolution": "auto"
+    }
+  ],
+  "manual_decision_list": [
+    {
+      "conflict_id": "OrderService#calculateTotal",
+      "file": "OrderService.java",
+      "description": "需人工确认：合并判空逻辑与新税率计算顺序",
+      "recommended": "保留判空 + 新税率顺序",
+      "options": ["保留判空 + 新税率顺序", "只保留判空", "只保留新税率顺序"]
+    }
+  ]
+}

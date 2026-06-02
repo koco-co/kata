@@ -1,0 +1,57 @@
+{
+  "title": "NPE in OrderService.calculateTotal",
+  "severity": "major",
+  "problem_type": "代码问题",
+  "priority": 2,
+  "priority_label": "高",
+  "confidence": 0.82,
+  "confidence_reason": "堆栈直指空指针来源帧",
+  "analysis_time": "2026-06-02T10:00:00Z",
+  "summary": "下单计算总价时空指针导致 500",
+  "root_cause": "couponList 未判空即遍历",
+  "stack_trace": {
+    "exception_type": "NullPointerException",
+    "exception_message": "Cannot invoke size() on null",
+    "root_cause_frame": "OrderService.calculateTotal(OrderService.java:88)",
+    "trigger_handler": "OrderController.submit",
+    "note": "仅在无优惠券时触发",
+    "caused_by_chain": ["couponService.list 返回 null", "calculateTotal 未判空"],
+    "call_chain": [
+      { "class": "OrderController", "method": "submit", "line": 42, "is_entry": true },
+      { "class": "OrderService", "method": "calculateTotal", "line": 88, "is_root": true, "error": "NPE here", "description": "空指针抛出点：couponList 未判空" }
+    ]
+  },
+  "request_info": {
+    "url": "/api/order/submit",
+    "method": "POST",
+    "status_code": 500,
+    "params": "{\"orderId\":123}",
+    "response_preview": "{\"code\":500,\"msg\":\"系统异常\"}"
+  },
+  "environment": {
+    "deploy_env": "测试环境",
+    "framework": "Spring Boot 2.7",
+    "java_version": "11",
+    "source_ref": "release_6.3.x@a1b2c3d"
+  },
+  "code_location": {
+    "file": "OrderService.java",
+    "line": 88,
+    "snippet": "for (Coupon c : couponList) { ... }",
+    "analysis": "couponList 来自外部服务，可能为 null",
+    "evidence": "couponService.list javadoc 标注 nullable",
+    "evidence_code": "List<Coupon> list() // @Nullable"
+  },
+  "location": "OrderService.java:88",
+  "fix_suggestions": [
+    {
+      "action": "对 couponList 判空",
+      "reason": "避免遍历 null",
+      "detail": "Optional.ofNullable(...).orElse(emptyList)",
+      "location": "calculateTotal 入口",
+      "priority": 1,
+      "priority_label": "高",
+      "title": "判空修复"
+    }
+  ]
+}
