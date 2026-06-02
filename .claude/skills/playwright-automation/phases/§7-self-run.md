@@ -51,30 +51,30 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAss
 
 ### 第五步：人工验收命令
 
-无论结果是 passed、blocked、failed 还是 partial，最终交付前都必须打印一条可直接复制运行的有头模式 full test 临时命令，供人工验收：
+不管结果是 passed、blocked、failed 还是 partial，最终交付前都要打印一条人工验收命令：有头模式、跑 full test、可直接复制运行。
 
 ```bash
 KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 
-调试期可以使用无头命令，但交付/阻塞说明中必须同时给出上述 `--headed` full.spec.ts 命令；不得只宣称完成或只给 smoke/single-case 命令。
+调试时可以用无头命令，但交付或阻塞说明里必须同时给出上面这条 `--headed` full.spec.ts 命令；不能只宣称完成，也不能只给 smoke 或单条用例命令。
 
-## Self-run command template
+## self-run 命令模板
 
-1. Allocate run id via:
+1. 先分配 run id：
    ```bash
    RUN_PATH=$(kata results path <featureId> --new-run --project <project>)
    RUN_ID=$(basename "$RUN_PATH")
    ```
-2. Execute:
+2. 运行测试：
    ```bash
    PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
      npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' \
      --output="$RUN_PATH/playwright" \
      --reporter=line,json,allure
    ```
-3. After test exit, write `$RUN_PATH/handoff.json` per `PlaywrightAutomationHandoff@2` schema. `run_command` records the actual command that was run; `acceptance_command` must record the required headful full-run command with `full.spec.ts` and `--headed`.
-4. Render md: `kata handoff render <featureId> --run "$RUN_ID" --project <project>`.
+3. 测试退出后，按 `PlaywrightAutomationHandoff@2` schema 写 `$RUN_PATH/handoff.json`。`run_command` 记本次实际跑的命令；`acceptance_command` 记带 `full.spec.ts` 和 `--headed` 的有头全量验收命令。
+4. 渲染 md：`kata handoff render <featureId> --run "$RUN_ID" --project <project>`。
 
 ## 禁止
 

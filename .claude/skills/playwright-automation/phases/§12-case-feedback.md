@@ -1,6 +1,6 @@
 # case-feedback
 
-## Contents
+## 目录
 
 - 读取时机
 - 协议
@@ -43,11 +43,11 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 
 - `confidence: high` — 有 probe 截图 + locator 命中 + 文本/行为可机械比对。
 - `confidence: medium` — 有 probe 证据但需主观判断（如"模糊步骤"是否应改）。
-- `confidence: low` — 仅基于失败归因推断，无直接 UI 证据；产出但默认建议人工先判定。
+- `confidence: low` — 只根据失败原因推断，没有直接 UI 证据；照样产出，但默认建议人工先判定。
 
 ## 服务器侧操作缺口
 
-当 archive 用例明确要求在服务器、pod、容器或 `localhost:<port>` 执行 `curl`、脚本、调度任务等非浏览器操作时，不得仅因当前 Playwright UI 会话没有该操作通道，就生成把原步骤改成"已由运维或测试数据准备流程完成"之类的语义降级 correction。应保留原步骤语义，并在 handoff 或 case-corrections 中把缺口描述为需要确认具体执行通道（SSH 主机、Kubernetes namespace/pod、Kuboard 入口、端口映射或可调用 oracle）。只有用户确认该服务器侧操作不需要或产品流程已经变更时，才可提出改写 archive 的 proposed_change。
+有时 archive 用例明确要求在服务器、pod、容器或 `localhost:<port>` 上执行 `curl`、脚本、调度任务等非浏览器操作。这种情况下，不能只因为当前 Playwright UI 会话没有这条操作通道，就生成一条把原步骤改成"已由运维或测试数据准备流程完成"之类的语义降级 correction。要保留原步骤的语义，并在 handoff 或 case-corrections 里把缺口写成「需要确认具体执行通道」（SSH 主机、Kubernetes namespace/pod、Kuboard 入口、端口映射或可调用的 oracle）。只有用户确认这步服务器侧操作不需要、或产品流程已经变了，才可以提出改写 archive 的 proposed_change。
 
 ## case-corrections.md 结构
 
@@ -133,14 +133,14 @@ by_category:
 
 生成新 corrections 前，扫描该 feature 下所有历史 run-id：
 
-1. 已 `applied` 的条目（来自历史 `case-corrections-applied.md`）→ 按三元组 `(case_ref, doc_claim, proposed_change)` **直接过滤**，不再生成。
-2. 历史 `case-corrections.md` 中 `status: rejected` 的条目 → 按同三元组**保留生成**，但在新条目填充 `previously_rejected: <prev_run_id>` 提示。
-3. 同三元组若被 `rejected` 3 次或以上（统计全部历史 run）→ 视为终态噪音，新一轮直接过滤。
+1. 已 `applied` 的条目（来自历史 `case-corrections-applied.md`）：按三元组 `(case_ref, doc_claim, proposed_change)` **直接过滤**，不再生成。
+2. 历史 `case-corrections.md` 里 `status: rejected` 的条目：按同一三元组**保留生成**，但在新条目里填上 `previously_rejected: <prev_run_id>` 提示。
+3. 同一三元组若被 `rejected` 3 次或以上（统计全部历史 run）：视为终态噪音，新一轮直接过滤。
 
 ## 输出阈值
 
-- 若本轮无任何可生成的 correction，仍写 `case-corrections-summary.json`（total=0、status=pending），方便 handoff render 渲染"无反哺"段落。
-- 单轮 corrections 超过 50 条时，按 confidence 从高到低截断到前 50；超出部分写入同目录 `case-corrections-overflow.md` 仅作记录，不进 summary。
+- 本轮若没有任何可生成的 correction，也要写 `case-corrections-summary.json`（total=0、status=pending），方便 handoff render 渲染「无反哺」段落。
+- 单轮 corrections 超过 50 条时，按 confidence 从高到低截断到前 50 条；超出的部分写入同目录 `case-corrections-overflow.md` 仅作记录，不进 summary。
 
 ## 禁止
 

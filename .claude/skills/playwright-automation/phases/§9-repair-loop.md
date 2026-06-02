@@ -1,6 +1,6 @@
 # repair-loop
 
-## Contents
+## 目录
 
 - 读取时机
 - 协议
@@ -32,7 +32,7 @@
 2. **等待超时**：
    - 检查是否有 loading spinner / skeleton 未消失
    - 改用具体等待目标：`expect(locator).toBeVisible({ timeout: 15000 })`、`page.waitForResponse(/api\/xxx/)`、`page.waitForURL('**/xxx')`
-   - **禁止**用 `waitForLoadState("networkidle")` 作为超时 band-aid——networkidle 不可靠，会掩盖真实等待条件（Playwright 官方 Heal 原则）
+   - **禁止**用 `waitForLoadState("networkidle")` 当超时补丁。networkidle 不可靠，会掩盖真正该等的条件（Playwright 官方 Heal 原则）
 3. **页面导航失败**：
    - 检查是否有重定向链
    - 确认 storageState 未过期
@@ -74,7 +74,7 @@
 修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
 
 - **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
-- **`product` 类**（功能 / 文案 / 业务规则变了）→ 用户可见变化：**不在此处硬改断言迁就产品行为的变化**；转 handoff 阻塞 + 触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再修用例。把产品行为的变化当技术问题硬改断言，等于假通过，违反步骤与断言的真实性规则。
+- **`product` 类**（功能、文案、业务规则变了）→ 这是用户能看到的变化：**不要在这里硬改断言去迁就产品的变化**。改走 handoff 阻塞，并触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再改用例。把产品的变化当技术问题硬改断言，就是假通过，违反步骤与断言的真实性规则。
 
 ### 第五步：禁止
 
@@ -111,6 +111,6 @@ remaining_failures:
 - repair-loop 期间创建的调试 spec 必须放在 `features/<featureId>/.debug/probe-<timestamp>.spec.ts` 下。
 - 绝不把 `t01-debug.spec.ts`、`*-repro.spec.ts` 或 `diag_*.ts` 放进 `tests/cases/`。
 - 运行期调试捕获（HAR / 截图 / trace）须用 `.debug/` 内的 `testInfo.outputPath()`。
-- 修复成功后 `.debug/` 目录自动清理；修复失败则保留 `.debug/` 内容，供下一次 handoff 做阻塞分诊。
+- 修复成功后自动清理 `.debug/` 目录；修复失败就保留 `.debug/` 内容，供下一次 handoff 做阻塞分流。
 
-质量门 `no_debug_in_cases` 强制命名约束。
+检查项 `no_debug_in_cases` 强制这条命名约束。
