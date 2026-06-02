@@ -9,6 +9,11 @@ import {
   checkRuntimeSkillSync,
   formatRuntimeSkillSyncReport,
 } from "@shared/lib/skills/runtime-sync.ts";
+import {
+  type CodexSkillReport,
+  formatCodexSkillReport,
+  lintCodexSkillTree,
+} from "@shared/lint/codex-skill-shape.ts";
 import { lintAgentFrontmatter } from "@shared/lint/skill-frontmatter.ts";
 import { lintSkillShape } from "@shared/lint/skill-shape.ts";
 import { formatStructureReport, lintSkillStructure } from "@shared/lint/skill-structure.ts";
@@ -57,8 +62,21 @@ export function buildSkillsCommand(): Command {
     .command("audit")
     .description("审查 skills SKILL.md + references 契约与 agents frontmatter")
     .option("--exit-code", "exit non-zero on any violation", false)
-    .action((opts: { exitCode: boolean }) => {
+    .option("--runtime <runtime>", "审查目标运行时：claude | codex", "claude")
+    .action((opts: { exitCode: boolean; runtime: string }) => {
       const root = repoRoot();
+
+      // codex 运行时：校验 .agents/skills symlink 树 + bootstrap + plugin.json 的 canonical 形态
+      if (opts.runtime === "codex") {
+        const report: CodexSkillReport = lintCodexSkillTree(root);
+        const text = formatCodexSkillReport(report, root);
+        if (report.passed) console.log(text);
+        else process.stderr.write(`${text}\n`);
+        console.log(`\n[skills audit:codex] total violations=${report.violations.length}`);
+        if (opts.exitCode && !report.passed) process.exit(1);
+        return;
+      }
+
       const skillsRoot = skillsDir();
       const agentsRoot = agentsDir();
       const skillList = listSkillDirNames(skillsRoot);
