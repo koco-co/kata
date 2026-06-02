@@ -32,7 +32,7 @@ bunx playwright install
 
 ## 配置变量
 
-编辑 `.env` 和可选的 `.env.envs`，配置以下场景所需变量：
+编辑 `.env` 和可选的 `.env.envs`，按需配置以下场景用到的变量：
 
 | 场景 | 配置变量 |
 | --- | --- |
@@ -46,13 +46,13 @@ bunx playwright install
 
 ## 安全守卫（仓库自带）
 
-仓库内置 `.claude/settings.json`，把 `pre-edit-guard` / `pre-bash-guard` 挂进 Claude Code 的 `PreToolUse`：
+仓库自带 `.claude/settings.json`，把 `pre-edit-guard` 和 `pre-bash-guard` 挂进 Claude Code 的 `PreToolUse`：
 
 - `pre-edit-guard`：拦截对源仓库证据 `workspace/{project}/.kata/repos/**` 的 Edit/Write。
-- `pre-bash-guard`：拦截 `rm -rf workspace/`、`rm -rf /`、以及对 `.kata/repos/` 的 git push。
+- `pre-bash-guard`：拦截 `rm -rf workspace/`、`rm -rf /`，以及对 `.kata/repos/` 的 git push。
 
-首次在 Claude Code 打开本项目时会提示批准这些项目级 hook（安全机制），批准后即生效。紧急情况可用 `KATA_BYPASS_HOOK=1` 临时绕过。命令行直接操作不经 Claude Code，不受 hook 约束，仍以 `.claude/rules/repo-readonly.md` 为准。
+第一次在 Claude Code 打开本项目时，会提示你批准这些项目级 hook（安全机制），批准后就生效。紧急时可以用 `KATA_BYPASS_HOOK=1` 临时绕过。直接在命令行操作不经 Claude Code，不受 hook 约束，但仍以 `.claude/rules/repo-readonly.md` 为准。
 
 ## 安装完成
 
-回到 Claude Code 输入 `/workspace-manage` 查看功能菜单。
+回到 Claude Code，输入 `/workspace-manage` 查看功能菜单。

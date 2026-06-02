@@ -8,4 +8,4 @@
   > skill 私有 rules
 ```
 
-knowledge 不参与硬约束优先级（事实 ≠ 约束），但所有 skill / engine 必须先读 knowledge 再做决策。
+knowledge 不进入硬约束的优先级排序，因为事实不等于约束；但所有 skill 和 engine 都必须先读 knowledge，再做决策。
