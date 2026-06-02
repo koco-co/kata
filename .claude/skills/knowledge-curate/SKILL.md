@@ -9,7 +9,7 @@ effort: medium
 
 # knowledge-curate
 
-查询与维护项目业务知识：把业务事实 / 规则 / 术语记录到 `workspace/{project}/_shared/knowledge/`，查询时回指证据。
+查询与维护项目业务知识：把业务事实、规则、术语记录到 `workspace/{project}/_shared/knowledge/`，查询时指回证据。
 
 ## 路由边界
 
@@ -20,17 +20,17 @@ description 已覆盖触发场景；此处只说明改走目标：
 
 ## 工作流
 
-1. 查询：在 `workspace/{project}/_shared/knowledge/**` 检索命中条目并回指其 SourceRef ID；无可靠命中时明说「知识库无已确认匹配」，不臆造。
-2. 写入前读 `references/knowledge-rules.md`，按分类规约落盘；低置信度更新先与用户确认。
+1. 查询：在 `workspace/{project}/_shared/knowledge/**` 检索命中条目，并指回它的 SourceRef ID；没有可靠命中时直接说明「知识库无已确认匹配」，不要臆造。
+2. 写入前先读 `references/knowledge-rules.md`，按分类规则落盘；置信度低的更新先和用户确认。
 
 ## 何时加载哪个文件
 
 | 文件 | 何时读 | 作用 |
 | --- | --- | --- |
-| references/knowledge-rules.md | 查询或写入知识条目前 | 分类规约、分仓边界与记录流程 |
+| references/knowledge-rules.md | 查询或写入知识条目前 | 分类规则、分仓边界和记录流程 |
 
-## 硬规则（不变量）
+## 必须遵守的规则
 
-- 业务知识存于 `workspace/{project}/_shared/knowledge/**`，项目规则存于 `workspace/{project}/_shared/rules/**`——两者分仓，不混写。
-- 未明确选定项目前不得跨项目编辑知识——跨项目写入会污染其它项目的知识库。
-- 查询结果回指知识条目的 SourceRef ID；无证据支撑的根因/事实不写入。
+- 业务知识存于 `workspace/{project}/_shared/knowledge/**`，项目规则存于 `workspace/{project}/_shared/rules/**`。两者分仓存放，不要混写。
+- 没有明确选定项目前，不要跨项目编辑知识。跨项目写入会污染其它项目的知识库。
+- 查询结果要指回知识条目的 SourceRef ID；没有证据支撑的根因和事实不写入。

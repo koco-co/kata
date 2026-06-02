@@ -1,10 +1,10 @@
 # Playwright 原生 API 速查
 
-kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**交付脚本一律原生 `@playwright/test`**；`@playwright/cli` 仅作 §4 ui-probe 可选交互探索助手，其产物不直接进交付物（边界规则见文末）。
+kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**交付脚本一律用原生 `@playwright/test`**；`@playwright/cli` 只作 §4 ui-probe 阶段的可选交互探索工具，它的产物不直接进交付物（边界规则见文末）。
 
 完整 Playwright API 见 https://playwright.dev/docs/api/class-page。
 
-## Contents
+## 目录
 
 - 探测上下文与证据采集（§4 ui-probe 用）
 - 元素属性检视（§4 ui-probe 用）
@@ -107,7 +107,7 @@ await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅
 ## 请求 mock（page.route）
 
 > ⚠️ **kata 护栏**：仅用于探测边界态、隔离不稳定的第三方/非被测依赖、构造前置数据态。
-> **禁止 mock 被测业务接口的返回来让断言通过**——等于表面通过，违反 §6 步骤与断言的真实性与 quality-gate。
+> **禁止 mock 被测业务接口的返回来让断言通过**。这等于表面通过，违反 §6 的步骤与断言真实性，也违反 quality-gate。
 
 ```javascript
 // 静态 stub（屏蔽外部图片/资源）
@@ -232,14 +232,14 @@ await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 
 **原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不要多轮文字追问。
 
-带标注的 proof-of-work 演示视频（`showChapter`/`showOverlay`）可用 `@playwright/cli` 的 `run-code` 实现，属于**可选演示产物**，非交付物必需。
+带标注的演示视频（`showChapter`/`showOverlay`）可用 `@playwright/cli` 的 `run-code` 实现，属于**可选演示产物**，不是交付物必需。
 
 ## 可选：`@playwright/cli` 交互式探索（仅 §4 ui-probe，禁止进交付物）
 
-`@playwright/cli`（`bunx playwright-cli`，0.1.x 早期 API）已作为 devDependency 安装，可作为 §4 token 高效交互探索助手。**以下边界必须遵守**：
+`@playwright/cli`（`bunx playwright-cli`，0.1.x 早期 API）已作为 devDependency 安装，可在 §4 阶段作为省 token 的交互探索工具。**以下边界必须遵守**：
 
 1. **仅用于 ui-probe 阶段**的交互探索、页面 snapshot、codegen 起草 locator，不用于任何其他阶段。
-2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**——会话唯一真相仍是 `env profile` + `auth.session_path` storageState（§2 env-preflight 硬规则）。
+2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话的唯一真相仍是 `env profile` + `auth.session_path` storageState（§2 env-preflight 规则）。
 3. **codegen / snapshot 产出是草稿**：必须经 ui-probe 真实证据（DOM 文本 / API）重新验证、改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）才能进 spec。
 4. **不替代 `probe.mjs` 证据要求**，也不绕过「每 ui-probe step ≤3 个探测脚本」预算。
 

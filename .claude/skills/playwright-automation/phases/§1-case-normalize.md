@@ -1,6 +1,6 @@
 # case-normalize
 
-## Contents
+## 目录
 
 - 输入优先级
 - 读取时机
@@ -9,17 +9,17 @@
 
 ## 输入优先级
 
-1. **主源：** `features/<featureId>/manifest.json#automation.intents[]` 中 `automation_status: ready` 的项，直接逐条迭代。
-2. **case-draft 归档：** 当 `archive.md` + `test-point-checklist.md` 存在且 `case_drafting.status == completed` 时，从归档归一化。
-3. **源材料 bootstrap：** 仅当 feature 目录缺少 case-draft 自动化基线，但同一目标目录内含 `prd.md` 与 `inputs/lanhu-snapshots/` 时使用。
-   - 发出 `source_backed_bootstrap`，并在读取这些源文件前先进入 `env-preflight`。
-   - 进入 env 前的源材料检查只能做精确路径存在性判断：`test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots` 或等价的精确目标元数据。
-   - 不得 list、glob、find、读取或枚举截图文件名。
-   - 此路径用于 `/playwright-automation <title>` 这类短提示——用户期望先确认环境再做真实 UI probe。
-4. **兜底：** 仅当用户传入裸 `archive.md` 路径、裸 PRD 路径，或尚无 feature 目录的 Lanhu 链接时，才像以前一样做自由推断。
-5. **硬停：** 若 feature 目录存在但既无 case-draft 自动化基线也无源材料，不得从无关 PRD/截图推断 UI。返回 `blocked_by_case_draft_required` 并要求先完成 `/case-draft`。
+1. **主源：** `features/<featureId>/manifest.json#automation.intents[]` 里 `automation_status: ready` 的项，逐条迭代。
+2. **case-draft 归档：** `archive.md` + `test-point-checklist.md` 都在、且 `case_drafting.status == completed` 时，从归档统一格式。
+3. **源材料 bootstrap：** 只在 feature 目录缺 case-draft 自动化基线、但同一目标目录里有 `prd.md` 和 `inputs/lanhu-snapshots/` 时走这条。
+   - 发出 `source_backed_bootstrap`，读这些源文件前先进入 `env-preflight`。
+   - 进 env 之前查源材料，只能做精确路径存在性判断：`test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`，或等价的精确目标元数据。
+   - 不得 list、glob、find，不得读取或枚举截图文件名。
+   - 这条路径服务于 `/playwright-automation <title>` 这类短提示：用户期望先确认环境，再做真实 UI probe。
+4. **兜底：** 只在用户传入裸 `archive.md` 路径、裸 PRD 路径，或还没建 feature 目录的 Lanhu 链接时，才像以前一样自由推断。
+5. **硬停：** feature 目录在、但既没 case-draft 自动化基线也没源材料时，不得拿无关的 PRD 或截图去推断 UI。返回 `blocked_by_case_draft_required`，要求先完成 `/case-draft`。
 
-兜底路径会发出 `manifest_missing_fallback_inference` 告警，便于追踪使用情况并逐步迁移残留项。
+兜底路径会发出 `manifest_missing_fallback_inference` 告警，方便追踪它的使用情况，逐步把这类残留项迁走。
 
 ## 读取时机
 
@@ -27,7 +27,7 @@
 
 ## 协议
 
-用户输入的是一条短提示，通常格式为：
+用户输入的是一条短提示，通常长这样：
 
 ```
 需求: {feature_path_or_name}
@@ -41,33 +41,33 @@ cookie: {cookie_string}
 ### 第一步：识别需求目录
 
 1. 从需求字段提取需求名称或路径
-2. 检查 `workspace/dataAssets/features/` 下是否有匹配目录：
-   - 若给出完整路径前缀 → 直接定位
-   - 若只给名称，先抽取 2-6 个标题关键词，使用带 `-g` 限定的内容搜索。
+2. 检查 `workspace/dataAssets/features/` 下有没有匹配的目录：
+   - 给了完整路径前缀 → 直接定位
+   - 只给名称时，先抽 2-6 个标题关键词，用带 `-g` 限定的内容搜索。
    - 示例：`rg -n "内置规则丰富|合理性|单表|字段值|计算关系|字段值的计算关系对比" workspace/dataAssets/features -g "manifest.json" -g "metadata.yaml" -g "archive.md" -g "prd.md"`。
-   - 从搜索输出中按标题精确度选择命中目录；不得优先选择 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录，除非用户明确输入该目录名。
-   - 若搜索输出中某目录的 `prd.md`、`metadata.yaml` 或 `manifest.json` 命中行包含用户标题的核心连续短语，该目录为唯一精确目标。
+   - 在搜索结果里按标题精确度挑命中目录；除非用户明确点了该目录名，否则不得优先选 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录。
+   - 若某目录的 `prd.md`、`metadata.yaml` 或 `manifest.json` 命中行里含有用户标题的核心连续短语，这个目录就是唯一精确目标。
    - 核心连续短语示例：`【内置规则丰富】合理性，单表，字段值的计算关系对比` 或 `15529【内置规则丰富】合理性，单表，字段值的计算关系对比`。
-   - 不得选择只匹配“单表/字段值/对比”等泛化词的历史 archive 目录。
+   - 不得选只匹配「单表/字段值/对比」这类泛化词的历史 archive 目录。
    - 对于输入 `【内置规则丰富】合理性，单表，字段值的计算关系对比`，必须选择 `workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/`，不得选择 `workspace/dataAssets/features/2025-09-dq-single-table-field-compare/`。
-   - 禁止通过 `ls workspace/dataAssets/features/ | head`、`ls ... | grep`、`ls -t ...`、`find workspace/dataAssets/features` 或 Glob 枚举目录名来定位需求
+   - 禁止用 `ls workspace/dataAssets/features/ | head`、`ls ... | grep`、`ls -t ...`、`find workspace/dataAssets/features` 或 Glob 枚举目录名来定位需求
 3. 读取目标需求目录下的文件结构：
-   - 只检查当前需求目录下的 `archive.md`、`test-point-checklist.md`、`prd.md`、`inputs/lanhu-snapshots/` 是否存在；`prd.md` 与 `inputs/lanhu-snapshots/` 的 source-backed 判断只能用 exact-path existence checks（如 `test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`），不得读取 `prd.md` 正文或截图内容，不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**` 或枚举截图文件名
-   - 读取 `manifest.json` 检查 `case_drafting.status` 与 `automation.status`
-   - 读取 `tests/cases/`、`tests/runners/` 检查已有自动化；如发现 feature-local helper 目录，只记录为迁移/质量门禁问题，不得复用或扩展
+   - 只检查当前需求目录下的 `archive.md`、`test-point-checklist.md`、`prd.md`、`inputs/lanhu-snapshots/` 在不在；`prd.md` 与 `inputs/lanhu-snapshots/` 的 source-backed 判断只能用精确路径存在性检查（如 `test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`），不得读 `prd.md` 正文或截图内容，不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**`，也不得枚举截图文件名
+   - 读 `manifest.json`，看 `case_drafting.status` 与 `automation.status`
+   - 读 `tests/cases/`、`tests/runners/`，看已有自动化；发现 feature-local helper 目录时，只记成迁移问题或质量检查项，不得复用或扩展
    - **禁止**批量读取 `workspace/dataAssets/features/` 下其他历史 feature 目录
-4. 若需求目录不存在 → 输出 `blocked_by_case_conflict`，注明缺失路径
-5. 若需求目录存在但缺少 `archive.md`、`test-point-checklist.md` 和 `manifest.automation.intents[].automation_status=ready` 中任一自动化输入基线，且同目录存在 `prd.md` 与 `inputs/lanhu-snapshots/`：
+4. 需求目录不存在 → 输出 `blocked_by_case_conflict`，注明缺失路径
+5. 需求目录在、但缺 `archive.md`、`test-point-checklist.md` 和 `manifest.automation.intents[].automation_status=ready` 这三个自动化输入基线中的任一项，而同目录有 `prd.md` 和 `inputs/lanhu-snapshots/`：
    - 输出 `source_backed_bootstrap`
-   - 说明当前只有需求源材料，尚无最终 case-draft；下一步必须进入 `env-preflight`，默认推荐 `ltqc-local.yaml`（若存在）并通过 askuser 确认环境
-   - 本阶段不得读取 `prd.md` 正文、截图内容、历史 feature、env profile 或跨目录 tests；env profile 读取留给 `env-preflight`
-   - 进入 `source_backed_bootstrap` 后，确认环境前不得把读取 PRD/截图和读取 env profile 放在同一轮并行执行；必须先完成环境确认触点，等待用户回复“确认”或环境文件名；确认前不得执行 `ls <target>/inputs`、`ls <target>/inputs/lanhu-snapshots`、Glob `inputs/lanhu-snapshots/**`、find 或任何截图文件名枚举
-   - 后续 `ui-plan` 可在环境确认后读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`，并必须把它们标记为 `case_claim/design_source`，不得作为 observed UI 事实
-6. 若需求目录存在但缺少 case-draft 自动化基线，且缺少 `prd.md` 或 `inputs/lanhu-snapshots/`：
+   - 说明当前只有需求源材料，还没有最终 case-draft；下一步必须进入 `env-preflight`，默认推荐 `ltqc-local.yaml`（若存在），并通过 askuser 确认环境
+   - 本阶段不得读 `prd.md` 正文、截图内容、历史 feature、env profile 或跨目录 tests；env profile 的读取留给 `env-preflight`
+   - 进入 `source_backed_bootstrap` 后，确认环境之前，不得把读 PRD/截图和读 env profile 放在同一轮并行执行；必须先走环境确认触点，等用户回复“确认”或环境文件名；确认前不得执行 `ls <target>/inputs`、`ls <target>/inputs/lanhu-snapshots`、Glob `inputs/lanhu-snapshots/**`、find，也不得枚举任何截图文件名
+   - 之后的 `ui-plan` 可以在确认环境后读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`，但必须把它们标成 `case_claim/design_source`，不得当作 observed UI 事实
+6. 需求目录在、但缺 case-draft 自动化基线，又缺 `prd.md` 或 `inputs/lanhu-snapshots/`：
    - 输出 `blocked_by_case_draft_required`
    - 说明必须先完成 `/case-draft`，生成 `archive.md`、测试点清单或 ready automation intent
-   - 不得读取 `prd.md`、`inputs/`、`inputs/lanhu-snapshots/`、截图、历史 feature、env profile 或 tests 内容
-   - 不得读取截图做 OCR，不得安装依赖，不得进入 `ui-plan`、`env-preflight` 或 `playwright-generate`
+   - 不得读 `prd.md`、`inputs/`、`inputs/lanhu-snapshots/`、截图、历史 feature、env profile 或 tests 内容
+   - 不得读截图做 OCR，不得安装依赖，不得进入 `ui-plan`、`env-preflight` 或 `playwright-generate`
 
 ### 第二步：解析 Archive MD
 
@@ -76,24 +76,24 @@ cookie: {cookie_string}
    - `case_count` → 了解规模
    - 测试用例列表 → 了解具体验证点
    - `通用前置条件` → 提取环境依赖、数据准备要求
-2. **禁止**将 Archive MD 中的文字描述直接当作真实 UI 证据
-3. Archive MD 中的页面描述仅作为 "what to test" 的意图来源，不作为 selector/页面结构的证据
-4. 若 `archive.md` 不存在但已进入 `source_backed_bootstrap`，不要在 case-normalize 阶段读取 PRD/截图；记录缺失 archive，并把读取需求源推迟到 env-preflight 之后的 ui-plan。
-5. 若既没有 archive，也不是 `source_backed_bootstrap`，不能用其他 PRD、Lanhu 截图或 OCR 结果替代 archive；本阶段必须停止并返回 `blocked_by_case_draft_required`。
+2. **禁止**把 Archive MD 里的文字描述直接当成真实 UI 证据
+3. Archive MD 里的页面描述只用来回答「测什么」，不作为 selector 或页面结构的证据
+4. 若 `archive.md` 不存在、但已进入 `source_backed_bootstrap`，则不要在 case-normalize 阶段读 PRD/截图；记下 archive 缺失，把读需求源推迟到 env-preflight 之后的 ui-plan。
+5. 若既没有 archive，也不是 `source_backed_bootstrap`，则不能拿其他 PRD、Lanhu 截图或 OCR 结果顶替 archive；本阶段必须停下，返回 `blocked_by_case_draft_required`。
 
 ### 第三步：检查已有自动化产物
 
 1. 检查 `tests/cases/` 下已有 spec：
-   - 已有文件 → 进入 **调试/修复模式**，以现有文件为基线
-   - 无文件 → 进入 **生成模式**，先落 P0 case
+   - 有文件 → 进入 **调试/修复模式**，以现有文件为基线
+   - 没文件 → 进入 **生成模式**，先落 P0 case
 2. 检查 `tests/runners/` 下已有 runner：
-   - 缺少 `smoke.spec.ts` 或 `full.spec.ts` → 规划创建
-3. 检查 `_shared/pages/` 与 `_shared/helpers/` 下已有共享对象 → 规划复用或扩展；禁止新增或修改 feature-local helper 目录
-4. **禁止**覆写未读过的已有 spec 文件
+   - 缺 `smoke.spec.ts` 或 `full.spec.ts` → 规划创建
+3. 检查 `_shared/pages/` 与 `_shared/helpers/` 下已有的共享对象 → 规划复用或扩展；禁止新增或修改 feature-local helper 目录
+4. **禁止**覆写没读过的已有 spec 文件
 
 ### 第四步：范围过滤 — 排除不可自动化的 Archive 用例
 
-对 archive.md 中提取的每个测试点，逐一做可行性评估：
+对 archive.md 里提取的每个测试点，逐一评估可行性：
 
 | 排除条件 | 判定方法 | 处理 |
 |----------|----------|------|
@@ -103,7 +103,7 @@ cookie: {cookie_string}
 | **仅可手动验证** | 预期结果无法通过 DOM 断言验证（如"表中有数据"需要检查 DB） | 排除，记录为 `offline_verification` |
 | **P0 级复杂 E2E** | P0 case 涉及多步资源创建 + 状态轮询 + 条件分支 | 必须按用例步骤真实自动化；不得简化为「进入页面验证元素存在」的只测页面表层不测业务结果的测试。当前环境确实无法真实实现并跑通时，标记 `blocked_by_*` 并记入 `handoff.excluded_cases`（含 `reason_category` + 原因） |
 
-**排除的用例必须记入 handoff 的 `excluded_cases` 字段**（每条含 `case_id` + `reason_category`（`env`/`data_prep`/`external_system`/`tenant_mismatch`/`ui_missing`）+ 原因；表格中 `offline_verification` 类归 `external_system`），不得静默丢弃，也不得用表面通过代替。
+**排除的用例必须记入 handoff 的 `excluded_cases` 字段**（每条含 `case_id` + `reason_category`（`env`/`data_prep`/`external_system`/`tenant_mismatch`/`ui_missing`）+ 原因；表里的 `offline_verification` 类归到 `external_system`），不得不吭声地丢掉，也不得用表面通过来顶替。
 
 ### 第五步：提取 UiAutomationIntent
 
@@ -144,22 +144,22 @@ environment:
 
 ### 第五步：只读限制确认
 
-- 当前阶段已读取的文件：SKILL.md + phases/§1-case-normalize.md + 目标 feature 目录下 `archive.md` + 已有 `tests/` 文件
-- **禁止**读取的文件：
+- 本阶段已读的文件：SKILL.md + phases/§1-case-normalize.md + 目标 feature 目录下的 `archive.md` + 已有的 `tests/` 文件
+- **禁止**读的文件：
   - `workspace/dataAssets/features/` 下除目标目录外的任何其他 feature
-  - `workspace/{project}/_shared/env/*.yaml`（将在 env-preflight 阶段读取）
-  - `workspace/*/.kata/repos/**`（只在需要源码佐证时按需读取）
+  - `workspace/{project}/_shared/env/*.yaml`（留到 env-preflight 阶段再读）
+  - `workspace/*/.kata/repos/**`（只在需要源码佐证时按需读）
   - `phases/**` 下除 §1-case-normalize.md 外的其他步骤规范，以及 `references/**` 下的跨阶段参考
-- 硬约束：读取不超过目标 feature 目录 + SKILL.md + 本阶段规范
+- 硬约束：读取范围不超过目标 feature 目录 + SKILL.md + 本阶段规范
 
 ## 禁止
 
 - 不得把用户文字当作真实 UI 事实。
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
-- 不得批量读取无关历史 feature。
-- 不得在 case-normalize 阶段读取 `_shared/env/*.yaml`（这是 env-preflight 的职责）。
-- 不得在 case-normalize 阶段读取 Lanhu 截图、运行 OCR、创建临时 Python/Node 环境，或为了理解 UI 安装新依赖。
-- 不得在缺少 case-draft 输出且缺少同目录 `prd.md`/`inputs/lanhu-snapshots/` 源材料时跳到 env-preflight、ui-plan 或 playwright-generate。
-- 不得在 `case_drafting.status != completed` 或缺少 `archive.md` 时读取无关 `prd.md`、跨目录 `inputs/`、截图或历史测试内容；`source_backed_bootstrap` 只能在环境确认后读取当前目标目录的源材料。
-- 不得在 `source_backed_bootstrap` 环境确认前读取当前目标目录的 `prd.md` 正文、`inputs/lanhu-snapshots/**` 或图片内容；不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**` 或枚举截图文件名。
+- 不得批量读取无关的历史 feature。
+- 不得在 case-normalize 阶段读 `_shared/env/*.yaml`（这是 env-preflight 的职责）。
+- 不得在 case-normalize 阶段读 Lanhu 截图、跑 OCR、建临时 Python/Node 环境，或为了看懂 UI 去装新依赖。
+- 缺 case-draft 输出、又缺同目录 `prd.md`/`inputs/lanhu-snapshots/` 源材料时，不得跳到 env-preflight、ui-plan 或 playwright-generate。
+- `case_drafting.status != completed` 或缺 `archive.md` 时，不得读无关的 `prd.md`、跨目录 `inputs/`、截图或历史测试内容；`source_backed_bootstrap` 只能在确认环境后读当前目标目录的源材料。
+- `source_backed_bootstrap` 在确认环境之前，不得读当前目标目录的 `prd.md` 正文、`inputs/lanhu-snapshots/**` 或图片内容；不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**`，也不得枚举截图文件名。

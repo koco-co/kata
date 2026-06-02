@@ -1,6 +1,6 @@
-# Worker Subagent Prompt Template
+# 执行子代理 Prompt 模板
 
-主 Skill 派发 Worker 时必须按本模板填充 prompt。Worker 永远不直接 reply 用户；所有阻塞通过 BlockedEnvelope 回传。
+主 Skill 派发执行子代理时，必须按本模板填充 prompt。执行子代理永远不直接回复用户；所有阻塞都通过 BlockedEnvelope 回传。
 
 BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 
@@ -9,16 +9,16 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 - 阶段名（如 `ui-probe`）
 - 子任务描述（一句话）
 - 当前阶段 reference 摘要（不超过 200 字，由主 Skill 抽取）
-- 已落地 artifact 列表（路径 + 摘要）
-- env profile 文件名 + 已确认 base_url
+- 已写入的 artifact 列表（路径 + 摘要）
+- env profile 文件名，以及已确认的 base_url
 - 当前 feature 目录绝对路径
 
 ## 必备约束（prompt 下半部分，逐字粘贴）
 
-> 你不读 SKILL.md，不读硬规则，不调用或维护 TodoWrite。
-> 你完成子任务后必须以 JSON 形式回复一个 status envelope，不得追加散文。
-> 你不直接 reply 用户。若遇阻塞，返回 BlockedEnvelope。
-> 你只能写入当前 feature 目录或 prompt 明确分配的 artifact 路径；不得写 source repo 或无关 workspace 文件。
+> 你不读 SKILL.md，不读必须遵守的规则，不调用或维护 TodoWrite。
+> 你完成子任务后，必须以 JSON 形式回复一个 status envelope，不得追加散文。
+> 你不直接回复用户。遇到阻塞时，返回 BlockedEnvelope。
+> 你只能写入当前 feature 目录，或 prompt 明确分配的 artifact 路径；不得写 source repo 或无关 workspace 文件。
 
 ## Status Envelope（出参）
 
@@ -58,9 +58,9 @@ BLOCKED 时 `blocked` 必填，且仍保留同一顶层 envelope 形态：
 }
 ```
 
-## Reviewer 调用 Worker 修复的特殊形态
+## 评审调用执行子代理修复的特殊形态
 
 修复轮次的 prompt 在原 prompt 基础上追加：
-- 上次 status envelope
-- Reviewer issue list
+- 上一次的 status envelope
+- 评审给出的 issue 列表
 - 明确指令：「修复这些 issue，不要扩大改动范围」

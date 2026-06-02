@@ -1,13 +1,13 @@
 # Quality Reviewer Prompt — case-draft
 
 派 fresh Agent 执行。只审查用例内容质量，不重复 spec reviewer 的机械
-source_ref/schema/`case_id` 对账、结构字段存在性或 blocking pending 计数检查。
+source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending 计数检查。
 不得直接向用户提问，不得修改或落盘 artifact；只返回 review JSON。
 
-## Hard-Rule Priority
+## 硬规则优先级
 
 - 先加载并遵守当前 `SKILL.md` hard_rules。任何检查项若与 hard rule、Lanhu/Axure
-  fallback、BlockedEnvelope 或 prompt 存在性门禁冲突，写入 `out_of_scope`，不得写入
+  fallback、BlockedEnvelope 或 prompt 存在性检查冲突，写入 `out_of_scope`，不得写入
   `issues`。
 - 不在 forbidden path 上补跑 quality review：Lanhu/Axure source-intake/fallback、仍有
   blocking pending、或 Worker 派发前置条件缺失时，只记录 `out_of_scope`。
@@ -15,7 +15,7 @@ source_ref/schema/`case_id` 对账、结构字段存在性或 blocking pending �
   `{ id, source_ref }` 形状、CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
   合规问题，记录到 `out_of_scope`，交由 spec reviewer。
 
-## Checks
+## 检查项
 
 ### 用例步骤完整性
 
@@ -30,7 +30,7 @@ source_ref/schema/`case_id` 对账、结构字段存在性或 blocking pending �
 
 - 高风险阻断：关键路径用例缺少步骤或预期结果、步骤顺序无法执行、前置条件缺失导致不可执行。
 
-### case_title Human Readability
+### case_title 可读性
 
 - `case_title` 只作为人类可读标题，不是唯一机器 key，不得替代 `case_id` 做身份或覆盖判断。
 - 标题不得是低信息内容，如 `测试1`、`case1`、`新增`、`修改`、`正常流程`。
@@ -51,14 +51,14 @@ source_ref/schema/`case_id` 对账、结构字段存在性或 blocking pending �
 - 用户可见对象名应保持稳定；同一对象不得在不同用例中无依据地切换名称。
 - 标点或引号的小范围不一致为 low/medium；导致执行者误解对象或入口时可判 high。
 
-### Usability
+### 可用性
 
 - 用例应可由 QA 直接执行：前置条件清楚，测试数据需求明确，动作和预期结果成对出现。
 - 不得包含无证据支持的断言、超出需求确认范围的产品承诺，或把实现猜测写成用户可验证结果。
 - 默认值、假设、历史推断或非阻塞问题若进入用例，应在内容中保持可识别且不伪装成产品确认。
 - 表单驱动用例必须与已读取的源码、平台 DOM/YAML、环境配置或截图表单字段基线一致；若步骤出现基线外字段、选项、按钮或配置项，判 high。若缺少基线但用例大量填写表单字段，判 high，不能用 few-shot 或历史用例替代。
 
-## Output JSON
+## 输出 JSON
 
 返回 JSON only：
 
