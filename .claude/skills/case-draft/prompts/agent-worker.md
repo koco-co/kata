@@ -4,7 +4,7 @@
 
 BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 
-## Contents
+## 目录
 
 - 必备输入字段
 - 必备约束
@@ -122,5 +122,5 @@ DONE 示例：
 - 上次 Status Envelope
 - Reviewer issue list
 - 允许修改的 artifact 路径白名单
-- 相关 `case_id` 与 `requirement_atom_ids` 对账结果
+- 相关 `case_id` 与 `requirement_atom_ids` 核对结果
 - 明确指令：「修复这些 issue，不要扩大改动范围」

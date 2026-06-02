@@ -1,11 +1,11 @@
 # Spec Reviewer 提示词 — case-draft
 
-## Contents
+## 目录
 
 - 硬规则优先级
 - SourceRef 分层 lint
 - Manifest 与证据完整性
-- MD ↔ JSON caseId 对账
+- MD ↔ JSON caseId 核对
 - Blocking pending
 - 平台/源码表单基线 lint
 - 输出格式
@@ -51,9 +51,9 @@ CaseEvidenceMap@1 是用例映射契约：使用 `case_id`、可选 `coverage_ma
 
 当用例映射把陈旧的 `requirement_id` 当机器键、把 `case_title` 或 `priority` 当唯一机器键，或要求 CoverageMatrix@1 行携带 `case_id` 时，报 `kind: "structural"`。
 
-## MD ↔ JSON caseId 对账
+## MD ↔ JSON caseId 核对
 
-按 `case_id`（而非人类可读标题）把呈现产物与 DraftCaseSet 和 CaseEvidenceMap@1 对账。CoverageMatrix@1 仅用于通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
+按 `case_id`（而非人类可读标题）把呈现产物与 DraftCaseSet 和 CaseEvidenceMap@1 核对。CoverageMatrix@1 仅用于通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
 
 - `archive.md`、`archive.draft.md` 或 `cases.xmind` 中展示的每条用例，必须映射到具有相同 `case_id` 的 DraftCaseSet 用例或 CaseEvidenceMap@1 记录。
 - 每条被呈现的 DraftCaseSet 或 CaseEvidenceMap@1 用例必须有非空 `requirement_atom_ids`，或有非空 `coverage_matrix_ids` 且能解析到 CoverageMatrix@1 的 `id`，而这些行的 `requirement_atom_ids` 非空。
