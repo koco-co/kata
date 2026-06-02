@@ -184,6 +184,23 @@ describe("buildCaseTaskList", () => {
   it("manifest 缺失时抛错", () => {
     expect(() => buildCaseTaskList(join(TMP, "does-not-exist"))).toThrow();
   });
+
+  it("intents 为空且 manifest 无 archive 路径时抛错", () => {
+    const dir = makeFeature("f-no-archive-path", {
+      feature_id: "demo-no-archive-path",
+      automation: { intents: [] },
+    });
+    expect(() => buildCaseTaskList(dir)).toThrow();
+  });
+
+  it("archive 路径在 manifest 指定但文件不存在时抛错", () => {
+    const dir = makeFeature("f-archive-missing", {
+      feature_id: "demo-archive-missing",
+      automation: { intents: [] },
+      files: { archive: "missing.md" },
+    });
+    expect(() => buildCaseTaskList(dir)).toThrow();
+  });
 });
 
 // ─── e2e：通过真实 kata CLI 执行 ───
