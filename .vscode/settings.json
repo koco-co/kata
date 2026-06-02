@@ -117,5 +117,5 @@
     "ZENTAO",
     "zentaosid"
   ],
-  "python.analysis.extraPaths": ["./tools/lanhu/lanhu-mcp"]
+  "python.analysis.extraPaths": ["./.claude/plugins/lanhu/mcp-bridge/lanhu-mcp"]
 }
