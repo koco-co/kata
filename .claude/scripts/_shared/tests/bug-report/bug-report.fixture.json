@@ -18,7 +18,14 @@
     "caused_by_chain": ["couponService.list 返回 null", "calculateTotal 未判空"],
     "call_chain": [
       { "class": "OrderController", "method": "submit", "line": 42, "is_entry": true },
-      { "class": "OrderService", "method": "calculateTotal", "line": 88, "is_root": true, "error": "NPE here", "description": "空指针抛出点：couponList 未判空" }
+      {
+        "class": "OrderService",
+        "method": "calculateTotal",
+        "line": 88,
+        "is_root": true,
+        "error": "NPE here",
+        "description": "空指针抛出点：couponList 未判空"
+      }
     ]
   },
   "request_info": {

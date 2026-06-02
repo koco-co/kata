@@ -14,7 +14,12 @@ describe("validateBugReport", () => {
   });
   test("rejects invalid severity", () => {
     expect(() =>
-      validateBugReport({ title: "t", severity: "blocker", problem_type: "代码问题", summary: "s" }),
+      validateBugReport({
+        title: "t",
+        severity: "blocker",
+        problem_type: "代码问题",
+        summary: "s",
+      }),
     ).toThrow(/severity must be one of/);
   });
 });
@@ -24,7 +29,12 @@ describe("validateConflictReport", () => {
     expect(() =>
       validateConflictReport({
         title: "t",
-        summary: { total_conflicts: 1, manual_required: 0, auto_resolvable: 1, files_affected: ["a"] },
+        summary: {
+          total_conflicts: 1,
+          manual_required: 0,
+          auto_resolvable: 1,
+          files_affected: ["a"],
+        },
         conflicts: [{ id: "c-1", file: "a", type: "逻辑冲突", description: "d" }],
       }),
     ).not.toThrow();

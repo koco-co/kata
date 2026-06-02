@@ -1,5 +1,5 @@
-import { SEVERITIES } from "./scan-report-types.ts";
 import type { BugReport, ConflictReport } from "./bug-report-types.ts";
+import { SEVERITIES } from "./scan-report-types.ts";
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.length > 0;
@@ -13,7 +13,8 @@ export function validateBugReport(input: unknown): BugReport {
   const r = input as Record<string, unknown>;
   if (!isNonEmptyString(r.title)) throw new Error("invalid bug report: title required");
   if (!isNonEmptyString(r.summary)) throw new Error("invalid bug report: summary required");
-  if (!isNonEmptyString(r.problem_type)) throw new Error("invalid bug report: problem_type required");
+  if (!isNonEmptyString(r.problem_type))
+    throw new Error("invalid bug report: problem_type required");
   if (typeof r.severity !== "string" || !SEVERITIES.includes(r.severity as never)) {
     throw new Error(`invalid bug report: severity must be one of ${SEVERITIES.join("|")}`);
   }
@@ -36,9 +37,12 @@ export function validateConflictReport(input: unknown): ConflictReport {
   }
   (r.conflicts as unknown[]).forEach((c, i) => {
     const cc = c as Record<string, unknown>;
-    if (!isNonEmptyString(cc.id)) throw new Error(`invalid conflict report: conflicts[${i}].id required`);
-    if (!isNonEmptyString(cc.file)) throw new Error(`invalid conflict report: conflicts[${i}].file required`);
-    if (!isNonEmptyString(cc.type)) throw new Error(`invalid conflict report: conflicts[${i}].type required`);
+    if (!isNonEmptyString(cc.id))
+      throw new Error(`invalid conflict report: conflicts[${i}].id required`);
+    if (!isNonEmptyString(cc.file))
+      throw new Error(`invalid conflict report: conflicts[${i}].file required`);
+    if (!isNonEmptyString(cc.type))
+      throw new Error(`invalid conflict report: conflicts[${i}].type required`);
     if (!isNonEmptyString(cc.description))
       throw new Error(`invalid conflict report: conflicts[${i}].description required`);
   });

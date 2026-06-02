@@ -14,7 +14,17 @@ describe("defect-report render-bug CLI", () => {
     const outPath = join(dir, "report.html");
     writeFileSync(jsonPath, JSON.stringify(bugFixture), "utf8");
 
-    const proc = Bun.spawn(["bun", CLI, "render-bug", "--json", jsonPath, "--variant", "full", "--out", outPath]);
+    const proc = Bun.spawn([
+      "bun",
+      CLI,
+      "render-bug",
+      "--json",
+      jsonPath,
+      "--variant",
+      "full",
+      "--out",
+      outPath,
+    ]);
     const code = await proc.exited;
 
     expect(code).toBe(0);
@@ -27,11 +37,18 @@ describe("defect-report render-bug CLI", () => {
   test("exits non-zero on invalid severity", async () => {
     const dir = mkdtempSync(join(tmpdir(), "defect-cli-"));
     const jsonPath = join(dir, "bad.json");
-    writeFileSync(jsonPath, JSON.stringify({ title: "t", severity: "blocker", problem_type: "代码问题", summary: "s" }), "utf8");
+    writeFileSync(
+      jsonPath,
+      JSON.stringify({ title: "t", severity: "blocker", problem_type: "代码问题", summary: "s" }),
+      "utf8",
+    );
 
-    const proc = Bun.spawn(["bun", CLI, "render-bug", "--json", jsonPath, "--out", join(dir, "out.html")], {
-      stderr: "pipe",
-    });
+    const proc = Bun.spawn(
+      ["bun", CLI, "render-bug", "--json", jsonPath, "--out", join(dir, "out.html")],
+      {
+        stderr: "pipe",
+      },
+    );
     const code = await proc.exited;
     expect(code).not.toBe(0);
   });

@@ -7,10 +7,10 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { createCli } from "@shared/lib/cli-runner.ts";
-import { BUG_VARIANTS, type BugVariant } from "@shared/lib/bug-report-types.ts";
 import { renderBugReport, renderConflictReport } from "@shared/lib/bug-report-render.ts";
+import { BUG_VARIANTS, type BugVariant } from "@shared/lib/bug-report-types.ts";
 import { validateBugReport, validateConflictReport } from "@shared/lib/bug-report-validate.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
 import { defectDir } from "@shared/lib/paths.ts";
 
 function fail(code: number, msg: string): never {
@@ -69,7 +69,10 @@ export const program = createCli({
       action: (opts: OutOpts & { json: string; variant?: string }) => {
         const variant = (opts.variant ?? "full") as BugVariant;
         if (!BUG_VARIANTS.includes(variant)) {
-          fail(1, `[defect-report] invalid variant: ${opts.variant} (expect ${BUG_VARIANTS.join("|")})`);
+          fail(
+            1,
+            `[defect-report] invalid variant: ${opts.variant} (expect ${BUG_VARIANTS.join("|")})`,
+          );
         }
         let report;
         try {
@@ -86,7 +89,10 @@ export const program = createCli({
     {
       name: "render-conflict",
       description: "Render a conflict-mode HTML report from a ConflictReport JSON",
-      options: [{ flag: "--json <path>", description: "path to ConflictReport JSON", required: true }, ...outOptions],
+      options: [
+        { flag: "--json <path>", description: "path to ConflictReport JSON", required: true },
+        ...outOptions,
+      ],
       action: (opts: OutOpts & { json: string }) => {
         let report;
         try {

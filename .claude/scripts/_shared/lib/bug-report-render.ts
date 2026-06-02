@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Handlebars from "handlebars";
-import { repoRoot } from "./paths.ts";
 import type { BugReport, BugVariant, ConflictReport } from "./bug-report-types.ts";
+import { repoRoot } from "./paths.ts";
 import type { Severity } from "./scan-report-types.ts";
 
 const VARIANT_TEMPLATE: Record<BugVariant, string> = {

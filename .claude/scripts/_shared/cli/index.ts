@@ -43,8 +43,8 @@ import { program as searchFilter } from "@skills/case-draft/scripts/search-filte
 import { program as sourceAnalyze } from "@skills/case-draft/scripts/source-analyze.ts";
 import { program as writerContextBuilder } from "@skills/case-draft/scripts/writer-context-builder.ts";
 import { program as historyConvert } from "@skills/case-edit/scripts/history-convert.ts";
-import { program as scanReport } from "@skills/defect-analyze/scripts/scan-report.ts";
 import { program as defectReport } from "@skills/defect-analyze/scripts/defect-report.ts";
+import { program as scanReport } from "@skills/defect-analyze/scripts/scan-report.ts";
 import { program as managingProjectKnowledge } from "@skills/knowledge-curate/scripts/knowledge-curate.ts";
 import { program as reportToPdf } from "@skills/playwright-automation/scripts/report-to-pdf.ts";
 import { program as runTestsNotify } from "@skills/playwright-automation/scripts/run-tests-notify.ts";
