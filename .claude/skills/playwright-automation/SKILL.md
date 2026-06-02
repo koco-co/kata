@@ -43,22 +43,25 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 | §11 handoff            | phases/§11-handoff.md            | 通过/阻塞/部分/修复耗尽的最终交付报告                             |
 | §12 case-feedback      | phases/§12-case-feedback.md      | 生成 case-corrections（8 类 category、3 级 confidence、跨轮去重） |
 
+> 可视化编排：env-preflight 通过后，主 agent 按 `references/execution-protocol.md` 建「前置条件处理 + 逐用例任务（标题=用例标题）+ 汇总」任务列表；前置派 opus 子代理、用例派 sonnet 子代理，失败动态新增修复任务，限并发并行。
+
 ## 何时加载哪个文件
 
 | 文件                              | 何时读                                         | 作用                                           |
 | --------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
 | references/cli-essentials.md      | ui-probe/generate/repair 阶段需要 API 速查时   | 原生 Playwright API：探测/属性/断言/mock/trace/下载；含 @playwright/cli 可选探索边界 |
-| references/execution-protocol.md  | env 确认且无 blocker 后的重阶段                | TodoWrite 公开进度、执行子代理派发、二阶段评审 |
-| prompts/agent-worker.md           | ui-probe/generate/self-run/repair 派执行子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
-| prompts/agent-spec-reviewer.md    | 重阶段产物落盘后                               | spec 合规机械检查                              |
-| prompts/agent-quality-reviewer.md | generate/repair 后                             | 脚本质量（选择器、断言、复用度）               |
+| references/execution-protocol.md  | env 确认且无 blocker 后的重阶段                | per-case 任务编排与公开进度、子代理派发、汇总集中评审 |
+| prompts/agent-precondition.md     | 前置条件处理阶段（env-preflight 通过后）         | 前置 opus 子代理模板：ui-probe 探测 + 共享层 + 用例清单校正 |
+| prompts/agent-worker.md           | 用例 generate/self-run/repair 派子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
+| prompts/agent-spec-reviewer.md    | 汇总 & 质量闸门阶段                            | spec 合规机械检查                              |
+| prompts/agent-quality-reviewer.md | 汇总 & 质量闸门阶段（spec 通过后）             | 脚本质量（选择器、断言、复用度）               |
 
 ## 必须遵守的规则
 
 - 按 env-preflight → ui-probe → plan-reconcile → playwright-generate → self-run 的顺序执行，前序通过才进下一阶段。
 - 没有 ui-probe 证据，就不生成最终脚本（静态审查除外）。没探过真实页面的脚本，只是猜测。
 - 没有 self-run 结果，就不下「通过」结论。没跑过就说通过，是假交付。
-- 公开进度：env 确认且无 blocker 后，按 `references/execution-protocol.md` 建 TodoWrite 公开进度、派执行子代理、做二阶段评审。
+- 公开进度：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 派 opus 子代理，中间 plan-reconcile/generate/self-run/repair 按用例派 sonnet 子代理（任务标题=用例标题），主 agent 只编排不下场；二阶段评审集中在汇总。
 - 静默模式、env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度（不派执行子代理、不建 TodoWrite）。
 - env-preflight 的权限拒绝、静默模式、session 探测、登录态补充，以及 no_permission 与 tool_permission_denied 模板，严格遵循 `phases/§2-env-preflight.md`（与本节等效，不重复）。
 - 按名称片段查找目标目录时，先用关键词在 manifest.json/metadata.yaml/archive.md/prd.md 里精确定位唯一目标目录，再读它的状态文件；不要枚举 features/ 下的候选目录。

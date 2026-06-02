@@ -46,6 +46,7 @@ import { program as historyConvert } from "@skills/case-edit/scripts/history-con
 import { program as defectReport } from "@skills/defect-analyze/scripts/defect-report.ts";
 import { program as scanReport } from "@skills/defect-analyze/scripts/scan-report.ts";
 import { program as managingProjectKnowledge } from "@skills/knowledge-curate/scripts/knowledge-curate.ts";
+import { program as buildCaseTasks } from "@skills/playwright-automation/scripts/build-case-tasks.ts";
 import { program as reportToPdf } from "@skills/playwright-automation/scripts/report-to-pdf.ts";
 import { program as runTestsNotify } from "@skills/playwright-automation/scripts/run-tests-notify.ts";
 import { program as createProject } from "@skills/workspace-manage/scripts/create-project.ts";
@@ -56,6 +57,7 @@ const kata = new Command().name("kata").description("kata unified CLI").showHelp
 
 kata.addCommand(archiveGen);
 kata.addCommand(autoFixer);
+kata.addCommand(buildCaseTasks);
 kata.addCommand(caseDraft);
 kata.addCommand(caseSignalAnalyzer);
 kata.addCommand(caseStrategyResolver);

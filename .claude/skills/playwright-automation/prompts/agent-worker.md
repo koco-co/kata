@@ -12,6 +12,8 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 - 已写入的 artifact 列表（路径 + 摘要）
 - env profile 文件名，以及已确认的 base_url
 - 当前 feature 目录绝对路径
+- 本次运行 run-id 与当前用例 case-id（用于拼唯一 fixture 数据命名）
+- 前置条件处理产出的 artifact 路径（校正后用例清单 JSON + 共享页面对象/helper/storageState 路径），供本用例读取复用
 
 ## 必备约束（prompt 下半部分，逐字粘贴）
 
@@ -19,6 +21,8 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 > 你完成子任务后，必须以 JSON 形式回复一个 status envelope，不得追加散文。
 > 你不直接回复用户。遇到阻塞时，返回 BlockedEnvelope。
 > 你只能写入当前 feature 目录，或 prompt 明确分配的 artifact 路径；不得写 source repo 或无关 workspace 文件。
+> 你只负责分配给你的这一条用例：实现它的 `tests/cases/<id>.spec.ts` 并自跑，不碰其它用例的 spec。
+> 写数据的步骤用 prompt 给的 run-id/case-id 拼唯一 fixture 数据（唯一规则名/资源名），跑完在 afterEach/afterAll 自清理；创建-校验-删除链路的用例在 test 名带 `@serial`。
 
 ## Status Envelope（出参）
 
