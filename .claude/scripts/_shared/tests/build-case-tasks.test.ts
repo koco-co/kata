@@ -8,6 +8,7 @@ import {
   isSerialCase,
   parseArchiveCases,
 } from "@skills/playwright-automation/scripts/build-case-tasks.ts";
+import { spawnKataCli } from "./cli-runner.ts";
 
 const ARCHIVE_SNIPPET = `---
 suite_name: "示例集合"
@@ -182,5 +183,27 @@ describe("buildCaseTaskList", () => {
 
   it("manifest 缺失时抛错", () => {
     expect(() => buildCaseTaskList(join(TMP, "does-not-exist"))).toThrow();
+  });
+});
+
+// ─── e2e：通过真实 kata CLI 执行 ───
+
+describe("kata case-tasks build (e2e)", () => {
+  it("对真实 feature 目录输出合法 CaseTaskList JSON", () => {
+    const dir = makeFeature(
+      "f-cli",
+      { feature_id: "demo-cli", automation: { intents: [] }, files: { archive: "archive.md" } },
+      ARCHIVE_SNIPPET,
+    );
+    const { status, stdout } = spawnKataCli(["case-tasks", "build", "--feature", dir]);
+    expect(status).toBe(0);
+    const parsed = JSON.parse(stdout);
+    expect(parsed.source).toBe("archive_md");
+    expect(parsed.case_count).toBe(3);
+  });
+
+  it("目录无 manifest 时非零退出", () => {
+    const { status } = spawnKataCli(["case-tasks", "build", "--feature", join(TMP, "missing")]);
+    expect(status).not.toBe(0);
   });
 });

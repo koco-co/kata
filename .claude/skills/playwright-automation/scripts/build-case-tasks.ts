@@ -11,6 +11,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { createCli } from "@shared/lib/cli-runner.ts";
 
 // ─── 类型 ───
 
@@ -144,4 +145,34 @@ export function buildCaseTaskList(featureDir: string): CaseTaskList {
   }
   const cases = parseArchiveCases(readFileSync(archivePath, "utf8"));
   return { feature_id: featureId, source: "archive_md", case_count: cases.length, cases };
+}
+
+// ─── CLI 程序 ───
+
+/** CLI program: `kata case-tasks build --feature <dir>` */
+export const program = createCli({
+  name: "case-tasks",
+  description: "枚举 feature 用例，输出用例任务清单 JSON（供 playwright-automation 编排消费）",
+  commands: [
+    {
+      name: "build",
+      description: "构建 feature 用例任务清单。成功退出 0，失败退出 1。",
+      options: [{ flag: "--feature <dir>", description: "feature 目录路径", required: true }],
+      action: (opts) => {
+        const o = opts as Record<string, unknown>;
+        const featureDir = o.feature as string;
+        try {
+          const list = buildCaseTaskList(featureDir);
+          process.stdout.write(`${JSON.stringify(list, null, 2)}\n`);
+        } catch (err) {
+          process.stderr.write(`${(err as Error).message}\n`);
+          process.exit(1);
+        }
+      },
+    },
+  ],
+});
+
+if (import.meta.main) {
+  program.parseAsync(process.argv);
 }
