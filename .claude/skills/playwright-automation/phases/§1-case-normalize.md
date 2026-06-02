@@ -48,7 +48,7 @@ cookie: {cookie_string}
    - 在搜索结果里按标题精确度挑命中目录；除非用户明确点了该目录名，否则不得优先选 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录。
    - 若某目录的 `prd.md`、`metadata.yaml` 或 `manifest.json` 命中行里含有用户标题的核心连续短语，这个目录就是唯一精确目标。
    - 核心连续短语示例：`【内置规则丰富】合理性，单表，字段值的计算关系对比` 或 `15529【内置规则丰富】合理性，单表，字段值的计算关系对比`。
-   - 不得选只匹配“单表/字段值/对比”这类泛化词的历史 archive 目录。
+   - 不得选只匹配「单表/字段值/对比」这类泛化词的历史 archive 目录。
    - 对于输入 `【内置规则丰富】合理性，单表，字段值的计算关系对比`，必须选择 `workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare/`，不得选择 `workspace/dataAssets/features/2025-09-dq-single-table-field-compare/`。
    - 禁止用 `ls workspace/dataAssets/features/ | head`、`ls ... | grep`、`ls -t ...`、`find workspace/dataAssets/features` 或 Glob 枚举目录名来定位需求
 3. 读取目标需求目录下的文件结构：

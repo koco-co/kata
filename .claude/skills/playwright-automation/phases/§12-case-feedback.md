@@ -47,7 +47,7 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 
 ## 服务器侧操作缺口
 
-有时 archive 用例明确要求在服务器、pod、容器或 `localhost:<port>` 上执行 `curl`、脚本、调度任务等非浏览器操作。这种情况下，不能只因为当前 Playwright UI 会话没有这条操作通道，就生成一条把原步骤改成"已由运维或测试数据准备流程完成"之类的语义降级 correction。要保留原步骤的语义，并在 handoff 或 case-corrections 里把缺口写成「需要确认具体执行通道」（SSH 主机、Kubernetes namespace/pod、Kuboard 入口、端口映射或可调用的 oracle）。只有用户确认这步服务器侧操作不需要、或产品流程已经变了，才可以提出改写 archive 的 proposed_change。
+有时 archive 用例明确要求在服务器、pod、容器或 `localhost:<port>` 上执行 `curl`、脚本、调度任务等非浏览器操作。这种情况下，不能只因为当前 Playwright UI 会话没有这条操作通道，就生成一条把原步骤改成「已由运维或测试数据准备流程完成」之类的语义降级 correction。要保留原步骤的语义，并在 handoff 或 case-corrections 里把缺口写成「需要确认具体执行通道」（SSH 主机、Kubernetes namespace/pod、Kuboard 入口、端口映射或可调用的 oracle）。只有用户确认这步服务器侧操作不需要、或产品流程已经变了，才可以提出改写 archive 的 proposed_change。
 
 ## case-corrections.md 结构
 

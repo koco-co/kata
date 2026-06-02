@@ -35,7 +35,7 @@
 // page: _shared/pages/dq-task-page.ts
 ```
 
-质量门 `case_traceability_header` 会拒收缺了其中任一行的 spec。
+检查项 `case_traceability_header` 会拒收缺了其中任一行的 spec。
 
 走 `mode: source_backed_bootstrap`、且 `archive.md` 还不存在时，`spec:` 行必须改成指向当前目标源：
 
@@ -205,4 +205,4 @@ kata knowledge-curate read-pitfall --project {{project}} --query "selector"
 - 共享 helper 的改动必须落在 `workspace/<project>/_shared/helpers/`。
 - 新增 page object 必须更新 `_shared/pages/INDEX.md`。
 
-质量门 `no_feature_local_helpers` 强制此约束。
+检查项 `no_feature_local_helpers` 强制此约束。

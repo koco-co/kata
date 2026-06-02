@@ -21,7 +21,7 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
 
 Schema 参考：`PlaywrightAutomationHandoff.v2`。
 
-## Case Feedback section
+## Case Feedback 段落
 
 case-feedback step 写入 sidecar `results/<run-id>/case-corrections-summary.json`（schema `CaseCorrections@1`）后，`kata handoff render` 会自动把 Case Feedback 段落渲染到 `handoff.md` 末尾，格式为：
 
