@@ -63,7 +63,7 @@ describe("execute-table defaults", () => {
     } else {
       expect(invocation).toEqual({
         command: "bun",
-        argsPrefix: ["tools/dtstack-sdk/src/cli.ts"],
+        argsPrefix: [".claude/packages/dtstack/src/cli.ts"],
       });
     }
   });

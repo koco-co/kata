@@ -42,7 +42,7 @@ interface ExecuteTableDefaults {
 export function resolveDtstackCliInvocation(): { command: string; argsPrefix: string[] } {
   const localBin = "./node_modules/.bin/dtstack-cli";
   if (existsSync(localBin)) return { command: localBin, argsPrefix: [] };
-  return { command: "bun", argsPrefix: ["tools/dtstack-sdk/src/cli.ts"] };
+  return { command: "bun", argsPrefix: [".claude/packages/dtstack/src/cli.ts"] };
 }
 
 function numericEnv(value: string | undefined): number | undefined {
