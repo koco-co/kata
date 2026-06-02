@@ -2,7 +2,7 @@
  * 端到端验证：跑 t16 风格的 SQL（DROP + CREATE + INSERT），
  * 通过新封装的 BatchApi.executeDDL 路径。
  *
- * 运行：bun run tools/dtstack-sdk/scripts/diagnose-insert.ts
+ * 运行：bun run .claude/packages/dtstack/scripts/diagnose-insert.ts
  */
 
 import { readFileSync } from "node:fs";

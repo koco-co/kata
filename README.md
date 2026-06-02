@@ -161,7 +161,6 @@ kata/
 ├── docs/            # 架构、ADR、审计、技能和排查文档
 ├── .claude/scripts/_shared/  # CLI、runtime 校验、工作流支撑代码和测试
 ├── plugins/         # lanhu / zentao / notify
-├── tools/           # 独立工具包
 ├── templates/       # 项目骨架与输出模板
 └── workspace/       # 用户项目产物；源码副本位于 workspace/{project}/.kata/repos/
 ```
