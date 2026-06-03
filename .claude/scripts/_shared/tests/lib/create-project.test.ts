@@ -155,7 +155,9 @@ describe("SKELETON_SPEC shape", () => {
   });
 
   it("template_files dst paths are not in gitkeep_dirs' directories of same file", () => {
-    expect(!SKELETON_SPEC.gitkeep_dirs.includes("_shared/rules")).toBeTruthy();
+    expect(
+      !(SKELETON_SPEC.gitkeep_dirs as readonly string[]).includes("_shared/rules"),
+    ).toBeTruthy();
   });
 });
 
