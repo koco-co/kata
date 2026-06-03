@@ -13,17 +13,12 @@
  *   bun install && bun link
  *   # afterwards, `kata` is available globally via ~/.bun/bin/
  *
- * Each module is an existing script in engine/src/ that exports a
- * commander `program`. Registered below via addCommand().
+ * Each module is a script under _shared/cli or a skill's scripts/ that exports
+ * a commander `program`. Registered below via addCommand().
  */
 
 import { program as archiveGen } from "@shared/cli/archive-gen.ts";
-import { program as config } from "@shared/cli/config.ts";
-import { program as imageCompress } from "@shared/cli/image-compress.ts";
-import { program as plan } from "@shared/cli/plan.ts";
 import { program as pluginLoader } from "@shared/cli/plugin-loader.ts";
-import { program as progress } from "@shared/cli/progress.ts";
-import { program as repoProfile } from "@shared/cli/repo-profile.ts";
 import { program as repoSync } from "@shared/cli/repo-sync.ts";
 import { program as ruleLoader } from "@shared/cli/rule-loader.ts";
 import { program as sourceRef } from "@shared/cli/source-ref.ts";
@@ -61,37 +56,20 @@ kata.addCommand(buildCaseTasks);
 kata.addCommand(caseDraft);
 kata.addCommand(caseSignalAnalyzer);
 kata.addCommand(caseStrategyResolver);
-kata.addCommand(config);
 kata.addCommand(createProject);
 kata.addCommand(discuss);
 kata.addCommand(formatCheckScript);
 kata.addCommand(formatReportLocator);
 kata.addCommand(historyConvert);
-kata.addCommand(imageCompress);
 kata.addCommand(initWizard);
 kata.addCommand(managingProjectKnowledge);
-kata.addCommand(plan);
 kata.addCommand(pluginLoader);
 kata.addCommand(prdFrontmatter);
-kata.addCommand(progress);
-kata.addCommand(repoProfile);
 kata.addCommand(repoSync);
 kata.addCommand(reportToPdf);
 kata.addCommand(ruleLoader);
 kata.addCommand(scanReport);
 kata.addCommand(defectReport);
-// db-cli 懒加载：仅在调用 db 命令时导入（避免 better-sqlite3 缺失导致全部命令无法启动）
-kata.addCommand(
-  new Command("db")
-    .description("Database operations")
-    .allowUnknownOption()
-    .allowExcessArguments(true)
-    .action(async (_opts: unknown, _command: Command) => {
-      const { program: dbCliModule } = await import("@shared/cli/db.ts");
-      // 用真实命令替换当前占位命令
-      await dbCliModule.parseAsync(process.argv.slice(2).filter((a) => a !== "db"));
-    }),
-);
 // knowledge-keeper: knowledge-curate 的别名
 kata.addCommand(
   new Command("knowledge-keeper")
@@ -115,7 +93,6 @@ kata.addCommand(xmindPatch);
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "@shared/cli/agents-audit.ts";
 import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
-import { buildCodemodCommand } from "@shared/cli/codemod-apply.ts";
 import { buildEnvCommand } from "@shared/cli/env.ts";
 import { buildFeaturesCommand } from "@shared/cli/features.ts";
 import { buildHandoffCommand } from "@shared/cli/handoff.ts";
@@ -129,16 +106,10 @@ kata.addCommand(buildCasesCommand());
 kata.addCommand(buildPathsCommand());
 kata.addCommand(buildSkillsCommand());
 kata.addCommand(buildSafetyCommand());
-kata.addCommand(buildCodemodCommand());
 kata.addCommand(buildFeaturesCommand());
 kata.addCommand(buildResultsCommand());
 kata.addCommand(buildHandoffCommand());
 kata.addCommand(buildEnvCommand());
-
-// ── Test bucket audit ────────────────────────────────────────
-import { registerTestBucketAudit } from "@shared/cli/test-bucket-audit.ts";
-
-registerTestBucketAudit(kata);
 
 // ── Test Case Flow ──────────────────────────────────────────
 import { registerTestCaseFlow } from "@skills/case-draft/scripts/test-case-flow.ts";
@@ -151,7 +122,6 @@ const publicV2Commands = new Set([
   "paths",
   "skills",
   "safety",
-  "codemod",
   "features",
   "results",
   "handoff",

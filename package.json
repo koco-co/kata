@@ -61,7 +61,6 @@
     "@biomejs/biome": "^2.4.15",
     "@playwright/cli": "0.1.13",
     "@playwright/test": "^1.60.0",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.9.1",
     "allure-commandline": "^2.41.0",
     "allure-playwright": "^3.9.0",
