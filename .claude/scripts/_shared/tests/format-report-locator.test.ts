@@ -42,7 +42,7 @@ afterEach(() => {
 describe("format-report-locator.ts locate — maps issues to line numbers", () => {
   it("exits with code 0 and outputs enriched JSON", () => {
     const outputPath = join(TMP_DIR, "enriched-report.json");
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "locate",
       "--report",
       FIXTURE_REPORT,

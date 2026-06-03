@@ -558,7 +558,7 @@ describe("writer-context-builder build — --prd-slug + --yyyymm (enhanced.md pr
   });
 
   it("reads enhanced.md when --prd-slug + --yyyymm + --workspace-dir given", () => {
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "build",
       "--prd-slug",
       SLUG,
@@ -586,7 +586,7 @@ describe("writer-context-builder build — --prd-slug + --yyyymm (enhanced.md pr
   });
 
   it("falls back to legacy --prd <path> when --prd-slug omitted", () => {
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "build",
       "--prd",
       LEGACY_PRD,

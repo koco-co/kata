@@ -64,7 +64,7 @@ describe("xmind-gen.ts --help", () => {
 describe("xmind-gen.ts create mode", () => {
   it("creates .xmind file from valid JSON fixture", () => {
     const output = join(TMP_DIR, "test-create.xmind");
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
     expect(existsSync(output)).toBeTruthy();
     expect(statSync(output).size > 0).toBeTruthy();
@@ -72,7 +72,7 @@ describe("xmind-gen.ts create mode", () => {
 
   it("outputs valid JSON result to stdout", () => {
     const output = join(TMP_DIR, "test-stdout.xmind");
-    const { code, stdout, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as {
@@ -134,14 +134,7 @@ prd_version: "v6.4.10"
 `;
     writeFileSync(input, archiveMd, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "--input",
-      input,
-      "--output",
-      output,
-      "--project",
-      "CLI项目名",
-    ]);
+    const { code, stdout } = run(["--input", input, "--output", output, "--project", "CLI项目名"]);
     expect(code).toBe(0);
     expect(stdout.includes("自定义 Root 节点") || existsSync(output)).toBeTruthy();
 
@@ -284,7 +277,7 @@ describe("xmind-gen.ts validation", () => {
 describe("xmind-gen.ts content.json validation", () => {
   it("created .xmind contains valid content.json", async () => {
     const output = join(TMP_DIR, "test-content.xmind");
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const sheets = await readContentJson(output);
@@ -294,7 +287,7 @@ describe("xmind-gen.ts content.json validation", () => {
 
   it("content.json has correct hierarchy: root → L1 → L2 → L3 → cases", async () => {
     const output = join(TMP_DIR, "test-hierarchy.xmind");
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     type SheetNode = {
@@ -401,7 +394,7 @@ describe("xmind-gen.ts append mode", () => {
     const output = join(TMP_DIR, "test-append-new.xmind");
     expect(!existsSync(output)).toBeTruthy();
 
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output, "--mode", "append"]);
+    const { code } = run(["--input", FIXTURE, "--output", output, "--mode", "append"]);
     expect(code).toBe(0);
     expect(existsSync(output)).toBeTruthy();
   });
@@ -412,7 +405,7 @@ describe("xmind-gen.ts <br> tag sanitization", () => {
 
   it("converts <br> tags to newlines in step, expected, and preconditions", async () => {
     const output = join(TMP_DIR, "test-br-sanitize.xmind");
-    const { code, stderr } = run(["--input", BR_FIXTURE, "--output", output]);
+    const { code } = run(["--input", BR_FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     type SheetNode = {
@@ -478,7 +471,7 @@ describe("xmind-gen.ts L1 title strips trailing (#id)", () => {
     writeFileSync(fixture, JSON.stringify({ ...data, meta }));
 
     const output = join(TMP_DIR, "test-l1-strip.xmind");
-    const { code, stdout, stderr } = run(["--input", fixture, "--output", output]);
+    const { code, stdout } = run(["--input", fixture, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { l1_title: string };
@@ -487,7 +480,7 @@ describe("xmind-gen.ts L1 title strips trailing (#id)", () => {
 
   it("l1_title unchanged when no trailing (#id)", () => {
     const output = join(TMP_DIR, "test-l1-no-strip.xmind");
-    const { code, stdout, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { l1_title: string };

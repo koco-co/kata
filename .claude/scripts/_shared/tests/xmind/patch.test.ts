@@ -69,7 +69,7 @@ async function readContentJson(
 /** Create a fresh test .xmind file from the fixture */
 function createTestXmind(name: string): string {
   const outputPath = join(TMP_DIR, `${name}.xmind`);
-  const { code, stderr } = runGen(["--input", FIXTURE, "--output", outputPath]);
+  const { code } = runGen(["--input", FIXTURE, "--output", outputPath]);
   expect(code).toBe(0);
   return outputPath;
 }
@@ -93,14 +93,7 @@ afterEach(() => {
 describe("xmind-patch search", () => {
   it("finds cases by keyword across xmind files", () => {
     const xmindPath = createTestXmind("search-test");
-    const { code, stdout, stderr } = runEdit([
-      "search",
-      "验证默认加载",
-      "--dir",
-      TMP_DIR,
-      "--limit",
-      "10",
-    ]);
+    const { code, stdout } = runEdit(["search", "验证默认加载", "--dir", TMP_DIR, "--limit", "10"]);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as {
@@ -150,7 +143,7 @@ describe("xmind-patch search", () => {
 describe("xmind-patch show", () => {
   it("displays full case details for a matching title", () => {
     const xmindPath = createTestXmind("show-test");
-    const { code, stdout, stderr } = runEdit([
+    const { code, stdout } = runEdit([
       "show",
       "--file",
       xmindPath,
@@ -193,7 +186,7 @@ describe("xmind-patch patch", () => {
     const xmindPath = createTestXmind("patch-priority");
     const patch = JSON.stringify({ priority: "P2" });
 
-    const { code, stdout, stderr } = runEdit([
+    const { code, stdout } = runEdit([
       "patch",
       "--file",
       xmindPath,
@@ -243,7 +236,7 @@ describe("xmind-patch patch", () => {
     ];
     const patch = JSON.stringify({ steps: newSteps });
 
-    const { code, stderr } = runEdit([
+    const { code } = runEdit([
       "patch",
       "--file",
       xmindPath,
@@ -330,7 +323,7 @@ describe("xmind-patch patch", () => {
       priority: "P2",
     });
 
-    const { code, stdout, stderr } = runEdit([
+    const { code, stdout } = runEdit([
       "patch",
       "--file",
       xmindPath,
@@ -377,7 +370,7 @@ describe("xmind-patch add", () => {
       ],
     });
 
-    const { code, stdout, stderr } = runEdit([
+    const { code, stdout } = runEdit([
       "add",
       "--file",
       xmindPath,
@@ -491,7 +484,7 @@ describe("xmind-patch add", () => {
       steps: [{ step: "进入页面", expected: "页面正常加载" }],
     });
 
-    const { code, stdout, stderr } = runEdit([
+    const { code, stdout } = runEdit([
       "add",
       "--file",
       xmindPath,
@@ -537,7 +530,7 @@ describe("xmind-patch delete", () => {
   it("dry-run shows what would be deleted without modifying the file", async () => {
     const xmindPath = createTestXmind("delete-dry-run");
 
-    const { code, stdout, stderr } = runEdit([
+    const { code, stdout } = runEdit([
       "delete",
       "--file",
       xmindPath,
@@ -568,13 +561,7 @@ describe("xmind-patch delete", () => {
     expect(pre).toBe(0);
 
     // Delete
-    const { code, stdout, stderr } = runEdit([
-      "delete",
-      "--file",
-      xmindPath,
-      "--title",
-      "验证翻页功能",
-    ]);
+    const { code, stdout } = runEdit(["delete", "--file", xmindPath, "--title", "验证翻页功能"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as {

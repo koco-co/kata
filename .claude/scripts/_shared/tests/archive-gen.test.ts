@@ -44,7 +44,7 @@ afterEach(() => {
 describe("archive-gen.ts convert — generates valid Markdown with front-matter", () => {
   it("exits with code 0 and outputs JSON result", () => {
     const output = join(TMP_DIR, "test-convert.md");
-    const { code, stdout, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as {
@@ -61,7 +61,7 @@ describe("archive-gen.ts convert — generates valid Markdown with front-matter"
 describe("archive-gen.ts convert — correct suite_name in front-matter", () => {
   it("generated MD has suite_name matching meta.requirement_name", () => {
     const output = join(TMP_DIR, "test-suitename.md");
-    const { code, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -74,7 +74,7 @@ describe("archive-gen.ts convert — correct suite_name in front-matter", () => 
 describe("archive-gen.ts convert — correct case_count", () => {
   it("generated MD case_count matches total test cases in JSON (5)", () => {
     const output = join(TMP_DIR, "test-casecount.md");
-    const { code, stdout, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { case_count: number };
@@ -90,7 +90,7 @@ describe("archive-gen.ts convert — correct case_count", () => {
 describe("archive-gen.ts convert — H2/H3/H4/H5 body structure", () => {
   it("generated MD body has correct heading hierarchy", () => {
     const output = join(TMP_DIR, "test-structure.md");
-    const { code, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -139,7 +139,7 @@ describe("archive-gen.ts convert — strips duplicate priority prefix", () => {
     writeFileSync(prefixedInput, JSON.stringify(rawFixture), "utf8");
 
     const output = join(TMP_DIR, "test-dup-prefix.md");
-    const { code, stderr } = run(["convert", "--input", prefixedInput, "--output", output]);
+    const { code } = run(["convert", "--input", prefixedInput, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -151,7 +151,7 @@ describe("archive-gen.ts convert — strips duplicate priority prefix", () => {
 describe("archive-gen.ts convert — step table format", () => {
   it("step tables have correct header format (| 编号 | 步骤 | 预期 |)", () => {
     const output = join(TMP_DIR, "test-table.md");
-    const { code, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -170,7 +170,7 @@ describe("archive-gen.ts convert — step table format", () => {
 
   it("precondition blocks appear before step tables", () => {
     const output = join(TMP_DIR, "test-precondition.md");
-    const { code, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -214,13 +214,7 @@ origin: "xmind"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
-      "search",
-      "--query",
-      "质量问题台账",
-      "--dir",
-      archiveDir,
-    ]);
+    const { code, stdout } = run(["search", "--query", "质量问题台账", "--dir", archiveDir]);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as Array<{
@@ -263,13 +257,7 @@ origin: "xmind"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
-      "search",
-      "--query",
-      "blood-lineage",
-      "--dir",
-      archiveDir,
-    ]);
+    const { code, stdout } = run(["search", "--query", "blood-lineage", "--dir", archiveDir]);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as Array<{ suite_name: string }>;
@@ -303,7 +291,7 @@ origin: "xmind"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "search",
       "--query",
       "xyzNonExistentKeyword12345",
@@ -321,7 +309,7 @@ origin: "xmind"
     const emptyDir = join(TMP_DIR, "archive-empty");
     mkdirSync(emptyDir, { recursive: true });
 
-    const { code, stdout, stderr } = run(["search", "--query", "anything", "--dir", emptyDir]);
+    const { code, stdout } = run(["search", "--query", "anything", "--dir", emptyDir]);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as unknown[];
@@ -364,7 +352,7 @@ origin: "xmind"
     );
 
     try {
-      const { code, stdout, stderr } = run([
+      const { code, stdout } = run([
         "search",
         "--query",
         "项目级归档",
@@ -417,7 +405,7 @@ origin: "xmind"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "search",
       "--query",
       "Dir覆盖测试",
@@ -437,7 +425,7 @@ origin: "xmind"
 describe("archive-gen.ts convert — --project injects project field into front-matter", () => {
   it("includes project in front-matter when --project is provided", () => {
     const output = join(TMP_DIR, "test-project-fm.md");
-    const { code, stderr } = run([
+    const { code } = run([
       "convert",
       "--input",
       FIXTURE,
@@ -455,7 +443,7 @@ describe("archive-gen.ts convert — --project injects project field into front-
 
   it("omits project from front-matter when --project is not provided", () => {
     const output = join(TMP_DIR, "test-no-project-fm.md");
-    const { code, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -480,7 +468,7 @@ describe("archive-gen.ts --help", () => {
 describe("archive-gen.ts convert — tag inference from meta fields", () => {
   it("includes module_key, version, module names, page names, sub_group names, and prd_id in tags", () => {
     const output = join(TMP_DIR, "test-tags.md");
-    const { code, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -507,7 +495,7 @@ describe("archive-gen.ts convert — tag inference from meta fields", () => {
     writeFileSync(bracketFixture, JSON.stringify({ ...data, meta }));
 
     const output = join(TMP_DIR, "test-bracket-tags.md");
-    const { code, stderr } = run(["convert", "--input", bracketFixture, "--output", output]);
+    const { code } = run(["convert", "--input", bracketFixture, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -548,7 +536,7 @@ describe("archive-gen.ts convert — tag inference from meta fields", () => {
     writeFileSync(unclassifiedFixture, JSON.stringify(data));
 
     const output = join(TMP_DIR, "test-unclassified-tags.md");
-    const { code, stderr } = run(["convert", "--input", unclassifiedFixture, "--output", output]);
+    const { code } = run(["convert", "--input", unclassifiedFixture, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");
@@ -595,7 +583,7 @@ describe("archive-gen.ts convert — case counting edge cases", () => {
     writeFileSync(fixture, JSON.stringify(data));
 
     const output = join(TMP_DIR, "page-only-out.md");
-    const { code, stdout, stderr } = run(["convert", "--input", fixture, "--output", output]);
+    const { code, stdout } = run(["convert", "--input", fixture, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { case_count: number };
@@ -605,7 +593,7 @@ describe("archive-gen.ts convert — case counting edge cases", () => {
   it("counts both sub_group and page-level test_cases", () => {
     // The default fixture has 3 sub_group + 2 page-level = 5
     const output = join(TMP_DIR, "mixed-count.md");
-    const { code, stdout, stderr } = run(["convert", "--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["convert", "--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { case_count: number };
@@ -649,7 +637,7 @@ describe("archive-gen.ts convert — pipe and newline escaping in step tables", 
     writeFileSync(fixture, JSON.stringify(data));
 
     const output = join(TMP_DIR, "pipe-escape-out.md");
-    const { code, stderr } = run(["convert", "--input", fixture, "--output", output]);
+    const { code } = run(["convert", "--input", fixture, "--output", output]);
     expect(code).toBe(0);
 
     const content = readFileSync(output, "utf8");

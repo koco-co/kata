@@ -82,7 +82,7 @@ describe("search-filter.ts filter — sorts by case_count desc and truncates to 
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "2"], input);
+    const { code, stdout } = run(["filter", "--top", "2"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -100,7 +100,7 @@ describe("search-filter.ts filter — sorts by case_count desc and truncates to 
     }));
     const input = JSON.stringify(items);
 
-    const { code, stdout, stderr } = run(["filter"], input);
+    const { code, stdout } = run(["filter"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -118,7 +118,7 @@ describe("search-filter.ts filter — sorts by case_count desc and truncates to 
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "10"], input);
+    const { code, stdout } = run(["filter", "--top", "10"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -151,7 +151,7 @@ describe("search-filter.ts filter — deduplicates by suite_name keeping max cas
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "5"], input);
+    const { code, stdout } = run(["filter", "--top", "5"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -190,7 +190,7 @@ describe("search-filter.ts filter — deduplicates by suite_name keeping max cas
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "5"], input);
+    const { code, stdout } = run(["filter", "--top", "5"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -238,7 +238,7 @@ suite_name: "档案套件A"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run(["filter", "--input", inputFile, "--top", "3"]);
+    const { code, stdout } = run(["filter", "--input", inputFile, "--top", "3"]);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -270,7 +270,7 @@ suite_name: "Stdin套件"
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "5"], input);
+    const { code, stdout } = run(["filter", "--top", "5"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -283,7 +283,7 @@ suite_name: "Stdin套件"
 
 describe("search-filter.ts filter — handles empty input gracefully", () => {
   it("returns [] when stdin is empty", () => {
-    const { code, stdout, stderr } = run(["filter"], "");
+    const { code, stdout } = run(["filter"], "");
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as unknown[];
@@ -292,7 +292,7 @@ describe("search-filter.ts filter — handles empty input gracefully", () => {
   });
 
   it("returns [] when --input file does not exist", () => {
-    const { code, stdout, stderr } = run(["filter", "--input", "/nonexistent/path/results.json"]);
+    const { code, stdout } = run(["filter", "--input", "/nonexistent/path/results.json"]);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as unknown[];
@@ -301,7 +301,7 @@ describe("search-filter.ts filter — handles empty input gracefully", () => {
   });
 
   it("returns [] when input is an empty JSON array", () => {
-    const { code, stdout, stderr } = run(["filter"], "[]");
+    const { code, stdout } = run(["filter"], "[]");
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as unknown[];
@@ -341,7 +341,7 @@ suite_name: "预览测试"
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "5"], input);
+    const { code, stdout } = run(["filter", "--top", "5"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];
@@ -366,7 +366,7 @@ suite_name: "预览测试"
       },
     ]);
 
-    const { code, stdout, stderr } = run(["filter", "--top", "5"], input);
+    const { code, stdout } = run(["filter", "--top", "5"], input);
     expect(code).toBe(0);
 
     const results = JSON.parse(stdout) as FilteredResult[];

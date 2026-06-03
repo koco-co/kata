@@ -70,13 +70,7 @@ describe("source-analyze analyze — A-level exact match (function declaration)"
     );
     writeFileSync(join(repoDir, "unrelated.ts"), `const x = 1;\nconst y = 2;\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "createTable",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "createTable"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -94,13 +88,7 @@ describe("source-analyze analyze — A-level exact match (function declaration)"
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(join(repoDir, "service.ts"), `class UserService {\n  getUser() {}\n}\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "UserService",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "UserService"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -118,13 +106,7 @@ describe("source-analyze analyze — A-level exact match (function declaration)"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "IDataSource",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "IDataSource"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -141,13 +123,7 @@ describe("source-analyze analyze — A-level exact match (function declaration)"
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "createTable",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "createTable"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -159,7 +135,7 @@ describe("source-analyze analyze — A-level exact match (function declaration)"
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(join(repoDir, "data.py"), `def fetchData(url):\n    return url\n`, "utf8");
 
-    const { code, stdout, stderr } = run(["analyze", "--repo", repoDir, "--keywords", "fetchData"]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "fetchData"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -180,13 +156,7 @@ describe("source-analyze analyze — B-level fuzzy match", () => {
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "createTable",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "createTable"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -205,7 +175,7 @@ describe("source-analyze analyze — B-level fuzzy match", () => {
       "utf8",
     );
 
-    const { code, stdout, stderr } = run(["analyze", "--repo", repoDir, "--keywords", "myService"]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "myService"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -234,7 +204,7 @@ describe("source-analyze analyze — coverage_rate calculation", () => {
     writeFileSync(join(repoDir, "match2.ts"), `// myFunc reference\nconst x = 1;\n`, "utf8");
     writeFileSync(join(repoDir, "nomatch.ts"), `const y = 2;\nconst z = 3;\n`, "utf8");
 
-    const { code, stdout, stderr } = run(["analyze", "--repo", repoDir, "--keywords", "myFunc"]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "myFunc"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -249,7 +219,7 @@ describe("source-analyze analyze — coverage_rate calculation", () => {
     writeFileSync(join(repoDir, "a.ts"), `const x = 1;\n`, "utf8");
     writeFileSync(join(repoDir, "b.ts"), `const y = 2;\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "analyze",
       "--repo",
       repoDir,
@@ -293,13 +263,7 @@ describe("source-analyze analyze — ignores node_modules", () => {
     // A real source file without the keyword
     writeFileSync(join(repoDir, "src.ts"), `const x = 1;\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "ignoredFunction",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "ignoredFunction"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -315,13 +279,7 @@ describe("source-analyze analyze — ignores node_modules", () => {
     writeFileSync(join(gitDir, "pre-commit"), `function gitHookFunc() {}\n`, "utf8");
     writeFileSync(join(repoDir, "main.ts"), `const a = 1;\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "gitHookFunc",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "gitHookFunc"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -338,7 +296,7 @@ describe("source-analyze analyze — multiple keywords", () => {
     writeFileSync(join(repoDir, "alpha.ts"), `export function alphaFunc() {}\n`, "utf8");
     writeFileSync(join(repoDir, "beta.ts"), `export function betaFunc() {}\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "analyze",
       "--repo",
       repoDir,
@@ -362,13 +320,7 @@ describe("source-analyze analyze — output JSON schema", () => {
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(join(repoDir, "x.ts"), `function schemaFunc() {}\n`, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "schemaFunc",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "schemaFunc"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
@@ -397,13 +349,7 @@ describe("source-analyze analyze — output JSON schema", () => {
       "utf8",
     );
 
-    const { code, stdout, stderr } = run([
-      "analyze",
-      "--repo",
-      repoDir,
-      "--keywords",
-      "sortedFunc",
-    ]);
+    const { code, stdout } = run(["analyze", "--repo", repoDir, "--keywords", "sortedFunc"]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as AnalyzeResult;
