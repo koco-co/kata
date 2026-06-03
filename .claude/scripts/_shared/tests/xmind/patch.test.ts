@@ -61,6 +61,7 @@ async function readContentJson(
   const zip = await JSZip.loadAsync(buffer);
   const contentFile = zip.file("content.json");
   expect(contentFile).toBeTruthy();
+  if (!contentFile) throw new Error("content.json missing from xmind archive");
   const str = await contentFile.async("string");
   return JSON.parse(str);
 }
@@ -114,6 +115,7 @@ describe("xmind-patch search", () => {
 
     const match = results.find((r) => r.title === "验证默认加载列表页");
     expect(match).toBeTruthy();
+    if (!match) throw new Error("match not found");
     expect(match.file).toBe(xmindPath);
     expect(match.priority).toBe("P0");
     expect(Array.isArray(match.tree_path)).toBeTruthy();
@@ -226,8 +228,10 @@ describe("xmind-patch patch", () => {
     }
     const rootTopic = (sheets[0] as { rootTopic?: SheetNode }).rootTopic;
     expect(rootTopic).toBeTruthy();
+    if (!rootTopic) throw new Error("rootTopic missing");
     const caseNode = findByTitle(rootTopic, "验证默认加载列表页");
     expect(caseNode).toBeTruthy();
+    if (!caseNode) throw new Error("caseNode not found");
     expect(caseNode.markers?.some((m) => m.markerId === "priority-3")).toBeTruthy();
   });
 
