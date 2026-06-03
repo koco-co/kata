@@ -192,10 +192,8 @@ function runSyncProfile(opts: { name: string; project?: string }): void {
           { repo_profiles?: Record<string, { repos: Array<{ path: string; branch: string }> }> }
         >
       | undefined;
-    profiles =
-      project && projects?.[project]?.repo_profiles
-        ? projects[project].repo_profiles
-        : ((raw.repo_profiles ?? {}) as typeof profiles);
+    const projectProfiles = project ? projects?.[project]?.repo_profiles : undefined;
+    profiles = projectProfiles ?? ((raw.repo_profiles ?? {}) as typeof profiles);
   } catch (err) {
     const out: ErrorOutput = {
       error: `Failed to parse config.json: ${err}`,

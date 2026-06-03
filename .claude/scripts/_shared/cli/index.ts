@@ -76,10 +76,10 @@ kata.addCommand(
     .description("Knowledge management CLI (alias for knowledge-curate)")
     .allowUnknownOption()
     .allowExcessArguments(true)
-    .action((_opts: unknown, _command: Command) => {
+    .action(async (_opts: unknown, _command: Command) => {
       // Commander's parseAsync requires argv[0] and argv[1] as program path placeholders
       const args = process.argv.slice(2).filter((a) => a !== "knowledge-keeper");
-      return managingProjectKnowledge.parseAsync(["node", "kata", ...args]);
+      await managingProjectKnowledge.parseAsync(["node", "kata", ...args]);
     }),
 );
 kata.addCommand(runTestsNotify);
@@ -129,7 +129,10 @@ const publicV2Commands = new Set([
 ]);
 for (const command of kata.commands) {
   if (!publicV2Commands.has(command.name())) {
-    command._hidden = true;
+    // commander 14 keeps the hidden flag on the internal `_hidden` field
+    // (public path `addCommand(cmd, { hidden: true })` sets the same field);
+    // narrow-cast to write it without rewriting every addCommand call.
+    (command as Command & { _hidden: boolean })._hidden = true;
   }
 }
 
