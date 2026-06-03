@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
-import { resolve } from "node:path";
-import { describe, it } from "node:test";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   buildCreatePayload,
@@ -97,5 +100,57 @@ describe("parseCreateResponse", () => {
   it("returns error for unparseable response", () => {
     const r = parseCreateResponse("<html>登录</html>", base, "t");
     assert.equal(r.ok, false);
+  });
+});
+
+const CREATE_TS = resolve(fileURLToPath(new URL(".", import.meta.url)), "../create.ts");
+const PROJECT_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../../");
+const TMP = join(tmpdir(), `zentao-create-test-${process.pid}`);
+afterEach(() => {
+  try {
+    rmSync(TMP, { recursive: true, force: true });
+  } catch {}
+});
+
+function runCli(args: string[]): { code: number; stdout: string } {
+  try {
+    const stdout = execFileSync("bun", ["run", CREATE_TS, ...args], {
+      encoding: "utf8",
+      cwd: PROJECT_ROOT,
+      env: { ...process.env, KATA_ZENTAO_BASE_URL: "http://zenpms.dtstack.cn" },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return { code: 0, stdout };
+  } catch (err) {
+    const e = err as { status?: number; stdout?: string };
+    return { code: e.status ?? 1, stdout: e.stdout ?? "" };
+  }
+}
+
+describe("CLI: --dry-run", () => {
+  it("assembles fields without posting", () => {
+    mkdirSync(TMP, { recursive: true });
+    const jsonPath = join(TMP, "bug.json");
+    writeFileSync(
+      jsonPath,
+      JSON.stringify({ title: "示例", severity: "major", summary: "s", problem_type: "代码问题" }),
+    );
+    const { code, stdout } = runCli(["--json", jsonPath, "--dry-run"]);
+    assert.equal(code, 0);
+    const out = JSON.parse(stdout) as {
+      ok: boolean;
+      dryRun: boolean;
+      fields: Record<string, string>;
+    };
+    assert.equal(out.dryRun, true);
+    assert.equal(out.fields.assignedTo, "xianglin");
+    assert.equal(out.fields.severity, "2");
+  });
+});
+
+describe("CLI: missing --json", () => {
+  it("exits non-zero", () => {
+    const { code } = runCli(["--dry-run"]);
+    assert.notEqual(code, 0);
   });
 });

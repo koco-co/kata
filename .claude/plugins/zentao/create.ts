@@ -4,9 +4,17 @@
  * Contract: docs/superpowers/specs/2026-06-03-zentao-bug-create-design.md
  */
 import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { renderBugReport } from "@shared/lib/bug-report-render.ts";
 import type { BugReport } from "@shared/lib/bug-report-types.ts";
+import { validateBugReport } from "@shared/lib/bug-report-validate.ts";
+import { createCli } from "@shared/lib/cli-runner.ts";
+import { getEnv, initEnv } from "@shared/lib/env.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import type { Severity } from "@shared/lib/scan-report-types.ts";
 import { parse as parseYaml } from "yaml";
+import { resolveSession } from "./client.ts";
 
 // ─── 配置 ─────────────────────────────────────────────────────────────────────
 
@@ -133,4 +141,99 @@ export function parseCreateResponse(text: string, baseUrl: string, title: string
   const m = text.match(/bug-view-(\d+)\.html/);
   if (m) return idToResult(Number(m[1]));
   return { ok: false, error: "禅道返回了无法解析的响应" };
+}
+
+// ─── 运行 / CLI ────────────────────────────────────────────────────────────────
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const DEFAULT_CONFIG = resolve(__dirname, "zentao.config.yaml");
+
+function emit(obj: unknown): void {
+  process.stdout.write(`${JSON.stringify(obj, null, 2)}\n`);
+}
+
+async function run(opts: { json: string; config: string; dryRun: boolean }): Promise<void> {
+  initEnv(resolve(repoRoot(), ".env"));
+  const baseUrl = getEnv("KATA_ZENTAO_BASE_URL");
+  if (!baseUrl) {
+    emit({ ok: false, error: "缺少 KATA_ZENTAO_BASE_URL" });
+    process.exit(1);
+  }
+  let report: BugReport;
+  try {
+    report = validateBugReport(JSON.parse(readFileSync(opts.json, "utf8")));
+  } catch (e) {
+    emit({ ok: false, error: `读取/校验 BugReport 失败：${(e as Error).message}` });
+    process.exit(1);
+  }
+  let config: ZentaoConfig;
+  let steps: string;
+  let payload: Record<string, string>;
+  try {
+    config = loadZentaoConfig(opts.config);
+    steps = renderBugReport(report, "zentao");
+    payload = buildCreatePayload(report, config, steps);
+  } catch (e) {
+    emit({ ok: false, error: `配置加载/正文渲染失败：${(e as Error).message}` });
+    process.exit(1);
+  }
+
+  if (opts.dryRun) {
+    emit({
+      ok: true,
+      dryRun: true,
+      endpoint: createUrl(baseUrl, config),
+      fields: { ...payload, steps: `<${steps.length} chars>` },
+    });
+    return;
+  }
+
+  let cookie: string;
+  try {
+    cookie = await resolveSession();
+  } catch (e) {
+    emit({ ok: false, error: (e as Error).message });
+    process.exit(1);
+  }
+
+  let text: string;
+  try {
+    const res = await fetch(createUrl(baseUrl, config), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-Requested-With": "XMLHttpRequest",
+        Cookie: cookie,
+        "User-Agent": "kata/2.0 zentao-plugin",
+      },
+      body: new URLSearchParams(payload).toString(),
+    });
+    text = await res.text();
+  } catch (e) {
+    emit({ ok: false, error: `网络连接失败: ${(e as Error).message}` });
+    process.exit(1);
+  }
+
+  const result = parseCreateResponse(text, baseUrl, report.title);
+  emit(result);
+  if (!result.ok) process.exit(1);
+}
+
+export const program = createCli({
+  name: "zentao-create",
+  description: "Create a bug in ZenTao (fixed assignee, zentao variant body)",
+  rootAction: {
+    options: [
+      { flag: "--json <path>", description: "BugReport JSON path", required: true },
+      { flag: "--config <path>", description: "ZenTao config yaml", defaultValue: DEFAULT_CONFIG },
+      { flag: "--dry-run", description: "Assemble fields without posting; print payload" },
+    ],
+    action: async (opts: { json: string; config: string; dryRun?: boolean }) => {
+      await run({ json: opts.json, config: opts.config, dryRun: Boolean(opts.dryRun) });
+    },
+  },
+});
+
+if (import.meta.main) {
+  program.parseAsync(process.argv);
 }
