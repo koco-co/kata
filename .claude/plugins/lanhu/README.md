@@ -30,7 +30,7 @@ KATA_LANHU_COOKIE="lanhu_session_id=xxx; path=/; secure"
 
 ```bash
 # 从蓝湖 URL 导入需求
-bun run plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --output workspace/features/{{YM}}-{{SLUG}}/
+bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --output workspace/features/{{YM}}-{{SLUG}}/
 
 # 或通过 kata 命令
 生成测试用例 https://lanhuapp.com/web/#/item/...
@@ -50,7 +50,7 @@ Deterministic Lanhu fixtures are available under `.claude/scripts/_shared/tests/
 
 ```bash
 # Use replay fixture instead of live fetch
-bun run plugins/lanhu/fetch.ts --fixture .claude/scripts/_shared/tests/fixtures/lanhu/sample/source-snapshot.json
+bun run .claude/plugins/lanhu/fetch.ts --fixture .claude/scripts/_shared/tests/fixtures/lanhu/sample/source-snapshot.json
 ```
 
 ### Adding New Fixtures

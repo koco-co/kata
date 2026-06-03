@@ -8,7 +8,7 @@ import matter from "gray-matter";
  * The kata business skills live once under `.claude/skills/<name>` and are
  * exposed to reasonix via `.reasonix/skills/<name>` symlinks. This lint asserts
  * that canonical shape: symlinks resolve correctly, bootstrap SKILL.md exists
- * with correct frontmatter, tool mapping is present, and plugin manifest is valid.
+ * with correct frontmatter, and the reasonix tool mapping is present.
  */
 export type ReasonixSkillRule =
   | "REASONIX_SYMLINK_MISSING"
@@ -17,9 +17,7 @@ export type ReasonixSkillRule =
   | "REASONIX_DANGLING_SYMLINK"
   | "REASONIX_BOOTSTRAP_MISSING"
   | "REASONIX_BOOTSTRAP_FRONTMATTER"
-  | "REASONIX_MAPPING_MISSING"
-  | "REASONIX_PLUGIN_MANIFEST_MISSING"
-  | "REASONIX_PLUGIN_MANIFEST_INVALID";
+  | "REASONIX_MAPPING_MISSING";
 
 export interface ReasonixSkillViolation {
   rule: ReasonixSkillRule;
@@ -135,45 +133,6 @@ function checkBootstrap(agentSkills: string, violations: ReasonixSkillViolation[
   }
 }
 
-function checkPluginManifest(root: string, violations: ReasonixSkillViolation[]): void {
-  const manifest = join(root, ".reasonix-plugin", "plugin.json");
-  if (!existsSync(manifest)) {
-    violations.push({
-      rule: "REASONIX_PLUGIN_MANIFEST_MISSING",
-      path: manifest,
-      message: ".reasonix-plugin/plugin.json is required (plugin-level interface metadata)",
-    });
-    return;
-  }
-  let json: Record<string, unknown>;
-  try {
-    json = JSON.parse(readFileSync(manifest, "utf8"));
-  } catch {
-    violations.push({
-      rule: "REASONIX_PLUGIN_MANIFEST_INVALID",
-      path: manifest,
-      message: "plugin.json is not valid JSON",
-    });
-    return;
-  }
-  const fail = (message: string) =>
-    violations.push({ rule: "REASONIX_PLUGIN_MANIFEST_INVALID", path: manifest, message });
-
-  if (typeof json.skills !== "string") fail('plugin.json must have a string "skills" pointer');
-
-  const iface = json.interface as Record<string, unknown> | undefined;
-  if (!iface || typeof iface !== "object") {
-    fail('plugin.json must have an "interface" object');
-    return;
-  }
-  if (typeof iface.displayName !== "string") {
-    fail("interface.displayName (camelCase string) is required");
-  }
-  if (!Array.isArray(iface.defaultPrompt)) {
-    fail("interface.defaultPrompt must be an array of example prompts");
-  }
-}
-
 export function lintReasonixSkillTree(root: string): ReasonixSkillReport {
   const violations: ReasonixSkillViolation[] = [];
   const claudeSkills = join(root, ".claude", "skills");
@@ -181,7 +140,6 @@ export function lintReasonixSkillTree(root: string): ReasonixSkillReport {
 
   checkSymlinks(root, claudeSkills, agentSkills, violations);
   checkBootstrap(agentSkills, violations);
-  checkPluginManifest(root, violations);
 
   return { passed: violations.length === 0, violations };
 }

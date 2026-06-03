@@ -5,8 +5,8 @@
 ```bash
 bun install
 cp .env.example .env
-bun run --cwd engine type-check  # verify TypeScript
-bun test --cwd engine             # verify tests
+bun run type-check  # verify TypeScript
+bun test            # verify tests
 ```
 
 ## Code Style
@@ -19,9 +19,11 @@ bun test --cwd engine             # verify tests
 ## Commit Convention
 
 ```
-<type>: <description>
+<type>: <emoji> <description>
 
-Types: feat, fix, refactor, docs, test, chore, perf, ci
+标题行用英文，description ≤ 72 字符。type/emoji 固定映射：
+feat 🧩 · fix 🩹 · refactor ✨ · docs 📝 · test 🧪 · chore 🧹 · style 🎨 · build 🏗️ · ci 👷 · perf ⚡ · revert ⏪ · merge 🔀
+详见 .claude/rules/project-workflow-rules.md。
 ```
 
 ## PR Checklist

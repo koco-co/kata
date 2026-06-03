@@ -1,19 +1,19 @@
 ---
 name: using-kata-reasonix
-description: Load at the start of any kata session running under reasonix (DeepSeek Agent). The kata skills under .reasonix/skills/ are symlinks to .claude/skills/ and keep Claude Code tool names in their bodies; this skill maps those tool names to reasonix equivalents and applies the kata routing table so inputs reach the right skill.
+description: Load at the start of any kata session running under reasonix (esengine/DeepSeek-Reasonix). The kata skills under .reasonix/skills/ are symlinks to .claude/skills/ and keep Claude Code tool names in their bodies; this skill maps those tool names to reasonix equivalents and applies the kata routing table so inputs reach the right skill.
 ---
 
 # Using kata skills under reasonix
 
-kata 的 8 个业务 skill（case-draft、case-edit、case-hotfix、defect-analyze、infra-diagnose、knowledge-curate、playwright-automation、workspace-manage）位于 `.reasonix/skills/<name>`，是指向 `.claude/skills/<name>` 的**整目录 symlink**。它们与 Claude Code 共用同一份正文，正文里写的是 Claude Code 的工具名。在 reasonix 里使用时，按下面两条规则消化差异即可——无需修改任何 skill 文件。
+kata 的 8 个业务 skill（case-draft、case-edit、case-hotfix、defect-analyze、infra-diagnose、knowledge-curate、playwright-automation、workspace-manage）位于 `.reasonix/skills/<name>`，是指向 `.claude/skills/<name>` 的**整目录 symlink**（reasonix 官方按目录扫描发现，ConventionDirs 含 `.reasonix`，支持 symlink）。它们与 Claude Code 共用同一份正文，正文里写的是 Claude Code 的工具名。在 reasonix 里使用时，按下面规则消化差异即可——无需修改任何 skill 文件。
 
 ## 1. 工具名翻译
 
 skill 正文出现 Claude Code 工具名时，换成你的 reasonix 等价工具。完整对照见 [`references/reasonix-tools.md`](references/reasonix-tools.md)，要点：
 
-- `Task`（派子代理）/ 并行多个 `Task` → DeepSeek Agent 不原生支持子代理；改为在主会话内**顺序执行**各 worker/reviewer 角色任务，将前一步输出作为后一步输入。
-- `TodoWrite` → 无等价工具；用**自然语言任务列表**（markdown checklist）在对话中维护进度。
-- `AskUserQuestion` → 无结构化提问工具，直接在对话里向用户提问，并明确给出候选项。
+- `Task`（派子代理）/ 并行多个 `Task` → `task` 内置工具，或 `runAs: subagent` 的 skill；reasonix **原生支持子代理，不降级**。
+- `TodoWrite` → `todo_write` 内置工具。
+- `AskUserQuestion` → `ask` 内置工具（列候选项 + 推荐项）。
 - `Read` / `Write` / `Edit` → 原生文件工具；`Bash` → 原生 shell；`Skill` → 原生加载，直接照做。
 
 ## 2. frontmatter 兼容
@@ -36,14 +36,3 @@ skill 正文出现 Claude Code 工具名时，换成你的 reasonix 等价工具
 | kata 能力/功能菜单/命令帮助，或创建/初始化/自检/收尾/修复工作区 | `workspace-manage` |
 
 匹配优先级：精确格式/URL/路径匹配 > 意图关键词匹配 > 通用请求。description 里的「改走/不在此」声明优先于触发关键词。无 skill 匹配的请求自行处理，不强套路由。
-
-## 4. 子代理降级策略
-
-reasonix 基于 DeepSeek API，当前不支持原生多代理（multi-agent）工作流。当 skill 正文要求派 `Task`（如 `case-draft` 的 worker/spec-reviewer/quality-reviewer 三阶段流程、`playwright-automation` 的多阶段 worker）时：
-
-1. 在主会话内按顺序执行每个角色的指令。
-2. 将上一角色的输出作为下一角色的上下文输入。
-3. 在对话中标注当前角色切换（如 `--- [spec-reviewer] ---`）。
-4. `TodoWrite` 替代方案：用 markdown checklist 追踪各阶段进度。
-
-这种降级不影响最终产物质量，但会失去并行加速。

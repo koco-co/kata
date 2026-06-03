@@ -4,7 +4,7 @@ kata 的 skill 正文使用 Claude Code 工具名（这些 skill 在 `.claude/sk
 
 | skill 正文写的 | Codex 等价 |
 | --- | --- |
-| `Task`（派子代理） | `spawn_agent`（见下「子代理需要 multi-agent 支持」） |
+| `Task`（派子代理） | `spawn_agent`（见下「子代理与 multi-agent 支持」） |
 | 并行多个 `Task` | 多个 `spawn_agent` |
 | Task 返回结果 | `wait_agent` |
 | Task 自动完成 | `close_agent` 释放槽位 |
@@ -15,16 +15,18 @@ kata 的 skill 正文使用 Claude Code 工具名（这些 skill 在 `.claude/sk
 | `Bash`（执行命令） | 原生 shell 工具 |
 | `kata <command>`（CLI） | 原样在 shell 里执行；`.agents/scripts/kata` 是指向 `.claude/scripts/_shared/bin/kata` 的 symlink |
 
-## 子代理需要 multi-agent 支持
+## 子代理与 multi-agent 支持
 
-在 `~/.codex/config.toml` 加：
+旧版 Codex 需在 `~/.codex/config.toml` 加：
 
 ```toml
 [features]
 multi_agent = true
 ```
 
-启用后才有 `spawn_agent`、`wait_agent`、`close_agent`，供 `playwright-automation`、`case-draft` 等用到「派 worker / spec review / quality review」的 skill 使用。kata 的子代理工作流（subagent-driven-development）在 Codex 下保持结构不变，只是把 `Task` 映射为 `spawn_agent`——不要降级成「全部在主会话顺序执行」。
+> 注：在当前 stable Codex 上，`multi_agent` 已是「stable; on by default」（见官方 config-reference），`spawn_agent`/`wait_agent`/`close_agent` 默认可用，此 flag 非强制；旧版仍需显式开启，故保留上面的配置说明。
+
+当前 stable Codex 默认即有 `spawn_agent`、`wait_agent`、`close_agent`（旧版需启用上面的 flag 后才有），供 `playwright-automation`、`case-draft` 等用到「派 worker / spec review / quality review」的 skill 使用。kata 的子代理工作流（subagent-driven-development）在 Codex 下保持结构不变，只是把 `Task` 映射为 `spawn_agent`——不要降级成「全部在主会话顺序执行」。
 
 旧版 Codex（`rust-v0.115.0` 之前）把等待生成的子代理写作 `wait`；当前 Codex 用 `wait_agent`，`wait` 已改指 code-mode 的 `exec/wait`。
 

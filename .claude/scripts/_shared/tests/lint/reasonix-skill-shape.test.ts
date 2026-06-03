@@ -18,19 +18,6 @@ function skillMd(name: string): string {
   return `---\nname: ${name}\ndescription: demo skill ${name} for reasonix shape lint.\n---\n\nbody\n`;
 }
 
-function pluginJson(): string {
-  return JSON.stringify({
-    name: "kata",
-    version: "0.0.0",
-    skills: "./.reasonix/skills/",
-    interface: {
-      displayName: "kata QA Skills",
-      shortDescription: "demo",
-      defaultPrompt: ["one", "two"],
-    },
-  });
-}
-
 // 构建一棵 canonical 合规树并返回 root
 function buildCompliant(): string {
   const root = mkdtempSync(join(tmpdir(), "reasonix-shape-"));
@@ -48,7 +35,6 @@ function buildCompliant(): string {
     join(root, ".reasonix/skills/using-kata-reasonix/references/reasonix-tools.md"),
     "# Reasonix Tool Mapping\nTask -> sequential execution\n",
   );
-  write(join(root, ".reasonix-plugin/plugin.json"), pluginJson());
   return root;
 }
 
@@ -105,24 +91,9 @@ describe("lintReasonixSkillTree (reasonix shape)", () => {
     expect(rules(root)).toContain("REASONIX_MAPPING_MISSING");
   });
 
-  test("missing plugin manifest is flagged", () => {
-    rmSync(join(root, ".reasonix-plugin/plugin.json"));
-    expect(rules(root)).toContain("REASONIX_PLUGIN_MANIFEST_MISSING");
-  });
-
-  test("invalid plugin JSON is flagged", () => {
-    write(join(root, ".reasonix-plugin/plugin.json"), "not json");
-    expect(rules(root)).toContain("REASONIX_PLUGIN_MANIFEST_INVALID");
-  });
-
-  test("defaultPrompt as a string (not array) is rejected", () => {
-    write(
-      join(root, ".reasonix-plugin/plugin.json"),
-      JSON.stringify({
-        skills: "./.reasonix/skills/",
-        interface: { displayName: "x", defaultPrompt: "single string" },
-      }),
-    );
-    expect(rules(root)).toContain("REASONIX_PLUGIN_MANIFEST_INVALID");
+  test("tree without .reasonix-plugin still passes (reasonix has no JSON manifest)", () => {
+    const report = lintReasonixSkillTree(root);
+    expect(report.passed).toBe(true);
+    expect(rules(root)).not.toContain("REASONIX_PLUGIN_MANIFEST_MISSING" as ReasonixSkillRule);
   });
 });
