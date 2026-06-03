@@ -13,6 +13,15 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getEnv, initEnv } from "@shared/lib/env.ts";
 import { Command } from "commander";
+import {
+  detectFixBranch,
+  parsePriority,
+  parseSeverity,
+  parseZentaoResponseText,
+  type RawBugData,
+} from "./parse.ts";
+
+export { detectFixBranch, parseZentaoResponseText } from "./parse.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -56,101 +65,6 @@ export function extractBugIdFromUrl(url: string): number | null {
   if (!match) return null;
   const id = Number.parseInt(match[1], 10);
   return Number.isNaN(id) ? null : id;
-}
-
-// ─── Fix Branch Detection ─────────────────────────────────────────────────────
-
-const HOTFIX_PATTERN = /hotfix[_/-][\w./-]+/gi;
-const BRANCH_PATTERN = /(?:branch|分支)[:\s]*([^\s,;，；]+)/gi;
-
-/**
- * Attempts to find a fix branch name from various bug fields.
- * Prioritises hotfix_ patterns, then falls back to branch mentions.
- */
-export function detectFixBranch(candidates: Array<string | null | undefined>): string | null {
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-    const hotfixMatches = candidate.match(HOTFIX_PATTERN);
-    if (hotfixMatches && hotfixMatches.length > 0) {
-      return hotfixMatches[0];
-    }
-  }
-  // Secondary pass: generic branch mentions
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-    const branchMatches = candidate.matchAll(BRANCH_PATTERN);
-    for (const m of branchMatches) {
-      if (m[1]) return m[1];
-    }
-  }
-  return null;
-}
-
-// ─── Response Parsers ─────────────────────────────────────────────────────────
-
-interface RawBugData {
-  title?: string;
-  severity?: string;
-  pri?: number;
-  priority?: number;
-  status?: string;
-  resolvedBuild?: string;
-  resolution?: string;
-  assignedTo?: string;
-  openedBy?: string;
-  resolvedBy?: string;
-  product?: string | number;
-  module?: string | number;
-  productName?: string;
-  moduleName?: string;
-  steps?: string;
-  comment?: string;
-  comments?: Array<{ content?: string; text?: string }>;
-  [key: string]: unknown;
-}
-
-function unwrapZentaoPayload(payload: unknown): RawBugData | null {
-  if (payload === null || payload === undefined) return null;
-
-  if (typeof payload === "string") {
-    try {
-      return unwrapZentaoPayload(JSON.parse(payload));
-    } catch {
-      return null;
-    }
-  }
-
-  if (typeof payload !== "object") return null;
-
-  const data = payload as Record<string, unknown>;
-  if (data.bug !== undefined) return unwrapZentaoPayload(data.bug);
-  if (data.data !== undefined) return unwrapZentaoPayload(data.data);
-
-  return data as RawBugData;
-}
-
-export function parseZentaoResponseText(text: string): RawBugData | null {
-  try {
-    return unwrapZentaoPayload(JSON.parse(text));
-  } catch {
-    return null;
-  }
-}
-
-function parseSeverity(raw: unknown): string | null {
-  if (typeof raw !== "string" && typeof raw !== "number") return null;
-  const s = String(raw).toLowerCase();
-  if (s === "1" || s === "fatal" || s === "critical") return "critical";
-  if (s === "2" || s === "serious" || s === "major") return "major";
-  if (s === "3" || s === "normal" || s === "average") return "normal";
-  if (s === "4" || s === "minor" || s === "small") return "minor";
-  return s;
-}
-
-function parsePriority(raw: unknown): number | null {
-  if (raw === null || raw === undefined) return null;
-  const n = Number(raw);
-  return Number.isNaN(n) ? null : n;
 }
 
 function extractBugFields(data: RawBugData): Omit<BugOutput, "bug_id" | "output_path"> {
