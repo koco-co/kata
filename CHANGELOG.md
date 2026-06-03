@@ -1,24 +1,25 @@
 # Changelog
 
-## Unreleased
+## 4.0.0-alpha.1 (2026-06-03)
 
 ### Breaking
 
 - Removed the retired generated runtime source and its CLI/test/lint compatibility surface.
-- Claude Code maintains `.claude/**` as the single runtime implementation.
+- Collapsed the project to a single first-class runtime: `.claude/**` is the only hand-maintained runtime implementation.
 
 ### Added
 
-- Added Router contracts under runtime `contracts/routes/*.yaml`.
-- Added runtime `contracts/skill-graph.yaml` as the skill graph.
-- Added workflow contracts for case-draft, case-edit, case-hotfix, and playwright-automation.
-- Added Blackboard schema and state model under runtime `contracts/**`.
-- Added `bun run check:skills` coverage for runtime sync, runtime detach, route, skill graph, and workflow checks.
+- Multi-runtime adapters that expose the 8 business skills with zero body copies: OpenAI Codex via `.agents/skills/` whole-dir symlinks plus `.codex-plugin/plugin.json`, Reasonix (DeepSeek) via `.reasonix/skills/` whole-dir symlinks, and Hermes via `.hermes/skills/` with `external_dirs` in `~/.hermes/config.yaml`.
+- Session bootstraps `using-kata-codex` / `using-kata-reasonix` / `using-kata-hermes` for per-runtime tool-name mapping.
 
 ### Changed
 
-- Project architecture now follows `SKILL + Router + Graph + Workflow + Blackboard`.
-- `CLAUDE.md` is the hand-maintained public entrypoint for the Claude Code runtime.
+- Architecture is now a single `.claude/**` runtime: `skills/` (8 business skills triggered by `SKILL.md` frontmatter), `scripts/_shared/**` (the kata CLI, lib, schemas, and lint), `plugins/` (lanhu / zentao / notify), and `rules/`. Routing is a prompt-level table in `CLAUDE.md`.
+- Rewrote `README.md`, `README-EN.md`, and `docs/**` to describe the `.claude/**` single runtime plus adapter directories.
+
+### Removed
+
+- Cleaned up ~14k lines of dead runtime code; see `docs/audit/2026-06-02-runtime-audit.md` for the full audit and batch breakdown.
 
 ## 3.0.0-alpha.1 (2026-04-29)
 
