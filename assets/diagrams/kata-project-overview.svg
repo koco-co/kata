@@ -1,76 +1,68 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
-  <title id="title">Kata runtime architecture</title>
-  <desc id="desc">Kata uses independently maintained Claude and Codex runtime skills, shared router graph workflow blackboard contracts, engine checks, plugins, and workspace artifacts.</desc>
+  <title id="title">Kata project architecture</title>
+  <desc id="desc">Kata maintains one first-class .claude runtime (skills, kata CLI, plugins, rules) and exposes the same skills to Codex, Reasonix, and Hermes through adapter directories. A single bun run ci quality gate guards it, and workspace artifacts are produced from read-only evidence sources.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
     </marker>
     <style>
       text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; }
-      .title { font-size: 32px; font-weight: 700; }
-      .label { font-size: 20px; font-weight: 700; }
-      .body { font-size: 15px; fill: #334155; }
+      .title { font-size: 30px; font-weight: 700; }
+      .label { font-size: 19px; font-weight: 700; }
+      .body { font-size: 14px; fill: #334155; }
       .box { fill: #f8fafc; stroke: #64748b; stroke-width: 2; rx: 8; }
       .runtime { fill: #ecfeff; stroke: #0891b2; }
-      .contract { fill: #f0fdf4; stroke: #16a34a; }
-      .engine { fill: #fff7ed; stroke: #ea580c; }
+      .adapter { fill: #f0fdf4; stroke: #16a34a; }
+      .gate { fill: #fff7ed; stroke: #ea580c; }
       .workspace { fill: #fef2f2; stroke: #dc2626; }
       .line { stroke: #475569; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
     </style>
   </defs>
 
   <rect x="0" y="0" width="1280" height="620" fill="#ffffff"/>
-  <text x="640" y="58" text-anchor="middle" class="title">Kata SKILL + Router + Graph + Workflow + Blackboard</text>
+  <text x="640" y="56" text-anchor="middle" class="title">Kata: one .claude runtime, many agent runtimes</text>
 
-  <rect x="70" y="115" width="240" height="105" class="box"/>
-  <text x="190" y="150" text-anchor="middle" class="label">User Entrypoints</text>
-  <text x="190" y="178" text-anchor="middle" class="body">README, AGENTS.md</text>
-  <text x="190" y="200" text-anchor="middle" class="body">CLAUDE.md, slash commands</text>
+  <rect x="60" y="110" width="230" height="120" class="box"/>
+  <text x="175" y="146" text-anchor="middle" class="label">Entrypoints</text>
+  <text x="175" y="176" text-anchor="middle" class="body">README, CLAUDE.md</text>
+  <text x="175" y="198" text-anchor="middle" class="body">slash commands</text>
+  <text x="175" y="220" text-anchor="middle" class="body">prompt-level routing</text>
 
-  <rect x="390" y="95" width="230" height="105" class="box runtime"/>
-  <text x="505" y="130" text-anchor="middle" class="label">Codex Runtime</text>
-  <text x="505" y="158" text-anchor="middle" class="body">.agents/skills/**</text>
-  <text x="505" y="180" text-anchor="middle" class="body">agents/openai.yaml</text>
+  <rect x="370" y="95" width="320" height="270" class="box runtime"/>
+  <text x="530" y="132" text-anchor="middle" class="label">.claude/** runtime (first-class)</text>
+  <text x="530" y="166" text-anchor="middle" class="body">skills/ — 8 skills, SKILL.md frontmatter triggers</text>
+  <text x="530" y="194" text-anchor="middle" class="body">scripts/_shared/** — kata CLI, lib, schemas, lint</text>
+  <text x="530" y="222" text-anchor="middle" class="body">plugins/ — lanhu / notify / zentao</text>
+  <text x="530" y="250" text-anchor="middle" class="body">rules/ — project workflow rules</text>
+  <text x="530" y="290" text-anchor="middle" class="body">hooks/ — write and command guards</text>
+  <text x="530" y="332" text-anchor="middle" class="body">single source of truth for all runtimes</text>
 
-  <rect x="390" y="235" width="230" height="105" class="box runtime"/>
-  <text x="505" y="270" text-anchor="middle" class="label">Claude Runtime</text>
-  <text x="505" y="298" text-anchor="middle" class="body">.claude/skills/**</text>
-  <text x="505" y="320" text-anchor="middle" class="body">Claude Code prompts</text>
+  <rect x="770" y="95" width="450" height="125" class="box adapter"/>
+  <text x="995" y="132" text-anchor="middle" class="label">Adapter directories (zero body copies)</text>
+  <text x="995" y="162" text-anchor="middle" class="body">.agents + .codex-plugin/plugin.json — Codex (symlink)</text>
+  <text x="995" y="186" text-anchor="middle" class="body">.reasonix — Reasonix / DeepSeek (symlink)</text>
+  <text x="995" y="210" text-anchor="middle" class="body">.hermes — Hermes (external_dirs)</text>
 
-  <rect x="705" y="115" width="260" height="225" class="box contract"/>
-  <text x="835" y="150" text-anchor="middle" class="label">Shared Contracts</text>
-  <text x="835" y="182" text-anchor="middle" class="body">Manifest: skill-manifest.yaml</text>
-  <text x="835" y="207" text-anchor="middle" class="body">Routing: manifest.routing.*</text>
-  <text x="835" y="232" text-anchor="middle" class="body">Workflow: workflows/*.yaml</text>
-  <text x="835" y="257" text-anchor="middle" class="body">Blackboard: schema + review docs</text>
-  <text x="835" y="282" text-anchor="middle" class="body">Rules, schemas, plugins metadata</text>
+  <rect x="770" y="245" width="450" height="140" class="box gate"/>
+  <text x="995" y="280" text-anchor="middle" class="label">Quality gate</text>
+  <text x="995" y="306" text-anchor="middle" class="body">bun run ci</text>
+  <text x="995" y="328" text-anchor="middle" class="body">lint + debris + paths + check:skills</text>
+  <text x="995" y="350" text-anchor="middle" class="body">+ lint:skills (codex / reasonix / hermes)</text>
+  <text x="995" y="372" text-anchor="middle" class="body">+ type-check + test + test:plugins + test:tools</text>
 
-  <rect x="1040" y="115" width="180" height="225" class="box engine"/>
-  <text x="1130" y="150" text-anchor="middle" class="label">Engine</text>
-  <text x="1130" y="182" text-anchor="middle" class="body">kata CLI</text>
-  <text x="1130" y="207" text-anchor="middle" class="body">runtime checks</text>
-  <text x="1130" y="232" text-anchor="middle" class="body">schemas</text>
-  <text x="1130" y="257" text-anchor="middle" class="body">plugins</text>
-  <text x="1130" y="282" text-anchor="middle" class="body">write policy</text>
+  <rect x="370" y="440" width="320" height="110" class="box workspace"/>
+  <text x="530" y="476" text-anchor="middle" class="label">workspace/{project}</text>
+  <text x="530" y="506" text-anchor="middle" class="body">Archive MD, XMind, CSV, reports</text>
+  <text x="530" y="528" text-anchor="middle" class="body">Playwright scripts, run evidence</text>
 
-  <rect x="390" y="430" width="300" height="110" class="box workspace"/>
-  <text x="540" y="466" text-anchor="middle" class="label">Workspace Artifacts</text>
-  <text x="540" y="496" text-anchor="middle" class="body">Archive, XMind, reports</text>
-  <text x="540" y="520" text-anchor="middle" class="body">Playwright scripts, run evidence</text>
+  <rect x="770" y="440" width="450" height="110" class="box"/>
+  <text x="995" y="476" text-anchor="middle" class="label">Evidence sources</text>
+  <text x="995" y="506" text-anchor="middle" class="body">Lanhu, ZenTao, SourceRef</text>
+  <text x="995" y="528" text-anchor="middle" class="body">workspace/{project}/.kata/repos/** (read-only)</text>
 
-  <rect x="760" y="430" width="300" height="110" class="box"/>
-  <text x="910" y="466" text-anchor="middle" class="label">Evidence Sources</text>
-  <text x="910" y="496" text-anchor="middle" class="body">Lanhu, Zentao, SourceRef</text>
-  <text x="910" y="520" text-anchor="middle" class="body">workspace/.kata/repos/** read-only</text>
-
-  <path d="M310 165 L390 145" class="line"/>
-  <path d="M310 180 L390 285" class="line"/>
-  <path d="M620 147 L705 185" class="line"/>
-  <path d="M620 287 L705 255" class="line"/>
-  <path d="M965 225 L1040 225" class="line"/>
-  <path d="M1130 340 L930 430" class="line"/>
-  <path d="M1130 340 L610 430" class="line"/>
-  <path d="M760 485 L690 485" class="line"/>
-
-  <text x="640" y="590" text-anchor="middle" class="body">Quality gate: bun run check:skills, bun test --cwd engine, bun run check, git diff --check</text>
+  <path d="M290 170 L370 200" class="line"/>
+  <path d="M690 150 L770 155" class="line"/>
+  <path d="M690 300 L770 300" class="line"/>
+  <path d="M530 365 L530 440" class="line"/>
+  <path d="M995 550 L600 500" class="line"/>
 </svg>
