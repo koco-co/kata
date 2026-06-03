@@ -13,6 +13,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getEnv, initEnv } from "@shared/lib/env.ts";
 import { Command } from "commander";
+import { zentaoLogin } from "./client.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -204,80 +205,6 @@ function extractBugFields(data: RawBugData): Omit<BugOutput, "bug_id" | "output_
 }
 
 // ─── Zentao HTTP Helpers ──────────────────────────────────────────────────────
-
-interface LoginResult {
-  cookie: string;
-}
-
-async function zentaoLogin(
-  baseUrl: string,
-  account: string,
-  password: string,
-): Promise<LoginResult> {
-  const loginUrl = `${baseUrl}/zentao/user-login.json`;
-  const body = `account=${encodeURIComponent(account)}&password=${encodeURIComponent(password)}`;
-
-  let response: Response;
-  try {
-    response = await fetch(loginUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "kata/2.0 zentao-plugin",
-        Accept: "application/json",
-      },
-      body,
-    });
-  } catch (err) {
-    throw Object.assign(new Error(`网络连接失败: ${(err as Error).message}`), {
-      code: "NETWORK_ERROR",
-    });
-  }
-
-  if (!response.ok) {
-    throw Object.assign(new Error(`禅道登录失败，HTTP ${response.status}`), {
-      code: "LOGIN_FAILED",
-    });
-  }
-
-  // Extract Set-Cookie header for session
-  const setCookie = response.headers.get("set-cookie");
-  if (!setCookie) {
-    // Some zentao versions return token in JSON body
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      // ignore parse failure
-    }
-    const b = body as Record<string, unknown> | undefined;
-    if (b?.sessionID || b?.token || b?.sid) {
-      const sessionId = String(b.sessionID ?? b.token ?? b.sid);
-      return { cookie: `zentaosid=${sessionId}` };
-    }
-    throw Object.assign(new Error("禅道登录失败：响应中没有 Set-Cookie 头"), {
-      code: "LOGIN_FAILED",
-    });
-  }
-
-  // Parse the session cookie value (zentaosid=xxx or PHPSESSID=xxx)
-  const cookieParts = setCookie
-    .split(",")
-    .map((s) => s.split(";")[0].trim())
-    .filter((s) => s.includes("="));
-
-  const sessionCookie =
-    cookieParts.find((s) => s.startsWith("zentaosid=") || s.startsWith("PHPSESSID=")) ??
-    cookieParts[0];
-
-  if (!sessionCookie) {
-    throw Object.assign(new Error("禅道登录失败：无法解析 Session Cookie"), {
-      code: "LOGIN_FAILED",
-    });
-  }
-
-  return { cookie: sessionCookie };
-}
 
 async function zentaoFetchBug(
   baseUrl: string,
