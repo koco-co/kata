@@ -177,6 +177,7 @@ kata/
 │   ├── rules/                     # project workflow rules
 │   └── hooks/                     # write / command guards
 ├── .agents/  .reasonix/  .hermes/ # multi-runtime adapters (codex / reasonix / hermes)
+├── .codex-plugin/                 # Codex plugin manifest (plugin.json)
 ├── docs/                          # architecture, audit, skill, and troubleshooting docs
 └── workspace/                     # user project artifacts; source evidence is read-only, under workspace/{project}/.kata/repos/
 ```

@@ -177,6 +177,7 @@ kata/
 │   ├── rules/                     # 项目工作流规则
 │   └── hooks/                     # 写入/命令守卫
 ├── .agents/  .reasonix/  .hermes/ # 多 runtime 适配（codex / reasonix / hermes）
+├── .codex-plugin/                 # Codex 插件 manifest（plugin.json）
 ├── docs/                          # 架构、审计、技能与排查文档
 └── workspace/                     # 用户项目产物；源码证据只读，位于 workspace/{project}/.kata/repos/
 ```
