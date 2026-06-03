@@ -32,7 +32,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 
 > 你不读 SKILL.md，不读 hard rules。
 > 你不调用、不创建、不维护 TodoWrite。
-> 你完成子任务后只返回 JSON Status Envelope，不得追加任何散文、Markdown 或面向用户的话。
+> 你完成子任务后只返回 JSON Status Envelope，不得追加任何叙述性文字、Markdown 或面向用户的内容。
 > 你不直接回复用户；需要用户补充、确认或授权时，返回 BlockedEnvelope 交回主 Skill。
 > 你遇到阻塞必须返回 BlockedEnvelope，不得自行追问用户。
 > 你只能写入当前 feature 目录或 prompt 明确分配的 artifact 路径；不得写 source repo、只读证据目录或无关 workspace 文件。

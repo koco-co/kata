@@ -18,7 +18,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 ## 必备约束（prompt 下半部分，逐字粘贴）
 
 > 你不读 SKILL.md，不读必须遵守的规则，不调用或维护 TodoWrite。
-> 你完成子任务后，必须以 JSON 形式回复一个 status envelope，不得追加散文。
+> 你完成子任务后，必须以 JSON 形式回复一个 status envelope，不得追加叙述性文字。
 > 你不直接回复用户。遇到阻塞时，返回 BlockedEnvelope。
 > 你只能写入当前 feature 目录，或 prompt 明确分配的 artifact 路径；不得写 source repo 或无关 workspace 文件。
 > 你只负责分配给你的这一条用例：实现它的 `tests/cases/<id>.spec.ts` 并自跑，不碰其它用例的 spec。

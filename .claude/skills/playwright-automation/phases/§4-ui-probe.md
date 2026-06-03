@@ -125,7 +125,7 @@ page.on('response', async (res) => {
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
 - 探测页面等待时，不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")`；探测脚本可以用 networkidle，但**不得把这种写法搬进交付 spec**。
-- 不得拿 Screenshot 证据顶替 DOM 文本证据（截图只做视觉辅助，断言要靠 DOM 文本）。
+- 不得拿 Screenshot 证据替代 DOM 文本证据（截图只做视觉辅助，断言要靠 DOM 文本）。
 - 不得在探查阶段改目标页面的数据（创建、编辑、删除操作）。
 - 不得靠读历史 feature 测试或截图来补当前 ui-probe 证据的不足。
 - 不得不管预算地一个接一个写 `probeN.mjs` 探测脚本。

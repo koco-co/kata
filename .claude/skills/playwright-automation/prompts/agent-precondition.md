@@ -20,7 +20,7 @@
 
 > 你不读 SKILL.md，不读必须遵守的规则，不调用或维护任务列表，不直接回复用户。
 > 没有真实 ui-probe 证据，不得产出共享页面对象的最终断言；探测耗尽预算仍确认不了核心 UI，返回 BlockedEnvelope（kind=blocked_by_ui_probe 或 needs_user_decision）。
-> 不得在探测阶段改目标页面数据；不得读历史 feature 顶替当前证据；不得写 source repo 或无关 workspace 文件。
+> 不得在探测阶段改目标页面数据；不得读历史 feature 替代当前证据；不得写 source repo 或无关 workspace 文件。
 
 ## 出参
 

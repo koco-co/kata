@@ -11,7 +11,7 @@
 - 合并回 `main` 前必须先记下 worktree HEAD SHA，再回主工作树执行 `git merge --no-ff <sha>`。
 - 合并后必须完成相关验证、说清已验证范围；没问题再 `git push origin main`。
 - 推送完成后清理 worktree：`git worktree remove .worktrees/<slug>`；detached worktree 没有分支，无需删分支这一步。
-- 打完 pre-worktree 快照后，worktree 内后续的任务提交要按任务分批，并随手检查状态，别把实现阶段冒出来的无关文件混进任务 commit；远端不可用时记下阻塞，不得不吭声地略过。
+- 打完 pre-worktree 快照后，worktree 内后续的任务提交要按任务分批，并随手检查状态，别把实现阶段冒出来的无关文件混进任务 commit；远端不可用时记下阻塞，不得静默略过。
 
 ## 多任务执行与任务列表
 
@@ -26,20 +26,20 @@
 - 只有可选的 commit body 才允许写中文；body 与标题行之间留一个空行，需要展开背景或理由时写进 body。
 - type 与 emoji 必须照下表的唯一映射来写，不得按历史习惯或个人偏好替换。
 
-| Type | Emoji |
-| --- | --- |
-| `feat` | `🧩` |
-| `fix` | `🩹` |
-| `refactor` | `✨` |
-| `docs` | `📝` |
-| `test` | `🧪` |
-| `chore` | `🧹` |
-| `style` | `🎨` |
-| `build` | `🏗️` |
-| `ci` | `👷` |
-| `perf` | `⚡` |
-| `revert` | `⏪` |
-| `merge` | `🔀` |
+| Type       | Emoji |
+| ---------- | ----- |
+| `feat`     | `🧩`  |
+| `fix`      | `🩹`  |
+| `refactor` | `✨`  |
+| `docs`     | `📝`  |
+| `test`     | `🧪`  |
+| `chore`    | `🧹`  |
+| `style`    | `🎨`  |
+| `build`    | `🏗️`  |
+| `ci`       | `👷`  |
+| `perf`     | `⚡`  |
+| `revert`   | `⏪`  |
+| `merge`    | `🔀`  |
 
 ## 临时通知页面
 

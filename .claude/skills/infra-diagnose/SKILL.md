@@ -13,7 +13,7 @@ effort: high
 
 ## 路由边界
 
-description 已经覆盖触发场景，这里只说明什么时候改走别的 skill：
+以下场景不属本 skill 范围，请转至对应 skill：
 
 - 纯前端运行时报错、不用登机 → defect-analyze。
 - 只查询或更新业务知识 → knowledge-curate。
@@ -32,11 +32,14 @@ description 已经覆盖触发场景，这里只说明什么时候改走别的 s
 | references/ssh-protocol.md        | 需要登机时 | SSH 连接、读取或补充凭据、破坏性命令把关 |
 | references/knowledge-format.md    | 收尾记录时 | 知识条目怎么检索、怎么写回             |
 
-## 必须遵守的规则
+## 安全规则
 
-- 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；读不到就先用默认 `root`/`Abc!@#135` 试连，还是失败再直接问用户，问到后立即写回，下次同一主机不再问。
-- JDBC URL（如 `jdbc:hive2://host:10000/`）只解析主机与端口，里面没有账号密码。不要据此编造凭据。
-- SSH 统一用 `SSHPASS=<pw> sshpass -e ssh ...`，密码经环境变量传入，不写进 `ps` 看得到的命令行。这样密码不会在进程列表里泄漏。
-- 只读诊断（ping/nc/systemctl status/journalctl/ss/ps 等）可以自动执行；破坏性操作（重启/改防火墙/kill/改配置）必须先把命令和影响告诉用户，等用户确认后再执行，执行完再复测一遍。破坏性命令可能加重故障，也可能波及其它服务。
-- 根因必须有命令输出支撑，分清哪些是事实、哪些是推断；没有证据就不要臆造根因或责任人。
-- 只动目标服务器和本地 `.kata/infra/`，不得改动 `.kata/repos/**` 源仓库。
+- 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；读不到时先用默认 `root` / `Abc!@#135` 尝试连接，仍失败再直接询问用户，获取后立即写回，下次同一主机不再重复询问。
+- JDBC URL（如 `jdbc:hive2://host:10000/`）仅解析主机与端口，其中不含账号密码，不得据此推测凭据。
+- SSH 统一使用 `SSHPASS=<pw> sshpass -e ssh ...`，密码通过环境变量传入，不写进 `ps` 可见的命令行，避免密码在进程列表中泄漏。
+- 只读诊断（`ping` / `nc` / `systemctl status` / `journalctl` / `ss` / `ps` 等）可自动执行；破坏性操作（重启服务 / 修改防火墙 / `kill` / 改配置）必须先将命令和影响告知用户，确认后再执行，执行后需复测验证。破坏性命令可能加重故障或波及其他服务。
+
+## 诊断规范
+
+- 根因必须有命令输出作为支撑，严格区分事实与推断；没有证据不臆造根因或责任人。
+- 只操作目标服务器和本地 `.kata/infra/`，不得改动 `.kata/repos/**` 源仓库。

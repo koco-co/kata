@@ -1,6 +1,6 @@
 ---
 name: workspace-manage
-description: 回答 kata 能力/功能菜单/命令帮助类提问，或创建、初始化、自检、收尾、修复项目工作区。触发短语如「kata 能干嘛」「功能菜单」「初始化工作区」「自检/收尾工作区」。仅生成或编辑用例改走 case-*；维护业务知识改走 knowledge-curate；UI 自动化改走 playwright-automation。
+description: 回答 kata 能力/功能菜单/命令帮助类提问，或创建、初始化、自检、收尾、修复项目工作区。触发短语如「kata 能干嘛」「功能菜单」「初始化工作区」「自检/收尾工作区」。仅生成或编辑用例请转至 case-*；维护业务知识请转至 knowledge-curate；UI 自动化请转至 playwright-automation。
 argument-hint: "<功能菜单 | init | 自检 | 收尾 | 修复>"
 user-invocable: true
 model: sonnet
@@ -9,15 +9,15 @@ effort: medium
 
 # workspace-manage
 
-统管 kata 项目工作区：回答能力和菜单类提问，并确保创建、自检、收尾的产物都落在约定的目录边界内。
+统一管理 kata 项目工作区：回答能力和菜单类提问，并确保创建、自检、收尾的产物都落在约定的目录边界内。
 
 ## 路由边界
 
-description 已覆盖触发场景；此处只说明改走目标：
+以下场景不属本 skill 范围，请转至对应 skill：
 
-- 生成或编辑 QA 用例 → case-draft / case-edit。
-- 维护业务知识 → knowledge-curate。
-- UI 自动化 → playwright-automation。
+- 生成或编辑 QA 用例 → case-draft / case-edit
+- 维护业务知识 → knowledge-curate
+- UI 自动化 → playwright-automation
 
 ## 工作流
 

@@ -28,7 +28,7 @@
 
 ## 进度维护（主 agent 纯编排）
 
-进入可派执行子代理的窗口后（env-preflight 已在主会话通过、无 blocker），主 agent 只做编排，不下场做探测/脚本/修复：
+进入可派执行子代理的窗口后（env-preflight 已在主会话通过、无 blocker），主 agent 只做编排，不直接执行探测/脚本/修复：
 
 1. 跑 `kata case-tasks build --feature <featureDir>` 拿用例任务清单 JSON（id/标题/读写分类/串行/排除）。
 2. 一次性创建任务列表：`前置条件处理` + 每条用例一项（标题=用例标题）+ `汇总 & 质量闸门`。env-preflight 已完成，创建后即标 `completed`。

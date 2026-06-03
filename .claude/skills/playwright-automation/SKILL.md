@@ -1,6 +1,6 @@
 ---
 name: playwright-automation
-description: 把需求用例目录路径/目录名(features/【v...】)、MD 用例、PRD、Lanhu、Playwright 脚本或运行失败结果转成或修复并真实跑通 UI 自动化。只发一个需求功能目录路径或目录名、零文字也直接触发(目录→自动化，用例产物文件→case-edit)。只手动操作浏览器、只写非 UI 用例(改走 case-draft)、只做静态扫描(改走 defect-analyze)的不在此。
+description: 把需求用例目录路径/目录名（features/【v...】）、MD 用例、PRD、Lanhu、Playwright 脚本或运行失败结果，转为或修复为可真实跑通的 UI 自动化。仅发送一个需求功能目录路径或目录名即可直接触发（目录→自动化；用例产物文件→case-edit）。仅手动操作浏览器、仅写非 UI 用例请转至 case-draft；仅做静态扫描请转至 defect-analyze。
 argument-hint: "<需求目录路径/目录名 | MD 用例 | 脚本 | 失败结果>"
 user-invocable: true
 model: sonnet
@@ -14,15 +14,15 @@ allowed-tools: Bash(kata *)
 
 ## 路由边界
 
-description 已覆盖触发场景；此处只说明改走目标与特例：
+以下场景不属本 skill 范围，请转至对应 skill：
 
-- 只手动操作浏览器而不生成/修复测试 → 不触发本 skill。
-- 只写非 UI 用例 → case-draft。
-- 只做静态代码扫描 → defect-analyze。
+- 仅手动操作浏览器而不生成/修复测试 → 不触发本 skill
+- 仅写非 UI 用例 → case-draft
+- 仅做静态代码扫描 → defect-analyze
 
 ## 环境确认（先于一切探测）
 
-用户没有明确给出 env profile 时，先不声张地启动环境确认：用 AskUserQuestion 一次性问清环境，默认推荐 `ltqc-local.yaml` 置顶并附上理由，确认之前保持静默。AskUserQuestion 不可用时，输出固定的兜底文案（首行为 `请确认执行环境。`）。用户已明确给出 profile，或回复「确认」，就直接执行 env-preflight。
+用户没有明确给出 env profile 时，先静默启动环境确认：用 AskUserQuestion 一次性问清环境，默认推荐 `ltqc-local.yaml` 置顶并附上理由，确认之前保持静默。AskUserQuestion 不可用时，输出固定的兜底文案（首行为 `请确认执行环境。`）。用户已明确给出 profile，或回复「确认」，就直接执行 env-preflight。
 
 ## 阶段流程（顺序推进，逐 phase 加载对应文件，前序通过才进下一阶段）
 
@@ -56,22 +56,34 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 | prompts/agent-spec-reviewer.md    | 汇总 & 质量闸门阶段                            | spec 合规机械检查                              |
 | prompts/agent-quality-reviewer.md | 汇总 & 质量闸门阶段（spec 通过后）             | 脚本质量（选择器、断言、复用度）               |
 
-## 必须遵守的规则
+## 执行流程
 
-- 按 env-preflight → ui-probe → plan-reconcile → playwright-generate → self-run 的顺序执行，前序通过才进下一阶段。
-- 没有 ui-probe 证据，就不生成最终脚本（静态审查除外）。没探过真实页面的脚本，只是猜测。
-- 没有 self-run 结果，就不下「通过」结论。没跑过就说通过，是假交付。
-- 公开进度：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 派 opus 子代理，中间 plan-reconcile/generate/self-run/repair 按用例派 sonnet 子代理（任务标题=用例标题），主 agent 只编排不下场；二阶段评审集中在汇总。
-- 静默模式、env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度（不派执行子代理、不建 TodoWrite）。
-- env-preflight 的权限拒绝、静默模式、session 探测、登录态补充，以及 no_permission 与 tool_permission_denied 模板，严格遵循 `phases/§2-env-preflight.md`（与本节等效，不重复）。
-- 按名称片段查找目标目录时，先用关键词在 manifest.json/metadata.yaml/archive.md/prd.md 里精确定位唯一目标目录，再读它的状态文件；不要枚举 features/ 下的候选目录。
-- blocked_by_case_draft_required 只在一种情况下触发：目标目录既缺 case-draft 的自动化基线（ready AutomationIntent、archive.md、test-point-checklist.md），又缺 prd.md 或 inputs/lanhu-snapshots/。触发后进 handoff，不再读需求源。
-- 遇到失败，先判断它属于哪一类，再决定怎么处理；每个 spec ≤ 3 次修复，locator 内部重试 ≤ 2 次。
-- 失败断言必须反映真实问题，不用弱断言、try-catch、test.skip、宽泛条件来掩盖。掩盖式断言会把红跑伪装成绿跑。
-- 环境用 `workspace/<project>/_shared/env/*.yaml` profile；新建前先查是否已有匹配的 base_url+tenant，不为交付新建 `.env.local`。
-- 产出布局：smoke.spec.ts + full.spec.ts 落 tests/runners/，case 落 tests/cases/，共享页面对象/helper 落 `_shared/`。
-- 交付以目标 full.spec.ts 全量通过为准，仅 smoke 通过不算完成。
-- 步骤与断言的真实性：每条在范围内的用例步骤，都必须实现为真实页面动作。
-- 步骤与断言的真实性：每条 expected_visible_result 都必须断言为真实业务结果，并真跑通。
-- 禁止用「导航+可见性断言」代替业务动作与预期，也禁止把业务流程简化成只测页面表层、不测业务结果。只测页面表层，证明不了业务结果正确。
-- 无法真实实现的用例，走诚实阻塞或排除，并写进 handoff.excluded_cases（含 reason_category），不假装通过。
+- 严格按 env-preflight → ui-probe → plan-reconcile → playwright-generate → self-run 的顺序推进，前序阶段通过才进入下一阶段。
+- 按名称片段查找目标目录时，先用关键词在 `manifest.json` / `metadata.yaml` / `archive.md` / `prd.md` 里精确定位唯一目标目录，再读取其状态文件；禁止枚举 `features/` 下的候选目录。
+- `blocked_by_case_draft_required` 只在一种情况下触发：目标目录既缺少 case-draft 的自动化基线（`ready` 状态的 `AutomationIntent`、`archive.md`、`test-point-checklist.md`），又缺少 `prd.md` 或 `inputs/lanhu-snapshots/`。触发后直接进入 handoff，不再读取需求源。
+
+## 进度可见性
+
+- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 分配 opus 子代理，中间 plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题），主 agent 只负责编排，不直接执行具体任务；二阶段评审集中在汇总环节。
+- **静默模式**：env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度——不派执行子代理、不建 TodoWrite。
+- env-preflight 的权限拒绝、session 探测、登录态补充，以及 `no_permission` / `tool_permission_denied` 模板，严格遵循 `phases/§2-env-preflight.md`。
+
+## 真实性质控
+
+- 没有 ui-probe 证据，就不生成最终脚本（静态审查除外）。没探过真实页面的脚本只是猜测，不是测试。
+- 没有 self-run 结果，就不下「通过」结论。没跑过就说通过，是无效交付。
+- 每条在范围内的用例步骤都必须实现为真实的页面动作；每条 `expected_visible_result` 都必须断言为真实的业务结果，并实际跑通。
+- 禁止用「导航 + 可见性断言」代替业务动作与预期，禁止把业务流程简化成只测页面表层。只测页面表层，证明不了业务结果正确。
+- 无法真实实现的用例必须诚实阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category`），不得假装通过。
+
+## 失败处理
+
+- 遇到失败，先判断归类（产品 / 脚本 / 数据 / 权限 / 环境），再决定修复策略。
+- 每个 spec 最多 3 次修复尝试，locator 内部重试最多 2 次。
+- 失败断言必须反映真实问题，严禁用弱断言、`try-catch`、`test.skip` 或宽泛条件来掩盖。掩盖式断言只是把失败伪装成通过。
+
+## 环境与产出
+
+- 环境配置使用 `workspace/<project>/_shared/env/*.yaml` profile；新建前先检查是否已有匹配的 `base_url` + `tenant`，不为交付新建 `.env.local`。
+- 产出布局：`smoke.spec.ts` + `full.spec.ts` 存放于 `tests/runners/`，case 存放于 `tests/cases/`，共享页面对象/helper 存放于 `_shared/`。
+- 交付以目标 `full.spec.ts` 全量通过为准，仅 smoke 通过不算完成。

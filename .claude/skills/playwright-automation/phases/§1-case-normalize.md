@@ -16,10 +16,10 @@
    - 进 env 之前查源材料，只能做精确路径存在性判断：`test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`，或等价的精确目标元数据。
    - 不得 list、glob、find，不得读取或枚举截图文件名。
    - 这条路径服务于 `/playwright-automation <title>` 这类短提示：用户期望先确认环境，再做真实 UI probe。
-4. **兜底：** 只在用户传入裸 `archive.md` 路径、裸 PRD 路径，或还没建 feature 目录的 Lanhu 链接时，才像以前一样自由推断。
-5. **硬停：** feature 目录在、但既没 case-draft 自动化基线也没源材料时，不得拿无关的 PRD 或截图去推断 UI。返回 `blocked_by_case_draft_required`，要求先完成 `/case-draft`。
+4. **兜底：** 只在用户直接传入 `archive.md` 路径、PRD 路径，或还没建 feature 目录的 Lanhu 链接时，才像以前一样自由推断。
+5. **强制停止：** feature 目录在、但既没 case-draft 自动化基线也没源材料时，不得拿无关的 PRD 或截图去推断 UI。返回 `blocked_by_case_draft_required`，要求先完成 `/case-draft`。
 
-兜底路径会发出 `manifest_missing_fallback_inference` 告警，方便追踪它的使用情况，逐步把这类残留项迁走。
+兜底路径会发出 `manifest_missing_fallback_inference` 告警，方便追踪使用情况，逐步淘汰这类兜底用法。
 
 ## 读取时机
 
@@ -61,7 +61,7 @@ cookie: {cookie_string}
    - 输出 `source_backed_bootstrap`
    - 说明当前只有需求源材料，还没有最终 case-draft；下一步必须进入 `env-preflight`，默认推荐 `ltqc-local.yaml`（若存在），并通过 askuser 确认环境
    - 本阶段不得读 `prd.md` 正文、截图内容、历史 feature、env profile 或跨目录 tests；env profile 的读取留给 `env-preflight`
-   - 进入 `source_backed_bootstrap` 后，确认环境之前，不得把读 PRD/截图和读 env profile 放在同一轮并行执行；必须先走环境确认触点，等用户回复“确认”或环境文件名；确认前不得执行 `ls <target>/inputs`、`ls <target>/inputs/lanhu-snapshots`、Glob `inputs/lanhu-snapshots/**`、find，也不得枚举任何截图文件名
+   - 进入 `source_backed_bootstrap` 后，必须先完成环境确认（等用户回复「确认」或给出环境文件名），才可进入后续阶段。确认环境之前：不得读取 `prd.md` 正文或截图内容，不得执行 `ls` / Glob / find 枚举 `inputs/`、`inputs/lanhu-snapshots/**` 或任何截图文件名，也不得将读取 PRD/截图与读取 env profile 放在同一轮并行执行。确认环境之后：`ui-plan` 可读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`；必须先走环境确认触点，等用户回复“确认”或环境文件名；确认前不得执行 `ls <target>/inputs`、`ls <target>/inputs/lanhu-snapshots`、Glob `inputs/lanhu-snapshots/**`、find，也不得枚举任何截图文件名
    - 之后的 `ui-plan` 可以在确认环境后读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`，但必须把它们标成 `case_claim/design_source`，不得当作 observed UI 事实
 6. 需求目录在、但缺 case-draft 自动化基线，又缺 `prd.md` 或 `inputs/lanhu-snapshots/`：
    - 输出 `blocked_by_case_draft_required`
@@ -79,7 +79,7 @@ cookie: {cookie_string}
 2. **禁止**把 Archive MD 里的文字描述直接当成真实 UI 证据
 3. Archive MD 里的页面描述只用来回答「测什么」，不作为 selector 或页面结构的证据
 4. 若 `archive.md` 不存在、但已进入 `source_backed_bootstrap`，则不要在 case-normalize 阶段读 PRD/截图；记下 archive 缺失，把读需求源推迟到 env-preflight 之后的 ui-plan。
-5. 若既没有 archive，也不是 `source_backed_bootstrap`，则不能拿其他 PRD、Lanhu 截图或 OCR 结果顶替 archive；本阶段必须停下，返回 `blocked_by_case_draft_required`。
+5. 若既没有 archive，也不是 `source_backed_bootstrap`，则不能拿其他 PRD、Lanhu 截图或 OCR 结果替代 archive；本阶段必须停下，返回 `blocked_by_case_draft_required`。
 
 ### 第三步：检查已有自动化产物
 
@@ -103,7 +103,7 @@ cookie: {cookie_string}
 | **仅可手动验证** | 预期结果无法通过 DOM 断言验证（如"表中有数据"需要检查 DB） | 排除，记录为 `offline_verification` |
 | **P0 级复杂 E2E** | P0 case 涉及多步资源创建 + 状态轮询 + 条件分支 | 必须按用例步骤真实自动化；不得简化为「进入页面验证元素存在」的只测页面表层不测业务结果的测试。当前环境确实无法真实实现并跑通时，标记 `blocked_by_*` 并记入 `handoff.excluded_cases`（含 `reason_category` + 原因） |
 
-**排除的用例必须记入 handoff 的 `excluded_cases` 字段**（每条含 `case_id` + `reason_category`（`env`/`data_prep`/`external_system`/`tenant_mismatch`/`ui_missing`）+ 原因；表里的 `offline_verification` 类归到 `external_system`），不得不吭声地丢掉，也不得用表面通过来顶替。
+**排除的用例必须记入 handoff 的 `excluded_cases` 字段**（每条含 `case_id` + `reason_category`（`env`/`data_prep`/`external_system`/`tenant_mismatch`/`ui_missing`）+ 原因；表里的 `offline_verification` 类归到 `external_system`），不得静默丢弃，也不得用表面通过来顶替。
 
 ### 第五步：提取 UiAutomationIntent
 

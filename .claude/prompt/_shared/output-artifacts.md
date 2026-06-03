@@ -7,7 +7,7 @@
 
 - 产物清单以各 skill 当前 `SKILL.md` 和 references 为准。
 - Phase 1 只记录稳定基线，不替代各 skill 的细化产物规则。
-- 不把 CSV 作为 `case-draft`、`case-edit`、`case-hotfix` 三者共同的必产物；CSV 只在本次 skill 明确生成或转换时，才纳入交付范围。
+- CSV 不作为 `case-draft`、`case-edit`、`case-hotfix` 三者的必交付产物；仅当当前 skill 明确要求生成或转换 CSV 时，才纳入交付范围。
 
 ## 当前产物矩阵
 

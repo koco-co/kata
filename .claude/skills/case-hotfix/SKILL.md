@@ -1,6 +1,6 @@
 ---
 name: case-hotfix
-description: 拿到 bug ID、ZenTao bug URL(zenpms.dtstack.cn/bug-view-NNN.html)、issue URL、缺陷描述或修复说明，产出聚焦修复路径、可直接执行的单条 hotfix 回归用例(archive.md)。只发 bug-view-NNN URL 或 bug ID、零文字也直接触发。要基于失败证据写通用 bug 报告改用 defect-analyze；依完整 PRD 产用例改用 case-draft。
+description: 拿到 bug ID、ZenTao bug URL（zenpms.dtstack.cn/bug-view-NNN.html）、issue URL、缺陷描述或修复说明，产出聚焦修复路径、可直接执行的单条 hotfix 回归用例（archive.md）。仅发送 bug-view-NNN URL 或 bug ID 即可直接触发，无需附带文字说明。要基于失败证据写通用 bug 报告请转至 defect-analyze；依完整 PRD 产用例请转至 case-draft。
 argument-hint: "<ZenTao bug URL | bug-view-NNN | bug ID>"
 user-invocable: true
 model: sonnet
@@ -13,10 +13,10 @@ effort: medium
 
 ## 路由边界
 
-description 已覆盖触发场景，这里只说明改走目标：
+以下场景不属本 skill 范围，请转至对应 skill：
 
-- 要基于原始失败证据写通用 bug 报告 → defect-analyze。
-- 依完整 PRD 产用例 → case-draft。
+- 基于原始失败证据写通用 bug 报告 → defect-analyze
+- 依完整 PRD 产用例 → case-draft
 
 ## 工作流
 
@@ -31,11 +31,14 @@ description 已覆盖触发场景，这里只说明改走目标：
 | references/hotfix-archive-format.md | 写或复核 archive 前 | 目录/frontmatter/keywords/前置条件 SQL/Spark 全分区等可执行格式 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用） | Archive 字段一致性、标题、前置条件可执行性 |
 
-## 必须遵守的规则
+## 范围与格式
 
-- 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身，相邻回归风险点并入同一条用例的步骤或预期检查，不拆套件。hotfix 要的是窄而准的回归点，不是全量覆盖。
-- 必须输出可直接执行的 archive.md（前置条件加步骤表），不得只给缺陷分析、原因说明或自然语言总结。hotfix 的交付物是可执行回归，不是分析报告。
-- 范围未定的问题一律入 `pending_items`，不外延到证据没有支撑的模块、数据源、版本。没有证据的外延会把回归点稀释成猜测。
-- 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则支撑；只来自历史用例或规则时，在 source_refs.json 标明来源和未验证边界，不冒充本次真实探测。
-- 证据分层：archive.md 只留人类可读的用例内容（不含任何 SourceRef 引用）；SourceRefs 只写本 hotfix 目录内的 source_refs.json；原始抓取证据只落本目录 .temp/，不写仓库根 workspace/.temp，也不写 .kata。
-- frontmatter 必须含 zentao_url；目录命名 `hotfix_{fix_branch_or_bug_id}-{short-title}`；keywords 6 段、前置条件 SQL/Spark 写法等细则严格按 `references/hotfix-archive-format.md`，不在此重复。
+- 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身，相邻回归风险点并入同一条用例的步骤或预期检查，不拆分为多个测试套件。hotfix 追求精准的回归覆盖，不是全量测试。
+- 范围未定的问题一律记入 `pending_items`，不外延到证据没有支撑的模块、数据源或版本。没有证据的外延只会把回归点稀释成猜测。
+- 必须输出可直接执行的 `archive.md`（含前置条件与步骤表），不得只给缺陷分析、原因说明或自然语言总结。hotfix 的交付物是可执行回归，不是分析报告。
+- frontmatter 必须包含 `zentao_url`；目录命名 `hotfix_{fix_branch_or_bug_id}-{short-title}`；keywords 六段式、前置条件 SQL/Spark 写法等细则严格按 `references/hotfix-archive-format.md`，此处不再赘述。
+
+## 证据与交付
+
+- 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则作为支撑。仅来自历史用例或规则时，须在 `source_refs.json` 中标明来源和未验证边界，不得当作本次真实探测结果。
+- 证据分层：`archive.md` 只保留人类可读的用例内容（不含任何 SourceRef 引用）；SourceRefs 只写入本 hotfix 目录内的 `source_refs.json`；原始抓取证据只存放于本目录 `.temp/`，不写入仓库根 `workspace/.temp`，也不写入 `.kata`。

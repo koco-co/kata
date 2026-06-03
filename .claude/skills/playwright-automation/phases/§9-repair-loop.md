@@ -74,7 +74,7 @@
 修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
 
 - **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
-- **`product` 类**（功能、文案、业务规则变了）→ 这是用户能看到的变化：**不要在这里硬改断言去迁就产品的变化**。改走 handoff 阻塞，并触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再改用例。把产品的变化当技术问题硬改断言，就是假通过，违反步骤与断言的真实性规则。
+- **`product` 类**（功能、文案、业务规则变了）→ 这是用户能看到的变化：**不要在这里硬改断言去迁就产品的变化**。转至 handoff 阻塞，并触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再改用例。把产品的变化当技术问题硬改断言，就是虚假通过，违反步骤与断言的真实性规则。
 
 ### 第五步：禁止
 

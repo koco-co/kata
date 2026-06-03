@@ -9,7 +9,7 @@ kata 的 8 个业务 skill（case-draft、case-edit、case-hotfix、defect-analy
 
 ## 1. 工具名翻译
 
-skill 正文出现 Claude Code 工具名时，换成你的 reasonix 等价工具。完整对照见 [`references/reasonix-tools.md`](references/reasonix-tools.md)，要点：
+skill 正文出现 Claude Code 工具名时，替换为你的 reasonix 对应工具。完整对照见 [`references/reasonix-tools.md`](references/reasonix-tools.md)，要点：
 
 - `Task`（派子代理）/ 并行多个 `Task` → `task` 内置工具，或 `runAs: subagent` 的 skill；reasonix **原生支持子代理，不降级**。
 - `TodoWrite` → `todo_write` 内置工具。
@@ -24,15 +24,15 @@ skill 正文出现 Claude Code 工具名时，换成你的 reasonix 等价工具
 
 仅凭单条输入即可静默分发到对应 skill（与 `.claude/CLAUDE.md` 路由规则一致）：
 
-| 输入 | 走 skill |
-| --- | --- |
-| Lanhu/Axure URL（lanhuapp.com，含 axure/产品设计） | `case-draft` |
-| ZenTao bug URL / bug-view-NNN / bug ID | `case-hotfix`（未修复或缺修复范围时由它生成待办，不回退 `defect-analyze`） |
-| 需求功能**目录**路径/目录名（`features/【v...】`，无文件扩展名） | `playwright-automation` |
-| 用例产物**文件**（`.xmind`/`.csv`/`archive.md`），或编辑/同步/标准化已有用例 | `case-edit` |
-| 异常堆栈/控制台报错/HTTP 失败、合并冲突文本、diff/分支对 | `defect-analyze` |
-| 数据源/数据库/服务器连通性报错（如 JDBC No route to host） | `infra-diagnose` |
-| 记录/查询/维护业务知识、规则、术语，或问「XX 是什么」 | `knowledge-curate` |
-| kata 能力/功能菜单/命令帮助，或创建/初始化/自检/收尾/修复工作区 | `workspace-manage` |
+| 输入                                                                         | 走 skill                                                                   |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Lanhu/Axure URL（lanhuapp.com，含 axure/产品设计）                           | `case-draft`                                                               |
+| ZenTao bug URL / bug-view-NNN / bug ID                                       | `case-hotfix`（未修复或缺修复范围时由它生成待办，不回退 `defect-analyze`） |
+| 需求功能**目录**路径/目录名（`features/【v...】`，无文件扩展名）             | `playwright-automation`                                                    |
+| 用例产物**文件**（`.xmind`/`.csv`/`archive.md`），或编辑/同步/标准化已有用例 | `case-edit`                                                                |
+| 异常堆栈/控制台报错/HTTP 失败、合并冲突文本、diff/分支对                     | `defect-analyze`                                                           |
+| 数据源/数据库/服务器连通性报错（如 JDBC No route to host）                   | `infra-diagnose`                                                           |
+| 记录/查询/维护业务知识、规则、术语，或问「XX 是什么」                        | `knowledge-curate`                                                         |
+| kata 能力/功能菜单/命令帮助，或创建/初始化/自检/收尾/修复工作区              | `workspace-manage`                                                         |
 
-匹配优先级：精确格式/URL/路径匹配 > 意图关键词匹配 > 通用请求。description 里的「改走/不在此」声明优先于触发关键词。无 skill 匹配的请求自行处理，不强套路由。
+匹配优先级：精确格式/URL/路径匹配 > 意图关键词匹配 > 通用请求。description 里的「请转至」路由声明优先于触发关键词。无 skill 匹配的请求自行处理，不强套路由。
