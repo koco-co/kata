@@ -327,7 +327,7 @@ describe("confidenceGate", () => {
   });
 
   it("rejects low always (even with --confirmed)", () => {
-    expect(confidenceGate("low").allowed).toBe(false);
+    expect(confidenceGate("low", false).allowed).toBe(false);
     expect(confidenceGate("low", true).allowed).toBe(false);
   });
 
