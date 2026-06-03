@@ -38,11 +38,16 @@ function cachePath(): string {
   return join(cacheDir(), "smoke-probe.json");
 }
 
-function runCli(args: string[]): ReturnType<typeof spawnSync> {
-  return spawnSync(KATA_CLI, ["case-signal-analyzer", ...args], {
+function runCli(args: string[]): { status: number | null; stdout: string; stderr: string } {
+  const r = spawnSync(KATA_CLI, ["case-signal-analyzer", ...args], {
     encoding: "utf8",
     cwd: repoRoot,
   });
+  return {
+    status: r.status,
+    stdout: String(r.stdout ?? ""),
+    stderr: String(r.stderr ?? ""),
+  };
 }
 
 beforeEach(() => {
@@ -83,7 +88,7 @@ describe("case-signal-analyzer CLI", () => {
 
     // knowledge: no knowledge dir → missing
     const knowledge = profile.knowledge as Record<string, unknown>;
-    expect(["missing", "weak"]).toContain(knowledge.level);
+    expect(["missing", "weak"]).toContain(knowledge.level as string);
   });
 
   test("PRD with confidence=0.2 and no field tables → prd.level === 'missing'", () => {
