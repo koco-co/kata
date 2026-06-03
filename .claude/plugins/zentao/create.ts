@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * plugins/zentao/create.ts — 在禅道创建 bug
- * Contract: docs/superpowers/specs/2026-06-03-zentao-bug-create-design.md
+ * Contract: 已合并实现 (main 9f92a198e)；运维/风险笔记见 plugins/zentao/NOTES.md
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
