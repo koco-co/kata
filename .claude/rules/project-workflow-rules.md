@@ -22,6 +22,8 @@
 ## Commit 规范
 
 - Commit message 固定为 `type: emoji description`；type 小写，description 不超过 72 个字符。
+- 标题行（`type: emoji description` 这一整行）必须用英文：type、emoji 照映射写，description 也必须是英文，不得用中文。
+- 只有可选的 commit body 才允许写中文；body 与标题行之间留一个空行，需要展开背景或理由时写进 body。
 - type 与 emoji 必须照下表的唯一映射来写，不得按历史习惯或个人偏好替换。
 
 | Type | Emoji |
