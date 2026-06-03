@@ -34,8 +34,8 @@ loadDotEnv();
 
 // §3.4 F7（项目级隔离）扩展：当同时设置 KATA_ACTIVE_FEATURE 时，
 // outputDir 进一步收敛到 feature 级，避免多 feature 共用项目根 `.runs/` 互相覆盖。
-// ui-autotest skill 派发的 script-case-agent / regression-runner-agent 会同时注入
-// PROJECT + FEATURE 两个变量；项目级 tests/（非 feature 内）仍走旧的项目级路径。
+// KATA_ACTIVE_FEATURE 由调用方按需显式传入（如 self-run 手动命令）；未传时项目级
+// tests/（非 feature 内）仍走旧的项目级路径。
 //
 // 解析顺序（高 → 低）：
 // 1. KATA_ACTIVE_FEATURE + KATA_ACTIVE_PROJECT → feature 级
@@ -81,7 +81,11 @@ const yyyymm = new Date().toISOString().slice(0, 7).replace(/-/g, ""); // YYYYMM
 const suiteName = process.env.KATA_SUITE_NAME ?? "report";
 const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
 const reportDir = `workspace/${project}/_shared/published-reports/${yyyymm}/${suiteName}/${envLower}`;
-const allureResultsDir = `${reportDir}/allure-results`;
+// KATA_ALLURE_RESULTS_DIR：显式指定本次 run 的 allure 落点（self-run 据此把 allure
+// 收敛到 features/<id>/results/<run-id>/allure-results），未设时维持 _shared 发布目录。
+// 注意：self-run 必须靠 config 这份带 outputFolder 的 reporter 生成 allure，不能在 CLI 用
+// --reporter 覆盖，否则 allure-playwright 会退回默认 ./allure-results（落到仓库根）。
+const allureResultsDir = process.env.KATA_ALLURE_RESULTS_DIR ?? `${reportDir}/allure-results`;
 
 // 并发控制：默认串行（向后兼容），通过环境变量按需开启并发
 // - PW_FULLY_PARALLEL=1：同文件内（含 describe 内）用例也并发
@@ -118,8 +122,10 @@ export default defineConfig({
       "allure-playwright",
       {
         detail: true,
-        outputFolder: allureResultsDir,
-        suiteTitle: `${suiteName} - UI自动化测试 (${envLower})`,
+        // allure-playwright v3 的输出目录选项是 resultsDir（v2 的 outputFolder 已失效，
+        // 写错会被忽略并退回默认 ./allure-results = 仓库根）。
+        resultsDir: allureResultsDir,
+        suiteTitle: true,
       },
     ],
   ],
