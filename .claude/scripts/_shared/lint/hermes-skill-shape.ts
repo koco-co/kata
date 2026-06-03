@@ -1,23 +1,25 @@
-import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import matter from "gray-matter";
 
 /**
  * Hermes Agent skill-tree lint.
  *
- * The kata business skills live once under `.claude/skills/<name>` and are
- * exposed to Hermes via `.hermes/skills/<name>` symlinks. This lint asserts
- * that canonical shape: symlinks resolve correctly, bootstrap SKILL.md exists
- * with correct frontmatter, and tool mapping is present.
+ * The kata business skills live once under `.claude/skills/<name>`. Hermes
+ * discovers them via `external_dirs` in `~/.hermes/config.yaml` pointing at the
+ * real `.claude/skills/` directory — NOT via symlinks: whole-directory symlinks
+ * under the skills dir are omitted from Hermes discovery (upstream bug
+ * NousResearch/hermes-agent#8293). This lint asserts the opposite of the
+ * codex/reasonix trees: `.hermes/skills/` must hold only the real
+ * `using-kata-hermes` bootstrap (with its tool mapping) and NO skill symlinks,
+ * and the bootstrap must document the external_dirs discovery mechanism.
  */
 export type HermesSkillRule =
-  | "HERMES_SYMLINK_MISSING"
-  | "HERMES_NOT_SYMLINK"
-  | "HERMES_SYMLINK_TARGET"
-  | "HERMES_DANGLING_SYMLINK"
+  | "HERMES_STRAY_SYMLINK"
   | "HERMES_BOOTSTRAP_MISSING"
   | "HERMES_BOOTSTRAP_FRONTMATTER"
-  | "HERMES_MAPPING_MISSING";
+  | "HERMES_MAPPING_MISSING"
+  | "HERMES_EXTERNAL_DIRS_UNDOCUMENTED";
 
 export interface HermesSkillViolation {
   rule: HermesSkillRule;
@@ -40,56 +42,17 @@ function lstatSafe(p: string): ReturnType<typeof lstatSync> | null {
   }
 }
 
-// 列出 .claude/skills 下的业务 skill（跳过 `_` 前缀聚合目录，与 runtime-sync 一致）
-function businessSkillNames(claudeSkills: string): string[] {
-  if (!existsSync(claudeSkills)) return [];
-  return readdirSync(claudeSkills, { withFileTypes: true })
-    .filter((e) => e.isDirectory() && !e.name.startsWith("_"))
-    .map((e) => e.name);
-}
-
-function checkSymlinks(
-  root: string,
-  claudeSkills: string,
-  agentSkills: string,
-  violations: HermesSkillViolation[],
-): void {
-  for (const name of businessSkillNames(claudeSkills)) {
-    const link = join(agentSkills, name);
-    const st = lstatSafe(link);
-    if (!st) {
+// `.hermes/skills/` 下不得出现任何 symlink（symlink 目录会被 Hermes 发现机制漏掉，见 #8293）
+function checkNoStraySymlinks(agentSkills: string, violations: HermesSkillViolation[]): void {
+  if (!existsSync(agentSkills)) return;
+  for (const entry of readdirSync(agentSkills)) {
+    const p = join(agentSkills, entry);
+    const st = lstatSafe(p);
+    if (st?.isSymbolicLink()) {
       violations.push({
-        rule: "HERMES_SYMLINK_MISSING",
-        path: link,
-        message: `.hermes/skills/${name} is required (symlink to .claude/skills/${name})`,
-      });
-      continue;
-    }
-    if (!st.isSymbolicLink()) {
-      violations.push({
-        rule: "HERMES_NOT_SYMLINK",
-        path: link,
-        message: `.hermes/skills/${name} must be a symlink to .claude/skills/${name}, not a copy`,
-      });
-      continue;
-    }
-    let real: string;
-    try {
-      real = realpathSync(link);
-    } catch {
-      violations.push({
-        rule: "HERMES_DANGLING_SYMLINK",
-        path: link,
-        message: `.hermes/skills/${name} symlink target does not resolve`,
-      });
-      continue;
-    }
-    const expected = realpathSync(join(claudeSkills, name));
-    if (real !== expected) {
-      violations.push({
-        rule: "HERMES_SYMLINK_TARGET",
-        path: link,
-        message: `.hermes/skills/${name} must resolve to .claude/skills/${name} (got ${relative(root, real)})`,
+        rule: "HERMES_STRAY_SYMLINK",
+        path: p,
+        message: `.hermes/skills/${entry} must not be a symlink; Hermes omits symlinked skill dirs from discovery (#8293). Use external_dirs pointing at .claude/skills instead.`,
       });
     }
   }
@@ -104,9 +67,10 @@ function checkBootstrap(agentSkills: string, violations: HermesSkillViolation[])
       message: `${BOOTSTRAP}/SKILL.md is required (tool mapping + routing bootstrap)`,
     });
   } else {
+    const raw = readFileSync(skillMd, "utf8");
     let data: Record<string, unknown> = {};
     try {
-      data = matter(readFileSync(skillMd, "utf8")).data;
+      data = matter(raw).data;
     } catch {
       data = {};
     }
@@ -119,6 +83,13 @@ function checkBootstrap(agentSkills: string, violations: HermesSkillViolation[])
         rule: "HERMES_BOOTSTRAP_FRONTMATTER",
         path: skillMd,
         message: `${BOOTSTRAP}/SKILL.md frontmatter must set name: ${BOOTSTRAP} and a non-empty description`,
+      });
+    }
+    if (!raw.includes("external_dirs")) {
+      violations.push({
+        rule: "HERMES_EXTERNAL_DIRS_UNDOCUMENTED",
+        path: skillMd,
+        message: `${BOOTSTRAP}/SKILL.md must document the external_dirs discovery mechanism (symlinks don't work on Hermes; see #8293)`,
       });
     }
   }
@@ -135,10 +106,9 @@ function checkBootstrap(agentSkills: string, violations: HermesSkillViolation[])
 
 export function lintHermesSkillTree(root: string): HermesSkillReport {
   const violations: HermesSkillViolation[] = [];
-  const claudeSkills = join(root, ".claude", "skills");
   const agentSkills = join(root, ".hermes", "skills");
 
-  checkSymlinks(root, claudeSkills, agentSkills, violations);
+  checkNoStraySymlinks(agentSkills, violations);
   checkBootstrap(agentSkills, violations);
 
   return { passed: violations.length === 0, violations };
