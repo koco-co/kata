@@ -1,7 +1,7 @@
 # zentao 插件运维/风险笔记
 
 记录 zentao 插件（fetch / create）的实现期实测项与已知残留。事实性笔记，非契约；
-契约以 spec 为准：`docs/superpowers/specs/2026-06-03-zentao-bug-create-design.md`。
+契约以已合并实现为准（main `9f92a198e`）。
 
 ## Bug 自动创建（create.ts）
 
