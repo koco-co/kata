@@ -4,11 +4,7 @@ import type { SkillReport, SkillViolation } from "./types.ts";
 
 const REF_LINK_REGEX = /\.claude\/skills\/([a-z0-9-]+)\/references\/[^\s)`'"]+/g;
 
-export function lintAgentFrontmatter(
-  filePath: string,
-  knownSkills: Set<string>,
-  opts: Record<string, unknown> = {},
-): SkillReport {
+export function lintAgentFrontmatter(filePath: string, knownSkills: Set<string>): SkillReport {
   const violations: SkillViolation[] = [];
   const raw = readFileSync(filePath, "utf8");
   let parsed;
