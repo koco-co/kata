@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type ReasonixSkillRule, lintReasonixSkillTree } from "@shared/lint/reasonix-skill-shape.ts";
+import {
+  lintReasonixSkillTree,
+  type ReasonixSkillRule,
+} from "@shared/lint/reasonix-skill-shape.ts";
 
 const BUSINESS = ["case-draft", "case-edit"];
 
@@ -37,7 +40,10 @@ function buildCompliant(): string {
     symlinkSync(`../../.claude/skills/${name}`, join(root, ".reasonix/skills", name));
   }
   write(join(root, ".claude/skills/_shared/case-qa.md"), "shared");
-  write(join(root, ".reasonix/skills/using-kata-reasonix/SKILL.md"), skillMd("using-kata-reasonix"));
+  write(
+    join(root, ".reasonix/skills/using-kata-reasonix/SKILL.md"),
+    skillMd("using-kata-reasonix"),
+  );
   write(
     join(root, ".reasonix/skills/using-kata-reasonix/references/reasonix-tools.md"),
     "# Reasonix Tool Mapping\nTask -> sequential execution\n",

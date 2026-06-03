@@ -17,10 +17,11 @@ if (!filePath?.endsWith(".md")) process.exit(0);
 const content = await readFile(filePath, "utf8");
 const linkRe = /\[.+?\]\(([^)]+)\)/g;
 const baseDir = dirname(filePath);
-let match: RegExpExecArray | null;
+let match: RegExpExecArray | null = linkRe.exec(content);
 
-while ((match = linkRe.exec(content)) !== null) {
-  const target = match[1]!;
+while (match !== null) {
+  const target = match[1] ?? "";
+  match = linkRe.exec(content);
   if (!target.startsWith("./") && !target.startsWith("../")) continue;
   const resolved = resolve(join(baseDir, target));
   try {
