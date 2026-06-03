@@ -6,7 +6,7 @@
 
 ## 只读证据
 
-- `workspace/{project}/.kata/repos/**` 为只读证据源，kata 工作流不得推送、提交或修改源仓库。
+- 源仓库（`workspace/{project}/.kata/repos/**`）的只读约束见 `.claude/rules/repo-readonly.md`。
 
 ## 本地 Runtime 上下文
 

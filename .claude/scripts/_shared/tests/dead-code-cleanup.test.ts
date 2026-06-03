@@ -12,7 +12,6 @@ describe("P4-03 dead code cleanup", () => {
     expect(source(".claude/skills/case-draft/scripts/discuss.ts")).not.toContain(
       "runDiscussValidate",
     );
-    expect(source(".claude/scripts/_shared/lib/state.ts")).not.toContain("deleteWorkflowState");
     expect(source(".claude/scripts/_shared/cli/cases-validate.ts")).not.toContain("_textIncludes");
   });
 

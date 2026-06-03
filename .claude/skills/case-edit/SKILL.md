@@ -30,7 +30,7 @@ description 已覆盖触发场景；此处只说明改走目标：
 | ----------------------------------------- | --------------------------------- | ------------------------------------------ |
 | references/archive-xmind-sync.md          | 跨 Archive/XMind/CSV 编辑或导出前 | 字段保真、自审清单、同步契约               |
 | references/apply-corrections.md           | 仅 `apply-corrections` 子命令     | 加载 corrections、dry-run、写回、同步      |
-| references/fewshots/case-format-sample.md | 需要用例节点格式参照时            | 格式样例（含 DQ 子集），不作事实来源       |
+| .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源 |
 | .claude/prompt/_shared/case-qa.md         | 交付前自审（共享引用）            | Archive/XMind 字段一致性与可执行性维度     |
 
 ## 必须遵守的规则

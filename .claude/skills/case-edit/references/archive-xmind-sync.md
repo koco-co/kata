@@ -11,7 +11,7 @@
 - XMind priority marker 分布符合预期。
 - 旧术语、旧菜单名或用户指定的替换项没有残留。
 
-用例级节点的下列格式细节，一律以 `.claude/prompt/_shared/case-qa.md`、`.claude/prompt/_shared/output-artifacts.md` 与 `.claude/skills/case-draft/fewshots/case-format-sample.md` 当前 runtime 版本为准：
+用例级节点的下列格式细节，一律以 `.claude/prompt/_shared/case-qa.md`、`.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-format-sample.md` 当前 runtime 版本为准：
 
 - 标题与括号语义；
 - 前置条件 SQL 注释块；

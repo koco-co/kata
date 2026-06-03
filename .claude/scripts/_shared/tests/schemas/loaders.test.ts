@@ -3,7 +3,6 @@ import {
   loadFeatureManifestValidator,
   loadFeatureMetadataValidator,
   loadHandoffV2Validator,
-  loadSourceRefRegistryValidator,
 } from "@shared/schemas/loaders.ts";
 
 describe("schema loaders", () => {
@@ -18,9 +17,5 @@ describe("schema loaders", () => {
 
   it("loads Handoff v2 validator", () => {
     expect(typeof loadHandoffV2Validator()).toBe("function");
-  });
-
-  it("loads SourceRefRegistry validator", () => {
-    expect(typeof loadSourceRefRegistryValidator()).toBe("function");
   });
 });

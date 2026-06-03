@@ -8,9 +8,6 @@
     "KATA_WECOM_WEBHOOK_URL",
     "KATA_SMTP_HOST"
   ],
-  "hooks": {
-    "*:output": "post-action"
-  },
   "commands": {
     "send": "bun run .claude/plugins/notify/send.ts --event {{event}} --data '{{json}}'"
   }
