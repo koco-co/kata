@@ -1,8 +1,10 @@
 /**
- * plugins/zentao/client.ts — 禅道 HTTP 会话工具（登录 + cookie 解析 + 会话回退）
- * fetch.ts 与 create.ts 共用。
+ * plugins/zentao/client.ts — 禅道 HTTP 会话原语（登录 + cookie 解析 + 会话回退）
+ * create.ts 直接用；fetch.ts 经 session.ts 复用登录与 cookie 解析。
  */
 import { getEnv } from "@shared/lib/env.ts";
+
+export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
 export interface LoginResult {
   cookie: string;
@@ -20,17 +22,22 @@ export function parseSessionCookie(setCookie: string | null): string | null {
   );
 }
 
-/** Log in to ZenTao with account + password; returns a session cookie. */
+/**
+ * Log in to ZenTao with account + password; returns a session cookie.
+ * `fetchFn` is injectable so the cookie-first session layer (session.ts) and
+ * tests can drive login without touching the global fetch.
+ */
 export async function zentaoLogin(
   baseUrl: string,
   account: string,
   password: string,
+  fetchFn: FetchFn = globalThis.fetch as FetchFn,
 ): Promise<LoginResult> {
   const loginUrl = `${baseUrl}/zentao/user-login.json`;
   const body = `account=${encodeURIComponent(account)}&password=${encodeURIComponent(password)}`;
   let response: Response;
   try {
-    response = await fetch(loginUrl, {
+    response = await fetchFn(loginUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -49,7 +56,9 @@ export async function zentaoLogin(
       code: "LOGIN_FAILED",
     });
   }
-  const cookie = parseSessionCookie(response.headers.get("set-cookie"));
+  const cookie = parseSessionCookie(
+    response.headers.getSetCookie?.().join(", ") ?? response.headers.get("set-cookie"),
+  );
   if (cookie) return { cookie };
   // 部分禅道版本把 token 放在 JSON body
   let parsed: unknown;
