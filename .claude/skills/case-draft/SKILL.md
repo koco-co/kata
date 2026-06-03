@@ -36,7 +36,7 @@ description 已覆盖触发场景；此处只说明改走目标与特例行为�
 | prompts/agent-spec-reviewer.md    | case-review 阶段          | spec 合规、SourceRef 分层、case_id 核对机械检查   |
 | prompts/agent-quality-reviewer.md | output 前内容质量审查     | 步骤完整性、标题、覆盖与一致性                    |
 | rules/naming-convention.md        | 新建 feature 目录时       | 目录命名格式与客户缩写                            |
-| fewshots/case-format-sample.md    | 需要用例节点格式参照时    | 格式样例（含 DQ），不作事实来源                   |
+| .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ），不作事实来源 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用）    | 字段一致性、标题、前置条件、表单逐字匹配          |
 
 ## 必须遵守的规则

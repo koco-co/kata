@@ -1,6 +1,8 @@
-import { expect, it } from "bun:test";
+import { describe, expect, it, test } from "bun:test";
 import { join } from "node:path";
 import {
+  auditDir,
+  auditFile,
   blocksDir,
   kataDir,
   legacyBackupDir,
@@ -44,7 +46,6 @@ describe("kata paths", () => {
   });
 });
 
-import { describe, expect, test } from "bun:test";
 import {
   enhancedMd,
   featureDir,
@@ -81,5 +82,27 @@ describe("enhanced doc paths", () => {
 
   test("originalPrdMd is {featureDir}/prd.md (v3 redirect, renamed original.md -> prd.md)", () => {
     expect(originalPrdMd("dataAssets", "202604", "my-prd")).toMatch(/my-prd\/prd\.md$/);
+  });
+});
+
+describe("audit paths", () => {
+  test("auditDir resolves under workspace/{project}/_shared/archive/audits/{ym}-{slug}", () => {
+    const dir = auditDir("dataAssets", "202604", "release_6_3_x__release_6_3_0_dev");
+    expect(dir).toBe(
+      join(
+        repoRoot(),
+        "workspace",
+        "dataAssets",
+        "_shared",
+        "archive",
+        "audits",
+        "202604-release_6_3_x__release_6_3_0_dev",
+      ),
+    );
+  });
+
+  test("auditFile joins additional segments", () => {
+    const file = auditFile("dataAssets", "202604", "slug", "report.json");
+    expect(file.endsWith("audits/202604-slug/report.json")).toBe(true);
   });
 });
