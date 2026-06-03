@@ -1,43 +1,29 @@
 #!/usr/bin/env bun
 /**
- * plugins/zentao/fetch.ts — 禅道 Bug 信息 + 修复分支抓取器
+ * plugins/zentao/fetch.ts — 禅道 Bug 抓取器（编排 + CLI）
  *
  * Usage:
- *   bun run plugins/zentao/fetch.ts --bug-id 138845 --output workspace/dataAssets/.temp/zentao --project dataAssets
- *   bun run plugins/zentao/fetch.ts --url "http://zenpms.dtstack.cn/zentao/bug-view-138845.html" --output workspace/dataAssets/.temp/zentao
+ *   bun run plugins/zentao/fetch.ts --bug-id 151858 --output workspace/<project>/.temp/zentao
+ *   bun run plugins/zentao/fetch.ts --url "http://zenpms.dtstack.cn/zentao/bug-view-151858.html" --output .temp/zentao
  *   bun run plugins/zentao/fetch.ts --help
  */
-
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getEnv, initEnv } from "@shared/lib/env.ts";
 import { Command } from "commander";
-import {
-  detectFixBranch,
-  parsePriority,
-  parseSeverity,
-  parseZentaoResponseText,
-  type RawBugData,
-} from "./parse.ts";
 
+import { parseBugPayload } from "./parse.ts";
+import { fetchAuthedBugJson, type ZentaoCreds } from "./session.ts";
+
+// re-export 供现有测试与外部复用
 export { detectFixBranch, parseZentaoResponseText } from "./parse.ts";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface BugOutput {
-  bug_id: number;
-  title: string | null;
-  severity: string | null;
-  priority: number | null;
-  status: string | null;
-  fix_branch: string | null;
-  assigned_to: string | null;
-  module: string | null;
-  output_path: string;
+// ─── 类型定义 ────────────────────────────────────────────────────────────────
+interface ErrorOutput {
+  error: string;
+  hint?: string;
+  partial?: boolean;
 }
 
 interface PartialBugOutput {
@@ -48,18 +34,8 @@ interface PartialBugOutput {
   partial: true;
 }
 
-interface ErrorOutput {
-  error: string;
-  hint?: string;
-  partial?: boolean;
-}
-
-// ─── URL Parsing ─────────────────────────────────────────────────────────────
-
-/**
- * Extracts bug ID from a zentao bug URL.
- * Supports patterns like: /zentao/bug-view-138845.html
- */
+// ─── URL 解析 ────────────────────────────────────────────────────────────────
+/** Extracts bug ID from a zentao bug URL. Supports /zentao/bug-view-138845.html. */
 export function extractBugIdFromUrl(url: string): number | null {
   const match = url.match(/bug-view-(\d+)\.html/);
   if (!match) return null;
@@ -67,187 +43,27 @@ export function extractBugIdFromUrl(url: string): number | null {
   return Number.isNaN(id) ? null : id;
 }
 
-function extractBugFields(data: RawBugData): Omit<BugOutput, "bug_id" | "output_path"> {
-  const title = typeof data.title === "string" ? data.title : null;
-  const severity = parseSeverity(data.severity);
-  const priority = parsePriority(data.pri ?? data.priority);
-  const status = typeof data.status === "string" ? data.status.toLowerCase() : null;
-  const assignedTo = typeof data.assignedTo === "string" ? data.assignedTo : null;
-  const moduleName =
-    typeof data.moduleName === "string"
-      ? data.moduleName
-      : typeof data.productName === "string"
-        ? data.productName
-        : null;
+// ─── 输出辅助 ────────────────────────────────────────────────────────────────
+function writeJsonExit(payload: ErrorOutput, code: number): never {
+  process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+  process.exit(code);
+}
 
-  // Collect all text candidates for branch detection
-  const commentTexts = Array.isArray(data.comments)
-    ? data.comments.map((c) => c.content ?? c.text ?? "").filter(Boolean)
-    : [];
-
-  // Include git branch custom fields from Zentao (gitBranch1~6, gitProjectBranch)
-  const gitBranchCandidates = [
-    data.gitBranch1,
-    data.gitBranch2,
-    data.gitBranch3,
-    data.gitBranch4,
-    data.gitBranch5,
-    data.gitBranch6,
-    data.gitProjectBranch,
-  ].filter((v): v is string => typeof v === "string" && v.length > 0);
-
-  const fix_branch = detectFixBranch([
-    ...gitBranchCandidates,
-    data.resolvedBuild,
-    data.resolution,
-    data.steps,
-    data.comment,
-    title,
-    ...commentTexts,
-  ]);
-
-  return {
-    title,
-    severity,
-    priority,
-    status,
-    fix_branch,
-    assigned_to: assignedTo,
-    module: moduleName,
+function writePartial(outputPath: string, bugId: number, error: string): void {
+  const partial: PartialBugOutput = {
+    bug_id: bugId,
+    title: null,
+    fix_branch: null,
+    error,
+    partial: true,
   };
+  writeFileSync(outputPath, JSON.stringify(partial, null, 2), "utf8");
+  process.stdout.write(`${JSON.stringify(partial, null, 2)}\n`);
 }
 
-// ─── Zentao HTTP Helpers ──────────────────────────────────────────────────────
-
-interface LoginResult {
-  cookie: string;
-}
-
-async function zentaoLogin(
-  baseUrl: string,
-  account: string,
-  password: string,
-): Promise<LoginResult> {
-  const loginUrl = `${baseUrl}/zentao/user-login.json`;
-  const body = `account=${encodeURIComponent(account)}&password=${encodeURIComponent(password)}`;
-
-  let response: Response;
-  try {
-    response = await fetch(loginUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "kata/2.0 zentao-plugin",
-        Accept: "application/json",
-      },
-      body,
-    });
-  } catch (err) {
-    throw Object.assign(new Error(`网络连接失败: ${(err as Error).message}`), {
-      code: "NETWORK_ERROR",
-    });
-  }
-
-  if (!response.ok) {
-    throw Object.assign(new Error(`禅道登录失败，HTTP ${response.status}`), {
-      code: "LOGIN_FAILED",
-    });
-  }
-
-  // Extract Set-Cookie header for session
-  const setCookie = response.headers.get("set-cookie");
-  if (!setCookie) {
-    // Some zentao versions return token in JSON body
-    let body: unknown;
-    try {
-      body = await response.json();
-    } catch {
-      // ignore parse failure
-    }
-    const b = body as Record<string, unknown> | undefined;
-    if (b?.sessionID || b?.token || b?.sid) {
-      const sessionId = String(b.sessionID ?? b.token ?? b.sid);
-      return { cookie: `zentaosid=${sessionId}` };
-    }
-    throw Object.assign(new Error("禅道登录失败：响应中没有 Set-Cookie 头"), {
-      code: "LOGIN_FAILED",
-    });
-  }
-
-  // Parse the session cookie value (zentaosid=xxx or PHPSESSID=xxx)
-  const cookieParts = setCookie
-    .split(",")
-    .map((s) => s.split(";")[0].trim())
-    .filter((s) => s.includes("="));
-
-  const sessionCookie =
-    cookieParts.find((s) => s.startsWith("zentaosid=") || s.startsWith("PHPSESSID=")) ??
-    cookieParts[0];
-
-  if (!sessionCookie) {
-    throw Object.assign(new Error("禅道登录失败：无法解析 Session Cookie"), {
-      code: "LOGIN_FAILED",
-    });
-  }
-
-  return { cookie: sessionCookie };
-}
-
-async function zentaoFetchBug(
-  baseUrl: string,
-  bugId: number,
-  sessionCookie: string,
-): Promise<RawBugData> {
-  const bugUrl = `${baseUrl}/zentao/bug-view-${bugId}.json`;
-
-  let response: Response;
-  try {
-    response = await fetch(bugUrl, {
-      headers: {
-        Cookie: sessionCookie,
-        "User-Agent": "kata/2.0 zentao-plugin",
-        Accept: "application/json",
-      },
-    });
-  } catch (err) {
-    throw Object.assign(new Error(`网络连接失败: ${(err as Error).message}`), {
-      code: "NETWORK_ERROR",
-    });
-  }
-
-  if (response.status === 404) {
-    throw Object.assign(new Error(`Bug #${bugId} 不存在`), {
-      code: "BUG_NOT_FOUND",
-    });
-  }
-
-  if (!response.ok) {
-    throw Object.assign(new Error(`获取 Bug 失败，HTTP ${response.status}`), {
-      code: "FETCH_FAILED",
-    });
-  }
-
-  const responseText = await response.text();
-  const parsed = parseZentaoResponseText(responseText);
-  if (parsed) return parsed;
-
-  // Older zentao versions may return HTML even for .json URLs
-  const contentType = response.headers.get("content-type") ?? "";
-  if (contentType.includes("text/html")) {
-    const titleMatch = responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
-    const rawTitle = titleMatch ? titleMatch[1].trim() : null;
-    return { title: rawTitle ?? undefined };
-  }
-
-  throw Object.assign(new Error("禅道 API 返回了非 JSON 响应"), {
-    code: "PARSE_ERROR",
-  });
-}
-
-// ─── Main Logic ───────────────────────────────────────────────────────────────
-
+// ─── 主流程 ──────────────────────────────────────────────────────────────────
 async function run(options: { bugId?: number; url?: string; output: string }): Promise<void> {
-  const projectRoot = resolve(__dirname, "../../");
+  const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../");
   initEnv(resolve(projectRoot, ".env"));
 
   // Resolve bug ID
@@ -257,141 +73,102 @@ async function run(options: { bugId?: number; url?: string; output: string }): P
   } else if (options.url) {
     const extracted = extractBugIdFromUrl(options.url);
     if (extracted === null) {
-      const err: ErrorOutput = {
-        error: `无法从 URL 提取 Bug ID，预期格式：bug-view-{数字}.html`,
-      };
-      process.stdout.write(`${JSON.stringify(err, null, 2)}\n`);
-      process.exit(1);
+      writeJsonExit({ error: "无法从 URL 提取 Bug ID，预期格式：bug-view-{数字}.html" }, 1);
     }
-    bugId = extracted;
+    bugId = extracted as number;
   } else {
-    const err: ErrorOutput = { error: "必须提供 --bug-id 或 --url 参数" };
-    process.stdout.write(`${JSON.stringify(err, null, 2)}\n`);
-    process.exit(1);
+    writeJsonExit({ error: "必须提供 --bug-id 或 --url 参数" }, 1);
   }
 
-  // Validate env vars
+  // Validate env
   const baseUrl = getEnv("KATA_ZENTAO_BASE_URL");
   const account = getEnv("KATA_ZENTAO_ACCOUNT");
   const password = getEnv("KATA_ZENTAO_PASSWORD");
-
-  const missingVars: string[] = [];
-  if (!baseUrl) missingVars.push("KATA_ZENTAO_BASE_URL");
-  if (!account) missingVars.push("KATA_ZENTAO_ACCOUNT");
-  if (!password) missingVars.push("KATA_ZENTAO_PASSWORD");
-
-  if (missingVars.length > 0) {
-    const err: ErrorOutput = {
-      error: `缺少必要的环境变量：${missingVars.join(", ")}`,
-      hint: "请在项目根目录 .env 文件中配置 KATA_ZENTAO_BASE_URL、KATA_ZENTAO_ACCOUNT 和 KATA_ZENTAO_PASSWORD",
-    };
-    process.stdout.write(`${JSON.stringify(err, null, 2)}\n`);
-    process.exit(1);
+  const missing: string[] = [];
+  if (!baseUrl) missing.push("KATA_ZENTAO_BASE_URL");
+  if (!account) missing.push("KATA_ZENTAO_ACCOUNT");
+  if (!password) missing.push("KATA_ZENTAO_PASSWORD");
+  if (missing.length > 0) {
+    writeJsonExit(
+      {
+        error: `缺少必要的环境变量：${missing.join(", ")}`,
+        hint: "请在项目根目录 .env 文件中配置 KATA_ZENTAO_BASE_URL、KATA_ZENTAO_ACCOUNT 和 KATA_ZENTAO_PASSWORD",
+      },
+      1,
+    );
   }
 
-  // Setup output directory
+  // Output dir
   const absOutput = resolve(options.output);
   mkdirSync(absOutput, { recursive: true });
   const outputPath = `${absOutput}/bug-${bugId}.json`;
 
-  // If API is unreachable but URL was provided, graceful degradation
-  let sessionCookie: string;
-  try {
-    const loginResult = await zentaoLogin(baseUrl as string, account as string, password as string);
-    sessionCookie = loginResult.cookie;
-  } catch (err) {
-    const e = err as Error & { code?: string };
-    if (e.code === "NETWORK_ERROR" && options.url) {
-      const partial: PartialBugOutput = {
-        bug_id: bugId,
-        title: null,
-        fix_branch: null,
-        error: "禅道 API 不可达，仅从 URL 提取了 Bug ID",
-        partial: true,
-      };
-      writeFileSync(outputPath, JSON.stringify(partial, null, 2), "utf8");
-      process.stdout.write(`${JSON.stringify(partial, null, 2)}\n`);
-      return;
-    }
-
-    if (e.code === "LOGIN_FAILED") {
-      const out: ErrorOutput = {
-        error: "禅道登录失败",
-        hint: "请检查 KATA_ZENTAO_ACCOUNT 和 KATA_ZENTAO_PASSWORD",
-      };
-      process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
-      process.exit(1);
-    }
-
-    const out: ErrorOutput = {
-      error: `网络连接失败: ${e.message}`,
-      partial: true,
-    };
-    process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
-    process.exit(1);
-  }
-
-  // Fetch bug data
-  let rawData: RawBugData;
-  try {
-    rawData = await zentaoFetchBug(baseUrl as string, bugId, sessionCookie);
-  } catch (err) {
-    const e = err as Error & { code?: string };
-
-    if (e.code === "BUG_NOT_FOUND") {
-      const out: ErrorOutput = { error: `Bug #${bugId} 不存在` };
-      process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
-      process.exit(1);
-    }
-
-    if (e.code === "NETWORK_ERROR" && options.url) {
-      const partial: PartialBugOutput = {
-        bug_id: bugId,
-        title: null,
-        fix_branch: null,
-        error: "禅道 API 不可达，仅从 URL 提取了 Bug ID",
-        partial: true,
-      };
-      writeFileSync(outputPath, JSON.stringify(partial, null, 2), "utf8");
-      process.stdout.write(`${JSON.stringify(partial, null, 2)}\n`);
-      return;
-    }
-
-    const out: ErrorOutput = {
-      error: `网络连接失败: ${e.message}`,
-      partial: true,
-    };
-    process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
-    process.exit(1);
-  }
-
-  // Parse and assemble output
-  const fields = extractBugFields(rawData);
-  const output: BugOutput = {
-    bug_id: bugId,
-    ...fields,
-    output_path: outputPath,
+  const creds: ZentaoCreds = {
+    baseUrl: baseUrl as string,
+    account: account as string,
+    password: password as string,
   };
 
-  // Write to disk
-  writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
+  // Fetch（cookie 优先、失效降级登录）
+  let rawText: string;
+  try {
+    rawText = await fetchAuthedBugJson(bugId, creds);
+  } catch (err) {
+    const e = err as Error & { code?: string };
+    if (e.code === "BUG_NOT_FOUND") writeJsonExit({ error: `Bug #${bugId} 不存在` }, 1);
+    if (e.code === "LOGIN_FAILED") {
+      writeJsonExit(
+        { error: "禅道登录失败", hint: "请检查 KATA_ZENTAO_ACCOUNT 和 KATA_ZENTAO_PASSWORD" },
+        1,
+      );
+    }
+    if (e.code === "NETWORK_ERROR" && options.url) {
+      writePartial(outputPath, bugId, "禅道 API 不可达，仅从 URL 提取了 Bug ID");
+      return;
+    }
+    // e.message 已带各错误码的描述前缀（network/fetch 等），直接透传避免重复前缀
+    writeJsonExit({ error: e.message, partial: true }, 1);
+  }
 
-  // Print to stdout
+  // Parse → 富结构
+  const rich = parseBugPayload(rawText);
+  if (!rich) {
+    writePartial(outputPath, bugId, "禅道返回了无法解析的响应");
+    return;
+  }
+
+  // 装配输出：保留 legacy 顶层字段 + 富结构
+  const output = {
+    bug_id: rich.bug_id ?? bugId,
+    url: options.url ?? `${creds.baseUrl}/zentao/bug-view-${bugId}.html`,
+    title: rich.title,
+    severity: rich.fields.severity,
+    priority: rich.fields.priority,
+    status: rich.fields.status,
+    fix_branch: rich.fields.fix_branch,
+    assigned_to: rich.fields.assigned_to,
+    module: rich.fields.module,
+    fields: rich.fields,
+    sections: rich.sections,
+    history: rich.history,
+    output_path: outputPath,
+  };
+  writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 }
 
-// ─── CLI ─────────────────────────────────────────────────────────────────────
-
+// ─── 命令行入口 ──────────────────────────────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
 const isMain = process.argv[1] === __filename || process.argv[1]?.endsWith("fetch.ts");
 
 if (isMain) {
   const program = new Command("zentao-fetch");
   program
-    .description("从禅道 Bug 链接提取缺陷详情和修复分支")
-    .option("--bug-id <number>", "禅道 Bug ID（数字），例如 138845")
+    .description("从禅道 Bug 链接提取缺陷详情、解决叙述和修复分支")
+    .option("--bug-id <number>", "禅道 Bug ID（数字），例如 151858")
     .option(
       "--url <url>",
-      '禅道 Bug 页面 URL，例如 "http://zenpms.dtstack.cn/zentao/bug-view-138845.html"',
+      '禅道 Bug 页面 URL，例如 "http://zenpms.dtstack.cn/zentao/bug-view-151858.html"',
     )
     .requiredOption("--output <dir>", "输出目录路径，例如 workspace/<project>/.temp/zentao")
     .option("--project <name>", "项目名称")
@@ -400,22 +177,13 @@ if (isMain) {
       if (opts.bugId !== undefined) {
         parsedBugId = Number.parseInt(opts.bugId, 10);
         if (Number.isNaN(parsedBugId)) {
-          const err: ErrorOutput = {
-            error: `无效的 Bug ID 格式："${opts.bugId}"，必须为正整数`,
-          };
-          process.stdout.write(`${JSON.stringify(err, null, 2)}\n`);
-          process.exit(1);
+          writeJsonExit({ error: `无效的 Bug ID 格式："${opts.bugId}"，必须为正整数` }, 1);
         }
       }
-
       if (parsedBugId === undefined && !opts.url) {
-        const err: ErrorOutput = { error: "必须提供 --bug-id 或 --url 参数" };
-        process.stdout.write(`${JSON.stringify(err, null, 2)}\n`);
-        process.exit(1);
+        writeJsonExit({ error: "必须提供 --bug-id 或 --url 参数" }, 1);
       }
-
       await run({ bugId: parsedBugId, url: opts.url, output: opts.output });
     });
-
   program.parse(process.argv);
 }
