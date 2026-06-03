@@ -70,6 +70,6 @@
 
 - Worktree 优先：所有改动都走 detached worktree，验证通过后再合并回 main。
 - 改后即测：代码、配置、runtime skill 或入口文件改动后，必须跑相关测试；失败必须修复。
-- Commit 规范：遵循 Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符。
+- Commit 规范：遵循 Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符；标题行（含 description）必须用英文，只有可选的 body 才允许中文。
 - QA 产物交付前必须说清已验证范围和未验证范围，不得把局部通过说成全量通过。
 - 详细的 Git、测试、命名、QA 产物和工作区边界规则，见 `.claude/rules/project-workflow-rules.md`。
