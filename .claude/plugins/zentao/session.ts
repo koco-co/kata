@@ -4,8 +4,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
+import { type FetchFn, zentaoLogin } from "./client.ts";
 
-export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
+export type { FetchFn };
 
 export interface ZentaoCreds {
   baseUrl: string;
@@ -58,17 +59,6 @@ export function isAuthedBugJson(text: string): boolean {
   }
 }
 
-function parseSessionCookie(setCookie: string | null): string | null {
-  if (!setCookie) return null;
-  const parts = setCookie
-    .split(",")
-    .map((s) => s.split(";")[0].trim())
-    .filter((s) => s.includes("="));
-  return (
-    parts.find((s) => s.startsWith("zentaosid=") || s.startsWith("PHPSESSID=")) ?? parts[0] ?? null
-  );
-}
-
 async function safeFetch(fetchFn: FetchFn, url: string, init?: RequestInit): Promise<Response> {
   try {
     return await fetchFn(url, init);
@@ -81,24 +71,8 @@ async function safeFetch(fetchFn: FetchFn, url: string, init?: RequestInit): Pro
 
 /** Log in with plaintext credentials and return the session cookie string. */
 export async function login(creds: ZentaoCreds, fetchFn: FetchFn): Promise<string> {
-  const url = `${creds.baseUrl}/zentao/user-login.json`;
-  const body = `account=${encodeURIComponent(creds.account)}&password=${encodeURIComponent(creds.password)}`;
-  const res = await safeFetch(fetchFn, url, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
-    body,
-  });
-  if (!res.ok) {
-    throw Object.assign(new Error(`禅道登录失败，HTTP ${res.status}`), { code: "LOGIN_FAILED" });
-  }
-  const cookie = parseSessionCookie(
-    res.headers.getSetCookie?.().join(", ") ?? res.headers.get("set-cookie"),
-  );
-  if (!cookie) {
-    throw Object.assign(new Error("禅道登录失败：无法解析 Session Cookie"), {
-      code: "LOGIN_FAILED",
-    });
-  }
+  // 登录与 cookie 解析复用 client.ts 的 zentaoLogin（含 JSON body 回退）
+  const { cookie } = await zentaoLogin(creds.baseUrl, creds.account, creds.password, fetchFn);
   return cookie;
 }
 
