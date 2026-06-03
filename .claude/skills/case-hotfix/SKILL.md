@@ -20,7 +20,7 @@ description 已覆盖触发场景，这里只说明改走目标：
 
 ## 工作流
 
-1. 抓取 bug 证据，定位修复路径和受影响的页面、字段。
+1. 用 `bun run .claude/plugins/zentao/fetch.ts --bug-id <id> --output <hotfix>/.temp`（cookie 优先、失效自动登录）抓取 bug 证据；读返回 JSON 的 `fields`/`sections`/`history` 定位修复路径与受影响页面、字段。
 2. 写 archive 前先读 `references/hotfix-archive-format.md`（目录、frontmatter keywords、前置条件 SQL、Spark 边界等全部细则）。
 3. 输出独立 hotfix 目录：一个 archive.md，加 source_refs.json 和 .temp/；交付前按 `.claude/prompt/_shared/case-qa.md` 自审。
 
