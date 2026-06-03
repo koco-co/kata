@@ -31,7 +31,7 @@ type Inventory = {
 
 const inventory = JSON.parse(
   readFileSync(
-    "workspace/dataAssets/features/2099-01-lt-dq-launched-reqs/results/inventory.json",
+    "workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】已上线需求主流程用例/results/inventory.json",
     "utf8",
   ),
 ) as Inventory;
@@ -77,6 +77,10 @@ function surfacesForCase(caseItem: InventoryCase): readonly QualityCaseSurface[]
   if (/校验结果|详细结果|明细|日志|下载|实例|查看详情|运行失败|执行失败|校验失败/.test(text)) {
     surfaces.push("taskQuery");
   }
+  // 补充几类新增边界用例的兜底映射
+  if (/质量模块|权限点/.test(text)) surfaces.push("overview");
+  if (/选项|唯一/.test(text)) surfaces.push("rule");
+  if (/分页|页码/.test(text)) surfaces.push("rule");
 
   if (surfaces.length === 0) {
     throw new Error(
