@@ -82,7 +82,7 @@ async function actionCreate(opts: CreateOpts): Promise<void> {
   const yyyymm = opts.yyyymm ?? currentYYYYMM();
   const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
 
-  let diffOut;
+  let diffOut: ReturnType<typeof fetchAndDiff>;
   try {
     diffOut = fetchAndDiff(repoPath, opts.baseBranch, opts.headBranch, {
       skipFetch: opts.skipFetch,

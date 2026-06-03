@@ -52,7 +52,7 @@ function collectFiles(dir: string): string[] {
       if (IGNORED_DIRS.has(entry)) continue;
 
       const fullPath = join(current, entry);
-      let stat;
+      let stat: ReturnType<typeof statSync>;
       try {
         stat = statSync(fullPath);
       } catch {

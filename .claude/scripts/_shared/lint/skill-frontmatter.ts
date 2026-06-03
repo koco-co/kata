@@ -7,7 +7,7 @@ const REF_LINK_REGEX = /\.claude\/skills\/([a-z0-9-]+)\/references\/[^\s)`'"]+/g
 export function lintAgentFrontmatter(filePath: string, knownSkills: Set<string>): SkillReport {
   const violations: SkillViolation[] = [];
   const raw = readFileSync(filePath, "utf8");
-  let parsed;
+  let parsed: ReturnType<typeof matter>;
   try {
     parsed = matter(raw);
   } catch {
