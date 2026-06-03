@@ -25,3 +25,7 @@ Hermes Agent 原生支持 `delegate_task`，功能等同 Claude Code 的 `Task`�
 ## frontmatter 字段
 
 各 skill SKILL.md 的 `argument-hint`、`model`、`effort`、`allowed-tools` 是 Claude Code 专属字段。Hermes Agent 只用 `name` + `description` 做发现，未知字段忽略。
+
+## 技能发现
+
+业务 skill 不在 `.hermes/skills/` 下 symlink，而由 Hermes `external_dirs` 直接扫 `.claude/skills/` 真实目录发现，配置见本 bootstrap 的 SKILL.md「## 1. 发现机制」节（symlink 因上游 #8293 不可用）。
