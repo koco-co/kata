@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - '.claude/scripts/_shared/schemas/**'
+  pull_request:
+    paths:
       - '.claude/scripts/_shared/schemas/**'
 
 jobs:
