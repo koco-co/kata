@@ -63,3 +63,5 @@
 ## Codex 侧使用
 
 项目级 `.agents/skills/` 被 Codex 原生发现，无需额外安装。若要全局可用，按 superpowers 约定 symlink 到 `~/.agents/skills/kata`。子代理工作流需在 `~/.codex/config.toml` 开启 `[features] multi_agent = true`。
+
+> 时效注记（2026-06-03 核实）：Codex `[features].multi_agent` 现为「stable; on by default」，当前 stable 版无需显式开启该 flag；保留开启说明以兼容旧版 Codex。

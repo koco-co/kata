@@ -24,6 +24,8 @@ kata 的 skill 正文使用 Claude Code 工具名（这些 skill 在 `.claude/sk
 multi_agent = true
 ```
 
+> 注：在当前 stable Codex 上，`multi_agent` 已是「stable; on by default」（见官方 config-reference），`spawn_agent`/`wait_agent`/`close_agent` 默认可用，此 flag 非强制；旧版仍需显式开启，故保留上面的配置说明。
+
 启用后才有 `spawn_agent`、`wait_agent`、`close_agent`，供 `playwright-automation`、`case-draft` 等用到「派 worker / spec review / quality review」的 skill 使用。kata 的子代理工作流（subagent-driven-development）在 Codex 下保持结构不变，只是把 `Task` 映射为 `spawn_agent`——不要降级成「全部在主会话顺序执行」。
 
 旧版 Codex（`rust-v0.115.0` 之前）把等待生成的子代理写作 `wait`；当前 Codex 用 `wait_agent`，`wait` 已改指 code-mode 的 `exec/wait`。
