@@ -1,6 +1,6 @@
 {
   "name": "zentao",
-  "description": "禅道 Bug 集成插件：从禅道链接提取 Bug 信息和修复分支",
+  "description": "禅道 Bug 集成插件：从禅道链接提取 Bug 信息和修复分支，并按 BugReport 创建 Bug",
   "version": "1.0.0",
   "env_required": ["KATA_ZENTAO_BASE_URL", "KATA_ZENTAO_ACCOUNT", "KATA_ZENTAO_PASSWORD"],
   "env_optional": ["KATA_ZENTAO_COOKIE"],

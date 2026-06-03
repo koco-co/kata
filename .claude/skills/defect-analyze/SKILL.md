@@ -45,7 +45,7 @@ bug 模式产出 `report.html` 后按节点推进，输出只走固定模板，�
 
 1. 用 AskUserQuestion 询问「是否推送禅道创建 bug？」（推荐「是」）。选「否」即结束，不做任何禅道写操作。
 2. 选「是」→ 将 BugReport JSON 落盘，执行 `bun run .claude/plugins/zentao/create.ts --json <BugReport.json>`（产品、指派人向林、severity 映射等取插件 yaml；正文复用 zentao variant）。
-3. 解析命令输出：成功按固定模板回显，失败只回一行简明原因（登录失败 / 缺必填 / 网络不可达 / 创建被拒），不编造。
+3. 解析命令输出：`ok:true` 且有 `url` → 按下方固定模板回显；`ok:true` 但只带 `note`（禅道返回 success 却无可解析链接）→ 回显 note 文案，提示去禅道按标题核对；`ok:false` → 只回一行简明原因（登录失败 / 缺必填 / 网络不可达 / 创建被拒），不编造。
 
    成功模板：
 
