@@ -14,6 +14,16 @@ import {
   formatCodexSkillReport,
   lintCodexSkillTree,
 } from "@shared/lint/codex-skill-shape.ts";
+import {
+  formatHermesSkillReport,
+  type HermesSkillReport,
+  lintHermesSkillTree,
+} from "@shared/lint/hermes-skill-shape.ts";
+import {
+  formatReasonixSkillReport,
+  lintReasonixSkillTree,
+  type ReasonixSkillReport,
+} from "@shared/lint/reasonix-skill-shape.ts";
 import { lintAgentFrontmatter } from "@shared/lint/skill-frontmatter.ts";
 import { lintSkillShape } from "@shared/lint/skill-shape.ts";
 import { formatStructureReport, lintSkillStructure } from "@shared/lint/skill-structure.ts";
@@ -62,7 +72,7 @@ export function buildSkillsCommand(): Command {
     .command("audit")
     .description("审查 skills SKILL.md + references 契约与 agents frontmatter")
     .option("--exit-code", "exit non-zero on any violation", false)
-    .option("--runtime <runtime>", "审查目标运行时：claude | codex", "claude")
+    .option("--runtime <runtime>", "审查目标运行时：claude | codex | reasonix | hermes", "claude")
     .action((opts: { exitCode: boolean; runtime: string }) => {
       const root = repoRoot();
 
@@ -73,6 +83,28 @@ export function buildSkillsCommand(): Command {
         if (report.passed) console.log(text);
         else process.stderr.write(`${text}\n`);
         console.log(`\n[skills audit:codex] total violations=${report.violations.length}`);
+        if (opts.exitCode && !report.passed) process.exit(1);
+        return;
+      }
+
+      // reasonix 运行时：校验 .reasonix/skills symlink 树 + bootstrap（无 JSON manifest）
+      if (opts.runtime === "reasonix") {
+        const report: ReasonixSkillReport = lintReasonixSkillTree(root);
+        const text = formatReasonixSkillReport(report, root);
+        if (report.passed) console.log(text);
+        else process.stderr.write(`${text}\n`);
+        console.log(`\n[skills audit:reasonix] total violations=${report.violations.length}`);
+        if (opts.exitCode && !report.passed) process.exit(1);
+        return;
+      }
+
+      // hermes 运行时：校验 .hermes/skills 无 symlink + bootstrap 文档化 external_dirs
+      if (opts.runtime === "hermes") {
+        const report: HermesSkillReport = lintHermesSkillTree(root);
+        const text = formatHermesSkillReport(report, root);
+        if (report.passed) console.log(text);
+        else process.stderr.write(`${text}\n`);
+        console.log(`\n[skills audit:hermes] total violations=${report.violations.length}`);
         if (opts.exitCode && !report.passed) process.exit(1);
         return;
       }
