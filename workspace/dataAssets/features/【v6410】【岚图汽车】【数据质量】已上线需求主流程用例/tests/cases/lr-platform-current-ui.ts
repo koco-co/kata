@@ -33,7 +33,7 @@ test.setTimeout(120_000);
 
 const inventory = JSON.parse(
   readFileSync(
-    "workspace/dataAssets/features/2099-01-lt-dq-launched-reqs/results/inventory.json",
+    "workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】已上线需求主流程用例/results/inventory.json",
     "utf8",
   ),
 ) as Inventory;
