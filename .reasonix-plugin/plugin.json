@@ -1,0 +1,30 @@
+{
+  "name": "kata",
+  "version": "4.0.0-alpha.1",
+  "description": "QA test-case authoring, hotfix regression, defect triage, infra diagnosis, knowledge curation, and Playwright UI automation skills for the kata workspace.",
+  "license": "MIT",
+  "keywords": [
+    "qa",
+    "test-cases",
+    "playwright",
+    "ui-automation",
+    "defect-triage",
+    "hotfix",
+    "knowledge-base"
+  ],
+  "skills": "./.reasonix/skills/",
+  "interface": {
+    "displayName": "kata QA Skills",
+    "shortDescription": "QA 用例生成、缺陷分诊、UI 自动化与工作区管理的 kata skill 集",
+    "longDescription": "Use kata skills to draft and edit QA test cases from Lanhu/Axure/PRD sources, generate hotfix regression cases from bug records, triage defects and merge conflicts, diagnose data-source/server connectivity over SSH, curate project knowledge, and convert requirement case directories into runnable Playwright UI automation.",
+    "developerName": "kata",
+    "category": "Coding",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "https://lanhuapp.com/web/#/item/project/...（蓝湖设计链接，生成 QA 用例）",
+      "把 features/【v...】 这个需求目录转成 Playwright UI 自动化",
+      "https://zenpms.dtstack.cn/bug-view-1234.html",
+      "kata 能干嘛 / 功能菜单"
+    ]
+  }
+}
