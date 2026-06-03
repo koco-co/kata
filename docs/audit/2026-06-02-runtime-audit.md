@@ -187,5 +187,36 @@ bun run check                               # biome
 ```
 按 worktree-first 流程：先建 detached worktree，分批 commit，验证通过再 `git merge --no-ff` 回 main。
 
+---
+
+## 复查更新（2026-06-03）
+
+> 本报告主体基于 06-02 的旧快照（约 `cc36bc2ce`）生成。06-02→06-03 期间在并行会话中推进了几十个提交，已将下列结论逐条对当时 HEAD `2f057720b` 重新 `git grep` 核验。**41 个删除/合并目标中仅 1 个（`lib/hooks.ts`）已删，其余 40 个仍存在；全部死代码簇实测仍零生产引用**——今天的 reasonix/hermes/zentao 接线工作没有触及它们。
+
+### 已被今天的批次处理掉（作废，勿重做）
+
+| 原结论 | 处理 | 提交 |
+|---|---|---|
+| A3 `lib/hooks.ts` 死代码 | 已删 | `3d42a74cc` |
+| E1 `CONTRIBUTING.md` 引用已删的 `engine/` 命令 | 已修 | `77cfb1af2` |
+| E1 三个 plugin `README.md` 过时路径（缺 `.claude/`） | 已修（前缀已补） | `77cfb1af2` |
+| plugins · zentao fetch 未接 case-hotfix 工作流 | 已接线（`case-hotfix/SKILL.md:23` 显式调 `zentao/fetch.ts`） | zentao 系列 |
+| E2 `plugin.json` 死 `hooks` 字段 | lanhu/zentao 已删（**`notify/plugin.json` 仍残留**） | `e2acee539` |
+| docs · 一次性 plan/spec 文档 | 已删 5 个；`docs/audit/` 已加 F2 stale-path 豁免 | `6bda95c4a` `56e0a2cec` |
+
+### 仍然成立（当前 HEAD 实测仍孤儿/重复）
+
+- **D · lanhu-mcp 上游噪声**——今天完全没碰 `mcp-bridge/`，~20 文件/4500+ 行原样还在（**最大未动单项**）。
+- **A1 sandbox**（`plugin-runtime/` 5 文件 + `lib/policy/plugin-sandbox-policy.ts`）、**A2 agent/policy 契约层**（agent-runner/schema-guard/content-lint/write-policy/runtime-config/runtime-telemetry）、**A3 orchestrator 残骸**（orchestrator-types/model-tiers/quality-layers/state.ts/dispatch-guide.md/gate-guide.md，已扣除 hooks.ts）——全部仍零生产引用/仅单测 import。
+- **A4** env-schema.ts/test-case.ts · **A5** SourceSnapshot schema+loader · **A6** notify/detect-events.ts（仍无 Stop 接线）· **A7** dtstack 3 yaml fixture · **A8** playwright.selftest.config.ts、kata-runtime-flow.svg。
+- **B** 7 个孤儿 CLI 命令 + **sqlite 簇**（db/client/init/estimator/sync）——仍仅 `index.ts` 注册。
+- **C** `routing-guard.md` ↔ CLAUDE.md 路由段仍 ~95% 重复（今天**两份被同步重写为相同内容**，双写维护成本已坐实）；两份 fewshot 仍字节级相同；`audits-paths.test.ts` 可合并；workspace-boundary「只读证据」条仍与 repo-readonly.md 三处重复。
+- **E2 余项** `notify/plugin.json` 的 `hooks` 死字段（lanhu/zentao 已清，notify 漏网）。
+
+### 执行注意
+
+- 误报纠正（`dtstack/.../platform/script.ts`、`cli/safety-audit-command.ts`、`cli/cases-e2e.ts`）依旧成立，**勿删**。
+- 复查时仓库有多个并行会话在系统性清理，执行前需先探并行会话、确认目标区域无人在改，再走 worktree-first。`lanhu-mcp` 噪声瘦身与今天的 zentao/adapter 工作零重叠，是最适合独立成批的候选。
+
 
 
