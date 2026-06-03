@@ -196,6 +196,7 @@ describe("search-filter.ts filter — deduplicates by suite_name keeping max cas
     const results = JSON.parse(stdout) as FilteredResult[];
     const suiteA = results.find((r) => r.suite_name === "套件A");
     expect(suiteA).toBeTruthy();
+    if (!suiteA) throw new Error("suiteA not found");
     expect(suiteA.case_count).toBe(10);
     expect(results.length).toBe(2);
   });
