@@ -204,7 +204,7 @@ bun run check                               # biome
 | E2 `plugin.json` 死 `hooks` 字段 | lanhu/zentao 已删（**`notify/plugin.json` 仍残留**） | `e2acee539` |
 | docs · 一次性 plan/spec 文档 | 已删 5 个；`docs/audit/` 已加 F2 stale-path 豁免 | `6bda95c4a` `56e0a2cec` |
 
-### 仍然成立（当前 HEAD 实测仍孤儿/重复）
+### 仍然成立（当前 HEAD 实测仍孤儿/重复）→ ✅ 已于 2026-06-03 runtime-cleanup 批次全部执行，详见文末「执行结算」
 
 - **D · lanhu-mcp 上游噪声**——今天完全没碰 `mcp-bridge/`，~20 文件/4500+ 行原样还在（**最大未动单项**）。
 - **A1 sandbox**（`plugin-runtime/` 5 文件 + `lib/policy/plugin-sandbox-policy.ts`）、**A2 agent/policy 契约层**（agent-runner/schema-guard/content-lint/write-policy/runtime-config/runtime-telemetry）、**A3 orchestrator 残骸**（orchestrator-types/model-tiers/quality-layers/state.ts/dispatch-guide.md/gate-guide.md，已扣除 hooks.ts）——全部仍零生产引用/仅单测 import。
@@ -217,6 +217,36 @@ bun run check                               # biome
 
 - 误报纠正（`dtstack/.../platform/script.ts`、`cli/safety-audit-command.ts`、`cli/cases-e2e.ts`）依旧成立，**勿删**。
 - 复查时仓库有多个并行会话在系统性清理，执行前需先探并行会话、确认目标区域无人在改，再走 worktree-first。`lanhu-mcp` 噪声瘦身与今天的 zentao/adapter 工作零重叠，是最适合独立成批的候选。
+
+---
+
+## 执行结算（2026-06-03，runtime-cleanup worktree 批次）
+
+「仍然成立」中的 **D/A/B/C 已全部执行并合并 `main`**（merge `e7e457f1d`，已 push `origin/main`；107 文件，**+102 / −14355 行**）。分 4 批提交：
+
+| 批次 | 结论项 | 处理 | 提交 |
+|---|---|---|---|
+| D | lanhu-mcp 上游噪声 | 删 33 噪声文件，保留 `lanhu_mcp_server.py`/`pyproject.toml`/`LICENSE`/`.gitignore`，README 改 stub，新增 `VENDOR.md` | `3d1ef0bdc` |
+| A1 | sandbox 子系统（`plugin-runtime/` + `plugin-sandbox-policy`） | 整组删 + 删 `sandbox-runner.test` | `59e6b69e7` |
+| A2 | agent/policy 契约层 | 删 agent-runner/schema-guard/content-lint/write-policy/runtime-config/runtime-telemetry + 各自测试 | `59e6b69e7` |
+| A3 | orchestrator 残骸 | 删 orchestrator-types/model-tiers/quality-layers/state/dispatch-guide.md/gate-guide.md；更新 `dead-code-cleanup.test` | `59e6b69e7` |
+| A4 | env-schema/test-case | 删（+ `env-schema.test`） | `59e6b69e7` |
+| A5 | SourceSnapshot schema+loader | 删 schema + `loaders.ts` 两个仅测试引用的导出；**保留 `SourceRefRegistry` schema 文件**；更新 `loaders.test` | `59e6b69e7` |
+| A6 | notify/detect-events | 删（+ test） | `59e6b69e7` |
+| A7 | dtstack 3 yaml fixture | 删（`test:tools` 仍 70 pass） | `59e6b69e7` |
+| A8 | playwright.selftest.config.ts、kata-runtime-flow.svg | 删 | `59e6b69e7` |
+| B | 7 孤儿 CLI 命令 + sqlite 簇（含审计漏列的 `lib/schema.ts`）+ `@types/better-sqlite3` | 删命令/簇 + `index.ts` 反注册 + 撤 dep + 删 plan/config/progress/image-compress 4 个 companion 测试 | `25bbc1b4d` |
+| C1 | 两份字节级相同 fewshot | 提升到 `.claude/prompt/_shared/`，3 处引用改指共享副本 | `7f429baee` |
+| C2 | routing-guard.md ↔ CLAUDE.md 重复 | 删 `routing-guard.md`，唯一独有行并入 CLAUDE.md | `7f429baee` |
+| C3 | audits-paths.test ↔ paths.test | 并入 `paths.test` 的 audit paths 块（顺带消除重复 `bun:test` import 的 TS2300） | `7f429baee` |
+| C4 | workspace-boundary 只读条重复 | 精简为指向 `repo-readonly.md` 的指针 | `7f429baee` |
+| E2 余项 | notify/plugin.json 死 hooks | 删字段 | `7f429baee` |
+
+**保留（误报/有意保留，勿动）：** dtstack `platform/script.ts`、`cli/safety-audit-command.ts`、`cli/cases-e2e.ts`、`lib/codemod/*`（纯函数+单测）、`sharp` 依赖（`lanhu/fetch.ts` 自带 compressImage 在用）、`SourceRefRegistry.v1.schema.json`。
+
+**验证（合并前 worktree + 合并后 main 双跑）：** bun test **1232 pass / 0 fail**；type-check **198**（红基线 202 降 4，无新增/无悬挂 import）；biome exit 0；check:skills 三项 pass（runtime-detach 契约未破）；lint:debris/paths/agents、codex/reasonix/hermes skill 审计、`test:plugins`(140)/`test:tools`(70) 全绿。
+
+**未做（超出 D+A+B+C 范围，仍开放）：** E3 目录重组（scan-report/enhanced-doc/progress 等子目录化、tests 镜像）、E4 未接线但有测试的旁路能力定位决策（case-draft/scripts 9 脚本、defect-analyze HTML 模板、xmind-patch/source-ref 等 CLI、dtstack direct DB 模式、check-stale-paths 历史守卫）——均属可选优化，未纳入本次。
 
 
 
