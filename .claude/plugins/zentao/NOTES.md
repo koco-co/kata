@@ -1,0 +1,29 @@
+# zentao 插件运维/风险笔记
+
+记录 zentao 插件（fetch / create）的实现期实测项与已知残留。事实性笔记，非契约；
+契约以 spec 为准：`docs/superpowers/specs/2026-06-03-zentao-bug-create-design.md`。
+
+## Bug 自动创建（create.ts）
+
+来源：zentao-bug-create 特性实现（main `9f92a198e`）。
+
+### 未验证风险
+
+1. **成功响应的确切 JSON 形态未逐字核对。** 真实创建只授权过一次（bug 152189），
+   未抓取原始响应逐字确认。推断为 `result:success`，bug id 可能落在 `bugID=N`
+   查询串或嵌套的 `load`/`locate` 对象里。`parseCreateResponse` 已做成对
+   `bug-view-N` 与 `bugID=N` 两种形态健壮；`result:success` 但抽不到链接时返回
+   `ok:true` + `note`（不谎报失败）。后续真实联调时应抓一次原始响应补一条死字符串测试。
+
+2. **禅道 HTML 净化器是否完整保留 zentao 变体正文未验证。** 早前探针观察到 bug
+   152189 正文疑似有区块（根因分析 / 复现步骤 / 数据源信息）被裁剪；该探针已删、
+   不能重跑。模板（`.claude/skills/defect-analyze/templates/bug-report-zentao.html.hbs`）
+   本身的 HTML 输出有单测守护、且是已批准版本，未擅改。净化器端到端行为待真实联调核对；
+   若确证被裁剪，再评估模板简化方案（需重新批准）。
+
+### 残留与纪律
+
+- **冒烟残留 bug 152189**（标题「[kata 冒烟] 禅道创建接口联调验证（可删）」）实际
+  **删不掉**，会永久留在禅道，需人工关闭 / 忽略。标题虽写「可删」，平台不支持删除。
+- **后续验证禁止再创建真实 bug**（删不掉，会持续堆垃圾）。要核对创建结果，改用
+  **按标题只读核对**（查 bug 列表匹配标题），不要再走真实创建。
