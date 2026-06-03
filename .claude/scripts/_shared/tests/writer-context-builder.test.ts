@@ -445,6 +445,7 @@ describe("writer-context-builder build — knowledge-injection read-core with fi
     };
 
     expect(out.knowledge.core).toBeTruthy();
+    if (!out.knowledge.core) throw new Error("knowledge.core missing");
     expect(
       typeof out.knowledge.core.overview === "string" && out.knowledge.core.overview.length > 0,
       "knowledge.core.overview should be non-empty string",
@@ -653,6 +654,7 @@ describe("writer-context-builder build — 8KB truncation", () => {
     };
 
     expect(out.knowledge.core).toBeTruthy();
+    if (!out.knowledge.core) throw new Error("knowledge.core missing");
     expect(
       out.knowledge.core.overview.length <= 8192,
       `overview should be <= 8192 chars, got ${out.knowledge.core.overview.length}`,
