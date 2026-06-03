@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { agentsDir, repoRoot } from "@shared/lib/paths.ts";
 import { lintAgentNaming } from "@shared/lint/agent-naming.ts";
 import { lintAgentShape } from "@shared/lint/agent-shape.ts";
@@ -14,6 +15,13 @@ export function buildAgentsCommand(): Command {
     .option("--severity <level>", "filter exit-code by severity (all|fail-only)", "all")
     .action((opts: { exitCode: boolean; severity: string }) => {
       const scanDir = agentsDir();
+      // 目标目录缺失时报错而非静默通过（scanned=0 = 空门）。
+      if (!existsSync(scanDir)) {
+        const rel = scanDir.replace(repoRoot(), ".");
+        console.log(`[agents audit] agents dir not found: ${rel}`);
+        if (opts.exitCode) process.exit(1);
+        return;
+      }
       const shape = lintAgentShape(scanDir);
       const naming = lintAgentNaming(scanDir);
       const all = [...shape.violations, ...naming.violations];
