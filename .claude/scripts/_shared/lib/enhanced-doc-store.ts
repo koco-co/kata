@@ -54,8 +54,7 @@ function parseSections(block: string): SectionContent[] {
   // Anchor form: s-{level}-{index}-{4hex}
   const re =
     /^### (.+?) <a id="(s-\d+-\d+-[0-9a-f]{4})"><\/a>\s*$([\s\S]*?)(?=^### |$(?![\r\n]))/gm;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(block)) !== null) {
+  for (let m = re.exec(block); m !== null; m = re.exec(block)) {
     sections.push({ anchor: m[2], title: m[1].trim(), body: m[3].trim() });
   }
   return sections;
@@ -240,8 +239,7 @@ function parsePending(body: string): PendingItem[] {
   // Match: ### Q1 <a id="q1"></a>...(until next ### or end)
   //   OR: ### <del>Q1</del> <a id="q1"></a>...
   const re = /^### (Q\d+|<del>Q\d+<\/del>) <a id="(q\d+)"><\/a>([\s\S]*?)(?=^### |$(?![\r\n]))/gm;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(block)) !== null) {
+  for (let m = re.exec(block); m !== null; m = re.exec(block)) {
     const resolved = m[1].startsWith("<del>");
     const tableText = m[3];
     const sevMatch = tableText.match(/<!-- severity: (\w+) -->/);

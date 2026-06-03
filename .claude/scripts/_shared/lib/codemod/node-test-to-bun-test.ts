@@ -112,8 +112,7 @@ function replaceAssertThrows(input: string, withErr: boolean): string {
   const pattern = withErr ? /assert\.throws\(/g : /assert\.doesNotThrow\(/g;
   let result = "";
   let lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = pattern.exec(input)) !== null) {
+  for (let m = pattern.exec(input); m !== null; m = pattern.exec(input)) {
     result += input.slice(lastIndex, m.index);
     const closePos = matchCloseParen(input, m.index + m[0].length);
     const args = splitArgs(input.slice(m.index + m[0].length, closePos - 1));
@@ -142,8 +141,7 @@ function replaceAssertWithParen(
 ): string {
   let result = "";
   let lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = pattern.exec(input)) !== null) {
+  for (let m = pattern.exec(input); m !== null; m = pattern.exec(input)) {
     result += input.slice(lastIndex, m.index);
     const closePos = matchCloseParen(input, m.index + m[0].length);
     const args = splitArgs(input.slice(m.index + m[0].length, closePos - 1));

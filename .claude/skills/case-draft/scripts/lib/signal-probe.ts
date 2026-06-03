@@ -213,8 +213,11 @@ export function computeFieldFillRate(prdMarkdown: string): {
   // Match ### 字段定义 anchors (allow full-width space \u3000 between characters)
   const anchorPattern = /###[\s\u3000]*字段[\s\u3000]*定义/g;
   const anchorMatches: number[] = [];
-  let anchorMatch: RegExpExecArray | null;
-  while ((anchorMatch = anchorPattern.exec(content)) !== null) {
+  for (
+    let anchorMatch = anchorPattern.exec(content);
+    anchorMatch !== null;
+    anchorMatch = anchorPattern.exec(content)
+  ) {
     anchorMatches.push(anchorMatch.index);
   }
 

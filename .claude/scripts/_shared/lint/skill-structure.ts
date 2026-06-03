@@ -59,8 +59,7 @@ function commandIndexSkills(root: string): Set<string> {
 function referencedPhaseFiles(body: string): string[] {
   const out = new Set<string>();
   const re = /phases\/(§\d+[^)\s|`"']*\.md)/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(body)) !== null) out.add(m[1]);
+  for (let m = re.exec(body); m !== null; m = re.exec(body)) out.add(m[1]);
   return [...out];
 }
 
