@@ -49,3 +49,31 @@ describe("validateConflictReport", () => {
     ).toThrow(/conflicts\[0\]\.id required/);
   });
 });
+
+describe("validateBugReport — extended optional fields", () => {
+  test("passes through tenant/account/datasource/error_info/repro/expected/actual", () => {
+    const r = validateBugReport({
+      title: "t",
+      summary: "s",
+      problem_type: "代码问题",
+      severity: "major",
+      environment: {
+        deploy_env: "http://x",
+        tenant: "DT_demo",
+        account: "a@b / pw",
+        datasource: "无",
+      },
+      error_info: { curl: "curl ...", log: "NPE ..." },
+      reproduction_steps: ["a", "b"],
+      expected: "ok",
+      actual: "fail",
+      code_location: { snippet_lines: [{ no: 142, text: "x", error: true }] },
+      fix_suggestions: [{ title: "fix", diff_lines: [{ sign: "+", text: "y" }] }],
+    });
+    expect(r.environment?.tenant).toBe("DT_demo");
+    expect(r.error_info?.curl).toContain("curl");
+    expect(r.reproduction_steps?.length).toBe(2);
+    expect(r.code_location?.snippet_lines?.[0]?.error).toBe(true);
+    expect(r.fix_suggestions?.[0]?.diff_lines?.[0]?.sign).toBe("+");
+  });
+});

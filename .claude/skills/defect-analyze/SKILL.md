@@ -38,3 +38,19 @@ effort: medium
 - bug 模式 → `report.html`（bug-report 模版，默认 full variant；根因、evidence_refs、impacted_areas 都编入 JSON）。
 - diff 模式 → `report.html`（scan-report 模版，含根因、evidence_refs、impacted_areas）。
 - conflict 模式 → `report.html`（conflict-report 模版，含 side_a / side_b 与 resolution_plan）。
+
+## 推送禅道（仅 bug 模式）
+
+bug 模式产出 `report.html` 后按节点推进，输出只走固定模板，不夹带无关内容：
+
+1. 用 AskUserQuestion 询问「是否推送禅道创建 bug？」（推荐「是」）。选「否」即结束，不做任何禅道写操作。
+2. 选「是」→ 将 BugReport JSON 落盘，执行 `bun run .claude/plugins/zentao/create.ts --json <BugReport.json>`（产品、指派人向林、severity 映射等取插件 yaml；正文复用 zentao variant）。
+3. 解析命令输出：`ok:true` 且有 `url` → 按下方固定模板回显；`ok:true` 但只带 `note`（禅道返回 success 却无可解析链接）→ 回显 note 文案，提示去禅道按标题核对；`ok:false` → 只回一行简明原因（登录失败 / 缺必填 / 网络不可达 / 创建被拒），不编造。
+
+   成功模板：
+
+       禅道链接已生成，相关信息如下：
+       - 禅道地址：<zentao_url>
+       - Bug 标题：<title>
+
+4. 一个 bug 链接只承载一处主修复建议（取 fix_suggestions 首条）。分析中发现的额外问题（补单测、相邻隐患等）用 AskUserQuestion 单独询问是否另开 bug，不堆进同一 bug。
