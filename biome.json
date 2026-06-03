@@ -23,20 +23,20 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "noUnusedVariables": "warn",
-        "noUnusedImports": "warn",
-        "noUnsafeOptionalChaining": "warn"
+        "noUnusedVariables": "error",
+        "noUnusedImports": "error",
+        "noUnsafeOptionalChaining": "error"
       },
       "style": {
         "noNonNullAssertion": "warn"
       },
       "suspicious": {
         "noExplicitAny": "warn",
-        "noImplicitAnyLet": "warn",
-        "noAssignInExpressions": "warn",
+        "noImplicitAnyLet": "error",
+        "noAssignInExpressions": "error",
         "noTemplateCurlyInString": "warn",
-        "noRedeclare": "warn",
-        "noFallthroughSwitchClause": "warn"
+        "noRedeclare": "error",
+        "noFallthroughSwitchClause": "error"
       },
       "complexity": {
         "noUselessStringRaw": "warn"
