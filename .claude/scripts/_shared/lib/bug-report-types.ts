@@ -31,6 +31,7 @@ export interface FixSuggestion {
   priority?: number | string;
   priority_label?: string;
   title?: string;
+  diff_lines?: Array<{ sign: " " | "+" | "-"; text: string }>;
 }
 
 export interface BugReport {
@@ -65,6 +66,9 @@ export interface BugReport {
     framework?: string;
     java_version?: string;
     source_ref?: string;
+    tenant?: string; // 租户信息（如 DT_demo）
+    account?: string; // 账号信息（如 admin@dtstack.com / DrpEco_2020）
+    datasource?: string; // 数据源信息（默认「无」）
   };
   code_location?: {
     file?: string;
@@ -73,8 +77,13 @@ export interface BugReport {
     analysis?: string;
     evidence?: string;
     evidence_code?: string;
+    snippet_lines?: Array<{ no?: number | string; text: string; error?: boolean }>;
   };
   location?: string;
+  error_info?: { curl?: string; log?: string }; // 报错信息：CURL信息 + 日志信息
+  reproduction_steps?: string[]; // 复现步骤
+  expected?: string; // 预期结果
+  actual?: string; // 实际结果
   fix_suggestions?: FixSuggestion[];
 }
 
