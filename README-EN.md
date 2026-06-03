@@ -7,7 +7,7 @@
 
 # Kata
 
-### SKILL + Router + Graph + Workflow + Blackboard driven QA runtimes
+### Auditable QA workflows built on Claude Code Skills
 
 Kata turns QA work into auditable product skills: it can derive test cases, reports, Playwright scripts, and project knowledge from PRDs, design sources, bugs, code diffs, UI cases, and test results.
 
@@ -39,7 +39,7 @@ Core principles:
 
 - `.claude/**` is the first-class runtime directory for the kata Claude Code runtime.
 - The runtime code chassis lives at `.claude/scripts/_shared/**` (lib / schemas / plugin-runtime / cli / lint) with shared prompts at `.claude/prompt/_shared/**`.
-- Project artifacts are written under `workspace/{project}/`; source evidence lives under `.kata/repos/{project}/**` and is read-only.
+- Project artifacts are written under `workspace/{project}/`; source evidence lives under `workspace/{project}/.kata/repos/**` and is read-only.
 - Browser automation is driven by the `playwright-automation` skill; a native Playwright API cheat sheet lives at `.claude/skills/playwright-automation/references/cli-essentials.md`.
 
 ## Quick start
@@ -125,7 +125,7 @@ Run these commands directly in Claude Code:
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata uses `.claude/**` as the first-class runtime implementation, runtime-local contracts for schemas, routes, the skill graph, workflows, and the blackboard, `.claude/scripts/_shared/**` as the execution and verification layer, and `workspace/{project}` as the artifact area:
+Kata uses `.claude/**` as the first-class runtime: 8 business skills as the single source, a prompt-level routing table (see `CLAUDE.md`) dispatching inputs to the right skill, `.claude/scripts/_shared/**` (lib / schemas / lint / cli) as the execution and verification layer, `.claude/plugins/` for lanhu/zentao/notify, and `workspace/{project}` for artifacts:
 
 ```text
 .claude/    Claude Code runtime skills and contracts
@@ -141,9 +141,22 @@ Kata uses `.claude/**` as the first-class runtime implementation, runtime-local 
 
 At runtime, agents read their runtime skill plus the shared chassis `.claude/scripts/_shared/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by `.claude/scripts/_shared/**` validators and runtime checks.
 
+## Multi-runtime support
+
+kata's 8 business skills live once under `.claude/skills/` and are exposed to other agent runtimes through adapter directories — zero body copies, translated at runtime via tool mapping:
+
+| Runtime | Adapter dir | Discovery | Status |
+| --- | --- | --- | --- |
+| Claude Code | `.claude/skills/` | native | ✅ first-class |
+| OpenAI Codex | `.agents/skills/` + `.codex-plugin/plugin.json` | official `.agents/skills` scan, whole-dir symlinks | ✅ officially supported |
+| Reasonix (DeepSeek) | `.reasonix/skills/` | official directory scan (ConventionDirs include `.reasonix`), whole-dir symlinks | ✅ officially supported |
+| Hermes Agent | `.hermes/skills/` + `~/.hermes/config.yaml` `external_dirs` | external_dirs pointing at the real `.claude/skills/` (symlinks blocked by upstream #8293) | ✅ via external_dirs |
+
+Each runtime's tool-name mapping and session bootstrap live in the corresponding bootstrap: `using-kata-codex` / `using-kata-reasonix` / `using-kata-hermes`; rationale under `docs/skills/`.
+
 ## Plugins
 
-Built-in plugins live under `plugins/` and attach to product skills through hooks.
+Built-in plugins live under `.claude/plugins/` and attach to product skills through hooks.
 
 | Plugin | Hook | Required configuration |
 | --- | --- | --- |
@@ -157,12 +170,15 @@ Put credentials in `.env`. `.env.example` lists the supported `KATA_*` variables
 
 ```text
 kata/
-├── .claude/         # Claude Code runtime skills
-├── docs/            # Architecture, ADR, audit, skill, and troubleshooting docs
-├── .claude/scripts/_shared/  # CLI, runtime checks, workflow support, and tests
-├── plugins/         # lanhu / zentao / notify
-├── templates/       # project skeletons and output templates
-└── workspace/       # user project artifacts; source copies live in .kata/repos/{project}/
+├── .claude/                       # Claude Code runtime
+│   ├── skills/                    # 8 business skills (single source)
+│   ├── scripts/_shared/           # CLI, lib, schemas, lint, tests
+│   ├── plugins/                   # lanhu / zentao / notify
+│   ├── rules/                     # project workflow rules
+│   └── hooks/                     # write / command guards
+├── .agents/  .reasonix/  .hermes/ # multi-runtime adapters (codex / reasonix / hermes)
+├── docs/                          # architecture, audit, skill, and troubleshooting docs
+└── workspace/                     # user project artifacts; source evidence is read-only, under workspace/{project}/.kata/repos/
 ```
 
 ## Development and verification
@@ -173,11 +189,11 @@ Common commands:
 # Full test suite
 bun --no-env-file test
 
-# Check runtime skill sync, detach, route, graph, and workflow contracts
+# Check runtime skill sync, detach, and structure contracts (.claude <-> .agents)
 bun run check:skills
 ```
 
-Schemas, workflows, the skill graph, the blackboard, and sync exceptions live under runtime `contracts/**`; shared content is reused through symlinks.
+Schemas and sync exceptions live under `.claude/scripts/_shared/schemas/**` and the per-runtime adapter dirs; cross-runtime skill bodies are reused via symlinks (codex/reasonix) or external_dirs (hermes), with zero copies.
 
 ## License
 

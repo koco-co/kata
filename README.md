@@ -7,7 +7,7 @@
 
 # Kata
 
-### SKILL + Router + Graph + Workflow + Blackboard 驱动的 QA Runtime
+### 基于 Claude Code Skills 的可审计 QA 工作流
 
 Kata 把 QA 过程拆成可审计的 product skills：从 PRD、设计源、bug、源码 diff、UI 用例和测试结果中生成测试用例、报告、Playwright 脚本和项目知识。
 
@@ -125,7 +125,7 @@ bunx playwright install
 
 ![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
 
-Kata 的当前 runtime 架构以 `.claude/**` 为一等实现，以 runtime 内部 contracts 承接 schema、route、skill graph、workflow 与 blackboard，以 `.claude/scripts/_shared/**` 为执行与校验层，以 `workspace/{project}` 为业务产物区：
+Kata 的 runtime 以 `.claude/**` 为一等实现：8 个业务 skill 为单一来源，prompt 级路由表（见 `CLAUDE.md`）把输入分发到对应 skill，`.claude/scripts/_shared/**`（lib / schemas / lint / cli）为执行与校验层，`.claude/plugins/` 提供 lanhu/zentao/notify 集成，`workspace/{project}` 存业务产物：
 
 ```text
 .claude/    Claude Code runtime skills and contracts
@@ -141,9 +141,22 @@ Kata 的当前 runtime 架构以 `.claude/**` 为一等实现，以 runtime 内�
 
 工作流执行时，agent 读取对应 runtime skill 和共享底盘 `.claude/scripts/_shared/**`，再通过 `workspace/{project}/` 读写项目产物。写入边界、SourceRef、schema 和同步检查由 `.claude/scripts/_shared/**` 校验器与 runtime 检查器共同校验。
 
+## 多 runtime 支持
+
+kata 的 8 个业务 skill 单一存放于 `.claude/skills/`，通过适配目录暴露给其它 agent runtime，正文零复制、靠工具映射在运行时翻译：
+
+| Runtime | 适配目录 | 发现机制 | 状态 |
+| --- | --- | --- | --- |
+| Claude Code | `.claude/skills/` | 原生 | ✅ 一等实现 |
+| OpenAI Codex | `.agents/skills/` + `.codex-plugin/plugin.json` | 官方 `.agents/skills` 扫描，整目录 symlink | ✅ 官方支持 |
+| Reasonix（DeepSeek） | `.reasonix/skills/` | 官方目录扫描（ConventionDirs 含 `.reasonix`），整目录 symlink | ✅ 官方支持 |
+| Hermes Agent | `.hermes/skills/` + `~/.hermes/config.yaml` `external_dirs` | external_dirs 指向真实 `.claude/skills/`（symlink 受阻于上游 #8293） | ✅ 经 external_dirs |
+
+各 runtime 的工具名映射与会话起始引导见对应 bootstrap：`using-kata-codex` / `using-kata-reasonix` / `using-kata-hermes`，依据见 `docs/skills/`。
+
 ## 插件
 
-内置插件位于 `plugins/`，按 hook 接入 product skills。
+内置插件位于 `.claude/plugins/`，按 hook 接入 product skills。
 
 | 插件 | 触发点 | 必需配置 |
 | --- | --- | --- |
@@ -157,12 +170,15 @@ Kata 的当前 runtime 架构以 `.claude/**` 为一等实现，以 runtime 内�
 
 ```text
 kata/
-├── .claude/         # Claude Code runtime skills
-├── docs/            # 架构、ADR、审计、技能和排查文档
-├── .claude/scripts/_shared/  # CLI、runtime 校验、工作流支撑代码和测试
-├── plugins/         # lanhu / zentao / notify
-├── templates/       # 项目骨架与输出模板
-└── workspace/       # 用户项目产物；源码副本位于 workspace/{project}/.kata/repos/
+├── .claude/                       # Claude Code runtime
+│   ├── skills/                    # 8 个业务 skill（单一来源）
+│   ├── scripts/_shared/           # CLI、lib、schemas、lint、测试
+│   ├── plugins/                   # lanhu / zentao / notify
+│   ├── rules/                     # 项目工作流规则
+│   └── hooks/                     # 写入/命令守卫
+├── .agents/  .reasonix/  .hermes/ # 多 runtime 适配（codex / reasonix / hermes）
+├── docs/                          # 架构、审计、技能与排查文档
+└── workspace/                     # 用户项目产物；源码证据只读，位于 workspace/{project}/.kata/repos/
 ```
 
 ## 开发与验证
@@ -173,11 +189,11 @@ kata/
 # 全量测试
 bun --no-env-file test
 
-# 检查 runtime skill 同步、detach、route、graph 和 workflow 契约
+# 检查 runtime skill 同步、detach 与结构契约（.claude ↔ .agents）
 bun run check:skills
 ```
 
-schema、workflow、skill graph、blackboard 和同步例外落在 runtime `contracts/**`；共享内容使用 symlink 复用。
+schema 与同步例外落在 `.claude/scripts/_shared/schemas/**` 与各 runtime 适配目录；跨 runtime 共享的 skill 正文使用 symlink（codex/reasonix）或 external_dirs（hermes）复用，零复制。
 
 ## License
 
