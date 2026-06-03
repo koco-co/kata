@@ -3,9 +3,6 @@
   "description": "蓝湖 PRD 导入插件：从蓝湖 URL 爬取需求文档内容和截图",
   "version": "1.0.0",
   "env_required": ["KATA_LANHU_COOKIE"],
-  "hooks": {
-    "case-draft:init": "input-adapter"
-  },
   "commands": {
     "fetch": "bun run .claude/plugins/lanhu/fetch.ts --url {{url}} --project {{project}}"
   },
