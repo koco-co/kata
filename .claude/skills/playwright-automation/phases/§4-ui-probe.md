@@ -106,7 +106,12 @@ page.on('response', async (res) => {
 
 - 每个 ui-probe step 最多写 3 个探测脚本，也最多运行 3 个；写了没运行也算进预算。建议命名为 `probe.mjs`、`probe-retry-2.mjs`、`probe-retry-3.mjs`。第三个脚本之后，不得再写 `probe-selectors.mjs`、`probe4.mjs`、`probe5.mjs`、… 或任何其他补充探测脚本。
 - 每次重试前，必须记下上一轮的失败类型：selector、data、permission、environment、product_gap 或 unknown。
-- 跑满 3 次仍确认不了核心 UI 事实时，立即停掉 ui-probe，输出 `blocked_by_ui_probe` 或 `needs_user_decision`，进入 plan-reconcile/handoff。此时不得再写“更精确 DOM 分析”“selector 调试”“数据源选项调试”这类第四个脚本，不得读取 `playwright-generate` reference，不得检查或创建 tests、page object，不得一路探测到十余轮，也不得在 UI 事实不足时进入 playwright-generate。
+- 跑满 3 次仍确认不了核心 UI 事实时，立即停掉 ui-probe，输出 `blocked_by_ui_probe` 或 `needs_user_decision`，进入 plan-reconcile / handoff。此时禁止以下行为：
+  - 写第 4 个探测脚本（包括“更精确 DOM 分析”“selector 调试”“数据源选项调试”等）
+  - 读取 `playwright-generate` 的 reference
+  - 检查或创建 tests、page object
+  - 超出 3 轮预算继续探测
+  - 在 UI 事实不足时进入 playwright-generate
 - 若 ui-probe 已确认目标功能、菜单、规则类型或核心入口在当前环境不存在，立即停下，交给 plan-reconcile 判 blocked；不得再生成自动化脚本去检测“功能是否存在”。
 
 ## 输出

@@ -78,7 +78,11 @@ fallback 必须是本轮最后一个 assistant action。`session_status` 只能�
 - `was blocked`、`requested permissions`、`hasn't granted it yet`、`permission denied`、`未授权`。
 - `Contains command_substitution`、`Contains simple_expansion`、`This Bash command contains multiple operations`、`Unhandled node type`。
 
-下一个 assistant action 必须立刻是最终 text；首次拒绝后的下一条 assistant message 只能含一个 `type=text` content item，不得含 thinking 或 tool_use。不得调用 TodoWrite、TaskStop、Read、Write、Bash、Glob、Grep、WebFetch、curl、Playwright probe，也不得用 `pwd`、`ls`、`date`、`mktemp`、`mkdir`、`echo "test"`、`openssl rand`、`uuidgen` 或别的替代 probe 接着试探。
+首次拒绝后，下一条 assistant message 只能包含一个 `type=text` content item，不得含 thinking 或 tool_use，且必须立刻输出最终 text，不得做任何额外操作。
+
+**禁止调用的工具**：TodoWrite、TaskStop、Read、Write、Bash、Glob、Grep、WebFetch、curl、Playwright probe。
+
+**禁止使用的替代试探手段**：`pwd`、`ls`、`date`、`mktemp`、`mkdir`、`echo "test"`、`openssl rand`、`uuidgen`，或任何其他等价命令。
 
 最终 text 按这个结构写，第一行必须严格等于 `blocked_by_environment: tool_permission_denied`，不得写成 slash 或 hyphen 变体；fenced code block 语言必须严格是 `shell`：
 

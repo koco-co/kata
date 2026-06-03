@@ -1,6 +1,3 @@
-<!-- 本文件由 `case-draft / case-edit / case-hotfix` 共享。Phase 1 由三份重复 `rules/case-qa.md` 合并而成。 -->
-<!-- 改动需先用 `bun test .claude/scripts/_shared/tests/skills/shared-case-qa.test.ts` 确认存在性，再在 PR 描述说明影响范围。 -->
-
 # QA 产物质量检查
 
 ## 自检要求

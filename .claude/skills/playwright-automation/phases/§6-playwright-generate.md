@@ -59,13 +59,15 @@
 
 ## 步骤与断言的真实性（强制）
 
-生成的每条 spec 必须真实还原源用例：
+**必须做到**：
+- 每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落成真实的页面动作，一步都不能省略。
+- 每条 `expected_visible_result` / 预期结果必须断言为真实的业务结果；多页面操作（导出/详情/新标签打开）必须用 popup 模式捕获新页面并断言。
+- 当前环境确实无法真实实现的用例，诚实阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category` 与原因）。
 
-- 用例的每个动作步骤（创建/导入/运行/下载/编辑/删除等）都必须落成真实页面动作，一个都不能丢；
-- 用例写明的 `expected_visible_result`/预期结果，必须断言成真实业务结果，不得用 `toBeVisible`/`toContainText` 这类可见性/存在性断言替代；
-- 不得把业务流程用例简化成「进页面看看菜单/字段/元素在不在」的表层测试——只测页面表层、不测业务结果；
-- 用例含「导出/详情/查看在新标签打开」时，必须用 popup 模式捕获新页（见 cli-essentials §多页），并在新页里断言业务结果，不能只断当前页还看得见某按钮；
-- 当前环境确实没法真实实现并跑通的用例，走诚实阻塞/排除，记入 `handoff.excluded_cases`（含 `reason_category` + 原因），不得用表面通过糊弄。
+**严禁**：
+- 用 `toBeVisible` / `toContainText` 等可见性/存在性断言替代业务结果断言。
+- 把业务流程用例简化成「看菜单/字段/元素在不在」的表层测试。
+- 用表面通过敷衍不可实现的用例。
 
 > 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 这类强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole/getByTestId/getByLabel`。**不得用 `page.route` mock 被测业务接口的返回来换断言通过。** 凡是 `@playwright/cli` codegen 出来的 locator 或代码片段，落 spec 前都要对照 ui-probe 证据重新验证，并改写成项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，不是能直接交付的 spec。
 
