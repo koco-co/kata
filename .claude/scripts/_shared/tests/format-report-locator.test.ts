@@ -42,7 +42,7 @@ afterEach(() => {
 describe("format-report-locator.ts locate — maps issues to line numbers", () => {
   it("exits with code 0 and outputs enriched JSON", () => {
     const outputPath = join(TMP_DIR, "enriched-report.json");
-    const { code, stdout, stderr } = run([
+    const { code, stdout } = run([
       "locate",
       "--report",
       FIXTURE_REPORT,
@@ -104,6 +104,7 @@ describe("format-report-locator.ts locate — maps issues to line numbers", () =
       (i) => i.rule === "FC01" && i.case_title === "验证新增功能",
     );
     expect(fc01Issue).toBeTruthy();
+    if (!fc01Issue) throw new Error("fc01Issue not found");
     expect(fc01Issue.location.line > 0).toBeTruthy();
   });
 });

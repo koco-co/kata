@@ -74,7 +74,7 @@ export const program = createCli({
             `[defect-report] invalid variant: ${opts.variant} (expect ${BUG_VARIANTS.join("|")})`,
           );
         }
-        let report;
+        let report: ReturnType<typeof validateBugReport>;
         try {
           report = validateBugReport(loadJson(opts.json));
         } catch (e) {
@@ -94,7 +94,7 @@ export const program = createCli({
         ...outOptions,
       ],
       action: (opts: OutOpts & { json: string }) => {
-        let report;
+        let report: ReturnType<typeof validateConflictReport>;
         try {
           report = validateConflictReport(loadJson(opts.json));
         } catch (e) {

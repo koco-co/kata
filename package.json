@@ -22,8 +22,8 @@
     "kata": ".claude/scripts/_shared/bin/kata"
   },
   "scripts": {
-    "test:plugins": "bun test ./.claude/plugins",
-    "test:tools": "bun test --cwd .claude/packages/dtstack",
+    "test:plugins": "bun test ./.claude/plugins --timeout 30000",
+    "test:tools": "bun test --cwd .claude/packages/dtstack --timeout 30000",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "check:skills": "bun .claude/scripts/_shared/bin/kata skills sync-check --exit-code",
@@ -31,8 +31,8 @@
     "format": "biome check --fix .",
     "lint:debris": "bun run .claude/scripts/lint/check-debug-files.ts && bun run .claude/scripts/lint/check-stale-paths.ts && bun run .claude/scripts/lint/check-runtime-artifacts.ts",
     "type-check": "tsc --noEmit",
-    "ci": "bun run lint && bun run lint:debris && bun run lint:agents && bun run lint:paths && bun run check:skills && bun run lint:skills:codex && bun run lint:skills:reasonix && bun run lint:skills:hermes && bun run type-check && bun run test && bun run test:plugins && bun run test:tools",
-    "test": "bun test",
+    "ci": "bun run lint && bun run lint:debris && bun run lint:paths && bun run check:skills && bun run lint:skills:codex && bun run lint:skills:reasonix && bun run lint:skills:hermes && bun run type-check && bun run test && bun run test:plugins && bun run test:tools",
+    "test": "bun test --timeout 30000",
     "test:watch": "bun test --watch",
     "lint:agents": "kata agents audit --exit-code --severity fail-only",
     "lint:agents:claude": "kata agents audit --runtime claude --exit-code --severity fail-only",

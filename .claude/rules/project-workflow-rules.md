@@ -26,20 +26,20 @@
 - 只有可选的 commit body 才允许写中文；body 与标题行之间留一个空行，需要展开背景或理由时写进 body。
 - type 与 emoji 必须照下表的唯一映射来写，不得按历史习惯或个人偏好替换。
 
-| Type       | Emoji |
-| ---------- | ----- |
-| `feat`     | `🧩`  |
-| `fix`      | `🩹`  |
-| `refactor` | `✨`  |
-| `docs`     | `📝`  |
-| `test`     | `🧪`  |
-| `chore`    | `🧹`  |
-| `style`    | `🎨`  |
-| `build`    | `🏗️`  |
-| `ci`       | `👷`  |
-| `perf`     | `⚡`  |
-| `revert`   | `⏪`  |
-| `merge`    | `🔀`  |
+| Type | Emoji |
+| --- | --- |
+| `feat` | `🧩` |
+| `fix` | `🩹` |
+| `refactor` | `✨` |
+| `docs` | `📝` |
+| `test` | `🧪` |
+| `chore` | `🧹` |
+| `style` | `🎨` |
+| `build` | `🏗️` |
+| `ci` | `👷` |
+| `perf` | `⚡` |
+| `revert` | `⏪` |
+| `merge` | `🔀` |
 
 ## 临时通知页面
 

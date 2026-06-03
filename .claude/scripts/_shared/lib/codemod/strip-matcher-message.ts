@@ -111,9 +111,8 @@ export function stripMatcherMessage(source: string): string {
   let result = "";
   // Find each `\.(matcher)\(` occurrence and process
   const re = /\.(toBe|toEqual|toMatch|toThrow)\(/g;
-  let m: RegExpExecArray | null;
   let lastIndex = 0;
-  while ((m = re.exec(source)) !== null) {
+  for (let m = re.exec(source); m !== null; m = re.exec(source)) {
     result += source.slice(lastIndex, m.index);
     const openParen = m.index + m[0].length;
     const closeParen = matchCloseParen(source, openParen);

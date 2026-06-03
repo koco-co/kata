@@ -201,7 +201,7 @@ function appendWriteAudit(
       file: plan.targetPath,
       before: plan.beforeContent,
       after: plan.afterContent,
-      snapshot: snapshotName,
+      snapshot: snapshotName ?? "",
       confidence: opts.confidence,
       confirmed: opts.confirmed,
       forced: opts.force,

@@ -58,8 +58,11 @@ test("P4-01 split source files stay within size budgets", () => {
 });
 
 function functionName(node: ts.Node, sourceFile: ts.SourceFile): string {
-  if ("name" in node && node.name && ts.isIdentifier(node.name)) {
-    return node.name.text;
+  if ("name" in node && node.name) {
+    const nameNode = node.name as ts.Node;
+    if (ts.isIdentifier(nameNode)) {
+      return nameNode.text;
+    }
   }
   const { parent } = node;
   if (ts.isVariableDeclaration(parent) && ts.isIdentifier(parent.name)) {

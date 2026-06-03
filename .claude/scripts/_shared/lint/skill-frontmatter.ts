@@ -4,14 +4,10 @@ import type { SkillReport, SkillViolation } from "./types.ts";
 
 const REF_LINK_REGEX = /\.claude\/skills\/([a-z0-9-]+)\/references\/[^\s)`'"]+/g;
 
-export function lintAgentFrontmatter(
-  filePath: string,
-  knownSkills: Set<string>,
-  opts: Record<string, unknown> = {},
-): SkillReport {
+export function lintAgentFrontmatter(filePath: string, knownSkills: Set<string>): SkillReport {
   const violations: SkillViolation[] = [];
   const raw = readFileSync(filePath, "utf8");
-  let parsed;
+  let parsed: ReturnType<typeof matter>;
   try {
     parsed = matter(raw);
   } catch {
@@ -46,9 +42,8 @@ export function lintAgentFrontmatter(
     });
   } else {
     // A4: reference-scope check — links must point within owner_skill
-    let m: RegExpExecArray | null;
     const refRe = new RegExp(REF_LINK_REGEX.source, "g");
-    while ((m = refRe.exec(parsed.content)) !== null) {
+    for (let m = refRe.exec(parsed.content); m !== null; m = refRe.exec(parsed.content)) {
       const referencedSkill = m[1]!;
       if (referencedSkill !== owner) {
         violations.push({

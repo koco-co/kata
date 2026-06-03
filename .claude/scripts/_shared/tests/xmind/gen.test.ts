@@ -32,6 +32,7 @@ async function readContentJson(xmindPath: string): Promise<unknown> {
   const zip = await JSZip.loadAsync(buffer);
   const contentFile = zip.file("content.json");
   expect(contentFile).toBeTruthy();
+  if (!contentFile) throw new Error("content.json missing from xmind archive");
   const str = await contentFile.async("string");
   return JSON.parse(str);
 }
@@ -63,7 +64,7 @@ describe("xmind-gen.ts --help", () => {
 describe("xmind-gen.ts create mode", () => {
   it("creates .xmind file from valid JSON fixture", () => {
     const output = join(TMP_DIR, "test-create.xmind");
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
     expect(existsSync(output)).toBeTruthy();
     expect(statSync(output).size > 0).toBeTruthy();
@@ -71,7 +72,7 @@ describe("xmind-gen.ts create mode", () => {
 
   it("outputs valid JSON result to stdout", () => {
     const output = join(TMP_DIR, "test-stdout.xmind");
-    const { code, stdout, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as {
@@ -133,14 +134,7 @@ prd_version: "v6.4.10"
 `;
     writeFileSync(input, archiveMd, "utf8");
 
-    const { code, stdout, stderr } = run([
-      "--input",
-      input,
-      "--output",
-      output,
-      "--project",
-      "CLI项目名",
-    ]);
+    const { code, stdout } = run(["--input", input, "--output", output, "--project", "CLI项目名"]);
     expect(code).toBe(0);
     expect(stdout.includes("自定义 Root 节点") || existsSync(output)).toBeTruthy();
 
@@ -283,7 +277,7 @@ describe("xmind-gen.ts validation", () => {
 describe("xmind-gen.ts content.json validation", () => {
   it("created .xmind contains valid content.json", async () => {
     const output = join(TMP_DIR, "test-content.xmind");
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const sheets = await readContentJson(output);
@@ -293,7 +287,7 @@ describe("xmind-gen.ts content.json validation", () => {
 
   it("content.json has correct hierarchy: root → L1 → L2 → L3 → cases", async () => {
     const output = join(TMP_DIR, "test-hierarchy.xmind");
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     type SheetNode = {
@@ -307,6 +301,7 @@ describe("xmind-gen.ts content.json validation", () => {
     const sheets = (await readContentJson(output)) as Sheet[];
     const rootTopic = sheets[0]?.rootTopic;
     expect(rootTopic).toBeTruthy();
+    if (!rootTopic) throw new Error("rootTopic missing");
 
     // Root title
     expect(rootTopic.title).toBe("数据资产v6.4.10迭代用例(#23)");
@@ -399,7 +394,7 @@ describe("xmind-gen.ts append mode", () => {
     const output = join(TMP_DIR, "test-append-new.xmind");
     expect(!existsSync(output)).toBeTruthy();
 
-    const { code, stderr } = run(["--input", FIXTURE, "--output", output, "--mode", "append"]);
+    const { code } = run(["--input", FIXTURE, "--output", output, "--mode", "append"]);
     expect(code).toBe(0);
     expect(existsSync(output)).toBeTruthy();
   });
@@ -410,7 +405,7 @@ describe("xmind-gen.ts <br> tag sanitization", () => {
 
   it("converts <br> tags to newlines in step, expected, and preconditions", async () => {
     const output = join(TMP_DIR, "test-br-sanitize.xmind");
-    const { code, stderr } = run(["--input", BR_FIXTURE, "--output", output]);
+    const { code } = run(["--input", BR_FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     type SheetNode = {
@@ -423,18 +418,24 @@ describe("xmind-gen.ts <br> tag sanitization", () => {
     const sheets = (await readContentJson(output)) as Sheet[];
     const root = sheets[0]?.rootTopic;
     expect(root).toBeTruthy();
+    if (!root) throw new Error("root missing");
 
     // Navigate to the case node: root → L1 → L2 → L3 → L4(sub_group) → case
     const l1 = root.children?.attached?.[0];
     expect(l1).toBeTruthy();
+    if (!l1) throw new Error("l1 missing");
     const l2 = l1.children?.attached?.[0];
     expect(l2).toBeTruthy();
+    if (!l2) throw new Error("l2 missing");
     const l3 = l2.children?.attached?.[0];
     expect(l3).toBeTruthy();
+    if (!l3) throw new Error("l3 missing");
     const l4SubGroup = l3.children?.attached?.[0];
     expect(l4SubGroup).toBeTruthy();
+    if (!l4SubGroup) throw new Error("l4SubGroup missing");
     const caseNode = l4SubGroup.children?.attached?.[0];
     expect(caseNode).toBeTruthy();
+    if (!caseNode) throw new Error("caseNode missing");
 
     // Preconditions should have <br> converted to \n
     expect(caseNode.notes?.plain?.content).toBeTruthy();
@@ -470,7 +471,7 @@ describe("xmind-gen.ts L1 title strips trailing (#id)", () => {
     writeFileSync(fixture, JSON.stringify({ ...data, meta }));
 
     const output = join(TMP_DIR, "test-l1-strip.xmind");
-    const { code, stdout, stderr } = run(["--input", fixture, "--output", output]);
+    const { code, stdout } = run(["--input", fixture, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { l1_title: string };
@@ -479,7 +480,7 @@ describe("xmind-gen.ts L1 title strips trailing (#id)", () => {
 
   it("l1_title unchanged when no trailing (#id)", () => {
     const output = join(TMP_DIR, "test-l1-no-strip.xmind");
-    const { code, stdout, stderr } = run(["--input", FIXTURE, "--output", output]);
+    const { code, stdout } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
 
     const result = JSON.parse(stdout) as { l1_title: string };

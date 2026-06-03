@@ -137,7 +137,7 @@ describe("initEnv", () => {
     delete process.env.INIT_TEST_KEY_NEW;
     const { initEnv } = await import("@shared/lib/env.ts");
     initEnv(envPath);
-    expect(process.env.INIT_TEST_KEY_NEW).toBe("newval");
+    expect(process.env.INIT_TEST_KEY_NEW as string | undefined).toBe("newval");
     delete process.env.INIT_TEST_KEY_NEW;
   });
 

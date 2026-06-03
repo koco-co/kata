@@ -40,7 +40,6 @@ const EXCLUDED_PATH_FRAGMENTS = [
   // These are NOT real code paths; they're literal strings passed to path helpers.
   ".claude/scripts/_shared/tests/lib/signal-probe.test.ts",
   ".claude/scripts/_shared/tests/lib/paths.test.ts",
-  ".claude/scripts/_shared/tests/lib/progress-store.test.ts",
   ".claude/scripts/_shared/tests/plan.test.ts",
   ".claude/scripts/_shared/tests/progress.test.ts",
   ".claude/scripts/_shared/tests/run-tests-notify.test.ts",

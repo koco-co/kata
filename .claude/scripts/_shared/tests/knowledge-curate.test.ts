@@ -843,7 +843,7 @@ body`,
     // Remove all artifacts + rebuild index
     rmSync(join(PROJECT_KNOWLEDGE, "modules", "Bad_Name.md"), { force: true });
     runProjectKnowledge(["index", "--project", PROJECT]);
-    const { stdout, code } = runProjectKnowledge(["lint", "--project", PROJECT]);
+    const { code } = runProjectKnowledge(["lint", "--project", PROJECT]);
     expect(code).toBe(0);
   });
 

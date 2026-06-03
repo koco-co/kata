@@ -16,7 +16,7 @@ const ALLOWED_TOP_LEVEL_DIRS = new Set([
 const SKILL_MD_LINE_LIMIT = 500;
 const REFERENCE_NON_MD_EXCEPTIONS: Record<string, Set<string>> = {};
 
-export function lintSkillShape(skillDir: string, opts: Record<string, unknown> = {}): SkillReport {
+export function lintSkillShape(skillDir: string): SkillReport {
   const violations: SkillViolation[] = [];
   const skillName = basename(skillDir);
 

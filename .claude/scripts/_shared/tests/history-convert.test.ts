@@ -107,6 +107,7 @@ describe("history-convert CSV conversion", () => {
 
     const result = out.files.find((f) => f.input === FIXTURE_CSV);
     expect(result).toBeTruthy();
+    if (!result) throw new Error("result not found");
     expect(result.status).toBe("converted");
     expect(result.output.endsWith(".md")).toBeTruthy();
     expect(existsSync(result.output)).toBeTruthy();
@@ -122,6 +123,7 @@ describe("history-convert CSV conversion", () => {
     };
     const result = out.files.find((f) => f.input === FIXTURE_CSV);
     expect(result && result.status === "converted").toBeTruthy();
+    if (!result) throw new Error("result not found");
 
     const content = readFileSync(result.output, "utf8");
 
@@ -424,6 +426,7 @@ describe("history-convert CSV conversion", () => {
     };
     const converted = out.files.find((f) => f.status === "converted");
     expect(converted).toBeTruthy();
+    if (!converted) throw new Error("converted file not found");
 
     const content = readFileSync(converted.output, "utf8");
     expect(content).toContain("验证商品列表默认加载");
@@ -450,6 +453,7 @@ describe("history-convert CSV conversion", () => {
     };
     const converted = out.files.find((f) => f.status === "converted");
     expect(converted).toBeTruthy();
+    if (!converted) throw new Error("converted file not found");
 
     const content = readFileSync(converted.output, "utf8");
     expect(content).toContain("验证订单列表加载");
