@@ -92,6 +92,23 @@ describe("parseCreateResponse", () => {
     assert.equal(r.ok, true);
     assert.equal(r.bug_id, 99);
   });
+  it("parses success id from nested bugID= query", () => {
+    const r = parseCreateResponse(
+      '{"result":"success","load":{"locate":"/index.php?m=bug&f=view&bugID=152189"}}',
+      base,
+      "t",
+    );
+    assert.equal(r.ok, true);
+    assert.equal(r.bug_id, 152189);
+    assert.equal(r.url, "http://zenpms.dtstack.cn/zentao/bug-view-152189.html");
+  });
+  it("treats success without any id as ok with a note", () => {
+    const r = parseCreateResponse('{"result":"success","message":"保存成功"}', base, "t");
+    assert.equal(r.ok, true);
+    assert.equal(r.bug_id, undefined);
+    assert.equal(r.url, undefined);
+    assert.ok(r.note);
+  });
   it("parses fail with message", () => {
     const r = parseCreateResponse('{"result":"fail","message":{"title":"必填"}}', base, "t");
     assert.equal(r.ok, false);

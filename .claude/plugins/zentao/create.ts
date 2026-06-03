@@ -94,12 +94,28 @@ export interface CreateResult {
   url?: string;
   title?: string;
   error?: string;
+  note?: string;
+}
+
+// 扫描整段响应里的 bug id：禅道不同版本会把它放进 PATH_INFO 链接
+// （bug-view-N）或查询串（…&bugID=N），locate/load 还可能是嵌套对象，
+// 所以统一对整段文本做匹配，而不是只看固定字段。
+function extractBugId(text: string): number | null {
+  for (const re of [/bug-view-(\d+)/, /bugID=(\d+)/i]) {
+    const m = text.match(re);
+    if (m) return Number(m[1]);
+  }
+  return null;
 }
 
 /**
  * Parse a zentao bug-create response. Handles standard ajax JSON
  * ({result:'success', id|locate|load} / {result:'fail', message}) and an
- * HTML fallback that contains a bug-view URL.
+ * HTML fallback. The bug id is extracted by scanning the whole body for
+ * either a `bug-view-N` path or a `bugID=N` query, since newer zentao
+ * nests the redirect target in objects or query strings. When zentao
+ * reports success but no id can be recovered, the bug WAS still created,
+ * so this returns ok:true with a note rather than a false failure.
  */
 export function parseCreateResponse(text: string, baseUrl: string, title: string): CreateResult {
   let data: Record<string, unknown> | null = null;
@@ -118,19 +134,14 @@ export function parseCreateResponse(text: string, baseUrl: string, title: string
   if (data) {
     const result = data.result ?? data.status;
     if (result === "success") {
-      let id = data.id != null ? Number(data.id) : Number.NaN;
-      if (Number.isNaN(id)) {
-        const locate =
-          typeof data.locate === "string"
-            ? data.locate
-            : typeof data.load === "string"
-              ? data.load
-              : "";
-        const m = locate.match(/bug-view-(\d+)/);
-        if (m) id = Number(m[1]);
-      }
-      if (!Number.isNaN(id)) return idToResult(id);
-      return { ok: false, error: "禅道返回 success 但未能解析 bug id" };
+      const explicit = data.id != null ? Number(data.id) : Number.NaN;
+      const id = Number.isNaN(explicit) ? extractBugId(text) : explicit;
+      if (id != null && !Number.isNaN(id)) return idToResult(id);
+      return {
+        ok: true,
+        title,
+        note: "禅道返回 success 但响应未包含可解析的 bug 链接，请到禅道按标题核对",
+      };
     }
     if (result === "fail" || data.message) {
       const msg =
@@ -138,8 +149,8 @@ export function parseCreateResponse(text: string, baseUrl: string, title: string
       return { ok: false, error: `禅道创建失败：${msg}` };
     }
   }
-  const m = text.match(/bug-view-(\d+)\.html/);
-  if (m) return idToResult(Number(m[1]));
+  const id = extractBugId(text);
+  if (id != null) return idToResult(id);
   return { ok: false, error: "禅道返回了无法解析的响应" };
 }
 
