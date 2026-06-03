@@ -1,0 +1,53 @@
+{
+  "productName": "测试产品线",
+  "bugModule": "",
+  "bug": {
+    "id": "9001",
+    "title": "【合成】总览统计与规则库不一致",
+    "keywords": "",
+    "severity": "3",
+    "pri": "2",
+    "type": "产品BUG",
+    "steps": "<p>现象：接口<span style=\"color:#1F1F1F;\">/x/y/z</span> 统计为 37，应为 25</p>\n<p><img onload=\"setImageSize(this,0)\" src=\"/zentao/file-read-1.png\" alt=\"\" /></p>",
+    "status": "resolved",
+    "confirmed": "1",
+    "openedBy": "alice",
+    "openedDate": "2026-05-28 14:22:57",
+    "assignedTo": "carol",
+    "resolvedBy": "bob",
+    "resolution": "Fixed",
+    "resolvedBuild": "trunk",
+    "resolvedDate": "2026-06-02 11:32:08",
+    "customer": "合成客户_X",
+    "customerPackage": "PKG_1:a,b",
+    "env": "生产环境",
+    "founded": "客户发现",
+    "issueApp": "合成应用",
+    "issueModule": ",synth",
+    "engine": "HDP_HDP 2.6.0.0",
+    "version": "145",
+    "techReason": "历史数据影响",
+    "reason": "其他",
+    "gitProject1": "group/repo-a",
+    "gitBranch1": "hotfix_9.9.x_synth_9001",
+    "gitProjectBranch": "{\"group/repo-a\":[\"hotfix_9.9.x_synth_9001\"]}"
+  },
+  "users": { "alice": "爱丽丝", "bob": "鲍勃|老鲍", "carol": "卡萝" },
+  "builds": { "trunk": "主干", "145": "定制化_9.9" },
+  "actions": {
+    "1": {
+      "id": "1",
+      "actor": "alice",
+      "action": "opened",
+      "date": "2026-05-28 14:22:57",
+      "comment": ""
+    },
+    "2": {
+      "id": "2",
+      "actor": "bob",
+      "action": "resolved",
+      "date": "2026-06-02 11:44:41",
+      "comment": "<p>问题原因：模版表残留脏数据导致统计偏多</p>\n<p>解决方案：提供增量SQL置 is_deleted=1（代码未调整）</p>\n<p>修复分支：custome/hotfix_9.9.x_synth_9001</p>\n<p>测试意见：执行后核对统计一致</p>"
+    }
+  }
+}
