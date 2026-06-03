@@ -18,6 +18,7 @@ workspace/*/features/*/results/
 workspace/*/features/*/.debug/
 .playwright-cli/*.yml
 allure-results/
+**/.runs/test-results/
 
 # System and build
 **/.DS_Store
