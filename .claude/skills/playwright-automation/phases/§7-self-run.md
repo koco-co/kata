@@ -39,7 +39,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAss
 2. **退出码**：0=全部通过，1=有失败
 3. **通过/失败数量**：passed N, failed N, skipped N
 4. **失败详情**：每个失败 test 的错误消息摘要
-5. **报告路径**：`results/<run-id>/playwright/` 及 `results/<run-id>/handoff.json`
+5. **报告路径**：`results/<run-id>/playwright/`、`results/<run-id>/allure-results/` 及 `results/<run-id>/handoff.json`
 6. **输出摘要**：最后 20 行运行输出
 
 ### 第四步：烟雾验证
@@ -69,10 +69,13 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
 2. 运行测试：
    ```bash
    PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
+     KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
      npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' \
-     --output="$RUN_PATH/playwright" \
-     --reporter=line,json,allure
+     --output="$RUN_PATH/playwright"
    ```
+   > allure 落点由 config 里带 `outputFolder` 的 reporter 决定，经 `KATA_ALLURE_RESULTS_DIR` 收敛到
+   > `$RUN_PATH/allure-results`，和 `playwright/` 同在本次 run 目录，`kata results publish` 才能一并发布。
+   > 不要在 CLI 用 `--reporter` 指定 allure：CLI 无法附带 `outputFolder`，allure 会退回默认 `./allure-results`（仓库根）。
 3. 测试退出后，按 `PlaywrightAutomationHandoff@2` schema 写 `$RUN_PATH/handoff.json`。`run_command` 记本次实际跑的命令；`acceptance_command` 记带 `full.spec.ts` 和 `--headed` 的有头全量验收命令。
 4. 渲染 md：`kata handoff render <featureId> --run "$RUN_ID" --project <project>`。
 
@@ -84,3 +87,4 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
 - 不得跳过 `--list` 直接运行。
 - 不得用不带文件参数的全量 Playwright 运行做调试。
 - 只运行 `smoke.spec.ts` 不得宣称端到端自动化完成。
+- 不得在 CLI 用 `--reporter` 指定 allure：会绕过 config 的 `outputFolder`，allure 落到仓库根 `./allure-results`。
