@@ -104,6 +104,7 @@ describe("format-report-locator.ts locate — maps issues to line numbers", () =
       (i) => i.rule === "FC01" && i.case_title === "验证新增功能",
     );
     expect(fc01Issue).toBeTruthy();
+    if (!fc01Issue) throw new Error("fc01Issue not found");
     expect(fc01Issue.location.line > 0).toBeTruthy();
   });
 });
