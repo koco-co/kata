@@ -58,7 +58,8 @@
       "!!**/*.md",
       "!!**/*.hbs",
       "!!**/*.fixture.ts",
-      "!!**/tests/migration/fixtures"
+      "!!**/tests/migration/fixtures",
+      "!!**/settings.local.json"
     ],
     "ignoreUnknown": true
   }
