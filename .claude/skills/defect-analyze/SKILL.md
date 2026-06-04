@@ -21,7 +21,7 @@ effort: medium
 
 ## 三种模式（工作流）
 
-- `bug`：拿到异常堆栈、控制台报错、HTTP 失败等可复现的 bug 证据，先组装 BugReport JSON，再用 `kata defect-report render-bug`（默认 full variant，可切 simple/zentao）产出 `report.html`。
+- `bug`：拿到异常堆栈、控制台报错、HTTP 失败等可复现的 bug 证据，先组装 BugReport JSON，再用 `kata defect-report render-bug`（仅 zentao variant）产出 `report.html`。
 - `conflict`：拿到带合并冲突标记的文本，先组装 ConflictReport JSON，再用 `kata defect-report render-conflict` 产出 `report.html`。
 - `diff`：要对仓库 diff、分支对或变更文件集做静态扫描时，新开一个 general-purpose 子代理来执行扫描，再经 `kata scan-report` 产出 `report.html`。
 
@@ -39,7 +39,7 @@ effort: medium
 
 ## 产物
 
-- bug 模式 → `report.html`（bug-report 模版，默认 full variant；根因、evidence_refs、impacted_areas 都编入 JSON）。
+- bug 模式 → `report.html`（bug-report zentao 模版；根因、evidence_refs、impacted_areas 都编入 JSON）。
 - diff 模式 → `report.html`（scan-report 模版，含根因、evidence_refs、impacted_areas）。
 - conflict 模式 → `report.html`（conflict-report 模版，含 side_a / side_b 与 resolution_plan）。
 

@@ -5,17 +5,7 @@ import bugFixture from "./bug-report.fixture.json";
 import conflictFixture from "./conflict-report.fixture.json";
 
 describe("renderBugReport", () => {
-  // simple / full 是完整 HTML 文档
-  for (const variant of ["simple", "full"] as const) {
-    test(`renders ${variant} as a full HTML document with no unresolved handlebars`, () => {
-      const html = renderBugReport(validateBugReport(bugFixture), variant);
-      expect(html).toContain("<!DOCTYPE html>");
-      expect(html).toContain(bugFixture.title);
-      expect(html).not.toContain("{{");
-    });
-  }
-
-  // zentao 是禅道富文本兼容片段：裸 <table>，无 DOCTYPE
+  // zentao 是禅道富文本兼容片段：裸 <table>，无 DOCTYPE；zentao 现为默认且唯一 variant
   test("renders zentao as a ZenTao rich-text fragment (no DOCTYPE) with no unresolved handlebars", () => {
     const html = renderBugReport(validateBugReport(bugFixture), "zentao");
     expect(html).toContain("<table");
@@ -24,14 +14,15 @@ describe("renderBugReport", () => {
     expect(html).not.toContain("{{");
   });
 
-  // severityClass 由 severity 计算注入（minor -> low）；simple 模版真实把它渲染进 badge class
-  test("injects computed severityClass (minor -> low) into the rendered badge", () => {
-    const html = renderBugReport(validateBugReport({ ...bugFixture, severity: "minor" }), "simple");
-    expect(html).toContain("badge severity-low");
+  // 不传 variant 时默认走 zentao
+  test("defaults to zentao variant when none is given", () => {
+    const html = renderBugReport(validateBugReport(bugFixture));
+    expect(html).toContain("<table");
+    expect(html).not.toContain("<!DOCTYPE html>");
     expect(html).not.toContain("{{");
   });
 
-  test("zentao variant: new layout, drops framework/java_version/source_ref, single suggestion, diff", () => {
+  test("zentao variant: new layout, drops framework/java_version/source_ref, renders all suggestions, analysis/evidence, diff", () => {
     const report = validateBugReport({
       title: "示例 NPE",
       summary: "字段为空触发 NPE",
@@ -61,6 +52,9 @@ describe("renderBugReport", () => {
       },
       code_location: {
         file: "X.java",
+        line: 142,
+        analysis: "字段 ctx 未判空导致 NPE",
+        evidence: "X.run 第 142 行直接解引用 ctx",
         snippet_lines: [
           { no: 141, text: "ctx", error: false },
           { no: 142, text: "npe here", error: true },
@@ -69,13 +63,16 @@ describe("renderBugReport", () => {
       fix_suggestions: [
         {
           title: "加判空",
+          location: "X.java:142",
+          action: "在解引用前判空",
+          reason: "避免 NPE",
           diff_lines: [
             { sign: " ", text: "for(...)" },
             { sign: "-", text: "old" },
             { sign: "+", text: "new" },
           ],
         },
-        { title: "补单测（不应出现）" },
+        { title: "补单测（应渲染第二条）" },
       ],
     });
     const html = renderBugReport(report, "zentao");
@@ -94,7 +91,16 @@ describe("renderBugReport", () => {
     expect(html).not.toContain("框架");
     expect(html).not.toContain("源码参考");
     expect(html).not.toContain("不应展示");
-    expect(html).not.toContain("补单测（不应出现）");
+    // 全部修复建议都渲染（含第二条）
+    expect(html).toContain("加判空");
+    expect(html).toContain("补单测（应渲染第二条）");
+    // 修复建议补齐 location/action/reason
+    expect(html).toContain("X.java:142");
+    expect(html).toContain("在解引用前判空");
+    expect(html).toContain("避免 NPE");
+    // 根因分析渲染 analysis/evidence 文本
+    expect(html).toContain("字段 ctx 未判空导致 NPE");
+    expect(html).toContain("X.run 第 142 行直接解引用 ctx");
     expect(html).toContain("background:#14321f");
     expect(html).toContain("background:#3f1d1d");
     expect(html).toContain("background:#7f1d1d");

@@ -6,8 +6,6 @@ import { repoRoot } from "./paths.ts";
 import type { Severity } from "./scan-report-types.ts";
 
 const VARIANT_TEMPLATE: Record<BugVariant, string> = {
-  simple: "bug-report.html.hbs",
-  full: "bug-report-full.html.hbs",
   zentao: "bug-report-zentao.html.hbs",
 };
 const CONFLICT_TEMPLATE = "conflict-report.html.hbs";
@@ -62,7 +60,7 @@ function getTemplate(file: string): HandlebarsTemplateDelegate {
 }
 
 /** Render a BugReport to HTML using the specified variant template. */
-export function renderBugReport(report: BugReport, variant: BugVariant = "full"): string {
+export function renderBugReport(report: BugReport, variant: BugVariant = "zentao"): string {
   const severityClass = SEVERITY_CLASS[report.severity] ?? "normal";
   return getTemplate(VARIANT_TEMPLATE[variant])({ ...report, severityClass });
 }

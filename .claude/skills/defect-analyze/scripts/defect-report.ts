@@ -63,11 +63,11 @@ export const program = createCli({
       description: "Render a bug-mode HTML report from a BugReport JSON",
       options: [
         { flag: "--json <path>", description: "path to BugReport JSON", required: true },
-        { flag: "--variant <v>", description: "simple | full | zentao (default full)" },
+        { flag: "--variant <v>", description: "zentao (default; only supported variant)" },
         ...outOptions,
       ],
       action: (opts: OutOpts & { json: string; variant?: string }) => {
-        const variant = (opts.variant ?? "full") as BugVariant;
+        const variant = (opts.variant ?? "zentao") as BugVariant;
         if (!BUG_VARIANTS.includes(variant)) {
           fail(
             1,

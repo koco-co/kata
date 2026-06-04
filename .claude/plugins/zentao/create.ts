@@ -182,7 +182,12 @@ async function run(opts: { json: string; config: string; dryRun: boolean }): Pro
   let payload: Record<string, string>;
   try {
     config = loadZentaoConfig(opts.config);
-    steps = renderBugReport(report, "zentao");
+    // 推送禅道时一个 bug 只承载首条主修复建议（额外问题另开 bug）；
+    // 渲染前裁到首条，避免把多条建议塞进同一个 bug 正文。
+    const pushReport = report.fix_suggestions?.length
+      ? { ...report, fix_suggestions: report.fix_suggestions.slice(0, 1) }
+      : report;
+    steps = renderBugReport(pushReport, "zentao");
     payload = buildCreatePayload(report, config, steps);
   } catch (e) {
     emit({ ok: false, error: `配置加载/正文渲染失败：${(e as Error).message}` });

@@ -10,8 +10,8 @@ import type { Severity } from "./scan-report-types.ts";
 
 export const BUG_REPORT_SCHEMA_VERSION = "1.0" as const;
 
-export type BugVariant = "simple" | "full" | "zentao";
-export const BUG_VARIANTS: readonly BugVariant[] = ["simple", "full", "zentao"];
+export type BugVariant = "zentao";
+export const BUG_VARIANTS: readonly BugVariant[] = ["zentao"];
 
 export interface StackFrame {
   class?: string;

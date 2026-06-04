@@ -21,7 +21,7 @@ describe("defect-report render-bug CLI", () => {
       "--json",
       jsonPath,
       "--variant",
-      "full",
+      "zentao",
       "--out",
       outPath,
     ]);
@@ -30,7 +30,8 @@ describe("defect-report render-bug CLI", () => {
     expect(code).toBe(0);
     expect(existsSync(outPath)).toBe(true);
     const html = readFileSync(outPath, "utf8");
-    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("<table");
+    expect(html).not.toContain("<!DOCTYPE html>");
     expect(html).not.toContain("{{");
   });
 
