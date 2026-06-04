@@ -41,8 +41,13 @@ const consoleErrors = [];
 page.on("console", (msg) => { if (msg.type() === "error") consoleErrors.push(msg.text()); });
 page.on("requestfailed", (req) => { consoleErrors.push(`FAILED ${req.method()} ${req.url()} — ${req.failure()?.errorText}`); });
 
-// Dialog 防卡；DOM 证据采集（表头 + 按钮）
+// Dialog 防卡
 page.on("dialog", (d) => d.dismiss());
+
+// 主采集：一次 ariaSnapshot 拿整棵 role+name 语义树（按钮/表格列/菜单/表单/标题），比分散 DOM 采集省 token
+const tree = await page.locator("main, .ant-layout-content").ariaSnapshot();
+
+// a11y 缺口兜底：icon-only 按钮无 name、Form.Item label 未关联控件时，回退 DOM 取文本
 const headers = await page.locator(".ant-table-thead th").evaluateAll((els) => els.map((e) => e.textContent?.trim()));
 const buttons = await page.locator("button").evaluateAll((els) => els.map((e) => e.textContent?.trim()));
 ```
@@ -52,7 +57,7 @@ const buttons = await page.locator("button").evaluateAll((els) => els.map((e) =>
 snapshot 未暴露 `id`/`class`/`data-*`/计算样式时，用 `evaluate` 直接读 DOM：
 
 ```javascript
-// data-testid（选 locator 首选）
+// data-testid（a11y 树拿不到，用 DOM 兜底取）
 const testId = await page
   .locator('[aria-label="提交"]')
   .evaluate((el) => el.getAttribute("data-testid"));
@@ -76,16 +81,16 @@ const testIds = await page
   .evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")));
 ```
 
-**定位点优先级**：`data-testid` > `aria-label` > `getByRole` > CSS class（避免动态 hash class）。
+**定位点优先级**：`getByRole`(role+name) > `getByLabel`/`getByPlaceholder` > `getByText` > `getByTestId` > CSS class（避免动态 hash class）。
 
 ## Locator 与强断言（§6 playwright-generate 用）
 
 ```typescript
-// 优先语义 locator（比 CSS 稳定）
+// 优先语义 locator（比 CSS 稳定）；完整顺序见上文「定位点优先级」
 page.getByRole("button", { name: "提交" });
-page.getByTestId("submit-button");
 page.getByLabel("用户名");
-page.locator('[data-testid="rule-name"]');
+page.getByText("启用");
+page.getByTestId("submit-button"); // role/text 歧义或不稳时的兜底钩子
 
 // 在 ui-probe 阶段捕获期望值（用于写断言）
 const text = await page.locator('[data-testid="status"]').textContent(); // → toHaveText

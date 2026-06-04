@@ -69,7 +69,7 @@
 - 把业务流程用例简化成「看菜单/字段/元素在不在」的表层测试。
 - 用表面通过敷衍不可实现的用例。
 
-> 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 这类强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole/getByTestId/getByLabel`。**不得用 `page.route` mock 被测业务接口的返回来换断言通过。** 凡是 `@playwright/cli` codegen 出来的 locator 或代码片段，落 spec 前都要对照 ui-probe 证据重新验证，并改写成项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，不是能直接交付的 spec。
+> 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 这类强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole`>`getByLabel`/`getByPlaceholder`>`getByText`>`getByTestId`。**不得用 `page.route` mock 被测业务接口的返回来换断言通过。** 凡是 `@playwright/cli` codegen 出来的 locator 或代码片段，落 spec 前都要对照 ui-probe 证据重新验证，并改写成项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，不是能直接交付的 spec。
 
 ## 生成与调试协议
 
