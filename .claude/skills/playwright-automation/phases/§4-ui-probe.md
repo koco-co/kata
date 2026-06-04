@@ -37,7 +37,7 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 按以下顺序逐项采集，每项注明 SourceRef：
 
 > 辅助工具（见 `references/cli-essentials.md`）：
-> - snapshot 没暴露的 id/class/data-* 属性，用 `locator.evaluate(el => el.getAttribute(...))` 取。
+> - a11y 树没暴露的 id/class/data-* 属性，用 `locator.evaluate(el => el.getAttribute(...))` 取。
 > - 用 `page.on('console')` / `page.on('requestfailed')` 顺手收集 JS 错误和失败请求，当诊断证据。
 > - 注册 `page.on('dialog', d => d.dismiss())`，防原生 dialog 卡死探测流程。
 > - 证据不够时，先截图再用 AskUserQuestion 一次问清，不要一轮轮发文字追问。
@@ -49,12 +49,10 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 | 证据类型 | 采集方法 | 用途 |
 |----------|----------|------|
 | **URL 和标题** | `page.url()` + `page.title()` | 确认路由正确 |
-| **body 文本** | `page.locator("body").innerText()` 截取前 1200 字 | 确认页面内容基座 |
-| **表格表头** | `.ant-table-thead th` 的 `evaluateAll` | 验证列结构 |
-| **按钮列表** | `page.locator("button")` 的 `evaluateAll` | 验证操作入口 |
-| **筛选组件** | `.ant-table-filter-trigger` 点击后读下拉内容 | 验证筛选项 |
-| **菜单侧栏** | 侧边栏 `.ant-menu-item` 的文本列表 | 验证导航结构 |
-| **表单字段** | `.ant-form-item` 的 `evaluateAll` | 验证表单结构 |
+| **结构语义树**（主采集） | `page.locator("main, .ant-layout-content").ariaSnapshot()` 一次拿 role+name 树 | 一次覆盖按钮/表格列/菜单/表单控件/标题，密度高、省 token |
+| **定位属性兜底** | a11y 树拿不到的 `data-testid`/`id`/`class`，用 `locator.evaluate(el => ...)` 取 | 补 locator 首选 `data-testid` 与动态 class 辨识 |
+| **筛选组件** | `.ant-table-filter-trigger` 点击后对下拉做 `ariaSnapshot()` | 验证筛选项（交互后再快照） |
+| **a11y 缺口兜底** | icon-only 按钮无 name、`Form.Item` label 未关联控件时，回退 `.ant-table-thead th` / `button` / `.ant-form-item` 的 `evaluateAll` 取文本 | 补 ariaSnapshot 漏掉的元素 |
 
 ### 第三步：采集 API 证据
 
@@ -84,7 +82,7 @@ page.on('response', async (res) => {
 
 ### 第五步：记录知识
 
-1. 把发现的 DOM 结构写入 `sites/{domain}/dom-dataAssets.md`：
+1. 把发现的页面结构写入 `sites/{domain}/dom-dataAssets.md`：
    ```markdown
    - 页面路由为 `#/xxx`，正文包含 `xxx`。SourceRef: `SR-UI-PROBE-{nnn}`。
    - 表格表头顺序为 `列1`、`列2`...。SourceRef: `SR-UI-PROBE-{nnn}`。
@@ -119,7 +117,7 @@ page.on('response', async (res) => {
 写入 `UiProbeSnapshot@1` schema，包含：
 - SourceRef（建议格式：`SR-UI-PROBE-{YYYY-MM}-{FEATURE_KEY}-{ENV}`）
 - URL 和页面标题
-- DOM 证据（表头、按钮、菜单、筛选、表单）
+- 结构语义树证据（role+name：按钮、表格列、菜单、表单）+ 兜底 DOM 属性（data-testid/id/class）
 - API 证据（URL 列表、状态码）
 - 截图路径
 - 项目 API 调用结果
@@ -130,7 +128,7 @@ page.on('response', async (res) => {
 - 不得弱化断言来换取通过。
 - 不得修改 `workspace/{project}/.kata/repos/**`。
 - 探测页面等待时，不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")`；探测脚本可以用 networkidle，但**不得把这种写法搬进交付 spec**。
-- 不得拿 Screenshot 证据替代 DOM 文本证据（截图只做视觉辅助，断言要靠 DOM 文本）。
+- 不得拿 Screenshot 证据替代 a11y 树/DOM 文本证据（截图只做视觉辅助，断言要靠 a11y 树或 DOM 文本）。
 - 不得在探查阶段改目标页面的数据（创建、编辑、删除操作）。
 - 不得靠读历史 feature 测试或截图来补当前 ui-probe 证据的不足。
 - 不得不管预算地一个接一个写 `probeN.mjs` 探测脚本。
