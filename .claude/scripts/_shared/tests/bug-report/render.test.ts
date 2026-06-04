@@ -22,7 +22,7 @@ describe("renderBugReport", () => {
     expect(html).not.toContain("{{");
   });
 
-  test("zentao variant: new layout, drops framework/java_version/source_ref, renders all suggestions, analysis/evidence, diff", () => {
+  test("zentao variant: new layout, drops framework/java_version/source_ref, single suggestion with full fields, analysis/evidence, diff", () => {
     const report = validateBugReport({
       title: "示例 NPE",
       summary: "字段为空触发 NPE",
@@ -72,7 +72,7 @@ describe("renderBugReport", () => {
             { sign: "+", text: "new" },
           ],
         },
-        { title: "补单测（应渲染第二条）" },
+        { title: "补单测（属于新 bug，不应出现）" },
       ],
     });
     const html = renderBugReport(report, "zentao");
@@ -91,9 +91,9 @@ describe("renderBugReport", () => {
     expect(html).not.toContain("框架");
     expect(html).not.toContain("源码参考");
     expect(html).not.toContain("不应展示");
-    // 全部修复建议都渲染（含第二条）
+    // 只渲染首条主修复建议；其它相关问题属于新 bug，不展示
     expect(html).toContain("加判空");
-    expect(html).toContain("补单测（应渲染第二条）");
+    expect(html).not.toContain("补单测（属于新 bug，不应出现）");
     // 修复建议补齐 location/action/reason
     expect(html).toContain("X.java:142");
     expect(html).toContain("在解引用前判空");
