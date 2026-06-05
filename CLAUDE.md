@@ -19,6 +19,7 @@
 - 只发需求功能**目录**路径或目录名（如 `features/【v...】...`，不带文件扩展名）→ 转发给 `playwright-automation`，做用例转自动化。
 - 用户给出 XMind/CSV/Archive MD 用例产物**文件**路径（`.xmind`/`.csv`/`archive.md`），或要求编辑、同步、标准化已有用例 → 转发给 `case-edit`。
 - 用户要求记录、查询、维护项目业务知识、规则、术语，或问「XX 是什么」（项目特定业务概念）→ 自动触发 `knowledge-curate`。
+- 用户给出 monitorId（或落标任务 id）+ 规则 SQL 合并预期，要求校验生成 SQL 合并是否正确 → 转发给 `sql-merge-validate`。
 - `/playwright-automation` 缺环境参数时，先按 skill 内置的环境确认协议处理，再开始发现、预检或浏览器操作。
 
 ### 多技能匹配优先级
@@ -45,6 +46,7 @@
 | /playwright-automation | playwright-automation | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。            |
 | /defect-analyze        | defect-analyze        | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。               |
 | /infra-diagnose        | infra-diagnose        | SSH 登录服务器排查并修复数据源与服务器连通性故障，记录凭据与排查知识。 |
+| /sql-merge-validate    | sql-merge-validate    | 校验质量/落标任务规则包生成 SQL 的合并正确性，逐包给 PASS/FAIL。        |
 
 ## 构建与测试
 
