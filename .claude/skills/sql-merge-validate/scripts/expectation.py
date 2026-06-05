@@ -2,7 +2,9 @@
 import json
 
 def normalize_filter(filt):
-    if not filt:
+    # filter 的数据契约是 JSON 字符串或空串/None（db_metadata 用 COALESCE 保证为字符串）；
+    # 显式判空避免把 0/[]/{} 这类假值也误归为「无 filter」。
+    if filt is None or filt == "":
         return ""
     try:
         return json.dumps(json.loads(filt), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
@@ -29,5 +31,6 @@ def compute_expected(rules):
                 merge_groups.append(sorted(rids))
             else:
                 standalone.extend(rids)  # 桶内独一份退回不合并
+        merge_groups.sort()  # 多桶时按组排序，保证输出确定性（下游 comparator 要做等值比对）
         out[pid] = {"mergeGroups": merge_groups, "standalone": sorted(standalone)}
     return out
