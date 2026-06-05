@@ -96,11 +96,7 @@ def _extract_union_segments(sql_text, merged_rule_ids):
             continue
         seen_rids.add(rid)
 
-        # 找这个 rule_id 出现处附近的 FROM 表
-        # 向前搜索最近的 FROM `schema`.`table`
-        head = sql_text[:m.start()]
-        from_m = re.search(r'from\s+`[^`]+`\.`([^`]+)`\s*(?:where|$)', head[::-1], re.I | re.S)
-        # 反向搜索不好做，改用正向：在该 rid 周围取片段找 FROM
+        # 找这个 rule_id 出现处附近的 FROM 表：在该 rid 前后取片段正向搜 FROM
         ctx_start = max(0, m.start() - 500)
         ctx = sql_text[ctx_start: m.end() + 200]
         from_tables = re.findall(r'FROM\s+`[^`]+`\.`([^`]+)`', ctx, re.I)
