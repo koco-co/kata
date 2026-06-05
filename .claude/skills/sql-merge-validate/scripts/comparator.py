@@ -83,6 +83,8 @@ def compare(meta, facts_by_pkg, mode, task_id):
                 evidence.append({"check": "sampling", "expected": "rand 抽样时块扫抽样表",
                                  "actual": "块未扫抽样表或缺抽样表"})
         elif facts.get("sampleBaseTable"):
+            # 有抽样表但无「rand 合并块」（含 hasRand=True 却无合并块的纯 union 包）：
+            # 段级 rand 细节是独立信号、交模型语义复核，这里只确认抽样表结构存在即记 PASS（非分支顺序笔误）。
             checks["sampling"] = "PASS"
         else:
             checks["sampling"] = "NA"
