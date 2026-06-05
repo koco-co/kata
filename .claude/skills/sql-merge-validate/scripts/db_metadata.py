@@ -17,6 +17,7 @@ def fetch_dq(conn, monitor_id, package_ids):
         (monitor_id,),
     )
     pid_set = set(int(p) for p in package_ids) if package_ids else None
+    # 注：column 与 isPercentage 为透传字段——自动 7 维检查不用，留给模型/KB 语义复核（如占比 val/expansion）。
     rules = []
     for rid, fn, strength, col, filt, mk, pct, pid in cur.fetchall():
         if pid_set is not None and pid not in pid_set:

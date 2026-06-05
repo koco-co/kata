@@ -64,7 +64,8 @@ then 1 else 0 end) as cnt_id_1
 ]
 ```
 
-期望分组从 `checkItems` 的 `checkItemType` 推导（类型在白名单内 → 可合并）。
+期望分组从 `checkItems` 的 `checkItemName`（中文校验项名）推导，名称在白名单内 → 可合并；
+`std_expectation.py` 即按 `checkItemName` 匹配 `STD_MERGEABLE`，`checkItemType` 数值仅作辅助参考。
 
 ## 4. 合并 SQL 存储
 

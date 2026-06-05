@@ -13,12 +13,6 @@ NO_DIRTY_FUNCTIONS: set[int] = {1, 12, 20, 21}
 PERCENTAGE_FUNCTIONS: set[int] = {4, 6, 13, 14, 15, 49}
 
 
-def load_json(path: str) -> object:
-    """从文件路径读取 JSON，返回解析对象。"""
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
-
-
 def dump_json(obj: object) -> None:
     """将对象序列化为 JSON 并写入 stdout（带换行）。"""
     json.dump(obj, sys.stdout, ensure_ascii=False, indent=2)
@@ -37,10 +31,5 @@ def connect_db(host: str, port: int | str, user: str, password: str, database: s
         connect_timeout=8,
         charset="utf8mb4",
     )
-
-
-def is_mergeable(function_id: int) -> bool:
-    """判断 function_id 是否在文档白名单内（文档权威，fn26 分歧需单独处理）。"""
-    return function_id in DOC_WHITELIST
 
 
