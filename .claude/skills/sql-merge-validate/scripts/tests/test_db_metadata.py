@@ -11,7 +11,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from common import connect_db
-from db_metadata import fetch_dq
+from db_metadata import fetch_dq, fetch_std
 
 _HOST = os.environ.get("KATA_DB_HOST", "172.16.124.100")
 _PORT = os.environ.get("KATA_DB_PORT", "30882")
@@ -32,6 +32,12 @@ except Exception as e:
 # ─── 断言 ───
 
 result = fetch_dq(_conn, "4471", ["4622", "4623", "4624"])
+
+# fetch_std 结构性冒烟：落标表当前为空，仅验证查询合法、返回 shape 正确，
+# 不做端到端断言（std 端到端在本环境无数据可验，见设计文档诚实声明）。
+std_result = fetch_std(_conn, 999999)
+assert isinstance(std_result.get("packages"), list), "fetch_std must return {'packages': list}"
+
 _conn.close()
 
 rules = result["rules"]
