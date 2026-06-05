@@ -47,6 +47,21 @@ def test_run_dq_wires_fetch_meta_extract_compare():
     # fn26 背离 finding
     assert any(f["type"] == "whitelist_divergence" and f["functionId"] == 26 for f in v["globalFindings"])
 
+def test_run_std_computes_std_expected():
+    pkgs = [{"packageId": 1, "packageName": "s1", "sql": "select 1",
+             "checkColumns": '[{"columnName":"vin","checkItems":[{"name":"数据长度"},{"name":"是否重复"}]}]'}]
+    orig = run.fetch_std
+    run.fetch_std = lambda conn, task_id: {"packages": pkgs}
+    try:
+        a = types.SimpleNamespace(task_id="1")
+        v = run.run_std(a, conn=None)
+    finally:
+        run.fetch_std = orig
+    assert v["mode"] == "std"
+    assert "note" in v
+    assert v["stdExpected"][1] == {"mergeItems": 1, "standalone": 1}
+
 if __name__ == "__main__":
     test_run_dq_wires_fetch_meta_extract_compare()
+    test_run_std_computes_std_expected()
     print("OK test_run")

@@ -20,6 +20,11 @@ def run_std(a, conn):
     # std 无 merge_group_key；期望分组从 check_columns 推导（见 Task 8），当前最小：仅结构事实
     v = compare({"rules": [], "functions": {}}, facts, mode="std", task_id=str(a.task_id))
     v["note"] = "std 模式：当前环境无落标数据，仅结构校验，未端到端验证"
+    from std_expectation import parse_check_columns, compute_std_expected
+    std_exp = {p["packageId"]: compute_std_expected(parse_check_columns(p.get("checkColumns", "")))
+               for p in pkgs}
+    v["stdExpected"] = {pid: {"mergeItems": len(e["mergeItems"]), "standalone": len(e["standalone"])}
+                        for pid, e in std_exp.items()}
     return v
 
 if __name__ == "__main__":
