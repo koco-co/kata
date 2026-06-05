@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, types
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import run
 
@@ -6,9 +6,6 @@ HERE = os.path.dirname(__file__)
 def sql(name): return open(os.path.join(HERE, "fixtures", name), encoding="utf-8").read()
 
 F = '{"conditionType":1,"conditions":[{"columnName":"id","operator":8,"threshold":"100"}]}'
-
-class Args:
-    pass
 
 def test_run_dq_wires_fetch_meta_extract_compare():
     pkgs = [
@@ -29,8 +26,7 @@ def test_run_dq_wires_fetch_meta_extract_compare():
     run.http_fetch.fetch = lambda base, cookie, project_id, monitor_id: {"packages": pkgs}
     run.fetch_dq_meta = lambda conn, task_id, pids: meta
     try:
-        a = Args()
-        a.base, a.cookie, a.project_id, a.task_id = "x", "c", "92", "4471"
+        a = types.SimpleNamespace(base="x", cookie="c", project_id="92", task_id="4471")
         v = run.run_dq(a, conn=None)
     finally:
         run.http_fetch.fetch = orig_http

@@ -32,5 +32,8 @@ if __name__ == "__main__":
     ap.add_argument("--project-id", default="")
     a = ap.parse_args()
     conn = connect_db(a.host, a.port, a.user, a.password)
-    out = run_dq(a, conn) if a.mode == "dq" else run_std(a, conn)
-    conn.close(); dump_json(out)
+    try:
+        out = run_dq(a, conn) if a.mode == "dq" else run_std(a, conn)
+    finally:
+        conn.close()  # 异常路径也释放连接
+    dump_json(out)
