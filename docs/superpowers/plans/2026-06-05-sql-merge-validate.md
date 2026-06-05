@@ -522,6 +522,13 @@ git commit -m "feat: 🧩 add expected merge grouping by strength+filter (column
 
 ### Task 5: comparator.py（三方比对 → 7 维 verdict）
 
+> **修正（用户选项 A，最终实现以 `scripts/comparator.py` 为准）**：①② 的分组真值改用 DB
+> `merge_group_key`（非空且组内≥2=应合并；空 key=应独立），**不再用文档白名单 `compute_expected`
+> 驱动 ①②**。fn26 这类「key 非空被合并」的规则：① 整组进块判 PASS，②（本包若无空 key 规则）判
+> NA，**不误判 ②FAIL**；白名单分歧只走 globalFindings。③ 抽样：「扫抽样表」与「脏数据 rand()」是
+> 独立信号，不可合并包（如 4624）扫抽样表但无 rand，记 PASS 不判 FAIL。下方初版代码块保留作演进
+> 记录，真值见最终代码与 test_comparator.py 的 4 个用例（含 4622 fn26、4624 两个真实场景）。
+
 **Files:**
 - Create: `.claude/skills/sql-merge-validate/scripts/comparator.py`
 - Test: `.claude/skills/sql-merge-validate/scripts/tests/test_comparator.py`
