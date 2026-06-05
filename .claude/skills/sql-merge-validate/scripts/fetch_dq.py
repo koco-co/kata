@@ -15,10 +15,12 @@ def _post(base, path, cookie, project_id, body):
 def fetch(base, cookie, project_id, monitor_id):
     pl = _post(base, "/dassets/v1/valid/monitor/packagelist", cookie, project_id, {"monitorId": str(monitor_id)})
     if not pl.get("success"):
-        raise SystemExit("packagelist 失败（cookie 失效？）: %s" % pl.get("message"))
+        raise SystemExit("packagelist 失败（cookie 失效？）: %s" % (pl.get("message") or "(no message)"))
     packages = []
     for p in pl["data"]:
         ps = _post(base, "/dassets/v1/valid/monitor/packagesql", cookie, project_id, {"packageId": str(p["packageId"])})
+        # packagesql 失败时保留空 sql，让下游 comparator 自行判定（packagelist 已成功即 cookie 有效，
+        # 此处不再二次报错，保留部分结果比中断整批更有用）
         packages.append({"packageId": int(p["packageId"]), "packageName": p.get("packageName", ""),
                          "sql": ps.get("data", "")})
     return {"mode": "dq", "taskId": str(monitor_id), "packages": packages}

@@ -4,13 +4,10 @@ import fetch_dq
 
 def _make_post_stub(packagelist_resp, packagesql_resp):
     """返回一个替换 fetch_dq._post 的桩函数。"""
-    calls = []
     def stub(base, path, cookie, project_id, body):
-        calls.append(path)
         if "packagelist" in path:
             return packagelist_resp
         return packagesql_resp
-    stub.calls = calls
     return stub
 
 def test_happy_path():
