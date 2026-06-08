@@ -147,3 +147,14 @@ fn26(length_str) 实测在 monitor 4471 中 `merge_group_key` 非空（被合并
 - common.py 中 `DOC_WHITELIST` 已补入 fn26（`{...,25,26,30,49}`）。
 - 校验脚本不再对 fn26 的 `merge_group_key` 非空抛 whitelist_divergence finding。
 - 实测分组：money(强规则,s2) 进强组、address(弱规则,s1) 进弱组，按强弱正确拆包。
+
+### 自定义 SQL 规则（is_custom=1）
+
+部分规则不走预定义统计函数，而是用户直接写校验 SQL（如 monitor 4471 rid13027、
+4502 rid13144）。识别与判定：
+
+- DB 特征：`is_custom=1`，`function_id`/`column_name` 为 **NULL**（属预期，非缺数据），
+  SQL 存 `customize_sql`/`select_data_sql`，配合 `operator`+`threshold` 比阈值。
+- `merge_group_key` 恒空 → 自定义 SQL 无法与标准函数合并，**正确按独立 union 段处理**（② 检查照常适用）。
+- `db_metadata.py` 取 `is_custom`/`customize_sql`，`comparator.py` 在 verdict 输出
+  `customRules`（ruleId/packageId/sql）显式列出，避免 `fn=NULL` 被误判为异常数据。
