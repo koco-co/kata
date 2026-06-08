@@ -1,7 +1,0 @@
-{
-  "bug_id": 1,
-  "title": null,
-  "fix_branch": null,
-  "error": "禅道返回了无法解析的响应",
-  "partial": true
-}
