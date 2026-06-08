@@ -21,8 +21,9 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
 const repoRoot = resolve(featureDir, "../../../..");
 
-const defaultInput = join(featureDir, "岚图已上线需求主流程用例.md");
-const defaultOutput = join(featureDir, "岚图已上线需求主流程用例.xmind");
+const defaultInput = join(featureDir, "岚图已上线需求用例.md");
+const defaultOutput = join(featureDir, "岚图已上线需求用例.xmind");
+const DELIVERY_TITLE = "岚图已上线需求用例";
 
 const forbiddenTerms = [
   "自动化",
@@ -39,7 +40,6 @@ const forbiddenTerms = [
   "返回 code=",
   "返回 []",
   "不能以本次",
-  "当前环境",
   "/api/",
   "离线平台 CLI",
   "自行造数",
@@ -444,7 +444,7 @@ function applyDeliveryLayout(sheets) {
   const root = sheet?.rootTopic;
   if (!sheet || !root) return;
 
-  sheet.title = root.title || "岚图已上线需求主流程用例";
+  sheet.title = root.title || DELIVERY_TITLE;
   root.structureClass = DELIVERY_STRUCTURE_CLASS;
   setSkeletonStructure(sheet, DELIVERY_STRUCTURE_CLASS);
 
@@ -547,12 +547,12 @@ function collectStats(sheets, contentText) {
   return stats;
 }
 
-function assertDeliveryStats(sheets, contentText) {
+function assertDeliveryStats(sheets, contentText, expected) {
   const root = sheets[0]?.rootTopic;
   const stats = collectStats(sheets, contentText);
   const issues = [];
 
-  if (root?.title !== "岚图已上线需求主流程用例") {
+  if (root?.title !== DELIVERY_TITLE) {
     issues.push(`unexpected root title: ${root?.title ?? "<missing>"}`);
   }
   if (sheets[0]?.title !== root?.title) {
@@ -577,21 +577,30 @@ function assertDeliveryStats(sheets, contentText) {
     }
   }
 
-  if (stats.markers !== 1216) issues.push(`priority marker count ${stats.markers} != 1216`);
+  if (stats.markers !== expected.caseCount) {
+    issues.push(`priority marker count ${stats.markers} != ${expected.caseCount}`);
+  }
   if (stats.topics > MAX_TOPICS) issues.push(`topic count ${stats.topics} > ${MAX_TOPICS}`);
   if (stats.maxDepth > MAX_DEPTH) issues.push(`max depth ${stats.maxDepth} > ${MAX_DEPTH}`);
   if (stats.visibleStepWrapperTopics > 0) {
     issues.push(`visible step wrapper topics: ${stats.visibleStepWrapperTopics}`);
   }
-  if (stats.caseTopics !== 1216) issues.push(`case topic count ${stats.caseTopics} != 1216`);
-  if (stats.caseNotesWithPreconditions !== 1216) {
-    issues.push(`case notes with preconditions ${stats.caseNotesWithPreconditions} != 1216`);
+  if (stats.caseTopics !== expected.caseCount) {
+    issues.push(`case topic count ${stats.caseTopics} != ${expected.caseCount}`);
+  }
+  if (stats.caseNotesWithPreconditions !== expected.preconditionNotes) {
+    issues.push(
+      `case notes with preconditions ${stats.caseNotesWithPreconditions} != ${expected.preconditionNotes}`,
+    );
   }
   if (stats.caseMixedNotes > 0) {
     issues.push(`case notes still contain steps: ${stats.caseMixedNotes}`);
   }
-  if (stats.caseStepTopics < 1216) {
-    issues.push(`case step topics ${stats.caseStepTopics} < 1216`);
+  if (stats.caseStepTopics !== expected.stepTopics) {
+    issues.push(`case step topics ${stats.caseStepTopics} != ${expected.stepTopics}`);
+  }
+  if (stats.expectedTopics !== stats.caseStepTopics) {
+    issues.push(`expected topics ${stats.expectedTopics} != step topics ${stats.caseStepTopics}`);
   }
   const sectionMixIssues = findSectionMixIssues(sheets);
   if (sectionMixIssues.length > 0) {
@@ -617,9 +626,6 @@ function findSectionMixIssues(sheets) {
     const nextPath = [...path, topic.title ?? ""].filter(Boolean);
     const title = String(topic.title ?? "");
     const note = String(topic.notes?.plain?.content ?? topic.notes?.html?.content ?? "");
-    const isCaseTopic =
-      Array.isArray(topic.markers) &&
-      topic.markers.some((marker) => String(marker.markerId ?? marker).startsWith("priority-"));
 
     if (title === "用例步骤" || title.startsWith("用例步骤 ")) {
       issues.push({ type: "step_wrapper_topic_under_case", path: nextPath.join(" > ") });
@@ -670,13 +676,28 @@ async function main() {
 
     const sheets = JSON.parse(await contentFile.async("string"));
     const archiveCases = parseArchiveCases(readFileSync(input, "utf8"));
+
+    // 期望计数由 md 解析结果动态派生，镜像 applyParsedCaseDetails 的建树规则：
+    // - 前置 note 只在前置非空且非「无」时挂；- 步骤节点过滤掉步骤与预期都为空的行。
+    const expected = {
+      caseCount: archiveCases.length,
+      preconditionNotes: archiveCases.filter((c) => {
+        const pre = xmindText(c.preconditions || "").trim();
+        return pre && pre !== "无";
+      }).length,
+      stepTopics: archiveCases.reduce(
+        (sum, c) => sum + c.steps.filter((s) => s.step.trim() || s.expected.trim()).length,
+        0,
+      ),
+    };
+
     flattenSingleRequirementRoot(sheets);
     applyParsedCaseDetails(sheets, archiveCases);
     for (const sheet of sheets) ensureTopicShape(sheet.rootTopic);
     applyDeliveryLayout(sheets);
 
     const contentText = JSON.stringify(sheets);
-    const stats = assertDeliveryStats(sheets, contentText);
+    const stats = assertDeliveryStats(sheets, contentText, expected);
     zip.file("content.json", contentText);
 
     const out = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });

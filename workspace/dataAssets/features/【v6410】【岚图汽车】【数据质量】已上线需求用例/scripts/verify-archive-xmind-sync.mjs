@@ -10,8 +10,8 @@ const MARKER_PRIORITY_MAP = Object.fromEntries(Object.entries(PRIORITY_MARKER_MA
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
-const defaultArchive = resolve(featureDir, "岚图已上线需求主流程用例.md");
-const defaultXmind = resolve(featureDir, "岚图已上线需求主流程用例.xmind");
+const defaultArchive = resolve(featureDir, "岚图已上线需求用例.md");
+const defaultXmind = resolve(featureDir, "岚图已上线需求用例.xmind");
 
 function argValue(flag, fallback) {
   const index = process.argv.indexOf(flag);
@@ -70,9 +70,11 @@ function parseArchive(markdown) {
 
   function flush() {
     if (!current) return;
+    // 「无」前置在交付 xmind 里不挂 note（等同空），与 build-delivery-xmind 语义对齐。
+    const pre = normalizeText(preconditions.join("\n"));
     cases.push({
       ...current,
-      preconditions: normalizeText(preconditions.join("\n")),
+      preconditions: pre === "无" ? "" : pre,
       steps,
     });
     current = null;
@@ -173,6 +175,8 @@ function textTopic(topic, fallback = "") {
   const full = (topic.children?.attached ?? []).find((child) => String(child.title ?? "") === "完整内容");
   if (full) return normalizeText(chunkText(full));
   const title = String(topic.title ?? "");
+  // 空步骤/空预期在交付 xmind 里渲染成占位标题「步骤 N」「预期 N」，等同 md 的空单元格。
+  if (/^(?:步骤|预期)\s+\d+$/.test(title.trim())) return "";
   const longMatch = title.match(/^.+?（内容较长，展开查看完整内容）\n([\s\S]*)$/);
   return normalizeText(longMatch ? longMatch[1].replace(/\.\.\.$/, "") : title || fallback);
 }
