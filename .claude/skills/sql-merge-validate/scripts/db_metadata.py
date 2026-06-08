@@ -11,7 +11,8 @@ def fetch_dq(conn, monitor_id, package_ids):
     cur = conn.cursor()
     cur.execute(
         """SELECT id, function_id, rule_strength, column_name, COALESCE(filter,''),
-        COALESCE(merge_group_key,''), is_percentage, package_id
+        COALESCE(merge_group_key,''), is_percentage, package_id,
+        COALESCE(is_custom,0), COALESCE(customize_sql,'')
         FROM assets_dq_monitor_rule
         WHERE monitor_id=%s AND (is_deleted=0 OR is_deleted IS NULL)""",
         (monitor_id,),
@@ -19,7 +20,7 @@ def fetch_dq(conn, monitor_id, package_ids):
     pid_set = set(int(p) for p in package_ids) if package_ids else None
     # 注：column 与 isPercentage 为透传字段——自动 7 维检查不用，留给模型/KB 语义复核（如占比 val/expansion）。
     rules = []
-    for rid, fn, strength, col, filt, mk, pct, pid in cur.fetchall():
+    for rid, fn, strength, col, filt, mk, pct, pid, is_custom, custom_sql in cur.fetchall():
         if pid_set is not None and pid not in pid_set:
             continue
         rules.append(
@@ -34,6 +35,10 @@ def fetch_dq(conn, monitor_id, package_ids):
                 "packageId": pid,
                 "haveDirty": 0 if fn in NO_DIRTY_FUNCTIONS else 1,
                 "mergeable": fn in DOC_WHITELIST,
+                # 自定义 SQL 规则：function_id/column 天然为 NULL，校验逻辑是跑 customize_sql 比阈值。
+                # merge_group_key 恒空 → 按独立段处理；isCustom 用于报告显式标识，避免误判为缺数据。
+                "isCustom": bool(is_custom),
+                "customSql": custom_sql,
             }
         )
     cur.execute("SELECT id, name_en, type, have_dirty FROM assets_dq_function")

@@ -142,5 +142,13 @@ def compare(meta, facts_by_pkg, mode, task_id):
         global_findings.append({"type": "whitelist_divergence", "functionId": fn,
                                 "note": "fn%d 被合并但不在文档白名单，需确认文档漏列 or 实现误合" % fn})
 
+    # 自定义 SQL 规则：function_id/column 为 NULL 属预期（非缺数据），显式列出供报告标识。
+    custom_rules = sorted(
+        ({"ruleId": r["ruleId"], "packageId": r["packageId"],
+          "sql": (r.get("customSql") or "").strip()}
+         for r in rules if r.get("isCustom")),
+        key=lambda x: x["ruleId"])
+
     return {"taskId": task_id, "mode": mode, "packageCount": len(pkg_ids),
-            "ruleCount": len(rules), "packages": packages, "globalFindings": global_findings}
+            "ruleCount": len(rules), "packages": packages,
+            "customRules": custom_rules, "globalFindings": global_findings}
