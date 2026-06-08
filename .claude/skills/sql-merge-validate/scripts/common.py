@@ -4,7 +4,9 @@ import sys
 
 # 文档白名单（技术方案 §5.2.1）：可合并 function_id 集合；权威来源为 assets_dq_function DB 表，
 # db_metadata.py 运行时查询覆盖此静态声明。
-DOC_WHITELIST: set[int] = {1, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 20, 21, 25, 30, 49}
+# fn26(length_str/字符串长度) 经 monitor 4471 实测 + 用户确认为可合并函数（与同族 fn16/fn17
+# 字符串长度类一致），技术方案 §5.2.1 原文漏列，已补入白名单。
+DOC_WHITELIST: set[int] = {1, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 20, 21, 25, 26, 30, 49}
 
 # have_dirty=0 的函数（进 SUM 块算 val，但不进脏数据 explode/脏表）
 NO_DIRTY_FUNCTIONS: set[int] = {1, 12, 20, 21}
