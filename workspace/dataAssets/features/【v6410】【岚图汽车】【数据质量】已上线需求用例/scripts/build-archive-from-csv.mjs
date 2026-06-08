@@ -102,11 +102,19 @@ function decodeEntities(text) {
     .replace(/&amp;/g, "&");
 }
 
+// 剥离禅道富文本里的表现性 HTML 标签，让 md 可读、并与交付 xmind 的 stripHtml 口径一致。
+// 先解码实体（把 &lt;span&gt; 这类也还原成 <span>），再按字面标签剥；块级/换行标签与行内 span/font 都转换行后归并。
 function clean(text) {
   return decodeEntities(text)
     .replace(/\r\n?/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/?(?:p|span|div|font)[^>]*>/gi, "\n")
     .replace(/[“”„‟]/g, '"')
-    .replace(/ /g, " ");
+    .replace(/ /g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n[ \t]+/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 // ─── 需求名提取 ───
