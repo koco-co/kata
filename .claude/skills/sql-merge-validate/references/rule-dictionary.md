@@ -11,7 +11,7 @@
 | 英文名 (name_en) | DB `assets_dq_function.name_en` |
 | type | 规则类型分类（见下方类型表） |
 | have_dirty | 是否生成脏数据（0=不生成，1=生成） |
-| 可合并 | 是否在文档白名单 `{1,3,4,5,6,11,12,13,14,15,16,17,20,21,25,30,49}` |
+| 可合并 | 是否在文档白名单 `{1,3,4,5,6,11,12,13,14,15,16,17,20,21,25,26,30,49}` |
 | 占比(is_pct) | val = 命中/总数；expansion = "命中/总数" 字符串 |
 | 模板SQL要点 | 来自技术方案 §7 模板SQL列 |
 
@@ -66,7 +66,7 @@
 | 23 | 格式-手机号 | phoneNumber | 3 | 1 | 否 | 否 | 正则模板，不可合并 |
 | 24 | 格式-邮箱 | email | 3 | 1 | 否 | 否 | 正则模板，不可合并 |
 | 25 | 数值-取值范围 | value_range | 3 | 1 | **是** | 否 | `SELECT count(1) AS val FROM ${table} WHERE ${range} ${filter}` |
-| 26 | 字符串长度 | length_str | 3 | 1 | **[分歧]** | 否 | `select CONCAT(MIN(charLen),'/',MAX(charLen)) as expansion, SUM(IF(charLen ${logic} ${expectation}, 1, 0)) as val from (select length(${col}) as charLen ...)` |
+| 26 | 字符串长度 | length_str | 3 | 1 | **是** | 否 | `select CONCAT(MIN(charLen),'/',MAX(charLen)) as expansion, SUM(IF(charLen ${logic} ${expectation}, 1, 0)) as val from (select length(${col}) as charLen ...)` |
 | 27 | 数据精度 | data_precision | 3 | 1 | 否 | 否 | 精度检查，不可合并 |
 | 28 | 空值数（字符串） | null_count | 3 | 1 | 否 | 否 | 与 fn3 同名异 ID，不在白名单 |
 | 29 | 重复数（字符串） | repeat_count | 3 | 1 | 否 | 否 | 分组类，不可合并 |
@@ -137,11 +137,13 @@ fn4/fn6/fn13/fn14/fn15/fn49：
 - `expansion` = `CONCAT(hit_cnt, '/', total_cnt)`
 - 合并 SQL 中对应 `merge_idx` 的 expansion 分支应输出占比字符串，而非固定 `'0'`
 
-### fn26 白名单分歧
+### fn26 已确认可合并
 
-fn26(length_str) 实测在 monitor 4471 中 `merge_group_key` 非空（被合并），但不在技术方案
-§5.2.1 的文档白名单 `{1,3,4,5,6,11,12,13,14,15,16,17,20,21,25,30,49}` 中。
+fn26(length_str) 实测在 monitor 4471 中 `merge_group_key` 非空（被合并）；经用户确认其
+属同族字符串长度类（与 max_len(16)、min_len(17) 同质），本就是可合并函数，技术方案
+§5.2.1 原文漏列。
 
-- common.py 中 `DOC_WHITELIST` 不含 fn26（遵循文档）
-- 校验时若发现 fn26 的 `merge_group_key` 非空，作为 **finding** 抛出，不静默通过
-- 需用户/开发确认：「文档漏列」还是「实现误合」
+- 结论：**文档漏列**，非实现误合。
+- common.py 中 `DOC_WHITELIST` 已补入 fn26（`{...,25,26,30,49}`）。
+- 校验脚本不再对 fn26 的 `merge_group_key` 非空抛 whitelist_divergence finding。
+- 实测分组：money(强规则,s2) 进强组、address(弱规则,s1) 进弱组，按强弱正确拆包。

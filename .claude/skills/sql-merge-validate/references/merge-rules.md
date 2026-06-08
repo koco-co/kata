@@ -23,23 +23,24 @@ filter 存 DB 为 JSON 结构（`{"conditionType":...}`），比较前需标准�
 
 ## 2. 可合并白名单
 
-### 文档白名单（技术方案 §5.2.1）
+### 文档白名单（技术方案 §5.2.1，含 fn26 实测补列）
 
 ```
-{1, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 20, 21, 25, 30, 49}
+{1, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 17, 20, 21, 25, 26, 30, 49}
 ```
 
 - 单字段类：null_count(3)、null_percent(4)、empty_count(5)、empty_percent(6)、
   enum_count(11)、value_range(25)、enum_value(30)、value_enum_range(49)
-- 简单聚合类：line_count(1)、max_len(16)、min_len(17)、avg(20)、sum(21)
+- 字符串长度类：max_len(16)、min_len(17)、length_str(26)
+- 简单聚合类：line_count(1)、avg(20)、sum(21)
 - 其他：distinct_count(12)
 
-### fn26 分歧（finding 级别）
+### fn26 已确认可合并
 
-**fn26(length_str)** 在实测中 `merge_group_key` 非空（被实际合并），但不在文档白名单。
-
-- 校验脚本发现 fn26 的 `merge_group_key` 非空时：**作为 finding 单列，不静默通过**。
-- 不预设结论（文档漏列 vs 实现误合），由用户/开发判定。
+**fn26(length_str/字符串长度)** 经 monitor 4471 实测 + 用户确认为可合并函数：其
+`merge_group_key` 非空（被实际合并），属同族字符串长度类（与 max_len(16)、min_len(17)
+同质），技术方案 §5.2.1 原文漏列，现已补入白名单。`DOC_WHITELIST` 同步含 26，校验脚本
+不再对 fn26 抛 whitelist_divergence finding。
 
 ### 不可合并类（恒不进白名单）
 
