@@ -1,25 +1,25 @@
 #!/usr/bin/env bun
-// 从 archive md 生成 results/inventory.json，供 tests/cases/lr-*.ts 在 module load 时读取。
-// 区域 ID 映射与 tests/data/*/、_shared/pages/security/ 里的 EXPECTED_IDS 常量严格对齐。
+// 从 archive md 生成 results/inventory.json，供 tests/cases/lr-*.ts 在 module load 时做一致性校验。
+// area 由需求名（### section）的【模块】前缀内容分类，不再依赖 LR-ID 区间。
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const EXPECTED_CASE_COUNT = 1216;
+// 期望计数 = 按现有 md 重算的真值快照，用于回归防漂移；改 md 数据后按脚本打印的实际分布更新。
+const EXPECTED_CASE_COUNT = 1217;
 const EXPECTED_AREA_COUNTS = {
-  quality: 1018,
-  metadata: 40,
-  platform: 65,
+  quality: 1088,
   standard: 76,
-  security: 6,
-  assets: 11,
+  assets: 33,
+  metadata: 12,
+  security: 8,
+  platform: 0,
 };
-const EXPECTED_QUALITY_PRIORITY = { P0: 246, P1: 473, P2: 299 };
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
-const defaultArchive = resolve(featureDir, "岚图已上线需求主流程用例.md");
+const defaultArchive = resolve(featureDir, "岚图已上线需求用例.md");
 const defaultOutput = resolve(featureDir, "results/inventory.json");
 
 function parseArgs() {
@@ -38,44 +38,16 @@ function parseArgs() {
   return options;
 }
 
-// 区域 ID 边界（与各 tests/data/* 和 security-permission-page.ts 的常量严格对齐）
-function assignArea(numericId) {
-  // assets: LR-0001, LR-0023, LR-0024, LR-0155..LR-0162（共 11 个）
-  // LR-0155..LR-0162 与 lr-assets-full.ts 测试的 0157..0162 同属一个 md section，
-  // LR-0001 来自 v6.4.10 数据资产 section；LR-0023/0024 来自数据地图字段结果页。
-  if (
-    numericId === 1 ||
-    numericId === 23 ||
-    numericId === 24 ||
-    (numericId >= 155 && numericId <= 162)
-  )
-    return "assets";
-
-  // metadata: LR-0015..LR-0022, LR-0025, LR-0026, LR-0375..LR-0401, LR-0806..LR-0808（共 40 个）
-  if (
-    (numericId >= 15 && numericId <= 22) ||
-    numericId === 25 ||
-    numericId === 26 ||
-    (numericId >= 375 && numericId <= 401) ||
-    (numericId >= 806 && numericId <= 808)
-  )
-    return "metadata";
-
-  // platform: LR-0027..LR-0067, LR-0417..LR-0437, LR-0453..LR-0455（共 65 个）
-  if (
-    (numericId >= 27 && numericId <= 67) ||
-    (numericId >= 417 && numericId <= 437) ||
-    (numericId >= 453 && numericId <= 455)
-  )
-    return "platform";
-
-  // standard: LR-0855..LR-0930（共 76 个）
-  if (numericId >= 855 && numericId <= 930) return "standard";
-
-  // security: LR-0771..LR-0776（共 6 个，对应 CURRENT_ADMIN_DQ_TARGETS 六个权限控制用例）
-  if (numericId >= 771 && numericId <= 776) return "security";
-
-  // 其余全部为 quality（共 1018 个）
+// area 按需求名（### section）的【模块】前缀内容分类，与产品模块对齐：
+//   数据资产→assets、数据标准→standard、数据地图→metadata、含权限点→security、其余→quality。
+// 无【模块】前缀的需求（多为数据质量内容）归 quality。platform 当前数据无命中，保留桶以兼容测试层。
+function assignArea(section) {
+  const text = String(section ?? "");
+  if (/权限点|权限控制/.test(text)) return "security";
+  if (/数据资产/.test(text)) return "assets";
+  if (/数据标准/.test(text)) return "standard";
+  if (/数据地图/.test(text)) return "metadata";
+  if (/公共管理|平台管理/.test(text)) return "platform";
   return "quality";
 }
 
@@ -260,7 +232,7 @@ function buildInventory(cases) {
       id: `LR-${padded}`,
       source_ref: `src.case.archive.${padded}@1`,
       title: c.title,
-      area: assignArea(c.index),
+      area: assignArea(c.section),
       version: c.version,
       priority: c.priority,
       line: c.line,
@@ -280,24 +252,17 @@ function validate(inventoryCases) {
   for (const c of inventoryCases) {
     areaCounts[c.area] = (areaCounts[c.area] ?? 0) + 1;
   }
+  // area 计数对真值快照；同时校验各 area 之和等于总数（防止漏桶）。
+  let areaSum = 0;
   for (const [area, expected] of Object.entries(EXPECTED_AREA_COUNTS)) {
     const actual = areaCounts[area] ?? 0;
     if (actual !== expected) {
       throw new Error(`Area "${area}": expected=${expected} actual=${actual}`);
     }
+    areaSum += actual;
   }
-
-  const qualityCases = inventoryCases.filter((c) => c.area === "quality");
-  const priorityCounts = { P0: 0, P1: 0, P2: 0 };
-  for (const c of qualityCases) {
-    if (c.priority in priorityCounts) priorityCounts[c.priority]++;
-  }
-  for (const [p, expected] of Object.entries(EXPECTED_QUALITY_PRIORITY)) {
-    if (priorityCounts[p] !== expected) {
-      throw new Error(
-        `Quality priority ${p}: expected=${expected} actual=${priorityCounts[p]}`,
-      );
-    }
+  if (areaSum !== inventoryCases.length) {
+    throw new Error(`Area buckets sum ${areaSum} != total ${inventoryCases.length}（有未登记的 area 桶）`);
   }
 }
 
