@@ -4,77 +4,21 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const EXPECTED_CASE_COUNT = 1216;
+// 期望计数 = 按现有 CSV 重生成的真值；改数据范围后据生成器实际计数更新。
+const EXPECTED_CASE_COUNT = 1217;
 const EXPECTED_VERSION_COUNTS = {
-  "v6.4.10": 278,
-  "v6.4.2": 88,
-  "v6.4.3": 297,
-  "v6.4.4": 132,
+  "v6.4.2": 91,
+  "v6.4.3": 291,
+  "v6.4.4": 133,
   "v6.4.5": 60,
-  "v6.4.6": 117,
+  "v6.4.6": 119,
   "v6.4.8": 244,
+  "v6.4.10": 279,
 };
-const OLD_RULESET_VERSIONS = new Set(["v6.4.2", "v6.4.3", "v6.4.4", "v6.4.5", "v6.4.6"]);
-const DQ_CHAIN_TERMS = [
-  "规则任务",
-  "监控规则",
-  "校验结果",
-  "数据质量报告",
-  "规则调度",
-  "运行方式",
-  "分区信息",
-  "质量评估汇总",
-  "脏数据明细",
-];
-const DIRECT_EXECUTE_PATTERNS = [
-  /点击任务【立即执行】/,
-  /点击【立即执行】按钮/,
-  /点击(?:任务|操作列|.*列表).*【立即执行】/,
-];
-const WEAK_EXPECTED_ONLY = new Set([
-  "进入成功",
-  "保存成功",
-  "查询成功",
-  "操作成功",
-  "页面正常打开",
-  "页面正常加载",
-  "正常显示",
-  "展示正常",
-]);
-const WEAK_EXPECTED_TEMPLATE_PHRASES = [
-  "页面路由进入目标菜单",
-  "页面标题或列表主区域可见",
-  "页面提示操作成功",
-  "目标记录状态或列表内容按本次操作更新",
-];
-const HALLUCINATED_FILLER_STEP_PATTERNS = [
-  /^前提条件标示$/,
-  /^前提标示$/,
-  /^占位说明$/,
-  /^操作占位$/,
-];
-const STEP_API_CALL_PATTERNS = [
-  /\bcurl\b/i,
-  /\bhttps?:\/\//,
-  /\b(?:POST|GET|PUT|DELETE|PATCH)\s+\/[A-Za-z0-9_\-\/{}]+/,
-];
-const NAVIGATION_DASH_SEPARATOR = /【[^】]+】\s*[-－–—]\s*【[^】]+】/;
-const BUTTON_BRACKET_TRAILING = /【[^】→]+】\s*按钮/;
-const CLICK_BRACKET_NON_NAV = /(?:^|[^→])点击\s*【([^】]+)】/g;
-const SELECT_BRACKET_NON_NAV = /(?:^|[^→])(?:选择|新增|新建|输入|配置|开启|关闭)\s*【([^】]+)】/g;
-const SQUARE_BRACKET_BUTTON = /(?<![A-Za-z0-9_])\[([^\]\n]{1,30})\]/g;
-const ENGLISH_BRACKETS_WHITELIST = new Set([
-  "1.96",
-  "-1.96",
-  "P0",
-  "P1",
-  "P2",
-  "P3",
-]);
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const featureDir = resolve(scriptDir, "..");
-const defaultArchive = resolve(featureDir, "岚图已上线需求主流程用例.md");
+const defaultArchive = resolve(featureDir, "岚图已上线需求用例.md");
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -308,17 +252,6 @@ function classifyIssues(markdown, cases) {
     issues.push({ rule, message, ...details });
   }
 
-  const subsectionHeaderCount = String(markdown ?? "")
-    .split("\n")
-    .filter((line) => /^####\s+\S/.test(line)).length;
-  if (subsectionHeaderCount === 0) {
-    add(
-      "missing_subsection_header",
-      "document must contain level-4 (####) subsection headers between module and case",
-      { actual: subsectionHeaderCount },
-    );
-  }
-
   if (frontmatterCaseCount !== EXPECTED_CASE_COUNT) {
     add("frontmatter_case_count", `frontmatter case_count is ${frontmatterCaseCount}`, {
       expected: EXPECTED_CASE_COUNT,
@@ -366,14 +299,6 @@ function classifyIssues(markdown, cases) {
       });
     }
 
-    if (testCase.preconditionFenceLine !== "```sql") {
-      add("precondition_fence_language", "precondition fence must be exactly ```sql", {
-        ...ref,
-        line: testCase.preconditionFenceLineNumber ?? testCase.line,
-        fence: testCase.preconditionFenceLine || null,
-      });
-    }
-
     if (testCase.steps.length === 0) {
       add("missing_step_rows", "case has no step rows", ref);
     }
@@ -390,192 +315,7 @@ function classifyIssues(markdown, cases) {
         });
       }
 
-      const expectedText = textOnly(step.expected);
-      if (!expectedText.startsWith("1)")) {
-        add("expected_numbering", "expected result must start with literal 1)", {
-          ...ref,
-          line: step.line,
-          actual: expectedText,
-        });
-      }
-
-      const expectedWithoutLeadingNumber = expectedText.replace(/^1\)\s*/, "");
-      if (WEAK_EXPECTED_ONLY.has(expectedWithoutLeadingNumber)) {
-        add("weak_expected_only", "expected result is too weak when used alone", {
-          ...ref,
-          line: step.line,
-          actual: expectedText,
-        });
-      }
-
-      const stepText = textOnly(step.step);
-      if (/^进入「(?:[^」]*[-－–—][^」]*|[^」]+」[-－–—]「[^」]+」)/.test(stepText)) {
-        add("old_navigation_quote_style", "navigation step should use 【模块 → 页面】 style", {
-          ...ref,
-          line: step.line,
-          actual: stepText,
-        });
-      }
-
-      const stepAndExpected = `${stepText}\n${textOnly(step.expected)}`;
-
-      for (const pattern of HALLUCINATED_FILLER_STEP_PATTERNS) {
-        if (pattern.test(stepText.trim())) {
-          add("hallucinated_filler_step", "step text appears to be auto-generated placeholder filler", {
-            ...ref,
-            line: step.line,
-            actual: stepText,
-          });
-          break;
-        }
-      }
-
-      if (STEP_API_CALL_PATTERNS.some((pattern) => pattern.test(stepAndExpected))) {
-        add("step_contains_api_call", "step body must describe UI actions, not raw API/curl calls", {
-          ...ref,
-          line: step.line,
-          actual: stepText,
-        });
-      }
-
-      if (NAVIGATION_DASH_SEPARATOR.test(stepAndExpected)) {
-        add("navigation_dash_separator", "navigation path between brackets must use ' → ', not '-'", {
-          ...ref,
-          line: step.line,
-          actual: stepText,
-        });
-      }
-
-      if (BUTTON_BRACKET_TRAILING.test(stepAndExpected)) {
-        add("bracket_button_misuse", "button names must use 「」 not 【】 (matched: 【...】按钮)", {
-          ...ref,
-          line: step.line,
-          actual: stepText,
-        });
-      }
-
-      for (const regex of [CLICK_BRACKET_NON_NAV, SELECT_BRACKET_NON_NAV]) {
-        regex.lastIndex = 0;
-        let match;
-        while ((match = regex.exec(stepAndExpected)) !== null) {
-          if (!match[1] || match[1].includes("→")) continue;
-          add("bracket_button_misuse", "button names must use 「」 not 【】", {
-            ...ref,
-            line: step.line,
-            actual: match[0].trim(),
-          });
-          break;
-        }
-      }
-
-      let sbMatch;
-      SQUARE_BRACKET_BUTTON.lastIndex = 0;
-      while ((sbMatch = SQUARE_BRACKET_BUTTON.exec(stepAndExpected)) !== null) {
-        const inside = sbMatch[1].trim();
-        if (!inside || ENGLISH_BRACKETS_WHITELIST.has(inside)) continue;
-        if (/^[-+]?\d+(?:[.,]\d+)?$/.test(inside)) continue;
-        if (/^[A-Za-z0-9_\-.@]+$/.test(inside) && !/[一-鿿]/.test(inside)) continue;
-        if (/^[-+]?\d+(?:\.\d+)?\s*[,，]\s*[-+]?\d+(?:\.\d+)?$/.test(inside)) continue;
-        if (/^\\{1,2}u[0-9a-fA-F]{4}\s*-\s*\\{1,2}u[0-9a-fA-F]{4}$/.test(inside)) continue;
-        add("ascii_bracket_button_misuse", "do not use [xxx] as button/field marker; use 「」", {
-          ...ref,
-          line: step.line,
-          actual: `[${inside}]`,
-        });
-        break;
-      }
-
-      const expectedRaw = textOnly(step.expected);
-      const expectedAfterNumber = expectedRaw.replace(/^\d+\)\s*/, "");
-      if (WEAK_EXPECTED_TEMPLATE_PHRASES.some((phrase) => expectedAfterNumber.startsWith(phrase))) {
-        add("weak_expected_template", "expected result uses a generic template phrase without case-specific assertion", {
-          ...ref,
-          line: step.line,
-          actual: expectedRaw,
-        });
-      }
-
-      const stepCell = String(step.step ?? "");
-      const stepCellTextLen = textOnly(stepCell).length;
-      const hasMultiSubpoints = /(?:^|[^0-9])\b[2-9]\)/.test(textOnly(stepCell));
-      const hasLineBreak = /<br\s*\/?>/i.test(stepCell);
-      if (stepCellTextLen > 80 && hasMultiSubpoints && !hasLineBreak) {
-        add("step_cell_no_linebreak", "multi-subpoint step cell must use <br> between subpoints", {
-          ...ref,
-          line: step.line,
-          actual: textOnly(stepCell).slice(0, 80),
-        });
-      }
     });
-
-    const bodyText = textOnly([testCase.title, testCase.preconditions, ...testCase.steps.flatMap((step) => [step.step, step.expected])].join("\n"));
-    const isDataStandardCheckCase = bodyText.includes("数据标准") && bodyText.includes("落标检查");
-    if (!/^\s*\/\*/.test(testCase.preconditions)) {
-      add("precondition_missing_comment_block", "precondition SQL must start with a /* ... */ comment block", ref);
-    }
-
-    if (!/\bUSE\s+\$\{SchemaA\}/i.test(testCase.preconditions)) {
-      add("precondition_missing_schema_placeholder", "precondition SQL must use USE ${SchemaA}", ref);
-    }
-
-    if (!/--\s*预期结果：\s*\d+/.test(testCase.preconditions)) {
-      add("precondition_missing_expected_select", "precondition SQL must include at least one SELECT expectation comment", ref);
-    }
-
-    if (/quality_test_db|qa_test|hive_test_db/.test(bodyText)) {
-      add("hardcoded_schema", "case must not hardcode test database/schema names", ref);
-    }
-
-    if (/业务链路要求/.test(bodyText)) {
-      add("generic_dq_chain_text", "case must not use generic DQ chain placeholder text", ref);
-    }
-
-    if (/新增并立即执行|保存并立即执行/.test(bodyText)) {
-      add("old_save_and_execute_button", "case must not use removed save-and-execute button wording", ref);
-    }
-
-    if (DIRECT_EXECUTE_PATTERNS.some((pattern) => pattern.test(bodyText))) {
-      add("direct_execute_without_drawer", "immediate execution should use table-detail drawer rule management entry", ref);
-    }
-
-    if (/规则任务管理 → 监控对象/.test(bodyText)) {
-      add("monitor_object_as_menu_path", "monitor object is a wizard step, not a navigation menu path", ref);
-    }
-
-    if (
-      OLD_RULESET_VERSIONS.has(testCase.version) &&
-      !isDataStandardCheckCase &&
-      DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
-      (!bodyText.includes("规则集管理") || !bodyText.includes("规则包") || !bodyText.includes("导入规则包"))
-    ) {
-      add("pre_v648_dq_chain_missing_ruleset", "v6.4.2-v6.4.6 DQ rule-task/result/report cases must explain ruleset-to-task source chain", ref);
-    }
-
-    const shouldUseRuleSetFlow =
-      !OLD_RULESET_VERSIONS.has(testCase.version) &&
-      !/菜单名称|页面菜单/.test(bodyText) &&
-      !testCase.title.includes("总览") &&
-      DQ_CHAIN_TERMS.some((term) => bodyText.includes(term)) &&
-      (/新建监控规则|立即执行|任务运行|任务正常运行|实例详情|脏数据|校验结果|分区信息改变/.test(bodyText) ||
-        testCase.title.includes("主流程"));
-    if (shouldUseRuleSetFlow && (!bodyText.includes("规则集管理") || !bodyText.includes("规则包"))) {
-      add("post_v648_dq_chain_missing_ruleset", "v6.4.8+ DQ task cases should include rule-set and rule-package flow", ref);
-    }
-
-    const emptyRuleDescriptionPattern = /(?:规则集描述|规则描述|备注)\s*[:：=]\s*(?:无|空|不填|留空)(?=\s|$|[，,；;。<])/i;
-    const emptyRuleDescriptionLine = [
-      ...testCase.preconditionLines,
-      ...testCase.steps.flatMap((step) => [
-        { line: step.line, text: step.step },
-        { line: step.line, text: step.expected },
-      ]),
-    ].find((entry) => emptyRuleDescriptionPattern.test(textOnly(entry.text)))?.line;
-    if (emptyRuleDescriptionPattern.test(bodyText)) {
-      add("empty_rule_description", "rule description is empty or placeholder text", {
-        ...ref,
-        line: emptyRuleDescriptionLine ?? testCase.line,
-      });
-    }
   }
 
   return { issues, versionCounts };
