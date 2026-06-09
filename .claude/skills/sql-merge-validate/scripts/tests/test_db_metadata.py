@@ -49,8 +49,8 @@ assert len(rules) == 13, f"expected 13 rules, got {len(rules)}"
 # functions 字典 47 条
 assert len(functions) == 47, f"expected 47 functions, got {len(functions)}"
 
-# fn26（length_str）不在文档白名单
-assert functions["26"]["mergeable"] is False, "fn26 should not be mergeable"
+# fn26（length_str）已确认可合并、入文档白名单
+assert functions["26"]["mergeable"] is True, "fn26 should be mergeable (whitelisted)"
 
 # package 4622 的规则 mergeGroupKey 全为 'eUvlyF1G'
 pkg4622_rules = [r for r in rules if r["packageId"] == 4622]

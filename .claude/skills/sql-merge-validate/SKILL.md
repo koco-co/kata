@@ -19,8 +19,8 @@ effort: high
    → 得到 verdict JSON。pymysql 缺失时先 `pip install pymysql`。
 3. **语义复核**：对照 `references/`，复核占比规则 val/expansion、SUM(CASE WHEN) condition 是否匹配
    function 模板、have_dirty 子检查；白名单分歧等 globalFindings 单列。
-4. **终端报告**：逐包 7 维矩阵（①可合并 ②不可合并 ③抽样 ④分区 ⑤过滤 ⑥强弱 ⑦多包）+ 每个
-   FAIL 的证据片段；verdict 的 `customRules`（自定义 SQL 规则，function/column 天然 NULL）单列标识，非缺陷。不落盘。
+4. **终端报告**：逐包 8 维矩阵（①可合并 ②不可合并 ③抽样 ④分区 ⑤过滤 ⑥强弱 ⑦多包 ⑧规则SQL完整性）+ 每个
+   FAIL 的证据片段；verdict 的 `customRules` 列出自定义 SQL 规则及 `valid`/`defect`：SQL 残缺（空/空 WHERE/悬空运算符）即 ⑧ FAIL，不放行。不落盘。
 5. **bug 联动**：有 FAIL/finding → AskUser「是否转 defect-analyze 生成 bug/推禅道？」（推荐是），
    选是则带证据交接。
 
