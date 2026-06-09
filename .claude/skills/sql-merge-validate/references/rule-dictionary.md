@@ -156,5 +156,16 @@ fn26(length_str) 实测在 monitor 4471 中 `merge_group_key` 非空（被合并
 - DB 特征：`is_custom=1`，`function_id`/`column_name` 为 **NULL**（属预期，非缺数据），
   SQL 存 `customize_sql`/`select_data_sql`，配合 `operator`+`threshold` 比阈值。
 - `merge_group_key` 恒空 → 自定义 SQL 无法与标准函数合并，**正确按独立 union 段处理**（② 检查照常适用）。
-- `db_metadata.py` 取 `is_custom`/`customize_sql`，`comparator.py` 在 verdict 输出
-  `customRules`（ruleId/packageId/sql）显式列出，避免 `fn=NULL` 被误判为异常数据。
+- `db_metadata.py` 取 `is_custom`/`customize_sql`/`select_data_sql`，`comparator.py` 在 verdict 输出
+  `customRules`（ruleId/packageId/sql/`valid`/`defect`）显式列出，避免 `fn=NULL` 被误判为异常数据。
+
+#### ⑧ 规则 SQL 完整性（硬判定）
+
+`function_id`/`column` 为 NULL **本身不是缺陷**，但自定义规则**实际执行的 SQL**
+（`select_data_sql`，回退 `customize_sql`）**必须完整可跑**。轻量启发式（`detect_sql_defect`，
+非完整语法解析）抓明显残缺：空 SQL、空 WHERE、以比较运算符或 `and`/`or`/`like`/`in` 收尾、
+括号不匹配。命中即该包 `rule_sql_valid=FAIL`、`customRules[].valid=False`，**整任务不放行**。
+
+- 实例：monitor 4610 rid13321 的 `select_data_sql = "select * from pw_test.test_info_5 where  = "`
+  WHERE 条件残缺（悬空 `=`），判 ⑧ FAIL —— 合并 7 维虽全 PASS 也不放行。
+- 仅对自带 SQL 的 `is_custom` 规则检测；走 function 模板的普通规则单条不存执行 SQL，不在此检测以免误报。

@@ -1,9 +1,34 @@
 """三方比对：以 DB merge_group_key 为权威分组，对照实际 SQL 结构事实，逐包出 7 维 verdict。
 文档白名单仅用于发现「合并了规格外 function」的 finding（如 fn26），不左右 ①② 的 PASS/FAIL。"""
-import os, sys
+import os, re, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from expectation import normalize_filter
 from common import DOC_WHITELIST
+
+# 规则 SQL 残缺：以比较运算符或 and/or/like/in 收尾即条件未写完（轻量启发式，非完整语法解析）。
+_DANGLING_TAIL = re.compile(r"(<=|>=|<>|!=|=|<|>|\band\b|\bor\b|\blike\b|\bin\b)\s*$", re.I)
+
+
+def detect_sql_defect(sql):
+    """检测规则 SQL 明显残缺，返回原因字符串或 None。轻量启发式：只抓必然跑不了的写法
+    （空 SQL、空 WHERE、悬空运算符收尾、括号不匹配），不做完整语法/方言解析，避免误报。"""
+    s = (sql or "").strip()
+    if not s:
+        return "SQL 为空"
+    body = s.rstrip(";").strip()
+    if body.count("(") != body.count(")"):
+        return "括号不匹配"
+    m = re.search(r"\bwhere\b(.*)$", body, re.I | re.S)
+    if m:
+        cond = m.group(1).strip()
+        if not cond:
+            return "WHERE 子句为空"
+        if _DANGLING_TAIL.search(cond):
+            return "WHERE 条件残缺（以运算符收尾）：%r" % cond
+    elif _DANGLING_TAIL.search(body):
+        return "SQL 以运算符收尾，条件不完整"
+    return None
+
 
 def _by_id(rules):
     return {r["ruleId"]: r for r in rules}
@@ -122,6 +147,21 @@ def compare(meta, facts_by_pkg, mode, task_id):
                                  "actual": "mergeGroupKey %s 跨包 %s" % (k, sorted(mk_pkgs[k]))})
         checks["packaging"] = "PASS" if ok else "FAIL"
 
+        # ⑧ 规则 SQL 完整性：自带 SQL 的规则（is_custom）其执行 SQL 不得残缺。
+        #   走 function 模板的普通规则单条不存执行 SQL（合并 SQL 在包级），不在此检测以免误报。
+        ok = True
+        for r in pkg_rules:
+            if not r.get("isCustom"):
+                continue
+            reason = detect_sql_defect(r.get("ruleSql") or r.get("customSql"))
+            if reason:
+                ok = False
+                evidence.append({"check": "rule_sql_valid", "ruleId": r["ruleId"],
+                                 "expected": "规则 SQL 完整可执行",
+                                 "actual": reason})
+        has_custom = any(r.get("isCustom") for r in pkg_rules)
+        checks["rule_sql_valid"] = ("PASS" if ok else "FAIL") if has_custom else "NA"
+
         # 子检查：have_dirty=0 规则不得进脏数据 explode
         sub = {}
         no_dirty_in_explode = sorted({r for r in facts.get("dirtyExplodeRuleIds", [])
@@ -142,12 +182,17 @@ def compare(meta, facts_by_pkg, mode, task_id):
         global_findings.append({"type": "whitelist_divergence", "functionId": fn,
                                 "note": "fn%d 被合并但不在文档白名单，需确认文档漏列 or 实现误合" % fn})
 
-    # 自定义 SQL 规则：function_id/column 为 NULL 属预期（非缺数据），显式列出供报告标识。
-    custom_rules = sorted(
-        ({"ruleId": r["ruleId"], "packageId": r["packageId"],
-          "sql": (r.get("customSql") or "").strip()}
-         for r in rules if r.get("isCustom")),
-        key=lambda x: x["ruleId"])
+    # 自定义 SQL 规则：function_id/column 为 NULL 属预期，但其执行 SQL 必须完整可跑；
+    # 残缺即缺陷（valid=False），已在 ⑧ rule_sql_valid 判该包 FAIL，这里同步标识 defect。
+    custom_rules = []
+    for r in rules:
+        if not r.get("isCustom"):
+            continue
+        sql = (r.get("ruleSql") or r.get("customSql") or "").strip()
+        defect = detect_sql_defect(sql)
+        custom_rules.append({"ruleId": r["ruleId"], "packageId": r["packageId"],
+                             "sql": sql, "valid": defect is None, "defect": defect})
+    custom_rules.sort(key=lambda x: x["ruleId"])
 
     return {"taskId": task_id, "mode": mode, "packageCount": len(pkg_ids),
             "ruleCount": len(rules), "packages": packages,
