@@ -15,7 +15,7 @@ def test_run_dq_wires_fetch_meta_extract_compare():
     meta = {"rules": [
         {"ruleId":13019,"functionId":4, "strength":2,"filter":F,"packageId":4622,"mergeGroupKey":"eUvlyF1G","mergeable":True, "haveDirty":1},
         {"ruleId":13020,"functionId":5, "strength":2,"filter":F,"packageId":4622,"mergeGroupKey":"eUvlyF1G","mergeable":True, "haveDirty":1},
-        {"ruleId":13034,"functionId":26,"strength":2,"filter":F,"packageId":4622,"mergeGroupKey":"eUvlyF1G","mergeable":False,"haveDirty":1},
+        {"ruleId":13034,"functionId":26,"strength":2,"filter":F,"packageId":4622,"mergeGroupKey":"eUvlyF1G","mergeable":True, "haveDirty":1},
         {"ruleId":13035,"functionId":12,"strength":2,"filter":F,"packageId":4622,"mergeGroupKey":"eUvlyF1G","mergeable":True, "haveDirty":0},
         {"ruleId":13036,"functionId":30,"strength":2,"filter":F,"packageId":4622,"mergeGroupKey":"eUvlyF1G","mergeable":True, "haveDirty":1},
         {"ruleId":13025,"functionId":34,"strength":1,"filter":F,"packageId":4624,"mergeGroupKey":"","mergeable":False,"haveDirty":1},
@@ -44,8 +44,8 @@ def test_run_dq_wires_fetch_meta_extract_compare():
     # 真实 fixture：4624 两条不可合并 → ②PASS、①NA
     assert p4624["checks"]["mergeable_merged"] == "NA"
     assert p4624["checks"]["unmergeable_unmerged"] == "PASS"
-    # fn26 背离 finding
-    assert any(f["type"] == "whitelist_divergence" and f["functionId"] == 26 for f in v["globalFindings"])
+    # fn26 已入白名单（可合并），不再抛 whitelist_divergence
+    assert not any(f.get("functionId") == 26 for f in v["globalFindings"])
 
 def test_run_std_computes_std_expected():
     pkgs = [{"packageId": 1, "packageName": "s1", "sql": "select 1",
