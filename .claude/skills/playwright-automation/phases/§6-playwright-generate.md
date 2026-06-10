@@ -69,7 +69,7 @@
 - 把业务流程用例简化成「看菜单/字段/元素在不在」的表层测试。
 - 用表面通过敷衍不可实现的用例。
 
-> 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 这类强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole`>`getByLabel`/`getByPlaceholder`>`getByText`>`getByTestId`。**不得用 `page.route` mock 被测业务接口的返回来换断言通过。** 凡是 `@playwright/cli` codegen 出来的 locator 或代码片段，落 spec 前都要对照 ui-probe 证据重新验证，并改写成项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，不是能直接交付的 spec。
+> 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 这类强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole`>`getByLabel`/`getByPlaceholder`>`getByText`>`getByTestId`。**不得用 `page.route` mock 被测业务接口的返回来换断言通过。** 凡是 `@playwright/cli` codegen 出来的 locator 或代码片段，落 spec 前都要对照 ui-probe 证据重新验证，并改写成项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，落 spec 前须验证和改写。
 
 ## 生成与调试协议
 
@@ -176,7 +176,7 @@ RED→GREEN 节律里的等待条件，必须用下面这些可靠写法，禁�
 | `bun test` / `playwright test` 不带文件参数全量重跑做调试 | 浪费时间，丢失失败信号 |
 | 只生成或只运行 `smoke.spec.ts` 就交付端到端自动化 | smoke 只能证明基座，不能证明 full 回归入口可运行 |
 | 把测试主体直接写进 `tests/runners/full.spec.ts` / `smoke.spec.ts` | runners 是聚合入口；测试体应在 cases/ |
-| 用 `?.[0] ?? []` 或 `if (x)` 守卫替换失败的断言 | 等于把测试改成永远 pass，掩盖真 bug |
+| 用 `?.[0] ?? []` 或 `if (x)` 守卫替换失败的断言 | 测试永远 pass，掩盖真 bug |
 | `page.waitForTimeout(N)` 代替等待特定 UI 条件 | 固定延时不可靠，应等待元素可见、网络空闲或特定响应；仅在触发动画/过渡时必须使用，且需注释说明原因 |
 | 覆写未读过的已有 spec 文件 | 可能丢失上一会话的调试成果或人工修正 |
 | 派发「跑通整个 suite」这种粗粒度 subagent | 黑盒长跑，用户看不到进度 |

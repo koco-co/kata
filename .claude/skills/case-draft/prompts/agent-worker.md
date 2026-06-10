@@ -4,14 +4,6 @@
 
 BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 
-## 目录
-
-- 必备输入字段
-- 必备约束
-- Status Envelope
-- BlockedEnvelope
-- Reviewer 调用 Worker 修复的特殊形态
-
 ## 必备输入字段
 
 主 Skill 构造 Worker prompt 时必须提供：

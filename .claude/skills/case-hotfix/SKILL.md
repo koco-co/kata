@@ -33,9 +33,9 @@ effort: medium
 
 ## 范围与格式
 
-- 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身，相邻回归风险点并入同一条用例的步骤或预期检查，不拆分为多个测试套件。hotfix 追求精准的回归覆盖，不是全量测试。
-- 范围未定的问题一律记入 `pending_items`，不外延到证据没有支撑的模块、数据源或版本。没有证据的外延只会把回归点稀释成猜测。
-- 必须输出可直接执行的 `archive.md`（含前置条件与步骤表），不得只给缺陷分析、原因说明或自然语言总结。hotfix 的交付物是可执行回归，不是分析报告。
+- 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身，相邻回归风险点并入同一条用例的步骤或预期检查，不拆分为多个测试套件。
+- 范围未定的问题一律记入 `pending_items`，不外延到无证据支撑的模块、数据源或版本。
+- 必须输出可直接执行的 `archive.md`（含前置条件与步骤表），不得只给缺陷分析、原因说明或自然语言总结。
 - frontmatter 必须包含 `zentao_url`；目录命名 `hotfix_{fix_branch_or_bug_id}-{short-title}`；keywords 六段式、前置条件 SQL/Spark 写法等细则严格按 `references/hotfix-archive-format.md`，此处不再赘述。
 
 ## 证据与交付

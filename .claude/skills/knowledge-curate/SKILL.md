@@ -32,5 +32,5 @@ effort: medium
 ## 存储规范
 
 - 业务知识存放于 `workspace/{project}/_shared/knowledge/**`，项目规则存放于 `workspace/{project}/_shared/rules/**`。两者分仓存放，不得混写。
-- 未明确选定项目前，不得跨项目编辑知识。跨项目写入会污染其他项目的知识库。
+- 未明确选定项目前，不得跨项目编辑知识。
 - 查询结果必须引用知识条目的 SourceRef ID；没有证据支撑的根因和事实不予写入。
