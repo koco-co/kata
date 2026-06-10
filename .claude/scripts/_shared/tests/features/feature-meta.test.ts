@@ -2,7 +2,11 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { mergeManifestIntoMetadata, readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
+import {
+  mergeManifestIntoMetadata,
+  readFeatureMeta,
+  rewriteLegacyPath,
+} from "@shared/lib/features/feature-meta.ts";
 import { loadFeatureMetadataV2Validator } from "@shared/schemas/loaders.ts";
 import { parse, stringify } from "yaml";
 
@@ -151,5 +155,73 @@ describe("FeatureMetadata@2 schema validation", () => {
     const ok = validate(meta);
     if (!ok) console.error("v2 schema errors:", validate.errors);
     expect(ok).toBe(true);
+  });
+});
+
+describe("rewriteLegacyPath", () => {
+  const cases: [string, string][] = [
+    // results/ → runs/
+    ["results", "runs"],
+    ["results/run-1", "runs/run-1"],
+    // tests/ → automation/tests/
+    ["tests", "automation/tests"],
+    ["tests/a.spec.ts", "automation/tests/a.spec.ts"],
+    // scripts/ → automation/scripts/
+    ["scripts/x.ts", "automation/scripts/x.ts"],
+    // 用例产物文件 → cases/
+    ["archive.md", "cases/archive.md"],
+    ["archive.draft.md", "cases/archive.draft.md"],
+    ["cases.xmind", "cases/cases.xmind"],
+    // AUTOMATION-PLAN.md → automation/
+    ["AUTOMATION-PLAN.md", "automation/AUTOMATION-PLAN.md"],
+    // 不误伤
+    ["testsuite/foo", "testsuite/foo"],
+    ["my-archive.md", "my-archive.md"],
+    ["results-old/x", "results-old/x"],
+    // 幂等
+    ["runs/run-1", "runs/run-1"],
+    ["automation/tests", "automation/tests"],
+    ["cases/archive.md", "cases/archive.md"],
+    // 绝对路径原样
+    ["/abs/path.md", "/abs/path.md"],
+  ];
+
+  it.each(cases)("rewriteLegacyPath(%j) → %j", (input, expected) => {
+    expect(rewriteLegacyPath(input)).toBe(expected);
+  });
+});
+
+describe("mergeManifestIntoMetadata – corrupt metadata guard", () => {
+  it("throws on empty metadata.yaml and leaves manifest.json intact", () => {
+    const dir = join(makeTempDir(), "feat");
+    mkdirSync(dir, { recursive: true });
+    // 空文件，parse 结果为 null
+    writeFileSync(join(dir, "metadata.yaml"), "", "utf-8");
+    writeFileSync(
+      join(dir, "manifest.json"),
+      JSON.stringify({ schema: "FeatureManifest@2" }),
+      "utf-8",
+    );
+    expect(() => mergeManifestIntoMetadata(dir)).toThrow("invalid metadata.yaml");
+    // manifest.json 应未被删除
+    expect(existsSync(join(dir, "manifest.json"))).toBe(true);
+  });
+
+  it("throws when metadata.yaml has unexpected schema (e.g. @3)", () => {
+    const dir = join(makeTempDir(), "feat");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "metadata.yaml"),
+      stringify({ schema: "FeatureMetadata@3", id: "x" }),
+      "utf-8",
+    );
+    writeFileSync(
+      join(dir, "manifest.json"),
+      JSON.stringify({ schema: "FeatureManifest@2" }),
+      "utf-8",
+    );
+    expect(() => mergeManifestIntoMetadata(dir)).toThrow(
+      "unexpected metadata schema: FeatureMetadata@3",
+    );
   });
 });

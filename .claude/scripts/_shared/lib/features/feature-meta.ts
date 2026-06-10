@@ -62,7 +62,7 @@ function rewritePathsDeep(value: unknown): unknown {
 
 // ─── 公开 API ───
 
-/** Read FeatureMeta from metadata.yaml; returns null if the file does not exist. */
+/** Read FeatureMeta from metadata.yaml; returns null if the file does not exist or is empty. Content is not validated. */
 export function readFeatureMeta(featureDir: string): FeatureMeta | null {
   const p = join(featureDir, "metadata.yaml");
   if (!existsSync(p)) return null;
@@ -81,8 +81,19 @@ export function mergeManifestIntoMetadata(featureDir: string): { merged: boolean
   if (!existsSync(metaPath) || !existsSync(manifestPath)) return { merged: false };
 
   const meta = parse(readFileSync(metaPath, "utf-8"));
+
+  // 损坏的 metadata.yaml 必须显式报错，不能带病合并后删 manifest
+  if (meta === null || typeof meta !== "object" || Array.isArray(meta)) {
+    throw new Error(`invalid metadata.yaml (not a mapping): ${metaPath}`);
+  }
+
   // 已经是 @2，幂等返回
   if (meta.schema === "FeatureMetadata@2") return { merged: false };
+
+  // 只允许 @1 → @2 升级路径；其他 schema 拒绝合并
+  if (meta.schema !== "FeatureMetadata@1") {
+    throw new Error(`unexpected metadata schema: ${meta.schema} at ${metaPath}`);
+  }
 
   const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
 
