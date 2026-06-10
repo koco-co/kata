@@ -20,12 +20,6 @@
 4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并按用例步骤与预期规划真实覆盖：范围内每条用例的动作步骤都要落成真实页面动作，预期结果都要落成真实业务断言。哪怕走 bootstrap，也不能把计划缩成只验「页面可达 + 元素可见」的表层 runner。真实 UI probe 撑不起 PRD 里的深链路时，在 plan-reconcile 判 `blocked` 或 `needs_user_decision`，或者诚实排除（记入 `handoff.excluded_cases` + `reason_category` + 原因）；不能降级成弱断言，也不能用弱断言凑通过。
 5. 不能生成最终的 `archive.md` 或 `test-point-checklist.md`；Playwright 脚本的 SourceRef 必须指向 `prd.md` 或 `source_backed_bootstrap` intent，并在 handoff 里注明 case-draft 仍未完成。
 
-## 禁止
-
-- 不得把用户文字当作真实 UI 事实。
-- 不得弱化断言来换取通过。
-- 不得修改 `workspace/{project}/.kata/repos/**`。
-
 ## UI 知识记录
 
 规划选择器、页面结构、站点域行为，以及踩到的坑，都要记进 knowledge 库。

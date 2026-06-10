@@ -1,16 +1,5 @@
 # playwright-generate
 
-## 目录
-
-- 读取时机
-- 反向可追溯头（强制）
-- 输出
-- 禁止
-- 步骤与断言的真实性（强制）
-- 生成与调试协议
-- UI 知识记录
-- page object 位置（强制）
-
 ## 读取时机
 
 进入 `playwright-generate` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
@@ -50,12 +39,6 @@
 - 写入对应 schema。
 - 保留 SourceRef。
 - 区分 case_claim、observed_ui、environment、run_artifact 和 product_knowledge。
-
-## 禁止
-
-- 不得把用户文字当作真实 UI 事实。
-- 不得弱化断言来换取通过。
-- 不得修改 `workspace/{project}/.kata/repos/**`。
 
 ## 步骤与断言的真实性（强制）
 

@@ -4,13 +4,13 @@
 
 ## 如何添加项目级规则
 
-1. 从仓库根目录 `rules/` 拷贝需要覆盖的 `.md` 文件到本目录
+1. 直接在本目录新建 `.md` 文件，或参考其他项目 `workspace/{project}/_shared/rules/` 下的同名文件改写
 2. 修改该文件即可（保留 frontmatter 若有）
 3. 规则加载由以下命令完成：
    `kata rule-loader load --project {{project}}`
 
 ## 常见场景
 
-- 覆盖用例编写规范：拷贝 `rules/case-writing.md` 到本目录修改
-- 覆盖 XMind 结构约束：拷贝 `rules/xmind-structure.md` 到本目录修改
+- 用例编写规范：新建或改写 `case-writing.md`
+- XMind 结构约束：新建或改写 `xmind-structure.md`
 - 仅项目独有规则：直接新建 `.md` 文件（如 `hotfix-frontmatter.md`）

@@ -26,14 +26,14 @@ effort: high
 
 ## 合并判定规则
 
-- 合并真值以 DB `merge_group_key` 为准：key 非空且组内≥2 即「应合并」，空 key 即「应独立」。
+- 合并与否以 DB `merge_group_key` 为准：key 非空且组内≥2 即「应合并」，空 key 即「应独立」。
 - 文档白名单只用于发现「合并了规格外 function」（如 fn26）的 globalFindings，不左右 ①② 的 PASS/FAIL。
 - 抽样：扫抽样表与脏数据 `rand()` 是独立信号；不可合并包可能扫抽样表却无 rand，不据此判 FAIL。
 
 ## 路由边界
 
 - 纯静态 diff 扫描 → defect-analyze；写用例 → case-*；UI 自动化 → playwright-automation。
-- DB 不可达 → 降级为「SQL 结构事实 + 预期文本」并显式声明无法独立判定分组真值。
+- DB 不可达 → 降级为「SQL 结构事实 + 预期文本」并显式声明无法独立判定实际分组。
 - std 落标当前环境无数据，仅结构校验，未端到端验证。
 
 ## 知识库

@@ -1,6 +1,6 @@
 <!--
 XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
-SSOT 为 .claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot。
+格式规范以 .claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot 为准。
 配套的 md fewshot 见 ./case-format-sample.md。
 
 为什么用 ASCII 树状而非真 .xmind：
