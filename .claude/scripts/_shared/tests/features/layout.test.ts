@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -13,11 +13,7 @@ import {
 let root: string;
 
 beforeEach(() => {
-  root = mkdirSync(join(tmpdir(), `kata-layout-test-${process.pid}-${Date.now()}`), {
-    recursive: true,
-  }) as string;
-  // mkdirSync with recursive returns the first created dir or undefined if already existed
-  if (!root) root = join(tmpdir(), `kata-layout-test-${process.pid}-${Date.now()}`);
+  root = mkdtempSync(join(tmpdir(), "kata-layout-"));
 });
 afterEach(() => {
   rmSync(root, { recursive: true, force: true });

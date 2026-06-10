@@ -17,12 +17,12 @@ export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
 export type FeatureZone = "active" | "standing" | "archived" | "legacy-flat";
 
 export interface FeatureDirEntry {
-  /** 分组：版本目录名(v6.4.10)、_standing，或 _archived/v6.4.6；legacy 平铺为 "" */
+  /** Group: version dir name (v6.4.10), _standing, or _archived/v6.4.6; "" for legacy flat dirs. */
   group: string;
   zone: FeatureZone;
-  /** 目录名（中文人读标签或 slug） */
+  /** Directory name (human-readable CJK label or slug). */
   dirName: string;
-  /** 绝对路径 */
+  /** Absolute path. */
   dir: string;
 }
 
