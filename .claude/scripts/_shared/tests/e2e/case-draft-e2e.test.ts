@@ -12,17 +12,17 @@ function writeFakeRuntime(binPath: string): void {
     `#!/bin/sh
 set -eu
 feature="$PWD/workspace/dataAssets/features/2026-05-lanhu-cd882ee8"
-mkdir -p "$feature" "$feature/inputs" "$PWD/workspace/dataAssets/_shared/knowledge" "$PWD/workspace/dataAssets/.kata/repos/dt-insight-studio/src"
+mkdir -p "$feature" "$feature/cases" "$feature/inputs" "$PWD/workspace/dataAssets/_shared/knowledge" "$PWD/workspace/dataAssets/.kata/repos/dt-insight-studio/src"
 printf '# terms\\n' > "$PWD/workspace/dataAssets/_shared/knowledge/terms.md"
 printf 'x\\n' > "$PWD/workspace/dataAssets/.kata/repos/dt-insight-studio/src/x.ts"
-printf 'PK' > "$feature/cases.xmind"
-cat > "$feature/archive.md" <<'MD'
+printf 'PK' > "$feature/cases/cases.xmind"
+cat > "$feature/cases/archive.md" <<'MD'
 # Cases
 ## Login [RA-1]
 - step: click / expected: ok
 MD
 cat > "$feature/metadata.yaml" <<'YAML'
-schema: FeatureMetadata@1
+schema: FeatureMetadata@2
 id: 2026-05-lanhu-cd882ee8
 display_name: seed
 status: active
@@ -32,9 +32,34 @@ modules: [dq]
 customers: []
 versions: []
 owners: [qa]
-inputs: [{kind: lanhu, ref: 'https://lanhuapp.com/x'}]
-relates_to: []
-emits: {}
+case_drafting:
+  status: completed
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  coverage_matrix_path: .process/coverage-matrix.json
+  requirement_atoms:
+    - id: RA-1
+      source_ref: 'lanhu.fixture:f#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      ambiguity_class: confirmed
+      confidence: high
+    - id: RA-2
+      source_ref: 'knowledge.entry:terms#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      ambiguity_class: confirmed
+      confidence: high
+    - id: RA-3
+      source_ref: 'repo.line:dt-insight-studio/src/x.ts:1#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      ambiguity_class: confirmed
+      confidence: high
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind
+  tests_root: null
+  latest_results: null
 YAML
 mkdir -p "$feature/.process"
 cat > "$feature/.process/source-snapshot.json" <<'JSON'
@@ -61,25 +86,6 @@ cat > "$feature/.process/coverage-matrix.json" <<'JSON'
     "automation_allowed": true
   }
 ]
-JSON
-cat > "$feature/manifest.json" <<'JSON'
-{
-  "schema": "FeatureManifest@2",
-  "feature_id": "2026-05-lanhu-cd882ee8",
-  "case_drafting": {
-    "status": "completed",
-    "archive_path": "archive.md",
-    "xmind_path": "cases.xmind",
-    "coverage_matrix_path": ".process/coverage-matrix.json",
-    "requirement_atoms": [
-      { "id": "RA-1", "source_ref": "lanhu.fixture:f#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ambiguity_class": "confirmed", "confidence": "high" },
-      { "id": "RA-2", "source_ref": "knowledge.entry:terms#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ambiguity_class": "confirmed", "confidence": "high" },
-      { "id": "RA-3", "source_ref": "repo.line:dt-insight-studio/src/x.ts:1#sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ambiguity_class": "confirmed", "confidence": "high" }
-    ]
-  },
-  "automation": { "status": "not-started", "intents": [], "last_handoff_path": null, "last_run_status": "not-run" },
-  "files": { "archive": "archive.md", "xmind": "cases.xmind", "tests_root": null, "latest_results": null }
-}
 JSON
 `,
   );

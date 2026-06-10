@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { STANDING_DIR, VERSION_DIR_RE } from "@shared/lib/features/layout.ts";
 import {
   buildFeatureId,
   deriveSlugFromSource,
@@ -20,6 +21,11 @@ export interface FeaturesResolveContext {
   /** Seed for hex fallback (e.g. raw Chinese title); defaults to JSON of source. */
   seed?: string;
   now?: Date;
+  /**
+   * Version directory to place the feature under (e.g. "v6.4.11").
+   * Must match VERSION_DIR_RE. Defaults to STANDING_DIR ("_standing").
+   */
+  version?: string;
 }
 
 export interface FeaturesResolveResult {
@@ -71,7 +77,14 @@ export function runFeaturesResolve(ctx: FeaturesResolveContext): FeaturesResolve
   const now = ctx.now ?? new Date();
   const baseSlug = chooseSlug(ctx);
   const sourceKey = defaultSlugSourceKey(ctx);
-  const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
+
+  // 版本目录：显式指定或默认 _standing
+  const groupDir = ctx.version ?? STANDING_DIR;
+  if (ctx.version && !VERSION_DIR_RE.test(ctx.version)) {
+    throw new Error(`invalid version dir: ${ctx.version} (expect v6.4.11 style)`);
+  }
+
+  const featuresDir = join(ctx.workspaceRoot, ctx.project, "features", groupDir);
   const month = yyyyMm(now);
 
   for (let n = 0; ; n++) {

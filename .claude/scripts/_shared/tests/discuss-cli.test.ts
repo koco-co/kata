@@ -17,7 +17,7 @@ function cleanup() {
 const P2 = "test-project";
 const YM2 = "202605";
 const SLUG2 = "complete-slug";
-const ENHANCED_DIR = join(repoRoot(), "workspace", P2, "features", `${YM2}-${SLUG2}`);
+const ENHANCED_DIR = join(repoRoot(), "workspace", P2, "features", "_standing", `${YM2}-${SLUG2}`);
 const ENHANCED_FILE = join(ENHANCED_DIR, "enhanced.md");
 
 function cleanupP2() {
@@ -39,7 +39,9 @@ describe("discuss CLI — new subcommands", () => {
     const r = await $`bun ${CLI} init --project ${P} --yyyymm ${YM} --prd-slug ${SLUG}`.quiet();
     expect(r.exitCode).toBe(0);
     expect(
-      existsSync(join(repoRoot(), "workspace", P, "features", `${YM}-${SLUG}`, "enhanced.md")),
+      existsSync(
+        join(repoRoot(), "workspace", P, "features", "_standing", `${YM}-${SLUG}`, "enhanced.md"),
+      ),
     ).toBe(true);
   });
 
@@ -143,7 +145,15 @@ describe("discuss CLI — new subcommands", () => {
     await $`bun ${CLI} init --project ${P} --yyyymm ${YM} --prd-slug ${SLUG}`.quiet();
     await $`bun ${CLI} add-pending --project ${P} --yyyymm ${YM} --prd-slug ${SLUG} --location s-1 --label x --question q --recommended r --expected e --severity blocking_unknown`.quiet();
 
-    const enhanced = join(repoRoot(), "workspace", P, "features", `${YM}-${SLUG}`, "enhanced.md");
+    const enhanced = join(
+      repoRoot(),
+      "workspace",
+      P,
+      "features",
+      "_standing",
+      `${YM}-${SLUG}`,
+      "enhanced.md",
+    );
     writeFileSync(
       enhanced,
       readFileSync(enhanced, "utf8").replace(

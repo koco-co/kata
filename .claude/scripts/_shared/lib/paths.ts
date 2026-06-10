@@ -37,13 +37,13 @@ export function assertFeatureId(featureId: string): void {
 }
 
 /**
- * Feature directory: workspace/{project}/features/{yyyymm}-{slug}/.
- * The unit of a PRD's derived artifacts (prd.md, archive.md, cases.xmind, tests/, ...).
+ * Feature directory: workspace/{project}/features/{group}/{featureId}/.
+ * group: version dir (e.g. "v6.4.10"), "_standing", or "_archived/v6.4.6".
+ * featureId: slug-based id such as "2026-04-my-prd" (validated by assertFeatureId).
  */
-export function featureDir(project: string, yyyymm: string, slug: string): string {
-  const featureId = `${yyyymm}-${slug}`;
+export function featureDir(project: string, group: string, featureId: string): string {
   assertFeatureId(featureId);
-  return join(projectDir(project), "features", featureId);
+  return join(projectDir(project), "features", group, featureId);
 }
 
 /**
@@ -51,11 +51,11 @@ export function featureDir(project: string, yyyymm: string, slug: string): strin
  */
 export function featureFile(
   project: string,
-  yyyymm: string,
-  slug: string,
+  group: string,
+  featureId: string,
   ...segments: string[]
 ): string {
-  return join(featureDir(project, yyyymm, slug), ...segments);
+  return join(featureDir(project, group, featureId), ...segments);
 }
 
 /**
@@ -134,7 +134,7 @@ export function enhancedMd(project: string, yyyymm: string, slug: string): strin
     console.warn("[paths] enhancedMd() is deprecated; use featureFile(..., 'enhanced.md')");
     warnedEnhancedMd = true;
   }
-  return featureFile(project, yyyymm, slug, "enhanced.md");
+  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "enhanced.md");
 }
 
 let warnedSourceFactsJson = false;
@@ -146,7 +146,7 @@ export function sourceFactsJson(project: string, yyyymm: string, slug: string): 
     );
     warnedSourceFactsJson = true;
   }
-  return featureFile(project, yyyymm, slug, "source-facts.json");
+  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "source-facts.json");
 }
 
 let warnedResolvedMd = false;
@@ -156,7 +156,7 @@ export function resolvedMd(project: string, yyyymm: string, slug: string): strin
     console.warn("[paths] resolvedMd() is deprecated; use featureFile(..., 'resolved.md')");
     warnedResolvedMd = true;
   }
-  return featureFile(project, yyyymm, slug, "resolved.md");
+  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "resolved.md");
 }
 
 let warnedPrdImagesDir = false;
@@ -166,7 +166,7 @@ export function prdImagesDir(project: string, yyyymm: string, slug: string): str
     console.warn("[paths] prdImagesDir() is deprecated; use featureFile(..., 'images')");
     warnedPrdImagesDir = true;
   }
-  return featureFile(project, yyyymm, slug, "images");
+  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "images");
 }
 
 let warnedOriginalPrdMd = false;
@@ -176,7 +176,7 @@ export function originalPrdMd(project: string, yyyymm: string, slug: string): st
     console.warn("[paths] originalPrdMd() is deprecated; use featureFile(..., 'prd.md')");
     warnedOriginalPrdMd = true;
   }
-  return featureFile(project, yyyymm, slug, "prd.md");
+  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "prd.md");
 }
 
 export function issuesDir(project: string): string {

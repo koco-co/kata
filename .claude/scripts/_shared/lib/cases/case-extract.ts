@@ -4,12 +4,16 @@ import type { CaseRecord } from "./verify-layers.ts";
 
 /**
  * Parse CaseRecord[] from a feature directory's archive.md.
+ * Checks cases/archive.md first (new layout), then archive.md at root (legacy).
  * Expects format:
  *   ## Case Title [RA-1,RA-2]
  *   - step: do X / expected: Y
  */
 export function extractCaseRecords(featureDir: string): CaseRecord[] {
-  const archivePath = join(featureDir, "archive.md");
+  // 优先 cases/ 子目录（新布局），兜底 feature 根（legacy）
+  const archivePath = existsSync(join(featureDir, "cases", "archive.md"))
+    ? join(featureDir, "cases", "archive.md")
+    : join(featureDir, "archive.md");
   if (!existsSync(archivePath)) return [];
   const md = readFileSync(archivePath, "utf-8");
   const cases: CaseRecord[] = [];

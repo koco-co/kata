@@ -31,6 +31,7 @@ export async function runFeaturesIndex(ctx: FeaturesIndexContext): Promise<void>
   lines.push("# Features Index");
   lines.push("");
 
+  // By Status 统计段
   const byStatus = groupBy(rows, (r) => r.status);
   lines.push("## By Status");
   for (const [status, items] of byStatus) {
@@ -38,6 +39,7 @@ export async function runFeaturesIndex(ctx: FeaturesIndexContext): Promise<void>
   }
   lines.push("");
 
+  // By Module 统计段
   const byModule = new Map<string, FeatureRow[]>();
   for (const r of rows) {
     for (const m of r.modules) {
@@ -52,13 +54,30 @@ export async function runFeaturesIndex(ctx: FeaturesIndexContext): Promise<void>
   }
   lines.push("");
 
-  lines.push("## All Features");
-  lines.push("| ID | Display Name | Modules | Status | Automation | Last Run |");
-  lines.push("|---|---|---|---|---|---|");
-  for (const r of rows) {
-    lines.push(
-      `| [${r.id}](${r.id}/) | ${r.displayName} | ${r.modules.join(",")} | ${r.status} | ${r.automationStatus} | ${r.lastRunStatus} |`,
-    );
+  // 按 group（版本目录）分组渲染，版本号降序在前，_standing 次之，_archived/* 最后
+  const byGroup = groupBy(rows, (r) => r.group);
+  const groupOrder = [...byGroup.keys()].sort((a, b) => {
+    const rank = (g: string) => (g.startsWith("_archived") ? 2 : g === "_standing" ? 1 : 0);
+    return rank(a) - rank(b) || b.localeCompare(a, undefined, { numeric: true });
+  });
+
+  for (const group of groupOrder) {
+    const items = byGroup.get(group) ?? [];
+    const header = group || "(未分层 legacy)";
+    lines.push(`## ${header} (${items.length})`);
+    lines.push("| Feature | Display Name | Status | Automation | Last Run | 产物 |");
+    lines.push("|---|---|---|---|---|---|");
+    for (const r of items) {
+      const rel = r.group ? `${r.group}/${r.dirName}/` : `${r.dirName}/`;
+      const areas =
+        [r.areas.cases && "cases", r.areas.automation && "auto", r.areas.runs && "runs"]
+          .filter(Boolean)
+          .join("+") || "-";
+      lines.push(
+        `| [${r.dirName}](${encodeURI(rel)}) | ${r.displayName} | ${r.status} | ${r.automationStatus} | ${r.lastRunStatus} | ${areas} |`,
+      );
+    }
+    lines.push("");
   }
 
   writeFileSync(

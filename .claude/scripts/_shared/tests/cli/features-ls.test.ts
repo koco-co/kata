@@ -5,24 +5,32 @@ import { join } from "node:path";
 import { runFeaturesLs } from "@shared/cli/features-ls.ts";
 import { stringify } from "yaml";
 
+// 统一使用 FeatureMetadata@2 格式，features 落版本层目录
 function seedFeature(
   root: string,
-  id: string,
+  group: string,
+  dirName: string,
   opts: {
+    id?: string;
     modules?: string[];
     customers?: string[];
     versions?: string[];
     owners?: string[];
     status?: string;
     createdAt?: string;
+    automationStatus?: string;
+    lastRunStatus?: string;
   },
 ) {
-  const dir = join(root, "dataAssets/features", id);
-  mkdirSync(dir, { recursive: true });
+  const id = opts.id ?? dirName;
+  const dir = join(root, "dataAssets/features", group, dirName);
+  mkdirSync(join(dir, "cases"), { recursive: true });
+  mkdirSync(join(dir, "automation"), { recursive: true });
+  mkdirSync(join(dir, "runs"), { recursive: true });
   writeFileSync(
     join(dir, "metadata.yaml"),
     stringify({
-      schema: "FeatureMetadata@1",
+      schema: "FeatureMetadata@2",
       id,
       display_name: id,
       status: opts.status ?? "active",
@@ -35,15 +43,12 @@ function seedFeature(
       inputs: [],
       relates_to: [],
       emits: { cases_xmind: true, archive: true, playwright_tests: true },
-    }),
-  );
-  writeFileSync(
-    join(dir, "manifest.json"),
-    JSON.stringify({
-      schema: "FeatureManifest@2",
-      feature_id: id,
-      case_drafting: { status: "completed" },
-      automation: { status: "ready", intents: [], last_run_status: "passing" },
+      case_drafting: { status: "not-started" },
+      automation: {
+        status: opts.automationStatus ?? "not-started",
+        intents: [],
+        last_run_status: opts.lastRunStatus ?? "not-run",
+      },
       files: {},
     }),
   );
@@ -53,21 +58,22 @@ describe("kata features ls", () => {
   let scratch: string;
   beforeEach(() => {
     scratch = mkdtempSync(join(tmpdir(), "kata-feat-ls-"));
-    seedFeature(scratch, "2026-04-dq-a", {
+    // 三个 feature 落 v6.4.10 版本层
+    seedFeature(scratch, "v6.4.10", "2026-04-dq-a", {
       modules: ["dq"],
-      versions: ["v6.4"],
+      versions: ["v6.4.10"],
       owners: ["koco"],
       status: "active",
     });
-    seedFeature(scratch, "2026-04-sec-b", {
+    seedFeature(scratch, "v6.4.10", "2026-04-sec-b", {
       modules: ["security"],
       versions: ["v6.3"],
       owners: ["qa"],
       status: "active",
     });
-    seedFeature(scratch, "2026-03-old", {
+    seedFeature(scratch, "v6.4.10", "2026-03-old", {
       modules: ["dq"],
-      versions: ["v6.4"],
+      versions: ["v6.4.10"],
       owners: ["koco"],
       status: "archived",
       createdAt: "2026-03-01",
@@ -133,5 +139,17 @@ describe("kata features ls", () => {
       createdAfter: "2026-04",
     });
     expect(rows.map((r) => r.id)).toEqual(["2026-04-dq-a", "2026-04-sec-b"]);
+  });
+
+  it("exposes group/zone/dirName/areas on each row", async () => {
+    const rows = await runFeaturesLs({ project: "dataAssets", workspaceRoot: scratch });
+    const row = rows.find((r) => r.id === "2026-04-dq-a");
+    expect(row).toBeDefined();
+    expect(row!.group).toBe("v6.4.10");
+    expect(row!.zone).toBe("active");
+    expect(row!.dirName).toBe("2026-04-dq-a");
+    expect(row!.areas.cases).toBe(true);
+    expect(row!.areas.automation).toBe(true);
+    expect(row!.areas.runs).toBe(true);
   });
 });

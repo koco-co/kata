@@ -13,7 +13,7 @@ describe("runFeaturesResolve", () => {
   });
   afterEach(() => rmSync(ws, { recursive: true, force: true }));
 
-  it("prefers an explicit slug and creates .process/ dir", () => {
+  it("falls into _standing when no version given, and creates .process/ dir", () => {
     const r = runFeaturesResolve({
       project: "dataAssets",
       slug: "lt-dq-rule-set",
@@ -22,9 +22,34 @@ describe("runFeaturesResolve", () => {
       now,
     });
     expect(r.featureId).toBe("2026-05-lt-dq-rule-set");
-    expect(r.featureDir).toBe(join(ws, "dataAssets/features/2026-05-lt-dq-rule-set"));
+    expect(r.featureDir).toBe(join(ws, "dataAssets/features/_standing/2026-05-lt-dq-rule-set"));
     expect(r.reused).toBe(false);
     expect(existsSync(join(r.featureDir, ".process"))).toBe(true);
+  });
+
+  it("places feature under the specified version dir when version given", () => {
+    const r = runFeaturesResolve({
+      project: "dataAssets",
+      slug: "lt-dq-rule-set",
+      module: "dq",
+      workspaceRoot: ws,
+      now,
+      version: "v6.4.11",
+    });
+    expect(r.featureDir).toBe(join(ws, "dataAssets/features/v6.4.11/2026-05-lt-dq-rule-set"));
+  });
+
+  it("throws when version does not match semantic format", () => {
+    expect(() =>
+      runFeaturesResolve({
+        project: "dataAssets",
+        slug: "lt-dq-rule-set",
+        module: "dq",
+        workspaceRoot: ws,
+        now,
+        version: "6411",
+      }),
+    ).toThrow(/invalid version dir/i);
   });
 
   it("derives from a non-model source field when no slug given", () => {
@@ -70,7 +95,7 @@ describe("runFeaturesResolve", () => {
   });
 
   it("appends a deterministic suffix on a different-source collision", () => {
-    const dir = join(ws, "dataAssets/features/2026-05-lt-dq");
+    const dir = join(ws, "dataAssets/features/_standing/2026-05-lt-dq");
     mkdirSync(dir, { recursive: true });
     mkdirSync(join(dir, ".process"), { recursive: true });
     writeFileSync(
@@ -89,7 +114,7 @@ describe("runFeaturesResolve", () => {
   });
 
   it("reuses an existing dir whose recorded slug_source matches the current source", () => {
-    const dir = join(ws, "dataAssets/features/2026-05-lt-dq");
+    const dir = join(ws, "dataAssets/features/_standing/2026-05-lt-dq");
     mkdirSync(dir, { recursive: true });
     mkdirSync(join(dir, ".process"), { recursive: true });
     writeFileSync(

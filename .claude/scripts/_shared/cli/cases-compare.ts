@@ -3,6 +3,7 @@ import { basename, join } from "node:path";
 import { extractSourceFactSet, jaccard } from "@shared/lib/cases/source-fact-set.ts";
 import { STABLE_CORE_ARTIFACTS } from "@shared/lib/cases/verify-layers.ts";
 import type { Command } from "commander";
+import { parse as parseYaml } from "yaml";
 
 export interface CasesCompareContext {
   leftDir: string;
@@ -26,8 +27,25 @@ interface CompareAtom {
   ambiguity_class?: string;
   confidence?: string;
 }
-function loadManifest(dir: string): { case_drafting?: { requirement_atoms?: CompareAtom[] } } {
-  return JSON.parse(readFileSync(join(dir, "manifest.json"), "utf-8"));
+
+/** Load requirement_atoms from manifest.json (@1) or metadata.yaml (@2). */
+function loadCaseDraftingDoc(dir: string): {
+  case_drafting?: { requirement_atoms?: CompareAtom[] };
+} {
+  // @2: metadata.yaml has case_drafting section
+  const metaPath = join(dir, "metadata.yaml");
+  if (existsSync(metaPath)) {
+    const parsed = parseYaml(readFileSync(metaPath, "utf-8")) as Record<string, unknown>;
+    if ((parsed as Record<string, unknown>)?.schema === "FeatureMetadata@2") {
+      return parsed as { case_drafting?: { requirement_atoms?: CompareAtom[] } };
+    }
+  }
+  // @1: manifest.json
+  const manifestPath = join(dir, "manifest.json");
+  if (existsSync(manifestPath)) {
+    return JSON.parse(readFileSync(manifestPath, "utf-8"));
+  }
+  return {};
 }
 
 function criticalFactSet(m: {
@@ -41,12 +59,23 @@ function criticalFactSet(m: {
   return set;
 }
 
+/** Returns true if the directory has a valid @1 manifest.json or @2 metadata.yaml. */
+function hasFeatureDoc(dir: string): boolean {
+  const metaPath = join(dir, "metadata.yaml");
+  if (existsSync(metaPath)) {
+    try {
+      const parsed = parseYaml(readFileSync(metaPath, "utf-8")) as Record<string, unknown>;
+      if ((parsed as Record<string, unknown>)?.schema === "FeatureMetadata@2") return true;
+    } catch {
+      /* ignore */
+    }
+  }
+  return existsSync(join(dir, "manifest.json"));
+}
+
 export function runCasesCompare(ctx: CasesCompareContext): CasesCompareResult {
   const findings: CompareFinding[] = [];
-  if (
-    !existsSync(join(ctx.leftDir, "manifest.json")) ||
-    !existsSync(join(ctx.rightDir, "manifest.json"))
-  ) {
+  if (!hasFeatureDoc(ctx.leftDir) || !hasFeatureDoc(ctx.rightDir)) {
     return {
       fail: true,
       jaccard: 0,
@@ -71,8 +100,8 @@ export function runCasesCompare(ctx: CasesCompareContext): CasesCompareResult {
       message: `稳定核心文件集不一致: [${leftCore.join(",")}] vs [${rightCore.join(",")}]`,
     });
   }
-  const leftManifest = loadManifest(ctx.leftDir);
-  const rightManifest = loadManifest(ctx.rightDir);
+  const leftManifest = loadCaseDraftingDoc(ctx.leftDir);
+  const rightManifest = loadCaseDraftingDoc(ctx.rightDir);
   const left = extractSourceFactSet(leftManifest);
   const right = extractSourceFactSet(rightManifest);
   const j = jaccard(left, right);

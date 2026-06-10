@@ -163,6 +163,7 @@ export function buildFeaturesCommand(): Command {
     .option("--slug <slug>", "显式 slug (最高优先级)")
     .option("--lanhu-page <id>", "Lanhu pageId (派生来源)")
     .option("--prd-file <name>", "PRD 文件名 (派生来源)")
+    .option("--feature-version <v>", "版本目录 (如 v6.4.11)，不指定则落 _standing")
     .option("--json", "输出 JSON", false)
     .action((opts: Record<string, string | boolean>) => {
       const source = opts.lanhuPage
@@ -175,6 +176,7 @@ export function buildFeaturesCommand(): Command {
         module: String(opts.module),
         slug: opts.slug ? String(opts.slug) : undefined,
         source,
+        version: opts.featureVersion ? String(opts.featureVersion) : undefined,
         workspaceRoot: join(repoRoot(), "workspace"),
       });
       console.log(opts.json ? JSON.stringify(result) : `${result.featureId}\t${result.featureDir}`);

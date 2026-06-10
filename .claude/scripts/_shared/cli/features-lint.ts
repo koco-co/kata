@@ -1,7 +1,9 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { listFeatureDirs } from "@shared/lib/features/layout.ts";
 import {
   loadFeatureManifestValidator,
+  loadFeatureMetadataV2Validator,
   loadFeatureMetadataValidator,
 } from "@shared/schemas/loaders.ts";
 import { parse } from "yaml";
@@ -43,13 +45,21 @@ export async function runFeaturesLint(
   const customersEnum = loadEnum(sharedDir, "customers.yaml");
   const versionsEnum = loadEnum(sharedDir, "versions.yaml");
 
-  const metaValidator = loadFeatureMetadataValidator();
+  const metaV1Validator = loadFeatureMetadataValidator();
+  const metaV2Validator = loadFeatureMetadataV2Validator();
   const manifestValidator = loadFeatureManifestValidator();
 
-  const names = ctx.featureId ? [ctx.featureId] : readdirSync(featuresDir);
-  for (const name of names) {
-    const dir = join(featuresDir, name);
-    if (name === "INDEX.md" || !existsSync(dir) || !statSync(dir).isDirectory()) continue;
+  // listFeatureDirs 扫描两层结构；legacy-flat 也会被收录
+  const allEntries = listFeatureDirs(featuresDir);
+
+  // 如果指定了 featureId，只检查该目录名（跨所有 group 查找）
+  const entries = ctx.featureId
+    ? allEntries.filter((e) => e.dirName === ctx.featureId)
+    : allEntries;
+
+  for (const entry of entries) {
+    const name = entry.dirName;
+    const dir = entry.dir;
 
     const isCjkLabel = CJK_LABEL_RE.test(name);
     if (!SLUG_RE.test(name) && !isCjkLabel) {
@@ -72,22 +82,48 @@ export async function runFeaturesLint(
       });
       continue;
     }
-    if (!existsSync(manifestPath)) {
-      violations.push({
-        feature: name,
-        rule: "manifest_missing",
-        message: "manifest.json not present",
-      });
-    }
 
     const meta = parse(readFileSync(metaPath, "utf-8"));
-    const metaValid = metaValidator(meta);
-    if (!metaValid) {
-      violations.push({
-        feature: name,
-        rule: "metadata_schema_invalid",
-        message: JSON.stringify(metaValidator.errors),
-      });
+    const isV2 = meta?.schema === "FeatureMetadata@2";
+
+    if (isV2) {
+      // ── FeatureMetadata@2 路径 ────────────────────────────────────────────
+      const metaValid = metaV2Validator(meta);
+      if (!metaValid) {
+        violations.push({
+          feature: name,
+          rule: "metadata_schema_invalid",
+          message: JSON.stringify(metaV2Validator.errors),
+        });
+      }
+
+      // @2 不再要求 manifest.json；manifest.json 残留说明合并不完整
+      if (existsSync(manifestPath)) {
+        violations.push({
+          feature: name,
+          rule: "manifest_residual",
+          message: "manifest.json still exists alongside FeatureMetadata@2; migration incomplete",
+        });
+      }
+    } else {
+      // ── FeatureMetadata@1 路径（含 legacy-flat）────────────────────────────
+      const metaValid = metaV1Validator(meta);
+      if (!metaValid) {
+        violations.push({
+          feature: name,
+          rule: "metadata_schema_invalid",
+          message: JSON.stringify(metaV1Validator.errors),
+        });
+      }
+
+      // @1 仍要求 manifest.json 存在
+      if (!existsSync(manifestPath)) {
+        violations.push({
+          feature: name,
+          rule: "manifest_missing",
+          message: "manifest.json not present",
+        });
+      }
     }
 
     // CJK 人类标签目录的机器主键是 manifest.feature_id(slug), 目录名不要求等于 metadata.id。
@@ -127,7 +163,8 @@ export async function runFeaturesLint(
       }
     }
 
-    if (existsSync(manifestPath)) {
+    // @1: 对 manifest.json 做进一步校验
+    if (!isV2 && existsSync(manifestPath)) {
       const manifest: Record<string, unknown> = JSON.parse(readFileSync(manifestPath, "utf-8"));
       if (!manifestValidator(manifest)) {
         violations.push({

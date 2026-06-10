@@ -12,6 +12,7 @@ import {
   verifyStableCoreArtifacts,
   verifyStructuredSchemas,
 } from "@shared/lib/cases/verify-layers.ts";
+import { readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
 import {
   type ConfirmedSourceRepo,
   resolveSourceRefTarget,
@@ -31,21 +32,42 @@ export interface CasesVerifyResult {
 
 export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVerifyResult> {
   const dir = join(ctx.workspaceRoot, ctx.project, "features", ctx.featureId);
-  const manifestPath = join(dir, "manifest.json");
-  if (!existsSync(manifestPath)) {
-    return {
-      ok: false,
-      issues: [{ layer: "L1", rule: "feature_not_found", message: `missing ${manifestPath}` }],
-    };
+
+  // 优先读 metadata.yaml（@2）；@1 回退读 manifest.json
+  const meta = readFeatureMeta(dir);
+  if (!meta) {
+    // @1 legacy：尝试 manifest.json
+    const manifestPath = join(dir, "manifest.json");
+    if (!existsSync(manifestPath)) {
+      return {
+        ok: false,
+        issues: [{ layer: "L1", rule: "feature_not_found", message: `missing ${manifestPath}` }],
+      };
+    }
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+    const archiveMd = existsSync(join(dir, "archive.md"))
+      ? readFileSync(join(dir, "archive.md"), "utf-8")
+      : "";
+    const issues: VerifyIssue[] = [];
+    const status: string = manifest.case_drafting?.status ?? "unknown";
+    issues.push(...verifyL1Structure({ manifest, archiveMd, featureDir: dir }));
+    issues.push(...verifyStableCoreArtifacts({ featureDir: dir, status }));
+    issues.push(...verifyStructuredSchemas({ featureDir: dir, status }));
+    return { ok: issues.length === 0, issues };
   }
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
-  const archiveMd = existsSync(join(dir, "archive.md"))
-    ? readFileSync(join(dir, "archive.md"), "utf-8")
-    : "";
 
   const issues: VerifyIssue[] = [];
-  const status: string = manifest.case_drafting?.status ?? "unknown";
-  issues.push(...verifyL1Structure({ manifest, archiveMd, featureDir: dir }));
+  const status: string =
+    ((meta.case_drafting as Record<string, unknown> | undefined)?.status as string) ?? "unknown";
+
+  // @2 不依赖 manifest.json，跳过 manifest schema 校验；只做 archive leak 检测
+  const casesArchivePath = existsSync(join(dir, "cases", "archive.md"))
+    ? join(dir, "cases", "archive.md")
+    : join(dir, "archive.md");
+  const archiveMd = existsSync(casesArchivePath) ? readFileSync(casesArchivePath, "utf-8") : "";
+
+  // @2: 只做 sourceref_leak 检查（跳过 manifest schema 校验）
+  issues.push(...verifyL1Structure({ manifest: null, archiveMd, featureDir: dir }));
   issues.push(...verifyStableCoreArtifacts({ featureDir: dir, status }));
   issues.push(...verifyStructuredSchemas({ featureDir: dir, status }));
 
@@ -71,9 +93,15 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
     });
   }
 
+  // 用 meta 作为类 manifest 参数传给 verifyL2Inputs
+  const manifestLike = {
+    case_drafting: meta.case_drafting as Record<string, unknown> & {
+      requirement_atoms?: { id: string; source_ref: string }[];
+    },
+  };
   issues.push(
     ...verifyL2Inputs({
-      manifest,
+      manifest: manifestLike,
       requiredKinds: ctx.requiredKinds,
       resolve: (ref) =>
         resolveSourceRefTarget(ref, {
@@ -84,9 +112,11 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
         }),
     }),
   );
-  const atomIds: string[] = (manifest.case_drafting?.requirement_atoms ?? []).map(
-    (a: { id: string }) => a.id,
-  );
+  const atomIds: string[] = (
+    ((meta.case_drafting as Record<string, unknown> | undefined)?.requirement_atoms as Array<{
+      id: string;
+    }>) ?? []
+  ).map((a) => a.id);
   const cases: CaseRecord[] = extractCaseRecords(dir);
   issues.push(...verifyL3Quality({ cases, atomIds }));
 

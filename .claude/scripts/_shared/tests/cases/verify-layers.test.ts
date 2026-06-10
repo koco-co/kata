@@ -169,6 +169,7 @@ describe("verifyStableCoreArtifacts", () => {
     const dir = mkdtempSync(join(tmpdir(), "kata-core-"));
     try {
       mkdirSync(join(dir, ".process"), { recursive: true });
+      mkdirSync(join(dir, "cases"), { recursive: true });
       for (const f of STABLE_CORE_ARTIFACTS) writeFileSync(join(dir, f), "x");
       expect(verifyStableCoreArtifacts({ featureDir: dir, status: "completed" })).toHaveLength(0);
     } finally {

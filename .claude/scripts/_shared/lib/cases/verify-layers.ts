@@ -5,6 +5,7 @@ import { sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
 import {
   loadCoverageMatrixValidator,
   loadFeatureManifestValidator,
+  loadFeatureMetadataV2Validator,
   loadFeatureMetadataValidator,
   loadFeatureSourceSnapshotValidator,
 } from "@shared/schemas/loaders.ts";
@@ -18,12 +19,11 @@ export interface VerifyIssue {
 }
 
 export const STABLE_CORE_ARTIFACTS = [
-  "manifest.json",
   "metadata.yaml",
   ".process/source-snapshot.json",
   ".process/coverage-matrix.json",
-  "archive.md",
-  "cases.xmind",
+  "cases/archive.md",
+  "cases/cases.xmind",
 ] as const;
 
 export function verifyStableCoreArtifacts(input: {
@@ -45,13 +45,12 @@ export function verifyStableCoreArtifacts(input: {
   return issues;
 }
 
-const STRUCTURED_SCHEMA_FILES: {
+const NON_META_STRUCTURED_SCHEMA_FILES: {
   file: string;
   loader: () => (d: unknown) => boolean;
   kind: "json" | "yaml";
   array?: boolean;
 }[] = [
-  { file: "metadata.yaml", loader: loadFeatureMetadataValidator, kind: "yaml" },
   {
     file: ".process/source-snapshot.json",
     loader: loadFeatureSourceSnapshotValidator,
@@ -71,7 +70,36 @@ export function verifyStructuredSchemas(input: {
 }): VerifyIssue[] {
   if (input.status !== "completed") return [];
   const issues: VerifyIssue[] = [];
-  for (const s of STRUCTURED_SCHEMA_FILES) {
+
+  // metadata.yaml：按 schema 字段选 v1/v2 验证器
+  const metaPath = join(input.featureDir, "metadata.yaml");
+  if (existsSync(metaPath)) {
+    let metaData: unknown;
+    try {
+      metaData = parseYaml(readFileSync(metaPath, "utf-8"));
+    } catch (e) {
+      issues.push({
+        layer: "L1",
+        rule: "structured_parse_error",
+        message: `metadata.yaml 解析失败: ${(e as Error).message}`,
+        fix: "修正 metadata.yaml 为合法 YAML",
+      });
+    }
+    if (metaData !== undefined) {
+      const isV2 = (metaData as Record<string, unknown>)?.schema === "FeatureMetadata@2";
+      const validate = isV2 ? loadFeatureMetadataV2Validator() : loadFeatureMetadataValidator();
+      if (!validate(metaData)) {
+        issues.push({
+          layer: "L1",
+          rule: "structured_schema_invalid",
+          message: `metadata.yaml 不符合 schema: ${JSON.stringify((validate as { errors?: unknown }).errors)}`,
+          fix: "修正 metadata.yaml 至符合其 schema",
+        });
+      }
+    }
+  }
+
+  for (const s of NON_META_STRUCTURED_SCHEMA_FILES) {
     const p = join(input.featureDir, s.file);
     if (!existsSync(p)) continue;
     let data: unknown;
@@ -126,14 +154,17 @@ export function verifyL1Structure(input: {
   featureDir: string;
 }): VerifyIssue[] {
   const issues: VerifyIssue[] = [];
-  const validate = loadFeatureManifestValidator();
-  if (!validate(input.manifest)) {
-    issues.push({
-      layer: "L1",
-      rule: "manifest_schema_invalid",
-      message: JSON.stringify(validate.errors),
-      fix: "修正 manifest.json 至符合 FeatureManifest@2",
-    });
+  // null manifest 表示 FeatureMetadata@2 路径（无独立 manifest.json），跳过 manifest 结构校验
+  if (input.manifest !== null) {
+    const validate = loadFeatureManifestValidator();
+    if (!validate(input.manifest)) {
+      issues.push({
+        layer: "L1",
+        rule: "manifest_schema_invalid",
+        message: JSON.stringify(validate.errors),
+        fix: "修正 manifest.json 至符合 FeatureManifest@2",
+      });
+    }
   }
   for (const re of LEAK_PATTERNS) {
     if (re.test(input.archiveMd)) {

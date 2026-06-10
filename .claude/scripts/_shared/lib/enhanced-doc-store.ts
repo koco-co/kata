@@ -127,7 +127,7 @@ export function initDoc(
     status: "discussing",
     project,
     prd_slug: slug,
-    prd_dir: featureDir(project, yyyymm, slug),
+    prd_dir: featureDir(project, "_standing", `${yyyymm}-${slug}`),
     pending_count: 0,
     resolved_count: 0,
     defaulted_count: 0,
