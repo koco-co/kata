@@ -56,12 +56,17 @@ import {
 } from "@shared/lib/paths.ts";
 
 describe("enhanced doc paths", () => {
-  test("featureDir returns {project}/features/{yyyymm}-{slug}/", () => {
-    const p = featureDir("dataAssets", "202604", "my-prd");
-    expect(p).toMatch(/workspace\/dataAssets\/features\/202604-my-prd$/);
+  test("featureDir returns {project}/features/{group}/{featureId}/", () => {
+    const p = featureDir("dataAssets", "_standing", "202604-my-prd");
+    expect(p).toMatch(/workspace\/dataAssets\/features\/_standing\/202604-my-prd$/);
   });
 
-  test("enhancedMd is {featureDir}/enhanced.md", () => {
+  test("featureDir with version layer dir", () => {
+    const p = featureDir("dataAssets", "v6.4.10", "2026-04-my-prd");
+    expect(p).toMatch(/workspace\/dataAssets\/features\/v6\.4\.10\/2026-04-my-prd$/);
+  });
+
+  test("enhancedMd is {featureDir}/enhanced.md (deprecated, defaults to _standing)", () => {
     const p = enhancedMd("dataAssets", "202604", "my-prd");
     expect(p).toMatch(/my-prd\/enhanced\.md$/);
   });

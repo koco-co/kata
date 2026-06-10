@@ -829,8 +829,8 @@ describe("history-convert --no-split XMind", () => {
     const outputs = out.files.map((entry) => entry.output).sort();
     // L1 titles 需求A / 需求B → sanitizeFilename strips non-ASCII and appends a
     // deterministic short hash so paths stay CLAUDE.md-compliant (lowercase ASCII).
-    expect(outputs[0]).toMatch(/features\/\d{6}-a-[0-9a-z]+\/archive\.md$/);
-    expect(outputs[1]).toMatch(/features\/\d{6}-b-[0-9a-z]+\/archive\.md$/);
+    expect(outputs[0]).toMatch(/features\/_standing\/\d{6}-a-[0-9a-z]+\/cases\/archive\.md$/);
+    expect(outputs[1]).toMatch(/features\/_standing\/\d{6}-b-[0-9a-z]+\/cases\/archive\.md$/);
 
     const firstContent = readFileSync(outputs[0], "utf8");
     const secondContent = readFileSync(outputs[1], "utf8");
@@ -937,7 +937,9 @@ describe("history-convert --no-split XMind", () => {
     expect(out.converted).toBe(1);
     expect(out.files[0].caseCount).toBe(2);
     // 重复需求 contains no ASCII → falls back to `case-{hash}` (CLAUDE.md slug rule).
-    expect(out.files[0].output).toMatch(/features\/\d{6}-case-[0-9a-z]+\/archive\.md$/);
+    expect(out.files[0].output).toMatch(
+      /features\/_standing\/\d{6}-case-[0-9a-z]+\/cases\/archive\.md$/,
+    );
 
     const contentText = readFileSync(out.files[0].output, "utf8");
     expect(contentText).toMatch(/suite_name: "重复需求（#2001）"/);
@@ -1008,7 +1010,9 @@ describe("history-convert --no-split XMind", () => {
       files: { output: string; status: string }[];
     };
     expect(out.converted).toBe(1);
-    expect(out.files[0].output).toMatch(/features\/\d{6}-a-[0-9a-z]+\/archive\.md$/);
+    expect(out.files[0].output).toMatch(
+      /features\/_standing\/\d{6}-a-[0-9a-z]+\/cases\/archive\.md$/,
+    );
 
     const contentText = readFileSync(out.files[0].output, "utf8");
     expect(contentText).toMatch(/suite_name: "需求A（#3001）【需求变更】"/);

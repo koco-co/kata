@@ -79,7 +79,8 @@ describe("runCasesCompare", () => {
     const dir = "2026-05-fs";
     writeManifest(join(root, `claude/features/${dir}`), dir, [`lanhu.fixture:a#sha256:${SHA}`]);
     writeManifest(join(root, `codex/features/${dir}`), dir, [`lanhu.fixture:a#sha256:${SHA}`]);
-    writeFileSync(join(root, `claude/features/${dir}`, "cases.xmind"), "PK");
+    mkdirSync(join(root, `claude/features/${dir}`, "cases"), { recursive: true });
+    writeFileSync(join(root, `claude/features/${dir}`, "cases", "cases.xmind"), "PK");
     const r = runCasesCompare({
       leftDir: join(root, `claude/features/${dir}`),
       rightDir: join(root, `codex/features/${dir}`),

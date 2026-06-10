@@ -5,6 +5,7 @@ import { registerCasesE2e } from "@shared/cli/cases-e2e.ts";
 import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
+import { listFeatureDirs } from "@shared/lib/features/layout.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
@@ -38,23 +39,24 @@ export async function lintLanhuBlockedDrafts(
   for (const project of projects) {
     const featuresDir = join(workspaceRoot, project, "features");
     if (!existsSync(featuresDir)) continue;
-    const featureIds = scopedFeatureId
-      ? [scopedFeatureId]
-      : readdirSync(featuresDir).filter((name) => statSync(join(featuresDir, name)).isDirectory());
-    for (const featureId of featureIds) {
-      if (!/^\d{4}-\d{2}-unresolved-lanhu-[a-z0-9]+$/.test(featureId)) continue;
+    // listFeatureDirs 扫描两层结构（版本层 + legacy-flat），过滤 unresolved lanhu
+    const allEntries = scopedFeatureId
+      ? listFeatureDirs(featuresDir).filter((e) => e.dirName === scopedFeatureId)
+      : listFeatureDirs(featuresDir);
+    for (const entry of allEntries) {
+      if (!/^\d{4}-\d{2}-unresolved-lanhu-[a-z0-9]+$/.test(entry.dirName)) continue;
       const result = await runCasesValidate({
         project,
-        featureId,
+        featureId: entry.dirName,
         workspaceRoot,
         checkSourceRefs: [],
       });
       for (const issue of result.issues) {
         violations.push({
-          file: issue.path ?? join(workspaceRoot, project, "features", featureId),
+          file: issue.path ?? entry.dir,
           lineNumber: 1,
           rule: issue.rule,
-          matched: featureId,
+          matched: entry.dirName,
           severity: "fail" as const,
           message: issue.message,
         });

@@ -19,6 +19,7 @@ function loadSchema(filename: string): ValidateFunction {
 }
 
 export const loadFeatureMetadataValidator = () => loadSchema("FeatureMetadata.v1.schema.json");
+export const loadFeatureMetadataV2Validator = () => loadSchema("FeatureMetadata.v2.schema.json");
 export const loadFeatureManifestValidator = () => loadSchema("FeatureManifest.v2.schema.json");
 export const loadHandoffV2Validator = () =>
   loadSchema("PlaywrightAutomationHandoff.v2.schema.json");

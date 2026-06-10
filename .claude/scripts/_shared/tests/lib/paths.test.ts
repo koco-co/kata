@@ -334,40 +334,46 @@ describe("listProjects", () => {
 });
 
 describe("featureDir / featureFile (new v3 API)", () => {
-  test("featureDir returns workspace/{p}/features/{ym}-{slug}/", () => {
-    const result = featureDir("dataAssets", "202604", "myslug");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/202604-myslug$/);
+  test("featureDir returns workspace/{p}/features/{group}/{featureId}/", () => {
+    const result = featureDir("dataAssets", "_standing", "202604-myslug");
+    expect(result).toMatch(/workspace\/dataAssets\/features\/_standing\/202604-myslug$/);
   });
 
-  test("featureDir accepts dashed yyyymm (2026-04) and multi-segment slugs", () => {
-    const result = featureDir("dataAssets", "2026-04", "general-json-config");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/2026-04-general-json-config$/);
+  test("featureDir with version layer group", () => {
+    const result = featureDir("dataAssets", "v6.4.10", "2026-04-general-json-config");
+    expect(result).toMatch(
+      /workspace\/dataAssets\/features\/v6\.4\.10\/2026-04-general-json-config$/,
+    );
   });
 
-  test("featureDir accepts the 2099-XX placeholder month", () => {
-    const result = featureDir("dataAssets", "2099-XX", "draft-slug");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/2099-XX-draft-slug$/);
+  test("featureDir accepts the 2099-XX placeholder month in featureId", () => {
+    const result = featureDir("dataAssets", "_standing", "2099-XX-draft-slug");
+    expect(result).toMatch(/workspace\/dataAssets\/features\/_standing\/2099-XX-draft-slug$/);
   });
 
-  test("featureDir rejects slugs containing Chinese / 【】 (CLAUDE.md §Feature Directory Naming)", () => {
-    expect(() => featureDir("dataAssets", "202604", "【test】slug-with-中文")).toThrow(
+  test("featureDir rejects featureIds containing Chinese / 【】 (CLAUDE.md §Feature Directory Naming)", () => {
+    expect(() => featureDir("dataAssets", "_standing", "【test】slug-with-中文")).toThrow(
       /invalid feature id/,
     );
   });
 
-  test("featureDir rejects uppercase or whitespace in slug", () => {
-    expect(() => featureDir("dataAssets", "202604", "MySlug")).toThrow(/invalid feature id/);
-    expect(() => featureDir("dataAssets", "202604", "my slug")).toThrow(/invalid feature id/);
+  test("featureDir rejects uppercase or whitespace in featureId", () => {
+    expect(() => featureDir("dataAssets", "_standing", "MySlug")).toThrow(/invalid feature id/);
+    expect(() => featureDir("dataAssets", "_standing", "my slug")).toThrow(/invalid feature id/);
   });
 
   test("featureFile joins additional segments", () => {
-    const result = featureFile("dataAssets", "202604", "myslug", "tests", "t01.ts");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/202604-myslug\/tests\/t01\.ts$/);
+    const result = featureFile("dataAssets", "_standing", "202604-myslug", "tests", "t01.ts");
+    expect(result).toMatch(
+      /workspace\/dataAssets\/features\/_standing\/202604-myslug\/tests\/t01\.ts$/,
+    );
   });
 
   test("featureFile with single segment returns file inside feature dir", () => {
-    const result = featureFile("dataAssets", "202604", "myslug", "archive.md");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/202604-myslug\/archive\.md$/);
+    const result = featureFile("dataAssets", "_standing", "202604-myslug", "archive.md");
+    expect(result).toMatch(
+      /workspace\/dataAssets\/features\/_standing\/202604-myslug\/archive\.md$/,
+    );
   });
 });
 
@@ -398,8 +404,10 @@ describe("incidentDir / regressionDir (new v3 API)", () => {
 });
 
 describe("deprecated alias: enhancedMd routes to feature path", () => {
-  test("enhancedMd returns features/{ym}-{slug}/enhanced.md (post-v3 redirect)", () => {
+  test("enhancedMd returns features/_standing/{ym}-{slug}/enhanced.md (post-v3 redirect)", () => {
     const result = enhancedMd("dataAssets", "202604", "myslug");
-    expect(result).toMatch(/workspace\/dataAssets\/features\/202604-myslug\/enhanced\.md$/);
+    expect(result).toMatch(
+      /workspace\/dataAssets\/features\/_standing\/202604-myslug\/enhanced\.md$/,
+    );
   });
 });

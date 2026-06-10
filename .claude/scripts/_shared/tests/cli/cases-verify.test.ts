@@ -17,31 +17,14 @@ describe("runCasesVerify", () => {
   });
   afterEach(() => rmSync(ws, { recursive: true, force: true }));
 
-  function seed(featureId: string, manifest: object, archive: string) {
+  // 使用 FeatureMetadata@2，用例产物落 cases/ 子目录
+  function seed(featureId: string, meta: object, archive: string) {
     const dir = join(ws, "dataAssets/features", featureId);
+    mkdirSync(join(dir, "cases"), { recursive: true });
     mkdirSync(join(dir, "inputs"), { recursive: true });
-    writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
-    writeFileSync(join(dir, "archive.md"), archive);
-    writeFileSync(
-      join(dir, "metadata.yaml"),
-      [
-        "schema: FeatureMetadata@1",
-        `id: ${featureId}`,
-        "display_name: seed",
-        "status: active",
-        "created_at: '2026-05-23'",
-        "updated_at: '2026-05-23'",
-        "modules: [dq]",
-        "customers: []",
-        "versions: []",
-        "owners: [qa]",
-        "inputs: [{kind: lanhu, ref: 'https://lanhuapp.com/x'}]",
-        "relates_to: []",
-        "emits: {}",
-        "",
-      ].join("\n"),
-    );
-    writeFileSync(join(dir, "cases.xmind"), "PK");
+    writeFileSync(join(dir, "metadata.yaml"), JSON.stringify(meta, null, 2));
+    writeFileSync(join(dir, "cases/archive.md"), archive);
+    writeFileSync(join(dir, "cases/cases.xmind"), "PK");
     mkdirSync(join(dir, ".process"), { recursive: true });
     writeFileSync(
       join(dir, ".process", "source-snapshot.json"),
@@ -82,39 +65,48 @@ describe("runCasesVerify", () => {
     return dir;
   }
 
+  function metaV2(featureId: string, caseDrafting: object, automation?: object) {
+    return {
+      schema: "FeatureMetadata@2",
+      id: featureId,
+      display_name: "seed",
+      status: "active",
+      created_at: "2026-05-23",
+      updated_at: "2026-05-23",
+      modules: ["dq"],
+      customers: [],
+      versions: [],
+      owners: ["qa"],
+      inputs: [{ kind: "lanhu", ref: "https://lanhuapp.com/x" }],
+      relates_to: [],
+      emits: {},
+      case_drafting: caseDrafting,
+      automation: automation ?? {
+        status: "not-started",
+        intents: [],
+        last_run_status: "not-run",
+      },
+      files: {},
+    };
+  }
+
   it("fails L2 when knowledge/source inputs are missing", async () => {
     seed(
       "2026-05-lt-dq",
-      {
-        schema: "FeatureManifest@2",
-        feature_id: "2026-05-lt-dq",
-        case_drafting: {
-          status: "completed",
-          archive_path: "archive.md",
-          xmind_path: "cases.xmind",
-          coverage_matrix_path: "coverage-matrix.json",
-          requirement_atoms: [
-            {
-              id: "RA-1",
-              source_ref: `lanhu.fixture:f#sha256:${SHA}`,
-              ambiguity_class: "confirmed",
-              confidence: "high",
-            },
-          ],
-        },
-        automation: {
-          status: "not-started",
-          intents: [],
-          last_handoff_path: null,
-          last_run_status: "not-run",
-        },
-        files: {
-          archive: "archive.md",
-          xmind: "cases.xmind",
-          tests_root: null,
-          latest_results: null,
-        },
-      },
+      metaV2("2026-05-lt-dq", {
+        status: "completed",
+        archive_path: "cases/archive.md",
+        xmind_path: "cases/cases.xmind",
+        coverage_matrix_path: "coverage-matrix.json",
+        requirement_atoms: [
+          {
+            id: "RA-1",
+            source_ref: `lanhu.fixture:f#sha256:${SHA}`,
+            ambiguity_class: "confirmed",
+            confidence: "high",
+          },
+        ],
+      }),
       "# Cases\n",
     );
     const r = await runCasesVerify({
@@ -138,33 +130,17 @@ describe("runCasesVerify", () => {
     });
     seed(
       "2026-05-ok",
-      {
-        schema: "FeatureManifest@2",
-        feature_id: "2026-05-ok",
-        case_drafting: {
-          status: "completed",
-          archive_path: "archive.md",
-          xmind_path: "cases.xmind",
-          coverage_matrix_path: "coverage-matrix.json",
-          requirement_atoms: [
-            atom("RA-1", `lanhu.fixture:f#sha256:${SHA}`),
-            atom("RA-2", `knowledge.entry:terms#sha256:${SHA}`),
-            atom("RA-3", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
-          ],
-        },
-        automation: {
-          status: "not-started",
-          intents: [],
-          last_handoff_path: null,
-          last_run_status: "not-run",
-        },
-        files: {
-          archive: "archive.md",
-          xmind: "cases.xmind",
-          tests_root: null,
-          latest_results: null,
-        },
-      },
+      metaV2("2026-05-ok", {
+        status: "completed",
+        archive_path: "cases/archive.md",
+        xmind_path: "cases/cases.xmind",
+        coverage_matrix_path: "coverage-matrix.json",
+        requirement_atoms: [
+          atom("RA-1", `lanhu.fixture:f#sha256:${SHA}`),
+          atom("RA-2", `knowledge.entry:terms#sha256:${SHA}`),
+          atom("RA-3", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
+        ],
+      }),
       "# Cases\n## Login [RA-1]\n- step: click / expected: ok\n",
     );
     const r = await runCasesVerify({
@@ -186,36 +162,20 @@ describe("runCasesVerify", () => {
     });
     const dir = seed(
       "2026-05-nocore",
-      {
-        schema: "FeatureManifest@2",
-        feature_id: "2026-05-nocore",
-        case_drafting: {
-          status: "completed",
-          archive_path: "archive.md",
-          xmind_path: "cases.xmind",
-          coverage_matrix_path: "coverage-matrix.json",
-          requirement_atoms: [
-            atom("RA-1", `lanhu.fixture:f#sha256:${SHA}`),
-            atom("RA-2", `knowledge.entry:terms#sha256:${SHA}`),
-            atom("RA-3", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
-          ],
-        },
-        automation: {
-          status: "not-started",
-          intents: [],
-          last_handoff_path: null,
-          last_run_status: "not-run",
-        },
-        files: {
-          archive: "archive.md",
-          xmind: "cases.xmind",
-          tests_root: null,
-          latest_results: null,
-        },
-      },
+      metaV2("2026-05-nocore", {
+        status: "completed",
+        archive_path: "cases/archive.md",
+        xmind_path: "cases/cases.xmind",
+        coverage_matrix_path: "coverage-matrix.json",
+        requirement_atoms: [
+          atom("RA-1", `lanhu.fixture:f#sha256:${SHA}`),
+          atom("RA-2", `knowledge.entry:terms#sha256:${SHA}`),
+          atom("RA-3", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
+        ],
+      }),
       "# Cases\n## Login [RA-1]\n- step: click / expected: ok\n",
     );
-    rmSync(join(dir, "cases.xmind"));
+    rmSync(join(dir, "cases/cases.xmind"));
     const r = await runCasesVerify({
       project: "dataAssets",
       featureId: "2026-05-nocore",
@@ -224,7 +184,9 @@ describe("runCasesVerify", () => {
     });
     expect(r.ok).toBe(false);
     expect(
-      r.issues.some((i) => i.rule === "stable_core_missing" && i.message.includes("cases.xmind")),
+      r.issues.some(
+        (i) => i.rule === "stable_core_missing" && i.message.includes("cases/cases.xmind"),
+      ),
     ).toBe(true);
   });
 
@@ -237,33 +199,17 @@ describe("runCasesVerify", () => {
     });
     seed(
       "2026-05-hole",
-      {
-        schema: "FeatureManifest@2",
-        feature_id: "2026-05-hole",
-        case_drafting: {
-          status: "completed",
-          archive_path: "archive.md",
-          xmind_path: "cases.xmind",
-          coverage_matrix_path: "coverage-matrix.json",
-          requirement_atoms: [
-            atom("RA-1", `lanhu.fixture:f#sha256:${SHA}`),
-            atom("RA-2", `knowledge.entry:terms#sha256:${SHA}`),
-            atom("RA-9", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
-          ],
-        },
-        automation: {
-          status: "not-started",
-          intents: [],
-          last_handoff_path: null,
-          last_run_status: "not-run",
-        },
-        files: {
-          archive: "archive.md",
-          xmind: "cases.xmind",
-          tests_root: null,
-          latest_results: null,
-        },
-      },
+      metaV2("2026-05-hole", {
+        status: "completed",
+        archive_path: "cases/archive.md",
+        xmind_path: "cases/cases.xmind",
+        coverage_matrix_path: "coverage-matrix.json",
+        requirement_atoms: [
+          atom("RA-1", `lanhu.fixture:f#sha256:${SHA}`),
+          atom("RA-2", `knowledge.entry:terms#sha256:${SHA}`),
+          atom("RA-9", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
+        ],
+      }),
       "# Cases\n## Login [RA-1]\n- step: click / expected: ok\n",
     );
     const r = await runCasesVerify({

@@ -9,12 +9,14 @@ describe("kata features show", () => {
   let scratch: string;
   beforeEach(() => {
     scratch = mkdtempSync(join(tmpdir(), "kata-feat-show-"));
-    const dir = join(scratch, "dataAssets/features/2026-04-x");
+    // 使用 FeatureMetadata@2，feature 落版本层
+    const dir = join(scratch, "dataAssets/features/v6.4.10/2026-04-x");
     mkdirSync(dir, { recursive: true });
+    mkdirSync(join(dir, "runs"), { recursive: true });
     writeFileSync(
       join(dir, "metadata.yaml"),
       stringify({
-        schema: "FeatureMetadata@1",
+        schema: "FeatureMetadata@2",
         id: "2026-04-x",
         display_name: "X",
         status: "active",
@@ -22,21 +24,14 @@ describe("kata features show", () => {
         updated_at: "2026-04-01",
         modules: ["dq"],
         customers: ["standard"],
-        versions: [],
+        versions: ["v6.4.10"],
         owners: ["koco"],
         inputs: [],
         relates_to: [],
         emits: { cases_xmind: true, archive: true, playwright_tests: true },
-      }),
-    );
-    writeFileSync(
-      join(dir, "manifest.json"),
-      JSON.stringify({
-        schema: "FeatureManifest@2",
-        feature_id: "2026-04-x",
         case_drafting: {
           status: "completed",
-          archive_path: "archive.md",
+          archive_path: "cases/archive.md",
           requirement_atoms: [{ id: "RA-1", source_ref: "x" }],
         },
         automation: {
@@ -44,7 +39,7 @@ describe("kata features show", () => {
           intents: [
             {
               intent_id: "SR-INTENT-X",
-              case_files: ["tests/cases/t01.ts"],
+              case_files: ["automation/cases/t01.ts"],
               automation_status: "ready",
             },
           ],
@@ -56,14 +51,14 @@ describe("kata features show", () => {
   });
   afterEach(() => rmSync(scratch, { recursive: true, force: true }));
 
-  it("returns feature detail object", async () => {
+  it("returns feature detail object with metadata and recentRuns", async () => {
     const detail = await runFeaturesShow({
       project: "dataAssets",
       featureId: "2026-04-x",
       workspaceRoot: scratch,
     });
     expect(detail.metadata.id).toBe("2026-04-x");
-    expect(detail.manifest.automation.intents).toHaveLength(1);
+    expect(detail.metadata.automation.intents).toHaveLength(1);
     expect(detail.recentRuns).toEqual([]);
   });
 

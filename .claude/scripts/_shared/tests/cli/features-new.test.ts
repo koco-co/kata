@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runFeaturesNew } from "@shared/cli/features-new.ts";
-import { loadFeatureMetadataValidator } from "@shared/schemas/loaders.ts";
+import { loadFeatureMetadataV2Validator } from "@shared/schemas/loaders.ts";
 import { parse, stringify } from "yaml";
 
 describe("kata features new", () => {
@@ -29,7 +29,7 @@ describe("kata features new", () => {
     rmSync(scratch, { recursive: true, force: true });
   });
 
-  it("creates feature dir with metadata.yaml and manifest.json", async () => {
+  it("creates feature dir with FeatureMetadata@2 in _standing (no versions specified)", async () => {
     await runFeaturesNew({
       project: "dataAssets",
       slug: "dq-test",
@@ -42,17 +42,44 @@ describe("kata features new", () => {
       workspaceRoot: join(scratch, "workspace"),
       now: new Date("2026-05-14T10:00:00Z"),
     });
-    const featureDir = join(scratch, "workspace/dataAssets/features/2026-05-dq-test");
+    // 无版本 → 落 _standing/
+    const featureDir = join(scratch, "workspace/dataAssets/features/_standing/2026-05-dq-test");
     expect(existsSync(featureDir)).toBe(true);
     const meta = parse(readFileSync(join(featureDir, "metadata.yaml"), "utf-8"));
     expect(meta.id).toBe("2026-05-dq-test");
+    expect(meta.schema).toBe("FeatureMetadata@2");
     expect(meta.modules).toEqual(["dq"]);
-    expect(loadFeatureMetadataValidator()(meta)).toBe(true);
-    const manifest = JSON.parse(readFileSync(join(featureDir, "manifest.json"), "utf-8"));
-    expect(manifest.schema).toBe("FeatureManifest@2");
-    expect(manifest.feature_id).toBe("2026-05-dq-test");
+    expect(loadFeatureMetadataV2Validator()(meta)).toBe(true);
+    // @2 不产 manifest.json
+    expect(existsSync(join(featureDir, "manifest.json"))).toBe(false);
+    // 三个区目录
+    expect(existsSync(join(featureDir, "cases"))).toBe(true);
+    expect(existsSync(join(featureDir, "automation"))).toBe(true);
+    expect(existsSync(join(featureDir, "runs"))).toBe(true);
+    // inputs 目录
     expect(existsSync(join(featureDir, "inputs/prd-attachments/.gitkeep"))).toBe(true);
+    // INDEX.md 生成
     expect(existsSync(join(scratch, "workspace/dataAssets/features/INDEX.md"))).toBe(true);
+  });
+
+  it("creates feature dir under version layer when versions specified", async () => {
+    await runFeaturesNew({
+      project: "dataAssets",
+      slug: "dq-test-v2",
+      displayName: "测试V2",
+      modules: ["dq"],
+      customers: ["standard"],
+      versions: ["v6.4"],
+      owners: ["koco"],
+      inputs: ["prd"],
+      workspaceRoot: join(scratch, "workspace"),
+      now: new Date("2026-05-14T10:00:00Z"),
+    });
+    // versions[0] = "v6.4" → 版本目录
+    const featureDir = join(scratch, "workspace/dataAssets/features/v6.4/2026-05-dq-test-v2");
+    expect(existsSync(featureDir)).toBe(true);
+    const meta = parse(readFileSync(join(featureDir, "metadata.yaml"), "utf-8"));
+    expect(meta.schema).toBe("FeatureMetadata@2");
   });
 
   it("refuses to overwrite existing feature", async () => {

@@ -29,10 +29,16 @@ const SOURCE_REF_PATTERN =
 const SOURCE_REF_FILES = [
   "manifest.json",
   "enhanced.md",
+  // 根目录（legacy @1 布局）
   "archive.md",
   "archive.draft.md",
   "confirmation-package.md",
   "unresolved-summary.md",
+  // cases/ 子目录（@2 布局）
+  "cases/archive.md",
+  "cases/archive.draft.md",
+  "cases/confirmation-package.md",
+  "cases/unresolved-summary.md",
 ];
 
 function normalizedRequiredSchemes(checkSourceRefs: string[]): string[] {

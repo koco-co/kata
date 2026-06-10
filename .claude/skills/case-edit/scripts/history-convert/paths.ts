@@ -83,7 +83,14 @@ export function buildUniqueFeatureArchivePath(
   }
 
   for (const slug of candidates) {
-    const outputPath = featureFile(project, yyyymm, slug, "archive.md");
+    // 历史用例归 _standing；新布局 archive.md 落 cases/ 子目录
+    const outputPath = featureFile(
+      project,
+      "_standing",
+      `${yyyymm}-${slug}`,
+      "cases",
+      "archive.md",
+    );
     if (!usedPaths.has(outputPath)) {
       usedPaths.add(outputPath);
       return outputPath;

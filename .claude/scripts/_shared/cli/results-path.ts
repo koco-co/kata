@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { generateRunId } from "@shared/lib/features/run-id.ts";
+import { generateRunId, type RunType } from "@shared/lib/features/run-id.ts";
 
 export interface ResultsPathContext {
   project: string;
@@ -8,6 +8,8 @@ export interface ResultsPathContext {
   workspaceRoot: string;
   newRun: boolean;
   now?: Date;
+  /** Run type for new run allocation; defaults to "run". */
+  runType?: RunType;
 }
 
 export async function runResultsPath(
@@ -16,7 +18,7 @@ export async function runResultsPath(
   const featureRoot = join(ctx.workspaceRoot, ctx.project, "features", ctx.featureId);
   const resultsRoot = join(featureRoot, "results");
   if (ctx.newRun) {
-    const runId = generateRunId(ctx.now);
+    const runId = generateRunId({ type: ctx.runType ?? "run", runsDir: resultsRoot, now: ctx.now });
     return { runId, path: join(resultsRoot, runId) };
   }
   if (!existsSync(resultsRoot)) throw new Error(`No results found for ${ctx.featureId}`);

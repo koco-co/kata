@@ -164,6 +164,35 @@ function skippedResult(input: string, output: string, reason: string): FileConve
   return { input, output, status: "skipped", reason };
 }
 
+function convertOneCsvArchive(
+  inputPath: string,
+  archive: ReturnType<typeof csvRowsToArchives>[number],
+  force: boolean,
+  project: string,
+  mkdir: (path: string, opts: { recursive: boolean }) => void,
+): FileConvertResult {
+  const slug = archive.fileName.replace(/\.md$/, "");
+  const featureId = `${archive.archiveYYYYMM}-${slug}`;
+  const targetDir = featureDir(project, "_standing", featureId);
+  mkdir(targetDir, { recursive: true });
+  const outputPath = featureFile(project, "_standing", featureId, "archive.md");
+  if (existsSync(outputPath) && !force) {
+    return {
+      input: inputPath,
+      output: outputPath,
+      status: "skipped",
+      reason: `output exists (${archive.fileName}), use --force to overwrite`,
+    };
+  }
+  writeFileSync(outputPath, archive.content, "utf8");
+  return {
+    input: inputPath,
+    output: outputPath,
+    status: "converted",
+    caseCount: archive.caseCount,
+  };
+}
+
 export async function convertCsvRowsToResults(
   inputPath: string,
   rows: CsvRow[],
@@ -176,42 +205,12 @@ export async function convertCsvRowsToResults(
 
   if (rows.length === 0) {
     return [
-      {
-        input: inputPath,
-        output: outDir,
-        status: "failed",
-        reason: "no valid rows found in CSV",
-      },
+      { input: inputPath, output: outDir, status: "failed", reason: "no valid rows found in CSV" },
     ];
   }
 
   const archives = csvRowsToArchives(rows);
-  const results: FileConvertResult[] = [];
-
-  for (const archive of archives) {
-    const slug = archive.fileName.replace(/\.md$/, "");
-    const targetDir = featureDir(project, archive.archiveYYYYMM, slug);
-    mkdir(targetDir, { recursive: true });
-    const outputPath = featureFile(project, archive.archiveYYYYMM, slug, "archive.md");
-    if (existsSync(outputPath) && !force) {
-      results.push({
-        input: inputPath,
-        output: outputPath,
-        status: "skipped",
-        reason: `output exists (${archive.fileName}), use --force to overwrite`,
-      });
-      continue;
-    }
-    writeFileSync(outputPath, archive.content, "utf8");
-    results.push({
-      input: inputPath,
-      output: outputPath,
-      status: "converted",
-      caseCount: archive.caseCount,
-    });
-  }
-
-  return results;
+  return archives.map((archive) => convertOneCsvArchive(inputPath, archive, force, project, mkdir));
 }
 
 export function parseLevelFilter(raw?: string): string | undefined {
