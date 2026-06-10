@@ -1,15 +1,5 @@
 # Spec Reviewer 提示词 — case-draft
 
-## 目录
-
-- 硬规则优先级
-- SourceRef 分层 lint
-- Manifest 与证据完整性
-- MD ↔ JSON caseId 核对
-- Blocking pending
-- 平台/源码表单基线 lint
-- 输出格式
-
 仅在主会话运行本 reviewer。它是在 `case-draft` 产物落盘之后、质量审查或输出之前的一次机械契约检查。本 reviewer 不评判文字质量、不改写用例、不向用户提问。
 
 ## 硬规则优先级

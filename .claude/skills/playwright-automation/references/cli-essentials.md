@@ -112,7 +112,7 @@ await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅
 ## 请求 mock（page.route）
 
 > ⚠️ **kata 护栏**：仅用于探测边界态、隔离不稳定的第三方/非被测依赖、构造前置数据态。
-> **禁止 mock 被测业务接口的返回来让断言通过**。这等于表面通过，违反 §6 的步骤与断言真实性，也违反 quality-gate。
+> **禁止 mock 被测业务接口的返回来让断言通过。**
 
 ```javascript
 // 静态 stub（屏蔽外部图片/资源）

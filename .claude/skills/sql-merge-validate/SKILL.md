@@ -24,7 +24,7 @@ effort: high
 5. **bug 联动**：有 FAIL/finding → AskUser「是否转 defect-analyze 生成 bug/推禅道？」（推荐是），
    选是则带证据交接。
 
-## 权威口径
+## 合并判定规则
 
 - 合并真值以 DB `merge_group_key` 为准：key 非空且组内≥2 即「应合并」，空 key 即「应独立」。
 - 文档白名单只用于发现「合并了规格外 function」（如 fn26）的 globalFindings，不左右 ①② 的 PASS/FAIL。

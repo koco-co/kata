@@ -10,7 +10,7 @@ allowed-tools: Bash(kata *)
 
 # case-draft
 
-依需求源生成 QA 用例，全程证据驱动。每条事实都要有 SourceRef 支撑；缺证据就阻塞，不编造。
+依需求源生成 QA 用例。每条事实须有 SourceRef 支撑；缺证据就阻塞，不编造。
 
 ## 路由边界
 
@@ -39,7 +39,7 @@ allowed-tools: Bash(kata *)
 | .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ），不作事实来源 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用）    | 字段一致性、标题、前置条件、表单逐字匹配          |
 
-## 证据规范
+## 产物与引用规范
 
 - 所有产物写入 `kata features resolve` 返回的 `featureDir`。
 - 每个 requirement atom 必须包含 `evidence_kind`、`ambiguity_class`、`confidence`，以及至少一个 `source_ref`。
@@ -50,14 +50,14 @@ allowed-tools: Bash(kata *)
 
 ## 交付约束
 
-- `blocking pending` 未清零时，只能产出草稿与确认类产物（`confirmation-package.md` / `archive.draft.md` / `unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `archive.md` 与 `cases.xmind`。带着未决项交付正式产物，等于把缺口当作结论交付。
+- `blocking pending` 未清零时，只能产出草稿与确认类产物（`confirmation-package.md` / `archive.draft.md` / `unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `archive.md` 与 `cases.xmind`。
 - `manifest.json#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。
 
 ## 表单用例规则
 
 - 当用户提供了源码、平台 DOM/YAML、环境配置或截图作为表单证据时，这些证据必须进入必读集。
 - 生成表单用例前必须先建立「表单字段基线」，不得写入基线之外的字段、选项或按钮。QA 需要按实际文案逐字核对，多写就会失真。
-- 表单证据不可读时，用 `AskUserQuestion` 一次性批量索要缺口（推荐项置顶并附理由）；不得凭历史记录、few-shot 或模板补齐后产出最终 `archive.md` / `cases.xmind`。补造的字段没有证据支撑。
+- 表单证据不可读时，用 `AskUserQuestion` 一次性批量索要缺口（推荐项置顶并附理由）；不得凭历史记录、few-shot 或模板补齐后产出最终 `archive.md` / `cases.xmind`。
 
 ## 产物
 

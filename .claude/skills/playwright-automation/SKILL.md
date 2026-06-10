@@ -10,7 +10,7 @@ allowed-tools: Bash(kata *)
 
 # playwright-automation
 
-统一处理 UI 自动化的规划、真实页面探测、Playwright 生成、运行后判断原因与修复。没有真实证据，就不出最终脚本；没有 self-run 结果，就不下「通过」结论。
+将用例目录转为可跑通的 Playwright 脚本，覆盖真实页面探测、生成、运行和修复。
 
 ## 路由边界
 
@@ -70,17 +70,15 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 
 ## 真实性质控
 
-- 没有 ui-probe 证据，就不生成最终脚本（静态审查除外）。没探过真实页面的脚本只是猜测，不是测试。
-- 没有 self-run 结果，就不下「通过」结论。没跑过就说通过，是无效交付。
-- 每条在范围内的用例步骤都必须实现为真实的页面动作；每条 `expected_visible_result` 都必须断言为真实的业务结果，并实际跑通。
-- 禁止用「导航 + 可见性断言」代替业务动作与预期，禁止把业务流程简化成只测页面表层。只测页面表层，证明不了业务结果正确。
-- 无法真实实现的用例必须诚实阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category`），不得假装通过。
+- ui-probe 证据缺失时不生成最终脚本（静态审查除外）；self-run 结果缺失时不下「通过」结论。
+- 每条用例步骤须实现为真实的页面动作，每条 `expected_visible_result` 须断言为真实的业务结果；禁止用「导航 + 可见性断言」代替业务动作。
+- 无法真实实现的用例须阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category`）。
 
 ## 失败处理
 
 - 遇到失败，先判断归类（产品 / 脚本 / 数据 / 权限 / 环境），再决定修复策略。
 - 每个 spec 最多 3 次修复尝试，locator 内部重试最多 2 次。
-- 失败断言必须反映真实问题，严禁用弱断言、`try-catch`、`test.skip` 或宽泛条件来掩盖。掩盖式断言只是把失败伪装成通过。
+- 失败断言必须反映真实问题，严禁用弱断言、`try-catch`、`test.skip` 或宽泛条件来掩盖。
 
 ## 环境与产出
 
