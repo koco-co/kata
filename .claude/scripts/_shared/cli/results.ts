@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { RUN_TYPES, type RunType } from "@shared/lib/features/run-id.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
 import { runResultsPath } from "./results-path.ts";
@@ -12,12 +13,14 @@ export function buildResultsCommand(): Command {
     .description("分配新 run 目录或返回最近 run 路径")
     .option("--project <name>", "项目名", "dataAssets")
     .option("--new-run", "分配新 run id", false)
-    .action(async (featureId: string, opts: { project: string; newRun: boolean }) => {
+    .option("--type <type>", `run 类型 (${RUN_TYPES.join("|")})`, "run")
+    .action(async (featureId: string, opts: { project: string; newRun: boolean; type: string }) => {
       const out = await runResultsPath({
         project: opts.project,
         featureId,
         workspaceRoot: join(repoRoot(), "workspace"),
         newRun: opts.newRun,
+        runType: opts.type as RunType,
       });
       console.log(out.path);
     });
