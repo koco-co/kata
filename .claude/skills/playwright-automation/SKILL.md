@@ -70,6 +70,7 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 
 ## 真实性质控
 
+- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；不得修改 `workspace/{project}/.kata/repos/**`。
 - ui-probe 证据缺失时不生成最终脚本（静态审查除外）；self-run 结果缺失时不下「通过」结论。
 - 每条用例步骤须实现为真实的页面动作，每条 `expected_visible_result` 须断言为真实的业务结果；禁止用「导航 + 可见性断言」代替业务动作。
 - 无法真实实现的用例须阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category`）。

@@ -46,5 +46,5 @@ SSHPASS='<password>' sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeou
 
 ## 失败处理
 
-- 主机 `ping`/SSH 都不可达：多半是网络问题或目标机宕机，登机本身就会失败。记录证据，向用户反馈 pending，不要反复盲试。
+- 主机 `ping`/SSH 都不可达：多半是网络问题或目标机宕机，SSH 登录本身就会失败。记录证据，向用户反馈 pending，不要反复盲试。
 - 鉴权失败：按上面的凭据流程补凭据，不要无限重试默认密码。

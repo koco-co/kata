@@ -1,12 +1,5 @@
 # case-normalize
 
-## 目录
-
-- 输入优先级
-- 读取时机
-- 协议
-- 禁止
-
 ## 输入优先级
 
 1. **主源：** `features/<featureId>/manifest.json#automation.intents[]` 里 `automation_status: ready` 的项，逐条迭代。
@@ -59,10 +52,9 @@ cookie: {cookie_string}
 4. 需求目录不存在 → 输出 `blocked_by_case_conflict`，注明缺失路径
 5. 需求目录在、但缺 `archive.md`、`test-point-checklist.md` 和 `manifest.automation.intents[].automation_status=ready` 这三个自动化输入基线中的任一项，而同目录有 `prd.md` 和 `inputs/lanhu-snapshots/`：
    - 输出 `source_backed_bootstrap`
-   - 说明当前只有需求源材料，还没有最终 case-draft；下一步必须进入 `env-preflight`，默认推荐 `ltqc-local.yaml`（若存在），并通过 askuser 确认环境
-   - 本阶段不得读 `prd.md` 正文、截图内容、历史 feature、env profile 或跨目录 tests；env profile 的读取留给 `env-preflight`
-   - 进入 `source_backed_bootstrap` 后，必须先完成环境确认（等用户回复「确认」或给出环境文件名），才可进入后续阶段。确认环境之前：不得读取 `prd.md` 正文或截图内容，不得执行 `ls` / Glob / find 枚举 `inputs/`、`inputs/lanhu-snapshots/**` 或任何截图文件名，也不得将读取 PRD/截图与读取 env profile 放在同一轮并行执行。确认环境之后：`ui-plan` 可读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`；必须先走环境确认触点，等用户回复“确认”或环境文件名；确认前不得执行 `ls <target>/inputs`、`ls <target>/inputs/lanhu-snapshots`、Glob `inputs/lanhu-snapshots/**`、find，也不得枚举任何截图文件名
-   - 之后的 `ui-plan` 可以在确认环境后读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`，但必须把它们标成 `case_claim/design_source`，不得当作 observed UI 事实
+   - 说明当前只有需求源材料，还没有最终 case-draft；下一步必须进入 `env-preflight`，默认推荐 `ltqc-local.yaml`（若存在），并通过 AskUserQuestion 确认环境
+   - 环境确认之前（含本阶段）：不得读 `prd.md` 正文、截图内容、历史 feature、env profile 或跨目录 tests；不得用 `ls`/Glob/find 枚举 `inputs/`、`inputs/lanhu-snapshots/**` 或任何截图文件名；也不得把读取 PRD/截图与读取 env profile 放进同一轮并行执行。env profile 的读取留给 `env-preflight`
+   - 等用户回复「确认」或给出环境文件名后，`ui-plan` 才能读取当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**`，且只能标成 `case_claim`/`design_source`，不得当作 observed UI 事实
 6. 需求目录在、但缺 case-draft 自动化基线，又缺 `prd.md` 或 `inputs/lanhu-snapshots/`：
    - 输出 `blocked_by_case_draft_required`
    - 说明必须先完成 `/case-draft`，生成 `archive.md`、测试点清单或 ready automation intent
@@ -142,7 +134,7 @@ environment:
   automation_mode: generate / repair / debug
 ```
 
-### 第五步：只读限制确认
+### 第六步：只读限制确认
 
 - 本阶段已读的文件：SKILL.md + phases/§1-case-normalize.md + 目标 feature 目录下的 `archive.md` + 已有的 `tests/` 文件
 - **禁止**读的文件：
@@ -154,12 +146,9 @@ environment:
 
 ## 禁止
 
-- 不得把用户文字当作真实 UI 事实。
-- 不得弱化断言来换取通过。
-- 不得修改 `workspace/{project}/.kata/repos/**`。
+全局禁令见 SKILL.md「真实性质控」。本阶段另加：
+
 - 不得批量读取无关的历史 feature。
 - 不得在 case-normalize 阶段读 `_shared/env/*.yaml`（这是 env-preflight 的职责）。
 - 不得在 case-normalize 阶段读 Lanhu 截图、跑 OCR、建临时 Python/Node 环境，或为了看懂 UI 去装新依赖。
-- 缺 case-draft 输出、又缺同目录 `prd.md`/`inputs/lanhu-snapshots/` 源材料时，不得跳到 env-preflight、ui-plan 或 playwright-generate。
-- `case_drafting.status != completed` 或缺 `archive.md` 时，不得读无关的 `prd.md`、跨目录 `inputs/`、截图或历史测试内容；`source_backed_bootstrap` 只能在确认环境后读当前目标目录的源材料。
-- `source_backed_bootstrap` 在确认环境之前，不得读当前目标目录的 `prd.md` 正文、`inputs/lanhu-snapshots/**` 或图片内容；不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**`，也不得枚举截图文件名。
+- `case_drafting.status != completed` 或缺 `archive.md` 时，不得读无关的 `prd.md`、跨目录 `inputs/`、截图或历史测试内容；`source_backed_bootstrap` 只能在确认环境后读当前目标目录的源材料（细则见上文第一步第 5 项）。

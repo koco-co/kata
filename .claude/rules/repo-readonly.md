@@ -1,6 +1,6 @@
 # repo-readonly
 
-`workspace/{project}/.kata/repos/**` 下的源仓库是只读证据源：
+`workspace/{project}/.kata/repos/**` 下的源仓库一律只读，只作读代码、查事实用：
 
 - 不得 push、commit、写入。
 - 不得 mv、rm、改文件权限。

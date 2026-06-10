@@ -111,7 +111,7 @@ await expect(page.locator('[data-testid="result-panel"]')).toBeVisible(); // 仅
 
 ## 请求 mock（page.route）
 
-> ⚠️ **kata 护栏**：仅用于探测边界态、隔离不稳定的第三方/非被测依赖、构造前置数据态。
+> ⚠️ **使用边界**：仅用于探测边界态、隔离不稳定的第三方/非被测依赖、构造前置数据态。
 > **禁止 mock 被测业务接口的返回来让断言通过。**
 
 ```javascript
@@ -244,7 +244,7 @@ await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 `@playwright/cli`（`bunx playwright-cli`，0.1.x 早期 API）已作为 devDependency 安装，可在 §4 阶段作为省 token 的交互探索工具。**以下边界必须遵守**：
 
 1. **仅用于 ui-probe 阶段**的交互探索、页面 snapshot、codegen 起草 locator，不用于任何其他阶段。
-2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话的唯一真相仍是 `env profile` + `auth.session_path` storageState（§2 env-preflight 规则）。
+2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话状态一律以 `env profile` + `auth.session_path` storageState 为准（§2 env-preflight 规则）。
 3. **codegen / snapshot 产出是草稿**：必须经 ui-probe 真实证据（DOM 文本 / API）重新验证、改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）才能进 spec。
 4. **不替代 `probe.mjs` 证据要求**，也不绕过「每 ui-probe step ≤3 个探测脚本」预算。
 

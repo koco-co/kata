@@ -1,20 +1,5 @@
 # env-preflight
 
-## 目录
-
-- 读取时机
-- 目标
-- 静默边界
-- 用户输入解析
-- 环境确认
-- 工具拒绝哨兵
-- session 与登录态
-- 权限与环境分类
-- run-id 与证据目录
-- 探测脚本
-- 输出
-- 禁止
-
 ## 读取时机
 
 进入 `env-preflight` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
@@ -70,7 +55,7 @@ AskUserQuestion 不可用时，只输出下面这段，别的都不输出：
 
 fallback 必须是本轮最后一个 assistant action。`session_status` 只能写「文件存在」或「文件缺失」，不得写 session 有效、可用、未过期。
 
-## 工具拒绝哨兵
+## 工具拒绝处理
 
 确认 env profile 之后，只要工具结果含有下面任一含义，就立即终止 env-preflight：
 
@@ -104,7 +89,7 @@ session 文件在不在、mtime 超没超过 24 小时，都不能直接证明 s
 
 - mtime 只能用独立的简单命令读取：`stat -f "%m" <session_path>` 和单独的 `date +%s`。
 - 不得用 command substitution、arithmetic expansion、管道、`&&`、`||` 或分号去算 age。
-- mtime、run-id、evidence-dir 中任一命令被工具拒绝时，按工具拒绝哨兵输出 `blocked_by_environment: tool_permission_denied`。
+- mtime、run-id、evidence-dir 中任一命令被工具拒绝时，按「工具拒绝处理」输出 `blocked_by_environment: tool_permission_denied`。
 
 真实 probe 发现 `/login`、`/uic/#/login`、登录页正文或 `session_expired` 时，唯一可见文本必须直接从 `会话已过期。` 开始，并立即停止：
 
@@ -159,9 +144,8 @@ no_permission 只输出一次直接文本 blocker。不得给 tenant/project 名
 
 ## 禁止
 
-- 不得把需求文档、Archive MD 或截图描述当作真实 UI 事实。
-- 不得弱化断言来换取通过。
-- 不得修改 `workspace/{project}/.kata/repos/**`。
+全局禁令见 SKILL.md「真实性质控」。本阶段另加：
+
 - 不得把 cookie、token、password 写进 YAML、用例、报告或聊天记录。
 - 不得拿临时的 `/private/tmp` session 当可交付的运行入口。
 - 不得在 repo root、project 根目录或 feature 根目录留下 env-preflight 临时脚本。

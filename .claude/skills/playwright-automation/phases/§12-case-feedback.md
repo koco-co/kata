@@ -1,18 +1,5 @@
 # case-feedback
 
-## 目录
-
-- 读取时机
-- 协议
-- 8 类 category
-- 3 级 confidence
-- 服务器侧操作缺口
-- case-corrections.md 结构
-- sidecar summary json
-- 跨轮去重
-- 输出阈值
-- 禁止
-
 ## 读取时机
 
 进入 `case-feedback` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
@@ -152,4 +139,3 @@ by_category:
 - 不得依据 archive/PRD 文字单方面判定 UI 错；必须有 ui-probe / run-triage 证据。
 - 不得在 case-feedback step 调用 `/case-edit apply-corrections`（审批权在用户）。
 - 不得为通过率而弱化 evidence 要求。
-- 不得修改 `.kata/repos/{project}/**`。

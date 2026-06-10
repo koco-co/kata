@@ -76,9 +76,8 @@ repair_eligible:
 
 ## 禁止
 
-- 不得把用户文字当作真实 UI 事实。
-- 不得弱化断言来换取通过。
-- 不得修改 `workspace/{project}/.kata/repos/**`。
+全局禁令见 SKILL.md「真实性质控」。本阶段另加：
+
 - 不得不看实际错误类型，就把失败判定成 `test script error`。
 - 不得跳过 trace 或截图检查直接归类。
 - 不得为了进 repair-loop，把产品 bug 强行归成 script 错误。

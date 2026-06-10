@@ -22,7 +22,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 
 主 Skill 必须把以下约束逐字粘贴到 Worker prompt：
 
-> 你不读 SKILL.md，不读 hard rules。
+> 你不读 SKILL.md，不读硬规则。
 > 你不调用、不创建、不维护 TodoWrite。
 > 你完成子任务后只返回 JSON Status Envelope，不得追加任何叙述性文字、Markdown 或面向用户的内容。
 > 你不直接回复用户；需要用户补充、确认或授权时，返回 BlockedEnvelope 交回主 Skill。

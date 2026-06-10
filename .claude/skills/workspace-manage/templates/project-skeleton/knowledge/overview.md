@@ -1,7 +1,7 @@
 # {{project}} 业务概览
 
-> 本文件由 `knowledge-keeper` skill 维护。
-> 用户可直接编辑，但 AI 写入前应经过 knowledge-keeper API。
+> 本文件由 `knowledge-curate` skill 维护。
+> 用户可直接编辑，但 AI 写入应走 `kata knowledge-curate` CLI。
 > 填充指南：按当前 `knowledge-curate` skill 的知识规则维护，业务事实、实现说明与项目规则须分仓保存。
 
 ## 产品定位

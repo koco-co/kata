@@ -1,12 +1,5 @@
 # ui-probe
 
-## 目录
-
-- 读取时机
-- 协议
-- 输出
-- 禁止
-
 ## 读取时机
 
 进入 `ui-probe` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
@@ -124,9 +117,8 @@ page.on('response', async (res) => {
 
 ## 禁止
 
-- 不得把用户文字当作真实 UI 事实。
-- 不得弱化断言来换取通过。
-- 不得修改 `workspace/{project}/.kata/repos/**`。
+全局禁令见 SKILL.md「真实性质控」。本阶段另加：
+
 - 探测页面等待时，不得用 `waitForTimeout(2000)` 代替 `waitForLoadState("networkidle")`；探测脚本可以用 networkidle，但**不得把这种写法搬进交付 spec**。
 - 不得拿 Screenshot 证据替代 a11y 树/DOM 文本证据（截图只做视觉辅助，断言要靠 a11y 树或 DOM 文本）。
 - 不得在探查阶段改目标页面的数据（创建、编辑、删除操作）。

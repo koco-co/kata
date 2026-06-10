@@ -4,15 +4,15 @@
 source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending 计数检查。
 不得直接向用户提问，不得修改或落盘 artifact；只返回 review JSON。
 
-## 硬规则优先级
+## 硬规则优先
 
-- 先加载并遵守当前 `SKILL.md` hard_rules。任何检查项若与 hard rule、Lanhu/Axure
-  fallback、BlockedEnvelope 或 prompt 存在性检查冲突，写入 `out_of_scope`，不得写入
+- 先加载并遵守当前 `SKILL.md` 的硬规则。任何检查项若与硬规则、Lanhu/Axure
+  fallback、BlockedEnvelope 或 prompt 存在性检查冲突，写入 `out_of_scope`，不计
   `issues`。
-- 不在 forbidden path 上补跑 quality review：Lanhu/Axure source-intake/fallback、仍有
+- 不在禁止路径上补跑 quality review：Lanhu/Axure source-intake/fallback、仍有
   blocking pending、或 Worker 派发前置条件缺失时，只记录 `out_of_scope`。
 - 只做内容质量判断。若问题本质是 SourceRef 层级、FeatureManifest@2 轻量
-  `{ id, source_ref }` 形状、CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
+  `{ id, source_ref }` 结构、CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
   合规问题，记录到 `out_of_scope`，交由 spec reviewer。
 
 ## 检查项
@@ -33,17 +33,17 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 ### case_title 可读性
 
 - `case_title` 只作为人类可读标题，不是唯一机器 key，不得替代 `case_id` 做身份或覆盖判断。
-- 标题不得是低信息内容，如 `测试1`、`case1`、`新增`、`修改`、`正常流程`。
+- 标题不得没有信息量，如 `测试1`、`case1`、`新增`、`修改`、`正常流程`。
 - 好标题应表达对象、动作和预期结果；必要时包含 P level 或关键场景上下文。
-- 单条标题轻微含糊通常为 medium；批量低信息标题或标题误导执行者可判 high。
+- 单条标题轻微含糊通常为 medium；成批没有信息量的标题，或标题会误导执行者时，可判 high。
 
 ### 覆盖矩阵
 
 - 使用 CoverageMatrix@1、CaseEvidenceMap@1、`requirement_atom_ids`、FeatureManifest@2
-  轻量 `{ id, source_ref }` 与完整 RequirementAtom@1 作为内容覆盖上下文。
+  轻量 `{ id, source_ref }` 与完整 RequirementAtom@1 作为覆盖判断的上下文。
 - 判断 `product_confirmed`、`lanhu_observed`、已记录默认处理/defaulted 的需求是否被可执行用例覆盖。
 - `history_inferred` 只能作为参考，不能单独计为 `product_confirmed` 覆盖；若最终用例把历史推断当作产品确认覆盖，判 high 或 medium，视风险而定。
-- 不因 ID 缺失、字段形状或矩阵行结构本身失败而报 issue；这类机械问题写入 `out_of_scope`。
+- 不因 ID 缺失、字段结构或矩阵行结构本身的问题报 issue；这类机械问题写入 `out_of_scope`。
 
 ### 表述一致性
 
