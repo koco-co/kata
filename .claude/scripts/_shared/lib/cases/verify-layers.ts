@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { isV2 } from "@shared/lib/features/feature-meta.ts";
 import type { ResolvedTarget } from "@shared/lib/source-ref/resolve-target.ts";
 import { sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
 import {
@@ -86,8 +87,9 @@ export function verifyStructuredSchemas(input: {
       });
     }
     if (metaData !== undefined) {
-      const isV2 = (metaData as Record<string, unknown>)?.schema === "FeatureMetadata@2";
-      const validate = isV2 ? loadFeatureMetadataV2Validator() : loadFeatureMetadataValidator();
+      const validate = isV2(metaData as Record<string, unknown>)
+        ? loadFeatureMetadataV2Validator()
+        : loadFeatureMetadataValidator();
       if (!validate(metaData)) {
         issues.push({
           layer: "L1",

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runFeaturesLint } from "@shared/cli/features-lint.ts";
+import { runFeaturesLint, type Violation } from "@shared/cli/features-lint.ts";
 import { stringify } from "yaml";
 
 describe("kata features lint", () => {
@@ -296,18 +296,18 @@ describe("kata features lint", () => {
   it("reports manifest_residual when @2 feature still has manifest.json", async () => {
     seedV2({ group: "v6.4.10", dirName: "2026-04-dq-v2", withManifest: true });
     const r = await runFeaturesLint({ project: "dataAssets", workspaceRoot: scratch });
-    expect(r.violations.some((v: any) => v.rule === "manifest_residual")).toBe(true);
+    expect(r.violations.some((v: Violation) => v.rule === "manifest_residual")).toBe(true);
   });
 
   it("does not require manifest.json for @2 feature (no manifest_missing violation)", async () => {
     seedV2({ group: "v6.4.10", dirName: "2026-04-dq-v2" });
     const r = await runFeaturesLint({ project: "dataAssets", workspaceRoot: scratch });
-    expect(r.violations.some((v: any) => v.rule === "manifest_missing")).toBe(false);
+    expect(r.violations.some((v: Violation) => v.rule === "manifest_missing")).toBe(false);
   });
 
   it("validates enum on @2 feature (module not in enum is reported)", async () => {
     seedV2({ group: "v6.4.10", dirName: "2026-04-dq-v2-bad", module: "nope" });
     const r = await runFeaturesLint({ project: "dataAssets", workspaceRoot: scratch });
-    expect(r.violations.some((v: any) => v.rule === "module_not_in_enum")).toBe(true);
+    expect(r.violations.some((v: Violation) => v.rule === "module_not_in_enum")).toBe(true);
   });
 });

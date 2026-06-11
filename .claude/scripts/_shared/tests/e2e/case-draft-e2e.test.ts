@@ -32,6 +32,9 @@ modules: [dq]
 customers: []
 versions: []
 owners: [qa]
+inputs: []
+relates_to: []
+emits: {}
 case_drafting:
   status: completed
   archive_path: cases/archive.md

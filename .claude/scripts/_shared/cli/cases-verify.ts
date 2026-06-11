@@ -12,7 +12,7 @@ import {
   verifyStableCoreArtifacts,
   verifyStructuredSchemas,
 } from "@shared/lib/cases/verify-layers.ts";
-import { readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
+import { isV2, readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
 import {
   type ConfirmedSourceRepo,
   resolveSourceRefTarget,
@@ -33,10 +33,11 @@ export interface CasesVerifyResult {
 export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVerifyResult> {
   const dir = join(ctx.workspaceRoot, ctx.project, "features", ctx.featureId);
 
-  // 优先读 metadata.yaml（@2）；@1 回退读 manifest.json
+  // 读 metadata.yaml；按 schema 字段分流（不按 meta==null 分流）
   const meta = readFeatureMeta(dir);
-  if (!meta) {
-    // @1 legacy：尝试 manifest.json
+
+  if (!isV2(meta)) {
+    // @1（metadata.yaml schema=FeatureMetadata@1）或 metadata.yaml 完全缺失：走 manifest.json 路径
     const manifestPath = join(dir, "manifest.json");
     if (!existsSync(manifestPath)) {
       return {
@@ -56,11 +57,11 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
     return { ok: issues.length === 0, issues };
   }
 
+  // @2（metadata.yaml schema=FeatureMetadata@2）：从 metadata.yaml 三段读，不依赖 manifest.json
   const issues: VerifyIssue[] = [];
   const status: string =
     ((meta.case_drafting as Record<string, unknown> | undefined)?.status as string) ?? "unknown";
 
-  // @2 不依赖 manifest.json，跳过 manifest schema 校验；只做 archive leak 检测
   const casesArchivePath = existsSync(join(dir, "cases", "archive.md"))
     ? join(dir, "cases", "archive.md")
     : join(dir, "archive.md");

@@ -12,7 +12,10 @@
     "modules",
     "customers",
     "versions",
-    "owners"
+    "owners",
+    "inputs",
+    "relates_to",
+    "emits"
   ],
   "additionalProperties": false,
   "properties": {

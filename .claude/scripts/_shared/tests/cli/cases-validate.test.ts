@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
+import { stringify as stringifyYaml } from "yaml";
 
 describe("kata cases validate", () => {
   function blockedLanhuManifest(featureId: string) {
@@ -480,6 +481,90 @@ describe("kata cases validate", () => {
       });
       expect(badFeature.ok).toBe(false);
       expect(badFeature.issues.map((issue) => issue.rule)).toContain("feature_id_invalid");
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  // Fix D: @2 feature path — no manifest.json needed; source refs collected from cases/ subdir
+  it("@2 feature: validates without manifest.json using metadata.yaml", async () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-validate-v2-"));
+    try {
+      const featureDir = join(scratch, "dataAssets/features/2026-05-v2-demo");
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
+      writeFileSync(
+        join(featureDir, "metadata.yaml"),
+        stringifyYaml({
+          schema: "FeatureMetadata@2",
+          id: "2026-05-v2-demo",
+          display_name: "V2 demo",
+          status: "active",
+          created_at: "2026-05-01",
+          updated_at: "2026-05-01",
+          modules: ["dq"],
+          customers: [],
+          versions: [],
+          owners: ["qa"],
+          inputs: [],
+          relates_to: [],
+          emits: {},
+          case_drafting: { status: "in-progress" },
+          automation: { status: "not-started", intents: [], last_run_status: "not-run" },
+          files: {},
+        }),
+      );
+      // No manifest.json — @2 feature should not fail with manifest_missing
+      const result = await runCasesValidate({
+        project: "dataAssets",
+        featureId: "2026-05-v2-demo",
+        workspaceRoot: scratch,
+        checkSourceRefs: [],
+      });
+      expect(result.issues.map((i) => i.rule)).not.toContain("manifest_missing");
+      expect(result.ok).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("@2 feature: source refs collected from cases/ subdir", async () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-validate-v2-"));
+    try {
+      const featureDir = join(scratch, "dataAssets/features/2026-05-v2-refs");
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
+      writeFileSync(
+        join(featureDir, "metadata.yaml"),
+        stringifyYaml({
+          schema: "FeatureMetadata@2",
+          id: "2026-05-v2-refs",
+          display_name: "V2 refs",
+          status: "active",
+          created_at: "2026-05-01",
+          updated_at: "2026-05-01",
+          modules: ["dq"],
+          customers: [],
+          versions: [],
+          owners: ["qa"],
+          inputs: [],
+          relates_to: [],
+          emits: {},
+          case_drafting: { status: "in-progress" },
+          automation: { status: "not-started", intents: [], last_run_status: "not-run" },
+          files: {},
+        }),
+      );
+      // place source ref in cases/archive.md
+      writeFileSync(
+        join(featureDir, "cases/archive.md"),
+        `SourceRef: lanhu.fixture:demo#sha256:${"b".repeat(64)}\n`,
+      );
+      const result = await runCasesValidate({
+        project: "dataAssets",
+        featureId: "2026-05-v2-refs",
+        workspaceRoot: scratch,
+        checkSourceRefs: ["lanhu.fixture"],
+      });
+      expect(result.ok).toBe(true);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }
