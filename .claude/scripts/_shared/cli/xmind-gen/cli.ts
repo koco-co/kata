@@ -25,7 +25,7 @@ import type { IntermediateJson } from "@shared/lib/types.ts";
 import { archiveToJson } from "./archive.ts";
 import type { OutputResult, RenderOptions, WriteMode } from "./render.ts";
 import { buildL1Title, buildRootTitle, countCases, createXmind, validateInput } from "./render.ts";
-import { appendXmind, replaceXmind } from "./xmind-io.ts";
+import { appendXmind, applyFoldingToFile, replaceXmind } from "./xmind-io.ts";
 
 interface GenerateOptions {
   input: string;
@@ -142,6 +142,7 @@ async function writeJsonInput(
     } else {
       await replaceXmind(data, outputPath, project, renderOptions);
     }
+    await applyFoldingToFile(outputPath);
   } catch (err) {
     process.stderr.write(`[xmind-gen] Error: ${err}\n`);
     process.exit(1);
@@ -244,6 +245,7 @@ export async function processMdFile(
     } else {
       await replaceXmind(data, xmindPath, project, renderOptions);
     }
+    await applyFoldingToFile(xmindPath);
   } catch (err) {
     process.stderr.write(`[xmind-gen] Error processing ${mdPath}: ${err}\n`);
     return;

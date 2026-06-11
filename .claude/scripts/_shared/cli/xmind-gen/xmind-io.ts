@@ -58,6 +58,29 @@ export async function writeXmindSheets(zip: JSZip, outputPath: string): Promise<
   writeFileSync(outputPath, out);
 }
 
+// 给用例节点设置默认折叠：有子节点(步骤)且带 marker/notes 的就是用例节点，
+// 折叠后打开 xmind 默认只露用例标题；模块/分组节点(无 marker/notes)保持展开。
+function foldCaseNode(node: XMindTopicNode): void {
+  const children = node.children?.attached;
+  if (!children || children.length === 0) return;
+  if (node.markers || node.notes) {
+    node.branch = "folded";
+  }
+  for (const child of children) {
+    foldCaseNode(child);
+  }
+}
+
+/** Mark every test-case topic in the written .xmind as folded by default. */
+export async function applyFoldingToFile(outputPath: string): Promise<void> {
+  const [sheets, zip] = await readXmindSheets(outputPath);
+  for (const sheet of sheets) {
+    if (sheet.rootTopic) foldCaseNode(sheet.rootTopic);
+  }
+  zip.file("content.json", JSON.stringify(sheets));
+  await writeXmindSheets(zip, outputPath);
+}
+
 export function buildRawCaseNode(tc: TestCase, options: RenderOptions = {}): XMindTopicNode {
   const stepNodes: XMindTopicNode[] = options.stepsAsNotes
     ? []
