@@ -75,7 +75,13 @@ export interface FeaturesMigrateContext {
   allowUnresolved?: boolean;
   /** Fallback group when resolveGroup returns null (e.g. "_standing"). If passed and invalid, throws on apply. */
   fallbackGroup?: string;
-  /** Custom move function; defaults to renameSync. Inject a git mv wrapper in real runs. */
+  /**
+   * Test seam for the move primitive; defaults to renameSync.
+   * Production MUST use renameSync (the default) — do NOT inject git mv here: git mv
+   * only relocates tracked files and breaks when manifest.json is pre-deleted by the
+   * merge step, leaving husk directories. The command stages the result via `git add -A`
+   * after migration instead.
+   */
   move?: (from: string, to: string) => void;
 }
 
@@ -176,7 +182,7 @@ function safeMove(move: (from: string, to: string) => void, from: string, to: st
   move(from, to);
   if (existsSync(from) || !existsSync(to)) {
     throw new Error(
-      `migrate move failed: ${from} -> ${to}（源残留或目标缺失，可能是 git mv -k 静默跳过或权限问题）`,
+      `migrate move failed: ${from} -> ${to}（源残留或目标缺失，可能是跨设备 rename、权限问题或目标被占用）`,
     );
   }
 }
