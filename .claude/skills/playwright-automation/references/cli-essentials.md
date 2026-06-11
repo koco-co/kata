@@ -192,7 +192,7 @@ await expect(popup).toHaveURL(/\/detail\//);
 const downloadPromise = page.waitForEvent("download");
 await page.getByRole("button", { name: "导出" }).click();
 const download = await downloadPromise;
-await download.saveAs(`results/${runId}/playwright/downloads/${download.suggestedFilename()}`);
+await download.saveAs(`runs/${runId}/playwright/downloads/${download.suggestedFilename()}`);
 expect(download.suggestedFilename()).toMatch(/^report_\d{8}\.xlsx$/);
 // download.path() = 临时路径（context 关闭前有效）；download.failure() 可取失败原因
 ```
@@ -203,7 +203,7 @@ expect(download.suggestedFilename()).toMatch(/^report_\d{8}\.xlsx$/);
 // Tracing：context 层面控制，覆盖完整执行流程
 await context.tracing.start({ screenshots: true, snapshots: true });
 // … 操作 …
-await context.tracing.stop({ path: `results/${runId}/playwright/trace.zip` });
+await context.tracing.stop({ path: `runs/${runId}/playwright/trace.zip` });
 
 // 或在 playwright.config.ts 全局开启（推荐 CI）
 // use: { trace: 'on-first-retry' }
@@ -212,13 +212,13 @@ await context.tracing.stop({ path: `results/${runId}/playwright/trace.zip` });
 const context = await browser.newContext({
   storageState: env.session_path,
   recordVideo: {
-    dir: `results/${runId}/playwright/videos/`,
+    dir: `runs/${runId}/playwright/videos/`,
     size: { width: 1280, height: 800 },
   },
 });
 ```
 
-**取舍**：trace 调试失败步骤（DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证。**清理**：`find results -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
+**取舍**：trace 调试失败步骤（DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证。**清理**：`find runs -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
 
 ## 用户视觉确认
 证据不足时的原生方案：
@@ -226,7 +226,7 @@ const context = await browser.newContext({
 ```typescript
 // 截图后通过 AskUserQuestion 让用户描述目标入口
 await page.screenshot({
-  path: `results/${runId}/playwright/ui-probe/page-current.png`,
+  path: `runs/${runId}/playwright/ui-probe/page-current.png`,
   fullPage: true,
 });
 // → AskUserQuestion：「截图已保存，请描述目标操作入口的文字/位置」
