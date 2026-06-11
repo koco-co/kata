@@ -1,5 +1,7 @@
 ---
-suite_name: "岚图主流程用例集合"
+root_name: "数据资产v6.4.11迭代用例(#23)"
+suite_name: "【岚图】【数据资产】数据资产适配lindorm"
+prd_id: 15889
 description: "数据资产岚图定制版主流程回归测试用例（数据质量从 CSV 重抽富化）"
 tags:
   - "主流程"
