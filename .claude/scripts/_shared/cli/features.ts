@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { readdirSync, renameSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
@@ -219,7 +219,7 @@ export function buildFeaturesCommand(): Command {
       // git mv 包装：git mv 失败时回退到普通 renameSync
       const gitMove = (from: string, to: string) => {
         try {
-          execSync(`git mv "${from}" "${to}"`, { stdio: "pipe" });
+          execFileSync("git", ["mv", from, to], { stdio: "pipe" });
         } catch {
           console.warn(`WARN: git mv failed, falling back to rename (non-git env?)`);
           renameSync(from, to);
