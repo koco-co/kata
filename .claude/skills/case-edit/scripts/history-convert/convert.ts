@@ -175,7 +175,9 @@ function convertOneCsvArchive(
   const featureId = `${archive.archiveYYYYMM}-${slug}`;
   const targetDir = featureDir(project, "_standing", featureId);
   mkdir(targetDir, { recursive: true });
-  const outputPath = featureFile(project, "_standing", featureId, "archive.md");
+  // 新三区布局：archive.md 落 cases/ 子目录，与 paths.ts 的 buildUniqueFeatureArchivePath 保持一致
+  const outputPath = featureFile(project, "_standing", featureId, "cases", "archive.md");
+  mkdir(featureFile(project, "_standing", featureId, "cases"), { recursive: true });
   if (existsSync(outputPath) && !force) {
     return {
       input: inputPath,
