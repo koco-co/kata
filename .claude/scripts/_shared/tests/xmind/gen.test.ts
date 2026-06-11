@@ -70,6 +70,42 @@ describe("xmind-gen.ts create mode", () => {
     expect(statSync(output).size > 0).toBeTruthy();
   });
 
+  it("folds test-case topics by default, keeps module nodes expanded", async () => {
+    const output = join(TMP_DIR, "test-fold.xmind");
+    const { code } = run(["--input", FIXTURE, "--output", output]);
+    expect(code).toBe(0);
+
+    type Node = {
+      title?: string;
+      branch?: string;
+      markers?: unknown[];
+      notes?: unknown;
+      children?: { attached?: Node[] };
+    };
+    const sheets = (await readContentJson(output)) as { rootTopic?: Node }[];
+
+    let caseFolded = 0;
+    let structureExpanded = 0;
+    const walk = (n: Node): void => {
+      const kids = n.children?.attached ?? [];
+      const isCase = (n.markers !== undefined || n.notes !== undefined) && kids.length > 0;
+      if (isCase) {
+        // 用例节点必须默认折叠
+        expect(n.branch).toBe("folded");
+        caseFolded++;
+      } else if (kids.length > 0) {
+        // 模块/分组节点(无 marker/notes)保持展开, 不应被折叠
+        expect(n.branch).toBeUndefined();
+        structureExpanded++;
+      }
+      for (const c of kids) walk(c);
+    };
+    for (const s of sheets) if (s.rootTopic) walk(s.rootTopic);
+
+    expect(caseFolded).toBeGreaterThan(0);
+    expect(structureExpanded).toBeGreaterThan(0);
+  });
+
   it("outputs valid JSON result to stdout", () => {
     const output = join(TMP_DIR, "test-stdout.xmind");
     const { code, stdout } = run(["--input", FIXTURE, "--output", output]);

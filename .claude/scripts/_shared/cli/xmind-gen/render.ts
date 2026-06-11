@@ -9,11 +9,11 @@
  *   kata xmind-gen --help
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { loadXmindRules } from "@shared/lib/rules.ts";
 import type { IntermediateJson, Meta, Module, Page, TestCase } from "@shared/lib/types.ts";
 import type { MarkerId, TopicBuilder } from "xmind-generator";
-import { Marker, RootTopic, Topic, Workbook, writeLocalFile } from "xmind-generator";
+import { Marker, RootTopic, Topic, Workbook } from "xmind-generator";
 
 export type WriteMode = "create" | "append" | "replace";
 export type RootAwareMeta = Meta & { root_name?: string };
@@ -287,7 +287,10 @@ export async function createXmind(
   }
   const root = RootTopic(rootTitle).children([l1]);
   const wb = Workbook(root);
-  await writeLocalFile(wb, outputPath);
+  // 库自带的 writeLocalFile 内部不 await writeFile，落盘前就 resolve，
+  // 紧接着 applyFoldingToFile 读回会撞上空文件；这里自己同步写盘绕开竞态。
+  const buffer = await wb.archive();
+  writeFileSync(outputPath, Buffer.from(buffer));
 }
 
 // ─── Mode: append / replace (raw nodes) ─────────────────────────────────────
