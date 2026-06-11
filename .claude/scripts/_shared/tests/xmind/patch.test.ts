@@ -110,7 +110,8 @@ describe("xmind-patch search", () => {
     expect(match).toBeTruthy();
     if (!match) throw new Error("match not found");
     expect(match.file).toBe(xmindPath);
-    expect(match.priority).toBe("P0");
+    // fixture 写 P0，priority-1 反向归一为 P1（P1 为最高的 canonical 值）
+    expect(match.priority).toBe("P1");
     expect(Array.isArray(match.tree_path)).toBeTruthy();
     expect(match.tree_path.includes("验证默认加载列表页")).toBeTruthy();
   });
@@ -161,7 +162,7 @@ describe("xmind-patch show", () => {
     };
 
     expect(caseData.title).toBe("验证默认加载列表页");
-    expect(caseData.priority).toBe("P0");
+    expect(caseData.priority).toBe("P1");
     expect(caseData.preconditions).toBeTruthy();
     expect(caseData.preconditions!).toMatch(/环境已部署/);
     expect(Array.isArray(caseData.steps)).toBeTruthy();
@@ -201,7 +202,7 @@ describe("xmind-patch patch", () => {
       before: { priority: string };
       after: { priority: string };
     };
-    expect(result.before.priority).toBe("P0");
+    expect(result.before.priority).toBe("P1");
     expect(result.after.priority).toBe("P2");
 
     // Verify actual file was updated
@@ -225,7 +226,7 @@ describe("xmind-patch patch", () => {
     const caseNode = findByTitle(rootTopic, "验证默认加载列表页");
     expect(caseNode).toBeTruthy();
     if (!caseNode) throw new Error("caseNode not found");
-    expect(caseNode.markers?.some((m) => m.markerId === "priority-3")).toBeTruthy();
+    expect(caseNode.markers?.some((m) => m.markerId === "priority-2")).toBeTruthy();
   });
 
   it("patches steps of an existing case", async () => {
@@ -343,7 +344,7 @@ describe("xmind-patch patch", () => {
     };
     expect(result.dry_run).toBe(true);
     expect(result.before.title).toBe("验证默认加载列表页");
-    expect(result.before.priority).toBe("P0");
+    expect(result.before.priority).toBe("P1");
     expect(result.after.title).toBe("验证默认加载列表页（预览）");
     expect(result.after.priority).toBe("P2");
     expect(result.file).toBe(xmindPath);
