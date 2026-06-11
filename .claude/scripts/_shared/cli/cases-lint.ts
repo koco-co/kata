@@ -11,6 +11,7 @@ import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "@shared/lint/case-traceability-header.ts";
 import { lintDebugFileNaming } from "@shared/lint/debug-file-naming.ts";
+import { lintFeatureRootLayout } from "@shared/lint/feature-root-layout.ts";
 import { lintHandoffDoubleTrack } from "@shared/lint/handoff-double-track.ts";
 import { lintHardcodePath } from "@shared/lint/hardcode-path.ts";
 import { lintNoDebugInCases } from "@shared/lint/no-debug-in-cases.ts";
@@ -147,6 +148,10 @@ export function buildCasesCommand(): Command {
             lintNoDanglingHelpers(workspaceLintRoot),
             lintSpecStructureValid(workspaceLintRoot),
             lintSourceRefRegistry(workspaceLintRoot),
+            // L12: feature root layout check (runs for each project's features dir)
+            ...projects.map((project) => ({
+              violations: lintFeatureRootLayout(join(workspaceLintRoot, project, "features")),
+            })),
           ];
       const archiveOutputRoots =
         scopedProject && scopedFeatureId

@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
 import JSZip from "jszip";
 import type { CaseLintReport, CaseLintViolation } from "./types.ts";
 
@@ -142,9 +143,22 @@ async function readPresentationText(file: string): Promise<string | null> {
 
 function presentationFileNames(featureDir: string): string[] {
   const names = new Set(PRESENTATION_FILES);
+  // 优先读 metadata.yaml（FeatureMetadata@2 已合并 manifest.json）；兼容旧 manifest.json
+  const meta = readFeatureMeta(featureDir);
+  if (meta) {
+    for (const value of [
+      meta.case_drafting?.archive_path,
+      meta.case_drafting?.xmind_path,
+      meta.files?.archive,
+      meta.files?.xmind,
+    ]) {
+      if (typeof value === "string" && value.trim()) names.add(value.trim());
+    }
+    return [...names];
+  }
+  // 兼容旧 manifest.json（未迁移的 feature）
   const manifestFile = join(featureDir, "manifest.json");
   if (!existsSync(manifestFile)) return [...names];
-
   try {
     const manifest = JSON.parse(readFileSync(manifestFile, "utf-8")) as {
       case_drafting?: {
@@ -167,7 +181,6 @@ function presentationFileNames(featureDir: string): string[] {
   } catch {
     return [...names];
   }
-
   return [...names];
 }
 

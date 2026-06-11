@@ -374,9 +374,9 @@ describe("kata cases lint", () => {
     try {
       const featureId = "2026-05-case-qa";
       const featureDir = join(scratch, "dataAssets/features", featureId);
-      mkdirSync(featureDir, { recursive: true });
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
       writeFileSync(
-        join(featureDir, "archive.md"),
+        join(featureDir, "cases", "archive.md"),
         [
           "---",
           "suite_name: test",
@@ -406,9 +406,9 @@ describe("kata cases lint", () => {
     try {
       const featureId = "2026-05-case-qa-feature-scope";
       const featureDir = join(scratch, "dataAssets/features", featureId);
-      mkdirSync(featureDir, { recursive: true });
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
       writeFileSync(
-        join(featureDir, "archive.md"),
+        join(featureDir, "cases", "archive.md"),
         [
           "---",
           "suite_name: test",

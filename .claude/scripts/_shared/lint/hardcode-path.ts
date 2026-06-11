@@ -30,8 +30,8 @@ const SUFFIXES = [".ts", ".tsx", ".js", ".json", ".yaml", ".yml", ".md"];
 
 function walk(dir: string, out: string[]): void {
   try {
-    // Skip generated evidence directories for both file and directory entries.
-    if (dir.includes("/results/")) return;
+    // 跳过生成的证据目录（runs/ 是新三区布局，results/ 是旧布局兼容保留）
+    if (dir.includes("/runs/") || dir.includes("/results/")) return;
     const st = statSync(dir);
     if (st.isFile()) {
       if (SUFFIXES.some((s) => dir.endsWith(s))) out.push(dir);

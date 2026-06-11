@@ -12,7 +12,10 @@ describe("gate: handoff_double_track", () => {
   afterEach(() => rmSync(scratch, { recursive: true, force: true }));
 
   function seedRun(opts: { json?: string; md?: string }) {
-    const dir = join(scratch, "dataAssets/features/2026-04-x/results/20260510-1430-aaaaaaaa");
+    const dir = join(
+      scratch,
+      "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-aaaaaaaa",
+    );
     mkdirSync(dir, { recursive: true });
     if (opts.json !== undefined) writeFileSync(join(dir, "handoff.json"), opts.json);
     if (opts.md !== undefined) writeFileSync(join(dir, "handoff.md"), opts.md);

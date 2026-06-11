@@ -34,7 +34,7 @@ const SOURCE_REF_RE = /\bSR-[A-Z][A-Z-]*-[A-Z0-9-]+\b/g;
 
 export function lintSourceRefRegistry(workspaceRoot: string): CaseLintReport {
   const violations: CaseLintReport["violations"] = [];
-  const pattern = join(workspaceRoot, "*/features/*/tests/cases/**/*.ts");
+  const pattern = join(workspaceRoot, "*/features/**/automation/tests/cases/**/*.ts");
   const glob = new Glob(pattern);
   let files = 0;
 

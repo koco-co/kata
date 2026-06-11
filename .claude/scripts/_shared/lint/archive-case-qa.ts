@@ -27,7 +27,7 @@ function isDir(p: string): boolean {
 }
 
 function scanArchive(featureDir: string, violations: CaseLintViolation[]): void {
-  const archivePath = join(featureDir, "archive.md");
+  const archivePath = join(featureDir, "cases", "archive.md");
   if (!existsSync(archivePath)) return;
   const lines = readFileSync(archivePath, "utf-8").split("\n");
 
@@ -112,7 +112,7 @@ export function lintArchiveCaseQa(featuresGlobRoot: string): CaseLintReport {
   let files = 0;
   // featuresGlobRoot may be <workspace>/<project>/features or one feature dir.
   const roots: string[] = [];
-  if (isDir(featuresGlobRoot) && existsSync(join(featuresGlobRoot, "archive.md"))) {
+  if (isDir(featuresGlobRoot) && existsSync(join(featuresGlobRoot, "cases", "archive.md"))) {
     roots.push(featuresGlobRoot);
   } else if (isDir(featuresGlobRoot) && featuresGlobRoot.endsWith("features")) {
     roots.push(featuresGlobRoot);
@@ -123,7 +123,7 @@ export function lintArchiveCaseQa(featuresGlobRoot: string): CaseLintReport {
     }
   }
   for (const fr of roots) {
-    if (existsSync(join(fr, "archive.md"))) {
+    if (existsSync(join(fr, "cases", "archive.md"))) {
       files += 1;
       scanArchive(fr, violations);
       scanMachineFilesInRoot(fr, violations);
@@ -132,7 +132,7 @@ export function lintArchiveCaseQa(featuresGlobRoot: string): CaseLintReport {
     for (const fid of readdirSync(fr)) {
       const fdir = join(fr, fid);
       if (!isDir(fdir)) continue;
-      if (!existsSync(join(fdir, "archive.md"))) continue;
+      if (!existsSync(join(fdir, "cases", "archive.md"))) continue;
       files += 1;
       scanArchive(fdir, violations);
       scanMachineFilesInRoot(fdir, violations);

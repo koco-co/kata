@@ -4,7 +4,7 @@ import type { Violation } from "./types.ts";
 
 export function lintNoFeatureLocalHelpers(workspaceRoot: string): { violations: Violation[] } {
   const violations: Violation[] = [];
-  const pattern = join(workspaceRoot, "*/features/*/tests/helpers/*.ts");
+  const pattern = join(workspaceRoot, "*/features/**/automation/tests/helpers/*.ts");
   const glob = new Glob(pattern);
   for (const file of glob.scanSync()) {
     violations.push({

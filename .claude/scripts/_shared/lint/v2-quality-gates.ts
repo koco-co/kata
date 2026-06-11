@@ -48,7 +48,7 @@ function getNestedValue(value: unknown, path: readonly string[]): unknown {
 }
 
 export function lintNoEnvLocal(workspaceRoot: string): CaseLintReport {
-  const glob = new Glob(join(workspaceRoot, "*/features/*/.env.local"));
+  const glob = new Glob(join(workspaceRoot, "*/features/**/.env.local"));
   const violations = [...glob.scanSync()].map((file) =>
     violation(
       file,
@@ -65,7 +65,7 @@ export function lintNoEnvLocal(workspaceRoot: string): CaseLintReport {
 }
 
 export function lintRunnerIsAggregator(workspaceRoot: string): CaseLintReport {
-  const glob = new Glob(join(workspaceRoot, "*/features/*/tests/runners/*.spec.ts"));
+  const glob = new Glob(join(workspaceRoot, "*/features/**/automation/tests/runners/*.spec.ts"));
   const violations: CaseLintViolation[] = [];
   let files = 0;
   for (const file of glob.scanSync()) {
@@ -86,7 +86,7 @@ export function lintRunnerIsAggregator(workspaceRoot: string): CaseLintReport {
 }
 
 export function lintCasesInCasesDir(workspaceRoot: string): CaseLintReport {
-  const glob = new Glob(join(workspaceRoot, "*/features/*/tests/*.ts"));
+  const glob = new Glob(join(workspaceRoot, "*/features/**/automation/tests/*.ts"));
   const violations: CaseLintViolation[] = [];
   let files = 0;
   for (const file of glob.scanSync()) {
@@ -219,7 +219,7 @@ export function lintNoDanglingHelpers(workspaceRoot: string): CaseLintReport {
 }
 
 export function lintSpecStructureValid(workspaceRoot: string): CaseLintReport {
-  const glob = new Glob(join(workspaceRoot, "*/features/*/tests"));
+  const glob = new Glob(join(workspaceRoot, "*/features/**/automation/tests"));
   const violations: CaseLintViolation[] = [];
   let files = 0;
   for (const testsDir of glob.scanSync()) {
