@@ -8,10 +8,31 @@ import { Command } from "commander";
 import { runFeaturesArchive } from "./features-archive.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLs } from "./features-ls.ts";
+import { runFeaturesMigrate } from "./features-migrate.ts";
 import { runFeaturesNew } from "./features-new.ts";
 import { runFeaturesResolve } from "./features-resolve.ts";
 import { runFeaturesShow } from "./features-show.ts";
 import { runResultsPrune } from "./results-prune.ts";
+
+/**
+ * Create a git-mv wrapper that falls back to renameSync for untracked/ignored paths.
+ * Unlike `-k`, the wrapper does NOT silently skip failures: git mv without `-k` will
+ * exit non-zero for untracked paths (caught by catch), and the fallback renameSync
+ * will actually move the file so safeMove's post-move assertions can verify success.
+ *
+ * @param cwd - working directory for git commands; defaults to process.cwd().
+ *   Pass the git repo root explicitly when calling from a different working directory (e.g. tests).
+ */
+export function makeGitMove(cwd?: string): (from: string, to: string) => void {
+  return (from: string, to: string) => {
+    try {
+      execFileSync("git", ["mv", from, to], { stdio: "pipe", cwd });
+    } catch {
+      console.warn(`WARN: git mv failed, falling back to rename (untracked/ignored path)`);
+      renameSync(from, to);
+    }
+  };
+}
 
 export function buildFeaturesCommand(): Command {
   const features = new Command("features").description("Feature 目录管理");
@@ -233,6 +254,55 @@ export function buildFeaturesCommand(): Command {
       });
       console.log(`Archived ${r.from} → ${r.to}`);
     });
+
+  features
+    .command("migrate")
+    .description("将 legacy-flat features 迁移至分层目录结构（cases/automation/runs）")
+    .option("--project <name>", "项目名", "dataAssets")
+    .option("--apply", "真正执行迁移（缺省 dry-run）", false)
+    .option("--allow-unresolved", "跳过无法推断版本的目录（不传则遇到 unresolved 即报错）", false)
+    .option("--fallback-group <group>", "无法推断版本时的兜底分组（如 _standing）")
+    .action(
+      async (opts: {
+        project: string;
+        apply: boolean;
+        allowUnresolved: boolean;
+        fallbackGroup?: string;
+      }) => {
+        const rows = await runFeaturesMigrate({
+          project: opts.project,
+          workspaceRoot: join(repoRoot(), "workspace"),
+          apply: opts.apply,
+          allowUnresolved: opts.allowUnresolved,
+          fallbackGroup: opts.fallbackGroup,
+          move: makeGitMove(),
+        });
+
+        if (!opts.apply) {
+          console.log(`[dry-run] ${rows.length} legacy feature(s) to migrate:`);
+          for (const row of rows) {
+            if (row.targetGroup === null) {
+              console.log(`  UNRESOLVED  ${row.dirName}`);
+            } else {
+              const collisionTag = row.collision ? " [COLLISION: target exists]" : "";
+              console.log(`  ${row.dirName} → ${row.targetGroup}/${row.dirName}${collisionTag}`);
+              for (const mv of row.moves) {
+                console.log(`    ${mv.from} → ${mv.to}`);
+              }
+            }
+            for (const w of row.warns) {
+              console.warn(`  WARN: ${w}`);
+            }
+          }
+        } else {
+          const applied = rows.filter((r) => r.targetGroup !== null);
+          const skipped = rows.filter((r) => r.targetGroup === null);
+          console.log(
+            `Migrated ${applied.length} feature(s); skipped ${skipped.length} unresolved.`,
+          );
+        }
+      },
+    );
 
   return features;
 }
