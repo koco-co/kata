@@ -39,6 +39,7 @@ export const PRIORITY_MAP: Record<string, MarkerId> = {
   P0: Marker.Priority.p1,
   P1: Marker.Priority.p2,
   P2: Marker.Priority.p3,
+  P3: Marker.Priority.p4,
 };
 
 // ─── Rules loader ────────────────────────────────────────────────────────────

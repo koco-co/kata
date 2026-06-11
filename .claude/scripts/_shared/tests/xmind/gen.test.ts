@@ -70,7 +70,7 @@ describe("xmind-gen.ts create mode", () => {
     expect(statSync(output).size > 0).toBeTruthy();
   });
 
-  it("folds test-case topics by default, keeps module nodes expanded", async () => {
+  it("folds from depth 3 so an opened xmind shows at most 3 levels", async () => {
     const output = join(TMP_DIR, "test-fold.xmind");
     const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
@@ -78,32 +78,85 @@ describe("xmind-gen.ts create mode", () => {
     type Node = {
       title?: string;
       branch?: string;
-      markers?: unknown[];
-      notes?: unknown;
       children?: { attached?: Node[] };
     };
     const sheets = (await readContentJson(output)) as { rootTopic?: Node }[];
 
-    let caseFolded = 0;
-    let structureExpanded = 0;
-    const walk = (n: Node): void => {
+    let deepFolded = 0;
+    let stepExpanded = 0;
+    const walk = (n: Node, depth: number): void => {
       const kids = n.children?.attached ?? [];
-      const isCase = (n.markers !== undefined || n.notes !== undefined) && kids.length > 0;
-      if (isCase) {
-        // 用例节点必须默认折叠
-        expect(n.branch).toBe("folded");
-        caseFolded++;
-      } else if (kids.length > 0) {
-        // 模块/分组节点(无 marker/notes)保持展开, 不应被折叠
-        expect(n.branch).toBeUndefined();
-        structureExpanded++;
+      const hasGrandchildren = kids.some((c) => (c.children?.attached?.length ?? 0) > 0);
+      if (kids.length > 0) {
+        if (depth < 3) {
+          // root/需求 层保持展开, 才能默认露到第 3 级
+          expect(n.branch).toBeUndefined();
+        } else if (hasGrandchildren) {
+          // 模块(深度3)与用例(深度4)这类容器节点折叠
+          expect(n.branch).toBe("folded");
+          deepFolded++;
+        } else {
+          // 步骤节点(子节点是叶子「预期」)保持展开
+          expect(n.branch).toBeUndefined();
+          stepExpanded++;
+        }
       }
-      for (const c of kids) walk(c);
+      for (const c of kids) walk(c, depth + 1);
+    };
+    for (const s of sheets) if (s.rootTopic) walk(s.rootTopic, 1);
+
+    expect(deepFolded).toBeGreaterThan(0);
+    expect(stepExpanded).toBeGreaterThan(0);
+  });
+
+  it("marks P3 cases with priority-4 (no priority dropped)", async () => {
+    // 自带一个 P3 用例, 避免动共享 fixture 的 case_count 断言。
+    const input = join(TMP_DIR, "p3-input.json");
+    writeFileSync(
+      input,
+      JSON.stringify({
+        meta: { project_name: "数据资产", requirement_name: "优先级映射" },
+        modules: [
+          {
+            name: "模块A",
+            pages: [
+              {
+                name: "页面A",
+                test_cases: [
+                  {
+                    title: "P3 用例",
+                    priority: "P3",
+                    steps: [{ step: "步骤1", expected: "预期1" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    const output = join(TMP_DIR, "test-p3.xmind");
+    const { code } = run(["--input", input, "--output", output]);
+    expect(code).toBe(0);
+
+    type Node = {
+      title?: string;
+      markers?: { markerId: string }[];
+      children?: { attached?: Node[] };
+    };
+    const sheets = (await readContentJson(output)) as { rootTopic?: Node }[];
+
+    const seen = new Set<string>();
+    const walk = (n: Node): void => {
+      for (const m of n.markers ?? []) {
+        if (m.markerId.startsWith("priority-")) seen.add(m.markerId);
+      }
+      for (const c of n.children?.attached ?? []) walk(c);
     };
     for (const s of sheets) if (s.rootTopic) walk(s.rootTopic);
 
-    expect(caseFolded).toBeGreaterThan(0);
-    expect(structureExpanded).toBeGreaterThan(0);
+    // P3 必须落到 priority-4, 不能漏标
+    expect(seen.has("priority-4")).toBe(true);
   });
 
   it("outputs valid JSON result to stdout", () => {

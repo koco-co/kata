@@ -58,24 +58,30 @@ export async function writeXmindSheets(zip: JSZip, outputPath: string): Promise<
   writeFileSync(outputPath, out);
 }
 
-// 给用例节点设置默认折叠：有子节点(步骤)且带 marker/notes 的就是用例节点，
-// 折叠后打开 xmind 默认只露用例标题；模块/分组节点(无 marker/notes)保持展开。
-function foldCaseNode(node: XMindTopicNode): void {
+// 默认折叠层级：root(1)/需求(2)/模块(3) 保持展开，模块及以下凡是「有孙节点」
+// 的节点都折叠。效果是打开 xmind 默认最多露 3 级(root→需求→模块)，用例标题(第4级)
+// 被模块折叠收起；展开某个用例后，步骤节点(子节点全是叶子「预期」)保持展开，方便
+// 直接看到步骤+预期。不依赖 marker/notes，漏标优先级的用例也照样折叠。
+const FOLD_FROM_DEPTH = 3;
+
+function foldDeepNodes(node: XMindTopicNode, depth: number): void {
   const children = node.children?.attached;
   if (!children || children.length === 0) return;
-  if (node.markers || node.notes) {
+  // 有孙节点说明这是模块/用例这类容器节点；步骤节点的子节点(预期)是叶子，跳过不折叠。
+  const hasGrandchildren = children.some((c) => (c.children?.attached?.length ?? 0) > 0);
+  if (depth >= FOLD_FROM_DEPTH && hasGrandchildren) {
     node.branch = "folded";
   }
   for (const child of children) {
-    foldCaseNode(child);
+    foldDeepNodes(child, depth + 1);
   }
 }
 
-/** Mark every test-case topic in the written .xmind as folded by default. */
+/** Fold deep topics so an opened .xmind shows at most 3 levels by default. */
 export async function applyFoldingToFile(outputPath: string): Promise<void> {
   const [sheets, zip] = await readXmindSheets(outputPath);
   for (const sheet of sheets) {
-    if (sheet.rootTopic) foldCaseNode(sheet.rootTopic);
+    if (sheet.rootTopic) foldDeepNodes(sheet.rootTopic, 1);
   }
   zip.file("content.json", JSON.stringify(sheets));
   await writeXmindSheets(zip, outputPath);
