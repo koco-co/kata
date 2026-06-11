@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { makeGitMove } from "@shared/cli/features.ts";
 import { planMigrate, runFeaturesMigrate } from "@shared/cli/features-migrate.ts";
 import { stringify } from "yaml";
 
@@ -322,6 +324,274 @@ describe("kata features migrate", () => {
           },
         }),
       ).rejects.toThrow(/invalid fallbackGroup/i);
+    });
+  });
+
+  // ─── 6. 目标碰撞预检（Fix 2）───
+  describe("collision preflight", () => {
+    it("planMigrate marks collision=true when target exists", () => {
+      buildLegacyFeature(featuresDir, "【v6411】数据质量冒烟");
+      // 预先在目标路径建目录，模拟碰撞
+      mkdirSync(join(featuresDir, "v6.4.11", "【v6411】数据质量冒烟"), { recursive: true });
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "【v6411】数据质量冒烟");
+      expect(row?.collision).toBe(true);
+    });
+
+    it("planMigrate marks collision=false when target does not exist", () => {
+      buildLegacyFeature(featuresDir, "【v6411】数据质量冒烟");
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "【v6411】数据质量冒烟");
+      expect(row?.collision).toBe(false);
+    });
+
+    it("runFeaturesMigrate throws before any mutation when collision detected", async () => {
+      buildLegacyFeature(featuresDir, "【v6411】数据质量冒烟");
+      buildLegacyFeature(featuresDir, "2099-01-lt-dq-smoke");
+      // 预先在目标路径建目录，模拟碰撞
+      mkdirSync(join(featuresDir, "v6.4.11", "【v6411】数据质量冒烟"), { recursive: true });
+
+      await expect(
+        runFeaturesMigrate({
+          project: "dataAssets",
+          workspaceRoot: scratch,
+          apply: true,
+          move: (from, to) => {
+            const { renameSync } = require("node:fs");
+            renameSync(from, to);
+          },
+        }),
+      ).rejects.toThrow(/迁移目标路径已存在/);
+
+      // 确保无任何目录被迁移（mutation 前被拦截）
+      expect(existsSync(join(featuresDir, "2099-01-lt-dq-smoke"))).toBe(true);
+    });
+  });
+
+  // ─── 7. 移动顺序稳定（Fix 2）───
+  describe("stable move order (results before tmp)", () => {
+    it("moves sort by target depth: runs before runs/_tmp", () => {
+      buildLegacyFeature(featuresDir, "【v6411】数据质量冒烟");
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "【v6411】数据质量冒烟");
+      expect(row).toBeDefined();
+      if (!row) throw new Error("row not found");
+
+      const idxRuns = row.moves.findIndex((m) => m.to === "runs");
+      const idxTmp = row.moves.findIndex((m) => m.to === "runs/_tmp");
+      // runs (depth 1) must come before runs/_tmp (depth 2)
+      expect(idxRuns).toBeGreaterThanOrEqual(0);
+      expect(idxTmp).toBeGreaterThanOrEqual(0);
+      expect(idxRuns).toBeLessThan(idxTmp);
+    });
+
+    it("applies correctly when fixture has both results/ and tmp/", async () => {
+      buildLegacyFeature(featuresDir, "【v6411】数据质量冒烟");
+
+      await runFeaturesMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: true,
+        move: (from, to) => {
+          const { renameSync } = require("node:fs");
+          renameSync(from, to);
+        },
+      });
+
+      const destBase = join(featuresDir, "v6.4.11", "【v6411】数据质量冒烟");
+      expect(existsSync(join(destBase, "runs/run-1/r.txt"))).toBe(true);
+      expect(existsSync(join(destBase, "runs/_tmp/t.md"))).toBe(true);
+      expect(existsSync(join(destBase, "results"))).toBe(false);
+      expect(existsSync(join(destBase, "tmp"))).toBe(false);
+    });
+  });
+
+  // ─── 8. dotted 版本目录名（Fix 5）───
+  describe("dotted version dir names", () => {
+    it("resolves dotted 【v6.4.11】 directly", () => {
+      buildLegacyFeature(featuresDir, "【v6.4.11】数据质量冒烟");
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "【v6.4.11】数据质量冒烟");
+      expect(row?.targetGroup).toBe("v6.4.11");
+    });
+
+    it("resolves two-segment dotted 【v6.4】 to v6.4", () => {
+      buildLegacyFeature(featuresDir, "【v6.4】数据质量冒烟");
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "【v6.4】数据质量冒烟");
+      expect(row?.targetGroup).toBe("v6.4");
+    });
+
+    it("still resolves compact 【v6411】 to v6.4.11", () => {
+      buildLegacyFeature(featuresDir, "【v6411】数据质量冒烟");
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "【v6411】数据质量冒烟");
+      expect(row?.targetGroup).toBe("v6.4.11");
+    });
+
+    it("applies migration for dotted version dir name", async () => {
+      buildLegacyFeature(featuresDir, "【v6.4.11】数据质量冒烟");
+
+      await runFeaturesMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: true,
+        move: (from, to) => {
+          const { renameSync } = require("node:fs");
+          renameSync(from, to);
+        },
+      });
+
+      expect(
+        existsSync(join(featuresDir, "v6.4.11", "【v6.4.11】数据质量冒烟", "cases/archive.md")),
+      ).toBe(true);
+      expect(existsSync(join(featuresDir, "【v6.4.11】数据质量冒烟"))).toBe(false);
+    });
+  });
+
+  // ─── 9. level③ metadata.versions 解析（Fix 5）───
+  describe("resolveGroup level③ via metadata.versions", () => {
+    it("uses last version from metadata.versions when dir has no version marker", () => {
+      buildLegacyFeature(featuresDir, "2026-04-assets-slug", ["v6.4.7", "v6.4.9"]);
+
+      const rows = planMigrate({
+        project: "dataAssets",
+        workspaceRoot: scratch,
+        apply: false,
+      });
+      const row = rows.find((r) => r.dirName === "2026-04-assets-slug");
+      expect(row?.targetGroup).toBe("v6.4.9");
+    });
+  });
+
+  // ─── 10. 真实 git mv 包装（Fix 4）───
+  describe("real git mv wrapper (makeGitMove)", () => {
+    let gitRoot: string;
+
+    beforeEach(() => {
+      gitRoot = mkdtempSync(join(tmpdir(), "kata-git-mv-test-"));
+      // 初始化真实 git repo
+      execFileSync("git", ["init"], { cwd: gitRoot, stdio: "pipe" });
+      execFileSync("git", ["config", "user.email", "test@test.com"], {
+        cwd: gitRoot,
+        stdio: "pipe",
+      });
+      execFileSync("git", ["config", "user.name", "Test"], { cwd: gitRoot, stdio: "pipe" });
+    });
+
+    afterEach(() => rmSync(gitRoot, { recursive: true, force: true }));
+
+    it("tracked file: git mv preserves history; ignored results/ falls back to renameSync", async () => {
+      // 构造 legacy feature
+      const featDir = join(gitRoot, "dataAssets", "features");
+      mkdirSync(featDir, { recursive: true });
+
+      const featureName = "【v6.4.11】git-mv-test";
+      const featureDir = join(featDir, featureName);
+      mkdirSync(featureDir, { recursive: true });
+
+      // tracked 文件
+      writeFileSync(join(featureDir, "archive.md"), "# Archive");
+      writeFileSync(
+        join(featureDir, "metadata.yaml"),
+        stringify({
+          schema: "FeatureMetadata@1",
+          id: "git-mv-test",
+          display_name: "git mv test",
+          status: "active",
+          created_at: "2026-01-01",
+          updated_at: "2026-01-01",
+          modules: [],
+          customers: [],
+          versions: [],
+          owners: [],
+          inputs: [],
+          relates_to: [],
+          emits: {},
+        }),
+      );
+      writeFileSync(
+        join(featureDir, "manifest.json"),
+        JSON.stringify({
+          feature_id: "git-mv-test",
+          case_drafting: { status: "not-started", requirement_atoms: [] },
+          automation: { status: "not-started", intents: [], last_run_status: "not-run" },
+          files: {},
+        }),
+      );
+
+      // .gitignore: ignored results/
+      writeFileSync(join(gitRoot, ".gitignore"), "results/\n");
+
+      // ignored results/ (untracked)
+      mkdirSync(join(featureDir, "results", "run-1"), { recursive: true });
+      writeFileSync(join(featureDir, "results", "run-1", "r.txt"), "result");
+
+      // INDEX.md placeholder
+      writeFileSync(join(featDir, "INDEX.md"), "<!-- placeholder -->\n");
+
+      // git add + commit
+      execFileSync("git", ["add", "-A"], { cwd: gitRoot, stdio: "pipe" });
+      execFileSync("git", ["commit", "-m", "init"], { cwd: gitRoot, stdio: "pipe" });
+
+      // 跑真实 gitMove 包装的迁移（传 cwd=gitRoot 确保 git mv 在正确 repo 中运行）
+      await runFeaturesMigrate({
+        project: "dataAssets",
+        workspaceRoot: gitRoot,
+        apply: true,
+        move: makeGitMove(gitRoot),
+      });
+
+      const destBase = join(featDir, "v6.4.11", featureName);
+
+      // cases/archive.md 在目标位置
+      expect(existsSync(join(destBase, "cases", "archive.md"))).toBe(true);
+
+      // ignored results/ 已通过 renameSync 回退正确落到 runs/（fallback 行为）
+      expect(existsSync(join(destBase, "runs", "run-1", "r.txt"))).toBe(true);
+
+      // 原始位置无残留（无静默漏移）
+      expect(existsSync(join(featDir, featureName))).toBe(false);
+
+      // git status 中旧路径已无剩余未移动的 tracked 文件（tracked 文件要么被 git mv，要么在 renameSync 后显示为 D/??）
+      const statusOutput = execFileSync("git", ["status", "--short"], {
+        cwd: gitRoot,
+        encoding: "utf-8",
+      });
+      // 旧 feature 根路径（未迁移状态）不能有 tracked 文件残留
+      expect(statusOutput).not.toContain(`${featureName}/archive.md`);
+      // 新路径存在于磁盘（无论是 git 追踪还是 renameSync fallback 都应到位）
+      expect(existsSync(join(destBase, "cases", "archive.md"))).toBe(true);
     });
   });
 });
