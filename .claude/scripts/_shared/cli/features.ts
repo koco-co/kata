@@ -1,14 +1,17 @@
-import { readdirSync, statSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { readdirSync, renameSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 import { outputJson } from "@shared/lib/cli.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
+import { runFeaturesArchive } from "./features-archive.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLs } from "./features-ls.ts";
 import { runFeaturesNew } from "./features-new.ts";
 import { runFeaturesResolve } from "./features-resolve.ts";
 import { runFeaturesShow } from "./features-show.ts";
+import { runResultsPrune } from "./results-prune.ts";
 
 export function buildFeaturesCommand(): Command {
   const features = new Command("features").description("Feature 目录管理");
@@ -180,6 +183,55 @@ export function buildFeaturesCommand(): Command {
         workspaceRoot: join(repoRoot(), "workspace"),
       });
       console.log(opts.json ? JSON.stringify(result) : `${result.featureId}\t${result.featureDir}`);
+    });
+
+  features
+    .command("clean")
+    .description("按保留策略清理 runs/（最近N次+baseline+published；含 _tmp）")
+    .option("--project <name>", "项目名", "dataAssets")
+    .option("--feature <dirName>", "只清理单个 feature")
+    .option("--keep <n>", "保留最近 N 次", "3")
+    .option("--apply", "真正删除（缺省 dry-run）", false)
+    .action(async (opts: { project: string; feature?: string; keep: string; apply: boolean }) => {
+      const r = await runResultsPrune({
+        project: opts.project,
+        featureId: opts.feature,
+        workspaceRoot: join(repoRoot(), "workspace"),
+        keep: parseInt(opts.keep, 10),
+        apply: opts.apply,
+      });
+      if (!opts.apply) {
+        console.log(`[dry-run] would remove ${r.removed.length}, would keep ${r.kept.length}`);
+        for (const p of r.plan) {
+          if (p.remove.length > 0)
+            console.log(`  remove: ${p.remove.join(", ")} (from ${p.featureDir})`);
+        }
+      } else {
+        console.log(`Removed ${r.removed.length}, kept ${r.kept.length}`);
+      }
+    });
+
+  features
+    .command("archive <version>")
+    .description("将版本目录移入 features/_archived/<version>，并重建 INDEX")
+    .option("--project <name>", "项目名", "dataAssets")
+    .action(async (version: string, opts: { project: string }) => {
+      // git mv 包装：git mv 失败时回退到普通 renameSync
+      const gitMove = (from: string, to: string) => {
+        try {
+          execSync(`git mv "${from}" "${to}"`, { stdio: "pipe" });
+        } catch {
+          console.warn(`WARN: git mv failed, falling back to rename (non-git env?)`);
+          renameSync(from, to);
+        }
+      };
+      const r = await runFeaturesArchive({
+        project: opts.project,
+        workspaceRoot: join(repoRoot(), "workspace"),
+        version,
+        move: gitMove,
+      });
+      console.log(`Archived ${r.from} → ${r.to}`);
     });
 
   return features;

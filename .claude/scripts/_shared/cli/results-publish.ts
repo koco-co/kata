@@ -1,5 +1,6 @@
 import { cpSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { listFeatureDirs, runsDir } from "@shared/lib/features/layout.ts";
 
 export interface ResultsPublishContext {
   project: string;
@@ -11,14 +12,12 @@ export interface ResultsPublishContext {
 export async function runResultsPublish(
   ctx: ResultsPublishContext,
 ): Promise<{ publishedPath: string }> {
-  const runDir = join(
-    ctx.workspaceRoot,
-    ctx.project,
-    "features",
-    ctx.featureId,
-    "results",
-    ctx.runId,
-  );
+  // 在两层结构中按 dirName 查找 feature
+  const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
+  const entry = listFeatureDirs(featuresDir).find((e) => e.dirName === ctx.featureId);
+  if (!entry) throw new Error(`feature not found: ${ctx.featureId}`);
+
+  const runDir = join(runsDir(entry.dir), ctx.runId);
   if (!existsSync(runDir)) throw new Error(`Run not found: ${runDir}`);
 
   const shortRun = ctx.runId.split("-").pop() ?? ctx.runId;
