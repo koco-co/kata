@@ -70,7 +70,7 @@ describe("xmind-gen.ts create mode", () => {
     expect(statSync(output).size > 0).toBeTruthy();
   });
 
-  it("folds from depth 3 so an opened xmind shows at most 3 levels", async () => {
+  it("folds case nodes and their group by height, keeps steps/menus expanded", async () => {
     const output = join(TMP_DIR, "test-fold.xmind");
     const { code } = run(["--input", FIXTURE, "--output", output]);
     expect(code).toBe(0);
@@ -82,31 +82,34 @@ describe("xmind-gen.ts create mode", () => {
     };
     const sheets = (await readContentJson(output)) as { rootTopic?: Node }[];
 
-    let deepFolded = 0;
-    let stepExpanded = 0;
-    const walk = (n: Node, depth: number): void => {
+    // 计算每个节点到叶子的高度，断言折叠规则：height∈{2,3} 折叠，其余展开。
+    let folded = 0;
+    let expanded = 0;
+    const height = (n: Node): number => {
       const kids = n.children?.attached ?? [];
-      const hasGrandchildren = kids.some((c) => (c.children?.attached?.length ?? 0) > 0);
+      if (kids.length === 0) return 0;
+      return 1 + Math.max(...kids.map(height));
+    };
+    const walk = (n: Node): void => {
+      const kids = n.children?.attached ?? [];
       if (kids.length > 0) {
-        if (depth < 3) {
-          // root/需求 层保持展开, 才能默认露到第 3 级
-          expect(n.branch).toBeUndefined();
-        } else if (hasGrandchildren) {
-          // 模块(深度3)与用例(深度4)这类容器节点折叠
+        const h = height(n);
+        if (h === 2 || h === 3) {
+          // 用例(h2,收起步骤) 与 直接装用例的分组(h3,收起用例) 折叠
           expect(n.branch).toBe("folded");
-          deepFolded++;
+          folded++;
         } else {
-          // 步骤节点(子节点是叶子「预期」)保持展开
+          // 步骤(h1)、更上层菜单与 root/需求(h≥4) 保持展开
           expect(n.branch).toBeUndefined();
-          stepExpanded++;
+          expanded++;
         }
       }
-      for (const c of kids) walk(c, depth + 1);
+      for (const c of kids) walk(c);
     };
-    for (const s of sheets) if (s.rootTopic) walk(s.rootTopic, 1);
+    for (const s of sheets) if (s.rootTopic) walk(s.rootTopic);
 
-    expect(deepFolded).toBeGreaterThan(0);
-    expect(stepExpanded).toBeGreaterThan(0);
+    expect(folded).toBeGreaterThan(0);
+    expect(expanded).toBeGreaterThan(0);
   });
 
   it("marks P3 cases with priority-4 (no priority dropped)", async () => {

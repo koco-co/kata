@@ -58,30 +58,34 @@ export async function writeXmindSheets(zip: JSZip, outputPath: string): Promise<
   writeFileSync(outputPath, out);
 }
 
-// 默认折叠层级：root(1)/需求(2)/模块(3) 保持展开，模块及以下凡是「有孙节点」
-// 的节点都折叠。效果是打开 xmind 默认最多露 3 级(root→需求→模块)，用例标题(第4级)
-// 被模块折叠收起；展开某个用例后，步骤节点(子节点全是叶子「预期」)保持展开，方便
-// 直接看到步骤+预期。不依赖 marker/notes，漏标优先级的用例也照样折叠。
-const FOLD_FROM_DEPTH = 3;
+// 折叠策略按「到叶子的高度」自适应，而不是绝对深度：
+//   height 0 = 叶子(预期)，1 = 步骤，2 = 用例，3 = 直接装用例的分组(模块/二级菜单)。
+// 折叠 height 2(用例,收起步骤) 与 height 3(装用例的分组,收起用例)，其余(步骤、更上层
+// 的菜单、root/需求)都保持展开。效果随结构自适应：
+//   扁平结构(模块→用例) 默认露 3 级；带二级菜单(一级→二级→用例) 默认露 4 级。
+// 不依赖 marker/notes，漏标优先级的用例也照样折叠。
+const FOLD_HEIGHTS = new Set([2, 3]);
 
-function foldDeepNodes(node: XMindTopicNode, depth: number): void {
+// 返回节点到最深叶子的高度，并就地给 height∈{2,3} 的节点打折叠标记。
+function foldByHeight(node: XMindTopicNode): number {
   const children = node.children?.attached;
-  if (!children || children.length === 0) return;
-  // 有孙节点说明这是模块/用例这类容器节点；步骤节点的子节点(预期)是叶子，跳过不折叠。
-  const hasGrandchildren = children.some((c) => (c.children?.attached?.length ?? 0) > 0);
-  if (depth >= FOLD_FROM_DEPTH && hasGrandchildren) {
+  if (!children || children.length === 0) return 0;
+  let maxChild = 0;
+  for (const child of children) {
+    maxChild = Math.max(maxChild, foldByHeight(child));
+  }
+  const height = maxChild + 1;
+  if (FOLD_HEIGHTS.has(height)) {
     node.branch = "folded";
   }
-  for (const child of children) {
-    foldDeepNodes(child, depth + 1);
-  }
+  return height;
 }
 
-/** Fold deep topics so an opened .xmind shows at most 3 levels by default. */
+/** Fold case topics and the group directly holding them, height-adaptive. */
 export async function applyFoldingToFile(outputPath: string): Promise<void> {
   const [sheets, zip] = await readXmindSheets(outputPath);
   for (const sheet of sheets) {
-    if (sheet.rootTopic) foldDeepNodes(sheet.rootTopic, 1);
+    if (sheet.rootTopic) foldByHeight(sheet.rootTopic);
   }
   zip.file("content.json", JSON.stringify(sheets));
   await writeXmindSheets(zip, outputPath);
