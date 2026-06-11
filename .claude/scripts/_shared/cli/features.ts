@@ -14,6 +14,26 @@ import { runFeaturesResolve } from "./features-resolve.ts";
 import { runFeaturesShow } from "./features-show.ts";
 import { runResultsPrune } from "./results-prune.ts";
 
+/**
+ * Create a git-mv wrapper that falls back to renameSync for untracked/ignored paths.
+ * Unlike `-k`, the wrapper does NOT silently skip failures: git mv without `-k` will
+ * exit non-zero for untracked paths (caught by catch), and the fallback renameSync
+ * will actually move the file so safeMove's post-move assertions can verify success.
+ *
+ * @param cwd - working directory for git commands; defaults to process.cwd().
+ *   Pass the git repo root explicitly when calling from a different working directory (e.g. tests).
+ */
+export function makeGitMove(cwd?: string): (from: string, to: string) => void {
+  return (from: string, to: string) => {
+    try {
+      execFileSync("git", ["mv", from, to], { stdio: "pipe", cwd });
+    } catch {
+      console.warn(`WARN: git mv failed, falling back to rename (untracked/ignored path)`);
+      renameSync(from, to);
+    }
+  };
+}
+
 export function buildFeaturesCommand(): Command {
   const features = new Command("features").description("Feature 目录管理");
 
@@ -249,21 +269,13 @@ export function buildFeaturesCommand(): Command {
         allowUnresolved: boolean;
         fallbackGroup?: string;
       }) => {
-        // git mv 包装：git mv 失败时回退到 renameSync（untracked/ignored 路径不在 git index 中）
-        const gitMove = (from: string, to: string) => {
-          try {
-            execFileSync("git", ["mv", "-k", from, to], { stdio: "pipe" });
-          } catch {
-            renameSync(from, to);
-          }
-        };
         const rows = await runFeaturesMigrate({
           project: opts.project,
           workspaceRoot: join(repoRoot(), "workspace"),
           apply: opts.apply,
           allowUnresolved: opts.allowUnresolved,
           fallbackGroup: opts.fallbackGroup,
-          move: gitMove,
+          move: makeGitMove(),
         });
 
         if (!opts.apply) {
@@ -272,7 +284,8 @@ export function buildFeaturesCommand(): Command {
             if (row.targetGroup === null) {
               console.log(`  UNRESOLVED  ${row.dirName}`);
             } else {
-              console.log(`  ${row.dirName} → ${row.targetGroup}/${row.dirName}`);
+              const collisionTag = row.collision ? " [COLLISION: target exists]" : "";
+              console.log(`  ${row.dirName} → ${row.targetGroup}/${row.dirName}${collisionTag}`);
               for (const mv of row.moves) {
                 console.log(`    ${mv.from} → ${mv.to}`);
               }
