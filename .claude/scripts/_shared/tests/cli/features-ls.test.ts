@@ -144,12 +144,12 @@ describe("kata features ls", () => {
   it("exposes group/zone/dirName/areas on each row", async () => {
     const rows = await runFeaturesLs({ project: "dataAssets", workspaceRoot: scratch });
     const row = rows.find((r) => r.id === "2026-04-dq-a");
-    expect(row).toBeDefined();
-    expect(row!.group).toBe("v6.4.10");
-    expect(row!.zone).toBe("active");
-    expect(row!.dirName).toBe("2026-04-dq-a");
-    expect(row!.areas.cases).toBe(true);
-    expect(row!.areas.automation).toBe(true);
-    expect(row!.areas.runs).toBe(true);
+    if (!row) throw new Error("expected row for 2026-04-dq-a");
+    expect(row.group).toBe("v6.4.10");
+    expect(row.zone).toBe("active");
+    expect(row.dirName).toBe("2026-04-dq-a");
+    expect(row.areas.cases).toBe(true);
+    expect(row.areas.automation).toBe(true);
+    expect(row.areas.runs).toBe(true);
   });
 });
