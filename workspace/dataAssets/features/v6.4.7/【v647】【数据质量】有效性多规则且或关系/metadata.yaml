@@ -1,0 +1,35 @@
+schema: FeatureMetadata@2
+id: 【v647】【数据质量】有效性多规则且或关系
+display_name: 【202604】【数据质量】有效性 — 多规则且或关系
+status: active
+created_at: 2026-05-14
+updated_at: 2026-05-14
+modules:
+  - dq
+customers:
+  - standard
+versions: []
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: true
+feature_id: 2026-04-dq-builtin-validity-multi-rule-logic
+case_drafting:
+  status: completed
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind
+  tests_root: automation/tests/
+  latest_results: null

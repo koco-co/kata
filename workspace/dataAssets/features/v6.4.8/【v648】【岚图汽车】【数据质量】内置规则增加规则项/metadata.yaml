@@ -1,0 +1,48 @@
+schema: FeatureMetadata@2
+id: 【v647】【岚图汽车】【数据质量】内置规则增加规则项
+display_name: 【202602】【数据质量】内置规则增加规则项
+status: active
+created_at: 2026-05-14
+updated_at: 2026-05-14
+modules:
+  - dq
+  - dq
+customers:
+  - standard
+versions: []
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: true
+feature_id: 2026-02-dq-builtin-rule-items-increase
+case_drafting:
+  status: completed
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: ready
+  intents:
+    - intent_id: SR-INTENT-001
+      case_files:
+        - automation/tests/cases/t02-monitor-new-rule-categories.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-001
+      case_files:
+        - automation/tests/cases/t03-new-builtins-function-contract.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-001
+      case_files:
+        - automation/tests/cases/t01-rule-base-entry.ts
+      automation_status: ready
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind
+  tests_root: automation/tests/
+  latest_results: null
