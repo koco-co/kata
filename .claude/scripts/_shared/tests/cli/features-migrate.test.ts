@@ -3,7 +3,6 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { makeGitMove } from "@shared/cli/features.ts";
 import { planMigrate, runFeaturesMigrate } from "@shared/cli/features-migrate.ts";
 import { stringify } from "yaml";
 
@@ -495,103 +494,161 @@ describe("kata features migrate", () => {
   });
 
   // ─── 10. 真实 git mv 包装（Fix 4）───
-  describe("real git mv wrapper (makeGitMove)", () => {
+  // ─── git 一致性回归：迁移在真实 git repo 内不得留 husk / 重复 / RD 孤儿 ───
+  // 该用例复刻历史 husk bug 的真实场景：feature 同时含 tracked 用例产物、tracked
+  // 自动化、ignored results/ 与 tmp/，且 merge 会先删 manifest.json。过去命令注入
+  // git mv：git mv 只搬 tracked 文件，预删 manifest 又让整目录 git mv 失败、回退
+  // renameSync，留下 flat husk + 版本层重复副本 + git index 指向旧 flat 路径的 RD 孤儿。
+  // 现在迁移用默认 renameSync 一次性搬整目录，命令层再 git add -A 对齐 index。
+  describe("git-consistent migration (husk regression)", () => {
     let gitRoot: string;
+    let gitFeaturesDir: string;
 
     beforeEach(() => {
-      gitRoot = mkdtempSync(join(tmpdir(), "kata-git-mv-test-"));
-      // 初始化真实 git repo
+      gitRoot = mkdtempSync(join(tmpdir(), "kata-migrate-git-"));
       execFileSync("git", ["init"], { cwd: gitRoot, stdio: "pipe" });
       execFileSync("git", ["config", "user.email", "test@test.com"], {
         cwd: gitRoot,
         stdio: "pipe",
       });
       execFileSync("git", ["config", "user.name", "Test"], { cwd: gitRoot, stdio: "pipe" });
+      gitFeaturesDir = join(gitRoot, "dataAssets", "features");
+      mkdirSync(gitFeaturesDir, { recursive: true });
+      writeFileSync(join(gitFeaturesDir, "INDEX.md"), "<!-- placeholder -->\n");
+      // results/、tmp/、runs/ 均为 ignored runtime 目录（与真实项目一致）。
+      // git mv 搬不动 ignored 文件，只有整目录 renameSync 才能把它们带到版本层。
+      writeFileSync(join(gitRoot, ".gitignore"), "**/results/\n**/tmp/\n**/runs/\n");
     });
 
     afterEach(() => rmSync(gitRoot, { recursive: true, force: true }));
 
-    it("tracked file: git mv preserves history; ignored results/ falls back to renameSync", async () => {
-      // 构造 legacy feature
-      const featDir = join(gitRoot, "dataAssets", "features");
-      mkdirSync(featDir, { recursive: true });
+    // 以命令真实路径执行：默认 renameSync 迁移 + git add -A 暂存
+    async function migrateAndStage(): Promise<void> {
+      await runFeaturesMigrate({ project: "dataAssets", workspaceRoot: gitRoot, apply: true });
+      execFileSync("git", ["add", "-A", gitFeaturesDir], { cwd: gitRoot, stdio: "pipe" });
+    }
 
-      const featureName = "【v6.4.11】git-mv-test";
-      const featureDir = join(featDir, featureName);
-      mkdirSync(featureDir, { recursive: true });
-
-      // tracked 文件
-      writeFileSync(join(featureDir, "archive.md"), "# Archive");
+    it("leaves no husk, no duplicate, and a git-consistent staged tree", async () => {
+      const featureName = "【v6.4.11】husk-regression";
+      const flatDir = buildLegacyFeature(gitFeaturesDir, featureName, []);
+      // 写入差异化多行内容，让步骤⑥的 rename 检测有真实信号，而非小相同 blob 巧合命中
       writeFileSync(
-        join(featureDir, "metadata.yaml"),
-        stringify({
-          schema: "FeatureMetadata@1",
-          id: "git-mv-test",
-          display_name: "git mv test",
-          status: "active",
-          created_at: "2026-01-01",
-          updated_at: "2026-01-01",
-          modules: [],
-          customers: [],
-          versions: [],
-          owners: [],
-          inputs: [],
-          relates_to: [],
-          emits: {},
-        }),
+        join(flatDir, "cases.xmind"),
+        "<xmind>\n  <sheet>husk-regression distinct payload line 1</sheet>\n  <sheet>line 2</sheet>\n</xmind>\n",
       );
-      writeFileSync(
-        join(featureDir, "manifest.json"),
-        JSON.stringify({
-          feature_id: "git-mv-test",
-          case_drafting: { status: "not-started", requirement_atoms: [] },
-          automation: { status: "not-started", intents: [], last_run_status: "not-run" },
-          files: {},
-        }),
-      );
-
-      // .gitignore: ignored results/
-      writeFileSync(join(gitRoot, ".gitignore"), "results/\n");
-
-      // ignored results/ (untracked)
-      mkdirSync(join(featureDir, "results", "run-1"), { recursive: true });
-      writeFileSync(join(featureDir, "results", "run-1", "r.txt"), "result");
-
-      // INDEX.md placeholder
-      writeFileSync(join(featDir, "INDEX.md"), "<!-- placeholder -->\n");
-
-      // git add + commit
       execFileSync("git", ["add", "-A"], { cwd: gitRoot, stdio: "pipe" });
       execFileSync("git", ["commit", "-m", "init"], { cwd: gitRoot, stdio: "pipe" });
 
-      // 跑真实 gitMove 包装的迁移（传 cwd=gitRoot 确保 git mv 在正确 repo 中运行）
-      await runFeaturesMigrate({
-        project: "dataAssets",
-        workspaceRoot: gitRoot,
-        apply: true,
-        move: makeGitMove(gitRoot),
-      });
+      await migrateAndStage();
 
-      const destBase = join(featDir, "v6.4.11", featureName);
+      const destBase = join(gitFeaturesDir, "v6.4.11", featureName);
 
-      // cases/archive.md 在目标位置
+      // ① 无 flat husk：旧 feature 根目录必须整体消失，不留任何残壳
+      expect(existsSync(flatDir)).toBe(false);
+
+      // ② 目标三区完整，含 ignored 文件（results→runs、tmp→runs/_tmp）也被整目录搬过去
       expect(existsSync(join(destBase, "cases", "archive.md"))).toBe(true);
-
-      // ignored results/ 已通过 renameSync 回退正确落到 runs/（fallback 行为）
+      expect(existsSync(join(destBase, "cases", "cases.xmind"))).toBe(true);
+      expect(existsSync(join(destBase, "automation", "AUTOMATION-PLAN.md"))).toBe(true);
+      expect(existsSync(join(destBase, "automation", "tests", "cases", "t1.ts"))).toBe(true);
       expect(existsSync(join(destBase, "runs", "run-1", "r.txt"))).toBe(true);
+      expect(existsSync(join(destBase, "runs", "_tmp", "t.md"))).toBe(true);
+      // metadata 升级到 @2，manifest 已删
+      expect(existsSync(join(destBase, "metadata.yaml"))).toBe(true);
+      expect(existsSync(join(destBase, "manifest.json"))).toBe(false);
+      expect(readFileSync(join(destBase, "metadata.yaml"), "utf-8")).toContain("case_drafting");
 
-      // 原始位置无残留（无静默漏移）
-      expect(existsSync(join(featDir, featureName))).toBe(false);
-
-      // git status 中旧路径已无剩余未移动的 tracked 文件（tracked 文件要么被 git mv，要么在 renameSync 后显示为 D/??）
-      const statusOutput = execFileSync("git", ["status", "--short"], {
+      // ③ git index 一致：git add -A 后无 untracked(??)、无 RD 孤儿
+      const status = execFileSync("git", ["status", "--porcelain"], {
         cwd: gitRoot,
         encoding: "utf-8",
       });
-      // 旧 feature 根路径（未迁移状态）不能有 tracked 文件残留
-      expect(statusOutput).not.toContain(`${featureName}/archive.md`);
-      // 新路径存在于磁盘（无论是 git 追踪还是 renameSync fallback 都应到位）
-      expect(existsSync(join(destBase, "cases", "archive.md"))).toBe(true);
+      for (const line of status.split("\n").filter(Boolean)) {
+        const xy = line.slice(0, 2);
+        expect(xy).not.toBe("??"); // 不得有未暂存的新副本
+        expect(xy).not.toBe("RD"); // 不得有「index 指向已不存在工作树路径」的孤儿
+      }
+
+      // ④ tracked 索引里旧 flat 路径彻底消失，只存在于版本层（无重复/husk 残留）
+      // core.quotePath=false：让 git 原样输出 UTF-8 路径，不做 octal 转义
+      const tracked = execFileSync("git", ["-c", "core.quotePath=false", "ls-files"], {
+        cwd: gitRoot,
+        encoding: "utf-8",
+      });
+      const flatRel = `dataAssets/features/${featureName}/`;
+      const destRel = `dataAssets/features/v6.4.11/${featureName}/`;
+      for (const f of tracked.split("\n").filter(Boolean)) {
+        expect(f.startsWith(flatRel)).toBe(false);
+      }
+      expect(tracked).toContain(`${destRel}cases/archive.md`);
+
+      // ⑤ 提交后工作树彻底干净（无悬挂改动）
+      execFileSync("git", ["commit", "-m", "migrate"], { cwd: gitRoot, stdio: "pipe" });
+      const afterCommit = execFileSync("git", ["status", "--porcelain"], {
+        cwd: gitRoot,
+        encoding: "utf-8",
+      });
+      expect(afterCommit.trim()).toBe("");
+
+      // ⑥ 内容未变的用例产物移动后历史可追溯（git 在提交时做 rename 检测）
+      const log = execFileSync(
+        "git",
+        ["log", "--follow", "--format=%s", "--", `${destRel}cases/cases.xmind`],
+        { cwd: gitRoot, encoding: "utf-8" },
+      );
+      expect(log).toContain("init");
+    });
+
+    it("migrates multiple features to different groups with a consistent index", async () => {
+      // 两个 feature 同仓库一起迁移：一个进版本层、一个进 _standing，
+      // 验证多 feature 下 git index 仍无 RD 孤儿、无旧 flat 路径残留。
+      const versioned = "【v6.4.11】multi-versioned";
+      const standing = "2099-01-lt-dq-smoke";
+      const flatVersioned = buildLegacyFeature(gitFeaturesDir, versioned, []);
+      const flatStanding = buildLegacyFeature(gitFeaturesDir, standing, []);
+      execFileSync("git", ["add", "-A"], { cwd: gitRoot, stdio: "pipe" });
+      execFileSync("git", ["commit", "-m", "init"], { cwd: gitRoot, stdio: "pipe" });
+
+      await migrateAndStage();
+
+      // 两个 flat husk 都消失，目标各就各位
+      expect(existsSync(flatVersioned)).toBe(false);
+      expect(existsSync(flatStanding)).toBe(false);
+      expect(existsSync(join(gitFeaturesDir, "v6.4.11", versioned, "cases", "archive.md"))).toBe(
+        true,
+      );
+      expect(existsSync(join(gitFeaturesDir, "_standing", standing, "cases", "archive.md"))).toBe(
+        true,
+      );
+
+      // git index 全树一致：无 ?? / 无 RD
+      const status = execFileSync("git", ["status", "--porcelain"], {
+        cwd: gitRoot,
+        encoding: "utf-8",
+      });
+      for (const line of status.split("\n").filter(Boolean)) {
+        const xy = line.slice(0, 2);
+        expect(xy).not.toBe("??");
+        expect(xy).not.toBe("RD");
+      }
+
+      // tracked 索引里两个旧 flat 路径都彻底消失
+      const tracked = execFileSync("git", ["-c", "core.quotePath=false", "ls-files"], {
+        cwd: gitRoot,
+        encoding: "utf-8",
+      });
+      for (const f of tracked.split("\n").filter(Boolean)) {
+        expect(f.startsWith(`dataAssets/features/${versioned}/`)).toBe(false);
+        expect(f.startsWith(`dataAssets/features/${standing}/`)).toBe(false);
+      }
+
+      // 提交后工作树干净
+      execFileSync("git", ["commit", "-m", "migrate"], { cwd: gitRoot, stdio: "pipe" });
+      const afterCommit = execFileSync("git", ["status", "--porcelain"], {
+        cwd: gitRoot,
+        encoding: "utf-8",
+      });
+      expect(afterCommit.trim()).toBe("");
     });
   });
 });

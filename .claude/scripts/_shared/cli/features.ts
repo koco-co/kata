@@ -14,26 +14,6 @@ import { runFeaturesResolve } from "./features-resolve.ts";
 import { runFeaturesShow } from "./features-show.ts";
 import { runResultsPrune } from "./results-prune.ts";
 
-/**
- * Create a git-mv wrapper that falls back to renameSync for untracked/ignored paths.
- * Unlike `-k`, the wrapper does NOT silently skip failures: git mv without `-k` will
- * exit non-zero for untracked paths (caught by catch), and the fallback renameSync
- * will actually move the file so safeMove's post-move assertions can verify success.
- *
- * @param cwd - working directory for git commands; defaults to process.cwd().
- *   Pass the git repo root explicitly when calling from a different working directory (e.g. tests).
- */
-export function makeGitMove(cwd?: string): (from: string, to: string) => void {
-  return (from: string, to: string) => {
-    try {
-      execFileSync("git", ["mv", from, to], { stdio: "pipe", cwd });
-    } catch {
-      console.warn(`WARN: git mv failed, falling back to rename (untracked/ignored path)`);
-      renameSync(from, to);
-    }
-  };
-}
-
 export function buildFeaturesCommand(): Command {
   const features = new Command("features").description("Feature 目录管理");
 
@@ -269,14 +249,25 @@ export function buildFeaturesCommand(): Command {
         allowUnresolved: boolean;
         fallbackGroup?: string;
       }) => {
+        const workspaceRoot = join(repoRoot(), "workspace");
+        // 迁移全程用默认 renameSync：一次性移动整个 feature 目录（含 ignored 文件如
+        // runs/），不注入 git mv。git mv 只搬 tracked 文件，且 merge 预删 manifest.json
+        // 会让整目录 git mv 失败、触发 renameSync 兜底，留下 husk + 重复副本（见
+        // features-migrate.test.ts 的 husk 回归测试）。
         const rows = await runFeaturesMigrate({
           project: opts.project,
-          workspaceRoot: join(repoRoot(), "workspace"),
+          workspaceRoot,
           apply: opts.apply,
           allowUnresolved: opts.allowUnresolved,
           fallbackGroup: opts.fallbackGroup,
-          move: makeGitMove(),
         });
+
+        // apply 后用 git add -A 让 index 与重组后的工作树对齐；内容未变的移动由 git 在
+        // 提交时按 rename 检测，metadata.yaml 因合并而变则记为 delete+add。
+        if (opts.apply) {
+          const featuresDir = join(workspaceRoot, opts.project, "features");
+          execFileSync("git", ["add", "-A", featuresDir], { stdio: "pipe" });
+        }
 
         if (!opts.apply) {
           console.log(`[dry-run] ${rows.length} legacy feature(s) to migrate:`);
