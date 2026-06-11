@@ -60,7 +60,7 @@ export function buildResultsCommand(): Command {
           project: opts.project,
           featureId: opts.all ? undefined : featureId,
           workspaceRoot: join(repoRoot(), "workspace"),
-          keep: parseInt(opts.keep, 10),
+          keep: Math.max(0, parseInt(opts.keep, 10) || 0),
           apply: opts.apply,
         });
         if (!opts.apply) {

@@ -100,4 +100,38 @@ describe("kata results prune", () => {
     expect(remaining).toContain("20260501-0900-run-01"); // published 保留
     expect(remaining).toContain("20260504-0900-run-04"); // latest 1
   });
+
+  it("keep=0: remove includes all non-published/non-baseline runs", async () => {
+    const root = join(scratch, "dataAssets/features/v6.4.10/2026-04-x/runs");
+    await runResultsPrune({
+      project: "dataAssets",
+      featureId: "2026-04-x",
+      keep: 0,
+      workspaceRoot: scratch,
+      apply: true,
+    });
+    const remaining = readdirSync(root);
+    // only .published run is kept; no latest set when keep=0
+    expect(remaining).toContain("20260501-0900-run-01"); // published 保留
+    expect(remaining).not.toContain("20260502-0900-run-02");
+    expect(remaining).not.toContain("20260503-0900-run-03");
+    expect(remaining).not.toContain("20260504-0900-run-04");
+  });
+
+  it("apply=true: clears runs/_tmp/ contents", async () => {
+    const root = join(scratch, "dataAssets/features/v6.4.10/2026-04-x/runs");
+    const tmpDir = join(root, "_tmp");
+    mkdirSync(tmpDir, { recursive: true });
+    writeFileSync(join(tmpDir, "junk.txt"), "garbage");
+    await runResultsPrune({
+      project: "dataAssets",
+      featureId: "2026-04-x",
+      keep: 2,
+      workspaceRoot: scratch,
+      apply: true,
+    });
+    // _tmp/ itself may exist but its contents should be gone
+    const tmpContents = readdirSync(tmpDir);
+    expect(tmpContents).toHaveLength(0);
+  });
 });

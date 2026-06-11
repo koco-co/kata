@@ -34,7 +34,7 @@ function planPruneForFeature(featureDirAbs: string, keep: number): FeaturePruneP
 
   const published = new Set(all.filter((n) => existsSync(join(dir, n, ".published"))));
   const baselines = new Set(all.filter((n) => runIdType(n) === "baseline"));
-  const latest = new Set(all.slice(-keep));
+  const latest = new Set(keep > 0 ? all.slice(-keep) : []);
   const keepSet = new Set([...published, ...baselines, ...latest]);
 
   return {
