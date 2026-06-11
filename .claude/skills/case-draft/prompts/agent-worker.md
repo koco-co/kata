@@ -29,7 +29,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 > 你遇到阻塞必须返回 BlockedEnvelope，不得自行追问用户。
 > 你只能写入当前 feature 目录或 prompt 明确分配的 artifact 路径；不得写 source repo、只读证据目录或无关 workspace 文件。
 > 你只能把 provenance 写入当前 repo contract 允许的 JSON/evidence 结构：FeatureManifest@2 的 `case_drafting.requirement_atoms[].source_ref` 轻量行、RequirementAtom@1 的 `source_refs[]`、CaseEvidenceMap@1、coverage mapping。
-> 你不得把 SourceRef/SR/csv refs 或任何证据定位文本写进 `archive.md`、`archive.draft.md`、`cases.xmind` 的展示文本。
+> 你不得把 SourceRef/SR/csv refs 或任何证据定位文本写进 `cases/archive.md`、`cases/archive.draft.md`、`cases/cases.xmind` 的展示文本。
 > 你不得使用旧映射字段 `requirement_id`；用例追溯必须使用 `case_id` 与 `requirement_atom_ids`。
 > Worker 的 `blocked.kind` 只能是 `missing_evidence`、`ambiguous_requirement`、`history_only`。
 > `source_intake_failed` 仅属于主 Skill 的 source-intake/error-fallback，不属于 Worker `blocked.kind`。
@@ -45,7 +45,7 @@ DONE 示例：
 {
   "status": "DONE",
   "artifacts_written": [
-    "workspace/dataAssets/features/example/manifest.json"
+    "workspace/dataAssets/features/v6.4.11/example/metadata.yaml"
   ],
   "concerns": "",
   "needs_context": "",
@@ -59,8 +59,8 @@ DONE 示例：
 {
   "status": "DONE_WITH_CONCERNS",
   "artifacts_written": [
-    "workspace/dataAssets/features/example/archive.draft.md",
-    "workspace/dataAssets/features/example/case-evidence-map.json"
+    "workspace/dataAssets/features/v6.4.11/example/cases/archive.draft.md",
+    "workspace/dataAssets/features/v6.4.11/example/cases/case-evidence-map.json"
   ],
   "concerns": "历史线索仅用于补充覆盖面，未确认新增行为。",
   "needs_context": "",
@@ -88,14 +88,14 @@ DONE 示例：
 {
   "status": "BLOCKED",
   "artifacts_written": [
-    "workspace/dataAssets/features/example/unresolved-summary.md"
+    "workspace/dataAssets/features/v6.4.11/example/cases/unresolved-summary.md"
   ],
   "concerns": "",
   "needs_context": "",
   "blocked": {
     "kind": "missing_evidence",
     "evidence_paths": [
-      "workspace/dataAssets/features/example/.process/source-snapshot.json"
+      "workspace/dataAssets/features/v6.4.11/example/.process/source-snapshot.json"
     ],
     "context": {
       "stage": "requirement-atomize",

@@ -6,7 +6,7 @@
 
 ## 协议
 
-case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-reconcile 的 discrepancies、ui-probe 的 observed_facts、run-triage 的归类、ui-probe 发现的未覆盖场景。输出：两份工件，写入当前 run 目录 `workspace/<project>/features/<featureId>/results/<run-id>/`：
+case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-reconcile 的 discrepancies、ui-probe 的 observed_facts、run-triage 的归类、ui-probe 发现的未覆盖场景。输出：两份工件，写入当前 run 目录 `workspace/<project>/features/<version>/<featureId>/runs/<run-id>/`：
 
 1. `case-corrections.md` — pending 清单（人类可读、可手改 status）。
 2. `case-corrections-summary.json` — 结构化摘要，符合 `CaseCorrections@1` schema，供 handoff render 渲染使用。
@@ -47,7 +47,7 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 ```markdown
 ---
 feature: <featureId>
-run_id: <run-id>
+run_id: YYYYMMDD-HHmm-<type>-<seq>
 generated_at: <ISO 8601>
 generator: playwright-automation@1
 status: pending
@@ -63,7 +63,7 @@ by_category:
   missing_coverage: 2
 ---
 
-# Case Corrections — <featureId> / <run-id>
+# Case Corrections — <version>/<featureId> / <run-id>
 
 ## C-001  ui_text_drift  ★★★ (confidence: high)
 
@@ -98,7 +98,7 @@ by_category:
 {
   "schema": "CaseCorrections@1",
   "feature_id": "2026-04-dq-builtin-reasonability-field-calc-compare",
-  "run_id": "20260520-1500-abcdef12",
+  "run_id": "20260520-1500-run-01",
   "generated_at": "2026-05-20T15:00:00Z",
   "generator": "playwright-automation@1",
   "status": "pending",
@@ -113,8 +113,8 @@ by_category:
     "duplicate": 0,
     "missing_coverage": 0
   },
-  "corrections_md": "results/20260520-1500-abcdef12/case-corrections.md",
-  "apply_command": "/case-edit apply-corrections workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare 20260520-1500-abcdef12"
+  "corrections_md": "runs/20260520-1500-run-01/case-corrections.md",
+  "apply_command": "/case-edit apply-corrections workspace/dataAssets/features/v6.4.10/【v647】【数据质量】内置规则丰富-合理性 20260520-1500-run-01"
 }
 ```
 

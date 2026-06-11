@@ -11,7 +11,7 @@
 在真实运行之前，必须先执行 `--list` 确认 spec 文件可被 Playwright 正确解析：
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'tests/runners/full.spec.ts' --list --project=chromium
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'automation/tests/runners/full.spec.ts' --list --project=chromium
 ```
 
 输出应包含所有预期 case 名称和行号。若：
@@ -22,7 +22,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAss
 ### 第二步：运行目标 full.spec.ts
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'tests/runners/full.spec.ts' --project=chromium --reporter=line
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'automation/tests/runners/full.spec.ts' --project=chromium --reporter=line
 ```
 
 运行要求：
@@ -39,7 +39,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAss
 2. **退出码**：0=全部通过，1=有失败
 3. **通过/失败数量**：passed N, failed N, skipped N
 4. **失败详情**：每个失败 test 的错误消息摘要
-5. **报告路径**：`results/<run-id>/playwright/`、`results/<run-id>/allure-results/` 及 `results/<run-id>/handoff.json`
+5. **报告路径**：`runs/<run-id>/playwright/`、`runs/<run-id>/allure-results/` 及 `runs/<run-id>/handoff.json`
 6. **输出摘要**：最后 20 行运行输出
 
 ### 第四步：烟雾验证
@@ -54,7 +54,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAss
 不管结果是 passed、blocked、failed 还是 partial，最终交付前都要打印一条人工验收命令：有头模式、跑 full test、可直接复制运行。
 
 ```bash
-KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
+KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 
 调试时可以用无头命令，但交付或阻塞说明里必须同时给出上面这条 `--headed` full.spec.ts 命令；不能只宣称完成，也不能只给 smoke 或单条用例命令。
@@ -70,7 +70,7 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
    ```bash
    PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
      KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
-     npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' \
+     npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' \
      --output="$RUN_PATH/playwright"
    ```
    > allure 落点由 config 里带 `outputFolder` 的 reporter 决定，经 `KATA_ALLURE_RESULTS_DIR` 收敛到

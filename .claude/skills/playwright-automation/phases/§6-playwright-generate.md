@@ -11,7 +11,7 @@
 每个生成的 `t*.ts` 文件，必须在任何 import 之前，先写 5 行单行注释：
 
 ```ts
-// spec: features/<featureId>/archive.md#case=<case-id>
+// spec: features/<version>/<featureId>/cases/archive.md#case=<case-id>
 // intent: SR-INTENT-<id>
 // probe: SR-UI-PROBE-<id>
 // page: _shared/pages/<page-domain>-page.ts
@@ -26,10 +26,10 @@
 
 检查项 `case_traceability_header` 会拒收缺了其中任一行的 spec。
 
-走 `mode: source_backed_bootstrap`、且 `archive.md` 还不存在时，`spec:` 行必须改成指向当前目标源：
+走 `mode: source_backed_bootstrap`、且 `cases/archive.md` 还不存在时，`spec:` 行必须改成指向当前目标源：
 
 ```ts
-// spec: features/<featureId>/prd.md#source-backed-bootstrap
+// spec: features/<version>/<featureId>/prd.md#source-backed-bootstrap
 ```
 
 这不代表 case-draft 已完成；handoff 必须说明脚本是由 source-backed bootstrap 证据生成的，最终归档的可追溯性还得靠 `/case-draft` 补齐。
@@ -60,8 +60,8 @@
 
 进入 skill 后，第一个动作不是写代码，而是探测已有脚本：
 
-1. 检查 `workspace/{project}/features/{feature}/tests/` 在不在
-2. 列出现有 `*.spec.ts` / `*.spec.js` 和 `tests/cases/` 下的文件
+1. 检查 `workspace/{project}/features/{version}/{feature}/automation/tests/` 在不在
+2. 列出现有 `*.spec.ts` / `*.spec.js` 和 `automation/tests/cases/` 下的文件
 3. 逐个检查 spec 文件的内容：
    - **真实测试**：含 `test(` 块且有 `expect(` 断言
    - **scaffold**：只有 import 语句、空 describe、空 test 块
@@ -84,9 +84,9 @@
    - 没有 runner 文件，或只有空的/带注释的 runner
    
    生成模式怎么做：
-   - 从 ui-probe 证据和 archive.md 里提取 P0 用例；处于 `source_backed_bootstrap` 时，只能从当前目标 `prd.md` + ui-probe 证据里提取最小 P0 用例，并在代码头部用 `prd.md#source-backed-bootstrap`
-   - 先写 `tests/runners/smoke.spec.ts` + `full.spec.ts`（仅 import）
-   - 再写 `tests/cases/t01-{slug}.ts`
+   - 从 ui-probe 证据和 `cases/archive.md` 里提取 P0 用例；处于 `source_backed_bootstrap` 时，只能从当前目标 `prd.md` + ui-probe 证据里提取最小 P0 用例，并在代码头部用 `prd.md#source-backed-bootstrap`
+   - 先写 `automation/tests/runners/smoke.spec.ts` + `full.spec.ts`（仅 import）
+   - 再写 `automation/tests/cases/t01-{slug}.ts`
    - 按 RED → GREEN 节律逐个验证
 
 ### 模式防范：storageState 路径污染
@@ -100,15 +100,15 @@
 
 ```bash
 # 检查 session 路径是否正确
-grep -c "root-level auth session" tests/cases/*.ts 2>/dev/null  # 应为 0
-grep -c "workspace/.*/.kata/auth/.*/session-" tests/cases/*.ts 2>/dev/null  # 应 > 0
+grep -c "root-level auth session" automation/tests/cases/*.ts 2>/dev/null  # 应为 0
+grep -c "workspace/.*/.kata/auth/.*/session-" automation/tests/cases/*.ts 2>/dev/null  # 应 > 0
 ```
 
 ### 目录与 runner 约束
 
-- feature 自动化必须遵循 `tests/{cases,runners,data,unit,.debug}` 结构；共享页面对象和 helper 只能放在 `workspace/<project>/_shared/pages/` 或 `workspace/<project>/_shared/helpers/`。
-- `tests/runners/smoke.spec.ts` 与 `tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写进 runner。
-- P0/P1 的具体用例写进 `tests/cases/t{nn}-{slug}.ts`，共享页面对象写进 `_shared/pages/`，共享接口/模板解析 helper 写进 `_shared/helpers/`。
+- feature 自动化必须遵循 `automation/tests/{cases,runners,data,unit,.debug}` 结构；共享页面对象和 helper 只能放在 `workspace/<project>/_shared/pages/` 或 `workspace/<project>/_shared/helpers/`。
+- `automation/tests/runners/smoke.spec.ts` 与 `automation/tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写进 runner。
+- P0/P1 的具体用例写进 `automation/tests/cases/t{nn}-{slug}.ts`，共享页面对象写进 `_shared/pages/`，共享接口/模板解析 helper 写进 `_shared/helpers/`。
 - 新生成的脚本不得只交付 smoke；必须同时给出 full runner。若 full 因产品或环境阻塞而覆盖不了深链路，必须在 handoff 里写明阻塞分类和已运行的命令。
 - **串行标注**：有共享状态、有创建-校验-删除链路、或依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称里带 `@serial` 标签（`scripts/run-tests-notify.ts` 的 two-phase runner 会把这类用例挑出来，强制 `workers=1` 串行跑，避免数据互污）。case 之间用 `beforeEach`/`afterEach` 干净地恢复前置态，不依赖执行顺序。
 
@@ -158,7 +158,7 @@ RED→GREEN 节律里的等待条件，必须用下面这些可靠写法，禁�
 |------|------|
 | `bun test` / `playwright test` 不带文件参数全量重跑做调试 | 浪费时间，丢失失败信号 |
 | 只生成或只运行 `smoke.spec.ts` 就交付端到端自动化 | smoke 只能证明基座，不能证明 full 回归入口可运行 |
-| 把测试主体直接写进 `tests/runners/full.spec.ts` / `smoke.spec.ts` | runners 是聚合入口；测试体应在 cases/ |
+| 把测试主体直接写进 `automation/tests/runners/full.spec.ts` / `smoke.spec.ts` | runners 是聚合入口；测试体应在 cases/ |
 | 用 `?.[0] ?? []` 或 `if (x)` 守卫替换失败的断言 | 测试永远 pass，掩盖真 bug |
 | `page.waitForTimeout(N)` 代替等待特定 UI 条件 | 固定延时不可靠，应等待元素可见、网络空闲或特定响应；仅在触发动画/过渡时必须使用，且需注释说明原因 |
 | 覆写未读过的已有 spec 文件 | 可能丢失上一会话的调试成果或人工修正 |

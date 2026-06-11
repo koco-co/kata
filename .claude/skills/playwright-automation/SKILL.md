@@ -59,8 +59,8 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 ## 执行流程
 
 - 严格按 env-preflight → ui-probe → plan-reconcile → playwright-generate → self-run 的顺序推进，前序阶段通过才进入下一阶段。
-- 按名称片段查找目标目录时，先用关键词在 `manifest.json` / `metadata.yaml` / `archive.md` / `prd.md` 里精确定位唯一目标目录，再读取其状态文件；禁止枚举 `features/` 下的候选目录。
-- `blocked_by_case_draft_required` 只在一种情况下触发：目标目录既缺少 case-draft 的自动化基线（`ready` 状态的 `AutomationIntent`、`archive.md`、`test-point-checklist.md`），又缺少 `prd.md` 或 `inputs/lanhu-snapshots/`。触发后直接进入 handoff，不再读取需求源。
+- 按名称片段查找目标目录时，先用关键词在 `metadata.yaml` / `cases/archive.md` / `prd.md` 里精确定位唯一目标目录，再读取其状态文件；禁止枚举 `features/` 下的候选目录。
+- `blocked_by_case_draft_required` 只在一种情况下触发：目标目录既缺少 case-draft 的自动化基线（`ready` 状态的 `AutomationIntent`、`cases/archive.md`、`cases/test-point-checklist.md`），又缺少 `prd.md` 或 `inputs/lanhu-snapshots/`。触发后直接进入 handoff，不再读取需求源。
 
 ## 进度可见性
 
@@ -84,5 +84,5 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 ## 环境与产出
 
 - 环境配置使用 `workspace/<project>/_shared/env/*.yaml` profile；新建前先检查是否已有匹配的 `base_url` + `tenant`，不为交付新建 `.env.local`。
-- 产出布局：`smoke.spec.ts` + `full.spec.ts` 存放于 `tests/runners/`，case 存放于 `tests/cases/`，共享页面对象/helper 存放于 `_shared/`。
+- 产出布局：`smoke.spec.ts` + `full.spec.ts` 存放于 `automation/tests/runners/`，case 存放于 `automation/tests/cases/`，共享页面对象/helper 存放于 `_shared/`。
 - 交付以目标 `full.spec.ts` 全量通过为准，仅 smoke 通过不算完成。

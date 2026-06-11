@@ -69,7 +69,7 @@
 | Status             | 主 Skill 动作                                           |
 | ------------------ | ------------------------------------------------------- |
 | DONE               | 标记对应任务 completed，继续编排（评审集中在汇总）      |
-| DONE_WITH_CONCERNS | 记录到 manifest.json#stage_history；标记 completed，继续 |
+| DONE_WITH_CONCERNS | 记录到 metadata.yaml#stage_history；标记 completed，继续 |
 | NEEDS_CONTEXT      | 主 Skill 补足 context 后重新派发                        |
 | BLOCKED            | 查 `blocked.kind` → 输出对应的规则模板，不进入评审      |
 
@@ -81,14 +81,14 @@ BlockedEnvelope JSON schema：
 {
   "status": "BLOCKED",
   "artifacts_written": [
-    "workspace/dataAssets/features/example/results/run-1/playwright/preflight/session-probe.json"
+    "workspace/dataAssets/features/v6.4.10/example/runs/20260520-1500-run-01/playwright/preflight/session-probe.json"
   ],
   "concerns": "",
   "needs_context": "",
   "blocked": {
     "kind": "session_expired",
     "evidence_paths": [
-      "workspace/dataAssets/features/example/results/run-1/playwright/preflight/session-probe.json"
+      "workspace/dataAssets/features/v6.4.10/example/runs/20260520-1500-run-01/playwright/preflight/session-probe.json"
     ],
     "context": {}
   }

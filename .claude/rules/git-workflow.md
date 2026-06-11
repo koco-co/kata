@@ -22,7 +22,7 @@
 - `workspace/{project}/.kata/`：如果任务只读用 `.kata`（源码证据、session、配置）、不会写 runtime 状态，可以在 worktree 里建一个 symlink 指向主工作树的对应目录。
 - 如果任务需要隔离、或会写入 runtime 状态，就不要 symlink 整个 `.kata/`；只复制或 symlink 本任务必需的只读子路径或文件，例如 `workspace/{project}/.kata/auth/{project}/session-{env}.json`，而写入型状态必须落在 worktree 自己的目录里。
 - `workspace/{project}/.kata/repos/**`：即便用 symlink 共享，也仍是只读源码证据；不得提交、推送或写业务文件。
-- 其他 ignored 目录（如 `workspace/{project}/_shared/`、feature `results/`）：只有任务明确依赖时才同步，并在最终交付里说明 worktree 的绝对路径。
+- 其他 ignored 目录（如 `workspace/{project}/_shared/`、feature `runs/`）：只有任务明确依赖时才同步，并在最终交付里说明 worktree 的绝对路径。
 
 推荐命令模板（在主工作树执行，`<project>` 与 `<slug>` 按任务替换）：
 

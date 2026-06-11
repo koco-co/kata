@@ -77,7 +77,7 @@ blocked_by_environment: tool_permission_denied
 有头模式 full test 人工验收命令：
 
 ```shell
-KATA_DATAASSETS_ENV=<env_profile_file> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<featureId>/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
+KATA_DATAASSETS_ENV=<env_profile_file> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 ~~~
 
@@ -118,14 +118,14 @@ no_permission 只输出一次直接文本 blocker。不得给 tenant/project 名
 ## run-id 与证据目录
 
 - run-id 用内部指定的字面量，例如 `preflight-250515-01` 或 `preflight-01`；不得用随机数、hash、管道或命令替换来生成。
-- 当前 feature 的证据目录必须用 repo-root 相对路径：`workspace/{project}/features/{featureId}/results/<run-id>/playwright/preflight`。
+- 当前 feature 的证据目录必须用 repo-root 相对路径：`workspace/{project}/features/{version}/{featureId}/runs/<run-id>/playwright/preflight`。
 - 不得把 `<REPO_ROOT>/...` 绝对路径交给 `mkdir -p`。
 - 等 run-id 的 tool_result 返回且没被拒绝，才能创建 evidence 目录；不得在同一条 assistant message 里同时发起 run-id 和 evidence 目录创建。
 - 同一批 tool_result 里一个成功、一个带拒绝信号时，拒绝信号优先。
 
 ## 探测脚本
 
-- 依赖 repo 的 Playwright/API 探测脚本，写入当前 feature 的 `results/<run-id>/playwright/preflight/`，并从 repo root 执行。
+- 依赖 repo 的 Playwright/API 探测脚本，写入当前 feature 的 `runs/<run-id>/playwright/preflight/`，并从 repo root 执行。
 - 只有轻量、不依赖 repo 的一次性脚本，才能写入 `mktemp -d /tmp/kata-playwright-preflight-*` 返回的目录。
 - 读取 repo-root 相对的 `auth.session_path` 时，脚本用 `path.resolve(process.cwd(), auth.session_path)`。
 - 不得硬编码 repo root，不得用 `__dirname`、`import.meta.url` 或 `../../../` 反推 repo root。

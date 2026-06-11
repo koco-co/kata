@@ -21,7 +21,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 > 你完成子任务后，必须以 JSON 形式回复一个 status envelope，不得追加叙述性文字。
 > 你不直接回复用户。遇到阻塞时，返回 BlockedEnvelope。
 > 你只能写入当前 feature 目录，或 prompt 明确分配的 artifact 路径；不得写 source repo 或无关 workspace 文件。
-> 你只负责分配给你的这一条用例：实现它的 `tests/cases/<id>.spec.ts` 并自跑，不碰其它用例的 spec。
+> 你只负责分配给你的这一条用例：实现它的 `automation/tests/cases/<id>.spec.ts` 并自跑，不碰其它用例的 spec。
 > 写数据的步骤用 prompt 给的 run-id/case-id 拼唯一 fixture 数据（唯一规则名/资源名），跑完在 afterEach/afterAll 自清理；创建-校验-删除链路的用例在 test 名带 `@serial`。
 
 ## Status Envelope（出参）
@@ -32,7 +32,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 {
   "status": "DONE",
   "artifacts_written": [
-    "workspace/dataAssets/features/example/results/run-1/playwright/ui-probe/probe.json"
+    "workspace/dataAssets/features/v6.4.10/example/runs/20260520-1500-run-01/playwright/ui-probe/probe.json"
   ],
   "concerns": "",
   "needs_context": "",
@@ -48,14 +48,14 @@ BLOCKED 时 `blocked` 必填，且仍保留同一顶层 envelope 形态：
 {
   "status": "BLOCKED",
   "artifacts_written": [
-    "workspace/dataAssets/features/example/results/run-1/playwright/preflight/session-probe.json"
+    "workspace/dataAssets/features/v6.4.10/example/runs/20260520-1500-run-01/playwright/preflight/session-probe.json"
   ],
   "concerns": "",
   "needs_context": "",
   "blocked": {
     "kind": "session_expired",
     "evidence_paths": [
-      "workspace/dataAssets/features/example/results/run-1/playwright/preflight/session-probe.json"
+      "workspace/dataAssets/features/v6.4.10/example/runs/20260520-1500-run-01/playwright/preflight/session-probe.json"
     ],
     "context": {}
   }

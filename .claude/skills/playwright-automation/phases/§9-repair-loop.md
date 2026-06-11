@@ -15,7 +15,7 @@
 > 改代码前先读诊断证据（见 `references/cli-essentials.md`）：在 probe/spec 里注册
 > `page.on('console')` / `page.on('requestfailed')` 读 app 侧 JS 错误与失败请求，
 > 再结合 Playwright trace 定位根因，避免盲目修改 locator。
-> 可视化 trace：`npx playwright show-trace results/<run-id>/playwright/.../trace.zip`
+> 可视化 trace：`npx playwright show-trace runs/<run-id>/playwright/.../trace.zip`
 
 1. **Selector 找不到**：
    - 在浏览器 DevTools 中确认元素实际位置
@@ -37,7 +37,7 @@
 #### data 类失败修复
 
 1. **数据不满足前置条件**：
-   - 检查 `tests/data/` 下的 fixture 文件
+   - 检查 `automation/tests/data/` 下的 fixture 文件
    - 确认数据表已有预期记录
    - 使用 API 创建测试数据（通过 `page.evaluate` 或独立 API 调用）
 2. **feature flag 未开启**：
@@ -50,7 +50,7 @@
 
 1. **修改前**：记录当前文件内容和失败证据
 2. **修改**：只做最小改动（修改 selector / 调整等待 / 修正 fixture）
-3. **重跑**：只运行目标 spec 文件（`playwright test tests/runners/full.spec.ts`），**不带文件参数的全量重跑禁止**
+3. **重跑**：只运行目标 spec 文件（`playwright test automation/tests/runners/full.spec.ts`），**不带文件参数的全量重跑禁止**
 4. **收集结果**：运行输出、退出码、通过/失败数
 5. **记录修复证据**：
    - 修复前错误消息
@@ -102,8 +102,8 @@ remaining_failures:
 
 ## 调试产物隔离（强制）
 
-- repair-loop 期间创建的调试 spec 必须放在 `features/<featureId>/.debug/probe-<timestamp>.spec.ts` 下。
-- 绝不把 `t01-debug.spec.ts`、`*-repro.spec.ts` 或 `diag_*.ts` 放进 `tests/cases/`。
+- repair-loop 期间创建的调试 spec 必须放在 `features/<version>/<featureId>/.debug/probe-<timestamp>.spec.ts` 下。
+- 绝不把 `t01-debug.spec.ts`、`*-repro.spec.ts` 或 `diag_*.ts` 放进 `automation/tests/cases/`。
 - 运行期调试捕获（HAR / 截图 / trace）须用 `.debug/` 内的 `testInfo.outputPath()`。
 - 修复成功后自动清理 `.debug/` 目录；修复失败就保留 `.debug/` 内容，供下一次 handoff 做阻塞分流。
 

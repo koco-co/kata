@@ -69,12 +69,13 @@ Commit: <sha | none>
 
 - Feature 目录命名格式：`【v{version}】[【{lanhu-prd-id}】][【{customer}】]【{module}】{description}`。
 - 版本号由 `kata features resolve` 引擎填入；模型不得自己拼版本号。
+- 目录位于 `features/{version}/` 版本层之下；feature 内只允许 `cases/`、`automation/`、`runs/` 三区与 `metadata.yaml`、`prd.md`、`inputs/`。
 - 详细规则见 `.claude/skills/case-draft/rules/naming-convention.md`。
 - 已有的 feature 目录优先复用，不为同一需求另建平行目录。
 
 ## QA 产物自检
 
-- Archive、XMind、CSV 等产物交付前，必须检查字段一致性和可读性。
+- Archive、XMind、CSV 等产物存放于 `features/{version}/{feature}/cases/` 子目录，交付前必须检查字段一致性和可读性。
 - 只声明本次实际生成或修改的产物；没生成的产物，写进未验证范围。
 - SourceRef 的放置遵守对应 skill 的产物规范，不能把结构化证据泄漏到人类可读的用例正文里。
 
