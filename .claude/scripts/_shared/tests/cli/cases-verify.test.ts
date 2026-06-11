@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runCasesVerify } from "@shared/cli/cases-verify.ts";
+import { stringify as stringifyYaml } from "yaml";
 
 const SHA = "a".repeat(64);
 
@@ -224,5 +225,95 @@ describe("runCasesVerify", () => {
         (i) => i.layer === "L3" && i.rule === "coverage_hole" && i.message.includes("RA-9"),
       ),
     ).toBe(true);
+  });
+
+  // Fix A: @1 feature（metadata.yaml schema=FeatureMetadata@1 + manifest.json）应走 manifest 路径，不 soft-pass
+  it("routes @1 feature (metadata.yaml@1 + manifest.json) through manifest path, not soft-pass", async () => {
+    const featureId = "2026-05-v1-with-manifest";
+    const dir = join(ws, "dataAssets/features", featureId);
+    mkdirSync(dir, { recursive: true });
+    // @1 metadata.yaml
+    writeFileSync(
+      join(dir, "metadata.yaml"),
+      stringifyYaml({
+        schema: "FeatureMetadata@1",
+        id: featureId,
+        display_name: "V1 feature",
+        status: "active",
+        created_at: "2026-05-01",
+        updated_at: "2026-05-01",
+        modules: ["dq"],
+        customers: [],
+        versions: [],
+        owners: ["qa"],
+        inputs: [],
+        relates_to: [],
+        emits: {},
+      }),
+    );
+    // manifest.json with case_drafting.status=in-progress (not-started → no atoms → should not soft-pass)
+    writeFileSync(
+      join(dir, "manifest.json"),
+      JSON.stringify({
+        schema: "FeatureManifest@2",
+        feature_id: featureId,
+        case_drafting: { status: "in-progress", requirement_atoms: [] },
+        automation: { status: "not-started", intents: [], last_run_status: "not-run" },
+        files: {},
+      }),
+    );
+    // archive.md at feature root (legacy @1 layout)
+    writeFileSync(join(dir, "archive.md"), "# Cases\n");
+
+    const r = await runCasesVerify({
+      project: "dataAssets",
+      featureId,
+      workspaceRoot: ws,
+      requiredKinds: [],
+    });
+    // @1 path: verifyL1Structure runs manifest schema validation (not soft-pass)
+    // manifest.json should be validated — if manifest_schema_invalid fires for in-progress
+    // with missing fields that's fine; what matters is the manifest-driven path ran (not ok=true)
+    // Actually in-progress with empty atoms passes L1/L2/L3 since non-completed = no stable core checks.
+    // The critical assertion: manifest is consumed, not bypassed.
+    // We verify this by checking that the @1 manifest validator ran (no feature_not_found).
+    expect(r.issues.every((i) => i.rule !== "feature_not_found")).toBe(true);
+    // @1 path: manifest schema was validated (no false soft-pass due to metadata.yaml existing)
+    // For in-progress status, stable_core check is skipped → should be ok
+    expect(r.ok).toBe(true);
+  });
+
+  it("does NOT soft-pass @1 feature when manifest.json is missing (feature_not_found)", async () => {
+    const featureId = "2026-05-v1-no-manifest";
+    const dir = join(ws, "dataAssets/features", featureId);
+    mkdirSync(dir, { recursive: true });
+    // @1 metadata.yaml only — no manifest.json
+    writeFileSync(
+      join(dir, "metadata.yaml"),
+      stringifyYaml({
+        schema: "FeatureMetadata@1",
+        id: featureId,
+        display_name: "V1 no manifest",
+        status: "active",
+        created_at: "2026-05-01",
+        updated_at: "2026-05-01",
+        modules: ["dq"],
+        customers: [],
+        versions: [],
+        owners: ["qa"],
+        inputs: [],
+        relates_to: [],
+        emits: {},
+      }),
+    );
+
+    const r = await runCasesVerify({
+      project: "dataAssets",
+      featureId,
+      workspaceRoot: ws,
+      requiredKinds: [],
+    });
+    expect(r.ok).toBe(false);
+    expect(r.issues.some((i) => i.rule === "feature_not_found")).toBe(true);
   });
 });

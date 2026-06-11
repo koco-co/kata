@@ -58,6 +58,7 @@ describe("kata features show", () => {
       workspaceRoot: scratch,
     });
     expect(detail.metadata.id).toBe("2026-04-x");
+    if (!detail.metadata.automation) throw new Error("expected automation section");
     expect(detail.metadata.automation.intents).toHaveLength(1);
     expect(detail.recentRuns).toEqual([]);
   });
