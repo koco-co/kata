@@ -6,6 +6,38 @@ import { lintLanhuBlockedDrafts } from "@shared/cli/cases-lint.ts";
 import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
 import JSZip from "jszip";
+import { stringify } from "yaml";
+
+// ─── 辅助：写入最小 FeatureMetadata@2 ───
+function writeMinimalMetaV2(dir: string, id: string, archivePath?: string) {
+  writeFileSync(
+    join(dir, "metadata.yaml"),
+    stringify({
+      schema: "FeatureMetadata@2",
+      id,
+      display_name: id,
+      status: "active",
+      created_at: "2026-01-01",
+      updated_at: "2026-01-01",
+      modules: [],
+      customers: [],
+      versions: [],
+      owners: [],
+      inputs: [],
+      relates_to: [],
+      emits: {},
+      case_drafting: {
+        status: "completed",
+        requirement_atoms: [],
+        ...(archivePath ? { archive_path: archivePath } : {}),
+      },
+      automation: { status: "not-started", intents: [] },
+      files: {
+        ...(archivePath ? { archive: archivePath } : {}),
+      },
+    }),
+  );
+}
 
 function blockedLanhuManifest(featureId: string) {
   return {
@@ -422,6 +454,99 @@ describe("kata cases lint", () => {
       const result = lintArchiveCaseQa(featureDir);
       expect(result.files).toBe(1);
       expect(result.violations.map((v) => v.rule)).toContain("archive-title-machine-id");
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  // ─── 两级版本层布局的 sourceref-leak 扫描（Fix 1 regression tests）───
+
+  it("flags SourceRef leak in migrated two-level layout (cases/archive.md under version dir)", async () => {
+    // features/v6.4.10/<featureId>/cases/archive.md — 迁移后两层版本结构
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
+    try {
+      const featureId = "2026-06-migrated-feature";
+      const featuresRoot = join(scratch, "dataAssets/features");
+      const featureDir = join(featuresRoot, "v6.4.10", featureId);
+      const casesDir = join(featureDir, "cases");
+      mkdirSync(casesDir, { recursive: true });
+      writeMinimalMetaV2(featureDir, featureId, "cases/archive.md");
+      writeFileSync(
+        join(casesDir, "archive.md"),
+        "# 用例\n\nSourceRef SR-PRD-001 泄漏至展示层。\n",
+      );
+
+      // workspaceRoot = scratch, project = "dataAssets"（与现有测试口径一致）
+      const result = await lintCaseMdSourceRefLeak(scratch);
+
+      expect(result.violations.length).toBeGreaterThan(0);
+      expect(
+        result.violations.map((v) => v.rule).every((r) => r === "case-md-sourceref-leak"),
+      ).toBe(true);
+      expect(result.violations.map((v) => v.matched)).toEqual(
+        expect.arrayContaining(["SourceRef", "SR-PRD-001"]),
+      );
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("flags SourceRef leak via metadata.yaml@2 archive_path in migrated layout", async () => {
+    // metadata-driven 分支：metadata.yaml 列出 cases/archive.md
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-meta-"));
+    try {
+      const featureId = "2026-06-meta-driven-feature";
+      const featuresRoot = join(scratch, "dataAssets/features");
+      const featureDir = join(featuresRoot, "v6.4.10", featureId);
+      const casesDir = join(featureDir, "cases");
+      mkdirSync(casesDir, { recursive: true });
+      // metadata.yaml@2 指向 cases/archive.md
+      writeMinimalMetaV2(featureDir, featureId, "cases/archive.md");
+      writeFileSync(join(casesDir, "archive.md"), "# 用例\n\ncsv::reqs.csv#L5 provenance leak\n");
+
+      const result = await lintCaseMdSourceRefLeak(scratch);
+
+      expect(result.violations.length).toBeGreaterThan(0);
+      expect(result.violations.some((v) => v.matched === "csv::reqs.csv#L5")).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("still flags SourceRef leak in legacy-flat @1 feature (manifest.json + root archive.md fallback)", async () => {
+    // @1 旧 feature：feature 根 archive.md + manifest.json，不在版本层下（legacy-flat zone）
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-legacy-"));
+    try {
+      const featureId = "2026-04-legacy-flat-feature";
+      const featuresRoot = join(scratch, "dataAssets/features");
+      const featureDir = join(featuresRoot, featureId);
+      mkdirSync(featureDir, { recursive: true });
+      // 旧 manifest.json（@1 结构，archive 在根目录）
+      writeFileSync(
+        join(featureDir, "manifest.json"),
+        JSON.stringify({
+          schema: "FeatureManifest@2",
+          feature_id: featureId,
+          case_drafting: {
+            status: "completed",
+            archive_path: "archive.md",
+            xmind_path: null,
+            requirement_atoms: [],
+          },
+          automation: { status: "not-started", intents: [], last_run_status: "not-run" },
+          files: { archive: "archive.md", xmind: null, tests_root: null, latest_results: null },
+        }),
+      );
+      // archive.md 在 feature 根（@1 旧布局）
+      writeFileSync(
+        join(featureDir, "archive.md"),
+        "# 用例\n\nSR-LEGACY-001 is a leaked sourceref.\n",
+      );
+
+      const result = await lintCaseMdSourceRefLeak(scratch);
+
+      expect(result.violations.length).toBeGreaterThan(0);
+      expect(result.violations.some((v) => v.matched === "SR-LEGACY-001")).toBe(true);
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }
