@@ -8,6 +8,7 @@ import {
   isSerialCase,
   parseArchiveCases,
 } from "@skills/playwright-automation/scripts/build-case-tasks.ts";
+import { stringify as yamlStringify } from "yaml";
 import { spawnKataCli } from "./cli-runner.ts";
 
 const ARCHIVE_SNIPPET = `---
@@ -126,6 +127,24 @@ function makeFeature(name: string, manifest: object, archive?: string): string {
   return dir;
 }
 
+// 写 metadata.yaml@2 + 可选 archive 文件（落在 cases/ 子目录下）
+function makeFeatureV2(
+  name: string,
+  meta: object,
+  archiveContent?: string,
+  archiveSubPath = "cases/archive.md",
+): string {
+  const dir = join(TMP, name);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "metadata.yaml"), yamlStringify(meta));
+  if (archiveContent) {
+    const archivePath = join(dir, archiveSubPath);
+    mkdirSync(join(dir, archiveSubPath.split("/").slice(0, -1).join("/")), { recursive: true });
+    writeFileSync(archivePath, archiveContent);
+  }
+  return dir;
+}
+
 describe("buildCaseTaskList", () => {
   it("intents 为空时退回解析 archive.md", () => {
     const dir = makeFeature(
@@ -200,6 +219,120 @@ describe("buildCaseTaskList", () => {
       files: { archive: "missing.md" },
     });
     expect(() => buildCaseTaskList(dir)).toThrow();
+  });
+
+  it("manifest 不存在时抛清晰错误（@1 兜底路径）", () => {
+    const dir = makeFeatureV2("f-no-meta-no-manifest", {
+      schema: "FeatureMetadata@1",
+      id: "no-manifest",
+    });
+    expect(() => buildCaseTaskList(dir)).toThrow(/no metadata\.yaml or manifest\.json/);
+  });
+});
+
+// ─── @2 metadata.yaml 分流测试 ───
+
+describe("buildCaseTaskList @2 (metadata.yaml)", () => {
+  it("@2 有 ready intents → 优先用 intents 分支", () => {
+    const dir = makeFeatureV2("v2-intents", {
+      schema: "FeatureMetadata@2",
+      id: "v2-demo",
+      feature_id: "v2-demo-feature",
+      automation: {
+        intents: [
+          { id: "I1", title: "新增规则并保存", automation_status: "ready" },
+          { id: "I2", title: "查看规则列表", automation_status: "ready" },
+        ],
+      },
+      files: { archive: "cases/archive.md" },
+    });
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("manifest_intents");
+    expect(list.feature_id).toBe("v2-demo-feature");
+    expect(list.case_count).toBe(2);
+    expect(list.cases[0].title).toBe("新增规则并保存");
+    expect(list.cases[0].mutates_data).toBe(true);
+  });
+
+  it("@2 intents 为空 → 退回解析 files.archive 指向的 cases/archive.md", () => {
+    const dir = makeFeatureV2(
+      "v2-archive",
+      {
+        schema: "FeatureMetadata@2",
+        id: "v2-archive-demo",
+        feature_id: "v2-archive-feature",
+        automation: { intents: [] },
+        files: { archive: "cases/archive.md" },
+      },
+      ARCHIVE_SNIPPET,
+    );
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("archive_md");
+    expect(list.feature_id).toBe("v2-archive-feature");
+    expect(list.case_count).toBe(3);
+    expect(list.cases[1].mutates_data).toBe(true);
+  });
+
+  it("@2 feature_id 缺失时回退到 id", () => {
+    const dir = makeFeatureV2(
+      "v2-fallback-id",
+      {
+        schema: "FeatureMetadata@2",
+        id: "fallback-id",
+        automation: { intents: [] },
+        files: { archive: "cases/archive.md" },
+      },
+      ARCHIVE_SNIPPET,
+    );
+    const list = buildCaseTaskList(dir);
+    expect(list.feature_id).toBe("fallback-id");
+  });
+
+  it("@2 混合 intents 只取 ready 项", () => {
+    const dir = makeFeatureV2("v2-mixed", {
+      schema: "FeatureMetadata@2",
+      id: "v2-mixed",
+      automation: {
+        intents: [
+          { id: "I1", title: "新增规则并保存", automation_status: "ready" },
+          { id: "I2", title: "草稿用例不应出现", automation_status: "draft" },
+        ],
+      },
+      files: { archive: "cases/archive.md" },
+    });
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("manifest_intents");
+    expect(list.case_count).toBe(1);
+    expect(list.cases.map((c) => c.title)).not.toContain("草稿用例不应出现");
+  });
+
+  it("@2 无 intents 且无 archive 路径时抛错", () => {
+    const dir = makeFeatureV2("v2-no-archive", {
+      schema: "FeatureMetadata@2",
+      id: "v2-no-archive",
+      automation: { intents: [] },
+      files: {},
+    });
+    expect(() => buildCaseTaskList(dir)).toThrow(/no automation intents and no archive path/);
+  });
+
+  it("@2 case_drafting.archive_path 作为备选 archive 路径", () => {
+    const dir = makeFeatureV2(
+      "v2-case-drafting-archive",
+      {
+        schema: "FeatureMetadata@2",
+        id: "v2-case-drafting",
+        feature_id: "v2-case-drafting-feature",
+        automation: { intents: [] },
+        case_drafting: { archive_path: "cases/archive.md" },
+        files: {},
+      },
+      ARCHIVE_SNIPPET,
+    );
+    const list = buildCaseTaskList(dir);
+    expect(list.source).toBe("archive_md");
+    expect(list.feature_id).toBe("v2-case-drafting-feature");
+    expect(list.case_count).toBe(3);
   });
 });
 

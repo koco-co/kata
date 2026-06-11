@@ -12,6 +12,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { createCli } from "@shared/lib/cli-runner.ts";
+import { isV2, readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
 
 // ─── 类型 ───
 
@@ -102,11 +103,60 @@ interface ManifestIntent {
   automation_status?: string;
 }
 
-/** Read a feature dir and produce its case-task list: intents first, else parse archive. */
+// 从 intents 数组中筛出 ready 条目并构建 CaseTask 列表
+function buildIntentsCases(intents: ManifestIntent[]): CaseTask[] {
+  const ready = intents.filter((i) => i.automation_status === "ready");
+  return ready.map((intent, idx) => {
+    const title = intent.title ?? intent.description ?? intent.id ?? `intent-${idx + 1}`;
+    return {
+      id: intent.id ?? `C${String(idx + 1).padStart(3, "0")}`,
+      title,
+      priority: "P?",
+      mutates_data: classifyMutation(title),
+      serial: isSerialCase(title),
+      // intents 已由上游筛为 ready，无需再做租户排除；租户检查只留在 archive 分支
+      excluded: null,
+    };
+  });
+}
+
+/** Read a feature dir and produce its case-task list: intents first, else parse archive.
+ * Supports FeatureMetadata@2 (metadata.yaml) and @1 (manifest.json) layouts.
+ */
 export function buildCaseTaskList(featureDir: string): CaseTaskList {
+  // ── @2 路径：metadata.yaml 存在且 schema=FeatureMetadata@2 ──
+  const meta = readFeatureMeta(featureDir);
+  if (isV2(meta)) {
+    const featureId = (meta.feature_id ?? meta.id) || basename(featureDir);
+    const intents = (meta.automation?.intents ?? []) as ManifestIntent[];
+    const readyCases = buildIntentsCases(intents);
+    if (readyCases.length > 0) {
+      return {
+        feature_id: featureId,
+        source: "manifest_intents",
+        case_count: readyCases.length,
+        cases: readyCases,
+      };
+    }
+    // 退回 archive 分支：files.archive 或 case_drafting.archive_path
+    const archiveName =
+      (meta.files?.archive as string | null | undefined) ??
+      (meta.case_drafting?.archive_path as string | null | undefined);
+    if (!archiveName) {
+      throw new Error(`no automation intents and no archive path in metadata.yaml: ${featureDir}`);
+    }
+    const archivePath = join(featureDir, archiveName);
+    if (!existsSync(archivePath)) {
+      throw new Error(`archive not found: ${archivePath}`);
+    }
+    const cases = parseArchiveCases(readFileSync(archivePath, "utf8"));
+    return { feature_id: featureId, source: "archive_md", case_count: cases.length, cases };
+  }
+
+  // ── @1 兼容路径：manifest.json 兜底（老 feature 仍可能 manifest.json 形态）──
   const manifestPath = join(featureDir, "manifest.json");
   if (!existsSync(manifestPath)) {
-    throw new Error(`manifest.json not found: ${manifestPath}`);
+    throw new Error(`no metadata.yaml or manifest.json in feature: ${featureDir}`);
   }
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
     feature_id?: string;
@@ -117,21 +167,14 @@ export function buildCaseTaskList(featureDir: string): CaseTaskList {
   const featureId = manifest.feature_id ?? basename(featureDir);
 
   // intents 优先：有 ready 状态的条目就用 intents 分支
-  const ready = (manifest.automation?.intents ?? []).filter((i) => i.automation_status === "ready");
-  if (ready.length > 0) {
-    const cases: CaseTask[] = ready.map((intent, idx) => {
-      const title = intent.title ?? intent.description ?? intent.id ?? `intent-${idx + 1}`;
-      return {
-        id: intent.id ?? `C${String(idx + 1).padStart(3, "0")}`,
-        title,
-        priority: "P?",
-        mutates_data: classifyMutation(title),
-        serial: isSerialCase(title),
-        // intents 已由上游筛为 ready，无需再做租户排除；租户检查只留在 archive 分支
-        excluded: null,
-      };
-    });
-    return { feature_id: featureId, source: "manifest_intents", case_count: cases.length, cases };
+  const readyCases = buildIntentsCases(manifest.automation?.intents ?? []);
+  if (readyCases.length > 0) {
+    return {
+      feature_id: featureId,
+      source: "manifest_intents",
+      case_count: readyCases.length,
+      cases: readyCases,
+    };
   }
 
   // 退回 archive 分支（主路径：多数 feature 的 intents 为空）
