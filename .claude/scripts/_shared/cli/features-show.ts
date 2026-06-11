@@ -24,8 +24,8 @@ export async function runFeaturesShow(ctx: FeaturesShowContext) {
     throw new Error(`Feature metadata not found: ${ctx.featureId}`);
   }
 
-  // runs 优先，兜底 results（Task 5 范围；results-path.ts 在 Task 5 才迁移）
-  const runsDir = existsSync(join(dir, "runs")) ? join(dir, "runs") : join(dir, "results");
+  // runs 目录（Task 5 已迁移：results/ → runs/）
+  const runsDir = join(dir, "runs");
   let recentRuns: string[] = [];
   if (existsSync(runsDir)) {
     recentRuns = readdirSync(runsDir)

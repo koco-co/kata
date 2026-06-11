@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { listFeatureDirs, runsDir } from "@shared/lib/features/layout.ts";
 import { generateRunId, type RunType } from "@shared/lib/features/run-id.ts";
 
 export interface ResultsPathContext {
@@ -15,14 +16,22 @@ export interface ResultsPathContext {
 export async function runResultsPath(
   ctx: ResultsPathContext,
 ): Promise<{ runId: string; path: string }> {
-  const featureRoot = join(ctx.workspaceRoot, ctx.project, "features", ctx.featureId);
-  const resultsRoot = join(featureRoot, "results");
+  // 在两层结构中按 dirName 查找 feature（支持版本层、_standing、legacy-flat）
+  const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
+  const entry = listFeatureDirs(featuresDir).find((e) => e.dirName === ctx.featureId);
+  if (!entry) throw new Error(`feature not found: ${ctx.featureId}`);
+
+  const runsRoot = runsDir(entry.dir);
+
   if (ctx.newRun) {
-    const runId = generateRunId({ type: ctx.runType ?? "run", runsDir: resultsRoot, now: ctx.now });
-    return { runId, path: join(resultsRoot, runId) };
+    const runId = generateRunId({ type: ctx.runType ?? "run", runsDir: runsRoot, now: ctx.now });
+    return { runId, path: join(runsRoot, runId) };
   }
-  if (!existsSync(resultsRoot)) throw new Error(`No results found for ${ctx.featureId}`);
-  const runs = readdirSync(resultsRoot).sort().reverse();
+  if (!existsSync(runsRoot)) throw new Error(`No runs found for ${ctx.featureId}`);
+  const runs = readdirSync(runsRoot)
+    .filter((n) => n !== "_tmp")
+    .sort()
+    .reverse();
   if (runs.length === 0) throw new Error(`No runs found for ${ctx.featureId}`);
-  return { runId: runs[0], path: join(resultsRoot, runs[0]) };
+  return { runId: runs[0], path: join(runsRoot, runs[0]) };
 }

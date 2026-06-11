@@ -46,22 +46,32 @@ export function buildResultsCommand(): Command {
 
   results
     .command("prune [featureId]")
-    .description("清理老 run，保留最近 N 次 + 所有 .published runs")
+    .description("清理老 run，保留最近 N 次 + baseline + .published runs（缺省 dry-run）")
     .option("--keep <n>", "保留数量", "10")
     .option("--project <name>", "项目名", "dataAssets")
     .option("--all", "对所有 features 操作", false)
+    .option("--apply", "真正删除（缺省 dry-run）", false)
     .action(
       async (
         featureId: string | undefined,
-        opts: { project: string; keep: string; all: boolean },
+        opts: { project: string; keep: string; all: boolean; apply: boolean },
       ) => {
         const r = await runResultsPrune({
           project: opts.project,
           featureId: opts.all ? undefined : featureId,
           workspaceRoot: join(repoRoot(), "workspace"),
-          keep: parseInt(opts.keep, 10),
+          keep: Math.max(0, parseInt(opts.keep, 10) || 0),
+          apply: opts.apply,
         });
-        console.log(`Removed ${r.removed.length}, kept ${r.kept.length}`);
+        if (!opts.apply) {
+          console.log(`[dry-run] would remove ${r.removed.length}, would keep ${r.kept.length}`);
+          for (const p of r.plan) {
+            if (p.remove.length > 0)
+              console.log(`  remove: ${p.remove.join(", ")} (from ${p.featureDir})`);
+          }
+        } else {
+          console.log(`Removed ${r.removed.length}, kept ${r.kept.length}`);
+        }
       },
     );
 
