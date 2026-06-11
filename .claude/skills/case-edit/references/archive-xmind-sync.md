@@ -28,6 +28,6 @@
 
 ## corrections 触发的同步
 
-当 `/case-edit apply-corrections` 在写回阶段调用本同步契约时，xmind 节点定位以 `case-corrections.md` 中每条 correction 的 `case_ref` 字段为准：`case_ref` 形如 `archive.md#L120 / cases.xmind 节点 数据质量 > 概览 > P0-1`。本同步过程必须按「cases.xmind 节点」分号后给出的节点路径直接定位 xmind topic，再把已修改的 archive 文本同步到该 topic 的 title/notes，不得重新解析 archive 全文反向推出映射关系。
+当 `/case-edit apply-corrections` 在写回阶段调用本同步契约时，xmind 节点定位以 `case-corrections.md` 中每条 correction 的 `case_ref` 字段为准：`case_ref` 形如 `cases/archive.md#L120 / cases/cases.xmind 节点 数据质量 > 概览 > P0-1`。本同步过程必须按「cases/cases.xmind 节点」分号后给出的节点路径直接定位 xmind topic，再把已修改的 archive 文本同步到该 topic 的 title/notes，不得重新解析 archive 全文反向推出映射关系。
 
-同步前先给 archive.md 存一份当时状态（可用 `git stash` 或临时副本）。若同步后 archive↔xmind 自检（数量、优先级、标题、前置条件、步骤、预期 6 项一致）失败，必须把 archive 改动回滚到这份存档，并在 apply-log 中标记 `failed_xmind_sync`，对应 correction status 不得置 applied。
+同步前先给 cases/archive.md 存一份当时状态（可用 `git stash` 或临时副本）。若同步后 archive↔xmind 自检（数量、优先级、标题、前置条件、步骤、预期 6 项一致）失败，必须把 archive 改动回滚到这份存档，并在 apply-log 中标记 `failed_xmind_sync`，对应 correction status 不得置 applied。

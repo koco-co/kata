@@ -12,27 +12,27 @@
 
 ### ui-probe 产物
 
-- [ ] 至少一个 `results/<run-id>/playwright/ui-probe/` 证据目录存在
+- [ ] 至少一个 `runs/<run-id>/playwright/ui-probe/` 证据目录存在
 - [ ] 至少含 `probe.json` 或同等结构化 probe 摘要，且至少含一个 `page.png` 或同等页面截图/页面证据
 - [ ] ui-plan / plan-reconcile 中列出的 UI 断言点或 UI targets 在 probe 输出中有对应 DOM、API 或截图证据
 
 ### playwright-generate 产物
 
-- [ ] `tests/runners/smoke.spec.ts` 存在
-- [ ] `tests/runners/full.spec.ts` 存在
-- [ ] case 文件位于 `tests/cases/`
+- [ ] `automation/tests/runners/smoke.spec.ts` 存在
+- [ ] `automation/tests/runners/full.spec.ts` 存在
+- [ ] case 文件位于 `automation/tests/cases/`
 - [ ] 共享 page object 位于 `_shared/pages/`
 - [ ] 没有 feature-local helper 目录
 
 ### self-run 产物
 
-- [ ] `results/<run-id>/playwright/full/` 含 stdout、stderr、exit-code、report.html
+- [ ] `runs/<run-id>/playwright/full/` 含 stdout、stderr、exit-code、report.html
 - [ ] exit-code 是数字
 - [ ] 失败 spec 列表与 exit-code 一致
 
 ### repair-loop 产物
 
-- [ ] 每次修复有独立证据目录 `results/<run-id>/playwright/repair-<n>/`
+- [ ] 每次修复有独立证据目录 `runs/<run-id>/playwright/repair-<n>/`
 - [ ] repair 次数 ≤ 3
 
 ## 输出格式（必须遵守）

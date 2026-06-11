@@ -94,7 +94,7 @@ export function parseArchiveCases(md: string): CaseTask[] {
 
 // ─── 清单编排器 ───
 
-// manifest.json 中 automation.intents 的条目结构（文件内部，非 export）
+// manifest.json（@1）或 metadata.yaml（@2）中 automation.intents 的条目结构（文件内部，非 export）
 interface ManifestIntent {
   id?: string;
   title?: string;

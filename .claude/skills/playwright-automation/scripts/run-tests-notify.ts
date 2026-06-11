@@ -5,7 +5,7 @@
  * 用法：
  *   ACTIVE_ENV=ltqc KATA_SUITE_NAME="【通用配置】json格式配置-15696" \
  *     kata run-tests-notify \
- *     "workspace/dataAssets/features/202604-common-config/tests/runners/full.spec.ts" \
+ *     "workspace/dataAssets/features/v6.4.10/【v647】【通用配置】json格式配置/automation/tests/runners/full.spec.ts" \
  *     --project=chromium
  *
  * 所有位置参数/flag 会原样透传给 `bunx playwright test`。

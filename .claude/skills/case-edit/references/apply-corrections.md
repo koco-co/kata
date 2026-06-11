@@ -9,7 +9,7 @@
 例：
 
 ```
-/case-edit apply-corrections workspace/dataAssets/features/2026-04-dq-builtin-reasonability-field-calc-compare 20260520-1500-abcdef12
+/case-edit apply-corrections workspace/dataAssets/features/v6.4.11/2026-04-dq-builtin-reasonability-field-calc-compare 20260520-1500-run-1
 ```
 
 ## 读取时机
@@ -18,11 +18,11 @@
 
 ## 输入工件
 
-- `<feature_path>/results/<run-id>/case-corrections.md` — pending 清单（必读）
-- `<feature_path>/results/<run-id>/case-corrections-summary.json` — sidecar，必须符合 `CaseCorrections@1` schema（必读，用作 dry-run summary 数据源）
-- `<feature_path>/archive.md` — 写回目标
-- `<feature_path>/cases.xmind` — 写回同步目标
-- 历史 `<feature_path>/results/*/case-corrections-applied.md` — 去掉重复时的参考（只读）
+- `<feature_path>/runs/<run-id>/case-corrections.md` — pending 清单（必读）
+- `<feature_path>/runs/<run-id>/case-corrections-summary.json` — sidecar，必须符合 `CaseCorrections@1` schema（必读，用作 dry-run summary 数据源）
+- `<feature_path>/cases/archive.md` — 写回目标
+- `<feature_path>/cases/cases.xmind` — 写回同步目标
+- 历史 `<feature_path>/runs/*/case-corrections-applied.md` — 去掉重复时的参考（只读）
 
 若任一必读工件缺失，输出 `blocked_by_missing_artifact` 并停止。若 sidecar JSON 不符合 `CaseCorrections@1`，输出 `blocked_by_invalid_summary` 并停止。
 
@@ -62,21 +62,21 @@ By category:
 
 对每条 `status: approved` 的 correction：
 
-1. **定位**：用 `case_ref` 的 archive.md 行号和 `doc_claim` 文本做精确匹配。
+1. **定位**：用 `case_ref` 的 cases/archive.md 行号和 `doc_claim` 文本做精确匹配。
    - 若行号与 doc_claim 都不匹配，就跳过，记 `skipped: source_changed`。
-2. **去掉重复**：检查 `proposed_change` 的目标文本是否已是 archive 当前内容；若是，就跳过，记 `skipped: already_applied`。
-3. **应用 diff**：用 Edit 工具按 `proposed_change` 的 diff 替换 archive.md 对应片段（仅替换 `doc_claim` 那一段文本，不动周围内容）。
-4. **xmind 同步**：archive.md 所有 approved 条目改完后，按 `references/archive-xmind-sync.md` 现有契约同步到 `cases.xmind`，并跑现有自检（archive↔xmind 数量/优先级/标题/前置条件/步骤/预期 6 项一致）。
+2. **去掉重复**：检查 `proposed_change` 的目标文本是否已是 cases/archive.md 当前内容；若是，就跳过，记 `skipped: already_applied`。
+3. **应用 diff**：用 Edit 工具按 `proposed_change` 的 diff 替换 cases/archive.md 对应片段（仅替换 `doc_claim` 那一段文本，不动周围内容）。
+4. **xmind 同步**：cases/archive.md 所有 approved 条目改完后，按 `references/archive-xmind-sync.md` 现有契约同步到 `cases/cases.xmind`，并跑现有自检（archive↔xmind 数量/优先级/标题/前置条件/步骤/预期 6 项一致）。
 5. **xmind 同步失败**：回滚本轮所有 archive 改动（git restore），把失败原因写入 apply-log，输出 `failed_xmind_sync`。
 
 ### 第四步：写 apply-log
 
-写 `<feature_path>/results/<run-id>/case-corrections-applied.md`：
+写 `<feature_path>/runs/<run-id>/case-corrections-applied.md`：
 
 ```markdown
 ---
 feature: <featureId>
-run_id: <run-id>
+run_id: <run-id>  # format: YYYYMMDD-HHmm-<type>-<seq>
 applied_at: <ISO 8601>
 applied_total: A
 skipped_total: S
@@ -86,7 +86,7 @@ status: applied
 # Case Corrections Applied — <featureId> / <run-id>
 
 ## C-001 ui_text_drift  status=applied
-- case_ref: archive.md#L120 / cases.xmind 节点 ...
+- case_ref: cases/archive.md#L120 / cases/cases.xmind 节点 ...
 - before:
   ```
   进入【概览】页面
@@ -98,12 +98,12 @@ status: applied
 - applied_at: 2026-05-20T15:42:11Z
 
 ## C-005 ui_text_drift  status=skipped
-- case_ref: archive.md#L210 / cases.xmind 节点 ...
+- case_ref: cases/archive.md#L210 / cases/cases.xmind 节点 ...
 - skipped: source_changed
 - detail: doc_claim 在 archive 中未找到精确匹配
 
 ## C-009 business_rule  status=skipped
-- case_ref: archive.md#L340 / cases.xmind 节点 ...
+- case_ref: cases/archive.md#L340 / cases/cases.xmind 节点 ...
 - skipped: already_applied
 - detail: proposed_change 的 after 文本已在 archive 当前内容
 ```
@@ -130,6 +130,6 @@ edit first 分支：什么都不改，直接结束，提示用户编辑后重跑
 - 不得在非 proceed 分支修改 archive.md。
 - 不得跳过 archive-xmind-sync 步骤。
 - 不得修改 status 不为 `approved` 的条目。
-- 不得修改 `test-point-checklist.md`、`manifest.json`、`metadata.yaml`、`.kata/repos/**`。
+- 不得修改 `cases/test-point-checklist.md`、`metadata.yaml`、`.kata/repos/**`。
 - 不得静默丢失任何 correction：每条 approved 必须出现在 apply-log 中（applied 或 skipped 之一）。
 - 不得在 apply-log 之外修改原 `case-corrections.md` 的 correction 段落内容（只可改 frontmatter status）。

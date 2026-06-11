@@ -2,6 +2,13 @@
 
 `workspace/{project}/features/` 下的目录命名格式：`【v{version}】[【{lanhu-prd-id}】][【{customer}】]【{module}】{description}`
 
+## 目录层级
+
+feature 目录位于版本层之下：`workspace/{project}/features/{version}/{feature}/`，
+`{version}` 为语义版本目录（如 `v6.4.10`，与 `_shared/_meta/versions.yaml` 枚举一致）。
+长期主流程/冒烟用例放 `features/_standing/`；已交付版本由 `kata features archive` 整体移入 `features/_archived/{version}/`。
+feature 内只允许 `cases/`（用例产物）、`automation/`（自动化）、`runs/`（运行结果）三区与 `metadata.yaml`、`prd.md`、`inputs/`。
+
 ## 字段规则
 
 - `【v{version}】`：版本号，格式为 `v` + 数字（如 `v647`）；对应该需求所属的产品大版本，由 CLI 引擎归一化，不得手写构建号或分支名。
@@ -26,5 +33,5 @@
 ## 目录名与机器主键的关系
 
 - 目录名是**人类可读标签**：可用上述中文约定，也可用引擎产出的 slug（`{yyyymm}-{slug}`，如 `2026-04-dq-json-config`）。`kata cases lint` 两种都接受。
-- 机器主键是 `manifest.json` 的 `feature_id`（始终为 slug），被 `INDEX.md` 与跨 feature 引用。中文目录的 `feature_id` 仍是 slug，目录名不要求等于它。
+- 机器主键是 `metadata.yaml` 的 `id` 字段（始终为 slug，FeatureMetadata@2），被 `INDEX.md` 与跨 feature 引用。中文目录的 `id` 仍是 slug，目录名不要求等于它。
 - 因此对中文目录，lint 不强制 `目录名 == metadata.id` 或 `目录名 == feature_id`；但 `feature_id` 必须是合法 slug，schema 与枚举校验照常生效。

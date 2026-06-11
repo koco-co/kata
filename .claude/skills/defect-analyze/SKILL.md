@@ -42,6 +42,7 @@ effort: medium
 - bug 模式 → `report.html`（bug-report zentao 模版；根因、evidence_refs、impacted_areas 都编入 JSON）。
 - diff 模式 → `report.html`（scan-report 模版，含根因、evidence_refs、impacted_areas）。
 - conflict 模式 → `report.html`（conflict-report 模版，含 side_a / side_b 与 resolution_plan）。
+- 报告写入 `workspace/{project}/_shared/archive/reports/`，不写入 feature 目录。
 
 ## 推送禅道（仅 bug 模式）
 

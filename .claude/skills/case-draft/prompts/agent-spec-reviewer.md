@@ -10,7 +10,7 @@
 
 ## SourceRef 分层检查
 
-交付正文不得出现 SourceRef 标识或出处定位串。检查范围：`archive.md`、`archive.draft.md`，以及 `cases.xmind` 里可读出的文本。
+交付正文不得出现 SourceRef 标识或出处定位串。检查范围：`cases/archive.md`、`cases/archive.draft.md`，以及 `cases/cases.xmind` 里可读出的文本。
 
 正文出现下列任一内容时，按 `kind: "sourceref_leaked_in_md"` 判 fail：
 
@@ -20,11 +20,11 @@
 - 指向 CSV 行的出处说明，例如 `source: import.csv row 12`、`evidence from CSV row 12`、`from row #12`，或把 CSV 行号当出处用的写法。注意区分：描述 CSV 导入/导出、表格行为、用户可见行的普通产品文案不算泄漏。
 - 符合当前 SourceRef 格式的引用串：`prd.file:<id>#sha256:<hash>`、`lanhu.fixture:<id>#sha256:<hash>`、`knowledge.entry:<id>#sha256:<hash>`、`repo.line:<id>#sha256:<hash>`、`case.archive:<id>#sha256:<hash>`、`workspace.config:<id>#sha256:<hash>`、`command.output:<id>#sha256:<hash>`。普通的 checksum 校验文本或孤立的 `sha256:<hash>` 串不算，除非它们用了上述命名空间，或被明确标注为出处/证据。
 
-`manifest.json`、RequirementAtom@1 记录、CaseEvidenceMap@1、CoverageMatrix@1、`confirmation-package.md`、`unresolved-summary.md` 属于结构化数据或 fallback 产物，本来就要携带 ref，不在本检查范围内。
+`metadata.yaml`、RequirementAtom@1 记录、CaseEvidenceMap@1、CoverageMatrix@1、`cases/confirmation-package.md`、`cases/unresolved-summary.md` 属于结构化数据或 fallback 产物，本来就要携带 ref，不在本检查范围内。
 
 ## Manifest 与字段完整性
 
-按 FeatureManifest@2 检查 `manifest.json`：
+按 FeatureManifest@2 检查 `metadata.yaml`：
 
 - 正常 atomization 后 `case_drafting.requirement_atoms` 必须非空。若当前处于 Lanhu/Axure blocked-source fallback、硬规则要求 `requirement_atoms: []`，此项记入 `out_of_scope`。
 - 每个轻量 `requirement_atoms[]` 行只能含 `id` 与单数 `source_ref` 两个键。
@@ -45,7 +45,7 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
 
 用 `case_id`（而不是人类可读标题）把交付正文与 DraftCaseSet、CaseEvidenceMap@1 对上。CoverageMatrix@1 只通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
 
-- `archive.md`、`archive.draft.md`、`cases.xmind` 里展示的每条用例，必须能在 DraftCaseSet 或 CaseEvidenceMap@1 中找到同 `case_id` 的记录。
+- `cases/archive.md`、`cases/archive.draft.md`、`cases/cases.xmind` 里展示的每条用例，必须能在 DraftCaseSet 或 CaseEvidenceMap@1 中找到同 `case_id` 的记录。
 - 每条展示的用例必须有非空 `requirement_atom_ids`；或者有非空 `coverage_matrix_ids`，且能解析到 CoverageMatrix@1 的行、该行的 `requirement_atom_ids` 非空。
 - 每个 `coverage_matrix_ids[]` 值必须能匹配某个 CoverageMatrix@1 行 `id`。
 - 来自 DraftCaseSet、CaseEvidenceMap@1 或已解析 CoverageMatrix@1 行的每个 `requirement_atom_ids[]` 值，必须能在 FeatureManifest@2 轻量 `requirement_atoms[]` 或完整 RequirementAtom@1 记录中找到对应 atom。
@@ -64,8 +64,8 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
 
 出现下列情况报 `kind: "blocking_pending"`：
 
-- blocking pending 计数非零，却已生成 `archive.md` 或 `cases.xmind`。
-- 仍有未决的 blocking 或 high-risk 项，`manifest.json#case_drafting.status` 却是 `completed`。
+- blocking pending 计数非零，却已生成 `cases/archive.md` 或 `cases/cases.xmind`。
+- 仍有未决的 blocking 或 high-risk 项，`metadata.yaml#case_drafting.status` 却是 `completed`。
 - 最终产物已存在，`status` 却还是 `blocked` 或 `in-progress`。
 
 `history_inferred` 证据被标成 `product_confirmed`，或在没有 product-confirmed / lanhu-observed atom 的情况下仅凭历史线索确认新产品行为时，报 `kind: "history_misclassified"`。

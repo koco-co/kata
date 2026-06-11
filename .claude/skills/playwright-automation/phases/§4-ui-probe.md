@@ -14,7 +14,7 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 当 ui-plan 的 mode 是 `source_backed_bootstrap` 时：
 
 1. 只能把当前目标目录的 `prd.md` 与 `inputs/lanhu-snapshots/**` 当作 case_claim/design_source。
-2. 不得读取、列举或搜索其他 feature 目录，包括但不限于 `workspace/{project}/features/*/tests/**`、历史 `archive.md`、历史 `prd.md`、历史截图、历史 `metadata.yaml` 和历史 `manifest.json`。
+2. 不得读取、列举或搜索其他 feature 目录，包括但不限于 `workspace/{project}/features/*/*/automation/tests/**`、历史 `cases/archive.md`、历史 `prd.md`、历史截图、历史 `metadata.yaml` 和历史 `manifest.json`（@1 兼容层）。
 3. 不得拿历史 feature 的测试、page object、fixture 或 selector 当当前 feature 的实现模板。可以读 `_shared/helpers/**`、`_shared/pages/**` 或知识库里的通用事实，但它们只能算 shared API/selector knowledge，替代不了当前的 ui-probe 证据。
 4. 要找路由或菜单入口时，必须靠真实 UI 导航、当前 PRD/截图和当前 env profile 来推断；不能靠扫历史 feature 测试反推。
 
@@ -91,7 +91,7 @@ page.on('response', async (res) => {
 - 筛选组件的展开状态
 - 操作弹窗/抽屉（如适用）
 
-截图路径：`results/<run-id>/playwright/ui-probe/{descriptive-name}.png`
+截图路径：`runs/<run-id>/playwright/ui-probe/{descriptive-name}.png`
 
 ### 探测迭代预算
 

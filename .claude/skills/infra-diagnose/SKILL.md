@@ -43,3 +43,4 @@ effort: high
 
 - 根因必须有命令输出作为支撑，严格区分事实与推断；没有证据不臆造根因或责任人。
 - 只操作目标服务器和本地 `.kata/infra/`，不得改动 `.kata/repos/**` 源仓库。
+- 知识条目写入 `workspace/{project}/.kata/infra/knowledge/`，凭据写入 `.kata/infra/credentials.yaml`；不写入 feature 目录。
