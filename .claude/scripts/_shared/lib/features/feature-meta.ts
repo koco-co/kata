@@ -62,6 +62,11 @@ function rewritePathsDeep(value: unknown): unknown {
 
 // ─── 公开 API ───
 
+/** True when the metadata was upgraded to FeatureMetadata@2. */
+export function isV2(meta: { schema?: string } | null | undefined): meta is FeatureMeta {
+  return meta?.schema === "FeatureMetadata@2";
+}
+
 /** Read FeatureMeta from metadata.yaml; returns null if the file does not exist or is empty. Content is not validated. */
 export function readFeatureMeta(featureDir: string): FeatureMeta | null {
   const p = join(featureDir, "metadata.yaml");

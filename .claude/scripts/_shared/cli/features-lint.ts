@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { isV2 } from "@shared/lib/features/feature-meta.ts";
 import { listFeatureDirs } from "@shared/lib/features/layout.ts";
 import {
   loadFeatureManifestValidator,
@@ -84,9 +85,9 @@ export async function runFeaturesLint(
     }
 
     const meta = parse(readFileSync(metaPath, "utf-8"));
-    const isV2 = meta?.schema === "FeatureMetadata@2";
+    const featureIsV2 = isV2(meta);
 
-    if (isV2) {
+    if (featureIsV2) {
       // ── FeatureMetadata@2 路径 ────────────────────────────────────────────
       const metaValid = metaV2Validator(meta);
       if (!metaValid) {
@@ -164,7 +165,7 @@ export async function runFeaturesLint(
     }
 
     // @1: 对 manifest.json 做进一步校验
-    if (!isV2 && existsSync(manifestPath)) {
+    if (!featureIsV2 && existsSync(manifestPath)) {
       const manifest: Record<string, unknown> = JSON.parse(readFileSync(manifestPath, "utf-8"));
       if (!manifestValidator(manifest)) {
         violations.push({

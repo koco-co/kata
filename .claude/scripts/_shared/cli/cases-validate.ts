@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { isV2, readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { isCanonicalSourceRef } from "@shared/lib/source-ref/resolvers.ts";
 import { loadFeatureManifestValidator } from "@shared/schemas/loaders.ts";
@@ -258,6 +259,182 @@ function validateLanhuBlockedDraft(
   }
 }
 
+function validateLanhuBlockedDraftV2(
+  featureDir: string,
+  meta: ReturnType<typeof readFeatureMeta>,
+  issues: CasesValidateIssue[],
+): void {
+  // @2 布局：blocked 草稿三件套落 cases/ 子目录
+  const featureId = featureDir.split(/[\\/]/).at(-1) ?? "";
+  if (!/^\d{4}-\d{2}-unresolved-lanhu-[a-z0-9]{8}$/.test(featureId)) {
+    issues.push({
+      rule: "lanhu_feature_id_suffix_invalid",
+      message:
+        "unresolved Lanhu feature_id suffix must be exactly 8 lowercase alphanumeric characters",
+      path: featureDir,
+    });
+  }
+
+  const requiredFiles = [
+    "cases/confirmation-package.md",
+    "cases/archive.draft.md",
+    "cases/unresolved-summary.md",
+  ];
+  for (const file of requiredFiles) {
+    const path = join(featureDir, file);
+    if (!existsSync(path)) {
+      issues.push({
+        rule: "lanhu_blocked_file_missing",
+        message: `${file} is required for unresolved Lanhu blocked draft`,
+        path,
+      });
+    }
+  }
+
+  const inputsDir = join(featureDir, "inputs");
+  if (existsSync(inputsDir) && statSync(inputsDir).isDirectory()) {
+    issues.push({
+      rule: "lanhu_blocked_inputs_forbidden",
+      message:
+        "unresolved Lanhu blocked draft must not create inputs/ or empty snapshot directories",
+      path: inputsDir,
+    });
+  }
+
+  const confirmationPath = join(featureDir, "cases/confirmation-package.md");
+  const confirmationText = existsSync(confirmationPath)
+    ? readFileSync(confirmationPath, "utf-8")
+    : "";
+  if (firstLine(confirmationPath) !== "## 原始 URL") {
+    issues.push({
+      rule: "lanhu_confirmation_header_invalid",
+      message: "cases/confirmation-package.md must start with ## 原始 URL",
+      path: confirmationPath,
+    });
+  }
+  const originalUrl = extractLanhuOriginalUrl(confirmationText);
+  if (!originalUrl) {
+    issues.push({
+      rule: "lanhu_confirmation_original_url_invalid",
+      message: "cases/confirmation-package.md original URL must be a one-line fenced code block",
+      path: confirmationPath,
+    });
+  } else if (!isLanhuAppUrl(originalUrl)) {
+    issues.push({
+      rule: "lanhu_confirmation_host_invalid",
+      message: "cases/confirmation-package.md original URL must be a lanhuapp.com URL",
+      path: confirmationPath,
+    });
+  }
+  const pageId = extractLanhuPageId(originalUrl ?? confirmationText);
+  const featureSuffix = featureId.match(/^\d{4}-\d{2}-unresolved-lanhu-([a-z0-9]+)$/)?.[1];
+  if (!pageId) {
+    issues.push({
+      rule: "lanhu_confirmation_pageid_missing",
+      message:
+        "cases/confirmation-package.md original URL must include pageId for unresolved Lanhu blocked drafts",
+      path: confirmationPath,
+    });
+  }
+  if (pageId && featureSuffix && featureSuffix !== pageId.slice(0, 8).toLowerCase()) {
+    issues.push({
+      rule: "lanhu_feature_id_pageid_mismatch",
+      message: "unresolved Lanhu feature_id suffix must equal the first 8 characters of pageId",
+      path: confirmationPath,
+    });
+  }
+
+  const unresolvedPath = join(featureDir, "cases/unresolved-summary.md");
+  if (firstLine(unresolvedPath) !== "## Blocking / Pending") {
+    issues.push({
+      rule: "lanhu_unresolved_header_invalid",
+      message: "cases/unresolved-summary.md must start with ## Blocking / Pending",
+      path: unresolvedPath,
+    });
+  }
+
+  const archivePath = join(featureDir, "cases/archive.draft.md");
+  if (existsSync(archivePath)) {
+    const archive = readFileSync(archivePath, "utf-8");
+    if (!archive.includes("## 下一步")) {
+      issues.push({
+        rule: "lanhu_archive_next_step_missing",
+        message: "cases/archive.draft.md must contain ## 下一步",
+        path: archivePath,
+      });
+    }
+    if (
+      /^#.*(?:待确认|Pending|unresolved)/im.test(archive) ||
+      /##\s*(?:待确认|Pending Confirmations)/i.test(archive)
+    ) {
+      issues.push({
+        rule: "lanhu_archive_pending_section_forbidden",
+        message: "cases/archive.draft.md must not use pending/unresolved titles or sections",
+        path: archivePath,
+      });
+    }
+  }
+
+  if (!confirmationText.includes("## SourceRefs")) {
+    issues.push({
+      rule: "lanhu_confirmation_sourcerefs_missing",
+      message: "cases/confirmation-package.md must include ## SourceRefs",
+      path: confirmationPath,
+    });
+  }
+
+  // @2: 从 metadata.yaml case_drafting/automation 段校验 blocked 状态
+  if (meta && typeof meta === "object") {
+    const caseDrafting = meta.case_drafting as
+      | { status?: string; archive_path?: string | null; xmind_path?: string | null }
+      | undefined;
+    const automation = meta.automation as
+      | { status?: string; intents?: unknown[]; last_run_status?: string }
+      | undefined;
+    const files = meta.files as
+      | {
+          archive?: string | null;
+          xmind?: string | null;
+          tests_root?: string | null;
+          latest_results?: string | null;
+        }
+      | undefined;
+    if (caseDrafting?.status !== "blocked" || automation?.status !== "blocked") {
+      issues.push({
+        rule: "lanhu_blocked_manifest_status_invalid",
+        message: "metadata.yaml must mark case_drafting.status and automation.status as blocked",
+        path: join(featureDir, "metadata.yaml"),
+      });
+    }
+    if (
+      caseDrafting?.archive_path !== null ||
+      caseDrafting?.xmind_path !== null ||
+      files?.archive !== null ||
+      files?.xmind !== null ||
+      files?.tests_root !== null ||
+      files?.latest_results !== null
+    ) {
+      issues.push({
+        rule: "lanhu_blocked_manifest_paths_invalid",
+        message: "blocked Lanhu metadata.yaml must keep archive/xmind/test/result paths null",
+        path: join(featureDir, "metadata.yaml"),
+      });
+    }
+    if (
+      !Array.isArray(automation?.intents) ||
+      (automation?.intents.length ?? 0) !== 0 ||
+      automation?.last_run_status !== "not-run"
+    ) {
+      issues.push({
+        rule: "lanhu_blocked_manifest_automation_invalid",
+        message:
+          "blocked Lanhu metadata.yaml must have no automation intents and last_run_status not-run",
+        path: join(featureDir, "metadata.yaml"),
+      });
+    }
+  }
+}
+
 export async function runCasesValidate(ctx: CasesValidateContext): Promise<CasesValidateResult> {
   if (!isSafePathSegment(ctx.project)) {
     return {
@@ -288,47 +465,58 @@ export async function runCasesValidate(ctx: CasesValidateContext): Promise<Cases
     };
   }
 
-  const manifestPath = join(featureDir, "manifest.json");
-  let parsedManifest: unknown;
-  if (!existsSync(manifestPath)) {
-    issues.push({
-      rule: "manifest_missing",
-      message: "manifest.json not present",
-      path: manifestPath,
-    });
-  } else {
-    try {
-      parsedManifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
-    } catch (error) {
-      issues.push({
-        rule: "manifest_json_invalid",
-        message: error instanceof Error ? error.message : String(error),
-        path: manifestPath,
-      });
-    }
-    const validateManifest = loadFeatureManifestValidator();
-    if (parsedManifest !== undefined && !validateManifest(parsedManifest)) {
-      issues.push({
-        rule: "manifest_schema_invalid",
-        message: JSON.stringify(validateManifest.errors),
-        path: manifestPath,
-      });
-    } else if (
-      parsedManifest !== undefined &&
-      typeof parsedManifest === "object" &&
-      parsedManifest !== null &&
-      (parsedManifest as { feature_id?: unknown }).feature_id !== ctx.featureId
-    ) {
-      issues.push({
-        rule: "manifest_id_mismatch",
-        message: `manifest.feature_id="${(parsedManifest as { feature_id?: unknown }).feature_id}" but featureId="${ctx.featureId}"`,
-        path: manifestPath,
-      });
-    }
-  }
+  const meta = readFeatureMeta(featureDir);
+  const featureIsV2 = isV2(meta);
 
-  if (/^\d{4}-\d{2}-unresolved-lanhu-[a-z0-9]+$/.test(ctx.featureId)) {
-    validateLanhuBlockedDraft(featureDir, parsedManifest, issues);
+  if (featureIsV2) {
+    // @2 path: no manifest.json required; manifest_residual handled by features-lint
+    if (/^\d{4}-\d{2}-unresolved-lanhu-[a-z0-9]+$/.test(ctx.featureId)) {
+      validateLanhuBlockedDraftV2(featureDir, meta, issues);
+    }
+  } else {
+    // @1 path: validate manifest.json (向后兼容)
+    const manifestPath = join(featureDir, "manifest.json");
+    let parsedManifest: unknown;
+    if (!existsSync(manifestPath)) {
+      issues.push({
+        rule: "manifest_missing",
+        message: "manifest.json not present",
+        path: manifestPath,
+      });
+    } else {
+      try {
+        parsedManifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+      } catch (error) {
+        issues.push({
+          rule: "manifest_json_invalid",
+          message: error instanceof Error ? error.message : String(error),
+          path: manifestPath,
+        });
+      }
+      const validateManifest = loadFeatureManifestValidator();
+      if (parsedManifest !== undefined && !validateManifest(parsedManifest)) {
+        issues.push({
+          rule: "manifest_schema_invalid",
+          message: JSON.stringify(validateManifest.errors),
+          path: manifestPath,
+        });
+      } else if (
+        parsedManifest !== undefined &&
+        typeof parsedManifest === "object" &&
+        parsedManifest !== null &&
+        (parsedManifest as { feature_id?: unknown }).feature_id !== ctx.featureId
+      ) {
+        issues.push({
+          rule: "manifest_id_mismatch",
+          message: `manifest.feature_id="${(parsedManifest as { feature_id?: unknown }).feature_id}" but featureId="${ctx.featureId}"`,
+          path: manifestPath,
+        });
+      }
+    }
+
+    if (/^\d{4}-\d{2}-unresolved-lanhu-[a-z0-9]+$/.test(ctx.featureId)) {
+      validateLanhuBlockedDraft(featureDir, parsedManifest, issues);
+    }
   }
 
   const refs = collectSourceRefs(featureDir);

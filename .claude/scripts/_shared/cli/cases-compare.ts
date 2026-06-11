@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { extractSourceFactSet, jaccard } from "@shared/lib/cases/source-fact-set.ts";
 import { STABLE_CORE_ARTIFACTS } from "@shared/lib/cases/verify-layers.ts";
+import { isV2 } from "@shared/lib/features/feature-meta.ts";
 import type { Command } from "commander";
 import { parse as parseYaml } from "yaml";
 
@@ -36,7 +37,7 @@ function loadCaseDraftingDoc(dir: string): {
   const metaPath = join(dir, "metadata.yaml");
   if (existsSync(metaPath)) {
     const parsed = parseYaml(readFileSync(metaPath, "utf-8")) as Record<string, unknown>;
-    if ((parsed as Record<string, unknown>)?.schema === "FeatureMetadata@2") {
+    if (isV2(parsed)) {
       return parsed as { case_drafting?: { requirement_atoms?: CompareAtom[] } };
     }
   }
@@ -65,7 +66,7 @@ function hasFeatureDoc(dir: string): boolean {
   if (existsSync(metaPath)) {
     try {
       const parsed = parseYaml(readFileSync(metaPath, "utf-8")) as Record<string, unknown>;
-      if ((parsed as Record<string, unknown>)?.schema === "FeatureMetadata@2") return true;
+      if (isV2(parsed)) return true;
     } catch {
       /* ignore */
     }
