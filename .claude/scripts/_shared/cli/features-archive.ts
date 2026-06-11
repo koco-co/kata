@@ -1,5 +1,6 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, renameSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { ARCHIVED_DIR, VERSION_DIR_RE } from "@shared/lib/features/layout.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 
@@ -8,8 +9,42 @@ export interface FeaturesArchiveContext {
   workspaceRoot: string;
   /** Semantic version directory name, e.g. v6.4.10 */
   version: string;
-  /** Inject renameSync in tests; inject a git mv wrapper in real runs. */
+  /** Inject renameSync in tests without git; defaults to {@link gitMove} in real runs. */
   move?: (from: string, to: string) => void;
+}
+
+/**
+ * Move a version directory during archive, preferring `git mv` with a renameSync fallback.
+ *
+ * Why archive keeps `git mv` while `migrate` had to drop it: archive performs a
+ * SINGLE whole-directory move of features/<version>/ → features/_archived/<version>/.
+ * `git mv` on a whole directory is a directory-level rename(2): it physically
+ * relocates the entire subtree — including ignored runtime files such as runs/ —
+ * and rewrites the index for every tracked path under it in one shot, leaving no
+ * husk in the old location and a consistent index (status shows a clean `R`).
+ *
+ * migrate's husk bug had the opposite shape: it moved individual paths (some
+ * ignored, so `git mv` failed) and pre-deleted manifest.json (so the whole-dir
+ * `git mv` failed and fell back to renameSync mid-reorg), stranding a flat husk,
+ * a duplicate copy, and an RD orphan in the index. archive does neither, so it
+ * never reaches that root cause.
+ *
+ * The fallback fires on a non-git env, or a version dir holding only ignored
+ * files (`git mv` reports "source directory is empty"). renameSync is itself a
+ * whole-directory rename and is equally husk-free.
+ *
+ * Both paths are pinned by the real-git regression in features-archive.test.ts
+ * ("git-consistent archive (husk regression)").
+ */
+export function gitMove(from: string, to: string): void {
+  try {
+    // 在 from 所在目录里调用 git，让 git 从该路径定位所属仓库，而非依赖进程 cwd——
+    // 这样无论调用方在哪个目录，git mv 都作用于真正包含目标的那个仓库。
+    execFileSync("git", ["mv", from, to], { cwd: dirname(from), stdio: "pipe" });
+  } catch {
+    console.warn("WARN: git mv failed, falling back to rename (non-git env?)");
+    renameSync(from, to);
+  }
 }
 
 /**

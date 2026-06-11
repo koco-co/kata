@@ -1,11 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { readdirSync, renameSync, statSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 import { outputJson } from "@shared/lib/cli.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
-import { runFeaturesArchive } from "./features-archive.ts";
+import { gitMove, runFeaturesArchive } from "./features-archive.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLs } from "./features-ls.ts";
 import { runFeaturesMigrate } from "./features-migrate.ts";
@@ -217,15 +217,8 @@ export function buildFeaturesCommand(): Command {
     .description("将版本目录移入 features/_archived/<version>，并重建 INDEX")
     .option("--project <name>", "项目名", "dataAssets")
     .action(async (version: string, opts: { project: string }) => {
-      // git mv 包装：git mv 失败时回退到普通 renameSync
-      const gitMove = (from: string, to: string) => {
-        try {
-          execFileSync("git", ["mv", from, to], { stdio: "pipe" });
-        } catch {
-          console.warn(`WARN: git mv failed, falling back to rename (non-git env?)`);
-          renameSync(from, to);
-        }
-      };
+      // 整目录搬移用 gitMove（git mv 优先、renameSync 兜底）；安全性论证见
+      // features-archive.ts 的 gitMove 注释与 husk 回归测试。
       const r = await runFeaturesArchive({
         project: opts.project,
         workspaceRoot: join(repoRoot(), "workspace"),
