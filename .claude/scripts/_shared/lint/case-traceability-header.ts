@@ -24,7 +24,7 @@ const REQUIRED = [
 
 export function lintCaseTraceabilityHeader(workspaceRoot: string): { violations: Violation[] } {
   const violations: Violation[] = [];
-  const pattern = join(workspaceRoot, "*/features/*/tests/cases/**/*.ts");
+  const pattern = join(workspaceRoot, "*/features/**/automation/tests/cases/**/*.ts");
   const glob = new Glob(pattern);
   for (const file of glob.scanSync()) {
     const content = readFileSync(file, "utf-8");

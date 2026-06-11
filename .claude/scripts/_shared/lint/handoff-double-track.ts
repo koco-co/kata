@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { listFeatureDirs, runsDir } from "@shared/lib/features/layout.ts";
 import { loadHandoffV2Validator } from "@shared/schemas/loaders.ts";
 import type { Violation } from "./types.ts";
 
@@ -10,16 +11,34 @@ const REQUIRED_ACCEPTANCE_HEADING = "## Human Acceptance Command";
 const validateHandoff = loadHandoffV2Validator();
 
 function collectResultDirs(workspaceRoot: string): string[] {
-  const featuresDir = join(workspaceRoot, "dataAssets/features");
-  if (!existsSync(featuresDir)) return [];
+  // 扫所有项目下的 features/，支持版本层（三区布局）和 legacy-flat 两种结构
   const dirs: string[] = [];
-  for (const feat of readdirSync(featuresDir)) {
-    const resultsDir = join(featuresDir, feat, "results");
-    if (!existsSync(resultsDir)) continue;
-    for (const run of readdirSync(resultsDir)) {
-      const runDir = join(resultsDir, run);
-      if (statSync(runDir).isDirectory()) {
-        dirs.push(runDir);
+  if (!existsSync(workspaceRoot)) return dirs;
+  let projects: string[];
+  try {
+    projects = readdirSync(workspaceRoot, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+  } catch {
+    return dirs;
+  }
+  for (const project of projects) {
+    const featuresDir = join(workspaceRoot, project, "features");
+    if (!existsSync(featuresDir)) continue;
+    for (const entry of listFeatureDirs(featuresDir)) {
+      const runsDirPath = runsDir(entry.dir);
+      if (!existsSync(runsDirPath)) continue;
+      try {
+        for (const run of readdirSync(runsDirPath)) {
+          const runDir = join(runsDirPath, run);
+          try {
+            if (statSync(runDir).isDirectory()) dirs.push(runDir);
+          } catch {
+            /* 跳过不可访问的目录 */
+          }
+        }
+      } catch {
+        /* 跳过不可访问的目录 */
       }
     }
   }

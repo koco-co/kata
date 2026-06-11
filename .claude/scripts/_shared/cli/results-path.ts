@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { listFeatureDirs, runsDir } from "@shared/lib/features/layout.ts";
+import { resolveFeatureRunsDir } from "@shared/lib/features/layout.ts";
 import { generateRunId, type RunType } from "@shared/lib/features/run-id.ts";
 
 export interface ResultsPathContext {
@@ -18,10 +18,7 @@ export async function runResultsPath(
 ): Promise<{ runId: string; path: string }> {
   // 在两层结构中按 dirName 查找 feature（支持版本层、_standing、legacy-flat）
   const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
-  const entry = listFeatureDirs(featuresDir).find((e) => e.dirName === ctx.featureId);
-  if (!entry) throw new Error(`feature not found: ${ctx.featureId}`);
-
-  const runsRoot = runsDir(entry.dir);
+  const runsRoot = resolveFeatureRunsDir(featuresDir, ctx.featureId);
 
   if (ctx.newRun) {
     const runId = generateRunId({ type: ctx.runType ?? "run", runsDir: runsRoot, now: ctx.now });

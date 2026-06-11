@@ -20,7 +20,7 @@ const RULES: RuleDef[] = [
   {
     id: "P-S3",
     regex: /workspace\/[^/\s]+\/(prds|archive|xmind|tests)\//g,
-    message: "old workspace subdir layout; use `workspace/{p}/features/{ym-slug}/...`",
+    message: "old workspace subdir layout; use `workspace/{p}/features/{version}/{feature}/...`",
   },
 ];
 

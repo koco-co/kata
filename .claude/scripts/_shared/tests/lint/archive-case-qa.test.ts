@@ -58,39 +58,46 @@ describe("lintArchiveCaseQa", () => {
   }
 
   test("flags TC-ID in case title", () => {
-    const root = tmp({ "archive.md": GOOD_ARCHIVE.replace("验证选择", "TC-DM-001 验证选择") });
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("验证选择", "TC-DM-001 验证选择"),
+    });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-title-machine-id")).toBe(true);
   });
 
   test("flags bracket semantics violation", () => {
-    const root = tmp({ "archive.md": GOOD_ARCHIVE.replace("「已绑定」", "【已绑定】") });
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("「已绑定」", "【已绑定】"),
+    });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-bracket-semantics")).toBe(true);
   });
 
   test("passes multi-digit priority P10 without bracket false positive", () => {
-    const root = tmp({ "archive.md": GOOD_ARCHIVE.replace("【P0】", "【P10】") });
+    const root = tmp({ "cases/archive.md": GOOD_ARCHIVE.replace("【P0】", "【P10】") });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-bracket-semantics")).toBe(false);
   });
 
   test("flags machine file in feature root", () => {
-    const root = tmp({ "archive.md": GOOD_ARCHIVE, "source-snapshot.json": "{}" });
+    const root = tmp({ "cases/archive.md": GOOD_ARCHIVE, "source-snapshot.json": "{}" });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-machine-file-in-root")).toBe(true);
   });
 
   test("flags deprecated frontmatter field", () => {
     const root = tmp({
-      "archive.md": GOOD_ARCHIVE.replace('status: "草稿"', 'status: "草稿"\nproduct: "dataAssets"'),
+      "cases/archive.md": GOOD_ARCHIVE.replace(
+        'status: "草稿"',
+        'status: "草稿"\nproduct: "dataAssets"',
+      ),
     });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-frontmatter-deprecated")).toBe(true);
   });
 
   test("passes a clean archive", () => {
-    const root = tmp({ "archive.md": GOOD_ARCHIVE }, [".process"]);
+    const root = tmp({ "cases/archive.md": GOOD_ARCHIVE }, [".process"]);
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.passed).toBe(true);
   });

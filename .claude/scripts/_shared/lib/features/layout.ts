@@ -108,3 +108,12 @@ export function runsDir(featureDir: string): string {
 export function runsTmpDir(featureDir: string): string {
   return join(featureDir, AREA_RUNS, RUNS_TMP);
 }
+
+/**
+ * Resolve a feature's runs/ dir by its on-disk dirName across version layers; throws when not found.
+ */
+export function resolveFeatureRunsDir(featuresRoot: string, featureId: string): string {
+  const entry = listFeatureDirs(featuresRoot).find((e) => e.dirName === featureId);
+  if (!entry) throw new Error(`feature not found: ${featureId}`);
+  return runsDir(entry.dir);
+}

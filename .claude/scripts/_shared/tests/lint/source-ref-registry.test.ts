@@ -25,7 +25,10 @@ describe("SourceRefRegistry loader", () => {
   it("reports unregistered refs in case files as failures", () => {
     const scratch = mkdtempSync(join(tmpdir(), "source-ref-lint-"));
     try {
-      const dir = join(scratch, "dataAssets/features/2026-05-x/tests/cases");
+      const dir = join(
+        scratch,
+        "dataAssets/features/v6.4/【v6.4】feature-x/automation/tests/cases",
+      );
       mkdirSync(dir, { recursive: true });
       writeFileSync(join(dir, "t01.ts"), "// intent: SR-FOOBAR-X\n");
       const report = lintSourceRefRegistry(scratch);

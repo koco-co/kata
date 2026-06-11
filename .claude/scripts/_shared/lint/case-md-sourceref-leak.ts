@@ -1,10 +1,20 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
+import { listFeatureDirs } from "@shared/lib/features/layout.ts";
 import JSZip from "jszip";
 import type { CaseLintReport, CaseLintViolation } from "./types.ts";
 
 const RULE_ID = "case-md-sourceref-leak";
-const PRESENTATION_FILES = ["archive.md", "archive.draft.md", "cases.xmind"];
+// 三区布局路径（迁移后）；旧布局根路径作为 fallback，供无 manifest/metadata 的 legacy-flat feature
+const PRESENTATION_FILES = [
+  "cases/archive.md",
+  "cases/archive.draft.md",
+  "cases/cases.xmind",
+  "archive.md",
+  "archive.draft.md",
+  "cases.xmind",
+];
 
 const SOURCE_REF_WORD_RE = /\bSourceRefs?\b/g;
 const SR_ID_RE = /\bSR-[A-Z0-9][A-Z0-9-]*\b/g;
@@ -42,12 +52,11 @@ function featureDirs(
   for (const project of projectNames) {
     const featuresRoot = join(workspaceRoot, project, "features");
     if (!isDirectory(featuresRoot)) continue;
-    const featureIds = scopedFeatureId
-      ? [scopedFeatureId]
-      : readdirSync(featuresRoot).filter((name) => isDirectory(join(featuresRoot, name)));
-    for (const featureId of featureIds) {
-      const featureDir = join(featuresRoot, featureId);
-      if (isDirectory(featureDir)) dirs.push(featureDir);
+    // 使用 listFeatureDirs 遍历两层版本结构（active/standing/archived/legacy-flat 全覆盖）
+    const entries = listFeatureDirs(featuresRoot);
+    for (const entry of entries) {
+      if (scopedFeatureId && entry.dirName !== scopedFeatureId) continue;
+      dirs.push(entry.dir);
     }
   }
   return dirs;
@@ -142,9 +151,22 @@ async function readPresentationText(file: string): Promise<string | null> {
 
 function presentationFileNames(featureDir: string): string[] {
   const names = new Set(PRESENTATION_FILES);
+  // 优先读 metadata.yaml（FeatureMetadata@2 已合并 manifest.json）；兼容旧 manifest.json
+  const meta = readFeatureMeta(featureDir);
+  if (meta) {
+    for (const value of [
+      meta.case_drafting?.archive_path,
+      meta.case_drafting?.xmind_path,
+      meta.files?.archive,
+      meta.files?.xmind,
+    ]) {
+      if (typeof value === "string" && value.trim()) names.add(value.trim());
+    }
+    return [...names];
+  }
+  // 兼容旧 manifest.json（未迁移的 feature）
   const manifestFile = join(featureDir, "manifest.json");
   if (!existsSync(manifestFile)) return [...names];
-
   try {
     const manifest = JSON.parse(readFileSync(manifestFile, "utf-8")) as {
       case_drafting?: {
@@ -167,7 +189,6 @@ function presentationFileNames(featureDir: string): string[] {
   } catch {
     return [...names];
   }
-
   return [...names];
 }
 

@@ -10,7 +10,7 @@ const FORBIDDEN = [
 
 export function lintNoDebugInCases(workspaceRoot: string): { violations: Violation[] } {
   const violations: Violation[] = [];
-  const pattern = join(workspaceRoot, "*/features/*/tests/cases/**/*");
+  const pattern = join(workspaceRoot, "*/features/**/automation/tests/cases/**/*");
   const glob = new Glob(pattern);
   for (const file of glob.scanSync()) {
     const name = basename(file);

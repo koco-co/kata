@@ -6,6 +6,7 @@ import {
   ALLOWED_FEATURE_ROOT_ENTRIES,
   compactToVersionDir,
   listFeatureDirs,
+  resolveFeatureRunsDir,
   runsTmpDir,
   VERSION_DIR_RE,
 } from "@shared/lib/features/layout.ts";
@@ -66,5 +67,29 @@ describe("area helpers", () => {
     }
     expect(ALLOWED_FEATURE_ROOT_ENTRIES.has("results")).toBe(false);
     expect(ALLOWED_FEATURE_ROOT_ENTRIES.has("manifest.json")).toBe(false);
+  });
+});
+
+describe("resolveFeatureRunsDir", () => {
+  it("resolves runs/ dir for a feature in version layer", () => {
+    const features = join(root, "features");
+    mkdirSync(join(features, "v6.4.10", "2026-04-my-feature"), { recursive: true });
+    const runsPath = resolveFeatureRunsDir(features, "2026-04-my-feature");
+    expect(runsPath).toBe(join(features, "v6.4.10", "2026-04-my-feature", "runs"));
+  });
+
+  it("resolves runs/ dir for a legacy-flat feature", () => {
+    const features = join(root, "features");
+    mkdirSync(join(features, "【v647】【数据质量】旧功能"), { recursive: true });
+    const runsPath = resolveFeatureRunsDir(features, "【v647】【数据质量】旧功能");
+    expect(runsPath).toBe(join(features, "【v647】【数据质量】旧功能", "runs"));
+  });
+
+  it("throws 'feature not found' when featureId does not exist", () => {
+    const features = join(root, "features");
+    mkdirSync(features, { recursive: true });
+    expect(() => resolveFeatureRunsDir(features, "nonexistent")).toThrow(
+      "feature not found: nonexistent",
+    );
   });
 });

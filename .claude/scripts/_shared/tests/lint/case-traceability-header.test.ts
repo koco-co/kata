@@ -12,7 +12,7 @@ describe("gate: case_traceability_header", () => {
   afterEach(() => rmSync(scratch, { recursive: true, force: true }));
 
   function seed(content: string) {
-    const dir = join(scratch, "dataAssets/features/2026-04-x/tests/cases");
+    const dir = join(scratch, "dataAssets/features/v6.4/【v6.4】feature-x/automation/tests/cases");
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "t01.ts"), content);
   }

@@ -11,8 +11,11 @@ describe("gate: no_feature_local_helpers", () => {
   });
   afterEach(() => rmSync(scratch, { recursive: true, force: true }));
 
-  it("reports any file under features/*/tests/helpers/", () => {
-    const dir = join(scratch, "dataAssets/features/2026-04-x/tests/helpers");
+  it("reports any file under features/**/automation/tests/helpers/", () => {
+    const dir = join(
+      scratch,
+      "dataAssets/features/v6.4/【v6.4】feature-x/automation/tests/helpers",
+    );
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "foo.ts"), "export {}");
     const r = lintNoFeatureLocalHelpers(scratch);
@@ -21,7 +24,9 @@ describe("gate: no_feature_local_helpers", () => {
   });
 
   it("passes when helpers dir is empty or missing", () => {
-    mkdirSync(join(scratch, "dataAssets/features/2026-04-x/tests"), { recursive: true });
+    mkdirSync(join(scratch, "dataAssets/features/v6.4/【v6.4】feature-x/automation/tests"), {
+      recursive: true,
+    });
     const r = lintNoFeatureLocalHelpers(scratch);
     expect(r.violations).toHaveLength(0);
   });

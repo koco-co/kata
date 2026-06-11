@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { resolveFeatureRunsDir } from "@shared/lib/features/layout.ts";
 import { repoRoot, sharedSchemasPath } from "@shared/lib/paths.ts";
 import { loadHandoffV2Validator } from "@shared/schemas/loaders.ts";
 import Ajv2020 from "ajv/dist/2020";
@@ -64,14 +65,9 @@ function loadCaseFeedback(runDir: string): CaseFeedbackContext | null {
 }
 
 export async function runHandoffRender(ctx: HandoffRenderContext): Promise<{ path: string }> {
-  const runDir = join(
-    ctx.workspaceRoot,
-    ctx.project,
-    "features",
-    ctx.featureId,
-    "results",
-    ctx.runId,
-  );
+  // 在两层结构中按 dirName 查找 feature（支持版本层、_standing、legacy-flat）
+  const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
+  const runDir = join(resolveFeatureRunsDir(featuresDir, ctx.featureId), ctx.runId);
   const jsonPath = join(runDir, "handoff.json");
   const data = JSON.parse(readFileSync(jsonPath, "utf-8"));
   if (!validate(data)) {
