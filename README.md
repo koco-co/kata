@@ -32,7 +32,7 @@ PRD / Lanhu / 设计源 ─── /case-draft ───────> Archive MD 
 已有用例产物 ─────────── /case-edit ──> 规范化、同步、转换
 项目业务知识 ─────────── /knowledge-curate ──> 查询、更新、维护
 失败证据 / Bug / 冲突 / diff ── /defect-analyze ──> 缺陷报告、冲突解决方案
-UI 用例 / 测试结果 ───── /playwright-automation ────> UI 计划、Playwright 脚本、失败归因
+UI 用例 / 测试结果 ───── /playwright-automation ────> UI 计划、Playwright 脚本、失败原因分析
 ```
 
 核心原则：
@@ -108,7 +108,7 @@ bunx playwright install
 # 4. 知识管理 — 查询或更新项目业务规则和术语
 /knowledge-curate
 
-# 5. UI 自动化 — 生成、运行、归因和修复 Playwright 自动化测试
+# 5. UI 自动化 — 生成、运行、分析原因和修复 Playwright 自动化测试
 /playwright-automation
 
 # 6. 缺陷分析 — bug 证据 / 合并冲突 / 代码 diff 三模式缺陷分诊
