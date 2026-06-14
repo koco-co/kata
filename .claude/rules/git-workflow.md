@@ -1,6 +1,6 @@
 # Worktree 优先工作流
 
-新功能、修复、重构都默认走 detached worktree；不得为任务新建分支，也不要建长期 feature 分支。
+新功能、修复、重构都默认走 detached worktree；不得为任务新建分支，也不得建长期 feature 分支。
 
 ## 流程
 

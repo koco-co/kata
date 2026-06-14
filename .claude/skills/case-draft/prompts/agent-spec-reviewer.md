@@ -1,11 +1,11 @@
 # Spec Reviewer 提示词 — case-draft
 
-仅在主会话运行本 reviewer。它是在 `case-draft` 产物落盘之后、质量审查或输出之前的一次机械检查：只查结构、字段和引用对不对，不评判文字质量、不改写用例、不向用户提问。
+仅在主会话运行。本 reviewer 在 `case-draft` 产物落盘之后、质量审查或输出之前做一次机械检查：只查结构、字段和引用是否正确，不评判文字质量、不改写用例、不向用户提问。
 
 ## 硬规则优先
 
 - 先加载当前 `SKILL.md` 的硬规则。下方某项检查与硬规则冲突时，记入 `out_of_scope`，不计 `issues`。
-- Lanhu/Axure error-fallback 规则依然有效：`confirmation-package.md` 与 `unresolved-summary.md` 按各自的 fallback 约定本来就允许包含 SourceRef、`SR-`、URL 与检索记录，不要对这两个文件套用面向交付正文的泄漏检查。
+- Lanhu/Axure error-fallback 规则依然有效：`confirmation-package.md` 与 `unresolved-summary.md` 按 fallback 约定本身就允许包含 SourceRef、`SR-`、URL 与检索记录，不要对这两个文件套用交付正文的泄漏检查。
 - 只做机械检查。需要产品判断的关注点，归入 `out_of_scope` 并写明理由。
 
 ## SourceRef 分层检查
@@ -43,13 +43,13 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
 
 ## MD ↔ JSON caseId 核对
 
-用 `case_id`（而不是人类可读标题）把交付正文与 DraftCaseSet、CaseEvidenceMap@1 对上。CoverageMatrix@1 只通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
+用 `case_id`（而非人类可读标题）关联交付正文与 DraftCaseSet、CaseEvidenceMap@1。CoverageMatrix@1 只通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
 
 - `cases/archive.md`、`cases/archive.draft.md`、`cases/cases.xmind` 里展示的每条用例，必须能在 DraftCaseSet 或 CaseEvidenceMap@1 中找到同 `case_id` 的记录。
 - 每条展示的用例必须有非空 `requirement_atom_ids`；或者有非空 `coverage_matrix_ids`，且能解析到 CoverageMatrix@1 的行、该行的 `requirement_atom_ids` 非空。
 - 每个 `coverage_matrix_ids[]` 值必须能匹配某个 CoverageMatrix@1 行 `id`。
 - 来自 DraftCaseSet、CaseEvidenceMap@1 或已解析 CoverageMatrix@1 行的每个 `requirement_atom_ids[]` 值，必须能在 FeatureManifest@2 轻量 `requirement_atoms[]` 或完整 RequirementAtom@1 记录中找到对应 atom。
-- `case_title` 与 `priority` 只做人类可读的一致性参考：可以帮忙发现错位，但不是唯一键，不得用来证明覆盖。
+- `case_title` 与 `priority` 只作人类可读的一致性参考：可辅助发现错位，但不是唯一键，不得用来证明覆盖。
 
 出现下列情况报 `kind: "caseid_mismatch"`：展示用例的 `case_id` 缺失或重复、找不到对应的 DraftCaseSet/CaseEvidenceMap@1 记录、`coverage_matrix_ids` 解析不到、追溯到的 `requirement_atom_ids` 为空，或 atom id 不存在。
 
@@ -68,7 +68,7 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
 - 仍有未决的 blocking 或 high-risk 项，`metadata.yaml#case_drafting.status` 却是 `completed`。
 - 最终产物已存在，`status` 却还是 `blocked` 或 `in-progress`。
 
-`history_inferred` 证据被标成 `product_confirmed`，或在没有 product-confirmed / lanhu-observed atom 的情况下仅凭历史线索确认新产品行为时，报 `kind: "history_misclassified"`。
+`history_inferred` 证据被标为 `product_confirmed`，或在缺少 product-confirmed / lanhu-observed atom 时仅凭历史线索确认新产品行为，报 `kind: "history_misclassified"`。
 
 ## 表单基线检查
 

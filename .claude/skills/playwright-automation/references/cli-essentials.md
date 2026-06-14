@@ -1,6 +1,6 @@
 # Playwright 原生 API 速查
 
-kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**交付脚本一律用原生 `@playwright/test`**；`@playwright/cli` 只作 §4 ui-probe 阶段的可选交互探索工具，它的产物不直接进交付物（边界规则见文末）。
+kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newContext` + `page.on` + `page.locator`）和 `.spec.ts` 测试文件，通过 `npx playwright test` 执行。**交付脚本一律用原生 `@playwright/test`**；`@playwright/cli` 仅作 §4 ui-probe 阶段的可选交互探索工具，其产物不直接进交付物（边界规则见文末）。
 
 完整 Playwright API 见 https://playwright.dev/docs/api/class-page。
 
@@ -235,7 +235,7 @@ await page.screenshot({
 await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 ```
 
-**原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不要多轮文字追问。
+**原则**：遇到「找不到操作入口」先截图，再一次性问清楚，不得多轮文字追问。
 
 带标注的演示视频（`showChapter`/`showOverlay`）可用 `@playwright/cli` 的 `run-code` 实现，属于**可选演示产物**，不是交付物必需。
 

@@ -14,7 +14,7 @@
 
 ## 2. 多车型 OR 分支（carModelCondition）
 
-落标检查无独立的 filter 字段；通过 `carModelCondition` 区分不同车型。多车型时同一校验项
+落标检查无独立 filter 字段；通过 `carModelCondition` 区分不同车型。多车型时同一校验项
 生成多个 OR 分支：
 
 ```sql

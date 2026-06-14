@@ -17,7 +17,7 @@
 KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 
-若实际 self-run 用的是 headless 命令，把该证据保留在 `run_command` 里，但仍要为人工验收打印这条 `--headed` full test 命令。最终面向用户的文本里没有这条命令，就绝不宣告 E2E 完成。
+若实际 self-run 用的是 headless 命令，把该证据保留在 `run_command` 中，但仍须为人工验收打印这条 `--headed` full test 命令。最终面向用户的文本中缺少这条命令，不得宣告 E2E 完成。
 
 Schema 参考：`PlaywrightAutomationHandoff.v2`。
 

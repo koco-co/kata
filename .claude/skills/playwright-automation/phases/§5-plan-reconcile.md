@@ -11,7 +11,7 @@ plan-reconcile 的输入是：ui-plan（文档用例规划）+ ui-probe（真实
 
 ### 第一步：核对清单
 
-把 ui-plan 里规划的断言点和 ui-probe 收集的页面证据逐条对照：
+把 ui-plan 中规划的断言点和 ui-probe 收集的页面证据逐条对照：
 
 1. **页面路由**：计划中的 URL hash 是否匹配实际页面路由
 2. **页面标题**：计划中的标题文本是否出现在页面 DOM 中
@@ -32,7 +32,7 @@ plan-reconcile 的输入是：ui-plan（文档用例规划）+ ui-probe（真实
 
 遇到下面任一情况，就算 PRD 或 Lanhu 截图已有完整设计，也必须判 `blocked`、`blocked_by_ui_probe` 或 `needs_user_decision` 并进入 handoff：
 
-- live UI 证据显示目标功能、菜单、规则类型或核心入口在当前环境没部署、不存在；
+- live UI 证据显示目标功能、菜单、规则类型或核心入口在当前环境未部署或不存在；
 - ui-probe 耗尽 3 次探测预算，仍没确认核心 UI 事实。
 
 判定之后，不得做以下任何一件事来绕过真实 UI 的缺失：
@@ -48,9 +48,9 @@ plan-reconcile 的输入是：ui-plan（文档用例规划）+ ui-probe（真实
 
 1. **以 live UI 证据为准**。Archive MD 和 PRD 是需求文档，不是真实 UI 事实。
 2. **断言跟着 live UI 写**。脚本永远跟着真实 UI 走。
-3. **不直接改 archive.md**：plan-reconcile 阶段不动 archive 内容，而是把发现的差异写成结构化条目，记入本次 run 的 `case-corrections.md`；审批和写回交给 `/case-edit apply-corrections`，在 case-feedback step 之后处理。`case-corrections.md` 的字段定义见 `phases/§12-case-feedback.md`。
-4. **不改 test-point-checklist.md**：测试点清单保持不变，免得和 case-draft 契约打架。
-5. **保留差异记录**：在 reconciliation 输出里写明「文档说 X，UI 是 Y，已按 UI Y 调整脚本并入 corrections」。
+3. **不直接改 archive.md**：plan-reconcile 阶段不动 archive 内容，而是把差异写成结构化条目，记入本次 run 的 `case-corrections.md`；审批和写回交给 `/case-edit apply-corrections`，在 case-feedback step 之后处理。`case-corrections.md` 的字段定义见 `phases/§12-case-feedback.md`。
+4. **不改 test-point-checklist.md**：测试点清单保持不变，避免与 case-draft 契约冲突。
+5. **保留差异记录**：在 reconciliation 输出中写明「文档说 X，UI 是 Y，已按 UI Y 调整脚本并入 corrections」。
 
 ### 第四步：输出
 

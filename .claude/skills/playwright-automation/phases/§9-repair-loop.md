@@ -68,14 +68,14 @@
 修复前先确认 §8 triage 分类（来自 `UiRunTriage@1.classification`）：
 
 - **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
-- **`product` 类**（功能、文案、业务规则变了）→ 这是用户能看到的变化：**不要在这里硬改断言去迁就产品的变化**。转至 handoff 阻塞，并触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再改用例。把产品的变化当技术问题硬改断言，就是虚假通过，违反步骤与断言的真实性规则。
+- **`product` 类**（功能、文案、业务规则变了）→ 属于用户可见变化：**不得在此硬改断言去迁就产品变化**。转至 handoff 阻塞，并触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再改用例。把产品变化当技术问题硬改断言，即虚假通过，违反步骤与断言真实性规则。
 
 ### 第五步：禁止
 
 - **禁止**使用 `test.skip()` 或 `test.fixme()` 跳过失败
 - **禁止**使用 try/catch 吞掉失败断言
 - **禁止**使用 `?.[0] ?? []` 或 `if (x)` 守卫替换失败断言
-- **禁止**降低断言强度（如将 `toBe` 改为 `toContain` 以绕过精确匹配）
+- **禁止**弱化断言强度（如将 `toBe` 改为 `toContain` 以绕过精确匹配）
 - **禁止**在未读完整失败证据前直接修改代码
 - **禁止**每次修复都全量运行 Playwright suite
 

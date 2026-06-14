@@ -1,6 +1,6 @@
 ---
 name: sql-merge-validate
-description: 拿到数据质量监控任务 monitorId（或落标检查任务 id）+ 合并预期描述，校验该任务所有规则包生成 SQL 的合并正确性（可合并/不可合并/抽样/分区/过滤条件/强弱/多规则包），终端逐包给 PASS/FAIL。发现缺陷转 defect-analyze 生成 bug。仅做静态扫描或写用例请转对应 skill。
+description: 收到数据质量监控任务 monitorId（或落标检查任务 id）+ 合并预期描述，校验该任务所有规则包生成 SQL 的合并正确性（可合并/不可合并/抽样/分区/过滤条件/强弱/多规则包），终端逐包给 PASS/FAIL。发现缺陷转 defect-analyze 生成 bug。仅做静态扫描或写用例请转对应 skill。
 argument-hint: "<monitorId | 落标任务 id> + 合并预期"
 user-invocable: true
 model: sonnet
@@ -9,7 +9,7 @@ effort: high
 
 # sql-merge-validate
 
-校验数据质量/落标合并 SQL 的合并正确性。一次性 skill，脚本自包含在 `scripts/`，只读、不产文件。
+校验数据质量/落标合并 SQL 的正确性。一次性 skill，脚本自包含于 `scripts/`，只读、不产文件。
 
 ## 工作流
 
@@ -26,14 +26,14 @@ effort: high
 
 ## 合并判定规则
 
-- 合并与否以 DB `merge_group_key` 为准：key 非空且组内≥2 即「应合并」，空 key 即「应独立」。
+- 是否合并以 DB `merge_group_key` 为准：key 非空且组内≥2 即「应合并」，空 key 即「应独立」。
 - 文档白名单只用于发现「合并了规格外 function」（如 fn26）的 globalFindings，不左右 ①② 的 PASS/FAIL。
 - 抽样：扫抽样表与脏数据 `rand()` 是独立信号；不可合并包可能扫抽样表却无 rand，不据此判 FAIL。
 
 ## 路由边界
 
 - 纯静态 diff 扫描 → defect-analyze；写用例 → case-*；UI 自动化 → playwright-automation。
-- DB 不可达 → 降级为「SQL 结构事实 + 预期文本」并显式声明无法独立判定实际分组。
+- DB 不可达 → 降级为「SQL 结构事实 + 预期文本」，并显式声明无法独立判定实际分组。
 - std 落标当前环境无数据，仅结构校验，未端到端验证。
 
 ## 知识库

@@ -40,7 +40,7 @@
 
 ## 执行子代理派发协议
 
-运行时安全：只有 `prompts/agent-worker.md`、`prompts/agent-spec-reviewer.md`、`prompts/agent-quality-reviewer.md` 三个模板都存在时，才允许派发执行子代理并启用二阶段评审；任一模板缺失，就不得派执行子代理，也不得进入模板驱动的评审。
+运行时安全：只有 `prompts/agent-worker.md`、`prompts/agent-spec-reviewer.md`、`prompts/agent-quality-reviewer.md` 三个模板全部存在时，才允许派执行子代理并启用二阶段评审；任一模板缺失，不得派执行子代理，也不得进入模板驱动的评审。
 
 前置条件处理按 `prompts/agent-precondition.md`、用例与修复任务按 `prompts/agent-worker.md` 模板构造 prompt。
 执行子代理使用 Agent tool，subagent_type=general-purpose；model 按调度表分层：
@@ -51,7 +51,7 @@
 
 ## 二阶段评审协议
 
-`汇总 & 质量闸门` 任务里（全部用例绿之后）集中跑一次二阶段评审，覆盖全量用例产物：
+`汇总 & 质量闸门` 任务中（全部用例绿之后）集中跑一次二阶段评审，覆盖全量用例产物：
 
 1. spec-reviewer（主会话执行，按 `prompts/agent-spec-reviewer.md`）
 2. spec 通过 → quality-reviewer（Agent，按 `prompts/agent-quality-reviewer.md`）

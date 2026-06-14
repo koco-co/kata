@@ -1,17 +1,17 @@
 # Hotfix Archive Format
 
-写或复核 hotfix archive 前读本文，掌握可执行格式、前置条件 SQL 与历史用例布局。
+写或复核 hotfix archive 前读本文，了解可执行格式、前置条件 SQL 与历史用例布局。
 
 ## 输出定位
 
 Hotfix 产物必须是可直接执行的回归用例 archive，不是缺陷分析报告。每个 Hotfix archive 只写 1 条用例。
 
-禁止只输出以下内容：
+不得只产出以下内容：
 
 - 缺陷标题、根因、影响范围、修复说明的分析报告。
-- 只有「复现步骤 / 实际行为 / 预期行为」的 bug report。
-- 没有前置条件、没有操作步骤表、不能直接交给测试执行的总结。
-- 为同一个 bug 拆出多条「主路径 / 相邻回归 / 兼容场景」用例的完整回归套件。
+- 仅含「复现步骤 / 实际行为 / 预期行为」的 bug report。
+- 缺少前置条件和操作步骤表、无法直接交给测试执行的总结。
+- 为同一 bug 拆出多条「主路径 / 相邻回归 / 兼容场景」用例的完整回归套件。
 
 ## 文件位置
 
@@ -34,13 +34,13 @@ source_refs.json
 - 若证据中有修复分支，文件名前缀使用修复分支，例如 `hotfix_6.2.x_150419-...md`。
 - 若没有修复分支，使用 `hotfix_{bug_id}-...md`。
 - `{YYYYMM}` 使用 bug 打开日期、解决日期或当前日期中最贴近该 hotfix 执行批次的月份。
-- 标题片段使用中文业务短标题，不得只写 `report`、`bug`、`case`。
+- 标题片段使用中文业务短标题，不得仅写 `report`、`bug`、`case`。
 
 ## 临时证据位置
 
-不得写入仓库根级 `workspace/.temp`。该目录不属于任何项目的标准产物边界，会污染 git 状态，也会让证据绕开 Hotfix 目录结构。
+不得写入仓库根级 `workspace/.temp`。该目录不属于任何项目标准产物边界，会污染 git 状态，也会让证据绕开 Hotfix 目录结构。
 
-若处理过程中必须暂存原始 bug JSON、附件截图或抓取缓存，只能写入当前 Hotfix 目录内的 `.temp/`：
+处理过程中需要暂存原始 bug JSON、附件截图或抓取缓存时，只能写入当前 Hotfix 目录内的 `.temp/`：
 
 ```text
 workspace/{project}/_shared/archive/issues/{YYYYMM}/hotfix_{fix_branch_or_bug_id}-{short-title}/.temp/
@@ -71,10 +71,10 @@ zentao_url: "{zentao_bug_url}"
 
 - 第 1 段写发现该 bug 的产品大版本，例如 `6.3`。
 - 第 2 段写产品模块，例如 `数据质量`。
-- 第 3 段写证据中的数据源类型；禅道、截图或修复说明明确 SparkThrift 时必须写 `SparkThrift`，不得降级成 `Spark` 或留空。
-- 第 4 段写证据中的集群形态；无证据时留空，但保留分隔符。
+- 第 3 段写证据中数据源类型；禅道、截图或修复说明明确 SparkThrift 时必须写 `SparkThrift`，不得降级为 `Spark` 或留空。
+- 第 4 段写证据中集群形态；无证据时留空，但保留分隔符。
 - 第 5 段必须归一化为最低修复大版本，例如 `6.3`；不得写 `v6.3.41_ltqc`、`6.3.41`、客户缩写、修复分支名或构建号。
-- 第 6 段必须写证据中的具体问题原因或修复点摘要，不得写成「代码缺陷」「需求变更」「配置错误」等分类词。问题原因无法确定时放入 `pending_items`，不要猜。
+- 第 6 段必须写证据中的具体问题原因或修复点摘要，不得写成「代码缺陷」「需求变更」「配置错误」等分类词。问题原因无法确定时放入 `pending_items`，不得猜测。
 
 示例：
 
@@ -84,7 +84,7 @@ keywords: "6.3 | 数据质量 | SparkThrift | | 6.3 | 增量sql中完整性校�
 
 ## SourceRefs JSON
 
-Hotfix md 不得包含 `## SourceRefs`、`bug.record@N`、`[bug.record@N]` 或任何 SourceRef 引用。md 只保留人类可读用例内容。
+Hotfix md 不得包含 `## SourceRefs`、`bug.record@N`、`[bug.record@N]` 或任何 SourceRef 引用。md 只保留人类可读的用例内容。
 
 SourceRefs 只能写入当前 Hotfix 目录内的 JSON 文件：
 
@@ -113,8 +113,8 @@ source_refs.json
 具体页面路径、按钮名称、字段 label、控件名称和交互入口也必须能指回 SourceRef：
 
 - 优先使用本次 bug 记录、真实 DOM 探测、源码或当前项目规则作为证据。
-- 若交互文案只来自历史用例、历史报告或项目知识，`source_refs.json` 必须写明来源；archive 中不得把它表述成本次真实页面探测结论。
-- 若源码与 DOM、历史用例不一致，以本次真实 DOM 或源码证据为准；仍无法确认的页面文案写成待确认或使用更稳妥的通用步骤，不得猜测。
+- 交互文案仅来自历史用例、历史报告或项目知识时，`source_refs.json` 必须写明来源；archive 中不得将其表述为本次真实页面探测结论。
+- 源码与 DOM、历史用例不一致时，以本次真实 DOM 或源码证据为准；仍无法确认的页面文案标为待确认或使用更稳妥的通用步骤，不得猜测。
 
 ## 用例结构
 
@@ -152,19 +152,19 @@ INSERT INTO hotfix_{bug_id}_example VALUES (1);
 
 层级根据证据中的模块调整，但必须保留「用例标题 + 前置条件 + 用例步骤表」。
 
-同一个 archive 中不得出现第二个 `#####` 用例标题。相邻风险验证只能写进同一张步骤表，例如在主修复路径验证完成后继续增加 1 到 3 个必要检查步骤。
+同一 archive 中不得出现第二个 `#####` 用例标题。相邻风险验证只能写进同一张步骤表，如在主修复路径验证完成后追加 1 到 3 个必要检查步骤。
 
 ## 前置条件
 
-前置条件必须让测试人员能直接执行。
+前置条件必须让测试人员可直接执行。
 
-前置条件写法要求：
+写法要求：
 
 - `> 前置条件` 下所有内容必须放入一个普通 fenced code block。
 - 代码块不得声明语言类型，不得使用 ```sql。
 - 部署包、插件、权限、页面数据源、数据库选择、SQL 数据准备都写进同一个代码块。
 
-当 Bug 涉及以下任一特定数据状态时，必须提供自包含 SQL：
+Bug 涉及以下任一特定数据状态时，必须提供自包含 SQL：
 
 - 字段为 `NULL`、空串、非法值。
 - 重复键、脏数据、历史兼容数据。
@@ -176,13 +176,13 @@ SQL 要求：
 
 - 必须包含 `CREATE TABLE` 或 `CREATE TABLE IF NOT EXISTS`。
 - 必须包含 `INSERT INTO` / `INSERT OVERWRITE` / 等价数据构造语句；如果目标引擎无法插入该特殊形态，需给可执行的替代构造语句，如 `ALTER TABLE ... ADD PARTITION`。
-- 禅道明确数据源类型时按证据指定；未明确时默认使用 SparkThrift / Spark SQL 方言，不要写 MySQL 专属语法。
-- 不得写固定库名/schema 前缀，例如不要写 `test_db.hotfix_table`、`dt_metadata.metadata_table`；数据库选择写在前置条件说明中，SQL 直接使用裸表名。
+- 禅道明确数据源类型时按证据指定；未明确时默认使用 SparkThrift / Spark SQL 方言，不得写 MySQL 专属语法。
+- 不得写固定库名/schema 前缀（如 `test_db.hotfix_table`、`dt_metadata.metadata_table`）；数据库选择写在前置条件说明中，SQL 直接使用裸表名。
 - 需要替换的运行环境变量使用 `{{...}}` 占位。
 
 ### Spark 全分区字段表
 
-当 Hotfix 目标是 Spark 元数据采集，且证据要求表的所有字段均为分区字段时，不得把以下零普通字段 DDL 写成 Spark SQL 可执行前置条件：
+Hotfix 目标是 Spark 元数据采集，且证据要求表的所有字段均为分区字段时，不得把以下零普通字段 DDL 写成 Spark SQL 可执行前置条件：
 
 ```text
 CREATE TABLE hotfix_xxx
@@ -193,18 +193,18 @@ PARTITIONED BY (
 STORED AS PARQUET;
 ```
 
-Spark SQL / SparkThrift 会在建表分析阶段返回 `ALL_PARTITION_COLUMNS_NOT_ALLOWED`，即 `Cannot use all columns for partition columns`。这种 SQL 不能作为可执行步骤交给测试。
+Spark SQL / SparkThrift 会在建表分析阶段返回 `ALL_PARTITION_COLUMNS_NOT_ALLOWED`（`Cannot use all columns for partition columns`）。此类 SQL 不能作为可执行步骤交给测试。
 
 正确写法：
 
 - 主缺陷复现表仍必须是所有字段均为分区字段，确保元数据中 `cols=[]` 且 `partitionKeys` 非空。
-- 不得为了让 SQL 在 Spark 中通过而添加无关普通字段；不得用普通字段 + 分区字段的相邻回归表替代主缺陷复现表。
-- 在前置条件中明确区分执行入口：全分区字段主表通过 Hive CLI / HMS / 已有 Spark 数据源预置，Spark SQL 入口只做只读检查和后续采集验证。
-- 如果写出全分区字段建表 DDL，必须标注为 Hive CLI / HMS 预置命令，不得标注为 Spark SQL 即时执行。
+- 不得为让 SQL 在 Spark 中通过而添加无关普通字段；不得用普通字段 + 分区字段的相邻回归表替代主缺陷复现表。
+- 前置条件中须明确区分执行入口：全分区字段主表通过 Hive CLI / HMS / 已有 Spark 数据源预置，Spark SQL 入口只做只读检查和后续采集验证。
+- 写出全分区字段建表 DDL 时，必须标注为 Hive CLI / HMS 预置命令，不得标注为 Spark SQL 即时执行。
 - Spark SQL 前置条件只用于准备相邻回归表，例如“普通字段 + 分区字段”和“无分区字段”表。
 - 用例步骤中验证 Spark 数据源采集这张已预置的边界表。
 
-只有纯 UI 渲染问题或完全可通过 UI 构造数据的问题，才允许不用 SQL；此时必须写清 UI 前置操作。
+仅纯 UI 渲染问题或完全可通过 UI 构造数据的问题才允许不用 SQL；此时必须写清 UI 前置操作。
 
 ## 覆盖范围
 
@@ -213,4 +213,4 @@ Spark SQL / SparkThrift 会在建表分析阶段返回 `ALL_PARTITION_COLUMNS_NO
 1. 主修复路径：直接复现 bug 的最小场景。
 2. 必要相邻检查：修复判断逻辑旁边最容易被误伤的 1 到 3 个检查点，作为同一条用例的步骤或预期，不拆成独立用例。
 
-不得外延到证据没有支撑的模块、数据源或版本。范围未定时写入 `pending_items`。
+不得外延到无证据支撑的模块、数据源或版本。范围未定时写入 `pending_items`。

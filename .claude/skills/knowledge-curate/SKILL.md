@@ -20,8 +20,8 @@ effort: medium
 
 ## 工作流
 
-1. 查询：在 `workspace/{project}/_shared/knowledge/**` 检索命中条目，并引用它的 SourceRef ID；没有可靠命中时直接说明「知识库无已确认匹配」，不要臆造。
-2. 写入前先读 `references/knowledge-rules.md`，按分类规则落盘；置信度低的更新先和用户确认。
+1. 查询：在 `workspace/{project}/_shared/knowledge/**` 检索命中条目，并引用其 SourceRef ID；无可靠命中时直接说明「知识库无已确认匹配」，不得臆造。
+2. 写入前先读 `references/knowledge-rules.md`，按分类规则落盘；置信度低的更新须先和用户确认。
 
 ## 何时加载哪个文件
 
@@ -33,4 +33,4 @@ effort: medium
 
 - 业务知识存放于 `workspace/{project}/_shared/knowledge/**`，项目规则存放于 `workspace/{project}/_shared/rules/**`。两者分仓存放，不得混写。
 - 未明确选定项目前，不得跨项目编辑知识。
-- 查询结果必须引用知识条目的 SourceRef ID；没有证据支撑的根因和事实不予写入。
+- 查询结果必须引用知识条目 SourceRef ID；无证据支撑的根因和事实不得写入。

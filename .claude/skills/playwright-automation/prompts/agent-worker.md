@@ -1,6 +1,6 @@
 # 执行子代理 Prompt 模板
 
-主 Skill 派发执行子代理时，必须按本模板填充 prompt。执行子代理永远不直接回复用户；所有阻塞都通过 BlockedEnvelope 回传。
+主 Skill 派执行子代理时，必须按本模板填充 prompt。执行子代理不得直接回复用户；所有阻塞通过 BlockedEnvelope 回传。
 
 BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 

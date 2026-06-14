@@ -46,12 +46,12 @@ bunx playwright install
 
 ## 安全守卫（仓库自带）
 
-仓库自带 `.claude/settings.json`，把 `pre-edit-guard` 和 `pre-bash-guard` 挂进 Claude Code 的 `PreToolUse`：
+仓库自带 `.claude/settings.json`，将 `pre-edit-guard` 和 `pre-bash-guard` 挂入 Claude Code 的 `PreToolUse`：
 
 - `pre-edit-guard`：拦截对源仓库证据 `workspace/{project}/.kata/repos/**` 的 Edit/Write。
 - `pre-bash-guard`：拦截 `rm -rf workspace/`、`rm -rf /`，以及对 `.kata/repos/` 的 git push。
 
-第一次在 Claude Code 打开本项目时，会提示你批准这些项目级 hook（安全机制），批准后就生效。紧急时可以用 `KATA_BYPASS_HOOK=1` 临时绕过。直接在命令行操作不经 Claude Code，不受 hook 约束，但仍以 `.claude/rules/repo-readonly.md` 为准。
+首次在 Claude Code 中打开本项目时，会提示批准这些项目级 hook（安全机制），批准后即生效。紧急时可用 `KATA_BYPASS_HOOK=1` 临时绕过。直接在命令行操作不经 Claude Code，不受 hook 约束，但仍以 `.claude/rules/repo-readonly.md` 为准。
 
 ## 安装完成
 

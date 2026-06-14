@@ -59,12 +59,12 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 ## 执行流程
 
 - 严格按 env-preflight → ui-probe → plan-reconcile → playwright-generate → self-run 的顺序推进，前序阶段通过才进入下一阶段。
-- 按名称片段查找目标目录时，先用关键词在 `metadata.yaml` / `cases/archive.md` / `prd.md` 里精确定位唯一目标目录，再读取其状态文件；禁止枚举 `features/` 下的候选目录。
+- 按名称片段查找目标目录时，先用关键词在 `metadata.yaml` / `cases/archive.md` / `prd.md` 中精确定位唯一目标目录，再读取其状态文件；禁止枚举 `features/` 下的候选目录。
 - `blocked_by_case_draft_required` 只在一种情况下触发：目标目录既缺少 case-draft 的自动化基线（`ready` 状态的 `AutomationIntent`、`cases/archive.md`、`cases/test-point-checklist.md`），又缺少 `prd.md` 或 `inputs/lanhu-snapshots/`。触发后直接进入 handoff，不再读取需求源。
 
 ## 进度可见性
 
-- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 分配 opus 子代理，中间 plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题），主 agent 只负责编排，不直接执行具体任务；二阶段评审集中在汇总环节。
+- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 分配 opus 子代理，plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题），主 agent 只做编排，不直接执行具体任务；二阶段评审集中在汇总环节。
 - **静默模式**：env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度——不派执行子代理、不建 TodoWrite。
 - env-preflight 的权限拒绝、session 探测、登录态补充，以及 `no_permission` / `tool_permission_denied` 模板，严格遵循 `phases/§2-env-preflight.md`。
 
@@ -83,6 +83,6 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 
 ## 环境与产出
 
-- 环境配置使用 `workspace/<project>/_shared/env/*.yaml` profile；新建前先检查是否已有匹配的 `base_url` + `tenant`，不为交付新建 `.env.local`。
+- 环境配置取 `workspace/<project>/_shared/env/*.yaml` profile；新建前先检查是否已有匹配的 `base_url` + `tenant`，不得为交付新建 `.env.local`。
 - 产出布局：`smoke.spec.ts` + `full.spec.ts` 存放于 `automation/tests/runners/`，case 存放于 `automation/tests/cases/`，共享页面对象/helper 存放于 `_shared/`。
 - 交付以目标 `full.spec.ts` 全量通过为准，仅 smoke 通过不算完成。

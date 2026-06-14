@@ -1,6 +1,6 @@
 # Quality 评审 Prompt — playwright-automation
 
-派一个全新子代理执行。它只审查 artifact 的内容质量，不重复 spec 评审的结构检查，只看脚本内容写得好不好。
+派全新子代理执行。只审查 artifact 内容质量，不重复 spec 评审的结构检查，专注脚本内容质量。
 
 ## 必须遵守的规则优先
 
@@ -10,17 +10,17 @@
 
 ### 选择器稳定性
 
-- 标记未解释的位置选择器，或无 UI 证据时把 `.nth()` 作为主策略；允许有说明的 strict-mode narrowing
+- 标记无说明的位置选择器，或缺乏 UI 证据时把 `.nth()` 当主策略；允许有说明的 strict-mode narrowing
 - 标记 XPath `text()`、宽泛 `page.locator("text=...")`，或对非唯一标签使用 text-only locator；不要误伤合法 `getByText`
 - 优先 `data-testid`、ARIA role + name、可见 label
 - 同一 page object 中 selector 必须按业务命名分组
 
 ### 断言强度
 
-- 标记未文档化的 `page.waitForTimeout(<ms>)` 类硬延时；允许有说明的框架 transition 或 render-frame 等窄例外
+- 标记无文档说明的 `page.waitForTimeout(<ms>)` 硬延时；允许有注释的框架 transition 或 render-frame 等窄例外
 - 禁止 `try/catch` 吞失败
 - 禁止 `test.skip()` 掩盖未确认行为
-- 断言必须验证用户可见状态或业务结果；仅非显然的技术性断言需要语义注释
+- 断言必须验证用户可见状态或业务结果；仅不明显的技术性断言需要语义注释
 
 ### 步骤与断言的真实性（fidelity）
 
@@ -30,11 +30,11 @@
 - spec 用 `toBeVisible`/`toContainText` 等代替了用例写明的 `expected_visible_result` → high
 - 业务流程用例被简化成「进页面看元素在不在」，只测页面表层、不测业务结果 → high
 
-high 必须修；当前环境确实无法真实实现的用例，要如实排除，记入 `handoff.excluded_cases`，不得让它表面通过蒙混过去。
+high 必须修；当前环境确实无法真实实现的用例，须如实排除，记入 `handoff.excluded_cases`，不得表面通过蒙混过去。
 
 ### 修复
 
-- repair-loop 中的修复不得在原 case 文件中添加 wider locator
+- repair-loop 的修复不得在原 case 文件中添加 wider locator
 - 修复不得绕过断言，必须解决根因
 
 ### Page Object 复用度

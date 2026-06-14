@@ -18,8 +18,7 @@ string_num），均为弱规则、同 filter `id<=100`，被合进同一 `SUM(CA
 
 ### filter 标准化
 
-filter 存 DB 为 JSON 结构（`{"conditionType":...}`），比较前需标准化（JSON 解析→规范化
-→再比），不能直接裸字符串比较。标准化规则必须与后端 MergeKey 构造逻辑一致。
+filter 在 DB 中以 JSON 结构（`{"conditionType":...}`）存储，比较前须标准化（JSON 解析→规范化→再比），不得直接用裸字符串比较。标准化规则必须与后端 MergeKey 构造逻辑一致。
 
 ## 2. 可合并白名单
 

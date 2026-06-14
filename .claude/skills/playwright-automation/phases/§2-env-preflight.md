@@ -17,7 +17,7 @@
 - 无权限 blocker。
 - `blocked_by_environment: tool_permission_denied`。
 
-目标目录、source-backed bootstrap、profile 读取、session mtime、真实 probe、run-id 与证据目录创建，这些都算内部进度。需要记录就写进 run artifact，不要写进聊天。
+目标目录、source-backed bootstrap、profile 读取、session mtime、真实 probe、run-id 与证据目录创建，均属内部进度。需要记录就写入 run artifact，不得写入聊天。
 
 ## 用户输入解析
 
@@ -28,7 +28,7 @@
 - 立刻设置 `env_profile=ltqc-local.yaml`、`env_confirmed=true`，直接读这个 profile 并进入 env-preflight。
 - 不得再调用环境确认 AskUserQuestion，也不得再输出环境确认 fallback。
 
-若用户输入里有 `环境:`、`env:`、base_url 或完整的 env profile 文件名，同样视为环境已确认，直接读对应 profile。
+若用户输入中有 `环境:`、`env:`、base_url 或完整的 env profile 文件名，同样视为环境已确认，直接读对应 profile。
 
 ## 环境确认
 
@@ -37,11 +37,11 @@
 1. 从目标 feature 路径推断 `project`。
 2. 读取 `workspace/{project}/_shared/env/*.yaml`。
 3. 若有 `ltqc-local.yaml`，默认推荐它。
-4. 用 AskUserQuestion 一次性给出环境选项；问题里必须有连续纯文本 `默认推荐：ltqc-local.yaml`。
+4. 用 AskUserQuestion 一次性给出环境选项；问题中必须有连续纯文本 `默认推荐：ltqc-local.yaml`。
 5. 选项 label 只写完整文件名，例如 `ltqc-local.yaml`；推荐说明放进 question 或 description。
 6. 环境确认阶段不得索要 Cookie、storageState 路径或账号密码。
 
-AskUserQuestion 不可用时，只输出下面这段，别的都不输出：
+AskUserQuestion 不可用时，只输出下面这段，其余一律不输出：
 
 ```text
 请确认执行环境。
@@ -57,7 +57,7 @@ fallback 必须是本轮最后一个 assistant action。`session_status` 只能�
 
 ## 工具拒绝处理
 
-确认 env profile 之后，只要工具结果含有下面任一含义，就立即终止 env-preflight：
+确认 env profile 后，只要工具结果含下列任一信号，立即终止 env-preflight：
 
 - `requires approval`、`This command requires approval`、`The following parts require approval`。
 - `was blocked`、`requested permissions`、`hasn't granted it yet`、`permission denied`、`未授权`。
@@ -85,7 +85,7 @@ blocker 命令只能用拒绝前已经知道的 env profile 文件名、project 
 
 ## session 与登录态
 
-session 文件在不在、mtime 超没超过 24 小时，都不能直接证明 session 有效或过期，只能触发真实的 Playwright/API 复验。
+session 文件是否存在、mtime 是否超过 24 小时，都不能直接证明 session 有效或过期，只能触发真实 Playwright/API 复验。
 
 - mtime 只能用独立的简单命令读取：`stat -f "%m" <session_path>` 和单独的 `date +%s`。
 - 不得用 command substitution、arithmetic expansion、管道、`&&`、`||` 或分号去算 age。
@@ -103,7 +103,7 @@ session 文件在不在、mtime 超没超过 24 小时，都不能直接证明 s
 请提供当前登录态 Cookie 字符串，以便重新生成 storageState 后继续。
 ```
 
-这个模板不能只写在 thinking 里；输出模板前不得再调用工具，也不得删除 probe 证据。可交互模式若改用 AskUserQuestion，也必须先完成真实 probe，再只发一个登录态补充触点。
+此模板不得只写在 thinking 中；输出模板前不得再调用工具，也不得删除 probe 证据。可交互模式若改用 AskUserQuestion，也必须先完成真实 probe，再只发一个登录态补充触点。
 
 ## 权限与环境分类
 
@@ -111,17 +111,17 @@ session 文件在不在、mtime 超没超过 24 小时，都不能直接证明 s
 
 1. 登录跳转优先归类为 `session_expired` 或 `session_invalid`。
 2. 已确认登录、但 API 或页面返回 401/403/无权限时，归类为 `no_permission`。
-3. 证据互相矛盾时，再做一个最小 probe；还是说不清就输出 `blocked_by_environment: auth_state_uncertain`，并列出冲突证据。
+3. 证据互相矛盾时，再做一个最小 probe；仍然不明确就输出 `blocked_by_environment: auth_state_uncertain`，并列出冲突证据。
 
-no_permission 只输出一次直接文本 blocker。不得给 tenant/project 名后面追加内部 ID 或括号编号；不得包装成“session 有效”。
+no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名后追加内部 ID 或括号编号；不得包装成”session 有效”。
 
 ## run-id 与证据目录
 
 - run-id 用内部指定的字面量，例如 `preflight-250515-01` 或 `preflight-01`；不得用随机数、hash、管道或命令替换来生成。
 - 当前 feature 的证据目录必须用 repo-root 相对路径：`workspace/{project}/features/{version}/{featureId}/runs/<run-id>/playwright/preflight`。
 - 不得把 `<REPO_ROOT>/...` 绝对路径交给 `mkdir -p`。
-- 等 run-id 的 tool_result 返回且没被拒绝，才能创建 evidence 目录；不得在同一条 assistant message 里同时发起 run-id 和 evidence 目录创建。
-- 同一批 tool_result 里一个成功、一个带拒绝信号时，拒绝信号优先。
+- 等 run-id 的 tool_result 返回且未被拒绝，才能创建 evidence 目录；不得在同一条 assistant message 中同时发起 run-id 和 evidence 目录创建。
+- 同一批 tool_result 中一个成功、一个带拒绝信号时，拒绝信号优先。
 
 ## 探测脚本
 
@@ -129,8 +129,8 @@ no_permission 只输出一次直接文本 blocker。不得给 tenant/project 名
 - 只有轻量、不依赖 repo 的一次性脚本，才能写入 `mktemp -d /tmp/kata-playwright-preflight-*` 返回的目录。
 - 读取 repo-root 相对的 `auth.session_path` 时，脚本用 `path.resolve(process.cwd(), auth.session_path)`。
 - 不得硬编码 repo root，不得用 `__dirname`、`import.meta.url` 或 `../../../` 反推 repo root。
-- 截图、JSON、HAR 等 probe 证据写进同一个 preflight 证据目录。
-- 没当作结果证据保留的临时脚本必须清理，不能让 `git status --short` 冒出根目录临时文件。
+- 截图、JSON、HAR 等 probe 证据写入同一个 preflight 证据目录。
+- 未作为结果证据保留的临时脚本必须清理，不得让 `git status --short` 冒出根目录临时文件。
 
 ## 输出
 
@@ -146,8 +146,8 @@ no_permission 只输出一次直接文本 blocker。不得给 tenant/project 名
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
-- 不得把 cookie、token、password 写进 YAML、用例、报告或聊天记录。
-- 不得拿临时的 `/private/tmp` session 当可交付的运行入口。
-- 不得在 repo root、project 根目录或 feature 根目录留下 env-preflight 临时脚本。
+- 不得把 cookie、token、password 写入 YAML、用例、报告或聊天记录。
+- 不得把临时 `/private/tmp` session 当作可交付的运行入口。
+- 不得在 repo root、project 根目录或 feature 根目录残留 env-preflight 临时脚本。
 - 不得用没加保护的 glob 检查可选配置；要用 `test -f`、`find <精确目录> -maxdepth 1 -name ...` 或 `rg --files -g ...`。
-- 必须先确认环境，再读 source-backed 的 PRD/截图；不得把环境 profile 列举和需求源读取并行做。
+- 必须先确认环境，再读 source-backed 的 PRD/截图；不得把环境 profile 列举与需求源读取并行执行。

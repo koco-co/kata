@@ -6,14 +6,14 @@
 
 ## Claude Code Runtime 规则
 
-- Claude Code skill 的稳定触发信息，来自 `.claude/skills/<name>/SKILL.md` frontmatter 里的 `name` 与 `description`。
-- slash-command 专属的 frontmatter 只在后续 `.claude/commands/**` 设计里单独用，不写进 `SKILL.md` 白名单。
+- Claude Code skill 的稳定触发信号来自 `.claude/skills/<name>/SKILL.md` frontmatter 的 `name` 与 `description`。
+- slash-command 专属 frontmatter 只在后续 `.claude/commands/**` 设计里单独用，不写进 `SKILL.md` 白名单。
 - `/skill` 名继续可用；显式的 `/case-draft`、`/case-edit` 等命令，按下方路由表处理。
 - 本项目不再拿 `CLAUDE.local.md` 当入口；本地设置放用户级配置或 `.claude/settings.local.json`。
 
 ## 路由规则
 
-- 以下方命令索引作为公开 slash-command 的路由表。
+- 下方命令索引即公开 slash-command 的路由表。
 - 只发 Lanhu/Axure URL → 静默转发给 `case-draft`，由 case-draft 产出第一个用户可见结果。
 - 只发 ZenTao bug URL/bug-view URL/bug ID → 转发给 `case-hotfix`；若记录尚未修复或缺修复范围，由该 skill 生成待办项，不回退到 `defect-analyze`。
 - 只发需求功能**目录**路径或目录名（如 `features/【v...】...`，不带文件扩展名）→ 转发给 `playwright-automation`，做用例转自动化。
@@ -57,7 +57,7 @@
 
 ## 本地配置
 
-- 敏感环境变量放 `.env.local` 或用户级配置，别写进项目入口文档。
+- 敏感环境变量放 `.env.local` 或用户级配置，不要写进项目入口文档。
 - 常用变量名：`KATA_ZENTAO_PASSWORD`、`KATA_LANHU_COOKIE`、`KATA_LANHU_PASSWORD`、`KATA_TARGET_ENV`。
 - 详细日志：`KATA_DEBUG=true kata <command>`。
 
