@@ -21,9 +21,8 @@ bun test            # verify tests
 ```
 <type>: <emoji> <description>
 
-标题行用英文，description ≤ 72 字符。type/emoji 固定映射：
-feat 🧩 · fix 🩹 · refactor ✨ · docs 📝 · test 🧪 · chore 🧹 · style 🎨 · build 🏗️ · ci 👷 · perf ⚡ · revert ⏪ · merge 🔀
-详见 .claude/rules/project-workflow-rules.md。
+标题行用英文，description ≤ 72 字符。
+type/emoji 固定映射见 .claude/rules/project-workflow-rules.md。
 ```
 
 ## PR Checklist

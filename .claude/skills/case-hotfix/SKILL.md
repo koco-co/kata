@@ -40,6 +40,7 @@ effort: medium
 
 ## 证据与交付
 
+- 交付前先运行 `kata cases lint --scope <hotfix-dir> --exit-code`，修复所有 violation 后再做人工自审。
 - 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则作为支撑。仅来自历史用例或规则时，须在 `source_refs.json` 中标明来源和未验证边界，不得当作本次真实探测结果。
 - 证据分层：
   - `archive.md` 只保留人类可读的用例内容，不含任何 SourceRef 引用。
