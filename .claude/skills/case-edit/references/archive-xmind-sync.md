@@ -11,13 +11,11 @@
 - XMind priority marker 分布符合预期。
 - 旧术语、旧菜单名或用户指定的替换项没有残留。
 
-用例级节点的下列格式细节，一律以 `.claude/prompt/_shared/case-qa.md`、`.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-format-sample.md` 当前 runtime 版本为准：
+用例级节点的渲染格式（标题层级、前置条件代码块、步骤表格、XMind topic 镜像与 priority marker）由 `kata archive-gen` 和 `kata xmind-gen` 编码。以下内容规则不在 CLI 里，以 `.claude/prompt/_shared/case-qa.md` 与 `.claude/prompt/_shared/case-format-sample.md` 为准：
 
-- 标题与括号语义；
-- 前置条件 SQL 注释块；
+- 标题三段式与括号语义；
+- 前置条件 SQL 注释块写法；
 - `${SchemaA}` 占位符；
-- 步骤表格写法；
-- XMind topic 镜像、priority marker、notes 约束；
 - 数据质量「规则集 → 规则任务」前置链；
 - 分区切换正负样本规则；
 - 规则描述必填。
