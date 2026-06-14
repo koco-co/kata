@@ -1,6 +1,6 @@
 # Quality Reviewer Prompt — case-draft
 
-派 fresh Agent 执行。只审查用例内容质量，不重复 spec reviewer 的机械
+派 fresh Agent 执行。只审查用例内容质量，不做 spec reviewer 已覆盖的机械
 source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending 计数检查。
 不得直接向用户提问，不得修改或落盘 artifact；只返回 review JSON。
 
@@ -19,7 +19,7 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 
 ### 用例步骤完整性
 
-- 按当前 artifact 采用的 MD block 或 table convention 检查每条用例是否可读完整：
+- 按当前 artifact 使用的 MD block 或 table convention，检查每条用例的可读性和完整性：
   `case_id`、`case_title`、优先级/P level、前置条件、步骤、预期结果应能被 QA 明确识别。
 - 步骤和预期结果不得为空；动作与结果应逐步配对，避免一个步骤对应多个含糊结果。
 - 前置条件为空时，如当前格式使用 fenced code block，应渲染为：
@@ -34,14 +34,14 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 
 - `case_title` 只作为人类可读标题，不是唯一机器 key，不得替代 `case_id` 做身份或覆盖判断。
 - 标题不得没有信息量，如 `测试1`、`case1`、`新增`、`修改`、`正常流程`。
-- 好标题应表达对象、动作和预期结果；必要时包含 P level 或关键场景上下文。
-- 单条标题轻微含糊通常为 medium；成批没有信息量的标题，或标题会误导执行者时，可判 high。
+- 好标题应点明对象、动作和预期结果；必要时带上 P level 或关键场景上下文。
+- 单条标题轻微含糊通常判 medium；成批标题缺乏信息量、或标题会误导执行者时，可判 high。
 
 ### 覆盖矩阵
 
 - 使用 CoverageMatrix@1、CaseEvidenceMap@1、`requirement_atom_ids`、FeatureManifest@2
   轻量 `{ id, source_ref }` 与完整 RequirementAtom@1 作为覆盖判断的上下文。
-- 判断 `product_confirmed`、`lanhu_observed`、已记录默认处理/defaulted 的需求是否被可执行用例覆盖。
+- 检查 `product_confirmed`、`lanhu_observed`、已记录默认处理（defaulted）的需求是否有对应的可执行用例覆盖。
 - `history_inferred` 只能作为参考，不能单独计为 `product_confirmed` 覆盖；若最终用例把历史推断当作产品确认覆盖，判 high 或 medium，视风险而定。
 - 不因 ID 缺失、字段结构或矩阵行结构本身的问题报 issue；这类机械问题写入 `out_of_scope`。
 
@@ -55,7 +55,7 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 
 - 用例应可由 QA 直接执行：前置条件清楚，测试数据需求明确，动作和预期结果成对出现。
 - 不得包含无证据支持的断言、超出需求确认范围的产品承诺，或把实现猜测写成用户可验证结果。
-- 默认值、假设、历史推断或非阻塞问题若进入用例，应在内容中保持可识别且不伪装成产品确认。
+- 默认值、假设、历史推断或非阻塞问题写进用例时，必须保持可辨识，不得伪装成产品确认。
 - 表单驱动用例必须与已读取的源码、平台 DOM/YAML、环境配置或截图表单字段基线一致；若步骤出现基线外字段、选项、按钮或配置项，判 high。若缺少基线但用例大量填写表单字段，判 high，不能用 few-shot 或历史用例替代。
 
 ## 输出 JSON

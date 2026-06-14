@@ -9,7 +9,7 @@ effort: medium
 
 # workspace-manage
 
-统一管理 kata 项目工作区：回答能力和菜单类提问，并确保创建、自检、收尾的产物都落在约定的目录边界内。
+统一管理 kata 项目工作区：回答能力和菜单类提问，确保创建、自检、收尾产物均落在约定目录边界内。
 
 ## 路由边界
 
@@ -22,7 +22,7 @@ effort: medium
 ## 工作流
 
 1. 能力和菜单类提问：按命令索引直接回答，不用改动工作区。
-2. 操作工作区前，先读 `references/project-layout.md` 弄清目录边界和写入位置，再创建、自检或收尾。
+2. 操作工作区前，先读 `references/project-layout.md` 明确目录边界和写入位置，再创建、自检或收尾。
 
 ## 何时加载哪个文件
 
@@ -33,4 +33,4 @@ effort: medium
 ## 必须遵守的规则
 
 - 生成的产物一律写入 `workspace/{project}/` 之下。
-- `workspace/{project}/.kata/repos/**` 是只读源仓库；要改动必须先取得用户明确确认，并在源仓库工作区内操作。
+- `workspace/{project}/.kata/repos/**` 是只读源仓库；如需改动，必须先取得用户明确确认，并在源仓库工作区中操作。

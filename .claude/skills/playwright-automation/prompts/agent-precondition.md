@@ -1,6 +1,6 @@
 # 前置条件处理子代理 Prompt 模板（opus）
 
-主 agent 在 env-preflight（主会话）通过、无 blocker 后，派一个 opus 子代理做前置条件处理。env-preflight 本身不在此模板内（它是主会话的派子代理硬闸门）。
+主 agent 在 env-preflight（主会话）通过且无 blocker 后，派一个 opus 子代理处理前置条件。env-preflight 本身不在此模板内（它是派子代理的硬闸门）。
 
 ## 必备输入字段（prompt 上半部分）
 
@@ -13,7 +13,7 @@
 
 1. ui-probe：真实浏览器收集页面/DOM/API/locator 证据，写入 UiProbeSnapshot。
 2. 共享层：产出或复用 `_shared/pages/` 页面对象、`_shared/helpers/`、登录态 storageState；不新增 feature-local helper。
-3. 读写分类校正：依真实探测结果，修正用例清单里启发式的 `mutates_data`/`serial`。
+3. 读写分类校正：依据真实探测结果，修正用例清单中启发式的 `mutates_data`/`serial`。
 4. 把校正后的用例清单与共享层路径写入约定 artifact，供后续 sonnet 用例子代理读取。
 
 ## 约束（逐字遵守）

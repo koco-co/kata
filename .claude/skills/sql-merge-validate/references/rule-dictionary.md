@@ -150,7 +150,7 @@ fn26(length_str) 实测在 monitor 4471 中 `merge_group_key` 非空（被合并
 
 ### 自定义 SQL 规则（is_custom=1）
 
-部分规则不走预定义统计函数，而是用户直接写校验 SQL（如 monitor 4471 rid13027、
+部分规则不走预定义统计函数，而由用户直接编写校验 SQL（如 monitor 4471 rid13027、
 4502 rid13144）。识别与判定：
 
 - DB 特征：`is_custom=1`，`function_id`/`column_name` 为 **NULL**（属预期，非缺数据），

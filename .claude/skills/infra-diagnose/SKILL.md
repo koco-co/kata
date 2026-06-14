@@ -9,7 +9,7 @@ effort: high
 
 # infra-diagnose
 
-收到数据源/服务器故障线索后，按这个顺序走：先查本地知识库，再 SSH 只读诊断定位根因，做破坏性修复前先确认，最后把结论写回知识库。
+收到数据源/服务器故障线索后，按以下顺序推进：先查本地知识库，再 SSH 只读诊断定位根因，执行破坏性修复前先确认，最后把结论写回知识库。
 
 ## 路由边界
 
@@ -34,14 +34,14 @@ effort: high
 
 ## 安全规则
 
-- 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；读不到时先用默认 `root` / `Abc!@#135` 尝试连接，仍失败再直接询问用户，获取后立即写回，下次同一主机不再重复询问。
+- 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；未命中时先用默认 `root` / `Abc!@#135` 尝试连接，仍失败则直接询问用户，获得后立即写回，下次同一主机不再重复询问。
 - JDBC URL（如 `jdbc:hive2://host:10000/`）仅解析主机与端口，其中不含账号密码，不得据此推测凭据。
-- SSH 统一使用 `SSHPASS=<pw> sshpass -e ssh ...`，密码通过环境变量传入，不写进 `ps` 可见的命令行，避免密码在进程列表中泄漏。
+- SSH 统一使用 `SSHPASS=<pw> sshpass -e ssh ...`，密码通过环境变量传入，不写进 `ps` 可见的命令行，避免密码在进程列表中泄露。
 - 只读诊断（`ping` / `nc` / `systemctl status` / `journalctl` / `ss` / `ps` 等）可自动执行。
 - 破坏性操作（重启服务 / 修改防火墙 / `kill` / 改配置）必须先将命令和影响告知用户，确认后再执行，执行后复测验证。
 
 ## 诊断规范
 
-- 根因必须有命令输出作为支撑，严格区分事实与推断；没有证据不臆造根因或责任人。
-- 只操作目标服务器和本地 `.kata/infra/`，不得改动 `.kata/repos/**` 源仓库。
+- 根因必须有命令输出作为支撑，严格区分事实与推断；无证据时不得臆造根因或责任人。
+- 仅操作目标服务器和本地 `.kata/infra/`，不得改动 `.kata/repos/**` 源仓库。
 - 知识条目写入 `workspace/{project}/.kata/infra/knowledge/`，凭据写入 `.kata/infra/credentials.yaml`；不写入 feature 目录。

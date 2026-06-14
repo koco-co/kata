@@ -15,14 +15,14 @@
 当 case-normalize 输出 `source_backed_bootstrap` 时：
 
 1. 先完成 env-preflight，并确认要用的 env profile；用户只给短提示、且 `ltqc-local.yaml` 存在时，askuser 默认推荐它。
-2. 确认环境后，才能读取当前目标 feature 目录下的 `prd.md` 与 `inputs/lanhu-snapshots/**`；其他 feature 的 PRD、截图、archive、tests 都不能读。
-3. `prd.md` 与截图只能产出 `case_claim` / `design_source`：用来推断页面入口、按钮文案、表单意图和最小 P0 自动化范围；不能把它们写成 observed UI 事实。
-4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并按用例步骤与预期规划真实覆盖：范围内每条用例的动作步骤都要落成真实页面动作，预期结果都要落成真实业务断言。哪怕走 bootstrap，也不能把计划缩成只验「页面可达 + 元素可见」的表层 runner。真实 UI probe 撑不起 PRD 里的深链路时，在 plan-reconcile 判 `blocked` 或 `needs_user_decision`，或者诚实排除（记入 `handoff.excluded_cases` + `reason_category` + 原因）；不能降级成弱断言，也不能用弱断言凑通过。
-5. 不能生成最终的 `archive.md` 或 `test-point-checklist.md`；Playwright 脚本的 SourceRef 必须指向 `prd.md` 或 `source_backed_bootstrap` intent，并在 handoff 里注明 case-draft 仍未完成。
+2. 确认环境后，才能读取当前目标 feature 目录下的 `prd.md` 与 `inputs/lanhu-snapshots/**`；其他 feature 的 PRD、截图、archive、tests 一律不得读。
+3. `prd.md` 与截图只能产出 `case_claim` / `design_source`：用来推断页面入口、按钮文案、表单意图和最小 P0 自动化范围；不得把它们写成 observed UI 事实。
+4. ui-plan 必须声明 `mode: source_backed_bootstrap`，并按用例步骤与预期规划真实覆盖：范围内每条用例的动作步骤都要落成真实页面动作，预期结果都要落成真实业务断言。即使走 bootstrap，也不得把计划缩成只验「页面可达 + 元素可见」的表层 runner。真实 UI probe 撑不起 PRD 中的深链路时，在 plan-reconcile 判 `blocked` 或 `needs_user_decision`，或诚实排除（记入 `handoff.excluded_cases` + `reason_category` + 原因）；不得降级为弱断言，也不得用弱断言凑通过。
+5. 不得生成最终的 `archive.md` 或 `test-point-checklist.md`；Playwright 脚本的 SourceRef 必须指向 `prd.md` 或 `source_backed_bootstrap` intent，并在 handoff 中注明 case-draft 仍未完成。
 
 ## UI 知识记录
 
-规划选择器、页面结构、站点域行为，以及踩到的坑，都要记进 knowledge 库。
+规划选择器、页面结构、站点域行为及踩过的坑，都要记入 knowledge 库。
 
 | 类型 | 识别信号 | 示例 |
 |---|---|---|
@@ -36,7 +36,7 @@
 硬约束：
 - 发现新的站点选择器模式时，先查知识库；已有匹配就不重复写入。
 - 调试 playwright 脚本时，选择器失败如果是 DOM 结构差异引起的，记成 `module` 类型写入 `sites/{domain}/`。
-- 站点级知识不能写进项目级 overview 或 terms。
+- 站点级知识不得写入项目级 overview 或 terms。
 
 ## dataAssets 前置条件计划
 

@@ -20,7 +20,7 @@
 
 ### 第二步：按分类表归类
 
-每条失败只能归入下面一个类别，不能多归也不能漏归：
+每条失败只能归入下面一个类别，不得多归也不得漏归：
 
 | 类别 | 识别信号 | 判断依据 | 处理方式 |
 |------|----------|----------|----------|
@@ -29,7 +29,7 @@
 | **data** | 测试数据不满足前置条件、数据库无记录、返回空列表、feature flag 未开启 | 检查 `automation/tests/data/` 下 fixture、确认数据表是否有记录、确认 feature toggle 状态 | 补充测试数据或 fixture |
 | **permission** | 403/401 响应、页面无权限提示、项目选择器为空 | 检查 storageState 是否过期、检查用户角色是否匹配 | 刷新 session 或标记为 permission blocker |
 | **environment** | 环境不可达、502/503、页面白屏、重定向到 login、API base URL 不对 | 直接访问 `base_url` 验证；检查 `env/*.yaml` 配置是否正确 | 标记为 env blocker |
-| **unknown** | 无法通过上述信号判断、错误消息无堆栈、偶发且不可复现 | 尝试复现 >=2 次；若每次失败点不同 | 标记为 unknown，附带复现证据 |
+| **unknown** | 无法通过上述信号判断、错误消息无堆栈、偶发且不可复现 | 尝试复现 >=2 次；若每次失败点不同 | 标记为 unknown，附上复现证据 |
 
 ### 第三步：排除弱失败
 
@@ -78,6 +78,6 @@ repair_eligible:
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
-- 不得不看实际错误类型，就把失败判定成 `test script error`。
+- 不得未看实际错误类型就把失败判定为 `test script error`。
 - 不得跳过 trace 或截图检查直接归类。
 - 不得为了进 repair-loop，把产品 bug 强行归成 script 错误。

@@ -30,13 +30,13 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 
 - `confidence: high` — 有 probe 截图 + locator 命中 + 文本/行为可机械比对。
 - `confidence: medium` — 有 probe 证据但需主观判断（如"模糊步骤"是否应改）。
-- `confidence: low` — 只根据失败原因推断，没有直接 UI 证据；照样产出，但默认建议人工先判定。
+- `confidence: low` — 仅根据失败原因推断，无直接 UI 证据；仍然产出，但默认建议人工先判定。
 
 ## 服务器侧操作缺口
 
 有时 archive 用例明确要求在服务器、pod、容器或 `localhost:<port>` 上执行 `curl`、脚本、调度任务等非浏览器操作。处理规则如下：
 
-- **不得语义降级**：不能仅因 Playwright UI 会话没有对应的操作通道，就将原步骤改成「已由运维或测试数据准备流程完成」之类的弱化版本。
+- **不得语义降级**：不得仅因 Playwright UI 会话没有对应操作通道，就将原步骤改成「已由运维或测试数据准备流程完成」之类的弱化版本。
 - **保留原语义，标注缺口**：在 handoff 或 case-corrections 中，将缺口写为「需要确认具体执行通道」，并附上可用线索（SSH 主机、Kubernetes namespace/pod、Kuboard 入口、端口映射或可调用的 oracle）。
 - **确认后再改写**：只有在用户明确确认该服务器侧操作不再需要，或产品流程已变更后，才可以提出改写 archive 的 `proposed_change`。
 
@@ -125,7 +125,7 @@ by_category:
 生成新 corrections 前，扫描该 feature 下所有历史 run-id：
 
 1. 已 `applied` 的条目（来自历史 `case-corrections-applied.md`）：按三元组 `(case_ref, doc_claim, proposed_change)` **直接过滤**，不再生成。
-2. 历史 `case-corrections.md` 里 `status: rejected` 的条目：按同一三元组**保留生成**，但在新条目里填上 `previously_rejected: <prev_run_id>` 提示。
+2. 历史 `case-corrections.md` 中 `status: rejected` 的条目：按同一三元组**保留生成**，但在新条目中填上 `previously_rejected: <prev_run_id>` 提示。
 3. 同一三元组若被 `rejected` 3 次或以上（统计全部历史 run）：视为终态噪音，新一轮直接过滤。
 
 ## 输出阈值

@@ -4,7 +4,7 @@
 
 进入 `playwright-generate` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
 
-进入本文件前，本轮 plan-reconcile 必须已完成，且 status 必须是 `aligned` 或 `plan_adjusted`。若 status 是 `blocked`、`blocked_by_ui_probe`、`needs_user_decision`，或 ui-probe 耗尽 3 次探测预算仍没确认核心 UI 事实，则禁止读本文件；万一已经误读，也要立即停下，不得检查或创建 tests、page object、runner 或“预自动化脚本”，直接回到 handoff 输出阻塞证据。
+进入本文件前，本轮 plan-reconcile 必须已完成，且 status 必须是 `aligned` 或 `plan_adjusted`。若 status 为 `blocked`、`blocked_by_ui_probe`、`needs_user_decision`，或 ui-probe 耗尽 3 次探测预算仍未确认核心 UI 事实，禁止读本文件；万一已误读，也须立即停止，不得检查或创建 tests、page object、runner 或”预自动化脚本”，直接回到 handoff 输出阻塞证据。
 
 ## 反向可追溯头（强制）
 
@@ -43,7 +43,7 @@
 ## 步骤与断言的真实性（强制）
 
 **必须做到**：
-- 每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落成真实的页面动作，一步都不能省略。
+- 每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落成真实页面动作，一步都不得省略。
 - 每条 `expected_visible_result` / 预期结果必须断言为真实的业务结果；多页面操作（导出/详情/新标签打开）必须用 popup 模式捕获新页面并断言。
 - 当前环境确实无法真实实现的用例，诚实阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category` 与原因）。
 
@@ -52,7 +52,7 @@
 - 把业务流程用例简化成「看菜单/字段/元素在不在」的表层测试。
 - 用表面通过敷衍不可实现的用例。
 
-> 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 这类强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole`>`getByLabel`/`getByPlaceholder`>`getByText`>`getByTestId`。**不得用 `page.route` mock 被测业务接口的返回来换断言通过。** 凡是 `@playwright/cli` codegen 出来的 locator 或代码片段，落 spec 前都要对照 ui-probe 证据重新验证，并改写成项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，落 spec 前须验证和改写。
+> 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 等强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole`>`getByLabel`/`getByPlaceholder`>`getByText`>`getByTestId`。**不得用 `page.route` mock 被测业务接口的返回来换取断言通过。** `@playwright/cli` codegen 产出的 locator 或代码片段，落 spec 前都须对照 ui-probe 证据重新验证，并改写为项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，落 spec 前须验证和改写。
 
 ## 生成与调试协议
 
@@ -84,18 +84,18 @@
    - 没有 runner 文件，或只有空的/带注释的 runner
    
    生成模式怎么做：
-   - 从 ui-probe 证据和 `cases/archive.md` 里提取 P0 用例；处于 `source_backed_bootstrap` 时，只能从当前目标 `prd.md` + ui-probe 证据里提取最小 P0 用例，并在代码头部用 `prd.md#source-backed-bootstrap`
+   - 从 ui-probe 证据和 `cases/archive.md` 中提取 P0 用例；处于 `source_backed_bootstrap` 时，只能从当前目标 `prd.md` + ui-probe 证据中提取最小 P0 用例，并在代码头部用 `prd.md#source-backed-bootstrap`
    - 先写 `automation/tests/runners/smoke.spec.ts` + `full.spec.ts`（仅 import）
    - 再写 `automation/tests/cases/t01-{slug}.ts`
    - 按 RED → GREEN 节律逐个验证
 
 ### 模式防范：storageState 路径污染
 
-生成 case 文件时，**禁止拿在别的 feature 里看到的 root-level auth session 当 storageState 路径**。
+生成 case 文件时，**禁止拿在别的 feature 中看到的 root-level auth session 当 storageState 路径**。
 
-怎么发现路径污染：
-- 老的 feature case 文件曾用过错误的 root-level auth session（少了 `workspace/{project}/.kata/auth/` 前缀）
-- 参考现有 feature 的写法时，必须用当前 env profile 的正确 session 路径
+如何发现路径污染：
+- 旧 feature case 文件曾用过错误的 root-level auth session（缺少 `workspace/{project}/.kata/auth/` 前缀）
+- 参考现有 feature 写法时，必须用当前 env profile 的正确 session 路径
 - 正确路径：repo-root 相对的 `workspace/{project}/.kata/auth/{project}/session-{env}.json`，并通过当前 env profile 的 `auth.session_path` 引用。
 
 ```bash
@@ -107,10 +107,10 @@ grep -c "workspace/.*/.kata/auth/.*/session-" automation/tests/cases/*.ts 2>/dev
 ### 目录与 runner 约束
 
 - feature 自动化必须遵循 `automation/tests/{cases,runners,data,unit,.debug}` 结构；共享页面对象和 helper 只能放在 `workspace/<project>/_shared/pages/` 或 `workspace/<project>/_shared/helpers/`。
-- `automation/tests/runners/smoke.spec.ts` 与 `automation/tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写进 runner。
-- P0/P1 的具体用例写进 `automation/tests/cases/t{nn}-{slug}.ts`，共享页面对象写进 `_shared/pages/`，共享接口/模板解析 helper 写进 `_shared/helpers/`。
-- 新生成的脚本不得只交付 smoke；必须同时给出 full runner。若 full 因产品或环境阻塞而覆盖不了深链路，必须在 handoff 里写明阻塞分类和已运行的命令。
-- **串行标注**：有共享状态、有创建-校验-删除链路、或依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称里带 `@serial` 标签（`scripts/run-tests-notify.ts` 的 two-phase runner 会把这类用例挑出来，强制 `workers=1` 串行跑，避免数据互污）。case 之间用 `beforeEach`/`afterEach` 干净地恢复前置态，不依赖执行顺序。
+- `automation/tests/runners/smoke.spec.ts` 与 `automation/tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写入 runner。
+- P0/P1 的具体用例写入 `automation/tests/cases/t{nn}-{slug}.ts`，共享页面对象写入 `_shared/pages/`，共享接口/模板解析 helper 写入 `_shared/helpers/`。
+- 新生成的脚本不得只交付 smoke；必须同时给出 full runner。若 full 因产品或环境阻塞而覆盖不了深链路，必须在 handoff 中写明阻塞分类和已运行的命令。
+- **串行标注**：有共享状态、有创建-校验-删除链路、或依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称中带 `@serial` 标签（`scripts/run-tests-notify.ts` 的 two-phase runner 会把此类用例挑出来，强制 `workers=1` 串行跑，避免数据互污）。case 之间用 `beforeEach`/`afterEach` 干净地恢复前置态，不依赖执行顺序。
 
 ### RED -> GREEN 节律
 
@@ -122,7 +122,7 @@ grep -c "workspace/.*/.kata/auth/.*/session-" automation/tests/cases/*.ts 2>/dev
 
 ### 等待策略（代替 waitForTimeout）
 
-RED→GREEN 节律里的等待条件，必须用下面这些可靠写法，禁止拿固定延时 `waitForTimeout` 当等待条件：
+RED→GREEN 节律中的等待条件，必须用以下可靠写法，禁止拿固定延时 `waitForTimeout` 当等待条件：
 
 | 场景 | 正确方式 | 禁止方式 |
 |------|----------|----------|
@@ -138,17 +138,17 @@ RED→GREEN 节律里的等待条件，必须用下面这些可靠写法，禁�
 - 等浏览器渲染帧完成（`waitForTimeout(100)` + 注释说明）
 - 其他无法用 Promise 事件替代的极少数情况
 
-在别的任何场景把 `waitForTimeout` 当主要等待策略，都算质量检查项违规。
+其他场景将 `waitForTimeout` 作为主要等待策略，均视为质量检查项违规。
 
 ### 升级（问用户）前置检查清单
 
 升级条件：P0 case 失败、自修 >=2 轮仍无效时，停下来问用户。
 
-升级前必须完成全部检查，并把结果写进提问消息：
+升级前必须完成全部检查，并把结果写入提问消息：
 - [ ] 已读 spec 完整源码
 - [ ] 已对当前 case 用 `--list` + headless 至少各跑 1 次，附上错误输出片段
-- [ ] 已检查 `workspace/{project}/.kata/auth/` 的 storage state 在不在、有没有过期
-- [ ] 已比对 baseline case 的 selector/等待/fixture 写法，说明本 case 哪里偏了
+- [ ] 已检查 `workspace/{project}/.kata/auth/` 的 storage state 是否存在、是否过期
+- [ ] 已比对 baseline case 的 selector/等待/fixture 写法，说明本 case 偏差所在
 - [ ] 已判定失败类型（selector/数据/时序/环境/真 bug），并说清判断依据
 - [ ] 已列出主会话管不了的外部依赖（后端服务/测试账号/数据准备/网络）
 
@@ -158,7 +158,7 @@ RED→GREEN 节律里的等待条件，必须用下面这些可靠写法，禁�
 |------|------|
 | `bun test` / `playwright test` 不带文件参数全量重跑做调试 | 浪费时间，丢失失败信号 |
 | 只生成或只运行 `smoke.spec.ts` 就交付端到端自动化 | smoke 只能证明基座，不能证明 full 回归入口可运行 |
-| 把测试主体直接写进 `automation/tests/runners/full.spec.ts` / `smoke.spec.ts` | runners 是聚合入口；测试体应在 cases/ |
+| 把测试主体直接写入 `automation/tests/runners/full.spec.ts` / `smoke.spec.ts` | runners 只做聚合入口；测试体应在 cases/ |
 | 用 `?.[0] ?? []` 或 `if (x)` 守卫替换失败的断言 | 测试永远 pass，掩盖真 bug |
 | `page.waitForTimeout(N)` 代替等待特定 UI 条件 | 固定延时不可靠，应等待元素可见、网络空闲或特定响应；仅在触发动画/过渡时必须使用，且需注释说明原因 |
 | 覆写未读过的已有 spec 文件 | 可能丢失上一会话的调试成果或人工修正 |
@@ -166,7 +166,7 @@ RED→GREEN 节律里的等待条件，必须用下面这些可靠写法，禁�
 | `--headless` 模式无声调试 | 用户无法协助排查 selector/时序问题 |
 | 跑通全部 case 后一次性 commit | 失败时回滚困难；进度对用户不可见 |
 | 未完成环境探测就声称「环境不可用」 | 抽象判断不构成升级条件 |
-| 给用户的选项里包含不确定语（需核对/待确认） | 选项 = 已 ready 的决策点 |
+| 给用户的选项中包含不确定语（需核对/待确认） | 选项 = 已 ready 的决策点 |
 
 ## UI 知识记录
 
@@ -180,7 +180,7 @@ kata knowledge-curate read-pitfall --project {{project}} --query "selector"
 
 硬约束：
 - 发现新的站点选择器模式时，先查知识库；已有匹配就不重复写入
-- 站点级知识不得写进项目级 overview 或 terms
+- 站点级知识不得纳入项目级 overview 或 terms
 
 ## page object 位置（强制）
 

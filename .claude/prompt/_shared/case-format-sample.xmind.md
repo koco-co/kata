@@ -3,9 +3,9 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
 格式规范以 .claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot 为准。
 配套的 md fewshot 见 ./case-format-sample.md。
 
-为什么用 ASCII 树状而非真 .xmind：
+为何用 ASCII 树状而非真 .xmind：
 - 真 .xmind 是 zip + JSON，模型只能看到压缩后的 JSON 文本，结构反而被掩盖；
-- 此处用 ASCII 树状直白展示「md 表格 → xmind topic 父子链」「priority marker」「notes 与裸 SQL」三套映射规则。
+- ASCII 树状可直观展示「md 表格 → xmind topic 父子链」「priority marker」「notes 与裸 SQL」三套映射规则。
 -->
 
 ## 映射对照表
@@ -133,11 +133,11 @@ priority marker 对照：
 
 ## 易错点（违例示例 → 正确写法）
 
-1. 把 `<br>` 留在 xmind topic title 里
+1. 把 `<br>` 留在 xmind topic title 中
    - ❌ `选择数据源: SparkThrift2.x<br>- 选择数据库: ${SchemaA}`
    - ✅ topic title 内换行用真实 `\n`，`<br>` 仅在 md 表格单元格内出现。
 
-2. 单 topic title 堆 3+ 个 「...」 引号项
+2. 单 topic title 堆叠 3+ 个 「...」 引号项
    - ❌ `校验「字段」「统计函数」「过滤条件」`
    - ✅ 拆成多行或拆 child topic。
 
