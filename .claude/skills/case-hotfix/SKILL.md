@@ -41,4 +41,7 @@ effort: medium
 ## 证据与交付
 
 - 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则作为支撑。仅来自历史用例或规则时，须在 `source_refs.json` 中标明来源和未验证边界，不得当作本次真实探测结果。
-- 证据分层：`archive.md` 只保留人类可读的用例内容（不含任何 SourceRef 引用）；SourceRefs 只写入本 hotfix 目录内的 `source_refs.json`；原始抓取证据只存放于本目录 `.temp/`，不写入仓库根 `workspace/.temp`，也不写入 `.kata`。
+- 证据分层：
+  - `archive.md` 只保留人类可读的用例内容，不含任何 SourceRef 引用。
+  - SourceRefs 只写入本 hotfix 目录内的 `source_refs.json`。
+  - 原始抓取证据只存放于本目录 `.temp/`，不写入仓库根 `workspace/.temp`，也不写入 `.kata`。

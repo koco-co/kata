@@ -37,7 +37,8 @@ effort: high
 - 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；读不到时先用默认 `root` / `Abc!@#135` 尝试连接，仍失败再直接询问用户，获取后立即写回，下次同一主机不再重复询问。
 - JDBC URL（如 `jdbc:hive2://host:10000/`）仅解析主机与端口，其中不含账号密码，不得据此推测凭据。
 - SSH 统一使用 `SSHPASS=<pw> sshpass -e ssh ...`，密码通过环境变量传入，不写进 `ps` 可见的命令行，避免密码在进程列表中泄漏。
-- 只读诊断（`ping` / `nc` / `systemctl status` / `journalctl` / `ss` / `ps` 等）可自动执行；破坏性操作（重启服务 / 修改防火墙 / `kill` / 改配置）必须先将命令和影响告知用户，确认后再执行，执行后需复测验证。
+- 只读诊断（`ping` / `nc` / `systemctl status` / `journalctl` / `ss` / `ps` 等）可自动执行。
+- 破坏性操作（重启服务 / 修改防火墙 / `kill` / 改配置）必须先将命令和影响告知用户，确认后再执行，执行后复测验证。
 
 ## 诊断规范
 

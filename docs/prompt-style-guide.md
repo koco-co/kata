@@ -109,7 +109,7 @@ kata 的提示词大多来自 Codex 自我迭代，没经过人工校读就合�
 
 - **R8 触发词与正文同词**：若某个词既是 `description` 触发词（`description` 因白名单不能改），正文就保持同一个词，不能只改一边，否则触发线索与正文术语会断裂。
 
-- **R9 lint 行数上限不许破**：`SKILL.md ≤300`、`references ≤260`、`phases ≤260`。`cli-essentials.md`（251/260）只能等行或减行改写。
+- **R9 lint 行数上限不许破**：`SKILL.md ≤500`、`references ≤260`、`phases ≤260`。`cli-essentials.md`（251/260）只能等行或减行改写。
 
 - **R10 同源重复块要同步**：`routing-guard.md` ↔ `CLAUDE.md` 的路由节、`project-workflow-rules.md` ↔ `git-workflow.md` ↔ `CLAUDE.md`、`infra-diagnose/SKILL.md` ↔ `ssh-protocol.md`、各 fewshot 副本——改一处就必须同步改所有副本，语义与关键术语对齐，避免措辞分叉。
 

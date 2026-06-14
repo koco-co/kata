@@ -73,7 +73,7 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
      npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' \
      --output="$RUN_PATH/playwright"
    ```
-   > allure 落点由 config 里带 `outputFolder` 的 reporter 决定，经 `KATA_ALLURE_RESULTS_DIR` 收敛到
+   > allure 落点由 config 里带 `outputFolder` 的 reporter 决定，经 `KATA_ALLURE_RESULTS_DIR` 统一到
    > `$RUN_PATH/allure-results`，和 `playwright/` 同在本次 run 目录，`kata results publish` 才能一并发布。
    > 不要在 CLI 用 `--reporter` 指定 allure：CLI 无法附带 `outputFolder`，allure 会退回默认 `./allure-results`（仓库根）。
 3. 测试退出后，按 `PlaywrightAutomationHandoff@2` schema 写 `$RUN_PATH/handoff.json`。`run_command` 记本次实际跑的命令；`acceptance_command` 记带 `full.spec.ts` 和 `--headed` 的有头全量验收命令。

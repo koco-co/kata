@@ -80,5 +80,5 @@ probe_evidence_ref: SR-UI-PROBE-001
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
 - 没看到 UI 证据，不得声称 `aligned`。
-- 出现差异时，不得强行对齐到文档而盖掉 UI 的事实。
+- 出现差异时，不得为了迁就文档而盖掉 UI 的事实。
 - 状态已是 `blocked` / `blocked_by_ui_probe` / `needs_user_decision` 时，不得再生成 Playwright 脚本或创建任何测试文件。
