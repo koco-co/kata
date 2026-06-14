@@ -26,7 +26,7 @@ allowed-tools: Bash(kata *)
 
 1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir，featureId 写 metadata.yaml#id。
 2. **historical-context / requirement-atomize / case-draft**：这三阶段按 `prompts/agent-worker.md` 分配 Worker 执行重度任务；Worker 以 Status/BlockedEnvelope 回传结果，遇到阻塞不直接询问用户。
-3. **case-review → output**：spec review（主会话，`prompts/agent-spec-reviewer.md`）通过后派 quality review（fresh subagent，`prompts/agent-quality-reviewer.md`）；blocking pending 清零后才生成 cases/archive.md / cases/cases.xmind。
+3. **case-review → output**：spec review（主会话，`prompts/agent-spec-reviewer.md`）通过后派 quality review（fresh subagent，`prompts/agent-quality-reviewer.md`）；blocking pending 清零后生成 cases/archive.md，再运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind` 产出 XMind。
 
 ## 何时加载哪个文件
 
@@ -50,7 +50,7 @@ allowed-tools: Bash(kata *)
 
 ## 交付约束
 
-- `blocking pending` 未清零时，只能产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md` 与 `cases/cases.xmind`。
+- `blocking pending` 未清零时，只能产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind-gen` 产出 `cases/cases.xmind`。
 - 产物落盘后、交付前，运行 `kata cases lint --scope <featureDir> --exit-code` 和 `kata cases validate --project <project> --feature-id <featureId>`，修复所有 violation 后再进入 review。
 - `metadata.yaml#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。
 

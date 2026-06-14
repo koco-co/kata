@@ -1,15 +1,17 @@
 <!--
-用例级节点格式 fewshot：仅供 case-draft / case-edit 参考用例节点格式，不作需求事实来源。
+用例级节点格式 fewshot：仅供 case-draft / case-edit 参考用例内容写法，不作需求事实来源。
 取材自 workspace/dataAssets/features/2099-01-lt-dq-main-flow/tmp/lt-dq-main-flow-sample.md。
-格式规范以 .claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot 为准。
 
-格式速查（看完此条 P0 用例即可掌握所有要点）：
-- 标题：【Pn】+ 验证动词 + 验证对象【业务括号】+ 验证场景
-- 前置条件：> 前置条件 + ```sql 块（顶部 /* ... */ 多行注释说明环境与目的；可执行 SQL；SELECT 末尾 -- 预期结果：N）
-- 步骤表格：| 编号 | 步骤 | 预期 |，步骤=「动作 + 冒号 + <br>- 配置列表」，预期=「1) 2) 编号断言」
-- 占位符：数据库/Schema 用 ${SchemaA} 等；不得硬编码租户库名
+渲染格式（标题层级 ##### 【Pn】、前置条件代码块、步骤表格 | 编号 | 步骤 | 预期 |、
+  frontmatter 字段、XMind topic 镜像与 priority marker）由 `kata archive-gen` 和
+  `kata xmind-gen` 编码；不需手写格式框架，只需提供结构化内容。
+
+以下内容规则不在 CLI 里，必须人工遵守：
+- 标题三段式：验证动词 + 验证对象 + 验证场景
+- 前置 SQL 顶部 /* ... */ 多行注释说明环境与目的；SELECT 末尾 -- 预期结果：N
+- 占位符：数据库/Schema 用 ${SchemaA}；不得硬编码租户库名
 - 业务括号：UI/字段用「」；优先级与业务对象用【】
-- 步骤=单页面：监控规则 / 调度属性等不同页面动作必须拆成不同行
+- 步骤=单页面：不同页面动作拆成不同步骤行
 - 规则描述等描述字段必填，预期需验证保存+回显
 -->
 
