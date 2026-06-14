@@ -31,9 +31,12 @@ Archive Markdown 与 XMind 必须从同一用例模型生成/更新；逐字段�
 
 ## 产物变更后检查
 
-QA 产物编辑后执行以下专项检查：
-- 用例数量和优先级分布
-- Markdown/XMind 一致性
-- XMind 标记分布
-- 过期术语/菜单名称残留
-- 相关模块的领域规则扫描
+QA 产物编辑后，先运行机械校验再做人工审查：
+
+1. 运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再继续。
+2. 人工审查以下维度（CLI 不覆盖）：
+   - 用例数量和优先级分布
+   - Markdown/XMind 一致性
+   - XMind 标记分布
+   - 过期术语/菜单名称残留
+   - 相关模块的领域规则扫描

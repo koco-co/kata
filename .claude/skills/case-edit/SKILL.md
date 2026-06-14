@@ -41,4 +41,5 @@ effort: medium
 
 ## 交付自审
 
-- 交付前自审 Archive 与 XMind 的用例数量、优先级、标题、前置条件、步骤、预期结果，确保完全一致；细则见 `references/archive-xmind-sync.md`。自动发现不一致，不留给用户人工核对。
+- 交付前先运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再做人工自审。
+- 自审 Archive 与 XMind 的用例数量、优先级、标题、前置条件、步骤、预期结果，确保完全一致；细则见 `references/archive-xmind-sync.md`。自动发现不一致，不留给用户人工核对。
