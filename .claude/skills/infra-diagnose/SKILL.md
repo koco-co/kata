@@ -20,9 +20,25 @@ effort: high
 
 ## 工作流
 
-1. 先按报错关键词、主机、端口检索 `.kata/infra/knowledge/`；命中既有条目就优先复用它的方案。
-2. 没命中：读 `references/diagnostic-playbook.md`，按报错类型分步做只读诊断；SSH 规约见 `references/ssh-protocol.md`。
-3. 定位根因或修复完成后，按 `references/knowledge-format.md` 把知识条目写回，下次遇到同类问题可以直接复用。
+```mermaid
+flowchart TD
+    A[数据源或服务器报错] --> B{知识库命中?}
+    B -->|命中| C[复用既有方案]
+    B -->|未命中| D[读 playbook，SSH 只读诊断]
+    D --> E{定位根因?}
+    E -->|否，继续探查| D
+    E -->|是| F{需破坏性修复?}
+    C --> F
+    F -->|只读即可解| G[执行修复]
+    F -->|破坏性| H[告知命令与影响，用户确认]
+    H --> I[执行后复测验证]
+    G --> J[按格式写回知识库]
+    I --> J
+```
+
+1. **查知识库**：按报错关键词、主机、端口检索 `.kata/infra/knowledge/`；命中既有条目就优先复用它的方案，省去重复排查。
+2. **只读诊断**：没命中时读 `references/diagnostic-playbook.md`，按报错类型分步做只读诊断；SSH 规约见 `references/ssh-protocol.md`。
+3. **写回**：定位根因或修复完成后，按 `references/knowledge-format.md` 把知识条目写回，下次遇到同类问题可以直接复用。
 
 ## 何时加载哪个文件
 

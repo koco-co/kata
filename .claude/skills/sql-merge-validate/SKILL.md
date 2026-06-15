@@ -13,6 +13,18 @@ effort: high
 
 ## 工作流
 
+```mermaid
+flowchart TD
+    A[monitorId 或落标任务 id + 合并预期] --> B[取参 AskUser：模式 dq 或 std，凭据，DB]
+    B --> C[跑校验 run.py，得 verdict JSON]
+    C --> D[语义复核：占比 val 与 expansion，condition，have_dirty]
+    D --> E[终端报告：逐包 8 维矩阵 + FAIL 证据]
+    E --> F{有 FAIL 或 finding?}
+    F -->|是| G[AskUser → 转 defect-analyze 生成 bug]
+    F -->|否| H[结束：仅终端 PASS，不落盘]
+    G --> H
+```
+
 1. **取参（AskUser）**：模式（dq/std）、任务标识、baseUrl+cookie+X-Valid-Project-ID（dq）、
    DB host/port/user/pass（默认 172.16.124.100:30882 / root，口令仅运行期传入、不落仓库），可选预期描述。
 2. **跑校验**：`python3 scripts/run.py --mode <dq|std> --task-id <id> --host <h> --password <p> [--base --cookie --project-id]`
@@ -26,7 +38,14 @@ effort: high
 
 ## 合并判定规则
 
-- 是否合并以 DB `merge_group_key` 为准：key 非空且组内≥2 即「应合并」，空 key 即「应独立」。
+```mermaid
+flowchart LR
+    K[DB merge_group_key] --> Q{非空且组内≥2?}
+    Q -->|是| M[应合并]
+    Q -->|否，空 key 或单条| I[应独立]
+```
+
+- 判定基准是 DB `merge_group_key`，具体阈值见上图。
 - 文档白名单只用于发现「合并了规格外 function」（如 fn26）的 globalFindings，不左右 ①② 的 PASS/FAIL。
 - 抽样：扫抽样表与脏数据 `rand()` 是独立信号；不可合并包可能扫抽样表却无 rand，不据此判 FAIL。
 

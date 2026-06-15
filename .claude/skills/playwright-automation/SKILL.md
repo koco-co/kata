@@ -26,7 +26,23 @@ allowed-tools: Bash(kata *)
 
 ## 阶段流程（顺序推进，逐 phase 加载对应文件，前序通过才进下一阶段）
 
-case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile → playwright-generate → self-run → run-triage → repair-loop → quality-gate → handoff（可选 case-feedback）。
+```mermaid
+flowchart TD
+    CN[§1 case-normalize] --> EP[§2 env-preflight]
+    EP -->|blocked 或缺基线| HO[§11 handoff]
+    EP --> UP[§3 ui-plan]
+    UP --> PB[§4 ui-probe]
+    PB --> RC[§5 plan-reconcile]
+    RC --> GE[§6 playwright-generate]
+    GE --> SR[§7 self-run]
+    SR --> RT[§8 run-triage]
+    RT -->|通过| QG[§10 quality-gate]
+    RT -->|失败| RL[§9 repair-loop]
+    RL -->|重试，每 spec ≤3 次| SR
+    RL -->|修复耗尽| HO
+    QG --> HO
+    HO -.可选.-> CF[§12 case-feedback]
+```
 
 | Phase                  | 文件                             | 简介                                                              |
 | ---------------------- | -------------------------------- | ----------------------------------------------------------------- |
@@ -42,8 +58,6 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 | §10 quality-gate       | phases/§10-quality-gate.md       | 脚本结构、断言、session、handoff 等 15 项检查项                   |
 | §11 handoff            | phases/§11-handoff.md            | 通过/阻塞/部分/修复耗尽的最终交付报告                             |
 | §12 case-feedback      | phases/§12-case-feedback.md      | 生成 case-corrections（8 类 category、3 级 confidence、跨轮去重） |
-
-> 可视化编排：env-preflight 通过后，主 agent 按 `references/execution-protocol.md` 建「前置条件处理 + 逐用例任务（标题=用例标题）+ 汇总」任务列表；前置派 opus 子代理、用例派 sonnet 子代理，失败动态新增修复任务，限并发并行。
 
 ## 何时加载哪个文件
 
@@ -64,7 +78,7 @@ case-normalize → env-preflight → ui-plan → ui-probe → plan-reconcile →
 
 ## 进度可见性
 
-- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 分配 opus 子代理，plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题），主 agent 只做编排，不直接执行具体任务；二阶段评审集中在汇总环节。
+- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 分配 opus 子代理，plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题）；主 agent 只做编排、不直接执行具体任务，失败时动态新增修复任务、限并发并行，二阶段评审集中在汇总环节。
 - **静默模式**：env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度——不派执行子代理、不建 TodoWrite。
 - env-preflight 的权限拒绝、session 探测、登录态补充，以及 `no_permission` / `tool_permission_denied` 模板，严格遵循 `phases/§2-env-preflight.md`。
 
