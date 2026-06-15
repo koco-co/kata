@@ -9,7 +9,7 @@ effort: medium
 
 # knowledge-curate
 
-查询与维护项目业务知识：把业务事实、规则、术语记录到 `workspace/{project}/_shared/knowledge/`，查询时引用证据。
+查询与维护项目业务知识，分两种模式：**查询**时检索知识库并引用证据 ID，**记录**时把业务事实、规则、术语按分类落盘到 `workspace/{project}/_shared/knowledge/`。
 
 ## 路由边界
 
@@ -31,6 +31,6 @@ effort: medium
 
 ## 存储规范
 
-- 业务知识存放于 `workspace/{project}/_shared/knowledge/**`，项目规则存放于 `workspace/{project}/_shared/rules/**`。两者分仓存放，不得混写。
-- 未明确选定项目前，不得跨项目编辑知识。
-- 查询结果必须引用知识条目 SourceRef ID；无证据支撑的根因和事实不得写入。
+- 业务知识存放于 `workspace/{project}/_shared/knowledge/**`，项目规则存放于 `workspace/{project}/_shared/rules/**`。两者分仓存放、不得混写，免得事实与编写约束互相污染。
+- 未明确选定项目前，不得跨项目编辑知识，避免把一个项目的事实写进另一个项目的库。
+- 写入知识库的事实、根因都必须有来源支撑；无证据支撑的内容不得记入（查询时的引用规则见上方工作流）。

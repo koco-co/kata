@@ -21,6 +21,21 @@ effort: medium
 
 ## 三种模式（工作流）
 
+```mermaid
+flowchart TD
+    I[输入] --> R{输入类型?}
+    R -->|异常堆栈、console、HTTP 失败| BUG[bug 模式：组装 BugReport JSON]
+    R -->|带冲突标记的文本| CON[conflict 模式：组装 ConflictReport JSON]
+    R -->|diff、分支对、变更集| DIFF[diff 模式：子代理静态扫描]
+    BUG --> BR[kata defect-report render-bug]
+    CON --> CR[kata defect-report render-conflict]
+    DIFF --> DR[kata scan-report]
+    BR --> H[report.html]
+    CR --> H
+    DR --> H
+    H -. 仅 bug 模式 .-> Z[推送禅道]
+```
+
 - `bug`：收到异常堆栈、控制台报错、HTTP 失败等可复现 bug 证据，先组装 BugReport JSON，再用 `kata defect-report render-bug`（仅 zentao variant）产出 `report.html`。
 - `conflict`：收到带合并冲突标记的文本，先组装 ConflictReport JSON，再用 `kata defect-report render-conflict` 产出 `report.html`。
 - `diff`：需对仓库 diff、分支对或变更文件集做静态扫描时，新开一个 general-purpose 子代理执行扫描，再经 `kata scan-report` 产出 `report.html`。
@@ -39,14 +54,30 @@ effort: medium
 
 ## 产物
 
-- bug 模式 → `report.html`（bug-report zentao 模版；根因、evidence_refs、impacted_areas 都编入 JSON）。
-- diff 模式 → `report.html`（scan-report 模版，含根因、evidence_refs、impacted_areas）。
-- conflict 模式 → `report.html`（conflict-report 模版，含 side_a / side_b 与 resolution_plan）。
-- 报告写入 `workspace/{project}/_shared/archive/reports/`，不写入 feature 目录。
+三种模式都产出 `report.html`，差异在模板与编入 JSON 的内容：
+
+| 模式 | 模板 | 编入 JSON 的内容 |
+| --- | --- | --- |
+| bug | bug-report zentao | 根因、evidence_refs、impacted_areas |
+| diff | scan-report | 根因、evidence_refs、impacted_areas |
+| conflict | conflict-report | side_a / side_b、resolution_plan |
+
+报告写入 `workspace/{project}/_shared/archive/reports/`，不写入 feature 目录。
 
 ## 推送禅道（仅 bug 模式）
 
 bug 模式产出 `report.html` 后按节点推进，输出仅走固定模板，不得夹带无关内容：
+
+```mermaid
+flowchart TD
+    A[report.html 已生成] --> Q{AskUser 推送禅道?}
+    Q -->|否| E[结束，不做任何禅道写操作]
+    Q -->|是| B[落盘 BugReport JSON，执行 create.ts]
+    B --> P{解析命令输出}
+    P -->|ok true 且有 url| S[回显成功模板：地址 + 标题]
+    P -->|ok true 仅 note| N[回显 note，提示去禅道按标题核对]
+    P -->|ok false| F[回一行简明原因，不编造]
+```
 
 1. 用 AskUserQuestion 询问「是否推送禅道创建 bug？」（推荐「是」）。选「否」即结束，不做任何禅道写操作。
 2. 选「是」→ 将 BugReport JSON 落盘，执行 `bun run .claude/plugins/zentao/create.ts --json <BugReport.json>`（产品、指派人向林、severity 映射等取插件 yaml；正文复用 zentao variant）。
