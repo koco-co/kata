@@ -13,7 +13,7 @@
 
 | Skill | 当前稳定产物 | 条件与边界 |
 | --- | --- | --- |
-| `case-draft` | `archive.md`、`cases.xmind`、`metadata.yaml`、`manifest.json` | blocking pending 非零时只输出确认/草稿类产物。 |
+| `case-draft` | `archive.md`、`cases.xmind`、`metadata.yaml` | blocking pending 非零时只输出确认/草稿类产物。 |
 | `case-edit` | `archive`、`xmind` | CSV 可以作为输入或转换目标出现，不强制输出 CSV。 |
 | `case-hotfix` | `archive`、`notes` | 目录内保留一个 `archive.md`、必要 JSON 文件和 `.temp/`；`archive.md` 禁止 SourceRef 字符串，SourceRefs 写入 `source_refs.json`。 |
 
