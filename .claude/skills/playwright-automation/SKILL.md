@@ -22,7 +22,11 @@ allowed-tools: Bash(kata *)
 
 ## 环境确认（先于一切探测）
 
-用户没有明确给出 env profile 时，先静默启动环境确认：用 AskUserQuestion 一次性问清环境，默认推荐 `ltqc-local.yaml` 置顶并附上理由，确认之前保持静默。AskUserQuestion 不可用时，输出固定的兜底文案（首行为 `请确认执行环境。`）。用户已明确给出 profile，或回复「确认」，就直接执行 env-preflight。
+按以下分支处理，确认环境前保持静默：
+
+- **未给出 env profile**：用 AskUserQuestion 一次性问清环境，默认推荐项 `ltqc-local.yaml` 置顶并附理由。
+- **AskUserQuestion 不可用**：输出固定兜底文案（首行为 `请确认执行环境。`）。
+- **已给出 profile 或回复「确认」**：直接执行 env-preflight。
 
 ## 阶段流程（顺序推进，逐 phase 加载对应文件，前序通过才进下一阶段）
 
@@ -78,7 +82,9 @@ flowchart TD
 
 ## 进度可见性
 
-- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表——`前置条件处理` 分配 opus 子代理，plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题）；主 agent 只做编排、不直接执行具体任务，失败时动态新增修复任务、限并发并行，二阶段评审集中在汇总环节。
+- **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表：
+  - `前置条件处理` 分配 opus 子代理；plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题）。
+  - 主 agent 只做编排、不直接执行具体任务；失败时动态新增修复任务、限并发并行，二阶段评审集中在汇总环节。
 - **静默模式**：env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度——不派执行子代理、不建 TodoWrite。
 - env-preflight 的权限拒绝、session 探测、登录态补充，以及 `no_permission` / `tool_permission_denied` 模板，严格遵循 `phases/§2-env-preflight.md`。
 
