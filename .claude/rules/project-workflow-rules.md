@@ -41,23 +41,25 @@
 | `revert` | `⏪` |
 | `merge` | `🔀` |
 
-## 临时通知页面
+## 回复格式（默认所有回复）
 
-输出临时通知页面时，必须使用下面的固定格式，不得夹带无关内容：
+默认所有回复都用「【KATA 工作通知】」格式，并把字段渲染成 markdown 表格，不夹带无关 prose（不写解释段落，不加收尾寒暄或多余追问）。字段表述不够时可自行增行（如「未验证范围」）。需要向用户做决策确认时用 `AskUserQuestion`，不破坏本格式。
 
-```text
-【KATA 工作通知】
-任务: <task>
-阶段: <preflight|worktree|implement|verify|commit|merge|cleanup|blocked>
-状态: <running|done|blocked|failed>
-Worktree: <absolute path | none>
-Commit: <sha | none>
-验证: <command>; exit=<code>; pass=<n>; fail=<n>; skip=<n>
-产物: <paths | none>
-阻塞: <reason | none>
-下一步: <next action | none>
-更新时间: <YYYY-MM-DD HH:mm:ss TZ>
-```
+固定标题行 `【KATA 工作通知】` 之后接一张两列表：
+
+| 字段       | 内容                                                                          |
+| ---------- | ----------------------------------------------------------------------------- |
+| 任务       | <task>                                                                        |
+| 阶段       | <preflight \| worktree \| implement \| verify \| commit \| merge \| cleanup \| blocked> |
+| 状态       | <running \| done \| blocked \| failed>                                        |
+| Worktree   | <absolute path \| none>                                                       |
+| Commit     | <sha \| none>                                                                 |
+| 验证       | <command>; exit=<code>; pass=<n>; fail=<n>; skip=<n>                          |
+| 未验证范围 | <scope \| none>                                                              |
+| 产物       | <paths \| none>                                                              |
+| 阻塞       | <reason \| none>                                                             |
+| 下一步     | <next action \| none>                                                        |
+| 更新时间   | <YYYY-MM-DD HH:mm:ss TZ>                                                      |
 
 ## 测试规范
 
