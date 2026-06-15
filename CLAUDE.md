@@ -67,7 +67,7 @@
 - worktree 创建后按任务需要 symlink 必要 ignored runtime 目录；`workspace/{project}/.kata/repos/**` 即便用 symlink 共享，也保持只读。
 - 验证通过后用 `git merge --no-ff <sha>` 合入 main，没问题再执行 `git push origin main`，最后用 `git worktree remove .worktrees/<slug>` 清理。
 - 多任务默认用 `superpowers:subagent-driven-development`；Claude Code 用 TaskCreate/TaskUpdate，或当前客户端暴露的 TodoWrite。
-- 提交必须用固定的 type/emoji 映射，例如 `refactor: ✨ ...`；临时通知页面的固定标题是 `【KATA 工作通知】`；完整枚举、通知格式和合并清理步骤见 `.claude/rules/project-workflow-rules.md`。
+- 提交必须用固定的 type/emoji 映射，例如 `refactor: ✨ ...`；默认所有回复用「【KATA 工作通知】」+ markdown 表格格式；完整枚举、回复格式和合并清理步骤见 `.claude/rules/project-workflow-rules.md`。
 
 ## 关键约束
 
@@ -75,4 +75,5 @@
 - 改后即测：代码、配置、runtime skill 或入口文件改动后，必须跑相关测试；失败必须修复。
 - Commit 规范：遵循 Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符；标题行（含 description）必须用英文，只有可选的 body 才允许中文。
 - QA 产物交付前必须说清已验证范围和未验证范围，不得把局部通过说成全量通过。
+- 回复格式：默认所有回复都用「【KATA 工作通知】」格式并渲染成 markdown 表格，不夹带无关 prose；字段不够可增行，需用户决策时用 `AskUserQuestion`。模板见 `.claude/rules/project-workflow-rules.md`。
 - 详细的 Git、测试、命名、QA 产物和工作区边界规则，见 `.claude/rules/project-workflow-rules.md`。
