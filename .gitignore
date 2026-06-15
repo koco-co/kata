@@ -32,3 +32,4 @@ dist/
 
 # Local agent tooling (not part of kata, kept local-only)
 reasonix.toml
+.codegraph/
