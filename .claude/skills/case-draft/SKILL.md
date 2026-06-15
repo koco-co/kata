@@ -71,7 +71,16 @@ flowchart TD
 - 证据分层：`cases/archive.md` / `cases/archive.draft.md` / `cases/cases.xmind` 正文只保留人类可读用例内容；SourceRef 标识（`SR-`、`csv::`、SourceRef 字符串）只存储在结构化数据层，不得出现在展示文本中。
 - 用例与证据的对照关系用 `case_id` 与 `requirement_atom_ids` 核对，不得用单一字段组合充当唯一键——单字段组合容易撞键，无法把证据精确对应到用例。
 - `history_inferred` 仅作为参考证据，新增行为一律以产品反馈为准。
-- 落盘位置：archive.md、cases.xmind、confirmation-package.md、unresolved-summary.md 等用例产物存放于 `cases/` 子目录；metadata.yaml 存放于 feature 根目录；source-snapshot.json、coverage-matrix.json 等过程与证据产物存放于 `.process/` 子目录。清单与字段细则见 `.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-qa.md`（共享引用）。
+
+落盘位置（产物 → 目录）：
+
+| 产物                                                                                | 落盘目录          |
+| ----------------------------------------------------------------------------------- | ----------------- |
+| `archive.md`、`cases.xmind`、`confirmation-package.md`、`unresolved-summary.md` 等用例产物 | `cases/` 子目录   |
+| `metadata.yaml`                                                                      | feature 根目录    |
+| `source-snapshot.json`、`coverage-matrix.json` 等过程与证据产物                       | `.process/` 子目录 |
+
+清单与字段细则见 `.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-qa.md`（共享引用）。
 
 ## 交付约束
 
