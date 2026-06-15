@@ -5,7 +5,7 @@
 ## 凭据来源（按优先级）
 
 1. **本地凭据库** `.kata/infra/credentials.yaml`：按 host 查找已记录的 `username`/`password`/`port`。
-2. **默认凭据**：未命中时先用 `root` / `Abc!@#135` 试连。
+2. **本地默认配置**：未命中时读不入库的默认凭据（环境变量 `KATA_INFRA_DEFAULT_USER` / `KATA_INFRA_DEFAULT_PASSWORD`，放 `.env.local` 或用户级配置）试连；未配置则跳过此步。本文件与仓库内不写任何明文口令。
 3. **询问用户**：默认凭据仍失败（鉴权错误）时，直接问用户该主机的用户名/密码（或非默认端口）。凭据是自由文本，普通追问即可，不必套 AskUserQuestion 选项。
    - 获得后**立即写回** `.kata/infra/credentials.yaml`，下次同一主机不再询问。
 
@@ -15,9 +15,9 @@ JDBC URL（如 `jdbc:hive2://host:10000/`）仅用于解析主机与端口，**�
 
 ```yaml
 hosts:
-  172.16.124.114:
-    username: root
-    password: "Abc!@#135"
+  <host-ip>:
+    username: <username>
+    password: "<password>"
     port: 22
     note: 可选备注，如所属环境/集群
 ```

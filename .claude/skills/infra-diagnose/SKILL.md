@@ -50,7 +50,7 @@ flowchart TD
 
 ## 安全规则
 
-- 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；未命中时先用默认 `root` / `Abc!@#135` 尝试连接，仍失败则直接询问用户，获得后立即写回，下次同一主机不再重复询问。
+- 凭据按 host 从 `.kata/infra/credentials.yaml` 读取；未命中时读不入库的本地默认配置（环境变量 `KATA_INFRA_DEFAULT_USER` / `KATA_INFRA_DEFAULT_PASSWORD`，放 `.env.local` 或用户级配置）试连，未配置则跳过这一步；仍失败则直接询问用户，获得后立即写回 `.kata/infra/credentials.yaml`，下次同一主机不再重复询问。runtime skill 正文与仓库内不写任何明文口令。
 - JDBC URL（如 `jdbc:hive2://host:10000/`）仅解析主机与端口，其中不含账号密码，不得据此推测凭据。
 - SSH 统一使用 `SSHPASS=<pw> sshpass -e ssh ...`，密码通过环境变量传入，不写进 `ps` 可见的命令行，避免密码在进程列表中泄露。
 - 只读诊断（`ping` / `nc` / `systemctl status` / `journalctl` / `ss` / `ps` 等）可自动执行。
