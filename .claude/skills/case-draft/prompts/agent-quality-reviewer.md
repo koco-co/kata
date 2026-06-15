@@ -69,15 +69,15 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
     {
       "severity": "high | medium | low",
       "category": "step_completeness | title_quality | coverage_quality | consistency | usability",
-      "where": "artifact path and precise case_id/section/table row when available",
-      "evidence": "content-quality evidence, not mechanical schema evidence",
-      "fix_hint": "minimal content-quality fix"
+      "where": "产物路径 + 精确到 case_id/小节/表格行（可得时）",
+      "evidence": "内容质量证据，而非机械 schema 证据",
+      "fix_hint": "最小的内容质量修复建议"
     }
   ],
   "out_of_scope": [
     {
       "where": "check or artifact",
-      "reason": "why hard rules, forbidden paths, product judgement, or spec-reviewer scope excludes it"
+      "reason": "为什么硬规则、禁止路径、产品判断或 spec-reviewer 职责把它排除在外"
     }
   ]
 }

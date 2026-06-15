@@ -5,7 +5,7 @@
 ## 硬规则优先
 
 - 先加载当前 `SKILL.md` 的硬规则。下方某项检查与硬规则冲突时，记入 `out_of_scope`，不计 `issues`。
-- Lanhu/Axure error-fallback 规则依然有效：`confirmation-package.md` 与 `unresolved-summary.md` 按 fallback 约定本身就允许包含 SourceRef、`SR-`、URL 与检索记录，不要对这两个文件套用交付正文的泄漏检查。
+- Lanhu/Axure error-fallback 规则依然有效：`cases/confirmation-package.md` 与 `cases/unresolved-summary.md` 按 fallback 约定本身就允许包含 SourceRef、`SR-`、URL 与检索记录，不要对这两个文件套用交付正文的泄漏检查。
 - 只做机械检查。需要产品判断的关注点，归入 `out_of_scope` 并写明理由。
 
 ## SourceRef 分层检查
