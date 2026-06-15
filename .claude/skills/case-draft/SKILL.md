@@ -25,6 +25,26 @@ Lanhu/Axure URL-only 输入：从第一条消息起全程静默执行 source-int
 
 ## 工作流
 
+```mermaid
+flowchart TD
+    SRC["需求源：Lanhu/Axure URL、PRD、截图、描述"] --> Q0{"仅 Lanhu/Axure URL?"}
+    Q0 -->|是| SILENT["静默执行：不播报，仅阻塞两行或最终交付"]
+    Q0 -->|否| VIS["TodoWrite 建可见阶段进度"]
+    SILENT --> MI["module-identify：features resolve → featureDir"]
+    VIS --> MI
+    MI --> W["Worker 三阶段：historical-context → requirement-atomize → case-draft"]
+    W -->|缺证据 BlockedEnvelope| BK["阻塞：写 unresolved-summary.md，不直接问用户"]
+    W --> GATE["闸门：kata cases lint + validate，修完再审"]
+    GATE --> SR{"spec review 主会话"}
+    SR -->|不过| W
+    SR -->|过| QR{"quality review fresh 子代理"}
+    QR -->|不过| W
+    QR -->|过| BP{"blocking pending 清零?"}
+    BP -->|否| DRAFT["只出 draft / confirmation / unresolved 产物"]
+    BP -->|是| AR["cases/archive.md"]
+    AR --> XM["kata xmind-gen → cases/cases.xmind"]
+```
+
 非静默路径用 TodoWrite 建可见阶段进度，逐阶段推进：
 
 1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir；featureId 写入 metadata.yaml#id。
