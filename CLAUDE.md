@@ -59,7 +59,7 @@
 
 - 敏感环境变量放 `.env.local` 或用户级配置，不要写进项目入口文档。
 - 常用变量名：`KATA_ZENTAO_PASSWORD`、`KATA_LANHU_COOKIE`、`KATA_LANHU_PASSWORD`、`KATA_TARGET_ENV`、`KATA_INFRA_DEFAULT_USER`、`KATA_INFRA_DEFAULT_PASSWORD`。
-- 详细日志：`KATA_DEBUG=true kata <command>`。
+- 详细日志：`KATA_LOG_LEVEL=debug kata <command>`（兼容旧写法 `LOG_LEVEL=debug`）。
 
 ## 代码变动请求标准流程
 

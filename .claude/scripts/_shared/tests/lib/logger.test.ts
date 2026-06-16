@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
 
 afterEach(() => {
+  delete process.env.KATA_LOG_LEVEL;
   delete process.env.LOG_LEVEL;
 });
 
@@ -27,6 +28,25 @@ describe("logger", () => {
     const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
     process.env.LOG_LEVEL = "error";
+    initLogLevel();
+    expect(getLogLevel()).toBe("error");
+    setLogLevel("info");
+  });
+
+  it("initLogLevel applies KATA_LOG_LEVEL env var", async () => {
+    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
+    setLogLevel("info");
+    process.env.KATA_LOG_LEVEL = "error";
+    initLogLevel();
+    expect(getLogLevel()).toBe("error");
+    setLogLevel("info");
+  });
+
+  it("initLogLevel prefers KATA_LOG_LEVEL over bare LOG_LEVEL", async () => {
+    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
+    setLogLevel("info");
+    process.env.KATA_LOG_LEVEL = "error";
+    process.env.LOG_LEVEL = "debug";
     initLogLevel();
     expect(getLogLevel()).toBe("error");
     setLogLevel("info");
