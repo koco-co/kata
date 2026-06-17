@@ -1,6 +1,6 @@
 ---
 name: case-hotfix
-description: 拿到 bug ID、ZenTao bug URL（zenpms.dtstack.cn/bug-view-NNN.html）、issue URL、缺陷描述或修复说明，产出聚焦修复路径、可直接执行的单条 hotfix 回归用例（archive.md）。仅发送 bug-view-NNN URL 或 bug ID 即可直接触发，无需附带文字说明。要基于失败证据写通用 bug 报告请转至 defect-analyze；依完整 PRD 产用例请转至 case-draft。
+description: 拿到 bug ID、ZenTao bug URL（zenpms.dtstack.cn/zentao/bug-view-NNN.html）、缺陷描述或修复说明，产出聚焦修复路径、可直接执行的单条 hotfix 回归用例（archive.md）。仅发送 bug-view-NNN URL 或 bug ID 即可直接触发，无需附带文字说明。要基于失败证据写通用 bug 报告请转至 defect-analyze；依完整 PRD 产用例请转至 case-draft。
 argument-hint: "<ZenTao bug URL | bug-view-NNN | bug ID>"
 user-invocable: true
 model: sonnet
