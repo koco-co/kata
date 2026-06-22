@@ -1,0 +1,53 @@
+schema: FeatureMetadata@2
+id: 【v700】【16019】【岚图汽车】【数据质量】json格式校验导出支持勾选导出
+feature_id: 2026-06-dq-json-export-checkbox
+display_name: 【v700】【16019】【岚图汽车】【数据质量】json格式校验，导出支持勾选导出
+status: active
+created_at: 2026-06-22
+updated_at: 2026-06-22
+modules:
+  - dq
+customers:
+  - ltqc
+versions:
+  - v7.0.0
+owners: []
+inputs:
+  - kind: lanhu
+    ref: "https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&versionId=7e921087-1a63-4fae-b3a8-db7f29d7a673&docId=6e513ee1-fb7f-4e60-897a-21af81c65aba&docType=axure&pageId=9e9d97261f8f4c689afabf0de6f14904"
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: false
+case_drafting:
+  status: completed
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  coverage_matrix_path: null
+  requirement_atoms:
+    - id: RA-001
+      source_ref: "prd#需求内容"
+      title: json格式校验管理列表支持勾选指定行后导出
+      ambiguity_class: none
+      confidence: high
+    - id: RA-002
+      source_ref: "prd#导出文件列结构"
+      title: 勾选导出文件含 key/中文名称/value格式/数据源类型/创建人/创建时间/更新人/更新时间/层级关系/父Key 列
+      ambiguity_class: low
+      confidence: medium
+    - id: RA-003
+      source_ref: "prd#交互"
+      title: 勾选列表行后点击导出，仅导出已勾选行
+      ambiguity_class: none
+      confidence: high
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind
+  tests_root: null
+  latest_results: null
