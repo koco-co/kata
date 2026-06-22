@@ -255,8 +255,14 @@ export function archiveToJson(
   const resolvedVersion =
     version ?? (typeof fm.prd_version === "string" ? fm.prd_version : undefined);
 
-  // Resolve project name: frontmatter root_name > CLI --project
-  const resolvedProject = typeof fm.root_name === "string" ? fm.root_name : projectName;
+  // Resolve project name (root 标题里的产品线段):
+  // frontmatter product_line（只定产品线段，仍套迭代用例模板）> root_name（整体覆盖根标题）> CLI --project
+  const resolvedProject =
+    typeof fm.product_line === "string"
+      ? fm.product_line
+      : typeof fm.root_name === "string"
+        ? fm.root_name
+        : projectName;
 
   const modules = parseArchiveBody(body);
 

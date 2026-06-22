@@ -289,7 +289,8 @@ export async function createXmind(
   if (l1Labels.length > 0) {
     l1 = l1.labels(l1Labels);
   }
-  const root = RootTopic(rootTitle).children([l1]);
+  // sheet 名（XMind 左下角画布标签）默认取根节点标题，避免空白
+  const root = RootTopic(rootTitle).children([l1]).sheetTitle(rootTitle);
   const wb = Workbook(root);
   // 库自带的 writeLocalFile 内部不 await writeFile，落盘前就 resolve，
   // 紧接着 applyFoldingToFile 读回会撞上空文件；这里自己同步写盘绕开竞态。
