@@ -569,4 +569,129 @@ describe("kata cases validate", () => {
       rmSync(scratch, { recursive: true, force: true });
     }
   });
+
+  // ─── Feature 定位（@2 两级布局 + _standing + 中文目录名/slug 双向匹配）───
+
+  function v2Meta(opts: { id: string; featureId?: string }) {
+    return stringifyYaml({
+      schema: "FeatureMetadata@2",
+      id: opts.id,
+      ...(opts.featureId ? { feature_id: opts.featureId } : {}),
+      display_name: opts.id,
+      status: "active",
+      created_at: "2026-06-22",
+      updated_at: "2026-06-22",
+      modules: ["dq"],
+      customers: [],
+      versions: [],
+      owners: [],
+      inputs: [],
+      relates_to: [],
+      emits: {},
+      case_drafting: { status: "completed" },
+      automation: { status: "not-started", intents: [], last_run_status: "not-run" },
+      files: {},
+    });
+  }
+
+  it("locates a version-subdir feature with a CJK dirName by metadata.feature_id (slug)", async () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-validate-loc-"));
+    try {
+      const dirName = "【v700】【浙商证券】【数据质量】StarRocks3.x数据源支持";
+      const featureDir = join(scratch, "dataAssets/features/v7.0.0", dirName);
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
+      writeFileSync(
+        join(featureDir, "metadata.yaml"),
+        v2Meta({ id: dirName, featureId: "2026-06-dq-starrocks3x" }),
+      );
+
+      const result = await runCasesValidate({
+        project: "dataAssets",
+        featureId: "2026-06-dq-starrocks3x",
+        workspaceRoot: scratch,
+        checkSourceRefs: [],
+      });
+      expect(result.issues.map((i) => i.rule)).not.toContain("feature_not_found");
+      expect(result.ok).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("locates a version-subdir feature by its on-disk CJK dirName", async () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-validate-loc-"));
+    try {
+      const dirName = "【v700】【浙商证券】【数据质量】StarRocks3.x数据源支持";
+      const featureDir = join(scratch, "dataAssets/features/v7.0.0", dirName);
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
+      writeFileSync(
+        join(featureDir, "metadata.yaml"),
+        v2Meta({ id: dirName, featureId: "2026-06-dq-starrocks3x" }),
+      );
+
+      const result = await runCasesValidate({
+        project: "dataAssets",
+        featureId: dirName,
+        workspaceRoot: scratch,
+        checkSourceRefs: [],
+      });
+      expect(result.issues.map((i) => i.rule)).not.toContain("feature_not_found");
+      expect(result.ok).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("locates a feature under _standing by slug", async () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-validate-loc-"));
+    try {
+      const dirName = "2026-06-standing-demo";
+      const featureDir = join(scratch, "dataAssets/features/_standing", dirName);
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
+      writeFileSync(
+        join(featureDir, "metadata.yaml"),
+        v2Meta({ id: dirName, featureId: "2026-06-standing-slug" }),
+      );
+
+      const result = await runCasesValidate({
+        project: "dataAssets",
+        featureId: "2026-06-standing-slug",
+        workspaceRoot: scratch,
+        checkSourceRefs: [],
+      });
+      expect(result.issues.map((i) => i.rule)).not.toContain("feature_not_found");
+      expect(result.ok).toBe(true);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("still reports feature_not_found for an unknown slug across all layers", async () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-validate-loc-"));
+    try {
+      const featureDir = join(scratch, "dataAssets/features/v7.0.0/【v700】only");
+      mkdirSync(join(featureDir, "cases"), { recursive: true });
+      writeFileSync(join(featureDir, "metadata.yaml"), v2Meta({ id: "【v700】only" }));
+
+      const result = await runCasesValidate({
+        project: "dataAssets",
+        featureId: "2026-06-does-not-exist",
+        workspaceRoot: scratch,
+        checkSourceRefs: [],
+      });
+      expect(result.ok).toBe(false);
+      expect(result.issues.map((i) => i.rule)).toContain("feature_not_found");
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("defaults --check-source-refs to empty (opt-in), not prd.file,lanhu.fixture", () => {
+    const out = execSync(
+      `bun ${join(repoRoot(), ".claude/scripts/_shared/bin/kata")} cases validate --help`,
+      { encoding: "utf-8" },
+    );
+    expect(out).toContain("--check-source-refs");
+    expect(out).not.toContain("prd.file,lanhu.fixture");
+  });
 });
