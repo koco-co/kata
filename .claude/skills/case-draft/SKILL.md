@@ -56,7 +56,7 @@ flowchart TD
 
 非静默路径用 TodoWrite 建可见阶段进度，逐阶段推进：
 
-1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> [--lanhu-page <pageId>] --json`，取返回的 featureDir；featureId 写入 metadata.yaml#id。
+1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> --feature-version <vX.Y.Z> [--lanhu-page <pageId>] --json`，取返回的 featureDir；featureId 写入 metadata.yaml#id。**漏传 `--feature-version` 会落 `features/_standing/`（长期主流程/冒烟区）；版本类需求必须显式传，版本号由 CLI 按 `VERSION_DIR_RE`（v6.4.11 式）归一化、模型不得自拼，未知时先 `AskUserQuestion` 确认再 resolve。**
 2. **historical-context / requirement-atomize / case-draft**：这三阶段派 Worker 执行繁重处理（加载哪个文件见下方表）；Worker 以 Status/BlockedEnvelope 回传结果，遇到阻塞不直接询问用户。
 3. **case-review → output**：spec review（主会话）通过后派 quality review（fresh subagent）；blocking pending 清零后生成 cases/archive.md，再运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind` 产出 XMind。
 
@@ -91,14 +91,19 @@ flowchart TD
 
 清单与字段细则见 `.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-qa.md`（共享引用）。
 
+## 事实字段：严禁编造，缺失即阻塞
+
+`suite_name`（需求名）、`case_id`/`prd_id`（ZenTao 需求 id）、`prd_version`（客户平台/开发分支版本）、目标版本目录（`--feature-version`）是需向用户/ZenTao 确认的**外部事实**，不是可自由填的格式字段——它们会渲染进 xmind 可见节点或决定归类。任一字段无 SourceRef/用户明示时，主会话必须用 `AskUserQuestion` 一次性批量索要（推荐项置顶并附理由），严禁编造编号、自创需求名、拿 basename/迭代号/目录版本等默认值兜底后产出 `cases/archive.md` / `cases/cases.xmind`。字段→xmind 渲染映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`。
+
 ## 交付约束
 
 - `blocking pending` 未清零时，只允许产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind-gen` 产出 `cases/cases.xmind`。
 - 产物落盘后、交付前，运行 `kata cases lint --scope <featureDir> --exit-code` 和 `kata cases validate <featureId> --project <project>`，修复所有 violation 后再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在 lint 本可发现的问题上。
 - `metadata.yaml#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。
+- 生成 `cases/archive.md` 后、产 `cases.xmind` 前，必须回读核对：实际用例数（`grep -c '^##### '`）须等于 frontmatter `case_count`；产 xmind 后回读根节点版本段、各二级节点标题与 `(#N)` label，与 module-identify 阶段确认的需求名/需求 id/版本基线逐字比对，任一不符先修正再交付。
 
 ## 表单用例规则
 
 - 用户提供源码、平台 DOM/YAML、环境配置或截图作为表单证据时，这些证据必须进入必读集。
 - 生成表单用例前必须先建立「表单字段基线」，不得写入基线之外的字段、选项或按钮。QA 需按实际文案逐字核对——写入基线外的字段、选项会让用例与真实表单脱节，执行时对不上，等于失真。
-- 表单证据不可读时，用 `AskUserQuestion` 一次性批量索要缺口（推荐项置顶并附理由）；不得凭历史记录、few-shot 或模板补齐后产出最终 `cases/archive.md` / `cases/cases.xmind`。
+- 表单证据不可读时，或「事实字段」小节列出的外部事实字段缺证据时，用 `AskUserQuestion` 一次性批量索要缺口（推荐项置顶并附理由）；不得凭历史记录、few-shot 或模板补齐后产出最终 `cases/archive.md` / `cases/cases.xmind`。

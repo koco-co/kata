@@ -74,6 +74,13 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
 
 用户请求、source-snapshot 或 requirement atoms 提到要以源码、平台 DOM/YAML、环境 YAML 或截图作为表单用例的必读参照时，机械检查最终用例是否带有对应的 repo.line/workspace.config/screenshot 证据，或一份抽取出来的表单字段基线。表单步骤里有字段 label、选项、按钮或配置项却没有基线 → 报 `kind: "missing_form_baseline"`；某步骤用到了明确不在基线内的字段或选项 → 报 `kind: "unsupported_form_field"`。
 
+## 事实字段与计数核对
+
+`suite_name`、`case_id`/`prd_id`、`prd_version` 是渲染进 xmind 可见节点的外部事实字段（映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`）：
+
+- 这些字段已写入 `cases/archive.md` / `cases/cases.xmind`，却在 `metadata.yaml` 的 `source_refs`、requirement atoms 或用户确认记录中找不到对应依据（疑似编造、自创需求名、拿迭代号或目录版本充 `prd_version`、用文件名 basename 充 `suite_name`）→ 报 `kind: "unconfirmed_external_fact"`。
+- `cases/archive.md` 实际用例数（`##### ` 行计数）与 frontmatter `case_count` 不一致 → 报 `kind: "structural"`。
+
 ## 输出格式
 
 只返回 JSON：
@@ -83,7 +90,7 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
   "spec_review_status": "pass | fail",
   "issues": [
     {
-      "kind": "sourceref_leaked_in_md | atom_missing | caseid_mismatch | blocking_pending | history_misclassified | structural",
+      "kind": "sourceref_leaked_in_md | atom_missing | caseid_mismatch | blocking_pending | history_misclassified | structural | unconfirmed_external_fact",
       "where": "产物路径 + 精确到字段或小节",
       "fix_hint": "最小的机械修复建议"
     }
