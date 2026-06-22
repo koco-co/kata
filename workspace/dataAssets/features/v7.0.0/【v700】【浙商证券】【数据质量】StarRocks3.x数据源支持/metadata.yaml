@@ -1,0 +1,90 @@
+schema: FeatureMetadata@2
+id: 【v700】【浙商证券】【数据质量】StarRocks3.x数据源支持
+display_name: 【202606】【浙商证券】【数据质量】StarRocks 3.x 数据源支持
+status: active
+created_at: 2026-06-22
+updated_at: 2026-06-22
+modules:
+  - dq
+customers:
+  - zheshang
+versions:
+  - v7.0.0
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: false
+feature_id: 2026-06-dq-starrocks3x
+# 需求环境信息：客户平台版本 6.0；本需求为 v7.0.0 迭代交付，开发分支 6.0_浙商证券定制化分支
+customer_platform_version: "6.0"
+dev_branch: "6.0_浙商证券定制化分支"
+starrocks_version: "3.3.18"
+lanhu_page_id: f2e6ada9fe694ad6b91b8874c0d0e97f
+case_drafting:
+  status: completed
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  coverage_matrix_path: null
+  source_refs:
+    - id: SR-001
+      kind: history_case
+      path: workspace/dataAssets/features/v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3/cases/archive.md
+      note: Doris3 适配用例（袋鼠云标品），StarRocks 与 Doris 共祖，SQL DDL 结构一致，用作主参考模板
+    - id: SR-002
+      kind: history_case
+      path: workspace/dataAssets/features/v6.4.9/【v649】【袋鼠云】【数据质量】v63主流程用例/cases/archive.md
+      note: 袋鼠云数据质量 v6.3 主流程用例，覆盖概览/项目管理/质量报告结构参考
+    - id: SR-003
+      kind: requirement_text
+      path: null
+      note: 需求描述：v7.0.0 迭代，数据质量模块支持 StarRocks 3.x（客户平台 6.0，数据源 3.3.18），涉及平台管理-质量项目授权、数据质量-概览/规则任务配置/任务实例查询/质量报告/项目管理
+  requirement_atoms:
+    - id: RA-001
+      source_ref: SR-003
+      evidence_kind: requirement_text
+      ambiguity_class: none
+      confidence: high
+      description: 平台管理-质量项目授权：StarRocks 3.x 数据源可被引入并授权给质量项目
+    - id: RA-002
+      source_ref: SR-001
+      evidence_kind: history_case
+      ambiguity_class: low
+      confidence: high
+      description: 数据质量-概览（总览）：StarRocks 3.x 数据源的规则任务统计数据在总览页面正确显示
+    - id: RA-003
+      source_ref: SR-001
+      evidence_kind: history_case
+      ambiguity_class: low
+      confidence: high
+      description: 数据质量-规则任务配置：可针对 StarRocks 3.x 数据源配置规则任务（完整性/唯一性/有效性/自定义SQL/规则集），立即执行与周期调度均正常
+    - id: RA-004
+      source_ref: SR-001
+      evidence_kind: history_case
+      ambiguity_class: low
+      confidence: high
+      description: 数据质量-任务实例查询：StarRocks 3.x 数据源的规则任务实例可被查询，状态流转正常
+    - id: RA-005
+      source_ref: SR-001
+      evidence_kind: history_case
+      ambiguity_class: low
+      confidence: high
+      description: 数据质量-质量报告：StarRocks 3.x 数据源的规则任务运行后自动生成质量报告，报告内容正常
+    - id: RA-006
+      source_ref: SR-002
+      evidence_kind: history_case
+      ambiguity_class: low
+      confidence: medium
+      description: 数据质量-项目管理：StarRocks 3.x 数据源关联的质量项目脏数据管理功能正常
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind
+  tests_root: automation/tests/
+  latest_results: null
