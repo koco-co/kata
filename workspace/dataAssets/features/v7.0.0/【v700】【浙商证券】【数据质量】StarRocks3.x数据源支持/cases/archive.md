@@ -12,7 +12,7 @@ tags:
   - "任务实例查询"
   - "质量报告"
   - "项目管理"
-prd_version: "6.0_浙商证券"
+prd_version: "7.0.0"
 dev_version:
   - "浙商证券"
 create_at: "2026-06-22"
