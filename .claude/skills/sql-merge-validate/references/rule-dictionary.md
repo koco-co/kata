@@ -139,14 +139,9 @@ fn4/fn6/fn13/fn14/fn15/fn49：
 
 ### fn26 已确认可合并
 
-fn26(length_str) 实测在 monitor 4471 中 `merge_group_key` 非空（被合并）；经用户确认其
-属同族字符串长度类（与 max_len(16)、min_len(17) 同质），本就是可合并函数，技术方案
-§5.2.1 原文漏列。
+fn26(length_str) 可合并的判定、`DOC_WHITELIST` 补列与 whitelist_divergence 抑制，见 `merge-rules.md` §2（单一事实源）。
 
-- 结论：**文档漏列**，非实现误合。
-- common.py 中 `DOC_WHITELIST` 已补入 fn26（`{...,25,26,30,49}`）。
-- 校验脚本不再对 fn26 的 `merge_group_key` 非空抛 whitelist_divergence finding。
-- 实测分组：money(强规则,s2) 进强组、address(弱规则,s1) 进弱组，按强弱正确拆包。
+- 实测强弱拆包：money(强规则,s2) 进强组、address(弱规则,s1) 进弱组，按强弱正确拆包。
 
 ### 自定义 SQL 规则（is_custom=1）
 

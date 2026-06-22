@@ -37,15 +37,12 @@ cookie: {cookie_string}
 2. 检查 `workspace/dataAssets/features/` 下是否有匹配目录：
    - 给了完整路径前缀 → 直接定位
    - 只给名称时，先抽 2-6 个标题关键词，用带 `-g` 限定的内容搜索。
-   - 示例：`rg -n "内置规则丰富|合理性|单表|字段值|计算关系|字段值的计算关系对比" workspace/dataAssets/features -g "metadata.yaml" -g "cases/archive.md" -g "prd.md"`。
-   - 在搜索结果中按标题精确度挑命中目录；除非用户明确点了该目录名，否则不得优先选 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录。
-   - 若某目录的 `prd.md` 或 `metadata.yaml` 命中行中含有用户标题的核心连续短语，该目录即为唯一精确目标。
-   - 核心连续短语示例：`【内置规则丰富】合理性，单表，字段值的计算关系对比` 或 `15529【内置规则丰富】合理性，单表，字段值的计算关系对比`。
-   - 不得选只匹配「单表/字段值/对比」这类泛化词的历史 archive 目录。
-   - 对于输入 `【内置规则丰富】合理性，单表，字段值的计算关系对比`，必须选择 `workspace/dataAssets/features/<version>/【v…】【数据质量】内置规则丰富-合理性/`，不得选择历史目录如 `workspace/dataAssets/features/<version>/【v…】【数据质量】单表字段值对比/`。
-   - 禁止用 `ls workspace/dataAssets/features/ | head`、`ls ... | grep`、`ls -t ...`、`find workspace/dataAssets/features` 或 Glob 枚举目录名来定位需求
+   - 禁止用 `ls`/`find`/Glob 枚举 `features/` 目录名来定位需求，只用带 `-g` 的 `rg` 内容搜索。
+   - 示例：`rg -n "内置规则丰富|合理性|字段值的计算关系对比" workspace/dataAssets/features -g "metadata.yaml" -g "cases/archive.md" -g "prd.md"`。
+   - 按标题精确度挑命中目录：某目录 `prd.md`/`metadata.yaml` 命中行含用户标题的核心连续短语（如 `【内置规则丰富】合理性，单表，字段值的计算关系对比`），该目录即唯一精确目标。
+   - 不得选只匹配「单表/字段值/对比」这类泛化词的历史 archive 目录；除非用户明确点名，不得优先选 `unresolved-*` 或历史 `unresolved--*` 阻塞草稿目录。
 3. 读取目标需求目录下的文件结构：
-   - 只检查当前需求目录下的 `cases/archive.md`、`cases/test-point-checklist.md`、`prd.md`、`inputs/lanhu-snapshots/` 是否存在；`prd.md` 与 `inputs/lanhu-snapshots/` 的 source-backed 判断只能用精确路径存在性检查（如 `test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`），不得读 `prd.md` 正文或截图内容，不得 `ls`/Glob/find/read `inputs/`、`inputs/lanhu-snapshots/**`，也不得枚举截图文件名
+   - 只检查当前需求目录下的 `cases/archive.md`、`cases/test-point-checklist.md`、`prd.md`、`inputs/lanhu-snapshots/` 是否存在；`prd.md` 与 `inputs/lanhu-snapshots/` 的 source-backed 判断只能用精确路径存在性检查（如 `test -f <target>/prd.md`、`test -d <target>/inputs/lanhu-snapshots`），不得读 `prd.md` 正文或截图内容，不得枚举 `inputs/`、`inputs/lanhu-snapshots/**` 或截图文件名（枚举禁令同上）
    - 读 `metadata.yaml`，看 `case_drafting.status` 与 `automation.status`
    - 读 `automation/tests/cases/`、`automation/tests/runners/`，看已有自动化；发现 feature-local helper 目录时，只记成迁移问题或质量检查项，不得复用或扩展
    - **禁止**批量读取 `workspace/dataAssets/features/` 下其他历史 feature 目录

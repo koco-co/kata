@@ -11,14 +11,7 @@
 - XMind priority marker 分布符合预期。
 - 旧术语、旧菜单名或用户指定的替换项没有残留。
 
-用例级节点渲染格式（标题层级、前置条件代码块、步骤表格、XMind topic 镜像与 priority marker）由 `kata archive-gen` 和 `kata xmind-gen` 编码。以下内容规则不在 CLI 中，以 `.claude/prompt/_shared/case-qa.md` 与 `.claude/prompt/_shared/case-format-sample.md` 为准：
-
-- 标题三段式与括号语义；
-- 前置条件 SQL 注释块写法；
-- `${SchemaA}` 占位符；
-- 数据质量「规则集 → 规则任务」前置链；
-- 分区切换正负样本规则；
-- 规则描述必填。
+用例级节点渲染格式（标题层级、前置条件代码块、步骤表格、XMind topic 镜像与 priority marker）由 `kata archive-gen` 和 `kata xmind-gen` 编码。内容规则（标题三段式、SQL 注释块、`${SchemaA}` 占位符、DQ 前置链、分区正负样本等）以 `.claude/prompt/_shared/case-qa.md` 与 `.claude/prompt/_shared/case-format-sample.md` 为准，不在此重复。
 
 编辑诉求模糊时，先用澄清问题确认意图，再触碰用例语义。源产物冲突时以用户指定的来源为准；未解决的分歧记入 pending items。
 
@@ -26,6 +19,8 @@
 
 ## corrections 触发的同步
 
-`/case-edit apply-corrections` 写回阶段调用本同步契约时，xmind 节点定位以 `case-corrections.md` 中每条 correction 的 `case_ref` 字段为准：`case_ref` 形如 `cases/archive.md#L120 / cases/cases.xmind 节点 数据质量 > 概览 > P0-1`。同步过程必须按「cases/cases.xmind 节点」分号后的节点路径直接定位 xmind topic，再把已修改的 archive 文本同步到该 topic 的 title/notes，不得重新解析 archive 全文反向推出映射关系。
+`/case-edit apply-corrections` 写回阶段调用本同步契约时，archive 全部 approved 条目改完后，用 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 整树重建 xmind（参数以 `kata xmind-gen --help` 为准）。
+
+已知陷阱：`--mode replace` 按标题合并整树，若某条 correction 改了用例标题，旧标题节点会残留。改标题的 correction 需先删旧节点（参考 `kata xmind-gen --mode create` 重建），再做 replace。
 
 同步前先为 cases/archive.md 存一份当时状态（可用 `git stash` 或临时副本）。若同步后 archive-xmind 自检（数量、优先级、标题、前置条件、步骤、预期 6 项一致）失败，必须把 archive 改动回滚到该存档，并在 apply-log 中标记 `failed_xmind_sync`，对应 correction status 不得置 applied。

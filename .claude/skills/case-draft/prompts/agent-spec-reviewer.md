@@ -8,38 +8,13 @@
 - Lanhu/Axure error-fallback 规则依然有效：`cases/confirmation-package.md` 与 `cases/unresolved-summary.md` 按 fallback 约定本身就允许包含 SourceRef、`SR-`、URL 与检索记录，不要对这两个文件套用交付正文的泄漏检查。
 - 只做机械检查。需要产品判断的关注点，归入 `out_of_scope` 并写明理由。
 
-## SourceRef 分层检查
+## 机械检查交给命令（SourceRef 分层 / Manifest 字段 / 计数核对）
 
-交付正文不得出现 SourceRef 标识或出处定位串。检查范围：`cases/archive.md`、`cases/archive.draft.md`，以及 `cases/cases.xmind` 里可读出的文本。
+SourceRef 是否泄漏进交付正文、`metadata.yaml` 的 FeatureManifest@2 / RequirementAtom@1 / CaseEvidenceMap@1 / CoverageMatrix@1 字段是否完整、枚举是否越界、`case_count` 与实际用例数是否一致——这些机械判定一律以 `kata cases lint`、`kata cases validate`、`kata cases verify` 的 exit-code 为准（交付门序列见 SKILL.md），reviewer 不再逐字符复核，命令报 blocking violation 即对应判 fail。这些命令绿后，reviewer 只补它们查不到的语义判断：
 
-正文出现下列任一内容时，按 `kind: "sourceref_leaked_in_md"` 判 fail：
-
-- 字面量 `SourceRef` 或 `SourceRefs`。
-- 任何 `SR-` 标识符，例如 `SR-LANHU-URL-001`、`SR-INTENT-CASE-001`。
-- 任何 `csv::` 定位串。
-- 指向 CSV 行的出处说明，例如 `source: import.csv row 12`、`evidence from CSV row 12`、`from row #12`，或把 CSV 行号当出处用的写法。注意区分：描述 CSV 导入/导出、表格行为、用户可见行的普通产品文案不算泄漏。
-- 符合当前 SourceRef 格式的引用串：`prd.file:<id>#sha256:<hash>`、`lanhu.fixture:<id>#sha256:<hash>`、`knowledge.entry:<id>#sha256:<hash>`、`repo.line:<id>#sha256:<hash>`、`case.archive:<id>#sha256:<hash>`、`workspace.config:<id>#sha256:<hash>`、`command.output:<id>#sha256:<hash>`。普通的 checksum 校验文本或孤立的 `sha256:<hash>` 串不算，除非它们用了上述命名空间，或被明确标注为出处/证据。
-
-`metadata.yaml`、RequirementAtom@1 记录、CaseEvidenceMap@1、CoverageMatrix@1、`cases/confirmation-package.md`、`cases/unresolved-summary.md` 属于结构化数据或 fallback 产物，本来就要携带 ref，不在本检查范围内。
-
-## Manifest 与字段完整性
-
-按 FeatureManifest@2 检查 `metadata.yaml`：
-
-- 正常 atomization 后 `case_drafting.requirement_atoms` 必须非空。若当前处于 Lanhu/Axure blocked-source fallback、硬规则要求 `requirement_atoms: []`，此项记入 `out_of_scope`。
-- 每个轻量 `requirement_atoms[]` 行只能含 `id` 与单数 `source_ref` 两个键。
-- 不要要求轻量行里出现 `atom_id`、`case_title`、`priority`、`source_refs[]` 这些已废弃的字段；若这些废弃键作为机器字段混进轻量行，报 `kind: "structural"`。
-
-完整证据记录声明为 RequirementAtom@1 时，逐条验证必填字段：`id`、`title`、`subject`、`source_refs[]`、`evidence_kind`、`ambiguity_class`、`confidence`。当前枚举值：
-
-- `evidence_kind`：`product_confirmed`、`lanhu_observed`、`history_inferred`、`tester_assumption`
-- `ambiguity_class`：`blocking_unknown`、`high_risk_pending`、`defaultable_unknown`、`automation_deferred`、`non_blocking_question`
-
-atom 缺失、为空或缺必填字段 → 报 `kind: "atom_missing"`；枚举值超出当前定义 → 报 `kind: "structural"`。
-
-CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_matrix_ids` 与 `requirement_atom_ids`。CoverageMatrix@1 的行以 `id` 为键、用 `requirement_atom_ids` 关联覆盖；这些行不是用例，不得被当成用例，也不要要求它们携带 `case_id`。
-
-用例映射若把废弃的 `requirement_id` 当机器键、把 `case_title` 或 `priority` 当唯一键，或要求 CoverageMatrix@1 行携带 `case_id`，报 `kind: "structural"`。
+- `evidence_kind` 误标——把 `history_inferred` 当 `product_confirmed`，或缺 product-confirmed / lanhu-observed atom 时仅凭历史线索确认新行为，报 `kind: "history_misclassified"`。
+- `history_only` 误判——新增产品行为只挂历史证据、无产品/平台确认，同样按 `history_misclassified` 处理。
+- `ambiguity_class` 误判——把实为 `blocking_unknown` / `high_risk_pending` 的未决项降级成可放行类，报 `kind: "blocking_pending"`。
 
 ## MD ↔ JSON caseId 核对
 
@@ -68,18 +43,15 @@ CaseEvidenceMap@1 是用例映射结构：用 `case_id`、可选的 `coverage_ma
 - 仍有未决的 blocking 或 high-risk 项，`metadata.yaml#case_drafting.status` 却是 `completed`。
 - 最终产物已存在，`status` 却还是 `blocked` 或 `in-progress`。
 
-`history_inferred` 证据被标为 `product_confirmed`，或在缺少 product-confirmed / lanhu-observed atom 时仅凭历史线索确认新产品行为，报 `kind: "history_misclassified"`。
+`evidence_kind` / `history_only` 误标按上方「机械检查交给命令」一节的语义判断处理（`history_misclassified`）。
 
 ## 表单基线检查
 
 用户请求、source-snapshot 或 requirement atoms 提到要以源码、平台 DOM/YAML、环境 YAML 或截图作为表单用例的必读参照时，机械检查最终用例是否带有对应的 repo.line/workspace.config/screenshot 证据，或一份抽取出来的表单字段基线。表单步骤里有字段 label、选项、按钮或配置项却没有基线 → 报 `kind: "missing_form_baseline"`；某步骤用到了明确不在基线内的字段或选项 → 报 `kind: "unsupported_form_field"`。
 
-## 事实字段与计数核对
+## 外部事实字段语义核对
 
-`suite_name`、`case_id`/`prd_id`、`prd_version` 是渲染进 xmind 可见节点的外部事实字段（映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`）：
-
-- 这些字段已写入 `cases/archive.md` / `cases/cases.xmind`，却在 `metadata.yaml` 的 `source_refs`、requirement atoms 或用户确认记录中找不到对应依据（疑似编造、自创需求名、拿迭代号或目录版本充 `prd_version`、用文件名 basename 充 `suite_name`）→ 报 `kind: "unconfirmed_external_fact"`。
-- `cases/archive.md` 实际用例数（`##### ` 行计数）与 frontmatter `case_count` 不一致 → 报 `kind: "structural"`。
+`case_count` 与实际用例数的计数一致性由命令门兜底（见上）。这里只补命令查不到的语义判断：`suite_name`、`case_id`/`prd_id`、`prd_version` 等渲染进 xmind 可见节点的外部事实字段（映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`），若已写入 `cases/archive.md` / `cases/cases.xmind`，却在 `metadata.yaml` 的 `source_refs`、requirement atoms 或用户确认记录中找不到依据（疑似编造、自创需求名、拿迭代号或目录版本充 `prd_version`、用 basename 充 `suite_name`）→ 报 `kind: "unconfirmed_external_fact"`。
 
 ## 输出格式
 

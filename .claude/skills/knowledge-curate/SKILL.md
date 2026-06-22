@@ -20,17 +20,22 @@ effort: medium
 
 ## 工作流
 
-1. 查询：在 `workspace/{project}/_shared/knowledge/**` 检索命中条目，并引用其 SourceRef ID；无可靠命中时直接说明「知识库无已确认匹配」，不得臆造。
-2. 写入前先读 `references/knowledge-rules.md`，按分类规则落盘；置信度低的更新须先和用户确认。
+查询走 read 命令，命中后引用其 SourceRef ID；无可靠命中时直接说明「知识库无已确认匹配」，不得臆造：
 
-## 何时加载哪个文件
+```bash
+kata knowledge-curate read-core    --project <name>                      # 概览 + 术语 + 索引
+kata knowledge-curate read-module  --project <name> --module <name>      # 单个模块
+kata knowledge-curate read-pitfall --project <name> --query <keyword>    # 按关键词搜踩坑
+```
 
-| 文件 | 何时读 | 作用 |
-| --- | --- | --- |
-| references/knowledge-rules.md | 查询或写入知识条目前 | 分类规则、分仓边界和记录流程 |
+写入走 write 命令，`--type` 选 term/overview/module/pitfall；`--confidence` 低于 high 时须先和用户确认，确认后加 `--confirmed`（`--content` 的 JSON 结构以 `write --help` 为准）：
+
+```bash
+kata knowledge-curate write --project <name> --type <type> --content <json> --confidence <high|medium|low> [--confirmed]
+```
 
 ## 存储规范
 
-- 业务知识存放于 `workspace/{project}/_shared/knowledge/**`，项目规则存放于 `workspace/{project}/_shared/rules/**`。两者分仓存放、不得混写，免得事实与编写约束互相污染。
+- 业务知识存放于 `workspace/{project}/_shared/knowledge/**`，项目规则存放于 `workspace/{project}/_shared/rules/**`。两者分仓存放、不得混写，免得事实与编写约束互相污染；仅在用户明确要求时，才把实现上下文记为业务知识。
 - 未明确选定项目前，不得跨项目编辑知识，避免把一个项目的事实写进另一个项目的库。
 - 写入知识库的事实、根因都必须有来源支撑；无证据支撑的内容不得记入（查询时的引用规则见上方工作流）。

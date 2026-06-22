@@ -14,6 +14,9 @@ const ALLOWED_FRONTMATTER = new Set([
   "create_at",
   "case_count",
   "origin",
+  // archive-gen 实写、且全部真实 archive 在用：description；xmind-gen 消费产品线段：product_line
+  "description",
+  "product_line",
 ]);
 const TITLE_MACHINE_ID_RE = /\b(TC|SR|RA)-[A-Z0-9]/;
 const PRIORITY_RE = /^【P\d+】/;
@@ -33,6 +36,8 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
 
   let inFrontmatter = false;
   let frontmatterDone = false;
+  let declaredCaseCount: number | null = null;
+  let h5Count = 0;
   for (const [i, line] of lines.entries()) {
     // frontmatter field whitelist
     if (i === 0 && line.trim() === "---") {
@@ -47,6 +52,10 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
       }
       const kv = line.match(/^(\w[\w_]*)\s*:/);
       const key = kv?.[1];
+      if (key === "case_count") {
+        const cc = line.match(/^case_count\s*:\s*(\d+)/);
+        if (cc) declaredCaseCount = Number(cc[1]);
+      }
       if (key && !ALLOWED_FRONTMATTER.has(key)) {
         violations.push({
           rule: "archive-frontmatter-deprecated",
@@ -64,6 +73,7 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
     const h5 = line.match(/^#####\s+(.+)$/);
     const heading = h5?.[1];
     if (heading) {
+      h5Count += 1;
       const title = heading.trim();
       const afterPriority = title.replace(PRIORITY_RE, "").trim();
       if (TITLE_MACHINE_ID_RE.test(afterPriority)) {
@@ -89,6 +99,18 @@ function scanArchive(featureDir: string, violations: CaseLintViolation[]): void 
         });
       }
     }
+  }
+
+  // frontmatter case_count 必须等于实际 ##### 用例标题数（声明了 case_count 才校验）
+  if (declaredCaseCount !== null && declaredCaseCount !== h5Count) {
+    violations.push({
+      rule: "archive-case-count-mismatch",
+      file: archivePath,
+      lineNumber: 1,
+      matched: `case_count=${declaredCaseCount} vs ##### x${h5Count}`,
+      severity: "fail",
+      message: `frontmatter case_count=${declaredCaseCount} 与实际用例标题数 ${h5Count} 不一致`,
+    });
   }
 }
 

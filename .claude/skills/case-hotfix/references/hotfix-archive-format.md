@@ -38,15 +38,7 @@ source_refs.json
 
 ## 临时证据位置
 
-不得写入仓库根级 `workspace/.temp`。该目录不属于任何项目标准产物边界，会污染 git 状态，也会让证据绕开 Hotfix 目录结构。
-
-处理过程中需要暂存原始 bug JSON、附件截图或抓取缓存时，只能写入当前 Hotfix 目录内的 `.temp/`：
-
-```text
-workspace/{project}/_shared/archive/issues/{YYYYMM}/hotfix_{fix_branch_or_bug_id}-{short-title}/.temp/
-```
-
-最终交付时，当前 Hotfix 目录内必须至少包含一个 `archive.md` 和一个 `source_refs.json`；原始响应、附件截图等临时抓取物保留在该目录 `.temp/` 下，不得复制到根级 `workspace/.temp`。
+原始 bug JSON、附件截图、抓取缓存只能暂存到当前 Hotfix 目录内的 `.temp/`；不得写入仓库根级 `workspace/.temp`（污染 git 状态，且绕开 Hotfix 目录结构）。最终交付时，本目录至少包含一个 `archive.md` 和一个 `source_refs.json`，临时抓取物保留在 `.temp/` 下。
 
 ## Frontmatter
 
@@ -56,6 +48,7 @@ workspace/{project}/_shared/archive/issues/{YYYYMM}/hotfix_{fix_branch_or_bug_id
 ---
 suite_name: "Hotfix 用例 - {bug_title}"
 description: "验证 Bug #{bug_id} 修复效果"
+case_count: 1
 keywords: "{发现大版本} | {模块} | {数据源类型} | {集群} | {最低修复版本} | {问题原因}"
 tags:
   - hotfix
@@ -67,7 +60,7 @@ zentao_url: "{zentao_bug_url}"
 ---
 ```
 
-`keywords` 必须保留 6 个位置，未知字段留空但保留分隔符。
+`case_count` 恒为 `1`（一个 hotfix archive 只写 1 条用例）。`keywords` 必须保留 6 个位置，未知字段留空但保留分隔符。
 
 - 第 1 段写发现该 bug 的产品大版本，例如 `6.3`。
 - 第 2 段写产品模块，例如 `数据质量`。
@@ -152,7 +145,7 @@ INSERT INTO hotfix_{bug_id}_example VALUES (1);
 
 层级根据证据中的模块调整，但必须保留「用例标题 + 前置条件 + 用例步骤表」。
 
-同一 archive 中不得出现第二个 `#####` 用例标题。相邻风险验证只能写进同一张步骤表，如在主修复路径验证完成后追加 1 到 3 个必要检查步骤。
+同一 archive 中不得出现第二个 `#####` 用例标题。这条用例先覆盖主修复路径（直接复现 bug 的最小场景），相邻风险验证只能写进同一张步骤表，如在主修复路径验证完成后追加 1 到 3 个必要检查步骤。范围未定时记入 `pending_items`，不得外延到无证据支撑的模块、数据源或版本。
 
 ## 前置条件
 
@@ -205,12 +198,3 @@ Spark SQL / SparkThrift 会在建表分析阶段返回 `ALL_PARTITION_COLUMNS_NO
 - 用例步骤中验证 Spark 数据源采集这张已预置的边界表。
 
 仅纯 UI 渲染问题或完全可通过 UI 构造数据的问题才允许不用 SQL；此时必须写清 UI 前置操作。
-
-## 覆盖范围
-
-这一条用例至少包含：
-
-1. 主修复路径：直接复现 bug 的最小场景。
-2. 必要相邻检查：修复判断逻辑旁边最容易被误伤的 1 到 3 个检查点，作为同一条用例的步骤或预期，不拆成独立用例。
-
-不得外延到无证据支撑的模块、数据源或版本。范围未定时写入 `pending_items`。

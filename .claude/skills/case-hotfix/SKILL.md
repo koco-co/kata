@@ -40,7 +40,7 @@ effort: medium
 
 ## 证据与交付
 
-- 交付前先运行 `kata cases lint --scope <hotfix-dir> --exit-code`，修复所有 violation 后再做人工自审。
+- 交付前先运行 `kata archive-gen validate --input <hotfix-dir>/archive.md` 校验结构与 frontmatter，修复所有 violation 后再做人工自审。hotfix archive 落在 `_shared/archive/issues/`，位于 `features/` 之外，`kata cases lint` 扫不到，故用 archive-gen validate。SourceRef 泄漏校验 archive-gen validate 不覆盖，需人工 grep 确认 `source_refs.json` 之外正文无结构化证据（`SourceRefs`、`bug.record@N`）。
 - 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则支撑。仅来自历史用例或规则时，须在 `source_refs.json` 中标明来源和未验证边界，不得当作本次真实探测结果。
 - 证据分层：
   - `archive.md` 只保留人类可读的用例内容，不含任何 SourceRef 引用。
