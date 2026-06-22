@@ -53,6 +53,11 @@
     },
     "relates_to": { "type": "array", "items": { "type": "string" } },
     "archived_at": { "type": ["string", "null"], "format": "date" },
+    "requirement_context": {
+      "description": "Free-form bag for requirement/environment provenance (lanhu/zentao ids, platform & dev-branch versions, feature-specific fields such as starrocks_version). Kept open so feature-specific keys do not pollute the global schema surface.",
+      "type": "object",
+      "additionalProperties": true
+    },
     "emits": {
       "type": "object",
       "additionalProperties": false,
@@ -88,7 +93,11 @@
             }
           }
         },
-        "coverage_matrix_path": { "type": ["string", "null"] }
+        "coverage_matrix_path": { "type": ["string", "null"] },
+        "source_refs": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        }
       },
       "if": {
         "properties": { "status": { "const": "completed" } },
