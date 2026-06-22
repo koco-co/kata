@@ -1,5 +1,7 @@
 ---
 suite_name: "【岚图】【数据资产】数据质量任务性能优化，规则sql合并"
+prd_id: "15862"
+product_line: "数据资产"
 description: "【岚图】【数据资产】数据质量任务性能优化，规则sql合并用例归档"
 tags:
   - "dataAssets"
@@ -110,7 +112,7 @@ SELECT 5
 | 19 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 20 | 「监控规则14」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则14配置完成 |
 | 21 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
+| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 23 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 24 | 「监控规则16」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 25 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -221,7 +223,7 @@ SELECT 5
 | 19 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 20 | 「监控规则14」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则14配置完成 |
 | 21 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
+| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 23 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 24 | 「监控规则16」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 25 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -332,7 +334,7 @@ SELECT 5
 | 19 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 20 | 「监控规则14」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则14配置完成 |
 | 21 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
+| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 23 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 24 | 「监控规则16」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 25 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -443,7 +445,7 @@ SELECT 5
 | 19 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 20 | 「监控规则14」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则14配置完成 |
 | 21 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
+| 22 | 「监控规则15」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 23 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 24 | 「监控规则16」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 25 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -549,7 +551,7 @@ SELECT 5
 | 14 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 15 | 「监控规则9」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 16 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
+| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
 | 18 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 19 | 「监控规则11」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则11配置完成 |
 | 20 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -655,7 +657,7 @@ SELECT 5
 | 14 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 15 | 「监控规则9」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 16 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
+| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
 | 18 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 19 | 「监控规则11」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则11配置完成 |
 | 20 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -761,7 +763,7 @@ SELECT 5
 | 14 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 15 | 「监控规则9」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 16 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
+| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
 | 18 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 19 | 「监控规则11」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则11配置完成 |
 | 20 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -869,7 +871,7 @@ SELECT 5
 | 12 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 13 | 「监控规则7」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则7配置完成 |
 | 14 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
+| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
 | 16 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 17 | 「监控规则9」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 18 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -976,7 +978,7 @@ SELECT 5
 | 12 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 13 | 「监控规则7」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则7配置完成 |
 | 14 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
+| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
 | 16 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 17 | 「监控规则9」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 18 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -1083,7 +1085,7 @@ SELECT 5
 | 12 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 13 | 「监控规则7」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则7配置完成 |
 | 14 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
+| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
 | 16 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 17 | 「监控规则9」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 18 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3276,7 +3278,7 @@ SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3292,7 +3294,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3354,7 +3356,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 20 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 21 | 「监控规则15」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 22 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
+| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 24 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 25 | 「监控规则17」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则17配置完成 |
 | 26 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3381,7 +3383,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3397,7 +3399,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3459,7 +3461,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 20 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 21 | 「监控规则15」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 22 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
+| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 24 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 25 | 「监控规则17」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则17配置完成 |
 | 26 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3485,7 +3487,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3501,7 +3503,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3563,7 +3565,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 20 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 21 | 「监控规则15」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 22 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
+| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 24 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 25 | 「监控规则17」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则17配置完成 |
 | 26 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3589,7 +3591,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3605,7 +3607,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3667,7 +3669,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 20 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 21 | 「监控规则15」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则15配置完成 |
 | 22 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
+| 23 | 「监控规则16」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则16配置完成 |
 | 24 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 25 | 「监控规则17」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则17配置完成 |
 | 26 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3693,7 +3695,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3710,7 +3712,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3766,7 +3768,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 14 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 15 | 「监控规则9」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 16 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
+| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
 | 18 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 19 | 「监控规则11」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则11配置完成 |
 | 20 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3790,7 +3792,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3807,7 +3809,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3863,7 +3865,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 14 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 15 | 「监控规则9」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 16 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
+| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
 | 18 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 19 | 「监控规则11」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则11配置完成 |
 | 20 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3887,7 +3889,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -3904,7 +3906,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -3960,7 +3962,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 14 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 15 | 「监控规则9」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 16 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
+| 17 | 「监控规则10」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则10配置完成 |
 | 18 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 19 | 「监控规则11」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则11配置完成 |
 | 20 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -3986,7 +3988,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4003,7 +4005,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4060,7 +4062,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 12 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 13 | 「监控规则7」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则7配置完成 |
 | 14 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
+| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
 | 16 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 17 | 「监控规则9」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 18 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -4084,7 +4086,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4101,7 +4103,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4158,7 +4160,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 12 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 13 | 「监控规则7」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则7配置完成 |
 | 14 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
+| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
 | 16 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 17 | 「监控规则9」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 18 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -4182,7 +4184,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4199,7 +4201,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4256,7 +4258,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 | 12 | 点击【添加规则-统计性校验】 | 选择成功，页面显示「统计性校验」规则配置区域 |
 | 13 | 「监控规则7」配置如下： 「字段」：「name」 「统计函数」：「异常值检测」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「IQR离群点数量」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则7配置完成 |
 | 14 | 点击【添加规则-自定义SQL】 | 选择成功，页面显示「自定义SQL」规则配置区域 |
-| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
+| 15 | 「监控规则8」配置如下： 「规则类型」：「完整性校验」 「引用规则」：「自定义规则测试」 「sql」：「select * from ${tableName} where ${colName} = ${value}」 「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」 「校验方法」：「固定值」 「期望值」：「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则8配置完成 |
 | 16 | 点击【添加规则-一致性校验】 | 选择成功，页面显示「一致性校验」规则配置区域 |
 | 17 | 「监控规则9」配置如下： 「校验类型」：「多表数据一致性比对」 「选择校验字段」：「id、name」 「选择校验表主键」：「id」 「对比表」：「${TABLE}」 「选择对比表主键」：「id」 「校验表比对字段」：「id」、「name」 「对比表1」：「id」、「name」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」 | 监控规则9配置完成 |
 | 18 | 点击【添加规则-时效性校验】 | 选择成功，页面显示「时效性校验」规则配置区域 |
@@ -4283,7 +4285,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ```
 已有表test_info_1 
 
-CREATE TABLE tytest.test_info_1 ( 
+CREATE TABLE pw_test.test_info_1 ( 
 
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
@@ -4301,7 +4303,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC; 
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4374,7 +4376,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4391,7 +4393,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4459,7 +4461,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4476,7 +4478,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4544,7 +4546,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4561,7 +4563,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4628,7 +4630,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4645,7 +4647,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4737,7 +4739,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4754,7 +4756,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4810,7 +4812,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4827,7 +4829,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4883,7 +4885,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4900,7 +4902,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -4961,7 +4963,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -4978,7 +4980,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5039,7 +5041,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5056,7 +5058,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5117,7 +5119,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5134,7 +5136,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5195,7 +5197,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5212,7 +5214,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5297,7 +5299,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5314,7 +5316,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5370,7 +5372,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5387,7 +5389,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5443,7 +5445,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5460,7 +5462,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5523,7 +5525,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5540,7 +5542,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5603,7 +5605,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5620,7 +5622,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5682,7 +5684,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5699,7 +5701,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5761,7 +5763,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5778,7 +5780,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5840,7 +5842,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5857,7 +5859,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5919,7 +5921,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -5936,7 +5938,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -5998,7 +6000,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -6015,7 +6017,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -6077,7 +6079,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -6094,7 +6096,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -6156,7 +6158,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 
 ```
 已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -6173,7 +6175,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,

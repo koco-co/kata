@@ -30,6 +30,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAss
 - 必须显式传入目标 spec 文件路径
 - 必须使用明确的 `KATA_DATAASSETS_ENV` 环境变量
 - 运行前确认 Auth session 未过期（浏览器没有被重定向到 /login）
+- 中文展示名 feature 用下方 few-shot 格式：不传 `KATA_ACTIVE_FEATURE`
 
 ### 第三步：记录运行证据
 
@@ -60,6 +61,17 @@ KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'fea
 调试时可以用无头命令，但交付或阻塞说明中必须同时给出上面这条 `--headed` full.spec.ts 命令；不得只宣称完成，也不得只给 smoke 或单条用例命令。
 
 ## self-run 命令模板
+
+Few-shot（`features/<version>/【v...】.../` 中文展示名目录）：
+
+```bash
+FEATURE_DIR='workspace/dataAssets/features/v6.4.11/【v6411】【客户】【模块】需求名'
+RUN_PATH="$FEATURE_DIR/runs/20260622-0630-codexrun"
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets \
+  KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
+  npx playwright test "$FEATURE_DIR/automation/tests/runners/full.spec.ts" \
+  --project=chromium --output="$RUN_PATH/playwright"
+```
 
 1. 先分配 run id：
    ```bash

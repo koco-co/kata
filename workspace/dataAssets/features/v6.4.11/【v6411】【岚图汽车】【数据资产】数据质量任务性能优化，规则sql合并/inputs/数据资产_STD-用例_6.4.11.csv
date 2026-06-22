@@ -1,6 +1,6 @@
 "用例编号","所属产品","所属模块","相关需求","用例标题","前置条件","步骤","预期","实际情况","关键词","优先级","用例类型","适用阶段","用例状态","B","R","S","结果","由谁创建","创建日期","最后修改者","修改日期","用例版本","相关用例"
 "186485","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「date/timestamp数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -15,13 +15,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -125,7 +125,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","听筠","2026-06-03","2","",""
 "186484","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「boolean数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -140,13 +140,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -246,7 +246,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","听筠","2026-06-03","2","",""
 "186483","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「string数据类型（数值）」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -261,13 +261,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -371,7 +371,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186482","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「string数据类型（非数值）」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -386,13 +386,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -496,7 +496,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186481","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「float/double/decimal数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -511,13 +511,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -621,7 +621,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186480","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「byte/short/int/long数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -636,13 +636,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -746,7 +746,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186479","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「date/timestamp数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -761,13 +761,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -871,7 +871,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","听筠","2026-06-03","2","",""
 "186478","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「boolean数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -886,13 +886,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -992,7 +992,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","听筠","2026-06-03","2","",""
 "186477","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「string数据类型（数值）」校验逻辑正确","<p>1、已存在表order_info&nbsp;</p>
-<p>CREATE TABLE IF NOT EXISTS tytest.order_info(<br />&nbsp; &nbsp; user_id INT COMMENT&#039;用户ID&#039;,<br />&nbsp; &nbsp; tall FLOAT COMMENT&#039;身高&#039;,<br />&nbsp; &nbsp; weight DOUBLE COMMENT&#039;体重&#039;,<br />&nbsp; &nbsp; amount DECIMAL(10,3) COMMENT&#039;金额&#039;,<br />&nbsp; &nbsp; car_model STRING COMMENT&#039;车型&#039;,<br />&nbsp; &nbsp; age BYTE COMMENT&#039;年龄&#039;,<br />&nbsp; &nbsp; score SHORT COMMENT&#039;评分&#039;,<br />&nbsp; &nbsp; total_orders LONG COMMENT&#039;总订单数&#039;,<br />&nbsp; &nbsp; is_vip BOOLEAN COMMENT&#039;是否VIP&#039;,<br />&nbsp; &nbsp; register_date DATE COMMENT&#039;注册日期&#039;,<br />&nbsp; &nbsp; last_login TIMESTAMP COMMENT&#039;最后登录时间&#039;,<br />&nbsp; &nbsp; user_name STRING COMMENT&#039;用户名（非数值字段）&#039;,<br />&nbsp; &nbsp; order_amount_str STRING COMMENT&#039;订单金额字符串（数值字段）&#039;<br />)PARTITIONED BY(<br />&nbsp; &nbsp; order_date STRING COMMENT&#039;订单日期，格式yyyy-MM-dd&#039;<br />);<br /><br />-- 插入2026-01-12分区数据<br />INSERT INTO<br />&nbsp; &nbsp; tytest.order_info PARTITION (order_date = &#039;2026-01-12&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1000,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265.2,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 25,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80,<br />&nbsp; &nbsp; &nbsp; &nbsp; 10,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-01-01&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 10:30:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;张三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.20&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 140.80,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 30,<br />&nbsp; &nbsp; &nbsp; &nbsp; 85,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-03-15&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 14:20:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;140.80&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1100,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 187,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 35,<br />&nbsp; &nbsp; &nbsp; &nbsp; 90,<br />&nbsp; &nbsp; &nbsp; &nbsp; 3,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-06-20&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 09:15:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王五&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;187.00&#039;<br />&nbsp; &nbsp; );<br /><br />-- 插入2026-01-13分区数据<br />INSERT INTO<br />&nbsp; &nbsp; tytest.order_info PARTITION (order_date = &#039;2026-01-13&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;赵六&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 16,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙七&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15483.568,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 31,<br />&nbsp; &nbsp; &nbsp; &nbsp; 87,<br />&nbsp; &nbsp; &nbsp; &nbsp; 8,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-04-01&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;周八&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;15483.568&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;吴九&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;郑十&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 6,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 14:05:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;钱十一&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 7,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 16:40:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙十二&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李十三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王十四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; );</p>
+<p>CREATE TABLE IF NOT EXISTS pw_test.order_info(<br />&nbsp; &nbsp; user_id INT COMMENT&#039;用户ID&#039;,<br />&nbsp; &nbsp; tall FLOAT COMMENT&#039;身高&#039;,<br />&nbsp; &nbsp; weight DOUBLE COMMENT&#039;体重&#039;,<br />&nbsp; &nbsp; amount DECIMAL(10,3) COMMENT&#039;金额&#039;,<br />&nbsp; &nbsp; car_model STRING COMMENT&#039;车型&#039;,<br />&nbsp; &nbsp; age BYTE COMMENT&#039;年龄&#039;,<br />&nbsp; &nbsp; score SHORT COMMENT&#039;评分&#039;,<br />&nbsp; &nbsp; total_orders LONG COMMENT&#039;总订单数&#039;,<br />&nbsp; &nbsp; is_vip BOOLEAN COMMENT&#039;是否VIP&#039;,<br />&nbsp; &nbsp; register_date DATE COMMENT&#039;注册日期&#039;,<br />&nbsp; &nbsp; last_login TIMESTAMP COMMENT&#039;最后登录时间&#039;,<br />&nbsp; &nbsp; user_name STRING COMMENT&#039;用户名（非数值字段）&#039;,<br />&nbsp; &nbsp; order_amount_str STRING COMMENT&#039;订单金额字符串（数值字段）&#039;<br />)PARTITIONED BY(<br />&nbsp; &nbsp; order_date STRING COMMENT&#039;订单日期，格式yyyy-MM-dd&#039;<br />);<br /><br />-- 插入2026-01-12分区数据<br />INSERT INTO<br />&nbsp; &nbsp; pw_test.order_info PARTITION (order_date = &#039;2026-01-12&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1000,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265.2,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 25,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80,<br />&nbsp; &nbsp; &nbsp; &nbsp; 10,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-01-01&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 10:30:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;张三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.20&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 140.80,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 30,<br />&nbsp; &nbsp; &nbsp; &nbsp; 85,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-03-15&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 14:20:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;140.80&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1100,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 187,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 35,<br />&nbsp; &nbsp; &nbsp; &nbsp; 90,<br />&nbsp; &nbsp; &nbsp; &nbsp; 3,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-06-20&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 09:15:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王五&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;187.00&#039;<br />&nbsp; &nbsp; );<br /><br />-- 插入2026-01-13分区数据<br />INSERT INTO<br />&nbsp; &nbsp; pw_test.order_info PARTITION (order_date = &#039;2026-01-13&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;赵六&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 16,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙七&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15483.568,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 31,<br />&nbsp; &nbsp; &nbsp; &nbsp; 87,<br />&nbsp; &nbsp; &nbsp; &nbsp; 8,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-04-01&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;周八&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;15483.568&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;吴九&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;郑十&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 6,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 14:05:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;钱十一&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 7,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 16:40:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙十二&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李十三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王十四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; );</p>
 <p>2、已存在标准目录：test</p>","1. 进入「资产-数据标准-标准定义」页面
 2. 新建标准配置如下：
 「中文名称」：「总额」
@@ -1085,7 +1085,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","听筠","2026-06-04","2","",""
 "186476","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「string数据类型（非数值）」校验逻辑正确","<p>1、已存在表order_info&nbsp;</p>
-<p>CREATE TABLE IF NOT EXISTS tytest.order_info(<br />&nbsp; &nbsp; user_id INT COMMENT&#039;用户ID&#039;,<br />&nbsp; &nbsp; tall FLOAT COMMENT&#039;身高&#039;,<br />&nbsp; &nbsp; weight DOUBLE COMMENT&#039;体重&#039;,<br />&nbsp; &nbsp; amount DECIMAL(10,3) COMMENT&#039;金额&#039;,<br />&nbsp; &nbsp; car_model STRING COMMENT&#039;车型&#039;,<br />&nbsp; &nbsp; age BYTE COMMENT&#039;年龄&#039;,<br />&nbsp; &nbsp; score SHORT COMMENT&#039;评分&#039;,<br />&nbsp; &nbsp; total_orders LONG COMMENT&#039;总订单数&#039;,<br />&nbsp; &nbsp; is_vip BOOLEAN COMMENT&#039;是否VIP&#039;,<br />&nbsp; &nbsp; register_date DATE COMMENT&#039;注册日期&#039;,<br />&nbsp; &nbsp; last_login TIMESTAMP COMMENT&#039;最后登录时间&#039;,<br />&nbsp; &nbsp; user_name STRING COMMENT&#039;用户名（非数值字段）&#039;,<br />&nbsp; &nbsp; order_amount_str STRING COMMENT&#039;订单金额字符串（数值字段）&#039;<br />)PARTITIONED BY(<br />&nbsp; &nbsp; order_date STRING COMMENT&#039;订单日期，格式yyyy-MM-dd&#039;<br />);<br /><br />-- 插入2026-01-12分区数据<br />INSERT INTO<br />&nbsp; &nbsp; tytest.order_info PARTITION (order_date = &#039;2026-01-12&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1000,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265.2,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 25,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80,<br />&nbsp; &nbsp; &nbsp; &nbsp; 10,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-01-01&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 10:30:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;张三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.20&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 140.80,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 30,<br />&nbsp; &nbsp; &nbsp; &nbsp; 85,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-03-15&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 14:20:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;140.80&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1100,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 187,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 35,<br />&nbsp; &nbsp; &nbsp; &nbsp; 90,<br />&nbsp; &nbsp; &nbsp; &nbsp; 3,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-06-20&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 09:15:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王五&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;187.00&#039;<br />&nbsp; &nbsp; );<br /><br />-- 插入2026-01-13分区数据<br />INSERT INTO<br />&nbsp; &nbsp; tytest.order_info PARTITION (order_date = &#039;2026-01-13&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;赵六&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 16,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙七&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15483.568,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 31,<br />&nbsp; &nbsp; &nbsp; &nbsp; 87,<br />&nbsp; &nbsp; &nbsp; &nbsp; 8,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-04-01&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;周八&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;15483.568&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;吴九&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;郑十&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 6,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 14:05:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;钱十一&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 7,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 16:40:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙十二&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李十三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王十四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; );</p>
+<p>CREATE TABLE IF NOT EXISTS pw_test.order_info(<br />&nbsp; &nbsp; user_id INT COMMENT&#039;用户ID&#039;,<br />&nbsp; &nbsp; tall FLOAT COMMENT&#039;身高&#039;,<br />&nbsp; &nbsp; weight DOUBLE COMMENT&#039;体重&#039;,<br />&nbsp; &nbsp; amount DECIMAL(10,3) COMMENT&#039;金额&#039;,<br />&nbsp; &nbsp; car_model STRING COMMENT&#039;车型&#039;,<br />&nbsp; &nbsp; age BYTE COMMENT&#039;年龄&#039;,<br />&nbsp; &nbsp; score SHORT COMMENT&#039;评分&#039;,<br />&nbsp; &nbsp; total_orders LONG COMMENT&#039;总订单数&#039;,<br />&nbsp; &nbsp; is_vip BOOLEAN COMMENT&#039;是否VIP&#039;,<br />&nbsp; &nbsp; register_date DATE COMMENT&#039;注册日期&#039;,<br />&nbsp; &nbsp; last_login TIMESTAMP COMMENT&#039;最后登录时间&#039;,<br />&nbsp; &nbsp; user_name STRING COMMENT&#039;用户名（非数值字段）&#039;,<br />&nbsp; &nbsp; order_amount_str STRING COMMENT&#039;订单金额字符串（数值字段）&#039;<br />)PARTITIONED BY(<br />&nbsp; &nbsp; order_date STRING COMMENT&#039;订单日期，格式yyyy-MM-dd&#039;<br />);<br /><br />-- 插入2026-01-12分区数据<br />INSERT INTO<br />&nbsp; &nbsp; pw_test.order_info PARTITION (order_date = &#039;2026-01-12&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1000,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265.2,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 25,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80,<br />&nbsp; &nbsp; &nbsp; &nbsp; 10,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-01-01&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 10:30:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;张三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.20&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 140.80,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 30,<br />&nbsp; &nbsp; &nbsp; &nbsp; 85,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-03-15&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 14:20:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;140.80&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1100,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 187,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 35,<br />&nbsp; &nbsp; &nbsp; &nbsp; 90,<br />&nbsp; &nbsp; &nbsp; &nbsp; 3,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; DATE &#039;2024-06-20&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; TIMESTAMP &#039;2026-01-12 09:15:00&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王五&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;187.00&#039;<br />&nbsp; &nbsp; );<br /><br />-- 插入2026-01-13分区数据<br />INSERT INTO<br />&nbsp; &nbsp; pw_test.order_info PARTITION (order_date = &#039;2026-01-13&#039;)<br />VALUES<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;赵六&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 16,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙七&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 102,<br />&nbsp; &nbsp; &nbsp; &nbsp; 170,<br />&nbsp; &nbsp; &nbsp; &nbsp; 66,<br />&nbsp; &nbsp; &nbsp; &nbsp; 15483.568,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 31,<br />&nbsp; &nbsp; &nbsp; &nbsp; 87,<br />&nbsp; &nbsp; &nbsp; &nbsp; 8,<br />&nbsp; &nbsp; &nbsp; &nbsp; TRUE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-04-01&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;周八&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;15483.568&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;小米su7&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;吴九&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;郑十&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 110030,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 6,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 14:05:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;钱十一&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;保时捷718&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 7,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 16:40:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;孙十二&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 1001,<br />&nbsp; &nbsp; &nbsp; &nbsp; 160,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 265,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 26,<br />&nbsp; &nbsp; &nbsp; &nbsp; 82,<br />&nbsp; &nbsp; &nbsp; &nbsp; 17,<br />&nbsp; &nbsp; &nbsp; &nbsp; FALSE,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-01-15&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2026-01-13 18:20:00&#039; AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;李十三&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;265.00&#039;<br />&nbsp; &nbsp; ),<br />&nbsp; &nbsp; (<br />&nbsp; &nbsp; &nbsp; &nbsp; 11003,<br />&nbsp; &nbsp; &nbsp; &nbsp; 180.23,<br />&nbsp; &nbsp; &nbsp; &nbsp; 459897,<br />&nbsp; &nbsp; &nbsp; &nbsp; 80.55485,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; 36,<br />&nbsp; &nbsp; &nbsp; &nbsp; 92,<br />&nbsp; &nbsp; &nbsp; &nbsp; 5,<br />&nbsp; &nbsp; &nbsp; &nbsp; NULL,<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(&#039;2024-07-10&#039; AS DATE),<br />&nbsp; &nbsp; &nbsp; &nbsp; CAST(NULL AS TIMESTAMP),<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;王十四&#039;,<br />&nbsp; &nbsp; &nbsp; &nbsp; &#039;80.55485&#039;<br />&nbsp; &nbsp; );</p>
 <p>2、已存在标准目录：test</p>","1. 进入「资产-数据标准-标准定义」页面
 2. 新建标准配置如下：
 「中文名称」：「总额」
@@ -1178,7 +1178,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","听筠","2026-06-04","2","",""
 "186475","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「float/double/decimal数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -1193,13 +1193,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -1303,7 +1303,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186474","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「byte/short/int/long数据类型」校验逻辑正确","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -1318,13 +1318,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -1428,7 +1428,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186473","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「date/timestamp数据类型」校验逻辑正确","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -1448,7 +1448,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -1457,7 +1457,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -1545,7 +1545,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","听筠","2026-06-03","2","",""
 "186472","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「boolean数据类型」校验逻辑正确","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -1565,7 +1565,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -1574,7 +1574,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -1658,7 +1658,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","听筠","2026-06-03","2","",""
 "186471","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「string数据类型（数值）」校验逻辑正确","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -1678,7 +1678,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -1687,7 +1687,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -1775,7 +1775,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186470","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「string数据类型（非数值）」校验逻辑正确","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -1795,7 +1795,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -1804,7 +1804,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -1892,7 +1892,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186469","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「float/double/decimal数据类型」校验逻辑正确","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -1912,7 +1912,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -1921,7 +1921,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -2009,7 +2009,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186468","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不同的数据类型(#10608)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「byte/short/int/long数据类型」校验逻辑正确","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -2029,7 +2029,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -2038,7 +2038,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -2126,7 +2126,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186467","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「字符串长度+数据精度+精度倍数+空值数+取值范围+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2141,13 +2141,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2249,7 +2249,7 @@ VALUES
 12. 
 13.","","1","功能测试","功能测试阶段","正常","0","1","13","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186466","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「取值范围+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2264,13 +2264,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2369,7 +2369,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186465","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「空值数+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2384,13 +2384,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2489,7 +2489,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186464","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「精度倍数+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2504,13 +2504,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2609,7 +2609,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186463","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「数据精度+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2624,13 +2624,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2733,7 +2733,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186462","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「字符串长度+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2748,13 +2748,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2857,7 +2857,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186461","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「字符串长度+数据精度+精度倍数+空值数+取值范围+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2872,13 +2872,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -2984,7 +2984,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186460","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「取值范围+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -2999,13 +2999,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -3108,7 +3108,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186459","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「空值数+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -3123,13 +3123,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -3228,7 +3228,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186458","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「精度倍数+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -3243,13 +3243,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -3352,7 +3352,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186457","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「数据精度+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -3367,13 +3367,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -3476,7 +3476,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186456","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「字符串长度+重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -3491,13 +3491,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -3596,7 +3596,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186455","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「字符串长度+数据精度+精度倍数+空值数+取值范围+重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -3616,7 +3616,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -3625,7 +3625,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -3711,7 +3711,7 @@ VALUES
 12. 
 13.","","1","功能测试","功能测试阶段","正常","0","1","13","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186454","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「取值范围+重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -3731,7 +3731,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -3740,7 +3740,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -3827,7 +3827,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186453","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「空值数+重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -3847,7 +3847,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -3856,7 +3856,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -3943,7 +3943,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186452","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「精度倍数+重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -3963,7 +3963,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -3972,7 +3972,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -4055,7 +4055,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186451","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「数据精度+重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -4075,7 +4075,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -4084,7 +4084,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -4167,7 +4167,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186450","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并+不可合并(#10607)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「字符串长度+重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -4187,7 +4187,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -4196,7 +4196,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -4283,7 +4283,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186449","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -4298,13 +4298,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -4401,7 +4401,7 @@ VALUES
 12. 
 13.","","1","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186448","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「取值范围」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -4416,13 +4416,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -4519,7 +4519,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186447","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「空值数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -4534,13 +4534,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -4637,7 +4637,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186446","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「精度倍数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -4652,13 +4652,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -4755,7 +4755,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186445","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「数据精度」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -4770,13 +4770,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -4877,7 +4877,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186444","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「字符串长度」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -4892,13 +4892,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -4999,7 +4999,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186443","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「重复数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -5014,13 +5014,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -5117,7 +5117,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186442","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「取值范围」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -5132,13 +5132,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -5239,7 +5239,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","1","14","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186441","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「空值数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -5254,13 +5254,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -5357,7 +5357,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186440","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「精度倍数」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -5372,13 +5372,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -5479,7 +5479,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186439","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「数据精度」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -5494,13 +5494,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -5601,7 +5601,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186438","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「字符串长度」校验功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -5616,13 +5616,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -5719,7 +5719,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186437","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「重复数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -5739,7 +5739,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -5748,7 +5748,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -5829,7 +5829,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186436","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「取值范围」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -5849,7 +5849,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -5858,7 +5858,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -5943,7 +5943,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186435","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「空值数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -5963,7 +5963,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -5972,7 +5972,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -6057,7 +6057,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186434","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「精度倍数」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -6077,7 +6077,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -6086,7 +6086,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -6167,7 +6167,7 @@ VALUES
 12. 
 13.","","1","功能测试","功能测试阶段","正常","0","1","13","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186433","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「数据精度」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -6187,7 +6187,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -6196,7 +6196,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -6277,7 +6277,7 @@ VALUES
 12. 
 13.","","3","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186432","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/不可合并(#10606)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「字符串长度」校验功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -6297,7 +6297,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -6306,7 +6306,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -6391,7 +6391,7 @@ VALUES
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186431","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并(#10605)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「字符串长度+数据精度+精度倍数+空值数+取值范围」校验全未达标功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -6406,13 +6406,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -6515,7 +6515,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186430","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并(#10605)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「不绑定车型关联字段」-「字符串长度+数据精度+精度倍数+空值数+取值范围」校验全达标功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -6530,13 +6530,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -6635,7 +6635,7 @@ VALUES
 12. 
 13.","","2","功能测试","功能测试阶段","正常","0","0","13","","听筠","2026-06-03","","0000-00-00","1","",""
 "186429","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并(#10605)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「字符串长度+数据精度+精度倍数+空值数+取值范围」校验全未达标功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -6650,13 +6650,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -6758,7 +6758,7 @@ VALUES
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","","0000-00-00","1","",""
 "186428","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并(#10605)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","有车型 验证「有车型」-「绑定车型关联字段」-「字符串长度+数据精度+精度倍数+空值数+取值范围」校验全达标功能","1、已存在表order_info
-CREATE TABLE IF NOT EXISTS tytest.order_info (
+CREATE TABLE IF NOT EXISTS pw_test.order_info (
 user_id INT COMMENT &#039;用户ID&#039;,
 tall FLOAT COMMENT &#039;身高&#039;,
 weight DOUBLE COMMENT &#039;体重&#039;,
@@ -6773,13 +6773,13 @@ last_login TIMESTAMP COMMENT &#039;最后登录时间&#039;
 )
 PARTITIONED BY (order_date STRING COMMENT &#039;订单日期，格式yyyy-MM-dd&#039;);
 -- 插入2026-01-12分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-12&#039;)
 VALUES
 (1000, 160, NULL, 265.2, &#039;小米su7&#039;, 25, 80, 10, TRUE, DATE &#039;2024-01-01&#039;, TIMESTAMP &#039;2026-01-12 10:30:00&#039;),
 (102, 170, 66, 140.80, &#039;小米su7&#039;, 30, 85, 5, FALSE, DATE &#039;2024-03-15&#039;, TIMESTAMP &#039;2026-01-12 14:20:00&#039;),
 (1100, 180.23, 459897, 187, &#039;保时捷718&#039;, 35, 90, 3, TRUE, DATE &#039;2024-06-20&#039;, TIMESTAMP &#039;2026-01-12 09:15:00&#039;);
 -- 插入2026-01-13分区数据
-INSERT INTO tytest.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
+INSERT INTO pw_test.order_info PARTITION (order_date=&#039;2026-01-13&#039;)
 VALUES
 (1001, 160, NULL, 265, &#039;小米su7&#039;, 26, 82, 15, NULL, CAST(&#039;2024-01-15&#039; AS DATE), CAST(&#039;2026-01-13 11:00:00&#039; AS TIMESTAMP)),
 (1001, 160, NULL, NULL, &#039;小米su7&#039;, 26, 82, 16, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-01-13 15:30:00&#039; AS TIMESTAMP)),
@@ -6878,7 +6878,7 @@ VALUES
 12. 
 13.","","1","功能测试","功能测试阶段","正常","0","2","13","通过","听筠","2026-06-03","","0000-00-00","1","",""
 "186427","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并(#10605)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「字符串长度+数据精度+精度倍数+空值数+取值范围」校验全未达标功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -6898,7 +6898,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -6907,7 +6907,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -6993,7 +6993,7 @@ VALUES
 13. 
 14.","","1","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-06-03","听筠","2026-06-04","2","",""
 "186426","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】落标检查任务性能优化，规则sql合并/可合并(#10605)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","无车型 验证「无车型」-「字符串长度+数据精度+精度倍数+空值数+取值范围」校验全达标功能","1、已存在表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
 name STRING COMMENT &#039;姓名&#039;,
@@ -7013,7 +7013,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- dt = &#039;2026-05-27&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-27&#039;)
 VALUES
 (2, &#039;A001&#039;, &#039;王小明&#039;, 4.00, 20, 1, 10, 65.5, 99.99, TRUE, DATE &#039;2025-01-01&#039;, TIMESTAMP &#039;2026-05-27 08:30:00&#039;),
 (4, &#039;B002&#039;, &#039;陈小红&#039;, 6.00, 25, 200, 200, 70.2, 199.99, FALSE, DATE &#039;2025-02-15&#039;, TIMESTAMP &#039;2026-05-27 10:15:00&#039;),
@@ -7022,7 +7022,7 @@ VALUES
 (10, &#039;E005&#039;, &#039;刘建国&#039;, 18.00, 28, 250, 250, 72.6, 499.99, TRUE, DATE &#039;2025-05-05&#039;, TIMESTAMP &#039;2026-05-27 16:00:00&#039;),
 (12, &#039;F006&#039;, &#039;赵丽丽&#039;, 20.00, 35, 350, 350, 80.1, 599.99, FALSE, DATE &#039;2025-06-25&#039;, TIMESTAMP &#039;2026-05-27 11:30:00&#039;);
 -- dt = &#039;2026-05-28&#039;
-INSERT INTO tytest.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
+INSERT INTO pw_test.test_info_1 PARTITION (dt=&#039;2026-05-28&#039;)
 VALUES
 (101, &#039;XYZ001&#039;, &#039;欧阳静&#039;, 24.00, 100, 32767, NULL, 85.5, 888.88, FALSE, CAST(NULL AS DATE), CAST(&#039;2026-05-28 09:00:00&#039; AS TIMESTAMP)),
 (102, &#039;XYZ002&#039;, &#039;慕容白&#039;, NULL, -50, -200, -5000, -10.5, -94879459.99, NULL, CAST(&#039;2024-11-15&#039; AS DATE), CAST(NULL AS TIMESTAMP)),
@@ -7297,7 +7297,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -7636,7 +7636,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -7977,7 +7977,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -8318,7 +8318,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -8616,7 +8616,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -8899,7 +8899,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -9181,7 +9181,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -9446,7 +9446,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -9710,7 +9710,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -9973,7 +9973,7 @@ SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -13745,7 +13745,7 @@ SELECT 5
 14. 
 15.","","3","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185972","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「多规则包」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -13761,7 +13761,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -13935,7 +13935,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -14089,7 +14089,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 39. 
 40.","","1","功能测试","功能测试阶段","正常","0","1","40","通过","听筠","2026-05-26","听筠","2026-05-28","3","",""
 "185971","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「单规则包」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -14105,7 +14105,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -14279,7 +14279,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -14430,7 +14430,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 38. 
 39.","","1","功能测试","功能测试阶段","正常","0","2","39","通过","听筠","2026-05-26","听筠","2026-05-28","2","",""
 "185970","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「多规则包」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -14446,7 +14446,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -14622,7 +14622,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -14773,7 +14773,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 38. 
 39.","","1","功能测试","功能测试阶段","正常","0","1","39","通过","听筠","2026-05-26","听筠","2026-05-28","2","",""
 "185969","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「单规则包」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -14789,7 +14789,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -14965,7 +14965,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -15116,7 +15116,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 38. 
 39.","","1","功能测试","功能测试阶段","正常","0","1","39","通过","听筠","2026-05-26","听筠","2026-05-28","3","",""
 "185968","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样开启」-「设置分区」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -15133,7 +15133,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -15258,7 +15258,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -15390,7 +15390,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 32. 
 33.","","2","功能测试","功能测试阶段","正常","0","0","33","","听筠","2026-05-26","","0000-00-00","1","",""
 "185967","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样开启」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -15407,7 +15407,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -15532,7 +15532,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -15663,7 +15663,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 32. 
 33.","","2","功能测试","功能测试阶段","正常","0","0","33","","听筠","2026-05-26","","0000-00-00","1","",""
 "185966","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并+不可合并(#10583)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「可合并和不可合并」-「抽样关闭」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -15680,7 +15680,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -15805,7 +15805,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -15936,7 +15936,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 32. 
 33.","","2","功能测试","功能测试阶段","正常","0","0","33","","听筠","2026-05-26","","0000-00-00","1","",""
 "185965","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/不可合并(#10582)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「不可合并部分规则」-「抽样开启」-「设置分区」校验功能","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -15953,7 +15953,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -16060,7 +16060,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -16190,7 +16190,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 30. 
 31.","","1","功能测试","功能测试阶段","正常","0","1","31","通过","听筠","2026-05-26","","0000-00-00","1","",""
 "185964","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/不可合并(#10582)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「不可合并部分规则」-「抽样开启」校验功能","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -16207,7 +16207,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -16314,7 +16314,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -16443,7 +16443,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 30. 
 31.","","2","功能测试","功能测试阶段","正常","0","0","31","","听筠","2026-05-26","","0000-00-00","1","",""
 "185963","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/不可合并(#10582)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","验证「不可合并部分规则」-「抽样关闭」校验功能","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -16460,7 +16460,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -16567,7 +16567,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 「规则类型」：「完整性校验」
 「引用规则」：「自定义规则测试」
 「sql」：「select * from ${tableName} where ${colName} = ${value}」
-「参数」：「${tableName}：tytest.test_info_1」、「${colName}：id」、「${value}：1」
+「参数」：「${tableName}：pw_test.test_info_1」、「${colName}：id」、「${value}：1」
 「校验方法」：「固定值」
 「期望值」：「=1」
 「强弱规则」选择「弱规则」
@@ -16696,7 +16696,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 30. 
 31.","","2","功能测试","功能测试阶段","正常","0","0","31","","听筠","2026-05-26","","0000-00-00","1","",""
 "185962","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","完整性+有效性 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能","<p>已有表test_info_1&nbsp;</p>
-<p>CREATE TABLE tytest.test_info_1 (&nbsp;</p>
+<p>CREATE TABLE pw_test.test_info_1 (&nbsp;</p>
 <p>id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -16712,7 +16712,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 )
 STORED AS ORC;&nbsp;</p>
 <p>-- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -16910,7 +16910,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 25. 
 26.","","1","功能测试","功能测试阶段","正常","0","1","26","通过","听筠","2026-05-26","听筠","2026-05-28","2","",""
 "185961","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","完整性+有效性 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -16927,7 +16927,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17103,7 +17103,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 20. 
 21.","","2","功能测试","功能测试阶段","正常","0","0","21","","听筠","2026-05-26","","0000-00-00","1","",""
 "185960","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","完整性+有效性 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17120,7 +17120,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17294,7 +17294,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 20. 
 21.","","2","功能测试","功能测试阶段","正常","0","0","21","","听筠","2026-05-26","","0000-00-00","1","",""
 "185959","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","完整性+有效性 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17311,7 +17311,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17477,7 +17477,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 19. 
 20.","","3","功能测试","功能测试阶段","正常","0","0","20","","听筠","2026-05-26","","0000-00-00","1","",""
 "185958","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","完整性+有效性 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17494,7 +17494,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17700,7 +17700,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 9. 
 10.","","2","功能测试","功能测试阶段","正常","0","0","10","","听筠","2026-05-26","","0000-00-00","1","",""
 "185956","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」校验不通过质量报告正确","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17717,7 +17717,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17767,7 +17767,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 2. 
 3.","","2","功能测试","功能测试阶段","正常","0","0","3","","听筠","2026-05-26","","0000-00-00","1","",""
 "185955","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」校验通过质量报告正确","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17784,7 +17784,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17834,7 +17834,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 2. 
 3.","","1","功能测试","功能测试阶段","正常","0","1","3","通过","听筠","2026-05-26","","0000-00-00","1","",""
 "185954","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」-「抽样开启」-「设置分区」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17851,7 +17851,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -17965,7 +17965,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-05-26","","0000-00-00","1","",""
 "185953","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」-「抽样开启」校验全不通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -17982,7 +17982,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18095,7 +18095,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-05-26","","0000-00-00","1","",""
 "185952","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」-「抽样开启」校验全通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18112,7 +18112,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18225,7 +18225,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 13. 
 14.","","2","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-05-26","","0000-00-00","1","",""
 "185951","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」-「抽样关闭」校验全不通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18242,7 +18242,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18355,7 +18355,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 13. 
 14.","","3","功能测试","功能测试阶段","正常","0","0","14","","听筠","2026-05-26","","0000-00-00","1","",""
 "185950","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独有效性 验证「有效性校验」-「抽样关闭」校验全通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18372,7 +18372,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18515,7 +18515,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 9. 
 10.","","1","功能测试","功能测试阶段","正常","0","1","10","通过","听筠","2026-05-26","","0000-00-00","1","",""
 "185948","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」校验不通过质量报告正确","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18532,7 +18532,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18582,7 +18582,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 2. 
 3.","","1","功能测试","功能测试阶段","正常","0","0","3","","听筠","2026-05-26","","0000-00-00","1","",""
 "185947","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」校验通过质量报告正确","1、已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18599,7 +18599,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18649,7 +18649,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 2. 
 3.","","2","功能测试","功能测试阶段","正常","0","0","3","","听筠","2026-05-26","","0000-00-00","1","",""
 "185946","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18666,7 +18666,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18808,7 +18808,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 15. 
 16.","","2","功能测试","功能测试阶段","正常","0","0","16","","听筠","2026-05-26","","0000-00-00","1","",""
 "185945","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18825,7 +18825,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -18963,7 +18963,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 15. 
 16.","","2","功能测试","功能测试阶段","正常","0","0","16","","听筠","2026-05-26","","0000-00-00","1","",""
 "185944","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -18980,7 +18980,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19111,7 +19111,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","2","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185943","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -19128,7 +19128,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19259,7 +19259,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","2","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185942","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -19276,7 +19276,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19407,7 +19407,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","3","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185941","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -19424,7 +19424,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19555,7 +19555,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","3","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185940","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -19572,7 +19572,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19699,7 +19699,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","2","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185939","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -19716,7 +19716,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19843,7 +19843,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","2","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185938","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -19860,7 +19860,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -19987,7 +19987,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 14. 
 15.","","3","功能测试","功能测试阶段","正常","0","0","15","","听筠","2026-05-26","","0000-00-00","1","",""
 "185937","数据资产_STD(#23)","/版本迭代测试用例/v6.4.11/【岚图】【数据资产】数据质量任务性能优化，规则sql合并/可合并(#10581)","【岚图】【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并(#15862)","单独完整性 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能","已有表test_info_1
-CREATE TABLE tytest.test_info_1 (
+CREATE TABLE pw_test.test_info_1 (
 id INT COMMENT &#039;用户ID&#039;,
 age INT COMMENT &#039;年龄&#039;,
 string_num STRING COMMENT &#039;string类型的编号&#039;,
@@ -20004,7 +20004,7 @@ dt STRING COMMENT &#039;分区日期，格式：yyyy-MM-dd&#039;
 STORED AS ORC;
 
 -- 插入6行数据
-INSERT INTO TABLE tytest.test_info_1
+INSERT INTO TABLE pw_test.test_info_1
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,

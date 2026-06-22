@@ -1,0 +1,427 @@
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
+
+import { buildDataAssetsApiUrl, buildDataAssetsUrl } from "../../../../../../_shared/helpers/env-setup";
+
+export const DQ_SQL_MERGE_PROJECT_ID = 92;
+export const DQ_SQL_MERGE_SCHEMA = "pw_test";
+export const DQ_SQL_MERGE_TABLE = "test_info_1";
+export const DQ_SQL_MERGE_FULL_TABLE = `${DQ_SQL_MERGE_SCHEMA}.${DQ_SQL_MERGE_TABLE}`;
+export const DQ_SQL_MERGE_DATASOURCE = "pw_test_HADOOP";
+export const DQ_SQL_MERGE_SOURCE_TYPE = "SparkThrift2.x";
+export const DQ_SQL_MERGE_TARGET_TASK =
+  "可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+多规则包";
+export const DQ_SQL_MERGE_TARGET_PACKAGE =
+  "可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包";
+export const DQ_SQL_MERGE_PARTITION = "dt=2026-06-04";
+
+const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
+const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
+const MERGEABLE_FUNCTION_IDS = new Set(["1", "3", "4", "5", "6", "11", "12", "13", "14", "15", "16", "17", "20", "21", "25", "26", "30", "49"]);
+const UNMERGEABLE_FUNCTION_IDS = new Set(["7", "8", "9", "10", "34", "39", "40", "41", "45", "46", "51"]);
+
+export type DqApiResponse<T> = {
+  success?: boolean;
+  code?: number;
+  data?: T;
+  message?: string | null;
+};
+
+export type DqPageData<T> = {
+  current?: number | string;
+  size?: number | string;
+  total?: number | string;
+  totalCount?: number | string;
+  contentList?: T[];
+  data?: T[];
+  rows?: T[];
+  list?: T[];
+  records?: T[];
+};
+
+export type DqRuleSetRecord = {
+  id?: string | number;
+  tableName?: string;
+  schemaName?: string;
+  sourceName?: string;
+  sourceTypeName?: string;
+  packageCount?: number | string;
+  ruleCount?: number | string;
+  dataSourceId?: string | number;
+  packageVOList?: DqRuleSetPackage[];
+};
+
+export type DqRuleSetPackage = {
+  packageName?: string;
+  rules?: DqRule[];
+};
+
+export type DqRule = {
+  id?: string | number;
+  functionId?: string | number | null;
+  functionName?: string | null;
+  filterSql?: string | null;
+  filter?: string | null;
+  ruleStrength?: string | number | null;
+  packageId?: string | number | null;
+  isCustom?: string | number | null;
+  customizeSql?: string | null;
+  selectDataSql?: string | null;
+  columnName?: string | null;
+  columnNameList?: string[] | null;
+  haveDirty?: string | number | null;
+  partition?: string | null;
+};
+
+export type DqRuleTaskRecord = {
+  id?: string | number;
+  tableName?: string;
+  ruleName?: string;
+  sourceTypeName?: string;
+  dataName?: string;
+  periodTypeName?: string;
+  assetsPeriodTypeName?: string;
+  isClosed?: number;
+  associated?: number;
+  monitorPartVOS?: Array<{ monitorId?: string | number; partValue?: string | null }>;
+};
+
+export type DqMonitorRecord = {
+  id?: string | number;
+  monitorId?: string | number;
+  tableName?: string;
+  schemaName?: string;
+  sourceName?: string;
+  sourceTypeName?: string;
+  ruleName?: string;
+  partationValue?: string;
+  status?: string | number;
+  logInfo?: string;
+  executeTime?: string;
+  execEndTime?: string;
+  cycTime?: string;
+  periodTypeName?: string;
+};
+
+export type DqGeneratedReportRecord = {
+  id?: string | number;
+  reportName?: string;
+  tableNames?: string;
+  status?: string | number;
+  reportType?: string | number;
+};
+
+type DqPostOptions = {
+  sourceRef: string;
+};
+
+export async function gotoDqSqlMergeRoute(page: Page, routePath: string, sourceRef: string): Promise<void> {
+  await page.goto(buildDataAssetsUrl(routePath, DQ_SQL_MERGE_PROJECT_ID), {
+    waitUntil: "domcontentloaded",
+    timeout: 90_000,
+  });
+  await injectDqProjectContext(page);
+  await page.reload({ waitUntil: "domcontentloaded", timeout: 90_000 });
+  await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => undefined);
+  await expect(page, `${sourceRef}: 应进入 ${routePath} 路由`).toHaveURL(new RegExp(routePath.replace("/", "\\/")), {
+    timeout: 30_000,
+  });
+}
+
+export async function injectDqProjectContext(page: Page): Promise<void> {
+  await page.evaluate(
+    ({ projectId, projectKey, dqProjectKey }) => {
+      window.localStorage.setItem(projectKey, projectId);
+      window.localStorage.setItem(dqProjectKey, projectId);
+      window.localStorage.setItem("current-project-id", projectId);
+      window.sessionStorage.setItem(projectKey, projectId);
+      window.sessionStorage.setItem(dqProjectKey, projectId);
+      window.sessionStorage.setItem("current-project-id", projectId);
+    },
+    {
+      projectId: String(DQ_SQL_MERGE_PROJECT_ID),
+      projectKey: PROJECT_STORAGE_KEY,
+      dqProjectKey: DQ_PROJECT_STORAGE_KEY,
+    },
+  );
+}
+
+export async function postDq<T>(
+  request: APIRequestContext,
+  pathname: string,
+  data: unknown,
+  options: DqPostOptions,
+): Promise<T> {
+  const response = await request.post(buildDataAssetsApiUrl(pathname), {
+    data,
+    headers: { [PROJECT_STORAGE_KEY]: String(DQ_SQL_MERGE_PROJECT_ID) },
+    timeout: 60_000,
+  });
+  expect(response.ok(), `${options.sourceRef}: ${pathname} HTTP 应成功`).toBe(true);
+  const payload = (await response.json()) as DqApiResponse<T>;
+  expect(payload.success ?? payload.code === 1, `${options.sourceRef}: ${pathname} 应返回成功`).toBe(true);
+  return expectDefined(payload.data, `${options.sourceRef}: ${pathname} 应返回 data`);
+}
+
+export async function queryRuleSetList(
+  request: APIRequestContext,
+  sourceRef: string,
+): Promise<DqRuleSetRecord[]> {
+  const pageData = await postDq<DqPageData<DqRuleSetRecord>>(
+    request,
+    "/dassets/v1/valid/monitorRuleSet/pageQuery",
+    { current: 1, size: 100, tableName: DQ_SQL_MERGE_TABLE },
+    { sourceRef },
+  );
+  return getRows(pageData, sourceRef, "规则集列表");
+}
+
+export async function queryRuleSetDetail(
+  request: APIRequestContext,
+  ruleSetId: string | number,
+  sourceRef: string,
+): Promise<DqRuleSetRecord> {
+  return postDq<DqRuleSetRecord>(
+    request,
+    "/dassets/v1/valid/monitorRuleSet/detail",
+    { id: String(ruleSetId) },
+    { sourceRef },
+  );
+}
+
+export async function queryRuleTasks(
+  request: APIRequestContext,
+  sourceRef: string,
+): Promise<DqRuleTaskRecord[]> {
+  const pageData = await postDq<DqPageData<DqRuleTaskRecord>>(
+    request,
+    "/dassets/v1/valid/monitor/pageQuery",
+    { current: 1, size: 100, tableName: DQ_SQL_MERGE_TABLE },
+    { sourceRef },
+  );
+  return getRows(pageData, sourceRef, "规则任务列表");
+}
+
+export async function queryMonitorRecords(
+  request: APIRequestContext,
+  sourceRef: string,
+  fuzzyName = DQ_SQL_MERGE_TARGET_TASK,
+): Promise<DqMonitorRecord[]> {
+  const pageData = await postDq<DqPageData<DqMonitorRecord>>(
+    request,
+    "/dassets/v1/valid/monitorRecord/pageQuery",
+    {
+      currentPage: 1,
+      pageSize: 20,
+      projectId: DQ_SQL_MERGE_PROJECT_ID,
+      bizTime: 0,
+      fuzzyName,
+    },
+    { sourceRef },
+  );
+  return getRows(pageData, sourceRef, "校验实例列表");
+}
+
+export async function queryMonitorRecordDetail(
+  request: APIRequestContext,
+  record: DqMonitorRecord,
+  sourceRef: string,
+): Promise<DqRule[]> {
+  const recordId = expectDefined(record.id, `${sourceRef}: 校验实例应包含 id`);
+  const monitorId = expectDefined(record.monitorId, `${sourceRef}: 校验实例应包含 monitorId`);
+  const rows = await postDq<DqRule[]>(
+    request,
+    "/dassets/v1/valid/monitorRecord/detailReport",
+    { recordId: String(recordId), monitorId: String(monitorId) },
+    { sourceRef },
+  );
+  expect(Array.isArray(rows), `${sourceRef}: detailReport data 应为数组`).toBe(true);
+  return rows;
+}
+
+export async function queryGeneratedReports(
+  request: APIRequestContext,
+  sourceRef: string,
+): Promise<DqGeneratedReportRecord[]> {
+  const pageData = await postDq<DqPageData<DqGeneratedReportRecord>>(
+    request,
+    "/dassets/v1/valid/monitorReportRecord/pageList",
+    { current: 1, size: 20, search: DQ_SQL_MERGE_TABLE },
+    { sourceRef },
+  );
+  return getRows(pageData, sourceRef, "已生成报告列表");
+}
+
+export function expectTargetRuleSet(records: DqRuleSetRecord[], sourceRef: string): DqRuleSetRecord {
+  const target = records.find(
+    (record) => record.tableName === DQ_SQL_MERGE_TABLE && record.schemaName === DQ_SQL_MERGE_SCHEMA,
+  );
+  expect(target, `${sourceRef}: 应存在 ${DQ_SQL_MERGE_SCHEMA}.${DQ_SQL_MERGE_TABLE} 规则集`).toBeTruthy();
+  const ruleSet = target as DqRuleSetRecord;
+  expect(ruleSet.sourceName, `${sourceRef}: 规则集应使用目标数据源`).toBe(DQ_SQL_MERGE_DATASOURCE);
+  expect(ruleSet.sourceTypeName, `${sourceRef}: 规则集应使用 SparkThrift2.x`).toBe(DQ_SQL_MERGE_SOURCE_TYPE);
+  expect(Number(ruleSet.packageCount), `${sourceRef}: 单规则集规则包数量不应超过产品上限 20`).toBeLessThanOrEqual(20);
+  expect(Number(ruleSet.packageCount), `${sourceRef}: test_info_1 规则集应包含多个规则包`).toBeGreaterThanOrEqual(1);
+  expect(Number(ruleSet.ruleCount), `${sourceRef}: test_info_1 规则集应包含已配置规则`).toBeGreaterThanOrEqual(1);
+  return ruleSet;
+}
+
+export function expectTargetRuleTask(records: DqRuleTaskRecord[], sourceRef: string): DqRuleTaskRecord {
+  const target = records.find((record) => record.ruleName === DQ_SQL_MERGE_TARGET_TASK);
+  expect(target, `${sourceRef}: 应存在目标规则任务「${DQ_SQL_MERGE_TARGET_TASK}」`).toBeTruthy();
+  const task = target as DqRuleTaskRecord;
+  expect(task.tableName, `${sourceRef}: 目标规则任务应绑定 ${DQ_SQL_MERGE_FULL_TABLE}`).toBe(
+    DQ_SQL_MERGE_FULL_TABLE,
+  );
+  expect(task.sourceTypeName, `${sourceRef}: 目标规则任务应使用 SparkThrift2.x`).toBe(DQ_SQL_MERGE_SOURCE_TYPE);
+  expect(task.dataName, `${sourceRef}: 目标规则任务应使用目标数据源`).toBe(DQ_SQL_MERGE_DATASOURCE);
+  expect(task.isClosed, `${sourceRef}: 目标规则任务应开启检测`).toBe(0);
+  expect(
+    task.monitorPartVOS?.some((part) => String(part.monitorId) === String(task.id) && part.partValue === DQ_SQL_MERGE_PARTITION),
+    `${sourceRef}: 目标规则任务应配置分区 ${DQ_SQL_MERGE_PARTITION}`,
+  ).toBe(true);
+  return task;
+}
+
+export function expectTargetMonitorRecord(records: DqMonitorRecord[], sourceRef: string): DqMonitorRecord {
+  const target = records.find((record) => record.ruleName === DQ_SQL_MERGE_TARGET_TASK);
+  expect(target, `${sourceRef}: 应存在目标规则任务的校验实例`).toBeTruthy();
+  const record = target as DqMonitorRecord;
+  expect(record.tableName, `${sourceRef}: 校验实例应来自 ${DQ_SQL_MERGE_FULL_TABLE}`).toBe(DQ_SQL_MERGE_FULL_TABLE);
+  expect(record.sourceName, `${sourceRef}: 校验实例应使用目标数据源`).toBe(DQ_SQL_MERGE_DATASOURCE);
+  expect(record.sourceTypeName, `${sourceRef}: 校验实例应使用 SparkThrift2.x`).toBe(DQ_SQL_MERGE_SOURCE_TYPE);
+  expect(record.partationValue, `${sourceRef}: 校验实例应使用目标分区`).toBe(DQ_SQL_MERGE_PARTITION);
+  expect(record.executeTime, `${sourceRef}: 校验实例应包含开始时间`).toMatch(/^\d{4}-\d{2}-\d{2}/);
+  expect(record.execEndTime, `${sourceRef}: 校验实例应包含结束时间`).toMatch(/^\d{4}-\d{2}-\d{2}/);
+  expect(record.logInfo ?? "", `${sourceRef}: 校验实例日志应包含通过/失败统计`).toMatch(
+    /verification passes:\s*\d+[\s\S]*verification fails:\s*\d+/i,
+  );
+  return record;
+}
+
+export function expectRuleSetMergeShape(detail: DqRuleSetRecord, sourceRef: string): void {
+  const packages = detail.packageVOList ?? [];
+  expect(packages.length, `${sourceRef}: 规则集详情应返回规则包`).toBeGreaterThan(0);
+  const targetPackage = packages.find((item) => item.packageName === DQ_SQL_MERGE_TARGET_PACKAGE);
+  expect(targetPackage, `${sourceRef}: 应存在目标规则包「${DQ_SQL_MERGE_TARGET_PACKAGE}」`).toBeTruthy();
+
+  const rules = targetPackage?.rules ?? [];
+  expect(rules.length, `${sourceRef}: 目标规则包应包含多条子规则`).toBeGreaterThanOrEqual(10);
+  for (const functionName of ["空值数", "空值率", "空串数", "空串率", "表行数"]) {
+    expect(
+      rules.some((rule) => rule.functionName === functionName),
+      `${sourceRef}: 目标规则包应包含 ${functionName}`,
+    ).toBe(true);
+  }
+  expect(
+    rules.some((rule) => UNMERGEABLE_FUNCTION_IDS.has(String(rule.functionId))),
+    `${sourceRef}: 目标规则包应同时包含不可合并函数，覆盖可合并+不可合并组合`,
+  ).toBe(true);
+
+  const mergeGroups = buildMergeCandidateGroups(rules);
+  expect(
+    mergeGroups.some((group) => group.rules.length >= 2 && group.ruleStrength === "1"),
+    `${sourceRef}: 应存在同过滤条件的强规则可合并候选组`,
+  ).toBe(true);
+  expect(
+    mergeGroups.some((group) => group.rules.length >= 2 && group.ruleStrength === "2"),
+    `${sourceRef}: 应存在同过滤条件的弱规则可合并候选组`,
+  ).toBe(true);
+}
+
+export function expectMonitorRecordSqlShape(detailRows: DqRule[], sourceRef: string): void {
+  expect(detailRows.length, `${sourceRef}: 校验实例详情应返回多条规则明细`).toBeGreaterThanOrEqual(10);
+
+  const sqlRows = detailRows.filter((rule) => rule.customizeSql || rule.selectDataSql);
+  expect(sqlRows.length, `${sourceRef}: 规则明细应包含可检查的 SQL 片段`).toBeGreaterThan(0);
+  expect(
+    sqlRows.some((rule) => `${rule.customizeSql ?? ""} ${rule.selectDataSql ?? ""}`.includes("test_info_1_temp_sample_table")),
+    `${sourceRef}: 抽样开启场景应使用 test_info_1_temp_sample_table 临时抽样表`,
+  ).toBe(true);
+  expect(
+    sqlRows.some((rule) => `${rule.customizeSql ?? ""} ${rule.selectDataSql ?? ""}`.includes("dt='2026-06-04'")),
+    `${sourceRef}: SQL 片段应包含分区谓词 dt='2026-06-04'`,
+  ).toBe(true);
+  expect(
+    detailRows.some((rule) => normalizeSql(rule.filterSql).includes("id <= 100")),
+    `${sourceRef}: 明细应保留手动过滤条件 id<=100`,
+  ).toBe(true);
+
+  const mergeGroups = buildMergeCandidateGroups(detailRows);
+  expect(
+    mergeGroups.some((group) => group.rules.length >= 2),
+    `${sourceRef}: 实例详情应仍能按 function/filter/ruleStrength 识别可合并候选组`,
+  ).toBe(true);
+
+  const customRules = detailRows.filter((rule) => Number(rule.isCustom) === 1 || !rule.functionId);
+  for (const customRule of customRules) {
+    const sql = customRule.selectDataSql || customRule.customizeSql || "";
+    expect(sql.trim(), `${sourceRef}: 自定义 SQL 规则执行 SQL 不应为空`).not.toBe("");
+    expect(detectSqlDefect(sql), `${sourceRef}: 自定义 SQL 规则不应出现明显残缺 SQL: ${sql}`).toBe("");
+  }
+}
+
+export function expectGeneratedReportShape(records: DqGeneratedReportRecord[], sourceRef: string): void {
+  const targetReports = records.filter((record) => String(record.tableNames ?? "").includes(DQ_SQL_MERGE_TABLE));
+  expect(targetReports.length, `${sourceRef}: 已生成报告应包含 ${DQ_SQL_MERGE_TABLE}`).toBeGreaterThan(0);
+  expect(
+    targetReports.some((record) => String(record.reportName ?? "").includes("完整性可合并规则")),
+    `${sourceRef}: 已生成报告应包含完整性可合并规则报告`,
+  ).toBe(true);
+  for (const report of targetReports.slice(0, 5)) {
+    expect(report.reportName, `${sourceRef}: 已生成报告应包含报告名称`).toMatch(/test_info_1/);
+    expect(report.reportType, `${sourceRef}: 已生成报告应为单表或有效报告类型`).toBeTruthy();
+    expect(String(report.status), `${sourceRef}: 已生成报告状态应为已生成`).toBe("1");
+  }
+}
+
+function getRows<T>(pageData: DqPageData<T>, sourceRef: string, label: string): T[] {
+  const rows =
+    pageData.contentList ??
+    pageData.data ??
+    pageData.rows ??
+    pageData.list ??
+    pageData.records ??
+    [];
+  expect(Array.isArray(rows), `${sourceRef}: ${label} 应返回数组`).toBe(true);
+  return rows;
+}
+
+function buildMergeCandidateGroups(rules: DqRule[]): Array<{ key: string; ruleStrength: string; rules: DqRule[] }> {
+  const groups = new Map<string, { key: string; ruleStrength: string; rules: DqRule[] }>();
+  for (const rule of rules) {
+    const functionId = String(rule.functionId ?? "");
+    if (!MERGEABLE_FUNCTION_IDS.has(functionId)) continue;
+    const filterSql = normalizeSql(rule.filterSql);
+    if (!filterSql) continue;
+    const ruleStrength = String(rule.ruleStrength ?? "");
+    const key = `${rule.packageId ?? "package"}|${ruleStrength}|${filterSql}`;
+    const group = groups.get(key) ?? { key, ruleStrength, rules: [] };
+    group.rules.push(rule);
+    groups.set(key, group);
+  }
+  return Array.from(groups.values()).filter((group) => group.rules.length >= 2);
+}
+
+function normalizeSql(sql: string | null | undefined): string {
+  return (sql ?? "")
+    .replace(/\s+/g, " ")
+    .replace(/[()]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function detectSqlDefect(sql: string): string {
+  const normalized = normalizeSql(sql);
+  if (!normalized) return "empty_sql";
+  if (/\bwhere\s*(=|and|or)?\s*$/.test(normalized)) return "dangling_where";
+  if (/(=|<>|!=|>=|<=|>|<|like|in|and|or)\s*$/.test(normalized)) return "dangling_operator";
+  const openCount = (sql.match(/\(/g) ?? []).length;
+  const closeCount = (sql.match(/\)/g) ?? []).length;
+  if (openCount !== closeCount) return "unbalanced_parentheses";
+  return "";
+}
+
+function expectDefined<T>(value: T | null | undefined, message: string): T {
+  expect(value, message).toBeTruthy();
+  return value as T;
+}

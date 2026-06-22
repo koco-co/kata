@@ -1,0 +1,50 @@
+schema: FeatureMetadata@2
+id: 【v6411】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
+feature_id: 2026-06-lanhu-f06b94f8
+display_name: 【v6411】【15862】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
+status: active
+created_at: 2026-06-05
+updated_at: 2026-06-22
+modules:
+  - dq
+customers:
+  - ltqc
+versions:
+  - v6.4.11
+owners:
+  - qa
+inputs:
+  - kind: lanhu
+    ref: https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&versionId=ceadda59-6c87-4673-8e3b-d2d895b7fd93&docId=33ddbc81-2088-43a3-b209-f5f04d5be3f0&docType=axure&pageId=f06b94f8411b4cb5af1df06a3b33dbdb&image_id=33ddbc81-2088-43a3-b209-f5f04d5be3f0&parentId=71c1f5ca-bb61-4a3a-9aca-acebb15e0a91
+  - kind: prd
+    ref: prd.md
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: true
+case_drafting:
+  status: completed
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  requirement_atoms:
+    - id: RA-15862-SQL-MERGE
+      source_ref: lanhu.fixture:15862-fullpage#sha256:ca9a8f1f95ece81fcf53a8e2a9fc0aab3ed8639a0c68fe22920a191c13bfc4e7
+      title: 数据质量任务、落标检查任务性能优化，规则sql合并
+      ambiguity_class: non_blocking_question
+      confidence: high
+  coverage_matrix_path: cases/test-point-checklist.md
+automation:
+  status: ready
+  intents:
+    - intent_id: SR-INTENT-V6411-SQL-MERGE
+      case_files:
+        - cases/archive.md
+      automation_status: ready
+  last_handoff_path: runs/20260622-0553-v6411sql/handoff.md
+  last_run_status: partial
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind
+  tests_root: automation/tests
+  latest_results: runs/20260622-0553-v6411sql/allure-results
