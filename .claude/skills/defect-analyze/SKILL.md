@@ -38,7 +38,15 @@ flowchart TD
 
 - `bug`：收到异常堆栈、控制台报错、HTTP 失败等可复现 bug 证据，先组装 BugReport JSON，再用 `kata defect-report render-bug`（仅 zentao variant）产出 `report.html`。
 - `conflict`：收到带合并冲突标记的文本，先组装 ConflictReport JSON，再用 `kata defect-report render-conflict` 产出 `report.html`。
-- `diff`：需对仓库 diff、分支对或变更文件集做静态扫描时，新开一个 general-purpose 子代理执行扫描，再经 `kata scan-report` 产出 `report.html`。
+- `diff`：需对仓库 diff、分支对或变更文件集做静态扫描时，新开一个 general-purpose 子代理执行扫描，再经 `kata scan-report` 产出 `report.html`。对比分支用以下命令序列（`--slug` 不传时按分支对自动生成；完整字段以 `kata scan-report create --help` 为准）：
+
+  ```shell
+  # 1. 初始化 audit：拉基线/被测分支并算 diff
+  kata scan-report create --project <name> --repo <repo> --base-branch <ref> --head-branch <ref>
+  # 2. 子代理逐个 bug 写回（add-bug / update-bug / set-meta），证据须落在 evidence_refs
+  # 3. 渲染 report.html
+  kata scan-report render --project <name> --slug <slug>
+  ```
 
 ## 各模式规则
 
@@ -54,30 +62,11 @@ flowchart TD
 
 ## 产物
 
-三种模式都产出 `report.html`，差异在模板与编入 JSON 的内容：
-
-| 模式 | 模板 | 编入 JSON 的内容 |
-| --- | --- | --- |
-| bug | bug-report zentao | 根因、evidence_refs、impacted_areas |
-| diff | scan-report | 根因、evidence_refs、impacted_areas |
-| conflict | conflict-report | side_a / side_b、resolution_plan |
-
-报告写入 `workspace/{project}/_shared/archive/reports/`，不写入 feature 目录。
+三种模式都产出 `report.html`，但落点分两处，不要合并：`kata defect-report`（bug / conflict 模式）写 `defectDir`（`_shared/archive/defects/`），`kata scan-report`（diff 模式）写 `auditDir`（`_shared/archive/audits/`）。都不写入 feature 目录。
 
 ## 推送禅道（仅 bug 模式）
 
 bug 模式产出 `report.html` 后按节点推进，输出仅走固定模板，不得夹带无关内容：
-
-```mermaid
-flowchart TD
-    A[report.html 已生成] --> Q{AskUser 推送禅道?}
-    Q -->|否| E[结束，不做任何禅道写操作]
-    Q -->|是| B[落盘 BugReport JSON，执行 create.ts]
-    B --> P{解析命令输出}
-    P -->|ok true 且有 url| S[回显成功模板：地址 + 标题]
-    P -->|ok true 仅 note| N[回显 note，提示去禅道按标题核对]
-    P -->|ok false| F[回一行简明原因，不编造]
-```
 
 1. 用 AskUserQuestion 询问「是否推送禅道创建 bug？」（推荐「是」）。选「否」即结束，不做任何禅道写操作。
 2. 选「是」→ 将 BugReport JSON 落盘，执行 `bun run .claude/plugins/zentao/create.ts --json <BugReport.json>`（产品、指派人向林、severity 映射等取插件 yaml；正文复用 zentao variant）。

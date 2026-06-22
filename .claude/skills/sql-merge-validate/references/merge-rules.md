@@ -130,8 +130,7 @@ CROSS JOIN (
 关键点：
 - `merge_ids` 子查询：N 个 UNION ALL（N = 组内规则数）
 - `agg` 子查询：源表只扫 **一次**，所有 SUM(CASE WHEN) 并行
-- `have_dirty=0` 的函数（fn1/12/20/21）：expansion 固定 `'0'`，val 正常输出，**无脏数据段**
-- 占比函数（fn4/6/13/14/15/49）：expansion = `CONCAT(hit,'/',total)`，val = `CAST(hit AS DOUBLE)/total`（total=0→0）
+- have_dirty=0（fn1/12/20/21）与占比（fn4/6/13/14/15/49）函数的 expansion/val 属性见 `rule-dictionary.md`「关键注意事项」（单一事实源）。
 
 ### 4.2 脏数据范式（have_dirty=1 的合并组）
 
@@ -202,12 +201,4 @@ DROP TABLE IF EXISTS `schema`.`_temp_sample_table_#{jobId}`;
 
 ## 5. 占比 expansion 格式
 
-占比规则（fn4/6/13/14/15/49）的 expansion：
-
-```sql
-CONCAT(hit_cnt_rule_{id}, '/', total_cnt)
-```
-
-非占比规则的 expansion：固定字符串 `'0'`（expansion 列常量）。
-
-特殊情况（fn36 IQR 等）有自定义 expansion，但这些函数不在可合并白名单内，不参与合并验证。
+占比/非占比规则的 expansion 与 val 属性（含占比函数清单 fn4/6/13/14/15/49）以 `rule-dictionary.md`「关键注意事项」为单一事实源。fn36(IQR) 等自定义 expansion 函数不在可合并白名单内，不参与合并验证。

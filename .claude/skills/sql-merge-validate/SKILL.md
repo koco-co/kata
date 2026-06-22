@@ -17,7 +17,7 @@ effort: high
 flowchart TD
     A[monitorId 或落标任务 id + 合并预期] --> B[取参 AskUser：模式 dq 或 std，凭据，DB]
     B --> C[跑校验 run.py，得 verdict JSON]
-    C --> D[语义复核：占比 val 与 expansion，condition，have_dirty]
+    C --> D[读 verdict 字段：checks/customRules/globalFindings]
     D --> E[终端报告：逐包 8 维矩阵 + FAIL 证据]
     E --> F{有 FAIL 或 finding?}
     F -->|是| G[AskUser → 转 defect-analyze 生成 bug]
@@ -29,10 +29,10 @@ flowchart TD
    DB host/port/user/pass（默认 172.16.124.100:30882 / root，口令仅运行期传入、不落仓库），可选预期描述。
 2. **跑校验**：`python3 scripts/run.py --mode <dq|std> --task-id <id> --host <h> --password <p> [--base --cookie --project-id]`
    → 得到 verdict JSON。pymysql 缺失时先 `pip install pymysql`。
-3. **语义复核**：对照 `references/`，复核占比规则 val/expansion、SUM(CASE WHEN) condition 是否匹配
-   function 模板、have_dirty 子检查；白名单分歧等 globalFindings 单列。
-4. **终端报告**：逐包 8 维矩阵（①可合并 ②不可合并 ③抽样 ④分区 ⑤过滤 ⑥强弱 ⑦多包 ⑧规则SQL完整性）+ 每个
-   FAIL 的证据片段；verdict 的 `customRules` 列出自定义 SQL 规则及 `valid`/`defect`：SQL 残缺（空/空 WHERE/悬空运算符）即 ⑧ FAIL，不放行。**输出位置：仅终端 PASS/FAIL，不写入 feature 目录或落盘产物。**
+3. **读 verdict**：解析 run.py 输出的 verdict JSON：`checks`（8 维，每维 PASS/FAIL/NA）、`customRules`
+   （自定义 SQL 规则及 `valid`/`defect`）、`globalFindings`（白名单分歧等单列）。语义存疑时对照 `references/` 复核。
+4. **终端报告**：逐包 8 维矩阵 + 每个 FAIL 的证据片段；8 维定义（①可合并 … ⑧规则SQL完整性）见 `references/merge-rules.md` 与
+   `rule-dictionary.md`。`customRules` 中 SQL 残缺（空/空 WHERE/悬空运算符）即 ⑧ FAIL，不放行。**输出位置：仅终端 PASS/FAIL，不写入 feature 目录或落盘产物。**
 5. **bug 联动**：有 FAIL/finding → AskUser「是否转 defect-analyze 生成 bug/推禅道？」（推荐是），
    选是则带证据交接。
 

@@ -66,7 +66,7 @@ By category:
    - 行号与 doc_claim 均不匹配时跳过，记 `skipped: source_changed`。
 2. **去重**：检查 `proposed_change` 目标文本是否已是 cases/archive.md 当前内容；若是则跳过，记 `skipped: already_applied`。
 3. **应用 diff**：用 Edit 工具按 `proposed_change` 的 diff 替换 cases/archive.md 对应片段（仅替换 `doc_claim` 那一段文本，不动周围内容）。
-4. **xmind 同步**：cases/archive.md 所有 approved 条目改完后，按 `references/archive-xmind-sync.md` 现有契约同步到 `cases/cases.xmind`，并跑现有自检（archive↔xmind 数量/优先级/标题/前置条件/步骤/预期 6 项一致）。
+4. **xmind 同步**：cases/archive.md 所有 approved 条目改完后，运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 整树重建（改了用例标题的 correction 须先按 `references/archive-xmind-sync.md` 的陷阱说明删旧节点），再跑现有自检（archive↔xmind 数量/优先级/标题/前置条件/步骤/预期 6 项一致）。
 5. **xmind 同步失败**：回滚本轮所有 archive 改动（git restore），把失败原因写入 apply-log，输出 `failed_xmind_sync`。
 
 ### 第四步：写 apply-log

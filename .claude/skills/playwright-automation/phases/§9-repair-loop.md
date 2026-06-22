@@ -10,39 +10,13 @@
 
 ### 第一步：按类型修复
 
-#### script 类失败修复
+修复骨架（locator 优先级 / `frameLocator` 穿透 / `networkidle` 禁用 / trace 与 console 诊断的具体 API how-to 见 `references/cli-essentials.md`，§6 不再复述）：
 
-> 改代码前先读诊断证据（见 `references/cli-essentials.md`）：在 probe/spec 里注册
-> `page.on('console')` / `page.on('requestfailed')` 读 app 侧 JS 错误与失败请求，
-> 再结合 Playwright trace 定位根因，避免盲目修改 locator。
-> 可视化 trace：`npx playwright show-trace runs/<run-id>/playwright/.../trace.zip`
-
-1. **Selector 找不到**：
-   - 在浏览器 DevTools 中确认元素实际位置
-   - 检查 iframe/shadow DOM 是否需要穿透（iframe 用 `page.frameLocator(selector)`，见 `references/cli-essentials.md §iframe`）
-   - 检查是否有动态 class 名（如 `ant-btn css-xxx` 中的 hash）
-   - 优先用 `getByRole`>`getByLabel`>`getByText`>`getByTestId`，而非 CSS selector
-   - 必要时使用 `page.locator()` 配合 `:has-text()` 或 `nth=`
-2. **等待超时**：
-   - 检查是否有 loading spinner / skeleton 未消失
-   - 改用具体等待目标：`expect(locator).toBeVisible({ timeout: 15000 })`、`page.waitForResponse(/api\/xxx/)`、`page.waitForURL('**/xxx')`
-   - **禁止**用 `waitForLoadState("networkidle")` 当超时补丁。networkidle 不可靠，会掩盖真正该等的条件（Playwright 官方 Heal 原则）
-3. **页面导航失败**：
-   - 检查是否有重定向链
-   - 确认 storageState 未过期
-   - 检查 URL 是否正确编码
-4. **strict mode violation**：
-   - locator 匹配了多个元素 → 缩小范围（加父级上下文或 nth 选择器）
-
-#### data 类失败修复
-
-1. **数据不满足前置条件**：
-   - 检查 `automation/tests/data/` 下的 fixture 文件
-   - 确认数据表已有预期记录
-   - 使用 API 创建测试数据（通过 `page.evaluate` 或独立 API 调用）
-2. **feature flag 未开启**：
-   - 检查项目配置中是否启用了对应 feature
-   - 在 env profile 中确认 feature toggle 设置
+1. 按 §8 triage 分类（`script` / `data`），定位本次失败属于哪一类。
+2. 指向 `references/cli-essentials.md` 对应小节读 how-to：
+   - `script` 类（selector 找不到 / 等待超时 / 导航失败 / strict mode 多匹配）→ 看 locator 优先级、`frameLocator` 穿透、强等待替代 `networkidle` 等小节。
+   - `data` 类（fixture 缺失 / 前置数据不满足 / feature flag 未开）→ 看 fixture 与 API 造数小节，并在 env profile 确认 toggle。
+3. 读 `$RUN_PATH/playwright/.../trace.zip` 与注册的 `page.on('console')`/`page.on('requestfailed')` 证据，定位根因，再做最小改动，不盲改 locator。
 
 ### 第二步：每次修复的必须动作
 

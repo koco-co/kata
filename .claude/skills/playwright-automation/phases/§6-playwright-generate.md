@@ -160,7 +160,6 @@ RED→GREEN 节律中的等待条件，必须用以下可靠写法，禁止拿�
 | 只生成或只运行 `smoke.spec.ts` 就交付端到端自动化 | smoke 只能证明基座，不能证明 full 回归入口可运行 |
 | 把测试主体直接写入 `automation/tests/runners/full.spec.ts` / `smoke.spec.ts` | runners 只做聚合入口；测试体应在 cases/ |
 | 用 `?.[0] ?? []` 或 `if (x)` 守卫替换失败的断言 | 测试永远 pass，掩盖真 bug |
-| `page.waitForTimeout(N)` 代替等待特定 UI 条件 | 固定延时不可靠，应等待元素可见、网络空闲或特定响应；仅在触发动画/过渡时必须使用，且需注释说明原因 |
 | 覆写未读过的已有 spec 文件 | 可能丢失上一会话的调试成果或人工修正 |
 | 派发「跑通整个 suite」这种粗粒度 subagent | 黑盒长跑，用户看不到进度 |
 | `--headless` 模式无声调试 | 用户无法协助排查 selector/时序问题 |

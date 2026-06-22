@@ -4,65 +4,39 @@
 
 进入 `self-run` 阶段时读本文；前序阶段未通过不提前进入，也不批量预读 `phases/**`。
 
-## 协议
+## 命令序列（唯一权威）
 
-### 第一步：--list 预览
-
-在真实运行之前，必须先执行 `--list` 确认 spec 文件可被 Playwright 正确解析：
+flag 拼写以 `bun run kata results path --help`、`bun run kata handoff render --help` 为准。
 
 ```bash
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'automation/tests/runners/full.spec.ts' --list --project=chromium
+# 1. 分配 run 目录
+RUN_PATH=$(kata results path <featureId> --new-run --project <project>)
+RUN_ID=$(basename "$RUN_PATH")
+
+# 2. --list 预览：确认 spec 可被 Playwright 解析（缺 case 说明 runner import 不全）
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
+  npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --list
+
+# 3. 运行 full.spec.ts
+PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
+  KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
+  npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' \
+  --output="$RUN_PATH/playwright"
+
+# 4. 渲染 handoff.md（先按 PlaywrightAutomationHandoff@2 写好 $RUN_PATH/handoff.json）
+kata handoff render <featureId> --run "$RUN_ID" --project <project>
 ```
 
-输出应包含所有预期 case 名称和行号。若：
-- 无输出或报错 → 检查 import 路径和文件命名是否正确
-- 缺少预期 case → runner 的 import 可能需要补充
-- 正确列出所有 case → 进入第二步
+判读规则：
 
-### 第二步：运行目标 full.spec.ts
+- `--list` 无输出/报错 → 检查 import 路径与文件命名；缺预期 case → runner import 待补；全部列出 → 进运行。
+- 运行退出码：0=全过，非 0=有失败。记 passed/failed/skipped 数与失败错误摘要。
+- `KATA_ALLURE_RESULTS_DIR` 把 allure 落点统一到 `$RUN_PATH/allure-results`，和 `playwright/` 同在本次 run 目录，`kata results publish` 才能一并发布。
+- handoff.json 的 `run_command` 记本次实际命令；`acceptance_command` 记带 `full.spec.ts` + `--headed` 的有头验收命令。
 
-```bash
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV={env} KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'automation/tests/runners/full.spec.ts' --project=chromium --reporter=line
-```
+## few-shot：中文展示名目录
 
-运行要求：
-- **禁止**使用 `bun test`、`playwright test` 不带文件参数的全量运行
-- 必须显式传入目标 spec 文件路径
-- 必须使用明确的 `KATA_DATAASSETS_ENV` 环境变量
-- 运行前确认 Auth session 未过期（浏览器没有被重定向到 /login）
-- 中文展示名 feature 用下方 few-shot 格式：不传 `KATA_ACTIVE_FEATURE`
-
-### 第三步：记录运行证据
-
-运行后必须记录：
-
-1. **命令**：完整 shell 命令（含 KATA_DATAASSETS_ENV）
-2. **退出码**：0=全部通过，1=有失败
-3. **通过/失败数量**：passed N, failed N, skipped N
-4. **失败详情**：每个失败 test 的错误消息摘要
-5. **报告路径**：`runs/<run-id>/playwright/`、`runs/<run-id>/allure-results/` 及 `runs/<run-id>/handoff.json`
-6. **输出摘要**：最后 20 行运行输出
-
-### 第四步：烟雾验证
-
-- `smoke.spec.ts` 可以作为前置验证，但不得替代 `full.spec.ts` 自运行
-- 如果 full 全部失败（0 passed），先运行 smoke 确认基座是否正常
-- 如果 smoke 运行正常但 full 失败 → 进入 run-triage
-- 如果 smoke 也失败 → 优先检查 env profile 和 session 是否正常
-
-### 第五步：人工验收命令
-
-无论结果是 passed、blocked、failed 还是 partial，最终交付前都要打印一条人工验收命令：有头模式、跑 full test、可直接复制运行。
-
-```bash
-KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
-```
-
-调试时可以用无头命令，但交付或阻塞说明中必须同时给出上面这条 `--headed` full.spec.ts 命令；不得只宣称完成，也不得只给 smoke 或单条用例命令。
-
-## self-run 命令模板
-
-Few-shot（`features/<version>/【v...】.../` 中文展示名目录）：
+`features/<version>/【v...】.../` 这类中文展示名目录，**不传 `KATA_ACTIVE_FEATURE`**，用绝对/相对路径直接点 spec：
 
 ```bash
 FEATURE_DIR='workspace/dataAssets/features/v6.4.11/【v6411】【客户】【模块】需求名'
@@ -70,32 +44,28 @@ RUN_PATH="$FEATURE_DIR/runs/20260622-0630-codexrun"
 PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets \
   KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
   npx playwright test "$FEATURE_DIR/automation/tests/runners/full.spec.ts" \
-  --project=chromium --output="$RUN_PATH/playwright"
+  --output="$RUN_PATH/playwright"
 ```
 
-1. 先分配 run id：
-   ```bash
-   RUN_PATH=$(kata results path <featureId> --new-run --project <project>)
-   RUN_ID=$(basename "$RUN_PATH")
-   ```
-2. 运行测试：
-   ```bash
-   PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
-     KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
-     npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' \
-     --output="$RUN_PATH/playwright"
-   ```
-   > allure 落点由 config 中带 `outputFolder` 的 reporter 决定，经 `KATA_ALLURE_RESULTS_DIR` 统一到
-   > `$RUN_PATH/allure-results`，和 `playwright/` 同在本次 run 目录，`kata results publish` 才能一并发布。
-   > 不得在 CLI 用 `--reporter` 指定 allure：CLI 无法附带 `outputFolder`，allure 会退回默认 `./allure-results`（仓库根）。
-3. 测试退出后，按 `PlaywrightAutomationHandoff@2` schema 写 `$RUN_PATH/handoff.json`。`run_command` 记本次实际跑的命令；`acceptance_command` 记带 `full.spec.ts` 和 `--headed` 的有头全量验收命令。
-4. 渲染 md：`kata handoff render <featureId> --run "$RUN_ID" --project <project>`。
+## 人工验收命令（交付前必打印）
+
+无论结果 passed/blocked/failed/partial，最终交付都要给一条可直接复制的有头全量验收命令：
+
+```bash
+KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --headed --reporter=line
+```
+
+调试可用无头命令，但交付或阻塞说明必须同时给出这条 `--headed` full.spec.ts 命令；不得只宣称完成，也不得只给 smoke 或单条用例命令。
+
+## 烟雾验证
+
+- `smoke.spec.ts` 只做前置验证，不替代 `full.spec.ts` 自运行。
+- full 全部失败（0 passed）先跑 smoke 确认基座：smoke 正常但 full 失败 → run-triage；smoke 也失败 → 优先查 env profile 与 session。
 
 ## 禁止
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
-- 不得跳过 `--list` 直接运行。
-- 不得用不带文件参数的全量 Playwright 运行做调试。
+- 不得跳过 `--list` 直接运行；不得用不带文件参数的全量 Playwright 运行做调试。
 - 仅运行 `smoke.spec.ts` 不得宣称端到端自动化完成。
-- 不得在 CLI 用 `--reporter` 指定 allure：会绕过 config 的 `outputFolder`，allure 落到仓库根 `./allure-results`。
+- 不得在 CLI 用 `--reporter` 指定 allure：CLI 无法附带 `outputFolder`，allure 会退回仓库根 `./allure-results`，绕过 config。

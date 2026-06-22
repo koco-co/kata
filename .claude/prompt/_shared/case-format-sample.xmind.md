@@ -1,11 +1,6 @@
 <!--
-XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
-格式规范以 .claude/prompt/_shared/case-qa.md、.claude/prompt/_shared/output-artifacts.md 与本 fewshot 为准。
-配套的 md fewshot 见 ./case-format-sample.md。
-
-为何用 ASCII 树状而非真 .xmind：
-- 真 .xmind 是 zip + JSON，模型只能看到压缩后的 JSON 文本，结构反而被掩盖；
-- ASCII 树状可直观展示「md 表格 → xmind topic 父子链」「priority marker」「notes 与裸 SQL」三套映射规则。
+XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmind 是 zip+JSON 看不清结构）。
+内容规则单一权威见 ./case-format-sample.md 头注释；另参 .claude/prompt/_shared/case-qa.md 与 output-artifacts.md。
 -->
 
 ## frontmatter 事实字段 → xmind 节点 → 来源（严禁编造）

@@ -22,13 +22,15 @@ effort: medium
 ## 工作流
 
 1. **能力问答**：问 kata 能干嘛、功能菜单、某命令怎么用——按命令索引直接回答，不改动工作区。
-2. **工作区操作**：init / 自检 / 收尾 / 修复前，先读 `references/project-layout.md` 明确目录边界与写入位置，再动手。
+2. **工作区操作**：按下方命令流执行，动手前先确认目录边界（见「目录边界」），确保产物落在 `workspace/{project}/` 之下。
 
-## 何时加载哪个文件
+## 工作区操作命令
 
-| 文件 | 何时读 | 作用 |
-| --- | --- | --- |
-| references/project-layout.md | 创建、自检或修复工作区前 | 目录边界和产物写入位置 |
+flag 拼写以各命令 `--help` 为准。
+
+- **自检 / 收尾**：`kata init-wizard verify` 输出环境检查状态表（Node、依赖、workspace、.env、插件、源码仓库）；前 4 项全 pass 才算环境就绪，failed 项按 detail 里的提示修。
+- **自检骨架**：`kata create-project scan --project <name>` 对比当前骨架与目标，输出缺失的目录 / 文件 / 配置注册情况；`skeleton_complete` 与 `config_registered` 都为 true 即完整。
+- **创建 / 修复**：先 `kata create-project create --project <name> --dry-run` 预览将创建什么，确认后改用 `--confirmed` 落盘；不带任一 flag 会拒绝执行并提示加 `--confirmed`。
 
 ## 目录边界
 

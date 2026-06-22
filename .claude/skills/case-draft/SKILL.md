@@ -77,7 +77,7 @@ flowchart TD
 - 所有产物写入 `kata features resolve` 返回的 `featureDir`。
 - 每个 requirement atom 必须包含 `evidence_kind`、`ambiguity_class`、`confidence`，以及至少一个 `source_ref`。
 - 事实引用走 `metadata.yaml#case_drafting.requirement_atoms` 的 SourceRef ID：轻量行写 `{id, source_ref}`，完整信息保留在 `source_refs` / `case_id` / `requirement_atom_ids`。
-- 证据分层：`cases/archive.md` / `cases/archive.draft.md` / `cases/cases.xmind` 正文只保留人类可读用例内容；SourceRef 标识（`SR-`、`csv::`、SourceRef 字符串）只存储在结构化数据层，不得出现在展示文本中。
+- 证据分层（SourceRef 标识不进交付正文、只存结构化数据层）的权威细则见 `references/source-refs.md` 的「证据分层」。
 - 用例与证据的对照关系用 `case_id` 与 `requirement_atom_ids` 核对，不得用单一字段组合充当唯一键——单字段组合容易撞键，无法把证据精确对应到用例。
 - `history_inferred` 仅作为参考证据，新增行为一律以产品反馈为准。
 
@@ -98,7 +98,12 @@ flowchart TD
 ## 交付约束
 
 - `blocking pending` 未清零时，只允许产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind-gen` 产出 `cases/cases.xmind`。
-- 产物落盘后、交付前，运行 `kata cases lint --scope <featureDir> --exit-code` 和 `kata cases validate <featureId> --project <project>`，修复所有 violation 后再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在 lint 本可发现的问题上。
+- 产物落盘后、交付前，按 lint→validate→verify 顺序跑三条 exit-code 门，全部为零再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在命令本可发现的问题上：
+  1. `kata cases lint --scope <featureDir> --exit-code`
+  2. `kata cases validate <featureId> --project <project>`
+  3. `kata cases verify --project <project> --feature <featureId> --exit-code`（默认 `--required-kinds lanhu.fixture,knowledge.entry,repo.line`，flag 以 `kata cases verify --help` 为准）
+
+  verify 是三层硬校验门（L1 结构 / L2 输入消费 / L3 内容质量）；L1/L2/L3 全量触发只在 feature metadata `case_drafting.status=completed` 时发生，`blocked`/`in-progress` 路径跳过，不会误报。
 - `metadata.yaml#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。
 - 生成 `cases/archive.md` 后、产 `cases.xmind` 前，必须回读核对：实际用例数（`grep -c '^##### '`）须等于 frontmatter `case_count`；产 xmind 后回读根节点版本段、各二级节点标题与 `(#N)` label，与 module-identify 阶段确认的需求名/需求 id/版本基线逐字比对，任一不符先修正再交付。
 

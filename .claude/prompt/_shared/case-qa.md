@@ -27,7 +27,7 @@ Archive Markdown 与 XMind 必须从同一用例模型生成或更新；逐字�
 当前置数据实际是业务准备链路或页面操作（如新增报告、生成报告、执行规则任务、准备明细数据、确认状态记录）时，应放入用例步骤的前几步，并在预期中写明准备结果；前置条件只保留环境、权限、数据源、维表等跨用例基础依赖。
 前置条件不得写”本组用例的数据均在步骤中准备或确认”这类元说明；没有可核对的前置数据时，不要用一句话占位。
 
-用例级节点渲染格式（标题层级、前置条件代码块、步骤表格、XMind topic 与 priority marker）由 `kata archive-gen` 和 `kata xmind-gen` 编码。以下内容规则不在 CLI 中，以本文件、`.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-format-sample.md` 为准：标题三段式、前置条件 SQL 注释块写法、`${SchemaA}` 占位符、步骤=单页面、数据质量「规则集 → 规则任务」前置链、分区切换正负样本约束。
+用例级节点渲染格式（标题层级、前置条件代码块、步骤表格、XMind topic 与 priority marker）由 `kata archive-gen` 和 `kata xmind-gen` 编码。CLI 不覆盖的内容规则（标题三段式、前置条件 SQL 注释块写法、`${SchemaA}` 占位符、步骤=单页面、数据质量前置链、分区正负样本等）以 `.claude/prompt/_shared/case-format-sample.md` 头注释为单一权威，并参 `.claude/prompt/_shared/output-artifacts.md`。
 
 ## 产物变更后检查
 
@@ -35,8 +35,8 @@ QA 产物编辑后，先运行机械校验再做人工审查：
 
 1. 运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再继续。
 2. 机械对账（不得跳过）：
-   - `grep -c '^##### ' cases/archive.md` 必须等于 frontmatter `case_count`，不等先改正。
-   - 产 `cases.xmind` 后回读根节点版本段、各二级节点标题与 `(#N)` label，与需求名/需求 id/`prd_version` 基线逐字比对，任一不符即阻塞。
+   - `kata archive-gen validate --input cases/archive.md`：校验 frontmatter `case_count` 与正文 `##### ` 条数一致及结构合法，有 violation 先改正。
+   - 产 `cases.xmind` 后回读根节点版本段、各二级节点标题与 `(#N)` label，与需求名/需求 id/`prd_version` 基线逐字比对，任一不符即阻塞（CLI 不覆盖此项）。
 3. 人工审查以下维度（CLI 不覆盖）：
    - 优先级分布
    - Markdown/XMind 一致性

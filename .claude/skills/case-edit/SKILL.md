@@ -42,5 +42,6 @@ effort: medium
 ## 交付自审
 
 - Archive 为编辑源时，修改完成后运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 同步 XMind。
+- 历史 CSV/XMind 转 Archive 用 `kata history-convert --path <csv-or-dir> --project <project> [--version <v>] [--filter <kw>]`（参数以 `kata history-convert --help` 为准）。
 - 交付前先运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再做人工自审。
 - 自审 Archive 与 XMind 的用例数量、优先级、标题、前置条件、步骤、预期结果，确保完全一致；细则见 `references/archive-xmind-sync.md`。主动发现不一致，不得留给用户人工核对。
