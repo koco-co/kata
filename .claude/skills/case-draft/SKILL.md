@@ -95,6 +95,16 @@ flowchart TD
 
 `suite_name`（需求名）、`case_id`/`prd_id`（ZenTao 需求 id）、`prd_version`（lanhu-prd 迭代版本，与目录版本一致）、`product_line`（产品线名）、目标版本目录（`--feature-version`）是需向用户/ZenTao 确认的**外部事实**，不是可自由填的格式字段——它们会渲染进 xmind 可见节点或决定归类。任一字段无 SourceRef/用户明示时，主会话必须用 `AskUserQuestion` 一次性批量索要（推荐项置顶并附理由），严禁编造编号、自创需求名、拿 basename/迭代号/目录版本等默认值兜底后产出 `cases/archive.md` / `cases/cases.xmind`。字段→xmind 渲染映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`。
 
+## 起草前确认测试范围
+
+需求开放、能拆出多条场景时（枚举多取值、衍生交互、优先级分配未定），起草用例**前**先用 `AskUserQuestion` 把测试点清单与覆盖范围摆给用户确认，再动笔——把范围缺口挡在起草前，避免用例跑出预期后整批返工。一轮确认覆盖三件事：
+
+- **测试点清单**：按需求+证据梳理出的场景列表（编号呈现），让用户增删；
+- **枚举覆盖**：需求/PRD 列出的多取值（数据源类型、状态、层级等）覆盖到哪些、是否抽样；
+- **优先级分配**：P0 用例集（P0 约占总用例 25%~30%，核心交付/兼容回归优先），让用户确认或改派。
+
+这轮范围确认与上一节「事实字段缺证据的批量索要」合并在同一组 `AskUserQuestion` 内完成（推荐项置顶并附理由），是 URL-only 静默模式下「阻塞/索要」的既有例外，不算违反静默约束。
+
 ## 交付约束
 
 - `blocking pending` 未清零时，只允许产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind-gen` 产出 `cases/cases.xmind`。
