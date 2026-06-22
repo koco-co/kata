@@ -8,10 +8,12 @@ import { fileURLToPath } from "node:url";
 
 import {
   buildLanhuBridgeEnv,
+  deriveVersionDir,
   extractImageUrls,
   htmlToMarkdown,
   inferKataProjectFromLanhuProjects,
   parseLanhuUrl,
+  resolveOutputLayout,
   selectRequirementsForFetch,
   slugify,
 } from "../fetch.ts";
@@ -160,6 +162,65 @@ describe("slugify", () => {
 
   it("handles empty string", () => {
     assert.equal(slugify(""), "");
+  });
+});
+
+// ─── deriveVersionDir ─────────────────────────────────────────────────────────
+
+describe("deriveVersionDir", () => {
+  it("derives a 3-segment version from a Lanhu doc title", () => {
+    assert.equal(deriveVersionDir("资产V7.0.0（岚图/泸州老窖定制）"), "v7.0.0");
+  });
+
+  it("derives a lowercase 3-segment version", () => {
+    assert.equal(deriveVersionDir("v6.4.10 迭代需求"), "v6.4.10");
+  });
+
+  it("derives a 2-segment version", () => {
+    assert.equal(deriveVersionDir("数据资产 V6.4 版本"), "v6.4");
+  });
+
+  it("returns null when the title has no version", () => {
+    assert.equal(deriveVersionDir("数据质量需求池"), null);
+  });
+
+  it("returns null for a single-segment version (needs at least vX.Y)", () => {
+    assert.equal(deriveVersionDir("V7 预研"), null);
+  });
+
+  it("does not capture a partial version when a 4th segment follows", () => {
+    assert.equal(deriveVersionDir("build v7.0.0.1"), null);
+  });
+});
+
+// ─── resolveOutputLayout ──────────────────────────────────────────────────────
+
+describe("resolveOutputLayout", () => {
+  it("feature mode writes into the feature dir using inputs/ convention", () => {
+    const layout = resolveOutputLayout({
+      featureDir: "/abs/feature",
+      baseDir: "/abs/base",
+      yyyymm: "202606",
+      reqDirName: "需求A",
+    });
+    assert.equal(layout.reqDir, "/abs/feature");
+    assert.equal(layout.imagesDir, "/abs/feature/inputs/lanhu-snapshots");
+    assert.equal(layout.refDocsDir, "/abs/feature/inputs/reference-docs");
+    assert.equal(layout.prdFileName, "prd.md");
+    assert.equal(layout.imageRefPrefix, "inputs/lanhu-snapshots");
+  });
+
+  it("legacy mode stages under {baseDir}/{yyyymm}/{reqDirName}/ with images + tmp", () => {
+    const layout = resolveOutputLayout({
+      baseDir: "/abs/base",
+      yyyymm: "202606",
+      reqDirName: "需求A",
+    });
+    assert.equal(layout.reqDir, "/abs/base/202606/需求A");
+    assert.equal(layout.imagesDir, "/abs/base/202606/需求A/images");
+    assert.equal(layout.refDocsDir, "/abs/base/202606/需求A/tmp");
+    assert.equal(layout.prdFileName, "需求A.md");
+    assert.equal(layout.imageRefPrefix, "images");
   });
 });
 
