@@ -170,3 +170,51 @@ describe("FeatureMetadata@2 case_drafting", () => {
     expect(validateV2(bad)).toBe(false);
   });
 });
+
+// ── FeatureMetadata@2: 富需求环境字段放开后的行为 ──
+//   root.requirement_context 是自由 object，承接 feature 专属字段(如 starrocks_version)，
+//   不污染全局 schema 表面；case_drafting.source_refs 同样放开为自由对象数组。
+describe("FeatureMetadata@2 requirement_context & source_refs", () => {
+  it("accepts a free-form requirement_context bag with feature-specific keys", () => {
+    const ok = {
+      ...baseV2,
+      requirement_context: {
+        customer_platform_version: "6.0",
+        dev_branch: "6.0_浙商证券定制化分支",
+        starrocks_version: "3.3.18",
+        lanhu_page_id: "f2e6ada9fe694ad6b91b8874c0d0e97f",
+        zentao_story_id: "16035",
+        requirement_name: "【数据质量】支持starrocks 3.x数据源",
+        xmind_root_version: "6.0_浙商证券",
+      },
+    };
+    expect(validateV2(ok)).toBe(true);
+  });
+
+  it("accepts case_drafting.source_refs alongside requirement_atoms", () => {
+    const ok = {
+      ...baseV2,
+      case_drafting: {
+        status: "completed",
+        archive_path: "cases/archive.md",
+        coverage_matrix_path: null,
+        source_refs: [
+          {
+            id: "SR-001",
+            kind: "history_case",
+            path: "workspace/dataAssets/features/.../cases/archive.md",
+            note: "主参考模板",
+          },
+          { id: "SR-003", kind: "requirement_text", path: null, note: "需求描述" },
+        ],
+        requirement_atoms: [{ id: "RA-001", source_ref: "SR-003" }],
+      },
+    };
+    expect(validateV2(ok)).toBe(true);
+  });
+
+  it("still rejects an unknown top-level property (schema stays closed)", () => {
+    const bad = { ...baseV2, totally_unknown_root_field: "x" };
+    expect(validateV2(bad)).toBe(false);
+  });
+});
