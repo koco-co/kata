@@ -101,4 +101,29 @@ describe("lintArchiveCaseQa", () => {
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.passed).toBe(true);
   });
+
+  test("flags case_count mismatch with actual ##### case headings", () => {
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("case_count: 1", "case_count: 2"),
+    });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(r.violations.some((v) => v.rule === "archive-case-count-mismatch")).toBe(true);
+  });
+
+  test("does not flag description or product_line frontmatter (consumed fields)", () => {
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace(
+        'status: "草稿"',
+        'status: "草稿"\ndescription: "X 用例归档"\nproduct_line: "dataAssets"',
+      ),
+    });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(
+      r.violations.some(
+        (v) =>
+          v.rule === "archive-frontmatter-deprecated" &&
+          (v.matched === "description" || v.matched === "product_line"),
+      ),
+    ).toBe(false);
+  });
 });
