@@ -191,6 +191,12 @@ describe("deriveVersionDir", () => {
   it("does not capture a partial version when a 4th segment follows", () => {
     assert.equal(deriveVersionDir("build v7.0.0.1"), null);
   });
+
+  it("does not split a multi-digit segment of a 4-segment version", () => {
+    // 回归：曾因 \d+ 回溯把 "10" 拆成 "1"，让 "V6.4.10.0" 误判成 "v6.4.1"
+    assert.equal(deriveVersionDir("V6.4.10.0"), null);
+    assert.equal(deriveVersionDir("数据V6.4.10.0标定"), null);
+  });
 });
 
 // ─── resolveOutputLayout ──────────────────────────────────────────────────────

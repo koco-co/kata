@@ -353,7 +353,9 @@ function currentYYYYMM(): string {
  * Accepts 2- or 3-segment versions (matching features layout VERSION_DIR_RE); returns null when absent.
  */
 export function deriveVersionDir(title: string): string | null {
-  const m = title.match(/[vV](\d+(?:\.\d+){1,2})(?!\.\d)/);
+  // 末尾负向先行同时排除「数字」与「点」：否则 \d+ 会把多位段（如 10）回溯拆成 1+0，
+  // 让 "V6.4.10.0" 漏判成 "v6.4.1"。要求版本后面既不接数字也不接点，才算完整版本号。
+  const m = title.match(/[vV](\d+(?:\.\d+){1,2})(?![\d.])/);
   return m ? `v${m[1]}` : null;
 }
 
