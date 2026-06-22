@@ -19,7 +19,8 @@
 ---
 suite_name: "<真实需求名，来自 ZenTao/用户，禁自创、禁加客户前缀>"
 prd_id: <真实 ZenTao 需求 id，数字，禁编号>
-prd_version: "<客户平台/开发分支版本，如 6.0_浙商证券，非迭代版本号>"
+prd_version: "<lanhu-prd 迭代版本，如 7.0.0，与 feature 目录版本一致；非开发分支版本 6.0_浙商证券>"
+product_line: "<产品线名，固定，如 数据资产；决定 xmind 根节点产品线段，缺省回退 --project>"
 description: "<一句话用例集描述>"
 tags:
   - "<关键词>"

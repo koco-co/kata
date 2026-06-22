@@ -236,6 +236,48 @@ prd_version: "v6.4.10"
     expect(sheets[0]?.rootTopic?.title).toBe("自定义 Root 节点");
   });
 
+  it("uses frontmatter product_line for root project segment and sets sheet title", async () => {
+    const input = join(TMP_DIR, "product-line.md");
+    const output = join(TMP_DIR, "product-line.xmind");
+    const archiveMd = `---
+suite_name: "starrocks 支持"
+product_line: "数据资产"
+prd_version: "7.0.0"
+---
+
+## 数据质量
+
+### 规则任务配置
+
+##### 【P1】验证 starrocks 数据源规则配置
+
+> 前置条件
+
+\`\`\`
+已接入 starrocks 数据源
+\`\`\`
+
+> 用例步骤
+
+| 编号 | 步骤 | 预期 |
+| ---- | ---- | ---- |
+| 1 | 进入规则任务配置 | 页面正常 |
+`;
+    writeFileSync(input, archiveMd, "utf8");
+
+    const { code } = run(["--input", input, "--output", output, "--project", "CLI项目名"]);
+    expect(code).toBe(0);
+
+    const sheets = (await readContentJson(output)) as {
+      title?: string;
+      rootTopic?: { title?: string };
+    }[];
+    // product_line 优先于 CLI --project，作为根节点产品线段
+    expect(sheets[0]?.rootTopic?.title).toBe("数据资产v7.0.0迭代用例(#23)");
+    // sheet 名（XMind 左下角画布标签）取根节点标题，非空
+    expect(sheets[0]?.title).toBe("数据资产v7.0.0迭代用例(#23)");
+  });
+
   it("preserves version headings from grouped Archive Markdown as XMind module nodes", async () => {
     const input = join(TMP_DIR, "grouped-history.md");
     const output = join(TMP_DIR, "grouped-history.xmind");

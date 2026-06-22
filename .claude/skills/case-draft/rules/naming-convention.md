@@ -34,9 +34,9 @@ feature 内只允许 `cases/`（用例产物）、`automation/`（自动化）�
 
 同一需求涉及两类「版本」，落在不同出口，取值可能不同，**不得互相复用**：
 
-- **迭代 / 目录版本**：决定 feature 归类，落 `features/{version}/` 目录层；喂 `kata features resolve --feature-version <vX.Y.Z>`，受 `VERSION_DIR_RE`（如 `v6.4.11`）约束、由 CLI 引擎归一化。缺省会落 `_standing`，版本类需求必须显式传；版本号未知时先 `AskUserQuestion` 确认，不得自拼。
-- **开发 / 客户平台版本**：决定 xmind 根节点展示段，落 archive frontmatter `prd_version`（如 `6.0_浙商证券`）；可含客户后缀、不受 `VERSION_DIR_RE` 约束。
-- （标品版本仅作背景括注，不单独成目录段。）
+- **迭代版本**：同源同值，同时决定 ① feature 目录归类（`features/{version}/`，喂 `kata features resolve --feature-version <vX.Y.Z>`，受 `VERSION_DIR_RE` 约束如 `v6.4.11`、CLI 归一化）② xmind 根节点版本段（archive frontmatter `prd_version`，如 `7.0.0`）。两处取自同一 lanhu-prd 迭代版本，不得互相矛盾。缺省 `--feature-version` 会落 `_standing`，版本类需求必须显式传；版本号未知先 `AskUserQuestion` 确认，不得自拼。
+- **开发分支 / 客户平台版本**（如 `6.0_浙商证券`）：仅作环境信息写入用例前置条件与 metadata，**不进目录、不进 xmind 根节点**。
+- **产品线名**（如 `数据资产`）：xmind 根节点产品线段，由 archive frontmatter `product_line` 固定（缺省回退 xmind-gen `--project`）。
 
 ## 目录名与机器主键的关系
 

@@ -14,13 +14,14 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状）
 
 | frontmatter 字段 | 语义 | xmind 渲染目标 | 来源 / 能否自填 | 取不到时动作 |
 | --- | --- | --- | --- | --- |
+| `product_line` | 产品线名（固定，如 `数据资产`） | 根节点产品线段（模板 `{product_line}v{prd_version}迭代用例(#{iteration_id})`） | workspace 固定产品线名（dataAssets=数据资产）；缺省回退 CLI `--project` | 用项目产品线名 |
 | `suite_name` | 真实需求名 | 二级(L1)节点标题（自动去尾部 `(#数字)`） | ZenTao 需求名原文 / 用户；**禁自创、禁加客户前缀、禁改大小写与语序** | AskUserQuestion |
 | `case_id`（或 `prd_id`） | 真实 ZenTao 需求 id（数字） | 二级节点 label `(#N)` | ZenTao / 用户；**禁编号、禁顺手填序号** | AskUserQuestion |
-| `prd_version` | 客户平台 / 开发分支版本（如 `6.0_浙商证券`） | 根节点版本段（模板 `{project_name}v{prd_version}迭代用例(#{iteration_id})`） | 用户 / 开发分支；**禁拿迭代版本或目录版本充数** | AskUserQuestion |
+| `prd_version` | lanhu-prd 迭代版本（如 `7.0.0`，与 feature 目录版本一致） | 根节点版本段（模板 `{product_line}v{prd_version}迭代用例(#{iteration_id})`） | lanhu-prd 版本 / 用户；**禁拿开发分支版本（如 6.0_浙商证券）充数** | AskUserQuestion |
 | `root_name`（可选） | 根节点标题整体覆盖 | 给出即**整串**作根标题（不再套模板） | 仅用户显式要求覆盖时填 | 留空走默认模板 |
 | `iteration_id` | 迭代号（固定） | 根节点 `(#N)` 段 | 来自 `.claude/scripts/_shared/lib/rules.ts`，**模型不得改** | 用 rules 默认值 |
 
-> 版本概念区分：`prd_version`（xmind 根节点展示版本，如 `6.0_浙商证券`）≠ feature 目录版本（迭代/归类版本，喂 `kata features resolve --feature-version`，受 `VERSION_DIR_RE` 约束如 `v6.4.11`）。同一需求两处取值可能不同，不得互相复用。详见 `.claude/skills/case-draft/rules/naming-convention.md`。
+> 版本概念：`prd_version`（xmind 根节点版本段）= feature 目录版本 = **lanhu-prd 迭代版本**（如 `7.0.0` / 目录 `v7.0.0`），两处同源一致。开发分支/客户平台版本（如 `6.0_浙商证券`）只是环境信息（写前置条件、metadata），**不进根节点、不进目录**。sheet 名（XMind 左下角画布标签）由 `kata xmind-gen` 自动取根节点标题，无需手填。详见 `.claude/skills/case-draft/rules/naming-convention.md`。
 
 ## 映射对照表
 
