@@ -16,7 +16,7 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmin
 | `root_name`（可选） | 根节点标题整体覆盖 | 给出即**整串**作根标题（不再套模板） | 仅用户显式要求覆盖时填 | 留空走默认模板 |
 | `iteration_id` | 迭代号（固定） | 根节点 `(#N)` 段 | 来自 `.claude/scripts/_shared/lib/rules.ts`，**模型不得改** | 用 rules 默认值 |
 
-> 版本概念：`prd_version`（xmind 根节点版本段）= feature 目录版本 = **lanhu-prd 迭代版本**（如 `7.0.0` / 目录 `v7.0.0`），两处同源一致。开发分支/客户平台版本（如 `6.0_浙商证券`）只是环境信息（写前置条件、metadata），**不进根节点、不进目录**。sheet 名（XMind 左下角画布标签）由 `kata xmind-gen` 自动取根节点标题，无需手填。详见 `.claude/skills/case-draft/rules/naming-convention.md`。
+> 版本概念：`prd_version`（xmind 根节点版本段）= feature 目录版本 = **lanhu-prd 迭代版本**（如 `7.0.0` / 目录 `v7.0.0`），两处同源一致。开发分支/客户平台版本（如 `6.0_浙商证券`）只是环境信息，**只写进 metadata**（dev_version / description），**不进前置条件、不进根节点、不进目录**。sheet 名（XMind 左下角画布标签）由 `kata xmind-gen` 自动取根节点标题，无需手填。详见 `.claude/skills/case-draft/rules/naming-convention.md`。
 
 ## 映射对照表
 
@@ -27,14 +27,15 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmin
 | 表格的每一行「步骤」单元格 | 用例 topic 下的 step child topic：title=步骤文本（`<br>` 还原为换行） |
 | 表格同一行的「预期」单元格 | step child 下的 expected grandchild topic：title=预期文本（`<br>` 还原为换行） |
 
-priority marker 对照：
+priority marker 对照（以 `render.ts` 的 `PRIORITY_MAP` 为准：团队以 P1 为最高优先级，P0 是兼容别名，二者共用 `priority-1`）：
 
 | Markdown 标题前缀 | XMind markerId |
 | --- | --- |
-| `【P0】` | `priority-1` |
-| `【P1】` | `priority-2` |
-| `【P2】` | `priority-3` |
-| `【P3】` | `priority-4` |
+| `【P0】`（旧约定，等同 P1） | `priority-1` |
+| `【P1】` | `priority-1` |
+| `【P2】` | `priority-2` |
+| `【P3】` | `priority-3` |
+| `【P4】` | `priority-4` |
 
 ## 完整结构示意（基于同目录 case-format-sample.md）
 

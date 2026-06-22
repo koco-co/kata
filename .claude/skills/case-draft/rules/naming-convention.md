@@ -35,7 +35,7 @@ feature 内只允许 `cases/`（用例产物）、`automation/`（自动化）�
 同一需求涉及两类「版本」，落在不同出口，取值可能不同，**不得互相复用**：
 
 - **迭代版本**：同源同值，同时决定 ① feature 目录归类（`features/{version}/`，喂 `kata features resolve --feature-version <vX.Y.Z>`，受 `VERSION_DIR_RE` 约束如 `v6.4.11`、CLI 归一化）② xmind 根节点版本段（archive frontmatter `prd_version`，如 `7.0.0`）。两处取自同一 lanhu-prd 迭代版本，不得互相矛盾。缺省 `--feature-version` 会落 `_standing`，版本类需求必须显式传；版本号未知先 `AskUserQuestion` 确认，不得自拼。
-- **开发分支 / 客户平台版本**（如 `6.0_浙商证券`）：仅作环境信息写入用例前置条件与 metadata，**不进目录、不进 xmind 根节点**。
+- **开发分支 / 客户平台版本**（如 `6.0_浙商证券`、`6.3 岚图定制分支`）：仅作环境信息写入 metadata（`dev_version` / `description`），**不进用例前置条件、不进目录、不进 xmind 根节点**。前置条件除非需求明确写了权限差异，否则连「使用 admin 账号登录系统」也不写。
 - **产品线名**（如 `数据资产`）：xmind 根节点产品线段，由 archive frontmatter `product_line` 固定（缺省回退 xmind-gen `--project`）。
 
 ## 目录名与机器主键的关系
