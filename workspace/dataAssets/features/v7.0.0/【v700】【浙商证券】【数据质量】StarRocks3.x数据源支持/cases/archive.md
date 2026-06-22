@@ -1,5 +1,5 @@
 ---
-suite_name: "【浙商证券】【数据质量】StarRocks 3.x 数据源支持"
+suite_name: "【数据质量】支持starrocks 3.x数据源"
 description: "数据质量模块整体适配 StarRocks 3.x（版本 3.3.18）集成验证用例，迭代版本 v7.0.0，客户平台版本 6.0，开发分支：6.0_浙商证券定制化分支"
 tags:
   - "StarRocks"
@@ -12,14 +12,14 @@ tags:
   - "任务实例查询"
   - "质量报告"
   - "项目管理"
-prd_version: "v7.0.0"
+prd_version: "6.0_浙商证券"
 dev_version:
   - "浙商证券"
 create_at: "2026-06-22"
 status: "草稿"
 origin: "case-draft"
-case_count: 12
-case_id: 20001
+case_count: 14
+case_id: 16035
 ---
 
 ## 通用前置条件

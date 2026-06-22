@@ -23,6 +23,9 @@ customer_platform_version: "6.0"
 dev_branch: "6.0_浙商证券定制化分支"
 starrocks_version: "3.3.18"
 lanhu_page_id: f2e6ada9fe694ad6b91b8874c0d0e97f
+zentao_story_id: "16035"
+requirement_name: 【数据质量】支持starrocks 3.x数据源
+xmind_root_version: 6.0_浙商证券  # xmind 根节点展示版本（开发版本），区别于目录迭代版本 v7.0.0
 case_drafting:
   status: completed
   archive_path: cases/archive.md
