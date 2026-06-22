@@ -34,8 +34,11 @@ Archive Markdown 与 XMind 必须从同一用例模型生成或更新；逐字�
 QA 产物编辑后，先运行机械校验再做人工审查：
 
 1. 运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再继续。
-2. 人工审查以下维度（CLI 不覆盖）：
-   - 用例数量和优先级分布
+2. 机械对账（不得跳过）：
+   - `grep -c '^##### ' cases/archive.md` 必须等于 frontmatter `case_count`，不等先改正。
+   - 产 `cases.xmind` 后回读根节点版本段、各二级节点标题与 `(#N)` label，与需求名/需求 id/`prd_version` 基线逐字比对，任一不符即阻塞。
+3. 人工审查以下维度（CLI 不覆盖）：
+   - 优先级分布
    - Markdown/XMind 一致性
    - XMind 标记分布
    - 过期术语/菜单名称残留

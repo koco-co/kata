@@ -31,9 +31,10 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 Status Envelope。
 > 只能把 provenance 写入当前 repo contract 允许的 JSON/evidence 结构：FeatureManifest@2 的 `case_drafting.requirement_atoms[].source_ref` 轻量行、RequirementAtom@1 的 `source_refs[]`、CaseEvidenceMap@1、coverage mapping。
 > 不得把 SourceRef/SR/csv refs 或任何证据定位文本写进 `cases/archive.md`、`cases/archive.draft.md`、`cases/cases.xmind` 的展示文本。
 > 不得使用旧映射字段 `requirement_id`；用例追溯必须使用 `case_id` 与 `requirement_atom_ids`。
-> Worker 的 `blocked.kind` 只能是 `missing_evidence`、`ambiguous_requirement`、`history_only`。
+> Worker 的 `blocked.kind` 只能是 `missing_evidence`、`ambiguous_requirement`、`history_only`、`missing_required_fact`；`missing_required_fact` 指 `case_id`/需求名/客户/版本等只能由用户或 ZenTao 提供的事实字段缺失，由主 Skill 转成 AskUserQuestion 索要，禁 Worker 或主 Skill 自填。
 > `source_intake_failed` 仅属于主 Skill 的 source-intake/error-fallback，不属于 Worker `blocked.kind`。
 > 任务涉及表单类用例，且用户或 source_snapshot 提供了源码、平台 DOM/YAML、环境配置或截图证据时，必须先使用这些证据中的表单字段基线；不得写入基线中不存在的字段、选项、按钮或配置项。缺少或无法读取基线时返回 `BLOCKED`，`blocked.kind="missing_evidence"`。
+> 不得用文件名 basename、few-shot 或派生名兜底 `suite_name`，不得编造 `case_id`/`prd_id`/`prd_version` 等事实字段；这些字段缺失时返回 `BLOCKED`，`blocked.kind="missing_required_fact"`。
 
 ## Status Envelope
 

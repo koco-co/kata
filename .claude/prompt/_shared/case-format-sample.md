@@ -13,16 +13,20 @@
 - 业务括号：UI/字段用「」；优先级与业务对象用【】
 - 步骤=单页面：不同页面动作拆成不同步骤行
 - 规则描述等描述字段必填，预期需验证保存+回显
+- frontmatter 事实字段（suite_name/prd_id/prd_version）无证据必须 AskUserQuestion 索要，禁占位/默认值糊弄；字段→xmind 渲染映射见 ./case-format-sample.xmind.md
 -->
 
 ---
-suite_name: "<replace-when-rendering>"
-description: "<replace-when-rendering>"
+suite_name: "<真实需求名，来自 ZenTao/用户，禁自创、禁加客户前缀>"
+prd_id: <真实 ZenTao 需求 id，数字，禁编号>
+prd_version: "<客户平台/开发分支版本，如 6.0_浙商证券，非迭代版本号>"
+description: "<一句话用例集描述>"
 tags:
-  - "<replace-when-rendering>"
-create_at: "<replace-when-rendering>"
-status: "<replace-when-rendering>"
-case_count: 1
+  - "<关键词>"
+create_at: "<YYYY-MM-DD>"
+status: "草稿 | 已评审"
+case_count: <实际用例数，必须等于正文 ##### 条数>
+# root_name: "<可选，仅用户显式要求覆盖 xmind 根节点标题时填>"
 ---
 
 ### 数据质量
