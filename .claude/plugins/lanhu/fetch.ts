@@ -99,6 +99,8 @@ interface RequirementInfo {
 
 interface FetchOutput {
   title: string;
+  /** Semantic version dir (e.g. "v7.0.0") derived from the doc title; null when absent. */
+  derived_version: string | null;
   total_requirements: number;
   requirements: RequirementInfo[];
 }
@@ -123,6 +125,22 @@ interface RunOptions {
   project?: string;
   baseDir?: string;
   pagesFilter?: string;
+  /** Target a single feature dir; writes prd.md + inputs/ instead of {baseDir}/{yyyymm}/ staging. */
+  featureDir?: string;
+}
+
+/** Where a requirement's fetched files land, computed from feature-dir vs legacy base-dir mode. */
+export interface OutputLayout {
+  /** Directory the requirement's prd markdown is written to. */
+  reqDir: string;
+  /** Absolute dir for screenshot images. */
+  imagesDir: string;
+  /** Absolute dir for reference .txt files. */
+  refDocsDir: string;
+  /** Markdown filename written at reqDir. */
+  prdFileName: string;
+  /** Path prefix used in markdown image refs (relative to reqDir). */
+  imageRefPrefix: string;
 }
 
 interface CommandFailure {
@@ -327,6 +345,48 @@ async function downloadImage(imageUrl: string, destPath: string, cookie: string)
 function currentYYYYMM(): string {
   const now = new Date();
   return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/**
+ * Derive a semantic version directory from a Lanhu doc title.
+ * "资产V7.0.0（岚图/泸州老窖定制）" → "v7.0.0"; "v6.4.10 迭代" → "v6.4.10".
+ * Accepts 2- or 3-segment versions (matching features layout VERSION_DIR_RE); returns null when absent.
+ */
+export function deriveVersionDir(title: string): string | null {
+  // 末尾负向先行同时排除「数字」与「点」：否则 \d+ 会把多位段（如 10）回溯拆成 1+0，
+  // 让 "V6.4.10.0" 漏判成 "v6.4.1"。要求版本后面既不接数字也不接点，才算完整版本号。
+  const m = title.match(/[vV](\d+(?:\.\d+){1,2})(?![\d.])/);
+  return m ? `v${m[1]}` : null;
+}
+
+/**
+ * Resolve where a requirement's files land. Feature mode writes directly into the feature
+ * dir using the kata inputs/ convention (prd.md + inputs/lanhu-snapshots + inputs/reference-docs);
+ * legacy mode stages under {baseDir}/{yyyymm}/{reqDirName}/ with images/ + tmp/.
+ */
+export function resolveOutputLayout(params: {
+  featureDir?: string;
+  baseDir: string;
+  yyyymm: string;
+  reqDirName: string;
+}): OutputLayout {
+  if (params.featureDir) {
+    return {
+      reqDir: params.featureDir,
+      imagesDir: join(params.featureDir, "inputs", "lanhu-snapshots"),
+      refDocsDir: join(params.featureDir, "inputs", "reference-docs"),
+      prdFileName: "prd.md",
+      imageRefPrefix: "inputs/lanhu-snapshots",
+    };
+  }
+  const reqDir = join(params.baseDir, params.yyyymm, params.reqDirName);
+  return {
+    reqDir,
+    imagesDir: join(reqDir, "images"),
+    refDocsDir: join(reqDir, "tmp"),
+    prdFileName: `${params.reqDirName}.md`,
+    imageRefPrefix: "images",
+  };
 }
 
 function parseRequirementFromPageName(pageName: string, pagePath: string): ParsedRequirement {
@@ -779,13 +839,31 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
   const baseDir =
     options.baseDir ?? (workspaceProject ? `workspace/${workspaceProject}/prds` : "workspace/prds");
   const absBaseDir = resolve(baseDir);
+
+  // Feature 模式只能对准单个需求；命中多个时无法消歧，拒绝而非乱写同一目录
+  const absFeatureDir = options.featureDir ? resolve(options.featureDir) : undefined;
+  if (absFeatureDir && selectedRequirements.length !== 1) {
+    const err: ErrorOutput = {
+      error: `--feature-dir targets a single requirement, but ${selectedRequirements.length} matched. Narrow with --pages or a page-scoped URL.`,
+      code: "FEATURE_DIR_MULTI_REQUIREMENT",
+    };
+    process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
+    process.exit(1);
+  }
+
   const requirementInfos: RequirementInfo[] = [];
 
   for (const { page, parsed: reqInfo } of selectedRequirements) {
     const reqDirName = reqInfo.requirementName;
-    const reqDir = join(absBaseDir, yyyymm, reqDirName);
-    const imagesDir = join(reqDir, "images");
-    const tmpDir = join(reqDir, "tmp");
+    const layout = resolveOutputLayout({
+      featureDir: absFeatureDir,
+      baseDir: absBaseDir,
+      yyyymm,
+      reqDirName,
+    });
+    const reqDir = layout.reqDir;
+    const imagesDir = layout.imagesDir;
+    const tmpDir = layout.refDocsDir;
     mkdirSync(imagesDir, { recursive: true });
     mkdirSync(tmpDir, { recursive: true });
 
@@ -911,7 +989,7 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
     // Element images section — high-res UI components for field/control recognition
     if (elementImages.length > 0) {
       const elementImgMd = elementImages
-        .map((img, idx) => `![页面元素-${idx + 1}](images/${img.name})`)
+        .map((img, idx) => `![页面元素-${idx + 1}](${layout.imageRefPrefix}/${img.name})`)
         .join("\n\n");
       bodyParts.push(`## 页面元素截图\n\n${elementImgMd}`);
     }
@@ -924,7 +1002,7 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
     // Full-page screenshot — overall page layout reference
     if (fullpageImages.length > 0) {
       const fullpageImgMd = fullpageImages
-        .map((img, idx) => `![全页截图-${idx + 1}](images/${img.name})`)
+        .map((img, idx) => `![全页截图-${idx + 1}](${layout.imageRefPrefix}/${img.name})`)
         .join("\n\n");
       bodyParts.push(`## 整页截图\n\n${fullpageImgMd}`);
     }
@@ -948,9 +1026,8 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
 
     const prdContent = `${frontMatter}\n\n${bodyParts.join("\n\n")}\n`;
 
-    // Write assembled PRD to requirement root directory
-    const prdFileName = `${reqInfo.requirementName}.md`;
-    const prdPath = join(reqDir, prdFileName);
+    // Write assembled PRD (feature mode → prd.md at feature root; legacy → {reqName}.md)
+    const prdPath = join(reqDir, layout.prdFileName);
     writeFileSync(prdPath, prdContent, "utf8");
 
     requirementInfos.push({
@@ -965,9 +1042,10 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
     });
   }
 
-  // 8. Output JSON result
+  // 8. Output JSON result（derived_version 供 orchestration 传给 `features resolve --feature-version`）
   const output: FetchOutput = {
     title,
+    derived_version: deriveVersionDir(title),
     total_requirements: requirementInfos.length,
     requirements: requirementInfos,
   };
@@ -989,14 +1067,27 @@ if (isMain) {
     )
     .option("--project <name>", "项目名称")
     .option("--base-dir <dir>", "PRD 输出基目录（覆盖项目默认）")
+    .option(
+      "--feature-dir <dir>",
+      "直接写入指定 feature 目录：prd.md + inputs/lanhu-snapshots + inputs/reference-docs（不按 yyyymm 暂存，仅限单个需求）",
+    )
     .option("--pages <ids>", "要获取的需求 ID（逗号分隔），不指定则获取全部")
-    .action(async (opts: { url: string; project?: string; baseDir?: string; pages?: string }) => {
-      await run(opts.url, {
-        project: opts.project,
-        baseDir: opts.baseDir,
-        pagesFilter: opts.pages,
-      });
-    });
+    .action(
+      async (opts: {
+        url: string;
+        project?: string;
+        baseDir?: string;
+        featureDir?: string;
+        pages?: string;
+      }) => {
+        await run(opts.url, {
+          project: opts.project,
+          baseDir: opts.baseDir,
+          featureDir: opts.featureDir,
+          pagesFilter: opts.pages,
+        });
+      },
+    );
 
   program.parse(process.argv);
 }
