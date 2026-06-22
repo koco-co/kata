@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { isV2, readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
+import { listFeatureDirs } from "@shared/lib/features/layout.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { isCanonicalSourceRef } from "@shared/lib/source-ref/resolvers.ts";
 import { loadFeatureManifestValidator } from "@shared/schemas/loaders.ts";
@@ -449,21 +450,33 @@ export async function runCasesValidate(ctx: CasesValidateContext): Promise<Cases
     };
   }
 
-  const featureDir = join(ctx.workspaceRoot, ctx.project, "features", ctx.featureId);
+  const featuresRoot = join(ctx.workspaceRoot, ctx.project, "features");
   const issues: CasesValidateIssue[] = [];
 
-  if (!existsSync(featureDir)) {
+  // @2 两级布局（features/{version}/{dirName}/）+ _standing/_archived + legacy-flat 统一扫描。
+  // 先按目录名精确匹配（人类路由把手，含中文标签），再退回 metadata.feature_id / id（slug 机器主键）。
+  const entries = listFeatureDirs(featuresRoot);
+  const matched =
+    entries.find((e) => e.dirName === ctx.featureId) ??
+    entries.find((e) => {
+      const m = readFeatureMeta(e.dir);
+      return m?.feature_id === ctx.featureId || m?.id === ctx.featureId;
+    });
+
+  if (!matched) {
     return {
       ok: false,
       issues: [
         {
           rule: "feature_not_found",
           message: `Feature not found: ${ctx.project}/${ctx.featureId}`,
-          path: featureDir,
+          path: join(featuresRoot, ctx.featureId),
         },
       ],
     };
   }
+
+  const featureDir = matched.dir;
 
   const meta = readFeatureMeta(featureDir);
   const featureIsV2 = isV2(meta);
@@ -538,7 +551,11 @@ export function registerCasesValidate(parent: Command): void {
     .command("validate <featureId>")
     .description("Validate case-drafting evidence (replaces `discuss validate`)")
     .option("--project <name>", "项目名", "dataAssets")
-    .option("--check-source-refs <list>", "Source ref kinds to require", "prd.file,lanhu.fixture")
+    .option(
+      "--check-source-refs <list>",
+      "Source ref kinds to require (opt-in; empty by default)",
+      "",
+    )
     .action(async (featureId: string, opts: { project: string; checkSourceRefs: string }) => {
       const workspace = join(repoRoot(), "workspace");
       const result = await runCasesValidate({

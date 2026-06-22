@@ -94,7 +94,7 @@ flowchart TD
 ## 交付约束
 
 - `blocking pending` 未清零时，只允许产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind-gen` 产出 `cases/cases.xmind`。
-- 产物落盘后、交付前，运行 `kata cases lint --scope <featureDir> --exit-code` 和 `kata cases validate --project <project> --feature-id <featureId>`，修复所有 violation 后再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在 lint 本可发现的问题上。
+- 产物落盘后、交付前，运行 `kata cases lint --scope <featureDir> --exit-code` 和 `kata cases validate <featureId> --project <project>`，修复所有 violation 后再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在 lint 本可发现的问题上。
 - `metadata.yaml#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。
 
 ## 表单用例规则
