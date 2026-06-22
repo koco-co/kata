@@ -46,7 +46,7 @@ describe("verifyL1Structure", () => {
   it("fails when manifest violates schema", () => {
     const bad = {
       ...completedManifest,
-      case_drafting: { ...completedManifest.case_drafting, requirement_atoms: [] },
+      case_drafting: { ...completedManifest.case_drafting, archive_path: null },
     };
     const issues = verifyL1Structure({ manifest: bad, archiveMd: "# A", featureDir: "/x" });
     expect(issues.some((i) => i.layer === "L1" && i.rule === "manifest_schema_invalid")).toBe(true);

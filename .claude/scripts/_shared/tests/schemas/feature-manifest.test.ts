@@ -68,22 +68,30 @@ describe("FeatureManifest@2", () => {
     expect(validate(bad)).toBe(false);
   });
 
-  it("rejects completed case_drafting with empty requirement_atoms", () => {
-    const bad = {
+  it("accepts completed case_drafting with empty requirement_atoms", () => {
+    const ok = {
       ...baseManifest,
       case_drafting: { ...baseManifest.case_drafting, status: "completed", requirement_atoms: [] },
     };
-    expect(validate(bad)).toBe(false);
+    expect(validate(ok)).toBe(true);
   });
 
-  it("rejects completed case_drafting with null coverage_matrix_path", () => {
-    const bad = {
+  it("accepts completed case_drafting with null coverage_matrix_path", () => {
+    const ok = {
       ...baseManifest,
       case_drafting: {
         ...baseManifest.case_drafting,
         status: "completed",
         coverage_matrix_path: null,
       },
+    };
+    expect(validate(ok)).toBe(true);
+  });
+
+  it("rejects completed case_drafting with null archive_path", () => {
+    const bad = {
+      ...baseManifest,
+      case_drafting: { ...baseManifest.case_drafting, status: "completed", archive_path: null },
     };
     expect(validate(bad)).toBe(false);
   });
@@ -102,18 +110,34 @@ describe("FeatureManifest@2", () => {
     expect(validate(ok)).toBe(true);
   });
 
-  it("rejects completed atom missing ambiguity_class/confidence", () => {
-    const bad = {
+  it("accepts completed atom with only id/source_ref", () => {
+    const ok = {
       ...baseManifest,
       case_drafting: {
         status: "completed",
         archive_path: "archive.md",
         xmind_path: "cases.xmind",
-        coverage_matrix_path: "coverage-matrix.json",
+        coverage_matrix_path: null,
         requirement_atoms: [{ id: "RA-1", source_ref: `lanhu.fixture:f#sha256:${"a".repeat(64)}` }],
       },
     };
-    expect(validate(bad)).toBe(false);
+    expect(validate(ok)).toBe(true);
+  });
+
+  it("accepts completed atom carrying richer evidence fields", () => {
+    const ok = {
+      ...baseManifest,
+      case_drafting: {
+        status: "completed",
+        archive_path: "archive.md",
+        xmind_path: "cases.xmind",
+        coverage_matrix_path: null,
+        requirement_atoms: [
+          { id: "RA-1", source_ref: "SR-001", evidence_kind: "history_case", description: "x" },
+        ],
+      },
+    };
+    expect(validate(ok)).toBe(true);
   });
 
   it("accepts completed atom with enrichment fields", () => {
