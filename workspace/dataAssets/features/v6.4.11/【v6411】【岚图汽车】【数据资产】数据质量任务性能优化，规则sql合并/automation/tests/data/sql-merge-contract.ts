@@ -14,6 +14,16 @@ export const DQ_SQL_MERGE_TARGET_PACKAGE =
   "可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包";
 export const DQ_SQL_MERGE_PARTITION = "dt=2026-06-04";
 
+// test_info_1 规则集（id=549）实测的 6 个规则包名（盘点 SR-UI-PROBE-V6411-SQL-MERGE-16）
+export const DQ_SQL_MERGE_PACKAGES = {
+  mergeMulti: DQ_SQL_MERGE_TARGET_PACKAGE,
+  completenessMergeable: "完整性可合并规则",
+  completenessPass: "「完整性校验」-「多字段」-通过",
+  completenessFail: "「完整性校验」-「多字段」-不通过",
+  validityPass: "「有效性校验」-  全通过",
+  validityFail: "「有效性校验」-  不通过",
+} as const;
+
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
 const MERGEABLE_FUNCTION_IDS = new Set(["1", "3", "4", "5", "6", "11", "12", "13", "14", "15", "16", "17", "20", "21", "25", "26", "30", "49"]);
@@ -371,6 +381,101 @@ export function expectGeneratedReportShape(records: DqGeneratedReportRecord[], s
     expect(report.reportName, `${sourceRef}: 已生成报告应包含报告名称`).toMatch(/test_info_1/);
     expect(report.reportType, `${sourceRef}: 已生成报告应为单表或有效报告类型`).toBeTruthy();
     expect(String(report.status), `${sourceRef}: 已生成报告状态应为已生成`).toBe("1");
+  }
+}
+
+// ─── SQL 合并「配置层 / 报告层」扩展契约（read-only，不触发执行）──────────
+// 说明：以下断言验证规则集规则包的合并「前提」（function/filter/strength 组合、
+// 可合并候选组识别）与质量报告产出分类；不验证运行时合并 SQL 文本（在校验实例
+// 详情里，当前环境立即执行链路 504 受阻），也不验证 DB merge_group_key（需
+// sql-merge-validate skill 用 DB 只读凭据）。
+
+export async function queryTargetRuleSetDetail(
+  request: APIRequestContext,
+  sourceRef: string,
+): Promise<DqRuleSetRecord> {
+  const list = await queryRuleSetList(request, sourceRef);
+  const target = list.find(
+    (record) => record.tableName === DQ_SQL_MERGE_TABLE && record.schemaName === DQ_SQL_MERGE_SCHEMA,
+  );
+  const id = expectDefined(target?.id, `${sourceRef}: 应存在 ${DQ_SQL_MERGE_FULL_TABLE} 规则集`);
+  return queryRuleSetDetail(request, id, sourceRef);
+}
+
+export function expectRuleSetPackageInventory(detail: DqRuleSetRecord, sourceRef: string): void {
+  const packages = detail.packageVOList ?? [];
+  const byName = new Map(packages.map((pkg) => [pkg.packageName ?? "", pkg] as const));
+  const expected: Array<[string, number]> = [
+    [DQ_SQL_MERGE_PACKAGES.mergeMulti, 10],
+    [DQ_SQL_MERGE_PACKAGES.completenessMergeable, 1],
+    [DQ_SQL_MERGE_PACKAGES.completenessPass, 5],
+    [DQ_SQL_MERGE_PACKAGES.completenessFail, 5],
+    [DQ_SQL_MERGE_PACKAGES.validityPass, 3],
+    [DQ_SQL_MERGE_PACKAGES.validityFail, 1],
+  ];
+  for (const [name, minRules] of expected) {
+    const pkg = byName.get(name);
+    expect(pkg, `${sourceRef}: test_info_1 规则集应包含规则包「${name}」`).toBeTruthy();
+    expect(
+      (pkg?.rules ?? []).length,
+      `${sourceRef}: 规则包「${name}」应至少含 ${minRules} 条规则`,
+    ).toBeGreaterThanOrEqual(minRules);
+  }
+}
+
+export function expectCompletenessPackageShape(
+  detail: DqRuleSetRecord,
+  packageName: string,
+  sourceRef: string,
+): void {
+  const pkg = (detail.packageVOList ?? []).find((item) => item.packageName === packageName);
+  expect(pkg, `${sourceRef}: 应存在完整性规则包「${packageName}」`).toBeTruthy();
+  const rules = pkg?.rules ?? [];
+  for (const functionName of ["空值数", "空值率", "空串数", "空串率", "表行数"]) {
+    expect(
+      rules.some((rule) => rule.functionName === functionName),
+      `${sourceRef}: 完整性规则包「${packageName}」应含 ${functionName}`,
+    ).toBe(true);
+  }
+  const mergeGroups = buildMergeCandidateGroups(rules);
+  expect(
+    mergeGroups.some((group) => group.rules.length >= 2),
+    `${sourceRef}: 完整性规则包「${packageName}」的同过滤条件同强弱规则应可识别为可合并候选组`,
+  ).toBe(true);
+}
+
+export function expectValidityPackageShape(
+  detail: DqRuleSetRecord,
+  packageName: string,
+  expectedCount: number,
+  sourceRef: string,
+): void {
+  const pkg = (detail.packageVOList ?? []).find((item) => item.packageName === packageName);
+  expect(pkg, `${sourceRef}: 应存在有效性规则包「${packageName}」`).toBeTruthy();
+  expect(
+    (pkg?.rules ?? []).length,
+    `${sourceRef}: 有效性规则包「${packageName}」应含 ${expectedCount} 条规则`,
+  ).toBe(expectedCount);
+}
+
+export function expectReportCategoriesShape(records: DqGeneratedReportRecord[], sourceRef: string): void {
+  const targetReports = records.filter((record) =>
+    String(record.reportName ?? "").includes(DQ_SQL_MERGE_TABLE),
+  );
+  expect(targetReports.length, `${sourceRef}: 应有 ${DQ_SQL_MERGE_TABLE} 的已生成报告`).toBeGreaterThan(0);
+  const categories: Array<{ label: string; match: (name: string) => boolean }> = [
+    { label: "有效性校验报告", match: (name) => name.includes("有效性校验") },
+    { label: "完整性校验全通过报告", match: (name) => name.includes("完整性校验") && name.includes("全通过") },
+    { label: "完整性校验全不通过报告", match: (name) => name.includes("完整性校验") && name.includes("全不通过") },
+    { label: "完整性可合并规则报告", match: (name) => name.includes("完整性可合并规则") },
+  ];
+  for (const category of categories) {
+    const matched = targetReports.filter((record) => category.match(String(record.reportName ?? "")));
+    expect(matched.length, `${sourceRef}: 应存在${category.label}`).toBeGreaterThan(0);
+    expect(
+      matched.some((record) => String(record.status) === "1"),
+      `${sourceRef}: ${category.label}应至少有一个已生成(status=1)`,
+    ).toBe(true);
   }
 }
 
