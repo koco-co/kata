@@ -27,6 +27,8 @@
 
 ## Sites
 
+- [sites/shuzhan60-test-zszq/dom-dataAssets.md](sites/shuzhan60-test-zszq/dom-dataAssets.md) — 浙商证券 zszq 标品数据质量 DOM：左导航/单表·多表·规则集向导/任务查询/脏数据/平台数据源引入，菜单基线 [tags: dataAssets, 数据质量, 浙商证券, zszq, StarRocks, 菜单基线] (updated: 2026-06-23, confidence: high)
+- [sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md](sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md) — 岚图 ltqc 环境 DataAssets DOM（左导航/数据质量）[tags: selector, dataAssets, 数据质量, 岚图, ltqc] (updated: 2026-05-13, confidence: high)
 - [sites/172.16.122.52/dom-dataAssets.md](sites/172.16.122.52/dom-dataAssets.md) — 172.16.122.52 DataAssets DOM [tags: selector, dataAssets, 数据地图, 热门标签, 字段标签, 自动分级, 识别模式] (updated: 2026-05-13, confidence: high)
 
-<!-- last-indexed: 2026-05-13T13:57:40.252Z -->
+<!-- last-indexed: 2026-06-23T00:00:00.000Z -->
