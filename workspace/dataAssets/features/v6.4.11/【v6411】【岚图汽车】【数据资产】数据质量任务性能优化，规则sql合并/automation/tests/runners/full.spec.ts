@@ -13,3 +13,4 @@ import "../cases/t03-sql-merge-quality-report-contract";
 import "../cases/t05-sql-merge-ruleset-packages-contract";
 import "../cases/t06-sql-merge-completeness-mergegroup-contract";
 import "../cases/t07-sql-merge-report-categories-contract";
+import "../cases/t08-sql-merge-table-ruleset-scenarios-contract";

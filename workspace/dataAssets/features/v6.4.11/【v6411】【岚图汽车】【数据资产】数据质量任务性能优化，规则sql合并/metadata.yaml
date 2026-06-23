@@ -41,10 +41,10 @@ automation:
       case_files:
         - cases/archive.md
       automation_status: ready
-  last_handoff_path: runs/20260623-1610-v6411sql/handoff.md
+  last_handoff_path: runs/20260623-2350-v6411sqe/handoff.md
   last_run_status: partial
 files:
   archive: cases/archive.md
   xmind: cases/cases.xmind
   tests_root: automation/tests
-  latest_results: runs/20260623-1610-v6411sql/allure-results
+  latest_results: runs/20260623-2350-v6411sqe/allure-results

@@ -394,12 +394,49 @@ export async function queryTargetRuleSetDetail(
   request: APIRequestContext,
   sourceRef: string,
 ): Promise<DqRuleSetRecord> {
+  return queryRuleSetDetailByTable(request, DQ_SQL_MERGE_TABLE, sourceRef);
+}
+
+// 按表名查规则集详情（pageQuery 返回全部规则集，按 tableName + schemaName 定位）
+export async function queryRuleSetDetailByTable(
+  request: APIRequestContext,
+  tableName: string,
+  sourceRef: string,
+): Promise<DqRuleSetRecord> {
   const list = await queryRuleSetList(request, sourceRef);
   const target = list.find(
-    (record) => record.tableName === DQ_SQL_MERGE_TABLE && record.schemaName === DQ_SQL_MERGE_SCHEMA,
+    (record) => record.tableName === tableName && record.schemaName === DQ_SQL_MERGE_SCHEMA,
   );
-  const id = expectDefined(target?.id, `${sourceRef}: 应存在 ${DQ_SQL_MERGE_FULL_TABLE} 规则集`);
+  const id = expectDefined(target?.id, `${sourceRef}: 应存在 ${DQ_SQL_MERGE_SCHEMA}.${tableName} 规则集`);
   return queryRuleSetDetail(request, id, sourceRef);
+}
+
+export type DqPackageConfigSpec = {
+  name: string;
+  minRules: number;
+  strengths: string[];
+};
+
+// 验证某规则包的配置形状：包名精确、规则数下限、强弱集合包含
+export function expectPackageConfig(
+  detail: DqRuleSetRecord,
+  spec: DqPackageConfigSpec,
+  sourceRef: string,
+): void {
+  const pkg = (detail.packageVOList ?? []).find((item) => item.packageName === spec.name);
+  expect(pkg?.packageName, `${sourceRef}: 规则集应含规则包「${spec.name}」`).toBe(spec.name);
+  const rules = pkg?.rules ?? [];
+  expect(
+    rules.length,
+    `${sourceRef}: 规则包「${spec.name}」应至少含 ${spec.minRules} 条规则`,
+  ).toBeGreaterThanOrEqual(spec.minRules);
+  const strengths = new Set(rules.map((rule) => String(rule.ruleStrength ?? "")).filter(Boolean));
+  for (const strength of spec.strengths) {
+    expect(
+      strengths.has(strength),
+      `${sourceRef}: 规则包「${spec.name}」应含强弱规则 ruleStrength=${strength}`,
+    ).toBe(true);
+  }
 }
 
 export function expectRuleSetPackageInventory(detail: DqRuleSetRecord, sourceRef: string): void {
