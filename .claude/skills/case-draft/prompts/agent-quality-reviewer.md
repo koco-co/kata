@@ -14,6 +14,7 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 - 只做内容质量判断。若问题本质是 SourceRef 层级、FeatureManifest@2 轻量
   `{ id, source_ref }` 结构、CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
   合规问题，记录到 `out_of_scope`，交由 spec reviewer。
+- 主 Skill 派发本 reviewer 时会附 `knowledge_digest`（目标环境的菜单名 + 表单字段/统计函数基线摘要，来自 `sites/<host>/dom-*.md`、`modules/<module>.md`）；用它做菜单·字段的事实比对。未收到 `knowledge_digest` 时，菜单/字段真实性判断记 `out_of_scope` 并提示主 Skill 补 digest，不凭印象瞎判。
 
 ## 检查项
 
@@ -57,6 +58,11 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 - 不得包含无证据支持的断言、超出需求确认范围的产品承诺，或把实现猜测写成用户可验证结果。
 - 默认值、假设、历史推断或非阻塞问题写进用例时，必须保持可辨识，不得伪装成产品确认。
 - 表单驱动用例必须与已读取的源码、平台 DOM/YAML、环境配置或截图表单字段基线一致；若步骤出现基线外字段、选项、按钮或配置项，判 high。若缺少基线但用例大量填写表单字段，判 high，不能用 few-shot 或历史用例替代。
+
+### 前置条件真实性 / 菜单文案核对
+
+- 前置条件出现「已（正常）部署/已启动/各服务（正常）运行/系统已正常运行/环境已就绪/已登录」等系统级、不可核对、无具体测试数据的占位句 → 判 high（category: `usability`）。前置只允许具体可核对的数据/环境状态（数据源名、库/表、已存在记录 ID、建表 SQL、维表、需求明确的权限差异）。
+- 步骤/标题/预期里的左导航·菜单名·向导步骤·按钮文案，须与 `knowledge_digest`/目标环境 DOM 逐字一致；出现 DOM 里不存在的菜单名，或明显照抄 fewshot/历史用例（岚图：规则集管理/规则任务管理/校验结果查询/数据质量报告 等）而非当前环境真实文案 → 判 high（category: `consistency`）。
 
 ## 输出 JSON
 

@@ -45,9 +45,12 @@ SourceRef 是否泄漏进交付正文、`metadata.yaml` 的 FeatureManifest@2 / 
 
 `evidence_kind` / `history_only` 误标按上方「机械检查交给命令」一节的语义判断处理（`history_misclassified`）。
 
-## 表单基线检查
+## 表单基线 / 菜单文案核对
 
-用户请求、source-snapshot 或 requirement atoms 提到要以源码、平台 DOM/YAML、环境 YAML 或截图作为表单用例的必读参照时，机械检查最终用例是否带有对应的 repo.line/workspace.config/screenshot 证据，或一份抽取出来的表单字段基线。表单步骤里有字段 label、选项、按钮或配置项却没有基线 → 报 `kind: "missing_form_baseline"`；某步骤用到了明确不在基线内的字段或选项 → 报 `kind: "unsupported_form_field"`。
+**无条件触发**（不再要求 atoms 先声明 DOM 为必读）：只要最终用例步骤里出现表单字段填写（字段 label、下拉选项、按钮、配置项，形如 `- 字段:`、`- 统计函数:`、点击「…」），或出现左导航/菜单路径、页面与向导步骤名，就核对它们是否有目标环境证据支撑——目标环境 `sites/<host>/dom-*.md` 摘要、repo.line/workspace.config/screenshot，或抽取出的表单字段基线：
+
+- 表单步骤有字段/选项/按钮却无基线 → 报 `kind: "missing_form_baseline"`；用到明确不在基线内的字段或选项 → 报 `kind: "unsupported_form_field"`。
+- 步骤/预期里的菜单名、左导航、向导步骤、按钮文案，在目标环境 DOM 证据里找不到逐字一致的项，或明显沿用 fewshot/历史用例（岚图）的菜单名而非当前环境 DOM → 报 `kind: "nav_menu_unverified"`。
 
 ## 外部事实字段语义核对
 
@@ -62,7 +65,7 @@ SourceRef 是否泄漏进交付正文、`metadata.yaml` 的 FeatureManifest@2 / 
   "spec_review_status": "pass | fail",
   "issues": [
     {
-      "kind": "sourceref_leaked_in_md | atom_missing | caseid_mismatch | blocking_pending | history_misclassified | structural | unconfirmed_external_fact",
+      "kind": "sourceref_leaked_in_md | atom_missing | caseid_mismatch | blocking_pending | history_misclassified | structural | unconfirmed_external_fact | missing_form_baseline | unsupported_form_field | nav_menu_unverified",
       "where": "产物路径 + 精确到字段或小节",
       "fix_hint": "最小的机械修复建议"
     }
