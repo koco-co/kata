@@ -126,4 +126,21 @@ describe("lintArchiveCaseQa", () => {
       ),
     ).toBe(false);
   });
+
+  test("flags system-state placeholder in preconditions", () => {
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace(
+        "1. 已登录",
+        "1. 数据资产平台与数据质量各服务已正常部署运行。",
+      ),
+    });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(r.violations.some((v) => v.rule === "archive-precondition-placeholder")).toBe(true);
+  });
+
+  test("does not flag login-only precondition as system-state placeholder", () => {
+    const root = tmp({ "cases/archive.md": GOOD_ARCHIVE });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(r.violations.some((v) => v.rule === "archive-precondition-placeholder")).toBe(false);
+  });
 });

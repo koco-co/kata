@@ -69,8 +69,9 @@ flowchart TD
 | prompts/agent-quality-reviewer.md | output 前内容质量审查     | 步骤完整性、标题、覆盖与一致性                    |
 | rules/naming-convention.md        | 新建 feature 目录时       | 目录命名格式与客户缩写                            |
 | references/source-refs.md         | 需要核对 source_ref 锚点语法或 SR 前缀时 | source_ref 的 scheme#anchor 规范、SR- 注册前缀、证据分层 |
-| .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源 |
+| .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源；其菜单名是岚图定制，禁照抄 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用）    | 字段一致性、标题、前置条件、表单逐字匹配          |
+| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md` + `sites/<host>/dom-*.md` | **module-identify 后、起草任何含菜单路径/页面操作/表单字段的用例前（必读）** | 真实菜单名、路由、向导步骤、表单字段基线；按 `_index.md` Sites 节逐条加载目标环境 DOM，作为 worker/reviewer 的菜单·字段事实来源 |
 
 ## 产物与引用规范
 
@@ -104,6 +105,14 @@ flowchart TD
 - **优先级分配**：P0 用例集（P0 约占总用例 25%~30%，核心交付/兼容回归优先），让用户确认或改派。
 
 这轮范围确认与上一节「事实字段缺证据的批量索要」合并在同一组 `AskUserQuestion` 内完成（推荐项置顶并附理由），是 URL-only 静默模式下「阻塞/索要」的既有例外，不算违反静默约束。
+
+## 菜单/页面文案：以环境 DOM 证据为准（缺证据即阻塞）
+
+用例步骤里的左导航/菜单名、页面与向导步骤、按钮文案、表单字段与统计函数枚举，都是**客户/环境定制的外部事实**，必须逐字来自目标环境的 `sites/<host>/dom-*.md`（或用户提供的截图）：
+
+- module-identify 确定 project/客户/环境 host 后，**先按 `_index.md` Sites 节加载该 host 的 `dom-dataAssets.md`** 建立菜单·字段基线，再起草。
+- **fewshot（`case-format-sample.md`）与 `modules/data-quality.md` 的菜单名是岚图定制，禁止照抄到其它客户用例**；历史用例里的菜单名同样不作事实来源。
+- **目标环境无专属 DOM、`_index.md` 也无对应条目时**：主会话 `AskUserQuestion` 向用户索要真实菜单截图/左导航清单，**禁止降级套用其它环境（ltqc/ci63 等）的 DOM 或 fewshot 菜单名**——岚图与标品菜单结构本就不同。worker 遇此返回 `BLOCKED(missing_evidence)`。
 
 ## 交付约束
 
