@@ -4,7 +4,7 @@ feature_id: 2026-06-lanhu-f06b94f8
 display_name: 【v6411】【15862】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
 status: active
 created_at: 2026-06-05
-updated_at: 2026-06-22
+updated_at: 2026-06-23
 modules:
   - dq
 customers:
@@ -41,10 +41,10 @@ automation:
       case_files:
         - cases/archive.md
       automation_status: ready
-  last_handoff_path: runs/20260622-0553-v6411sql/handoff.md
+  last_handoff_path: runs/20260623-1530-v6411sql/handoff.md
   last_run_status: partial
 files:
   archive: cases/archive.md
   xmind: cases/cases.xmind
   tests_root: automation/tests
-  latest_results: runs/20260622-0553-v6411sql/allure-results
+  latest_results: runs/20260623-1530-v6411sql/allure-results
