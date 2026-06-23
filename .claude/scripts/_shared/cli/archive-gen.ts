@@ -503,7 +503,7 @@ function validateArchiveMarkdown(filePath: string): ValidateResult {
   if (casesWithoutPriority > 0) {
     issues.push({
       severity: "warning",
-      message: `${casesWithoutPriority} cases missing priority tag 【P0】-【P3】`,
+      message: `${casesWithoutPriority} cases missing priority tag 【P0】-【P4】`,
     });
   }
 
