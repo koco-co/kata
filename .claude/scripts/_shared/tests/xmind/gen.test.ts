@@ -112,7 +112,7 @@ describe("xmind-gen.ts create mode", () => {
     expect(expanded).toBeGreaterThan(0);
   });
 
-  it("marks P3 cases with priority-3 (no priority dropped)", async () => {
+  it("marks P3 cases with priority-4 (no priority dropped)", async () => {
     // 自带一个 P3 用例, 避免动共享 fixture 的 case_count 断言。
     const input = join(TMP_DIR, "p3-input.json");
     writeFileSync(
@@ -158,8 +158,8 @@ describe("xmind-gen.ts create mode", () => {
     };
     for (const s of sheets) if (s.rootTopic) walk(s.rootTopic);
 
-    // P3 必须落到 priority-3, 不能漏标
-    expect(seen.has("priority-3")).toBe(true);
+    // P3 必须落到 priority-4, 不能漏标
+    expect(seen.has("priority-4")).toBe(true);
   });
 
   it("outputs valid JSON result to stdout", () => {

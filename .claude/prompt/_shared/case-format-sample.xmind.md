@@ -27,15 +27,15 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmin
 | 表格的每一行「步骤」单元格 | 用例 topic 下的 step child topic：title=步骤文本（`<br>` 还原为换行） |
 | 表格同一行的「预期」单元格 | step child 下的 expected grandchild topic：title=预期文本（`<br>` 还原为换行） |
 
-priority marker 对照（以 `render.ts` 的 `PRIORITY_MAP` 为准：团队以 P1 为最高优先级，P0 是兼容别名，二者共用 `priority-1`）：
+priority marker 对照（以 `render.ts` 的 `PRIORITY_MAP` 为准：P0 为最高优先级，P0~P4 与 `priority-1`~`priority-5` 一一对应）：
 
 | Markdown 标题前缀 | XMind markerId |
 | --- | --- |
-| `【P0】`（旧约定，等同 P1） | `priority-1` |
-| `【P1】` | `priority-1` |
-| `【P2】` | `priority-2` |
-| `【P3】` | `priority-3` |
-| `【P4】` | `priority-4` |
+| `【P0】`（最高） | `priority-1` |
+| `【P1】` | `priority-2` |
+| `【P2】` | `priority-3` |
+| `【P3】` | `priority-4` |
+| `【P4】` | `priority-5` |
 
 ## 完整结构示意（基于同目录 case-format-sample.md）
 

@@ -19,6 +19,8 @@ export const MARKER_TO_PRIORITY: Record<string, string> = {
   "priority-1": "P0",
   "priority-2": "P1",
   "priority-3": "P2",
+  "priority-4": "P3",
+  "priority-5": "P4",
 };
 
 export async function readXmindContentJson(filePath: string): Promise<XMindSheet[]> {

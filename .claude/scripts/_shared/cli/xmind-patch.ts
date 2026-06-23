@@ -61,21 +61,22 @@ interface TopicMatch {
 
 // ─── Priority map ─────────────────────────────────────────────────────────────
 
-// 徽标按 P 数字 1:1（P1↔priority-1）。反向以 P1 为 priority-1 的 canonical 值；
-// P0 仅作旧约定别名，正向仍映射 priority-1，读回会归一为 P1。
+// P0 为最高优先级，P0~P4 与 priority-1~priority-5 一一对应（P0↔priority-1），
+// 正反向双射，与 render.ts、case-edit/history-convert 的映射保持一致。
 const MARKER_TO_PRIORITY: Record<string, string> = {
-  "priority-1": "P1",
-  "priority-2": "P2",
-  "priority-3": "P3",
-  "priority-4": "P4",
+  "priority-1": "P0",
+  "priority-2": "P1",
+  "priority-3": "P2",
+  "priority-4": "P3",
+  "priority-5": "P4",
 };
 
 const PRIORITY_TO_MARKER: Record<string, string> = {
   P0: "priority-1",
-  P1: "priority-1",
-  P2: "priority-2",
-  P3: "priority-3",
-  P4: "priority-4",
+  P1: "priority-2",
+  P2: "priority-3",
+  P3: "priority-4",
+  P4: "priority-5",
 };
 
 // ─── XMind I/O ────────────────────────────────────────────────────────────────

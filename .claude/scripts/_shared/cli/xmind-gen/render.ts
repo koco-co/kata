@@ -36,13 +36,13 @@ export const UNCLASSIFIED = "未分类";
 // ─── Priority map ─────────────────────────────────────────────────────────────
 
 export const PRIORITY_MAP: Record<string, MarkerId> = {
-  // 团队以 P1 为最高优先级，徽标按 P 数字 1:1 对应（P1→priority-1）。
-  // P0 作为旧约定的兼容别名，仍当最高，与 P1 共用 priority-1。
+  // P0 为最高优先级，P0~P4 与徽标 priority-1~priority-5 一一对应（P0→priority-1）。
+  // 与 xmind-patch、case-edit/history-convert 的读回映射保持双向一致。
   P0: Marker.Priority.p1,
-  P1: Marker.Priority.p1,
-  P2: Marker.Priority.p2,
-  P3: Marker.Priority.p3,
-  P4: Marker.Priority.p4,
+  P1: Marker.Priority.p2,
+  P2: Marker.Priority.p3,
+  P3: Marker.Priority.p4,
+  P4: Marker.Priority.p5,
 };
 
 // ─── Rules loader ────────────────────────────────────────────────────────────
