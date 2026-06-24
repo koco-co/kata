@@ -155,21 +155,47 @@ export async function injectDqProjectContext(page: Page): Promise<void> {
   );
 }
 
+// 只读幂等查询：对瞬时后端抖动（HTTP 非 2xx、success=false、网络错）做有界重试，
+// 重试耗尽后才以真实断言失败——既扛后端短暂限流/抖动，又不掩盖持续性真实失败。
+const DQ_POST_MAX_ATTEMPTS = 4;
+const DQ_POST_BACKOFF_MS = 1500;
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function postDq<T>(
   request: APIRequestContext,
   pathname: string,
   data: unknown,
   options: DqPostOptions,
 ): Promise<T> {
-  const response = await request.post(buildDataAssetsApiUrl(pathname), {
-    data,
-    headers: { [PROJECT_STORAGE_KEY]: String(DQ_SQL_MERGE_PROJECT_ID) },
-    timeout: 60_000,
-  });
-  expect(response.ok(), `${options.sourceRef}: ${pathname} HTTP 应成功`).toBe(true);
-  const payload = (await response.json()) as DqApiResponse<T>;
-  expect(payload.success ?? payload.code === 1, `${options.sourceRef}: ${pathname} 应返回成功`).toBe(true);
-  return expectDefined(payload.data, `${options.sourceRef}: ${pathname} 应返回 data`);
+  let lastDetail = "";
+  for (let attempt = 1; attempt <= DQ_POST_MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await request.post(buildDataAssetsApiUrl(pathname), {
+        data,
+        headers: { [PROJECT_STORAGE_KEY]: String(DQ_SQL_MERGE_PROJECT_ID) },
+        timeout: 60_000,
+      });
+      const httpOk = response.ok();
+      const payload = httpOk ? ((await response.json()) as DqApiResponse<T>) : null;
+      const apiOk = httpOk && (payload?.success ?? payload?.code === 1);
+      if (apiOk && payload?.data !== undefined && payload?.data !== null) {
+        return payload.data;
+      }
+      lastDetail = `HTTP=${response.status()} success=${payload?.success} code=${payload?.code} message=${payload?.message ?? ""}`;
+    } catch (error) {
+      lastDetail = `请求异常: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    if (attempt < DQ_POST_MAX_ATTEMPTS) await sleep(DQ_POST_BACKOFF_MS * attempt);
+  }
+  // 重试耗尽：以真实断言失败，暴露持续性问题
+  expect(
+    false,
+    `${options.sourceRef}: ${pathname} 在 ${DQ_POST_MAX_ATTEMPTS} 次重试后仍未成功返回 data（末次：${lastDetail}）`,
+  ).toBe(true);
+  throw new Error("unreachable");
 }
 
 export async function queryRuleSetList(
