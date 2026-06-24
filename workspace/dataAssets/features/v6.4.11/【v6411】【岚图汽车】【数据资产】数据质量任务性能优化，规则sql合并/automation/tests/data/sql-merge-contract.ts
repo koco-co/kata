@@ -785,7 +785,12 @@ export type DqScenarioReportSpec = {
   nameIncludes: string[];
 };
 
-// 验证某场景的命名质量报告存在且已生成(status=1)
+// 质量报告生命周期状态：1=已生成、2=生成中（瞬时）。调度按日重新生成报告时，整批同名
+// 报告记录会短暂从 1 翻成 2，期间无 status=1。故断言「报告存在且处于健康生成态(1 或 2)」，
+// 避开重生成窗口误报；报告缺失或仅失败态(其它 status)仍为真实失败信号。
+const DQ_REPORT_HEALTHY_STATUS = new Set(["1", "2"]);
+
+// 验证某场景的命名质量报告存在且处于健康生成态（已生成/生成中）
 export function expectScenarioReport(
   reports: DqGeneratedReportRecord[],
   spec: DqScenarioReportSpec,
@@ -801,8 +806,10 @@ export function expectScenarioReport(
     `${sourceRef}: 应存在 ${spec.table} 含「${spec.nameIncludes.join("+")}」的质量报告`,
   ).toBeGreaterThan(0);
   expect(
-    matched.some((r) => String(r.status) === "1"),
-    `${sourceRef}: 该质量报告应已生成(status=1)`,
+    matched.some((r) => DQ_REPORT_HEALTHY_STATUS.has(String(r.status))),
+    `${sourceRef}: 该质量报告应处于健康生成态(已生成 status=1 或 生成中 status=2)，实测 status=${matched
+      .map((r) => r.status)
+      .join(",")}`,
   ).toBe(true);
 }
 
