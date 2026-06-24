@@ -516,6 +516,296 @@ export function expectReportCategoriesShape(records: DqGeneratedReportRecord[], 
   }
 }
 
+// ─── SQL 合并「生成合并 SQL 端到端」契约（read-only，不触发执行）────────────
+// 说明：以下断言直接拉取规则任务(monitor)在保存「规则拼接包」后由后端生成的合并 SQL
+// （/monitor/packagelist 列出拼接包，/monitor/packagesql 返回每个拼接包的合并 SQL 文本），
+// 对应 archive「校验功能」用例步骤37-38「点击规则SQL查看，切换规则包查看规则sql」。
+// 这是「规则sql合并」被测特性的真实产物，配置即生成、无需立即执行，故能绕开
+// immediatelyExecuted 5min 504 链路，对全部 sparkthrift 场景做端到端核验。
+
+export type DqPackageItem = {
+  packageId?: number | string;
+  packageName?: string;
+};
+
+// monitor(规则任务)列表：按表名 pageQuery
+export async function queryMonitorsByTable(
+  request: APIRequestContext,
+  tableName: string,
+  sourceRef: string,
+): Promise<DqRuleTaskRecord[]> {
+  const pageData = await postDq<DqPageData<DqRuleTaskRecord>>(
+    request,
+    "/dassets/v1/valid/monitor/pageQuery",
+    { current: 1, size: 100, tableName },
+    { sourceRef },
+  );
+  return getRows(pageData, sourceRef, `规则任务列表(${tableName})`);
+}
+
+// 按表名 + 规则任务名精确定位一个 monitor
+export async function findMonitorByRuleName(
+  request: APIRequestContext,
+  tableName: string,
+  ruleName: string,
+  sourceRef: string,
+): Promise<DqRuleTaskRecord> {
+  const monitors = await queryMonitorsByTable(request, tableName, sourceRef);
+  const target = monitors.find((m) => m.ruleName === ruleName);
+  expect(
+    target,
+    `${sourceRef}: ${DQ_SQL_MERGE_SCHEMA}.${tableName} 应存在规则任务「${ruleName}」（实有：${monitors
+      .map((m) => m.ruleName)
+      .join(" / ")}）`,
+  ).toBeTruthy();
+  return target as DqRuleTaskRecord;
+}
+
+// 拼接包列表（规则SQL查看右侧下拉）
+export async function queryPackageList(
+  request: APIRequestContext,
+  monitorId: string | number,
+  sourceRef: string,
+): Promise<DqPackageItem[]> {
+  const data = await postDq<DqPackageItem[]>(
+    request,
+    "/dassets/v1/valid/monitor/packagelist",
+    { monitorId },
+    { sourceRef },
+  );
+  expect(Array.isArray(data), `${sourceRef}: 拼接包列表应为数组`).toBe(true);
+  return data;
+}
+
+// 单个拼接包的合并 SQL 文本
+export async function queryPackageSql(
+  request: APIRequestContext,
+  packageId: string | number,
+  sourceRef: string,
+): Promise<string> {
+  const sql = await postDq<string>(
+    request,
+    "/dassets/v1/valid/monitor/packagesql",
+    { packageId },
+    { sourceRef },
+  );
+  expect(typeof sql, `${sourceRef}: 拼接包 ${packageId} 的合并 SQL 应为字符串`).toBe("string");
+  return sql;
+}
+
+export type MergeSqlAnalysis = {
+  // 落脏数据管道（合并/不合并都先写 dtstack_dq_monitor_temp_data）
+  writesDirtyPipeline: boolean;
+  // 抽样开启 → 生成 *_temp_sample_table 临时抽样表
+  hasSampleTable: boolean;
+  // 设置分区 → 含 dt='yyyy-MM-dd' 分区谓词
+  hasPartitionPredicate: boolean;
+  // string 强转 int → 含 CAST(... AS <type>)
+  hasCast: boolean;
+  // 合并块大小：LATERAL VIEW STACK(N, ...) 的 N（每个 N = 该块合并的子规则数）
+  stackGroupSizes: number[];
+  // 同一聚合 select 内的 SUM(CASE WHEN ...) 个数（并行计算的合并子规则）
+  sumCaseWhenCount: number;
+  // 是否引用源表（样本表或直接源表）
+  referencesTable: boolean;
+  // SQL 缺陷（空/悬挂谓词/括号不配对），空串表示无缺陷
+  defect: string;
+};
+
+// 分析一段生成的合并 SQL，提取合并/抽样/分区/转型等结构特征
+export function analyzeMergeSql(sql: string, tableName: string): MergeSqlAnalysis {
+  const flat = (sql ?? "").replace(/\s+/g, " ");
+  const stackGroupSizes = Array.from(flat.matchAll(/stack\(\s*(\d+)/gi)).map((m) => Number(m[1]));
+  const sumCaseWhenCount = (flat.match(/sum\s*\(\s*case\s+when/gi) ?? []).length;
+  return {
+    writesDirtyPipeline: sql.includes("dtstack_dq_monitor_temp_data"),
+    hasSampleTable: sql.includes("_temp_sample_table"),
+    hasPartitionPredicate: /\bdt\s*=\s*'\d{4}-\d{2}-\d{2}'/i.test(sql),
+    hasCast: /\bcast\s*\(/i.test(sql),
+    stackGroupSizes,
+    sumCaseWhenCount,
+    referencesTable: sql.includes(tableName),
+    defect: detectSqlDefect(sql),
+  };
+}
+
+export type DqGeneratedSqlSpec = {
+  // 源表
+  table: string;
+  // 规则任务名（packagelist 的 monitor）
+  ruleName: string;
+  // 拼接包数量（精确）；不给则只要求 >=1
+  expectedPackages?: number;
+  // 抽样开启/关闭 —— 决定每个拼接包是否应出现临时抽样表
+  sampling: "on" | "off";
+  // 是否设置分区（至少一个拼接包应含分区谓词）
+  partition?: boolean;
+  // 是否期望「合并发生」：合并有两种表现——STACK(N>=2) 的 LATERAL VIEW 拆行，
+  // 或同一聚合 select 内 >=2 个 SUM(CASE WHEN) 并行计算。任一成立即判定已合并。
+  // 纯不合并/单规则场景不给，仅校验管道完整与无缺陷。
+  expectsMerge?: boolean;
+  // 可选更强断言：STACK 合并块的 N 至少为该值（仅 STACK 拆行型合并场景给）
+  minStackGroup?: number;
+  // 是否含 string 强转 int 的 CAST（至少一个拼接包）
+  cast?: boolean;
+};
+
+// 端到端验证一个规则任务生成的合并 SQL（步骤37-38）
+export async function expectMonitorGeneratedSql(
+  request: APIRequestContext,
+  spec: DqGeneratedSqlSpec,
+  sourceRef: string,
+): Promise<MergeSqlAnalysis[]> {
+  const monitor = await findMonitorByRuleName(request, spec.table, spec.ruleName, sourceRef);
+  const monitorId = expectDefined(monitor.id, `${sourceRef}: 规则任务「${spec.ruleName}」应有 id`);
+
+  const packages = await queryPackageList(request, monitorId, sourceRef);
+  if (spec.expectedPackages !== undefined) {
+    expect(
+      packages.length,
+      `${sourceRef}: 规则任务「${spec.ruleName}」应有 ${spec.expectedPackages} 个拼接包`,
+    ).toBe(spec.expectedPackages);
+  } else {
+    expect(
+      packages.length,
+      `${sourceRef}: 规则任务「${spec.ruleName}」应至少有 1 个拼接包`,
+    ).toBeGreaterThanOrEqual(1);
+  }
+
+  const analyses: MergeSqlAnalysis[] = [];
+  for (const pkg of packages) {
+    const packageId = expectDefined(pkg.packageId, `${sourceRef}: 拼接包应有 packageId`);
+    const sql = await queryPackageSql(request, packageId, sourceRef);
+    const tag = `${sourceRef}#包${packageId}(${pkg.packageName ?? ""})`;
+    const a = analyzeMergeSql(sql, spec.table);
+
+    expect(sql.trim().length, `${tag}: 合并 SQL 不应为空`).toBeGreaterThan(0);
+    expect(a.defect, `${tag}: 合并 SQL 不应有明显缺陷`).toBe("");
+    expect(a.writesDirtyPipeline, `${tag}: 合并 SQL 应写入脏数据管道 dtstack_dq_monitor_temp_data`).toBe(
+      true,
+    );
+    expect(a.referencesTable, `${tag}: 合并 SQL 应引用源表 ${spec.table}`).toBe(true);
+    expect(
+      a.hasSampleTable,
+      `${tag}: 抽样${spec.sampling === "on" ? "开启应" : "关闭不应"}出现临时抽样表 *_temp_sample_table`,
+    ).toBe(spec.sampling === "on");
+    analyses.push(a);
+  }
+
+  if (spec.partition) {
+    expect(
+      analyses.some((a) => a.hasPartitionPredicate),
+      `${sourceRef}: 设置分区场景应有拼接包含分区谓词 dt='yyyy-MM-dd'`,
+    ).toBe(true);
+  }
+  if (spec.expectsMerge) {
+    const maxStack = Math.max(0, ...analyses.flatMap((a) => a.stackGroupSizes));
+    const maxSumCaseWhen = Math.max(0, ...analyses.map((a) => a.sumCaseWhenCount));
+    expect(
+      maxStack >= 2 || maxSumCaseWhen >= 2,
+      `${sourceRef}: 合并场景应有合并证据——STACK(N>=2) 拆行 或 同 select 内 >=2 个 SUM(CASE WHEN)（实测 maxStack=${maxStack}, maxSumCaseWhen=${maxSumCaseWhen}）`,
+    ).toBe(true);
+  }
+  if (spec.minStackGroup !== undefined) {
+    const maxStack = Math.max(0, ...analyses.flatMap((a) => a.stackGroupSizes));
+    expect(
+      maxStack,
+      `${sourceRef}: STACK 拆行型合并应至少有一个合并块 N>=${spec.minStackGroup}（实测最大合并块=${maxStack}）`,
+    ).toBeGreaterThanOrEqual(spec.minStackGroup);
+  }
+  if (spec.cast) {
+    expect(
+      analyses.some((a) => a.hasCast),
+      `${sourceRef}: string强转int 场景应有拼接包含 CAST(... AS <type>)`,
+    ).toBe(true);
+  }
+  return analyses;
+}
+
+// ─── SQL 合并「运行时校验实例 + 质量报告」端到端契约（read-only）──────────
+// 说明：直接读取已落库的校验实例(monitorRecord/detailReport)与已生成质量报告
+// (monitorReportRecord)，对应 archive 步骤39「临时运行查看实例详情」、步骤40-42
+// 「查看质量报告」。不触发立即执行，只核验调度已产出的运行时证据；实例为日调度
+// 产物，依赖环境运行时数据是否在位（环境受阻时为真实失败信号，不弱化断言掩盖）。
+
+export const DQ_INSTANCE_STATUS_COMPLETED = 11;
+
+// 找一个「已完成」的校验实例（status=11 且日志含通过/失败统计）
+export function findCompletedInstance(
+  records: DqMonitorRecord[],
+  ruleName: string,
+  sourceRef: string,
+): DqMonitorRecord {
+  const mine = records.filter((r) => r.ruleName === ruleName);
+  expect(mine.length, `${sourceRef}: 应存在规则任务「${ruleName}」的校验实例`).toBeGreaterThan(0);
+  const completed = mine.find(
+    (r) =>
+      Number(r.status) === DQ_INSTANCE_STATUS_COMPLETED &&
+      /verification (passes|fails)/i.test(r.logInfo ?? ""),
+  );
+  expect(
+    completed,
+    `${sourceRef}: 规则任务「${ruleName}」应有已完成校验实例(status=11，日志含通过/失败统计)`,
+  ).toBeTruthy();
+  return completed as DqMonitorRecord;
+}
+
+// 验证校验实例详情：子规则带执行 SQL、引用源表、无明显 SQL 缺陷，且仍可识别合并候选组
+export function expectInstanceExecutedSql(detailRows: DqRule[], table: string, sourceRef: string): void {
+  expect(detailRows.length, `${sourceRef}: 实例详情应返回多条子规则明细`).toBeGreaterThan(0);
+  const sqlRows = detailRows.filter((r) => r.selectDataSql || r.customizeSql);
+  expect(sqlRows.length, `${sourceRef}: 实例明细应含可检查的执行 SQL`).toBeGreaterThan(0);
+  expect(
+    sqlRows.some((r) => `${r.selectDataSql ?? ""} ${r.customizeSql ?? ""}`.includes(table)),
+    `${sourceRef}: 实例执行 SQL 应引用源表 ${table}`,
+  ).toBe(true);
+  for (const r of sqlRows) {
+    const sql = r.selectDataSql || r.customizeSql || "";
+    expect(detectSqlDefect(sql), `${sourceRef}: 实例执行 SQL 不应有明显缺陷: ${sql.slice(0, 120)}`).toBe("");
+  }
+}
+
+// 按关键词查已生成质量报告
+export async function queryGeneratedReportsBySearch(
+  request: APIRequestContext,
+  search: string,
+  sourceRef: string,
+): Promise<DqGeneratedReportRecord[]> {
+  const pageData = await postDq<DqPageData<DqGeneratedReportRecord>>(
+    request,
+    "/dassets/v1/valid/monitorReportRecord/pageList",
+    { current: 1, size: 200, search },
+    { sourceRef },
+  );
+  return getRows(pageData, sourceRef, `已生成报告(${search})`);
+}
+
+export type DqScenarioReportSpec = {
+  table: string;
+  nameIncludes: string[];
+};
+
+// 验证某场景的命名质量报告存在且已生成(status=1)
+export function expectScenarioReport(
+  reports: DqGeneratedReportRecord[],
+  spec: DqScenarioReportSpec,
+  sourceRef: string,
+): void {
+  const matched = reports.filter(
+    (r) =>
+      String(r.tableNames ?? "").includes(spec.table) &&
+      spec.nameIncludes.every((kw) => String(r.reportName ?? "").includes(kw)),
+  );
+  expect(
+    matched.length,
+    `${sourceRef}: 应存在 ${spec.table} 含「${spec.nameIncludes.join("+")}」的质量报告`,
+  ).toBeGreaterThan(0);
+  expect(
+    matched.some((r) => String(r.status) === "1"),
+    `${sourceRef}: 该质量报告应已生成(status=1)`,
+  ).toBe(true);
+}
+
 function getRows<T>(pageData: DqPageData<T>, sourceRef: string, label: string): T[] {
   const rows =
     pageData.contentList ??
