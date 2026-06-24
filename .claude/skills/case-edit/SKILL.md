@@ -38,10 +38,11 @@ effort: medium
 - 原有语义必须完整保留。缺失的前置条件、步骤、预期不得凭空补造；取不到证据时标记为「待确认」。`case-edit` 只搬运和转换语义，不得创造新事实。
 - 表单字段、按钮、Tab、下拉选项、枚举值必须逐字匹配证据原文：「sql」不得归一成「SQL」、「字段」不得写成「字段级」，也不得拿动作泛称替代按钮全称。
 - 用户指定或历史标题中的业务括号（如「验证【规则名】...」）原样保留，不得按通用标题规则移除。
+- 修复错误用例后，标题、前置条件、步骤、预期都要像新生成的用例那样直接陈述行为与结果，不得带「为什么这么改」的原因或差异说明（如「多字段 AND：...」前缀、「...单字段不计入」补语、SQL 注释里的推理旁白）。需要表达的语义靠测试数据与预期本身体现：让数据只命中目标行、预期只点中该行，而不是在正文里解释规则关系。
 
 ## 交付自审
 
-- Archive 为编辑源时，修改完成后运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 同步 XMind。
+- 待修用例无论用户给的是 archive.md、cases.xmind 还是 CSV，archive.md 都是唯一编辑源；改完 archive.md 必须运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 重新生成 XMind，使 md 与 xmind 两种格式都落到改动后状态。只改其中一种格式就交付，视为未完成。
 - 历史 CSV/XMind 转 Archive 用 `kata history-convert --path <csv-or-dir> --project <project> [--version <v>] [--filter <kw>]`（参数以 `kata history-convert --help` 为准）。
 - 交付前先运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再做人工自审。
 - 自审 Archive 与 XMind 的用例数量、优先级、标题、前置条件、步骤、预期结果，确保完全一致；细则见 `references/archive-xmind-sync.md`。主动发现不一致，不得留给用户人工核对。
