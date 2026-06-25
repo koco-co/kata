@@ -75,7 +75,9 @@ describe("type → dialect mapping", () => {
 
 describe("splitSqlStatements", () => {
   it("splits a multi-statement setup script", () => {
-    const out = splitSqlStatements("DROP TABLE IF EXISTS t; CREATE TABLE t(a INT); INSERT INTO t VALUES (1);");
+    const out = splitSqlStatements(
+      "DROP TABLE IF EXISTS t; CREATE TABLE t(a INT); INSERT INTO t VALUES (1);",
+    );
     expect(out).toHaveLength(3);
     expect(out[0]).toBe("DROP TABLE IF EXISTS t");
     expect(out[2]).toBe("INSERT INTO t VALUES (1)");

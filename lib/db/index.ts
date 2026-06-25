@@ -24,9 +24,9 @@ import { splitSqlStatements } from "./sql-split";
 export {
   type ConnectionParams,
   type DataSourceType,
-  type Dialect,
-  DIALECT_BY_TYPE,
   DEFAULT_PORT,
+  DIALECT_BY_TYPE,
+  type Dialect,
   isSupportedType,
   parseConnectionString,
 } from "./connection-string";
@@ -79,7 +79,8 @@ function resolveParams(opts: DbConnectOptions): ConnectionParams {
     database: opts.database ?? base.database,
   };
   if (!merged.host) throw new Error("[lib/db] no host (provide url or host).");
-  if (!Number.isFinite(merged.port)) throw new Error("[lib/db] no port (provide url with port or port).");
+  if (!Number.isFinite(merged.port))
+    throw new Error("[lib/db] no port (provide url with port or port).");
   return merged;
 }
 
@@ -115,7 +116,10 @@ async function createMysqlClient(p: ConnectionParams, timeout: number): Promise<
 async function createHiveClient(p: ConnectionParams, timeout: number): Promise<DbClient> {
   // hive-driver 的类型多为 any，这里按其运行时 API 接入
   const hive = (await import("hive-driver")) as unknown as {
-    HiveClient: new (svc: unknown, types: unknown) => {
+    HiveClient: new (
+      svc: unknown,
+      types: unknown,
+    ) => {
       connect: (o: unknown, c: unknown, a: unknown) => Promise<unknown>;
       openSession: (r: unknown) => Promise<HiveSession>;
       close: () => void;
@@ -123,7 +127,10 @@ async function createHiveClient(p: ConnectionParams, timeout: number): Promise<D
     HiveUtils: new (types: unknown) => HiveUtils;
     connections: { TcpConnection: new () => unknown };
     auth: { PlainTcpAuthentication: new (o: { username: string; password: string }) => unknown };
-    thrift: { TCLIService: unknown; TCLIService_types: { TProtocolVersion: Record<string, number> } };
+    thrift: {
+      TCLIService: unknown;
+      TCLIService_types: { TProtocolVersion: Record<string, number> };
+    };
   };
   type HiveOperation = unknown;
   interface HiveSession {
@@ -188,7 +195,10 @@ export async function createDbClient(opts: DbConnectOptions): Promise<DbClient> 
  * Open a client, run `fn`, and always close the connection afterwards.
  * The canonical entry point for case setup/teardown SQL.
  */
-export async function withDb<T>(opts: DbConnectOptions, fn: (db: DbClient) => Promise<T>): Promise<T> {
+export async function withDb<T>(
+  opts: DbConnectOptions,
+  fn: (db: DbClient) => Promise<T>,
+): Promise<T> {
   const db = await createDbClient(opts);
   try {
     return await fn(db);
