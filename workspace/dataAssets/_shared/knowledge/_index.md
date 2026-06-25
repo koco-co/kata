@@ -9,7 +9,7 @@
 
 ## Modules
 
-- [data-quality.md](modules/data-quality.md) — 数据质量模块业务规则 [tags: 数据质量, 规则库, 规则集, 规则任务, 校验结果, 质量报告] (updated: 2026-04-21, confidence: high)
+- [data-quality.md](modules/data-quality.md) — 数据质量模块产品级规则语义：规则类型/统计函数清单/多字段AND逻辑/字段类型约束(数值-枚举需数值字段)/自定义SQL返回违规明细/规则集文件导入+独立执行；菜单文案见 sites [tags: 数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束] (updated: 2026-06-24, confidence: high)
 
 ## Pitfalls
 
@@ -31,4 +31,4 @@
 - [sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md](sites/shuzhan63-test-ltqc.k8s.dtstack.cn/dom-dataAssets.md) — 岚图 ltqc 环境 DataAssets DOM（左导航/数据质量）[tags: selector, dataAssets, 数据质量, 岚图, ltqc] (updated: 2026-05-13, confidence: high)
 - [sites/172.16.122.52/dom-dataAssets.md](sites/172.16.122.52/dom-dataAssets.md) — 172.16.122.52 DataAssets DOM [tags: selector, dataAssets, 数据地图, 热门标签, 字段标签, 自动分级, 识别模式] (updated: 2026-05-13, confidence: high)
 
-<!-- last-indexed: 2026-06-23T00:00:00.000Z -->
+<!-- last-indexed: 2026-06-24T00:00:00.000Z -->

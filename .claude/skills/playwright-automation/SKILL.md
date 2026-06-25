@@ -73,6 +73,7 @@ flowchart TD
 | prompts/agent-worker.md           | 用例 generate/self-run/repair 派子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
 | prompts/agent-spec-reviewer.md    | 汇总 & 质量闸门阶段                            | spec 合规机械检查                              |
 | prompts/agent-quality-reviewer.md | 汇总 & 质量闸门阶段（spec 通过后）             | 脚本质量（选择器、断言、复用度）               |
+| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md` + `sites/<host>/dom-*.md` | ui-probe / generate / 用例清单校正前（必读） | 真实菜单·字段·统计函数文案 + 规则语义事实，校正用例与脚本；存疑查 `source-repo-map.md` 指向的 `.kata/repos` 源码枚举 |
 
 ## 执行流程
 

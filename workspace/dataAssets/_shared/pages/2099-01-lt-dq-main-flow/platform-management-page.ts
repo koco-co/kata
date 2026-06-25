@@ -1,8 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 
-import { buildDataAssetsUrl } from "../../helpers/test-setup";
+import { buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
-const PROJECT_ID = 92;
+const PROJECT_ID = getEnvConfig().projects.quality.id;
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
 

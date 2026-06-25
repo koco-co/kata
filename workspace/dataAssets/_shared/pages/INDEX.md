@@ -8,3 +8,4 @@
 - `2099-01-lt-dq-main-flow/data-quality-page.ts` — 数据质量总览、规则任务、报告、规则库与完整度分析 Shell 页对象。
 - `2099-01-lt-dq-main-flow/data-security-page.ts` — 数据安全权限、脱敏与分级分类 Shell 页对象。
 - `2099-01-lt-dq-main-flow/platform-management-page.ts` — 平台管理数据源、用户角色与通知中心 Shell 页对象。
+- `2026-06-dq-starrocks3x/starrocks3x-quality-page.ts` — 浙商证券 StarRocks3.x 数据质量适配页对象与数据源契约断言。

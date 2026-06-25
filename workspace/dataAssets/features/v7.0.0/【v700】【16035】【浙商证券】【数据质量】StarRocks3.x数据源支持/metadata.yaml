@@ -3,7 +3,7 @@ id: 【v700】【浙商证券】【数据质量】StarRocks3.x数据源支持
 display_name: 【202606】【浙商证券】【数据质量】StarRocks 3.x 数据源支持
 status: active
 created_at: 2026-06-22
-updated_at: 2026-06-22
+updated_at: 2026-06-24
 modules:
   - dq
 customers:
@@ -16,7 +16,7 @@ relates_to: []
 emits:
   cases_xmind: true
   archive: true
-  playwright_tests: false
+  playwright_tests: true
 feature_id: 2026-06-dq-starrocks3x
 # 需求环境信息：客户平台版本 6.0；本需求为 v7.0.0 迭代交付，开发分支 6.0_浙商证券定制化分支
 requirement_context:
@@ -83,12 +83,55 @@ case_drafting:
       confidence: medium
       description: 数据质量-项目管理：StarRocks 3.x 数据源关联的质量项目脏数据管理功能正常
 automation:
-  status: not-started
-  intents: []
-  last_handoff_path: null
-  last_run_status: not-run
+  status: ready
+  intents:
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-001
+      case_files:
+        - automation/tests/cases/t01-starrocks-datasource-rule-wizard.ts
+      runner_files:
+        - automation/tests/runners/smoke.spec.ts
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-002
+      case_files:
+        - automation/tests/cases/t02-platform-datasource-authorization.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-003
+      case_files:
+        - automation/tests/cases/t03-dq-module-contract.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-004
+      case_files:
+        - automation/tests/cases/t04-rule-row-count.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-005
+      case_files:
+        - automation/tests/cases/t05-rule-null-count.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-006
+      case_files:
+        - automation/tests/cases/t06-rule-sum.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-009
+      case_files:
+        - automation/tests/cases/t09-rule-repeat-count.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+  last_handoff_path: runs/20260624-1413-codexrun/handoff.md
+  last_run_status: partial
 files:
   archive: cases/archive.md
   xmind: cases/cases.xmind
   tests_root: automation/tests/
-  latest_results: null
+  latest_results: runs/20260624-1413-codexrun/

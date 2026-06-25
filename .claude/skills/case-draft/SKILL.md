@@ -71,7 +71,8 @@ flowchart TD
 | references/source-refs.md         | 需要核对 source_ref 锚点语法或 SR 前缀时 | source_ref 的 scheme#anchor 规范、SR- 注册前缀、证据分层 |
 | .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源；其菜单名是岚图定制，禁照抄 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用）    | 字段一致性、标题、前置条件、表单逐字匹配          |
-| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md` + `sites/<host>/dom-*.md` | **module-identify 后、起草任何含菜单路径/页面操作/表单字段的用例前（必读）** | 真实菜单名、路由、向导步骤、表单字段基线；按 `_index.md` Sites 节逐条加载目标环境 DOM，作为 worker/reviewer 的菜单·字段事实来源 |
+| `workspace/<project>/_shared/knowledge/_index.md` → `sites/<host>/dom-*.md` | **module-identify 后、起草任何含菜单/页面/表单字段的用例前（必读）** | 真实菜单名、路由、向导步骤、表单字段与统计函数文案基线；按 `_index.md` Sites 节逐条加载目标环境 DOM |
+| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md`（存疑再查 `source-repo-map.md` 指向的 `.kata/repos` 源码枚举） | **起草任何含业务规则语义的用例前（必读）** | 规则类型/统计函数清单/字段类型约束/多字段 AND 逻辑/规则集·多表比对·自定义SQL 机制等产品级语义事实来源；缺证据按规则臆测会写出错误用例，必须查证 |
 
 ## 产物与引用规范
 
@@ -111,7 +112,7 @@ flowchart TD
 用例步骤里的左导航/菜单名、页面与向导步骤、按钮文案、表单字段与统计函数枚举，都是**客户/环境定制的外部事实**，必须逐字来自目标环境的 `sites/<host>/dom-*.md`（或用户提供的截图）：
 
 - module-identify 确定 project/客户/环境 host 后，**先按 `_index.md` Sites 节加载该 host 的 `dom-dataAssets.md`** 建立菜单·字段基线，再起草。
-- **fewshot（`case-format-sample.md`）与 `modules/data-quality.md` 的菜单名是岚图定制，禁止照抄到其它客户用例**；历史用例里的菜单名同样不作事实来源。
+- **菜单文案只认 `sites/<host>/dom-*.md`**：fewshot（`case-format-sample.md`）的菜单名是岚图定制，禁止照抄；`modules/data-quality.md` 现为产品级规则语义（不含具体客户菜单名），是规则类型/统计函数/校验语义的事实来源，但菜单·按钮文案仍以 sites DOM 为准；历史用例里的菜单名不作事实来源。
 - **目标环境无专属 DOM、`_index.md` 也无对应条目时**：主会话 `AskUserQuestion` 向用户索要真实菜单截图/左导航清单，**禁止降级套用其它环境（ltqc/ci63 等）的 DOM 或 fewshot 菜单名**——岚图与标品菜单结构本就不同。worker 遇此返回 `BLOCKED(missing_evidence)`。
 
 ## 交付约束

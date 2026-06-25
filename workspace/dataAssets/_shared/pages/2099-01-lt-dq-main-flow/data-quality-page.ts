@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
 
-import { buildDataAssetsApiUrl, buildDataAssetsUrl } from "../../helpers/test-setup";
+import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
-const PROJECT_ID = 92;
+const PROJECT_ID = getEnvConfig().projects.quality.id;
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
 const LTQC_LOCAL_RULESET_AVAILABLE_TABLE = "dwd_voyah_dq_vehicle_null_cnt";

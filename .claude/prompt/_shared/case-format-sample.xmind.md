@@ -52,9 +52,8 @@ priority marker 对照（以 `render.ts` 的 `PRIORITY_MAP` 为准：P0 为最�
                 │     2. 已在【数据质量 → 通用配置 → 报告关联维表设置】中为表 dwd_voyah_dq_vehicle_null_cnt 设置：
                 │     -- 车辆数统计字段：vehicle_count
                 │     ...
-                │     3. 执行以下 SparkThrift2.x 前置 SQL，准备分区表和测试数据。
+                │     3. 在 SparkThrift2.x 数据源的 ${SchemaA} 库执行以下前置 SQL（SQL 体内裸表名，不带 ${SchemaA} 限定）。
                 │     */
-                │     USE ${SchemaA};
                 │     DROP TABLE IF EXISTS dwd_voyah_dq_vehicle_null_cnt;
                 │     CREATE TABLE dwd_voyah_dq_vehicle_null_cnt (...)
                 │     ...
@@ -115,10 +114,10 @@ priority marker 对照（以 `render.ts` 的 `PRIORITY_MAP` 为准：P0 为最�
                 │       - 超时时间: 不限制
                 │       2)告警配置: 无
                 │       3)报告配置: 无需生成报告
-                │       点击保存, 进入规则任务${SchemaA}.dwd_voyah_dq_vehicle_null_cnt详情页, 点击「立即执行」
+                │       点击保存, 进入规则任务 dwd_voyah_dq_vehicle_null_cnt 详情页, 点击「立即执行」
                 │   └── 1)调度属性配置成功
                 │       2)规则任务保存成功
-                │       3)进入规则任务${SchemaA}.dwd_voyah_dq_vehicle_null_cnt详情页
+                │       3)进入规则任务 dwd_voyah_dq_vehicle_null_cnt 详情页
                 │       4)任务提交执行成功
                 │
                 ├── 进入【数据质量 → 校验结果查询】, 查询任务名称(SparkThrift2.x+完整性校验+字段级+空值数)最新实例详情

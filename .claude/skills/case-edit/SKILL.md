@@ -32,6 +32,7 @@ effort: medium
 | references/apply-corrections.md           | 仅 `apply-corrections` 子命令     | 加载 corrections、dry-run、写回、同步      |
 | .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源 |
 | .claude/prompt/_shared/case-qa.md         | 交付前自审（共享引用）            | Archive/XMind 字段一致性与可执行性维度     |
+| `workspace/<project>/_shared/knowledge/modules/<module>.md` + `sites/<host>/dom-*.md` | 编辑涉及菜单/字段/规则语义/统计函数时 | 核对菜单·字段文案与规则语义事实，避免把错误用例「保真」搬运；存疑查 `source-repo-map.md` 指向的源码枚举 |
 
 ## 语义保真
 
