@@ -65,6 +65,10 @@ updated: 2026-06-24
   - 正确：`SELECT order_id, trade_amount FROM <表> WHERE trade_amount < 0`
   - 错误：`SELECT COUNT(1) ...`（聚合）。COUNT 形态是**内置统计函数规则**系统内部自动生成的 SQL（源码模板 `SELECT count(1) AS val FROM ${table} WHERE ${condition}`），与用户填的自定义SQL 不是一回事。
 - 出处：`customltem/dt-center-assets/dao/.../valid/dto/MonitorRuleDTO.java`（`customizeSql`/`isCustomizeSql`）；FunctionType.CUSTOM_SQL(0)。
+- **明细查询 SQL 避免 JOIN，一律用子查询替代**：自定义SQL 与规则集导入「校验SQL」保存时都会被后端解析建脏数据表（`TidbSqlOperator.createCustomDirtyTable` / `createCollectionDirtyTable` → `getSqlParseResult`，脏数据存储开启时触发）。SR3.x（zszq）环境实测：含 `JOIN` 的校验SQL 触发 SqlParser `NoSuchMethodError: JoinCall.getConditionNodeList()`（疑 SqlParser jar 版本问题），保存即 500 失败。写明细查询时：
+  - 查重复：`SELECT 列 FROM 表 WHERE 字段 IN (SELECT 字段 FROM 表 GROUP BY 字段 HAVING COUNT(1) > 1)`，不写自连接 JOIN。
+  - 查跨表缺失/孤儿：`SELECT 列 FROM 表 WHERE 字段 NOT IN (SELECT 字段 FROM 维表)` 或 `NOT EXISTS (...)`，不写 LEFT JOIN。
+  - 真要做跨表字段一致性比对：走专用**多表比对**功能（§6），别在单表自定义SQL 里手写 JOIN。
 
 ## 5. 规则集（RuleSet）：文件导入 + 独立执行
 
