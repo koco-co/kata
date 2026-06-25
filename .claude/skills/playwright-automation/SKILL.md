@@ -68,6 +68,7 @@ flowchart TD
 | 文件                              | 何时读                                         | 作用                                           |
 | --------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
 | references/cli-essentials.md      | ui-probe/generate/repair 阶段需要 API 速查时   | 原生 Playwright API：探测/属性/断言/mock/trace/下载；含 @playwright/cli 可选探索边界 |
+| references/db-runtime-sql.md      | 用例需运行时建表/删表/改数据或核对期望度量时   | `lib/db` 多数据源(starrocks/doris/hive/sparkthrift)运行时 SQL 工具的使用时机与方式 |
 | references/execution-protocol.md  | env 确认且无 blocker 后的重阶段                | per-case 任务编排与公开进度、子代理派发、汇总集中评审 |
 | prompts/agent-precondition.md     | 前置条件处理阶段（env-preflight 通过后）         | 前置 opus 子代理模板：ui-probe 探测 + 共享层 + 用例清单校正 |
 | prompts/agent-worker.md           | 用例 generate/self-run/repair 派子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
