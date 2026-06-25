@@ -1,9 +1,7 @@
 // spec: cases/archive.md#case=规则编辑重跑  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 规则编辑重跑：zszq_trade_orders 建表行数>5（校验通过）→ 编辑期望值改 >10 → 重跑（校验异常，表行数 6 不满足 >10）。
-//
-// SKIP-REASON（UI 编辑入口待重做，不走 API）：编辑须走 UI。当前 openRuleDetailDrawer 找行内「详情」链接失效
-// （规则行操作列只有「取消收藏/删除」，详情应点表名链接进入），且抽屉内编辑流程不稳定。需改为：点表名进规则详情/
-// 编辑向导 → 改期望值比较符+阈值 → 保存重跑。本轮 test.describe.skip 跳过，作为缺口阶段第一项以 UI 方式重做。
+// 编辑全程走 UI（不走 API）：点规则列表表名链接 → 右侧规则详情滑窗「规则管理」tab → 规则块底部「编 辑」按钮
+// → 改期望值比较符+阈值 → 保 存 → 再 立即执行 重跑。详见 editRuleThreshold/openRuleDetailDrawer。
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
@@ -19,7 +17,7 @@ const TABLE = "zszq_trade_orders";
 
 test.setTimeout(300000);
 
-test.describe.skip("@serial StarRocks3.x 规则任务编辑与重跑", () => {
+test.describe("@serial StarRocks3.x 规则任务编辑与重跑", () => {
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });
