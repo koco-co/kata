@@ -1,6 +1,7 @@
 // spec: cases/archive.md#case=规范性格式手机号  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
-// 规范性·格式-手机号：zszq_account_mobile（mobile 含 1 条非法手机号 123456，违规行数=1）。
-// Fail: =0（1不满足）；Pass: <=1（无需 DB 写入，1满足阈值<=1）。
+// 规范性·格式-手机号：zszq_account_mobile（3 行，2 条合法 + 123456 非法）。
+// 实测平台格式校验 metric =「符合格式的合法行数」(生成 SQL: count WHERE mobile REGEXP 合法手机号正则)，
+// 即合法数=2。>=3 校验异常（期望≥3条合法、实际2，有非法行）；>=2 校验通过（实际合法2达标）。
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
@@ -23,17 +24,17 @@ test.describe("@serial StarRocks3.x 规范性格式手机号校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P1】mobile 格式-手机号 = 0 校验异常（实际 1 条违规）", async ({ page, step }) => {
+  test("【P1】mobile 格式-手机号 >= 3 校验异常（合法数 2，有 1 条非法）", async ({ page, step }) => {
     let monitorId = "";
-    await step("建格式-手机号规则（规范性·格式-手机号·=0·强规则）", async () => {
+    await step("建格式-手机号规则（规范性·格式-手机号·>=3·强规则）", async () => {
       monitorId = await createSingleTableRule(page, {
         ruleName: `手机号格式异常_${Date.now()}`,
         table: TABLE,
         bigRule: "规范性校验",
         fields: ["mobile"],
         statFunc: "格式-手机号",
-        comparator: "=",
-        threshold: "0",
+        comparator: ">=",
+        threshold: "3",
         weak: "强规则",
         ruleDesc: "手机号格式校验",
       });
@@ -45,17 +46,17 @@ test.describe("@serial StarRocks3.x 规范性格式手机号校验", () => {
     });
   });
 
-  test("【P1】mobile 格式-手机号 <= 1 校验通过（允许 1 条违规，实际 1 条达标）", async ({ page, step }) => {
+  test("【P1】mobile 格式-手机号 >= 2 校验通过（合法数 2 达标）", async ({ page, step }) => {
     let monitorId = "";
-    await step("建格式-手机号规则（规范性·格式-手机号·<=1·弱规则）", async () => {
+    await step("建格式-手机号规则（规范性·格式-手机号·>=2·弱规则）", async () => {
       monitorId = await createSingleTableRule(page, {
         ruleName: `手机号格式通过_${Date.now()}`,
         table: TABLE,
         bigRule: "规范性校验",
         fields: ["mobile"],
         statFunc: "格式-手机号",
-        comparator: "<=",
-        threshold: "1",
+        comparator: ">=",
+        threshold: "2",
         weak: "弱规则",
         ruleDesc: "手机号格式校验",
       });
