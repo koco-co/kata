@@ -24,8 +24,12 @@ test.describe("@serial StarRocks3.x 脏数据管理配置查看", () => {
       await page.keyboard.press("Enter");
       await page.waitForTimeout(2000);
       const rows = page.locator(".ant-table-tbody tr.ant-table-row");
-      expect(await rows.count(), "搜索后应有匹配行").toBeGreaterThan(0);
-      await expect(rows.first(), "过滤行应为 StarRocks3.x 数据源").toContainText(/STAR_ROCKS|pw_sr3/i);
+      const n = await rows.count();
+      expect(n, "搜索后应有匹配行").toBeGreaterThan(0);
+      // 逐行断言「仅展示 StarRocks3.x 数据源」：只验首行无法发现过滤泄漏（混入其它数据源行）。
+      for (let i = 0; i < n; i++) {
+        await expect(rows.nth(i), `第 ${i + 1} 行应为 StarRocks3.x 数据源`).toContainText(/STAR_ROCKS|pw_sr3/i);
+      }
     });
   });
 });
