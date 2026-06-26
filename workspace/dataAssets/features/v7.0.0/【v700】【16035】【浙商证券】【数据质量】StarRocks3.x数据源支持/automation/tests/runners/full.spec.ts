@@ -28,9 +28,20 @@ import "../cases/t09-rule-repeat-count";
 import "../cases/t23-rule-repeat-rate";
 import "../cases/t24-rule-distinct-count";
 import "../cases/t25-rule-distinct-ratio";
-// 自定义SQL：单表 / 多表JOIN（多表比对规则 t28 已排除，详见 handoff.excluded）
+// 自定义SQL：单表 / 子查询跨表缺失
 import "../cases/t26-rule-custom-sql";
 import "../cases/t27-rule-custom-sql-join";
+// 规则集导入（t44 skip：导入解析待 .xls）
+import "../cases/t44-rule-set-import";
+// 多表比对：字段一致性 / 数值差异百分比 / 字符不区分大小写 / 空值NULL等价 / 五类分类
+import "../cases/t28-rule-multi-consistency";
+import "../cases/t38-rule-multi-pct-diff";
+import "../cases/t39-rule-multi-case-insensitive";
+import "../cases/t40-rule-multi-null-equiv";
+import "../cases/t41-rule-multi-category";
+// 列表查询筛选 / 脏数据管理
+import "../cases/t42-rule-list-query";
+import "../cases/t43-dirty-data-manage";
 // 多字段变体（P2）：空值数·空值率·空串数·空串率·重复数·重复率
 import "../cases/t29-rule-null-count-multi";
 import "../cases/t30-rule-null-rate-multi";

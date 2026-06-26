@@ -122,16 +122,240 @@ automation:
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-007
+      case_files:
+        - automation/tests/cases/t07-rule-null-rate.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-008
+      case_files:
+        - automation/tests/cases/t08-rule-blank-count.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-009
       case_files:
         - automation/tests/cases/t09-rule-repeat-count.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
-  last_handoff_path: runs/20260624-1413-codexrun/handoff.md
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-010
+      case_files:
+        - automation/tests/cases/t10-rule-blank-rate.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-011
+      case_files:
+        - automation/tests/cases/t11-rule-avg.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-012
+      case_files:
+        - automation/tests/cases/t12-rule-neg-ratio.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-013
+      case_files:
+        - automation/tests/cases/t13-rule-zero-ratio.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-014
+      case_files:
+        - automation/tests/cases/t14-rule-pos-ratio.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-015
+      case_files:
+        - automation/tests/cases/t15-rule-value-range.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-017
+      case_files:
+        - automation/tests/cases/t17-rule-enum-count.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-018
+      case_files:
+        - automation/tests/cases/t18-rule-str-maxlen.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: blocked
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-019
+      case_files:
+        - automation/tests/cases/t19-rule-str-minlen.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: blocked
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-020
+      case_files:
+        - automation/tests/cases/t20-rule-format-idcard.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-021
+      case_files:
+        - automation/tests/cases/t21-rule-format-mobile.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-022
+      case_files:
+        - automation/tests/cases/t22-rule-format-email.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-023
+      case_files:
+        - automation/tests/cases/t23-rule-repeat-rate.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-024
+      case_files:
+        - automation/tests/cases/t24-rule-distinct-count.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-025
+      case_files:
+        - automation/tests/cases/t25-rule-distinct-ratio.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-026
+      case_files:
+        - automation/tests/cases/t26-rule-custom-sql.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-027
+      case_files:
+        - automation/tests/cases/t27-rule-custom-sql-join.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-028
+      case_files:
+        - automation/tests/cases/t28-rule-multi-consistency.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-029
+      case_files:
+        - automation/tests/cases/t29-rule-null-count-multi.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-030
+      case_files:
+        - automation/tests/cases/t30-rule-null-rate-multi.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-031
+      case_files:
+        - automation/tests/cases/t31-rule-blank-count-multi.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-032
+      case_files:
+        - automation/tests/cases/t32-rule-blank-rate-multi.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-033
+      case_files:
+        - automation/tests/cases/t33-rule-repeat-count-multi.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-034
+      case_files:
+        - automation/tests/cases/t34-rule-repeat-rate-multi.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-035
+      case_files:
+        - automation/tests/cases/t35-task-query.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-036
+      case_files:
+        - automation/tests/cases/t36-rule-edit-rerun.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-037
+      case_files:
+        - automation/tests/cases/t37-rule-delete.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-038
+      case_files:
+        - automation/tests/cases/t38-rule-multi-pct-diff.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-039
+      case_files:
+        - automation/tests/cases/t39-rule-multi-case-insensitive.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-040
+      case_files:
+        - automation/tests/cases/t40-rule-multi-null-equiv.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-041
+      case_files:
+        - automation/tests/cases/t41-rule-multi-category.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-042
+      case_files:
+        - automation/tests/cases/t42-rule-list-query.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-043
+      case_files:
+        - automation/tests/cases/t43-dirty-data-manage.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: ready
+    - intent_id: SR-INTENT-2026-06-DQ-SR3X-044
+      case_files:
+        - automation/tests/cases/t44-rule-set-import.ts
+      runner_files:
+        - automation/tests/runners/full.spec.ts
+        - automation/tests/runners/full-d.spec.ts
+      automation_status: blocked
+  last_handoff_path: runs/20260625-fullrun/handoff.md
   last_run_status: partial
 files:
   archive: cases/archive.md
   xmind: cases/cases.xmind
   tests_root: automation/tests/
-  latest_results: runs/20260624-1413-codexrun/
+  latest_results: runs/20260625-fullrun/
