@@ -351,7 +351,7 @@ automation:
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
-      automation_status: blocked
+      automation_status: ready
   last_handoff_path: runs/20260625-fullrun/handoff.md
   last_run_status: partial
 files:
