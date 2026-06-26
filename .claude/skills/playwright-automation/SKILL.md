@@ -61,7 +61,7 @@ flowchart TD
 | §9 repair-loop         | phases/§9-repair-loop.md         | 有限修复循环，保留每次修复证据                                    |
 | §10 quality-gate       | phases/§10-quality-gate.md       | 脚本结构、断言、session、handoff 等检查项，跑 `kata cases lint` 闸门 |
 | §11 handoff            | phases/§11-handoff.md            | 通过/阻塞/部分/修复耗尽的最终交付报告                             |
-| §12 case-feedback      | phases/§12-case-feedback.md      | 生成 case-corrections（8 类 category、3 级 confidence、跨轮去重） |
+| §12 case-feedback      | phases/§12-case-feedback.md      | 生成 case-corrections（8 类/3 级/跨轮去重）；高置信已核实项经 case-edit 回写源用例 |
 
 ## 何时加载哪个文件
 
