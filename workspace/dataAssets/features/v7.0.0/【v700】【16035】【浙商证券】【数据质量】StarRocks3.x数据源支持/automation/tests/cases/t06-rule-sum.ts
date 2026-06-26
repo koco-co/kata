@@ -12,7 +12,7 @@ import {
 
 const TABLE = "zszq_trade_sum";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 准确性求和校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -22,47 +22,50 @@ test.describe("@serial StarRocks3.x 准确性求和校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P0】trade_amount 求和 = 131000 校验通过", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建求和规则（准确性·求和·=131000·强规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `求和通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "准确性校验",
-        fields: ["trade_amount"],
-        statFunc: "求和",
-        comparator: "=",
-        threshold: "131000",
-        weak: "强规则",
-        ruleDesc: "交易金额求和校验",
+  test("【P0】trade_amount 求和 =131000 校验通过 / =130000 校验异常", async ({ page, step }) => {
+    await step("场景①：trade_amount 求和 = 131000 校验通过", async () => {
+      let monitorId = "";
+      await step("建求和规则（准确性·求和·=131000·强规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `求和通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "准确性校验",
+          fields: ["trade_amount"],
+          statFunc: "求和",
+          comparator: "=",
+          threshold: "131000",
+          weak: "强规则",
+          ruleDesc: "交易金额求和校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
-    });
-  });
-
-  test("【P0】trade_amount 求和 = 130000 校验异常（实际 131000）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建求和规则（准确性·求和·=130000·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `求和异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "准确性校验",
-        fields: ["trade_amount"],
-        statFunc: "求和",
-        comparator: "=",
-        threshold: "130000",
-        weak: "弱规则",
-        ruleDesc: "交易金额求和校验",
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：trade_amount 求和 = 130000 校验异常（实际 131000）", async () => {
+      let monitorId = "";
+      await step("建求和规则（准确性·求和·=130000·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `求和异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "准确性校验",
+          fields: ["trade_amount"],
+          statFunc: "求和",
+          comparator: "=",
+          threshold: "130000",
+          weak: "弱规则",
+          ruleDesc: "交易金额求和校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
+      });
     });
   });
 });

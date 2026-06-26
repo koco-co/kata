@@ -14,7 +14,7 @@ import {
 
 const TABLE = "zszq_trade_orders";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 // 平台「一表一规则」约束：建规则前必须清掉该表已有规则，否则 ① 报「该规则配置已存在」。
 // 用 beforeEach/afterEach 的 page fixture（带登录态）做清理；browser.newPage() 无 storageState 鉴权会失败。
@@ -27,55 +27,60 @@ test.describe("@serial StarRocks3.x 完整性表行数校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P0】表行数 > 5 校验通过（表行数 6 达标）", async ({ page, step }) => {
-    const ruleName = `行数通过_${Date.now()}`;
-    let monitorId = "";
+  test("【P0】表行数规则 >5 校验通过 / >10 校验异常", async ({ page, step }) => {
+    await step("场景①：表行数 > 5 校验通过（表行数 6 达标）", async () => {
+      const ruleName = `行数通过_${Date.now()}`;
+      let monitorId = "";
 
-    await step("建表行数规则（表级·表行数·>5·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName,
-        table: TABLE,
-        bigRule: "完整性校验",
-        ruleLevel: "表级",
-        statFunc: "表行数",
-        comparator: ">",
-        threshold: "5",
-        weak: "弱规则",
-        ruleDesc: "表行数大于5校验",
+      await step("建表行数规则（表级·表行数·>5·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName,
+          table: TABLE,
+          bigRule: "完整性校验",
+          ruleLevel: "表级",
+          statFunc: "表行数",
+          comparator: ">",
+          threshold: "5",
+          weak: "弱规则",
+          ruleDesc: "表行数大于5校验",
+        });
+        expect(Number(monitorId), "应回查到新建规则的 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到新建规则的 monitorId").toBeGreaterThan(0);
-    });
 
-    await step("详情抽屉立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      const inst = await pollLatestInstance(page, monitorId);
-      expectInstanceStatus(inst, "校验通过");
-    });
-  });
-
-  test("【P0】表行数 > 10 校验异常（表行数 6 不达标）", async ({ page, step }) => {
-    const ruleName = `行数异常_${Date.now()}`;
-    let monitorId = "";
-
-    await step("建表行数规则（表级·表行数·>10·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName,
-        table: TABLE,
-        bigRule: "完整性校验",
-        ruleLevel: "表级",
-        statFunc: "表行数",
-        comparator: ">",
-        threshold: "10",
-        weak: "弱规则",
-        ruleDesc: "表行数大于10校验",
+      await step("详情抽屉立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        const inst = await pollLatestInstance(page, monitorId);
+        expectInstanceStatus(inst, "校验通过");
       });
-      expect(Number(monitorId), "应回查到新建规则的 monitorId").toBeGreaterThan(0);
     });
 
-    await step("详情抽屉立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      const inst = await pollLatestInstance(page, monitorId);
-      expectInstanceStatus(inst, "校验异常");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+
+    await step("场景②：表行数 > 10 校验异常（表行数 6 不达标）", async () => {
+      const ruleName = `行数异常_${Date.now()}`;
+      let monitorId = "";
+
+      await step("建表行数规则（表级·表行数·>10·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName,
+          table: TABLE,
+          bigRule: "完整性校验",
+          ruleLevel: "表级",
+          statFunc: "表行数",
+          comparator: ">",
+          threshold: "10",
+          weak: "弱规则",
+          ruleDesc: "表行数大于10校验",
+        });
+        expect(Number(monitorId), "应回查到新建规则的 monitorId").toBeGreaterThan(0);
+      });
+
+      await step("详情抽屉立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        const inst = await pollLatestInstance(page, monitorId);
+        expectInstanceStatus(inst, "校验异常");
+      });
     });
   });
 });

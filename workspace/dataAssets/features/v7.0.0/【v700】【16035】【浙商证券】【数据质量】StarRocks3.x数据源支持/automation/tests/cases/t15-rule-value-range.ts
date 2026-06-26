@@ -15,7 +15,7 @@ import {
 
 const TABLE = "zszq_price_range";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 规范性数值取值范围校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -25,51 +25,54 @@ test.describe("@serial StarRocks3.x 规范性数值取值范围校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P0】trade_price 取值范围 <=1000 校验异常（1500 越界）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建取值范围规则（规范性·取值范围·<=1000·强规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `取值范围异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "规范性校验",
-        fields: ["trade_price"],
-        statFunc: "数值-取值范围",
-        rangeFirstOp: "<=",
-        rangeFirstVal: "1000",
-        comparator: "=",
-        threshold: "0",
-        weak: "强规则",
-        ruleDesc: "成交价应不超过 1000",
+  test("【P0】trade_price 取值范围 <=1000 校验异常 / <=999999 校验通过", async ({ page, step }) => {
+    await step("场景①：trade_price 取值范围 <=1000 校验异常（1500 越界）", async () => {
+      let monitorId = "";
+      await step("建取值范围规则（规范性·取值范围·<=1000·强规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `取值范围异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "规范性校验",
+          fields: ["trade_price"],
+          statFunc: "数值-取值范围",
+          rangeFirstOp: "<=",
+          rangeFirstVal: "1000",
+          comparator: "=",
+          threshold: "0",
+          weak: "强规则",
+          ruleDesc: "成交价应不超过 1000",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
-    });
-  });
-
-  test("【P0】trade_price 取值范围 <=999999 校验通过（全部在区间内）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建取值范围规则（规范性·取值范围·<=999999·强规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `取值范围通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "规范性校验",
-        fields: ["trade_price"],
-        statFunc: "数值-取值范围",
-        rangeFirstOp: "<=",
-        rangeFirstVal: "999999",
-        comparator: "=",
-        threshold: "0",
-        weak: "强规则",
-        ruleDesc: "成交价应在区间内",
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：trade_price 取值范围 <=999999 校验通过（全部在区间内）", async () => {
+      let monitorId = "";
+      await step("建取值范围规则（规范性·取值范围·<=999999·强规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `取值范围通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "规范性校验",
+          fields: ["trade_price"],
+          statFunc: "数值-取值范围",
+          rangeFirstOp: "<=",
+          rangeFirstVal: "999999",
+          comparator: "=",
+          threshold: "0",
+          weak: "强规则",
+          ruleDesc: "成交价应在区间内",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+      });
     });
   });
 });
