@@ -74,6 +74,14 @@ repair_eligible:
   - product / permission / environment / unknown → 不入 repair-loop，直接进入 handoff
 ```
 
+### 第五步：spec-error 捕获（喂给 §12）
+
+当失败根因是 archive 用例本身写错（比较符 / 预期值 / metric 口径 / 数据语义与真实平台不符），或 `product` 缺陷需在 archive 标注（如后端错误码 `code:3009`、range 字典序误判）时，除写 triage 外须留下可回写的 correction 候选：
+
+- 附真实运行证据，至少其一：env 截图 / source-repo 枚举 / 实例 logInfo / 生成 SQL / 后端错误码。
+- 标 `category: business_rule`，按证据强度定 `confidence`，交 §12 生成与回写。
+- 不得把修正只钉在 `.ts` 头注释——源用例不更新，错误会在下一轮 case-draft/评审回流。
+
 ## 禁止
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：

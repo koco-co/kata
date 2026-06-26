@@ -43,6 +43,7 @@
 
 - **`script` 类**（locator / 等待 / 时序）→ 纯技术修复：改 spec，**源用例（archive.md）不动**。
 - **`product` 类**（功能、文案、业务规则变了）→ 属于用户可见变化：**不得在此硬改断言去迁就产品变化**。转至 handoff 阻塞，并触发 §12 case-feedback（`ui_text_drift` / `business_rule` 等类型），由用户确认后再改用例。把产品变化当技术问题硬改断言，即虚假通过，违反步骤与断言真实性规则。
+- **archive 写错（spec-error）类**：当脚本被迫偏离 archive（比较符 / 预期值 / metric 口径 / 数据语义与真实平台不符），或产品/后端缺陷须在 archive 标注（错误码、字典序误判等）→ 该偏差不得只钉在 `.ts` 头注释里；须按真实运行证据（env 截图 / source-repo 枚举 / 实例 logInfo / 生成 SQL / 后端错误码）记成 §12 的 `business_rule` correction 候选，由 §12 回写源用例。`script` 类纯技术修复仍不动 archive.md。
 
 ### 第五步：禁止
 

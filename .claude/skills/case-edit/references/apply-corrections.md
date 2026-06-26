@@ -58,6 +58,8 @@ By category:
 
 通过 AskUserQuestion 获取选择；若交互模式不可用，回退为直接文本提示并等待下一次显式调用。
 
+> 自动回写例外：当本契约被 playwright-automation §12「高置信回写」以预批准的高置信已核实条目调用时，跳过本交互门，直接对这些 `approved` 条目执行第三步；人工调用仍走上面的 proceed/edit/abort。
+
 ### 第三步：写回（仅 proceed 分支）
 
 对每条 `status: approved` 的 correction：
@@ -127,7 +129,7 @@ edit first 分支：什么都不改，直接结束，提示用户编辑后重跑
 
 ## 禁止
 
-- 非 proceed 分支不得修改 archive.md。
+- 除 §12 高置信自动回写（预批准的高置信已核实条目）外，非 proceed 分支不得修改 archive.md。
 - 不得跳过 archive-xmind-sync 步骤。
 - 不得修改 status 非 `approved` 的条目。
 - 不得修改 `cases/test-point-checklist.md`、`metadata.yaml`、`.kata/repos/**`。
