@@ -2,10 +2,12 @@
 // 规则集导入：新建规则集→基础信息→规则内容(导入「证券基础校验包.xlsx」含完整性+唯一性 2 规则)→调度手动触发→保存。
 // zszq_ruleset 含 1 条 security_name 空值 + 1 组 security_code 重复 → 立即执行校验异常。xlsx 运行时生成,导入走 UI。
 //
-// SKIP-REASON（导入解析待调试）：向导①②③ + xlsx 生成(exceljs) + 上传(setInputFiles)均已搭好,文件上传成功
-// (弹窗显示文件名)、点「确 定」后弹窗关闭,但规则包未解析成规则、③前「下一步」保持 disabled。上传按钮标注
-// 「仅支持xls格式」,exceljs 只能生成 .xlsx,疑似本 build 规则包导入需 .xls(老格式)或表头需精确匹配。
-// 完成路径:引入 SheetJS 生成 .xls,或核对导入模板表头逐字。本轮 test.describe.skip 跳过,脚本保留。
+// SKIP-REASON（产品格式约束·已 live 实证 2026-06-26）：向导①②③ + xlsx 生成(exceljs) + 上传(setInputFiles)均已搭好。
+// live probe 实测步骤②「导入规则」弹窗：上传控件文案为「上传文件仅支持xls格式」；上传 .xlsx 后无成功提示、
+// 「上传文件」按钮保持 disabled（被格式过滤拒绝），故③前「下一步」无法激活。根因 = 本 build 规则包导入仅接受
+// .xls(老 BIFF 格式)，而 exceljs 4.4 只能写 .xlsx（node_modules 无 SheetJS/node-xlsx）。
+// 完成路径：加 SheetJS(`xlsx` 包) 生成 .xls 替换 _xlsx.ts，再摸通 上传→解析→生成规则包→「下一步」 流程后去掉 skip。
+// 脚本保留备后续回归。
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
@@ -56,12 +58,12 @@ test.describe.skip("@serial StarRocks3.x 规则集导入规则包批量校验", 
       await page.waitForTimeout(1200);
       await page.locator("input[type='file']").first().setInputFiles(xlsxPath);
       await page.waitForTimeout(2500);
-      // 「导入规则」弹窗上传文件后点「确 定」确认（不要误点含「上传」字样的上传触发按钮）
+      // 「导入规则」弹窗上传文件后点「确 定」确认（不要误点含「上传」字样的上传触发按钮）。
+      // 不再吞错：un-skip（换 .xls）后若按钮缺失/被禁应暴露，而非静默跳过。
       await page
         .locator("[role='dialog']:visible button, .ant-modal:visible button", { hasText: /确\s*定/ })
         .first()
-        .click()
-        .catch(() => {});
+        .click();
       await page.waitForTimeout(2500);
       // 导入成功后「下一步」由 disabled 转可用（规则包解析完成）
       const next = page.locator("button:visible", { hasText: /^下一步$/ }).first();
