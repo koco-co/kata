@@ -285,21 +285,25 @@ export async function getMonitorIdByName(page: Page, ruleName: string, table?: s
   throw new Error(`未回查到规则 name=${ruleName} table=${table}；当前规则=${JSON.stringify(dump)}`);
 }
 
-/** 在规则列表按 monitorId（data-row-key）定位规则行，点「详情」打开规则详情抽屉。 */
+/**
+ * 在规则列表按 monitorId（data-row-key）定位规则行，点表名链接打开右侧规则详情滑窗。
+ * 该 build 规则行操作列只有「取消收藏/删除」，详情靠点表名链接打开；滑窗是自定义 Drawer 组件
+ * （非 .ant-drawer），故以「编 辑 / 立即执行」按钮出现作为滑窗已打开的标志。
+ */
 export async function openRuleDetailDrawer(page: Page, monitorId: string | number): Promise<void> {
   await gotoZszqDataAssetsPage(page, "/dq/rule");
-  // 等表格数据加载稳定，避免规则行未刷新就点详情
+  // 等表格数据加载稳定，避免规则行未刷新就点
   await page.locator(".ant-table-tbody tr.ant-table-row").first().waitFor({ state: "visible", timeout: 20000 });
   await page.waitForTimeout(1500);
   const row = page.locator(`.ant-table-tbody tr[data-row-key="${monitorId}"]`);
   await expect(row, `规则列表应有 monitorId=${monitorId} 的规则行`).toBeVisible({ timeout: 20000 });
-  // 点「详情」开抽屉：用 dispatchEvent 触发 click，避开抽屉打开动画导致的 post-actionability 误超时，
-  // 且只点一次（再点会命中抽屉遮罩把抽屉关掉）。
-  const drawer = page.locator(".ant-drawer:visible").first();
-  const runBtn = page.locator(".ant-drawer:visible button", { hasText: "立即执行" }).first();
-  await row.locator("span.dt-link", { hasText: "详情" }).first().dispatchEvent("click");
-  await expect(drawer, "规则详情抽屉应打开").toBeVisible({ timeout: 12000 });
-  await expect(runBtn, "抽屉应出现「立即执行」按钮").toBeVisible({ timeout: 15000 });
+  // 点表名链接（首列 <a>）打开右侧详情滑窗
+  await row.locator("td a, td .dt-link").first().click();
+  await page.waitForTimeout(1500);
+  await expect(
+    page.locator("button:visible", { hasText: /编\s*辑|立即执行/ }).first(),
+    "规则详情滑窗应打开（出现编辑/立即执行）",
+  ).toBeVisible({ timeout: 12000 });
 }
 
 /** 在详情抽屉点「立即执行」。 */
@@ -317,20 +321,29 @@ export async function runRuleNow(page: Page): Promise<void> {
  */
 export async function runRuleNowByApi(page: Page, monitorId: string | number): Promise<void> {
   if (!page.url().includes("/dataAssets")) await gotoZszqDataAssetsPage(page, "/dq/rule");
-  await postDataAssetsApi(page, "/dassets/v1/valid/monitor/immediatelyExecuted", { monitorId }).catch(
-    () => undefined,
-  );
+  // 触发失败不再静默吞掉：让接口异常向上抛出（配合 pollLatestInstance 的 afterId 基线，
+  // 触发失败/未生成新实例会在轮询阶段超时报错，而非误判上一次的旧终态实例）。
+  const resp = (await postDataAssetsApi(page, "/dassets/v1/valid/monitor/immediatelyExecuted", {
+    monitorId,
+  })) as { code?: number; success?: boolean; message?: string } | undefined;
+  // 该后端成功响应形如 {code:1, success:true, data:"true"}——code:1（非 200）即成功，success:true 才是成功标志。
+  // 故仅在 success===false 显式失败时抛错；字段缺省不误判，「未生成新实例」由 pollLatestInstance(afterId) 兜底。
+  if (resp?.success === false) {
+    throw new Error(`立即执行触发失败 monitorId=${monitorId}: ${JSON.stringify(resp)}`);
+  }
 }
 
 /** 轮询 monitorRecord/pageQuery，等指定 monitorId 的最新实例进入终态（非运行中），返回实例。 */
 export async function pollLatestInstance(
   page: Page,
   monitorId: string | number,
-  opts: { timeoutMs?: number } = {},
+  opts: { timeoutMs?: number; afterId?: number } = {},
 ): Promise<MonitorInstance> {
   const deadline = opts.timeoutMs ?? 120000;
   const interval = 5000;
   const maxIter = Math.ceil(deadline / interval);
+  // afterId：重跑场景下传入「重跑前已知实例 id」，只接受 id 更大的新实例，杜绝误判上一次的旧终态实例。
+  const afterId = opts.afterId;
   let last: MonitorInstance | null = null;
   for (let i = 0; i < maxIter; i++) {
     const payload = (await postDataAssetsApi(page, "/dassets/v1/valid/monitorRecord/pageQuery", {
@@ -341,6 +354,7 @@ export async function pollLatestInstance(
     const rows = (payload?.data?.data ?? []) as MonitorInstance[];
     const mine = rows
       .filter((r) => String(r.monitorId) === String(monitorId))
+      .filter((r) => afterId === undefined || Number(r.id ?? 0) > afterId)
       .sort((a, b) => Number(b.id ?? 0) - Number(a.id ?? 0))[0];
     if (mine) {
       last = mine;
@@ -350,8 +364,11 @@ export async function pollLatestInstance(
     }
     await page.waitForTimeout(interval);
   }
-  if (last) return last;
-  throw new Error(`轮询超时：monitorId=${monitorId} 未产生实例`);
+  // 超时即硬失败：不再返回可能为非终态的 last（那只会让下游 expectInstanceStatus 报误导性错），
+  // 直接带最后已知状态抛出，便于定位「重跑未真正跑起来」或后端慢。
+  const tail = last ? `最后实例 id=${last.id} status=${last.status}（非终态）` : "未查到匹配实例";
+  const base = afterId === undefined ? "" : `（afterId=${afterId}）`;
+  throw new Error(`轮询超时：monitorId=${monitorId}${base} 未在 ${deadline}ms 内产生终态实例；${tail}`);
 }
 
 // ─── 编辑期望值（双向用例） ───
@@ -363,16 +380,52 @@ export async function editRuleThreshold(
   next: { comparator: string; threshold: string },
 ): Promise<void> {
   await openRuleDetailDrawer(page, monitorId);
-  // 抽屉「编辑调度属性」进入编辑（规则 SQL/期望值在规则管理 tab）
-  const editBtn = page.locator(".ant-drawer:visible button", { hasText: /编辑/ }).first();
-  await editBtn.click({ timeout: 10000 }).catch(() => {});
+  // 详情滑窗「规则管理」tab 的规则块底部有「编 辑」按钮，点它进入编辑态（字段从只读变可改）。
+  await page.locator("button:visible", { hasText: /编\s*辑/ }).first().click();
   await page.waitForTimeout(1200);
-  await selectAntOption(page, locateFormItem(page, "期望值").locator(".ant-select").first(), next.comparator).catch(
-    () => {},
-  );
-  await page.locator("#threshold").fill(next.threshold).catch(() => {});
-  await page.locator("button:visible", { hasText: /保\s*存/ }).first().click().catch(() => {});
+  // 改期望值比较符 + 阈值（校验方法保持固定值；「期望值」项含 comparator 选择器 + #threshold 输入）。
+  // 不再吞错：编辑动作若失败必须暴露，否则规则等同未改、重跑结果无意义。
+  await selectAntOption(page, locateFormItem(page, "期望值").locator(".ant-select").first(), next.comparator);
+  const thresholdInput = page.locator("#threshold");
+  await thresholdInput.fill(next.threshold);
+  await expect(thresholdInput, "阈值应已改为新值").toHaveValue(next.threshold, { timeout: 5000 });
+  // 编辑态出现「保 存」，点它保存规则块改动；保存后断言编辑态退出（保存按钮消失），确认改动已持久化而非被表单拦截。
+  const saveBtn = page.locator("button:visible", { hasText: /保\s*存/ }).first();
+  await saveBtn.click();
+  await expect(saveBtn, "保存后编辑态应退出（保存按钮消失）").toBeHidden({ timeout: 12000 });
+}
+
+/**
+ * 多表比对编辑重跑：点表名开详情滑窗 → 点「修改规则」打开多表编辑向导（①选左表→②选右表→
+ * ③选字段→④执行配置，前两步表已回填）→ 在③改匹配条件阈值（applyMatchConditions 复用，已勾选
+ * 条件仅更新阈值）→ ④调度保持手动触发 → 完成。编辑全程走 UI（不走 API）。
+ */
+export async function editMatchConditionThreshold(
+  page: Page,
+  monitorId: string | number,
+  conditions: MatchCondition[],
+): Promise<void> {
+  await openRuleDetailDrawer(page, monitorId);
+  // 多表编辑入口是详情滑窗里「多表对比规则」旁的「修改规则」链接（非单表的「编 辑」按钮）
+  await page.locator("a:visible, span:visible, button:visible", { hasText: "修改规则" }).first().click();
+  await page.waitForTimeout(2000);
+  // 编辑向导停在①选左侧表（表已回填）→ ② → ③选字段
+  await clickMultiNext(page); // ① → ②
+  await clickMultiNext(page); // ② → ③
   await page.waitForTimeout(1500);
+  await applyMatchConditions(page, conditions);
+  await clickMultiNext(page); // ③ → ④
+  await switchScheduleToManual(page);
+  // 编辑向导最终按钮文案可能是「完成/保存/确定/新建」之一
+  const finishBtn = page
+    .locator("button:visible")
+    .filter({ hasText: /新\s*建|完\s*成|保\s*存|确\s*定/ })
+    .filter({ hasNotText: /上一步|取\s*消/ })
+    .last();
+  await expect(finishBtn, "编辑向导④应有「完成/保存/确定」按钮").toBeVisible({ timeout: 20000 });
+  await finishBtn.click();
+  await expect(page, "保存后应回到规则列表").toHaveURL(/#\/dq\/rule(\?|$)/, { timeout: 20000 });
+  await page.waitForTimeout(1000);
 }
 
 // ─── 删除清理（走后端 API：/monitor/delete，平台「一表一规则」约束下必须清理残留才能重建） ───
@@ -433,16 +486,26 @@ export async function deleteRuleViaUi(page: Page, monitorId: string | number): P
 // ─── 多表比对规则向导 ───
 
 /** 多表比对规则配置 */
+/** 多表比对「匹配条件」一项：勾选条件复选框，带阈值的填入「差距小于等于」输入框。 */
+export type MatchCondition = {
+  /** 条件文案前缀，如「记录数差异」「数值差异绝对值」「数值差异百分比」「字符不区分大小写」「空值与NULL等价」 */
+  type: string;
+  /** 「差距小于等于」阈值（仅前三种数值条件需要；布尔型条件不传） */
+  gap?: string;
+};
+
 export type MultiTableCompareSpec = {
   ruleName: string;
   /** 左侧表名 */
   leftTable: string;
   /** 右侧表名 */
   rightTable: string;
-  /** 字段映射：[左字段, 右字段][] */
+  /** 字段映射：[左字段, 右字段][]（默认点「同名映射」按名自动映射） */
   fieldMappings?: Array<[string, string]>;
   /** 主键字段名（用于明细关联） */
   primaryKey?: string;
+  /** 匹配条件（③步勾选 + 填阈值） */
+  matchConditions?: MatchCondition[];
 };
 
 /**
@@ -469,7 +532,9 @@ export async function createMultiTableCompareRule(
   const body = page.locator("body");
   await expect(body, "应进入多表比对左侧表步骤").toContainText(/选择左侧表|规则名称/, { timeout: 20000 });
   await locateFormItem(page, "规则名称").locator("input").first().fill(spec.ruleName);
-  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
+  // 多表向导里数据源选完后表选择器标签是「选择左/右侧表」非「数据表」，selectStarRocksDatasource
+  // 的后置断言对多表过严会误抛；数据源本身已选上，故吞掉断言异常继续。
+  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）").catch(() => {});
   const leftTableForm = page
     .locator(".ant-form-item:visible")
     .filter({ has: page.locator("label", { hasText: /选择.*表|数据表/ }) })
@@ -480,7 +545,7 @@ export async function createMultiTableCompareRule(
 
   // ② 选择右侧表
   await expect(body, "应进入右侧表步骤").toContainText(/选择右侧表/, { timeout: 20000 });
-  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
+  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）").catch(() => {});
   const rightTableForm = page
     .locator(".ant-form-item:visible")
     .filter({ has: page.locator("label", { hasText: /选择.*表|数据表/ }) })
@@ -489,19 +554,30 @@ export async function createMultiTableCompareRule(
   await expect(rightTableForm, `右侧表应回显 ${spec.rightTable}`).toContainText(spec.rightTable, { timeout: 15000 });
   await clickMultiNext(page);
 
-  // ③ 字段映射（如果需要手动配置；默认同名字段自动映射）
+  // ③ 字段映射 + 加主键 + 匹配条件
   await expect(body, "应进入字段映射步骤").toContainText(/字段|映射|主键/, { timeout: 20000 });
   await page.waitForTimeout(2000); // 等字段加载
-  // 如有主键配置，尝试点击匹配的「加主键」按钮
+  // 同名映射：按字段名自动连线左右表同名字段
+  await page.locator("button:visible", { hasText: "同名映射" }).first().click().catch(() => {});
+  await page.waitForTimeout(800);
+  // 加主键：勾选左表主键字段所在行的复选框（主键用于明细关联）
   if (spec.primaryKey) {
-    const pkRow = page.locator(".ant-table-tbody tr").filter({ hasText: spec.primaryKey }).first();
-    await pkRow.locator("button", { hasText: /主键|加主键/ }).first().click().catch(() => {});
-    await page.waitForTimeout(500);
+    await page
+      .locator(".ant-table-tbody tr", { hasText: spec.primaryKey })
+      .first()
+      .locator("input[type='checkbox'], .ant-checkbox-input")
+      .first()
+      .check()
+      .catch(() => {});
+    await page.waitForTimeout(400);
   }
+  // 匹配条件（勾选 + 填差距阈值）
+  await applyMatchConditions(page, spec.matchConditions ?? []);
   await clickMultiNext(page);
 
-  // ④ 执行配置 → 完成
+  // ④ 执行配置 → 调度切手动触发 → 完成
   await expect(body, "应进入执行配置步骤").toContainText(/执行配置|调度/, { timeout: 20000 });
+  await switchScheduleToManual(page);
   const finishBtn = page
     .locator("button:visible")
     .filter({ hasText: /新\s*建|完\s*成/ })
@@ -511,7 +587,13 @@ export async function createMultiTableCompareRule(
   await finishBtn.click();
   await expect(page, "提交后应回到规则列表").toHaveURL(/#\/dq\/rule(\?|$)/, { timeout: 20000 });
 
-  return await getMonitorIdByName(page, spec.ruleName);
+  // 多表比对规则的 tableName 是「左表/右表」组合，回查兜底按此组合名匹配。
+  return await getMonitorIdByName(page, spec.ruleName, `${spec.leftTable}/${spec.rightTable}`);
+}
+
+/** 多表比对规则的组合表名（left/right），用于 cleanup/回查。 */
+export function multiTableName(leftTable: string, rightTable: string): string {
+  return `${leftTable}/${rightTable}`;
 }
 
 async function clickMultiNext(page: Page): Promise<void> {
@@ -519,6 +601,40 @@ async function clickMultiNext(page: Page): Promise<void> {
   await expect(btn, "应有「下一步」按钮").toBeVisible({ timeout: 15000 });
   await btn.click();
   await page.waitForTimeout(1500);
+}
+
+/**
+ * 多表比对③/编辑：勾选匹配条件复选框并填「差距小于等于」阈值。
+ * 复选框与条件文案是分离的兄弟元素（wrapper 不含文案），故按条件文案定位其所在行，
+ * 再在该行内点复选框、填阈值输入框（排除复选框自身的 input）。
+ */
+export async function applyMatchConditions(page: Page, conditions: MatchCondition[]): Promise<void> {
+  for (const mc of conditions) {
+    // 行 = 含该条件文案、且向上含 checkbox 的最近祖先容器
+    const row = page
+      .getByText(mc.type, { exact: false })
+      .first()
+      .locator("xpath=ancestor::*[.//input[@type='checkbox'] or .//span[contains(@class,'ant-checkbox')]][1]");
+    const checkbox = row.locator("input[type='checkbox'], .ant-checkbox-input").first();
+    if (!(await checkbox.isChecked())) {
+      // antd 的 input 常被视觉隐藏，check 失败时回退点 .ant-checkbox 容器；失败不再静默吞掉。
+      await checkbox.check({ force: true }).catch(async () => {
+        await row.locator(".ant-checkbox").first().click();
+      });
+    }
+    await page.waitForTimeout(300);
+    // 勾选是 t38/t39 等「增勾条件改变校验结果」的唯一业务变量，必须断言确已勾上，否则规则行为不变。
+    await expect(checkbox, `匹配条件「${mc.type}」应已勾选`).toBeChecked({ timeout: 5000 });
+    if (mc.gap !== undefined) {
+      const gapInput = row
+        .locator("input.ant-input, input.ant-input-number-input, input[type='text']")
+        .filter({ hasNot: page.locator(".ant-checkbox-input") })
+        .first();
+      await gapInput.fill(mc.gap);
+      await expect(gapInput, `匹配条件「${mc.type}」差距应填入 ${mc.gap}`).toHaveValue(mc.gap, { timeout: 5000 });
+    }
+    await page.waitForTimeout(200);
+  }
 }
 
 /**
