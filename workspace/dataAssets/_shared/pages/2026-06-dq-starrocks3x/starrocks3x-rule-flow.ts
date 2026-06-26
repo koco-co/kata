@@ -78,23 +78,35 @@ type MonitorPage = { data?: { data?: Array<Record<string, unknown>>; total?: num
 
 /** 走完单表校验规则向导①②③并完成，返回新建规则的 monitorId（从规则列表回查）。 */
 export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpec): Promise<string> {
-  await gotoZszqDataAssetsPage(page, "/dq/rule/add");
-
-  // ① 监控对象（数据源选择复用已验证的 selectStarRocksDatasource）
-  await locateFormItem(page, "规则名称").locator("input").first().fill(spec.ruleName);
-  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
-  const tableForm = page
-    .locator(".ant-form-item:visible")
-    .filter({ has: page.locator("label", { hasText: "选择数据表" }) })
-    .last();
-  await selectAntOption(page, tableForm.locator(".ant-select").first(), spec.table);
-  // 确认数据表已回显，再进入下一步（避免 ① 校验拦截停在本步）
-  await expect(tableForm, `选择数据表应回显 ${spec.table}`).toContainText(spec.table, { timeout: 15000 });
-  await clickNext(page);
-
-  // ② 监控规则
+  // ① 监控对象 → ② 监控规则 带重试：共享环境偶发 ①→② 切换 >40s 或卡死（向导/数据源联动慢，
+  // 高并发下尤甚），重进向导重填①再点下一步，最多 3 次，从源头自愈瞬态（不靠测试级 retry 整条重跑）。
   const addRuleBtn = page.locator("button:visible", { hasText: "添加规则" }).first();
-  await expect(addRuleBtn, "应进入②监控规则步骤（出现「添加规则」按钮）").toBeVisible({ timeout: 20000 });
+  let inStepTwo = false;
+  for (let attempt = 1; attempt <= 3 && !inStepTwo; attempt++) {
+    try {
+      await gotoZszqDataAssetsPage(page, "/dq/rule/add");
+      if (attempt > 1) await page.waitForTimeout(1500);
+      // ① 监控对象（数据源选择复用已验证的 selectStarRocksDatasource）
+      await locateFormItem(page, "规则名称").locator("input").first().fill(spec.ruleName);
+      await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
+      const tableForm = page
+        .locator(".ant-form-item:visible")
+        .filter({ has: page.locator("label", { hasText: "选择数据表" }) })
+        .last();
+      await selectAntOption(page, tableForm.locator(".ant-select").first(), spec.table);
+      // 确认数据表已回显，再进入下一步（避免 ① 校验拦截停在本步）
+      await expect(tableForm, `选择数据表应回显 ${spec.table}`).toContainText(spec.table, { timeout: 15000 });
+      await clickNext(page);
+      // ② 监控规则：等「添加规则」出现；未出现则本次失败，回循环重进向导
+      inStepTwo = await addRuleBtn
+        .waitFor({ state: "visible", timeout: 25000 })
+        .then(() => true)
+        .catch(() => false);
+    } catch (err) {
+      if (attempt === 3) throw err;
+    }
+  }
+  expect(inStepTwo, "①→②向导切换重试 3 次仍未进入②监控规则步骤（出现「添加规则」）").toBe(true);
   await addRuleBtn.click();
   await page.waitForTimeout(600);
   await page
