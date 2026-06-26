@@ -12,7 +12,7 @@ import {
 
 const TABLE = "zszq_trade_neg";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 准确性负值比校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -22,47 +22,50 @@ test.describe("@serial StarRocks3.x 准确性负值比校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P1】trade_pnl 负值比 <= 0% 校验异常（实际负值比 40%）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建负值比规则（准确性·负值比·<=0·强规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `负值比异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "准确性校验",
-        fields: ["trade_pnl"],
-        statFunc: "负值比",
-        comparator: "<=",
-        threshold: "0",
-        weak: "强规则",
-        ruleDesc: "交易盈亏负值比校验",
+  test("【P1】trade_pnl 负值比 <=0% 校验异常 / <=40% 校验通过", async ({ page, step }) => {
+    await step("场景①：trade_pnl 负值比 <= 0% 校验异常（实际负值比 40%）", async () => {
+      let monitorId = "";
+      await step("建负值比规则（准确性·负值比·<=0·强规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `负值比异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "准确性校验",
+          fields: ["trade_pnl"],
+          statFunc: "负值比",
+          comparator: "<=",
+          threshold: "0",
+          weak: "强规则",
+          ruleDesc: "交易盈亏负值比校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
-    });
-  });
-
-  test("【P1】trade_pnl 负值比 <= 40% 校验通过（实际负值比 40% 达标）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建负值比规则（准确性·负值比·<=40·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `负值比通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "准确性校验",
-        fields: ["trade_pnl"],
-        statFunc: "负值比",
-        comparator: "<=",
-        threshold: "40",
-        weak: "弱规则",
-        ruleDesc: "交易盈亏负值比校验",
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：trade_pnl 负值比 <= 40% 校验通过（实际负值比 40% 达标）", async () => {
+      let monitorId = "";
+      await step("建负值比规则（准确性·负值比·<=40·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `负值比通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "准确性校验",
+          fields: ["trade_pnl"],
+          statFunc: "负值比",
+          comparator: "<=",
+          threshold: "40",
+          weak: "弱规则",
+          ruleDesc: "交易盈亏负值比校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+      });
     });
   });
 });

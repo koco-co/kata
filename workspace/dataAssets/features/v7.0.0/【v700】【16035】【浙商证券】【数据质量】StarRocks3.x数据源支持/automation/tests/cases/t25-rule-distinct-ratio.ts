@@ -13,7 +13,7 @@ import {
 
 const TABLE = "zszq_distinct_rate";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 唯一性非重复占比校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -23,47 +23,50 @@ test.describe("@serial StarRocks3.x 唯一性非重复占比校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P1】security_code 非重复占比 = 100% 校验异常（实际非重复占比 80%）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建非重复占比规则（唯一性·非重复占比·=100·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `非重复占比异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "唯一性校验",
-        fields: ["security_code"],
-        statFunc: "非重复占比",
-        comparator: "=",
-        threshold: "100",
-        weak: "弱规则",
-        ruleDesc: "证券代码非重复占比校验",
+  test("【P1】security_code 非重复占比 =100% 校验异常 / >=60% 校验通过", async ({ page, step }) => {
+    await step("场景①：security_code 非重复占比 = 100% 校验异常（实际非重复占比 80%）", async () => {
+      let monitorId = "";
+      await step("建非重复占比规则（唯一性·非重复占比·=100·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `非重复占比异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "唯一性校验",
+          fields: ["security_code"],
+          statFunc: "非重复占比",
+          comparator: "=",
+          threshold: "100",
+          weak: "弱规则",
+          ruleDesc: "证券代码非重复占比校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
-    });
-  });
-
-  test("【P1】security_code 非重复占比 >= 60% 校验通过（实际非重复占比 60% 达标）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建非重复占比规则（唯一性·非重复占比·>=60·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `非重复占比通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "唯一性校验",
-        fields: ["security_code"],
-        statFunc: "非重复占比",
-        comparator: ">=",
-        threshold: "60",
-        weak: "弱规则",
-        ruleDesc: "证券代码非重复占比校验",
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：security_code 非重复占比 >= 60% 校验通过（实际非重复占比 60% 达标）", async () => {
+      let monitorId = "";
+      await step("建非重复占比规则（唯一性·非重复占比·>=60·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `非重复占比通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "唯一性校验",
+          fields: ["security_code"],
+          statFunc: "非重复占比",
+          comparator: ">=",
+          threshold: "60",
+          weak: "弱规则",
+          ruleDesc: "证券代码非重复占比校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+      });
     });
   });
 });

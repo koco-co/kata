@@ -12,7 +12,7 @@ import {
 
 const TABLE = "zszq_trade_repeat";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 唯一性重复数校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -22,47 +22,50 @@ test.describe("@serial StarRocks3.x 唯一性重复数校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P0】security_code 重复数 = 0 校验异常（存在重复值 600036）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建重复数规则（唯一性·重复数·=0·强规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `重复数异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "唯一性校验",
-        fields: ["security_code"],
-        statFunc: "重复数",
-        comparator: "=",
-        threshold: "0",
-        weak: "强规则",
-        ruleDesc: "证券代码重复数校验",
+  test("【P0】security_code 重复数规则 =0 校验异常 / <=10 校验通过", async ({ page, step }) => {
+    await step("场景①：security_code 重复数 = 0 校验异常（存在重复值 600036）", async () => {
+      let monitorId = "";
+      await step("建重复数规则（唯一性·重复数·=0·强规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `重复数异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "唯一性校验",
+          fields: ["security_code"],
+          statFunc: "重复数",
+          comparator: "=",
+          threshold: "0",
+          weak: "强规则",
+          ruleDesc: "证券代码重复数校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
-    });
-  });
-
-  test("【P1】security_code 重复数 <= 10 校验通过（重复数在阈值内）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建重复数规则（唯一性·重复数·<=10·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `重复数通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "唯一性校验",
-        fields: ["security_code"],
-        statFunc: "重复数",
-        comparator: "<=",
-        threshold: "10",
-        weak: "弱规则",
-        ruleDesc: "证券代码重复数校验",
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：security_code 重复数 <= 10 校验通过（重复数在阈值内）", async () => {
+      let monitorId = "";
+      await step("建重复数规则（唯一性·重复数·<=10·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `重复数通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "唯一性校验",
+          fields: ["security_code"],
+          statFunc: "重复数",
+          comparator: "<=",
+          threshold: "10",
+          weak: "弱规则",
+          ruleDesc: "证券代码重复数校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+      });
     });
   });
 });

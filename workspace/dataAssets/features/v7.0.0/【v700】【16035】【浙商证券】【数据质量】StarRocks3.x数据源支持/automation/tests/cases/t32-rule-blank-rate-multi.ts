@@ -14,7 +14,7 @@ import {
 const TABLE = "zszq_multi_blank_rate";
 const FIELDS = ["security_name", "account_no"];
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 完整性字段级空串率多字段校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -24,49 +24,52 @@ test.describe("@serial StarRocks3.x 完整性字段级空串率多字段校验",
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P2】多字段空串率 <= 10% 校验异常（实际空串率 20%）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建多字段空串率规则（字段级·空串率·多字段·<=10·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `多字段空串率异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "完整性校验",
-        ruleLevel: "字段级",
-        fields: FIELDS,
-        statFunc: "空串率",
-        comparator: "<=",
-        threshold: "10",
-        weak: "弱规则",
-        ruleDesc: "多字段空串率校验",
+  test("【P2】多字段空串率规则 <=10% 校验异常 / <=20% 校验通过", async ({ page, step }) => {
+    await step("场景①：多字段空串率 <= 10% 校验异常（实际空串率 20%）", async () => {
+      let monitorId = "";
+      await step("建多字段空串率规则（字段级·空串率·多字段·<=10·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `多字段空串率异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "完整性校验",
+          ruleLevel: "字段级",
+          fields: FIELDS,
+          statFunc: "空串率",
+          comparator: "<=",
+          threshold: "10",
+          weak: "弱规则",
+          ruleDesc: "多字段空串率校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
-    });
-  });
-
-  test("【P2】多字段空串率 <= 20% 校验通过（实际空串率 20% 达标）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建多字段空串率规则（字段级·空串率·多字段·<=20·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `多字段空串率通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "完整性校验",
-        ruleLevel: "字段级",
-        fields: FIELDS,
-        statFunc: "空串率",
-        comparator: "<=",
-        threshold: "20",
-        weak: "弱规则",
-        ruleDesc: "多字段空串率校验",
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：多字段空串率 <= 20% 校验通过（实际空串率 20% 达标）", async () => {
+      let monitorId = "";
+      await step("建多字段空串率规则（字段级·空串率·多字段·<=20·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `多字段空串率通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "完整性校验",
+          ruleLevel: "字段级",
+          fields: FIELDS,
+          statFunc: "空串率",
+          comparator: "<=",
+          threshold: "20",
+          weak: "弱规则",
+          ruleDesc: "多字段空串率校验",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+      });
     });
   });
 });

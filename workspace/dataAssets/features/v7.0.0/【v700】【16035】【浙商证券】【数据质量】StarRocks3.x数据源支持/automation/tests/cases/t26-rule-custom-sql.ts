@@ -14,7 +14,7 @@ import {
 const TABLE = "zszq_trade_custom";
 const SQL = "SELECT order_id, trade_amount FROM zszq_trade_custom WHERE trade_amount < 0";
 
-test.setTimeout(240000);
+test.setTimeout(480000);
 
 test.describe("@serial StarRocks3.x 自定义SQL单表校验", () => {
   test.beforeEach(async ({ page }) => {
@@ -24,45 +24,48 @@ test.describe("@serial StarRocks3.x 自定义SQL单表校验", () => {
     await deleteRuleByTable(page, TABLE);
   });
 
-  test("【P0】自定义SQL 负值明细 = 0 校验异常（SQL 返回 1 行负值）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建自定义SQL规则（SQL 查负值·期望=0·强规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `自定义SQL异常_${Date.now()}`,
-        table: TABLE,
-        bigRule: "自定义SQL",
-        customSql: SQL,
-        comparator: "=",
-        threshold: "0",
-        weak: "强规则",
-        ruleDesc: "自定义SQL查询交易金额负值明细",
+  test("【P0】自定义SQL 负值明细 =0 校验异常 / >=1 校验通过", async ({ page, step }) => {
+    await step("场景①：自定义SQL 负值明细 = 0 校验异常（SQL 返回 1 行负值）", async () => {
+      let monitorId = "";
+      await step("建自定义SQL规则（SQL 查负值·期望=0·强规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `自定义SQL异常_${Date.now()}`,
+          table: TABLE,
+          bigRule: "自定义SQL",
+          customSql: SQL,
+          comparator: "=",
+          threshold: "0",
+          weak: "强规则",
+          ruleDesc: "自定义SQL查询交易金额负值明细",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
-    });
-    await step("API 立即执行并轮询实例 → 校验异常", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
-    });
-  });
-
-  test("【P0】自定义SQL 负值明细 >= 1 校验通过（SQL 返回 1 行满足 >=1）", async ({ page, step }) => {
-    let monitorId = "";
-    await step("建自定义SQL规则（SQL 查负值·期望>=1·弱规则）", async () => {
-      monitorId = await createSingleTableRule(page, {
-        ruleName: `自定义SQL通过_${Date.now()}`,
-        table: TABLE,
-        bigRule: "自定义SQL",
-        customSql: SQL,
-        comparator: ">=",
-        threshold: "1",
-        weak: "弱规则",
-        ruleDesc: "自定义SQL查询交易金额负值明细",
+      await step("API 立即执行并轮询实例 → 校验异常", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验异常");
       });
-      expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
     });
-    await step("API 立即执行并轮询实例 → 校验通过", async () => {
-      await runRuleNowByApi(page, monitorId);
-      expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+    // 场景间清理：平台一表一规则，第二场景建规则前清掉第一场景留下的规则
+    await cleanupRulesByTable(page, TABLE);
+    await step("场景②：自定义SQL 负值明细 >= 1 校验通过（SQL 返回 1 行满足 >=1）", async () => {
+      let monitorId = "";
+      await step("建自定义SQL规则（SQL 查负值·期望>=1·弱规则）", async () => {
+        monitorId = await createSingleTableRule(page, {
+          ruleName: `自定义SQL通过_${Date.now()}`,
+          table: TABLE,
+          bigRule: "自定义SQL",
+          customSql: SQL,
+          comparator: ">=",
+          threshold: "1",
+          weak: "弱规则",
+          ruleDesc: "自定义SQL查询交易金额负值明细",
+        });
+        expect(Number(monitorId), "应回查到 monitorId").toBeGreaterThan(0);
+      });
+      await step("API 立即执行并轮询实例 → 校验通过", async () => {
+        await runRuleNowByApi(page, monitorId);
+        expectInstanceStatus(await pollLatestInstance(page, monitorId), "校验通过");
+      });
     });
   });
 });
