@@ -15,9 +15,8 @@ import {
 
 const TABLE = "zszq_price_range";
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 规范性数值取值范围校验", () => {
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源规范性校验数值-取值范围规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

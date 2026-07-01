@@ -5,7 +5,7 @@
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { gotoZszqDataAssetsPage } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
 
-test.describe("@serial StarRocks3.x 规则配置列表查询与筛选", () => {
+test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表查询与筛选", () => {
   test("【P2】表名搜索 / 最近修改人 / 我收藏的表 / 分页", async ({ page, step }) => {
     test.setTimeout(180000);
 

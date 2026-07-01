@@ -12,9 +12,8 @@ import {
 
 const TABLE = "zszq_enum_cnt";
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 规范性数值枚举个数校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源规范性校验数值-枚举个数规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

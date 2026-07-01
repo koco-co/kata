@@ -14,9 +14,8 @@ import {
 
 const TABLE = "zszq_account_mobile";
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 规范性格式手机号校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源规范性校验格式-手机号规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

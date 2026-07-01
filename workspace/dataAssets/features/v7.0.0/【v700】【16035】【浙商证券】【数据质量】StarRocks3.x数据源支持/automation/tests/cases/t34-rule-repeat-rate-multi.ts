@@ -14,9 +14,8 @@ import {
 const TABLE = "zszq_repeat_rate_multi";
 const FIELDS = ["security_code", "account_no"];
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 唯一性重复率多字段校验", () => {
+test.describe("@serial 【P2】验证 StarRocks 3.x 数据源唯一性校验重复率多字段规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

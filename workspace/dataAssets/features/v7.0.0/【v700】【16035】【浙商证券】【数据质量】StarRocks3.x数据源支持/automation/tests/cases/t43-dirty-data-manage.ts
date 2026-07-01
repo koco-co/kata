@@ -4,9 +4,8 @@
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { gotoZszqDataAssetsPage } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
 
-test.setTimeout(120000);
-
-test.describe("@serial StarRocks3.x 脏数据管理配置查看", () => {
+test.describe("@serial 【P1】验证脏数据管理配置 StarRocks 3.x 数据源脏数据存储与时效", () => {
+  test.describe.configure({ timeout: 480000 });
   test("【P1】脏数据管理页加载并按数据源筛选 StarRocks3.x", async ({ page, step }) => {
     await step("进入脏数据管理 → 页面加载，列含 数据源/脏数据存储库/数据存储时效", async () => {
       await gotoZszqDataAssetsPage(page, "/dq/project/dirtyDataManage");

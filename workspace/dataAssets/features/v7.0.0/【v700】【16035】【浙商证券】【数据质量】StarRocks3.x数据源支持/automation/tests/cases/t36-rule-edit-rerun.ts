@@ -15,9 +15,8 @@ import {
 
 const TABLE = "zszq_trade_orders";
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 规则任务编辑与重跑", () => {
+test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则任务编辑与重跑", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

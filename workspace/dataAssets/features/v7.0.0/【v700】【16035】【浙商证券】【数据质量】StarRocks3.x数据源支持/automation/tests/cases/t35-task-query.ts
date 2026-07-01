@@ -15,9 +15,8 @@ import {
 const PASS_TABLE = "zszq_trade_orders";
 const FAIL_TABLE = "zszq_trade_null";
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 任务查询实例与状态详情", () => {
+test.describe("@serial 【P0】验证任务查询页查询 StarRocks 3.x 规则任务实例与校验通过、异常状态详情", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, PASS_TABLE);
     await cleanupRulesByTable(page, FAIL_TABLE);

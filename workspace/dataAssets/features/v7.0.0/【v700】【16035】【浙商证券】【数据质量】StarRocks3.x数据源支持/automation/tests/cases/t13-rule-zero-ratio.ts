@@ -12,9 +12,8 @@ import {
 
 const TABLE = "zszq_trade_zero";
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 准确性零值比校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源准确性校验零值比规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

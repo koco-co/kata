@@ -14,9 +14,8 @@ import {
 const TABLE = "zszq_trade_multi_null";
 const FIELDS = ["security_name", "account_no"];
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 完整性字段级空值数多字段校验", () => {
+test.describe("@serial 【P2】验证 StarRocks 3.x 数据源完整性校验字段级空值数多字段规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

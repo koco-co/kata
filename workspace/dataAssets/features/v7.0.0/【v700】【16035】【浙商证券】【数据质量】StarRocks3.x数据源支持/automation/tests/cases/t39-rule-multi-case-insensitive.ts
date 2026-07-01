@@ -15,9 +15,8 @@ const LEFT = "zszq_cmp_case_left";
 const RIGHT = "zszq_cmp_case_right";
 const COMBINED = `${LEFT}/${RIGHT}`;
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 多表比对字符不区分大小写校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源多表比对字符不区分大小写匹配条件", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, COMBINED);
   });

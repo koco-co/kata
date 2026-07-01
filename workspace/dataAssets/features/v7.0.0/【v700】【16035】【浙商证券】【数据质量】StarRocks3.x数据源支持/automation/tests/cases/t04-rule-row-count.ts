@@ -14,11 +14,10 @@ import {
 
 const TABLE = "zszq_trade_orders";
 
-test.setTimeout(480000);
-
 // 平台「一表一规则」约束：建规则前必须清掉该表已有规则，否则 ① 报「该规则配置已存在」。
 // 用 beforeEach/afterEach 的 page fixture（带登录态）做清理；browser.newPage() 无 storageState 鉴权会失败。
-test.describe("@serial StarRocks3.x 完整性表行数校验", () => {
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源完整性校验表级表行数规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

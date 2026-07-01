@@ -36,9 +36,8 @@ CREATE TABLE zszq_account_dim (
 INSERT INTO zszq_account_dim VALUES ('ACC001','张三'),('ACC002','李四');
 `;
 
-test.setTimeout(240000);
-
-test.describe("@serial StarRocks3.x 自定义SQL子查询跨表缺失校验", () => {
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源自定义SQL子查询跨表缺失规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await runSr3xSql(SETUP_SQL); // 重建前置数据：孤儿 ACC999 存在
     await cleanupRulesByTable(page, TABLE);

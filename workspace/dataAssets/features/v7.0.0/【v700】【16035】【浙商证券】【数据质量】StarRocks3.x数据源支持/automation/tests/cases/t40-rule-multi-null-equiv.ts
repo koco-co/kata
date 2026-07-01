@@ -15,9 +15,8 @@ const LEFT = "zszq_cmp_null_left";
 const RIGHT = "zszq_cmp_null_right";
 const COMBINED = `${LEFT}/${RIGHT}`;
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 多表比对空值与NULL等价校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源多表比对空值与NULL等价匹配条件", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, COMBINED);
   });

@@ -15,11 +15,11 @@ import {
 import {
   gotoZszqDataAssetsPage,
   postDataAssetsApi,
+  projectId,
 } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
 import { locateFormItem, selectAntOption } from "../../../../../../_shared/helpers/index";
 
 const TABLE = "zszq_ruleset";
-const PROJECT_ID = 1000003;
 // 规则包导入文件（用户提供的真实平台模板 .xls，含 zszq_ruleset 的完整性+唯一性 2 规则）。
 const RULESET_XLS = fileURLToPath(new URL("./fixtures/zszq-ruleset-collection.xls", import.meta.url));
 
@@ -30,7 +30,7 @@ async function findCollectionId(page: import("@playwright/test").Page, name: str
   const resp = (await postDataAssetsApi(page, "/dassets/v1/valid/dataQuality/pageRuleCollection", {
     currentPage: 1,
     pageSize: 100,
-    projectId: PROJECT_ID,
+    projectId: projectId(),
   }).catch(() => ({ data: [] }))) as { data?: { data?: CollectionRow[] } | CollectionRow[] };
   const list = (Array.isArray(resp?.data) ? resp.data : (resp?.data?.data ?? [])) as CollectionRow[];
   const hit = list.find((c) => String(c.collectionName ?? c.name ?? "") === name);
@@ -58,7 +58,7 @@ async function findRulesetMonitorId(page: import("@playwright/test").Page, rules
     const rec = (await postDataAssetsApi(page, "/dassets/v1/valid/monitorRecord/pageQuery", {
       currentPage: 1,
       pageSize: 100,
-      projectId: PROJECT_ID,
+      projectId: projectId(),
     }).catch(() => ({ data: { data: [] } }))) as { data?: { data?: RecordRow[] } };
     const mine = (rec?.data?.data ?? [])
       .filter((r) => String(r.tableName ?? "") === rulesetName)
@@ -69,7 +69,7 @@ async function findRulesetMonitorId(page: import("@playwright/test").Page, rules
   return "";
 }
 
-test.describe("@serial StarRocks3.x 规则集导入规则包批量校验", () => {
+test.describe("@serial 【P0】验证规则集导入规则包后直接执行批量校验 StarRocks 3.x 数据表", () => {
   // 多步向导 + 导入 + 执行耗时长，统一给本组测试及其 beforeEach/afterEach 钩子充足预算。
   test.describe.configure({ timeout: 300000 });
   let createdRuleset = "";

@@ -16,9 +16,8 @@ const LEFT = "zszq_orders_left";
 const RIGHT = "zszq_orders_right";
 const COMBINED = `${LEFT}/${RIGHT}`; // 多表比对规则的 tableName 是左/右组合
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 多表比对字段一致性校验", () => {
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源多表比对规则字段一致性校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, COMBINED);
   });

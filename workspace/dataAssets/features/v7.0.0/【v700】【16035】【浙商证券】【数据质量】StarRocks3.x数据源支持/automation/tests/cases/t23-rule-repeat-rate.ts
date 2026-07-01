@@ -12,9 +12,8 @@ import {
 
 const TABLE = "zszq_repeat_rate";
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 唯一性重复率校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源唯一性校验重复率单字段规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

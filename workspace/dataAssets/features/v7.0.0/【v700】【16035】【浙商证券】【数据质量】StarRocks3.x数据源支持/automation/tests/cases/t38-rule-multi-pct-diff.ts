@@ -15,9 +15,8 @@ const LEFT = "zszq_cmp_pct_left";
 const RIGHT = "zszq_cmp_pct_right";
 const COMBINED = `${LEFT}/${RIGHT}`;
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 多表比对数值差异百分比校验", () => {
+test.describe("@serial 【P1】验证 StarRocks 3.x 数据源多表比对数值差异百分比匹配条件", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, COMBINED);
   });

@@ -12,9 +12,8 @@ import {
 
 const TABLE = "zszq_trade_sum";
 
-test.setTimeout(480000);
-
-test.describe("@serial StarRocks3.x 准确性求和校验", () => {
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源准确性校验求和规则校验", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, TABLE);
   });

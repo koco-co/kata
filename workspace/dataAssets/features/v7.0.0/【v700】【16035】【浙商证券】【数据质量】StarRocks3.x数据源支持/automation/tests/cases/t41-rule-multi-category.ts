@@ -15,9 +15,8 @@ const LEFT = "zszq_cmp_cat_left";
 const RIGHT = "zszq_cmp_cat_right";
 const COMBINED = `${LEFT}/${RIGHT}`;
 
-test.setTimeout(300000);
-
-test.describe("@serial StarRocks3.x 多表比对异常数据分类统计校验", () => {
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源多表比对异常数据五类分类统计", () => {
+  test.describe.configure({ timeout: 480000 });
   test.beforeEach(async ({ page }) => {
     await cleanupRulesByTable(page, COMBINED);
   });

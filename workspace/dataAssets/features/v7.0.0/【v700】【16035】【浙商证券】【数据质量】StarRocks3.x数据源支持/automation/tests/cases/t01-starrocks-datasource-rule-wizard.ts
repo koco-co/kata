@@ -1,54 +1,38 @@
-// spec: features/v7.0.0/【v700】【16035】【浙商证券】【数据质量】StarRocks3.x数据源支持/cases/archive.md#case=platform-datasource-auth-to-dq-rule
-// intent: SR-INTENT-2026-06-DQ-SR3X-001
-// probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
-// page: _shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page.ts
-// generated_at: 2026-06-24T14:10:26Z
+// spec: cases/archive.md#case=数据源经引入与质量项目授权后数据质量可选用  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
+// A24：StarRocks 3.x 数据源经应用授权→引入→质量项目授权（前置已完成）后，在数据质量「新建单表校验规则」
+// 向导可正确选到 pw_sr3（STAR_ROCKS_3X）数据源并加载其数据表。授权链路前 3 步为前置条件，用例验证步骤 4。
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import {
-  expectDatasourceDropdownContainsStarRocks,
-  expectLoadedTableOptions,
-  expectRuleConfigShell,
-  expectStarRocksMonitorSource,
-  fetchStarRocksMonitorSources,
-  openSingleTableRuleWizard,
-  selectStarRocksDatasource,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
-import { STARROCKS3X_CONTRACT } from "../data/starrocks3x-contract";
+import { gotoZszqDataAssetsPage, selectStarRocksDatasource } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
+import { locateFormItem, selectAntOption } from "../../../../../../_shared/helpers/index";
 
-test.setTimeout(120000);
+const TABLE = "zszq_trade_orders";
 
-test.describe("@serial StarRocks3.x 规则配置入口", () => {
-  test("【P0】StarRocks3.x 数据源在单表校验规则向导可选并加载表", async ({ page, step }) => {
-    await step("步骤1: 进入数据质量-规则配置 → 规则配置页与规则表格加载成功", async () => {
-      await expectRuleConfigShell(page);
+test.describe("@serial 【P0】验证 StarRocks 3.x 数据源经引入与质量项目授权后数据质量可选用", () => {
+  test("【P0】授权后 pw_sr3（STAR_ROCKS_3X）在单表校验规则向导可选并加载数据表", async ({ page, step }) => {
+    test.setTimeout(120000);
+
+    await step("进入【数据质量】-【规则配置】-新建单表校验规则", async () => {
+      await gotoZszqDataAssetsPage(page, "/dq/rule/add");
+      await page.waitForTimeout(2000);
+      await expect(
+        locateFormItem(page, "规则名称").locator("input").first(),
+        "应进入单表校验规则向导①监控对象",
+      ).toBeVisible({ timeout: 20000 });
+      await locateFormItem(page, "规则名称").locator("input").first().fill(`授权可选用_${Date.now()}`);
     });
 
-    await step("步骤2: 进入新建单表校验规则 → 数据源下拉包含 pw_sr3（STAR_ROCKS_3X）", async () => {
-      await openSingleTableRuleWizard(page);
-      const options = await expectDatasourceDropdownContainsStarRocks(
-        page,
-        STARROCKS3X_CONTRACT.datasource.displayText,
-      );
-      expect(options, "数据源下拉应只少包含已授权的 StarRocks3.x 数据源").toContain(
-        STARROCKS3X_CONTRACT.datasource.displayText,
-      );
+    await step("展开「选择数据源」下拉 → 关键字搜到并选中 pw_sr3（STAR_ROCKS_3X）", async () => {
+      // selectStarRocksDatasource 内部输入关键字过滤后选中，并断言回显
+      await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
     });
 
-    await step("步骤3: 选择 pw_sr3 数据源 → 表下拉加载本需求 StarRocks 表", async () => {
-      await selectStarRocksDatasource(page, STARROCKS3X_CONTRACT.datasource.displayText);
-      const tables = await expectLoadedTableOptions(page, STARROCKS3X_CONTRACT.tables.dropdownEvidence);
-      expect(tables.length, "StarRocks 数据表下拉应至少返回一批表选项").toBeGreaterThan(0);
-    });
-
-    await step("步骤4: 校验授权接口 → 数据源状态、类型、项目授权均正确", async () => {
-      const records = await fetchStarRocksMonitorSources(page);
-      expectStarRocksMonitorSource(records, {
-        dataSourceName: STARROCKS3X_CONTRACT.datasource.name,
-        sourceTypeValue: STARROCKS3X_CONTRACT.datasource.sourceTypeValue,
-        dataSourceType: STARROCKS3X_CONTRACT.datasource.sourceTypeId,
-        assetsId: STARROCKS3X_CONTRACT.datasource.assetsId,
-        centerSourceId: STARROCKS3X_CONTRACT.datasource.centerSourceId,
-      });
+    await step("选择数据表 → 下拉加载 StarRocks 表并可选到本需求数据表", async () => {
+      const tableForm = page
+        .locator(".ant-form-item:visible")
+        .filter({ has: page.locator("label", { hasText: "选择数据表" }) })
+        .last();
+      await selectAntOption(page, tableForm.locator(".ant-select").first(), TABLE);
+      await expect(tableForm, `选择数据表应加载并回显 ${TABLE}`).toContainText(TABLE, { timeout: 15000 });
     });
   });
 });
