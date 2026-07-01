@@ -103,7 +103,9 @@ automation:
         - automation/tests/cases/t03-dq-module-contract.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
-      automation_status: ready
+      # A562 数值-枚举范围：脚本完整可跑，但断言「校验异常」因产品 bug（规则返回校验通过、
+      # 未检出越界）而失败，预期在报告中即为「不通过」，故标 failing 而非 ready/blocked。
+      automation_status: failing
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-004
       case_files:
         - automation/tests/cases/t04-rule-row-count.ts
@@ -187,13 +189,13 @@ automation:
         - automation/tests/cases/t18-rule-str-maxlen.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
-      automation_status: blocked
+      automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-019
       case_files:
         - automation/tests/cases/t19-rule-str-minlen.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
-      automation_status: blocked
+      automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-020
       case_files:
         - automation/tests/cases/t20-rule-format-idcard.ts
