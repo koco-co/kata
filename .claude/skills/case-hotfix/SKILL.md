@@ -21,21 +21,24 @@ effort: medium
 ## 工作流
 
 1. 用 `bun run .claude/plugins/zentao/fetch.ts --bug-id <id> --output <hotfix>/.temp`（cookie 优先、失效自动登录）抓取 bug 证据；从返回 JSON 的 `fields`/`sections`/`history` 定位修复路径与受影响页面、字段。
-2. 写 archive 前先读 `references/hotfix-archive-format.md`（目录、frontmatter keywords、前置条件 SQL、Spark 边界等全部细则）。
-3. 输出独立 hotfix 目录：一个 archive.md，加 source_refs.json 和 .temp/；交付前按 `.claude/prompt/_shared/case-qa.md` 自审。
+2. 写 archive 前先读 `references/hotfix-archive-format.md`（目录、frontmatter keywords、前置条件 SQL、Spark 边界等全部细则）；涉及表单、规则配置、菜单路径或多子项步骤时，同步读 `.claude/prompt/_shared/case-format-sample.md` 头注释，继承 case-draft 的步骤可读性规则。
+3. 输出独立 hotfix 目录：一个 archive.md，加 source_refs.json 和 .temp/；交付前按 `.claude/prompt/_shared/case-qa.md` 自审，且人工检查步骤是否像正式用例一样明确、可读、可逐项执行。
 
 ## 何时加载哪个文件
 
 | 文件 | 何时读 | 作用 |
 | --- | --- | --- |
 | references/hotfix-archive-format.md | 写或复核 archive 前 | 目录/frontmatter/keywords/前置条件 SQL/Spark 全分区等可执行格式 |
-| .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用） | Archive 字段一致性、标题、前置条件可执行性 |
+| .claude/prompt/_shared/case-format-sample.md | 写含表单/规则配置/多子项步骤的 archive 前 | 继承 case-draft 内容质量规则：步骤单页面、子项换行、预期编号、表单字段逐项列出 |
+| .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用） | Archive 字段一致性、标题、前置条件可执行性、表单逐字匹配 |
 
 ## 范围与格式
 
 - 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身；相邻回归风险点并入同一条用例的步骤或预期检查，不得拆成多个测试套件。
 - 范围未定的问题一律记入 `pending_items`，不得外延到无证据支撑的模块、数据源或版本。
 - 必须产出可直接执行的 `archive.md`（含前置条件与步骤表），不得只给缺陷分析、原因说明或自然语言总结。
+- Hotfix 用例的步骤质量必须与 case-draft 产出的正式用例一致：表单/规则配置不得写成一整句密文；每个字段、统计函数、期望值、强弱规则、规则描述等配置项独立成 `-` 列表项并用 `<br>` 分行；多条预期用 `1) 2) N)` 分行，确保 QA 可逐项执行和核对。
+- 当 bug 记录截图、用户反馈或修复说明给出具体任务角色、数据流方向或任务类型（如“上游 DorisSQL 任务、下游数据同步任务”）时，archive 必须保留这些角色与方向；任务名可用占位符承接，但不得为方便造数替换成同质 SQL 任务、通用离线任务或其他 fixture。用户纠错补充的事实必须写入 `source_refs.json` 的 `user.feedback@N`。
 - frontmatter 必须包含 `zentao_url`；目录命名 `hotfix_{fix_branch_or_bug_id}-{short-title}`；keywords 六段式、前置条件 SQL/Spark 写法等细则严格按 `references/hotfix-archive-format.md`，此处不再赘述。
 
 ## 证据与交付
