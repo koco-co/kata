@@ -43,8 +43,8 @@ datasources:
     sql: { database: "pw_test", schema: "pw_test" }
 
 runtime:
-  default_datasource: "sparkthrift"
-  active_datasources: ["sparkthrift"]
+  default_datasource: "doris"
+  active_datasources: ["doris"]
   table_prefix: "qa_auto"
   skip_preconditions: false
   cleanup: true
