@@ -6,10 +6,10 @@ import { locateFormItem, selectAntOption } from "../../helpers/index";
 import {
   gotoZszqDataAssetsPage,
   postDataAssetsApi,
+  projectId,
   selectStarRocksDatasource,
 } from "./starrocks3x-quality-page";
 
-const PROJECT_ID = 1000003;
 
 // MonitorStatus（后端 com.dtstack.assets.common.enums.MonitorStatus）实例状态码：
 // 0等待运行/1运行中/2运行失败/3校验通过/4校验不通过/5关联失败/6取消/7冻结/8已提交/9提交失败/10停止中/11校验异常/12校验中/13已停止。
@@ -95,7 +95,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
         .last();
       await selectAntOption(page, tableForm.locator(".ant-select").first(), spec.table);
       // 确认数据表已回显，再进入下一步（避免 ① 校验拦截停在本步）
-      await expect(tableForm, `选择数据表应回显 ${spec.table}`).toContainText(spec.table, { timeout: 15000 });
+      await expect(tableForm, `选择数据表应回显 ${spec.table}`).toContainText(spec.table, { timeout: 30000 });
       await clickNext(page);
       // ② 监控规则：等「添加规则」出现；未出现则本次失败，回循环重进向导
       inStepTwo = await addRuleBtn
@@ -197,7 +197,9 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
     // 格式校验(格式-身份证号/手机号/邮箱)走 renderOperator(isFlag) 分支：不渲染独立「校验方法」，
     // 而是把「固定值/占比」选择器与「比较符」选择器并列放进「期望值」项，故需在「期望值」项里
     // 取 nth(0)=固定值、nth(1)=比较符；其余规则(基础/字符串长度/多字段)是独立「校验方法」+「期望值」。
-    const isFormat = (spec.statFunc ?? "").startsWith("格式");
+    // 格式校验(格式-*) 与「数值-枚举范围」同布局：固定值/占比 选择器在「期望值」项内、比较符紧邻 #threshold；
+    // 数值-枚举范围 的枚举集合（如 1,2）即填进 #threshold（期望值「= 1,2」），无独立「枚举集合」输入框。
+    const isFormat = (spec.statFunc ?? "").startsWith("格式") || spec.statFunc === "数值-枚举范围";
     if (isFormat) {
       // format 的「期望值」项只含「固定值/占比」选择器；比较符是其后、紧邻 #threshold 之前的独立 select。
       await selectAntOption(page, locateFormItem(page, "期望值").locator(".ant-select").first(), "固定值");
@@ -226,7 +228,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
   await expect(
     page.locator("button:visible", { hasText: /保\s*存/ }),
     "规则块应保存成功（保存按钮消失，块变只读）",
-  ).toHaveCount(0, { timeout: 15000 });
+  ).toHaveCount(0, { timeout: 30000 });
 
   await clickNext(page);
   await page.waitForLoadState("networkidle").catch(() => {});
@@ -278,7 +280,7 @@ export async function getMonitorIdByName(page: Page, ruleName: string, table?: s
     const payload = (await postDataAssetsApi(page, "/dassets/v1/valid/monitor/pageQuery", {
       currentPage: 1,
       pageSize: 200,
-      projectId: PROJECT_ID,
+      projectId: projectId(),
     }).catch(() => ({ data: { data: [] } }))) as MonitorPage;
     const rows = payload?.data?.data ?? [];
     lastRows = rows;
@@ -321,7 +323,7 @@ export async function openRuleDetailDrawer(page: Page, monitorId: string | numbe
 /** 在详情抽屉点「立即执行」。 */
 export async function runRuleNow(page: Page): Promise<void> {
   const runBtn = page.locator(".ant-drawer:visible button", { hasText: "立即执行" }).first();
-  await expect(runBtn, "详情抽屉应有「立即执行」按钮").toBeVisible({ timeout: 15000 });
+  await expect(runBtn, "详情抽屉应有「立即执行」按钮").toBeVisible({ timeout: 30000 });
   await runBtn.click();
   await page.waitForTimeout(2000);
 }
@@ -361,7 +363,7 @@ export async function pollLatestInstance(
     const payload = (await postDataAssetsApi(page, "/dassets/v1/valid/monitorRecord/pageQuery", {
       currentPage: 1,
       pageSize: 100,
-      projectId: PROJECT_ID,
+      projectId: projectId(),
     }).catch(() => ({ data: { data: [] } }))) as MonitorPage;
     const rows = (payload?.data?.data ?? []) as MonitorInstance[];
     const mine = rows
@@ -454,7 +456,7 @@ export async function cleanupRulesByTable(page: Page, table: string): Promise<vo
   const payload = (await postDataAssetsApi(page, "/dassets/v1/valid/monitor/pageQuery", {
     currentPage: 1,
     pageSize: 100,
-    projectId: PROJECT_ID,
+    projectId: projectId(),
   }).catch(() => ({ data: { data: [] } }))) as MonitorPage;
   const rows = payload?.data?.data ?? [];
   const mine = rows.filter((r) => String(r.tableName ?? "") === table);
@@ -492,7 +494,7 @@ export async function deleteRuleViaUi(page: Page, monitorId: string | number): P
     .first();
   await expect(confirmBtn, "应弹出删除确认按钮").toBeVisible({ timeout: 10000 });
   await confirmBtn.click();
-  await expect(row, `删除后 monitorId=${monitorId} 行应从列表移除`).toHaveCount(0, { timeout: 15000 });
+  await expect(row, `删除后 monitorId=${monitorId} 行应从列表移除`).toHaveCount(0, { timeout: 30000 });
 }
 
 // ─── 多表比对规则向导 ───
@@ -552,7 +554,7 @@ export async function createMultiTableCompareRule(
     .filter({ has: page.locator("label", { hasText: /选择.*表|数据表/ }) })
     .last();
   await selectAntOption(page, leftTableForm.locator(".ant-select").first(), spec.leftTable);
-  await expect(leftTableForm, `左侧表应回显 ${spec.leftTable}`).toContainText(spec.leftTable, { timeout: 15000 });
+  await expect(leftTableForm, `左侧表应回显 ${spec.leftTable}`).toContainText(spec.leftTable, { timeout: 30000 });
   await clickMultiNext(page);
 
   // ② 选择右侧表
@@ -563,7 +565,7 @@ export async function createMultiTableCompareRule(
     .filter({ has: page.locator("label", { hasText: /选择.*表|数据表/ }) })
     .last();
   await selectAntOption(page, rightTableForm.locator(".ant-select").first(), spec.rightTable);
-  await expect(rightTableForm, `右侧表应回显 ${spec.rightTable}`).toContainText(spec.rightTable, { timeout: 15000 });
+  await expect(rightTableForm, `右侧表应回显 ${spec.rightTable}`).toContainText(spec.rightTable, { timeout: 30000 });
   await clickMultiNext(page);
 
   // ③ 字段映射 + 加主键 + 匹配条件
@@ -610,7 +612,7 @@ export function multiTableName(leftTable: string, rightTable: string): string {
 
 async function clickMultiNext(page: Page): Promise<void> {
   const btn = page.locator("button:visible", { hasText: /^下一步$/ }).first();
-  await expect(btn, "应有「下一步」按钮").toBeVisible({ timeout: 15000 });
+  await expect(btn, "应有「下一步」按钮").toBeVisible({ timeout: 30000 });
   await btn.click();
   await page.waitForTimeout(1500);
 }

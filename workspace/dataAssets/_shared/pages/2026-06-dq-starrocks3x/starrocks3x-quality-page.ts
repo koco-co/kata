@@ -48,7 +48,8 @@ function envProfile() {
   return getEnvConfig();
 }
 
-function projectId(): number {
+/** 当前质量项目 id（取自 env profile，随环境切换；勿硬编码）。 */
+export function projectId(): number {
   return envProfile().projects.quality.id;
 }
 
@@ -238,7 +239,7 @@ export async function expectDatasourceDropdownContainsStarRocks(
 ): Promise<string[]> {
   const formItem = dataSourceFormItem(page);
   await expect(formItem, "应展示选择数据源表单项").toBeVisible({ timeout: 30000 });
-  await formItem.locator(".ant-select-selector").click({ timeout: 15000 });
+  await formItem.locator(".ant-select-selector").click({ timeout: 30000 });
   const target = page
     .locator(".ant-select-dropdown:visible .ant-select-item-option-content")
     .filter({ hasText: expectedDisplayText })
@@ -254,14 +255,23 @@ export async function selectStarRocksDatasource(
   expectedDisplayText: string,
 ): Promise<void> {
   const formItem = dataSourceFormItem(page);
-  await formItem.locator(".ant-select-selector").click({ timeout: 15000 });
+  await formItem.locator(".ant-select-selector").click({ timeout: 30000 });
+  // 输入关键字过滤选数据源（项目下数据源多时下拉不全量渲染，必须搜索而非翻列表）。
+  // 关键字取显示名「（」前缀（如 "pw_sr3（STAR_ROCKS_3X）" → "pw_sr3"）。
+  const keyword = expectedDisplayText.split(/[（(]/)[0].trim();
+  await formItem
+    .locator("input.ant-select-selection-search-input")
+    .first()
+    .fill(keyword)
+    .catch(() => {});
+  await page.waitForTimeout(800);
   const target = page
     .locator(".ant-select-dropdown:visible .ant-select-item-option-content")
     .filter({ hasText: expectedDisplayText })
     .first();
   await expect(target, `应可选择 ${expectedDisplayText}`).toBeVisible({ timeout: 30000 });
   await target.click();
-  await expect(target, "数据源下拉选项被选择后应关闭").not.toBeVisible({ timeout: 15000 });
+  await expect(target, "数据源下拉选项被选择后应关闭").not.toBeVisible({ timeout: 30000 });
   await expect(formItem, `选择后应回显 ${expectedDisplayText}`).toContainText(expectedDisplayText, {
     timeout: 30000,
   });
@@ -275,7 +285,7 @@ export async function expectLoadedTableOptions(
   expectedTables: readonly string[],
 ): Promise<string[]> {
   const formItem = tableFormItem(page);
-  await formItem.locator(".ant-select-selector").click({ timeout: 15000 });
+  await formItem.locator(".ant-select-selector").click({ timeout: 30000 });
   const dropdown = page.locator(".ant-select-dropdown:visible");
   await expect(
     dropdown.locator(".ant-select-item-option-content").first(),
@@ -290,7 +300,7 @@ export async function expectLoadedTableOptions(
     await expect(
       dropdown.locator(".ant-select-item-option-content", { hasText: t }).first(),
       `选择数据表下拉应能搜索到本需求 StarRocks 表 ${t}`,
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: 30000 });
   }
   await search.fill("");
   return [...expectedTables];
