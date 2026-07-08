@@ -171,13 +171,26 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     editorTab.waitFor({ state: "visible", timeout: 15000 }),
   ]).catch(() => undefined);
   if (await modal.isVisible().catch(() => false)) {
-    const closeBtn = modal.locator(".ant-modal-close").first();
-    if (await closeBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await closeBtn.click().catch(() => undefined);
-      await modal.waitFor({ state: "hidden", timeout: 5000 }).catch(() => undefined);
-    }
+    const modalText = await modal.innerText({ timeout: 5000 }).catch(() => "");
+    throw new Error(`Batch temp query dialog did not submit for "${name}". modal=${modalText.slice(0, 1200)}`);
   }
   await editorTab.waitFor({ state: "visible", timeout: 30000 }).catch(() => undefined);
+  if (!(await editorTab.isVisible({ timeout: 3000 }).catch(() => false))) {
+    const treeQueryNode = page
+      .locator(".ant-tree-node-content-wrapper, .ant-tree-title, [role='treeitem']")
+      .filter({ hasText: name })
+      .last();
+    if (await treeQueryNode.isVisible({ timeout: 10000 }).catch(() => false)) {
+      await treeQueryNode.dblclick({ timeout: 30000 }).catch(async () => {
+        await treeQueryNode.click({ timeout: 30000 });
+      });
+      await editorTab.waitFor({ state: "visible", timeout: 30000 }).catch(() => undefined);
+    }
+  }
+  if (!(await editorTab.isVisible({ timeout: 3000 }).catch(() => false))) {
+    const bodyText = await page.locator("body").innerText({ timeout: 5000 }).catch(() => "");
+    throw new Error(`Failed to open Batch temp query editor "${name}". body=${bodyText.slice(0, 1200)}`);
+  }
   await page.waitForTimeout(2000);
 }
 
@@ -187,8 +200,8 @@ async function runSqlInCurrentBatchEditor(
 ): Promise<{ resultText: string }> {
   const requiresDdlConfirm = /^(TRUNCATE|DROP|CREATE|ALTER)\b/i.test(sqlContent.trim());
   await confirmBatchDdlModal(page);
-  const editorArea = page.locator(".view-lines, .monaco-editor .overflow-guard").first();
-  await editorArea.waitFor({ state: "visible", timeout: 20000 });
+  const editorArea = page.locator(".view-lines, .monaco-editor .overflow-guard, .monaco-editor textarea.inputarea").first();
+  await editorArea.waitFor({ state: "visible", timeout: 60000 });
   await editorArea.click();
   await page.waitForTimeout(300);
 

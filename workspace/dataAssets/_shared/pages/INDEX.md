@@ -9,3 +9,4 @@
 - `2099-01-lt-dq-main-flow/data-security-page.ts` — 数据安全权限、脱敏与分级分类 Shell 页对象。
 - `2099-01-lt-dq-main-flow/platform-management-page.ts` — 平台管理数据源、用户角色与通知中心 Shell 页对象。
 - `2026-06-dq-starrocks3x/starrocks3x-quality-page.ts` — 浙商证券 StarRocks3.x 数据质量适配页对象与数据源契约断言。
+- `2026-07-data-assets-integration-test/data-standard-page.ts` — v7.0.0 数据资产集成用例中「数据标准」模块的 live UI 合同页对象。

@@ -15,8 +15,8 @@ auth:
   derive_from_session: true
 
 projects:
-  quality: { id: 92, name: "pw_test" }
-  offline: { id: 69, name: "env_rebuild_test" }
+  quality: { id: 157, name: "pw" }
+  offline: { id: 218, name: "pw_test" }
   owner: { id: 1 }
   engines: ["default", "doris3"]
 
@@ -27,8 +27,8 @@ datasources:
     precondition_type: "SparkThrift"
     aliases: ["sparkthrift", "hadoop", "pw_test_HADOOP"]
     batch: { id: 9, name: "pw_test_HADOOP", type_id: 45, database: "pw_test", schema: "pw_test" }
-    metadata: { id: 547, name: "pw_test_HADOOP", type_id: 45 }
-    assets: { id: 547, name: "pw_test_HADOOP" }
+    metadata: { id: 606, name: "pw_test_HADOOP", type_id: 45 }
+    assets: { id: 606, name: "pw_test_HADOOP" }
     sql: { database: "pw_test", schema: "pw_test", warehouse_uri: "hdfs://ns1/dtInsight/hive/warehouse/pw_test.db" }
 
   doris:
@@ -37,14 +37,14 @@ datasources:
     precondition_type: "Doris"
     aliases: ["doris", "doris3", "doris70", "pw_test_DORIS_doris70"]
     batch: { id: 504, name: "pw_test_DORIS_doris70", type_id: 129, database: "pw_test", schema: "pw_test", cluster_name: "doris" }
-    metadata: { id: 615, name: "doris70", type_id: 129 }
+    metadata: { id: 614, name: "doris70", type_id: 129 }
     assets: { id: 614, name: "doris70" }
     ui: { source_type_id: 129 }
     sql: { database: "pw_test", schema: "pw_test" }
 
 runtime:
   default_datasource: "doris"
-  active_datasources: ["doris"]
+  active_datasources: ["doris", "sparkthrift"]
   table_prefix: "qa_auto"
   skip_preconditions: false
   cleanup: true
