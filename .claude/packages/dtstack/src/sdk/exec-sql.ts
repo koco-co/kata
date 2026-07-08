@@ -10,6 +10,12 @@ export type ExecSqlOptions =
       readonly mode?: "platform";
       readonly project: string;
       readonly datasource: string;
+      readonly datasourceProfile?: {
+        readonly id?: number;
+        readonly name?: string;
+        readonly typeId?: number;
+        readonly aliases?: readonly string[];
+      };
       readonly sql?: string;
       readonly file?: string;
       readonly autoCreate?: boolean;
@@ -53,7 +59,7 @@ export async function execSql(opts: ExecSqlOptions): Promise<QueryResult[]> {
   if (!proj) throw new Error(`project not found: ${opts.project} (use --auto-create to create)`);
 
   const batch = new BatchApi(opts.client);
-  const ds = await batch.getProjectDatasource(proj.id, opts.datasource);
+  const ds = await batch.getProjectDatasource(proj.id, opts.datasource, opts.datasourceProfile);
   if (!ds)
     throw new Error(`datasource type ${opts.datasource} not found in project ${opts.project}`);
 

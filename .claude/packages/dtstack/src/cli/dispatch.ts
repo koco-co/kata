@@ -153,6 +153,12 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
           mode: "platform",
           project: values.project as string,
           datasource: values.datasource as string,
+          datasourceProfile: {
+            id: optionalNumber(values["datasource-id"]),
+            name: values["datasource-name"] as string | undefined,
+            typeId: optionalNumber(values["datasource-type-id"]),
+            aliases: optionalCsv(values["datasource-aliases"]),
+          },
           sql: values.sql as string | undefined,
           file: values.file as string | undefined,
           autoCreate: Boolean(values["auto-create"]),
