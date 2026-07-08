@@ -1,0 +1,5 @@
+{
+  "status": 200,
+  "ok": true,
+  "text": "{\"code\":1011,\"message\":\"Request method 'GET' not supported\",\"data\":null,\"space\":0,\"version\":\"release_6.3.x_ltqc\",\"success\":false}"
+}

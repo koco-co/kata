@@ -1,0 +1,66 @@
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">资产盘点</li>
+<a>资产盘点</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">元数据</li>
+<a>元数据</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-selected ant-menu-item-only-c" role="menuitem">数据标准</li>
+<a>数据标准</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">数据模型</li>
+<a>数据模型</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">数据质量</li>
+<a>数据质量</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">数据安全</li>
+<a>数据安全</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">平台管理</li>
+<a>平台管理</a>
+<div class="ant-menu-submenu-title" role="menuitem"></div>
+<button class="ant-btn ant-btn-link"></button>
+<a></a>
+<a></a>
+<li class="ant-menu-item ant-menu-item-only-child" role="menuitem">标准统计</li>
+<a>标准统计</a>
+<div class="ant-menu-submenu-title" role="menuitem">标准管理</div>
+<li class="ant-menu-item ant-menu-item-only-child" role="menuitem">标准定义</li>
+<a>标准定义</a>
+<li class="ant-menu-item ant-menu-item-only-child" role="menuitem">标准映射</li>
+<a>标准映射</a>
+<li class="ant-menu-item ant-menu-item-selected ant-menu-item-only-child" role="menuitem">落标检查</li>
+<a>落标检查</a>
+<div class="ant-menu-submenu-title" role="menuitem">标准基础</div>
+<div class="ant-tabs ant-tabs-top ant-tabs-large dt-tabs-nav-padding-16 dt-tabs-no-bottom-ma">落标检查设置落标检查结果</div>
+<div class="ant-tabs-tab-btn" role="tab">落标检查设置</div>
+<div class="ant-tabs-tab-btn" role="tab">落标检查结果</div>
+<button class="ant-tabs-nav-more"></button>
+<input class="ant-input"></input>
+<span class="ant-input-clear-icon ant-input-clear-icon-hidden" role="button"></span>
+<button class="ant-btn ant-btn-default ant-btn-icon-only ant-input-search-button"></button>
+<button class="ant-btn ant-btn-primary">新增检查任务</button>
+<div class="ant-table ant-table-fixed-header ant-table-has-fix-left ant-table-has-fix-right">数据表名称所属数据源所属数据库检查字段数/总字段数检查周期检查状态标准达标率不达标字段数/检查失败数</div>
+<input class="ant-checkbox-input"></input>
+<span class="ant-dropdown-trigger ant-table-filter-trigger" role="button"></span>
+<span class="ant-dropdown-trigger ant-table-filter-trigger" role="button"></span>
+<span class="ant-dropdown-trigger ant-table-filter-trigger" role="button"></span>
+<input class="ant-checkbox-input"></input>
+<a>test_info_1</a>
+<button class="ant-btn ant-btn-link">编辑</button>
+<button class="ant-btn ant-btn-link">查看检查结果</button>
+<button class="ant-btn ant-btn-link">删除</button>
+<input class="ant-checkbox-input"></input>
+<a>dwd_voyah_dq_rule_01_main</a>
+<button class="ant-btn ant-btn-link">编辑</button>
+<button class="ant-btn ant-btn-link">查看检查结果</button>
+<button class="ant-btn ant-btn-link">删除</button>
+<input class="ant-checkbox-input"></input>
+<button class="ant-btn ant-btn-primary">批量开启</button>
+<button class="ant-btn ant-btn-default">批量关闭</button>
+<button class="ant-pagination-item-link"></button>
+<a>1</a>
+<button class="ant-pagination-item-link"></button>
+<div class="ant-select ant-pagination-options-size-changer ant-select-single ant-select-show">10 条/页</div>
+<input class="ant-select-selection-search-input" role="combobox"></input>
+<div class="ant-table ant-table-small ant-table-empty ant-table-fixed-header">字段检查项  暂无数据</div>
+<div class="ant-table ant-table-small ant-table-empty ant-table-fixed-header">开始检查时间结束检查时间检查字段数标准达标率不达标字段数/检查失败数检查状态      暂无数据共 </div>
+<button class="ant-pagination-item-link"></button>
+<a>1</a>
+<button class="ant-pagination-item-link"></button>
+<div class="ant-select ant-pagination-options-size-changer ant-select-single ant-select-show">10 条/页</div>
+<input class="ant-select-selection-search-input" role="combobox"></input>

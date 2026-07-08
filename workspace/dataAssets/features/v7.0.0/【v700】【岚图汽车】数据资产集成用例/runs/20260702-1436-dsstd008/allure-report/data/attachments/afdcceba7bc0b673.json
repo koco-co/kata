@@ -1,0 +1,32 @@
+[
+  {
+    "caseId": "「数据标准」模块集成测试用例#前置条件4",
+    "reasonCategory": "data_prep",
+    "detail": "SparkThrift2.x 数据源 pw_test_HADOOP/库 pw_test 的平台元数据缺少源用例精确表：test_info_1, test_info_2；不能用带后缀的 test_info_1_* 表替代。"
+  },
+  {
+    "caseId": "「数据标准」模块集成测试用例#步骤10/18/50",
+    "reasonCategory": "case_gap",
+    "detail": "源用例只写“修改所有可以修改的内容”，未给修改后的目标值；严格模式下未编造编辑值。"
+  },
+  {
+    "caseId": "「数据标准」模块集成测试用例#步骤37",
+    "reasonCategory": "case_gap",
+    "detail": "源用例要求邮箱标准“正确填写其他业务属性和技术属性”，但未给标准编号、业务定义、技术属性具体值；脚本只创建了源用例明确给出的 邮箱/email/email 与码表引用。"
+  },
+  {
+    "caseId": "「数据标准」模块集成测试用例#步骤53-57/141-143",
+    "reasonCategory": "data_prep",
+    "detail": "导入/导出内容校验需要模板文件与期望文件内容 fixture；当前源目录未提供可上传模板文件，未用接口替代导入动作。"
+  },
+  {
+    "caseId": "「数据标准」模块集成测试用例#步骤59-60",
+    "reasonCategory": "permission",
+    "detail": "数据开发用户待审批与管理员审批中心流程需要第二角色登录态；当前 env profile 只有 admin@dtstack.com 会话。"
+  },
+  {
+    "caseId": "「数据标准」模块集成测试用例#步骤70-143",
+    "reasonCategory": "data_prep",
+    "detail": "字段绑定与落标检查要求精确表 test_info_1/test_info_2。当前平台元数据缺少：test_info_1, test_info_2，已停止执行 money/amount 字段绑定和落标检查任务创建。"
+  }
+]

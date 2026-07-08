@@ -1,0 +1,72 @@
+{
+  "schema": "PlaywrightAutomationHandoff@2",
+  "feature_id": "2026-07-data-assets-integration-test",
+  "run_id": "20260702-1108-dsstd003",
+  "status": "partial",
+  "intent_id": "SR-INTENT-20260702-DATA-STANDARD-INTEGRATION",
+  "source_refs": {
+    "intent": "SR-INTENT-20260702-DATA-STANDARD-INTEGRATION",
+    "env": "SR-ENV-PREFLIGHT-20260702-DATA-STANDARD-LTQC",
+    "probe": "SR-UI-PROBE-20260702-DATA-STANDARD-LTQC",
+    "self_run": "SR-SELF-RUN-20260702-1108-DATA-STANDARD"
+  },
+  "run_command": "PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets KATA_SUITE_NAME='数据资产集成用例' KATA_ALLURE_RESULTS_DIR='workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/runs/20260702-1108-dsstd003/allure-results' npx playwright test 'workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts' --output='workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/runs/20260702-1108-dsstd003/playwright'",
+  "acceptance_command": "KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets KATA_SUITE_NAME='数据资产集成用例' npx playwright test 'workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
+  "run_exit_code": 0,
+  "results": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "report_paths": {
+      "playwright_json": "runs/20260702-1108-dsstd003/playwright/.last-run.json",
+      "allure": "runs/20260702-1108-dsstd003/allure-results"
+    }
+  },
+  "quality_gates": [
+    {
+      "name": "archive_validate",
+      "status": "passed",
+      "detail": "exit 0; valid=true; case_count=4; module_count=4; page_count=4"
+    },
+    {
+      "name": "playwright_list",
+      "status": "passed",
+      "detail": "exit 0; listed 4 tests in 1 file"
+    },
+    {
+      "name": "full_spec_self_run",
+      "status": "passed",
+      "detail": "exit 0; 4 passed, 0 failed, 0 skipped; headless chromium"
+    },
+    {
+      "name": "allure_result_statuses",
+      "status": "passed",
+      "detail": "4 result JSON files, all status=passed"
+    },
+    {
+      "name": "platform_records",
+      "status": "failed",
+      "detail": "本轮脚本为只读 UI/API 合同校验，未在 DataAssets 平台创建或验证新的业务记录数据，因此不能按 Playwright 自动化硬闸标记为完成。"
+    },
+    {
+      "name": "feature_cases_lint",
+      "status": "passed",
+      "detail": "exit 0; feature scope violations=0"
+    }
+  ],
+  "platform_records": [],
+  "unresolved_blockers": [
+    {
+      "kind": "script",
+      "case": "「数据标准」模块集成测试用例",
+      "evidence_path": "automation/tests/cases/t01-data-standard-module-contract.ts"
+    }
+  ],
+  "next_actions": [
+    "补写状态变更版数据标准自动化：使用唯一自动化前缀新建标准目录/标准定义或落标检查任务，断言列表出现记录名称/状态，并把记录名称或 ID 写入 platform_records。",
+    "如需覆盖同一 XMind 中的「元数据」「数据模型」「数据质量」3 条集成用例，需另建 automation intent 并补对应 runner。",
+    "人工验收时使用 acceptance_command 进行有头浏览器复核。"
+  ],
+  "excluded_cases": []
+}

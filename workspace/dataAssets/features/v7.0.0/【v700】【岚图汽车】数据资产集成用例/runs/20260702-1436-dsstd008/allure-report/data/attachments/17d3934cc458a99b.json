@@ -1,0 +1,87 @@
+{
+  "sourceCaseId": "「数据标准」模块集成测试用例",
+  "records": [
+    {
+      "recordType": "standard-root",
+      "recordName": "test",
+      "recordId": "9",
+      "recordEnglishName": "test",
+      "status": "已创建/已校验",
+      "route": "/rootManage",
+      "evidence": "前置条件：词根管理已存在词根 test/test/test",
+      "api": "/dmetadata/v1/standardRoot/addOrUpdateRoot"
+    },
+    {
+      "recordType": "standard-code",
+      "recordName": "测试",
+      "recordId": "45",
+      "recordEnglishName": "test1",
+      "catalogName": "test",
+      "status": "已创建/已校验",
+      "route": "/codeTableManage",
+      "evidence": "前置条件：码表管理已存在代码 测试/test1",
+      "api": "/dmetadata/v1/standardCode/addOrUpdateCode"
+    },
+    {
+      "recordType": "standard-definition",
+      "recordName": "年龄",
+      "recordId": "2072568923850334209",
+      "recordEnglishName": "age",
+      "catalogName": "test",
+      "status": "待上线",
+      "route": "/dataStandard",
+      "evidence": "前置条件：标准定义已存在标准 年龄/age",
+      "api": "/dmetadata/v1/dataStandard/addOrUpdate"
+    }
+  ],
+  "sparkThrift": {
+    "dataSourceName": "pw_test_HADOOP",
+    "dataSourceId": "606",
+    "databaseName": "pw_test",
+    "databaseId": "563",
+    "requiredTables": [
+      "test_info_1",
+      "test_info_2"
+    ],
+    "exactTables": [],
+    "missingTables": [
+      "test_info_1",
+      "test_info_2"
+    ],
+    "sampledTables": [
+      "qa_v6411_cmp_mr1vmchp",
+      "qa_v6411_cmp_mr1vzi4x",
+      "test_info_1_mr2u0cemcnku",
+      "test_info_1_mr2u55gzbmf9",
+      "test_info_1_mr2udd245at1",
+      "test_info_1_mr2uzrlz6kj8",
+      "test_info_1_mr2vcufzc3w3",
+      "test_info_1_mr2ww7juxbab",
+      "test_info_1_mr2z2y68czbv",
+      "test_info_1_mr2zfniwc6g3",
+      "test_info_1_mr2zl3q7haup",
+      "test_info_1_mr31eo3k5uv3",
+      "test_info_1_mr31jdnypomh",
+      "test_info_1_mr31pe7rg9mb",
+      "test_info_1_mr31ur4v2wbz",
+      "test_info_1_mr31z72eeq3u",
+      "test_info_1_mr32529hmlts",
+      "test_info_1_mr329avcdprk",
+      "test_info_1_mr32fr6svuf1",
+      "test_info_1_mr32m2r6s0v0",
+      "test_info_1_mr32q5e7ttyo",
+      "test_info_1_mr32ucitnmml",
+      "test_info_1_mr32z2k8apz3",
+      "test_info_1_mr33450i4pbs",
+      "test_info_1_mr3386rsd6g3",
+      "test_info_1_mr341znlycqn"
+    ]
+  },
+  "blockers": [
+    {
+      "caseId": "「数据标准」模块集成测试用例#前置条件4",
+      "reasonCategory": "data_prep",
+      "detail": "SparkThrift2.x 数据源 pw_test_HADOOP/库 pw_test 的平台元数据缺少源用例精确表：test_info_1, test_info_2；不能用带后缀的 test_info_1_* 表替代。"
+    }
+  ]
+}

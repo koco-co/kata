@@ -1,0 +1,73 @@
+[
+  {
+    "recordType": "standard-root",
+    "recordName": "test",
+    "recordId": "9",
+    "recordEnglishName": "test",
+    "status": "已创建/已校验",
+    "route": "/rootManage",
+    "evidence": "前置条件：词根管理已存在词根 test/test/test",
+    "api": "/dmetadata/v1/standardRoot/addOrUpdateRoot"
+  },
+  {
+    "recordType": "standard-code",
+    "recordName": "测试",
+    "recordId": "45",
+    "recordEnglishName": "test1",
+    "catalogName": "test",
+    "status": "已创建/已校验",
+    "route": "/codeTableManage",
+    "evidence": "前置条件：码表管理已存在代码 测试/test1",
+    "api": "/dmetadata/v1/standardCode/addOrUpdateCode"
+  },
+  {
+    "recordType": "standard-definition",
+    "recordName": "年龄",
+    "recordId": "2072568923850334209",
+    "recordEnglishName": "age",
+    "catalogName": "test",
+    "status": "待上线",
+    "route": "/dataStandard",
+    "evidence": "前置条件：标准定义已存在标准 年龄/age",
+    "api": "/dmetadata/v1/dataStandard/addOrUpdate"
+  },
+  {
+    "recordType": "standard-root",
+    "recordName": "邮箱",
+    "recordId": "10",
+    "recordEnglishName": "email",
+    "status": "已创建/已校验",
+    "route": "/rootManage",
+    "evidence": "步骤9：新建词根 email/email/邮箱",
+    "api": "/dmetadata/v1/standardRoot/addOrUpdateRoot"
+  },
+  {
+    "recordType": "standard-code",
+    "recordName": "code",
+    "recordId": "46",
+    "recordEnglishName": "001",
+    "catalogName": "test",
+    "status": "已创建/已校验",
+    "route": "/codeTableManage",
+    "evidence": "步骤16-17：目录 test 下新建代码 code/001",
+    "api": "/dmetadata/v1/standardCode/addOrUpdateCode"
+  },
+  {
+    "recordType": "database-collection",
+    "recordName": "词根管理拾取_15",
+    "recordId": "15",
+    "status": "拾取完成",
+    "route": "/databaseCollect",
+    "evidence": "词根管理数据库拾取记录完成，拾取数量=120",
+    "api": "/dmetadata/v1/databaseCollection/addCollection"
+  },
+  {
+    "recordType": "database-collection",
+    "recordName": "数据标准拾取_16",
+    "recordId": "16",
+    "status": "拾取完成",
+    "route": "/databaseCollect",
+    "evidence": "数据标准数据库拾取记录完成，拾取数量=111",
+    "api": "/dmetadata/v1/databaseCollection/addCollection"
+  }
+]

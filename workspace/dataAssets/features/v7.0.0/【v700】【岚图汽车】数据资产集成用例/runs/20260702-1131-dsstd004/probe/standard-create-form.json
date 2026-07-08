@@ -1,0 +1,287 @@
+{
+  "finalUrl": "http://shuzhan63-test-ltqc.k8s.dtstack.cn/dataAssets/#/dataStandard/addOrUpdateStandard",
+  "bodyText": "DataAssets\n资产盘点\n元数据\n数据标准\n数据模型\n数据质量\n数据安全\n平台管理\nadmin@dtstack.com\n标准统计\n标准管理\n标准定义\n标准映射\n落标检查\n标准基础\n标准定义\n新建标准\n业务属性\n中文名称\n英文名称\n英文缩写\n标准编号\n标准目录\n请选择\n业务定义\n标准来源\n自定义属性\n添加属性\n车系/车型新增\n技术属性\n请选择车系/车型\n数据类型\n请选择\n\n数据长度\n\n选择运算符\n\n数据精度\n\n / \n是否允许空值\n可空\n不可空\n是否允许重复\n可重复\n不可重复\n默认值\n取值范围\n选择运算符\n关\n选择运算符\n初始值\n无效值\n精度倍数\n偏移量\n枚举范围\n新增\n编码取值\t编码名称\t编码说明\n \n\t\n \n\t\n \n\n\n暂无数据\n上 线\n保 存\n取 消",
+  "formItems": [
+    "中文名称",
+    "英文名称",
+    "英文缩写",
+    "标准编号",
+    "标准目录请选择",
+    "业务定义",
+    "标准来源",
+    "自定义属性添加属性",
+    "车系/车型新增",
+    "数据类型请选择",
+    "是否允许空值可空不可空",
+    "是否允许重复可重复不可重复",
+    "默认值",
+    "取值范围选择运算符关选择运算符初始值无效值",
+    "初始值",
+    "无效值",
+    "精度倍数",
+    "偏移量",
+    "编码取值编码名称编码说明 暂无数据"
+  ],
+  "inputs": [
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "由中文、英文字母、数字、下划线（_）、and（&）、英文括号组成",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "由英文字母、数字、下划线（_）、and（&）组成",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "由小写英文字母、数字、下划线（_）组成",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "由英文字母、数字、下划线（_）、and（&）组成",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "search",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-select-selection-search-input"
+    },
+    {
+      "tag": "TEXTAREA",
+      "type": null,
+      "placeholder": "请输入",
+      "value": null,
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "请输入",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": null,
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": "for screen reader",
+      "className": null
+    },
+    {
+      "tag": "INPUT",
+      "type": "search",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-select-selection-search-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "search",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-select-selection-search-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "search",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-select-selection-search-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "输入数值",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "小数点前最大位",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "小数点后最大位",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "radio",
+      "placeholder": null,
+      "value": "1",
+      "ariaLabel": null,
+      "className": "ant-radio-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "radio",
+      "placeholder": null,
+      "value": "0",
+      "ariaLabel": null,
+      "className": "ant-radio-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "radio",
+      "placeholder": null,
+      "value": "1",
+      "ariaLabel": null,
+      "className": "ant-radio-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "radio",
+      "placeholder": null,
+      "value": "0",
+      "ariaLabel": null,
+      "className": "ant-radio-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "请输入",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "search",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-select-selection-search-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "输入数值",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "search",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-select-selection-search-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": "输入数值",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": null,
+      "placeholder": "请输入初始值",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input-number-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": null,
+      "placeholder": "请输入无效值",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input-number-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": null,
+      "placeholder": "请输入精度倍数",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input-number-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": null,
+      "placeholder": "请输入偏移量",
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input-number-input"
+    },
+    {
+      "tag": "INPUT",
+      "type": "text",
+      "placeholder": null,
+      "value": "",
+      "ariaLabel": null,
+      "className": "ant-input"
+    }
+  ],
+  "buttons": [
+    "添加属性",
+    "新增",
+    "上 线",
+    "保 存",
+    "取 消"
+  ],
+  "aria": "- banner:\n  - img \"logo\"\n  - text: DataAssets\n  - menu:\n    - menuitem \"资产盘点\":\n      - link \"资产盘点\":\n        - /url: \"#/assetsStatistics\"\n    - menuitem \"元数据\":\n      - link \"元数据\":\n        - /url: \"#/metaDataCenter\"\n    - menuitem \"数据标准\":\n      - link \"数据标准\":\n        - /url: \"#/standardStatistic\"\n    - menuitem \"数据模型\":\n      - link \"数据模型\":\n        - /url: \"#/builtSpecificationTable\"\n    - menuitem \"数据质量\":\n      - link \"数据质量\":\n        - /url: \"#/dq/overview\"\n    - menuitem \"数据安全\":\n      - link \"数据安全\":\n        - /url: \"#/dataAuth/permissionAssign\"\n    - menuitem \"平台管理\":\n      - link \"平台管理\":\n        - /url: \"#/dataSourceManage\"\n  - list:\n    - button:\n      - img\n    - link \"question-circle\":\n      - /url: /helpSite/docs/assets/root/summary/\n      - img \"question-circle\"\n    - link \"message\":\n      - /url: http://shuzhan63-test-ltqc.k8s.dtstack.cn/portal/#/message?app=dataAssets\n      - img \"message\"\n    - img \"setting\"\n    - text: admin@dtstack.com\n- complementary:\n  - menu:\n    - menuitem \"标准统计\":\n      - link \"标准统计\":\n        - /url: \"#/standardStatistic\"\n    - menuitem \"标准管理\" [expanded]\n    - list:\n      - menuitem \"标准定义\":\n        - link \"标准定义\":\n          - /url: \"#/dataStandard\"\n      - menuitem \"标准映射\":\n        - link \"标准映射\":\n          - /url: \"#/standardMapping\"\n      - menuitem \"落标检查\":\n        - link \"落标检查\":\n          - /url: \"#/standardCheck\"\n    - menuitem \"标准基础\"\n- main:\n  - navigation:\n    - list:\n      - listitem:\n        - link \"标准定义\":\n          - /url: \"#/dataStandard\"\n        - img \"right\"\n      - listitem: 新建标准\n  - text: 业务属性\n  - img \"question-circle\"\n  - text: \"* 中文名称\"\n  - textbox \"* 中文名称\":\n    - /placeholder: 由中文、英文字母、数字、下划线（_）、and（&）、英文括号组成\n  - text: \"* 英文名称\"\n  - textbox \"* 英文名称\":\n    - /placeholder: 由英文字母、数字、下划线（_）、and（&）组成\n  - text: 英文缩写\n  - textbox \"英文缩写\":\n    - /placeholder: 由小写英文字母、数字、下划线（_）组成\n  - text: 标准编号\n  - textbox \"标准编号\":\n    - /placeholder: 由英文字母、数字、下划线（_）、and（&）组成\n  - text: \"* 标准目录\"\n  - combobox\n  - text: 请选择 业务定义\n  - textbox \"业务定义\":\n    - /placeholder: 请输入\n  - text: 标准来源\n  - textbox \"标准来源\":\n    - /placeholder: 请输入\n  - text: 自定义属性\n  - button \"plus-square 添加属性\":\n    - img \"plus-square\"\n    - text: 添加属性\n  - text: 车系/车型\n  - button \"plus-square 新增\":\n    - img \"plus-square\"\n    - text: 新增\n  - tree:\n    - textbox \"for screen reader\"\n  - text: 技术属性\n  - img \"question-circle\"\n  - combobox\n  - text: 请选择车系/车型 数据类型\n  - combobox \"数据类型\"\n  - text: 请选择\n  - paragraph: 数据长度\n  - combobox\n  - text: 选择运算符\n  - textbox \"输入数值\"\n  - paragraph: 数据精度\n  - textbox \"小数点前最大位\"\n  - text: /\n  - textbox \"小数点后最大位\"\n  - text: 是否允许空值\n  - radio \"可空\"\n  - text: 可空\n  - radio \"不可空\"\n  - text: 不可空 是否允许重复\n  - radio \"可重复\"\n  - text: 可重复\n  - radio \"不可重复\"\n  - text: 不可重复 默认值\n  - textbox \"默认值\":\n    - /placeholder: 请输入\n  - text: 取值范围\n  - combobox\n  - text: 选择运算符\n  - textbox \"输入数值\"\n  - text: 关\n  - combobox\n  - text: 选择运算符\n  - textbox \"输入数值\"\n  - text: 初始值\n  - button \"Increase Value\":\n    - img \"up\"\n  - button \"Decrease Value\":\n    - img \"down\"\n  - spinbutton \"请输入初始值\"\n  - text: 无效值\n  - button \"Increase Value\":\n    - img \"up\"\n  - button \"Decrease Value\":\n    - img \"down\"\n  - spinbutton \"请输入无效值\"\n  - text: 精度倍数\n  - button \"Increase Value\":\n    - img \"up\"\n  - button \"Decrease Value\":\n    - img \"down\"\n  - spinbutton \"精度倍数\"\n  - text: 偏移量\n  - button \"Increase Value\":\n    - img \"up\"\n  - button \"Decrease Value\":\n    - img \"down\"\n  - spinbutton \"偏移量\"\n  - text: 枚举范围 新增\n  - table:\n    - rowgroup:\n      - row \"编码取值 编码名称 编码说明\":\n        - columnheader \"编码取值\"\n        - columnheader \"编码名称\"\n        - columnheader \"编码说明\"\n  - table:\n    - rowgroup:\n      - row \"暂无数据 暂无数据\":\n        - cell \"暂无数据 暂无数据\":\n          - img \"暂无数据\"\n          - text: 暂无数据\n  - button \"上 线\"\n  - button \"保 存\"\n  - button \"取 消\"",
+  "responses": [
+    {
+      "status": 200,
+      "ok": true,
+      "url": "/dmetadata/v1/dataSource/getDataSourceTypeList"
+    },
+    {
+      "status": 200,
+      "ok": true,
+      "url": "/dmetadata/v1/dataPermission/getPermissionSourceTypes"
+    },
+    {
+      "status": 200,
+      "ok": true,
+      "url": "/dmetadata/v1/dataStandard/pageQuery"
+    },
+    {
+      "status": 200,
+      "ok": true,
+      "url": "/dmetadata/v1/standardCatalog/listCatalog"
+    },
+    {
+      "status": 200,
+      "ok": true,
+      "url": "/dmetadata/v1/standardCatalog/listCatalog"
+    }
+  ],
+  "screenshot": "/Users/poco/Projects/kata/workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/runs/20260702-1131-dsstd004/probe/standard-create-form.png"
+}

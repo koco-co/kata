@@ -1,0 +1,23 @@
+[
+  {
+    "recordType": "standard-definition",
+    "recordName": "自动化标准_mr2z5tgx",
+    "recordId": "2072530389848350722",
+    "recordEnglishName": "qa_auto_std_mr2z5tgx",
+    "catalogName": "自动化回归标准目录",
+    "status": "已上线",
+    "route": "/dataStandard",
+    "evidence": "标准定义列表新增记录",
+    "api": "/dmetadata/v1/dataStandard/addOrUpdate"
+  },
+  {
+    "recordType": "standard-mapping",
+    "recordName": "自动化标准_mr2z5tgx",
+    "recordId": "2072530389848350722",
+    "recordEnglishName": "qa_auto_std_mr2z5tgx",
+    "status": "已发起映射",
+    "route": "/standardMapping",
+    "evidence": "标准映射列表产生 自动化标准_mr2z5tgx 映射记录",
+    "api": "/dmetadata/v1/standardMapping/startMapping"
+  }
+]

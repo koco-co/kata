@@ -1,0 +1,43 @@
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">资产盘点</li>
+<a>资产盘点</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">元数据</li>
+<a>元数据</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-selected ant-menu-item-only-c" role="menuitem">数据标准</li>
+<a>数据标准</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">数据模型</li>
+<a>数据模型</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">数据质量</li>
+<a>数据质量</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">数据安全</li>
+<a>数据安全</a>
+<li class="ant-menu-overflow-item ant-menu-item ant-menu-item-only-child" role="menuitem">平台管理</li>
+<a>平台管理</a>
+<div class="ant-menu-submenu-title" role="menuitem"></div>
+<button class="ant-btn ant-btn-link"></button>
+<a></a>
+<a></a>
+<li class="ant-menu-item ant-menu-item-only-child" role="menuitem">标准统计</li>
+<a>标准统计</a>
+<div class="ant-menu-submenu-title" role="menuitem">标准管理</div>
+<li class="ant-menu-item ant-menu-item-only-child" role="menuitem">标准定义</li>
+<a>标准定义</a>
+<li class="ant-menu-item ant-menu-item-selected ant-menu-item-only-child" role="menuitem">标准映射</li>
+<a>标准映射</a>
+<li class="ant-menu-item ant-menu-item-only-child" role="menuitem">落标检查</li>
+<a>落标检查</a>
+<div class="ant-menu-submenu-title" role="menuitem">标准基础</div>
+<input></input>
+<input class="ant-input"></input>
+<button class="ant-btn ant-btn-default ant-btn-icon-only ant-input-search-button"></button>
+<button class="ant-btn ant-btn-primary">标准映射</button>
+<div class="ant-table ant-table-fixed-header">中文名称英文名称字段绑定(个)最近映射时间操作     销售订单号order_id12026-06-</div>
+<a>销售订单号</a>
+<a>车辆识别代码</a>
+<a>hh</a>
+<a>id</a>
+<a>自动化标准_mr2z5tgx</a>
+<button class="ant-pagination-item-link"></button>
+<a>1</a>
+<button class="ant-pagination-item-link"></button>
+<div class="ant-select ant-pagination-options-size-changer ant-select-single ant-select-show">20 条/页</div>
+<input class="ant-select-selection-search-input" role="combobox"></input>

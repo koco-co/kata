@@ -1,0 +1,153 @@
+{
+  "schema": "PlaywrightAutomationHandoff@2",
+  "feature_id": "2026-07-data-assets-integration-test",
+  "run_id": "20260702-1200-dsstd006",
+  "status": "partial",
+  "intent_id": "SR-INTENT-20260702-DATA-STANDARD-INTEGRATION",
+  "source_refs": {
+    "intent": "SR-INTENT-20260702-DATA-STANDARD-INTEGRATION",
+    "env": "SR-ENV-PREFLIGHT-20260702-DATA-STANDARD-LTQC",
+    "probe": "SR-UI-PROBE-20260702-DATA-STANDARD-LTQC",
+    "self_run": "SR-SELF-RUN-20260702-1200-DATA-STANDARD"
+  },
+  "run_command": "PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets KATA_SUITE_NAME='数据资产集成用例' KATA_ALLURE_RESULTS_DIR='workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/runs/20260702-1200-dsstd006/allure-results' npx playwright test 'workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts' --output='workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/runs/20260702-1200-dsstd006/playwright'",
+  "acceptance_command": "KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets KATA_SUITE_NAME='数据资产集成用例' npx playwright test 'workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
+  "run_exit_code": 0,
+  "results": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "report_paths": {
+      "playwright_json": "runs/20260702-1200-dsstd006/playwright/.last-run.json",
+      "allure": "runs/20260702-1200-dsstd006/allure-report/index.html",
+      "stdout": "terminal: exit 0; 4 passed (31.8s)"
+    }
+  },
+  "quality_gates": [
+    {
+      "name": "archive_validate",
+      "status": "passed",
+      "detail": "exit 0; valid=true; case_count=4; module_count=4; page_count=4"
+    },
+    {
+      "name": "playwright_list",
+      "status": "passed",
+      "detail": "exit 0; listed 4 tests in 1 file"
+    },
+    {
+      "name": "full_spec_self_run",
+      "status": "passed",
+      "detail": "exit 0; 4 passed, 0 failed, 0 skipped; headless chromium; non-sandbox run after sandbox MachPort denial"
+    },
+    {
+      "name": "allure_result_statuses",
+      "status": "passed",
+      "detail": "4 result JSON files, all status=passed; raw results in runs/20260702-1200-dsstd006/allure-results"
+    },
+    {
+      "name": "allure_html_report",
+      "status": "passed",
+      "detail": "npx allure generate exit 0; report at runs/20260702-1200-dsstd006/allure-report/index.html"
+    },
+    {
+      "name": "platform_records",
+      "status": "passed",
+      "detail": "6 records attached: standard-root, standard-code, 2 database-collection, standard-definition, standard-mapping"
+    },
+    {
+      "name": "feature_cases_lint",
+      "status": "passed",
+      "detail": "exit 0; feature scope violations=0"
+    },
+    {
+      "name": "archive_scope",
+      "status": "skipped",
+      "detail": "Generated runner passed; original Archive data-standard case has 158 steps, and import/export, field binding, standard-check execution, and cleanup deletion are not executed in this runner"
+    }
+  ],
+  "platform_records": [
+    {
+      "case_id": "「数据标准」模块集成测试用例",
+      "record_type": "standard-root",
+      "record_name": "自动化词根_mr2z5fph",
+      "record_id": "8",
+      "status": "已创建",
+      "route": "/rootManage",
+      "api": "/dmetadata/v1/standardRoot/addOrUpdateRoot",
+      "evidence_path": "runs/20260702-1200-dsstd006/allure-results/5ce34348-cc1a-46e6-ab34-469bc3eba0a0-attachment.json"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例",
+      "record_type": "standard-code",
+      "record_name": "自动化代码_mr2z5i3l",
+      "record_id": "44",
+      "status": "已创建",
+      "route": "/codeTableManage",
+      "api": "/dmetadata/v1/standardCode/addOrUpdateCode",
+      "evidence_path": "runs/20260702-1200-dsstd006/allure-results/5ce34348-cc1a-46e6-ab34-469bc3eba0a0-attachment.json"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例",
+      "record_type": "database-collection",
+      "record_name": "词根管理拾取_7",
+      "record_id": "7",
+      "status": "拾取完成",
+      "route": "/databaseCollect",
+      "api": "/dmetadata/v1/databaseCollection/addCollection",
+      "evidence_path": "runs/20260702-1200-dsstd006/allure-results/5ce34348-cc1a-46e6-ab34-469bc3eba0a0-attachment.json"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例",
+      "record_type": "database-collection",
+      "record_name": "数据标准拾取_8",
+      "record_id": "8",
+      "status": "拾取完成",
+      "route": "/databaseCollect",
+      "api": "/dmetadata/v1/databaseCollection/addCollection",
+      "evidence_path": "runs/20260702-1200-dsstd006/allure-results/5ce34348-cc1a-46e6-ab34-469bc3eba0a0-attachment.json"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例",
+      "record_type": "standard-definition",
+      "record_name": "自动化标准_mr2z5tgx",
+      "record_id": "2072530389848350722",
+      "status": "已上线",
+      "route": "/dataStandard",
+      "api": "/dmetadata/v1/dataStandard/addOrUpdate",
+      "evidence_path": "runs/20260702-1200-dsstd006/allure-results/6aeaee43-002b-4652-ad16-36789678ce00-attachment.json"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例",
+      "record_type": "standard-mapping",
+      "record_name": "自动化标准_mr2z5tgx",
+      "record_id": "2072530389848350722",
+      "status": "已发起映射",
+      "route": "/standardMapping",
+      "api": "/dmetadata/v1/standardMapping/startMapping",
+      "evidence_path": "runs/20260702-1200-dsstd006/allure-results/6aeaee43-002b-4652-ad16-36789678ce00-attachment.json"
+    }
+  ],
+  "unresolved_blockers": [],
+  "next_actions": [
+    "补齐 Archive 数据标准用例剩余动作：导入/导出文件内容校验、标准映射字段绑定、落标检查任务创建/执行/结果导出、标准/词根/码表清理删除。",
+    "若需要把 handoff status 从 partial 提升为 passed，需要把 excluded_cases 中的子流程补成真实页面动作并重新执行 full.spec.ts。"
+  ],
+  "excluded_cases": [
+    {
+      "case_id": "「数据标准」模块集成测试用例#导入导出和清理删除",
+      "reason_category": "data_prep",
+      "detail": "未准备导入模板 fixture，未执行标准/词根/码表导入失败明细、导出文件内容校验、下线删除和最终清理。"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例#标准映射字段绑定",
+      "reason_category": "data_prep",
+      "detail": "本次只发起标准映射并断言映射列表出现记录，未绑定具体字段并核验绑定明细。"
+    },
+    {
+      "case_id": "「数据标准」模块集成测试用例#落标检查任务执行",
+      "reason_category": "data_prep",
+      "detail": "本次只覆盖落标检查入口、列表和新增任务入口，未创建检查任务、执行检查、核验达标率/失败率和导出结果。"
+    }
+  ]
+}

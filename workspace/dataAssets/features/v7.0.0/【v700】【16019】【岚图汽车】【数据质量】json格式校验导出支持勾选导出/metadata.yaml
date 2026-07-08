@@ -19,7 +19,7 @@ relates_to: []
 emits:
   cases_xmind: true
   archive: true
-  playwright_tests: false
+  playwright_tests: true
 case_drafting:
   status: completed
   archive_path: cases/archive.md
@@ -42,12 +42,19 @@ case_drafting:
       ambiguity_class: none
       confidence: high
 automation:
-  status: not-started
-  intents: []
-  last_handoff_path: null
-  last_run_status: not-run
+  status: blocked
+  intents:
+    - intent_id: SR-INTENT-V700-16019-JSON-EXPORT
+      case_files:
+        - automation/tests/cases/t00-json-export-shell.ts
+        - automation/tests/cases/t01-json-checkbox-export.ts
+        - automation/tests/runners/smoke.spec.ts
+        - automation/tests/runners/full.spec.ts
+      automation_status: blocked
+  last_handoff_path: runs/20260706-1315-a16019ef/handoff.md
+  last_run_status: failing
 files:
   archive: cases/archive.md
   xmind: cases/cases.xmind
-  tests_root: null
-  latest_results: null
+  tests_root: automation/tests
+  latest_results: runs/20260706-1315-a16019ef
