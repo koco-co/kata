@@ -85,6 +85,29 @@ export function lintRunnerIsAggregator(workspaceRoot: string): CaseLintReport {
   return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
 }
 
+export function lintRunnerIsAggregatorForFeature(
+  featureDir: string,
+  severity: "warn" | "fail" = "fail",
+): CaseLintReport {
+  const runnersDir = join(featureDir, "automation", "tests", "runners");
+  const violations: CaseLintViolation[] = [];
+  const files = walkFiles(runnersDir).filter((file) => file.endsWith(".spec.ts"));
+  for (const file of files) {
+    const content = readFileSync(file, "utf-8");
+    if (/\btest(?:\.describe)?\s*\(/.test(content)) {
+      violations.push(
+        violation(
+          file,
+          "runner_is_aggregator",
+          "Runner specs must only aggregate case imports.",
+          severity,
+        ),
+      );
+    }
+  }
+  return { scanRoot: featureDir, files: files.length, violations, passed: violations.length === 0 };
+}
+
 export function lintCasesInCasesDir(workspaceRoot: string): CaseLintReport {
   const glob = new Glob(join(workspaceRoot, "*/features/**/automation/tests/*.ts"));
   const violations: CaseLintViolation[] = [];
@@ -99,6 +122,33 @@ export function lintCasesInCasesDir(workspaceRoot: string): CaseLintReport {
     }
   }
   return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
+}
+
+export function lintCasesInCasesDirForFeature(
+  featureDir: string,
+  severity: "warn" | "fail" = "fail",
+): CaseLintReport {
+  const testsDir = join(featureDir, "automation", "tests");
+  if (!existsSync(testsDir)) {
+    return { scanRoot: featureDir, files: 0, violations: [], passed: true };
+  }
+  const violations: CaseLintViolation[] = [];
+  let files = 0;
+  for (const entry of readdirSync(testsDir, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith(".ts")) continue;
+    files += 1;
+    if (/^t\d+/i.test(entry.name)) {
+      violations.push(
+        violation(
+          join(testsDir, entry.name),
+          "cases_in_cases_dir",
+          "Case files must live under tests/cases/.",
+          severity,
+        ),
+      );
+    }
+  }
+  return { scanRoot: featureDir, files, violations, passed: violations.length === 0 };
 }
 
 export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {

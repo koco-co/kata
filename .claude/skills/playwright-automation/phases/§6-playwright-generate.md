@@ -45,11 +45,14 @@
 **必须做到**：
 - 每个动作步骤（创建/导入/运行/下载/编辑/删除等）必须落成真实页面动作，一步都不得省略。
 - 每条 `expected_visible_result` / 预期结果必须断言为真实的业务结果；多页面操作（导出/详情/新标签打开）必须用 popup 模式捕获新页面并断言。
+- 涉及新增、导入、运行、发布、映射、检查等状态变化的用例，必须在平台中产生唯一业务记录，并断言记录名称、ID、状态或结果。记录名使用可追踪自动化前缀（如 `qa_auto_<feature>_<timestamp>`），不得只验证旧数据或菜单可见。
+- 如果脚本为了清理数据删除了新建对象，仍必须保留可核验的业务记录证据（如任务运行记录、审计记录、结果记录、截图或 API 响应）；否则不要清理用于验收的证明记录。
 - 当前环境确实无法真实实现的用例，诚实阻塞或排除，记入 `handoff.excluded_cases`（含 `reason_category` 与原因）。
 
 **严禁**：
 - 用 `toBeVisible` / `toContainText` 等可见性/存在性断言替代业务结果断言。
 - 把业务流程用例简化成「看菜单/字段/元素在不在」的表层测试。
+- 未经用户明确要求，将只读 UI/API 合同脚本作为 Playwright 自动化完成结果交付。
 - 用表面通过敷衍不可实现的用例。
 
 > 断言工具（见 `references/cli-essentials.md`）：断言优先用 `toMatchAriaSnapshot`/`toHaveText`/`toHaveValue` 等强断言，期望值在 ui-probe 阶段用 `locator.textContent()/inputValue()` 捕获；locator 优先 `getByRole`>`getByLabel`/`getByPlaceholder`>`getByText`>`getByTestId`。**不得用 `page.route` mock 被测业务接口的返回来换取断言通过。** `@playwright/cli` codegen 产出的 locator 或代码片段，落 spec 前都须对照 ui-probe 证据重新验证，并改写为项目约定（语义 locator、可追溯头、落在 `_shared/pages/`）；codegen 产出是草稿，落 spec 前须验证和改写。
@@ -106,7 +109,10 @@ grep -c "workspace/.*/.kata/auth/.*/session-" automation/tests/cases/*.ts 2>/dev
 
 ### 目录与 runner 约束
 
-- feature 自动化必须遵循 `automation/tests/{cases,runners,data,unit,.debug}` 结构；共享页面对象和 helper 只能放在 `workspace/<project>/_shared/pages/` 或 `workspace/<project>/_shared/helpers/`。
+- feature 自动化必须遵循 `references/directory-structure.md` 定义的结构；共享页面对象和 helper 只能放在 `workspace/<project>/_shared/pages/` 或 `workspace/<project>/_shared/helpers/`。
+- 生成脚本前先跑 `kata automation scaffold <feature-dir>` 确保骨架合规。
+- 全部 case 写入后跑 `kata cases lint --exit-code --severity fail-only --scope <project>/features/<version>/<feature>` 验证结构合规。lint 不通过不得进入 §7 self-run。
+- normalize 不在自动化流程中自动执行（避免误删有效 HANDOFF/PLAN 产物）。人工使用 `kata automation normalize <feature-dir> --dry-run` 检查 + `--apply` 修复。
 - `automation/tests/runners/smoke.spec.ts` 与 `automation/tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写入 runner。
 - P0/P1 的具体用例写入 `automation/tests/cases/t{nn}-{slug}.ts`，共享页面对象写入 `_shared/pages/`，共享接口/模板解析 helper 写入 `_shared/helpers/`。
 - 新生成的脚本不得只交付 smoke；必须同时给出 full runner。若 full 因产品或环境阻塞而覆盖不了深链路，必须在 handoff 中写明阻塞分类和已运行的命令。

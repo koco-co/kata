@@ -92,6 +92,7 @@ kata.addCommand(xmindPatch);
 
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "@shared/cli/agents-audit.ts";
+import { buildAutomationCommand } from "@shared/cli/automation.ts";
 import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
 import { buildEnvCommand } from "@shared/cli/env.ts";
 import { buildFeaturesCommand } from "@shared/cli/features.ts";
@@ -102,6 +103,7 @@ import { buildSafetyCommand } from "@shared/cli/safety-audit-command.ts";
 import { buildSkillsCommand } from "@shared/cli/skill-audit.ts";
 
 kata.addCommand(buildAgentsCommand());
+kata.addCommand(buildAutomationCommand());
 kata.addCommand(buildCasesCommand());
 kata.addCommand(buildPathsCommand());
 kata.addCommand(buildSkillsCommand());
@@ -118,6 +120,7 @@ registerTestCaseFlow(kata);
 
 const publicV2Commands = new Set([
   "agents",
+  "automation",
   "cases",
   "paths",
   "skills",

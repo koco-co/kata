@@ -73,6 +73,8 @@
 
 - Worktree 优先：所有改动都走 detached worktree，验证通过后再合并回 main。
 - 改后即测：代码、配置、runtime skill 或入口文件改动后，必须跑相关测试；失败必须修复。
+- 根因修复纪律：用户反馈的问题，不得只修复表面现象。必须先追查根因（规则定义在哪、为什么没拦住、执行链路哪个环节失效），再从源头堵住缺口。目标是非重复性——同类问题不允许犯第二次。
+- Playwright 自动化硬闸：生成或修复 Playwright UI 自动化后，交付必须同时满足 `full.spec.ts` 通过、feature run 目录下有 Allure 结果、被测平台产生该用例核心流程的业务记录数据。只读 UI/API 合同脚本只有在用户明确要求只读覆盖时才算完成；否则必须阻塞或排除并写清未产记录的原因。
 - Commit 规范：遵循 Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符；标题行（含 description）必须用英文，只有可选的 body 才允许中文。
 - QA 产物交付前必须说清已验证范围和未验证范围，不得把局部通过说成全量通过。
 - 回复格式：默认所有回复都用「【KATA 工作通知】」格式并渲染成 markdown 表格，不夹带无关 prose；字段不够可增行，需用户决策时用 `AskUserQuestion`。模板见 `.claude/rules/project-workflow-rules.md`。

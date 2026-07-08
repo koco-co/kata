@@ -1,30 +1,37 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
-import { isAbsolute, join, normalize, sep } from "node:path";
+import { dirname, isAbsolute, join, normalize, relative, sep } from "node:path";
 import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
 import { registerCasesE2e } from "@shared/cli/cases-e2e.ts";
 import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
-import { listFeatureDirs } from "@shared/lib/features/layout.ts";
+import { type FeatureDirEntry, listFeatureDirs } from "@shared/lib/features/layout.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
 import { lintCaseTraceabilityHeader } from "@shared/lint/case-traceability-header.ts";
 import { lintDebugFileNaming } from "@shared/lint/debug-file-naming.ts";
-import { lintFeatureRootLayout } from "@shared/lint/feature-root-layout.ts";
+import {
+  lintAutomationTopLayout,
+  lintFeatureRootEntry,
+  lintFeatureRootLayout,
+} from "@shared/lint/feature-root-layout.ts";
 import { lintHandoffDoubleTrack } from "@shared/lint/handoff-double-track.ts";
 import { lintHardcodePath } from "@shared/lint/hardcode-path.ts";
 import { lintNoDebugInCases } from "@shared/lint/no-debug-in-cases.ts";
 import { lintNoFeatureLocalHelpers } from "@shared/lint/no-feature-local-helpers.ts";
 import { lintOwnerSkillDup } from "@shared/lint/owner-skill-dup.ts";
 import { lintSourceRefRegistry } from "@shared/lint/source-ref-registry.ts";
+import { lintFeatureTests } from "@shared/lint/tests-layout.ts";
 import type { CaseLintViolation, Violation } from "@shared/lint/types.ts";
 import {
   lintCasesInCasesDir,
+  lintCasesInCasesDirForFeature,
   lintEnvProfileCompliance,
   lintNoDanglingHelpers,
   lintNoEnvLocal,
   lintRunnerIsAggregator,
+  lintRunnerIsAggregatorForFeature,
   lintSessionCompliant,
   lintSpecStructureValid,
 } from "@shared/lint/v2-quality-gates.ts";
@@ -67,6 +74,68 @@ export async function lintLanhuBlockedDrafts(
   return { violations };
 }
 
+export interface CasesLintScopeResolution {
+  normalizedScope: string;
+  workspaceLintRoot: string;
+  projects: string[];
+  scopedProject?: string;
+  scopedFeatureEntry?: FeatureDirEntry;
+  scopedFeatureId?: string;
+  isFeatureScoped: boolean;
+}
+
+function normalizeCasesLintScope(scope: string, workspaceLintRoot: string): string {
+  if (isAbsolute(scope)) return normalize(scope);
+  const normalizedRelativeScope = normalize(scope);
+  const parts = normalizedRelativeScope.split(sep);
+  if (parts[0] === "workspace") {
+    return normalize(join(dirname(workspaceLintRoot), normalizedRelativeScope));
+  }
+  if (parts.length >= 2 && parts[1] === "features") {
+    return normalize(join(workspaceLintRoot, normalizedRelativeScope));
+  }
+  return normalize(join(repoRoot(), normalizedRelativeScope));
+}
+
+function isPathInsideOrSame(child: string, parent: string): boolean {
+  const rel = relative(parent, child);
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+}
+
+export function resolveCasesLintScope(
+  scope: string,
+  workspaceLintRoot = join(repoRoot(), "workspace"),
+): CasesLintScopeResolution {
+  const normalizedWorkspaceRoot = normalize(workspaceLintRoot);
+  const normalizedScope = normalizeCasesLintScope(scope, normalizedWorkspaceRoot);
+  const relToWorkspace = relative(normalizedWorkspaceRoot, normalizedScope);
+  const scopedProject =
+    relToWorkspace && !relToWorkspace.startsWith("..") && !isAbsolute(relToWorkspace)
+      ? relToWorkspace.split(sep)[0]
+      : undefined;
+  const projects =
+    scopedProject && existsSync(join(normalizedWorkspaceRoot, scopedProject))
+      ? [scopedProject]
+      : readdirSync(normalizedWorkspaceRoot).filter((name) =>
+          statSync(join(normalizedWorkspaceRoot, name)).isDirectory(),
+        );
+  const scopedFeatureEntry =
+    scopedProject && relToWorkspace.split(sep)[1] === "features"
+      ? listFeatureDirs(join(normalizedWorkspaceRoot, scopedProject, "features")).find((entry) =>
+          isPathInsideOrSame(normalizedScope, normalize(entry.dir)),
+        )
+      : undefined;
+  return {
+    normalizedScope,
+    workspaceLintRoot: normalizedWorkspaceRoot,
+    projects,
+    scopedProject,
+    scopedFeatureEntry,
+    scopedFeatureId: scopedFeatureEntry?.dirName,
+    isFeatureScoped: Boolean(scopedProject && scopedFeatureEntry),
+  };
+}
+
 export function buildCasesCommand(): Command {
   const cases = new Command("cases").description("用例级操作");
   registerCasesValidate(cases);
@@ -77,29 +146,8 @@ export function buildCasesCommand(): Command {
     .option("--severity <level>", "filter exit-code by severity (all|fail-only)", "all")
     .option("--scope <p>", "scan path", join(repoRoot(), "workspace"))
     .action(async (opts: { exitCode: boolean; severity: string; scope: string }) => {
-      const normalizedScope = normalize(
-        isAbsolute(opts.scope) ? opts.scope : join(repoRoot(), opts.scope),
-      );
-      const featureMarker = `${sep}features${sep}`;
-      const markerIndex = normalizedScope.indexOf(featureMarker);
-      const workspaceMarker = `${sep}workspace${sep}`;
-      const workspaceIndex = normalizedScope.indexOf(workspaceMarker);
-      const scopedProject =
-        workspaceIndex >= 0
-          ? normalizedScope.slice(workspaceIndex + workspaceMarker.length).split(sep)[0]
-          : undefined;
-      const scopedFeatureId =
-        markerIndex >= 0
-          ? normalizedScope.slice(markerIndex + featureMarker.length).split(sep)[0]
-          : undefined;
-      const workspaceLintRoot = join(repoRoot(), "workspace");
-      const isFeatureScoped = Boolean(scopedProject && scopedFeatureId);
-      const projects =
-        scopedProject && existsSync(join(workspaceLintRoot, scopedProject))
-          ? [scopedProject]
-          : readdirSync(workspaceLintRoot).filter((name) =>
-              statSync(join(workspaceLintRoot, name)).isDirectory(),
-            );
+      const { workspaceLintRoot, projects, scopedFeatureEntry, scopedFeatureId, isFeatureScoped } =
+        resolveCasesLintScope(opts.scope);
       // ── metadata/manifest quality gates ──
       const featuresLintResults = await Promise.all(
         projects.map((project) =>
@@ -117,7 +165,10 @@ export function buildCasesCommand(): Command {
         console.log(`${v.feature} [${v.rule}] ${v.message}`);
       }
       const featureViolations = featureLintViolations.map(({ project, violation: v }) => ({
-        file: join(repoRoot(), "workspace", project, "features", v.feature),
+        file:
+          scopedFeatureEntry && v.feature === scopedFeatureEntry.dirName
+            ? scopedFeatureEntry.dir
+            : join(repoRoot(), "workspace", project, "features", v.feature),
         lineNumber: 1,
         rule: v.rule,
         matched: v.feature,
@@ -152,11 +203,43 @@ export function buildCasesCommand(): Command {
             ...projects.map((project) => ({
               violations: lintFeatureRootLayout(join(workspaceLintRoot, project, "features")),
             })),
+            // L13: automation/ 顶层散落文件检查（workspace-wide）
+            ...projects.map((project) => ({
+              violations: listFeatureDirs(join(workspaceLintRoot, project, "features")).flatMap(
+                (entry) => lintAutomationTopLayout(join(entry.dir, "automation")),
+              ),
+            })),
           ];
-      const archiveOutputRoots =
-        scopedProject && scopedFeatureId
-          ? [join(workspaceLintRoot, scopedProject, "features", scopedFeatureId)]
-          : projects.map((project) => join(workspaceLintRoot, project, "features"));
+      const scopedStructureReports: Array<{ violations: Array<CaseLintViolation | Violation> }> =
+        [];
+      if (scopedFeatureEntry) {
+        const scopedTestsDir = join(scopedFeatureEntry.dir, "automation", "tests");
+        if (existsSync(scopedTestsDir)) {
+          scopedStructureReports.push({
+            violations: lintFeatureTests(scopedTestsDir).violations.map((item) => ({
+              file: item.file,
+              lineNumber: 1,
+              rule: `spec_structure_valid:${item.rule}`,
+              matched: item.file,
+              severity: "fail" as const,
+              message: item.message,
+            })),
+          });
+        }
+        scopedStructureReports.push({
+          violations: lintFeatureRootEntry(scopedFeatureEntry),
+        });
+        scopedStructureReports.push({
+          violations: lintAutomationTopLayout(join(scopedFeatureEntry.dir, "automation")),
+        });
+        scopedStructureReports.push(
+          lintRunnerIsAggregatorForFeature(scopedFeatureEntry.dir, "fail"),
+        );
+        scopedStructureReports.push(lintCasesInCasesDirForFeature(scopedFeatureEntry.dir, "fail"));
+      }
+      const archiveOutputRoots = scopedFeatureEntry
+        ? [scopedFeatureEntry.dir]
+        : projects.map((project) => join(workspaceLintRoot, project, "features"));
       const reports: Array<{ violations: Array<CaseLintViolation | Violation> }> = [
         lanhuBlockedDraftReport,
         caseMdSourceRefLeakReport,
@@ -167,6 +250,7 @@ export function buildCasesCommand(): Command {
         lintNoFeatureLocalHelpers(opts.scope),
         lintNoDebugInCases(opts.scope),
         lintHandoffDoubleTrack(opts.scope),
+        ...scopedStructureReports,
         ...workspaceWideReports,
         ...archiveOutputRoots.map((root) => lintArchiveCaseQa(root)),
       ];

@@ -20,7 +20,9 @@
 
 - [ ] `automation/tests/runners/smoke.spec.ts` 存在
 - [ ] `automation/tests/runners/full.spec.ts` 存在
+- [ ] runners/ 不含白名单外 .spec.ts（只允许 smoke/full/retry-failed 三个文件）；详见 references/directory-structure.md#runners-白名单
 - [ ] case 文件位于 `automation/tests/cases/`
+- [ ] automation/ 顶层无散落 .md .json .yaml 文件；详见 references/directory-structure.md#automation-顶层
 - [ ] 共享 page object 位于 `_shared/pages/`
 - [ ] 没有 feature-local helper 目录
 

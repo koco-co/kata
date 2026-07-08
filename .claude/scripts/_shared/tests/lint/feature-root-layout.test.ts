@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintFeatureRootLayout } from "@shared/lint/feature-root-layout.ts";
+import {
+  lintAutomationTopLayout,
+  lintFeatureRootLayout,
+} from "@shared/lint/feature-root-layout.ts";
 
 describe("lintFeatureRootLayout (L12)", () => {
   let scratch: string;
@@ -37,6 +40,20 @@ describe("lintFeatureRootLayout (L12)", () => {
     expect(violations.every((v) => v.rule === "L12")).toBe(true);
     expect(violations.some((v) => v.file.includes("AUTOMATION-PLAN.md"))).toBe(true);
     expect(violations.some((v) => v.file.includes("results"))).toBe(true);
+  });
+
+  it("flags feature-root .debug because debug specs belong under automation/tests/.debug", () => {
+    const featureDir = join(scratch, "v6.4/【v6.4】debug-feature");
+    mkdirSync(join(featureDir, ".debug"), { recursive: true });
+
+    const violations = lintFeatureRootLayout(scratch);
+
+    expect(violations).toContainEqual(
+      expect.objectContaining({
+        rule: "L12",
+        file: join(featureDir, ".debug"),
+      }),
+    );
   });
 
   // legacy-flat feature（未进版本层）整体标为 L12
@@ -75,5 +92,54 @@ describe("lintFeatureRootLayout (L12)", () => {
   it("passes empty features root", () => {
     const violations = lintFeatureRootLayout(scratch);
     expect(violations).toHaveLength(0);
+  });
+});
+
+describe("lintAutomationTopLayout (L13)", () => {
+  let scratch: string;
+
+  beforeEach(() => {
+    scratch = mkdtempSync(join(tmpdir(), "kata-l13-"));
+  });
+
+  afterEach(() => rmSync(scratch, { recursive: true, force: true }));
+
+  it("passes a clean automation directory", () => {
+    mkdirSync(join(scratch, "automation", "tests"), { recursive: true });
+    const violations = lintAutomationTopLayout(join(scratch, "automation"));
+    expect(violations).toEqual([]);
+  });
+
+  it("flags stray markdown files in automation top-level", () => {
+    mkdirSync(join(scratch, "automation", "tests"), { recursive: true });
+    writeFileSync(join(scratch, "automation", "HANDOFF.md"), "# handoff");
+
+    const violations = lintAutomationTopLayout(join(scratch, "automation"));
+
+    expect(violations.some((v) => v.rule === "L13" && v.file.endsWith("HANDOFF.md"))).toBe(true);
+  });
+
+  it("flags stray runs and scripts subdirectories", () => {
+    mkdirSync(join(scratch, "automation", "runs"), { recursive: true });
+    mkdirSync(join(scratch, "automation", "scripts"), { recursive: true });
+
+    const violations = lintAutomationTopLayout(join(scratch, "automation"));
+
+    expect(violations).toHaveLength(2);
+    expect(violations.map((v) => v.rule)).toEqual(["L13", "L13"]);
+  });
+
+  it("skips hidden files", () => {
+    mkdirSync(join(scratch, "automation", "tests"), { recursive: true });
+    writeFileSync(join(scratch, "automation", ".DS_Store"), "");
+
+    const violations = lintAutomationTopLayout(join(scratch, "automation"));
+
+    expect(violations).toEqual([]);
+  });
+
+  it("passes when automation directory is missing", () => {
+    const violations = lintAutomationTopLayout(join(scratch, "automation"));
+    expect(violations).toEqual([]);
   });
 });
