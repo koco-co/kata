@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { lintLanhuBlockedDrafts } from "@shared/cli/cases-lint.ts";
+import { lintLanhuBlockedDrafts, resolveCasesLintScope } from "@shared/cli/cases-lint.ts";
 import { lintArchiveCaseQa } from "@shared/lint/archive-case-qa.ts";
 import { lintCaseMdSourceRefLeak } from "@shared/lint/case-md-sourceref-leak.ts";
 import JSZip from "jszip";
@@ -59,6 +59,45 @@ function blockedLanhuManifest(featureId: string) {
 }
 
 describe("kata cases lint", () => {
+  it("resolves project/features scope as feature-scoped under the workspace root", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-scope-"));
+    try {
+      const workspaceRoot = join(scratch, "workspace");
+      const featureDir = join(workspaceRoot, "dataAssets/features/v6.4.11/feature-a");
+      mkdirSync(featureDir, { recursive: true });
+
+      const result = resolveCasesLintScope("dataAssets/features/v6.4.11/feature-a", workspaceRoot);
+
+      expect(result.isFeatureScoped).toBe(true);
+      expect(result.scopedProject).toBe("dataAssets");
+      expect(result.scopedFeatureId).toBe("feature-a");
+      expect(result.scopedFeatureEntry?.dir).toBe(featureDir);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("resolves workspace/project/features scope as feature-scoped", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-scope-"));
+    try {
+      const workspaceRoot = join(scratch, "workspace");
+      const featureDir = join(workspaceRoot, "dataAssets/features/v6.4.11/feature-a");
+      mkdirSync(featureDir, { recursive: true });
+
+      const result = resolveCasesLintScope(
+        "workspace/dataAssets/features/v6.4.11/feature-a",
+        workspaceRoot,
+      );
+
+      expect(result.isFeatureScoped).toBe(true);
+      expect(result.scopedProject).toBe("dataAssets");
+      expect(result.scopedFeatureId).toBe("feature-a");
+      expect(result.scopedFeatureEntry?.dir).toBe(featureDir);
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
   it("includes unresolved Lanhu blocked draft validation", async () => {
     const scratch = mkdtempSync(join(tmpdir(), "kata-cases-lint-"));
     try {
