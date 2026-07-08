@@ -20,6 +20,15 @@
 - {{name}}: {{status}}{{#if detail}} — {{detail}}{{/if}}
 {{/each}}
 
+## Platform Records
+{{#if platform_records.length}}
+{{#each platform_records}}
+- case={{case_id}} type={{record_type}} name={{record_name}}{{#if record_id}} id={{record_id}}{{/if}}{{#if status}} status={{status}}{{/if}}{{#if route}} route={{route}}{{/if}}{{#if api}} api={{api}}{{/if}} evidence={{evidence_path}}
+{{/each}}
+{{else}}
+None.
+{{/if}}
+
 ## Unresolved Blockers
 {{#if unresolved_blockers.length}}
 {{#each unresolved_blockers}}

@@ -39,6 +39,15 @@ describe("kata handoff render", () => {
           report_paths: { playwright_json: "x", allure: "y", stdout: "z" },
         },
         quality_gates: [{ name: "no_weak_assertions", status: "passed" }],
+        platform_records: [
+          {
+            case_id: "P0-1",
+            record_type: "standard-definition",
+            record_name: "qa_auto_standard_20260702",
+            status: "已上线",
+            evidence_path: "runs/20260510-1430-aaaaaaaa/allure-results/record.png",
+          },
+        ],
         unresolved_blockers: [],
         next_actions: [],
         excluded_cases: [
@@ -87,6 +96,8 @@ describe("kata handoff render", () => {
     expect(md).toContain("status: passed");
     expect(md).toContain("SR-INTENT-X");
     expect(md).toContain("5/5 passed");
+    expect(md).toContain("## Platform Records");
+    expect(md).toContain("qa_auto_standard_20260702");
     expect(md).toContain("## Human Acceptance Command");
     expect(md).toContain("--headed --reporter=line");
     expect(md).toContain("features/2026-04-x/tests/runners/full.spec.ts");

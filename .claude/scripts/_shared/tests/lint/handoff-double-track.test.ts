@@ -50,6 +50,14 @@ describe("gate: handoff_double_track", () => {
         },
       },
       quality_gates: [{ name: "handoff_double_track", status: "passed" }],
+      platform_records: [
+        {
+          case_id: "P0-1",
+          record_type: "standard-definition",
+          record_name: "qa_auto_standard_20260702",
+          evidence_path: "runs/20260510-1430-aaaaaaaa/allure-results/record.png",
+        },
+      ],
       unresolved_blockers: [],
       next_actions: [],
       excluded_cases: [],

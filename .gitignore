@@ -21,6 +21,7 @@ workspace/*/features/**/runs/
 workspace/*/features/**/.debug/
 .playwright-cli/*.yml
 allure-results/
+output/
 **/.runs/test-results/
 
 # System and build

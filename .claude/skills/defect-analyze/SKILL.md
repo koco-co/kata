@@ -62,7 +62,7 @@ flowchart TD
 
 ## 产物
 
-三种模式都产出 `report.html`，但落点分两处，不要合并：`kata defect-report`（bug / conflict 模式）写 `defectDir`（`_shared/archive/defects/`），`kata scan-report`（diff 模式）写 `auditDir`（`_shared/archive/audits/`）。都不写入 feature 目录。
+三种模式都产出 `report.html`，但落点分两处，不要合并：`kata defect-report`（bug / conflict 模式）写 `defectDir`（`_shared/archive/reports/bugs/`），`kata scan-report`（diff 模式）写 `auditDir`（`_shared/archive/audits/`）。都不写入 feature 目录。
 
 ## 推送禅道（仅 bug 模式）
 

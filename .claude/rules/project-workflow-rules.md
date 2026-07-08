@@ -68,6 +68,12 @@
 - 汇报验证结果时，写清确切命令、退出码、通过/失败/跳过的数量，以及未验证范围。
 - 引用既有用例、知识库或历史验证结论时，证据范围只覆盖原文件明确声明的产品链路、任务类型、SQL 语法和操作步骤；不得把一个样例可识别、可运行或可通过的结论外推到不同链路或不同语法。若用户反馈实际结果不一致，先纠正此前扩大化表述，再给出新的最小复现实验。
 
+## Playwright 自动化硬闸
+
+- Playwright 自动化交付不是“脚本文件已生成”。必须同时具备：目标 `full.spec.ts` 执行通过、feature run 目录下存在 Allure 结果、平台中产生并可核验该用例核心流程的业务记录数据。
+- 涉及新增、导入、运行、发布、映射、检查等状态变化的用例，脚本必须实际执行状态变化并用唯一自动化前缀创建记录；handoff 必须写出记录名称或 ID、页面/API 证据、截图或 Allure 路径、执行命令、退出码和 pass/fail/skip 计数。
+- 未经用户明确要求，不得把只读 UI/API 合同脚本当作 Playwright 自动化完成结果。无法产生平台记录时，必须归类为 data/permission/environment/product/script blocker，写入 `unresolved_blockers` 或 `excluded_cases`，并给出下一步可执行修复路径。
+
 ## 命名约定
 
 - Feature 目录命名格式：`【v{version}】[【{lanhu-prd-id}】][【{customer}】]【{module}】{description}`。

@@ -35,6 +35,17 @@ const base = {
       stdout: "results/<r>/stdout.log",
     },
   },
+  platform_records: [
+    {
+      case_id: "P0-1",
+      record_type: "standard-definition",
+      record_name: "qa_auto_standard_20260702",
+      record_id: "123",
+      status: "已上线",
+      route: "/dataAssets/#/dataStandard",
+      evidence_path: "runs/20260702-1108-dsstd003/allure-results/record.png",
+    },
+  ],
   quality_gates: [{ name: "no_weak_assertions", status: "passed" }],
   unresolved_blockers: [],
   next_actions: [],
@@ -82,6 +93,38 @@ describe("PlaywrightAutomationHandoff@2", () => {
         ],
       }),
     ).toBe(true);
+  });
+
+  it("accepts optional platform record evidence", () => {
+    expect(
+      validate({
+        ...base,
+        platform_records: [
+          {
+            case_id: "P0-1",
+            record_type: "standard-definition",
+            record_name: "qa_auto_standard_20260702",
+            record_id: "123",
+            status: "已上线",
+            route: "/dataAssets/#/dataStandard",
+            evidence_path: "runs/20260702-1108-dsstd003/allure-results/record.png",
+          },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it("requires platform_records", () => {
+    const { platform_records: _records, ...missing } = base;
+    expect(validate(missing)).toBe(false);
+  });
+
+  it("rejects passed handoff with empty platform_records", () => {
+    expect(validate({ ...base, platform_records: [] })).toBe(false);
+  });
+
+  it("allows empty platform_records for failed handoff", () => {
+    expect(validate({ ...base, status: "failed", platform_records: [] })).toBe(true);
   });
 
   it("requires excluded_cases", () => {

@@ -32,6 +32,8 @@ kata handoff render <featureId> --run "$RUN_ID" --project <project>
 - `--list` 无输出/报错 → 检查 import 路径与文件命名；缺预期 case → runner import 待补；全部列出 → 进运行。
 - 运行退出码：0=全过，非 0=有失败。记 passed/failed/skipped 数与失败错误摘要。
 - `KATA_ALLURE_RESULTS_DIR` 把 allure 落点统一到 `$RUN_PATH/allure-results`，和 `playwright/` 同在本次 run 目录，`kata results publish` 才能一并发布。
+- 运行后必须检查 `$RUN_PATH/allure-results` 至少包含本次目标 runner 的 result JSON；没有 Allure 结果时，本次 self-run 不得标记 passed。
+- 运行后必须核对平台记录数据：记录每个状态变化用例产生的记录名称或 ID、页面路由/API、状态、截图或响应证据路径。没有平台业务记录且用户未明确要求只读脚本时，本次 self-run 不得标记 passed。
 - handoff.json 的 `run_command` 记本次实际命令；`acceptance_command` 记带 `full.spec.ts` + `--headed` 的有头验收命令。
 
 ## few-shot：中文展示名目录

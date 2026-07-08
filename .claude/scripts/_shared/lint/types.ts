@@ -10,7 +10,8 @@ export type LintRuleId =
   | "L9"
   | "L10"
   | "L11"
-  | "L12";
+  | "L12"
+  | "L13";
 
 export interface LintViolation {
   rule: LintRuleId;

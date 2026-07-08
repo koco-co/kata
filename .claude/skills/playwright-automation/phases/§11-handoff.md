@@ -11,6 +11,8 @@
 
 最终 handoff 消息必须包含来自 `self-run.md` 的人工验收命令，即便本次运行结果为 passed、blocked、failed 或 partial。不得以 `handoff.md` 或 `handoff.json` 存在为由，替代在对话中打印该命令。
 
+最终 handoff 消息还必须包含平台记录数据证据：记录名称或 ID、状态、页面/API 证据路径、截图或 Allure 路径。若本轮是用户明确要求的只读 UI/API 合同脚本，必须把“只读范围”列为已验证范围；否则没有平台记录数据不得宣告 passed。
+
 该命令必须是 headful 的 full runner 命令，而非 smoke 或单条用例命令：
 
 ```bash

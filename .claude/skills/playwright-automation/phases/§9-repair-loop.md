@@ -77,7 +77,7 @@ remaining_failures:
 
 ## 调试产物隔离（强制）
 
-- repair-loop 期间创建的调试 spec 必须放在 `features/<version>/<featureId>/.debug/probe-<timestamp>.spec.ts` 下。
+- repair-loop 期间创建的调试 spec 必须放在 `features/<version>/<featureId>/automation/tests/.debug/probe-<timestamp>.spec.ts` 下。
 - 绝不把 `t01-debug.spec.ts`、`*-repro.spec.ts` 或 `diag_*.ts` 放进 `automation/tests/cases/`。
 - 运行期调试捕获（HAR / 截图 / trace）须用 `.debug/` 内的 `testInfo.outputPath()`。
 - 修复成功后自动清理 `.debug/` 目录；修复失败就保留 `.debug/` 内容，供下一次 handoff 做阻塞分流。
