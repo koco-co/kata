@@ -1,7 +1,9 @@
 # kata 现代化改造总设计
 
-**日期**：2026-07-10  
-**状态**：设计已确认，等待实施计划  
+**日期**：2026-07-10
+
+**状态**：方向已确认，等待用户复核书面设计
+
 **基准**：[Superpowers v6.1.1](https://github.com/obra/superpowers/tree/v6.1.1)
 
 ## 目标
@@ -38,16 +40,22 @@
 skills/                         # 唯一可编辑的 Skill 正文
   using-kata/
   case-draft/
+  case-edit/
+  case-hotfix/
+  defect-analyze/
+  infra-diagnose/
+  knowledge-curate/
   playwright-automation/
-  ...
+  sql-merge-validate/
+  workspace-manage/
 
 .codex-plugin/                  # Codex 插件说明
 .claude-plugin/                 # Claude 插件说明
-.reasonix/                      # Reasonix 薄适配
-.hermes/                        # Hermes 薄适配
+adapters/                       # 各平台薄适配的源文件
 
-packages/                       # 平台无关的 CLI、数据结构与公共代码
-scripts/package/                # 各平台打包脚本
+packages/contracts/             # JSON Schema 与生成的类型
+packages/cli/                   # 唯一公开命令 kata
+scripts/package/                # CLI 与各平台安装包的打包脚本
 tests/runtime/                  # 安装、发现与实际调用检查
 docs/superpowers/specs/         # 设计文档
 ```
@@ -77,12 +85,12 @@ docs/superpowers/specs/         # 设计文档
 实际实施按依赖推进：
 
 1. 保存当前行为样例，建立改造前基线；
-2. 统一 CLI、schema、metadata、用例文件名和运行目录；
-3. 建立根级 `skills/` 和各平台插件；
+2. 冻结公开命令清单、schema、metadata、用例文件名和运行目录；
+3. 建立公共 CLI 包、根级 `skills/` 和各平台安装包；
 4. 重写全部 Skill，重点完成两个核心 Skill；
 5. 格式化并校正文档、用例和项目知识；
-6. 迁移并删除旧命令、旧目录和重复文件；
-7. 在干净环境安装 Codex 插件，重新执行完整流程。
+6. 运行一次性迁移，删除迁移工具、旧命令、旧目录和重复文件；
+7. 从打包产物安装 CLI 与 Codex 插件，重新执行完整流程。
 
 CLI 先于 Skill 内容重写，是因为 Skill 会大量引用命令、字段和文件路径。先把这些接口稳定下来，可以避免同一批提示词反复改动。
 
@@ -103,7 +111,7 @@ brainstorming
 
 ## 迁移方式
 
-最终不保留兼容层，但迁移过程需要可检查、可恢复：
+最终不保留兼容层。迁移脚本只在本次改造中使用，不注册为公开命令；迁移完成并通过检查后，从最终工作树删除，由 Git 保留历史。迁移过程需要可检查、可恢复：
 
 1. 在隔离 worktree 中建立新结构；
 2. 用 `--dry-run` 预览文件名、metadata 和历史内容迁移；
@@ -129,11 +137,14 @@ brainstorming
 
 ### 真实运行完成
 
-- Codex 从干净环境安装插件，并真实触发全部业务 Skill；
+- Codex 从干净环境安装公共 CLI 与插件，并真实触发全部业务 Skill；
+- 九个业务 Skill 的隔离 fixture 全部执行通过，不能用“缺少依赖”代替通过；
 - `case-draft` 从需求材料生成同名 Markdown 和 XMind；
 - `playwright-automation` 执行目标 `full.spec.ts`，生成 Allure 结果，并在平台留下相应业务记录；
 - CLI 生命周期从功能目录建立一直运行到交付文件生成；
 - 最终报告列出命令、退出码、通过数、失败数、跳过数和文件路径。
+
+依赖、权限或环境缺失时，应列入 `unresolved_blockers`，并明确剩余步骤。这类结果属于未完成，不能用于宣称 Codex 端到端适配完成。
 
 ### 中文自然准确
 

@@ -1,7 +1,8 @@
 # kata 格式与内容治理设计
 
-**日期**：2026-07-10  
-**状态**：设计已确认
+**日期**：2026-07-10
+
+**状态**：方向已确认，等待用户复核书面设计
 
 ## 目标
 
@@ -21,23 +22,29 @@
 - Skill、prompt、reference、规则、README 和生成模板；
 - `workspace/**` 中的 PRD、用例、metadata、项目知识、自动化脚本和文本报告。
 
-未跟踪文件只进入清单，不自动格式化、改写或删除。实施者需要用户明确同意后，才能把它们加入范围。
+未跟踪文件只进入清单，本次改造不格式化、不改写，也不删除。若以后需要处理，应另开任务并重新确认范围。
+
+`kata workspace check` 以 `git ls-files -z` 生成本次文件清单，并把每个已跟踪路径归入 `formatted`、`validated_binary`、`excluded_with_reason` 或 `needs_review`。四类数量之和必须等于已跟踪文件总数；未跟踪文件另列，不参与分母。最终 JSON 报告保存工具版本、文件数量、各类路径和失败原因。
 
 ## 工具
 
-工具版本固定在项目依赖中，不能依赖 `bunx` 临时下载不同版本。
+工具版本固定在项目锁文件中，不能依赖 `bunx`、`uvx` 等命令临时下载不同版本。JavaScript 工具使用精确版本和 Bun lockfile；Ruff 使用 `pyproject.toml` 与 `uv.lock`；shfmt、ShellCheck 的版本和下载摘要写入 `tools/toolchain.lock.json`，安装脚本核对版本与 SHA-256。
 
 | 文件 | 工具 | 作用 |
 | --- | --- | --- |
-| TypeScript、JavaScript、JSON | Biome | 格式、导入和静态检查 |
-| Markdown、YAML、CSS、HTML、Handlebars | Prettier | 稳定排版 |
-| Markdown | Markdownlint | 标题、列表、链接、代码块等结构 |
+| TypeScript、JavaScript、JSON、JSONC | Biome | 格式、导入和静态检查 |
+| Markdown、MDX、YAML、CSS、SCSS、HTML、Handlebars | Prettier | 稳定排版 |
+| Markdown、MDX | markdownlint-cli2 | 标题、列表、链接、代码块等结构 |
 | Python | Ruff | 格式和静态检查 |
 | Shell | shfmt、ShellCheck | 排版和常见错误 |
-| XML、JMX | XML 解析器与格式器 | 解析、编码和缩进 |
-| XMind、PDF、图片、ZIP | 对应解析工具 | 确认文件完整、可以打开 |
+| XML | fast-xml-parser、`@prettier/plugin-xml` | 解析、编码和缩进 |
+| JMX | fast-xml-parser | 解析并检查结构，默认不重排 |
+| XMind | JSZip + XMind 结构检查 | 解包并检查 `manifest.json` 以及 `content.json` 或 `content.xml` |
+| PDF | pdfjs-dist | 读取页数、页面对象和文档尾部 |
+| PNG、JPEG、WebP、GIF | Sharp | 解码并读取尺寸与帧信息 |
+| ZIP | JSZip（启用 CRC32 检查） | 解包、路径安全和内容完整性 |
 
-二进制文件不做文本格式化。检查失败时报告文件和原因，不尝试猜测修复。
+二进制文件不做文本格式化。检查失败时报告文件和原因，不尝试猜测修复。JMX 只有在全量 fixture 的解析结果、元素顺序、属性值、文本与 CDATA 往返一致后，才允许启用格式化；在此之前只做解析与结构检查。
 
 ## 基础格式
 
@@ -48,10 +55,12 @@
 - 不使用 BOM；
 - 文件末尾保留一个换行；
 - 删除行尾空格；
-- Unicode 使用 NFC；
+- 新建或重命名的路径以及项目编写的自然语言使用 NFC；
 - Markdown 标题、列表、表格和代码块保持一致；
 - YAML、JSON 与代码使用项目约定的稳定缩进；
 - 格式化命令连续执行两次时，第二次不再产生变化。
+
+代码字符串、fixture、外部原文和日志不能由通用 Unicode 替换器改写。源码只交给对应语言工具处理；Unicode 检查发现差异时先报告，再由了解语义的人决定。
 
 新增 `.editorconfig` 保存编辑器能够直接遵守的基础规则。具体工具配置仍由各工具自己的配置文件负责。
 
@@ -61,7 +70,7 @@
 
 源码、Skill、提示词、配置和普通文档直接纳入格式化。
 
-### Workspace 文件
+### `workspace/**` 文件
 
 `workspace/**` 中可编辑的文本同样纳入。格式工具只能调整排版，不能顺手改变业务含义。
 
@@ -105,7 +114,7 @@ Claude、Codex 或其他平台的 hook 可以提前提醒，但不承担最终�
 - 一段只表达一件事；
 - 主语、动作、输入和结果尽量完整；
 - 例外紧跟在对应规则之后，不放到远处补充；
-- 完成、未完成、部分完成使用明确含义。
+- 明确区分“完成”“部分完成”和“未完成”，并分别列出已经完成的内容与剩余事项。
 
 ### 自然
 
@@ -137,9 +146,9 @@ schema_version
 - 标题层级、列表和表格错误；
 - 失效链接和错误相对路径。
 
-自动程序只报告问题，不直接替换可能改变含义的词语。独立审阅者负责判断内容是否准确、清楚、自然。
+禁用表达与标点规则写入 `config/language-rules.yaml`。句子超过 120 个汉字时只提醒复核，不直接判错；代码块、表格、URL 与原始引用不计入。自动程序只报告问题，不直接替换可能改变含义的词语。独立审阅者负责判断内容是否准确、清楚、自然。
 
-核心 Skill、公共 prompt 和项目入口文档需要逐份复核。普通历史文件可以分批审阅，但每批都要保留改动清单和抽样结果。
+九个业务 Skill、`using-kata`、全部公共 prompt、`AGENTS.md`、`CLAUDE.md` 和平台入口文档需要逐份复核。历史文件全部参加自动检查；人工逐份复核所有被修改或被规则标记的文件。未被修改且没有被标记的历史文件不宣称完成过语义复核。
 
 ## 历史内容修正
 
@@ -177,7 +186,7 @@ schema_version
 1. 工具配置与公共命令；
 2. 纯格式调整；
 3. Skill 与提示词表达调整；
-4. Workspace 内容修正；
+4. `workspace/**` 内容修正；
 5. 生成文件重新生成；
 6. 待确认项记录。
 
@@ -190,15 +199,16 @@ schema_version
 - 格式化连续执行两次，第二次没有 diff；
 - fixture 清单中的每个排除项都有原因；
 - 生成器重新生成后没有额外格式变化；
-- 核心 Skill 的中文复核全部完成；
-- Workspace 内容修改都有记录；
+- 九个业务 Skill、`using-kata`、公共 prompt 和平台入口文档的中文复核全部完成；
+- `workspace/**` 内容修改都有记录；
 - 未跟踪文件没有被修改；
+- 文件清单四类数量之和等于 Git 已跟踪文件总数；
 - 最终 `git diff --check` 通过。
 
 ## 完成标准
 
 - 不再依靠 Claude 专属 hook 才能保持格式；
-- Markdown、YAML、Python、Shell、XML 和 Workspace 进入正式检查；
+- Markdown、YAML、Python、Shell、XML 和 `workspace/**` 进入正式检查；
 - 项目没有宽泛到失去意义的格式排除目录；
 - 格式化稳定、可重复；
 - 生硬、重复和含糊的提示词已经重写；
