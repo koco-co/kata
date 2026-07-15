@@ -9,7 +9,7 @@ urls:
   portal_base_url: "http://172.16.122.52/portal"
 
 auth:
-  session_path: "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json"
+  session_path: "dt_expire_cycle=0; track_rdos=true; dt_user_id=1; dt_username=admin%40dtstack.com; dt_can_redirect=false; sysLoginType=%7B%22sysId%22%3A1%2C%22sysName%22%3A%22UIC%E8%B4%A6%E5%8F%B7%E7%99%BB%E5%BD%95%22%2C%22sysType%22%3A0%7D; dt_cookie_time=2026-07-18+09%3A59%3A31; DT_SESSION_ID=bf03ebb0-d0ca-420c-893c-475f289b15dd; dt_tenant_id=10450; dt_tenant_name=assets_test; dt_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZW5hbnRfaWQiOiIxMDQ1MCIsInVzZXJfaWQiOiIxIiwidXNlcl9uYW1lIjoiYWRtaW5AZHRzdGFjay5jb20iLCJleHAiOjE3ODQ1OTkxNzEsImlhdCI6MTc4NDA4MDc3Mn0.6ZGdorn8VPryW0ZERsvKlPv770-LUt4j6ghFs2aB3jQ; dt_is_tenant_admin=true; dt_is_tenant_creator=true; dt_expire_cycle=0; dt_product_code=RDOS"
   tenant_id: 10449
   tenant_name: "hadoop2"
   derive_from_session: true
