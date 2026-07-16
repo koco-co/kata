@@ -23,7 +23,7 @@ const CSV_FILENAME_LOCATOR_RE =
   /(?<![:A-Za-z0-9._-])[A-Za-z0-9._-]+\.csv(?:(?:#|:)\s*(?:L|line|row)\s*#?\d+|(?:[ \t]+|[ \t]*[,;][ \t]*)(?:row|line)\s*#?\d+)\b/gi;
 const CASE_ARCHIVE_LOCATOR_RE = /\bcase\.archive@1:L\d+(?:-L\d+)?\b/g;
 const CANONICAL_SOURCE_REF_RE =
-  /\b(?:prd\.file|lanhu\.fixture|knowledge\.entry|repo\.line|case\.archive|workspace\.config|command\.output):[^\s#]+#sha256:[a-fA-F0-9]{64}\b/g;
+  /\b(?:prd\.file|lanhu\.fixture|design\.screenshot|user\.confirmation|knowledge\.entry|repo\.line|case\.archive|workspace\.config|command\.output):[^\s#]+#sha256:[a-fA-F0-9]{64}\b/g;
 const PROVENANCE_ROW_LOCATOR_RE =
   /\b(?:evidence|source|provenance|locator|reference|refs?)\b.{0,80}\b(?:CSV\s+)?(?:row|line)\s*#?\d+\b|\b(?:from\s+)?(?:CSV\s+)?(?:row|line)\s*#?\d+\b.{0,80}\b(?:evidence|source|provenance|locator|reference|refs?)\b/gi;
 const XMIND_CHILD_ARRAY_KEYS = ["attached", "detached", "floating"];
@@ -90,7 +90,7 @@ function matchesInLine(line: string): LeakMatch[] {
 function scanText(file: string, text: string, violations: CaseLintViolation[]): void {
   const lines = text.split("\n");
   for (let index = 0; index < lines.length; index++) {
-    for (const match of matchesInLine(lines[index]!)) {
+    for (const match of matchesInLine(lines[index] ?? "")) {
       violations.push({
         rule: RULE_ID,
         file,

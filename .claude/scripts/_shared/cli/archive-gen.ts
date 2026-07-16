@@ -151,6 +151,16 @@ function stripPriorityPrefix(title: string): string {
 
 function buildBodyFromModules(modules: Module[]): string {
   const lines: string[] = [];
+  let caseIndex = 0;
+
+  const appendCase = (tc: TestCase) => {
+    caseIndex += 1;
+    lines.push(`<!-- case_id: ${tc.case_id ?? `C${caseIndex}`} -->`);
+    lines.push(`##### 【${tc.priority}】${stripPriorityPrefix(tc.title)}`);
+    lines.push("");
+    lines.push(buildCaseBody(tc));
+    lines.push("");
+  };
 
   for (const mod of modules) {
     lines.push(`## ${mod.name}`);
@@ -167,20 +177,14 @@ function buildBodyFromModules(modules: Module[]): string {
           lines.push("");
 
           for (const tc of sg.test_cases) {
-            lines.push(`##### 【${tc.priority}】${stripPriorityPrefix(tc.title)}`);
-            lines.push("");
-            lines.push(buildCaseBody(tc));
-            lines.push("");
+            appendCase(tc);
           }
         }
       }
 
       // Direct page test_cases (no sub-group)
       for (const tc of page.test_cases ?? []) {
-        lines.push(`##### 【${tc.priority}】${stripPriorityPrefix(tc.title)}`);
-        lines.push("");
-        lines.push(buildCaseBody(tc));
-        lines.push("");
+        appendCase(tc);
       }
     }
   }

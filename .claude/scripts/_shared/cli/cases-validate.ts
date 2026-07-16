@@ -26,7 +26,7 @@ export interface CasesValidateResult {
 }
 
 const SOURCE_REF_PATTERN =
-  /\b(?:prd\.file|command\.output|knowledge\.entry|repo\.line|case\.archive|workspace\.config|lanhu\.fixture):[A-Za-z0-9][A-Za-z0-9._:-]*#sha256:[a-f0-9]+\b/g;
+  /\b(?:prd\.file|command\.output|knowledge\.entry|repo\.line|case\.archive|workspace\.config|lanhu\.fixture|design\.screenshot|user\.confirmation):[A-Za-z0-9][A-Za-z0-9._:-]*#sha256:[a-f0-9]+\b/g;
 
 const SOURCE_REF_FILES = [
   "manifest.json",

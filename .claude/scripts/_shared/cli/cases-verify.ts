@@ -1,10 +1,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { extractCaseRecords } from "@shared/lib/cases/case-extract.ts";
+import { extractCaseRecords, readCaseEvidenceMap } from "@shared/lib/cases/case-extract.ts";
 import {
   type CaseRecord,
   type CoverageRow,
   type VerifyIssue,
+  verifyCaseEvidenceMap,
   verifyCoverageHoles,
   verifyL1Structure,
   verifyL2Inputs,
@@ -75,16 +76,18 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
 
   const snapshotPath = join(dir, ".process", "source-snapshot.json");
   let confirmedRepos: ConfirmedSourceRepo[] = [];
+  let snapshotRequiredKinds: string[] = [];
   if (existsSync(snapshotPath)) {
-    const snap = JSON.parse(readFileSync(snapshotPath, "utf-8"));
-    confirmedRepos = Array.isArray(snap.confirmed_source_repos) ? snap.confirmed_source_repos : [];
-    if (status === "completed" && confirmedRepos.length === 0) {
-      issues.push({
-        layer: "L2",
-        rule: "source_repos_unconfirmed",
-        message: "source-snapshot.json 未确认任何源码 triple",
-        fix: "在 source-confirm 一轮确认前后端 group/project/branch",
-      });
+    try {
+      const snap = JSON.parse(readFileSync(snapshotPath, "utf-8"));
+      confirmedRepos = Array.isArray(snap.confirmed_source_repos)
+        ? snap.confirmed_source_repos
+        : [];
+      snapshotRequiredKinds = Array.isArray(snap.required_source_kinds)
+        ? snap.required_source_kinds
+        : [];
+    } catch {
+      // parse/schema failure is already reported by verifyStructuredSchemas
     }
   } else if (status === "completed") {
     issues.push({
@@ -92,6 +95,20 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
       rule: "source-snapshot_missing",
       message: "缺少 source-snapshot.json（输入消费证明依据）",
       fix: "由 source-confirm 步骤生成 source-snapshot.json",
+    });
+  }
+
+  const requiredKinds = ctx.requiredKinds.length > 0 ? ctx.requiredKinds : snapshotRequiredKinds;
+  if (
+    status === "completed" &&
+    requiredKinds.includes("repo.line") &&
+    confirmedRepos.length === 0
+  ) {
+    issues.push({
+      layer: "L2",
+      rule: "source_repos_unconfirmed",
+      message: "source policy 要求 repo.line，但 source-snapshot.json 未确认源码 triple",
+      fix: "在 source-intake 确认前后端 group/project/branch，或修正 required_source_kinds",
     });
   }
 
@@ -104,7 +121,7 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
   issues.push(
     ...verifyL2Inputs({
       manifest: manifestLike,
-      requiredKinds: ctx.requiredKinds,
+      requiredKinds,
       resolve: (ref) =>
         resolveSourceRefTarget(ref, {
           workspaceRoot: ctx.workspaceRoot,
@@ -120,14 +137,14 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
     }>) ?? []
   ).map((a) => a.id);
   const cases: CaseRecord[] = extractCaseRecords(dir);
-  issues.push(...verifyL3Quality({ cases, atomIds }));
 
   const coveragePath = join(dir, ".process", "coverage-matrix.json");
-  if (existsSync(coveragePath)) {
+  const hasCoverageMatrix = existsSync(coveragePath);
+  let coverageRows: CoverageRow[] = [];
+  if (hasCoverageMatrix) {
     try {
       const parsed = JSON.parse(readFileSync(coveragePath, "utf-8"));
-      const coverageRows: CoverageRow[] = Array.isArray(parsed) ? parsed : [];
-      issues.push(...verifyCoverageHoles({ coverageRows, atomIds }));
+      coverageRows = Array.isArray(parsed) ? parsed : [];
     } catch {
       // malformed coverage-matrix.json already reported by verifyStructuredSchemas (L1)
     }
@@ -140,6 +157,17 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
     });
   }
 
+  issues.push(
+    ...verifyCaseEvidenceMap({
+      cases,
+      evidenceRows: readCaseEvidenceMap(dir),
+      atomIds,
+      coverageRows,
+    }),
+  );
+  issues.push(...verifyL3Quality({ cases, atomIds }));
+  if (hasCoverageMatrix) issues.push(...verifyCoverageHoles({ coverageRows, atomIds }));
+
   return { ok: issues.length === 0, issues };
 }
 
@@ -151,8 +179,8 @@ export function registerCasesVerify(cases: Command): void {
     .requiredOption("--feature <id>", "需求功能 ID")
     .option(
       "--required-kinds <list>",
-      "必须存在的 source_ref 类型，以逗号分隔",
-      "lanhu.fixture,knowledge.entry,repo.line",
+      "覆盖 source-snapshot required_source_kinds；留空时按快照动态校验",
+      "",
     )
     .option("--exit-code", "发现问题时返回非零退出码", false)
     .action(
@@ -167,7 +195,10 @@ export function registerCasesVerify(cases: Command): void {
           project: opts.project,
           featureId: opts.feature,
           workspaceRoot,
-          requiredKinds: opts.requiredKinds.split(",").map((s) => s.trim()),
+          requiredKinds: opts.requiredKinds
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
         });
         for (const i of r.issues)
           console.log(`[${i.layer}] ${i.rule}: ${i.message}${i.fix ? `\n  fix: ${i.fix}` : ""}`);

@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { getEnv } from "@shared/lib/env.ts";
 import { readGitSourceFile, resolveConfiguredSourceRepo } from "@shared/lib/git-source.ts";
+import { parseCanonicalSourceRef } from "@shared/lib/source-ref/resolvers.ts";
 
 export type SourceRefKind =
   | "prd.file"
@@ -10,7 +11,9 @@ export type SourceRefKind =
   | "repo.line"
   | "case.archive"
   | "workspace.config"
-  | "lanhu.fixture";
+  | "lanhu.fixture"
+  | "design.screenshot"
+  | "user.confirmation";
 
 export interface ResolveCtx {
   workspaceRoot: string;
@@ -36,13 +39,8 @@ export interface ConfirmedSourceRepo {
   role?: string;
 }
 
-export function sourceRefKind(ref: string): SourceRefKind {
-  return ref.slice(0, ref.indexOf(":")) as SourceRefKind;
-}
-
-/** id between the first ":" and the "#sha256:" suffix. */
-function refId(ref: string): string {
-  return ref.slice(ref.indexOf(":") + 1, ref.indexOf("#sha256:"));
+export function sourceRefKind(ref: string): SourceRefKind | undefined {
+  return parseCanonicalSourceRef(ref)?.kind;
 }
 
 function safeRelativePath(path: string): boolean {
@@ -87,8 +85,9 @@ function resolveWorkspaceRepo(
 }
 
 export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTarget {
-  const kind = sourceRefKind(ref);
-  const id = refId(ref);
+  const parsed = parseCanonicalSourceRef(ref);
+  if (!parsed) return { found: false };
+  const { kind, id } = parsed;
   const read = (p: string): ResolvedTarget =>
     existsSync(p)
       ? { found: true, content: readFileSync(p, "utf-8"), path: p }
@@ -164,7 +163,22 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
       const snapPath = join(ctx.featureDir, ".process", "source-snapshot.json");
       if (!existsSync(snapPath)) return { found: false, path: snapPath };
       const snap = JSON.parse(readFileSync(snapPath, "utf-8"));
-      return snap.lanhu ? { found: true, path: snapPath } : { found: false, path: snapPath };
+      const found =
+        snap.lanhu ||
+        snap.sources?.some((source: { source_ref?: string }) => source.source_ref === ref);
+      return found ? { found: true, path: snapPath } : { found: false, path: snapPath };
+    }
+    case "design.screenshot":
+      return ctx.featureDir ? read(join(ctx.featureDir, "inputs", id)) : { found: false };
+    case "user.confirmation": {
+      if (!ctx.featureDir) return { found: false };
+      const snapPath = join(ctx.featureDir, ".process", "source-snapshot.json");
+      if (!existsSync(snapPath)) return { found: false, path: snapPath };
+      const snap = JSON.parse(readFileSync(snapPath, "utf-8"));
+      const found = snap.sources?.some(
+        (source: { source_ref?: string }) => source.source_ref === ref,
+      );
+      return found ? { found: true, path: snapPath } : { found: false, path: snapPath };
     }
     default:
       return { found: false };

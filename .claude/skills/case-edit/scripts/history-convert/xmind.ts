@@ -397,7 +397,7 @@ export function l1ToMarkdown(l1: ParsedL1, prdVersion?: string): string {
     origin: "xmind",
     case_count: l1.totalCases,
   };
-  if (caseId) fm.case_id = Number(caseId);
+  if (caseId) fm.prd_id = Number(caseId);
 
   const bodyParts: string[] = [];
   for (const mod of l1.modules) appendModuleBody(bodyParts, mod, 2, false);

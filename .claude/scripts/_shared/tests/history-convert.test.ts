@@ -836,9 +836,9 @@ describe("history-convert --no-split XMind", () => {
     const secondContent = readFileSync(outputs[1], "utf8");
 
     expect(firstContent).toMatch(/suite_name: "需求A（#1001）"/);
-    expect(firstContent).toMatch(/case_id: 1001/);
+    expect(firstContent).toMatch(/prd_id: 1001/);
     expect(secondContent).toMatch(/suite_name: "需求B（#1002）"/);
-    expect(secondContent).toMatch(/case_id: 1002/);
+    expect(secondContent).toMatch(/prd_id: 1002/);
   });
 
   it("merges duplicate L1 titles into one requirement file when splitting", async () => {
@@ -1016,6 +1016,6 @@ describe("history-convert --no-split XMind", () => {
 
     const contentText = readFileSync(out.files[0].output, "utf8");
     expect(contentText).toMatch(/suite_name: "需求A（#3001）【需求变更】"/);
-    expect(contentText).toMatch(/case_id: 3001/);
+    expect(contentText).toMatch(/prd_id: 3001/);
   });
 });

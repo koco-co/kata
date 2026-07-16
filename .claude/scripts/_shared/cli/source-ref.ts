@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * source-ref.ts — CLI 入口，封装 lib/source-ref.ts 的 parse + resolve。
+ * source-ref.ts — CLI 入口，校验并解析 canonical hash-backed SourceRef。
  *
  * Usage:
  *   kata source-ref resolve --ref <ref> [--prd <p>] [--project <n>] [--workspace-dir <d>] [--yyyymm <ym>] [--prd-slug <slug>]
@@ -12,7 +12,6 @@
  */
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { createCli } from "@shared/lib/cli-runner.ts";
 import { getEnv } from "@shared/lib/env.ts";
 import { type ResolveContext, resolveSourceRef } from "@shared/lib/source-ref.ts";
@@ -20,29 +19,16 @@ import { type ResolveContext, resolveSourceRef } from "@shared/lib/source-ref.ts
 function buildCtx(opts: Record<string, unknown>): ResolveContext {
   const projectName = (opts.project as string | undefined) ?? undefined;
   const workspaceDir = (opts.workspaceDir as string | undefined) ?? getEnv("KATA_WORKSPACE_ROOT");
-  const yyyymm = opts.yyyymm as string | undefined;
-  const prdSlug = opts.prdSlug as string | undefined;
-
-  const ctx: ResolveContext = {
-    prdPath: (opts.prd as string | undefined) ?? undefined,
+  return {
     projectName,
     workspaceDir,
+    featureDir: (opts.featureDir as string | undefined) ?? undefined,
   };
-  if (projectName && yyyymm && prdSlug && workspaceDir) {
-    ctx.enhancedDocPath = join(
-      workspaceDir,
-      projectName,
-      "features",
-      `${yyyymm}-${prdSlug}`,
-      "enhanced.md",
-    );
-  }
-  return ctx;
 }
 
 export const program = createCli({
   name: "source-ref",
-  description: "解析并定位 source_ref 锚点（prd / knowledge / repo / enhanced）",
+  description: "解析并定位 canonical hash-backed SourceRef",
   commands: [
     {
       name: "resolve",
@@ -53,18 +39,12 @@ export const program = createCli({
           description: "source_ref string",
           required: true,
         },
-        { flag: "--prd <path>", description: "prd file path (for prd scheme)" },
         { flag: "--project <name>", description: "project name" },
         {
           flag: "--workspace-dir <dir>",
           description: "workspace dir override",
         },
-        {
-          flag: "--yyyymm <ym>",
-          description:
-            "需求月份 YYYYMM（与 --prd-slug 配套，定位 features/{YYYYMM}-{slug}/enhanced.md）",
-        },
-        { flag: "--prd-slug <slug>", description: "PRD slug（同上）" },
+        { flag: "--feature-dir <path>", description: "feature 目录（解析 inputs 与快照）" },
       ],
       action: (opts) => {
         const o = opts as Record<string, unknown>;
@@ -82,18 +62,12 @@ export const program = createCli({
           description: "JSON file: [{ref: string, ...}]",
           required: true,
         },
-        { flag: "--prd <path>", description: "prd path" },
         { flag: "--project <name>", description: "project name" },
         {
           flag: "--workspace-dir <dir>",
           description: "workspace dir override",
         },
-        {
-          flag: "--yyyymm <ym>",
-          description:
-            "需求月份 YYYYMM（与 --prd-slug 配套，定位 features/{YYYYMM}-{slug}/enhanced.md）",
-        },
-        { flag: "--prd-slug <slug>", description: "PRD slug（同上）" },
+        { flag: "--feature-dir <path>", description: "feature 目录（解析 inputs 与快照）" },
       ],
       action: (opts) => {
         const o = opts as Record<string, unknown>;

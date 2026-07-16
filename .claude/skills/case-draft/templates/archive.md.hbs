@@ -26,6 +26,8 @@ origin: "{{fm.origin}}"
         {{this.name}}
 
         {{#each this.test_cases}}
+          {{#if this.case_id}}<!-- case_id: {{this.case_id}} -->
+          {{/if}}
           ##### 【{{this.priority}}】{{stripPriority this.title}}
 
           {{#if this.preconditions}}
@@ -50,6 +52,8 @@ origin: "{{fm.origin}}"
       {{/if}}
     {{/each}}
     {{#each this.test_cases}}
+      {{#if this.case_id}}<!-- case_id: {{this.case_id}} -->
+      {{/if}}
       ##### 【{{this.priority}}】{{stripPriority this.title}}
 
       {{#if this.preconditions}}

@@ -467,7 +467,7 @@ function csvArchiveFrontmatter(
     origin: "csv",
     case_count: group.rows.length,
   };
-  if (caseId) fm.case_id = Number(caseId);
+  if (caseId) fm.prd_id = Number(caseId);
   return fm;
 }
 

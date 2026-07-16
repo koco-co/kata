@@ -5,13 +5,13 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmin
 
 ## frontmatter 事实字段 → xmind 节点 → 来源（严禁编造）
 
-下表字段会渲染进 xmind **可见节点**，是 case-draft 最易被「当格式字段随手填」而出错的地方。每个字段都是需向用户/ZenTao 确认的**外部事实**，不是可自由编的格式占位——无证据时必须 `AskUserQuestion` 索要，严禁编造编号、自创需求名或拿默认值兜底。映射依据见 `.claude/scripts/_shared/cli/xmind-gen/archive.ts` 与 `render.ts`。
+下表字段会渲染进 xmind **可见节点**。需求名、需求 ID、迭代版本需由需求源或用户确认；产品线从 workspace 项目配置取得。映射依据见 `.claude/scripts/_shared/cli/xmind-gen/archive.ts` 与 `render.ts`。
 
 | frontmatter 字段 | 语义 | xmind 渲染目标 | 来源 / 能否自填 | 取不到时动作 |
 | --- | --- | --- | --- | --- |
 | `product_line` | 产品线名（固定，如 `数据资产`） | 根节点产品线段（模板 `{product_line}v{prd_version}迭代用例(#{iteration_id})`） | workspace 固定产品线名（dataAssets=数据资产）；缺省回退 CLI `--project` | 用项目产品线名 |
 | `suite_name` | 真实需求名 | 二级(L1)节点标题（自动去尾部 `(#数字)`） | ZenTao 需求名原文 / 用户；**禁自创、禁加客户前缀、禁改大小写与语序** | AskUserQuestion |
-| `case_id`（或 `prd_id`） | 真实 ZenTao 需求 id（数字） | 二级节点 label `(#N)` | ZenTao / 用户；**禁编号、禁顺手填序号** | AskUserQuestion |
+| `prd_id` | 真实 ZenTao 需求 id（数字） | 二级节点 label `(#N)` | ZenTao / 用户；**禁编号、禁顺手填序号** | AskUserQuestion |
 | `prd_version` | lanhu-prd 迭代版本（如 `7.0.0`，与 feature 目录版本一致） | 根节点版本段（模板 `{product_line}v{prd_version}迭代用例(#{iteration_id})`） | lanhu-prd 版本 / 用户；**禁拿开发分支版本（如 6.0_浙商证券）充数** | AskUserQuestion |
 | `root_name`（可选） | 根节点标题整体覆盖 | 给出即**整串**作根标题（不再套模板） | 仅用户显式要求覆盖时填 | 留空走默认模板 |
 | `iteration_id` | 迭代号（固定） | 根节点 `(#N)` 段 | 来自 `.claude/scripts/_shared/lib/rules.ts`，**模型不得改** | 用 rules 默认值 |
@@ -22,6 +22,7 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmin
 
 | Markdown 元素 | XMind topic 对应 |
 | --- | --- |
+| `<!-- case_id: C... -->` | 不渲染；仅用于 CaseEvidenceMap@1 稳定关联 |
 | `##### 【Pn】<标题>` | 用例 topic：title=`【Pn】<标题>` + `markers=[priority-N]` |
 | `> 前置条件` 后的 ```sql 块 | 用例 topic 的 `notes.plain.content`，裸内容（不带 ```sql 围栏） |
 | 表格的每一行「步骤」单元格 | 用例 topic 下的 step child topic：title=步骤文本（`<br>` 还原为换行） |

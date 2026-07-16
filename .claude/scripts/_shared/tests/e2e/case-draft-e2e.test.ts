@@ -17,9 +17,14 @@ printf '# terms\\n' > "$PWD/workspace/dataAssets/_shared/knowledge/terms.md"
 printf 'x\\n' > "$PWD/workspace/dataAssets/.kata/repos/dt-insight-studio/src/x.ts"
 printf 'PK' > "$feature/cases/cases.xmind"
 cat > "$feature/cases/archive.md" <<'MD'
-# Cases
-## Login [RA-1]
-- step: click / expected: ok
+## Auth
+### Login
+<!-- case_id: C1 -->
+##### 【P0】Login
+> 用例步骤
+| 编号 | 步骤 | 预期 |
+| --- | --- | --- |
+| 1 | click | ok |
 MD
 cat > "$feature/metadata.yaml" <<'YAML'
 schema: FeatureMetadata@2
@@ -87,6 +92,17 @@ cat > "$feature/.process/coverage-matrix.json" <<'JSON'
     "evidence_status": "covered",
     "manual_case_allowed": true,
     "automation_allowed": true
+  }
+]
+JSON
+cat > "$feature/.process/case-evidence-map.json" <<'JSON'
+[
+  {
+    "schema_ref": "CaseEvidenceMap@1",
+    "case_id": "C1",
+    "case_title": "【P0】Login",
+    "requirement_atom_ids": ["RA-1"],
+    "coverage_matrix_ids": ["CM-1"]
   }
 ]
 JSON

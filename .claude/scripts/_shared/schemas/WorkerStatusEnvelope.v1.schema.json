@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "WorkerStatusEnvelope@1",
+  "type": "object",
+  "required": ["schema", "status", "artifacts_written", "concerns", "needs_context", "blocked"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "type": "string", "const": "WorkerStatusEnvelope@1" },
+    "status": {
+      "type": "string",
+      "enum": ["DONE", "DONE_WITH_CONCERNS", "NEEDS_CONTEXT", "BLOCKED"]
+    },
+    "artifacts_written": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "concerns": { "type": "string" },
+    "needs_context": { "type": "string" },
+    "blocked": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "required": ["kind", "evidence_paths", "context"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "missing_evidence",
+                "ambiguous_requirement",
+                "history_only",
+                "missing_required_fact"
+              ]
+            },
+            "evidence_paths": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "context": {
+              "type": "object",
+              "required": ["stage", "reason"],
+              "additionalProperties": true,
+              "properties": {
+                "stage": { "type": "string", "minLength": 1 },
+                "reason": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "DONE_WITH_CONCERNS" } } },
+      "then": {
+        "properties": {
+          "concerns": { "type": "string", "minLength": 1 },
+          "blocked": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "NEEDS_CONTEXT" } } },
+      "then": {
+        "properties": {
+          "needs_context": { "type": "string", "minLength": 1 },
+          "blocked": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "BLOCKED" } } },
+      "then": { "properties": { "blocked": { "type": "object" } } },
+      "else": { "properties": { "blocked": { "type": "null" } } }
+    }
+  ]
+}

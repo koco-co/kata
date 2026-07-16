@@ -3,7 +3,7 @@ import type { KataIssue, KataResult } from "../result-types.ts";
 
 const SHA256_PATTERN = /#sha256:([a-f0-9]{64})$/;
 const CANONICAL_SOURCE_REF_PATTERN =
-  /^(?:(?:prd\.file|command\.output):[A-Za-z0-9][A-Za-z0-9._-]*|(?:knowledge\.entry|case\.archive|workspace\.config|lanhu\.fixture):[A-Za-z0-9][A-Za-z0-9._:-]*|repo\.line:(?!.*:\/\/)[A-Za-z0-9][A-Za-z0-9._:/@-]*)#sha256:[a-f0-9]{64}$/;
+  /^(?:(?:prd\.file|command\.output):[A-Za-z0-9][A-Za-z0-9._-]*|(?:knowledge\.entry|case\.archive|workspace\.config|lanhu\.fixture|design\.screenshot|user\.confirmation):[A-Za-z0-9][A-Za-z0-9._:-]*|repo\.line:(?!.*:\/\/)[A-Za-z0-9][A-Za-z0-9._:/@-]*)#sha256:[a-f0-9]{64}$/;
 const LEGACY_SOURCE_REF_ID_SUFFIX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const REPO_LINE_SOURCE_REF_ID_SUFFIX_PATTERN = /^(?!.*:\/\/)[A-Za-z0-9][A-Za-z0-9._:/@-]*$/;
@@ -29,6 +29,33 @@ function assertId(prefix: string, id: string, label: string, suffixPattern: RegE
 
 export function isCanonicalSourceRef(ref: string): boolean {
   return CANONICAL_SOURCE_REF_PATTERN.test(ref);
+}
+
+export interface ParsedCanonicalSourceRef {
+  kind:
+    | "prd.file"
+    | "command.output"
+    | "knowledge.entry"
+    | "repo.line"
+    | "case.archive"
+    | "workspace.config"
+    | "lanhu.fixture"
+    | "design.screenshot"
+    | "user.confirmation";
+  id: string;
+  sha256: string;
+}
+
+export function parseCanonicalSourceRef(ref: string): ParsedCanonicalSourceRef | null {
+  if (!isCanonicalSourceRef(ref)) return null;
+  const hashIndex = ref.lastIndexOf("#sha256:");
+  const idWithKind = ref.slice(0, hashIndex);
+  const separator = idWithKind.indexOf(":");
+  return {
+    kind: idWithKind.slice(0, separator) as ParsedCanonicalSourceRef["kind"],
+    id: idWithKind.slice(separator + 1),
+    sha256: ref.slice(hashIndex + "#sha256:".length),
+  };
 }
 
 export function snapshotFileRef(input: { id: string; content: string }): string {
@@ -63,6 +90,26 @@ export function snapshotWorkspaceConfigRef(input: { id: string; content: string 
 
 export function snapshotLanhuFixtureRef(input: { id: string; content: string }): string {
   assertId("lanhu.fixture", input.id, "lanhu fixture", GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN);
+  return snapshotRef(input);
+}
+
+export function snapshotDesignScreenshotRef(input: { id: string; content: string }): string {
+  assertId(
+    "design.screenshot",
+    input.id,
+    "design screenshot",
+    GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN,
+  );
+  return snapshotRef(input);
+}
+
+export function snapshotUserConfirmationRef(input: { id: string; content: string }): string {
+  assertId(
+    "user.confirmation",
+    input.id,
+    "user confirmation",
+    GA_CORE_SOURCE_REF_ID_SUFFIX_PATTERN,
+  );
   return snapshotRef(input);
 }
 

@@ -25,4 +25,9 @@ export const loadHandoffV2Validator = () =>
   loadSchema("PlaywrightAutomationHandoff.v2.schema.json");
 export const loadFeatureSourceSnapshotValidator = () =>
   loadSchema("FeatureSourceSnapshot.v1.schema.json");
+export const loadFeatureSourceSnapshotV2Validator = () =>
+  loadSchema("FeatureSourceSnapshot.v2.schema.json");
 export const loadCoverageMatrixValidator = () => loadSchema("CoverageMatrix.v1.schema.json");
+export const loadCaseEvidenceMapValidator = () => loadSchema("CaseEvidenceMap.v1.schema.json");
+export const loadWorkerStatusEnvelopeValidator = () =>
+  loadSchema("WorkerStatusEnvelope.v1.schema.json");

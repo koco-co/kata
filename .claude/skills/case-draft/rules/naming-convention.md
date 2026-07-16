@@ -7,7 +7,7 @@
 feature 目录位于版本层之下：`workspace/{project}/features/{version}/{feature}/`，
 `{version}` 为语义版本目录（如 `v6.4.10`，与 `_shared/_meta/versions.yaml` 枚举一致）。
 长期主流程/冒烟用例放 `features/_standing/`；已交付版本由 `kata features archive` 整体移入 `features/_archived/{version}/`。
-feature 内只允许 `cases/`（用例产物）、`automation/`（自动化）、`runs/`（运行结果）三区与 `metadata.yaml`、`prd.md`、`inputs/`。
+feature 内只允许 `cases/`（用例产物）、`.process/`（过程与证据产物）、`automation/`（自动化）、`runs/`（运行结果）四区与 `metadata.yaml`、`prd.md`、`inputs/`。
 
 ## 字段规则
 

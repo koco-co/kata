@@ -4,10 +4,13 @@ export interface TestStep {
 }
 
 export interface TestCase {
+  case_id?: string;
   title: string;
   priority: string;
   preconditions?: string;
   steps: TestStep[];
+  requirement_atom_ids?: string[];
+  coverage_matrix_ids?: string[];
 }
 
 export interface SubGroup {

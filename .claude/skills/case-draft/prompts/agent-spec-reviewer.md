@@ -10,7 +10,7 @@
 
 ## 机械检查交给命令（SourceRef 分层 / Manifest 字段 / 计数核对）
 
-SourceRef 是否泄漏进交付正文、`metadata.yaml` 的 FeatureManifest@2 / RequirementAtom@1 / CaseEvidenceMap@1 / CoverageMatrix@1 字段是否完整、枚举是否越界、`case_count` 与实际用例数是否一致——这些机械判定一律以 `kata cases lint`、`kata cases validate`、`kata cases verify` 的 exit-code 为准（交付门序列见 SKILL.md），reviewer 不再逐字符复核，命令报 blocking violation 即对应判 fail。这些命令绿后，reviewer 只补它们查不到的语义判断：
+SourceRef 是否泄漏进交付正文、metadata requirement atoms / CaseEvidenceMap@1 / CoverageMatrix@1 字段是否完整、枚举是否越界、`case_count` 与实际用例数是否一致——这些机械判定一律以 `kata cases lint`、`kata cases validate`、`kata cases verify` 的 exit-code 为准。Reviewer 不重复执行命令已覆盖的逐字符检查，只补语义判断：
 
 - `evidence_kind` 误标——把 `history_inferred` 当 `product_confirmed`，或缺 product-confirmed / lanhu-observed atom 时仅凭历史线索确认新行为，报 `kind: "history_misclassified"`。
 - `history_only` 误判——新增产品行为只挂历史证据、无产品/平台确认，同样按 `history_misclassified` 处理。
@@ -18,15 +18,15 @@ SourceRef 是否泄漏进交付正文、`metadata.yaml` 的 FeatureManifest@2 / 
 
 ## MD ↔ JSON caseId 核对
 
-用 `case_id`（而非人类可读标题）关联交付正文与 DraftCaseSet、CaseEvidenceMap@1。CoverageMatrix@1 只通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
+用 Archive 隐藏标记中的 `case_id` 关联 CaseEvidenceMap@1；`prd_id` 只表示需求 ID。CoverageMatrix@1 只通过 `coverage_matrix_ids` 与 `requirement_atom_ids` 做覆盖追溯。
 
-- `cases/archive.md`、`cases/archive.draft.md`、`cases/cases.xmind` 里展示的每条用例，必须能在 DraftCaseSet 或 CaseEvidenceMap@1 中找到同 `case_id` 的记录。
+- `cases/archive.md` / `archive.draft.md` 的每条 `#####` 用例必须有唯一 `<!-- case_id: ... -->`，并能在 `.process/case-evidence-map.json` 找到同 ID 记录；XMind 从同一 Archive 生成。
 - 每条展示的用例必须有非空 `requirement_atom_ids`；或者有非空 `coverage_matrix_ids`，且能解析到 CoverageMatrix@1 的行、该行的 `requirement_atom_ids` 非空。
 - 每个 `coverage_matrix_ids[]` 值必须能匹配某个 CoverageMatrix@1 行 `id`。
-- 来自 DraftCaseSet、CaseEvidenceMap@1 或已解析 CoverageMatrix@1 行的每个 `requirement_atom_ids[]` 值，必须能在 FeatureManifest@2 轻量 `requirement_atoms[]` 或完整 RequirementAtom@1 记录中找到对应 atom。
+- CaseEvidenceMap@1 或已解析 CoverageMatrix@1 行的每个 `requirement_atom_ids[]` 值，必须能在 metadata requirement atoms 中找到对应 atom。
 - `case_title` 与 `priority` 只作人类可读的一致性参考：可辅助发现错位，但不是唯一键，不得用来证明覆盖。
 
-出现下列情况报 `kind: "caseid_mismatch"`：展示用例的 `case_id` 缺失或重复、找不到对应的 DraftCaseSet/CaseEvidenceMap@1 记录、`coverage_matrix_ids` 解析不到、追溯到的 `requirement_atom_ids` 为空，或 atom id 不存在。
+出现下列情况报 `kind: "caseid_mismatch"`：用例 `case_id` 缺失或重复、找不到对应 CaseEvidenceMap@1 记录、`coverage_matrix_ids` 解析不到、追溯到的 `requirement_atom_ids` 为空，或 atom id 不存在。
 
 ## Blocking pending
 
@@ -54,7 +54,7 @@ SourceRef 是否泄漏进交付正文、`metadata.yaml` 的 FeatureManifest@2 / 
 
 ## 外部事实字段语义核对
 
-`case_count` 与实际用例数的计数一致性由命令门兜底（见上）。这里只补命令查不到的语义判断：`suite_name`、`case_id`/`prd_id`、`prd_version` 等渲染进 xmind 可见节点的外部事实字段（映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`），若已写入 `cases/archive.md` / `cases/cases.xmind`，却在 `metadata.yaml` 的 `source_refs`、requirement atoms 或用户确认记录中找不到依据（疑似编造、自创需求名、拿迭代号或目录版本充 `prd_version`、用 basename 充 `suite_name`）→ 报 `kind: "unconfirmed_external_fact"`。
+`case_count` 与实际用例数由命令门兜底。这里只补命令查不到的语义判断：`suite_name`、`prd_id`、`prd_version` 等外部事实若无 SourceRef 或用户确认依据 → 报 `kind: "unconfirmed_external_fact"`。`case_id` 是内部用例主键，不按外部事实审查。
 
 ## 输出格式
 
