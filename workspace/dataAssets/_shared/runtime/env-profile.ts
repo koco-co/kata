@@ -3,6 +3,7 @@ import {
   DATAASSETS_CONFIG_ENV,
   DATAASSETS_RESOLVED_ENV,
   LEGACY_DATAASSETS_ENV,
+  assertDataAssetsTenantCookie,
   assertDataAssetsEnvName,
   dataAssetsEnvPath,
   readDataAssetsEnvConfig,
@@ -272,6 +273,7 @@ export function loadNamedDataAssetsAuthState(
   if (!config.auth.cookie.trim()) {
     throw new Error(`named auth environment ${selected} has no Cookie`);
   }
+  assertDataAssetsTenantCookie(config);
   return cookieHeaderToPlaywrightState(`${config.url}/dataAssets`, config.auth.cookie);
 }
 

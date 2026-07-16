@@ -76,6 +76,20 @@ beforeEach(() => {
     }),
     { mode: 0o600 },
   );
+  writeFileSync(
+    join(dir, "ltqc-wrong-cookie.yaml"),
+    stringify({
+      schema_version: 2,
+      url: "http://example.test",
+      auth: { cookie: "dt_tenant_name=other_tenant; sid=wrong-cookie" },
+      guard: { expected_tenant: "pw_test" },
+      projects: { quality: "pw_test", offline: "pw_test" },
+      datasources: { sparkthrift: { name: "pw_test_HADOOP", database: "pw_test" } },
+      defaults: { datasource: "sparkthrift" },
+      safety: { allow_write: false },
+    }),
+    { mode: 0o600 },
+  );
 });
 
 afterEach(() => rmSync(root, { recursive: true, force: true }));
@@ -161,5 +175,12 @@ describe("DataAssets v2 runtime profile", () => {
         { repoRoot: root },
       ),
     ).toThrow(/different platform URL/);
+    expect(() =>
+      loadNamedDataAssetsAuthState(
+        "ltqc-wrong-cookie",
+        { baseUrl: "http://example.test", tenantName: "pw_test" },
+        { repoRoot: root },
+      ),
+    ).toThrow(/tenant_mismatch/);
   });
 });
