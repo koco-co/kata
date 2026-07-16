@@ -27,7 +27,7 @@
 | **script** | selector 找不到、等待超时、locator 表达式错误、页面结构变更导致旧的 locator 失效 | 错误消息含 `locator` / `selector` / `timeout` / `strict mode`；手动在浏览器 DevTools 中能确认元素存在但 selector 无法定位 | 修复 locator 或等待策略 |
 | **product** | 功能缺失、页面文案不对、交互逻辑不一致、API 返回与预期不符 | 手动操作浏览器确认功能不存在或表现不同；Archive MD 描述的功能未实现 | 标记为 product blocker，出 handoff 报告 |
 | **data** | 测试数据不满足前置条件、数据库无记录、返回空列表、feature flag 未开启 | 检查 `automation/tests/data/` 下 fixture、确认数据表是否有记录、确认 feature toggle 状态 | 补充测试数据或 fixture |
-| **permission** | 403/401 响应、页面无权限提示、项目选择器为空 | 真实复验 resolved runtime 登录态、检查用户角色是否匹配 | 更新忽略的 `_shared/env/.local/<env>.yaml` cookie 或标记为 permission blocker |
+| **permission** | 403/401 响应、页面无权限提示、项目选择器为空 | 真实复验 resolved runtime 登录态、检查用户角色是否匹配 | 用 `kata env cookie set <env> --stdin` 更新 Cookie 或标记为 permission blocker |
 | **environment** | 环境不可达、502/503、页面白屏、重定向到 login、API base URL 不对 | 直接访问 `base_url` 验证；检查 `env/*.yaml` 配置是否正确 | 标记为 env blocker |
 | **unknown** | 无法通过上述信号判断、错误消息无堆栈、偶发且不可复现 | 尝试复现 >=2 次；若每次失败点不同 | 标记为 unknown，附上复现证据 |
 

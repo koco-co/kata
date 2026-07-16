@@ -10,7 +10,7 @@
 
 ## 认证数据
 
-- UI cookie 仅使用环境 YAML 的 `auth.cookie`；被 Git 跟踪的基础 profile 保持空值，真实 cookie 放在被忽略且权限为 `0600` 的 `_shared/env/.local/<env>.yaml`。不得创建 `.kata/auth/**` 或使用 `auth.session_path`。
+- DataAssets UI Cookie 仅存放在忽略且权限为 `0600` 的 `config/env/<env>.yaml` 的 `auth.cookie`；一个平台一个文件，禁止 tracked profile、split overlay、`.kata/auth/**` 或 `auth.session_path`。
 
 ## 本地 Runtime 上下文
 

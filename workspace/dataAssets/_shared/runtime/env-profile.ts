@@ -1,6 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { parse } from "yaml";
+import { dirname, resolve } from "node:path";
+import {
+  DATAASSETS_CONFIG_ENV,
+  DATAASSETS_RESOLVED_ENV,
+  LEGACY_DATAASSETS_ENV,
+  assertDataAssetsEnvName,
+  dataAssetsEnvPath,
+  readDataAssetsEnvConfig,
+  type ResolvedDataAssetsEnv,
+} from "../../../../.claude/scripts/_shared/lib/dataassets-env";
 
 export type RuntimeEnv = Record<string, string | undefined>;
 
@@ -15,12 +22,11 @@ export interface DataAssetsDatasourceProfile {
     readonly typeId: number;
     readonly database: string;
     readonly schema: string;
-    readonly clusterName?: string;
   };
   readonly metadata: { readonly id: number; readonly name: string; readonly typeId: number };
   readonly assets: { readonly id: number; readonly name: string };
-  readonly ui?: { readonly sourceTypeId?: number };
-  readonly sql: { readonly database: string; readonly schema: string; readonly warehouseUri?: string };
+  readonly ui: { readonly sourceTypeId: number };
+  readonly sql: { readonly database: string; readonly schema: string };
 }
 
 export interface DataAssetsRuntimeOptions {
@@ -29,7 +35,7 @@ export interface DataAssetsRuntimeOptions {
   readonly tablePrefix: string;
   readonly skipPreconditions: boolean;
   readonly cleanup: boolean;
-  readonly allowWrite?: boolean;
+  readonly allowWrite: boolean;
   readonly timeouts: {
     readonly projectApiMs: number;
     readonly preconditionRequestMs: number;
@@ -44,26 +50,22 @@ export interface DataAssetsRuntimeOptions {
 }
 
 export interface DataAssetsEnvProfile {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly project: "dataAssets";
   readonly env: string;
-  readonly urls: {
-    readonly baseUrl: string;
-    readonly dataAssetsBaseUrl: string;
-    readonly offlineBaseUrl: string;
-    readonly portalBaseUrl?: string;
-  };
+  readonly urls: ResolvedDataAssetsEnv["urls"];
   readonly auth: {
     readonly cookie: string;
     readonly tenantId?: number;
-    readonly tenantName?: string;
+    readonly tenantName: string;
     readonly userId?: number;
     readonly username?: string;
+    readonly sessionPath?: string;
   };
   readonly projects: {
     readonly quality: { readonly id: number; readonly name: string };
     readonly offline: { readonly id: number; readonly name: string };
-    readonly owner?: { readonly id: number };
+    readonly owner: { readonly id: number };
     readonly engines: readonly string[];
   };
   readonly datasources: Record<string, DataAssetsDatasourceProfile>;
@@ -72,7 +74,8 @@ export interface DataAssetsEnvProfile {
 
 export interface LoadDataAssetsProfileOptions {
   readonly repoRoot?: string;
-  readonly workspaceRoot?: string;
+  readonly env?: RuntimeEnv;
+  readonly resolved?: ResolvedDataAssetsEnv;
 }
 
 export interface PlaywrightCookieState {
@@ -89,146 +92,132 @@ export interface PlaywrightCookieState {
   readonly origins: readonly [];
 }
 
-const DEFAULT_ENV = "ltqc-local";
-const ENV_ALIASES: Record<string, string> = {
-  customltem: "ltqc-test",
-  ltqc: "ltqc-local",
-  prod: "ltqc-prod",
-};
+let legacyWarningShown = false;
 
-function normalizeEnvName(envName: string): string {
-  const trimmed = envName.trim();
-  const withoutExtension = trimmed.replace(/\.ya?ml$/i, "");
-  return ENV_ALIASES[withoutExtension.toLowerCase()] ?? withoutExtension;
-}
-
-function camelKey(key: string): string {
-  return key.replace(/_([a-z])/g, (_, ch: string) => ch.toUpperCase());
-}
-
-function camelize(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(camelize);
-  if (!value || typeof value !== "object") return value;
-  const out: Record<string, unknown> = {};
-  for (const [key, nested] of Object.entries(value)) out[camelKey(key)] = camelize(nested);
-  return out;
-}
-
-function requiredString(value: unknown, path: string): string {
-  if (typeof value !== "string" || value.trim() === "") throw new Error(`${path} is required`);
-  return value;
-}
-
-function requiredNumber(value: unknown, path: string): number {
-  const num = Number(value);
-  if (!Number.isFinite(num) || num <= 0) throw new Error(`${path} is required`);
-  return num;
-}
-
-function workspaceRoot(opts?: LoadDataAssetsProfileOptions): string {
-  return opts?.workspaceRoot ?? join(process.cwd(), "workspace", "dataAssets");
-}
-
-function normalizeCookieHeader(value: unknown): string {
-  const cookie = requiredString(value, "auth.cookie");
-  if (
-    (cookie.startsWith('"') && cookie.endsWith('"')) ||
-    (cookie.startsWith("'") && cookie.endsWith("'"))
-  ) {
-    return cookie.slice(1, -1);
+function parseResolved(value: string | undefined): ResolvedDataAssetsEnv {
+  if (!value) {
+    throw new Error(
+      "DataAssets runtime is unresolved. Use `kata env run <name> -- <command...>` instead of starting Playwright directly.",
+    );
   }
-  return cookie;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
+  }
+  const resolved = parsed as Partial<ResolvedDataAssetsEnv>;
+  if (resolved.schemaVersion !== 2 || !resolved.env || !resolved.urls || !resolved.projects) {
+    throw new Error("KATA_DATAASSETS_RESOLVED does not contain a v2 resolved environment");
+  }
+  return resolved as ResolvedDataAssetsEnv;
 }
 
 export function resolveDataAssetsEnvName(env: RuntimeEnv = process.env): string {
-  const rawEnvName = env.KATA_DATAASSETS_ENV ?? DEFAULT_ENV;
-  return normalizeEnvName(rawEnvName);
+  const resolved = env[DATAASSETS_RESOLVED_ENV];
+  if (resolved) return assertDataAssetsEnvName(parseResolved(resolved).env);
+  const legacy = env[LEGACY_DATAASSETS_ENV];
+  if (legacy) {
+    if (!legacyWarningShown) {
+      process.stderr.write(
+        "[deprecated] KATA_DATAASSETS_ENV no longer resolves an environment by itself; use `kata env run`.\n",
+      );
+      legacyWarningShown = true;
+    }
+    return assertDataAssetsEnvName(legacy);
+  }
+  throw new Error(
+    "DataAssets environment is not selected. Use `kata env run <name> -- <command...>`.",
+  );
+}
+
+function preconditionType(key: string): string {
+  if (key === "sparkthrift") return "SparkThrift";
+  if (key === "doris") return "Doris";
+  return key;
 }
 
 export function loadDataAssetsEnvProfile(
-  envName = resolveDataAssetsEnvName(),
+  envName?: string,
   opts?: LoadDataAssetsProfileOptions,
 ): DataAssetsEnvProfile {
-  const root = workspaceRoot(opts);
-  const normalizedEnvName = normalizeEnvName(envName);
-  const profilePath = join(root, "_shared", "env", `${normalizedEnvName}.yaml`);
-  if (!existsSync(profilePath)) throw new Error(`dataAssets env profile not found: ${profilePath}`);
-  const parsed = camelize(parse(readFileSync(profilePath, "utf8"))) as any;
-  const localProfilePath = join(root, "_shared", "env", ".local", `${normalizedEnvName}.yaml`);
-  if (existsSync(localProfilePath)) {
-    const local = camelize(parse(readFileSync(localProfilePath, "utf8"))) as any;
-    if (typeof local.auth?.cookie === "string") {
-      parsed.auth = { ...parsed.auth, cookie: local.auth.cookie };
-    }
+  const runtimeEnv = opts?.env ?? process.env;
+  const resolvedEnv = opts?.resolved ?? parseResolved(runtimeEnv[DATAASSETS_RESOLVED_ENV]);
+  const selected = assertDataAssetsEnvName(envName ?? resolveDataAssetsEnvName(runtimeEnv));
+  if (resolvedEnv.env !== selected) throw new Error("resolved environment does not match selected environment");
+  const injectedPath = runtimeEnv[DATAASSETS_CONFIG_ENV];
+  const root = resolve(
+    opts?.repoRoot ??
+      (injectedPath ? dirname(dirname(dirname(resolve(injectedPath)))) : process.cwd()),
+  );
+  const expectedPath = dataAssetsEnvPath(selected, root);
+  if (injectedPath && resolve(injectedPath) !== resolve(expectedPath)) {
+    throw new Error("KATA_DATAASSETS_CONFIG does not match the selected config/env file");
   }
-  const baseUrl = requiredString(parsed.urls?.baseUrl, "urls.base_url");
-  const profile: DataAssetsEnvProfile = {
-    schemaVersion: 1,
+  const config = readDataAssetsEnvConfig(selected, { repoRoot: root });
+  const datasources: Record<string, DataAssetsDatasourceProfile> = {};
+  for (const [key, datasource] of Object.entries(resolvedEnv.datasources)) {
+    datasources[key] = {
+      enabled: true,
+      uiLabel: key,
+      preconditionType: preconditionType(key),
+      aliases: [...new Set([key, datasource.name, datasource.batch.name])],
+      batch: {
+        ...datasource.batch,
+        database: datasource.database,
+        schema: datasource.schema,
+      },
+      metadata: datasource.metadata,
+      assets: { id: datasource.assets.id, name: datasource.assets.name },
+      ui: { sourceTypeId: datasource.assets.typeId },
+      sql: { database: datasource.database, schema: datasource.schema },
+    };
+  }
+  return {
+    schemaVersion: 2,
     project: "dataAssets",
-    env: requiredString(parsed.env, "env"),
-    urls: {
-      baseUrl,
-      dataAssetsBaseUrl: requiredString(
-        parsed.urls?.dataAssetsBaseUrl,
-        "urls.data_assets_base_url",
-      ),
-      offlineBaseUrl: requiredString(parsed.urls?.offlineBaseUrl, "urls.offline_base_url"),
-      portalBaseUrl: parsed.urls?.portalBaseUrl,
-    },
+    env: selected,
+    urls: resolvedEnv.urls,
     auth: {
-      cookie: normalizeCookieHeader(parsed.auth?.cookie),
-      tenantId: parsed.auth?.tenantId,
-      tenantName: parsed.auth?.tenantName,
-      userId: parsed.auth?.userId,
-      username: parsed.auth?.username,
+      cookie: config.auth.cookie,
+      tenantId: resolvedEnv.tenant.id,
+      tenantName: resolvedEnv.tenant.name,
+      userId: resolvedEnv.tenant.userId,
+      username: resolvedEnv.tenant.username,
     },
     projects: {
-      quality: {
-        id: requiredNumber(parsed.projects?.quality?.id, "projects.quality.id"),
-        name: requiredString(parsed.projects?.quality?.name, "projects.quality.name"),
-      },
-      offline: {
-        id: requiredNumber(parsed.projects?.offline?.id, "projects.offline.id"),
-        name: requiredString(parsed.projects?.offline?.name, "projects.offline.name"),
-      },
-      owner: parsed.projects?.owner?.id ? { id: Number(parsed.projects.owner.id) } : undefined,
-      engines: Array.isArray(parsed.projects?.engines) ? parsed.projects.engines : [],
+      ...resolvedEnv.projects,
+      owner: { id: 1 },
+      engines: [],
     },
-    datasources: parsed.datasources ?? {},
+    datasources,
     runtime: {
-      defaultDatasource: requiredString(parsed.runtime?.defaultDatasource, "runtime.default_datasource"),
-      activeDatasources: parsed.runtime?.activeDatasources ?? [],
-      tablePrefix: parsed.runtime?.tablePrefix ?? "qa_auto",
-      skipPreconditions: Boolean(parsed.runtime?.skipPreconditions),
-      cleanup: parsed.runtime?.cleanup !== false,
-      allowWrite: parsed.runtime?.allowWrite,
+      defaultDatasource: resolvedEnv.defaults.datasource,
+      activeDatasources: Object.keys(datasources),
+      tablePrefix: "qa_auto",
+      skipPreconditions: false,
+      cleanup: true,
+      allowWrite: resolvedEnv.safety.allowWrite,
       timeouts: {
-        projectApiMs: Number(parsed.runtime?.timeouts?.projectApiMs ?? 120_000),
-        preconditionRequestMs: Number(parsed.runtime?.timeouts?.preconditionRequestMs ?? 120_000),
-        metadataSyncMs: Number(parsed.runtime?.timeouts?.metadataSyncMs ?? 180_000),
+        projectApiMs: 120_000,
+        preconditionRequestMs: 120_000,
+        metadataSyncMs: 180_000,
       },
       playwright: {
-        headless: parsed.runtime?.playwright?.headless !== false,
-        workers: Number(parsed.runtime?.playwright?.workers ?? 1),
-        fullyParallel: Boolean(parsed.runtime?.playwright?.fullyParallel),
-        stepCapture: parsed.runtime?.playwright?.stepCapture ?? "all",
+        headless: true,
+        workers: 1,
+        fullyParallel: false,
+        stepCapture: "all",
       },
     },
   };
-  if (!profile.datasources[profile.runtime.defaultDatasource]) {
-    throw new Error(`runtime.default_datasource not configured: ${profile.runtime.defaultDatasource}`);
-  }
-  for (const id of profile.runtime.activeDatasources) {
-    if (!profile.datasources[id]) throw new Error(`runtime.active_datasources contains unknown datasource: ${id}`);
-  }
-  return profile;
 }
 
 export function resolveDataAssetsRuntime(
   env: RuntimeEnv = process.env,
-  opts?: LoadDataAssetsProfileOptions,
+  opts?: Omit<LoadDataAssetsProfileOptions, "env">,
 ): DataAssetsEnvProfile {
-  return loadDataAssetsEnvProfile(resolveDataAssetsEnvName(env), opts);
+  return loadDataAssetsEnvProfile(undefined, { ...opts, env });
 }
 
 export function getEnvConfig(): DataAssetsEnvProfile {

@@ -57,15 +57,15 @@ When in doubt, ask: *if a fresh agent or a different runtime replays the exact s
 
 - Do not create root `.kata/{project}/` or `workspace/{project}/.kata/` runtime trees for source or UI authentication data.
 - Query source only through `kata repos show|grep|list`; these commands resolve `.env` configured external repositories and wrap read-only Git object commands without creating a cache.
-- Store UI cookie headers only under `auth.cookie`. Keep the committed profile at `workspace/{project}/_shared/env/<env>.yaml`; when that profile is tracked, put the real cookie in ignored `workspace/{project}/_shared/env/.local/<env>.yaml`. Do not use `.kata/auth/**` or `auth.session_path`.
+- Store each DataAssets platform, including its UI Cookie header under `auth.cookie`, in one ignored local file at `config/env/<env>.yaml`. The directory must be `0700`, each file `0600`, and neither may be a symlink. Do not use `.kata/auth/**`, `auth.session_path`, split secret overlays, or tracked environment profiles.
 
 ## Unified Runtime Configuration
 
 - Root `.env` is the only dotenv file. Do not create or load `.env.envs`, root `.env.local`, or `workspace/{project}/.env.local`.
-- Resolution order is explicit process environment, then root `.env`; `KATA_DATAASSETS_ENV` selects the project YAML profile. The ignored `.local/<env>.yaml` may override only `auth.cookie`, not ordinary profile fields.
-- Store repository-wide runtime endpoints, credentials, and external repository locations in the root `.env`; declare every supported key in `.env.example`. Store project/environment-specific UI URLs, project IDs, datasource IDs, runtime options, and UI cookie authentication in the selected YAML profile.
+- Resolution order for repository-wide dotenv values is explicit process environment, then root `.env`. DataAssets environments are selected explicitly with `kata env run <env> -- <command...>`; root `.env` must not persist a DataAssets environment selector.
+- Store repository-wide integrations and external repository locations in root `.env`; declare every supported key in `.env.example`. Store only stable DataAssets names, the platform root URL, Cookie, tenant guard, default datasource, and write-safety flag in `config/env/<env>.yaml`. Resolve project and datasource IDs/typeIds online by exact name for each run; never persist them or select the first/fuzzy match.
 - Do not persist runtime authentication in root `.kata/` or hardcode user-home, absolute machine, service-host, or session-file paths in production code.
-- Use `kata env resolve --project <project> --env <env>` to inspect sources without values and `kata env doctor --project <project> --env <env>` to enforce this contract. Migrate configuration through `kata env` commands; migration and set commands must never echo secret values.
+- Use `kata env show <env>` to inspect a redacted environment, `kata env doctor <env>` to enforce the local and online contract, and `kata env cookie set <env> --stdin` to rotate authentication atomically. Migration and set commands must never echo secret values.
 - Stable internal source identifiers, command names, test fixtures, and documentation examples are not runtime configuration and do not need environment-variable indirection.
 
 ## Hotfix Archive Contract

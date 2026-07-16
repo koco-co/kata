@@ -6,7 +6,7 @@ import {
   resolveDataAssetsRuntime,
 } from "./workspace/dataAssets/_shared/runtime/env-profile";
 
-// 根 .env 是唯一 dotenv；业务环境由 _shared/env/<name>.yaml 显式解析。
+// 根 .env 是唯一 dotenv；DataAssets 环境必须由 `kata env run` 注入已解析上下文。
 initEnv({ cwd: process.cwd() });
 
 // §3.4 F7（项目级隔离）扩展：当同时设置 KATA_ACTIVE_FEATURE 时，

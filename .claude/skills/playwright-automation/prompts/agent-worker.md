@@ -28,7 +28,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 > 对规则类 case，运行前必须逐项核对 UI 提交名称、字段长度、数据源、规则数量、重复规则指纹、规则包数量、抽样、分区、过滤条件和强弱设置；缺显式源规格时返回 BLOCKED。
 > 写数据的步骤用 prompt 给的 run-id/case-id 拼唯一 fixture 数据（唯一规则名/资源名），跑完在 afterEach/afterAll 自清理；创建-校验-删除链路的用例在 test 名带 `@serial`。
 > 状态变化 case 必须通过 UI 证据记录名称或 ID、状态和路由，并把截图/Allure 附件路径写入 artifacts；单 case 自跑通过只代表该 case，不得声称 full 或整体自动化完成。
-> 认证只能通过项目 runtime resolver 读取基础 profile 与忽略的 `_shared/env/.local/<env>.yaml`；不得读取或生成 `.kata/auth`、`auth.session_path`、storageState 文件，也不得输出 cookie。
+> 认证只能通过 `kata env run` 注入的项目 runtime resolver 读取私密 `config/env/<env>.yaml`；不得直接读取 YAML，不得生成 `.kata/auth`、`auth.session_path`、storageState 文件，也不得输出 Cookie。
 
 ## Status Envelope（出参）
 

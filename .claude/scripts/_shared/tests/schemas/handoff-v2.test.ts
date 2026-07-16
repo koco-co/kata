@@ -22,7 +22,7 @@ const base = {
   },
   run_command: "npx playwright test ...",
   acceptance_command:
-    "KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'features/2026-04-dq-json-config/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
+    "kata env run ltqc-local -- npx playwright test 'features/2026-04-dq-json-config/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
   run_exit_code: 0,
   results: {
     total: 46,

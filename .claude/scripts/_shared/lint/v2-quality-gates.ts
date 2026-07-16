@@ -1,7 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { Glob } from "bun";
-import { parse } from "yaml";
 import { lintFeatureTests } from "./tests-layout.ts";
 import type { CaseLintReport, CaseLintViolation } from "./types.ts";
 
@@ -34,26 +33,13 @@ function projectDirs(workspaceRoot: string): string[] {
     .map((entry) => entry.name);
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function getNestedValue(value: unknown, path: readonly string[]): unknown {
-  let current = value;
-  for (const segment of path) {
-    if (!isRecord(current)) return undefined;
-    current = current[segment];
-  }
-  return current;
-}
-
 export function lintNoEnvLocal(workspaceRoot: string): CaseLintReport {
   const glob = new Glob(join(workspaceRoot, "*/features/**/.env.local"));
   const violations = [...glob.scanSync()].map((file) =>
     violation(
       file,
       "no_env_local",
-      "Feature-local .env.local is not allowed; use _shared/env/*.yaml profiles.",
+      "Feature-local .env.local is not allowed; use kata env run with config/env.",
     ),
   );
   return {
@@ -189,7 +175,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
           violation(
             file,
             "session_compliant",
-            `Auth must use the project runtime resolver; real cookies belong in ignored workspace/${project}/_shared/env/.local/<env>.yaml files.`,
+            "Auth must use the project runtime resolver; real Cookies belong in ignored config/env/<env>.yaml files.",
             "fail",
             1,
             "legacy auth path",
@@ -213,44 +199,16 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
     const envDir = join(workspaceRoot, project, "_shared/env");
     for (const file of walkFiles(envDir).filter((item) => item.endsWith(".yaml"))) {
       files += 1;
-      const profile = parse(readFileSync(file, "utf-8")) as unknown;
-      const sessionPath = getNestedValue(profile, ["auth", "session_path"]);
-      if (sessionPath !== undefined) {
-        violations.push(
-          violation(
-            file,
-            "env_profile_compliance",
-            "auth.session_path is unsupported; migrate cookie data to auth.cookie.",
-            "fail",
-            1,
-            "auth.session_path",
-          ),
-        );
-      }
-      const deriveFromSession = getNestedValue(profile, ["auth", "derive_from_session"]);
-      if (deriveFromSession !== undefined) {
-        violations.push(
-          violation(
-            file,
-            "env_profile_compliance",
-            "auth.derive_from_session is unsupported; auth.cookie is the source of truth.",
-            "fail",
-            1,
-            "auth.derive_from_session",
-          ),
-        );
-      }
-      const env = getNestedValue(profile, ["env"]);
-      const allowWrite = getNestedValue(profile, ["runtime", "allow_write"]);
-      if (env === "ltqc-prod" && allowWrite !== false) {
-        violations.push(
-          violation(
-            file,
-            "env_profile_compliance",
-            "ltqc-prod must keep runtime.allow_write=false.",
-          ),
-        );
-      }
+      violations.push(
+        violation(
+          file,
+          "env_profile_compliance",
+          "Tracked workspace env profiles are unsupported; migrate to ignored config/env with kata env migrate-dataassets.",
+          "fail",
+          1,
+          "legacy env profile",
+        ),
+      );
     }
   }
   return {

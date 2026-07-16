@@ -24,7 +24,7 @@
 
 ## 2. 环境事实
 
-- env profile:`workspace/dataAssets/_shared/env/ltqc-local.yaml`(worktree 内那份)。
+- env：`ltqc-local`，通过 `kata env run ltqc-local -- <command...>` 使用主工作树共享的私密配置。
 - `base_url` = `http://shuzhan63-test-ltqc.k8s.dtstack.cn`;headless;租户 `pw_test`(10481);质量项目 `id=92`;`allow_write:true`;`runtime.table_prefix` 默认 `qa_auto`(本套件改用 `qa_auto_mf_<module>`)。
 - 会话文件(gitignored,必须拷入):`workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json`。
 - 历史人工预检:`results/preflight-260522-01/.../probe.json`(确认有效),但仍须跑自己的 env-preflight。
@@ -109,7 +109,7 @@ workspace/dataAssets/_shared/           # 整体 gitignored;Task 0 物理迁入
   ```bash
   W=$M/.worktrees/2099-lt-dq-main-flow
   mkdir -p "$W/workspace/dataAssets/_shared" "$W/workspace/dataAssets/.kata/auth/dataAssets"
-  cp -R "$M/workspace/dataAssets/_shared/env"     "$W/workspace/dataAssets/_shared/"
+  # config/env 由 kata env 通过 Git common-dir 自动复用，不复制 Cookie。
   cp -R "$M/workspace/dataAssets/_shared/helpers" "$W/workspace/dataAssets/_shared/" 2>/dev/null || true
   mkdir -p "$W/workspace/dataAssets/_shared/pages"
   cp -R "$M/workspace/dataAssets/_shared/pages/2099-01-lt-dq-main-flow" "$W/workspace/dataAssets/_shared/pages/"

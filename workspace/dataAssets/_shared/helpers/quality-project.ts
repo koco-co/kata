@@ -29,12 +29,11 @@ export async function getQualityProjectId(
   page: Page,
   projectName?: string,
 ): Promise<number | null> {
-  const ids = await getAccessibleProjectIds(page);
-  if (ids.length === 0) return null;
-  if (!projectName) return ids[0];
+  if (!projectName) {
+    throw new Error("quality project name is required; selecting the first project is unsafe");
+  }
 
-  // 如果需要按名称查找，先获取所有项目详情
-  const result = await page.evaluate(async (name: string) => {
+  const matches = await page.evaluate(async (name: string) => {
     const response = await fetch("/dassets/v1/valid/project/getProjects", {
       method: "POST",
       credentials: "same-origin",
@@ -50,9 +49,12 @@ export async function getQualityProjectId(
         projectName?: string;
       }>;
     };
-    const project = (json.data ?? []).find((p) => (p.name ?? p.projectName ?? "").includes(name));
-    return project ? Number(project.id) : null;
+    return (json.data ?? [])
+      .filter((project) => (project.name ?? project.projectName ?? "") === name)
+      .map((project) => Number(project.id))
+      .filter((id) => Number.isFinite(id));
   }, projectName);
-
-  return result ?? ids[0];
+  if (matches.length === 0) return null;
+  if (matches.length > 1) throw new Error(`quality project is ambiguous: ${projectName}`);
+  return matches[0];
 }
