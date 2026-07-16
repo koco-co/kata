@@ -107,6 +107,10 @@ function nestedRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 }
 
+function isSecretConfigKey(key: string): boolean {
+  return /(?:cookie|password|pass|secret|token|api_key|webhook|db_url|sr3x_url)/i.test(key);
+}
+
 function profileBaseUrl(cfg: Record<string, unknown>): string {
   const urls = nestedRecord(cfg.urls);
   return typeof urls.base_url === "string"
@@ -186,17 +190,22 @@ function flattenConfigured(
       out.push({
         key: path,
         configured: nested !== undefined && nested !== null && String(nested).trim() !== "",
-        secret: /(?:cookie|password|secret|token)/i.test(path),
+        secret: isSecretConfigKey(path),
       });
     }
   }
   return out;
 }
 
+function supportedRootEnvKeys(root: string): Set<string> | null {
+  const examplePath = join(root, ".env.example");
+  return existsSync(examplePath) ? new Set(Object.keys(readDotEnvFile(examplePath))) : null;
+}
+
 export function resolveEnvSources(ctx: EnvProfileContext): {
   project: string;
   env: string;
-  rootEnv: { path: string; keys: Array<{ key: string; configured: true; secret: boolean }> };
+  rootEnv: { path: string; keys: Array<{ key: string; configured: boolean; secret: boolean }> };
   profile: {
     path: string;
     secretPath: string | null;
@@ -208,12 +217,12 @@ export function resolveEnvSources(ctx: EnvProfileContext): {
   const rootPath = join(root, ".env");
   const selectedProfilePath = profilePath(root, ctx.project, ctx.env);
   const profile = readProfile(root, ctx.project, ctx.env);
-  const rootKeys = Object.keys(readDotEnvFile(rootPath))
+  const rootKeys = Object.entries(readDotEnvFile(rootPath))
     .sort()
-    .map((key) => ({
+    .map(([key, value]) => ({
       key,
-      configured: true as const,
-      secret: /(?:cookie|password|pass|secret|token|api_key)/i.test(key),
+      configured: value.trim() !== "",
+      secret: isSecretConfigKey(key),
     }));
   const legacyFiles = [
     join(root, ".env.envs"),
@@ -262,6 +271,28 @@ export function diagnoseEnvConfig(ctx: EnvProfileContext): {
   ) {
     findings.push({ code: "root_env_permissions", severity: "error", path: resolved.rootEnv.path });
   }
+  const rootValues = readDotEnvFile(resolved.rootEnv.path);
+  const supportedKeys = supportedRootEnvKeys(root);
+  if (supportedKeys) {
+    for (const key of Object.keys(rootValues).sort()) {
+      if (!supportedKeys.has(key)) {
+        findings.push({
+          code: "unsupported_root_env_key",
+          severity: "error",
+          path: `${resolved.rootEnv.path}#${key}`,
+        });
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(rootValues).sort()) {
+    if (value.trim() === "") {
+      findings.push({
+        code: "empty_root_env_value",
+        severity: "warn",
+        path: `${resolved.rootEnv.path}#${key}`,
+      });
+    }
+  }
   const profile = readProfile(root, ctx.project, ctx.env);
   const baseProfile = readBaseProfile(root, ctx.project, ctx.env);
   if (!profileCookie(profile)) {
@@ -294,6 +325,19 @@ export function diagnoseEnvConfig(ctx: EnvProfileContext): {
         severity: "error",
         path: resolved.profile.secretPath,
       });
+    }
+    const localProfile = parse(readFileSync(resolved.profile.secretPath, "utf8")) as Record<
+      string,
+      unknown
+    >;
+    for (const { key } of flattenConfigured(localProfile)) {
+      if (key !== "auth.cookie") {
+        findings.push({
+          code: "unsupported_profile_secret_key",
+          severity: "error",
+          path: `${resolved.profile.secretPath}#${key}`,
+        });
+      }
     }
   }
   return { ok: findings.every((finding) => finding.severity !== "error"), findings };

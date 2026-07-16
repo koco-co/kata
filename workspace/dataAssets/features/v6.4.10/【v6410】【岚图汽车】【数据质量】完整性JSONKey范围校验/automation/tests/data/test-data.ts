@@ -24,6 +24,8 @@ export interface DatasourceConfig {
   readonly optionPattern: RegExp;
   readonly sourceTypePattern: RegExp;
   readonly database: string;
+  readonly metadataDataSourceId: number;
+  readonly metadataDataSourceType: number;
   readonly primaryFieldType: "string" | "json";
 }
 
@@ -230,6 +232,8 @@ const DEFAULT_DATASOURCES: readonly DatasourceConfig[] = [
     optionPattern: /(sparkthrift|hadoop)/i,
     sourceTypePattern: /sparkthrift/i,
     database: ENV.datasources.sparkthrift.sql.database,
+    metadataDataSourceId: ENV.datasources.sparkthrift.metadata.id,
+    metadataDataSourceType: ENV.datasources.sparkthrift.metadata.typeId,
     primaryFieldType: "string",
   },
   {
@@ -240,6 +244,8 @@ const DEFAULT_DATASOURCES: readonly DatasourceConfig[] = [
     optionPattern: /doris/i,
     sourceTypePattern: /doris/i,
     database: ENV.datasources.doris.sql.database,
+    metadataDataSourceId: ENV.datasources.doris.metadata.id,
+    metadataDataSourceType: ENV.datasources.doris.metadata.typeId,
     primaryFieldType: "json",
   },
 ] as const;
@@ -272,6 +278,7 @@ export const ACTIVE_DATASOURCES = loadActiveDatasources();
 export const ALL_TABLES = TABLE_DEFINITIONS.map((table) => table.name) as readonly string[];
 export const QUALITY_PROJECT_ID = ENV.projects.quality.id;
 export const QUALITY_PROJECT_NAME = ENV.projects.quality.name;
+export const TARGET_ENV = ENV.env;
 export const SUITE_KEYS = [
   KEY_NAMES.k1,
   KEY_NAMES.k2,

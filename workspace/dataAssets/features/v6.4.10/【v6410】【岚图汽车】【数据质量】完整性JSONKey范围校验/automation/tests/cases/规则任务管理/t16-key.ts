@@ -17,8 +17,11 @@ import {
   clearCurrentDatasource,
   getCurrentDatasource,
   injectProjectContext,
+  QUALITY_PROJECT_ID,
+  QUALITY_PROJECT_NAME,
   resolveEffectiveQualityProjectId,
   setCurrentDatasource,
+  TARGET_ENV,
 } from "../../data/test-data";
 import type { MonitorDatasourceConfig } from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 import {
@@ -127,6 +130,12 @@ for (const datasource of ACTIVE_DATASOURCES) {
           sql: tableSQL(tableName, ds.id === "doris3.x", uniqueKeys),
           tableName,
           datasource: ds.preconditionType as "SparkThrift" | "Doris",
+          project: QUALITY_PROJECT_NAME,
+          env: TARGET_ENV,
+          database: ds.database,
+          projectId: QUALITY_PROJECT_ID,
+          dataSourceId: String(ds.metadataDataSourceId),
+          dataSourceType: ds.metadataDataSourceType,
         });
       });
 
