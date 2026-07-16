@@ -60,7 +60,6 @@ export interface DataAssetsEnvProfile {
     readonly tenantName: string;
     readonly userId?: number;
     readonly username?: string;
-    readonly sessionPath?: string;
   };
   readonly projects: {
     readonly quality: { readonly id: number; readonly name: string };

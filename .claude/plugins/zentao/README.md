@@ -29,8 +29,7 @@ KATA_ZENTAO_PASSWORD="your-password"
 
 1. 访问禅道服务器（如 http://zenpms.dtstack.cn）
 2. 使用公司账号登录
-3. 在用户设置中获取 API Token（可选，优先使用密码）
-4. 把 cookie 或账号密码写入根目录 `.env`；旧 `.kata/zentao/session.json` 使用 `kata env migrate-zentao-session --session .kata/zentao/session.json` 迁移
+3. 把 cookie 或账号密码写入根目录 `.env`
 
 ## 用法
 

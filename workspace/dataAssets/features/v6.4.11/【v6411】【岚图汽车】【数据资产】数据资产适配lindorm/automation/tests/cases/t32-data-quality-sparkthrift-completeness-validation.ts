@@ -11,11 +11,6 @@ import {
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 import { ensureSelectedDtstackPreconditionTables } from "../helpers/dtstack-preconditions";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90 * 60 * 1000);
 
 const PRECOND_TABLES_FILE =

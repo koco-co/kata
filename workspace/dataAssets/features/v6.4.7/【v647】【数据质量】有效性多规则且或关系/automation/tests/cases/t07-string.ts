@@ -19,7 +19,6 @@ import {
   saveRuleSet,
 } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 
 for (const datasource of ACTIVE_DATASOURCES) {
   test.describe(`${"【内置规则丰富】有效性，支持设置字段多规则的且或关系(#15695) - 规则集管理"} - ${datasource.reportName}`, () => {

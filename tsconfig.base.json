@@ -5,6 +5,8 @@
     "moduleResolution": "Bundler",
     "lib": ["ES2024"],
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

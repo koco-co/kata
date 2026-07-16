@@ -28,9 +28,6 @@ const PREVIEW_KEYS = [
   "check-key-12",
 ] as const;
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 test.setTimeout(600000);
 
 describeByDatasource("规则集管理", () => {

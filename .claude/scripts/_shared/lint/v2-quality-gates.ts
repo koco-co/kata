@@ -169,7 +169,8 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
         content.includes(`.auth/${project}/`) ||
         content.includes(".auth/session.json") ||
         content.includes(`.kata/auth/${project}/`) ||
-        content.includes("auth.session_path")
+        content.includes("auth.session_path") ||
+        content.includes("UI_AUTOTEST_SESSION_PATH")
       ) {
         violations.push(
           violation(
@@ -178,7 +179,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
             "Auth must use the project runtime resolver; real Cookies belong in ignored config/env/<env>.yaml files.",
             "fail",
             1,
-            "legacy auth path",
+            "legacy auth session",
           ),
         );
       }

@@ -17,9 +17,6 @@ import {
   startRuleSetDraft,
 } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 test.setTimeout(600000);
 
 for (const datasource of ACTIVE_DATASOURCES) {

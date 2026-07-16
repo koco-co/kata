@@ -15,11 +15,6 @@ import {
   expectRankDataShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-security-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 const SECURITY_CONT_SOURCE_REF = "SR-UI-PROBE-20260523-SECURITY-CONT-001";

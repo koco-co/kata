@@ -60,7 +60,7 @@ Start with [INSTALL.md](./INSTALL.md) when setting up a new machine. Manual setu
 ```bash
 bun install
 [ -f .env ] || cp .env.example .env
-kata config
+kata workspace verify
 bun test
 ```
 

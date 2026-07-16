@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it } from "bun:test";
 
 afterEach(() => {
   delete process.env.KATA_LOG_LEVEL;
-  delete process.env.LOG_LEVEL;
 });
 
 describe("logger", () => {
@@ -24,15 +23,6 @@ describe("logger", () => {
     setLogLevel("info"); // reset to default
   });
 
-  it("initLogLevel applies LOG_LEVEL env var", async () => {
-    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
-    setLogLevel("info");
-    process.env.LOG_LEVEL = "error";
-    initLogLevel();
-    expect(getLogLevel()).toBe("error");
-    setLogLevel("info");
-  });
-
   it("initLogLevel applies KATA_LOG_LEVEL env var", async () => {
     const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
@@ -42,28 +32,18 @@ describe("logger", () => {
     setLogLevel("info");
   });
 
-  it("initLogLevel prefers KATA_LOG_LEVEL over bare LOG_LEVEL", async () => {
-    const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
-    setLogLevel("info");
-    process.env.KATA_LOG_LEVEL = "error";
-    process.env.LOG_LEVEL = "debug";
-    initLogLevel();
-    expect(getLogLevel()).toBe("error");
-    setLogLevel("info");
-  });
-
   it("initLogLevel with invalid value keeps current level", async () => {
     const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
-    process.env.LOG_LEVEL = "garbage";
+    process.env.KATA_LOG_LEVEL = "garbage";
     initLogLevel();
     expect(getLogLevel()).toBe("info");
   });
 
-  it("initLogLevel with LOG_LEVEL unset is a no-op", async () => {
+  it("initLogLevel with KATA_LOG_LEVEL unset is a no-op", async () => {
     const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("warn");
-    delete process.env.LOG_LEVEL;
+    delete process.env.KATA_LOG_LEVEL;
     initLogLevel();
     expect(getLogLevel()).toBe("warn");
     setLogLevel("info");
@@ -72,7 +52,7 @@ describe("logger", () => {
   it("initLogLevel is case-insensitive", async () => {
     const { initLogLevel, getLogLevel, setLogLevel } = await import("@shared/lib/logger.ts");
     setLogLevel("info");
-    process.env.LOG_LEVEL = "DEBUG";
+    process.env.KATA_LOG_LEVEL = "DEBUG";
     initLogLevel();
     expect(getLogLevel()).toBe("debug");
     setLogLevel("info");

@@ -10,11 +10,6 @@ import { expect, type Page, type Response } from "@playwright/test";
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(180000);
 
 test("【P1/P2/P3】元数据表详情 L1034-L1250 只读 Shell 合约可核验", async ({

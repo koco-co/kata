@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { FORBIDDEN_DIRS, findRootArtifacts } from "../../../lint/check-runtime-artifacts.ts";
+import {
+  FORBIDDEN_DIRS,
+  findRootArtifacts,
+  findTrackedArtifacts,
+} from "../../../lint/check-runtime-artifacts.ts";
 
 describe("F6 lint: forbid runtime artifacts at repo root", () => {
   let scratch: string;
@@ -41,5 +45,18 @@ describe("F6 lint: forbid runtime artifacts at repo root", () => {
   it("同名文件(非目录)不算违规", () => {
     writeFileSync(join(scratch, "allure-results"), "");
     expect(findRootArtifacts(scratch)).not.toContain("allure-results");
+  });
+
+  it("检出 Git 跟踪的 feature 运行产物和 .DS_Store", () => {
+    expect(
+      findTrackedArtifacts([
+        "workspace/dataAssets/features/v7.0.0/example/runs/run-01/handoff.json",
+        "workspace/dataAssets/features/v7.0.0/example/.DS_Store",
+        "workspace/dataAssets/features/v7.0.0/example/cases/archive.md",
+      ]),
+    ).toEqual([
+      "workspace/dataAssets/features/v7.0.0/example/runs/run-01/handoff.json",
+      "workspace/dataAssets/features/v7.0.0/example/.DS_Store",
+    ]);
   });
 });

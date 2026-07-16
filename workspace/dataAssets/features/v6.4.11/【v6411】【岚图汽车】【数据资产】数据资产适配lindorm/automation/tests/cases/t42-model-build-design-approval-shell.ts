@@ -12,11 +12,6 @@ import {
   expectModelNormDesignShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P1/P2/P3】数据模型建表变体、CSV、SQL 解析与词根标准匹配入口可核验", async ({

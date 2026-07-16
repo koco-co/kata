@@ -14,7 +14,7 @@ function runLoader(
   extraEnv: Record<string, string> = {},
 ): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["rule-loader", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["rules", ...args], {
       cwd: resolve(import.meta.dirname, "../../../.."),
       encoding: "utf8",
       env: {

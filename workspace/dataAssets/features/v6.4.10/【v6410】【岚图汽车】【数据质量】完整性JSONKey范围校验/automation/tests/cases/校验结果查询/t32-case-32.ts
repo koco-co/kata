@@ -6,7 +6,6 @@
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";

@@ -19,9 +19,12 @@ beforeEach(() => {
   WS = mkdtempSync(join(tmpdir(), "scan-e2e-"));
   process.env.KATA_WORKSPACE_ROOT = WS;
   process.env.KATA_ROOT_OVERRIDE = WS;
-  REPO = join(WS, PROJECT, ".kata", "repos", "demo");
+  process.env.KATA_SOURCE_REPO_ROOT = join(WS, "external");
+  process.env.KATA_SOURCE_REPOS = "https://gitlab.example.test/team/demo.git";
+  REPO = join(WS, "external", "demo");
   execSync(`mkdir -p "${REPO}"`);
   execSync(`git init -q -b main "${REPO}"`);
+  git('remote add origin "https://gitlab.example.test/team/demo.git"', REPO);
   git('config user.email "t@t.com"', REPO);
   git('config user.name "t"', REPO);
   writeFileSync(join(REPO, "TagService.java"), "public void batchDelete() { repo.deleteAll(); }\n");
@@ -41,6 +44,8 @@ afterEach(() => {
   rmSync(WS, { recursive: true, force: true });
   delete process.env.KATA_WORKSPACE_ROOT;
   delete process.env.KATA_ROOT_OVERRIDE;
+  delete process.env.KATA_SOURCE_REPO_ROOT;
+  delete process.env.KATA_SOURCE_REPOS;
 });
 
 describe("defect-analyze diff-mode E2E orchestration (mock agent output)", () => {

@@ -11,11 +11,6 @@ import {
   expectDataQualityRuleBasePermissionContract,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 const limitedSessionPath = process.env.UI_AUTOTEST_DQ_LIMITED_SESSION_PATH ?? "";

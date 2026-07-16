@@ -13,11 +13,6 @@ import { buildDataAssetsUrl } from "../../../../_shared/helpers/test-setup";
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const PROJECT_ID = 92;
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P2/P3】行业模版列表与引用标准入口只读 Shell 可核验", async ({ page, step }) => {

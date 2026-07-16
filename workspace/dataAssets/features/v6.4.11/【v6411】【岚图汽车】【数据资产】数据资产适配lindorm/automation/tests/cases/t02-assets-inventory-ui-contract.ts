@@ -21,11 +21,6 @@ import {
   SR_2099_01_AI_VALUE_RANK_L84,
 } from "../data/assets-inventory-contract";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(35 * 60 * 1000);
 
 test("【P2/P3】资产盘点图表模块、数据源筛选项与统计接口可核验", async ({ page, step }) => {

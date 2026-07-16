@@ -12,7 +12,7 @@ const TEST_PROJECT = "kata-unit-history-project";
 
 function run(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["history-convert", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["history", "convert", ...args], {
       cwd: REPO_ROOT,
       encoding: "utf8",
       timeout: 30_000,
@@ -52,7 +52,7 @@ describe("history-convert --help", () => {
     const { stdout, stderr, code } = run(["convert", "--help"]);
     const output = stdout + stderr;
     expect(code).toBe(0);
-    expect(output).toMatch(/history-convert|Convert/i);
+    expect(output).toMatch(/convert|转换/i);
     expect(output).toMatch(/--path/);
     expect(output).toMatch(/--detect/);
     expect(output).toMatch(/--force/);

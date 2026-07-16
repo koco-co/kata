@@ -14,9 +14,6 @@ import { FORMAT_JSON_VERIFICATION_FUNC } from "../data/test-data-15694";
 const MULTI_TYPE_TABLE = "quality_test_json_multi_type";
 const UNSUPPORTED_FIELDS = ["id", "age", "salary", "created_at"] as const;
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 test.setTimeout(600000);
 
 function getFieldSelect(ruleForm: Locator): Locator {

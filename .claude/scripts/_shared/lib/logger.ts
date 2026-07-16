@@ -28,12 +28,11 @@ export function getLogLevel(): LogLevel {
 }
 
 /**
- * Read the log-level environment variable and apply it to the global level.
- * Prefers `KATA_LOG_LEVEL`; falls back to the legacy bare `LOG_LEVEL`.
+ * Read `KATA_LOG_LEVEL` and apply it to the global level.
  * Permissive: invalid values are ignored silently.
  */
 export function initLogLevel(): void {
-  const raw = (process.env.KATA_LOG_LEVEL ?? process.env.LOG_LEVEL)?.toLowerCase();
+  const raw = process.env.KATA_LOG_LEVEL?.toLowerCase();
   if (raw && (LOG_LEVELS as readonly string[]).includes(raw)) {
     currentLevel = raw as LogLevel;
   }

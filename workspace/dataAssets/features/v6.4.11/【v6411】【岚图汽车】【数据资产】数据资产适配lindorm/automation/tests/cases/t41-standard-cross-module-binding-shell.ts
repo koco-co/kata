@@ -11,11 +11,6 @@ import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectDataQualityRuleTaskCreateEntry } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 import { expectDataStandardDetailImportExportShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P1/P2/P3】数据标准绑定质量规则、下线提示与引用码表入口可核验", async ({

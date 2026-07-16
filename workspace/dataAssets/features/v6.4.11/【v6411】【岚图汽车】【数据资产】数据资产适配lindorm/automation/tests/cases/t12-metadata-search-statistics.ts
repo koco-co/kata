@@ -20,11 +20,6 @@ import {
 
 const DATA_MAP_CLICKTHROUGH_TYPES = ["数据表", "离线任务", "实时任务", "API", "智能标签", "指标"] as const;
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P2/P3】元数据数据地图统计入口与剩余类型搜索页可核验", async ({ page, step }) => {

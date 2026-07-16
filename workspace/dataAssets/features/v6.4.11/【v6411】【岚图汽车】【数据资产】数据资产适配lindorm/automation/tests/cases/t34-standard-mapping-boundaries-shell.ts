@@ -9,11 +9,6 @@
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectStandardMappingBoundaryDialogsShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P1/P2】标准映射映射记录与字段绑定边界 Shell 可核验", async ({ page, step }) => {

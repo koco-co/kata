@@ -14,10 +14,7 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
   };
   const defaultBaseUrl = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
   const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
-  const storageStatePath = getEnv("UI_AUTOTEST_SESSION_PATH");
-  if (storageStatePath) {
-    test.use({ storageState: storageStatePath });
-  }
+
   const visibleMenus = ["总览", "规则任务管理", "校验结果查询", "数据质量报告", "规则集管理"];
   const orderedMenus = ["总览", "规则集管理", "规则任务管理", "校验结果查询", "数据质量报告"];
   const removedMenus = ["概览", "规则任务配置", "任务实例查询", "质量报告"];

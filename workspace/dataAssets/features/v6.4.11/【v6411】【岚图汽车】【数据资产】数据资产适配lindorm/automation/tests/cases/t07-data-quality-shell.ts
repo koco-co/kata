@@ -24,11 +24,6 @@ import {
   expectMetadataIntegrityShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 test("【P0/P1/P2】数据质量菜单、规则任务、报告与规则库 Shell 可核验", async ({ page, step }) => {

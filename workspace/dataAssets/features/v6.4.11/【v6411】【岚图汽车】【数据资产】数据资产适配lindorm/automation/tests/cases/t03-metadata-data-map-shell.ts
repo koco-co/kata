@@ -14,11 +14,6 @@ import {
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
 import { METADATA_SCOPE, SR_2099_01_MD_001 } from "../data/metadata-contract";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P3/P2】元数据数据地图首页与搜索类型下拉可核验", async ({ page, step }) => {

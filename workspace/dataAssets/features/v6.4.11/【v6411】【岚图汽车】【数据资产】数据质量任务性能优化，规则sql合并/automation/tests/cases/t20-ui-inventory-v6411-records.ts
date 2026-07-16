@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { getEnvConfig } from "../../../../../../_shared/helpers";
 
 type InventoryArea = "rule-set" | "rule-task" | "task-query";
 type UiResultStatus = "validation-pass" | "validation-unpass" | "run-failed" | "running" | "unknown";
@@ -37,14 +38,11 @@ const OUT_DIR = path.resolve(
   process.env.V6411_UI_INVENTORY_OUT_DIR ?? defaultRunSubdir("ui-inventory", "runs/20260705-v6411-ui-inventory"),
 );
 const RESULT_JSON = path.join(OUT_DIR, "ui-inventory-results.json");
-const BASE_URL = process.env.V6411_DQ_BASE_URL ?? "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
-const PROJECT_ID = process.env.V6411_DQ_PROJECT_ID ?? "92";
-const PROJECT_NAME = process.env.V6411_DQ_PROJECT_NAME ?? "pw_test";
+const ENV = getEnvConfig();
+const BASE_URL = ENV.urls.baseUrl;
+const PROJECT_ID = String(ENV.projects.quality.id);
+const PROJECT_NAME = ENV.projects.quality.name;
 const QUERY = process.env.V6411_UI_INVENTORY_QUERY ?? "test_info_1_";
-const SESSION_PATH = path.resolve(
-  process.cwd(),
-  process.env.V6411_DQ_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-);
 
 function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string {
   if (process.env.KATA_ALLURE_RESULTS_DIR) {
@@ -53,7 +51,6 @@ function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string 
   return path.join(FEATURE_DIR, fallbackRelativePath);
 }
 
-test.use({ storageState: SESSION_PATH });
 test.setTimeout(Number(process.env.V6411_UI_INVENTORY_TIMEOUT_MS ?? 10 * 60 * 1000));
 
 test("盘点 v6411 当前 UI 业务记录", async ({ page }) => {

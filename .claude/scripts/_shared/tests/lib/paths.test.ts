@@ -3,41 +3,22 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
   agentsDir,
-  archiveDir,
-  authDir,
-  authSessionDir,
-  authSessionPath,
-  commandsDir,
   currentYYYYMM,
   enhancedMd,
   featureDir,
   featureFile,
-  incidentDir,
-  issuesDir,
   knowledgeDir,
-  knowledgeModulesDir,
   knowledgePath,
-  knowledgePitfallsDir,
-  listProjects,
   parseGitUrl,
   prdsDir,
   probeCacheDir,
   probeCachePath,
   projectDir,
-  projectKataDir,
   projectPath,
   projectRulesDir,
-  projectShared,
-  regressionDir,
   repoRoot,
-  reportsDir,
-  reposDir,
-  scriptsDir,
   skillsDir,
   tempDir,
-  testsDir,
-  xmindDir,
-  xmindPath,
 } from "@shared/lib/paths.ts";
 
 describe("parseGitUrl", () => {
@@ -115,14 +96,6 @@ describe("repoRoot", () => {
   });
 });
 
-describe("scriptsDir", () => {
-  it("points to .claude/scripts/_shared inside the repo root", () => {
-    const dir = scriptsDir();
-    expect(dir.endsWith(".claude/scripts/_shared")).toBeTruthy();
-    expect(existsSync(dir)).toBeTruthy();
-  });
-});
-
 describe("skillsDir", () => {
   it("points to .claude/skills inside the repo root", () => {
     const dir = skillsDir();
@@ -135,19 +108,14 @@ describe("skillsDir", () => {
   });
 });
 
-describe("agentsDir / commandsDir", () => {
+describe("agentsDir", () => {
   it("agentsDir points to .claude/agents inside the repo root", () => {
     expect(agentsDir().endsWith(".claude/agents")).toBeTruthy();
   });
 
-  it("commandsDir points to .claude/commands inside the repo root", () => {
-    expect(commandsDir().endsWith(".claude/commands")).toBeTruthy();
-  });
-
-  it("supports root override for agentsDir and commandsDir", () => {
+  it("supports root override", () => {
     const root = "/tmp/kata-root";
     expect(agentsDir(root)).toBe(join(root, ".claude", "agents"));
-    expect(commandsDir(root)).toBe(join(root, ".claude", "commands"));
   });
 });
 
@@ -171,83 +139,10 @@ describe("projectPath", () => {
   });
 });
 
-describe("xmindDir", () => {
-  it("returns workspace/{project}/_shared/archive/xmind", () => {
-    const dir = xmindDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/_shared/archive/xmind")).toBeTruthy();
-  });
-});
-
-describe("xmindPath", () => {
-  it("joins segments under xmind dir", () => {
-    const p = xmindPath("dataAssets", "202604", "test.xmind");
-    expect(p.endsWith("workspace/dataAssets/_shared/archive/xmind/202604/test.xmind")).toBeTruthy();
-  });
-});
-
-describe("archiveDir", () => {
-  it("returns workspace/{project}/_shared/archive", () => {
-    const dir = archiveDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/_shared/archive")).toBeTruthy();
-  });
-});
-
 describe("prdsDir", () => {
   it("returns workspace/{project}/_shared/archive/history/prds", () => {
     const dir = prdsDir("xyzh");
     expect(dir.endsWith("workspace/xyzh/_shared/archive/history/prds")).toBeTruthy();
-  });
-});
-
-describe("issuesDir", () => {
-  it("returns workspace/{project}/_shared/archive/issues", () => {
-    const dir = issuesDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/_shared/archive/issues")).toBeTruthy();
-  });
-});
-
-describe("reportsDir", () => {
-  it("returns workspace/{project}/_shared/published-reports", () => {
-    const dir = reportsDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/_shared/published-reports")).toBeTruthy();
-  });
-});
-
-describe("testsDir", () => {
-  it("returns workspace/{project}/tests", () => {
-    const dir = testsDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/tests")).toBeTruthy();
-  });
-});
-
-describe("reposDir", () => {
-  it("returns workspace/{project}/.kata/repos", () => {
-    const dir = reposDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/.kata/repos")).toBeTruthy();
-  });
-});
-
-describe("project-local .kata auth paths", () => {
-  it("returns workspace/{project}/.kata", () => {
-    expect(projectKataDir("dataAssets").endsWith("workspace/dataAssets/.kata")).toBeTruthy();
-  });
-
-  it("returns workspace/{project}/.kata/auth", () => {
-    expect(authDir("dataAssets").endsWith("workspace/dataAssets/.kata/auth")).toBeTruthy();
-  });
-
-  it("returns workspace/{project}/.kata/auth/{project}", () => {
-    expect(
-      authSessionDir("dataAssets").endsWith("workspace/dataAssets/.kata/auth/dataAssets"),
-    ).toBeTruthy();
-  });
-
-  it("returns workspace/{project}/.kata/auth/{project}/session-{env}.json", () => {
-    expect(
-      authSessionPath("dataAssets", "ltqc-local").endsWith(
-        "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-      ),
-    ).toBeTruthy();
   });
 });
 
@@ -305,34 +200,6 @@ describe("knowledgePath", () => {
   });
 });
 
-describe("knowledgeModulesDir", () => {
-  it("returns <knowledge>/modules", () => {
-    const dir = knowledgeModulesDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/_shared/knowledge/modules")).toBeTruthy();
-  });
-});
-
-describe("knowledgePitfallsDir", () => {
-  it("returns <knowledge>/pitfalls", () => {
-    const dir = knowledgePitfallsDir("dataAssets");
-    expect(dir.endsWith("workspace/dataAssets/_shared/knowledge/pitfalls")).toBeTruthy();
-  });
-});
-
-describe("listProjects", () => {
-  it("returns an array", () => {
-    const projects = listProjects();
-    expect(Array.isArray(projects)).toBeTruthy();
-  });
-
-  it("does not include dot-prefixed directories", () => {
-    const projects = listProjects();
-    for (const p of projects) {
-      expect(!p.startsWith(".")).toBeTruthy();
-    }
-  });
-});
-
 describe("featureDir / featureFile (new v3 API)", () => {
   test("featureDir returns workspace/{p}/features/{group}/{featureId}/", () => {
     const result = featureDir("dataAssets", "_standing", "202604-myslug");
@@ -377,34 +244,8 @@ describe("featureDir / featureFile (new v3 API)", () => {
   });
 });
 
-describe("projectShared (new v3 API)", () => {
-  test("projectShared returns workspace/{p}/_shared/{kind}/...", () => {
-    const result = projectShared("dataAssets", "fixtures", "auth", "session.json");
-    expect(result).toMatch(/workspace\/dataAssets\/_shared\/fixtures\/auth\/session\.json$/);
-  });
-
-  test("projectShared with no segments returns the kind dir", () => {
-    const result = projectShared("dataAssets", "helpers");
-    expect(result).toMatch(/workspace\/dataAssets\/_shared\/helpers$/);
-  });
-});
-
-describe("incidentDir / regressionDir (new v3 API)", () => {
-  test("incidentDir returns workspace/{p}/_shared/archive/issues/{date}-{slug}/", () => {
-    const result = incidentDir("dataAssets", "20260428", "console-error");
-    expect(result).toMatch(
-      /workspace\/dataAssets\/_shared\/archive\/issues\/20260428-console-error$/,
-    );
-  });
-
-  test("regressionDir returns workspace/{p}/_shared/archive/regressions/{date}-{batch}/", () => {
-    const result = regressionDir("dataAssets", "20260428", "smoke");
-    expect(result).toMatch(/workspace\/dataAssets\/_shared\/archive\/regressions\/20260428-smoke$/);
-  });
-});
-
-describe("deprecated alias: enhancedMd routes to feature path", () => {
-  test("enhancedMd returns features/_standing/{ym}-{slug}/enhanced.md (post-v3 redirect)", () => {
+describe("enhancedMd", () => {
+  test("returns features/_standing/{ym}-{slug}/enhanced.md", () => {
     const result = enhancedMd("dataAssets", "202604", "myslug");
     expect(result).toMatch(
       /workspace\/dataAssets\/features\/_standing\/202604-myslug\/enhanced\.md$/,

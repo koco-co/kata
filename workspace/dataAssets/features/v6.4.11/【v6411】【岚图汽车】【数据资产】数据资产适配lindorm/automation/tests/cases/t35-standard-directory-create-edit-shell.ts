@@ -8,11 +8,6 @@
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectStandardDirectoryCreateEditSixLevelShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P1/P2/P3】标准目录创建、编辑与六层限制 Shell 可核验", async ({ page, step }) => {

@@ -14,11 +14,6 @@ import {
   expectUserManageShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/platform-management-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 // SourceRef: SR-UI-PROBE-20260523-PLATFORM-CONT-001

@@ -6,6 +6,7 @@ import {
   lintCasesInCasesDirForFeature,
   lintEnvProfileCompliance,
   lintRunnerIsAggregatorForFeature,
+  lintSessionCompliant,
 } from "@shared/lint/v2-quality-gates.ts";
 
 describe("lintEnvProfileCompliance", () => {
@@ -85,6 +86,37 @@ describe("feature-scoped v2 quality gates", () => {
       expect.objectContaining({
         rule: "cases_in_cases_dir",
         severity: "fail",
+      }),
+    );
+  });
+});
+
+describe("lintSessionCompliant", () => {
+  let scratch: string;
+
+  beforeEach(() => {
+    scratch = mkdtempSync(join(tmpdir(), "session-compliance-"));
+  });
+
+  afterEach(() => {
+    rmSync(scratch, { recursive: true, force: true });
+  });
+
+  it("rejects file-backed DataAssets authentication", () => {
+    const casesDir = join(scratch, "dataAssets", "features", "v1", "feature", "tests", "cases");
+    mkdirSync(casesDir, { recursive: true });
+    writeFileSync(
+      join(casesDir, "t01.ts"),
+      'test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session.json" });',
+    );
+
+    const report = lintSessionCompliant(scratch);
+
+    expect(report.passed).toBe(false);
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "session_compliant",
+        matched: "legacy auth session",
       }),
     );
   });

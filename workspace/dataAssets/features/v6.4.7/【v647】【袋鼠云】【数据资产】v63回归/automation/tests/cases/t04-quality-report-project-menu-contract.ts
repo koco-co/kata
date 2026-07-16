@@ -13,7 +13,6 @@ import {
   gotoDataQualityPage,
 } from "../../../../_shared/pages/assets-v63-regression/v63-regression-page";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json" });
 test.setTimeout(90000);
 
 test("【P0】质量报告、项目信息和脏数据管理入口可访问", async ({ page, step }) => {

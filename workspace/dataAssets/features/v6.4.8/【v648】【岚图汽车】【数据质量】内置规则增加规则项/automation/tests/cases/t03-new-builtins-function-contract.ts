@@ -8,9 +8,6 @@ import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { EXPECTED_NEW_RULES, SOURCE_REFS } from "../data/rule-library-contract";
 import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../_shared/pages/rule-library/rule-library-page";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json",
-});
 test.setTimeout(120000);
 
 test("【P1】新增内置规则契约在规则配置入口可被发现", async ({ page, step }) => {

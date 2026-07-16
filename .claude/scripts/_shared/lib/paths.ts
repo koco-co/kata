@@ -1,4 +1,3 @@
-import { readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getEnv } from "./env.ts";
@@ -59,34 +58,6 @@ export function featureFile(
 }
 
 /**
- * Project-level shared resources: workspace/{project}/_shared/{kind}/...
- * kind ∈ {"helpers", "fixtures", "pages"}.
- */
-export function projectShared(
-  project: string,
-  kind: "helpers" | "fixtures" | "pages",
-  ...segments: string[]
-): string {
-  return join(projectDir(project), "_shared", kind, ...segments);
-}
-
-/**
- * Non-PRD-derived bucket for ad-hoc bug reports / console errors.
- * workspace/{project}/_shared/archive/issues/{yyyymmdd}-{slug}/.
- */
-export function incidentDir(project: string, yyyymmdd: string, slug: string): string {
-  return join(projectDir(project), "_shared", "archive", "issues", `${yyyymmdd}-${slug}`);
-}
-
-/**
- * Periodic regression / smoke test batches.
- * workspace/{project}/_shared/archive/regressions/{yyyymmdd}-{batch}/.
- */
-export function regressionDir(project: string, yyyymmdd: string, batch: string): string {
-  return join(projectDir(project), "_shared", "archive", "regressions", `${yyyymmdd}-${batch}`);
-}
-
-/**
  * Static scan audit bucket. Diff-based scan reports for a given branch pair.
  * workspace/{project}/_shared/archive/audits/{yyyymm}-{slug}/.
  */
@@ -111,104 +82,20 @@ export function defectDir(project: string, yyyymm: string, slug: string): string
   return join(projectDir(project), "_shared", "archive", "reports", "bugs", `${yyyymm}-${slug}`);
 }
 
-export function xmindDir(project: string): string {
-  return join(projectDir(project), "_shared", "archive", "xmind");
-}
-
-export function xmindPath(project: string, ...segments: string[]): string {
-  return join(xmindDir(project), ...segments);
-}
-
-export function archiveDir(project: string): string {
-  return join(projectDir(project), "_shared", "archive");
-}
-
 export function prdsDir(project: string): string {
   return join(projectDir(project), "_shared", "archive", "history", "prds");
 }
 
-let warnedEnhancedMd = false;
-/** @deprecated since v3 — use featureFile(..., "enhanced.md"). */
 export function enhancedMd(project: string, yyyymm: string, slug: string): string {
-  if (!warnedEnhancedMd) {
-    console.warn("[paths] enhancedMd() is deprecated; use featureFile(..., 'enhanced.md')");
-    warnedEnhancedMd = true;
-  }
   return featureFile(project, "_standing", `${yyyymm}-${slug}`, "enhanced.md");
 }
 
-let warnedSourceFactsJson = false;
-/** @deprecated since v3 — use featureFile(..., "source-facts.json"). */
 export function sourceFactsJson(project: string, yyyymm: string, slug: string): string {
-  if (!warnedSourceFactsJson) {
-    console.warn(
-      "[paths] sourceFactsJson() is deprecated; use featureFile(..., 'source-facts.json')",
-    );
-    warnedSourceFactsJson = true;
-  }
   return featureFile(project, "_standing", `${yyyymm}-${slug}`, "source-facts.json");
 }
 
-let warnedResolvedMd = false;
-/** @deprecated since v3 — use featureFile(..., "resolved.md"). */
 export function resolvedMd(project: string, yyyymm: string, slug: string): string {
-  if (!warnedResolvedMd) {
-    console.warn("[paths] resolvedMd() is deprecated; use featureFile(..., 'resolved.md')");
-    warnedResolvedMd = true;
-  }
   return featureFile(project, "_standing", `${yyyymm}-${slug}`, "resolved.md");
-}
-
-let warnedPrdImagesDir = false;
-/** @deprecated since v3 — use featureFile(..., "images"). */
-export function prdImagesDir(project: string, yyyymm: string, slug: string): string {
-  if (!warnedPrdImagesDir) {
-    console.warn("[paths] prdImagesDir() is deprecated; use featureFile(..., 'images')");
-    warnedPrdImagesDir = true;
-  }
-  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "images");
-}
-
-let warnedOriginalPrdMd = false;
-/** @deprecated since v3 — use featureFile(..., "prd.md"). Note rename: original.md → prd.md. */
-export function originalPrdMd(project: string, yyyymm: string, slug: string): string {
-  if (!warnedOriginalPrdMd) {
-    console.warn("[paths] originalPrdMd() is deprecated; use featureFile(..., 'prd.md')");
-    warnedOriginalPrdMd = true;
-  }
-  return featureFile(project, "_standing", `${yyyymm}-${slug}`, "prd.md");
-}
-
-export function issuesDir(project: string): string {
-  return join(projectDir(project), "_shared", "archive", "issues");
-}
-
-export function reportsDir(project: string): string {
-  return join(projectDir(project), "_shared", "published-reports");
-}
-
-export function testsDir(project: string): string {
-  return join(projectDir(project), "tests");
-}
-
-export function projectKataDir(project: string): string {
-  return join(projectDir(project), ".kata");
-}
-
-export function reposDir(project: string): string {
-  return join(projectKataDir(project), "repos");
-}
-
-export function authDir(project: string): string {
-  return join(projectKataDir(project), "auth");
-}
-
-export function authSessionDir(project: string): string {
-  return join(authDir(project), project);
-}
-
-export function authSessionPath(project: string, env: string): string {
-  return join(authSessionDir(project), `session-${env}.json`);
 }
 
 export function tempDir(project: string): string {
@@ -235,18 +122,6 @@ export function knowledgePath(project: string, ...segments: string[]): string {
   return join(knowledgeDir(project), ...segments);
 }
 
-export function knowledgeModulesDir(project: string): string {
-  return join(knowledgeDir(project), "modules");
-}
-
-export function knowledgePitfallsDir(project: string): string {
-  return join(knowledgeDir(project), "pitfalls");
-}
-
-export function scriptsDir(): string {
-  return resolve(repoRoot(), ".claude/scripts/_shared");
-}
-
 export function pluginsDir(): string {
   return resolve(repoRoot(), ".claude/plugins");
 }
@@ -271,10 +146,6 @@ export function skillsDir(root: string = repoRoot()): string {
 
 export function agentsDir(root: string = repoRoot()): string {
   return join(root, ".claude", "agents");
-}
-
-export function commandsDir(root: string = repoRoot()): string {
-  return join(root, ".claude", "commands");
 }
 
 export function currentYYYYMM(): string {
@@ -305,7 +176,7 @@ export function parseGitUrl(url: string): { group: string; repo: string } {
 // ── kata 进度引擎路径 ───────────────────────────────────
 
 /**
- * Resolve the `.kata/` root directory for the progress engine.
+ * Resolve the ignored `.kata/` root used by transient probe caches.
  *
  * KATA_ROOT_OVERRIDE (if set) must be a PARENT directory — the `.kata` segment
  * is appended internally. Pass a temp root like `/tmp/kata-test-123`, not
@@ -314,44 +185,4 @@ export function parseGitUrl(url: string): { group: string; repo: string } {
 function kataRoot(): string {
   const override = getEnv("KATA_ROOT_OVERRIDE");
   return override ? join(override, ".kata") : join(repoRoot(), ".kata");
-}
-
-export function kataDir(project: string): string {
-  return join(kataRoot(), project);
-}
-
-export function sessionsDir(project: string, workflow: string): string {
-  return join(kataDir(project), "sessions", workflow);
-}
-
-export function sessionFilePath(project: string, workflow: string, sessionSlug: string): string {
-  return join(sessionsDir(project, workflow), `${sessionSlug}.json`);
-}
-
-export function locksDir(project: string): string {
-  return join(kataDir(project), "locks");
-}
-
-export function blocksDir(project: string, workflow: string, sessionSlug: string): string {
-  return join(kataDir(project), "blocks", workflow, sessionSlug);
-}
-
-export function legacyBackupDir(project: string): string {
-  return join(kataDir(project), "legacy-backup");
-}
-
-export function listProjects(): string[] {
-  const wsDir = workspaceDir();
-  try {
-    return readdirSync(wsDir).filter((name) => {
-      if (name.startsWith(".")) return false;
-      try {
-        return statSync(join(wsDir, name)).isDirectory();
-      } catch {
-        return false;
-      }
-    });
-  } catch {
-    return [];
-  }
 }

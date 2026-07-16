@@ -48,18 +48,7 @@ const publicCommands = {
   features: ["create", "list", "show", "lint", "index", "resolve", "clean", "archive", "migrate"],
   results: ["path", "publish", "prune"],
   handoff: ["render"],
-  env: [
-    "list",
-    "show",
-    "add",
-    "cookie",
-    "discover",
-    "doctor",
-    "run",
-    "migrate-dataassets",
-    "migrate-zentao-session",
-    "set",
-  ],
+  env: ["list", "show", "add", "cookie", "discover", "doctor", "run", "migrate-dataassets", "set"],
 } as const;
 
 function run(args: string[]): { stdout: string; stderr: string; code: number } {
@@ -124,34 +113,22 @@ describe("kata 公共命令契约", () => {
     }
   }, 30_000);
 
-  it("旧命令继续转发，但不进入公共帮助页", () => {
-    for (const args of [
-      ["create-project", "scan", "--help"],
-      ["repo-sync", "sync", "--help"],
-      ["init-wizard", "verify", "--help"],
-      ["features", "new", "--help"],
-      ["features", "ls", "--help"],
-      ["archive-gen", "validate", "--help"],
-      ["history-convert", "--help"],
-      ["knowledge-curate", "read-core", "--help"],
-      ["defect-report", "render-bug", "--help"],
-      ["scan-report", "create", "--help"],
-      ["rule-loader", "load", "--help"],
-      ["xmind-gen", "--help"],
-      ["xmind-patch", "search", "--help"],
-    ]) {
-      const result = run(args);
-      expect(result.code, `${args.join(" ")}\n${result.stderr}`).toBe(0);
-    }
-  });
-
   it("Skill 与共享提示词只引用公共命令和 kebab-case 位置参数", async () => {
     const forbiddenCommands =
       /kata (?:create-project|repo-sync|init-wizard|archive-gen|history-convert|knowledge-curate|defect-report|scan-report|rule-loader|xmind-gen|xmind-patch)\b/;
     const camelCasePlaceholder = /<feature(?:Id|Dir)>/;
     const publicGroups = new Set(Object.keys(publicCommands));
     const files: string[] = [];
-    for (const pattern of [".claude/skills/**/*.md", ".claude/prompt/**/*.md"]) {
+    for (const pattern of [
+      ".claude/skills/**/*.md",
+      ".claude/prompt/**/*.md",
+      ".claude/scripts/_shared/cli/README.md",
+      "README.md",
+      "README-EN.md",
+      "INSTALL.md",
+      "CONTRIBUTING.md",
+      "CLAUDE.md",
+    ]) {
       for await (const file of new Glob(pattern).scan({ cwd: repoRoot, onlyFiles: true })) {
         files.push(file);
       }

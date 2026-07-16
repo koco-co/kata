@@ -246,6 +246,39 @@ function decodeMarkdownCell(value: string): string {
     .replace(/\\\\/g, "\\");
 }
 
+function buildArchiveMeta(
+  fm: ArchiveFrontMatter,
+  mdPath: string,
+  projectName: string,
+  version?: string,
+): RootAwareMeta {
+  const requirementName =
+    typeof fm.suite_name === "string" ? fm.suite_name : basename(mdPath, ".md");
+  const resolvedProject =
+    typeof fm.product_line === "string"
+      ? fm.product_line
+      : typeof fm.root_name === "string"
+        ? fm.root_name
+        : projectName;
+  const meta: RootAwareMeta = {
+    project_name: resolvedProject,
+    requirement_name: requirementName,
+  };
+  const resolvedVersion =
+    version ?? (typeof fm.prd_version === "string" ? fm.prd_version : undefined);
+
+  if (typeof fm.root_name === "string") meta.root_name = fm.root_name;
+  if (resolvedVersion) meta.version = resolvedVersion;
+  if (typeof fm.prd_id === "number") meta.requirement_id = fm.prd_id;
+  if (Array.isArray(fm.tags)) {
+    meta.tags = fm.tags.filter((tag): tag is string => typeof tag === "string");
+  }
+  if (typeof fm.description === "string") meta.description = fm.description;
+  if (typeof fm.create_at === "string") meta.create_at = fm.create_at;
+  if (typeof fm.status === "string") meta.status = fm.status;
+  return meta;
+}
+
 export function archiveToJson(
   mdPath: string,
   projectName: string,
@@ -253,49 +286,8 @@ export function archiveToJson(
 ): IntermediateJson {
   const raw = readFileSync(mdPath, "utf-8");
   const { fm, body } = parseFrontMatter(raw);
-
-  const suiteName = typeof fm.suite_name === "string" ? fm.suite_name : basename(mdPath, ".md");
-  const prdId = typeof fm.prd_id === "number" ? fm.prd_id : undefined;
-
-  // Resolve version: CLI --version > frontmatter prd_version
-  const resolvedVersion =
-    version ?? (typeof fm.prd_version === "string" ? fm.prd_version : undefined);
-
-  // Resolve project name (root 标题里的产品线段):
-  // frontmatter product_line（只定产品线段，仍套迭代用例模板）> root_name（整体覆盖根标题）> CLI --project
-  const resolvedProject =
-    typeof fm.product_line === "string"
-      ? fm.product_line
-      : typeof fm.root_name === "string"
-        ? fm.root_name
-        : projectName;
-
   const modules = parseArchiveBody(body);
-
-  const meta: RootAwareMeta = {
-    project_name: resolvedProject,
-    requirement_name: suiteName,
-  };
-
-  if (typeof fm.root_name === "string") {
-    meta.root_name = fm.root_name;
-  }
-
-  if (resolvedVersion) {
-    meta.version = resolvedVersion;
-  }
-
-  if (prdId) {
-    meta.requirement_id = prdId;
-  }
-  if (Array.isArray(fm.tags)) {
-    meta.tags = fm.tags.filter((tag): tag is string => typeof tag === "string");
-  }
-  if (typeof fm.description === "string") meta.description = fm.description;
-  if (typeof fm.create_at === "string") meta.create_at = fm.create_at;
-  if (typeof fm.status === "string") meta.status = fm.status;
-
-  return { meta, modules };
+  return { meta: buildArchiveMeta(fm, mdPath, projectName, version), modules };
 }
 
 // ─── CLI ─────────────────────────────────────────────────────────────────────

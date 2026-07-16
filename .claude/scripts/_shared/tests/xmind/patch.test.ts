@@ -18,7 +18,7 @@ function runGen(args: string[]): {
   code: number;
 } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["xmind-gen", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["xmind", "generate", ...args], {
       cwd: REPO_ROOT,
       encoding: "utf8",
     });
@@ -39,7 +39,7 @@ function runEdit(args: string[]): {
   code: number;
 } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["xmind-patch", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["xmind", ...args], {
       cwd: REPO_ROOT,
       encoding: "utf8",
     });

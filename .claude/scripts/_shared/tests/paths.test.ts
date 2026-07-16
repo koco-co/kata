@@ -1,56 +1,11 @@
-import { describe, expect, it, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
   auditDir,
   auditFile,
-  blocksDir,
-  kataDir,
-  legacyBackupDir,
-  locksDir,
-  repoRoot,
-  sessionFilePath,
-  sessionsDir,
-} from "@shared/lib/paths.ts";
-
-describe("kata paths", () => {
-  it("kataDir resolves to .kata/{project} under repo root", () => {
-    expect(kataDir("dataAssets")).toBe(join(repoRoot(), ".kata", "dataAssets"));
-  });
-
-  it("sessionsDir returns .kata/{project}/sessions/{workflow}", () => {
-    expect(sessionsDir("dataAssets", "case-draft")).toBe(
-      join(repoRoot(), ".kata", "dataAssets", "sessions", "case-draft"),
-    );
-  });
-
-  it("locksDir returns .kata/{project}/locks", () => {
-    expect(locksDir("dataAssets")).toBe(join(repoRoot(), ".kata", "dataAssets", "locks"));
-  });
-
-  it("blocksDir returns .kata/{project}/blocks/{workflow}/{slug}", () => {
-    expect(blocksDir("dataAssets", "ui-plan", "suite-x")).toBe(
-      join(repoRoot(), ".kata", "dataAssets", "blocks", "ui-plan", "suite-x"),
-    );
-  });
-
-  it("legacyBackupDir returns .kata/{project}/legacy-backup", () => {
-    expect(legacyBackupDir("dataAssets")).toBe(
-      join(repoRoot(), ".kata", "dataAssets", "legacy-backup"),
-    );
-  });
-
-  it("sessionFilePath returns .kata/{project}/sessions/{workflow}/{slug}.json", () => {
-    expect(sessionFilePath("dataAssets", "case-draft", "prd-xxx-default")).toBe(
-      join(repoRoot(), ".kata", "dataAssets", "sessions", "case-draft", "prd-xxx-default.json"),
-    );
-  });
-});
-
-import {
   enhancedMd,
   featureDir,
-  originalPrdMd,
-  prdImagesDir,
+  repoRoot,
   resolvedMd,
   sourceFactsJson,
 } from "@shared/lib/paths.ts";
@@ -66,7 +21,7 @@ describe("enhanced doc paths", () => {
     expect(p).toMatch(/workspace\/dataAssets\/features\/v6\.4\.10\/2026-04-my-prd$/);
   });
 
-  test("enhancedMd is {featureDir}/enhanced.md (deprecated, defaults to _standing)", () => {
+  test("enhancedMd is {featureDir}/enhanced.md", () => {
     const p = enhancedMd("dataAssets", "202604", "my-prd");
     expect(p).toMatch(/my-prd\/enhanced\.md$/);
   });
@@ -79,14 +34,6 @@ describe("enhanced doc paths", () => {
 
   test("resolvedMd is {featureDir}/resolved.md", () => {
     expect(resolvedMd("dataAssets", "202604", "my-prd")).toMatch(/my-prd\/resolved\.md$/);
-  });
-
-  test("prdImagesDir is {featureDir}/images/", () => {
-    expect(prdImagesDir("dataAssets", "202604", "my-prd")).toMatch(/my-prd\/images$/);
-  });
-
-  test("originalPrdMd is {featureDir}/prd.md (v3 redirect, renamed original.md -> prd.md)", () => {
-    expect(originalPrdMd("dataAssets", "202604", "my-prd")).toMatch(/my-prd\/prd\.md$/);
   });
 });
 

@@ -14,11 +14,6 @@ import {
   openFirstTableDetail,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-table-detail-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(12 * 60 * 1000);
 
 test("【P1/P2/P3】元数据视图详情技术属性、元数据、导出与删除可核验", async ({ page, step }) => {

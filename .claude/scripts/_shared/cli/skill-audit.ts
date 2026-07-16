@@ -2,13 +2,13 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { agentsDir, repoRoot, skillsDir } from "@shared/lib/paths.ts";
 import {
-  checkRuntimeDetach,
-  formatRuntimeDetachReport,
-} from "@shared/lib/skills/runtime-detach.ts";
-import {
   checkRuntimeSkillSync,
   formatRuntimeSkillSyncReport,
 } from "@shared/lib/skills/runtime-sync.ts";
+import {
+  checkRuntimeWorkflow,
+  formatRuntimeWorkflowReport,
+} from "@shared/lib/skills/runtime-workflow.ts";
 import {
   type CodexSkillReport,
   formatCodexSkillReport,
@@ -41,12 +41,12 @@ export function buildSkillsCommand(): Command {
     .action((opts: { exitCode: boolean }) => {
       const root = repoRoot();
       const skillReport = checkRuntimeSkillSync(root);
-      const detachReport = checkRuntimeDetach(root);
+      const workflowReport = checkRuntimeWorkflow(root);
       const structureReport = lintSkillStructure(root);
-      const passed = skillReport.passed && detachReport.passed && structureReport.passed;
+      const passed = skillReport.passed && workflowReport.passed && structureReport.passed;
       const text = [
         formatRuntimeSkillSyncReport(skillReport, root),
-        formatRuntimeDetachReport(detachReport, root),
+        formatRuntimeWorkflowReport(workflowReport, root),
         formatStructureReport(structureReport, root),
       ]
         .filter((s) => s.length > 0)

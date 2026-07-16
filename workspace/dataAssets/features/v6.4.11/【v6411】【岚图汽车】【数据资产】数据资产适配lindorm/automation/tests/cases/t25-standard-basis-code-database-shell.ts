@@ -10,11 +10,6 @@ import { expect, type Page, type Response } from "@playwright/test";
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { gotoStandardPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P2/P3】标准基础词根、码表与数据库拾取只读 Shell 可核验", async ({

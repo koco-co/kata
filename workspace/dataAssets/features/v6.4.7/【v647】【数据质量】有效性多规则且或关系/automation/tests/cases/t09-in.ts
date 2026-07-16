@@ -19,7 +19,6 @@ import {
   selectRuleRelation,
 } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);
 
 for (const datasource of ACTIVE_DATASOURCES) {

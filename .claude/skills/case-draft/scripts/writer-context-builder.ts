@@ -120,7 +120,7 @@ function truncateString(s: string, limit: number): string {
 }
 
 function invokeProjectKnowledge(args: string[]): unknown | null {
-  const result = spawnSync("kata", ["knowledge-curate", ...args], {
+  const result = spawnSync("kata", ["knowledge", ...args], {
     encoding: "utf8",
     cwd: repoRoot(),
   });
@@ -353,7 +353,7 @@ export const program = createCli({
         },
         {
           flag: "--project <name>",
-          description: "Project name (for knowledge-curate / primary path)",
+          description: "Project name (for kata knowledge / primary path)",
         },
       ],
       action: runBuild,
