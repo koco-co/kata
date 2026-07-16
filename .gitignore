@@ -6,6 +6,7 @@ package-lock.json
 .env.local
 workspace/*/_shared/env/.local/
 config.json
+config/repo-branch-mapping.yaml
 
 # Hidden runtime root
 .kata/
