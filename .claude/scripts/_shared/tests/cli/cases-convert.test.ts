@@ -138,6 +138,74 @@ describe("kata cases convert", () => {
     expect(markdown).toContain("| 2 | 执行任务 | 执行成功 |");
   });
 
+  it("保留点号编号步骤内的右括号子项", () => {
+    const input = join(TEMP_DIR, "嵌套编号.csv");
+    const output = join(TEMP_DIR, "嵌套编号.md");
+    writeFileSync(
+      input,
+      [
+        "模块,页面,用例标题,测试步骤,预期结果",
+        `数据资产,数据质量,验证嵌套编号,"1. 新建规则
+2. 执行规则","1. 进入配置页
+2. 1) 状态为校验异常
+2) 支持查看明细"`,
+      ].join("\n"),
+      "utf8",
+    );
+
+    runKataCli(["cases", "convert", "-i", input, "-t", "md", "-o", output]);
+
+    const markdown = readFileSync(output, "utf8");
+    expect(markdown).toContain("| 1 | 新建规则 | 进入配置页 |");
+    expect(markdown).toContain(
+      "| 2 | 执行规则 | 1) 状态为校验异常<br>2) 支持查看明细 |",
+    );
+    expect(markdown).not.toContain("| 3 |");
+  });
+
+  it("不把跨行的小于号和大于号操作误删为 HTML", () => {
+    const input = join(TEMP_DIR, "翻页按钮.csv");
+    const output = join(TEMP_DIR, "翻页按钮.md");
+    writeFileSync(
+      input,
+      [
+        "模块,页面,用例标题,测试步骤,预期结果",
+        `数据资产,数据质量,验证翻页按钮,"1. 点击\"<\"
+2. 点击\">\"","1. 向前翻页
+2. 向后翻页"`,
+      ].join("\n"),
+      "utf8",
+    );
+
+    runKataCli(["cases", "convert", "-i", input, "-t", "md", "-o", output]);
+
+    const markdown = readFileSync(output, "utf8");
+    expect(markdown).toContain("| 1 | 点击< | 向前翻页 |");
+    expect(markdown).toContain("| 2 | 点击> | 向后翻页 |");
+  });
+
+  it("没有用例编号时不合并同标题同前置条件的不同行", () => {
+    const input = join(TEMP_DIR, "同标题用例.csv");
+    const output = join(TEMP_DIR, "同标题用例.json");
+    writeFileSync(
+      input,
+      [
+        "模块,页面,用例标题,前置条件,测试步骤,预期结果",
+        "数据资产,数据质量,验证同标题场景,已准备数据,执行场景A,场景A通过",
+        "数据资产,数据质量,验证同标题场景,已准备数据,执行场景B,场景B通过",
+      ].join("\n"),
+      "utf8",
+    );
+
+    const result = JSON.parse(
+      runKataCli(["cases", "convert", "-i", input, "-t", "json", "-o", output]),
+    ) as { case_count: number };
+    const converted = JSON.parse(readFileSync(output, "utf8")) as IntermediateJson;
+
+    expect(result.case_count).toBe(2);
+    expect(caseSnapshot(converted)).toHaveLength(2);
+  });
+
   it("拒绝静默覆盖与非法目标格式", () => {
     const input = join(TEMP_DIR, "source.md");
     const output = join(TEMP_DIR, "cases.json");
