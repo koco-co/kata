@@ -40,6 +40,19 @@ When in doubt, ask: *if a fresh agent or a different runtime replays the exact s
   Do not call a rollback complete until required ignored runtime state has also
   been checked.
 
+## Worktree Completion
+
+- When the user asks to merge and remove a worktree, complete the whole sequence
+  in the same turn: identify the thread-owned worktree from Git metadata, verify
+  and commit its changes, merge it, inventory ignored runtime data, remove the
+  worktree, and verify that its path and Git registration are gone.
+- Do not ask the user to name a worktree when branch name, creation time, current
+  task context, or other repository metadata identifies it uniquely. Ask only
+  when multiple candidates remain genuinely indistinguishable after those checks.
+- Never report worktree cleanup as complete while a worktree created for the
+  current task still exists. Preserve ignored auth, session, symlink, and local
+  environment state before removal whenever any such state is present.
+
 ## Source And Auth Runtime Storage
 
 - Do not create root `.kata/{project}/` or `workspace/{project}/.kata/` runtime trees for source or UI authentication data.
