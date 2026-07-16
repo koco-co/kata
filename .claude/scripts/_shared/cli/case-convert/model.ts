@@ -144,9 +144,7 @@ export function tableRowsToIntermediate(
     const subgroupName = row.subgroup;
     const priority = normalizePriority(row.priority, row.case_title);
     const title = withPriority(row.case_title, priority);
-    const caseKey = row.case_no
-      ? `id:${row.case_no}`
-      : [moduleName, pageName, subgroupName, title, row.preconditions].join("\u0000");
+    const caseKey = row.case_no ? `id:${row.case_no}` : `row:${rowIndex}`;
     let testCase = caseIndex.get(caseKey);
     if (!testCase) {
       testCase = { title, priority, steps: [] };
@@ -262,12 +260,18 @@ function stepsFromRow(row: TableRow, rowIndex: number): TestStep[] {
 
 function splitNumberedText(value: string): string[] {
   const lines = value.split(/\r?\n/);
+  const marker = lines
+    .map((line) => line.trim().match(/^1([.、)])\s*/)?.[1])
+    .find((value): value is string => Boolean(value));
+  const numberedLine = marker
+    ? new RegExp(`^\\d+${marker === "." ? "\\." : marker}\\s*(.*)$`)
+    : /^\d+[.、)]\s*(.*)$/;
   const result: string[] = [];
   let current = "";
   for (const rawLine of lines) {
     const line = rawLine.trim();
     if (!line) continue;
-    const match = line.match(/^\d+[.、)]\s*(.*)$/);
+    const match = line.match(numberedLine);
     if (match) {
       if (current) result.push(current);
       current = match[1];
@@ -305,7 +309,7 @@ function cleanCellText(value: string): string {
     .replace(/<\/li>/gi, "\n")
     .replace(/<li[^>]*>/gi, "- ")
     .replace(/<\/?(?:p|div|ul|ol)[^>]*>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
+    .replace(/<\/?[A-Za-z][A-Za-z0-9:-]*(?:\s[^>]*)?\/?>/g, "")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
