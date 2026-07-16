@@ -16,12 +16,10 @@ bun install
 
 # 2. 创建环境配置（如不存在）
 [ -f .env ] || cp .env.example .env
-[ -f .env.envs ] || cp .env.envs.example .env.envs
 [ -f config.json ] || cp config.example.json config.json
-[ -f config/repo-branch-mapping.yaml ] || cp config/repo-branch-mapping.example.yaml config/repo-branch-mapping.yaml
 
 # 3. 校验配置
-kata config
+kata env doctor --project dataAssets --env ci63
 
 # 4. 运行测试（必须全绿）
 bun test
@@ -32,17 +30,18 @@ bunx playwright install
 
 ## 配置变量
 
-编辑 `.env` 和可选的 `.env.envs`，按需配置以下场景用到的变量：
+根 `.env` 是唯一 dotenv。只保留当前实际使用的非空项；DataAssets 的 URL、项目/数据源 ID、运行参数和 UI cookie 使用 `_shared/env/<env>.yaml` profile。
 
 | 场景 | 配置变量 |
 | --- | --- |
 | 默认项目与工作区 | `KATA_ACTIVE_PROJECT` / `KATA_WORKSPACE_ROOT` |
-| DataAssets UI 自动化 / 数据准备 | `KATA_DATAASSETS_ENV` / `KATA_DATAASSETS_PROJECT_ID` / `KATA_DATAASSETS_DATASOURCE_ID` |
-| 源码证据与分支映射 | `KATA_SOURCE_REPOS` / `KATA_SERVER_WORKSPACE_PATH` / `KATA_REPO_BRANCH_MAPPING_PATH` |
+| DataAssets UI 自动化 / 数据准备 | `KATA_DATAASSETS_ENV`（其余配置来自所选 YAML profile） |
+| 源码证据 | `KATA_SOURCE_REPOS` / `KATA_SOURCE_REPO_ROOT` |
 | 蓝湖 PRD 导入 | `KATA_LANHU_COOKIE` |
-| 禅道 Bug | `KATA_ZENTAO_BASE_URL` / `KATA_ZENTAO_ACCOUNT` / `KATA_ZENTAO_PASSWORD` |
+| 禅道 Bug | `KATA_ZENTAO_BASE_URL` + `KATA_ZENTAO_COOKIE`，或账号密码 |
 | 消息通知 | `KATA_DINGTALK_WEBHOOK_URL` / `KATA_DINGTALK_KEYWORD` / `KATA_FEISHU_WEBHOOK_URL` / `KATA_WECOM_WEBHOOK_URL` |
 | SMTP 邮件 | `KATA_SMTP_HOST` / `KATA_SMTP_USER` / `KATA_SMTP_PASS` / `KATA_SMTP_FROM` / `KATA_SMTP_TO` |
+| 独立 DTStack CLI/SDK | `KATA_DTSTACK_BASE_URL` / `KATA_DTSTACK_SESSION_PATH` |
 
 ## 安全守卫（仓库自带）
 

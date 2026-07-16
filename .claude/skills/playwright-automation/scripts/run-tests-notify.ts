@@ -3,7 +3,7 @@
  * run-tests-notify.ts — 跑 Playwright，自动刷新 Allure HTML 报告并推送 IM 通知。
  *
  * 用法：
- *   ACTIVE_ENV=ltqc KATA_SUITE_NAME="【通用配置】json格式配置-15696" \
+ *   KATA_DATAASSETS_ENV=ltqc-local KATA_SUITE_NAME="【通用配置】json格式配置-15696" \
  *     kata run-tests-notify \
  *     "workspace/<project>/features/<version>/<feature>/automation/tests/runners/full.spec.ts" \
  *     --project=chromium
@@ -11,7 +11,8 @@
  * 所有位置参数/flag 会原样透传给 `bunx playwright test`。
  *
  * 环境变量（与 playwright.config.ts 保持一致）：
- *   - ACTIVE_ENV                   环境标识，默认 ltqc
+ *   - KATA_DATAASSETS_ENV          DataAssets profile 名称
+ *   - KATA_TARGET_ENV              非 DataAssets 项目的环境标识
  *   - KATA_ACTIVE_PROJECT         kata 内部项目名（必填）
  *   - KATA_SUITE_NAME             套件名（需求名），默认 report
  *
@@ -97,8 +98,13 @@ export function extractTenantFromCookie(cookie: string | undefined): string | un
 }
 
 function resolvePaths(): Paths {
-  const env = (process.env.KATA_TARGET_ENV ?? process.env.ACTIVE_ENV ?? "ltqc").toLowerCase();
   const project = getEnvOrThrow("KATA_ACTIVE_PROJECT");
+  const env = (
+    (project === "dataAssets" ? process.env.KATA_DATAASSETS_ENV : undefined) ??
+    process.env.KATA_TARGET_ENV ??
+    process.env.ACTIVE_ENV ??
+    "ltqc"
+  ).toLowerCase();
   const suiteName = process.env.KATA_SUITE_NAME ?? "report";
   const yyyymm = new Date().toISOString().slice(0, 7).replace(/-/g, "");
   const reportDir = projectPath(project, "_shared", "published-reports", yyyymm, suiteName, env);

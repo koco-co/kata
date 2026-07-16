@@ -162,7 +162,7 @@ Built-in plugins live under `.claude/plugins/` and attach to product skills thro
 | `zentao` | `case-hotfix:init` | `KATA_ZENTAO_BASE_URL`, `KATA_ZENTAO_ACCOUNT`, `KATA_ZENTAO_PASSWORD` |
 | `notify` | `*:output` | At least one channel: `KATA_DINGTALK_WEBHOOK_URL`, `KATA_FEISHU_WEBHOOK_URL`, `KATA_WECOM_WEBHOOK_URL`, `KATA_SMTP_HOST` |
 
-The root `.env` is the only dotenv file: an explicit process environment wins, then `.env` fills missing keys. `.env.envs`, root `.env.local`, and project `.env.local` are not loaded. `KATA_DATAASSETS_ENV` selects `workspace/dataAssets/_shared/env/<env>.yaml`; when the base profile is Git-tracked, its real `auth.cookie` belongs in ignored `_shared/env/.local/<env>.yaml`. Use `kata env resolve --project dataAssets --env <env>` to inspect sources without values and `kata env doctor --project dataAssets --env <env>` to detect conflicts, unsafe permissions, and tracked secrets.
+The root `.env` is the only dotenv file: an explicit process environment wins, then `.env` fills missing keys. `.env.envs`, root `.env.local`, and project `.env.local` are not loaded. `KATA_DATAASSETS_ENV` selects `workspace/dataAssets/_shared/env/<env>.yaml`; when the base profile is Git-tracked, its real `auth.cookie` belongs in ignored `_shared/env/.local/<env>.yaml`. Use `kata env resolve --project dataAssets --env <env>` to inspect sources without values and `kata env doctor --project dataAssets --env <env>` to detect unsupported root keys, persisted empty values, unauthorized local overrides, unsafe permissions, and tracked secrets.
 
 ## Repository layout
 

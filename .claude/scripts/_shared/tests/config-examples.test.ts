@@ -5,11 +5,22 @@ import { resolve } from "node:path";
 const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
 const REQUIRED_ENV_KEYS = [
-  "KATA_DATAASSETS_PROJECT_ID",
-  "KATA_DATAASSETS_DATASOURCE_ID",
+  "KATA_DATAASSETS_ENV",
+  "KATA_SOURCE_REPOS",
+  "KATA_SOURCE_REPO_ROOT",
+  "KATA_DINGTALK_KEYWORD",
+] as const;
+
+const REMOVED_ENV_KEYS = [
+  "KATA_PROJECT",
+  "KATA_TELEMETRY",
+  "KATA_CONSOLE_PORT",
+  "KATA_GIT_REMOTE_URL",
   "KATA_SERVER_WORKSPACE_PATH",
   "KATA_REPO_BRANCH_MAPPING_PATH",
-  "KATA_DINGTALK_KEYWORD",
+  "KATA_DATAASSETS_PROJECT_ID",
+  "KATA_DATAASSETS_DATASOURCE_ID",
+  "KATA_SMTP_SECURE",
 ] as const;
 
 function readRepoFile(path: string): string {
@@ -26,11 +37,14 @@ function envExampleKeys(): Set<string> {
 }
 
 describe("configuration examples", () => {
-  test(".env.example documents P5-05 setup variables", () => {
+  test(".env.example documents the supported persistent variables only", () => {
     const keys = envExampleKeys();
 
     for (const key of REQUIRED_ENV_KEYS) {
       expect(keys.has(key), `${key} should be listed in .env.example`).toBe(true);
+    }
+    for (const key of REMOVED_ENV_KEYS) {
+      expect(keys.has(key), `${key} should not be listed in .env.example`).toBe(false);
     }
   });
 

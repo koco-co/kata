@@ -16,63 +16,24 @@ export interface ExecuteTableOptions {
   tableName: string;
   /** 数据源类型：SparkThrift / Doris */
   datasource: "SparkThrift" | "Doris";
-  /** 质量项目名称，默认 pw_test */
-  project?: string;
-  /** 环境名，默认 ltqc */
-  env?: string;
-  /** 数据库名，默认 pw_test */
-  database?: string;
-  /** 质量项目 ID（X-Valid-Project-ID / pid），默认读取 KATA_DATAASSETS_PROJECT_ID 环境变量 */
-  projectId?: number;
-  /** 数据源 ID（元数据同步用），默认读取 KATA_DATAASSETS_DATASOURCE_ID 环境变量 */
-  dataSourceId?: string;
-  /** 数据源类型编号，默认 45（SparkThrift） */
-  dataSourceType?: number;
-}
-
-interface ExecuteTableDefaults {
-  readonly project: string;
-  readonly env: string;
-  readonly database: string;
-  readonly projectId: number;
-  readonly dataSourceId: string;
-  readonly dataSourceType: number;
+  /** 质量项目名称，来自所选 DataAssets profile */
+  project: string;
+  /** 环境名，来自所选 DataAssets profile */
+  env: string;
+  /** 数据库名，来自所选 DataAssets profile */
+  database: string;
+  /** 质量项目 ID（X-Valid-Project-ID / pid），来自所选 DataAssets profile */
+  projectId: number;
+  /** 数据源 ID（元数据同步用），来自所选 DataAssets profile */
+  dataSourceId: string;
+  /** 数据源类型编号，来自所选 DataAssets profile */
+  dataSourceType: number;
 }
 
 export function resolveDtstackCliInvocation(): { command: string; argsPrefix: string[] } {
   const localBin = "./node_modules/.bin/dtstack-cli";
   if (existsSync(localBin)) return { command: localBin, argsPrefix: [] };
   return { command: "bun", argsPrefix: [".claude/packages/dtstack/src/cli.ts"] };
-}
-
-function numericEnv(value: string | undefined): number | undefined {
-  if (value === undefined || value.trim() === "") return undefined;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-export function resolveExecuteTableDefaults(
-  options: Pick<
-    Partial<ExecuteTableOptions>,
-    "project" | "env" | "database" | "projectId" | "dataSourceId" | "dataSourceType"
-  >,
-): ExecuteTableDefaults {
-  return {
-    project: options.project ?? "pw_test",
-    env: options.env ?? "ltqc",
-    database: options.database ?? "pw_test",
-    projectId:
-      options.projectId ??
-      numericEnv(process.env.KATA_DATAASSETS_PROJECT_ID) ??
-      numericEnv(process.env.DATAASSETS_PROJECT_ID) ??
-      92,
-    dataSourceId:
-      options.dataSourceId ??
-      process.env.KATA_DATAASSETS_DATASOURCE_ID ??
-      process.env.DATAASSETS_DATASOURCE_ID ??
-      "547",
-    dataSourceType: options.dataSourceType ?? 45,
-  };
 }
 
 /**
@@ -85,6 +46,12 @@ export function resolveExecuteTableDefaults(
  *     sql: `DROP TABLE IF EXISTS my_table; CREATE TABLE ...; INSERT INTO ... VALUES ...;`,
  *     tableName: "my_table",
  *     datasource: "SparkThrift",
+ *     project: profile.projects.quality.name,
+ *     env: profile.env,
+ *     database: profile.datasources.sparkthrift.sql.database,
+ *     projectId: profile.projects.quality.id,
+ *     dataSourceId: String(profile.datasources.sparkthrift.metadata.id),
+ *     dataSourceType: profile.datasources.sparkthrift.metadata.typeId,
  *   });
  *
  * 流程：
@@ -97,9 +64,17 @@ export function resolveExecuteTableDefaults(
  * 否则 `page.evaluate` 中的 fetch 会因缺少 cookie 而失败。
  */
 export async function executeTableSQL(page: Page, options: ExecuteTableOptions): Promise<void> {
-  const { sql, tableName, datasource } = options;
-  const { project, env, database, projectId, dataSourceId, dataSourceType } =
-    resolveExecuteTableDefaults(options);
+  const {
+    sql,
+    tableName,
+    datasource,
+    project,
+    env,
+    database,
+    projectId,
+    dataSourceId,
+    dataSourceType,
+  } = options;
 
   // 1. 从浏览器获取最新 cookie（比 .env 里的更新鲜）
   const browserCookies = await page.context().cookies();

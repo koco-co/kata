@@ -5,20 +5,17 @@
  * 运行：bun run .claude/packages/dtstack/scripts/diagnose-insert.ts
  */
 
-import { readFileSync } from "node:fs";
-import { getEnv, getEnvOrThrow, initEnv } from "@shared/lib/env.ts";
-import { authSessionPath, repoRoot } from "@shared/lib/paths.ts";
+import { initEnv } from "@shared/lib/env.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
+import { resolveDataAssetsRuntime } from "../../../../workspace/dataAssets/_shared/runtime/env-profile";
 import { DtStackClient } from "../src/core/http/client";
 import { BatchApi } from "../src/core/platform/batch";
 import { ProjectApi } from "../src/core/platform/project";
 
 initEnv({ cwd: repoRoot() });
-const KATA_PROJECT = getEnvOrThrow("KATA_ACTIVE_PROJECT");
-const TARGET_ENV = getEnv("KATA_TARGET_ENV") ?? getEnv("ACTIVE_ENV") ?? "ltqc";
-const BASE_URL =
-  getEnv(`${TARGET_ENV.toUpperCase().replace(/-/g, "_")}_BASE_URL`) ??
-  getEnvOrThrow("UI_AUTOTEST_BASE_URL");
-const SESSION_FILE = authSessionPath(KATA_PROJECT, TARGET_ENV);
+const PROFILE = resolveDataAssetsRuntime();
+const BASE_URL = PROFILE.urls.baseUrl;
+const COOKIE = PROFILE.auth.cookie;
 const PROJECT_NAME = "pw_test";
 const DATASOURCE_TYPE = "sparkthrift";
 
@@ -29,15 +26,8 @@ CREATE TABLE pw_test.${TABLE} (id INT, info STRING) STORED AS PARQUET;
 INSERT INTO pw_test.${TABLE} VALUES (1, '{"key1":"张三","key2":25}'), (2, '{"key1":"李四"}'), (3, '{"key2":30}');
 `.trim();
 
-function loadCookie(): string {
-  const raw = JSON.parse(readFileSync(SESSION_FILE, "utf-8")) as {
-    cookies: { name: string; value: string }[];
-  };
-  return raw.cookies.map((c) => `${c.name}=${c.value}`).join("; ");
-}
-
 async function main(): Promise<void> {
-  const client = new DtStackClient({ baseUrl: BASE_URL, cookie: loadCookie() });
+  const client = new DtStackClient({ baseUrl: BASE_URL, cookie: COOKIE });
   console.log(`[diag] table = pw_test.${TABLE}`);
 
   const proj = await new ProjectApi(client).findByName(PROJECT_NAME);

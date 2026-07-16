@@ -174,7 +174,10 @@ describe("kata env check", () => {
   it("resolves config sources without returning secret values", () => {
     const scratch = mkdtempSync(join(tmpdir(), "kata-env-resolve-"));
     try {
-      writeFileSync(join(scratch, ".env"), "KATA_ZENTAO_COOKIE=secret-value\n");
+      writeFileSync(
+        join(scratch, ".env"),
+        "KATA_ZENTAO_COOKIE=secret-value\nKATA_DINGTALK_WEBHOOK_URL=https://secret.example\n",
+      );
       writeProfile(scratch, "ci63", "sid=profile-secret");
 
       const result = resolveEnvSources({ project: "dataAssets", env: "ci63", repoRoot: scratch });
@@ -183,7 +186,14 @@ describe("kata env check", () => {
       expect(serialized).not.toContain("secret-value");
       expect(serialized).not.toContain("profile-secret");
       expect(result.rootEnv.keys).toContainEqual(
-        expect.objectContaining({ key: "KATA_ZENTAO_COOKIE", secret: true }),
+        expect.objectContaining({
+          key: "KATA_ZENTAO_COOKIE",
+          configured: true,
+          secret: true,
+        }),
+      );
+      expect(result.rootEnv.keys).toContainEqual(
+        expect.objectContaining({ key: "KATA_DINGTALK_WEBHOOK_URL", secret: true }),
       );
       expect(result.profile.keys).toContainEqual(
         expect.objectContaining({ key: "auth.cookie", secret: true, configured: true }),
@@ -257,6 +267,62 @@ describe("kata env check", () => {
       expect(result.ok).toBe(false);
       expect(result.findings).toContainEqual(
         expect.objectContaining({ code: "legacy_env_overlay", severity: "error" }),
+      );
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("doctor rejects root keys outside .env.example and reports empty supported values", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-env-contract-"));
+    try {
+      writeFileSync(join(scratch, ".env.example"), "KATA_DATAASSETS_ENV=\n", { mode: 0o644 });
+      writeFileSync(
+        join(scratch, ".env"),
+        "KATA_DATAASSETS_ENV=\nDEEPSEEK_API_KEY=stale\n",
+        { mode: 0o600 },
+      );
+      writeProfile(scratch, "ci63");
+
+      const resolved = resolveEnvSources({
+        project: "dataAssets",
+        env: "ci63",
+        repoRoot: scratch,
+      });
+      const result = diagnoseEnvConfig({ project: "dataAssets", env: "ci63", repoRoot: scratch });
+
+      expect(resolved.rootEnv.keys).toContainEqual(
+        expect.objectContaining({ key: "KATA_DATAASSETS_ENV", configured: false }),
+      );
+      expect(result.ok).toBe(false);
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({ code: "unsupported_root_env_key", severity: "error" }),
+      );
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({ code: "empty_root_env_value", severity: "warn" }),
+      );
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  });
+
+  it("doctor rejects local profile overrides other than auth.cookie", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "kata-env-local-contract-"));
+    try {
+      writeProfile(scratch, "ci63", "");
+      const localDir = join(scratch, "workspace/dataAssets/_shared/env/.local");
+      mkdirSync(localDir, { recursive: true });
+      writeFileSync(
+        join(localDir, "ci63.yaml"),
+        "auth:\n  cookie: sid=local\nruntime:\n  cleanup: false\n",
+        { mode: 0o600 },
+      );
+
+      const result = diagnoseEnvConfig({ project: "dataAssets", env: "ci63", repoRoot: scratch });
+
+      expect(result.ok).toBe(false);
+      expect(result.findings).toContainEqual(
+        expect.objectContaining({ code: "unsupported_profile_secret_key", severity: "error" }),
       );
     } finally {
       rmSync(scratch, { recursive: true, force: true });
