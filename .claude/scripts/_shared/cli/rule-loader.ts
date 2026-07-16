@@ -2,7 +2,7 @@
 /**
  * rule-loader.ts — 一次性加载并合并多级规则，输出 JSON。
  * Usage:
- *   kata rule-loader load --project <name>
+ *   kata rules load --project <name>
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -100,11 +100,11 @@ export const program = createCli({
   commands: [
     {
       name: "load",
-      description: "Load rules for a project and output merged JSON to stdout",
+      description: "加载项目规则并将合并后的 JSON 输出到 stdout",
       options: [
         {
           flag: "--project <name>",
-          description: "Project name",
+          description: "项目名（必填）",
           required: true,
         },
       ],

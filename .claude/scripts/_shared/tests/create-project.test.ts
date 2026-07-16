@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { execFileSync, execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -57,7 +57,7 @@ describe("create-project create --dry-run", () => {
     expect(Array.isArray(data.will_create.dirs)).toBeTruthy();
     expect(Array.isArray(data.will_create.files)).toBeTruthy();
     expect(Array.isArray(data.will_create.gitkeeps)).toBeTruthy();
-    expect(data.will_create.dirs.length).toBe(11);
+    expect(data.will_create.dirs.length).toBe(9);
     // Disk must remain untouched
     expect(existsSync(join(TEST_WORKSPACE_ROOT, "newProj"))).toBe(false);
     // Config must remain unchanged
@@ -68,7 +68,7 @@ describe("create-project create --dry-run", () => {
   it("dry-run rejects invalid name with exit 1", () => {
     const { stderr, code } = runCp(["create", "--project", "1bad", "--dry-run"]);
     expect(code).toBe(1);
-    expect(stderr).toMatch(/Invalid project name/);
+    expect(stderr).toContain("项目名称无效");
   });
 
   it("dry-run on complete project returns skipped=true", () => {
@@ -83,8 +83,6 @@ describe("create-project create --dry-run", () => {
       "_shared/knowledge",
       "_shared/knowledge/modules",
       "_shared/knowledge/pitfalls",
-      ".kata/repos",
-      ".kata/auth",
     ])
       mkdirSync(join(projDir, d), { recursive: true });
     for (const g of [
@@ -125,7 +123,7 @@ describe("create-project scan", () => {
   it("rejects invalid project name", () => {
     const { stderr, code } = runCp(["scan", "--project", "1invalid"]);
     expect(code).toBe(1);
-    expect(stderr).toMatch(/\[create-project\] Invalid project name/);
+    expect(stderr).toMatch(/\[project\] 项目名称无效/);
   });
 
   it("reports non-existent project with all missing", () => {
@@ -136,7 +134,7 @@ describe("create-project scan", () => {
     expect(data.valid_name).toBe(true);
     expect(data.exists).toBe(false);
     expect(data.skeleton_complete).toBe(false);
-    expect(data.missing_dirs.length).toBe(11);
+    expect(data.missing_dirs.length).toBe(9);
     expect(data.missing_gitkeeps.length).toBe(7);
     expect(data.missing_files.length).toBe(3);
     expect(data.config_registered).toBe(false);
@@ -166,8 +164,6 @@ describe("create-project scan", () => {
       "_shared/knowledge",
       "_shared/knowledge/modules",
       "_shared/knowledge/pitfalls",
-      ".kata/repos",
-      ".kata/auth",
     ];
     for (const d of dirs) mkdirSync(join(projDir, d), { recursive: true });
     const gks = [
@@ -222,12 +218,11 @@ describe("create-project create --confirmed", () => {
       "_shared/knowledge",
       "_shared/knowledge/modules",
       "_shared/knowledge/pitfalls",
-      ".kata/repos",
-      ".kata/auth",
     ]) {
       expect(existsSync(join(projDir, d))).toBeTruthy();
     }
     expect(existsSync(join(projDir, "features"))).toBeTruthy();
+    expect(existsSync(join(projDir, ".kata"))).toBe(false);
     expect(existsSync(join(projDir, "prds"))).toBe(false);
     expect(existsSync(join(projDir, "archive"))).toBe(false);
     expect(existsSync(join(projDir, "xmind"))).toBe(false);
@@ -343,77 +338,5 @@ describe("create-project create --confirmed", () => {
     });
     expect(cfg.projects.newOne).toEqual({ repo_profiles: {} });
     expect(cfg.otherKey).toBe("keep");
-  });
-});
-
-describe("create-project clone-repo", () => {
-  const BARE_DIR = join(TMP, "bare");
-  const BARE_REPO = join(BARE_DIR, "demo.git");
-
-  beforeEach(() => {
-    resetFixture();
-    mkdirSync(BARE_DIR, { recursive: true });
-    execSync(`git init --bare "${BARE_REPO}"`);
-    const wt = join(TMP, "seed-wt");
-    execSync(`git init "${wt}"`);
-    execSync(
-      `cd "${wt}" && git config user.email test@local && git config user.name test && echo hello > a.txt && git add a.txt && git commit -m seed && git branch -M main && git remote add origin "file://${BARE_REPO}" && git push origin main`,
-      { shell: "/bin/bash" },
-    );
-    rmSync(wt, { recursive: true, force: true });
-  });
-
-  afterEach(() => rmSync(TMP, { recursive: true, force: true }));
-  beforeEach(() => {
-    const barePreserve = readFileSync(CONFIG_PATH, "utf8");
-    void barePreserve;
-  });
-
-  it("rejects if project does not exist", () => {
-    rmSync(join(TEST_WORKSPACE_ROOT, "noproj"), { recursive: true, force: true });
-    const { stderr, code } = runCp([
-      "clone-repo",
-      "--project",
-      "noproj",
-      "--url",
-      `file://${BARE_REPO}`,
-    ]);
-    expect(code).toBe(1);
-    expect(stderr).toMatch(/project not found|does not exist/i);
-  });
-
-  it("clones bare repo into workspace/<project>/.kata/repos/<group>/<repo>", () => {
-    runCp(["create", "--project", "withRepo", "--confirmed"]);
-
-    const { stdout, code } = runCp([
-      "clone-repo",
-      "--project",
-      "withRepo",
-      "--url",
-      `file://${BARE_REPO}`,
-    ]);
-    expect(code).toBe(0);
-    const data = JSON.parse(stdout);
-    expect(data.project).toBe("withRepo");
-    expect(data.repo).toBe("demo");
-    expect(data.branch).toBe("main");
-    expect(data.local_path.endsWith("/demo")).toBeTruthy();
-    expect(data.local_path).toContain("/workspace/withRepo/.kata/repos/");
-    expect(existsSync(join(data.local_path))).toBeTruthy();
-  });
-
-  it("rejects when repo already cloned at target path", () => {
-    const projName = "withRepo";
-    runCp(["create", "--project", projName, "--confirmed"]);
-    runCp(["clone-repo", "--project", projName, "--url", `file://${BARE_REPO}`]);
-    const { stderr, code } = runCp([
-      "clone-repo",
-      "--project",
-      projName,
-      "--url",
-      `file://${BARE_REPO}`,
-    ]);
-    expect(code).toBe(1);
-    expect(stderr).toMatch(/already cloned/i);
   });
 });

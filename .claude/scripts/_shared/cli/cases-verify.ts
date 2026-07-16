@@ -13,6 +13,7 @@ import {
   verifyStructuredSchemas,
 } from "@shared/lib/cases/verify-layers.ts";
 import { isV2, readFeatureMeta } from "@shared/lib/features/feature-meta.ts";
+import { workspaceDir } from "@shared/lib/paths.ts";
 import {
   type ConfirmedSourceRepo,
   resolveSourceRefTarget,
@@ -145,15 +146,15 @@ export async function runCasesVerify(ctx: CasesVerifyContext): Promise<CasesVeri
 export function registerCasesVerify(cases: Command): void {
   cases
     .command("verify")
-    .description("三层硬校验门 (schema / 输入消费 / 内容质量)")
+    .description("依次校验数据结构、输入消费与内容质量")
     .requiredOption("--project <name>", "项目名")
-    .requiredOption("--feature <id>", "feature_id")
+    .requiredOption("--feature <id>", "需求功能 ID")
     .option(
       "--required-kinds <list>",
-      "逗号分隔的必需 source_ref kinds",
+      "必须存在的 source_ref 类型，以逗号分隔",
       "lanhu.fixture,knowledge.entry,repo.line",
     )
-    .option("--exit-code", "exit non-zero on any issue", false)
+    .option("--exit-code", "发现问题时返回非零退出码", false)
     .action(
       async (opts: {
         project: string;
@@ -161,8 +162,7 @@ export function registerCasesVerify(cases: Command): void {
         requiredKinds: string;
         exitCode: boolean;
       }) => {
-        // Use process.cwd()-relative path for workspaceRoot since this is a CLI command
-        const workspaceRoot = join(process.cwd(), "workspace");
+        const workspaceRoot = workspaceDir();
         const r = await runCasesVerify({
           project: opts.project,
           featureId: opts.feature,
@@ -171,7 +171,7 @@ export function registerCasesVerify(cases: Command): void {
         });
         for (const i of r.issues)
           console.log(`[${i.layer}] ${i.rule}: ${i.message}${i.fix ? `\n  fix: ${i.fix}` : ""}`);
-        console.log(r.ok ? "verify: OK" : `verify: ${r.issues.length} issue(s)`);
+        console.log(r.ok ? "校验通过" : `校验发现 ${r.issues.length} 个问题`);
         if (opts.exitCode && !r.ok) process.exit(1);
       },
     );

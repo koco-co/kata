@@ -31,7 +31,7 @@
 | `site_domain` | 站点域名特有行为 | "该站点登录后 token 存于 sessionStorage 而非 cookie" |
 | `pitfall` | UI 自动化踩坑 | "该站点 input 框 change 事件须 dispatch native event" |
 
-用 `kata knowledge-curate` CLI 写入 `sites/{domain}/` 路径。站点 selector 文件这样命名：`sites/{domain}/selectors.md` 或 `sites/{domain}/dom-{product}.md`。
+用 `kata knowledge` CLI 写入 `sites/{domain}/` 路径。站点 selector 文件这样命名：`sites/{domain}/selectors.md` 或 `sites/{domain}/dom-{product}.md`。
 
 硬约束：
 - 发现新的站点选择器模式时，先查知识库；已有匹配就不重复写入。
@@ -42,4 +42,4 @@
 
 - 把 Archive MD 的通用前置条件规划成 worker-scoped auto fixture。
 - 把各用例不同的前置条件规划成 case 内步骤或 beforeEach。
-- 不用 `test.beforeAll(async ({ page }) => ...)`；需要浏览器上下文时，用 `browser.newPage({ storageState })` 创建页面。
+- 不用 `test.beforeAll(async ({ page }) => ...)`；需要浏览器上下文时，创建 context 后从 env YAML 的 `auth.cookie` 解析并调用 `context.addCookies`，再创建页面。

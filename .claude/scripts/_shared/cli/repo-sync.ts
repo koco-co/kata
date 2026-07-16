@@ -1,19 +1,28 @@
 #!/usr/bin/env bun
 /**
- * repo-sync.ts — Sync source code repositories.
+ * repo-sync.ts — Read configured source repositories through Git objects.
  *
  * Usage:
- *   kata repo-sync sync --url <git-url> --branch <branch> [--base-dir workspace/dataAssets/.kata/repos]
- *   kata repo-sync sync-profile --name <profile>
- *   kata repo-sync --help
+ *   kata repos sync --url <git-url> [--branch <branch>] --project <project>
+ *   kata repos sync-env --project <project> [--branch <branch>]
+ *   kata repos sync-profile --name <profile>
+ *   kata repos show --project <project> --repo <group/repo> --path <file> [--ref <ref>]
+ *   kata repos grep --project <project> --repo <group/repo> --pattern <text> [--ref <ref>]
+ *   kata repos list --project <project> --repo <group/repo> [--path <dir>] [--ref <ref>]
+ *   kata repos --help
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createCli } from "@shared/lib/cli-runner.ts";
 import { getEnv } from "@shared/lib/env.ts";
-import { parseGitUrl, repoRoot, reposDir } from "@shared/lib/paths.ts";
+import {
+  findLocalSourceRepo,
+  resolveConfiguredSourceRepo,
+  sourceRefForBranch,
+} from "@shared/lib/git-source.ts";
+import { parseGitUrl, repoRoot } from "@shared/lib/paths.ts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,6 +32,7 @@ interface SyncOutput {
   branch: string;
   commit: string;
   path: string;
+  storage: "external-git-repo";
 }
 
 interface ErrorOutput {
@@ -39,11 +49,25 @@ function git(cwd: string, args: string[]): string {
   }).trim();
 }
 
-function gitClone(url: string, targetDir: string): void {
-  execFileSync("git", ["clone", url, targetDir], {
-    encoding: "utf8",
-    stdio: ["pipe", "pipe", "pipe"],
-  });
+function inspectGitSource(repoPath: string, branch?: string): { branch: string; commit: string } {
+  const resolvedBranch = branch || git(repoPath, ["branch", "--show-current"]) || "HEAD";
+  const ref = branch ? sourceRefForBranch(repoPath, branch) : "HEAD";
+  return { branch: resolvedBranch, commit: git(repoPath, ["rev-parse", "--short", ref]) };
+}
+
+function sourceRepoPath(_project: string | undefined, repo: string): string {
+  if (!repo || repo.startsWith("/") || repo.split("/").includes("..")) {
+    throw new Error(`Invalid repository path: ${repo}`);
+  }
+  const configured = resolveConfiguredSourceRepo(
+    repo,
+    getEnv("KATA_SOURCE_REPO_ROOT"),
+    getEnv("KATA_SOURCE_REPOS"),
+  );
+  if (configured) return configured;
+  throw new Error(
+    `Configured source repository not found: ${repo}. Check KATA_SOURCE_REPO_ROOT and KATA_SOURCE_REPOS.`,
+  );
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -55,19 +79,9 @@ function runSync(opts: {
   baseDir?: string;
 }): void {
   const { url, branch } = opts;
-  if (!opts.baseDir && !opts.project) {
+  if (!url) {
     const out: ErrorOutput = {
-      error: "--project is required (or use --base-dir to override)",
-      step: "validate-args",
-    };
-    process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
-    process.exit(1);
-  }
-  const baseDir = opts.baseDir ? resolve(repoRoot(), opts.baseDir) : reposDir(opts.project ?? "");
-
-  if (!url || !branch) {
-    const out: ErrorOutput = {
-      error: "Both --url and --branch are required",
+      error: "--url is required",
       step: "validate-args",
     };
     process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
@@ -84,90 +98,152 @@ function runSync(opts: {
     process.exit(1);
   }
 
-  const absoluteBase = baseDir;
-  const targetDir = join(absoluteBase, group, repo);
+  const targetDir = findLocalSourceRepo(getEnv("KATA_SOURCE_REPO_ROOT"), url);
+  if (!targetDir) {
+    process.stderr.write(
+      `${JSON.stringify({ error: `Configured external repository not found: ${group}/${repo}`, step: "discover" }, null, 2)}\n`,
+    );
+    process.exit(1);
+  }
+  try {
+    const inspected = inspectGitSource(targetDir, branch);
+    const out: SyncOutput = {
+      repo,
+      group,
+      branch: inspected.branch,
+      commit: inspected.commit,
+      path: resolve(targetDir),
+      storage: "external-git-repo",
+    };
+    process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
+  } catch (err) {
+    const out: ErrorOutput = {
+      error: `Git ref inspection failed: ${err instanceof Error ? err.message : String(err)}`,
+      step: "inspect",
+    };
+    process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
+    process.exit(1);
+  }
+}
 
-  // Clone if not present
-  if (!existsSync(targetDir)) {
+function runSyncEnv(opts: { project: string; branch?: string }): void {
+  if (!opts.project) {
+    process.stderr.write(
+      `${JSON.stringify({ error: "--project is required", step: "validate-args" }, null, 2)}\n`,
+    );
+    process.exit(1);
+  }
+  const urls = (getEnv("KATA_SOURCE_REPOS") ?? "")
+    .split(",")
+    .map((url) => url.trim())
+    .filter(Boolean);
+  if (urls.length === 0) {
+    process.stderr.write(
+      `${JSON.stringify({ error: "KATA_SOURCE_REPOS is empty", step: "read-env" }, null, 2)}\n`,
+    );
+    process.exit(1);
+  }
+
+  const synced: SyncOutput[] = [];
+  const errors: Array<ErrorOutput & { url: string }> = [];
+  const localSourceRoot = getEnv("KATA_SOURCE_REPO_ROOT");
+  for (const url of urls) {
+    const { group, repo } = parseGitUrl(url);
+    if (!group || !repo) {
+      errors.push({ url, error: `Cannot parse Git URL: ${url}`, step: "parse-url" });
+      continue;
+    }
+    const localSource = findLocalSourceRepo(localSourceRoot, url);
+    if (!localSource) {
+      errors.push({
+        url,
+        error: `Configured external repository not found: ${group}/${repo}`,
+        step: "discover",
+      });
+      continue;
+    }
     try {
-      mkdirSync(join(absoluteBase, group), { recursive: true });
-      gitClone(url, targetDir);
+      const result = inspectGitSource(localSource, opts.branch);
+      synced.push({
+        repo,
+        group,
+        branch: result.branch,
+        commit: result.commit,
+        path: localSource,
+        storage: "external-git-repo",
+      });
     } catch (err) {
-      const out: ErrorOutput = {
-        error: `git clone failed: ${err instanceof Error ? err.message : String(err)}`,
-        step: "clone",
-      };
-      process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
-      process.exit(1);
+      errors.push({
+        url,
+        error: err instanceof Error ? err.message : String(err),
+        step: "inspect",
+      });
     }
   }
+  process.stdout.write(
+    `${JSON.stringify({ project: opts.project, total: urls.length, synced, errors }, null, 2)}\n`,
+  );
+  if (errors.length > 0) process.exit(1);
+}
 
-  // fetch
+function runRead(opts: {
+  project?: string;
+  repo: string;
+  ref?: string;
+  path?: string;
+  pattern?: string;
+  lineStart?: string;
+  lineEnd?: string;
+  operation: "show" | "grep" | "list";
+}): void {
   try {
-    git(targetDir, ["fetch", "origin"]);
+    const repoPath = sourceRepoPath(opts.project, opts.repo);
+    const ref = opts.ref ?? sourceRefForBranch(repoPath);
+    let output: string;
+    if (opts.operation === "show") {
+      if (!opts.path) throw new Error("--path is required");
+      output = git(repoPath, ["show", `${ref}:${opts.path}`]);
+      if (opts.lineStart || opts.lineEnd) {
+        const start = Number.parseInt(opts.lineStart ?? "1", 10);
+        const end = Number.parseInt(opts.lineEnd ?? opts.lineStart ?? "0", 10);
+        if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) {
+          throw new Error("--line-start/--line-end must define a positive inclusive range");
+        }
+        output = output
+          .split("\n")
+          .slice(start - 1, end)
+          .map((line, index) => `${start + index}:${line}`)
+          .join("\n");
+      }
+    } else if (opts.operation === "grep") {
+      if (!opts.pattern) throw new Error("--pattern is required");
+      output = git(repoPath, ["grep", "-n", "--", opts.pattern, ref]);
+    } else {
+      output = git(repoPath, [
+        "ls-tree",
+        "-r",
+        "--name-only",
+        ref,
+        ...(opts.path ? [opts.path] : []),
+      ]);
+    }
+    console.log(output);
   } catch (err) {
-    const out: ErrorOutput = {
-      error: `git fetch failed: ${err instanceof Error ? err.message : String(err)}`,
-      step: "fetch",
-    };
-    process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
     process.exit(1);
   }
-
-  // checkout
-  try {
-    git(targetDir, ["checkout", branch]);
-  } catch (err) {
-    const out: ErrorOutput = {
-      error: `git checkout failed: ${err instanceof Error ? err.message : String(err)}`,
-      step: "checkout",
-    };
-    process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
-    process.exit(1);
-  }
-
-  // pull
-  try {
-    git(targetDir, ["pull", "origin", branch]);
-  } catch (err) {
-    const out: ErrorOutput = {
-      error: `git pull failed: ${err instanceof Error ? err.message : String(err)}`,
-      step: "pull",
-    };
-    process.stderr.write(`${JSON.stringify(out, null, 2)}\n`);
-    process.exit(1);
-  }
-
-  // get commit
-  let commit = "unknown";
-  try {
-    commit = git(targetDir, ["rev-parse", "--short", "HEAD"]);
-  } catch {
-    // non-fatal
-  }
-
-  const out: SyncOutput = {
-    repo,
-    group,
-    branch,
-    commit,
-    path: resolve(targetDir),
-  };
-  process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
 }
 
 function defaultProjectFromConfig(raw: Record<string, unknown>): string | undefined {
   const projects = raw.projects as Record<string, unknown> | undefined;
   if (!projects) return undefined;
-  if (Object.hasOwn(projects, "dataAssets")) return "dataAssets";
-  return Object.keys(projects)[0];
+  const names = Object.keys(projects);
+  return names.length === 1 ? names[0] : undefined;
 }
 
 function resolveProfileRepoPath(project: string | undefined, repoPath: string): string {
-  if (repoPath.startsWith(".repos/") && project) {
-    return join(reposDir(project), repoPath.slice(".repos/".length));
-  }
-  return resolve(repoRoot(), repoPath);
+  const repoId = repoPath.startsWith(".repos/") ? repoPath.slice(".repos/".length) : repoPath;
+  return sourceRepoPath(project, repoId);
 }
 
 function runSyncProfile(opts: { name: string; project?: string }): void {
@@ -233,23 +309,15 @@ function runSyncProfile(opts: { name: string; project?: string }): void {
     }
 
     try {
-      git(absolutePath, ["fetch", "origin"]);
-      git(absolutePath, ["checkout", repoRef.branch]);
-      git(absolutePath, ["pull", "origin", repoRef.branch]);
-
-      let commit = "unknown";
-      try {
-        commit = git(absolutePath, ["rev-parse", "--short", "HEAD"]);
-      } catch {
-        // non-fatal
-      }
+      const result = inspectGitSource(absolutePath, repoRef.branch);
 
       results.push({
         repo: repoName,
         group: groupName,
         branch: repoRef.branch,
-        commit,
+        commit: result.commit,
         path: absolutePath,
+        storage: "external-git-repo",
       });
     } catch (err) {
       errors.push({
@@ -268,33 +336,94 @@ function runSyncProfile(opts: { name: string; project?: string }): void {
 }
 
 export const program = createCli({
-  name: "repo-sync",
-  description: "Clone or update source repos locally",
-  rootAction: {
-    options: [
-      { flag: "--url <git-url>", description: "Git repository URL" },
-      { flag: "--branch <branch>", description: "Branch to check out" },
-      { flag: "--project <name>", description: "Project name" },
-      {
-        flag: "--base-dir <dir>",
-        description: "Base directory for repositories (overrides project default)",
-      },
-    ],
-    action: runSync,
-  },
+  name: "repos",
+  description: "通过只读 git show/grep/ls-tree 查询已配置的外部源码仓库",
   commands: [
     {
+      name: "sync",
+      description: "发现并验证一个已配置的外部源码仓库（兼容命令，不创建缓存）",
+      options: [
+        { flag: "--url <git-url>", description: "Git 仓库地址，必填" },
+        { flag: "--branch <branch>", description: "目标分支，默认使用远端 HEAD" },
+        {
+          flag: "--project <name>",
+          description: "兼容参数；源码仓库由环境变量配置",
+        },
+        {
+          flag: "--base-dir <dir>",
+          description: "已废弃；不再创建源码缓存",
+        },
+      ],
+      action: runSync,
+    },
+    {
+      name: "sync-env",
+      description: "发现并验证 KATA_SOURCE_REPOS 中的全部外部仓库，不创建缓存",
+      options: [
+        {
+          flag: "--project <name>",
+          description: "项目名称，必填；也可从 repos 的上级参数继承",
+        },
+        {
+          flag: "--branch <branch>",
+          description: "所有仓库共用的分支，默认分别使用各仓库的远端 HEAD",
+        },
+      ],
+      action: (opts: { project: string; branch?: string }) => runSyncEnv(opts),
+    },
+    {
       name: "sync-profile",
-      description: "Sync all repositories in a named profile from config.json",
+      description: "按 config.json 中的命名配置验证全部外部仓库",
       options: [
         {
           flag: "--name <name>",
           description: "Profile name (e.g. 岚图)",
           required: true,
         },
-        { flag: "--project <name>", description: "Project name (defaults to active/dataAssets)" },
+        {
+          flag: "--project <name>",
+          description: "项目名称；省略时读取 KATA_ACTIVE_PROJECT 或配置中的唯一项目",
+        },
       ],
       action: (opts: { name: string; project?: string }) => runSyncProfile(opts),
     },
+    ...(["show", "grep", "list"] as const).map((name) => ({
+      name,
+      description:
+        name === "show"
+          ? "读取 Git ref 中的一个文件，不展开工作区"
+          : name === "grep"
+            ? "搜索 Git ref 中的内容，不展开工作区"
+            : "列出 Git ref 中的文件，不展开工作区",
+      options: [
+        { flag: "--project <name>", description: "项目名称" },
+        {
+          flag: "--repo <group/repo>",
+          description: "KATA_SOURCE_REPOS 中的 group/repo 或唯一 repo 短名",
+          required: true,
+        },
+        { flag: "--ref <ref>", description: "Git ref，默认使用同步时记录的分支或 HEAD" },
+        ...(name === "show"
+          ? [
+              { flag: "--path <file>", description: "仓库内的文件路径", required: true },
+              { flag: "--line-start <line>", description: "可选的起始行（含）" },
+              { flag: "--line-end <line>", description: "可选的结束行（含）" },
+            ]
+          : name === "grep"
+            ? [{ flag: "--pattern <text>", description: "要查找的文本或模式", required: true }]
+            : [{ flag: "--path <dir>", description: "可选的目录前缀" }]),
+      ],
+      action: (opts: Record<string, string>) =>
+        runRead({
+          project: opts.project,
+          repo: opts.repo,
+          ref: opts.ref,
+          path: opts.path,
+          pattern: opts.pattern,
+          lineStart: opts.lineStart,
+          lineEnd: opts.lineEnd,
+          operation: name,
+        }),
+    })),
   ],
 });

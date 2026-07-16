@@ -132,11 +132,11 @@ export function runCasesCompare(ctx: CasesCompareContext): CasesCompareResult {
 export function registerCasesCompare(cases: Command): void {
   cases
     .command("compare")
-    .description("跨模型产物稳定性比对 (FAIL/WARN)")
+    .description("比较不同模型生成的用例产物是否稳定")
     .requiredOption("--left <dir>", "claude 产物 feature 目录")
     .requiredOption("--right <dir>", "codex 产物 feature 目录")
     .option("--threshold <n>", "非关键源事实 Jaccard 阈值", "0.9")
-    .option("--exit-code", "exit non-zero on FAIL", false)
+    .option("--exit-code", "比较失败时返回非零退出码", false)
     .action((opts: { left: string; right: string; threshold: string; exitCode: boolean }) => {
       const r = runCasesCompare({
         leftDir: opts.left,
@@ -144,7 +144,7 @@ export function registerCasesCompare(cases: Command): void {
         threshold: Number(opts.threshold),
       });
       for (const f of r.findings) console.log(`[${f.severity}] ${f.rule}: ${f.message}`);
-      console.log(`jaccard=${r.jaccard.toFixed(3)} ${r.fail ? "FAIL" : "OK"}`);
+      console.log(`相似度=${r.jaccard.toFixed(3)} ${r.fail ? "失败" : "通过"}`);
       if (opts.exitCode && r.fail) process.exit(1);
     });
 }

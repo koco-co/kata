@@ -137,7 +137,7 @@ environment:
 - **禁止**读的文件：
   - `workspace/dataAssets/features/` 下除目标目录外的任何其他 feature
   - `workspace/{project}/_shared/env/*.yaml`（留到 env-preflight 阶段再读）
-  - `workspace/*/.kata/repos/**`（只在需要源码佐证时按需读）
+  - `.env` 配置的外部源码仓库（只在需要源码佐证时通过 `kata repos show|grep|list` 按需读）
   - `phases/**` 下除 §1-case-normalize.md 外的其他步骤规范，以及 `references/**` 下的跨阶段参考
 - 硬约束：读取范围不超过目标 feature 目录 + SKILL.md + 本阶段规范
 

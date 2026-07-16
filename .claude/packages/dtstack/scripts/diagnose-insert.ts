@@ -6,16 +6,19 @@
  */
 
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { getEnv, getEnvOrThrow, initEnv } from "@shared/lib/env.ts";
+import { authSessionPath, repoRoot } from "@shared/lib/paths.ts";
 import { DtStackClient } from "../src/core/http/client";
 import { BatchApi } from "../src/core/platform/batch";
 import { ProjectApi } from "../src/core/platform/project";
 
-const BASE_URL = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
-const SESSION_FILE = join(
-  import.meta.dirname,
-  "../../../../workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-);
+initEnv({ cwd: repoRoot() });
+const KATA_PROJECT = getEnvOrThrow("KATA_ACTIVE_PROJECT");
+const TARGET_ENV = getEnv("KATA_TARGET_ENV") ?? getEnv("ACTIVE_ENV") ?? "ltqc";
+const BASE_URL =
+  getEnv(`${TARGET_ENV.toUpperCase().replace(/-/g, "_")}_BASE_URL`) ??
+  getEnvOrThrow("UI_AUTOTEST_BASE_URL");
+const SESSION_FILE = authSessionPath(KATA_PROJECT, TARGET_ENV);
 const PROJECT_NAME = "pw_test";
 const DATASOURCE_TYPE = "sparkthrift";
 

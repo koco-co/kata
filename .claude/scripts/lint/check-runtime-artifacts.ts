@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * F6 lint: forbid runtime artifact directories at repo root.
+ * F6 lint: forbid runtime artifacts and retired agent adapters at repo root.
  */
 import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -11,9 +11,11 @@ export const FORBIDDEN_DIRS = [
   "allure-report",
   "playwright-report",
   "monocart-report",
+  ".hermes",
+  ".reasonix",
 ];
 
-/** Return the forbidden runtime-artifact directories that exist directly under `root`. */
+/** Return forbidden runtime or retired-adapter directories directly under `root`. */
 export function findRootArtifacts(root: string = process.cwd()): string[] {
   return FORBIDDEN_DIRS.filter((dir) => {
     const p = join(root, dir);
@@ -25,13 +27,13 @@ export function findRootArtifacts(root: string = process.cwd()): string[] {
 if (import.meta.main) {
   const violations = findRootArtifacts();
   if (violations.length > 0) {
-    console.error("✖ F6 violation: runtime artifact directories at repo root:");
+    console.error("✖ F6 violation: forbidden directories at repo root:");
     for (const v of violations) console.error("  -", v);
     console.error(
-      "These should live under workspace/{project}/.runs/ " +
-        "(set KATA_ACTIVE_PROJECT before running tests).",
+      "Remove retired agent adapters; generated test artifacts belong under " +
+        "workspace/{project}/.runs/ (set KATA_ACTIVE_PROJECT before running tests).",
     );
     process.exit(1);
   }
-  console.log("✓ F6: no runtime artifact directories at repo root");
+  console.log("✓ F6: no forbidden runtime directories at repo root");
 }

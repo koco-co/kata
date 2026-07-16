@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { outputJson } from "@shared/lib/cli.ts";
+import { workspaceDir } from "@shared/lib/paths.ts";
 import type { Command } from "commander";
 import { resolveProject } from "./test-case-flow/project-resolver";
 import {
@@ -16,7 +17,7 @@ import { createSourceConsent } from "./test-case-flow/source-consent";
 import { resolveTestCaseSource, type TestCaseSource } from "./test-case-flow/source-resolver";
 
 function workspaceRoot(): string {
-  return resolve(process.cwd(), "workspace");
+  return workspaceDir();
 }
 
 function listWorkspaceProjects(): string[] {

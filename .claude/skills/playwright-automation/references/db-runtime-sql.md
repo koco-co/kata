@@ -47,7 +47,7 @@ const rows = await withDb({ type: "starrocks", url: process.env.KATA_SR3X_URL },
 
 ## 连接信息
 
-- 连接 URL 形如 `mysql://user:password@host:port/db`，从环境变量读取（如 `KATA_SR3X_URL`），放 `.env.local` 或用户级配置，**不写进脚本或入口文档**。
+- 连接 URL 形如 `mysql://user:password@host:port/db`，从环境变量读取（如 `KATA_SR3X_URL`），放根 `.env` 或调用进程环境，**不写进脚本或入口文档**。
 - 解析容忍密码含 `@`/`#`/`:`：按**最后一个 `@`** 拆凭据与主机，按**第一个 `:`** 拆 user/password。例：`mysql://drpeco:DT@Stack#123@host:9030/db` → user=`drpeco`, password=`DT@Stack#123`。
 - `opts.url` 缺省时从 `process.env[opts.urlEnv ?? "KATA_DB_URL"]` 读；也可直接传 `host/port/user/password/database` 覆盖。
 

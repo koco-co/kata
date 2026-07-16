@@ -162,13 +162,14 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
       if (
         content.includes(`.auth/${project}/`) ||
         content.includes(".auth/session.json") ||
-        content.includes(`.kata/auth/${project}/`)
+        content.includes(`.kata/auth/${project}/`) ||
+        content.includes("auth.session_path")
       ) {
         violations.push(
           violation(
             file,
             "session_compliant",
-            `Auth storageState must live under workspace/${project}/.kata/auth/.`,
+            `Auth cookie must come from workspace/${project}/_shared/env/*.yaml auth.cookie; session files are unsupported.`,
             "fail",
             1,
             "legacy auth path",
@@ -189,16 +190,41 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
       files += 1;
       const profile = parse(readFileSync(file, "utf-8")) as unknown;
       const sessionPath = getNestedValue(profile, ["auth", "session_path"]);
-      const expectedPrefix = `workspace/${project}/.kata/auth/`;
-      if (typeof sessionPath === "string" && !sessionPath.startsWith(expectedPrefix)) {
+      if (sessionPath !== undefined) {
         violations.push(
           violation(
             file,
             "env_profile_compliance",
-            `auth.session_path must be repo-root relative under ${expectedPrefix}.`,
+            "auth.session_path is unsupported; migrate cookie data to auth.cookie.",
             "fail",
             1,
-            sessionPath,
+            "auth.session_path",
+          ),
+        );
+      }
+      const deriveFromSession = getNestedValue(profile, ["auth", "derive_from_session"]);
+      if (deriveFromSession !== undefined) {
+        violations.push(
+          violation(
+            file,
+            "env_profile_compliance",
+            "auth.derive_from_session is unsupported; auth.cookie is the source of truth.",
+            "fail",
+            1,
+            "auth.derive_from_session",
+          ),
+        );
+      }
+      const cookie = getNestedValue(profile, ["auth", "cookie"]);
+      if (typeof cookie !== "string" || cookie.trim() === "") {
+        violations.push(
+          violation(
+            file,
+            "env_profile_compliance",
+            "auth.cookie must be a non-empty cookie header string.",
+            "fail",
+            1,
+            "auth.cookie",
           ),
         );
       }

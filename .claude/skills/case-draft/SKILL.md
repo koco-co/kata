@@ -51,14 +51,14 @@ flowchart TD
     QR -->|过| BP{"blocking pending 清零?"}
     BP -->|否| DRAFT["只出 draft / confirmation / unresolved 产物"]
     BP -->|是| AR["cases/archive.md"]
-    AR --> XM["kata xmind-gen → cases/cases.xmind"]
+    AR --> XM["kata xmind generate → cases/cases.xmind"]
 ```
 
 非静默路径用 TodoWrite 建可见阶段进度，逐阶段推进：
 
 1. **module-identify**：先自行推断 workspace 项目（仅在无候选或多候选无法消歧时问用户）；首步执行 `kata features resolve --project <project> --module <module> --feature-version <vX.Y.Z> [--lanhu-page <pageId>] --json`，取返回的 featureDir；featureId 写入 metadata.yaml#id。**漏传 `--feature-version` 会落 `features/_standing/`（长期主流程/冒烟区）；版本类需求必须显式传，版本号由 CLI 按 `VERSION_DIR_RE`（v6.4.11 式）归一化、模型不得自拼，未知时先 `AskUserQuestion` 确认再 resolve。**
 2. **historical-context / requirement-atomize / case-draft**：这三阶段派 Worker 执行繁重处理（加载哪个文件见下方表）；Worker 以 Status/BlockedEnvelope 回传结果，遇到阻塞不直接询问用户。
-3. **case-review → output**：spec review（主会话）通过后派 quality review（fresh subagent）；blocking pending 清零后生成 cases/archive.md，再运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind` 产出 XMind。
+3. **case-review → output**：spec review（主会话）通过后派 quality review（fresh subagent）；blocking pending 清零后生成 cases/archive.md，再运行 `kata xmind generate --input cases/archive.md --output cases/cases.xmind` 产出 XMind。
 
 ## 何时加载哪个文件
 
@@ -72,7 +72,7 @@ flowchart TD
 | .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源；其菜单名是岚图定制，禁照抄 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用）    | 字段一致性、标题、前置条件、表单逐字匹配          |
 | `workspace/<project>/_shared/knowledge/_index.md` → `sites/<host>/dom-*.md` | **module-identify 后、起草任何含菜单/页面/表单字段的用例前（必读）** | 真实菜单名、路由、向导步骤、表单字段与统计函数文案基线；按 `_index.md` Sites 节逐条加载目标环境 DOM |
-| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md`（存疑再查 `source-repo-map.md` 指向的 `.kata/repos` 源码枚举） | **起草任何含业务规则语义的用例前（必读）** | 规则类型/统计函数清单/字段类型约束/多字段 AND 逻辑/规则集·多表比对·自定义SQL 机制等产品级语义事实来源；缺证据按规则臆测会写出错误用例，必须查证 |
+| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md`（存疑再用 `kata repos show|grep|list` 查外部源码枚举） | **起草任何含业务规则语义的用例前（必读）** | 规则类型/统计函数清单/字段类型约束/多字段 AND 逻辑/规则集·多表比对·自定义SQL 机制等产品级语义事实来源；缺证据按规则臆测会写出错误用例，必须查证 |
 
 ## 产物与引用规范
 
@@ -117,11 +117,11 @@ flowchart TD
 
 ## 交付约束
 
-- `blocking pending` 未清零时，只允许产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind-gen` 产出 `cases/cases.xmind`。
+- `blocking pending` 未清零时，只允许产出草稿与确认类产物（`cases/confirmation-package.md` / `cases/archive.draft.md` / `cases/unresolved-summary.md`；`error-fallback` 下豁免并保留 URL token 表与 SourceRef ID）。清零后才生成 `cases/archive.md`，再由 `kata xmind generate` 产出 `cases/cases.xmind`。
 - 产物落盘后、交付前，按 lint→validate→verify 顺序跑三条 exit-code 门，全部为零再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在命令本可发现的问题上：
-  1. `kata cases lint --scope <featureDir> --exit-code`
-  2. `kata cases validate <featureId> --project <project>`
-  3. `kata cases verify --project <project> --feature <featureId> --exit-code`（默认 `--required-kinds lanhu.fixture,knowledge.entry,repo.line`，flag 以 `kata cases verify --help` 为准）
+  1. `kata cases lint --scope <feature-dir> --exit-code`
+  2. `kata cases validate <feature-id> --project <project>`
+  3. `kata cases verify --project <project> --feature <feature-id> --exit-code`（默认 `--required-kinds lanhu.fixture,knowledge.entry,repo.line`，flag 以 `kata cases verify --help` 为准）
 
   verify 是三层硬校验门（L1 结构 / L2 输入消费 / L3 内容质量）；L1/L2/L3 全量触发只在 feature metadata `case_drafting.status=completed` 时发生，`blocked`/`in-progress` 路径跳过，不会误报。
 - `metadata.yaml#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。

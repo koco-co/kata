@@ -15,8 +15,6 @@ export const SKELETON_SPEC = {
     "_shared/knowledge",
     "_shared/knowledge/modules",
     "_shared/knowledge/pitfalls",
-    ".kata/repos",
-    ".kata/auth",
   ],
   gitkeep_dirs: [
     "features",
@@ -93,16 +91,16 @@ export interface ValidationResult {
 
 export function validateProjectName(name: string): ValidationResult {
   if (name.length < 2 || name.length > 32) {
-    return { valid: false, error: `length must be 2-32 (got ${name.length})` };
+    return { valid: false, error: `长度必须为 2 至 32 个字符，当前为 ${name.length}` };
   }
   if (!NAME_REGEX.test(name)) {
     return {
       valid: false,
-      error: "invalid character set (allowed: ^[A-Za-z][A-Za-z0-9-]*$)",
+      error: "只能使用英文字母、数字和连字符，且必须以字母开头",
     };
   }
   if ((RESERVED_NAMES as readonly string[]).includes(name)) {
-    return { valid: false, error: `"${name}" is a reserved system name` };
+    return { valid: false, error: `“${name}”是系统保留名称` };
   }
   return { valid: true };
 }

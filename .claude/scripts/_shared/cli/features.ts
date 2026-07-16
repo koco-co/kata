@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
 import { outputJson } from "@shared/lib/cli.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { gitMove, runFeaturesArchive } from "./features-archive.ts";
 import { runFeaturesIndex } from "./features-index.ts";
 import { runFeaturesLs } from "./features-ls.ts";
@@ -15,85 +15,93 @@ import { runFeaturesShow } from "./features-show.ts";
 import { runResultsPrune } from "./results-prune.ts";
 
 export function buildFeaturesCommand(): Command {
-  const features = new Command("features").description("Feature 目录管理");
+  const features = new Command("features").description("需求功能目录管理");
 
-  features
-    .command("new <slug>")
-    .description("创建 feature 骨架 + metadata.yaml + manifest.json")
-    .requiredOption("--display-name <name>", "中文人读名")
-    .option("--project <name>", "项目名", "dataAssets")
-    .option("--modules <list>", "模块逗号分隔", "")
-    .option("--customers <list>", "客户逗号分隔", "")
-    .option("--versions <list>", "版本逗号分隔", "")
-    .option("--owners <list>", "负责人逗号分隔", "")
-    .option("--inputs <list>", "输入类型 (prd,lanhu,axure,manual,bug-hotfix) 逗号分隔", "prd")
-    .action(async (slug: string, opts: Record<string, string>) => {
-      const split = (s: string) =>
-        s
-          .split(",")
-          .map((x) => x.trim())
-          .filter(Boolean);
-      const result = await runFeaturesNew({
-        project: opts.project,
-        slug,
-        displayName: opts.displayName,
-        modules: split(opts.modules),
-        customers: split(opts.customers),
-        versions: split(opts.versions),
-        owners: split(opts.owners),
-        inputs: split(opts.inputs) as ("prd" | "lanhu" | "axure" | "manual" | "bug-hotfix")[],
-        workspaceRoot: join(repoRoot(), "workspace"),
+  const createFeature = (name: string): Command =>
+    new Command(`${name} <slug>`)
+      .description("创建需求功能目录及 metadata.yaml、manifest.json")
+      .requiredOption("--display-name <name>", "中文人读名")
+      .requiredOption("--project <name>", "项目名（必填）")
+      .option("--modules <list>", "模块逗号分隔", "")
+      .option("--customers <list>", "客户逗号分隔", "")
+      .option("--versions <list>", "版本逗号分隔", "")
+      .option("--owners <list>", "负责人逗号分隔", "")
+      .option("--inputs <list>", "输入类型 (prd,lanhu,axure,manual,bug-hotfix) 逗号分隔", "prd")
+      .action(async (slug: string, opts: Record<string, string>) => {
+        const split = (s: string) =>
+          s
+            .split(",")
+            .map((x) => x.trim())
+            .filter(Boolean);
+        const result = await runFeaturesNew({
+          project: opts.project,
+          slug,
+          displayName: opts.displayName,
+          modules: split(opts.modules),
+          customers: split(opts.customers),
+          versions: split(opts.versions),
+          owners: split(opts.owners),
+          inputs: split(opts.inputs) as ("prd" | "lanhu" | "axure" | "manual" | "bug-hotfix")[],
+          workspaceRoot: join(repoRoot(), "workspace"),
+        });
+        console.log(`[features create] 已创建 ${result.featureId}：${result.featureDir}`);
       });
-      console.log(`Created ${result.featureId} at ${result.featureDir}`);
-    });
+  features.addCommand(createFeature("create"));
+  features.addCommand(createFeature("new"), { hidden: true });
 
-  features
-    .command("ls")
-    .description("列出 features 支持多维过滤")
-    .option("--project <name>", "项目名", "dataAssets")
-    .option("--module <name>", "按 module 过滤")
-    .option("--customer <name>", "按 customer 过滤")
-    .option("--version <name>", "按 version 过滤")
-    .option("--owner <name>", "按 owner 过滤")
-    .option("--created-after <yyyy-mm>", "按 created_at 下限过滤")
-    .option("--status <name>", "按 status 过滤")
-    .option("--automation-status <name>", "按 automation status 过滤")
-    .option("--last-run <name>", "按 last_run_status 过滤")
-    .option("--format <fmt>", "输出格式 (table|json|md)", "table")
-    .action(async (opts: Record<string, string>) => {
-      const rows = await runFeaturesLs({
-        project: opts.project,
-        workspaceRoot: join(repoRoot(), "workspace"),
-        module: opts.module,
-        customer: opts.customer,
-        version: opts.version,
-        owner: opts.owner,
-        createdAfter: opts.createdAfter,
-        status: opts.status,
-        automationStatus: opts.automationStatus,
-        lastRun: opts.lastRun,
+  const listFeatures = (name: string): Command =>
+    new Command(name)
+      .description("列出需求功能，支持按模块、客户、版本等条件筛选")
+      .requiredOption("--project <name>", "项目名（必填）")
+      .option("--module <name>", "按模块筛选")
+      .option("--customer <name>", "按客户筛选")
+      .option("--version <name>", "按版本筛选")
+      .option("--owner <name>", "按负责人筛选")
+      .option("--created-after <yyyy-mm>", "只显示该月份及以后创建的需求")
+      .option("--status <name>", "按需求状态筛选")
+      .option("--automation-status <name>", "按自动化状态筛选")
+      .option("--last-run <name>", "按最近一次运行状态筛选")
+      .addOption(
+        new Option("--format <format>", "输出格式")
+          .choices(["table", "json", "md"])
+          .default("table"),
+      )
+      .action(async (opts: Record<string, string>) => {
+        const rows = await runFeaturesLs({
+          project: opts.project,
+          workspaceRoot: join(repoRoot(), "workspace"),
+          module: opts.module,
+          customer: opts.customer,
+          version: opts.version,
+          owner: opts.owner,
+          createdAfter: opts.createdAfter,
+          status: opts.status,
+          automationStatus: opts.automationStatus,
+          lastRun: opts.lastRun,
+        });
+        if (opts.format === "json") {
+          outputJson(rows);
+        } else if (opts.format === "md") {
+          console.log("| ID | 名称 | 状态 | 模块 | 自动化 | 最近运行 |");
+          console.log("|---|---|---|---|---|---|");
+          for (const r of rows)
+            console.log(
+              `| ${r.id} | ${r.displayName} | ${r.status} | ${r.modules.join(",")} | ${r.automationStatus} | ${r.lastRunStatus} |`,
+            );
+        } else {
+          for (const r of rows)
+            console.log(
+              `${r.id}\t${r.status}\t${r.modules.join(",")}\t${r.automationStatus}\t${r.lastRunStatus}`,
+            );
+        }
       });
-      if (opts.format === "json") {
-        outputJson(rows);
-      } else if (opts.format === "md") {
-        console.log("| ID | Display | Status | Modules | Automation | Last Run |");
-        console.log("|---|---|---|---|---|---|");
-        for (const r of rows)
-          console.log(
-            `| ${r.id} | ${r.displayName} | ${r.status} | ${r.modules.join(",")} | ${r.automationStatus} | ${r.lastRunStatus} |`,
-          );
-      } else {
-        for (const r of rows)
-          console.log(
-            `${r.id}\t${r.status}\t${r.modules.join(",")}\t${r.automationStatus}\t${r.lastRunStatus}`,
-          );
-      }
-    });
+  features.addCommand(listFeatures("list"));
+  features.addCommand(listFeatures("ls"), { hidden: true });
 
   features
-    .command("show <featureId>")
-    .description("显示单 feature 详情")
-    .option("--project <name>", "项目名", "dataAssets")
+    .command("show <feature-id>")
+    .description("显示一个需求功能的详细信息")
+    .requiredOption("--project <name>", "项目名（必填）")
     .action(async (featureId: string, opts: Record<string, string>) => {
       const d = await runFeaturesShow({
         project: opts.project,
@@ -104,11 +112,11 @@ export function buildFeaturesCommand(): Command {
     });
 
   features
-    .command("lint [featureId]")
-    .description("lint feature metadata + manifest")
-    .option("--project <name>", "项目名", "dataAssets")
-    .option("--all", "lint all workspace projects", false)
-    .option("--exit-code", "exit non-zero on violations", false)
+    .command("lint [feature-id]")
+    .description("检查需求功能的 metadata.yaml 与 manifest.json")
+    .requiredOption("--project <name>", "项目名（必填）")
+    .option("--all", "检查所有工作区项目", false)
+    .option("--exit-code", "发现违规时返回非零退出码", false)
     .action(
       async (
         featureId: string | undefined,
@@ -133,7 +141,7 @@ export function buildFeaturesCommand(): Command {
         for (const v of violations) {
           console.log(`${v.feature} [${v.rule}] ${v.message}`);
         }
-        console.log(`\n[features lint] violations=${violations.length}`);
+        console.log(`\n[features lint] 违规=${violations.length}`);
         if (opts.exitCode && violations.length > 0) process.exit(1);
       },
     );
@@ -141,7 +149,7 @@ export function buildFeaturesCommand(): Command {
   features
     .command("index")
     .description("生成 features/INDEX.md")
-    .option("--project <name>", "项目名", "dataAssets")
+    .requiredOption("--project <name>", "项目名（必填）")
     .option("--all", "index all workspace projects", false)
     .action(async (opts: { project: string; all: boolean }) => {
       const workspaceRoot = join(repoRoot(), "workspace");
@@ -156,12 +164,12 @@ export function buildFeaturesCommand(): Command {
           workspaceRoot,
         });
       }
-      console.log("INDEX.md regenerated");
+      console.log("[features index] 已重新生成 INDEX.md");
     });
 
   features
     .command("resolve")
-    .description("确定性计算 feature_id 与目录(不创建文件)")
+    .description("计算确定的 feature_id 与目录，不创建文件")
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--module <name>", "模块名 (module-identify 产出)")
     .option("--slug <slug>", "显式 slug (最高优先级)")
@@ -188,9 +196,9 @@ export function buildFeaturesCommand(): Command {
 
   features
     .command("clean")
-    .description("按保留策略清理 runs/（最近N次+baseline+published；含 _tmp）")
-    .option("--project <name>", "项目名", "dataAssets")
-    .option("--feature <dirName>", "只清理单个 feature")
+    .description("按保留策略清理运行目录，默认仅预览")
+    .requiredOption("--project <name>", "项目名（必填）")
+    .option("--feature <dir-name>", "只清理一个需求功能")
     .option("--keep <n>", "保留最近 N 次", "3")
     .option("--apply", "真正删除（缺省 dry-run）", false)
     .action(async (opts: { project: string; feature?: string; keep: string; apply: boolean }) => {
@@ -202,20 +210,20 @@ export function buildFeaturesCommand(): Command {
         apply: opts.apply,
       });
       if (!opts.apply) {
-        console.log(`[dry-run] would remove ${r.removed.length}, would keep ${r.kept.length}`);
+        console.log(`[预览] 将删除 ${r.removed.length} 个运行目录，保留 ${r.kept.length} 个`);
         for (const p of r.plan) {
           if (p.remove.length > 0)
-            console.log(`  remove: ${p.remove.join(", ")} (from ${p.featureDir})`);
+            console.log(`  删除：${p.remove.join(", ")}（位于 ${p.featureDir}）`);
         }
       } else {
-        console.log(`Removed ${r.removed.length}, kept ${r.kept.length}`);
+        console.log(`已删除 ${r.removed.length} 个运行目录，保留 ${r.kept.length} 个`);
       }
     });
 
   features
     .command("archive <version>")
     .description("将版本目录移入 features/_archived/<version>，并重建 INDEX")
-    .option("--project <name>", "项目名", "dataAssets")
+    .requiredOption("--project <name>", "项目名（必填）")
     .action(async (version: string, opts: { project: string }) => {
       // 整目录搬移用 gitMove（git mv 优先、renameSync 兜底）；安全性论证见
       // features-archive.ts 的 gitMove 注释与 husk 回归测试。
@@ -225,13 +233,13 @@ export function buildFeaturesCommand(): Command {
         version,
         move: gitMove,
       });
-      console.log(`Archived ${r.from} → ${r.to}`);
+      console.log(`[features archive] 已归档 ${r.from} → ${r.to}`);
     });
 
   features
     .command("migrate")
-    .description("将 legacy-flat features 迁移至分层目录结构（cases/automation/runs）")
-    .option("--project <name>", "项目名", "dataAssets")
+    .description("将旧版平铺目录迁移为 cases、automation、runs 分层结构")
+    .requiredOption("--project <name>", "项目名（必填）")
     .option("--apply", "真正执行迁移（缺省 dry-run）", false)
     .option("--allow-unresolved", "跳过无法推断版本的目录（不传则遇到 unresolved 即报错）", false)
     .option("--fallback-group <group>", "无法推断版本时的兜底分组（如 _standing）")
@@ -263,10 +271,10 @@ export function buildFeaturesCommand(): Command {
         }
 
         if (!opts.apply) {
-          console.log(`[dry-run] ${rows.length} legacy feature(s) to migrate:`);
+          console.log(`[预览] 发现 ${rows.length} 个待迁移的旧版需求目录：`);
           for (const row of rows) {
             if (row.targetGroup === null) {
-              console.log(`  UNRESOLVED  ${row.dirName}`);
+              console.log(`  无法确定目标目录  ${row.dirName}`);
             } else {
               const collisionTag = row.collision ? " [COLLISION: target exists]" : "";
               console.log(`  ${row.dirName} → ${row.targetGroup}/${row.dirName}${collisionTag}`);
@@ -275,14 +283,14 @@ export function buildFeaturesCommand(): Command {
               }
             }
             for (const w of row.warns) {
-              console.warn(`  WARN: ${w}`);
+              console.warn(`  警告：${w}`);
             }
           }
         } else {
           const applied = rows.filter((r) => r.targetGroup !== null);
           const skipped = rows.filter((r) => r.targetGroup === null);
           console.log(
-            `Migrated ${applied.length} feature(s); skipped ${skipped.length} unresolved.`,
+            `已迁移 ${applied.length} 个需求目录；跳过 ${skipped.length} 个无法确定目标的目录。`,
           );
         }
       },

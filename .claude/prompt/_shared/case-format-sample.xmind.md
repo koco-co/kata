@@ -16,7 +16,7 @@ XMind 用例 topic 与 Markdown 用例的映射示意（ASCII 树状；真 .xmin
 | `root_name`（可选） | 根节点标题整体覆盖 | 给出即**整串**作根标题（不再套模板） | 仅用户显式要求覆盖时填 | 留空走默认模板 |
 | `iteration_id` | 迭代号（固定） | 根节点 `(#N)` 段 | 来自 `.claude/scripts/_shared/lib/rules.ts`，**模型不得改** | 用 rules 默认值 |
 
-> 版本概念：`prd_version`（xmind 根节点版本段）= feature 目录版本 = **lanhu-prd 迭代版本**（如 `7.0.0` / 目录 `v7.0.0`），两处同源一致。开发分支/客户平台版本（如 `6.0_浙商证券`）只是环境信息，**只写进 metadata**（dev_version / description），**不进前置条件、不进根节点、不进目录**。sheet 名（XMind 左下角画布标签）由 `kata xmind-gen` 自动取根节点标题，无需手填。详见 `.claude/skills/case-draft/rules/naming-convention.md`。
+> 版本概念：`prd_version`（xmind 根节点版本段）= feature 目录版本 = **lanhu-prd 迭代版本**（如 `7.0.0` / 目录 `v7.0.0`），两处同源一致。开发分支/客户平台版本（如 `6.0_浙商证券`）只是环境信息，**只写进 metadata**（dev_version / description），**不进前置条件、不进根节点、不进目录**。sheet 名（XMind 左下角画布标签）由 `kata xmind generate` 自动取根节点标题，无需手填。详见 `.claude/skills/case-draft/rules/naming-convention.md`。
 
 ## 映射对照表
 

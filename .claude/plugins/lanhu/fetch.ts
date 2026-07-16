@@ -6,7 +6,7 @@
  * then downloads images and produces per-requirement PRD files.
  *
  * Usage:
- *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --base-dir workspace/prds
+ *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --project <project>
  *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --pages "15525,15529"
  *   bun run .claude/plugins/lanhu/fetch.ts --help
  */
@@ -26,7 +26,7 @@ import { basename, extname, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import { getEnv, initEnv } from "@shared/lib/env.ts";
-import { repoRoot } from "@shared/lib/paths.ts";
+import { prdsDir, repoRoot } from "@shared/lib/paths.ts";
 import { Command } from "commander";
 import sharp from "sharp";
 
@@ -836,12 +836,25 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
     options.project,
     selectedRequirements.map(({ parsed }) => parsed.project),
   );
-  const baseDir =
-    options.baseDir ?? (workspaceProject ? `workspace/${workspaceProject}/prds` : "workspace/prds");
-  const absBaseDir = resolve(baseDir);
+  if (!options.baseDir && !workspaceProject) {
+    const err: ErrorOutput = {
+      error: "Cannot resolve a kata project. Pass --project or --base-dir.",
+      code: "PROJECT_REQUIRED",
+    };
+    process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
+    process.exit(1);
+  }
+  let absBaseDir: string;
+  if (options.baseDir) {
+    absBaseDir = resolve(projectRoot, options.baseDir);
+  } else if (workspaceProject) {
+    absBaseDir = prdsDir(workspaceProject);
+  } else {
+    return;
+  }
 
   // Feature 模式只能对准单个需求；命中多个时无法消歧，拒绝而非乱写同一目录
-  const absFeatureDir = options.featureDir ? resolve(options.featureDir) : undefined;
+  const absFeatureDir = options.featureDir ? resolve(projectRoot, options.featureDir) : undefined;
   if (absFeatureDir && selectedRequirements.length !== 1) {
     const err: ErrorOutput = {
       error: `--feature-dir targets a single requirement, but ${selectedRequirements.length} matched. Narrow with --pages or a page-scoped URL.`,

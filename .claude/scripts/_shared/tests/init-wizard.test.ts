@@ -161,6 +161,28 @@ describe("init-wizard scan", () => {
     expect(lanhu).toBeTruthy();
     expect(lanhu?.active).toBe(true);
   });
+
+  it("zentao requires base URL and at least one authentication method", () => {
+    const withoutAuth = JSON.parse(
+      run(["scan"], {
+        KATA_ZENTAO_BASE_URL: "https://zentao.example.test",
+        KATA_ZENTAO_COOKIE: "",
+        KATA_ZENTAO_ACCOUNT: "",
+        KATA_ZENTAO_PASSWORD: "",
+      }).stdout,
+    ) as { plugins: Array<{ name: string; active: boolean }> };
+    const withCookie = JSON.parse(
+      run(["scan"], {
+        KATA_ZENTAO_BASE_URL: "https://zentao.example.test",
+        KATA_ZENTAO_COOKIE: "sid=test",
+        KATA_ZENTAO_ACCOUNT: "",
+        KATA_ZENTAO_PASSWORD: "",
+      }).stdout,
+    ) as { plugins: Array<{ name: string; active: boolean }> };
+
+    expect(withoutAuth.plugins.find((p) => p.name === "zentao")?.active).toBe(false);
+    expect(withCookie.plugins.find((p) => p.name === "zentao")?.active).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 /**
  * knowledge-curate.ts — 业务知识库 CRUD + lint/index。
  * Usage:
- *   kata knowledge-curate <action> --project <name> [...]
+ *   kata knowledge <action> --project <name> [...]
  * Actions: read-core | read-module | read-pitfall | write | update | index | lint
  */
 
@@ -25,7 +25,7 @@ export const program = createCli({
   commands: [
     {
       name: "read-core",
-      description: "Load core knowledge (overview + terms + index)",
+      description: "读取核心知识：概览、术语与索引",
       options: [
         {
           flag: "--project <name>",
@@ -37,7 +37,7 @@ export const program = createCli({
     },
     {
       name: "read-module",
-      description: "Load a single module by name",
+      description: "按名称读取单个知识模块",
       options: [
         {
           flag: "--project <name>",
@@ -54,7 +54,7 @@ export const program = createCli({
     },
     {
       name: "read-pitfall",
-      description: "Search pitfalls by query (filename + tags)",
+      description: "按关键词检索踩坑记录的文件名与标签",
       options: [
         {
           flag: "--project <name>",
@@ -71,7 +71,7 @@ export const program = createCli({
     },
     {
       name: "index",
-      description: "Rebuild _index.md (and auto-fix phase-0 templates)",
+      description: "重建 _index.md，并修复初始模板",
       options: [
         {
           flag: "--project <name>",
@@ -83,7 +83,7 @@ export const program = createCli({
     },
     {
       name: "write",
-      description: "Write knowledge entry (term/overview/module/pitfall)",
+      description: "写入术语、概览、模块或踩坑记录",
       options: [
         {
           flag: "--project <name>",
@@ -132,7 +132,7 @@ export const program = createCli({
     },
     {
       name: "update",
-      description: "Update an existing knowledge file (frontmatter / body)",
+      description: "更新知识文件的 frontmatter 或正文",
       options: [
         {
           flag: "--project <name>",
@@ -169,7 +169,7 @@ export const program = createCli({
     },
     {
       name: "verify",
-      description: "Dry-run conflict check against existing knowledge (no write, no side effect)",
+      description: "只检查与现有知识的冲突，不写入文件",
       options: [
         {
           flag: "--project <name>",
@@ -192,7 +192,7 @@ export const program = createCli({
     },
     {
       name: "history",
-      description: "List recent write/update/rollback audit entries",
+      description: "列出最近的写入、更新与回滚记录",
       options: [
         {
           flag: "--project <name>",
@@ -208,7 +208,7 @@ export const program = createCli({
     },
     {
       name: "rollback",
-      description: "Restore a file from the snapshot referenced by an audit entry",
+      description: "从审计记录引用的快照恢复文件",
       options: [
         {
           flag: "--project <name>",
@@ -235,7 +235,7 @@ export const program = createCli({
     },
     {
       name: "lint",
-      description: "Health check for knowledge files",
+      description: "检查知识文件健康状态",
       options: [
         {
           flag: "--project <name>",

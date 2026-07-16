@@ -3,7 +3,7 @@
  * build-case-tasks.ts — deterministically enumerate feature cases and output a case task list JSON.
  *
  * Usage:
- *   kata case-tasks build --feature <featureDir>
+ *   kata case-tasks build --feature <feature-dir>
  *
  * Output (stdout): CaseTaskList JSON. Mutation classification is heuristic;
  * can be corrected after an upstream opus sub-agent probe.

@@ -3,11 +3,11 @@
  * xmind-patch.ts — Search, view, patch, add, and delete test cases in existing .xmind files.
  *
  * Usage:
- *   kata xmind-patch search <query> [--project <name>] [--dir <dir>] [--limit 20]
- *   kata xmind-patch show --file <xmind> --title <query>
- *   kata xmind-patch patch --file <xmind> --title <query> --case-json '<json>' [--dry-run]
- *   kata xmind-patch add --file <xmind> --parent <query> --case-json '<json>' [--dry-run]
- *   kata xmind-patch delete --file <xmind> --title <query> [--dry-run]
+ *   kata xmind search <query> [--project <name>] [--dir <dir>] [--limit 20]
+ *   kata xmind show --file <xmind> --title <query>
+ *   kata xmind patch --file <xmind> --title <query> --case-json '<json>' [--dry-run]
+ *   kata xmind add --file <xmind> --parent <query> --case-json '<json>' [--dry-run]
+ *   kata xmind delete --file <xmind> --title <query> [--dry-run]
  */
 
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -491,20 +491,20 @@ export const program = createCli({
   commands: [
     {
       name: "search",
-      description: "Search for test cases by keyword across all .xmind files in a directory",
-      arguments: [{ name: "query", description: "Keyword to search for", required: true }],
+      description: "在目录下的所有 .xmind 文件中按关键词检索用例",
+      arguments: [{ name: "query", description: "检索关键词（必填）", required: true }],
       options: [
         {
           flag: "--project <name>",
-          description: "Project name (e.g. dataAssets)",
+          description: "项目名，例如 dataAssets",
         },
         {
           flag: "--dir <dir>",
-          description: "Directory to search in (overrides project default)",
+          description: "检索目录；传入后覆盖项目默认目录",
         },
         {
           flag: "--limit <n>",
-          description: "Maximum number of results",
+          description: "最多返回条数，默认 20",
           defaultValue: "20",
         },
       ],
@@ -518,20 +518,20 @@ export const program = createCli({
     },
     {
       name: "show",
-      description: "Show full details of a test case in a specific .xmind file",
+      description: "查看指定 .xmind 文件中的用例详情",
       options: [
         {
           flag: "--project <name>",
-          description: "Project name (unused, for consistency)",
+          description: "项目名（兼容参数）",
         },
         {
           flag: "--file <path>",
-          description: "Path to the .xmind file",
+          description: ".xmind 文件路径（必填）",
           required: true,
         },
         {
           flag: "--title <query>",
-          description: "Title query to find the test case",
+          description: "用于定位用例的标题关键词（必填）",
           required: true,
         },
       ],
@@ -541,30 +541,30 @@ export const program = createCli({
     },
     {
       name: "patch",
-      description: "Patch a test case (merge provided fields, keep others)",
+      description: "更新一条用例；合并指定字段并保留其余字段",
       options: [
         {
           flag: "--project <name>",
-          description: "Project name (unused, for consistency)",
+          description: "项目名（兼容参数）",
         },
         {
           flag: "--file <path>",
-          description: "Path to the .xmind file",
+          description: ".xmind 文件路径（必填，会修改文件）",
           required: true,
         },
         {
           flag: "--title <query>",
-          description: "Title query to find the test case",
+          description: "用于定位用例的标题关键词（必填）",
           required: true,
         },
         {
           flag: "--case-json <json>",
-          description: "JSON with fields to update",
+          description: "待更新字段组成的 JSON（必填）",
           required: true,
         },
         {
           flag: "--dry-run",
-          description: "Preview the patch without modifying the file",
+          description: "仅预览，不修改文件",
         },
       ],
       action: async (opts: { file: string; title: string; caseJson: string; dryRun?: boolean }) => {
@@ -573,30 +573,30 @@ export const program = createCli({
     },
     {
       name: "add",
-      description: "Add a new test case under a parent topic",
+      description: "在指定父主题下新增用例",
       options: [
         {
           flag: "--project <name>",
-          description: "Project name (unused, for consistency)",
+          description: "项目名（兼容参数）",
         },
         {
           flag: "--file <path>",
-          description: "Path to the .xmind file",
+          description: ".xmind 文件路径（必填，会修改文件）",
           required: true,
         },
         {
           flag: "--parent <query>",
-          description: "Title query to find the parent topic",
+          description: "用于定位父主题的标题关键词（必填）",
           required: true,
         },
         {
           flag: "--case-json <json>",
-          description: "JSON of the new test case",
+          description: "新用例 JSON（必填）",
           required: true,
         },
         {
           flag: "--dry-run",
-          description: "Preview the new case without modifying the file",
+          description: "仅预览，不修改文件",
         },
       ],
       action: async (opts: {
@@ -610,25 +610,25 @@ export const program = createCli({
     },
     {
       name: "delete",
-      description: "Delete a test case from a .xmind file",
+      description: "从 .xmind 文件删除一条用例",
       options: [
         {
           flag: "--project <name>",
-          description: "Project name (unused, for consistency)",
+          description: "项目名（兼容参数）",
         },
         {
           flag: "--file <path>",
-          description: "Path to the .xmind file",
+          description: ".xmind 文件路径（必填，会修改文件）",
           required: true,
         },
         {
           flag: "--title <query>",
-          description: "Title query to find the test case",
+          description: "用于定位用例的标题关键词（必填）",
           required: true,
         },
         {
           flag: "--dry-run",
-          description: "Show what would be deleted without modifying the file",
+          description: "仅预览待删除内容，不修改文件",
         },
       ],
       action: async (opts: { file: string; title: string; dryRun?: boolean }) => {

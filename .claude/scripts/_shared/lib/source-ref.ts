@@ -11,6 +11,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { isValidQAnchor, isValidSectionAnchor } from "./enhanced-doc-anchors.ts";
+import { getEnv } from "./env.ts";
+import { readGitSourceFile, resolveConfiguredSourceRepo } from "./git-source.ts";
 
 export type SourceRefScheme = "prd" | "knowledge" | "repo" | "enhanced";
 
@@ -40,6 +42,8 @@ export interface ResolveContext {
   /** Mapping of repo-short-name → absolute path. If repo scheme anchor's
    *  first path segment matches a key, its file lookup is rooted there. */
   repos?: Record<string, string>;
+  sourceRepoRoot?: string;
+  sourceRepoUrls?: string;
 }
 
 export interface ResolveResult {
@@ -150,18 +154,26 @@ function resolveRepo(anchor: string, ctx: ResolveContext): ResolveResult {
   const firstSeg = relPath.split("/")[0];
 
   if (ctx.repos !== undefined && ctx.repos[firstSeg] !== undefined) {
-    const abs = join(ctx.repos[firstSeg], relPath.slice(firstSeg.length + 1));
-    return existsSync(abs) ? { ok: true } : { ok: false, reason: `repo 文件不存在: ${abs}` };
+    const repoPath = ctx.repos[firstSeg];
+    const filePath = relPath.slice(firstSeg.length + 1);
+    const abs = join(repoPath, filePath);
+    if (existsSync(abs) || readGitSourceFile(repoPath, filePath) !== undefined) return { ok: true };
+    return { ok: false, reason: `repo 文件不存在: ${abs}` };
   }
 
-  if (ctx.workspaceDir !== undefined && ctx.projectName !== undefined) {
-    const reposDir = join(ctx.workspaceDir, ctx.projectName, ".kata", "repos");
-    const tryAbs = join(reposDir, relPath);
-    if (existsSync(tryAbs)) return { ok: true };
+  const configuredRepo = resolveConfiguredSourceRepo(
+    firstSeg,
+    ctx.sourceRepoRoot ?? getEnv("KATA_SOURCE_REPO_ROOT"),
+    ctx.sourceRepoUrls ?? getEnv("KATA_SOURCE_REPOS"),
+  );
+  if (configuredRepo) {
+    const filePath = relPath.slice(firstSeg.length + 1);
+    if (readGitSourceFile(configuredRepo, filePath) !== undefined) return { ok: true };
+    return { ok: false, reason: `repo 文件不存在: ${firstSeg}/${filePath}` };
   }
 
   return {
     ok: false,
-    reason: `repo 未在 ctx.repos 或 workspace/{project}/.kata/repos 中找到: ${firstSeg}`,
+    reason: `repo 未在 ctx.repos 或 KATA_SOURCE_REPOS 中找到: ${firstSeg}`,
   };
 }

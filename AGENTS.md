@@ -27,6 +27,40 @@ When in doubt, ask: *if a fresh agent or a different runtime replays the exact s
 - Spell out the unfinished remainder and risks: what is left, known pitfalls or prerequisites, and who or what must decide or supply missing info.
 - Never present a partial result as complete.
 
+## Ignored Runtime Data Safety
+
+- Before rollback, cleanup, worktree removal, or deletion of untracked files,
+  inventory ignored runtime state. This includes root `.kata/`,
+  `workspace/*/.kata/`, auth sessions, repository symlinks, and local environment
+  overrides.
+- Never delete ignored runtime state as part of a Git rollback unless the user
+  explicitly names that state for deletion. Preserve it outside the cleanup
+  scope first, then restore it and verify every symlink target and session file.
+- A clean Git status proves only that tracked and non-ignored files match Git.
+  Do not call a rollback complete until required ignored runtime state has also
+  been checked.
+
+## Source And Auth Runtime Storage
+
+- Do not create root `.kata/{project}/` or `workspace/{project}/.kata/` runtime trees for source or UI authentication data.
+- Query source only through `kata repos show|grep|list`; these commands resolve `.env` configured external repositories and wrap read-only Git object commands without creating a cache.
+- Store UI cookie headers only under `auth.cookie`. Keep the committed profile at `workspace/{project}/_shared/env/<env>.yaml`; when that profile is tracked, put the real cookie in ignored `workspace/{project}/_shared/env/.local/<env>.yaml`. Do not use `.kata/auth/**` or `auth.session_path`.
+
+## Unified Runtime Configuration
+
+- Root `.env` is the only dotenv file. Do not create or load `.env.envs`, root `.env.local`, or `workspace/{project}/.env.local`.
+- Resolution order is explicit process environment, then root `.env`; `KATA_DATAASSETS_ENV` selects the project YAML profile. The ignored `.local/<env>.yaml` may override only `auth.cookie`, not ordinary profile fields.
+- Store repository-wide runtime endpoints, credentials, and external repository locations in the root `.env`; declare every supported key in `.env.example`. Store project/environment-specific UI URLs, project IDs, datasource IDs, runtime options, and UI cookie authentication in the selected YAML profile.
+- Do not persist runtime authentication in root `.kata/` or hardcode user-home, absolute machine, service-host, or session-file paths in production code.
+- Use `kata env resolve --project <project> --env <env>` to inspect sources without values and `kata env doctor --project <project> --env <env>` to enforce this contract. Migrate configuration through `kata env` commands; migration and set commands must never echo secret values.
+- Stable internal source identifiers, command names, test fixtures, and documentation examples are not runtime configuration and do not need environment-variable indirection.
+
+## Hotfix Archive Contract
+
+- Hotfix case titles use `【bug_id】` only. Do not add `【P0】` through `【P4】` priority markers.
+- In hotfix case content, data source and database/schema names must use `${DataSourceA}` and `${SchemaA}` style placeholders. Only table names may be concrete.
+- Every concrete table name in a hotfix case must have a matching executable `CREATE TABLE` statement in that case's prerequisites, even when the defect imposes no schema or data-type constraints.
+
 ## Playwright Automation Hard Gate
 
 - When generating or repairing Playwright UI automation, completion requires all three artifacts:

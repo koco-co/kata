@@ -7,13 +7,13 @@ describe("agent runtime CLI commands", () => {
     // pass vacuously (scanned=0). It must surface a non-zero exit + a clear message.
     const result = spawnKataCli(["agents", "audit", "--exit-code"]);
     expect(result.status).not.toBe(0);
-    expect(`${result.stdout}${result.stderr}`).toContain("agents dir not found");
+    expect(`${result.stdout}${result.stderr}`).toContain("未找到代理目录");
   });
 
   test("agents audit without --exit-code still reports the missing dir but exits 0", () => {
     const result = spawnKataCli(["agents", "audit"]);
     expect(result.status).toBe(0);
-    expect(`${result.stdout}${result.stderr}`).toContain("agents dir not found");
+    expect(`${result.stdout}${result.stderr}`).toContain("未找到代理目录");
   });
 
   test("skills audit runs without error", () => {

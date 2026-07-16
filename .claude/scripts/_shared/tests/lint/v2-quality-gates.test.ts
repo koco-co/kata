@@ -19,7 +19,7 @@ describe("lintEnvProfileCompliance", () => {
     rmSync(scratch, { recursive: true, force: true });
   });
 
-  it("reports auth session paths outside the project auth directory", () => {
+  it("rejects auth.session_path and requires auth.cookie", () => {
     const envDir = join(scratch, "dataAssets", "_shared", "env");
     mkdirSync(envDir, { recursive: true });
     writeFileSync(
@@ -27,6 +27,7 @@ describe("lintEnvProfileCompliance", () => {
       [
         "auth:",
         "  session_path: workspace/other/.kata/auth/session.json",
+        "  derive_from_session: true",
         "env: ltqc-dev",
         "runtime:",
         "  allow_write: true",
@@ -39,7 +40,19 @@ describe("lintEnvProfileCompliance", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "env_profile_compliance",
-        matched: "workspace/other/.kata/auth/session.json",
+        matched: "auth.session_path",
+      }),
+    );
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "env_profile_compliance",
+        matched: "auth.cookie",
+      }),
+    );
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "env_profile_compliance",
+        matched: "auth.derive_from_session",
       }),
     );
   });
@@ -49,13 +62,9 @@ describe("lintEnvProfileCompliance", () => {
     mkdirSync(envDir, { recursive: true });
     writeFileSync(
       join(envDir, "prod.yaml"),
-      [
-        "auth:",
-        "  session_path: workspace/dataAssets/.kata/auth/session.json",
-        "env: ltqc-prod",
-        "runtime:",
-        "  allow_write: true",
-      ].join("\n"),
+      ["auth:", "  cookie: sid=test", "env: ltqc-prod", "runtime:", "  allow_write: true"].join(
+        "\n",
+      ),
     );
 
     const report = lintEnvProfileCompliance(scratch);

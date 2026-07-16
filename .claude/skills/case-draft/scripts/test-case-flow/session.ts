@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { repoRoot } from "@shared/lib/paths.ts";
 
 export interface TestCaseFlowSession {
   sessionId: string;
@@ -190,7 +191,7 @@ export function buildSessionPaths(input: {
 }
 
 function defaultSessionDir(): string {
-  return join(process.cwd(), ".kata", "sessions");
+  return join(repoRoot(), ".kata", "sessions");
 }
 
 /**

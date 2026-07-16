@@ -1,7 +1,7 @@
 ---
 name: case-edit
-description: 拿到既有用例产物文件(.xmind/.csv/archive.md)路径，编辑、同步、归档、标准化或在 Archive·XMind·CSV 间转换，语义不变是底线。依 PRD/需求源产新用例改用 case-draft；只给需求功能目录路径/目录名改用 playwright-automation。
-argument-hint: "<用例产物文件路径 .xmind/.csv/archive.md>"
+description: 拿到既有用例产物文件(.md/.xlsx/.csv/.xmind/.json)路径，编辑、同步、归档、标准化或在这些格式间转换，语义不变是底线。依 PRD/需求源产新用例改用 case-draft；只给需求功能目录路径/目录名改用 playwright-automation。
+argument-hint: "<用例产物文件路径 .md/.xlsx/.csv/.xmind/.json>"
 user-invocable: true
 model: sonnet
 effort: medium
@@ -9,7 +9,7 @@ effort: medium
 
 # case-edit
 
-编辑、同步、转换或标准化既有用例产物，在 Archive / XMind / CSV 之间保持用例意图稳定。语义不变是底线。
+编辑、同步、转换或标准化既有用例产物，在 Archive Markdown / XLSX / CSV / XMind / JSON 之间保持用例意图稳定。语义不变是底线。
 
 ## 路由边界
 
@@ -21,14 +21,14 @@ effort: medium
 ## 工作流
 
 1. 编辑诉求模糊时，先用一个澄清问题确认意图，再触碰用例语义。
-2. 跨格式编辑/同步前读 `references/archive-xmind-sync.md`；交付前按 `.claude/prompt/_shared/case-qa.md` 自审。
+2. 跨格式编辑/同步前读 `references/archive-xmind-sync.md`；通用单文件转换统一使用 `kata cases convert --input <file> --to <md|xlsx|csv|xmind|json>`，交付前按 `.claude/prompt/_shared/case-qa.md` 自审。
 3. 子命令 `/case-edit apply-corrections` 写回批改时，读 `references/apply-corrections.md`，按 dry-run 三选一、写回、xmind 同步的顺序执行。
 
 ## 何时加载哪个文件
 
 | 文件                                      | 何时读                            | 作用                                       |
 | ----------------------------------------- | --------------------------------- | ------------------------------------------ |
-| references/archive-xmind-sync.md          | 跨 Archive/XMind/CSV 编辑或导出前 | 字段保真、自审清单、同步契约               |
+| references/archive-xmind-sync.md          | 跨 MD/XLSX/CSV/XMind/JSON 编辑或导出前 | 字段保真、自审清单、同步契约               |
 | references/apply-corrections.md           | 仅 `apply-corrections` 子命令     | 加载 corrections、dry-run、写回、同步      |
 | .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源 |
 | .claude/prompt/_shared/case-qa.md         | 交付前自审（共享引用）            | Archive/XMind 字段一致性与可执行性维度     |
@@ -43,7 +43,8 @@ effort: medium
 
 ## 交付自审
 
-- 待修用例无论用户给的是 archive.md、cases.xmind 还是 CSV，archive.md 都是唯一编辑源；改完 archive.md 必须运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 重新生成 XMind，使 md 与 xmind 两种格式都落到改动后状态。只改其中一种格式就交付，视为未完成。
-- 历史 CSV/XMind 转 Archive 用 `kata history-convert --path <csv-or-dir> --project <project> [--version <v>] [--filter <kw>]`（参数以 `kata history-convert --help` 为准）。
+- 待修用例无论用户给的是 archive.md、cases.xmind 还是 CSV，archive.md 都是唯一编辑源；改完 archive.md 必须运行 `kata xmind generate --input cases/archive.md --output cases/cases.xmind --mode replace` 重新生成 XMind，使 md 与 xmind 两种格式都落到改动后状态。只改其中一种格式就交付，视为未完成。
+- 历史 CSV/XMind 转 Archive 用 `kata history convert --path <csv-or-dir> --project <project> [--version <v>] [--filter <kw>]`（参数以 `kata history convert --help` 为准）。
+- 单份用例文件格式转换用 `kata cases convert --input <file> --to <md|xlsx|csv|xmind|json> [--output <file>]`；格式由扩展名识别，默认拒绝覆盖，确需覆盖时显式加 `--force`。XMind 含多个需求根节点时仍使用 `kata history convert` 拆分归档。
 - 交付前先运行 `kata cases lint --scope <feature-dir> --exit-code`，修复所有 violation 后再做人工自审。
 - 自审 Archive 与 XMind 的用例数量、优先级、标题、前置条件、步骤、预期结果，确保完全一致；细则见 `references/archive-xmind-sync.md`。主动发现不一致，不得留给用户人工核对。

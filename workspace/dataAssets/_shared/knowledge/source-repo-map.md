@@ -6,7 +6,7 @@
 | 6.0浙商证券定制（release_6.0.x_zszq） | customltem/dt-insight-studio | customltem/dt-center-assets |
 
 > source-confirm 步骤优先查本表；未命中再 LLM 语义兜底；任何情况都过一轮 AskUser 人工确认。
-> 仓库在 `workspace/dataAssets/.kata/repos/` 下，一律只读（仅 read/grep 与 `git fetch`）；本地 checkout 当前在 main，定制分支需 `git fetch` 后按 `origin/release_6.0.x_zszq` 读。
+> 源码仓库由根 `.env` 的 `KATA_SOURCE_REPO_ROOT` 与 `KATA_SOURCE_REPOS` 映射，不在 workspace 创建缓存。只能用 `kata repos show|grep|list --project dataAssets --repo <group/repo> --ref <ref>` 查询 Git 对象；同步或修改源码应在外部源码仓库自己的工作区完成。
 
 ## 数据质量规则语义源码出处（查 DQ 规则/统计函数语义时按此跳转）
 

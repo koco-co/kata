@@ -1,9 +1,9 @@
-import { existsSync, readFileSync } from "node:fs";
+import { chmodSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 let _cached: Record<string, string> | null = null;
 
-function parseDotEnvFile(envPath: string): Record<string, string> {
+export function readDotEnvFile(envPath: string): Record<string, string> {
   const parsed: Record<string, string> = {};
   if (!existsSync(envPath)) return parsed;
 
@@ -15,10 +15,13 @@ function parseDotEnvFile(envPath: string): Record<string, string> {
     if (eqIdx === -1) continue;
     const key = line.slice(0, eqIdx).trim();
     let value = line.slice(eqIdx + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
+    if (value.startsWith('"') && value.endsWith('"')) {
+      try {
+        value = JSON.parse(value) as string;
+      } catch {
+        value = value.slice(1, -1);
+      }
+    } else if (value.startsWith("'") && value.endsWith("'")) {
       value = value.slice(1, -1);
     }
     parsed[key] = value;
@@ -41,7 +44,7 @@ function applyToProcessEnv(parsed: Record<string, string>): void {
 
 export function loadDotEnv(envPath?: string): Record<string, string> {
   const target = envPath ?? resolve(process.cwd(), ".env");
-  const parsed = parseDotEnvFile(target);
+  const parsed = readDotEnvFile(target);
   mergeCached(parsed);
   return parsed;
 }
@@ -58,6 +61,32 @@ export function getEnvOrThrow(key: string): string {
   return val;
 }
 
+/** Update one key in a dotenv file without exposing its value to command output. */
+export function setDotEnvValue(envPath: string, key: string, value: string): void {
+  if (!/^[A-Z_][A-Z0-9_]*$/.test(key)) {
+    throw new Error(`Invalid environment variable name: ${key}`);
+  }
+  if (value.includes("\n") || value.includes("\r")) {
+    throw new Error(`Environment variable "${key}" must be a single-line value`);
+  }
+
+  const encoded = JSON.stringify(value);
+  const existing = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
+  const lines = existing.split("\n");
+  const keyPattern = new RegExp(`^\\s*${key}\\s*=`);
+  const index = lines.findIndex((line) => keyPattern.test(line));
+  if (index >= 0) {
+    lines[index] = `${key}=${encoded}`;
+  } else {
+    while (lines.length > 0 && lines.at(-1) === "") lines.pop();
+    lines.push(`${key}=${encoded}`, "");
+  }
+  writeFileSync(envPath, lines.join("\n"), { encoding: "utf8", mode: 0o600 });
+  chmodSync(envPath, 0o600);
+  process.env[key] = value;
+  mergeCached({ [key]: value });
+}
+
 export interface InitEnvOpts {
   cwd?: string;
 }
@@ -65,7 +94,7 @@ export interface InitEnvOpts {
 /**
  * Initialize environment variables from .env file.
  *
- * `initEnv()` or `initEnv({ cwd })` loads `.env`, `.env.envs`, then `.env.local`.
+ * `initEnv()` or `initEnv({ cwd })` loads only the root `.env`.
  * `initEnv(path)` loads a specific file.
  *
  * `process.env` always wins — pre-existing keys are never overwritten.
@@ -79,11 +108,8 @@ export function initEnv(arg?: string | InitEnvOpts): Record<string, string> {
   }
 
   const baseDir = arg?.cwd ?? process.cwd();
-  const merged: Record<string, string> = {};
-  for (const fileName of [".env", ".env.envs", ".env.local"]) {
-    Object.assign(merged, parseDotEnvFile(resolve(baseDir, fileName)));
-  }
-  mergeCached(merged);
-  applyToProcessEnv(merged);
-  return merged;
+  const parsed = readDotEnvFile(resolve(baseDir, ".env"));
+  mergeCached(parsed);
+  applyToProcessEnv(parsed);
+  return parsed;
 }

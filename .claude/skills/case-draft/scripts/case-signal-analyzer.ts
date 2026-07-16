@@ -8,8 +8,10 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { createCli } from "@shared/lib/cli-runner.ts";
+import { getEnv } from "@shared/lib/env.ts";
 import { parseFrontMatter } from "@shared/lib/frontmatter.ts";
-import { probeCachePath, repoRoot, reposDir } from "@shared/lib/paths.ts";
+import { resolveConfiguredSourceRepo } from "@shared/lib/git-source.ts";
+import { probeCachePath, repoRoot } from "@shared/lib/paths.ts";
 import {
   type ArchiveSearchHit,
   buildCacheEntry,
@@ -76,7 +78,7 @@ function saveCache(cachePath: string, entry: ProbeCacheEntry): void {
 // ---------------------------------------------------------------------------
 
 function collectSource(
-  project: string,
+  _project: string,
   frontMatter: Record<string, unknown>,
 ): SourceAnalyzeOutput | null {
   const repos = frontMatter.repos as
@@ -90,7 +92,12 @@ function collectSource(
   if (repo.path.startsWith("/")) {
     repoPath = repo.path;
   } else {
-    repoPath = resolve(reposDir(project), repo.path);
+    repoPath =
+      resolveConfiguredSourceRepo(
+        repo.path,
+        getEnv("KATA_SOURCE_REPO_ROOT"),
+        getEnv("KATA_SOURCE_REPOS"),
+      ) ?? "";
   }
 
   if (!existsSync(repoPath)) return null;

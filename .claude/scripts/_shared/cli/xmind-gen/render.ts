@@ -3,10 +3,10 @@
  * xmind-gen.ts — Converts intermediate JSON or Archive Markdown to .xmind files.
  *
  * Usage:
- *   kata xmind-gen --input <json|md|dir> --output <xmind> [--mode create|append|replace]
- *   kata xmind-gen --input <dir>           (batch convert all .md in dir)
- *   kata xmind-gen --input <md> --json-only (output intermediate JSON only)
- *   kata xmind-gen --help
+ *   kata xmind generate --input <json|md|dir> --output <xmind> [--mode create|append|replace]
+ *   kata xmind generate --input <dir>           (batch convert all .md in dir)
+ *   kata xmind generate --input <md> --json-only (output intermediate JSON only)
+ *   kata xmind generate --help
  */
 
 import { existsSync, writeFileSync } from "node:fs";
@@ -96,10 +96,11 @@ export function buildL1Title(meta: Meta): string {
 }
 
 export function buildL1Labels(meta: Meta): string[] {
+  const labels = [...(meta.tags ?? [])];
   if (meta.requirement_id) {
-    return [`(#${meta.requirement_id})`];
+    labels.unshift(`(#${meta.requirement_id})`);
   }
-  return [];
+  return labels;
 }
 
 // ─── Strip priority prefix from case title ──────────────────────────────────

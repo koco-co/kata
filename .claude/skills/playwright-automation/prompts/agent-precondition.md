@@ -6,13 +6,13 @@
 
 - env profile 文件名 + 已确认的 base_url + 登录态/session 路径
 - 当前 feature 目录绝对路径
-- `kata case-tasks build --feature <featureDir>` 产出的用例任务清单 JSON（含每条用例启发式的 mutates_data/serial）
+- `kata case-tasks build --feature <feature-dir>` 产出的用例任务清单 JSON（含每条用例启发式的 mutates_data/serial）
 - ui-plan 规划的目标 URL/断言点摘要（不超过 200 字）
 
 ## 子任务（按序）
 
 1. ui-probe：真实浏览器收集页面/DOM/API/locator 证据，写入 UiProbeSnapshot。
-2. 共享层：产出或复用 `_shared/pages/` 页面对象、`_shared/helpers/`、登录态 storageState；不新增 feature-local helper。
+2. 共享层：产出或复用 `_shared/pages/` 页面对象、`_shared/helpers/`；登录态只读取 env YAML 的 `auth.cookie`，不生成 storageState，不新增 feature-local helper。
 3. 读写分类校正：依据真实探测结果，修正用例清单中启发式的 `mutates_data`/`serial`。
 4. 把校正后的用例清单与共享层路径写入约定 artifact，供后续 sonnet 用例子代理读取。
 

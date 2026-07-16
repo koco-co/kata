@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -129,6 +129,24 @@ describe("getEnvOrThrow", () => {
   });
 });
 
+describe("setDotEnvValue", () => {
+  it("updates a key safely and preserves unrelated entries", async () => {
+    makeTmp();
+    const envPath = join(TMP_DIR, ".env");
+    writeFileSync(envPath, "KEEP=unchanged\nTOKEN=old\n");
+    const { loadDotEnv, setDotEnvValue } = await import("@shared/lib/env.ts");
+
+    setDotEnvValue(envPath, "TOKEN", 'sid=secret; note="quoted"');
+
+    const parsed = loadDotEnv(envPath);
+    expect(parsed.KEEP).toBe("unchanged");
+    expect(parsed.TOKEN).toBe('sid=secret; note="quoted"');
+    expect(readFileSync(envPath, "utf8")).not.toContain("TOKEN=old");
+    expect(statSync(envPath).mode & 0o777).toBe(0o600);
+    delete process.env.TOKEN;
+  });
+});
+
 describe("initEnv", () => {
   it("sets process.env for parsed keys not already present", async () => {
     makeTmp();
@@ -153,73 +171,50 @@ describe("initEnv", () => {
   });
 });
 
-describe("initEnv three-layer mode", () => {
-  const KEYS = [
-    "TL_ONLY_ENV",
-    "TL_ONLY_ENVS",
-    "TL_ONLY_LOCAL",
-    "TL_ENV_AND_ENVS",
-    "TL_ALL_THREE",
-    "TL_SHELL_WINS",
-  ];
+describe("initEnv root-only mode", () => {
+  const KEYS = ["ROOT_ONLY_ENV", "ROOT_LOCAL_IGNORED", "ROOT_SHELL_WINS"];
 
   function cleanKeys(): void {
     for (const k of KEYS) delete process.env[k];
   }
 
-  it("loads .env.local > .env.envs > .env in priority order", async () => {
+  it("loads only .env and ignores legacy overlay files", async () => {
     makeTmp();
-    writeFileSync(
-      join(TMP_DIR, ".env"),
-      `${["TL_ONLY_ENV=env", "TL_ENV_AND_ENVS=from-env", "TL_ALL_THREE=from-env"].join("\n")}\n`,
-    );
-    writeFileSync(
-      join(TMP_DIR, ".env.envs"),
-      ["TL_ONLY_ENVS=envs", "TL_ENV_AND_ENVS=from-envs", "TL_ALL_THREE=from-envs"].join("\n") +
-        "\n",
-    );
-    writeFileSync(
-      join(TMP_DIR, ".env.local"),
-      `${["TL_ONLY_LOCAL=local", "TL_ALL_THREE=from-local"].join("\n")}\n`,
-    );
+    writeFileSync(join(TMP_DIR, ".env"), "ROOT_ONLY_ENV=env\n");
+    writeFileSync(join(TMP_DIR, ".env.envs"), "ROOT_ONLY_ENV=envs\n");
+    writeFileSync(join(TMP_DIR, ".env.local"), "ROOT_LOCAL_IGNORED=local\n");
 
     cleanKeys();
     const { initEnv } = await import("@shared/lib/env.ts");
     const merged = initEnv({ cwd: TMP_DIR });
 
-    expect(merged.TL_ONLY_ENV).toBe("env");
-    expect(merged.TL_ONLY_ENVS).toBe("envs");
-    expect(merged.TL_ONLY_LOCAL).toBe("local");
-    expect(merged.TL_ENV_AND_ENVS).toBe("from-envs");
-    expect(merged.TL_ALL_THREE).toBe("from-local");
-
-    expect(process.env.TL_ALL_THREE).toBe("from-local");
+    expect(merged.ROOT_ONLY_ENV).toBe("env");
+    expect(merged.ROOT_LOCAL_IGNORED).toBeUndefined();
+    expect(process.env.ROOT_ONLY_ENV).toBe("env");
+    expect(process.env.ROOT_LOCAL_IGNORED).toBeUndefined();
     cleanKeys();
   });
 
   it("permissive when files missing", async () => {
     makeTmp();
-    writeFileSync(join(TMP_DIR, ".env"), "TL_ONLY_ENV=only\n");
-    // no .env.envs, no .env.local
+    writeFileSync(join(TMP_DIR, ".env"), "ROOT_ONLY_ENV=only\n");
 
     cleanKeys();
     const { initEnv } = await import("@shared/lib/env.ts");
     const merged = initEnv({ cwd: TMP_DIR });
-    expect(merged.TL_ONLY_ENV).toBe("only");
+    expect(merged.ROOT_ONLY_ENV).toBe("only");
     cleanKeys();
   });
 
-  it("process.env keys win over all three layers", async () => {
+  it("process.env keys win over the root file", async () => {
     makeTmp();
-    writeFileSync(join(TMP_DIR, ".env"), "TL_SHELL_WINS=from-env\n");
-    writeFileSync(join(TMP_DIR, ".env.envs"), "TL_SHELL_WINS=from-envs\n");
-    writeFileSync(join(TMP_DIR, ".env.local"), "TL_SHELL_WINS=from-local\n");
+    writeFileSync(join(TMP_DIR, ".env"), "ROOT_SHELL_WINS=from-env\n");
 
     cleanKeys();
-    process.env.TL_SHELL_WINS = "from-shell";
+    process.env.ROOT_SHELL_WINS = "from-shell";
     const { initEnv } = await import("@shared/lib/env.ts");
     initEnv({ cwd: TMP_DIR });
-    expect(process.env.TL_SHELL_WINS).toBe("from-shell");
+    expect(process.env.ROOT_SHELL_WINS).toBe("from-shell");
     cleanKeys();
   });
 });

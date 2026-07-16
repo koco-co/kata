@@ -17,10 +17,11 @@
 # 禅道服务器地址（必填）
 KATA_ZENTAO_BASE_URL="http://zenpms.dtstack.cn"
 
-# 禅道账号（必填）
-KATA_ZENTAO_ACCOUNT="your-username"
+# 浏览器/API cookie（与完整账号密码二选一）
+KATA_ZENTAO_COOKIE="zentaosid=..."
 
-# 禅道密码（必填）
+# cookie 失效时用于自动重新登录并更新 .env
+KATA_ZENTAO_ACCOUNT="your-username"
 KATA_ZENTAO_PASSWORD="your-password"
 ```
 
@@ -29,7 +30,7 @@ KATA_ZENTAO_PASSWORD="your-password"
 1. 访问禅道服务器（如 http://zenpms.dtstack.cn）
 2. 使用公司账号登录
 3. 在用户设置中获取 API Token（可选，优先使用密码）
-4. 复制账号和密码到 `.env` 文件
+4. 把 cookie 或账号密码写入根目录 `.env`；旧 `.kata/zentao/session.json` 使用 `kata env migrate-zentao-session --session .kata/zentao/session.json` 迁移
 
 ## 用法
 
@@ -53,6 +54,6 @@ bun run .claude/plugins/zentao/fetch.ts --bug-id 138845 --output workspace/issue
 
 ## 注意事项
 
-- 禅道密码存储在 `.env` 中，**不要提交到版本控制**
+- 禅道 cookie 和密码只存储在根目录 `.env` 中，**不要提交到版本控制**
 - 确保账号有权限访问所有 Bug 记录
 - 首次使用前检查禅道服务器地址是否正确

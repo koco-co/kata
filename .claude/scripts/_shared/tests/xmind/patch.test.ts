@@ -608,7 +608,7 @@ describe("xmind-patch --help", () => {
     const { stdout, stderr, code } = runEdit(["--help"]);
     const output = stdout + stderr;
     expect(code).toBe(0);
-    expect(output).toMatch(/xmind-patch/);
+    expect(output).toMatch(/kata xmind/);
     expect(output).toMatch(/search/);
     expect(output).toMatch(/show/);
     expect(output).toMatch(/patch/);

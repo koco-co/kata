@@ -3,14 +3,15 @@
  * xmind-gen.ts — Converts intermediate JSON or Archive Markdown to .xmind files.
  *
  * Usage:
- *   kata xmind-gen --input <json|md|dir> --output <xmind> [--mode create|append|replace]
- *   kata xmind-gen --input <dir>           (batch convert all .md in dir)
- *   kata xmind-gen --input <md> --json-only (output intermediate JSON only)
- *   kata xmind-gen --help
+ *   kata xmind generate --input <json|md|dir> --output <xmind> [--mode create|append|replace]
+ *   kata xmind generate --input <dir>           (batch convert all .md in dir)
+ *   kata xmind generate --input <md> --json-only (output intermediate JSON only)
+ *   kata xmind generate --help
  */
 
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
+import { parseFrontMatter as parseGenericFrontMatter } from "@shared/lib/frontmatter.ts";
 import { splitMdTableRow } from "@shared/lib/md-table.ts";
 import type {
   IntermediateJson,
@@ -26,6 +27,7 @@ import { UNCLASSIFIED } from "./render.ts";
 export interface ArchiveFrontMatter {
   suite_name?: string;
   case_id?: number;
+  tags?: string[];
   [key: string]: unknown;
 }
 
@@ -33,20 +35,8 @@ export function parseFrontMatter(content: string): {
   fm: ArchiveFrontMatter;
   body: string;
 } {
-  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!m) return { fm: {}, body: content };
-
-  const fm: ArchiveFrontMatter = {};
-  for (const line of m[1].split("\n")) {
-    const kv = line.match(/^(\w[\w_]*)\s*:\s*(.+)$/);
-    if (kv) {
-      const key = kv[1];
-      let val: string | number = kv[2].trim().replace(/^"(.*)"$/, "$1");
-      if (/^\d+$/.test(val)) val = Number(val);
-      fm[key] = val;
-    }
-  }
-  return { fm, body: m[2] };
+  const parsed = parseGenericFrontMatter(content);
+  return { fm: parsed.frontMatter as ArchiveFrontMatter, body: parsed.body };
 }
 
 type ArchiveSection = "none" | "precondition" | "steps";
@@ -227,12 +217,21 @@ function processArchiveStepsLine(state: ArchiveParseState, line: string) {
 }
 
 function appendArchiveStepRow(state: ArchiveParseState, line: string) {
-  const cells = splitMdTableRow(line).filter((c) => c.length > 0);
+  const cells = splitMdTableRow(line);
+  if (cells[0] === "") cells.shift();
+  if (cells.at(-1) === "") cells.pop();
   if (cells.length < 3) return;
   state.stepsRows.push({
-    step: cells[1].replace(/<br\s*\/?>/gi, "\n"),
-    expected: cells[2].replace(/<br\s*\/?>/gi, "\n"),
+    step: decodeMarkdownCell(cells[1]),
+    expected: decodeMarkdownCell(cells[2]),
   });
+}
+
+function decodeMarkdownCell(value: string): string {
+  return value
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/\\\|/g, "|")
+    .replace(/\\\\/g, "\\");
 }
 
 export function archiveToJson(
@@ -282,6 +281,12 @@ export function archiveToJson(
   if (prdId) {
     meta.requirement_id = prdId;
   }
+  if (Array.isArray(fm.tags)) {
+    meta.tags = fm.tags.filter((tag): tag is string => typeof tag === "string");
+  }
+  if (typeof fm.description === "string") meta.description = fm.description;
+  if (typeof fm.create_at === "string") meta.create_at = fm.create_at;
+  if (typeof fm.status === "string") meta.status = fm.status;
 
   return { meta, modules };
 }

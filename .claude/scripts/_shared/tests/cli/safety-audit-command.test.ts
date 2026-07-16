@@ -18,7 +18,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain("source repository evidence");
+    expect(result.stderr).toContain("源码缓存只读");
   });
 
   test("blocks git push from workspace project .kata/repos", () => {
@@ -30,7 +30,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain("source repository evidence");
+    expect(result.stderr).toContain("源码缓存只读");
   });
 
   test("blocks git push from .kata/repos root", () => {
@@ -42,7 +42,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain("source repository evidence");
+    expect(result.stderr).toContain("源码缓存只读");
   });
 
   test("blocks git -C push inside .kata/repos", () => {
@@ -54,7 +54,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain("source repository evidence");
+    expect(result.stderr).toContain("源码缓存只读");
   });
 
   test("blocks git commit from .kata/repos", () => {
@@ -66,7 +66,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain("mutating git command");
+    expect(result.stderr).toContain("禁止执行会修改仓库的 Git 命令");
   });
 
   test("blocks git add from .kata/repos", () => {
@@ -78,7 +78,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain("mutating git command");
+    expect(result.stderr).toContain("禁止执行会修改仓库的 Git 命令");
   });
 
   test("allows read-only git status under .kata/repos", () => {
@@ -90,7 +90,7 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("allowed");
+    expect(result.stdout).toContain("允许执行");
   });
 
   test("allows read-only git status under workspace project .kata/repos", () => {
@@ -102,13 +102,13 @@ describe("safety audit-command", () => {
     ]);
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("allowed");
+    expect(result.stdout).toContain("允许执行");
   });
 
   test("allows harmless git status", () => {
     const result = spawnKataCli(["safety", "audit-command", "--command", "git status"]);
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("allowed");
+    expect(result.stdout).toContain("允许执行");
   });
 });

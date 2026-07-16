@@ -4,9 +4,9 @@
  * and searches existing archives.
  *
  * Usage:
- *   kata archive-gen convert --input <json> --output <path> [--project <name>] [--template templates/archive.md.hbs]
- *   kata archive-gen search --query <keywords> [--project <name>] [--dir <path>] [--limit 20]
- *   kata archive-gen --help
+ *   kata archives convert --input <json> --output <path> [--project <name>] [--template templates/archive.md.hbs]
+ *   kata archives search --query <keywords> [--project <name>] [--dir <path>] [--limit 20]
+ *   kata archives --help
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -444,6 +444,8 @@ function validateArchiveMarkdown(filePath: string): ValidateResult {
 
   const { frontMatter, body } = parseFrontMatter(content);
   const fm = frontMatter as Record<string, unknown>;
+  const tags = Array.isArray(fm.tags) ? fm.tags.map(String) : [];
+  const isHotfix = fm.origin === "zentao" || tags.includes("hotfix");
 
   // Required frontmatter fields
   const requiredFmFields = ["suite_name", "create_at", "status", "case_count"];
@@ -498,13 +500,79 @@ function validateArchiveMarkdown(filePath: string): ValidateResult {
     });
   }
 
-  // Each case must have a priority tag
-  const casesWithoutPriority = caseBlocks.filter((b) => !/^【P\d】/.test(b.trim())).length;
-  if (casesWithoutPriority > 0) {
+  // Ordinary requirement cases need priority markers; hotfix cases must not carry them.
+  const hotfixCasesWithPriority = caseBlocks.filter((b) => /^【P\d+】/.test(b.trim())).length;
+  const casesWithPriority = caseBlocks.filter((b) => /^【P[0-4]】/.test(b.trim())).length;
+  const casesWithoutPriority = caseBlocks.length - casesWithPriority;
+  if (isHotfix && hotfixCasesWithPriority > 0) {
+    issues.push({
+      severity: "error",
+      message: "Hotfix case titles must not contain priority tags 【P0】-【P4】.",
+    });
+  } else if (!isHotfix && casesWithoutPriority > 0) {
     issues.push({
       severity: "warning",
       message: `${casesWithoutPriority} cases missing priority tag 【P0】-【P4】`,
     });
+  }
+
+  if (isHotfix) {
+    if (/数据源/.test(body) && !/\$\{DataSource[A-Z]\}/.test(body)) {
+      issues.push({
+        severity: "error",
+        message: `Hotfix data source names must use \${DataSourceA}-style placeholders.`,
+      });
+    }
+    if (/(?:数据库|database\/namespace)/i.test(body) && !/\$\{Schema[A-Z]\}/.test(body)) {
+      issues.push({
+        severity: "error",
+        message: `Hotfix database/schema names must use \${SchemaA}-style placeholders.`,
+      });
+    }
+
+    const hardcodedDataSources = Array.from(
+      body.matchAll(/数据源(?:名称)?[：:\s]+([A-Za-z_][A-Za-z0-9_.-]*)/g),
+      (match) => match[1],
+    );
+    if (hardcodedDataSources.length > 0) {
+      issues.push({
+        severity: "error",
+        message: `Hotfix contains hardcoded data source names: ${[...new Set(hardcodedDataSources)].join(", ")}`,
+      });
+    }
+
+    const hardcodedSchemas = Array.from(
+      body.matchAll(/(?:数据库(?:名称)?|database\/namespace)[：:\s]+([A-Za-z_][A-Za-z0-9_.-]*)/gi),
+      (match) => match[1],
+    );
+    if (hardcodedSchemas.length > 0) {
+      issues.push({
+        severity: "error",
+        message: `Hotfix contains hardcoded database/schema names: ${[...new Set(hardcodedSchemas)].join(", ")}`,
+      });
+    }
+
+    const concreteTables = new Set<string>();
+    for (const pattern of [
+      /table_name[：:]\s*([A-Za-z_][A-Za-z0-9_]*)/gi,
+      /(?:数据表|表名)[：:]\s*([A-Za-z_][A-Za-z0-9_]*)/g,
+      /存在数据表\s+([A-Za-z_][A-Za-z0-9_]*)/g,
+    ]) {
+      for (const match of body.matchAll(pattern)) concreteTables.add(match[1]);
+    }
+    for (const table of concreteTables) {
+      const escaped = table.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const createTable = new RegExp(
+        `CREATE\\s+TABLE(?:\\s+IF\\s+NOT\\s+EXISTS)?\\s+\`?${escaped}\`?\\b`,
+        "i",
+      );
+      if (!createTable.test(body)) {
+        issues.push({
+          severity: "error",
+          message: `Hotfix concrete table ${table} is missing a matching CREATE TABLE statement.`,
+        });
+      }
+    }
   }
 
   const stats = {
@@ -525,29 +593,29 @@ function validateArchiveMarkdown(filePath: string): ValidateResult {
 
 export const program = createCli({
   name: "archive-gen",
-  description: "Convert intermediate JSON to Archive Markdown, or search existing archives",
+  description: "将中间 JSON 转为 Archive Markdown，并校验或检索归档",
   commands: [
     {
       name: "convert",
-      description: "Convert intermediate JSON test cases to Archive Markdown",
+      description: "将中间 JSON 用例转换为 Archive Markdown",
       options: [
         {
           flag: "--input <path>",
-          description: "Path to input JSON file",
+          description: "输入 JSON 文件路径（必填）",
           required: true,
         },
         {
           flag: "--output <path>",
-          description: "Path to output Markdown file",
+          description: "输出 Markdown 文件路径（必填，会写入文件）",
           required: true,
         },
         {
           flag: "--project <name>",
-          description: "Project name (e.g. dataAssets)",
+          description: "项目名，例如 dataAssets",
         },
         {
           flag: "--template <path>",
-          description: "Path to Handlebars template (uses built-in if omitted)",
+          description: "Handlebars 模板路径；省略时使用内置模板",
         },
       ],
       action: async (opts: {
@@ -561,11 +629,11 @@ export const program = createCli({
     },
     {
       name: "validate",
-      description: "Validate an Archive Markdown file's structure and frontmatter",
+      description: "校验 Archive Markdown 的结构与 frontmatter",
       options: [
         {
           flag: "--input <path>",
-          description: "Path to Archive Markdown file",
+          description: "Archive Markdown 文件路径（必填，只读）",
           required: true,
         },
       ],
@@ -580,24 +648,24 @@ export const program = createCli({
     },
     {
       name: "search",
-      description: "Search archive Markdown files by keyword",
+      description: "按关键词检索 Archive Markdown 文件",
       options: [
         {
           flag: "--query <keywords>",
-          description: "Search keyword(s)",
+          description: "检索关键词（必填）",
           required: true,
         },
         {
           flag: "--project <name>",
-          description: "Project name (e.g. dataAssets)",
+          description: "项目名，例如 dataAssets",
         },
         {
           flag: "--dir <path>",
-          description: "Archive directory to search (overrides project default)",
+          description: "归档目录；传入后覆盖项目默认目录",
         },
         {
           flag: "--limit <n>",
-          description: "Maximum results to return",
+          description: "最多返回条数，默认 20",
           defaultValue: "20",
         },
       ],
@@ -611,9 +679,11 @@ export const program = createCli({
           await runSearch({ query: opts.query, dir: opts.dir, limit });
           return;
         }
+        const project = opts.project;
+        if (!project) return;
         await runSearchFiles({
           query: opts.query,
-          files: collectProjectArchiveFiles(opts.project!),
+          files: collectProjectArchiveFiles(project),
           limit,
         });
       },

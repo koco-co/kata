@@ -14,20 +14,10 @@ import {
   formatCodexSkillReport,
   lintCodexSkillTree,
 } from "@shared/lint/codex-skill-shape.ts";
-import {
-  formatHermesSkillReport,
-  type HermesSkillReport,
-  lintHermesSkillTree,
-} from "@shared/lint/hermes-skill-shape.ts";
-import {
-  formatReasonixSkillReport,
-  lintReasonixSkillTree,
-  type ReasonixSkillReport,
-} from "@shared/lint/reasonix-skill-shape.ts";
 import { lintAgentFrontmatter } from "@shared/lint/skill-frontmatter.ts";
 import { lintSkillShape } from "@shared/lint/skill-shape.ts";
 import { formatStructureReport, lintSkillStructure } from "@shared/lint/skill-structure.ts";
-import { Command } from "commander";
+import { Command, Option } from "commander";
 
 /**
  * List skill directory names under `skillsRoot`, skipping `_`-prefixed aggregate
@@ -43,11 +33,11 @@ export function listSkillDirNames(skillsRoot: string): string[] {
 }
 
 export function buildSkillsCommand(): Command {
-  const skills = new Command("skills").description("Skills 审查操作");
+  const skills = new Command("skills").description("Skill 结构与运行时一致性检查");
   skills
     .command("sync-check")
-    .description("检查 .claude 与 .agents 的 skill 是否同步")
-    .option("--exit-code", "exit non-zero on any violation", false)
+    .description("检查 .claude 与 .agents 中的 Skill 是否同步")
+    .option("--exit-code", "发现违规时返回非零退出码", false)
     .action((opts: { exitCode: boolean }) => {
       const root = repoRoot();
       const skillReport = checkRuntimeSkillSync(root);
@@ -70,9 +60,13 @@ export function buildSkillsCommand(): Command {
     });
   skills
     .command("audit")
-    .description("审查 skills SKILL.md + references 契约与 agents frontmatter")
-    .option("--exit-code", "exit non-zero on any violation", false)
-    .option("--runtime <runtime>", "审查目标运行时：claude | codex | reasonix | hermes", "claude")
+    .description("检查 SKILL.md、references 与代理 frontmatter")
+    .option("--exit-code", "发现违规时返回非零退出码", false)
+    .addOption(
+      new Option("--runtime <runtime>", "目标运行时")
+        .choices(["claude", "codex"])
+        .default("claude"),
+    )
     .action((opts: { exitCode: boolean; runtime: string }) => {
       const root = repoRoot();
 
@@ -83,28 +77,6 @@ export function buildSkillsCommand(): Command {
         if (report.passed) console.log(text);
         else process.stderr.write(`${text}\n`);
         console.log(`\n[skills audit:codex] total violations=${report.violations.length}`);
-        if (opts.exitCode && !report.passed) process.exit(1);
-        return;
-      }
-
-      // reasonix 运行时：校验 .reasonix/skills symlink 树 + bootstrap（无 JSON manifest）
-      if (opts.runtime === "reasonix") {
-        const report: ReasonixSkillReport = lintReasonixSkillTree(root);
-        const text = formatReasonixSkillReport(report, root);
-        if (report.passed) console.log(text);
-        else process.stderr.write(`${text}\n`);
-        console.log(`\n[skills audit:reasonix] total violations=${report.violations.length}`);
-        if (opts.exitCode && !report.passed) process.exit(1);
-        return;
-      }
-
-      // hermes 运行时：校验 .hermes/skills 无 symlink + bootstrap 文档化 external_dirs
-      if (opts.runtime === "hermes") {
-        const report: HermesSkillReport = lintHermesSkillTree(root);
-        const text = formatHermesSkillReport(report, root);
-        if (report.passed) console.log(text);
-        else process.stderr.write(`${text}\n`);
-        console.log(`\n[skills audit:hermes] total violations=${report.violations.length}`);
         if (opts.exitCode && !report.passed) process.exit(1);
         return;
       }

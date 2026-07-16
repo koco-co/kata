@@ -60,7 +60,7 @@ export interface SkillReport {
 // ── Path treatment lint (§4.2) ──────────────────────────────
 
 // P-S1/P-S4 retired in the bundle migration (`.claude/scripts/` is now canonical).
-export type PathRuleId = "P-S2" | "P-S3";
+export type PathRuleId = "P-S2" | "P-S3" | "P-S5" | "P-S6" | "P-S7" | "P-S8";
 
 export interface PathViolation {
   rule: PathRuleId;

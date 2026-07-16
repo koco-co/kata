@@ -11,7 +11,7 @@
 每个生成的 `t*.ts` 文件，必须在任何 import 之前，先写 5 行单行注释：
 
 ```ts
-// spec: features/<version>/<featureId>/cases/archive.md#case=<case-id>
+// spec: features/<version>/<feature-id>/cases/archive.md#case=<case-id>
 // intent: SR-INTENT-<id>
 // probe: SR-UI-PROBE-<id>
 // page: _shared/pages/<page-domain>-page.ts
@@ -29,7 +29,7 @@
 走 `mode: source_backed_bootstrap`、且 `cases/archive.md` 还不存在时，`spec:` 行必须改成指向当前目标源：
 
 ```ts
-// spec: features/<version>/<featureId>/prd.md#source-backed-bootstrap
+// spec: features/<version>/<feature-id>/prd.md#source-backed-bootstrap
 ```
 
 这不代表 case-draft 已完成；handoff 必须说明脚本是由 source-backed bootstrap 证据生成的，最终归档的可追溯性还得靠 `/case-draft` 补齐。
@@ -92,19 +92,18 @@
    - 再写 `automation/tests/cases/t01-{slug}.ts`
    - 按 RED → GREEN 节律逐个验证
 
-### 模式防范：storageState 路径污染
+### 模式防范：认证数据旁路
 
-生成 case 文件时，**禁止拿在别的 feature 中看到的 root-level auth session 当 storageState 路径**。
+生成 case 文件时，**禁止引用任何 `.kata/auth` session 或 `auth.session_path`**。
 
 如何发现路径污染：
-- 旧 feature case 文件曾用过错误的 root-level auth session（缺少 `workspace/{project}/.kata/auth/` 前缀）
-- 参考现有 feature 写法时，必须用当前 env profile 的正确 session 路径
-- 正确路径：repo-root 相对的 `workspace/{project}/.kata/auth/{project}/session-{env}.json`，并通过当前 env profile 的 `auth.session_path` 引用。
+- 旧 feature case 文件曾用过 `.kata/auth`、storageState 或 `auth.session_path`
+- 参考现有 feature 写法时，必须从当前 env profile 读取 `auth.cookie`
+- cookie 解析后通过 `browserContext.addCookies` 注入，不能落成中间 session 文件，也不能写入日志或证据。
 
 ```bash
-# 检查 session 路径是否正确
-grep -c "root-level auth session" automation/tests/cases/*.ts 2>/dev/null  # 应为 0
-grep -c "workspace/.*/.kata/auth/.*/session-" automation/tests/cases/*.ts 2>/dev/null  # 应 > 0
+# 检查认证旁路是否不存在
+rg -n "storageState|auth\.session_path|\.kata/auth" automation/tests/cases  # 应无匹配
 ```
 
 ### 目录与 runner 约束
@@ -153,7 +152,7 @@ RED→GREEN 节律中的等待条件，必须用以下可靠写法，禁止拿�
 升级前必须完成全部检查，并把结果写入提问消息：
 - [ ] 已读 spec 完整源码
 - [ ] 已对当前 case 用 `--list` + headless 至少各跑 1 次，附上错误输出片段
-- [ ] 已检查 `workspace/{project}/.kata/auth/` 的 storage state 是否存在、是否过期
+- [ ] 已检查当前 env YAML 的 `auth.cookie` 是否非空，并通过真实页面 probe 验证登录态
 - [ ] 已比对 baseline case 的 selector/等待/fixture 写法，说明本 case 偏差所在
 - [ ] 已判定失败类型（selector/数据/时序/环境/真 bug），并说清判断依据
 - [ ] 已列出主会话管不了的外部依赖（后端服务/测试账号/数据准备/网络）
@@ -179,8 +178,8 @@ RED→GREEN 节律中的等待条件，必须用以下可靠写法，禁止拿�
 
 查询已有知识：
 ```bash
-kata knowledge-curate read-module --project {{project}} --module sites/domain.com/selectors
-kata knowledge-curate read-pitfall --project {{project}} --query "selector"
+kata knowledge read-module --project {{project}} --module sites/domain.com/selectors
+kata knowledge read-pitfall --project {{project}} --query "selector"
 ```
 
 硬约束：
@@ -190,7 +189,7 @@ kata knowledge-curate read-pitfall --project {{project}} --query "selector"
 ## page object 位置（强制）
 
 - 所有 page object 一律放在 `workspace/<project>/_shared/pages/<page-domain>-page.ts`。
-- **禁止**创建或修改 feature 本地 helper 目录；共享 page object 归 `workspace/<project>/_shared/pages/<featureId>/`，共享 helper 归 `workspace/<project>/_shared/helpers/`。
+- **禁止**创建或修改 feature 本地 helper 目录；共享 page object 归 `workspace/<project>/_shared/pages/<feature-id>/`，共享 helper 归 `workspace/<project>/_shared/helpers/`。
 - 目标 domain 已有 page object 时必须复用，不得重新生成或另起一份。
 - 共享 helper 的改动必须落在 `workspace/<project>/_shared/helpers/`。
 - 新增 page object 必须更新 `_shared/pages/INDEX.md`。

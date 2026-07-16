@@ -24,18 +24,17 @@ export function isKnownSafe(v: PathViolation): boolean {
     file.includes(".claude/scripts/_shared/lint/") || // lint self-references
     file.includes(".claude/scripts/_shared/tests/lint/") || // deliberate lint test fixtures
     file.includes(".claude/scripts/_shared/tests/cli/paths-audit.test.ts") || // deliberate CLI lint fixtures
-    file.includes(".claude/settings.local.json") ||
     (rule === "P-S3" && isWorkspaceTemplateDoc(file))
   );
 }
 
 export function buildPathsCommand(): Command {
-  const paths = new Command("paths").description("路径引用操作");
+  const paths = new Command("paths").description("项目路径引用检查");
   paths
     .command("audit")
-    .description("审查过时路径引用")
-    .option("--exit-code", "exit non-zero on any violation", false)
-    .option("--by-rule", "summarize per-rule counts", false)
+    .description("检查过时或不合规的路径引用")
+    .option("--exit-code", "发现违规时返回非零退出码", false)
+    .option("--by-rule", "按规则汇总数量", false)
     .action((opts: { exitCode: boolean; byRule: boolean }) => {
       const root = repoRoot();
       const r = lintPaths(root);
@@ -61,8 +60,10 @@ export function buildPathsCommand(): Command {
       // Show count diff when exit-code mode
       const skipped = r.violations.length - actionable.length;
       if (skipped > 0)
-        console.log(`\n[paths audit] total=${r.violations.length} (${skipped} known-safe skipped)`);
-      else console.log(`\n[paths audit] total=${r.violations.length}`);
+        console.log(
+          `\n[paths audit] 总数=${r.violations.length}（已跳过 ${skipped} 条已知安全项）`,
+        );
+      else console.log(`\n[paths audit] 总数=${r.violations.length}`);
       if (opts.exitCode && actionable.length > 0) process.exit(1);
     });
   return paths;

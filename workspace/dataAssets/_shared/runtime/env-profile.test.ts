@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   bridgeLegacyDataAssetsEnv,
+  cookieHeaderToPlaywrightState,
   loadDataAssetsEnvProfile,
   resolveDataAssetsEnvName,
   resolveDataAssetsRuntime,
@@ -14,19 +15,6 @@ let root: string;
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), "dataassets-env-"));
   mkdirSync(join(root, "_shared", "env"), { recursive: true });
-  mkdirSync(join(root, ".auth", "dataAssets"), { recursive: true });
-  writeFileSync(
-    join(root, ".auth", "dataAssets", "session-ltqc-local.json"),
-    JSON.stringify({
-      cookies: [
-        { name: "dt_tenant_id", value: "10481" },
-        { name: "dt_tenant_name", value: "pw_test" },
-        { name: "dt_user_id", value: "1" },
-        { name: "dt_username", value: "admin" },
-      ],
-      origins: [],
-    }),
-  );
   writeFileSync(
     join(root, "_shared", "env", "ltqc-local.yaml"),
     `
@@ -38,10 +26,9 @@ urls:
   data_assets_base_url: http://example.test/dataAssets
   offline_base_url: http://example.test/batch
 auth:
-  session_path: .kata/auth/dataAssets/session-ltqc-local.json
+  cookie: sid=test-cookie
   tenant_id: 10481
   tenant_name: pw_test
-  derive_from_session: true
 projects:
   quality: { id: 92, name: pw_test }
   offline: { id: 69, name: env_rebuild_test }
@@ -84,29 +71,41 @@ afterEach(() => {
 });
 
 describe("dataAssets env profile", () => {
-  test("resolves env name with KATA_DATAASSETS_ENV before ACTIVE_ENV", () => {
-    expect(resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "ltqc-prod", ACTIVE_ENV: "ltqc-local" })).toBe(
-      "ltqc-prod",
-    );
-    expect(resolveDataAssetsEnvName({ ACTIVE_ENV: "ltqc-test" })).toBe("ltqc-test");
+  test("resolves env name only from KATA_DATAASSETS_ENV", () => {
+    expect(
+      resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "ltqc-prod", ACTIVE_ENV: "ltqc-local" }),
+    ).toBe("ltqc-prod");
+    expect(resolveDataAssetsEnvName({ ACTIVE_ENV: "ltqc-test" })).toBe("ltqc-local");
     expect(resolveDataAssetsEnvName({})).toBe("ltqc-local");
   });
 
   test("normalizes legacy env names after profile rename", () => {
-    expect(resolveDataAssetsEnvName({ ACTIVE_ENV: "PROD" })).toBe("ltqc-prod");
+    expect(resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "PROD" })).toBe("ltqc-prod");
     expect(resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "ltqc" })).toBe("ltqc-local");
     expect(resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "customltem" })).toBe("ltqc-test");
   });
 
-  test("loads profile and derives auth facts from session", () => {
+  test("loads profile and reads auth directly from YAML", () => {
     const profile = loadDataAssetsEnvProfile("ltqc-local", { workspaceRoot: root, repoRoot: root });
     expect(profile.env).toBe("ltqc-local");
     expect(profile.urls.dataAssetsBaseUrl).toBe("http://example.test/dataAssets");
-    expect(profile.auth.sessionPath).toBe(join(root, ".kata/auth/dataAssets/session-ltqc-local.json"));
+    expect(profile.auth.cookie).toBe("sid=test-cookie");
     expect(profile.auth.tenantId).toBe(10481);
     expect(profile.projects.quality).toEqual({ id: 92, name: "pw_test" });
     expect(profile.datasources.sparkthrift.metadata.id).toBe(547);
     expect(profile.datasources.doris.ui?.sourceTypeId).toBe(129);
+  });
+
+  test("prefers the ignored local YAML cookie over the base profile", () => {
+    const basePath = join(root, "_shared", "env", "ltqc-local.yaml");
+    const content = readFileSync(basePath, "utf8").replace("cookie: sid=test-cookie", 'cookie: ""');
+    writeFileSync(basePath, content);
+    const localDir = join(root, "_shared", "env", ".local");
+    mkdirSync(localDir, { recursive: true });
+    writeFileSync(join(localDir, "ltqc-local.yaml"), "auth:\n  cookie: sid=local-secret\n");
+
+    const profile = loadDataAssetsEnvProfile("ltqc-local", { workspaceRoot: root });
+    expect(profile.auth.cookie).toBe("sid=local-secret");
   });
 
   test("fails closed when required datasource is missing", () => {
@@ -124,7 +123,37 @@ describe("dataAssets env profile", () => {
     const target: Record<string, string | undefined> = {};
     bridgeLegacyDataAssetsEnv(profile, target);
     expect(target.UI_AUTOTEST_BASE_URL).toBe("http://example.test/dataAssets");
-    expect(target.UI_AUTOTEST_SESSION_PATH).toBe(join(root, ".kata/auth/dataAssets/session-ltqc-local.json"));
+    expect(target.UI_AUTOTEST_COOKIE).toBe("sid=test-cookie");
+    expect(target.UI_AUTOTEST_SESSION_PATH).toBeUndefined();
     expect(target.DATASOURCE_MATRIX).toBeUndefined();
+  });
+
+  test("converts YAML auth.cookie into in-memory Playwright storage state", () => {
+    const state = cookieHeaderToPlaywrightState(
+      "https://example.test/dataAssets",
+      "sid=test-cookie; token=value=with-equals; invalid",
+    );
+    expect(state.cookies).toEqual([
+      {
+        name: "sid",
+        value: "test-cookie",
+        domain: "example.test",
+        path: "/",
+        expires: -1,
+        httpOnly: false,
+        secure: true,
+        sameSite: "Lax",
+      },
+      {
+        name: "token",
+        value: "value=with-equals",
+        domain: "example.test",
+        path: "/",
+        expires: -1,
+        httpOnly: false,
+        secure: true,
+        sameSite: "Lax",
+      },
+    ]);
   });
 });

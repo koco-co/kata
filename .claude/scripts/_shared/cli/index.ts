@@ -25,6 +25,7 @@ import { program as sourceRef } from "@shared/cli/source-ref.ts";
 import { program as xmindGen } from "@shared/cli/xmind-gen.ts";
 import { program as xmindPatch } from "@shared/cli/xmind-patch.ts";
 import { initEnv } from "@shared/lib/env.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 // 大部分模块静态加载（无昂贵依赖）
 import { program as autoFixer } from "@skills/case-draft/scripts/auto-fixer.ts";
 import { program as caseDraft } from "@skills/case-draft/scripts/case-draft.ts";
@@ -48,7 +49,41 @@ import { program as createProject } from "@skills/workspace-manage/scripts/creat
 import { program as initWizard } from "@skills/workspace-manage/scripts/init-wizard.ts";
 import { Command } from "commander";
 
-const kata = new Command().name("kata").description("kata unified CLI").showHelpAfterError();
+const kata = new Command()
+  .name("kata")
+  .description("kata 统一命令行：管理需求、用例、自动化与项目工作区")
+  .showHelpAfterError()
+  .showSuggestionAfterError();
+
+function legacyCommandAlias(name: string, target: Command, defaultAction?: string): Command {
+  return new Command(name)
+    .description(`兼容入口，请改用 kata ${target.name()}`)
+    .helpOption(false)
+    .addHelpCommand(false)
+    .allowUnknownOption(true)
+    .allowExcessArguments(true)
+    .action(async () => {
+      const args = process.argv.slice(3);
+      const forwarded =
+        defaultAction && (args.length === 0 || args[0].startsWith("-"))
+          ? [defaultAction, ...args]
+          : args;
+      await target.parseAsync(["node", target.name(), ...forwarded]);
+    });
+}
+
+archiveGen.name("archives").description("测试用例归档文件的生成、校验与检索");
+managingProjectKnowledge.name("knowledge").description("项目知识的查询、维护与检查");
+ruleLoader.name("rules").description("项目规则的加载与合并");
+scanReport.name("scans").description("代码扫描报告的创建、维护与渲染");
+defectReport.name("defects").description("缺陷与冲突报告渲染");
+
+historyConvert.name("convert").description("将历史 CSV 或 XMind 转换为 Archive Markdown");
+const history = new Command("history").description("历史用例转换").addCommand(historyConvert);
+
+xmindGen.name("generate").description("根据 JSON 或 Archive Markdown 生成 XMind");
+xmindPatch.name("xmind").description("XMind 用例的生成、查询与编辑");
+xmindPatch.addCommand(xmindGen);
 
 kata.addCommand(archiveGen);
 kata.addCommand(autoFixer);
@@ -60,7 +95,7 @@ kata.addCommand(createProject);
 kata.addCommand(discuss);
 kata.addCommand(formatCheckScript);
 kata.addCommand(formatReportLocator);
-kata.addCommand(historyConvert);
+kata.addCommand(history);
 kata.addCommand(initWizard);
 kata.addCommand(managingProjectKnowledge);
 kata.addCommand(pluginLoader);
@@ -70,25 +105,30 @@ kata.addCommand(reportToPdf);
 kata.addCommand(ruleLoader);
 kata.addCommand(scanReport);
 kata.addCommand(defectReport);
-// knowledge-keeper: knowledge-curate 的别名
-kata.addCommand(
-  new Command("knowledge-keeper")
-    .description("Knowledge management CLI (alias for knowledge-curate)")
-    .allowUnknownOption()
-    .allowExcessArguments(true)
-    .action(async (_opts: unknown, _command: Command) => {
-      // Commander's parseAsync requires argv[0] and argv[1] as program path placeholders
-      const args = process.argv.slice(2).filter((a) => a !== "knowledge-keeper");
-      await managingProjectKnowledge.parseAsync(["node", "kata", ...args]);
-    }),
-);
 kata.addCommand(runTestsNotify);
 kata.addCommand(searchFilter);
 kata.addCommand(sourceAnalyze);
 kata.addCommand(sourceRef);
 kata.addCommand(writerContextBuilder);
-kata.addCommand(xmindGen);
 kata.addCommand(xmindPatch);
+
+// 已发布脚本名继续可用，但不再出现在公共帮助页。
+kata.addCommand(legacyCommandAlias("create-project", createProject), { hidden: true });
+kata.addCommand(legacyCommandAlias("repo-sync", repoSync, "sync"), { hidden: true });
+kata.addCommand(legacyCommandAlias("init-wizard", initWizard), { hidden: true });
+kata.addCommand(legacyCommandAlias("archive-gen", archiveGen), { hidden: true });
+kata.addCommand(legacyCommandAlias("history-convert", historyConvert), { hidden: true });
+kata.addCommand(legacyCommandAlias("knowledge-curate", managingProjectKnowledge), {
+  hidden: true,
+});
+kata.addCommand(legacyCommandAlias("knowledge-keeper", managingProjectKnowledge), {
+  hidden: true,
+});
+kata.addCommand(legacyCommandAlias("defect-report", defectReport), { hidden: true });
+kata.addCommand(legacyCommandAlias("scan-report", scanReport), { hidden: true });
+kata.addCommand(legacyCommandAlias("rule-loader", ruleLoader), { hidden: true });
+kata.addCommand(legacyCommandAlias("xmind-gen", xmindGen), { hidden: true });
+kata.addCommand(legacyCommandAlias("xmind-patch", xmindPatch), { hidden: true });
 
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "@shared/cli/agents-audit.ts";
@@ -129,6 +169,17 @@ const publicV2Commands = new Set([
   "results",
   "handoff",
   "env",
+  "project",
+  "repos",
+  "workspace",
+  "archives",
+  "case-tasks",
+  "defects",
+  "history",
+  "knowledge",
+  "rules",
+  "scans",
+  "xmind",
 ]);
 for (const command of kata.commands) {
   if (!publicV2Commands.has(command.name())) {
@@ -139,7 +190,19 @@ for (const command of kata.commands) {
   }
 }
 
-initEnv();
+function localizeHelp(command: Command): void {
+  command.helpOption("-h, --help", "显示当前命令帮助");
+  if (command.commands.some((child) => !(child as Command & { _hidden?: boolean })._hidden)) {
+    command.addHelpCommand("help [command]", "显示指定命令帮助");
+  }
+  for (const child of command.commands) {
+    if (!(child as Command & { _hidden?: boolean })._hidden) localizeHelp(child);
+  }
+}
+
+localizeHelp(kata);
+
+initEnv({ cwd: repoRoot() });
 
 kata.parseAsync(process.argv).catch((err) => {
   process.stderr.write(`[kata] Unexpected error: ${err}\n`);

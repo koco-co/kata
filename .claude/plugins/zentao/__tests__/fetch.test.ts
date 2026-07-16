@@ -7,13 +7,19 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { detectFixBranch, extractBugIdFromUrl, parseZentaoResponseText } from "../fetch.ts";
+import {
+  detectFixBranch,
+  downloadMarkdownAttachments,
+  extractBugIdFromUrl,
+  extractMarkdownAttachmentUrls,
+  parseZentaoResponseText,
+} from "../fetch.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const FETCH_TS = resolve(__dirname, "../fetch.ts");
@@ -150,6 +156,58 @@ describe("parseZentaoResponseText", () => {
   it("returns null for html responses", () => {
     const parsed = parseZentaoResponseText("<html><title>登录</title></html>");
     assert.equal(parsed, null);
+  });
+});
+
+// ─── embedded attachment evidence ────────────────────────────────────────────
+
+describe("embedded attachment evidence", () => {
+  it("extracts and de-duplicates ZenTao image references", () => {
+    const urls = extractMarkdownAttachmentUrls([
+      "现象\n![](/zentao/file-read-1.png)",
+      "修复后\n![结果](/zentao/file-read-2.jpg)\n![](/zentao/file-read-1.png)",
+    ]);
+
+    assert.deepEqual(urls, ["/zentao/file-read-1.png", "/zentao/file-read-2.jpg"]);
+  });
+
+  it("downloads referenced images with the authenticated session", async () => {
+    const output = join(TMP_DIR, "attachments");
+    const calls: Array<{ url: string; cookie: string | null }> = [];
+    const downloaded = await downloadMarkdownAttachments(
+      ["![](/zentao/file-read-1.png)\n![](/zentao/file-read-1.png)"],
+      "http://zt.example",
+      output,
+      "zentaosid=good",
+      async (url, init) => {
+        calls.push({ url, cookie: new Headers(init?.headers).get("cookie") });
+        return new Response(new Uint8Array([1, 2, 3]), {
+          status: 200,
+          headers: { "content-type": "image/png" },
+        });
+      },
+    );
+
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0], {
+      url: "http://zt.example/zentao/file-read-1.png",
+      cookie: "zentaosid=good",
+    });
+    assert.equal(downloaded.length, 1);
+    assert.deepEqual(readFileSync(join(output, "file-read-1.png")), Buffer.from([1, 2, 3]));
+  });
+
+  it("fails when referenced evidence cannot be downloaded", async () => {
+    await assert.rejects(
+      downloadMarkdownAttachments(
+        ["![](/zentao/file-read-1.png)"],
+        "http://zt.example",
+        join(TMP_DIR, "failed"),
+        "zentaosid=good",
+        async () => new Response("missing", { status: 404 }),
+      ),
+      (error: Error & { code?: string }) => error.code === "ATTACHMENT_FETCH_FAILED",
+    );
   });
 });
 

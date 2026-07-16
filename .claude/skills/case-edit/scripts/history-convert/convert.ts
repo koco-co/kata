@@ -3,8 +3,8 @@
  * history-convert.ts — Convert historical CSV/XMind files to Archive Markdown.
  *
  * Usage:
- *   kata history-convert --path <file-or-dir> --project <name> [--module <key>] [--detect] [--force] [--no-split]
- *   kata history-convert --help
+ *   kata history convert --path <file-or-dir> --project <name> [--module <key>] [--detect] [--force] [--no-split]
+ *   kata history convert --help
  */
 
 import { existsSync, writeFileSync } from "node:fs";

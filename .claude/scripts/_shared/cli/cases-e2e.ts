@@ -1,15 +1,16 @@
 import { join } from "node:path";
 import { runCaseDraftE2e } from "@shared/lib/e2e/case-draft-e2e.ts";
+import { repoRoot } from "@shared/lib/paths.ts";
 import type { Command } from "commander";
 
 export function registerCasesE2e(cases: Command): void {
   cases
     .command("e2e")
-    .description("case-draft e2e 验证 (claude 真跑)")
+    .description("运行 case-draft 端到端验证")
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--feature <id>", "feature_id")
     .requiredOption("--snapshot <path>", "frozen source-snapshot.json 路径")
-    .option("--out <dir>", "结果输出根目录", join(process.cwd(), ".kata/e2e-results"))
+    .option("--out <dir>", "结果输出根目录", join(repoRoot(), ".kata", "e2e-results"))
     .option("--threshold <n>", "非关键源事实 Jaccard 阈值", "0.9")
     .option(
       "--required-kinds <list>",

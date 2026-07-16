@@ -35,6 +35,9 @@ effort: medium
 ## 范围与格式
 
 - 一个 hotfix archive 只含 1 条用例：覆盖修复路径本身；相邻回归风险点并入同一条用例的步骤或预期检查，不得拆成多个测试套件。
+- Hotfix 用例标题固定使用 `##### 【{bug_id}】验证...`，不得添加 `【P0】`～`【P4】` 优先级；优先级 marker 只属于 case-draft 的需求用例。
+- 用例正文中的数据源名、数据库/schema 名必须分别写成 `${DataSourceA}`、`${SchemaA}` 形式；多组环境依次使用 B、C，不得写真实环境名称。表名允许写具体名称。
+- 只要正文给出具体表名，前置条件就必须提供与该表同名的最简可执行 `CREATE TABLE`；即使缺陷不限制字段或数据类型，也不得只写“已存在该表”。
 - 范围未定的问题一律记入 `pending_items`，不得外延到无证据支撑的模块、数据源或版本。
 - 必须产出可直接执行的 `archive.md`（含前置条件与步骤表），不得只给缺陷分析、原因说明或自然语言总结。
 - Hotfix 用例的步骤质量必须与 case-draft 产出的正式用例一致：表单/规则配置不得写成一整句密文；每个字段、统计函数、期望值、强弱规则、规则描述等配置项独立成 `-` 列表项并用 `<br>` 分行；多条预期用 `1) 2) N)` 分行，确保 QA 可逐项执行和核对。
@@ -43,7 +46,7 @@ effort: medium
 
 ## 证据与交付
 
-- 交付前先运行 `kata archive-gen validate --input <hotfix-dir>/archive.md` 校验结构与 frontmatter，修复所有 violation 后再做人工自审。hotfix archive 落在 `_shared/archive/issues/`，位于 `features/` 之外，`kata cases lint` 扫不到，故用 archive-gen validate。SourceRef 泄漏校验 archive-gen validate 不覆盖，需人工 grep 确认 `source_refs.json` 之外正文无结构化证据（`SourceRefs`、`bug.record@N`）。
+- 交付前先运行 `kata archives validate --input <hotfix-dir>/archive.md` 校验结构、frontmatter、hotfix 标题、DataSource/Schema 占位符及具体表 DDL，修复所有 violation 后再做人工自审。hotfix archive 落在 `_shared/archive/issues/`，位于 `features/` 之外，`kata cases lint` 扫不到，故用 `kata archives validate`。SourceRef 泄漏校验不在此命令的覆盖范围内，需人工 grep 确认 `source_refs.json` 之外正文无结构化引用（`SourceRefs`、`bug.record@N`）。
 - 页面路径、按钮、字段 label、控件、交互入口必须有本次 bug 记录、源码、真实 DOM 探测或项目规则支撑。仅来自历史用例或规则时，须在 `source_refs.json` 中标明来源和未验证边界，不得当作本次真实探测结果。
 - 证据分层：
   - `archive.md` 只保留人类可读的用例内容，不含任何 SourceRef 引用。

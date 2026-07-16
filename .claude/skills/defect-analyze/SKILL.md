@@ -27,25 +27,25 @@ flowchart TD
     R -->|异常堆栈、console、HTTP 失败| BUG[bug 模式：组装 BugReport JSON]
     R -->|带冲突标记的文本| CON[conflict 模式：组装 ConflictReport JSON]
     R -->|diff、分支对、变更集| DIFF[diff 模式：子代理静态扫描]
-    BUG --> BR[kata defect-report render-bug]
-    CON --> CR[kata defect-report render-conflict]
-    DIFF --> DR[kata scan-report]
+    BUG --> BR[kata defects render-bug]
+    CON --> CR[kata defects render-conflict]
+    DIFF --> DR[kata scans]
     BR --> H[report.html]
     CR --> H
     DR --> H
     H -. 仅 bug 模式 .-> Z[推送禅道]
 ```
 
-- `bug`：收到异常堆栈、控制台报错、HTTP 失败等可复现 bug 证据，先组装 BugReport JSON，再用 `kata defect-report render-bug`（仅 zentao variant）产出 `report.html`。
-- `conflict`：收到带合并冲突标记的文本，先组装 ConflictReport JSON，再用 `kata defect-report render-conflict` 产出 `report.html`。
-- `diff`：需对仓库 diff、分支对或变更文件集做静态扫描时，新开一个 general-purpose 子代理执行扫描，再经 `kata scan-report` 产出 `report.html`。对比分支用以下命令序列（`--slug` 不传时按分支对自动生成；完整字段以 `kata scan-report create --help` 为准）：
+- `bug`：收到异常堆栈、控制台报错、HTTP 失败等可复现 bug 证据，先组装 BugReport JSON，再用 `kata defects render-bug`（仅 zentao variant）产出 `report.html`。
+- `conflict`：收到带合并冲突标记的文本，先组装 ConflictReport JSON，再用 `kata defects render-conflict` 产出 `report.html`。
+- `diff`：需对仓库 diff、分支对或变更文件集做静态扫描时，新开一个 general-purpose 子代理执行扫描，再经 `kata scans` 产出 `report.html`。对比分支用以下命令序列（`--slug` 不传时按分支对自动生成；完整字段以 `kata scans create --help` 为准）：
 
   ```shell
   # 1. 初始化 audit：拉基线/被测分支并算 diff
-  kata scan-report create --project <name> --repo <repo> --base-branch <ref> --head-branch <ref>
+  kata scans create --project <name> --repo <repo> --base-branch <ref> --head-branch <ref>
   # 2. 子代理逐个 bug 写回（add-bug / update-bug / set-meta），证据须落在 evidence_refs
   # 3. 渲染 report.html
-  kata scan-report render --project <name> --slug <slug>
+  kata scans render --project <name> --slug <slug>
   ```
 
 ## 各模式规则
@@ -58,11 +58,11 @@ flowchart TD
 
 **通用约束**：
 - 缺乏证据时，不得编造日志、负责人、模块或根因；结论须可追溯到 `evidence_refs`。
-- `workspace/{project}/.kata/repos/**` 是只读源仓库；如需修改，必须先获得用户确认，并在源仓库工作区中操作。
+- 源码查询必须走 `kata repos show|grep|list`，由 CLI 对 `.env` 配置的外部仓库封装只读 Git 命令；不得创建或直接依赖 `.kata/repos/**`。如需修改，必须先获得用户确认，并在源仓库工作区中操作。
 
 ## 产物
 
-三种模式都产出 `report.html`，但落点分两处，不要合并：`kata defect-report`（bug / conflict 模式）写 `defectDir`（`_shared/archive/reports/bugs/`），`kata scan-report`（diff 模式）写 `auditDir`（`_shared/archive/audits/`）。都不写入 feature 目录。
+三种模式都产出 `report.html`，但落点分两处，不要合并：`kata defects`（bug / conflict 模式）写 `defectDir`（`_shared/archive/reports/bugs/`），`kata scans`（diff 模式）写 `auditDir`（`_shared/archive/audits/`）。都不写入 feature 目录。
 
 ## 推送禅道（仅 bug 模式）
 

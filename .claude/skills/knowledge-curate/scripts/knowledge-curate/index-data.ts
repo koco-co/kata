@@ -2,7 +2,7 @@
 /**
  * knowledge-curate.ts — 业务知识库 CRUD + lint/index。
  * Usage:
- *   kata knowledge-curate <action> --project <name> [...]
+ *   kata knowledge <action> --project <name> [...]
  * Actions: read-core | read-module | read-pitfall | write | update | index | lint
  */
 

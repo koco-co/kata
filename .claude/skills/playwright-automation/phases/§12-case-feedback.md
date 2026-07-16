@@ -6,12 +6,12 @@
 
 ## 协议
 
-case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-reconcile 的 discrepancies、ui-probe 的 observed_facts、run-triage 的归类、ui-probe 发现的未覆盖场景。输出：两份工件，写入当前 run 目录 `workspace/<project>/features/<version>/<featureId>/runs/<run-id>/`：
+case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-reconcile 的 discrepancies、ui-probe 的 observed_facts、run-triage 的归类、ui-probe 发现的未覆盖场景。输出：两份工件，写入当前 run 目录 `workspace/<project>/features/<version>/<feature-id>/runs/<run-id>/`：
 
 1. `case-corrections.md` — pending 清单（人类可读、可手改 status）。
 2. `case-corrections-summary.json` — 结构化摘要，符合 `CaseCorrections@1` schema，供 handoff render 渲染使用。
 
-此步骤先生成工件，再对**高置信且已核实**的修正经 case-edit 回写 `archive.md` 与 `cases.xmind`（见下「高置信回写」）；medium/low 置信或未核实项只生成工件、不动源用例，留待人工。任何情况下都不得修改 `test-point-checklist.md`、`metadata.yaml` 或 `.kata/repos/**` 源码。
+此步骤先生成工件，再对**高置信且已核实**的修正经 case-edit 回写 `archive.md` 与 `cases.xmind`（见下「高置信回写」）；medium/low 置信或未核实项只生成工件、不动源用例，留待人工。任何情况下都不得修改 `test-point-checklist.md`、`metadata.yaml` 或外部源码；源码仅通过 `kata repos show|grep|list` 查询。
 
 ## 8 类 category
 
@@ -48,7 +48,7 @@ case-feedback 在 `run-triage` 之后、`handoff` 之前执行。输入：plan-r
 
 ```markdown
 ---
-feature: <featureId>
+feature: <feature-id>
 run_id: YYYYMMDD-HHmm-<type>-<seq>
 generated_at: <ISO 8601>
 generator: playwright-automation@1
@@ -65,7 +65,7 @@ by_category:
   missing_coverage: 2
 ---
 
-# Case Corrections — <version>/<featureId> / <run-id>
+# Case Corrections — <version>/<feature-id> / <run-id>
 
 ## C-001  ui_text_drift  ★★★ (confidence: high)
 
@@ -136,7 +136,7 @@ corrections 生成并跨轮去重后，把其中**高置信且已核实**的条�
 
 1. **筛选**：仅取 `confidence: high` 且 evidence 已按 knowledge（`modules/<module>`、`sites/<host>`）+ source-repo 枚举 / env 证据核实的条目（spec-error 与产品缺陷标注同样适用），逐条复核 `proposed_change` 与真实平台一致、不臆测。
 2. **批准**：入选条目 `status` 置 `approved`，其余保持 `pending`。
-3. **回写**：经 case-edit 的 `apply-corrections` 写回契约落地（locate→diff→`kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace`→archive↔xmind 6 项自检→写 apply-log）；高置信已核实项视核实为批准，跳过交互式 proceed/edit/abort 门。
+3. **回写**：经 case-edit 的 `apply-corrections` 写回契约落地（locate→diff→`kata xmind generate --input cases/archive.md --output cases/cases.xmind --mode replace`→archive↔xmind 6 项自检→写 apply-log）；高置信已核实项视核实为批准，跳过交互式 proceed/edit/abort 门。
 4. **失败回滚**：xmind 自检失败时回滚本轮 archive 改动（`git restore`），记 `failed_xmind_sync`，对应条目退回 pending。
 5. **未入选项**：medium/low 置信，或高置信但无法对 knowledge/源码/环境核实的条目，保持 pending、不动源用例，列入 handoff「待人工确认」清单，由用户后续 `/case-edit apply-corrections` 处理。
 
@@ -148,6 +148,6 @@ corrections 生成并跨轮去重后，把其中**高置信且已核实**的条�
 ## 禁止
 
 - 不得回写 medium/low 置信，或未按 knowledge+源码/环境核实的条目；这些只生成工件、不动源用例。
-- 不得修改 `test-point-checklist.md`、`metadata.yaml` 或 `.kata/repos/**` 源码。
+- 不得修改 `test-point-checklist.md`、`metadata.yaml` 或外部源码；源码仅通过 `kata repos show|grep|list` 查询。
 - 不得依据 archive/PRD 文字单方面判定 UI 错；必须有 ui-probe / run-triage / source / env 证据。
 - 不得为通过率而弱化 evidence 要求，或把未核实项强标 high 置信以绕过回写门。

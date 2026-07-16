@@ -9,10 +9,9 @@ urls:
   portal_base_url: "http://10.82.78.176/portal"
 
 auth:
-  session_path: "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-prod.json"
+  cookie: ""
   tenant_id: 10473
   tenant_name: "test_tenant"
-  derive_from_session: true
 
 projects:
   quality: { id: 69, name: "test_tenant" }

@@ -74,7 +74,7 @@ flowchart TD
 | prompts/agent-worker.md           | 用例 generate/self-run/repair 派子代理时 | 执行子代理模板与 Status/BlockedEnvelope        |
 | prompts/agent-spec-reviewer.md    | 汇总 & 质量闸门阶段                            | spec 合规机械检查                              |
 | prompts/agent-quality-reviewer.md | 汇总 & 质量闸门阶段（spec 通过后）             | 脚本质量（选择器、断言、复用度）               |
-| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md` + `sites/<host>/dom-*.md` | ui-probe / generate / 用例清单校正前（必读） | 真实菜单·字段·统计函数文案 + 规则语义事实，校正用例与脚本；存疑查 `source-repo-map.md` 指向的 `.kata/repos` 源码枚举 |
+| `workspace/<project>/_shared/knowledge/_index.md` → `modules/<module>.md` + `sites/<host>/dom-*.md` | ui-probe / generate / 用例清单校正前（必读） | 真实菜单·字段·统计函数文案 + 规则语义事实，校正用例与脚本；存疑用 `kata repos show|grep|list` 查外部源码枚举 |
 
 ## 执行流程
 
@@ -92,7 +92,7 @@ flowchart TD
 
 ## 真实性质控
 
-- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；不得修改 `workspace/{project}/.kata/repos/**`。
+- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；源码只能通过 `kata repos show|grep|list` 查询；认证只能读取 env YAML 的 `auth.cookie`。
 - ui-probe 证据缺失时不生成最终脚本（静态审查除外）；self-run 结果缺失时不下「通过」结论。
 - Playwright 自动化完成的硬条件是：目标 `full.spec.ts` 通过、run 目录产出 Allure 结果、平台产生该用例核心业务流程的记录数据。只读合同脚本只有在用户明确要求只读覆盖时才可作为完成范围；否则必须阻塞或排除，不得声称自动化完成。
 - 用户要求 UI 自动化时，创建、编辑、保存、引入规则包、立即执行、删除、状态查询等业务动作必须走页面操作；未经用户针对具体动作授权，不得用后端接口替代 UI。

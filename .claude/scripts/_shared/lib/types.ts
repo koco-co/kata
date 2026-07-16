@@ -34,6 +34,9 @@ export interface Meta {
   requirement_id?: number;
   requirement_ticket?: string;
   description?: string;
+  tags?: string[];
+  create_at?: string;
+  status?: string;
 }
 
 export interface IntermediateJson {

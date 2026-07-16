@@ -6,7 +6,11 @@
 
 ## 只读源仓库
 
-- 源仓库（`workspace/{project}/.kata/repos/**`）的只读约束见 `.claude/rules/repo-readonly.md`。
+- 外部源仓库的只读查询约束见 `.claude/rules/repo-readonly.md`；不得创建 `.kata/repos/**` 缓存。
+
+## 认证数据
+
+- UI cookie 仅使用环境 YAML 的 `auth.cookie`；被 Git 跟踪的基础 profile 保持空值，真实 cookie 放在被忽略且权限为 `0600` 的 `_shared/env/.local/<env>.yaml`。不得创建 `.kata/auth/**` 或使用 `auth.session_path`。
 
 ## 本地 Runtime 上下文
 

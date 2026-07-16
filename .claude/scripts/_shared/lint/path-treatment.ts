@@ -6,6 +6,7 @@ interface RuleDef {
   id: PathRuleId;
   regex: RegExp;
   message: string;
+  sourceOnly?: boolean;
 }
 
 // P-S1（`.claude/scripts/` 引用）与 P-S4（`bun run .claude/scripts/...`）在 bundle 迁移后退役：
@@ -22,12 +23,37 @@ const RULES: RuleDef[] = [
     regex: /workspace\/[^/\s]+\/(prds|archive|xmind|tests)\//g,
     message: "old workspace subdir layout; use `workspace/{p}/features/{version}/{feature}/...`",
   },
+  {
+    id: "P-S5",
+    regex: /(?:join|resolve)\(process\.cwd\(\),\s*["'](?:workspace|\.kata)["']\)/g,
+    message: "persistent path depends on invocation cwd; use shared path helpers",
+  },
+  {
+    id: "P-S6",
+    regex: /["']\/(?:Users|home|private\/tmp)\/[^"']+["']/g,
+    message: "machine-specific absolute path; configure it in the root .env",
+    sourceOnly: true,
+  },
+  {
+    id: "P-S7",
+    regex:
+      /(?:["'][^"'\n]*\.kata\/(?:zentao|auth)\/[^"'\n]*session[^"'\n]*["']|(?:join|resolve)\([^\n]*(?:["']\.kata["']|["']\.dtstack-cli["'])[^\n]*["']session\.json["'][^\n]*\))/g,
+    message: "hardcoded runtime session path; configure storage in the root .env",
+    sourceOnly: true,
+  },
+  {
+    id: "P-S8",
+    regex: /["']https?:\/\/(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?(?:\/[^"']*)?["']/g,
+    message: "hardcoded service IP; configure the endpoint in the root .env",
+    sourceOnly: true,
+  },
 ];
 
 const SCAN_SUFFIXES = [".md", ".ts", ".tsx", ".js", ".json"];
 
 const EXCLUDED_PATH_FRAGMENTS = [
   "node_modules",
+  "/.venv/",
   "/.repos/",
   "/.kata/repos/",
   "/dist/",
@@ -44,8 +70,9 @@ const EXCLUDED_PATH_FRAGMENTS = [
   ".claude/scripts/_shared/tests/progress.test.ts",
   ".claude/scripts/_shared/tests/run-tests-notify.test.ts",
   ".claude/scripts/_shared/tests/search-filter.test.ts",
-  // plugins test files — reference v2 paths as input data
-  "plugins/",
+  // tests and fixtures intentionally exercise invalid/stale path strings
+  "/__tests__/",
+  ".claude/scripts/_shared/tests/",
   // old refactor log files
   "refactor-v3-P3-",
   // templates using old layout
@@ -66,7 +93,7 @@ function isExcluded(filePath: string, scanRoot: string): boolean {
   // .worktrees/，这样在 .worktrees 路径中检出的仓库（含本仓测试夹具）不会被整体跳过。
   const rel = filePath.startsWith(scanRoot) ? filePath.slice(scanRoot.length) : filePath;
   if (rel === "/.worktrees" || rel.startsWith("/.worktrees/")) return true;
-  return EXCLUDED_PATH_FRAGMENTS.some((frag) => filePath.includes(frag));
+  return EXCLUDED_PATH_FRAGMENTS.some((frag) => rel.includes(frag));
 }
 
 function walk(root: string, scanRoot: string, out: string[]): void {
@@ -96,8 +123,9 @@ export function lintPaths(scanPath: string): PathReport {
     const content = readFileSync(file, "utf8");
     const lines = content.split("\n");
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]!;
+      const line = lines[i] ?? "";
       for (const rule of RULES) {
+        if (rule.sourceOnly && file.endsWith(".md")) continue;
         rule.regex.lastIndex = 0;
         const m = rule.regex.exec(line);
         if (m) {

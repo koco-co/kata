@@ -1,11 +1,18 @@
-import { homedir } from "node:os";
-import { join } from "node:path";
+import { resolve } from "node:path";
 import { performLogin, type Session } from "../core/auth/login";
 import { resolveSession } from "../core/auth/resolve";
 import { SessionStore } from "../core/auth/session-store";
 import type { DtStackCliConfig } from "../core/config/schema";
 
-const SESSION_FILE = join(homedir(), ".dtstack-cli", "session.json");
+export function resolveSessionFile(): string {
+  const configured = process.env.KATA_DTSTACK_SESSION_PATH?.trim();
+  if (!configured) {
+    throw new Error(
+      "KATA_DTSTACK_SESSION_PATH is required; configure it in the kata root .env file",
+    );
+  }
+  return resolve(configured);
+}
 
 export interface LoginOptions {
   readonly env: string;
@@ -21,20 +28,20 @@ export async function login(opts: LoginOptions): Promise<Session> {
   const password = opts.password ?? envCfg.login?.password ?? process.env.DTSTACK_PASSWORD;
   if (!username || !password) throw new Error("username and password required");
   const session = await performLogin({ baseUrl: envCfg.baseUrl, username, password });
-  await new SessionStore(SESSION_FILE).save(opts.env, session);
+  await new SessionStore(resolveSessionFile()).save(opts.env, session);
   return session;
 }
 
 export async function whoami(env: string): Promise<Session | null> {
-  return new SessionStore(SESSION_FILE).load(env);
+  return new SessionStore(resolveSessionFile()).load(env);
 }
 
 export async function logout(env: string): Promise<void> {
-  await new SessionStore(SESSION_FILE).clear(env);
+  await new SessionStore(resolveSessionFile()).clear(env);
 }
 
 export async function getSession(env: string, config: DtStackCliConfig): Promise<Session> {
-  const store = new SessionStore(SESSION_FILE);
+  const store = new SessionStore(resolveSessionFile());
   return resolveSession({
     env,
     config,

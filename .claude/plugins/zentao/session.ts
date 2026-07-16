@@ -1,8 +1,8 @@
 /**
  * plugins/zentao/session.ts — 禅道会话：cookie 优先复用，失效降级账号密码登录
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import { getEnv, setDotEnvValue } from "@shared/lib/env.ts";
 import { repoRoot } from "@shared/lib/paths.ts";
 import { type FetchFn, zentaoLogin } from "./client.ts";
 
@@ -10,8 +10,8 @@ export type { FetchFn };
 
 export interface ZentaoCreds {
   baseUrl: string;
-  account: string;
-  password: string;
+  account?: string;
+  password?: string;
 }
 
 export interface FetchAuthedOptions {
@@ -21,29 +21,20 @@ export interface FetchAuthedOptions {
   refresh?: boolean;
 }
 
-// ─── cookie 持久化（仓库级共享，.gitignore 已忽略 .kata/）──────────────────────
-/** Absolute path to the repo-level shared ZenTao session cookie file. */
-export function cookiePath(): string {
-  return join(repoRoot(), ".kata", "zentao", "session.json");
+// ─── cookie 持久化（统一根目录 .env）─────────────────────────────────────────
+/** Absolute path to the unified project environment file. */
+export function zentaoEnvPath(): string {
+  return join(repoRoot(), ".env");
 }
 
-/** Read the persisted ZenTao session cookie, or null if absent/unreadable. */
+/** Read the ZenTao cookie from KATA_ZENTAO_COOKIE. */
 export function readCookie(): string | null {
-  try {
-    const p = cookiePath();
-    if (!existsSync(p)) return null;
-    const parsed = JSON.parse(readFileSync(p, "utf8")) as { cookie?: string };
-    return parsed.cookie ?? null;
-  } catch {
-    return null;
-  }
+  return getEnv("KATA_ZENTAO_COOKIE")?.trim() || null;
 }
 
-/** Persist the ZenTao session cookie to the repo-level shared file. */
+/** Persist a refreshed ZenTao cookie to the unified root .env file. */
 export function writeCookie(cookie: string): void {
-  const p = cookiePath();
-  mkdirSync(dirname(p), { recursive: true });
-  writeFileSync(p, JSON.stringify({ cookie }, null, 2), "utf8");
+  setDotEnvValue(zentaoEnvPath(), "KATA_ZENTAO_COOKIE", cookie);
 }
 
 // ─── 探活与登录 ───────────────────────────────────────────────────────────────
@@ -71,6 +62,14 @@ async function safeFetch(fetchFn: FetchFn, url: string, init?: RequestInit): Pro
 
 /** Log in with plaintext credentials and return the session cookie string. */
 export async function login(creds: ZentaoCreds, fetchFn: FetchFn): Promise<string> {
+  if (!creds.account || !creds.password) {
+    throw Object.assign(
+      new Error(
+        "禅道 cookie 已失效，且缺少 KATA_ZENTAO_ACCOUNT/KATA_ZENTAO_PASSWORD，无法重新登录",
+      ),
+      { code: "ZENTAO_AUTH_MISSING" },
+    );
+  }
   // 登录与 cookie 解析复用 client.ts 的 zentaoLogin（含 JSON body 回退）
   const { cookie } = await zentaoLogin(creds.baseUrl, creds.account, creds.password, fetchFn);
   return cookie;

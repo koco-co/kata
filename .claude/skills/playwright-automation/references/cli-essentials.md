@@ -20,11 +20,13 @@ kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newCo
 ## 探测上下文与证据采集（§4 ui-probe 用）
 
 ```javascript
-// 创建上下文（storageState 来自 env profile；可选加权限/媒体仿真）
-const context = await browser.newContext({
-  storageState: env.session_path,
-  // permissions: ["geolocation"], colorScheme: "dark", reducedMotion: "reduce"
+// 创建上下文并从 env profile 的 auth.cookie 注入；禁止输出 cookie
+const context = await browser.newContext();
+const cookies = env.auth.cookie.split(";").map((item) => {
+  const separator = item.indexOf("=");
+  return { name: item.slice(0, separator).trim(), value: item.slice(separator + 1), url: env.urls.base_url };
 });
+await context.addCookies(cookies);
 const page = await context.newPage();
 await page.goto(targetUrl);
 await page.waitForLoadState("networkidle"); // probe 探测可用；交付 spec 改 web-first 断言（见 §6 等待策略表）
@@ -210,12 +212,12 @@ await context.tracing.stop({ path: `runs/${runId}/playwright/trace.zip` });
 
 // Video：录制回放证据，context.close() 时自动落盘
 const context = await browser.newContext({
-  storageState: env.session_path,
   recordVideo: {
     dir: `runs/${runId}/playwright/videos/`,
     size: { width: 1280, height: 800 },
   },
 });
+await context.addCookies(cookies);
 ```
 
 **取舍**：trace 调试失败步骤（DOM snapshot + 网络 + 时间线）；video 演示/hand-off 证据；screenshot 即时取证。**清理**：`find runs -name "*.zip" -o -name "*.webm" | xargs -I{} find {} -mtime +7 -delete`。
@@ -244,7 +246,7 @@ await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 `@playwright/cli`（`bunx playwright-cli`，0.1.x 早期 API）已作为 devDependency 安装，可在 §4 阶段作为省 token 的交互探索工具。**以下边界必须遵守**：
 
 1. **仅用于 ui-probe 阶段**的交互探索、页面 snapshot、codegen 起草 locator，不用于任何其他阶段。
-2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话状态一律以 `env profile` + `auth.session_path` storageState 为准（§2 env-preflight 规则）。
+2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话状态一律以 env profile 的 `auth.cookie` 为准，通过 `browserContext.addCookies` 注入（§2 env-preflight 规则）。
 3. **codegen / snapshot 产出是草稿**：必须经 ui-probe 真实证据（DOM 文本 / API）重新验证、改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）才能进 spec。
 4. **不替代 `probe.mjs` 证据要求**，也不绕过「每 ui-probe step ≤3 个探测脚本」预算。
 

@@ -16,6 +16,40 @@ test("P-S3: old workspace subdir flagged", () => {
   expect(r.violations.some((v) => v.rule === "P-S3")).toBe(true);
 });
 
+test("P-S5: cwd-relative persistent CLI path flagged", () => {
+  const file = join(TMP, "cwd-path.ts");
+  writeFileSync(file, 'const root = join(process.cwd(), "workspace");\n');
+  const r = lintPaths(file);
+  rmSync(file);
+  expect(r.violations).toEqual([
+    expect.objectContaining({ rule: "P-S5", matched: 'join(process.cwd(), "workspace")' }),
+  ]);
+});
+
+test("P-S6: machine-specific absolute runtime path flagged", () => {
+  const file = join(TMP, "absolute-path.ts");
+  writeFileSync(file, 'const session = "/Users/example/runtime/session.json";\n');
+  const r = lintPaths(file);
+  rmSync(file);
+  expect(r.violations).toEqual([expect.objectContaining({ rule: "P-S6" })]);
+});
+
+test("P-S7: hardcoded auth session path flagged", () => {
+  const file = join(TMP, "session-path.ts");
+  writeFileSync(file, 'const session = ".kata/zentao/session.json";\n');
+  const r = lintPaths(file);
+  rmSync(file);
+  expect(r.violations).toEqual([expect.objectContaining({ rule: "P-S7" })]);
+});
+
+test("P-S8: hardcoded service IP flagged", () => {
+  const file = join(TMP, "service-url.ts");
+  writeFileSync(file, 'const baseUrl = "http://172.16.1.2:8080/api";\n');
+  const r = lintPaths(file);
+  rmSync(file);
+  expect(r.violations).toEqual([expect.objectContaining({ rule: "P-S8" })]);
+});
+
 // P-S1/P-S4 retired after the bundle migration made `.claude/scripts/` the
 // canonical home (`bin.kata` + `bun run .claude/scripts/lint/*`). file-clean.md
 // references both patterns and must stay clean.

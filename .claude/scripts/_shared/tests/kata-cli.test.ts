@@ -36,7 +36,7 @@ describe("kata CLI", () => {
 
   it("top-level --help shows description", () => {
     const { stdout } = run(["--help"]);
-    expect(stdout).toMatch(/kata unified CLI/);
+    expect(stdout).toContain("kata 统一命令行");
   });
 
   it("unknown subcommand exits non-zero", () => {

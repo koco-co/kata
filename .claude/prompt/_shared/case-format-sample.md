@@ -3,11 +3,12 @@
 取材自 workspace/dataAssets/features/2099-01-lt-dq-main-flow/tmp/lt-dq-main-flow-sample.md。
 ⚠️ 本 fewshot 取材自岚图项目，其中的菜单/页面名（规则集管理、规则任务管理、校验结果查询、通用配置 等）是岚图定制文案，**仅供格式参照，禁止照抄到其它客户用例**。菜单/字段文案一律从目标环境 `sites/<host>/dom-*.md` 或用户截图取真实文案——标品（如浙商证券 zszq：概览/规则配置/任务查询/实时校验/项目管理）与岚图菜单结构本就不同，套岚图名即失真。规则语义/统计函数清单/规则集·多表比对·自定义SQL 机制/字段类型约束以 `workspace/<project>/_shared/knowledge/modules/data-quality.md` 为准，本 fewshot 只示范节点格式、不作规则事实来源。
 
-渲染格式（标题层级 ##### 【Pn】、前置条件代码块、步骤表格 | 编号 | 步骤 | 预期 |、
-  frontmatter 字段、XMind topic 镜像与 priority marker）由 `kata archive-gen` 和
-  `kata xmind-gen` 编码；不需手写格式框架，只需提供结构化内容。
+渲染格式（case-draft 标题层级 ##### 【Pn】、前置条件代码块、步骤表格 | 编号 | 步骤 | 预期 |、
+  frontmatter 字段、XMind topic 镜像与 priority marker）由 `kata archives` 和
+  `kata xmind generate` 编码；不需手写格式框架，只需提供结构化内容。
 
 以下内容规则不在 CLI 中，必须人工遵守：
+- Hotfix 例外：case-hotfix 标题使用 `##### 【bug_id】`，禁止添加 `【Pn】`；其余占位符、SQL 和步骤可读性规则继续继承本文件。
 - 标题三段式：验证动词 + 验证对象 + 验证场景
 - 前置 SQL 顶部 /* ... */ 多行注释说明环境与目的；SELECT 末尾 -- 预期结果：N
 - 占位符：Schema/库名用 ${SchemaA}、数据源名用 ${DataSourceA}、质量项目名用 ${ProjectA}，只有表名可写实名，不得硬编码真实库名/数据源名

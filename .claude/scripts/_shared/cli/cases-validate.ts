@@ -548,9 +548,9 @@ export async function runCasesValidate(ctx: CasesValidateContext): Promise<Cases
 
 export function registerCasesValidate(parent: Command): void {
   parent
-    .command("validate <featureId>")
-    .description("Validate case-drafting evidence (replaces `discuss validate`)")
-    .option("--project <name>", "项目名", "dataAssets")
+    .command("validate <feature-id>")
+    .description("校验用例设计过程记录与输入是否完整")
+    .requiredOption("--project <name>", "项目名（必填）")
     .option(
       "--check-source-refs <list>",
       "Source ref kinds to require (opt-in; empty by default)",

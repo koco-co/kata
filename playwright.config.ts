@@ -1,36 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+import { initEnv } from "./.claude/scripts/_shared/lib/env";
 import {
   bridgeLegacyDataAssetsEnv,
+  cookieHeaderToPlaywrightState,
   resolveDataAssetsRuntime,
 } from "./workspace/dataAssets/_shared/runtime/env-profile";
 
-// 手动解析 .env / .env.envs / .env.local，确保 worker 继承时变量已就绪
-// 加载顺序（低 → 高）：.env → .env.envs → .env.local，后加载的不覆盖已有 process.env 值
-function loadDotEnvFile(filename: string) {
-  try {
-    const content = readFileSync(`${process.cwd()}/${filename}`, "utf8");
-    for (const line of content.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const idx = trimmed.indexOf("=");
-      if (idx <= 0) continue;
-      const key = trimmed.slice(0, idx).trim();
-      const val = trimmed.slice(idx + 1);
-      if (!(key in process.env)) process.env[key] = val;
-    }
-  } catch {
-    // 文件不存在时静默跳过
-  }
-}
-
-function loadDotEnv() {
-  loadDotEnvFile(".env");
-  loadDotEnvFile(".env.envs");
-  loadDotEnvFile(".env.local");
-}
-
-loadDotEnv();
+// 根 .env 是唯一 dotenv；业务环境由 _shared/env/<name>.yaml 显式解析。
+initEnv({ cwd: process.cwd() });
 
 // §3.4 F7（项目级隔离）扩展：当同时设置 KATA_ACTIVE_FEATURE 时，
 // outputDir 进一步收敛到 feature 级，避免多 feature 共用项目根 `.runs/` 互相覆盖。
@@ -42,7 +19,7 @@ loadDotEnv();
 // 2. KATA_ACTIVE_PROJECT                       → 项目级（无 feature 时）
 // 3. 都未设置                                   → fallback 至仓库根（仅本地兼容期）
 // CLAUDE.md §Feature Directory Naming: enforce lowercase ASCII feature ids so
-// a stale .env.local can't redirect Playwright outputDir into Chinese / 【】
+// an invalid runtime override cannot redirect outputDir into Chinese / 【】
 // directories created from raw archive CSV titles.
 const FEATURE_ID_RE = /^\d{4}-?(?:\d{2}|XX)(?:-[a-z][a-z0-9-]*)+$/;
 
@@ -55,7 +32,7 @@ export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
   if (feature) {
     if (!FEATURE_ID_RE.test(feature)) {
       throw new Error(
-        `[playwright.config] invalid KATA_ACTIVE_FEATURE '${feature}': must match YYYY[-]MM-{slug-segments} (lowercase ASCII). Check .env.local for stale value.`,
+        `[playwright.config] invalid KATA_ACTIVE_FEATURE '${feature}': must match YYYY[-]MM-{slug-segments} (lowercase ASCII).`,
       );
     }
     return `workspace/${project}/features/${feature}/tests/.runs/test-results`;
@@ -68,12 +45,7 @@ const profile = resolveDataAssetsRuntime();
 bridgeLegacyDataAssetsEnv(profile, process.env);
 
 const envLower = profile.env.toLowerCase();
-const sessionPath = profile.auth.sessionPath;
-const isListOnly = process.argv.includes("--list");
-
-if (!existsSync(sessionPath) && !isListOnly) {
-  throw new Error(`[playwright.config] storageState not found: ${sessionPath}`);
-}
+const storageState = cookieHeaderToPlaywrightState(profile.urls.baseUrl, profile.auth.cookie);
 
 // 报告路径：workspace/{project}/_shared/published-reports/YYYYMM/{suiteName}/{env}/
 // 通过环境变量 KATA_SUITE_NAME 传入需求名称，默认 report
@@ -132,7 +104,7 @@ export default defineConfig({
   use: {
     headless: process.env.HEADLESS !== "false",
     viewport: { width: 1280, height: 720 },
-    ...(existsSync(sessionPath) ? { storageState: sessionPath } : {}),
+    storageState,
   },
   projects: [
     {

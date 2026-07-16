@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { createCli } from "@shared/lib/cli-runner.ts";
-import { contractPluginsDir, pluginsDir } from "@shared/lib/paths.ts";
+import { contractPluginsDir, pluginsDir, workspaceDir } from "@shared/lib/paths.ts";
 import { loadAllPlugins } from "@shared/lib/plugin-utils.ts";
 import { resolveProject } from "./test-case-flow/project-resolver.ts";
 import { createSessionId, saveSessionState } from "./test-case-flow/session.ts";
@@ -17,7 +17,7 @@ type CaseDraftStartOptions = {
 };
 
 function workspaceRoot(): string {
-  return resolve(process.cwd(), "workspace");
+  return workspaceDir();
 }
 
 function listWorkspaceProjects(): string[] {

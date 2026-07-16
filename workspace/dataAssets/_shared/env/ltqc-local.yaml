@@ -9,10 +9,9 @@ urls:
   portal_base_url: "http://shuzhan63-test-ltqc.k8s.dtstack.cn/portal"
 
 auth:
-  session_path: "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json"
+  cookie: ""
   tenant_id: 10481
   tenant_name: "pw_test"
-  derive_from_session: true
 
 projects:
   quality: { id: 157, name: "pw" }

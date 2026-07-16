@@ -378,3 +378,28 @@ describe("source-analyze --help", () => {
     expect(output).toMatch(/source-analyze|analyze/i);
   });
 });
+
+describe("source-analyze Git object cache", () => {
+  it("searches committed files when the worktree is not checked out", () => {
+    const repo = join(TMP_DIR, "object-cache");
+    mkdirSync(repo, { recursive: true });
+    execFileSync("git", ["-C", repo, "init"]);
+    execFileSync("git", ["-C", repo, "config", "user.email", "test@local"]);
+    execFileSync("git", ["-C", repo, "config", "user.name", "test"]);
+    writeFileSync(join(repo, "service.ts"), "export function ObjectSearch() {}\n", "utf8");
+    execFileSync("git", ["-C", repo, "add", "service.ts"]);
+    execFileSync("git", ["-C", repo, "commit", "-m", "seed"]);
+    rmSync(join(repo, "service.ts"));
+
+    const { stdout, code } = run(["analyze", "--repo", repo, "--keywords", "ObjectSearch"]);
+    expect(code).toBe(0);
+    const output = JSON.parse(stdout) as {
+      searched_files: number;
+      matched_files: number;
+      a_level: Array<{ file: string }>;
+    };
+    expect(output.searched_files).toBe(1);
+    expect(output.matched_files).toBe(1);
+    expect(output.a_level[0]?.file).toBe("service.ts");
+  });
+});

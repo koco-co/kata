@@ -1,18 +1,18 @@
 # repo-readonly
 
-`workspace/{project}/.kata/repos/**` 下的源仓库一律只读，仅用于读代码和查事实：
+源码仓库由 `.env` 的 `KATA_SOURCE_REPOS` + `KATA_SOURCE_REPO_ROOT` 映射到外部 Git 工作区。kata 内部只通过 `kata repos show|grep|list` 查询 Git ref：
 
 - 不得 push、commit、写入。
 - 不得 mv、rm、改文件权限。
 - 只能 read 与 grep。
-- 例外：允许 `git fetch`（只读同步 remote-tracking refs）。fetch 不写业务文件、不改工作树、不 commit、不 push，不属于上面禁止的「写入」。
+- 不创建或依赖根级 `.kata/{project}/repos`、`workspace/{project}/.kata/repos`。
 
-在 Claude Code 中，对这些仓库的 Edit/Write/Bash 操作会被 `pre-edit-guard` 和 `pre-bash-guard` 自动拦截（见 INSTALL.md）。直接在命令行操作虽不经 hook，但同样要遵守本规则。
+CLI 封装 `git show`、`git grep`、`git ls-tree`，不得以直接文件读取绕过该入口。
 
 ## 读源码前先取最新（强制）
 
 读源仓库代码做分析、判断、写用例或查 bug 前，必须先确保代码是最新的，不得拿本地过时快照下结论：
 
-1. 先对目标分支做只读同步：`git fetch origin <branch>`；随后以 `origin/<branch>`（或同步后的最新 commit）为准读代码，而非可能落后的本地分支 ref。
+1. 先用 `kata repos sync-env --project <name>` 发现并报告外部仓库的 ref/commit；该命令不 fetch。若需要更新外部工作区，由其所有者在源码仓库中同步后再查询。
 2. 汇报基于代码的结论时，标注所依据的 commit 与日期。
 3. 若 fetch 受限（网络不可达等），必须显式声明「依据的是 X 时间的快照，可能不是最新」，由用户决定是否继续；不得静默拿旧快照当最新。

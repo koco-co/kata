@@ -112,6 +112,10 @@ source_refs.json
 
 ## 用例结构
 
+Hotfix 标题不标优先级，必须写成 `##### 【{bug_id}】验证{修复路径}`；不得使用 case-draft 需求用例的 `【P0】`～`【P4】` marker。
+
+正文中的环境对象统一占位：数据源名用 `${DataSourceA}`，数据库/schema 名用 `${SchemaA}`；存在第二组时使用 `${DataSourceB}`、`${SchemaB}`，依次类推。只有表名允许保留具体名称，不得把截图或线上环境中的真实数据源名、库名写进用例。
+
 历史 Hotfix archive 使用模块层级 + 1 个用例块：
 
 ````markdown
@@ -184,6 +188,8 @@ Hotfix archive 是正式回归用例，步骤写法必须与 case-draft 产物�
 - `> 前置条件` 下所有内容必须放入一个普通 fenced code block。
 - 代码块不得声明语言类型，不得使用 ```sql。
 - 部署包、插件、权限、页面数据源、数据库选择、SQL 数据准备都写进同一个代码块。
+- 只要前置或步骤给出具体表名，就必须在前置代码块提供同名的最简可执行 `CREATE TABLE`。即使 bug 不限制表结构、字段或数据类型，也至少创建一个最简单字段；不得只写“表已存在”。
+- SQL 体内只使用裸表名；`${SchemaA}` 只出现在“在 `${DataSourceA}` 的 `${SchemaA}` 库执行”这类说明中，不写 `${SchemaA}.table_name` 或 `USE ${SchemaA}`。
 
 Bug 涉及以下任一特定数据状态时，必须提供自包含 SQL：
 

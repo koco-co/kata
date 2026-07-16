@@ -7,7 +7,7 @@
 1. 直接在本目录新建 `.md` 文件，或参考其他项目 `workspace/{project}/_shared/rules/` 下的同名文件改写
 2. 修改该文件即可（保留 frontmatter 若有）
 3. 规则加载由以下命令完成：
-   `kata rule-loader load --project {{project}}`
+   `kata rules load --project {{project}}`
 
 ## 常见场景
 

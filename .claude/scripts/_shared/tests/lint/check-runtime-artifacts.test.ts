@@ -16,6 +16,11 @@ describe("F6 lint: forbid runtime artifacts at repo root", () => {
     expect(FORBIDDEN_DIRS).toContain("allure-results");
   });
 
+  it("把已退役的 agent 适配目录列入禁止目录", () => {
+    expect(FORBIDDEN_DIRS).toContain(".hermes");
+    expect(FORBIDDEN_DIRS).toContain(".reasonix");
+  });
+
   it("仓库根存在 allure-results 目录时判为违规", () => {
     mkdirSync(join(scratch, "allure-results"), { recursive: true });
     expect(findRootArtifacts(scratch)).toContain("allure-results");

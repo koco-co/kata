@@ -5,14 +5,14 @@
  * 用法：
  *   ACTIVE_ENV=ltqc KATA_SUITE_NAME="【通用配置】json格式配置-15696" \
  *     kata run-tests-notify \
- *     "workspace/dataAssets/features/v6.4.10/【v647】【通用配置】json格式配置/automation/tests/runners/full.spec.ts" \
+ *     "workspace/<project>/features/<version>/<feature>/automation/tests/runners/full.spec.ts" \
  *     --project=chromium
  *
  * 所有位置参数/flag 会原样透传给 `bunx playwright test`。
  *
  * 环境变量（与 playwright.config.ts 保持一致）：
  *   - ACTIVE_ENV                   环境标识，默认 ltqc
- *   - KATA_ACTIVE_PROJECT         kata 内部项目名（workspace 目录），默认 dataAssets
+ *   - KATA_ACTIVE_PROJECT         kata 内部项目名（必填）
  *   - KATA_SUITE_NAME             套件名（需求名），默认 report
  *
  * 通知卡片展示（按优先级取值）：
@@ -44,8 +44,8 @@ import {
   snapshotResultFiles,
 } from "@shared/lib/allure-stats.ts";
 import { createCli } from "@shared/lib/cli-runner.ts";
-import { getEnv, initEnv } from "@shared/lib/env.ts";
-import { repoRoot } from "@shared/lib/paths.ts";
+import { getEnv, getEnvOrThrow, initEnv } from "@shared/lib/env.ts";
+import { projectPath, repoRoot } from "@shared/lib/paths.ts";
 
 interface Paths {
   env: string;
@@ -71,13 +71,10 @@ export function extractTenantFromCookie(cookie: string | undefined): string | un
 
 function resolvePaths(): Paths {
   const env = (process.env.KATA_TARGET_ENV ?? process.env.ACTIVE_ENV ?? "ltqc").toLowerCase();
-  const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
+  const project = getEnvOrThrow("KATA_ACTIVE_PROJECT");
   const suiteName = process.env.KATA_SUITE_NAME ?? "report";
   const yyyymm = new Date().toISOString().slice(0, 7).replace(/-/g, "");
-  const reportDir = resolve(
-    repoRoot(),
-    `workspace/${project}/_shared/published-reports/${yyyymm}/${suiteName}/${env}`,
-  );
+  const reportDir = projectPath(project, "_shared", "published-reports", yyyymm, suiteName, env);
   return {
     env,
     project,

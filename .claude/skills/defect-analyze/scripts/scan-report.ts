@@ -11,7 +11,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { createCli } from "@shared/lib/cli-runner.ts";
-import { auditDir, auditFile, currentYYYYMM, reposDir } from "@shared/lib/paths.ts";
+import { getEnv } from "@shared/lib/env.ts";
+import { resolveConfiguredSourceRepo } from "@shared/lib/git-source.ts";
+import { auditDir, auditFile, currentYYYYMM } from "@shared/lib/paths.ts";
 import { fetchAndDiff } from "@shared/lib/scan-report-diff.ts";
 import { renderScanReport } from "@shared/lib/scan-report-render.ts";
 import {
@@ -75,9 +77,16 @@ function loadBugJson(path: string): Bug {
 }
 
 async function actionCreate(opts: CreateOpts): Promise<void> {
-  const repoPath = join(reposDir(opts.project), opts.repo);
-  if (!existsSync(repoPath)) {
-    fail(1, `[scan-report] repo not found at ${repoPath} — run 'kata repo-sync sync ...' first`);
+  const repoPath = resolveConfiguredSourceRepo(
+    opts.repo,
+    getEnv("KATA_SOURCE_REPO_ROOT"),
+    getEnv("KATA_SOURCE_REPOS"),
+  );
+  if (!repoPath) {
+    fail(
+      1,
+      `[scan-report] configured external repo not found: ${opts.repo} — check KATA_SOURCE_REPO_ROOT/KATA_SOURCE_REPOS`,
+    );
   }
   const yyyymm = opts.yyyymm ?? currentYYYYMM();
   const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
@@ -137,12 +146,12 @@ export const program = createCli({
   commands: [
     {
       name: "create",
-      description: "Init audit, compute diff, write meta.json/report.json/diff.patch",
+      description: "初始化扫描并写入 meta.json、report.json 与 diff.patch",
       options: [
         { flag: "--project <name>", description: "project name", required: true },
         {
           flag: "--repo <name>",
-          description: "repo dir under workspace/{project}/.kata/repos/",
+          description: "KATA_SOURCE_REPOS 中的 group/repo 或唯一 repo 短名",
           required: true,
         },
         {
@@ -167,7 +176,7 @@ export const program = createCli({
     },
     {
       name: "add-bug",
-      description: "Append a bug from a JSON file (strict-validated)",
+      description: "从 JSON 文件追加缺陷，并执行严格校验",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },
@@ -199,7 +208,7 @@ export const program = createCli({
     },
     {
       name: "remove-bug",
-      description: "Remove a bug by id",
+      description: "按 ID 删除缺陷",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },
@@ -221,7 +230,7 @@ export const program = createCli({
     },
     {
       name: "update-bug",
-      description: "Update a single bug field (supports dot-paths like location.line)",
+      description: "更新单个缺陷字段，支持 location.line 等点路径",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },
@@ -267,7 +276,7 @@ export const program = createCli({
     },
     {
       name: "update-bug-steps",
-      description: "Replace reproduction_steps array from a JSON file",
+      description: "用 JSON 文件替换复现步骤数组",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },
@@ -300,7 +309,7 @@ export const program = createCli({
     },
     {
       name: "set-meta",
-      description: "Update a top-level meta field",
+      description: "更新顶层元数据字段",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },
@@ -337,7 +346,7 @@ export const program = createCli({
     },
     {
       name: "show",
-      description: "Print meta + bugs (or one bug) as JSON",
+      description: "以 JSON 输出元数据与缺陷，可只查看一条",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },
@@ -358,7 +367,7 @@ export const program = createCli({
     },
     {
       name: "render",
-      description: "Render report.html from current report.json",
+      description: "根据当前 report.json 生成 report.html",
       options: [
         { flag: "--project <name>", description: "project", required: true },
         { flag: "--yyyymm <ym>", description: "yyyymm", required: true },

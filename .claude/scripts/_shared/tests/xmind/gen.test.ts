@@ -54,7 +54,7 @@ describe("xmind-gen.ts --help", () => {
     const { stdout, stderr, code } = run(["generate", "--help"]);
     const output = stdout + stderr;
     expect(code).toBe(0);
-    expect(output).toMatch(/xmind-gen|Convert/);
+    expect(output).toMatch(/kata xmind generate|生成 XMind/);
     expect(output).toMatch(/--input/);
     expect(output).toMatch(/--output/);
     expect(output).toMatch(/--mode/);

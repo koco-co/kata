@@ -10,7 +10,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { initEnv } from "@shared/lib/env.ts";
+import { getEnv, initEnv } from "@shared/lib/env.ts";
+import { configuredSourceRepos } from "@shared/lib/git-source.ts";
 import { Command } from "commander";
 
 // ---------------------------------------------------------------------------
@@ -32,6 +33,7 @@ interface PluginJson {
   description?: string;
   env_required?: string[];
   env_required_any?: string[];
+  env_required_sets?: string[][];
 }
 
 interface PluginStatus {
@@ -113,8 +115,6 @@ function scanPlugins(root: string): PluginStatus[] {
         results.push({ name, active: false, env_missing: missing });
         continue;
       }
-      results.push({ name, active: true });
-      continue;
     }
 
     // Check env_required_any — ANY one must be set and non-empty
@@ -128,69 +128,34 @@ function scanPlugins(root: string): PluginStatus[] {
         });
         continue;
       }
-      results.push({ name, active: true });
-      continue;
     }
 
-    // No env requirements → always active
+    // Check env_required_sets — ANY complete set must be configured.
+    if (plugin.env_required_sets && plugin.env_required_sets.length > 0) {
+      const completeSet = plugin.env_required_sets.some((set) =>
+        set.every((key) => !!process.env[key]),
+      );
+      if (!completeSet) {
+        results.push({
+          name,
+          active: false,
+          env_missing: [...new Set(plugin.env_required_sets.flat())],
+        });
+        continue;
+      }
+    }
+
+    // All declared requirement forms are cumulative.
     results.push({ name, active: true });
   }
 
   return results;
 }
 
-function scanRepos(root: string): RepoEntry[] {
-  const repos: RepoEntry[] = [];
-  const workspacePath = join(root, "workspace");
-  if (!existsSync(workspacePath)) return repos;
-
-  let projects: string[] = [];
-  try {
-    projects = readdirSync(workspacePath);
-  } catch {
-    return repos;
-  }
-
-  const reposPaths = projects
-    .map((project) => join(workspacePath, project, ".kata", "repos"))
-    .filter((path) => existsSync(path));
-
-  for (const reposPath of reposPaths) {
-    let groups: string[] = [];
-    try {
-      groups = readdirSync(reposPath);
-    } catch {
-      continue;
-    }
-
-    for (const group of groups) {
-      const groupPath = join(reposPath, group);
-      try {
-        if (!statSync(groupPath).isDirectory()) continue;
-      } catch {
-        continue;
-      }
-
-      let repoNames: string[] = [];
-      try {
-        repoNames = readdirSync(groupPath);
-      } catch {
-        continue;
-      }
-
-      for (const repo of repoNames) {
-        const repoPath = join(groupPath, repo);
-        try {
-          if (!statSync(repoPath).isDirectory()) continue;
-        } catch {
-          continue;
-        }
-        repos.push({ group, repo, path: repoPath });
-      }
-    }
-  }
-
-  return repos;
+function scanRepos(_root: string): RepoEntry[] {
+  return configuredSourceRepos(getEnv("KATA_SOURCE_REPO_ROOT"), getEnv("KATA_SOURCE_REPOS")).map(
+    ({ group, repo, path }) => ({ group, repo, path }),
+  );
 }
 
 function isEnvConfigured(root: string): boolean {
@@ -321,7 +286,7 @@ function runVerify(): VerifyResult {
     checks.push({
       name: "源码仓库",
       status: "skip",
-      detail: "workspace/{project}/.kata/repos/ 下无仓库（可选）",
+      detail: "KATA_SOURCE_REPO_ROOT/KATA_SOURCE_REPOS 未解析到外部源码仓库（可选）",
     });
   }
 
@@ -338,11 +303,14 @@ function runVerify(): VerifyResult {
 
 const program = new Command();
 
-program.name("init-wizard").description("kata v3 environment checker").version("3.0.0");
+program
+  .name("workspace")
+  .description("工作区环境扫描与就绪检查")
+  .version("3.0.0", "-V, --version", "显示版本号");
 
 program
   .command("scan")
-  .description("Scan project environment and output JSON")
+  .description("扫描项目环境并输出 JSON")
   .action(() => {
     try {
       const result = runScan();
@@ -355,7 +323,7 @@ program
 
 program
   .command("verify")
-  .description("Output environment check results as a status table")
+  .description("检查工作区是否就绪并输出状态结果")
   .action(() => {
     try {
       const result = runVerify();

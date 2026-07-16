@@ -20,7 +20,7 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 
 ### 第一步：打开目标页面
 
-1. 用 `browser.newContext({ storageState: env.session_path })` 创建浏览器上下文
+1. 用 `browser.newContext()` 创建浏览器上下文，从 env YAML 的 `auth.cookie` 解析 name/value 并调用 `context.addCookies`（不得回显 cookie）
 2. 打开 ui-plan 中的目标 URL hash（如 `#/dq/rule`、`#/metaDataSync`）
 3. 等 `networkidle`，再多等 2-3 秒让 Ant Design 渲染完（**仅限 probe 探测脚本**；交付 spec 禁用此 band-aid，改用 web-first 断言）
 4. 确认 URL hash 正确，没被重定向到登录页
@@ -82,7 +82,7 @@ page.on('response', async (res) => {
    - `筛选列` 使用 Ant Table filter trigger，筛选项为 `选项1`、`选项2`。SourceRef: `SR-UI-PROBE-{nnn}`。
    ```
 2. 用 SourceRef ID 链：`SR-UI-PROBE-{PROBE_SEQ_ID}`（在现有 probe ID 上递增）
-3. 用 `kata knowledge-curate` 写入或编辑知识模块
+3. 用 `kata knowledge` 写入或编辑知识模块
 
 ### 第六步：截图证据
 

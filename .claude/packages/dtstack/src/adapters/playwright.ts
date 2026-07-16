@@ -67,9 +67,14 @@ export async function createClientFromPage(
 ): Promise<DtStackClientLike> {
   const resolved =
     baseUrl ??
+    process.env.KATA_DTSTACK_BASE_URL ??
     process.env.UI_AUTOTEST_BASE_URL ??
-    process.env.E2E_BASE_URL ??
-    "http://172.16.122.52";
+    process.env.E2E_BASE_URL;
+  if (!resolved) {
+    throw new Error(
+      "DTStack base URL is required; configure KATA_DTSTACK_BASE_URL in the kata root .env file",
+    );
+  }
   const targetOrigin = new URL(resolved).origin;
   const currentUrl = page.url();
   const needBootstrap =

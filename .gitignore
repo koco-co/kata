@@ -4,6 +4,7 @@ package-lock.json
 .env
 .env.envs
 .env.local
+workspace/*/_shared/env/.local/
 config.json
 config/repo-branch-mapping.yaml
 
@@ -35,5 +36,4 @@ dist/
 **/tmp/
 
 # Local agent tooling (not part of kata, kept local-only)
-reasonix.toml
 .codegraph/

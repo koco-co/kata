@@ -20,11 +20,14 @@ beforeEach(() => {
   WS = mkdtempSync(join(tmpdir(), "scan-cli-ws-"));
   process.env.KATA_WORKSPACE_ROOT = WS;
   process.env.KATA_ROOT_OVERRIDE = WS;
+  process.env.KATA_SOURCE_REPO_ROOT = join(WS, "external");
+  process.env.KATA_SOURCE_REPOS = "https://gitlab.example.test/team/demo.git";
 
-  // create a fake workspace/{project}/.kata/repos/{repo} fixture
-  REPO = join(WS, PROJECT, ".kata", "repos", "demo");
+  // Create a configured external repository; scan-report must not depend on a project cache.
+  REPO = join(WS, "external", "demo");
   execSync(`mkdir -p "${REPO}"`);
   execSync(`git init -q -b main "${REPO}"`);
+  git('remote add origin "https://gitlab.example.test/team/demo.git"', REPO);
   git('config user.email "t@t.com"', REPO);
   git('config user.name "t"', REPO);
   writeFileSync(join(REPO, "a.txt"), "line1\n");
@@ -41,6 +44,8 @@ afterEach(() => {
   rmSync(WS, { recursive: true, force: true });
   delete process.env.KATA_WORKSPACE_ROOT;
   delete process.env.KATA_ROOT_OVERRIDE;
+  delete process.env.KATA_SOURCE_REPO_ROOT;
+  delete process.env.KATA_SOURCE_REPOS;
 });
 
 describe("scan-report CLI — create", () => {

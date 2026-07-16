@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, normalize, relative, sep } from "node:path";
 import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
+import { registerCasesConvert } from "@shared/cli/cases-convert.ts";
 import { registerCasesE2e } from "@shared/cli/cases-e2e.ts";
 import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
@@ -36,7 +37,7 @@ import {
   lintSpecStructureValid,
 } from "@shared/lint/v2-quality-gates.ts";
 import { lintWeakAssertion } from "@shared/lint/weak-assertion.ts";
-import { Command } from "commander";
+import { Command, Option } from "commander";
 
 export async function lintLanhuBlockedDrafts(
   workspaceRoot: string,
@@ -142,9 +143,13 @@ export function buildCasesCommand(): Command {
   cases
     .command("lint")
     .description("聚合用例级 lint 检查结果")
-    .option("--exit-code", "exit non-zero on any violation", false)
-    .option("--severity <level>", "filter exit-code by severity (all|fail-only)", "all")
-    .option("--scope <p>", "scan path", join(repoRoot(), "workspace"))
+    .option("--exit-code", "发现违规时返回非零退出码", false)
+    .addOption(
+      new Option("--severity <level>", "决定退出码所依据的违规级别")
+        .choices(["all", "fail-only"])
+        .default("all"),
+    )
+    .option("--scope <path>", "扫描路径", join(repoRoot(), "workspace"))
     .action(async (opts: { exitCode: boolean; severity: string; scope: string }) => {
       const { workspaceLintRoot, projects, scopedFeatureEntry, scopedFeatureId, isFeatureScoped } =
         resolveCasesLintScope(opts.scope);
@@ -269,6 +274,7 @@ export function buildCasesCommand(): Command {
       if (opts.exitCode && exitableViolations.length > 0) process.exit(1);
     });
   registerCasesCompare(cases);
+  registerCasesConvert(cases);
   registerCasesE2e(cases);
   registerCasesVerify(cases);
   return cases;

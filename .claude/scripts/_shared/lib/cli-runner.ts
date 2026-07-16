@@ -30,6 +30,7 @@ export interface CliContext {
 export interface CliCommandSpec<T = Record<string, unknown>> {
   name: string;
   description: string;
+  hidden?: boolean;
   options?: CliOption[];
   arguments?: CliArgument[];
   action: (opts: T, ctx: CliContext) => void | Promise<void>;
@@ -108,9 +109,11 @@ function buildActionHandler(
     // commander passes: (positional1, positional2, ..., opts, command)
     const positionals = argumentsSpec.length > 0 ? actionArgs.slice(0, argumentsSpec.length) : [];
     const optsIdx = argumentsSpec.length;
-    const rawOpts = (actionArgs[optsIdx] ?? {}) as Record<string, unknown>;
+    const localOpts = (actionArgs[optsIdx] ?? {}) as Record<string, unknown>;
+    const command = actionArgs[optsIdx + 1] as Command | undefined;
+    const globalOpts = command?.optsWithGlobals?.() as Record<string, unknown> | undefined;
 
-    const merged: Record<string, unknown> = { ...rawOpts };
+    const merged: Record<string, unknown> = { ...globalOpts, ...localOpts };
     for (let i = 0; i < argumentsSpec.length; i += 1) {
       const key = argumentsSpec[i].name;
       merged[key] = positionals[i];
@@ -158,7 +161,9 @@ export function createCli(config: CliConfig): Command {
   }
 
   for (const cmdSpec of config.commands ?? []) {
-    const cmd = program.command(cmdSpec.name).description(cmdSpec.description);
+    const cmd = program
+      .command(cmdSpec.name, { hidden: cmdSpec.hidden === true })
+      .description(cmdSpec.description);
     for (const arg of cmdSpec.arguments ?? []) {
       attachArgument(cmd, arg);
     }

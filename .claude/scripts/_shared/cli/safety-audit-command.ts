@@ -12,17 +12,17 @@ const mutatingGitInSegmentPattern =
 
 export function auditShellCommand(command: string): { allowed: boolean; reason?: string } {
   if (rmWorkspacePattern.test(command)) {
-    return { allowed: false, reason: `dangerous workspace removal: ${command}` };
+    return { allowed: false, reason: `禁止递归删除工作区：${command}` };
   }
 
   if (rmRootPattern.test(command)) {
-    return { allowed: false, reason: `dangerous root removal: ${command}` };
+    return { allowed: false, reason: `禁止递归删除根目录：${command}` };
   }
 
   if (reposPathSegmentPattern.test(command) && mutatingGitInSegmentPattern.test(command)) {
     return {
       allowed: false,
-      reason: `mutating git command under source repository evidence is forbidden: ${command}`,
+      reason: `源码缓存只读，禁止执行会修改仓库的 Git 命令：${command}`,
     };
   }
 
@@ -33,16 +33,16 @@ export function buildSafetyCommand(): Command {
   const safety = new Command("safety").description("安全约束操作");
   safety
     .command("audit-command")
-    .description("审计 shell 命令是否符合 kata 安全约束")
-    .requiredOption("--command <command>", "shell command to audit")
+    .description("检查 shell 命令是否符合 kata 安全约束")
+    .requiredOption("--command <command>", "待检查的 shell 命令")
     .action((opts: { command: string }) => {
       const result = auditShellCommand(opts.command);
       if (!result.allowed) {
-        process.stderr.write(`[safety:audit-command] BLOCKED: ${result.reason}\n`);
+        process.stderr.write(`[safety audit-command] 已阻止：${result.reason}\n`);
         process.exit(2);
       }
 
-      console.log("[safety:audit-command] allowed");
+      console.log("[safety audit-command] 允许执行");
     });
   return safety;
 }

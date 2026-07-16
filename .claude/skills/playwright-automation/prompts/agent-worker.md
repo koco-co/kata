@@ -13,7 +13,7 @@ BlockedEnvelope 指下方 `status: "BLOCKED"` 的完整 status envelope。
 - env profile 文件名，以及已确认的 base_url
 - 当前 feature 目录绝对路径
 - 本次运行 run-id 与当前用例 case-id（用于拼唯一 fixture 数据命名）
-- 前置条件处理产出的 artifact 路径（校正后用例清单 JSON + 共享页面对象/helper/storageState 路径），供本用例读取复用
+- 前置条件处理产出的 artifact 路径（校正后用例清单 JSON + 共享页面对象/helper）及 env profile 名，供本用例读取复用；认证只读该 profile 的 auth.cookie
 
 ## 必备约束（prompt 下半部分，逐字粘贴）
 

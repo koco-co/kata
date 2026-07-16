@@ -141,7 +141,7 @@ Kata uses `.claude/**` as the first-class runtime: 8 business skills as the sing
 
 At runtime, agents read their runtime skill plus the shared chassis `.claude/scripts/_shared/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by `.claude/scripts/_shared/**` validators and runtime checks.
 
-## Multi-runtime support
+## Agent runtime support
 
 kata's 8 business skills live once under `.claude/skills/` and are exposed to other agent runtimes through adapter directories — zero body copies, translated at runtime via tool mapping:
 
@@ -149,10 +149,8 @@ kata's 8 business skills live once under `.claude/skills/` and are exposed to ot
 | --- | --- | --- | --- |
 | Claude Code | `.claude/skills/` | native | ✅ first-class |
 | OpenAI Codex | `.agents/skills/` + `.codex-plugin/plugin.json` | official `.agents/skills` scan, whole-dir symlinks | ✅ officially supported |
-| Reasonix (DeepSeek) | `.reasonix/skills/` | official directory scan (ConventionDirs include `.reasonix`), whole-dir symlinks | ✅ officially supported |
-| Hermes Agent | `.hermes/skills/` + `~/.hermes/config.yaml` `external_dirs` | external_dirs pointing at the real `.claude/skills/` (symlinks blocked by upstream #8293) | ✅ via external_dirs |
 
-Each runtime's tool-name mapping and session bootstrap live in the corresponding bootstrap: `using-kata-codex` / `using-kata-reasonix` / `using-kata-hermes`; rationale under `docs/skills/`.
+Codex's tool-name mapping and session bootstrap live in `using-kata-codex`.
 
 ## Plugins
 
@@ -164,7 +162,7 @@ Built-in plugins live under `.claude/plugins/` and attach to product skills thro
 | `zentao` | `case-hotfix:init` | `KATA_ZENTAO_BASE_URL`, `KATA_ZENTAO_ACCOUNT`, `KATA_ZENTAO_PASSWORD` |
 | `notify` | `*:output` | At least one channel: `KATA_DINGTALK_WEBHOOK_URL`, `KATA_FEISHU_WEBHOOK_URL`, `KATA_WECOM_WEBHOOK_URL`, `KATA_SMTP_HOST` |
 
-Put credentials in `.env`. `.env.example` lists the supported `KATA_*` variables.
+The root `.env` is the only dotenv file: an explicit process environment wins, then `.env` fills missing keys. `.env.envs`, root `.env.local`, and project `.env.local` are not loaded. `KATA_DATAASSETS_ENV` selects `workspace/dataAssets/_shared/env/<env>.yaml`; when the base profile is Git-tracked, its real `auth.cookie` belongs in ignored `_shared/env/.local/<env>.yaml`. Use `kata env resolve --project dataAssets --env <env>` to inspect sources without values and `kata env doctor --project dataAssets --env <env>` to detect conflicts, unsafe permissions, and tracked secrets.
 
 ## Repository layout
 
@@ -176,10 +174,10 @@ kata/
 │   ├── plugins/                   # lanhu / zentao / notify
 │   ├── rules/                     # project workflow rules
 │   └── hooks/                     # write / command guards
-├── .agents/  .reasonix/  .hermes/ # multi-runtime adapters (codex / reasonix / hermes)
+├── .agents/                       # Codex skill adapter directory
 ├── .codex-plugin/                 # Codex plugin manifest (plugin.json)
 ├── docs/                          # architecture, audit, skill, and troubleshooting docs
-└── workspace/                     # user project artifacts; source evidence is read-only, under workspace/{project}/.kata/repos/
+└── workspace/                     # user project artifacts; no source cache or auth-session runtime tree
 ```
 
 ## Development and verification
@@ -194,7 +192,7 @@ bun --no-env-file test
 bun run check:skills
 ```
 
-Schemas and sync exceptions live under `.claude/scripts/_shared/schemas/**` and the per-runtime adapter dirs; cross-runtime skill bodies are reused via symlinks (codex/reasonix) or external_dirs (hermes), with zero copies.
+Schemas and sync exceptions live under `.claude/scripts/_shared/schemas/**` and the Codex adapter directory; Codex reuses skill bodies from `.claude/skills/` through symlinks, with zero copies.
 
 ## License
 

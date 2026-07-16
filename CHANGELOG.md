@@ -9,8 +9,8 @@
 
 ### Added
 
-- Multi-runtime adapters that expose the 8 business skills with zero body copies: OpenAI Codex via `.agents/skills/` whole-dir symlinks plus `.codex-plugin/plugin.json`, Reasonix (DeepSeek) via `.reasonix/skills/` whole-dir symlinks, and Hermes via `.hermes/skills/` with `external_dirs` in `~/.hermes/config.yaml`.
-- Session bootstraps `using-kata-codex` / `using-kata-reasonix` / `using-kata-hermes` for per-runtime tool-name mapping.
+- An OpenAI Codex adapter that exposes the business skills with zero body copies via `.agents/skills/` whole-dir symlinks plus `.codex-plugin/plugin.json`.
+- The `using-kata-codex` session bootstrap for Codex tool-name mapping.
 
 ### Changed
 

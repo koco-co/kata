@@ -17,7 +17,7 @@
 - 无权限 blocker。
 - `blocked_by_environment: tool_permission_denied`。
 
-目标目录、source-backed bootstrap、profile 读取、session mtime、真实 probe、run-id 与证据目录创建，均属内部进度。需要记录就写入 run artifact，不得写入聊天。
+目标目录、source-backed bootstrap、profile 读取、cookie 配置检查、真实 probe、run-id 与证据目录创建，均属内部进度。需要记录就写入 run artifact，不得写入聊天。
 
 ## 用户输入解析
 
@@ -39,7 +39,7 @@
 3. 若有 `ltqc-local.yaml`，默认推荐它。
 4. 用 AskUserQuestion 一次性给出环境选项；问题中必须有连续纯文本 `默认推荐：ltqc-local.yaml`。
 5. 选项 label 只写完整文件名，例如 `ltqc-local.yaml`；推荐说明放进 question 或 description。
-6. 环境确认阶段不得索要 Cookie、storageState 路径或账号密码。
+6. 环境确认阶段不得索要 Cookie 或账号密码。
 
 AskUserQuestion 不可用时，只输出下面这段，其余一律不输出：
 
@@ -53,7 +53,7 @@ AskUserQuestion 不可用时，只输出下面这段，其余一律不输出：
 - ci63.yaml: {base_url} / {tenant} / {quality_project} / {session_status}
 ```
 
-fallback 必须是本轮最后一个 assistant action。`session_status` 只能写「文件存在」或「文件缺失」，不得写 session 有效、可用、未过期。
+fallback 必须是本轮最后一个 assistant action。`session_status` 只能写「cookie 已配置」或「cookie 未配置」，不得回显 cookie，也不得写登录态有效、可用、未过期。
 
 ## 工具拒绝处理
 
@@ -77,19 +77,15 @@ blocked_by_environment: tool_permission_denied
 有头模式 full test 人工验收命令：
 
 ```shell
-KATA_DATAASSETS_ENV=<env_profile_file> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
+KATA_DATAASSETS_ENV=<env_profile_file> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 ~~~
 
 blocker 命令只能用拒绝前已经知道的 env profile 文件名、project 和 featureId。不得输出授权请求、手动绕行步骤或内部诊断。
 
-## session 与登录态
+## cookie 与登录态
 
-session 文件是否存在、mtime 是否超过 24 小时，都不能直接证明 session 有效或过期，只能触发真实 Playwright/API 复验。
-
-- mtime 只能用独立的简单命令读取：`stat -f "%m" <session_path>` 和单独的 `date +%s`。
-- 不得用 command substitution、arithmetic expansion、管道、`&&`、`||` 或分号去算 age。
-- mtime、run-id、evidence-dir 中任一命令被工具拒绝时，按「工具拒绝处理」输出 `blocked_by_environment: tool_permission_denied`。
+`auth.cookie` 非空不能直接证明登录态有效，只能触发真实 Playwright/API 复验。cookie 必须直接读取当前 env profile，不得复制到临时 storageState 或聊天输出。
 
 真实 probe 发现 `/login`、`/uic/#/login`、登录页正文或 `session_expired` 时，唯一可见文本必须直接从 `会话已过期。` 开始，并立即停止：
 
@@ -97,10 +93,9 @@ session 文件是否存在、mtime 是否超过 24 小时，都不能直接证�
 会话已过期。
 
 已确认环境：{env_profile}
-已检查 auth.session_path：{auth_session_path}（过期|缺失|无效）
-已检查 repo-root fallback：{repo_root_fallback}（同一路径，过期|缺失|无效）
+已检查 auth.cookie：{configured|missing|invalid}
 
-请提供当前登录态 Cookie 字符串，以便重新生成 storageState 后继续。
+请提供当前登录态 Cookie 字符串，以便更新当前 env profile 的 auth.cookie 后继续。
 ```
 
 此模板不得只写在 thinking 中；输出模板前不得再调用工具，也不得删除 probe 证据。可交互模式若改用 AskUserQuestion，也必须先完成真实 probe，再只发一个登录态补充触点。
@@ -127,7 +122,7 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 - 依赖 repo 的 Playwright/API 探测脚本，写入当前 feature 的 `runs/<run-id>/playwright/preflight/`，并从 repo root 执行。
 - 只有轻量、不依赖 repo 的一次性脚本，才能写入 `mktemp -d /tmp/kata-playwright-preflight-*` 返回的目录。
-- 读取 repo-root 相对的 `auth.session_path` 时，脚本用 `path.resolve(process.cwd(), auth.session_path)`。
+- 脚本读取 env profile 的 `auth.cookie`，解析为 name/value 后用 `browserContext.addCookies([{ name, value, url: base_url }])` 注入；不得生成 storageState 文件。
 - 不得硬编码 repo root，不得用 `__dirname`、`import.meta.url` 或 `../../../` 反推 repo root。
 - 截图、JSON、HAR 等 probe 证据写入同一个 preflight 证据目录。
 - 未作为结果证据保留的临时脚本必须清理，不得让 `git status --short` 冒出根目录临时文件。
@@ -138,7 +133,7 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 - `status`: `ready` 或 `blocked_by_environment`
 - `env_name`, `base_url`, `tenant_name`, `project_name`
-- `session_path`
+- `auth_cookie_configured`（boolean，不得写 cookie 值）
 - `evidence`: 截图路径、页面验证、API 验证
 - `blocker_reason`
 
@@ -146,7 +141,7 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
-- 不得把 cookie、token、password 写入 YAML、用例、报告或聊天记录。
+- cookie 只允许写入当前 env YAML 的 `auth.cookie`；不得写入用例、报告、证据或聊天记录。token、password 不得写入 YAML、用例、报告或聊天记录。
 - 不得把临时 `/private/tmp` session 当作可交付的运行入口。
 - 不得在 repo root、project 根目录或 feature 根目录残留 env-preflight 临时脚本。
 - 不得用没加保护的 glob 检查可选配置；要用 `test -f`、`find <精确目录> -maxdepth 1 -name ...` 或 `rg --files -g ...`。

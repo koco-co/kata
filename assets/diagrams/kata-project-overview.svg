@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
   <title id="title">Kata project architecture</title>
-  <desc id="desc">Kata maintains one first-class .claude runtime (skills, kata CLI, plugins, rules) and exposes the same skills to Codex, Reasonix, and Hermes through adapter directories. A single bun run ci quality gate guards it, and workspace artifacts are produced from read-only evidence sources.</desc>
+  <desc id="desc">Kata supports Claude Code through its first-class .claude runtime and exposes the same skills to Codex through an adapter directory. A single bun run ci quality gate guards it, and workspace artifacts are produced from read-only evidence sources.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
@@ -20,7 +20,7 @@
   </defs>
 
   <rect x="0" y="0" width="1280" height="620" fill="#ffffff"/>
-  <text x="640" y="56" text-anchor="middle" class="title">Kata: one .claude runtime, many agent runtimes</text>
+  <text x="640" y="56" text-anchor="middle" class="title">Kata: Claude Code and Codex runtimes</text>
 
   <rect x="60" y="110" width="230" height="120" class="box"/>
   <text x="175" y="146" text-anchor="middle" class="label">Entrypoints</text>
@@ -38,16 +38,15 @@
   <text x="530" y="332" text-anchor="middle" class="body">single source of truth for all runtimes</text>
 
   <rect x="770" y="95" width="450" height="125" class="box adapter"/>
-  <text x="995" y="132" text-anchor="middle" class="label">Adapter directories (zero body copies)</text>
-  <text x="995" y="162" text-anchor="middle" class="body">.agents + .codex-plugin/plugin.json — Codex (symlink)</text>
-  <text x="995" y="186" text-anchor="middle" class="body">.reasonix — Reasonix / DeepSeek (symlink)</text>
-  <text x="995" y="210" text-anchor="middle" class="body">.hermes — Hermes (external_dirs)</text>
+  <text x="995" y="132" text-anchor="middle" class="label">Supported agent runtimes</text>
+  <text x="995" y="166" text-anchor="middle" class="body">.claude/skills — Claude Code (first-class)</text>
+  <text x="995" y="194" text-anchor="middle" class="body">.agents + .codex-plugin/plugin.json — Codex (symlink)</text>
 
   <rect x="770" y="245" width="450" height="140" class="box gate"/>
   <text x="995" y="280" text-anchor="middle" class="label">Quality gate</text>
   <text x="995" y="306" text-anchor="middle" class="body">bun run ci</text>
   <text x="995" y="328" text-anchor="middle" class="body">lint + debris + paths + check:skills</text>
-  <text x="995" y="350" text-anchor="middle" class="body">+ lint:skills (codex / reasonix / hermes)</text>
+  <text x="995" y="350" text-anchor="middle" class="body">+ lint:skills:codex</text>
   <text x="995" y="372" text-anchor="middle" class="body">+ type-check + test + test:plugins + test:tools</text>
 
   <rect x="370" y="440" width="320" height="110" class="box workspace"/>

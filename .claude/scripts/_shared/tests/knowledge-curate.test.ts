@@ -88,7 +88,7 @@ describe("knowledge-curate CLI skeleton", () => {
   it("prints help when no args", () => {
     const { stdout, code } = runProjectKnowledge(["--help"]);
     expect(code).toBe(0);
-    expect(stdout.includes("knowledge-curate")).toBeTruthy();
+    expect(stdout.includes("kata knowledge")).toBeTruthy();
     expect(stdout.includes("read-core")).toBeTruthy();
   });
 

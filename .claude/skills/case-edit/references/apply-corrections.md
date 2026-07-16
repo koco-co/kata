@@ -39,7 +39,7 @@
 按 category 分组打印计数，每组列出前 3 条样例（C-id、confidence、doc_claim 前 60 字符、当前 status），随后输出三选一提示：
 
 ```
-Case Corrections — <featureId> / <run-id>
+Case Corrections — <feature-id> / <run-id>
 Total: N (approved=A, pending=P, rejected=R, edited=E)
 
 By category:
@@ -68,7 +68,7 @@ By category:
    - 行号与 doc_claim 均不匹配时跳过，记 `skipped: source_changed`。
 2. **去重**：检查 `proposed_change` 目标文本是否已是 cases/archive.md 当前内容；若是则跳过，记 `skipped: already_applied`。
 3. **应用 diff**：用 Edit 工具按 `proposed_change` 的 diff 替换 cases/archive.md 对应片段（仅替换 `doc_claim` 那一段文本，不动周围内容）。
-4. **xmind 同步**：cases/archive.md 所有 approved 条目改完后，运行 `kata xmind-gen --input cases/archive.md --output cases/cases.xmind --mode replace` 整树重建（改了用例标题的 correction 须先按 `references/archive-xmind-sync.md` 的陷阱说明删旧节点），再跑现有自检（archive↔xmind 数量/优先级/标题/前置条件/步骤/预期 6 项一致）。
+4. **xmind 同步**：cases/archive.md 所有 approved 条目改完后，运行 `kata xmind generate --input cases/archive.md --output cases/cases.xmind --mode replace` 整树重建（改了用例标题的 correction 须先按 `references/archive-xmind-sync.md` 的陷阱说明删旧节点），再跑现有自检（archive↔xmind 数量/优先级/标题/前置条件/步骤/预期 6 项一致）。
 5. **xmind 同步失败**：回滚本轮所有 archive 改动（git restore），把失败原因写入 apply-log，输出 `failed_xmind_sync`。
 
 ### 第四步：写 apply-log
@@ -77,7 +77,7 @@ By category:
 
 ```markdown
 ---
-feature: <featureId>
+feature: <feature-id>
 run_id: <run-id>  # format: YYYYMMDD-HHmm-<type>-<seq>
 applied_at: <ISO 8601>
 applied_total: A
@@ -85,7 +85,7 @@ skipped_total: S
 status: applied
 ---
 
-# Case Corrections Applied — <featureId> / <run-id>
+# Case Corrections Applied — <feature-id> / <run-id>
 
 ## C-001 ui_text_drift  status=applied
 - case_ref: cases/archive.md#L120 / cases/cases.xmind 节点 ...
@@ -132,6 +132,6 @@ edit first 分支：什么都不改，直接结束，提示用户编辑后重跑
 - 除 §12 高置信自动回写（预批准的高置信已核实条目）外，非 proceed 分支不得修改 archive.md。
 - 不得跳过 archive-xmind-sync 步骤。
 - 不得修改 status 非 `approved` 的条目。
-- 不得修改 `cases/test-point-checklist.md`、`metadata.yaml`、`.kata/repos/**`。
+- 不得修改 `cases/test-point-checklist.md`、`metadata.yaml` 或外部源码；源码仅通过 `kata repos show|grep|list` 查询。
 - 不得静默丢失任何 correction：每条 approved 必须出现在 apply-log 中（applied 或 skipped 之一）。
 - apply-log 之外不得修改原 `case-corrections.md` 的 correction 段落内容（仅可改 frontmatter status）。

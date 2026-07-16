@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 /**
- * create-project.ts — 项目创建 + 骨架补齐 + 源码仓库克隆。
+ * create-project.ts — 项目创建 + 骨架补齐。
  * Usage:
- *   kata create-project <action> --project <name> [...]
- * Actions: scan | create | clone-repo
+ *   kata project <action> --project <name> [...]
+ * Actions: scan | create
  */
 
 import { spawnSync } from "node:child_process";
@@ -21,7 +21,7 @@ import {
   TEMPLATE_ROOT_REL,
   validateProjectName,
 } from "@shared/lib/create-project.ts";
-import { knowledgeDir, parseGitUrl, projectDir, reposDir } from "@shared/lib/paths.ts";
+import { knowledgeDir, projectDir } from "@shared/lib/paths.ts";
 
 function repoRoot(): string {
   return resolve(fileURLToPath(import.meta.url), "../../../../..");
@@ -44,14 +44,14 @@ function isProjectRegistered(name: string): boolean {
 }
 
 function fail(message: string, code = 1): never {
-  process.stderr.write(`[create-project] ${message}\n`);
+  process.stderr.write(`[project] ${message}\n`);
   process.exit(code);
 }
 
 function runScan(project: string): void {
   const nameCheck = validateProjectName(project);
   if (!nameCheck.valid) {
-    fail(`Invalid project name: ${nameCheck.error}`);
+    fail(`项目名称无效：${nameCheck.error}`);
   }
   const projDir = projectDir(project);
   const tplRoot = resolve(repoRoot(), TEMPLATE_ROOT_REL);
@@ -99,7 +99,7 @@ function computeCreatePlan(project: string): {
 function runCreate(project: string, dryRun: boolean, confirmed: boolean): void {
   const nameCheck = validateProjectName(project);
   if (!nameCheck.valid) {
-    fail(`Invalid project name: ${nameCheck.error}`);
+    fail(`项目名称无效：${nameCheck.error}`);
   }
 
   const { plan, skeleton_complete, config_registered } = computeCreatePlan(project);
@@ -137,7 +137,7 @@ function runCreate(project: string, dryRun: boolean, confirmed: boolean): void {
   }
 
   if (!confirmed) {
-    fail("Add --confirmed to apply. Run with --dry-run to preview.", 2);
+    fail("写入前请添加 --confirmed；如需预览，请使用 --dry-run。", 2);
   }
 
   const result = applyCreate(project);
@@ -160,10 +160,10 @@ function applyCreate(project: string): {
   const migration = migrateLegacyHistorys(projDir);
   const legacyConflict = !migration.renamed && migration.from !== undefined;
   if (migration.renamed) {
-    process.stderr.write(`[create-project] renamed legacy directory: historys → history\n`);
+    process.stderr.write(`[project] 已将旧目录 historys 重命名为 history\n`);
   } else if (legacyConflict) {
     process.stderr.write(
-      `[create-project] warn: both historys/ and history/ exist; keeping history/ and leaving historys/ intact — please merge manually\n`,
+      `[project] 警告：historys/ 与 history/ 同时存在；已保留两者，请人工合并\n`,
     );
   }
 
@@ -215,7 +215,7 @@ function applyCreate(project: string): {
   );
   if (kk.status !== 0) {
     process.stderr.write(kk.stderr || "");
-    fail(`knowledge-curate index failed (exit ${kk.status})`);
+    fail(`knowledge-curate 索引生成失败，退出码 ${kk.status}`);
   }
 
   return {
@@ -230,95 +230,28 @@ function applyCreate(project: string): {
   };
 }
 
-function runCloneRepo(project: string, url: string, branch: string): void {
-  const nameCheck = validateProjectName(project);
-  if (!nameCheck.valid) {
-    fail(`Invalid project name: ${nameCheck.error}`);
-  }
-  const projDir = projectDir(project);
-  if (!existsSync(projDir)) {
-    fail(`Project not found: ${project}. Run 'create' first.`);
-  }
-
-  const { group, repo } = parseGitUrl(url);
-  if (!group || !repo) {
-    fail(`Cannot parse git URL: ${url}`);
-  }
-  const targetDir = join(reposDir(project), group, repo);
-  if (existsSync(targetDir)) {
-    fail(`Repo already cloned: ${targetDir}`);
-  }
-
-  mkdirSync(dirname(targetDir), { recursive: true });
-  const args = ["clone"];
-  if (branch) {
-    args.push("--branch", branch, "--single-branch");
-  }
-  args.push(url, targetDir);
-  const result = spawnSync("git", args, {
-    cwd: repoRoot(),
-    env: process.env,
-    encoding: "utf8",
-  });
-  if (result.status !== 0) {
-    process.stderr.write(result.stderr || "");
-    fail(`git clone failed (exit ${result.status})`);
-  }
-
-  process.stdout.write(
-    `${JSON.stringify(
-      {
-        project,
-        url,
-        group,
-        repo,
-        branch: branch || "main",
-        local_path: targetDir,
-      },
-      null,
-      2,
-    )}\n`,
-  );
-}
-
 export const program = createCli({
-  name: "create-project",
-  description: "Create or repair a project skeleton",
+  name: "project",
+  description: "项目工作区的创建、检查与修复",
   commands: [
     {
       name: "scan",
-      description: "Diff the current skeleton against target",
-      options: [{ flag: "--project <name>", description: "Project name", required: true }],
+      description: "检查项目骨架与标准结构之间的差异",
+      options: [{ flag: "--project <name>", description: "项目名称", required: true }],
       action: (opts: { project: string }) => {
         runScan(opts.project);
       },
     },
     {
       name: "create",
-      description: "Create or repair a project skeleton",
+      description: "创建或补全项目工作区骨架",
       options: [
-        { flag: "--project <name>", description: "Project name", required: true },
-        { flag: "--dry-run", description: "Preview changes without writing" },
-        { flag: "--confirmed", description: "Actually write to disk" },
+        { flag: "--project <name>", description: "项目名称", required: true },
+        { flag: "--dry-run", description: "仅预览变更，不写入文件" },
+        { flag: "--confirmed", description: "确认写入文件" },
       ],
       action: (opts: { project: string; dryRun?: boolean; confirmed?: boolean }) => {
         runCreate(opts.project, opts.dryRun === true, opts.confirmed === true);
-      },
-    },
-    {
-      name: "clone-repo",
-      description: "Clone source repo into workspace/{project}/.kata/repos",
-      options: [
-        { flag: "--project <name>", description: "Project name", required: true },
-        { flag: "--url <git-url>", description: "Git URL", required: true },
-        {
-          flag: "--branch <branch>",
-          description: "Branch (default: main)",
-          defaultValue: "",
-        },
-      ],
-      action: (opts: { project: string; url: string; branch?: string }) => {
-        runCloneRepo(opts.project, opts.url, opts.branch ?? "");
       },
     },
   ],

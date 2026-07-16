@@ -10,21 +10,21 @@ flag 拼写以 `bun run kata results path --help`、`bun run kata handoff render
 
 ```bash
 # 1. 分配 run 目录
-RUN_PATH=$(kata results path <featureId> --new-run --project <project>)
+RUN_PATH=$(kata results path <feature-id> --new-run --project <project>)
 RUN_ID=$(basename "$RUN_PATH")
 
 # 2. --list 预览：确认 spec 可被 Playwright 解析（缺 case 说明 runner import 不全）
 PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
-  npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --list
+  npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --list
 
 # 3. 运行 full.spec.ts
 PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
   KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
-  npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' \
+  npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' \
   --output="$RUN_PATH/playwright"
 
 # 4. 渲染 handoff.md（先按 PlaywrightAutomationHandoff@2 写好 $RUN_PATH/handoff.json）
-kata handoff render <featureId> --run "$RUN_ID" --project <project>
+kata handoff render <feature-id> --run "$RUN_ID" --project <project>
 ```
 
 判读规则：
@@ -54,7 +54,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJE
 无论结果 passed/blocked/failed/partial，最终交付都要给一条可直接复制的有头全量验收命令：
 
 ```bash
-KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<featureId>/automation/tests/runners/full.spec.ts' --headed --reporter=line
+KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --headed --reporter=line
 ```
 
 调试可用无头命令，但交付或阻塞说明必须同时给出这条 `--headed` full.spec.ts 命令；不得只宣称完成，也不得只给 smoke 或单条用例命令。

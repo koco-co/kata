@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { cookiePath, type FetchFn, fetchAuthedBugJson, isAuthedBugJson } from "../session.ts";
+import { type FetchFn, fetchAuthedBugJson, isAuthedBugJson, zentaoEnvPath } from "../session.ts";
 
 const creds = { baseUrl: "http://zt.example", account: "u", password: "p" };
 const validJson = JSON.stringify({ status: "success", data: JSON.stringify({ bug: { id: "1" } }) });
@@ -15,9 +15,10 @@ describe("isAuthedBugJson", () => {
   it("false for non-json", () => assert.equal(isAuthedBugJson("oops"), false));
 });
 
-describe("cookiePath", () => {
-  it("points to repo-level .kata/zentao/session.json", () => {
-    assert.ok(cookiePath().endsWith("/.kata/zentao/session.json"));
+describe("zentaoEnvPath", () => {
+  it("points to the unified root .env", () => {
+    assert.ok(zentaoEnvPath().endsWith("/.env"));
+    assert.equal(zentaoEnvPath().includes("/.kata/"), false);
   });
 });
 
@@ -98,6 +99,20 @@ describe("fetchAuthedBugJson", () => {
     await assert.rejects(
       fetchAuthedBugJson(1, creds, { fetchFn, readCookieFn: () => null, writeCookieFn: () => {} }),
       (e: Error & { code?: string }) => e.code === "LOGIN_FAILED",
+    );
+  });
+
+  it("fails clearly when a stale cookie cannot fall back to credentials", async () => {
+    const cookieOnlyCreds = { baseUrl: "http://zt.example" };
+    const fetchFn: FetchFn = async () =>
+      new Response("<script>self.location='/zentao/user-login-x.html'</script>", { status: 200 });
+    await assert.rejects(
+      fetchAuthedBugJson(1, cookieOnlyCreds, {
+        fetchFn,
+        readCookieFn: () => "zentaosid=stale",
+        writeCookieFn: () => {},
+      }),
+      (e: Error & { code?: string }) => e.code === "ZENTAO_AUTH_MISSING",
     );
   });
 });

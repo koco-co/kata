@@ -32,37 +32,37 @@ describe("validateProjectName", () => {
   it("rejects empty name", () => {
     const r = validateProjectName("");
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/length/);
+    expect(r.error!).toContain("长度必须");
   });
 
   it("rejects single character (too short)", () => {
     const r = validateProjectName("a");
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/length/);
+    expect(r.error!).toContain("长度必须");
   });
 
   it("rejects name over 32 chars", () => {
     const r = validateProjectName("a".repeat(33));
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/length/);
+    expect(r.error!).toContain("长度必须");
   });
 
   it("rejects name starting with digit", () => {
     const r = validateProjectName("1project");
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/character set/);
+    expect(r.error!).toContain("必须以字母开头");
   });
 
   it("rejects name starting with dash", () => {
     const r = validateProjectName("-project");
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/character set/);
+    expect(r.error!).toContain("必须以字母开头");
   });
 
   it("rejects underscore", () => {
     const r = validateProjectName("my_project");
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/character set/);
+    expect(r.error!).toContain("只能使用英文字母");
   });
 
   it("rejects space", () => {
@@ -83,7 +83,7 @@ describe("validateProjectName", () => {
   it("rejects reserved name 'knowledge'", () => {
     const r = validateProjectName("knowledge");
     expect(r.valid).toBe(false);
-    expect(r.error!).toMatch(/reserved/);
+    expect(r.error!).toContain("系统保留名称");
   });
 
   it("rejects every reserved name in RESERVED_NAMES", () => {
@@ -133,8 +133,9 @@ describe("configJsonPath", () => {
 });
 
 describe("SKELETON_SPEC shape", () => {
-  it("has 11 directories", () => {
-    expect(SKELETON_SPEC.dirs.length).toBe(11);
+  it("has 9 directories and no project-level .kata runtime tree", () => {
+    expect(SKELETON_SPEC.dirs.length).toBe(9);
+    expect(SKELETON_SPEC.dirs.some((dir) => dir.startsWith(".kata"))).toBe(false);
   });
 
   it("has 7 gitkeep directories", () => {
@@ -170,9 +171,9 @@ describe("resolveSkeletonPaths", () => {
     expect(r.templates.every((t) => t.dst_abs.startsWith(`${projDir}/`))).toBeTruthy();
   });
 
-  it("produces 11 dirs, 7 gitkeeps, 3 templates", () => {
+  it("produces 9 dirs, 7 gitkeeps, 3 templates", () => {
     const r = resolveSkeletonPaths("/tmp/foo");
-    expect(r.dirs.length).toBe(11);
+    expect(r.dirs.length).toBe(9);
     expect(r.gitkeeps.length).toBe(7);
     expect(r.templates.length).toBe(3);
   });
@@ -209,7 +210,7 @@ describe("diffProjectSkeleton", () => {
   it("empty project: exists=false, all missing", () => {
     const diff = diffProjectSkeleton(EMPTY_PROJ, TPL);
     expect(diff.exists).toBe(false);
-    expect(diff.missing_dirs.length).toBe(11);
+    expect(diff.missing_dirs.length).toBe(9);
     expect(diff.missing_gitkeeps.length).toBe(7);
     expect(diff.missing_files.length).toBe(3);
     expect(diff.skeleton_complete).toBe(false);

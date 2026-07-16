@@ -8,6 +8,7 @@ export interface PluginJson {
   commands?: Record<string, string>;
   env_required?: string[];
   env_required_any?: string[];
+  env_required_sets?: string[][];
   url_patterns?: string[];
   [key: string]: unknown;
 }
@@ -34,19 +35,30 @@ export function isPluginActive(
   plugin: PluginJson,
   env?: Record<string, string | undefined>,
 ): boolean {
-  if (plugin.env_required && plugin.env_required.length > 0) {
-    return plugin.env_required.every((key) => {
+  const requiredOk =
+    !plugin.env_required ||
+    plugin.env_required.length === 0 ||
+    plugin.env_required.every((key) => {
       const val = readEnv(key, env);
       return val !== undefined && val.trim() !== "";
     });
-  }
-  if (plugin.env_required_any && plugin.env_required_any.length > 0) {
-    return plugin.env_required_any.some((key) => {
+  const requiredAnyOk =
+    !plugin.env_required_any ||
+    plugin.env_required_any.length === 0 ||
+    plugin.env_required_any.some((key) => {
       const val = readEnv(key, env);
       return val !== undefined && val.trim() !== "";
     });
-  }
-  return true;
+  const requiredSetsOk =
+    !plugin.env_required_sets ||
+    plugin.env_required_sets.length === 0 ||
+    plugin.env_required_sets.some((set) =>
+      set.every((key) => {
+        const val = readEnv(key, env);
+        return val !== undefined && val.trim() !== "";
+      }),
+    );
+  return requiredOk && requiredAnyOk && requiredSetsOk;
 }
 
 export function loadAllPlugins(dir: string, options: PluginLoadOptions = {}): LoadedPlugin[] {
@@ -155,7 +167,11 @@ function comparePluginRuntimeMetadata(
 
 function isRuntimeLikePluginJson(value: PluginJson): boolean {
   return Boolean(
-    value.commands || value.url_patterns || value.env_required || value.env_required_any,
+    value.commands ||
+      value.url_patterns ||
+      value.env_required ||
+      value.env_required_any ||
+      value.env_required_sets,
   );
 }
 
@@ -165,6 +181,7 @@ function runtimeComparableFields(plugin: PluginJson): Record<string, unknown> {
     description: plugin.description ?? "",
     env_required: plugin.env_required ?? [],
     env_required_any: plugin.env_required_any ?? [],
+    env_required_sets: plugin.env_required_sets ?? [],
     name: plugin.name ?? "",
     url_patterns: plugin.url_patterns ?? [],
   };

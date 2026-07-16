@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { getEnv } from "@shared/lib/env.ts";
+import { readGitSourceFile, resolveConfiguredSourceRepo } from "@shared/lib/git-source.ts";
 
 export type SourceRefKind =
   | "prd.file"
@@ -17,6 +19,8 @@ export interface ResolveCtx {
   featureDir?: string;
   /** repos from source-snapshot.json#confirmed_source_repos; repo.line must point at one of these. */
   confirmedRepos?: (string | ConfirmedSourceRepo)[];
+  sourceRepoRoot?: string;
+  sourceRepoUrls?: string;
 }
 
 export interface ResolvedTarget {
@@ -72,6 +76,16 @@ function confirmedTripleMatch(
   });
 }
 
+function resolveWorkspaceRepo(
+  ctx: Pick<ResolveCtx, "workspaceRoot" | "project">,
+  group: string,
+  repo: string,
+): string | undefined {
+  const root = join(ctx.workspaceRoot, ctx.project, ".kata", "repos");
+  const candidates = group ? [join(root, group, repo), join(root, repo)] : [join(root, repo)];
+  return candidates.find((candidate) => existsSync(candidate));
+}
+
 export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTarget {
   const kind = sourceRefKind(ref);
   const id = refId(ref);
@@ -79,6 +93,17 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
     existsSync(p)
       ? { found: true, content: readFileSync(p, "utf-8"), path: p }
       : { found: false, path: p };
+  const readRepo = (repoPath: string, filePath: string, branch?: string): ResolvedTarget => {
+    const checkedOutPath = join(repoPath, filePath);
+    const content = readGitSourceFile(repoPath, filePath, branch);
+    if (branch && content !== undefined) {
+      return { found: true, content, path: `${repoPath}@${branch}:${filePath}` };
+    }
+    if (existsSync(checkedOutPath)) return read(checkedOutPath);
+    return content === undefined
+      ? { found: false, path: checkedOutPath }
+      : { found: true, content, path: `${repoPath}@${branch ?? "HEAD"}:${filePath}` };
+  };
 
   switch (kind) {
     case "knowledge.entry": {
@@ -94,27 +119,40 @@ export function resolveSourceRefTarget(ref: string, ctx: ResolveCtx): ResolvedTa
         if (!safeRelativePath(filePath)) return { found: false };
         if (!confirmedTripleMatch({ group, project: repoProject, branch }, ctx.confirmedRepos))
           return { found: false };
-        return read(
-          join(ctx.workspaceRoot, ctx.project, ".kata", "repos", group, repoProject, filePath),
-        );
+        const repoPath =
+          resolveWorkspaceRepo(ctx, group, repoProject) ??
+          resolveConfiguredSourceRepo(
+            `${group}/${repoProject}`,
+            ctx.sourceRepoRoot ?? getEnv("KATA_SOURCE_REPO_ROOT"),
+            ctx.sourceRepoUrls ?? getEnv("KATA_SOURCE_REPOS"),
+          );
+        return repoPath ? readRepo(repoPath, filePath, branch) : { found: false };
       }
 
       const filePart = id.replace(/:\d+$/, "");
       if (!safeRelativePath(filePart)) return { found: false };
       const repo = filePart.split("/")[0];
+      const repoFilePath = filePart.slice(repo.length + 1);
       const matches = confirmedProjectMatch(repo, ctx.confirmedRepos);
       if (ctx.confirmedRepos && matches.length === 0) return { found: false };
-      const legacy = read(join(ctx.workspaceRoot, ctx.project, ".kata", "repos", filePart));
-      if (legacy.found) return legacy;
       for (const match of matches) {
-        if (match.group) {
-          const scopedLegacy = read(
-            join(ctx.workspaceRoot, ctx.project, ".kata", "repos", match.group, filePart),
+        const repoPath =
+          resolveWorkspaceRepo(ctx, match.group, repo) ??
+          resolveConfiguredSourceRepo(
+            match.group ? `${match.group}/${repo}` : repo,
+            ctx.sourceRepoRoot ?? getEnv("KATA_SOURCE_REPO_ROOT"),
+            ctx.sourceRepoUrls ?? getEnv("KATA_SOURCE_REPOS"),
           );
-          if (scopedLegacy.found) return scopedLegacy;
-        }
+        if (repoPath) return readRepo(repoPath, repoFilePath, match.branch || undefined);
       }
-      return legacy;
+      const repoPath =
+        resolveWorkspaceRepo(ctx, "", repo) ??
+        resolveConfiguredSourceRepo(
+          repo,
+          ctx.sourceRepoRoot ?? getEnv("KATA_SOURCE_REPO_ROOT"),
+          ctx.sourceRepoUrls ?? getEnv("KATA_SOURCE_REPOS"),
+        );
+      return repoPath ? readRepo(repoPath, repoFilePath) : { found: false };
     }
     case "case.archive":
       return read(join(ctx.workspaceRoot, ctx.project, "_shared", "archive", id.split(":")[0]));

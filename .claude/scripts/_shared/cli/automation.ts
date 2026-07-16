@@ -15,11 +15,11 @@ export function buildAutomationCommand(): Command {
     .option("--force", "覆盖 runners 壳文件")
     .action(async (featureDir: string, opts: { force?: boolean }) => {
       const result = scaffoldAutomation(featureDir, { force: opts.force ?? false });
-      if (result.created.length) console.log(`created: ${relPaths(featureDir, result.created)}`);
+      if (result.created.length) console.log(`已创建：${relPaths(featureDir, result.created)}`);
       if (result.overwritten.length)
-        console.log(`overwritten: ${relPaths(featureDir, result.overwritten)}`);
+        console.log(`已覆盖：${relPaths(featureDir, result.overwritten)}`);
       if (result.skipped.length)
-        console.log(`skipped (exists): ${relPaths(featureDir, result.skipped)}`);
+        console.log(`已跳过（文件已存在）：${relPaths(featureDir, result.skipped)}`);
     });
 
   automation
@@ -43,9 +43,9 @@ export function buildAutomationCommand(): Command {
           console.log("\n使用 --apply 执行修复（文件将移入 runs/<ts>/normalized/ 备份）。");
         }
       } else {
-        for (const path of report.moved) console.log(`moved: ${path} -> ${report.backupDir}`);
+        for (const path of report.moved) console.log(`已移动：${path} → ${report.backupDir}`);
         for (const item of report.unfixable)
-          console.log(`unfixable: ${item.path} - ${item.reason}`);
+          console.log(`无法自动修复：${item.path} - ${item.reason}`);
         console.log(
           `\n[normalize] violations=${report.violations} | moved=${report.moved.length} | backup=${report.backupDir}`,
         );

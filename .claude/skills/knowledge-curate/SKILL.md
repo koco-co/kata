@@ -23,15 +23,15 @@ effort: medium
 查询走 read 命令，命中后引用其 SourceRef ID；无可靠命中时直接说明「知识库无已确认匹配」，不得臆造：
 
 ```bash
-kata knowledge-curate read-core    --project <name>                      # 概览 + 术语 + 索引
-kata knowledge-curate read-module  --project <name> --module <name>      # 单个模块
-kata knowledge-curate read-pitfall --project <name> --query <keyword>    # 按关键词搜踩坑
+kata knowledge read-core    --project <name>                      # 概览 + 术语 + 索引
+kata knowledge read-module  --project <name> --module <name>      # 单个模块
+kata knowledge read-pitfall --project <name> --query <keyword>    # 按关键词搜踩坑
 ```
 
 写入走 write 命令，`--type` 选 term/overview/module/pitfall；`--confidence` 低于 high 时须先和用户确认，确认后加 `--confirmed`（`--content` 的 JSON 结构以 `write --help` 为准）：
 
 ```bash
-kata knowledge-curate write --project <name> --type <type> --content <json> --confidence <high|medium|low> [--confirmed]
+kata knowledge write --project <name> --type <type> --content <json> --confidence <high|medium|low> [--confirmed]
 ```
 
 ## 存储规范

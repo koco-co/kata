@@ -2,9 +2,32 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadAllPlugins } from "@shared/lib/plugin-utils.ts";
+import { isPluginActive, loadAllPlugins } from "@shared/lib/plugin-utils.ts";
 
 describe("plugin runtime metadata", () => {
+  it("requires env_required and env_required_any together", () => {
+    const plugin = {
+      env_required: ["BASE_URL"],
+      env_required_any: ["COOKIE", "ACCOUNT"],
+    };
+    expect(isPluginActive(plugin, { BASE_URL: "https://example.test" })).toBe(false);
+    expect(isPluginActive(plugin, { BASE_URL: "https://example.test", COOKIE: "sid=test" })).toBe(
+      true,
+    );
+  });
+
+  it("supports alternative complete environment variable sets", () => {
+    const plugin = {
+      env_required: ["BASE_URL"],
+      env_required_sets: [["COOKIE"], ["ACCOUNT", "PASSWORD"]],
+    };
+    expect(isPluginActive(plugin, { BASE_URL: "set", ACCOUNT: "user" })).toBe(false);
+    expect(isPluginActive(plugin, { BASE_URL: "set", ACCOUNT: "user", PASSWORD: "secret" })).toBe(
+      true,
+    );
+    expect(isPluginActive(plugin, { BASE_URL: "set", COOKIE: "sid=test" })).toBe(true);
+  });
+
   it("loads plugins from contract runtime metadata without legacy plugin.json", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-runtime-plugin-"));
     const lanhu = join(root, "lanhu");

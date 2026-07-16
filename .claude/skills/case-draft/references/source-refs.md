@@ -31,7 +31,9 @@ scheme     ::= prd | knowledge | repo | enhanced
 
 ### repo
 
-`repo#<path>(:L<start>(-L<end>)?)` —— 指向只读源仓库里的文件或行区间。`path` 的首段是 repo 短名，映射到调用方传入的 repos 表，或回落到 `workspace/{project}/.kata/repos/<path>`；行号可省略，也可写单行或区间。
+`repo#<path>(:L<start>(-L<end>)?)` —— 指向只读源仓库里的文件或行区间。`path` 的首段是 repo 短名，映射到调用方传入的 repos 表，或映射到 `.env` 中 `KATA_SOURCE_REPOS` + `KATA_SOURCE_REPO_ROOT` 发现的外部仓库；行号可省略，也可写单行或区间。
+
+解析器通过 `git show` 从外部仓库的 Git ref 读取正文；kata 不创建 `.kata/repos` 缓存。
 
 - `repo#studio/src/approval/list.tsx`
 - `repo#studio/src/approval/list.tsx:L3`

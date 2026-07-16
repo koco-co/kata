@@ -30,9 +30,9 @@
 
 进入可派执行子代理的窗口后（env-preflight 已在主会话通过、无 blocker），主 agent 只做编排，不直接执行探测/脚本/修复：
 
-1. 跑 `kata case-tasks build --feature <featureDir>` 拿用例任务清单 JSON（id/标题/读写分类/串行/排除）。
+1. 跑 `kata case-tasks build --feature <feature-dir>` 拿用例任务清单 JSON（id/标题/读写分类/串行/排除）。
 2. 一次性创建任务列表：`前置条件处理` + 每条用例一项（标题=用例标题）+ `汇总 & 质量闸门`。env-preflight 已完成，创建后即标 `completed`。
-3. `前置条件处理` 标 `in_progress`，派 **opus 子代理**（ui-probe 真实证据 + 共享页面对象/helper/fixture + 登录态 storageState + 校正读写分类）；完成标 `completed`。
+3. `前置条件处理` 标 `in_progress`，派 **opus 子代理**（ui-probe 真实证据 + 共享页面对象/helper/fixture + env YAML auth.cookie 登录态 + 校正读写分类）；完成标 `completed`。
 4. 按并发上限（默认同时 3 条）派 **sonnet 子代理** 跑用例任务（plan-reconcile + generate + self-run）；写数据用例用 run-id/case-id 造唯一 fixture 数据、跑完自清理；`serial=true` 的用例带 `@serial`，由 two-phase runner 串行。
 5. 某用例红 → run-triage 判类后**动态新增** `修复: <标题>` 任务（sonnet，≤3 次/用例）；连 2 次红 → 升级为 `升级修复: <标题>`，改派 opus 子代理接管。
 6. 全部用例绿 → `汇总 & 质量闸门`：跑全量 case spec、机械 lint（15 项）、语义 quality-reviewer，再 handoff。

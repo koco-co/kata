@@ -3,8 +3,8 @@
  * history-convert.ts — Convert historical CSV/XMind files to Archive Markdown.
  *
  * Usage:
- *   kata history-convert --path <file-or-dir> --project <name> [--module <key>] [--detect] [--force] [--no-split]
- *   kata history-convert --help
+ *   kata history convert --path <file-or-dir> --project <name> [--module <key>] [--detect] [--force] [--no-split]
+ *   kata history convert --help
  */
 
 import { readFileSync } from "node:fs";
@@ -59,7 +59,7 @@ export function extractNotes(node: XMindTopicNode): string {
 
 /** Strip priority prefix from title if already present */
 export function stripPriorityPrefix(title: string): string {
-  return title.replace(/^【P[012]】\s*/, "").trim();
+  return title.replace(/^【P[0-4]】\s*/, "").trim();
 }
 
 /**
@@ -76,16 +76,34 @@ export function isCaseNode(node: XMindTopicNode): boolean {
     | undefined;
   if (markers && markers.length > 0) return true;
   // Title starts with priority prefix
-  if (/^【P[012]】/.test(node.title ?? "")) return true;
+  if (/^【P[0-4]】/.test(node.title ?? "")) return true;
   // If this node has children and grandchildren but no great-grandchildren, likely a case
   const children = node.children?.attached ?? [];
   if (children.length === 0) return true; // Leaf = case (no steps)
+  // Generated XMind cases carry priority signals. Any node above such a case is
+  // structural, even when every branch has only one child and resembles a step tree.
+  if (children.some((child) => containsCaseSignal(child))) return false;
   // Check if children look like steps (text with at most 1 child = expected)
   const allChildrenAreStepLike = children.every((child) => {
     const grandchildren = child.children?.attached ?? [];
     return grandchildren.length <= 1;
   });
   return allChildrenAreStepLike;
+}
+
+function hasCaseSignal(node: XMindTopicNode): boolean {
+  const markers = (node as Record<string, unknown>).markers as
+    | Array<{ markerId?: string }>
+    | undefined;
+  return (
+    Boolean(markers?.some((marker) => marker.markerId?.startsWith("priority-"))) ||
+    /^【P[0-4]】/.test(node.title ?? "")
+  );
+}
+
+function containsCaseSignal(node: XMindTopicNode): boolean {
+  if (hasCaseSignal(node)) return true;
+  return (node.children?.attached ?? []).some((child) => containsCaseSignal(child));
 }
 
 /** Extract steps from a case node's children: child = step, grandchild = expected */

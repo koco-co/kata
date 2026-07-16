@@ -29,7 +29,7 @@ skill 正文出现 Claude Code 工具名时，换成你的 Codex 等价工具。
 | Lanhu/Axure URL（lanhuapp.com，含 axure/产品设计） | `case-draft` |
 | ZenTao bug URL / bug-view-NNN / bug ID | `case-hotfix`（未修复或缺修复范围时由它生成待办，不回退 `defect-analyze`） |
 | 需求功能**目录**路径/目录名（`features/【v...】`，无文件扩展名） | `playwright-automation` |
-| 用例产物**文件**（`.xmind`/`.csv`/`archive.md`），或编辑/同步/标准化已有用例 | `case-edit` |
+| 用例产物**文件**（`.md`/`.xlsx`/`.csv`/`.xmind`/`.json`），或编辑/同步/标准化已有用例 | `case-edit` |
 | 异常堆栈/控制台报错/HTTP 失败、合并冲突文本、diff/分支对 | `defect-analyze` |
 | 数据源/数据库/服务器连通性报错（如 JDBC No route to host） | `infra-diagnose` |
 | 记录/查询/维护业务知识、规则、术语，或问「XX 是什么」 | `knowledge-curate` |

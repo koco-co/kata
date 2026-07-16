@@ -48,10 +48,10 @@ function resolveOut(opts: OutOpts): string {
 }
 
 const outOptions = [
-  { flag: "--out <path>", description: "output report.html path" },
-  { flag: "--project <name>", description: "project (with --yyyymm/--slug, computes default out)" },
-  { flag: "--yyyymm <ym>", description: "yyyymm (for default out path)" },
-  { flag: "--slug <slug>", description: "report slug (for default out path)" },
+  { flag: "--out <path>", description: "report.html 输出路径（会写入文件）" },
+  { flag: "--project <name>", description: "项目名；与 --yyyymm、--slug 一起推导默认输出路径" },
+  { flag: "--yyyymm <ym>", description: "年月 YYYYMM；用于推导默认输出路径" },
+  { flag: "--slug <slug>", description: "报告标识；用于推导默认输出路径" },
 ];
 
 export const program = createCli({
@@ -60,10 +60,10 @@ export const program = createCli({
   commands: [
     {
       name: "render-bug",
-      description: "Render a bug-mode HTML report from a BugReport JSON",
+      description: "根据 BugReport JSON 生成缺陷 HTML 报告",
       options: [
-        { flag: "--json <path>", description: "path to BugReport JSON", required: true },
-        { flag: "--variant <v>", description: "zentao (default; only supported variant)" },
+        { flag: "--json <path>", description: "BugReport JSON 路径（必填）", required: true },
+        { flag: "--variant <v>", description: "报告样式；当前仅支持 zentao，默认 zentao" },
         ...outOptions,
       ],
       action: (opts: OutOpts & { json: string; variant?: string }) => {
@@ -88,9 +88,9 @@ export const program = createCli({
     },
     {
       name: "render-conflict",
-      description: "Render a conflict-mode HTML report from a ConflictReport JSON",
+      description: "根据 ConflictReport JSON 生成冲突 HTML 报告",
       options: [
-        { flag: "--json <path>", description: "path to ConflictReport JSON", required: true },
+        { flag: "--json <path>", description: "ConflictReport JSON 路径（必填）", required: true },
         ...outOptions,
       ],
       action: (opts: OutOpts & { json: string }) => {

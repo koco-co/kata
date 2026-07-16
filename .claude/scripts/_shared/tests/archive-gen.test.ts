@@ -457,9 +457,95 @@ describe("archive-gen.ts --help", () => {
     const { stdout, stderr, code } = run(["--help"]);
     const output = stdout + stderr;
     expect(code).toBe(0);
-    expect(output).toMatch(/archive-gen/);
+    expect(output).toMatch(/kata archives/);
     expect(output).toMatch(/convert/);
     expect(output).toMatch(/search/);
+  });
+});
+
+describe("archive-gen.ts validate — hotfix content contract", () => {
+  it("rejects priority tags, hardcoded data source/schema names, and concrete tables without DDL", () => {
+    const input = join(TMP_DIR, "invalid-hotfix.md");
+    writeFileSync(
+      input,
+      `---
+suite_name: "Hotfix 用例"
+create_at: "2026-07-16"
+status: 草稿
+case_count: 1
+origin: zentao
+tags:
+  - hotfix
+---
+
+## 数据资产
+### 元数据
+#### 元数据管理
+##### 【P1】【154995】验证导入元数据
+
+> 前置条件
+
+\`\`\`
+1. 数据源 prod_hive 下存在数据库 prod_db，数据库内存在数据表 demo_table。
+\`\`\`
+
+> 用例步骤
+
+| 编号 | 步骤 | 预期 |
+| --- | --- | --- |
+| 1 | 选择数据源：prod_hive<br>- database/namespace：prod_db<br>- table_name：demo_table | 导入成功 |
+`,
+    );
+
+    const result = run(["validate", "--input", input]);
+    expect(result.code).toBe(1);
+    const payload = JSON.parse(result.stdout) as { issues: Array<{ message: string }> };
+    const messages = payload.issues.map((issue) => issue.message).join("\n");
+    expect(messages).toContain("must not contain priority tags");
+    expect(messages).toContain("hardcoded data source names");
+    expect(messages).toContain("hardcoded database/schema names");
+    expect(messages).toContain("demo_table is missing a matching CREATE TABLE");
+  });
+
+  it("accepts hotfix placeholders, a concrete table with DDL, and a title without priority", () => {
+    const input = join(TMP_DIR, "valid-hotfix.md");
+    writeFileSync(
+      input,
+      `---
+suite_name: "Hotfix 用例"
+create_at: "2026-07-16"
+status: 草稿
+case_count: 1
+origin: zentao
+tags:
+  - hotfix
+---
+
+## 数据资产
+### 元数据
+#### 元数据管理
+##### 【154995】验证导入元数据
+
+> 前置条件
+
+\`\`\`
+1. 在 \${DataSourceA} 的 \${SchemaA} 库执行：
+CREATE TABLE IF NOT EXISTS demo_table (id BIGINT);
+\`\`\`
+
+> 用例步骤
+
+| 编号 | 步骤 | 预期 |
+| --- | --- | --- |
+| 1 | 选择数据源：\${DataSourceA}<br>- database/namespace：\${SchemaA}<br>- table_name：demo_table | 导入成功 |
+`,
+    );
+
+    const result = run(["validate", "--input", input]);
+    expect(result.code).toBe(0);
+    const payload = JSON.parse(result.stdout) as { valid: boolean; issues: unknown[] };
+    expect(payload.valid).toBe(true);
+    expect(payload.issues).toEqual([]);
   });
 });
 
