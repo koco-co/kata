@@ -5,7 +5,6 @@ import { resolve } from "node:path";
 const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
 const REQUIRED_ENV_KEYS = [
-  "KATA_DATAASSETS_ENV",
   "KATA_SOURCE_REPOS",
   "KATA_SOURCE_REPO_ROOT",
   "KATA_DINGTALK_KEYWORD",
@@ -20,6 +19,7 @@ const REMOVED_ENV_KEYS = [
   "KATA_REPO_BRANCH_MAPPING_PATH",
   "KATA_DATAASSETS_PROJECT_ID",
   "KATA_DATAASSETS_DATASOURCE_ID",
+  "KATA_DATAASSETS_ENV",
   "KATA_SMTP_SECURE",
 ] as const;
 

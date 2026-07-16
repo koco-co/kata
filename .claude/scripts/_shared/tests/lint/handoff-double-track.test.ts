@@ -36,7 +36,7 @@ describe("gate: handoff_double_track", () => {
       },
       run_command: "npx playwright test",
       acceptance_command:
-        "KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'features/2026-04-x/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
+        "kata env run ltqc-local -- npx playwright test 'features/2026-04-x/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
       run_exit_code: 0,
       results: {
         total: 1,
@@ -71,7 +71,7 @@ describe("gate: handoff_double_track", () => {
       "<!-- schema: PlaywrightAutomationHandoff@2 -->",
       "## Human Acceptance Command",
       "```bash",
-      "KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets npx playwright test 'features/2026-04-x/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
+      "kata env run ltqc-local -- npx playwright test 'features/2026-04-x/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line",
       "```",
     ].join("\n");
   }

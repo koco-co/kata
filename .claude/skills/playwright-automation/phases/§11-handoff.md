@@ -16,7 +16,7 @@
 该命令必须是 headful 的 full runner 命令，而非 smoke 或单条用例命令：
 
 ```bash
-KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
+kata env run <env> -- npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 
 若实际 self-run 用的是 headless 命令，把该证据保留在 `run_command` 中，但仍须为人工验收打印这条 `--headed` full test 命令。最终面向用户的文本中缺少这条命令，不得宣告 E2E 完成。

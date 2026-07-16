@@ -14,13 +14,12 @@ RUN_PATH=$(kata results path <feature-id> --new-run --project <project>)
 RUN_ID=$(basename "$RUN_PATH")
 
 # 2. --list 预览：确认 spec 可被 Playwright 解析（缺 case 说明 runner import 不全）
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
+PLAYWRIGHT_HTML_OPEN=never kata env run <env> -- \
   npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --list
 
 # 3. 运行 full.spec.ts：唯一汇总入口，同时落实 @serial、Allure 与审查证据
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
-  KATA_RUN_PATH="$RUN_PATH" PW_TWO_PHASE=1 SKIP_NOTIFY=1 \
-  kata run-tests-notify 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' \
+PLAYWRIGHT_HTML_OPEN=never KATA_RUN_PATH="$RUN_PATH" PW_TWO_PHASE=1 SKIP_NOTIFY=1 \
+  kata env run <env> -- kata run-tests-notify 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' \
   --project=chromium --output="$RUN_PATH/playwright/test-results"
 
 # 4. 写 handoff.json；先执行 §12 case-feedback，再由 §11 渲染 handoff.md
@@ -43,9 +42,8 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<projec
 ```bash
 FEATURE_DIR='workspace/dataAssets/features/v6.4.11/【v6411】【客户】【模块】需求名'
 RUN_PATH="$FEATURE_DIR/runs/20260622-0630-run-01"
-PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets \
-  KATA_RUN_PATH="$RUN_PATH" PW_TWO_PHASE=1 SKIP_NOTIFY=1 \
-  kata run-tests-notify "$FEATURE_DIR/automation/tests/runners/full.spec.ts" \
+PLAYWRIGHT_HTML_OPEN=never KATA_RUN_PATH="$RUN_PATH" PW_TWO_PHASE=1 SKIP_NOTIFY=1 \
+  kata env run ltqc-local -- kata run-tests-notify "$FEATURE_DIR/automation/tests/runners/full.spec.ts" \
   --project=chromium --output="$RUN_PATH/playwright/test-results"
 ```
 
@@ -54,7 +52,7 @@ PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJE
 无论结果 passed/blocked/failed/partial，最终交付都要给一条可直接复制的有头全量验收命令：
 
 ```bash
-KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --headed --reporter=line
+kata env run <env> -- npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --headed --reporter=line
 ```
 
 调试可用无头命令，但交付或阻塞说明必须同时给出这条 `--headed` full.spec.ts 命令；不得只宣称完成，也不得只给 smoke 或单条用例命令。

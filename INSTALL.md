@@ -18,8 +18,9 @@ bun install
 [ -f .env ] || cp .env.example .env
 [ -f config.json ] || cp config.example.json config.json
 
-# 3. 校验配置
-kata env doctor --project dataAssets --env ci63
+# 3. 创建并校验 DataAssets 环境（先按 config/env.example.yaml 补全平台字段）
+kata env add ci63 --url http://platform.example
+kata env doctor ci63 --offline
 
 # 4. 运行测试（必须全绿）
 bun test
@@ -30,12 +31,12 @@ bunx playwright install
 
 ## 配置变量
 
-根 `.env` 是唯一 dotenv。只保留当前实际使用的非空项；DataAssets 的 URL、项目/数据源 ID、运行参数和 UI cookie 使用 `_shared/env/<env>.yaml` profile。
+根 `.env` 是唯一 dotenv，只保留当前实际使用的非空集成项。DataAssets 的平台根 URL、稳定项目/数据源名称、租户保护、写入开关与 UI Cookie 统一存放在忽略的 `config/env/<env>.yaml`；ID/typeId 每次运行时在线解析。
 
 | 场景 | 配置变量 |
 | --- | --- |
 | 默认项目与工作区 | `KATA_ACTIVE_PROJECT` / `KATA_WORKSPACE_ROOT` |
-| DataAssets UI 自动化 / 数据准备 | `KATA_DATAASSETS_ENV`（其余配置来自所选 YAML profile） |
+| DataAssets UI 自动化 / 数据准备 | `kata env run <env> -- <command...>` + `config/env/<env>.yaml` |
 | 源码证据 | `KATA_SOURCE_REPOS` / `KATA_SOURCE_REPO_ROOT` |
 | 蓝湖 PRD 导入 | `KATA_LANHU_COOKIE` |
 | 禅道 Bug | `KATA_ZENTAO_BASE_URL` + `KATA_ZENTAO_COOKIE`，或账号密码 |

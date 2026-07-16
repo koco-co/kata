@@ -136,7 +136,7 @@ environment:
 - 本阶段已读的文件：SKILL.md + phases/§1-case-normalize.md + 目标 feature 目录下的 `cases/archive.md` + 已有的 `automation/tests/` 文件
 - **禁止**读的文件：
   - `workspace/dataAssets/features/` 下除目标目录外的任何其他 feature
-  - `workspace/{project}/_shared/env/*.yaml`（留到 env-preflight 阶段再读）
+  - `kata env list/show` 的环境信息（留到 env-preflight 阶段再读）
   - `.env` 配置的外部源码仓库（只在需要源码佐证时通过 `kata repos show|grep|list` 按需读）
   - `phases/**` 下除 §1-case-normalize.md 外的其他步骤规范，以及 `references/**` 下的跨阶段参考
 - 硬约束：读取范围不超过目标 feature 目录 + SKILL.md + 本阶段规范
@@ -146,6 +146,6 @@ environment:
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
 - 不得批量读取无关的历史 feature。
-- 不得在 case-normalize 阶段读 `_shared/env/*.yaml`（这是 env-preflight 的职责）。
+- 不得在 case-normalize 阶段读取 `config/env/*.yaml`（env-preflight 也只能通过 `kata env` 脱敏命令访问）。
 - 不得在 case-normalize 阶段读 Lanhu 截图、跑 OCR、建临时 Python/Node 环境，或为看懂 UI 而装新依赖。
 - `case_drafting.status != completed` 或缺 `cases/archive.md` 时，不得读无关的 `prd.md`、跨目录 `inputs/`、截图或历史测试内容；`source_backed_bootstrap` 只能在确认环境后读当前目标目录的源材料（细则见上文第一步第 5 项）。

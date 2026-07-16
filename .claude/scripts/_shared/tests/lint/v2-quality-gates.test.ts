@@ -19,20 +19,10 @@ describe("lintEnvProfileCompliance", () => {
     rmSync(scratch, { recursive: true, force: true });
   });
 
-  it("rejects legacy session fields without requiring a secret in the base profile", () => {
+  it("rejects any tracked workspace environment profile", () => {
     const envDir = join(scratch, "dataAssets", "_shared", "env");
     mkdirSync(envDir, { recursive: true });
-    writeFileSync(
-      join(envDir, "dev.yaml"),
-      [
-        "auth:",
-        "  session_path: workspace/other/.kata/auth/session.json",
-        "  derive_from_session: true",
-        "env: ltqc-dev",
-        "runtime:",
-        "  allow_write: true",
-      ].join("\n"),
-    );
+    writeFileSync(join(envDir, "dev.yaml"), ["schema_version: 1", "env: ltqc-dev"].join("\n"));
 
     const report = lintEnvProfileCompliance(scratch);
 
@@ -40,50 +30,16 @@ describe("lintEnvProfileCompliance", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "env_profile_compliance",
-        matched: "auth.session_path",
+        matched: "legacy env profile",
       }),
     );
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "env_profile_compliance",
-        matched: "auth.derive_from_session",
-      }),
-    );
-    expect(report.violations.some((item) => item.matched === "auth.cookie")).toBe(false);
   });
 
-  it("accepts an empty auth.cookie in the committed base profile", () => {
-    const envDir = join(scratch, "dataAssets", "_shared", "env");
-    mkdirSync(envDir, { recursive: true });
-    writeFileSync(
-      join(envDir, "dev.yaml"),
-      ["auth:", '  cookie: ""', "env: ltqc-dev", "runtime:", "  allow_write: true"].join("\n"),
-    );
-
+  it("accepts a workspace without tracked environment profiles", () => {
     const report = lintEnvProfileCompliance(scratch);
 
     expect(report.passed).toBe(true);
-  });
-
-  it("reports writable ltqc-prod profiles", () => {
-    const envDir = join(scratch, "dataAssets", "_shared", "env");
-    mkdirSync(envDir, { recursive: true });
-    writeFileSync(
-      join(envDir, "prod.yaml"),
-      ["auth:", "  cookie: sid=test", "env: ltqc-prod", "runtime:", "  allow_write: true"].join(
-        "\n",
-      ),
-    );
-
-    const report = lintEnvProfileCompliance(scratch);
-
-    expect(report.passed).toBe(false);
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "env_profile_compliance",
-        message: "ltqc-prod must keep runtime.allow_write=false.",
-      }),
-    );
+    expect(report.files).toBe(0);
   });
 });
 

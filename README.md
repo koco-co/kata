@@ -162,7 +162,7 @@ Codex 的工具名映射与会话起始引导见 `using-kata-codex` bootstrap。
 | `zentao` | `case-hotfix:init` | `KATA_ZENTAO_BASE_URL` + `KATA_ZENTAO_COOKIE`，或完整账号密码 |
 | `notify` | `*:output` | 至少一个通知通道：`KATA_DINGTALK_WEBHOOK_URL`, `KATA_FEISHU_WEBHOOK_URL`, `KATA_WECOM_WEBHOOK_URL`, `KATA_SMTP_HOST` |
 
-根目录 `.env` 是唯一 dotenv：显式进程环境优先，其次才是 `.env`；不再加载 `.env.envs`、根 `.env.local` 或项目 `.env.local`。`KATA_DATAASSETS_ENV` 选择 `workspace/dataAssets/_shared/env/<env>.yaml`，被 Git 跟踪的 profile 不保存真实 cookie，cookie 写在被忽略的 `_shared/env/.local/<env>.yaml` 的 `auth.cookie`。用 `kata env resolve --project dataAssets --env <env>` 查看来源，用 `kata env doctor --project dataAssets --env <env>` 检查模板外根键、持久空值、越权本地覆盖、权限和 secret 跟踪状态；命令均不回显密钥。旧配置分别通过 `kata env migrate-local`、`kata env migrate-profile-secrets` 和 `kata env migrate-zentao-session` 迁移。
+根目录 `.env` 是唯一 dotenv：显式进程环境优先，其次才是 `.env`；不加载 `.env.envs`、根 `.env.local` 或项目 `.env.local`。DataAssets 平台环境改为本机私密的 `config/env/<env>.yaml`，一个平台一个文件并包含 `auth.cookie`；目录权限必须为 `0700`、文件为 `0600`，整目录被 Git 忽略。项目与数据源只保存稳定名称，ID/typeId 由 `kata env run <env> -- <command...>` 在每次运行前精确解析。所有 Git worktree 自动通过 common-dir 复用主工作树的这一份配置，不复制 Cookie。用 `kata env list`、`kata env show <env>`、`kata env doctor <env>` 管理环境，用 `kata env cookie set <env> --stdin` 安全轮换 Cookie；所有输出均脱敏。旧 DataAssets profile 通过 `kata env migrate-dataassets --apply` 一次性迁移。
 
 ## 项目目录
 

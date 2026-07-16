@@ -24,33 +24,33 @@
 处理任何 `/playwright-automation` 输入时，必须先按行解析原始输入，再做目标 discovery 和环境判断。
 
 - 若最后一个非空行是 `确认`、`确认。`、`使用默认` 或 `默认`，这一行是环境确认回复，不是功能标题。
-- 这种确认直接等于用户选了 `ltqc-local.yaml`。
-- 立刻设置 `env_profile=ltqc-local.yaml`、`env_confirmed=true`，直接读这个 profile 并进入 env-preflight。
+- 这种确认直接等于用户选了 `ltqc-local`。
+- 立刻设置 `env_name=ltqc-local`、`env_confirmed=true`，通过 `kata env doctor ltqc-local` 进入 env-preflight。
 - 不得再调用环境确认 AskUserQuestion，也不得再输出环境确认 fallback。
 
-若用户输入中有 `环境:`、`env:`、base_url 或完整的 env profile 文件名，同样视为环境已确认，直接读对应 profile。
+若用户输入中有 `环境:`、`env:`、base_url 或完整环境名，同样视为环境已确认，直接校验对应环境。
 
 ## 环境确认
 
 用户没给环境时：
 
 1. 从目标 feature 路径推断 `project`。
-2. 读取 `workspace/{project}/_shared/env/*.yaml`。
-3. 若有 `ltqc-local.yaml`，默认推荐它。
-4. 用 AskUserQuestion 一次性给出环境选项；问题中必须有连续纯文本 `默认推荐：ltqc-local.yaml`。
-5. 选项 label 只写完整文件名，例如 `ltqc-local.yaml`；推荐说明放进 question 或 description。
+2. 运行 `kata env list`，不得直接读取私密 YAML。
+3. 若有 `ltqc-local`，默认推荐它。
+4. 用 AskUserQuestion 一次性给出环境选项；问题中必须有连续纯文本 `默认推荐：ltqc-local`。
+5. 选项 label 只写完整环境名，例如 `ltqc-local`；推荐说明放进 question 或 description。
 6. 环境确认阶段不得索要 Cookie 或账号密码。
 
 AskUserQuestion 不可用时，只输出下面这段，其余一律不输出：
 
 ```text
 请确认执行环境。
-默认推荐：ltqc-local.yaml
-可直接回复“确认”使用 ltqc-local.yaml，或回复以下环境文件名：
-- ltqc-local.yaml: {base_url} / {tenant} / {quality_project} / {session_status}
-- ltqc-test.yaml: {base_url} / {tenant} / {quality_project} / {session_status}
-- ltqc-prod.yaml: {base_url} / {tenant} / {quality_project} / {session_status}
-- ci63.yaml: {base_url} / {tenant} / {quality_project} / {session_status}
+默认推荐：ltqc-local
+可直接回复“确认”使用 ltqc-local，或回复以下环境名：
+- ltqc-local: {base_url} / {tenant} / {quality_project} / {session_status}
+- ltqc-test: {base_url} / {tenant} / {quality_project} / {session_status}
+- ltqc-prod: {base_url} / {tenant} / {quality_project} / {session_status}
+- ci63: {base_url} / {tenant} / {quality_project} / {session_status}
 ```
 
 fallback 必须是本轮最后一个 assistant action。`session_status` 只能写「cookie 已配置」或「cookie 未配置」，不得回显 cookie，也不得写登录态有效、可用、未过期。
@@ -77,7 +77,7 @@ blocked_by_environment: tool_permission_denied
 有头模式 full test 人工验收命令：
 
 ```shell
-KATA_DATAASSETS_ENV=<env_profile_file> KATA_ACTIVE_PROJECT=<project> npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
+kata env run <env> -- npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --project=chromium --headed --reporter=line
 ```
 ~~~
 
@@ -85,7 +85,7 @@ blocker 命令只能用拒绝前已经知道的 env profile 文件名、project 
 
 ## cookie 与登录态
 
-已解析 runtime 中的 `auth.cookie` 非空不能直接证明登录态有效，只能触发真实 Playwright/API 复验。runtime resolver 按基础 profile + 忽略的 `.local/<env>.yaml` 解析 cookie；不得直接解析 YAML、复制到临时 storageState 文件或聊天输出。
+`kata env show` 中 Cookie 已配置不能直接证明登录态有效；必须用 `kata env doctor <env>` 或 `kata env run` 触发真实 API 复验。runtime resolver 只读取单一私密 `config/env/<env>.yaml`；不得直接解析 YAML、复制到临时 storageState 文件或聊天输出。
 
 真实 probe 发现 `/login`、`/uic/#/login`、登录页正文或 `session_expired` 时，唯一可见文本必须直接从 `会话已过期。` 开始，并立即停止：
 
@@ -95,7 +95,7 @@ blocker 命令只能用拒绝前已经知道的 env profile 文件名、project 
 已确认环境：{env_profile}
 已检查 auth.cookie：{configured|missing|invalid}
 
-请提供当前登录态 Cookie 字符串，以便更新忽略的 _shared/env/.local/<env>.yaml 中 auth.cookie 后继续。
+请提供当前登录态 Cookie 字符串，以便通过 `kata env cookie set <env> --stdin` 验证并更新后继续。
 ```
 
 此模板不得只写在 thinking 中；输出模板前不得再调用工具，也不得删除 probe 证据。可交互模式若改用 AskUserQuestion，也必须先完成真实 probe，再只发一个登录态补充触点。
@@ -141,7 +141,7 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
-- 真实 cookie 只允许写入忽略且权限为 `0600` 的 `_shared/env/.local/<env>.yaml` 的 `auth.cookie`；基础 profile 保持空值。cookie/token/password 不得写入用例、报告、证据或聊天记录。
+- 真实 Cookie 只允许通过 `kata env cookie set <env> --stdin` 写入忽略且权限为 `0600` 的 `config/env/<env>.yaml`。cookie/token/password 不得写入用例、报告、证据或聊天记录。
 - 不得把临时 `/private/tmp` session 当作可交付的运行入口。
 - 不得在 repo root、project 根目录或 feature 根目录残留 env-preflight 临时脚本。
 - 不得用没加保护的 glob 检查可选配置；要用 `test -f`、`find <精确目录> -maxdepth 1 -name ...` 或 `rg --files -g ...`。

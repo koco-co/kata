@@ -99,7 +99,7 @@
 
 如何发现路径污染：
 - 旧 feature case 文件曾用过 `.kata/auth`、storageState 或 `auth.session_path`
-- 参考现有 feature 写法时，必须调用项目 runtime resolver；它会合并基础 profile 与忽略的 `.local/<env>.yaml`
+- 参考现有 feature 写法时，必须调用项目 runtime resolver；它只接受 `kata env run` 注入的精确解析上下文
 - cookie 只可在内存中通过 `browserContext.addCookies` 注入，不能落成中间 session 文件，也不能写入日志或证据。
 
 ```bash

@@ -1,5 +1,1 @@
 _shared/*
-!_shared/env/
-_shared/env/*
-!_shared/env/*.yaml
-!_shared/env/README.md

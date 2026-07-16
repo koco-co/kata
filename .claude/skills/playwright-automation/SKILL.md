@@ -24,9 +24,9 @@ allowed-tools: Bash(kata *)
 
 按以下分支处理，确认环境前保持静默：
 
-- **未给出 env profile**：用 AskUserQuestion 一次性问清环境，默认推荐项 `ltqc-local.yaml` 置顶并附理由。
+- **未给出环境名**：先用 `kata env list` 获取可用环境，再用 AskUserQuestion 一次性问清环境，默认推荐项 `ltqc-local` 置顶并附理由。
 - **AskUserQuestion 不可用**：输出固定兜底文案（首行为 `请确认执行环境。`）。
-- **已给出 profile 或回复「确认」**：直接执行 env-preflight。
+- **已给出环境名或回复「确认」**：直接执行 env-preflight。
 
 ## 阶段流程（顺序推进，逐 phase 加载对应文件，前序通过才进下一阶段）
 
@@ -92,7 +92,7 @@ flowchart TD
 
 ## 真实性质控
 
-- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；源码只能通过 `kata repos show|grep|list` 查询；认证只通过项目 runtime resolver 读取已解析 profile，真实 cookie 仅存忽略的 `_shared/env/.local/<env>.yaml`。
+- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；源码只能通过 `kata repos show|grep|list` 查询；认证只通过 `kata env run <env> -- <command...>` 注入的 runtime resolver 读取，真实 Cookie 仅存忽略且权限为 `0600` 的 `config/env/<env>.yaml`。
 - ui-probe 证据缺失时不生成最终脚本（静态审查除外）；self-run 结果缺失时不下「通过」结论。
 - Playwright 自动化完成的硬条件是：目标 `full.spec.ts` 通过、run 目录产出 Allure 结果、平台产生该用例核心业务流程的记录数据。只读合同脚本只有在用户明确要求只读覆盖时才可作为完成范围；否则必须阻塞或排除，不得声称自动化完成。
 - 用户要求 UI 自动化时，创建、编辑、保存、引入规则包、立即执行、删除、状态查询等业务动作必须走页面操作；未经用户针对具体动作授权，不得用后端接口替代 UI。
@@ -115,6 +115,6 @@ flowchart TD
 
 ## 环境与产出
 
-- 环境配置用 `kata env resolve --project <project> --env <env>` 查看来源、`kata env doctor --project <project> --env <env>` 校验；基础 profile 保持可提交，真实 cookie 只写忽略的 `_shared/env/.local/<env>.yaml`，不得新建 `.env.local`。
+- 环境配置用 `kata env list` 列出、`kata env show <env>` 脱敏查看、`kata env doctor <env>` 校验；真实 Cookie 通过 `kata env cookie set <env> --stdin` 更新到忽略的 `config/env/<env>.yaml`，不得新建 `.env.local` 或直接启动 Playwright。
 - 产出布局：`smoke.spec.ts` + `full.spec.ts` 存放于 `automation/tests/runners/`，case 存放于 `automation/tests/cases/`，共享页面对象/helper 存放于 `_shared/`。
 - 交付以目标 `full.spec.ts` 全量通过为准，仅 smoke 通过不算完成。
