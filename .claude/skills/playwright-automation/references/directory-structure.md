@@ -111,7 +111,7 @@
 
 1. debug/repro/diag spec 文件出现在 cases/ 或 runners/ 下（应放 `.debug/`）
 2. feature 根目录存在 `.env.local`（应使用 `_shared/env/*.yaml` profile）
-3. 出现 auth storageState、`.kata/auth` 或 `auth.session_path`；认证必须直接读取 env YAML 的 `auth.cookie`
+3. 出现 auth storageState 文件、`.kata/auth` 或 `auth.session_path`；认证必须通过项目 runtime resolver 读取，真实 cookie 仅存忽略的 `_shared/env/.local/<env>.yaml`
 4. automation/ 顶层出现 `.md` `.json` `.yaml` 文件
 5. automation/tests/ 顶层出现 `t*.ts` case 文件（必须放 `cases/`）
 6. 未在 `_shared/pages/` 或 `_shared/helpers/` 中定义 feature-local helpers

@@ -22,15 +22,19 @@
 - [ ] `automation/tests/runners/full.spec.ts` 存在
 - [ ] runners/ 不含白名单外 .spec.ts（只允许 smoke/full/retry-failed 三个文件）；详见 references/directory-structure.md#runners-白名单
 - [ ] case 文件位于 `automation/tests/cases/`
+- [ ] `full.spec.ts` 对 CaseTaskList 中每个未排除 `case_file` 恰好 import 一次，无缺失、重复或额外 case
+- [ ] `smoke.spec.ts` 只 import plan-reconcile 已确认的 P0 范围
 - [ ] automation/ 顶层无散落 .md .json .yaml 文件；详见 references/directory-structure.md#automation-顶层
 - [ ] 共享 page object 位于 `_shared/pages/`
 - [ ] 没有 feature-local helper 目录
 
 ### self-run 产物
 
-- [ ] `runs/<run-id>/playwright/full/` 含 stdout、stderr、exit-code、report.html
+- [ ] `runs/<run-id>/playwright/full/` 含 `stdout.log`、`stderr.log`、`exit-code`
+- [ ] `runs/<run-id>/allure-results/` 至少含本轮 result JSON；`playwright/full/allure-report/` 存在，或明确记录 Allure HTML 生成失败原因
 - [ ] exit-code 是数字
 - [ ] 失败 spec 列表与 exit-code 一致
+- [ ] 汇总 run_command 使用 `PW_TWO_PHASE=1 kata run-tests-notify`，确保 `@serial` 真正串行
 
 ### repair-loop 产物
 

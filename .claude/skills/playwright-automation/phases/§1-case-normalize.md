@@ -96,7 +96,7 @@ cookie: {cookie_string}
 
 ### 第五步：提取 UiAutomationIntent
 
-输出到 `UiAutomationIntent@1` schema，包含：
+输出 `UiAutomationIntent@1` 文档工件契约（当前不是 JSON Schema），包含：
 
 ```yaml
 metadata:

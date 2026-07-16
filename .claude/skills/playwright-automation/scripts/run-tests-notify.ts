@@ -25,6 +25,8 @@
  *   - SKIP_ALLURE_GEN=1       跳过 HTML 报告生成
  *   - ALLURE_REPORT_BASE_URL  若配置，将生成在线链接 `${base}/YYYYMM/{suite}/{env}/`
  *   - ALLURE_BIN              allure 可执行路径，默认 `allure`
+ *   - KATA_RUN_PATH           本次 feature run 目录；设置后 stdout/stderr/exit-code、
+ *                             Allure results/report 全部收敛到该目录
  *
  * 两阶段执行（并发 + 串行回退）：
  *   - PW_TWO_PHASE=1          启用两阶段：
@@ -36,7 +38,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   type AllureStats,
@@ -55,6 +57,31 @@ interface Paths {
   reportDir: string;
   allureResultsDir: string;
   allureReportDir: string;
+  runArtifacts?: RunArtifactPaths;
+}
+
+export interface RunArtifactPaths {
+  runPath: string;
+  evidenceDir: string;
+  stdoutPath: string;
+  stderrPath: string;
+  exitCodePath: string;
+  allureResultsDir: string;
+  allureReportDir: string;
+}
+
+export function resolveRunArtifactPaths(runPath: string): RunArtifactPaths {
+  const absoluteRunPath = resolve(runPath);
+  const evidenceDir = resolve(absoluteRunPath, "playwright/full");
+  return {
+    runPath: absoluteRunPath,
+    evidenceDir,
+    stdoutPath: resolve(evidenceDir, "stdout.log"),
+    stderrPath: resolve(evidenceDir, "stderr.log"),
+    exitCodePath: resolve(evidenceDir, "exit-code"),
+    allureResultsDir: resolve(absoluteRunPath, "allure-results"),
+    allureReportDir: resolve(evidenceDir, "allure-report"),
+  };
 }
 
 /** Extract `dt_tenant_name` value from a DTStack cookie string (URL-decoded). */
@@ -75,27 +102,45 @@ function resolvePaths(): Paths {
   const suiteName = process.env.KATA_SUITE_NAME ?? "report";
   const yyyymm = new Date().toISOString().slice(0, 7).replace(/-/g, "");
   const reportDir = projectPath(project, "_shared", "published-reports", yyyymm, suiteName, env);
+  const runArtifacts = process.env.KATA_RUN_PATH
+    ? resolveRunArtifactPaths(process.env.KATA_RUN_PATH)
+    : undefined;
   return {
     env,
     project,
     suiteName,
     yyyymm,
-    reportDir,
-    allureResultsDir: resolve(reportDir, "allure-results"),
-    allureReportDir: resolve(reportDir, "allure-report"),
+    reportDir: runArtifacts?.runPath ?? reportDir,
+    allureResultsDir: runArtifacts?.allureResultsDir ?? resolve(reportDir, "allure-results"),
+    allureReportDir: runArtifacts?.allureReportDir ?? resolve(reportDir, "allure-report"),
+    runArtifacts,
   };
 }
 
 function runCommand(
   cmd: string,
   args: string[],
-  opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {},
+  opts: {
+    cwd?: string;
+    env?: NodeJS.ProcessEnv;
+    stdoutPath?: string;
+    stderrPath?: string;
+  } = {},
 ): Promise<number> {
   return new Promise((resolvePromise) => {
+    const capture = Boolean(opts.stdoutPath || opts.stderrPath);
     const child = spawn(cmd, args, {
-      stdio: "inherit",
+      stdio: capture ? ["inherit", "pipe", "pipe"] : "inherit",
       cwd: opts.cwd ?? repoRoot(),
       env: opts.env ?? process.env,
+    });
+    child.stdout?.on("data", (chunk: Buffer) => {
+      process.stdout.write(chunk);
+      if (opts.stdoutPath) appendFileSync(opts.stdoutPath, chunk);
+    });
+    child.stderr?.on("data", (chunk: Buffer) => {
+      process.stderr.write(chunk);
+      if (opts.stderrPath) appendFileSync(opts.stderrPath, chunk);
     });
     child.on("close", (code) => resolvePromise(code ?? 1));
     child.on("error", (err) => {
@@ -172,6 +217,11 @@ async function main(pwArgs: readonly string[]): Promise<void> {
 
   const paths = resolvePaths();
   mkdirSync(paths.allureResultsDir, { recursive: true });
+  if (paths.runArtifacts) {
+    mkdirSync(paths.runArtifacts.evidenceDir, { recursive: true });
+    writeFileSync(paths.runArtifacts.stdoutPath, "");
+    writeFileSync(paths.runArtifacts.stderrPath, "");
+  }
 
   // Snapshot existing result files so we can filter to only this run's output
   const priorResults = snapshotResultFiles(paths.allureResultsDir);
@@ -203,9 +253,16 @@ async function main(pwArgs: readonly string[]): Promise<void> {
       ...process.env,
       ...plan.envOverrides,
     };
-    const code = await runCommand("bunx", ["playwright", "test", ...plan.args], { env: phaseEnv });
+    const code = await runCommand("bunx", ["playwright", "test", ...plan.args], {
+      env: phaseEnv,
+      stdoutPath: paths.runArtifacts?.stdoutPath,
+      stderrPath: paths.runArtifacts?.stderrPath,
+    });
     process.stderr.write(`[run-tests-notify] phase=${plan.name} exit code: ${code}\n`);
     if (code !== 0) pwExitCode = code;
+  }
+  if (paths.runArtifacts) {
+    writeFileSync(paths.runArtifacts.exitCodePath, `${pwExitCode}\n`);
   }
   const runEnd = Date.now();
   process.stderr.write(`[run-tests-notify] playwright overall exit code: ${pwExitCode}\n`);

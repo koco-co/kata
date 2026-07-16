@@ -19,7 +19,7 @@ describe("lintEnvProfileCompliance", () => {
     rmSync(scratch, { recursive: true, force: true });
   });
 
-  it("rejects auth.session_path and requires auth.cookie", () => {
+  it("rejects legacy session fields without requiring a secret in the base profile", () => {
     const envDir = join(scratch, "dataAssets", "_shared", "env");
     mkdirSync(envDir, { recursive: true });
     writeFileSync(
@@ -46,15 +46,23 @@ describe("lintEnvProfileCompliance", () => {
     expect(report.violations).toContainEqual(
       expect.objectContaining({
         rule: "env_profile_compliance",
-        matched: "auth.cookie",
-      }),
-    );
-    expect(report.violations).toContainEqual(
-      expect.objectContaining({
-        rule: "env_profile_compliance",
         matched: "auth.derive_from_session",
       }),
     );
+    expect(report.violations.some((item) => item.matched === "auth.cookie")).toBe(false);
+  });
+
+  it("accepts an empty auth.cookie in the committed base profile", () => {
+    const envDir = join(scratch, "dataAssets", "_shared", "env");
+    mkdirSync(envDir, { recursive: true });
+    writeFileSync(
+      join(envDir, "dev.yaml"),
+      ["auth:", '  cookie: ""', "env: ltqc-dev", "runtime:", "  allow_write: true"].join("\n"),
+    );
+
+    const report = lintEnvProfileCompliance(scratch);
+
+    expect(report.passed).toBe(true);
   });
 
   it("reports writable ltqc-prod profiles", () => {

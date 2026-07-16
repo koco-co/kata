@@ -85,7 +85,7 @@ blocker 命令只能用拒绝前已经知道的 env profile 文件名、project 
 
 ## cookie 与登录态
 
-`auth.cookie` 非空不能直接证明登录态有效，只能触发真实 Playwright/API 复验。cookie 必须直接读取当前 env profile，不得复制到临时 storageState 或聊天输出。
+已解析 runtime 中的 `auth.cookie` 非空不能直接证明登录态有效，只能触发真实 Playwright/API 复验。runtime resolver 按基础 profile + 忽略的 `.local/<env>.yaml` 解析 cookie；不得直接解析 YAML、复制到临时 storageState 文件或聊天输出。
 
 真实 probe 发现 `/login`、`/uic/#/login`、登录页正文或 `session_expired` 时，唯一可见文本必须直接从 `会话已过期。` 开始，并立即停止：
 
@@ -95,7 +95,7 @@ blocker 命令只能用拒绝前已经知道的 env profile 文件名、project 
 已确认环境：{env_profile}
 已检查 auth.cookie：{configured|missing|invalid}
 
-请提供当前登录态 Cookie 字符串，以便更新当前 env profile 的 auth.cookie 后继续。
+请提供当前登录态 Cookie 字符串，以便更新忽略的 _shared/env/.local/<env>.yaml 中 auth.cookie 后继续。
 ```
 
 此模板不得只写在 thinking 中；输出模板前不得再调用工具，也不得删除 probe 证据。可交互模式若改用 AskUserQuestion，也必须先完成真实 probe，再只发一个登录态补充触点。
@@ -112,7 +112,7 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 ## run-id 与证据目录
 
-- run-id 用内部指定的字面量，例如 `preflight-250515-01` 或 `preflight-01`；不得用随机数、hash、管道或命令替换来生成。
+- run-id 必须符合 `YYYYMMDD-HHmm-preflight-NN`，由共享 run-id 生成器分配；不得自造随机数或 hash。
 - 当前 feature 的证据目录必须用 repo-root 相对路径：`workspace/{project}/features/{version}/{featureId}/runs/<run-id>/playwright/preflight`。
 - 不得把 `<REPO_ROOT>/...` 绝对路径交给 `mkdir -p`。
 - 等 run-id 的 tool_result 返回且未被拒绝，才能创建 evidence 目录；不得在同一条 assistant message 中同时发起 run-id 和 evidence 目录创建。
@@ -122,14 +122,14 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 - 依赖 repo 的 Playwright/API 探测脚本，写入当前 feature 的 `runs/<run-id>/playwright/preflight/`，并从 repo root 执行。
 - 只有轻量、不依赖 repo 的一次性脚本，才能写入 `mktemp -d /tmp/kata-playwright-preflight-*` 返回的目录。
-- 脚本读取 env profile 的 `auth.cookie`，解析为 name/value 后用 `browserContext.addCookies([{ name, value, url: base_url }])` 注入；不得生成 storageState 文件。
+- 脚本调用项目 runtime resolver 获取已解析 cookie，转换为 name/value 后用 `browserContext.addCookies(...)` 注入；不得直接解析 YAML，不得生成 storageState 文件。
 - 不得硬编码 repo root，不得用 `__dirname`、`import.meta.url` 或 `../../../` 反推 repo root。
 - 截图、JSON、HAR 等 probe 证据写入同一个 preflight 证据目录。
 - 未作为结果证据保留的临时脚本必须清理，不得让 `git status --short` 冒出根目录临时文件。
 
 ## 输出
 
-写入 `UiAutomationPreflight@1`：
+写入 `UiAutomationPreflight@1` 文档工件契约（当前不是 JSON Schema）：
 
 - `status`: `ready` 或 `blocked_by_environment`
 - `env_name`, `base_url`, `tenant_name`, `project_name`
@@ -141,7 +141,7 @@ no_permission 只输出一次直接文本 blocker。不得在 tenant/project 名
 
 全局禁令见 SKILL.md「真实性质控」。本阶段另加：
 
-- cookie 只允许写入当前 env YAML 的 `auth.cookie`；不得写入用例、报告、证据或聊天记录。token、password 不得写入 YAML、用例、报告或聊天记录。
+- 真实 cookie 只允许写入忽略且权限为 `0600` 的 `_shared/env/.local/<env>.yaml` 的 `auth.cookie`；基础 profile 保持空值。cookie/token/password 不得写入用例、报告、证据或聊天记录。
 - 不得把临时 `/private/tmp` session 当作可交付的运行入口。
 - 不得在 repo root、project 根目录或 feature 根目录残留 env-preflight 临时脚本。
 - 不得用没加保护的 glob 检查可选配置；要用 `test -f`、`find <精确目录> -maxdepth 1 -name ...` 或 `rg --files -g ...`。

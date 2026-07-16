@@ -74,7 +74,10 @@ describe("FeatureMetadata@1", () => {
   });
 
   it("rejects a CJK id missing the version bracket", () => {
-    const bad = { schema: "FeatureMetadata@1", id: "【数据质量】控制每个规则开关" };
+    const bad = {
+      schema: "FeatureMetadata@1",
+      id: "【数据质量】控制每个规则开关",
+    };
     expect(validate(bad)).toBe(false);
   });
 
@@ -171,6 +174,26 @@ describe("FeatureMetadata@2 case_drafting", () => {
   });
 });
 
+describe("FeatureMetadata@2 automation intents", () => {
+  it("accepts runner_files and an actionable failing status", () => {
+    const ok = {
+      ...baseV2,
+      automation: {
+        status: "ready",
+        intents: [
+          {
+            intent_id: "SR-INTENT-EXAMPLE-001",
+            case_files: ["automation/tests/cases/t01-example.ts"],
+            runner_files: ["automation/tests/runners/full.spec.ts"],
+            automation_status: "failing",
+          },
+        ],
+      },
+    };
+    expect(validateV2(ok)).toBe(true);
+  });
+});
+
 // ── FeatureMetadata@2: 富需求环境字段放开后的行为 ──
 //   root.requirement_context 是自由 object，承接 feature 专属字段(如 starrocks_version)，
 //   不污染全局 schema 表面；case_drafting.source_refs 同样放开为自由对象数组。
@@ -205,7 +228,12 @@ describe("FeatureMetadata@2 requirement_context & source_refs", () => {
             path: "workspace/dataAssets/features/.../cases/archive.md",
             note: "主参考模板",
           },
-          { id: "SR-003", kind: "requirement_text", path: null, note: "需求描述" },
+          {
+            id: "SR-003",
+            kind: "requirement_text",
+            path: null,
+            note: "需求描述",
+          },
         ],
         requirement_atoms: [{ id: "RA-001", source_ref: "SR-003" }],
       },

@@ -7,7 +7,7 @@
 ## 协议
 
 ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验证的环境 + session）。
-输出是：包含 URL、标题、DOM 结构、项目接口、筛选机制、API 证据的 `UiProbeSnapshot@1`。
+输出是：包含 URL、标题、DOM 结构、项目接口、筛选机制、API 证据的 `UiProbeSnapshot@1` 文档工件。
 
 ### Source-backed bootstrap 限制
 
@@ -20,7 +20,7 @@ ui-probe 的输入是：ui-plan（规划的断言点）+ env-preflight（已验�
 
 ### 第一步：打开目标页面
 
-1. 用 `browser.newContext()` 创建浏览器上下文，从 env YAML 的 `auth.cookie` 解析 name/value 并调用 `context.addCookies`（不得回显 cookie）
+1. 用 `browser.newContext()` 创建浏览器上下文，通过项目 runtime resolver 获取已解析 cookie 并调用 `context.addCookies`（不得直接解析 YAML，不得回显 cookie）
 2. 打开 ui-plan 中的目标 URL hash（如 `#/dq/rule`、`#/metaDataSync`）
 3. 等 `networkidle`，再多等 2-3 秒让 Ant Design 渲染完（**仅限 probe 探测脚本**；交付 spec 禁用此 band-aid，改用 web-first 断言）
 4. 确认 URL hash 正确，没被重定向到登录页
@@ -107,7 +107,7 @@ page.on('response', async (res) => {
 
 ## 输出
 
-写入 `UiProbeSnapshot@1` schema，包含：
+写入 `UiProbeSnapshot@1` 文档工件契约（当前不是 JSON Schema），包含：
 - SourceRef（建议格式：`SR-UI-PROBE-{YYYY-MM}-{FEATURE_KEY}-{ENV}`）
 - URL 和页面标题
 - 结构语义树证据（role+name：按钮、表格列、菜单、表单）+ 兜底 DOM 属性（data-testid/id/class）

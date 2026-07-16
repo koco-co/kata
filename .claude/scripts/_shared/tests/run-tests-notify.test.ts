@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import {
   buildPhasePlans,
   extractTenantFromCookie,
+  resolveRunArtifactPaths,
 } from "@skills/playwright-automation/scripts/run-tests-notify.ts";
 
 describe("extractTenantFromCookie", () => {
@@ -87,5 +88,24 @@ describe("buildPhasePlans", () => {
 
   it("does NOT throw when user passes unrelated args in two-phase mode", () => {
     expect(() => buildPhasePlans([...baseArgs, "--reporter=line"], true)).not.toThrow();
+  });
+});
+
+describe("resolveRunArtifactPaths", () => {
+  it("keeps all self-run evidence under the allocated run directory", () => {
+    const paths = resolveRunArtifactPaths("/tmp/feature/runs/20260716-1000-run-01");
+    expect(paths.stdoutPath).toBe(
+      "/tmp/feature/runs/20260716-1000-run-01/playwright/full/stdout.log",
+    );
+    expect(paths.stderrPath).toBe(
+      "/tmp/feature/runs/20260716-1000-run-01/playwright/full/stderr.log",
+    );
+    expect(paths.exitCodePath).toBe(
+      "/tmp/feature/runs/20260716-1000-run-01/playwright/full/exit-code",
+    );
+    expect(paths.allureResultsDir).toBe("/tmp/feature/runs/20260716-1000-run-01/allure-results");
+    expect(paths.allureReportDir).toBe(
+      "/tmp/feature/runs/20260716-1000-run-01/playwright/full/allure-report",
+    );
   });
 });

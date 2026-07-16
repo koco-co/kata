@@ -82,7 +82,12 @@ export function lintRunnerIsAggregator(workspaceRoot: string): CaseLintReport {
       );
     }
   }
-  return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: workspaceRoot,
+    files,
+    violations,
+    passed: violations.length === 0,
+  };
 }
 
 export function lintRunnerIsAggregatorForFeature(
@@ -105,7 +110,12 @@ export function lintRunnerIsAggregatorForFeature(
       );
     }
   }
-  return { scanRoot: featureDir, files: files.length, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: featureDir,
+    files: files.length,
+    violations,
+    passed: violations.length === 0,
+  };
 }
 
 export function lintCasesInCasesDir(workspaceRoot: string): CaseLintReport {
@@ -121,7 +131,12 @@ export function lintCasesInCasesDir(workspaceRoot: string): CaseLintReport {
       );
     }
   }
-  return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: workspaceRoot,
+    files,
+    violations,
+    passed: violations.length === 0,
+  };
 }
 
 export function lintCasesInCasesDirForFeature(
@@ -148,7 +163,12 @@ export function lintCasesInCasesDirForFeature(
       );
     }
   }
-  return { scanRoot: featureDir, files, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: featureDir,
+    files,
+    violations,
+    passed: violations.length === 0,
+  };
 }
 
 export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
@@ -169,7 +189,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
           violation(
             file,
             "session_compliant",
-            `Auth cookie must come from workspace/${project}/_shared/env/*.yaml auth.cookie; session files are unsupported.`,
+            `Auth must use the project runtime resolver; real cookies belong in ignored workspace/${project}/_shared/env/.local/<env>.yaml files.`,
             "fail",
             1,
             "legacy auth path",
@@ -178,7 +198,12 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
       }
     }
   }
-  return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: workspaceRoot,
+    files,
+    violations,
+    passed: violations.length === 0,
+  };
 }
 
 export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport {
@@ -215,19 +240,6 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
           ),
         );
       }
-      const cookie = getNestedValue(profile, ["auth", "cookie"]);
-      if (typeof cookie !== "string" || cookie.trim() === "") {
-        violations.push(
-          violation(
-            file,
-            "env_profile_compliance",
-            "auth.cookie must be a non-empty cookie header string.",
-            "fail",
-            1,
-            "auth.cookie",
-          ),
-        );
-      }
       const env = getNestedValue(profile, ["env"]);
       const allowWrite = getNestedValue(profile, ["runtime", "allow_write"]);
       if (env === "ltqc-prod" && allowWrite !== false) {
@@ -241,7 +253,12 @@ export function lintEnvProfileCompliance(workspaceRoot: string): CaseLintReport 
       }
     }
   }
-  return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: workspaceRoot,
+    files,
+    violations,
+    passed: violations.length === 0,
+  };
 }
 
 export function lintNoDanglingHelpers(workspaceRoot: string): CaseLintReport {
@@ -307,5 +324,10 @@ export function lintSpecStructureValid(workspaceRoot: string): CaseLintReport {
       );
     }
   }
-  return { scanRoot: workspaceRoot, files, violations, passed: violations.length === 0 };
+  return {
+    scanRoot: workspaceRoot,
+    files,
+    violations,
+    passed: violations.length === 0,
+  };
 }

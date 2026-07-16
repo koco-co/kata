@@ -89,6 +89,9 @@ describe("parseArchiveCases", () => {
     expect(cases[0].id).toBe("C001");
     expect(cases[0].priority).toBe("P1");
     expect(cases[1].id).toBe("C002");
+    expect(cases[0].intent_id).toBeNull();
+    expect(cases[0].case_file).toBeNull();
+    expect(cases[0].automation_status).toBeNull();
   });
   it("读写分类与串行标记正确", () => {
     expect(cases[0].mutates_data).toBe(false);
@@ -139,10 +142,18 @@ function makeFeatureV2(
   writeFileSync(join(dir, "metadata.yaml"), yamlStringify(meta));
   if (archiveContent) {
     const archivePath = join(dir, archiveSubPath);
-    mkdirSync(join(dir, archiveSubPath.split("/").slice(0, -1).join("/")), { recursive: true });
+    mkdirSync(join(dir, archiveSubPath.split("/").slice(0, -1).join("/")), {
+      recursive: true,
+    });
     writeFileSync(archivePath, archiveContent);
   }
   return dir;
+}
+
+function writeCase(featureDir: string, caseFile: string, content: string): void {
+  const casePath = join(featureDir, caseFile);
+  mkdirSync(join(casePath, ".."), { recursive: true });
+  writeFileSync(casePath, content);
 }
 
 describe("buildCaseTaskList", () => {
@@ -240,18 +251,41 @@ describe("buildCaseTaskList @2 (metadata.yaml)", () => {
       feature_id: "v2-demo-feature",
       automation: {
         intents: [
-          { id: "I1", title: "新增规则并保存", automation_status: "ready" },
-          { id: "I2", title: "查看规则列表", automation_status: "ready" },
+          {
+            intent_id: "SR-INTENT-I1",
+            case_files: ["automation/tests/cases/t01-create-rule.ts"],
+            runner_files: ["automation/tests/runners/smoke.spec.ts"],
+            automation_status: "ready",
+          },
+          {
+            intent_id: "SR-INTENT-I2",
+            case_files: ["automation/tests/cases/t02-view-rules.ts"],
+            automation_status: "ready",
+          },
         ],
       },
       files: { archive: "cases/archive.md" },
     });
+    writeCase(
+      dir,
+      "automation/tests/cases/t01-create-rule.ts",
+      'test("新增规则并保存", async () => { /* 创建并保存 */ });',
+    );
+    writeCase(
+      dir,
+      "automation/tests/cases/t02-view-rules.ts",
+      'test("查看规则列表", async () => {});',
+    );
     const list = buildCaseTaskList(dir);
     expect(list.source).toBe("manifest_intents");
     expect(list.feature_id).toBe("v2-demo-feature");
     expect(list.case_count).toBe(2);
     expect(list.cases[0].title).toBe("新增规则并保存");
     expect(list.cases[0].mutates_data).toBe(true);
+    expect(list.cases[0].intent_id).toBe("SR-INTENT-I1");
+    expect(list.cases[0].case_file).toBe("automation/tests/cases/t01-create-rule.ts");
+    expect(list.cases[0].automation_status).toBe("ready");
+    expect(list.cases[0].priority).toBe("P0");
   });
 
   it("@2 intents 为空 → 退回解析 files.archive 指向的 cases/archive.md", () => {
@@ -294,16 +328,93 @@ describe("buildCaseTaskList @2 (metadata.yaml)", () => {
       id: "v2-mixed",
       automation: {
         intents: [
-          { id: "I1", title: "新增规则并保存", automation_status: "ready" },
-          { id: "I2", title: "草稿用例不应出现", automation_status: "draft" },
+          {
+            intent_id: "SR-INTENT-I1",
+            case_files: ["automation/tests/cases/t01-create-rule.ts"],
+            automation_status: "ready",
+          },
+          {
+            intent_id: "SR-INTENT-I2",
+            case_files: ["automation/tests/cases/t02-draft.ts"],
+            automation_status: "deferred",
+          },
         ],
       },
       files: { archive: "cases/archive.md" },
     });
+    writeCase(
+      dir,
+      "automation/tests/cases/t01-create-rule.ts",
+      'test("新增规则并保存", async () => { /* 创建并保存 */ });',
+    );
     const list = buildCaseTaskList(dir);
     expect(list.source).toBe("manifest_intents");
     expect(list.case_count).toBe(1);
-    expect(list.cases.map((c) => c.title)).not.toContain("草稿用例不应出现");
+    expect(list.cases.map((c) => c.case_file)).not.toContain("automation/tests/cases/t02-draft.ts");
+  });
+
+  it("@2 一个 intent 的多个 case_files 会展开成独立任务并识别 @serial", () => {
+    const dir = makeFeatureV2("v2-multi-case", {
+      schema: "FeatureMetadata@2",
+      id: "v2-multi-case",
+      automation: {
+        intents: [
+          {
+            intent_id: "SR-INTENT-MULTI",
+            case_files: [
+              "automation/tests/cases/t01-read.ts",
+              "automation/tests/cases/t02-write.ts",
+            ],
+            automation_status: "ready",
+          },
+        ],
+      },
+      files: { archive: "cases/archive.md" },
+    });
+    writeCase(dir, "automation/tests/cases/t01-read.ts", 'test("查看列表", async () => {});');
+    writeCase(
+      dir,
+      "automation/tests/cases/t02-write.ts",
+      'test("新增并删除 @serial", async () => {});',
+    );
+
+    const list = buildCaseTaskList(dir);
+    expect(list.case_count).toBe(2);
+    expect(list.cases.map((c) => c.case_file)).toEqual([
+      "automation/tests/cases/t01-read.ts",
+      "automation/tests/cases/t02-write.ts",
+    ]);
+    expect(list.cases[1].mutates_data).toBe(true);
+    expect(list.cases[1].serial).toBe(true);
+  });
+
+  it("@2 failing intent 会进入修复调度，deferred intent 不进入", () => {
+    const dir = makeFeatureV2("v2-failing", {
+      schema: "FeatureMetadata@2",
+      id: "v2-failing",
+      automation: {
+        intents: [
+          {
+            intent_id: "SR-INTENT-FAILING",
+            case_files: ["automation/tests/cases/t01-failing.ts"],
+            runner_files: ["automation/tests/runners/full.spec.ts"],
+            automation_status: "failing",
+          },
+          {
+            intent_id: "SR-INTENT-DEFERRED",
+            case_files: ["automation/tests/cases/t02-deferred.ts"],
+            automation_status: "deferred",
+          },
+        ],
+      },
+      files: { archive: "cases/archive.md" },
+    });
+    writeCase(dir, "automation/tests/cases/t01-failing.ts", 'test("已知失败", async () => {});');
+
+    const list = buildCaseTaskList(dir);
+    expect(list.case_count).toBe(1);
+    expect(list.cases[0].intent_id).toBe("SR-INTENT-FAILING");
+    expect(list.cases[0].automation_status).toBe("failing");
   });
 
   it("@2 无 intents 且无 archive 路径时抛错", () => {
@@ -342,7 +453,11 @@ describe("kata case-tasks build (e2e)", () => {
   it("对真实 feature 目录输出合法 CaseTaskList JSON", () => {
     const dir = makeFeature(
       "f-cli",
-      { feature_id: "demo-cli", automation: { intents: [] }, files: { archive: "archive.md" } },
+      {
+        feature_id: "demo-cli",
+        automation: { intents: [] },
+        files: { archive: "archive.md" },
+      },
       ARCHIVE_SNIPPET,
     );
     const { status, stdout } = spawnKataCli(["case-tasks", "build", "--feature", dir]);

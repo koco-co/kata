@@ -43,9 +43,9 @@ flowchart TD
     RT -->|通过| QG[§10 quality-gate]
     RT -->|失败| RL[§9 repair-loop]
     RL -->|重试，每 spec ≤3 次| SR
-    RL -->|修复耗尽| HO
-    QG --> HO
-    HO -.可选.-> CF[§12 case-feedback]
+    RL -->|修复耗尽| CF[§12 case-feedback]
+    QG --> CF
+    CF --> HO[§11 handoff]
 ```
 
 | Phase                  | 文件                             | 简介                                                              |
@@ -60,8 +60,8 @@ flowchart TD
 | §8 run-triage          | phases/§8-run-triage.md          | 失败归类：产品/脚本/数据/权限/环境/未知/需决策                    |
 | §9 repair-loop         | phases/§9-repair-loop.md         | 有限修复循环，保留每次修复证据                                    |
 | §10 quality-gate       | phases/§10-quality-gate.md       | 脚本结构、断言、session、handoff 等检查项，跑 `kata cases lint` 闸门 |
-| §11 handoff            | phases/§11-handoff.md            | 通过/阻塞/部分/修复耗尽的最终交付报告                             |
 | §12 case-feedback      | phases/§12-case-feedback.md      | 生成 case-corrections（8 类/3 级/跨轮去重）；高置信已核实项经 case-edit 回写源用例 |
+| §11 handoff            | phases/§11-handoff.md            | 在 case-feedback 产物完成后渲染通过/阻塞/部分/修复耗尽的最终交付报告 |
 
 ## 何时加载哪个文件
 
@@ -86,13 +86,13 @@ flowchart TD
 
 - **公开模式**：env 确认且无 blocker 后，按 `references/execution-protocol.md` 编排任务列表：
   - `前置条件处理` 分配 opus 子代理；plan-reconcile / generate / self-run / repair 按用例分配 sonnet 子代理（任务标题 = 用例标题）。
-  - 主 agent 只做编排、不直接执行具体任务；失败时动态新增修复任务、限并发并行，二阶段评审集中在汇总环节。
+  - 主 agent 负责编排及聚合产物：运行 scaffold、维护 smoke/full runner 的 import、执行 full 汇总与 handoff；不实现单条 case。失败时动态新增修复任务、限并发并行，二阶段评审集中在汇总环节。
 - **静默模式**：env-preflight 全阶段、所有 BLOCKED 模板路径下，禁止公开进度——不派执行子代理、不建 TodoWrite。
 - env-preflight 的权限拒绝、session 探测、登录态补充，以及 `no_permission` / `tool_permission_denied` 模板，严格遵循 `phases/§2-env-preflight.md`。
 
 ## 真实性质控
 
-- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；源码只能通过 `kata repos show|grep|list` 查询；认证只能读取 env YAML 的 `auth.cookie`。
+- 全阶段通用：不得把用户文字、需求文档或截图描述当作真实 UI 事实；不得弱化断言来换取通过；源码只能通过 `kata repos show|grep|list` 查询；认证只通过项目 runtime resolver 读取已解析 profile，真实 cookie 仅存忽略的 `_shared/env/.local/<env>.yaml`。
 - ui-probe 证据缺失时不生成最终脚本（静态审查除外）；self-run 结果缺失时不下「通过」结论。
 - Playwright 自动化完成的硬条件是：目标 `full.spec.ts` 通过、run 目录产出 Allure 结果、平台产生该用例核心业务流程的记录数据。只读合同脚本只有在用户明确要求只读覆盖时才可作为完成范围；否则必须阻塞或排除，不得声称自动化完成。
 - 用户要求 UI 自动化时，创建、编辑、保存、引入规则包、立即执行、删除、状态查询等业务动作必须走页面操作；未经用户针对具体动作授权，不得用后端接口替代 UI。
@@ -115,6 +115,6 @@ flowchart TD
 
 ## 环境与产出
 
-- 环境配置取 `workspace/<project>/_shared/env/*.yaml` profile；新建前先检查是否已有匹配的 `base_url` + `tenant`，不得为交付新建 `.env.local`。
+- 环境配置用 `kata env resolve --project <project> --env <env>` 查看来源、`kata env doctor --project <project> --env <env>` 校验；基础 profile 保持可提交，真实 cookie 只写忽略的 `_shared/env/.local/<env>.yaml`，不得新建 `.env.local`。
 - 产出布局：`smoke.spec.ts` + `full.spec.ts` 存放于 `automation/tests/runners/`，case 存放于 `automation/tests/cases/`，共享页面对象/helper 存放于 `_shared/`。
 - 交付以目标 `full.spec.ts` 全量通过为准，仅 smoke 通过不算完成。

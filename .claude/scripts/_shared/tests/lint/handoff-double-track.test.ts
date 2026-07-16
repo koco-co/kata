@@ -14,7 +14,7 @@ describe("gate: handoff_double_track", () => {
   function seedRun(opts: { json?: string; md?: string }) {
     const dir = join(
       scratch,
-      "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-aaaaaaaa",
+      "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-run-01",
     );
     mkdirSync(dir, { recursive: true });
     if (opts.json !== undefined) writeFileSync(join(dir, "handoff.json"), opts.json);
@@ -25,7 +25,7 @@ describe("gate: handoff_double_track", () => {
     return {
       schema: "PlaywrightAutomationHandoff@2",
       feature_id: "2026-04-x",
-      run_id: "20260510-1430-aaaaaaaa",
+      run_id: "20260510-1430-run-01",
       status: "passed",
       intent_id: "SR-INTENT-X",
       source_refs: {
@@ -55,7 +55,7 @@ describe("gate: handoff_double_track", () => {
           case_id: "P0-1",
           record_type: "standard-definition",
           record_name: "qa_auto_standard_20260702",
-          evidence_path: "runs/20260510-1430-aaaaaaaa/allure-results/record.png",
+          evidence_path: "runs/20260510-1430-run-01/allure-results/record.png",
         },
       ],
       unresolved_blockers: [],
@@ -112,6 +112,14 @@ describe("gate: handoff_double_track", () => {
     });
     const r = lintHandoffDoubleTrack(scratch);
     expect(r.violations.some((v) => v.rule === "handoff_json_schema_invalid")).toBe(true);
+  });
+
+  it("reports inconsistent result counts", () => {
+    const handoff = validHandoff();
+    handoff.results.total = 2;
+    seedRun({ json: JSON.stringify(handoff), md: validHandoffMd() });
+    const r = lintHandoffDoubleTrack(scratch);
+    expect(r.violations.some((v) => v.rule === "handoff_json_semantic_invalid")).toBe(true);
   });
 
   it("reports missing schema marker in generated markdown", () => {

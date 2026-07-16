@@ -54,7 +54,7 @@ plan-reconcile 的输入是：ui-plan（文档用例规划）+ ui-probe（真实
 
 ### 第四步：输出
 
-写入 `PlanReconciliation@1` schema，包含：
+写入 `PlanReconciliation@1` 文档工件契约（当前不是 JSON Schema），包含：
 
 ```yaml
 status: aligned / plan_adjusted / needs_user_decision / blocked

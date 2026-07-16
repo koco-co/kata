@@ -6,7 +6,7 @@
 
 ## 输出
 
-- 写入对应 schema。
+- 写入本阶段 artifact contract；该名称是文档工件类型，不冒充未实现的 JSON Schema。
 - 保留 SourceRef。
 - 区分 case_claim、observed_ui、environment、run_artifact 与 product_knowledge。
 
@@ -42,4 +42,4 @@
 
 - 把 Archive MD 的通用前置条件规划成 worker-scoped auto fixture。
 - 把各用例不同的前置条件规划成 case 内步骤或 beforeEach。
-- 不用 `test.beforeAll(async ({ page }) => ...)`；需要浏览器上下文时，创建 context 后从 env YAML 的 `auth.cookie` 解析并调用 `context.addCookies`，再创建页面。
+- 不用 `test.beforeAll(async ({ page }) => ...)`；需要浏览器上下文时，通过项目 runtime resolver 获取已解析 cookie 并调用 `context.addCookies`，再创建页面。

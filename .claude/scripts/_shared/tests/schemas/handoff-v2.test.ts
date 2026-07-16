@@ -11,7 +11,7 @@ const validate = new Ajv({ strict: false, validateSchema: false }).compile(schem
 const base = {
   schema: "PlaywrightAutomationHandoff@2",
   feature_id: "2026-04-dq-json-config",
-  run_id: "20260510-1430-a3f8c9e1",
+  run_id: "20260510-1430-run-01",
   status: "passed",
   intent_id: "SR-INTENT-X",
   source_refs: {
@@ -26,8 +26,8 @@ const base = {
   run_exit_code: 0,
   results: {
     total: 46,
-    passed: 45,
-    failed: 1,
+    passed: 46,
+    failed: 0,
     skipped: 0,
     report_paths: {
       playwright_json: "results/<r>/playwright/results.json",
@@ -65,19 +65,55 @@ describe("PlaywrightAutomationHandoff@2", () => {
     expect(validate({ ...base, run_exit_code: -1 })).toBe(false);
   });
 
+  it("rejects passed handoff with a non-zero exit code", () => {
+    expect(validate({ ...base, run_exit_code: 1 })).toBe(false);
+  });
+
+  it("rejects passed handoff with failed or skipped cases", () => {
+    expect(validate({ ...base, results: { ...base.results, failed: 1 } })).toBe(false);
+    expect(validate({ ...base, results: { ...base.results, skipped: 1 } })).toBe(false);
+  });
+
+  it("requires Allure results for a passed handoff", () => {
+    const { allure: _allure, ...reportPaths } = base.results.report_paths;
+    expect(
+      validate({
+        ...base,
+        results: { ...base.results, report_paths: reportPaths },
+      }),
+    ).toBe(false);
+  });
+
+  it("accepts the canonical generated run id and keeps legacy handoffs readable", () => {
+    expect(validate(base)).toBe(true);
+    expect(validate({ ...base, run_id: "20260510-1430-a3f8c9e1" })).toBe(true);
+    expect(validate({ ...base, run_id: "20260510-1430-random" })).toBe(false);
+  });
+
   it("requires a headed full acceptance command", () => {
     const { acceptance_command: _acceptanceCommand, ...missing } = base;
     expect(validate(missing)).toBe(false);
     expect(
-      validate({ ...base, acceptance_command: "npx playwright test tests/runners/smoke.spec.ts" }),
+      validate({
+        ...base,
+        acceptance_command: "npx playwright test tests/runners/smoke.spec.ts",
+      }),
     ).toBe(false);
     expect(
-      validate({ ...base, acceptance_command: "npx playwright test tests/runners/full.spec.ts" }),
+      validate({
+        ...base,
+        acceptance_command: "npx playwright test tests/runners/full.spec.ts",
+      }),
     ).toBe(false);
   });
 
   it("requires source_refs.intent", () => {
-    expect(validate({ ...base, source_refs: { env: "x", probe: "y", self_run: "z" } })).toBe(false);
+    expect(
+      validate({
+        ...base,
+        source_refs: { env: "x", probe: "y", self_run: "z" },
+      }),
+    ).toBe(false);
   });
 
   it("accepts excluded_cases as empty array", () => {
@@ -89,7 +125,11 @@ describe("PlaywrightAutomationHandoff@2", () => {
       validate({
         ...base,
         excluded_cases: [
-          { case_id: "P0-3", reason_category: "data_prep", detail: "需后台任务完成" },
+          {
+            case_id: "P0-3",
+            reason_category: "data_prep",
+            detail: "需后台任务完成",
+          },
         ],
       }),
     ).toBe(true);
@@ -134,7 +174,10 @@ describe("PlaywrightAutomationHandoff@2", () => {
 
   it("rejects unknown excluded reason_category", () => {
     expect(
-      validate({ ...base, excluded_cases: [{ case_id: "P0-3", reason_category: "whatever" }] }),
+      validate({
+        ...base,
+        excluded_cases: [{ case_id: "P0-3", reason_category: "whatever" }],
+      }),
     ).toBe(false);
   });
 });

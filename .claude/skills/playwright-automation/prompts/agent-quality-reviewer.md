@@ -32,6 +32,13 @@
 
 high 必须修；当前环境确实无法真实实现的用例，须如实排除，记入 `handoff.excluded_cases`，不得表面通过蒙混过去。
 
+### UI-only 业务变更与规则审计
+
+- 创建、编辑、保存、导入、运行、发布、映射、删除或状态检查通过 `page.request`、`fetch`、axios 或业务 API helper 代替页面操作，且没有用户对该具体动作的书面授权 → high
+- API 被动监听、只读 oracle 或用户明确授权的具体动作不误报；授权证据必须进入 handoff
+- 规则类 case 缺少逐项源规格审计，或提交的规则数量、重复指纹、规则包、数据源、抽样、分区、过滤、强弱设置与源用例不一致 → high
+- 状态变化 case 没有唯一记录名称/ID、状态、路由和截图或 Allure 证据 → high
+
 ### 修复
 
 - repair-loop 的修复不得在原 case 文件中添加 wider locator

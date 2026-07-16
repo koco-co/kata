@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { resolveFeatureRunsDir } from "@shared/lib/features/layout.ts";
 import { repoRoot, sharedSchemasPath } from "@shared/lib/paths.ts";
-import { loadHandoffV2Validator } from "@shared/schemas/loaders.ts";
+import { handoffV2SemanticErrors, loadHandoffV2Validator } from "@shared/schemas/loaders.ts";
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 import Handlebars from "handlebars";
@@ -72,6 +72,10 @@ export async function runHandoffRender(ctx: HandoffRenderContext): Promise<{ pat
   const data = JSON.parse(readFileSync(jsonPath, "utf-8"));
   if (!validate(data)) {
     throw new Error(`handoff.json schema invalid: ${JSON.stringify(validate.errors)}`);
+  }
+  const semanticErrors = handoffV2SemanticErrors(data);
+  if (semanticErrors.length > 0) {
+    throw new Error(`handoff.json semantic invalid: ${semanticErrors.join("; ")}`);
   }
   const caseFeedback = loadCaseFeedback(runDir);
   const mdPath = join(runDir, "handoff.md");

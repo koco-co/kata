@@ -17,21 +17,21 @@ RUN_ID=$(basename "$RUN_PATH")
 PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
   npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' --list
 
-# 3. 运行 full.spec.ts
+# 3. 运行 full.spec.ts：唯一汇总入口，同时落实 @serial、Allure 与审查证据
 PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=<env> KATA_ACTIVE_PROJECT=<project> \
-  KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
-  npx playwright test 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' \
-  --output="$RUN_PATH/playwright"
+  KATA_RUN_PATH="$RUN_PATH" PW_TWO_PHASE=1 SKIP_NOTIFY=1 \
+  kata run-tests-notify 'features/<version>/<feature-id>/automation/tests/runners/full.spec.ts' \
+  --project=chromium --output="$RUN_PATH/playwright/test-results"
 
-# 4. 渲染 handoff.md（先按 PlaywrightAutomationHandoff@2 写好 $RUN_PATH/handoff.json）
-kata handoff render <feature-id> --run "$RUN_ID" --project <project>
+# 4. 写 handoff.json；先执行 §12 case-feedback，再由 §11 渲染 handoff.md
 ```
 
 判读规则：
 
 - `--list` 无输出/报错 → 检查 import 路径与文件命名；缺预期 case → runner import 待补；全部列出 → 进运行。
 - 运行退出码：0=全过，非 0=有失败。记 passed/failed/skipped 数与失败错误摘要。
-- `KATA_ALLURE_RESULTS_DIR` 把 allure 落点统一到 `$RUN_PATH/allure-results`，和 `playwright/` 同在本次 run 目录，`kata results publish` 才能一并发布。
+- `KATA_RUN_PATH` 让 wrapper 固定生成 `$RUN_PATH/allure-results/`、`playwright/full/stdout.log`、`stderr.log`、`exit-code` 与 `allure-report/`。
+- `PW_TWO_PHASE=1` 先并发运行非 `@serial` case，再以 `workers=1` 运行 `@serial` case；汇总执行不得改回直接 `npx playwright test`。
 - 运行后必须检查 `$RUN_PATH/allure-results` 至少包含本次目标 runner 的 result JSON；没有 Allure 结果时，本次 self-run 不得标记 passed。
 - 运行后必须核对平台记录数据：记录每个状态变化用例产生的记录名称或 ID、页面路由/API、状态、截图或响应证据路径。没有平台业务记录且用户未明确要求只读脚本时，本次 self-run 不得标记 passed。
 - handoff.json 的 `run_command` 记本次实际命令；`acceptance_command` 记带 `full.spec.ts` + `--headed` 的有头验收命令。
@@ -42,11 +42,11 @@ kata handoff render <feature-id> --run "$RUN_ID" --project <project>
 
 ```bash
 FEATURE_DIR='workspace/dataAssets/features/v6.4.11/【v6411】【客户】【模块】需求名'
-RUN_PATH="$FEATURE_DIR/runs/20260622-0630-codexrun"
+RUN_PATH="$FEATURE_DIR/runs/20260622-0630-run-01"
 PLAYWRIGHT_HTML_OPEN=never KATA_DATAASSETS_ENV=ltqc-local.yaml KATA_ACTIVE_PROJECT=dataAssets \
-  KATA_ALLURE_RESULTS_DIR="$RUN_PATH/allure-results" \
-  npx playwright test "$FEATURE_DIR/automation/tests/runners/full.spec.ts" \
-  --output="$RUN_PATH/playwright"
+  KATA_RUN_PATH="$RUN_PATH" PW_TWO_PHASE=1 SKIP_NOTIFY=1 \
+  kata run-tests-notify "$FEATURE_DIR/automation/tests/runners/full.spec.ts" \
+  --project=chromium --output="$RUN_PATH/playwright/test-results"
 ```
 
 ## 人工验收命令（交付前必打印）

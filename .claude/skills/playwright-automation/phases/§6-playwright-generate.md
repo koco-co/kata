@@ -36,7 +36,7 @@
 
 ## 输出
 
-- 写入对应 schema。
+- 写入本阶段 artifact contract；未落地的工件类型不得宣称已有 JSON Schema 校验。
 - 保留 SourceRef。
 - 区分 case_claim、observed_ui、environment、run_artifact 和 product_knowledge。
 
@@ -88,8 +88,9 @@
    
    生成模式怎么做：
    - 从 ui-probe 证据和 `cases/archive.md` 中提取 P0 用例；处于 `source_backed_bootstrap` 时，只能从当前目标 `prd.md` + ui-probe 证据中提取最小 P0 用例，并在代码头部用 `prd.md#source-backed-bootstrap`
-   - 先写 `automation/tests/runners/smoke.spec.ts` + `full.spec.ts`（仅 import）
-   - 再写 `automation/tests/cases/t01-{slug}.ts`
+   - 主 agent 先执行 `kata automation scaffold <feature-dir>`，只补空 runner，不覆盖已有文件
+   - worker 只写分配的 `automation/tests/cases/t{nn}-{slug}.ts`
+   - 全部 worker 完成后，主 agent 按 CaseTaskList 集中更新 `smoke.spec.ts` + `full.spec.ts` import
    - 按 RED → GREEN 节律逐个验证
 
 ### 模式防范：认证数据旁路
@@ -98,8 +99,8 @@
 
 如何发现路径污染：
 - 旧 feature case 文件曾用过 `.kata/auth`、storageState 或 `auth.session_path`
-- 参考现有 feature 写法时，必须从当前 env profile 读取 `auth.cookie`
-- cookie 解析后通过 `browserContext.addCookies` 注入，不能落成中间 session 文件，也不能写入日志或证据。
+- 参考现有 feature 写法时，必须调用项目 runtime resolver；它会合并基础 profile 与忽略的 `.local/<env>.yaml`
+- cookie 只可在内存中通过 `browserContext.addCookies` 注入，不能落成中间 session 文件，也不能写入日志或证据。
 
 ```bash
 # 检查认证旁路是否不存在
@@ -115,7 +116,7 @@ rg -n "storageState|auth\.session_path|\.kata/auth" automation/tests/cases  # �
 - `automation/tests/runners/smoke.spec.ts` 与 `automation/tests/runners/full.spec.ts` 只做聚合 import；不得把长测试体直接写入 runner。
 - P0/P1 的具体用例写入 `automation/tests/cases/t{nn}-{slug}.ts`，共享页面对象写入 `_shared/pages/`，共享接口/模板解析 helper 写入 `_shared/helpers/`。
 - 新生成的脚本不得只交付 smoke；必须同时给出 full runner。若 full 因产品或环境阻塞而覆盖不了深链路，必须在 handoff 中写明阻塞分类和已运行的命令。
-- **串行标注**：有共享状态、有创建-校验-删除链路、或依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称中带 `@serial` 标签（`scripts/run-tests-notify.ts` 的 two-phase runner 会把此类用例挑出来，强制 `workers=1` 串行跑，避免数据互污）。case 之间用 `beforeEach`/`afterEach` 干净地恢复前置态，不依赖执行顺序。
+- **串行标注**：有共享状态、有创建-校验-删除链路、或依赖项目上下文的 case，必须在 `test.describe()` 标题或 `test()` 名称中带 `@serial` 标签。§7 汇总执行必须使用 `PW_TWO_PHASE=1 kata run-tests-notify`，由 wrapper 强制第二阶段 `workers=1`；直接 `npx playwright test` 不具备该保证。case 之间仍用 `beforeEach`/`afterEach` 恢复前置态，不依赖执行顺序。
 
 ### RED -> GREEN 节律
 
@@ -152,7 +153,7 @@ RED→GREEN 节律中的等待条件，必须用以下可靠写法，禁止拿�
 升级前必须完成全部检查，并把结果写入提问消息：
 - [ ] 已读 spec 完整源码
 - [ ] 已对当前 case 用 `--list` + headless 至少各跑 1 次，附上错误输出片段
-- [ ] 已检查当前 env YAML 的 `auth.cookie` 是否非空，并通过真实页面 probe 验证登录态
+- [ ] 已用 `kata env resolve/doctor` 检查认证来源与配置状态，并通过真实页面 probe 验证登录态
 - [ ] 已比对 baseline case 的 selector/等待/fixture 写法，说明本 case 偏差所在
 - [ ] 已判定失败类型（selector/数据/时序/环境/真 bug），并说清判断依据
 - [ ] 已列出主会话管不了的外部依赖（后端服务/测试账号/数据准备/网络）
@@ -188,8 +189,8 @@ kata knowledge read-pitfall --project {{project}} --query "selector"
 
 ## page object 位置（强制）
 
-- 所有 page object 一律放在 `workspace/<project>/_shared/pages/<page-domain>-page.ts`。
-- **禁止**创建或修改 feature 本地 helper 目录；共享 page object 归 `workspace/<project>/_shared/pages/<feature-id>/`，共享 helper 归 `workspace/<project>/_shared/helpers/`。
+- 所有 page object 一律放在 `workspace/<project>/_shared/pages/<page-domain>-page.ts`；具体目录规则只以 `references/directory-structure.md` 为准。
+- **禁止**创建或修改 feature 本地 helper 目录；共享 helper 归 `workspace/<project>/_shared/helpers/`。
 - 目标 domain 已有 page object 时必须复用，不得重新生成或另起一份。
 - 共享 helper 的改动必须落在 `workspace/<project>/_shared/helpers/`。
 - 新增 page object 必须更新 `_shared/pages/INDEX.md`。

@@ -20,11 +20,12 @@ kata playwright-automation 的真实工作流：写 `probe.mjs`（`browser.newCo
 ## 探测上下文与证据采集（§4 ui-probe 用）
 
 ```javascript
-// 创建上下文并从 env profile 的 auth.cookie 注入；禁止输出 cookie
+// 通过项目 runtime resolver 解析基础 profile + .local cookie；禁止直接读 YAML 或输出 cookie
+const runtime = resolveDataAssetsRuntime();
 const context = await browser.newContext();
-const cookies = env.auth.cookie.split(";").map((item) => {
+const cookies = runtime.auth.cookie.split(";").map((item) => {
   const separator = item.indexOf("=");
-  return { name: item.slice(0, separator).trim(), value: item.slice(separator + 1), url: env.urls.base_url };
+  return { name: item.slice(0, separator).trim(), value: item.slice(separator + 1), url: runtime.urls.baseUrl };
 });
 await context.addCookies(cookies);
 const page = await context.newPage();
@@ -246,7 +247,7 @@ await page.locator('[data-testid="toolbar"]').screenshot({ path: "..." });
 `@playwright/cli`（`bunx playwright-cli`，0.1.x 早期 API）已作为 devDependency 安装，可在 §4 阶段作为省 token 的交互探索工具。**以下边界必须遵守**：
 
 1. **仅用于 ui-probe 阶段**的交互探索、页面 snapshot、codegen 起草 locator，不用于任何其他阶段。
-2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话状态一律以 env profile 的 `auth.cookie` 为准，通过 `browserContext.addCookies` 注入（§2 env-preflight 规则）。
+2. **禁止用 named session / `state-save` / `attach --cdp` 管理交付会话**。会话状态一律通过项目 runtime resolver 解析基础 profile 与 `.local` cookie，再用 `browserContext.addCookies` 注入（§2 env-preflight 规则）。
 3. **codegen / snapshot 产出是草稿**：必须经 ui-probe 真实证据（DOM 文本 / API）重新验证、改写为项目约定（语义 locator、可追溯头、`_shared/pages/` 落位）才能进 spec。
 4. **不替代 `probe.mjs` 证据要求**，也不绕过「每 ui-probe step ≤3 个探测脚本」预算。
 

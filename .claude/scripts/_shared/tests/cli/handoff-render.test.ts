@@ -10,7 +10,7 @@ describe("kata handoff render", () => {
     scratch = mkdtempSync(join(tmpdir(), "kata-handoff-"));
     const runDir = join(
       scratch,
-      "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-aaaaaaaa",
+      "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-run-01",
     );
     mkdirSync(runDir, { recursive: true });
     writeFileSync(
@@ -18,7 +18,7 @@ describe("kata handoff render", () => {
       JSON.stringify({
         schema: "PlaywrightAutomationHandoff@2",
         feature_id: "2026-04-x",
-        run_id: "20260510-1430-aaaaaaaa",
+        run_id: "20260510-1430-run-01",
         status: "passed",
         intent_id: "SR-INTENT-X",
         source_refs: {
@@ -45,13 +45,17 @@ describe("kata handoff render", () => {
             record_type: "standard-definition",
             record_name: "qa_auto_standard_20260702",
             status: "已上线",
-            evidence_path: "runs/20260510-1430-aaaaaaaa/allure-results/record.png",
+            evidence_path: "runs/20260510-1430-run-01/allure-results/record.png",
           },
         ],
         unresolved_blockers: [],
         next_actions: [],
         excluded_cases: [
-          { case_id: "P0-3", reason_category: "data_prep", detail: "需后台任务完成" },
+          {
+            case_id: "P0-3",
+            reason_category: "data_prep",
+            detail: "需后台任务完成",
+          },
         ],
       }),
     );
@@ -62,13 +66,13 @@ describe("kata handoff render", () => {
     await runHandoffRender({
       project: "dataAssets",
       featureId: "【v6.4】feature-x",
-      runId: "20260510-1430-aaaaaaaa",
+      runId: "20260510-1430-run-01",
       workspaceRoot: scratch,
     });
     const md = readFileSync(
       join(
         scratch,
-        "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-aaaaaaaa/handoff.md",
+        "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-run-01/handoff.md",
       ),
       "utf-8",
     );
@@ -81,13 +85,13 @@ describe("kata handoff render", () => {
     await runHandoffRender({
       project: "dataAssets",
       featureId: "【v6.4】feature-x",
-      runId: "20260510-1430-aaaaaaaa",
+      runId: "20260510-1430-run-01",
       workspaceRoot: scratch,
     });
     const md = readFileSync(
       join(
         scratch,
-        "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-aaaaaaaa/handoff.md",
+        "dataAssets/features/v6.4/【v6.4】feature-x/runs/20260510-1430-run-01/handoff.md",
       ),
       "utf-8",
     );

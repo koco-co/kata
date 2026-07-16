@@ -23,6 +23,26 @@ export const loadFeatureMetadataV2Validator = () => loadSchema("FeatureMetadata.
 export const loadFeatureManifestValidator = () => loadSchema("FeatureManifest.v2.schema.json");
 export const loadHandoffV2Validator = () =>
   loadSchema("PlaywrightAutomationHandoff.v2.schema.json");
+
+/** JSON Schema cannot express total = passed + failed + skipped. */
+export function handoffV2SemanticErrors(value: unknown): string[] {
+  if (!value || typeof value !== "object") return [];
+  const results = (value as { results?: unknown }).results;
+  if (!results || typeof results !== "object") return [];
+  const counts = results as Record<"total" | "passed" | "failed" | "skipped", unknown>;
+  if (
+    [counts.total, counts.passed, counts.failed, counts.skipped].some(
+      (count) => typeof count !== "number",
+    )
+  ) {
+    return [];
+  }
+  const observed =
+    (counts.passed as number) + (counts.failed as number) + (counts.skipped as number);
+  return counts.total === observed
+    ? []
+    : [`results.total=${counts.total} does not equal passed+failed+skipped=${observed}`];
+}
 export const loadFeatureSourceSnapshotValidator = () =>
   loadSchema("FeatureSourceSnapshot.v1.schema.json");
 export const loadFeatureSourceSnapshotV2Validator = () =>

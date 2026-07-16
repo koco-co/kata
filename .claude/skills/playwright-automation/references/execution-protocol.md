@@ -19,24 +19,26 @@
 | ui-plan             | 主会话                                                    |
 | ui-probe            | Agent（并入「前置条件处理」opus 子代理：探测+共享层+用例清单校正） |
 | plan-reconcile      | 用例 sonnet 子代理内（每条用例自核对）                    |
-| playwright-generate | Agent（每条用例一个任务，标题=用例标题，sonnet，限并发）  |
+| playwright-generate | 主会话维护 runner import；Agent 每条用例只写分配的 case（sonnet，限并发） |
 | self-run            | Agent（并入对应用例 sonnet 子代理）                       |
 | run-triage          | 主会话（编排：判类 + 动态新增修复任务）                   |
 | repair-loop         | Agent（红则动态新增修复任务，sonnet；连 2 次红升级 opus） |
 | quality-gate        | spec-reviewer + quality-reviewer（集中在汇总跑一次）      |
 | handoff             | 主会话                                                    |
 
-## 进度维护（主 agent 纯编排）
+## 进度维护（主 agent 编排与聚合）
 
-进入可派执行子代理的窗口后（env-preflight 已在主会话通过、无 blocker），主 agent 只做编排，不直接执行探测/脚本/修复：
+进入可派执行子代理的窗口后（env-preflight 已在主会话通过、无 blocker），主 agent 不实现单条 case，但负责 scaffold、runner import、汇总执行、评审与 handoff：
 
-1. 跑 `kata case-tasks build --feature <feature-dir>` 拿用例任务清单 JSON（id/标题/读写分类/串行/排除）。
+1. 跑 `kata case-tasks build --feature <feature-dir>` 拿用例任务清单 JSON（id/标题/intent_id/case_file/automation_status/读写分类/串行/排除）；`ready` 进入生成或验证，`failing` 直接进入修复调度，`deferred/blocked` 不得静默当作已完成。
 2. 一次性创建任务列表：`前置条件处理` + 每条用例一项（标题=用例标题）+ `汇总 & 质量闸门`。env-preflight 已完成，创建后即标 `completed`。
-3. `前置条件处理` 标 `in_progress`，派 **opus 子代理**（ui-probe 真实证据 + 共享页面对象/helper/fixture + env YAML auth.cookie 登录态 + 校正读写分类）；完成标 `completed`。
-4. 按并发上限（默认同时 3 条）派 **sonnet 子代理** 跑用例任务（plan-reconcile + generate + self-run）；写数据用例用 run-id/case-id 造唯一 fixture 数据、跑完自清理；`serial=true` 的用例带 `@serial`，由 two-phase runner 串行。
-5. 某用例红 → run-triage 判类后**动态新增** `修复: <标题>` 任务（sonnet，≤3 次/用例）；连 2 次红 → 升级为 `升级修复: <标题>`，改派 opus 子代理接管。
-6. 全部用例绿 → `汇总 & 质量闸门`：跑全量 case spec、机械 lint（15 项）、语义 quality-reviewer，再 handoff。
-7. 执行子代理不读 SKILL.md，也不维护任务列表。
+3. 主 agent 运行 `kata automation scaffold <feature-dir>`，只补齐缺失目录、README 与空 runner；不得用 `--force` 覆盖已有 runner。
+4. `前置条件处理` 标 `in_progress`，派 **opus 子代理**（ui-probe 真实证据 + 共享页面对象/helper/fixture + runtime resolver 登录态 + 校正读写分类）；完成标 `completed`。
+5. 按并发上限（默认同时 3 条）派 **sonnet 子代理** 跑用例任务（plan-reconcile + generate + 单 case self-run）；写数据用例用 run-id/case-id 造唯一 fixture 数据、跑完自清理；`serial=true` 的用例带 `@serial`。
+6. 主 agent 依据 CaseTaskList 中的 `case_file` 集中更新 `full.spec.ts` import，并按 P0 范围更新 `smoke.spec.ts`；runner 只含 import。worker 禁止创建或修改 runner。
+7. 某用例红 → run-triage 判类后**动态新增** `修复: <标题>` 任务（sonnet，≤3 次/用例）；连 2 次红 → 升级为 `升级修复: <标题>`，改派 opus 子代理接管。
+8. 全部用例绿 → `汇总 & 质量闸门`：用 §7 的 `PW_TWO_PHASE=1 kata run-tests-notify` 跑 full、机械 lint、语义 quality-reviewer；生成 case-feedback 后再渲染 handoff。
+9. 执行子代理不读 SKILL.md，也不维护任务列表。
 
 ## 执行子代理派发协议
 
