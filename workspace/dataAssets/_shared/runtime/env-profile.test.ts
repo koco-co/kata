@@ -7,6 +7,7 @@ import {
   bridgeLegacyDataAssetsEnv,
   cookieHeaderToPlaywrightState,
   loadDataAssetsEnvProfile,
+  loadNamedDataAssetsAuthState,
   resolveDataAssetsEnvName,
   resolveDataAssetsRuntime,
 } from "./env-profile";
@@ -53,6 +54,20 @@ beforeEach(() => {
       schema_version: 2,
       url: "http://example.test",
       auth: { cookie: "dt_tenant_name=pw_test; sid=test-cookie" },
+      guard: { expected_tenant: "pw_test" },
+      projects: { quality: "pw_test", offline: "pw_test" },
+      datasources: { sparkthrift: { name: "pw_test_HADOOP", database: "pw_test" } },
+      defaults: { datasource: "sparkthrift" },
+      safety: { allow_write: false },
+    }),
+    { mode: 0o600 },
+  );
+  writeFileSync(
+    join(dir, "ltqc-limited.yaml"),
+    stringify({
+      schema_version: 2,
+      url: "http://example.test",
+      auth: { cookie: "dt_tenant_name=pw_test; sid=limited-cookie" },
       guard: { expected_tenant: "pw_test" },
       projects: { quality: "pw_test", offline: "pw_test" },
       datasources: { sparkthrift: { name: "pw_test_HADOOP", database: "pw_test" } },
@@ -130,5 +145,21 @@ describe("DataAssets v2 runtime profile", () => {
       { name: "sid", value: "test-cookie" },
       { name: "token", value: "value=with-equals" },
     ]);
+  });
+
+  test("loads a named same-platform account into memory without a session file", () => {
+    const state = loadNamedDataAssetsAuthState(
+      "ltqc-limited",
+      { baseUrl: "http://example.test", tenantName: "pw_test" },
+      { repoRoot: root },
+    );
+    expect(state.cookies).toContainEqual(expect.objectContaining({ name: "sid", value: "limited-cookie" }));
+    expect(() =>
+      loadNamedDataAssetsAuthState(
+        "ltqc-limited",
+        { baseUrl: "http://other.test", tenantName: "pw_test" },
+        { repoRoot: root },
+      ),
+    ).toThrow(/different platform URL/);
   });
 });

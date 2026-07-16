@@ -116,6 +116,8 @@ describe("kata 公共命令契约", () => {
   it("Skill 与共享提示词只引用公共命令和 kebab-case 位置参数", async () => {
     const forbiddenCommands =
       /kata (?:create-project|repo-sync|init-wizard|archive-gen|history-convert|knowledge-curate|defect-report|scan-report|rule-loader|xmind-gen|xmind-patch)\b/;
+    const forbiddenCommandArgument =
+      /["'](?:create-project|repo-sync|init-wizard|archive-gen|history-convert|knowledge-curate|defect-report|scan-report|rule-loader|xmind-gen|xmind-patch)["']/;
     const camelCasePlaceholder = /<feature(?:Id|Dir)>/;
     const publicGroups = new Set(Object.keys(publicCommands));
     const files: string[] = [];
@@ -128,6 +130,8 @@ describe("kata 公共命令契约", () => {
       "INSTALL.md",
       "CONTRIBUTING.md",
       "CLAUDE.md",
+      "workspace/**/_shared/**/*.md",
+      "workspace/**/automation/**/*.mjs",
     ]) {
       for await (const file of new Glob(pattern).scan({ cwd: repoRoot, onlyFiles: true })) {
         files.push(file);
@@ -141,6 +145,9 @@ describe("kata 公共命令契约", () => {
       ];
       return [
         ...(forbiddenCommands.test(content) ? [`${file}: 引用了隐藏旧命令`] : []),
+        ...(file.endsWith(".mjs") && forbiddenCommandArgument.test(content)
+          ? [`${file}: 调用了隐藏旧命令`]
+          : []),
         ...(camelCasePlaceholder.test(content) ? [`${file}: 使用了 camelCase 位置参数`] : []),
         ...commandReferences.flatMap((match) => {
           const [, group, action] = match;

@@ -120,4 +120,23 @@ describe("lintSessionCompliant", () => {
       }),
     );
   });
+
+  it("rejects feature-specific session path environment variables", () => {
+    const casesDir = join(scratch, "dataAssets", "features", "v1", "feature", "tests", "cases");
+    mkdirSync(casesDir, { recursive: true });
+    writeFileSync(
+      join(casesDir, "t02.ts"),
+      "const path = process.env.UI_AUTOTEST_DQ_LIMITED_SESSION_PATH; browser.newContext({ storageState: path });",
+    );
+
+    const report = lintSessionCompliant(scratch);
+
+    expect(report.passed).toBe(false);
+    expect(report.violations).toContainEqual(
+      expect.objectContaining({
+        rule: "session_compliant",
+        matched: "legacy auth session",
+      }),
+    );
+  });
 });

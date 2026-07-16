@@ -162,7 +162,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
   let files = 0;
   for (const project of projectDirs(workspaceRoot)) {
     for (const file of walkFiles(join(workspaceRoot, project, "features"))) {
-      if (!/\.(?:ts|tsx|md|json|yaml)$/.test(file)) continue;
+      if (!/\.(?:ts|tsx|mjs|md|json|yaml)$/.test(file)) continue;
       files += 1;
       const content = readFileSync(file, "utf-8");
       if (
@@ -170,7 +170,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
         content.includes(".auth/session.json") ||
         content.includes(`.kata/auth/${project}/`) ||
         content.includes("auth.session_path") ||
-        content.includes("UI_AUTOTEST_SESSION_PATH")
+        /\b[A-Z][A-Z0-9_]*SESSION_PATH\b/.test(content)
       ) {
         violations.push(
           violation(
