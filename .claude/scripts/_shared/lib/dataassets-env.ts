@@ -428,6 +428,10 @@ function assertTenant(config: DataAssetsEnvConfig): Map<string, string> {
   return cookies;
 }
 
+export function assertDataAssetsTenantCookie(config: DataAssetsEnvConfig): void {
+  assertTenant(config);
+}
+
 async function post<T>(
   config: DataAssetsEnvConfig,
   path: string,

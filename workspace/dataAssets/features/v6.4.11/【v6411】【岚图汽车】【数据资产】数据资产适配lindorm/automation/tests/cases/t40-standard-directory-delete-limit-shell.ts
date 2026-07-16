@@ -8,11 +8,6 @@
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectStandardDirectoryDeleteAndLimitShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P3】标准目录删除与子目录数量限制入口可核验", async ({ page, step }) => {

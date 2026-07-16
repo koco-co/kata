@@ -157,9 +157,7 @@ describe("kata cases convert", () => {
 
     const markdown = readFileSync(output, "utf8");
     expect(markdown).toContain("| 1 | 新建规则 | 进入配置页 |");
-    expect(markdown).toContain(
-      "| 2 | 执行规则 | 1) 状态为校验异常<br>2) 支持查看明细 |",
-    );
+    expect(markdown).toContain("| 2 | 执行规则 | 1) 状态为校验异常<br>2) 支持查看明细 |");
     expect(markdown).not.toContain("| 3 |");
   });
 
@@ -170,8 +168,8 @@ describe("kata cases convert", () => {
       input,
       [
         "模块,页面,用例标题,测试步骤,预期结果",
-        `数据资产,数据质量,验证翻页按钮,"1. 点击\"<\"
-2. 点击\">\"","1. 向前翻页
+        `数据资产,数据质量,验证翻页按钮,"1. 点击"<"
+2. 点击">"","1. 向前翻页
 2. 向后翻页"`,
       ].join("\n"),
       "utf8",

@@ -14,11 +14,6 @@ import {
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
 import { SR_2099_01_MD_002, SR_2099_01_MD_003 } from "../data/metadata-contract";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P1】元数据同步列表和元模型管理 Shell 可核验", async ({ page, step }) => {

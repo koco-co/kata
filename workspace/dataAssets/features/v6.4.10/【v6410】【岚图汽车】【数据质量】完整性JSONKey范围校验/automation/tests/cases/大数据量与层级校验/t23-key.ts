@@ -7,7 +7,6 @@
 //       前置条件极复杂，需通过 API 或导入工具完成。当前先做骨架。
 import { test } from "../../../../../_shared/fixtures/step-screenshot";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";

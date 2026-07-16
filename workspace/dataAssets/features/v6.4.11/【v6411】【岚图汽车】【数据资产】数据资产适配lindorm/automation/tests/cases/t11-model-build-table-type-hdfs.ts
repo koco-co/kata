@@ -9,11 +9,6 @@ import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectModelBuildTableTypeHdfsInteraction } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
 import { MODEL_BUILD_TABLE_TYPE_SCOPE, SR_2099_01_DM_002 } from "../data/model-contract";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P1】数据模型建表表类型与 hdfs 存储路径交互可核验", async ({ page, step }) => {

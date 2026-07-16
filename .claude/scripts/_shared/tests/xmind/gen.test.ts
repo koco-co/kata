@@ -12,7 +12,7 @@ const TMP_DIR = join(tmpdir(), `kata-xmind-test-${process.pid}`);
 
 function run(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["xmind-gen", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["xmind", "generate", ...args], {
       cwd: REPO_ROOT,
       encoding: "utf8",
     });

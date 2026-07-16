@@ -19,11 +19,6 @@ import {
   SR_2099_01_AI_SEARCH_TREND_L142,
 } from "../data/assets-inventory-contract";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(30 * 60 * 1000);
 
 test("【P3】资产盘点元数据变化与资产查询趋势图可核验", async ({ page, step }) => {

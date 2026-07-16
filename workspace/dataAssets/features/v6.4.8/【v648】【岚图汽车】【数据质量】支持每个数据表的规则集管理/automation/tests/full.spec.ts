@@ -15,7 +15,6 @@ type ProjectListResponse = {
 // ─── Shared Constants ────────────────────────────────────────────────
 const defaultBaseUrl = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
 const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
-const storageStatePath = getEnv("UI_AUTOTEST_SESSION_PATH");
 
 // ─── Shared Helpers ──────────────────────────────────────────────────
 function getEnv(name: string): string | undefined {
@@ -142,10 +141,6 @@ function uniqueName(prefix: string): string {
 // ─── Tests ───────────────────────────────────────────────────────────
 test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   test.describe.configure({ mode: "serial" });
-
-  if (storageStatePath) {
-    test.use({ storageState: storageStatePath });
-  }
 
   // ═══════════════════════════════════════════════════════════════════════
   // 校验结果查询 - 规则集管理

@@ -9,11 +9,6 @@ import { expect, type Page } from "@playwright/test";
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P3/P1】元数据数据地图二级页筛选与数据目录 Shell 可核验", async ({

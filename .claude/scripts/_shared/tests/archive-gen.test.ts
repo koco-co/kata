@@ -12,7 +12,7 @@ const TMP_DIR = join(tmpdir(), `kata-archive-test-${process.pid}`);
 
 function run(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["archive-gen", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["archives", ...args], {
       cwd: REPO_ROOT,
       encoding: "utf8",
     });

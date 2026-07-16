@@ -14,7 +14,6 @@ import {
   gotoMonitorRulesStep,
 } from "../../../../_shared/pages/timeliness-monitor/timeliness-monitor-page";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(180000);
 
 test.describe(`${SUITE_NAME} - 监控规则配置`, () => {

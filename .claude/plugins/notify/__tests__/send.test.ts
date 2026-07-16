@@ -15,12 +15,6 @@ import {
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const SEND_TS = resolve(__dirname, "../send.ts");
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function _stripEmoji(s: string): string {
-  return s.replace(/^[\p{Emoji}\s]+/u, "").trim();
-}
-
 // ── Message Formatting ───────────────────────────────────────────────────────
 
 describe("formatMessage", () => {

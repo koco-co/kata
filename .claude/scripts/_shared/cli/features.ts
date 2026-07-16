@@ -17,8 +17,8 @@ import { runResultsPrune } from "./results-prune.ts";
 export function buildFeaturesCommand(): Command {
   const features = new Command("features").description("需求功能目录管理");
 
-  const createFeature = (name: string): Command =>
-    new Command(`${name} <slug>`)
+  const createFeature = (): Command =>
+    new Command("create <slug>")
       .description("创建需求功能目录及 metadata.yaml、manifest.json")
       .requiredOption("--display-name <name>", "中文人读名")
       .requiredOption("--project <name>", "项目名（必填）")
@@ -46,11 +46,10 @@ export function buildFeaturesCommand(): Command {
         });
         console.log(`[features create] 已创建 ${result.featureId}：${result.featureDir}`);
       });
-  features.addCommand(createFeature("create"));
-  features.addCommand(createFeature("new"), { hidden: true });
+  features.addCommand(createFeature());
 
-  const listFeatures = (name: string): Command =>
-    new Command(name)
+  const listFeatures = (): Command =>
+    new Command("list")
       .description("列出需求功能，支持按模块、客户、版本等条件筛选")
       .requiredOption("--project <name>", "项目名（必填）")
       .option("--module <name>", "按模块筛选")
@@ -95,8 +94,7 @@ export function buildFeaturesCommand(): Command {
             );
         }
       });
-  features.addCommand(listFeatures("list"));
-  features.addCommand(listFeatures("ls"), { hidden: true });
+  features.addCommand(listFeatures());
 
   features
     .command("show <feature-id>")

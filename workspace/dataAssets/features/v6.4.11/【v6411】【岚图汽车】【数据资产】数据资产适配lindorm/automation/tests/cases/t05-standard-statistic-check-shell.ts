@@ -14,11 +14,6 @@ import {
   expectStandardStatisticShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P2/P3】数据标准统计模块与落标检查列表 Shell 可核验", async ({ page, step }) => {

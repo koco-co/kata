@@ -10,7 +10,7 @@ import {
   showDataAssetsEnv,
 } from "@shared/lib/dataassets-env.ts";
 import { Command } from "commander";
-import { migrateZentaoSession, setRootEnv } from "./env-check.ts";
+import { setRootEnv } from "./env-config.ts";
 
 interface LegacyEnvOptions {
   readonly project?: string;
@@ -129,12 +129,6 @@ export function buildEnvCommand(): Command {
       outputJson(result);
       if (!result.ok) process.exitCode = 2;
     });
-
-  env
-    .command("migrate-zentao-session")
-    .description("把旧 ZenTao cookie 迁移到根目录 .env")
-    .requiredOption("--session <path>", "待迁移的旧 session.json 路径")
-    .action((opts: { session: string }) => outputJson(migrateZentaoSession(opts)));
 
   env
     .command("set")

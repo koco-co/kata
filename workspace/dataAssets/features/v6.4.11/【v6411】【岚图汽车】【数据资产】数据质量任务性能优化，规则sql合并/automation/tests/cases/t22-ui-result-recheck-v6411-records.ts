@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { getEnvConfig } from "../../../../../../_shared/helpers";
 
 type UiResultStatus = "validation-pass" | "validation-unpass" | "run-failed" | "running" | "unknown" | "missing";
 
@@ -30,16 +31,12 @@ const OUT_DIR = path.resolve(
 );
 const RESULT_JSON = path.join(OUT_DIR, "ui-result-recheck.json");
 const RESULT_JSONL = path.join(OUT_DIR, "ui-result-recheck.jsonl");
-const BASE_URL = process.env.V6411_DQ_BASE_URL ?? "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
-const PROJECT_ID = process.env.V6411_DQ_PROJECT_ID ?? "92";
-const PROJECT_NAME = process.env.V6411_DQ_PROJECT_NAME ?? "pw_test";
-const SESSION_PATH = path.resolve(
-  process.cwd(),
-  process.env.V6411_DQ_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-);
+const ENV = getEnvConfig();
+const BASE_URL = ENV.urls.baseUrl;
+const PROJECT_ID = String(ENV.projects.quality.id);
+const PROJECT_NAME = ENV.projects.quality.name;
 const CASE_FILTER = parseCaseFilter(process.env.V6411_UI_RESULT_RECHECK_CASES ?? "1-72");
 
-test.use({ storageState: SESSION_PATH });
 test.setTimeout(Number(process.env.V6411_UI_RESULT_RECHECK_TIMEOUT_MS ?? 35 * 60 * 1000));
 
 function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string {

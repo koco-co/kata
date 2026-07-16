@@ -3,6 +3,7 @@ import {
   DATAASSETS_CONFIG_ENV,
   DATAASSETS_RESOLVED_ENV,
   LEGACY_DATAASSETS_ENV,
+  assertDataAssetsTenantCookie,
   assertDataAssetsEnvName,
   dataAssetsEnvPath,
   readDataAssetsEnvConfig,
@@ -60,7 +61,6 @@ export interface DataAssetsEnvProfile {
     readonly tenantName: string;
     readonly userId?: number;
     readonly username?: string;
-    readonly sessionPath?: string;
   };
   readonly projects: {
     readonly quality: { readonly id: number; readonly name: string };
@@ -90,6 +90,11 @@ export interface PlaywrightCookieState {
     readonly sameSite: "Lax";
   }>;
   readonly origins: readonly [];
+}
+
+export interface NamedAuthProfileGuard {
+  readonly baseUrl: string;
+  readonly tenantName: string;
 }
 
 let legacyWarningShown = false;
@@ -249,6 +254,27 @@ export function cookieHeaderToPlaywrightState(
     }),
     origins: [],
   };
+}
+
+/** Load a second named account for the same platform without creating a storageState file. */
+export function loadNamedDataAssetsAuthState(
+  envName: string,
+  expected: NamedAuthProfileGuard,
+  opts?: { readonly repoRoot?: string },
+): PlaywrightCookieState {
+  const selected = assertDataAssetsEnvName(envName);
+  const config = readDataAssetsEnvConfig(selected, opts);
+  if (config.url !== expected.baseUrl) {
+    throw new Error(`named auth environment ${selected} targets a different platform URL`);
+  }
+  if (config.guard.expected_tenant !== expected.tenantName) {
+    throw new Error(`named auth environment ${selected} targets a different tenant`);
+  }
+  if (!config.auth.cookie.trim()) {
+    throw new Error(`named auth environment ${selected} has no Cookie`);
+  }
+  assertDataAssetsTenantCookie(config);
+  return cookieHeaderToPlaywrightState(`${config.url}/dataAssets`, config.auth.cookie);
 }
 
 export function bridgeLegacyDataAssetsEnv(

@@ -12,7 +12,7 @@ const PROJECT_KNOWLEDGE = join(TEST_WORKSPACE_ROOT, PROJECT, "_shared", "knowled
 
 function runProjectKnowledge(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync(KATA_CLI, ["knowledge-curate", ...args], {
+    const stdout = execFileSync(KATA_CLI, ["knowledge", ...args], {
       cwd: resolve(import.meta.dirname, "../../../.."),
       encoding: "utf8",
       env: { ...process.env, KATA_WORKSPACE_ROOT: TEST_WORKSPACE_ROOT },

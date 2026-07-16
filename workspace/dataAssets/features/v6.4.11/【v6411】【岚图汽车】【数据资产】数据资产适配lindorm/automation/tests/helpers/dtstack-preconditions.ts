@@ -4,12 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadDataAssetsEnvProfile } from "../../../../_shared/runtime/env-profile";
 
-const DEFAULT_SESSION_PATH = "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json";
-const DEFAULT_LTQC_BASE_URL = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
 const preparedPreconditionGroups = new Set<string>();
 
 type SparkThriftPreconditionProfile = {
-  sessionPath: string;
+  env: string;
+  cookie: string;
   baseUrl: string;
   projectId: number;
   projectName: string;
@@ -126,7 +125,8 @@ function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
       ? profile.projects.quality.id
       : profile.projects.offline.id;
   return {
-    sessionPath: profile.auth.sessionPath,
+    env: profile.env,
+    cookie: profile.auth.cookie,
     baseUrl: profile.urls.baseUrl,
     projectId,
     projectName,
@@ -145,16 +145,13 @@ function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
 
 function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): void {
   const preconditionProfile = loadSparkThriftPreconditionProfile();
-  const sessionPath =
-    process.env.UI_AUTOTEST_SESSION_PATH ?? preconditionProfile.sessionPath ?? DEFAULT_SESSION_PATH;
-  const state = JSON.parse(readFileSync(sessionPath, "utf8")) as {
-    cookies?: Array<{ name: string; value: string }>;
-  };
-  assertSessionCookieFresh(state, sessionPath, sourceRef);
-  const cookie = (state.cookies ?? []).map((item) => `${item.name}=${item.value}`).join("; ");
+  const cookie = preconditionProfile.cookie.trim();
   if (!cookie) {
-    throw new Error(`${sourceRef}: 无法从 ${sessionPath} 读取 dtstack-cli 所需 cookie`);
+    throw new Error(
+      `${sourceRef}: Cookie 缺失，请通过 kata env cookie set ${preconditionProfile.env} --stdin 更新`,
+    );
   }
+  assertCookieFresh(cookie, preconditionProfile.env, sourceRef);
 
   const localBin = "./node_modules/.bin/dtstack-cli";
   const command = existsSync(localBin) ? localBin : "bun";
@@ -202,7 +199,7 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
     env: {
       ...process.env,
       DTSTACK_COOKIE: cookie,
-      LTQC_BASE_URL: process.env.LTQC_BASE_URL ?? preconditionProfile.baseUrl ?? DEFAULT_LTQC_BASE_URL,
+      LTQC_BASE_URL: preconditionProfile.baseUrl,
     },
     encoding: "utf8",
     timeout: Number(process.env.KATA_DQ_PRECOND_TIMEOUT_MS ?? 1_800_000),
@@ -222,12 +219,12 @@ function runDtstackPreconditionSetup(tablesFile: string, sourceRef: string): voi
   }
 }
 
-function assertSessionCookieFresh(
-  state: { cookies?: Array<{ name: string; value: string }> },
-  sessionPath: string,
-  sourceRef: string,
-): void {
-  const token = state.cookies?.find((item) => item.name === "dt_token")?.value;
+function assertCookieFresh(cookie: string, env: string, sourceRef: string): void {
+  const token = cookie
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith("dt_token="))
+    ?.slice("dt_token=".length);
   if (!token) return;
 
   const payload = parseJwtPayload(token);
@@ -238,7 +235,7 @@ function assertSessionCookieFresh(
 
   throw new Error(
     [
-      `${sourceRef}: ltqc-local session 已过期，请刷新 ${sessionPath}`,
+      `${sourceRef}: Cookie 已过期，请通过 kata env cookie set ${env} --stdin 更新`,
       `dt_token exp=${formatShanghaiTime(expiresAtMs)}`,
       `now=${formatShanghaiTime(Date.now())}`,
     ].join("\n"),

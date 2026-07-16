@@ -13,11 +13,6 @@ import {
   expectDataMapHotTagsNavigationShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P3/P1】元数据数据地图热门区与首页关键词搜索 Shell 可核验", async ({

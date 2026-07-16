@@ -15,7 +15,6 @@
   "exclude": [
     "node_modules",
     "workspace",
-    ".claude/scripts/_shared/tests/codemod/fixtures/**",
     ".claude/scripts/_shared/tests/lint/fixtures/**"
   ]
 }

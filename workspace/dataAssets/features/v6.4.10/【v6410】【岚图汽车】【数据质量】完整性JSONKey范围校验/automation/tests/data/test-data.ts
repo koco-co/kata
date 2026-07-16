@@ -1,5 +1,3 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Page } from "@playwright/test";
 import type { DtStackClientLike, DtStackResponse } from "dtstack-sdk";
 import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
@@ -287,11 +285,6 @@ export const SUITE_KEYS = [
   KEY_NAMES.k22,
   KEY_NAMES.k33,
 ] as const;
-
-if (process.env.OFFLINE_MODE === "1") {
-  const suiteDir = dirname(fileURLToPath(import.meta.url));
-  process.env.UI_AUTOTEST_SESSION_PATH = resolve(suiteDir, "./offline-storage-state.json");
-}
 
 let currentDatasource = ACTIVE_DATASOURCES[0] ?? DEFAULT_DATASOURCES[0];
 // 初始化时同步 legacy datasource，确保 rule-editor-helpers 的 getCurrentDatasource 返回相同值

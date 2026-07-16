@@ -11,11 +11,6 @@ import {
   expectStandardCheckTaskAddShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 test("【P0】数据标准落标检查新增任务与结果列表只读 Shell 可核验", async ({

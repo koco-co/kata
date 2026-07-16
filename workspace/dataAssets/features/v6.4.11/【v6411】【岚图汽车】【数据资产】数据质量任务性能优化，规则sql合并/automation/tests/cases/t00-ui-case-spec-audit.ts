@@ -26,12 +26,7 @@ import {
 } from "../data/v6411-ui-base-table-data";
 
 const CASES_DIR = path.dirname(fileURLToPath(import.meta.url));
-const RUNNERS_DIR = path.resolve(CASES_DIR, "../runners");
-const FORMAL_UI_SCRIPT_FILES = [
-  path.join(CASES_DIR, "t15-ui-clean-v6411-history.ts"),
-  path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts"),
-];
-const LEGACY_UI_REPAIR_SCRIPT_FILE = path.join(CASES_DIR, "t14-ui-resave-run-existing-tasks.ts");
+const FORMAL_UI_SCRIPT_FILES = [path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts")];
 
 test.describe("v6411 UI 自动化规格审计", () => {
   test("72 条 UI 用例元数据必须来自 canonical 36 条 CSV 用例并按 Doris/Spark 各复制一套", async () => {
@@ -566,35 +561,6 @@ test.describe("v6411 UI 自动化规格审计", () => {
     }
   });
 
-  test("旧记录重保存脚本必须显式标记 legacy 且不能记录网络请求载荷", async () => {
-    const text = fs.readFileSync(LEGACY_UI_REPAIR_SCRIPT_FILE, "utf8");
-    expect(text, "t14 只能作为 legacy 修复脚本，不能默认操作旧 V6411-PW-72-RECORDS 记录").toContain(
-      "V6411_ALLOW_LEGACY_RESAVE",
-    );
-    expect(text, "t14 必须说明旧记录修复不属于正式 full UI 重建链路").toContain(
-      "不属于当前正式 full UI 重建链路",
-    );
-    expect(text, "t14 不得读取或记录请求 postData").not.toMatch(/postData|request\.postData|page\.on\("request"|page\.on\("response"/);
-  });
-
-  test("正式 runner 不能导入旧记录重保存脚本", async () => {
-    const runners = fs
-      .readdirSync(RUNNERS_DIR)
-      .filter((name) => name.endsWith(".spec.ts"))
-      .sort();
-    for (const runner of runners) {
-      const text = fs.readFileSync(path.join(RUNNERS_DIR, runner), "utf8");
-      if (runner === "v6411-ui-resave-run.spec.ts") {
-        expect(text, "legacy 重保存 runner 必须明确标注不属于 formal full UI rebuild").toContain(
-          "not part of the formal full UI rebuild deliverable",
-        );
-        continue;
-      }
-      expect(text, `${runner} 不得导入旧记录重保存脚本 t14`).not.toContain(
-        'import "../cases/t14-ui-resave-run-existing-tasks"',
-      );
-    }
-  });
 });
 
 function parseCaseFilter(value: string): Set<number> {

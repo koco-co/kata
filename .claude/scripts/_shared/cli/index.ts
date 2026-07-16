@@ -55,23 +55,6 @@ const kata = new Command()
   .showHelpAfterError()
   .showSuggestionAfterError();
 
-function legacyCommandAlias(name: string, target: Command, defaultAction?: string): Command {
-  return new Command(name)
-    .description(`兼容入口，请改用 kata ${target.name()}`)
-    .helpOption(false)
-    .addHelpCommand(false)
-    .allowUnknownOption(true)
-    .allowExcessArguments(true)
-    .action(async () => {
-      const args = process.argv.slice(3);
-      const forwarded =
-        defaultAction && (args.length === 0 || args[0].startsWith("-"))
-          ? [defaultAction, ...args]
-          : args;
-      await target.parseAsync(["node", target.name(), ...forwarded]);
-    });
-}
-
 archiveGen.name("archives").description("测试用例归档文件的生成、校验与检索");
 managingProjectKnowledge.name("knowledge").description("项目知识的查询、维护与检查");
 ruleLoader.name("rules").description("项目规则的加载与合并");
@@ -111,24 +94,6 @@ kata.addCommand(sourceAnalyze);
 kata.addCommand(sourceRef);
 kata.addCommand(writerContextBuilder);
 kata.addCommand(xmindPatch);
-
-// 已发布脚本名继续可用，但不再出现在公共帮助页。
-kata.addCommand(legacyCommandAlias("create-project", createProject), { hidden: true });
-kata.addCommand(legacyCommandAlias("repo-sync", repoSync, "sync"), { hidden: true });
-kata.addCommand(legacyCommandAlias("init-wizard", initWizard), { hidden: true });
-kata.addCommand(legacyCommandAlias("archive-gen", archiveGen), { hidden: true });
-kata.addCommand(legacyCommandAlias("history-convert", historyConvert), { hidden: true });
-kata.addCommand(legacyCommandAlias("knowledge-curate", managingProjectKnowledge), {
-  hidden: true,
-});
-kata.addCommand(legacyCommandAlias("knowledge-keeper", managingProjectKnowledge), {
-  hidden: true,
-});
-kata.addCommand(legacyCommandAlias("defect-report", defectReport), { hidden: true });
-kata.addCommand(legacyCommandAlias("scan-report", scanReport), { hidden: true });
-kata.addCommand(legacyCommandAlias("rule-loader", ruleLoader), { hidden: true });
-kata.addCommand(legacyCommandAlias("xmind-gen", xmindGen), { hidden: true });
-kata.addCommand(legacyCommandAlias("xmind-patch", xmindPatch), { hidden: true });
 
 // ── Noun-verb style commands ─────────────────────────────────
 import { buildAgentsCommand } from "@shared/cli/agents-audit.ts";

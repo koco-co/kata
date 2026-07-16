@@ -31,9 +31,6 @@ import {
   waitForTaskInstanceFinished,
 } from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 
 for (const datasource of ACTIVE_DATASOURCES) {
   test.describe(`${"【内置规则丰富】完整性，json中key值范围校验 - 校验方法切换"} - ${datasource.reportName}`, () => {

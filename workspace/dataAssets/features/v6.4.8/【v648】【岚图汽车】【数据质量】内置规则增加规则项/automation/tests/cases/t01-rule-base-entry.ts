@@ -8,9 +8,6 @@ import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { EXPECTED_RULE_BASE_TEXT, SOURCE_REFS } from "../data/rule-library-contract";
 import { gotoRuleBaseCandidate } from "../../../../_shared/pages/rule-library/rule-library-page";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json",
-});
 test.setTimeout(90000);
 
 test("【P0】规则库配置入口可访问并展示内置规则/导出能力", async ({ page, step }) => {

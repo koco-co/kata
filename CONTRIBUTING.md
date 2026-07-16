@@ -19,10 +19,10 @@ bun test            # verify tests
 ## Commit Convention
 
 ```
-<type>: <emoji> <description>
+<type>: <description>
 
 标题行用英文，description ≤ 72 字符。
-type/emoji 固定映射见 .claude/rules/project-workflow-rules.md。
+细则见 `.claude/rules/git-workflow.md`。
 ```
 
 ## PR Checklist

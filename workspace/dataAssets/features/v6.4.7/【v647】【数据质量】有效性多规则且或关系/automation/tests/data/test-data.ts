@@ -3,8 +3,6 @@
  * 「有效性-取值范围枚举范围规则」全部 27 条用例的公共依赖
  */
 
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Page } from "@playwright/test";
 import { createClient, setupPreconditions } from "../../../../_shared/helpers/preconditions";
 import {
@@ -276,11 +274,6 @@ export const ALL_TABLES = TABLE_DEFINITIONS.map((table) => table.name) as readon
 export const QUALITY_PROJECT_ID = ENV.projects.quality.id;
 export const QUALITY_PROJECT_NAME = ENV.projects.quality.name;
 export const BATCH_PROJECT_NAME = ENV.projects.offline.name;
-
-if (process.env.OFFLINE_MODE === "1") {
-  const suiteDir = dirname(fileURLToPath(import.meta.url));
-  process.env.UI_AUTOTEST_SESSION_PATH = resolve(suiteDir, "./offline-storage-state.json");
-}
 
 let currentDatasource = ACTIVE_DATASOURCES[0] ?? DEFAULT_DATASOURCES[0];
 

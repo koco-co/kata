@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { repoRoot } from "@shared/lib/paths.ts";
 
@@ -25,11 +25,13 @@ describe("项目级 settings.json 挂载 repos 只读守卫", () => {
 
   const settings = existsSync(SETTINGS)
     ? (JSON.parse(readFileSync(SETTINGS, "utf8")) as {
-        hooks?: { PreToolUse?: MatcherGroup[] };
+        hooks?: Record<string, MatcherGroup[]>;
       })
     : {};
   const preToolUse = settings.hooks?.PreToolUse ?? [];
-  const allCommands = preToolUse.flatMap((g) => g.hooks.map((h) => h.command));
+  const allCommands = Object.values(settings.hooks ?? {}).flatMap((groups) =>
+    groups.flatMap((group) => group.hooks.map((hook) => hook.command)),
+  );
 
   test("PreToolUse 把 Edit/Write 挂到 pre-edit-guard.ts", () => {
     const editGroup = preToolUse.find((g) => /Edit|Write/.test(g.matcher));
@@ -53,5 +55,15 @@ describe("项目级 settings.json 挂载 repos 只读守卫", () => {
         expect(existsSync(join(REPO, ".claude/hooks", fileName))).toBe(true);
       }
     }
+  });
+
+  test("所有 hook 脚本都已挂载（不保留磁盘死代码）", () => {
+    const hookFiles = readdirSync(join(REPO, ".claude/hooks"))
+      .filter((file) => file.endsWith(".ts"))
+      .sort();
+    const unwired = hookFiles.filter(
+      (file) => !allCommands.some((command) => command.includes(`.claude/hooks/${file}`)),
+    );
+    expect(unwired).toEqual([]);
   });
 });

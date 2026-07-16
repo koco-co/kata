@@ -12,9 +12,6 @@ import {
 } from "../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
 import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 test.setTimeout(600000);
 
 describeByDatasource("数据质量报告", () => {

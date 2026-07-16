@@ -14,11 +14,6 @@ import {
   expectMetadataManagementTableListShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P3】元数据管理数据源、数据库、数据表三级跳转可核验", async ({ page, step }) => {

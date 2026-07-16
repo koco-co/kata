@@ -57,25 +57,24 @@
 
 ## 本地配置
 
-- 敏感环境变量放 `.env.local` 或用户级配置，不要写进项目入口文档。
-- 常用变量名：`KATA_ZENTAO_PASSWORD`、`KATA_LANHU_COOKIE`、`KATA_LANHU_PASSWORD`、`KATA_TARGET_ENV`、`KATA_INFRA_DEFAULT_USER`、`KATA_INFRA_DEFAULT_PASSWORD`。
-- 详细日志：`KATA_LOG_LEVEL=debug kata <command>`（兼容旧写法 `LOG_LEVEL=debug`）。
+- 根 `.env` 是唯一 dotenv，只保存仓库级集成变量；不得创建或加载 `.env.envs`、根 `.env.local` 或项目 `.env.local`。
+- DataAssets 平台配置和 Cookie 只存本机忽略的 `config/env/<env>.yaml`；使用 `kata env show|doctor|run` 检查和启动，使用 `kata env cookie set <env> --stdin` 轮换 Cookie。
+- 不得把 Cookie、密码、session 路径或私密 YAML 内容写进提示词、日志、测试夹具和 Git 跟踪文件。
+- 详细日志：`KATA_LOG_LEVEL=debug kata <command>`。
 
 ## 代码变动请求标准流程
 
-- 涉及代码、配置、runtime 或文档契约变更时，先提交主工作树现有改动，再用 `git worktree add --detach .worktrees/<slug> main` 创建 detached worktree；不得为任务新建分支。
-- worktree 创建后按任务需要 symlink 必要 ignored runtime 目录；`workspace/{project}/.kata/repos/**` 即便用 symlink 共享，也保持只读。
-- 验证通过后用 `git merge --no-ff <sha>` 合入 main，没问题再执行 `git push origin main`，最后用 `git worktree remove .worktrees/<slug>` 清理。
-- 多任务默认用 `superpowers:subagent-driven-development`；Claude Code 用 TaskCreate/TaskUpdate，或当前客户端暴露的 TodoWrite。
-- 提交必须用固定的 type/emoji 映射，例如 `refactor: ✨ ...`；默认所有回复用「【KATA 工作通知】」+ markdown 表格格式；完整枚举、回复格式和合并清理步骤见 `.claude/rules/project-workflow-rules.md`。
+- 保留主工作树现有改动，不得为了创建 worktree 自动提交用户文件。使用 `git worktree add -b codex/<slug> .worktrees/<slug> main` 创建本任务分支工作树。
+- 只共享任务必需的 ignored runtime；DataAssets 环境由 Git common-dir 自动定位到主工作树的 `config/env/`，不得复制 Cookie。
+- 合并或清理前盘点 ignored runtime、认证会话、符号链接和本地环境文件；不得用干净的 Git 状态替代运行态核对。
+- 用户要求合并时，验证并提交任务改动，用 `git merge --no-ff <branch>` 合入 main，再执行 `git worktree remove` 并删除任务分支。不得自动 push；只有用户明确要求时才推送远端。
+- 任务协调使用当前客户端实际提供的任务和代理能力；不得强制不存在的工具名、模型名或固定并发策略。
 
 ## 关键约束
 
-- Worktree 优先：所有改动都走 detached worktree，验证通过后再合并回 main。
+- Worktree 优先：代码、配置、runtime 和契约文档改动都在任务分支 worktree 中完成。
 - 改后即测：代码、配置、runtime skill 或入口文件改动后，必须跑相关测试；失败必须修复。
 - 根因修复纪律：用户反馈的问题，不得只修复表面现象。必须先追查根因（规则定义在哪、为什么没拦住、执行链路哪个环节失效），再从源头堵住缺口。目标是非重复性——同类问题不允许犯第二次。
 - Playwright 自动化硬闸：生成或修复 Playwright UI 自动化后，交付必须同时满足 `full.spec.ts` 通过、feature run 目录下有 Allure 结果、被测平台产生该用例核心流程的业务记录数据。只读 UI/API 合同脚本只有在用户明确要求只读覆盖时才算完成；否则必须阻塞或排除并写清未产记录的原因。
-- Commit 规范：遵循 Conventional Commits（`type: emoji description`），type 小写，description 不超过 72 个字符；标题行（含 description）必须用英文，只有可选的 body 才允许中文。
 - QA 产物交付前必须说清已验证范围和未验证范围，不得把局部通过说成全量通过。
-- 回复格式：默认所有回复都用「【KATA 工作通知】」格式并渲染成 markdown 表格，不夹带无关 prose；字段不够可增行，需用户决策时用 `AskUserQuestion`。模板见 `.claude/rules/project-workflow-rules.md`。
-- 详细的 Git、测试、命名、QA 产物和工作区边界规则，见 `.claude/rules/project-workflow-rules.md`。
+- 详细的 Git、测试和工作区边界规则见 `.claude/rules/`；共享根规则以 `AGENTS.md` 为准。

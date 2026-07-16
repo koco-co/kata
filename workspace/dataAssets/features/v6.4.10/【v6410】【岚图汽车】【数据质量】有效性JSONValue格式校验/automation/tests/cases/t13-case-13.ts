@@ -14,7 +14,6 @@ import {
   saveRuleSet,
 } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 
 const SUITE_NAME = "【内置规则丰富】有效性，json中key对应的value值格式校验(#15694)";
 const PAGE_NAME = "规则集管理";

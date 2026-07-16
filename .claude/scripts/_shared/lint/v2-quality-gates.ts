@@ -162,14 +162,15 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
   let files = 0;
   for (const project of projectDirs(workspaceRoot)) {
     for (const file of walkFiles(join(workspaceRoot, project, "features"))) {
-      if (!/\.(?:ts|tsx|md|json|yaml)$/.test(file)) continue;
+      if (!/\.(?:ts|tsx|mjs|md|json|yaml)$/.test(file)) continue;
       files += 1;
       const content = readFileSync(file, "utf-8");
       if (
         content.includes(`.auth/${project}/`) ||
         content.includes(".auth/session.json") ||
         content.includes(`.kata/auth/${project}/`) ||
-        content.includes("auth.session_path")
+        content.includes("auth.session_path") ||
+        /\b[A-Z][A-Z0-9_]*SESSION_PATH\b/.test(content)
       ) {
         violations.push(
           violation(
@@ -178,7 +179,7 @@ export function lintSessionCompliant(workspaceRoot: string): CaseLintReport {
             "Auth must use the project runtime resolver; real Cookies belong in ignored config/env/<env>.yaml files.",
             "fail",
             1,
-            "legacy auth path",
+            "legacy auth session",
           ),
         );
       }

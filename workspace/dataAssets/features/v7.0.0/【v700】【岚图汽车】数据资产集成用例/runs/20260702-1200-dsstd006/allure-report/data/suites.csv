@@ -1,5 +1,0 @@
-"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","2092","标准统计页展示统计卡片、图表区和核心接口","chromium","2026-07-02","passed","2026-07-02","@serial 【P1】「数据标准」模块集成测试用例 - live UI + 业务记录","workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts","",""
-"","8296","标准管理页创建标准定义并发起标准映射","chromium","2026-07-02","passed","2026-07-02","@serial 【P1】「数据标准」模块集成测试用例 - live UI + 业务记录","workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts","",""
-"","2993","落标检查页覆盖总览、设置/结果列表和新增检查任务入口","chromium","2026-07-02","passed","2026-07-02","@serial 【P1】「数据标准」模块集成测试用例 - live UI + 业务记录","workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts","",""
-"","17622","标准基础页创建词根、码表并执行数据库拾取","chromium","2026-07-02","passed","2026-07-02","@serial 【P1】「数据标准」模块集成测试用例 - live UI + 业务记录","workspace/dataAssets/features/v7.0.0/【v700】【数据资产】数据资产集成用例/automation/tests/runners/full.spec.ts","",""

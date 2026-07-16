@@ -340,23 +340,4 @@ describe("createCli", () => {
     const helpText = program.commands[0].helpInformation();
     expect(helpText).toMatch(/choices:\s*"a",\s*"b",\s*"c"/);
   });
-
-  it("applies LOG_LEVEL env var to logger", async () => {
-    process.env.LOG_LEVEL = "error";
-    const { createCli } = await import("@shared/lib/cli-runner.ts");
-    const { setLogLevel } = await import("@shared/lib/logger.ts");
-
-    // reset to default after import
-    setLogLevel("info");
-
-    createCli({
-      name: "lvl-tool",
-      description: "lvl",
-      commands: [{ name: "x", description: "x", action: () => {} }],
-    });
-    // No direct API to read current level, but setLogLevel should have been invoked.
-    // We check by triggering a debug message and confirming no write to stderr.
-    // Omit deep assertion; smoke check that creation did not throw is enough.
-    delete process.env.LOG_LEVEL;
-  });
 });

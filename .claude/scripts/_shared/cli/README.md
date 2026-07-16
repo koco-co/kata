@@ -32,7 +32,7 @@ kata <资源> <动作> --help
 ## 环境配置
 
 - 根 `.env` 是唯一 dotenv。公共 CLI 入口禁用 Bun 的隐式 dotenv 加载，`initEnv()` 只补齐根 `.env` 中尚未由调用进程显式设置的键。
-- 不支持 `.env.envs`、根 `.env.local` 或项目 `.env.local`；用 `kata env migrate-local --project <name>` 预览迁移，确认后加 `--apply`。
+- 不支持 `.env.envs`、根 `.env.local` 或项目 `.env.local`；仓库级变量写入根 `.env`，DataAssets 平台配置通过 `kata env` 管理。
 - DataAssets 环境以一个忽略的 `config/env/<env>.yaml` 保存平台根 URL、稳定名称、租户保护、写入开关与 `auth.cookie`；目录 `0700`、文件 `0600`。
 - `kata env show <env>` 始终脱敏，`kata env doctor <env>` 检查本地安全与在线精确解析，`kata env run <env> -- <command...>` 注入不含 Cookie 的解析结果；所有命令不得输出 secret 值。
 

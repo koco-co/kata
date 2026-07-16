@@ -8,11 +8,6 @@
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectStandardStatisticStatusCountContract } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P2】标准统计数据标准上线状态数量可核验", async ({ page, step }) => {

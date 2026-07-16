@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { createConnection, type ConnectionOptions } from "mysql2/promise";
 
-import { syncMetadata } from "../../../../../../_shared/helpers";
+import { getEnvConfig, syncMetadata } from "../../../../../../_shared/helpers";
 import {
   EXPLICIT_RULE_CASE_SPECS,
   explicitRuleCaseNumbers,
@@ -96,14 +96,11 @@ const CREATED_RECORDS_JSONL = path.join(OUT_DIR, "ui-rebuild-created-records.jso
 const CASE_MAPPING_JSON = path.join(OUT_DIR, "ui-rebuild-case-mapping.json");
 const OUTPUT_INIT_MARKER = path.join(OUT_DIR, ".ui-rebuild-output-initialized");
 const BATCH_TABLE_SUFFIX_FILE = path.join(OUT_DIR, ".ui-rebuild-table-suffix");
-const BASE_URL = process.env.V6411_DQ_BASE_URL ?? "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
-const PROJECT_ID = process.env.V6411_DQ_PROJECT_ID ?? "92";
-const PROJECT_NAME = process.env.V6411_DQ_PROJECT_NAME ?? "pw_test";
+const ENV = getEnvConfig();
+const BASE_URL = ENV.urls.baseUrl;
+const PROJECT_ID = String(ENV.projects.quality.id);
+const PROJECT_NAME = ENV.projects.quality.name;
 const SOURCE_BASE_TABLE_NAME = "test_info_1";
-const SESSION_PATH = path.resolve(
-  process.cwd(),
-  process.env.V6411_DQ_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-);
 const CASE_FILTER = parseCaseFilter(resolveCaseFilterValue());
 const EXISTING_TABLE_BY_CASE = parseExistingTableMap(process.env.V6411_UI_EXISTING_TABLES);
 const BATCH_RUN_KEY = resolveBatchRunKey();
@@ -125,7 +122,6 @@ function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string 
   return path.join(FEATURE_DIR, fallbackRelativePath);
 }
 
-test.use({ storageState: SESSION_PATH });
 test.setTimeout(CASE_TIMEOUT_MS);
 
 test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
@@ -2981,7 +2977,9 @@ async function assertAuthenticated(page: Page): Promise<void> {
     .isVisible({ timeout: 1_000 })
     .catch(() => false);
   if (!/\/uic\/#\/login|\/login/.test(url) && !loginTextVisible) return;
-  throw new Error(`会话已过期，请刷新登录态：${SESSION_PATH}`);
+  throw new Error(
+    `Cookie 已过期，请通过 kata env cookie set ${ENV.env} --stdin 更新后重试`,
+  );
 }
 
 async function clickText(page: Page, text: string, sourceRef: string): Promise<void> {

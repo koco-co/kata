@@ -15,9 +15,6 @@ import { describeByDatasource } from "../../../../_shared/pages/validity-json-va
 const RULE_CONFIG_TABLE = "quality_test_json_rule_config";
 const HOVER_KEYS = ["field-key1", "field-key2", "field-key3", "field-key4"] as const;
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 test.setTimeout(600000);
 
 describeByDatasource("规则集管理", () => {

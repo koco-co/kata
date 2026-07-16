@@ -656,7 +656,8 @@ async function main() {
     execFileSync(
       "kata",
       [
-        "xmind-gen",
+        "xmind",
+        "generate",
         "--input",
         input,
         "--output",

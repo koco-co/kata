@@ -60,7 +60,7 @@ UI 用例 / 测试结果 ───── /playwright-automation ────> UI
 ```bash
 bun install
 [ -f .env ] || cp .env.example .env
-kata config
+kata workspace verify
 bun test
 ```
 

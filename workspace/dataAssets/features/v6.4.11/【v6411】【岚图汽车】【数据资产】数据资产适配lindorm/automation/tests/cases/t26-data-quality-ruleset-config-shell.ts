@@ -8,11 +8,6 @@
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectDataQualityRuleSetConfigShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 test("【P0】数据质量规则集配置-取值范围枚举与key范围配置壳可核验", async ({ page, step }) => {

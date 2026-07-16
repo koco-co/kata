@@ -8,11 +8,6 @@
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectDataMapDatasourceOverviewStatsAndClickthrough } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P3/P2】元数据数据地图表来源统计、表数量与翻页交互 Shell 可核验", async ({ page, step }) => {

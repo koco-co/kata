@@ -25,4 +25,12 @@ describe("P4-03 dead code cleanup", () => {
       source(".claude/skills/playwright-automation/scripts/run-tests-notify.ts"),
     ).not.toContain("KATA_TARGET_ENV ?? process.env.KATA_TARGET_ENV");
   });
+
+  test("does not register retired command aliases or session migrations", () => {
+    expect(source(".claude/scripts/_shared/cli/index.ts")).not.toContain("legacyCommandAlias");
+    expect(source(".claude/scripts/_shared/cli/env.ts")).not.toContain("migrate-zentao-session");
+    expect(source(".claude/scripts/_shared/cli/features.ts")).not.toMatch(
+      /addCommand\([^\n]+hidden:\s*true/,
+    );
+  });
 });

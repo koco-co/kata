@@ -21,7 +21,6 @@ import {
   selectRuleFieldAndFunction,
 } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json" });
 test.setTimeout(600000);
 
 const SUITE_NAME = "【内置规则丰富】有效性，支持设置字段多规则的且或关系(#15695)";

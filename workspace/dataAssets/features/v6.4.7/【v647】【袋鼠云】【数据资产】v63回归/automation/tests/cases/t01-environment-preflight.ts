@@ -12,7 +12,6 @@ import {
   gotoDataQualityPage,
 } from "../../../../_shared/pages/assets-v63-regression/v63-regression-page";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json" });
 test.setTimeout(90000);
 
 test("【P0】ci63 登录态和 pw_test 质量项目可用于 v6.3 回归", async ({ page, step }) => {

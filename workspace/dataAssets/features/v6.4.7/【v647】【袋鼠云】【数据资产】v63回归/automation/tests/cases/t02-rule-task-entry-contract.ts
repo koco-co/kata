@@ -8,7 +8,6 @@ import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { SOURCE_REFS, V63_REGRESSION_SCOPE } from "../data/v63-regression-contract";
 import { expectDataQualityShell, expectTexts, gotoDataQualityPage } from "../../../../_shared/pages/assets-v63-regression/v63-regression-page";
 
-test.use({ storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json" });
 test.setTimeout(90000);
 
 test("【P0】规则任务配置入口、规则集区和监控规则表格可见", async ({ page, step }) => {

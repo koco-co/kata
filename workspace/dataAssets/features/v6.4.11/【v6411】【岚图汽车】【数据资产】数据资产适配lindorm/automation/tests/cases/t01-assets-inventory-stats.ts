@@ -18,11 +18,6 @@ import {
   SR_2099_01_AI_GUIDE_L16,
 } from "../data/assets-inventory-contract";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(15 * 60 * 1000);
 
 test("【P3】资产盘点首次进入功能引导弹窗可关闭且不再提示", async ({ page, step }) => {

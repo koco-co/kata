@@ -11,20 +11,16 @@ const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
 function runCp(args: string[]): { stdout: string; stderr: string; code: number } {
   try {
-    const stdout = execFileSync(
-      "bun",
-      [".claude/scripts/_shared/bin/kata", "create-project", ...args],
-      {
-        cwd: REPO_ROOT,
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          KATA_WORKSPACE_ROOT: TEST_WORKSPACE_ROOT,
-          KATA_ROOT_OVERRIDE: TMP,
-          CONFIG_JSON_PATH: CONFIG_PATH,
-        },
+    const stdout = execFileSync("bun", [".claude/scripts/_shared/bin/kata", "project", ...args], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        KATA_WORKSPACE_ROOT: TEST_WORKSPACE_ROOT,
+        KATA_ROOT_OVERRIDE: TMP,
+        CONFIG_JSON_PATH: CONFIG_PATH,
       },
-    );
+    });
     return { stdout, stderr: "", code: 0 };
   } catch (err: unknown) {
     const e = err as { stdout?: string; stderr?: string; status?: number };

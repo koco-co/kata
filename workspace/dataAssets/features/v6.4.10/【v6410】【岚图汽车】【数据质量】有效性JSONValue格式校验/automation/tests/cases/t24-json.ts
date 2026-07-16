@@ -7,9 +7,6 @@ import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { gotoRuleBaseAndSearch } from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
 import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc.json",
-});
 test.setTimeout(120000);
 
 describeByDatasource("规则库配置", () => {

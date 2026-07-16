@@ -10,11 +10,6 @@ import { expect, type Page } from "@playwright/test";
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P3】元数据数据表详情页 Shell 与表结构字段可核验", async ({ page, step }) => {

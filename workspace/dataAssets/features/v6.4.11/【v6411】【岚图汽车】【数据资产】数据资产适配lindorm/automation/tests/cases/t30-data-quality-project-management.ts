@@ -13,11 +13,6 @@ import {
   expectDataQualityProjectPinDeleteContract,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(3 * 60 * 1000);
 
 // archive-title: 验证【项目管理-项目信息】项目列表、创建与编辑功能正常

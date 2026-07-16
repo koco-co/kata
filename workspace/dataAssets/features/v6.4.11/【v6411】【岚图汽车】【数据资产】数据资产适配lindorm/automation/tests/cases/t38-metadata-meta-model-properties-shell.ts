@@ -16,11 +16,6 @@ import {
   expectPersonalBusinessSubModelShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(120000);
 
 test("【P1/P2】元模型首页搜索、统计与技术属性列表可核验", async ({ page, step }) => {

@@ -11,11 +11,6 @@ import {
   expectModelBuildTableShell,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
 
-test.use({
-  storageState:
-    process.env.UI_AUTOTEST_SESSION_PATH ??
-    "workspace/dataAssets/.kata/auth/dataAssets/session-ltqc-local.json",
-});
 test.setTimeout(90000);
 
 test("【P1/P2/P3】数据模型规范建表列表 Shell 与接口可核验", async ({ page, step }) => {

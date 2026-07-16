@@ -8,9 +8,6 @@ import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { EXPECTED_RULE_CATEGORIES, SOURCE_REFS } from "../data/rule-library-contract";
 import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../_shared/pages/rule-library/rule-library-page";
 
-test.use({
-  storageState: process.env.UI_AUTOTEST_SESSION_PATH ?? "workspace/dataAssets/.kata/auth/dataAssets/session-ci63.json",
-});
 test.setTimeout(120000);
 
 test("【P0】添加规则菜单包含时效性校验和合理性校验", async ({ page, step }) => {
