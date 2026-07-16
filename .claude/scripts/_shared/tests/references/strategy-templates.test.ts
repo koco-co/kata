@@ -12,12 +12,16 @@ const qualityReviewerPath = resolve(
   repoRoot,
   ".claude/skills/case-draft/prompts/agent-quality-reviewer.md",
 );
+const workerPath = resolve(repoRoot, ".claude/skills/case-draft/prompts/agent-worker.md");
+const sourceRefsPath = resolve(repoRoot, ".claude/skills/case-draft/references/source-refs.md");
 const oldSkillPath = resolve(repoRoot, ".claude/skills/obsolete-skill/SKILL.md");
 
 describe("case-draft runtime references", () => {
   const skill = readFileSync(skillPath, "utf8");
   const specReviewer = readFileSync(specReviewerPath, "utf8");
   const qualityReviewer = readFileSync(qualityReviewerPath, "utf8");
+  const worker = readFileSync(workerPath, "utf8");
+  const sourceRefs = readFileSync(sourceRefsPath, "utf8");
 
   test("projects the design-aligned product skill name", () => {
     expect(skill).toContain("name: case-draft");
@@ -31,5 +35,18 @@ describe("case-draft runtime references", () => {
     expect(specReviewer).toContain("blocking");
     expect(qualityReviewer).toContain("用例内容质量");
     expect(qualityReviewer).toContain("case_id");
+  });
+
+  test("keeps the cross-layer contracts unambiguous", () => {
+    expect(skill).toContain("静默只约束用户可见消息");
+    expect(skill).toContain("`case_id` 只表示测试用例 ID");
+    expect(worker).toContain("WorkerStatusEnvelope@1");
+    expect(worker).toContain(
+      "`missing_evidence`、`ambiguous_requirement`、`history_only`、`missing_required_fact`",
+    );
+    expect(sourceRefs).toContain("<kind>:<id>#sha256:");
+    expect(sourceRefs).not.toContain(
+      "每个 requirement atom 的 `source_ref` 用 `<scheme>#<anchor>`",
+    );
   });
 });

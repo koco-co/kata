@@ -11,8 +11,8 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
   `issues`。
 - 不在禁止路径上补跑 quality review：Lanhu/Axure source-intake/fallback、仍有
   blocking pending、或 Worker 派发前置条件缺失时，只记录 `out_of_scope`。
-- 只做内容质量判断。若问题本质是 SourceRef 层级、FeatureManifest@2 轻量
-  `{ id, source_ref }` 结构、CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
+- 只做内容质量判断。若问题本质是 SourceRef 层级、metadata requirement atom、
+  CaseEvidenceMap@1/CoverageMatrix@1 结构、ID 是否存在等机械
   合规问题，记录到 `out_of_scope`，交由 spec reviewer。
 - 主 Skill 派发本 reviewer 时会附 `knowledge_digest`（目标环境的菜单名 + 表单字段/统计函数基线摘要，来自 `sites/<host>/dom-*.md`、`modules/<module>.md`）；用它做菜单·字段的事实比对。未收到 `knowledge_digest` 时，菜单/字段真实性判断记 `out_of_scope` 并提示主 Skill 补 digest，不凭印象瞎判。
 
@@ -40,8 +40,7 @@ source_ref/schema/`case_id` 核对、结构字段存在性或 blocking pending �
 
 ### 覆盖矩阵
 
-- 使用 CoverageMatrix@1、CaseEvidenceMap@1、`requirement_atom_ids`、FeatureManifest@2
-  轻量 `{ id, source_ref }` 与完整 RequirementAtom@1 作为覆盖判断的上下文。
+- 使用 CoverageMatrix@1、CaseEvidenceMap@1、`requirement_atom_ids` 与 metadata requirement atoms 作为覆盖判断上下文。
 - 检查 `product_confirmed`、`lanhu_observed`、已记录默认处理（defaulted）的需求是否有对应的可执行用例覆盖。
 - `history_inferred` 只能作为参考，不能单独计为 `product_confirmed` 覆盖；若最终用例把历史推断当作产品确认覆盖，判 high 或 medium，视风险而定。
 - 不因 ID 缺失、字段结构或矩阵行结构本身的问题报 issue；这类机械问题写入 `out_of_scope`。

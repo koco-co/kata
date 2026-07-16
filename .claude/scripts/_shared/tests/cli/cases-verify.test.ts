@@ -63,6 +63,22 @@ describe("runCasesVerify", () => {
         2,
       ),
     );
+    writeFileSync(
+      join(dir, ".process", "case-evidence-map.json"),
+      JSON.stringify(
+        [
+          {
+            schema_ref: "CaseEvidenceMap@1",
+            case_id: "C1",
+            case_title: "【P0】Login",
+            requirement_atom_ids: ["RA-1"],
+            coverage_matrix_ids: ["CM-1"],
+          },
+        ],
+        null,
+        2,
+      ),
+    );
     return dir;
   }
 
@@ -142,7 +158,7 @@ describe("runCasesVerify", () => {
           atom("RA-3", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
         ],
       }),
-      "# Cases\n## Login [RA-1]\n- step: click / expected: ok\n",
+      "## Auth\n### Login\n<!-- case_id: C1 -->\n##### 【P0】Login\n> 用例步骤\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n| 1 | click | ok |\n",
     );
     const r = await runCasesVerify({
       project: "dataAssets",
@@ -174,7 +190,7 @@ describe("runCasesVerify", () => {
           atom("RA-3", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
         ],
       }),
-      "# Cases\n## Login [RA-1]\n- step: click / expected: ok\n",
+      "## Auth\n### Login\n<!-- case_id: C1 -->\n##### 【P0】Login\n> 用例步骤\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n| 1 | click | ok |\n",
     );
     rmSync(join(dir, "cases/cases.xmind"));
     const r = await runCasesVerify({
@@ -211,7 +227,7 @@ describe("runCasesVerify", () => {
           atom("RA-9", `repo.line:dt-insight-studio/src/x.ts:1#sha256:${SHA}`),
         ],
       }),
-      "# Cases\n## Login [RA-1]\n- step: click / expected: ok\n",
+      "## Auth\n### Login\n<!-- case_id: C1 -->\n##### 【P0】Login\n> 用例步骤\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n| 1 | click | ok |\n",
     );
     const r = await runCasesVerify({
       project: "dataAssets",
@@ -225,6 +241,49 @@ describe("runCasesVerify", () => {
         (i) => i.layer === "L3" && i.rule === "coverage_hole" && i.message.includes("RA-9"),
       ),
     ).toBe(true);
+  });
+
+  it("derives required source kinds from FeatureSourceSnapshot@2", async () => {
+    const featureId = "2026-05-screenshot-only";
+    const screenshotRef = `design.screenshot:form.png#sha256:${SHA}`;
+    const dir = seed(
+      featureId,
+      metaV2(featureId, {
+        status: "completed",
+        archive_path: "cases/archive.md",
+        xmind_path: "cases/cases.xmind",
+        coverage_matrix_path: ".process/coverage-matrix.json",
+        requirement_atoms: [
+          {
+            id: "RA-1",
+            source_ref: screenshotRef,
+            ambiguity_class: "confirmed",
+            confidence: "high",
+          },
+        ],
+      }),
+      "## Form\n### Create\n<!-- case_id: C1 -->\n##### 【P0】Login\n> 用例步骤\n| 编号 | 步骤 | 预期 |\n| --- | --- | --- |\n| 1 | click | ok |\n",
+    );
+    writeFileSync(join(dir, "inputs", "form.png"), "image bytes");
+    writeFileSync(
+      join(dir, ".process", "source-snapshot.json"),
+      JSON.stringify({
+        schema: "FeatureSourceSnapshot@2",
+        feature_id: featureId,
+        sources: [{ source_ref: screenshotRef, path: "inputs/form.png" }],
+        required_source_kinds: ["design.screenshot"],
+        confirmed_source_repos: [],
+      }),
+    );
+
+    const result = await runCasesVerify({
+      project: "dataAssets",
+      featureId,
+      workspaceRoot: ws,
+      requiredKinds: [],
+    });
+    expect(result.issues).toEqual([]);
+    expect(result.ok).toBe(true);
   });
 
   // Fix A: @1 feature（metadata.yaml schema=FeatureMetadata@1 + manifest.json）应走 manifest 路径，不 soft-pass

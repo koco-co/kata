@@ -11,6 +11,7 @@ describe("sourceRefKind", () => {
     expect(sourceRefKind("repo.line:dt-insight-studio/src/x.ts:42#sha256:" + "a".repeat(64))).toBe(
       "repo.line",
     );
+    expect(sourceRefKind("prd#legacy")).toBeUndefined();
   });
 });
 

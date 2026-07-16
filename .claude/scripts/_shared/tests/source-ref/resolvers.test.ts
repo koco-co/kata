@@ -3,10 +3,12 @@ import {
   isCanonicalSourceRef,
   snapshotCaseArchiveRef,
   snapshotCommandOutputRef,
+  snapshotDesignScreenshotRef,
   snapshotFileRef,
   snapshotKnowledgeEntryRef,
   snapshotLanhuFixtureRef,
   snapshotRepoLineRef,
+  snapshotUserConfirmationRef,
   snapshotWorkspaceConfigRef,
   validateSourceRefFreshness,
 } from "@shared/lib/source-ref/resolvers.ts";
@@ -95,6 +97,8 @@ describe("SourceRef P0 resolvers", () => {
         content: '{"projects":{"dataAssets":{}}}',
       }),
       snapshotLanhuFixtureRef({ id: "lanhu.fixture:login-page", content: "# fixture" }),
+      snapshotDesignScreenshotRef({ id: "design.screenshot:form.png", content: "bytes" }),
+      snapshotUserConfirmationRef({ id: "user.confirmation:scope-v1", content: "confirmed" }),
     ];
     for (const ref of refs) {
       expect(isCanonicalSourceRef(ref)).toBe(true);

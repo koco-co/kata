@@ -27,6 +27,8 @@ Lanhu/Axure URL-only 输入：从第一条消息起全程静默执行 source-int
 - 给出处理计划；
 - 播报执行进度。
 
+静默只约束用户可见消息，不限制内部工具或 Worker；内部阶段与非静默路径相同。
+
 唯一可见输出是以下之一：
 
 1. **阻塞说明**（两行）：首行写阻塞原因或缺口，次行写需用户补充的内容；正式记录落 `cases/unresolved-summary.md`。
@@ -68,7 +70,7 @@ flowchart TD
 | prompts/agent-spec-reviewer.md    | case-review 阶段          | spec 合规、SourceRef 分层、case_id 核对机械检查   |
 | prompts/agent-quality-reviewer.md | output 前内容质量审查     | 步骤完整性、标题、覆盖与一致性                    |
 | rules/naming-convention.md        | 新建 feature 目录时       | 目录命名格式与客户缩写                            |
-| references/source-refs.md         | 需要核对 source_ref 锚点语法或 SR 前缀时 | source_ref 的 scheme#anchor 规范、SR- 注册前缀、证据分层 |
+| references/source-refs.md         | 需要核对 SourceRef 或 SR 前缀时 | canonical hash-backed SourceRef、SR- 注册前缀、证据分层 |
 | .claude/prompt/_shared/case-format-sample.md | 需要用例节点格式参照时 | 格式样例（含 DQ 子集），不作事实来源；其菜单名是岚图定制，禁照抄 |
 | .claude/prompt/_shared/case-qa.md | 交付前自审（共享引用）    | 字段一致性、标题、前置条件、表单逐字匹配          |
 | `workspace/<project>/_shared/knowledge/_index.md` → `sites/<host>/dom-*.md` | **module-identify 后、起草任何含菜单/页面/表单字段的用例前（必读）** | 真实菜单名、路由、向导步骤、表单字段与统计函数文案基线；按 `_index.md` Sites 节逐条加载目标环境 DOM |
@@ -77,10 +79,10 @@ flowchart TD
 ## 产物与引用规范
 
 - 所有产物写入 `kata features resolve` 返回的 `featureDir`。
-- 每个 requirement atom 必须包含 `evidence_kind`、`ambiguity_class`、`confidence`，以及至少一个 `source_ref`。
-- 事实引用走 `metadata.yaml#case_drafting.requirement_atoms` 的 SourceRef ID：轻量行写 `{id, source_ref}`，完整信息保留在 `source_refs` / `case_id` / `requirement_atom_ids`。
+- 每个 requirement atom 必须在 `metadata.yaml#case_drafting.requirement_atoms` 包含 `id`、`source_ref`、`evidence_kind`、`ambiguity_class`、`confidence`。
+- SourceRef 统一使用 `<kind>:<id>#sha256:<hash>`；来源种类与动态必需集合记录在 `.process/source-snapshot.json`（FeatureSourceSnapshot@2）。
 - 证据分层（SourceRef 标识不进交付正文、只存结构化数据层）的权威细则见 `references/source-refs.md` 的「证据分层」。
-- 用例与证据的对照关系用 `case_id` 与 `requirement_atom_ids` 核对，不得用单一字段组合充当唯一键——单字段组合容易撞键，无法把证据精确对应到用例。
+- 每条 Archive 用例前写隐藏标记 `<!-- case_id: C... -->`；同一 `case_id` 的 `requirement_atom_ids` / `coverage_matrix_ids` 只写入 `.process/case-evidence-map.json`（CaseEvidenceMap@1）。`case_id` 只表示测试用例 ID，不得表示 ZenTao 需求 ID。
 - `history_inferred` 仅作为参考证据，新增行为一律以产品反馈为准。
 
 ### 落盘位置（产物 → 目录）
@@ -89,13 +91,13 @@ flowchart TD
 | ----------------------------------------------------------------------------------- | ----------------- |
 | `archive.md`、`cases.xmind`、`confirmation-package.md`、`unresolved-summary.md` 等用例产物 | `cases/` 子目录   |
 | `metadata.yaml`                                                                      | feature 根目录    |
-| `source-snapshot.json`、`coverage-matrix.json` 等过程与证据产物                       | `.process/` 子目录 |
+| `source-snapshot.json`、`coverage-matrix.json`、`case-evidence-map.json` 等过程与证据产物 | `.process/` 子目录 |
 
 清单与字段细则见 `.claude/prompt/_shared/output-artifacts.md` 与 `.claude/prompt/_shared/case-qa.md`（共享引用）。
 
 ## 事实字段：严禁编造，缺失即阻塞
 
-`suite_name`（需求名）、`case_id`/`prd_id`（ZenTao 需求 id）、`prd_version`（lanhu-prd 迭代版本，与目录版本一致）、`product_line`（产品线名）、目标版本目录（`--feature-version`）是需向用户/ZenTao 确认的**外部事实**，不是可自由填的格式字段——它们会渲染进 xmind 可见节点或决定归类。任一字段无 SourceRef/用户明示时，主会话必须用 `AskUserQuestion` 一次性批量索要（推荐项置顶并附理由），严禁编造编号、自创需求名、拿 basename/迭代号/目录版本等默认值兜底后产出 `cases/archive.md` / `cases/cases.xmind`。字段→xmind 渲染映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`。
+`suite_name`（需求名）、`prd_id`（ZenTao 需求 id）、`prd_version`（lanhu-prd 迭代版本，与目录版本一致）、目标版本目录（`--feature-version`）是需向用户/ZenTao 确认的**外部事实**。`product_line` 从 workspace 项目配置取得；`case_id` 由起草流程生成，二者不得向用户索要。外部事实任一无 SourceRef/用户明示时，主会话必须一次性批量索要，严禁编造编号、自创需求名、拿 basename/迭代号/目录版本等默认值兜底后产出最终产物。字段→xmind 渲染映射见 `.claude/prompt/_shared/case-format-sample.xmind.md`。
 
 ## 起草前确认测试范围
 
@@ -105,7 +107,7 @@ flowchart TD
 - **枚举覆盖**：需求/PRD 列出的多取值（数据源类型、状态、层级等）覆盖到哪些、是否抽样；
 - **优先级分配**：P0 用例集以核心交付/回归严重度定级，占比通常 25%~30% 左右作参考（小用例集允许偏离，不为凑比例硬升降级），让用户确认或改派。
 
-这轮范围确认与上一节「事实字段缺证据的批量索要」合并在同一组 `AskUserQuestion` 内完成（推荐项置顶并附理由），是 URL-only 静默模式下「阻塞/索要」的既有例外，不算违反静默约束。
+这轮范围确认与上一节「事实字段缺证据的批量索要」合并完成。URL-only 静默模式只输出约定的两行阻塞说明，不额外显示计划或结构化提问。
 
 ## 菜单/页面文案：以环境 DOM 证据为准（缺证据即阻塞）
 
@@ -121,14 +123,10 @@ flowchart TD
 - 产物落盘后、交付前，按 lint→validate→verify 顺序跑三条 exit-code 门，全部为零再进入 review——把机械可查的字段/结构错误挡在人工审查之前，避免 reviewer 把精力浪费在命令本可发现的问题上：
   1. `kata cases lint --scope <feature-dir> --exit-code`
   2. `kata cases validate <feature-id> --project <project>`
-  3. `kata cases verify --project <project> --feature <feature-id> --exit-code`（默认 `--required-kinds lanhu.fixture,knowledge.entry,repo.line`，flag 以 `kata cases verify --help` 为准）
+  3. `kata cases verify --project <project> --feature <feature-id> --exit-code`（默认读取 FeatureSourceSnapshot@2 的 `required_source_kinds`；仅人工覆盖策略时传 `--required-kinds`）
 
   verify 是三层硬校验门（L1 结构 / L2 输入消费 / L3 内容质量）；L1/L2/L3 全量触发只在 feature metadata `case_drafting.status=completed` 时发生，`blocked`/`in-progress` 路径跳过，不会误报。
 - `metadata.yaml#automation.intents[]` 中状态为 `ready` 的 `AutomationIntent`，移交给 `playwright-automation`。
 - 生成 `cases/archive.md` 后、产 `cases.xmind` 前，必须回读核对：实际用例数须等于 frontmatter `case_count`（该一致性由 `kata cases lint` 的 `archive-case-count-mismatch` 硬校验，FAIL 即阻塞）；产 xmind 后回读根节点版本段、各二级节点标题与 `(#N)` label，与 module-identify 阶段确认的需求名/需求 id/版本基线逐字比对，任一不符先修正再交付。
 
-## 表单用例规则
-
-- 用户提供源码、平台 DOM/YAML、环境配置或截图作为表单证据时，这些证据必须进入必读集。
-- 生成表单用例前必须先建立「表单字段基线」，不得写入基线之外的字段、选项或按钮。QA 需按实际文案逐字核对——写入基线外的字段、选项会让用例与真实表单脱节，执行时对不上，等于失真。
-- 表单证据不可读时，或「事实字段」小节列出的外部事实字段缺证据时，用 `AskUserQuestion` 一次性批量索要缺口（推荐项置顶并附理由）；不得凭历史记录、few-shot 或模板补齐后产出最终 `cases/archive.md` / `cases/cases.xmind`。
+表单字段、按钮和选项与菜单文案使用同一目标环境 DOM/截图基线；不得写入基线外内容。证据不可读时按本节的缺证据规则阻塞，不再维护第二套表单规则。

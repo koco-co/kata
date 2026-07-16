@@ -4,13 +4,16 @@ import { isV2 } from "@shared/lib/features/feature-meta.ts";
 import type { ResolvedTarget } from "@shared/lib/source-ref/resolve-target.ts";
 import { sourceRefKind } from "@shared/lib/source-ref/resolve-target.ts";
 import {
+  loadCaseEvidenceMapValidator,
   loadCoverageMatrixValidator,
   loadFeatureManifestValidator,
   loadFeatureMetadataV2Validator,
   loadFeatureMetadataValidator,
+  loadFeatureSourceSnapshotV2Validator,
   loadFeatureSourceSnapshotValidator,
 } from "@shared/schemas/loaders.ts";
 import { parse as parseYaml } from "yaml";
+import type { CaseEvidenceRow } from "./case-extract.ts";
 
 export interface VerifyIssue {
   layer: "L1" | "L2" | "L3";
@@ -23,6 +26,7 @@ export const STABLE_CORE_ARTIFACTS = [
   "metadata.yaml",
   ".process/source-snapshot.json",
   ".process/coverage-matrix.json",
+  ".process/case-evidence-map.json",
   "cases/archive.md",
   "cases/cases.xmind",
 ] as const;
@@ -51,15 +55,23 @@ const NON_META_STRUCTURED_SCHEMA_FILES: {
   loader: () => (d: unknown) => boolean;
   kind: "json" | "yaml";
   array?: boolean;
+  loaderV2?: () => (d: unknown) => boolean;
 }[] = [
   {
     file: ".process/source-snapshot.json",
     loader: loadFeatureSourceSnapshotValidator,
+    loaderV2: loadFeatureSourceSnapshotV2Validator,
     kind: "json",
   },
   {
     file: ".process/coverage-matrix.json",
     loader: loadCoverageMatrixValidator,
+    kind: "json",
+    array: true,
+  },
+  {
+    file: ".process/case-evidence-map.json",
+    loader: loadCaseEvidenceMapValidator,
     kind: "json",
     array: true,
   },
@@ -117,7 +129,10 @@ export function verifyStructuredSchemas(input: {
       });
       continue;
     }
-    const validate = s.loader();
+    const validate =
+      s.loaderV2 && (data as { schema?: string })?.schema === "FeatureSourceSnapshot@2"
+        ? s.loaderV2()
+        : s.loader();
     const rows = s.array ? (Array.isArray(data) ? data : null) : [data];
     if (rows === null) {
       issues.push({
@@ -148,6 +163,7 @@ const LEAK_PATTERNS = [
   /csv::/,
   /#sha256:[a-f0-9]{64}/,
   /\b(?:prd\.file|lanhu\.fixture|knowledge\.entry|repo\.line|case\.archive):/,
+  /\b(?:design\.screenshot|user\.confirmation):/,
 ];
 
 export function verifyL1Structure(input: {
@@ -189,7 +205,7 @@ export function verifyL2Inputs(input: {
 }): VerifyIssue[] {
   const issues: VerifyIssue[] = [];
   const atoms = input.manifest.case_drafting?.requirement_atoms ?? [];
-  const presentKinds = new Set(atoms.map((a) => sourceRefKind(a.source_ref)));
+  const presentKinds = new Set(atoms.map((a) => sourceRefKind(a.source_ref)).filter(Boolean));
   for (const kind of input.requiredKinds) {
     if (!presentKinds.has(kind as never)) {
       issues.push({
@@ -215,6 +231,7 @@ export function verifyL2Inputs(input: {
 
 export interface CaseRecord {
   case_id: string;
+  case_id_explicit?: boolean;
   requirement_atom_ids: string[];
   steps: string[];
   expected: string;
@@ -250,6 +267,99 @@ export interface CoverageRow {
   id: string;
   requirement_atom_ids: string[];
   evidence_status: string;
+}
+
+export function verifyCaseEvidenceMap(input: {
+  cases: CaseRecord[];
+  evidenceRows: CaseEvidenceRow[];
+  atomIds: string[];
+  coverageRows: CoverageRow[];
+}): VerifyIssue[] {
+  const issues: VerifyIssue[] = [];
+  const knownAtoms = new Set(input.atomIds);
+  const knownCoverage = new Set(input.coverageRows.map((row) => row.id));
+  const caseIds = new Set<string>();
+  const evidenceById = new Map<string, CaseEvidenceRow>();
+
+  for (const row of input.evidenceRows) {
+    if (evidenceById.has(row.case_id)) {
+      issues.push({
+        layer: "L1",
+        rule: "case_evidence_duplicate",
+        message: `CaseEvidenceMap case_id 重复: ${row.case_id}`,
+        fix: "每条用例只保留一行 CaseEvidenceMap@1",
+      });
+    }
+    evidenceById.set(row.case_id, row);
+    for (const atomId of row.requirement_atom_ids) {
+      if (!knownAtoms.has(atomId)) {
+        issues.push({
+          layer: "L1",
+          rule: "case_evidence_atom_unknown",
+          message: `用例 ${row.case_id} 引用了不存在的 requirement_atom: ${atomId}`,
+          fix: "修正 requirement_atom_ids 或补齐 metadata requirement_atoms",
+        });
+      }
+    }
+    for (const coverageId of row.coverage_matrix_ids) {
+      if (!knownCoverage.has(coverageId)) {
+        issues.push({
+          layer: "L1",
+          rule: "case_evidence_coverage_unknown",
+          message: `用例 ${row.case_id} 引用了不存在的 coverage row: ${coverageId}`,
+          fix: "修正 coverage_matrix_ids 或补齐 CoverageMatrix@1 行",
+        });
+      }
+    }
+  }
+
+  for (const testCase of input.cases) {
+    if (testCase.case_id_explicit === false) {
+      issues.push({
+        layer: "L1",
+        rule: "archive_case_id_missing",
+        message: `Archive 用例缺少显式 case_id: ${testCase.title}`,
+        fix: "在 ##### 用例前添加 <!-- case_id: C... -->",
+      });
+    }
+    if (caseIds.has(testCase.case_id)) {
+      issues.push({
+        layer: "L1",
+        rule: "archive_case_id_duplicate",
+        message: `Archive case_id 重复: ${testCase.case_id}`,
+        fix: "为每条 ##### 用例设置唯一的 <!-- case_id: ... -->",
+      });
+    }
+    caseIds.add(testCase.case_id);
+    const row = evidenceById.get(testCase.case_id);
+    if (!row) {
+      issues.push({
+        layer: "L1",
+        rule: "case_evidence_missing",
+        message: `Archive 用例 ${testCase.case_id} 缺少 CaseEvidenceMap@1 行`,
+        fix: "在 .process/case-evidence-map.json 补齐同 case_id 映射",
+      });
+    } else if (row.case_title !== testCase.title) {
+      issues.push({
+        layer: "L1",
+        rule: "case_evidence_title_mismatch",
+        message: `用例 ${testCase.case_id} 标题与 CaseEvidenceMap 不一致`,
+        fix: "同步 Archive 标题与 case-evidence-map.json#case_title",
+      });
+    }
+  }
+
+  for (const row of input.evidenceRows) {
+    if (!caseIds.has(row.case_id)) {
+      issues.push({
+        layer: "L1",
+        rule: "case_evidence_orphan",
+        message: `CaseEvidenceMap 用例不存在于 Archive: ${row.case_id}`,
+        fix: "删除孤立映射或恢复对应 Archive 用例",
+      });
+    }
+  }
+  return issues;
 }
 const UNCOVERED_STATUSES = new Set(["uncovered", "missing", "none", "todo"]);
 

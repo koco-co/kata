@@ -26,7 +26,6 @@ import { UNCLASSIFIED } from "./render.ts";
 
 export interface ArchiveFrontMatter {
   suite_name?: string;
-  case_id?: number;
   tags?: string[];
   [key: string]: unknown;
 }
@@ -52,6 +51,7 @@ interface ArchiveParseState {
   inCodeBlock: boolean;
   stepsRows: TestStep[];
   headerParsed: boolean;
+  pendingCaseId: string | null;
 }
 
 export function parseArchiveBody(body: string): Module[] {
@@ -77,6 +77,7 @@ function createArchiveParseState(): ArchiveParseState {
     inCodeBlock: false,
     stepsRows: [],
     headerParsed: false,
+    pendingCaseId: null,
   };
 }
 
@@ -102,6 +103,11 @@ function flushArchiveCase(state: ArchiveParseState) {
 }
 
 function processArchiveLine(state: ArchiveParseState, line: string) {
+  const caseId = line.match(/^<!--\s*case_id:\s*([A-Za-z0-9][A-Za-z0-9._-]*)\s*-->$/);
+  if (caseId) {
+    state.pendingCaseId = caseId[1];
+    return;
+  }
   if (processArchiveHeading(state, line)) return;
   processArchiveCaseLine(state, line);
 }
@@ -154,7 +160,13 @@ function openArchiveCase(state: ArchiveParseState, caseTitle: string): true {
   const pm = caseTitle.match(/^【(P\d)】/);
   const priority = pm ? pm[1] : "P1";
   ensureCurrentPage(state);
-  state.currentCase = { title: caseTitle, priority, steps: [] };
+  state.currentCase = {
+    ...(state.pendingCaseId ? { case_id: state.pendingCaseId } : {}),
+    title: caseTitle,
+    priority,
+    steps: [],
+  };
+  state.pendingCaseId = null;
   state.section = "none";
   return true;
 }
@@ -243,12 +255,7 @@ export function archiveToJson(
   const { fm, body } = parseFrontMatter(raw);
 
   const suiteName = typeof fm.suite_name === "string" ? fm.suite_name : basename(mdPath, ".md");
-  const prdId =
-    typeof fm.prd_id === "number"
-      ? fm.prd_id
-      : typeof fm.case_id === "number"
-        ? fm.case_id
-        : undefined;
+  const prdId = typeof fm.prd_id === "number" ? fm.prd_id : undefined;
 
   // Resolve version: CLI --version > frontmatter prd_version
   const resolvedVersion =

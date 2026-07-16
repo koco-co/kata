@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   STABLE_CORE_ARTIFACTS,
+  verifyCaseEvidenceMap,
   verifyCoverageHoles,
   verifyL1Structure,
   verifyL2Inputs,
@@ -146,6 +147,43 @@ describe("verifyL3Quality", () => {
   });
 });
 
+describe("verifyCaseEvidenceMap", () => {
+  it("detects missing, duplicate and unknown traceability", () => {
+    const issues = verifyCaseEvidenceMap({
+      cases: [
+        {
+          case_id: "C1",
+          requirement_atom_ids: ["RA-1"],
+          steps: ["s"],
+          expected: "e",
+          title: "【P0】A",
+        },
+        {
+          case_id: "C1",
+          requirement_atom_ids: ["RA-1"],
+          steps: ["s"],
+          expected: "e",
+          title: "【P0】B",
+        },
+      ],
+      evidenceRows: [
+        {
+          schema_ref: "CaseEvidenceMap@1",
+          case_id: "C1",
+          case_title: "【P0】A",
+          requirement_atom_ids: ["RA-X"],
+          coverage_matrix_ids: ["CM-X"],
+        },
+      ],
+      atomIds: ["RA-1"],
+      coverageRows: [{ id: "CM-1", requirement_atom_ids: ["RA-1"], evidence_status: "covered" }],
+    });
+    expect(issues.some((issue) => issue.rule === "archive_case_id_duplicate")).toBe(true);
+    expect(issues.some((issue) => issue.rule === "case_evidence_atom_unknown")).toBe(true);
+    expect(issues.some((issue) => issue.rule === "case_evidence_coverage_unknown")).toBe(true);
+  });
+});
+
 describe("verifyStableCoreArtifacts", () => {
   it("fails when a completed feature is missing a stable-core artifact", () => {
     const dir = mkdtempSync(join(tmpdir(), "kata-core-"));
@@ -210,6 +248,15 @@ describe("verifyStructuredSchemas", () => {
       automation_allowed: true,
     },
   ];
+  const validCaseEvidence = [
+    {
+      schema_ref: "CaseEvidenceMap@1",
+      case_id: "C1",
+      case_title: "【P0】Case",
+      requirement_atom_ids: ["RA-1"],
+      coverage_matrix_ids: ["CM-1"],
+    },
+  ];
   const validMetadata =
     "schema: FeatureMetadata@1\nid: 2026-05-lt-dq\ndisplay_name: LT\nstatus: active\ncreated_at: '2026-05-23'\nupdated_at: '2026-05-23'\nmodules: [dq]\ncustomers: []\nversions: []\nowners: [qa]\ninputs: [{kind: lanhu, ref: 'https://lanhuapp.com/x'}]\nrelates_to: []\nemits: {}\n";
 
@@ -230,6 +277,7 @@ describe("verifyStructuredSchemas", () => {
       join(proc, "coverage-matrix.json"),
       JSON.stringify(overrides.coverage ?? validCoverage),
     );
+    writeFileSync(join(proc, "case-evidence-map.json"), JSON.stringify(validCaseEvidence));
     return dir;
   }
 

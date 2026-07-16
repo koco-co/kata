@@ -3,120 +3,49 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve as resolvePath } from "node:path";
+import { snapshotFileRef } from "@shared/lib/source-ref/resolvers.ts";
 
 const REPO_ROOT = resolvePath(import.meta.dirname, "../../../..");
-const CLI_BIN = "bun";
 const CLI_ARGS = [join(REPO_ROOT, ".claude/scripts/_shared/cli/index.ts"), "source-ref"];
 
-describe("kata source-ref resolve --prd-slug + --yyyymm (enhanced scheme)", () => {
-  const tmp = mkdtempSync(join(tmpdir(), "kata-sr-enh-cli-"));
+describe("kata source-ref canonical protocol", () => {
+  const tmp = mkdtempSync(join(tmpdir(), "kata-source-ref-cli-"));
   const project = "test-project";
-  const ym = "202604";
-  const slug = "demo-feature";
-  const enhancedPath = join(tmp, project, "features", `${ym}-${slug}`, "enhanced.md");
-  // 创建目录结构
-  mkdirSync(join(tmp, project, "features", `${ym}-${slug}`), { recursive: true });
-  writeFileSync(
-    enhancedPath,
-    [
-      "---",
-      "version: 2",
-      "---",
-      "",
-      '## 1. 概述 <a id="s-1"></a>',
-      "",
-      '### Q3 <a id="q3"></a>',
-      "",
-    ].join("\n"),
-  );
+  const featureDir = join(tmp, project, "features", "2026-07-demo-feature");
+  const content = "# PRD\n";
+  const ref = snapshotFileRef({ id: "prd.file:prd.md", content });
+  mkdirSync(join(featureDir, "inputs"), { recursive: true });
+  writeFileSync(join(featureDir, "inputs", "prd.md"), content);
 
-  it("resolve --ref enhanced#s-1 OK with --prd-slug/--yyyymm/--workspace-dir", () => {
-    const r = spawnSync(
-      CLI_BIN,
-      [
-        ...CLI_ARGS,
-        "resolve",
-        "--ref",
-        "enhanced#s-1",
-        "--project",
-        project,
-        "--yyyymm",
-        ym,
-        "--prd-slug",
-        slug,
-        "--workspace-dir",
-        tmp,
-      ],
-      { encoding: "utf8" },
-    );
-    expect(r.status).toBe(0);
-    expect(r.stdout + r.stderr).toMatch(/"ok":\s*true/);
+  const baseArgs = ["--project", project, "--workspace-dir", tmp, "--feature-dir", featureDir];
+
+  it("resolves a canonical hash-backed ref", () => {
+    const result = spawnSync("bun", [...CLI_ARGS, "resolve", "--ref", ref, ...baseArgs], {
+      encoding: "utf8",
+    });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('"ok": true');
   });
 
-  it("resolve --ref enhanced#q3 OK", () => {
-    const r = spawnSync(
-      CLI_BIN,
-      [
-        ...CLI_ARGS,
-        "resolve",
-        "--ref",
-        "enhanced#q3",
-        "--project",
-        project,
-        "--yyyymm",
-        ym,
-        "--prd-slug",
-        slug,
-        "--workspace-dir",
-        tmp,
-      ],
+  it("rejects the removed scheme#anchor protocol", () => {
+    const result = spawnSync(
+      "bun",
+      [...CLI_ARGS, "resolve", "--ref", "prd#section-1", ...baseArgs],
       { encoding: "utf8" },
     );
-    expect(r.status).toBe(0);
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("格式非法");
   });
 
-  it("resolve fails when --prd-slug or --yyyymm omitted (no enhancedDocPath built)", () => {
-    const r = spawnSync(
-      CLI_BIN,
-      [
-        ...CLI_ARGS,
-        "resolve",
-        "--ref",
-        "enhanced#s-1",
-        "--project",
-        project,
-        "--workspace-dir",
-        tmp,
-      ],
-      { encoding: "utf8" },
-    );
-    expect(r.status).toBe(1);
-    expect(r.stdout + r.stderr).toMatch(/enhancedDocPath/);
-  });
-
-  it("batch supports enhanced scheme with --prd-slug/--yyyymm", () => {
-    const refsJson = join(tmp, "refs-enh.json");
-    writeFileSync(refsJson, JSON.stringify([{ ref: "enhanced#s-1" }, { ref: "enhanced#s-99" }]));
-    const r = spawnSync(
-      CLI_BIN,
-      [
-        ...CLI_ARGS,
-        "batch",
-        "--refs-json",
-        refsJson,
-        "--project",
-        project,
-        "--yyyymm",
-        ym,
-        "--prd-slug",
-        slug,
-        "--workspace-dir",
-        tmp,
-      ],
-      { encoding: "utf8" },
-    );
-    expect(r.status).toBe(2); // 第二个失败
-    expect(r.stdout + r.stderr).toMatch(/"total":\s*2/);
+  it("batch returns exit 2 when one ref is stale", () => {
+    const refsJson = join(tmp, "refs.json");
+    const stale = snapshotFileRef({ id: "prd.file:prd.md", content: "stale" });
+    writeFileSync(refsJson, JSON.stringify([{ ref }, { ref: stale }]));
+    const result = spawnSync("bun", [...CLI_ARGS, "batch", "--refs-json", refsJson, ...baseArgs], {
+      encoding: "utf8",
+    });
+    expect(result.status).toBe(2);
+    expect(result.stdout).toContain('"total": 2');
   });
 
   afterAll(() => rmSync(tmp, { recursive: true, force: true }));
