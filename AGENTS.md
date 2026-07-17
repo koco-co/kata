@@ -19,13 +19,15 @@ When in doubt, ask: *if a fresh agent or a different runtime replays the exact s
 - When feedback exposes a reusable failure mode, decide whether the durable fix belongs in global agent rules, the project `AGENTS.md`, the responsible skill, or multiple layers. Add the rule to every applicable layer within the current write scope.
 - If a prior claim was broader than the evidence, correct it plainly before continuing.
 
-## Incomplete Task Handling
+## Task Persistence & Completion Gate
 
-- When a task is not fully done (blocked, partial, or beyond current scope/time), deliver a detailed, actionable solution. Never mask an incomplete result with vague summary language.
-- State concrete progress: what is done, the exact step it stalled at, and the failure or blocker with evidence.
-- Give the real fix path: concrete next steps and the files, commands, or parameters involved.
-- Spell out the unfinished remainder and risks: what is left, known pitfalls or prerequisites, and who or what must decide or supply missing info.
-- Never present a partial result as complete.
+- A task remains active while any safe, in-scope, immediately executable next action exists. Continue performing those actions; do not end the turn, ask whether to continue, or substitute a progress report for execution.
+- Before every final response, audit the plan and requested deliverables. If any item is pending or in progress and can be advanced without new authority or unavailable input, continue working instead of responding finally.
+- Task size, elapsed time, token or context use, remaining item count, and convenient batch boundaries are not blockers and never justify voluntary handoff.
+- Stop only when all requested deliverables and verification gates are complete, the user explicitly asks to stop/pause/report status, or progress requires new user authority, unavailable essential input, or an external-state change outside the authorized scope.
+- A blocker affecting only part of a task does not block independent work. Record the affected items and complete every unblocked in-scope item before stopping.
+- When a genuine blocker remains, state concrete progress, the exact blocked step, evidence such as the command/error/exit code/path, the unfinished remainder and risks, and the next runnable fix path.
+- Never present partial work as complete or use phrases such as "mostly done", "should be fine", or "look at it later".
 
 ## Ignored Runtime Data Safety
 
