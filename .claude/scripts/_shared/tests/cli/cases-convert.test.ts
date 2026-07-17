@@ -30,9 +30,9 @@ case_count: 2
 
 > 前置条件
 
-\`\`\`
-已准备 \${DataSourceA} 数据源
-路径为 C:\\cases
+\`\`\`SQL
+-- 已准备 \${DataSourceA} 数据源
+-- 路径为 C:\\cases
 \`\`\`
 
 > 用例步骤
@@ -134,8 +134,55 @@ describe("kata cases convert", () => {
     expect(markdown).toContain("### 数据质量");
     expect(markdown).toContain("#### 规则任务管理 / 性能优化 / SQL合并");
     expect(markdown).toContain("##### 【P1】验证规则 SQL 合并");
-    expect(markdown).toContain("- 已有规则任务");
+    expect(markdown).toContain("```SQL\n-- - 已有规则任务\n```");
+    expect(markdown).toContain("-- - 已有规则任务");
     expect(markdown).toContain("| 2 | 执行任务 | 执行成功 |");
+  });
+
+  it("仅用方头括号表达优先级并将标题中的界面名称改为直角引号", () => {
+    const input = join(TEMP_DIR, "标题括号.csv");
+    const output = join(TEMP_DIR, "标题括号.md");
+    writeFileSync(
+      input,
+      [
+        "模块,页面,用例标题,优先级,前置条件,测试步骤,预期结果",
+        "数据资产,数据质量,【规则任务管理】验证【立即执行】成功,P1,无,点击【立即执行】,任务状态更新为成功",
+      ].join("\n"),
+      "utf8",
+    );
+
+    runKataCli(["cases", "convert", "-i", input, "-t", "md", "-o", output]);
+
+    const markdown = readFileSync(output, "utf8");
+    expect(markdown).toContain("##### 【P1】「规则任务管理」验证「立即执行」成功");
+    expect(markdown).not.toContain("##### 【P1】【规则任务管理】");
+    expect(markdown).toContain("```SQL\n-- 无特殊前置条件\n```");
+  });
+
+  it("将前置条件中的描述转为 SQL 注释并保留可执行 SQL", () => {
+    const input = join(TEMP_DIR, "SQL前置.csv");
+    const output = join(TEMP_DIR, "SQL前置.md");
+    writeFileSync(
+      input,
+      [
+        "模块,页面,用例标题,前置条件,测试步骤,预期结果",
+        `数据资产,数据质量,验证 SQL 前置,"1. 已准备 Hive 数据源
+2. HiveSQL执行文件如下:
+CREATE TABLE test_table (
+  id INT
+);
+INSERT INTO test_table VALUES (1);",执行规则,规则执行成功`,
+      ].join("\n"),
+      "utf8",
+    );
+
+    runKataCli(["cases", "convert", "-i", input, "-t", "md", "-o", output]);
+
+    const markdown = readFileSync(output, "utf8");
+    expect(markdown).toContain("-- 1. 已准备 Hive 数据源");
+    expect(markdown).toContain("-- 2. HiveSQL执行文件如下:");
+    expect(markdown).toContain("CREATE TABLE test_table (\n  id INT\n);");
+    expect(markdown).toContain("INSERT INTO test_table VALUES (1);");
   });
 
   it("保留点号编号步骤内的右括号子项", () => {
@@ -157,9 +204,7 @@ describe("kata cases convert", () => {
 
     const markdown = readFileSync(output, "utf8");
     expect(markdown).toContain("| 1 | 新建规则 | 进入配置页 |");
-    expect(markdown).toContain(
-      "| 2 | 执行规则 | 1) 状态为校验异常<br>2) 支持查看明细 |",
-    );
+    expect(markdown).toContain("| 2 | 执行规则 | 1) 状态为校验异常<br>2) 支持查看明细 |");
     expect(markdown).not.toContain("| 3 |");
   });
 
@@ -170,8 +215,8 @@ describe("kata cases convert", () => {
       input,
       [
         "模块,页面,用例标题,测试步骤,预期结果",
-        `数据资产,数据质量,验证翻页按钮,"1. 点击\"<\"
-2. 点击\">\"","1. 向前翻页
+        `数据资产,数据质量,验证翻页按钮,"1. 点击"<"
+2. 点击">"","1. 向前翻页
 2. 向后翻页"`,
       ].join("\n"),
       "utf8",

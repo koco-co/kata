@@ -1,0 +1,52 @@
+schema: FeatureMetadata@2
+id: 【v700】【岚图汽车】【数据质量】已上线需求用例
+feature_id: 2026-07-ltqc-launched-cases
+display_name: 【v700】【岚图汽车】【数据质量】已上线需求用例
+status: active
+created_at: 2026-05-14
+updated_at: 2026-07-16
+modules:
+  - dq
+  - metadata
+  - standard
+  - assets
+customers:
+  - ltqc
+versions:
+  - v7.0.0
+owners: []
+inputs:
+  - kind: manual
+    ref: cases/岚图数据质量验收功能用例.xlsx
+  - kind: manual
+    ref: inputs/legacy/岚图已上线需求用例.md
+relates_to:
+  - 【v6410】【岚图汽车】【数据质量】已上线需求用例
+emits:
+  cases_xmind: true
+  archive: true
+  playwright_tests: false
+case_drafting:
+  status: in-progress
+  archive_path: cases/archive.md
+  xmind_path: cases/cases.xmind
+  requirement_atoms:
+    - id: RA-001
+      source_ref: xlsx#数据质量
+      title: 数据质量历史已上线需求回归用例
+      ambiguity_class: low
+      confidence: medium
+    - id: RA-002
+      source_ref: xlsx#平台管理与元数据
+      title: 平台管理与元数据历史已上线需求回归用例
+      ambiguity_class: low
+      confidence: medium
+    - id: RA-003
+      source_ref: xlsx#数据标准
+      title: 数据标准历史已上线需求回归用例
+      ambiguity_class: low
+      confidence: medium
+  coverage_matrix_path: null
+files:
+  archive: cases/archive.md
+  xmind: cases/cases.xmind

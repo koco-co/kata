@@ -192,4 +192,10 @@ describe("kata 公共命令契约", () => {
     expect(lintSeverity.code).toBe(1);
     expect(lintSeverity.stderr).toContain("Allowed choices are all, fail-only");
   });
+
+  it("env discover 支持只读临时 Cookie 引导", () => {
+    const help = run(["env", "discover", "--help"]);
+    expect(help.code).toBe(0);
+    expect(help.stdout).toContain("--cookie-stdin");
+  });
 });

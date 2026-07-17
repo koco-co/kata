@@ -31,8 +31,8 @@ origin: "case-draft"
 
 > 前置条件
 
-\`\`\`
-1. 已登录
+\`\`\`SQL
+-- 1. 已登录
 \`\`\`
 
 > 用例步骤
@@ -130,8 +130,8 @@ describe("lintArchiveCaseQa", () => {
   test("flags system-state placeholder in preconditions", () => {
     const root = tmp({
       "cases/archive.md": GOOD_ARCHIVE.replace(
-        "1. 已登录",
-        "1. 数据资产平台与数据质量各服务已正常部署运行。",
+        "-- 1. 已登录",
+        "-- 1. 数据资产平台与数据质量各服务已正常部署运行。",
       ),
     });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
@@ -142,5 +142,85 @@ describe("lintArchiveCaseQa", () => {
     const root = tmp({ "cases/archive.md": GOOD_ARCHIVE });
     const r = lintArchiveCaseQa(join(root, "p", "features"));
     expect(r.violations.some((v) => v.rule === "archive-precondition-placeholder")).toBe(false);
+  });
+
+  test("flags a precondition code block without the SQL language marker", () => {
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("```SQL", "```"),
+    });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(r.violations.some((v) => v.rule === "archive-precondition-sql-fence")).toBe(true);
+  });
+
+  test("flags non-SQL precondition prose that is not a SQL comment", () => {
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("-- 1. 已登录", "1. 已登录"),
+    });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(r.violations.some((v) => v.rule === "archive-precondition-prose-not-comment")).toBe(
+      true,
+    );
+  });
+
+  test("allows SQL statements and commented descriptions in preconditions", () => {
+    const root = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace(
+        "-- 1. 已登录",
+        "-- 1. HiveSQL执行文件如下:\nCREATE TABLE test_table (\n  id INT\n);\nINSERT INTO test_table VALUES (1);",
+      ),
+    });
+    const r = lintArchiveCaseQa(join(root, "p", "features"));
+    expect(r.violations.some((v) => v.rule === "archive-precondition-prose-not-comment")).toBe(
+      false,
+    );
+  });
+
+  test("flags weak, empty, and orphan expected results", () => {
+    const weak = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("列表仅展示已绑定数据表", "进入成功"),
+    });
+    expect(
+      lintArchiveCaseQa(join(weak, "p", "features")).violations.some(
+        (v) => v.rule === "archive-weak-expected",
+      ),
+    ).toBe(true);
+
+    const empty = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("列表仅展示已绑定数据表", ""),
+    });
+    expect(
+      lintArchiveCaseQa(join(empty, "p", "features")).violations.some(
+        (v) => v.rule === "archive-empty-expected",
+      ),
+    ).toBe(true);
+
+    const orphan = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("列表仅展示已绑定数据表", "2."),
+    });
+    expect(
+      lintArchiveCaseQa(join(orphan, "p", "features")).violations.some(
+        (v) => v.rule === "archive-orphan-expected-number",
+      ),
+    ).toBe(true);
+  });
+
+  test("flags legacy data placeholders and ambiguous draft steps", () => {
+    const placeholder = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("| 1 | 选择「已绑定」 |", "| 1 | 选择已有数据源 |"),
+    });
+    expect(
+      lintArchiveCaseQa(join(placeholder, "p", "features")).violations.some(
+        (v) => v.rule === "archive-legacy-data-placeholder",
+      ),
+    ).toBe(true);
+
+    const draft = tmp({
+      "cases/archive.md": GOOD_ARCHIVE.replace("| 1 | 选择「已绑定」 |", "| 1 | UI Check |"),
+    });
+    expect(
+      lintArchiveCaseQa(join(draft, "p", "features")).violations.some(
+        (v) => v.rule === "archive-ambiguous-step",
+      ),
+    ).toBe(true);
   });
 });
