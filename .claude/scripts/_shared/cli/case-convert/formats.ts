@@ -21,6 +21,8 @@ import {
 
 export const CASE_FORMATS = ["md", "xlsx", "csv", "xmind", "json"] as const;
 export type CaseFormat = (typeof CASE_FORMATS)[number];
+const SQL_STATEMENT_START_RE =
+  /^(?:CREATE|INSERT|SELECT|UPDATE|DELETE|ALTER|DROP|TRUNCATE|WITH|MERGE|USE|SET|SHOW|DESCRIBE|DESC|GRANT|REVOKE|COMMENT)\b/i;
 
 export interface ConvertOptions {
   input: string;
@@ -293,12 +295,24 @@ export function intermediateToMarkdown(data: IntermediateJson): string {
 }
 
 function appendMarkdownCase(lines: string[], testCase: TestCase): void {
-  const title = /^【P[0-4]】/.test(testCase.title)
+  const rawTitle = /^【P[0-4]】/.test(testCase.title)
     ? testCase.title
     : `【${testCase.priority}】${testCase.title}`;
+  const priority = rawTitle.match(/^【P[0-4]】/)?.[0] ?? "";
+  const title = `${priority}${rawTitle
+    .slice(priority.length)
+    .replaceAll("【", "「")
+    .replaceAll("】", "」")}`;
   lines.push(`##### ${title}`, "");
   if (testCase.preconditions) {
-    lines.push("> 前置条件", "", "```", testCase.preconditions, "```", "");
+    lines.push(
+      "> 前置条件",
+      "",
+      "```SQL",
+      formatPreconditionSql(testCase.preconditions),
+      "```",
+      "",
+    );
   }
   if (testCase.steps.length > 0) {
     lines.push("> 用例步骤", "", "| 编号 | 步骤 | 预期 |", "| --- | --- | --- |");
@@ -309,6 +323,35 @@ function appendMarkdownCase(lines: string[], testCase: TestCase): void {
     }
     lines.push("");
   }
+}
+
+function formatPreconditionSql(preconditions: string): string {
+  let inSqlStatement = false;
+  return preconditions
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return "";
+      if (
+        trimmed.startsWith("--") ||
+        trimmed.startsWith("/*") ||
+        trimmed.startsWith("*") ||
+        trimmed === "*/"
+      ) {
+        return line;
+      }
+      if (inSqlStatement) {
+        if (trimmed.includes(";")) inSqlStatement = false;
+        return line;
+      }
+      if (SQL_STATEMENT_START_RE.test(trimmed)) {
+        inSqlStatement = !trimmed.includes(";");
+        return line;
+      }
+      return trimmed === "无" ? "-- 无特殊前置条件" : `-- ${trimmed}`;
+    })
+    .join("\n");
 }
 
 function tableRowsToCsv(data: IntermediateJson): string {

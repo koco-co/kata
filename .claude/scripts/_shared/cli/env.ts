@@ -82,7 +82,15 @@ export function buildEnvCommand(): Command {
     .command("discover")
     .description("只读展示平台上可选的项目与数据源")
     .argument("<name>", "环境名称")
-    .action(async (name: string) => outputJson(await discoverDataAssetsEnv(name)));
+    .option("--cookie-stdin", "从 stdin 临时读取 Cookie，不写入环境文件", false)
+    .action(async (name: string, opts: { cookieStdin: boolean }) =>
+      outputJson(
+        await discoverDataAssetsEnv(
+          name,
+          opts.cookieStdin ? { cookie: await readStdinCookie() } : undefined,
+        ),
+      ),
+    );
 
   addLegacyOptions(
     env

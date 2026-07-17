@@ -497,7 +497,7 @@ async function fetchInventory(
   const [qualityProjects, offlineProjects, assetsPage, metadataDatasources] = await Promise.all([
     post<NamedProject[]>(config, "/dassets/v1/valid/project/getProjects", {}, fetchImpl),
     post<NamedProject[]>(config, "/api/rdos/common/project/getProjects", {}, fetchImpl),
-    post<{ records?: AssetsDatasource[] }>(
+    post<{ contentList?: AssetsDatasource[]; records?: AssetsDatasource[] }>(
       config,
       "/dassets/v1/dataSource/pageQuery",
       { current: 1, size: 500, search: "" },
@@ -513,7 +513,7 @@ async function fetchInventory(
   return {
     qualityProjects,
     offlineProjects,
-    assetsDatasources: assetsPage.records ?? [],
+    assetsDatasources: assetsPage.contentList ?? assetsPage.records ?? [],
     metadataDatasources,
   };
 }
@@ -616,9 +616,13 @@ export async function resolveDataAssetsEnv(
 
 export async function discoverDataAssetsEnv(
   name: string,
-  ctx?: DataAssetsEnvContext,
+  ctx?: DataAssetsEnvContext & { cookie?: string },
 ): Promise<Record<string, unknown>> {
-  const config = readDataAssetsEnvConfig(name, ctx);
+  const stored = readDataAssetsEnvConfig(name, ctx);
+  const config =
+    ctx?.cookie === undefined
+      ? stored
+      : { ...stored, auth: { cookie: normalizeCookieInput(ctx.cookie) } };
   assertTenant(config);
   const fetchImpl = ctx?.fetchImpl ?? fetch;
   const inventory = await fetchInventory(config, fetchImpl);
@@ -735,15 +739,21 @@ export async function setDataAssetsCookie(
   ctx?: DataAssetsEnvContext,
 ): Promise<{ name: string; configured: true; verified: true }> {
   const normalized = assertDataAssetsEnvName(name);
-  const cleanCookie = cookie.trim();
-  if (!cleanCookie || cleanCookie.includes("\n") || cleanCookie.includes("\r"))
-    throw new Error("stdin must contain one non-empty Cookie header line");
+  const cleanCookie = normalizeCookieInput(cookie);
   const root = rootFrom(ctx);
   const current = readDataAssetsEnvConfig(normalized, { repoRoot: root });
   const candidate: DataAssetsEnvConfig = { ...current, auth: { cookie: cleanCookie } };
   await resolveDataAssetsEnv(normalized, { ...ctx, repoRoot: root, config: candidate });
   atomicWrite(dataAssetsEnvPath(normalized, root), candidate);
   return { name: normalized, configured: true, verified: true };
+}
+
+function normalizeCookieInput(cookie: string): string {
+  const cleanCookie = cookie.trim();
+  if (!cleanCookie || cleanCookie.includes("\n") || cleanCookie.includes("\r")) {
+    throw new Error("stdin must contain one non-empty Cookie header line");
+  }
+  return cleanCookie;
 }
 
 function nested(value: unknown): Record<string, unknown> {

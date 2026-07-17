@@ -83,7 +83,7 @@ function platformFetch(
     }
     if (path === "/dassets/v1/dataSource/pageQuery") {
       return response({
-        records: [
+        contentList: [
           {
             id: 547,
             dataSourceName: "spark-ui",
@@ -225,6 +225,19 @@ describe("DataAssets v2 environment store", () => {
     });
     expect(JSON.stringify(result)).toContain("offline-project_HADOOP");
     expect(JSON.stringify(result)).not.toContain("secret-value");
+  });
+
+  test("discover can use a temporary stdin Cookie without persisting it", async () => {
+    const storedCookie = "dt_tenant_name=wrong; sid=stale";
+    writeConfig("ci63", config(storedCookie));
+    const result = await discoverDataAssetsEnv("ci63", {
+      repoRoot: root,
+      fetchImpl: platformFetch(),
+      cookie: secretCookie,
+    });
+    expect(JSON.stringify(result)).toContain("offline-project_HADOOP");
+    expect(JSON.stringify(result)).not.toContain("secret-value");
+    expect(readDataAssetsEnvConfig("ci63", { repoRoot: root }).auth.cookie).toBe(storedCookie);
   });
 
   test("migrates seven profiles and deletes legacy Cookie only after online verification", async () => {
