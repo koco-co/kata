@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { expect, test } from "@playwright/test";
 
+import { getEnvConfig } from "../../../../../../_shared/helpers";
 import {
   CASE_01_SPEC,
   EXPLICIT_RULE_CASE_SPECS,
@@ -28,18 +29,36 @@ import {
 const CASES_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FORMAL_UI_SCRIPT_FILES = [path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts")];
 
+function resolveAuditDorisName(): string {
+  try {
+    return getEnvConfig().datasources.doris?.batch?.name ?? "__unconfigured_doris__";
+  } catch {
+    return "__unresolved_doris__";
+  }
+}
+
+function resolveAuditSparkName(): string {
+  try {
+    return getEnvConfig().datasources.sparkthrift?.batch?.name ?? "__unconfigured_sparkthrift__";
+  } catch {
+    return "__unresolved_sparkthrift__";
+  }
+}
+
 test.describe("v6411 UI 自动化规格审计", () => {
   test("72 条 UI 用例元数据必须来自 canonical 36 条 CSV 用例并按 Doris/Spark 各复制一套", async () => {
     const cases = loadV6411UiCaseMetas();
     expect(cases, "必须生成 72 条 UI 用例元数据").toHaveLength(72);
 
-    expect(cases.slice(0, 36).every((item) => item.datasourceName === "doris70"), "§01-§36 必须是 Doris").toBe(
-      true,
-    );
-    expect(
-      cases.slice(36).every((item) => item.datasourceName === "pw_test_HADOOP"),
-      "§37-§72 必须是 SparkThrift",
-    ).toBe(true);
+    const selectedCases = parseCaseFilter(process.env.V6411_UI_REBUILD_CASES ?? "1-72");
+    const dorisName = resolveAuditDorisName();
+    const sparkName = resolveAuditSparkName();
+    if ([...selectedCases].some((caseNo) => caseNo <= 36)) {
+      expect(cases.slice(0, 36).every((item) => item.datasourceName === dorisName), "§01-§36 必须使用环境配置的 Doris 数据源").toBe(true);
+    }
+    if ([...selectedCases].some((caseNo) => caseNo >= 37)) {
+      expect(cases.slice(36).every((item) => item.datasourceName === sparkName), "§37-§72 必须使用环境配置的 SparkThrift 数据源").toBe(true);
+    }
 
     for (const item of cases) {
       expect(item.shortRuleName.length, `§${item.caseNo} 规则名称必须不超过 UI 限制 50 字`).toBeLessThanOrEqual(50);
@@ -187,8 +206,11 @@ test.describe("v6411 UI 自动化规格审计", () => {
 
     const rebuildScript = fs.readFileSync(path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts"), "utf8");
     expect(rebuildScript, "重建脚本必须生成 _cmp 独立对比表名").toContain("compareTableNameForCase");
-    expect(rebuildScript, "重建脚本必须同步独立对比表元数据").toContain(
+    expect(rebuildScript, "非人工元数据前置模式必须支持同步独立对比表元数据").toContain(
       "syncMetadata(page, build.datasourceName, build.database, build.compareTableName",
+    );
+    expect(rebuildScript, "人工建表开关必须同时记录人工元数据前置，不得隐式执行同步").toContain(
+      "metadata-manual-precondition",
     );
     expect(rebuildScript, "一致性校验必须选择独立对比表").toContain(
       "configureConsistencyCompareTable(root, build.compareTableName",
@@ -293,7 +315,7 @@ test.describe("v6411 UI 自动化规格审计", () => {
 
     const rebuildSource = fs.readFileSync(path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts"), "utf8");
     expect(rebuildSource, "任务创建必须按审计规格控制分区设置，不能无条件设置已有分区").toContain(
-      "await configurePartition(page, build, shanghaiDate(), sourceRef);",
+      "await configurePartition(page, build, tablePartitionDate(), sourceRef);",
     );
     expect(rebuildSource, "任务创建必须按审计规格控制抽样开关，不能无条件开启抽样").toContain(
       "await configureSampling(page, build, sourceRef);",
@@ -326,14 +348,25 @@ test.describe("v6411 UI 自动化规格审计", () => {
     expect(rebuildSource, "禁止回退到无条件配置抽样").not.toContain("await configureSampling(page, sourceRef);");
   });
 
-  test("正式 UI 重建脚本必须使用 pw_test 项目和批次级随机表名", async () => {
+  test("正式 UI 重建脚本必须使用环境项目、外部 Spark 底表和批次级随机表名", async () => {
     const rebuildSource = fs.readFileSync(path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts"), "utf8");
 
-    expect(rebuildSource, "正式 UI 重建默认质量项目 id 必须是 pw_test 的 92").toContain(
-      'const PROJECT_ID = process.env.V6411_DQ_PROJECT_ID ?? "92";',
+    expect(rebuildSource, "正式 UI 重建质量项目必须来自环境解析").toContain(
+      "const PROJECT_ID = String(ENV.projects.quality.id);",
     );
-    expect(rebuildSource, "正式 UI 重建默认质量项目名称必须是 pw_test").toContain(
-      'const PROJECT_NAME = process.env.V6411_DQ_PROJECT_NAME ?? "pw_test";',
+    expect(rebuildSource, "正式 UI 重建质量项目名称必须来自环境解析").toContain(
+      "const PROJECT_NAME = ENV.projects.quality.name;",
+    );
+    expect(rebuildSource, "SparkThrift 必须通过显式开关使用人工建表前置").toContain(
+      "V6411_UI_SKIP_BASE_TABLE_CREATE",
+    );
+    expect(rebuildSource, "SparkThrift 不得回退到底层 CLI 建表").toContain(
+      "SparkThrift 回归必须先手工执行 automation/sql/lindorm-test_info_1.sql",
+    );
+    expect(rebuildSource, "规则任务资源组必须支持环境变量配置").toContain("V6411_UI_RESOURCE_GROUP");
+    expect(rebuildSource, "表分区必须支持与人工 SQL 一致的运行时日期").toContain("V6411_UI_TABLE_PARTITION");
+    expect(rebuildSource, "本回归不得通过 V6411_UI_EXISTING_TABLES 复用旧业务记录").toContain(
+      "V6411_UI_EXISTING_TABLES 已废弃",
     );
     expect(rebuildSource, "必须提供批次级 8 位英文字母后缀").toContain("function resolveBatchTableSuffix()");
     expect(rebuildSource, "正式批量表名必须在同一次 run 目录内复用同一个批次后缀").toContain(
@@ -747,14 +780,14 @@ function assertSourcePreconditionUsesDefaultRows(
   expectedRows: readonly V6411BaseTableRow[],
 ): void {
   const sql = normalizeSourceSql(precondition);
-  expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 主表必须是 pw_test.test_info_1`).toMatch(
-    /CREATE TABLE\s+pw_test\.test_info_1\b/i,
+  expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 必须创建 test_info_1 主表`).toMatch(
+    /CREATE TABLE\s+(?:[A-Za-z_][\w]*\.)?test_info_1\b/i,
   );
-  expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 必须向 pw_test.test_info_1 写入数据`).toMatch(
-    /INSERT INTO(?: TABLE)?\s+pw_test\.test_info_1\b/i,
+  expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 必须向 test_info_1 主表写入数据`).toMatch(
+    /INSERT INTO(?: TABLE)?\s+(?:[A-Za-z_][\w]*\.)?test_info_1\b/i,
   );
   expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 不得混入落标用例 order_info 表`).not.toMatch(
-    /pw_test\.order_info\b/i,
+    /(?:[A-Za-z_][\w]*\.)?order_info\b/i,
   );
   expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 必须插入 6 行数据`).toContain("插入6行数据");
   expect(sql, `§${padCaseNo(caseNo)} 源前置 SQL 的 id 必须按 user_idx 生成 1..6`).toMatch(

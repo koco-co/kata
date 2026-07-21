@@ -2,6 +2,26 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { getEnvConfig } from "../../../../../../_shared/helpers";
+
+/** 从运行时环境解析 SparkThrift 数据源 UI 名称；未选环境时仅保留不可执行占位值。 */
+function resolveSparkDatasourceName(): string {
+  try {
+    return getEnvConfig().datasources.sparkthrift?.batch?.name ?? "__unconfigured_sparkthrift__";
+  } catch {
+    return "__unresolved_sparkthrift__";
+  }
+}
+
+/** 从运行时环境解析 Doris 数据源 UI 名称；未配置时不伪造客户数据源名称。 */
+function resolveDorisDatasourceName(): string {
+  try {
+    return getEnvConfig().datasources.doris?.batch?.name ?? "__unconfigured_doris__";
+  } catch {
+    return "__unresolved_doris__";
+  }
+}
+
 export type V6411RuleSpec = {
   index: number;
   category: string;
@@ -32,7 +52,7 @@ export type V6411UiCaseMeta = {
   caseNo: number;
   sourceCaseNo: number;
   sourceCaseId: string;
-  datasourceName: "doris70" | "pw_test_HADOOP";
+  datasourceName: string;
   datasourceType: "Doris3.x" | "SparkThrift2.x";
   fullTitle: string;
   shortRuleName: string;
@@ -514,12 +534,14 @@ export function loadV6411UiCaseMetas(): V6411UiCaseMeta[] {
     throw new Error(`expected 36 canonical v6411 UI cases, got ${canonicalRows.length}`);
   }
 
+  const sparkName = resolveSparkDatasourceName();
+  const dorisName = resolveDorisDatasourceName();
   const cases: V6411UiCaseMeta[] = [];
   for (const [index, row] of canonicalRows.entries()) {
-    cases.push(buildCaseMeta(row, index + 1, index + 1, "doris70", "Doris3.x"));
+    cases.push(buildCaseMeta(row, index + 1, index + 1, dorisName, "Doris3.x"));
   }
   for (const [index, row] of canonicalRows.entries()) {
-    cases.push(buildCaseMeta(row, index + 37, index + 1, "pw_test_HADOOP", "SparkThrift2.x"));
+    cases.push(buildCaseMeta(row, index + 37, index + 1, sparkName, "SparkThrift2.x"));
   }
   return cases;
 }

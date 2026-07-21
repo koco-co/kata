@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,12 +16,20 @@ import {
 } from "../data/v6411-ui-case-specs";
 import { baseRowsForV6411Case, type V6411BaseTableRow } from "../data/v6411-ui-base-table-data";
 
+/** 根据数据源类型从环境配置中解析 database/schema */
+function resolveDatabase(datasourceType: "Doris3.x" | "SparkThrift2.x"): string {
+  const key = datasourceType === "SparkThrift2.x" ? "sparkthrift" : "doris";
+  const datasource = getEnvConfig().datasources[key];
+  if (!datasource) throw new Error(`environment datasource ${key} is not configured`);
+  return datasource.sql.database;
+}
+
 type UiCaseBuild = {
   caseNo: number;
   sourceCaseId: string;
-  datasourceName: "doris70" | "pw_test_HADOOP";
+  datasourceName: string;
   datasourceType: "Doris3.x" | "SparkThrift2.x";
-  database: "pw_test";
+  database: string;
   tableName: string;
   fullTableName: string;
   compareTableName: string;
@@ -106,10 +113,22 @@ const EXISTING_TABLE_BY_CASE = parseExistingTableMap(process.env.V6411_UI_EXISTI
 const BATCH_RUN_KEY = resolveBatchRunKey();
 const BATCH_TABLE_SUFFIX = resolveBatchTableSuffix();
 const RESULT_STRICT = process.env.V6411_UI_RESULT_STRICT === "1";
+const SKIP_BASE_TABLE_CREATE = process.env.V6411_UI_SKIP_BASE_TABLE_CREATE === "1";
+const REUSE_EXISTING_RECORDS = process.env.V6411_UI_REUSE_EXISTING_RECORDS === "1";
 const RESTORE_TASKS_ONLY = process.env.V6411_UI_RESTORE_TASKS_ONLY === "1";
 const SKIP_RESULT_WAIT_AFTER_TRIGGER = process.env.V6411_UI_SKIP_RESULT_WAIT_AFTER_TRIGGER === "1";
 const CASE_TIMEOUT_MS = Number(process.env.V6411_UI_REBUILD_CASE_TIMEOUT_MS ?? 90 * 60 * 1000);
 const RESULT_TIMEOUT_MS = Number(process.env.V6411_UI_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000);
+
+if (EXISTING_TABLE_BY_CASE.size > 0 && !REUSE_EXISTING_RECORDS) {
+  throw new Error(
+    "V6411_UI_EXISTING_TABLES 仅允许与 V6411_UI_REUSE_EXISTING_RECORDS=1 一起使用；默认禁止复用旧业务记录。",
+  );
+}
+
+if (REUSE_EXISTING_RECORDS && EXISTING_TABLE_BY_CASE.size === 0) {
+  throw new Error("V6411_UI_REUSE_EXISTING_RECORDS=1 时必须逐条设置 V6411_UI_EXISTING_TABLES 映射。");
+}
 
 if (RESULT_STRICT && SKIP_RESULT_WAIT_AFTER_TRIGGER) {
   throw new Error("V6411_UI_RESULT_STRICT=1 时不能同时设置 V6411_UI_SKIP_RESULT_WAIT_AFTER_TRIGGER=1");
@@ -160,9 +179,16 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
       });
 
       if (EXISTING_TABLE_BY_CASE.has(build.caseNo)) {
+        const mappedTable = EXISTING_TABLE_BY_CASE.get(build.caseNo);
+        expect(
+          mappedTable,
+          `${sourceRef}: 复用映射必须明确指向当前批次表 ${build.tableName}`,
+        ).toBe(build.tableName.toLowerCase());
         await test.step("步骤1-4: 复用已有 UI 规则集和规则任务记录", async () => {
           await assertRuleSetListRecord(page, build, sourceRef);
-          if (await taskListRecordExists(page, build, sourceRef)) {
+          if (REUSE_EXISTING_RECORDS) {
+            await assertTaskListRecord(page, build, sourceRef);
+          } else if (await taskListRecordExists(page, build, sourceRef)) {
             await assertTaskListRecord(page, build, sourceRef);
           } else {
             await createRuleTaskViaUi(page, build, sourceRef);
@@ -172,26 +198,60 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
           await attachScreenshot(page, `${padCaseNo(build.caseNo)}-01-existing-record-reused`);
         });
       } else {
-        await test.step("步骤1: 创建唯一底表测试数据前置", async () => {
-          await createBaseTable(page, build, sourceRef);
-          recordCreationProgress(build, "base-table-created", sourceRef);
-          await attachScreenshot(page, `${padCaseNo(build.caseNo)}-01-base-table-created`);
+        await test.step("步骤1: 准备唯一底表测试数据前置", async () => {
+          if (build.datasourceType === "SparkThrift2.x") {
+            expect(
+              SKIP_BASE_TABLE_CREATE,
+              `${sourceRef}: SparkThrift 回归必须先手工执行 automation/sql/lindorm-test_info_1.sql，并设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1`,
+            ).toBe(true);
+            recordCreationProgress(build, "base-table-manual-precondition", sourceRef);
+            await attachScreenshot(page, `${padCaseNo(build.caseNo)}-01-base-table-manual-precondition`);
+          } else {
+            await createBaseTable(page, build, sourceRef);
+            recordCreationProgress(build, "base-table-created", sourceRef);
+            await attachScreenshot(page, `${padCaseNo(build.caseNo)}-01-base-table-created`);
+          }
         });
 
-        await test.step("步骤2: 通过数据资产 UI 执行元数据临时同步", async () => {
+        await test.step(
+          SKIP_BASE_TABLE_CREATE && build.datasourceType === "SparkThrift2.x"
+            ? "步骤2: 使用人工完成的元数据前置，不执行 Playwright 同步"
+            : "步骤2: 通过数据资产 UI 执行元数据临时同步",
+          async () => {
+          if (SKIP_BASE_TABLE_CREATE && build.datasourceType === "SparkThrift2.x") {
+            await test.info().attach("manual-table-metadata-precondition.json", {
+              body: JSON.stringify(
+                {
+                  mode: "manual-table-and-metadata",
+                  datasource: build.datasourceName,
+                  database: build.database,
+                  table: build.fullTableName,
+                  compareTable: needsCompareTable(build) ? build.fullCompareTableName : undefined,
+                  note: "底表和元数据由回归发起人提前完成；本用例跳过 Playwright 元数据同步，后续 UI 表选择负责验证主表可用。",
+                },
+                null,
+                2,
+              ),
+              contentType: "application/json",
+            });
+            recordCreationProgress(build, "metadata-manual-precondition", sourceRef);
+            await attachScreenshot(page, `${padCaseNo(build.caseNo)}-02-metadata-manual-precondition`);
+            return;
+          }
           await syncMetadata(page, build.datasourceName, build.database, build.tableName, {
             requireExactTable: true,
-            allowFilterFallbackForExactTable: build.datasourceName === "doris70",
+            allowFilterFallbackForExactTable: build.datasourceType === "Doris3.x",
           });
           if (needsCompareTable(build)) {
             await syncMetadata(page, build.datasourceName, build.database, build.compareTableName, {
               requireExactTable: true,
-              allowFilterFallbackForExactTable: build.datasourceName === "doris70",
+              allowFilterFallbackForExactTable: build.datasourceType === "Doris3.x",
             });
           }
           recordCreationProgress(build, "metadata-synced", sourceRef);
           await attachScreenshot(page, `${padCaseNo(build.caseNo)}-02-metadata-synced`);
-        });
+          },
+        );
 
         await test.step(`步骤3: 通过规则集管理 UI 创建规则包和 ${build.ruleSpec.expectedRuleCount} 条监控规则`, async () => {
           if (build.ruleSpec.rules.some((rule) => rule.category === "自定义SQL")) {
@@ -221,7 +281,7 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
       if (RESTORE_TASKS_ONLY) {
         const restoredRow = await test.step("恢复模式: 只验证规则任务记录已补回", async () => {
           await gotoDataQualityPage(page, "/dq/rule");
-          await searchTable(page, build.tableName, sourceRef);
+          await searchTable(page, taskListSearchQuery(), sourceRef);
           const row = page
             .locator(".ant-table-tbody tr")
             .filter({ hasText: build.tableName })
@@ -265,11 +325,11 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
 
       await test.step("步骤6: 通过规则任务管理 UI 点击立即执行", async () => {
         await gotoDataQualityPage(page, "/dq/rule");
-        await searchTable(page, build.tableName, sourceRef);
-        const row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-        await expect(row, `${sourceRef}: 任务列表应展示刚创建任务`).toBeVisible({ timeout: 30_000 });
+        await searchTable(page, taskListSearchQuery(), sourceRef);
+        const row = await findTaskRowAcrossPages(page, build, sourceRef);
+        if (!row) throw new Error(`${sourceRef}: 任务列表应展示刚创建任务`);
         await ensureTaskDetectionEnabled(page, build, sourceRef);
-        await searchTable(page, build.tableName, sourceRef);
+        await searchTable(page, taskListSearchQuery(), sourceRef);
         await runTaskImmediatelyFromUi(page, row, sourceRef);
         recordCreationProgress(build, "immediate-run-clicked", sourceRef);
         await attachScreenshot(page, `${padCaseNo(build.caseNo)}-06-immediate-run-clicked`);
@@ -332,6 +392,10 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
   }
 
   test("汇总选中的 UI 重建结果状态", async () => {
+    test.skip(
+      process.env.PW_FULLY_PARALLEL === "1",
+      "并行重建阶段由各 worker 独立写入结果；汇总必须在 UI 用例完成后串行执行",
+    );
     const selectedCases = [...CASE_FILTER].sort((left, right) => left - right);
     const records = loadLatestResultRecordsByCaseNo(selectedCases);
     const missing = selectedCases.filter((caseNo) => !records.has(caseNo));
@@ -368,19 +432,28 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
       ).toBe(0);
     }
     expect(summary.selectedCaseCount, "结果汇总数量必须等于选中用例数").toBe(selectedCases.length);
-    expect(summary.byDatasource.doris70?.total ?? 0, "Doris 结果数量必须等于选中的 Doris 用例数").toBe(
-      selectedCases.filter((caseNo) => caseNo <= 36).length,
-    );
-    expect(
-      summary.byDatasource.pw_test_HADOOP?.total ?? 0,
-      "SparkThrift 结果数量必须等于选中的 SparkThrift 用例数",
-    ).toBe(selectedCases.filter((caseNo) => caseNo >= 37).length);
+    const selectedDorisCount = selectedCases.filter((caseNo) => caseNo <= 36).length;
+    const selectedSparkCount = selectedCases.filter((caseNo) => caseNo >= 37).length;
+    const dorisName = ENV.datasources.doris?.batch.name;
+    const sparkName = ENV.datasources.sparkthrift?.batch.name;
+    if (selectedDorisCount > 0) {
+      expect(dorisName, "选中 Doris 用例时环境必须配置 Doris 数据源").toBeTruthy();
+      expect(summary.byDatasource[dorisName ?? ""]?.total ?? 0, "Doris 结果数量必须等于选中的 Doris 用例数").toBe(
+        selectedDorisCount,
+      );
+    }
+    if (selectedSparkCount > 0) {
+      expect(sparkName, "选中 SparkThrift 用例时环境必须配置 SparkThrift 数据源").toBeTruthy();
+      expect(summary.byDatasource[sparkName ?? ""]?.total ?? 0, "SparkThrift 结果数量必须等于选中的 SparkThrift 用例数").toBe(
+        selectedSparkCount,
+      );
+    }
   });
 });
 
 function buildTargetCases(): UiCaseBuild[] {
   const metasByCaseNo = new Map(loadV6411UiCaseMetas().map((item) => [item.caseNo, item]));
-  return EXPLICIT_RULE_CASE_SPECS.map((ruleSpec) => {
+  return EXPLICIT_RULE_CASE_SPECS.filter((ruleSpec) => CASE_FILTER.has(ruleSpec.caseNo)).map((ruleSpec) => {
     const meta = metasByCaseNo.get(ruleSpec.caseNo);
     if (!meta) throw new Error(`missing v6411 case meta for §${padCaseNo(ruleSpec.caseNo)}`);
     if (meta.packageName !== ruleSpec.packageName) {
@@ -395,16 +468,17 @@ function buildTargetCases(): UiCaseBuild[] {
     }
     const tableName = tableNameForCase(ruleSpec.caseNo);
     const compareTableName = compareTableNameForCase(tableName);
+    const database = resolveDatabase(meta.datasourceType);
     return {
       caseNo: meta.caseNo,
       sourceCaseId: meta.sourceCaseId,
       datasourceName: meta.datasourceName,
       datasourceType: meta.datasourceType,
-      database: "pw_test",
+      database,
       tableName,
-      fullTableName: `pw_test.${tableName}`,
+      fullTableName: `${database}.${tableName}`,
       compareTableName,
-      fullCompareTableName: `pw_test.${compareTableName}`,
+      fullCompareTableName: `${database}.${compareTableName}`,
       ruleName: formatV6411ShortRuleName(meta.caseNo, meta.fullTitle),
       fullTitle: meta.fullTitle,
       packageName: meta.packageName,
@@ -753,14 +827,26 @@ function shanghaiDate(offsetDays = 0): string {
   return `${byType.get("year")}-${byType.get("month")}-${byType.get("day")}`;
 }
 
+function tablePartitionDate(): string {
+  const configured = process.env.V6411_UI_TABLE_PARTITION?.trim();
+  if (configured) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(configured)) {
+      throw new Error(`V6411_UI_TABLE_PARTITION 必须是 yyyy-MM-dd，实际为 ${configured}`);
+    }
+    return configured;
+  }
+  return shanghaiDate();
+}
+
 function datasourceUiLabel(build: UiCaseBuild): string {
-  return build.datasourceName === "doris70" ? "doris70（Doris3.x）" : "pw_test_HADOOP（SparkThrift2.x）";
+  return `${build.datasourceName}（${build.datasourceType}）`;
 }
 
 async function createBaseTable(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
-  if (build.datasourceName === "pw_test_HADOOP") {
-    await createSparkBaseTable(page, build, sourceRef);
-    return;
+  if (build.datasourceType === "SparkThrift2.x") {
+    throw new Error(
+      `${sourceRef}: SparkThrift 禁止由 Playwright/CLI/API 建表；请先手工执行 automation/sql/lindorm-test_info_1.sql，并设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1`,
+    );
   }
   await createDorisBaseTable(page, build, sourceRef);
 }
@@ -870,7 +956,7 @@ async function executeDorisSqlDirect(
   const failed = executions.find((item) => item.status !== 0);
   expect(
     failed,
-    `${sourceRef}: Doris 底层建表必须写入质量项目 doris70(sourceId=617/dataInfoId=753)，失败语句=${
+    `${sourceRef}: Doris 底层建表必须写入当前环境质量项目，失败语句=${
       failed?.index ?? "none"
     } error=${failed?.error ?? ""}`,
   ).toBeUndefined();
@@ -881,7 +967,8 @@ function dorisQualifiedName(database: string, tableName: string): string {
 }
 
 function dorisConnectionOptions(): ConnectionOptions {
-  const jdbcUrl = process.env.V6411_DORIS_JDBC_URL ?? "jdbc:mysql://172.16.124.70:19030/pw_test";
+  const jdbcUrl = process.env.V6411_DORIS_JDBC_URL;
+  if (!jdbcUrl) throw new Error("Doris 底层建表仅允许使用显式 V6411_DORIS_JDBC_URL，不提供旧环境回退");
   const match = /^jdbc:mysql:\/\/([^:/]+):(\d+)\/([^?;]+)/.exec(jdbcUrl);
   if (!match) throw new Error(`无法解析 V6411_DORIS_JDBC_URL: ${jdbcUrl}`);
   return {
@@ -895,42 +982,8 @@ function dorisConnectionOptions(): ConnectionOptions {
   };
 }
 
-async function createSparkBaseTable(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
-  await gotoDataQualityPage(page, "/dq/ruleSet");
-  const statements = sparkBaseTableStatements(build, build.fullTableName);
-  if (needsCompareTable(build)) {
-    statements.push(...sparkBaseTableStatements(build, build.fullCompareTableName));
-  }
-  await executeSqlViaDtstackCli(page, statements, build, sourceRef);
-  test.info().annotations.push({ type: "table", description: build.fullTableName });
-  if (needsCompareTable(build)) test.info().annotations.push({ type: "compare-table", description: build.fullCompareTableName });
-}
-
-function sparkBaseTableStatements(build: UiCaseBuild, fullTableName: string): string[] {
-  const today = shanghaiDate();
-  const ddl = `CREATE TABLE ${fullTableName} (
-  id INT,
-  age INT,
-  string_num STRING,
-  name STRING,
-  address STRING,
-  money STRING,
-  buy_date DATE,
-  date_detail STRING
-)
-PARTITIONED BY (dt STRING)
-STORED AS ORC`;
-  const insert = `INSERT INTO TABLE ${fullTableName} PARTITION (dt='${today}')
-${baseRowsForV6411Case(build).map((row) => sparkRowSelect(row)).join("\nUNION ALL ")}`;
-  return [`DROP TABLE IF EXISTS ${fullTableName}`, ddl, insert];
-}
-
 function dorisRowValues(rowValue: V6411BaseTableRow, dt: string): string {
   return `(${sqlNumber(rowValue.id)}, '${dt}', ${sqlNumber(rowValue.age)}, ${sqlString(rowValue.stringNum)}, ${sqlString(rowValue.name)}, ${sqlString(rowValue.address)}, ${sqlString(rowValue.money)}, '${shanghaiDate(rowValue.buyDateOffset)}', ${sqlString(rowValue.dateDetail)})`;
-}
-
-function sparkRowSelect(rowValue: V6411BaseTableRow): string {
-  return `SELECT ${sqlNumber(rowValue.id)} AS id, ${sqlNumber(rowValue.age)} AS age, ${sqlString(rowValue.stringNum)} AS string_num, ${sqlString(rowValue.name)} AS name, ${sqlString(rowValue.address)} AS address, ${sqlString(rowValue.money)} AS money, CAST('${shanghaiDate(rowValue.buyDateOffset)}' AS DATE) AS buy_date, ${sqlString(rowValue.dateDetail)} AS date_detail`;
 }
 
 function sqlNumber(value: number | null): string {
@@ -942,117 +995,24 @@ function sqlString(value: string | null): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
-async function executeSqlViaDtstackCli(
-  page: Page,
-  statements: readonly string[],
-  build: UiCaseBuild,
-  sourceRef: string,
-): Promise<void> {
-  const cookie = (await page.context().cookies()).map((item) => `${item.name}=${item.value}`).join("; ");
-  const sqlPath = path.join(OUT_DIR, `${build.tableName}.sql`);
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(sqlPath, `${statements.map((item) => item.trim().replace(/;$/, "")).join(";\n")};\n`);
-
-  const localCli = path.resolve(process.cwd(), "node_modules/.bin/dtstack-cli");
-  const command = fs.existsSync(localCli) ? localCli : "bun";
-  const cliPrefix = fs.existsSync(localCli) ? [] : [".claude/packages/dtstack/src/cli.ts"];
-  const datasource = cliDatasourceConfig(build);
-  const executions = [];
-  for (const [index, statement] of statements.entries()) {
-    const statementSql = `${statement.trim().replace(/;$/, "")};\n`;
-    const statementPath = path.join(OUT_DIR, `${build.tableName}-${String(index + 1).padStart(2, "0")}.sql`);
-    fs.writeFileSync(statementPath, statementSql);
-    const args = [
-      ...cliPrefix,
-      "sql",
-      "exec",
-      "--project",
-      "pw_test",
-      "--datasource",
-      datasource.type,
-      "--datasource-id",
-      datasource.id,
-      "--datasource-name",
-      datasource.name,
-      "--datasource-type-id",
-      datasource.typeId,
-      "--file",
-      statementPath,
-      "--on-exists",
-      "warn",
-      "--on-missing",
-      "warn",
-      "--env",
-      "ltqc",
-    ];
-    const result = spawnSync(command, args, {
-      cwd: process.cwd(),
-      env: {
-        ...process.env,
-        DTSTACK_COOKIE: cookie,
-        LTQC_BASE_URL: BASE_URL,
-      },
-      encoding: "utf8",
-      timeout: Number(process.env.V6411_UI_SQL_TIMEOUT_MS ?? 600_000),
-    });
-    executions.push({
-      index: index + 1,
-      command,
-      args,
-      status: result.status,
-      signal: result.signal,
-      stdout: result.stdout,
-      stderr: result.stderr,
-      error: result.error ? String(result.error) : undefined,
-      sqlPath: statementPath,
-      sql: statementSql,
-    });
-    if (result.status !== 0) break;
-  }
-  await test.info().attach("base-table-sql-exec.json", {
-    body: JSON.stringify(
-      {
-        sqlPath,
-        executions,
-      },
-      null,
-      2,
-    ),
-    contentType: "application/json",
-  });
-  const failed = executions.find((item) => {
-    if (item.status !== 0) return true;
-    const diagnosticText = `${item.stdout ?? ""}\n${item.stderr ?? ""}`;
-    if (/"success"\s*:\s*false/i.test(diagnosticText)) return true;
-    if (/HTTP\s+[45]\d\d/i.test(diagnosticText)) return true;
-    if (/already exists|已存在/i.test(diagnosticText)) return true;
-    return false;
-  });
-  expect(
-    failed,
-    `${sourceRef}: 底层 SQL 建表应业务成功，失败语句=${failed?.index ?? "none"} stdout=${failed?.stdout ?? ""} stderr=${failed?.stderr ?? ""}`,
-  ).toBeUndefined();
-}
-
-function cliDatasourceConfig(build: UiCaseBuild): { type: "Doris" | "SparkThrift"; id: string; name: string; typeId: string } {
-  if (build.datasourceName === "pw_test_HADOOP") {
-    return {
-      type: "SparkThrift",
-      id: "9",
-      name: "pw_test_HADOOP",
-      typeId: "45",
-    };
-  }
-  return {
-    type: "Doris",
-    id: "504",
-    name: "pw_test_DORIS_doris70",
-    typeId: "129",
-  };
-}
-
 async function createRuleSetViaUi(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
   await gotoDataQualityPage(page, "/dq/ruleSet");
+  const existingRuleSetRow = await existingRuleSetTableRowInProbePage(page, build, sourceRef);
+  if (existingRuleSetRow) {
+    await test.info().attach(`${sourceRef}-existing-rule-set-precondition.txt`, {
+      body: [
+        "当前用例要求通过新建规则集 UI 创建本批次记录，但目标数据表已经绑定规则集。",
+        "产品会将已配置规则集的数据表从新建规则集的可选列表中排除。",
+        `table=${build.tableName}`,
+        `existingRow=${existingRuleSetRow}`,
+        "未删除、编辑或复用已有业务记录。",
+      ].join("\n"),
+      contentType: "text/plain",
+    });
+    throw new Error(
+      `${sourceRef}: 数据表 ${build.tableName} 已存在规则集，产品新建规则集下拉会排除该表；需先通过 UI 清理旧规则集，或明确授权 UI 复用已有记录。existingRow=${existingRuleSetRow}`,
+    );
+  }
   await clickText(page, "新建规则集", sourceRef);
   await expect(page, `${sourceRef}: 应进入新增规则集页面`).toHaveURL(/\/dq\/ruleSet\/add/, { timeout: 30_000 });
   await selectExactFormOption(page, "选择数据源", datasourceUiLabel(build), sourceRef);
@@ -1075,6 +1035,31 @@ async function createRuleSetViaUi(page: Page, build: UiCaseBuild, sourceRef: str
   recordCreationProgress(build, "rule-set-save-attempted", sourceRef);
   await clickRuleSetSave(page, sourceRef, build);
   recordCreationProgress(build, "rule-set-save-finished", sourceRef);
+}
+
+async function existingRuleSetTableRowInProbePage(
+  page: Page,
+  build: UiCaseBuild,
+  sourceRef: string,
+): Promise<string | null> {
+  const probe = await page.context().newPage();
+  try {
+    await gotoDataQualityPage(probe, "/dq/ruleSet");
+    await searchTable(probe, build.tableName, sourceRef);
+    const rows = probe.locator(".ant-table-tbody tr").filter({ hasText: build.tableName });
+    const count = await rows.count();
+    if (count === 0) return null;
+    const row = count === 1 ? rows : rows.first();
+    return ((await row.innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ").trim() || null;
+  } catch (error) {
+    await test.info().attach(`${sourceRef}-probe-existing-rule-set-table-error.txt`, {
+      body: error instanceof Error ? error.stack ?? error.message : String(error),
+      contentType: "text/plain",
+    });
+    return null;
+  } finally {
+    await probe.close().catch(() => {});
+  }
 }
 
 async function ensureCustomSqlTemplateViaUi(page: Page, sourceRef: string): Promise<void> {
@@ -1598,7 +1583,7 @@ async function configureCompareTableRow(
   const tableSelect = row.locator(".ant-select:visible").first();
   await expect(tableSelect, `${sourceRef}: 对比表行应展示对比表下拉`).toBeVisible({ timeout: 30_000 });
   await selectDataTableFromField(page, row, tableName, sourceRef, "对比表");
-  await configureCompareTablePartition(row, shanghaiDate(), sourceRef);
+  await configureCompareTablePartition(row, tablePartitionDate(), sourceRef);
   if (options.skipField) {
     await expect(section, `${sourceRef}: 对比表应回显 ${tableName}`).toContainText(tableName, { timeout: 30_000 });
     return;
@@ -1634,7 +1619,7 @@ async function configureTableRowCountCompare(root: UiSearchRoot, database: strin
   await expect(databaseSelect, `${sourceRef}: 对比表所属库下拉应可见`).toBeVisible({ timeout: 30_000 });
   await chooseFromSelectWithRetry(page, databaseSelect, database, sourceRef, 3);
   await selectDataTableFromField(page, row, tableName, sourceRef, "多表数据行数对比对比表", 1);
-  await configureCompareTablePartition(row, shanghaiDate(), sourceRef);
+  await configureCompareTablePartition(row, tablePartitionDate(), sourceRef);
   await expect(section, `${sourceRef}: 多表数据行数对比对比表应回显 ${tableName}`).toContainText(tableName, { timeout: 30_000 });
 }
 
@@ -1656,7 +1641,7 @@ async function configureConsistencyCompareTable(root: UiSearchRoot, tableName: s
   if (!rowText.includes(tableName)) {
     await selectDataTableFromField(page, row, tableName, sourceRef, "一致性对比表");
   }
-  await configureCompareTablePartition(row, shanghaiDate(), sourceRef);
+  await configureCompareTablePartition(row, tablePartitionDate(), sourceRef);
   const keyCell = row.locator("td").nth(2);
   await expect(keyCell, `${sourceRef}: 一致性对比表行应展示对比表主键列`).toBeVisible({ timeout: 30_000 });
   const keySelect = keyCell.locator(".ant-select:visible").first();
@@ -2409,7 +2394,7 @@ async function createRuleTaskViaUi(page: Page, build: UiCaseBuild, sourceRef: st
   await selectFormOption(page, /数据源/, datasourceUiLabel(build), sourceRef);
   await selectFormOption(page, /数据库/, build.database, sourceRef);
   await selectDataTableFormOption(page, build.tableName, sourceRef);
-  await configurePartition(page, build, shanghaiDate(), sourceRef);
+  await configurePartition(page, build, tablePartitionDate(), sourceRef);
   await configureSampling(page, build, sourceRef);
   await clickButton(page, /^下\s*一\s*步$/, sourceRef, { waitForSpin: false });
   await expect(page.locator("body"), `${sourceRef}: 任务应进入监控规则页`).toContainText(/引用规则包|规则包|引入/, {
@@ -2422,7 +2407,7 @@ async function createRuleTaskViaUi(page: Page, build: UiCaseBuild, sourceRef: st
   });
   await selectFieldOption(page, /调度周期/, "手动触发", sourceRef);
   await setPackageCount(page, build.packageCount, sourceRef);
-  await selectResourceGroup(page, sourceRef, { required: build.datasourceName !== "doris70" });
+  await selectResourceGroup(page, sourceRef, { required: build.datasourceType !== "Doris3.x" });
   await selectFieldOption(page, /超时时间/, "不限制", sourceRef, { required: false });
   await checkNoReport(page, sourceRef);
   recordCreationProgress(build, "rule-task-save-attempted", sourceRef);
@@ -2430,33 +2415,65 @@ async function createRuleTaskViaUi(page: Page, build: UiCaseBuild, sourceRef: st
   await waitForTaskSaveResult(page, sourceRef, "新建任务", build);
   recordCreationProgress(build, "rule-task-save-finished", sourceRef);
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchTable(page, build.tableName, sourceRef);
-  const row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  await expect(row, `${sourceRef}: 任务列表应展示新建任务`).toBeVisible({ timeout: 30_000 });
+  await searchTable(page, taskListSearchQuery(), sourceRef);
+  const row = await findTaskRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 任务列表应展示新建任务`);
   await expect(row, `${sourceRef}: 执行周期应为手动触发`).toContainText("手动触发", { timeout: 30_000 });
 }
 
 async function assertTaskListRecord(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchTable(page, build.tableName, sourceRef);
-  const row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  await expect(row, `${sourceRef}: 任务列表应展示已有任务`).toBeVisible({ timeout: 30_000 });
+  await searchTable(page, taskListSearchQuery(), sourceRef);
+  const row = await findTaskRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 任务列表应展示已有任务`);
   await expect(row, `${sourceRef}: 已有任务应展示数据源 ${build.datasourceName}`).toContainText(build.datasourceName, {
     timeout: 30_000,
   });
   await expect(row, `${sourceRef}: 已有任务执行周期应为手动触发`).toContainText("手动触发", { timeout: 30_000 });
 }
 
+function taskListSearchQuery(): string {
+  return process.env.V6411_UI_TASK_SEARCH_QUERY ?? "test_info_1_";
+}
+
 async function taskListRecordExists(page: Page, build: UiCaseBuild, sourceRef: string): Promise<boolean> {
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchTable(page, build.tableName, sourceRef);
-  const row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  return await row.isVisible({ timeout: 5_000 }).catch(() => false);
+  await searchTable(page, taskListSearchQuery(), sourceRef);
+  return (await findTaskRowAcrossPages(page, build, sourceRef)) !== null;
+}
+
+async function findTaskRowAcrossPages(page: Page, build: UiCaseBuild, sourceRef: string): Promise<Locator | null> {
+  const totalText = await page
+    .locator(".ant-pagination-total-text:visible")
+    .last()
+    .innerText({ timeout: 3_000 })
+    .catch(() => "");
+  const totalMatch = totalText.match(/共\s*(\d+)\s*条/);
+  const totalCount = totalMatch ? Number(totalMatch[1]) : null;
+  const configuredMaxPages = Number(process.env.V6411_UI_TASK_SCAN_MAX_PAGES ?? 0);
+  const maxPages = configuredMaxPages > 0 ? configuredMaxPages : totalCount ? Math.max(1, Math.ceil(totalCount / 20)) : 5;
+  for (let pageIndex = 1; pageIndex <= maxPages; pageIndex += 1) {
+    const rows = page.locator(".ant-table-tbody tr:visible");
+    const rowTexts = await rows.allInnerTexts();
+    const matchingIndex = rowTexts.findIndex((rowText) => rowText.includes(build.fullTableName));
+    if (matchingIndex >= 0) return rows.nth(matchingIndex);
+
+    const next = page.locator(".ant-pagination-next:visible").last();
+    const nextClass = await next.getAttribute("class").catch(() => "");
+    if (nextClass?.includes("ant-pagination-disabled")) break;
+    if (!(await next.isVisible({ timeout: 2_000 }).catch(() => false))) break;
+    await next.click({ timeout: 30_000 });
+    await expect(page.locator(".ant-spin-spinning"), `${sourceRef}: 翻页后加载遮罩应消失`).toHaveCount(0, {
+      timeout: Number(process.env.V6411_UI_SPIN_TIMEOUT_MS ?? 60_000),
+    });
+    await page.waitForTimeout(500);
+  }
+  return null;
 }
 
 async function ensureTaskDetectionEnabled(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
-  let row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  await expect(row, `${sourceRef}: 开启检测前任务行应存在`).toBeVisible({ timeout: 30_000 });
+  let row = await findTaskRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 开启检测前任务行应存在`);
   const rowText = ((await row.innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
   if (!/未开启检测/.test(rowText)) return;
   const checkbox = row.locator(".ant-checkbox-wrapper:visible, input[type='checkbox']:visible").first();
@@ -2476,22 +2493,23 @@ async function ensureTaskDetectionEnabled(page: Page, build: UiCaseBuild, source
     await expect(confirm, `${sourceRef}: 开启检测确认框应关闭`).toBeHidden({ timeout: 60_000 });
   }
   await waitForSpin(page, sourceRef);
-  await searchTable(page, build.tableName, sourceRef);
-  row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
+  await searchTable(page, taskListSearchQuery(), sourceRef);
+  row = await findTaskRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 开启检测后任务行应存在`);
   await expect(row, `${sourceRef}: 开启检测后任务应显示已开启检测`).toContainText("已开启检测", { timeout: 60_000 });
 }
 
 async function editRuleTaskViaUi(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchTable(page, build.tableName, sourceRef);
-  const row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  await expect(row, `${sourceRef}: 编辑前任务列表应展示目标任务`).toBeVisible({ timeout: 30_000 });
+  await searchTable(page, taskListSearchQuery(), sourceRef);
+  const row = await findTaskRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 编辑前任务列表应展示目标任务`);
   await openTaskEditFromRow(row, build, sourceRef);
   await clickNextUntilTaskSave(page, build, sourceRef);
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchTable(page, build.tableName, sourceRef);
-  const savedRow = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  await expect(savedRow, `${sourceRef}: 编辑保存后任务列表应展示目标任务`).toBeVisible({ timeout: 30_000 });
+  await searchTable(page, taskListSearchQuery(), sourceRef);
+  const savedRow = await findTaskRowAcrossPages(page, build, sourceRef);
+  if (!savedRow) throw new Error(`${sourceRef}: 编辑保存后任务列表应展示目标任务`);
   await expect(savedRow, `${sourceRef}: 编辑保存后执行周期仍应为手动触发`).toContainText("手动触发", {
     timeout: 30_000,
   });
@@ -2530,7 +2548,7 @@ async function clickNextUntilTaskSave(page: Page, build: UiCaseBuild, sourceRef:
     if (await save.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await selectFieldOption(page, /调度周期/, "手动触发", sourceRef);
       await setPackageCount(page, build.packageCount, sourceRef);
-      await selectResourceGroup(page, sourceRef, { required: build.datasourceName !== "doris70" });
+      await selectResourceGroup(page, sourceRef, { required: build.datasourceType !== "Doris3.x" });
       await checkNoReport(page, sourceRef);
       recordCreationProgress(build, "rule-task-edit-save-attempted", sourceRef);
       await save.click({ timeout: 30_000 });
@@ -2827,8 +2845,8 @@ async function taskRecordExistsInProbePage(
 async function assertRuleSetListRecord(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
   await gotoDataQualityPage(page, "/dq/ruleSet");
   await searchTable(page, build.tableName, sourceRef);
-  const row = page.locator(".ant-table-tbody tr").filter({ hasText: build.tableName }).filter({ hasText: build.ruleName }).first();
-  await expect(row, `${sourceRef}: 规则集列表应展示新建规则集`).toBeVisible({ timeout: 30_000 });
+  const row = await findRuleSetRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 规则集列表应展示目标规则集`);
   await expect(row, `${sourceRef}: 规则集应展示数据源 ${build.datasourceName}`).toContainText(build.datasourceName, {
     timeout: 30_000,
   });
@@ -2837,6 +2855,54 @@ async function assertRuleSetListRecord(page: Page, build: UiCaseBuild, sourceRef
     new RegExp(`^\\s*${build.ruleSpec.expectedRuleCount}\\s*$`),
     { timeout: 30_000 },
   );
+}
+
+async function findRuleSetRowAcrossPages(page: Page, build: UiCaseBuild, sourceRef: string): Promise<Locator | null> {
+  const totalText = await page
+    .locator(".ant-pagination-total-text:visible")
+    .last()
+    .innerText({ timeout: 3_000 })
+    .catch(() => "");
+  const totalMatch = totalText.match(/共\s*(\d+)\s*条/);
+  const totalCount = totalMatch ? Number(totalMatch[1]) : null;
+  const configuredMaxPages = Number(process.env.V6411_UI_RULESET_SCAN_MAX_PAGES ?? 0);
+  const maxPages = configuredMaxPages > 0 ? configuredMaxPages : totalCount ? Math.max(1, Math.ceil(totalCount / 20)) : 5;
+  for (let pageIndex = 1; pageIndex <= maxPages; pageIndex += 1) {
+    const rows = page.locator(".ant-table-tbody tr:visible");
+    const rowTexts = await rows.allInnerTexts();
+    const matchingIndex = rowTexts.findIndex((rowText) => rowText.includes(build.tableName));
+    if (matchingIndex >= 0) return rows.nth(matchingIndex);
+
+    const next = page.locator(".ant-pagination-next:visible").last();
+    const nextClass = await next.getAttribute("class").catch(() => "");
+    if (nextClass?.includes("ant-pagination-disabled")) break;
+    if (!(await next.isVisible({ timeout: 2_000 }).catch(() => false))) break;
+    await next.click({ timeout: 30_000 });
+    await expect(page.locator(".ant-spin-spinning"), `${sourceRef}: 翻页后加载遮罩应消失`).toHaveCount(0, {
+      timeout: Number(process.env.V6411_UI_SPIN_TIMEOUT_MS ?? 60_000),
+    });
+    await page.waitForTimeout(500);
+  }
+  return null;
+}
+
+async function moveToNextListPage(page: Page, next: Locator, sourceRef: string): Promise<void> {
+  const activePage = page.locator(".ant-pagination-item-active:visible").last();
+  const before = await activePage.innerText({ timeout: 2_000 }).catch(() => "");
+  const firstRow = page.locator(".ant-table-tbody tr:visible").first();
+  const beforeRow = await firstRow.innerText({ timeout: 2_000 }).catch(() => "");
+  await next.click({ timeout: 30_000 });
+  await expect
+    .poll(
+      async () => {
+        const pageText = await activePage.innerText({ timeout: 2_000 }).catch(() => before);
+        const rowText = await firstRow.innerText({ timeout: 2_000 }).catch(() => beforeRow);
+        return `${pageText}\n${rowText}`;
+      },
+      { timeout: 15_000, message: `${sourceRef}: 列表翻页后页码或首行应变化` },
+    )
+    .not.toBe(`${before}\n${beforeRow}`);
+  await page.waitForTimeout(500);
 }
 
 async function gotoDataQualityPage(page: Page, routePath: string): Promise<void> {
@@ -3130,7 +3196,9 @@ function rootPage(root: UiSearchRoot): Page {
 function optionTextCandidates(option: string): string[] {
   const normalized = option.replace(/\s+/g, "");
   const candidates = [option];
-  if (normalized === "字段取值校验") candidates.push("字段取值校");
+  if (normalized === "字段取值校验") {
+    candidates.push("字段取值校", "字段取值范围校验");
+  }
   return [...new Set(candidates)];
 }
 
@@ -3591,6 +3659,7 @@ async function selectFirstOption(
 }
 
 async function selectResourceGroup(page: Page, sourceRef: string, options: { required?: boolean } = {}): Promise<void> {
+  const requestedResourceGroup = process.env.V6411_UI_RESOURCE_GROUP?.trim();
   let field = page
     .locator(".ant-form-item:visible")
     .filter({ has: page.locator(".ant-form-item-label:visible").filter({ hasText: /资源组/ }) })
@@ -3620,15 +3689,15 @@ async function selectResourceGroup(page: Page, sourceRef: string, options: { req
   await select.click({ force: true, timeout: 30_000 });
   const dropdown = page.locator(".ant-select-dropdown:visible").last();
   await expect(dropdown, `${sourceRef}: 资源组下拉必须展开`).toBeVisible({ timeout: 30_000 });
-  let option = dropdown
-    .locator(".ant-select-item-option:not(.ant-select-item-option-disabled):visible")
-    .filter({ hasText: /default/i })
-    .first();
-  if (!(await option.isVisible({ timeout: 5_000 }).catch(() => false))) {
-    option = dropdown.locator(".ant-select-item-option:not(.ant-select-item-option-disabled):visible").first();
+  const availableOptions = dropdown.locator(".ant-select-item-option:not(.ant-select-item-option-disabled):visible");
+  let option = requestedResourceGroup
+    ? availableOptions.filter({ hasText: new RegExp(`^\\s*${escapeRegExp(requestedResourceGroup)}\\s*$`, "i") }).first()
+    : availableOptions.filter({ hasText: /default/i }).first();
+  if (!requestedResourceGroup && !(await option.isVisible({ timeout: 5_000 }).catch(() => false))) {
+    option = availableOptions.first();
   }
   const dropdownText = ((await dropdown.innerText({ timeout: 3_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
-  await expect(option, `${sourceRef}: 资源组应至少有一个可选项; 当前下拉=${dropdownText}`).toBeVisible({
+  await expect(option, `${sourceRef}: 资源组应包含 ${requestedResourceGroup ?? "default/首个可用项"}; 当前下拉=${dropdownText}`).toBeVisible({
     timeout: 30_000,
   });
   const optionText = ((await option.innerText({ timeout: 3_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ").trim();

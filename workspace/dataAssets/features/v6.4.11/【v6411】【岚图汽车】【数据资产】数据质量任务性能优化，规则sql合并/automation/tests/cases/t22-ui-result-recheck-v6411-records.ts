@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { getEnvConfig } from "../../../../../../_shared/helpers";
+import { formatV6411ShortRuleName, loadV6411UiCaseMetas } from "../data/v6411-ui-case-specs";
 
 type UiResultStatus = "validation-pass" | "validation-unpass" | "run-failed" | "running" | "unknown" | "missing";
 
 type SourceRecord = {
   caseNo: number;
-  datasourceName: "doris70" | "pw_test_HADOOP";
+  datasourceName: string;
   tableName: string;
   fullTableName: string;
   ruleName: string;
@@ -35,7 +36,10 @@ const ENV = getEnvConfig();
 const BASE_URL = ENV.urls.baseUrl;
 const PROJECT_ID = String(ENV.projects.quality.id);
 const PROJECT_NAME = ENV.projects.quality.name;
-const CASE_FILTER = parseCaseFilter(process.env.V6411_UI_RESULT_RECHECK_CASES ?? "1-72");
+const GENERATED_CASE_SPEC_SOURCE = "__v6411_case_specs__";
+const CASE_FILTER = parseCaseFilter(
+  process.env.V6411_UI_RESULT_RECHECK_CASES ?? process.env.V6411_UI_REBUILD_CASES ?? "1-72",
+);
 
 test.setTimeout(Number(process.env.V6411_UI_RESULT_RECHECK_TIMEOUT_MS ?? 35 * 60 * 1000));
 
@@ -84,7 +88,7 @@ test("重查 v6411 规则任务当前 UI 运行状态", async ({ page }) => {
     contentType: "application/jsonl",
   });
 
-  expect(summary.missingCaseNos, "72 条结果行都应能从 UI 查到").toEqual([]);
+  expect(summary.missingCaseNos, `${CASE_FILTER.size} 条所选结果行都应能从 UI 查到`).toEqual([]);
 });
 
 function resolveSourcePath(): string {
@@ -95,14 +99,22 @@ function resolveSourcePath(): string {
       "ui-rebuild",
       "ui-rebuild-results.jsonl",
     );
-    if (safeReadLatestRecords(currentRunSource).length === 72) return currentRunSource;
+    if (selectedRecords(safeReadLatestRecords(currentRunSource)).length === CASE_FILTER.size) return currentRunSource;
   }
   const candidates = findFiles(RUNS_DIR, "ui-rebuild-results.jsonl")
     .map((filePath) => ({ filePath, records: safeReadLatestRecords(filePath), mtimeMs: fs.statSync(filePath).mtimeMs }))
-    .filter((candidate) => candidate.records.length === 72)
+    .filter((candidate) => selectedRecords(candidate.records).length === CASE_FILTER.size)
     .sort((left, right) => right.mtimeMs - left.mtimeMs);
-  if (!candidates[0]) throw new Error(`未找到包含 72 条记录的 ui-rebuild-results.jsonl: ${RUNS_DIR}`);
+  if (!candidates[0]) {
+    const mappingPath = path.join(RUNS_DIR, "20260703-v6411-ui-rebuild", "ui-rebuild-case-mapping.json");
+    if (selectedRecords(safeReadLatestRecords(mappingPath)).length === CASE_FILTER.size) return mappingPath;
+    return GENERATED_CASE_SPEC_SOURCE;
+  }
   return candidates[0].filePath;
+}
+
+function selectedRecords(records: SourceRecord[]): SourceRecord[] {
+  return records.filter((record) => CASE_FILTER.has(record.caseNo));
 }
 
 function findFiles(dir: string, filename: string): string[] {
@@ -125,6 +137,45 @@ function safeReadLatestRecords(filePath: string): SourceRecord[] {
 }
 
 function readLatestSourceRecords(filePath: string): SourceRecord[] {
+  if (filePath === GENERATED_CASE_SPEC_SOURCE) {
+    const datasource = ENV.datasources.sparkthrift;
+    if (!datasource) throw new Error("environment datasource sparkthrift is not configured");
+    const suffix = process.env.V6411_UI_TABLE_BATCH_SUFFIX?.trim();
+    if (!suffix || !/^[a-z]{8}$/.test(suffix)) {
+      throw new Error("V6411_UI_TABLE_BATCH_SUFFIX must be the same 8 lowercase letters used by the UI run");
+    }
+    return loadV6411UiCaseMetas()
+      .filter((meta) => CASE_FILTER.has(meta.caseNo))
+      .map((meta) => ({
+        caseNo: meta.caseNo,
+        datasourceName: meta.datasourceName,
+        tableName: `test_info_1_${suffix}_${meta.caseNo}`,
+        fullTableName: `${datasource.sql.database}.test_info_1_${suffix}_${meta.caseNo}`,
+        ruleName: formatV6411ShortRuleName(meta.caseNo, meta.fullTitle),
+        fullTitle: meta.fullTitle,
+      }))
+      .sort((left, right) => left.caseNo - right.caseNo);
+  }
+  if (filePath.endsWith("ui-rebuild-case-mapping.json")) {
+    const mappings = JSON.parse(fs.readFileSync(filePath, "utf8")) as Array<{
+      caseNo: number;
+      datasourceName: string;
+      compareTableName: string;
+      fullCompareTableName: string;
+      ruleName: string;
+      fullTitle: string;
+    }>;
+    return mappings
+      .map((mapping) => ({
+        caseNo: mapping.caseNo,
+        datasourceName: mapping.datasourceName,
+        tableName: mapping.compareTableName.replace(/_cmp$/, ""),
+        fullTableName: mapping.fullCompareTableName.replace(/_cmp$/, ""),
+        ruleName: mapping.ruleName,
+        fullTitle: mapping.fullTitle,
+      }))
+      .sort((left, right) => left.caseNo - right.caseNo);
+  }
   const latest = new Map<number, SourceRecord>();
   for (const line of fs.readFileSync(filePath, "utf8").split(/\n/).filter(Boolean)) {
     const parsed = JSON.parse(line) as SourceRecord;

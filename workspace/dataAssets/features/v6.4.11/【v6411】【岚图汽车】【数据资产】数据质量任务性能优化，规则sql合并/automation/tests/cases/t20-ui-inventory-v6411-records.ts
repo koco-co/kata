@@ -10,7 +10,7 @@ type UiResultStatus = "validation-pass" | "validation-unpass" | "run-failed" | "
 
 type InventoryStatusRecord = {
   caseNo: number | null;
-  datasourceName: "doris70" | "pw_test_HADOOP" | null;
+  datasourceName: string | null;
   tableName: string | null;
   classification: UiResultStatus;
   statusText: string;
@@ -43,6 +43,7 @@ const BASE_URL = ENV.urls.baseUrl;
 const PROJECT_ID = String(ENV.projects.quality.id);
 const PROJECT_NAME = ENV.projects.quality.name;
 const QUERY = process.env.V6411_UI_INVENTORY_QUERY ?? "test_info_1_";
+const CASE_FILTER = parseCaseFilter(process.env.V6411_UI_INVENTORY_CASES ?? process.env.V6411_UI_REBUILD_CASES ?? "1-72");
 
 function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string {
   if (process.env.KATA_ALLURE_RESULTS_DIR) {
@@ -92,9 +93,11 @@ async function inventoryArea(
       ? await collectTaskQueryRowsAcrossPages(page, totalCount)
       : { rows: await collectRowsAcrossPages(page, totalCount), statusRecords: undefined };
   const rows = collected.rows;
-  const caseNos = rows.map(extractCaseNo).filter((caseNo): caseNo is number => caseNo !== null);
+  const caseNos = rows
+    .map(extractCaseNo)
+    .filter((caseNo): caseNo is number => caseNo !== null && CASE_FILTER.has(caseNo));
   const duplicateCaseNos = findDuplicateCaseNos(caseNos);
-  const missingCaseNos = findMissingCaseNos(caseNos);
+  const missingCaseNos = findMissingCaseNos(caseNos, CASE_FILTER);
   const statusRecords = area === "task-query" ? collected.statusRecords : undefined;
   const statusCounts = statusRecords ? summarizeStatusRecords(statusRecords) : undefined;
   const record: InventoryRecord = {
@@ -288,10 +291,10 @@ function findDuplicateCaseNos(caseNos: number[]): number[] {
   return [...duplicates].sort((left, right) => left - right);
 }
 
-function findMissingCaseNos(caseNos: number[]): number[] {
+function findMissingCaseNos(caseNos: number[], selectedCases: Set<number>): number[] {
   const set = new Set(caseNos);
   const missing: number[] = [];
-  for (let caseNo = 1; caseNo <= 72; caseNo += 1) {
+  for (const caseNo of selectedCases) {
     if (!set.has(caseNo)) missing.push(caseNo);
   }
   return missing;
@@ -299,18 +302,55 @@ function findMissingCaseNos(caseNos: number[]): number[] {
 
 function parseStatusRecord(rowText: string, tooltipTexts: string[] = []): InventoryStatusRecord {
   const normalized = rowText.replace(/\s+/g, " ").trim();
+  const sparkName = resolveSparkName();
+  const dorisName = resolveDorisName();
+  const database = resolveSparkDatabase();
   return {
     caseNo: extractCaseNo(normalized),
-    datasourceName: normalized.includes("pw_test_HADOOP")
-      ? "pw_test_HADOOP"
-      : normalized.includes("doris70")
-        ? "doris70"
+    datasourceName: normalized.includes(sparkName)
+      ? sparkName
+      : dorisName && normalized.includes(dorisName)
+        ? dorisName
         : null,
-    tableName: normalized.match(/pw_test\.(test_info_1_[a-z0-9_]+)/)?.[1] ?? null,
+    tableName: normalized.match(new RegExp(`${escapeRegExp(database)}\\.(test_info_1_[a-z0-9_]+)`))?.[1] ?? null,
     ...classifyResultRow(normalized, tooltipTexts),
     rowText: normalized,
     tooltipTexts,
   };
+}
+
+function resolveSparkName(): string {
+  const name = ENV.datasources.sparkthrift?.batch?.name;
+  if (!name) throw new Error("environment datasource sparkthrift is not configured");
+  return name;
+}
+function resolveDorisName(): string | undefined {
+  return ENV.datasources.doris?.batch?.name;
+}
+function resolveSparkDatabase(): string {
+  const database = ENV.datasources.sparkthrift?.batch?.database;
+  if (!database) throw new Error("environment datasource sparkthrift database is not configured");
+  return database;
+}
+
+function parseCaseFilter(value: string): Set<number> {
+  const result = new Set<number>();
+  for (const item of value.split(",")) {
+    const trimmed = item.trim();
+    const rangeMatch = trimmed.match(/^(\d+)-(\d+)$/);
+    if (rangeMatch) {
+      const start = Number(rangeMatch[1]);
+      const end = Number(rangeMatch[2]);
+      for (let caseNo = Math.min(start, end); caseNo <= Math.max(start, end); caseNo += 1) {
+        if (caseNo >= 1 && caseNo <= 72) result.add(caseNo);
+      }
+      continue;
+    }
+    const caseNo = Number(trimmed);
+    if (Number.isFinite(caseNo) && caseNo >= 1 && caseNo <= 72) result.add(caseNo);
+  }
+  if (result.size === 0) throw new Error(`V6411_UI_INVENTORY_CASES 未匹配到有效用例: ${value}`);
+  return result;
 }
 
 function summarizeStatusRecords(records: InventoryStatusRecord[]): Record<UiResultStatus, number> {
@@ -361,4 +401,8 @@ function extractResultStatusText(rowText: string): string {
     if (rowText.includes(status)) return status;
   }
   return "";
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

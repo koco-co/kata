@@ -22,6 +22,7 @@ config/repo-branch-mapping.yaml
 workspace/*/features/**/.process/
 workspace/*/features/**/runs/
 workspace/*/features/**/.debug/
+workspace/*/features/**/scheduler_restart.curl
 .playwright-cli/*.yml
 allure-results/
 output/
