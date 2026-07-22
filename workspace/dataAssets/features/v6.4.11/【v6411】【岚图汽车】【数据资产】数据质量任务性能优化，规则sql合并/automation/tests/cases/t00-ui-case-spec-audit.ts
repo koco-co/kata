@@ -31,7 +31,8 @@ const FORMAL_UI_SCRIPT_FILES = [path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases
 
 function resolveAuditDorisName(): string {
   try {
-    return getEnvConfig().datasources.doris?.batch?.name ?? "__unconfigured_doris__";
+    const datasource = getEnvConfig().datasources.doris;
+    return datasource?.assets?.name ?? datasource?.batch?.name ?? "__unconfigured_doris__";
   } catch {
     return "__unresolved_doris__";
   }
@@ -348,7 +349,7 @@ test.describe("v6411 UI 自动化规格审计", () => {
     expect(rebuildSource, "禁止回退到无条件配置抽样").not.toContain("await configureSampling(page, sourceRef);");
   });
 
-  test("正式 UI 重建脚本必须使用环境项目、外部 Spark 底表和批次级随机表名", async () => {
+  test("正式 UI 重建脚本必须使用环境项目、外部 Doris/Spark 底表和批次级随机表名", async () => {
     const rebuildSource = fs.readFileSync(path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts"), "utf8");
 
     expect(rebuildSource, "正式 UI 重建质量项目必须来自环境解析").toContain(
@@ -357,16 +358,16 @@ test.describe("v6411 UI 自动化规格审计", () => {
     expect(rebuildSource, "正式 UI 重建质量项目名称必须来自环境解析").toContain(
       "const PROJECT_NAME = ENV.projects.quality.name;",
     );
-    expect(rebuildSource, "SparkThrift 必须通过显式开关使用人工建表前置").toContain(
+    expect(rebuildSource, "Doris/SparkThrift 必须通过显式开关使用人工建表前置").toContain(
       "V6411_UI_SKIP_BASE_TABLE_CREATE",
     );
-    expect(rebuildSource, "SparkThrift 不得回退到底层 CLI 建表").toContain(
-      "SparkThrift 回归必须先手工执行 automation/sql/lindorm-test_info_1.sql",
+    expect(rebuildSource, "Doris/SparkThrift 人工前置时不得回退到底层建表").toContain(
+      "Doris/SparkThrift 回归必须先手工执行对应 SQL",
     );
     expect(rebuildSource, "规则任务资源组必须支持环境变量配置").toContain("V6411_UI_RESOURCE_GROUP");
     expect(rebuildSource, "表分区必须支持与人工 SQL 一致的运行时日期").toContain("V6411_UI_TABLE_PARTITION");
-    expect(rebuildSource, "本回归不得通过 V6411_UI_EXISTING_TABLES 复用旧业务记录").toContain(
-      "V6411_UI_EXISTING_TABLES 已废弃",
+    expect(rebuildSource, "本回归默认不得通过 V6411_UI_EXISTING_TABLES 复用旧业务记录").toContain(
+      "V6411_UI_EXISTING_TABLES 仅允许与 V6411_UI_REUSE_EXISTING_RECORDS=1 一起使用；默认禁止复用旧业务记录。",
     );
     expect(rebuildSource, "必须提供批次级 8 位英文字母后缀").toContain("function resolveBatchTableSuffix()");
     expect(rebuildSource, "正式批量表名必须在同一次 run 目录内复用同一个批次后缀").toContain(

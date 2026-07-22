@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { getEnvConfig } from "../../../../../../_shared/helpers";
+import { loadV6411UiCaseMetas } from "../data/v6411-ui-case-specs";
 
 type Area = "rule-set" | "rule-task" | "task-query";
 
@@ -12,7 +13,7 @@ const ENV = getEnvConfig();
 const BASE_URL = ENV.urls.baseUrl;
 const PROJECT_ID = String(ENV.projects.quality.id);
 const PROJECT_NAME = ENV.projects.quality.name;
-const DATABASE = ENV.datasources.sparkthrift?.batch?.database ?? ENV.datasources.sparkthrift?.sql?.database;
+const CASE_META_BY_NO = new Map(loadV6411UiCaseMetas().map((meta) => [meta.caseNo, meta]));
 const SUFFIX = process.env.V6411_UI_TABLE_BATCH_SUFFIX?.trim();
 const CASE_NOS = parseCaseRange(process.env.V6411_UI_SORT_CASES ?? "37-72");
 const EXPECTED_DESC = [...CASE_NOS].sort((left, right) => right - left);
@@ -24,20 +25,23 @@ const TASK_SEARCH_QUERY = process.env.V6411_UI_SORT_TASK_QUERY ?? "test_info_1_"
 const RESULT_SEARCH_QUERY = process.env.V6411_UI_SORT_RESULT_QUERY ?? "test_info_1_";
 const SKIP_EDIT_STAGES = process.env.V6411_UI_SORT_SKIP_EDIT_STAGES === "1";
 const SKIP_IMMEDIATE_RUNS = process.env.V6411_UI_SORT_SKIP_IMMEDIATE_RUNS === "1";
+const WAIT_RESULT_ROW_AFTER_RUN = process.env.V6411_UI_SORT_WAIT_RESULT_ROW !== "0";
 
-if (!DATABASE) throw new Error("environment datasource sparkthrift database is not configured");
 if (!SUFFIX || !/^[a-z]{8}$/.test(SUFFIX)) {
   throw new Error("V6411_UI_TABLE_BATCH_SUFFIX must be the same 8 lowercase letters used by the UI run");
 }
 
 test.setTimeout(Number(process.env.V6411_UI_SORT_TIMEOUT_MS ?? 90 * 60 * 1000));
 
-test("v6411 Spark §37–§72 UI records are updated and ordered descending", async ({ page }, testInfo) => {
+test("v6411 Doris §01–§36 + SparkThrift §37–§72 UI records are updated and ordered descending", async ({ page }, testInfo) => {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const evidence: Record<string, unknown> = {
     generatedAt: new Date().toISOString(),
     suffix: SUFFIX,
-    database: DATABASE,
+    databases: {
+      doris: ENV.datasources.doris?.batch?.database ?? ENV.datasources.doris?.sql?.database,
+      sparkthrift: ENV.datasources.sparkthrift?.batch?.database ?? ENV.datasources.sparkthrift?.sql?.database,
+    },
     cases: EXPECTED_DESC,
     actions: { ruleSetEdits: [], taskEdits: [], immediateRuns: [] },
   };
@@ -76,6 +80,7 @@ async function updateRuleSet(page: Page, tableName: string, sourceRef: string, e
   await search(page, tableName, "输入表名搜索|请输入表名", sourceRef);
   const row = await findRow(page, tableName, sourceRef);
   if (!row) throw new Error(`${sourceRef}: UI 列表未找到 ${tableName}`);
+  await assertCaseRecordRow(row, tableName, sourceRef);
   const edit = row.locator("a:visible, button:visible").filter({ hasText: /^编辑$/ }).first();
   await expect(edit, `${sourceRef}: 规则集行应展示编辑`).toBeVisible({ timeout: 30_000 });
   await edit.click({ timeout: 30_000 });
@@ -96,6 +101,7 @@ async function updateRuleTask(page: Page, tableName: string, sourceRef: string, 
     row = await findRow(page, tableName, sourceRef);
   }
   if (!row) throw new Error(`${sourceRef}: UI 列表未找到 ${tableName}`);
+  await assertCaseRecordRow(row, tableName, sourceRef);
   const edit = row.locator("a:visible, button:visible").filter({ hasText: /^编辑$/ }).first();
   await expect(edit, `${sourceRef}: 规则任务行应展示编辑`).toBeVisible({ timeout: 30_000 });
   await edit.click({ timeout: 30_000 });
@@ -117,6 +123,7 @@ async function runTask(page: Page, tableName: string, sourceRef: string, evidenc
     row = await findRow(page, tableName, sourceRef);
   }
   if (!row) throw new Error(`${sourceRef}: UI 列表未找到 ${tableName}`);
+  await assertCaseRecordRow(row, tableName, sourceRef);
   const tableCell = row.locator("td").nth(1);
   await expect(tableCell, `${sourceRef}: 任务表名单元格应可见`).toBeVisible({ timeout: 30_000 });
   await tableCell.click({ timeout: 30_000 });
@@ -133,7 +140,20 @@ async function runTask(page: Page, tableName: string, sourceRef: string, evidenc
   }
   await waitForSpin(page, sourceRef);
   await page.waitForTimeout(1_000);
+  if (WAIT_RESULT_ROW_AFTER_RUN) await waitForResultRow(page, tableName, sourceRef);
   appendEvidence(evidence, "immediateRuns", { caseNo: caseNoFor(tableName), tableName, submitted: true });
+}
+
+async function waitForResultRow(page: Page, tableName: string, sourceRef: string): Promise<void> {
+  const deadline = Date.now() + Number(process.env.V6411_UI_SORT_SINGLE_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000);
+  while (Date.now() < deadline) {
+    await gotoDataQualityPage(page, "/dq/taskQuery");
+    await search(page, tableName, "请输入表名/任务名称搜索|请输入表名", sourceRef);
+    const rows = page.locator(".ant-table-tbody tr:visible").filter({ hasText: tableName });
+    if (await rows.count() > 0) return;
+    await page.waitForTimeout(Number(process.env.V6411_UI_SORT_RESULT_POLL_MS ?? 5_000));
+  }
+  throw new Error(`${sourceRef}: 立即执行后 ${Number(process.env.V6411_UI_SORT_SINGLE_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000)}ms 内未在校验结果查询出现 ${tableName}`);
 }
 
 async function readOrderedArea(
@@ -150,11 +170,17 @@ async function readOrderedArea(
   while (true) {
     await search(page, query, placeholder, `ORDER-${area}`);
     rows = await collectRowsAcrossPages(page);
-    const selectedCount = rows.filter((row) => row.includes(`test_info_1_${SUFFIX}_`)).length;
+    const selectedCount = rows.filter((row) => {
+      const caseNo = extractCaseNo(row);
+      return caseNo !== null && CASE_NOS.includes(caseNo);
+    }).length;
     if (area !== "task-query" || selectedCount >= EXPECTED_DESC.length || Date.now() >= waitDeadline) break;
     await page.waitForTimeout(Number(process.env.V6411_UI_SORT_RESULT_POLL_MS ?? 5_000));
   }
-  const selected = rows.filter((row) => row.includes(`test_info_1_${SUFFIX}_`));
+  const selected = rows.filter((row) => {
+    const caseNo = extractCaseNo(row);
+    return caseNo !== null && CASE_NOS.includes(caseNo);
+  });
   const caseNos = selected.map(extractCaseNo).filter((value): value is number => value !== null);
   const record = { area, route, query, rows: selected, caseNos, expected: EXPECTED_DESC, pass: JSON.stringify(caseNos) === JSON.stringify(EXPECTED_DESC) };
   await test.info().attach(`${area}-order.txt`, { body: selected.join("\n"), contentType: "text/plain" });
@@ -241,6 +267,16 @@ async function findRow(page: Page, tableName: string, sourceRef: string, require
   throw new Error(`${sourceRef}: UI 列表未找到 ${tableName}`);
 }
 
+async function assertCaseRecordRow(row: Locator, tableName: string, sourceRef: string): Promise<void> {
+  const caseNo = caseNoFor(tableName);
+  const meta = CASE_META_BY_NO.get(caseNo);
+  if (!meta) throw new Error(`${sourceRef}: 未找到 §${caseNo} 的源用例数据源映射`);
+  expect(row, `${sourceRef}: 记录应属于源用例指定数据源 ${meta.datasourceName}`).toContainText(meta.datasourceName, {
+    timeout: 30_000,
+  });
+  expect(row, `${sourceRef}: 记录应包含目标表 ${tableName}`).toContainText(tableName, { timeout: 30_000 });
+}
+
 async function collectRowsAcrossPages(page: Page): Promise<string[]> {
   const totalText = await page.locator(".ant-pagination-total-text:visible").last().innerText({ timeout: 3_000 }).catch(() => "");
   const total = Number(totalText.match(/共\s*(\d+)\s*条/)?.[1] ?? 0);
@@ -266,7 +302,20 @@ async function clickNext(page: Page, sourceRef: string): Promise<void> {
 
 async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Promise<void> {
   const button = page.locator("button:visible").filter({ hasText: /^保\s*存$/ }).last();
-  await expect(button, `${sourceRef}: 应展示保存`).toBeVisible({ timeout: 30_000 });
+  if (!(await button.isVisible({ timeout: 30_000 }).catch(() => false))) {
+    const bodyText = ((await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
+    if (requiresPrompt && /规则集管理/.test(bodyText) && /#\/dq\/ruleSet(?:\?|$)/.test(page.url())) return;
+    if (!requiresPrompt && /规则任务管理/.test(bodyText) && /#\/dq\/rule(?:\?|$)/.test(page.url())) return;
+    await test.info().attach(`${sourceRef}-save-missing.png`, {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: "image/png",
+    });
+    await test.info().attach(`${sourceRef}-save-missing-body.txt`, {
+      body: bodyText,
+      contentType: "text/plain",
+    });
+    throw new Error(`${sourceRef}: 应展示保存；当前 URL=${page.url()}`);
+  }
   await button.click({ timeout: 30_000 });
   if (requiresPrompt) {
     const confirm = page.locator(".ant-modal-wrap:visible, .ant-modal:visible").filter({ hasText: /保存提示|修改后不会影响/ }).last();
@@ -295,7 +344,7 @@ function routeHeading(route: string): RegExp {
 }
 
 function tableNameFor(caseNo: number): string {
-  return `test_info_1_${SUFFIX}_${caseNo}`;
+  return `test_info_1_${SUFFIX}_${String(caseNo).padStart(2, "0")}`;
 }
 
 function caseNoFor(tableName: string): number {

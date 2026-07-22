@@ -199,10 +199,10 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
         });
       } else {
         await test.step("步骤1: 准备唯一底表测试数据前置", async () => {
-          if (build.datasourceType === "SparkThrift2.x") {
+          if (SKIP_BASE_TABLE_CREATE) {
             expect(
               SKIP_BASE_TABLE_CREATE,
-              `${sourceRef}: SparkThrift 回归必须先手工执行 automation/sql/lindorm-test_info_1.sql，并设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1`,
+              `${sourceRef}: Doris/SparkThrift 回归必须先手工执行对应 SQL，并设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1`,
             ).toBe(true);
             recordCreationProgress(build, "base-table-manual-precondition", sourceRef);
             await attachScreenshot(page, `${padCaseNo(build.caseNo)}-01-base-table-manual-precondition`);
@@ -214,11 +214,11 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
         });
 
         await test.step(
-          SKIP_BASE_TABLE_CREATE && build.datasourceType === "SparkThrift2.x"
-            ? "步骤2: 使用人工完成的元数据前置，不执行 Playwright 同步"
+          SKIP_BASE_TABLE_CREATE
+            ? "步骤2: 使用人工完成的底表和元数据前置，不执行 Playwright 同步"
             : "步骤2: 通过数据资产 UI 执行元数据临时同步",
           async () => {
-          if (SKIP_BASE_TABLE_CREATE && build.datasourceType === "SparkThrift2.x") {
+          if (SKIP_BASE_TABLE_CREATE) {
             await test.info().attach("manual-table-metadata-precondition.json", {
               body: JSON.stringify(
                 {
@@ -227,7 +227,7 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
                   database: build.database,
                   table: build.fullTableName,
                   compareTable: needsCompareTable(build) ? build.fullCompareTableName : undefined,
-                  note: "底表和元数据由回归发起人提前完成；本用例跳过 Playwright 元数据同步，后续 UI 表选择负责验证主表可用。",
+                  note: "底表和元数据由回归发起人提前完成；本用例跳过 Playwright 建表和元数据同步，后续 UI 表选择负责验证主表可用。",
                 },
                 null,
                 2,
@@ -434,7 +434,7 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
     expect(summary.selectedCaseCount, "结果汇总数量必须等于选中用例数").toBe(selectedCases.length);
     const selectedDorisCount = selectedCases.filter((caseNo) => caseNo <= 36).length;
     const selectedSparkCount = selectedCases.filter((caseNo) => caseNo >= 37).length;
-    const dorisName = ENV.datasources.doris?.batch.name;
+    const dorisName = ENV.datasources.doris?.assets.name ?? ENV.datasources.doris?.batch?.name;
     const sparkName = ENV.datasources.sparkthrift?.batch.name;
     if (selectedDorisCount > 0) {
       expect(dorisName, "选中 Doris 用例时环境必须配置 Doris 数据源").toBeTruthy();
@@ -593,7 +593,6 @@ function resolveBatchRunKey(): string {
     process.env.KATA_ALLURE_RESULTS_DIR,
     process.env.KATA_SUITE_NAME,
     process.env.V6411_UI_REBUILD_OUT_DIR,
-    `ppid:${process.ppid}`,
   ]
     .filter((item): item is string => Boolean(item?.trim()))
     .join("|");
@@ -839,7 +838,12 @@ function tablePartitionDate(): string {
 }
 
 function datasourceUiLabel(build: UiCaseBuild): string {
-  return `${build.datasourceName}（${build.datasourceType}）`;
+  const uiType =
+    build.datasourceType === "Doris3.x"
+      ? (process.env.V6411_UI_DORIS_TYPE?.trim() || "Doris3.x")
+      : build.datasourceType;
+  if (!uiType) throw new Error("V6411_UI_DORIS_TYPE 不能为空");
+  return `${build.datasourceName}（${uiType}）`;
 }
 
 async function createBaseTable(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {

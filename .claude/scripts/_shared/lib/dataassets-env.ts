@@ -33,7 +33,13 @@ export interface DataAssetsEnvConfig {
   readonly projects: { readonly quality: string; readonly offline: string };
   readonly datasources: Record<
     string,
-    { readonly name: string; readonly database: string; readonly schema?: string }
+    {
+      readonly name: string;
+      readonly database: string;
+      readonly schema?: string;
+      /** Whether this source must be registered in the offline project. */
+      readonly requires_offline?: boolean;
+    }
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allow_write: boolean };
@@ -96,11 +102,12 @@ export interface ResolvedDataAssetsEnv {
     string,
     {
       readonly name: string;
-      readonly batch: { readonly id: number; readonly name: string; readonly typeId: number };
+      readonly batch?: { readonly id: number; readonly name: string; readonly typeId: number };
       readonly metadata: { readonly id: number; readonly name: string; readonly typeId: number };
       readonly assets: { readonly id: number; readonly name: string; readonly typeId: number };
       readonly database: string;
       readonly schema: string;
+      readonly requiresOffline: boolean;
     }
   >;
   readonly defaults: { readonly datasource: string };
@@ -207,6 +214,11 @@ function requiredString(value: unknown, path: string): string {
   return value.trim();
 }
 
+function requiredBoolean(value: unknown, path: string): boolean {
+  if (typeof value !== "boolean") throw new Error(`${path} must be boolean`);
+  return value;
+}
+
 function normalizeRootUrl(value: unknown): string {
   const raw = requiredString(value, "url");
   let url: URL;
@@ -263,7 +275,7 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
   for (const [key, value] of Object.entries(datasources)) {
     if (!ENV_NAME_RE.test(key)) throw new Error(`invalid datasource key: ${key}`);
     const datasource = record(value, `datasources.${key}`);
-    exactKeys(datasource, ["name", "database", "schema"], `datasources.${key}`);
+    exactKeys(datasource, ["name", "database", "schema", "requires_offline"], `datasources.${key}`);
     const database = requiredString(datasource.database, `datasources.${key}.database`);
     const schema =
       datasource.schema === undefined
@@ -275,6 +287,10 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
     parsedDatasources[key] = {
       name: requiredString(datasource.name, `datasources.${key}.name`),
       database,
+      requires_offline:
+        datasource.requires_offline === undefined
+          ? true
+          : requiredBoolean(datasource.requires_offline, `datasources.${key}.requires_offline`),
       ...(schema ? { schema } : {}),
     };
   }
@@ -554,11 +570,14 @@ export async function resolveDataAssetsEnv(
       `datasource_${key}_assets`,
     );
     const centerName = assets.dtCenterSourceName ?? expected.name;
-    const batch = exactOne(
-      batchDatasources,
-      (item) => item.dataName === centerName,
-      `datasource_${key}_batch`,
-    );
+    const batch = batchDatasources.find((item) => item.dataName === centerName);
+    if (expected.requires_offline !== false && !batch) {
+      exactOne(
+        batchDatasources,
+        (item) => item.dataName === centerName,
+        `datasource_${key}_batch`,
+      );
+    }
     const metadata = exactOne(
       inventory.metadataDatasources,
       (item) => item.dataSourceName === expected.name,
@@ -566,11 +585,15 @@ export async function resolveDataAssetsEnv(
     );
     resolvedDatasources[key] = {
       name: expected.name,
-      batch: {
-        id: requiredId(batch.id, `datasource_${key}_batch`),
-        name: requiredString(batch.dataName, `datasource_${key}_batch.name`),
-        typeId: requiredId(batch.dataSourceType ?? batch.type, `datasource_${key}_batch_type`),
-      },
+      ...(batch
+        ? {
+            batch: {
+              id: requiredId(batch.id, `datasource_${key}_batch`),
+              name: requiredString(batch.dataName, `datasource_${key}_batch.name`),
+              typeId: requiredId(batch.dataSourceType ?? batch.type, `datasource_${key}_batch_type`),
+            },
+          }
+        : {}),
       metadata: {
         id: requiredId(metadata.dataSourceId, `datasource_${key}_metadata`),
         name: requiredString(metadata.dataSourceName, `datasource_${key}_metadata.name`),
@@ -586,6 +609,7 @@ export async function resolveDataAssetsEnv(
       },
       database: expected.database,
       schema: expected.schema ?? expected.database,
+      requiresOffline: expected.requires_offline !== false,
     };
   }
 

@@ -17,7 +17,7 @@ export interface DataAssetsDatasourceProfile {
   readonly uiLabel: string;
   readonly preconditionType: "SparkThrift" | "Doris" | string;
   readonly aliases: readonly string[];
-  readonly batch: {
+  readonly batch?: {
     readonly id: number;
     readonly name: string;
     readonly typeId: number;
@@ -28,6 +28,7 @@ export interface DataAssetsDatasourceProfile {
   readonly assets: { readonly id: number; readonly name: string };
   readonly ui: { readonly sourceTypeId: number };
   readonly sql: { readonly database: string; readonly schema: string };
+  readonly requiresOffline: boolean;
 }
 
 export interface DataAssetsRuntimeOptions {
@@ -166,16 +167,21 @@ export function loadDataAssetsEnvProfile(
       enabled: true,
       uiLabel: key,
       preconditionType: preconditionType(key),
-      aliases: [...new Set([key, datasource.name, datasource.batch.name])],
-      batch: {
-        ...datasource.batch,
-        database: datasource.database,
-        schema: datasource.schema,
-      },
+      aliases: [...new Set([key, datasource.name, datasource.batch?.name].filter(Boolean) as string[])],
+      ...(datasource.batch
+        ? {
+            batch: {
+              ...datasource.batch,
+              database: datasource.database,
+              schema: datasource.schema,
+            },
+          }
+        : {}),
       metadata: datasource.metadata,
       assets: { id: datasource.assets.id, name: datasource.assets.name },
       ui: { sourceTypeId: datasource.assets.typeId },
       sql: { database: datasource.database, schema: datasource.schema },
+      requiresOffline: datasource.requiresOffline,
     };
   }
   return {

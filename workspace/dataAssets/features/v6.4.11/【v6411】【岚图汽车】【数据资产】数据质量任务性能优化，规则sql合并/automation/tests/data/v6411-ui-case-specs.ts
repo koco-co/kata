@@ -16,7 +16,8 @@ function resolveSparkDatasourceName(): string {
 /** 从运行时环境解析 Doris 数据源 UI 名称；未配置时不伪造客户数据源名称。 */
 function resolveDorisDatasourceName(): string {
   try {
-    return getEnvConfig().datasources.doris?.batch?.name ?? "__unconfigured_doris__";
+    const datasource = getEnvConfig().datasources.doris;
+    return datasource?.assets?.name ?? datasource?.batch?.name ?? "__unconfigured_doris__";
   } catch {
     return "__unresolved_doris__";
   }

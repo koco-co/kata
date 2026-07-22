@@ -325,7 +325,7 @@ function resolveSparkName(): string {
   return name;
 }
 function resolveDorisName(): string | undefined {
-  return ENV.datasources.doris?.batch?.name;
+  return ENV.datasources.doris?.assets?.name ?? ENV.datasources.doris?.batch?.name;
 }
 function resolveSparkDatabase(): string {
   const database = ENV.datasources.sparkthrift?.batch?.database;
