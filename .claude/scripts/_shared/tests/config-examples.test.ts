@@ -63,14 +63,8 @@ describe("configuration examples", () => {
     }
   });
 
-  test("config.example.json is valid JSON and documents project repo profiles", () => {
-    const config = JSON.parse(readRepoFile("config.example.json")) as {
-      projects?: Record<string, { repo_profiles?: Record<string, { repos?: unknown[] }> }>;
-    };
-    const project = config.projects?.dataAssets;
-
-    expect(project).toBeDefined();
-    expect(project?.repo_profiles).toBeDefined();
-    expect(project?.repo_profiles?.["example-profile"]?.repos).toBeArray();
+  test("retired config.example.json route is removed", () => {
+    expect(existsSync(resolve(REPO_ROOT, "config.example.json"))).toBe(false);
+    expect(readRepoFile("INSTALL.md")).not.toContain("cp config.example.json");
   });
 });

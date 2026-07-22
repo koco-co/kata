@@ -12,9 +12,5 @@
     ".claude/skills/**/scripts/**/*.ts",
     ".claude/skills/**/tests/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "workspace",
-    ".claude/scripts/_shared/tests/lint/fixtures/**"
-  ]
+  "exclude": ["node_modules", "workspace", ".claude/scripts/_shared/tests/lint/fixtures/**"]
 }

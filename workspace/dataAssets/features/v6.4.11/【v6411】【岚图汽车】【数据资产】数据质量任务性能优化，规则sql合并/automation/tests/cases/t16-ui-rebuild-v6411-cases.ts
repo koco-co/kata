@@ -15,6 +15,7 @@ import {
   type V6411UiCaseSpec,
 } from "../data/v6411-ui-case-specs";
 import { baseRowsForV6411Case, type V6411BaseTableRow } from "../data/v6411-ui-base-table-data";
+import { descendingActionCaseNumbers } from "../data/v6411-result-oracle";
 
 /** 根据数据源类型从环境配置中解析 database/schema */
 function resolveDatabase(datasourceType: "Doris3.x" | "SparkThrift2.x"): string {
@@ -115,6 +116,7 @@ const BATCH_TABLE_SUFFIX = resolveBatchTableSuffix();
 const RESULT_STRICT = process.env.V6411_UI_RESULT_STRICT === "1";
 const SKIP_BASE_TABLE_CREATE = process.env.V6411_UI_SKIP_BASE_TABLE_CREATE === "1";
 const REUSE_EXISTING_RECORDS = process.env.V6411_UI_REUSE_EXISTING_RECORDS === "1";
+const DISCOVER_EXISTING_RECORDS = process.env.V6411_UI_RECORD_DISCOVERY !== "0";
 const RESTORE_TASKS_ONLY = process.env.V6411_UI_RESTORE_TASKS_ONLY === "1";
 const SKIP_RESULT_WAIT_AFTER_TRIGGER = process.env.V6411_UI_SKIP_RESULT_WAIT_AFTER_TRIGGER === "1";
 const CASE_TIMEOUT_MS = Number(process.env.V6411_UI_REBUILD_CASE_TIMEOUT_MS ?? 90 * 60 * 1000);
@@ -144,6 +146,14 @@ function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string 
 test.setTimeout(CASE_TIMEOUT_MS);
 
 test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
+  test.describe.configure({ mode: "serial" });
+
+  test.beforeAll(() => {
+    if (process.env.PW_FULLY_PARALLEL === "1") {
+      throw new Error("v6411 生命周期必须串行执行，禁止设置 PW_FULLY_PARALLEL=1");
+    }
+  });
+
   test.beforeAll(() => {
     initializeOutputFiles();
   });
@@ -157,7 +167,9 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
     ).toEqual([]);
   });
 
-  for (const build of buildTargetCases().filter((item) => CASE_FILTER.has(item.caseNo))) {
+  for (const build of buildTargetCases()
+    .filter((item) => CASE_FILTER.has(item.caseNo))
+    .sort((left, right) => right.caseNo - left.caseNo)) {
     test(`§${padCaseNo(build.caseNo)} UI 重建 ${build.ruleName}`, async ({ page }, testInfo) => {
       testInfo.setTimeout(CASE_TIMEOUT_MS);
       const sourceRef = `SR-UI-V6411-REBUILD-${padCaseNo(build.caseNo)}`;
@@ -178,7 +190,7 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
         contentType: "application/json",
       });
 
-      if (EXISTING_TABLE_BY_CASE.has(build.caseNo)) {
+      if (EXISTING_TABLE_BY_CASE.has(build.caseNo) && !DISCOVER_EXISTING_RECORDS) {
         const mappedTable = EXISTING_TABLE_BY_CASE.get(build.caseNo);
         expect(
           mappedTable,
@@ -253,19 +265,36 @@ test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
           },
         );
 
-        await test.step(`步骤3: 通过规则集管理 UI 创建规则包和 ${build.ruleSpec.expectedRuleCount} 条监控规则`, async () => {
+        await test.step(`步骤3: 规则集管理按存在性选择创建或编辑`, async () => {
           if (build.ruleSpec.rules.some((rule) => rule.category === "自定义SQL")) {
             await ensureCustomSqlTemplateViaUi(page, sourceRef);
             recordCreationProgress(build, "custom-sql-template-ready", sourceRef);
             await attachScreenshot(page, `${padCaseNo(build.caseNo)}-03-custom-sql-template-ready`);
           }
-          await createRuleSetViaUi(page, build, sourceRef);
+          const existingCount = DISCOVER_EXISTING_RECORDS
+            ? await countRuleSetRecordsViaUi(page, build, sourceRef)
+            : 0;
+          if (existingCount > 1) {
+            throw new Error(`${sourceRef}: 规则集管理发现 ${existingCount} 条重复记录，拒绝编辑歧义记录`);
+          }
+          if (existingCount === 1) {
+            await editRuleSetViaUi(page, build, sourceRef);
+            recordCreationProgress(build, "rule-set-edited-existing", sourceRef);
+          } else {
+            await createRuleSetViaUi(page, build, sourceRef);
+            recordCreationProgress(build, "rule-set-created", sourceRef);
+          }
           await assertRuleSetListRecord(page, build, sourceRef);
-          recordCreationProgress(build, "rule-set-created", sourceRef);
-          await attachScreenshot(page, `${padCaseNo(build.caseNo)}-03-rule-set-created`);
+          await attachScreenshot(page, `${padCaseNo(build.caseNo)}-03-rule-set-${existingCount === 1 ? "edited" : "created"}`);
         });
 
-        await test.step("步骤4: 通过规则任务管理 UI 引入规则包并保存手动触发任务", async () => {
+        await test.step("步骤4: 规则任务管理按存在性选择创建或进入编辑流程", async () => {
+          const existingTask = DISCOVER_EXISTING_RECORDS && await taskListRecordExists(page, build, sourceRef);
+          if (existingTask) {
+            recordCreationProgress(build, "rule-task-existing", sourceRef);
+            await attachScreenshot(page, `${padCaseNo(build.caseNo)}-04-rule-task-existing`);
+            return;
+          }
           await createRuleTaskViaUi(page, build, sourceRef);
           recordCreationProgress(build, "rule-task-created", sourceRef);
           await attachScreenshot(page, `${padCaseNo(build.caseNo)}-04-rule-task-created`);
@@ -590,6 +619,7 @@ function resolveBatchRunKey(): string {
   if (explicit) return explicit;
 
   return [
+    process.ppid.toString(),
     process.env.KATA_ALLURE_RESULTS_DIR,
     process.env.KATA_SUITE_NAME,
     process.env.V6411_UI_REBUILD_OUT_DIR,
@@ -1039,6 +1069,60 @@ async function createRuleSetViaUi(page: Page, build: UiCaseBuild, sourceRef: str
   recordCreationProgress(build, "rule-set-save-attempted", sourceRef);
   await clickRuleSetSave(page, sourceRef, build);
   recordCreationProgress(build, "rule-set-save-finished", sourceRef);
+}
+
+async function countRuleSetRecordsViaUi(page: Page, build: UiCaseBuild, sourceRef: string): Promise<number> {
+  await gotoDataQualityPage(page, "/dq/ruleSet");
+  await searchTable(page, build.tableName, sourceRef);
+  const totalText = await page.locator(".ant-pagination-total-text:visible").last().innerText({ timeout: 3_000 }).catch(() => "");
+  const total = Number(totalText.match(/共\s*(\d+)\s*条/)?.[1] ?? 0);
+  const maxPages = total ? Math.max(1, Math.ceil(total / 20)) : 5;
+  let count = 0;
+  for (let pageIndex = 0; pageIndex < maxPages; pageIndex += 1) {
+    const rows = page.locator(".ant-table-tbody tr:visible").filter({ hasText: build.tableName });
+    count += await rows.count();
+    const next = page.locator(".ant-pagination-next:visible").last();
+    const nextClass = await next.getAttribute("class").catch(() => "");
+    if (!(await next.isVisible({ timeout: 1_000 }).catch(() => false)) || nextClass?.includes("ant-pagination-disabled")) break;
+    await next.click({ timeout: 30_000 });
+    await waitForSpin(page, sourceRef);
+  }
+  return count;
+}
+
+async function editRuleSetViaUi(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
+  await gotoDataQualityPage(page, "/dq/ruleSet");
+  await searchTable(page, build.tableName, sourceRef);
+  const row = await findRuleSetRowAcrossPages(page, build, sourceRef);
+  if (!row) throw new Error(`${sourceRef}: 编辑前规则集列表应展示目标记录`);
+  await expect(row, `${sourceRef}: 已有规则集应展示数据源 ${build.datasourceName}`).toContainText(build.datasourceName, {
+    timeout: 30_000,
+  });
+  const edit = row.getByRole("button", { name: /^编\s*辑$/ }).or(row.getByText(/^编辑$/)).first();
+  await expect(edit, `${sourceRef}: 已有规则集行应展示编辑入口`).toBeVisible({ timeout: 30_000 });
+  await edit.click({ timeout: 30_000 });
+  await waitForSpin(page, sourceRef);
+  await expect(page.locator("body"), `${sourceRef}: 规则集编辑页面应打开`).toContainText(/编辑规则集|监控规则|规则包/, {
+    timeout: 30_000,
+  });
+  await advanceRuleSetEditToSave(page, sourceRef);
+  await clickRuleSetSave(page, sourceRef, build);
+  await expect(page.locator("body"), `${sourceRef}: 规则集编辑保存后应返回管理列表`).toContainText(/规则集管理/, {
+    timeout: 60_000,
+  });
+}
+
+async function advanceRuleSetEditToSave(page: Page, sourceRef: string): Promise<void> {
+  const save = page.locator("button:visible").filter({ hasText: /^保\s*存$/ }).last();
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (await save.isVisible({ timeout: 2_000 }).catch(() => false)) return;
+    const next = page.locator("button:visible").filter({ hasText: /^下\s*一\s*步$/ }).last();
+    await expect(next, `${sourceRef}: 规则集编辑应展示下一步`).toBeVisible({ timeout: 30_000 });
+    await next.click({ force: true, timeout: 30_000 });
+    await waitForSpin(page, sourceRef);
+    await page.waitForTimeout(500);
+  }
+  await expect(save, `${sourceRef}: 规则集编辑下一步后应展示保存按钮`).toBeVisible({ timeout: 30_000 });
 }
 
 async function existingRuleSetTableRowInProbePage(
@@ -2319,6 +2403,7 @@ async function clickRuleSetSave(page: Page, sourceRef: string, build?: UiCaseBui
     await expect(button, `${sourceRef}: 应展示规则集保存按钮`).toBeVisible({ timeout: 30_000 });
     await button.click({ force: true, timeout: 30_000 });
     await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    await confirmRuleSetSavePrompt(page, sourceRef);
     const deadline = Date.now() + 60_000;
     while (Date.now() < deadline) {
       const toastText = (
@@ -2349,6 +2434,20 @@ async function clickRuleSetSave(page: Page, sourceRef: string, build?: UiCaseBui
   throw new Error(
     `${sourceRef}: 规则集保存 3 次后仍停留新增页，疑似保存失败或存在表单校验错误: validation=${lastValidationText}; body=${lastBodyText.slice(0, 2000)}`,
   );
+}
+
+async function confirmRuleSetSavePrompt(page: Page, sourceRef: string): Promise<void> {
+  const prompt = page
+    .locator(".ant-modal-wrap:visible, .ant-modal-confirm:visible, .ant-modal:visible")
+    .filter({ hasText: /保存提示/ })
+    .last();
+  await prompt.waitFor({ state: "visible", timeout: 10_000 }).catch(() => {});
+  if (!(await prompt.isVisible().catch(() => false))) return;
+
+  const save = prompt.locator("button:visible").filter({ hasText: /^保\s*存$/ }).last();
+  await expect(save, `${sourceRef}: 规则集保存提示应展示确认保存按钮`).toBeVisible({ timeout: 30_000 });
+  await save.click({ force: true, timeout: 30_000 });
+  await expect(prompt, `${sourceRef}: 规则集保存提示确认后应关闭`).toBeHidden({ timeout: 60_000 });
 }
 
 async function readRuleSetValidationText(page: Page): Promise<string> {

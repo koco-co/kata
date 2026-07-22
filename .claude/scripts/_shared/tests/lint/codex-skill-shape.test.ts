@@ -4,7 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { type CodexSkillRule, lintCodexSkillTree } from "@shared/lint/codex-skill-shape.ts";
 
-const BUSINESS = ["case-draft", "case-edit"];
+const NATIVE = ["case-draft", "playwright-automation"];
+const COMPATIBILITY = ["case-edit"];
 
 function write(p: string, body: string): void {
   mkdirSync(join(p, ".."), { recursive: true });
@@ -32,9 +33,13 @@ function pluginJson(): string {
 function buildCompliant(): string {
   const root = mkdtempSync(join(tmpdir(), "codex-shape-"));
   mkdirSync(join(root, ".agents/skills"), { recursive: true });
-  for (const name of BUSINESS) {
+  for (const name of [...NATIVE, ...COMPATIBILITY]) {
     write(join(root, ".claude/skills", name, "SKILL.md"), skillMd(name));
-    symlinkSync(`../../.claude/skills/${name}`, join(root, ".agents/skills", name));
+    if (NATIVE.includes(name)) {
+      write(join(root, ".agents/skills", name, "SKILL.md"), skillMd(name));
+    } else {
+      symlinkSync(`../../.claude/skills/${name}`, join(root, ".agents/skills", name));
+    }
   }
   write(join(root, ".claude/skills/_shared/case-qa.md"), "shared");
   write(join(root, ".agents/skills/using-kata-codex/SKILL.md"), skillMd("using-kata-codex"));
@@ -59,28 +64,28 @@ describe("lintCodexSkillTree (canonical codex shape)", () => {
     rmSync(root, { recursive: true, force: true });
   });
 
-  test("canonical symlinked tree passes", () => {
+  test("canonical native and compatibility tree passes", () => {
     const report = lintCodexSkillTree(root);
     expect(report.passed).toBe(true);
     expect(report.violations).toEqual([]);
   });
 
-  test("missing .agents symlink is flagged", () => {
-    rmSync(join(root, ".agents/skills/case-draft"));
+  test("missing compatibility symlink is flagged", () => {
+    rmSync(join(root, ".agents/skills/case-edit"));
     expect(rules(root)).toContain("CODEX_SYMLINK_MISSING");
   });
 
-  test("a copied dir instead of a symlink is flagged", () => {
-    rmSync(join(root, ".agents/skills/case-draft"));
-    cpSync(join(root, ".claude/skills/case-draft"), join(root, ".agents/skills/case-draft"), {
+  test("a copied compatibility dir instead of a symlink is flagged", () => {
+    rmSync(join(root, ".agents/skills/case-edit"));
+    cpSync(join(root, ".claude/skills/case-edit"), join(root, ".agents/skills/case-edit"), {
       recursive: true,
     });
     expect(rules(root)).toContain("CODEX_NOT_SYMLINK");
   });
 
-  test("a symlink to the wrong target is flagged", () => {
-    rmSync(join(root, ".agents/skills/case-draft"));
-    symlinkSync("../../.claude/skills/_shared", join(root, ".agents/skills/case-draft"));
+  test("a compatibility symlink to the wrong target is flagged", () => {
+    rmSync(join(root, ".agents/skills/case-edit"));
+    symlinkSync("../../.claude/skills/_shared", join(root, ".agents/skills/case-edit"));
     expect(rules(root)).toContain("CODEX_SYMLINK_TARGET");
   });
 

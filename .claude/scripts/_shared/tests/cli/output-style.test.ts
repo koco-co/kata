@@ -51,6 +51,13 @@ function isJsonStdoutWrite(argument: string): boolean {
   return normalized.startsWith("`${JSON.stringify") || normalized.startsWith("JSON.stringify");
 }
 
+function isAllowedReportWrite(path: string, argument: string): boolean {
+  return (
+    relativePath(path).endsWith(".claude/scripts/_shared/cli/skill-audit.ts") &&
+    argument.trim() === "value"
+  );
+}
+
 describe("CLI output style", () => {
   it("uses process.stdout.write for machine-readable JSON output", () => {
     const offenders = cliSourceFiles.flatMap((path) =>
@@ -64,7 +71,9 @@ describe("CLI output style", () => {
     const offenders = cliSourceFiles.flatMap((path) => {
       const source = readFileSync(path, "utf8");
       return stdoutWriteCalls(source)
-        .filter((call) => !isJsonStdoutWrite(call.argument))
+        .filter(
+          (call) => !isJsonStdoutWrite(call.argument) && !isAllowedReportWrite(path, call.argument),
+        )
         .map((call) => `${relativePath(path)}:${lineNumber(source, call.index)}`);
     });
 

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { getEnvConfig } from "../../../../../../_shared/helpers";
 import { loadV6411UiCaseMetas } from "../data/v6411-ui-case-specs";
+import { descendingActionCaseNumbers, descendingDisplayCaseNumbers } from "../data/v6411-result-oracle";
 
 type Area = "rule-set" | "rule-task" | "task-query";
 
@@ -15,8 +16,8 @@ const PROJECT_ID = String(ENV.projects.quality.id);
 const PROJECT_NAME = ENV.projects.quality.name;
 const CASE_META_BY_NO = new Map(loadV6411UiCaseMetas().map((meta) => [meta.caseNo, meta]));
 const SUFFIX = process.env.V6411_UI_TABLE_BATCH_SUFFIX?.trim();
-const CASE_NOS = parseCaseRange(process.env.V6411_UI_SORT_CASES ?? "37-72");
-const EXPECTED_DESC = [...CASE_NOS].sort((left, right) => right - left);
+const CASE_NOS = descendingActionCaseNumbers(parseCaseRange(process.env.V6411_UI_SORT_CASES ?? "1-72"));
+const EXPECTED_DISPLAY = descendingDisplayCaseNumbers(CASE_NOS);
 const OUT_DIR = path.resolve(
   process.env.V6411_UI_SORT_OUT_DIR ?? path.join(FEATURE_DIR, "runs/20260721-v6411-ui-sort-qzmkxjrp"),
 );
@@ -42,7 +43,7 @@ test("v6411 Doris §01–§36 + SparkThrift §37–§72 UI records are updated a
       doris: ENV.datasources.doris?.batch?.database ?? ENV.datasources.doris?.sql?.database,
       sparkthrift: ENV.datasources.sparkthrift?.batch?.database ?? ENV.datasources.sparkthrift?.sql?.database,
     },
-    cases: EXPECTED_DESC,
+    cases: CASE_NOS,
     actions: { ruleSetEdits: [], taskEdits: [], immediateRuns: [] },
   };
 
@@ -52,7 +53,7 @@ test("v6411 Doris §01–§36 + SparkThrift §37–§72 UI records are updated a
     await updateRuleSet(page, tableName, sourceRef, evidence);
   }
   const ruleSetOrder = await readOrderedArea(page, "rule-set", "/dq/ruleSet", "输入表名搜索|请输入表名", evidence);
-  expect(ruleSetOrder.caseNos, "规则集管理应按更新时间降序排列").toEqual(EXPECTED_DESC);
+  expect(ruleSetOrder.caseNos, "规则集管理最终应按更新时间降序排列为§01→§72").toEqual(EXPECTED_DISPLAY);
 
   if (!SKIP_EDIT_STAGES) for (const caseNo of CASE_NOS) {
     const tableName = tableNameFor(caseNo);
@@ -60,7 +61,7 @@ test("v6411 Doris §01–§36 + SparkThrift §37–§72 UI records are updated a
     await updateRuleTask(page, tableName, sourceRef, evidence);
   }
   const ruleTaskOrder = await readOrderedArea(page, "rule-task", "/dq/rule", "输入表名搜索|请输入表名", evidence);
-  expect(ruleTaskOrder.caseNos, "规则任务管理应按最近修改时间降序排列").toEqual(EXPECTED_DESC);
+  expect(ruleTaskOrder.caseNos, "规则任务管理最终应按最近修改时间降序排列为§01→§72").toEqual(EXPECTED_DISPLAY);
 
   if (!SKIP_IMMEDIATE_RUNS) for (const caseNo of CASE_NOS) {
     const tableName = tableNameFor(caseNo);
@@ -68,7 +69,7 @@ test("v6411 Doris §01–§36 + SparkThrift §37–§72 UI records are updated a
     await runTask(page, tableName, sourceRef, evidence);
   }
   const taskQueryOrder = await readOrderedArea(page, "task-query", "/dq/taskQuery", "请输入表名/任务名称搜索|请输入表名", evidence);
-  expect(taskQueryOrder.caseNos, "校验结果查询应按最近执行时间降序排列").toEqual(EXPECTED_DESC);
+  expect(taskQueryOrder.caseNos, "校验结果查询最终应按最近执行时间降序排列为§01→§72").toEqual(EXPECTED_DISPLAY);
 
   const result = { ...evidence, ruleSet: ruleSetOrder, ruleTask: ruleTaskOrder, taskQuery: taskQueryOrder };
   fs.writeFileSync(RESULT_JSON, JSON.stringify(result, null, 2));
@@ -86,6 +87,7 @@ async function updateRuleSet(page: Page, tableName: string, sourceRef: string, e
   await edit.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
   await expect(page.locator("body"), `${sourceRef}: 规则集编辑页面应打开`).toContainText(/编辑|监控规则|规则包/, { timeout: 30_000 });
+  await waitForRuleSetEditData(page, tableName, sourceRef);
   await clickNext(page, sourceRef);
   await save(page, sourceRef, true);
   await expect(page.locator("body"), `${sourceRef}: 保存后应回到规则集管理`).toContainText(/规则集管理/, { timeout: 60_000 });
@@ -124,14 +126,20 @@ async function runTask(page: Page, tableName: string, sourceRef: string, evidenc
   }
   if (!row) throw new Error(`${sourceRef}: UI 列表未找到 ${tableName}`);
   await assertCaseRecordRow(row, tableName, sourceRef);
+  // 规则任务管理列表首列是批量选择框，第二列才是可打开详情抽屉的表名。
+  // 优先点击表名单元格中的交互节点，兼容页面将点击事件挂在单元格本身的版本。
   const tableCell = row.locator("td").nth(1);
   await expect(tableCell, `${sourceRef}: 任务表名单元格应可见`).toBeVisible({ timeout: 30_000 });
-  await tableCell.click({ timeout: 30_000 });
+  const tableTargets = tableCell.locator("a:visible, button:visible, span:visible");
+  const tableTargetCount = await tableTargets.count();
+  if (tableTargetCount > 0) await tableTargets.first().click({ timeout: 30_000 });
+  else await tableCell.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
   const drawer = page.locator(".ant-drawer:visible, .ant-drawer-content-wrapper:visible, .ant-modal:visible, [role='dialog']:visible").last();
   await expect(drawer, `${sourceRef}: 任务详情抽屉应打开`).toBeVisible({ timeout: 30_000 });
   const execute = drawer.getByRole("button", { name: /立即执行/ }).or(drawer.getByText("立即执行")).last();
   await expect(execute, `${sourceRef}: 详情抽屉应展示立即执行`).toBeVisible({ timeout: 30_000 });
+  const triggerStartedAt = Date.now();
   await execute.click({ timeout: 30_000 });
   const confirm = page.locator(".ant-popover:visible, .ant-modal-confirm:visible, .ant-modal:visible").last();
   if (await confirm.isVisible({ timeout: 3_000 }).catch(() => false)) {
@@ -140,20 +148,25 @@ async function runTask(page: Page, tableName: string, sourceRef: string, evidenc
   }
   await waitForSpin(page, sourceRef);
   await page.waitForTimeout(1_000);
-  if (WAIT_RESULT_ROW_AFTER_RUN) await waitForResultRow(page, tableName, sourceRef);
+  if (WAIT_RESULT_ROW_AFTER_RUN) await waitForResultRow(page, tableName, sourceRef, triggerStartedAt);
   appendEvidence(evidence, "immediateRuns", { caseNo: caseNoFor(tableName), tableName, submitted: true });
 }
 
-async function waitForResultRow(page: Page, tableName: string, sourceRef: string): Promise<void> {
+async function waitForResultRow(page: Page, tableName: string, sourceRef: string, triggerStartedAt: number): Promise<void> {
   const deadline = Date.now() + Number(process.env.V6411_UI_SORT_SINGLE_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000);
   while (Date.now() < deadline) {
     await gotoDataQualityPage(page, "/dq/taskQuery");
+    await clearResultPlanTime(page, sourceRef);
     await search(page, tableName, "请输入表名/任务名称搜索|请输入表名", sourceRef);
     const rows = page.locator(".ant-table-tbody tr:visible").filter({ hasText: tableName });
-    if (await rows.count() > 0) return;
+    const rowTexts = await rows.allInnerTexts();
+    const latestTimestamp = rowTexts
+      .flatMap((row) => [...row.matchAll(/(20\d{2}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map((match) => Date.parse(match[1])))
+      .reduce((latest, timestamp) => Math.max(latest, timestamp), 0);
+    if (latestTimestamp >= triggerStartedAt - 10_000) return;
     await page.waitForTimeout(Number(process.env.V6411_UI_SORT_RESULT_POLL_MS ?? 5_000));
   }
-  throw new Error(`${sourceRef}: 立即执行后 ${Number(process.env.V6411_UI_SORT_SINGLE_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000)}ms 内未在校验结果查询出现 ${tableName}`);
+  throw new Error(`${sourceRef}: 立即执行后 ${Number(process.env.V6411_UI_SORT_SINGLE_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000)}ms 内未出现本次执行的新结果 ${tableName}`);
 }
 
 async function readOrderedArea(
@@ -168,21 +181,23 @@ async function readOrderedArea(
   let rows: string[] = [];
   const waitDeadline = Date.now() + Number(process.env.V6411_UI_SORT_RESULT_APPEAR_TIMEOUT_MS ?? 12 * 60 * 1000);
   while (true) {
+    if (area === "task-query") await clearResultPlanTime(page, `ORDER-${area}`);
     await search(page, query, placeholder, `ORDER-${area}`);
     rows = await collectRowsAcrossPages(page);
     const selectedCount = rows.filter((row) => {
       const caseNo = extractCaseNo(row);
       return caseNo !== null && CASE_NOS.includes(caseNo);
     }).length;
-    if (area !== "task-query" || selectedCount >= EXPECTED_DESC.length || Date.now() >= waitDeadline) break;
+    if (area !== "task-query" || selectedCount >= EXPECTED_DISPLAY.length || Date.now() >= waitDeadline) break;
     await page.waitForTimeout(Number(process.env.V6411_UI_SORT_RESULT_POLL_MS ?? 5_000));
   }
-  const selected = rows.filter((row) => {
+  const matchingRows = rows.filter((row) => {
     const caseNo = extractCaseNo(row);
     return caseNo !== null && CASE_NOS.includes(caseNo);
   });
+  const selected = area === "task-query" ? latestRowsByCase(matchingRows) : matchingRows;
   const caseNos = selected.map(extractCaseNo).filter((value): value is number => value !== null);
-  const record = { area, route, query, rows: selected, caseNos, expected: EXPECTED_DESC, pass: JSON.stringify(caseNos) === JSON.stringify(EXPECTED_DESC) };
+  const record = { area, route, query, rows: selected, caseNos, expected: EXPECTED_DISPLAY, pass: JSON.stringify(caseNos) === JSON.stringify(EXPECTED_DISPLAY) };
   await test.info().attach(`${area}-order.txt`, { body: selected.join("\n"), contentType: "text/plain" });
   await test.info().attach(`${area}-order.png`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
   appendEvidence(evidence, "orderChecks", record);
@@ -200,6 +215,21 @@ async function gotoDataQualityPage(page: Page, routePath: string): Promise<void>
   await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
   await ensureQualityProjectSelected(page);
   await expect(page.locator("body"), `${routePath}: 页面应打开`).toContainText(routeHeading(routePath), { timeout: 30_000 });
+  if (routePath === "/dq/taskQuery") {
+    const resultSearch = page.locator('input[placeholder="请输入表名/任务名称搜索"]:visible, input[placeholder*="任务名称"]:visible');
+    if (!(await resultSearch.isVisible({ timeout: 10_000 }).catch(() => false))) {
+      const resultLink = page.getByRole("link", { name: "校验结果查询", exact: true }).first();
+      if (await resultLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await resultLink.click({ timeout: 30_000 });
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        await waitForSpin(page, "ROUTE-task-query");
+      }
+    }
+    await expect(
+      resultSearch,
+      `${routePath}: 校验结果查询搜索区应加载完成`,
+    ).toHaveCount(1, { timeout: 60_000 });
+  }
 }
 
 async function ensureQualityProjectSelected(page: Page): Promise<void> {
@@ -224,6 +254,41 @@ async function search(page: Page, value: string, placeholder: string, sourceRef:
   else await input.press("Enter");
   await waitForSpin(page, sourceRef);
   await page.waitForTimeout(700);
+}
+
+async function clearResultPlanTime(page: Page, sourceRef: string): Promise<void> {
+  const planLabel = page.getByText("计划时间", { exact: true }).last();
+  await expect
+    .poll(() => planLabel.isVisible({ timeout: 1_000 }).catch(() => false), {
+      timeout: 60_000,
+      message: `${sourceRef}: 校验结果查询应展示计划时间控件`,
+    })
+    .toBe(true);
+  const clear = page.getByRole("img", { name: "close-circle" }).last();
+  if (await clear.isVisible({ timeout: 2_000 }).catch(() => false)) {
+    await clear.click({ force: true, timeout: 30_000 });
+    await page.waitForTimeout(200);
+    return;
+  }
+  const startValue = await page.getByRole("textbox", { name: "开始日期" }).last().inputValue({ timeout: 3_000 }).catch(() => "");
+  const endValue = await page.getByRole("textbox", { name: "结束日期" }).last().inputValue({ timeout: 3_000 }).catch(() => "");
+  expect(`${startValue}${endValue}`.trim(), `${sourceRef}: 计划时间必须清空，避免过滤掉当天运行记录`).toBe("");
+}
+
+function latestRowsByCase(rows: string[]): string[] {
+  const latest = new Map<number, { row: string; timestamp: number }>();
+  for (const row of rows) {
+    const caseNo = extractCaseNo(row);
+    if (caseNo === null) continue;
+    const timestamps = [...row.matchAll(/(20\d{2}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map((match) => Date.parse(match[1]));
+    const timestamp = Math.max(...timestamps, 0);
+    if (!timestamp) throw new Error(`校验结果查询 §${caseNo} 记录缺少可解析的最近执行时间`);
+    const current = latest.get(caseNo);
+    if (!current || timestamp > current.timestamp) latest.set(caseNo, { row, timestamp });
+  }
+  return [...latest.values()]
+    .sort((left, right) => right.timestamp - left.timestamp)
+    .map((item) => item.row);
 }
 
 async function dismissStaleOverlay(page: Page, sourceRef: string): Promise<void> {
@@ -331,6 +396,22 @@ async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Pro
     await expect(page.getByPlaceholder(/输入表名搜索|请输入表名/).or(page.locator("input[placeholder*='表名']")).first(), `${sourceRef}: 保存后任务列表搜索框应可见`).toBeVisible({ timeout: 30_000 });
   }
   await page.waitForTimeout(1_000);
+}
+
+async function waitForRuleSetEditData(page: Page, tableName: string, sourceRef: string): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const bodyText = ((await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
+        const inputValues = await page
+          .locator("input:visible")
+          .evaluateAll((items) => items.map((item) => (item as HTMLInputElement).value).filter(Boolean))
+          .catch(() => []);
+        return bodyText.includes(tableName) || inputValues.some((value) => value.includes(tableName));
+      },
+      { timeout: 60_000, message: `${sourceRef}: 规则集编辑表单应完成数据回填 ${tableName}` },
+    )
+    .toBe(true);
 }
 
 async function waitForSpin(page: Page, sourceRef: string): Promise<void> {

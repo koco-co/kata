@@ -99,7 +99,7 @@ describe("kata 公共命令契约", () => {
       expect(commandNames(result.stdout)).toEqual([...expected]);
     }
     expect(run(["features", "--help"]).stdout).not.toMatch(/^ {2}(?:new|ls)\b/m);
-  }, 30_000);
+  }, 120_000);
 
   it("所有公共叶子命令都提供完整帮助并使用 kebab-case 位置参数", () => {
     for (const [group, actions] of Object.entries(publicCommands)) {

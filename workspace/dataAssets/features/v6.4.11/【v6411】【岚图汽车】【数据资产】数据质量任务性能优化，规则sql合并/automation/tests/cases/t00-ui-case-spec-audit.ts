@@ -25,6 +25,11 @@ import {
   validityDetailUnpassRows,
   type V6411BaseTableRow,
 } from "../data/v6411-ui-base-table-data";
+import {
+  descendingActionCaseNumbers,
+  descendingDisplayCaseNumbers,
+  expectedRuleOutcomes,
+} from "../data/v6411-result-oracle";
 
 const CASES_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FORMAL_UI_SCRIPT_FILES = [path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts")];
@@ -47,6 +52,18 @@ function resolveAuditSparkName(): string {
 }
 
 test.describe("v6411 UI 自动化规格审计", () => {
+  test("业务操作顺序、最终显示顺序和规则预期 oracle 必须完整", async () => {
+    const allCases = Array.from({ length: 72 }, (_, index) => index + 1);
+    expect(descendingActionCaseNumbers(allCases)).toEqual([...allCases].reverse());
+    expect(descendingDisplayCaseNumbers(allCases)).toEqual(allCases);
+    for (const caseNo of allCases) {
+      const outcomes = expectedRuleOutcomes(caseNo);
+      const spec = EXPLICIT_RULE_CASE_SPECS.find((item) => item.caseNo === caseNo);
+      expect(outcomes, `§${padCaseNo(caseNo)} 必须逐条生成规则预期`).toHaveLength(spec?.expectedRuleCount ?? 0);
+      expect(outcomes.every((item) => item.functionName && item.outcome), `§${padCaseNo(caseNo)} 规则预期不得为空`).toBe(true);
+    }
+  });
+
   test("72 条 UI 用例元数据必须来自 canonical 36 条 CSV 用例并按 Doris/Spark 各复制一套", async () => {
     const cases = loadV6411UiCaseMetas();
     expect(cases, "必须生成 72 条 UI 用例元数据").toHaveLength(72);
