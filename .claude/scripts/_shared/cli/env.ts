@@ -43,6 +43,13 @@ function addLegacyOptions(command: Command): Command {
     .option("--env <name>", "兼容参数，请改用位置参数");
 }
 
+function inheritedEnvNames(value: string): string[] {
+  return value
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
 export function buildEnvCommand(): Command {
   const env = new Command("env").description("管理本机私密的 DataAssets 平台环境");
 
@@ -65,7 +72,9 @@ export function buildEnvCommand(): Command {
     .description("创建安全权限的环境 YAML 骨架")
     .argument("<name>", "环境名称")
     .requiredOption("--url <url>", "平台根 URL")
-    .action((name: string, opts: { url: string }) => outputJson(addDataAssetsEnv(name, opts.url)));
+    .action((name: string, opts: { url: string }) =>
+      outputJson(addDataAssetsEnv(name, opts.url)),
+    );
 
   const cookie = new Command("cookie").description("管理环境 Cookie");
   cookie
@@ -104,8 +113,9 @@ export function buildEnvCommand(): Command {
       name: string | undefined,
       opts: LegacyEnvOptions & { all: boolean; offline: boolean },
     ) => {
-      if (opts.all && (name || opts.env))
+      if (opts.all && (name || opts.env)) {
         throw new Error("environment name and --all are mutually exclusive");
+      }
       const names = opts.all
         ? listDataAssetsEnvs().map((item) => item.name)
         : [selectedName(name, opts)];
@@ -121,12 +131,25 @@ export function buildEnvCommand(): Command {
     .command("run")
     .description("在线精确解析环境后运行命令")
     .argument("<name>", "环境名称")
+    .option(
+      "--inherit-env <names>",
+      "额外继承的环境变量名，多个名称用逗号分隔；不得使用通配符",
+      "",
+    )
     .argument("<command...>", "要运行的命令；建议在前面使用 --")
     .allowUnknownOption(true)
-    .action(async (name: string, command: string[]) => {
-      const args = command[0] === "--" ? command.slice(1) : command;
-      process.exitCode = await runDataAssetsCommand(name, args);
-    });
+    .action(
+      async (
+        name: string,
+        command: string[],
+        opts: { inheritEnv: string },
+      ) => {
+        const args = command[0] === "--" ? command.slice(1) : command;
+        process.exitCode = await runDataAssetsCommand(name, args, {
+          inheritEnv: inheritedEnvNames(opts.inheritEnv),
+        });
+      },
+    );
 
   env
     .command("migrate-dataassets")

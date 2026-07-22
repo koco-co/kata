@@ -7,7 +7,7 @@
     ".claude/packages/dtstack",
     ".claude/scripts/_shared"
   ],
-  "description": "AI-driven QA workflows codified as reusable kata, powered by Claude Code runtime skills.",
+  "description": "AI-driven QA workflows for Claude Code and OpenAI Codex.",
   "author": "kata contributors",
   "license": "MIT",
   "repository": {
@@ -27,11 +27,12 @@
     "check": "biome check .",
     "check:fix": "biome check --fix .",
     "check:skills": "bun .claude/scripts/_shared/bin/kata skills sync-check --exit-code",
-    "lint": "biome check .claude/skills .claude/plugins .claude/scripts .claude/packages",
+    "lint": "biome check .claude/skills .claude/plugins .claude/scripts .claude/packages .agents AGENTS.md README.md README-EN.md INSTALL.md",
     "format": "biome check --fix .",
     "lint:debris": "bun run .claude/scripts/lint/check-debug-files.ts && bun run .claude/scripts/lint/check-stale-paths.ts && bun run .claude/scripts/lint/check-runtime-artifacts.ts",
+    "lint:docs": "bun run .claude/scripts/lint/check-readme-skills.ts",
     "type-check": "tsc --noEmit",
-    "ci": "bun run lint && bun run lint:debris && bun run lint:paths && bun run check:skills && bun run lint:skills:codex && bun run type-check && bun run test && bun run test:plugins && bun run test:tools",
+    "ci": "bun run check && bun run lint:debris && bun run lint:docs && bun run lint:paths && bun run check:skills && bun run lint:skills:codex && bun run lint:agents && bun run type-check && bun run test && bun run test:plugins && bun run test:tools",
     "test": "bun test --timeout 30000",
     "test:watch": "bun test --watch",
     "lint:agents": "kata agents audit --exit-code --severity fail-only",

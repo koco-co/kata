@@ -2,57 +2,104 @@
 
 ## 前置依赖
 
-| 工具    | 最低版本 | 检查命令         | 安装方式             |
-| ------- | -------- | ---------------- | -------------------- |
-| Node.js | >= 22.0  | `node --version` | `nvm install 22`     |
-| Bun     | 任意     | `bun --version`  | `npm install -g bun` |
-| Git     | 任意     | `git --version`  | `brew install git`   |
+| 工具 | 最低版本 | 检查命令 |
+| --- | --- | --- |
+| Node.js | `22` | `node --version` |
+| Bun | 项目锁文件兼容版本 | `bun --version` |
+| Git | 任意受支持版本 | `git --version` |
+
+Claude Code 与 Codex 至少安装一种。只有执行真实浏览器测试时才需要 Playwright 浏览器。
 
 ## 安装步骤
 
 ```bash
-# 1. 安装依赖
-bun install
+# 1. 安装锁文件声明的依赖
+bun install --frozen-lockfile
 
-# 2. 创建环境配置（如不存在）
+# 2. 创建根环境文件
 [ -f .env ] || cp .env.example .env
-[ -f config.json ] || cp config.example.json config.json
+chmod 600 .env
 
-# 3. 创建并校验 DataAssets 环境（先按 config/env.example.yaml 补全平台字段）
-kata env add ci63 --url http://platform.example
-kata env doctor ci63 --offline
+# 3. 检查工作区
+kata workspace verify
 
-# 4. 运行测试（必须全绿）
-bun test
+# 4. 运行仓库检查
+bun run ci
 
-# 5. （可选）UI 自动化需要时安装 Playwright
+# 5. 需要 UI 自动化时安装浏览器
 bunx playwright install
 ```
 
-## 配置变量
+项目不再使用根目录 `config.json`。不要从旧的 `config.example.json` 创建第二套配置。
 
-根 `.env` 是唯一 dotenv，只保留当前实际使用的非空集成项。DataAssets 的平台根 URL、稳定项目/数据源名称、租户保护、写入开关与 UI Cookie 统一存放在忽略的 `config/env/<env>.yaml`；ID/typeId 每次运行时在线解析。
+## DataAssets 环境
 
-| 场景 | 配置变量 |
+每个平台使用一个本机私密文件：`config/env/<env>.yaml`。先创建目录并收紧权限：
+
+```bash
+mkdir -p config/env
+chmod 700 config/env
+kata env add ci63 --url https://platform.example
+chmod 600 config/env/ci63.yaml
+```
+
+补全稳定项目名、数据源名、租户和写入开关后，从标准输入写入 Cookie：
+
+```bash
+printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
+kata env doctor ci63 --offline
+kata env doctor ci63
+```
+
+平台只能提供 HTTP 时，`doctor` 会给出传输风险提示。共享或生产环境应使用 HTTPS。
+
+运行依赖该环境的命令：
+
+```bash
+kata env run ci63 -- bunx playwright test
+```
+
+子命令默认不会继承根进程中的全部变量。确实需要额外变量时显式加入：
+
+```bash
+kata env run ci63 --inherit-env HTTP_PROXY,NO_PROXY -- bunx playwright test
+```
+
+## 根 `.env`
+
+根 `.env` 只保存当前机器确实使用的集成配置。常见变量如下：
+
+| 场景 | 变量 |
 | --- | --- |
-| 默认项目与工作区 | `KATA_ACTIVE_PROJECT` / `KATA_WORKSPACE_ROOT` |
-| DataAssets UI 自动化 / 数据准备 | `kata env run <env> -- <command...>` + `config/env/<env>.yaml` |
-| 源码证据 | `KATA_SOURCE_REPOS` / `KATA_SOURCE_REPO_ROOT` |
-| 蓝湖 PRD 导入 | `KATA_LANHU_COOKIE` |
-| 禅道 Bug | `KATA_ZENTAO_BASE_URL` + `KATA_ZENTAO_COOKIE`，或账号密码 |
-| 消息通知 | `KATA_DINGTALK_WEBHOOK_URL` / `KATA_DINGTALK_KEYWORD` / `KATA_FEISHU_WEBHOOK_URL` / `KATA_WECOM_WEBHOOK_URL` |
-| SMTP 邮件 | `KATA_SMTP_HOST` / `KATA_SMTP_USER` / `KATA_SMTP_PASS` / `KATA_SMTP_FROM` / `KATA_SMTP_TO` |
-| 独立 DTStack CLI/SDK | `KATA_DTSTACK_BASE_URL` / `KATA_DTSTACK_SESSION_PATH` |
+| 默认项目与工作区 | `KATA_ACTIVE_PROJECT`、`KATA_WORKSPACE_ROOT` |
+| 外部源码目录 | `KATA_SOURCE_REPOS`、`KATA_SOURCE_REPO_ROOT` |
+| 蓝湖 | `KATA_LANHU_COOKIE` |
+| 禅道 | `KATA_ZENTAO_BASE_URL` 与 Cookie，或账号密码 |
+| 通知 | 钉钉、飞书、企业微信或 SMTP 对应变量 |
+| 独立 DTStack CLI/SDK | `KATA_DTSTACK_BASE_URL`、`KATA_DTSTACK_SESSION_PATH` |
 
-## 安全守卫（仓库自带）
+不要提交 `.env`、`config/env/*.yaml`、会话文件或命令输出中的凭据。真实凭据一旦出现在聊天、日志或提交历史中，应在对应服务端立即轮换；删除本地文件不能使已经发出的令牌失效。
 
-仓库自带 `.claude/settings.json`，将 `pre-edit-guard` 和 `pre-bash-guard` 挂入 Claude Code 的 `PreToolUse`：
+## 源码目录
 
-- `pre-edit-guard`：拦截对源仓库证据 `workspace/{project}/.kata/repos/**` 的 Edit/Write。
-- `pre-bash-guard`：拦截 `rm -rf workspace/`、`rm -rf /`，以及对 `.kata/repos/` 的 git push。
+源码保存在仓库外部，由 `.env` 声明：
 
-首次在 Claude Code 中打开本项目时，会提示批准这些项目级 hook（安全机制），批准后即生效。紧急时可用 `KATA_BYPASS_HOOK=1` 临时绕过。直接在命令行操作不经 Claude Code，不受 hook 约束，但仍以 `.claude/rules/repo-readonly.md` 为准。
+```dotenv
+KATA_SOURCE_REPO_ROOT=/absolute/path/to/repos
+KATA_SOURCE_REPOS=https://example/repo-a.git,https://example/repo-b.git
+```
 
-## 安装完成
+使用 `kata repos show|grep|list` 只读查询。工作流不会在项目工作区内创建或维护源码缓存。
 
-回到 Claude Code，输入 `/workspace-manage` 查看功能菜单。
+## 完成检查
+
+```bash
+bun run check
+bun run lint:agents
+bun run lint:skills:codex
+bun run type-check
+bun run test
+bunx kata features lint --all --exit-code
+```
+
+全部命令退出码为 `0` 后，再提交代码。任何未运行范围都应在提交说明中明确写出。

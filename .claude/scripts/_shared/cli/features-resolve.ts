@@ -26,6 +26,8 @@ export interface FeaturesResolveContext {
    * Must match VERSION_DIR_RE. Defaults to STANDING_DIR ("_standing").
    */
   version?: string;
+  /** Create the selected directory; defaults to true for library callers. */
+  create?: boolean;
 }
 
 export interface FeaturesResolveResult {
@@ -92,8 +94,10 @@ export function runFeaturesResolve(ctx: FeaturesResolveContext): FeaturesResolve
     const featureId = buildFeatureId(month, slug);
     const featureDir = join(featuresDir, featureId);
     if (!existsSync(featureDir)) {
-      mkdirSync(featureDir, { recursive: true });
-      mkdirSync(join(featureDir, ".process"), { recursive: true });
+      if (ctx.create !== false) {
+        mkdirSync(featureDir, { recursive: true });
+        mkdirSync(join(featureDir, ".process"), { recursive: true });
+      }
       return { featureId, featureDir, reused: false };
     }
     const recorded = recordedSlugSource(featureDir);

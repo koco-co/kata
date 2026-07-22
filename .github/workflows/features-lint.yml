@@ -1,12 +1,22 @@
 name: features-lint
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "workspace/**/features/**"
+      - ".claude/scripts/_shared/cli/features.ts"
+      - ".claude/scripts/_shared/cli/features-lint.ts"
+      - ".github/workflows/features-lint.yml"
   pull_request:
     paths:
-      - 'workspace/**/features/**'
-      - '.claude/scripts/_shared/lint/**'
-      - '.claude/scripts/_shared/cli/features-*.ts'
-      - '.claude/scripts/_shared/schemas/**'
+      - "workspace/**/features/**"
+      - ".claude/scripts/_shared/cli/features.ts"
+      - ".claude/scripts/_shared/cli/features-lint.ts"
+      - ".github/workflows/features-lint.yml"
+
+permissions:
+  contents: read
 
 jobs:
   lint:
@@ -14,5 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
+        with:
+          bun-version: 1.3.x
+      - run: bun install --frozen-lockfile
       - run: bunx kata features lint --all --exit-code

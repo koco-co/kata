@@ -4,25 +4,35 @@ on:
   push:
     branches: [main]
     paths:
-      - 'workspace/**/features/*/metadata.yaml'
-      - 'workspace/**/features/*/manifest.json'
+      - "workspace/**/features/**/metadata.yaml"
+      - "workspace/**/features/**/manifest.json"
+      - ".claude/scripts/_shared/cli/features-index.ts"
+      - ".claude/scripts/_shared/cli/features.ts"
+      - ".github/workflows/features-index.yml"
+  pull_request:
+    paths:
+      - "workspace/**/features/**/metadata.yaml"
+      - "workspace/**/features/**/manifest.json"
+      - ".claude/scripts/_shared/cli/features-index.ts"
+      - ".claude/scripts/_shared/cli/features.ts"
+      - ".github/workflows/features-index.yml"
+
+permissions:
+  contents: read
 
 jobs:
-  index:
+  verify:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
+        with:
+          bun-version: 1.3.x
+      - run: bun install --frozen-lockfile
       - run: bunx kata features index --all
-      - name: Commit if changed
+      - name: Verify generated indexes are committed
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --exit-code workspace/; then
-            git add workspace/
-            git commit -m "chore: auto-regen features INDEX.md"
-            git push
+          if ! git diff --exit-code -- ':(glob)workspace/**/features/INDEX.md'; then
+            echo "::error::features/INDEX.md is stale. Run 'bunx kata features index --all' and commit the result."
+            exit 1
           fi

@@ -1,46 +1,37 @@
-<div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Kata-4.0_Runtime-2563EB?style=for-the-badge">
-  <img alt="Kata 4.0 Runtime" src="https://img.shields.io/badge/Kata-4.0_Runtime-2563EB?style=for-the-badge">
-</picture>
+<p align="center">
+  <img src="./assets/diagrams/kata-project-overview.svg" alt="Kata project structure" width="860" />
+</p>
 
 # Kata
 
-### Auditable QA workflows built on Claude Code Skills
+### QA workflows for Claude Code and OpenAI Codex
 
-Kata turns QA work into auditable product skills: it can derive test cases, reports, Playwright scripts, and project knowledge from PRDs, design sources, bugs, code diffs, UI cases, and test results.
+Kata packages requirements analysis, test design, defect investigation, and UI automation as reusable skills. Inputs may include PRDs, designs, bug records, code diffs, existing cases, or test results. Outputs are written to explicit project directories with reviewable run records.
 
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Bun](https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-Skills-7C3AED?style=flat-square)](https://claude.com/claude-code)
 [![Version](https://img.shields.io/badge/version-4.0.0--alpha.1-blue.svg?style=flat-square)](./package.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 
 **English** | **[中文](./README.md)**
 
-</div>
-
----
-
 ## 30-second overview
 
-Kata is not a single script. It is an auditable QA workflow orchestration system:
-
 ```text
-PRD / Lanhu / design source ── /case-draft ───────> Archive MD + XMind
-Existing case artifacts ────── /case-edit ──> Normalize, sync, convert
-Project business knowledge ─── /knowledge-curate ──> Query, update, maintain
-Failure / bug / conflict / diff ── /defect-analyze ──> Defect reports, conflict resolutions
-UI cases / test results ────── /playwright-automation ─> UI plans, Playwright scripts, triage
+PRD / design / feature notes ───── case-draft ───────────> Archive MD + XMind
+Existing cases ─────────────────── case-edit ────────────> Edit, sync, convert
+Project knowledge ──────────────── knowledge-curate ─────> Query and maintain
+Bug / conflict / code diff ─────── defect-analyze ───────> Analysis and repair plan
+UI cases / scripts / failures ──── playwright-automation > Scripts, runs, reports
+SQL merge work ─────────────────── sql-merge-validate ───> Merged output and checks
 ```
 
-Core principles:
+The repository follows four boundaries:
 
-- `.claude/**` is the first-class runtime directory for the kata Claude Code runtime.
-- The runtime code chassis lives at `.claude/scripts/_shared/**` (lib / schemas / plugin-runtime / cli / lint) with shared prompts at `.claude/prompt/_shared/**`.
-- Project artifacts are written under `workspace/{project}/`; source evidence lives under `workspace/{project}/.kata/repos/**` and is read-only.
-- Browser automation is driven by the `playwright-automation` skill; a native Playwright API cheat sheet lives at `.claude/skills/playwright-automation/references/cli-essentials.md`.
+- `.claude/**` contains Claude Code skills, rules, and runtime entry points.
+- `.agents/**` contains Codex skills. `case-draft` and `playwright-automation` are native Codex skills; the remaining skills keep transitional adapters until migrated.
+- Shared CLI, schemas, validators, and runtime code currently live under `.claude/scripts/_shared/**`. The runtimes share code, not prompt bodies.
+- Project artifacts live under `workspace/{project}/`. Source repositories are read-only external directories declared in `.env`; no project-local source cache is created.
 
 ## Quick start
 
@@ -48,151 +39,117 @@ Core principles:
 
 | Tool | Requirement | Purpose |
 | --- | --- | --- |
-| Node.js | `>= 22.0.0` | Runs the TypeScript/Bun toolchain |
-| Bun | Installed | Installs dependencies and runs tests/CLI commands |
-| Git | Installed | Manages this repo and project source evidence |
-| Claude Code | Recommended | Uses the `.claude/**` runtime skills |
+| Node.js | `>= 22.0.0` | TypeScript and Bun toolchain |
+| Bun | Installed | Dependencies, CLI commands, and tests |
+| Git | Installed | Repository and external source management |
+| Claude Code or Codex | At least one | Runs the matching skills |
 
 ### Install
 
-Start with [INSTALL.md](./INSTALL.md) when setting up a new machine. Manual setup:
-
 ```bash
-bun install
+bun install --frozen-lockfile
 [ -f .env ] || cp .env.example .env
 kata workspace verify
-bun test
+bun run ci
 ```
 
-Install browsers only when you need real browser automation or Playwright execution:
+Install browsers only when running real browser tests:
 
 ```bash
 bunx playwright install
 ```
 
-Then open Claude Code and run:
-
-```text
-/workspace-manage
-```
+See [INSTALL.md](./INSTALL.md) for the full setup.
 
 ## Current capabilities
 
-The table below is the current public capability surface. Runtime entrypoints are `CLAUDE.md` and `.claude/**`.
-
 | Command | Area | Skill | Summary |
 | --- | --- | --- | --- |
-| `/workspace-manage` | Workspace | `workspace-manage@1` | Show the feature menu and manage kata project workspaces. |
-| `/case-draft` | Case generation | `case-draft@1` | Generate QA test cases from requirements, PRDs, or design sources. |
-| `/case-edit` | Case maintenance | `case-edit@1` | Edit, sync, convert, or normalize existing QA case artifacts. |
-| `/knowledge-curate` | Knowledge | `knowledge-curate@1` | Query or update project business knowledge and rules. |
-| `/defect-analyze` | Defects and changes | `defect-analyze@1` | Triage bug evidence, merge conflicts, and code diffs in one skill. |
-| `/case-hotfix` | Defects and changes | `case-hotfix@1` | Generate hotfix regression cases from bugs or fix records. |
-| `/playwright-automation` | UI automation | `playwright-automation@1` | Plan, generate, run, triage, and repair Playwright UI automation before handoff. |
-| `/infra-diagnose` | Infra diagnosis | `infra-diagnose@1` | SSH into servers to diagnose and fix datasource/server connectivity failures. |
+| `/workspace-manage` | Workspace | `workspace-manage@1` | Show entry points and manage project workspaces. |
+| `/case-draft` | Case generation | `case-draft@1` | Draft test cases from requirements, PRDs, designs, or feature notes. |
+| `/case-edit` | Case maintenance | `case-edit@1` | Edit, sync, convert, or normalize existing cases. |
+| `/knowledge-curate` | Knowledge | `knowledge-curate@1` | Query or maintain project rules, terms, and constraints. |
+| `/defect-analyze` | Defects and changes | `defect-analyze@1` | Analyze bug material, merge conflicts, or code diffs. |
+| `/case-hotfix` | Regression cases | `case-hotfix@1` | Generate Hotfix regression cases from bugs or fix records. |
+| `/playwright-automation` | UI automation | `playwright-automation@1` | Review, generate, run, or repair Playwright automation. |
+| `/infra-diagnose` | Infrastructure | `infra-diagnose@1` | Diagnose datasource and server connectivity failures. |
+| `/sql-merge-validate` | SQL validation | `sql-merge-validate@1` | Merge SQL changes and validate structure, dependencies, and output. |
 
-### Usage examples
+Routing follows the requested action, not only the input extension. Use `case-edit` when the goal is to change cases. Use `playwright-automation` when existing cases should become UI automation.
 
-Run these commands directly in Claude Code:
+## Claude Code and Codex
+
+| Runtime | Skill directory | Current approach |
+| --- | --- | --- |
+| Claude Code | `.claude/skills/` | Native Claude skills, maintained independently. |
+| OpenAI Codex | `.agents/skills/` | Native skills for the core workflows, transitional adapters elsewhere. |
+
+A Codex session starts with `.agents/skills/using-kata-codex/SKILL.md`. Native Codex skills do not pin a model, agent count, or mechanical stage list. They define triggers, inputs, outputs, safety boundaries, and completion states.
+
+See [docs/CODEX-SKILLS.md](./docs/CODEX-SKILLS.md) for migration details.
+
+## Configuration and security
+
+The root `.env` is the only dotenv file. Each DataAssets platform lives in a local ignored file at `config/env/<env>.yaml`:
 
 ```bash
-# 1. Workspace — show the feature menu and manage project workspaces
-/workspace-manage
-
-# 2. Case generation — generate test cases from PRDs, Lanhu URLs, or Axure links
-/case-draft
-
-# 3. Case editing — sync, convert, or normalize Archive MD / XMind / CSV artifacts
-/case-edit
-
-# 4. Knowledge management — query or update project business rules and terms
-/knowledge-curate
-
-# 5. UI automation — generate, run, triage, and repair Playwright tests
-/playwright-automation
-
-# 6. Defect analysis — triage bug evidence, merge conflicts, and code diffs
-/defect-analyze
-
-# 7. Hotfix regression cases — generate regression tests from bugs or fix records
-/case-hotfix
-
-# 8. Infra diagnosis — SSH into servers to diagnose connectivity failures
-/infra-diagnose
+chmod 700 config/env
+chmod 600 config/env/*.yaml
+chmod 600 .env
 ```
 
-## Architecture
+Common commands:
 
-![Kata project architecture](./assets/diagrams/kata-project-overview.svg)
-
-Kata uses `.claude/**` as the first-class runtime: 8 business skills as the single source, a prompt-level routing table (see `CLAUDE.md`) dispatching inputs to the right skill, `.claude/scripts/_shared/**` (lib / schemas / lint / cli) as the execution and verification layer, `.claude/plugins/` for lanhu/zentao/notify, and `workspace/{project}` for artifacts:
-
-```text
-.claude/    Claude Code runtime skills and contracts
-.claude/scripts/_shared/**    CLI, validators, tests, and workflow support
+```bash
+kata env list
+kata env show <env>
+kata env doctor <env>
+kata env cookie set <env> --stdin
+kata env run <env> -- <command...>
 ```
 
-| Runtime / Boundary | Current responsibility |
-| --- | --- |
-| `.claude/**` | Claude Code runtime skills and references, maintained as the first-class runtime. |
-| `.claude/scripts/_shared/**` | Runtime code chassis (lib / schemas / plugin-runtime / cli / lint) plus shared prompts at `.claude/prompt/_shared/**`. |
-| `workspace/{project}/**` | Project artifact area for PRD derivatives, Archive MD, XMind, reports, Playwright outputs, and project knowledge. |
-| `workspace/{project}/.kata/repos/**` | Read-only source evidence area; kata workflows must not push, commit, or write business files there. |
+`env run` inherits only the small set of variables required to start a child process. Add a required variable explicitly with `--inherit-env NAME1,NAME2`. Command output must never reveal cookies, tokens, or passwords.
 
-At runtime, agents read their runtime skill plus the shared chassis `.claude/scripts/_shared/**`, then read/write project artifacts through `workspace/{project}/`. Write boundaries, SourceRefs, schemas, and sync checks are enforced by `.claude/scripts/_shared/**` validators and runtime checks.
+External source repositories are declared with:
 
-## Agent runtime support
+```dotenv
+KATA_SOURCE_REPO_ROOT=/absolute/path/to/repos
+KATA_SOURCE_REPOS=https://example/repo-a.git,https://example/repo-b.git
+```
 
-kata's 8 business skills live once under `.claude/skills/` and are exposed to other agent runtimes through adapter directories — zero body copies, translated at runtime via tool mapping:
-
-| Runtime | Adapter dir | Discovery | Status |
-| --- | --- | --- | --- |
-| Claude Code | `.claude/skills/` | native | ✅ first-class |
-| OpenAI Codex | `.agents/skills/` + `.codex-plugin/plugin.json` | official `.agents/skills` scan, whole-dir symlinks | ✅ officially supported |
-
-Codex's tool-name mapping and session bootstrap live in `using-kata-codex`.
-
-## Plugins
-
-Built-in plugins live under `.claude/plugins/` and attach to product skills through hooks.
-
-| Plugin | Hook | Required configuration |
-| --- | --- | --- |
-| `lanhu` | `case-draft:init` | `KATA_LANHU_COOKIE` |
-| `zentao` | `case-hotfix:init` | `KATA_ZENTAO_BASE_URL`, `KATA_ZENTAO_ACCOUNT`, `KATA_ZENTAO_PASSWORD` |
-| `notify` | `*:output` | At least one channel: `KATA_DINGTALK_WEBHOOK_URL`, `KATA_FEISHU_WEBHOOK_URL`, `KATA_WECOM_WEBHOOK_URL`, `KATA_SMTP_HOST` |
-
-The root `.env` is the only dotenv file: an explicit process environment wins, then `.env` fills missing keys. `.env.envs`, root `.env.local`, and project `.env.local` are not loaded. Each DataAssets platform is stored in one ignored local `config/env/<env>.yaml`, including `auth.cookie`; the directory must be `0700` and files `0600`. Profiles keep stable project and datasource names only. `kata env run <env> -- <command...>` resolves IDs/typeIds by exact online matches before each run. Linked Git worktrees automatically reuse the main worktree's single store through Git common-dir, so Cookies are not copied. Use `kata env list`, `kata env show <env>`, `kata env doctor <env>`, and `kata env cookie set <env> --stdin`; command output is always secret-free. Migrate the former tracked profiles once with `kata env migrate-dataassets --apply`.
+Use `kata repos show|grep|list` for read-only source queries.
 
 ## Repository layout
 
 ```text
 kata/
-├── .claude/                       # Claude Code runtime
-│   ├── skills/                    # 8 business skills (single source)
-│   ├── scripts/_shared/           # CLI, lib, schemas, lint, tests
-│   ├── plugins/                   # lanhu / zentao / notify
-│   ├── rules/                     # project workflow rules
-│   └── hooks/                     # write / command guards
-├── .agents/                       # Codex skill adapter directory
-├── .codex-plugin/                 # Codex plugin manifest (plugin.json)
-├── docs/                          # architecture, audit, skill, and troubleshooting docs
-└── workspace/                     # user project artifacts; no source cache or auth-session runtime tree
+├── .claude/                       # Claude Code skills and rules
+│   ├── skills/
+│   ├── scripts/_shared/           # CLI, schemas, validators, tests
+│   └── plugins/
+├── .agents/                       # Codex skills
+│   └── skills/
+├── .codex-plugin/                 # Codex plugin metadata
+├── config/                        # Local templates; secrets stay untracked
+├── docs/                          # Guides, contracts, and design records
+└── workspace/                     # Project inputs, cases, automation, and runs
 ```
+
+Automation runs should keep `manifest.yaml`, `run.json`, a short summary, and trace or screenshot artifacts. Use explicit states such as `draft`, `ready`, `generated-not-run`, `passed`, `failed`, or `blocked`; never report an unexecuted scope as passed.
 
 ## Development and verification
 
-Common commands:
-
 ```bash
-# Full test suite
-bun --no-env-file test
-
-# Check runtime skill sync, detach, and structure contracts (.claude <-> .agents)
-bun run check:skills
+bun install --frozen-lockfile
+bun run check
+bun run lint:agents
+bun run lint:skills:codex
+bun run type-check
+bun run test
+bun run ci
 ```
 
-Schemas and sync exceptions live under `.claude/scripts/_shared/schemas/**` and the Codex adapter directory; Codex reuses skill bodies from `.claude/skills/` through symlinks, with zero copies.
+See [docs/contracts/CLI-CONTRACT.md](./docs/contracts/CLI-CONTRACT.md) for CLI behavior and [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md) for documentation conventions. Public command, directory, or artifact changes must update both READMEs, the installation guide, and the changelog.
 
 ## License
 

@@ -90,10 +90,16 @@ describe("collectAllureStats — sinceMtimeMs filter", () => {
   it("only counts files with mtime >= threshold", () => {
     const dir = join(TMP, "since");
     mkdirSync(dir, { recursive: true });
-    const oldTime = Date.now() - 3600_000;
+    const threshold = 1_700_000_000_000;
+    const oldTime = threshold - 60_000;
+    const recentTime = threshold + 60_000;
     writeResult(dir, "old", { status: "passed", name: "old" }, oldTime);
-    const threshold = Date.now();
-    writeResult(dir, "recent", { status: "failed", name: "recent" });
+    writeResult(
+      dir,
+      "recent",
+      { status: "failed", name: "recent" },
+      recentTime,
+    );
 
     const stats = collectAllureStats(dir, { sinceMtimeMs: threshold });
     expect(stats.total).toBe(1);

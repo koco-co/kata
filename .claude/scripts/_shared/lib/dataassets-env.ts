@@ -24,6 +24,27 @@ const ENV_NAME_RE = /^[a-z0-9][a-z0-9-]*$/;
 const PLACEHOLDER = "CHANGE_ME";
 const ENV_DIR_MODE = 0o700;
 const ENV_FILE_MODE = 0o600;
+const PLATFORM_REQUEST_TIMEOUT_MS = 15_000;
+const MAX_PLATFORM_RESPONSE_BYTES = 2 * 1024 * 1024;
+const ENV_KEY_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const SAFE_CHILD_ENV_KEYS = [
+  "PATH",
+  "HOME",
+  "USER",
+  "LOGNAME",
+  "SHELL",
+  "TMPDIR",
+  "TMP",
+  "TEMP",
+  "LANG",
+  "LC_ALL",
+  "LC_CTYPE",
+  "TERM",
+  "CI",
+  "SystemRoot",
+  "ComSpec",
+  "PATHEXT",
+] as const;
 
 export interface DataAssetsEnvConfig {
   readonly schema_version: 2;
@@ -123,6 +144,7 @@ export interface EnvFinding {
 export interface DataAssetsEnvContext {
   readonly repoRoot?: string;
   readonly fetchImpl?: typeof fetch;
+  readonly inheritEnv?: readonly string[];
 }
 
 function rootFrom(ctx?: DataAssetsEnvContext): string {
@@ -448,6 +470,56 @@ export function assertDataAssetsTenantCookie(config: DataAssetsEnvConfig): void 
   assertTenant(config);
 }
 
+async function readLimitedPlatformResponse<T>(
+  response: Response,
+  path: string,
+): Promise<ApiEnvelope<T>> {
+  const declared = response.headers.get("content-length");
+  if (declared !== null) {
+    const declaredBytes = Number(declared);
+    if (
+      Number.isFinite(declaredBytes) &&
+      declaredBytes > MAX_PLATFORM_RESPONSE_BYTES
+    ) {
+      throw new Error(`platform_response_too_large: ${path}`);
+    }
+  }
+
+  const reader = response.body?.getReader();
+  let bytes: Uint8Array;
+  if (!reader) {
+    bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength > MAX_PLATFORM_RESPONSE_BYTES) {
+      throw new Error(`platform_response_too_large: ${path}`);
+    }
+  } else {
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_PLATFORM_RESPONSE_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw new Error(`platform_response_too_large: ${path}`);
+      }
+      chunks.push(value);
+    }
+    bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+  }
+
+  try {
+    return JSON.parse(new TextDecoder().decode(bytes)) as ApiEnvelope<T>;
+  } catch {
+    throw new Error(`invalid_platform_response: ${path}`);
+  }
+}
+
 async function post<T>(
   config: DataAssetsEnvConfig,
   path: string,
@@ -455,33 +527,54 @@ async function post<T>(
   fetchImpl: typeof fetch,
   projectId?: number,
 ): Promise<T> {
-  let response: Response;
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    PLATFORM_REQUEST_TIMEOUT_MS,
+  );
   try {
-    response = await fetchImpl(`${config.url}${path}`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json;charset=UTF-8",
-        "Accept-Language": "zh-CN",
-        cookie: config.auth.cookie,
-        ...(projectId ? { "X-Project-Id": String(projectId) } : {}),
-      },
-      body: JSON.stringify(body),
-    });
-  } catch {
-    throw new Error(`platform_unreachable: ${path}`);
+    let response: Response;
+    try {
+      response = await fetchImpl(`${config.url}${path}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json;charset=UTF-8",
+          "Accept-Language": "zh-CN",
+          cookie: config.auth.cookie,
+          ...(projectId ? { "X-Project-Id": String(projectId) } : {}),
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } catch {
+      if (controller.signal.aborted) {
+        throw new Error(`platform_timeout: ${path}`);
+      }
+      throw new Error(`platform_unreachable: ${path}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `authentication_or_http_failure: ${path} returned HTTP ${response.status}`,
+      );
+    }
+
+    let envelope: ApiEnvelope<T>;
+    try {
+      envelope = await readLimitedPlatformResponse<T>(response, path);
+    } catch (error) {
+      if (controller.signal.aborted) {
+        throw new Error(`platform_timeout: ${path}`);
+      }
+      throw error;
+    }
+    if (envelope.code !== 1 || envelope.data === undefined || envelope.data === null) {
+      throw new Error(`authentication_or_api_failure: ${path}`);
+    }
+    return envelope.data;
+  } finally {
+    clearTimeout(timeout);
   }
-  if (!response.ok)
-    throw new Error(`authentication_or_http_failure: ${path} returned HTTP ${response.status}`);
-  let envelope: ApiEnvelope<T>;
-  try {
-    envelope = (await response.json()) as ApiEnvelope<T>;
-  } catch {
-    throw new Error(`invalid_platform_response: ${path}`);
-  }
-  if (envelope.code !== 1 || envelope.data === undefined || envelope.data === null) {
-    throw new Error(`authentication_or_api_failure: ${path}`);
-  }
-  return envelope.data;
 }
 
 function projectName(project: NamedProject): string {
@@ -723,6 +816,13 @@ export async function diagnoseDataAssetsEnv(
   if (findings.every((item) => !item.code.endsWith("missing") && !item.code.endsWith("symlink"))) {
     try {
       config = parseConfigText(readFileSync(path, "utf8"), path);
+      if (config.url.startsWith("http://")) {
+        findings.push({
+          code: "insecure_http_transport",
+          severity: "warn",
+          path: `${path}#url`,
+        });
+      }
       if (!config.auth.cookie)
         findings.push({ code: "cookie_missing", severity: "error", path: `${path}#auth.cookie` });
       if (
@@ -931,6 +1031,22 @@ export async function migrateDataAssetsEnvs(
   };
 }
 
+function selectDataAssetsChildBaseEnv(
+  base: NodeJS.ProcessEnv,
+  inheritEnv: readonly string[],
+): NodeJS.ProcessEnv {
+  const selected: NodeJS.ProcessEnv = {};
+  const names = new Set<string>([...SAFE_CHILD_ENV_KEYS, ...inheritEnv]);
+  for (const name of names) {
+    if (!ENV_KEY_RE.test(name)) {
+      throw new Error(`invalid inherited environment variable: ${name}`);
+    }
+    const value = base[name];
+    if (value !== undefined) selected[name] = value;
+  }
+  return selected;
+}
+
 export function buildDataAssetsChildEnv(
   name: string,
   resolved: ResolvedDataAssetsEnv,
@@ -939,7 +1055,7 @@ export function buildDataAssetsChildEnv(
 ): NodeJS.ProcessEnv {
   const root = rootFrom(ctx);
   return {
-    ...base,
+    ...selectDataAssetsChildBaseEnv(base, ctx?.inheritEnv ?? []),
     [LEGACY_DATAASSETS_ENV]: assertDataAssetsEnvName(name),
     [DATAASSETS_CONFIG_ENV]: dataAssetsEnvPath(name, root),
     [DATAASSETS_RESOLVED_ENV]: JSON.stringify(resolved),
