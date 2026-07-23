@@ -62,7 +62,7 @@ case_drafting:
       confidence: medium
     - id: RA-006
       source_ref: lanhu.fixture:page-2542930a#sha256:b20ebc7eb136ec96dbb863fd9395ec1f327e63a13f3e52cbd34bd66ada0ecc8c
-      title: 默认配置下其他标品客户逻辑不变
+      title: 默认全局策略下原有校验逻辑不变
       evidence_kind: lanhu.fixture
       ambiguity_class: none
       confidence: high
@@ -87,12 +87,6 @@ case_drafting:
     - id: RA-010
       source_ref: lanhu.fixture:page-2542930a#sha256:b20ebc7eb136ec96dbb863fd9395ec1f327e63a13f3e52cbd34bd66ada0ecc8c
       title: 数据质量规则配置可查找并使用英文名称为空的标准
-      evidence_kind: lanhu.fixture
-      ambiguity_class: defaultable_unknown
-      confidence: medium
-    - id: RA-011
-      source_ref: lanhu.fixture:page-2542930a#sha256:b20ebc7eb136ec96dbb863fd9395ec1f327e63a13f3e52cbd34bd66ada0ecc8c
-      title: 数据质量杜绝违规性校验可使用英文名称为空的标准
       evidence_kind: lanhu.fixture
       ambiguity_class: defaultable_unknown
       confidence: medium
