@@ -16,6 +16,7 @@ import {
 } from "../data/v6411-ui-case-specs";
 import { baseRowsForV6411Case, type V6411BaseTableRow } from "../data/v6411-ui-base-table-data";
 import { descendingActionCaseNumbers } from "../data/v6411-result-oracle";
+import { hasTaskRuleImportFields, reimportAllTaskRules } from "../helpers/v6411-task-rule-import";
 
 /** 根据数据源类型从环境配置中解析 database/schema */
 function resolveDatabase(datasourceType: "Doris3.x" | "SparkThrift2.x"): string {
@@ -146,7 +147,7 @@ function defaultRunSubdir(subdir: string, fallbackRelativePath: string): string 
 test.setTimeout(CASE_TIMEOUT_MS);
 
 test.describe("v6411 正式 UI 重建规则集和规则任务", () => {
-  test.describe.configure({ mode: "serial" });
+  test.describe.configure({ mode: process.env.V6411_UI_CONTINUE_ON_CASE_FAILURE === "1" ? "default" : "serial" });
 
   test.beforeAll(() => {
     if (process.env.PW_FULLY_PARALLEL === "1") {
@@ -2645,6 +2646,21 @@ async function expectPageFormFieldValue(page: Page, label: RegExp, value: string
 }
 
 async function clickNextUntilTaskSave(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
+  const clickTaskNext = async (message: string): Promise<void> => {
+    const next = page.getByRole("button", { name: "下一步", exact: true });
+    await expect
+      .poll(
+        async () => {
+          if ((await next.count().catch(() => 0)) !== 1) return false;
+          return (await next.isVisible().catch(() => false)) && (await next.isEnabled().catch(() => false));
+        },
+        { timeout: 60_000, message },
+      )
+      .toBe(true);
+    await next.click({ timeout: 30_000 });
+    await waitForSpin(page, sourceRef);
+  };
+  let taskRulesReimported = false;
   for (let attempt = 0; attempt < 4; attempt += 1) {
     await waitForSpin(page, sourceRef);
     const save = page.getByRole("button", { name: /^保\s*存$/ }).last();
@@ -2660,10 +2676,15 @@ async function clickNextUntilTaskSave(page: Page, build: UiCaseBuild, sourceRef:
       await waitForSpin(page, sourceRef);
       return;
     }
-    const next = page.getByRole("button", { name: /^下\s*一\s*步$/ }).last();
-    await expect(next, `${sourceRef}: 编辑流程应展示下一步入口`).toBeVisible({ timeout: 30_000 });
-    await next.click({ timeout: 30_000 });
-    await waitForSpin(page, sourceRef);
+    if (!taskRulesReimported) {
+      if (!(await hasTaskRuleImportFields(page))) {
+        await clickTaskNext(`${sourceRef}: 编辑流程应先展示规则包和规则类型`);
+      }
+      await reimportAllTaskRules(page, sourceRef);
+      taskRulesReimported = true;
+      continue;
+    }
+    await clickTaskNext(`${sourceRef}: 编辑流程应展示下一步入口`);
   }
   throw new Error(`${sourceRef}: 编辑任务 4 次下一步后仍未看到保存按钮`);
 }
@@ -2859,6 +2880,15 @@ async function waitForTaskSaveResult(
   actionName: string,
   createdTask?: UiCaseBuild,
 ): Promise<void> {
+  const observedResponses: string[] = [];
+  const onResponse = (response: Response) => {
+    const url = new URL(response.url());
+    const path = `${url.pathname}${url.search ? "?" + url.search.replace(/([?&])(token|authorization|cookie)=[^&]*/gi, "$1[redacted]") : ""}`;
+    if (response.status() >= 400 || /columnMeta|monitor\/edit/i.test(url.pathname)) {
+      observedResponses.push(`${response.request().method()} ${response.status()} ${path}`);
+    }
+  };
+  page.on("response", onResponse);
   await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
   let bodyText = "";
   let validationText = "";
@@ -2910,6 +2940,11 @@ async function waitForTaskSaveResult(
     body: bodyText,
     contentType: "text/plain",
   });
+  await test.info().attach(`${sourceRef}-${actionName}-save-failed-responses.txt`, {
+    body: observedResponses.length ? observedResponses.join("\n") : "no matching error/save responses observed",
+    contentType: "text/plain",
+  });
+  page.off("response", onResponse);
   throw new Error(
     `${sourceRef}: ${actionName}保存后仍停留表单页，疑似保存失败或存在表单校验错误: validation=${validationText}; body=${bodyText.slice(0, 2000)}`,
   );

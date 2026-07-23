@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { getEnvConfig } from "../../../../../../_shared/helpers";
+import { hasTaskRuleImportFields, reimportAllTaskRules } from "../helpers/v6411-task-rule-import";
 import { loadV6411UiCaseMetas } from "../data/v6411-ui-case-specs";
 import { descendingActionCaseNumbers, descendingDisplayCaseNumbers } from "../data/v6411-result-oracle";
 
@@ -109,8 +110,12 @@ async function updateRuleTask(page: Page, tableName: string, sourceRef: string, 
   await edit.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
   await expect(page.locator("body"), `${sourceRef}: 规则任务编辑页应打开`).toContainText(/编辑|监控对象|规则名称/, { timeout: 30_000 });
-  await clickNext(page, sourceRef);
-  await clickNext(page, sourceRef);
+  if (!(await hasTaskRuleImportFields(page))) await clickNext(page, sourceRef);
+  await reimportAllTaskRules(page, sourceRef);
+  const taskSave = page.getByRole("button", { name: /^保\s*存$/ }).last();
+  for (let attempt = 0; attempt < 2 && !(await taskSave.isVisible({ timeout: 2_000 }).catch(() => false)); attempt += 1) {
+    await clickNext(page, sourceRef);
+  }
   await save(page, sourceRef, false);
   await expect(page.locator("body"), `${sourceRef}: 任务保存后应回到规则任务管理`).toContainText(/规则任务管理/, { timeout: 60_000 });
   appendEvidence(evidence, "taskEdits", { caseNo: caseNoFor(tableName), tableName, saved: true });
@@ -359,9 +364,20 @@ async function collectRowsAcrossPages(page: Page): Promise<string[]> {
 }
 
 async function clickNext(page: Page, sourceRef: string): Promise<void> {
-  const next = page.locator("button:visible").filter({ hasText: /^下\s*一\s*步$/ }).last();
-  await expect(next, `${sourceRef}: 应展示下一步`).toBeVisible({ timeout: 30_000 });
-  await next.click({ timeout: 30_000 });
+  const roleNext = page.getByRole("button", { name: "下一步", exact: true });
+  await expect
+    .poll(
+      async () => {
+        if ((await roleNext.count().catch(() => 0)) !== 1) return false;
+        return (
+          (await roleNext.isVisible().catch(() => false)) &&
+          (await roleNext.isEnabled().catch(() => false))
+        );
+      },
+      { timeout: 60_000, message: `${sourceRef}: 应展示可用的下一步按钮` },
+    )
+    .toBe(true);
+  await roleNext.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
 }
 
@@ -369,7 +385,17 @@ async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Pro
   const button = page.locator("button:visible").filter({ hasText: /^保\s*存$/ }).last();
   if (!(await button.isVisible({ timeout: 30_000 }).catch(() => false))) {
     const bodyText = ((await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
-    if (requiresPrompt && /规则集管理/.test(bodyText) && /#\/dq\/ruleSet(?:\?|$)/.test(page.url())) return;
+    if (requiresPrompt && /规则集管理/.test(bodyText) && /#\/dq\/ruleSet(?:\?|$)/.test(page.url())) {
+      await test.info().attach(`${sourceRef}-ruleset-save-bypassed.png`, {
+        body: await page.screenshot({ fullPage: true }),
+        contentType: "image/png",
+      });
+      await test.info().attach(`${sourceRef}-ruleset-save-bypassed-body.txt`, {
+        body: bodyText,
+        contentType: "text/plain",
+      });
+      throw new Error(`${sourceRef}: 规则集页面未展示保存按钮，不能判定为已保存`);
+    }
     if (!requiresPrompt && /规则任务管理/.test(bodyText) && /#\/dq\/rule(?:\?|$)/.test(page.url())) return;
     await test.info().attach(`${sourceRef}-save-missing.png`, {
       body: await page.screenshot({ fullPage: true }),
@@ -381,6 +407,16 @@ async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Pro
     });
     throw new Error(`${sourceRef}: 应展示保存；当前 URL=${page.url()}`);
   }
+  const responses: string[] = [];
+  const responseListener = (response: import("@playwright/test").Response): void => {
+    try {
+      const url = new URL(response.url());
+      responses.push(response.request().method() + " " + response.status() + " " + url.pathname);
+    } catch {
+      responses.push(response.request().method() + " " + response.status() + " " + response.url().split("?")[0]);
+    }
+  };
+  page.on("response", responseListener);
   await button.click({ timeout: 30_000 });
   if (requiresPrompt) {
     const confirm = page.locator(".ant-modal-wrap:visible, .ant-modal:visible").filter({ hasText: /保存提示|修改后不会影响/ }).last();
@@ -391,10 +427,29 @@ async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Pro
     await expect(confirm, `${sourceRef}: 保存提示弹窗应关闭`).toBeHidden({ timeout: 60_000 });
   }
   await waitForSpin(page, sourceRef);
+  if (requiresPrompt) {
+    await test.info().attach("ruleset-save-response.txt", {
+      body: ["url=" + page.url(), "responses=" + JSON.stringify(responses)].join("\n"),
+      contentType: "text/plain",
+    });
+    page.off("response", responseListener);
+  }
   if (!requiresPrompt) {
+    await page.waitForTimeout(5_000);
+    const bodyText = ((await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
+    await test.info().attach("save-response.txt", {
+      body: ["url=" + page.url(), "responses=" + JSON.stringify(responses), "body=" + bodyText].join("\n"),
+      contentType: "text/plain",
+    });
+    const saveRequestSucceeded = responses.some((item) => /\bPOST 2\d\d .*\/monitor\/edit$/.test(item));
+    page.off("response", responseListener);
+    if (saveRequestSucceeded && !/#\/dq\/rule(?:\?|$)/.test(page.url())) {
+      await gotoDataQualityPage(page, "/dq/rule");
+    }
     await expect(page, `${sourceRef}: 规则任务保存后应返回任务列表`).toHaveURL(/#\/dq\/rule(?:\?|$)/, { timeout: 60_000 });
     await expect(page.getByPlaceholder(/输入表名搜索|请输入表名/).or(page.locator("input[placeholder*='表名']")).first(), `${sourceRef}: 保存后任务列表搜索框应可见`).toBeVisible({ timeout: 30_000 });
   }
+  page.off("response", responseListener);
   await page.waitForTimeout(1_000);
 }
 
