@@ -154,7 +154,7 @@ workspace/<project>/
 
 ```
 kata features resolve|list|show          # 定位/列举 feature(中文目录协议)
-kata cases build|convert|lint|validate|verify  # yaml→派生物/格式转换/检查
+kata cases build|export|lint|validate|verify  # yaml→派生物(build)/导出 csv,xlsx(export)/检查
 kata xmind generate                      # 由 cases.yaml 生成 xmind
 kata runs new|path|prune                 # 运行目录分配/定位/清理
 kata handoff render                      # 渲染交付报告
@@ -168,7 +168,7 @@ kata project scan|create                 # 工作区骨架
 kata integrations lanhu|zentao|notify    # 外部集成(去 loader)
 ```
 
-**删除**：17 个隐藏 noun 全删（discuss 12-verb CRUD、case-signal/strategy 流水线、test-case-flow、auto-fixer、format-report-locator、prd-frontmatter、search-filter、writer-context-builder、report-to-pdf、plugin-loader、source-ref、case-draft start 等）；xmind 的 search/show/patch/add/delete；scans 6 个 CRUD；knowledge 的 update/verify/lint/history/rollback；features 的 create/index/lint/clean/archive/migrate；results publish；cases compare/e2e；safety/rules/agents/paths/skills 五个审计 noun（或合并为一个 `kata check`）；env 的 add/discover/migrate-dataassets/set。
+**删除**：17 个隐藏 noun 全删（discuss 12-verb CRUD、case-signal/strategy 流水线、test-case-flow、auto-fixer、format-report-locator、prd-frontmatter、search-filter、writer-context-builder、report-to-pdf、plugin-loader、source-ref、case-draft start 等）；xmind 的 search/show/patch/add/delete；scans 6 个 CRUD；knowledge 的 update/verify/lint/history/rollback；features 的 create/index/lint/clean/archive/migrate；results publish；cases compare/e2e 及独立的 convert（并入 build/export）；safety/rules/agents/paths/skills 五个审计 noun（或合并为一个 `kata check`）；env 的 add/discover/migrate-dataassets/set。
 
 **输出规范**（保留现有合理约定）：stdout 只输出请求的数据，诊断/进度写 stderr；机器模式输出单个稳定 JSON；破坏性操作默认 dry-run 需显式开关。修复 verb 级 `--help` 冒泡 bug（删 localizeHelp 用 commander 默认）。
 
