@@ -1,6 +1,6 @@
 // tests/cli/atomic-writer.test.ts
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdtempSync, readdirSync, readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { writeFileAtomic, writeJsonAtomic } from "../../cli/lib/atomic-writer.ts";
