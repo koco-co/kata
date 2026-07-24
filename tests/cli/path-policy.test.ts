@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { locateProject } from "../../cli/lib/workspace-locator.ts";
-import { assertInside, PathError } from "../../cli/lib/path-policy.ts";
+import { assertInside, assertWritable, PathError } from "../../cli/lib/path-policy.ts";
 
 function scaffold(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-pp-"));
@@ -27,5 +27,16 @@ describe("assertInside", () => {
   it("rejects absolute path outside the project", () => {
     const p = locateProject("dataAssets", scaffold());
     expect(() => assertInside(p, "/etc/passwd")).toThrow(PathError);
+  });
+
+  it("assertWritable accepts a normal project path", () => {
+    const p = locateProject("dataAssets", scaffold());
+    const t = join(p.featuresDir, "a", "b.yaml");
+    expect(assertWritable(p, t)).toBe(t);
+  });
+
+  it("assertWritable rejects .git internal path", () => {
+    const p = locateProject("dataAssets", scaffold());
+    expect(() => assertWritable(p, join(p.projectDir, ".git", "config"))).toThrow(PathError);
   });
 });
