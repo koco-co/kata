@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/koco-co/kata#readme",
   "bin": {
-    "kata": ".claude/scripts/_shared/bin/kata"
+    "kata": "cli/bin/kata.ts"
   },
   "scripts": {
     "test:plugins": "bun test ./.claude/plugins --timeout 30000",
