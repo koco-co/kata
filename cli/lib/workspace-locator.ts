@@ -28,3 +28,6 @@ export function locateProject(project: string, root?: string): ProjectPaths {
     cacheDir: join(projectDir, ".cache"),
   };
 }
+
+/** Alias of locateProjectRoot for call sites that read more naturally as "repo root". */
+export const repoRoot = locateProjectRoot;

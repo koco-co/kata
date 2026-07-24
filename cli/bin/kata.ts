@@ -4,8 +4,16 @@
 import { existsSync, readFileSync } from "node:fs";
 import { Command } from "commander";
 import { registerCases } from "../commands/cases.ts";
+import { registerAutomation } from "../commands/automation.ts";
+import { registerDefects } from "../commands/defects.ts";
+import { registerEnv } from "../commands/env.ts";
 import { registerFeatures } from "../commands/features.ts";
+import { registerHandoff } from "../commands/handoff.ts";
+import { registerKnowledge } from "../commands/knowledge.ts";
+import { registerProject } from "../commands/project.ts";
+import { registerRepos } from "../commands/repos.ts";
 import { registerRuns } from "../commands/runs.ts";
+import { registerScans } from "../commands/scans.ts";
 import { registerXmind } from "../commands/xmind.ts";
 
 // 轻量 dotenv：只加载仓库根 .env（若存在），让 KATA_SOURCE_* 等集成变量进入进程环境。
@@ -45,6 +53,14 @@ registerFeatures(program);
 registerCases(program);
 registerXmind(program);
 registerRuns(program);
+registerEnv(program);
+registerRepos(program);
+registerKnowledge(program);
+registerScans(program);
+registerDefects(program);
+registerHandoff(program);
+registerAutomation(program);
+registerProject(program);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err instanceof Error ? err.message : String(err));

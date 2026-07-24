@@ -2,7 +2,8 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-function git(repoPath: string, args: string[]): string {
+/** Run a read-only git command against a source repo; returns stdout. */
+export function git(repoPath: string, args: string[]): string {
   return execFileSync("git", ["-C", repoPath, ...args], {
     encoding: "utf8",
     stdio: ["pipe", "pipe", "pipe"],
