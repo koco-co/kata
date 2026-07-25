@@ -10,6 +10,7 @@ import { registerEnv } from "../commands/env.ts";
 import { registerFeatures } from "../commands/features.ts";
 import { registerHandoff } from "../commands/handoff.ts";
 import { registerKnowledge } from "../commands/knowledge.ts";
+import { registerLanhu } from "../commands/lanhu.ts";
 import { registerProject } from "../commands/project.ts";
 import { registerRepos } from "../commands/repos.ts";
 import { registerRuns } from "../commands/runs.ts";
@@ -65,6 +66,7 @@ registerHandoff(program);
 registerAutomation(program);
 registerProject(program);
 registerZentao(program);
+registerLanhu(program);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err instanceof Error ? err.message : String(err));

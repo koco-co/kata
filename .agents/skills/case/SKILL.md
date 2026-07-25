@@ -9,7 +9,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 ## 三种入口
 
-**起草（需求源）**：Lanhu/Axure URL 用 `bun .claude/plugins/lanhu/fetch.ts` 取证。用 `kata features resolve --project <项目> --module <模块> --description <需求名> --feature-version <vX.Y.Z> --json` 定位 feature 目录（漏传版本会落 `features/_standing/`；版本不知道就先问）。先把测试点清单（正常/异常/边界、枚举逐项、P0 约 1/4~1/3）给用户确认，再写 yaml。
+**起草（需求源）**：Lanhu/Axure URL 用 `kata lanhu fetch` 取证。用 `kata features resolve --project <项目> --module <模块> --description <需求名> --feature-version <vX.Y.Z> --json` 定位 feature 目录（漏传版本会落 `features/_standing/`；版本不知道就先问）。先把测试点清单（正常/异常/边界、枚举逐项、P0 约 1/4~1/3）给用户确认，再写 yaml。
 
 **编辑（既有用例）**：只改 yaml，改完重新 build。语义不变是底线：字段、按钮、枚举值逐字匹配证据原文；缺证据的标「待确认」，不凭空补；修错后直接陈述行为，不在正文解释改动原因。批量标准化按功能族逐条过，全部过完、lint 清零才算完；单条被阻塞就记录后继续其余，不因量大中途停下。
 
