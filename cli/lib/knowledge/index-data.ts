@@ -33,7 +33,7 @@ export function scanEntries(dir: string): IndexEntry[] {
       title: parsed.frontmatter.title,
       tags: parsed.frontmatter.tags,
       updated: parsed.frontmatter.updated,
-      confidence: parsed.frontmatter.confidence,
+      status: parsed.frontmatter.status ?? parsed.frontmatter.confidence ?? "",
     });
   }
   return entries;
@@ -173,7 +173,7 @@ function scanAndFixKnowledgeFile(
       title: parsed.frontmatter.title,
       tags: parsed.frontmatter.tags,
       updated: parsed.frontmatter.updated,
-      confidence: parsed.frontmatter.confidence,
+      status: parsed.frontmatter.status ?? parsed.frontmatter.confidence ?? "",
     },
   ];
 }

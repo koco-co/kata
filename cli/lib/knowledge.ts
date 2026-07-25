@@ -7,7 +7,10 @@ export interface Frontmatter {
   title: string;
   type: "overview" | "term" | "module" | "pitfall";
   tags: string[];
-  confidence: "high" | "medium" | "low";
+  /** 旧三档置信度;新条目用 status(四态),二者至少其一 */
+  confidence?: "high" | "medium" | "low";
+  /** 四态:verified | observed | conflicting | deprecated */
+  status?: string;
   source: string;
   updated: string;
 }
@@ -70,6 +73,8 @@ export function parseFrontmatter(raw: string): ParsedFile {
       fm.type = value as Frontmatter["type"];
     } else if (key === "confidence") {
       fm.confidence = value as Frontmatter["confidence"];
+    } else if (key === "status") {
+      fm.status = value;
     } else if (key === "source") {
       fm.source = value;
     } else if (key === "updated") {
@@ -77,12 +82,12 @@ export function parseFrontmatter(raw: string): ParsedFile {
     }
   }
 
-  // Validate required fields
+  // Validate required fields:status(新)与 confidence(旧)至少其一
   if (
     typeof fm.title !== "string" ||
     typeof fm.type !== "string" ||
     !Array.isArray(fm.tags) ||
-    typeof fm.confidence !== "string" ||
+    (typeof fm.status !== "string" && typeof fm.confidence !== "string") ||
     typeof fm.source !== "string" ||
     typeof fm.updated !== "string"
   ) {
@@ -98,7 +103,7 @@ export function serializeFrontmatter(fm: Frontmatter): string {
     `title: ${fm.title}`,
     `type: ${fm.type}`,
     `tags: [${fm.tags.join(", ")}]`,
-    `confidence: ${fm.confidence}`,
+    fm.status ? `status: ${fm.status}` : `confidence: ${fm.confidence ?? "medium"}`,
     `source: ${fm.source === "" ? '""' : fm.source}`,
     `updated: ${fm.updated}`,
     "---",
@@ -185,7 +190,7 @@ export interface IndexEntry {
   title: string;
   tags: string[];
   updated: string;
-  confidence: string;
+  status: string;
 }
 
 export interface IndexData {
@@ -199,7 +204,7 @@ export interface IndexData {
 
 function renderIndexEntry(subdir: "modules" | "pitfalls", entry: IndexEntry): string {
   const tagsStr = entry.tags.length ? ` [tags: ${entry.tags.join(", ")}]` : "";
-  return `- [${entry.name}.md](${subdir}/${entry.name}.md) — ${entry.title}${tagsStr} (updated: ${entry.updated}, confidence: ${entry.confidence})`;
+  return `- [${entry.name}.md](${subdir}/${entry.name}.md) — ${entry.title}${tagsStr} (updated: ${entry.updated}, status: ${entry.status})`;
 }
 
 export function renderIndex(project: string, data: IndexData): string {
@@ -217,7 +222,7 @@ export function renderIndex(project: string, data: IndexData): string {
     ? sortedSites
         .map((e) => {
           const tagsStr = e.tags.length ? ` [tags: ${e.tags.join(", ")}]` : "";
-          return `- [${e.name}.md](${e.name}.md) — ${e.title}${tagsStr} (updated: ${e.updated}, confidence: ${e.confidence})`;
+          return `- [${e.name}.md](${e.name}.md) — ${e.title}${tagsStr} (updated: ${e.updated}, status: ${e.status})`;
         })
         .join("\n")
     : "_（暂无）_";
@@ -397,10 +402,14 @@ export function lintChecks(_project: string, knowledgeDirPath: string): LintResu
         continue;
       }
       const fm = parsed.frontmatter;
-      for (const field of ["title", "type", "confidence", "updated"] as const) {
+      for (const field of ["title", "type", "updated"] as const) {
         if (!fm[field]) {
           errors.push({ file: relPath, rule: "missing-frontmatter-field", detail: field });
         }
+      }
+      // 新旧格式至少带一个:status(四态)或 confidence(旧三档)
+      if (!fm.status && !fm.confidence) {
+        errors.push({ file: relPath, rule: "missing-frontmatter-field", detail: "status" });
       }
       if (fm.type !== expectedType) {
         errors.push({
