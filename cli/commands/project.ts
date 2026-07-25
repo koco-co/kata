@@ -12,7 +12,7 @@ import {
   TEMPLATE_ROOT_REL,
   validateProjectName,
 } from "../lib/create-project.ts";
-import { runIndex } from "../lib/knowledge/read.ts";
+import { writeIndexFile } from "../lib/knowledge/index-data.ts";
 import { locateProject, repoRoot } from "../lib/workspace-locator.ts";
 
 function readConfig(): Record<string, unknown> {
@@ -118,7 +118,7 @@ export function registerProject(program: Command): void {
       writeFileSync(cfgPath, `${JSON.stringify(merged, null, 2)}\n`);
 
       // 知识库索引(直接调用, 不 spawn 旧 kata)
-      runIndex({ project: opts.project });
+      writeIndexFile(opts.project);
 
       outputJson({
         project: opts.project,
