@@ -8,12 +8,12 @@
       "noPendingConfirm": ["待确认"],
       "prdDoc": ["prd.md"],
       "testPoints": ["test-points.md"],
-      "hotfixDir": ["_hotfix/"],
       "hotfixTitle": ["【<bug_id>】"],
       "placeholders": ["${DataSourceA}", "${SchemaA}"],
       "createTableRule": ["CREATE TABLE"],
       "resolveCmd": ["kata features resolve"],
-      "standingRisk": ["_standing/"]
+      "standingFlag": ["--standing"],
+      "resolveHotfix": ["resolve-hotfix"]
     },
     "ui-automation": {
       "completionFullSpec": ["full.spec.ts"],

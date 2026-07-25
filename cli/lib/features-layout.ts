@@ -15,8 +15,8 @@ export const HOTFIX_DIR = "_hotfix";
 // 版本目录名：语义版本，两段或三段（v6.4 / v6.4.10）
 export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
 
-// 中文标签目录：【vXXX】[【lanhu-id】][【客户】]【模块】需求名（见 case-draft naming-convention）
-export const LABEL_DIR_RE = /^【v\d+】(?:【[^】]+】)*[^【]/;
+// 中文标签目录：【vXXX】[【lanhu-id】][【客户】]【模块】需求名；常驻需求首段为【standing】
+export const LABEL_DIR_RE = /^【(?:v\d+|standing)】(?:【[^】]+】)*[^【]/;
 
 export type FeatureZone = "active" | "standing" | "archived" | "hotfix" | "legacy-flat";
 

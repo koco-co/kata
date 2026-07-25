@@ -8,7 +8,7 @@
 - 版本号与 feature_id（写进 `meta`）。
 - 确认过的测试点清单 `<featureDir>/test-points.md`（覆盖清单逐条写，未覆盖清单里的点不写）。
 - 确定性需求文档 `<featureDir>/prd.md`（事实基线，每条事实含来源标注）与抓取产物、截图。
-- 适用的知识文件（`sites/<host>/dom-*.md` 界面文案、`modules/<module>.md` 规则语义）。
+- 适用的知识条目（`kata knowledge read --project <项目> --module <模块>` 的命中结果：界面文案、规则语义）。
 
 ## 写作要求
 
