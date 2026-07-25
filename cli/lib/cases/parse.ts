@@ -4,7 +4,7 @@
  */
 
 import { parse } from "yaml";
-import { PRIORITIES, type CaseItem, type CasesFile } from "./types.ts";
+import { type CaseItem, type CasesFile, PRIORITIES } from "./types.ts";
 
 export { validateCases } from "./schema.ts";
 export type { CaseItem, CaseMeta, CasesFile } from "./types.ts";
@@ -43,7 +43,8 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     priority: priority as CaseItem["priority"],
     steps,
   };
-  if (typeof o.precondition === "string" && o.precondition.trim()) item.precondition = o.precondition;
+  if (typeof o.precondition === "string" && o.precondition.trim())
+    item.precondition = o.precondition;
   if (Array.isArray(o.tags) && o.tags.every((t) => typeof t === "string")) item.tags = o.tags;
   if (typeof o.source_ref === "string" && o.source_ref.trim()) item.source_ref = o.source_ref;
   return item;

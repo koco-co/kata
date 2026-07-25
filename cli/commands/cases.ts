@@ -2,6 +2,7 @@ import { join } from "node:path";
 import type { Command } from "commander";
 import { runFeaturesLint } from "../lib/features-lint.ts";
 import { locateProjectRoot } from "../lib/workspace-locator.ts";
+import { registerCasesBuild } from "./cases-build.ts";
 
 /** Run case-related structural lint: feature dir layout + naming + metadata sanity. */
 export function runCasesLint(opts: { project: string; feature?: string }): {
@@ -13,6 +14,7 @@ export function runCasesLint(opts: { project: string; feature?: string }): {
 
 export function registerCases(program: Command): void {
   const cases = program.command("cases").description("用例产物检查");
+  registerCasesBuild(cases);
   cases
     .command("lint")
     .description("检查 feature 目录结构、命名与 metadata 合法性")

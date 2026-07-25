@@ -3,7 +3,7 @@
  * validateCases returns a list of problems; empty means valid.
  */
 
-import { PRIORITIES, type CasesFile } from "./types.ts";
+import { type CasesFile, PRIORITIES } from "./types.ts";
 
 /** Validate a parsed cases file; returns human-readable problem list. */
 export function validateCases(file: CasesFile): string[] {
