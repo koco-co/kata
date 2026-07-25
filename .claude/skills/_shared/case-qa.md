@@ -1,1 +1,0 @@
-../../prompt/_shared/case-qa.md

@@ -1,0 +1,70 @@
+# 源码仓库配置:kata repos / scans 的唯一数据源。
+# 实体克隆在主工作树 .repos/ 下(gitignored);worktree 经 git common-dir 自动重定向。
+# 字段:
+#   name        group/repo 唯一标识(也支持 repo 短名解析)
+#   project     所属 workspace 项目(workspace/<project>)
+#   path        相对仓库根的克隆路径
+#   branch      默认查询分支
+#   description 用途说明(可附 remote URL)
+#   writable    false=只读+pull/checkout;true=允许创作(当前无写命令)
+repos:
+  - name: customltem/dt-center-assets
+    project: dataAssets
+    path: .repos/customltem/dt-center-assets
+    branch: release_6.3.x_ltqc
+    description: 数据资产后端(岚图定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-center-assets
+    writable: false
+  - name: customltem/dt-insight-studio
+    project: dataAssets
+    path: .repos/customltem/dt-insight-studio
+    branch: dataAssets/release_6.3.x_ltqc
+    description: 前端 monorepo(岚图定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-insight-studio
+    writable: false
+  - name: customltem/dt-center-metadata
+    project: dataAssets
+    path: .repos/customltem/dt-center-metadata
+    branch: release_6.3.x_gate
+    description: 元数据后端(定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-center-metadata
+    writable: false
+  - name: customltem/dt-center-ide
+    project: dataAssets
+    path: .repos/customltem/dt-center-ide
+    branch: release_6.3.x_dfsyc
+    description: IDE 后端(定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-center-ide
+    writable: false
+  - name: customltem/DatasourceX
+    project: dataAssets
+    path: .repos/customltem/DatasourceX
+    branch: release_6.3.x_ltqc
+    description: 数据源插件(定制分支);http://gitlab.prod.dtstack.cn/customltem/DatasourceX
+    writable: false
+  - name: dt-insight-web/dt-center-assets
+    project: dataAssets
+    path: .repos/dt-insight-web/dt-center-assets
+    branch: hotfix_6.2.x_145513
+    description: 数据资产后端(主线);http://gitlab.prod.dtstack.cn/dt-insight-web/dt-center-assets
+    writable: false
+  - name: dt-insight-web/dt-center-metadata
+    project: dataAssets
+    path: .repos/dt-insight-web/dt-center-metadata
+    branch: release_6.3.x
+    description: 元数据后端(主线);http://gitlab.prod.dtstack.cn/dt-insight-web/dt-center-metadata
+    writable: false
+  - name: dt-insight-front/dt-insight-studio
+    project: dataAssets
+    path: .repos/dt-insight-front/dt-insight-studio
+    branch: dataAssets/release_6.3.x
+    description: 前端 monorepo(主线);http://gitlab.prod.dtstack.cn/dt-insight-front/dt-insight-studio
+    writable: false
+  - name: dt-insight-engine/engine-plugins
+    project: dataAssets
+    path: .repos/dt-insight-engine/engine-plugins
+    branch: release_6.3.x
+    description: 引擎插件;http://gitlab.prod.dtstack.cn/dt-insight-engine/engine-plugins
+    writable: false
+  - name: dt-insight-plat/datasourcex
+    project: dataAssets
+    path: .repos/dt-insight-plat/datasourcex
+    branch: test_6.3.x_v6.4.9
+    description: 数据源插件(平台);http://gitlab.prod.dtstack.cn/dt-insight-plat/datasourcex
+    writable: false

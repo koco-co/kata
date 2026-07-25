@@ -273,14 +273,14 @@ export function buildTopicTree(
 export async function createXmind(
   data: IntermediateJson,
   outputPath: string,
-  project?: string,
+  projectDir?: string,
   options: RenderOptions = {},
 ): Promise<void> {
   if (existsSync(outputPath)) {
     throw new Error(`Output file already exists (use --mode append or replace): ${outputPath}`);
   }
 
-  const rootTitle = buildRootTitle(data.meta, project);
+  const rootTitle = buildRootTitle(data.meta, projectDir);
   const l1Title = buildL1Title(data.meta);
   const { topics: l2Topics, promoted } = buildTopicTree(data.modules, options);
 

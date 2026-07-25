@@ -11,7 +11,7 @@ import {
   resolveDataAssetsEnvName,
   resolveDataAssetsRuntime,
 } from "./env-profile";
-import type { ResolvedDataAssetsEnv } from "../../../../.claude/scripts/_shared/lib/dataassets-env";
+import type { ResolvedDataAssetsEnv } from "../../../../cli/lib/dataassets-env";
 
 let root: string;
 

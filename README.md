@@ -18,20 +18,20 @@ Kata 把需求分析、用例设计、缺陷排查和 UI 自动化整理成可�
 ## 30 秒概览
 
 ```text
-PRD / 设计稿 / 功能说明 ───── case-draft ───────────> Archive MD + XMind
-已有用例 ─────────────────── case-edit ────────────> 编辑、同步、转换
-项目业务知识 ─────────────── knowledge-curate ─────> 查询与维护
+PRD / 设计稿 / 功能说明 ───── case ───────────────> cases.yaml + XMind
+已有用例 / bug 记录 ───────── case ───────────────> 编辑、同步、hotfix 回归用例
+项目业务知识 ─────────────── knowledge ──────────> 查询与维护
 缺陷 / 冲突 / 代码差异 ───── defect-analyze ───────> 缺陷分析与修复建议
-UI 用例 / 脚本 / 失败结果 ─── playwright-automation > 脚本、运行记录与报告
-SQL 合并任务 ─────────────── sql-merge-validate ───> 合并结果与校验说明
+UI 用例 / 脚本 / 失败结果 ─── ui-automation ───────> 脚本、运行记录与报告
+服务器连通性故障 ─────────── infra-diagnose ──────> 根因结论与排查知识
 ```
 
 项目遵循四条边界：
 
-- `.claude/**` 保存 Claude Code 的 Skill、规则和运行入口。
-- `.agents/**` 保存 Codex 的 Skill。`case-draft` 与 `playwright-automation` 已采用 Codex 原生说明；其余 Skill 在迁移完成前继续使用兼容入口。
-- 通用 CLI、Schema、校验器和运行代码暂时位于 `.claude/scripts/_shared/**`，两套运行环境共用代码，不共用提示词正文。
-- 项目产物写入 `workspace/{project}/`。源码从 `.env` 声明的外部仓库只读查询，不在项目目录建立源码缓存。
+- `.claude/**` 保存 Claude Code 的 Skill 与插件。
+- `.agents/**` 保存 Codex 的原生 Skill，与 Claude 端各自独立维护，不共享提示词正文。
+- 通用 CLI 位于 `cli/**`，两套运行环境共用同一份命令行实现。
+- 项目产物写入 `workspace/{project}/`。源码仓库在 `config/source-repos.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
 
 ## 快速开始
 
@@ -49,7 +49,6 @@ SQL 合并任务 ─────────────── sql-merge-validat
 ```bash
 bun install --frozen-lockfile
 [ -f .env ] || cp .env.example .env
-kata workspace verify
 bun run ci
 ```
 
@@ -63,30 +62,25 @@ bunx playwright install
 
 ## 当前能力
 
-| 命令 | 领域 | Skill | 说明 |
-| --- | --- | --- | --- |
-| `/workspace-manage` | 工作区 | `workspace-manage@1` | 查看功能入口并管理项目工作区。 |
-| `/case-draft` | 用例生成 | `case-draft@1` | 根据需求、PRD、设计稿或功能说明起草测试用例。 |
-| `/case-edit` | 用例维护 | `case-edit@1` | 编辑、同步、转换或规范化已有用例。 |
-| `/knowledge-curate` | 知识管理 | `knowledge-curate@1` | 查询或维护项目业务规则、术语和约束。 |
-| `/defect-analyze` | 缺陷与变更 | `defect-analyze@1` | 分析缺陷材料、合并冲突或源码差异。 |
-| `/case-hotfix` | 回归用例 | `case-hotfix@1` | 根据缺陷或修复记录生成 Hotfix 回归用例。 |
-| `/playwright-automation` | UI 自动化 | `playwright-automation@1` | 审查、生成、运行或修复 Playwright 自动化。 |
-| `/infra-diagnose` | 故障排查 | `infra-diagnose@1` | 排查数据源与服务器连通性问题。 |
-| `/sql-merge-validate` | SQL 校验 | `sql-merge-validate@1` | 合并 SQL 变更并校验结构、依赖和结果。 |
+| 命令 | 领域 | 说明 |
+| --- | --- | --- |
+| `/case` | 用例 | 依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
+| `/ui-automation` | UI 自动化 | 生成、修复或验证 Playwright UI 自动化，交付前真实运行。 |
+| `/defect-analyze` | 缺陷与变更 | 分析缺陷材料、合并冲突或源码差异。 |
+| `/infra-diagnose` | 故障排查 | SSH 排查数据源与服务器连通性问题。 |
+| `/knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
+| `/workspace` | 工作区 | 创建、检查、修复项目工作区骨架。 |
 
-路由按用户要完成的动作判断，而不是只看输入文件扩展名。只修改用例时使用 `case-edit`；把已有用例实现为 UI 自动化时使用 `playwright-automation`。
+路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改用例与把用例实现为 UI 自动化是不同的入口，详见 CLAUDE.md 路由规则。
 
 ## Claude Code 与 Codex
 
-| 运行环境 | Skill 目录 | 当前方式 |
+| 运行环境 | Skill 目录 | 维护方式 |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/` | Claude 原生 Skill，保持独立维护。 |
-| OpenAI Codex | `.agents/skills/` | 核心工作流使用 Codex 原生 Skill；未迁移部分暂用兼容入口。 |
+| Claude Code | `.claude/skills/` | Claude 原生 Skill，独立维护。 |
+| OpenAI Codex | `.agents/skills/` | Codex 原生 Skill，独立维护。 |
 
-Codex 会话先读取 `.agents/skills/using-kata-codex/SKILL.md`。原生 Skill 不写固定模型名、固定代理数量或机械阶段；它只规定触发条件、输入输出、安全边界和完成状态。
-
-迁移说明见 [docs/CODEX-SKILLS.md](./docs/CODEX-SKILLS.md)。
+两端 Skill 各自用原生格式表达同一套业务约定，不共享提示词正文；通用能力收在 `cli/` 供两端调用。Skill 不写固定模型名、固定代理数量或机械阶段，只规定触发条件、输入输出、安全边界和完成状态。
 
 ## 配置与安全
 
@@ -110,27 +104,20 @@ kata env run <env> -- <command...>
 
 `env run` 默认只继承启动程序所需的基础环境变量。子命令确实需要额外变量时，使用 `--inherit-env NAME1,NAME2` 明确加入。命令输出不得回显 Cookie、令牌或密码。
 
-源码目录由下列变量声明：
-
-```dotenv
-KATA_SOURCE_REPO_ROOT=/absolute/path/to/repos
-KATA_SOURCE_REPOS=https://example/repo-a.git,https://example/repo-b.git
-```
-
-通过 `kata repos show|grep|list` 查询源码；这些命令不修改外部仓库。
+源码仓库在 `config/source-repos.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
 
 ## 项目目录
 
 ```text
 kata/
-├── .claude/                       # Claude Code Skill 与运行规则
+├── .claude/                       # Claude Code Skill 与插件
 │   ├── skills/
-│   ├── scripts/_shared/           # CLI、Schema、校验器、测试
-│   └── plugins/
+│   ├── plugins/
+│   └── packages/
 ├── .agents/                       # Codex Skill
 │   └── skills/
-├── .codex-plugin/                 # Codex 插件说明
-├── config/                        # 本地环境模板；私密配置不提交
+├── cli/                           # kata CLI(两端共用)
+├── config/                        # source-repos.yaml 等;私密配置(env/, infra/)不提交
 ├── docs/                          # 使用说明、合同和设计记录
 └── workspace/                     # 项目输入、用例、自动化和运行产物
 ```
@@ -142,8 +129,6 @@ Skill 的产物应写入对应 feature 目录。自动化运行建议保存 `man
 ```bash
 bun install --frozen-lockfile
 bun run check
-bun run lint:agents
-bun run lint:skills:codex
 bun run type-check
 bun run test
 bun run ci

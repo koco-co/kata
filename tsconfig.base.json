@@ -15,10 +15,6 @@
     "declaration": false,
     "noEmit": true,
     "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["./.claude/scripts/_shared/*"],
-      "@skills/*": ["./.claude/skills/*"]
-    },
     "ignoreDeprecations": "6.0"
   }
 }

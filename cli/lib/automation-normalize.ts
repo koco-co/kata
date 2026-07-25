@@ -5,7 +5,7 @@ const RUNNERS_ALLOWED = new Set(["smoke.spec.ts", "full.spec.ts", "retry-failed.
 const AUTOMATION_TOP_ALLOWED = new Set(["tests", ".DS_Store"]);
 
 export interface NormalizeReport {
-  moved: string[];
+  moved: { from: string; to: string }[];
   unfixable: { path: string; reason: string }[];
   violations: number;
   backupDir: string;
@@ -55,8 +55,9 @@ export function normalizeAutomation(
         });
         report.violations++;
       } else if (/\.(md|json|yaml)$/.test(name)) {
-        if (shouldMove) moveIntoBackup(full, join(backup, "automation", name));
-        report.moved.push(full);
+        const target = join(backup, "automation", name);
+        if (shouldMove) moveIntoBackup(full, target);
+        report.moved.push({ from: full, to: target });
         report.violations++;
       } else {
         report.unfixable.push({
@@ -73,8 +74,9 @@ export function normalizeAutomation(
       if (!name.endsWith(".spec.ts")) continue;
       if (RUNNERS_ALLOWED.has(name)) continue;
       const full = join(runnersDir, name);
-      if (shouldMove) moveIntoBackup(full, join(backup, "runners", name));
-      report.moved.push(full);
+      const target = join(backup, "runners", name);
+      if (shouldMove) moveIntoBackup(full, target);
+      report.moved.push({ from: full, to: target });
       report.violations++;
     }
   }

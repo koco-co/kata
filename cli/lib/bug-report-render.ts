@@ -50,10 +50,7 @@ function getTemplate(file: string): HandlebarsTemplateDelegate {
   const cached = cache.get(file);
   if (cached) return cached;
   registerHelpers();
-  const src = readFileSync(
-    join(repoRoot(), ".claude/skills/defect-analyze/templates", file),
-    "utf8",
-  );
+  const src = readFileSync(join(repoRoot(), "cli/templates", file), "utf8");
   const tpl = Handlebars.compile(src);
   cache.set(file, tpl);
   return tpl;

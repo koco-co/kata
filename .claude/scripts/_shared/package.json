@@ -1,9 +1,0 @@
-{
-  "name": "kata-scripts",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "bin": {
-    "kata": "bin/kata"
-  }
-}

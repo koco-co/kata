@@ -47,7 +47,9 @@ function loadRootEnv(): void {
 loadRootEnv();
 
 const program = new Command();
-program.name("kata").description("kata 工作区命令行").version("0.1.0");
+// 不注册根级 .version():commander 会用它拦截任意位置的 --version,
+// 与 `kata xmind generate --version <PRD 版本>` 子命令选项冲突(子命令永远收不到)。
+program.name("kata").description("kata 工作区命令行");
 
 registerFeatures(program);
 registerCases(program);

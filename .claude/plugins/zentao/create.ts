@@ -6,14 +6,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderBugReport } from "@shared/lib/bug-report-render.ts";
-import type { BugReport } from "@shared/lib/bug-report-types.ts";
-import { validateBugReport } from "@shared/lib/bug-report-validate.ts";
-import { createCli } from "@shared/lib/cli-runner.ts";
-import { getEnv, initEnv } from "@shared/lib/env.ts";
-import { repoRoot } from "@shared/lib/paths.ts";
-import type { Severity } from "@shared/lib/scan-report-types.ts";
 import { parse as parseYaml } from "yaml";
+import { renderBugReport } from "../../../cli/lib/bug-report-render.ts";
+import type { BugReport } from "../../../cli/lib/bug-report-types.ts";
+import { validateBugReport } from "../../../cli/lib/bug-report-validate.ts";
+import { createCli } from "../../../cli/lib/cli-runner.ts";
+import { getEnv, initEnv } from "../../../cli/lib/env.ts";
+import { repoRoot } from "../../../cli/lib/paths.ts";
+import type { Severity } from "../../../cli/lib/scan-report-types.ts";
 import { resolveSession } from "./client.ts";
 
 // ─── 配置 ─────────────────────────────────────────────────────────────────────

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { locateProject } from "../../cli/lib/workspace-locator.ts";
 import { assertInside, assertWritable, PathError } from "../../cli/lib/path-policy.ts";
+import { locateProject } from "../../cli/lib/workspace-locator.ts";
 
 function scaffold(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-pp-"));

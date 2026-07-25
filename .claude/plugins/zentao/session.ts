@@ -2,8 +2,8 @@
  * plugins/zentao/session.ts — 禅道会话：cookie 优先复用，失效降级账号密码登录
  */
 import { join } from "node:path";
-import { getEnv, setDotEnvValue } from "@shared/lib/env.ts";
-import { repoRoot } from "@shared/lib/paths.ts";
+import { getEnv, setDotEnvValue } from "../../../cli/lib/env.ts";
+import { repoRoot } from "../../../cli/lib/paths.ts";
 import { type FetchFn, zentaoLogin } from "./client.ts";
 
 export type { FetchFn };

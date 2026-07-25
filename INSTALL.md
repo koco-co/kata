@@ -72,7 +72,6 @@ kata env run ci63 --inherit-env HTTP_PROXY,NO_PROXY -- bunx playwright test
 | 场景 | 变量 |
 | --- | --- |
 | 默认项目与工作区 | `KATA_ACTIVE_PROJECT`、`KATA_WORKSPACE_ROOT` |
-| 外部源码目录 | `KATA_SOURCE_REPOS`、`KATA_SOURCE_REPO_ROOT` |
 | 蓝湖 | `KATA_LANHU_COOKIE` |
 | 禅道 | `KATA_ZENTAO_BASE_URL` 与 Cookie，或账号密码 |
 | 通知 | 钉钉、飞书、企业微信或 SMTP 对应变量 |
@@ -80,26 +79,23 @@ kata env run ci63 --inherit-env HTTP_PROXY,NO_PROXY -- bunx playwright test
 
 不要提交 `.env`、`config/env/*.yaml`、会话文件或命令输出中的凭据。真实凭据一旦出现在聊天、日志或提交历史中，应在对应服务端立即轮换；删除本地文件不能使已经发出的令牌失效。
 
-## 源码目录
+## 源码仓库
 
-源码保存在仓库外部，由 `.env` 声明：
+源码仓库在 `config/source-repos.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
 
-```dotenv
-KATA_SOURCE_REPO_ROOT=/absolute/path/to/repos
-KATA_SOURCE_REPOS=https://example/repo-a.git,https://example/repo-b.git
+```bash
+git clone <remote-url> .repos/<group>/<repo>
+kata repos list
 ```
 
-使用 `kata repos show|grep|list` 只读查询。工作流不会在项目工作区内创建或维护源码缓存。
+用 `kata repos show|grep` 只读查询，`kata repos pull|checkout` 更新或切换分支；`writable: false` 的仓库不可 push、commit、add。
 
 ## 完成检查
 
 ```bash
 bun run check
-bun run lint:agents
-bun run lint:skills:codex
 bun run type-check
 bun run test
-bunx kata features lint --all --exit-code
 ```
 
 全部命令退出码为 `0` 后，再提交代码。任何未运行范围都应在提交说明中明确写出。

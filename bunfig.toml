@@ -1,3 +1,3 @@
 [test]
-root = ".claude/scripts/_shared/tests"
+root = "tests"
 test_patterns = ["*.test.ts"]
