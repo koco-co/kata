@@ -2,7 +2,6 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, normalize, relative, sep } from "node:path";
 import { registerCasesCompare } from "@shared/cli/cases-compare.ts";
 import { registerCasesConvert } from "@shared/cli/cases-convert.ts";
-import { registerCasesE2e } from "@shared/cli/cases-e2e.ts";
 import { registerCasesValidate, runCasesValidate } from "@shared/cli/cases-validate.ts";
 import { registerCasesVerify } from "@shared/cli/cases-verify.ts";
 import { runFeaturesLint } from "@shared/cli/features-lint.ts";
@@ -275,7 +274,6 @@ export function buildCasesCommand(): Command {
     });
   registerCasesCompare(cases);
   registerCasesConvert(cases);
-  registerCasesE2e(cases);
   registerCasesVerify(cases);
   return cases;
 }
