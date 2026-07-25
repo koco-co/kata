@@ -76,7 +76,7 @@
 - 保留主工作树现有改动，不得为了创建 worktree 自动提交用户文件。使用 `git worktree add -b codex/<slug> .worktrees/<slug> main` 创建本任务分支工作树。
 - 只共享任务必需的 ignored runtime（`node_modules` 可作只读 symlink；feature `runs/` 按需共享明确目录）；`config/env/` 与 `.repos/` 由 CLI 经 Git common-dir 自动定位到主工作树，worktree 内不复制。
 - 合并或清理前盘点 ignored runtime、认证会话、符号链接和本地环境文件；不得用干净的 Git 状态替代运行态核对。
-- 用户要求合并时，验证并提交任务改动，用 `git merge --no-ff <branch>` 合入 main，再执行 `git worktree remove` 并删除任务分支。不得自动 push；只有用户明确要求时才推送远端。
+- 任务改动验证并提交后，默认执行合并：用 `git merge --no-ff <branch>` 合入 main，再执行 `git worktree remove` 并删除任务分支，无需用户单独指示。不得自动 push；只有用户明确要求时才推送远端。
 - 任务协调使用当前客户端实际提供的任务和代理能力；不得强制不存在的工具名、模型名或固定并发策略。
 - Commit 用 Conventional Commits（`type: description`，英文标题 ≤ 72 字符），只含当前任务文件。
 - 需用户确认的操作：`git reset --hard`、`branch -D`、`push --force`、跨仓库 PR、shared infra 改动、生产部署。
