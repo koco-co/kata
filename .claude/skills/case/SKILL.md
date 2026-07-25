@@ -20,7 +20,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 ## 事实纪律（三条工作流共用）
 
 - 菜单名、按钮、表单字段、规则语义等产品事实，以 `workspace/<project>/knowledge/` 为准：界面文案查 `sites/<host>/dom-*.md`，规则语义查 `modules/<module>.md`；仍存疑用 `kata repos grep/show` 查源码枚举。没有依据的内容不得写进用例。
-- 事实缺证据时停下来说明缺口，由用户补充；不得编造需求名、版本号、字段名或菜单路径。
+- 事实缺证据时逐个向用户确认（一次一个问题、每题带推荐答案），确认前不动笔；不得编造需求名、版本号、字段名或菜单路径。产物中不允许出现「待确认」：所有未确认点必须在写 yaml 前清零；用户也确认不了的内容不进产物，交付时列出缺口。
 - 动手写之前先和用户对齐范围（起草对齐测试点清单，编辑对齐改动点），对齐后再写。
 
 ## 知识闭环（三条工作流共用）
@@ -31,7 +31,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 ## 完成标准（三条工作流共用）
 
 - `cases/需求名.yaml` 通过 `kata cases build --feature <featureDir>` 校验，并成功派生 `需求名.xmind` 与 `exports/需求名.md`。
-- `kata cases lint --project <project> --feature <id> --exit-code` 无 violation。
+- `kata cases lint --project <project> --feature <id> --exit-code` 无 violation（含「待确认」字样硬闸）。
 - 交付前按 [checklists/review.md](checklists/review.md) 自审，并在回复里说明已验证与未验证的范围。
 - 被真实阻塞卡住时只交付草稿，回复里说清缺什么、需要谁补；不得拿草稿冒充完成。
 
@@ -41,4 +41,4 @@ feature 目录由 `kata features resolve --json` 返回，产物写它的 `cases
 
 ## 需要子代理时
 
-用例材料量大、要起草的测试点很多时，可派子代理按 [prompts/worker.md](prompts/worker.md) 写 yaml；主会话负责取证、对齐范围与交付前自审。
+用例材料量大、要起草的测试点很多时，可派子代理按 [prompts/worker.md](prompts/worker.md) 写 yaml；主会话负责取证、逐个拷问、对齐范围与交付前自审。worker 回传的存疑清单由主会话逐个向用户确认：确认后补写，确认不了的测试点剔除并在交付说明列出。
