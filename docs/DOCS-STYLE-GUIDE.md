@@ -10,7 +10,7 @@
 - 标题按 `#`、`##`、`###` 递进，不跳级。
 - 开头说明适用对象、能完成什么、最短入口。
 - 命令先给可复制示例，再解释参数。
-- 行为变化同步更新 README、README-EN、INSTALL 和 CHANGELOG。
+- 行为变化同步更新 README、README-EN 与 INSTALL。
 - 用例文档不纳入通用文档润色；它们由用例 Schema 与对应 Skill 管理。
 
 ## 中文

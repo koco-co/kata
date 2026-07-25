@@ -134,7 +134,7 @@ bun run test
 bun run ci
 ```
 
-See [docs/contracts/CLI-CONTRACT.md](./docs/contracts/CLI-CONTRACT.md) for CLI behavior and [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md) for documentation conventions. Public command, directory, or artifact changes must update both READMEs, the installation guide, and the changelog.
+See [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md) for documentation conventions. Public command, directory, or artifact changes must update both READMEs and the installation guide.
 
 ## License
 
