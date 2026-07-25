@@ -4,11 +4,7 @@ import { resolve } from "node:path";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
-const REQUIRED_ENV_KEYS = [
-  "KATA_SOURCE_REPOS",
-  "KATA_SOURCE_REPO_ROOT",
-  "KATA_DINGTALK_KEYWORD",
-] as const;
+const REQUIRED_ENV_KEYS = ["KATA_DINGTALK_KEYWORD"] as const;
 
 const REMOVED_ENV_KEYS = [
   "KATA_PROJECT",
@@ -21,6 +17,9 @@ const REMOVED_ENV_KEYS = [
   "KATA_DATAASSETS_DATASOURCE_ID",
   "KATA_DATAASSETS_ENV",
   "KATA_SMTP_SECURE",
+  // 源码仓库配置迁至 config/source-repos.yaml,不再经 .env
+  "KATA_SOURCE_REPOS",
+  "KATA_SOURCE_REPO_ROOT",
 ] as const;
 
 function readRepoFile(path: string): string {

@@ -40,3 +40,4 @@ dist/
 
 # Local agent tooling (not part of kata, kept local-only)
 .codegraph/
+.repos/

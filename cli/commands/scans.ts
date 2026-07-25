@@ -2,8 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
-import { getEnv } from "../lib/env.ts";
-import { resolveConfiguredSourceRepo } from "../lib/git-source.ts";
+import { resolveSourceRepo } from "../lib/git-source.ts";
 import { auditDir, auditFile, currentYYYYMM } from "../lib/paths.ts";
 import { fetchAndDiff } from "../lib/scan-report-diff.ts";
 import { renderScanReport } from "../lib/scan-report-render.ts";
@@ -36,7 +35,7 @@ export function registerScans(program: Command): void {
     .command("create")
     .description("初始化扫描并写入 meta.json、report.json 与 diff.patch")
     .requiredOption("--project <name>", "项目名")
-    .requiredOption("--repo <name>", "KATA_SOURCE_REPOS 中的 group/repo 或 repo 短名")
+    .requiredOption("--repo <name>", "config/source-repos.yaml 中的 group/repo 或 repo 短名")
     .requiredOption("--base-branch <ref>", "基线分支")
     .requiredOption("--head-branch <ref>", "目标分支")
     .option("--slug <slug>", "覆盖默认 slug")
@@ -52,12 +51,9 @@ export function registerScans(program: Command): void {
         yyyymm?: string;
         skipFetch: boolean;
       }) => {
-        const repoPath = resolveConfiguredSourceRepo(
-          opts.repo,
-          getEnv("KATA_SOURCE_REPO_ROOT"),
-          getEnv("KATA_SOURCE_REPOS"),
-        );
-        if (!repoPath) throw new Error(`未找到已配置仓库 ${opts.repo}`);
+        const repo = resolveSourceRepo(opts.repo);
+        if (!repo) throw new Error(`未找到已配置仓库 ${opts.repo}(config/source-repos.yaml)`);
+        const repoPath = repo.absPath;
         const yyyymm = opts.yyyymm ?? currentYYYYMM();
         const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
         const diffOut = fetchAndDiff(repoPath, opts.baseBranch, opts.headBranch, {

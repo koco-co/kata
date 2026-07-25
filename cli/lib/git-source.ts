@@ -1,8 +1,25 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { parse } from "yaml";
+import { locateProjectRoot } from "./workspace-locator.ts";
 
-/** Run a read-only git command against a source repo; returns stdout. */
+/** A source repo entry from config/source-repos.yaml. */
+export interface SourceRepo {
+  /** Unique id in "group/repo" form. */
+  name: string;
+  /** Owning workspace project (workspace/<project>). */
+  project: string;
+  /** Repo dir relative to the main worktree, e.g. .repos/<group>/<repo>. */
+  path: string;
+  /** Default branch used as the query ref. */
+  branch: string;
+  description?: string;
+  /** false = read + pull/checkout only; true = authoring allowed (no such commands today). */
+  writable: boolean;
+}
+
+/** Run a git command against a source repo; returns stdout. */
 export function git(repoPath: string, args: string[]): string {
   return execFileSync("git", ["-C", repoPath, ...args], {
     encoding: "utf8",
@@ -43,7 +60,7 @@ function sourceRefForBranch(repoPath: string, branch?: string): string {
       git(repoPath, ["rev-parse", "--verify", `${candidate}^{commit}`]);
       return candidate;
     } catch {
-      // 尝试下一个本地 ref；不 fetch、不改变仓库状态
+      // 尝试下一个本地 ref;不 fetch、不改变仓库状态
     }
   }
   return branch ?? "HEAD";
@@ -65,88 +82,65 @@ export function readGitSourceFile(
   }
 }
 
-export interface ConfiguredSourceRepo {
-  group: string;
-  repo: string;
-  url: string;
-  path: string;
+// ─── 配置加载(config/source-repos.yaml)───
+
+/**
+ * Main worktree root. `.repos/` lives only in the main worktree (gitignored),
+ * so resolve through the git common dir instead of the current root.
+ */
+export function mainWorktreeRoot(root: string = locateProjectRoot()): string {
+  const common = execFileSync(
+    "git",
+    ["-C", root, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+    { encoding: "utf8" },
+  ).trim();
+  return dirname(common);
 }
 
-export function parseGitUrl(url: string): { group: string; repo: string } {
-  const cleaned = url.replace(/\.git$/, "").replace(/\/$/, "");
-  const parts = cleaned.split("/");
-  const repo = parts.pop() ?? "";
-  const group = parts.pop() ?? "";
-  return { group, repo };
-}
-
-/** Find a configured repository in the user's external source root without creating a cache. */
-function findLocalSourceRepo(root: string | undefined, canonicalUrl: string): string | undefined {
-  if (!root || !existsSync(root)) return undefined;
-  const expected = parseGitUrl(canonicalUrl);
-  const candidates: string[] = [];
-
-  const walk = (dir: string, depth: number): void => {
-    if (depth > 0 && isGitSourceRepo(dir)) {
-      candidates.push(dir);
-      return;
-    }
-    if (depth >= 3) return;
-    try {
-      const entries = readdirSync(dir, { withFileTypes: true, encoding: "utf8" });
-      for (const entry of entries) {
-        if (entry.name === ".git" || (!entry.isDirectory() && !entry.isSymbolicLink())) continue;
-        walk(join(dir, entry.name), depth + 1);
-      }
-    } catch {
-      return;
-    }
-  };
-  walk(root, 0);
-
-  return candidates.find((candidate) => {
-    try {
-      const actual = parseGitUrl(git(candidate, ["remote", "get-url", "origin"]).trim());
-      return (
-        actual.group.toLowerCase() === expected.group.toLowerCase() &&
-        actual.repo.toLowerCase() === expected.repo.toLowerCase()
-      );
-    } catch {
-      return false;
-    }
-  });
-}
-
-export function configuredSourceRepos(
-  sourceRoot: string | undefined,
-  sourceRepos: string | undefined,
-): ConfiguredSourceRepo[] {
-  const repos: ConfiguredSourceRepo[] = [];
-  for (const url of (sourceRepos ?? "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean)) {
-    const { group, repo } = parseGitUrl(url);
-    const path = findLocalSourceRepo(sourceRoot, url);
-    if (group && repo && path) repos.push({ group, repo, url, path });
+/** Load and validate config/source-repos.yaml; throws on missing/malformed entries. */
+export function loadSourceRepos(root: string = locateProjectRoot()): SourceRepo[] {
+  const configPath = join(root, "config", "source-repos.yaml");
+  if (!existsSync(configPath)) {
+    throw new Error(`未找到源码仓库配置 ${configPath}`);
   }
-  return repos;
+  const doc = parse(readFileSync(configPath, "utf8")) as { repos?: unknown };
+  if (!Array.isArray(doc?.repos)) throw new Error(`${configPath} 缺 repos 数组`);
+  return doc.repos.map((raw: unknown, i: number) => {
+    const o = raw as Record<string, unknown>;
+    for (const field of ["name", "project", "path", "branch"] as const) {
+      if (typeof o[field] !== "string" || !(o[field] as string).trim()) {
+        throw new Error(`${configPath} repos[${i}].${field} 缺失或不是字符串`);
+      }
+    }
+    if (o.writable !== undefined && typeof o.writable !== "boolean") {
+      throw new Error(`${configPath} repos[${i}].writable 必须是布尔值`);
+    }
+    return {
+      name: o.name as string,
+      project: o.project as string,
+      path: o.path as string,
+      branch: o.branch as string,
+      ...(typeof o.description === "string" ? { description: o.description } : {}),
+      writable: o.writable === true,
+    };
+  });
 }
 
-/** Resolve "group/repo" (or bare "repo") against configured source repos; returns the local path. */
-export function resolveConfiguredSourceRepo(
+/** Resolve "group/repo" (or bare "repo") to the config entry; undefined when not unique. */
+export function resolveSourceRepo(
   repoId: string,
-  sourceRoot: string | undefined,
-  sourceRepos: string | undefined,
-): string | undefined {
-  const [requestedGroup, requestedRepo, ...extra] = repoId.split("/");
-  if (!requestedGroup || extra.length > 0) return undefined;
-  const candidates = configuredSourceRepos(sourceRoot, sourceRepos).filter((entry) => {
-    if (!requestedRepo) return entry.repo.toLowerCase() === requestedGroup.toLowerCase();
-    return (
-      entry.group.toLowerCase() === requestedGroup.toLowerCase() &&
-      entry.repo.toLowerCase() === requestedRepo.toLowerCase()
-    );
-  });
-  return candidates.length === 1 ? candidates[0]?.path : undefined;
+  root?: string,
+  mainRoot?: string,
+): (SourceRepo & { absPath: string }) | undefined {
+  const repos = loadSourceRepos(root);
+  const lower = repoId.toLowerCase();
+  const matches = repos.filter(
+    (r) =>
+      r.name.toLowerCase() === lower ||
+      (!lower.includes("/") && r.name.split("/").pop()?.toLowerCase() === lower),
+  );
+  if (matches.length !== 1) return undefined;
+  const repo = matches[0];
+  // 实体仓库只在主工作树(gitignored);worktree 里经 common-dir 重定向
+  return { ...repo, absPath: join(mainRoot ?? mainWorktreeRoot(root), repo.path) };
 }
