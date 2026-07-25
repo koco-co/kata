@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
- * .claude/plugins/lanhu/fetch.ts — 蓝湖 PRD 内容 + 截图抓取器 (bridge adapter)
+ * cli/integrations/lanhu/fetch.ts — 蓝湖 PRD 内容 + 截图抓取器 (bridge adapter)
  *
- * Calls .claude/plugins/lanhu/mcp-bridge/bridge.py via subprocess to fetch PRD content,
+ * Calls cli/integrations/lanhu/mcp-bridge/bridge.py via subprocess to fetch PRD content,
  * then downloads images and produces per-requirement PRD files.
  *
  * Usage:
- *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --project <project>
- *   bun run .claude/plugins/lanhu/fetch.ts --url "https://lanhuapp.com/web/#/item/..." --pages "15525,15529"
- *   bun run .claude/plugins/lanhu/fetch.ts --help
+ *   kata lanhu fetch --url "https://lanhuapp.com/web/#/item/..." --project <project>
+ *   kata lanhu fetch --url "https://lanhuapp.com/web/#/item/..." --pages "15525,15529"
+ *   kata lanhu fetch --help
  */
 
 import { type SpawnSyncOptionsWithStringEncoding, spawnSync } from "node:child_process";
@@ -24,14 +24,11 @@ import {
 } from "node:fs";
 import { basename, extname, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
-import { fileURLToPath } from "node:url";
-import { Command } from "commander";
 import sharp from "sharp";
-import { getEnv, initEnv } from "../lib/env.ts";
-import { prdsDir, repoRoot } from "../lib/paths.ts";
+import { getEnv, initEnv } from "../../lib/env.ts";
+import { prdsDir, repoRoot } from "../../lib/paths.ts";
 
-const __filename = fileURLToPath(import.meta.url);
-const LANHU_BRIDGE_RELATIVE_DIR = ".claude/plugins/lanhu/mcp-bridge";
+const LANHU_BRIDGE_RELATIVE_DIR = "cli/integrations/lanhu/mcp-bridge";
 const LANHU_MCP_RELATIVE_DIR = `${LANHU_BRIDGE_RELATIVE_DIR}/lanhu-mcp`;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -121,7 +118,7 @@ interface RequirementCandidate {
   parsed: ParsedRequirement;
 }
 
-interface RunOptions {
+export interface RunOptions {
   project?: string;
   baseDir?: string;
   pagesFilter?: string;
@@ -765,7 +762,7 @@ function callBridgeWithRetry(
 
 // ─── Main Logic ───────────────────────────────────────────────────────────────
 
-async function run(rawUrl: string, options: RunOptions): Promise<void> {
+export async function runFetch(rawUrl: string, options: RunOptions): Promise<void> {
   // 1. Load .env from repository root.
   const projectRoot = repoRoot();
   initEnv(resolve(projectRoot, ".env"));
@@ -1063,44 +1060,4 @@ async function run(rawUrl: string, options: RunOptions): Promise<void> {
     requirements: requirementInfos,
   };
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
-}
-
-// ─── CLI ─────────────────────────────────────────────────────────────────────
-
-// Only run CLI when executed directly (not when imported by tests)
-const isMain = process.argv[1] === __filename || process.argv[1]?.endsWith("fetch.ts");
-
-if (isMain) {
-  const program = new Command("lanhu-fetch");
-  program
-    .description("从蓝湖 URL 抓取 PRD 内容和截图，按需求生成独立 PRD 文件")
-    .requiredOption(
-      "--url <url>",
-      '蓝湖页面 URL，例如 "https://lanhuapp.com/web/#/item/project/product?tid=xxx&pid=xxx&docId=xxx"',
-    )
-    .option("--project <name>", "项目名称")
-    .option("--base-dir <dir>", "PRD 输出基目录（覆盖项目默认）")
-    .option(
-      "--feature-dir <dir>",
-      "直接写入指定 feature 目录：prd.md + inputs/lanhu-snapshots + inputs/reference-docs（不按 yyyymm 暂存，仅限单个需求）",
-    )
-    .option("--pages <ids>", "要获取的需求 ID（逗号分隔），不指定则获取全部")
-    .action(
-      async (opts: {
-        url: string;
-        project?: string;
-        baseDir?: string;
-        featureDir?: string;
-        pages?: string;
-      }) => {
-        await run(opts.url, {
-          project: opts.project,
-          baseDir: opts.baseDir,
-          featureDir: opts.featureDir,
-          pagesFilter: opts.pages,
-        });
-      },
-    );
-
-  program.parse(process.argv);
 }

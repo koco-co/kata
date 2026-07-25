@@ -3,7 +3,7 @@
 ## 步骤
 
 1. **取证**
-   - Lanhu/Axure URL：用 `bun .claude/plugins/lanhu/fetch.ts`（参数见 `--help`）抓取设计稿与 PRD 内容。
+   - Lanhu/Axure URL：用 `kata lanhu fetch`（参数见 `--help`）抓取设计稿与 PRD 内容。
    - PRD md、截图、功能描述：由用户直接提供，或读用户给的路径。
    - 用户只发 URL、不带任何文字时：全程不播报计划与进度，直接执行；唯一可见输出是最终的产物说明，或被阻塞时的两行缺口说明（首行缺什么，次行需要用户补什么）。
 

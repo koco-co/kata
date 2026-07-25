@@ -1,17 +1,16 @@
 #!/usr/bin/env bun
 /**
- * kata notify plugin — send IM/email notifications
+ * kata notify — send IM/email notifications
  *
  * Usage:
- *   bun run plugins/notify/send.ts --event case-generated --data '{"count":42,"file":"test.xmind"}'
- *   bun run plugins/notify/send.ts --dry-run --event case-generated --data '{"count":42}'
- *   bun run plugins/notify/send.ts --help
+ *   kata notify send --event case-generated --data '{"count":42,"file":"test.xmind"}'
+ *   kata notify send --dry-run --event case-generated --data '{"count":42}'
+ *   kata notify send --help
  */
 
 import crypto from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Command } from "commander";
 import { getEnv, initEnv } from "../lib/env.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -795,42 +794,19 @@ export async function sendNotification(
 
 // ── CLI Entry Point ──────────────────────────────────────────────────────────
 
-async function main(): Promise<void> {
-  const program = new Command();
+/** Parsed `kata notify send` options (raw --data JSON string). */
+export interface SendOptions {
+  event?: string;
+  data?: string;
+  dryRun?: boolean;
+  listEvents?: boolean;
+  describe?: string;
+  strict?: boolean;
+}
 
-  program
-    .name("notify")
-    .description("kata IM 通知发送工具")
-    .version("1.0.0")
-    .option("-e, --event <type>", "事件类型 (使用 --list-events 查看所有)")
-    .option("-d, --data <json>", "事件数据 (JSON 字符串，字段见 --describe <event>)", "{}")
-    .option("--dry-run", "仅格式化消息，不实际发送")
-    .option("--list-events", "列出所有支持的事件类型")
-    .option("--describe <event>", "打印某个事件支持的字段、类型和必填项")
-    .option("--strict", "未知字段或缺失必填字段时直接失败（默认仅告警）")
-    .addHelpText(
-      "after",
-      `
-${listAllEvents()}
-
-示例:
-  $ bun run plugins/notify/send.ts --list-events
-  $ bun run plugins/notify/send.ts --describe ui-test-needs-input
-  $ bun run plugins/notify/send.ts --event case-generated --data '{"count":42,"file":"test.xmind"}'
-  $ bun run plugins/notify/send.ts --dry-run --event workflow-failed --data '{"step":"writer","reason":"timeout"}'
-`,
-    );
-
-  program.parse(process.argv);
-
-  const opts = program.opts<{
-    event?: string;
-    data: string;
-    dryRun?: boolean;
-    listEvents?: boolean;
-    describe?: string;
-    strict?: boolean;
-  }>();
+/** Execute the notify send flow; mirrors the former send.ts CLI main(). */
+export async function runSend(opts: SendOptions): Promise<void> {
+  const data = opts.data ?? "{}";
 
   if (opts.listEvents) {
     process.stdout.write(`${listAllEvents()}\n`);
@@ -847,15 +823,15 @@ ${listAllEvents()}
     process.exit(1);
   }
 
-  let data: NotifyData;
+  let parsed: NotifyData;
   try {
-    data = JSON.parse(opts.data) as NotifyData;
+    parsed = JSON.parse(data) as NotifyData;
   } catch {
-    process.stderr.write(`[notify] Invalid --data JSON: ${opts.data}\n`);
+    process.stderr.write(`[notify] Invalid --data JSON: ${data}\n`);
     process.exit(1);
   }
 
-  const validation = validateEventData(opts.event, data);
+  const validation = validateEventData(opts.event, parsed);
   const hasIssues =
     validation.missingRequired.length > 0 ||
     validation.unknownFields.length > 0 ||
@@ -882,20 +858,11 @@ ${listAllEvents()}
     }
   }
 
-  const result = await sendNotification(opts.event, data, {
+  const result = await sendNotification(opts.event, parsed, {
     dryRun: opts.dryRun,
   });
 
   if (!opts.dryRun) {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   }
-}
-
-// Only run CLI when this file is executed directly (not imported as a module)
-const isMain = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
-if (isMain) {
-  main().catch((err: unknown) => {
-    process.stderr.write(`[notify] Fatal error: ${err}\n`);
-    process.exit(1);
-  });
 }
