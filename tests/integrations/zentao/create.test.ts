@@ -124,7 +124,7 @@ describe("parseCreateResponse", () => {
 });
 
 const KATA_TS = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../cli/bin/kata.ts");
-const PROJECT_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../../");
+const PROJECT_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../");
 const TMP = join(tmpdir(), `zentao-create-test-${process.pid}`);
 afterEach(() => {
   try {
