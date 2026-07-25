@@ -13,11 +13,11 @@ status: "原始"
 
 ## 页面元素截图
 
-![页面元素-1](inputs/lanhu-snapshots/1-u2.svg)
+![页面元素-1](inputs/snapshots/1-u2.svg)
 
 ## 整页截图
 
-![全页截图-1](inputs/lanhu-snapshots/2-fullpage-16210_数据模型_建表中文名增加支持字符.png)
+![全页截图-1](inputs/snapshots/2-fullpage-16210_数据模型_建表中文名增加支持字符.png)
 
 ⚡ 📸 FULL MODE | Version: 6a48db5f...
 📊 Total 1/1 pages

@@ -34,13 +34,13 @@ json 格式校验管理的列表支持对勾选的列表行进行导出。
 
 ## 页面元素截图
 
-![页面元素-1](inputs/lanhu-snapshots/1-u1.png)
+![页面元素-1](inputs/snapshots/1-u1.png)
 
-![页面元素-2](inputs/lanhu-snapshots/2-u57.png)
+![页面元素-2](inputs/snapshots/2-u57.png)
 
 ## 整页截图
 
-![全页截图-1](inputs/lanhu-snapshots/3-fullpage-16019_json格式校验导出支持勾选导出.png)
+![全页截图-1](inputs/snapshots/3-fullpage-16019_json格式校验导出支持勾选导出.png)
 
 ## 导出文件列结构（依据页面元素截图 2-u57.png）
 

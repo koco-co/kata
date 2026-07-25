@@ -13,7 +13,7 @@ status: "原始"
 
 ## 整页截图
 
-![全页截图-1](inputs/lanhu-snapshots/1-fullpage-15862_数据资产_数据质量任务_落标检查任务性能优化_规则sql合并.png)
+![全页截图-1](inputs/snapshots/1-fullpage-15862_数据资产_数据质量任务_落标检查任务性能优化_规则sql合并.png)
 
 ✓ 📸 FULL MODE | Version: ceadda59...
 📊 Total 1/1 pages

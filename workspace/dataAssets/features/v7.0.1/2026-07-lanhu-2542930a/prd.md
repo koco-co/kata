@@ -13,15 +13,15 @@ status: "原始"
 
 ## 页面元素截图
 
-![页面元素-1](inputs/lanhu-snapshots/1-u0.svg)
+![页面元素-1](inputs/snapshots/1-u0.svg)
 
-![页面元素-2](inputs/lanhu-snapshots/2-u5.svg)
+![页面元素-2](inputs/snapshots/2-u5.svg)
 
-![页面元素-3](inputs/lanhu-snapshots/3-u8.svg)
+![页面元素-3](inputs/snapshots/3-u8.svg)
 
 ## 整页截图
 
-![全页截图-1](inputs/lanhu-snapshots/4-fullpage-16208_数据标准_支持配置标准中英文字符限制条件.png)
+![全页截图-1](inputs/snapshots/4-fullpage-16208_数据标准_支持配置标准中英文字符限制条件.png)
 
 ⚡ 📸 FULL MODE | Version: 6a48db5f...
 📊 Total 1/1 pages

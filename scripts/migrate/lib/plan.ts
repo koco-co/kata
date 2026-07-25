@@ -88,15 +88,7 @@ function classify(rel: string): Pick<MigrateOp, "action" | "dest" | "reason"> {
   const fIdx = seg.indexOf("features");
   const inShared = rel.includes("workspace/dataAssets/_shared/");
 
-  // v647 空壳 → 需业务确认
-  if (fIdx >= 0 && seg[fIdx + 1] === "v6.4.7") {
-    const dir = seg[fIdx + 2] ?? "";
-    if (V647_SHELLS.some((s) => dir.includes(s))) {
-      return { action: "confirm", reason: "v647 空壳,按用例覆盖逐项判定" };
-    }
-  }
-
-  // inputs 旧命名归一
+  // inputs 旧命名归一(优先于 v647 判定:空壳即使保留,结构也先归一)
   const iIdx = seg.indexOf("inputs");
   if (fIdx >= 0 && iIdx > fIdx && seg.length > iIdx + 1) {
     const sub = seg[iIdx + 1];
@@ -110,6 +102,14 @@ function classify(rel: string): Pick<MigrateOp, "action" | "dest" | "reason"> {
     if (seg.length === iIdx + 2 && sub !== "snapshots" && sub !== "attachments") {
       const dest = [...seg.slice(0, iIdx + 1), "attachments", sub].join("/");
       return { action: "move", dest, reason: "inputs/ 散文件 → inputs/attachments/" };
+    }
+  }
+
+  // v647 空壳 → 需业务确认
+  if (fIdx >= 0 && seg[fIdx + 1] === "v6.4.7") {
+    const dir = seg[fIdx + 2] ?? "";
+    if (V647_SHELLS.some((s) => dir.includes(s))) {
+      return { action: "confirm", reason: "v647 空壳,按用例覆盖逐项判定" };
     }
   }
 

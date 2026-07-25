@@ -19,7 +19,7 @@ inputs:
   - kind: manual
     ref: cases/岚图数据质量验收功能用例.xlsx
   - kind: manual
-    ref: inputs/legacy/岚图已上线需求用例.md
+    ref: inputs/attachments/岚图已上线需求用例.md
 relates_to:
   - 【v6410】【岚图汽车】【数据质量】已上线需求用例
 emits:
