@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "yaml";
 import { listFeatureDirs } from "./features-layout.ts";
@@ -21,12 +21,31 @@ const HOTFIX_DIR_RE = /^\d{6}-[^\s/]+$/;
 // 人类标签命名约定: 【v{版本}】[【lanhu/客户】]【{模块}】{描述}。
 // 目录名只是人类路由把手, 机器主键是 metadata.id(slug)。
 const CJK_LABEL_RE = /^【v\d+】(?:【[^【】]+】){1,3}[^【】]+$/;
+// 未确认点必须在写 yaml 前清零,产物里不允许出现「待确认」标记
+const PENDING_CONFIRM_RE = /待确认/;
 
 function loadEnum(sharedRoot: string, file: string): string[] {
   const path = join(sharedRoot, "_meta", file);
   if (!existsSync(path)) return [];
   const parsed = parse(readFileSync(path, "utf-8"));
   return parsed?.enum ?? [];
+}
+
+/** cases/*.yaml 是正式源; 出现「待确认」即 violation, 与目录形态无关 */
+function lintCaseSources(dir: string, name: string, violations: FeatureLintViolation[]): void {
+  const casesDir = join(dir, "cases");
+  if (!existsSync(casesDir)) return;
+  for (const f of readdirSync(casesDir)) {
+    if (!f.endsWith(".yaml")) continue;
+    const text = readFileSync(join(casesDir, f), "utf-8");
+    if (PENDING_CONFIRM_RE.test(text)) {
+      violations.push({
+        feature: name,
+        rule: "pending_confirmation",
+        message: `cases/${f} contains "待确认"; confirm open points before writing cases`,
+      });
+    }
+  }
 }
 
 /** Lint every feature dir under a project's features/ for real structural errors. */
@@ -48,6 +67,8 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   for (const entry of entries) {
     const name = entry.dirName;
     const dir = entry.dir;
+
+    lintCaseSources(dir, name, violations);
 
     // hotfix 目录约定 <yyyymm>-<bug_id>-<中文短标题>,只放 cases/,不建 metadata
     if (entry.zone === "hotfix") {

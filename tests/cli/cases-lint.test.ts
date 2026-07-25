@@ -48,4 +48,48 @@ describe("features lint", () => {
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations).toHaveLength(0);
   });
+
+  it("flags 待确认 markers in active feature case yaml", () => {
+    const root = ws();
+    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    mkfeature(root, dir, "cases");
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-demo\n",
+    );
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
+      "cases:\n  - id: C001\n    title: 验证字段映射待确认\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(true);
+  });
+
+  it("flags 待确认 markers in hotfix case yaml", () => {
+    const root = ws();
+    const dir = join("_hotfix", "202604-123456-规则新增回显");
+    mkfeature(root, dir, "cases");
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "cases", "hotfix.yaml"),
+      "precondition: 部署版本待确认\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(true);
+  });
+
+  it("accepts case yaml without 待确认 markers", () => {
+    const root = ws();
+    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    mkfeature(root, dir, "cases");
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-demo\n",
+    );
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
+      "cases:\n  - id: C001\n    title: 验证字段映射已按 prd 确认\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations).toHaveLength(0);
+  });
 });
