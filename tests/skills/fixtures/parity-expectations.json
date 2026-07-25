@@ -1,0 +1,56 @@
+{
+  "comment": "双端业务等价声明矩阵:每条 pattern 必须同时命中 .claude/skills/<skill>/SKILL.md 与 .agents/skills/<skill>/SKILL.md。校验的是业务约定(产物落点/正式源/完成标准/边界),不是逐字文本。",
+  "skills": {
+    "case": {
+      "formalSource": ["cases/需求名.yaml"],
+      "derivatives": ["kata cases build", "需求名.xmind"],
+      "lintGate": ["kata cases lint"],
+      "hotfixDir": ["_hotfix/"],
+      "hotfixTitle": ["【<bug_id>】"],
+      "placeholders": ["${DataSourceA}", "${SchemaA}"],
+      "createTableRule": ["CREATE TABLE"],
+      "resolveCmd": ["kata features resolve"],
+      "standingRisk": ["_standing/"]
+    },
+    "ui-automation": {
+      "completionFullSpec": ["full.spec.ts"],
+      "completionAllure": ["Allure"],
+      "completionBizRecord": ["业务记录"],
+      "envRun": ["kata env run"],
+      "envList": ["kata env list"],
+      "defaultEnv": ["ltqc-local"],
+      "scaffold": ["kata automation scaffold"],
+      "runsNew": ["kata runs new"],
+      "noMockBusinessApi": ["mock"],
+      "cookieBoundary": ["config/env/"]
+    },
+    "defect-analyze": {
+      "reportPath": ["analyses/"],
+      "reportFormat": ["report.md"],
+      "threeModes": ["bug", "conflict", "scan"],
+      "scansCreate": ["kata scans create"],
+      "zentaoCreate": ["zentao/create.ts"]
+    },
+    "infra-diagnose": {
+      "knowledgeQuery": ["knowledge read-pitfall"],
+      "knowledgeWriteback": ["knowledge write", "type pitfall"],
+      "credentialsPath": ["config/infra/credentials.yaml"],
+      "sshpassEnv": ["SSHPASS=", "sshpass -e"],
+      "noPlaintextFlag": ["sshpass -p"]
+    },
+    "knowledge": {
+      "readCore": ["knowledge read-core"],
+      "readModule": ["knowledge read-module"],
+      "readPitfall": ["knowledge read-pitfall"],
+      "writeCmd": ["knowledge write"],
+      "confidence": ["--confidence"],
+      "knowledgeDir": ["_shared/knowledge/"]
+    },
+    "workspace": {
+      "scanCmd": ["kata project scan"],
+      "createCmd": ["kata project create"],
+      "dryRun": ["--dry-run"],
+      "confirmed": ["--confirmed"]
+    }
+  }
+}
