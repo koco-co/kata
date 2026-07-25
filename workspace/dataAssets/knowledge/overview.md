@@ -2,15 +2,14 @@
 title: dataAssets 业务概览
 type: overview
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-18
 ---
 
 # dataAssets 业务概览
 
-> 本文件由 `knowledge-keeper` skill 维护。用户可直接编辑，但 AI 写入应经过 knowledge-keeper API。
-> 填充指南详见 `knowledge-keeper` skill 的 SKILL.md。
+> 本文件经 `kata knowledge write --type overview` 维护，用户可直接编辑。
 
 ## 产品定位
 

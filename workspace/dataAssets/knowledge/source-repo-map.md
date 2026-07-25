@@ -5,7 +5,7 @@
 | 6.3岚图定制化分支 | customltem/dt-insight-studio@dataAssets/release_6.3.x_ltqc | customltem/dt-center-assets@release_6.3.x_ltqc |
 | 6.0浙商证券定制（release_6.0.x_zszq） | customltem/dt-insight-studio | customltem/dt-center-assets |
 
-> source-confirm 步骤优先查本表；未命中再 LLM 语义兜底；任何情况都过一轮 AskUser 人工确认。
+> 查版本对应仓库与分支时优先查本表；未命中向用户确认。
 > 源码仓库在 `config/source-repos.yaml` 配置，实体克隆在主工作树 `.repos/<group>/<repo>`（gitignored，worktree 经 git common-dir 自动定位）。用 `kata repos show|grep|list|sync-env` 查询 Git 对象，`kata repos pull|checkout` 更新或切换本地克隆；本表分支列即各仓库的默认查询分支。
 
 ## 数据质量规则语义源码出处（查 DQ 规则/统计函数语义时按此跳转）

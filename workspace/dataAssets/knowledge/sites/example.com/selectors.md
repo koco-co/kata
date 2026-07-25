@@ -1,7 +1,7 @@
 ---
 type: site-selectors
 domain: example.com
-confidence: medium
+status: observed
 updated_at: 2026-04-29
 ---
 

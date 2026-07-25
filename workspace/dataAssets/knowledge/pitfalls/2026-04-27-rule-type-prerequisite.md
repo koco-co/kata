@@ -2,7 +2,7 @@
 title: 必须先选「规则类型 = 字段级」才显示统计函数
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

@@ -2,7 +2,7 @@
 title: preconditions adapter — 旧调用形态映射
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

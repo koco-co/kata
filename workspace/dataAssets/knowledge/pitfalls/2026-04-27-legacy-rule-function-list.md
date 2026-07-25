@@ -2,7 +2,7 @@
 title: .rule__function-list__item legacy DOM
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

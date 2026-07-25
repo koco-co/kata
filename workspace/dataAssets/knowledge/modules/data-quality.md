@@ -2,7 +2,7 @@
 title: 数据质量模块业务规则（产品级）
 type: module
 tags: [数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束]
-confidence: high
+status: verified
 source: 源码 customltem/dt-center-assets + customltem/dt-insight-studio @ main(65f8e9ec8) 2026-06-24；live zszq 2026-06-23；用户口述 2026-04~2026-06；用户反馈 2026-06-29
 updated: 2026-06-29
 ---
@@ -12,7 +12,7 @@ updated: 2026-06-29
 本文件记录数据质量（DQ）模块**与客户无关的产品级规则语义**：规则类型、统计函数、校验语义、规则集/多表比对/自定义SQL 机制、字段类型约束。**生成用例或 Playwright 脚本前必读本文件 + 对应环境的 `sites/<host>/dom-dataAssets.md`。**
 
 - **菜单/页面/按钮文案是环境定制的**，不在本文件，一律以 `sites/<host>/dom-dataAssets.md` 或用户截图为准（岚图 ltqc 与标品 zszq 菜单结构不同，见 §9）。
-- **规则枚举/语义的源码出处**见 `source-repo-map.md`；落用例前如对语义存疑，按该表查 `.kata/repos` 源码枚举，不要臆测。
+- **规则枚举/语义的源码出处**见 `source-repo-map.md`；落用例前如对语义存疑，按该表用 `kata repos grep|show` 查源码枚举，不要臆测。
 
 ## 1. 规则类型（RuleTaskType）与生效级别
 

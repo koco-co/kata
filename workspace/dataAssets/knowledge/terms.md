@@ -2,14 +2,14 @@
 title: dataAssets 术语表
 type: term
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-05-10
 ---
 
 # dataAssets 术语表
 
-> 由 `knowledge-keeper` skill（阶段 1 实施后）维护。
+> 经 `kata knowledge write --type term` 维护，用户可直接编辑。
 
 | 术语 | 中文 | 解释 | 别名 |
 |---|---|---|---|

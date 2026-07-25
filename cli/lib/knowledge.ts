@@ -231,7 +231,7 @@ export function renderIndex(project: string, data: IndexData): string {
 
   return `# ${project} Knowledge Index
 
-> 由 knowledge-curate 自动维护，请勿手动编辑。
+> 由 kata knowledge index 自动维护，请勿手动编辑。
 
 ## Core
 

@@ -2,7 +2,7 @@
 title: SparkThrift2.x 不支持 JSON 字段类型
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---
