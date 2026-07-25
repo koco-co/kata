@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{meta.repo}} · 静态扫描报告 ({{meta.base_branch}} → {{meta.head_branch}})</title>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#fff; --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
+    --critical:#dc2626; --major:#ea580c; --normal:#f59e0b; --minor:#6b7280;
+    --code-bg:#0f172a; --code-fg:#e2e8f0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  /* E1 sticky nav */
+  nav.toc{background:#fff;border-right:1px solid var(--border);position:sticky;top:0;
+          height:100vh;overflow-y:auto;padding:24px 16px}
+  nav.toc h2{font-size:13px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;
+             letter-spacing:.5px}
+  nav.toc .group{margin-bottom:18px}
+  nav.toc .group-title{font-weight:600;font-size:13px;color:var(--text);margin-bottom:6px}
+  nav.toc a{display:block;color:var(--muted);font-size:13px;padding:4px 8px;border-radius:6px;
+            text-decoration:none;border-left:3px solid transparent}
+  nav.toc a:hover,nav.toc a.active{color:var(--text);background:#f1f5f9}
+  nav.toc a.sev-critical{border-left-color:var(--critical)}
+  nav.toc a.sev-major{border-left-color:var(--major)}
+  nav.toc a.sev-normal{border-left-color:var(--normal)}
+  nav.toc a.sev-minor{border-left-color:var(--minor)}
+  main{padding:32px 40px;max-width:1200px}
+  /* Header */
+  .header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;
+          border-radius:12px;padding:28px 32px;margin-bottom:20px}
+  .header h1{font-size:20px;font-weight:600;margin-bottom:8px}
+  .header .meta-line{font-size:13px;opacity:.85;display:flex;gap:16px;flex-wrap:wrap}
+  .header .meta-line span{display:inline-flex;gap:6px;align-items:center}
+  /* E4 Summary */
+  .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+  .stat .num{font-size:28px;font-weight:700}
+  .stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .stat .bar{height:6px;background:#e2e8f0;border-radius:3px;margin-top:10px;overflow:hidden}
+  .stat .bar-fill{height:100%;background:var(--critical);transition:width .3s}
+  .stat.s-critical .bar-fill{background:var(--critical)}
+  .stat.s-major .bar-fill{background:var(--major)}
+  .stat.s-normal .bar-fill{background:var(--normal)}
+  .stat.s-minor .bar-fill{background:var(--minor)}
+  /* Meta card */
+  .meta-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+             padding:20px 24px;margin-bottom:20px}
+  .meta-card h3{font-size:14px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;
+                letter-spacing:.5px}
+  .meta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 24px}
+  .meta-grid .row{display:flex;gap:8px;font-size:13px}
+  .meta-grid .row .k{color:var(--muted);min-width:120px}
+  .meta-grid .row .v{font-weight:500;font-family:"JetBrains Mono",Menlo,monospace}
+  /* Bug card with E3 severity left-rail */
+  .bug{background:var(--card);border:1px solid var(--border);border-radius:10px;
+       padding:24px;margin-bottom:16px;border-left-width:4px;border-left-style:solid;
+       scroll-margin-top:20px}
+  .bug.sev-critical{border-left-color:var(--critical)}
+  .bug.sev-major{border-left-color:var(--major)}
+  .bug.sev-normal{border-left-color:var(--normal)}
+  .bug.sev-minor{border-left-color:var(--minor)}
+  .bug-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+            margin-bottom:14px}
+  .bug-head .title{font-size:16px;font-weight:600}
+  .bug-head .id{font-size:12px;color:var(--muted);font-family:Menlo,monospace;margin-right:8px}
+  .badges{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;
+         font-weight:600;color:#fff}
+  .badge.sev-critical,.tag.sev-critical{background:var(--critical)}
+  .badge.sev-major,.tag.sev-major{background:var(--major)}
+  .badge.sev-normal,.tag.sev-normal{background:var(--normal)}
+  .badge.sev-minor,.tag.sev-minor{background:var(--minor)}
+  .badge.type{background:#3b82f6}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;
+       background:#e2e8f0;color:var(--text);margin-right:4px}
+  .section{margin-top:14px}
+  .section .label{font-size:12px;color:var(--muted);text-transform:uppercase;
+                  letter-spacing:.5px;margin-bottom:6px}
+  .section .body{font-size:14px}
+  /* E2 step bubbles */
+  .steps{list-style:none;margin-top:8px}
+  .steps li{position:relative;padding-left:36px;padding-bottom:10px;border-left:2px dashed #cbd5e1;
+            margin-left:12px;font-size:14px}
+  .steps li:last-child{border-left-color:transparent;padding-bottom:0}
+  .steps li::before{content:counter(step);counter-increment:step;
+                    position:absolute;left:-13px;top:-2px;
+                    width:24px;height:24px;border-radius:50%;background:#3b82f6;color:#fff;
+                    font-size:12px;font-weight:600;display:flex;align-items:center;
+                    justify-content:center}
+  ol.steps{counter-reset:step}
+  /* Code blocks */
+  pre.diff{background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:8px;
+           font-family:"JetBrains Mono",Menlo,monospace;font-size:12.5px;line-height:1.55;
+           overflow-x:auto;margin-top:6px;white-space:pre}
+  .file-loc{font-family:Menlo,monospace;font-size:13px;background:#f1f5f9;padding:3px 8px;
+            border-radius:4px;color:#0f172a;cursor:pointer;border:1px solid var(--border)}
+  .file-loc:hover{background:#e2e8f0}
+  .copied{color:#10b981;font-size:11px;margin-left:8px}
+  /* Print */
+  @media print{
+    body{background:#fff}
+    .layout{grid-template-columns:1fr}
+    nav.toc{display:none}
+    .bug{break-inside:avoid;page-break-inside:avoid;border:1px solid #999}
+    .header{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  /* Mobile collapses sidebar */
+  @media (max-width: 900px){
+    .layout{grid-template-columns:1fr}
+    nav.toc{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--border)}
+    .summary{grid-template-columns:repeat(2,1fr)}
+    main{padding:20px}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc">
+    <h2>导航</h2>
+    {{#each modulesGrouped}}
+    <div class="group">
+      <div class="group-title">{{this.module}}</div>
+      {{#each this.bugs}}
+      <a href="#{{this.id}}" class="sev-{{this.severity}}">{{this.id}} · {{this.title}}</a>
+      {{/each}}
+    </div>
+    {{/each}}
+  </nav>
+  <main>
+    <div class="header">
+      <h1>{{meta.repo}} · 静态扫描报告</h1>
+      <div class="meta-line">
+        <span>分支对比：<code>{{meta.base_branch}}</code> → <code>{{meta.head_branch}}</code></span>
+        <span>扫描时间：{{meta.scan_time}}</span>
+        <span>扫描人：{{#if meta.reviewer}}{{meta.reviewer}}{{else}}—{{/if}}</span>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="stat"><div class="num">{{counts.total}}</div><div class="lbl">总数</div>
+        <div class="bar"><div class="bar-fill" style="width:100%"></div></div></div>
+      <div class="stat s-critical"><div class="num">{{counts.critical}}</div><div class="lbl">Critical</div>
+        <div class="bar"><div class="bar-fill" style="width:{{percentages.critical}}%"></div></div></div>
+      <div class="stat s-major"><div class="num">{{counts.major}}</div><div class="lbl">Major</div>
+        <div class="bar"><div class="bar-fill" style="width:{{percentages.major}}%"></div></div></div>
+      <div class="stat s-normal"><div class="num">{{counts.normal}}</div><div class="lbl">Normal</div>
+        <div class="bar"><div class="bar-fill" style="width:{{percentages.normal}}%"></div></div></div>
+      <div class="stat s-minor"><div class="num">{{counts.minor}}</div><div class="lbl">Minor</div>
+        <div class="bar"><div class="bar-fill" style="width:{{percentages.minor}}%"></div></div></div>
+    </div>
+
+    <div class="meta-card">
+      <h3>基本信息</h3>
+      <div class="meta-grid">
+        <div class="row"><span class="k">项目</span><span class="v">{{meta.project}}</span></div>
+        <div class="row"><span class="k">仓库</span><span class="v">{{meta.repo}}</span></div>
+        <div class="row"><span class="k">基线 commit</span><span class="v">{{shortCommit meta.base_commit}}</span></div>
+        <div class="row"><span class="k">提测 commit</span><span class="v">{{shortCommit meta.head_commit}}</span></div>
+        <div class="row"><span class="k">diff 文件数</span><span class="v">{{meta.diff_stats.files}}</span></div>
+        <div class="row"><span class="k">diff 增/删</span><span class="v">+{{meta.diff_stats.additions}} / -{{meta.diff_stats.deletions}}</span></div>
+        <div class="row"><span class="k">关联需求</span><span class="v">{{#if meta.related_feature}}{{meta.related_feature}}{{else}}—{{/if}}</span></div>
+        <div class="row"><span class="k">平均可信度</span><span class="v">{{avgConfidence}}</span></div>
+      </div>
+      {{#if meta.summary}}<div style="margin-top:12px;font-size:14px">{{meta.summary}}</div>{{/if}}
+    </div>
+
+    {{#each bugs}}
+    <article id="{{this.id}}" class="bug sev-{{this.severity}}">
+      <div class="bug-head">
+        <div>
+          <span class="id">{{this.id}}</span>
+          <span class="title">{{this.title}}</span>
+        </div>
+        <div class="badges">
+          <span class="badge sev-{{this.severity}}">{{this.severity}}</span>
+          <span class="badge type">{{this.type}}</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="label">位置</div>
+        <span class="file-loc" data-copy="{{this.location.file}}:{{this.location.line}}"
+              onclick="copyLoc(this)">{{this.location.file}}:{{this.location.line}}{{#if this.location.function}} · {{this.location.function}}(){{/if}}</span>
+        <span class="tag sev-{{this.severity}}">{{this.module}}</span>
+      </div>
+      <div class="section"><div class="label">现象</div><div class="body">{{this.phenomenon}}</div></div>
+      <div class="section"><div class="label">复现步骤</div>
+        <ol class="steps">
+          {{#each this.reproduction_steps}}<li>{{stripStepNumber this}}</li>{{/each}}
+        </ol>
+      </div>
+      <div class="section"><div class="label">期望</div><div class="body">{{this.expected}}</div></div>
+      <div class="section"><div class="label">实际</div><div class="body">{{this.actual}}</div></div>
+      <div class="section"><div class="label">根因</div><div class="body">{{this.root_cause}}</div></div>
+      <div class="section"><div class="label">建议</div><div class="body">{{this.suggestion}}</div></div>
+      <div class="section"><div class="label">证据 · diff</div>
+        <pre class="diff">{{this.evidence.diff_hunk}}</pre>
+      </div>
+      <div class="section"><div class="label">可信度</div>
+        <div class="body">{{percentage this.confidence}} — {{this.confidence_reason}}</div>
+      </div>
+      {{#if this.tags}}
+      <div class="section">{{#each this.tags}}<span class="tag">{{this}}</span>{{/each}}</div>
+      {{/if}}
+    </article>
+    {{/each}}
+  </main>
+</div>
+<script>
+  function copyLoc(el){
+    const v = el.getAttribute('data-copy');
+    navigator.clipboard.writeText(v).then(()=>{
+      const m = document.createElement('span');
+      m.className='copied';m.textContent='✓ 已复制';
+      el.parentNode.appendChild(m);
+      setTimeout(()=>m.remove(),1500);
+    });
+  }
+  // active TOC link on scroll
+  const links = document.querySelectorAll('nav.toc a');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+e.target.id));
+      }
+    });
+  },{rootMargin:'-50% 0px -50% 0px'});
+  document.querySelectorAll('article.bug').forEach(b=>obs.observe(b));
+</script>
+</body>
+</html>

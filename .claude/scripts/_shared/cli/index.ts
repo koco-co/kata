@@ -20,7 +20,6 @@
 import { program as archiveGen } from "@shared/cli/archive-gen.ts";
 import { program as pluginLoader } from "@shared/cli/plugin-loader.ts";
 import { program as repoSync } from "@shared/cli/repo-sync.ts";
-import { program as ruleLoader } from "@shared/cli/rule-loader.ts";
 import { program as sourceRef } from "@shared/cli/source-ref.ts";
 import { program as xmindGen } from "@shared/cli/xmind-gen.ts";
 import { program as xmindPatch } from "@shared/cli/xmind-patch.ts";
@@ -57,7 +56,6 @@ const kata = new Command()
 
 archiveGen.name("archives").description("测试用例归档文件的生成、校验与检索");
 managingProjectKnowledge.name("knowledge").description("项目知识的查询、维护与检查");
-ruleLoader.name("rules").description("项目规则的加载与合并");
 scanReport.name("scans").description("代码扫描报告的创建、维护与渲染");
 defectReport.name("defects").description("缺陷与冲突报告渲染");
 
@@ -85,7 +83,6 @@ kata.addCommand(pluginLoader);
 kata.addCommand(prdFrontmatter);
 kata.addCommand(repoSync);
 kata.addCommand(reportToPdf);
-kata.addCommand(ruleLoader);
 kata.addCommand(scanReport);
 kata.addCommand(defectReport);
 kata.addCommand(runTestsNotify);
@@ -96,23 +93,15 @@ kata.addCommand(writerContextBuilder);
 kata.addCommand(xmindPatch);
 
 // ── Noun-verb style commands ─────────────────────────────────
-import { buildAgentsCommand } from "@shared/cli/agents-audit.ts";
 import { buildAutomationCommand } from "@shared/cli/automation.ts";
 import { buildCasesCommand } from "@shared/cli/cases-lint.ts";
 import { buildEnvCommand } from "@shared/cli/env.ts";
 import { buildFeaturesCommand } from "@shared/cli/features.ts";
 import { buildHandoffCommand } from "@shared/cli/handoff.ts";
-import { buildPathsCommand } from "@shared/cli/paths-audit.ts";
 import { buildResultsCommand } from "@shared/cli/results.ts";
-import { buildSafetyCommand } from "@shared/cli/safety-audit-command.ts";
-import { buildSkillsCommand } from "@shared/cli/skill-audit.ts";
 
-kata.addCommand(buildAgentsCommand());
 kata.addCommand(buildAutomationCommand());
 kata.addCommand(buildCasesCommand());
-kata.addCommand(buildPathsCommand());
-kata.addCommand(buildSkillsCommand());
-kata.addCommand(buildSafetyCommand());
 kata.addCommand(buildFeaturesCommand());
 kata.addCommand(buildResultsCommand());
 kata.addCommand(buildHandoffCommand());
@@ -124,12 +113,8 @@ import { registerTestCaseFlow } from "@skills/case-draft/scripts/test-case-flow.
 registerTestCaseFlow(kata);
 
 const publicV2Commands = new Set([
-  "agents",
   "automation",
   "cases",
-  "paths",
-  "skills",
-  "safety",
   "features",
   "results",
   "handoff",
@@ -142,7 +127,6 @@ const publicV2Commands = new Set([
   "defects",
   "history",
   "knowledge",
-  "rules",
   "scans",
   "xmind",
 ]);
