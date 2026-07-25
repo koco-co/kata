@@ -2,7 +2,7 @@
 // 否则跳过——CI 无 live 端点时不会失败。本地验证：
 //   KATA_SR3X_URL='mysql://user:pass@host:port/db' bun test --cwd lib/db
 import { describe, expect, it } from "bun:test";
-import { withDb } from "./index";
+import { withDb } from "../../../lib/db/index.ts";
 
 const url = process.env.KATA_SR3X_URL;
 const live = !!url;

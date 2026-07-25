@@ -4,8 +4,8 @@ import {
   DIALECT_BY_TYPE,
   isSupportedType,
   parseConnectionString,
-} from "./connection-string";
-import { splitSqlStatements } from "./sql-split";
+} from "../../../lib/db/connection-string.ts";
+import { splitSqlStatements } from "../../../lib/db/sql-split.ts";
 
 describe("parseConnectionString", () => {
   it("parses a password containing '@' and '#' by splitting on the last '@'", () => {
