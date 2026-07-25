@@ -1,0 +1,69 @@
+meta:
+  title: 202604-5.3.x_147514-自动分级任务卡在运行中状态
+  version: 5.3.x
+  feature_id: _hotfix/202604-5.3.x_147514-自动分级任务卡在运行中状态
+cases:
+  - id: C001
+    title: 【147514】验证 STARTING 状态超时 24 小时以上的分级规则被定时任务自动重置为可操作状态
+    priority: P1
+    steps:
+      - action: 进入【数据安全 → 数据分级分类 → 自动分级】页面
+        expected: 页面正常加载，展示自动分级规则列表及顶部【添加规则】按钮
+      - action: |-
+          点击【添加规则】按钮，进入新建规则页第一步「基础信息」，填写如下：
+
+          - 规则名称：超时清理测试规则
+          - 所属分类：个人信息
+          - 所属分级：机密
+          - 描述信息：用于验证超时清理定时任务（非必填）
+
+          填写完成后点击【下一步】
+        expected: 跳转至第二步「配置规则」
+      - action: |-
+          在「配置规则」步骤中填写如下：
+          - 数据源类型：MySQL
+          - 数据源：test_mysql_ds
+          - 数据识别 → 字段名识别：包含 id_card
+          - 其余识别 / 排除项保持默认空
+
+          填写完成后点击【完成】
+        expected: 跳回【自动分级】列表，新增一行"超时清理测试规则"，状态列显示绿色圆点（初始 STOP 状态），操作列【重新生效】【编辑】【删除】均为可点击蓝色链接
+      - action: |-
+          在数据库执行以下 SQL，将规则状态改为 STARTING 并将启动时间回溯到 25 小时前：
+
+          UPDATE metadata_data_rank_rule
+          SET state = 'STARTING',
+             latest_start_time = DATE_SUB(NOW(), INTERVAL 25 HOUR)
+          WHERE name = '超时清理测试规则'
+           AND is_deleted = 0;
+        expected: SQL 执行成功，返回 `1 row affected`
+      - action: 刷新【自动分级】列表页，找到"超时清理测试规则"
+        expected: 状态列变为橙色圆点 + "分级中"文字，操作列【重新生效】【编辑】【删除】均变为灰色不可点击
+      - action: 通过运维工具手动触发 `UpdateOutTimeRankRuleJob.run()` 定时任务（生产环境等待每日 03:00 自动触发）
+        expected: |-
+          服务 job 日志依次输出：
+          开始执行超时分级任务清理任务
+          发现1个超时的分级任务，准备清理
+          成功更新超时任务状态：ruleId=xxx, name=超时清理测试规则
+          超时分级任务清理完成，共处理1个任务，成功1个
+      - action: 刷新【自动分级】列表页，查看"超时清理测试规则"的状态列和操作列
+        expected: 状态列由"分级中"（橙色）恢复为绿色圆点；操作列【重新生效】【编辑】【删除】恢复为可点击蓝色链接
+      - action: |-
+          查询数据库验证：
+
+          SELECT state
+          FROM metadata_data_rank_rule
+          WHERE name = '超时清理测试规则'
+           AND is_deleted = 0;
+        expected: 返回 `STOP`，状态已被定时任务正确重置
+    precondition: |-
+      1、已登录系统，具有「数据安全 → 数据分级分类」管理权限
+
+      2、「数据源类型」已接入 MySQL 数据源（数据源名称：test_mysql_ds，库：test_db，至少含 1 张数据表）
+
+      3、「所属分类」已存在分类节点（如：个人信息）；「所属分级」已存在级别（如：机密）
+         可在【数据安全 → 数据分级分类 → 级别管理】确认级别列表不为空
+    tags:
+      - 数据资产
+      - 数据安全 - 数据分级分类
+      - 自动分级

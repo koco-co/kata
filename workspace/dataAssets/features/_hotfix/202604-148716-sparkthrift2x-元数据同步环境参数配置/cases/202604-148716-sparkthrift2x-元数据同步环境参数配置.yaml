@@ -1,0 +1,55 @@
+meta:
+  title: 202604-148716-sparkthrift2x-元数据同步环境参数配置
+  version: unknown
+  feature_id: _hotfix/202604-148716-sparkthrift2x-元数据同步环境参数配置
+cases:
+  - id: C001
+    title: 【148716】验证 sparkthrift2.x 数据源在元数据同步任务中可配置并持久化环境参数
+    priority: P1
+    steps:
+      - action: 进入【元数据同步】，切换至「周期同步」标签页
+        expected: 页面正常展示周期同步任务列表
+      - action: 点击「新增周期同步任务」
+        expected: 弹出「新增周期同步任务」弹窗，第一步为「同步内容」
+      - action: 选择数据源：选择已引入的 SparkThrift2.x 类型数据源
+        expected: 数据源选择成功；页面在表单下方渲染出「环境参数配置」区块，展示默认环境参数模板内容（含 `spark.driver.cores`、`job.priority` 等注释行）
+      - action: |-
+          在「环境参数配置」编辑器中追加自定义参数，例如在末尾新增一行：
+          `spark.executor.instances=2`
+        expected: 编辑器实时显示追加内容，无报错
+      - action: 配置同步范围：选择至少一个数据库；点击「下一步」
+        expected: 成功进入第二步「调度配置」
+      - action: 配置调度周期：选择「天」，设定一个时间后点击「确认」提交
+        expected: 提示「新增周期同步任务成功」；任务出现在周期同步列表中
+      - action: |-
+          查询数据库，验证 task_params 字段已落库：
+          `SELECT task_params FROM dt_metadata.metadata_sync_task ORDER BY id DESC LIMIT 1;`
+        expected: 返回结果包含步骤 4 中追加的 `spark.executor.instances=2`
+      - action: 在列表中找到刚创建的任务，点击操作列「编辑」
+        expected: 弹出「编辑周期同步任务」弹窗；「环境参数配置」区块内容与保存时一致（含步骤 4 追加的参数）
+      - action: 在编辑弹窗中修改环境参数，将 `spark.executor.instances=2` 改为 `spark.executor.instances=4`；点击「下一步」后点击「确认」提交
+        expected: 提示「编辑周期同步任务成功」
+      - action: |-
+          再次查询数据库：
+          `SELECT task_params FROM dt_metadata.metadata_sync_task ORDER BY id DESC LIMIT 1;`
+        expected: task_params 已更新为包含 `spark.executor.instances=4` 的内容
+      - action: 在列表中点击数据源名称（或查看同步范围详情入口）展开 Drawer
+        expected: Drawer 内展示「环境参数配置」只读区块，内容与步骤 9 修改后一致；内容不可编辑
+      - action: 回归：选择一个非 SparkThrift2.x 数据源（如 MySQL）新增周期同步任务
+        expected: 弹窗中不渲染「环境参数配置」区块
+      - action: 回归：对 SparkThrift2.x 数据源点击「立即同步」，确认任务正常触发
+        expected: 同步实例正常生成，实例状态流转正常，无报错
+    precondition: |-
+      1. 系统已引入类型为 SparkThrift2.x 的数据源（记录数据源名称，后续步骤使用）
+      2. 执行增量 SQL，确认 task_params 字段已存在：
+         SELECT COLUMN_NAME FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = 'dt_metadata'
+           AND TABLE_NAME   = 'metadata_sync_task'
+           AND COLUMN_NAME  = 'task_params';
+         预期返回一行记录；若无记录，手动执行：
+         ALTER TABLE dt_metadata.metadata_sync_task
+             ADD COLUMN `task_params` text NULL COMMENT '任务参数';
+    tags:
+      - 元数据管理
+      - 元数据同步
+      - 周期同步

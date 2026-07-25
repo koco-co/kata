@@ -1,0 +1,1639 @@
+meta:
+  title: v63主流程用例
+  version: v6.4.9
+  feature_id: v6.4.9/【v649】【袋鼠云】【数据质量】v63主流程用例
+cases:
+  - id: C001
+    title: 验证数据地图首页资产类型统计正确
+    priority: P2
+    steps:
+      - action: 进入元数据 → 数据地图首页，查看"资产类型统计"区域
+        expected: 显示资产类型统计卡片，包含数据表、视图、离线任务等类型
+      - action: 查看"数据表"类型的统计数量
+        expected: 数据表数量与元数据管理中已同步的数据表总数一致
+      - action: 查看"视图"类型的统计数量
+        expected: 视图数量与已同步的视图总数一致
+      - action: 查看"离线任务"类型的统计数量
+        expected: 离线任务数量与离线平台中已提交任务数一致
+      - action: 点击"数据表"统计卡片
+        expected: 跳转至搜索结果页，资产类型自动选中"数据表"
+    tags:
+      - 元数据
+      - 数据地图
+      - 首页资产类型统计
+  - id: C002
+    title: 验证搜索结果页支持按数据源类型筛选查询
+    priority: P2
+    steps:
+      - action: 进入数据地图，在搜索框输入任意关键字后点击搜索按钮，进入搜索结果页
+        expected: 显示搜索结果页，左侧显示筛选区域
+      - action: 查看"数据源类型"下拉选项
+        expected: 下拉列表包含 Hive2.x 和 Doris3.x 等已引入的数据源类型
+      - action: '"数据源类型"选择 Hive2.x'
+        expected: '"数据源"下拉项仅显示 Hive2.x 类型的数据源'
+      - action: '"数据源"选择某个 Hive2.x 数据源'
+        expected: '"数据库"下拉项显示所选数据源下所有已同步至资产的数据库'
+      - action: 选择某个数据库
+        expected: 搜索结果页展示所选数据库下所有已同步的表
+      - action: 清空"数据源类型"筛选，改选 Doris3.x
+        expected: '"数据源"下拉项切换为 Doris3.x 类型的数据源，三级联动正常'
+    tags:
+      - 元数据
+      - 数据地图
+      - 搜索结果页筛选查询
+  - id: C003
+    title: 验证视图搜索功能正常
+    priority: P2
+    steps:
+      - action: 进入数据地图搜索结果页，在资产类型下拉框中选择"数据表/视图"
+        expected: 展示数据表/视图筛选子选项
+      - action: 在子选项中选择"视图"进行搜索
+        expected: 搜索结果仅显示已同步的视图资产
+      - action: 查看搜索结果列表中的"资产类型"列
+        expected: 资产类型显示为"视图"
+      - action: 查看搜索结果列表中的中文名标签
+        expected: 标签名称显示为"视图中文名"而非"表中文名"
+      - action: 点击某个视图名称进入详情页
+        expected: 正确跳转至视图详情页，显示视图基本信息
+    tags:
+      - 元数据
+      - 数据地图
+      - 视图搜索
+  - id: C004
+    title: 验证表详情页-批量编辑功能
+    priority: P2
+    steps:
+      - action: 进入数据地图，搜索并点击某个 Hive2.x 数据表进入详情页
+        expected: 显示表详情页，包含字段信息Tab
+      - action: 点击字段信息区域的【批量编辑】按钮
+        expected: 进入批量编辑状态，字段描述、中文名、标签列变为可编辑状态
+      - action: 修改第一个字段的"字段描述"为"测试描述_自动化"
+        expected: 字段描述输入框显示修改后的值
+      - action: 修改第二个字段的"字段中文名"为"测试中文名"
+        expected: 字段中文名输入框显示修改后的值
+      - action: 为第三个字段新增标签"测试标签"
+        expected: 标签添加成功，显示新标签
+      - action: 点击【保存】
+        expected: 提示保存成功，退出批量编辑状态
+      - action: 刷新页面，查看修改后的字段信息
+        expected: 字段描述、中文名、标签均显示为修改后的值
+    tags:
+      - 元数据
+      - 数据地图
+      - 批量编辑
+  - id: C005
+    title: 验证表删除功能（删除元数据表/删除源表）
+    priority: P2
+    steps:
+      - action: 进入数据地图，搜索 test_delete_meta 并进入详情页，点击删除图标，选择"删除元数据表"
+        expected: 弹出二次确认弹窗
+      - action: 确认删除
+        expected: 提示删除成功，数据地图中无法搜索到该表
+      - action: 在 Hive2.x 中通过 SQL 查询 test_delete_meta
+        expected: 表仍然存在于底层数据源中（仅删除元数据）
+      - action: 进入数据地图，搜索 test_delete_source 并进入详情页，点击删除图标，选择"删除源表"
+        expected: 弹出二次确认弹窗，提示将同时删除底层数据
+      - action: 确认删除
+        expected: 提示删除成功，数据地图中无法搜索到该表
+      - action: 在 Hive2.x 中通过 SQL 查询 test_delete_source
+        expected: 表在底层数据源中也被删除
+      - action: 进入元数据管理 → 某数据库 → 数据表列表，勾选测试表后点击批量删除
+        expected: 批量删除操作正常执行，逻辑与单条删除一致
+    tags:
+      - 元数据
+      - 数据地图
+      - 表删除
+  - id: C006
+    title: 验证离线任务详情页-血缘解析功能
+    priority: P2
+    steps:
+      - action: 进入数据地图，搜索该离线任务名称，点击进入详情页
+        expected: 显示离线任务详情页
+      - action: 点击【查看SQL】→【SQL解析日志】
+        expected: 显示 SQL 解析记录列表，包含解析结果、解析时间、操作列
+      - action: 查看 INSERT...SELECT 语句的解析记录
+        expected: 解析结果显示"成功"，操作列显示【查看血缘】链接
+      - action: 查看 SELECT 语句的解析记录
+        expected: 解析结果显示"成功"，操作列无【查看血缘】链接（纯查询无血缘）
+      - action: 点击【查看血缘图谱】→【表级血缘】
+        expected: 显示表级血缘关系图，上下游表关系正确
+    tags:
+      - 元数据
+      - 数据地图
+      - 离线任务血缘解析
+  - id: C007
+    title: 验证元数据同步任务创建与执行
+    priority: P2
+    steps:
+      - action: 进入元数据 → 元数据同步，点击【新增周期同步任务】
+        expected: 弹出新增周期同步任务配置页
+      - action: 选择数据源为 Doris3.x 类型数据源，选择数据库，选择数据表
+        expected: 数据源、数据库、数据表三级联动正常
+      - action: 点击【添加】将所选表加入同步列表，点击【下一步】
+        expected: 进入调度配置步骤
+      - action: 配置同步周期为"每天"，点击【新增】
+        expected: 提示新增周期同步任务成功，任务列表显示新任务
+      - action: 在任务列表中找到新建的任务，点击【立即同步】
+        expected: 生成同步实例，状态从"运行中"变为"同步完成"
+    tags:
+      - 元数据
+      - 元数据同步
+      - 同步任务创建与执行
+  - id: C008
+    title: 验证同步数据正确性（数据库/数据表/字段）
+    priority: P2
+    steps:
+      - action: 进入数据地图，搜索已同步的 Hive2.x 表名
+        expected: 搜索结果中显示该表
+      - action: 点击表名进入详情页，查看基本信息
+        expected: 表名、数据库名、数据源名称均正确
+      - action: 查看字段信息Tab
+        expected: 字段名称、字段类型、字段描述与底层 Hive 表的 DDL 一致
+      - action: 进入元数据管理，逐级进入该数据源 → 数据库
+        expected: 数据库列表中包含已同步的数据库，数据表数量正确
+    tags:
+      - 元数据
+      - 元数据同步
+      - 同步任务创建与执行
+  - id: C009
+    title: 验证过滤表功能
+    priority: P2
+    steps:
+      - action: 进入元数据同步，创建新的同步任务，选择对应数据源和数据库
+        expected: 配置页正常显示
+      - action: 在"数据表过滤条件"中输入正则表达式：customer.*
+        expected: 过滤条件设置成功
+      - action: 点击【立即同步】，等待同步完成
+        expected: 同步实例显示同步完成，"已同步"数量不包含 customer 开头的表
+      - action: 进入数据地图搜索 customer_order
+        expected: 搜索结果中不显示该表（被过滤）
+      - action: 进入数据地图搜索 product_info
+        expected: 搜索结果中显示该表（未被过滤）
+    tags:
+      - 元数据
+      - 元数据同步
+      - 过滤表
+  - id: C010
+    title: 验证离线建表自动同步至数据地图
+    priority: P2
+    steps:
+      - action: 在离线开发中创建并执行 SQL 任务：CREATE TABLE IF NOT EXISTS auto_sync_test (id INT, name STRING)
+        expected: SQL 任务执行成功
+      - action: 等待自动同步完成，进入数据地图搜索 auto_sync_test
+        expected: 数据地图中可搜索到该表
+      - action: 进入表详情页，查看操作记录
+        expected: 操作记录中显示 DDL 变更记录（CREATE TABLE），记录时间正确
+    tags:
+      - 元数据
+      - 元数据同步
+      - 离线建表自动同步
+  - id: C011
+    title: 验证离线建视图同步至数据地图
+    priority: P1
+    steps:
+      - action: 在离线开发中执行 SQL：CREATE VIEW auto_sync_view AS SELECT id, name FROM auto_sync_test
+        expected: SQL 任务执行成功
+      - action: 等待自动同步完成，进入数据地图搜索 auto_sync_view
+        expected: 数据地图中可搜索到该视图
+      - action: 点击进入详情页，查看资产类型
+        expected: 资产类型显示为"视图"，字段信息与视图定义一致
+    tags:
+      - 元数据
+      - 元数据同步
+      - 离线建表自动同步
+  - id: C012
+    title: 验证同步任务编辑功能
+    priority: P1
+    steps:
+      - action: 进入元数据同步，找到已有同步任务，点击【编辑】
+        expected: 进入编辑页面，数据源和数据库字段回显正确
+      - action: 修改同步周期为"每周"
+        expected: 修改成功
+      - action: 点击【保存】
+        expected: 提示保存成功，任务列表中该任务的执行周期更新为"每周"
+    tags:
+      - 元数据
+      - 元数据同步
+      - 同步任务编辑
+  - id: C013
+    title: 验证同步任务删除功能
+    priority: P1
+    steps:
+      - action: 进入元数据同步，找到可删除的同步任务，点击【删除】
+        expected: 弹出二次确认弹窗
+      - action: 点击【确定】
+        expected: 提示删除成功，任务列表中不再显示该任务
+    tags:
+      - 元数据
+      - 元数据同步
+      - 同步任务删除
+  - id: C014
+    title: 验证同步实例日志查看
+    priority: P2
+    steps:
+      - action: 进入元数据同步，点击某同步任务的【查看实例】
+        expected: 显示该任务的同步实例列表
+      - action: 查看实例列表信息
+        expected: 显示同步状态、同步时间、已同步数量、总数量等信息
+      - action: 点击某个实例的【查看日志】
+        expected: 弹出日志详情，显示同步过程日志信息
+    tags:
+      - 元数据
+      - 元数据同步
+      - 同步实例日志
+  - id: C015
+    title: 验证技术属性初始化显示正确
+    priority: P2
+    steps:
+      - action: 进入元数据 → 元模型管理，选择 Hive2.x 元模型卡片
+        expected: 进入 Hive2.x 元模型管理页面
+      - action: 点击"技术属性"Tab，查看技术属性列表
+        expected: Hive2.x 技术属性列表初始化显示正确，包含表级和字段级技术属性
+      - action: 切换至 Doris3.x 元模型，查看技术属性列表
+        expected: Doris3.x 技术属性列表初始化显示正确
+      - action: 查看支持视图的数据源类型元模型（如 Hive2.x）的技术属性
+        expected: 技术属性列表中包含视图相关属性："源表名"、"视图描述"
+    tags:
+      - 元数据
+      - 元模型管理
+      - 技术属性
+  - id: C016
+    title: 验证通用业务属性CRUD功能
+    priority: P2
+    steps:
+      - action: 进入元模型管理 → Hive2.x 元模型 → 通用业务属性页面
+        expected: 显示通用业务属性列表
+      - action: 点击【新增】按钮，输入属性名"测试通用属性"，选择属性类型，点击【保存】
+        expected: 提示新建成功，列表中显示新增的业务属性
+      - action: 在搜索框输入"测试通用属性"进行查询
+        expected: 列表筛选显示匹配的业务属性
+      - action: 点击该属性的【编辑】按钮，修改属性描述，点击【保存】
+        expected: 提示编辑成功，属性描述更新正确
+      - action: 点击该属性的"生效"开关
+        expected: 属性生效状态切换成功
+      - action: 进入 Hive2.x 数据源类型的数据表详情页，查看"业务属性"区域
+        expected: 显示已生效的"测试通用属性"
+      - action: 返回通用业务属性页面，点击该属性的【删除】按钮，二次确认
+        expected: 提示删除成功，列表不再显示该属性
+    tags:
+      - 元数据
+      - 元模型管理
+      - 通用业务属性
+  - id: C017
+    title: 验证个性业务属性-新增（枚举/文本框/树形目录）
+    priority: P1
+    steps:
+      - action: 进入元模型管理 → Hive2.x 元模型 → 个性业务属性页面，选择某子模型，点击【新增个性属性】
+        expected: 显示新增弹窗
+      - action: 查看"属性类型"下拉选项
+        expected: 选项包括"枚举"、"文本框"、"树形目录"
+      - action: 选择属性类型为"枚举"
+        expected: 下方显示"选项"配置区，可添加枚举选项
+      - action: 输入属性名"测试枚举属性"，添加枚举选项"选项A"和"选项B"，点击【保存】
+        expected: 弹窗关闭，提示新建成功，列表显示新属性
+      - action: 再次点击【新增个性属性】，属性类型选择"文本框"
+        expected: 下方显示"字段类型"下拉，选项为 string 和 bigint
+      - action: 选择字段类型为"string"，输入属性名"测试文本属性"，点击【保存】
+        expected: 弹窗关闭，提示新建成功
+      - action: 再次点击【新增个性属性】，属性类型选择"树形目录"
+        expected: 下方显示"编辑目录"配置项
+      - action: 输入属性名"测试树形目录属性"，配置目录结构，点击【保存】
+        expected: 弹窗关闭，提示新建成功，列表显示三个新增属性
+    tags:
+      - 元数据
+      - 元模型管理
+      - 个性业务属性-新增
+  - id: C018
+    title: 验证个性业务属性-编辑
+    priority: P1
+    steps:
+      - action: 选择已有个性业务属性，点击【编辑】
+        expected: 显示编辑弹窗
+      - action: 查看"属性名"和"属性类型"字段
+        expected: 属性名、属性类型为不可编辑（禁用）状态
+      - action: 修改其他可编辑字段（如属性描述），点击【保存】
+        expected: 弹窗关闭，提示编辑成功，列表数据更新正确
+    tags:
+      - 元数据
+      - 元模型管理
+      - 个性业务属性-编辑
+  - id: C019
+    title: 验证个性业务属性-删除
+    priority: P1
+    steps:
+      - action: 选择可删除的个性业务属性，点击【删除】
+        expected: 显示二次确认弹窗
+      - action: 点击【确定】
+        expected: 提示删除成功，列表刷新，不再显示该属性
+    tags:
+      - 元数据
+      - 元模型管理
+      - 个性业务属性-删除
+  - id: C020
+    title: 验证业务属性在数据表详情页生效
+    priority: P2
+    steps:
+      - action: 进入 Hive2.x 数据源类型的某数据表详情页
+        expected: 显示表详情页
+      - action: 查看右侧"业务属性"区域
+        expected: 显示已生效的通用业务属性和个性业务属性名称
+      - action: 编辑业务属性值（如填写枚举属性、文本框属性），点击【保存】
+        expected: 保存成功，业务属性值更新正确
+      - action: 刷新页面，查看业务属性
+        expected: 业务属性值保持为修改后的值
+    tags:
+      - 元数据
+      - 元模型管理
+      - 业务属性在详情页生效
+  - id: C021
+    title: 验证页面跳转和面包屑导航正确
+    priority: P1
+    steps:
+      - action: 进入元数据 → 元数据管理
+        expected: 显示数据源列表页
+      - action: 点击 Hive2.x 类型的数据源
+        expected: 进入该数据源的数据库列表页；面包屑显示：[数据源名称]（Hive2.x）> 数据库
+      - action: 点击某个数据库
+        expected: 进入该数据库的数据表列表页；面包屑显示：[数据源名称]（Hive2.x）> [数据库名称] > 数据表
+      - action: 点击面包屑中的数据源名称
+        expected: 返回该数据源的数据库列表页
+    tags:
+      - 元数据
+      - 元数据管理
+      - 页面跳转和面包屑
+  - id: C022
+    title: 验证数据源列表展示
+    priority: P1
+    steps:
+      - action: 进入元数据管理，查看数据源列表
+        expected: 列表展示：数据源名称、数据库数量、数据表数量、数据源类型、存储大小、更新时间
+      - action: 验证 Hive2.x 数据源的数据库数量
+        expected: 数量与该数据源已同步至资产的数据库总数一致
+      - action: 验证该数据源的数据表数量
+        expected: 数量与该数据源已同步至资产的数据表总数一致
+    tags:
+      - 元数据
+      - 元数据管理
+      - 数据源列表
+  - id: C023
+    title: 验证数据库列表展示
+    priority: P1
+    steps:
+      - action: 查看数据库列表
+        expected: 列表展示：数据库名称、数据表数量、存储大小、更新时间
+      - action: 验证某数据库的数据表数量
+        expected: 数量为该数据库已同步至资产的数据表+视图总数
+      - action: 验证更新时间
+        expected: 显示该数据库下最近更新的数据表/视图的更新时间
+    tags:
+      - 元数据
+      - 元数据管理
+      - 数据库列表
+  - id: C024
+    title: 验证数据表列表展示
+    priority: P2
+    steps:
+      - action: 查看数据表列表
+        expected: 列表展示当前数据库下数据表+视图信息：表名、表中文名、创建时间、存储大小、更新时间
+      - action: 验证列表数据与表详情页一致
+        expected: 列表中各字段值与进入详情页后的基本信息一致
+    tags:
+      - 元数据
+      - 元数据管理
+      - 数据表列表
+  - id: C025
+    title: 验证数据表详情页信息完整
+    priority: P1
+    steps:
+      - action: 在数据表列表中点击某个表名
+        expected: 进入数据表详情页
+      - action: 查看基本信息区域
+        expected: 显示表名、表中文名、数据源、数据库、存储格式、创建时间等基本信息
+      - action: 查看字段信息Tab
+        expected: 显示字段名、字段类型、字段描述、字段中文名等信息
+      - action: 查看数据预览Tab
+        expected: 显示表数据预览内容
+      - action: 查看操作记录Tab
+        expected: 显示该表的历史操作记录
+    tags:
+      - 元数据
+      - 元数据管理
+      - 数据表详情页
+  - id: C026
+    title: 验证完整度分析-触发定时任务并查看结果
+    priority: P2
+    steps:
+      - action: 进入元数据 → 元数据质量 → 完整度分析页面
+        expected: 页面显示质量统计和质量分析两个区域
+      - action: 触发完整度分析定时任务，等待执行完成
+        expected: 任务执行成功
+      - action: 查看"质量统计"，统计类型选择"表"
+        expected: 显示 Hive2.x 和 Doris3.x 数据源的表级统计信息
+      - action: 查看"质量分析"，"分析方式"选择"数据源"
+        expected: 列表显示按数据源维度的分析数据
+      - action: '"分析方式"切换为"业务属性"'
+        expected: 列表切换为按业务属性维度的分析数据
+    tags:
+      - 元数据
+      - 元数据质量
+      - 完整度分析
+  - id: C027
+    title: 验证完整度分析-元模型筛选
+    priority: P2
+    steps:
+      - action: 在完整度分析页面，查看"元模型"筛选下拉项
+        expected: 下拉项显示已同步的数据源类型对应的元模型
+      - action: 选择 Hive2.x 元模型
+        expected: 列表数据仅显示 Hive2.x 类型元模型属性的分析信息
+      - action: 切换选择 Doris3.x 元模型
+        expected: 列表数据切换为 Doris3.x 类型的分析信息
+    tags:
+      - 元数据
+      - 元数据质量
+      - 完整度分析
+  - id: C028
+    title: 验证血缘分析-创建
+    priority: P2
+    steps:
+      - action: 进入元数据质量 → 血缘分析页面，点击【添加数据库】
+        expected: 弹出添加血缘分析弹窗
+      - action: '"数据源类型"选择 Hive2.x'
+        expected: '"数据源"下拉项显示 Hive2.x 类型的数据源'
+      - action: '"数据源"选择某个 Hive2.x 数据源'
+        expected: '"数据库"下拉项显示所选数据源下所有已同步的数据库'
+      - action: 选择数据库，点击【保存】
+        expected: 提示创建成功，血缘分析列表中显示新增记录
+    tags:
+      - 元数据
+      - 元数据质量
+      - 血缘分析
+  - id: C029
+    title: 验证血缘分析-查询与筛选
+    priority: P2
+    steps:
+      - action: 查看血缘分析列表数据
+        expected: 列表数据正确，包含已添加的数据库信息
+      - action: '"数据源类型"下拉选择 Hive2.x'
+        expected: 列表仅返回 Hive2.x 类型数据库的分析数据
+      - action: 切换"数据源类型"为 Doris3.x
+        expected: 列表切换为 Doris3.x 类型的分析数据
+    tags:
+      - 元数据
+      - 元数据质量
+      - 血缘分析
+  - id: C030
+    title: 验证血缘分析-监控触发
+    priority: P2
+    steps:
+      - action: 触发血缘分析定时任务
+        expected: 任务开始执行
+      - action: 等待任务执行完成
+        expected: 任务执行成功未报错
+      - action: 查看血缘分析列表的统计数据
+        expected: 统计数据正确，显示血缘关系数量
+    tags:
+      - 元数据
+      - 元数据质量
+      - 血缘分析
+  - id: C031
+    title: 验证标准目录查询功能
+    priority: P2
+    steps:
+      - action: 进入数据标准 → 标准定义页面，查看左侧"标准目录"
+        expected: 以树形目录形式展示目录结构
+      - action: 逐层点击展开子目录
+        expected: 子目录展示正确，展开/收缩功能正常
+      - action: 在搜索框输入一级目录名称
+        expected: 列表展示匹配的一级目录
+      - action: 输入二级或以上目录名称搜索
+        expected: 展示匹配的目录名称，并展开显示该目录的层级结构
+    tags:
+      - 数据标准
+      - 标准定义
+      - 标准目录CRUD
+  - id: C032
+    title: 验证标准目录创建功能
+    priority: P2
+    steps:
+      - action: 点击目录区域右上角的"+"号
+        expected: 下方显示输入框
+      - action: 输入目录名称"测试目录A"，按回车
+        expected: 目录创建成功，目录树中显示一级目录"测试目录A"
+      - action: Hover"测试目录A"，点击"..."，选择"新建目录"，输入"子目录B"，按回车
+        expected: 创建成功，"测试目录A"下显示子目录"子目录B"
+      - action: 重复上步，输入同名目录"子目录B"
+        expected: 提示"同级节点不能重名"
+    tags:
+      - 数据标准
+      - 标准定义
+      - 标准目录CRUD
+  - id: C033
+    title: 验证标准目录编辑功能
+    priority: P2
+    steps:
+      - action: Hover已有目录，点击"..."，选择"编辑"
+        expected: 目录名称变为可编辑状态
+      - action: 输入新名称"更新后目录名"，按回车
+        expected: 目录名称更新成功
+      - action: 尝试编辑为同级已有目录名
+        expected: 提示"同级节点不能重名"
+    tags:
+      - 数据标准
+      - 标准定义
+      - 标准目录CRUD
+  - id: C034
+    title: 验证标准目录删除功能
+    priority: P1
+    steps:
+      - action: Hover无数据标准的目录，点击"..."，选择"删除"，二次确认
+        expected: 删除成功
+      - action: 删除包含数据标准和标准映射的一级目录，二次确认
+        expected: 删除成功，该目录下的数据标准和标准映射均被清除
+    tags:
+      - 数据标准
+      - 标准定义
+      - 标准目录CRUD
+  - id: C035
+    title: 验证数据标准新增功能
+    priority: P2
+    steps:
+      - action: 选择某标准目录，点击【新增数据标准】
+        expected: 进入数据标准新增页面，包含技术属性和业务属性表单
+      - action: 填写标准中文名"邮箱地址"、英文缩写"email"、数据类型等必填字段
+        expected: 表单校验通过
+      - action: 点击【保存】
+        expected: 提示保存成功，标准列表中显示新增的数据标准，状态为"待上线"
+    tags:
+      - 数据标准
+      - 标准定义
+      - 数据标准CRUD
+  - id: C036
+    title: 验证数据标准编辑发布功能
+    priority: P2
+    steps:
+      - action: 点击数据标准的【编辑】按钮
+        expected: 进入编辑页面，所有可编辑属性回显正确
+      - action: 修改标准描述等属性，点击【保存】
+        expected: 保存成功，属性修改正确
+      - action: 点击【发布】按钮
+        expected: 数据标准状态变为"已上线"
+    tags:
+      - 数据标准
+      - 标准定义
+      - 数据标准CRUD
+  - id: C037
+    title: 验证数据标准下线删除功能
+    priority: P1
+    steps:
+      - action: 对"已上线"的数据标准点击【下线】
+        expected: 状态变为"待上线"
+      - action: 对"待上线"的数据标准点击【删除】，二次确认
+        expected: 删除成功，列表不再显示该标准
+    tags:
+      - 数据标准
+      - 标准定义
+      - 数据标准CRUD
+  - id: C038
+    title: 验证数据标准导入导出功能
+    priority: P2
+    steps:
+      - action: 在数据标准列表页点击【导出】
+        expected: 下载数据标准导出文件
+      - action: 点击【导入】，选择导出的文件上传
+        expected: 导入成功，列表显示导入的数据标准
+    tags:
+      - 数据标准
+      - 标准定义
+      - 数据标准CRUD
+  - id: C039
+    title: 验证标准映射创建功能
+    priority: P2
+    steps:
+      - action: 进入数据标准 → 标准映射页面，点击【标准映射】
+        expected: 弹出创建标准映射弹窗
+      - action: '"数据源类型"选择 Doris3.x'
+        expected: '"数据源"下拉项显示 Doris3.x 类型的数据源'
+      - action: 选择数据源和数据库，点击【添加】，再点击【保存】
+        expected: 标准映射创建成功
+    tags:
+      - 数据标准
+      - 标准定义
+      - 标准映射
+  - id: C040
+    title: 验证标准映射-字段绑定与查看编辑
+    priority: P1
+    steps:
+      - action: 点击"邮箱地址"标准的【字段映射】
+        expected: 弹出字段绑定弹窗
+      - action: 选择数据源类型 → 数据源 → 数据库 → 数据表，点击【保存】
+        expected: 字段绑定成功
+      - action: 查看该数据标准的"映射记录"
+        expected: 映射记录中显示新绑定的字段信息
+    tags:
+      - 数据标准
+      - 标准定义
+      - 标准映射
+  - id: C041
+    title: 验证词根管理CRUD功能
+    priority: P2
+    steps:
+      - action: 进入数据标准 → 标准基础 → 词根管理，点击【新增】
+        expected: 弹出新增词根弹窗
+      - action: 输入词根中文名"支付"、词根简称"pay"，点击【保存】
+        expected: 提示新增成功，列表显示新词根
+      - action: 点击该词根的【编辑】，修改词根描述，点击【保存】
+        expected: 编辑成功，描述更新正确
+      - action: 点击该词根的【删除】，二次确认
+        expected: 删除成功，列表不再显示该词根
+    tags:
+      - 数据标准
+      - 词根管理
+      - 词根CRUD
+  - id: C042
+    title: 验证码表管理CRUD功能
+    priority: P2
+    steps:
+      - action: 进入数据标准 → 标准基础 → 码表管理，点击【新增】
+        expected: 弹出新增码表弹窗
+      - action: 输入码表名称"性别"，添加码值"0-女"和"1-男"，点击【保存】
+        expected: 提示新增成功，列表显示新码表
+      - action: 点击该码表的【编辑】，修改码表名称，点击【保存】
+        expected: 编辑成功，名称更新正确
+      - action: 点击该码表的【删除】，二次确认
+        expected: 删除成功，列表不再显示该码表
+    tags:
+      - 数据标准
+      - 码表管理
+      - 码表CRUD
+  - id: C043
+    title: 验证建表语句解析功能
+    priority: P2
+    steps:
+      - action: 进入数据模型 → 规范建表，选择 Hive2.x 数据源，点击【新建表】
+        expected: 进入建表流程
+      - action: 在"表结构"步骤选择"建表语句解析模式"
+        expected: 显示 SQL 输入框
+      - action: 输入 Hive 建表语句（包含字段、注释、分区），点击【解析】
+        expected: 字段名、字段中文名、字段类型、分区字段等全部解析正确
+      - action: 输入 Doris3.x 建表语句（包含主键、分区），点击【解析】
+        expected: 字段名、主键、分区类型等解析正确
+    tags:
+      - 数据模型
+      - 建表
+      - 建表语句解析
+  - id: C044
+    title: 验证CSV创建表功能
+    priority: P2
+    steps:
+      - action: 进入数据模型 → 规范建表，选择"导入CSV创建"模式
+        expected: 显示 CSV 上传区域
+      - action: 上传包含字段信息的 CSV 文件
+        expected: CSV 文件解析成功，字段列表正确展示
+      - action: 完善表基本信息，点击【保存】
+        expected: 表创建成功
+      - action: 进入该表详情页，查看基本信息、技术属性、字段信息、建表语句
+        expected: 所有信息与创建时填写的数据一致
+    tags:
+      - 数据模型
+      - 建表
+      - CSV创建表
+  - id: C045
+    title: 验证模型发布审批流程
+    priority: P2
+    steps:
+      - action: 在模型列表中选择已创建的表，点击【发布】
+        expected: 发布流程启动（若有审批则进入审批，否则直接发布）
+      - action: 审批通过/直接发布成功
+        expected: 模型状态变为"已发布"，底层数据源中表创建成功
+    tags:
+      - 数据模型
+      - 建表
+      - 模型发布审批
+  - id: C046
+    title: 验证查询与版本管理功能
+    priority: P1
+    steps:
+      - action: 在模型列表搜索框输入表名搜索
+        expected: 列表显示匹配的模型表
+      - action: 点击某模型表进入详情，查看版本记录
+        expected: 显示版本历史，包含版本号、修改内容、修改时间
+    tags:
+      - 数据模型
+      - 建表
+      - 查询与版本管理
+  - id: C047
+    title: 验证总览页面统计数据正确
+    priority: P2
+    steps:
+      - action: 进入数据质量 → 总览
+        expected: 显示总览仪表盘页面
+      - action: 查看"单表规则总数"和"多表规则总数"
+        expected: 数值与规则任务管理列表中的任务总数一致
+      - action: 查看运维指标 → 按任务数量统计
+        expected: 显示创建的任务总数、单表任务数、多表任务数
+    tags:
+      - 数据质量
+      - 总览
+      - 总览页面
+  - id: C048
+    title: 验证规则库配置-内置规则列表与启停
+    priority: P2
+    steps:
+      - action: 进入数据质量 → 规则库配置
+        expected: 显示三个Tab：内置规则、自定义规则、SQL模板
+      - action: 点击"内置规则"Tab，查看列表
+        expected: 列表显示：函数名称、函数说明、规则任务类型、关联范围、关联数量、启用状态（Switch）、描述
+      - action: 找到一个"启用"状态的内置规则，点击启用状态 Switch 切换为"停用"
+        expected: Switch 状态变更为"停用"，提示操作成功
+      - action: 再次点击该规则 Switch 切换为"启用"
+        expected: Switch 状态变更为"启用"，提示操作成功
+    tags:
+      - 数据质量
+      - 规则库配置
+      - 内置规则
+  - id: C049
+    title: 验证规则库配置-自定义规则CRUD
+    priority: P2
+    steps:
+      - action: 点击"自定义规则"Tab，点击【新增】
+        expected: 弹出新增自定义规则表单
+      - action: 填写规则名称、规则描述、SQL 语句等必填项，点击【保存】
+        expected: 提示新增成功，列表显示新规则
+      - action: 点击该规则的【编辑】，修改规则描述，点击【保存】
+        expected: 编辑成功，描述更新正确
+      - action: 点击该规则名称查看详情
+        expected: 显示规则详情，信息与创建时一致
+      - action: 点击该规则的【删除】，二次确认
+        expected: 删除成功，列表不再显示该规则
+    tags:
+      - 数据质量
+      - 规则库配置
+      - 自定义规则
+  - id: C050
+    title: 验证规则库配置-SQL模板CRUD
+    priority: P1
+    steps:
+      - action: 点击"SQL模板"Tab，点击【新增】
+        expected: 弹出新增 SQL 模板表单
+      - action: 填写模板名称、SQL 语句等必填项，点击【保存】
+        expected: 提示新增成功，列表显示新模板
+      - action: 点击该模板的【编辑】，修改 SQL 语句，点击【保存】
+        expected: 编辑成功
+      - action: 点击该模板的【删除】，二次确认
+        expected: 删除成功
+    tags:
+      - 数据质量
+      - 规则库配置
+      - SQL模板
+  - id: C051
+    title: 验证规则集管理-新建规则集
+    priority: P2
+    steps:
+      - action: 进入数据质量 → 规则集管理，点击【新建规则集】
+        expected: 进入两步表单，显示 Step1 基础信息页
+      - action: '"选择数据源"下拉选择 Hive2.x 数据源'
+        expected: '"选择数据库"下拉项显示该数据源下的数据库'
+      - action: 选择数据库后，选择数据表
+        expected: 数据表下拉项显示所选数据库下的表
+      - action: 输入规则集描述，在规则包名称 Table 中点击【新增】添加规则包名称"通用规则包"
+        expected: 规则包名称行添加成功（最多20个，最长50字符，不可重复）
+      - action: 点击【下一步】
+        expected: 进入 Step2 监控规则页面，按规则包分组展示
+      - action: 在"通用规则包"下配置监控规则
+        expected: 规则配置正常
+      - action: 点击【保存】
+        expected: 提示保存成功，规则集管理列表显示新建的规则集
+      - action: 查看列表信息
+        expected: 显示表名、所属数据库、所属数据源、规则包数量、规则数量等信息正确
+    tags:
+      - 数据质量
+      - 规则集管理
+      - 新建规则集
+  - id: C052
+    title: 验证规则集管理-编辑与删除
+    priority: P1
+    steps:
+      - action: 在规则集列表中点击某规则集的【编辑】
+        expected: 进入编辑页面，Step1 中数据源、数据库、数据表为不可修改（禁用）状态
+      - action: 修改规则集描述或监控规则配置，点击【保存】
+        expected: 提示保存成功，列表信息更新正确
+      - action: 点击另一个规则集的【删除】
+        expected: 弹出确认弹窗，提示"删除规则集不会影响已经建好的规则任务"
+      - action: 点击【确定】
+        expected: 删除成功，列表不再显示该规则集
+    tags:
+      - 数据质量
+      - 规则集管理
+      - 编辑与删除
+  - id: C053
+    title: 验证规则任务-新建单表监控规则
+    priority: P2
+    steps:
+      - action: 进入数据质量 → 规则任务管理，点击【新建监控规则】
+        expected: 进入三步表单，显示 Step1 监控对象页面
+      - action: 输入规则名称"Hive单表监控_自动化"
+        expected: 规则名称输入成功
+      - action: '"选择数据源"下拉选择 Hive2.x 数据源，依次选择数据库和数据表'
+        expected: 三级联动正常
+      - action: 配置分区信息和全局参数（如有）
+        expected: 配置正常
+      - action: 点击【下一步】
+        expected: 进入 Step2 监控规则页面
+      - action: 点击【导入规则包】，在弹窗中选择已创建的规则集中的规则包
+        expected: 规则包导入成功，显示规则包中的监控规则列表
+      - action: 点击【下一步】
+        expected: 进入 Step3 调度属性页面
+      - action: 配置执行周期为"每天"、告警配置、实例生成方式选"T+1 生成"
+        expected: 配置正常
+      - action: 点击【保存】
+        expected: 提示保存成功，规则任务管理列表显示新建的任务
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 新建单表监控规则
+  - id: C054
+    title: 验证规则任务-开启/关闭检测与立即执行
+    priority: P2
+    steps:
+      - action: 在规则任务列表中勾选已创建的任务，点击批量操作【开启检测】
+        expected: 任务规则状态变为"已开启"
+      - action: 点击该任务行的【立即执行】
+        expected: 生成执行实例，可在校验结果查询页面查看
+      - action: 勾选该任务，点击批量操作【关闭检测】
+        expected: 任务规则状态变为"已关闭"
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 开启/关闭检测与立即执行
+  - id: C055
+    title: 验证校验结果查询-查看执行结果与报告
+    priority: P2
+    steps:
+      - action: 进入数据质量 → 校验结果查询
+        expected: 显示执行记录列表
+      - action: 搜索已执行的任务名称，查看执行记录
+        expected: 列表显示该任务的执行记录，包含执行时间、状态等
+      - action: 点击某条执行记录的表名，查看表级报告
+        expected: 显示表级报告，包含质量评分、规则执行结果统计
+      - action: 查看规则级详情
+        expected: 显示各条规则的校验结果（通过/不通过）、阈值、实际值
+      - action: 若有校验不通过的规则，点击查看脏数据
+        expected: 显示异常数据明细
+      - action: 点击查看日志
+        expected: 显示任务执行日志信息
+    tags:
+      - 数据质量
+      - 校验结果查询
+      - 查看执行结果
+  - id: C056
+    title: 验证质量报告配置与查看
+    priority: P2
+    steps:
+      - action: 进入数据质量 → 数据质量报告
+        expected: 显示质量报告列表
+      - action: 点击某个报告查看详情
+        expected: 显示报告详情，包含综合评分、规则校验统计、评分变化趋势图
+      - action: 查看表级校验详情
+        expected: 显示各表的校验通过率、异常规则数
+    tags:
+      - 数据质量
+      - 数据质量报告
+      - 质量报告配置与查看
+  - id: C057
+    title: 验证项目管理-脏数据管理
+    priority: P1
+    steps:
+      - action: 进入数据质量 → 项目管理，选择某项目进入
+        expected: 显示项目详情，包含脏数据管理Tab
+      - action: 点击"脏数据管理"Tab
+        expected: 显示脏数据存储设置
+      - action: 开启"脏数据存储"
+        expected: 设置成功
+      - action: 执行校验任务产生异常数据后，查看脏数据明细
+        expected: 异常任务可查看明细并支持下载
+    tags:
+      - 数据质量
+      - 项目管理
+      - 脏数据管理
+  - id: C058
+    title: 验证小文件治理-规则配置
+    priority: P2
+    steps:
+      - action: 进入数据治理 → 小文件治理，选择"周期治理"Tab
+        expected: 显示周期治理规则列表
+      - action: 点击【新建治理规则】
+        expected: 进入新增治理规则页面
+      - action: 查看"治理模式"选项
+        expected: 下拉项包含"local"和"remote"两种模式
+      - action: 选择 Hive2.x 数据源，设置文件数量阈值、存储大小阈值，选择"local"模式
+        expected: 表单填写正常
+      - action: 点击【保存】
+        expected: 治理规则保存成功，规则列表显示新建规则
+    tags:
+      - 数据治理
+      - 小文件治理
+      - 规则配置
+  - id: C059
+    title: 验证小文件治理-执行与记录
+    priority: P2
+    steps:
+      - action: 等待下一个周期任务运行或手动触发治理
+        expected: 治理任务开始执行
+      - action: 查看【文件治理记录】
+        expected: 显示当前任务运行情况，状态流转正确（待运行→运行中→运行成功）
+      - action: 查看治理结果详情
+        expected: 显示治理前后的文件数量变化、合并情况
+    tags:
+      - 数据治理
+      - 小文件治理
+      - 执行与记录
+  - id: C060
+    title: 验证级别管理-新增级别
+    priority: P2
+    steps:
+      - action: 进入平台管理 → 数据分级分类 → 级别管理，点击【新增】
+        expected: 弹出新增级别弹窗
+      - action: 输入级别名称"L4-极高敏感"、级别描述，点击【保存】
+        expected: 提示新增成功，级别列表显示新级别
+    tags:
+      - 数据安全
+      - 分级分类
+      - 级别管理
+  - id: C061
+    title: 验证级别管理-编辑级别
+    priority: P1
+    steps:
+      - action: 点击已有级别的【编辑】按钮
+        expected: 弹出编辑弹窗，回显级别信息
+      - action: 修改级别描述，点击【保存】
+        expected: 编辑成功，描述更新正确
+    tags:
+      - 数据安全
+      - 分级分类
+      - 级别管理
+  - id: C062
+    title: 验证级别管理-删除级别
+    priority: P1
+    steps:
+      - action: 点击无关联数据的级别的【删除】按钮，二次确认
+        expected: 删除成功，列表不再显示该级别
+    tags:
+      - 数据安全
+      - 分级分类
+      - 级别管理
+  - id: C063
+    title: 验证自动分级规则-添加与生效
+    priority: P2
+    steps:
+      - action: 进入分级设置页面，点击【添加】
+        expected: 跳转至添加规则的基础信息页面
+      - action: 填写规则名称、选择分类，点击【下一步】
+        expected: 进入配置规则页面
+      - action: 配置"数据识别"为"元数据字段识别"→"字段名识别"，输入匹配规则（如 order*price）
+        expected: 识别规则配置成功
+      - action: 选择 Hive2.x 数据源类型，点击【立即生效】
+        expected: 规则状态变为"分级中"，分级完成后变为"已生效"
+      - action: 查看分级数据
+        expected: 符合识别规则的字段被正确分级打标
+    tags:
+      - 数据安全
+      - 分级分类
+      - 自动分级规则
+  - id: C064
+    title: 验证自动分级规则-编辑与删除
+    priority: P2
+    steps:
+      - action: 点击已生效规则名称查看详情
+        expected: 右侧抽屉显示规则详情，包含规则信息和分级数据列表
+      - action: 点击【编辑规则】
+        expected: 进入编辑页面，规则名称不可编辑，其他字段可编辑
+      - action: 修改识别规则内容，点击【立即生效】
+        expected: 规则重新生效，生效时间更新
+      - action: 勾选规则，点击【删除】，确认
+        expected: 提示删除成功，规则列表不再显示该规则
+    tags:
+      - 数据安全
+      - 分级分类
+      - 自动分级规则
+  - id: C065
+    title: 验证分级数据查询功能
+    priority: P2
+    steps:
+      - action: 进入分级数据页面，查看列表
+        expected: 列表显示：字段名、级别、字段中文名、分类、分级方式、表名、数据库、数据源、数据源类型、分级时间、操作
+      - action: 选择左侧级别筛选
+        expected: 列表仅显示所选级别的分级数据
+      - action: 在搜索框输入关键字搜索
+        expected: 列表显示匹配的分级数据
+    tags:
+      - 数据安全
+      - 分级分类
+      - 分级数据查询
+  - id: C066
+    title: 验证分级数据发布功能
+    priority: P2
+    steps:
+      - action: 同一字段存在不同分级时，点击【发布】
+        expected: 发布成功，该字段显示级别更高的分级
+      - action: 同一分级对应多个字段时，点击【发布】
+        expected: 发布成功，所有字段对应的分级正确显示
+    tags:
+      - 数据安全
+      - 分级分类
+      - 分级数据查询
+  - id: C067
+    title: 验证分级数据下架功能
+    priority: P1
+    steps:
+      - action: 选择分级数据后，点击【下架】
+        expected: 弹出二次确认弹窗："您确认下架该字段分级，恢复至未分级状态吗？"
+      - action: 点击【确认】
+        expected: 提示下架成功，列表不再显示该分级数据
+    tags:
+      - 数据安全
+      - 分级分类
+      - 分级数据查询
+  - id: C068
+    title: 验证字段删除后分级数据显示
+    priority: P1
+    steps:
+      - action: 同步表数据后查看分级数据
+        expected: 该字段对应的分级数据标记为"不存在"
+    tags:
+      - 数据安全
+      - 分级分类
+      - 分级数据查询
+  - id: C069
+    title: 验证字段修改后分级数据显示
+    priority: P1
+    steps:
+      - action: 同步表数据后查看分级数据
+        expected: 该字段对应的数据分级标记为"该字段已不存在"
+    tags:
+      - 数据安全
+      - 分级分类
+      - 分级数据查询
+  - id: C070
+    title: 验证脱敏规则管理-新增规则
+    priority: P2
+    steps:
+      - action: 进入平台管理 → 数据脱敏 → 规则管理，点击【新增】
+        expected: 弹出新增脱敏规则弹窗
+      - action: 输入规则名称"全部脱敏规则"，脱敏类型选择"全部脱敏"，点击【保存】
+        expected: 提示新增成功，列表显示新规则
+    tags:
+      - 数据安全
+      - 数据脱敏
+      - 脱敏规则管理
+  - id: C071
+    title: 验证脱敏规则管理-编辑规则
+    priority: P1
+    steps:
+      - action: 点击脱敏规则的【编辑】，修改规则描述，点击【保存】
+        expected: 编辑成功
+    tags:
+      - 数据安全
+      - 数据脱敏
+      - 脱敏规则管理
+  - id: C072
+    title: 验证脱敏规则管理-删除规则
+    priority: P1
+    steps:
+      - action: 点击无应用记录的脱敏规则的【删除】，二次确认
+        expected: 删除成功
+    tags:
+      - 数据安全
+      - 数据脱敏
+      - 脱敏规则管理
+  - id: C073
+    title: 验证脱敏表-全部脱敏配置与生效
+    priority: P2
+    steps:
+      - action: 进入脱敏应用配置，选择测试表
+        expected: 显示表字段列表
+      - action: 为 username 字段应用"全部脱敏"规则，点击【保存】
+        expected: 脱敏配置保存成功
+      - action: 进入数据地图查看该表的数据预览
+        expected: username 字段数据全部显示为脱敏后的值（如 ****）
+    tags:
+      - 数据安全
+      - 数据脱敏
+      - 脱敏表配置
+  - id: C074
+    title: 验证脱敏表-部分脱敏配置与生效
+    priority: P2
+    steps:
+      - action: 为测试表 username 字段应用"部分脱敏"规则，配置脱敏范围（如前2后2），点击【保存】
+        expected: 脱敏配置保存成功
+      - action: 查看该表数据预览
+        expected: username 字段数据按配置范围部分脱敏（如 te**st）
+    tags:
+      - 数据安全
+      - 数据脱敏
+      - 脱敏表配置
+  - id: C075
+    title: 验证脱敏配置取消
+    priority: P1
+    steps:
+      - action: 取消某字段的脱敏规则应用，点击【保存】
+        expected: 配置取消成功
+      - action: 查看数据预览
+        expected: 该字段数据恢复为原始值，不再脱敏
+    tags:
+      - 数据安全
+      - 数据脱敏
+      - 脱敏表配置
+  - id: C076
+    title: 验证权限分配功能
+    priority: P2
+    steps:
+      - action: 进入数据安全 → 权限分配页面，点击【分配】
+        expected: 进入权限分配表单
+      - action: 选择用户、选择数据源 → 数据库 → 数据表，设置权限类型，点击【保存】
+        expected: 权限分配成功
+    tags:
+      - 数据安全
+      - 数据权限
+      - 权限分配
+  - id: C077
+    title: 验证权限查看功能
+    priority: P2
+    steps:
+      - action: 在权限分配列表中点击某条记录的【查看】
+        expected: 显示权限详情抽屉，权限信息正确
+    tags:
+      - 数据安全
+      - 数据权限
+      - 权限分配
+  - id: C078
+    title: 验证权限转让功能
+    priority: P2
+    steps:
+      - action: 选择某条权限记录，点击【转让】
+        expected: 弹出转让弹窗
+      - action: 选择被转让人，点击【保存】
+        expected: 权限转让成功，权限持有人变更
+    tags:
+      - 数据安全
+      - 数据权限
+      - 权限分配
+  - id: C079
+    title: 验证权限收回功能
+    priority: P2
+    steps:
+      - action: 选择某条权限记录，点击【收回】，二次确认
+        expected: 权限收回成功，列表中该用户的权限记录被移除
+    tags:
+      - 数据安全
+      - 数据权限
+      - 权限分配
+  - id: C080
+    title: 验证引入数据源功能
+    priority: P2
+    steps:
+      - action: 进入平台管理 → 数据源管理，点击【引入数据源】
+        expected: 弹出引入数据源弹窗，显示待引入的数据源列表
+      - action: 查看待引入数据源列表内容
+        expected: 展示数据源中心授权给资产的所有未引入的数据源
+      - action: 勾选某个 Hive2.x 数据源，点击【引入】
+        expected: 引入成功，数据源管理列表中显示该数据源
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 引入数据源
+  - id: C081
+    title: 验证引入 Doris3.x 数据源
+    priority: P2
+    steps:
+      - action: 点击【引入数据源】，勾选 Doris3.x 类型数据源，点击【引入】
+        expected: 引入成功，列表显示 Doris3.x 数据源
+      - action: 查看数据源详情
+        expected: 数据源类型、连接状态、数据库数量等信息正确
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 引入数据源
+  - id: C082
+    title: 验证数据源列表筛选搜索功能
+    priority: P1
+    steps:
+      - action: 在搜索框输入数据源名称关键字，点击搜索
+        expected: 列表模糊匹配返回数据源名称或描述相符的数据源
+      - action: 在"数据源类型"下拉中选择 Hive2.x
+        expected: 列表仅显示 Hive2.x 类型的数据源
+      - action: 在"状态"筛选中选择"正常"
+        expected: 列表仅显示连接正常的数据源
+      - action: 点击【重置】
+        expected: 筛选条件清空，列表显示所有数据源
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 筛选搜索
+  - id: C083
+    title: 验证数据源详情页
+    priority: P1
+    steps:
+      - action: 在数据源列表中点击某个数据源名称
+        expected: 进入数据源详情页
+      - action: 查看详情信息
+        expected: 显示数据源名称、类型、连接状态、数据库数量等信息
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 数据源详情
+  - id: C084
+    title: 验证取消引入数据源功能
+    priority: P2
+    steps:
+      - action: 在数据源列表中找到可删除的数据源，点击【取消引入】
+        expected: 弹出确认弹窗
+      - action: 确认取消引入
+        expected: 取消成功，列表不再显示该数据源
+      - action: 打开引入数据源弹窗
+        expected: 该数据源重新出现在待引入列表中
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 取消引入
+  - id: C085
+    title: 验证数据源质量授权功能
+    priority: P2
+    steps:
+      - action: 在数据源列表中点击某数据源的【质量项目授权】
+        expected: 弹出质量项目授权弹窗
+      - action: 选择项目，点击【保存】
+        expected: 质量授权成功
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 质量授权
+  - id: C086
+    title: 验证离线项目自动引入meta数据源
+    priority: P2
+    steps:
+      - action: 在离线开发中创建新项目并对接数据源计算引擎
+        expected: 项目创建成功
+      - action: 进入数据资产 → 数据源管理
+        expected: 列表自动显示该项目的 meta 数据源
+      - action: 进入元数据同步页面
+        expected: 自动新增对应 meta 数据源的周期同步任务
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 离线项目自动引入
+  - id: C087
+    title: 验证取消引入后关联数据清理
+    priority: P2
+    steps:
+      - action: 删除该数据源下所有同步任务和质量规则后，取消引入该数据源
+        expected: 取消引入成功
+      - action: 查看数据地图
+        expected: 该数据源下已同步的表均被删除
+      - action: 查看元数据管理 → 数据源列表
+        expected: 不再显示该数据源
+      - action: 查看数据标准 → 标准映射
+        expected: 对应已删除表的标准映射数据不再显示
+    tags:
+      - 数据源管理
+      - 数据源引入
+      - 取消引入-逻辑验证
+  - id: C088
+    title: 验证添加用户功能
+    priority: P2
+    steps:
+      - action: 进入平台管理 → 用户管理，点击【添加用户】
+        expected: 弹出添加成员弹窗，包含用户下拉框、角色选择、质量模块所属项目选择
+      - action: 查看用户下拉框
+        expected: 显示未添加进资产且有资产权限的用户
+      - action: 选择用户A，分配"管理员"角色，配置质量项目，点击【保存】
+        expected: 用户A添加成功，用户列表中显示且信息正确
+      - action: 选择用户B，分配"数据开发"角色，配置质量项目为"全部"，点击【保存】
+        expected: 用户B添加成功
+      - action: 选择用户C，分配"访客"角色，点击【保存】
+        expected: 用户C添加成功
+    tags:
+      - 用户角色管理
+      - 用户管理
+      - 添加用户
+  - id: C089
+    title: 验证移出用户功能
+    priority: P1
+    steps:
+      - action: 在用户列表中找到用户A，点击【移出产品】，二次确认
+        expected: 提示移出成员成功，用户列表不再显示该用户
+      - action: 登录用户A账号，尝试进入资产平台
+        expected: 提示该用户无权限进入
+    tags:
+      - 用户角色管理
+      - 用户管理
+      - 移出用户
+  - id: C090
+    title: 验证角色管理-查看与编辑
+    priority: P2
+    steps:
+      - action: 进入平台管理 → 角色管理，查看角色列表
+        expected: 显示管理员、数据开发、访客等角色
+      - action: 点击某角色的【查看】按钮
+        expected: 显示该角色的权限点配置详情
+      - action: 点击某角色的【编辑】按钮
+        expected: 进入编辑页面，可修改权限点配置
+      - action: 修改部分权限点，点击【保存】
+        expected: 编辑成功，权限配置更新正确
+    tags:
+      - 用户角色管理
+      - 角色管理
+      - 角色CRUD
+  - id: C091
+    title: 验证自定义角色新增与删除
+    priority: P1
+    steps:
+      - action: 点击【新增角色】，输入角色名称，配置权限点，点击【保存】
+        expected: 自定义角色创建成功
+      - action: 点击该自定义角色的【删除】按钮，二次确认
+        expected: 删除成功（非自定义角色不显示删除按钮）
+    tags:
+      - 用户角色管理
+      - 角色管理
+      - 角色CRUD
+  - id: C092
+    title: 验证角色权限生效
+    priority: P2
+    steps:
+      - action: 登录访客用户账号，查看可访问的模块
+        expected: 用户可访问模块与访客角色配置的权限点一致
+      - action: 登录数据开发用户账号，查看可访问的模块
+        expected: 用户可访问模块与数据开发角色配置的权限点一致
+      - action: 登录管理员用户账号，查看可访问的模块
+        expected: 用户可访问模块与管理员角色配置的权限点一致
+    tags:
+      - 用户角色管理
+      - 角色管理
+      - 权限生效
+  - id: C093
+    title: 验证用户权限转让
+    priority: P2
+    steps:
+      - action: 选择要移出的用户A（角色为管理员），点击【移出产品】
+        expected: 弹出"用户权限"转让弹窗
+      - action: 查看"选择转让人"下拉列表
+        expected: 下拉列表显示管理员角色下的所有其他用户
+      - action: 选择转让人，点击【保存】
+        expected: 权限转让成功，用户A被移出，转让人获得用户A的所有权限
+    tags:
+      - 用户角色管理
+      - 角色管理
+      - 权限转让
+  - id: C094
+    title: 验证用户组移出产品
+    priority: P1
+    steps:
+      - action: 选择包含资产用户的用户组，点击【移出产品】
+        expected: 弹窗提示"该用户组内存在用户还未移除产品"
+      - action: 确认移出
+        expected: 用户组移出成功，组内用户所属用户组变为空
+    tags:
+      - 用户角色管理
+      - 角色管理
+      - 权限转让
+  - id: C095
+    title: 验证通知配置列表展示
+    priority: P2
+    steps:
+      - action: 进入平台管理 → 通知中心
+        expected: 显示通知配置和通知记录两个Tab
+      - action: 点击"通知配置"Tab
+        expected: 显示配置列表，包含接收人、通知模块、操作列
+      - action: 查看筛选区域
+        expected: 显示接收人、通知内容筛选框以及查询、重置、新增按钮
+    tags:
+      - 通知中心
+      - 通知配置
+      - 通知配置列表
+  - id: C096
+    title: 验证通知配置-筛选与重置
+    priority: P2
+    steps:
+      - action: 根据接收人筛选
+        expected: 列表返回接收人匹配的通知配置
+      - action: 根据通知模块筛选
+        expected: 列表返回模块匹配的通知配置
+      - action: 点击【重置】
+        expected: 筛选条件清空，列表显示所有通知配置
+    tags:
+      - 通知中心
+      - 通知配置
+      - 通知配置列表
+  - id: C097
+    title: 验证通知配置-查看详情
+    priority: P2
+    steps:
+      - action: 在通知配置列表中点击某条记录的【查看详情】
+        expected: 显示通知配置详情信息
+      - action: 编辑该配置后再次查看详情
+        expected: 详情信息更新正确
+    tags:
+      - 通知中心
+      - 通知配置
+      - 通知配置列表
+  - id: C098
+    title: 验证通知配置-删除
+    priority: P2
+    steps:
+      - action: 点击某通知配置的【删除】按钮
+        expected: 弹出二次确认弹窗
+      - action: 点击【取消】
+        expected: 删除取消，配置保留
+      - action: 再次点击【删除】，点击【确定】
+        expected: 删除成功，列表不再显示该配置
+    tags:
+      - 通知中心
+      - 通知配置
+      - 通知配置列表
+  - id: C099
+    title: 验证元数据实时同步告警配置通知功能
+    priority: P2
+    steps:
+      - action: 在通知配置中新增配置，模块选择"元数据实时同步"，选择接收人，填写必填信息，点击【保存】
+        expected: 通知配置新增成功
+      - action: 触发元数据实时同步告警
+        expected: 接收人正常接收到告警通知
+    tags:
+      - 通知中心
+      - 规则绑定与触发
+      - 元数据同步告警
+  - id: C100
+    title: 验证数据质量规则告警配置通知功能
+    priority: P2
+    steps:
+      - action: 新增通知配置，模块选择"数据质量规则"，选择接收人，填写必填信息，点击【保存】
+        expected: 通知配置新增成功
+      - action: 数据质量规则任务触发告警
+        expected: 接收人正常接收到告警通知
+    tags:
+      - 通知中心
+      - 规则绑定与触发
+      - 元数据同步告警
+  - id: C101
+    title: 验证不同告警渠道通知正常
+    priority: P2
+    steps:
+      - action: 新增通知配置，告警渠道选择"钉钉"，配置 Webhook，触发告警
+        expected: 钉钉群组收到告警消息
+      - action: 新增通知配置，告警渠道选择"短信"，触发告警
+        expected: 接收人手机收到告警短信
+      - action: 新增通知配置，告警渠道选择"自定义jar"，触发告警
+        expected: 自定义 jar 方式成功发送告警
+    tags:
+      - 通知中心
+      - 规则绑定与触发
+      - 元数据同步告警
+  - id: C102
+    title: 验证通知记录列表展示
+    priority: P2
+    steps:
+      - action: 点击"通知记录"Tab
+        expected: 显示通知记录列表，包含通知模块、接收人、通知方式、Webhook、通知内容、通知时间列
+      - action: 显示筛选项
+        expected: 包含通知模块、接收人、通知方式、通知时间筛选条件
+    tags:
+      - 通知中心
+      - 通知记录
+      - 通知记录查询
+  - id: C103
+    title: 验证通知记录-查询功能
+    priority: P2
+    steps:
+      - action: 输入通知模块/接收人/通知方式/通知时间进行模糊查询
+        expected: 成功匹配出符合条件的通知记录
+    tags:
+      - 通知中心
+      - 通知记录
+      - 通知记录查询
+  - id: C104
+    title: 验证通知模板查看功能
+    priority: P1
+    steps:
+      - action: 查看通知模板列表
+        expected: 显示各模块的通知模板
+      - action: 点击某模板查看详情
+        expected: 显示模板内容，包含变量占位符说明
+    tags:
+      - 通知中心
+      - 通知模板
+      - 通知模板管理
+  - id: C105
+    title: 验证通知模板编辑功能
+    priority: P1
+    steps:
+      - action: 点击某模板的【编辑】按钮
+        expected: 进入编辑状态
+      - action: 修改模板内容，点击【保存】
+        expected: 保存成功，模板内容更新正确
+    tags:
+      - 通知中心
+      - 通知模板
+      - 通知模板管理
+  - id: C106
+    title: 验证已接入数据源统计数据正确
+    priority: P2
+    steps:
+      - action: 进入资产盘点页面，查看"已接入数据源"区域
+        expected: 显示截止前一天为止接入的数据源类型的统计卡片
+      - action: 查看卡片中的统计数据：昨日新增表数、源数、库数、表数、存储量
+        expected: 统计数据与对应数据源类型下前一天的实际数据一致
+      - action: 查看 Hive2.x 和 Doris3.x 数据源的统计卡片
+        expected: 两种数据源类型的统计信息分别显示且数据正确
+    tags:
+      - 资产盘点
+      - 统计数据
+      - 已接入数据源统计
+  - id: C107
+    title: 验证数据地图分布图数据正确
+    priority: P2
+    steps:
+      - action: 触发数据分布统计定时任务
+        expected: 任务执行成功
+      - action: 查看"数据源类型"下拉列表
+        expected: 显示所有已接入的数据源类型
+      - action: 筛选 Hive2.x，"分布属性"选择"负责人"
+        expected: 显示 Hive2.x 下按负责人维度的数据分布统计
+      - action: 切换到 Doris3.x
+        expected: 切换为 Doris3.x 的分布统计数据
+    tags:
+      - 资产盘点
+      - 统计数据
+      - 数据地图分布
+  - id: C108
+    title: 验证数据目录分布图数据正确
+    priority: P2
+    steps:
+      - action: 触发数据目录分布统计定时任务
+        expected: 任务执行成功
+      - action: 查看各资产类型统计数量
+        expected: 各资产类型的数量统计正确
+      - action: 查看数据目录分布饼图
+        expected: 饼图数据与实际目录分配比例一致
+    tags:
+      - 资产盘点
+      - 统计数据
+      - 数据目录分布
+  - id: C109
+    title: 验证元数据变化趋势图数据正确
+    priority: P1
+    steps:
+      - action: 触发元数据变化趋势统计定时任务
+        expected: 任务执行成功
+      - action: 查看数据源类型下拉列表
+        expected: 显示所有已接入的数据源类型
+      - action: 筛选不同数据源类型，分别查看"近7天"/"近一个月"/"近一年"的"新增数"和"变化数"趋势
+        expected: 各时间段数据正确
+      - action: Hover 趋势曲线上的某个时间点
+        expected: 显示该时间点的"新增数"和"变化数"具体数值
+    tags:
+      - 资产盘点
+      - 趋势图表
+      - 元数据变化趋势
+  - id: C110
+    title: 验证资产查询趋势图数据正确
+    priority: P1
+    steps:
+      - action: 触发查询趋势统计定时任务
+        expected: 任务执行成功
+      - action: 按"查询次数"维度，查看"近7天"/"近一个月"/"近一年"数据
+        expected: 各时间段查询次数数据正确
+      - action: 切换为"登录次数"维度
+        expected: 登录次数趋势数据正确
+      - action: 切换为"登录人数"维度
+        expected: 登录人数趋势数据正确
+      - action: Hover 曲线上的某个时间点
+        expected: 显示该时间点的具体数值
+    tags:
+      - 资产盘点
+      - 趋势图表
+      - 资产查询趋势
+  - id: C111
+    title: 验证数据价值排行图数据正确
+    priority: P1
+    steps:
+      - action: 查看数据价值排行区域
+        expected: 显示数据源类型下拉和时间范围切换
+      - action: 筛选不同数据源类型，查看"近7天"/"近一个月"/"近一年"数据
+        expected: 各时间段数据正确
+      - action: 按"查询次数"排序
+        expected: 排序功能正常，按查询次数降序显示
+    tags:
+      - 资产盘点
+      - 数据分布
+      - 数据价值排行
+  - id: C112
+    title: 验证存储资源排行图数据正确
+    priority: P1
+    steps:
+      - action: 查看各资产类型存储情况排行
+        expected: 各资产类型的存储数据统计正确
+      - action: 查看各资产类型表行数情况排行
+        expected: 各资产类型的表行数数据统计正确
+    tags:
+      - 资产盘点
+      - 数据分布
+      - 存储资源排行
