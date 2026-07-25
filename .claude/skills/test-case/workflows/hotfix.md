@@ -7,13 +7,21 @@
 1. **取证**：
 
    ```bash
-   kata zentao fetch --bug-id <id> --output <hotfixDir>/.temp
+   kata zentao fetch --bug-id <id> --output .temp-hotfix-<id>
    # 或 --url <bug-view URL>
    ```
 
    从返回 JSON 的 fields / sections / history 定位：修复路径、受影响页面与字段、修复分支、最低修复版本。记录未修复或缺修复范围时，在写用例前逐个向用户确认（一次一个、带推荐答案），不代用户假设。
 
-2. **建目录**：`workspace/<project>/features/_hotfix/<yyyymm>-<bug_id>-<中文短标题>/`。`yyyymm` 取 bug 解决或打开月份；目录内结构与正式 feature 相同（`cases/` 放用例）。
+2. **建目录**：
+
+   ```bash
+   kata features resolve-hotfix --project <项目> --bug-id <id> \
+     --yyyymm <bug 解决或打开月份,6 位> --title <中文短标题>
+   mv .temp-hotfix-<id> <hotfixDir>/.temp
+   ```
+
+   月份与短标题从 fetch JSON 取。取返回的 hotfixDir，后续产物都写这里。
 
 3. **写 `cases/<目录名>.yaml`**，只含 1 条用例：
    - 标题以 `【<bug_id>】验证…` 开头；priority 按影响面给（一般 P1，阻塞性 P0）。

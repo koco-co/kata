@@ -4,7 +4,7 @@
  * 读取扫描全部子目录,frontmatter 解析后把旧 confidence 字段映射为四态 status。
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseFrontmatter } from "../knowledge.ts";
 import type { ProjectPaths } from "../types.ts";
@@ -104,11 +104,19 @@ function parseEntryFile(type: KnowledgeType, file: string): RawHit | null {
   };
 }
 
+/** 递归收集 dir 下全部 .md;站点条目带一层 host 子目录(sites/<host>/dom-*.md),不递归会漏。 */
 function listMarkdown(dir: string): string[] {
   if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((f) => f.endsWith(".md"))
-    .map((f) => join(dir, f));
+  const out: string[] = [];
+  const walk = (d: string): void => {
+    for (const name of readdirSync(d)) {
+      const p = join(d, name);
+      if (statSync(p).isDirectory()) walk(p);
+      else if (name.endsWith(".md")) out.push(p);
+    }
+  };
+  walk(dir);
+  return out;
 }
 
 /** 检索条目:types 限定类型;module 匹配标题或 tags;keyword 匹配标题/正文/tags。 */

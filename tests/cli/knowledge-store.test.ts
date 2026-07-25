@@ -85,4 +85,28 @@ describe("knowledge store", () => {
     expect(hits).toHaveLength(1);
     expect(hits[0]?.status).toBe("verified");
   });
+
+  it("reads site entries nested one level down (sites/<host>/dom-*.md)", () => {
+    const p = proj();
+    const dir = join(p.knowledgeDir, "sites", "172.16.122.52");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "dom-dataAssets.md"),
+      [
+        "---",
+        "title: 172.16.122.52 DataAssets DOM",
+        "type: site",
+        "tags: [数据质量]",
+        "status: verified",
+        'source: ""',
+        "updated: 2026-07-25",
+        "---",
+        "",
+        "菜单【数据质量】-【规则配置】",
+      ].join("\n"),
+    );
+    expect(readEntries(p, { types: ["site"] })).toHaveLength(1);
+    expect(readEntries(p, { module: "数据质量" })).toHaveLength(1);
+    expect(readEntries(p, { keyword: "规则配置" })).toHaveLength(1);
+  });
 });

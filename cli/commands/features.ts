@@ -5,6 +5,7 @@ import { stringify } from "yaml";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { readFeatureMeta } from "../lib/feature-meta.ts";
 import {
+  HOTFIX_DIR,
   LABEL_DIR_RE,
   listFeatureDirs,
   runsDir,
@@ -34,7 +35,7 @@ function normalizeVersionDir(version: string): string {
   return v;
 }
 
-/** Build the CJK human label dir name: 【v{compact}】[【lanhu】][【客户】]【模块】{描述}. */
+/** Build the CJK human label dir name: 【v{compact}】[【lanhu】][【客户】]【模块】{描述}; standing uses 【standing】. */
 export function buildLabelDirName(opts: {
   featureVersion: string;
   module: string;
@@ -42,8 +43,11 @@ export function buildLabelDirName(opts: {
   customer?: string;
   lanhuPage?: string;
 }): string {
-  const compact = opts.featureVersion.replace(/^v/, "").replace(/\./g, "");
-  const parts = [`【v${compact}】`];
+  const first =
+    opts.featureVersion === STANDING_DIR
+      ? "【standing】"
+      : `【v${opts.featureVersion.replace(/^v/, "").replace(/\./g, "")}】`;
+  const parts = [first];
   if (opts.lanhuPage) parts.push(`【${opts.lanhuPage}】`);
   if (opts.customer) parts.push(`【${opts.customer}】`);
   parts.push(`【${opts.module}】`);
@@ -61,7 +65,9 @@ function currentYyyyMm(): string {
 
 /**
  * Resolve (and create when absent) the feature dir for a CJK-labeled requirement.
- * Dir layer comes from --feature-version (vX.Y.Z) or _standing when omitted.
+ * Dir layer comes from --feature-version (vX.Y.Z); standing requirements must opt in
+ * via --standing — omitting both is an error so the caller asks the user instead of
+ * silently landing in _standing.
  * The machine id (metadata.yaml#id) is {yyyymm}-{pinyin slug of description}.
  */
 export function runFeaturesResolve(opts: {
@@ -70,9 +76,18 @@ export function runFeaturesResolve(opts: {
   description: string;
   customer?: string;
   featureVersion?: string;
+  standing?: boolean;
   lanhuPage?: string;
   root?: string;
 }): FeaturesResolveResult {
+  if (opts.featureVersion && opts.standing) {
+    throw new Error("--feature-version 与 --standing 互斥，只传一个");
+  }
+  if (!opts.featureVersion && !opts.standing) {
+    throw new Error(
+      "缺 --feature-version：版本类需求必须显式传版本号（不知道就向用户确认，不要自己编）；确为常驻需求时传 --standing",
+    );
+  }
   const paths = locateProject(opts.project, opts.root);
   const versionDir = opts.featureVersion ? normalizeVersionDir(opts.featureVersion) : STANDING_DIR;
   const dirName = buildLabelDirName({
@@ -131,6 +146,52 @@ export function runFeaturesResolve(opts: {
     zone: versionDir === STANDING_DIR ? "standing" : "active",
     created,
   };
+}
+
+// ─── resolve-hotfix: hotfix 目录协议 ───
+
+export interface FeaturesResolveHotfixResult {
+  project: string;
+  hotfixDir: string;
+  dirName: string;
+  created: boolean;
+}
+
+/**
+ * Resolve (and create when absent) a hotfix feature dir: _hotfix/<yyyymm>-<bugId>-<title>.
+ * All inputs come from the already-fetched bug record; the command never fetches.
+ */
+export function runFeaturesResolveHotfix(opts: {
+  project: string;
+  bugId: string;
+  yyyymm: string;
+  title: string;
+  root?: string;
+}): FeaturesResolveHotfixResult {
+  if (!/^\d{6}$/.test(opts.yyyymm)) {
+    throw new Error(
+      `非法 --yyyymm "${opts.yyyymm}"：需 6 位年月（如 202607），取 bug 解决或打开月份`,
+    );
+  }
+  if (/[\s/\\]/.test(opts.bugId)) {
+    throw new Error(`非法 --bug-id "${opts.bugId}"：不得含空白或路径分隔符`);
+  }
+  const title = opts.title.trim();
+  if (!title) {
+    throw new Error("缺 --title：中文短标题（取 bug 标题精简）");
+  }
+  if (/[\s/\\【】]/.test(title)) {
+    throw new Error(`非法 --title "${opts.title}"：不得含空白、路径分隔符或【】`);
+  }
+  const paths = locateProject(opts.project, opts.root);
+  const dirName = `${opts.yyyymm}-${opts.bugId}-${title}`;
+  const hotfixDir = join(paths.featuresDir, HOTFIX_DIR, dirName);
+  let created = false;
+  if (!existsSync(hotfixDir)) {
+    mkdirSync(join(hotfixDir, "cases"), { recursive: true });
+    created = true;
+  }
+  return { project: opts.project, hotfixDir, dirName, created };
 }
 
 // ─── list ───
@@ -248,7 +309,8 @@ export function registerFeatures(program: Command): void {
     .requiredOption("--module <module>", "模块名(进入【模块】段)")
     .requiredOption("--description <text>", "需求名(目录尾段,机器 id 取其拼音 slug)")
     .option("--customer <customer>", "客户名(可选,【客户】段)")
-    .option("--feature-version <version>", "迭代版本 vX.Y.Z；缺省落 features/_standing/")
+    .option("--feature-version <version>", "迭代版本 vX.Y.Z（与 --standing 二选一，必传其一）")
+    .option("--standing", "常驻需求（落 features/_standing/），与 --feature-version 互斥", false)
     .option("--lanhu-page <pageId>", "蓝湖 pageId(可选,【lanhu-id】段)")
     .option("--json", "以 JSON 输出结果", false)
     .action(
@@ -258,6 +320,7 @@ export function registerFeatures(program: Command): void {
         description: string;
         customer?: string;
         featureVersion?: string;
+        standing?: boolean;
         lanhuPage?: string;
         json: boolean;
       }) => {
@@ -267,6 +330,7 @@ export function registerFeatures(program: Command): void {
           description: opts.description,
           customer: opts.customer,
           featureVersion: opts.featureVersion,
+          standing: opts.standing,
           lanhuPage: opts.lanhuPage,
         });
         if (opts.json) {
@@ -274,6 +338,30 @@ export function registerFeatures(program: Command): void {
         } else {
           console.log(`featureDir: ${result.featureDir}`);
           console.log(`featureId:  ${result.featureId}${result.created ? "（新建）" : ""}`);
+        }
+      },
+    );
+
+  features
+    .command("resolve-hotfix")
+    .description("定位(不存在则创建) hotfix 需求功能目录")
+    .requiredOption("--project <name>", "项目名")
+    .requiredOption("--bug-id <segment>", "bug_id 段(可带 版本_客户_ 前缀,如 6.0.x_jhkj_155381)")
+    .requiredOption("--yyyymm <yyyymm>", "6 位年月,取 bug 解决或打开月份")
+    .requiredOption("--title <title>", "中文短标题(取 bug 标题精简,不含【】与空白)")
+    .option("--json", "以 JSON 输出结果", false)
+    .action(
+      (opts: { project: string; bugId: string; yyyymm: string; title: string; json: boolean }) => {
+        const result = runFeaturesResolveHotfix({
+          project: opts.project,
+          bugId: opts.bugId,
+          yyyymm: opts.yyyymm,
+          title: opts.title,
+        });
+        if (opts.json) {
+          process.stdout.write(`${JSON.stringify(result)}\n`);
+        } else {
+          console.log(`hotfixDir: ${result.hotfixDir}${result.created ? "（新建）" : ""}`);
         }
       },
     );

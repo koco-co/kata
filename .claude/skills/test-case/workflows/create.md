@@ -18,11 +18,15 @@
      --feature-version <vX.Y.Z> [--customer <客户>] [--lanhu-page <pageId>] --json
    ```
 
-   取返回的 featureDir。**漏传 `--feature-version` 会落到 `features/_standing/`**；版本类需求必须显式传。
+   取返回的 featureDir。常驻需求（无迭代版本）改传 `--standing`。
 
 3. **读事实基线**（起草任何含菜单 / 页面 / 表单字段的用例前必读）：
-   - 先 `kata knowledge read --project <项目> --module <模块>` 注入命中条目；再按索引读 `workspace/<project>/knowledge/sites/<host>/dom-*.md`：真实菜单名、路由、向导步骤、表单字段文案。
-   - 涉及规则语义（规则类型 / 统计函数 / 字段类型约束）再读 `knowledge/modules/<module>.md`。
+
+   ```bash
+   kata knowledge read --project <项目> --module <模块>
+   ```
+
+   返回命中条目（界面文案、规则语义、踩坑），以它们为产品事实来源；不足时按 `--keyword <关键词>` 补查，或用 `kata repos grep/show` 查源码枚举。
 
 4. **逐个拷问，落定 `prd.md`**：把需求源与事实基线都答不了的疑点逐个向用户确认。规则：
    - 一次只问一个问题，每题给出推荐答案；全部疑点清零前不动笔写任何产物。
