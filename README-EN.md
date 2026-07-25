@@ -18,20 +18,20 @@ Kata packages requirements analysis, test design, defect investigation, and UI a
 ## 30-second overview
 
 ```text
-PRD / design / feature notes ───── case-draft ───────────> Archive MD + XMind
-Existing cases ─────────────────── case-edit ────────────> Edit, sync, convert
-Project knowledge ──────────────── knowledge-curate ─────> Query and maintain
-Bug / conflict / code diff ─────── defect-analyze ───────> Analysis and repair plan
-UI cases / scripts / failures ──── playwright-automation > Scripts, runs, reports
-SQL merge work ─────────────────── sql-merge-validate ───> Merged output and checks
+PRD / design / feature notes ───── case ───────────────> cases.yaml + XMind
+Existing cases / bug records ──── case ────────────────> Edit, sync, hotfix regression
+Project knowledge ─────────────── knowledge ───────────> Query and maintain
+Bug / conflict / code diff ────── defect-analyze ──────> Analysis and repair plan
+UI cases / scripts / failures ── ui-automation ────────> Scripts, runs, reports
+Connectivity failures ─────────── infra-diagnose ──────> Root cause and playbook
 ```
 
 The repository follows four boundaries:
 
-- `.claude/**` contains Claude Code skills, rules, and runtime entry points.
-- `.agents/**` contains Codex skills. `case-draft` and `playwright-automation` are native Codex skills; the remaining skills keep transitional adapters until migrated.
-- Shared CLI, schemas, validators, and runtime code currently live under `.claude/scripts/_shared/**`. The runtimes share code, not prompt bodies.
-- Project artifacts live under `workspace/{project}/`. Source repositories are read-only external directories declared in `.env`; no project-local source cache is created.
+- `.claude/**` contains Claude Code skills and plugins.
+- `.agents/**` contains native Codex skills; both runtimes are maintained independently and share no prompt bodies.
+- The shared CLI lives under `cli/**` and serves both runtimes.
+- Project artifacts live under `workspace/{project}/`. Source repositories are configured in `config/source-repos.yaml`, cloned into `.repos/` (gitignored), and queried via `kata repos`.
 
 ## Quick start
 
@@ -49,7 +49,6 @@ The repository follows four boundaries:
 ```bash
 bun install --frozen-lockfile
 [ -f .env ] || cp .env.example .env
-kata workspace verify
 bun run ci
 ```
 
@@ -63,30 +62,25 @@ See [INSTALL.md](./INSTALL.md) for the full setup.
 
 ## Current capabilities
 
-| Command | Area | Skill | Summary |
-| --- | --- | --- | --- |
-| `/workspace-manage` | Workspace | `workspace-manage@1` | Show entry points and manage project workspaces. |
-| `/case-draft` | Case generation | `case-draft@1` | Draft test cases from requirements, PRDs, designs, or feature notes. |
-| `/case-edit` | Case maintenance | `case-edit@1` | Edit, sync, convert, or normalize existing cases. |
-| `/knowledge-curate` | Knowledge | `knowledge-curate@1` | Query or maintain project rules, terms, and constraints. |
-| `/defect-analyze` | Defects and changes | `defect-analyze@1` | Analyze bug material, merge conflicts, or code diffs. |
-| `/case-hotfix` | Regression cases | `case-hotfix@1` | Generate Hotfix regression cases from bugs or fix records. |
-| `/playwright-automation` | UI automation | `playwright-automation@1` | Review, generate, run, or repair Playwright automation. |
-| `/infra-diagnose` | Infrastructure | `infra-diagnose@1` | Diagnose datasource and server connectivity failures. |
-| `/sql-merge-validate` | SQL validation | `sql-merge-validate@1` | Merge SQL changes and validate structure, dependencies, and output. |
+| Command | Area | Summary |
+| --- | --- | --- |
+| `/case` | Cases | Draft from requirement sources, edit existing cases, generate hotfix regression cases from bugs. |
+| `/ui-automation` | UI automation | Generate, repair, or verify Playwright UI automation with real runs before delivery. |
+| `/defect-analyze` | Defects and changes | Analyze bug material, merge conflicts, or code diffs. |
+| `/infra-diagnose` | Infrastructure | Diagnose datasource and server connectivity failures over SSH. |
+| `/knowledge` | Knowledge | Query or maintain project rules, terms, and constraints. |
+| `/workspace` | Workspace | Create, check, or repair project workspace skeletons. |
 
-Routing follows the requested action, not only the input extension. Use `case-edit` when the goal is to change cases. Use `playwright-automation` when existing cases should become UI automation.
+Routing follows the requested action, not only the input extension: editing a case and turning a case into UI automation are different entry points; see the routing rules in CLAUDE.md.
 
 ## Claude Code and Codex
 
-| Runtime | Skill directory | Current approach |
+| Runtime | Skill directory | Approach |
 | --- | --- | --- |
 | Claude Code | `.claude/skills/` | Native Claude skills, maintained independently. |
-| OpenAI Codex | `.agents/skills/` | Native skills for the core workflows, transitional adapters elsewhere. |
+| OpenAI Codex | `.agents/skills/` | Native Codex skills, maintained independently. |
 
-A Codex session starts with `.agents/skills/using-kata-codex/SKILL.md`. Native Codex skills do not pin a model, agent count, or mechanical stage list. They define triggers, inputs, outputs, safety boundaries, and completion states.
-
-See [docs/CODEX-SKILLS.md](./docs/CODEX-SKILLS.md) for migration details.
+Both sides express the same business conventions in their native formats without sharing prompt bodies; shared capabilities live in `cli/`. Skills do not pin a model, agent count, or mechanical stage list. They define triggers, inputs, outputs, safety boundaries, and completion states.
 
 ## Configuration and security
 
@@ -110,27 +104,20 @@ kata env run <env> -- <command...>
 
 `env run` inherits only the small set of variables required to start a child process. Add a required variable explicitly with `--inherit-env NAME1,NAME2`. Command output must never reveal cookies, tokens, or passwords.
 
-External source repositories are declared with:
-
-```dotenv
-KATA_SOURCE_REPO_ROOT=/absolute/path/to/repos
-KATA_SOURCE_REPOS=https://example/repo-a.git,https://example/repo-b.git
-```
-
-Use `kata repos show|grep|list` for read-only source queries.
+Source repositories are configured in `config/source-repos.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
 
 ## Repository layout
 
 ```text
 kata/
-├── .claude/                       # Claude Code skills and rules
+├── .claude/                       # Claude Code skills and plugins
 │   ├── skills/
-│   ├── scripts/_shared/           # CLI, schemas, validators, tests
-│   └── plugins/
+│   ├── plugins/
+│   └── packages/
 ├── .agents/                       # Codex skills
 │   └── skills/
-├── .codex-plugin/                 # Codex plugin metadata
-├── config/                        # Local templates; secrets stay untracked
+├── cli/                           # kata CLI (shared by both runtimes)
+├── config/                        # source-repos.yaml etc.; secrets (env/, infra/) untracked
 ├── docs/                          # Guides, contracts, and design records
 └── workspace/                     # Project inputs, cases, automation, and runs
 ```
@@ -142,8 +129,6 @@ Automation runs should keep `manifest.yaml`, `run.json`, a short summary, and tr
 ```bash
 bun install --frozen-lockfile
 bun run check
-bun run lint:agents
-bun run lint:skills:codex
 bun run type-check
 bun run test
 bun run ci
