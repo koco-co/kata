@@ -29,12 +29,12 @@
    - 能自己查到的事实不问：知识库、`kata repos grep/show` 源码枚举命中的直接采用，不占提问。
    - 拷问维度至少覆盖：业务条件与前置、边界值、枚举全集、异常流、权限与角色、数据依赖。
    - 用例设计原则（P0 占比 1/4 ~ 1/3、枚举逐项覆盖等）按默认值执行，不逐项问；需要偏离默认值时才单独确认。
-   - 疑点清零后，把确认过的需求事实整理成 `<featureDir>/prd.md` 落盘：每条事实标注来源（需求源 / 知识库 / 源码 / 用户确认），适用的设计原则也写明。prd.md 是本需求的事实基线，后续起草与编辑都以它为准。
+   - 疑点清零后，把确认过的需求事实整理成 `<featureDir>/prd.md` 落盘，结构照 [../templates/prd.md](../templates/prd.md)：每条事实标注来源（需求源 / 知识库 / 源码 / 用户确认），适用的设计原则也写明。prd.md 是本需求的事实基线，后续起草与编辑都以它为准。
    - 用户中途要求「别问了直接写」：剩余疑点按未确认处理——对应内容不进 yaml，交付时列出。
 
-5. **对齐测试点**：把 prd.md 拆成测试点清单交给用户确认——正常流 / 异常流 / 边界、枚举值逐项覆盖、P0 占比约 1/4 ~ 1/3。用户确认后再写文件。
+5. **对齐测试点，落定 `test-points.md`**：把 prd.md 拆成测试点清单交给用户确认——正常流 / 异常流 / 边界、枚举值逐项覆盖、P0 占比约 1/4 ~ 1/3。用户确认后照 [../templates/test-points.md](../templates/test-points.md) 落盘 `<featureDir>/test-points.md`：确认过的进覆盖清单（标依据的 prd 条目），用户也确认不了的进未覆盖清单（写清原因）。
 
-6. **写 `cases/需求名.yaml`**：格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 写 resolve 返回的 id。只写 prd.md 里有依据的内容；用户也确认不了的测试点不写进 yaml，记入交付说明的未覆盖清单。
+6. **写 `cases/需求名.yaml`**：格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 写 resolve 返回的 id。只写 prd.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。
 
 7. **派生与检查**：
 
@@ -45,4 +45,4 @@
 
    报错就改 yaml 重建，直到全部通过。lint 对 yaml 里的「待确认」字样直接报 violation。
 
-8. **交付**：按 [../checklists/review.md](../checklists/review.md) 自审后，给出产物路径与覆盖说明（覆盖了哪些测试点、哪些点因用户未确认而未覆盖及原因）。
+8. **交付**：按 [../checklists/review.md](../checklists/review.md) 自审后，给出产物路径与覆盖说明（覆盖了哪些测试点；未覆盖的逐条对照 test-points.md 未覆盖清单说明原因）。

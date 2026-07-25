@@ -1,6 +1,6 @@
 ---
 name: defect-analyze
-description: 缺陷分诊三模式——收到异常堆栈、console 报错、HTTP 失败做 bug 根因分析；收到带冲突标记的文本做合并冲突解决；收到 diff、分支对或变更文件集做静态缺陷扫描。已登记的 ZenTao bug URL/bug ID 要生成回归用例时转 case。
+description: 缺陷分诊三模式——收到异常堆栈、console 报错、HTTP 失败做 bug 根因分析；收到带冲突标记的文本做合并冲突解决；收到 diff、分支对或变更文件集做静态缺陷扫描。已登记的 ZenTao bug URL/bug ID 要生成回归用例时转 test-case。
 ---
 
 # defect-analyze

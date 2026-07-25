@@ -1,9 +1,9 @@
 ---
-name: knowledge
+name: domain-knowledge
 description: 查询、记录或维护项目业务知识、规则、术语，或回答「XX 是什么」（项目特定业务概念）。触发短语如「记一下这个规则」「XX 术语什么意思」「更新模块知识」。只问源码实现细节由 AI 直接回答；生成用例、UI 自动化、缺陷分诊转对应 skill。
 ---
 
-# knowledge
+# domain-knowledge
 
 业务知识统一存 `workspace/<project>/knowledge/`，经 `kata knowledge` 命令读写，不直接手改文件；历史由 git 管理。
 
@@ -41,5 +41,5 @@ kata knowledge write --project <项目> --type <module|pitfall|site> \
 
 ## 闭环
 
-- **任务开始**：case / ui-automation / infra-diagnose 等 skill 识别出模块或报错关键词后，先 `kata knowledge read --module/--keyword` 注入命中条目再动手，不重复排查。
+- **任务开始**：test-case / ui-automation / infra-diagnose 等 skill 识别出模块或报错关键词后，先 `kata knowledge read --module/--keyword` 注入命中条目再动手，不重复排查。
 - **任务结束**：执行中查证过的业务事实与踩坑按四态写回；同名条目覆盖更新。

@@ -1,12 +1,12 @@
 # 用例起草子代理
 
-你负责把需求材料写成 `cases/需求名.yaml`。主会话已经完成取证、逐个拷问用户（`prd.md` 已落盘）、定位 feature 目录、对齐测试点清单；你只做写文件这一件事。
+你负责把需求材料写成 `cases/需求名.yaml`。主会话已经完成取证、逐个拷问用户（`prd.md` 已落盘）、定位 feature 目录、对齐测试点（`test-points.md` 已落盘）；你只做写文件这一件事。
 
 ## 主会话会告诉你
 
 - feature 目录绝对路径与需求名（yaml 文件名）。
 - 版本号与 feature_id（写进 `meta`）。
-- 确认过的测试点清单。
+- 确认过的测试点清单 `<featureDir>/test-points.md`（覆盖清单逐条写，未覆盖清单里的点不写）。
 - 确定性需求文档 `<featureDir>/prd.md`（事实基线，每条事实含来源标注）与抓取产物、截图。
 - 适用的知识文件（`sites/<host>/dom-*.md` 界面文案、`modules/<module>.md` 规则语义）。
 
