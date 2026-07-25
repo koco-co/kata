@@ -9,10 +9,10 @@ description: 数据源/数据库/服务器连通性报错（JDBC No route to hos
 
 ## 流程
 
-1. **查知识库**：`kata knowledge read-pitfall --project <项目> --query <报错关键词或主机>`。命中既有条目优先复用其方案，省去重复排查。
+1. **查知识库**：`kata knowledge read --project <项目> --type pitfall --keyword <报错关键词或主机>`。命中既有条目优先复用其方案，省去重复排查。
 2. **只读诊断**：没命中按 [references/playbook.md](references/playbook.md) 分步排查（本地连通性分层 → SSH 登录只读检查）。SSH 凭据与执行规约也在 playbook 里。
 3. **修复**：只读命令可直接执行；破坏性命令（重启服务、改防火墙、改配置、kill、rm）必须先说明在哪台机执行什么、预期影响，用户确认后再做，做完复测。
-4. **写回**：根因与修复方案用 `kata knowledge write --project <项目> --type pitfall --content <json>` 写回，下次同类问题直接复用。
+4. **写回**：根因与修复方案用 `kata knowledge write --project <项目> --type pitfall --status verified --title <标题> --body <md>` 写回(含报错关键词、环境、根因、修复步骤),下次同类问题直接复用。
 
 ## 规范
 

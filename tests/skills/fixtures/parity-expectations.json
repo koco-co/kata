@@ -32,19 +32,18 @@
       "zentaoCreate": ["zentao/create.ts"]
     },
     "infra-diagnose": {
-      "knowledgeQuery": ["knowledge read-pitfall"],
+      "knowledgeQuery": ["knowledge read", "--keyword"],
       "knowledgeWriteback": ["knowledge write", "type pitfall"],
       "credentialsPath": ["config/infra/credentials.yaml"],
       "sshpassEnv": ["SSHPASS=", "sshpass -e"],
       "noPlaintextFlag": ["sshpass -p"]
     },
     "knowledge": {
-      "readCore": ["knowledge read-core"],
-      "readModule": ["knowledge read-module"],
-      "readPitfall": ["knowledge read-pitfall"],
+      "readCmd": ["knowledge read"],
       "writeCmd": ["knowledge write"],
-      "confidence": ["--confidence"],
-      "knowledgeDir": ["_shared/knowledge/"]
+      "statusFlag": ["--status"],
+      "fourStates": ["verified", "observed", "conflicting", "deprecated"],
+      "knowledgeDir": ["workspace/<project>/knowledge/"]
     },
     "workspace": {
       "scanCmd": ["kata project scan"],

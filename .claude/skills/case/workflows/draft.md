@@ -17,8 +17,8 @@
    取返回的 featureDir。**漏传 `--feature-version` 会落到 `features/_standing/`**；版本类需求必须显式传，版本号不知道就先问用户，不要自己编。
 
 3. **读事实基线**（起草任何含菜单 / 页面 / 表单字段的用例前必读）：
-   - `workspace/<project>/_shared/knowledge/_index.md` → 涉及的 `sites/<host>/dom-*.md`：真实菜单名、路由、向导步骤、表单字段文案。
-   - 涉及规则语义（规则类型 / 统计函数 / 字段类型约束）再读 `modules/<module>.md`。
+   - 先 `kata knowledge read --project <项目> --module <模块>` 注入命中条目；再按索引读 `workspace/<project>/knowledge/sites/<host>/dom-*.md`：真实菜单名、路由、向导步骤、表单字段文案。
+   - 涉及规则语义（规则类型 / 统计函数 / 字段类型约束）再读 `knowledge/modules/<module>.md`。
 
 4. **对齐测试点**：把需求拆成测试点清单交给用户确认——正常流 / 异常流 / 边界、枚举值逐项覆盖、P0 占比约 1/4 ~ 1/3。用户确认后再写文件。
 

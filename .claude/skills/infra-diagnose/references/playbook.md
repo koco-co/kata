@@ -68,4 +68,4 @@ TCP 层就没连上。只读诊断顺序：
 
 ## 写回知识库
 
-根因确认后写回，内容含：报错关键词、主机环境、根因、诊断命令摘要、修复步骤。用 `kata knowledge write --type pitfall`（参数见 `--help`）。
+根因确认后写回，内容含：报错关键词、主机环境、根因、诊断命令摘要、修复步骤。用 `kata knowledge write --type pitfall --status verified --title <标题> --body <md>`；单次观察未复测用 `--status observed`，向用户确认后加 `--confirmed`。

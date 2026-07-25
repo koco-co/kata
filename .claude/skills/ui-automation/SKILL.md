@@ -35,8 +35,13 @@ description: 把 feature 目录里的用例转成在真实环境跑通的 Playwr
 
 - 业务动作（创建 / 编辑 / 保存 / 删除 / 运行 / 导入）必须走页面操作；未经用户针对具体动作明确授权，不用后端接口替代 UI。
 - 不得弱化断言、`try-catch` 吞错、`test.skip` 或 mock 被测业务接口来换取通过。
-- 页面事实（菜单、字段、按钮）以真实浏览器探测为准，不拿需求文档描述当 UI 事实；知识库 `sites/<host>/dom-*.md` 可作候选，与探测冲突时以探测为准。
+- 页面事实（菜单、字段、按钮）以真实浏览器探测为准，不拿需求文档描述当 UI 事实；知识库 `knowledge/sites/<host>/dom-*.md` 可作候选，与探测冲突时以探测为准。
 - Cookie 只经 `kata env run <env> -- <command>` 注入；真实值只存 `config/env/<env>.yaml`（权限 0600），不进对话、日志、代码、测试夹具。
+
+## 知识闭环
+
+- 定位 feature 后先 `kata knowledge read --project <project> --module <模块>` 注入命中条目；修复中遇到报错按 `--keyword <报错关键词>` 补查。
+- 交付前把探测核实的页面事实与踩坑按四态写回（`kata knowledge write`，见 knowledge skill）；单次观察先向用户确认再写入，没有新知识就零写入。
 
 ## 产物布局
 
