@@ -21,7 +21,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, relative, sep } from "node:path";
-import { buildPlan, checkConflicts, duplicatePngGroups, type MigrateOp } from "./lib/plan.ts";
+import { buildPlan, checkConflicts, duplicatePngGroups, sha256Of, V647_SHELLS, type MigrateOp } from "./lib/plan.ts";
 
 // ─── 参数解析 ───
 
@@ -221,9 +221,10 @@ function reportConfirm(ops: MigrateOp[]): void {
   console.log(`\nconfirm dirs: ${dirs.size}`);
 }
 
-/** 基线对账:每个基线文件必须有处置或属于已知磁盘垃圾 */
+/** 基线对账:每个基线文件必须仍在原地、内容已移动、属已知垃圾、或属已批准删除 */
 function verify(ops: MigrateOp[]): void {
   const baseline = JSON.parse(readFileSync(`${root}/scripts/migrate/baseline.json`, "utf8"));
+  const baselineRoot: string = baseline.root;
   const debris = [
     /\.DS_Store$/, // 磁盘垃圾,主工作树清理
     /\/\.(temp|runs|debug)\//, // 运行时证据变体,主工作树清理
@@ -233,17 +234,21 @@ function verify(ops: MigrateOp[]): void {
     /202607-v6411-ui-sort-qzmkxjrp/, // 游离 hash 目录
     /_shared\/env\//, // 本地环境配置,保持 ignore
     /性能测试方案\/.*\.(log|curl)$/, // 运行证据
+    /_shared\/knowledge\/\.history\/.*\.bak$/, // 已删(git 兜底)
+    /_shared\/archive\/issues\/\.gitkeep$/, // issues 已迁空,占位删除
   ];
-  const covered = new Set<string>();
-  for (const op of ops) {
-    covered.add(op.src);
-    if (op.dest) covered.add(op.dest);
-  }
+  const shellRe = new RegExp(`features/v6\\.4\\.7/[^/]*(${V647_SHELLS.join("|")})`);
+  const currentPaths = new Set(ops.map((o) => o.src));
+  const currentHashes = new Set(ops.map((o) => o.sha256));
   const unaccounted: string[] = [];
   for (const f of baseline.files as string[]) {
     const rel = `workspace/${f}`;
-    if (covered.has(rel)) continue;
-    if (debris.some((re) => re.test(rel))) continue;
+    if (currentPaths.has(rel)) continue; // 原地保留
+    if (debris.some((re) => re.test(rel))) continue; // 已知垃圾/批准删除
+    if (shellRe.test(rel)) continue; // v647 空壳,用户拍板删除
+    // 移动判定:基线原内容哈希仍在当前磁盘(换个路径即视为已移动)
+    const origAbs = `${baselineRoot}/${f}`;
+    if (existsSync(origAbs) && currentHashes.has(sha256Of(origAbs))) continue;
     unaccounted.push(rel);
   }
   if (unaccounted.length) {

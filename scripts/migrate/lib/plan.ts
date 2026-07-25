@@ -34,7 +34,7 @@ const INPUTS_RENAME: Record<string, string> = {
 const CASE_ARTIFACT_EXT = new Set(["xmind", "md", "yaml", "csv", "xlsx"]);
 
 /** v647 空壳目录名(子串匹配),依据设计第 17 节判定清单 */
-const V647_SHELLS = [
+export const V647_SHELLS = [
   "一致性多表数据一致性比对",
   "任务时长限制",
   "合理性单调递减递增",
@@ -65,7 +65,8 @@ function walk(dir: string, root: string, out: string[]): void {
   }
 }
 
-function sha256Of(path: string): string {
+/** SHA-256 of a file's content (exported for verify). */
+export function sha256Of(path: string): string {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
