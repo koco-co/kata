@@ -134,7 +134,7 @@ bun run test
 bun run ci
 ```
 
-CLI 约定见 [docs/contracts/CLI-CONTRACT.md](./docs/contracts/CLI-CONTRACT.md)，中文与 Markdown 写法见 [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md)。公开命令、目录或产物发生变化时，应同时更新中英文 README、安装说明和变更记录。
+中文与 Markdown 写法见 [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md)。公开命令、目录或产物发生变化时，应同时更新中英文 README 与安装说明。
 
 ## License
 
