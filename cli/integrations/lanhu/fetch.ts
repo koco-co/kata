@@ -1061,4 +1061,3 @@ export async function runFetch(rawUrl: string, options: RunOptions): Promise<voi
   };
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 }
-
