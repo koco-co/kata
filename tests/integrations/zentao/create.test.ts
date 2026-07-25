@@ -12,9 +12,12 @@ import {
   mapPriority,
   mapSeverity,
   parseCreateResponse,
-} from "../create.ts";
+} from "../../../cli/integrations/zentao/create.ts";
 
-const CONFIG = resolve(fileURLToPath(new URL(".", import.meta.url)), "../zentao.config.yaml");
+const CONFIG = resolve(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../../../cli/integrations/zentao/zentao.config.yaml",
+);
 
 describe("loadZentaoConfig", () => {
   it("loads defaults from yaml", () => {
@@ -120,7 +123,7 @@ describe("parseCreateResponse", () => {
   });
 });
 
-const CREATE_TS = resolve(fileURLToPath(new URL(".", import.meta.url)), "../create.ts");
+const KATA_TS = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../cli/bin/kata.ts");
 const PROJECT_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../../");
 const TMP = join(tmpdir(), `zentao-create-test-${process.pid}`);
 afterEach(() => {
@@ -131,7 +134,7 @@ afterEach(() => {
 
 function runCli(args: string[]): { code: number; stdout: string } {
   try {
-    const stdout = execFileSync("bun", ["run", CREATE_TS, ...args], {
+    const stdout = execFileSync("bun", [KATA_TS, "zentao", "create", ...args], {
       encoding: "utf8",
       cwd: PROJECT_ROOT,
       env: { ...process.env, KATA_ZENTAO_BASE_URL: "http://zenpms.dtstack.cn" },

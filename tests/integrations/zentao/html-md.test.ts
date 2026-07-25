@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { htmlFragmentToMarkdown } from "../html-md.ts";
+import { htmlFragmentToMarkdown } from "../../../cli/integrations/zentao/html-md.ts";
 
 describe("htmlFragmentToMarkdown", () => {
   it("turns <p> blocks into separate lines", () => {

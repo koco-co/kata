@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { type FetchFn, fetchAuthedBugJson, isAuthedBugJson, zentaoEnvPath } from "../session.ts";
+import {
+  type FetchFn,
+  fetchAuthedBugJson,
+  isAuthedBugJson,
+  zentaoEnvPath,
+} from "../../../cli/integrations/zentao/session.ts";
 
 const creds = { baseUrl: "http://zt.example", account: "u", password: "p" };
 const validJson = JSON.stringify({ status: "success", data: JSON.stringify({ bug: { id: "1" } }) });

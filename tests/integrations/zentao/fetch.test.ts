@@ -19,10 +19,10 @@ import {
   extractBugIdFromUrl,
   extractMarkdownAttachmentUrls,
   parseZentaoResponseText,
-} from "../fetch.ts";
+} from "../../../cli/integrations/zentao/fetch.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const FETCH_TS = resolve(__dirname, "../fetch.ts");
+const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
 const PROJECT_ROOT = resolve(__dirname, "../../../");
 
 const TMP_DIR = join(tmpdir(), `zentao-fetch-test-${process.pid}`);
@@ -218,7 +218,7 @@ describe("CLI: --help", () => {
     let stdout = "";
     let exitCode = 0;
     try {
-      stdout = execFileSync("bun", ["run", FETCH_TS, "--help"], {
+      stdout = execFileSync("bun", ["run", KATA_TS, "zentao", "fetch", "--help"], {
         encoding: "utf8",
         cwd: PROJECT_ROOT,
         env: { ...process.env },
@@ -262,7 +262,7 @@ describe("CLI: missing env vars", () => {
     try {
       execFileSync(
         "bun",
-        ["run", FETCH_TS, "--bug-id", "138845", "--output", join(TMP_DIR, "out")],
+        ["run", KATA_TS, "zentao", "fetch", "--bug-id", "138845", "--output", join(TMP_DIR, "out")],
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
@@ -313,7 +313,16 @@ describe("CLI: invalid bug ID format", () => {
     try {
       execFileSync(
         "bun",
-        ["run", FETCH_TS, "--bug-id", "not-a-number", "--output", join(TMP_DIR, "out")],
+        [
+          "run",
+          KATA_TS,
+          "zentao",
+          "fetch",
+          "--bug-id",
+          "not-a-number",
+          "--output",
+          join(TMP_DIR, "out"),
+        ],
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
@@ -362,7 +371,9 @@ describe("CLI: invalid bug ID format", () => {
         "bun",
         [
           "run",
-          FETCH_TS,
+          KATA_TS,
+          "zentao",
+          "fetch",
           "--url",
           "http://zenpms.dtstack.cn/zentao/story-view-100.html",
           "--output",

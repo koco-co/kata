@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { parseBugPayload } from "../parse.ts";
+import { parseBugPayload } from "../../../cli/integrations/zentao/parse.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const inner = JSON.parse(readFileSync(join(__dirname, "fixtures/bug-synthetic.json"), "utf8"));

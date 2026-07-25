@@ -13,7 +13,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 **编辑（既有用例）**：只改 yaml，改完重新 build。语义不变是底线：字段、按钮、枚举值逐字匹配证据原文；缺证据的标「待确认」，不凭空补；修错后直接陈述行为，不在正文解释改动原因。批量标准化按功能族逐条过，全部过完、lint 清零才算完；单条被阻塞就记录后继续其余，不因量大中途停下。
 
-**hotfix（bug）**：`bun .claude/plugins/zentao/fetch.ts --bug-id <id> --output <hotfixDir>/.temp` 取证。目录用 `workspace/<project>/features/_hotfix/<yyyymm>-<bug_id>-<中文短标题>/`。yaml 只含 1 条用例：标题以 `【<bug_id>】验证…` 开头；相邻回归点并进同一条；数据源/schema 写 `${DataSourceA}`/`${SchemaA}`；出现具体表名时前置条件必含同名最简 `CREATE TABLE`；`meta.source` 写 bug URL。产出必须是可执行用例，不是缺陷分析。
+**hotfix（bug）**：`kata zentao fetch --bug-id <id> --output <hotfixDir>/.temp` 取证。目录用 `workspace/<project>/features/_hotfix/<yyyymm>-<bug_id>-<中文短标题>/`。yaml 只含 1 条用例：标题以 `【<bug_id>】验证…` 开头；相邻回归点并进同一条；数据源/schema 写 `${DataSourceA}`/`${SchemaA}`；出现具体表名时前置条件必含同名最简 `CREATE TABLE`；`meta.source` 写 bug URL。产出必须是可执行用例，不是缺陷分析。
 
 ## 约束
 

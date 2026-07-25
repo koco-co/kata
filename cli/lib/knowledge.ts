@@ -1,6 +1,5 @@
 // lib/knowledge.ts
 
-
 export interface Frontmatter {
   title: string;
   type: "overview" | "term" | "module" | "pitfall";

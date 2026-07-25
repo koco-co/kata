@@ -10,7 +10,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Command } from "commander";
 import { getEnv, initEnv } from "../../lib/env.ts";
 
 import { parseBugPayload } from "./parse.ts";
@@ -117,7 +116,11 @@ function writePartial(outputPath: string, bugId: number, error: string): void {
 }
 
 // ─── 主流程 ──────────────────────────────────────────────────────────────────
-async function run(options: { bugId?: number; url?: string; output: string }): Promise<void> {
+export async function runFetch(options: {
+  bugId?: number;
+  url?: string;
+  output: string;
+}): Promise<void> {
   const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../");
   initEnv(resolve(projectRoot, ".env"));
 
@@ -240,35 +243,4 @@ async function run(options: { bugId?: number; url?: string; output: string }): P
   };
   writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
-}
-
-// ─── 命令行入口 ──────────────────────────────────────────────────────────────
-const __filename = fileURLToPath(import.meta.url);
-const isMain = process.argv[1] === __filename || process.argv[1]?.endsWith("fetch.ts");
-
-if (isMain) {
-  const program = new Command("zentao-fetch");
-  program
-    .description("从禅道 Bug 链接提取缺陷详情、解决叙述和修复分支")
-    .option("--bug-id <number>", "禅道 Bug ID（数字），例如 151858")
-    .option(
-      "--url <url>",
-      '禅道 Bug 页面 URL，例如 "http://zenpms.dtstack.cn/zentao/bug-view-151858.html"',
-    )
-    .requiredOption("--output <dir>", "输出目录路径，例如 workspace/<project>/.temp/zentao")
-    .option("--project <name>", "项目名称")
-    .action(async (opts: { bugId?: string; url?: string; output: string; project?: string }) => {
-      let parsedBugId: number | undefined;
-      if (opts.bugId !== undefined) {
-        parsedBugId = Number.parseInt(opts.bugId, 10);
-        if (Number.isNaN(parsedBugId)) {
-          writeJsonExit({ error: `无效的 Bug ID 格式："${opts.bugId}"，必须为正整数` }, 1);
-        }
-      }
-      if (parsedBugId === undefined && !opts.url) {
-        writeJsonExit({ error: "必须提供 --bug-id 或 --url 参数" }, 1);
-      }
-      await run({ bugId: parsedBugId, url: opts.url, output: opts.output });
-    });
-  program.parse(process.argv);
 }

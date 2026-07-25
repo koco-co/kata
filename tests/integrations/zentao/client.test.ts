@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { parseSessionCookie } from "../client.ts";
+import { parseSessionCookie } from "../../../cli/integrations/zentao/client.ts";
 
 describe("parseSessionCookie", () => {
   it("picks zentaosid from Set-Cookie", () => {

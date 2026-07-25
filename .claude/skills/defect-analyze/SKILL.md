@@ -17,7 +17,7 @@ description: 缺陷分诊三模式——收到异常堆栈、console 报错、HT
 
 ## 各模式规则
 
-**bug**：实际行为、预期行为、复现步骤、影响范围、根因五项分开陈述；根因要有日志、堆栈或代码位置支撑。需要查源码时用 `kata repos grep/show`。用户确认要登记进禅道时，再用 `bun .claude/plugins/zentao/create.ts` 创建。
+**bug**：实际行为、预期行为、复现步骤、影响范围、根因五项分开陈述；根因要有日志、堆栈或代码位置支撑。需要查源码时用 `kata repos grep/show`。用户确认要登记进禅道时，再用 `kata zentao create --json <report.json>` 创建。
 
 **conflict**：给方案前先把冲突双方各自的意图和依据写清楚，再给合并建议与理由；不单边裁决。
 
