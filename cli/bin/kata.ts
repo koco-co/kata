@@ -15,6 +15,7 @@ import { registerRepos } from "../commands/repos.ts";
 import { registerRuns } from "../commands/runs.ts";
 import { registerScans } from "../commands/scans.ts";
 import { registerXmind } from "../commands/xmind.ts";
+import { registerZentao } from "../commands/zentao.ts";
 
 // 轻量 dotenv：只加载仓库根 .env（若存在），让 KATA_SOURCE_* 等集成变量进入进程环境。
 // 不覆盖已有环境变量；无第三方依赖。
@@ -63,6 +64,7 @@ registerDefects(program);
 registerHandoff(program);
 registerAutomation(program);
 registerProject(program);
+registerZentao(program);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err instanceof Error ? err.message : String(err));

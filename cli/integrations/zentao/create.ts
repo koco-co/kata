@@ -156,13 +156,17 @@ export function parseCreateResponse(text: string, baseUrl: string, title: string
 // ─── 运行 / CLI ────────────────────────────────────────────────────────────────
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const DEFAULT_CONFIG = resolve(__dirname, "zentao.config.yaml");
+export const DEFAULT_CONFIG = resolve(__dirname, "zentao.config.yaml");
 
 function emit(obj: unknown): void {
   process.stdout.write(`${JSON.stringify(obj, null, 2)}\n`);
 }
 
-async function run(opts: { json: string; config: string; dryRun: boolean }): Promise<void> {
+export async function runCreate(opts: {
+  json: string;
+  config: string;
+  dryRun: boolean;
+}): Promise<void> {
   initEnv(resolve(repoRoot(), ".env"));
   const baseUrl = getEnv("KATA_ZENTAO_BASE_URL");
   if (!baseUrl) {
@@ -228,20 +232,4 @@ async function run(opts: { json: string; config: string; dryRun: boolean }): Pro
   const result = parseCreateResponse(text, baseUrl, report.title);
   emit(result);
   if (!result.ok) process.exit(1);
-}
-
-import { Command } from "commander";
-
-export const program = new Command()
-  .name("zentao-create")
-  .description("Create a bug in ZenTao (fixed assignee, zentao variant body)")
-  .requiredOption("--json <path>", "BugReport JSON path")
-  .option("--config <path>", "ZenTao config yaml", DEFAULT_CONFIG)
-  .option("--dry-run", "Assemble fields without posting; print payload")
-  .action(async (opts: { json: string; config: string; dryRun?: boolean }) => {
-    await run({ json: opts.json, config: opts.config, dryRun: Boolean(opts.dryRun) });
-  });
-
-if (import.meta.main) {
-  program.parseAsync(process.argv);
 }

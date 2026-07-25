@@ -29,7 +29,7 @@
       "reportFormat": ["report.md"],
       "threeModes": ["bug", "conflict", "scan"],
       "scansCreate": ["kata scans create"],
-      "zentaoCreate": ["zentao/create.ts"]
+      "zentaoCreate": ["kata zentao create"]
     },
     "infra-diagnose": {
       "knowledgeQuery": ["knowledge read", "--keyword"],

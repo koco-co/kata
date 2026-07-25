@@ -7,7 +7,7 @@
 1. **取证**：
 
    ```bash
-   bun .claude/plugins/zentao/fetch.ts --bug-id <id> --output <hotfixDir>/.temp
+   kata zentao fetch --bug-id <id> --output <hotfixDir>/.temp
    # 或 --url <bug-view URL>
    ```
 
