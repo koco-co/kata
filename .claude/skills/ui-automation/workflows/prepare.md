@@ -3,7 +3,7 @@
 ## 定位与读取
 
 1. 按用户给的目录路径或名称片段定位 feature 目录：用 `metadata.yaml` / `cases/*.yaml` 标题精确匹配唯一目标，不枚举 `features/` 全量。
-2. 读 `cases/需求名.yaml` 和 `prd.md`，列出待自动化用例清单。既没有用例源又没有 prd 时：阻塞，告诉用户先用 case skill 起草用例。
+2. 读 `cases/需求名.yaml`、`prd.md` 与 `test-points.md`，列出待自动化用例清单。既没有用例源又没有 prd 时：阻塞，告诉用户先用 test-case skill 起草用例。
 
 ## 环境预检
 

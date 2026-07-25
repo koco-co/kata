@@ -1,6 +1,6 @@
 ---
 name: ui-automation
-description: 把 feature 目录里的用例转成在真实环境跑通的 Playwright UI 自动化（Web 或 Electron 桌面端），或修复已有自动化。触发方式——只发需求功能目录路径或目录名（features/【v...】...，不带文件扩展名），或要求生成、修复、验证 UI 自动化。只写非 UI 用例转 case；只做静态代码扫描转 defect-analyze。
+description: 把 feature 目录里的用例转成在真实环境跑通的 Playwright UI 自动化（Web 或 Electron 桌面端），或修复已有自动化。触发方式——只发需求功能目录路径或目录名（features/【v...】...，不带文件扩展名），或要求生成、修复、验证 UI 自动化。只写非 UI 用例转 test-case；只做静态代码扫描转 defect-analyze。
 ---
 
 # ui-automation
@@ -50,7 +50,7 @@ description: 把 feature 目录里的用例转成在真实环境跑通的 Playwr
 ## 知识闭环
 
 - 定位 feature 后先 `kata knowledge read --project <project> --module <模块>` 注入命中条目；修复中遇到报错按 `--keyword <报错关键词>` 补查。
-- 交付前把探测核实的页面事实与踩坑按四态写回（`kata knowledge write`，见 knowledge skill）；单次观察先向用户确认再写入，没有新知识就零写入。
+- 交付前把探测核实的页面事实与踩坑按四态写回（`kata knowledge write`，见 domain-knowledge skill）；单次观察先向用户确认再写入，没有新知识就零写入。
 
 ## 产物布局
 

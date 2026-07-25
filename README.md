@@ -64,11 +64,11 @@ bunx playwright install
 
 | 命令 | 领域 | 说明 |
 | --- | --- | --- |
-| `/case` | 用例 | 依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
+| `/test-case` | 用例 | 依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
 | `/ui-automation` | UI 自动化 | 生成、修复或验证 Playwright UI 自动化，交付前真实运行。 |
 | `/defect-analyze` | 缺陷与变更 | 分析缺陷材料、合并冲突或源码差异。 |
 | `/infra-diagnose` | 故障排查 | SSH 排查数据源与服务器连通性问题。 |
-| `/knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
+| `/domain-knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
 | `/workspace` | 工作区 | 创建、检查、修复项目工作区骨架。 |
 
 路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改用例与把用例实现为 UI 自动化是不同的入口，详见 CLAUDE.md 路由规则。

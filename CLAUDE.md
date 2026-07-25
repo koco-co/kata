@@ -7,17 +7,17 @@
 ## Claude Code Runtime 规则
 
 - Claude Code skill 的稳定触发信号来自 `.claude/skills/<name>/SKILL.md` frontmatter 的 `name` 与 `description`。
-- `/skill` 名继续可用；显式的 `/case`、`/ui-automation` 等命令，按下方路由表处理。
+- `/skill` 名继续可用；显式的 `/test-case`、`/ui-automation` 等命令，按下方路由表处理。
 - 本项目不再拿 `CLAUDE.local.md` 当入口；本地设置放用户级配置或 `.claude/settings.local.json`。
 
 ## 路由规则
 
 - 下方命令索引即公开 slash-command 的路由表。
-- 只发 Lanhu/Axure URL → 静默转给 `case`（draft 工作流），由它产出第一个用户可见结果。
-- 只发 ZenTao bug URL/bug-view URL/bug ID → 转给 `case`（hotfix 工作流）；记录未修复或缺修复范围时，由该 skill 生成待办项。
+- 只发 Lanhu/Axure URL → 静默转给 `test-case`（create 工作流），由它产出第一个用户可见结果。
+- 只发 ZenTao bug URL/bug-view URL/bug ID → 转给 `test-case`（hotfix 工作流）；记录未修复或缺修复范围时，由该 skill 生成待办项。
 - 只发需求功能**目录**路径或目录名（如 `features/【v...】...`，不带文件扩展名）→ 转给 `ui-automation`，做用例转自动化。
-- 用户给出用例产物**文件**路径（`.yaml`/`.xmind`/`.csv`/`.md`），或要求编辑、同步、标准化已有用例 → 转给 `case`（edit 工作流）。
-- 用户要求记录、查询、维护项目业务知识、规则、术语，或问「XX 是什么」（项目特定业务概念）→ 自动触发 `knowledge`。
+- 用户给出用例产物**文件**路径（`.yaml`/`.xmind`/`.csv`/`.md`），或要求编辑、同步、标准化已有用例 → 转给 `test-case`（edit 工作流）。
+- 用户要求记录、查询、维护项目业务知识、规则、术语，或问「XX 是什么」（项目特定业务概念）→ 自动触发 `domain-knowledge`。
 - `/ui-automation` 缺环境参数时，先按 skill 内置的环境确认流程处理，再开始探测或浏览器操作。
 
 ### 多技能匹配优先级
@@ -34,14 +34,14 @@
 
 ## 命令索引
 
-| Command          | Skill          | Summary                                                          |
-| ---------------- | -------------- | ---------------------------------------------------------------- |
-| /case            | case           | 用例全生命周期：依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
-| /ui-automation   | ui-automation  | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。         |
-| /defect-analyze  | defect-analyze | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。            |
-| /infra-diagnose  | infra-diagnose | SSH 登录服务器排查并修复数据源与服务器连通性故障。                  |
-| /knowledge       | knowledge      | 查询或维护项目业务知识、规则、术语。                                |
-| /workspace       | workspace      | 创建、检查、修复项目工作区骨架。                                    |
+| Command          | Skill           | Summary                                                          |
+| ---------------- | --------------- | ---------------------------------------------------------------- |
+| /test-case       | test-case       | 用例全生命周期：依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
+| /ui-automation   | ui-automation   | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。         |
+| /defect-analyze  | defect-analyze  | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。            |
+| /infra-diagnose  | infra-diagnose  | SSH 登录服务器排查并修复数据源与服务器连通性故障。                  |
+| /domain-knowledge | domain-knowledge | 查询或维护项目业务知识、规则、术语。                               |
+| /workspace       | workspace       | 创建、检查、修复项目工作区骨架。                                    |
 
 ## 构建与测试
 

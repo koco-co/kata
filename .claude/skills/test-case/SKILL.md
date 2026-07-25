@@ -1,9 +1,9 @@
 ---
-name: case
+name: test-case
 description: QA 用例全生命周期。三种触发方式——① 给需求源（Lanhu/Axure URL、PRD md、设计稿截图、功能描述）起草新用例，只发 URL 即可；② 给既有用例文件（.yaml/.xmind/.csv/.md）或要求编辑、同步、标准化用例；③ 给 ZenTao bug ID、bug-view URL 或缺陷描述，生成单条 hotfix 回归用例。只发需求功能目录路径要做 UI 自动化时转 ui-automation。
 ---
 
-# case
+# test-case
 
 用例的唯一正式源是 `cases/需求名.yaml`；`需求名.xmind` 与 `exports/需求名.md` 是从它派生的产物，只经 `kata cases build` 重新生成，绝不手改。
 
@@ -11,7 +11,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 | 输入 | 工作流 |
 |---|---|
-| 需求源（URL / PRD / 截图 / 功能描述） | [workflows/draft.md](workflows/draft.md) |
+| 需求源（URL / PRD / 截图 / 功能描述） | [workflows/create.md](workflows/create.md) |
 | 既有用例文件，或编辑 / 同步 / 标准化诉求 | [workflows/edit.md](workflows/edit.md) |
 | bug ID / bug-view URL / 缺陷描述 | [workflows/hotfix.md](workflows/hotfix.md) |
 
@@ -26,7 +26,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 ## 知识闭环（三条工作流共用）
 
 - 识别出模块后先 `kata knowledge read --project <project> --module <模块>` 注入命中条目；执行中遇到报错再按 `--keyword <关键词>` 补查。
-- 结束时把查证过的事实与踩坑按四态写回（`kata knowledge write`，见 knowledge skill）；单次观察先向用户确认再写入，没有新知识就零写入。
+- 结束时把查证过的事实与踩坑按四态写回（`kata knowledge write`，见 domain-knowledge skill）；单次观察先向用户确认再写入，没有新知识就零写入。
 
 ## 完成标准（三条工作流共用）
 

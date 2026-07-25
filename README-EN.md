@@ -64,11 +64,11 @@ See [INSTALL.md](./INSTALL.md) for the full setup.
 
 | Command | Area | Summary |
 | --- | --- | --- |
-| `/case` | Cases | Draft from requirement sources, edit existing cases, generate hotfix regression cases from bugs. |
+| `/test-case` | Cases | Draft from requirement sources, edit existing cases, generate hotfix regression cases from bugs. |
 | `/ui-automation` | UI automation | Generate, repair, or verify Playwright UI automation with real runs before delivery. |
 | `/defect-analyze` | Defects and changes | Analyze bug material, merge conflicts, or code diffs. |
 | `/infra-diagnose` | Infrastructure | Diagnose datasource and server connectivity failures over SSH. |
-| `/knowledge` | Knowledge | Query or maintain project rules, terms, and constraints. |
+| `/domain-knowledge` | Knowledge | Query or maintain project rules, terms, and constraints. |
 | `/workspace` | Workspace | Create, check, or repair project workspace skeletons. |
 
 Routing follows the requested action, not only the input extension: editing a case and turning a case into UI automation are different entry points; see the routing rules in CLAUDE.md.
