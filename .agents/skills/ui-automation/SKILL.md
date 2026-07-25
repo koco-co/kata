@@ -1,17 +1,18 @@
 ---
 name: ui-automation
-description: 把 feature 目录里的用例转成在真实环境跑通的 Playwright UI 自动化，或修复已有自动化。触发方式——只发需求功能目录路径或目录名（features/【v...】...，不带文件扩展名），或要求生成、修复、验证 UI 自动化。只写非 UI 用例转 case；只做静态代码扫描转 defect-analyze。
+description: 把 feature 目录里的用例转成在真实环境跑通的 Playwright UI 自动化（Web 或 Electron 桌面端），或修复已有自动化。触发方式——只发需求功能目录路径或目录名（features/【v...】...，不带文件扩展名），或要求生成、修复、验证 UI 自动化。只写非 UI 用例转 case；只做静态代码扫描转 defect-analyze。
 ---
 
 # ui-automation
 
-目标：让用例在真实环境、真实浏览器里跑通，并拿出运行证据。
+目标：让用例在真实环境跑通——Web 走真实浏览器，桌面端（Electron）走真实应用窗口——并拿出运行证据。
 
 ## 环境确认（先于一切探测）
 
 - 用户没给环境名：先 `kata env list`，再一次性问清用哪个环境，默认推荐 `ltqc-local` 并附理由。
 - 用户回复「确认」「使用默认」即等于选定 `ltqc-local`，直接进预检。
 - cookie 内容永不出现在对话里；运行一律 `kata env run <env> -- npx playwright test ...`，不裸跑。
+- 桌面端（Electron）目标：用 `playwright._electron` 启动真实应用包；无 base_url / cookie，确认项是应用包路径、版本与后端指向；窗口即 page，流程、规范与完成标准与 Web 一致。
 
 ## 流程
 
