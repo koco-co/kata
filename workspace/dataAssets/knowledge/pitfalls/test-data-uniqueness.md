@@ -1,5 +1,10 @@
 ---
+title: 测试数据名称必须唯一化
+type: pitfall
 tags: [测试数据, 唯一化, uniqueName]
+status: observed
+source: "历史沉淀约定,迁移时补全 frontmatter"
+updated: 2026-07-25
 ---
 
 # 测试数据名称必须唯一化

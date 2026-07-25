@@ -2,7 +2,7 @@
 title: step fixture 不返回 callback 值
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

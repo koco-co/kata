@@ -2,7 +2,7 @@
 title: QUALITY_PROJECT_ID 硬编码 90 但实际 92
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

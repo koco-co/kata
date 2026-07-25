@@ -12,9 +12,9 @@ export const SKELETON_SPEC = {
     "reports",
     "tests",
     "_shared/rules",
-    "_shared/knowledge",
-    "_shared/knowledge/modules",
-    "_shared/knowledge/pitfalls",
+    "knowledge",
+    "knowledge/modules",
+    "knowledge/pitfalls",
   ],
   gitkeep_dirs: [
     "features",
@@ -22,13 +22,13 @@ export const SKELETON_SPEC = {
     "history",
     "reports",
     "tests",
-    "_shared/knowledge/modules",
-    "_shared/knowledge/pitfalls",
+    "knowledge/modules",
+    "knowledge/pitfalls",
   ],
   template_files: {
     "_shared/rules/README.md": "rules/README.md",
-    "_shared/knowledge/overview.md": "knowledge/overview.md",
-    "_shared/knowledge/terms.md": "knowledge/terms.md",
+    "knowledge/overview.md": "knowledge/overview.md",
+    "knowledge/terms.md": "knowledge/terms.md",
   } as Record<string, string>,
 } as const;
 

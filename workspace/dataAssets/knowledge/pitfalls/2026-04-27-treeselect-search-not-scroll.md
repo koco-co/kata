@@ -2,7 +2,7 @@
 title: TreeSelect / Select 用搜索框过滤，不要逐层展开滚动
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---
@@ -26,7 +26,7 @@ Ant Design TreeSelect / Select dropdown 顶部内置 search input。展开 dropd
 - `input.ant-select-tree-input`（TreeSelect 标准 search input class）
 - `.ant-select-tree-search input`（包裹层路径）
 - `input[type='search']`（HTML 语义层）
-- `input:visible` 兜底
+- `input:visible` 备选(最弱选择)
 
 ## 修复 diff
 ```diff

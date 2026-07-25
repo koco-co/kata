@@ -1,17 +1,13 @@
 #!/usr/bin/env bun
 /**
- * knowledge-curate.ts — 业务知识库 CRUD + lint/index。
- * Usage:
- *   kata knowledge <action> --project <name> [...]
- * Actions: read-core | read-module | read-pitfall | write | update | index | lint
+ * knowledge write 旧路径 — term/overview 聚合文件写入(带冲突检测与审计)。
+ * module/pitfall/site 独立条目走 entry.ts 的四态写入。
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import {
-  type ContentModule,
   type ContentOverview,
-  type ContentPitfall,
   type ContentTerm,
   confidenceGate,
   type Frontmatter,
@@ -24,7 +20,6 @@ import {
   appendAudit,
   buildAuditRecord,
   type Conflict,
-  detectBodyRewrite,
   detectOverviewConflict,
   detectTermConflict,
   saveSnapshot,
@@ -56,13 +51,13 @@ export function runWrite(opts: {
 }): void {
   const gate = confidenceGate(opts.confidence, opts.confirmed);
   if (!gate.allowed) {
-    process.stderr.write(`[knowledge-curate] ${gate.reason}\n`);
+    process.stderr.write(`[knowledge] ${gate.reason}\n`);
     process.exit(1);
   }
 
   const plan = buildWritePlan(opts, todayIso());
 
-  // ── 冲突守卫：block 级冲突必须 --force 才能越过 ──
+  // ── 冲突守卫:block 级冲突必须 --force 才能越过 ──
   if (plan.conflict && plan.conflict.severity === "block" && !opts.force) {
     writeBlockedWrite(opts, plan);
     process.exit(2);
@@ -86,8 +81,9 @@ export function runWrite(opts: {
 function buildWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {
   if (opts.type === "term") return buildTermWritePlan(opts, today);
   if (opts.type === "overview") return buildOverviewWritePlan(opts, today);
-  if (opts.type === "module" || opts.type === "pitfall") return buildFileWritePlan(opts, today);
-  process.stderr.write(`[knowledge-curate] Unknown type: ${opts.type}\n`);
+  process.stderr.write(
+    `[knowledge] 类型 ${opts.type} 不支持 --content;module/pitfall/site 用 --status/--title/--body 写入\n`,
+  );
   process.exit(1);
 }
 
@@ -130,33 +126,6 @@ function buildOverviewWritePlan(opts: Parameters<typeof runWrite>[0], today: str
   };
 }
 
-function buildFileWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {
-  const parsed = parseContentJson<ContentModule | ContentPitfall>(opts.type, opts.content);
-  const subdir = opts.type === "module" ? "modules" : "pitfalls";
-  const targetPath = knowledgePath(opts.project, subdir, `${parsed.name}.md`);
-  const exists = existsSync(targetPath);
-  if (exists && !opts.overwrite) {
-    process.stderr.write(`[knowledge-curate] File exists: ${targetPath} (use --overwrite)\n`);
-    process.exit(1);
-  }
-  const beforeContent = exists ? readFileSync(targetPath, "utf8") : "";
-  const newFm: Frontmatter = {
-    title: parsed.title,
-    type: opts.type === "module" ? "module" : "pitfall",
-    tags: parsed.tags,
-    confidence: opts.confidence as Frontmatter["confidence"],
-    source: parsed.source,
-    updated: today,
-  };
-  const afterContent = `${serializeFrontmatter(newFm)}\n${parsed.body}${parsed.body.endsWith("\n") ? "" : "\n"}`;
-  return {
-    targetPath,
-    beforeContent,
-    afterContent,
-    conflict: exists ? detectBodyRewrite(beforeContent, afterContent) : null,
-  };
-}
-
 function defaultKnowledgeFrontmatter(
   title: string,
   type: Frontmatter["type"],
@@ -172,7 +141,7 @@ function writeBlockedWrite(opts: Parameters<typeof runWrite>[0], plan: WritePlan
     type: opts.type,
     file: plan.targetPath,
     conflict: plan.conflict,
-    hint: "冲突阻断。核对后可加 --force 强制写入，或先调 rollback 回到上一个版本。",
+    hint: "冲突阻断。核对后可加 --force 强制写入。",
   });
 }
 

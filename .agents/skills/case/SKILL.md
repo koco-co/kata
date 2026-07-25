@@ -17,7 +17,9 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 ## 约束
 
-- 菜单、字段、规则语义以 `workspace/<project>/_shared/knowledge/`（`sites/<host>/dom-*.md`、`modules/<module>.md`）为准；存疑用 `kata repos grep/show` 查源码。没有依据的内容不写进用例。
+- 菜单、字段、规则语义以 `workspace/<project>/knowledge/`（`sites/<host>/dom-*.md`、`modules/<module>.md`）为准；存疑用 `kata repos grep/show` 查源码。没有依据的内容不写进用例。
+- 识别出模块后先 `kata knowledge read --project <项目> --module <模块>` 注入命中条目；执行中遇报错按 `--keyword <关键词>` 补查。
+- 结束时把查证过的事实与踩坑按四态写回（`kata knowledge write`，见 knowledge skill）；单次观察先向用户确认再写入，没有新知识零写入。
 - 事实缺证据时停下来说清缺口，不编造需求名、版本号、字段名。
 
 ## 完成标准

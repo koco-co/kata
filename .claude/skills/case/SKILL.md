@@ -19,9 +19,14 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 ## 事实纪律（三条工作流共用）
 
-- 菜单名、按钮、表单字段、规则语义等产品事实，以 `workspace/<project>/_shared/knowledge/` 为准：界面文案查 `sites/<host>/dom-*.md`，规则语义查 `modules/<module>.md`；仍存疑用 `kata repos grep/show` 查源码枚举。没有依据的内容不得写进用例。
+- 菜单名、按钮、表单字段、规则语义等产品事实，以 `workspace/<project>/knowledge/` 为准：界面文案查 `sites/<host>/dom-*.md`，规则语义查 `modules/<module>.md`；仍存疑用 `kata repos grep/show` 查源码枚举。没有依据的内容不得写进用例。
 - 事实缺证据时停下来说明缺口，由用户补充；不得编造需求名、版本号、字段名或菜单路径。
 - 动手写之前先和用户对齐范围（起草对齐测试点清单，编辑对齐改动点），对齐后再写。
+
+## 知识闭环（三条工作流共用）
+
+- 识别出模块后先 `kata knowledge read --project <project> --module <模块>` 注入命中条目；执行中遇到报错再按 `--keyword <关键词>` 补查。
+- 结束时把查证过的事实与踩坑按四态写回（`kata knowledge write`，见 knowledge skill）；单次观察先向用户确认再写入，没有新知识就零写入。
 
 ## 完成标准（三条工作流共用）
 

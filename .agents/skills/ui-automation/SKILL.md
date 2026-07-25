@@ -15,9 +15,9 @@ description: 把 feature 目录里的用例转成在真实环境跑通的 Playwr
 
 ## 流程
 
-1. **准备**：定位 feature 目录（用 metadata.yaml / cases yaml 标题精确匹配）；读 `cases/需求名.yaml` 列出用例清单；`kata env doctor <env>` 预检；`kata automation scaffold <featureDir>` 补骨架；缺用例源又缺 prd 时阻塞，让用户先走 case。
-2. **实现**：逐条用例——先按 `workspace/<project>/_shared/knowledge/` 与真实浏览器探测核对菜单、字段、按钮（冲突以真实探测为准）；再写脚本（`automation/tests/cases/`，选择器 getByRole 优先，断言落在真实业务结果）；跑失败先分类（产品/脚本/数据/权限/环境）再修，每个 spec 最多 3 轮，修不通就排除并写明原因。
-3. **交付**：`kata runs new <feature-id>` 建 run，跑 `automation/tests/runners/full.spec.ts` 全量；写 `runs/<run-id>/handoff.md`（每条用例状态与证据、排除原因、书面用例与真实 UI 的差异）。
+1. **准备**：定位 feature 目录（用 metadata.yaml / cases yaml 标题精确匹配）；读 `cases/需求名.yaml` 列出用例清单；`kata env doctor <env>` 预检；`kata automation scaffold <featureDir>` 补骨架；缺用例源又缺 prd 时阻塞，让用户先走 case。定位后先 `kata knowledge read --project <项目> --module <模块>` 注入命中条目。
+2. **实现**：逐条用例——先按 `workspace/<project>/knowledge/` 与真实浏览器探测核对菜单、字段、按钮（冲突以真实探测为准）；再写脚本（`automation/tests/cases/`，选择器 getByRole 优先，断言落在真实业务结果）；跑失败先分类（产品/脚本/数据/权限/环境）再修，遇报错按 `kata knowledge read --keyword <报错关键词>` 补查，每个 spec 最多 3 轮，修不通就排除并写明原因。
+3. **交付**：`kata runs new <feature-id>` 建 run，跑 `automation/tests/runners/full.spec.ts` 全量；把探测核实的页面事实与踩坑按四态写回（`kata knowledge write`，单次观察先确认再写入，没有新知识零写入）；写 `runs/<run-id>/handoff.md`（每条用例状态与证据、排除原因、书面用例与真实 UI 的差异）。
 
 ## 真实性底线
 

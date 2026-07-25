@@ -2,7 +2,7 @@
 title: 数据源类型 select 选项大小写敏感（Hive2.x ≠ hive2.x）
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

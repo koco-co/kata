@@ -2,7 +2,7 @@
 title: 规则名称/任务名称 50 字符限制
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

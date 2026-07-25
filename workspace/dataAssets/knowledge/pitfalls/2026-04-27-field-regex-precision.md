@@ -2,7 +2,7 @@
 title: /字段/ 误命中"字段级"
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---

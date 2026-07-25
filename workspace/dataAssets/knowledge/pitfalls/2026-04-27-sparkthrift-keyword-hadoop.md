@@ -2,7 +2,7 @@
 title: SparkThrift datasource keyword 漏 hadoop
 type: pitfall
 tags: []
-confidence: high
+status: verified
 source: ""
 updated: 2026-04-27
 ---
@@ -18,7 +18,7 @@ updated: 2026-04-27
 - regex 不命中 → ensureMonitorDatasource 找不到任何匹配项 → throw
 
 ## 根因
-"SparkThrift" 是引擎名，但环境集群命名时常用业务名（如 HADOOP）。keyword 应包含 hadoop 兜底。
+"SparkThrift" 是引擎名，但环境集群命名时常用业务名（如 HADOOP）。keyword 应包含 hadoop 作为备选。
 
 ## 修复 diff
 ```diff
