@@ -10,6 +10,7 @@ export const RUNS_TMP = "_tmp";
 // ─── features/ 顶层特殊目录 ───
 export const STANDING_DIR = "_standing";
 export const ARCHIVED_DIR = "_archived";
+export const HOTFIX_DIR = "_hotfix";
 
 // 版本目录名：语义版本，两段或三段（v6.4 / v6.4.10）
 export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
@@ -17,7 +18,7 @@ export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
 // 中文标签目录：【vXXX】[【lanhu-id】][【客户】]【模块】需求名（见 case-draft naming-convention）
 export const LABEL_DIR_RE = /^【v\d+】(?:【[^】]+】)*[^【]/;
 
-export type FeatureZone = "active" | "standing" | "archived" | "legacy-flat";
+export type FeatureZone = "active" | "standing" | "archived" | "hotfix" | "legacy-flat";
 
 export interface FeatureDirEntry {
   /** Group: version dir name (v6.4.10), _standing, or _archived/v6.4.6; "" for legacy flat dirs. */
@@ -52,6 +53,15 @@ export function listFeatureDirs(featuresRoot: string): FeatureDirEntry[] {
         entries.push({
           group: STANDING_DIR,
           zone: "standing",
+          dirName: name,
+          dir: join(topDir, name),
+        });
+      }
+    } else if (top === HOTFIX_DIR) {
+      for (const name of listChildDirs(topDir)) {
+        entries.push({
+          group: HOTFIX_DIR,
+          zone: "hotfix",
           dirName: name,
           dir: join(topDir, name),
         });

@@ -16,6 +16,8 @@ export interface FeatureLintViolation {
 }
 
 const SLUG_RE = /^\d{4}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// hotfix 目录: <yyyymm>-<bug_id 或 版本_bug_id>-<中文短标题>
+const HOTFIX_DIR_RE = /^\d{6}-[^\s/]+$/;
 // 人类标签命名约定: 【v{版本}】[【lanhu/客户】]【{模块}】{描述}。
 // 目录名只是人类路由把手, 机器主键是 metadata.id(slug)。
 const CJK_LABEL_RE = /^【v\d+】(?:【[^【】]+】){1,3}[^【】]+$/;
@@ -46,6 +48,19 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   for (const entry of entries) {
     const name = entry.dirName;
     const dir = entry.dir;
+
+    // hotfix 目录约定 <yyyymm>-<bug_id>-<中文短标题>,只放 cases/,不建 metadata
+    if (entry.zone === "hotfix") {
+      if (!HOTFIX_DIR_RE.test(name)) {
+        violations.push({
+          feature: name,
+          rule: "dir_name_invalid",
+          message: "Hotfix dir name must be <yyyymm>-<bug_id>-<标题>",
+        });
+      }
+      continue;
+    }
+
     const isCjkLabel = CJK_LABEL_RE.test(name);
 
     if (!SLUG_RE.test(name) && !isCjkLabel) {
