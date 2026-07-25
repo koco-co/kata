@@ -10,10 +10,10 @@ import {
   formatMessage,
   isEmailEnabled,
   sendNotification,
-} from "../send.ts";
+} from "../../../cli/integrations/notify.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const SEND_TS = resolve(__dirname, "../send.ts");
+const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
 
 // ── Message Formatting ───────────────────────────────────────────────────────
 
@@ -85,7 +85,7 @@ describe("formatMessage", () => {
   });
 
   it("validateEventData: flags missing required, unknown fields and enum violations", async () => {
-    const { validateEventData } = await import("../send.ts");
+    const { validateEventData } = await import("../../../cli/integrations/notify.ts");
     const result = validateEventData("ui-test-needs-input", {
       question: "x",
       reasonType: "bogus",
@@ -98,7 +98,7 @@ describe("formatMessage", () => {
   });
 
   it("describeEvent: returns multi-line schema for known event", async () => {
-    const { describeEvent } = await import("../send.ts");
+    const { describeEvent } = await import("../../../cli/integrations/notify.ts");
     const text = describeEvent("ui-test-needs-input");
     assert.ok(text.includes("question"));
     assert.ok(text.includes("dom_mismatch"));
@@ -106,7 +106,7 @@ describe("formatMessage", () => {
   });
 
   it("listAllEvents: lists every event in EVENT_SCHEMAS", async () => {
-    const { listAllEvents, EVENT_SCHEMAS } = await import("../send.ts");
+    const { listAllEvents, EVENT_SCHEMAS } = await import("../../../cli/integrations/notify.ts");
     const text = listAllEvents();
     for (const name of Object.keys(EVENT_SCHEMAS)) {
       assert.ok(text.includes(name), `missing ${name} in listAllEvents output`);
@@ -444,7 +444,7 @@ describe("sendNotification dry-run", () => {
 
 describe("CLI --help", () => {
   it("--help exits with code 0 and shows usage", () => {
-    const result = execSync(`bun run "${SEND_TS}" --help`, {
+    const result = execSync(`bun run "${KATA_TS}" notify send --help`, {
       encoding: "utf8",
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -458,7 +458,7 @@ describe("CLI --help", () => {
 describe("CLI --dry-run", () => {
   it("outputs dry_run JSON to stdout", () => {
     const stdout = execSync(
-      `bun run "${SEND_TS}" --dry-run --event case-generated --data '{"count":1,"file":"test.xmind","duration":30}'`,
+      `bun run "${KATA_TS}" notify send --dry-run --event case-generated --data '{"count":1,"file":"test.xmind","duration":30}'`,
       { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
     );
     const parsed = JSON.parse(stdout) as { dry_run: boolean; message: string };
@@ -468,7 +468,7 @@ describe("CLI --dry-run", () => {
 
   it("dry-run with workflow-failed event outputs correct message", () => {
     const stdout = execSync(
-      `bun run "${SEND_TS}" --dry-run --event workflow-failed --data '{"step":"writer","reason":"timeout"}'`,
+      `bun run "${KATA_TS}" notify send --dry-run --event workflow-failed --data '{"step":"writer","reason":"timeout"}'`,
       { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
     );
     const parsed = JSON.parse(stdout) as { dry_run: boolean; message: string };
