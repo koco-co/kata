@@ -25,10 +25,10 @@ import {
 import { basename, extname, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
-import { getEnv, initEnv } from "../lib/env.ts";
-import { prdsDir, repoRoot } from "../lib/paths.ts";
 import { Command } from "commander";
 import sharp from "sharp";
+import { getEnv, initEnv } from "../lib/env.ts";
+import { prdsDir, repoRoot } from "../lib/paths.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const LANHU_BRIDGE_RELATIVE_DIR = ".claude/plugins/lanhu/mcp-bridge";

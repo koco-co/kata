@@ -1,15 +1,15 @@
-import { Command } from "commander";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
-  SKELETON_SPEC,
-  TEMPLATE_ROOT_REL,
   configJsonPath,
   diffProjectSkeleton,
   mergeProjectConfig,
   migrateLegacyHistorys,
   renderTemplate,
+  SKELETON_SPEC,
+  TEMPLATE_ROOT_REL,
   validateProjectName,
 } from "../lib/create-project.ts";
 import { runIndex } from "../lib/knowledge/read.ts";
@@ -74,7 +74,11 @@ export function registerProject(program: Command): void {
         outputJson({
           dry_run: true,
           project: opts.project,
-          will_create: { dirs: diff.missing_dirs, files: diff.missing_files, gitkeeps: diff.missing_gitkeeps },
+          will_create: {
+            dirs: diff.missing_dirs,
+            files: diff.missing_files,
+            gitkeeps: diff.missing_gitkeeps,
+          },
           will_register: !registered,
         });
         return;
@@ -107,7 +111,9 @@ export function registerProject(program: Command): void {
 
       // config.json 注册
       const cfgPath = configJsonPath();
-      const existing = existsSync(cfgPath) ? (JSON.parse(readFileSync(cfgPath, "utf8")) as Record<string, unknown>) : {};
+      const existing = existsSync(cfgPath)
+        ? (JSON.parse(readFileSync(cfgPath, "utf8")) as Record<string, unknown>)
+        : {};
       const { merged, added } = mergeProjectConfig(existing, opts.project);
       writeFileSync(cfgPath, `${JSON.stringify(merged, null, 2)}\n`);
 

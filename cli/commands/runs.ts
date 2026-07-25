@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { Command } from "commander";
+import type { Command } from "commander";
 import { readFeatureMeta } from "../lib/feature-meta.ts";
 import {
   type FeatureDirEntry,
@@ -8,15 +8,12 @@ import {
   RUNS_TMP,
   runsDir,
 } from "../lib/features-layout.ts";
-import { generateRunId, RUN_TYPES, runIdType, type RunType } from "../lib/run-id.ts";
+import { generateRunId, RUN_TYPES, type RunType, runIdType } from "../lib/run-id.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
 // ─── 共用：按 dirName 或 metadata.id 定位 feature ───
 
-function findFeatureEntry(
-  featuresRoot: string,
-  featureId: string,
-): FeatureDirEntry {
+function findFeatureEntry(featuresRoot: string, featureId: string): FeatureDirEntry {
   const entries = listFeatureDirs(featuresRoot);
   const entry =
     entries.find((e) => e.dirName === featureId) ??
@@ -176,19 +173,22 @@ export function registerRuns(program: Command): void {
     .requiredOption("--project <name>", "项目名")
     .option("--keep <n>", "保留最近 N 个运行", "5")
     .option("--apply", "真正执行删除(默认 dry-run)", false)
-    .action((featureId: string | undefined, opts: { project: string; keep: string; apply: boolean }) => {
-      const keep = Number.parseInt(opts.keep, 10);
-      if (Number.isNaN(keep) || keep < 0) throw new Error(`--keep 需为非负整数，收到 "${opts.keep}"`);
-      const { removed, kept } = runRunsPrune({
-        project: opts.project,
-        featureId,
-        keep,
-        apply: opts.apply,
-      });
-      for (const n of kept) console.log(`保留: ${n}`);
-      for (const n of removed) console.log(`${opts.apply ? "已删" : "将删"}: ${n}`);
-      console.log(
-        `\n[runs prune] ${opts.apply ? "已删除" : "dry-run，待删"} ${removed.length} 个运行目录，保留 ${kept.length} 个`,
-      );
-    });
+    .action(
+      (featureId: string | undefined, opts: { project: string; keep: string; apply: boolean }) => {
+        const keep = Number.parseInt(opts.keep, 10);
+        if (Number.isNaN(keep) || keep < 0)
+          throw new Error(`--keep 需为非负整数，收到 "${opts.keep}"`);
+        const { removed, kept } = runRunsPrune({
+          project: opts.project,
+          featureId,
+          keep,
+          apply: opts.apply,
+        });
+        for (const n of kept) console.log(`保留: ${n}`);
+        for (const n of removed) console.log(`${opts.apply ? "已删" : "将删"}: ${n}`);
+        console.log(
+          `\n[runs prune] ${opts.apply ? "已删除" : "dry-run，待删"} ${removed.length} 个运行目录，保留 ${kept.length} 个`,
+        );
+      },
+    );
 }

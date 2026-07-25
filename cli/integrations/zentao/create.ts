@@ -6,13 +6,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
 import { renderBugReport } from "../../lib/bug-report-render.ts";
 import type { BugReport } from "../../lib/bug-report-types.ts";
 import { validateBugReport } from "../../lib/bug-report-validate.ts";
 import { getEnv, initEnv } from "../../lib/env.ts";
 import { repoRoot } from "../../lib/paths.ts";
 import type { Severity } from "../../lib/scan-report-types.ts";
-import { parse as parseYaml } from "yaml";
 import { resolveSession } from "./client.ts";
 
 // ─── 配置 ─────────────────────────────────────────────────────────────────────

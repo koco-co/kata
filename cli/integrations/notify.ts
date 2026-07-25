@@ -11,8 +11,8 @@
 import crypto from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getEnv, initEnv } from "../lib/env.ts";
 import { Command } from "commander";
+import { getEnv, initEnv } from "../lib/env.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 

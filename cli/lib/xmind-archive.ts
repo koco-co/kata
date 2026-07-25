@@ -12,7 +12,6 @@
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { parseFrontMatter as parseGenericFrontMatter } from "./frontmatter.ts";
-import { splitMdTableRow } from "./md-table.ts";
 import type {
   IntermediateJson,
   Module,
@@ -21,6 +20,7 @@ import type {
   TestCase,
   TestStep,
 } from "./intermediate-types.ts";
+import { splitMdTableRow } from "./md-table.ts";
 import type { RootAwareMeta } from "./xmind-render.ts";
 import { UNCLASSIFIED } from "./xmind-render.ts";
 

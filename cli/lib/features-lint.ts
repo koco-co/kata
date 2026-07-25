@@ -39,7 +39,9 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   const versionsEnum = loadEnum(sharedDir, "versions.yaml");
 
   const allEntries = listFeatureDirs(featuresDir);
-  const entries = ctx.featureId ? allEntries.filter((e) => e.dirName === ctx.featureId) : allEntries;
+  const entries = ctx.featureId
+    ? allEntries.filter((e) => e.dirName === ctx.featureId)
+    : allEntries;
 
   for (const entry of entries) {
     const name = entry.dirName;
@@ -57,7 +59,11 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
 
     const metaPath = join(dir, "metadata.yaml");
     if (!existsSync(metaPath)) {
-      violations.push({ feature: name, rule: "metadata_missing", message: "metadata.yaml not present" });
+      violations.push({
+        feature: name,
+        rule: "metadata_missing",
+        message: "metadata.yaml not present",
+      });
       continue;
     }
 
@@ -70,32 +76,56 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
     }
 
     if (!meta.id || typeof meta.id !== "string") {
-      violations.push({ feature: name, rule: "metadata_id_missing", message: "metadata.yaml has no string id" });
+      violations.push({
+        feature: name,
+        rule: "metadata_id_missing",
+        message: "metadata.yaml has no string id",
+      });
     }
 
     // 迁移完成后不再保留 manifest.json; 残留说明 metadata 未收敛为单版本
     if (existsSync(join(dir, "manifest.json"))) {
-      violations.push({ feature: name, rule: "manifest_residual", message: "manifest.json still exists; merge it into metadata.yaml" });
+      violations.push({
+        feature: name,
+        rule: "manifest_residual",
+        message: "manifest.json still exists; merge it into metadata.yaml",
+      });
     }
 
     // CJK 人类标签目录的机器主键是 metadata.id, 目录名不要求等于 id; slug 目录则要求一致
     if (!isCjkLabel && typeof meta.id === "string" && meta.id !== name) {
-      violations.push({ feature: name, rule: "id_dir_mismatch", message: `metadata.id="${meta.id}" but dir="${name}"` });
+      violations.push({
+        feature: name,
+        rule: "id_dir_mismatch",
+        message: `metadata.id="${meta.id}" but dir="${name}"`,
+      });
     }
 
     for (const m of (meta.modules as string[] | undefined) ?? []) {
       if (modulesEnum.length && !modulesEnum.includes(m)) {
-        violations.push({ feature: name, rule: "module_not_in_enum", message: `Module "${m}" not in _shared/_meta/modules.yaml` });
+        violations.push({
+          feature: name,
+          rule: "module_not_in_enum",
+          message: `Module "${m}" not in _shared/_meta/modules.yaml`,
+        });
       }
     }
     for (const c of (meta.customers as string[] | undefined) ?? []) {
       if (customersEnum.length && !customersEnum.includes(c)) {
-        violations.push({ feature: name, rule: "customer_not_in_enum", message: `Customer "${c}" not in _shared/_meta/customers.yaml` });
+        violations.push({
+          feature: name,
+          rule: "customer_not_in_enum",
+          message: `Customer "${c}" not in _shared/_meta/customers.yaml`,
+        });
       }
     }
     for (const v of (meta.versions as string[] | undefined) ?? []) {
       if (versionsEnum.length && !versionsEnum.includes(v)) {
-        violations.push({ feature: name, rule: "version_not_in_enum", message: `Version "${v}" not in _shared/_meta/versions.yaml` });
+        violations.push({
+          feature: name,
+          rule: "version_not_in_enum",
+          message: `Version "${v}" not in _shared/_meta/versions.yaml`,
+        });
       }
     }
   }

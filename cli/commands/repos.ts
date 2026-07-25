@@ -1,11 +1,10 @@
-import { Command } from "commander";
+import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { getEnv } from "../lib/env.ts";
 import {
   configuredSourceRepos,
   git,
   isGitSourceRepo,
-  parseGitUrl,
   resolveConfiguredSourceRepo,
 } from "../lib/git-source.ts";
 
@@ -19,7 +18,9 @@ function sourceRepos(): string | undefined {
 function resolveRepo(repoId: string): string {
   const path = resolveConfiguredSourceRepo(repoId, sourceRoot(), sourceRepos());
   if (!path) {
-    throw new Error(`未找到已配置源码仓库 ${repoId}；检查 KATA_SOURCE_REPO_ROOT 与 KATA_SOURCE_REPOS`);
+    throw new Error(
+      `未找到已配置源码仓库 ${repoId}；检查 KATA_SOURCE_REPO_ROOT 与 KATA_SOURCE_REPOS`,
+    );
   }
   return path;
 }
@@ -43,9 +44,20 @@ export function registerRepos(program: Command): void {
           const ref = opts.branch ?? "HEAD";
           const commit = git(entry.path, ["rev-parse", "--verify", `${ref}^{commit}`]).trim();
           const branch = git(entry.path, ["rev-parse", "--abbrev-ref", "HEAD"]).trim();
-          return { repo: `${entry.group}/${entry.repo}`, path: entry.path, branch, commit, ok: true };
+          return {
+            repo: `${entry.group}/${entry.repo}`,
+            path: entry.path,
+            branch,
+            commit,
+            ok: true,
+          };
         } catch (err) {
-          return { repo: `${entry.group}/${entry.repo}`, path: entry.path, ok: false, error: String(err) };
+          return {
+            repo: `${entry.group}/${entry.repo}`,
+            path: entry.path,
+            ok: false,
+            error: String(err),
+          };
         }
       });
       outputJson(out);

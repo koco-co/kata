@@ -17,7 +17,12 @@ export function auditDir(project: string, yyyymm: string, slug: string): string 
 }
 
 /** Join segments under a diff-scan analysis dir. */
-export function auditFile(project: string, yyyymm: string, slug: string, ...segments: string[]): string {
+export function auditFile(
+  project: string,
+  yyyymm: string,
+  slug: string,
+  ...segments: string[]
+): string {
   return join(auditDir(project, yyyymm, slug), ...segments);
 }
 

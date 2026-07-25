@@ -1,7 +1,7 @@
 // lib/create-project.ts
 
 import { existsSync, renameSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { repoRoot } from "./workspace-locator.ts";
 
 export const SKELETON_SPEC = {

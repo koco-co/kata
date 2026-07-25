@@ -8,8 +8,9 @@ import {
   writeFileSync,
 } from "node:fs";
 import { basename, dirname, extname, isAbsolute, join, resolve } from "node:path";
-import { Command } from "commander";
+import type { Command } from "commander";
 import type { IntermediateJson } from "../lib/intermediate-types.ts";
+import { locateProjectRoot } from "../lib/workspace-locator.ts";
 import { archiveToJson } from "../lib/xmind-archive.ts";
 import { appendXmind, applyFoldingToFile, replaceXmind } from "../lib/xmind-io.ts";
 import {
@@ -22,7 +23,6 @@ import {
   validateInput,
   type WriteMode,
 } from "../lib/xmind-render.ts";
-import { locateProjectRoot } from "../lib/workspace-locator.ts";
 
 // ─── 输入路径校验：限制在仓库根内 ───
 
@@ -151,9 +151,18 @@ export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
       throw new Error(`目录内无 .md 文件: ${inputPath}`);
     }
     for (const mdFile of mdFiles) {
-      await processMdFile(mdFile, rulesRoot, opts.project, opts.version, opts.jsonOnly, mode, undefined, {
-        stepsAsNotes: opts.stepsAsNotes,
-      });
+      await processMdFile(
+        mdFile,
+        rulesRoot,
+        opts.project,
+        opts.version,
+        opts.jsonOnly,
+        mode,
+        undefined,
+        {
+          stepsAsNotes: opts.stepsAsNotes,
+        },
+      );
     }
     return;
   }

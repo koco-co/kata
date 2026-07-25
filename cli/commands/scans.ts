@@ -1,16 +1,20 @@
-import { Command } from "commander";
-import { writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { getEnv } from "../lib/env.ts";
 import { resolveConfiguredSourceRepo } from "../lib/git-source.ts";
 import { auditDir, auditFile, currentYYYYMM } from "../lib/paths.ts";
 import { fetchAndDiff } from "../lib/scan-report-diff.ts";
 import { renderScanReport } from "../lib/scan-report-render.ts";
-import { initAudit, readMeta, readReport, type AuditMeta } from "../lib/scan-report-store.ts";
+import { type AuditMeta, initAudit, readMeta, readReport } from "../lib/scan-report-store.ts";
 
 function defaultSlug(repo: string, base: string, head: string): string {
-  const clean = (s: string) => s.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+  const clean = (s: string) =>
+    s
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase();
   return `${clean(repo)}-${clean(base)}-to-${clean(head)}`.slice(0, 80);
 }
 
@@ -38,34 +42,50 @@ export function registerScans(program: Command): void {
     .option("--slug <slug>", "覆盖默认 slug")
     .option("--yyyymm <ym>", "覆盖默认当前 YYYYMM")
     .option("--skip-fetch", "跳过 git fetch", false)
-    .action((opts: { project: string; repo: string; baseBranch: string; headBranch: string; slug?: string; yyyymm?: string; skipFetch: boolean }) => {
-      const repoPath = resolveConfiguredSourceRepo(opts.repo, getEnv("KATA_SOURCE_REPO_ROOT"), getEnv("KATA_SOURCE_REPOS"));
-      if (!repoPath) throw new Error(`未找到已配置仓库 ${opts.repo}`);
-      const yyyymm = opts.yyyymm ?? currentYYYYMM();
-      const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
-      const diffOut = fetchAndDiff(repoPath, opts.baseBranch, opts.headBranch, { skipFetch: opts.skipFetch });
+    .action(
+      (opts: {
+        project: string;
+        repo: string;
+        baseBranch: string;
+        headBranch: string;
+        slug?: string;
+        yyyymm?: string;
+        skipFetch: boolean;
+      }) => {
+        const repoPath = resolveConfiguredSourceRepo(
+          opts.repo,
+          getEnv("KATA_SOURCE_REPO_ROOT"),
+          getEnv("KATA_SOURCE_REPOS"),
+        );
+        if (!repoPath) throw new Error(`未找到已配置仓库 ${opts.repo}`);
+        const yyyymm = opts.yyyymm ?? currentYYYYMM();
+        const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
+        const diffOut = fetchAndDiff(repoPath, opts.baseBranch, opts.headBranch, {
+          skipFetch: opts.skipFetch,
+        });
 
-      const meta: AuditMeta = {
-        schema_version: "1",
-        project: opts.project,
-        repo: opts.repo,
-        base_branch: opts.baseBranch,
-        head_branch: opts.headBranch,
-        base_commit: diffOut.base_commit,
-        head_commit: diffOut.head_commit,
-        scan_time: new Date().toISOString(),
-        reviewer: null,
-        related_feature: null,
-        diff_stats: diffOut.stats,
-        summary: "",
-      } as AuditMeta;
-      initAudit(opts.project, yyyymm, slug, meta);
-      const diffPath = join(auditDir(opts.project, yyyymm, slug), "diff.patch");
-      mkdirSync(dirname(diffPath), { recursive: true });
-      writeFileSync(diffPath, diffOut.diff, "utf8");
-      const html = autoRender(opts.project, yyyymm, slug);
-      outputJson({ ok: true, slug, yyyymm, html });
-    });
+        const meta: AuditMeta = {
+          schema_version: "1",
+          project: opts.project,
+          repo: opts.repo,
+          base_branch: opts.baseBranch,
+          head_branch: opts.headBranch,
+          base_commit: diffOut.base_commit,
+          head_commit: diffOut.head_commit,
+          scan_time: new Date().toISOString(),
+          reviewer: null,
+          related_feature: null,
+          diff_stats: diffOut.stats,
+          summary: "",
+        } as AuditMeta;
+        initAudit(opts.project, yyyymm, slug, meta);
+        const diffPath = join(auditDir(opts.project, yyyymm, slug), "diff.patch");
+        mkdirSync(dirname(diffPath), { recursive: true });
+        writeFileSync(diffPath, diffOut.diff, "utf8");
+        const html = autoRender(opts.project, yyyymm, slug);
+        outputJson({ ok: true, slug, yyyymm, html });
+      },
+    );
 
   scans
     .command("render")

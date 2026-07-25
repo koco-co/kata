@@ -1,5 +1,5 @@
-import { Command } from "commander";
 import { join } from "node:path";
+import type { Command } from "commander";
 import { runHandoffRender } from "../lib/handoff-render.ts";
 import { repoRoot } from "../lib/workspace-locator.ts";
 

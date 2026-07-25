@@ -3,8 +3,8 @@
 // 旧 bin 的 localizeHelp + publicV2Commands 白名单导致 verb 级 --help 冒泡到根命令，这里不回迁该机制。
 import { existsSync, readFileSync } from "node:fs";
 import { Command } from "commander";
-import { registerCases } from "../commands/cases.ts";
 import { registerAutomation } from "../commands/automation.ts";
+import { registerCases } from "../commands/cases.ts";
 import { registerDefects } from "../commands/defects.ts";
 import { registerEnv } from "../commands/env.ts";
 import { registerFeatures } from "../commands/features.ts";

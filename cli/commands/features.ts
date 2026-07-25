@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import type { Command } from "commander";
 import { stringify } from "yaml";
-import { Command } from "commander";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { readFeatureMeta } from "../lib/feature-meta.ts";
 import {

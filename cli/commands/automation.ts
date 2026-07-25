@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import type { Command } from "commander";
 import { normalizeAutomation } from "../lib/automation-normalize.ts";
 import { scaffoldAutomation } from "../lib/automation-scaffold.ts";
 
@@ -12,7 +12,9 @@ export function registerAutomation(program: Command): void {
     .option("--force", "覆盖已存在文件", false)
     .action((featureDir: string, opts: { force: boolean }) => {
       const r = scaffoldAutomation(featureDir, { force: opts.force });
-      console.log(`[scaffold] created=${r.created.length} skipped=${r.skipped.length} overwritten=${r.overwritten.length}`);
+      console.log(
+        `[scaffold] created=${r.created.length} skipped=${r.skipped.length} overwritten=${r.overwritten.length}`,
+      );
     });
 
   automation

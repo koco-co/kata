@@ -8,12 +8,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import {
-  type IndexEntry,
-  parseFrontmatter,
-  searchPitfalls,
-  type TermRow,
-} from "../knowledge.ts";
+import { type IndexEntry, parseFrontmatter, searchPitfalls, type TermRow } from "../knowledge.ts";
 import { knowledgeDir, knowledgePath } from "../knowledge-paths.ts";
 import { parseTermsTable, scanEntries, writeIndexFile } from "./index-data.ts";
 

@@ -1,7 +1,8 @@
 // cli/lib/atomic-writer.ts
+
+import { randomBytes } from "node:crypto";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { randomBytes } from "node:crypto";
 
 /** Write a file atomically: write to a temp sibling then rename over the target. */
 export function writeFileAtomic(path: string, content: string | Buffer): void {

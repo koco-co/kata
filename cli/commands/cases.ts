@@ -1,5 +1,5 @@
-import { Command } from "commander";
 import { join } from "node:path";
+import type { Command } from "commander";
 import { runFeaturesLint } from "../lib/features-lint.ts";
 import { locateProjectRoot } from "../lib/workspace-locator.ts";
 

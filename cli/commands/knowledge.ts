@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import type { Command } from "commander";
 import { runIndex, runReadCore, runReadModule, runReadPitfall } from "../lib/knowledge/read.ts";
 import { runWrite } from "../lib/knowledge/write.ts";
 
@@ -37,17 +37,27 @@ export function registerKnowledge(program: Command): void {
     .option("--dry-run", "只预览不写入", false)
     .option("--overwrite", "允许覆盖", false)
     .option("--force", "越过 block 级冲突", false)
-    .action((opts: { project: string; type: string; content: string; confidence: string; confirmed: boolean; dryRun: boolean; overwrite: boolean; force: boolean }) =>
-      runWrite({
-        project: opts.project,
-        type: opts.type,
-        content: opts.content,
-        confidence: opts.confidence,
-        confirmed: opts.confirmed,
-        dryRun: opts.dryRun,
-        overwrite: opts.overwrite,
-        force: opts.force,
-      }),
+    .action(
+      (opts: {
+        project: string;
+        type: string;
+        content: string;
+        confidence: string;
+        confirmed: boolean;
+        dryRun: boolean;
+        overwrite: boolean;
+        force: boolean;
+      }) =>
+        runWrite({
+          project: opts.project,
+          type: opts.type,
+          content: opts.content,
+          confidence: opts.confidence,
+          confirmed: opts.confirmed,
+          dryRun: opts.dryRun,
+          overwrite: opts.overwrite,
+          force: opts.force,
+        }),
     );
 
   knowledge

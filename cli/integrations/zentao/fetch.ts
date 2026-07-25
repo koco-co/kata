@@ -10,8 +10,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getEnv, initEnv } from "../../lib/env.ts";
 import { Command } from "commander";
+import { getEnv, initEnv } from "../../lib/env.ts";
 
 import { parseBugPayload } from "./parse.ts";
 import { type FetchFn, fetchAuthedBugJson, readCookie, type ZentaoCreds } from "./session.ts";

@@ -477,10 +477,7 @@ async function readLimitedPlatformResponse<T>(
   const declared = response.headers.get("content-length");
   if (declared !== null) {
     const declaredBytes = Number(declared);
-    if (
-      Number.isFinite(declaredBytes) &&
-      declaredBytes > MAX_PLATFORM_RESPONSE_BYTES
-    ) {
+    if (Number.isFinite(declaredBytes) && declaredBytes > MAX_PLATFORM_RESPONSE_BYTES) {
       throw new Error(`platform_response_too_large: ${path}`);
     }
   }
@@ -528,10 +525,7 @@ async function post<T>(
   projectId?: number,
 ): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(
-    () => controller.abort(),
-    PLATFORM_REQUEST_TIMEOUT_MS,
-  );
+  const timeout = setTimeout(() => controller.abort(), PLATFORM_REQUEST_TIMEOUT_MS);
   try {
     let response: Response;
     try {
@@ -554,9 +548,7 @@ async function post<T>(
     }
 
     if (!response.ok) {
-      throw new Error(
-        `authentication_or_http_failure: ${path} returned HTTP ${response.status}`,
-      );
+      throw new Error(`authentication_or_http_failure: ${path} returned HTTP ${response.status}`);
     }
 
     let envelope: ApiEnvelope<T>;
@@ -665,11 +657,7 @@ export async function resolveDataAssetsEnv(
     const centerName = assets.dtCenterSourceName ?? expected.name;
     const batch = batchDatasources.find((item) => item.dataName === centerName);
     if (expected.requires_offline !== false && !batch) {
-      exactOne(
-        batchDatasources,
-        (item) => item.dataName === centerName,
-        `datasource_${key}_batch`,
-      );
+      exactOne(batchDatasources, (item) => item.dataName === centerName, `datasource_${key}_batch`);
     }
     const metadata = exactOne(
       inventory.metadataDatasources,
@@ -683,7 +671,10 @@ export async function resolveDataAssetsEnv(
             batch: {
               id: requiredId(batch.id, `datasource_${key}_batch`),
               name: requiredString(batch.dataName, `datasource_${key}_batch.name`),
-              typeId: requiredId(batch.dataSourceType ?? batch.type, `datasource_${key}_batch_type`),
+              typeId: requiredId(
+                batch.dataSourceType ?? batch.type,
+                `datasource_${key}_batch_type`,
+              ),
             },
           }
         : {}),

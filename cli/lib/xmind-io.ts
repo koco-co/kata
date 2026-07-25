@@ -10,8 +10,8 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import type { IntermediateJson, Page, TestCase } from "./intermediate-types.ts";
 import JSZip from "jszip";
+import type { IntermediateJson, Page, TestCase } from "./intermediate-types.ts";
 import type { RenderOptions } from "./xmind-render.ts";
 import {
   buildCaseNote,

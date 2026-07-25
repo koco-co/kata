@@ -1,3 +1,4 @@
+import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
   diagnoseDataAssetsEnv,
@@ -6,7 +7,6 @@ import {
   setDataAssetsCookie,
   showDataAssetsEnv,
 } from "../lib/dataassets-env.ts";
-import { Command } from "commander";
 
 async function readStdinCookie(): Promise<string> {
   let input = "";

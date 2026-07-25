@@ -1,10 +1,10 @@
-import { Command } from "commander";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { outputJson } from "../lib/cli.ts";
+import type { Command } from "commander";
 import { renderBugReport, renderConflictReport } from "../lib/bug-report-render.ts";
 import type { BugVariant } from "../lib/bug-report-types.ts";
 import { validateBugReport, validateConflictReport } from "../lib/bug-report-validate.ts";
+import { outputJson } from "../lib/cli.ts";
 
 function loadJson(path: string): unknown {
   if (!existsSync(path)) throw new Error(`JSON 不存在: ${path}`);
