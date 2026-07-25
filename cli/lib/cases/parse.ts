@@ -21,6 +21,12 @@ function asString(v: unknown, field: string): string {
   return v;
 }
 
+// 步骤单元格:允许空字符串(续行/纯验证行),但必须是字符串
+function asCell(v: unknown, field: string): string {
+  if (typeof v !== "string") fail(`字段 ${field} 缺失或不是字符串`);
+  return v;
+}
+
 function asCaseItem(v: unknown, index: number): CaseItem {
   if (typeof v !== "object" || v === null) fail(`cases[${index}] 不是对象`);
   const o = v as Record<string, unknown>;
@@ -33,8 +39,8 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     if (typeof s !== "object" || s === null) fail(`cases[${index}].steps[${i}] 不是对象`);
     const so = s as Record<string, unknown>;
     return {
-      action: asString(so.action, `cases[${index}].steps[${i}].action`),
-      expected: asString(so.expected, `cases[${index}].steps[${i}].expected`),
+      action: asCell(so.action, `cases[${index}].steps[${i}].action`),
+      expected: asCell(so.expected, `cases[${index}].steps[${i}].expected`),
     };
   });
   const item: CaseItem = {

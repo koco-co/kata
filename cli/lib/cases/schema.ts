@@ -23,12 +23,7 @@ export function validateCases(file: CasesFile): string[] {
     if (!c.title?.trim()) problems.push(`用例 ${c.id} 标题为空`);
     if (!PRIORITIES.includes(c.priority)) problems.push(`用例 ${c.id} 优先级非法: ${c.priority}`);
     if (!c.steps || c.steps.length === 0) problems.push(`用例 ${c.id} 没有步骤`);
-    else {
-      c.steps.forEach((s, i) => {
-        if (!s.action?.trim()) problems.push(`用例 ${c.id} 第 ${i + 1} 步 action 为空`);
-        if (!s.expected?.trim()) problems.push(`用例 ${c.id} 第 ${i + 1} 步 expected 为空`);
-      });
-    }
+    // action/expected 允许为空字符串(续行/纯验证行是合法 QA 写法)
   }
   return problems;
 }
