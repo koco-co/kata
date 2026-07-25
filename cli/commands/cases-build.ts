@@ -8,7 +8,9 @@ import { join, resolve } from "node:path";
 import type { Command } from "commander";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
+import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
+import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import { renderXmind } from "../lib/cases/render-xmind.ts";
 import { assertWritable } from "../lib/path-policy.ts";
 import type { ProjectPaths } from "../lib/types.ts";
@@ -69,4 +71,35 @@ export function registerCasesBuild(cases: Command): void {
         process.exit(1);
       }
     });
+  cases
+    .command("export")
+    .description("从 cases/需求名.yaml 按需派生 exports/{csv,xlsx}")
+    .requiredOption("--feature <dir>", "feature 目录路径")
+    .requiredOption("--to <fmt>", "目标格式: csv|xlsx")
+    .action(async (opts: { feature: string; to: string }) => {
+      try {
+        const written = await runCasesExport(opts.feature, opts.to);
+        for (const p of written) console.log(`exported ${p}`);
+      } catch (e) {
+        console.error((e as Error).message);
+        process.exit(1);
+      }
+    });
+}
+
+/** Render csv/xlsx exports for one feature dir; returns written paths. */
+export async function runCasesExport(featureDir: string, to: string): Promise<string[]> {
+  if (to !== "csv" && to !== "xlsx") throw new Error(`不支持的格式 "${to}",可选 csv|xlsx`);
+  const { yamlPath, name } = findCasesYaml(featureDir);
+  const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+  const problems = validateCases(file);
+  if (problems.length > 0) {
+    throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
+  }
+  const paths = featurePaths(featureDir);
+  const out = assertWritable(paths, join(featureDir, "cases", "exports", `${name}.${to}`));
+  mkdirSync(join(featureDir, "cases", "exports"), { recursive: true });
+  if (to === "csv") writeFileAtomic(out, renderCsv(file));
+  else writeFileAtomic(out, await renderXlsx(file));
+  return [out];
 }
