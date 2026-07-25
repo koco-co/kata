@@ -1,0 +1,66 @@
+{
+  "bug_id": "151624",
+  "zentao_url": "http://zenpms.dtstack.cn/zentao/bug-view-151624.html",
+  "source_refs": [
+    {
+      "id": "bug.record@1",
+      "source": "workspace/dataAssets/_shared/archive/issues/202605/hotfix_6.3.x_ltqc_151624-json格式配置导入顶层key/.temp/bug-151624.json",
+      "summary": "禅道 Bug #151624 抽取结果：标题为「【数据质量】JSON格式校验管理：导入功能有误。页面已定义json格式，显示导入成功，但是平台并没有相关key」，严重程度 normal，优先级 3，当前状态 in process，处理人为 xianglin，修复分支为 hotfix_6.3.x_ltqc_151624。"
+    },
+    {
+      "id": "bug.page@1",
+      "source": "workspace/dataAssets/_shared/archive/issues/202605/hotfix_6.3.x_ltqc_151624-json格式配置导入顶层key/.temp/zentao-bug-151624-parsed.json",
+      "summary": "禅道页面基本信息：Bug 打开时间 2026-05-25 10:55:11，客户为定制版本_岚图汽车，客户环境为生产环境，所属数栈应用为数据质量，计算引擎为 HDP_HDP 2.6.0.0，问题类型为产品BUG。"
+    },
+    {
+      "id": "bug.page@2",
+      "source": "workspace/dataAssets/_shared/archive/issues/202605/hotfix_6.3.x_ltqc_151624-json格式配置导入顶层key/.temp/zentao-bug-151624-parsed.json",
+      "summary": "禅道复现补充：在一个 JSON 二层存在同名 key 后，再导入同样命名的一层 key，页面显示导入成功，实际并未导入。评论说明附件包含「json文件(第一次导入).xlsx」和「json文件(第二次导入).xlsx」，先导入第一次、再导入第二次可稳定复现。"
+    },
+    {
+      "id": "bug.resolution@1",
+      "source": "workspace/dataAssets/_shared/archive/issues/202605/hotfix_6.3.x_ltqc_151624-json格式配置导入顶层key/.temp/zentao-bug-151624-parsed.json",
+      "summary": "禅道解决备注：修复工程 dt-center-assets，修复分支 hotfix_6.3.x_ltqc_151624；问题原因为进行顶层层级存在性校验时未指定顶层层级，导致顶层层级出现相同 key 名会指定到已有的子层级；改动点为加入指定顶层校验。"
+    },
+    {
+      "id": "env.profile@1",
+      "source": "workspace/dataAssets/_shared/env/ltqc-local.yaml",
+      "summary": "ltqc-local 环境：base_url 为 http://shuzhan63-test-ltqc.k8s.dtstack.cn，租户为 pw_test，数据质量项目为 pw_test(id=92)，默认数据源为 SparkThrift，UI label 为 SparkThrift2.x。用户提供的 local-ltqc.yaml 在当前仓库未找到，已按仓库现有 ltqc-local.yaml 使用。"
+    },
+    {
+      "id": "lanhu.prd@1",
+      "source": "workspace/dataAssets/_shared/archive/issues/202605/hotfix_6.3.x_ltqc_151624-json格式配置导入顶层key/.temp/【数据质量】规则校验详细结果表.md",
+      "summary": "用户提供的 Lanhu URL 抽取为需求 14812「【数据质量】规则校验详细结果表」，开发版本为岚图定制化分支，需求内容关注每类规则运行后的总结信息、未通过原因、规则校验说明和质量报告展示。该页面属于数据质量关联需求，但不是本 Bug 的 JSON 配置导入复现来源。"
+    },
+    {
+      "id": "product.rule@1",
+      "source": "workspace/dataAssets/_shared/knowledge/modules/data-quality.md",
+      "summary": "数据质量模块业务规则：json格式校验管理位于数据质量通用配置；仅针对完整性校验的 key 值存在性和有效性校验的 key 对应 value 正确性做正则配置；岚图自动化默认使用项目 pw_test。"
+    },
+    {
+      "id": "case.archive@1",
+      "source": "workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】JSON格式配置/archive.md",
+      "summary": "历史 JSON格式配置用例给出页面路径和导入格式：进入【数据质量 → 通用配置】后页面标题为「json格式校验管理」；点击【导入】打开「导入标准」弹窗，默认重复处理规则为「重复则跳过」；模板文件含一层到五层 5 个 Sheet，其中一层 Sheet 表头为「* key、中文名称、value格式」，二层 Sheet 表头为「* 第一层级key名、* key、中文名称、value格式」。"
+    },
+    {
+      "id": "source.code@1",
+      "source": "workspace/dataAssets/.kata/repos/customltem/dt-center-assets/web/src/main/java/com/dtstack/assets/controller/valid/JsonValidationConfigController.java",
+      "summary": "源码控制器路径：JsonValidationConfigController 挂载 /valid/jsonValidationConfig；/import 接口接收 JsonFormatImportParam 和 MultipartFile，并调用 JsonValidationConfigService#importJsonFormat(file, dataSourceType, repeatMode)。"
+    },
+    {
+      "id": "source.code@2",
+      "source": "workspace/dataAssets/.kata/repos/customltem/dt-center-assets/service/src/main/java/com/dtstack/assets/service/valid/impl/JsonValidationConfigService.java",
+      "summary": "源码服务路径：importJsonFormat 读取 5 个 Sheet，一层走 readMainSheet，二层到五层走 readSubSheet；readMainSheet 构造顶层 fullPath 为 ['jsonKey']，readSubSheet 按父层级拼接 fullPath，保存时通过 parentId/jsonKey/projectId 判断当前层级重复。"
+    },
+    {
+      "id": "source.code@3",
+      "source": "workspace/dataAssets/.kata/repos/customltem/dt-center-assets/sql/dmMysql/increment/202604091405_v6.3.x.sql",
+      "summary": "源码 SQL 初始化：assets_dq_json_validation_config 表包含 json_key、data_source_type、parent_id、level、full_path、full_path_point 字段；权限编码 dataValid_generalConfig_jsonValidationConfig 的展示名为「json格式校验管理」。"
+    },
+    {
+      "id": "case.construction@1",
+      "source": "test-design",
+      "summary": "hotfix151624Root、sameKey151624、第一次导入文件、第二次导入文件、顶层 value 格式 ^[A-Z]+$、子层级 value 格式 ^[0-9]+$ 为本次 Hotfix 回归用例构造的等价测试数据，用于复现「二层已存在同名 key 后一层同名 key 导入成功但实际缺失」的修复路径；它们不是 ZenTao 附件中的原始 key 名。"
+    }
+  ]
+}
