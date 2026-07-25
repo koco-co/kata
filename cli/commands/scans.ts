@@ -6,7 +6,8 @@ import { resolveSourceRepo } from "../lib/git-source.ts";
 import { auditDir, auditFile, currentYYYYMM } from "../lib/paths.ts";
 import { fetchAndDiff } from "../lib/scan-report-diff.ts";
 import { renderScanReport } from "../lib/scan-report-render.ts";
-import { type AuditMeta, initAudit, readMeta, readReport } from "../lib/scan-report-store.ts";
+import { initAudit, readMeta, readReport } from "../lib/scan-report-store.ts";
+import { type AuditMeta, SCAN_REPORT_SCHEMA_VERSION } from "../lib/scan-report-types.ts";
 
 function defaultSlug(repo: string, base: string, head: string): string {
   const clean = (s: string) =>
@@ -61,7 +62,7 @@ export function registerScans(program: Command): void {
         });
 
         const meta: AuditMeta = {
-          schema_version: "1",
+          schema_version: SCAN_REPORT_SCHEMA_VERSION,
           project: opts.project,
           repo: opts.repo,
           base_branch: opts.baseBranch,

@@ -195,16 +195,16 @@ export function buildRawL1Node(
 export async function appendXmind(
   data: IntermediateJson,
   outputPath: string,
-  project?: string,
+  projectDir?: string,
   options: RenderOptions = {},
 ): Promise<void> {
   if (!existsSync(outputPath)) {
-    await createXmind(data, outputPath, project, options);
+    await createXmind(data, outputPath, projectDir, options);
     return;
   }
 
   const [sheets, zip] = await readXmindSheets(outputPath);
-  const rootTitle = buildRootTitle(data.meta, project);
+  const rootTitle = buildRootTitle(data.meta, projectDir);
 
   const sheet = sheets.find((s) => s.rootTopic?.title === rootTitle) ?? sheets[0];
   if (!sheet?.rootTopic) {
@@ -227,16 +227,16 @@ export async function appendXmind(
 export async function replaceXmind(
   data: IntermediateJson,
   outputPath: string,
-  project?: string,
+  projectDir?: string,
   options: RenderOptions = {},
 ): Promise<void> {
   if (!existsSync(outputPath)) {
-    await createXmind(data, outputPath, project, options);
+    await createXmind(data, outputPath, projectDir, options);
     return;
   }
 
   const [sheets, zip] = await readXmindSheets(outputPath);
-  const rootTitle = buildRootTitle(data.meta, project);
+  const rootTitle = buildRootTitle(data.meta, projectDir);
   const l1Title = buildL1Title(data.meta);
 
   const sheet = sheets.find((s) => s.rootTopic?.title === rootTitle) ?? sheets[0];

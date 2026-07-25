@@ -4,13 +4,6 @@
     "rootDir": ".",
     "types": ["node", "bun"]
   },
-  "include": [
-    "scripts/**/*.ts",
-    "lib/**/*.ts",
-    ".claude/scripts/**/*.ts",
-    ".claude/plugins/**/*.ts",
-    ".claude/skills/**/scripts/**/*.ts",
-    ".claude/skills/**/tests/**/*.ts"
-  ],
-  "exclude": ["node_modules", "workspace", ".claude/scripts/_shared/tests/lint/fixtures/**"]
+  "include": ["cli/**/*.ts", "tests/**/*.ts", ".claude/plugins/**/*.ts"],
+  "exclude": ["node_modules", "workspace"]
 }

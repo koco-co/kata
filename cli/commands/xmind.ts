@@ -39,6 +39,15 @@ function parseWriteMode(mode: string): WriteMode {
   throw new Error(`非法 --mode "${mode}"，可选 create|append|replace`);
 }
 
+// 从输入路径推导 workspace 项目目录(用于加载项目级 xmind 渲染规则);
+// 不在 workspace/<project>/ 下的输入没有项目规则,用内置默认值。
+function deriveProjectDir(inputPath: string, repoRoot: string): string | undefined {
+  const prefix = `${join(repoRoot, "workspace")}/`;
+  if (!inputPath.startsWith(prefix)) return undefined;
+  const project = inputPath.slice(prefix.length).split("/")[0];
+  return project ? join(prefix, project) : undefined;
+}
+
 interface GenerateOptions {
   input: string;
   output?: string;
@@ -51,7 +60,7 @@ interface GenerateOptions {
 
 async function processMdFile(
   mdPath: string,
-  rulesRoot: string,
+  projectDir: string | undefined,
   project: string,
   version?: string,
   jsonOnly?: boolean,
@@ -82,11 +91,11 @@ async function processMdFile(
     if (mode === "create") {
       // create 模式下已存在则先删（与旧实现一致：archive → xmind 是再生型产物）
       if (existsSync(xmindPath)) unlinkSync(xmindPath);
-      await createXmind(data, xmindPath, rulesRoot, project, renderOptions);
+      await createXmind(data, xmindPath, projectDir, renderOptions);
     } else if (mode === "append") {
-      await appendXmind(data, xmindPath, rulesRoot, project, renderOptions);
+      await appendXmind(data, xmindPath, projectDir, renderOptions);
     } else {
-      await replaceXmind(data, xmindPath, rulesRoot, project, renderOptions);
+      await replaceXmind(data, xmindPath, projectDir, renderOptions);
     }
     await applyFoldingToFile(xmindPath);
   } catch (err) {
@@ -98,7 +107,7 @@ async function processMdFile(
 
 async function runJsonInput(
   inputPath: string,
-  rulesRoot: string,
+  projectDir: string | undefined,
   opts: GenerateOptions,
   mode: WriteMode,
 ): Promise<void> {
@@ -118,18 +127,18 @@ async function runJsonInput(
   const renderOptions: RenderOptions = { stepsAsNotes: opts.stepsAsNotes };
 
   if (mode === "create") {
-    await createXmind(data, outputPath, rulesRoot, opts.project, renderOptions);
+    await createXmind(data, outputPath, projectDir, renderOptions);
   } else if (mode === "append") {
-    await appendXmind(data, outputPath, rulesRoot, opts.project, renderOptions);
+    await appendXmind(data, outputPath, projectDir, renderOptions);
   } else {
-    await replaceXmind(data, outputPath, rulesRoot, opts.project, renderOptions);
+    await replaceXmind(data, outputPath, projectDir, renderOptions);
   }
   await applyFoldingToFile(outputPath);
 
   const result: OutputResult = {
     output_path: outputPath,
     mode,
-    root_title: buildRootTitle(data.meta, rulesRoot, opts.project),
+    root_title: buildRootTitle(data.meta, projectDir),
     l1_title: buildL1Title(data.meta),
     case_count: countCases(data.modules),
   };
@@ -138,10 +147,11 @@ async function runJsonInput(
 
 /** Run the xmind generate verb: dir batch, .md → xmind, or .json → xmind. */
 export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
-  const rulesRoot = locateProjectRoot();
+  const repoRoot = locateProjectRoot();
   const mode = parseWriteMode(opts.mode);
-  const inputPath = resolveInsideRoot(opts.input, rulesRoot);
+  const inputPath = resolveInsideRoot(opts.input, repoRoot);
   const stat = statSync(inputPath);
+  const projectDir = deriveProjectDir(inputPath, repoRoot);
 
   if (stat.isDirectory()) {
     const mdFiles = readdirSync(inputPath)
@@ -153,7 +163,7 @@ export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
     for (const mdFile of mdFiles) {
       await processMdFile(
         mdFile,
-        rulesRoot,
+        projectDir,
         opts.project,
         opts.version,
         opts.jsonOnly,
@@ -171,7 +181,7 @@ export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
   if (ext === ".md") {
     await processMdFile(
       inputPath,
-      rulesRoot,
+      projectDir,
       opts.project,
       opts.version,
       opts.jsonOnly,
@@ -182,7 +192,7 @@ export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
     return;
   }
 
-  await runJsonInput(inputPath, rulesRoot, opts, mode);
+  await runJsonInput(inputPath, projectDir, opts, mode);
 }
 
 // ─── commander 注册 ───

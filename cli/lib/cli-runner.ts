@@ -45,7 +45,11 @@ export interface CliRootActionSpec<T = Record<string, unknown>> {
 export interface CliConfig {
   name: string;
   description: string;
+  // 异构命令集合：每个子命令有自己的 opts 类型,只有 any 能同时满足"接受任意具体 spec"
+  // 与"传给 buildActionHandler 消费"两个方向;never/unknown 都会在消费端逆变失败。
+  // biome-ignore lint/suspicious/noExplicitAny: heterogeneous command spec collection
   commands?: CliCommandSpec<any>[];
+  // biome-ignore lint/suspicious/noExplicitAny: same heterogeneous-opts reason as commands
   rootAction?: CliRootActionSpec<any>;
   onError?: (err: unknown, ctx: CliContext) => void;
 }

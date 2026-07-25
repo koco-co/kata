@@ -1,3 +1,0 @@
-test("debug", async () => {
-  /* repro */
-});

@@ -4,8 +4,7 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    ".claude/packages/dtstack",
-    ".claude/scripts/_shared"
+    ".claude/packages/dtstack"
   ],
   "description": "AI-driven QA workflows for Claude Code and OpenAI Codex.",
   "author": "kata contributors",
@@ -26,13 +25,12 @@
     "test:tools": "bun test --cwd .claude/packages/dtstack --timeout 30000",
     "check": "biome check .",
     "check:fix": "biome check --fix .",
-    "lint": "biome check .claude/skills .claude/plugins .claude/scripts .claude/packages .agents AGENTS.md README.md README-EN.md INSTALL.md",
+    "lint": "biome check .claude/skills .claude/plugins .claude/packages .agents cli tests AGENTS.md README.md README-EN.md INSTALL.md",
     "format": "biome check --fix .",
     "type-check": "tsc --noEmit",
     "ci": "bun run check && bun run type-check && bun run test && bun run test:plugins && bun run test:tools",
     "test": "bun test --timeout 30000",
-    "test:watch": "bun test --watch",
-    "lint:cases": "kata cases lint --exit-code --severity fail-only --scope workspace"
+    "test:watch": "bun test --watch"
   },
   "dependencies": {
     "ajv": "^8.20.0",

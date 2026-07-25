@@ -192,7 +192,7 @@ export function validateEventData(event: string, data: NotifyData): ValidationRe
   const enumViolations = schema.fields
     .filter((f) => f.type === "enum" && data[f.name] !== undefined && f.enum)
     .filter((f) => !f.enum?.includes(String(data[f.name])))
-    .map((f) => ({ field: f.name, value: data[f.name], allowed: f.enum! }));
+    .map((f) => ({ field: f.name, value: data[f.name], allowed: f.enum ?? [] }));
   return { missingRequired, unknownFields, enumViolations };
 }
 
@@ -619,7 +619,8 @@ function buildDingtalkUrl(baseUrl: string, signSecret?: string): string {
 }
 
 async function sendDingtalk(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
-  const url = buildDingtalkUrl(cfg.dingtalk!, cfg.dingtalkSignSecret);
+  if (!cfg.dingtalk) throw new Error("缺 dingtalk webhook 配置");
+  const url = buildDingtalkUrl(cfg.dingtalk, cfg.dingtalkSignSecret);
   const title = cfg.dingtalkKeyword ? `${cfg.dingtalkKeyword} ${msg.title}` : msg.title;
 
   const body = {
@@ -658,7 +659,8 @@ async function sendFeishu(cfg: ChannelConfig, msg: FormattedMessage): Promise<vo
     },
   };
 
-  const res = await fetch(cfg.feishu!, {
+  if (!cfg.feishu) throw new Error("缺 feishu webhook 配置");
+  const res = await fetch(cfg.feishu, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -682,7 +684,8 @@ async function sendWecom(cfg: ChannelConfig, msg: FormattedMessage): Promise<voi
     markdown: { content: msg.text },
   };
 
-  const res = await fetch(cfg.wecom!, {
+  if (!cfg.wecom) throw new Error("缺 wecom webhook 配置");
+  const res = await fetch(cfg.wecom, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

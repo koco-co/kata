@@ -40,7 +40,7 @@ datasources:
     expect(cfg.datasources.d1.port).toBe(9030);
   });
 
-  test("interpolates ${ENV_VAR}", () => {
+  test("interpolates ENV_VAR placeholders", () => {
     process.env.MY_PWD = "secret";
     const file = join(dir, "c.yaml");
     writeFileSync(

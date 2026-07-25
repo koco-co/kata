@@ -8,7 +8,7 @@ import {
   dataAssetsEnvPath,
   readDataAssetsEnvConfig,
   type ResolvedDataAssetsEnv,
-} from "../../../../.claude/scripts/_shared/lib/dataassets-env";
+} from "../../../../cli/lib/dataassets-env";
 
 export type RuntimeEnv = Record<string, string | undefined>;
 
