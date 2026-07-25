@@ -33,3 +33,10 @@
 
 - 失败截图与 trace 进 run 目录；关键业务结果截图附进 Allure。
 - console 错误与失败请求监听（`page.on("console"/"requestfailed")`）接入断言或日志。
+
+## 桌面端（Electron）差异
+
+- 每个 spec 独立 `electron.launch()` 并 `close()`，用例间不共享应用进程与窗口态（对应 Web 的独立 context 规则）。
+- 窗口即 page；多窗口用 `electronApp.windows()` 枚举，不假设单窗口。
+- 无 cookie 注入与 base_url：登录走应用自身 UI 流程，后端指向由应用启动参数或配置决定，环境确认阶段先问清。
+- 选择器、断言、等待、证据与测试记录前缀规则与 Web 完全一致。

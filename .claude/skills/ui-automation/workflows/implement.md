@@ -5,7 +5,7 @@
 ## 核对（plan + probe）
 
 1. `kata knowledge read --project <项目> --module <模块>` 注入命中条目；再按索引读 `workspace/<project>/knowledge/modules/` 与 `knowledge/sites/<host>/dom-*.md`，形成菜单 / 字段 / 规则语义的候选事实；存疑用 `kata repos grep/show` 查源码枚举。
-2. 真实浏览器逐页探测：菜单路径、表单字段、按钮、枚举值；截图与 DOM 证据存 run 目录。书面用例与真实 UI 冲突时以真实 UI 为准调脚本；用例本身写错的记录差异，交付时反馈。
+2. 真实浏览器（桌面端为应用窗口）逐页探测：菜单路径、表单字段、按钮、枚举值；截图与 DOM 证据存 run 目录。书面用例与真实 UI 冲突时以真实 UI 为准调脚本；用例本身写错的记录差异，交付时反馈。
 3. 每条用例明确：业务动作序列、可见断言、前置数据（fixture / SQL）。
 
 ## 生成（generate）
