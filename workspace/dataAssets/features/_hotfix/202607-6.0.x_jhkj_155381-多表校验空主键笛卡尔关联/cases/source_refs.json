@@ -1,0 +1,56 @@
+{
+  "bug_id": "155381",
+  "zentao_url": "http://zenpms.dtstack.cn/zentao/bug-view-155381.html",
+  "source_refs": [
+    {
+      "id": "bug.record@1",
+      "source": "zentao:.temp/bug-155381.json",
+      "summary": "禅道 Bug #155381 标题为「【数据资产】多表校验质量任务一直在运行中」，产品为数据资产，状态 resolved，客户为定制版本_南京嘉环科技，发现于 2026-07-21，解决于 2026-07-22，修复工程为 assets，修复分支为 hotfix_6.0.x_jhkj_155381。"
+    },
+    {
+      "id": "bug.record@2",
+      "source": "zentao:.temp/bug-155381.json",
+      "summary": "禅道复现证据包含数据质量任务查询页、YARN 应用状态、质量 SQL 和大数据量截图；截图 file-read-302247.png 显示页面路由为 #/dq/taskQuery，列表中多表校验任务状态为「运行中」且运行时长超过 8 小时。"
+    },
+    {
+      "id": "bug.record@3",
+      "source": "zentao:.temp/bug-155381.json",
+      "summary": "禅道解决说明确认根因：之前 JOIN 关联条件在左右两边主键 id 均为 NULL 时仍进行关联，导致 JOIN 条件退化为非等值笛卡尔式 JOIN，产生海量数据并计算过慢。修复后只保留等值关联。"
+    },
+    {
+      "id": "bug.record@4",
+      "source": "zentao:.temp/bug-155381.json",
+      "summary": "禅道解决说明给出生成 SQL 对比：修复前包含 `L.id = R.id OR L.id IS NULL AND R.id IS NULL`，修复后为 `L.id = R.id`；并要求根据任务 ID 查看监控记录及调度任务影子表的 `sql_text` 字段。"
+    },
+    {
+      "id": "bug.record@5",
+      "source": "zentao:.temp/file-read-302323.png, .temp/file-read-302352.png, .temp/file-read-302353.png",
+      "summary": "禅道附件显示对同一数据表不同日期分区执行 count(1)，结果约为 1,419,011、1,441,368、1,445,400 行，支撑该问题存在大数据量 JOIN 风险；这些数值不是本 hotfix 用例的固定预期。"
+    },
+    {
+      "id": "bug.record@6",
+      "source": "zentao:.temp/file-read-302234.png, .temp/file-read-302237.png, .temp/file-read-302350.png",
+      "summary": "禅道附件显示 YARN SparkSQL Engine 应用处于 RUNNING、质量 SQL 日志包含左右表 JOIN，以及数据质量任务实例诊断页的「实例运行」阶段长时间保持运行中。"
+    },
+    {
+      "id": "knowledge.dq@1",
+      "source": "workspace/dataAssets/_shared/knowledge/modules/data-quality.md",
+      "summary": "产品知识确认多表比对是独立向导，依次为选择左侧表、选择右侧表、选择字段、执行配置；数据源与库名在用例中使用占位符，具体表名需提供可执行建表 SQL。"
+    },
+    {
+      "id": "knowledge.ui@1",
+      "source": "workspace/dataAssets/_shared/knowledge/sites/shuzhan60-test-zszq/dom-dataAssets.md",
+      "summary": "已记录的标品 UI 基线包含多表比对向导步骤、字段映射、逻辑主键、默认精确相等匹配与「空值与 NULL 等价」选项，以及任务查询入口；该站点不是本 Bug 的生产环境，仅作为历史产品文案参考。"
+    },
+    {
+      "id": "format.rule@1",
+      "source": ".claude/prompt/_shared/case-format-sample.md; .claude/skills/case-hotfix/references/hotfix-archive-format.md",
+      "summary": "归档格式要求 hotfix 只含 1 条用例，标题使用【bug_id】而不加优先级，前置条件使用无语言标记的 fenced code block，具体表名必须有同名 CREATE TABLE，数据源和库名使用占位符，步骤和多条预期逐项换行。"
+    }
+  ],
+  "pending_items": [
+    "未登录 Bug 所在生产环境进行当前多表配置页 DOM 探测；配置入口和部分字段文案来自产品知识历史基线，执行时以当前页面实际文案为准并记录差异。",
+    "禅道未给出可安全复用的真实数据源、库名或质量项目标识；已使用 ${DataSourceA} 和 ${SchemaA}，不把生产对象写入 archive。",
+    "禅道未规定完成时限和 NULL 主键结果的确切状态枚举；用例不设置固定性能阈值，以终态、生成 SQL 和结果明细为验收证据。"
+  ]
+}

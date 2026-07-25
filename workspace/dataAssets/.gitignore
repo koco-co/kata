@@ -1,1 +1,8 @@
-_shared/*
+# _shared 文本资产(知识/页对象/规则/fixtures)纳入 git;大二进制与本地环境仍忽略
+_shared/**/*.png
+_shared/**/*.jpg
+_shared/**/*.jpeg
+_shared/**/*.zip
+_shared/**/*.trace
+_shared/**/*.tar
+_shared/**/*.gz

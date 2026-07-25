@@ -1,0 +1,51 @@
+---
+suite_name: "Hotfix 用例 - 【数据管理】导入数据表，业务属性部分丢失"
+description: "验证 Bug #154995 修复效果"
+case_count: 1
+keywords: "6.3 | 元数据管理 | Hive3.x(Apache) | CDH | 6.3 | 表元数据导入时文本框string和bigint属性合法值被静默导为空"
+tags:
+  - hotfix
+  - bug-154995
+create_at: "2026-07-16"
+status: 草稿
+origin: zentao
+zentao_url: "http://zenpms.dtstack.cn/zentao/bug-view-154995.html"
+---
+
+## 数据资产
+
+### 元数据
+
+#### 元数据管理
+
+##### 【154995】验证导入表元数据时业务属性完整保存并回显
+
+> 前置条件
+
+```
+1. 已接入 Hive3.x(Apache) 数据源 ${DataSourceA}。在 ${DataSourceA} 的 ${SchemaA} 库执行以下 SQL，准备表元数据导入目标表：
+
+CREATE TABLE IF NOT EXISTS ads_supplier_warranty_management_di (
+  id BIGINT
+);
+
+2. 已接入 MySQL 数据源 ${DataSourceB}。在 ${DataSourceB} 的 ${SchemaB} 库执行以下 SQL，准备字段与数据库元数据导入目标表：
+
+CREATE TABLE IF NOT EXISTS tabletb003 (
+  id BIGINT PRIMARY KEY,
+  name VARCHAR(64)
+);
+
+3. 上述数据源类型的元模型中已启用本用例导入模板所列业务属性；枚举属性已包含本用例填写的选项值。
+```
+
+> 用例步骤
+
+| 编号 | 步骤 | 预期 |
+| ---- | ---- | ---- |
+| 1 | 进入【元数据 → 元数据管理】，选择 Hive3.x(Apache) 数据源 ${DataSourceA}，进入数据库 ${SchemaA}，点击「导入元数据」：<br>- 切换至表元数据导入方式并下载该方式对应模板<br>- database/namespace：${SchemaA}<br>- table_name：ads_supplier_warranty_management_di<br>- application_scenario：质保金分析<br>- business_domain：经营域<br>- data_content：质保金告警结果数据，包含6类告警<br>- data_manager：张昱<br>- data_owner：张昱<br>- data_storage_cycle：5年<br>- manager：留空<br>- operator_admin：王治<br>- project_manager：刘虎<br>- tb_name_cn：质保金告警月表<br>- update_frequency：每月10日<br>保存模板、上传文件并点击「确定」 | 1)导入操作成功完成<br>2)所有已填写属性均按合法值导入，不出现文本框 string 或 bigint 属性被静默置空<br>3)manager 留空不影响其他业务属性导入 |
+| 2 | 在 ${SchemaA} 的数据表列表搜索并打开 ads_supplier_warranty_management_di，查看右侧「业务属性」 | 1)表中文名：质保金告警月表<br>2)项目经理：刘虎<br>3)业务域：经营域<br>4)更新频率：每月10日<br>5)应用场景：质保金分析<br>6)数据存储周期：5年<br>7)操作管理员：王治<br>8)数据责任人：张昱<br>9)数据内容：质保金告警结果数据，包含6类告警<br>10)数据经理：张昱<br>11)负责人因 manager 留空显示为 --<br>12)除明确留空的 manager 外，已填写属性均不显示为 -- |
+| 3 | 返回【元数据 → 元数据管理】的 MySQL 数据源 ${DataSourceB}，点击「导入元数据」：<br>- 切换至字段元数据导入方式并下载该方式对应模板<br>- 数据库：${SchemaB}<br>- 数据表：tabletb003<br>- 字段：name<br>- 字段模型属性文本框bigint：112<br>- 字段模型属性文本框String：文本框11<br>- 字段管理属性枚举：管理2<br>- 字段业务属性枚举：业务2<br>保存模板、上传文件并点击「确定」 | 1)字段元数据导入操作成功完成<br>2)文本框 bigint、文本框 String 与枚举属性均按合法值导入<br>3)各属性之间不发生串列或静默置空 |
+| 4 | 打开 ${SchemaB} 下数据表 tabletb003 的「表结构」，定位字段 name | 1)字段模型属性文本框bigint：112<br>2)字段模型属性文本框String：文本框11<br>3)字段管理属性枚举：管理2<br>4)字段业务属性枚举：业务2<br>5)四项已填写属性均不显示为 -- |
+| 5 | 返回 ${DataSourceB} 的数据库列表，点击「导入元数据」：<br>- 切换至数据库元数据导入方式并下载该方式对应模板<br>- 数据库：${SchemaB}<br>- test_list1：11<br>- test_list2：11<br>- 测试1：1<br>- 数据库属性文本框String：文本String属性<br>- 数据库属性文本框bigint：11<br>- 数据库枚举业务属性：业务枚举1<br>- 数据库枚举管理属性：枚举管理1<br>保存模板、上传文件并点击「确定」 | 1)数据库元数据导入操作成功完成<br>2)文本框与枚举属性均按合法值导入<br>3)各属性之间不发生串列或静默置空 |
+| 6 | 在 ${DataSourceB} 的数据库列表打开 ${SchemaB} 详情，查看「自定义属性」 | 1)test_list1：11<br>2)test_list2：11<br>3)测试1：1<br>4)数据库属性文本框String：文本String属性<br>5)数据库属性文本框bigint：11<br>6)数据库枚举业务属性：业务枚举1<br>7)数据库枚举管理属性：枚举管理1<br>8)七项已填写属性均不显示为 -- |

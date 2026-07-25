@@ -1,0 +1,77 @@
+---
+suite_name: "Hotfix 用例 - 【标品63】mysql数据源，字段定义为【id  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT】，准确性校验识别为非数值字段"
+description: "验证 Bug #151426 修复效果"
+case_count: 1
+keywords: "6.3 | 数据质量 | MySQL |  | 6.3 | BIGINT UNSIGNED未纳入number字段类型识别范围"
+tags:
+  - hotfix
+  - bug-151426
+create_at: "2026-06-29"
+status: 草稿
+origin: zentao
+zentao_url: "http://zenpms.dtstack.cn/zentao/bug-view-151426.html"
+---
+
+## 数据资产
+
+### 数据质量
+
+#### 规则任务管理
+
+##### 【P1】【151426】验证 MySQL BIGINT UNSIGNED 字段可配置准确性数值校验
+
+> 前置条件
+
+```
+1. 已在验证环境部署包含 Bug #151426 修复的 assets 服务包。
+2. 已在数据质量项目中接入 MySQL 测试数据源；若复用 ZenTao 环境，租户为 hadoop2，项目为 test_007；其他环境使用等价质量项目。
+3. 数据源连接的默认数据库为本次 Hotfix 测试库，后续 SQL 均在该数据库下执行，SQL 直接使用裸表名。
+4. 在 MySQL 测试库执行以下 SQL，并确认数据质量页面可选择表 hotfix_151426_order_partitioned；若页面无法检索新表，先按当前项目的数据源同步机制刷新元数据后继续。
+
+DROP TABLE IF EXISTS `hotfix_151426_order_partitioned`;
+
+CREATE TABLE `hotfix_151426_order_partitioned` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_no` VARCHAR(64) NOT NULL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+  `status` TINYINT NOT NULL DEFAULT 0 COMMENT '0-待付款 1-已付款 2-已完成 3-已取消',
+  `order_date` DATE NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `extra_info` JSON,
+  PRIMARY KEY (`id`, `order_date`),
+  UNIQUE KEY `uk_hotfix_151426_order_no` (`order_no`, `order_date`),
+  INDEX `idx_hotfix_151426_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+PARTITION BY RANGE (TO_DAYS(`order_date`)) (
+  PARTITION p202501 VALUES LESS THAN (TO_DAYS('2025-02-01')),
+  PARTITION p202502 VALUES LESS THAN (TO_DAYS('2025-03-01')),
+  PARTITION p202503 VALUES LESS THAN (TO_DAYS('2025-04-01')),
+  PARTITION p202504 VALUES LESS THAN (TO_DAYS('2025-05-01')),
+  PARTITION p202505 VALUES LESS THAN (TO_DAYS('2025-06-01')),
+  PARTITION p202506 VALUES LESS THAN (TO_DAYS('2025-07-01')),
+  PARTITION p_future VALUES LESS THAN MAXVALUE
+);
+
+INSERT INTO `hotfix_151426_order_partitioned`
+  (`order_no`, `user_id`, `amount`, `status`, `order_date`, `extra_info`)
+VALUES
+  ('ORD20250101001', 10001, 299.00, 1, '2025-01-15', '{"channel":"app","coupon":"NEW10"}'),
+  ('ORD20250315002', 10002, 1599.50, 2, '2025-03-15', '{"channel":"web"}'),
+  ('ORD20250520003', 10001, 50.00, 0, '2025-05-20', NULL);
+
+SELECT `id`, `order_no`, `user_id`, `amount`, `order_date`
+FROM `hotfix_151426_order_partitioned`
+ORDER BY `id`;
+```
+
+> 用例步骤
+
+| 编号 | 步骤 | 预期 |
+| ---- | ---- | ---- |
+| 1 | 进入【数据质量 → 规则任务管理】，点击「新建监控规则」，配置监控对象:<br>- 规则名称: hotfix151426无符号整型准确性<br>- 选择数据源: 前置条件中的 MySQL 数据源<br>- 选择数据库: 本次 Hotfix 测试库<br>- 选择数据表: hotfix_151426_order_partitioned<br>点击「下一步」 | 1)进入单表监控规则配置流程<br>2)目标 MySQL 表可被选择<br>3)字段元数据包含 `id`、`user_id`、`amount`、`order_no` |
+| 2 | 点击「添加规则」-「准确性校验」，配置 `id` 字段规则:<br>- 字段: id<br>- 统计函数: 求和<br>- 校验方法: 固定值<br>- 期望值: > 0<br>- 强弱规则: 保持页面默认值<br>- 规则描述: 验证 BIGINT UNSIGNED id 可作为准确性数值字段<br>点击「保存」 | 1)`id` 字段可被选择为准确性校验字段<br>2)统计函数「求和」可配置且未被禁用<br>3)保存时不提示 `id` 为非数值字段<br>4)规则保存成功，规则详情回显字段 `id` 与规则描述 |
+| 3 | 点击「添加规则」-「准确性校验」，配置 `user_id` 字段规则:<br>- 字段: user_id<br>- 统计函数: 求平均<br>- 校验方法: 固定值<br>- 期望值: > 0<br>- 强弱规则: 保持页面默认值<br>- 规则描述: 验证 BIGINT UNSIGNED user_id 可作为准确性数值字段<br>点击「保存」 | 1)`user_id` 字段可被选择为准确性校验字段<br>2)统计函数「求平均」可配置且未被禁用<br>3)规则保存成功，说明同类 `BIGINT UNSIGNED` 字段均按数值字段处理 |
+| 4 | 检查监控规则配置页中的规则列表，仅保留本次修复验证需要的两条准确性规则:<br>- 规则 1: 字段 `id`，统计函数「求和」<br>- 规则 2: 字段 `user_id`，统计函数「求平均」<br>确认后点击「下一步」 | 1)规则列表中存在 `id` 求和规则<br>2)规则列表中存在 `user_id` 求平均规则<br>3)本任务不包含 `order_no` 等非数值字段规则，避免预期失败的边界规则影响本次正向修复验证 |
+| 5 | 进入「调度属性」步骤，配置可立即执行的调度信息:<br>- 调度周期: 手动触发<br>- 实例生成方式: 立即生成<br>- 告警配置: 无<br>- 报告配置: 无需生成报告<br>点击「保存」，回到【规则任务管理】列表，点击该任务表名展开抽屉并点击「立即执行」 | 1)规则任务保存成功<br>2)任务可在列表中查询到<br>3)点击「立即执行」后生成执行实例<br>4)执行实例进入运行或完成状态 |
+| 6 | 进入【校验结果查询】，查看任务「hotfix151426无符号整型准确性」的最新执行记录、日志和规则详情。 | 1)最新执行记录未因字段类型识别失败而运行失败<br>2)日志中不出现 `BIGINT UNSIGNED`、`id` 字段非数值、number 字段类型判断失败等配置类错误<br>3)规则详情中 `id` 与 `user_id` 均按数值字段参与准确性校验<br>4)执行结果进入正常业务校验结果，展示「校验通过」或「校验不通过」均表示 `BIGINT UNSIGNED` 字段类型支持对应准确性子规则 |

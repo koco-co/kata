@@ -1,0 +1,141 @@
+diff --git a/service/src/main/java/com/dtstack/metadata/service/datapermission/DataPermissionService.java b/service/src/main/java/com/dtstack/metadata/service/datapermission/DataPermissionService.java
+index 369722e4b..a11333b90 100644
+--- a/service/src/main/java/com/dtstack/metadata/service/datapermission/DataPermissionService.java
++++ b/service/src/main/java/com/dtstack/metadata/service/datapermission/DataPermissionService.java
+@@ -61,40 +61,41 @@ import com.dtstack.metadata.service.datapermission.param.QueryPermissionParam;
+ import com.dtstack.metadata.service.datapermission.param.RowColumnPermissionParam;
+ import com.dtstack.metadata.service.datapermission.param.RowPermissionDTO;
+ import com.dtstack.metadata.service.datapermission.param.RowPermissionParam;
+ import com.dtstack.metadata.service.datapermission.param.TablePermissionQueryParam;
+ import com.dtstack.metadata.service.datapermission.util.SqlUtil;
+ import com.dtstack.metadata.service.datapermission.vo.BatchRowColumnPermissionVo;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionCodeVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionDataSourceTypeVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionDatasourceVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionDetailsVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionRecyclingVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionStrategyDetailVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionStrategySimpleVO;
+ import com.dtstack.metadata.service.datapermission.vo.PermissionStrategyVO;
+ import com.dtstack.metadata.service.datapermission.vo.RowColumnPermissionVo;
+ import com.dtstack.metadata.service.datapermission.vo.RowPermissionVO;
+ import com.dtstack.metadata.service.datapermission.vo.TablePermissionVO;
+ import com.dtstack.metadata.service.rank.RankService;
+ import com.dtstack.metadata.service.security.MetadataSecurityAuditService;
+ import com.dtstack.metadata.service.third.UicUserThirdService;
++import com.dtstack.metadata.service.user.common.UserCommonService;
+ import com.dtstack.pubsvc.sdk.authcenter.AuthCenterAPIClient;
+ import com.dtstack.pubsvc.sdk.dto.param.authcenter.AuthRoleGroupQueryParam;
+ import com.dtstack.pubsvc.sdk.dto.result.authcenter.AuthRoleGroupVO;
+ import com.dtstack.pubsvc.sdk.usercenter.client.UicUserApiClient;
+ import com.dtstack.pubsvc.sdk.usercenter.domain.dto.UICUserVO;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+ import dt.insight.boot.authz.MetaObjectHolder;
+ import dt.insight.plat.lang.exception.biz.BizException;
+ import dt.insight.plat.lang.web.PageV;
+ import dt.insight.plat.service.BaseService;
+ import lombok.Data;
+ import lombok.extern.slf4j.Slf4j;
+ import org.apache.commons.collections.CollectionUtils;
+ import org.apache.commons.lang3.BooleanUtils;
+ import org.apache.commons.lang3.StringUtils;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+@@ -152,40 +153,44 @@ public class DataPermissionService extends BaseService<TablePermissionStrategyMa
+     private MetadataSecurityAuditService metadataSecurityAuditService;
+ 
+     @Autowired
+     private SourceLoaderService sourceLoaderService;
+ 
+     @Autowired
+     private DataRankLinkMapper dataRankLinkMapper;
+ 
+     @Autowired
+     private UicUserApiClient uicUserApiClient;
+ 
+     @Autowired
+     private DataTableColumnService dataTableColumnService;
+ 
+     @Autowired
+     private MetaDscSimilarService metaDscSimilarService;
+ 
+     @Autowired
+     private RankService rankService;
+ 
++    @Autowired
++    protected UserCommonService userCommonService;
++
++
+     /**
+      * 获取申请表权限的数据源类型集合
+      *
+      *  type 类型 1 申请 2 分配
+      * @return 支持表权限的数据源类型集合
+      */
+     public PermissionDataSourceTypeVO getPermissionSourceTypes() {
+         PermissionDataSourceTypeVO permissionDataSourceTypeVO = new PermissionDataSourceTypeVO();
+         permissionDataSourceTypeVO.setTypes(DataTableService.APPLY_PERMISSION_DATASOURCE_TYPE);
+         // 审批中心是否开启了审批流程
+         permissionDataSourceTypeVO.setIsOpenApproval(metadataApplyService.checkCanApply());
+         return permissionDataSourceTypeVO;
+     }
+ 
+     /**
+      * 分页查询权限策略
+      *
+      * @param param 查询条件
+      * @return 权限策略集合
+      */
+@@ -1547,40 +1552,49 @@ public class DataPermissionService extends BaseService<TablePermissionStrategyMa
+                     .map(TablePermissionStrategyUser::getUserGroupId)
+                     .collect(Collectors.toList());
+             permissionStrategyDetailVO.setEffectUserGroupIds(userGroupIds);
+             List<String> userGroupNames = strategyUserGroups.stream().filter(pUser -> Objects.equals(pUser.getType(), 2))
+                     .map(pUser -> {
+                         AuthRoleGroupQueryParam queryParam = new AuthRoleGroupQueryParam();
+                         queryParam.setGroupId(pUser.getUserGroupId());
+                         AuthRoleGroupVO groupDetail = authCenterAPIClient.getGroupDetail(queryParam).getData();
+                         return Objects.isNull(groupDetail) ? "" : groupDetail.getGroupName();
+                     })
+                     .collect(Collectors.toList());
+             permissionStrategyDetailVO.setEffectUserGroupNames(String.join(",", userGroupNames));
+         }
+ 
+         return permissionStrategyDetailVO;
+     }
+ 
+     public BatchRowColumnPermissionVo batchQueryPermission(QueryPermissionParam param) {
+         BatchRowColumnPermissionVo batchRowColumnPermissionVo = new BatchRowColumnPermissionVo();
+ 
++
++        // 管理员默认有权限
++        if (!DataTableService.APPLY_PERMISSION_DATASOURCE_TYPE.contains(param.getDataSourceType()) ||
++                userCommonService.isManager(param.getUserId(), param.getTenantId())) {
++            batchRowColumnPermissionVo.setControl(false);
++            return batchRowColumnPermissionVo;
++        }
++
++
+         // 相似数据源逻辑优化过后,数据源大部分不会被引入，离线的权限取相似数据源的权限的并集
+         List<Long> similarSourceIds = metaDscSimilarService.getSimilarSourceIdsByDtSourceId(param.getDtDataSourceId());
+         List<Long> dataSourceIds = dataSourceService.getLocalDataSourceIdsByDtSourceCenterIds(similarSourceIds);
+         // 资产未引入，数据源不受控
+         if (CollUtil.isEmpty(dataSourceIds)) {
+             batchRowColumnPermissionVo.setControl(false);
+             return batchRowColumnPermissionVo;
+         }
+ 
+         IClient iClient = ClientCache.getClient(param.getDataSourceType());
+         ISourceDTO iSourceDTO = sourceLoaderService.buildSourceDTO(param.getDtDataSourceId(), param.getDbName(), null);
+         SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder()
+                 .catalog(param.getCatalog())
+                 .schema(param.getDbName())
+                 .tableName(param.getTableName()).build();
+         if (DataSourceTypeEnum.Oracle.getValue().equals(param.getDataSourceType())) {
+             sqlQueryDTO = SqlQueryDTO.builder()
+                     .tableName(param.getTableName().toUpperCase()).build();
+         }
+ 
