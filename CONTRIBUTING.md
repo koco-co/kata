@@ -16,13 +16,19 @@ bun test            # verify tests
 - Small focused files (200-400 lines, max 800)
 - TypeScript with strict types
 
+## 注释语言
+
+- 公开 API 与类型定义（export 的函数/interface/type/class 的 JSDoc）：用英文。
+- 内部实现注释（模块切分、步骤说明）：用中文。
+- 分隔注释（`// ─── X ───`）：用中文。
+- 同一文件内同一类注释不得中英混杂。
+
 ## Commit Convention
 
 ```
 <type>: <description>
 
 标题行用英文，description ≤ 72 字符。
-细则见 `.claude/rules/git-workflow.md`。
 ```
 
 ## PR Checklist

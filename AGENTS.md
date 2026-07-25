@@ -28,6 +28,7 @@
 ## 代码与命令
 
 - 优先复用已有 CLI、Schema 和库；不要在 Skill 中复制可执行规则。
+- 源码仓库在 `config/source-repos.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
 - CLI 的 stdout 只输出请求的数据，诊断与进度写 stderr；机器模式输出一个稳定 JSON 文档。
 - 库函数返回结果或抛出带代码的错误，不在库内调用 `process.exit()`。
 - 默认使用 dry-run；需要改变 Git 暂存区或外部系统时，提供单独且明确的开关。
