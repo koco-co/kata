@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t13-case-13
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -23,7 +24,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         .locator(".ant-spin-spinning")
         .waitFor({ state: "hidden", timeout: 15000 })
         .catch(() => undefined);
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     }
 
     async function applyColumnFilter(typeName: string): Promise<void> {

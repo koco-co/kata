@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-multi-rule-logic/archive.md#case=t11-case-11
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -78,7 +79,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
             .getByRole("button", { name: /保\s*存/ })
             .first()
             .click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           await expect(ruleForm).toBeVisible({ timeout: 5000 });
           await expect(functionRow.getByPlaceholder("请输入数值").first()).toHaveValue("");

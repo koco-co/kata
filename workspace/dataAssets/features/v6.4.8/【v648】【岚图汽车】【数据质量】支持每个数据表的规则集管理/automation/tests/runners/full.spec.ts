@@ -1,3 +1,5 @@
+import "./generated.spec";
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 完整回归测试（P0 + P1 + P2）
 // 生成时间：2026-04-07
 // 用例数量：56
@@ -89,7 +91,7 @@ async function getAccessibleProjectIds(page: Page): Promise<number[]> {
 async function ensureProjectContext(page: Page): Promise<number> {
   await applyRuntimeCookies(page);
   await page.goto(buildDataAssetsUrl("/dq/overview"));
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
   let projectId: number | null = null;
   await expect
     .poll(
@@ -110,7 +112,7 @@ async function navigateToDqPage(page: Page, menuName: string): Promise<void> {
   const sideMenu = page.locator(".ant-layout-sider").first();
   await expect(sideMenu).toBeVisible({ timeout: 10000 });
   await sideMenu.getByText(menuName, { exact: true }).click();
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
 }
 
 /** Click an Ant Design Select, then pick an option by visible text */
@@ -211,7 +213,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   async function goToRuleTaskPage(page: import("@playwright/test").Page, projectId: number) {
     await applyRuntimeCookies(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
   }
 
@@ -224,7 +226,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   ) {
     await applyRuntimeCookies(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "校验结果查询");
   }
 
@@ -234,7 +236,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   async function goToRuleSetPage(page: import("@playwright/test").Page, projectId: number) {
     await applyRuntimeCookies(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则集管理");
   }
 
@@ -247,10 +249,10 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     optionText: string,
   ) {
     await selector.click();
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
     const dropdown = page.locator(".ant-select-dropdown:visible").last();
     await dropdown.getByText(optionText, { exact: true }).click();
-    await page.waitForTimeout(200);
+    await waitForUiSettled(page);
   }
 
   /**
@@ -267,7 +269,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
     while (Date.now() - startTime < timeoutMs) {
       // Refresh the page to get updated status
-      await page.waitForTimeout(5000);
+      await waitForUiSettled(page);
       await page.reload({ waitUntil: "networkidle" });
 
       const taskRow = page.locator(".ant-table-tbody tr").filter({ hasText: taskName }).first();
@@ -310,7 +312,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const moreBtn = taskRow.getByText("更多");
       if (await moreBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await moreBtn.click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         await page.getByText("立即执行").click();
       }
     }
@@ -342,7 +344,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const moreBtn = ruleRow.getByText("更多");
       if (await moreBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await moreBtn.click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         await page.getByText("删除").click();
       }
     }
@@ -372,7 +374,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   ) {
     // Click "新建" to start creating a new monitoring rule
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // Step 1: 监控对象配置 (Monitoring Object Configuration)
     // Fill 规则名称
@@ -405,7 +407,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .filter({ hasText: "数据表" })
         .locator("input");
       await tableInput.fill(config.tableName);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       await page.locator(".ant-select-dropdown:visible").getByText(config.tableName).click();
     }
 
@@ -420,13 +422,13 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
     // Click 下一步 to proceed to rule configuration
     await page.getByRole("button", { name: "下一步" }).click();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
+    await waitForUiSettled(page);
 
     // Step 2: 监控规则配置 (Monitoring Rule Configuration)
     // Add completeness rule: 完整性校验 → 字段级 → field → 字段取值校验 → condition
     await page.getByRole("button", { name: /添加规则|新增规则/ }).click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
 
     // Select 校验类型: 完整性校验
     const ruleTypeSelect = page
@@ -485,7 +487,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   async function importRulePackage(page: import("@playwright/test").Page, rulePackageName: string) {
     // Click "引入规则包" button
     await page.getByRole("button", { name: /引入规则包|引入规则集/ }).click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
 
     // Select the rule package in the modal
     const modal = page.locator(".ant-modal:visible").last();
@@ -495,7 +497,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     const searchInput = modal.locator("input[placeholder*='搜索'], input[placeholder*='规则']");
     if (await searchInput.isVisible({ timeout: 2000 }).catch(() => false)) {
       await searchInput.fill(rulePackageName);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
     }
 
     // Select the rule package row and check all its rules
@@ -515,7 +517,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
     // Confirm import
     await modal.getByRole("button", { name: /确[认定]|导入|引入/ }).click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
     await expect(page.locator(".ant-message")).toContainText(/成功|引入/, { timeout: 10_000 });
   }
 
@@ -554,7 +556,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
     // Click save
     await page.getByRole("button", { name: /保存|提交/ }).click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
 
     // Confirm save in modal if present
     const confirmModal = page.locator(".ant-modal:visible, .ant-modal-confirm:visible").last();
@@ -583,11 +585,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     } else {
       const moreBtn = ruleRow.getByText("更多");
       await moreBtn.click();
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
       await page.getByText("编辑").click();
     }
 
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // Update the condition/expected value
     const conditionInput = page
@@ -620,11 +622,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     } else {
       const moreBtn = taskRow.getByText("更多");
       await moreBtn.click();
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
       await page.getByText("编辑").click();
     }
 
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // Update partition field
     const partitionInput = page
@@ -636,7 +638,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
     // Save
     await page.getByRole("button", { name: /保存|提交/ }).click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
 
     const confirmModal = page.locator(".ant-modal:visible, .ant-modal-confirm:visible").last();
     if (await confirmModal.isVisible({ timeout: 2000 }).catch(() => false)) {
@@ -664,14 +666,14 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     if (await searchInput.isVisible({ timeout: 3000 }).catch(() => false)) {
       await searchInput.fill(taskName);
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
     }
 
     // Click task name to view details
     const taskLink = page.locator(".ant-table-tbody").getByText(taskName, { exact: false }).first();
     await expect(taskLink).toBeVisible({ timeout: 10_000 });
     await taskLink.click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     if (expectFailedData) {
       // Verify failed validation data is displayed
@@ -806,7 +808,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         // ── 步骤7: 新建规则任务 task02 (引用修改后的规则集) 并立即执行 ──
         await goToRuleTaskPage(page, projectId);
         await page.getByRole("button", { name: /新建/ }).click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         // Configure task02 with same table but using the modified rule set
         const nameInput = page
@@ -840,7 +842,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         }
 
         await page.getByRole("button", { name: "下一步" }).click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         // Import the modified rule package
         await importRulePackage(page, ruleName);
@@ -968,7 +970,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
         // ── 步骤2: 新建监控规则: 引入规则包1(一致性校验、合理性校验)+规则包2(时效性校验) ──
         await page.getByRole("button", { name: /新建/ }).click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         // Configure monitoring object
         const nameInput = page
@@ -999,7 +1001,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
             .filter({ hasText: "数据表" })
             .locator("input");
           await tableInput.fill(cfg.timeQualityTable);
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
           await page
             .locator(".ant-select-dropdown:visible")
             .getByText(cfg.timeQualityTable)
@@ -1017,7 +1019,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
         // Proceed to rule configuration
         await page.getByRole("button", { name: "下一步" }).click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         // Import rule package 1: 一致性校验 + 合理性校验
         const rulePackage1 = `rp_consistency_${cfg.suffix}`;
@@ -1069,7 +1071,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         //   有效性校验(vin 字符串长度 >0)
         //   唯一性校验(order_id 重复数 =0)
         await page.getByRole("button", { name: /新建/ }).click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         // Configure monitoring object
         const nameInput = page
@@ -1103,11 +1105,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         }
 
         await page.getByRole("button", { name: "下一步" }).click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         // ── Add rule 1: 完整性校验 – final_price >= 0 ──
         await page.getByRole("button", { name: /添加规则|新增规则/ }).click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         const ruleTypeSelect1 = page
           .locator(".ant-form-item")
@@ -1156,7 +1158,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
         // ── Add rule 2: 有效性校验 – vin 字符串长度 > 0 ──
         await page.getByRole("button", { name: /添加规则|新增规则/ }).click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         const ruleTypeSelect2 = page
           .locator(".ant-form-item")
@@ -1205,7 +1207,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
         // ── Add rule 3: 唯一性校验 – order_id 重复数 = 0 ──
         await page.getByRole("button", { name: /添加规则|新增规则/ }).click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         const ruleTypeSelect3 = page
           .locator(".ant-form-item")
@@ -1390,7 +1392,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     async function goToRuleTaskManagement(page: import("@playwright/test").Page) {
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则任务管理");
     }
 
@@ -1398,7 +1400,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
     async function goToRuleSetManagement(page: import("@playwright/test").Page) {
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
     }
 
@@ -1410,7 +1412,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Click 新建监控规则
       const createBtn = page.getByRole("button", { name: /新建监控规则|新建/ }).first();
       await createBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // Configure 监控对象 — select hive_table
       const tableSelect = page
@@ -1425,14 +1427,14 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           .filter({ hasText: "hive_table" })
           .first()
           .click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
 
       // Click 下一步 to go to 监控规则 config page
       const nextBtn = page.getByRole("button", { name: /下一步/ }).first();
       await nextBtn.click();
-      await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
+      await waitForUiSettled(page);
     }
 
     /**
@@ -1457,11 +1459,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           .filter({ hasText: name })
           .first()
           .click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
       // Close dropdown by pressing Escape
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     }
 
     /**
@@ -1483,17 +1485,17 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           .filter({ hasText: name })
           .first()
           .click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     }
 
     /** Click the 引入 button */
     async function clickImportButton(page: import("@playwright/test").Page) {
       const importBtn = page.getByRole("button", { name: /引入/ }).first();
       await importBtn.click();
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
     }
 
     /** Confirm an Ant Design modal (覆盖引入确认 / 删除确认 etc.) */
@@ -1505,7 +1507,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       await expect(modal).toBeVisible({ timeout: 5000 });
       const okBtn = modal.getByRole("button", { name: /确[定认]|OK|是/ }).first();
       await okBtn.click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
     }
 
     // ── t22 ─────────────────────────────────────────────────────────────
@@ -1533,7 +1535,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const optionCount = await typeOptions.count();
       for (let i = 0; i < optionCount; i++) {
         await typeOptions.nth(i).click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
       }
       await page.keyboard.press("Escape");
       await clickImportButton(page);
@@ -1564,7 +1566,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 5: Delete the first rule block with confirmation
       await deleteBtn.click();
       await confirmAntModal(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // Step 6: Check remaining rule blocks — all only support delete
       const remainingBlocks = ruleBlocks;
@@ -1591,7 +1593,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if (await delBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
           await delBtn.click();
           await confirmAntModal(page);
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         } else {
           break;
         }
@@ -1608,16 +1610,16 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const reCount = await reTypeOptions.count();
       for (let i = 0; i < reCount; i++) {
         await reTypeOptions.nth(i).click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
       }
       await page.keyboard.press("Escape");
       await clickImportButton(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // Save the rule task
       const saveBtn = page.getByRole("button", { name: /保存/ }).first();
       await saveBtn.click();
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
       // Verify success message
       await expect(
         page.locator(".ant-message-success, .ant-message").filter({ hasText: /成功/ }).first(),
@@ -1631,7 +1633,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       await expect(page.locator(".ant-table-wrapper").first()).toBeVisible({ timeout: 10_000 });
       const addBtn = page.getByRole("button", { name: /新增规则集|新建规则集/ }).first();
       await addBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       // Should enter 新建规则集 ❯ 基础信息 page
       await expect(page.getByText(/基础信息/).first()).toBeVisible({ timeout: 5000 });
 
@@ -1644,14 +1646,14 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       }
       const nextBtn = page.getByRole("button", { name: /下一步/ }).first();
       await nextBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       // Should enter 监控规则 config page
       await expect(page.getByText(/监控规则/).first()).toBeVisible({ timeout: 5000 });
 
       // Step 3: Select 规则包1 and import its rules
       await selectRulePackages(page, "hive_rulePkg01");
       await clickImportButton(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // Verify rules from 规则包1 are imported
       const ruleBlocks = page
@@ -1668,7 +1670,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 4: Switch to 规则包2 (but do NOT import)
       await selectRulePackages(page, "hive_rulePkg02");
       // Do NOT click import — just switch the dropdown
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // Verify rule config hasn't changed
       const configAfter = await rulesArea.textContent().catch(() => "");
@@ -1677,7 +1679,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 5: Save and verify config is unchanged (still 规则包1's rules)
       const saveBtn = page.getByRole("button", { name: /保存/ }).first();
       await saveBtn.click();
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
       await expect(
         page.locator(".ant-message-success, .ant-message").filter({ hasText: /成功/ }).first(),
       ).toBeVisible({ timeout: 5000 });
@@ -1696,7 +1698,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       await selectRulePackages(page, "hive_rulePkg01");
       await selectRuleTypes(page, "完整性校验");
       await clickImportButton(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // Verify initial import succeeded
       await expect(
@@ -1720,7 +1722,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
       // Step 5: Confirm override import
       await confirmAntModal(page);
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
 
       // Verify rules are now from hive_rulePkg02 (overwritten)
       const ruleBlocks = page.locator("[class*='ruleBlock'], [class*='rule-card'], .ant-card");
@@ -1729,7 +1731,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 6: Save and verify config shows the overridden rules
       const saveBtn = page.getByRole("button", { name: /保存/ }).first();
       await saveBtn.click();
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
       await expect(
         page.locator(".ant-message-success, .ant-message").filter({ hasText: /成功/ }).first(),
       ).toBeVisible({ timeout: 5000 });
@@ -1772,11 +1774,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const typeCount = await allTypeOptions.count();
       for (let i = 0; i < typeCount; i++) {
         await allTypeOptions.nth(i).click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
       }
       await page.keyboard.press("Escape");
       await clickImportButton(page);
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
 
       // Verify: 完整性校验×2 + 唯一性校验×11 + 其它6种校验×1 imported
       const ruleBlocks = page.locator("[class*='ruleBlock'], [class*='rule-card'], .ant-card");
@@ -1837,11 +1839,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const typeCount = await typeOptions.count();
       for (let i = 0; i < typeCount; i++) {
         await typeOptions.nth(i).click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
       }
       await page.keyboard.press("Escape");
       await clickImportButton(page);
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
 
       // Verify: 完整性校验 × 1 + 唯一性校验 × 10 = 11 rules total
       const ruleBlocks = page.locator("[class*='ruleBlock'], [class*='rule-card'], .ant-card");
@@ -1908,7 +1910,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 5: Select 完整性校验 and import → 1 rule imported
       await selectRuleTypes(page, "完整性校验");
       await clickImportButton(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const integrityRules = page
         .locator("[class*='ruleBlock'], [class*='rule-card'], .ant-card")
         .filter({ hasText: /完整性校验/ });
@@ -1918,7 +1920,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const saveBtn = page.getByRole("button", { name: /保存/ }).first();
       if (await saveBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await saveBtn.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
       }
 
       // ── Single-select test 2: hive_rulePkg02 → 唯一性校验 ──
@@ -1939,7 +1941,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 8: Select 唯一性校验 and import → 10 rules
       await selectRuleTypes(page, "唯一性校验");
       await clickImportButton(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const uniqueRules = page
         .locator("[class*='ruleBlock'], [class*='rule-card'], .ant-card")
         .filter({ hasText: /唯一性校验/ });
@@ -1948,7 +1950,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 9: Save configuration
       if (await saveBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await saveBtn.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
       }
 
       // ── Single-select test 3: hive_rulePkg03 → all 8 types ──
@@ -1975,11 +1977,11 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const optionCount = await allTypeOptions.count();
       for (let i = 0; i < optionCount; i++) {
         await allTypeOptions.nth(i).click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
       }
       await page.keyboard.press("Escape");
       await clickImportButton(page);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // Verify all rule types are imported
       const allRules = page.locator("[class*='ruleBlock'], [class*='rule-card'], .ant-card");
@@ -1988,7 +1990,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // Step 12: Save configuration
       if (await saveBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await saveBtn.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
         await expect(
           page.locator(".ant-message-success, .ant-message").filter({ hasText: /成功/ }).first(),
         ).toBeVisible({ timeout: 5000 });
@@ -2061,7 +2063,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const pid = await ensureProjectContext(page);
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", pid));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
     });
@@ -2125,14 +2127,14 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       await expect(drawer).not.toBeVisible({ timeout: 3_000 });
 
       await navigateToDqPage(page, "规则任务管理");
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
 
       // 创建/编辑规则任务, 引入 rule01 的所有规则包
       const addTaskBtn = page.getByRole("button", { name: /新增|新建/ });
       if (await addTaskBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await addTaskBtn.click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
       }
 
       // 引入规则包 → 选择 rule01 的全部规则包
@@ -2167,7 +2169,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const taskRow = page.locator(".ant-table-tbody tr").first();
       await expect(taskRow).toBeVisible({ timeout: 5_000 });
       await taskRow.locator("td").first().click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 验证详情页包含校验规则列表
       const taskDetailRules = page.locator(
@@ -2188,7 +2190,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       }
 
       await navigateToDqPage(page, "校验结果查询");
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
 
       // 检查结果列表包含校验规则
@@ -2303,12 +2305,12 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
       // 步骤 4: 进入规则任务管理引入规则包并保存
       await navigateToDqPage(page, "规则任务管理");
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       const addTaskBtn = page.getByRole("button", { name: /新增|新建/ });
       if (await addTaskBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await addTaskBtn.click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
       }
 
       // 引入规则包
@@ -2343,7 +2345,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const taskRow = page.locator(".ant-table-tbody tr").first();
       await expect(taskRow).toBeVisible({ timeout: 5_000 });
       await taskRow.locator("td").first().click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       const detailRules = page.locator(".ant-table-tbody tr, [class*='rule']");
       await expect(detailRules.first()).toBeVisible({ timeout: 5_000 });
@@ -2358,7 +2360,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       }
 
       await navigateToDqPage(page, "校验结果查询");
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       const resultRows = page.locator(".ant-table-tbody tr");
       await expect(resultRows.first()).toBeVisible({ timeout: 10_000 });
@@ -2375,7 +2377,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const pid = await ensureProjectContext(page);
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", pid));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
     });
@@ -2392,13 +2394,13 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .getByRole("button", { name: "编辑" })
         .or(ruleRow.locator("[class*='edit'], .anticon-edit").first());
       await editBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 进入基础信息配置页面, 点击下一步
       const nextBtn = page.getByRole("button", { name: "下一步" });
       await expect(nextBtn).toBeVisible({ timeout: 5_000 });
       await nextBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 断言进入监控规则配置页面
       await expect(page.getByText("监控规则配置", { exact: false })).toBeVisible({
@@ -2452,13 +2454,13 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .getByRole("button", { name: "编辑" })
         .or(ruleRow.locator("[class*='edit'], .anticon-edit").first());
       await editBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 点击下一步进入监控规则配置
       const nextBtn = page.getByRole("button", { name: "下一步" });
       await expect(nextBtn).toBeVisible({ timeout: 5_000 });
       await nextBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 步骤 2: 选择规则包, 点击添加规则 → 支持 完整性/有效性/唯一性/统计性/自定义SQL
       const addRuleBtn = page.getByRole("button", { name: /添加规则|添加校验规则/ }).first();
@@ -2485,7 +2487,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         const dropdown = page.locator(".ant-select-dropdown, .ant-dropdown-menu").last();
         await expect(dropdown).toBeVisible({ timeout: 3_000 });
         await dropdown.getByText(ruleType, { exact: false }).click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         // 填充必填字段(如有)
         const ruleForm = page.locator(".ant-form, [class*='ruleConfig']").last();
@@ -2521,7 +2523,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           if (await dd.isVisible({ timeout: 2_000 }).catch(() => false)) {
             await dd.locator(".ant-select-item-option, .ant-dropdown-menu-item").first().click();
           }
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
         }
         currentCount = await currentRuleItems.count();
       }
@@ -2558,7 +2560,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           await confirmBtn.click();
         }
 
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         const countAfterDelete = await currentRuleItems.count();
         expect(countAfterDelete).toBeLessThan(10);
 
@@ -2575,7 +2577,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .or(editableRule.locator(".anticon-edit"));
       if (await editRuleBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await editRuleBtn.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         // 修改某个输入字段
         const editableInput = editableRule.locator("input, textarea").first();
         if (await editableInput.isVisible({ timeout: 2_000 }).catch(() => false)) {
@@ -2591,7 +2593,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       if (await cloneBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         const textBefore = await cloneTarget.innerText();
         await cloneBtn.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         // 验证克隆后新增了一条
         const countAfterClone = await currentRuleItems.count();
@@ -2653,7 +2655,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       while (packCount < 20) {
         if (await addPackBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
           await addPackBtn.click();
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
         } else {
           break;
         }
@@ -2713,7 +2715,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           const confirm = page.locator(".ant-modal-content, .ant-popconfirm").last();
           if (await confirm.isVisible({ timeout: 2_000 }).catch(() => false)) {
             await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
           }
         }
         packCount = await rulePackPanels.count();
@@ -2799,7 +2801,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const pid = await ensureProjectContext(page);
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", pid));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
     });
@@ -2814,7 +2816,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .getByRole("button", { name: "编辑" })
         .or(ruleRow.locator("[class*='edit'], .anticon-edit").first());
       await editBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 断言进入基础信息配置页面
       await expect(
@@ -2842,7 +2844,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       let packCount = await rulePackInputs.count();
       while (packCount < 2) {
         await addPackBtn.click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         packCount = await rulePackInputs.count();
       }
 
@@ -2885,14 +2887,14 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const addPackBtn = page.getByRole("button", { name: /增加|添加规则包|添加/ }).first();
       await expect(addPackBtn).toBeVisible({ timeout: 5_000 });
       await addPackBtn.click();
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
 
       // 步骤 3: 添加至 20 个 → 增加按钮消失
       const rulePackItems = page.locator("[class*='rulePack'], [class*='rulePackItem']");
       let count = await rulePackItems.count();
       while (count < 20 && (await addPackBtn.isVisible().catch(() => false))) {
         await addPackBtn.click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
         count = await rulePackItems.count();
       }
 
@@ -2914,7 +2916,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if (await confirm.isVisible({ timeout: 1_000 }).catch(() => false)) {
           await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
         }
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
       await expect(addPackBtn).toBeVisible({ timeout: 3_000 });
 
@@ -2931,7 +2933,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           if (await confirm.isVisible({ timeout: 1_000 }).catch(() => false)) {
             await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
           }
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
         }
         count = await rulePackItems.count();
       }
@@ -2965,7 +2967,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
       const nextBtn = page.getByRole("button", { name: "下一步" });
       await nextBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 验证成功进入监控规则配置页面
       await expect(page.getByText("监控规则配置", { exact: false })).toBeVisible({
@@ -3005,7 +3007,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           .filter({ hasText: new RegExp(`${ds.source}.*${ds.version}`, "i") });
         if (await dsOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
           await dsOption.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           // 选择数据库
           const dbSelect = page
@@ -3019,7 +3021,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           const firstDb = dbDropdown.locator(".ant-select-item-option").first();
           if (await firstDb.isVisible({ timeout: 3_000 }).catch(() => false)) {
             await firstDb.click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
           }
 
           // 检查数据表下拉选项 → tableA 不可选(过滤已配置的表)
@@ -3073,7 +3075,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       } else {
         await dsOptions.first().click();
       }
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 步骤 4: 切换数据库后保存 → 成功
       const dbSelect = page
@@ -3085,7 +3087,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       dropdown = page.locator(".ant-select-dropdown").last();
       await expect(dropdown).toBeVisible({ timeout: 3_000 });
       await dropdown.locator(".ant-select-item-option").first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 步骤 5: 切换数据表后保存 → 成功
       const tableSelect = page
@@ -3100,7 +3102,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .locator(".ant-select-item-option:not(.ant-select-item-option-disabled)")
         .first()
         .click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 步骤 6: 切换描述后保存 → 成功
       const descInput = page
@@ -3116,7 +3118,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const nextBtn = page.getByRole("button", { name: "下一步" });
       if (await nextBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await nextBtn.click();
-        await page.waitForLoadState("networkidle");
+        await waitForUiSettled(page);
 
         const saveBtn = page.getByRole("button", { name: "保存" });
         await expect(saveBtn).toBeVisible({ timeout: 5_000 });
@@ -3159,7 +3161,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
       // 步骤 4: 点击下一步 → 进入监控规则配置页面
       await nextBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(page.getByText("监控规则配置", { exact: false })).toBeVisible({
         timeout: 5_000,
       });
@@ -3182,7 +3184,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const pid = await ensureProjectContext(page);
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", pid));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
     });
@@ -3193,7 +3195,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
      */
     async function enterNewMonitoringRules(page: import("@playwright/test").Page): Promise<void> {
       await page.getByRole("button", { name: /新增规则集|新建/ }).click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 进入基础信息配置页面
       await expect(
@@ -3214,7 +3216,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       let dropdown = page.locator(".ant-select-dropdown").last();
       await expect(dropdown).toBeVisible({ timeout: 3_000 });
       await dropdown.locator(".ant-select-item-option").first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       const dbSelect = page
         .locator(".ant-form-item")
@@ -3225,7 +3227,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       dropdown = page.locator(".ant-select-dropdown").last();
       await expect(dropdown).toBeVisible({ timeout: 3_000 });
       await dropdown.locator(".ant-select-item-option").first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       const tableSelect = page
         .locator(".ant-form-item")
@@ -3239,7 +3241,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .locator(".ant-select-item-option:not(.ant-select-item-option-disabled)")
         .first()
         .click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 配置规则包名称
       const rulePackInput = page
@@ -3254,7 +3256,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
       // 点击下一步进入监控规则配置页面
       await page.getByRole("button", { name: "下一步" }).click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(page.getByText("监控规则配置", { exact: false })).toBeVisible({
         timeout: 5_000,
       });
@@ -3275,7 +3277,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
             .first()
             .click();
         }
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
 
       // 记录当前校验规则配置
@@ -3299,7 +3301,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if ((await opts.count()) > 0) {
           await opts.first().click();
         }
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
 
       const rulesAfterSwitch = await ruleItems.allInnerTexts();
@@ -3318,7 +3320,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const ruleTypeDD = page.locator(".ant-select-dropdown, .ant-dropdown-menu").last();
       await expect(ruleTypeDD).toBeVisible({ timeout: 3_000 });
       await ruleTypeDD.getByText("完整性", { exact: false }).click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 验证字段变更: 应显示"生效范围"而非"规则类型"
       const ruleConfigArea = page
@@ -3361,7 +3363,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if (await dd.isVisible({ timeout: 2_000 }).catch(() => false)) {
           await dd.getByText(rt, { exact: false }).click();
         }
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
 
       // 添加至 10 个上限
@@ -3375,7 +3377,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if (await dd.isVisible({ timeout: 2_000 }).catch(() => false)) {
           await dd.locator(".ant-select-item-option, .ant-dropdown-menu-item").first().click();
         }
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
         cnt = await ruleItems.count();
       }
 
@@ -3397,7 +3399,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if (await confirm.isVisible({ timeout: 2_000 }).catch(() => false)) {
           await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
         }
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
       await expect(addRuleBtn).toBeEnabled({ timeout: 3_000 });
 
@@ -3422,7 +3424,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       if (await cloneBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         const countBefore = await ruleItems.count();
         await cloneBtn.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         const countAfter = await ruleItems.count();
         expect(countAfter).toBe(countBefore + 1);
       }
@@ -3473,7 +3475,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
       while (packCount < 20 && (await addPackBtn.isVisible().catch(() => false))) {
         await addPackBtn.click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
         packCount = await rulePackPanels.count();
       }
 
@@ -3522,7 +3524,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           const confirm = page.locator(".ant-modal-content, .ant-popconfirm").last();
           if (await confirm.isVisible({ timeout: 2_000 }).catch(() => false)) {
             await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
           }
         }
         packCount = await rulePackPanels.count();
@@ -3580,13 +3582,13 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       } else {
         await options.first().click();
       }
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
 
       // 步骤 4: 点击增加 → 新增规则包模块
       const addPackBtn = page.getByRole("button", { name: /增加|添加规则包|新增规则包/ }).first();
       if (await addPackBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await addPackBtn.click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
 
       // 步骤 5: 检查下拉框 → 已选择的规则包不支持再次选择
@@ -3628,7 +3630,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const pid = await ensureProjectContext(page);
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", pid));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
     });
@@ -3638,7 +3640,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
      */
     async function enterNewBasicInfo(page: import("@playwright/test").Page): Promise<void> {
       await page.getByRole("button", { name: /新增规则集|新建/ }).click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(
         page
           .getByText("基础信息", { exact: false })
@@ -3664,7 +3666,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       let cnt = await rulePackInputs.count();
       while (cnt < 2) {
         await addPackBtn.click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         cnt = await rulePackInputs.count();
       }
 
@@ -3703,7 +3705,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       let count = await rulePackItems.count();
       while (count < 20 && (await addPackBtn.isVisible().catch(() => false))) {
         await addPackBtn.click();
-        await page.waitForTimeout(200);
+        await waitForUiSettled(page);
         count = await rulePackItems.count();
       }
 
@@ -3723,7 +3725,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         if (await confirm.isVisible({ timeout: 1_000 }).catch(() => false)) {
           await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
         }
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       }
       await expect(addPackBtn).toBeVisible({ timeout: 3_000 });
 
@@ -3740,7 +3742,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           if (await confirm.isVisible({ timeout: 1_000 }).catch(() => false)) {
             await confirm.getByRole("button", { name: /确定|确认|是/ }).click();
           }
-          await page.waitForTimeout(200);
+          await waitForUiSettled(page);
         }
         count = await rulePackItems.count();
       }
@@ -3795,7 +3797,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           .filter({ hasText: new RegExp(`${ds.source}.*${ds.version}`, "i") });
         if (await dsOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
           await dsOption.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           // 选择数据库
           const dbSelect = page
@@ -3807,7 +3809,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
           const dbDropdown = page.locator(".ant-select-dropdown").last();
           await expect(dbDropdown).toBeVisible({ timeout: 3_000 });
           await dbDropdown.locator(".ant-select-item-option").first().click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           // 检查数据表 → tableA 被过滤
           const tableSelect = page
@@ -3863,7 +3865,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       expect(dsString.length).toBeGreaterThan(0);
 
       await dsOptions.first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 步骤 4: 配置数据库 → 下拉显示对应数据库
       const dbSelect = page
@@ -3878,7 +3880,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const dbCount = await dbOptions.count();
       expect(dbCount).toBeGreaterThan(0);
       await dbOptions.first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 步骤 5: 配置数据表 → 过滤已配置的表
       const tableSelect = page
@@ -3984,7 +3986,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       let dropdown = page.locator(".ant-select-dropdown").last();
       await expect(dropdown).toBeVisible({ timeout: 3_000 });
       await dropdown.locator(".ant-select-item-option").first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       const dbSelect = page
         .locator(".ant-form-item")
@@ -3995,7 +3997,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       dropdown = page.locator(".ant-select-dropdown").last();
       await expect(dropdown).toBeVisible({ timeout: 3_000 });
       await dropdown.locator(".ant-select-item-option").first().click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       const tableSelect = page
         .locator(".ant-form-item")
@@ -4009,7 +4011,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .locator(".ant-select-item-option:not(.ant-select-item-option-disabled)")
         .first()
         .click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 规则包名称
       const rulePackInput = page
@@ -4023,7 +4025,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       }
 
       await page.getByRole("button", { name: "下一步" }).click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 步骤 5: UI CHECK — 支持规则包配置/增删改/克隆/查看全局参数, 按钮下一步/保存
       await expect(page.getByText("监控规则配置", { exact: false })).toBeVisible({
@@ -4059,7 +4061,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const pid = await ensureProjectContext(page);
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview", pid));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await navigateToDqPage(page, "规则集管理");
       await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
     });
@@ -4112,7 +4114,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       if (pageItemCount > 1) {
         const secondPage = pageItems.nth(1);
         await secondPage.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         await expect(secondPage).toHaveClass(/ant-pagination-item-active/, { timeout: 3_000 });
       }
 
@@ -4123,7 +4125,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .catch(() => true));
       if (prevBtnEnabled) {
         await prevBtn.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
 
       // 点击下一页
@@ -4132,7 +4134,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .catch(() => true));
       if (nextBtnEnabled) {
         await nextBtn.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
 
       // 步骤 5: 切换 10/20/50/100 页数 → 成功
@@ -4147,7 +4149,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
             .filter({ hasText: new RegExp(`${size}\\s*条`) });
           if (await option.isVisible({ timeout: 2_000 }).catch(() => false)) {
             await option.click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
             // 验证页面刷新(表格行数变化或保持)
             await expect(page.locator(".ant-table-wrapper")).toBeVisible();
           }
@@ -4192,7 +4194,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       });
 
       // 验证规则集1已从列表消失
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       // 步骤 4-5: 选择规则集2(关联已关闭检测), 删除 → 应成功
       const ruleSet2Row = page.locator(".ant-table-tbody tr").first();
@@ -4243,7 +4245,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
           // 步骤 8: 进入规则任务管理删除规则任务 B
           await navigateToDqPage(page, "规则任务管理");
-          await page.waitForLoadState("networkidle");
+          await waitForUiSettled(page);
           await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
 
           // 找到关联的规则任务并删除
@@ -4271,7 +4273,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
           // 步骤 9: 返回规则集管理, 再次删除规则集3 → 删除成功
           await navigateToDqPage(page, "规则集管理");
-          await page.waitForLoadState("networkidle");
+          await waitForUiSettled(page);
           await expect(page.locator(".ant-table-wrapper")).toBeVisible({ timeout: 10_000 });
 
           const retryRow = page
@@ -4381,7 +4383,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         const partialName = knownTableName.substring(0, Math.ceil(knownTableName.length / 2));
         await searchInput.fill(partialName);
         await searchInput.press("Enter"); // 回车查询
-        await page.waitForTimeout(1_000);
+        await waitForUiSettled(page);
 
         // 验证查询结果包含匹配行
         const resultRows = page.locator(".ant-table-tbody tr");
@@ -4398,7 +4400,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         await searchInput.fill(knownTableName);
         // 使用搜索 icon 查询
         await searchIcon.click();
-        await page.waitForTimeout(1_000);
+        await waitForUiSettled(page);
 
         const exactResults = page.locator(".ant-table-tbody tr");
         const exactCount = await exactResults.count();
@@ -4413,7 +4415,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         // 清空搜索恢复全部列表
         await searchInput.fill("");
         await searchInput.press("Enter");
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
     });
   });

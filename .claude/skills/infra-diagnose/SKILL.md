@@ -42,6 +42,12 @@ description: 基础设施配置与 SSH connectivity 最小闭环。数据源/服
 
    报告只保存脱敏后的检查结果和结论，不保存密码、Cookie、连接串或完整终端日志。
 
+   交付前运行：
+
+   ```bash
+   kata infra lint --report workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md --exit-code
+   ```
+
 ## 配置边界
 
 - `config/infra/hosts.yaml`：SSH 主机、端口、`credential_ref`、已核验 host fingerprint。

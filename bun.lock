@@ -34,7 +34,7 @@
         "typescript": "^6.0.3",
       },
     },
-    ".claude/packages/dtstack": {
+    "cli/integrations/dtstack": {
       "name": "dtstack-sdk",
       "version": "0.1.0",
       "bin": {
@@ -57,13 +57,6 @@
       "optionalPeers": [
         "@playwright/test",
       ],
-    },
-    ".claude/scripts/_shared": {
-      "name": "kata-scripts",
-      "version": "1.0.0",
-      "bin": {
-        "kata": "bin/kata",
-      },
     },
   },
   "packages": {
@@ -255,7 +248,7 @@
 
     "detect-libc": ["detect-libc@2.1.2", "https://registry.npmmirror.com/detect-libc/-/detect-libc-2.1.2.tgz", {}, "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="],
 
-    "dtstack-sdk": ["dtstack-sdk@workspace:.claude/packages/dtstack"],
+    "dtstack-sdk": ["dtstack-sdk@workspace:cli/integrations/dtstack"],
 
     "duplexer2": ["duplexer2@0.1.4", "https://registry.npmmirror.com/duplexer2/-/duplexer2-0.1.4.tgz", { "dependencies": { "readable-stream": "^2.0.2" } }, "sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA=="],
 
@@ -348,7 +341,6 @@
     "jszip": ["jszip@3.10.1", "https://registry.npmmirror.com/jszip/-/jszip-3.10.1.tgz", { "dependencies": { "lie": "~3.3.0", "pako": "~1.0.2", "readable-stream": "~2.3.6", "setimmediate": "^1.0.5" } }, "sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g=="],
 
     "keygrip": ["keygrip@1.1.0", "https://registry.npmmirror.com/keygrip/-/keygrip-1.1.0.tgz", { "dependencies": { "tsscmp": "1.0.6" } }, "sha512-iYSchDJ+liQ8iwbSI2QqsQOvqv58eJCEanyJPJi+Khyu8smkcKSFUCbPwzFcL7YVtZ6eONjqRX/38caJ7QjRAQ=="],
-
 
     "kind-of": ["kind-of@6.0.3", "https://registry.npmmirror.com/kind-of/-/kind-of-6.0.3.tgz", {}, "sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw=="],
 

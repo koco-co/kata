@@ -19,7 +19,7 @@ Kata 把需求分析、用例设计、缺陷排查和 UI 自动化整理成可�
 
 ```text
 PRD / 设计稿 / 功能说明 ───── case ───────────────> cases.yaml + XMind
-已有用例 / bug 记录 ───────── case ───────────────> 编辑、同步、hotfix 回归用例
+已有用例 ─────────────────── case ───────────────> 编辑、同步与标准化
 项目业务知识 ─────────────── knowledge ──────────> 查询与维护
 缺陷 / 冲突 / 代码差异 ───── defect-analyze ───────> 缺陷分析与修复建议
 UI 用例 / 脚本 / 失败结果 ─── ui-automation ───────> 脚本、运行记录与报告
@@ -64,7 +64,7 @@ bunx playwright install
 
 | 命令 | 领域 | 说明 |
 | --- | --- | --- |
-| `/test-case` | 用例 | 依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
+| `/test-case` | 用例 | 依需求源起草、编辑既有用例、同步与标准化；Hotfix 回归转 `/defect-analyze`。 |
 | `/ui-automation` | UI 自动化 | 生成、修复或验证 Playwright UI 自动化，交付前真实运行。 |
 | `/defect-analyze` | 缺陷与变更 | 分析缺陷材料、合并冲突或源码差异。 |
 | `/infra-diagnose` | 故障排查 | SSH 排查数据源与服务器连通性问题。 |
@@ -115,6 +115,8 @@ kata infra inspect <host> --check connectivity --project <project>
 
 当前 inspect 只验证 SSH2 connectivity 并生成 `analyses/infra-report/<yyyymm>/<slug>.md`，不执行任意远程命令或服务器变更。
 
+缺陷、冲突、扫描和 hotfix 报告统一用 `kata defects lint --report <report.md> --exit-code` 校验；hotfix 回归由 `kata defects hotfix` 生成 Markdown，不再经过 `test-case`。
+
 源码仓库在 `config/repos/sources.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
 
 ## 项目目录
@@ -123,13 +125,11 @@ kata infra inspect <host> --check connectivity --project <project>
 kata/
 ├── .claude/                       # Claude Code Skill 与插件
 │   ├── skills/
-│   ├── plugins/
-│   └── packages/
+│   └── plugins/
 ├── .agents/                       # Codex Skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI(两端共用)
 ├── config/                        # repos/sources.yaml 等;私密配置(env/, infra/)不提交
-├── docs/                          # 使用说明、合同和设计记录
 └── workspace/                     # 项目输入、用例、自动化和运行产物
 ```
 
@@ -145,7 +145,7 @@ bun run test
 bun run ci
 ```
 
-中文与 Markdown 写法见 [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md)。公开命令、目录或产物发生变化时，应同时更新中英文 README 与安装说明。
+公开命令、目录或产物发生变化时，应同时更新中英文 README 与安装说明。
 
 ## License
 

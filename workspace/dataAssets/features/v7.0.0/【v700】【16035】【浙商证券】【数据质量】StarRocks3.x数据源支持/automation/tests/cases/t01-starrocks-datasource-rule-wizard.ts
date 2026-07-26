@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: cases/archive.md#case=数据源经引入与质量项目授权后数据质量可选用  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // A24：StarRocks 3.x 数据源经应用授权→引入→质量项目授权（前置已完成）后，在数据质量「新建单表校验规则」
 // 向导可正确选到 pw_sr3（STAR_ROCKS_3X）数据源并加载其数据表。授权链路前 3 步为前置条件，用例验证步骤 4。
@@ -13,7 +14,7 @@ test.describe("@serial 【P0】验证 StarRocks 3.x 数据源经引入与质量�
 
     await step("进入【数据质量】-【规则配置】-新建单表校验规则", async () => {
       await gotoZszqDataAssetsPage(page, "/dq/rule/add");
-      await page.waitForTimeout(2000);
+      await waitForUiSettled(page);
       await expect(
         locateFormItem(page, "规则名称").locator("input").first(),
         "应进入单表校验规则向导①监控对象",

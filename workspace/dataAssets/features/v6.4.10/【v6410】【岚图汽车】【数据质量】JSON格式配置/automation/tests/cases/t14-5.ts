@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t14-5
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -101,7 +102,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
       const rootRow2 = page.locator(".ant-table-row").filter({ hasText: rootKey }).first();
       await expect(rootRow2).toBeVisible({ timeout: 10000 });
       await expandRow(page, rootKey);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       // level2Key 行应出现（展开后可见）
       const level2Row = page.locator(".ant-table-row").filter({ hasText: level2Key }).first();
       await expect(level2Row).toBeVisible({ timeout: 5000 });
@@ -117,7 +118,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
     // 步骤3：展开 level2Key，仅显示第3层
     await step("步骤3: 点击level2Key展开 → 仅显示level3Key，level3Key行有「+」图标", async () => {
       await expandRow(page, level2Key);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const level3Row = page.locator(".ant-table-row").filter({ hasText: level3Key }).first();
       await expect(level3Row).toBeVisible({ timeout: 5000 });
       // level3Key 有子节点，展开图标为 collapsed
@@ -132,7 +133,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
     // 步骤4：展开 level3Key，仅显示第4层
     await step("步骤4: 点击level3Key展开 → 仅显示level4Key，level4Key行有「+」图标", async () => {
       await expandRow(page, level3Key);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const level4Row = page.locator(".ant-table-row").filter({ hasText: level4Key }).first();
       await expect(level4Row).toBeVisible({ timeout: 5000 });
       // level4Key 有子节点，展开图标为 collapsed
@@ -151,7 +152,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
       "步骤5: 点击level4Key展开 → 显示level5Key，level5Key行无「+」图标（最末层级）",
       async () => {
         await expandRow(page, level4Key);
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         await expect(level5Row).toBeVisible({ timeout: 5000 });
         // 第5层为最末层级，无子节点，图标应为占位符（spaced），用 count() 验证存在
         const level5SpacedCount = await page

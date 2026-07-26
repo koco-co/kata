@@ -1,6 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
-import { writeJsonAtomic } from "./atomic-writer.ts";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
 const CODE_EXTENSIONS = new Set([".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
@@ -33,25 +32,17 @@ export interface AutomationLintIgnore {
   reason: string;
 }
 
-export interface AutomationLintBaseline {
-  version: 1;
-  files: Record<string, Record<string, number>>;
-}
-
 export interface AutomationLintOptions {
   featureDir?: string;
   shared?: boolean;
   project?: string;
   repoRoot?: string;
-  updateBaseline?: boolean;
 }
 
 export interface AutomationLintReport {
   violations: AutomationLintViolation[];
   ignored: AutomationLintIgnore[];
   scannedFiles: number;
-  baselinePath: string;
-  updatedBaseline: boolean;
 }
 
 interface ScanTarget {
@@ -285,7 +276,7 @@ function scanSourceFile(
 
     scanHardcodedEnvironment(maskedLine, originalLine, path, lineNumber, violations);
 
-    for (const match of maskedLine.matchAll(/\.[A-Za-z_-]*[0-9a-f]{6,}[A-Za-z0-9_-]*/gi)) {
+    for (const match of maskedLine.matchAll(/(["'`])\.[A-Za-z_-]*[0-9a-f]{6,}[A-Za-z0-9_-]*/gi)) {
       addViolation(
         violations,
         path,
@@ -367,87 +358,8 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
   };
 }
 
-function loadBaseline(path: string): AutomationLintBaseline {
-  if (!existsSync(path)) return { version: 1, files: {} };
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(readFileSync(path, "utf8"));
-  } catch {
-    throw new Error(`kata automation lint: baseline JSON 无法解析: ${path}`);
-  }
-  if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== 1) {
-    throw new Error(`kata automation lint: baseline version 无效: ${path}`);
-  }
-  const files = (parsed as { files?: unknown }).files;
-  if (!files || typeof files !== "object" || Array.isArray(files)) {
-    throw new Error(`kata automation lint: baseline.files 无效: ${path}`);
-  }
-  return { version: 1, files: files as Record<string, Record<string, number>> };
-}
-
-function canBaseline(rule: string): boolean {
-  return rule !== "no-hardcoded-env" && rule !== "invalid-ignore";
-}
-
-function buildBaseline(violations: AutomationLintViolation[]): AutomationLintBaseline {
-  const files: Record<string, Record<string, number>> = {};
-  for (const violation of violations) {
-    if (!canBaseline(violation.rule)) continue;
-    files[violation.path] ??= {};
-    files[violation.path][violation.rule] = (files[violation.path][violation.rule] ?? 0) + 1;
-  }
-  const sortedFiles: Record<string, Record<string, number>> = {};
-  for (const path of Object.keys(files).sort()) {
-    sortedFiles[path] = {};
-    for (const rule of Object.keys(files[path] ?? {}).sort()) {
-      sortedFiles[path][rule] = files[path]?.[rule] ?? 0;
-    }
-  }
-  return { version: 1, files: sortedFiles };
-}
-
-function updateBaseline(
-  previous: AutomationLintBaseline,
-  violations: AutomationLintViolation[],
-  scannedFiles: string[],
-  projectDir: string,
-): AutomationLintBaseline {
-  const files: Record<string, Record<string, number>> = { ...previous.files };
-  for (const file of scannedFiles) delete files[relativeProjectPath(projectDir, file)];
-
-  const scannedBaseline = buildBaseline(violations).files;
-  for (const [path, rules] of Object.entries(scannedBaseline)) files[path] = rules;
-
-  for (const path of Object.keys(files)) {
-    if (!existsSync(join(projectDir, path))) delete files[path];
-  }
-  return buildBaseline(
-    Object.entries(files).flatMap(([path, rules]) =>
-      Object.entries(rules).flatMap(([rule, count]) =>
-        Array.from({ length: count }, () => ({ path, line: 0, rule, message: "", content: "" })),
-      ),
-    ),
-  );
-}
-
-function applyBaseline(
-  violations: AutomationLintViolation[],
-  baseline: AutomationLintBaseline,
-): AutomationLintViolation[] {
-  const seen = new Map<string, number>();
-  return violations.filter((violation) => {
-    if (!canBaseline(violation.rule)) return true;
-    const key = `${violation.path}\0${violation.rule}`;
-    const index = seen.get(key) ?? 0;
-    seen.set(key, index + 1);
-    const allowed = baseline.files[violation.path]?.[violation.rule] ?? 0;
-    return index >= allowed;
-  });
-}
-
 export function runAutomationLint(options: AutomationLintOptions): AutomationLintReport {
   const target = resolveTarget(options);
-  const baselinePath = join(target.projectDir, "automation-lint-baseline.json");
   const files = target.roots.flatMap((root) => listCodeFiles(root)).sort();
   const rawViolations: AutomationLintViolation[] = [];
   const ignored: AutomationLintIgnore[] = [];
@@ -457,19 +369,9 @@ export function runAutomationLint(options: AutomationLintOptions): AutomationLin
     scanSourceFile(file, target.projectDir, rawViolations, ignored);
   }
 
-  let baseline = loadBaseline(baselinePath);
-  let updatedBaseline = false;
-  if (options.updateBaseline) {
-    baseline = updateBaseline(baseline, rawViolations, files, target.projectDir);
-    writeJsonAtomic(baselinePath, baseline);
-    updatedBaseline = true;
-  }
-
   return {
-    violations: applyBaseline(rawViolations, baseline),
+    violations: rawViolations,
     ignored,
     scannedFiles: files.length,
-    baselinePath,
-    updatedBaseline,
   };
 }

@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t06-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -34,7 +35,7 @@ describeByDatasource("规则集管理", () => {
 
     const searchInput = dropdown.locator("input").last();
     await searchInput.fill("");
-    await page.waitForTimeout(400);
+    await waitForUiSettled(page);
 
     await expect(dropdown).toContainText("order-amount");
     await expect(dropdown).toContainText("order-status");

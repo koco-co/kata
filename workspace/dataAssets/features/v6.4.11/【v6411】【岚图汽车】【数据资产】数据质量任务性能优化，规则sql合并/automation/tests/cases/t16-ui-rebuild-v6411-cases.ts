@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1121,7 +1122,7 @@ async function advanceRuleSetEditToSave(page: Page, sourceRef: string): Promise<
     await expect(next, `${sourceRef}: 规则集编辑应展示下一步`).toBeVisible({ timeout: 30_000 });
     await next.click({ force: true, timeout: 30_000 });
     await waitForSpin(page, sourceRef);
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   await expect(save, `${sourceRef}: 规则集编辑下一步后应展示保存按钮`).toBeVisible({ timeout: 30_000 });
 }
@@ -1348,12 +1349,12 @@ async function addRuleFormShell(page: Page, categoryText: string, sourceRef: str
       const looksLikeRuleForm = /规则描述|强弱规则|生效范围|统计函数|规则类型/.test(text);
       const changedFromPreviousForm = count > beforeCount || text !== beforeLastText;
       if (looksLikeRuleForm && changedFromPreviousForm) {
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         await candidate.scrollIntoViewIfNeeded().catch(() => {});
         return ruleForms.last();
       }
     }
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   const finalCount = await ruleForms.count().catch(() => -1);
   throw new Error(`${sourceRef}: 添加 ${categoryText} 规则后未出现稳定的新规则表单，新增前=${beforeCount}，当前=${finalCount}`);
@@ -1846,7 +1847,7 @@ async function configureCalculationLogic(root: UiSearchRoot, expression: string,
   const button = field.locator("button:visible").first();
   await expect(button, `${sourceRef}: 计算逻辑配置应展示配置按钮`).toBeVisible({ timeout: 30_000 });
   await button.click({ timeout: 30_000 });
-  await page.waitForTimeout(1_000);
+  await waitForUiSettled(page);
 
   const panel = page.locator(".ant-modal:visible, .ant-drawer:visible, .ant-popover:visible").last();
   await expect(panel, `${sourceRef}: 应打开计算逻辑配置弹窗或浮层`).toBeVisible({ timeout: 30_000 });
@@ -1985,7 +1986,7 @@ async function fillEnumTagValues(root: UiSearchRoot, values: string[], sourceRef
     } else {
       await page.keyboard.press("Enter", { delay: 50 });
     }
-    await page.waitForTimeout(200);
+    await waitForUiSettled(page);
     await expect(root.locator(".ant-select-selection-item-content:visible").filter({ hasText: value }).first(), `${sourceRef}: 枚举值应回显 ${value}`).toBeVisible({
       timeout: 10_000,
     });
@@ -2136,7 +2137,7 @@ async function fillInputLikeUser(input: Locator, value: string, label: string): 
     await page.keyboard.press("Backspace").catch(() => {});
     await page.keyboard.type(value, { delay: 20 });
     await page.keyboard.press("Tab").catch(() => {});
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
     if ((await input.inputValue({ timeout: 1_000 }).catch(() => "")) === value) return;
 
     await input.fill(value, { timeout: 30_000 }).catch(() => {});
@@ -2149,7 +2150,7 @@ async function fillInputLikeUser(input: Locator, value: string, label: string): 
         inputElement.dispatchEvent(new Event("blur", { bubbles: true }));
       }, value)
       .catch(() => {});
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
     if ((await input.inputValue({ timeout: 1_000 }).catch(() => "")) === value) return;
   }
 
@@ -2403,7 +2404,7 @@ async function clickRuleSetSave(page: Page, sourceRef: string, build?: UiCaseBui
     const button = page.locator("button:visible").filter({ hasText: /^保\s*存$/ }).last();
     await expect(button, `${sourceRef}: 应展示规则集保存按钮`).toBeVisible({ timeout: 30_000 });
     await button.click({ force: true, timeout: 30_000 });
-    await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    await waitForUiSettled(page);
     await confirmRuleSetSavePrompt(page, sourceRef);
     const deadline = Date.now() + 60_000;
     while (Date.now() < deadline) {
@@ -2416,10 +2417,10 @@ async function clickRuleSetSave(page: Page, sourceRef: string, build?: UiCaseBui
         .join(" ")
         .replace(/\s+/g, " ");
       if (!/\/dq\/ruleSet\/add/.test(page.url()) || /成功/.test(toastText)) {
-        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        await waitForUiSettled(page);
         return;
       }
-      await page.waitForTimeout(1_000);
+      await waitForUiSettled(page);
     }
     if (build && (await ruleSetRecordExistsInProbePage(page, build, sourceRef))) {
       await test.info().attach(`${sourceRef}-rule-set-save-detected-existing-record.txt`, {
@@ -2570,7 +2571,7 @@ async function findTaskRowAcrossPages(page: Page, build: UiCaseBuild, sourceRef:
     await expect(page.locator(".ant-spin-spinning"), `${sourceRef}: 翻页后加载遮罩应消失`).toHaveCount(0, {
       timeout: Number(process.env.V6411_UI_SPIN_TIMEOUT_MS ?? 60_000),
     });
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   return null;
 }
@@ -2834,7 +2835,7 @@ async function setPackageCount(page: Page, value: number, sourceRef: string): Pr
   await fillInputLikeUser(input, String(value), `${sourceRef}: 规则拼接包`);
   await expect(input, `${sourceRef}: 规则拼接包应设置为 ${value}`).toHaveValue(String(value), { timeout: 30_000 });
   if (value >= 2) return;
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
   const minError = field
     .locator(".ant-form-item-explain-error:visible, .ant-form-item-extra:visible")
     .filter({ hasText: /最小值不能小于2/ })
@@ -2889,7 +2890,7 @@ async function waitForTaskSaveResult(
     }
   };
   page.on("response", onResponse);
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
   let bodyText = "";
   let validationText = "";
   let retryCount = 0;
@@ -2927,10 +2928,10 @@ async function waitForTaskSaveResult(
       });
       await page.keyboard.press("Escape").catch(() => {});
       await clickButton(page, /^(保\s*存|新\s*建)$/, sourceRef, { last: true });
-      await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+      await waitForUiSettled(page);
       nextRetryAt = Date.now() + 25_000;
     }
-    await page.waitForTimeout(2_000);
+    await waitForUiSettled(page);
   }
   await test.info().attach(`${sourceRef}-${actionName}-save-failed.png`, {
     body: await page.screenshot({ fullPage: true }),
@@ -3019,7 +3020,7 @@ async function findRuleSetRowAcrossPages(page: Page, build: UiCaseBuild, sourceR
     await expect(page.locator(".ant-spin-spinning"), `${sourceRef}: 翻页后加载遮罩应消失`).toHaveCount(0, {
       timeout: Number(process.env.V6411_UI_SPIN_TIMEOUT_MS ?? 60_000),
     });
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   return null;
 }
@@ -3040,7 +3041,7 @@ async function moveToNextListPage(page: Page, next: Locator, sourceRef: string):
       { timeout: 15_000, message: `${sourceRef}: 列表翻页后页码或首行应变化` },
     )
     .not.toBe(`${before}\n${beforeRow}`);
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
 }
 
 async function gotoDataQualityPage(page: Page, routePath: string): Promise<void> {
@@ -3105,7 +3106,7 @@ async function gotoDataQualityPage(page: Page, routePath: string): Promise<void>
         contentType: "text/plain",
       });
       await page.goto("about:blank", { waitUntil: "domcontentloaded", timeout: 30_000 }).catch(() => {});
-      await page.waitForTimeout(3_000);
+      await waitForUiSettled(page);
     }
   }
   if (responseStatus >= 500 || lastGotoError) {
@@ -3124,7 +3125,7 @@ async function gotoDataQualityPage(page: Page, routePath: string): Promise<void>
   await expect(page, `应导航到 ${routePath}`).toHaveURL(new RegExp(`#${escapeRegExp(routePath)}(?:\\?|$)`), {
     timeout: 30_000,
   });
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
   await assertAuthenticated(page);
   await ensureQualityProjectSelected(page, sourceRefFromRoute(routePath));
   expect(responseStatus < 500, `${routePath}: HTTP 状态应小于 500；lastGotoError=${lastGotoError}`).toBe(true);
@@ -3154,7 +3155,7 @@ async function ensureQualityProjectSelected(page: Page, sourceRef: string): Prom
       await expect(projectSelect, `${sourceRef}: 应展示质量项目下拉`).toBeVisible({ timeout: 30_000 });
       const selected = await chooseFromSelect(page, projectSelect, PROJECT_NAME, sourceRef, { maxScrollAttempts: 8 });
       expect(selected, `${sourceRef}: 应能通过 UI 选择质量项目 ${PROJECT_NAME}`).toBe(true);
-      await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+      await waitForUiSettled(page);
       await expect(body, `${sourceRef}: 质量项目应切换到 ${PROJECT_NAME}`).not.toContainText(/暂未被添加至\s*质量项目/, {
         timeout: 30_000,
       });
@@ -3167,7 +3168,7 @@ async function ensureQualityProjectSelected(page: Page, sourceRef: string): Prom
       });
       await page.keyboard.press("Escape").catch(() => {});
       await page.reload({ waitUntil: "domcontentloaded", timeout: 90_000 }).catch(() => {});
-      await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+      await waitForUiSettled(page);
     }
   }
   throw lastError;
@@ -3304,8 +3305,8 @@ async function selectDataTableFromField(
       await page.keyboard.press("Backspace").catch(() => {});
       await page.keyboard.type(tableName, { delay: 20 });
     }
-    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-    await page.waitForTimeout(3_000);
+    await waitForUiSettled(page);
+    await waitForUiSettled(page);
     const dropdown = page.locator(".ant-select-dropdown:visible").last();
     lastDropdownText = ((await dropdown.innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
     const target = dropdown
@@ -3313,7 +3314,7 @@ async function selectDataTableFromField(
       .filter({ hasText: new RegExp(`^\\s*${escapeRegExp(tableName)}\\s*$`, "i") })
       .first();
     if (!(await target.isVisible({ timeout: 2_000 }).catch(() => false))) {
-      await page.waitForTimeout(2_000);
+      await waitForUiSettled(page);
     }
     if (await target.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await target.click({ timeout: 30_000 });
@@ -3322,7 +3323,7 @@ async function selectDataTableFromField(
       if (text.includes(tableName)) return;
     }
     await page.keyboard.press("Escape").catch(() => {});
-    await page.waitForTimeout(10_000);
+    await waitForUiSettled(page);
   }
   throw new Error(`${sourceRef}: ${label}下拉在等待后仍不包含 ${tableName}; lastDropdown=${lastDropdownText}`);
 }
@@ -3437,7 +3438,7 @@ async function chooseFromSelectWithRetry(page: Page, select: Locator, option: st
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const selected = await chooseFromSelect(page, select, option, sourceRef, { required: false });
     if (selected) return;
-    await page.waitForTimeout(1_000 * attempt);
+    await waitForUiSettled(page);
     await waitForSpin(page, sourceRef);
   }
   await chooseFromSelect(page, select, option, sourceRef);
@@ -3458,7 +3459,7 @@ async function chooseMultipleFromSelect(
     const searchInput = select.locator("input.ant-select-selection-search-input, input[role='combobox']").first();
     if (await searchInput.isVisible({ timeout: 1_000 }).catch(() => false)) await searchInput.focus().catch(() => {});
     await page.keyboard.type(option, { delay: 20 });
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
     const dropdown = page.locator(".ant-select-dropdown:visible").last();
     let target = dropdown
       .locator(".ant-select-item-option:not(.ant-select-item-option-disabled):visible")
@@ -3480,8 +3481,8 @@ async function chooseMultipleFromSelect(
       await expect(target, `${sourceRef}: 多选下拉应包含 ${option}`).toBeVisible({ timeout: 30_000 });
       await target.click({ timeout: 30_000 });
     }
-    await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
+    await waitForUiSettled(page);
     await expect(assertContainer, `${sourceRef}: 多选下拉应保留 ${option}`).toContainText(option, { timeout: 30_000 });
   }
   await page.keyboard.press("Escape").catch(() => {});
@@ -3507,7 +3508,7 @@ async function chooseFromSelect(
         contentType: "text/plain",
       });
       await page.keyboard.press("Escape").catch(() => {});
-      await page.waitForTimeout(2_000 * attempt);
+      await waitForUiSettled(page);
     }
   }
   throw lastError;
@@ -3557,7 +3558,7 @@ async function chooseFromSelectOnce(
     await page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A").catch(() => {});
     await page.keyboard.type(option);
   }
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
   const dropdown = page.locator(".ant-select-dropdown:visible").last();
   let target = dropdown
     .locator(".ant-select-item-option:not(.ant-select-item-option-disabled):visible")
@@ -3642,7 +3643,7 @@ async function attachSelectClickDiagnosticIfUnsettled(
     if (selectedTextMatchesOption(selectedText, option)) return;
     const dropdownVisible = await page.locator(".ant-select-dropdown:visible").last().isVisible({ timeout: 300 }).catch(() => false);
     if (!dropdownVisible) return;
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
   }
   const selectedText = ((await selectedItem.innerText({ timeout: 1_000 }).catch(() => "")) ?? "").replace(/\s+/g, "");
   const dropdownText = ((await page.locator(".ant-select-dropdown:visible").last().innerText({ timeout: 1_000 }).catch(() => "")) ?? "")
@@ -3688,7 +3689,7 @@ async function scrollDropdownToOption(dropdown: Locator, option: string, maxAtte
       })
       .catch(() => false);
     if (!scrolled) await page.mouse.wheel(0, 600).catch(() => {});
-    await page.waitForTimeout(200);
+    await waitForUiSettled(page);
   }
 }
 
@@ -3877,7 +3878,7 @@ async function searchTable(page: Page, tableName: string, sourceRef: string): Pr
   await expect(search, `${sourceRef}: 列表应展示可见搜索按钮`).toBeVisible({ timeout: 30_000 });
   await search.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
-  await page.waitForTimeout(1_000);
+  await waitForUiSettled(page);
   await attachVisibleTableRows(page, `${sourceRef}-search-${sanitizeAttachmentName(tableName)}-rows.txt`);
 }
 
@@ -3937,10 +3938,10 @@ async function waitForExecuteSubmitToLeaveLoading(page: Page, execute: Locator, 
     const className = (await execute.getAttribute("class").catch(() => "")) ?? "";
     lastClassName = className;
     if (!className.includes("ant-btn-loading")) {
-      await page.waitForTimeout(2_000);
+      await waitForUiSettled(page);
       return;
     }
-    await page.waitForTimeout(1_000);
+    await waitForUiSettled(page);
   }
   await test.info().attach(`${sourceRef}-execute-button-still-loading.png`, {
     body: await page.screenshot({ fullPage: true }),
@@ -4000,7 +4001,7 @@ async function waitResultStatusFromUi(
       console.log(`[v6411-ui-rebuild] result-poll ${sourceRef} attempt=${attempt} row-missing query=${query}`);
       lastRowText = `校验结果查询未出现结果行: query=${query}; expectedRuleName=${expectedRuleName}; timeoutMs=${RESULT_TIMEOUT_MS}`;
     }
-    await page.waitForTimeout(Math.min(10_000, Math.max(0, deadline - Date.now())));
+    await waitForUiSettled(page);
   }
   console.log(
     `[v6411-ui-rebuild] result-poll ${sourceRef} timeout classification=${classifyResult(lastStatusText).classification} query=${query} last=${lastRowText.replace(/\s+/g, " ").slice(0, 500)}`,
@@ -4041,7 +4042,7 @@ async function collectStatusTooltipTexts(page: Page, row: Locator): Promise<stri
       if (!(await item.isVisible({ timeout: 500 }).catch(() => false))) continue;
       await item.scrollIntoViewIfNeeded({ timeout: 2_000 }).catch(() => {});
       await item.hover({ timeout: 5_000, force: true }).catch(() => {});
-      await page.waitForTimeout(800);
+      await waitForUiSettled(page);
       const tooltipTexts = await page
         .locator(".ant-tooltip:visible, [role='tooltip']:visible")
         .evaluateAll((items) => items.map((item) => (item.textContent ?? "").replace(/\s+/g, " ").trim()).filter(Boolean))

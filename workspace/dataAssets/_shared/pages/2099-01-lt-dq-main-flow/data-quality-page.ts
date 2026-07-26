@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../helpers/index";
 import { existsSync, readFileSync, statSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -438,12 +439,12 @@ export async function gotoDataQualityPage(page: Page, path: string): Promise<voi
     });
     lastStatus = response?.status();
     await injectProject(page);
-    await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+    await waitForUiSettled(page);
 
     const transient = await getTransientDqShellText(page, lastStatus);
     if (!transient) return;
     lastBodyText = transient;
-    await page.waitForTimeout(1000 * (attempt + 1));
+    await waitForUiSettled(page);
   }
 
   throw new Error(`数据质量页面未能稳定加载: ${url}, lastStatus=${lastStatus ?? "unknown"}, body=${lastBodyText}`);
@@ -1881,10 +1882,10 @@ async function addConfiguredReportAssociatedTable(
 
   let row = editableRows.last();
   await selectDqTableRowOption(row, page, 0, options.dataSource, sourceRef);
-  await page.waitForTimeout(1000);
+  await waitForUiSettled(page);
   row = dialog.locator(".ant-table-tbody tr").filter({ hasText: /请选择数据库|请选择数据表|请选择任务/ }).last();
   await selectDqTableRowOption(row, page, 1, options.database, sourceRef);
-  await page.waitForTimeout(1000);
+  await waitForUiSettled(page);
   row = dialog.locator(".ant-table-tbody tr").filter({ hasText: /请选择数据表|请选择任务/ }).last();
   await selectDqTableRowOption(row, page, 2, options.table, sourceRef);
   row = dialog.locator(".ant-table-tbody tr").filter({ hasText: options.table }).last();
@@ -2078,7 +2079,7 @@ async function openGeneratedReportDetail(
     .first();
   await expect(detailEntry, `${sourceRef}: 目标报告应展示报告详情入口`).toBeVisible({ timeout: 30000 });
   await detailEntry.click({ timeout: 30000 });
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => {});
+  await waitForUiSettled(page);
 
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 报告详情页应展示报告名称`).toContainText(reportName, { timeout: 30000 });
@@ -4934,7 +4935,7 @@ export async function expectDataQualityReportContinuousGenerationContract(
   expect(firstRowText, `${sourceRef}: 持续生成报告列表应展示生成时间`).toMatch(/\d{4}-\d{2}-\d{2}/);
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    await page.waitForTimeout(10000);
+    await waitForUiSettled(page);
     await searchGeneratedReportByName(page, sourceRef, "车辆质量持续生成报告");
     row = page.locator(".ant-table-tbody tr").filter({ hasText: "车辆质量持续生成报告" }).first();
     const rowText = await row.innerText({ timeout: 30000 });
@@ -5321,7 +5322,7 @@ export async function expectDataQualityRuleBaseCustomSqlDetailEditProtectionCont
   const detailLink = row.locator("a").filter({ hasText: ruleName }).first();
   if (await detailLink.isVisible({ timeout: 3000 }).catch(() => false)) {
     await detailLink.click({ timeout: 30000 });
-    await page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
+    await waitForUiSettled(page);
     const detailDialog = page.locator('[role="dialog"]').last();
     await expect(detailDialog, `${sourceRef}: 点击模板名称应打开详情抽屉`).toBeVisible({
       timeout: 30000,
@@ -6107,7 +6108,7 @@ export async function expectDataQualityReportDimensionVehicleConfigContract(
   });
 
   await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+  await waitForUiSettled(page);
   for (const savedText of [
     "dim_voyah_vehicle_info",
     "vehicle_count",
@@ -7418,7 +7419,7 @@ async function clickNextUntilMonitorRuleConfig(page: Page, sourceRef: string): P
     }).catch(() => false)) {
       return;
     }
-    await page.waitForTimeout(1000 * (attempt + 1));
+    await waitForUiSettled(page);
   }
   await expect(body, `${sourceRef}: 监控对象保存成功后应进入监控规则配置页`).toContainText(
     /监控规则|引用规则包|添加规则|规则包/,
@@ -8903,7 +8904,7 @@ async function gotoMonitorRecordQueryPage(page: Page, sourceRef: string): Promis
   if (await menuEntry.isVisible({ timeout: 5000 }).catch(() => false)) {
     await menuEntry.click({ timeout: 30000 });
     await injectProject(page);
-    await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+    await waitForUiSettled(page);
   }
 
   await expect(page, `${sourceRef}: URL 应进入校验结果查询路由`).toHaveURL(/\/dq\/taskQuery/, {
@@ -8929,7 +8930,7 @@ async function gotoRuleTaskManagementPage(page: Page, sourceRef: string): Promis
   if (await menuEntry.isVisible({ timeout: 5000 }).catch(() => false)) {
     await menuEntry.click({ timeout: 30000 });
     await injectProject(page);
-    await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+    await waitForUiSettled(page);
   }
 
   await expect(page, `${sourceRef}: URL 应进入规则任务管理路由`).toHaveURL(/\/dq\/rule(?:\?|$)/, {
@@ -8980,7 +8981,7 @@ async function waitForMonitorRecordStatus(
       }
       if (!/运行中|校验中|等待运行|未运行/.test(latestStatus)) break;
     }
-    await page.waitForTimeout(5000);
+    await waitForUiSettled(page);
   }
 
   expect(latestTarget, `${sourceRef}: 校验结果查询应包含 ${ruleName}`).toBeTruthy();
@@ -9858,7 +9859,7 @@ async function findDqProjectRow(page: Page, projectName: string, projectIdent: s
     const firstPage = page.locator(".ant-pagination-item").filter({ hasText: /^1$/ }).first();
     if (await firstPage.isVisible({ timeout: 1000 }).catch(() => false)) {
       await firstPage.click({ timeout: 5000 }).catch(() => {});
-      await page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
+      await waitForUiSettled(page);
     }
   }
 
@@ -9879,7 +9880,7 @@ async function findDqProjectRow(page: Page, projectName: string, projectIdent: s
       break;
     }
     await nextButton.click({ timeout: 5000 });
-    await page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
+    await waitForUiSettled(page);
   }
   return row;
 }

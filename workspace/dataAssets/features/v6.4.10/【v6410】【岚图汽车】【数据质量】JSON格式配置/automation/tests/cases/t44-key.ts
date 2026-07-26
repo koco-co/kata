@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t44-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -31,8 +32,8 @@ async function waitTableLoaded(page: import("@playwright/test").Page) {
     .locator(".ant-spin-spinning")
     .waitFor({ state: "hidden", timeout: 15000 })
     .catch(() => undefined);
-  await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => undefined);
-  await page.waitForTimeout(300);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
 }
 
 /** 通过列头 filter 图标下拉选择数据源类型筛选 */

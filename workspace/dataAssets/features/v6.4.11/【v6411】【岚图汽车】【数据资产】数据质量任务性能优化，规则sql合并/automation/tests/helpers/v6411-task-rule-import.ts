@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /**
@@ -38,7 +39,7 @@ export async function reimportAllTaskRules(page: Page, sourceRef: string): Promi
   const dialogs = page
     .locator(".ant-modal-wrap:visible, .ant-modal:visible, .ant-popover:visible, [role='dialog']:visible")
     .filter({ hasText: /引入|确定|确认/ });
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
   const dialogCount = await dialogs.count();
   if (dialogCount > 0) {
     const dialog = dialogs.nth(dialogCount - 1);
@@ -124,9 +125,9 @@ async function chooseAll(page: Page, selects: Locator, sourceRef: string, label:
     // next field is touched. Escape is intentionally avoided because it cancels
     // the pending value in this page.
     await page.keyboard.press("Tab").catch(() => {});
-    await page.waitForTimeout(150);
+    await waitForUiSettled(page);
     await page.locator("main").click({ position: { x: 24, y: 24 }, force: true, timeout: 30_000 });
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
     const selectedCount = await select.locator(".ant-select-selection-item:visible").count().catch(() => 0);
     const placeholderCount = await select.locator(".ant-select-selection-placeholder:visible").count().catch(() => 0);
     if (selectedCount > 0 && placeholderCount === 0) return;

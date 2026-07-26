@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import type { Page } from "@playwright/test";
 import type { DtStackClientLike, DtStackResponse } from "dtstack-sdk";
 import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
@@ -385,7 +386,7 @@ export async function runPreconditions(
     process.stderr.write(
       `[preconditions] ${datasource.reportName} hit transient error, retrying setup (${attempt}/3)...\n`,
     );
-    await page.waitForTimeout(3000 * attempt);
+    await waitForUiSettled(page);
   }
 }
 

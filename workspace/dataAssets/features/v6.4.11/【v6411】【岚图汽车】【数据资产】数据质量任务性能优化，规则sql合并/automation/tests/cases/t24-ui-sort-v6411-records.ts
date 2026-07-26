@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -152,7 +153,7 @@ async function runTask(page: Page, tableName: string, sourceRef: string, evidenc
     if (await ok.isVisible({ timeout: 3_000 }).catch(() => false)) await ok.click({ timeout: 30_000 });
   }
   await waitForSpin(page, sourceRef);
-  await page.waitForTimeout(1_000);
+  await waitForUiSettled(page);
   if (WAIT_RESULT_ROW_AFTER_RUN) await waitForResultRow(page, tableName, sourceRef, triggerStartedAt);
   appendEvidence(evidence, "immediateRuns", { caseNo: caseNoFor(tableName), tableName, submitted: true });
 }
@@ -169,7 +170,7 @@ async function waitForResultRow(page: Page, tableName: string, sourceRef: string
       .flatMap((row) => [...row.matchAll(/(20\d{2}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/g)].map((match) => Date.parse(match[1])))
       .reduce((latest, timestamp) => Math.max(latest, timestamp), 0);
     if (latestTimestamp >= triggerStartedAt - 10_000) return;
-    await page.waitForTimeout(Number(process.env.V6411_UI_SORT_RESULT_POLL_MS ?? 5_000));
+    await waitForUiSettled(page);
   }
   throw new Error(`${sourceRef}: 立即执行后 ${Number(process.env.V6411_UI_SORT_SINGLE_RESULT_TIMEOUT_MS ?? 8 * 60 * 1000)}ms 内未出现本次执行的新结果 ${tableName}`);
 }
@@ -194,7 +195,7 @@ async function readOrderedArea(
       return caseNo !== null && CASE_NOS.includes(caseNo);
     }).length;
     if (area !== "task-query" || selectedCount >= EXPECTED_DISPLAY.length || Date.now() >= waitDeadline) break;
-    await page.waitForTimeout(Number(process.env.V6411_UI_SORT_RESULT_POLL_MS ?? 5_000));
+    await waitForUiSettled(page);
   }
   const matchingRows = rows.filter((row) => {
     const caseNo = extractCaseNo(row);
@@ -217,7 +218,7 @@ async function gotoDataQualityPage(page: Page, routePath: string): Promise<void>
     }
   }, PROJECT_ID);
   await page.goto(`${BASE_URL}/dataAssets/#${routePath}?pid=${PROJECT_ID}`, { waitUntil: "domcontentloaded", timeout: 90_000 });
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
   await ensureQualityProjectSelected(page);
   await expect(page.locator("body"), `${routePath}: 页面应打开`).toContainText(routeHeading(routePath), { timeout: 30_000 });
   if (routePath === "/dq/taskQuery") {
@@ -226,7 +227,7 @@ async function gotoDataQualityPage(page: Page, routePath: string): Promise<void>
       const resultLink = page.getByRole("link", { name: "校验结果查询", exact: true }).first();
       if (await resultLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await resultLink.click({ timeout: 30_000 });
-        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        await waitForUiSettled(page);
         await waitForSpin(page, "ROUTE-task-query");
       }
     }
@@ -246,7 +247,7 @@ async function ensureQualityProjectSelected(page: Page): Promise<void> {
   const option = page.locator(".ant-select-dropdown:visible .ant-select-item-option").filter({ hasText: PROJECT_NAME }).first();
   await expect(option, `质量项目下拉应包含 ${PROJECT_NAME}`).toBeVisible({ timeout: 30_000 });
   await option.click({ timeout: 30_000 });
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
 }
 
 async function search(page: Page, value: string, placeholder: string, sourceRef: string): Promise<void> {
@@ -258,7 +259,7 @@ async function search(page: Page, value: string, placeholder: string, sourceRef:
   if (await searchButton.isVisible({ timeout: 2_000 }).catch(() => false)) await searchButton.click({ timeout: 30_000 });
   else await input.press("Enter");
   await waitForSpin(page, sourceRef);
-  await page.waitForTimeout(700);
+  await waitForUiSettled(page);
 }
 
 async function clearResultPlanTime(page: Page, sourceRef: string): Promise<void> {
@@ -272,7 +273,7 @@ async function clearResultPlanTime(page: Page, sourceRef: string): Promise<void>
   const clear = page.getByRole("img", { name: "close-circle" }).last();
   if (await clear.isVisible({ timeout: 2_000 }).catch(() => false)) {
     await clear.click({ force: true, timeout: 30_000 });
-    await page.waitForTimeout(200);
+    await waitForUiSettled(page);
     return;
   }
   const startValue = await page.getByRole("textbox", { name: "开始日期" }).last().inputValue({ timeout: 3_000 }).catch(() => "");
@@ -435,7 +436,7 @@ async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Pro
     page.off("response", responseListener);
   }
   if (!requiresPrompt) {
-    await page.waitForTimeout(5_000);
+    await waitForUiSettled(page);
     const bodyText = ((await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
     await test.info().attach("save-response.txt", {
       body: ["url=" + page.url(), "responses=" + JSON.stringify(responses), "body=" + bodyText].join("\n"),
@@ -450,7 +451,7 @@ async function save(page: Page, sourceRef: string, requiresPrompt: boolean): Pro
     await expect(page.getByPlaceholder(/输入表名搜索|请输入表名/).or(page.locator("input[placeholder*='表名']")).first(), `${sourceRef}: 保存后任务列表搜索框应可见`).toBeVisible({ timeout: 30_000 });
   }
   page.off("response", responseListener);
-  await page.waitForTimeout(1_000);
+  await waitForUiSettled(page);
 }
 
 async function waitForRuleSetEditData(page: Page, tableName: string, sourceRef: string): Promise<void> {

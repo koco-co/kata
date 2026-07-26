@@ -1,5 +1,5 @@
 {
-  "comment": "双端业务等价声明矩阵:每条 pattern 必须同时命中 .claude/skills/<skill>/SKILL.md 与 .agents/skills/<skill>/SKILL.md。校验的是业务约定(产物落点/正式源/完成标准/边界),不是逐字文本。",
+  "comment": "单源业务声明矩阵:每条 pattern 只读取 .claude/skills/<skill>/SKILL.md；另由契约测试检查 .agents/skills -> ../.claude/skills 的 symlink shape。",
   "skills": {
     "test-case": {
       "formalSource": ["cases/需求名.yaml"],
@@ -8,12 +8,10 @@
       "noPendingConfirm": ["待确认"],
       "prdDoc": ["prd.md"],
       "testPoints": ["test-points.md"],
-      "hotfixTitle": ["【<bug_id>】"],
       "placeholders": ["${DataSourceA}", "${SchemaA}"],
       "createTableRule": ["CREATE TABLE"],
       "resolveCmd": ["kata features resolve"],
-      "standingFlag": ["--standing"],
-      "resolveHotfix": ["resolve-hotfix"]
+      "standingFlag": ["--standing"]
     },
     "ui-automation": {
       "completionFullSpec": ["full.spec.ts"],
@@ -33,7 +31,7 @@
     "defect-analyze": {
       "reportPath": ["analyses/"],
       "reportFormat": ["report.md"],
-      "threeModes": ["bug", "conflict", "scan"],
+      "fourModes": ["bug", "conflict", "scan", "hotfix"],
       "scansCreate": ["kata scans create"],
       "zentaoCreate": ["kata zentao create"]
     },

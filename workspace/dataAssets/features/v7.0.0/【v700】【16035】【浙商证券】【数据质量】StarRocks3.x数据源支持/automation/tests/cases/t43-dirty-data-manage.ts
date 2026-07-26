@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: cases/archive.md#case=脏数据管理  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 脏数据管理：页面加载（列含 数据源/脏数据存储库/数据存储时效/...）+ 按数据源名搜索过滤到 STAR_ROCKS_3X。
 // 注：独立存储配置保存(改环境状态)与任务查询脏数据明细写入校验为未验证范围，见 handoff。
@@ -21,7 +22,7 @@ test.describe("@serial 【P1】验证脏数据管理配置 StarRocks 3.x 数据�
       await expect(search, "应有数据源名称搜索框").toBeVisible({ timeout: 10000 });
       await search.fill("pw_sr3");
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(2000);
+      await waitForUiSettled(page);
       const rows = page.locator(".ant-table-tbody tr.ant-table-row");
       const n = await rows.count();
       expect(n, "搜索后应有匹配行").toBeGreaterThan(0);

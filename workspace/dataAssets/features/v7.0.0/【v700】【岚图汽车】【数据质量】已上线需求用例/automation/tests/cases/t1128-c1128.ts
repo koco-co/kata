@@ -1,0 +1,28 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C1128",
+  "title": "验证【数据质量 规则集管理 规则配置-表单校验】未选择校验内容时保存key范围校验规则提示必填",
+  "steps": [
+    {
+      "action": "进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成",
+      "expected": "规则集管理页面正常打开，列表加载完成"
+    },
+    {
+      "action": "找到\"rule_set_key_range_test\"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在\"key范围校验测试包\"中点击【新增规则】，统计函数选择\"key范围校验\"，字段选择\"info\"，校验方法选择\"包含\"",
+      "expected": "规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确"
+    },
+    {
+      "action": "不选择任何校验内容（校验内容选择框保持空），直接点击【保存】",
+      "expected": "保存失败，校验内容选择框下方显示红色错误提示\"请选择校验内容\"，页面不跳转，规则未被保存"
+    }
+  ]
+} as const;
+
+test.describe("验证【数据质量 规则集管理 规则配置-表单校验】未选择校验内容时保存key范围校验规则提示必填", () => {
+  test("C1128 验证【数据质量 规则集管理 规则配置-表单校验】未选择校验内容时保存key范围校验规则提示必填", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

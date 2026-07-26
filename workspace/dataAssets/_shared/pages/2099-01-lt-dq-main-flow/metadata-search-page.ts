@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../helpers/index";
 import { expect, type Page } from "@playwright/test";
 
 import {
@@ -243,7 +244,7 @@ export async function expectDataMapHotQueryHistoryShell(page: Page, sourceRef: s
       .first();
     await searchInput.fill(keyword);
     await searchInput.press("Enter");
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   // 返回首页
   await openDataMap(page, sourceRef);

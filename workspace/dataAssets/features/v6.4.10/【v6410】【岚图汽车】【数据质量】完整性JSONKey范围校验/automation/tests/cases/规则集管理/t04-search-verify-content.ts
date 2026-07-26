@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // spec: features/completeness-json-key-range/archive.md#case=t04-search-verify-content
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -40,7 +41,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
 
         // 选择统计函数：key范围校验
         await selectRuleFunction(ruleForm, "key范围校验");
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         // 选择字段：info
         const fieldFormItem = ruleForm
@@ -48,14 +49,14 @@ for (const datasource of ACTIVE_DATASOURCES) {
           .filter({ hasText: /字段/ })
           .first();
         await selectAntOption(page, fieldFormItem.locator(".ant-select").first(), "info");
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
 
         // 选择校验方法：包含
         const functionRow = ruleForm.locator(".rule__function-list__item").first();
         const methodSelects = functionRow.locator(".ant-select:not(.ant-tree-select)");
         const methodSelectCount = await methodSelects.count();
         await selectAntOption(page, methodSelects.nth(methodSelectCount > 1 ? 1 : 0), "包含");
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
       });
 
       await step(
@@ -66,7 +67,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
             .locator(".ant-select.ant-tree-select, .ant-tree-select")
             .first();
           await treeSelectTrigger.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           const dropdown = page
             .locator(
@@ -91,7 +92,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
               await sw.click({ force: true }).catch(async () => {
                 await sw.evaluate((node) => (node as HTMLElement).click());
               });
-              await page.waitForTimeout(200);
+              await waitForUiSettled(page);
               expandedAny = true;
             }
             if (!expandedAny) break;
@@ -119,7 +120,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
         const searchInput = dropdown.locator("input").first();
         await expect(searchInput).toBeVisible({ timeout: 5000 });
         await searchInput.fill("key1");
-        await page.waitForTimeout(800);
+        await waitForUiSettled(page);
 
         // 断言：所有可见选项都包含"key1"
         const options = dropdown.locator(
@@ -151,7 +152,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
 
         const searchInput = dropdown.locator("input").first();
         await searchInput.fill("省份");
-        await page.waitForTimeout(800);
+        await waitForUiSettled(page);
 
         const options = dropdown.locator(
           ".ant-select-tree-title, .ant-select-tree-node-content-wrapper, .ant-select-item-option-content",
@@ -182,7 +183,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
 
         const searchInput = dropdown.locator("input").first();
         await searchInput.fill("xyz_not_exist");
-        await page.waitForTimeout(800);
+        await waitForUiSettled(page);
 
         const emptyIndicator = dropdown
           .locator(".ant-select-tree-empty, .ant-select-item-empty, .ant-empty")

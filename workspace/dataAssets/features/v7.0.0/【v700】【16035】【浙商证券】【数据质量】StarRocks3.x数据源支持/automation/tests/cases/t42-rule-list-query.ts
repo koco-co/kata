@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: cases/archive.md#case=规则配置列表查询与筛选  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 规则配置列表查询与筛选：表名搜索 → 最近修改人筛选 → 我收藏的表 → 分页。前置依赖 KEEP_RULES 已建多条规则。
 // 真实 DOM（live probe）：分页 .ant-pagination-total-text=「共N条数据」；最近修改人为 placeholder「选择最近修改人」
@@ -15,7 +16,7 @@ test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表�
       const search = page.locator("input[placeholder*='输入表名'], input[placeholder*='表名搜索']").first();
       await search.fill("zszq_trade_repeat");
       await page.keyboard.press("Enter");
-      await page.waitForTimeout(2000);
+      await waitForUiSettled(page);
       const rows = page.locator(".ant-table-tbody tr.ant-table-row");
       const n = await rows.count();
       expect(n, "搜索后应有匹配行").toBeGreaterThan(0);
@@ -30,7 +31,7 @@ test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表�
       const modSelect = page.locator(".ant-select").filter({ hasText: "选择最近修改人" }).first();
       await expect(modSelect, "应有「最近修改人」筛选下拉").toBeVisible({ timeout: 10000 });
       await modSelect.click();
-      await page.waitForTimeout(800);
+      await waitForUiSettled(page);
       // 取第一个真实修改人选项（跳过「全部/所有」之类聚合项）
       const opts = page.locator(".ant-select-dropdown:visible .ant-select-item-option");
       await expect(opts.first(), "最近修改人下拉应有可选项").toBeVisible({ timeout: 8000 });
@@ -47,7 +48,7 @@ test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表�
       }
       expect(modName.length, "应取到一个真实修改人名").toBeGreaterThan(0);
       await picked.click();
-      await page.waitForTimeout(2500);
+      await waitForUiSettled(page);
       const rows = page.locator(".ant-table-tbody tr.ant-table-row");
       const n = await rows.count();
       expect(n, `选定修改人「${modName}」后应有匹配行`).toBeGreaterThan(0);
@@ -63,7 +64,7 @@ test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表�
       const fav = page.locator(".ant-checkbox-wrapper", { hasText: "我收藏的表" }).first();
       await expect(fav, "应有「我收藏的表」筛选").toBeVisible({ timeout: 10000 });
       await fav.click();
-      await page.waitForTimeout(2500);
+      await waitForUiSettled(page);
       const tbody = page.locator(".ant-table-tbody");
       const fn = await tbody.locator("tr.ant-table-row").count();
       expect(fn, "应有已收藏的表（前置已收藏 zszq_trade_orders）").toBeGreaterThan(0);
@@ -78,7 +79,7 @@ test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表�
       ).toBe(fn);
       // 取消筛选恢复
       await fav.click();
-      await page.waitForTimeout(2500);
+      await waitForUiSettled(page);
       expect(
         await page.locator(".ant-table-tbody tr.ant-table-row").count(),
         "取消收藏筛选后列表应恢复",
@@ -94,7 +95,7 @@ test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表�
       const next = page.locator(".ant-pagination-next").first();
       if (total > 20 && (await next.getAttribute("aria-disabled")) !== "true") {
         await next.click();
-        await page.waitForTimeout(1500);
+        await waitForUiSettled(page);
         await expect(page.locator(".ant-pagination-item-active"), "翻页后当前页应为第 2 页").toHaveText("2");
       } else {
         expect(total, "总条数不足一页时记录实际值（无需翻页）").toBeGreaterThan(0);

@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../helpers/index";
 import { expect, type Page } from "@playwright/test";
 
 import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
@@ -264,7 +265,7 @@ export async function selectStarRocksDatasource(
     .first()
     .fill(keyword)
     .catch(() => {});
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
   const target = page
     .locator(".ant-select-dropdown:visible .ant-select-item-option-content")
     .filter({ hasText: expectedDisplayText })
@@ -296,7 +297,7 @@ export async function expectLoadedTableOptions(
   const search = formItem.locator("input.ant-select-selection-search-input").first();
   for (const t of expectedTables) {
     await search.fill(t);
-    await page.waitForTimeout(800);
+    await waitForUiSettled(page);
     await expect(
       dropdown.locator(".ant-select-item-option-content", { hasText: t }).first(),
       `选择数据表下拉应能搜索到本需求 StarRocks 表 ${t}`,

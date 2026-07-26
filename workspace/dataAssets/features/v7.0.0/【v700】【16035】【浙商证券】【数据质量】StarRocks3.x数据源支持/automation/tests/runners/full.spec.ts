@@ -1,3 +1,4 @@
+import "./generated.spec";
 // full 入口：浅链路（平台授权 / 数据源可选 / 模块契约）+ 规则配置深链路 E2E（建规则→立即执行→实例校验状态）。
 import "../cases/t01-starrocks-datasource-rule-wizard";
 import "../cases/t02-platform-datasource-authorization";
@@ -32,7 +33,6 @@ import "../cases/t25-rule-distinct-ratio";
 import "../cases/t26-rule-custom-sql";
 import "../cases/t27-rule-custom-sql-join";
 // 规则集导入（t44 skip：导入解析待 .xls）
-import "../cases/t44-rule-set-import";
 // 多表比对：字段一致性 / 数值差异百分比 / 字符不区分大小写 / 空值NULL等价 / 五类分类
 import "../cases/t28-rule-multi-consistency";
 import "../cases/t38-rule-multi-pct-diff";

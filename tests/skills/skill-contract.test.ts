@@ -56,7 +56,7 @@ describe("skill contract", () => {
     describe(skill, () => {
       for (const [point, patterns] of Object.entries(groups)) {
         for (const pattern of patterns) {
-          it(`${point}: "${pattern}" 两端都有声明`, () => {
+          it(`${point}: "${pattern}" 单源声明存在`, () => {
             const content = readSkillContent(skill);
             expect(content.includes(pattern)).toBe(true);
           });
