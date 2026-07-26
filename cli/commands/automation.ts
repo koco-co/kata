@@ -16,12 +16,8 @@ export function registerAutomation(program: Command): void {
       const coverage = inspectAutomationCoverage(featureDir);
       console.log(JSON.stringify(coverage, null, 2));
       if (
-<<<<<<< HEAD
         coverage.unmapped.length ||
         coverage.mappedNotImplemented.length ||
-=======
-        coverage.missingSpecFile.length ||
->>>>>>> origin/main
         coverage.missingScript.length ||
         coverage.orphanScripts.length ||
         coverage.duplicateSpecFile.length
@@ -33,11 +29,7 @@ export function registerAutomation(program: Command): void {
   automation
     .command("generate-cases <feature-dir>")
     .description("为缺失的 automation.spec_file 生成逐条 Playwright 脚本(默认 dry-run)")
-<<<<<<< HEAD
     .option("--apply", "写入缺失脚本并更新 generated.ts", false)
-=======
-    .option("--apply", "写入缺失脚本并更新 generated.spec.ts", false)
->>>>>>> origin/main
     .action((featureDir: string, opts: { apply: boolean }) => {
       const result = generateAutomationScripts(featureDir, { apply: opts.apply });
       console.log(
@@ -59,11 +51,7 @@ export function registerAutomation(program: Command): void {
   automation
     .command("generate <feature-dir>")
     .description("按 automation.spec_file 生成 runner import(默认 dry-run)")
-<<<<<<< HEAD
     .option("--apply", "写入 generated.ts", false)
-=======
-    .option("--apply", "写入 generated.spec.ts", false)
->>>>>>> origin/main
     .action((featureDir: string, opts: { apply: boolean }) => {
       const result = generateAutomationRunner(featureDir, { apply: opts.apply });
       console.log(

@@ -1,19 +1,11 @@
 ---
 name: test-case
-<<<<<<< HEAD
 description: 用例起草、编辑、同步与标准化。两种触发——① 给需求源（Lanhu/Axure URL、PRD md、设计稿截图、功能描述）起草新用例，只发 URL 即可；② 给既有用例文件（.yaml/.xmind/.csv/.md）或要求编辑、同步、标准化。只发 feature 目录路径要做 UI 自动化时转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
-=======
-description: QA 用例全生命周期。两种触发方式——① 给需求源（Lanhu/Axure URL、PRD md、设计稿截图、功能描述）起草新用例，只发 URL 即可；② 给既有用例文件（.yaml/.xmind/.csv/.md）或要求编辑、同步、标准化用例。只发需求功能目录路径要做 UI 自动化时转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
->>>>>>> origin/main
 ---
 
 # test-case
 
-<<<<<<< HEAD
 用例的唯一正式源是 `cases/需求名.yaml`；`prd.md` 记录确认过的需求内容，`test-points.md` 记录对齐过的覆盖范围，两者是 create 的依据；`需求名.xmind` 与 `exports/需求名.md` 是从 yaml 派生的产物，只经 `kata cases build` 重建，禁止手改。自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有已实现用例才要求 `automation.spec_file` 指向可加载的真实脚本。
-=======
-用例的唯一正式源是 `cases/需求名.yaml`；`prd.md`、`test-points.md` 是 create 的事实与范围契约，`需求名.xmind` 与 `exports/需求名.md` 是从 yaml 派生的产物，只经 `kata cases build` 重新生成，绝不手改。每条正式用例的 `automation.spec_file` 指向唯一自动化脚本。
->>>>>>> origin/main
 
 ## 分流
 
@@ -35,28 +27,17 @@ description: QA 用例全生命周期。两种触发方式——① 给需求源
 - 识别出模块后先 `kata knowledge read --project <project> --module <模块>` 注入命中条目；执行中遇到报错再按 `--keyword <关键词>` 补查。
 - 结束时把查证过的规则与踩坑按四种状态写回（`kata knowledge write`，见 domain-knowledge skill）；单次观察先向用户确认再写入，没有新知识就不写入。
 
-<<<<<<< HEAD
 ## 完成标准
 
 - create：`prd.md`、`test-points.md`、`cases/需求名.yaml`、XMind 与 Markdown 派生物都存在，lint 通过。
 - edit：按实际已有产物维护；语义变化必须先同步 `prd.md` / `test-points.md`，再重建派生物并过 lint。
-=======
-## 完成标准（两条工作流共用）
-
-- create：`prd.md`、`test-points.md`、canonical YAML、XMind、Markdown 派生物和 lint 都必须存在并通过。
-- edit：按实际已有产物维护；语义变化必须同步 `prd.md` / `test-points.md`，再重建派生物与 lint。
->>>>>>> origin/main
 - `kata cases lint --project <project> --feature <目录名或 metadata.id> --exit-code` 无 violation（含「待确认」字样硬闸）。
 - 交付前按 [checklists/review.md](checklists/review.md) 自审，并在回复里说明已验证与未验证的范围。
 - 被真实阻塞卡住时只交付草稿，回复里说清缺什么、需要谁补；不得拿草稿冒充完成。
 
 ## 产物位置
 
-<<<<<<< HEAD
 feature 目录由 `kata features resolve --json` 返回，产物写它返回的 `cases/` 子目录，禁止自己拼路径。
-=======
-feature 目录由 `kata features resolve --json` 返回，产物写它的 `cases/` 子目录，不要自己拼路径。Hotfix 回归报告由 `defect-analyze` 写入 `workspace/<project>/analyses/hotfix-case/<yyyymm>/<slug>.md`，本 Skill 不创建 hotfix 用例。
->>>>>>> origin/main
 
 ## 需要子代理时
 

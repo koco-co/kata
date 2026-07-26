@@ -3,11 +3,7 @@ import { constants as osConstants } from "node:os";
 import { basename, join } from "node:path";
 import { writeJsonAtomic } from "./atomic-writer.ts";
 
-<<<<<<< HEAD
 export type RunExecutionState = "running" | "command_passed" | "failed";
-=======
-export type RunExecutionState = "running" | "passed" | "failed";
->>>>>>> origin/main
 
 export interface RunExecutionOptions {
   readonly runId: string;
@@ -92,13 +88,9 @@ export async function executeWithRunPath(options: RunExecutionOptions): Promise<
     for (const [signal, handler] of handlers) process.off(signal, handler);
     writeStatus(options.runPath, {
       ...baseStatus,
-<<<<<<< HEAD
       // A zero child exit code proves only that the command completed; it is
       // not evidence that Playwright, Allure, or a business record passed.
       status: exitCode === 0 ? "command_passed" : "failed",
-=======
-      status: exitCode === 0 ? "passed" : "failed",
->>>>>>> origin/main
       exitCode,
       finishedAt: new Date().toISOString(),
     });

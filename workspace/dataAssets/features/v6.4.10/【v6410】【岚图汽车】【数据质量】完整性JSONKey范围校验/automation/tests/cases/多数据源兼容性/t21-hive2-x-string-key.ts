@@ -5,13 +5,8 @@
 // META: {"id":"t21","priority":"P1","title":"【P1】验证Hive2.x数据源的string字段支持key范围校验"}
 // NOTE: 当前基础设施缺少 Hive2.x 数据源配置（test-data.ts 未定义 Hive 连接器），
 // 该用例暂以 SparkThrift2.x 替代执行。待 Hive 数据源就绪后需切换为 hive_json_test 表和 Hive DDL。
-<<<<<<< HEAD
 import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../_shared/helpers/test-setup";
-=======
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../_shared/helpers/test-setup";
->>>>>>> origin/main
 import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,

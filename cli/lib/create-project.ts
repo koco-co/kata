@@ -20,18 +20,10 @@ export const SKELETON_SPEC = {
   ],
   gitkeep_dirs: [
     "features",
-<<<<<<< HEAD
     "analyses/bug-report",
     "analyses/conflict-report",
     "analyses/scan-report",
     "analyses/hotfix-case",
-=======
-    "issues",
-    "history",
-    "reports",
-    "tests",
-    "knowledge/terms",
->>>>>>> origin/main
     "knowledge/modules",
     "knowledge/pitfalls",
     "knowledge/sites",

@@ -3,11 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t26","priority":"P1","title":"【P1】验证校验通过时不记录明细数据，查看详情入口不显示"}
-<<<<<<< HEAD
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-=======
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
->>>>>>> origin/main
 import { REPORT_PASS_SCENARIO } from "../fixtures/test-data";
 import {
   ensureExecutedJsonTask,

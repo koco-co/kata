@@ -54,7 +54,6 @@ interface CaseDoc {
   cases?: { id?: unknown; title?: unknown; priority?: unknown }[];
 }
 
-<<<<<<< HEAD
 function lintMetadataReferences(
   meta: Record<string, unknown>,
   feature: string,
@@ -103,8 +102,6 @@ function lintMetadataReferences(
   }
 }
 
-=======
->>>>>>> origin/main
 /** cases/*.yaml 内容规则: 「待确认」标记、文件名、标题格式、P0 占比、真实环境名 */
 function lintCaseSources(
   dir: string,

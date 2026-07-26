@@ -11,11 +11,7 @@ import {
   expectMetadataSyncShell,
   expectSyncTaskAdvancedOptionsShell,
   expectSyncTaskCreateEntry,
-<<<<<<< HEAD
 } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
-=======
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
->>>>>>> origin/main
 import { SR_2099_01_MD_002, SR_2099_01_MD_003 } from "../fixtures/metadata-contract";
 
 test.setTimeout(90000);

@@ -24,11 +24,7 @@ import {
   setCurrentDatasource,
   TARGET_ENV,
 } from "../../fixtures/test-data";
-<<<<<<< HEAD
 import type { MonitorDatasourceConfig } from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
-=======
-import type { MonitorDatasourceConfig } from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
->>>>>>> origin/main
 import {
   addKeyRangeRule,
   configureKeyRangeRule,

@@ -18,21 +18,12 @@ Kata packages requirements analysis, test design, defect investigation, and UI a
 ## 30-second overview
 
 ```text
-<<<<<<< HEAD
 PRD / design / feature notes ─── test-case ───────────> cases.yaml + XMind
 Existing cases ───────────────── test-case ───────────> Edit, sync, and standardize
 Project knowledge ────────────── domain-knowledge ────> Query and maintain
 Bug / conflict / code diff ───── defect-analyze ──────> Analysis and repair plan
 UI cases / scripts / failures ── ui-automation ───────> Scripts, runs, reports
 Connectivity failures ────────── infra-diagnose ──────> Root cause and playbook
-=======
-PRD / design / feature notes ───── case ───────────────> cases.yaml + XMind
-Existing cases ────────────────── case ────────────────> Edit, sync, and standardize
-Project knowledge ─────────────── knowledge ───────────> Query and maintain
-Bug / conflict / code diff ────── defect-analyze ──────> Analysis and repair plan
-UI cases / scripts / failures ── ui-automation ────────> Scripts, runs, reports
-Connectivity failures ─────────── infra-diagnose ──────> Root cause and playbook
->>>>>>> origin/main
 ```
 
 The repository follows four boundaries:
@@ -40,11 +31,7 @@ The repository follows four boundaries:
 - `.claude/skills/` contains Claude Code skills; integrations live under `cli/integrations/`.
 - `.agents/skills/` is a symlink to `.claude/skills/`, so both runtimes use the same skill source.
 - The shared CLI lives under `cli/**` and serves both runtimes.
-<<<<<<< HEAD
 - Project artifacts live under `workspace/{project}/`. Source repositories are configured locally in ignored `config/repos/sources.yaml` (copy `config/repos/sources.example.yaml` first), cloned into `.repos/` (gitignored), and queried via `kata repos`.
-=======
-- Project artifacts live under `workspace/{project}/`. Source repositories are configured in `config/repos/sources.yaml`, cloned into `.repos/` (gitignored), and queried via `kata repos`.
->>>>>>> origin/main
 
 ## Quick start
 
@@ -135,24 +122,14 @@ The current inspect command verifies SSH2 connectivity and writes `analyses/infr
 
 Validate bug, conflict, scan, and hotfix reports with `kata defects lint --report <report.md> --exit-code`; generate hotfix Markdown with `kata defects hotfix`, not through `test-case`.
 
-<<<<<<< HEAD
 Source repositories are configured locally in ignored `config/repos/sources.yaml` (copy `config/repos/sources.example.yaml` first) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
-=======
-Source repositories are configured in `config/repos/sources.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
->>>>>>> origin/main
 
 ## Repository layout
 
 ```text
 kata/
-<<<<<<< HEAD
 ├── .claude/                       # Claude Code skills
 │   └── skills/
-=======
-├── .claude/                       # Claude Code skills and plugins
-│   ├── skills/
-│   └── plugins/
->>>>>>> origin/main
 ├── .agents/                       # Codex skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI (shared by both runtimes)

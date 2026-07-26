@@ -14,10 +14,7 @@ import {
 initEnv({ cwd: process.cwd() });
 
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
-<<<<<<< HEAD
   if (env.KATA_DISCOVERY_ONLY === "1") return "test-results/discovery";
-=======
->>>>>>> origin/main
   return resolvePlaywrightOutputDir(env);
 }
 
@@ -26,17 +23,11 @@ const discoveryOnly = process.env.KATA_DISCOVERY_ONLY === "1";
 const profile = discoveryOnly ? undefined : resolveDataAssetsRuntime();
 if (profile) bridgeLegacyDataAssetsEnv(profile, process.env);
 
-<<<<<<< HEAD
 const storageState = profile
   ? cookieHeaderToPlaywrightState(profile.urls.baseUrl, profile.auth.cookie)
   : undefined;
 const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
 const runPath = discoveryOnly ? "test-results/discovery" : resolvePlaywrightRunPath();
-=======
-const storageState = cookieHeaderToPlaywrightState(profile.urls.baseUrl, profile.auth.cookie);
-const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
-const runPath = resolvePlaywrightRunPath();
->>>>>>> origin/main
 const allureResultsDir = `${runPath}/allure-results`;
 
 // 并发控制：默认串行（向后兼容），通过环境变量按需开启并发

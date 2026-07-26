@@ -10,11 +10,7 @@ import {
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-<<<<<<< HEAD
 import { ensureExecutedRuleTasks, waitForTaskInstanceFinished } from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
-=======
-import { ensureExecutedRuleTasks, waitForTaskInstanceFinished } from "../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
->>>>>>> origin/main
 
 test.setTimeout(600000);
 

@@ -10,19 +10,11 @@ description: 查询、记录或维护项目业务知识、规则、术语，或�
 ## 查询
 
 ```bash
-<<<<<<< HEAD
 kata knowledge read --project <项目> [--module <模块>] [--keyword <关键词>] [--type <类型>] [--status <状态|all>] [--json]
 ```
 
 - 按模块注入用 `--module`（匹配标题或 tags）；按报错、术语检索用 `--keyword`。
 - 默认只注入 `verified`；`observed` 只能作为线索，不能升级成 `verified`；`conflicting` 必须保留双方证据并先裁决；`deprecated` 默认不注入，只有显式使用 `--status all` 或指定状态复核历史时读取。
-=======
-kata knowledge read --project <项目> [--module <模块>] [--keyword <关键词>] [--type <类型>] [--status <状态>] [--json]
-```
-
-- 按模块注入用 `--module`（匹配标题或 tags）；按报错、术语检索用 `--keyword`。
-- `verified` 可作为已确认事实使用；`observed` 只能作为线索，不能升级成 `verified`；`conflicting` 必须保留双方证据并先裁决；`deprecated` 默认不作为当前规则注入，只有明确复核历史时读取。
->>>>>>> origin/main
 - 只取命中条目，不加载整个库；无命中就说「知识库无匹配」，不臆造。
 
 ## 记录
@@ -42,13 +34,8 @@ kata knowledge write --project <项目> --type <term|module|pitfall|site> \
 
 约束：
 
-<<<<<<< HEAD
 - 写入的内容必须有来源（源码、真实界面探测、用户明示），来源写进 `--source`；没有依据的内容不写。
 - 密码、Cookie、Token、session 路径、私密 YAML 正文和未脱敏日志一律禁止写入；只记录命名凭据或脱敏结论。
-=======
-- 写入的事实必须有来源（源码、真实界面探测、用户明示），来源写进 `--source`；没有依据的内容不写。
-- 密码、Cookie、Token、session 路径、私密 YAML 正文和未脱敏日志一律不得写入；只记录命名凭据或脱敏结论。
->>>>>>> origin/main
 - 术语是 `knowledge/terms/<slug>.md` 单条文件；`overview.md` 仍是项目级上下文，使用 `--content <json>`。
 - 业务知识（`knowledge/`）与编写约束（`rules/`）分开放，不混写；未明确项目前不跨项目写。
 - 没有新知识就不写入；改完 `kata knowledge index --project <项目>` 重建索引。
@@ -56,8 +43,4 @@ kata knowledge write --project <项目> --type <term|module|pitfall|site> \
 ## 闭环
 
 - **任务开始**：test-case / ui-automation / infra-diagnose 等 skill 识别出模块或报错关键词后，先 `kata knowledge read --module/--keyword` 注入命中条目再动手，不重复排查。
-<<<<<<< HEAD
 - **任务结束**：执行中查证过的规则与踩坑按四种状态写回；同名非冲突内容自动合并，语义变化先确认。
-=======
-- **任务结束**：执行中查证过的业务事实与踩坑按四态写回；同名非冲突内容自动合并，语义变化先确认。
->>>>>>> origin/main

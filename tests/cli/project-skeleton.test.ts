@@ -20,11 +20,7 @@ describe("project skeleton contract", () => {
     );
     expect(readProjectMetadata(project)?.name).toBe("demo");
     expect(diff.project_metadata_valid).toBe(true);
-<<<<<<< HEAD
     expect(diff.missing_dirs).toContain("analyses/hotfix-case");
-=======
-    expect(diff.missing_dirs).toContain("knowledge/terms");
->>>>>>> origin/main
     expect(diff.skeleton_complete).toBe(false);
   });
 

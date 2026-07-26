@@ -23,11 +23,7 @@ function fixture(): string {
 }
 
 describe("automation case generator", () => {
-<<<<<<< HEAD
   it("creates a mapped-not-implemented script without treating it as implemented", () => {
-=======
-  it("creates one executable script per missing spec_file and imports only new cases", () => {
->>>>>>> origin/main
     const feature = fixture();
     const result = generateAutomationScripts(feature, { apply: true });
     expect(result.created).toHaveLength(1);
@@ -37,18 +33,10 @@ describe("automation case generator", () => {
     expect(existsSync(generated)).toBe(true);
     expect(readFileSync(generated, "utf8")).toContain("runGeneratedCase");
     expect(
-<<<<<<< HEAD
       readFileSync(join(feature, "automation", "tests", "runners", "generated.ts"), "utf8"),
     ).not.toContain("t02-missing.ts");
     expect(
       readFileSync(join(feature, "automation", "tests", "runners", "full.spec.ts"), "utf8"),
     ).toContain('./generated"');
-=======
-      readFileSync(join(feature, "automation", "tests", "runners", "generated.spec.ts"), "utf8"),
-    ).toContain("../cases/t02-missing.ts");
-    expect(
-      readFileSync(join(feature, "automation", "tests", "runners", "full.spec.ts"), "utf8"),
-    ).toContain('./generated.spec"');
->>>>>>> origin/main
   });
 });
