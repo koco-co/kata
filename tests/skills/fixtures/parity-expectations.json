@@ -38,11 +38,13 @@
       "zentaoCreate": ["kata zentao create"]
     },
     "infra-diagnose": {
-      "knowledgeQuery": ["knowledge read", "--keyword"],
-      "knowledgeWriteback": ["knowledge write", "type pitfall"],
       "credentialsPath": ["config/infra/credentials.yaml"],
-      "sshpassEnv": ["SSHPASS=", "sshpass -e"],
-      "noPlaintextFlag": ["sshpass -p"]
+      "configFiles": ["hosts.yaml", "data_sources.yaml"],
+      "inspectCmd": ["kata infra inspect", "connectivity"],
+      "credentialSet": ["kata infra credentials set", "--username"],
+      "hostTrust": ["kata infra trust-host", "fingerprint"],
+      "reportPath": ["infra-report/<yyyymm>/<slug>.md"],
+      "ssh2Boundary": ["ssh2", "任意远程命令"]
     },
     "domain-knowledge": {
       "readCmd": ["knowledge read"],

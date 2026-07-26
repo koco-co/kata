@@ -6,9 +6,12 @@ package-lock.json
 .env.local
 # One migration-cycle fallback; migrate-dataassets removes verified legacy Cookie files.
 workspace/*/_shared/env/.local/
-/config/env/
-# SSH 凭据(infra-diagnose),与 config/env 同级本机私密配置
-/config/infra/
+/config/env/*
+!/config/env/example.yaml
+# Infrastructure topology and credentials are local; only unusable examples are tracked.
+/config/infra/*
+!/config/infra/
+!/config/infra/*.example.yaml
 config.json
 
 # Hidden runtime root

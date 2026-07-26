@@ -53,6 +53,21 @@ kata env doctor ci63
 
 平台只能提供 HTTP 时，`doctor` 会给出传输风险提示。共享或生产环境应使用 HTTPS。
 
+## 基础设施配置
+
+复制并填写 `config/infra/hosts.example.yaml`、`data_sources.example.yaml` 和 `credentials.example.yaml` 到对应的本机私密文件。真实密码、host fingerprint 和连接信息不得提交：
+
+```bash
+mkdir -p config/infra
+chmod 700 config/infra
+kata config doctor
+kata infra credentials set <name> --username <username>
+kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
+kata infra inspect <host> --check connectivity --project <project>
+```
+
+`kata infra inspect` 当前只执行 SSH2 connectivity 检查并生成脱敏 Markdown 报告，不执行服务器变更。
+
 运行依赖该环境的命令：
 
 ```bash
