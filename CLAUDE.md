@@ -88,4 +88,5 @@
 - 根因修复纪律：用户反馈的问题，不得只修复表面现象。必须先追查根因（规则定义在哪、为什么没拦住、执行链路哪个环节失效），再从源头堵住缺口。目标是非重复性——同类问题不允许犯第二次。
 - 机制下沉：路径、必填参数、命名、格式类约束由 CLI/lint 报错强制，提示词只写业务语义与判断依据；CLI 报错文案必须可执行（缺什么、下一步问谁），报错本身就是提示词面。
 - Playwright 自动化硬闸：生成或修复 Playwright UI 自动化后，交付必须同时满足 `full.spec.ts` 通过、feature run 目录下有 Allure 结果、被测平台产生该用例核心流程的业务记录数据。只读 UI/API 合同脚本只有在用户明确要求只读覆盖时才算完成；否则必须阻塞或排除并写清未产记录的原因。
+- Playwright 静态检查：交付前必须运行 `kata automation lint <featureDir> --exit-code`，并对共享页面、helper 和 fixture 运行 `kata automation lint --shared --exit-code`；不得引入 baseline 之外的新违规。
 - QA 产物交付前必须说清已验证范围和未验证范围，不得把局部通过说成全量通过。

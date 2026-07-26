@@ -11,7 +11,7 @@ import {
   pollLatestInstance,
   runRuleNowByApi,
 } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
-import { runSr3xSql } from "./_db";
+import { runSr3xSql } from "../helpers/_db";
 
 const TABLE = "zszq_trade_enum";
 

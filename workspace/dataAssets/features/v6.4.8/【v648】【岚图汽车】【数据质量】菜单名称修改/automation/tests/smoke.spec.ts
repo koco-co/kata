@@ -12,7 +12,6 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
       id?: number | string;
     }>;
   };
-  const defaultBaseUrl = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
   const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
 
   const visibleMenus = ["总览", "规则任务管理", "校验结果查询", "数据质量报告", "规则集管理"];
@@ -26,7 +25,9 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
     ).process?.env?.[name];
   }
   function getRawBaseUrl(): string {
-    return getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL") ?? defaultBaseUrl;
+    const baseUrl = getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL");
+    if (!baseUrl) throw new Error("UI_AUTOTEST_BASE_URL or E2E_BASE_URL must be configured");
+    return baseUrl;
   }
   function normalizeDataAssetsBaseUrl(): string {
     const rawBaseUrl = getRawBaseUrl();

@@ -4,7 +4,7 @@ export const SOURCE_REFS = {
   intent:
     "SR-INTENT-001 archive.md: P0 要求新增 3 个内置规则，且规则库配置/规则任务配置入口可验证。",
   env:
-    "SR-ENV-001 config/env/ci63.yaml: url=http://172.16.122.52, expected_tenant=hadoop2, quality_project=pw_test。",
+    "SR-ENV-001 config/env/<env>.yaml: url=<injected base URL>, expected_tenant=<injected tenant>, quality_project=<injected project>。",
   preflight:
     "SR-UI-PROBE-001 results/<run-id>/playwright/preflight/preflight-ci63.png: ci63 session 可进入 dataAssets，标题为 DataAssets · 数据资产。",
   ruleAdd:
