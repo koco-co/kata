@@ -3,19 +3,9 @@ import { basename, dirname, join, relative } from "node:path";
 import type { BugReport } from "./bug-report-types.ts";
 import { validateBugReport } from "./bug-report-validate.ts";
 
-export type ReportKind = "infra" | "bug" | "conflict" | "scan";
+export type ReportKind = "bug" | "conflict" | "scan";
 
 const REQUIRED: Record<ReportKind, string[]> = {
-  infra: [
-    "基本信息",
-    "症状",
-    "诊断路径",
-    "证据",
-    "结论",
-    "变更计划与结果",
-    "Original-path Retest",
-    "Knowledge writeback",
-  ],
   bug: ["结论", "证据", "实际行为", "预期行为", "复现步骤", "根因", "建议"],
   conflict: ["结论", "证据", "双方意图", "决策依据", "建议"],
   scan: ["结论", "证据", "发现", "建议"],
@@ -34,9 +24,9 @@ export interface ReportLintResult {
 export function reportKindFromPath(reportPath: string): ReportKind {
   const year = basename(dirname(reportPath));
   const parent = basename(dirname(dirname(reportPath)));
-  const match = parent.match(/^(infra|bug|conflict|scan)-report$/);
+  const match = parent.match(/^(bug|conflict|scan)-report$/);
   if (!match || !/^\d{6}$/.test(year) || !reportPath.endsWith(".md")) {
-    throw new Error("报告路径必须为 analyses/{infra,bug,conflict,scan}-report/<yyyymm>/<slug>.md");
+    throw new Error("报告路径必须为 analyses/{bug,conflict,scan}-report/<yyyymm>/<slug>.md");
   }
   return match[1] as ReportKind;
 }

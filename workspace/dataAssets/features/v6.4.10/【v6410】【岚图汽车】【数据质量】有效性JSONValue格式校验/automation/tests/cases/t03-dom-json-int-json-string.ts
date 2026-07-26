@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t03-dom-json-int-json-string
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -37,7 +38,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
 
     await step("步骤3: 选择 INT 类型字段（id）→ 字段选择成功", async () => {
       await selectAntOption(page, fieldSelect, "id");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     });
 
     const functionRow = ruleForm.locator(".rule__function-list__item").first();
@@ -48,7 +49,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
       async () => {
         const dropdown = page.locator(".ant-select-dropdown:visible").last();
         await functionSelect.locator(".ant-select-selector").click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         await expect(dropdown).toBeVisible({ timeout: 10000 });
 
@@ -71,11 +72,11 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
     );
 
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
 
     await step("步骤5: 切换为 json/string 类型字段（info）→ 字段切换成功", async () => {
       await selectAntOption(page, fieldSelect, "info");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     });
 
     const jsonFormatOptionAfterSwitch = page
@@ -87,7 +88,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
       "步骤6: 再次打开统计函数下拉，验证切换到 json/string 类型字段后「格式-json格式校验」仍然出现 → 选项可用",
       async () => {
         await functionSelect.locator(".ant-select-selector").click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         const updatedDropdown = page.locator(".ant-select-dropdown:visible").last();
         await expect(updatedDropdown).toBeVisible({ timeout: 10000 });

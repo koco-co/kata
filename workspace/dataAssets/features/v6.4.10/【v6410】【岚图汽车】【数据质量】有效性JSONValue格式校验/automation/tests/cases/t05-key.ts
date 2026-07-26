@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t05-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -45,7 +46,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         .locator(".ant-select")
         .first();
       await selectAntOption(page, fieldSelect, "info");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     });
 
     await step(
@@ -54,7 +55,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         const functionRow = ruleForm.locator(".rule__function-list__item").first();
         const functionSelect = functionRow.locator(".ant-select").first();
         await selectAntOption(page, functionSelect, FORMAT_JSON_VERIFICATION_FUNC);
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       },
     );
 
@@ -71,7 +72,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         // fallback: 点击第二个 select 的 selector
         await ruleForm.locator(".ant-select .ant-select-selector").nth(1).click();
       }
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
     };
 
     // TreeSelect 弹出层
@@ -91,7 +92,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
             continue;
           }
           await switcher.click({ force: true }).catch(() => undefined);
-          await page.waitForTimeout(200);
+          await waitForUiSettled(page);
           expanded = true;
         }
         if (!expanded) {
@@ -117,7 +118,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
           .locator(".ant-select-tree-node-content-wrapper, .ant-tree-node-content-wrapper")
           .first()
           .click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
 
         // 验证 key1 已被选中（勾选框为 checked 或 tag 出现）
         const key1Checkbox = key1Node
@@ -161,7 +162,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
           .locator(".ant-select-tree-node-content-wrapper, .ant-tree-node-content-wrapper")
           .first()
           .click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
 
         // 验证 key1 + key2 都被选中
         const key2Checkbox = key2Node
@@ -206,7 +207,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
             .locator(".ant-select-tree-node-content-wrapper, .ant-tree-node-content-wrapper")
             .first()
             .click();
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
 
           // 全选后根节点 checkbox 为 checked
           const allCheckbox = allNode
@@ -233,7 +234,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
             .first();
           if (await checkAllBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
             await checkAllBtn.click();
-            await page.waitForTimeout(300);
+            await waitForUiSettled(page);
           }
         }
       },
@@ -260,7 +261,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
           .locator(".ant-select-tree-node-content-wrapper, .ant-tree-node-content-wrapper")
           .first()
           .click();
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
 
         // 取消全选后根节点 checkbox 不为 checked
         const allCheckbox = allNode

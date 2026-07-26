@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -80,7 +81,7 @@ async function inventoryArea(
   await expect(page.locator("body"), `${area}: 页面应打开`).toContainText(heading, { timeout: 30_000 });
   await searchByTableOrTask(page, area, query);
   await expect(page.locator(".ant-spin-spinning"), `${area}: 加载遮罩应消失`).toHaveCount(0, { timeout: 60_000 });
-  await page.waitForTimeout(1_000);
+  await waitForUiSettled(page);
 
   const totalText = await page
     .locator(".ant-pagination-total-text:visible")
@@ -137,7 +138,7 @@ async function collectRowsAcrossPages(page: Page, totalCount: number | null): Pr
     if (className?.includes("ant-pagination-disabled")) break;
     await next.click({ timeout: 30_000 });
     await expect(page.locator(".ant-spin-spinning"), "翻页后加载遮罩应消失").toHaveCount(0, { timeout: 60_000 });
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   return rows;
 }
@@ -159,7 +160,7 @@ async function collectTaskQueryRowsAcrossPages(
     if (className?.includes("ant-pagination-disabled")) break;
     await next.click({ timeout: 30_000 });
     await expect(page.locator(".ant-spin-spinning"), "翻页后加载遮罩应消失").toHaveCount(0, { timeout: 60_000 });
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
   return { rows, statusRecords };
 }
@@ -188,7 +189,7 @@ async function collectStatusTooltipTexts(page: Page, row: Locator): Promise<stri
     const item = candidates.nth(index);
     if (!(await item.isVisible({ timeout: 500 }).catch(() => false))) continue;
     await item.hover({ timeout: 5_000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
     const tooltipTexts = await page
       .locator(".ant-tooltip:visible, [role='tooltip']:visible")
       .evaluateAll((items) => items.map((item) => (item.textContent ?? "").replace(/\s+/g, " ").trim()).filter(Boolean))
@@ -229,7 +230,7 @@ async function gotoDataQualityPage(page: Page, routePath: string): Promise<void>
       localStorage.setItem(key, projectId);
     }
   }, PROJECT_ID);
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
   await ensureQualityProjectSelected(page);
 }
 
@@ -246,7 +247,7 @@ async function ensureQualityProjectSelected(page: Page): Promise<void> {
   const option = page.locator(".ant-select-dropdown:visible .ant-select-item-option").filter({ hasText: PROJECT_NAME }).first();
   await expect(option, `质量项目下拉应包含 ${PROJECT_NAME}`).toBeVisible({ timeout: 30_000 });
   await option.click({ timeout: 30_000 });
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
 }
 
 async function searchByTableOrTask(page: Page, area: InventoryArea, query: string): Promise<void> {

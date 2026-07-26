@@ -1,0 +1,48 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C1355",
+  "title": "验证【「数据标准」-「标准定义」字段调整】「标准管理」-「标准定义」中新增字段填写后流程正常运转",
+  "steps": [
+    {
+      "action": "进入【资产】-【数据标准】-【标准管理】-【标准定义】页面",
+      "expected": "进入成功"
+    },
+    {
+      "action": "点击【新建标准】按钮",
+      "expected": "进入[新建标准]配置页面"
+    },
+    {
+      "action": "业务属性配置如下：\n[中文名称] 最大功率\n[英文名称] Maximum power\n[英文缩写] MaxP\n[标准目录] tst\n[车系/车型]宝马x型/x5；宝马x型/x3；宝马x型/x1M35Li",
+      "expected": "【技术属性】配置完成"
+    },
+    {
+      "action": "技术属性配置如下：\n[数据类型] 数值型\n[数据长度] <=5\n[数据精度] 4/3\n[是否允许空值] 否\n[是否允许重复] 是\n[默认值] 不作填写\n[初始值] 不作填写\n[无效值] 500\n[精度倍数] 1.1\n[偏移量] 20",
+      "expected": "【技术属性】配置完成"
+    },
+    {
+      "action": "点击【保存】按钮",
+      "expected": "弹出提示\"数据标准保存成功\"，返回【标准定义】页面"
+    },
+    {
+      "action": "找到【测试】标准，点击编辑",
+      "expected": "进入【编辑标准】配置页面"
+    },
+    {
+      "action": "点击【上线】按钮",
+      "expected": "弹出提示\"数据标准发布成功\"，返回【标准定义】页面"
+    },
+    {
+      "action": "点击【下线】按钮",
+      "expected": "弹出确认框\"该数据标准已被引用至0张数据表，下线数据标准数据表中将不再展示字段的标准标签信息，且会同步删除标准映射结果\"，点击确认框[下线]按钮，标准状态改为[待上线]"
+    }
+  ]
+} as const;
+
+test.describe("验证【「数据标准」-「标准定义」字段调整】「标准管理」-「标准定义」中新增字段填写后流程正常运转", () => {
+  test("C1355 验证【「数据标准」-「标准定义」字段调整】「标准管理」-「标准定义」中新增字段填写后流程正常运转", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

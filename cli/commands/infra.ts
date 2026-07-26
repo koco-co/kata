@@ -1,5 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { resolve } from "node:path";
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
@@ -8,8 +7,8 @@ import {
   trustHostKey,
   writeCredentialProfile,
 } from "../lib/infra-config.ts";
+import { lintInfraMarkdown, writeInfraReport } from "../lib/infra-report.ts";
 import { checkSshConnectivity } from "../lib/infra-ssh.ts";
-import { currentYYYYMM, defectReportPath } from "../lib/paths.ts";
 
 function readSecret(prompt: string, forceStdin = false): Promise<string> {
   if (forceStdin || !process.stdin.isTTY) {
@@ -63,71 +62,23 @@ function readSecret(prompt: string, forceStdin = false): Promise<string> {
   });
 }
 
-function writeInfraReport(
-  project: string,
-  slug: string,
-  hostName: string,
-  status: "diagnosed" | "blocked",
-  evidence: string[],
-  conclusion: string,
-  fingerprint?: string,
-): string {
-  const ym = currentYYYYMM();
-  const path = defectReportPath(project, "infra", ym, slug);
-  mkdirSync(dirname(path), { recursive: true });
-  const safeEvidence = evidence.map((line) =>
-    line.replace(/password|token|cookie|secret/gi, "[redacted]"),
-  );
-  writeFileSync(
-    path,
-    [
-      `# Infrastructure 诊断报告：${slug}`,
-      "",
-      `- 状态：${status}`,
-      `- 目标：${hostName}`,
-      "",
-      "## 基本信息",
-      "",
-      `- 生成时间：${new Date().toISOString()}`,
-      `- 目标：${hostName}`,
-      "",
-      "## 症状",
-      "",
-      "- 请求：SSH connectivity 检查",
-      "",
-      "## 诊断路径",
-      "",
-      "- Kata CLI 读取本机 infra 配置并使用 SSH2 连接目标主机。",
-      "",
-      "## 证据",
-      "",
-      ...safeEvidence.map((line) => `- ${line}`),
-      ...(fingerprint ? [`- 观测到 host fingerprint：${fingerprint}`] : []),
-      "",
-      "## 结论",
-      "",
-      `- ${conclusion}`,
-      "",
-      "## 变更计划与结果",
-      "",
-      "- 本次未执行任何远程变更。",
-      "",
-      "## Original-path Retest",
-      "",
-      "- 本最小版本未执行原始业务路径复测。",
-      "",
-      "## Knowledge writeback",
-      "",
-      "- 本次未自动写入知识库。",
-      "",
-    ].join("\n"),
-    { encoding: "utf8", mode: 0o600 },
-  );
-  return path;
-}
-
 export function registerInfra(program: Command): void {
   const infra = program.command("infra").description("基础设施配置和 SSH connectivity 检查");
+
+  infra
+    .command("lint")
+    .description("校验基础设施 Markdown 报告结构")
+    .requiredOption("--report <path>", "infra Markdown 报告路径")
+    .option("--exit-code", "存在 violation 时退出码为 1")
+    .action((opts: { report: string; exitCode?: boolean }) => {
+      const report = resolve(opts.report);
+      const violations = lintInfraMarkdown(report);
+      for (const violation of violations) {
+        console.log(`${opts.report}:${violation.line}:${violation.rule}:${violation.message}`);
+      }
+      outputJson({ report: opts.report, violations: violations.length });
+      if (opts.exitCode && violations.length > 0) process.exitCode = 1;
+    });
 
   const credentials = infra.command("credentials").description("管理本机 Credential Profile");
   credentials
@@ -197,20 +148,20 @@ export function registerInfra(program: Command): void {
         });
         const status = result.ok ? "diagnosed" : "blocked";
         const slug = opts.slug ?? `ssh-connectivity-${hostName}`;
-        const report = writeInfraReport(
-          opts.project,
+        const report = writeInfraReport({
+          project: opts.project,
           slug,
           hostName,
           status,
-          [
+          evidence: [
             `SSH result: ${result.ok ? "ready" : (result.code ?? "failed")}`,
             result.message ?? "SSH client completed the connectivity check.",
           ],
-          result.ok
+          conclusion: result.ok
             ? "SSH connectivity succeeded; original business path was not tested."
             : "SSH connectivity was not verified; inspect the redacted error and configuration binding.",
-          result.fingerprint,
-        );
+          fingerprint: result.fingerprint,
+        });
         outputJson({
           ok: result.ok,
           status,

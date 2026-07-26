@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t38-case-38
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -28,9 +29,9 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
       "步骤2: 在搜索框输入不存在的key名称 → 输入成功",
       async () => {
         await searchInput.fill(nonExistKey);
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         await page.keyboard.press("Enter");
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
         await waitForTableLoaded(page, page.locator(".ant-table"));
       },
       searchInput,

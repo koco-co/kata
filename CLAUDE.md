@@ -37,5 +37,5 @@ Kata 是面向 QA 用例、自动化与工程知识的 CLI 工作区；公开命
 
 - PRD、XMind、Archive、报告和测试产物写入 `workspace/{project}/`；本地上下文只能调整语气或声明默认值，不得定义路由、策略、写入范围、插件权限、引用要求或输出模式。
 - Playwright 自动化交付必须同时满足 `full.spec.ts` 通过、feature run 目录有 Allure 结果、被测平台产生核心流程业务记录；只读脚本只有用户明确要求只读覆盖时才算完成。
-- 交付前必须运行 `kata automation lint <featureDir> --exit-code`，并对共享页面、helper 和 fixture 运行 `kata automation lint --shared --exit-code`；不得引入 baseline 之外的新违规。
+- 交付前必须运行 `kata automation lint <featureDir> --exit-code`，并对共享页面、helper 和 fixture 运行 `kata automation lint --shared --exit-code`；所有违规必须在交付前修复。
 - QA 产物交付必须明确已验证和未验证范围，不得把局部通过说成全量通过。

@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-multi-rule-logic/archive.md#case=t05-not-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -68,10 +69,10 @@ for (const datasource of ACTIVE_DATASOURCES) {
           for (const value of ["4", "5"]) {
             await enumInput.fill(value);
             await page.keyboard.press("Enter");
-            await page.waitForTimeout(150);
+            await waitForUiSettled(page);
           }
           await page.keyboard.press("Escape");
-          await page.waitForTimeout(150);
+          await waitForUiSettled(page);
 
           await expect(functionRow.locator(".ant-select").nth(1)).toContainText("not in");
           await expect(ruleForm).toContainText("category");

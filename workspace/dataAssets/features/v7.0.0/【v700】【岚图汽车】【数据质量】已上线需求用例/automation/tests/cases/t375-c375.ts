@@ -1,0 +1,60 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C375",
+  "title": "验证【点击临时保存规则后，留存在当前页面不进行跳转，并提示\"规则已临时保存\"】未填写必填项内容时不能临时保存（调度属性处保存）",
+  "steps": [
+    {
+      "action": "进入【资产】-【数据质量】-【规则任务管理】页面",
+      "expected": "进入成功"
+    },
+    {
+      "action": "点击【新建监控规则】按钮",
+      "expected": "进入[监控对象]配置页面"
+    },
+    {
+      "action": "监控对象配置如下：[规则名称] test[选择数据源] doris2x_test[Doris2.x]（选择数据库） DataQuery_Doris[选择数据表] user_profile_0919[选择分区] 默认",
+      "expected": "[监控对象]配置完成"
+    },
+    {
+      "action": "点击【下一步】按钮",
+      "expected": "进入[监控规则]配置页面"
+    },
+    {
+      "action": "点击【添加规则】按钮-选择[完整性验证]",
+      "expected": "页面新增[完整性验证]配置栏"
+    },
+    {
+      "action": "完整性验证配置如下：[规则类型] 多表数据行数对比[选择对比表]- [对比表所属库] DataQuery_Doris [对比表] user_profile_4023 [输入分区] 默认[强弱规则] 弱规则[规则描述] 不作填写",
+      "expected": "[完整性验证]配置完毕"
+    },
+    {
+      "action": "点击【下一步】按钮",
+      "expected": "进入[调度属性]配置页面"
+    },
+    {
+      "action": "调度配置配置如下：[调度周期] 天[生效日期] 2025-12-08→2125-12-08[具体时间] 00：00[规则拼接包] 1",
+      "expected": "9."
+    },
+    {
+      "action": "告警配置配置如下：默认 不作调整",
+      "expected": "11. 无反应，不执行临时保存"
+    },
+    {
+      "action": "报告配置配置如下：默认不作修改（【数据周期】为必填项且无默认值）",
+      "expected": ""
+    },
+    {
+      "action": "点击临时保存",
+      "expected": ""
+    }
+  ]
+} as const;
+
+test.describe("验证【点击临时保存规则后，留存在当前页面不进行跳转，并提示\"规则已临时保存\"】未填写必填项内容时不能临时保存（调度属性处保存）", () => {
+  test("C375 验证【点击临时保存规则后，留存在当前页面不进行跳转，并提示\"规则已临时保存\"】未填写必填项内容时不能临时保存（调度属性处保存）", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

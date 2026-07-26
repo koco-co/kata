@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 /**
  * 共享测试数据
  * 「#15694 内置规则丰富 - 格式-json格式校验」全部用例的公共依赖
@@ -75,10 +76,10 @@ export async function injectProjectContext(page: Page, projectId: number): Promi
 export async function gotoRuleSetListWithContext(page: Page): Promise<void> {
   await applyRuntimeCookies(page);
   await page.goto(buildDataAssetsUrl("/dq/ruleSet", QUALITY_PROJECT_ID));
-  await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
   await injectProjectContext(page, QUALITY_PROJECT_ID);
   await page.reload();
-  await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(1000);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
 }

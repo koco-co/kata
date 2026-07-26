@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t01-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -36,7 +37,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         .locator(".ant-select")
         .first();
       await fieldSelect.locator(".ant-select-selector").click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const infoOption = page
         .locator(".ant-select-dropdown:visible .ant-select-item-option")
         .filter({ hasText: /^info$/ })
@@ -47,7 +48,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         // fallback：选第一个 json/string 类型字段
         await page.locator(".ant-select-dropdown:visible .ant-select-item-option").first().click();
       }
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     });
 
     await step(
@@ -56,7 +57,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         const functionRow = ruleForm.locator(".rule__function-list__item").first();
         const functionSelect = functionRow.locator(".ant-select").first();
         await functionSelect.locator(".ant-select-selector").click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         const dropdown = page.locator(".ant-select-dropdown:visible").last();
         await expect(dropdown).toBeVisible({ timeout: 10000 });
@@ -83,7 +84,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
           await holder.evaluate((el) => {
             el.scrollTop += 240;
           });
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
 
           const scrolledTexts = await dropdown
             .locator(".ant-select-item-option")

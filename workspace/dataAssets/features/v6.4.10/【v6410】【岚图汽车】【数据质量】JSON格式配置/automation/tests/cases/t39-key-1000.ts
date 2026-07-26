@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t39-key-1000
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -42,11 +43,11 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
       async () => {
         const searchStart = Date.now();
         await searchInput.fill(searchKey);
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         await page.keyboard.press("Enter");
 
         // 等待网络请求完成或 loading 消失
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
         await waitForTableLoaded(page, page.locator(".ant-table"));
 
         const searchDuration = Date.now() - searchStart;
@@ -65,7 +66,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
       async () => {
         await searchInput.clear();
         await page.keyboard.press("Enter");
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
         await waitForTableLoaded(page, page.locator(".ant-table"));
         await expect(page.locator(".ant-table")).toBeVisible();
       },

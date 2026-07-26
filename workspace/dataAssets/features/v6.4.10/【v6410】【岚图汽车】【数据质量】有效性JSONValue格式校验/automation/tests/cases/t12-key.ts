@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t12-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -33,7 +34,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         .locator(".ant-select")
         .first();
       await selectAntOption(page, fieldSelect, "info");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     });
 
     await step(
@@ -42,7 +43,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         const functionRow = ruleForm.locator(".rule__function-list__item").first();
         const functionSelect = functionRow.locator(".ant-select").first();
         await selectAntOption(page, functionSelect, FORMAT_JSON_VERIFICATION_FUNC);
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         // 校验key 配置区域（TreeSelect）应出现
         const keySelectArea = ruleForm.locator(".ant-tree-select, .ant-select").nth(1);
@@ -60,7 +61,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
       "步骤5: 不选择校验key，直接点击【保存】→ 页面提示统计函数存在必填项未填写，且校验key仍保持占位文案",
       async () => {
         await saveBtn.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         const formError = ruleForm
           .locator(".ant-form-item-explain-error")

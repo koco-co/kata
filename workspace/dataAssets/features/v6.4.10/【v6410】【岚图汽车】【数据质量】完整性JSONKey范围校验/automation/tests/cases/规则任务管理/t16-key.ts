@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // spec: features/completeness-json-key-range/archive.md#case=t16-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -92,16 +93,16 @@ async function selectWithSearch(
   for (let i = 0; i < attempts; i++) {
     try {
       await trigger.click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       await page.keyboard.type(text, { delay: 50 });
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
       const opt = page.locator(".ant-select-dropdown:visible .ant-select-item-option").first();
       await opt.click({ timeout: 5000 });
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       return;
     } catch (e) {
       await page.keyboard.press("Escape").catch(() => undefined);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       if (i === attempts - 1) throw e;
     }
   }
@@ -162,7 +163,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
         await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
         await injectProjectContext(page, effectiveProjectId);
         await page.reload({ waitUntil: "networkidle", timeout: 30000 });
-        await page.waitForTimeout(3000);
+        await waitForUiSettled(page);
 
         // 等表单加载
         await expect(
@@ -181,29 +182,29 @@ for (const datasource of ACTIVE_DATASOURCES) {
           .fill(taskName);
         const mDs = monitorDs();
         await selectWithSearch(page, sel(/选择数据源/)(page), mDs.keyword.source);
-        await page.waitForTimeout(800);
+        await waitForUiSettled(page);
         await selectWithSearch(page, sel(/选择数据库/)(page), ds.database);
-        await page.waitForTimeout(1500);
+        await waitForUiSettled(page);
         await selectWithSearch(page, sel(/选择数据表/)(page), tableName);
-        await page.waitForTimeout(1500);
+        await waitForUiSettled(page);
 
         // 下一步 → Step 2
         await page.getByRole("button", { name: "下一步" }).first().click();
-        await page.waitForTimeout(3000);
+        await waitForUiSettled(page);
 
         // 导入规则包
         await selectAntOption(page, sel(/规则包/)(page), packageName);
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
         await selectAntOption(page, sel(/规则类型/)(page), /完整性校验|完整性/);
-        await page.waitForTimeout(300);
+        await waitForUiSettled(page);
         await page.getByRole("button", { name: /引入/ }).click();
-        await page.waitForTimeout(2000);
+        await waitForUiSettled(page);
         await expect(page.locator(".ruleForm").first()).toBeVisible({ timeout: 10000 });
 
         // 下一步 → Step 3（调度属性）
         await page.getByRole("button", { name: "下一步" }).last().click();
-        await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => undefined);
-        await page.waitForTimeout(2000);
+        await waitForUiSettled(page);
+        await waitForUiSettled(page);
 
         // 资源组（必填）
         const rgSelect = page
@@ -213,7 +214,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           .first();
         if (await rgSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
           await selectAntOption(page, rgSelect, /default|Default/);
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
         }
 
         // 规则拼接包
@@ -231,7 +232,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           .first();
         if (await immRadio.isVisible({ timeout: 2000 }).catch(() => false)) {
           await immRadio.click();
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
         }
 
         // 报告名称
@@ -267,7 +268,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           .first();
         if (await carRadio.isVisible({ timeout: 2000 }).catch(() => false)) {
           await carRadio.click();
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
         }
 
         // 保存并等待
@@ -282,7 +283,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           .getByRole("button", { name: /新建|保存/ })
           .last()
           .click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
 
         // 确认弹窗
         const confirmModal = page.locator(".ant-modal:visible, .ant-modal-confirm:visible").last();
@@ -308,7 +309,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           waitUntil: "networkidle",
           timeout: 30000,
         });
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
       });
 
       // 步骤4: 执行 + 轮询等待完成
@@ -326,7 +327,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           await page
             .reload({ waitUntil: "networkidle", timeout: 30000 })
             .catch(() => page.reload().catch(() => {}));
-          await page.waitForTimeout(3000);
+          await waitForUiSettled(page);
           const row = getTableRowByTaskName(page, taskName);
           if (await row.isVisible({ timeout: 3000 }).catch(() => false)) {
             const text = await row.innerText().catch(() => "");
@@ -352,7 +353,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
         const actionBtn = row.locator("td").last().getByRole("button").first();
         await expect(actionBtn).toBeVisible({ timeout: 5000 });
         await actionBtn.click();
-        await page.waitForTimeout(1500);
+        await waitForUiSettled(page);
 
         const drawer = page.locator(".ant-drawer:visible, .dtc-drawer:visible").last();
         await expect(drawer).toBeVisible({ timeout: 10000 });
@@ -362,7 +363,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
         const detailBtn = drawer.getByRole("button", { name: /查看明细|明细/ }).first();
         if (await detailBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
           await detailBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
       });
     });

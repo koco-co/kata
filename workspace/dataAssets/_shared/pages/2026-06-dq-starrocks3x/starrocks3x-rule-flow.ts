@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../helpers/index";
 // StarRocks3.x 数据质量「单表校验规则」深链路操作：建规则 → 详情抽屉 → 立即执行 → 轮询实例 → 编辑期望值 → 删除清理。
 // 全部流程已对 zszq-test/pw_sr3 真实环境探测验证（SourceRef: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ）。
 import { type Page, expect } from "@playwright/test";
@@ -85,7 +86,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
   for (let attempt = 1; attempt <= 3 && !inStepTwo; attempt++) {
     try {
       await gotoZszqDataAssetsPage(page, "/dq/rule/add");
-      if (attempt > 1) await page.waitForTimeout(1500);
+      if (attempt > 1) await waitForUiSettled(page);
       // ① 监控对象（数据源选择复用已验证的 selectStarRocksDatasource）
       await locateFormItem(page, "规则名称").locator("input").first().fill(spec.ruleName);
       await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
@@ -108,12 +109,12 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
   }
   expect(inStepTwo, "①→②向导切换重试 3 次仍未进入②监控规则步骤（出现「添加规则」）").toBe(true);
   await addRuleBtn.click();
-  await page.waitForTimeout(600);
+  await waitForUiSettled(page);
   await page
     .locator(".ant-dropdown:visible li, .ant-dropdown-menu-item", { hasText: spec.bigRule })
     .first()
     .click();
-  await page.waitForTimeout(1000);
+  await waitForUiSettled(page);
 
   if (spec.bigRule === "自定义SQL") {
     // 自定义SQL：无 ruleLevel/fields/statFunc；填 SQL textarea，然后校验方法/期望值照常
@@ -121,12 +122,12 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
       const sqlTextarea = page.locator("textarea.ant-input, .ant-form-item textarea").first();
       await expect(sqlTextarea, "自定义SQL 应展示 textarea").toBeVisible({ timeout: 10000 });
       await sqlTextarea.fill(spec.customSql);
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
     }
   } else {
     if (spec.ruleLevel) {
       await selectAntOption(page, locateFormItem(page, "规则类型").locator(".ant-select").first(), spec.ruleLevel);
-      await page.waitForTimeout(600);
+      await waitForUiSettled(page);
     }
     if (spec.fields?.length) {
       // 注意：locateFormItem 按整项文本匹配，"字段" 会误命中规则类型项的值「字段级」；改用 label 精确定位 字段 项。
@@ -154,7 +155,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
             .filter({ hasNotText: new RegExp(`${f}.+`) })
             .first()
             .click();
-          await page.waitForTimeout(200);
+          await waitForUiSettled(page);
         }
       }
       if (spec.fields.length > 1) await page.keyboard.press("Escape").catch(() => {});
@@ -164,7 +165,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
         () => {},
       );
     }
-    await page.waitForTimeout(800); // 等统计函数选择后动态 UI 渲染
+    await waitForUiSettled(page); // 等统计函数选择后动态 UI 渲染
   }
 
   // 数值-取值范围（renderRanges，id=range_*）：firstOperator/firstThreshold + 且或 radio +
@@ -191,7 +192,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
       await selectAntOption(page, secondOpItem.locator(".ant-select").first(), spec.rangeSecondOp);
       await page.locator("#range_secondThreshold").fill(spec.rangeSecondVal ?? "");
     }
-    await page.waitForTimeout(400);
+    await waitForUiSettled(page);
     await selectAntOption(page, locateFormItem(page, "强弱规则").locator(".ant-select").first(), spec.weak);
   } else {
     // 格式校验(格式-身份证号/手机号/邮箱)走 renderOperator(isFlag) 分支：不渲染独立「校验方法」，
@@ -203,7 +204,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
     if (isFormat) {
       // format 的「期望值」项只含「固定值/占比」选择器；比较符是其后、紧邻 #threshold 之前的独立 select。
       await selectAntOption(page, locateFormItem(page, "期望值").locator(".ant-select").first(), "固定值");
-      await page.waitForTimeout(400);
+      await waitForUiSettled(page);
       const opSelect = page
         .locator("xpath=//input[@id='threshold']/preceding::div[contains(concat(' ', @class, ' '), ' ant-select ')][1]")
         .first();
@@ -212,7 +213,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
       await selectAntOption(page, locateFormItem(page, "校验方法").locator(".ant-select").first(), "固定值");
       // 字符串长度等 specialFunction 选「固定值」后，比较符选项会从 noEqual 异步重渲染成仅 [=]
       // (operatorSelectEqual)，re-render 会清掉先前的 operator 值；等其落定再选，避免提交时 operator 为空被拒。
-      await page.waitForTimeout(700);
+      await waitForUiSettled(page);
       await selectAntOption(page, locateFormItem(page, "期望值").locator(".ant-select").first(), spec.comparator);
     }
     await page.locator("#threshold").fill(spec.threshold);
@@ -224,14 +225,14 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
 
   // 保存规则块
   await page.locator("button:visible", { hasText: /保\s*存/ }).first().click();
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
   await expect(
     page.locator("button:visible", { hasText: /保\s*存/ }),
     "规则块应保存成功（保存按钮消失，块变只读）",
   ).toHaveCount(0, { timeout: 30000 });
 
   await clickNext(page);
-  await page.waitForLoadState("networkidle").catch(() => {});
+  await waitForUiSettled(page);
 
   // ③ 调度周期默认为「天」，按 archive 要求切换为「手动触发」，再提交。
   await switchScheduleToManual(page);
@@ -263,12 +264,12 @@ export async function switchScheduleToManual(page: Page): Promise<void> {
     .catch(() => false);
   if (!exists) return;
   await selectAntOption(page, cycleSelect, "手动触发").catch(() => {});
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
 }
 
 async function clickNext(page: Page): Promise<void> {
   await page.locator("button:visible", { hasText: /^下一步$/ }).first().click();
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
 }
 
 // ─── 规则列表 / API ───
@@ -293,7 +294,7 @@ export async function getMonitorIdByName(page: Page, ruleName: string, table?: s
         .sort((a, b) => Number(b.monitorId ?? b.id ?? 0) - Number(a.monitorId ?? a.id ?? 0))[0];
       if (byTable) return String(byTable.monitorId ?? byTable.id);
     }
-    await page.waitForTimeout(2000);
+    await waitForUiSettled(page);
   }
   const dump = lastRows.map((r) => ({ id: r.monitorId ?? r.id, name: r.monitorName ?? r.name, table: r.tableName })).slice(0, 10);
   throw new Error(`未回查到规则 name=${ruleName} table=${table}；当前规则=${JSON.stringify(dump)}`);
@@ -308,12 +309,12 @@ export async function openRuleDetailDrawer(page: Page, monitorId: string | numbe
   await gotoZszqDataAssetsPage(page, "/dq/rule");
   // 等表格数据加载稳定，避免规则行未刷新就点
   await page.locator(".ant-table-tbody tr.ant-table-row").first().waitFor({ state: "visible", timeout: 20000 });
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
   const row = page.locator(`.ant-table-tbody tr[data-row-key="${monitorId}"]`);
   await expect(row, `规则列表应有 monitorId=${monitorId} 的规则行`).toBeVisible({ timeout: 20000 });
   // 点表名链接（首列 <a>）打开右侧详情滑窗
   await row.locator("td a, td .dt-link").first().click();
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
   await expect(
     page.locator("button:visible", { hasText: /编\s*辑|立即执行/ }).first(),
     "规则详情滑窗应打开（出现编辑/立即执行）",
@@ -325,7 +326,7 @@ export async function runRuleNow(page: Page): Promise<void> {
   const runBtn = page.locator(".ant-drawer:visible button", { hasText: "立即执行" }).first();
   await expect(runBtn, "详情抽屉应有「立即执行」按钮").toBeVisible({ timeout: 30000 });
   await runBtn.click();
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
 }
 
 /**
@@ -376,7 +377,7 @@ export async function pollLatestInstance(
       const st = Number(mine.status);
       if (Number.isFinite(st) && TERMINAL_STATUSES.has(st)) return mine;
     }
-    await page.waitForTimeout(interval);
+    await waitForUiSettled(page);
   }
   // 超时即硬失败：不再返回可能为非终态的 last（那只会让下游 expectInstanceStatus 报误导性错），
   // 直接带最后已知状态抛出，便于定位「重跑未真正跑起来」或后端慢。
@@ -396,7 +397,7 @@ export async function editRuleThreshold(
   await openRuleDetailDrawer(page, monitorId);
   // 详情滑窗「规则管理」tab 的规则块底部有「编 辑」按钮，点它进入编辑态（字段从只读变可改）。
   await page.locator("button:visible", { hasText: /编\s*辑/ }).first().click();
-  await page.waitForTimeout(1200);
+  await waitForUiSettled(page);
   // 改期望值比较符 + 阈值（校验方法保持固定值；「期望值」项含 comparator 选择器 + #threshold 输入）。
   // 不再吞错：编辑动作若失败必须暴露，否则规则等同未改、重跑结果无意义。
   await selectAntOption(page, locateFormItem(page, "期望值").locator(".ant-select").first(), next.comparator);
@@ -422,11 +423,11 @@ export async function editMatchConditionThreshold(
   await openRuleDetailDrawer(page, monitorId);
   // 多表编辑入口是详情滑窗里「多表对比规则」旁的「修改规则」链接（非单表的「编 辑」按钮）
   await page.locator("a:visible, span:visible, button:visible", { hasText: "修改规则" }).first().click();
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
   // 编辑向导停在①选左侧表（表已回填）→ ② → ③选字段
   await clickMultiNext(page); // ① → ②
   await clickMultiNext(page); // ② → ③
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
   await applyMatchConditions(page, conditions);
   await clickMultiNext(page); // ③ → ④
   await switchScheduleToManual(page);
@@ -439,7 +440,7 @@ export async function editMatchConditionThreshold(
   await expect(finishBtn, "编辑向导④应有「完成/保存/确定」按钮").toBeVisible({ timeout: 20000 });
   await finishBtn.click();
   await expect(page, "保存后应回到规则列表").toHaveURL(/#\/dq\/rule(\?|$)/, { timeout: 20000 });
-  await page.waitForTimeout(1000);
+  await waitForUiSettled(page);
 }
 
 // ─── 删除清理（走后端 API：/monitor/delete，平台「一表一规则」约束下必须清理残留才能重建） ───
@@ -482,7 +483,7 @@ export async function deleteRuleByTable(page: Page, table: string): Promise<void
 export async function deleteRuleViaUi(page: Page, monitorId: string | number): Promise<void> {
   await gotoZszqDataAssetsPage(page, "/dq/rule");
   await page.locator(".ant-table-tbody tr.ant-table-row").first().waitFor({ state: "visible", timeout: 20000 });
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
   const row = page.locator(`.ant-table-tbody tr[data-row-key="${monitorId}"]`);
   await expect(row, `规则列表应有 monitorId=${monitorId} 的规则行`).toBeVisible({ timeout: 20000 });
   await row.locator("span.dt-link, a, button", { hasText: /删\s*除/ }).first().click();
@@ -535,12 +536,12 @@ export async function createMultiTableCompareRule(
   const addBtn = page.locator("button:visible", { hasText: "新建监控规则" }).first();
   await expect(addBtn, "规则配置页应有「新建监控规则」按钮").toBeVisible({ timeout: 20000 });
   await addBtn.click();
-  await page.waitForTimeout(600);
+  await waitForUiSettled(page);
   await page
     .locator(".ant-dropdown:visible li, .ant-dropdown-menu-item", { hasText: "多表比对规则" })
     .first()
     .click();
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
 
   // ① 选择左侧表
   const body = page.locator("body");
@@ -570,10 +571,10 @@ export async function createMultiTableCompareRule(
 
   // ③ 字段映射 + 加主键 + 匹配条件
   await expect(body, "应进入字段映射步骤").toContainText(/字段|映射|主键/, { timeout: 20000 });
-  await page.waitForTimeout(2000); // 等字段加载
+  await waitForUiSettled(page); // 等字段加载
   // 同名映射：按字段名自动连线左右表同名字段
   await page.locator("button:visible", { hasText: "同名映射" }).first().click().catch(() => {});
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
   // 加主键：勾选左表主键字段所在行的复选框（主键用于明细关联）
   if (spec.primaryKey) {
     await page
@@ -583,7 +584,7 @@ export async function createMultiTableCompareRule(
       .first()
       .check()
       .catch(() => {});
-    await page.waitForTimeout(400);
+    await waitForUiSettled(page);
   }
   // 匹配条件（勾选 + 填差距阈值）
   await applyMatchConditions(page, spec.matchConditions ?? []);
@@ -614,7 +615,7 @@ async function clickMultiNext(page: Page): Promise<void> {
   const btn = page.locator("button:visible", { hasText: /^下一步$/ }).first();
   await expect(btn, "应有「下一步」按钮").toBeVisible({ timeout: 30000 });
   await btn.click();
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
 }
 
 /**
@@ -636,7 +637,7 @@ export async function applyMatchConditions(page: Page, conditions: MatchConditio
         await row.locator(".ant-checkbox").first().click();
       });
     }
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
     // 勾选是 t38/t39 等「增勾条件改变校验结果」的唯一业务变量，必须断言确已勾上，否则规则行为不变。
     await expect(checkbox, `匹配条件「${mc.type}」应已勾选`).toBeChecked({ timeout: 5000 });
     if (mc.gap !== undefined) {
@@ -647,7 +648,7 @@ export async function applyMatchConditions(page: Page, conditions: MatchConditio
       await gapInput.fill(mc.gap);
       await expect(gapInput, `匹配条件「${mc.type}」差距应填入 ${mc.gap}`).toHaveValue(mc.gap, { timeout: 5000 });
     }
-    await page.waitForTimeout(200);
+    await waitForUiSettled(page);
   }
 }
 

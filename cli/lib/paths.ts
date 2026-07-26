@@ -11,23 +11,12 @@ export function currentYYYYMM(now: Date = new Date()): string {
   return `${y}${m}`;
 }
 
-/** Internal scan evidence directory; the formal source is the sibling `<slug>.md`. */
-export function auditDir(project: string, yyyymm: string, slug: string): string {
-  return join(locateProject(project).analysesDir, "scan-report", yyyymm, `${slug}.data`);
-}
-
 export function auditReportPath(project: string, yyyymm: string, slug: string): string {
   return join(locateProject(project).analysesDir, "scan-report", yyyymm, `${slug}.md`);
 }
 
-/** Join segments under a diff-scan analysis dir. */
-export function auditFile(
-  project: string,
-  yyyymm: string,
-  slug: string,
-  ...segments: string[]
-): string {
-  return join(auditDir(project, yyyymm, slug), ...segments);
+export function infraReportPath(project: string, yyyymm: string, slug: string): string {
+  return join(locateProject(project).analysesDir, "infra-report", yyyymm, `${slug}.md`);
 }
 
 /** Internal defect evidence directory; formal reports use analyses/<type>-report/<yyyymm>/<slug>.md. */
@@ -37,7 +26,7 @@ export function defectDir(project: string, yyyymm: string, slug: string): string
 
 export function defectReportPath(
   project: string,
-  type: "infra" | "bug" | "conflict" | "scan",
+  type: "bug" | "conflict" | "scan",
   yyyymm: string,
   slug: string,
 ): string {

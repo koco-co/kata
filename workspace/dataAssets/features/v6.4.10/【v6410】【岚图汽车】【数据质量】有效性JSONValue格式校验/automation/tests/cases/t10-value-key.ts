@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t10-value-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -55,7 +56,7 @@ describeByDatasource("规则集管理", () => {
       .first();
     if (await pageTwoItem.isVisible({ timeout: 1000 }).catch(() => false)) {
       await pageTwoItem.click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       await expect(modal).toContainText("check-key-11");
       await expect(modal).toContainText("check-key-12");
     }

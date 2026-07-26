@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import { generateAutomationScripts } from "../lib/automation-case-generator.ts";
 import { generateAutomationRunner, inspectAutomationCoverage } from "../lib/automation-contract.ts";
 import { runAutomationLint } from "../lib/automation-lint.ts";
 import { normalizeAutomation } from "../lib/automation-normalize.ts";
@@ -17,10 +18,33 @@ export function registerAutomation(program: Command): void {
       if (
         coverage.missingSpecFile.length ||
         coverage.missingScript.length ||
-        coverage.orphanScripts.length
+        coverage.orphanScripts.length ||
+        coverage.duplicateSpecFile.length
       ) {
         process.exitCode = 1;
       }
+    });
+
+  automation
+    .command("generate-cases <feature-dir>")
+    .description("为缺失的 automation.spec_file 生成逐条 Playwright 脚本(默认 dry-run)")
+    .option("--apply", "写入缺失脚本并更新 generated.spec.ts", false)
+    .action((featureDir: string, opts: { apply: boolean }) => {
+      const result = generateAutomationScripts(featureDir, { apply: opts.apply });
+      console.log(
+        JSON.stringify(
+          {
+            created: result.created.length,
+            skipped: result.skipped.length,
+            orphanScripts: result.orphanScripts,
+            runner: result.runner,
+            applied: opts.apply,
+          },
+          null,
+          2,
+        ),
+      );
+      if (result.orphanScripts.length > 0) process.exitCode = 1;
     });
 
   automation
@@ -64,30 +88,23 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("lint [feature-dir]")
-    .description("检查 Playwright 自动化代码规范与存量 baseline")
+    .description("检查 Playwright 自动化代码规范")
     .option("--shared", "检查 workspace 项目的 _shared 页面、helper 与 fixture")
-    .option("--exit-code", "存在未被 baseline 豁免的 violation 时退出码为 1")
-    .option("--update-baseline", "按当前存量重写 automation-lint-baseline.json")
-    .action(
-      (
-        featureDir: string | undefined,
-        opts: { shared?: boolean; exitCode?: boolean; updateBaseline?: boolean },
-      ) => {
-        const report = runAutomationLint({
-          featureDir,
-          shared: opts.shared === true,
-          updateBaseline: opts.updateBaseline === true,
-        });
-        for (const v of report.violations) {
-          console.log(`${v.path}:${v.line}:${v.rule}:${v.message}`);
-        }
-        for (const ignored of report.ignored) {
-          console.log(`ignored ${ignored.path}:${ignored.line}: ${ignored.reason}`);
-        }
-        console.log(
-          `[automation lint] files=${report.scannedFiles} violations=${report.violations.length} ignored=${report.ignored.length} baseline=${report.baselinePath}${report.updatedBaseline ? " updated" : ""}`,
-        );
-        if (opts.exitCode && report.violations.length > 0) process.exitCode = 1;
-      },
-    );
+    .option("--exit-code", "存在 violation 时退出码为 1")
+    .action((featureDir: string | undefined, opts: { shared?: boolean; exitCode?: boolean }) => {
+      const report = runAutomationLint({
+        featureDir,
+        shared: opts.shared === true,
+      });
+      for (const v of report.violations) {
+        console.log(`${v.path}:${v.line}:${v.rule}:${v.message}`);
+      }
+      for (const ignored of report.ignored) {
+        console.log(`ignored ${ignored.path}:${ignored.line}: ${ignored.reason}`);
+      }
+      console.log(
+        `[automation lint] files=${report.scannedFiles} violations=${report.violations.length} ignored=${report.ignored.length}`,
+      );
+      if (opts.exitCode && report.violations.length > 0) process.exitCode = 1;
+    });
 }

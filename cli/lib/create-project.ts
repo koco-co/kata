@@ -113,7 +113,6 @@ export function projectMetadataPath(projectDirAbs: string): string {
 export interface ProjectMetadata {
   name: string;
   description?: string;
-  repos?: string[];
   schema?: string;
 }
 

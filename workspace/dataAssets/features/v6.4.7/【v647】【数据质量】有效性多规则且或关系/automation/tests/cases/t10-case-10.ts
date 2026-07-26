@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-multi-rule-logic/archive.md#case=t10-case-10
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -75,7 +76,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           for (const value of ["1", "2", "3"]) {
             await enumInput.fill(value);
             await page.keyboard.press("Enter");
-            await page.waitForTimeout(150);
+            await waitForUiSettled(page);
           }
 
           await expect(
@@ -92,7 +93,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
             .getByRole("button", { name: /保\s*存/ })
             .first()
             .click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           const relationOptions = functionRow.locator(
             ".ant-radio-wrapper, .ant-radio-button-wrapper",
