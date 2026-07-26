@@ -71,7 +71,7 @@ bunx playwright install
 | `/domain-knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
 | `/workspace` | 工作区 | 创建、检查、修复项目工作区骨架。 |
 
-路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改用例与把用例实现为 UI 自动化是不同的入口，以各 Skill 的 `SKILL.md` description 为准。
+路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改既有用例与把用例实现为 UI 自动化是不同的入口。
 
 ## Claude Code 与 Codex
 
@@ -80,7 +80,7 @@ bunx playwright install
 | Claude Code | `.claude/skills/` | Skill 正文唯一来源。 |
 | OpenAI Codex | `.agents/skills/` | 指向 Claude Skill 目录的 symlink。 |
 
-两端运行环境共享同一份 Skill 正文，并由各自运行时加载；通用能力收在 `cli/` 供两端调用。Skill 不写固定模型名、固定代理数量或机械阶段，只规定触发条件、输入输出、安全边界和完成状态。
+两端运行环境共享同一份 Skill 正文；通用能力收在 `cli/` 供两端调用。
 
 ## 配置与安全
 
@@ -114,7 +114,7 @@ kata/
 │   ├── skills/
 │   ├── plugins/
 │   └── packages/
-├── .agents/                       # Codex Skill
+├── .agents/                       # Codex Skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI(两端共用)
 ├── config/                        # source-repos.yaml 等;私密配置(env/, infra/)不提交
