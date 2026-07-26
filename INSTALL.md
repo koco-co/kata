@@ -68,11 +68,13 @@ kata infra inspect <host> --check connectivity --project <project>
 
 `kata infra inspect` 当前只执行 SSH2 connectivity 检查并生成脱敏 Markdown 报告，不执行服务器变更。
 
-运行依赖该环境的命令：
+运行依赖该环境的 Playwright 命令必须绑定到正式 run：
 
 ```bash
-kata env run ci63 -- bunx playwright test
+kata runs exec <feature-id> --project dataAssets -- kata env run ci63 -- bunx playwright test <spec>
 ```
+
+`kata runs exec` 会创建 `workspace/<project>/features/<feature>/runs/<run-id>/`，并注入 `KATA_RUN_PATH` 与 `KATA_ALLURE_RESULTS_DIR`。没有显式 run 路径时 Playwright 直接失败；仓库内不使用 `.runs/`。
 
 子命令默认不会继承根进程中的全部变量。确实需要额外变量时显式加入：
 

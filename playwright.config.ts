@@ -1,6 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 import { initEnv } from "./cli/lib/env";
 import {
+  resolvePlaywrightOutputDir,
+  resolvePlaywrightRunPath,
+} from "./cli/lib/playwright-run-path";
+import {
   bridgeLegacyDataAssetsEnv,
   cookieHeaderToPlaywrightState,
   resolveDataAssetsRuntime,
@@ -9,55 +13,18 @@ import {
 // 根 .env 是唯一 dotenv；DataAssets 环境必须由 `kata env run` 注入已解析上下文。
 initEnv({ cwd: process.cwd() });
 
-// §3.4 F7（项目级隔离）扩展：当同时设置 KATA_ACTIVE_FEATURE 时，
-// outputDir 进一步收敛到 feature 级，避免多 feature 共用项目根 `.runs/` 互相覆盖。
-// KATA_ACTIVE_FEATURE 由调用方按需显式传入（如 self-run 手动命令）；未传时项目级
-// tests/（非 feature 内）仍走旧的项目级路径。
-//
-// 解析顺序（高 → 低）：
-// 1. KATA_ACTIVE_FEATURE + KATA_ACTIVE_PROJECT → feature 级
-// 2. KATA_ACTIVE_PROJECT                       → 项目级（无 feature 时）
-// 3. 都未设置                                   → fallback 至仓库根（仅本地兼容期）
-// CLAUDE.md §Feature Directory Naming: enforce lowercase ASCII feature ids so
-// an invalid runtime override cannot redirect outputDir into Chinese / 【】
-// directories created from raw archive CSV titles.
-const FEATURE_ID_RE = /^\d{4}-?(?:\d{2}|XX)(?:-[a-z][a-z0-9-]*)+$/;
-
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
-  const project = env.KATA_ACTIVE_PROJECT;
-  const feature = env.KATA_ACTIVE_FEATURE;
-  if (!project) {
-    throw new Error("[playwright.config] KATA_ACTIVE_PROJECT is required.");
-  }
-  if (feature) {
-    if (!FEATURE_ID_RE.test(feature)) {
-      throw new Error(
-        `[playwright.config] invalid KATA_ACTIVE_FEATURE '${feature}': must match YYYY[-]MM-{slug-segments} (lowercase ASCII).`,
-      );
-    }
-    return `workspace/${project}/features/${feature}/tests/.runs/test-results`;
-  }
-  return `workspace/${project}/.runs/test-results`;
+  return resolvePlaywrightOutputDir(env);
 }
 
 // 根据 dataAssets env profile 解析环境配置，桥接旧变量给 test-setup.ts 消费
 const profile = resolveDataAssetsRuntime();
 bridgeLegacyDataAssetsEnv(profile, process.env);
 
-const envLower = profile.env.toLowerCase();
 const storageState = cookieHeaderToPlaywrightState(profile.urls.baseUrl, profile.auth.cookie);
-
-// 报告路径：workspace/{project}/_shared/published-reports/YYYYMM/{suiteName}/{env}/
-// 通过环境变量 KATA_SUITE_NAME 传入需求名称，默认 report
-const yyyymm = new Date().toISOString().slice(0, 7).replace(/-/g, ""); // YYYYMM
-const suiteName = process.env.KATA_SUITE_NAME ?? "report";
 const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
-const reportDir = `workspace/${project}/_shared/published-reports/${yyyymm}/${suiteName}/${envLower}`;
-// KATA_ALLURE_RESULTS_DIR：显式指定本次 run 的 allure 落点（self-run 据此把 allure
-// 收敛到 features/<id>/results/<run-id>/allure-results），未设时维持 _shared 发布目录。
-// 注意：self-run 必须靠 config 这份带 outputFolder 的 reporter 生成 allure，不能在 CLI 用
-// --reporter 覆盖，否则 allure-playwright 会退回默认 ./allure-results（落到仓库根）。
-const allureResultsDir = process.env.KATA_ALLURE_RESULTS_DIR ?? `${reportDir}/allure-results`;
+const runPath = resolvePlaywrightRunPath();
+const allureResultsDir = `${runPath}/allure-results`;
 
 // 并发控制：默认串行（向后兼容），通过环境变量按需开启并发
 // - PW_FULLY_PARALLEL=1：同文件内（含 describe 内）用例也并发

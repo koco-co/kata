@@ -100,7 +100,12 @@ kata env show <env>
 kata env doctor <env>
 kata env cookie set <env> --stdin
 kata env run <env> -- <command...>
+
+# Playwright results must be scoped to feature/runs/<run-id>
+kata runs exec <feature-id> --project dataAssets -- kata env run <env> -- bunx playwright test <spec>
 ```
+
+Running Playwright without an allocated run fails; `.runs/` temporary result directories are forbidden.
 
 `env run` inherits only the small set of variables required to start a child process. Add a required variable explicitly with `--inherit-env NAME1,NAME2`. Command output must never reveal cookies, tokens, or passwords.
 

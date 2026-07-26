@@ -100,7 +100,12 @@ kata env show <env>
 kata env doctor <env>
 kata env cookie set <env> --stdin
 kata env run <env> -- <command...>
+
+# Playwright 结果必须写入 feature/runs/<run-id>
+kata runs exec <feature-id> --project dataAssets -- kata env run <env> -- bunx playwright test <spec>
 ```
+
+直接运行 Playwright 或使用未绑定 run 的命令会失败；仓库内禁止 `.runs/` 临时结果目录。
 
 `env run` 默认只继承启动程序所需的基础环境变量。子命令确实需要额外变量时，使用 `--inherit-env NAME1,NAME2` 明确加入。命令输出不得回显 Cookie、令牌或密码。
 
