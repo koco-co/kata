@@ -16,17 +16,13 @@ Claude Code 与 Codex 至少安装一种。只有执行真实浏览器测试时�
 # 1. 安装锁文件声明的依赖
 bun install --frozen-lockfile
 
-# 2. 创建根环境文件
-[ -f .env ] || cp .env.example .env
-chmod 600 .env
-
-# 3. 检查工作区
+# 2. 检查工作区
 kata project scan --project dataAssets
 
-# 4. 运行仓库检查
+# 3. 运行仓库检查
 bun run ci
 
-# 5. 需要 UI 自动化时安装浏览器
+# 4. 需要 UI 自动化时安装浏览器
 bunx playwright install
 ```
 
@@ -82,19 +78,22 @@ kata runs exec <feature-id> --project dataAssets -- kata env run ci63 -- bunx pl
 kata env run ci63 --inherit-env HTTP_PROXY,NO_PROXY -- bunx playwright test
 ```
 
-## 根 `.env`
+## 插件配置
 
-根 `.env` 只保存当前机器确实使用的集成配置。常见变量如下：
+插件配置按用途写入本机 ignored YAML：
 
-| 场景 | 变量 |
-| --- | --- |
-| 默认项目与工作区 | `KATA_ACTIVE_PROJECT`、`KATA_WORKSPACE_ROOT` |
-| 蓝湖 | `KATA_LANHU_COOKIE` |
-| 禅道 | `KATA_ZENTAO_BASE_URL` 与 Cookie，或账号密码 |
-| 通知 | 钉钉、飞书、企业微信或 SMTP 对应变量 |
-| 独立 DTStack CLI/SDK | `KATA_DTSTACK_BASE_URL`、`KATA_DTSTACK_SESSION_PATH` |
+```bash
+mkdir -p config/plugin
+cp config/plugin/lanhu.example.yaml config/plugin/lanhu.yaml
+cp config/plugin/zentao.example.yaml config/plugin/zentao.yaml
+cp config/plugin/notify.example.yaml config/plugin/notify.yaml
+chmod 700 config/plugin
+chmod 600 config/plugin/*.yaml
+```
 
-不要提交 `.env`、`config/env/*.yaml`、会话文件或命令输出中的凭据。真实凭据一旦出现在聊天、日志或提交历史中，应在对应服务端立即轮换；删除本地文件不能使已经发出的令牌失效。
+Lanhu 和 ZenTao 刷新后的 Cookie 会原子写回对应 YAML。旧根 `.env` 可以用 `kata config plugins-migrate` 预览并迁移插件字段；数据库 URL、旧 DTStack session 路径和未知字段不会被迁移。仓库不再自动加载根 `.env`。
+
+不要提交 `config/plugin/*.yaml`、`config/env/*.yaml`、`config/infra/*.yaml`、会话文件或命令输出中的凭据。真实凭据一旦出现在聊天、日志或提交历史中，应在对应服务端立即轮换；删除本地文件不能使已经发出的令牌失效。
 
 ## 源码仓库
 
@@ -105,10 +104,9 @@ git clone <remote-url> .repos/<group>/<repo>
 kata repos list
 ```
 
-PowerShell 等价安装步骤：
+PowerShell 等价步骤：
 
 ```powershell
-if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 New-Item -ItemType Directory -Force config/env | Out-Null
 kata project scan --project dataAssets
 kata env add ci63 --url https://platform.example

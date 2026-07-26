@@ -2,6 +2,7 @@ import type { DriverType } from "../direct/types";
 
 export interface EnvironmentConfig {
   readonly baseUrl: string;
+  readonly cookie?: string;
   readonly login?: { readonly username: string; readonly password: string };
   readonly tenant?: string;
 }

@@ -3,5 +3,5 @@ hosts:
   example-host:
     host: 192.0.2.10
     port: 22
-    credential_ref: infra-example
+    credential_ref: server-default
     host_key: "SHA256:replace-with-a-verified-fingerprint"

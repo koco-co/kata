@@ -26,7 +26,7 @@ Kata 是面向 QA 用例、自动化与工程知识的 CLI 工作区；公开命
 
 - 不主动展开、回显、提交或写入日志中的 secrets；Cookie、密码、session 路径和私密 YAML 不得进入提示词、日志、测试夹具或 Git 跟踪文件。
 - 真实客户项目产物放独立私有仓库或制品存储，框架仓库只保留脱敏的最小 fixture。
-- 根 `.env` 是唯一 dotenv，权限为 0600；`config/env/` 权限为 0700，环境文件权限为 0600；使用 `kata env` 管理平台配置和 Cookie。
+- `config/env/`、`config/plugin/` 和 `config/infra/` 是本机私密配置目录，权限为 0700，YAML 文件权限为 0600；使用 `kata env` 管理平台配置和 Cookie。仓库不自动加载根 `.env`。
 - 源码仓库由 `config/repos/sources.yaml` 声明，克隆于 `.repos/`（gitignored），用 `kata repos` 查询；`writable: false` 的仓库不得 push、commit 或 add。
 - 本地私有设置不写入项目级 agent 文档，放用户级配置或 gitignored 文件；详细日志使用 `KATA_LOG_LEVEL=debug kata <command>`。
 

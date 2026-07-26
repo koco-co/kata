@@ -5,7 +5,7 @@ import {
   type FetchFn,
   fetchAuthedBugJson,
   isAuthedBugJson,
-  zentaoEnvPath,
+  zentaoConfigPath,
 } from "../../../cli/integrations/zentao/session.ts";
 
 const creds = { baseUrl: "http://zt.example", account: "u", password: "p" };
@@ -20,10 +20,10 @@ describe("isAuthedBugJson", () => {
   it("false for non-json", () => assert.equal(isAuthedBugJson("oops"), false));
 });
 
-describe("zentaoEnvPath", () => {
-  it("points to the unified root .env", () => {
-    assert.ok(zentaoEnvPath().endsWith("/.env"));
-    assert.equal(zentaoEnvPath().includes("/.kata/"), false);
+describe("zentaoConfigPath", () => {
+  it("points to the local plugin config", () => {
+    assert.ok(zentaoConfigPath().endsWith("/config/plugin/zentao.yaml"));
+    assert.equal(zentaoConfigPath().includes("/.kata/"), false);
   });
 });
 

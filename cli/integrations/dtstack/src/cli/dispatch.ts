@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { loadKataEnvironment } from "../core/config/kata-env";
 import { loadConfig } from "../core/config/load";
 import type { DtStackCliConfig } from "../core/config/schema";
 import { DtStackClient } from "../core/http/client";
@@ -36,6 +37,7 @@ function optionalCsv(value: unknown): string[] | undefined {
 function resolveConfigPath(values: Record<string, unknown>): string | undefined {
   const explicit = (values.config as string | undefined) ?? process.env.DTSTACK_CONFIG;
   if (explicit) return explicit;
+  if (process.env.KATA_DATAASSETS_CONFIG) return undefined;
   if (existsSync("dtstack-cli.yaml")) return "dtstack-cli.yaml";
   return undefined;
 }
@@ -45,9 +47,18 @@ function resolveConfigPath(values: Record<string, unknown>): string | undefined 
  * 优先级：--env 参数 > ACTIVE_ENV > DTSTACK_DEFAULT_ENV > config.defaultEnv > "ltqc"
  */
 function resolveEnv(values: Record<string, unknown>, config?: DtStackCliConfig): string {
+  let kataResolvedEnv: string | undefined;
+  if (process.env.KATA_DATAASSETS_RESOLVED) {
+    try {
+      kataResolvedEnv = (JSON.parse(process.env.KATA_DATAASSETS_RESOLVED) as { env?: string }).env;
+    } catch {
+      throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
+    }
+  }
   return (
     (values.env as string | undefined) ??
     process.env.ACTIVE_ENV ??
+    kataResolvedEnv ??
     process.env.DTSTACK_DEFAULT_ENV ??
     config?.defaultEnv ??
     "ltqc"
@@ -69,6 +80,18 @@ function loadConfigFromEnv(env: string): DtStackCliConfig {
     );
   }
   return { environments: { [env]: { baseUrl } }, datasources: {} };
+}
+
+function loadConfigFromKataEnvironment(env: string): DtStackCliConfig | undefined {
+  const runtime = loadKataEnvironment(env);
+  if (!runtime) return undefined;
+  return {
+    defaultEnv: env,
+    environments: {
+      [env]: { baseUrl: runtime.baseUrl, cookie: runtime.cookie },
+    },
+    datasources: {},
+  };
 }
 
 async function buildClient(config: DtStackCliConfig, env: string): Promise<DtStackClient> {
@@ -97,7 +120,7 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
     return;
   }
 
-  // 解析配置：优先 dtstack-cli.yaml，回退到环境变量 {ENV}_BASE_URL
+  // 解析配置：显式 dtstack 配置优先，其次使用 kata env run 注入的 config/env profile。
   const configPath = resolveConfigPath(values);
   let config: DtStackCliConfig;
   let env: string;
@@ -106,7 +129,9 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
     env = resolveEnv(values, config);
   } else {
     env = resolveEnv(values);
-    config = loadConfigFromEnv(env);
+    config =
+      loadConfigFromKataEnvironment(env) ??
+      (existsSync("dtstack-cli.yaml") ? loadConfig("dtstack-cli.yaml") : loadConfigFromEnv(env));
   }
 
   switch (cmd) {
@@ -126,7 +151,7 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
       return;
     }
     case "whoami": {
-      const s = await whoami(env);
+      const s = await whoami(env, config);
       process.stdout.write(
         s
           ? `${s.user} (tenant=${s.tenantName ?? "?"}, env=${env})\n`

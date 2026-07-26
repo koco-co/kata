@@ -9,11 +9,7 @@
  */
 
 import crypto from "node:crypto";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { getEnv, initEnv } from "../lib/env.ts";
-
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
+import { loadNotifyConfig } from "../lib/plugin-config.ts";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -580,20 +576,21 @@ export interface ChannelConfig {
   };
 }
 
-export function detectChannels(): ChannelConfig {
+export function detectChannels(root?: string): ChannelConfig {
+  const config = loadNotifyConfig(root);
   return {
-    dingtalk: getEnv("KATA_DINGTALK_WEBHOOK_URL"),
-    dingtalkKeyword: getEnv("KATA_DINGTALK_KEYWORD"),
-    dingtalkSignSecret: getEnv("KATA_DINGTALK_SIGN_SECRET"),
-    feishu: getEnv("KATA_FEISHU_WEBHOOK_URL"),
-    wecom: getEnv("KATA_WECOM_WEBHOOK_URL"),
+    dingtalk: config.dingtalk?.webhook_url,
+    dingtalkKeyword: config.dingtalk?.keyword,
+    dingtalkSignSecret: config.dingtalk?.sign_secret,
+    feishu: config.feishu?.webhook_url,
+    wecom: config.wecom?.webhook_url,
     email: {
-      host: getEnv("KATA_SMTP_HOST"),
-      port: getEnv("KATA_SMTP_PORT"),
-      user: getEnv("KATA_SMTP_USER"),
-      pass: getEnv("KATA_SMTP_PASS"),
-      from: getEnv("KATA_SMTP_FROM"),
-      to: getEnv("KATA_SMTP_TO"),
+      host: config.smtp?.host,
+      port: config.smtp?.port === undefined ? undefined : String(config.smtp.port),
+      user: config.smtp?.user,
+      pass: config.smtp?.pass,
+      from: config.smtp?.from,
+      to: config.smtp?.to,
     },
   };
 }
@@ -735,8 +732,6 @@ export async function sendNotification(
   data: NotifyData,
   options: { dryRun?: boolean } = {},
 ): Promise<SendResult> {
-  initEnv(resolve(__dirname, "../../.env"));
-
   const msg = formatMessage(event, data);
   const channels = detectChannels();
 

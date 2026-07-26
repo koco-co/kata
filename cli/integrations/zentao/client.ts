@@ -2,7 +2,7 @@
  * plugins/zentao/client.ts — 禅道 HTTP 会话原语（登录 + cookie 解析 + 会话回退）
  * create.ts 直接用；fetch.ts 经 session.ts 复用登录与 cookie 解析。
  */
-import { getEnv } from "../../lib/env.ts";
+import { loadZentaoConfig } from "../../lib/plugin-config.ts";
 
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -82,13 +82,14 @@ export async function zentaoLogin(
 
 /**
  * Resolve a usable session cookie: account/password login first,
- * fall back to KATA_ZENTAO_COOKIE when login fails or creds are absent.
+ * fall back to the configured plugin cookie when login fails or creds are absent.
  */
 export async function resolveSession(): Promise<string> {
-  const baseUrl = getEnv("KATA_ZENTAO_BASE_URL");
-  const account = getEnv("KATA_ZENTAO_ACCOUNT");
-  const password = getEnv("KATA_ZENTAO_PASSWORD");
-  const fallback = getEnv("KATA_ZENTAO_COOKIE");
+  const config = loadZentaoConfig();
+  const baseUrl = config.base_url;
+  const account = config.username;
+  const password = config.password;
+  const fallback = config.cookie;
   if (baseUrl && account && password) {
     try {
       const { cookie } = await zentaoLogin(baseUrl, account, password);
@@ -100,7 +101,7 @@ export async function resolveSession(): Promise<string> {
   }
   if (fallback) return fallback;
   throw Object.assign(
-    new Error("缺少禅道凭据：请配置 KATA_ZENTAO_ACCOUNT/PASSWORD 或 KATA_ZENTAO_COOKIE"),
+    new Error("缺少禅道凭据：请配置 config/plugin/zentao.yaml 中的 username/password 或 cookie"),
     { code: "NO_CREDENTIALS" },
   );
 }

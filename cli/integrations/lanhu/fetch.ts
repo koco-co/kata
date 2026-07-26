@@ -25,8 +25,8 @@ import {
 import { basename, extname, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import sharp from "sharp";
-import { getEnv, initEnv } from "../../lib/env.ts";
 import { prdsDir, repoRoot } from "../../lib/paths.ts";
+import { loadLanhuConfig, updatePluginConfig } from "../../lib/plugin-config.ts";
 
 const LANHU_BRIDGE_RELATIVE_DIR = "cli/integrations/lanhu/mcp-bridge";
 const LANHU_MCP_RELATIVE_DIR = `${LANHU_BRIDGE_RELATIVE_DIR}/lanhu-mcp`;
@@ -628,7 +628,7 @@ function callBridgeListPagesWithRetry(
       `${JSON.stringify(
         {
           error:
-            "Cookie 刷新失败。请手动更新 .env 中的 KATA_LANHU_COOKIE，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
+            "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
           code: "COOKIE_REFRESH_FAILED",
         },
         null,
@@ -686,18 +686,25 @@ function tryCallBridge(
 function refreshCookie(projectRoot: string, targetUrl: string): string | null {
   const refreshScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "refresh-cookie.py");
   const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
-  const envPath = resolve(projectRoot, ".env");
-
-  const args = ["run", "python", refreshScript, "--target-url", targetUrl, "--update-env", envPath];
+  const config = loadLanhuConfig(projectRoot);
+  const args = ["run", "python", refreshScript, "--target-url", targetUrl];
 
   try {
     const newCookie = runCommand("uv", args, {
       cwd: mcpDir,
       encoding: "utf8",
+      env: {
+        ...process.env,
+        ...(config.username ? { KATA_LANHU_USERNAME: config.username } : {}),
+        ...(config.password ? { KATA_LANHU_PASSWORD: config.password } : {}),
+      },
       stdio: ["inherit", "pipe", "inherit"],
       timeout: 120_000,
     });
-    return newCookie.trim() || null;
+    const cookie = newCookie.trim();
+    if (!cookie) return null;
+    updatePluginConfig("lanhu", { cookie }, projectRoot);
+    return cookie;
   } catch {
     return null;
   }
@@ -734,7 +741,7 @@ function callBridgeWithRetry(
       `${JSON.stringify(
         {
           error:
-            "Cookie 刷新失败。请手动更新 .env 中的 KATA_LANHU_COOKIE，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
+            "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
           code: "COOKIE_REFRESH_FAILED",
         },
         null,
@@ -758,11 +765,8 @@ function callBridgeWithRetry(
 // ─── Main Logic ───────────────────────────────────────────────────────────────
 
 export async function runFetch(rawUrl: string, options: RunOptions): Promise<void> {
-  // 1. Load .env from repository root.
   const projectRoot = repoRoot();
-  initEnv(resolve(projectRoot, ".env"));
-
-  let cookie = getEnv("KATA_LANHU_COOKIE") ?? "";
+  let cookie = loadLanhuConfig(projectRoot).cookie ?? "";
   if (!cookie) {
     // No cookie at all — try to get one via auto-login
     process.stderr.write("KATA_LANHU_COOKIE 未配置，尝试自动登录获取...\n");
@@ -770,7 +774,7 @@ export async function runFetch(rawUrl: string, options: RunOptions): Promise<voi
     if (!newCookie) {
       const err: ErrorOutput = {
         error:
-          "KATA_LANHU_COOKIE 未配置且自动登录失败。请配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD 或手动设置 KATA_LANHU_COOKIE。",
+          "KATA_LANHU_COOKIE 未配置且自动登录失败。请配置 config/plugin/lanhu.yaml 或 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
         code: "MISSING_COOKIE",
       };
       process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);

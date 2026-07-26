@@ -10,8 +10,8 @@ import { parse as parseYaml } from "yaml";
 import { renderBugReport } from "../../lib/bug-report-render.ts";
 import type { BugReport } from "../../lib/bug-report-types.ts";
 import { parseBugReportMarkdown } from "../../lib/defect-report.ts";
-import { getEnv, initEnv } from "../../lib/env.ts";
 import { repoRoot } from "../../lib/paths.ts";
+import { loadZentaoConfig as loadZentaoPluginConfig } from "../../lib/plugin-config.ts";
 import type { Severity } from "../../lib/scan-report-types.ts";
 import { resolveSession } from "./client.ts";
 
@@ -167,10 +167,9 @@ export async function runCreate(opts: {
   config: string;
   dryRun: boolean;
 }): Promise<void> {
-  initEnv(resolve(repoRoot(), ".env"));
-  const baseUrl = getEnv("KATA_ZENTAO_BASE_URL");
+  const baseUrl = loadZentaoPluginConfig(repoRoot()).base_url;
   if (!baseUrl) {
-    emit({ ok: false, error: "缺少 KATA_ZENTAO_BASE_URL" });
+    emit({ ok: false, error: "缺少 config/plugin/zentao.yaml 的 base_url" });
     process.exit(1);
   }
   let report: BugReport;

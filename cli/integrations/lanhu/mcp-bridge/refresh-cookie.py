@@ -10,10 +10,8 @@ Credential resolution order:
 After login, navigates to --target-url (if provided) to acquire
 project-scoped cookies, then outputs the cookie string to stdout.
 
-Optionally updates .env file in-place with --update-env <path>.
-
 Usage:
-  uv run python refresh-cookie.py [--target-url URL] [--update-env .env]
+  uv run python refresh-cookie.py [--target-url URL]
 """
 
 from __future__ import annotations
@@ -23,9 +21,7 @@ import asyncio
 import getpass
 import json
 import os
-import re
 import sys
-from pathlib import Path
 
 
 def _emit_error(message: str, code: str) -> None:
@@ -44,8 +40,7 @@ def _resolve_credentials(args: argparse.Namespace) -> tuple[str, str]:
     # Interactive fallback
     if not sys.stdin.isatty():
         _emit_error(
-            "No credentials available. Set KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD in .env "
-            "or run interactively.",
+            "No credentials available. Configure Lanhu credentials or run interactively.",
             "NO_CREDENTIALS",
         )
 
@@ -172,22 +167,6 @@ async def _login_and_get_cookie(
         return cookie_str
 
 
-def _update_env_file(env_path: str, new_cookie: str) -> None:
-    path = Path(env_path)
-    if not path.exists():
-        _emit_error(f".env file not found: {env_path}", "ENV_NOT_FOUND")
-
-    content = path.read_text(encoding="utf-8")
-
-    pattern = re.compile(r"^KATA_LANHU_COOKIE=.*$", re.MULTILINE)
-    if pattern.search(content):
-        updated = pattern.sub(f"KATA_LANHU_COOKIE={new_cookie}", content)
-    else:
-        updated = content.rstrip("\n") + f"\nKATA_LANHU_COOKIE={new_cookie}\n"
-
-    path.write_text(updated, encoding="utf-8")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Refresh Lanhu cookie via login")
     parser.add_argument("--username", default=None, help="Lanhu username (email/phone)")
@@ -197,11 +176,6 @@ def main() -> None:
         default=None,
         help="Navigate to this URL after login to get project-scoped cookies",
     )
-    parser.add_argument(
-        "--update-env",
-        default=None,
-        help="Path to .env file to update with new cookie",
-    )
     args = parser.parse_args()
 
     username, password = _resolve_credentials(args)
@@ -209,10 +183,6 @@ def main() -> None:
     print(f"正在登录蓝湖 ({username})...", file=sys.stderr)
 
     cookie = asyncio.run(_login_and_get_cookie(username, password, args.target_url))
-
-    if args.update_env:
-        _update_env_file(args.update_env, cookie)
-        print(f"已更新 {args.update_env} 中的 KATA_LANHU_COOKIE", file=sys.stderr)
 
     # Output cookie to stdout
     sys.stdout.write(cookie)

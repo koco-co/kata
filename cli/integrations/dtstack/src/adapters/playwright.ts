@@ -65,17 +65,23 @@ export async function createClientFromPage(
   page: Page,
   baseUrl?: string,
 ): Promise<DtStackClientLike> {
-  const resolved =
-    baseUrl ??
-    process.env.KATA_DTSTACK_BASE_URL ??
-    process.env.UI_AUTOTEST_BASE_URL ??
-    process.env.E2E_BASE_URL;
-  if (!resolved) {
+  let kataBaseUrl: string | undefined;
+  const resolvedRuntime = process.env.KATA_DATAASSETS_RESOLVED;
+  if (resolvedRuntime) {
+    try {
+      kataBaseUrl = (JSON.parse(resolvedRuntime) as { urls?: { baseUrl?: string } }).urls?.baseUrl;
+    } catch {
+      throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
+    }
+  }
+  const targetBaseUrl =
+    baseUrl ?? kataBaseUrl ?? process.env.UI_AUTOTEST_BASE_URL ?? process.env.E2E_BASE_URL;
+  if (!targetBaseUrl) {
     throw new Error(
-      "DTStack base URL is required; configure KATA_DTSTACK_BASE_URL in the kata root .env file",
+      "DTStack base URL is required; run Playwright through `kata env run <env> -- ...` or pass baseUrl",
     );
   }
-  const targetOrigin = new URL(resolved).origin;
+  const targetOrigin = new URL(targetBaseUrl).origin;
   const currentUrl = page.url();
   const needBootstrap =
     currentUrl === "about:blank" ||
@@ -88,10 +94,10 @@ export async function createClientFromPage(
     })();
 
   if (needBootstrap) {
-    await page.goto(new URL("/dataAssets/#/dataStandard", resolved).toString(), {
+    await page.goto(new URL("/dataAssets/#/dataStandard", targetBaseUrl).toString(), {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
   }
-  return new BrowserDtStackClient(page, { baseUrl: resolved });
+  return new BrowserDtStackClient(page, { baseUrl: targetBaseUrl });
 }

@@ -10,7 +10,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getEnv, initEnv } from "../../lib/env.ts";
+import { loadZentaoConfig } from "../../lib/plugin-config.ts";
 
 import { parseBugPayload } from "./parse.ts";
 import { type FetchFn, fetchAuthedBugJson, readCookie, type ZentaoCreds } from "./session.ts";
@@ -123,7 +123,7 @@ export async function runFetch(options: {
   silent?: boolean;
 }): Promise<void> {
   const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../");
-  initEnv(resolve(projectRoot, ".env"));
+  const pluginConfig = loadZentaoConfig(projectRoot);
 
   // Resolve bug ID
   let bugId: number;
@@ -140,19 +140,19 @@ export async function runFetch(options: {
   }
 
   // Validate env
-  const baseUrl = getEnv("KATA_ZENTAO_BASE_URL");
-  const account = getEnv("KATA_ZENTAO_ACCOUNT");
-  const password = getEnv("KATA_ZENTAO_PASSWORD");
+  const baseUrl = pluginConfig.base_url;
+  const account = pluginConfig.username;
+  const password = pluginConfig.password;
   const configuredCookie = readCookie();
   const missing: string[] = [];
-  if (!baseUrl) missing.push("KATA_ZENTAO_BASE_URL");
-  if (!configuredCookie && !account) missing.push("KATA_ZENTAO_ACCOUNT");
-  if (!configuredCookie && !password) missing.push("KATA_ZENTAO_PASSWORD");
+  if (!baseUrl) missing.push("base_url");
+  if (!configuredCookie && !account) missing.push("username");
+  if (!configuredCookie && !password) missing.push("password");
   if (missing.length > 0) {
     writeJsonExit(
       {
-        error: `缺少必要的环境变量：${missing.join(", ")}`,
-        hint: "请在项目根目录 .env 中配置 KATA_ZENTAO_BASE_URL，并配置 KATA_ZENTAO_COOKIE 或完整账号密码",
+        error: `缺少必要的禅道配置：${missing.join(", ")}`,
+        hint: "请在 config/plugin/zentao.yaml 中配置 base_url，以及 cookie 或完整账号密码",
       },
       1,
     );
@@ -178,12 +178,15 @@ export async function runFetch(options: {
     if (e.code === "BUG_NOT_FOUND") writeJsonExit({ error: `Bug #${bugId} 不存在` }, 1);
     if (e.code === "LOGIN_FAILED") {
       writeJsonExit(
-        { error: "禅道登录失败", hint: "请检查 KATA_ZENTAO_ACCOUNT 和 KATA_ZENTAO_PASSWORD" },
+        {
+          error: "禅道登录失败",
+          hint: "请检查 config/plugin/zentao.yaml 中的 username 和 password",
+        },
         1,
       );
     }
     if (e.code === "ZENTAO_AUTH_MISSING") {
-      writeJsonExit({ error: e.message, hint: "请在根目录 .env 中补充 ZenTao 账号密码" }, 1);
+      writeJsonExit({ error: e.message, hint: "请在 config/plugin/zentao.yaml 中补充账号密码" }, 1);
     }
     if (e.code === "NETWORK_ERROR" && options.url) {
       writePartial(outputPath, bugId, "禅道 API 不可达，仅从 URL 提取了 Bug ID");

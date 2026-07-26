@@ -31,8 +31,8 @@ Upstream maintenance scaffolding that is noise inside kata's runtime:
 - **Upstream docs**: `CHANGELOG.md`, `DEMO.md`, `DEPLOY.md`, `SECURITY.md`,
   `RELEASE_NOTES_v1.0.0.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`,
   `ai-install-guide.md`, `GET-COOKIE-TUTORIAL.md`, `README_EN.md`.
-- **Example env templates**: `config.example.env`, `.env.example` (kata declares
-  `KATA_LANHU_*` in the repository `.env.example` and reads values from root `.env`).
+- **Example env templates**: upstream examples are not copied; kata owns plugin
+  configuration in `config/plugin/lanhu.yaml` and injects explicit process variables.
 - **Install scripts**: `easy-install.{bat,sh}`, `quickstart.{bat,sh}`,
   `setup-env.{bat,sh}` — kata owns install via `../setup.sh` (`uv sync`).
 - **Duplicate manifest**: `requirements.txt` (overlapped `pyproject.toml`

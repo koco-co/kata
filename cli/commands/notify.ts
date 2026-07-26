@@ -7,7 +7,7 @@ export function registerNotify(program: Command): void {
 
   notify
     .command("send")
-    .description("发送通知(钉钉/飞书/企微/邮件,按 .env 配置的渠道)")
+    .description("发送通知(钉钉/飞书/企微/邮件,按 config/plugin/notify.yaml 配置的渠道)")
     .option("-e, --event <type>", "事件类型(使用 --list-events 查看所有)")
     .option("-d, --data <json>", "事件数据(JSON 字符串,字段见 --describe <event>)", "{}")
     .option("--dry-run", "仅格式化消息,不实际发送")

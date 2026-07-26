@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { resolve } from "node:path";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -14,6 +16,7 @@ import {
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
+const EMPTY_CONFIG_ROOT = mkdtempSync(join(tmpdir(), "kata-notify-test-"));
 
 // ── Message Formatting ───────────────────────────────────────────────────────
 
@@ -304,7 +307,7 @@ describe("detectChannels", () => {
   });
 
   it("returns undefined channels when no env vars set", () => {
-    const cfg = detectChannels();
+    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
     assert.equal(cfg.dingtalk, undefined);
     assert.equal(cfg.feishu, undefined);
     assert.equal(cfg.wecom, undefined);
@@ -314,20 +317,20 @@ describe("detectChannels", () => {
   it("detects dingtalk channel", () => {
     process.env.KATA_DINGTALK_WEBHOOK_URL =
       "https://oapi.dingtalk.com/robot/send?access_token=test";
-    const cfg = detectChannels();
+    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
     assert.equal(cfg.dingtalk, "https://oapi.dingtalk.com/robot/send?access_token=test");
   });
 
   it("detects feishu channel", () => {
     process.env.KATA_FEISHU_WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/test";
-    const cfg = detectChannels();
+    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
     assert.equal(cfg.feishu, "https://open.feishu.cn/open-apis/bot/v2/hook/test");
   });
 
   it("detects wecom channel", () => {
     process.env.KATA_WECOM_WEBHOOK_URL =
       "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=test";
-    const cfg = detectChannels();
+    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
     assert.equal(cfg.wecom, "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=test");
   });
 
@@ -335,7 +338,7 @@ describe("detectChannels", () => {
     process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com";
     process.env.KATA_DINGTALK_KEYWORD = "【测试】";
     process.env.KATA_DINGTALK_SIGN_SECRET = "SEC_test_secret";
-    const cfg = detectChannels();
+    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
     assert.equal(cfg.dingtalkKeyword, "【测试】");
     assert.equal(cfg.dingtalkSignSecret, "SEC_test_secret");
   });

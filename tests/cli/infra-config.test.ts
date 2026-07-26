@@ -50,6 +50,23 @@ describe("infrastructure configuration", () => {
     expect(readInfraConfig(root).data_sources.hive.port).toBe(10000);
   });
 
+  it("assigns type-specific default credential profiles when omitted", () => {
+    const root = makeRoot();
+    writePrivate(root, "hosts", { hosts: { app: { host: "192.0.2.10", port: 22 } } });
+    writePrivate(root, "data_sources", {
+      data_sources: { hive: { type: "hive", host: "192.0.2.10", port: 10000 } },
+    });
+    writePrivate(root, "credentials", {
+      credentials: {
+        "server-default": { kind: "password", username: "root", password: "server" },
+        "data-source-default": { kind: "password", username: "drpeco", password: "source" },
+      },
+    });
+    const config = readInfraConfig(root);
+    expect(config.hosts.app.credential_ref).toBe("server-default");
+    expect(config.data_sources.hive.credential_ref).toBe("data-source-default");
+  });
+
   it("writes credentials atomically without exposing the value in the result", async () => {
     const root = makeRoot();
     const path = writeCredentialProfile(

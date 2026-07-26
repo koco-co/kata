@@ -1,140 +1,167 @@
 <p align="center">
-  <img src="./assets/diagrams/kata-project-overview.svg" alt="Kata 项目结构" width="860" />
+  <img src="./assets/readme/hero.png" alt="Kata QA engineering workflow" width="960" />
+</p>
+
+<p align="center">
+  <strong>把需求、用例、自动化与证据，串成一条可复核的 QA 工程流水线。</strong>
+</p>
+
+<p align="center">
+  <a href="./README-EN.md">English</a> ·
+  <a href="./INSTALL.md">安装指南</a> ·
+  <a href="./config/README.md">配置说明</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js 22 or newer" />
+  <img src="https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white" alt="Bun required" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT License" />
 </p>
 
 # Kata
 
-## 面向 Claude Code 与 OpenAI Codex 的 QA 工作流
+Kata 是面向 Claude Code 与 OpenAI Codex 的 QA 工作区。它把需求分析、测试用例、缺陷分诊、Playwright 自动化、基础设施诊断和项目知识，组织成可复用的 Skill 与 CLI，并把产物写入明确目录，留下可复核的运行记录。
 
-Kata 把需求分析、用例设计、缺陷排查和 UI 自动化整理成可复用的 Skill。输入可以是 PRD、设计稿、缺陷记录、源码差异、已有用例或测试结果；输出写入明确的项目目录，并保留可复核的运行记录。
-
-[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Bun](https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
-[![Version](https://img.shields.io/badge/version-4.0.0--alpha.1-blue.svg?style=flat-square)](./package.json)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
-
-**中文** | **[English](./README-EN.md)**
-
-## 30 秒概览
+## 一眼看懂
 
 ```text
-PRD / 设计稿 / 功能说明 ─── test-case ───────────> cases.yaml + XMind
-已有用例 ────────────────── test-case ───────────> 编辑、同步与标准化
-项目业务知识 ────────────── domain-knowledge ────> 查询与维护
-缺陷 / 冲突 / 代码差异 ──── defect-analyze ──────> 缺陷分析与修复建议
-UI 用例 / 脚本 / 失败结果 ─ ui-automation ───────> 脚本、运行记录与报告
-服务器连通性故障 ────────── infra-diagnose ──────> 根因结论与排查知识
+需求 / 设计稿 ───────> 需求拆解 ───────> 用例与知识
+已有用例 / 缺陷 ─────> 标准化与分诊 ────> 可执行的修复建议
+用例 / 失败结果 ─────> Playwright ─────> 运行记录、截图与报告
+服务器 / 数据源 ────> 受控诊断 ───────> 脱敏的连通性结论
 ```
 
-项目遵循四条边界：
+这条链路的关键不是“生成更多文本”，而是让每个结果都能回到输入、命令和证据：
 
-- `.claude/skills/` 保存 Claude Code 的 Skill；集成实现位于 `cli/integrations/`。
-- `.agents/skills/` 是指向 `.claude/skills/` 的 symlink，两端共用同一份 Skill 正文。
-- 通用 CLI 位于 `cli/**`，两套运行环境共用同一份命令行实现。
-- 项目产物写入 `workspace/{project}/`。源码仓库配置只保存在本机忽略文件 `config/repos/sources.yaml`（模板见 `config/repos/sources.example.yaml`），克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
+- Skill 正文的唯一来源是 `.claude/skills/`；`.agents/skills/` 只提供 Codex 侧的 symlink。
+- 通用 CLI 位于 `cli/`，两套运行环境复用相同实现。
+- 项目输入、用例、自动化和运行产物写入 `workspace/{project}/`。
+- 平台 Cookie、插件凭据、基础设施凭据和数据源信息只存在本机 ignored 配置，不进入 Git。
+
+## 能力地图
+
+| 入口 | 适合的问题 | 主要产物 |
+| --- | --- | --- |
+| `/test-case` | 从 PRD、设计稿或需求源起草、编辑和同步用例 | YAML / XMind / 可追溯的 SourceRef |
+| `/ui-automation` | 把既有 feature 用例变成真实 Playwright 自动化 | spec、run 目录、Allure 与截图 |
+| `/defect-analyze` | 分析堆栈、HTTP 失败、冲突或代码差异 | 根因、影响面与修复建议 |
+| `/infra-diagnose` | 检查服务器或数据源的 SSH2 连通性 | 脱敏 Markdown 诊断报告 |
+| `/domain-knowledge` | 查询或维护项目业务规则和术语 | 可复用的领域知识 |
+| `/workspace-management` | 创建、修复和检查 Kata 工作区 | 标准化的工作区骨架 |
+
+<p align="center">
+  <img src="./assets/readme/requirements-to-cases.png" alt="Requirements become structured test cases and evidence" width="820" />
+</p>
 
 ## 快速开始
 
 ### 前置条件
 
-| 工具 | 要求 | 用途 |
-| --- | --- | --- |
-| Node.js | `>= 22.0.0` | 运行 TypeScript 与 Bun 工具链 |
-| Bun | 已安装 | 安装依赖、运行 CLI 与测试 |
-| Git | 已安装 | 管理仓库和外部源码目录 |
-| Claude Code 或 Codex | 至少一种 | 执行对应运行环境的 Skill |
+- Node.js `>= 22.0.0`
+- Bun
+- Git
+- Claude Code 或 OpenAI Codex 至少一种
 
 ### 安装
 
 ```bash
 bun install --frozen-lockfile
-[ -f .env ] || cp .env.example .env
 bun run ci
 ```
 
-仅在运行真实浏览器测试时安装浏览器：
+只有运行真实浏览器测试时才需要安装 Playwright 浏览器：
 
 ```bash
 bunx playwright install
 ```
 
-完整步骤见 [INSTALL.md](./INSTALL.md)。
+### 创建本机配置
 
-## 当前能力
-
-| 命令 | 领域 | 说明 |
-| --- | --- | --- |
-| `/test-case` | 用例 | 依需求源起草、编辑既有用例、同步与标准化；Hotfix 回归转 `/defect-analyze`。 |
-| `/ui-automation` | UI 自动化 | 生成、修复或验证 Playwright UI 自动化，交付前真实运行。 |
-| `/defect-analyze` | 缺陷与变更 | 分析缺陷材料、合并冲突或源码差异。 |
-| `/infra-diagnose` | 故障排查 | SSH 排查数据源与服务器连通性问题。 |
-| `/domain-knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
-| `/workspace-management` | 工作区 | 创建、检查、修复项目工作区骨架。 |
-
-路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改既有用例与把用例实现为 UI 自动化是不同的入口。
-
-## Claude Code 与 Codex
-
-| 运行环境 | Skill 目录 | 维护方式 |
-| --- | --- | --- |
-| Claude Code | `.claude/skills/` | Skill 正文唯一来源。 |
-| OpenAI Codex | `.agents/skills/` | 指向 Claude Skill 目录的 symlink。 |
-
-两端运行环境共享同一份 Skill 正文；通用能力收在 `cli/` 供两端调用。
-
-## 配置与安全
-
-根目录 `.env` 是唯一 dotenv 文件。DataAssets 平台配置保存在本机私密的 `config/env/<env>.yaml`：
+Kata 不再自动加载根目录 `.env`。配置按用途分开，模板只提供字段和占位值：
 
 ```bash
-chmod 700 config/env
-chmod 600 config/env/*.yaml
-chmod 600 .env
-```
+# DataAssets 平台 URL 与 Cookie
+kata env add ci63 --url https://platform.example
+printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
+kata env doctor ci63 --offline
 
-常用命令：
+# 插件配置：从模板复制后只在本机填写
+cp config/plugin/lanhu.example.yaml config/plugin/lanhu.yaml
+cp config/plugin/zentao.example.yaml config/plugin/zentao.yaml
+cp config/plugin/notify.example.yaml config/plugin/notify.yaml
 
-```bash
-kata env list
-kata env show <env>
-kata env doctor <env>
-kata env cookie set <env> --stdin
-kata env run <env> -- <command...>
-
-# Playwright 结果必须写入 feature/runs/<run-id>
-kata runs exec <feature-id> --project dataAssets -- kata env run <env> -- bunx playwright test <spec>
-```
-
-直接运行 Playwright 或使用未绑定 run 的命令会失败；仓库内禁止 `.runs/` 临时结果目录。
-
-`env run` 默认只继承启动程序所需的基础环境变量。子命令确实需要额外变量时，使用 `--inherit-env NAME1,NAME2` 明确加入。命令输出不得回显 Cookie、令牌或密码。
-
-基础设施配置分为本机私密的 `config/infra/hosts.yaml`、`data_sources.yaml` 和 `credentials.yaml`，仓库只提交三个 `*.example.yaml`。用 CLI 检查和录入：
-
-```bash
+# 基础设施配置：只在本机填写
+cp config/infra/hosts.example.yaml config/infra/hosts.yaml
+cp config/infra/data_sources.example.yaml config/infra/data_sources.yaml
+cp config/infra/credentials.example.yaml config/infra/credentials.yaml
 kata config doctor
-kata infra credentials set <name> --username <username>
-kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
-kata infra inspect <host> --check connectivity --project <project>
 ```
 
-当前 inspect 只验证 SSH2 connectivity 并生成 `analyses/infra-report/<yyyymm>/<slug>.md`，不执行任意远程命令或服务器变更。
+旧版本仍有根 `.env` 时，可先预览再迁移插件字段：
 
-缺陷、冲突、扫描和 hotfix 报告统一用 `kata defects lint --report <report.md> --exit-code` 校验；hotfix 回归由 `kata defects hotfix` 生成 Markdown，不再经过 `test-case`。
+```bash
+kata config plugins-migrate --source /path/to/old.env --root /path/to/kata
+kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --apply
+```
 
-源码仓库配置只保存在本机忽略文件 `config/repos/sources.yaml`（模板见 `config/repos/sources.example.yaml`），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
+迁移命令只处理插件字段；数据库 URL、DTStack 旧 session 路径和其他未知字段不会被写入插件 YAML。
 
-## 项目目录
+## 配置边界
+
+| 目录 | 内容 | 是否提交 |
+| --- | --- | --- |
+| `config/env/` | DataAssets 平台 URL、`auth.cookie`、环境元数据 | 仅 `*.example.yaml` |
+| `config/plugin/` | Lanhu、ZenTao、DingTalk / Feishu / WeCom / SMTP | 仅 `*.example.yaml` |
+| `config/infra/` | 主机、数据源、凭据 profile、SSH fingerprint | 仅 `*.example.yaml` |
+| `config/repos/` | 外部源码仓库声明 | 仅 `sources.example.yaml` |
+
+`config/env/<env>.yaml` 是 Playwright 与 DTStack 平台访问的共同来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立 DTStack session 文件或旧的持久化变量。一次性或 CI 覆盖仍可通过显式环境变量传入。
+
+本机目录和文件应收紧权限：
+
+```bash
+chmod 700 config/env config/plugin config/infra
+chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
+```
+
+基础设施诊断按连接类型使用默认 profile：服务器使用 `server-default`，数据源使用 `data-source-default`；用户配置的 `credential_ref` 优先。默认凭据只在本机 `config/infra/credentials.yaml` 中设置，失败时快速返回脱敏错误，不交叉试用另一类凭据，也不执行任意远程命令。
+
+## 真实自动化运行
+
+Playwright 必须绑定到显式 run，不能直接在仓库内留下 `.runs/`：
+
+```bash
+kata runs exec <feature-id> --project dataAssets -- \
+  kata env run ci63 -- bunx playwright test <spec>
+```
+
+交付前运行：
+
+```bash
+kata automation lint <feature-dir> --exit-code
+kata automation lint --shared --exit-code
+```
+
+只有真实脚本执行、断言通过、Allure 结果落盘，并且被测平台产生预期业务记录，才能把 UI 自动化标记为通过。
+
+<p align="center">
+  <img src="./assets/readme/browser-automation.png" alt="Browser automation turns a failure into a reproducible assertion" width="820" />
+</p>
+
+<p align="center">
+  <img src="./assets/readme/infra-evidence.png" alt="Infrastructure checks become redacted evidence" width="820" />
+</p>
+
+## 项目结构
 
 ```text
 kata/
-├── .claude/                       # Claude Code Skill 与插件
-│   └── skills/
-├── .agents/                       # Codex Skill symlink
-│   └── skills/
-├── cli/                           # kata CLI(两端共用)
-├── config/                        # repos/sources.yaml 等;私密配置(env/, infra/)不提交
-└── workspace/                     # 项目输入、用例、自动化和运行产物
+├── .claude/skills/       # Skill 正文唯一来源
+├── .agents/skills/       # Codex 侧 symlink
+├── cli/                  # kata CLI 与集成实现
+├── config/               # example 模板与本机私密配置边界
+├── workspace/            # 项目输入、用例、run 与报告
+└── assets/readme/        # README 静态视觉资源
 ```
 
 Skill 的产物写入对应 feature 目录。运行目录 `runs/<run-id>/` 由 CLI 写入 `status.json` 与 `allure-results/`，流程产生的截图、日志和 `handoff.md` 落在同一目录；未运行的范围不得写成通过。
@@ -145,11 +172,11 @@ Skill 的产物写入对应 feature 目录。运行目录 `runs/<run-id>/` 由 C
 bun install --frozen-lockfile
 bun run check
 bun run type-check
-bun run test
+bun test
 bun run ci
 ```
 
-公开命令、目录或产物发生变化时，应同时更新中英文 README 与安装说明。
+公开命令、目录或产物变化时，请同步更新 [README-EN.md](./README-EN.md) 与 [INSTALL.md](./INSTALL.md)。
 
 ## License
 

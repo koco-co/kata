@@ -1,0 +1,17 @@
+# Copy to notify.yaml locally; do not commit the copied file.
+schema_version: 1
+dingtalk:
+  webhook_url: ""
+  keyword: ""
+  sign_secret: ""
+feishu:
+  webhook_url: ""
+wecom:
+  webhook_url: ""
+smtp:
+  host: ""
+  port: 587
+  user: ""
+  pass: ""
+  from: ""
+  to: ""

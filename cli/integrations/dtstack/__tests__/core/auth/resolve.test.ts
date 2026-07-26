@@ -16,48 +16,36 @@ describe("resolveSession", () => {
     const out = await resolveSession({
       env: "ci78",
       config: { environments: { ci78: { baseUrl: "http://x" } }, datasources: {} },
-      store: { load: async () => null, save: async () => {}, clear: async () => {} } as never,
       doLogin: async () => sess("never-called"),
     });
     expect(out.cookie).toBe("from-env=1");
     delete process.env.DTSTACK_COOKIE;
   });
 
-  test("falls back to stored session when no env var", async () => {
+  test("uses the cookie from the selected kata environment", async () => {
     delete process.env.DTSTACK_COOKIE;
     const out = await resolveSession({
       env: "ci78",
-      config: { environments: { ci78: { baseUrl: "http://x" } }, datasources: {} },
-      store: {
-        load: async () => sess("stored=1"),
-        save: async () => {},
-        clear: async () => {},
-      } as never,
+      config: {
+        environments: { ci78: { baseUrl: "http://x", cookie: "from-config=1" } },
+        datasources: {},
+      },
       doLogin: async () => sess("never-called"),
     });
-    expect(out.cookie).toBe("stored=1");
+    expect(out.cookie).toBe("from-config=1");
   });
 
   test("auto-logs-in when neither env var nor store has cookie", async () => {
     delete process.env.DTSTACK_COOKIE;
-    const saved: Session[] = [];
     const out = await resolveSession({
       env: "ci78",
       config: {
         environments: { ci78: { baseUrl: "http://x", login: { username: "u", password: "p" } } },
         datasources: {},
       },
-      store: {
-        load: async () => null,
-        save: async (_e, s) => {
-          saved.push(s);
-        },
-        clear: async () => {},
-      } as never,
       doLogin: async () => sess("fresh=1"),
     });
     expect(out.cookie).toBe("fresh=1");
-    expect(saved[0].cookie).toBe("fresh=1");
   });
 
   test("throws when no creds available for auto-login", async () => {
@@ -68,7 +56,6 @@ describe("resolveSession", () => {
       resolveSession({
         env: "ci78",
         config: { environments: { ci78: { baseUrl: "http://x" } }, datasources: {} },
-        store: { load: async () => null, save: async () => {}, clear: async () => {} } as never,
         doLogin: async () => sess("x"),
       }),
     ).rejects.toThrow(/no credentials/i);

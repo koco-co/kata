@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { runConfigDoctor } from "../lib/infra-config.ts";
+import { migrateDotEnvPlugins } from "../lib/plugin-config.ts";
 
 export function registerConfig(program: Command): void {
   const config = program.command("config").description("运行时配置检查");
@@ -21,5 +22,20 @@ export function registerConfig(program: Command): void {
       });
       outputJson(result);
       if (opts.exitCode && !result.ok) process.exitCode = 1;
+    });
+
+  config
+    .command("plugins-migrate")
+    .description("从显式指定的旧 dotenv 文件迁移插件配置；默认 dry-run")
+    .requiredOption("--source <path>", "旧 dotenv 文件路径")
+    .option("--root <path>", "目标 Kata 工作区根目录", process.cwd())
+    .option("--apply", "写入 config/plugin/*.yaml")
+    .action((opts: { source: string; root: string; apply?: boolean }) => {
+      if (!opts.apply) {
+        outputJson({ dry_run: true, source: opts.source, apply_hint: "--apply" });
+        return;
+      }
+      const result = migrateDotEnvPlugins(opts.source, opts.root);
+      outputJson({ ok: true, written: result.written, migrated_keys: result.removedKeys });
     });
 }

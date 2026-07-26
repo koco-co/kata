@@ -9,27 +9,26 @@
 - 提取修复分支信息（若已关联）
 - 生成可追溯的线上问题用例归档
 
-## 环境配置
+## 配置
 
-在项目根目录 `.env` 文件中配置：
+复制 `config/plugin/zentao.example.yaml` 为本机私密的
+`config/plugin/zentao.yaml`：
 
-```env
-# 禅道服务器地址（必填）
-KATA_ZENTAO_BASE_URL="http://zenpms.dtstack.cn"
-
-# 浏览器/API cookie（与完整账号密码二选一）
-KATA_ZENTAO_COOKIE="zentaosid=..."
-
-# cookie 失效时用于自动重新登录并更新 .env
-KATA_ZENTAO_ACCOUNT="your-username"
-KATA_ZENTAO_PASSWORD="your-password"
+```yaml
+schema_version: 1
+base_url: "http://zenpms.example"
+cookie: "zentaosid=..."
+username: "your-username"
+password: "your-password"
 ```
+
+也可以通过 `KATA_ZENTAO_*` 环境变量做一次性覆盖。
 
 ## 获取 ZENTAO 凭证
 
 1. 访问禅道服务器（如 http://zenpms.dtstack.cn）
 2. 使用公司账号登录
-3. 把 cookie 或账号密码写入根目录 `.env`
+3. 把 Cookie 或账号密码写入本机 `config/plugin/zentao.yaml`
 
 ## 用法
 
@@ -53,6 +52,6 @@ bun run cli/integrations/zentao/fetch.ts --bug-id 138845 --output workspace/data
 
 ## 注意事项
 
-- 禅道 cookie 和密码只存储在根目录 `.env` 中，**不要提交到版本控制**
+- 禅道 Cookie 和密码只存储在本机私密配置中，**不要提交到版本控制**
 - 确保账号有权限访问所有 Bug 记录
 - 首次使用前检查禅道服务器地址是否正确

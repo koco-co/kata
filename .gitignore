@@ -14,6 +14,10 @@ workspace/*/_shared/env/.local/
 /config/infra/*
 !/config/infra/
 !/config/infra/*.example.yaml
+# Plugin endpoints and credentials are local; only redacted examples are tracked.
+/config/plugin/*
+!/config/plugin/
+!/config/plugin/*.example.yaml
 config.json
 
 # Hidden runtime root
