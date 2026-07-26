@@ -10,7 +10,7 @@ fixed_version: <version or unknown>
 
 ## Bug 证据
 
-<ZenTao Bug 的现象、复现和解决证据>
+<ZenTao Bug 的现象、复现步骤和解决证据>
 
 ## 环境与前置条件
 

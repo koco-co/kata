@@ -20,7 +20,7 @@
 
 # Kata
 
-Kata 是面向 Claude Code 与 OpenAI Codex 的 QA 工作区。它把需求分析、测试用例、缺陷分诊、Playwright 自动化、基础设施诊断和项目知识，组织成可复用的 Skill 与 CLI，并把产物写入明确目录，留下可复核的运行记录。
+Kata 是面向 Claude Code 与 OpenAI Codex 的 QA 工作区。它把需求分析、测试用例、缺陷分诊、Playwright 自动化、基础设施诊断和项目知识组织成可复用的 Skill 与 CLI，产物写入固定目录，运行记录全程可复核。
 
 ## 一眼看懂
 
@@ -31,18 +31,18 @@ Kata 是面向 Claude Code 与 OpenAI Codex 的 QA 工作区。它把需求分�
 服务器 / 数据源 ────> 受控诊断 ───────> 脱敏的连通性结论
 ```
 
-这条链路的关键不是“生成更多文本”，而是让每个结果都能回到输入、命令和证据：
+这条链路的关键不是“生成更多文本”，而是让每个结果都能追溯到输入、命令和证据：
 
 - Skill 正文的唯一来源是 `.claude/skills/`；`.agents/skills/` 只提供 Codex 侧的 symlink。
 - 通用 CLI 位于 `cli/`，两套运行环境复用相同实现。
 - 项目输入、用例、自动化和运行产物写入 `workspace/{project}/`。
-- 平台 Cookie、插件凭据、基础设施凭据和数据源信息只存在本机 ignored 配置，不进入 Git。
+- 平台 Cookie、插件凭据、基础设施凭据和数据源信息只保存在本机被 Git 忽略的配置中，不进入版本库。
 
 ## 能力地图
 
 | 入口 | 适合的问题 | 主要产物 |
 | --- | --- | --- |
-| `/test-case` | 从 PRD、设计稿或需求源起草、编辑和同步用例 | YAML / XMind / 可追溯的 SourceRef |
+| `/test-case` | 从 PRD、设计稿等需求来源编写、编辑和同步用例 | YAML / XMind / 可追溯的 SourceRef |
 | `/ui-automation` | 把既有 feature 用例变成真实 Playwright 自动化 | spec、run 目录、Allure 与截图 |
 | `/defect-analyze` | 分析堆栈、HTTP 失败、冲突或代码差异 | 根因、影响面与修复建议 |
 | `/infra-diagnose` | 检查服务器或数据源的 SSH2 连通性 | 脱敏 Markdown 诊断报告 |
@@ -77,7 +77,7 @@ bunx playwright install
 
 ### 创建本机配置
 
-Kata 不再自动加载根目录 `.env`。配置按用途分开，模板只提供字段和占位值：
+Kata 不再自动加载根目录的 `.env`。配置按用途分目录存放，模板只提供字段和占位值：
 
 ```bash
 # DataAssets 平台 URL 与 Cookie
@@ -97,14 +97,14 @@ cp config/infra/credentials.example.yaml config/infra/credentials.yaml
 kata config doctor
 ```
 
-旧版本仍有根 `.env` 时，可先预览再迁移插件字段：
+如果旧版本还留着根目录的 `.env`，可以先预览再执行插件字段迁移：
 
 ```bash
 kata config plugins-migrate --source /path/to/old.env --root /path/to/kata
 kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --apply
 ```
 
-迁移命令只处理插件字段；数据库 URL、DTStack 旧 session 路径和其他未知字段不会被写入插件 YAML。
+迁移命令只处理插件字段；数据库 URL、DTStack 旧 session 路径和其他未知字段不会写入插件 YAML。
 
 ## 配置边界
 
@@ -115,7 +115,7 @@ kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --app
 | `config/infra/` | 主机、数据源、凭据 profile、SSH fingerprint | 仅 `*.example.yaml` |
 | `config/repos/` | 外部源码仓库声明 | 仅 `sources.example.yaml` |
 
-`config/env/<env>.yaml` 是 Playwright 与 DTStack 平台访问的共同来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立 DTStack session 文件或旧的持久化变量。一次性或 CI 覆盖仍可通过显式环境变量传入。
+`config/env/<env>.yaml` 是 Playwright 与 DTStack 平台访问的统一来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立的 DTStack session 文件或旧的持久化变量。临时覆盖或 CI 覆盖仍可通过显式环境变量传入。
 
 本机目录和文件应收紧权限：
 
@@ -124,7 +124,7 @@ chmod 700 config/env config/plugin config/infra
 chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
 ```
 
-基础设施诊断按连接类型使用默认 profile：服务器使用 `server-default`，数据源使用 `data-source-default`；用户配置的 `credential_ref` 优先。默认凭据只在本机 `config/infra/credentials.yaml` 中设置，失败时快速返回脱敏错误，不交叉试用另一类凭据，也不执行任意远程命令。
+基础设施诊断按连接类型使用默认 profile：服务器使用 `server-default`，数据源使用 `data-source-default`；用户配置的 `credential_ref` 优先。默认凭据只写在本机的 `config/infra/credentials.yaml` 中；连接失败时立即返回脱敏后的错误，不会交叉尝试另一类凭据，也不执行任意远程命令。
 
 ## 真实自动化运行
 
@@ -142,7 +142,7 @@ kata automation lint <feature-dir> --exit-code
 kata automation lint --shared --exit-code
 ```
 
-只有真实脚本执行、断言通过、Allure 结果落盘，并且被测平台产生预期业务记录，才能把 UI 自动化标记为通过。
+只有脚本真实执行、断言通过、Allure 结果落盘，并且被测平台产生了预期的业务记录，才能把 UI 自动化标记为通过。
 
 <p align="center">
   <img src="./assets/readme/browser-automation.png" alt="Browser automation turns a failure into a reproducible assertion" width="820" />
@@ -164,7 +164,7 @@ kata/
 └── assets/readme/        # README 静态视觉资源
 ```
 
-Skill 的产物写入对应 feature 目录。运行目录 `runs/<run-id>/` 由 CLI 写入 `status.json` 与 `allure-results/`，流程产生的截图、日志和 `handoff.md` 落在同一目录；未运行的范围不得写成通过。
+Skill 的产物写入对应的 feature 目录。运行目录 `runs/<run-id>/` 由 CLI 写入 `status.json` 与 `allure-results/`，流程产生的截图、日志和 `handoff.md` 也放在同一目录；未运行的范围不得写成通过。
 
 ## 开发与验证
 
