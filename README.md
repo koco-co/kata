@@ -18,12 +18,12 @@ Kata 把需求分析、用例设计、缺陷排查和 UI 自动化整理成可�
 ## 30 秒概览
 
 ```text
-PRD / 设计稿 / 功能说明 ───── case ───────────────> cases.yaml + XMind
-已有用例 ─────────────────── case ───────────────> 编辑、同步与标准化
-项目业务知识 ─────────────── knowledge ──────────> 查询与维护
-缺陷 / 冲突 / 代码差异 ───── defect-analyze ───────> 缺陷分析与修复建议
-UI 用例 / 脚本 / 失败结果 ─── ui-automation ───────> 脚本、运行记录与报告
-服务器连通性故障 ─────────── infra-diagnose ──────> 根因结论与排查知识
+PRD / 设计稿 / 功能说明 ─── test-case ───────────> cases.yaml + XMind
+已有用例 ────────────────── test-case ───────────> 编辑、同步与标准化
+项目业务知识 ────────────── domain-knowledge ────> 查询与维护
+缺陷 / 冲突 / 代码差异 ──── defect-analyze ──────> 缺陷分析与修复建议
+UI 用例 / 脚本 / 失败结果 ─ ui-automation ───────> 脚本、运行记录与报告
+服务器连通性故障 ────────── infra-diagnose ──────> 根因结论与排查知识
 ```
 
 项目遵循四条边界：
@@ -137,7 +137,7 @@ kata/
 └── workspace/                     # 项目输入、用例、自动化和运行产物
 ```
 
-Skill 的产物应写入对应 feature 目录。自动化运行建议保存 `manifest.yaml`、`run.json`、简短摘要以及 trace、截图等附件；状态使用 `draft`、`ready`、`generated-not-run`、`passed`、`failed` 或 `blocked`，不得把未运行内容写成通过。
+Skill 的产物写入对应 feature 目录。运行目录 `runs/<run-id>/` 由 CLI 写入 `status.json` 与 `allure-results/`，流程产生的截图、日志和 `handoff.md` 落在同一目录；未运行的范围不得写成通过。
 
 ## 开发与验证
 

@@ -22,7 +22,7 @@
 
 - 用 web-first 断言自动等待；`waitForLoadState("networkidle")` 只许出现在探测脚本，不进交付 spec。
 - 禁止裸 `waitForTimeout` 当同步手段；确需轮询用 `expect.poll` 或 `toPass`。
-- 等待、环境硬编码、选择器质量与用例文件命名由 `kata automation lint <featureDir> --exit-code`（以及 `--shared`）机械校验；本规范只保留业务语义与判断依据。
+- 等待、环境硬编码、选择器质量与用例文件命名由 `kata automation lint <featureDir> --exit-code`（以及 `--shared`）自动校验；本规范只保留业务语义与判断依据。
 
 ## 环境与会话
 

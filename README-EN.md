@@ -18,12 +18,12 @@ Kata packages requirements analysis, test design, defect investigation, and UI a
 ## 30-second overview
 
 ```text
-PRD / design / feature notes ───── case ───────────────> cases.yaml + XMind
-Existing cases ────────────────── case ────────────────> Edit, sync, and standardize
-Project knowledge ─────────────── knowledge ───────────> Query and maintain
-Bug / conflict / code diff ────── defect-analyze ──────> Analysis and repair plan
-UI cases / scripts / failures ── ui-automation ────────> Scripts, runs, reports
-Connectivity failures ─────────── infra-diagnose ──────> Root cause and playbook
+PRD / design / feature notes ─── test-case ───────────> cases.yaml + XMind
+Existing cases ───────────────── test-case ───────────> Edit, sync, and standardize
+Project knowledge ────────────── domain-knowledge ────> Query and maintain
+Bug / conflict / code diff ───── defect-analyze ──────> Analysis and repair plan
+UI cases / scripts / failures ── ui-automation ───────> Scripts, runs, reports
+Connectivity failures ────────── infra-diagnose ──────> Root cause and playbook
 ```
 
 The repository follows four boundaries:
@@ -137,7 +137,7 @@ kata/
 └── workspace/                     # Project inputs, cases, automation, and runs
 ```
 
-Automation runs should keep `manifest.yaml`, `run.json`, a short summary, and trace or screenshot artifacts. Use explicit states such as `draft`, `ready`, `generated-not-run`, `passed`, `failed`, or `blocked`; never report an unexecuted scope as passed.
+Skill artifacts are written to the matching feature directory. The run directory `runs/<run-id>/` carries the CLI-written `status.json` and `allure-results/`, plus screenshots, logs, and `handoff.md` from the delivery flow; never report an unexecuted scope as passed.
 
 ## Development and verification
 

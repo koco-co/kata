@@ -17,6 +17,6 @@ description: 创建、检查、修复 kata 项目工作区骨架。触发短语�
 ## 边界
 
 - 产物只写 `workspace/<project>/` 内，不外溢。
-- 骨架的标准结构由 `kata project scan` 的对比结果定义，以它为准，不在对话里背目录树。
+- 骨架的标准结构由 `kata project scan` 的对比结果定义，以它为准，不在对话里凭记忆罗列目录。
 - 项目正式元数据只读写 `workspace/<project>/project.json`，不使用全局项目注册表或根 `config.json`。
 - 不手改 `config/env/` 里的平台配置（经 `kata env` / `kata env cookie` 命令操作）。
