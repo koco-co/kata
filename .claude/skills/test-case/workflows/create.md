@@ -31,16 +31,27 @@ kata knowledge read --project <项目> --module <模块>
 
 返回命中条目（界面文案、规则语义、踩坑），以它们为准；不足时按 `--keyword <关键词>` 补查，或用 `kata repos grep/show` 查源码枚举。
 
+<<<<<<< HEAD
 ## Phase 4：逐个确认疑点，落盘 prd.md
+=======
+6. **写 `cases/需求名.yaml`**：格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 写 resolve 返回的 id。只写 prd.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。每条正式用例填写 `automation.spec_file: t<序号>-<slug>.ts`，脚本未实现时明确留在未覆盖清单而不是伪造通过。
+>>>>>>> origin/main
 
 把需求源与知识库都答不了的疑点逐个向用户确认。规则：
 
+<<<<<<< HEAD
 - 一次只问一个问题，每题给出推荐答案；全部疑点清零前不动笔写任何产物。
 - 能自己查到的不问：知识库、`kata repos grep/show` 源码枚举命中的直接采用，不占提问。
 - 确认维度至少覆盖：业务条件与前置、边界值、枚举全集、异常流、权限与角色、数据依赖。
 - 用例设计原则（P0 占比 1/4 ~ 1/3、枚举逐项覆盖等）按默认值执行，不逐项问；需要偏离默认值时才单独确认。
 - 疑点清零后，把确认过的内容整理成 `<featureDir>/prd.md` 落盘，结构照 [../templates/prd.md](../templates/prd.md)，填写示例见 [../examples/prd.md](../examples/prd.md)：每条标注来源（需求源 / 知识库 / 源码 / 用户确认），适用的设计原则也写明。prd.md 记录确认过的需求内容，后续起草与编辑都以它为准。
 - 用户中途要求「别问了直接写」：剩余疑点按未确认处理——对应内容不进 yaml，交付时列出。
+=======
+   ```bash
+   kata cases build --feature <featureDir>
+   kata cases lint --project <项目> --feature <目录名或 metadata.id> --exit-code
+   ```
+>>>>>>> origin/main
 
 ## Phase 5：对齐测试点，落盘 test-points.md
 

@@ -3,8 +3,13 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t19","priority":"P1","title":"【P1】验证json格式配置中维护上千个key时执行校验与结果展示正常"}
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+=======
+import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../_shared/helpers/test-setup";
+>>>>>>> origin/main
 import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import {
   addRuleToPackage,

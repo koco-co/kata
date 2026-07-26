@@ -6,7 +6,11 @@ import { validateBugReport } from "./bug-report-validate.ts";
 export type ReportKind = "bug" | "conflict" | "scan";
 
 const REQUIRED: Record<ReportKind, string[]> = {
+<<<<<<< HEAD
   bug: ["结论", "证据", "实际行为", "预期行为", "复现步骤", "影响范围", "根因", "建议"],
+=======
+  bug: ["结论", "证据", "实际行为", "预期行为", "复现步骤", "根因", "建议"],
+>>>>>>> origin/main
   conflict: ["结论", "证据", "双方意图", "决策依据", "建议"],
   scan: ["结论", "证据", "发现", "建议"],
 };
@@ -87,7 +91,10 @@ export function parseBugReportMarkdown(reportPath: string): BugReport {
   const expected = section(text, "预期行为") || section(text, "Expected");
   const reproduction = section(text, "复现步骤") || section(text, "Reproduction");
   const rootCause = section(text, "根因") || section(text, "Root Cause");
+<<<<<<< HEAD
   const impact = section(text, "影响范围") || section(text, "Impact");
+=======
+>>>>>>> origin/main
   const severity = (text.match(
     /^[-*]\s*(?:严重程度|severity)[：:]?\s*(critical|major|normal|minor)\s*$/im,
   )?.[1] ?? "normal") as BugReport["severity"];
@@ -103,7 +110,10 @@ export function parseBugReportMarkdown(reportPath: string): BugReport {
       .map((line) => line.replace(/^\s*(?:[-*]|\d+\.)\s*/, "").trim())
       .filter(Boolean),
     root_cause: rootCause,
+<<<<<<< HEAD
     impact,
+=======
+>>>>>>> origin/main
   });
 }
 

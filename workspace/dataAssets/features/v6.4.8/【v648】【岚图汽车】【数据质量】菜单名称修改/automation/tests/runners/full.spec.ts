@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import "./generated";
+=======
+import "./generated.spec";
+>>>>>>> origin/main
 import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 全量测试（P0+P1+P2）
 // 生成时间：2026-04-06T16:29:26.650Z

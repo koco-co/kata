@@ -8,8 +8,11 @@ package-lock.json
 workspace/*/_shared/env/.local/
 /config/env/*
 !/config/env/example.yaml
+<<<<<<< HEAD
 # Source repository topology is local-only; commit only the redacted template.
 /config/repos/sources.yaml
+=======
+>>>>>>> origin/main
 # Infrastructure topology and credentials are local; only unusable examples are tracked.
 /config/infra/*
 !/config/infra/

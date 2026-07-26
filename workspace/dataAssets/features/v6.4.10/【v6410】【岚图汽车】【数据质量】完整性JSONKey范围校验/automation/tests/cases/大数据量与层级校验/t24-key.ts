@@ -3,8 +3,13 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"【P1】验证千级key数据量下校验内容选择列表的加载搜索和选择性能"}
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../_shared/helpers/test-setup";
+=======
+import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../_shared/helpers/test-setup";
+>>>>>>> origin/main
 import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,

@@ -4,9 +4,15 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t02","priority":"P0","title":"验证新增内置规则分类可在监控规则添加菜单中选择"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-UI-PROBE-003, SR-SELF-RUN-001
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { EXPECTED_RULE_CATEGORIES, SOURCE_REFS } from "../fixtures/rule-library-contract";
 import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../../../_shared/pages/rule-library/rule-library-page";
+=======
+import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { EXPECTED_RULE_CATEGORIES, SOURCE_REFS } from "../fixtures/rule-library-contract";
+import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../_shared/pages/rule-library/rule-library-page";
+>>>>>>> origin/main
 
 test.setTimeout(120000);
 

@@ -3,7 +3,11 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t28","priority":"P1","title":"【P1】验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验通过场景）"}
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+=======
+import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+>>>>>>> origin/main
 import { REPORT_PASS_SCENARIO } from "../fixtures/test-data";
 import {
   getQualityReportRuleRow,

@@ -6,8 +6,13 @@
 // NOTE: 当前基础设施缺少 Hive2.x 数据源配置（test-data.ts/key-range-utils.ts 未定义 Hive 连接器），
 // 该用例暂以 SparkThrift2.x 替代执行。archive.md 前置条件中 Hive2.x json 的建表 SQL 也误引用了 Doris。
 // 待 Hive 数据源就绪后需切换为 hive_json_test 表和 Hive 分区 DDL。
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../_shared/helpers/test-setup";
+=======
+import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../_shared/helpers/test-setup";
+>>>>>>> origin/main
 import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,

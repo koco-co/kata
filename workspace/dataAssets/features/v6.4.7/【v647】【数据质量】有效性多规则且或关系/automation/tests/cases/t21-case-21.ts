@@ -10,7 +10,11 @@ import {
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
+<<<<<<< HEAD
 import { gotoRuleBase } from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+=======
+import { gotoRuleBase } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+>>>>>>> origin/main
 
 test.setTimeout(120000);
 

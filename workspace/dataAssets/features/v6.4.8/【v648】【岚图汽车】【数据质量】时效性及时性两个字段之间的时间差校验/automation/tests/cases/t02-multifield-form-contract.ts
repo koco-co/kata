@@ -3,8 +3,13 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t2","priority":"P1","title":"验证及时性校验-多字段时间差校验配置区域字段完整"}
+<<<<<<< HEAD
 import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+=======
+import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../_shared/helpers/test-setup";
+>>>>>>> origin/main
 import { SUITE_NAME } from "../fixtures/timeliness-multi-field-data";
 import {
   expectMultiFieldTimelinessContract,

@@ -4,10 +4,17 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t3","priority":"P1","title":"【P1】验证当前 DOM 下「格式-json格式校验」在 INT 与 json/string 字段下均可见"}
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption, uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import { addRuleToPackage, createRuleSetDraft } from "../../../../../../_shared/pages/validity-json-value-format/json-format-utils";
+=======
+import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
+import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
+>>>>>>> origin/main
 
 
 const SUITE_NAME = "【内置规则丰富】有效性，json中key对应的value值格式校验(#15694)";

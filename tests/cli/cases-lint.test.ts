@@ -163,6 +163,7 @@ describe("features lint", () => {
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "real_env_name")).toBe(false);
   });
+<<<<<<< HEAD
 
   it("flags metadata paths that do not exist", () => {
     const root = ws();
@@ -175,4 +176,6 @@ describe("features lint", () => {
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "metadata_reference_missing")).toBe(true);
   });
+=======
+>>>>>>> origin/main
 });

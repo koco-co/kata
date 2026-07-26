@@ -3,8 +3,13 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t19","priority":"P1","title":"【P1】验证Doris3.x数据源的string字段支持key范围校验"}
+<<<<<<< HEAD
 import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../_shared/helpers/test-setup";
+=======
+import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../_shared/helpers/test-setup";
+>>>>>>> origin/main
 import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,

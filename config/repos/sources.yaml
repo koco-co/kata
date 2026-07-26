@@ -1,0 +1,149 @@
+# 源码仓库配置:kata repos / scans 的唯一数据源。
+# 实体克隆在主工作树 .repos/ 下(gitignored);worktree 经 git common-dir 自动重定向。
+# 字段:
+#   name        group/repo 唯一标识(也支持 repo 短名解析)
+#   project     所属 workspace 项目(workspace/<project>)
+#   path        相对仓库根的克隆路径
+#   branch      默认查询分支
+#   description 用途说明(可附 remote URL)
+#   writable    false=只读+pull/checkout;true=允许创作(当前无写命令)
+repos:
+  - name: customltem/dt-center-assets
+    project: dataAssets
+    path: .repos/customltem/dt-center-assets
+    branch: release_6.3.x_ltqc
+    description: 数据资产后端(岚图定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-center-assets
+    writable: false
+  - name: customltem/dt-insight-studio
+    project: dataAssets
+    path: .repos/customltem/dt-insight-studio
+    branch: dataAssets/release_6.3.x_ltqc
+    description: 前端 monorepo(岚图定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-insight-studio
+    writable: false
+  - name: customltem/dt-center-metadata
+    project: dataAssets
+    path: .repos/customltem/dt-center-metadata
+    branch: release_6.3.x_gate
+    description: 元数据后端(定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-center-metadata
+    writable: false
+  - name: customltem/dt-center-ide
+    project: dataAssets
+    path: .repos/customltem/dt-center-ide
+    branch: release_6.3.x_dfsyc
+    description: IDE 后端(定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-center-ide
+    writable: false
+  - name: customltem/DatasourceX
+    project: dataAssets
+    path: .repos/customltem/DatasourceX
+    branch: release_6.3.x_ltqc
+    description: 数据源插件(定制分支);http://gitlab.prod.dtstack.cn/customltem/DatasourceX
+    writable: false
+  - name: dt-insight-web/dt-center-assets
+    project: dataAssets
+    path: .repos/dt-insight-web/dt-center-assets
+    branch: hotfix_6.2.x_145513
+    description: 数据资产后端(主线);http://gitlab.prod.dtstack.cn/dt-insight-web/dt-center-assets
+    writable: false
+  - name: dt-insight-web/dt-center-metadata
+    project: dataAssets
+    path: .repos/dt-insight-web/dt-center-metadata
+    branch: release_6.3.x
+    description: 元数据后端(主线);http://gitlab.prod.dtstack.cn/dt-insight-web/dt-center-metadata
+    writable: false
+  - name: dt-insight-front/dt-insight-studio
+    project: dataAssets
+    path: .repos/dt-insight-front/dt-insight-studio
+    branch: dataAssets/release_6.3.x
+    description: 前端 monorepo(主线);http://gitlab.prod.dtstack.cn/dt-insight-front/dt-insight-studio
+    writable: false
+  - name: dt-insight-engine/engine-plugins
+    project: dataAssets
+    path: .repos/dt-insight-engine/engine-plugins
+    branch: release_6.3.x
+    description: 引擎插件;http://gitlab.prod.dtstack.cn/dt-insight-engine/engine-plugins
+    writable: false
+  - name: dt-insight-plat/datasourcex
+    project: dataAssets
+    path: .repos/dt-insight-plat/datasourcex
+    branch: test_6.3.x_v6.4.9
+    description: 数据源插件(平台);http://gitlab.prod.dtstack.cn/dt-insight-plat/datasourcex
+    writable: false
+  # ─── 自 ~/Documents/DTStack/repos 迁入(2026-07)───
+  - name: customltem/dagschedulex
+    project: dataAssets
+    path: .repos/customltem/dagschedulex
+    branch: release_6.3.x_ltqc
+    description: 任务调度后端(岚图定制分支);http://gitlab.prod.dtstack.cn/customltem/dagschedulex
+    writable: false
+  - name: customltem/dt-insight-index
+    project: dataAssets
+    path: .repos/customltem/dt-insight-index
+    branch: release_4.3.x_changxin
+    description: 指标管理后端(长信定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-insight-index
+    writable: false
+  - name: customltem/dt-public-service
+    project: dataAssets
+    path: .repos/customltem/dt-public-service
+    branch: release_4.2.x_changshuBank
+    description: 公共服务(常熟银行定制分支);http://gitlab.prod.dtstack.cn/customltem/dt-public-service
+    writable: false
+  - name: customltem/dt-tagapp
+    project: dataAssets
+    path: .repos/customltem/dt-tagapp
+    branch: master
+    description: 标签应用后端;http://gitlab.prod.dtstack.cn/customltem/dt-tagapp
+    writable: false
+  - name: customltem/SQLParser
+    project: dataAssets
+    path: .repos/customltem/SQLParser
+    branch: release_6.3.x_ltqc
+    description: SQL 解析器(岚图定制分支);http://gitlab.prod.dtstack.cn/customltem/SQLParser
+    writable: false
+  - name: dt-insight-engine/flink
+    project: dataAssets
+    path: .repos/dt-insight-engine/flink
+    branch: master
+    description: Flink 内核(公司 fork);http://gitlab.prod.dtstack.cn/dt-insight-engine/flink
+    writable: false
+  - name: dt-insight-plat/DAGScheduleX
+    project: dataAssets
+    path: .repos/dt-insight-plat/DAGScheduleX
+    branch: release_6.3.x
+    description: 任务调度后端(平台主线);http://gitlab.prod.dtstack.cn/dt-insight-plat/DAGScheduleX
+    writable: false
+  - name: dt-insight-plat/dt-public-service
+    project: dataAssets
+    path: .repos/dt-insight-plat/dt-public-service
+    branch: release_6.3.x
+    description: 公共服务(平台);http://gitlab.prod.dtstack.cn/dt-insight-plat/dt-public-service
+    writable: false
+  - name: dt-insight-plat/SQLParser
+    project: dataAssets
+    path: .repos/dt-insight-plat/SQLParser
+    branch: release_6.3.x
+    description: SQL 解析器(平台);http://gitlab.prod.dtstack.cn/dt-insight-plat/SQLParser
+    writable: false
+  - name: dt-insight-qa/dtstack-httprunner
+    project: dataAssets
+    path: .repos/dt-insight-qa/dtstack-httprunner
+    branch: test_6.3.x_xl
+    description: 接口自动化测试框架(公司 fork);http://gitlab.prod.dtstack.cn/dt-insight-qa/dtstack-httprunner
+    writable: false
+  - name: dt-insight-qa/qa-helpdocs
+    project: dataAssets
+    path: .repos/dt-insight-qa/qa-helpdocs
+    branch: master
+    description: QA 帮助文档;http://gitlab.prod.dtstack.cn/dt-insight-qa/qa-helpdocs
+    writable: false
+  - name: dt-insight-qa/smokeTest
+    project: dataAssets
+    path: .repos/dt-insight-qa/smokeTest
+    branch: release_5.2.x
+    description: 冒烟测试脚本;http://gitlab.prod.dtstack.cn/dt-insight-qa/smokeTest
+    writable: false
+  - name: dt-insight-web/dt-center-valid
+    project: dataAssets
+    path: .repos/dt-insight-web/dt-center-valid
+    branch: test_5.0.x
+    description: 数据质量校验后端(主线;工作区当前 detached 在 origin/hotfix_5.0.x_138845);http://gitlab.prod.dtstack.cn/dt-insight-web/dt-center-valid
+    writable: false

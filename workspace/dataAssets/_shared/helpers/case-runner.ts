@@ -141,9 +141,13 @@ async function performAction(page: Page, action: string): Promise<void> {
     }
   }
 
+<<<<<<< HEAD
   if (/(?:查看|校验|验证|等待|确保|检查)/.test(action)) {
     throw new Error(`用例步骤缺少可执行页面动作映射: ${action}`);
   }
+=======
+  if (/(?:查看|校验|验证|等待|确保|检查)/.test(action)) return;
+>>>>>>> origin/main
   throw new Error(`无法将用例步骤映射到页面动作: ${action}`);
 }
 
@@ -160,7 +164,12 @@ function expectedEvidence(expected: string): string | undefined {
 async function assertExpected(page: Page, expected: string): Promise<void> {
   const evidence = expectedEvidence(expected);
   if (!evidence) {
+<<<<<<< HEAD
     throw new Error(`用例预期过于宽泛，必须提供业务证据: ${expected}`);
+=======
+    await expect(page.locator("body"), "步骤完成后页面仍应可见").toBeVisible();
+    return;
+>>>>>>> origin/main
   }
   const body = page.locator("body");
   if (/(?:不出现|不存在|未显示|不可见|没有)/.test(expected)) {
