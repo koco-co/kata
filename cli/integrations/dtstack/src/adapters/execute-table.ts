@@ -76,7 +76,7 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
     dataSourceType,
   } = options;
 
-  // 1. 从浏览器获取最新 cookie（比 .env 里的更新鲜）
+  // 1. 从浏览器获取最新 cookie（比环境配置文件里的更新鲜）
   const browserCookies = await page.context().cookies();
   const browserCookieStr = browserCookies.map((c) => `${c.name}=${c.value}`).join("; ");
   const cookie = browserCookieStr || process.env[`${env.toUpperCase()}_COOKIE`] || "";

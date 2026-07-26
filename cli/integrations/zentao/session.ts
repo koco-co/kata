@@ -1,9 +1,8 @@
 /**
  * plugins/zentao/session.ts — 禅道会话：cookie 优先复用，失效降级账号密码登录
  */
-import { join } from "node:path";
-import { getEnv, setDotEnvValue } from "../../lib/env.ts";
 import { repoRoot } from "../../lib/paths.ts";
+import { loadZentaoConfig, pluginConfigPath, updatePluginConfig } from "../../lib/plugin-config.ts";
 import { type FetchFn, zentaoLogin } from "./client.ts";
 
 export type { FetchFn };
@@ -21,20 +20,20 @@ export interface FetchAuthedOptions {
   refresh?: boolean;
 }
 
-// ─── cookie 持久化（统一根目录 .env）─────────────────────────────────────────
-/** Absolute path to the unified project environment file. */
-export function zentaoEnvPath(): string {
-  return join(repoRoot(), ".env");
+// ─── cookie 持久化（本机 config/plugin/zentao.yaml）──────────────────────────
+/** Absolute path to the local ZenTao plugin config file. */
+export function zentaoConfigPath(): string {
+  return pluginConfigPath("zentao", repoRoot());
 }
 
-/** Read the ZenTao cookie from KATA_ZENTAO_COOKIE. */
+/** Read the ZenTao cookie from local plugin config, with an explicit env override. */
 export function readCookie(): string | null {
-  return getEnv("KATA_ZENTAO_COOKIE")?.trim() || null;
+  return loadZentaoConfig().cookie?.trim() || null;
 }
 
-/** Persist a refreshed ZenTao cookie to the unified root .env file. */
+/** Persist a refreshed ZenTao cookie to the local plugin config. */
 export function writeCookie(cookie: string): void {
-  setDotEnvValue(zentaoEnvPath(), "KATA_ZENTAO_COOKIE", cookie);
+  updatePluginConfig("zentao", { cookie });
 }
 
 // ─── 探活与登录 ───────────────────────────────────────────────────────────────
@@ -64,9 +63,7 @@ async function safeFetch(fetchFn: FetchFn, url: string, init?: RequestInit): Pro
 export async function login(creds: ZentaoCreds, fetchFn: FetchFn): Promise<string> {
   if (!creds.account || !creds.password) {
     throw Object.assign(
-      new Error(
-        "禅道 cookie 已失效，且缺少 KATA_ZENTAO_ACCOUNT/KATA_ZENTAO_PASSWORD，无法重新登录",
-      ),
+      new Error("禅道 cookie 已失效，且缺少 config/plugin/zentao.yaml 中的账号密码，无法重新登录"),
       { code: "ZENTAO_AUTH_MISSING" },
     );
   }

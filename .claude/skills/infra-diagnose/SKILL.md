@@ -53,12 +53,17 @@ description: 基础设施配置与 SSH connectivity 最小闭环。数据源/服
 - `config/infra/hosts.yaml`：SSH 主机、端口、`credential_ref`、已核验 host fingerprint。
 - `config/infra/data_sources.yaml`：数据源地址、协议、端口、数据库和 `credential_ref`。
 - `config/infra/credentials.yaml`：本机私密 Credential Profile，权限 `0600`，永不提交。
+- 未显式提供 `credential_ref` 时，服务器主机使用 `server-default`，数据源使用
+  `data-source-default`；两类凭据不交叉尝试。
 - 缺少或拒绝某个绑定时只报告该绑定，不轮询其他凭据。
 - 密码只能通过以下方式录入，不得使用命令行参数：
 
   ```bash
   kata infra credentials set <name> --username <username>
   ```
+
+  用户未提供凭据时只使用本机默认 profile；连接失败立即返回脱敏错误，要求用户补充，
+  不在自动化进程中等待交互输入。
 
 - 测试或自动化场景可以从 stdin 录入：
 

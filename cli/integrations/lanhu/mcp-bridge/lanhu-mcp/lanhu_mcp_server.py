@@ -13,22 +13,7 @@ from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from typing import Annotated, Optional, Union, List, Any
 
-# 加载 .env 文件中的环境变量（必须在其他导入之前）
-# 注意：在 Docker 容器中，环境变量通常已由 docker-compose 通过 env_file 设置
-# load_dotenv() 默认不会覆盖已存在的环境变量，所以与 Docker Compose 兼容
-try:
-    from dotenv import load_dotenv
-    # 从项目根目录加载 .env 文件（如果存在）
-    # override=False 确保不会覆盖已存在的环境变量（如 Docker Compose 设置的）
-    env_path = Path(__file__).parent / '.env'
-    if env_path.exists():
-        load_dotenv(env_path, override=False)
-    else:
-        # 如果 .env 文件不存在，尝试从当前目录加载（用于本地开发）
-        load_dotenv(override=False)
-except ImportError:
-    # 如果 python-dotenv 未安装，跳过加载（使用系统环境变量）
-    pass
+# 配置只从显式环境变量读取；Kata CLI 会从 config/plugin/lanhu.yaml 注入它们。
 
 # 东八区时区（北京时间）
 CHINA_TZ = timezone(timedelta(hours=8))
@@ -6034,5 +6019,4 @@ if __name__ == "__main__":
     SERVER_HOST = os.getenv("SERVER_HOST", "0.0.0.0")
     SERVER_PORT = int(os.getenv("SERVER_PORT", "8100"))
     mcp.run(transport="http", path="/mcp", host=SERVER_HOST, port=SERVER_PORT)
-
 

@@ -384,8 +384,7 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
   it("exits 1 when KATA_LANHU_COOKIE is not set", () => {
     mkdirSync(TMP_DIR, { recursive: true });
 
-    // Set KATA_LANHU_COOKIE to empty string so initEnv won't overwrite it from .env
-    // (initEnv only sets process.env[key] if it's undefined, not if it's "")
+    // Set KATA_LANHU_COOKIE to an empty string so the child process has no cookie.
     const filteredEnv = {
       ...Object.fromEntries(Object.entries(process.env).filter(([k]) => k !== "KATA_LANHU_COOKIE")),
       KATA_LANHU_COOKIE: "",
@@ -398,8 +397,7 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
     let exitCode = 0;
     let stderr = "";
     try {
-      // Run from PROJECT_ROOT so relative .env resolution works,
-      // but with KATA_LANHU_COOKIE stripped from env so initEnv finds nothing
+      // Run from PROJECT_ROOT with the explicit cookie override stripped.
       execSync(
         `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d" --base-dir "${TMP_DIR}/out"`,
         {

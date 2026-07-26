@@ -12,8 +12,10 @@ import { precondSetup } from "dtstack-sdk";
 
 ## 配置
 
-默认从 `workspace/{project}/.dtstack-cli.yaml` 读取，可被 `$DTSTACK_CONFIG` 或 `--config` 覆盖。
-平台地址与登录 session 存储位置必须通过根目录 `.env` 的 `KATA_DTSTACK_BASE_URL`、`KATA_DTSTACK_SESSION_PATH` 配置，不再写死服务 IP 或用户目录。
+通过 `kata env run <env> -- ...` 运行时，平台地址和 Cookie 直接来自
+`config/env/<env>.yaml` 的 `url` 与 `auth.cookie`。`--config` 或
+`DTSTACK_CONFIG` 仍可显式提供 direct DB datasource 配置；不再使用独立
+session 文件。
 
 ```yaml
 defaultEnv: ci78

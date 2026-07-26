@@ -1,0 +1,6 @@
+# Copy to zentao.yaml locally; do not commit the copied file.
+schema_version: 1
+base_url: "https://zentao.example"
+cookie: ""
+username: ""
+password: ""

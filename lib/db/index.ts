@@ -6,7 +6,7 @@
 //
 // 用法（在用例 setup/teardown 中）：
 //   import { withDb } from "<repo>/lib/db";
-//   await withDb({ type: "starrocks", url: process.env.KATA_SR3X_URL }, async (db) => {
+//   await withDb({ type: "starrocks", url: process.env.KATA_DB_URL }, async (db) => {
 //     await db.exec("DROP TABLE IF EXISTS t; CREATE TABLE t(...); INSERT INTO t VALUES(...);");
 //     const rows = await db.query<{ c: number }>("SELECT count(*) AS c FROM t");
 //   });

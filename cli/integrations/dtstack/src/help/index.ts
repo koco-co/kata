@@ -6,8 +6,8 @@ USAGE
 
 COMMANDS
   Authentication
-    login              Log in to a DTStack environment, cache cookie locally
-    logout             Clear cached cookie
+    login              Log in to a DTStack environment for the current process
+    logout             Clear the current process override
     whoami             Show current session info
 
   SQL execution
@@ -28,8 +28,9 @@ GLOBAL OPTIONS
 CONFIG SOURCE PRIORITY
   1. --config <path>         Explicit config file path
   2. $DTSTACK_CONFIG         Env var pointing to config file
-  3. dtstack-cli.yaml         Default config file (if exists)
-  4. Env vars                Auto-build from {ENV}_BASE_URL (if no file)
+  3. config/env/<env>.yaml    Selected by \`kata env run <env> -- ...\`
+  4. dtstack-cli.yaml         Default direct-DB config (if no kata env)
+  5. Env vars                Explicit one-off fallback
 
 ENVIRONMENT
   ACTIVE_ENV                Default --env if omitted (优先级最高)
@@ -40,10 +41,9 @@ ENVIRONMENT
   {ENV}_BASE_URL            Base URL for env, e.g. LTQC_BASE_URL
 
 NOTE
-  Config file 和 env var 二选一即可：
-  - 有 dtstack-cli.yaml → 读文件
-  - 无文件 → 读 {ENV}_BASE_URL 环境变量（Playwright 体系已自带）
-  不需要创建 dtstack-cli.yaml。
+  Playwright / platform API 场景建议使用：
+  kata env run <env> -- dtstack-cli ...
+  它会复用 config/env/<env>.yaml 的 URL 和 auth.cookie。
 `;
 
 export const SQL_EXEC_HELP = `\

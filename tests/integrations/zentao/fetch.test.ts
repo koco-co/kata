@@ -254,7 +254,7 @@ describe("CLI: missing env vars", () => {
       KATA_ZENTAO_BASE_URL: "",
       KATA_ZENTAO_ACCOUNT: "",
       KATA_ZENTAO_PASSWORD: "",
-      // Point HOME away from real .env so initEnv won't load real credentials
+      // Point HOME away from real user configuration; credentials are explicit in the test env.
     };
 
     let exitCode = 0;

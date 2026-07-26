@@ -42,9 +42,7 @@ function loadEnvNames(workspaceRoot: string): string[] {
   if (!existsSync(envDir)) return [];
   return (
     readdirSync(envDir)
-      .filter(
-        (f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"),
-      )
+      .filter((f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"))
       .map((f) => f.replace(/\.yaml$/, ""))
       // 过短的名字误报面太大(如 env 叫 test), 不参与拦截
       .filter((n) => n.length >= 4)

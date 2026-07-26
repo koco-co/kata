@@ -15,6 +15,9 @@ import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
 export type InfraConfigKind = "hosts" | "data_sources" | "credentials";
 
+export const DEFAULT_SERVER_CREDENTIAL = "server-default";
+export const DEFAULT_DATA_SOURCE_CREDENTIAL = "data-source-default";
+
 export interface HostConfig {
   host: string;
   port: number;
@@ -105,7 +108,10 @@ function parseHosts(value: unknown, path: string): Record<string, HostConfig> {
     result[name] = {
       host: requiredString(raw.host, `${path}: hosts.${name}.host`),
       port: port(raw.port, `${path}: hosts.${name}.port`, 22),
-      credential_ref: requiredString(raw.credential_ref, `${path}: hosts.${name}.credential_ref`),
+      credential_ref:
+        raw.credential_ref === undefined
+          ? DEFAULT_SERVER_CREDENTIAL
+          : requiredString(raw.credential_ref, `${path}: hosts.${name}.credential_ref`),
       ...(raw.host_key === undefined
         ? {}
         : { host_key: requiredString(raw.host_key, `${path}: hosts.${name}.host_key`) }),
@@ -128,10 +134,10 @@ function parseDataSources(value: unknown, path: string): Record<string, DataSour
       ...(raw.database === undefined
         ? {}
         : { database: requiredString(raw.database, `${path}: data_sources.${name}.database`) }),
-      credential_ref: requiredString(
-        raw.credential_ref,
-        `${path}: data_sources.${name}.credential_ref`,
-      ),
+      credential_ref:
+        raw.credential_ref === undefined
+          ? DEFAULT_DATA_SOURCE_CREDENTIAL
+          : requiredString(raw.credential_ref, `${path}: data_sources.${name}.credential_ref`),
     };
   }
   return result;

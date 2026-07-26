@@ -1,5 +1,4 @@
 import { defineConfig, devices } from "@playwright/test";
-import { initEnv } from "./cli/lib/env";
 import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
@@ -9,9 +8,6 @@ import {
   cookieHeaderToPlaywrightState,
   resolveDataAssetsRuntime,
 } from "./workspace/dataAssets/_shared/runtime/env-profile";
-
-// 根 .env 是唯一 dotenv；DataAssets 环境必须由 `kata env run` 注入已解析上下文。
-initEnv({ cwd: process.cwd() });
 
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
   if (env.KATA_DISCOVERY_ONLY === "1") return "test-results/discovery";

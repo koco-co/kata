@@ -1,155 +1,180 @@
 <p align="center">
-  <img src="./assets/diagrams/kata-project-overview.svg" alt="Kata project structure" width="860" />
+  <img src="./assets/readme/hero.png" alt="Kata QA engineering workflow" width="960" />
+</p>
+
+<p align="center">
+  <strong>Turn requirements, test cases, automation, and evidence into one reviewable QA workflow.</strong>
+</p>
+
+<p align="center">
+  <a href="./README.md">中文</a> ·
+  <a href="./INSTALL.md">Installation</a> ·
+  <a href="./config/README.md">Configuration</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js 22 or newer" />
+  <img src="https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white" alt="Bun required" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="MIT License" />
 </p>
 
 # Kata
 
-## QA workflows for Claude Code and OpenAI Codex
+Kata is a QA workspace for Claude Code and OpenAI Codex. It turns requirements analysis, test cases, defect triage, Playwright automation, infrastructure diagnosis, and project knowledge into reusable Skills and CLI workflows. Every artifact has a defined home and a reviewable execution trail.
 
-Kata packages requirements analysis, test design, defect investigation, and UI automation as reusable skills. Inputs may include PRDs, designs, bug records, code diffs, existing cases, or test results. Outputs are written to explicit project directories with reviewable run records.
-
-[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Bun](https://img.shields.io/badge/Bun-required-000000?style=flat-square&logo=bun&logoColor=white)](https://bun.sh/)
-[![Version](https://img.shields.io/badge/version-4.0.0--alpha.1-blue.svg?style=flat-square)](./package.json)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
-
-**English** | **[中文](./README.md)**
-
-## 30-second overview
+## The short version
 
 ```text
-PRD / design / feature notes ───── case ───────────────> cases.yaml + XMind
-Existing cases ────────────────── case ────────────────> Edit, sync, and standardize
-Project knowledge ─────────────── knowledge ───────────> Query and maintain
-Bug / conflict / code diff ────── defect-analyze ──────> Analysis and repair plan
-UI cases / scripts / failures ── ui-automation ────────> Scripts, runs, reports
-Connectivity failures ─────────── infra-diagnose ──────> Root cause and playbook
+Requirements / design ──> decompose ────────> cases and knowledge
+Existing cases / bugs ──> normalize and triage -> actionable findings
+Cases / failures ───────> Playwright ───────> runs, screenshots, reports
+Servers / data sources ─> controlled checks ──> redacted conclusions
 ```
 
-The repository follows four boundaries:
+The goal is not more generated prose. It is traceability from input to command to evidence:
 
-- `.claude/skills/` contains Claude Code skills; integrations live under `cli/integrations/`.
-- `.agents/skills/` is a symlink to `.claude/skills/`, so both runtimes use the same skill source.
-- The shared CLI lives under `cli/**` and serves both runtimes.
-- Project artifacts live under `workspace/{project}/`. Source repositories are configured locally in ignored `config/repos/sources.yaml` (copy `config/repos/sources.example.yaml` first), cloned into `.repos/` (gitignored), and queried via `kata repos`.
+- `.claude/skills/` is the single source of truth for Skill content; `.agents/skills/` is the Codex-side symlink.
+- The shared CLI lives under `cli/`.
+- Project inputs, cases, automation, and run artifacts live under `workspace/{project}/`.
+- Platform cookies, plugin credentials, infrastructure credentials, and data-source details stay in ignored local files and never enter Git.
+
+## Capability map
+
+| Entry point | Use it for | Main artifacts |
+| --- | --- | --- |
+| `/test-case` | Draft, edit, sync, and normalize cases from requirements | YAML / XMind / traceable SourceRefs |
+| `/ui-automation` | Turn feature cases into real Playwright automation | specs, run folders, Allure, screenshots |
+| `/defect-analyze` | Analyze stacks, HTTP failures, conflicts, or diffs | root cause, impact, repair guidance |
+| `/infra-diagnose` | Check SSH2 connectivity for servers and data sources | redacted Markdown reports |
+| `/domain-knowledge` | Query or maintain product rules and terminology | reusable domain knowledge |
+| `/workspace-management` | Create, repair, and inspect Kata workspaces | standardized workspace structure |
+
+<p align="center">
+  <img src="./assets/readme/requirements-to-cases.png" alt="Requirements become structured test cases and evidence" width="820" />
+</p>
 
 ## Quick start
 
 ### Prerequisites
 
-| Tool | Requirement | Purpose |
-| --- | --- | --- |
-| Node.js | `>= 22.0.0` | TypeScript and Bun toolchain |
-| Bun | Installed | Dependencies, CLI commands, and tests |
-| Git | Installed | Repository and external source management |
-| Claude Code or Codex | At least one | Runs the matching skills |
+- Node.js `>= 22.0.0`
+- Bun
+- Git
+- Claude Code or OpenAI Codex
 
 ### Install
 
 ```bash
 bun install --frozen-lockfile
-[ -f .env ] || cp .env.example .env
 bun run ci
 ```
 
-Install browsers only when running real browser tests:
+Install Playwright browsers only when you need real browser runs:
 
 ```bash
 bunx playwright install
 ```
 
-See [INSTALL.md](./INSTALL.md) for the full setup.
+### Create local configuration
 
-## Current capabilities
-
-| Command | Area | Summary |
-| --- | --- | --- |
-| `/test-case` | Cases | Draft from requirement sources, edit existing cases, sync, and standardize. Route hotfix regression to `/defect-analyze`. |
-| `/ui-automation` | UI automation | Generate, repair, or verify Playwright UI automation with real runs before delivery. |
-| `/defect-analyze` | Defects and changes | Analyze bug material, merge conflicts, or code diffs. |
-| `/infra-diagnose` | Infrastructure | Diagnose datasource and server connectivity failures over SSH. |
-| `/domain-knowledge` | Knowledge | Query or maintain project rules, terms, and constraints. |
-| `/workspace-management` | Workspace | Create, check, or repair project workspace skeletons. |
-
-Routing follows the requested action, not only the input extension: editing an existing case and turning a case into UI automation are different entry points.
-
-## Claude Code and Codex
-
-| Runtime | Skill directory | Approach |
-| --- | --- | --- |
-| Claude Code | `.claude/skills/` | Canonical skill source. |
-| OpenAI Codex | `.agents/skills/` | Symlink to the Claude skill directory. |
-
-Both runtimes use the same skill source; shared capabilities live in `cli/`.
-
-## Configuration and security
-
-The root `.env` is the only dotenv file. Each DataAssets platform lives in a local ignored file at `config/env/<env>.yaml`:
+Kata no longer auto-loads a root `.env`. Configuration is split by purpose; examples contain fields and placeholders only:
 
 ```bash
-chmod 700 config/env
-chmod 600 config/env/*.yaml
-chmod 600 .env
-```
+# DataAssets platform URL and cookie
+kata env add ci63 --url https://platform.example
+printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
+kata env doctor ci63 --offline
 
-Common commands:
+# Plugin configuration: copy templates and fill them locally
+cp config/plugin/lanhu.example.yaml config/plugin/lanhu.yaml
+cp config/plugin/zentao.example.yaml config/plugin/zentao.yaml
+cp config/plugin/notify.example.yaml config/plugin/notify.yaml
 
-```bash
-kata env list
-kata env show <env>
-kata env doctor <env>
-kata env cookie set <env> --stdin
-kata env run <env> -- <command...>
-
-# Playwright results must be scoped to feature/runs/<run-id>
-kata runs exec <feature-id> --project dataAssets -- kata env run <env> -- bunx playwright test <spec>
-```
-
-Running Playwright without an allocated run fails; `.runs/` temporary result directories are forbidden.
-
-`env run` inherits only the small set of variables required to start a child process. Add a required variable explicitly with `--inherit-env NAME1,NAME2`. Command output must never reveal cookies, tokens, or passwords.
-
-Infrastructure access is split across local-only `config/infra/hosts.yaml`, `data_sources.yaml`, and `credentials.yaml`; the repository tracks only the three `*.example.yaml` files. Use the CLI to inspect and write them:
-
-```bash
+# Infrastructure configuration: fill only on this machine
+cp config/infra/hosts.example.yaml config/infra/hosts.yaml
+cp config/infra/data_sources.example.yaml config/infra/data_sources.yaml
+cp config/infra/credentials.example.yaml config/infra/credentials.yaml
 kata config doctor
-kata infra credentials set <name> --username <username>
-kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
-kata infra inspect <host> --check connectivity --project <project>
 ```
 
-The current inspect command verifies SSH2 connectivity and writes `analyses/infra-report/<yyyymm>/<slug>.md`; it does not execute arbitrary remote commands or server changes.
+If an older checkout still has a root `.env`, preview and then apply the plugin-only migration:
 
-Validate bug, conflict, scan, and hotfix reports with `kata defects lint --report <report.md> --exit-code`; generate hotfix Markdown with `kata defects hotfix`, not through `test-case`.
+```bash
+kata config plugins-migrate --source /path/to/old.env --root /path/to/kata
+kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --apply
+```
 
-Source repositories are configured locally in ignored `config/repos/sources.yaml` (copy `config/repos/sources.example.yaml` first) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
+The migration handles plugin fields only. Database URLs, old DTStack session paths, and unknown fields are not written into plugin YAML files.
 
-## Repository layout
+## Configuration boundaries
+
+| Directory | Contents | Tracked |
+| --- | --- | --- |
+| `config/env/` | DataAssets URLs, `auth.cookie`, and environment metadata | `*.example.yaml` only |
+| `config/plugin/` | Lanhu, ZenTao, DingTalk / Feishu / WeCom / SMTP | `*.example.yaml` only |
+| `config/infra/` | hosts, data sources, credential profiles, SSH fingerprints | `*.example.yaml` only |
+| `config/repos/` | external source repository declarations | `sources.example.yaml` only |
+
+`config/env/<env>.yaml` is the shared source for Playwright and DTStack platform access: the URL lives in `url` and the cookie in `auth.cookie`. There is no separate DTStack session file or legacy persistent variable path. Explicit one-off or CI overrides may still be passed as environment variables.
+
+Restrict local permissions:
+
+```bash
+chmod 700 config/env config/plugin config/infra
+chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
+```
+
+Infrastructure diagnosis uses type-specific default profiles: `server-default` for servers and `data-source-default` for data sources. An explicit `credential_ref` wins. Defaults belong only in the local `config/infra/credentials.yaml`; failures return a redacted actionable error, never cross-try credential types, and never run arbitrary remote commands.
+
+## Real automation runs
+
+Playwright must be bound to an explicit run; do not leave `.runs/` directories in the repository:
+
+```bash
+kata runs exec <feature-id> --project dataAssets -- \
+  kata env run ci63 -- bunx playwright test <spec>
+```
+
+Before delivery:
+
+```bash
+kata automation lint <feature-dir> --exit-code
+kata automation lint --shared --exit-code
+```
+
+UI automation is only marked passed after the real script executes, assertions pass, Allure results are written, and the system under test creates the expected business record.
+
+<p align="center">
+  <img src="./assets/readme/browser-automation.png" alt="Browser automation turns a failure into a reproducible assertion" width="820" />
+</p>
+
+<p align="center">
+  <img src="./assets/readme/infra-evidence.png" alt="Infrastructure checks become redacted evidence" width="820" />
+</p>
+
+## Project layout
 
 ```text
 kata/
-├── .claude/                       # Claude Code skills
-│   └── skills/
-├── .agents/                       # Codex skill symlink
-│   └── skills/
-├── cli/                           # kata CLI (shared by both runtimes)
-├── config/                        # repos/sources.yaml etc.; secrets (env/, infra/) untracked
-└── workspace/                     # Project inputs, cases, automation, and runs
+├── .claude/skills/       # single source of truth for Skills
+├── .agents/skills/       # Codex-side symlink
+├── cli/                  # kata CLI and integrations
+├── config/               # examples and local configuration boundaries
+├── workspace/            # inputs, cases, runs, and reports
+└── assets/readme/        # static README artwork
 ```
 
-Automation runs should keep `manifest.yaml`, `run.json`, a short summary, and trace or screenshot artifacts. Use explicit states such as `draft`, `ready`, `generated-not-run`, `passed`, `failed`, or `blocked`; never report an unexecuted scope as passed.
-
-## Development and verification
+## Development and validation
 
 ```bash
 bun install --frozen-lockfile
 bun run check
 bun run type-check
-bun run test
+bun test
 bun run ci
 ```
 
-Public command, directory, or artifact changes must update both READMEs and the installation guide.
+When public commands, directories, or artifacts change, update [README.md](./README.md) and [INSTALL.md](./INSTALL.md) together.
 
 ## License
 
