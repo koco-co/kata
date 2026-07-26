@@ -64,30 +64,23 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("lint [feature-dir]")
-    .description("检查 Playwright 自动化代码规范与存量 baseline")
+    .description("检查 Playwright 自动化代码规范")
     .option("--shared", "检查 workspace 项目的 _shared 页面、helper 与 fixture")
-    .option("--exit-code", "存在未被 baseline 豁免的 violation 时退出码为 1")
-    .option("--update-baseline", "按当前存量重写 automation-lint-baseline.json")
-    .action(
-      (
-        featureDir: string | undefined,
-        opts: { shared?: boolean; exitCode?: boolean; updateBaseline?: boolean },
-      ) => {
-        const report = runAutomationLint({
-          featureDir,
-          shared: opts.shared === true,
-          updateBaseline: opts.updateBaseline === true,
-        });
-        for (const v of report.violations) {
-          console.log(`${v.path}:${v.line}:${v.rule}:${v.message}`);
-        }
-        for (const ignored of report.ignored) {
-          console.log(`ignored ${ignored.path}:${ignored.line}: ${ignored.reason}`);
-        }
-        console.log(
-          `[automation lint] files=${report.scannedFiles} violations=${report.violations.length} ignored=${report.ignored.length} baseline=${report.baselinePath}${report.updatedBaseline ? " updated" : ""}`,
-        );
-        if (opts.exitCode && report.violations.length > 0) process.exitCode = 1;
-      },
-    );
+    .option("--exit-code", "存在 violation 时退出码为 1")
+    .action((featureDir: string | undefined, opts: { shared?: boolean; exitCode?: boolean }) => {
+      const report = runAutomationLint({
+        featureDir,
+        shared: opts.shared === true,
+      });
+      for (const v of report.violations) {
+        console.log(`${v.path}:${v.line}:${v.rule}:${v.message}`);
+      }
+      for (const ignored of report.ignored) {
+        console.log(`ignored ${ignored.path}:${ignored.line}: ${ignored.reason}`);
+      }
+      console.log(
+        `[automation lint] files=${report.scannedFiles} violations=${report.violations.length} ignored=${report.ignored.length}`,
+      );
+      if (opts.exitCode && report.violations.length > 0) process.exitCode = 1;
+    });
 }

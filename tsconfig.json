@@ -4,6 +4,6 @@
     "rootDir": ".",
     "types": ["node", "bun"]
   },
-  "include": ["cli/**/*.ts", "tests/**/*.ts", ".claude/plugins/**/*.ts"],
-  "exclude": ["node_modules", "workspace"]
+  "include": ["cli/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "workspace", "cli/integrations/dtstack"]
 }

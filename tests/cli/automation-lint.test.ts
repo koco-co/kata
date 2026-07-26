@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { runAutomationLint } from "../../cli/lib/automation-lint.ts";
@@ -93,43 +93,16 @@ describe("automation lint", () => {
     expect(result.violations.filter((v) => v.rule === "invalid-ignore")).toHaveLength(1);
   });
 
-  it("applies and tightens the per-file baseline without baselining hardcoded env", () => {
+  it("reports every violation immediately and never writes a baseline", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(cases, "t01-demo.ts", "await page.waitForTimeout(100);\n");
 
     const first = runAutomationLint({ featureDir: feature });
     expect(first.violations).toHaveLength(1);
-
-    const updated = runAutomationLint({ featureDir: feature, updateBaseline: true });
-    expect(updated.violations).toHaveLength(0);
-    expect(existsSync(updated.baselinePath)).toBe(true);
-
-    writeCase(
-      cases,
-      "t01-demo.ts",
-      "await page.waitForTimeout(100);\nawait page.waitForTimeout(200);\n",
-    );
-    const extra = runAutomationLint({ featureDir: feature });
-    expect(extra.violations).toHaveLength(1);
-    expect(extra.violations[0]?.line).toBe(2);
-
-    writeCase(cases, "t02-new.ts", "await page.waitForTimeout(300);\n");
-    const newFile = runAutomationLint({ featureDir: feature });
-    expect(newFile.violations).toHaveLength(2);
-    expect(newFile.violations.map((v) => v.path)).toEqual([
-      "features/v7.0.0/demo/automation/tests/cases/t01-demo.ts",
-      "features/v7.0.0/demo/automation/tests/cases/t02-new.ts",
-    ]);
-
     writeCase(cases, "t03-env.ts", 'const baseUrl = "https://example.test";\n');
-    const hardcoded = runAutomationLint({ featureDir: feature, updateBaseline: true });
+    const hardcoded = runAutomationLint({ featureDir: feature });
     expect(hardcoded.violations.some((v) => v.rule === "no-hardcoded-env")).toBe(true);
-    const baseline = JSON.parse(readFileSync(hardcoded.baselinePath, "utf8")) as {
-      files: Record<string, Record<string, number>>;
-    };
-    expect(
-      baseline.files["features/v7.0.0/demo/automation/tests/cases/t03-env.ts"],
-    ).toBeUndefined();
+    expect(hardcoded.violations.filter((v) => v.rule === "no-hardcoded-env")).toHaveLength(1);
   });
 
   it("scans only the selected shared areas", () => {

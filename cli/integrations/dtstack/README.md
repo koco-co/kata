@@ -1,0 +1,43 @@
+# dtstack-sdk
+
+DTStack 平台前置条件 CLI + SDK。覆盖 SQL 执行（平台 API / 直连 DB）、离线项目幂等创建、资产元数据同步。
+
+## 安装
+
+已通过根 workspace 链接，无需单独安装。在测试代码里：
+
+```ts
+import { precondSetup } from "dtstack-sdk";
+```
+
+## 配置
+
+默认从 `workspace/{project}/.dtstack-cli.yaml` 读取，可被 `$DTSTACK_CONFIG` 或 `--config` 覆盖。
+平台地址与登录 session 存储位置必须通过根目录 `.env` 的 `KATA_DTSTACK_BASE_URL`、`KATA_DTSTACK_SESSION_PATH` 配置，不再写死服务 IP 或用户目录。
+
+```yaml
+defaultEnv: ci78
+environments:
+  ci78:
+    baseUrl: http://shuzhan63-test-ltqc.k8s.dtstack.cn
+    login:
+      username: admin@dtstack.com
+      password: ${DTSTACK_PASSWORD}
+datasources:
+  doris-ci78:
+    type: doris
+    host: 172.16.x.x
+    port: 9030
+    username: root
+    password: ${DORIS_PASSWORD}
+```
+
+## 命令
+
+详见 [`docs/usage.md`](docs/usage.md)（与 `--help` 输出同源）。
+
+## 测试
+
+```bash
+bun test cli/integrations/dtstack/__tests__
+```

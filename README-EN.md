@@ -19,7 +19,7 @@ Kata packages requirements analysis, test design, defect investigation, and UI a
 
 ```text
 PRD / design / feature notes ───── case ───────────────> cases.yaml + XMind
-Existing cases / bug records ──── case ────────────────> Edit, sync, hotfix regression
+Existing cases ────────────────── case ────────────────> Edit, sync, and standardize
 Project knowledge ─────────────── knowledge ───────────> Query and maintain
 Bug / conflict / code diff ────── defect-analyze ──────> Analysis and repair plan
 UI cases / scripts / failures ── ui-automation ────────> Scripts, runs, reports
@@ -64,7 +64,7 @@ See [INSTALL.md](./INSTALL.md) for the full setup.
 
 | Command | Area | Summary |
 | --- | --- | --- |
-| `/test-case` | Cases | Draft from requirement sources, edit existing cases, generate hotfix regression cases from bugs. |
+| `/test-case` | Cases | Draft from requirement sources, edit existing cases, sync, and standardize. Route hotfix regression to `/defect-analyze`. |
 | `/ui-automation` | UI automation | Generate, repair, or verify Playwright UI automation with real runs before delivery. |
 | `/defect-analyze` | Defects and changes | Analyze bug material, merge conflicts, or code diffs. |
 | `/infra-diagnose` | Infrastructure | Diagnose datasource and server connectivity failures over SSH. |
@@ -115,6 +115,8 @@ kata infra inspect <host> --check connectivity --project <project>
 
 The current inspect command verifies SSH2 connectivity and writes `analyses/infra-report/<yyyymm>/<slug>.md`; it does not execute arbitrary remote commands or server changes.
 
+Validate bug, conflict, scan, and hotfix reports with `kata defects lint --report <report.md> --exit-code`; generate hotfix Markdown with `kata defects hotfix`, not through `test-case`.
+
 Source repositories are configured in `config/repos/sources.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
 
 ## Repository layout
@@ -123,13 +125,11 @@ Source repositories are configured in `config/repos/sources.yaml` (project, loca
 kata/
 ├── .claude/                       # Claude Code skills and plugins
 │   ├── skills/
-│   ├── plugins/
-│   └── packages/
+│   └── plugins/
 ├── .agents/                       # Codex skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI (shared by both runtimes)
 ├── config/                        # repos/sources.yaml etc.; secrets (env/, infra/) untracked
-├── docs/                          # Guides, contracts, and design records
 └── workspace/                     # Project inputs, cases, automation, and runs
 ```
 
@@ -145,7 +145,7 @@ bun run test
 bun run ci
 ```
 
-See [docs/DOCS-STYLE-GUIDE.md](./docs/DOCS-STYLE-GUIDE.md) for documentation conventions. Public command, directory, or artifact changes must update both READMEs and the installation guide.
+Public command, directory, or artifact changes must update both READMEs and the installation guide.
 
 ## License
 

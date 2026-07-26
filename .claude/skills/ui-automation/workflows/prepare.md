@@ -14,6 +14,6 @@
 ## 目录规范
 
 6. `kata automation scaffold <featureDir>` 补齐骨架；已有 `automation/` 时先执行 `kata automation normalize <featureDir>` 预览，确认迁移范围后再 `--apply`。
-7. 准备阶段静态闸门：运行 `kata automation lint <featureDir> --exit-code` 与 `kata automation lint --shared --exit-code`；存量机械约束可先用 baseline，`no-hardcoded-env` 不得进入 baseline。
+7. 准备阶段静态闸门：运行 `kata automation lint <featureDir> --exit-code` 与 `kata automation lint --shared --exit-code`；所有违规必须在继续前修复。
 
 预检通过后进入 [implement.md](implement.md)。

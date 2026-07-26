@@ -31,7 +31,7 @@
   <rect x="370" y="95" width="320" height="270" class="box runtime"/>
   <text x="530" y="132" text-anchor="middle" class="label">.claude/** runtime (first-class)</text>
   <text x="530" y="166" text-anchor="middle" class="body">skills/ — 8 skills, SKILL.md frontmatter triggers</text>
-  <text x="530" y="194" text-anchor="middle" class="body">scripts/_shared/** — kata CLI, lib, schemas, lint</text>
+  <text x="530" y="194" text-anchor="middle" class="body">cli/** — kata CLI, integrations, lib, schemas, lint</text>
   <text x="530" y="222" text-anchor="middle" class="body">plugins/ — lanhu / notify / zentao</text>
   <text x="530" y="250" text-anchor="middle" class="body">rules/ — project workflow rules</text>
   <text x="530" y="290" text-anchor="middle" class="body">hooks/ — write and command guards</text>

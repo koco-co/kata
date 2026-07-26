@@ -1,13 +1,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { resolveSourceRepo } from "../lib/git-source.ts";
-import { auditDir, auditFile, auditReportPath, currentYYYYMM } from "../lib/paths.ts";
+import { auditReportPath, currentYYYYMM } from "../lib/paths.ts";
 import { computeDiffStats, fetchAndDiff } from "../lib/scan-report-diff.ts";
-import { renderScanReport } from "../lib/scan-report-render.ts";
-import { initAudit, readMeta, readReport } from "../lib/scan-report-store.ts";
-import { type AuditMeta, SCAN_REPORT_SCHEMA_VERSION } from "../lib/scan-report-types.ts";
 
 function defaultSlug(repo: string, base: string, head: string): string {
   const clean = (s: string) =>
@@ -18,41 +15,39 @@ function defaultSlug(repo: string, base: string, head: string): string {
   return `${clean(repo)}-${clean(base)}-to-${clean(head)}`.slice(0, 80);
 }
 
-function autoRender(project: string, ym: string, slug: string): string {
-  const meta = readMeta(project, ym, slug);
-  const report = readReport(project, ym, slug);
-  const html = renderScanReport(meta, report);
-  const out = auditFile(project, ym, slug, "report.html");
-  mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, html, "utf8");
-  return out;
-}
-
-function writeFormalReport(project: string, ym: string, slug: string, diff: string): string {
+function writeFormalReport(
+  project: string,
+  ym: string,
+  slug: string,
+  input: string,
+  stats: ReturnType<typeof computeDiffStats>,
+): string {
   const out = auditReportPath(project, ym, slug);
   mkdirSync(dirname(out), { recursive: true });
-  const stats = computeDiffStats(diff);
   writeFileSync(
     out,
     [
       `# Scan 分析报告：${slug}`,
       "",
       `- 日期：${new Date().toISOString()}`,
-      `- 输入：${slug}`,
-      "- 结论：待逐文件审查",
+      `- 输入：${input}`,
+      "",
+      "## 结论",
+      "",
+      "已收集本次 diff 输入；发现项需在本 Markdown 中补充并复核。",
       "",
       "## 证据",
       "",
-      `- diff 文件：${auditFile(project, ym, slug, "diff.patch")}`,
       `- 变更文件 ${stats.files} 个，新增 ${stats.additions} 行，删除 ${stats.deletions} 行。`,
+      "- 原始 patch 仅作为本次命令输入，不落盘为正式产物。",
       "",
       "## 发现",
       "",
-      "- 当前报告只记录输入 diff；逐文件缺陷需由 scan 分析补充。",
+      "- 当前未登记具体发现；逐文件分析结果应直接写入本节。",
       "",
       "## 建议",
       "",
-      "- 完成逐文件审查后更新本 Markdown，并再次运行本报告路径的 kata defects lint --report --exit-code。",
+      "- 完成逐文件审查后更新本 Markdown，并运行 `kata defects lint --report <report.md> --exit-code`。",
       "",
     ].join("\n"),
     "utf8",
@@ -60,13 +55,13 @@ function writeFormalReport(project: string, ym: string, slug: string, diff: stri
   return out;
 }
 
-/** Build the `scans` command: create + render a diff-scan report. */
+/** Build the `scans` command: create a Markdown-only diff-scan report. */
 export function registerScans(program: Command): void {
   const scans = program.command("scans").description("代码 diff 扫描报告");
 
   scans
     .command("create")
-    .description("初始化扫描并写入正式 Markdown 报告与内部证据")
+    .description("初始化扫描并写入正式 Markdown 报告")
     .requiredOption("--project <name>", "项目名")
     .option("--repo <name>", "config/repos/sources.yaml 中的 group/repo 或 repo 短名")
     .option("--base-branch <ref>", "基线分支")
@@ -113,62 +108,26 @@ export function registerScans(program: Command): void {
           diffOut = fetchAndDiff(repo.absPath, opts.baseBranch, opts.headBranch, {
             skipFetch: opts.skipFetch,
           });
-          const meta: AuditMeta = {
-            schema_version: SCAN_REPORT_SCHEMA_VERSION,
-            project: opts.project,
-            repo: opts.repo,
-            base_branch: opts.baseBranch,
-            head_branch: opts.headBranch,
-            base_commit: diffOut.base_commit,
-            head_commit: diffOut.head_commit,
-            scan_time: new Date().toISOString(),
-            reviewer: null,
-            related_feature: null,
-            diff_stats: diffOut.stats,
-            summary: "",
-          } as AuditMeta;
-          initAudit(opts.project, yyyymm, slug, meta);
-          const diffPath = join(auditDir(opts.project, yyyymm, slug), "diff.patch");
-          mkdirSync(dirname(diffPath), { recursive: true });
-          writeFileSync(diffPath, diffOut.diff, "utf8");
-          const html = autoRender(opts.project, yyyymm, slug);
-          const report = writeFormalReport(opts.project, yyyymm, slug, diffOut.diff);
-          outputJson({ ok: true, slug, yyyymm, html, report });
+          const report = writeFormalReport(
+            opts.project,
+            yyyymm,
+            slug,
+            `${opts.repo}:${opts.baseBranch}..${opts.headBranch}`,
+            diffOut.stats,
+          );
+          outputJson({ ok: true, slug, yyyymm, report });
           return;
         }
         const slug = opts.slug ?? `patch-${yyyymm}`;
 
-        const meta: AuditMeta = {
-          schema_version: SCAN_REPORT_SCHEMA_VERSION,
-          project: opts.project,
-          repo: opts.repo ?? "patch",
-          base_branch: opts.baseBranch ?? "patch",
-          head_branch: opts.headBranch ?? "patch",
-          base_commit: diffOut.base_commit,
-          head_commit: diffOut.head_commit,
-          scan_time: new Date().toISOString(),
-          reviewer: null,
-          related_feature: null,
-          diff_stats: diffOut.stats,
-          summary: "",
-        } as AuditMeta;
-        initAudit(opts.project, yyyymm, slug, meta);
-        const diffPath = join(auditDir(opts.project, yyyymm, slug), "diff.patch");
-        mkdirSync(dirname(diffPath), { recursive: true });
-        writeFileSync(diffPath, diffOut.diff, "utf8");
-        const html = autoRender(opts.project, yyyymm, slug);
-        const report = writeFormalReport(opts.project, yyyymm, slug, diffOut.diff);
-        outputJson({ ok: true, slug, yyyymm, html, report });
+        const report = writeFormalReport(
+          opts.project,
+          yyyymm,
+          slug,
+          opts.patch ?? "patch",
+          diffOut.stats,
+        );
+        outputJson({ ok: true, slug, yyyymm, report });
       },
     );
-
-  scans
-    .command("render")
-    .description("根据内部扫描证据生成 HTML 派生报告")
-    .requiredOption("--project <name>", "项目名")
-    .requiredOption("--yyyymm <ym>", "yyyymm")
-    .requiredOption("--slug <slug>", "audit slug")
-    .action((opts: { project: string; yyyymm: string; slug: string }) => {
-      outputJson({ ok: true, html: autoRender(opts.project, opts.yyyymm, opts.slug) });
-    });
 }
