@@ -7,7 +7,7 @@
 // SourceRefs: SR-2099-01-DM-002, SR-UI-PROBE-20260522-MODEL-WIZARD-001
 import { test } from "../../../../_shared/fixtures/step-screenshot";
 import { expectModelBuildTableTypeHdfsInteraction } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
-import { MODEL_BUILD_TABLE_TYPE_SCOPE, SR_2099_01_DM_002 } from "../data/model-contract";
+import { MODEL_BUILD_TABLE_TYPE_SCOPE, SR_2099_01_DM_002 } from "../fixtures/model-contract";
 
 test.setTimeout(120000);
 

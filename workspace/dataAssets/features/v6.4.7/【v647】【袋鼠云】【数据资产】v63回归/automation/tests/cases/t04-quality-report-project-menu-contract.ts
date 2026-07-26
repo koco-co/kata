@@ -5,7 +5,7 @@
 // META: {"id":"t04","priority":"P0","title":"质量报告和项目管理相关菜单可访问"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-003, SR-SELF-RUN-001
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { SOURCE_REFS, V63_REGRESSION_SCOPE } from "../data/v63-regression-contract";
+import { SOURCE_REFS, V63_REGRESSION_SCOPE } from "../fixtures/v63-regression-contract";
 import {
   clickDataQualityMenu,
   expectDataQualityShell,

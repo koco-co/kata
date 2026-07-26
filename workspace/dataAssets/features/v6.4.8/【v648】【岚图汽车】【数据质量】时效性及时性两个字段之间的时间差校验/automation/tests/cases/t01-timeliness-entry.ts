@@ -5,7 +5,7 @@
 // META: {"id":"t1","priority":"P0","title":"验证监控对象配置后支持添加时效性校验"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { MONITOR_OBJECT, SUITE_NAME } from "../data/timeliness-multi-field-data";
+import { MONITOR_OBJECT, SUITE_NAME } from "../fixtures/timeliness-multi-field-data";
 import {
   expectTimelinessRuleEntry,
   fetchMonitorTableColumns,

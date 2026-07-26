@@ -10,7 +10,6 @@ workspace/*/_shared/env/.local/
 # SSH 凭据(infra-diagnose),与 config/env 同级本机私密配置
 /config/infra/
 config.json
-config/repo-branch-mapping.yaml
 
 # Hidden runtime root
 .kata/

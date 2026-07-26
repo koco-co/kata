@@ -51,7 +51,7 @@
       "fourStates": ["verified", "observed", "conflicting", "deprecated"],
       "knowledgeDir": ["workspace/<project>/knowledge/"]
     },
-    "workspace": {
+    "workspace-management": {
       "scanCmd": ["kata project scan"],
       "createCmd": ["kata project create"],
       "dryRun": ["--dry-run"],

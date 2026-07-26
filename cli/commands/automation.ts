@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import { generateAutomationRunner, inspectAutomationCoverage } from "../lib/automation-contract.ts";
 import { runAutomationLint } from "../lib/automation-lint.ts";
 import { normalizeAutomation } from "../lib/automation-normalize.ts";
 import { scaffoldAutomation } from "../lib/automation-scaffold.ts";
@@ -6,6 +7,36 @@ import { scaffoldAutomation } from "../lib/automation-scaffold.ts";
 /** Build the `automation` command: scaffold + normalize a feature's automation dir. */
 export function registerAutomation(program: Command): void {
   const automation = program.command("automation").description("自动化目录结构管理");
+
+  automation
+    .command("coverage <feature-dir>")
+    .description("检查 cases YAML 与 automation/tests/cases 的逐条映射")
+    .action((featureDir: string) => {
+      const coverage = inspectAutomationCoverage(featureDir);
+      console.log(JSON.stringify(coverage, null, 2));
+      if (
+        coverage.missingSpecFile.length ||
+        coverage.missingScript.length ||
+        coverage.orphanScripts.length
+      ) {
+        process.exitCode = 1;
+      }
+    });
+
+  automation
+    .command("generate <feature-dir>")
+    .description("按 automation.spec_file 生成 runner import(默认 dry-run)")
+    .option("--apply", "写入 generated.spec.ts", false)
+    .action((featureDir: string, opts: { apply: boolean }) => {
+      const result = generateAutomationRunner(featureDir, { apply: opts.apply });
+      console.log(
+        JSON.stringify(
+          { path: result.path, imports: result.imports, applied: opts.apply },
+          null,
+          2,
+        ),
+      );
+    });
 
   automation
     .command("scaffold <feature-dir>")

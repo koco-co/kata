@@ -16,7 +16,7 @@ import {
   ASSETS_INVENTORY_SCOPE,
   SR_2099_01_AI_001,
   SR_2099_01_AI_GUIDE_L16,
-} from "../data/assets-inventory-contract";
+} from "../fixtures/assets-inventory-contract";
 
 test.setTimeout(15 * 60 * 1000);
 

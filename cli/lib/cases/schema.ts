@@ -23,6 +23,9 @@ export function validateCases(file: CasesFile): string[] {
     if (!c.title?.trim()) problems.push(`用例 ${c.id} 标题为空`);
     if (!PRIORITIES.includes(c.priority)) problems.push(`用例 ${c.id} 优先级非法: ${c.priority}`);
     if (!c.steps || c.steps.length === 0) problems.push(`用例 ${c.id} 没有步骤`);
+    if (c.automation && !/^t\d+-[a-z0-9]+(?:-[a-z0-9]+)*\.ts$/.test(c.automation.spec_file)) {
+      problems.push(`用例 ${c.id} automation.spec_file 必须匹配 t<序号>-<slug>.ts`);
+    }
     // action/expected 允许为空字符串(续行/纯验证行是合法 QA 写法)
   }
   return problems;

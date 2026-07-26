@@ -1,10 +1,10 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { resolveSourceRepo } from "../lib/git-source.ts";
-import { auditDir, auditFile, currentYYYYMM } from "../lib/paths.ts";
-import { fetchAndDiff } from "../lib/scan-report-diff.ts";
+import { auditDir, auditFile, auditReportPath, currentYYYYMM } from "../lib/paths.ts";
+import { computeDiffStats, fetchAndDiff } from "../lib/scan-report-diff.ts";
 import { renderScanReport } from "../lib/scan-report-render.ts";
 import { initAudit, readMeta, readReport } from "../lib/scan-report-store.ts";
 import { type AuditMeta, SCAN_REPORT_SCHEMA_VERSION } from "../lib/scan-report-types.ts";
@@ -28,45 +28,122 @@ function autoRender(project: string, ym: string, slug: string): string {
   return out;
 }
 
+function writeFormalReport(project: string, ym: string, slug: string, diff: string): string {
+  const out = auditReportPath(project, ym, slug);
+  mkdirSync(dirname(out), { recursive: true });
+  const stats = computeDiffStats(diff);
+  writeFileSync(
+    out,
+    [
+      `# Scan 分析报告：${slug}`,
+      "",
+      `- 日期：${new Date().toISOString()}`,
+      `- 输入：${slug}`,
+      "- 结论：待逐文件审查",
+      "",
+      "## 证据",
+      "",
+      `- diff 文件：${auditFile(project, ym, slug, "diff.patch")}`,
+      `- 变更文件 ${stats.files} 个，新增 ${stats.additions} 行，删除 ${stats.deletions} 行。`,
+      "",
+      "## 发现",
+      "",
+      "- 当前报告只记录输入 diff；逐文件缺陷需由 scan 分析补充。",
+      "",
+      "## 建议",
+      "",
+      "- 完成逐文件审查后更新本 Markdown，并再次运行本报告路径的 kata defects lint --report --exit-code。",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  return out;
+}
+
 /** Build the `scans` command: create + render a diff-scan report. */
 export function registerScans(program: Command): void {
   const scans = program.command("scans").description("代码 diff 扫描报告");
 
   scans
     .command("create")
-    .description("初始化扫描并写入 meta.json、report.json 与 diff.patch")
+    .description("初始化扫描并写入正式 Markdown 报告与内部证据")
     .requiredOption("--project <name>", "项目名")
-    .requiredOption("--repo <name>", "config/source-repos.yaml 中的 group/repo 或 repo 短名")
-    .requiredOption("--base-branch <ref>", "基线分支")
-    .requiredOption("--head-branch <ref>", "目标分支")
+    .option("--repo <name>", "config/repos/sources.yaml 中的 group/repo 或 repo 短名")
+    .option("--base-branch <ref>", "基线分支")
+    .option("--head-branch <ref>", "目标分支")
+    .option("--patch <path>", "已有 patch 文件；与分支对二选一")
     .option("--slug <slug>", "覆盖默认 slug")
     .option("--yyyymm <ym>", "覆盖默认当前 YYYYMM")
     .option("--skip-fetch", "跳过 git fetch", false)
     .action(
       (opts: {
         project: string;
-        repo: string;
-        baseBranch: string;
-        headBranch: string;
+        repo?: string;
+        baseBranch?: string;
+        headBranch?: string;
+        patch?: string;
         slug?: string;
         yyyymm?: string;
         skipFetch: boolean;
       }) => {
-        const repo = resolveSourceRepo(opts.repo);
-        if (!repo) throw new Error(`未找到已配置仓库 ${opts.repo}(config/source-repos.yaml)`);
-        const repoPath = repo.absPath;
         const yyyymm = opts.yyyymm ?? currentYYYYMM();
-        const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
-        const diffOut = fetchAndDiff(repoPath, opts.baseBranch, opts.headBranch, {
-          skipFetch: opts.skipFetch,
-        });
+        let diffOut: {
+          diff: string;
+          stats: ReturnType<typeof computeDiffStats>;
+          base_commit: string;
+          head_commit: string;
+        };
+        if (opts.patch) {
+          const diff = readFileSync(opts.patch, "utf8");
+          diffOut = {
+            diff,
+            stats: computeDiffStats(diff),
+            base_commit: "patch",
+            head_commit: "patch",
+          };
+        } else {
+          if (!opts.repo || !opts.baseBranch || !opts.headBranch) {
+            throw new Error(
+              "分支对模式必须同时提供 --repo、--base-branch、--head-branch；或提供 --patch",
+            );
+          }
+          const repo = resolveSourceRepo(opts.repo);
+          if (!repo) throw new Error(`未找到已配置仓库 ${opts.repo}(config/repos/sources.yaml)`);
+          const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
+          diffOut = fetchAndDiff(repo.absPath, opts.baseBranch, opts.headBranch, {
+            skipFetch: opts.skipFetch,
+          });
+          const meta: AuditMeta = {
+            schema_version: SCAN_REPORT_SCHEMA_VERSION,
+            project: opts.project,
+            repo: opts.repo,
+            base_branch: opts.baseBranch,
+            head_branch: opts.headBranch,
+            base_commit: diffOut.base_commit,
+            head_commit: diffOut.head_commit,
+            scan_time: new Date().toISOString(),
+            reviewer: null,
+            related_feature: null,
+            diff_stats: diffOut.stats,
+            summary: "",
+          } as AuditMeta;
+          initAudit(opts.project, yyyymm, slug, meta);
+          const diffPath = join(auditDir(opts.project, yyyymm, slug), "diff.patch");
+          mkdirSync(dirname(diffPath), { recursive: true });
+          writeFileSync(diffPath, diffOut.diff, "utf8");
+          const html = autoRender(opts.project, yyyymm, slug);
+          const report = writeFormalReport(opts.project, yyyymm, slug, diffOut.diff);
+          outputJson({ ok: true, slug, yyyymm, html, report });
+          return;
+        }
+        const slug = opts.slug ?? `patch-${yyyymm}`;
 
         const meta: AuditMeta = {
           schema_version: SCAN_REPORT_SCHEMA_VERSION,
           project: opts.project,
-          repo: opts.repo,
-          base_branch: opts.baseBranch,
-          head_branch: opts.headBranch,
+          repo: opts.repo ?? "patch",
+          base_branch: opts.baseBranch ?? "patch",
+          head_branch: opts.headBranch ?? "patch",
           base_commit: diffOut.base_commit,
           head_commit: diffOut.head_commit,
           scan_time: new Date().toISOString(),
@@ -80,13 +157,14 @@ export function registerScans(program: Command): void {
         mkdirSync(dirname(diffPath), { recursive: true });
         writeFileSync(diffPath, diffOut.diff, "utf8");
         const html = autoRender(opts.project, yyyymm, slug);
-        outputJson({ ok: true, slug, yyyymm, html });
+        const report = writeFormalReport(opts.project, yyyymm, slug, diffOut.diff);
+        outputJson({ ok: true, slug, yyyymm, html, report });
       },
     );
 
   scans
     .command("render")
-    .description("根据当前 report.json 生成 report.html")
+    .description("根据内部扫描证据生成 HTML 派生报告")
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--yyyymm <ym>", "yyyymm")
     .requiredOption("--slug <slug>", "audit slug")

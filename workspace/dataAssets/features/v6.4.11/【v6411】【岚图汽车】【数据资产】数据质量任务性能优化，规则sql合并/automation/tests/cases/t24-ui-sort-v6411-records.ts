@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { getEnvConfig } from "../../../../../../_shared/helpers";
 import { hasTaskRuleImportFields, reimportAllTaskRules } from "../helpers/v6411-task-rule-import";
-import { loadV6411UiCaseMetas } from "../data/v6411-ui-case-specs";
-import { descendingActionCaseNumbers, descendingDisplayCaseNumbers } from "../data/v6411-result-oracle";
+import { loadV6411UiCaseMetas } from "../fixtures/v6411-ui-case-specs";
+import { descendingActionCaseNumbers, descendingDisplayCaseNumbers } from "../fixtures/v6411-result-oracle";
 
 type Area = "rule-set" | "rule-task" | "task-query";
 

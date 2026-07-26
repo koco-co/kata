@@ -4,6 +4,8 @@ meta:
   feature_id: v7.0.0/【v700】【16035】【浙商证券】【数据质量】StarRocks3.x数据源支持
 cases:
   - id: C001
+    automation:
+      spec_file: t01-starrocks-datasource-rule-wizard.ts
     title: 验证 StarRocks 3.x 数据源经引入与质量项目授权后数据质量可选用
     priority: P0
     steps:
@@ -31,6 +33,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C002
+    automation:
+      spec_file: t02-platform-datasource-authorization.ts
     title: 验证概览页正确统计 StarRocks 3.x 数据源规则任务数据
     priority: P1
     steps:
@@ -53,6 +57,8 @@ cases:
       - 数据质量
       - 概览
   - id: C003
+    automation:
+      spec_file: t03-dq-module-contract.ts
     title: 验证规则集导入规则包后直接执行批量校验 StarRocks 3.x 数据表
     priority: P0
     steps:
@@ -107,6 +113,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C004
+    automation:
+      spec_file: t04-rule-row-count.ts
     title: 验证 StarRocks 3.x 数据源完整性校验表级表行数规则校验
     priority: P0
     steps:
@@ -163,6 +171,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C005
+    automation:
+      spec_file: t05-rule-null-count.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值数单字段规则校验
     priority: P0
     steps:
@@ -214,6 +224,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C006
+    automation:
+      spec_file: t06-rule-sum.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值数多字段规则校验
     priority: P2
     steps:
@@ -263,6 +275,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C007
+    automation:
+      spec_file: t07-rule-null-rate.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值率单字段规则校验
     priority: P1
     steps:
@@ -311,6 +325,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C008
+    automation:
+      spec_file: t08-rule-blank-count.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值率多字段规则校验
     priority: P2
     steps:
@@ -357,6 +373,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C009
+    automation:
+      spec_file: t09-rule-repeat-count.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串数单字段规则校验
     priority: P1
     steps:
@@ -405,6 +423,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C010
+    automation:
+      spec_file: t10-rule-blank-rate.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串数多字段规则校验
     priority: P2
     steps:
@@ -451,6 +471,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C011
+    automation:
+      spec_file: t11-rule-avg.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串率单字段规则校验
     priority: P1
     steps:
@@ -499,6 +521,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C012
+    automation:
+      spec_file: t12-rule-neg-ratio.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串率多字段规则校验
     priority: P2
     steps:
@@ -545,6 +569,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C013
+    automation:
+      spec_file: t13-rule-zero-ratio.ts
     title: 验证 StarRocks 3.x 数据源准确性校验求和规则校验
     priority: P0
     steps:
@@ -590,6 +616,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C014
+    automation:
+      spec_file: t14-rule-pos-ratio.ts
     title: 验证 StarRocks 3.x 数据源准确性校验求平均规则校验
     priority: P1
     steps:
@@ -635,6 +663,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C015
+    automation:
+      spec_file: t15-rule-value-range.ts
     title: 验证 StarRocks 3.x 数据源准确性校验负值比规则校验
     priority: P1
     steps:
@@ -682,6 +712,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C016
+    automation:
+      spec_file: t16-c016.ts
     title: 验证 StarRocks 3.x 数据源准确性校验零值比规则校验
     priority: P1
     steps:
@@ -729,6 +761,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C017
+    automation:
+      spec_file: t17-rule-enum-count.ts
     title: 验证 StarRocks 3.x 数据源准确性校验正值比规则校验
     priority: P1
     steps:
@@ -774,6 +808,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C018
+    automation:
+      spec_file: t18-rule-str-maxlen.ts
     title: 验证 StarRocks 3.x 数据源规范性校验数值-取值范围规则校验
     priority: P0
     steps:
@@ -823,6 +859,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C019
+    automation:
+      spec_file: t19-rule-str-minlen.ts
     title: 验证 StarRocks 3.x 数据源规范性校验数值-枚举范围规则校验
     priority: P1
     steps:
@@ -871,6 +909,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C020
+    automation:
+      spec_file: t20-rule-format-idcard.ts
     title: 验证 StarRocks 3.x 数据源规范性校验数值-枚举个数规则校验
     priority: P1
     steps:
@@ -916,6 +956,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C021
+    automation:
+      spec_file: t21-rule-format-mobile.ts
     title: 验证 StarRocks 3.x 数据源规范性校验字符串-最大长度规则校验
     priority: P1
     steps:
@@ -962,6 +1004,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C022
+    automation:
+      spec_file: t22-rule-format-email.ts
     title: 验证 StarRocks 3.x 数据源规范性校验字符串-最小长度规则校验
     priority: P2
     steps:
@@ -1008,6 +1052,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C023
+    automation:
+      spec_file: t23-rule-repeat-rate.ts
     title: 验证 StarRocks 3.x 数据源规范性校验格式-身份证号规则校验
     priority: P1
     steps:
@@ -1055,6 +1101,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C024
+    automation:
+      spec_file: t24-rule-distinct-count.ts
     title: 验证 StarRocks 3.x 数据源规范性校验格式-手机号规则校验
     priority: P1
     steps:
@@ -1102,6 +1150,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C025
+    automation:
+      spec_file: t25-rule-distinct-ratio.ts
     title: 验证 StarRocks 3.x 数据源规范性校验格式-邮箱规则校验
     priority: P1
     steps:
@@ -1149,6 +1199,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C026
+    automation:
+      spec_file: t26-rule-custom-sql.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复数单字段规则校验
     priority: P0
     steps:
@@ -1193,6 +1245,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C027
+    automation:
+      spec_file: t27-rule-custom-sql-join.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复数多字段规则校验
     priority: P2
     steps:
@@ -1240,6 +1294,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C028
+    automation:
+      spec_file: t28-rule-multi-consistency.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复率单字段规则校验
     priority: P1
     steps:
@@ -1287,6 +1343,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C029
+    automation:
+      spec_file: t29-rule-null-count-multi.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复率多字段规则校验
     priority: P2
     steps:
@@ -1337,6 +1395,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C030
+    automation:
+      spec_file: t30-rule-null-rate-multi.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验非重复个数规则校验
     priority: P1
     steps:
@@ -1382,6 +1442,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C031
+    automation:
+      spec_file: t31-rule-blank-count-multi.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验非重复占比规则校验
     priority: P1
     steps:
@@ -1427,6 +1489,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C032
+    automation:
+      spec_file: t32-rule-blank-rate-multi.ts
     title: 验证 StarRocks 3.x 数据源自定义SQL单表规则校验与表删除异常
     priority: P0
     steps:
@@ -1472,6 +1536,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C033
+    automation:
+      spec_file: t33-rule-repeat-count-multi.ts
     title: 验证 StarRocks 3.x 数据源自定义SQL子查询跨表缺失规则校验
     priority: P0
     steps:
@@ -1521,6 +1587,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C034
+    automation:
+      spec_file: t34-rule-repeat-rate-multi.ts
     title: 验证 StarRocks 3.x 数据源多表比对规则字段一致性校验
     priority: P0
     steps:
@@ -1576,6 +1644,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C035
+    automation:
+      spec_file: t35-task-query.ts
     title: 验证 StarRocks 3.x 数据源多表比对数值差异百分比匹配条件
     priority: P1
     steps:
@@ -1629,6 +1699,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C036
+    automation:
+      spec_file: t36-rule-edit-rerun.ts
     title: 验证 StarRocks 3.x 数据源多表比对字符不区分大小写匹配条件
     priority: P1
     steps:
@@ -1682,6 +1754,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C037
+    automation:
+      spec_file: t37-rule-delete.ts
     title: 验证 StarRocks 3.x 数据源多表比对空值与NULL等价匹配条件
     priority: P1
     steps:
@@ -1735,6 +1809,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C038
+    automation:
+      spec_file: t38-rule-multi-pct-diff.ts
     title: 验证 StarRocks 3.x 数据源多表比对异常数据五类分类统计
     priority: P0
     steps:
@@ -1794,6 +1870,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C039
+    automation:
+      spec_file: t39-rule-multi-case-insensitive.ts
     title: 验证 StarRocks 3.x 数据源规则配置列表查询与筛选
     priority: P2
     steps:
@@ -1812,6 +1890,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C040
+    automation:
+      spec_file: t40-rule-multi-null-equiv.ts
     title: 验证 StarRocks 3.x 数据源规则任务编辑与重跑
     priority: P2
     steps:
@@ -1833,6 +1913,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C041
+    automation:
+      spec_file: t41-rule-multi-category.ts
     title: 验证 StarRocks 3.x 数据源规则任务删除
     priority: P2
     steps:
@@ -1849,6 +1931,8 @@ cases:
       - 数据质量
       - 规则配置
   - id: C042
+    automation:
+      spec_file: t42-rule-list-query.ts
     title: 验证任务查询页查询 StarRocks 3.x 规则任务实例与校验通过、异常状态详情
     priority: P0
     steps:
@@ -1876,6 +1960,8 @@ cases:
       - 数据质量
       - 任务查询
   - id: C043
+    automation:
+      spec_file: t43-dirty-data-manage.ts
     title: 验证脏数据管理配置 StarRocks 3.x 数据源脏数据存储与时效
     priority: P1
     steps:

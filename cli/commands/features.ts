@@ -8,6 +8,7 @@ import {
   HOTFIX_DIR,
   LABEL_DIR_RE,
   listFeatureDirs,
+  resolveFeatureEntry,
   runsDir,
   STANDING_DIR,
   VERSION_DIR_RE,
@@ -273,15 +274,7 @@ export function runFeaturesList(opts: {
 export function runFeaturesShow(opts: { project: string; featureId: string; root?: string }) {
   const paths = locateProject(opts.project, opts.root);
   const featuresRoot = paths.featuresDir;
-  // 先按目录名精确匹配，再退回 metadata.id/feature_id（机器主键）
-  const entries = listFeatureDirs(featuresRoot);
-  const entry =
-    entries.find((e) => e.dirName === opts.featureId) ??
-    entries.find((e) => {
-      const m = readFeatureMeta(e.dir);
-      return m?.id === opts.featureId || m?.feature_id === opts.featureId;
-    });
-  if (!entry) throw new Error(`未找到需求功能: ${opts.featureId}`);
+  const entry = resolveFeatureEntry(featuresRoot, opts.featureId);
   const metadata = readFeatureMeta(entry.dir);
   if (!metadata) throw new Error(`缺 metadata.yaml: ${entry.dir}`);
   const rd = runsDir(entry.dir);

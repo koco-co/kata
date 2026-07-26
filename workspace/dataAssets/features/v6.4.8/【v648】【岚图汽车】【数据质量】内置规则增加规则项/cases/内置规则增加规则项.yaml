@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】内置规则增加规则项
 cases:
   - id: C001
+    automation:
+      spec_file: t01-rule-base-entry.ts
     title: 验证【其它历史内置规则】规则状态变更正常
     priority: P1
     steps:
@@ -28,6 +30,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C002
+    automation:
+      spec_file: t02-monitor-new-rule-categories.ts
     title: 验证【内置规则-单调递增、单调递减校验】规则状态变更正常
     priority: P0
     steps:
@@ -58,6 +62,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C003
+    automation:
+      spec_file: t03-new-builtins-function-contract.ts
     title: 验证【内置规则-多字段时间差校验&单字段时间差校验】规则状态变更正常
     priority: P1
     steps:
@@ -84,6 +90,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C004
+    automation:
+      spec_file: t04-c004.ts
     title: 验证【导出规则库】中的内置规则正确
     priority: P0
     steps:
@@ -100,6 +108,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C005
+    automation:
+      spec_file: t05-c005.ts
     title: 验证【合理性校验】筛选功能正常
     priority: P1
     steps:
@@ -116,6 +126,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C006
+    automation:
+      spec_file: t06-c006.ts
     title: 验证【时效性校验】筛选功能正常
     priority: P1
     steps:
@@ -132,6 +144,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C007
+    automation:
+      spec_file: t07-c007.ts
     title: 验证新增规则分类正确
     priority: P2
     steps:
@@ -144,6 +158,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C008
+    automation:
+      spec_file: t08-c008.ts
     title: 验证重复内置规则隐藏
     priority: P1
     steps:
@@ -160,6 +176,8 @@ cases:
       - 规则库配置
       - 未分类
   - id: C009
+    automation:
+      spec_file: t09-c009.ts
     title: 验证新增内置规则
     priority: P0
     steps:

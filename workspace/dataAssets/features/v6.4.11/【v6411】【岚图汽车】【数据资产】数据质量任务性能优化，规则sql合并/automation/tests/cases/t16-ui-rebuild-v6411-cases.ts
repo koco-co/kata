@@ -13,9 +13,9 @@ import {
   loadV6411UiCaseMetas,
   type V6411RuleSpec,
   type V6411UiCaseSpec,
-} from "../data/v6411-ui-case-specs";
-import { baseRowsForV6411Case, type V6411BaseTableRow } from "../data/v6411-ui-base-table-data";
-import { descendingActionCaseNumbers } from "../data/v6411-result-oracle";
+} from "../fixtures/v6411-ui-case-specs";
+import { baseRowsForV6411Case, type V6411BaseTableRow } from "../fixtures/v6411-ui-base-table-data";
+import { descendingActionCaseNumbers } from "../fixtures/v6411-result-oracle";
 import { hasTaskRuleImportFields, reimportAllTaskRules } from "../helpers/v6411-task-rule-import";
 
 /** 根据数据源类型从环境配置中解析 database/schema */
@@ -880,7 +880,7 @@ function datasourceUiLabel(build: UiCaseBuild): string {
 async function createBaseTable(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
   if (build.datasourceType === "SparkThrift2.x") {
     throw new Error(
-      `${sourceRef}: SparkThrift 禁止由 Playwright/CLI/API 建表；请先手工执行 automation/sql/lindorm-test_info_1.sql，并设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1`,
+      `${sourceRef}: SparkThrift 禁止由 Playwright/CLI/API 建表；请先手工执行 automation/tests/sql/lindorm-test_info_1.sql，并设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1`,
     );
   }
   await createDorisBaseTable(page, build, sourceRef);

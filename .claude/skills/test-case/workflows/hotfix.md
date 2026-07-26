@@ -30,13 +30,14 @@
    - 步骤质量与正式用例一致：表单 / 规则配置项逐条 `-` 列出，多条预期用 `1) 2)` 分行，QA 能逐项执行核对。
    - bug 记录或用户给出的任务角色、数据流方向、任务类型必须保留；任务名可用占位符，不得为方便造数替换成同质任务。
    - `meta.source` 写 ZenTao bug URL；前置条件里写清环境要求（部署版本含修复分支、数据源就绪、账号权限）。
+   - 增加 `automation.spec_file: t01-<slug>.ts`；若本轮不做 UI 自动化，明确记录为未覆盖，不写空壳脚本。
    - 范围未定的疑问在写 yaml 前逐个向用户确认；确认不了的不进 yaml——只交付草稿与缺口说明（缺什么、需要谁补），不得标「待确认」（lint 会拦），不外延到无证据的模块、数据源或版本。
 
 4. **派生与检查**：
 
    ```bash
    kata cases build --feature <hotfixDir>
-   kata cases lint --project <项目> --feature <id> --exit-code
+   kata cases lint --project <项目> --feature <目录名或 metadata.id> --exit-code
    ```
 
 5. **交付**：说明每条页面 / 字段断言的证据来源——来自本次 bug 记录、源码、真实界面探测，还是历史用例；来自历史用例的标注「未验证」。

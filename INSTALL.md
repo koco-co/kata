@@ -81,7 +81,7 @@ kata env run ci63 --inherit-env HTTP_PROXY,NO_PROXY -- bunx playwright test
 
 ## 源码仓库
 
-源码仓库在 `config/source-repos.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
+源码仓库在 `config/repos/sources.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
 
 ```bash
 git clone <remote-url> .repos/<group>/<repo>

@@ -1,0 +1,6 @@
+{
+  "schema": "ProjectMetadata@1",
+  "name": "{{project}}",
+  "description": "",
+  "repos": []
+}

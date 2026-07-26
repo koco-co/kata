@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.10/【v6410】【岚图汽车】【数据质量】JSON格式配置
 cases:
   - id: C001
+    automation:
+      spec_file: t01-key.ts
     title: 验证新增key完整正向流程（含正则测试）
     priority: P0
     steps:
@@ -51,6 +53,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增key
   - id: C002
+    automation:
+      spec_file: t02-key-key.ts
     title: 验证新增key时key字段为空不可提交
     priority: P1
     steps:
@@ -68,6 +72,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增key
   - id: C003
+    automation:
+      spec_file: t03-key-key-255.ts
     title: 验证新增key时key字段输入超255字符不可提交
     priority: P1
     steps:
@@ -81,6 +87,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增key
   - id: C004
+    automation:
+      spec_file: t04-key-key-255.ts
     title: 验证新增key时key字段输入恰好255字符边界值可成功提交
     priority: P1
     steps:
@@ -98,6 +106,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增key
   - id: C005
+    automation:
+      spec_file: t05-key.ts
     title: 验证新增key时数据源类型三种选项可正常切换
     priority: P2
     steps:
@@ -123,6 +133,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增key
   - id: C006
+    automation:
+      spec_file: t06-key.ts
     title: 验证新增key表单中切换数据源类型后其余字段内容仍保留
     priority: P1
     steps:
@@ -143,6 +155,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增key
   - id: C007
+    automation:
+      spec_file: t07-key-value.ts
     title: 验证编辑key名称、value格式、数据源类型并保存生效
     priority: P0
     steps:
@@ -171,6 +185,8 @@ cases:
       - 通用配置-json格式校验管理
       - 编辑key
   - id: C008
+    automation:
+      spec_file: t08-case-08.ts
     title: 验证新增子层级完整流程
     priority: P0
     steps:
@@ -201,6 +217,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增子层级
   - id: C009
+    automation:
+      spec_file: t09-5-disabled.ts
     title: 验证第5层级的新增子层级按钮是置灰、不可点击（disabled）
     priority: P1
     steps:
@@ -221,6 +239,8 @@ cases:
       - 通用配置-json格式校验管理
       - 新增子层级
   - id: C010
+    automation:
+      spec_file: t10-key.ts
     title: 验证单个删除含子层级的key会联动删除子层级数据
     priority: P0
     steps:
@@ -238,6 +258,8 @@ cases:
       - 通用配置-json格式校验管理
       - 删除key
   - id: C011
+    automation:
+      spec_file: t11-key.ts
     title: 验证批量删除多条key（含子层级）
     priority: P0
     steps:
@@ -258,6 +280,8 @@ cases:
       - 通用配置-json格式校验管理
       - 删除key
   - id: C012
+    automation:
+      spec_file: t12-key-key.ts
     title: 验证key名模糊搜索功能（含子层级key命中）
     priority: P0
     steps:
@@ -278,6 +302,8 @@ cases:
       - 通用配置-json格式校验管理
       - 搜索与筛选
   - id: C013
+    automation:
+      spec_file: t13-case-13.ts
     title: 验证数据源类型筛选功能
     priority: P1
     steps:
@@ -298,6 +324,8 @@ cases:
       - 通用配置-json格式校验管理
       - 搜索与筛选
   - id: C014
+    automation:
+      spec_file: t14-5.ts
     title: 验证5层层级展开下钻及展开图标显示逻辑
     priority: P1
     steps:
@@ -325,6 +353,8 @@ cases:
       - 通用配置-json格式校验管理
       - 层级展开
   - id: C015
+    automation:
+      spec_file: t15-value.ts
     title: 验证value格式有内容时正则测试控件显示及匹配通过失败场景
     priority: P1
     steps:
@@ -348,6 +378,8 @@ cases:
       - 通用配置-json格式校验管理
       - 正则测试
   - id: C016
+    automation:
+      spec_file: t16-case-16.ts
     title: 验证导入正确文件全流程（重复则跳过）
     priority: P0
     steps:
@@ -378,6 +410,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C017
+    automation:
+      spec_file: t17-case-17.ts
     title: 验证导入模板下载功能
     priority: P1
     steps:
@@ -397,6 +431,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C018
+    automation:
+      spec_file: t18-case-18.ts
     title: 验证重复处理规则「重复则覆盖更新」生效
     priority: P0
     steps:
@@ -416,6 +452,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C019
+    automation:
+      spec_file: t19-key.ts
     title: 验证重复处理规则「重复则跳过」对已存在key不覆盖
     priority: P1
     steps:
@@ -435,6 +473,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C020
+    automation:
+      spec_file: t20-key-255.ts
     title: 验证导入文件key名超255字符时标红并批注长度超限
     priority: P1
     steps:
@@ -455,6 +495,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C021
+    automation:
+      spec_file: t21-case-21.ts
     title: 验证导入文件必填项未填写时标红并批注必填项未填写
     priority: P1
     steps:
@@ -475,6 +517,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C022
+    automation:
+      spec_file: t22-key-key.ts
     title: 验证导入文件二层key上一层级key名无法匹配时标红并批注提示
     priority: P1
     steps:
@@ -499,6 +543,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C023
+    automation:
+      spec_file: t23-xlsx.ts
     title: 验证导入非xlsx格式文件时报错
     priority: P1
     steps:
@@ -514,6 +560,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C024
+    automation:
+      spec_file: t24-1-5-key.ts
     title: 验证导入功能正常(重复则覆盖更新, 1~5层key存在相同 -> 报错)
     priority: P1
     steps:
@@ -532,6 +580,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C025
+    automation:
+      spec_file: t25-1-key-1-key.ts
     title: 验证导入功能正常(重复则覆盖更新, 1层key已存在 -> 更新1层key)
     priority: P0
     steps:
@@ -550,6 +600,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C026
+    automation:
+      spec_file: t26-1-key-1-key.ts
     title: 验证导入功能正常(重复则覆盖更新, 1层key不存在 -> 新增1层key)
     priority: P1
     steps:
@@ -568,6 +620,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C027
+    automation:
+      spec_file: t27-2-5-key-key-value-n-value.ts
     title: 验证导入功能正常(重复则覆盖更新, 2~5层上一层key存在+key存在+value不存在 -> 更新N层value)
     priority: P1
     steps:
@@ -588,6 +642,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C028
+    automation:
+      spec_file: t28-2-5-key-key-n-key.ts
     title: 验证导入功能正常(重复则覆盖更新, 2~5层上一层key存在+key不存在 -> 新增N层key)
     priority: P1
     steps:
@@ -606,6 +662,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C029
+    automation:
+      spec_file: t29-2-5-key.ts
     title: 验证导入功能正常(重复则覆盖更新, 2~5层上一层key不存在 -> 报错)
     priority: P1
     steps:
@@ -624,6 +682,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C030
+    automation:
+      spec_file: t30-1-5-key.ts
     title: 验证导入功能正常(重复则跳过, 1~5层key存在相同 -> 报错)
     priority: P1
     steps:
@@ -642,6 +702,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C031
+    automation:
+      spec_file: t31-1-key.ts
     title: 验证导入功能正常(重复则跳过, 1层key已存在 -> 跳过不变)
     priority: P1
     steps:
@@ -660,6 +722,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C032
+    automation:
+      spec_file: t32-1-key-1-key.ts
     title: 验证导入功能正常(重复则跳过, 1层key不存在 -> 新增1层key)
     priority: P1
     steps:
@@ -678,6 +742,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C033
+    automation:
+      spec_file: t33-2-5-key-key-value.ts
     title: 验证导入功能正常(重复则跳过, 2~5层上一层key存在+key存在+value不存在 -> 跳过不变)
     priority: P1
     steps:
@@ -698,6 +764,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C034
+    automation:
+      spec_file: t34-2-5-key-key-n-key.ts
     title: 验证导入功能正常(重复则跳过, 2~5层上一层key存在+key不存在 -> 新增N层key)
     priority: P1
     steps:
@@ -716,6 +784,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C035
+    automation:
+      spec_file: t35-2-5-key.ts
     title: 验证导入功能正常(重复则跳过, 2~5层上一层key不存在 -> 报错)
     priority: P1
     steps:
@@ -734,6 +804,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导入
   - id: C036
+    automation:
+      spec_file: t36-case-36.ts
     title: 验证导出列表数据完整流程及文件命名
     priority: P0
     steps:
@@ -762,6 +834,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导出
   - id: C037
+    automation:
+      spec_file: t37-case-37.ts
     title: 验证筛选后导出仅包含筛选结果数据
     priority: P1
     steps:
@@ -781,6 +855,8 @@ cases:
       - 通用配置-json格式校验管理
       - 导出
   - id: C038
+    automation:
+      spec_file: t38-case-38.ts
     title: 验证搜索无结果时的空状态展示
     priority: P2
     steps:
@@ -796,6 +872,8 @@ cases:
       - 通用配置-json格式校验管理
       - 空列表与分页
   - id: C039
+    automation:
+      spec_file: t39-key-1000.ts
     title: 验证key数量达1000条以上时列表加载和搜索性能正常
     priority: P2
     steps:
@@ -813,6 +891,8 @@ cases:
       - 通用配置-json格式校验管理
       - 大数据量场景
   - id: C040
+    automation:
+      spec_file: t40-key.ts
     title: 验证大数据量场景key记录下载数量是否存在限制
     priority: P1
     steps:
@@ -828,6 +908,8 @@ cases:
       - 通用配置-json格式校验管理
       - 大数据量场景
   - id: C041
+    automation:
+      spec_file: t41-key.ts
     title: 验证删除已被完整性和有效性校验规则引用的key后规则不受影响
     priority: P1
     steps:
@@ -884,6 +966,8 @@ cases:
       - 通用配置-json格式校验管理
       - key删除后关联影响
   - id: C042
+    automation:
+      spec_file: t42-value.ts
     title: 验证编辑页与新增页表单结构保持一致（字段顺序、必填项、title 拼接中文名称）
     priority: P1
     steps:
@@ -911,6 +995,8 @@ cases:
       - 通用配置-json格式校验管理
       - 编辑页与新增页表单结构对比
   - id: C043
+    automation:
+      spec_file: t43-case-43.ts
     title: 验证筛选导出三种筛选组合的行为一致性（数据源类型单筛 / key 名模糊单筛 / 组合筛）
     priority: P1
     steps:
@@ -933,6 +1019,8 @@ cases:
       - 通用配置-json格式校验管理
       - 筛选导出行为一致性（已知产品 Bug）
   - id: C044
+    automation:
+      spec_file: t44-key.ts
     title: 验证导入 xlsx 第 2 个 sheet 页的第一层级 key 名不存在时，标红列应为「第一层级 key 名」而非「key」
     priority: P1
     steps:

@@ -1,5 +1,6 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { parse } from "yaml";
 
 // ─── Feature 内三区 ───
 export const AREA_CASES = "cases";
@@ -96,7 +97,29 @@ export function runsDir(featureDir: string): string {
 
 /** Resolve a feature's runs/ dir by its on-disk dirName across version layers; throws when not found. */
 export function resolveFeatureRunsDir(featuresRoot: string, featureId: string): string {
-  const entry = listFeatureDirs(featuresRoot).find((e) => e.dirName === featureId);
-  if (!entry) throw new Error(`feature not found: ${featureId}`);
-  return runsDir(entry.dir);
+  return runsDir(resolveFeatureEntry(featuresRoot, featureId).dir);
+}
+
+/** Resolve a feature by its human directory name or metadata.yaml id.
+ * Metadata ids must be unique; silently selecting one would route automation
+ * and reports to the wrong feature.
+ */
+export function resolveFeatureEntry(featuresRoot: string, selector: string): FeatureDirEntry {
+  const entries = listFeatureDirs(featuresRoot);
+  const byDir = entries.filter((e) => e.dirName === selector);
+  if (byDir.length === 1) return byDir[0];
+  if (byDir.length > 1) throw new Error(`需求功能目录名匹配多个 feature: ${selector}`);
+  const byId = entries.filter((e) => {
+    const path = join(e.dir, "metadata.yaml");
+    if (!existsSync(path)) return false;
+    try {
+      const metadata = parse(readFileSync(path, "utf8")) as Record<string, unknown> | null;
+      return metadata?.id === selector || metadata?.feature_id === selector;
+    } catch {
+      return false;
+    }
+  });
+  if (byId.length === 1) return byId[0];
+  if (byId.length > 1) throw new Error(`metadata.id 匹配多个 feature: ${selector}`);
+  throw new Error(`未找到需求功能: ${selector}`);
 }

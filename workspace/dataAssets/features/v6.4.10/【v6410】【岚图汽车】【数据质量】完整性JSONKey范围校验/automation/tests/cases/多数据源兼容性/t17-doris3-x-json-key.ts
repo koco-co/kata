@@ -5,7 +5,7 @@
 // META: {"id":"t17","priority":"P1","title":"【P1】验证Doris3.x数据源的json字段支持key范围校验"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../_shared/helpers/test-setup";
-import { KEY_RANGE_TABLE } from "../../data/key-range-data";
+import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,

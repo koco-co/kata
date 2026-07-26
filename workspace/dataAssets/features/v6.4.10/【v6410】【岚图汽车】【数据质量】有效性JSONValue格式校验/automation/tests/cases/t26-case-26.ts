@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t26","priority":"P1","title":"【P1】验证校验通过时不记录明细数据，查看详情入口不显示"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { REPORT_PASS_SCENARIO } from "../data/test-data";
+import { REPORT_PASS_SCENARIO } from "../fixtures/test-data";
 import {
   ensureExecutedJsonTask,
   getTaskDetailRuleCard,

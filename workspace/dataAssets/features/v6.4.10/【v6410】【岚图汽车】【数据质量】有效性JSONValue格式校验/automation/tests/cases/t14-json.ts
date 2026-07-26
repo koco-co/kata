@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t14","priority":"P0","title":"【P0】验证格式-json格式校验完整主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看通过实例"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { P0_PASS_SCENARIO } from "../data/test-data";
+import { P0_PASS_SCENARIO } from "../fixtures/test-data";
 import {
   ensureValueFormatMainBaseline,
   getTaskDetailRuleCard,

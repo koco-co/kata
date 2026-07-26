@@ -55,8 +55,11 @@ description: 把 feature 目录里的用例转成在真实环境跑通的 Playwr
 ## 产物布局
 
 ```
-<featureDir>/automation/tests/{cases,runners,pages,fixtures,sql}/
+<featureDir>/automation/scripts/
+<featureDir>/automation/tests/{cases,runners,pages,helpers,fixtures,sql}/
 <featureDir>/runs/<run-id>/{allure-results,screenshots,logs,handoff.md}
 ```
 
 骨架用 `kata automation scaffold <featureDir>` 创建，目录违规用 `kata automation normalize` 修复，run 目录用 `kata runs new <feature-id>` 分配。跨 feature 复用的页面对象与 helper 放 `workspace/<project>/_shared/`。
+
+正式用例的 `automation.spec_file` 是脚本与业务用例的唯一映射；文件名必须是 `t<序号>-<slug>.ts`。准备阶段和交付阶段都必须运行 feature 与 shared automation lint。
