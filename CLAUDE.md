@@ -1,92 +1,45 @@
-# CLAUDE.md
+# Kata 项目约定
 
-公开命令见下方「命令索引」；CLI 用法见 `kata --help`；首次安装见仓库根目录的 `INSTALL.md`。
+Kata 是面向 QA 用例、自动化与工程知识的 CLI 工作区；公开命令用 `kata --help`，首次安装见 [INSTALL.md](./INSTALL.md)。
 
-`.claude/` 是 Claude Code 的 runtime 实现目录。
+## Skill 触发
 
-## Claude Code Runtime 规则
+- Skill 的触发与转出以各 `.claude/skills/<name>/SKILL.md` frontmatter 的 `name` 与 `description` 为准；这些描述会自动注入上下文。
+- `.agents/skills` 是指向 `.claude/skills` 的目录 symlink，Skill 正文单源维护；多技能命中且无法判定时向用户确认。
 
-- Claude Code skill 的稳定触发信号来自 `.claude/skills/<name>/SKILL.md` frontmatter 的 `name` 与 `description`。
-- `/skill` 名继续可用；显式的 `/test-case`、`/ui-automation` 等命令，按下方路由表处理。
-- 本项目不再拿 `CLAUDE.local.md` 当入口；本地设置放用户级配置或 `.claude/settings.local.json`。
+## 判断与验证
 
-## 路由规则
+- 代码、配置、runtime skill 或入口文件改动落盘后，立即运行受影响范围的测试；拿不准影响面就跑全量。
+- 失败（包括改动前已存在的失败）必须在当前 worktree 查根因并修复，不用 TODO、skip 或注释用例绕过；确实超出范围时说明失败、根因假设和待确认事项。
+- 区分“已运行”“从代码确认”“尚未验证”；未执行完整范围时不得声称“全部通过”或“完整 E2E 通过”。
+- 修复缺陷要覆盖原始场景；时间、网络和文件系统测试使用可控输入，不依赖真实时钟或外部状态碰巧满足。
+- 文档改动涉及命令、路径或配置示例时，手工核对示例与当前实现一致。
 
-- 下方命令索引即公开 slash-command 的路由表。
-- 只发 Lanhu/Axure URL → 静默转给 `test-case`（create 工作流），由它产出第一个用户可见结果。
-- 只发 ZenTao bug URL/bug-view URL/bug ID → 转给 `test-case`（hotfix 工作流）；记录未修复或缺修复范围时，由该 skill 生成待办项。
-- 只发需求功能**目录**路径或目录名（如 `features/【v...】...`，不带文件扩展名）→ 转给 `ui-automation`，做用例转自动化。
-- 用户给出用例产物**文件**路径（`.yaml`/`.xmind`/`.csv`/`.md`），或要求编辑、同步、标准化已有用例 → 转给 `test-case`（edit 工作流）。
-- 用户要求记录、查询、维护项目业务知识、规则、术语，或问「XX 是什么」（项目特定业务概念）→ 自动触发 `domain-knowledge`。
-- `/ui-automation` 缺环境参数时，先按 skill 内置的环境确认流程处理，再开始探测或浏览器操作。
+## 根因与机制
 
-### 多技能匹配优先级
+- 先确认问题层次，再在最接近问题的代码、Schema、检查器或文档层修复；能由程序检查的规则必须下沉到程序。
+- CLI stdout 只输出请求数据，诊断与进度写 stderr；机器模式输出稳定 JSON。库函数返回结果或抛出带代码的错误，不在库内 `process.exit()`。
+- 默认使用 dry-run；改变 Git 暂存区或外部系统时提供明确开关。只改相关文件，保留稳定 ID、用户内容和无法重建的信息，不无提示覆盖。
+- 子目录的额外规则以 `config/AGENTS.md` 与 `workspace/AGENTS.md` 为准。
 
-- 优先级从高到低：精确格式/URL/路径匹配 > 意图关键词匹配 > 通用请求。
-- 触发信号来自每个 skill 的 SKILL.md frontmatter `description`（关键词与路由声明）。
-- description 里的路由声明优先于触发关键词：命中某 skill 的转出条件时，就按路由目标转发，不停在原 skill。
-- 同一输入命中多个 skill 又无法判定时，按上面的顺序选优先 skill；仍不确定就向用户确认意图。
+## Git 与 worktree
 
-### 无匹配回退
+- 代码、配置、runtime 和契约文档在任务分支 worktree 中完成：`git worktree add -b codex/<slug> .worktrees/<slug> main`；创建前保留主工作树现有改动。
+- 只共享必需的 ignored runtime（`node_modules` 可作只读 symlink）；合并或清理前盘点 ignored runtime、认证会话、符号链接和本地环境文件。
+- 任务验证并提交后默认用 `git merge --no-ff <branch>` 合入 main，再移除 worktree 和任务分支；不得自动 push。
+- Commit 使用 Emoji Conventional Commit，英文标题不超过 72 字符，只包含当前任务文件。
+- `reset --hard`、`branch -D`、强制 push、跨仓库 PR、shared infra 改动和生产部署需用户确认；任务协调使用当前客户端实际提供的任务和代理能力。
 
-- 没有 skill 匹配的请求，由 AI 自行处理，不强行套用 skill 路由。
-- 各 skill 的工作流与产物约定见 `.claude/skills/**`。
+## 安全与本地配置
 
-## 命令索引
+- 不主动展开、回显、提交或写入日志中的 secrets；Cookie、密码、session 路径和私密 YAML 不得进入提示词、日志、测试夹具或 Git 跟踪文件。
+- 根 `.env` 是唯一 dotenv，只保存仓库级集成变量；平台配置和 Cookie 仅存本机忽略的 `config/env/<env>.yaml`，目录和文件权限按项目要求设为 0600 级别并用 `kata env` 管理。
+- 源码仓库由 `config/source-repos.yaml` 声明，克隆于 `.repos/`（gitignored），用 `kata repos` 查询；本地私有设置不写入项目级 agent 文档，放用户级配置或 gitignored 文件。
+- 详细日志使用 `KATA_LOG_LEVEL=debug kata <command>`。
 
-| Command          | Skill           | Summary                                                          |
-| ---------------- | --------------- | ---------------------------------------------------------------- |
-| /test-case       | test-case       | 用例全生命周期：依需求源起草、编辑既有用例、依 bug 产 hotfix 回归用例。 |
-| /ui-automation   | ui-automation   | 生成、修复或验证 Playwright UI 自动化，并在交付前真实运行。         |
-| /defect-analyze  | defect-analyze  | bug 证据、合并冲突、代码 diff 三模式缺陷分诊与解决方案。            |
-| /infra-diagnose  | infra-diagnose  | SSH 登录服务器排查并修复数据源与服务器连通性故障。                  |
-| /domain-knowledge | domain-knowledge | 查询或维护项目业务知识、规则、术语。                               |
-| /workspace       | workspace       | 创建、检查、修复项目工作区骨架。                                    |
+## 工作区与 Playwright 硬闸
 
-## 构建与测试
-
-- Runtime：Bun >= 1.3；装依赖：`bun install`。
-- 全量测试：`bun test`；局部测试：`bun test <路径>`（如 `bun test tests/cli`），按改动定最小作用域。
-- Lint 检查：`bun run check`；自动修复：`bun run check:fix`。
-- 类型检查：`bun run type-check`。
-
-### 改后即测
-
-1. 代码、配置、runtime skill 或入口文件改动落盘后，立刻跑受影响范围的测试，优先最小作用域；拿不准影响面就跑全量。
-2. 任何失败（包括改动前就存在的）都必须在当前 worktree 内查到根因并修复；不许用 TODO、skip、注释用例来绕过。
-3. 失败确实超出本次任务能力范围时，停下来向用户说清失败用例、根因假设、需要谁拍板，用户明确同意后才能跳过。
-4. 合并回 main 前再跑一次 `bun test` 做最终确认。
-5. 纯文档改动可跳过测试；但文档里改了命令、路径或配置示例时，要手工验证示例能跑通。
-
-## 本地配置
-
-- 根 `.env` 是唯一 dotenv，只保存仓库级集成变量；不得创建或加载 `.env.envs`、根 `.env.local` 或项目 `.env.local`。
-- DataAssets 平台配置和 Cookie 只存本机忽略的 `config/env/<env>.yaml`（权限 0600，一平台一文件）；使用 `kata env show|doctor|run` 检查和启动，使用 `kata env cookie set <env> --stdin` 轮换 Cookie。
-- 源码仓库在 `config/source-repos.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
-- 不得把 Cookie、密码、session 路径或私密 YAML 内容写进提示词、日志、测试夹具和 Git 跟踪文件。
-- 详细日志：`KATA_LOG_LEVEL=debug kata <command>`。
-
-## 工作区边界
-
-- 生成的 PRD、XMind、Archive、报告和测试产物写入 `workspace/{project}/`。
-- 本地上下文只能用来调整语气或声明项目默认值；不得定义路由、策略、写入范围、插件权限、引用要求或输出模式。
-
-## 代码变动请求标准流程
-
-- 保留主工作树现有改动，不得为了创建 worktree 自动提交用户文件。使用 `git worktree add -b codex/<slug> .worktrees/<slug> main` 创建本任务分支工作树。
-- 只共享任务必需的 ignored runtime（`node_modules` 可作只读 symlink；feature `runs/` 按需共享明确目录）；`config/env/` 与 `.repos/` 由 CLI 经 Git common-dir 自动定位到主工作树，worktree 内不复制。
-- 合并或清理前盘点 ignored runtime、认证会话、符号链接和本地环境文件；不得用干净的 Git 状态替代运行态核对。
-- 任务改动验证并提交后，默认执行合并：用 `git merge --no-ff <branch>` 合入 main，再执行 `git worktree remove` 并删除任务分支，无需用户单独指示。不得自动 push；只有用户明确要求时才推送远端。
-- 任务协调使用当前客户端实际提供的任务和代理能力；不得强制不存在的工具名、模型名或固定并发策略。
-- Commit 用 Conventional Commits（`type: description`，英文标题 ≤ 72 字符），只含当前任务文件。
-- 需用户确认的操作：`git reset --hard`、`branch -D`、`push --force`、跨仓库 PR、shared infra 改动、生产部署。
-
-## 关键约束
-
-- Worktree 优先：代码、配置、runtime 和契约文档改动都在任务分支 worktree 中完成。
-- 改后即测：代码、配置、runtime skill 或入口文件改动后，必须跑相关测试；失败必须修复。
-- 根因修复纪律：用户反馈的问题，不得只修复表面现象。必须先追查根因（规则定义在哪、为什么没拦住、执行链路哪个环节失效），再从源头堵住缺口。目标是非重复性——同类问题不允许犯第二次。
-- 机制下沉：路径、必填参数、命名、格式类约束由 CLI/lint 报错强制，提示词只写业务语义与判断依据；CLI 报错文案必须可执行（缺什么、下一步问谁），报错本身就是提示词面。
-- Playwright 自动化硬闸：生成或修复 Playwright UI 自动化后，交付必须同时满足 `full.spec.ts` 通过、feature run 目录下有 Allure 结果、被测平台产生该用例核心流程的业务记录数据。只读 UI/API 合同脚本只有在用户明确要求只读覆盖时才算完成；否则必须阻塞或排除并写清未产记录的原因。
-- Playwright 静态检查：交付前必须运行 `kata automation lint <featureDir> --exit-code`，并对共享页面、helper 和 fixture 运行 `kata automation lint --shared --exit-code`；不得引入 baseline 之外的新违规。
-- QA 产物交付前必须说清已验证范围和未验证范围，不得把局部通过说成全量通过。
+- PRD、XMind、Archive、报告和测试产物写入 `workspace/{project}/`；本地上下文只能调整语气或声明默认值，不得定义路由、策略、写入范围、插件权限、引用要求或输出模式。
+- Playwright 自动化交付必须同时满足 `full.spec.ts` 通过、feature run 目录有 Allure 结果、被测平台产生核心流程业务记录；只读脚本只有用户明确要求只读覆盖时才算完成。
+- 交付前必须运行 `kata automation lint <featureDir> --exit-code`，并对共享页面、helper 和 fixture 运行 `kata automation lint --shared --exit-code`；不得引入 baseline 之外的新违规。
+- QA 产物交付必须明确已验证和未验证范围，不得把局部通过说成全量通过。

@@ -29,7 +29,7 @@ UI 用例 / 脚本 / 失败结果 ─── ui-automation ───────>
 项目遵循四条边界：
 
 - `.claude/**` 保存 Claude Code 的 Skill 与插件。
-- `.agents/**` 保存 Codex 的原生 Skill，与 Claude 端各自独立维护，不共享提示词正文。
+- `.agents/skills/` 是指向 `.claude/skills/` 的 symlink，两端共用同一份 Skill 正文。
 - 通用 CLI 位于 `cli/**`，两套运行环境共用同一份命令行实现。
 - 项目产物写入 `workspace/{project}/`。源码仓库在 `config/source-repos.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
 
@@ -71,16 +71,16 @@ bunx playwright install
 | `/domain-knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
 | `/workspace` | 工作区 | 创建、检查、修复项目工作区骨架。 |
 
-路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改用例与把用例实现为 UI 自动化是不同的入口，详见 CLAUDE.md 路由规则。
+路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改用例与把用例实现为 UI 自动化是不同的入口，以各 Skill 的 `SKILL.md` description 为准。
 
 ## Claude Code 与 Codex
 
 | 运行环境 | Skill 目录 | 维护方式 |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/` | Claude 原生 Skill，独立维护。 |
-| OpenAI Codex | `.agents/skills/` | Codex 原生 Skill，独立维护。 |
+| Claude Code | `.claude/skills/` | Skill 正文唯一来源。 |
+| OpenAI Codex | `.agents/skills/` | 指向 Claude Skill 目录的 symlink。 |
 
-两端 Skill 各自用原生格式表达同一套业务约定，不共享提示词正文；通用能力收在 `cli/` 供两端调用。Skill 不写固定模型名、固定代理数量或机械阶段，只规定触发条件、输入输出、安全边界和完成状态。
+两端运行环境共享同一份 Skill 正文，并由各自运行时加载；通用能力收在 `cli/` 供两端调用。Skill 不写固定模型名、固定代理数量或机械阶段，只规定触发条件、输入输出、安全边界和完成状态。
 
 ## 配置与安全
 
