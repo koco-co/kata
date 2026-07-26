@@ -9,7 +9,7 @@ import { ensureDtstackPreconditionFile } from "../helpers/dtstack-preconditions"
 test.setTimeout(15 * 60 * 1000);
 
 const DQ_CORE_PRECOND_FILE =
-  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/precond/data-quality-core-tables.yaml";
+  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/fixtures/precond/data-quality-core-tables.yaml";
 
 test.describe("数据质量规则任务超时处理", () => {
 test.beforeEach(() => {

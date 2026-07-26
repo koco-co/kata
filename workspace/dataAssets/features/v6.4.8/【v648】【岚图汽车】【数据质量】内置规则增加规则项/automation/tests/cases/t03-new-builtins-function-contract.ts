@@ -5,7 +5,7 @@
 // META: {"id":"t03","priority":"P1","title":"验证新增内置规则名称、解释、分类、关联范围和描述契约"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-UI-PROBE-003, SR-SELF-RUN-001
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { EXPECTED_NEW_RULES, SOURCE_REFS } from "../data/rule-library-contract";
+import { EXPECTED_NEW_RULES, SOURCE_REFS } from "../fixtures/rule-library-contract";
 import { gotoMonitorRuleStep2, readAddRuleMenu } from "../../../../_shared/pages/rule-library/rule-library-page";
 
 test.setTimeout(120000);

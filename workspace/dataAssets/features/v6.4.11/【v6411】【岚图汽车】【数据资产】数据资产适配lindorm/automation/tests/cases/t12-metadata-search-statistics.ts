@@ -16,7 +16,7 @@ import {
   SR_2099_01_MD_006,
   SR_2099_01_MD_007,
   SR_2099_01_MD_008,
-} from "../data/metadata-contract";
+} from "../fixtures/metadata-contract";
 
 const DATA_MAP_CLICKTHROUGH_TYPES = ["数据表", "离线任务", "实时任务", "API", "智能标签", "指标"] as const;
 

@@ -5,7 +5,7 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 # test-case
 
-用例的唯一正式源是 `cases/需求名.yaml`；`需求名.xmind` 与 `exports/需求名.md` 是从它派生的产物，只经 `kata cases build` 重新生成，绝不手改。
+用例的唯一正式源是 `cases/需求名.yaml`；`prd.md`、`test-points.md` 是 create 的事实与范围契约，`需求名.xmind` 与 `exports/需求名.md` 是从 yaml 派生的产物，只经 `kata cases build` 重新生成，绝不手改。每条正式用例的 `automation.spec_file` 指向唯一自动化脚本。
 
 ## 按输入分流
 
@@ -30,8 +30,10 @@ description: QA 用例全生命周期。三种触发方式——① 给需求源
 
 ## 完成标准（三条工作流共用）
 
-- `cases/需求名.yaml` 通过 `kata cases build --feature <featureDir>` 校验，并成功派生 `需求名.xmind` 与 `exports/需求名.md`。
-- `kata cases lint --project <project> --feature <id> --exit-code` 无 violation（含「待确认」字样硬闸）。
+- create：`prd.md`、`test-points.md`、canonical YAML、XMind、Markdown 派生物和 lint 都必须存在并通过。
+- edit：按实际已有产物维护；语义变化必须同步 `prd.md` / `test-points.md`，再重建派生物与 lint。
+- hotfix：只要求 Bug 证据、单条 YAML、派生物、lint 和交付说明，不强制新建完整需求基线。
+- `kata cases lint --project <project> --feature <目录名或 metadata.id> --exit-code` 无 violation（含「待确认」字样硬闸）。
 - 交付前按 [checklists/review.md](checklists/review.md) 自审，并在回复里说明已验证与未验证的范围。
 - 被真实阻塞卡住时只交付草稿，回复里说清缺什么、需要谁补；不得拿草稿冒充完成。
 

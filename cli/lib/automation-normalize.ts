@@ -1,8 +1,8 @@
-import { existsSync, mkdirSync, readdirSync, renameSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const RUNNERS_ALLOWED = new Set(["smoke.spec.ts", "full.spec.ts", "retry-failed.spec.ts"]);
-const AUTOMATION_TOP_ALLOWED = new Set(["tests", ".DS_Store"]);
+const TESTS_ALLOWED = new Set(["cases", "runners", "pages", "helpers", "fixtures", "sql"]);
+const AUTOMATION_TOP_ALLOWED = new Set(["scripts", "tests", ".DS_Store"]);
 
 export interface NormalizeReport {
   moved: { from: string; to: string }[];
@@ -34,6 +34,34 @@ function moveIntoBackup(source: string, target: string): void {
   renameSync(source, target);
 }
 
+function planMove(
+  report: NormalizeReport,
+  source: string,
+  target: string,
+  shouldMove: boolean,
+): void {
+  if (existsSync(target)) {
+    report.unfixable.push({ path: source, reason: `目标已存在，拒绝覆盖: ${target}` });
+    report.violations++;
+    return;
+  }
+  if (shouldMove) moveIntoBackup(source, target);
+  report.moved.push({ from: source, to: target });
+}
+
+function planDirectoryContents(
+  report: NormalizeReport,
+  sourceDir: string,
+  targetDir: string,
+  shouldMove: boolean,
+): void {
+  for (const name of listTopEntries(sourceDir)) {
+    planMove(report, join(sourceDir, name), join(targetDir, name), shouldMove);
+  }
+  if (shouldMove && existsSync(sourceDir) && listTopEntries(sourceDir).length === 0)
+    rmdirSync(sourceDir);
+}
+
 export function normalizeAutomation(
   featureDir: string,
   opts: { dryRun?: boolean; apply?: boolean } = {},
@@ -48,7 +76,9 @@ export function normalizeAutomation(
     for (const name of listTopEntries(automationDir)) {
       if (AUTOMATION_TOP_ALLOWED.has(name)) continue;
       const full = join(automationDir, name);
-      if (isDir(full)) {
+      if (isDir(full) && name === "sql") {
+        planMove(report, full, join(automationDir, "tests", "sql"), shouldMove);
+      } else if (isDir(full)) {
         report.unfixable.push({
           path: full,
           reason: `automation/ 顶层不应有子目录 "${name}"，请手动移除`,
@@ -72,11 +102,38 @@ export function normalizeAutomation(
   if (existsSync(runnersDir)) {
     for (const name of listTopEntries(runnersDir)) {
       if (!name.endsWith(".spec.ts")) continue;
-      if (RUNNERS_ALLOWED.has(name)) continue;
+      if (name.endsWith(".spec.ts")) continue;
       const full = join(runnersDir, name);
       const target = join(backup, "runners", name);
       if (shouldMove) moveIntoBackup(full, target);
       report.moved.push({ from: full, to: target });
+      report.violations++;
+    }
+  }
+
+  const testsDir = join(automationDir, "tests");
+  if (existsSync(testsDir)) {
+    for (const name of listTopEntries(testsDir)) {
+      const full = join(testsDir, name);
+      if (TESTS_ALLOWED.has(name)) continue;
+      if (name === "data" || name === "precond") {
+        planDirectoryContents(
+          report,
+          full,
+          join(testsDir, "fixtures", name === "data" ? "" : "precond"),
+          shouldMove,
+        );
+        continue;
+      }
+      if (name === "README.md" || name === "MANUAL-TRIAGE.md") {
+        planMove(report, full, join(automationDir, "scripts", name), shouldMove);
+        continue;
+      }
+      if (!isDir(full) && name.endsWith(".spec.ts")) {
+        planMove(report, full, join(testsDir, "runners", name), shouldMove);
+        continue;
+      }
+      report.unfixable.push({ path: full, reason: `automation/tests/ 不允许 "${name}"` });
       report.violations++;
     }
   }

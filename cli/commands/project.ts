@@ -1,54 +1,114 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import type { Command } from "commander";
+import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { outputJson } from "../lib/cli.ts";
 import {
-  configJsonPath,
   diffProjectSkeleton,
-  mergeProjectConfig,
   migrateLegacyHistorys,
+  readProjectMetadata,
   renderTemplate,
   SKELETON_SPEC,
   TEMPLATE_ROOT_REL,
   validateProjectName,
 } from "../lib/create-project.ts";
 import { writeIndexFile } from "../lib/knowledge/index-data.ts";
-import { locateProject, repoRoot } from "../lib/workspace-locator.ts";
-
-function readConfig(): Record<string, unknown> {
-  const p = configJsonPath();
-  return existsSync(p) ? (JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>) : {};
-}
-
-function isProjectRegistered(name: string): boolean {
-  const projects = (readConfig().projects as Record<string, unknown> | undefined) ?? {};
-  return Object.hasOwn(projects, name);
-}
+import { repoRoot } from "../lib/workspace-locator.ts";
 
 function tplRoot(): string {
   return resolve(repoRoot(), TEMPLATE_ROOT_REL);
 }
 
-/** Build the `project` command: scan / create a workspace project skeleton. */
+function projectDir(project: string): string {
+  return join(repoRoot(), "workspace", project);
+}
+
+function ensureProjectName(project: string): void {
+  const nameCheck = validateProjectName(project);
+  if (!nameCheck.valid) throw new Error(`项目名称无效：${nameCheck.error}`);
+}
+
+function planFor(project: string) {
+  ensureProjectName(project);
+  const dir = projectDir(project);
+  return { dir, diff: diffProjectSkeleton(dir, tplRoot()) };
+}
+
+function missingPlan(diff: ReturnType<typeof diffProjectSkeleton>) {
+  return {
+    dirs: diff.missing_dirs,
+    files: diff.missing_files,
+    gitkeeps: diff.missing_gitkeeps,
+    invalid_paths: diff.invalid_paths,
+  };
+}
+
+function applyMissing(project: string, dir: string, diff: ReturnType<typeof diffProjectSkeleton>) {
+  mkdirSync(dir, { recursive: true });
+  const migration = migrateLegacyHistorys(dir);
+  const created_dirs: string[] = [];
+  for (const rel of diff.missing_dirs) {
+    const abs = join(dir, rel);
+    mkdirSync(abs, { recursive: true });
+    created_dirs.push(abs);
+  }
+  const created_gitkeeps: string[] = [];
+  for (const rel of diff.missing_gitkeeps) {
+    const abs = join(dir, rel);
+    writeFileAtomic(abs, "");
+    created_gitkeeps.push(abs);
+  }
+  const created_files: string[] = [];
+  for (const rel of diff.missing_files) {
+    const src = join(tplRoot(), SKELETON_SPEC.template_files[rel]);
+    const dst = join(dir, rel);
+    const raw = readFileSync(src, "utf8");
+    writeFileAtomic(dst, renderTemplate(raw, { project }));
+    created_files.push(dst);
+  }
+  writeIndexFile(project);
+  return { created_dirs, created_files, created_gitkeeps, legacy_renamed: migration.renamed };
+}
+
+function backupGeneratedFiles(
+  dir: string,
+  diff: ReturnType<typeof diffProjectSkeleton>,
+): string | null {
+  const existing = [
+    ...Object.keys(SKELETON_SPEC.template_files),
+    ...SKELETON_SPEC.gitkeep_dirs.map((d) => `${d}/.gitkeep`),
+  ].filter((rel) => existsSync(join(dir, rel)));
+  if (existing.length === 0) return null;
+  const backup = join(dir, ".kata-backups", new Date().toISOString().replace(/[:.]/g, "-"));
+  for (const rel of existing) {
+    const target = join(backup, rel);
+    mkdirSync(resolve(target, ".."), { recursive: true });
+    copyFileSync(join(dir, rel), target);
+  }
+  void diff;
+  return backup;
+}
+
+/** Build the `project` command: scan / create / repair a workspace project. */
 export function registerProject(program: Command): void {
-  const project = program.command("project").description("项目工作区的创建与检查");
+  const project = program.command("project").description("项目工作区的创建、检查与修复");
 
   project
     .command("scan")
-    .description("检查项目骨架与标准结构的差异")
+    .description("检查项目骨架与项目元数据")
     .requiredOption("--project <name>", "项目名")
     .action((opts: { project: string }) => {
-      const nameCheck = validateProjectName(opts.project);
-      if (!nameCheck.valid) throw new Error(`项目名称无效：${nameCheck.error}`);
-      const projDir = locateProject(opts.project).projectDir;
-      const diff = diffProjectSkeleton(projDir, tplRoot());
+      const { dir, diff } = planFor(opts.project);
+      const metadata = readProjectMetadata(dir);
       outputJson({
         project: opts.project,
         exists: diff.exists,
+        project_metadata: metadata,
+        project_metadata_valid: diff.project_metadata_valid,
         missing_dirs: diff.missing_dirs,
         missing_files: diff.missing_files,
         missing_gitkeeps: diff.missing_gitkeeps,
-        config_registered: isProjectRegistered(opts.project),
+        invalid_paths: diff.invalid_paths,
         skeleton_complete: diff.skeleton_complete,
       });
     });
@@ -60,73 +120,46 @@ export function registerProject(program: Command): void {
     .option("--dry-run", "只预览", false)
     .option("--confirmed", "确认写入", false)
     .action((opts: { project: string; dryRun: boolean; confirmed: boolean }) => {
-      const nameCheck = validateProjectName(opts.project);
-      if (!nameCheck.valid) throw new Error(`项目名称无效：${nameCheck.error}`);
-      const projDir = join(repoRoot(), "workspace", opts.project);
-      const diff = diffProjectSkeleton(projDir, tplRoot());
-      const registered = isProjectRegistered(opts.project);
-
-      if (diff.skeleton_complete && registered) {
+      const { dir, diff } = planFor(opts.project);
+      if (diff.skeleton_complete) {
         outputJson({ skipped: true, project: opts.project, message: "已完整，无需补齐" });
         return;
       }
       if (opts.dryRun) {
-        outputJson({
-          dry_run: true,
-          project: opts.project,
-          will_create: {
-            dirs: diff.missing_dirs,
-            files: diff.missing_files,
-            gitkeeps: diff.missing_gitkeeps,
-          },
-          will_register: !registered,
-        });
+        outputJson({ dry_run: true, project: opts.project, will_create: missingPlan(diff) });
         return;
       }
       if (!opts.confirmed) throw new Error("写入前请加 --confirmed；预览用 --dry-run");
-
-      // 写入骨架
-      mkdirSync(projDir, { recursive: true });
-      const migration = migrateLegacyHistorys(projDir);
-      const created_dirs: string[] = [];
-      for (const rel of diff.missing_dirs) {
-        const abs = join(projDir, rel);
-        mkdirSync(abs, { recursive: true });
-        created_dirs.push(abs);
+      if (diff.invalid_paths.length > 0) {
+        throw new Error(`发现类型冲突，未自动覆盖：${diff.invalid_paths.join(", ")}`);
       }
-      const created_gitkeeps: string[] = [];
-      for (const rel of diff.missing_gitkeeps) {
-        const abs = join(projDir, rel);
-        writeFileSync(abs, "");
-        created_gitkeeps.push(abs);
-      }
-      const created_files: string[] = [];
-      for (const rel of diff.missing_files) {
-        const src = join(tplRoot(), SKELETON_SPEC.template_files[rel]);
-        const dst = join(projDir, rel);
-        mkdirSync(dirname(dst), { recursive: true });
-        writeFileSync(dst, renderTemplate(readFileSync(src, "utf8"), { project: opts.project }));
-        created_files.push(dst);
-      }
-
-      // config.json 注册
-      const cfgPath = configJsonPath();
-      const existing = existsSync(cfgPath)
-        ? (JSON.parse(readFileSync(cfgPath, "utf8")) as Record<string, unknown>)
-        : {};
-      const { merged, added } = mergeProjectConfig(existing, opts.project);
-      writeFileSync(cfgPath, `${JSON.stringify(merged, null, 2)}\n`);
-
-      // 知识库索引(直接调用, 不 spawn 旧 kata)
-      writeIndexFile(opts.project);
-
+      const result = applyMissing(opts.project, dir, diff);
       outputJson({
         project: opts.project,
-        created_dirs,
-        created_files,
-        created_gitkeeps,
-        registered_config: added,
-        legacy_renamed: migration.renamed,
+        ...result,
+        scan_after: diffProjectSkeleton(dir, tplRoot()),
       });
+    });
+
+  project
+    .command("repair")
+    .description("安全修复项目工作区缺失项；不覆盖用户文件")
+    .requiredOption("--project <name>", "项目名")
+    .option("--apply", "执行修复(默认 dry-run)", false)
+    .action((opts: { project: string; apply: boolean }) => {
+      const { dir, diff } = planFor(opts.project);
+      const plan = missingPlan(diff);
+      if (!opts.apply) {
+        outputJson({ dry_run: true, project: opts.project, repair: plan });
+        return;
+      }
+      if (diff.invalid_paths.length > 0) {
+        throw new Error(`发现用户文件或类型冲突，拒绝覆盖：${diff.invalid_paths.join(", ")}`);
+      }
+      const backup_dir = backupGeneratedFiles(dir, diff);
+      const result = applyMissing(opts.project, dir, diff);
+      const after = diffProjectSkeleton(dir, tplRoot());
+      outputJson({ project: opts.project, backup_dir, ...result, scan_after: after });
+      if (!after.skeleton_complete) process.exitCode = 2;
     });
 }

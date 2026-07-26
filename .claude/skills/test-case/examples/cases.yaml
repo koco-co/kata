@@ -10,6 +10,8 @@ cases:
   - id: C001
     title: 验证新建单表规则时统计函数可选「枚举值个数」并按枚举个数阈值告警
     priority: P0
+    automation:
+      spec_file: t01-enum-count.ts
     precondition: |-
       1) 已部署含本需求的版本；数据质量存在项目 ${ProjectA} 且关联数据源 ${DataSourceA}。
       2) ${DataSourceA} 下存在表 user_profile，建表语句:

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
@@ -11,7 +11,7 @@ import {
   deriveVersionDir,
   extractImageUrls,
   htmlToMarkdown,
-  inferKataProjectFromLanhuProjects,
+  inferKataProjectFromWorkspace,
   parseLanhuUrl,
   resolveOutputLayout,
   selectRequirementsForFetch,
@@ -233,33 +233,26 @@ describe("resolveOutputLayout", () => {
 
 // ─── Project inference ───────────────────────────────────────────────────────
 
-describe("inferKataProjectFromLanhuProjects", () => {
-  it("maps a Lanhu project alias to the owning kata project via repo_profiles", () => {
-    const configText = JSON.stringify({
-      projects: {
-        dataAssets: {
-          repo_profiles: {
-            岚图: { repos: [] },
-          },
-        },
-        xyzh: {
-          repo_profiles: {},
-        },
-      },
-    });
-
-    assert.equal(inferKataProjectFromLanhuProjects(configText, ["岚图"]), "dataAssets");
+describe("inferKataProjectFromWorkspace", () => {
+  it("maps a Lanhu project alias to workspace/project.json", () => {
+    mkdirSync(join(TMP_DIR, "workspace", "dataAssets"), { recursive: true });
+    writeFileSync(
+      join(TMP_DIR, "workspace", "dataAssets", "project.json"),
+      JSON.stringify({ name: "dataAssets", description: "岚图" }),
+    );
+    assert.equal(inferKataProjectFromWorkspace(TMP_DIR, ["岚图"]), "dataAssets");
   });
 
   it("refuses ambiguous Lanhu project aliases instead of guessing", () => {
-    const configText = JSON.stringify({
-      projects: {
-        dataAssets: { repo_profiles: { 岚图: {} } },
-        anotherProject: { repo_profiles: { 岚图: {} } },
-      },
-    });
-
-    assert.equal(inferKataProjectFromLanhuProjects(configText, ["岚图"]), undefined);
+    mkdirSync(join(TMP_DIR, "workspace", "dataAssets"), { recursive: true });
+    mkdirSync(join(TMP_DIR, "workspace", "anotherProject"), { recursive: true });
+    for (const project of ["dataAssets", "anotherProject"]) {
+      writeFileSync(
+        join(TMP_DIR, "workspace", project, "project.json"),
+        JSON.stringify({ name: project, description: "岚图" }),
+      );
+    }
+    assert.equal(inferKataProjectFromWorkspace(TMP_DIR, ["岚图"]), undefined);
   });
 });
 

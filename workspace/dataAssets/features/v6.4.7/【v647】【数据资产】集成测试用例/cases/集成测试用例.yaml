@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.7/【v647】【数据资产】集成测试用例
 cases:
   - id: C001
+    automation:
+      spec_file: t01-c001.ts
     title: 验证已接入数据源统计数据正确
     priority: P0
     steps:
@@ -18,6 +20,8 @@ cases:
       - 未分类
       - 未分类
   - id: C002
+    automation:
+      spec_file: t02-c002.ts
     title: 验证【数据表】表数量统计正确
     priority: P0
     steps:
@@ -43,6 +47,8 @@ cases:
       - 数据地图
       - 首页【资产类型】功能验证
   - id: C003
+    automation:
+      spec_file: t03-c003.ts
     title: 验证【离线任务】任务数量统计正确
     priority: P0
     steps:
@@ -61,6 +67,8 @@ cases:
       - 数据地图
       - 首页【资产类型】功能验证
   - id: C004
+    automation:
+      spec_file: t04-c004.ts
     title: 验证筛选条件组合查询功能正常
     priority: P0
     steps:
@@ -97,6 +105,8 @@ cases:
       - 数据地图
       - 【数据地图】-二级页面【筛选过滤】功能验证
   - id: C005
+    automation:
+      spec_file: t05-c005.ts
     title: 验证【表结构】-【建表语句】模块功能正常
     priority: P1
     steps:
@@ -119,6 +129,8 @@ cases:
       - 数据地图
       - 【数据地图】-【数据表】详情页面功能验证
   - id: C006
+    automation:
+      spec_file: t06-c006.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -170,6 +182,8 @@ cases:
       - 数据地图
       - 【数据地图】-【数据表】详情页面功能验证
   - id: C007
+    automation:
+      spec_file: t07-c007.ts
     title: 验证元数据同步 Doris 周期同步任务新建与临时同步流程
     priority: P2
     steps:
@@ -190,6 +204,8 @@ cases:
       - 未分类
       - 未分类
   - id: C008
+    automation:
+      spec_file: t08-c008.ts
     title: 验证通用业务属性-新增枚举属性
     priority: P1
     steps:
@@ -200,6 +216,8 @@ cases:
       - 元模型管理
       - 未分类
   - id: C009
+    automation:
+      spec_file: t09-c009.ts
     title: 验证通用业务属性-新增string类型文本框属性
     priority: P1
     steps:
@@ -210,6 +228,8 @@ cases:
       - 元模型管理
       - 未分类
   - id: C010
+    automation:
+      spec_file: t10-c010.ts
     title: 验证通用业务属性-新增bigint类型文本框属性
     priority: P1
     steps:
@@ -220,6 +240,8 @@ cases:
       - 元模型管理
       - 未分类
   - id: C011
+    automation:
+      spec_file: t11-c011.ts
     title: 验证通用业务属性-新增树形目录属性
     priority: P1
     steps:
@@ -230,6 +252,8 @@ cases:
       - 元模型管理
       - 未分类
   - id: C012
+    automation:
+      spec_file: t12-c012.ts
     title: 验证通用业务属性-进入Doris数据表详情查看业务属性
     priority: P1
     steps:
@@ -240,6 +264,8 @@ cases:
       - 元模型管理
       - 未分类
   - id: C013
+    automation:
+      spec_file: t13-c013.ts
     title: 验证通用业务属性-删除功能-逻辑正常
     priority: P1
     steps:
@@ -256,6 +282,8 @@ cases:
       - 元模型管理
       - 未分类
   - id: C014
+    automation:
+      spec_file: t14-c014.ts
     title: 验证数据表列表-数据展示正确
     priority: P0
     steps:
@@ -270,6 +298,8 @@ cases:
       - 元数据管理
       - 未分类
   - id: C015
+    automation:
+      spec_file: t15-c015.ts
     title: 验证数据库列表-生命周期应用功能正确
     priority: P1
     steps:
@@ -296,6 +326,8 @@ cases:
       - 元数据管理
       - 未分类
   - id: C016
+    automation:
+      spec_file: t16-c016.ts
     title: 验证数据标准-新建标准并保存
     priority: P0
     steps:
@@ -306,6 +338,8 @@ cases:
       - 标准管理
       - 标准定义
   - id: C017
+    automation:
+      spec_file: t17-c017.ts
     title: 验证数据标准-新建标准点击取消
     priority: P0
     steps:
@@ -316,6 +350,8 @@ cases:
       - 标准管理
       - 标准定义
   - id: C018
+    automation:
+      spec_file: t18-c018.ts
     title: 验证数据标准-查看详情
     priority: P0
     steps:
@@ -329,6 +365,8 @@ cases:
       - 标准管理
       - 标准定义
   - id: C019
+    automation:
+      spec_file: t19-c019.ts
     title: 验证标准映射-创建标准映射功能正常
     priority: P1
     steps:
@@ -361,6 +399,8 @@ cases:
       - 标准管理
       - 标准映射
   - id: C020
+    automation:
+      spec_file: t20-c020.ts
     title: 验证标准映射-标准映射字段绑定功能正常
     priority: P1
     steps:
@@ -381,6 +421,8 @@ cases:
       - 标准管理
       - 标准映射
   - id: C021
+    automation:
+      spec_file: t21-c021.ts
     title: 验证词根管理-新建
     priority: P1
     steps:
@@ -395,6 +437,8 @@ cases:
       - 标准基础
       - 词根管理
   - id: C022
+    automation:
+      spec_file: t22-c022.ts
     title: 验证词根管理-删除
     priority: P1
     steps:
@@ -407,6 +451,8 @@ cases:
       - 标准基础
       - 词根管理
   - id: C023
+    automation:
+      spec_file: t23-c023.ts
     title: 验证码表管理-新建
     priority: P1
     steps:
@@ -421,6 +467,8 @@ cases:
       - 标准基础
       - 码表管理
   - id: C024
+    automation:
+      spec_file: t24-c024.ts
     title: 验证数据库拾取-拾取流程
     priority: P1
     steps:
@@ -451,6 +499,8 @@ cases:
       - 标准基础
       - 数据库拾取
   - id: C025
+    automation:
+      spec_file: t25-c025.ts
     title: 验证数据库拾取-批量引用功能正常
     priority: P1
     steps:
@@ -474,6 +524,8 @@ cases:
       - 标准基础
       - 数据库拾取
   - id: C026
+    automation:
+      spec_file: t26-c026.ts
     title: 验证创建不同类型sparkThrift表功能正常
     priority: P1
     steps:
@@ -516,6 +568,8 @@ cases:
       - 建表
       - 未分类
   - id: C027
+    automation:
+      spec_file: t27-c027.ts
     title: 验证建表语句解析功能正确
     priority: P1
     steps:
@@ -550,6 +604,8 @@ cases:
       - 建表
       - 未分类
   - id: C028
+    automation:
+      spec_file: t28-c028.ts
     title: 验证「规范设计」-新增数仓层级功能正常
     priority: P1
     steps:
@@ -581,6 +637,8 @@ cases:
       - 建表
       - 未分类
   - id: C029
+    automation:
+      spec_file: t29-c029.ts
     title: 验证数据模型-审批功能
     priority: P0
     steps:
@@ -615,6 +673,8 @@ cases:
       - 建表
       - 未分类
   - id: C030
+    automation:
+      spec_file: t30-c030.ts
     title: 验证单表校验-【完整性校验-字段级-单字段】结果正确
     priority: P1
     steps:
@@ -638,6 +698,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C031
+    automation:
+      spec_file: t31-c031.ts
     title: 验证单表校验-【准确性校验】结果正确
     priority: P0
     steps:
@@ -664,6 +726,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C032
+    automation:
+      spec_file: t32-c032.ts
     title: 验证单表校验-【规范性校验】结果正确
     priority: P0
     steps:
@@ -690,6 +754,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C033
+    automation:
+      spec_file: t33-c033.ts
     title: 验证单表校验-【唯一性校验】结果正确
     priority: P0
     steps:
@@ -712,6 +778,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C034
+    automation:
+      spec_file: t34-c034.ts
     title: 验证单表校验-【自定义sql-单表逻辑】结果正确
     priority: P0
     steps:
@@ -741,6 +809,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C035
+    automation:
+      spec_file: t35-c035.ts
     title: 验证【规则集】功能正常
     priority: P1
     steps:
@@ -826,6 +896,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C036
+    automation:
+      spec_file: t36-c036.ts
     title: 验证【多表-同源比对】功能正常
     priority: P1
     steps:
@@ -962,6 +1034,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C037
+    automation:
+      spec_file: t37-c037.ts
     title: 验证【多表-doris-mysql跨源比对】功能正常
     priority: P1
     steps:
@@ -1079,6 +1153,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C038
+    automation:
+      spec_file: t38-c038.ts
     title: 验证【联动】质量和离线绑定，单规则包-【表行数-强规则-校验不通过】结果正确
     priority: P0
     steps:
@@ -1163,6 +1239,8 @@ cases:
       - 规则任务配置
       - 未分类
   - id: C039
+    automation:
+      spec_file: t39-c039.ts
     title: 验证数据质量项目管理增删改查功能入口
     priority: P2
     steps:
@@ -1175,6 +1253,8 @@ cases:
       - 未分类
       - 未分类
   - id: C040
+    automation:
+      spec_file: t40-c040.ts
     title: 验证数据安全权限管理新增权限策略功能
     priority: P2
     steps:
@@ -1206,6 +1286,8 @@ cases:
       - 未分类
       - 未分类
   - id: C041
+    automation:
+      spec_file: t41-c041.ts
     title: 验证数据分级分类各页面入口可正常进入
     priority: P2
     steps:
@@ -1220,6 +1302,8 @@ cases:
       - 未分类
       - 未分类
   - id: C042
+    automation:
+      spec_file: t42-c042.ts
     title: 验证表脱敏功能正常
     priority: P0
     steps:

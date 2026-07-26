@@ -27,6 +27,8 @@ function asCell(v: unknown, field: string): string {
   return v;
 }
 
+const SPEC_FILE_RE = /^t\d+-[a-z0-9]+(?:-[a-z0-9]+)*\.ts$/;
+
 function asCaseItem(v: unknown, index: number): CaseItem {
   if (typeof v !== "object" || v === null) fail(`cases[${index}] 不是对象`);
   const o = v as Record<string, unknown>;
@@ -53,6 +55,16 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     item.precondition = o.precondition;
   if (Array.isArray(o.tags) && o.tags.every((t) => typeof t === "string")) item.tags = o.tags;
   if (typeof o.source_ref === "string" && o.source_ref.trim()) item.source_ref = o.source_ref;
+  if (o.automation !== undefined) {
+    if (typeof o.automation !== "object" || o.automation === null) {
+      fail(`cases[${index}].automation 不是对象`);
+    }
+    const specFile = (o.automation as Record<string, unknown>).spec_file;
+    if (typeof specFile !== "string" || !SPEC_FILE_RE.test(specFile)) {
+      fail(`cases[${index}].automation.spec_file 必须匹配 t<序号>-<slug>.ts`);
+    }
+    item.automation = { spec_file: specFile };
+  }
   return item;
 }
 

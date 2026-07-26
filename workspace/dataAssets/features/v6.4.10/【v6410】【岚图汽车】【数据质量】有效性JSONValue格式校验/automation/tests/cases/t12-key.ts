@@ -5,7 +5,7 @@
 // META: {"id":"t12","priority":"P1","title":"【P1】验证未选择校验key时保存规则提示统计函数存在必填项未填写"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
-import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
 

@@ -4,14 +4,16 @@
  * 读取扫描全部子目录,frontmatter 解析后把旧 confidence 字段映射为四态 status。
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseFrontmatter } from "../knowledge.ts";
 import type { ProjectPaths } from "../types.ts";
 import { type KnowledgeEntry, type KnowledgeType, statusFromConfidence } from "./types.ts";
 
 // file-per-entry 类型 → 子目录名
 const TYPE_DIRS: Record<string, string> = {
+  term: "terms",
   module: "modules",
   pitfall: "pitfalls",
   site: "sites",
@@ -35,10 +37,9 @@ export function slugifyTitle(title: string): string {
 
 function entryPath(dir: string, entry: KnowledgeEntry): string {
   const sub = TYPE_DIRS[entry.type];
-  if (!sub) throw new Error(`类型 ${entry.type} 不是 file-per-entry,走 terms.md/overview.md`);
+  if (!sub) throw new Error(`类型 ${entry.type} 不是 file-per-entry`);
   const slug = slugifyTitle(entry.title);
-  const name = entry.type === "pitfall" ? `${entry.updated}-${slug}.md` : `${slug}.md`;
-  return join(dir, sub, name);
+  return join(dir, sub, `${slug}.md`);
 }
 
 function serialize(entry: KnowledgeEntry): string {
@@ -57,13 +58,53 @@ function serialize(entry: KnowledgeEntry): string {
   ].join("\n");
 }
 
-/** 写入条目(同名覆盖),返回文件路径。 */
+function existingEntryPath(dir: string, entry: KnowledgeEntry): string | undefined {
+  const subdir = join(dir, TYPE_DIRS[entry.type]);
+  for (const file of listMarkdown(subdir)) {
+    const hit = parseEntryFile(entry.type, file);
+    if (hit?.title === entry.title) return file;
+  }
+  return undefined;
+}
+
+/** 写入条目(同名复用旧路径),返回文件路径。 */
 export function writeEntry(paths: ProjectPaths, entry: KnowledgeEntry): string {
   const dir = storeDir(paths);
-  const file = entryPath(dir, entry);
+  const file = existingEntryPath(dir, entry) ?? entryPath(dir, entry);
   mkdirSync(join(file, ".."), { recursive: true });
-  writeFileSync(file, serialize(entry));
+  writeFileAtomic(file, serialize(entry));
   return file;
+}
+
+/** Find one entry by type and title, including legacy dated pitfall files. */
+export function readEntryByTitle(
+  paths: ProjectPaths,
+  type: KnowledgeType,
+  title: string,
+): KnowledgeEntry | null {
+  const dir = storeDir(paths);
+  const sub = TYPE_DIRS[type];
+  if (!sub) return null;
+  for (const file of listMarkdown(join(dir, sub))) {
+    const hit = parseEntryFile(type, file);
+    if (hit?.title === title) {
+      return {
+        title: hit.title,
+        type: hit.type,
+        status: hit.status,
+        tags: hit.tags,
+        source: hit.source,
+        updated: hit.updated,
+        body: hit.body,
+      };
+    }
+  }
+  return null;
+}
+
+export function readOverview(paths: ProjectPaths): string | null {
+  const file = join(storeDir(paths), "overview.md");
+  return existsSync(file) ? readFileSync(file, "utf8") : null;
 }
 
 interface RawHit {
@@ -122,7 +163,12 @@ function listMarkdown(dir: string): string[] {
 /** 检索条目:types 限定类型;module 匹配标题或 tags;keyword 匹配标题/正文/tags。 */
 export function readEntries(
   paths: ProjectPaths,
-  query: { module?: string; keyword?: string; types?: string[] } = {},
+  query: {
+    module?: string;
+    keyword?: string;
+    types?: string[];
+    statuses?: KnowledgeEntry["status"][];
+  } = {},
 ): KnowledgeEntry[] {
   const dir = storeDir(paths);
   const types = (query.types?.length ? query.types : Object.keys(TYPE_DIRS)) as KnowledgeType[];
@@ -136,6 +182,7 @@ export function readEntries(
     for (const file of listMarkdown(join(dir, sub))) {
       const hit = parseEntryFile(type, file);
       if (!hit) continue;
+      if (query.statuses && !query.statuses.includes(hit.status)) continue;
       if (mod && !hit.title.includes(mod) && !hit.tags.some((t) => t.includes(mod))) {
         continue;
       }

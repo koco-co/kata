@@ -1,8 +1,7 @@
 // lib/create-project.ts
 
-import { existsSync, renameSync } from "node:fs";
-import { join } from "node:path";
-import { repoRoot } from "./workspace-locator.ts";
+import { existsSync, readFileSync, renameSync, statSync } from "node:fs";
+import { basename, join } from "node:path";
 
 export const SKELETON_SPEC = {
   dirs: [
@@ -13,6 +12,7 @@ export const SKELETON_SPEC = {
     "tests",
     "_shared/rules",
     "knowledge",
+    "knowledge/terms",
     "knowledge/modules",
     "knowledge/pitfalls",
   ],
@@ -22,13 +22,14 @@ export const SKELETON_SPEC = {
     "history",
     "reports",
     "tests",
+    "knowledge/terms",
     "knowledge/modules",
     "knowledge/pitfalls",
   ],
   template_files: {
+    "project.json": "project.json",
     "_shared/rules/README.md": "rules/README.md",
     "knowledge/overview.md": "knowledge/overview.md",
-    "knowledge/terms.md": "knowledge/terms.md",
   } as Record<string, string>,
 } as const;
 
@@ -105,14 +106,27 @@ export function validateProjectName(name: string): ValidationResult {
   return { valid: true };
 }
 
-function repoRootFromLib(): string {
-  return repoRoot();
+export function projectMetadataPath(projectDirAbs: string): string {
+  return join(projectDirAbs, "project.json");
 }
 
-export function configJsonPath(): string {
-  const override = process.env.CONFIG_JSON_PATH;
-  if (override && override.length > 0) return override;
-  return join(repoRootFromLib(), "config.json");
+export interface ProjectMetadata {
+  name: string;
+  description?: string;
+  repos?: string[];
+  schema?: string;
+}
+
+export function readProjectMetadata(projectDirAbs: string): ProjectMetadata | null {
+  const path = projectMetadataPath(projectDirAbs);
+  if (!existsSync(path)) return null;
+  try {
+    const value = JSON.parse(readFileSync(path, "utf8")) as ProjectMetadata;
+    if (!value || typeof value !== "object" || typeof value.name !== "string") return null;
+    return value;
+  } catch {
+    return null;
+  }
 }
 
 export interface SkeletonDiff {
@@ -120,6 +134,8 @@ export interface SkeletonDiff {
   missing_dirs: string[];
   missing_files: string[];
   missing_gitkeeps: string[];
+  invalid_paths: string[];
+  project_metadata_valid: boolean;
   skeleton_complete: boolean;
 }
 
@@ -176,51 +192,39 @@ export function diffProjectSkeleton(projectDirAbs: string, templateRootAbs: stri
     }
   }
 
+  const invalid_paths: string[] = [];
+  for (const dir of spec.dirs) {
+    if (existsSync(dir) && !statSync(dir).isDirectory()) {
+      invalid_paths.push(dir.slice(projectDirAbs.length + 1));
+    }
+  }
+  for (const file of spec.templates.map((t) => t.dst_abs)) {
+    if (existsSync(file) && statSync(file).isDirectory()) {
+      invalid_paths.push(file.slice(projectDirAbs.length + 1));
+    }
+  }
+
+  const metadata = readProjectMetadata(projectDirAbs);
+  const project_metadata_valid = metadata?.name === basename(projectDirAbs);
+
   void templateRootAbs;
 
   const skeleton_complete =
     exists &&
     missing_dirs.length === 0 &&
     missing_gitkeeps.length === 0 &&
-    missing_files.length === 0;
+    missing_files.length === 0 &&
+    invalid_paths.length === 0 &&
+    project_metadata_valid;
 
   return {
     exists,
     missing_dirs,
     missing_files,
     missing_gitkeeps,
+    invalid_paths,
+    project_metadata_valid,
     skeleton_complete,
-  };
-}
-
-export interface ConfigMergeResult {
-  merged: Record<string, unknown>;
-  added: boolean;
-}
-
-export function mergeProjectConfig(
-  existing: Record<string, unknown>,
-  projectName: string,
-): ConfigMergeResult {
-  const projects = (existing.projects as Record<string, unknown> | undefined) ?? {};
-  if (Object.hasOwn(projects, projectName)) {
-    return {
-      merged: {
-        ...existing,
-        projects: { ...projects },
-      },
-      added: false,
-    };
-  }
-  return {
-    merged: {
-      ...existing,
-      projects: {
-        ...projects,
-        [projectName]: { repo_profiles: {} },
-      },
-    },
-    added: true,
   };
 }
 

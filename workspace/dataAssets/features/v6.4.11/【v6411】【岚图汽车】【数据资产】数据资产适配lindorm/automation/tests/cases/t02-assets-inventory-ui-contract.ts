@@ -19,7 +19,7 @@ import {
   SR_2099_01_AI_DIRECTORY_DISTRIBUTION_L66,
   SR_2099_01_AI_STORAGE_RESOURCE_L105,
   SR_2099_01_AI_VALUE_RANK_L84,
-} from "../data/assets-inventory-contract";
+} from "../fixtures/assets-inventory-contract";
 
 test.setTimeout(35 * 60 * 1000);
 

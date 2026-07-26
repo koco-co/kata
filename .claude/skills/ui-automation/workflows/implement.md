@@ -10,7 +10,7 @@
 
 ## 生成（generate）
 
-4. 脚本规范见 [../references/conventions.md](../references/conventions.md)；Playwright API 速查见 [../references/playwright-api.md](../references/playwright-api.md)。
+4. 根据每条用例的 `automation.spec_file` 生成或维护 `automation/tests/cases/t<序号>-<slug>.ts`，runner 只负责 import；脚本规范见 [../references/conventions.md](../references/conventions.md)。
 5. 运行一律 `kata env run <env> -- npx playwright test ...`，不裸跑——环境变量由 kata 注入。
 6. 每条用例步骤必须实现为真实页面动作，断言落在真实业务结果上；「导航 + 可见性」不算业务覆盖。
 7. 会改变平台状态的用例，必须造唯一测试记录，并用 UI 证据（路由、DOM 文案、截图、Allure 附件）断言记录名称 / ID / 状态。在共享环境重建记录前，先清理或隔离历史自动化数据。
@@ -29,6 +29,7 @@
    | 环境问题 | 服务不可达、cookie 失效 | 按 infra-diagnose 排查，或换环境 |
 
 10. 每个 spec 最多 3 轮修复；修不通就排除该用例并写明原因，不无限重试。
+11. 每轮修复后重跑 `kata automation lint <featureDir> --exit-code`；共享页面、helper、fixture 变更同步跑 `kata automation lint --shared --exit-code`。
 
 ## 子代理
 

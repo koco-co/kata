@@ -38,11 +38,11 @@ export function registerZentao(program: Command): void {
 
   zentao
     .command("create")
-    .description("在禅道创建 bug(fixed assignee,zentao variant body)")
-    .requiredOption("--json <path>", "BugReport JSON 路径")
+    .description("从正式 Markdown 报告在禅道创建 bug(fixed assignee,zentao variant body)")
+    .requiredOption("--report <path>", "BugReport Markdown 路径")
     .option("--config <path>", "ZenTao 配置 yaml", DEFAULT_CONFIG)
     .option("--dry-run", "只组装字段不提交,打印 payload", false)
-    .action(async (opts: { json: string; config: string; dryRun: boolean }) => {
-      await runCreate({ json: opts.json, config: opts.config, dryRun: opts.dryRun });
+    .action(async (opts: { report: string; config: string; dryRun: boolean }) => {
+      await runCreate({ report: opts.report, config: opts.config, dryRun: opts.dryRun });
     });
 }

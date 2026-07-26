@@ -194,7 +194,7 @@ cases/需求名.yaml  ──kata cases build──┬──> cases/需求名.xmi
 - `automation/tests/runners/{smoke,full}.spec.ts`：冒烟与全量 runner。
 - 页面对象：本 feature 私有 → `automation/pages/`；跨 feature 共享 → `_shared/pages/`。
 - fixture：本 feature → `automation/fixtures/`；共享 → `_shared/fixtures/`。
-- 运行时 SQL：本 feature → `automation/sql/`；共享多数据源工具 → `lib/db/`。
+- 运行时 SQL：本 feature → `automation/tests/sql/`；共享多数据源工具 → `lib/db/`。
 - 删可追溯头四行注释 lint（格式拜物）；用例与脚本的关联由 cases.yaml 的 id 与 spec 文件名约定表达。
 
 ## 15. Run 结果

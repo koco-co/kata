@@ -17,7 +17,7 @@ import {
   ASSETS_INVENTORY_TREND_SCOPE,
   SR_2099_01_AI_003,
   SR_2099_01_AI_SEARCH_TREND_L142,
-} from "../data/assets-inventory-contract";
+} from "../fixtures/assets-inventory-contract";
 
 test.setTimeout(30 * 60 * 1000);
 

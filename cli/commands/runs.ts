@@ -1,11 +1,11 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Command } from "commander";
-import { readFeatureMeta } from "../lib/feature-meta.ts";
 import {
   type FeatureDirEntry,
   listFeatureDirs,
   RUNS_TMP,
+  resolveFeatureEntry,
   runsDir,
 } from "../lib/features-layout.ts";
 import { generateRunId, RUN_TYPES, type RunType, runIdType } from "../lib/run-id.ts";
@@ -13,17 +13,7 @@ import { locateProject } from "../lib/workspace-locator.ts";
 
 // ─── 共用：按 dirName 或 metadata.id 定位 feature ───
 
-function findFeatureEntry(featuresRoot: string, featureId: string): FeatureDirEntry {
-  const entries = listFeatureDirs(featuresRoot);
-  const entry =
-    entries.find((e) => e.dirName === featureId) ??
-    entries.find((e) => {
-      const m = readFeatureMeta(e.dir);
-      return m?.id === featureId || m?.feature_id === featureId;
-    });
-  if (!entry) throw new Error(`未找到需求功能: ${featureId}`);
-  return entry;
-}
+const findFeatureEntry = resolveFeatureEntry;
 
 // ─── new / path ───
 

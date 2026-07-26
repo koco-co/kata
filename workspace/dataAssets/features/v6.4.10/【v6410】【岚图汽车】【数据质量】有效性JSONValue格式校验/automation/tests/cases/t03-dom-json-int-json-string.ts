@@ -5,7 +5,7 @@
 // META: {"id":"t3","priority":"P1","title":"【P1】验证当前 DOM 下「格式-json格式校验」在 INT 与 json/string 字段下均可见"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
-import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
 

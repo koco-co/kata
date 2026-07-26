@@ -191,15 +191,15 @@ export interface IndexEntry {
 }
 
 export interface IndexData {
+  terms: IndexEntry[];
   modules: IndexEntry[];
   pitfalls: IndexEntry[];
   sites: IndexEntry[];
   overview_updated: string;
-  terms_updated: string;
   terms_count: number;
 }
 
-function renderIndexEntry(subdir: "modules" | "pitfalls", entry: IndexEntry): string {
+function renderIndexEntry(subdir: "terms" | "modules" | "pitfalls", entry: IndexEntry): string {
   const tagsStr = entry.tags.length ? ` [tags: ${entry.tags.join(", ")}]` : "";
   return `- [${entry.name}.md](${subdir}/${entry.name}.md) — ${entry.title}${tagsStr} (updated: ${entry.updated}, status: ${entry.status})`;
 }
@@ -207,6 +207,7 @@ function renderIndexEntry(subdir: "modules" | "pitfalls", entry: IndexEntry): st
 export function renderIndex(project: string, data: IndexData): string {
   const sortedModules = [...data.modules].sort((a, b) => a.name.localeCompare(b.name));
   const sortedPitfalls = [...data.pitfalls].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedTerms = [...data.terms].sort((a, b) => a.name.localeCompare(b.name));
   const sortedSites = [...data.sites].sort((a, b) => a.name.localeCompare(b.name));
 
   const modulesBody = sortedModules.length
@@ -223,6 +224,9 @@ export function renderIndex(project: string, data: IndexData): string {
         })
         .join("\n")
     : "_（暂无）_";
+  const termsBody = sortedTerms.length
+    ? sortedTerms.map((e) => renderIndexEntry("terms", e)).join("\n")
+    : "_（暂无）_";
 
   const nowIso = new Date().toISOString();
 
@@ -233,7 +237,12 @@ export function renderIndex(project: string, data: IndexData): string {
 ## Core
 
 - [overview.md](overview.md) — 产品定位 + 主流程（updated: ${data.overview_updated}）
-- [terms.md](terms.md) — 术语表（${data.terms_count} 条，updated: ${data.terms_updated}）
+
+## Terms
+
+${termsBody}
+
+（共 ${data.terms_count} 条）
 
 ## Modules
 

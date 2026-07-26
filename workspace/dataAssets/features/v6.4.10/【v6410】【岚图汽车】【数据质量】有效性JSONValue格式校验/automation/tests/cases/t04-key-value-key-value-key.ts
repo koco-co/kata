@@ -5,7 +5,7 @@
 // META: {"id":"t4","priority":"P1","title":"【P1】验证校验key列表中仅配置了value格式的key可被选中，未配置value格式的key不可选中"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
-import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
 

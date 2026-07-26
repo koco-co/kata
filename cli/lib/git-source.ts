@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { parse } from "yaml";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
-/** A source repo entry from config/source-repos.yaml. */
+/** A source repo entry from config/repos/sources.yaml. */
 export interface SourceRepo {
   /** Unique id in "group/repo" form. */
   name: string;
@@ -82,7 +82,7 @@ export function readGitSourceFile(
   }
 }
 
-// ─── 配置加载(config/source-repos.yaml)───
+// ─── 配置加载(config/repos/sources.yaml)───
 
 /**
  * Main worktree root. `.repos/` lives only in the main worktree (gitignored),
@@ -97,9 +97,9 @@ export function mainWorktreeRoot(root: string = locateProjectRoot()): string {
   return dirname(common);
 }
 
-/** Load and validate config/source-repos.yaml; throws on missing/malformed entries. */
+/** Load and validate config/repos/sources.yaml; throws on missing/malformed entries. */
 export function loadSourceRepos(root: string = locateProjectRoot()): SourceRepo[] {
-  const configPath = join(root, "config", "source-repos.yaml");
+  const configPath = join(root, "config", "repos", "sources.yaml");
   if (!existsSync(configPath)) {
     throw new Error(`未找到源码仓库配置 ${configPath}`);
   }

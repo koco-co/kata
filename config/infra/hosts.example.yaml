@@ -1,0 +1,7 @@
+# Copy to hosts.yaml locally; do not commit the copied file.
+hosts:
+  example-host:
+    host: 192.0.2.10
+    port: 22
+    credential_ref: infra-example
+    host_key: "SHA256:replace-with-a-verified-fingerprint"

@@ -12,12 +12,12 @@ import {
   EXPLICIT_RULE_CASE_SPECS,
   formatV6411ShortRuleName,
   loadV6411UiCaseMetas,
-} from "../data/v6411-ui-case-specs";
+} from "../fixtures/v6411-ui-case-specs";
 import {
   expectedRuleOutcomes,
   expectedDirtyData,
   type ExpectedRuleOutcome,
-} from "../data/v6411-result-oracle";
+} from "../fixtures/v6411-result-oracle";
 
 type UiResultStatus = "validation-pass" | "validation-unpass" | "run-failed" | "running" | "unknown" | "missing";
 

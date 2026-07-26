@@ -17,19 +17,19 @@ import {
   ruleFingerprint,
   type V6411RuleSpec,
   type V6411UiCaseSpec,
-} from "../data/v6411-ui-case-specs";
+} from "../fixtures/v6411-ui-case-specs";
 import {
   baseTableProfileForV6411Case,
   baseRowsForV6411Case,
   sourceDefaultRows,
   validityDetailUnpassRows,
   type V6411BaseTableRow,
-} from "../data/v6411-ui-base-table-data";
+} from "../fixtures/v6411-ui-base-table-data";
 import {
   descendingActionCaseNumbers,
   descendingDisplayCaseNumbers,
   expectedRuleOutcomes,
-} from "../data/v6411-result-oracle";
+} from "../fixtures/v6411-result-oracle";
 
 const CASES_DIR = path.dirname(fileURLToPath(import.meta.url));
 const FORMAL_UI_SCRIPT_FILES = [path.join(CASES_DIR, "t16-ui-rebuild-v6411-cases.ts")];

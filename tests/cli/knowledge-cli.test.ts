@@ -31,6 +31,8 @@ function writeModule(root: string) {
     "数据质量规则",
     "--body",
     "字段级/表级两类",
+    "--source",
+    "tests/knowledge-cli.test.ts",
     "--tags",
     "质量,规则",
   ]);
@@ -48,7 +50,7 @@ describe("kata knowledge write", () => {
     expect(content).toContain("字段级/表级两类");
   });
 
-  it("observed without --confirmed prints pending and does not write", () => {
+  it("observed with a source writes without promotion", () => {
     const root = proj();
     const r = kata(root, [
       "knowledge",
@@ -63,11 +65,14 @@ describe("kata knowledge write", () => {
       "单次观察坑",
       "--body",
       "只见过一次",
+      "--source",
+      "tests/knowledge-cli.test.ts",
     ]);
     expect(r.status).toBe(0);
-    const out = JSON.parse(r.stdout);
-    expect(out.pending).toBe(true);
-    expect(existsSync(join(root, "workspace", "dataAssets", "knowledge", "pitfalls"))).toBe(false);
+    expect(JSON.parse(r.stdout).status).toBe("observed");
+    expect(
+      existsSync(join(root, "workspace", "dataAssets", "knowledge", "pitfalls", "单次观察坑.md")),
+    ).toBe(true);
   });
 
   it("observed with --confirmed writes the entry", () => {
@@ -85,7 +90,8 @@ describe("kata knowledge write", () => {
       "单次观察坑",
       "--body",
       "只见过一次",
-      "--confirmed",
+      "--source",
+      "tests/knowledge-cli.test.ts",
     ]);
     expect(r.status).toBe(0);
     const dir = join(root, "workspace", "dataAssets", "knowledge", "pitfalls");
@@ -107,6 +113,8 @@ describe("kata knowledge write", () => {
       "x",
       "--body",
       "y",
+      "--source",
+      "tests/knowledge-cli.test.ts",
     ]);
     expect(r.status).not.toBe(0);
   });

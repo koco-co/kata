@@ -12,8 +12,10 @@ import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
 import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import { renderXmind } from "../lib/cases/render-xmind.ts";
+import { resolveFeatureEntry } from "../lib/features-layout.ts";
 import { assertWritable } from "../lib/path-policy.ts";
 import type { ProjectPaths } from "../lib/types.ts";
+import { locateProject } from "../lib/workspace-locator.ts";
 
 // 写入边界:只允许写在 feature 目录内
 function featurePaths(featureDir: string): ProjectPaths {
@@ -27,6 +29,15 @@ function featurePaths(featureDir: string): ProjectPaths {
     analysesDir: d,
     cacheDir: d,
   };
+}
+
+export function resolveFeatureInput(feature: string, project?: string): string {
+  if (existsSync(feature)) return resolve(feature);
+  if (!project)
+    throw new Error(
+      `--feature 不是路径；按目录名或 metadata.id 选择时必须同时提供 --project: ${feature}`,
+    );
+  return resolveFeatureEntry(locateProject(project).featuresDir, feature).dir;
 }
 
 /** Locate the single canonical yaml under <featureDir>/cases. */
@@ -62,9 +73,10 @@ export function registerCasesBuild(cases: Command): void {
     .command("build")
     .description("从 cases/需求名.yaml 派生 xmind 与 exports/md(唯一正式源)")
     .requiredOption("--feature <dir>", "feature 目录路径")
-    .action(async (opts: { feature: string }) => {
+    .option("--project <name>", "项目名；feature 传目录名或 metadata.id 时必填")
+    .action(async (opts: { feature: string; project?: string }) => {
       try {
-        const written = await runCasesBuild(opts.feature);
+        const written = await runCasesBuild(resolveFeatureInput(opts.feature, opts.project));
         for (const p of written) console.log(`built ${p}`);
       } catch (e) {
         console.error((e as Error).message);
@@ -75,10 +87,14 @@ export function registerCasesBuild(cases: Command): void {
     .command("export")
     .description("从 cases/需求名.yaml 按需派生 exports/{csv,xlsx}")
     .requiredOption("--feature <dir>", "feature 目录路径")
+    .option("--project <name>", "项目名；feature 传目录名或 metadata.id 时必填")
     .requiredOption("--to <fmt>", "目标格式: csv|xlsx")
-    .action(async (opts: { feature: string; to: string }) => {
+    .action(async (opts: { feature: string; project?: string; to: string }) => {
       try {
-        const written = await runCasesExport(opts.feature, opts.to);
+        const written = await runCasesExport(
+          resolveFeatureInput(opts.feature, opts.project),
+          opts.to,
+        );
         for (const p of written) console.log(`exported ${p}`);
       } catch (e) {
         console.error((e as Error).message);

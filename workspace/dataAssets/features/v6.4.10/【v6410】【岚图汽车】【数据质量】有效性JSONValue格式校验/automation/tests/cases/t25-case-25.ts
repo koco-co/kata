@@ -7,7 +7,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import ExcelJS from "exceljs";
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { P0_FAIL_SCENARIO } from "../data/test-data";
+import { P0_FAIL_SCENARIO } from "../fixtures/test-data";
 import {
   ensureExecutedJsonTask,
   openTaskInstanceDetail,

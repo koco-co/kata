@@ -5,7 +5,7 @@
 // META: {"id":"t15","priority":"P1","title":"验证规则集管理与规则任务管理中校验内容全量展示无截断"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { ensureSavedScenarioRuleSet, openScenarioEditor, SCENARIOS } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
-import { KEY_NAMES } from "../../data/test-data";
+import { KEY_NAMES } from "../../fixtures/test-data";
 
 test.setTimeout(600000);
 

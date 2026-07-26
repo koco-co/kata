@@ -4,6 +4,8 @@ meta:
   feature_id: v7.0.0/【v700】【岚图汽车】数据资产集成用例
 cases:
 - id: C001
+  automation:
+    spec_file: t01-data-standard-module-contract.ts
   title: 验证「元数据」元数据同步记录查看实例编辑与删除
   priority: P0
   steps:
@@ -213,6 +215,8 @@ cases:
   tags:
   - 元数据
 - id: C002
+  automation:
+    spec_file: t02-c002.ts
   title: 验证「数据标准」标准统计各维度结果展示
   priority: P1
   steps:
@@ -953,6 +957,8 @@ cases:
   tags:
   - 数据标准
 - id: C003
+  automation:
+    spec_file: t03-c003.ts
   title: 验证「数据模型」规范设计与模型元素展示
   priority: P1
   steps:
@@ -1309,6 +1315,8 @@ cases:
   tags:
   - 数据模型
 - id: C004
+  automation:
+    spec_file: t04-c004.ts
   title: 验证「数据质量」项目管理搜索与置顶功能
   priority: P0
   steps:

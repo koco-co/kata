@@ -5,7 +5,7 @@
 // META: {"id":"t27","priority":"P2","title":"【P2】验证校验失败时支持查看日志"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import {
   addRuleToPackage,
   configureJsonFormatRule,

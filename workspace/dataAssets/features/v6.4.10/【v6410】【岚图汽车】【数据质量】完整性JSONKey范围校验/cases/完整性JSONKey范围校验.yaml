@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验
 cases:
   - id: C001
+    automation:
+      spec_file: t01-key.ts
     title: 验证统计函数选择key范围校验后字段选择变为单选
     priority: P0
     steps:
@@ -29,6 +31,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C002
+    automation:
+      spec_file: t02-method-switch.ts
     title: 验证校验方法切换（包含与不包含）规则保存和执行结果差异
     priority: P0
     steps:
@@ -75,6 +79,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C003
+    automation:
+      spec_file: t03-json-key.ts
     title: 验证校验内容支持多选和全选操作
     priority: P1
     steps:
@@ -102,6 +108,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C004
+    automation:
+      spec_file: t04-search-verify-content.ts
     title: 验证校验内容下拉框支持输入关键词搜索查询
     priority: P1
     steps:
@@ -127,6 +135,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C005
+    automation:
+      spec_file: t05-key.ts
     title: 验证key数据量超过200条时默认加载前200条及搜索功能
     priority: P1
     steps:
@@ -161,6 +171,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C006
+    automation:
+      spec_file: t06-c006.ts
     title: 验证校验内容回显格式为同层级key用横线拼接不同层级用分号分隔
     priority: P1
     steps:
@@ -184,6 +196,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C007
+    automation:
+      spec_file: t07-c007.ts
     title: 验证数据质量报告中校验内容默认显示前两个悬浮展示全部
     priority: P1
     steps:
@@ -216,6 +230,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C008
+    automation:
+      spec_file: t08-c008.ts
     title: 验证规则集管理与规则任务管理中校验内容全量展示无截断（反向用例）
     priority: P1
     steps:
@@ -246,6 +262,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C009
+    automation:
+      spec_file: t09-c009.ts
     title: 验证校验内容标签旁悬浮提示文案正确
     priority: P1
     steps:
@@ -263,6 +281,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - id: C010
+    automation:
+      spec_file: t10-c010.ts
     title: 验证json类型字段可成功配置key范围校验规则
     priority: P0
     steps:
@@ -288,6 +308,8 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - id: C011
+    automation:
+      spec_file: t11-c011.ts
     title: 验证string类型字段可成功配置key范围校验规则
     priority: P0
     steps:
@@ -313,6 +335,8 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - id: C012
+    automation:
+      spec_file: t12-c012.ts
     title: 验证非json和string类型字段选择key范围校验后任务执行报错
     priority: P1
     steps:
@@ -338,6 +362,8 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - id: C013
+    automation:
+      spec_file: t13-c013.ts
     title: 验证未选择字段时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -357,6 +383,8 @@ cases:
       - 规则集管理
       - 规则配置-表单校验（逆向）
   - id: C014
+    automation:
+      spec_file: t14-c014.ts
     title: 验证未选择校验内容时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -376,6 +404,8 @@ cases:
       - 规则集管理
       - 规则配置-表单校验（逆向）
   - id: C015
+    automation:
+      spec_file: t15-case-15.ts
     title: 验证未选择校验方法时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -395,6 +425,8 @@ cases:
       - 规则集管理
       - 规则配置-表单校验（逆向）
   - id: C016
+    automation:
+      spec_file: t16-key.ts
     title: 验证规则配置参数卡片完整展示所有字段
     priority: P1
     steps:
@@ -429,6 +461,8 @@ cases:
       - 规则集管理
       - 规则配置参数展示
   - id: C017
+    automation:
+      spec_file: t17-doris3-x-json-key.ts
     title: 验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果
     priority: P0
     steps:
@@ -494,6 +528,8 @@ cases:
       - 规则任务管理
       - 导入规则包-key范围校验主流程
   - id: C018
+    automation:
+      spec_file: t18-sparkthrift2-x-json-key.ts
     title: 验证Doris3.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -524,6 +560,8 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - id: C019
+    automation:
+      spec_file: t19-doris3-x-string-key.ts
     title: 验证SparkThrift2.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -551,6 +589,8 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - id: C020
+    automation:
+      spec_file: t20-sparkthrift2-x-string-key.ts
     title: 验证Doris3.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -581,6 +621,8 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - id: C021
+    automation:
+      spec_file: t21-hive2-x-string-key.ts
     title: 验证SparkThrift2.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -608,6 +650,8 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - id: C022
+    automation:
+      spec_file: t22-hive2-x-json-key.ts
     title: 验证Hive2.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -635,6 +679,8 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - id: C023
+    automation:
+      spec_file: t23-key.ts
     title: 验证Hive2.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -665,6 +711,8 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - id: C024
+    automation:
+      spec_file: t24-key.ts
     title: 验证key数量几千个时按层级校验逻辑正确执行
     priority: P0
     steps:
@@ -767,6 +815,8 @@ cases:
       - 规则任务管理
       - 大数据量与层级校验
   - id: C025
+    automation:
+      spec_file: t25-key.ts
     title: 验证千级key数据量下校验内容选择列表的加载搜索和选择性能
     priority: P1
     steps:
@@ -846,6 +896,8 @@ cases:
       - 规则任务管理
       - 大数据量与层级校验
   - id: C026
+    automation:
+      spec_file: t26-key.ts
     title: 验证删除已被规则引用的key后规则配置回显和编辑功能正常
     priority: P1
     steps:
@@ -868,6 +920,8 @@ cases:
       - 规则任务管理
       - key被删除后的关联影响
   - id: C027
+    automation:
+      spec_file: t27-key.ts
     title: 验证删除已被规则引用的key后执行校验任务不受影响
     priority: P1
     steps:
@@ -895,6 +949,8 @@ cases:
       - 规则任务管理
       - key被删除后的关联影响
   - id: C028
+    automation:
+      spec_file: t28-key.ts
     title: 验证key范围校验规则结合抽样功能正确执行
     priority: P1
     steps:
@@ -925,6 +981,8 @@ cases:
       - 规则任务管理
       - 抽样与分区场景
   - id: C029
+    automation:
+      spec_file: t29-key.ts
     title: 验证对分区表配置key范围校验规则指定分区下数据校验正确
     priority: P1
     steps:
@@ -962,6 +1020,8 @@ cases:
       - 规则任务管理
       - 抽样与分区场景
   - id: C030
+    automation:
+      spec_file: t30-case-30.ts
     title: 验证规则库中新增key范围校验内置规则展示信息正确
     priority: P1
     steps:
@@ -989,6 +1049,8 @@ cases:
       - 规则库配置
       - 规则库-内置规则展示
   - id: C031
+    automation:
+      spec_file: t31-case-31.ts
     title: 验证校验不通过时查看明细：标题、字段标红及全字段展示
     priority: P0
     steps:
@@ -1017,6 +1079,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C032
+    automation:
+      spec_file: t32-case-32.ts
     title: 验证下载明细数据中校验字段标红展示
     priority: P1
     steps:
@@ -1036,6 +1100,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C033
+    automation:
+      spec_file: t33-case-33.ts
     title: 验证校验通过时结果查询页不显示明细入口
     priority: P1
     steps:
@@ -1058,6 +1124,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C034
+    automation:
+      spec_file: t34-case-34.ts
     title: 验证校验失败时支持查看日志
     priority: P2
     steps:
@@ -1075,6 +1143,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C035
+    automation:
+      spec_file: t35-case-35.ts
     title: 验证质量报告中校验通过行的各列展示内容正确
     priority: P0
     steps:
@@ -1102,6 +1172,8 @@ cases:
       - 数据质量报告
       - 质量报告-展示验证
   - id: C036
+    automation:
+      spec_file: t36-case-36.ts
     title: 验证质量报告中校验不通过行的各列展示内容正确
     priority: P0
     steps:
@@ -1129,6 +1201,8 @@ cases:
       - 数据质量报告
       - 质量报告-展示验证
   - id: C037
+    automation:
+      spec_file: t37-c037.ts
     title: 验证质量报告中不包含校验方法的详情说明格式正确
     priority: P1
     steps:
