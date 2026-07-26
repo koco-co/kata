@@ -1,6 +1,7 @@
 meta:
   title: 202604-148716-sparkthrift2x-元数据同步环境参数配置
   version: unknown
+  source: http://zenpms.dtstack.cn/zentao/bug-view-148716.html
   feature_id: _hotfix/202604-148716-sparkthrift2x-元数据同步环境参数配置
 cases:
   - id: C001

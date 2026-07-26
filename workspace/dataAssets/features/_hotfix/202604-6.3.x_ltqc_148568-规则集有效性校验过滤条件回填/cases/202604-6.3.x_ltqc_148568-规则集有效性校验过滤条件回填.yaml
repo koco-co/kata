@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_ltqc_148568-规则集有效性校验过滤条件回填
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-148568.html
   feature_id: _hotfix/202604-6.3.x_ltqc_148568-规则集有效性校验过滤条件回填
 cases:
   - id: C001

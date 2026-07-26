@@ -1,6 +1,7 @@
 meta:
   title: 202604-125358-远程触发的质量监控任务停不下来
   version: unknown
+  source: http://zenpms.dtstack.cn/zentao/bug-view-125358.html
   feature_id: _hotfix/202604-125358-远程触发的质量监控任务停不下来
 cases:
   - id: C001

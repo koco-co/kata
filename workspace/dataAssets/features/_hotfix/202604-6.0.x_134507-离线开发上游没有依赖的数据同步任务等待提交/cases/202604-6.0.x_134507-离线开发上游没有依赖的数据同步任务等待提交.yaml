@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.0.x_134507-离线开发上游没有依赖的数据同步任务等待提交
   version: 6.0.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-134507.html
   feature_id: _hotfix/202604-6.0.x_134507-离线开发上游没有依赖的数据同步任务等待提交
 cases:
   - id: C001

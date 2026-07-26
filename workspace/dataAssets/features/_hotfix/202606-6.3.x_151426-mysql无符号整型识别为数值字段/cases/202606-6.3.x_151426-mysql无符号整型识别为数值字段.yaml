@@ -1,6 +1,7 @@
 meta:
   title: 202606-6.3.x_151426-mysql无符号整型识别为数值字段
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-151426.html
   feature_id: _hotfix/202606-6.3.x_151426-mysql无符号整型识别为数值字段
 cases:
   - id: C001

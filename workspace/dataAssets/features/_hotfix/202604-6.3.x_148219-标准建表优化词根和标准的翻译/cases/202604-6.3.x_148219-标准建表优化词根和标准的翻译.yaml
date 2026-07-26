@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_148219-标准建表优化词根和标准的翻译
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-148219.html
   feature_id: _hotfix/202604-6.3.x_148219-标准建表优化词根和标准的翻译
 cases:
   - id: C001

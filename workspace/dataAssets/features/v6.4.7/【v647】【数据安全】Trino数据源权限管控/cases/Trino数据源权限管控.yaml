@@ -191,7 +191,7 @@ cases:
       - 未分类
   - id: C010
     title: 验证【管理员】-【资产-数据安全-数据权限管理-新增权限策略】-【trino数据源】-【表级权限】交互正确
-    priority: P1
+    priority: P0
     steps:
       - action: 选择【数据源】：trino_test； 选择【catalog】：catalog1； 选择【数据库】：schema1； 选择【数据表】：table1
         expected: 选择成功

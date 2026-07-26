@@ -1,6 +1,7 @@
 meta:
   title: 202604-5.2.x_148224-数据资产界面报错看不到库元数据
   version: 5.2.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-148224.html
   feature_id: _hotfix/202604-5.2.x_148224-数据资产界面报错看不到库元数据
 cases:
   - id: C001

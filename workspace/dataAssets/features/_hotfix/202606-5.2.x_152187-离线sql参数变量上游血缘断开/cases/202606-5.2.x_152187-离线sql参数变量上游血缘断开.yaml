@@ -1,10 +1,11 @@
 meta:
   title: 202606-5.2.x_152187-离线sql参数变量上游血缘断开
   version: 5.2.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-152187.html
   feature_id: _hotfix/202606-5.2.x_152187-离线sql参数变量上游血缘断开
 cases:
   - id: C001
-    title: 【151888】验证离线任务 SQL 含参数变量时下游表上游血缘完整展示
+    title: 【152187】验证离线任务 SQL 含参数变量时下游表上游血缘完整展示
     priority: P1
     steps:
       - action: |-

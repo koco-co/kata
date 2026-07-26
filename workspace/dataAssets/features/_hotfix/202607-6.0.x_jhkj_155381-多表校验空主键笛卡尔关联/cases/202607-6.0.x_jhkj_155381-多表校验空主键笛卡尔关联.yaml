@@ -1,6 +1,7 @@
 meta:
   title: 202607-6.0.x_jhkj_155381-多表校验空主键笛卡尔关联
   version: 6.0.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-155381.html
   feature_id: _hotfix/202607-6.0.x_jhkj_155381-多表校验空主键笛卡尔关联
 cases:
   - id: C001

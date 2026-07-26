@@ -1,6 +1,7 @@
 meta:
   title: 202604-5.3.x_115497-火电元数据导出非管理员不再导出空文件
   version: 5.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-115497.html
   feature_id: _hotfix/202604-5.3.x_115497-火电元数据导出非管理员不再导出空文件
 cases:
   - id: C001

@@ -1,6 +1,7 @@
 meta:
   title: 202605-6.3.x_ltqc_151624-json格式配置导入顶层key
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-151624.html
   feature_id: _hotfix/202605-6.3.x_ltqc_151624-json格式配置导入顶层key
 cases:
   - id: C001
@@ -25,7 +26,7 @@ cases:
         expected: 测试数据清理成功；删除顶层同名 key 不影响已经展开定位到的父子层级删除流程
     precondition: |-
       1. 已部署 customltem/dt-center-assets 修复分支 hotfix_6.3.x_ltqc_151624 的包。
-      2. 使用 ltqc-local 环境登录 DataAssets，租户为 pw_test，数据质量项目为 pw_test，当前账号有【数据质量 → 通用配置 → json格式校验管理】查看、导入、删除、展开层级的权限。
+      2. 使用测试环境登录 DataAssets，租户为 pw_test，数据质量项目为 pw_test，当前账号有【数据质量 → 通用配置 → json格式校验管理】查看、导入、删除、展开层级的权限。
       3. 本缺陷可完全通过 UI 导入构造，不依赖业务源表 SQL；导入时数据源类型选择 SparkThrift2.x。
       4. 若页面中已存在以下测试 key，先在 json格式校验管理中搜索并删除，确保本次导入从干净状态开始：
          - hotfix151624Root

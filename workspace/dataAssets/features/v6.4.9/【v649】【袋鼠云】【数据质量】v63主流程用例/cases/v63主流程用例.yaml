@@ -123,7 +123,7 @@ cases:
       - 离线任务血缘解析
   - id: C007
     title: 验证元数据同步任务创建与执行
-    priority: P2
+    priority: P0
     steps:
       - action: 进入元数据 → 元数据同步，点击【新增周期同步任务】
         expected: 弹出新增周期同步任务配置页
@@ -141,7 +141,7 @@ cases:
       - 同步任务创建与执行
   - id: C008
     title: 验证同步数据正确性（数据库/数据表/字段）
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据地图，搜索已同步的 Hive2.x 表名
         expected: 搜索结果中显示该表
@@ -175,7 +175,7 @@ cases:
       - 过滤表
   - id: C010
     title: 验证离线建表自动同步至数据地图
-    priority: P2
+    priority: P0
     steps:
       - action: 在离线开发中创建并执行 SQL 任务：CREATE TABLE IF NOT EXISTS auto_sync_test (id INT, name STRING)
         expected: SQL 任务执行成功
@@ -259,7 +259,7 @@ cases:
       - 技术属性
   - id: C016
     title: 验证通用业务属性CRUD功能
-    priority: P2
+    priority: P0
     steps:
       - action: 进入元模型管理 → Hive2.x 元模型 → 通用业务属性页面
         expected: 显示通用业务属性列表
@@ -403,7 +403,7 @@ cases:
       - 数据表列表
   - id: C025
     title: 验证数据表详情页信息完整
-    priority: P1
+    priority: P0
     steps:
       - action: 在数据表列表中点击某个表名
         expected: 进入数据表详情页
@@ -453,7 +453,7 @@ cases:
       - 完整度分析
   - id: C028
     title: 验证血缘分析-创建
-    priority: P2
+    priority: P0
     steps:
       - action: 进入元数据质量 → 血缘分析页面，点击【添加数据库】
         expected: 弹出添加血缘分析弹窗
@@ -555,7 +555,7 @@ cases:
       - 标准目录CRUD
   - id: C035
     title: 验证数据标准新增功能
-    priority: P2
+    priority: P0
     steps:
       - action: 选择某标准目录，点击【新增数据标准】
         expected: 进入数据标准新增页面，包含技术属性和业务属性表单
@@ -569,7 +569,7 @@ cases:
       - 数据标准CRUD
   - id: C036
     title: 验证数据标准编辑发布功能
-    priority: P2
+    priority: P0
     steps:
       - action: 点击数据标准的【编辑】按钮
         expected: 进入编辑页面，所有可编辑属性回显正确
@@ -583,7 +583,7 @@ cases:
       - 数据标准CRUD
   - id: C037
     title: 验证数据标准下线删除功能
-    priority: P1
+    priority: P0
     steps:
       - action: 对"已上线"的数据标准点击【下线】
         expected: 状态变为"待上线"
@@ -667,7 +667,7 @@ cases:
       - 码表CRUD
   - id: C043
     title: 验证建表语句解析功能
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据模型 → 规范建表，选择 Hive2.x 数据源，点击【新建表】
         expected: 进入建表流程
@@ -699,7 +699,7 @@ cases:
       - CSV创建表
   - id: C045
     title: 验证模型发布审批流程
-    priority: P2
+    priority: P0
     steps:
       - action: 在模型列表中选择已创建的表，点击【发布】
         expected: 发布流程启动（若有审批则进入审批，否则直接发布）
@@ -723,7 +723,7 @@ cases:
       - 查询与版本管理
   - id: C047
     title: 验证总览页面统计数据正确
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据质量 → 总览
         expected: 显示总览仪表盘页面
@@ -753,7 +753,7 @@ cases:
       - 内置规则
   - id: C049
     title: 验证规则库配置-自定义规则CRUD
-    priority: P2
+    priority: P0
     steps:
       - action: 点击"自定义规则"Tab，点击【新增】
         expected: 弹出新增自定义规则表单
@@ -787,7 +787,7 @@ cases:
       - SQL模板
   - id: C051
     title: 验证规则集管理-新建规则集
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据质量 → 规则集管理，点击【新建规则集】
         expected: 进入两步表单，显示 Step1 基础信息页
@@ -827,7 +827,7 @@ cases:
       - 编辑与删除
   - id: C053
     title: 验证规则任务-新建单表监控规则
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据质量 → 规则任务管理，点击【新建监控规则】
         expected: 进入三步表单，显示 Step1 监控对象页面
@@ -853,7 +853,7 @@ cases:
       - 新建单表监控规则
   - id: C054
     title: 验证规则任务-开启/关闭检测与立即执行
-    priority: P2
+    priority: P0
     steps:
       - action: 在规则任务列表中勾选已创建的任务，点击批量操作【开启检测】
         expected: 任务规则状态变为"已开启"
@@ -867,7 +867,7 @@ cases:
       - 开启/关闭检测与立即执行
   - id: C055
     title: 验证校验结果查询-查看执行结果与报告
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据质量 → 校验结果查询
         expected: 显示执行记录列表
@@ -887,7 +887,7 @@ cases:
       - 查看执行结果
   - id: C056
     title: 验证质量报告配置与查看
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据质量 → 数据质量报告
         expected: 显示质量报告列表
@@ -901,7 +901,7 @@ cases:
       - 质量报告配置与查看
   - id: C057
     title: 验证项目管理-脏数据管理
-    priority: P1
+    priority: P0
     steps:
       - action: 进入数据质量 → 项目管理，选择某项目进入
         expected: 显示项目详情，包含脏数据管理Tab
@@ -983,7 +983,7 @@ cases:
       - 级别管理
   - id: C063
     title: 验证自动分级规则-添加与生效
-    priority: P2
+    priority: P0
     steps:
       - action: 进入分级设置页面，点击【添加】
         expected: 跳转至添加规则的基础信息页面
@@ -1107,7 +1107,7 @@ cases:
       - 脱敏规则管理
   - id: C073
     title: 验证脱敏表-全部脱敏配置与生效
-    priority: P2
+    priority: P0
     steps:
       - action: 进入脱敏应用配置，选择测试表
         expected: 显示表字段列表
@@ -1145,7 +1145,7 @@ cases:
       - 脱敏表配置
   - id: C076
     title: 验证权限分配功能
-    priority: P2
+    priority: P0
     steps:
       - action: 进入数据安全 → 权限分配页面，点击【分配】
         expected: 进入权限分配表单
@@ -1189,7 +1189,7 @@ cases:
       - 权限分配
   - id: C080
     title: 验证引入数据源功能
-    priority: P2
+    priority: P0
     steps:
       - action: 进入平台管理 → 数据源管理，点击【引入数据源】
         expected: 弹出引入数据源弹窗，显示待引入的数据源列表
@@ -1203,7 +1203,7 @@ cases:
       - 引入数据源
   - id: C081
     title: 验证引入 Doris3.x 数据源
-    priority: P2
+    priority: P0
     steps:
       - action: 点击【引入数据源】，勾选 Doris3.x 类型数据源，点击【引入】
         expected: 引入成功，列表显示 Doris3.x 数据源
@@ -1299,7 +1299,7 @@ cases:
       - 取消引入-逻辑验证
   - id: C088
     title: 验证添加用户功能
-    priority: P2
+    priority: P0
     steps:
       - action: 进入平台管理 → 用户管理，点击【添加用户】
         expected: 弹出添加成员弹窗，包含用户下拉框、角色选择、质量模块所属项目选择
@@ -1345,7 +1345,7 @@ cases:
       - 角色CRUD
   - id: C091
     title: 验证自定义角色新增与删除
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【新增角色】，输入角色名称，配置权限点，点击【保存】
         expected: 自定义角色创建成功
@@ -1463,7 +1463,7 @@ cases:
       - 元数据同步告警
   - id: C100
     title: 验证数据质量规则告警配置通知功能
-    priority: P2
+    priority: P0
     steps:
       - action: 新增通知配置，模块选择"数据质量规则"，选择接收人，填写必填信息，点击【保存】
         expected: 通知配置新增成功
@@ -1475,7 +1475,7 @@ cases:
       - 元数据同步告警
   - id: C101
     title: 验证不同告警渠道通知正常
-    priority: P2
+    priority: P0
     steps:
       - action: 新增通知配置，告警渠道选择"钉钉"，配置 Webhook，触发告警
         expected: 钉钉群组收到告警消息

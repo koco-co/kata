@@ -158,7 +158,7 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C009
-    title: 页面校验
+    title: 验证数据地图一级页面 UI 展示
     priority: P1
     steps:
       - action: 进入资产【数据地图】一级页面
@@ -176,7 +176,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C010
-    title: 页面校验
+    title: 验证数据地图搜索框交互元素展示
     priority: P2
     steps:
       - action: 点击【搜索下拉框】
@@ -396,7 +396,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C018
-    title: 页面校验
+    title: 验证数据地图资产类型图标及对应表数量展示
     priority: P1
     steps:
       - action: 依次展示【数据表】【离线任务】【实时任务】【API】【智能标签】【指标】图标
@@ -516,7 +516,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C026
-    title: 页面校验
+    title: 验证数据地图数据源类型列表按表数量倒序展示
     priority: P1
     steps:
       - action: 展示MYSQL、STAR_ROCKS2.x、SparkThrift2.x、STAR_ROCKS3.x、AnalyticDB PostgreSQL、Flink、SQLServer、Hive2.x、Hive1.x、TiDB、Oracle、PostgreSQL、Trino、Kafka2.x、Kafka_0.10、Inceptor、Greenplum、OushuDB、Hashdata、SAP HANA1.x、SAP HANA2.x、TDSQL、Phoenix5.x、Hbase、Hbase Huawei Cloud、Vertica、Doris0.14.x(http)、Doris2.x、MongoDB、ElasticSearch7.x、Impala、DB2、Hive3.x（华为版）、TBDS_HIVE、Hive3.x(Apache)、Hive3.x（CDP）、kingbaseES8、MaxCompute、Presto、a1 数据源类型及icon
@@ -567,7 +567,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C029
-    title: 页面校验
+    title: 验证数据地图标签缺省页及各类型标签使用次数展示
     priority: P1
     steps:
       - action: 展示“暂无数据”缺省页
@@ -673,7 +673,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C033
-    title: 页面校验
+    title: 验证数据地图历史查询记录分色展示
     priority: P1
     steps:
       - action: 展示“暂无数据”缺省页
@@ -729,7 +729,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C037
-    title: 页面校验
+    title: 验证数据地图二级页面及表信息 UI 展示
     priority: P1
     steps:
       - action: 进入资产【数据地图】二级页面
@@ -787,7 +787,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C039
-    title: 页面UI CHECK
+    title: 验证数据地图数据目录操作按钮及筛选框展示
     priority: P1
     steps:
       - action: |-
@@ -881,7 +881,7 @@ cases:
       - 数据地图
   - id: C043
     title: 验证【数据目录】-删除功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）一级目录NNN下无数据表
@@ -901,7 +901,7 @@ cases:
       - 数据地图
   - id: C044
     title: 验证【数据目录】-移动功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 按住“一级目录-2”右侧移动按钮，拖拽到“一级目录-1”上面
         expected: |-
@@ -1021,7 +1021,7 @@ cases:
       - 数据地图
   - id: C048
     title: 验证【数据目录】-【数据资源目录导入】功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 数据资源目录导入弹窗UI CHECK
         expected: |-
@@ -1143,7 +1143,7 @@ cases:
       - 元数据
       - 数据地图
   - id: C053
-    title: 页面校验
+    title: 验证数据地图表详情页操作按钮与信息分区展示
     priority: P1
     steps:
       - action: |-
@@ -1158,7 +1158,7 @@ cases:
       - 数据地图
   - id: C054
     title: 验证表名复制功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【表名复制】按钮
         expected: 表名文本拷贝成功
@@ -1168,7 +1168,7 @@ cases:
       - 数据地图
   - id: C055
     title: 验证删除表功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【删除表】按钮
         expected: 弹二次确认弹窗
@@ -1238,7 +1238,7 @@ cases:
       - 数据地图
   - id: C058
     title: 验证【表结构】-【字段】模块功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 查看字段列表信息
         expected: 显示：字段名、字段描述、字段标签、字段中文名、数据类型、数据精度、字段最大长度、可空标识Y/N、主键标识Y/N、默认值
@@ -1264,7 +1264,7 @@ cases:
       - 数据地图
   - id: C059
     title: 验证【表结构】-【字段】标识正确
-    priority: P1
+    priority: P0
     steps:
       - action: 当前字段为分区字段
         expected: 展示分区字段图标，数据hover提示“分区字段”
@@ -1280,7 +1280,7 @@ cases:
       - 数据地图
   - id: C060
     title: 验证【表结构】-【分页】功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 分页相关UI CHECK
         expected: |-
@@ -1319,7 +1319,7 @@ cases:
       - 数据地图
   - id: C061
     title: 验证【表结构】-【建表语句】模块功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【建表语句】按钮
         expected: 建表语句显示正确
@@ -1335,7 +1335,7 @@ cases:
       - 数据地图
   - id: C062
     title: 验证【表结构】-【批量编辑】模块功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 查看【元数据-数据地图】表详情页；
         expected: 列表左下角显示【批量编辑】按钮
@@ -1391,7 +1391,7 @@ cases:
       - 数据地图
   - id: C063
     title: 验证【表结构】-字段【添加标签】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           “添加标签“部分输入标签名称；
@@ -1454,7 +1454,7 @@ cases:
       - 数据地图
   - id: C064
     title: 验证数据表质量评分功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           表A的单表校验任务，当天已运行；
@@ -1478,7 +1478,7 @@ cases:
       - 数据地图
   - id: C065
     title: 验证【数据预览】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【数据预览】按钮
         expected: 表所有字段信息，以及表内前N条数据展示正确
@@ -1495,7 +1495,7 @@ cases:
       - 数据地图
   - id: C066
     title: 验证【血缘关系】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【血缘关系】按钮
         expected: 展示【表级血缘】【字段级血缘】【展示文字信息】【资产类型】【导航器】【表按钮】
@@ -1535,7 +1535,7 @@ cases:
       - 数据地图
   - id: C067
     title: 验证【任务依赖】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【任务依赖】按钮
         expected: 展示【离线任务】【实时任务】“任务名称”“任务类型”“和该表的关系”“负责人”
@@ -1545,7 +1545,7 @@ cases:
       - 数据地图
   - id: C068
     title: 验证【文件治理】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【文件治理】按钮
         expected: 展示【开始时间】【结束时间】【操作人】【状态】【治理前文件数】【治理后文件数】【操作】
@@ -1561,7 +1561,7 @@ cases:
       - 数据地图
   - id: C069
     title: 验证【版本变更】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【版本变更】按钮
         expected: 展示【版本号】【操作人】【操作时间】
@@ -1719,7 +1719,7 @@ cases:
       - 数据地图
   - id: C075
     title: 验证任务名复制功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【任务名复制】按钮
         expected: 任务名文本拷贝成功
@@ -1729,7 +1729,7 @@ cases:
       - 数据地图
   - id: C076
     title: 验证【任务信息】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【任务信息】按钮
         expected: 展示“任务名称”“任务名称复制按钮”“查看详情按钮”“任务SQL按钮”“任务类型”“责任人”“创建时间”“最近修改人”“最近修改时间”“描述”
@@ -1743,7 +1743,7 @@ cases:
       - 数据地图
   - id: C077
     title: 验证【血缘关系】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【血缘关系】按钮
         expected: 展示【表级血缘】【展示文字信息】【资产类型】【导航器】【任务按钮】
@@ -1777,7 +1777,7 @@ cases:
       - 数据地图
   - id: C078
     title: 验证【实例分析】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【实例分析】按钮
         expected: 展示当前任务【近7天】实例详情
@@ -1827,7 +1827,7 @@ cases:
       - 数据地图
   - id: C081
     title: 验证任务名复制功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【任务名复制】按钮
         expected: 任务名文本拷贝成功
@@ -1837,7 +1837,7 @@ cases:
       - 数据地图
   - id: C082
     title: 验证【任务信息】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【任务信息】按钮
         expected: 展示“任务名称”“任务名称复制按钮”“查看详情按钮”“任务SQL按钮”“任务类型”“责任人”“创建时间”“最近修改人”“最近修改时间”“描述”
@@ -1851,7 +1851,7 @@ cases:
       - 数据地图
   - id: C083
     title: 验证【血缘关系】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【血缘关系】按钮
         expected: 展示【表级血缘】【展示文字信息】【资产类型】【导航器】【任务按钮】
@@ -1917,7 +1917,7 @@ cases:
       - 数据地图
   - id: C086
     title: 验证API名复制功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【API名复制】按钮
         expected: API名文本拷贝成功
@@ -1927,7 +1927,7 @@ cases:
       - 数据地图
   - id: C087
     title: 验证【API信息】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【API信息】按钮
         expected: 正确展示“支持格式”“请求协议”“请求方式”“创建时间”“传输加密”“创建人”“API描述”
@@ -1937,7 +1937,7 @@ cases:
       - 数据地图
   - id: C088
     title: 验证【血缘关系】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击表详情【血缘关系】按钮
         expected: 展示【表级血缘】【展示文字信息】【资产类型】【导航器】【任务按钮】
@@ -1999,7 +1999,7 @@ cases:
       - 数据地图
   - id: C091
     title: 验证标签名复制功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【标签名复制】按钮
         expected: 标签名文本拷贝成功
@@ -2009,7 +2009,7 @@ cases:
       - 数据地图
   - id: C092
     title: 验证【标签信息】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击任务详情【标签信息】按钮
         expected: 正确展示“标签名称”“标签英文名称”“标签ID”“所属实体”“标签描述”“创建人”“创建时间””最近修改人“最近修改时间”
@@ -2019,7 +2019,7 @@ cases:
       - 数据地图
   - id: C093
     title: 验证【血缘关系】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击任务详情【血缘关系】按钮
         expected: 展示【表级血缘】【字段级血缘】【展示文字信息】【资产类型】【导航器】【任务按钮】
@@ -2085,7 +2085,7 @@ cases:
       - 数据地图
   - id: C096
     title: 验证指标名复制功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【指标名复制】按钮
         expected: 指标名文本拷贝成功
@@ -2095,7 +2095,7 @@ cases:
       - 数据地图
   - id: C097
     title: 验证【指标信息】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击任务详情【指标信息】按钮
         expected: 正确展示“指标名称”“指标ID”“指标频度”“指标别名”“负责人”“更新人”“更新时间”“业务口径”“指标描述”
@@ -2105,7 +2105,7 @@ cases:
       - 数据地图
   - id: C098
     title: 验证【血缘关系】功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击任务详情【血缘关系】按钮
         expected: 展示【表级血缘】【字段级血缘】【展示文字信息】【资产类型】【导航器】【任务按钮】
@@ -2203,7 +2203,7 @@ cases:
       - 数据地图
   - id: C103
     title: 验证视图元数据信息正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看“表结构”-“字段”
         expected: 字段列表数据正确
@@ -2229,7 +2229,7 @@ cases:
       - 数据地图
   - id: C105
     title: 验证视图删除功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 删除方式：删除元数据视图
         expected: |-
@@ -2291,7 +2291,7 @@ cases:
       - 数据地图
   - id: C108
     title: 验证物化视图元数据信息正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看“表结构”-“字段”
         expected: 字段列表数据正确
@@ -2326,7 +2326,7 @@ cases:
       - 数据地图
   - id: C110
     title: 验证物化视图删除功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 删除方式：删除元数据视图
         expected: |-
@@ -2342,7 +2342,7 @@ cases:
       - 数据地图
   - id: C111
     title: 验证物化视图操作记录正确
-    priority: P1
+    priority: P0
     steps:
       - action: 离线执行物化视图的CREATE操作
         expected: 操作记录中记录对应的语句并记为DDL操作
@@ -2494,7 +2494,7 @@ cases:
       - 元数据同步
   - id: C118
     title: 验证【元数据同步】_【常规表】_【全类型字段】同步正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击【元数据】-【元数据同步】-【新增周期同步任务】
@@ -2588,7 +2588,7 @@ cases:
       - 元数据同步
   - id: C120
     title: 验证【元数据同步】_【大量表】同步正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击【元数据】-【元数据同步】-【新增周期同步任务】
@@ -2610,7 +2610,7 @@ cases:
       - 元数据同步
   - id: C121
     title: 验证【元数据同步】_【异常场景】
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1） 新增完元数据同步任务A，点击立即运行
@@ -2626,7 +2626,7 @@ cases:
       - 元数据同步
   - id: C122
     title: 验证【元数据同步】_【表负责人】同步逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看“是否指定表负责人”默认值
         expected: 默认的是否指定表负责人是“否”
@@ -2650,7 +2650,7 @@ cases:
       - 元数据同步
   - id: C123
     title: 验证【元数据同步】_【表索引】同步正确
-    priority: P1
+    priority: P0
     steps:
       - action: 1）通过元数据同步${TABLE_NAME}表
         expected: ${TABLE_NAME}表详情页-表结构-索引TAB页数据正确
@@ -2718,7 +2718,7 @@ cases:
       - 元数据同步
   - id: C127
     title: 验证物化视图同步成功(不支持)
-    priority: P1
+    priority: P0
     steps:
       - action: 离线任务创建联合分区物化视图；
         expected: |-
@@ -2937,7 +2937,7 @@ cases:
       - 元模型管理
   - id: C138
     title: 验证个性业务属性-子模型新增功能-逻辑正常
-    priority: P1
+    priority: P0
     steps:
       - action: 输入子模型名称、描述，点击【确定】
         expected: 列表中展示新建的子模型信息
@@ -2965,7 +2965,7 @@ cases:
       - 元模型管理
   - id: C140
     title: 验证个性业务属性-子模型编辑功能-逻辑正常
-    priority: P1
+    priority: P0
     steps:
       - action: 输入子模型名称、描述，点击【确定】
         expected: 列表中该子模型信息更新正确
@@ -3017,7 +3017,7 @@ cases:
       - 元模型管理
   - id: C144
     title: 验证个性业务属性-子模型删除功能-逻辑正常
-    priority: P1
+    priority: P0
     steps:
       - action: 删除子模型${X}
         expected: 列表不显示子模型${X}
@@ -3143,7 +3143,7 @@ cases:
       - 元模型管理
   - id: C150
     title: 验证个性业务属性-编辑功能逻辑正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）在编辑弹窗中，修改所有元素值
@@ -3171,7 +3171,7 @@ cases:
       - 元模型管理
   - id: C152
     title: 验证个性业务属性-删除功能逻辑正常
-    priority: P1
+    priority: P0
     steps:
       - action: 删除业务属性${X}
         expected: 列表不显示业务属性${X}
@@ -3253,7 +3253,7 @@ cases:
       - 元数据管理
   - id: C158
     title: 验证数据源列表-分页功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: “上一页”/“下一页”翻页
         expected: |-
@@ -3487,7 +3487,7 @@ cases:
       - 元数据管理
   - id: C169
     title: 验证数据库列表-分页功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: “上一页”/“下一页”翻页
         expected: |-
@@ -3517,7 +3517,7 @@ cases:
       - 元数据管理
   - id: C170
     title: 验证数据库列表-编辑功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 勾选数据源，点击【编辑】
         expected: |-
@@ -3658,7 +3658,7 @@ cases:
       - 元数据管理
   - id: C177
     title: 验证数据表列表-分页功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: “上一页”/“下一页”翻页
         expected: |-
@@ -3968,7 +3968,7 @@ cases:
       - 标准统计
   - id: C197
     title: 验证标准目录-创建
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击目录区域右上角的“+”号；
@@ -3992,7 +3992,7 @@ cases:
       - 标准管理
   - id: C198
     title: 验证标准目录-查询
-    priority: P1
+    priority: P0
     steps:
       - action: 进入“标准定义”页面，查看“标准目录”
         expected: 以树形目录形式展示目录结构
@@ -4032,7 +4032,7 @@ cases:
       - 标准管理
   - id: C200
     title: 验证标准目录-删除
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）一级目录NNN下无数据标准
@@ -4057,7 +4057,7 @@ cases:
       - 标准管理
   - id: C201
     title: 验证标准目录-层级限制6层
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1)目录添加至6层
@@ -4071,7 +4071,7 @@ cases:
       - 标准管理
   - id: C202
     title: 验证标准目录-子目录数量限制100个
-    priority: P1
+    priority: P0
     steps:
       - action: 在一个父目录下添加101个子目录
         expected: 第101个子目录不能添加
@@ -4081,7 +4081,7 @@ cases:
       - 标准管理
   - id: C203
     title: 验证数据标准-新建标准
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击新建标准
@@ -4110,7 +4110,7 @@ cases:
       - 标准管理
   - id: C205
     title: 验证数据标准-查询
-    priority: P1
+    priority: P0
     steps:
       - action: 默认查询
         expected: 默认展示所有数据标准
@@ -4202,7 +4202,7 @@ cases:
       - 标准管理
   - id: C209
     title: 验证数据标准-必填校验
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）以下任一内容未完善：中文名称、英文名称、英文缩写、标准目录
@@ -4228,7 +4228,7 @@ cases:
       - 标准管理
   - id: C211
     title: 验证数据标准-上线
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）当前用户为管理员用户
@@ -4256,7 +4256,7 @@ cases:
       - 标准管理
   - id: C212
     title: 验证数据标准-下线
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）当前用户为管理员用户
@@ -4277,7 +4277,7 @@ cases:
       - 标准管理
   - id: C213
     title: 验证数据标准-审批
-    priority: P1
+    priority: P0
     steps:
       - action: 管理员用户进入审批中心
         expected: 审批中心可以查询到此申请上线的数据标准
@@ -4301,7 +4301,7 @@ cases:
       - 标准管理
   - id: C214
     title: 验证数据标准-删除
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）对待上线的数据标准，点击【删除】
@@ -4313,7 +4313,7 @@ cases:
       - 标准管理
   - id: C215
     title: 验证数据标准-导入标准-导入模版下载
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击【导入标准】；
@@ -4367,7 +4367,7 @@ cases:
       - 标准管理
   - id: C218
     title: 验证数据标准-导出标准
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【导出标准】
         expected: 弹窗显示展开状态的所有标准目录
@@ -4381,7 +4381,7 @@ cases:
       - 标准管理
   - id: C219
     title: 验证数据标准-自定义属性增删改
-    priority: P1
+    priority: P0
     steps:
       - action: 点击添加属性
         expected: 自定义属性下出现一行为空的属性项和属性值
@@ -4401,7 +4401,7 @@ cases:
       - 标准管理
   - id: C220
     title: 验证数据标准-数据长度配置项的格式
-    priority: P1
+    priority: P0
     steps:
       - action: 点击运算符下拉框
         expected: 下拉框显示：=、<=
@@ -4417,7 +4417,7 @@ cases:
       - 标准管理
   - id: C221
     title: 验证数据标准-数据精度配置项的格式
-    priority: P1
+    priority: P0
     steps:
       - action: 在数值输入框中输入小数，点击空白处
         expected: 数值输入框内容清空
@@ -4431,7 +4431,7 @@ cases:
       - 标准管理
   - id: C222
     title: 验证数据标准-版本比对
-    priority: P1
+    priority: P0
     steps:
       - action: 勾选一个版本
         expected: 版本对比按钮置灰，不可点击
@@ -4449,7 +4449,7 @@ cases:
       - 标准管理
   - id: C223
     title: 验证数据标准-版本变更
-    priority: P1
+    priority: P0
     steps:
       - action: 新建一个标准A，点击查看标准A的版本变更
         expected: 版本变更下自动生成版本号为V1.0，编辑用户为当前用户，发布时间为当前时间的记录
@@ -4499,7 +4499,7 @@ cases:
       - 标准管理
   - id: C225
     title: 验证数据质量规范性校验限制条数校验功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 删除第十条规则，重新新增规则
         expected: 可以正常新增规则函数
@@ -4566,7 +4566,7 @@ cases:
       - 标准管理
   - id: C228
     title: 验证引用标准后清空质量规则功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1新建测试表，包括id,name,class,age,weight,test1,test2几个字段，并按格式打入测试数据，1，张三，a，11，72.11，1，1；2，李四，b，20，60.22，2，2
@@ -4630,7 +4630,7 @@ cases:
       - 标准管理
   - id: C230
     title: 验证标准映射-标准映射字段绑功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击邮箱地址的【字段映射】；
@@ -4678,7 +4678,7 @@ cases:
       - 标准管理
   - id: C232
     title: 验证标准映射-表标准映射功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）创建对应邮箱地址的标准映射
@@ -4737,7 +4737,7 @@ cases:
       - 标准管理
   - id: C234
     title: 验证落标检查任务新增【环境参数】配置，限制数据源正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【资产-数据标准-落标检查】页面
         expected: 页面正常进入
@@ -4799,7 +4799,7 @@ cases:
       - 标准管理
   - id: C237
     title: 验证【标准管理】-【落标检查】-【落标检查任务】-【新建检查任务】流程运转
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【资产】-【数据标准】-【标准管理】-【落标检查】页面
         expected: 进入成功
@@ -4909,7 +4909,7 @@ cases:
       - 标准基础
   - id: C243
     title: 验证词根管理-编辑
-    priority: P1
+    priority: P0
     steps:
       - action: 点击编辑
         expected: 弹出编辑词根弹窗
@@ -4935,7 +4935,7 @@ cases:
       - 标准基础
   - id: C245
     title: 验证词根管理-删除
-    priority: P1
+    priority: P0
     steps:
       - action: 点击删除并二次确认
         expected: |-
@@ -5006,7 +5006,7 @@ cases:
       - 标准基础
   - id: C250
     title: 验证码表管理-代码目录-移动
-    priority: P1
+    priority: P0
     steps:
       - action: 把一个只拥有1级的代码目录移动到一级目录下
         expected: 代码目录移动成功
@@ -5018,7 +5018,7 @@ cases:
       - 标准基础
   - id: C251
     title: 验证码表管理-代码目录-删除
-    priority: P1
+    priority: P0
     steps:
       - action: 对代码目录进行删除操作
         expected: |-
@@ -5044,7 +5044,7 @@ cases:
       - 标准基础
   - id: C253
     title: 验证码表管理-编辑
-    priority: P1
+    priority: P0
     steps:
       - action: 点击编辑
         expected: 弹出编辑代码弹窗
@@ -5074,7 +5074,7 @@ cases:
       - 标准基础
   - id: C255
     title: 验证码表管理-导入异常
-    priority: P1
+    priority: P0
     steps:
       - action: 【代码管理】sheet页未填写内容
         expected: 提示为：请完善“代码信息”sheet页信息后再导入。
@@ -5244,7 +5244,7 @@ cases:
       - 模型管理
   - id: C264
     title: 验证创建不同类型SparkThrift表功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           创建SparkThrift内部表：
@@ -5301,7 +5301,7 @@ cases:
       - 模型管理
   - id: C266
     title: 验证建表语句解析功能
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入建表流程-“表结构”步骤；
@@ -5375,7 +5375,7 @@ cases:
       - 模型管理
   - id: C270
     title: 验证数据建模，中文名/字段名输入匹配词根/标准正确
-    priority: P1
+    priority: P0
     steps:
       - action: 数据建模时，中文名输入框输入“支付”
         expected: 自动展示词根或数据标准中包含“支付”的数据
@@ -5814,7 +5814,7 @@ cases:
       - 规则库配置
   - id: C294
     title: 验证【规则库配置-内置规则】导出规则库功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则库配置】页面并停留在「内置规则」页签
         expected: |-
@@ -5856,7 +5856,7 @@ cases:
       - 规则库配置
   - id: C296
     title: 验证【规则库配置-自定义正则】新增自定义正则与正则匹配测试正常
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则库配置】并点击「自定义正则」页签
         expected: |-
@@ -5911,7 +5911,7 @@ cases:
       - 规则库配置
   - id: C298
     title: 验证【规则库配置-自定义sql模版】新增自定义sql模版基础信息保存正常
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则库配置】并点击「自定义sql模版」页签
         expected: |-
@@ -6207,7 +6207,7 @@ cases:
       - 规则任务管理
   - id: C304
     title: 验证【完整性校验-字段级-空值率】质量规则任务校验正常(多字段+or+固定值+<)
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入【数据质量 → 规则集管理】, 点击「新建规则集」:
@@ -7624,7 +7624,7 @@ cases:
       - 规则任务管理
   - id: C312
     title: 验证【有效性校验-数值-取值范围】质量规则任务校验正常(单字段+>=/<=)
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入【数据质量 → 规则集管理】, 点击「新建规则集」:
@@ -9919,7 +9919,7 @@ cases:
       - 规则任务管理
   - id: C326
     title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(唯一+或+单字段)
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入【数据质量 → 规则集管理】, 点击「新建规则集」:
@@ -10842,7 +10842,7 @@ cases:
       - 规则任务管理
   - id: C331
     title: 验证【自定义SQL-完整性校验】质量规则任务校验正常(固定值+=)
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入【数据质量 → 规则库配置】, 切换到【自定义SQL模版】并点击「新增自定义sql模版」:
@@ -12427,7 +12427,7 @@ cases:
       - 规则任务管理
   - id: C339
     title: 验证【一致性校验-多表数据一致性比对】质量规则任务校验正常(多主键)
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入【数据质量 → 规则集管理】, 点击「新建规则集」:
@@ -12641,7 +12641,7 @@ cases:
       - 规则任务管理
   - id: C340
     title: 验证【时效性校验-周期性校验（单字段时间差校验）】质量规则任务校验正常(<=30分钟)
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           进入【数据质量 → 规则集管理】, 点击「新建规则集」:
@@ -14087,7 +14087,7 @@ cases:
       - 校验结果查询
   - id: C350
     title: 验证【数据质量报告-已配置报告】新增单表报告功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           在【规则集管理】和【规则任务管理】准备单表报告依赖:
@@ -14136,7 +14136,7 @@ cases:
       - 数据质量报告
   - id: C351
     title: 验证【数据质量报告-已配置报告】新增自定义报告功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           在【规则集管理】和【规则任务管理】准备自定义报告依赖:
@@ -14334,7 +14334,7 @@ cases:
       - 数据质量报告
   - id: C356
     title: 验证【数据质量报告-已生成报告】下载报告功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           准备生成成功报告「供应商主数据有效性周报」:
@@ -14621,7 +14621,7 @@ cases:
       - 数据质量报告
   - id: C364
     title: 验证【数据质量报告】同一张表不同任务脏数据明细正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           准备同一张表不同任务的脏数据:
@@ -14796,7 +14796,7 @@ cases:
       - 通用配置
   - id: C370
     title: 验证【通用配置-json格式校验管理】导入正确文件正常(重复则跳过)
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】页面
         expected: |-
@@ -14822,7 +14822,7 @@ cases:
       - 通用配置
   - id: C371
     title: 验证【通用配置-json格式校验管理】导入正确文件正常(重复则覆盖更新)
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】页面
         expected: |-
@@ -14910,7 +14910,7 @@ cases:
       - 通用配置
   - id: C375
     title: 验证【项目管理-项目信息】项目列表、创建与编辑功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 项目管理 → 项目信息】页面
         expected: |-
@@ -14971,7 +14971,7 @@ cases:
       - 项目管理
   - id: C378
     title: 验证【项目管理-脏数据管理】脏数据管理设置正常
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 项目管理 → 脏数据管理】页面
         expected: |-
@@ -15213,7 +15213,7 @@ cases:
       - 数据权限管理
   - id: C388
     title: 验证数据权限-权限生效用户功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）用户平台权限无“表删除”权限；
@@ -15227,7 +15227,7 @@ cases:
       - 数据权限管理
   - id: C389
     title: 验证数据权限-权限过期功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 2023-10-18及之前，操作该表
         expected: 权限为「数据权限分配」中配置的权限
@@ -15479,7 +15479,7 @@ cases:
       - 数据权限管理
   - id: C398
     title: 验证「数据权限分配」-列表分页功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: “上一页”/“下一页”翻页
         expected: |-
@@ -15577,7 +15577,7 @@ cases:
       - 数据权限管理
   - id: C403
     title: 验证权限回收列表-分页功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: “上一页”/“下一页”翻页
         expected: “上一页”数据正确；“下一页”数据正确
@@ -15638,7 +15638,7 @@ cases:
       - 数据权限管理
   - id: C405
     title: 验证权限回收列表-操作列功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看“已回收”状态记录的操作列
         expected: 操作列，只有【查看详情】按钮可用，【权限回收】按钮为禁用状态
@@ -16333,7 +16333,7 @@ cases:
       - 数据脱敏管理
   - id: C432
     title: 验证数据脱敏-脱敏白名单-分页功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: “上一页”/“下一页”翻页
         expected: |-
@@ -16375,7 +16375,7 @@ cases:
       - 数据脱敏管理
   - id: C434
     title: 验证数据脱敏-脱敏白名单-批量删除功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           表A和表B同时配置了脱敏规则以及脱敏白名单；
@@ -16392,7 +16392,7 @@ cases:
       - 数据脱敏管理
   - id: C435
     title: 验证数据脱敏-脱敏白名单-血缘表白名单不生效逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           表A同时配置了脱敏规则和脱敏白名单；
@@ -16410,7 +16410,7 @@ cases:
       - 数据脱敏管理
   - id: C436
     title: 验证数据脱敏-脱敏白名单-重复性校验功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           准备一条白名单记录配置如下：
@@ -16502,7 +16502,7 @@ cases:
       - 数据脱敏管理
   - id: C437
     title: 验证数据脱敏-脱敏白名单-新增库/表自动脱敏功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）准备一条白名单记录配置如下：
@@ -16548,7 +16548,7 @@ cases:
       - 数据脱敏管理
   - id: C439
     title: 验证数据脱敏-规则优先级-优先级应用功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           准备两个脱敏规则：
@@ -16590,7 +16590,7 @@ cases:
       - 数据脱敏管理
   - id: C440
     title: 验证数据脱敏-血缘脱敏-脱敏表列表页不显示“血缘脱敏表”
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           位置：「数据安全」-「数据脱敏管理」
@@ -16647,7 +16647,7 @@ cases:
       - 数据脱敏管理
   - id: C444
     title: 验证用户中心支持用户等级配置-创建账号功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           查看创建账号弹窗：
@@ -16670,7 +16670,7 @@ cases:
       - 级别管理
   - id: C445
     title: 验证编辑用户等级功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）进入【用户中心】-【用户管理】；
@@ -16690,7 +16690,7 @@ cases:
       - 数据安全
       - 级别管理
   - id: C446
-    title: 支持“开发用户等级”配置
+    title: 验证级别管理添加编辑级别支持开放用户等级配置
     priority: P2
     steps:
       - action: 查看添加/编辑级别流程
@@ -16708,7 +16708,7 @@ cases:
       - 级别管理
   - id: C447
     title: 验证审批中心-内置数据级别权限申请流程正确
-    priority: P1
+    priority: P0
     steps:
       - action: admin用户进入【审批中心】-【流程管理】
         expected: |-
@@ -16818,7 +16818,7 @@ cases:
       - 级别管理
   - id: C454
     title: 验证级别管理-删除级别-功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 点击存在已有字段分级的级别的「删除」
         expected: 弹窗二次确认：“您确认要删除吗？”【确认/取消】
@@ -16836,7 +16836,7 @@ cases:
       - 级别管理
   - id: C455
     title: 验证级别管理-批量删除级别-功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 不勾选级别，查看「删除」按钮
         expected: 「删除」按钮置灰，不可点击
@@ -16862,7 +16862,7 @@ cases:
       - 级别管理
   - id: C456
     title: 验证级别管理-置顶级别-功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看第一行级别的置顶icon
         expected: 置顶icon置灰，不可点击
@@ -16882,7 +16882,7 @@ cases:
       - 级别管理
   - id: C457
     title: 验证级别管理-拖动调整顺序-功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看级别列表关于拖动的提示
         expected: 默认提示显示：点按当前行可拖动改变顺序，请谨慎调整级别顺序，调整后会改变字段的分级逻辑！（自动分级时以级别高的为准）
@@ -16898,7 +16898,7 @@ cases:
       - 级别管理
   - id: C458
     title: 验证分级分类权限申请-【申请权限】按钮显示逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）配置“保密”级别，“开放用户等级”为L3；
@@ -16923,7 +16923,7 @@ cases:
       - 分级数据
   - id: C459
     title: 验证分级分类权限申请-【申请权限】功能逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）配置“保密”级别，“开放用户等级”为L3；
@@ -16942,7 +16942,7 @@ cases:
       - 数据安全
       - 分级数据
   - id: C460
-    title: 分级分类生效
+    title: 验证分级分类按开放用户等级控制字段数据预览权限
     priority: P2
     steps:
       - action: |-
@@ -16959,7 +16959,7 @@ cases:
       - 数据安全
       - 分级数据
   - id: C461
-    title: 分级分类与列级权限共同作用
+    title: 验证分级分类与列级权限共同作用下的字段数据展示
     priority: P2
     steps:
       - action: |-
@@ -17074,7 +17074,7 @@ cases:
       - 分级数据
   - id: C465
     title: 验证手动分级-批量下架功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 选择一个分级数据，点击下架，二次确认后
         expected: |-
@@ -17094,7 +17094,7 @@ cases:
       - 分级数据
   - id: C466
     title: 验证手动分级-下架功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 选择分级数据后，点击下架
         expected: 显示二次确认弹框
@@ -17218,7 +17218,7 @@ cases:
       - 自动分级
   - id: C474
     title: 验证自动分级-重新生效功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 查看重新生效icon的展示
         expected: 状态为分级中的icon置灰不可点击，状态为已生效的icon为蓝色可点击状态
@@ -17250,7 +17250,7 @@ cases:
       - 自动分级
   - id: C476
     title: 验证自动分级-分类-编辑功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 点击分类的编辑icon
         expected: 分类变为可编辑状态
@@ -17264,7 +17264,7 @@ cases:
       - 自动分级
   - id: C477
     title: 验证自动分级-分类-删除功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 点击不存在子类别或规则的分类删除icon
         expected: 弹窗提示：“删除分类时，会同步删除该分类下的子节点、规则，是否确认删除？”
@@ -17286,7 +17286,7 @@ cases:
       - 自动分级
   - id: C478
     title: 验证自动分级-批量删除功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 不勾选规则，查看删除按钮
         expected: 删除按钮置灰，不可点击
@@ -17377,7 +17377,7 @@ cases:
       - 数据源管理
   - id: C483
     title: 验证数据源自动引入设置-离线开发模块编辑功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1)点击【编辑】;
@@ -17406,7 +17406,7 @@ cases:
       - 数据源管理
   - id: C484
     title: 验证数据源自动引入设置-关闭自动引入设置逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: 关闭“自动引入设置”
         expected: |-
@@ -17665,7 +17665,7 @@ cases:
       - 用户管理
   - id: C497
     title: 验证移除用户-用户组移出产品逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           所选用户组内，存在用户A为资产用户；
@@ -17685,7 +17685,7 @@ cases:
       - 用户管理
   - id: C498
     title: 验证移除用户-用户移出产品逻辑正确
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1）点击用户A的移出产品
@@ -17733,7 +17733,7 @@ cases:
       - 用户管理
   - id: C500
     title: 验证用户管理-编辑角色功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 点击【编辑角色】
         expected: 只能修改个人角色和质量模块所属项目
@@ -17974,7 +17974,7 @@ cases:
       - 通知中心
   - id: C514
     title: 验证通知配置-重置功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: |-
           1. 进入资产页面
@@ -17992,7 +17992,7 @@ cases:
       - 通知中心
   - id: C515
     title: 验证通知配置-分页功能正常
-    priority: P1
+    priority: P0
     steps:
       - action: 先翻页，再筛选
         expected: 页面数据展示正确

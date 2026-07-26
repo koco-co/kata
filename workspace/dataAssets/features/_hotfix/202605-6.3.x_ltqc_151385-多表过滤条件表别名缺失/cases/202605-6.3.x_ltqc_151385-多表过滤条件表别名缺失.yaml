@@ -1,6 +1,7 @@
 meta:
   title: 202605-6.3.x_ltqc_151385-多表过滤条件表别名缺失
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-151385.html
   feature_id: _hotfix/202605-6.3.x_ltqc_151385-多表过滤条件表别名缺失
 cases:
   - id: C001

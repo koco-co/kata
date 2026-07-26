@@ -1,6 +1,7 @@
 meta:
   title: 202604-5.3.x_147514-自动分级任务卡在运行中状态
   version: 5.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-147514.html
   feature_id: _hotfix/202604-5.3.x_147514-自动分级任务卡在运行中状态
 cases:
   - id: C001

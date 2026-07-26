@@ -1,6 +1,7 @@
 meta:
   title: 202606-6.3.x_gate_149480-metadata服务cpu打高
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-149480.html
   feature_id: _hotfix/202606-6.3.x_gate_149480-metadata服务cpu打高
 cases:
   - id: C001

@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_ltqc_148633-数据标准标准定义下线申请并发幂等校验
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-148633.html
   feature_id: _hotfix/202604-6.3.x_ltqc_148633-数据标准标准定义下线申请并发幂等校验
 cases:
   - id: C001
