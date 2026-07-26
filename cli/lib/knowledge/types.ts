@@ -16,13 +16,13 @@ export const KNOWLEDGE_STATUSES: readonly KnowledgeStatus[] = [
 
 export type KnowledgeType = "term" | "overview" | "module" | "pitfall" | "site";
 
-/** One knowledge entry (file-per-entry types; term/overview 由 terms.md/overview.md 承载)。 */
+/** One knowledge entry; overview remains a project-level context document. */
 export interface KnowledgeEntry {
   title: string;
   type: KnowledgeType;
   status: KnowledgeStatus;
   tags: string[];
-  /** 证据来源(源码/DOM/用户明示),可缺省 */
+  /** 证据来源(源码/DOM/用户明示). */
   source?: string;
   /** YYYY-MM-DD */
   updated: string;

@@ -11,9 +11,13 @@ export function currentYYYYMM(now: Date = new Date()): string {
   return `${y}${m}`;
 }
 
-/** Diff-scan analysis dir: workspace/<project>/analyses/scan-<yyyymm>-<slug>. */
+/** Internal scan evidence directory; the formal source is the sibling `<slug>.md`. */
 export function auditDir(project: string, yyyymm: string, slug: string): string {
-  return join(locateProject(project).analysesDir, `scan-${yyyymm}-${slug}`);
+  return join(locateProject(project).analysesDir, "scan-report", yyyymm, `${slug}.data`);
+}
+
+export function auditReportPath(project: string, yyyymm: string, slug: string): string {
+  return join(locateProject(project).analysesDir, "scan-report", yyyymm, `${slug}.md`);
 }
 
 /** Join segments under a diff-scan analysis dir. */
@@ -26,9 +30,18 @@ export function auditFile(
   return join(auditDir(project, yyyymm, slug), ...segments);
 }
 
-/** Defect analysis dir: workspace/<project>/analyses/bug-<yyyymm>-<slug>. */
+/** Internal defect evidence directory; formal reports use analyses/<type>-report/<yyyymm>/<slug>.md. */
 export function defectDir(project: string, yyyymm: string, slug: string): string {
-  return join(locateProject(project).analysesDir, `bug-${yyyymm}-${slug}`);
+  return join(locateProject(project).analysesDir, "bug-report", yyyymm, `${slug}.data`);
+}
+
+export function defectReportPath(
+  project: string,
+  type: "infra" | "bug" | "conflict" | "scan",
+  yyyymm: string,
+  slug: string,
+): string {
+  return join(locateProject(project).analysesDir, `${type}-report`, yyyymm, `${slug}.md`);
 }
 
 /** PRD history dir: workspace/<project>/features/_history/prds (lanhu fetch landing zone). */

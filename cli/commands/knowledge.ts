@@ -9,11 +9,12 @@ export function registerKnowledge(program: Command): void {
 
   knowledge
     .command("read")
-    .description("统一检索知识条目(module/pitfall/site)")
+    .description("统一检索知识条目(term/module/pitfall/site)与项目概览")
     .requiredOption("--project <name>", "项目名")
     .option("--module <name>", "按模块过滤(匹配标题或 tags)")
     .option("--keyword <word>", "按关键词检索(匹配标题/正文/tags)")
-    .option("--type <types>", "限定类型,逗号分隔(module,pitfall,site)")
+    .option("--type <types>", "限定类型,逗号分隔(term,module,pitfall,site)")
+    .option("--status <statuses>", "限定状态,逗号分隔(默认不隐式过滤)")
     .option("--json", "JSON 输出", false)
     .action(
       (opts: {
@@ -21,13 +22,14 @@ export function registerKnowledge(program: Command): void {
         module?: string;
         keyword?: string;
         type?: string;
+        status?: string;
         json: boolean;
       }) => runReadEntries(opts),
     );
 
   knowledge
     .command("write")
-    .description("写入知识:独立条目用 --status/--title/--body;term/overview 用 --content JSON")
+    .description("写入知识:独立条目用 --status/--title/--body;overview 用 --content JSON")
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--type <type>", "term | overview | module | pitfall | site")
     .option("--status <status>", "四态:verified | observed | conflicting | deprecated")
@@ -35,7 +37,7 @@ export function registerKnowledge(program: Command): void {
     .option("--body <md>", "条目正文 Markdown")
     .option("--tags <tags>", "标签,逗号分隔")
     .option("--source <source>", "证据来源")
-    .option("--content <json>", "term/overview 条目内容 JSON")
+    .option("--content <json>", "overview 内容 JSON")
     .option("--confidence <level>", "term/overview 置信度:high | medium | low", "medium")
     .option("--confirmed", "observed/低置信确认写入", false)
     .option("--dry-run", "只预览不写入(term/overview)", false)
@@ -55,7 +57,7 @@ export function registerKnowledge(program: Command): void {
         dryRun: boolean;
         force: boolean;
       }) => {
-        if (opts.type === "term" || opts.type === "overview") {
+        if (opts.type === "overview") {
           if (!opts.content) {
             process.stderr.write(`[knowledge] 类型 ${opts.type} 需要 --content JSON\n`);
             process.exit(1);

@@ -5,7 +5,8 @@
 ## 源文件（cases/需求名.yaml）
 
 - [ ] yaml 通过 `kata cases build --feature <featureDir>` 校验，零 problem。
-- [ ] `prd.md`、`test-points.md` 已落盘且为本轮确认后的版本；yaml 覆盖范围与 test-points.md 覆盖清单一致，未覆盖清单里的点不在 yaml 里。
+- [ ] create 模式有 `prd.md`、`test-points.md`；edit 模式的语义变化已同步它们；hotfix 模式有 Bug 证据和交付说明。
+- [ ] yaml 覆盖范围与 test-points.md 覆盖清单一致，未覆盖清单里的点不在 yaml 里；每条正式用例的 `automation.spec_file` 与真实脚本一致，缺失覆盖已明确列出。
 - [ ] 每条用例标题以「验证」开头，从标题能看出检查点。
 - [ ] P0 只给主流程与核心功能，占比约 1/4 ~ 1/3；没有全标同一优先级的偷懒分布。
 - [ ] 前置条件可执行：环境、数据、账号权限都具体；正文提到具体表名时，前置里有同名 `CREATE TABLE`。

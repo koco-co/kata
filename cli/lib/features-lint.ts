@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "yaml";
-import { listFeatureDirs } from "./features-layout.ts";
+import { listFeatureDirs, resolveFeatureEntry } from "./features-layout.ts";
 
 export interface FeaturesLintContext {
   project: string;
@@ -167,9 +167,7 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   const envNames = loadEnvNames(ctx.workspaceRoot);
 
   const allEntries = listFeatureDirs(featuresDir);
-  const entries = ctx.featureId
-    ? allEntries.filter((e) => e.dirName === ctx.featureId)
-    : allEntries;
+  const entries = ctx.featureId ? [resolveFeatureEntry(featuresDir, ctx.featureId)] : allEntries;
 
   for (const entry of entries) {
     const name = entry.dirName;

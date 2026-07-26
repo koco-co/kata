@@ -9,7 +9,7 @@ import {
   clearCurrentDatasource,
   resolveVariantName,
   setCurrentDatasource,
-} from "../data/test-data";
+} from "../fixtures/test-data";
 import {
   ensureRuleTasks,
   executeTaskFromList,

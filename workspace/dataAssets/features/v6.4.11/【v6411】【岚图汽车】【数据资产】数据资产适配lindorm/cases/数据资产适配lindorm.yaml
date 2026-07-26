@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.11/【v6411】【岚图汽车】【数据资产】数据资产适配lindorm
 cases:
   - id: C001
+    automation:
+      spec_file: t01-assets-inventory-stats.ts
     title: 验证第一次进入资产平台弹【资产功能引导】弹窗
     priority: P1
     steps:
@@ -18,6 +20,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C002
+    automation:
+      spec_file: t02-assets-inventory-ui-contract.ts
     title: 验证已接入数据源统计数据正确
     priority: P2
     steps:
@@ -32,6 +36,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C003
+    automation:
+      spec_file: t03-metadata-data-map-shell.ts
     title: 验证数据地图分布图数据正确
     priority: P2
     steps:
@@ -52,6 +58,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C004
+    automation:
+      spec_file: t04-metadata-sync-model-shell.ts
     title: 验证数据目录分布图数据正确
     priority: P2
     steps:
@@ -70,6 +78,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C005
+    automation:
+      spec_file: t05-standard-statistic-check-shell.ts
     title: 验证数据价值排行图数据正确
     priority: P1
     steps:
@@ -98,6 +108,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C006
+    automation:
+      spec_file: t06-model-build-table-shell.ts
     title: 验证存储资源情况图数据正确
     priority: P1
     steps:
@@ -118,6 +130,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C007
+    automation:
+      spec_file: t07-data-quality-shell.ts
     title: 验证元数据变化趋势图数据正确
     priority: P1
     steps:
@@ -138,6 +152,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C008
+    automation:
+      spec_file: t08-data-security-shell.ts
     title: 验证资产查询趋势图数据正确
     priority: P1
     steps:
@@ -158,6 +174,8 @@ cases:
       - 资产盘点
       - 盘点任务
   - id: C009
+    automation:
+      spec_file: t09-platform-management-shell.ts
     title: 验证数据地图一级页面 UI 展示
     priority: P1
     steps:
@@ -176,6 +194,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C010
+    automation:
+      spec_file: t10-assets-inventory-trends.ts
     title: 验证数据地图搜索框交互元素展示
     priority: P2
     steps:
@@ -194,6 +214,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C011
+    automation:
+      spec_file: t11-model-build-table-type-hdfs.ts
     title: 验证【数据表】类型-搜索结果符合预期
     priority: P2
     steps:
@@ -248,6 +270,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C012
+    automation:
+      spec_file: t12-metadata-search-statistics.ts
     title: 验证【离线任务】类型-搜索结果符合预期
     priority: P2
     steps:
@@ -274,6 +298,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C013
+    automation:
+      spec_file: t13-data-quality-report-config.ts
     title: 验证【实时任务】类型-搜索结果符合预期
     priority: P2
     steps:
@@ -300,6 +326,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C014
+    automation:
+      spec_file: t14-standard-directory-mapping-shell.ts
     title: 验证【API】类型-搜索结果符合预期
     priority: P1
     steps:
@@ -326,6 +354,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C015
+    automation:
+      spec_file: t15-data-quality-result-filters.ts
     title: 验证【智能标签】类型-搜索结果符合预期
     priority: P1
     steps:
@@ -352,6 +382,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C016
+    automation:
+      spec_file: t16-metadata-data-map-secondary-shell.ts
     title: 验证【指标】类型-搜索结果符合预期
     priority: P1
     steps:
@@ -378,6 +410,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C017
+    automation:
+      spec_file: t17-metadata-table-detail-shell.ts
     title: 验证【最近查询】功能正确
     priority: P1
     steps:
@@ -396,6 +430,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C018
+    automation:
+      spec_file: t18-standard-data-standard-detail-shell.ts
     title: 验证数据地图资产类型图标及对应表数量展示
     priority: P1
     steps:
@@ -408,6 +444,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C019
+    automation:
+      spec_file: t19-metadata-data-catalog-actions-shell.ts
     title: 验证【数据表】表数量统计正确
     priority: P2
     steps:
@@ -424,6 +462,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C020
+    automation:
+      spec_file: t20-data-quality-common-config-json-shell.ts
     title: 验证【离线任务】任务数量统计正确
     priority: P2
     steps:
@@ -436,6 +476,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C021
+    automation:
+      spec_file: t21-metadata-sort-controls-shell.ts
     title: 验证【实时任务】任务数量统计正确
     priority: P2
     steps:
@@ -448,6 +490,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C022
+    automation:
+      spec_file: t22-standard-industry-template-shell.ts
     title: 验证【API】数量统计正确
     priority: P2
     steps:
@@ -460,6 +504,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C023
+    automation:
+      spec_file: t23-data-quality-rule-task-list-contract.ts
     title: 验证【智能标签】标签数量统计正确
     priority: P2
     steps:
@@ -472,6 +518,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C024
+    automation:
+      spec_file: t24-metadata-table-detail-range-shell.ts
     title: 验证【指标】指标数量统计正确
     priority: P2
     steps:
@@ -484,6 +532,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C025
+    automation:
+      spec_file: t25-standard-basis-code-database-shell.ts
     title: 验证页面交互功能正常
     priority: P2
     steps:
@@ -516,6 +566,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C026
+    automation:
+      spec_file: t26-metadata-table-detail-actions-shell.ts
     title: 验证数据地图数据源类型列表按表数量倒序展示
     priority: P1
     steps:
@@ -530,6 +582,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C027
+    automation:
+      spec_file: t27-data-quality-datamap-result-search-shell.ts
     title: 验证表来源-表数量分类统计正确
     priority: P2
     steps:
@@ -549,6 +603,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C028
+    automation:
+      spec_file: t28-metadata-hot-tags-query-shell.ts
     title: 验证页面交互功能正常
     priority: P2
     steps:
@@ -567,6 +623,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C029
+    automation:
+      spec_file: t29-data-quality-sampling-config-shell.ts
     title: 验证数据地图标签缺省页及各类型标签使用次数展示
     priority: P1
     steps:
@@ -587,6 +645,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C030
+    automation:
+      spec_file: t30-data-quality-project-management.ts
     title: 验证【表标签】功能正常
     priority: P2
     steps:
@@ -612,6 +672,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C031
+    automation:
+      spec_file: t31-data-quality-permissions.ts
     title: 验证【字段标签】功能正常
     priority: P2
     steps:
@@ -648,6 +710,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C032
+    automation:
+      spec_file: t32-data-quality-sparkthrift-completeness-validation.ts
     title: 验证【视图标签】功能正常
     priority: P2
     steps:
@@ -673,6 +737,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C033
+    automation:
+      spec_file: t33-metadata-table-detail-sidebar-shell.ts
     title: 验证数据地图历史查询记录分色展示
     priority: P1
     steps:
@@ -685,6 +751,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C034
+    automation:
+      spec_file: t34-standard-mapping-boundaries-shell.ts
     title: 验证查询关键词展示大小逻辑正确
     priority: P1
     steps:
@@ -699,6 +767,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C035
+    automation:
+      spec_file: t35-standard-directory-create-edit-shell.ts
     title: 验证查询关键字次数统计正确
     priority: P1
     steps:
@@ -715,6 +785,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C036
+    automation:
+      spec_file: t36-metadata-non-table-detail-shell.ts
     title: 验证查询关键字跳转功能正确
     priority: P2
     steps:
@@ -729,6 +801,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C037
+    automation:
+      spec_file: t37-metadata-view-detail-shell.ts
     title: 验证数据地图二级页面及表信息 UI 展示
     priority: P1
     steps:
@@ -752,6 +826,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C038
+    automation:
+      spec_file: t38-metadata-meta-model-properties-shell.ts
     title: 验证筛选条件组合查询功能正常
     priority: P1
     steps:
@@ -787,6 +863,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C039
+    automation:
+      spec_file: t39-metadata-management-lists-shell.ts
     title: 验证数据地图数据目录操作按钮及筛选框展示
     priority: P1
     steps:
@@ -800,6 +878,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C040
+    automation:
+      spec_file: t40-standard-directory-delete-limit-shell.ts
     title: 验证【数据目录】-新增功能正确
     priority: P2
     steps:
@@ -824,6 +904,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C041
+    automation:
+      spec_file: t41-standard-cross-module-binding-shell.ts
     title: 验证【数据目录】-查询功能正确
     priority: P1
     steps:
@@ -858,6 +940,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C042
+    automation:
+      spec_file: t42-model-build-design-approval-shell.ts
     title: 验证【数据目录】-编辑功能正确
     priority: P2
     steps:
@@ -880,6 +964,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C043
+    automation:
+      spec_file: t43-c043.ts
     title: 验证【数据目录】-删除功能正确
     priority: P0
     steps:
@@ -900,6 +986,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C044
+    automation:
+      spec_file: t44-c044.ts
     title: 验证【数据目录】-移动功能正确
     priority: P0
     steps:
@@ -942,6 +1030,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C045
+    automation:
+      spec_file: t45-c045.ts
     title: 验证【数据目录】-【批量指定目录】-【手动配置】功能正确
     priority: P2
     steps:
@@ -975,6 +1065,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C046
+    automation:
+      spec_file: t46-c046.ts
     title: 验证【数据目录】-【批量指定目录】-【批量发布】功能正确
     priority: P2
     steps:
@@ -998,6 +1090,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C047
+    automation:
+      spec_file: t47-c047.ts
     title: 验证【数据目录】-【批量指定目录】-【整库发布】功能正确
     priority: P2
     steps:
@@ -1020,6 +1114,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C048
+    automation:
+      spec_file: t48-c048.ts
     title: 验证【数据目录】-【数据资源目录导入】功能正确
     priority: P0
     steps:
@@ -1042,6 +1138,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C049
+    automation:
+      spec_file: t49-c049.ts
     title: 验证【搜索热度】排序功能正常
     priority: P2
     steps:
@@ -1056,6 +1154,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C050
+    automation:
+      spec_file: t50-c050.ts
     title: 验证【修改时间】排序功能正常
     priority: P2
     steps:
@@ -1074,6 +1174,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C051
+    automation:
+      spec_file: t51-c051.ts
     title: 验证表订阅功能正常
     priority: P2
     steps:
@@ -1104,6 +1206,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C052
+    automation:
+      spec_file: t52-c052.ts
     title: 验证数据表列表分页功能正确
     priority: P2
     steps:
@@ -1143,6 +1247,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C053
+    automation:
+      spec_file: t53-c053.ts
     title: 验证数据地图表详情页操作按钮与信息分区展示
     priority: P1
     steps:
@@ -1157,6 +1263,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C054
+    automation:
+      spec_file: t54-c054.ts
     title: 验证表名复制功能正常
     priority: P0
     steps:
@@ -1167,6 +1275,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C055
+    automation:
+      spec_file: t55-c055.ts
     title: 验证删除表功能正常
     priority: P0
     steps:
@@ -1193,6 +1303,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C056
+    automation:
+      spec_file: t56-c056.ts
     title: 验证导出表功能正常
     priority: P2
     steps:
@@ -1211,6 +1323,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C057
+    automation:
+      spec_file: t57-c057.ts
     title: 验证表订阅功能正常
     priority: P1
     steps:
@@ -1237,6 +1351,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C058
+    automation:
+      spec_file: t58-c058.ts
     title: 验证【表结构】-【字段】模块功能正常
     priority: P0
     steps:
@@ -1263,6 +1379,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C059
+    automation:
+      spec_file: t59-c059.ts
     title: 验证【表结构】-【字段】标识正确
     priority: P0
     steps:
@@ -1279,6 +1397,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C060
+    automation:
+      spec_file: t60-c060.ts
     title: 验证【表结构】-【分页】功能正确
     priority: P0
     steps:
@@ -1318,6 +1438,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C061
+    automation:
+      spec_file: t61-c061.ts
     title: 验证【表结构】-【建表语句】模块功能正常
     priority: P0
     steps:
@@ -1334,6 +1456,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C062
+    automation:
+      spec_file: t62-c062.ts
     title: 验证【表结构】-【批量编辑】模块功能正常
     priority: P0
     steps:
@@ -1390,6 +1514,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C063
+    automation:
+      spec_file: t63-c063.ts
     title: 验证【表结构】-字段【添加标签】功能正常
     priority: P0
     steps:
@@ -1453,6 +1579,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C064
+    automation:
+      spec_file: t64-c064.ts
     title: 验证数据表质量评分功能正确
     priority: P0
     steps:
@@ -1477,6 +1605,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C065
+    automation:
+      spec_file: t65-c065.ts
     title: 验证【数据预览】功能正常
     priority: P0
     steps:
@@ -1494,6 +1624,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C066
+    automation:
+      spec_file: t66-c066.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -1534,6 +1666,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C067
+    automation:
+      spec_file: t67-c067.ts
     title: 验证【任务依赖】功能正常
     priority: P0
     steps:
@@ -1544,6 +1678,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C068
+    automation:
+      spec_file: t68-c068.ts
     title: 验证【文件治理】功能正常
     priority: P0
     steps:
@@ -1560,6 +1696,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C069
+    automation:
+      spec_file: t69-c069.ts
     title: 验证【版本变更】功能正常
     priority: P0
     steps:
@@ -1574,6 +1712,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C070
+    automation:
+      spec_file: t70-c070.ts
     title: 验证【操作记录】功能正确
     priority: P2
     steps:
@@ -1616,6 +1756,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C071
+    automation:
+      spec_file: t71-c071.ts
     title: 验证【基本信息】-内容展示正确
     priority: P2
     steps:
@@ -1638,6 +1780,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C072
+    automation:
+      spec_file: t72-c072.ts
     title: 验证【技术属性】-内容展示正确
     priority: P1
     steps:
@@ -1654,6 +1798,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C073
+    automation:
+      spec_file: t73-c073.ts
     title: 验证【业务属性】-内容展示正确
     priority: P1
     steps:
@@ -1670,6 +1816,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C074
+    automation:
+      spec_file: t74-c074.ts
     title: 验证【热度统计】-内容展示正确
     priority: P1
     steps:
@@ -1718,6 +1866,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C075
+    automation:
+      spec_file: t75-c075.ts
     title: 验证任务名复制功能正常
     priority: P0
     steps:
@@ -1728,6 +1878,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C076
+    automation:
+      spec_file: t76-c076.ts
     title: 验证【任务信息】功能正常
     priority: P0
     steps:
@@ -1742,6 +1894,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C077
+    automation:
+      spec_file: t77-c077.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -1776,6 +1930,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C078
+    automation:
+      spec_file: t78-c078.ts
     title: 验证【实例分析】功能正常
     priority: P0
     steps:
@@ -1794,6 +1950,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C079
+    automation:
+      spec_file: t79-c079.ts
     title: 验证【基本信息】-内容展示正确
     priority: P2
     steps:
@@ -1814,6 +1972,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C080
+    automation:
+      spec_file: t80-c080.ts
     title: 验证【任务属性】-内容展示正确
     priority: P1
     steps:
@@ -1826,6 +1986,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C081
+    automation:
+      spec_file: t81-c081.ts
     title: 验证任务名复制功能正常
     priority: P0
     steps:
@@ -1836,6 +1998,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C082
+    automation:
+      spec_file: t82-c082.ts
     title: 验证【任务信息】功能正常
     priority: P0
     steps:
@@ -1850,6 +2014,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C083
+    automation:
+      spec_file: t83-c083.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -1884,6 +2050,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C084
+    automation:
+      spec_file: t84-c084.ts
     title: 验证【基本信息】-内容展示正确
     priority: P2
     steps:
@@ -1904,6 +2072,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C085
+    automation:
+      spec_file: t85-c085.ts
     title: 验证【任务属性】-内容展示正确
     priority: P1
     steps:
@@ -1916,6 +2086,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C086
+    automation:
+      spec_file: t86-c086.ts
     title: 验证API名复制功能正常
     priority: P0
     steps:
@@ -1926,6 +2098,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C087
+    automation:
+      spec_file: t87-c087.ts
     title: 验证【API信息】功能正常
     priority: P0
     steps:
@@ -1936,6 +2110,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C088
+    automation:
+      spec_file: t88-c088.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -1966,6 +2142,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C089
+    automation:
+      spec_file: t89-c089.ts
     title: 验证【基本信息】-内容展示正确
     priority: P2
     steps:
@@ -1986,6 +2164,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C090
+    automation:
+      spec_file: t90-c090.ts
     title: 验证【API属性】-内容展示正确
     priority: P1
     steps:
@@ -1998,6 +2178,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C091
+    automation:
+      spec_file: t91-c091.ts
     title: 验证标签名复制功能正常
     priority: P0
     steps:
@@ -2008,6 +2190,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C092
+    automation:
+      spec_file: t92-c092.ts
     title: 验证【标签信息】功能正常
     priority: P0
     steps:
@@ -2018,6 +2202,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C093
+    automation:
+      spec_file: t93-c093.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -2052,6 +2238,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C094
+    automation:
+      spec_file: t94-c094.ts
     title: 验证【基本信息】-内容展示正确
     priority: P2
     steps:
@@ -2072,6 +2260,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C095
+    automation:
+      spec_file: t95-c095.ts
     title: 验证【发布信息】-内容展示正确
     priority: P1
     steps:
@@ -2084,6 +2274,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C096
+    automation:
+      spec_file: t96-c096.ts
     title: 验证指标名复制功能正常
     priority: P0
     steps:
@@ -2094,6 +2286,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C097
+    automation:
+      spec_file: t97-c097.ts
     title: 验证【指标信息】功能正常
     priority: P0
     steps:
@@ -2104,6 +2298,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C098
+    automation:
+      spec_file: t98-c098.ts
     title: 验证【血缘关系】功能正常
     priority: P0
     steps:
@@ -2138,6 +2334,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C099
+    automation:
+      spec_file: t99-c099.ts
     title: 验证【基本信息】-内容展示正确
     priority: P2
     steps:
@@ -2158,6 +2356,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C100
+    automation:
+      spec_file: t100-c100.ts
     title: 验证【任务属性】-内容展示正确
     priority: P1
     steps:
@@ -2170,6 +2370,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C101
+    automation:
+      spec_file: t101-c101.ts
     title: 验证视图技术属性显示正确
     priority: P1
     steps:
@@ -2186,6 +2388,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C102
+    automation:
+      spec_file: t102-c102.ts
     title: 验证视图的源表存在多个，表详情显示正确
     priority: P1
     steps:
@@ -2202,6 +2406,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C103
+    automation:
+      spec_file: t103-c103.ts
     title: 验证视图元数据信息正确
     priority: P0
     steps:
@@ -2216,6 +2422,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C104
+    automation:
+      spec_file: t104-c104.ts
     title: 验证视图元数据导出正确
     priority: P2
     steps:
@@ -2228,6 +2436,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C105
+    automation:
+      spec_file: t105-c105.ts
     title: 验证视图删除功能正确
     priority: P0
     steps:
@@ -2244,6 +2454,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C106
+    automation:
+      spec_file: t106-c106.ts
     title: 验证物化视图技术属性显示正确
     priority: P1
     steps:
@@ -2261,6 +2473,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C107
+    automation:
+      spec_file: t107-c107.ts
     title: 验证物化视图的源表存在多个，表详情显示正确
     priority: P1
     steps:
@@ -2290,6 +2504,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C108
+    automation:
+      spec_file: t108-c108.ts
     title: 验证物化视图元数据信息正确
     priority: P0
     steps:
@@ -2313,6 +2529,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C109
+    automation:
+      spec_file: t109-c109.ts
     title: 验证物化视图元数据导出正确
     priority: P2
     steps:
@@ -2325,6 +2543,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C110
+    automation:
+      spec_file: t110-c110.ts
     title: 验证物化视图删除功能正确
     priority: P0
     steps:
@@ -2341,6 +2561,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C111
+    automation:
+      spec_file: t111-c111.ts
     title: 验证物化视图操作记录正确
     priority: P0
     steps:
@@ -2355,6 +2577,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C112
+    automation:
+      spec_file: t112-c112.ts
     title: 验证离线任务详情页视图血缘相关
     priority: P2
     steps:
@@ -2378,6 +2602,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C113
+    automation:
+      spec_file: t113-c113.ts
     title: 验证视图血缘关系
     priority: P2
     steps:
@@ -2396,6 +2622,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C114
+    automation:
+      spec_file: t114-c114.ts
     title: 验证血缘解析功能正常
     priority: P2
     steps:
@@ -2454,6 +2682,8 @@ cases:
       - 元数据
       - 数据地图
   - id: C115
+    automation:
+      spec_file: t115-c115.ts
     title: 验证【元数据同步】_【视图表】同步正常
     priority: P2
     steps:
@@ -2464,6 +2694,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C116
+    automation:
+      spec_file: t116-c116.ts
     title: 验证【元数据同步】_【物化视图表】同步正常
     priority: P2
     steps:
@@ -2478,6 +2710,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C117
+    automation:
+      spec_file: t117-c117.ts
     title: 验证元数据同步任务创建流程正常
     priority: P2
     steps:
@@ -2493,6 +2727,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C118
+    automation:
+      spec_file: t118-c118.ts
     title: 验证【元数据同步】_【常规表】_【全类型字段】同步正常
     priority: P0
     steps:
@@ -2569,6 +2805,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C119
+    automation:
+      spec_file: t119-c119.ts
     title: 验证【元数据同步】_【过滤表】功能正常
     priority: P2
     steps:
@@ -2587,6 +2825,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C120
+    automation:
+      spec_file: t120-c120.ts
     title: 验证【元数据同步】_【大量表】同步正常
     priority: P0
     steps:
@@ -2609,6 +2849,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C121
+    automation:
+      spec_file: t121-c121.ts
     title: 验证【元数据同步】_【异常场景】
     priority: P0
     steps:
@@ -2625,6 +2867,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C122
+    automation:
+      spec_file: t122-c122.ts
     title: 验证【元数据同步】_【表负责人】同步逻辑正确
     priority: P0
     steps:
@@ -2649,6 +2893,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C123
+    automation:
+      spec_file: t123-c123.ts
     title: 验证【元数据同步】_【表索引】同步正确
     priority: P0
     steps:
@@ -2663,6 +2909,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C124
+    automation:
+      spec_file: t124-c124.ts
     title: 验证离线修改Hive表的生命周期同步至资产
     priority: P2
     steps:
@@ -2679,6 +2927,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C125
+    automation:
+      spec_file: t125-c125.ts
     title: 验证数据地图自动同步(离线建表)
     priority: P2
     steps:
@@ -2700,6 +2950,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C126
+    automation:
+      spec_file: t126-c126.ts
     title: 验证数据地图自动同步(离线建视图)
     priority: P2
     steps:
@@ -2717,6 +2969,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C127
+    automation:
+      spec_file: t127-c127.ts
     title: 验证物化视图同步成功(不支持)
     priority: P0
     steps:
@@ -2737,6 +2991,8 @@ cases:
       - 元数据
       - 元数据同步
   - id: C128
+    automation:
+      spec_file: t128-c128.ts
     title: 验证【元模型页面】展示正确
     priority: P2
     steps:
@@ -2758,6 +3014,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C129
+    automation:
+      spec_file: t129-c129.ts
     title: 验证【元模型管理】-【技术属性】模块功能正常
     priority: P2
     steps:
@@ -2770,6 +3028,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C130
+    automation:
+      spec_file: t130-c130.ts
     title: 验证通用业务属性-查询功能正常
     priority: P1
     steps:
@@ -2784,6 +3044,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C131
+    automation:
+      spec_file: t131-c131.ts
     title: 验证通用业务属性-新增功能-交互正常
     priority: P1
     steps:
@@ -2820,6 +3082,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C132
+    automation:
+      spec_file: t132-c132.ts
     title: 验证通用业务属性-新增功能-逻辑正常
     priority: P2
     steps:
@@ -2854,6 +3118,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C133
+    automation:
+      spec_file: t133-c133.ts
     title: 验证通用业务属性-编辑功能-交互正常
     priority: P1
     steps:
@@ -2878,6 +3144,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C134
+    automation:
+      spec_file: t134-c134.ts
     title: 验证通用业务属性-编辑功能-逻辑正常
     priority: P2
     steps:
@@ -2892,6 +3160,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C135
+    automation:
+      spec_file: t135-c135.ts
     title: 验证通用业务属性-删除功能-交互正常
     priority: P1
     steps:
@@ -2906,6 +3176,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C136
+    automation:
+      spec_file: t136-c136.ts
     title: 验证通用业务属性-删除功能-逻辑正常
     priority: P2
     steps:
@@ -2918,6 +3190,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C137
+    automation:
+      spec_file: t137-c137.ts
     title: 验证个性业务属性-子模型新增功能-交互正常
     priority: P1
     steps:
@@ -2936,6 +3210,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C138
+    automation:
+      spec_file: t138-c138.ts
     title: 验证个性业务属性-子模型新增功能-逻辑正常
     priority: P0
     steps:
@@ -2946,6 +3222,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C139
+    automation:
+      spec_file: t139-c139.ts
     title: 验证个性业务属性-子模型编辑功能-交互正常
     priority: P1
     steps:
@@ -2964,6 +3242,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C140
+    automation:
+      spec_file: t140-c140.ts
     title: 验证个性业务属性-子模型编辑功能-逻辑正常
     priority: P0
     steps:
@@ -2974,6 +3254,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C141
+    automation:
+      spec_file: t141-c141.ts
     title: 验证个性业务属性-子模型应用数据库功能-交互正常
     priority: P1
     steps:
@@ -2990,6 +3272,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C142
+    automation:
+      spec_file: t142-c142.ts
     title: 验证个性业务属性-子模型应用数据库功能-逻辑正常
     priority: P2
     steps:
@@ -3002,6 +3286,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C143
+    automation:
+      spec_file: t143-c143.ts
     title: 验证个性业务属性-子模型删除功能-交互正常
     priority: P1
     steps:
@@ -3016,6 +3302,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C144
+    automation:
+      spec_file: t144-c144.ts
     title: 验证个性业务属性-子模型删除功能-逻辑正常
     priority: P0
     steps:
@@ -3028,6 +3316,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C145
+    automation:
+      spec_file: t145-c145.ts
     title: 验证个性业务属性-子模型查询功能正常
     priority: P1
     steps:
@@ -3040,6 +3330,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C146
+    automation:
+      spec_file: t146-c146.ts
     title: 验证个性业务属性-查询功能正常
     priority: P1
     steps:
@@ -3050,6 +3342,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C147
+    automation:
+      spec_file: t147-c147.ts
     title: 验证个性业务属性-新增功能交互正常
     priority: P1
     steps:
@@ -3086,6 +3380,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C148
+    automation:
+      spec_file: t148-c148.ts
     title: 验证个性业务属性-新增功能逻辑正常
     priority: P2
     steps:
@@ -3118,6 +3414,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C149
+    automation:
+      spec_file: t149-c149.ts
     title: 验证个性业务属性-编辑功能交互正常
     priority: P1
     steps:
@@ -3142,6 +3440,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C150
+    automation:
+      spec_file: t150-c150.ts
     title: 验证个性业务属性-编辑功能逻辑正常
     priority: P0
     steps:
@@ -3156,6 +3456,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C151
+    automation:
+      spec_file: t151-c151.ts
     title: 验证个性业务属性-删除功能交互正常
     priority: P1
     steps:
@@ -3170,6 +3472,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C152
+    automation:
+      spec_file: t152-c152.ts
     title: 验证个性业务属性-删除功能逻辑正常
     priority: P0
     steps:
@@ -3180,6 +3484,8 @@ cases:
       - 元数据
       - 元模型管理
   - id: C153
+    automation:
+      spec_file: t153-c153.ts
     title: 验证元数据管理页，页面跳转正确
     priority: P1
     steps:
@@ -3198,6 +3504,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C154
+    automation:
+      spec_file: t154-c154.ts
     title: 验证数据源列表-数据展示正确
     priority: P1
     steps:
@@ -3216,6 +3524,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C155
+    automation:
+      spec_file: t155-c155.ts
     title: 验证数据源列表-排序功能正确
     priority: P1
     steps:
@@ -3230,6 +3540,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C156
+    automation:
+      spec_file: t156-c156.ts
     title: 验证数据源列表-筛选功能正确
     priority: P1
     steps:
@@ -3240,6 +3552,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C157
+    automation:
+      spec_file: t157-c157.ts
     title: 验证数据源列表-搜索功能正确
     priority: P1
     steps:
@@ -3252,6 +3566,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C158
+    automation:
+      spec_file: t158-c158.ts
     title: 验证数据源列表-分页功能正确
     priority: P0
     steps:
@@ -3282,6 +3598,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C159
+    automation:
+      spec_file: t159-c159.ts
     title: 验证数据源列表-编辑功能正确
     priority: P2
     steps:
@@ -3315,6 +3633,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C160
+    automation:
+      spec_file: t160-c160.ts
     title: 验证导入元数据成功场景逻辑正确
     priority: P2
     steps:
@@ -3335,6 +3655,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C161
+    automation:
+      spec_file: t161-c161.ts
     title: 验证导入元数据-异常场景-数据库不规范逻辑处理正确
     priority: P2
     steps:
@@ -3357,6 +3679,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C162
+    automation:
+      spec_file: t162-c162.ts
     title: 验证导入元数据-异常场景-namespace不规范逻辑处理正确
     priority: P2
     steps:
@@ -3377,6 +3701,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C163
+    automation:
+      spec_file: t163-c163.ts
     title: 验证导入元数据-异常场景-table_name不规范逻辑处理正确
     priority: P2
     steps:
@@ -3399,6 +3725,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C164
+    automation:
+      spec_file: t164-c164.ts
     title: 验证导入元数据-异常场景-业务属性值不规范逻辑处理正确
     priority: P2
     steps:
@@ -3421,6 +3749,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C165
+    automation:
+      spec_file: t165-c165.ts
     title: 验证导入元数据-异常场景-catalog不规范逻辑处理正确
     priority: P2
     steps:
@@ -3443,6 +3773,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C166
+    automation:
+      spec_file: t166-c166.ts
     title: 验证数据库列表-数据展示正确
     priority: P1
     steps:
@@ -3460,6 +3792,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C167
+    automation:
+      spec_file: t167-c167.ts
     title: 验证数据库列表-排序功能正确
     priority: P1
     steps:
@@ -3474,6 +3808,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C168
+    automation:
+      spec_file: t168-c168.ts
     title: 验证数据库列表-搜索功能正确
     priority: P1
     steps:
@@ -3486,6 +3822,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C169
+    automation:
+      spec_file: t169-c169.ts
     title: 验证数据库列表-分页功能正确
     priority: P0
     steps:
@@ -3516,6 +3854,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C170
+    automation:
+      spec_file: t170-c170.ts
     title: 验证数据库列表-编辑功能正确
     priority: P0
     steps:
@@ -3549,6 +3889,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C171
+    automation:
+      spec_file: t171-c171.ts
     title: 验证数据库列表-生命周期应用功能正确
     priority: P2
     steps:
@@ -3575,6 +3917,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C172
+    automation:
+      spec_file: t172-c172.ts
     title: 验证数据库列表-导入元数据功能正确
     priority: P2
     steps:
@@ -3599,6 +3943,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C173
+    automation:
+      spec_file: t173-c173.ts
     title: 验证数据库列表-导出元数据功能正确
     priority: P2
     steps:
@@ -3617,6 +3963,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C174
+    automation:
+      spec_file: t174-c174.ts
     title: 验证数据表列表-数据展示正确
     priority: P2
     steps:
@@ -3631,6 +3979,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C175
+    automation:
+      spec_file: t175-c175.ts
     title: 验证数据表列表-排序功能正确
     priority: P1
     steps:
@@ -3645,6 +3995,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C176
+    automation:
+      spec_file: t176-c176.ts
     title: 验证数据表列表-搜索功能正确
     priority: P1
     steps:
@@ -3657,6 +4009,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C177
+    automation:
+      spec_file: t177-c177.ts
     title: 验证数据表列表-分页功能正确
     priority: P0
     steps:
@@ -3687,6 +4041,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C178
+    automation:
+      spec_file: t178-c178.ts
     title: 验证数据表列表-编辑功能正确
     priority: P2
     steps:
@@ -3733,6 +4089,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C179
+    automation:
+      spec_file: t179-c179.ts
     title: 验证订阅功能
     priority: P2
     steps:
@@ -3750,6 +4108,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C180
+    automation:
+      spec_file: t180-c180.ts
     title: 验证已订阅的数据表详情页展示
     priority: P2
     steps:
@@ -3762,6 +4122,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C181
+    automation:
+      spec_file: t181-c181.ts
     title: 验证修改订阅功能
     priority: P2
     steps:
@@ -3778,6 +4140,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C182
+    automation:
+      spec_file: t182-c182.ts
     title: 验证订阅弹窗功能
     priority: P2
     steps:
@@ -3801,6 +4165,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C183
+    automation:
+      spec_file: t183-c183.ts
     title: 验证完整度分析-查询
     priority: P2
     steps:
@@ -3823,6 +4189,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C184
+    automation:
+      spec_file: t184-c184.ts
     title: 验证血缘分析-创建
     priority: P2
     steps:
@@ -3839,6 +4207,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C185
+    automation:
+      spec_file: t185-c185.ts
     title: 验证血缘分析-查询
     priority: P2
     steps:
@@ -3851,6 +4221,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C186
+    automation:
+      spec_file: t186-c186.ts
     title: 验证血缘分析-监控
     priority: P2
     steps:
@@ -3865,6 +4237,8 @@ cases:
       - 元数据
       - 元数据管理
   - id: C187
+    automation:
+      spec_file: t187-c187.ts
     title: 验证标准统计-数据标准上线状态统计正确
     priority: P2
     steps:
@@ -3877,6 +4251,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C188
+    automation:
+      spec_file: t188-c188.ts
     title: 验证标准统计-代码表数量/词根数量统计正确
     priority: P1
     steps:
@@ -3887,6 +4263,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C189
+    automation:
+      spec_file: t189-c189.ts
     title: 验证标准统计-标准热度-数据标准纬度数据统计正确
     priority: P1
     steps:
@@ -3897,6 +4275,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C190
+    automation:
+      spec_file: t190-c190.ts
     title: 验证标准统计-标准热度-代码表纬度数据统计正确
     priority: P1
     steps:
@@ -3907,6 +4287,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C191
+    automation:
+      spec_file: t191-c191.ts
     title: 验证标准统计-标准目录分布-数据标准纬度数据统计正确
     priority: P1
     steps:
@@ -3917,6 +4299,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C192
+    automation:
+      spec_file: t192-c192.ts
     title: 验证标准统计-标准目录分布-代码表纬度数据统计正确
     priority: P1
     steps:
@@ -3927,6 +4311,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C193
+    automation:
+      spec_file: t193-c193.ts
     title: 验证标准统计-标准趋势-数据标准纬度数据统计正确
     priority: P1
     steps:
@@ -3937,6 +4323,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C194
+    automation:
+      spec_file: t194-c194.ts
     title: 验证标准统计-标准趋势-代码表纬度数据统计正确
     priority: P1
     steps:
@@ -3947,6 +4335,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C195
+    automation:
+      spec_file: t195-c195.ts
     title: 验证标准统计-标准来源分布-数据标准纬度数据统计正确
     priority: P1
     steps:
@@ -3957,6 +4347,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C196
+    automation:
+      spec_file: t196-c196.ts
     title: 验证标准统计-标准来源分布-代码表纬度数据统计正确
     priority: P1
     steps:
@@ -3967,6 +4359,8 @@ cases:
       - 数据标准
       - 标准统计
   - id: C197
+    automation:
+      spec_file: t197-c197.ts
     title: 验证标准目录-创建
     priority: P0
     steps:
@@ -3991,6 +4385,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C198
+    automation:
+      spec_file: t198-c198.ts
     title: 验证标准目录-查询
     priority: P0
     steps:
@@ -4009,6 +4405,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C199
+    automation:
+      spec_file: t199-c199.ts
     title: 验证标准目录-编辑
     priority: P2
     steps:
@@ -4031,6 +4429,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C200
+    automation:
+      spec_file: t200-c200.ts
     title: 验证标准目录-删除
     priority: P0
     steps:
@@ -4056,6 +4456,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C201
+    automation:
+      spec_file: t201-c201.ts
     title: 验证标准目录-层级限制6层
     priority: P0
     steps:
@@ -4070,6 +4472,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C202
+    automation:
+      spec_file: t202-c202.ts
     title: 验证标准目录-子目录数量限制100个
     priority: P0
     steps:
@@ -4080,6 +4484,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C203
+    automation:
+      spec_file: t203-c203.ts
     title: 验证数据标准-新建标准
     priority: P0
     steps:
@@ -4096,6 +4502,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C204
+    automation:
+      spec_file: t204-c204.ts
     title: 验证数据标准-查看详情
     priority: P1
     steps:
@@ -4109,6 +4517,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C205
+    automation:
+      spec_file: t205-c205.ts
     title: 验证数据标准-查询
     priority: P0
     steps:
@@ -4140,6 +4550,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C206
+    automation:
+      spec_file: t206-c206.ts
     title: 验证数据标准-编辑
     priority: P2
     steps:
@@ -4153,6 +4565,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C207
+    automation:
+      spec_file: t207-c207.ts
     title: 验证数据标准-输入框校验
     priority: P2
     steps:
@@ -4179,6 +4593,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C208
+    automation:
+      spec_file: t208-c208.ts
     title: 验证数据标准-自动匹配
     priority: P2
     steps:
@@ -4201,6 +4617,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C209
+    automation:
+      spec_file: t209-c209.ts
     title: 验证数据标准-必填校验
     priority: P0
     steps:
@@ -4213,6 +4631,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C210
+    automation:
+      spec_file: t210-c210.ts
     title: 验证数据标准-重复性校验
     priority: P2
     steps:
@@ -4227,6 +4647,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C211
+    automation:
+      spec_file: t211-c211.ts
     title: 验证数据标准-上线
     priority: P0
     steps:
@@ -4255,6 +4677,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C212
+    automation:
+      spec_file: t212-c212.ts
     title: 验证数据标准-下线
     priority: P0
     steps:
@@ -4276,6 +4700,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C213
+    automation:
+      spec_file: t213-c213.ts
     title: 验证数据标准-审批
     priority: P0
     steps:
@@ -4300,6 +4726,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C214
+    automation:
+      spec_file: t214-c214.ts
     title: 验证数据标准-删除
     priority: P0
     steps:
@@ -4312,6 +4740,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C215
+    automation:
+      spec_file: t215-c215.ts
     title: 验证数据标准-导入标准-导入模版下载
     priority: P0
     steps:
@@ -4324,6 +4754,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C216
+    automation:
+      spec_file: t216-c216.ts
     title: 验证数据标准-导入标准-必填项校验
     priority: P2
     steps:
@@ -4334,6 +4766,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C217
+    automation:
+      spec_file: t217-c217.ts
     title: 验证数据标准-导入标准-重复处理规则
     priority: P2
     steps:
@@ -4366,6 +4800,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C218
+    automation:
+      spec_file: t218-c218.ts
     title: 验证数据标准-导出标准
     priority: P0
     steps:
@@ -4380,6 +4816,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C219
+    automation:
+      spec_file: t219-c219.ts
     title: 验证数据标准-自定义属性增删改
     priority: P0
     steps:
@@ -4400,6 +4838,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C220
+    automation:
+      spec_file: t220-c220.ts
     title: 验证数据标准-数据长度配置项的格式
     priority: P0
     steps:
@@ -4416,6 +4856,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C221
+    automation:
+      spec_file: t221-c221.ts
     title: 验证数据标准-数据精度配置项的格式
     priority: P0
     steps:
@@ -4430,6 +4872,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C222
+    automation:
+      spec_file: t222-c222.ts
     title: 验证数据标准-版本比对
     priority: P0
     steps:
@@ -4448,6 +4892,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C223
+    automation:
+      spec_file: t223-c223.ts
     title: 验证数据标准-版本变更
     priority: P0
     steps:
@@ -4466,6 +4912,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C224
+    automation:
+      spec_file: t224-c224.ts
     title: 验证数据质量规范性校验绑定标准展示正确
     priority: P1
     steps:
@@ -4498,6 +4946,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C225
+    automation:
+      spec_file: t225-c225.ts
     title: 验证数据质量规范性校验限制条数校验功能正确
     priority: P0
     steps:
@@ -4510,6 +4960,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C226
+    automation:
+      spec_file: t226-c226.ts
     title: 验证数据质量规范性校验绑定标准后新增与删除功能正确
     priority: P2
     steps:
@@ -4538,6 +4990,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C227
+    automation:
+      spec_file: t227-c227.ts
     title: 验证数据质量规范性校验绑定标准后修改功能正确
     priority: P2
     steps:
@@ -4565,6 +5019,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C228
+    automation:
+      spec_file: t228-c228.ts
     title: 验证引用标准后清空质量规则功能正确
     priority: P0
     steps:
@@ -4587,6 +5043,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C229
+    automation:
+      spec_file: t229-c229.ts
     title: 验证标准映射-创建标准映射功能正常
     priority: P2
     steps:
@@ -4629,6 +5087,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C230
+    automation:
+      spec_file: t230-c230.ts
     title: 验证标准映射-标准映射字段绑功能正常
     priority: P0
     steps:
@@ -4651,6 +5111,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C231
+    automation:
+      spec_file: t231-c231.ts
     title: 验证标准映射-标准映射得分计算
     priority: P2
     steps:
@@ -4677,6 +5139,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C232
+    automation:
+      spec_file: t232-c232.ts
     title: 验证标准映射-表标准映射功能正常
     priority: P0
     steps:
@@ -4710,6 +5174,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C233
+    automation:
+      spec_file: t233-c233.ts
     title: 验证落标检查任务配置环境参数后功能正确
     priority: P2
     steps:
@@ -4736,6 +5202,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C234
+    automation:
+      spec_file: t234-c234.ts
     title: 验证落标检查任务新增【环境参数】配置，限制数据源正确
     priority: P0
     steps:
@@ -4754,6 +5222,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C235
+    automation:
+      spec_file: t235-c235.ts
     title: 验证【标准管理】-【落标检查】-【落标检查结果】批量导出
     priority: P2
     steps:
@@ -4772,6 +5242,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C236
+    automation:
+      spec_file: t236-c236.ts
     title: 验证【标准管理】-【落标检查】-【落标检查任务】-【编辑检查任务】流程运转
     priority: P2
     steps:
@@ -4798,6 +5270,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C237
+    automation:
+      spec_file: t237-c237.ts
     title: 验证【标准管理】-【落标检查】-【落标检查任务】-【新建检查任务】流程运转
     priority: P0
     steps:
@@ -4824,6 +5298,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C238
+    automation:
+      spec_file: t238-c238.ts
     title: 验证【标准管理】-【落标检查】-【落标检查任务】页面内容
     priority: P2
     steps:
@@ -4838,6 +5314,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C239
+    automation:
+      spec_file: t239-c239.ts
     title: 验证【标准管理】-【落标检查】-落标检查总览页面内容
     priority: P2
     steps:
@@ -4850,6 +5328,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C240
+    automation:
+      spec_file: t240-c240.ts
     title: 验证【数据标准】-【标准定义】标准进行“下线”操作时判断是否存在落标检查任务
     priority: P2
     steps:
@@ -4876,6 +5356,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C241
+    automation:
+      spec_file: t241-c241.ts
     title: 验证引用标准功能
     priority: P2
     steps:
@@ -4894,6 +5376,8 @@ cases:
       - 数据标准
       - 标准管理
   - id: C242
+    automation:
+      spec_file: t242-c242.ts
     title: 验证词根管理-新建
     priority: P2
     steps:
@@ -4908,6 +5392,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C243
+    automation:
+      spec_file: t243-c243.ts
     title: 验证词根管理-编辑
     priority: P0
     steps:
@@ -4922,6 +5408,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C244
+    automation:
+      spec_file: t244-c244.ts
     title: 验证词根管理-查询
     priority: P2
     steps:
@@ -4934,6 +5422,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C245
+    automation:
+      spec_file: t245-c245.ts
     title: 验证词根管理-删除
     priority: P0
     steps:
@@ -4946,6 +5436,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C246
+    automation:
+      spec_file: t246-c246.ts
     title: 验证词根管理-导入
     priority: P2
     steps:
@@ -4960,6 +5452,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C247
+    automation:
+      spec_file: t247-c247.ts
     title: 验证数据标准-引用码表
     priority: P2
     steps:
@@ -4981,6 +5475,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C248
+    automation:
+      spec_file: t248-c248.ts
     title: 验证码表管理-代码目录-新增
     priority: P2
     steps:
@@ -4993,6 +5489,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C249
+    automation:
+      spec_file: t249-c249.ts
     title: 验证码表管理-代码目录-编辑
     priority: P2
     steps:
@@ -5005,6 +5503,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C250
+    automation:
+      spec_file: t250-c250.ts
     title: 验证码表管理-代码目录-移动
     priority: P0
     steps:
@@ -5017,6 +5517,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C251
+    automation:
+      spec_file: t251-c251.ts
     title: 验证码表管理-代码目录-删除
     priority: P0
     steps:
@@ -5029,6 +5531,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C252
+    automation:
+      spec_file: t252-c252.ts
     title: 验证码表管理-新建
     priority: P2
     steps:
@@ -5043,6 +5547,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C253
+    automation:
+      spec_file: t253-c253.ts
     title: 验证码表管理-编辑
     priority: P0
     steps:
@@ -5059,6 +5565,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C254
+    automation:
+      spec_file: t254-c254.ts
     title: 验证码表管理-导入成功
     priority: P2
     steps:
@@ -5073,6 +5581,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C255
+    automation:
+      spec_file: t255-c255.ts
     title: 验证码表管理-导入异常
     priority: P0
     steps:
@@ -5092,6 +5602,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C256
+    automation:
+      spec_file: t256-c256.ts
     title: 验证码表管理-搜索
     priority: P2
     steps:
@@ -5104,6 +5616,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C257
+    automation:
+      spec_file: t257-c257.ts
     title: 验证行业模板列表展示
     priority: P1
     steps:
@@ -5114,6 +5628,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C258
+    automation:
+      spec_file: t258-c258.ts
     title: 验证引用码表功能
     priority: P2
     steps:
@@ -5132,6 +5648,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C259
+    automation:
+      spec_file: t259-c259.ts
     title: 验证数据库拾取-拾取流程
     priority: P2
     steps:
@@ -5162,6 +5680,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C260
+    automation:
+      spec_file: t260-c260.ts
     title: 验证数据库拾取-批量引用功能正常
     priority: P2
     steps:
@@ -5184,6 +5704,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C261
+    automation:
+      spec_file: t261-c261.ts
     title: 验证数据库拾取-单个引用功能正常
     priority: P2
     steps:
@@ -5206,6 +5728,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C262
+    automation:
+      spec_file: t262-c262.ts
     title: 验证数据库拾取-引用至标准校验
     priority: P2
     steps:
@@ -5225,6 +5749,8 @@ cases:
       - 数据标准
       - 标准基础
   - id: C263
+    automation:
+      spec_file: t263-c263.ts
     title: 验证创建表，表类型/hdfs存储路径配置交互正确
     priority: P2
     steps:
@@ -5243,6 +5769,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C264
+    automation:
+      spec_file: t264-c264.ts
     title: 验证创建不同类型SparkThrift表功能正常
     priority: P0
     steps:
@@ -5258,6 +5786,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C265
+    automation:
+      spec_file: t265-c265.ts
     title: 验证创建不同类型sparkThrift表功能正常
     priority: P2
     steps:
@@ -5300,6 +5830,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C266
+    automation:
+      spec_file: t266-c266.ts
     title: 验证建表语句解析功能
     priority: P0
     steps:
@@ -5332,6 +5864,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C267
+    automation:
+      spec_file: t267-c267.ts
     title: 验证CSV表-创建功能
     priority: P2
     steps:
@@ -5348,6 +5882,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C268
+    automation:
+      spec_file: t268-c268.ts
     title: 验证CSV表-查看详情功能
     priority: P2
     steps:
@@ -5358,6 +5894,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C269
+    automation:
+      spec_file: t269-c269.ts
     title: 验证建表语句解析
     priority: P2
     steps:
@@ -5374,6 +5912,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C270
+    automation:
+      spec_file: t270-c270.ts
     title: 验证数据建模，中文名/字段名输入匹配词根/标准正确
     priority: P0
     steps:
@@ -5390,6 +5930,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C271
+    automation:
+      spec_file: t271-c271.ts
     title: 验证元素值支持删除的操作
     priority: P2
     steps:
@@ -5406,6 +5948,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C272
+    automation:
+      spec_file: t272-c272.ts
     title: 验证添加元素值的功能
     priority: P2
     steps:
@@ -5420,6 +5964,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C273
+    automation:
+      spec_file: t273-c273.ts
     title: 验证左侧模型元素支持删除的操作
     priority: P2
     steps:
@@ -5434,6 +5980,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C274
+    automation:
+      spec_file: t274-c274.ts
     title: 验证左侧模型元素支持重命名的操作
     priority: P2
     steps:
@@ -5448,6 +5996,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C275
+    automation:
+      spec_file: t275-c275.ts
     title: 验证左侧模型元素的新增功能
     priority: P2
     steps:
@@ -5465,6 +6015,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C276
+    automation:
+      spec_file: t276-c276.ts
     title: 验证数仓层级的删除功能
     priority: P2
     steps:
@@ -5483,6 +6035,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C277
+    automation:
+      spec_file: t277-c277.ts
     title: 验证数仓层级的编辑功能
     priority: P2
     steps:
@@ -5500,6 +6054,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C278
+    automation:
+      spec_file: t278-c278.ts
     title: 验证新建数仓层级的功能
     priority: P2
     steps:
@@ -5518,6 +6074,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C279
+    automation:
+      spec_file: t279-c279.ts
     title: 验证「审批中」页面批量撤回的功能
     priority: P2
     steps:
@@ -5550,6 +6108,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C280
+    automation:
+      spec_file: t280-c280.ts
     title: 验证「审批中」页面操作下的的撤回功能
     priority: P2
     steps:
@@ -5570,6 +6130,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C281
+    automation:
+      spec_file: t281-c281.ts
     title: 验证「审批中」页面，点击表名的跳转功能
     priority: P2
     steps:
@@ -5582,6 +6144,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C282
+    automation:
+      spec_file: t282-c282.ts
     title: 验证「我的模型」审批中页面的展示
     priority: P2
     steps:
@@ -5597,6 +6161,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C283
+    automation:
+      spec_file: t283-c283.ts
     title: 验证「已审批」页面审批时间的排序功能
     priority: P2
     steps:
@@ -5607,6 +6173,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C284
+    automation:
+      spec_file: t284-c284.ts
     title: 验证「已审批」页面，点击表名的跳转功能
     priority: P2
     steps:
@@ -5621,6 +6189,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C285
+    automation:
+      spec_file: t285-c285.ts
     title: 验证「我的模型」已审批页面的展示
     priority: P2
     steps:
@@ -5634,6 +6204,8 @@ cases:
       - 数据模型
       - 模型管理
   - id: C286
+    automation:
+      spec_file: t286-c286.ts
     title: 验证【数据质量-总览】数据质量概览统计卡片展示正确
     priority: P2
     steps:
@@ -5661,6 +6233,8 @@ cases:
       - 数据质量
       - 总览
   - id: C287
+    automation:
+      spec_file: t287-c287.ts
     title: 验证【数据质量-总览】规则库分布与已配置规则分类展示正确
     priority: P2
     steps:
@@ -5683,6 +6257,8 @@ cases:
       - 数据质量
       - 总览
   - id: C288
+    automation:
+      spec_file: t288-c288.ts
     title: 验证【数据质量-总览】校验异常top排名展示正确
     priority: P2
     steps:
@@ -5705,6 +6281,8 @@ cases:
       - 数据质量
       - 总览
   - id: C289
+    automation:
+      spec_file: t289-c289.ts
     title: 验证【数据质量-总览】近7日校验结果分析按统计范围切换正确
     priority: P2
     steps:
@@ -5727,6 +6305,8 @@ cases:
       - 数据质量
       - 总览
   - id: C290
+    automation:
+      spec_file: t290-c290.ts
     title: 验证【数据质量-总览】近期校验异常结果查看详情跳转正确
     priority: P2
     steps:
@@ -5749,6 +6329,8 @@ cases:
       - 数据质量
       - 总览
   - id: C291
+    automation:
+      spec_file: t291-c291.ts
     title: 验证【数据质量-总览】最近一次更新时间随统计刷新正确
     priority: P2
     steps:
@@ -5771,6 +6353,8 @@ cases:
       - 数据质量
       - 总览
   - id: C292
+    automation:
+      spec_file: t292-c292.ts
     title: 验证【规则库配置-内置规则】列表展示、搜索与分类筛选正常
     priority: P2
     steps:
@@ -5792,6 +6376,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C293
+    automation:
+      spec_file: t293-c293.ts
     title: 验证【规则库配置-内置规则】规则状态开启关闭正常
     priority: P2
     steps:
@@ -5813,6 +6399,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C294
+    automation:
+      spec_file: t294-c294.ts
     title: 验证【规则库配置-内置规则】导出规则库功能正常
     priority: P0
     steps:
@@ -5834,6 +6422,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C295
+    automation:
+      spec_file: t295-c295.ts
     title: 验证【规则库配置-内置规则】新增规则分类与新增内置规则展示正确
     priority: P2
     steps:
@@ -5855,6 +6445,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C296
+    automation:
+      spec_file: t296-c296.ts
     title: 验证【规则库配置-自定义正则】新增自定义正则与正则匹配测试正常
     priority: P0
     steps:
@@ -5885,6 +6477,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C297
+    automation:
+      spec_file: t297-c297.ts
     title: 验证【规则库配置-自定义正则】编辑、详情与删除功能正常
     priority: P2
     steps:
@@ -5910,6 +6504,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C298
+    automation:
+      spec_file: t298-c298.ts
     title: 验证【规则库配置-自定义sql模版】新增自定义sql模版基础信息保存正常
     priority: P0
     steps:
@@ -5938,6 +6534,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C299
+    automation:
+      spec_file: t299-c299.ts
     title: 验证【规则库配置-自定义sql模版】自定义配置参数列表与参数类型选择正常
     priority: P2
     steps:
@@ -5963,6 +6561,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C300
+    automation:
+      spec_file: t300-c300.ts
     title: 验证【规则库配置-自定义sql模版】详情、编辑与引用保护正常
     priority: P2
     steps:
@@ -5988,6 +6588,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C301
+    automation:
+      spec_file: t301-c301.ts
     title: 验证【数据质量-权限控制】规则库配置页面权限控制正确
     priority: P2
     steps:
@@ -6007,6 +6609,8 @@ cases:
       - 数据质量
       - 规则库配置
   - id: C302
+    automation:
+      spec_file: t302-c302.ts
     title: 验证【规则任务管理】运行时长大于超时时间时任务超时处理正确
     priority: P2
     steps:
@@ -6027,6 +6631,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C303
+    automation:
+      spec_file: t303-c303.ts
     title: 验证【完整性校验-字段级-空值数】质量规则任务校验正常(单字段+固定值+=)
     priority: P2
     steps:
@@ -6206,6 +6812,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C304
+    automation:
+      spec_file: t304-c304.ts
     title: 验证【完整性校验-字段级-空值率】质量规则任务校验正常(多字段+or+固定值+<)
     priority: P0
     steps:
@@ -6373,6 +6981,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C305
+    automation:
+      spec_file: t305-c305.ts
     title: 验证【完整性校验-字段级-空串数】质量规则任务校验正常(单字段+固定值+!=)
     priority: P2
     steps:
@@ -6540,6 +7150,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C306
+    automation:
+      spec_file: t306-c306.ts
     title: 验证【完整性校验-字段级-空串率】质量规则任务校验正常(多字段+and+固定值+<=)
     priority: P2
     steps:
@@ -6707,6 +7319,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C307
+    automation:
+      spec_file: t307-c307.ts
     title: 验证【完整性校验-字段级-字段取值校验】质量规则任务校验正常(多字段+and+>=/包含)
     priority: P2
     steps:
@@ -6873,6 +7487,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C308
+    automation:
+      spec_file: t308-c308.ts
     title: 验证【完整性校验-字段级-key范围校验】质量规则任务校验正常(单字段+不包含)
     priority: P2
     steps:
@@ -7037,6 +7653,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C309
+    automation:
+      spec_file: t309-c309.ts
     title: 验证【完整性校验-单表-表行数】质量规则任务校验正常(固定值+=)
     priority: P2
     steps:
@@ -7201,6 +7819,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C310
+    automation:
+      spec_file: t310-c310.ts
     title: 验证【完整性校验-多表数据行数对比】质量规则任务校验正常(百分比差异+数量差异)
     priority: P2
     steps:
@@ -7410,6 +8030,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C311
+    automation:
+      spec_file: t311-c311.ts
     title: 验证【完整性校验-多表数据内容对比】质量规则任务校验正常(in+not in+多主键)
     priority: P2
     steps:
@@ -7623,6 +8245,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C312
+    automation:
+      spec_file: t312-c312.ts
     title: 验证【有效性校验-数值-取值范围】质量规则任务校验正常(单字段+>=/<=)
     priority: P0
     steps:
@@ -7788,6 +8412,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C313
+    automation:
+      spec_file: t313-c313.ts
     title: 验证【有效性校验-格式-身份证号】质量规则任务校验正常(单字段+固定值+=)
     priority: P2
     steps:
@@ -7955,6 +8581,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C314
+    automation:
+      spec_file: t314-c314.ts
     title: 验证【有效性校验-格式-手机号】质量规则任务校验正常(单字段+固定值+>=)
     priority: P2
     steps:
@@ -8118,6 +8746,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C315
+    automation:
+      spec_file: t315-c315.ts
     title: 验证【有效性校验-格式-邮箱】质量规则任务校验正常(单字段+固定值+!=)
     priority: P2
     steps:
@@ -8280,6 +8910,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C316
+    automation:
+      spec_file: t316-c316.ts
     title: 验证【有效性校验-字符串长度】质量规则任务校验正常(单字段+固定值+<=)
     priority: P2
     steps:
@@ -8444,6 +9076,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C317
+    automation:
+      spec_file: t317-c317.ts
     title: 验证【有效性校验-数据精度】质量规则任务校验正常(单字段+整数位<=+小数位<=)
     priority: P2
     steps:
@@ -8608,6 +9242,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C318
+    automation:
+      spec_file: t318-c318.ts
     title: 验证【有效性校验-枚举值】质量规则任务校验正常(单字段+多枚举值)
     priority: P2
     steps:
@@ -8770,6 +9406,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C319
+    automation:
+      spec_file: t319-c319.ts
     title: 验证【有效性校验-格式-日期格式-date】质量规则任务校验正常(单字段+固定值+=)
     priority: P2
     steps:
@@ -8931,6 +9569,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C320
+    automation:
+      spec_file: t320-c320.ts
     title: 验证【有效性校验-格式-日期格式-date time】质量规则任务校验正常(单字段+固定值+>=)
     priority: P2
     steps:
@@ -9095,6 +9735,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C321
+    automation:
+      spec_file: t321-c321.ts
     title: 验证【有效性校验-格式校验-自定义正则】质量规则任务校验正常(单字段+固定值+!=)
     priority: P2
     steps:
@@ -9258,6 +9900,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C322
+    automation:
+      spec_file: t322-c322.ts
     title: 验证【有效性校验-取值范围&枚举范围】质量规则任务校验正常(单字段+取值范围+枚举范围+且)
     priority: P2
     steps:
@@ -9424,6 +10068,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C323
+    automation:
+      spec_file: t323-c323.ts
     title: 验证【有效性校验-格式-json格式校验】质量规则任务校验正常
     priority: P2
     steps:
@@ -9589,6 +10235,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C324
+    automation:
+      spec_file: t324-c324.ts
     title: 验证【唯一性校验-重复数】质量规则任务校验正常(单字段+固定值+!=)
     priority: P2
     steps:
@@ -9755,6 +10403,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C325
+    automation:
+      spec_file: t325-c325.ts
     title: 验证【唯一性校验-重复率】质量规则任务校验正常(多字段+or+固定值+<)
     priority: P2
     steps:
@@ -9918,6 +10568,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C326
+    automation:
+      spec_file: t326-c326.ts
     title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(唯一+或+单字段)
     priority: P0
     steps:
@@ -10135,6 +10787,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C327
+    automation:
+      spec_file: t327-c327.ts
     title: 验证【唯一性校验-多表唯一性判断】质量规则任务校验正常(允许重复+且+多字段)
     priority: P2
     steps:
@@ -10348,6 +11002,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C328
+    automation:
+      spec_file: t328-c328.ts
     title: 验证【统计性校验-异常值检测-IQR离群点数量】质量规则任务校验正常(=)
     priority: P2
     steps:
@@ -10510,6 +11166,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C329
+    automation:
+      spec_file: t329-c329.ts
     title: 验证【统计性校验-异常值检测-IQR离群点占比】质量规则任务校验正常(<)
     priority: P2
     steps:
@@ -10672,6 +11330,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C330
+    automation:
+      spec_file: t330-c330.ts
     title: 验证【统计性校验-异常值检测-Z-score置信区间】质量规则任务校验正常(>=且<=)
     priority: P1
     steps:
@@ -10841,6 +11501,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C331
+    automation:
+      spec_file: t331-c331.ts
     title: 验证【自定义SQL-完整性校验】质量规则任务校验正常(固定值+=)
     priority: P0
     steps:
@@ -11032,6 +11694,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C332
+    automation:
+      spec_file: t332-c332.ts
     title: 验证【自定义SQL-有效性校验】质量规则任务校验正常(固定值+>)
     priority: P2
     steps:
@@ -11220,6 +11884,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C333
+    automation:
+      spec_file: t333-c333.ts
     title: 验证【自定义SQL-唯一性校验】质量规则任务校验正常(固定值+>=)
     priority: P2
     steps:
@@ -11408,6 +12074,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C334
+    automation:
+      spec_file: t334-c334.ts
     title: 验证【自定义SQL-统计性校验】质量规则任务校验正常(固定值+<)
     priority: P2
     steps:
@@ -11596,6 +12264,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C335
+    automation:
+      spec_file: t335-c335.ts
     title: 验证【自定义SQL-一致性校验】质量规则任务校验正常(固定值+<=)
     priority: P2
     steps:
@@ -11836,6 +12506,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C336
+    automation:
+      spec_file: t336-c336.ts
     title: 验证【自定义SQL-时效性校验】质量规则任务校验正常(固定值+!=)
     priority: P2
     steps:
@@ -12024,6 +12696,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C337
+    automation:
+      spec_file: t337-c337.ts
     title: 验证【自定义SQL-合理性校验】质量规则任务校验正常(固定值+=)
     priority: P2
     steps:
@@ -12212,6 +12886,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C338
+    automation:
+      spec_file: t338-c338.ts
     title: 验证【一致性校验-多表数据一致性比对】质量规则任务校验正常(单主键)
     priority: P2
     steps:
@@ -12426,6 +13102,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C339
+    automation:
+      spec_file: t339-c339.ts
     title: 验证【一致性校验-多表数据一致性比对】质量规则任务校验正常(多主键)
     priority: P0
     steps:
@@ -12640,6 +13318,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C340
+    automation:
+      spec_file: t340-c340.ts
     title: 验证【时效性校验-周期性校验（单字段时间差校验）】质量规则任务校验正常(<=30分钟)
     priority: P0
     steps:
@@ -12802,6 +13482,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C341
+    automation:
+      spec_file: t341-c341.ts
     title: 验证【时效性校验-及时性校验（多字段时间差校验）】质量规则任务校验正常(>0分钟且<=60分钟)
     priority: P2
     steps:
@@ -12965,6 +13647,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C342
+    automation:
+      spec_file: t342-c342.ts
     title: 验证【合理性校验-数据变化趋势-单调递增】质量规则任务校验正常
     priority: P1
     steps:
@@ -13129,6 +13813,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C343
+    automation:
+      spec_file: t343-c343.ts
     title: 验证【合理性校验-数据变化趋势-单调递减】质量规则任务校验正常
     priority: P2
     steps:
@@ -13291,6 +13977,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C344
+    automation:
+      spec_file: t344-c344.ts
     title: 验证【合理性校验-字段值计算对比-计算结果与字段对比】质量规则任务校验正常(=)
     priority: P2
     steps:
@@ -13454,6 +14142,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C345
+    automation:
+      spec_file: t345-c345.ts
     title: 验证【合理性校验-字段值计算对比-计算结果值判断】质量规则任务校验正常(>=)
     priority: P2
     steps:
@@ -13617,6 +14307,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C346
+    automation:
+      spec_file: t346-c346.ts
     title: 验证【合理性校验-多表字段值对比-计算结果对比】质量规则任务校验正常(多主键+=)
     priority: P2
     steps:
@@ -13832,6 +14524,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C347
+    automation:
+      spec_file: t347-c347.ts
     title: 验证【合理性校验-多表字段值对比-计算结果值判断】质量规则任务校验正常(单主键+<=)
     priority: P2
     steps:
@@ -14046,6 +14740,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C348
+    automation:
+      spec_file: t348-c348.ts
     title: 验证【数据质量-菜单名称】历史项目菜单名称正确修改
     priority: P2
     steps:
@@ -14064,6 +14760,8 @@ cases:
       - 数据质量
       - 规则任务管理
   - id: C349
+    automation:
+      spec_file: t349-c349.ts
     title: 验证【校验结果查询】校验失败时查看日志与下载日志正常
     priority: P2
     steps:
@@ -14086,6 +14784,8 @@ cases:
       - 数据质量
       - 校验结果查询
   - id: C350
+    automation:
+      spec_file: t350-c350.ts
     title: 验证【数据质量报告-已配置报告】新增单表报告功能正常
     priority: P0
     steps:
@@ -14135,6 +14835,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C351
+    automation:
+      spec_file: t351-c351.ts
     title: 验证【数据质量报告-已配置报告】新增自定义报告功能正常
     priority: P0
     steps:
@@ -14179,6 +14881,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C352
+    automation:
+      spec_file: t352-c352.ts
     title: 验证【数据质量报告-已配置报告】报告名称重复校验正常
     priority: P2
     steps:
@@ -14217,6 +14921,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C353
+    automation:
+      spec_file: t353-c353.ts
     title: 验证【数据质量报告-已配置报告】编辑、删除与查看报告功能正常
     priority: P2
     steps:
@@ -14260,6 +14966,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C354
+    automation:
+      spec_file: t354-c354.ts
     title: 验证【数据质量报告-已生成报告】报告名称、数据表与生成时间组合筛选正常
     priority: P2
     steps:
@@ -14298,6 +15006,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C355
+    automation:
+      spec_file: t355-c355.ts
     title: 验证【数据质量报告-已生成报告】报告状态筛选与状态展示正常
     priority: P2
     steps:
@@ -14333,6 +15043,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C356
+    automation:
+      spec_file: t356-c356.ts
     title: 验证【数据质量报告-已生成报告】下载报告功能正常
     priority: P0
     steps:
@@ -14365,6 +15077,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C357
+    automation:
+      spec_file: t357-c357.ts
     title: 验证【数据质量报告-报告详情】字段规则筛选与质检结果展示正确
     priority: P2
     steps:
@@ -14405,6 +15119,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C358
+    automation:
+      spec_file: t358-c358.ts
     title: 验证【数据质量报告-报告详情】单表规则筛选与规则名称模糊搜索正确
     priority: P2
     steps:
@@ -14441,6 +15157,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C359
+    automation:
+      spec_file: t359-c359.ts
     title: 验证【数据质量报告-报告详情】多表规则筛选与规则名称模糊搜索正确
     priority: P2
     steps:
@@ -14478,6 +15196,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C360
+    automation:
+      spec_file: t360-c360.ts
     title: 验证【数据质量报告-报告详情】脏数据明细查看与下载正常
     priority: P2
     steps:
@@ -14514,6 +15234,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C361
+    automation:
+      spec_file: t361-c361.ts
     title: 验证【数据质量报告】抽样行数数据统计逻辑正确
     priority: P2
     steps:
@@ -14547,6 +15269,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C362
+    automation:
+      spec_file: t362-c362.ts
     title: 验证【数据质量报告】持续生成中报告持续更新与查看下载正常
     priority: P2
     steps:
@@ -14583,6 +15307,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C363
+    automation:
+      spec_file: t363-c363.ts
     title: 验证【数据质量报告】同一张表不同任务生成报告正确
     priority: P2
     steps:
@@ -14620,6 +15346,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C364
+    automation:
+      spec_file: t364-c364.ts
     title: 验证【数据质量报告】同一张表不同任务脏数据明细正确
     priority: P0
     steps:
@@ -14655,6 +15383,8 @@ cases:
       - 数据质量
       - 数据质量报告
   - id: C365
+    automation:
+      spec_file: t365-c365.ts
     title: 验证【通用配置-报告关联维表设置】SparkThrift2.x车辆信息字段配置保存生效
     priority: P2
     steps:
@@ -14686,6 +15416,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C366
+    automation:
+      spec_file: t366-c366.ts
     title: 验证【通用配置-报告关联维表设置】配置更新后数据质量报告车辆信息同步更新
     priority: P2
     steps:
@@ -14722,6 +15454,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C367
+    automation:
+      spec_file: t367-c367.ts
     title: 验证【通用配置-json格式校验管理】新增key完整流程正常(含正则匹配测试)
     priority: P2
     steps:
@@ -14751,6 +15485,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C368
+    automation:
+      spec_file: t368-c368.ts
     title: 验证【通用配置-json格式校验管理】编辑key与新增子层级功能正常
     priority: P2
     steps:
@@ -14773,6 +15509,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C369
+    automation:
+      spec_file: t369-c369.ts
     title: 验证【通用配置-json格式校验管理】删除单个key联动删除子层级正常
     priority: P2
     steps:
@@ -14795,6 +15533,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C370
+    automation:
+      spec_file: t370-c370.ts
     title: 验证【通用配置-json格式校验管理】导入正确文件正常(重复则跳过)
     priority: P0
     steps:
@@ -14821,6 +15561,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C371
+    automation:
+      spec_file: t371-c371.ts
     title: 验证【通用配置-json格式校验管理】导入正确文件正常(重复则覆盖更新)
     priority: P0
     steps:
@@ -14846,6 +15588,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C372
+    automation:
+      spec_file: t372-c372.ts
     title: 验证【通用配置-json格式校验管理】导出列表数据完整流程正常
     priority: P2
     steps:
@@ -14868,6 +15612,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C373
+    automation:
+      spec_file: t373-c373.ts
     title: 验证【通用配置-json格式校验管理】key名搜索、数据源类型筛选与分页正常
     priority: P2
     steps:
@@ -14890,6 +15636,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C374
+    automation:
+      spec_file: t374-c374.ts
     title: 验证【数据质量-权限控制】通用配置页面权限控制正确
     priority: P2
     steps:
@@ -14909,6 +15657,8 @@ cases:
       - 数据质量
       - 通用配置
   - id: C375
+    automation:
+      spec_file: t375-c375.ts
     title: 验证【项目管理-项目信息】项目列表、创建与编辑功能正常
     priority: P0
     steps:
@@ -14931,6 +15681,8 @@ cases:
       - 数据质量
       - 项目管理
   - id: C376
+    automation:
+      spec_file: t376-c376.ts
     title: 验证【项目管理-项目信息】项目删除与置顶功能正常
     priority: P2
     steps:
@@ -14951,6 +15703,8 @@ cases:
       - 数据质量
       - 项目管理
   - id: C377
+    automation:
+      spec_file: t377-c377.ts
     title: 验证【项目管理-项目信息】默认监控数据源库设置生效
     priority: P2
     steps:
@@ -14970,6 +15724,8 @@ cases:
       - 数据质量
       - 项目管理
   - id: C378
+    automation:
+      spec_file: t378-c378.ts
     title: 验证【项目管理-脏数据管理】脏数据管理设置正常
     priority: P0
     steps:
@@ -14996,6 +15752,8 @@ cases:
       - 数据质量
       - 项目管理
   - id: C379
+    automation:
+      spec_file: t379-c379.ts
     title: 验证【项目管理-脏数据管理】编辑独立存储功能正常
     priority: P2
     steps:
@@ -15018,6 +15776,8 @@ cases:
       - 数据质量
       - 项目管理
   - id: C380
+    automation:
+      spec_file: t380-c380.ts
     title: 验证数据权限-新增功能正常
     priority: P2
     steps:
@@ -15051,6 +15811,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C381
+    automation:
+      spec_file: t381-c381.ts
     title: 验证数据权限-编辑功能正常
     priority: P2
     steps:
@@ -15084,6 +15846,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C382
+    automation:
+      spec_file: t382-c382.ts
     title: 验证数据权限-「查看详情」功能正常
     priority: P2
     steps:
@@ -15107,6 +15871,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C383
+    automation:
+      spec_file: t383-c383.ts
     title: 验证数据权限-删除功能正常
     priority: P2
     steps:
@@ -15124,6 +15890,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C384
+    automation:
+      spec_file: t384-c384.ts
     title: 验证数据权限-「批量删除」功能正常
     priority: P2
     steps:
@@ -15138,6 +15906,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C385
+    automation:
+      spec_file: t385-c385.ts
     title: 验证数据权限-表级权限校验功能正常
     priority: P2
     steps:
@@ -15156,6 +15926,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C386
+    automation:
+      spec_file: t386-c386.ts
     title: 验证数据权限-行级权限校验功能正常
     priority: P2
     steps:
@@ -15200,6 +15972,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C387
+    automation:
+      spec_file: t387-c387.ts
     title: 验证数据权限-列级权限校验功能正常
     priority: P2
     steps:
@@ -15212,6 +15986,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C388
+    automation:
+      spec_file: t388-c388.ts
     title: 验证数据权限-权限生效用户功能正常
     priority: P0
     steps:
@@ -15226,6 +16002,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C389
+    automation:
+      spec_file: t389-c389.ts
     title: 验证数据权限-权限过期功能正常
     priority: P0
     steps:
@@ -15238,6 +16016,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C390
+    automation:
+      spec_file: t390-c390.ts
     title: 验证数据权限-「新增/编辑」-权限范围选择交互正确
     priority: P2
     steps:
@@ -15273,6 +16053,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C391
+    automation:
+      spec_file: t391-c391.ts
     title: 验证数据权限-「新增/编辑」-数据权限配置交互
     priority: P1
     steps:
@@ -15292,6 +16074,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C392
+    automation:
+      spec_file: t392-c392.ts
     title: 验证「数据权限分配」-筛选配置交互逻辑正确
     priority: P2
     steps:
@@ -15353,6 +16137,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C393
+    automation:
+      spec_file: t393-c393.ts
     title: 验证「数据权限分配」-配置行级权限交互逻辑正确
     priority: P2
     steps:
@@ -15385,6 +16171,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C394
+    automation:
+      spec_file: t394-c394.ts
     title: 验证「数据权限分配」-配置列级权限交互逻辑正确
     priority: P2
     steps:
@@ -15410,6 +16198,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C395
+    automation:
+      spec_file: t395-c395.ts
     title: 验证「数据权限分配」-删除交互逻辑正确
     priority: P1
     steps:
@@ -15420,6 +16210,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C396
+    automation:
+      spec_file: t396-c396.ts
     title: 验证数据权限-「新增/编辑」-权限生效用户交互
     priority: P1
     steps:
@@ -15437,6 +16229,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C397
+    automation:
+      spec_file: t397-c397.ts
     title: 验证「数据权限分配」-列表筛选功能正确
     priority: P1
     steps:
@@ -15478,6 +16272,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C398
+    automation:
+      spec_file: t398-c398.ts
     title: 验证「数据权限分配」-列表分页功能正确
     priority: P0
     steps:
@@ -15504,6 +16300,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C399
+    automation:
+      spec_file: t399-c399.ts
     title: 验证权限回收交互功能正常
     priority: P2
     steps:
@@ -15527,6 +16325,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C400
+    automation:
+      spec_file: t400-c400.ts
     title: 验证权限回收列表-数据展示正确
     priority: P2
     steps:
@@ -15548,6 +16348,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C401
+    automation:
+      spec_file: t401-c401.ts
     title: 验证权限回收列表-排序功能正确
     priority: P1
     steps:
@@ -15560,6 +16362,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C402
+    automation:
+      spec_file: t402-c402.ts
     title: 验证权限回收列表-搜索功能正确
     priority: P1
     steps:
@@ -15576,6 +16380,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C403
+    automation:
+      spec_file: t403-c403.ts
     title: 验证权限回收列表-分页功能正确
     priority: P0
     steps:
@@ -15598,6 +16404,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C404
+    automation:
+      spec_file: t404-c404.ts
     title: 验证权限回收列表-筛选功能正确
     priority: P1
     steps:
@@ -15637,6 +16445,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C405
+    automation:
+      spec_file: t405-c405.ts
     title: 验证权限回收列表-操作列功能正确
     priority: P0
     steps:
@@ -15649,6 +16459,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C406
+    automation:
+      spec_file: t406-c406.ts
     title: 验证权限回收-表级权限回收功能正常
     priority: P2
     steps:
@@ -15668,6 +16480,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C407
+    automation:
+      spec_file: t407-c407.ts
     title: 验证权限回收-行列权限回收功能正常
     priority: P2
     steps:
@@ -15687,6 +16501,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C408
+    automation:
+      spec_file: t408-c408.ts
     title: 验证权限回收-批量回收功能正常
     priority: P2
     steps:
@@ -15705,6 +16521,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C409
+    automation:
+      spec_file: t409-c409.ts
     title: 验证批量回收交互功能正常
     priority: P1
     steps:
@@ -15726,6 +16544,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C410
+    automation:
+      spec_file: t410-c410.ts
     title: 验证查看详情-数据正确
     priority: P2
     steps:
@@ -15739,6 +16559,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C411
+    automation:
+      spec_file: t411-c411.ts
     title: 验证审计中心，权限回收日志筛选查询正确
     priority: P1
     steps:
@@ -15751,6 +16573,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C412
+    automation:
+      spec_file: t412-c412.ts
     title: 验证权限回收权限
     priority: P2
     steps:
@@ -15765,6 +16589,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C413
+    automation:
+      spec_file: t413-c413.ts
     title: 验证「我的权限查看」-列表数据正确
     priority: P2
     steps:
@@ -15782,6 +16608,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C414
+    automation:
+      spec_file: t414-c414.ts
     title: 验证「我的权限查看」-列表筛选功能正常
     priority: P2
     steps:
@@ -15824,6 +16652,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C415
+    automation:
+      spec_file: t415-c415.ts
     title: 验证「我的权限查看」-列表翻页功能正常
     priority: P2
     steps:
@@ -15850,6 +16680,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C416
+    automation:
+      spec_file: t416-c416.ts
     title: 验证「我的权限查看」-行级权限查看
     priority: P1
     steps:
@@ -15862,6 +16694,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C417
+    automation:
+      spec_file: t417-c417.ts
     title: 验证「我的权限查看」-存在多条将同一张表授予当前用户的数据权限
     priority: P2
     steps:
@@ -15880,6 +16714,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C418
+    automation:
+      spec_file: t418-c418.ts
     title: 验证「我的权限查看」-“数据目录”树状目录数据正确
     priority: P1
     steps:
@@ -15892,6 +16728,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C419
+    automation:
+      spec_file: t419-c419.ts
     title: 验证「数据地图-申请权限」表详情页-申请权限
     priority: P2
     steps:
@@ -15936,6 +16774,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C420
+    automation:
+      spec_file: t420-c420.ts
     title: 验证数据地图搜索页-批量权限申请-交互
     priority: P2
     steps:
@@ -15956,6 +16796,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C421
+    automation:
+      spec_file: t421-c421.ts
     title: 验证数据地图搜索页-批量权限申请
     priority: P2
     steps:
@@ -16006,6 +16848,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C422
+    automation:
+      spec_file: t422-c422.ts
     title: 验证用户申请权限的权限
     priority: P2
     steps:
@@ -16033,6 +16877,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C423
+    automation:
+      spec_file: t423-c423.ts
     title: 验证权限审批流程
     priority: P2
     steps:
@@ -16077,6 +16923,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C424
+    automation:
+      spec_file: t424-c424.ts
     title: 验证不同角色用户进入数据安全模块功能正常
     priority: P2
     steps:
@@ -16093,6 +16941,8 @@ cases:
       - 数据安全
       - 数据权限管理
   - id: C425
+    automation:
+      spec_file: t425-c425.ts
     title: 验证表脱敏功能正常
     priority: P2
     steps:
@@ -16111,6 +16961,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C426
+    automation:
+      spec_file: t426-c426.ts
     title: 验证识别规则操作符-正则
     priority: P2
     steps:
@@ -16153,6 +17005,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C427
+    automation:
+      spec_file: t427-c427.ts
     title: 验证识别规则操作符-包含
     priority: P2
     steps:
@@ -16195,6 +17049,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C428
+    automation:
+      spec_file: t428-c428.ts
     title: 验证数据脱敏-脱敏白名单-新增交互与数据展示正确
     priority: P1
     steps:
@@ -16229,6 +17085,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C429
+    automation:
+      spec_file: t429-c429.ts
     title: 验证数据脱敏-脱敏白名单-新增功能正确
     priority: P2
     steps:
@@ -16258,6 +17116,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C430
+    automation:
+      spec_file: t430-c430.ts
     title: 验证数据脱敏-脱敏白名单-应用功能正确
     priority: P2
     steps:
@@ -16294,6 +17154,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C431
+    automation:
+      spec_file: t431-c431.ts
     title: 验证数据脱敏-脱敏白名单-查询功能正确
     priority: P1
     steps:
@@ -16332,6 +17194,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C432
+    automation:
+      spec_file: t432-c432.ts
     title: 验证数据脱敏-脱敏白名单-分页功能正确
     priority: P0
     steps:
@@ -16358,6 +17222,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C433
+    automation:
+      spec_file: t433-c433.ts
     title: 验证数据脱敏-脱敏白名单-删除功能正确
     priority: P2
     steps:
@@ -16374,6 +17240,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C434
+    automation:
+      spec_file: t434-c434.ts
     title: 验证数据脱敏-脱敏白名单-批量删除功能正确
     priority: P0
     steps:
@@ -16391,6 +17259,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C435
+    automation:
+      spec_file: t435-c435.ts
     title: 验证数据脱敏-脱敏白名单-血缘表白名单不生效逻辑正确
     priority: P0
     steps:
@@ -16409,6 +17279,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C436
+    automation:
+      spec_file: t436-c436.ts
     title: 验证数据脱敏-脱敏白名单-重复性校验功能正确
     priority: P0
     steps:
@@ -16501,6 +17373,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C437
+    automation:
+      spec_file: t437-c437.ts
     title: 验证数据脱敏-脱敏白名单-新增库/表自动脱敏功能正确
     priority: P0
     steps:
@@ -16533,6 +17407,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C438
+    automation:
+      spec_file: t438-c438.ts
     title: 验证数据脱敏-规则优先级-交互正确
     priority: P1
     steps:
@@ -16547,6 +17423,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C439
+    automation:
+      spec_file: t439-c439.ts
     title: 验证数据脱敏-规则优先级-优先级应用功能正确
     priority: P0
     steps:
@@ -16589,6 +17467,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C440
+    automation:
+      spec_file: t440-c440.ts
     title: 验证数据脱敏-血缘脱敏-脱敏表列表页不显示“血缘脱敏表”
     priority: P0
     steps:
@@ -16602,6 +17482,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C441
+    automation:
+      spec_file: t441-c441.ts
     title: 验证数据脱敏-血缘脱敏-脱敏表查看血缘功能
     priority: P1
     steps:
@@ -16618,6 +17500,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C442
+    automation:
+      spec_file: t442-c442.ts
     title: 验证视图类型资产显示“视图”icon
     priority: P2
     steps:
@@ -16632,6 +17516,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C443
+    automation:
+      spec_file: t443-c443.ts
     title: 验证物化视图类型资产显示“物化视图”icon
     priority: P2
     steps:
@@ -16646,6 +17532,8 @@ cases:
       - 数据安全
       - 数据脱敏管理
   - id: C444
+    automation:
+      spec_file: t444-c444.ts
     title: 验证用户中心支持用户等级配置-创建账号功能正确
     priority: P0
     steps:
@@ -16669,6 +17557,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C445
+    automation:
+      spec_file: t445-c445.ts
     title: 验证编辑用户等级功能正确
     priority: P0
     steps:
@@ -16690,6 +17580,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C446
+    automation:
+      spec_file: t446-c446.ts
     title: 验证级别管理添加编辑级别支持开放用户等级配置
     priority: P2
     steps:
@@ -16707,6 +17599,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C447
+    automation:
+      spec_file: t447-c447.ts
     title: 验证审批中心-内置数据级别权限申请流程正确
     priority: P0
     steps:
@@ -16725,6 +17619,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C448
+    automation:
+      spec_file: t448-c448.ts
     title: 验证审批中心-“数据级别权限申请”筛选功能正确
     priority: P1
     steps:
@@ -16739,6 +17635,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C449
+    automation:
+      spec_file: t449-c449.ts
     title: 验证审批中心-“数据级别权限申请”详情正确
     priority: P1
     steps:
@@ -16753,6 +17651,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C450
+    automation:
+      spec_file: t450-c450.ts
     title: 验证级别管理-操作列权限-功能正确
     priority: P2
     steps:
@@ -16769,6 +17669,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C451
+    automation:
+      spec_file: t451-c451.ts
     title: 验证级别管理-内置级别-功能正确
     priority: P2
     steps:
@@ -16781,6 +17683,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C452
+    automation:
+      spec_file: t452-c452.ts
     title: 验证级别管理-添加级别-功能正确
     priority: P2
     steps:
@@ -16801,6 +17705,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C453
+    automation:
+      spec_file: t453-c453.ts
     title: 验证级别管理-编辑级别-功能正确
     priority: P2
     steps:
@@ -16817,6 +17723,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C454
+    automation:
+      spec_file: t454-c454.ts
     title: 验证级别管理-删除级别-功能正确
     priority: P0
     steps:
@@ -16835,6 +17743,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C455
+    automation:
+      spec_file: t455-c455.ts
     title: 验证级别管理-批量删除级别-功能正确
     priority: P0
     steps:
@@ -16861,6 +17771,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C456
+    automation:
+      spec_file: t456-c456.ts
     title: 验证级别管理-置顶级别-功能正确
     priority: P0
     steps:
@@ -16881,6 +17793,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C457
+    automation:
+      spec_file: t457-c457.ts
     title: 验证级别管理-拖动调整顺序-功能正确
     priority: P0
     steps:
@@ -16897,6 +17811,8 @@ cases:
       - 数据安全
       - 级别管理
   - id: C458
+    automation:
+      spec_file: t458-c458.ts
     title: 验证分级分类权限申请-【申请权限】按钮显示逻辑正确
     priority: P0
     steps:
@@ -16922,6 +17838,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C459
+    automation:
+      spec_file: t459-c459.ts
     title: 验证分级分类权限申请-【申请权限】功能逻辑正确
     priority: P0
     steps:
@@ -16942,6 +17860,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C460
+    automation:
+      spec_file: t460-c460.ts
     title: 验证分级分类按开放用户等级控制字段数据预览权限
     priority: P2
     steps:
@@ -16959,6 +17879,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C461
+    automation:
+      spec_file: t461-c461.ts
     title: 验证分级分类与列级权限共同作用下的字段数据展示
     priority: P2
     steps:
@@ -17005,6 +17927,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C462
+    automation:
+      spec_file: t462-c462.ts
     title: 验证手动分级-添加功能正确
     priority: P2
     steps:
@@ -17024,6 +17948,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C463
+    automation:
+      spec_file: t463-c463.ts
     title: 验证手动分级-编辑功能正确
     priority: P2
     steps:
@@ -17047,6 +17973,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C464
+    automation:
+      spec_file: t464-c464.ts
     title: 验证手动分级-列表数据展示正确
     priority: P2
     steps:
@@ -17073,6 +18001,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C465
+    automation:
+      spec_file: t465-c465.ts
     title: 验证手动分级-批量下架功能正确
     priority: P0
     steps:
@@ -17093,6 +18023,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C466
+    automation:
+      spec_file: t466-c466.ts
     title: 验证手动分级-下架功能正确
     priority: P0
     steps:
@@ -17113,6 +18045,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C467
+    automation:
+      spec_file: t467-c467.ts
     title: 验证手动分级-字段修改后分级数据显示正确
     priority: P1
     steps:
@@ -17123,6 +18057,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C468
+    automation:
+      spec_file: t468-c468.ts
     title: 验证手动分级-字段删除后分级数据显示正确
     priority: P1
     steps:
@@ -17139,6 +18075,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C469
+    automation:
+      spec_file: t469-c469.ts
     title: 验证手动分级-查询功能正确
     priority: P2
     steps:
@@ -17155,6 +18093,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C470
+    automation:
+      spec_file: t470-c470.ts
     title: 验证手动分级-发布功能正确
     priority: P2
     steps:
@@ -17167,6 +18107,8 @@ cases:
       - 数据安全
       - 分级数据
   - id: C471
+    automation:
+      spec_file: t471-c471.ts
     title: 验证自动分级-添加流程正确
     priority: P2
     steps:
@@ -17181,6 +18123,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C472
+    automation:
+      spec_file: t472-c472.ts
     title: 验证自动分级-数据识别-元数据字段识别功能正确
     priority: P2
     steps:
@@ -17199,6 +18143,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C473
+    automation:
+      spec_file: t473-c473.ts
     title: 验证自动分级-数据识别-字段备注识别功能正确
     priority: P2
     steps:
@@ -17217,6 +18163,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C474
+    automation:
+      spec_file: t474-c474.ts
     title: 验证自动分级-重新生效功能正确
     priority: P0
     steps:
@@ -17233,6 +18181,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C475
+    automation:
+      spec_file: t475-c475.ts
     title: 验证自动分级-分类-添加功能正确
     priority: P2
     steps:
@@ -17249,6 +18199,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C476
+    automation:
+      spec_file: t476-c476.ts
     title: 验证自动分级-分类-编辑功能正确
     priority: P0
     steps:
@@ -17263,6 +18215,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C477
+    automation:
+      spec_file: t477-c477.ts
     title: 验证自动分级-分类-删除功能正确
     priority: P0
     steps:
@@ -17285,6 +18239,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C478
+    automation:
+      spec_file: t478-c478.ts
     title: 验证自动分级-批量删除功能正确
     priority: P0
     steps:
@@ -17301,6 +18257,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C479
+    automation:
+      spec_file: t479-c479.ts
     title: 验证自动分级-规则详情-编辑规则功能正确
     priority: P1
     steps:
@@ -17317,6 +18275,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C480
+    automation:
+      spec_file: t480-c480.ts
     title: 验证自动分级-规则详情-数据展示正确
     priority: P1
     steps:
@@ -17333,6 +18293,8 @@ cases:
       - 数据安全
       - 自动分级
   - id: C481
+    automation:
+      spec_file: t481-c481.ts
     title: 验证数据源自动引入设置-页面展示正确
     priority: P2
     steps:
@@ -17353,6 +18315,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C482
+    automation:
+      spec_file: t482-c482.ts
     title: 验证数据源自动引入设置-自动引入设置开关生效
     priority: P2
     steps:
@@ -17376,6 +18340,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C483
+    automation:
+      spec_file: t483-c483.ts
     title: 验证数据源自动引入设置-离线开发模块编辑功能正确
     priority: P0
     steps:
@@ -17405,6 +18371,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C484
+    automation:
+      spec_file: t484-c484.ts
     title: 验证数据源自动引入设置-关闭自动引入设置逻辑正确
     priority: P0
     steps:
@@ -17417,6 +18385,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C485
+    automation:
+      spec_file: t485-c485.ts
     title: 验证数据源自动引入设置-自动引入设置开关提示逻辑正确
     priority: P1
     steps:
@@ -17429,6 +18399,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C486
+    automation:
+      spec_file: t486-c486.ts
     title: 验证“引入数据源”弹窗列表展示待引入数据源正确
     priority: P2
     steps:
@@ -17441,6 +18413,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C487
+    automation:
+      spec_file: t487-c487.ts
     title: 验证数据源引入功能正常
     priority: P2
     steps:
@@ -17455,6 +18429,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C488
+    automation:
+      spec_file: t488-c488.ts
     title: 验证数据源质量授权功能正常
     priority: P2
     steps:
@@ -17467,6 +18443,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C489
+    automation:
+      spec_file: t489-c489.ts
     title: 验证离线项目自动引入meta数据源
     priority: P2
     steps:
@@ -17477,6 +18455,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C490
+    automation:
+      spec_file: t490-c490.ts
     title: 验证数据源删除-交互功能正确
     priority: P1
     steps:
@@ -17503,6 +18483,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C491
+    automation:
+      spec_file: t491-c491.ts
     title: 验证数据源删除-逻辑功能正确
     priority: P2
     steps:
@@ -17548,6 +18530,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C492
+    automation:
+      spec_file: t492-c492.ts
     title: 验证数据源列表-搜索功能正常
     priority: P1
     steps:
@@ -17560,6 +18544,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C493
+    automation:
+      spec_file: t493-c493.ts
     title: 验证数据源列表-状态筛选功能正常
     priority: P1
     steps:
@@ -17574,6 +18560,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C494
+    automation:
+      spec_file: t494-c494.ts
     title: 验证数据源列表-数据源类型筛选功能正常
     priority: P1
     steps:
@@ -17586,6 +18574,8 @@ cases:
       - 平台管理
       - 数据源管理
   - id: C495
+    automation:
+      spec_file: t495-c495.ts
     title: 验证移除用户-移出产品-权限转让功能正常
     priority: P2
     steps:
@@ -17634,6 +18624,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C496
+    automation:
+      spec_file: t496-c496.ts
     title: 验证移除用户-权限转让交互正确
     priority: P2
     steps:
@@ -17664,6 +18656,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C497
+    automation:
+      spec_file: t497-c497.ts
     title: 验证移除用户-用户组移出产品逻辑正确
     priority: P0
     steps:
@@ -17684,6 +18678,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C498
+    automation:
+      spec_file: t498-c498.ts
     title: 验证移除用户-用户移出产品逻辑正确
     priority: P0
     steps:
@@ -17700,6 +18696,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C499
+    automation:
+      spec_file: t499-c499.ts
     title: 验证用户管理-添加用户功能正常
     priority: P2
     steps:
@@ -17732,6 +18730,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C500
+    automation:
+      spec_file: t500-c500.ts
     title: 验证用户管理-编辑角色功能正常
     priority: P0
     steps:
@@ -17746,6 +18746,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C501
+    automation:
+      spec_file: t501-c501.ts
     title: 验证用户管理-用户组权限功能正常
     priority: P2
     steps:
@@ -17760,6 +18762,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C502
+    automation:
+      spec_file: t502-c502.ts
     title: 验证用户管理-添加用户组功能正常
     priority: P2
     steps:
@@ -17774,6 +18778,8 @@ cases:
       - 平台管理
       - 用户管理
   - id: C503
+    automation:
+      spec_file: t503-c503.ts
     title: 验证角色管理-非自定义角色显示交互正确
     priority: P1
     steps:
@@ -17792,6 +18798,8 @@ cases:
       - 平台管理
       - 角色管理
   - id: C504
+    automation:
+      spec_file: t504-c504.ts
     title: 验证角色管理-自定义角色显示交互正确
     priority: P1
     steps:
@@ -17816,6 +18824,8 @@ cases:
       - 平台管理
       - 角色管理
   - id: C505
+    automation:
+      spec_file: t505-c505.ts
     title: 验证角色管理-角色权限树展示正确
     priority: P2
     steps:
@@ -17831,6 +18841,8 @@ cases:
       - 平台管理
       - 角色管理
   - id: C506
+    automation:
+      spec_file: t506-c506.ts
     title: 验证角色管理-权限生效正确
     priority: P2
     steps:
@@ -17845,6 +18857,8 @@ cases:
       - 平台管理
       - 角色管理
   - id: C507
+    automation:
+      spec_file: t507-c507.ts
     title: 验证通知中心入口展示内容正确
     priority: P2
     steps:
@@ -17862,6 +18876,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C508
+    automation:
+      spec_file: t508-c508.ts
     title: 验证通知配置页面内容展示正确
     priority: P2
     steps:
@@ -17875,6 +18891,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C509
+    automation:
+      spec_file: t509-c509.ts
     title: 验证通知配置-新增功能正常
     priority: P2
     steps:
@@ -17899,6 +18917,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C510
+    automation:
+      spec_file: t510-c510.ts
     title: 验证通知配置-编辑功能正常
     priority: P2
     steps:
@@ -17922,6 +18942,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C511
+    automation:
+      spec_file: t511-c511.ts
     title: 验证通知配置-删除功能正常
     priority: P2
     steps:
@@ -17943,6 +18965,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C512
+    automation:
+      spec_file: t512-c512.ts
     title: 验证通知配置-查看详情功能正常
     priority: P2
     steps:
@@ -17961,6 +18985,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C513
+    automation:
+      spec_file: t513-c513.ts
     title: 验证通知配置-筛选功能正常
     priority: P1
     steps:
@@ -17973,6 +18999,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C514
+    automation:
+      spec_file: t514-c514.ts
     title: 验证通知配置-重置功能正常
     priority: P0
     steps:
@@ -17991,6 +19019,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C515
+    automation:
+      spec_file: t515-c515.ts
     title: 验证通知配置-分页功能正常
     priority: P0
     steps:
@@ -18003,6 +19033,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C516
+    automation:
+      spec_file: t516-c516.ts
     title: 验证接收人通知生效
     priority: P2
     steps:
@@ -18026,6 +19058,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C517
+    automation:
+      spec_file: t517-c517.ts
     title: 验证元数据周期同步告警配置通知功能正确
     priority: P2
     steps:
@@ -18039,6 +19073,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C518
+    automation:
+      spec_file: t518-c518.ts
     title: 验证元数据实时同步告警配置通知功能正确
     priority: P2
     steps:
@@ -18052,6 +19088,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C519
+    automation:
+      spec_file: t519-c519.ts
     title: 验证数据质量规则触发告警配置通知功能正确
     priority: P2
     steps:
@@ -18065,6 +19103,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C520
+    automation:
+      spec_file: t520-c520.ts
     title: 验证数据治理待治理项通知配置通知功能正确
     priority: P2
     steps:
@@ -18078,6 +19118,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C521
+    automation:
+      spec_file: t521-c521.ts
     title: 验证通知配置所有模块通知功能正确
     priority: P2
     steps:
@@ -18091,6 +19133,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C522
+    automation:
+      spec_file: t522-c522.ts
     title: 验证通知记录页面UI展示正确
     priority: P2
     steps:
@@ -18104,6 +19148,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C523
+    automation:
+      spec_file: t523-c523.ts
     title: 验证通知记录页面按钮功能正常
     priority: P2
     steps:
@@ -18117,6 +19163,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C524
+    automation:
+      spec_file: t524-c524.ts
     title: 验证不同告警渠道-告警通知正常
     priority: P2
     steps:
@@ -18161,6 +19209,8 @@ cases:
       - 平台管理
       - 通知中心
   - id: C525
+    automation:
+      spec_file: t525-c525.ts
     title: 验证任务级通知配置与系统级通知配置功能正确
     priority: P2
     steps:

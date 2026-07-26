@@ -22,7 +22,7 @@ import {
   resolveEffectiveQualityProjectId,
   setCurrentDatasource,
   TARGET_ENV,
-} from "../../data/test-data";
+} from "../../fixtures/test-data";
 import type { MonitorDatasourceConfig } from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 import {
   addKeyRangeRule,

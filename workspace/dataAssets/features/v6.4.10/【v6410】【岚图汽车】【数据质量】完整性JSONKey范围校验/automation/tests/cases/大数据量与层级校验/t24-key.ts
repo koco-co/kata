@@ -5,7 +5,7 @@
 // META: {"id":"t24","priority":"P1","title":"【P1】验证千级key数据量下校验内容选择列表的加载搜索和选择性能"}
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../_shared/helpers/test-setup";
-import { KEY_RANGE_TABLE } from "../../data/key-range-data";
+import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,

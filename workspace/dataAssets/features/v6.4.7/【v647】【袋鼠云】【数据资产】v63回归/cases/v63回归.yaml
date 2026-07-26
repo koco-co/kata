@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.7/【v647】【袋鼠云】【数据资产】v63回归
 cases:
   - id: C001
+    automation:
+      spec_file: t01-environment-preflight.ts
     title: 验证规则集创建后可独立运行并生成任务查询记录
     priority: P0
     steps:
@@ -43,6 +45,8 @@ cases:
       - 规则集管理
       - 规则集创建与运行
   - id: C002
+    automation:
+      spec_file: t02-rule-task-entry-contract.ts
     title: 验证规则集编辑规则内容和删除提示符合标品逻辑
     priority: P2
     steps:
@@ -72,6 +76,8 @@ cases:
       - 规则集管理
       - 规则集变更与删除
   - id: C003
+    automation:
+      spec_file: t03-monitor-rule-create-contract.ts
     title: 验证单表完整性字段级规则直接添加后结果正确
     priority: P0
     steps:
@@ -171,6 +177,8 @@ cases:
       - 规则任务配置
       - 完整性校验
   - id: C004
+    automation:
+      spec_file: t04-quality-report-project-menu-contract.ts
     title: 验证完整性表级表行数规则直接添加后结果正确
     priority: P1
     steps:
@@ -204,6 +212,8 @@ cases:
       - 规则任务配置
       - 完整性校验
   - id: C005
+    automation:
+      spec_file: t05-c005.ts
     title: 验证唯一性单字段和多字段重复统计结果正确
     priority: P1
     steps:
@@ -251,6 +261,8 @@ cases:
       - 规则任务配置
       - 唯一性与自定义规则
   - id: C006
+    automation:
+      spec_file: t06-c006.ts
     title: 验证自定义 SQL 单表规则通过和不通过结果正确
     priority: P0
     steps:
@@ -286,6 +298,8 @@ cases:
       - 规则任务配置
       - 唯一性与自定义规则
   - id: C007
+    automation:
+      spec_file: t07-c007.ts
     title: 验证准确性求和求平均和正负零值比结果正确
     priority: P1
     steps:
@@ -321,6 +335,8 @@ cases:
       - 规则任务配置
       - 准确性校验
   - id: C008
+    automation:
+      spec_file: t08-c008.ts
     title: 验证 string 数字字段强转 int 后各类规则结果正确
     priority: P1
     steps:
@@ -390,6 +406,8 @@ cases:
       - 规则任务配置
       - 数据类型强转
   - id: C009
+    automation:
+      spec_file: t09-c009.ts
     title: 验证规范性数值范围和枚举类规则结果正确
     priority: P1
     steps:
@@ -439,6 +457,8 @@ cases:
       - 规则任务配置
       - 规范性校验
   - id: C010
+    automation:
+      spec_file: t10-c010.ts
     title: 验证规范性身份证手机号邮箱格式规则结果正确
     priority: P1
     steps:
@@ -478,6 +498,8 @@ cases:
       - 规则任务配置
       - 规范性校验
   - id: C011
+    automation:
+      spec_file: t11-c011.ts
     title: 验证规范性字符串长度数据精度空值重复和枚举值规则结果正确
     priority: P1
     steps:
@@ -539,6 +561,8 @@ cases:
       - 规则任务配置
       - 规范性校验
   - id: C012
+    automation:
+      spec_file: t12-c012.ts
     title: 验证同源数据对比规则创建和执行成功
     priority: P0
     steps:
@@ -582,6 +606,8 @@ cases:
       - 多表比对规则
       - 同源数据对比
   - id: C013
+    automation:
+      spec_file: t13-c013.ts
     title: 验证跨源数据对比仅配置行数差异比对(SparkThrift2.x不支持)
     priority: P2
     steps:
@@ -621,6 +647,8 @@ cases:
       - 多表比对规则
       - 跨源数据对比
   - id: C014
+    automation:
+      spec_file: t14-c014.ts
     title: 验证任务实例查询支持搜索实例和查看规则明细
     priority: P1
     steps:
@@ -640,6 +668,8 @@ cases:
       - 任务实例查询
       - 搜索和明细
   - id: C015
+    automation:
+      spec_file: t15-c015.ts
     title: 验证任务实例查询展示通过异常和失败日志
     priority: P2
     steps:
@@ -659,6 +689,8 @@ cases:
       - 任务实例查询
       - 状态和日志
   - id: C016
+    automation:
+      spec_file: t16-c016.ts
     title: 验证质量报告生成后展示规则结果和数据准确性
     priority: P0
     steps:
@@ -688,6 +720,8 @@ cases:
       - 质量报告
       - 报告生成与详情
   - id: C017
+    automation:
+      spec_file: t17-c017.ts
     title: 验证项目信息新增表单校验和保存成功
     priority: P1
     steps:
@@ -709,6 +743,8 @@ cases:
       - 项目管理
       - 项目信息
   - id: C018
+    automation:
+      spec_file: t18-c018.ts
     title: 验证项目信息编辑置顶和删除流程正确
     priority: P2
     steps:
@@ -730,6 +766,8 @@ cases:
       - 项目管理
       - 项目信息
   - id: C019
+    automation:
+      spec_file: t19-c019.ts
     title: 验证脏数据独立存储开启后可查看和下载异常明细
     priority: P1
     steps:
@@ -759,6 +797,8 @@ cases:
       - 脏数据管理
       - 脏数据配置和明细
   - id: C020
+    automation:
+      spec_file: t20-c020.ts
     title: 验证脏数据独立存储关闭后不再新增异常明细存储
     priority: P2
     steps:

@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t29","priority":"P1","title":"【P1】验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验不通过场景）"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { REPORT_FAIL_SCENARIO } from "../data/test-data";
+import { REPORT_FAIL_SCENARIO } from "../fixtures/test-data";
 import {
   getQualityReportRuleRow,
   openPreparedQualityReport,

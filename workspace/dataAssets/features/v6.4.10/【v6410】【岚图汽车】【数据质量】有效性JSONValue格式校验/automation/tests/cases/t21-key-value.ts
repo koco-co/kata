@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t21","priority":"P1","title":"【P1】验证删除已被规则引用的key后value格式预览弹窗和执行校验任务正常"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { PREVIEW_DELETE_SCENARIO } from "../data/test-data";
+import { PREVIEW_DELETE_SCENARIO } from "../fixtures/test-data";
 import {
   openScenarioRuleSetPackage,
   openValueFormatPreview,

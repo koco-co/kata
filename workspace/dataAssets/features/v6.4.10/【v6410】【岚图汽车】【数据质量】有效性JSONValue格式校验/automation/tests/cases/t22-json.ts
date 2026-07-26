@@ -5,7 +5,7 @@
 // META: {"id":"t22","priority":"P1","title":"【P1】验证配置格式-json格式校验规则时结合抽样功能执行校验结果正确"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import {
   addRuleToPackage,
   configureJsonFormatRule,

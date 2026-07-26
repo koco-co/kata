@@ -150,12 +150,37 @@ function runCli(args: string[]): { code: number; stdout: string } {
 describe("CLI: --dry-run", () => {
   it("assembles fields without posting", () => {
     mkdirSync(TMP, { recursive: true });
-    const jsonPath = join(TMP, "bug.json");
+    const reportPath = join(TMP, "bug-report.md");
     writeFileSync(
-      jsonPath,
-      JSON.stringify({ title: "示例", severity: "major", summary: "s", problem_type: "代码问题" }),
+      reportPath,
+      [
+        "# 示例",
+        "",
+        "- 严重程度: major",
+        "## 结论",
+        "问题可复现",
+        "",
+        "## 证据",
+        "日志显示错误",
+        "",
+        "## 实际行为",
+        "页面报错",
+        "",
+        "## 预期行为",
+        "页面成功",
+        "",
+        "## 复现步骤",
+        "1. 打开页面",
+        "",
+        "## 根因",
+        "代码路径异常",
+        "",
+        "## 建议",
+        "修复代码",
+        "",
+      ].join("\n"),
     );
-    const { code, stdout } = runCli(["--json", jsonPath, "--dry-run"]);
+    const { code, stdout } = runCli(["--report", reportPath, "--dry-run"]);
     assert.equal(code, 0);
     const out = JSON.parse(stdout) as {
       ok: boolean;
@@ -168,7 +193,7 @@ describe("CLI: --dry-run", () => {
   });
 });
 
-describe("CLI: missing --json", () => {
+describe("CLI: missing --report", () => {
   it("exits non-zero", () => {
     const { code } = runCli(["--dry-run"]);
     assert.notEqual(code, 0);

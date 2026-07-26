@@ -21,6 +21,7 @@ function entry(partial: Partial<KnowledgeEntry>): KnowledgeEntry {
     tags: [],
     updated: "2026-07-25",
     body: "正文",
+    source: "tests/knowledge-store.test.ts",
     ...partial,
   };
 }
@@ -108,5 +109,11 @@ describe("knowledge store", () => {
     expect(readEntries(p, { types: ["site"] })).toHaveLength(1);
     expect(readEntries(p, { module: "数据质量" })).toHaveLength(1);
     expect(readEntries(p, { keyword: "规则配置" })).toHaveLength(1);
+  });
+
+  it("stores terms as one file per entry and filters deprecated by default only at the CLI layer", () => {
+    const p = proj();
+    writeEntry(p, entry({ type: "term", title: "数据血缘", body: "上下游关系" }));
+    expect(readEntries(p, { types: ["term"] })[0]?.title).toBe("数据血缘");
   });
 });

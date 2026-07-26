@@ -316,7 +316,8 @@ function scanCaseFileName(
   projectDir: string,
   violations: AutomationLintViolation[],
 ): void {
-  if (basename(dirname(absolutePath)) !== "cases") return;
+  const rel = relativeProjectPath(projectDir, absolutePath);
+  if (!/(^|\/)automation\/tests\/cases\//.test(rel)) return;
   const path = relativeProjectPath(projectDir, absolutePath);
   if (!CASE_FILE_RE.test(basename(absolutePath))) {
     addViolation(

@@ -9,7 +9,7 @@ import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
-} from "../data/test-data";
+} from "../fixtures/test-data";
 import { ensureExecutedRuleTasks, waitForTaskInstanceFinished } from "../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
 
 test.setTimeout(600000);

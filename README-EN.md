@@ -31,7 +31,7 @@ The repository follows four boundaries:
 - `.claude/**` contains Claude Code skills and plugins.
 - `.agents/skills/` is a symlink to `.claude/skills/`, so both runtimes use the same skill source.
 - The shared CLI lives under `cli/**` and serves both runtimes.
-- Project artifacts live under `workspace/{project}/`. Source repositories are configured in `config/source-repos.yaml`, cloned into `.repos/` (gitignored), and queried via `kata repos`.
+- Project artifacts live under `workspace/{project}/`. Source repositories are configured in `config/repos/sources.yaml`, cloned into `.repos/` (gitignored), and queried via `kata repos`.
 
 ## Quick start
 
@@ -69,7 +69,7 @@ See [INSTALL.md](./INSTALL.md) for the full setup.
 | `/defect-analyze` | Defects and changes | Analyze bug material, merge conflicts, or code diffs. |
 | `/infra-diagnose` | Infrastructure | Diagnose datasource and server connectivity failures over SSH. |
 | `/domain-knowledge` | Knowledge | Query or maintain project rules, terms, and constraints. |
-| `/workspace` | Workspace | Create, check, or repair project workspace skeletons. |
+| `/workspace-management` | Workspace | Create, check, or repair project workspace skeletons. |
 
 Routing follows the requested action, not only the input extension: editing an existing case and turning a case into UI automation are different entry points.
 
@@ -104,7 +104,7 @@ kata env run <env> -- <command...>
 
 `env run` inherits only the small set of variables required to start a child process. Add a required variable explicitly with `--inherit-env NAME1,NAME2`. Command output must never reveal cookies, tokens, or passwords.
 
-Source repositories are configured in `config/source-repos.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
+Source repositories are configured in `config/repos/sources.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
 
 ## Repository layout
 
@@ -117,7 +117,7 @@ kata/
 ├── .agents/                       # Codex skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI (shared by both runtimes)
-├── config/                        # source-repos.yaml etc.; secrets (env/, infra/) untracked
+├── config/                        # repos/sources.yaml etc.; secrets (env/, infra/) untracked
 ├── docs/                          # Guides, contracts, and design records
 └── workspace/                     # Project inputs, cases, automation, and runs
 ```

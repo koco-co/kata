@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 import { renderBugReport } from "../../lib/bug-report-render.ts";
 import type { BugReport } from "../../lib/bug-report-types.ts";
-import { validateBugReport } from "../../lib/bug-report-validate.ts";
+import { parseBugReportMarkdown } from "../../lib/defect-report.ts";
 import { getEnv, initEnv } from "../../lib/env.ts";
 import { repoRoot } from "../../lib/paths.ts";
 import type { Severity } from "../../lib/scan-report-types.ts";
@@ -163,7 +163,7 @@ function emit(obj: unknown): void {
 }
 
 export async function runCreate(opts: {
-  json: string;
+  report: string;
   config: string;
   dryRun: boolean;
 }): Promise<void> {
@@ -175,7 +175,7 @@ export async function runCreate(opts: {
   }
   let report: BugReport;
   try {
-    report = validateBugReport(JSON.parse(readFileSync(opts.json, "utf8")));
+    report = parseBugReportMarkdown(opts.report);
   } catch (e) {
     emit({ ok: false, error: `读取/校验 BugReport 失败：${(e as Error).message}` });
     process.exit(1);
