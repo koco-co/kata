@@ -104,6 +104,17 @@ kata env run <env> -- <command...>
 
 `env run` 默认只继承启动程序所需的基础环境变量。子命令确实需要额外变量时，使用 `--inherit-env NAME1,NAME2` 明确加入。命令输出不得回显 Cookie、令牌或密码。
 
+基础设施配置分为本机私密的 `config/infra/hosts.yaml`、`data_sources.yaml` 和 `credentials.yaml`，仓库只提交三个 `*.example.yaml`。用 CLI 检查和录入：
+
+```bash
+kata config doctor
+kata infra credentials set <name> --username <username>
+kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
+kata infra inspect <host> --check connectivity --project <project>
+```
+
+当前 inspect 只验证 SSH2 connectivity 并生成 `analyses/infra-report/<yyyymm>/<slug>.md`，不执行任意远程命令或服务器变更。
+
 源码仓库在 `config/repos/sources.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
 
 ## 项目目录

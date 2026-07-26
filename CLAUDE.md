@@ -15,7 +15,7 @@ Kata 是面向 QA 用例、自动化与工程知识的 CLI 工作区；公开命
 - 先确认问题层次，再在最接近问题的代码、Schema、检查器或文档层修复；能由程序检查的规则必须下沉到程序。
 - CLI stdout 只输出请求数据，诊断与进度写 stderr；机器模式输出稳定 JSON。库函数返回结果或抛出带代码的错误，不在库内 `process.exit()`。
 - 默认使用 dry-run；改变 Git 暂存区或外部系统时提供明确开关。只改相关文件，保留稳定 ID、用户内容和无法重建的信息，不无提示覆盖。
-- 子目录的额外规则以 `config/AGENTS.md` 与 `workspace/AGENTS.md` 为准。
+- 配置目录说明见 `config/README.md`；运行时配置、权限和引用由 `kata config doctor` 校验。
 
 ## Git 与 worktree
 

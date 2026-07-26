@@ -6,7 +6,16 @@ import { validateBugReport } from "./bug-report-validate.ts";
 export type ReportKind = "infra" | "bug" | "conflict" | "scan";
 
 const REQUIRED: Record<ReportKind, string[]> = {
-  infra: ["结论", "证据", "分析", "建议"],
+  infra: [
+    "基本信息",
+    "症状",
+    "诊断路径",
+    "证据",
+    "结论",
+    "变更计划与结果",
+    "Original-path Retest",
+    "Knowledge writeback",
+  ],
   bug: ["结论", "证据", "实际行为", "预期行为", "复现步骤", "根因", "建议"],
   conflict: ["结论", "证据", "双方意图", "决策依据", "建议"],
   scan: ["结论", "证据", "发现", "建议"],

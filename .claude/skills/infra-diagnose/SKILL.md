@@ -1,21 +1,68 @@
 ---
 name: infra-diagnose
-description: 数据源/数据库/服务器连通性报错（JDBC No route to host、连接超时、连接被拒等）时，SSH 登录目标机只读排查、定位根因并修复，把可复用结论写回知识库。纯前端运行时报错、无需 SSH 的转 defect-analyze。
+description: 基础设施配置与 SSH connectivity 最小闭环。数据源/服务器连通性报错时读取本机配置，执行受控的 Kata SSH2 检查并生成脱敏 Markdown 报告；不提供任意远程命令和变更操作。
 ---
 
 # infra-diagnose
 
-顺序：先查知识库，再只读诊断定位根因，破坏性修复先确认，最后写回知识库。
+本 Skill 当前只覆盖“配置可用性 + 单目标 SSH connectivity”最小闭环。服务重启、防火墙、配置修改、进程操作和知识库写回暂不由 CLI 执行。
 
 ## 流程
 
-1. **查知识库**：`kata knowledge read --project <项目> --type pitfall --keyword <报错关键词或主机>`。命中既有条目优先复用其方案，省去重复排查。
-2. **只读诊断**：没命中按 [references/playbook.md](references/playbook.md) 分步排查（本地连通性分层 → SSH 登录只读检查）。SSH 凭据与执行规约也在 playbook 里。
-3. **修复**：只读命令可直接执行；破坏性命令（重启服务、改防火墙、改配置、kill、rm）必须先说明在哪台机执行什么、预期影响，用户确认后再做，做完复测。
-4. **写回**：根因与修复方案用 `kata knowledge write --project <项目> --type pitfall --status verified --title <标题> --body <md>` 写回(含报错关键词、环境、根因、修复步骤),下次同类问题直接复用。
+1. **先检查配置**
 
-## 规范
+   ```bash
+   kata config doctor --scope infra --exit-code
+   ```
 
-- 根因必须有命令输出支撑，事实与推断分开说；无证据不臆造根因或责任人。
-- 只操作目标服务器；不改源码仓库。
-- 凭据只存本机忽略的 `config/infra/credentials.yaml`；密码只经 `SSHPASS='<pw>' sshpass -e ssh ...` 环境变量传入，不出现在命令行参数、对话、日志里。
+   确认 `hosts.yaml`、`data_sources.yaml`、`credentials.yaml` 的引用完整，私密文件权限正确。
+
+2. **只做受控 connectivity 检查**
+
+   ```bash
+   kata infra inspect <host> \
+     --check connectivity \
+     --project <project> \
+     --slug <slug>
+   ```
+
+   只支持 `connectivity`。SSH 使用 `ssh2`，host key 必须已经显式信任；首次连接先核对指纹，再执行：
+
+   ```bash
+   kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
+   ```
+
+3. **查看正式报告**
+
+   报告写入：
+
+   ```text
+   workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md
+   ```
+
+   报告只保存脱敏后的检查结果和结论，不保存密码、Cookie、连接串或完整终端日志。
+
+## 配置边界
+
+- `config/infra/hosts.yaml`：SSH 主机、端口、`credential_ref`、已核验 host fingerprint。
+- `config/infra/data_sources.yaml`：数据源地址、协议、端口、数据库和 `credential_ref`。
+- `config/infra/credentials.yaml`：本机私密 Credential Profile，权限 `0600`，永不提交。
+- 缺少或拒绝某个绑定时只报告该绑定，不轮询其他凭据。
+- 密码只能通过以下方式录入，不得使用命令行参数：
+
+  ```bash
+  kata infra credentials set <name> --username <username>
+  ```
+
+- 测试或自动化场景可以从 stdin 录入：
+
+  ```bash
+  printf '%s\n' '<password>' | kata infra credentials set <name> --username <username> --stdin
+  ```
+
+## 当前明确不支持
+
+- 任意 `exec`、shell、脚本上传或远程命令拼接。
+- `sshpass`、`StrictHostKeyChecking=no` 或环境变量默认密码。
+- 服务重启、防火墙、配置文件、进程和数据变更。
+- 自动写回 `verified` 知识。

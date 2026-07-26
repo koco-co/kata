@@ -104,6 +104,17 @@ kata env run <env> -- <command...>
 
 `env run` inherits only the small set of variables required to start a child process. Add a required variable explicitly with `--inherit-env NAME1,NAME2`. Command output must never reveal cookies, tokens, or passwords.
 
+Infrastructure access is split across local-only `config/infra/hosts.yaml`, `data_sources.yaml`, and `credentials.yaml`; the repository tracks only the three `*.example.yaml` files. Use the CLI to inspect and write them:
+
+```bash
+kata config doctor
+kata infra credentials set <name> --username <username>
+kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
+kata infra inspect <host> --check connectivity --project <project>
+```
+
+The current inspect command verifies SSH2 connectivity and writes `analyses/infra-report/<yyyymm>/<slug>.md`; it does not execute arbitrary remote commands or server changes.
+
 Source repositories are configured in `config/repos/sources.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
 
 ## Repository layout

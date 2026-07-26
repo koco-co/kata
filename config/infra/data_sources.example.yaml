@@ -1,0 +1,8 @@
+# Copy to data_sources.yaml locally; do not commit the copied file.
+data_sources:
+  example-hive:
+    type: hive
+    host: 192.0.2.10
+    port: 10000
+    database: default
+    credential_ref: infra-example

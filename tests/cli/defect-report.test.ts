@@ -53,4 +53,31 @@ describe("formal Markdown defect reports", () => {
     writeFileSync(path, "# Scan：<一句话标题>\n\n## 结论\n待补充\n");
     expect(lintMarkdownReport(path).violations.length).toBeGreaterThan(0);
   });
+
+  it("accepts the fixed infrastructure report contract", () => {
+    const path = reportPath("infra");
+    writeFileSync(
+      path,
+      [
+        "# Infra connectivity",
+        "## 基本信息",
+        "target",
+        "## 症状",
+        "connection failure",
+        "## 诊断路径",
+        "SSH2",
+        "## 证据",
+        "redacted",
+        "## 结论",
+        "blocked",
+        "## 变更计划与结果",
+        "none",
+        "## Original-path Retest",
+        "not run",
+        "## Knowledge writeback",
+        "not run",
+      ].join("\n"),
+    );
+    expect(lintMarkdownReport(path).violations).toHaveLength(0);
+  });
 });
