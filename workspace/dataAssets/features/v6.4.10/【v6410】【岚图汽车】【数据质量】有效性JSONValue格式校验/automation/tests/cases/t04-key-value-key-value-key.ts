@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t04-key-value-key-value-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -46,7 +47,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         .locator(".ant-select")
         .first();
       await selectAntOption(page, fieldSelect, "info");
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
     });
 
     await step(
@@ -55,7 +56,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         const functionRow = ruleForm.locator(".rule__function-list__item").first();
         const functionSelect = functionRow.locator(".ant-select").first();
         await selectAntOption(page, functionSelect, FORMAT_JSON_VERIFICATION_FUNC);
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       },
     );
 
@@ -74,7 +75,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
             continue;
           }
           await switcher.click({ force: true }).catch(() => undefined);
-          await page.waitForTimeout(200);
+          await waitForUiSettled(page);
           expanded = true;
         }
         if (!expanded) {
@@ -101,7 +102,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
       } else {
         await keySelectTrigger.click();
       }
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
 
       const treeDropdown = page
         .locator(".ant-tree-select-dropdown:visible, .ant-select-dropdown:visible")

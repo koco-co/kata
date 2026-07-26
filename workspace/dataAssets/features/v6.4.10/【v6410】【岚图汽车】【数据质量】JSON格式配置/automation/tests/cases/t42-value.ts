@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t42-value
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -12,7 +13,7 @@ async function waitTableLoaded(page: import("@playwright/test").Page) {
     .locator(".ant-spin-spinning")
     .waitFor({ state: "hidden", timeout: 15000 })
     .catch(() => undefined);
-  await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => undefined);
+  await waitForUiSettled(page);
 }
 
 async function searchKeyStrict(page: import("@playwright/test").Page, keyword: string) {

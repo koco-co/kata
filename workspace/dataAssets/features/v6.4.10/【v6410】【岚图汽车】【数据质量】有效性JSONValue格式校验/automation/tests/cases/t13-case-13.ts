@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t13-case-13
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -61,7 +62,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
 
         if (inlineSaveBtnVisible) {
           await inlineRowSaveBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
           // 等待行内保存成功提示，若有
           await expectAntMessage(page, /成功/, 5000).catch(() => undefined);
         } else {
@@ -104,8 +105,8 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
           .first();
         await editBtn.waitFor({ state: "visible", timeout: 10000 });
         await editBtn.click();
-        await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
+        await waitForUiSettled(page);
       },
     );
 
@@ -117,7 +118,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
         const nextBtnVisible = await nextBtn.isVisible({ timeout: 3000 }).catch(() => false);
         if (nextBtnVisible) {
           await nextBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
 
         const packageSection = await getRulePackageSection(page, packageName);

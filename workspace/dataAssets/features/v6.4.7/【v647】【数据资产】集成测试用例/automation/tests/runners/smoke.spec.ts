@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 /**
  * 资产-集成测试用例 回归自动化
  * 环境：ci78 (http://172.16.124.78)
@@ -102,8 +103,8 @@ const SQL_LINEAGE = readFileSync(resolve(sqlDir, "lineage-tables.sql"), "utf-8")
 async function goToDataAssets(page: Page, hashPath: string): Promise<void> {
   await applyRuntimeCookies(page);
   await page.goto(buildDataAssetsUrl(hashPath));
-  await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
   await expect(page).not.toHaveURL(/login/i);
 }
 
@@ -271,7 +272,7 @@ async function searchMetadataTable(page: Page, tableName: string): Promise<Locat
   await expect(searchInput).toBeVisible({ timeout: 10000 });
   await searchInput.fill(tableName);
   await searchButton.click();
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
   await expect(page).toHaveURL(/metaDataSearch/i);
   await expect(resultTitle).toBeVisible({ timeout: 10000 });
 
@@ -281,7 +282,7 @@ async function searchMetadataTable(page: Page, tableName: string): Promise<Locat
 async function openMetadataTableDetails(page: Page, tableName: string): Promise<Locator> {
   const resultTitle = await searchMetadataTable(page, tableName);
   await resultTitle.click();
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
   await expect(page).toHaveURL(/metaDataDetails/i);
 
   const title = page
@@ -361,10 +362,10 @@ async function pickAntSelect(
   optionText: string | RegExp,
 ): Promise<void> {
   await selectLocator.locator(".ant-select-selector").click();
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
   const dropdown = page.locator(".ant-select-dropdown:visible .ant-select-item-option");
   await dropdown.filter({ hasText: optionText }).first().click();
-  await page.waitForTimeout(300);
+  await waitForUiSettled(page);
 }
 
 async function confirmAntPopconfirm(page: Page): Promise<void> {
@@ -373,23 +374,23 @@ async function confirmAntPopconfirm(page: Page): Promise<void> {
     .first();
   if (await isVisible(popConfirm, 3000)) {
     await popConfirm.click();
-    await page.waitForTimeout(1000);
+    await waitForUiSettled(page);
   }
 }
 
 async function goToQuality(page: Page, path: string): Promise<void> {
   await applyRuntimeCookies(page);
   await page.goto(buildDataAssetsUrl(path));
-  await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
 
   const bodyText = await page.locator("body").innerText();
   if (bodyText.includes("请选择项目") || bodyText.includes("暂无项目")) {
     const pid = await getQualityProjectId(page, BATCH_PROJECT);
     if (pid) {
       await page.goto(buildDataAssetsUrl(path, pid));
-      await page.waitForLoadState("networkidle");
-      await page.waitForTimeout(2000);
+      await waitForUiSettled(page);
+      await waitForUiSettled(page);
     }
   }
 }
@@ -712,7 +713,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(dsTypeFilter)) {
           await pickAntSelect(page, dsTypeFilter, DATASOURCE_TYPE);
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
       });
 
@@ -724,14 +725,14 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(dsFilter, 3000)) {
           await dsFilter.locator(".ant-select-selector").click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
           const firstOption = page
             .locator(".ant-select-dropdown:visible .ant-select-item-option")
             .first();
           if (await isVisible(firstOption, 3000)) {
             await firstOption.click();
           }
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
       });
 
@@ -743,7 +744,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(dbFilter, 3000)) {
           await dbFilter.locator(".ant-select-selector").click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
           const firstOption = page
             .locator(".ant-select-dropdown:visible .ant-select-item-option")
             .first();
@@ -752,7 +753,7 @@ test.describe("资产-集成测试", () => {
           } else {
             await page.keyboard.press("Escape");
           }
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
       });
 
@@ -789,8 +790,8 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(searchBtn, 3000)) {
             await searchBtn.click();
-            await page.waitForLoadState("networkidle");
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
+            await waitForUiSettled(page);
           }
           const body = await page.locator("body").innerText();
           const hasResult = body.includes("test_table") || body.includes("暂无数据");
@@ -864,8 +865,8 @@ test.describe("资产-集成测试", () => {
         if (await isVisible(searchInput)) {
           await searchInput.fill("wwz_001");
           await page.keyboard.press("Enter");
-          await page.waitForLoadState("networkidle");
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
+          await waitForUiSettled(page);
         }
 
         const tableLink = page
@@ -874,8 +875,8 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(tableLink)) {
           await tableLink.click();
-          await page.waitForLoadState("networkidle");
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
+          await waitForUiSettled(page);
         }
 
         const lineageTab = page
@@ -884,7 +885,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(lineageTab)) {
           await lineageTab.click();
-          await page.waitForTimeout(3000);
+          await waitForUiSettled(page);
 
           const bodyText = await page.locator("body").innerText();
           const hasLineage =
@@ -903,7 +904,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(tableLevelBtn, 3000)) {
           await tableLevelBtn.click();
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
         }
         const graphArea = page.locator(
           'canvas, svg, [class*="lineage"], [class*="graph"], [class*="kinship"]',
@@ -932,7 +933,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(tableNodeBtn, 3000)) {
           await tableNodeBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -964,7 +965,7 @@ test.describe("资产-集成测试", () => {
           if (await isVisible(fieldSearch, 3000)) {
             await fieldSearch.fill("id");
             await page.keyboard.press("Enter");
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
         }
         const body = await page.locator("body").innerText();
@@ -981,7 +982,7 @@ test.describe("资产-集成测试", () => {
           if (await isVisible(fieldSearch, 3000)) {
             await fieldSearch.fill("nonexistent_field_xyz");
             await page.keyboard.press("Enter");
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
             const modalText = await modal.first().innerText();
             const noData = modalText.includes("暂无数据") || modalText.includes("无数据");
             expect(noData || modalText.length > 50).toBeTruthy();
@@ -998,13 +999,13 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(pageSizeSelector, 3000)) {
             await pageSizeSelector.click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
             const sizeOption = page
               .locator(".ant-select-dropdown:visible .ant-select-item-option")
               .first();
             if (await isVisible(sizeOption, 3000)) {
               await sizeOption.click();
-              await page.waitForTimeout(1000);
+              await waitForUiSettled(page);
             }
           }
         }
@@ -1016,7 +1017,7 @@ test.describe("资产-集成测试", () => {
         const closeBtn = page.locator(".ant-modal-close, .ant-drawer-close").first();
         if (await isVisible(closeBtn, 3000)) {
           await closeBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
 
         const fieldLevelBtn = page
@@ -1025,7 +1026,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(fieldLevelBtn, 3000)) {
           await fieldLevelBtn.click();
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
           const body = await page.locator("body").innerText();
           const hasContent = body.includes("字段") || body.includes("血缘") || body.length > 100;
           expect(hasContent).toBeTruthy();
@@ -1038,7 +1039,7 @@ test.describe("资产-集成测试", () => {
           const fieldRow = page.locator(".ant-table-row td").first();
           if (await isVisible(fieldRow, 3000)) {
             await fieldRow.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
           const body = await page.locator("body").innerText();
           expect(body.length).toBeGreaterThan(100);
@@ -1052,7 +1053,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(textToggleBtn, 3000)) {
           await textToggleBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1065,7 +1066,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(centerBtn, 3000)) {
           await centerBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1075,7 +1076,7 @@ test.describe("资产-集成测试", () => {
         const zoomInBtn = page.locator('button, .anticon-zoom-in, [class*="zoom-in"]').first();
         if (await isVisible(zoomInBtn, 3000)) {
           await zoomInBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1085,7 +1086,7 @@ test.describe("资产-集成测试", () => {
         const zoomOutBtn = page.locator('button, .anticon-zoom-out, [class*="zoom-out"]').first();
         if (await isVisible(zoomOutBtn, 3000)) {
           await zoomOutBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1098,7 +1099,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(downloadBtn, 3000)) {
           await downloadBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1111,7 +1112,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(navToggleBtn, 3000)) {
           await navToggleBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1146,8 +1147,8 @@ test.describe("资产-集成测试", () => {
           .or(page.locator("button").filter({ hasText: /新增.*同步/ }))
           .first();
         await addBtn.click();
-        await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(2000);
+        await waitForUiSettled(page);
+        await waitForUiSettled(page);
 
         const body = await page.locator("body").innerText();
         const isInFlow =
@@ -1163,7 +1164,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(dsTypeSelect, 5000)) {
           await pickAntSelect(page, dsTypeSelect, DATASOURCE_TYPE);
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1177,13 +1178,13 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(dbSelect, 5000)) {
           await dbSelect.locator(".ant-select-selector").click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
           const firstOpt = page
             .locator(".ant-select-dropdown:visible .ant-select-item-option")
             .first();
           if (await isVisible(firstOpt, 3000)) {
             await firstOpt.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
         }
         const body = await page.locator("body").innerText();
@@ -1197,7 +1198,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(addRowBtn, 3000)) {
           await addRowBtn.click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1210,7 +1211,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(syncBtn, 5000)) {
           await syncBtn.click();
-          await page.waitForTimeout(3000);
+          await waitForUiSettled(page);
           const body = await page.locator("body").innerText();
           const isRunning =
             body.includes("运行中") ||
@@ -1242,7 +1243,7 @@ test.describe("资产-集成测试", () => {
           const addBtn = page.getByRole("button", { name: /新增|新建|添加/ }).first();
           if (await isVisible(addBtn)) {
             await addBtn.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
 
           const modal = page.locator(".ant-modal:visible, .ant-drawer:visible");
@@ -1261,7 +1262,7 @@ test.describe("资产-集成测试", () => {
 
             const okBtn = modal.first().locator(".ant-btn-primary").first();
             await okBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
 
           const body = await page.locator("body").innerText();
@@ -1279,7 +1280,7 @@ test.describe("资产-集成测试", () => {
           const addBtn = page.getByRole("button", { name: /新增|新建|添加/ }).first();
           if (await isVisible(addBtn)) {
             await addBtn.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
 
           const modal = page.locator(".ant-modal:visible, .ant-drawer:visible");
@@ -1294,7 +1295,7 @@ test.describe("资产-集成测试", () => {
 
             const okBtn = modal.first().locator(".ant-btn-primary").first();
             await okBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
 
           const body = await page.locator("body").innerText();
@@ -1312,7 +1313,7 @@ test.describe("资产-集成测试", () => {
           const addBtn = page.getByRole("button", { name: /新增|新建|添加/ }).first();
           if (await isVisible(addBtn)) {
             await addBtn.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
 
           const modal = page.locator(".ant-modal:visible, .ant-drawer:visible");
@@ -1332,7 +1333,7 @@ test.describe("资产-集成测试", () => {
 
             const okBtn = modal.first().locator(".ant-btn-primary").first();
             await okBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
 
           const body = await page.locator("body").innerText();
@@ -1350,7 +1351,7 @@ test.describe("资产-集成测试", () => {
           const addBtn = page.getByRole("button", { name: /新增|新建|添加/ }).first();
           if (await isVisible(addBtn)) {
             await addBtn.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
 
           const modal = page.locator(".ant-modal:visible, .ant-drawer:visible");
@@ -1365,7 +1366,7 @@ test.describe("资产-集成测试", () => {
 
             const okBtn = modal.first().locator(".ant-btn-primary").first();
             await okBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
 
           const body = await page.locator("body").innerText();
@@ -1385,8 +1386,8 @@ test.describe("资产-集成测试", () => {
           if (await isVisible(searchInput)) {
             await searchInput.fill("test_table");
             await page.keyboard.press("Enter");
-            await page.waitForLoadState("networkidle");
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
+            await waitForUiSettled(page);
           }
 
           const tableLink = page
@@ -1395,8 +1396,8 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(tableLink)) {
             await tableLink.click();
-            await page.waitForLoadState("networkidle");
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
+            await waitForUiSettled(page);
           }
 
           const bizAttrTab = page
@@ -1405,7 +1406,7 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(bizAttrTab, 5000)) {
             await bizAttrTab.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
 
           const body = await page.locator("body").innerText();
@@ -1440,7 +1441,7 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(deleteBtn, 3000)) {
             await deleteBtn.click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
             const popconfirm = page.locator(".ant-popconfirm:visible, .ant-popover:visible");
             if (await isVisible(popconfirm.first(), 3000)) {
               await expect(popconfirm.first()).toBeVisible();
@@ -1451,7 +1452,7 @@ test.describe("资产-集成测试", () => {
 
       await step("步骤3: 确认删除 → 列表不显示该业务属性", async () => {
         await confirmAntPopconfirm(page);
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
       });
@@ -1480,7 +1481,7 @@ test.describe("资产-集成测试", () => {
             const dorisNode = dsTree.first().getByText(DATASOURCE_TYPE, { exact: false }).first();
             if (await isVisible(dorisNode, 5000)) {
               await dorisNode.click();
-              await page.waitForTimeout(1000);
+              await waitForUiSettled(page);
             }
           }
 
@@ -1551,8 +1552,8 @@ test.describe("资产-集成测试", () => {
             .or(page.locator("button").filter({ hasText: /新建标准/ }))
             .first();
           await createBtn.click();
-          await page.waitForLoadState("networkidle");
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
+          await waitForUiSettled(page);
 
           await expect(page.locator(".dt-addOrUpdateStandard-form")).toBeVisible({
             timeout: 10000,
@@ -1587,14 +1588,14 @@ test.describe("资产-集成测试", () => {
             .or(page.locator("button").filter({ hasText: /新建标准/ }))
             .first();
           await createBtn.click();
-          await page.waitForLoadState("networkidle");
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
+          await waitForUiSettled(page);
 
           const cancelBtn = page.locator("button").filter({ hasText: /取消/ }).first();
           if (await isVisible(cancelBtn)) {
             await cancelBtn.click();
-            await page.waitForLoadState("networkidle");
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
+            await waitForUiSettled(page);
           }
 
           // 验证返回到列表页
@@ -1625,7 +1626,7 @@ test.describe("资产-集成测试", () => {
               .locator('a, span, [class*="link"]')
               .first();
             await nameCell.click();
-            await page.waitForTimeout(1500);
+            await waitForUiSettled(page);
           }
 
           const drawer = page.locator('.ant-drawer:visible, .ant-modal:visible, [class*="detail"]');
@@ -1667,7 +1668,7 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(mappingBtn)) {
             await mappingBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
 
           const modal = page.locator(".ant-modal:visible, .ant-drawer:visible");
@@ -1679,7 +1680,7 @@ test.describe("资产-集成测试", () => {
               .first();
             if (await isVisible(dsTypeSelect, 3000)) {
               await pickAntSelect(page, dsTypeSelect, DATASOURCE_TYPE);
-              await page.waitForTimeout(1000);
+              await waitForUiSettled(page);
             }
             const bodyText = await modal.first().innerText();
             expect(bodyText.length).toBeGreaterThan(50);
@@ -1699,13 +1700,13 @@ test.describe("资产-集成测试", () => {
               .first();
             if (await isVisible(dsSelect, 3000)) {
               await dsSelect.locator(".ant-select-selector").click();
-              await page.waitForTimeout(500);
+              await waitForUiSettled(page);
               const firstOpt = page
                 .locator(".ant-select-dropdown:visible .ant-select-item-option")
                 .first();
               if (await isVisible(firstOpt, 3000)) {
                 await firstOpt.click();
-                await page.waitForTimeout(1000);
+                await waitForUiSettled(page);
               }
             }
           }
@@ -1722,25 +1723,25 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(dbSelect, 3000)) {
             await dbSelect.locator(".ant-select-selector").click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
             const firstOpt = page
               .locator(".ant-select-dropdown:visible .ant-select-item-option")
               .first();
             if (await isVisible(firstOpt, 3000)) {
               await firstOpt.click();
-              await page.waitForTimeout(1000);
+              await waitForUiSettled(page);
             }
           }
 
           const addBtn = modal.first().locator("button").filter({ hasText: /添加/ }).first();
           if (await isVisible(addBtn, 3000)) {
             await addBtn.click();
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
           }
 
           const okBtn = modal.first().locator(".ant-btn-primary").first();
           await okBtn.click();
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -1762,7 +1763,7 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(fieldMapBtn, 3000)) {
             await fieldMapBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
         },
       );
@@ -1819,7 +1820,7 @@ test.describe("资产-集成测试", () => {
 
         const addBtn = page.getByRole("button", { name: /新建词根|新建|新增/ }).first();
         await addBtn.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
 
         const modal = page.locator(".ant-modal:visible");
         await expect(modal.first()).toBeVisible({ timeout: 5000 });
@@ -1835,7 +1836,7 @@ test.describe("资产-集成测试", () => {
 
         const okBtn = modal.locator(".ant-btn-primary").first();
         await okBtn.click();
-        await page.waitForTimeout(2000);
+        await waitForUiSettled(page);
 
         const body = await page.locator("body").innerText();
         const success =
@@ -1859,7 +1860,7 @@ test.describe("资产-集成测试", () => {
           if (await isVisible(deleteBtn, 3000)) {
             await deleteBtn.click();
             await confirmAntPopconfirm(page);
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
           }
         }
 
@@ -1880,7 +1881,7 @@ test.describe("资产-集成测试", () => {
 
         const addBtn = page.getByRole("button", { name: /新建代码|新建|新增/ }).first();
         await addBtn.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
 
         const modal = page.locator(".ant-modal:visible");
         await expect(modal.first()).toBeVisible({ timeout: 5000 });
@@ -1896,7 +1897,7 @@ test.describe("资产-集成测试", () => {
 
         const okBtn = modal.locator(".ant-btn-primary").first();
         await okBtn.click();
-        await page.waitForTimeout(2000);
+        await waitForUiSettled(page);
 
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -2039,7 +2040,7 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(viewBtn, 3000)) {
             await viewBtn.click();
-            await page.waitForTimeout(1000);
+            await waitForUiSettled(page);
           }
 
           const batchBtn = page
@@ -2081,8 +2082,8 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(newTableBtn)) {
             await newTableBtn.click();
-            await page.waitForLoadState("networkidle");
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
+            await waitForUiSettled(page);
           }
 
           const body = await page.locator("body").innerText();
@@ -2132,8 +2133,8 @@ test.describe("资产-集成测试", () => {
             .first();
           if (await isVisible(newTableBtn)) {
             await newTableBtn.click();
-            await page.waitForLoadState("networkidle");
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
+            await waitForUiSettled(page);
           }
 
           const parseBtn = page
@@ -2175,8 +2176,8 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(designBtn)) {
           await designBtn.click();
-          await page.waitForLoadState("networkidle");
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
+          await waitForUiSettled(page);
         } else {
           await goToDataAssets(page, "/specificationDesign");
         }
@@ -2191,7 +2192,7 @@ test.describe("资产-集成测试", () => {
           .first();
         if (await isVisible(addLevelBtn)) {
           await addLevelBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
 
           const modal = page.locator(".ant-modal:visible");
           if (await isVisible(modal.first(), 5000)) {
@@ -2222,7 +2223,7 @@ test.describe("资产-集成测试", () => {
         if (await isVisible(modal.first(), 3000)) {
           const okBtn = modal.first().locator(".ant-btn-primary").first();
           await okBtn.click();
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
         }
         const body = await page.locator("body").innerText();
         expect(body.length).toBeGreaterThan(100);
@@ -2451,7 +2452,7 @@ test.describe("资产-集成测试", () => {
           const ruleSetBtn = page.getByRole("button", { name: /新建规则集|创建规则集/ }).first();
           if (await isVisible(ruleSetBtn)) {
             await ruleSetBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
             const body = await page.locator("body").innerText();
             const isRuleConfig =
               body.includes("数据表") || body.includes("数据源") || body.includes("规则");
@@ -2672,7 +2673,7 @@ test.describe("资产-集成测试", () => {
           const addBtn = page.getByRole("button", { name: /新增.*权限|新增|新建/ }).first();
           if (await isVisible(addBtn)) {
             await addBtn.click();
-            await page.waitForTimeout(2000);
+            await waitForUiSettled(page);
 
             const modal = page.locator(".ant-modal:visible, .ant-drawer:visible");
             if (await isVisible(modal.first(), 5000)) {

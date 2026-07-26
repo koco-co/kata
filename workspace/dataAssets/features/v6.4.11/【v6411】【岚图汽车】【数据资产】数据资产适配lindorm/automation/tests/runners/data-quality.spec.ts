@@ -4,7 +4,6 @@
 import "../cases/t07-data-quality-shell";
 import "../cases/t13-data-quality-report-config";
 import "../cases/t15-data-quality-result-filters";
-import "../cases/t17-data-quality-overview-dashboard";
 import "../cases/t20-data-quality-common-config-json-shell";
 import "../cases/t23-data-quality-rule-task-list-contract";
 import "../cases/t30-data-quality-project-management";

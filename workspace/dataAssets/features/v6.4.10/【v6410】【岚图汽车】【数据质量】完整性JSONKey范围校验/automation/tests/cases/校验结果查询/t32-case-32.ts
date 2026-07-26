@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // spec: features/completeness-json-key-range/archive.md#case=t32-case-32
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -25,7 +26,7 @@ test.describe(SUITE_NAME, () => {
       const detailToggle = page.locator(".ant-table-row-expand-icon, .ant-table-row-expand-icon-collapsed").first();
       if (await detailToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
         await detailToggle.click();
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
       }
       await expect(page.locator(".ant-table-row-expanded, .ant-table-expanded-row").first()).toContainText("key范围校验");
     });

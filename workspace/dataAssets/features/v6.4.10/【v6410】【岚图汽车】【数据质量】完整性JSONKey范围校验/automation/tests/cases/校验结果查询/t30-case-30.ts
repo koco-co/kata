@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // spec: features/completeness-json-key-range/archive.md#case=t30-case-30
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -42,7 +43,7 @@ test.describe(SUITE_NAME, () => {
       const viewDetailBtn = detailDrawer.getByRole("button", { name: /查看明细|明细/ }).first();
       if (await viewDetailBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await viewDetailBtn.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
         const dataDrawer = page.locator(".ant-drawer:visible, .dtc-drawer:visible").last();
         await expect(dataDrawer).toBeVisible({ timeout: 10000 });
         await expect(dataDrawer).toContainText("2");

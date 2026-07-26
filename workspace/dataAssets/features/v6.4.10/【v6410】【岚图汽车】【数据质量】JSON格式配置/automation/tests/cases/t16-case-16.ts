@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t16-case-16
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -44,7 +45,7 @@ async function importXlsx(
     // 等待弹窗关闭（表示导入已提交），再等表格刷新
     await modal.waitFor({ state: "hidden", timeout: 30000 });
     await page.waitForLoadState("domcontentloaded").catch(() => {});
-    await page.waitForTimeout(2000);
+    await waitForUiSettled(page);
   });
 }
 
@@ -110,7 +111,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
           await modal.getByRole("button", { name: /^确\s*定$/ }).click();
           // 等待弹窗关闭（导入成功后自动关闭），最多等 30 秒
           await modal.waitFor({ state: "hidden", timeout: 30000 });
-          await page.waitForTimeout(2000);
+          await waitForUiSettled(page);
         },
       );
 

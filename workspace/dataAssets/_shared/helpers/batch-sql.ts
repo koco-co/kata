@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../lib/playwright/index";
 // batch-sql.ts — split from test-setup.ts
 
 import type { Page } from "@playwright/test";
@@ -31,13 +32,13 @@ export async function selectBatchProject(page: Page, projectName: string): Promi
   await projectLink.click();
 
   await page.waitForURL(/#\/offline\/task/, { timeout: 30000 });
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
   await page
     .locator(".org-tree-select-wrap, .ant-select-selection-item")
     .filter({ hasText: projectName })
     .first()
     .waitFor({ state: "visible", timeout: 30000 });
-  await page.waitForTimeout(3000);
+  await waitForUiSettled(page);
 }
 
 /**
@@ -101,7 +102,7 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     .filter({ hasText: "临时查询" })
     .first()
     .waitFor({ state: "visible", timeout: 30000 });
-  await page.waitForTimeout(3000);
+  await waitForUiSettled(page);
 
   // 3. 右键"临时查询"树节点
   const treeNode = page
@@ -110,7 +111,7 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     .first();
   await treeNode.waitFor({ state: "visible", timeout: 30000 });
   await treeNode.click({ button: "right" });
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
 
   // 4. 点击"新建临时查询"上下文菜单
   const newQueryMenu = page
@@ -119,7 +120,7 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     .first();
   await newQueryMenu.waitFor({ state: "visible", timeout: 30000 });
   await newQueryMenu.click();
-  await page.waitForTimeout(1500);
+  await waitForUiSettled(page);
 
   // 5. 处理新建临时查询弹窗
   const modal = page.locator(".ant-modal:visible").first();
@@ -135,13 +136,13 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     .locator(".ant-select")
     .first();
   await typeSelect.locator(".ant-select-selector").click();
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
   await page
     .locator(".ant-select-dropdown:visible .ant-select-item-option")
     .filter({ hasText: /Doris\s*SQL/i })
     .first()
     .click();
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
 
   const clusterSelect = modal
     .locator(".ant-form-item")
@@ -150,7 +151,7 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     .first();
   if (await clusterSelect.isVisible({ timeout: 3000 }).catch(() => false)) {
     await clusterSelect.locator(".ant-select-selector").click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
     const clusterOption = page
       .locator(".ant-select-dropdown:visible .ant-select-item-option")
       .filter({ hasText: /doris/i })
@@ -160,7 +161,7 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     } else {
       await page.locator(".ant-select-dropdown:visible .ant-select-item-option").first().click();
     }
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
   }
 
   const okBtn = modal.locator(".ant-btn-primary").first();
@@ -191,7 +192,7 @@ async function openBatchDorisEditor(page: Page, name: string, projectName: strin
     const bodyText = await page.locator("body").innerText({ timeout: 5000 }).catch(() => "");
     throw new Error(`Failed to open Batch temp query editor "${name}". body=${bodyText.slice(0, 1200)}`);
   }
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
 }
 
 async function runSqlInCurrentBatchEditor(
@@ -203,20 +204,20 @@ async function runSqlInCurrentBatchEditor(
   const editorArea = page.locator(".view-lines, .monaco-editor .overflow-guard, .monaco-editor textarea.inputarea").first();
   await editorArea.waitFor({ state: "visible", timeout: 60000 });
   await editorArea.click();
-  await page.waitForTimeout(300);
+  await waitForUiSettled(page);
 
   // Ctrl+A 全选 → Delete 清空 → 输入新 SQL
   const modifier = process.platform === "darwin" ? "Meta" : "Control";
   await page.keyboard.press(`${modifier}+a`);
   await page.keyboard.press("Delete");
-  await page.waitForTimeout(300);
+  await waitForUiSettled(page);
 
   // 分块键盘输入 SQL (每块 100 字符以提高可靠性)
   const chunks = sqlContent.match(/.{1,100}/g) ?? [sqlContent];
   for (const chunk of chunks) {
     await page.keyboard.type(chunk, { delay: 0 });
   }
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
 
   // 8. 点击运行按钮
   const runBtn = page
@@ -227,10 +228,10 @@ async function runSqlInCurrentBatchEditor(
     await runBtn.click();
     await confirmBatchDdlModal(page, requiresDdlConfirm);
   }
-  await page.waitForTimeout(5000);
+  await waitForUiSettled(page);
 
   // 9. 等待执行结果 (最多等 120 秒)
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
 
   let resultText = "";
   const resultArea = page.locator(".ide-console.batch-ide-console").first();
@@ -251,7 +252,7 @@ async function runSqlInCurrentBatchEditor(
       throw new Error(`SQL execution failed: ${resultText.slice(0, 500)}`);
     }
   }
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
 
   return { resultText };
 }

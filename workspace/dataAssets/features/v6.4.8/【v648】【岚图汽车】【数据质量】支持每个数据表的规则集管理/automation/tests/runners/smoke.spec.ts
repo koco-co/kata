@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 冒烟测试（P0）
 // 生成时间：2026-04-06T18:11:16.521Z
 // 用例数量：7
@@ -88,7 +89,7 @@ async function getAccessibleProjectIds(page: Page): Promise<number[]> {
 async function ensureProjectContext(page: Page): Promise<number> {
   await applyRuntimeCookies(page);
   await page.goto(buildDataAssetsUrl("/dq/overview"));
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
   let projectId: number | null = null;
   await expect
     .poll(
@@ -109,7 +110,7 @@ async function navigateToDqPage(page: Page, menuName: string): Promise<void> {
   const sideMenu = page.locator(".ant-layout-sider").first();
   await expect(sideMenu).toBeVisible({ timeout: 10000 });
   await sideMenu.getByText(menuName, { exact: true }).click();
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
 }
 
 /** Click an Ant Design Select, then pick an option by visible text */
@@ -164,13 +165,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入【数据资产】-【数据质量】-【规则任务管理】页面
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
     // 步骤2: 新建监控规则, 配置监控对象
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 填写规则名称
     const nameInput = page.locator('input[placeholder*="规则"]').first();
@@ -218,14 +219,14 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤3: 点击下一步进入监控规则配置页面
     await page.getByRole("button", { name: /下一步/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await expect(page.getByText("监控规则")).toBeVisible({ timeout: 10000 });
 
     // 步骤4: 引入规则包中所有校验规则
     const importBtn = page.getByRole("button", { name: /引入规则/ });
     if (await importBtn.isVisible()) {
       await importBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 选择规则包
       const rulePackSelect = page.locator(".ant-modal:visible .ant-select").first();
@@ -235,7 +236,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
       // 确认引入
       await confirmAntModal(page);
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
     }
 
     // 步骤5: 保存规则任务 task01 后立即执行
@@ -246,7 +247,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     }
 
     await page.getByRole("button", { name: /保存/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 立即执行
     const runBtn = page.getByRole("button", { name: /立即执行|运行/ }).first();
@@ -274,12 +275,12 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤6: 修改规则集中的校验规则期望值 >=−200
     await navigateToDqPage(page, "规则集管理");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 找到并编辑规则集
     const ruleRow = page.locator(".ant-table-tbody tr").filter({ hasText: ruleName });
     await ruleRow.getByRole("button", { name: /编辑/ }).first().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 修改期望值
     const expectInput = page.locator('input[placeholder*="期望"]').first();
@@ -291,13 +292,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       .getByRole("button", { name: /保存|确定/ })
       .first()
       .click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 步骤7: 新建规则任务 task02 并立即执行
     await navigateToDqPage(page, "规则任务管理");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const taskNameInput02 = page.locator('input[placeholder*="任务"]').first();
     if (await taskNameInput02.isVisible()) {
@@ -306,9 +307,9 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 配置监控对象和引入 rule01 规则包, 保存并执行
     await page.getByRole("button", { name: /下一步/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await page.getByRole("button", { name: /保存/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const runBtn02 = page.getByRole("button", { name: /立即执行|运行/ }).first();
     if (await runBtn02.isVisible()) {
@@ -368,13 +369,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入规则任务管理页面
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
     // 步骤2: 新建监控规则, 配置2个规则包(一致性校验、合理性校验、时效性校验)
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const taskInput = page.locator('input[placeholder*="任务"]').first();
     if (await taskInput.isVisible()) {
@@ -383,13 +384,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 配置监控对象
     await page.getByRole("button", { name: /下一步/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 引入规则包1 (一致性校验 + 合理性校验)
     const importBtn = page.getByRole("button", { name: /引入规则/ });
     if (await importBtn.isVisible()) {
       await importBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 选择规则包并勾选校验类型
       const checkboxes = page.locator(".ant-modal:visible .ant-checkbox-wrapper");
@@ -403,12 +404,12 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       if (await timelinessCheck.isVisible()) await timelinessCheck.click();
 
       await confirmAntModal(page);
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
     }
 
     // 保存并执行
     await page.getByRole("button", { name: /保存/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const runBtn = page.getByRole("button", { name: /立即执行|运行/ }).first();
     if (await runBtn.isVisible()) {
@@ -439,7 +440,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       .getByRole("link", { name: /查看|详情/ })
       .first()
       .click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 验证显示未通过数据
     await expect(page.locator(".ant-table-tbody").filter({ hasText: /未通过|不通过/ })).toBeVisible(
@@ -448,14 +449,14 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤4: 进入校验结果查询检查详情
     await navigateToDqPage(page, "校验结果查询");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 搜索任务名称
     const searchInput = page.locator('input[placeholder*="搜索"]').first();
     if (await searchInput.isVisible()) {
       await searchInput.fill(taskName);
       await searchInput.press("Enter");
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
     }
 
     // 查看详情
@@ -464,18 +465,18 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       .getByRole("link", { name: /查看|详情/ })
       .first()
       .click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 验证校验结果详情页面加载
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 10000 });
 
     // 步骤5: 编辑规则任务变更分区后重新执行
     await navigateToDqPage(page, "规则任务管理");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const editRow = page.locator(".ant-table-tbody tr").filter({ hasText: taskName });
     await editRow.getByRole("button", { name: /编辑/ }).first().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 变更分区配置
     const partInput = page.locator('input[placeholder*="分区"]').first();
@@ -488,7 +489,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       .getByRole("button", { name: /保存|确定/ })
       .first()
       .click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
   });
 
   // ────────────────────────────────────────────────────────────────────
@@ -504,13 +505,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入规则任务管理页面
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
     // 步骤2: 新建监控规则(完整性校验, final_price>=0)
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const taskInput = page.locator('input[placeholder*="任务"]').first();
     if (await taskInput.isVisible()) {
@@ -519,13 +520,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 配置监控对象 → 下一步
     await page.getByRole("button", { name: /下一步/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 引入规则包 (完整性校验 final_price>=0)
     const importBtn = page.getByRole("button", { name: /引入规则/ });
     if (await importBtn.isVisible()) {
       await importBtn.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       const completenessCheck = page
         .locator(".ant-modal:visible .ant-checkbox-wrapper")
@@ -533,12 +534,12 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       if (await completenessCheck.isVisible()) await completenessCheck.click();
 
       await confirmAntModal(page);
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
     }
 
     // 保存
     await page.getByRole("button", { name: /保存/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 步骤3: 选择任务立即执行 → 校验不通过
     const runBtn = page.getByRole("button", { name: /立即执行|运行/ }).first();
@@ -569,7 +570,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       .getByRole("link", { name: /查看|详情/ })
       .first()
       .click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     await expect(page.locator(".ant-table-tbody").filter({ hasText: /未通过|不通过/ })).toBeVisible(
       { timeout: 15000 },
@@ -579,7 +580,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     const sqlTab = page.getByText("SQL验证").first();
     if (await sqlTab.isVisible()) {
       await sqlTab.click();
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
 
       // 验证 SQL 查询结果与校验结果一致
       await expect(page.locator(".ant-table")).toBeVisible({ timeout: 10000 });
@@ -587,13 +588,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤6: 编辑规则任务变更分区后重新执行 → 校验通过
     await page.goBack();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const editRow = page.locator(".ant-table-tbody tr").filter({ hasText: taskName });
     await editRow.getByRole("button", { name: /编辑/ }).first().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 变更分区
     const partInput = page.locator('input[placeholder*="分区"]').first();
@@ -606,7 +607,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
       .getByRole("button", { name: /保存|确定/ })
       .first()
       .click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 重新执行
     const reRunBtn = page.getByRole("button", { name: /立即执行|运行/ }).first();
@@ -641,13 +642,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入规则任务管理页面
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
     // 步骤2: 新建监控规则, 配置监控对象(hive_table)后点击下一步
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const taskInput = page.locator('input[placeholder*="任务"]').first();
     if (await taskInput.isVisible()) {
@@ -655,7 +656,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     }
 
     await page.getByRole("button", { name: /下一步/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 进入监控规则配置页面
     await expect(page.getByText("监控规则")).toBeVisible({ timeout: 10000 });
@@ -663,7 +664,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤3: 选择 hive_rulePkg01 规则包, 完整性校验, 并引入
     const importBtn = page.getByRole("button", { name: /引入规则/ });
     await importBtn.click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const modal = page.locator(".ant-modal:visible").last();
     const rulePackSelect = modal.locator(".ant-select").first();
@@ -677,7 +678,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     }
 
     await modal.locator(".ant-btn-primary").click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 引入成功
     await expect(page.locator(".ant-table-tbody tr"))
@@ -692,7 +693,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤4: 选择 hive_rulePkg02 规则包, 完整性校验, 并引入 → 提示覆盖引入确认
     await importBtn.click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const modal2 = page.locator(".ant-modal:visible").last();
     const rulePackSelect2 = modal2.locator(".ant-select").first();
@@ -713,7 +714,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤5: 确认引入后, 检查校验规则配置 → 覆盖已有规则
     await confirmModal.locator(".ant-btn-primary").click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 验证: 引入后对已有规则配置进行了覆盖
     const ruleRowsAfter = await page.locator(".ant-table-tbody tr").count();
@@ -721,7 +722,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤6: 保存规则任务后检查详情 → 规则配置为引入后的规则
     await page.getByRole("button", { name: /保存/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 验证保存成功
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 10000 });
@@ -734,13 +735,13 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入规则任务管理页面
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则任务管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
     // 步骤2: 新建监控规则, 配置监控对象(hive_table)后点击下一步
     await page.getByRole("button", { name: /新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const taskInput = page.locator('input[placeholder*="任务"]').first();
     if (await taskInput.isVisible()) {
@@ -748,7 +749,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     }
 
     await page.getByRole("button", { name: /下一步/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 进入监控规则配置页面
     await expect(page.getByText("监控规则")).toBeVisible({ timeout: 10000 });
@@ -756,7 +757,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤3: 选择 hive_rulePkg01、02 规则包, 检查规则类型下拉框
     const importBtn = page.getByRole("button", { name: /引入规则/ });
     await importBtn.click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const modal = page.locator(".ant-modal:visible").last();
 
@@ -792,7 +793,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     if (await uniquenessCheck.isVisible()) await uniquenessCheck.click();
 
     await modal.locator(".ant-btn-primary").click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 验证引入的规则数量: 完整性校验×1 + 唯一性校验×10 = 11
     const ruleRows = page.locator(".ant-table-tbody tr");
@@ -812,12 +813,12 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入规则集管理页面, 点击新增规则集
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则集管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
     await page.getByRole("button", { name: /新增|新建/ }).click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 进入基础信息配置页面
     await expect(page.getByText(/基础信息|规则集/)).toBeVisible({ timeout: 10000 });
@@ -913,7 +914,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     // 步骤1: 进入规则集管理页面
     const projectId = await ensureProjectContext(page);
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     await navigateToDqPage(page, "规则集管理");
     await expect(page.locator(".ant-table")).toBeVisible({ timeout: 15000 });
 
@@ -932,7 +933,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤3: 确认删除
     await delModal1.locator(".ant-btn-primary, .ant-btn-danger").last().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 删除成功
     await expectAntMessage(page, /删除成功|成功/);
@@ -958,7 +959,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤5: 确认删除
     await delModal2.locator(".ant-btn-primary, .ant-btn-danger").last().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 删除成功
     await expectAntMessage(page, /删除成功|成功/);
@@ -976,14 +977,14 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
 
     // 步骤7: 确认删除 → 删除失败, 需先删除关联的规则任务
     await delModal3.locator(".ant-btn-primary, .ant-btn-danger").last().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 提示删除失败, 需先删除关联的规则任务
     await expectAntMessage(page, /删除失败|关联|规则任务/);
 
     // 步骤8: 先删除关联的规则任务B
     await navigateToDqPage(page, "规则任务管理");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 找到关联的任务并删除
     const taskRow = tableBody.locator("tr").first();
@@ -992,14 +993,14 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     const taskDelModal = page.locator(".ant-modal:visible").last();
     await expect(taskDelModal).toBeVisible({ timeout: 5000 });
     await taskDelModal.locator(".ant-btn-primary, .ant-btn-danger").last().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 删除成功
     await expectAntMessage(page, /删除成功|成功/);
 
     // 步骤9: 回到规则集管理, 再次删除规则集3
     await navigateToDqPage(page, "规则集管理");
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     const retryRow = tableBody.locator("tr").filter({ hasText: linkedName }).first();
     await retryRow.getByRole("button", { name: /删除/ }).click();
@@ -1007,7 +1008,7 @@ test.describe("【岚图】规则集管理 - P0 冒烟测试", () => {
     const delModal4 = page.locator(".ant-modal:visible").last();
     await expect(delModal4).toBeVisible({ timeout: 5000 });
     await delModal4.locator(".ant-btn-primary, .ant-btn-danger").last().click();
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
 
     // 预期: 删除成功
     await expectAntMessage(page, /删除成功|成功/);

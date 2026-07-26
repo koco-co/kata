@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t10-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -83,7 +84,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
       "步骤3: 点击确认按钮 → 弹窗关闭，列表刷新，deleteParent 消失，搜索 deleteChild 结果为空",
       async () => {
         await popconfirm.locator(".ant-btn-primary").first().click();
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
 
         // 断言父 key 行已从列表中消失
         await expect(parentRowLocator).toHaveCount(0, { timeout: 10000 });

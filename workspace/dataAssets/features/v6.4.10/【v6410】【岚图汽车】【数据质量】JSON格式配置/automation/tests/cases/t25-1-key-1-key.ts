@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t25-1-key-1-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -48,9 +49,9 @@ async function importXlsx(
     }
     const fileInput = modal.locator('input[type="file"]');
     await fileInput.setInputFiles(filePath);
-    await page.waitForTimeout(1000);
+    await waitForUiSettled(page);
     await modal.getByRole("button", { name: /^确\s*定$/ }).click();
-    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+    await waitForUiSettled(page);
     await dismissWelcomeDialog(page);
   });
 }
@@ -129,7 +130,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         async () => {
           // importXlsx left us on the json-config page — skip gotoJsonConfigPage()
           // to avoid another 60-75 s navigation hit.
-          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+          await waitForUiSettled(page);
           await searchKey(page, existKey1);
           await expect(updatedRow).toBeVisible({ timeout: 10000 });
           await expect(updatedRow).toContainText("^[A-Z]+$");

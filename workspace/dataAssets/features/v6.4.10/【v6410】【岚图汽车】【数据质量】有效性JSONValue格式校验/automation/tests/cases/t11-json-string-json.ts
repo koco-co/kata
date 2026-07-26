@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-json-value-format/archive.md#case=t11-json-string-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -61,7 +62,7 @@ async function expectJsonFormatAvailability(
   }
 
   await page.keyboard.press("Escape").catch(() => undefined);
-  await page.waitForTimeout(150);
+  await waitForUiSettled(page);
 }
 
 describeByDatasource("规则集管理", () => {

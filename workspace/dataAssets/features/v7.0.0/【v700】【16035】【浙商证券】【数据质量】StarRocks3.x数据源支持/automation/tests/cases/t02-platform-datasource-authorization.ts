@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: cases/archive.md#case=概览页正确统计 StarRocks 3.x 数据源规则任务数据  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // A46：数据质量【概览】页加载并展示规则统计卡片（单表/多表规则总数）、运维指标（任务总数/校验通过/校验异常）、告警汇总。
 // 未验证范围：archive 步骤 2/3 的精确计数（单表规则总数=3、多表=1、任务总数=4、通过=2、异常=2）假定项目内仅
@@ -14,7 +15,7 @@ test.describe("@serial 【P1】验证概览页正确统计 StarRocks 3.x 数据�
       await gotoZszqDataAssetsPage(page, "/dq/rule");
       // 左侧菜单点「概览」进入概览页（避免硬编路由）
       await page.locator("aside a, .ant-menu-item, li", { hasText: /^概览$/ }).first().click({ timeout: 15000 });
-      await page.waitForTimeout(2500);
+      await waitForUiSettled(page);
       await expect(page.locator("body"), "概览页应加载成功").toContainText("概览", { timeout: 20000 });
     });
 

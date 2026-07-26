@@ -1,3 +1,4 @@
+import "./generated.spec";
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#batch=01-assets-inventory
 // intent: SR-2099-01-AI-001
 // probe: results/preflight-260519-01/playwright/preflight/probe4-discoveries.json
@@ -20,7 +21,6 @@ import "../cases/t13-data-quality-report-config";
 import "../cases/t14-standard-directory-mapping-shell";
 import "../cases/t15-data-quality-result-filters";
 import "../cases/t16-metadata-data-map-secondary-shell";
-import "../cases/t17-data-quality-overview-dashboard";
 import "../cases/t17-metadata-table-detail-shell";
 import "../cases/t18-standard-data-standard-detail-shell";
 import "../cases/t19-metadata-data-catalog-actions-shell";
@@ -33,13 +33,9 @@ import "../cases/t25-standard-basis-code-database-shell";
 import "../cases/t26-metadata-table-detail-actions-shell";
 import "../cases/t27-data-quality-datamap-result-search-shell";
 import "../cases/t28-metadata-hot-tags-query-shell";
-import "../cases/t28-data-security-extra-shell";
 import "../cases/t30-data-quality-project-management";
-import "../cases/t30-standard-check-task-result-shell";
 import "../cases/t31-data-quality-permissions";
-import "../cases/t31-standard-statistic-status-count";
 import "../cases/t32-data-quality-sparkthrift-completeness-validation";
-import "../cases/t32-metadata-datamap-overview-stats";
 import "../cases/t33-metadata-table-detail-sidebar-shell";
 import "../cases/t34-standard-mapping-boundaries-shell";
 import "../cases/t35-standard-directory-create-edit-shell";

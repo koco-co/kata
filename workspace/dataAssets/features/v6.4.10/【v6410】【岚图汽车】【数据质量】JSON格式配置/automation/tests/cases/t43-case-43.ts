@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t43-case-43
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -55,7 +56,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         const deadline = Date.now() + 5000;
         while (Date.now() < deadline) {
           maxNotificationCount = Math.max(maxNotificationCount, await toastNotice.count());
-          await page.waitForTimeout(200);
+          await waitForUiSettled(page);
         }
         expect(maxNotificationCount).toBeLessThanOrEqual(1);
       });

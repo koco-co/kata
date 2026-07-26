@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-multi-rule-logic/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -50,8 +51,8 @@ for (const datasource of ACTIVE_DATASOURCES) {
           const searchBox = page.getByPlaceholder("请输入规则名称进行搜索");
           await searchBox.fill("取值范围");
           await page.getByRole("button", { name: "search" }).click();
-          await page.waitForLoadState("networkidle");
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
+          await waitForUiSettled(page);
         },
       );
 

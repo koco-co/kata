@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t19-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -41,9 +42,9 @@ async function importXlsx(
     }
     const fileInput = modal.locator('input[type="file"]');
     await fileInput.setInputFiles(filePath);
-    await page.waitForTimeout(1000);
+    await waitForUiSettled(page);
     await modal.getByRole("button", { name: /^确\s*定$/ }).click();
-    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+    await waitForUiSettled(page);
   });
 }
 
@@ -68,7 +69,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         "步骤2: 刷新页面，断言 skipKey 行 value格式显示 ^[a-z]+$ → value格式正确",
         async () => {
           await page.reload();
-          await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+          await waitForUiSettled(page);
           await searchKey(page, skipKey);
           await skipRow.waitFor({ state: "visible", timeout: 15000 });
           await expect(skipRow).toContainText("^[a-z]+$");

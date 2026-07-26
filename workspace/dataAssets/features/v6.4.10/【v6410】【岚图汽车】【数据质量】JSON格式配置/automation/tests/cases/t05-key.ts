@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t05-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -50,7 +51,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
           const dsTypeItem = modal.locator(".ant-form-item").filter({ hasText: "数据源类型" });
           const select = dsTypeItem.locator(".ant-select").first();
           await select.locator(".ant-select-selector").click();
-          await page.waitForTimeout(300);
+          await waitForUiSettled(page);
 
           const dropdown = page.locator(".ant-select-dropdown:visible");
           await expect(dropdown).toBeVisible({ timeout: 5000 });
@@ -68,7 +69,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
             .locator(".ant-select-dropdown")
             .waitFor({ state: "hidden", timeout: 5000 })
             .catch(() => undefined);
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
         },
       );
 
