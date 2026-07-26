@@ -18,20 +18,20 @@ lib/playwright/
 ## 导入链
 
 ```
-spec 文件 (tsconfig alias)
-  → @fixtures/step-screenshot   → shared/fixtures/step-screenshot.ts
-  → @shared/test-setup          → shared/helpers/test-setup.ts
+spec 文件
+  → workspace/dataAssets/_shared/fixtures/step-screenshot.ts
+  → workspace/dataAssets/_shared/helpers/test-setup.ts
     → shared/helpers/index.ts
       → lib/playwright/index   ← 本目录
         ├── ant-design/         ← Ant Design 组件交互
         └── utils.ts            ← 通用工具函数
 ```
 
-Spec 文件通过 tsconfig alias 引用（`workspace/dataAssets/tsconfig.json`）：
+Spec 文件直接从项目共享目录或本目录的稳定相对路径导入；项目统一使用仓库根 `tsconfig.json`，不再为 `workspace/dataAssets` 维护独立 alias：
 
 ```typescript
-import { test, expect } from "@fixtures/step-screenshot";
-import { selectAntOption, uniqueName } from "@shared/test-setup";
+import { test, expect } from "../../workspace/dataAssets/_shared/fixtures/step-screenshot";
+import { selectAntOption, uniqueName } from "../../workspace/dataAssets/_shared/helpers/test-setup";
 ```
 
 ## 修改须知

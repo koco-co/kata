@@ -2,7 +2,7 @@ import type { Command } from "commander";
 import { DEFAULT_CONFIG, runCreate } from "../integrations/zentao/create.ts";
 import { runFetch } from "../integrations/zentao/fetch.ts";
 
-/** Build the `zentao` command: bug 抓取与登记,供 case hotfix 与 defect-analyze 调用。 */
+/** Build the `zentao` command: low-level bug fetch and formal report registration. */
 export function registerZentao(program: Command): void {
   const zentao = program.command("zentao").description("禅道集成:bug 抓取与创建");
 

@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { initEnv } from "./.claude/scripts/_shared/lib/env";
+import { initEnv } from "./cli/lib/env";
 import {
   bridgeLegacyDataAssetsEnv,
   cookieHeaderToPlaywrightState,

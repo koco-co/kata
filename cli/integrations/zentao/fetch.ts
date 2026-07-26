@@ -120,6 +120,7 @@ export async function runFetch(options: {
   bugId?: number;
   url?: string;
   output: string;
+  silent?: boolean;
 }): Promise<void> {
   const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../");
   initEnv(resolve(projectRoot, ".env"));
@@ -242,5 +243,5 @@ export async function runFetch(options: {
     output_path: outputPath,
   };
   writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
-  process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+  if (!options.silent) process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 }

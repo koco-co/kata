@@ -5,7 +5,6 @@ import { stringify } from "yaml";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { readFeatureMeta } from "../lib/feature-meta.ts";
 import {
-  HOTFIX_DIR,
   LABEL_DIR_RE,
   listFeatureDirs,
   resolveFeatureEntry,
@@ -149,52 +148,6 @@ export function runFeaturesResolve(opts: {
   };
 }
 
-// ─── resolve-hotfix: hotfix 目录协议 ───
-
-export interface FeaturesResolveHotfixResult {
-  project: string;
-  hotfixDir: string;
-  dirName: string;
-  created: boolean;
-}
-
-/**
- * Resolve (and create when absent) a hotfix feature dir: _hotfix/<yyyymm>-<bugId>-<title>.
- * All inputs come from the already-fetched bug record; the command never fetches.
- */
-export function runFeaturesResolveHotfix(opts: {
-  project: string;
-  bugId: string;
-  yyyymm: string;
-  title: string;
-  root?: string;
-}): FeaturesResolveHotfixResult {
-  if (!/^\d{6}$/.test(opts.yyyymm)) {
-    throw new Error(
-      `非法 --yyyymm "${opts.yyyymm}"：需 6 位年月（如 202607），取 bug 解决或打开月份`,
-    );
-  }
-  if (/[\s/\\]/.test(opts.bugId)) {
-    throw new Error(`非法 --bug-id "${opts.bugId}"：不得含空白或路径分隔符`);
-  }
-  const title = opts.title.trim();
-  if (!title) {
-    throw new Error("缺 --title：中文短标题（取 bug 标题精简）");
-  }
-  if (/[\s/\\【】]/.test(title)) {
-    throw new Error(`非法 --title "${opts.title}"：不得含空白、路径分隔符或【】`);
-  }
-  const paths = locateProject(opts.project, opts.root);
-  const dirName = `${opts.yyyymm}-${opts.bugId}-${title}`;
-  const hotfixDir = join(paths.featuresDir, HOTFIX_DIR, dirName);
-  let created = false;
-  if (!existsSync(hotfixDir)) {
-    mkdirSync(join(hotfixDir, "cases"), { recursive: true });
-    created = true;
-  }
-  return { project: opts.project, hotfixDir, dirName, created };
-}
-
 // ─── list ───
 
 export interface FeatureRow {
@@ -331,30 +284,6 @@ export function registerFeatures(program: Command): void {
         } else {
           console.log(`featureDir: ${result.featureDir}`);
           console.log(`featureId:  ${result.featureId}${result.created ? "（新建）" : ""}`);
-        }
-      },
-    );
-
-  features
-    .command("resolve-hotfix")
-    .description("定位(不存在则创建) hotfix 需求功能目录")
-    .requiredOption("--project <name>", "项目名")
-    .requiredOption("--bug-id <segment>", "bug_id 段(可带 版本_客户_ 前缀,如 6.0.x_jhkj_155381)")
-    .requiredOption("--yyyymm <yyyymm>", "6 位年月,取 bug 解决或打开月份")
-    .requiredOption("--title <title>", "中文短标题(取 bug 标题精简,不含【】与空白)")
-    .option("--json", "以 JSON 输出结果", false)
-    .action(
-      (opts: { project: string; bugId: string; yyyymm: string; title: string; json: boolean }) => {
-        const result = runFeaturesResolveHotfix({
-          project: opts.project,
-          bugId: opts.bugId,
-          yyyymm: opts.yyyymm,
-          title: opts.title,
-        });
-        if (opts.json) {
-          process.stdout.write(`${JSON.stringify(result)}\n`);
-        } else {
-          console.log(`hotfixDir: ${result.hotfixDir}${result.created ? "（新建）" : ""}`);
         }
       },
     );

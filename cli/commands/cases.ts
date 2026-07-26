@@ -22,10 +22,11 @@ export function registerCases(program: Command): void {
   cases
     .command("lint")
     .description("检查 feature 目录结构、命名与 metadata 合法性")
-    .requiredOption("--project <name>", "项目名")
+    .option("--project <name>", "项目名")
     .option("--feature <id>", "只检查单个 feature")
     .option("--exit-code", "存在 violation 时退出码为 1")
-    .action((opts: { project: string; feature?: string; exitCode?: boolean }) => {
+    .action((opts: { project?: string; feature?: string; exitCode?: boolean }) => {
+      if (!opts.project) throw new Error("普通 cases lint 必须提供 --project");
       const { violations } = runCasesLint({ project: opts.project, feature: opts.feature });
       for (const v of violations) {
         console.log(`${v.feature} [${v.rule}] ${v.message}`);
