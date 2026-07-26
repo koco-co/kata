@@ -1,6 +1,6 @@
 ---
 name: workspace
-description: 创建、检查、修复 kata 项目工作区骨架。触发短语如「初始化工作区」「新建项目工作区」「自检/修复工作区」。问 kata 能力或命令用法时直接看 CLAUDE.md 命令索引或用 `kata --help`，不走本 skill。
+description: 创建、检查、修复 kata 项目工作区骨架。触发短语如「初始化工作区」「新建项目工作区」「自检/修复工作区」。问 kata 能力或命令用法时直接用 `kata --help`，不走本 skill。
 ---
 
 # workspace
