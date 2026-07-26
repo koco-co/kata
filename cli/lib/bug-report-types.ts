@@ -85,6 +85,7 @@ export interface BugReport {
   expected?: string; // 预期结果
   actual?: string; // 实际结果
   fix_suggestions?: FixSuggestion[];
+  impact?: string;
 }
 
 export interface ConflictItem {

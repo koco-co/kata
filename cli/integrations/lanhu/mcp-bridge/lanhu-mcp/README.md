@@ -16,7 +16,7 @@ design documents.
 ## How kata uses it
 
 The kata `lanhu` plugin installs Python dependencies via
-`.claude/plugins/lanhu/mcp-bridge/setup.sh` (which runs `uv sync` against
+`cli/integrations/lanhu/mcp-bridge/setup.sh` (which runs `uv sync` against
 `pyproject.toml`), then drives the server through the plugin's fetch bridge.
 Do not run the upstream `easy-install` / `quickstart` scripts here — they were
 removed because kata owns the install flow.

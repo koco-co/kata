@@ -46,7 +46,7 @@ import {
   normalizeDataAssetsBaseUrl,
   syncMetadata,
   uniqueName,
-} from "../../../_shared/helpers/test-setup";
+} from "../../../../../../_shared/helpers/test-setup";
 
 // ─── Types ───────────────────────────────────────────
 type Page = import("@playwright/test").Page;

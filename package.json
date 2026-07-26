@@ -27,7 +27,10 @@
     "lint": "biome check .claude/skills cli/integrations cli tests AGENTS.md README.md README-EN.md INSTALL.md",
     "format": "biome check --fix .",
     "type-check": "tsc --noEmit",
-    "ci": "bun run check && bun run type-check && bun run test && bun run test:tools",
+    "test:workspace": "bun test --timeout 30000 ./workspace/dataAssets/_shared",
+    "test:workspace-discovery": "KATA_DISCOVERY_ONLY=1 KATA_ACTIVE_PROJECT=dataAssets bunx playwright test --list",
+    "type-check:workspace": "tsc -p tsconfig.workspace.json --noEmit",
+    "ci": "bun run check && bun run type-check && bun run type-check:workspace && bun run test && bun run test:workspace && bun run test:workspace-discovery && bun run test:tools && git diff --check",
     "test": "bun test --timeout 30000",
     "test:watch": "bun test --watch"
   },

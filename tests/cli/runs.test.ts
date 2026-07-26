@@ -76,7 +76,7 @@ describe("runs execution contract", () => {
 
     const status = JSON.parse(readFileSync(join(runPath, "status.json"), "utf8"));
     expect(exitCode).toBe(0);
-    expect(status.status).toBe("passed");
+    expect(status.status).toBe("command_passed");
     expect(status.exitCode).toBe(0);
     expect(status.command.argCount).toBe(2);
   });

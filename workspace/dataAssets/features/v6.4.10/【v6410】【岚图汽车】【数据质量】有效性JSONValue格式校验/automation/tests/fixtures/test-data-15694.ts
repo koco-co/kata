@@ -11,14 +11,14 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
  *   - person-email：未配置 value格式（在 TreeSelect 中显示为 disabled）
  */
 import type { Page } from "@playwright/test";
-import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
+import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/helpers/test-setup";
+import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 
 // ── Re-export 公共工具（方便 helpers 文件直接从此处 import）──────────────────
 export {
   applyRuntimeCookies,
   buildDataAssetsUrl,
-} from "../../../../_shared/helpers/test-setup";
+} from "../../../../../../_shared/helpers/test-setup";
 
 const ENV = getEnvConfig();
 

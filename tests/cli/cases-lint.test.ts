@@ -163,4 +163,16 @@ describe("features lint", () => {
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "real_env_name")).toBe(false);
   });
+
+  it("flags metadata paths that do not exist", () => {
+    const root = ws();
+    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    mkfeature(root, dir, "cases");
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-demo\ncase_drafting:\n  xmind_path: cases/missing.xmind\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "metadata_reference_missing")).toBe(true);
+  });
 });

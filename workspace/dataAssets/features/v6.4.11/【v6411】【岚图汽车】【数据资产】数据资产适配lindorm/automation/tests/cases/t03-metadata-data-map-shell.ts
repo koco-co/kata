@@ -5,13 +5,13 @@
 // generated_at: 2026-05-22T03:12:41Z
 // META: {"id":"MD-001","priority":"P3/P2","title":"数据地图首页和搜索类型下拉可核验"}
 // SourceRefs: SR-2099-01-MD-LANDING-L163, SR-2099-01-MD-SEARCH-DROPDOWN-L178, SR-2099-01-MD-DATATABLE-SEARCH-L196, SR-2099-01-MD-001, SR-UI-PROBE-20260522-METADATA-001, SR-SELF-RUN-METADATA-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectEmptySearch,
   expectDataMapLandingContract,
   expectDataMapSearchTypeOptions,
   expectSearchResult,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
 import { METADATA_SCOPE, SR_2099_01_MD_001 } from "../fixtures/metadata-contract";
 
 test.setTimeout(90000);

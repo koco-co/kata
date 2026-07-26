@@ -2,7 +2,9 @@ import { expect, type Page } from "@playwright/test";
 
 import { buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
-const PROJECT_ID = getEnvConfig().projects.quality.id;
+function getProjectId(): string | number {
+  return getEnvConfig().projects.quality.id;
+}
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
 
@@ -21,7 +23,7 @@ async function installProject(page: Page): Promise<void> {
       sessionStorage.setItem(assetKey, projectId);
       sessionStorage.setItem(dqKey, projectId);
     },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
@@ -31,13 +33,13 @@ async function injectProject(page: Page): Promise<void> {
       sessionStorage.setItem(assetKey, projectId);
       sessionStorage.setItem(dqKey, projectId);
     },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
 export async function gotoPlatformPage(page: Page, path: string): Promise<void> {
   await installProject(page);
-  await page.goto(buildDataAssetsUrl(path, PROJECT_ID), {
+  await page.goto(buildDataAssetsUrl(path, getProjectId()), {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });

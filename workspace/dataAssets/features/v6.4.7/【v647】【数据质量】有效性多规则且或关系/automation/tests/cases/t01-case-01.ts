@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P1","title":"新建取值范围&枚举范围且关系规则"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -17,7 +17,7 @@ import {
   getRuleSetListRow,
   gotoRuleSetList,
   saveRuleSet,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

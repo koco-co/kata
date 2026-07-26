@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t13","priority":"P2","title":"验证在规则集中取值范围&枚举范围规则支持克隆且克隆后配置内容与原规则一致"}
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -18,7 +18,7 @@ import {
   getRulePackage,
   gotoRuleSetList,
   openRuleSetEditor,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

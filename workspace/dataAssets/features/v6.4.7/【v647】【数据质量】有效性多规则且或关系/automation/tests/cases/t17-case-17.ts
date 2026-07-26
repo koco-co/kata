@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t17","priority":"P2","title":"验证弱规则标识在校验结果查询实例详情中展示正确"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -16,7 +16,7 @@ import {
   getTaskDetailRuleCard,
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
 
 test.setTimeout(600000);
 

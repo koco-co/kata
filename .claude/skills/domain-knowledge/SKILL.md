@@ -10,11 +10,11 @@ description: 查询、记录或维护项目业务知识、规则、术语，或�
 ## 查询
 
 ```bash
-kata knowledge read --project <项目> [--module <模块>] [--keyword <关键词>] [--type <类型>] [--status <状态>] [--json]
+kata knowledge read --project <项目> [--module <模块>] [--keyword <关键词>] [--type <类型>] [--status <状态|all>] [--json]
 ```
 
 - 按模块注入用 `--module`（匹配标题或 tags）；按报错、术语检索用 `--keyword`。
-- `verified` 可作为已确认事实使用；`observed` 只能作为线索，不能升级成 `verified`；`conflicting` 必须保留双方证据并先裁决；`deprecated` 默认不作为当前规则注入，只有明确复核历史时读取。
+- 默认只注入 `verified`；`observed` 只能作为线索，不能升级成 `verified`；`conflicting` 必须保留双方证据并先裁决；`deprecated` 默认不作为当前规则注入，只有显式使用 `--status all` 或指定状态复核历史时读取。
 - 只取命中条目，不加载整个库；无命中就说「知识库无匹配」，不臆造。
 
 ## 记录

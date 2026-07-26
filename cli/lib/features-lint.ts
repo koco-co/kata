@@ -42,7 +42,9 @@ function loadEnvNames(workspaceRoot: string): string[] {
   if (!existsSync(envDir)) return [];
   return (
     readdirSync(envDir)
-      .filter((f) => f.endsWith(".yaml"))
+      .filter(
+        (f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"),
+      )
       .map((f) => f.replace(/\.yaml$/, ""))
       // 过短的名字误报面太大(如 env 叫 test), 不参与拦截
       .filter((n) => n.length >= 4)
@@ -54,11 +56,59 @@ interface CaseDoc {
   cases?: { id?: unknown; title?: unknown; priority?: unknown }[];
 }
 
+function lintMetadataReferences(
+  meta: Record<string, unknown>,
+  feature: string,
+  featureDir: string,
+  workspaceRoot: string,
+  violations: FeatureLintViolation[],
+): void {
+  const check = (value: unknown, field: string, baseDir = featureDir): void => {
+    if (typeof value !== "string" || value.length === 0) return;
+    const target = value.startsWith("workspace/")
+      ? join(workspaceRoot, "..", value)
+      : join(baseDir, value);
+    if (!existsSync(target)) {
+      violations.push({
+        feature,
+        rule: "metadata_reference_missing",
+        message: `${field} references missing path: ${value}`,
+      });
+    }
+  };
+
+  const drafting = (meta.case_drafting as Record<string, unknown> | undefined) ?? {};
+  check(drafting.archive_path, "case_drafting.archive_path");
+  check(drafting.xmind_path, "case_drafting.xmind_path");
+  check(drafting.coverage_matrix_path, "case_drafting.coverage_matrix_path");
+  for (const source of (drafting.source_refs as Record<string, unknown>[] | undefined) ?? []) {
+    check(source.path, "case_drafting.source_refs.path");
+  }
+
+  const files = (meta.files as Record<string, unknown> | undefined) ?? {};
+  check(files.archive, "files.archive");
+  check(files.xmind, "files.xmind");
+  check(files.tests_root, "files.tests_root");
+  check(files.latest_results, "files.latest_results");
+
+  const automation = (meta.automation as Record<string, unknown> | undefined) ?? {};
+  check(automation.last_handoff_path, "automation.last_handoff_path");
+  check(automation.latest_results, "automation.latest_results");
+  for (const intent of (automation.intents as Record<string, unknown>[] | undefined) ?? []) {
+    for (const path of (intent.case_files as unknown[] | undefined) ?? []) {
+      check(path, "automation.intents.case_files");
+    }
+    for (const path of (intent.runner_files as unknown[] | undefined) ?? []) {
+      check(path, "automation.intents.runner_files");
+    }
+  }
+}
+
 /** cases/*.yaml 内容规则: 「待确认」标记、文件名、标题格式、P0 占比、真实环境名 */
 function lintCaseSources(
   dir: string,
   name: string,
-  zone: string,
+  _zone: string,
   envNames: string[],
   violations: FeatureLintViolation[],
 ): void {
@@ -85,7 +135,8 @@ function lintCaseSources(
     }
 
     for (const envName of envNames) {
-      if (text.includes(envName)) {
+      const escaped = envName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (new RegExp(`(^|[^\\p{L}\\p{N}_-])${escaped}([^\\p{L}\\p{N}_-]|$)`, "u").test(text)) {
         violations.push({
           feature: name,
           rule: "real_env_name",
@@ -114,7 +165,7 @@ function lintCaseSources(
       }
     }
 
-    if (zone !== "hotfix" && cases.length >= P0_MIN_CASES) {
+    if (cases.length >= P0_MIN_CASES) {
       const p0 = cases.filter((c) => c.priority === "P0").length;
       const ratio = p0 / cases.length;
       if (ratio < P0_RATIO_MIN || ratio > P0_RATIO_MAX) {
@@ -231,6 +282,8 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
         });
       }
     }
+
+    lintMetadataReferences(meta, name, dir, ctx.workspaceRoot, violations);
   }
 
   return { violations };

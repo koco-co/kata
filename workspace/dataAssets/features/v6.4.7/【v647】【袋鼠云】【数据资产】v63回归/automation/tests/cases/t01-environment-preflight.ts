@@ -4,13 +4,13 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t01","priority":"P0","title":"校验 ci63 登录态、质量项目与数据资产基座可用"}
 // SourceRefs: SR-INTENT-001, SR-ENV-PREFLIGHT-001, SR-UI-PROBE-001, SR-SELF-RUN-001
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { SOURCE_REFS, V63_REGRESSION_SCOPE } from "../fixtures/v63-regression-contract";
 import {
   expectDataQualityShell,
   fetchQualityProjects,
   gotoDataQualityPage,
-} from "../../../../_shared/pages/assets-v63-regression/v63-regression-page";
+} from "../../../../../../_shared/pages/assets-v63-regression/v63-regression-page";
 
 test.setTimeout(90000);
 

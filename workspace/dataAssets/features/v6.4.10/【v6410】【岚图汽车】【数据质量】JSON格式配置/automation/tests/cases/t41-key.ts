@@ -17,13 +17,13 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 以下脚本实现核心验证：新增 refTestKey → 删除 refTestKey → 验证删除成功。
 // 规则集/规则任务的创建验证属于其他模块测试范围，不在此用例实现。
 //
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   confirmPopconfirm,
   uniqueName,
   waitForTableLoaded,
-} from "../../../../_shared/helpers/test-setup";
-import { addKey, gotoJsonConfigPage, searchKey } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/helpers/test-setup";
+import { addKey, gotoJsonConfigPage, searchKey } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证删除已被完整性和有效性校验规则引用的key后规则不受影响", async ({

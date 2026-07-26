@@ -4,9 +4,9 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t10","priority":"P1","title":"【P1】验证单个删除含子层级的key会联动删除子层级数据"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { addChildKey, addKey, gotoJsonConfigPage, searchKey } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { addChildKey, addKey, gotoJsonConfigPage, searchKey } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证单个删除含子层级的key会联动删除子层级数据", async ({ page, step }) => {

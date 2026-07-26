@@ -19,7 +19,7 @@ emits:
 feature_id: 2099-01-dq-standard-v6-3-smoke
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
+  archive_path: cases/exports/v63主流程用例.md
   xmind_path: null
   requirement_atoms: []
   coverage_matrix_path: null
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
+  archive: cases/exports/v63主流程用例.md
   xmind: null
   tests_root: null
   latest_results: null

@@ -3,14 +3,14 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P1","title":"【P1】验证校验key输入框悬浮时展示全部key名，默认仅显示前两个"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import {
   addJsonFormatRule,
   getSelectedValidationKeyTexts,
   prepareJsonRuleSetDraft,
-} from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
-import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+} from "../../../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
 const RULE_CONFIG_TABLE = "quality_test_json_rule_config";
 const HOVER_KEYS = ["field-key1", "field-key2", "field-key3", "field-key4"] as const;

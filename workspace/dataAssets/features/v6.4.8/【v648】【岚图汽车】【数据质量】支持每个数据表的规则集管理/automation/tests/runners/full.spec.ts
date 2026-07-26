@@ -1,4 +1,4 @@
-import "./generated.spec";
+import "./generated";
 import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 完整回归测试（P0 + P1 + P2）
 // 生成时间：2026-04-07

@@ -6,8 +6,8 @@
 // SourceRefs: SR-2099-01-MD-016, SR-UI-PROBE-20260523-MF-METADATA-CATALOG-001, SR-SELF-RUN-20260523-MF-METADATA-SECONDARY-001
 import { expect, type Page } from "@playwright/test";
 
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { gotoMetadataPage } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
 test.setTimeout(90000);
 

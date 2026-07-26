@@ -5,7 +5,7 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t11","priority":"P1","title":"验证取值范围和枚举值均未填写时点击保存提示至少填写一项"}
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -16,7 +16,7 @@ import {
   gotoRuleSetList,
   openRuleSetEditor,
   selectRuleFieldAndFunction,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

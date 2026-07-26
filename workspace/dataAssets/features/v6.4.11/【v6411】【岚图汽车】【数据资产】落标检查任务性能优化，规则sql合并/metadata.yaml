@@ -24,8 +24,8 @@ emits:
   playwright_tests: false
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/落标检查任务性能优化_规则sql合并.md
+  xmind_path: cases/落标检查任务性能优化_规则sql合并.xmind
   coverage_matrix_path: null
 automation:
   status: not-started
@@ -33,7 +33,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/落标检查任务性能优化_规则sql合并.md
+  xmind: cases/落标检查任务性能优化_规则sql合并.xmind
   tests_root: null
   latest_results: null

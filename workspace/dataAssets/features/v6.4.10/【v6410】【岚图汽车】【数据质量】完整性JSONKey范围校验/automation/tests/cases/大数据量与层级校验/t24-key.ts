@@ -3,8 +3,8 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"【P1】验证千级key数据量下校验内容选择列表的加载搜索和选择性能"}
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../../_shared/helpers/test-setup";
 import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,
@@ -13,7 +13,7 @@ import {
   DORIS_MONITOR_DATASOURCE,
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
-} from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";
 const PAGE_NAME = "规则集管理";

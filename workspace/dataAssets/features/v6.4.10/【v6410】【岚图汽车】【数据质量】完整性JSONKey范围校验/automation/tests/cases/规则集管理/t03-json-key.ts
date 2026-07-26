@@ -4,11 +4,11 @@ import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P0","title":"验证json类型字段可成功配置key范围校验规则"}
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import {
   gotoRuleSetList,
-} from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
-import { ensureMainScenarioRuleSet, SCENARIOS } from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+import { ensureMainScenarioRuleSet, SCENARIOS } from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 import {
   ensureRuleTasks,
   executeTaskFromList,
@@ -17,7 +17,7 @@ import {
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.setTimeout(600000);
 

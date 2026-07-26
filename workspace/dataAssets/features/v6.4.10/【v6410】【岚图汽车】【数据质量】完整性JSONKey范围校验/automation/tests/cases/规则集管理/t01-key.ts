@@ -3,9 +3,9 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P0","title":"验证统计函数选择key范围校验后字段选择变为单选"}
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../../_shared/helpers";
-import { addRuleToPackage } from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../../_shared/helpers";
+import { addRuleToPackage } from "../../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -18,7 +18,7 @@ import {
   selectFieldValues,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 test.setTimeout(600000);
 

@@ -82,4 +82,19 @@ describe("skill contract", () => {
       expect(content).toMatch(new RegExp(`^name: ${name}$`, "m"));
     }
   });
+
+  it("关键 workflow 契约绑定到具体文件并保持执行顺序", () => {
+    const implement = readFileSync(
+      join(skillDir("ui-automation"), "workflows/implement.md"),
+      "utf8",
+    );
+    expect(implement).toContain("kata runs exec");
+    expect(implement).toContain("bunx playwright test");
+    expect(implement).not.toContain("npx playwright test");
+    expect(implement.indexOf("kata runs exec")).toBeLessThan(implement.indexOf("kata env run"));
+
+    const create = readFileSync(join(skillDir("test-case"), "workflows/create.md"), "utf8");
+    expect(create).toContain("报告为 `unmapped`");
+    expect(create).not.toContain("每条正式用例填写 `automation.spec_file`");
+  });
 });

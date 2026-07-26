@@ -1,11 +1,11 @@
 import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import type { Page } from "@playwright/test";
-import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
-import { applyRuntimeCookies } from "../../../../_shared/helpers/test-setup";
+import { setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
+import { applyRuntimeCookies } from "../../../../../../_shared/helpers/test-setup";
 import type { DatasourceConfig as BaseDatasourceConfig } from "../../../validity-multi-rule-logic/tests/data/test-data";
 import { buildSparkFixtureSql, versionJsonFixtureName } from "./json-fixture-sql";
-import { runRetriablePreconditions } from "../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
-import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
+import { runRetriablePreconditions } from "../../../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
+import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 
 const ENV = getEnvConfig();
 

@@ -3,14 +3,14 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t3","priority":"P1","title":"【P1】验证新增key时key字段输入超255字符不可提交"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   clickHeaderButton,
   clickModalConfirm,
   fillKeyInput,
   gotoJsonConfigPage,
   waitModal,
-} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证新增key时key字段输入超255字符不可提交", async ({ page, step }) => {

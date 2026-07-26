@@ -4,8 +4,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t5","priority":"P1","title":"验证在规则集中枚举值选择not in后保存成功且编辑时回显正确"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../_shared/helpers/test-setup";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -19,7 +19,7 @@ import {
   openRuleSetEditor,
   saveRuleSet,
   selectRuleFieldAndFunction,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

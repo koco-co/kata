@@ -4,7 +4,7 @@
 
 # Kata
 
-### 面向 Claude Code 与 OpenAI Codex 的 QA 工作流
+## 面向 Claude Code 与 OpenAI Codex 的 QA 工作流
 
 Kata 把需求分析、用例设计、缺陷排查和 UI 自动化整理成可复用的 Skill。输入可以是 PRD、设计稿、缺陷记录、源码差异、已有用例或测试结果；输出写入明确的项目目录，并保留可复核的运行记录。
 
@@ -28,10 +28,10 @@ UI 用例 / 脚本 / 失败结果 ─── ui-automation ───────>
 
 项目遵循四条边界：
 
-- `.claude/**` 保存 Claude Code 的 Skill 与插件。
+- `.claude/skills/` 保存 Claude Code 的 Skill；集成实现位于 `cli/integrations/`。
 - `.agents/skills/` 是指向 `.claude/skills/` 的 symlink，两端共用同一份 Skill 正文。
 - 通用 CLI 位于 `cli/**`，两套运行环境共用同一份命令行实现。
-- 项目产物写入 `workspace/{project}/`。源码仓库在 `config/repos/sources.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
+- 项目产物写入 `workspace/{project}/`。源码仓库配置只保存在本机忽略文件 `config/repos/sources.yaml`（模板见 `config/repos/sources.example.yaml`），克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
 
 ## 快速开始
 
@@ -122,15 +122,14 @@ kata infra inspect <host> --check connectivity --project <project>
 
 缺陷、冲突、扫描和 hotfix 报告统一用 `kata defects lint --report <report.md> --exit-code` 校验；hotfix 回归由 `kata defects hotfix` 生成 Markdown，不再经过 `test-case`。
 
-源码仓库在 `config/repos/sources.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
+源码仓库配置只保存在本机忽略文件 `config/repos/sources.yaml`（模板见 `config/repos/sources.example.yaml`），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
 
 ## 项目目录
 
 ```text
 kata/
 ├── .claude/                       # Claude Code Skill 与插件
-│   ├── skills/
-│   └── plugins/
+│   └── skills/
 ├── .agents/                       # Codex Skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI(两端共用)

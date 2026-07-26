@@ -5,7 +5,7 @@ description: QA 用例全生命周期。两种触发方式——① 给需求源
 
 # test-case
 
-用例的唯一正式源是 `cases/需求名.yaml`；`prd.md`、`test-points.md` 是 create 的事实与范围契约，`需求名.xmind` 与 `exports/需求名.md` 是从 yaml 派生的产物，只经 `kata cases build` 重新生成，绝不手改。每条正式用例的 `automation.spec_file` 指向唯一自动化脚本。
+用例的唯一正式源是 `cases/需求名.yaml`；`prd.md`、`test-points.md` 是 create 的事实与范围契约，`需求名.xmind` 与 `exports/需求名.md` 是从 yaml 派生的产物，只经 `kata cases build` 重新生成，绝不手改。自动化映射明确分为 `unmapped`、`mapped-not-implemented`、`implemented` 三态；只有已实现用例才要求 `automation.spec_file` 指向可加载的真实脚本。
 
 ## 按输入分流
 

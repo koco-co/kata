@@ -1,0 +1,4 @@
+# Copy this file to sources.yaml and fill it with repositories approved for the
+# current workstation. Never commit the local sources.yaml: it may contain
+# internal names, branches, URLs, or customer-specific topology.
+repos: []

@@ -6,13 +6,13 @@ import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // META: {"id":"t16","priority":"P0","title":"【P0】验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果"}
 
 import { executeTableSQL } from "dtstack-sdk/adapters/execute-table";
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import {
   applyRuntimeCookies,
   buildDataAssetsUrl,
   selectAntOption,
   uniqueName,
-} from "../../../../../_shared/helpers";
+} from "../../../../../../../_shared/helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -24,7 +24,7 @@ import {
   setCurrentDatasource,
   TARGET_ENV,
 } from "../../fixtures/test-data";
-import type { MonitorDatasourceConfig } from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+import type { MonitorDatasourceConfig } from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,
@@ -33,12 +33,12 @@ import {
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
   saveRuleSet,
-} from "../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
 import {
   executeTaskFromList,
   getTableRowByTaskName,
   gotoValidationResults,
-} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.setTimeout(600000);
 

@@ -4,7 +4,7 @@
 
 # Kata
 
-### QA workflows for Claude Code and OpenAI Codex
+## QA workflows for Claude Code and OpenAI Codex
 
 Kata packages requirements analysis, test design, defect investigation, and UI automation as reusable skills. Inputs may include PRDs, designs, bug records, code diffs, existing cases, or test results. Outputs are written to explicit project directories with reviewable run records.
 
@@ -28,10 +28,10 @@ Connectivity failures ─────────── infra-diagnose ───
 
 The repository follows four boundaries:
 
-- `.claude/**` contains Claude Code skills and plugins.
+- `.claude/skills/` contains Claude Code skills; integrations live under `cli/integrations/`.
 - `.agents/skills/` is a symlink to `.claude/skills/`, so both runtimes use the same skill source.
 - The shared CLI lives under `cli/**` and serves both runtimes.
-- Project artifacts live under `workspace/{project}/`. Source repositories are configured in `config/repos/sources.yaml`, cloned into `.repos/` (gitignored), and queried via `kata repos`.
+- Project artifacts live under `workspace/{project}/`. Source repositories are configured locally in ignored `config/repos/sources.yaml` (copy `config/repos/sources.example.yaml` first), cloned into `.repos/` (gitignored), and queried via `kata repos`.
 
 ## Quick start
 
@@ -122,15 +122,14 @@ The current inspect command verifies SSH2 connectivity and writes `analyses/infr
 
 Validate bug, conflict, scan, and hotfix reports with `kata defects lint --report <report.md> --exit-code`; generate hotfix Markdown with `kata defects hotfix`, not through `test-case`.
 
-Source repositories are configured in `config/repos/sources.yaml` (project, local relative path, branch, description, writable) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
+Source repositories are configured locally in ignored `config/repos/sources.yaml` (copy `config/repos/sources.example.yaml` first) and cloned into `.repos/` (gitignored). Query them with `kata repos list|sync-env|show|grep`; update or switch with `kata repos pull|checkout`. Repos marked `writable: false` reject push, commit, and add.
 
 ## Repository layout
 
 ```text
 kata/
-├── .claude/                       # Claude Code skills and plugins
-│   ├── skills/
-│   └── plugins/
+├── .claude/                       # Claude Code skills
+│   └── skills/
 ├── .agents/                       # Codex skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI (shared by both runtimes)

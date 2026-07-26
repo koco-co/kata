@@ -19,8 +19,8 @@ emits:
 feature_id: 2026-03-metadata-db-version-display
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/数据库列表展示版本号.md
+  xmind_path: cases/数据库列表展示版本号.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/数据库列表展示版本号.md
+  xmind: cases/数据库列表展示版本号.xmind
   tests_root: null
   latest_results: null

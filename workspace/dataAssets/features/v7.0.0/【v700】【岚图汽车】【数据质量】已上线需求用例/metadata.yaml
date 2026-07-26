@@ -28,8 +28,8 @@ emits:
   playwright_tests: false
 case_drafting:
   status: in-progress
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/已上线需求用例.md
+  xmind_path: cases/已上线需求用例.xmind
   requirement_atoms:
     - id: RA-001
       source_ref: xlsx#数据质量
@@ -48,5 +48,5 @@ case_drafting:
       confidence: medium
   coverage_matrix_path: null
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/已上线需求用例.md
+  xmind: cases/已上线需求用例.xmind

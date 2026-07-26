@@ -7,8 +7,8 @@
 // SourceRefs: SR-INTENT-2099-01-QUALITY-DATAMAP-SEARCH-027, SR-UI-PROBE-20260523-MF-QUALITY-DATAMAP-SEARCH-001, SR-SELF-RUN-20260523-MF-QUALITY-DATAMAP-SEARCH-001
 import { expect, type Page, type Response } from "@playwright/test";
 
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { gotoMetadataPage } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
 test.setTimeout(120000);
 

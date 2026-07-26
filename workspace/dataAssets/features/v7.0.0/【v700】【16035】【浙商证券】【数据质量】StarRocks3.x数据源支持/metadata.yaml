@@ -18,33 +18,33 @@ emits:
   archive: true
   playwright_tests: true
 feature_id: 2026-06-dq-starrocks3x
-# 需求环境信息：客户平台版本 6.0；本需求为 v7.0.0 迭代交付，开发分支 6.0_浙商证券定制化分支
 requirement_context:
   customer_platform_version: "6.0"
-  dev_branch: "6.0_浙商证券定制化分支"
-  starrocks_version: "3.3.18"
+  dev_branch: 6.0_浙商证券定制化分支
+  starrocks_version: 3.3.18
   lanhu_page_id: f2e6ada9fe694ad6b91b8874c0d0e97f
   zentao_story_id: "16035"
   requirement_name: 【数据质量】支持starrocks 3.x数据源
-  xmind_root_version: 6.0_浙商证券  # xmind 根节点展示版本（开发版本），区别于目录迭代版本 v7.0.0
+  xmind_root_version: 6.0_浙商证券
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/StarRocks3.x数据源支持.md
+  xmind_path: cases/StarRocks3.x数据源支持.xmind
   coverage_matrix_path: null
   source_refs:
     - id: SR-001
       kind: history_case
-      path: workspace/dataAssets/features/v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3/cases/archive.md
+      path: workspace/dataAssets/features/v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3/cases/exports/元数据_数据质量适配Doris3.md
       note: Doris3 适配用例（袋鼠云标品），StarRocks 与 Doris 共祖，SQL DDL 结构一致，用作主参考模板
     - id: SR-002
       kind: history_case
-      path: workspace/dataAssets/features/v6.4.9/【v649】【袋鼠云】【数据质量】v63主流程用例/cases/archive.md
+      path: workspace/dataAssets/features/v6.4.9/【v649】【袋鼠云】【数据质量】v63主流程用例/cases/exports/v63主流程用例.md
       note: 袋鼠云数据质量 v6.3 主流程用例，覆盖概览/项目管理/质量报告结构参考
     - id: SR-003
       kind: requirement_text
       path: null
-      note: 需求描述：v7.0.0 迭代，数据质量模块支持 StarRocks 3.x（客户平台 6.0，数据源 3.3.18），涉及平台管理-质量项目授权、数据质量-概览/规则任务配置/任务实例查询/质量报告/项目管理
+      note: 需求描述：v7.0.0 迭代，数据质量模块支持 StarRocks 3.x（客户平台 6.0，数据源
+        3.3.18），涉及平台管理-质量项目授权、数据质量-概览/规则任务配置/任务实例查询/质量报告/项目管理
   requirement_atoms:
     - id: RA-001
       source_ref: SR-003
@@ -63,7 +63,8 @@ case_drafting:
       evidence_kind: history_case
       ambiguity_class: low
       confidence: high
-      description: 数据质量-规则任务配置：可针对 StarRocks 3.x 数据源配置规则任务（完整性/唯一性/有效性/自定义SQL/规则集），立即执行与周期调度均正常
+      description: 数据质量-规则任务配置：可针对 StarRocks 3.x
+        数据源配置规则任务（完整性/唯一性/有效性/自定义SQL/规则集），立即执行与周期调度均正常
     - id: RA-004
       source_ref: SR-001
       evidence_kind: history_case
@@ -103,8 +104,6 @@ automation:
         - automation/tests/cases/t03-dq-module-contract.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
-      # A562 数值-枚举范围：脚本完整可跑，但断言「校验异常」因产品 bug（规则返回校验通过、
-      # 未检出越界）而失败，预期在报告中即为「不通过」，故标 failing 而非 ready/blocked。
       automation_status: failing
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-004
       case_files:
@@ -347,17 +346,10 @@ automation:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
-    - intent_id: SR-INTENT-2026-06-DQ-SR3X-044
-      case_files:
-        - automation/tests/cases/t44-rule-set-import.ts
-      runner_files:
-        - automation/tests/runners/full.spec.ts
-        - automation/tests/runners/full-d.spec.ts
-      automation_status: ready
-  last_handoff_path: runs/20260625-fullrun/handoff.md
-  last_run_status: partial
+  last_handoff_path: null
+  last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/StarRocks3.x数据源支持.md
+  xmind: cases/StarRocks3.x数据源支持.xmind
   tests_root: automation/tests/
-  latest_results: runs/20260625-fullrun/
+  latest_results: null

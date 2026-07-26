@@ -1,13 +1,13 @@
 import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import type { Page } from "@playwright/test";
 import type { DtStackClientLike, DtStackResponse } from "dtstack-sdk";
-import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
+import { setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
 import {
   applyRuntimeCookies,
   normalizeDataAssetsBaseUrl,
   uniqueName,
-} from "../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
+} from "../../../../../../_shared/helpers/test-setup";
+import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 import {
   clearCurrentDatasource as clearLegacyDatasource,
   setCurrentDatasource as setLegacyDatasource,

@@ -5,8 +5,8 @@
 // generated_at: 2026-05-27T00:00:00+08:00
 // META: {"id":"STD-040","priority":"P3","title":"标准目录删除与子目录数量限制 Shell 可核验"}
 // SourceRefs: SR-2099-01-STD-DIR-DELETE-L3476, SR-2099-01-STD-DIR-CHILD-LIMIT-L3506, SR-2099-01-STD-040, SR-UI-PROBE-20260524-MF-STANDARD-DIRECTORY-CRUD-002
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { expectStandardDirectoryDeleteAndLimitShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expectStandardDirectoryDeleteAndLimitShell } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
 
 test.setTimeout(120000);
 

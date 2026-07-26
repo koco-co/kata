@@ -3,8 +3,8 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t14","priority":"P1","title":"验证在规则集中配置过滤条件后规则保存成功"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../_shared/helpers/test-setup";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -18,7 +18,7 @@ import {
   gotoRuleSetList,
   openRuleSetEditor,
   saveRuleSet,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t15","priority":"P0","title":"【P0】验证格式-json格式校验校验不通过主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看失败明细"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import { P0_FAIL_SCENARIO } from "../fixtures/test-data";
 import {
   ensureExecutedJsonTask,
@@ -11,10 +11,10 @@ import {
   openTaskInstanceDetail,
   openTaskRuleDetailDataDrawer,
   waitForVisibleTaskRow,
-} from "../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
-import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
-import { buildValidationKeyLabelPattern } from "../../../../_shared/pages/validity-json-value-format/validation-key-label";
-import { isFailLikeValidationStatus } from "../../../../_shared/pages/validity-json-value-format/validation-result-status";
+} from "../../../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
+import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+import { buildValidationKeyLabelPattern } from "../../../../../../_shared/pages/validity-json-value-format/validation-key-label";
+import { isFailLikeValidationStatus } from "../../../../../../_shared/pages/validity-json-value-format/validation-result-status";
 
 test.setTimeout(600000);
 

@@ -38,7 +38,7 @@
 
 5. **对齐测试点，落定 `test-points.md`**：把 prd.md 拆成测试点清单交给用户确认——正常流 / 异常流 / 边界、枚举值逐项覆盖、P0 占比约 1/4 ~ 1/3。用户确认后照 [../templates/test-points.md](../templates/test-points.md) 落盘 `<featureDir>/test-points.md`：确认过的进覆盖清单（标依据的 prd 条目），用户也确认不了的进未覆盖清单（写清原因）。
 
-6. **写 `cases/需求名.yaml`**：格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 写 resolve 返回的 id。只写 prd.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。每条正式用例填写 `automation.spec_file: t<序号>-<slug>.ts`，脚本未实现时明确留在未覆盖清单而不是伪造通过。
+6. **写 `cases/需求名.yaml`**：格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 写 resolve 返回的 id。只写 prd.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。未实现自动化的正式用例允许暂不填写 `automation.spec_file`，由 coverage 报告为 `unmapped`；已有映射但脚本尚未实现时报告为 `mapped-not-implemented`，不得伪造通过。
 
 7. **派生与检查**：
 

@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t35","priority":"P1","title":"验证校验通过时结果查询页不显示明细入口"}
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
 import {
   ensureRuleTasks,
   executeTaskFromList,
@@ -11,7 +11,7 @@ import {
   getTableRowByTaskName,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
 
 test.setTimeout(600000);
 

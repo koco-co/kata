@@ -5,11 +5,11 @@
 // generated_at: 2026-05-23T07:40:00Z
 // META: {"id":"MD-004","priority":"P2/P3","title":"数据地图搜索类型统计与入口交互可核验"}
 // SourceRefs: SR-2099-01-MD-OFFLINE-SEARCH-L223, SR-2099-01-MD-REALTIME-SEARCH-L241, SR-2099-01-MD-API-SEARCH-L259, SR-2099-01-MD-TAG-SEARCH-L277, SR-2099-01-MD-INDEX-SEARCH-L295, SR-2099-01-MD-RECENT-QUERY-L313, SR-2099-01-MD-TYPE-STATS-L329, SR-2099-01-MD-TABLE-COUNT-L344, SR-2099-01-MD-OFFLINE-COUNT-L360, SR-2099-01-MD-REALTIME-COUNT-L374, SR-2099-01-MD-API-COUNT-L388, SR-2099-01-MD-TAG-COUNT-L402, SR-2099-01-MD-INDEX-COUNT-L416, SR-2099-01-MD-TYPE-CLICKTHROUGH-L430, SR-2099-01-MD-004, SR-2099-01-MD-005, SR-2099-01-MD-006, SR-2099-01-MD-007, SR-2099-01-MD-008, SR-UI-PROBE-20260523-MF-METADATA-SEARCH-001, SR-SELF-RUN-20260523-MF-METADATA-SEARCH-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataMapStatisticsAndTypes,
   expectDataMapTypeNavigation,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
 import {
   SR_2099_01_MD_004,
   SR_2099_01_MD_005,

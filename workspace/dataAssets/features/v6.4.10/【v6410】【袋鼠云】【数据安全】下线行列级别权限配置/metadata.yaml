@@ -19,8 +19,8 @@ emits:
 feature_id: 2026-05-security-remove-row-col-permission
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/下线行列级别权限配置.md
+  xmind_path: cases/下线行列级别权限配置.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/下线行列级别权限配置.md
+  xmind: cases/下线行列级别权限配置.xmind
   tests_root: null
   latest_results: null

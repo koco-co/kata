@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-20260523-DQ-REPORT-CONFIG-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T07:40:00Z
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataQualityCustomReportCreateContract,
   expectDataQualityGeneratedReportTab,
@@ -14,7 +14,7 @@ import {
   expectDataQualityRuleSetCreateEntry,
   expectDataQualityRuleTaskCreateEntry,
   expectDataQualitySingleTableReportCreateContract,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 import { ensureDtstackPreconditionFile } from "../helpers/dtstack-preconditions";
 
 test.setTimeout(15 * 60 * 1000);

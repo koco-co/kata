@@ -4,13 +4,13 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t18","priority":"P2","title":"验证取值范围&枚举范围规则执行失败时可查看日志"}
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import { ensureExecutedRuleTasks, waitForTaskInstanceFinished } from "../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
+import { ensureExecutedRuleTasks, waitForTaskInstanceFinished } from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
 
 test.setTimeout(600000);
 

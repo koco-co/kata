@@ -39,6 +39,16 @@ type WritePlan = {
   conflict: Conflict | null;
 };
 
+export class KnowledgeWriteError extends Error {
+  readonly exitCode: number;
+
+  constructor(message: string, exitCode = 1) {
+    super(message);
+    this.name = "KnowledgeWriteError";
+    this.exitCode = exitCode;
+  }
+}
+
 export function runWrite(opts: {
   project: string;
   type: string;
@@ -51,8 +61,7 @@ export function runWrite(opts: {
 }): void {
   const gate = confidenceGate(opts.confidence, opts.confirmed);
   if (!gate.allowed) {
-    process.stderr.write(`[knowledge] ${gate.reason}\n`);
-    process.exit(1);
+    throw new KnowledgeWriteError(`[knowledge] ${gate.reason}`);
   }
 
   const plan = buildWritePlan(opts, todayIso());
@@ -60,7 +69,7 @@ export function runWrite(opts: {
   // ── 冲突守卫:block 级冲突必须 --force 才能越过 ──
   if (plan.conflict && plan.conflict.severity === "block" && !opts.force) {
     writeBlockedWrite(opts, plan);
-    process.exit(2);
+    throw new KnowledgeWriteError("知识写入被冲突守卫阻断", 2);
   }
 
   if (opts.dryRun) {
@@ -81,10 +90,9 @@ export function runWrite(opts: {
 function buildWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {
   if (opts.type === "term") return buildTermWritePlan(opts, today);
   if (opts.type === "overview") return buildOverviewWritePlan(opts, today);
-  process.stderr.write(
-    `[knowledge] 类型 ${opts.type} 不支持 --content;module/pitfall/site 用 --status/--title/--body 写入\n`,
+  throw new KnowledgeWriteError(
+    `[knowledge] 类型 ${opts.type} 不支持 --content;module/pitfall/site 用 --status/--title/--body 写入`,
   );
-  process.exit(1);
 }
 
 function buildTermWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {

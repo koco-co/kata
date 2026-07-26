@@ -6,8 +6,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // META: {"id":"t23","priority":"P1","title":"【P1】验证导入非xlsx格式文件时报错"}
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { clickHeaderButton, gotoJsonConfigPage, waitModal } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { clickHeaderButton, gotoJsonConfigPage, waitModal } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证导入非xlsx格式文件时报错", { tag: "@serial" }, async ({ page, step }) => {
