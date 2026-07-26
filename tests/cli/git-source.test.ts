@@ -30,8 +30,8 @@ afterEach(() => {
 
 function setup(yaml: string = YAML): string {
   dir = mkdtempSync(join(tmpdir(), "kata-git-source-"));
-  mkdirSync(join(dir, "config"), { recursive: true });
-  writeFileSync(join(dir, "config", "source-repos.yaml"), yaml);
+  mkdirSync(join(dir, "config", "repos"), { recursive: true });
+  writeFileSync(join(dir, "config", "repos", "sources.yaml"), yaml);
   return dir;
 }
 

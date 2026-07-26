@@ -1,7 +1,8 @@
 import { join } from "node:path";
 import type { Command } from "commander";
+import { resolveFeatureEntry } from "../lib/features-layout.ts";
 import { runFeaturesLint } from "../lib/features-lint.ts";
-import { locateProjectRoot } from "../lib/workspace-locator.ts";
+import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
 import { registerCasesBuild } from "./cases-build.ts";
 
 /** Run case-related structural lint: feature dir layout + naming + metadata sanity. */
@@ -9,7 +10,10 @@ export function runCasesLint(opts: { project: string; feature?: string }): {
   violations: { feature: string; rule: string; message: string }[];
 } {
   const workspaceRoot = join(locateProjectRoot(), "workspace");
-  return runFeaturesLint({ project: opts.project, workspaceRoot, featureId: opts.feature });
+  const featureId = opts.feature
+    ? resolveFeatureEntry(locateProject(opts.project).featuresDir, opts.feature).dirName
+    : undefined;
+  return runFeaturesLint({ project: opts.project, workspaceRoot, featureId });
 }
 
 export function registerCases(program: Command): void {

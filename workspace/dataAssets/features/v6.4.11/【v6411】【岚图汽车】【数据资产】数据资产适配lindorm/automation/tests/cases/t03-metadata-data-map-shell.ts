@@ -12,7 +12,7 @@ import {
   expectDataMapSearchTypeOptions,
   expectSearchResult,
 } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
-import { METADATA_SCOPE, SR_2099_01_MD_001 } from "../data/metadata-contract";
+import { METADATA_SCOPE, SR_2099_01_MD_001 } from "../fixtures/metadata-contract";
 
 test.setTimeout(90000);
 

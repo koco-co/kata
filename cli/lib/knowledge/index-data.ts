@@ -78,25 +78,26 @@ export function gatherIndexData(projectName: string): {
   const fixedFiles: string[] = [];
   fixSingleKnowledgeFiles(kdir, today, fixedFiles);
 
+  const terms = scanAndFixKnowledgeDir(kdir, "terms", today, fixedFiles);
   const modules = scanAndFixKnowledgeDir(kdir, "modules", today, fixedFiles);
   const pitfalls = scanAndFixKnowledgeDir(kdir, "pitfalls", today, fixedFiles);
   const sites = scanAndFixSites(kdir, today, fixedFiles);
 
   return {
     data: {
+      terms,
       modules,
       pitfalls,
       sites,
       overview_updated: readKnowledgeUpdated(kdir, "overview.md"),
-      terms_updated: readKnowledgeUpdated(kdir, "terms.md"),
-      terms_count: readTermsCount(kdir),
+      terms_count: terms.length,
     },
     fixedFiles,
   };
 }
 
 function fixSingleKnowledgeFiles(kdir: string, today: string, fixedFiles: string[]): void {
-  for (const single of ["overview.md", "terms.md"]) {
+  for (const single of ["overview.md"]) {
     const full = join(kdir, single);
     if (!existsSync(full)) continue;
     const raw = readFileSync(full, "utf8");
@@ -110,7 +111,7 @@ function fixSingleKnowledgeFiles(kdir: string, today: string, fixedFiles: string
 
 function scanAndFixKnowledgeDir(
   kdir: string,
-  subdir: "modules" | "pitfalls",
+  subdir: "terms" | "modules" | "pitfalls",
   today: string,
   fixedFiles: string[],
 ): IndexEntry[] {
@@ -185,25 +186,8 @@ function readKnowledgeUpdated(kdir: string, name: string): string {
   return parsed.frontmatter?.updated ?? "";
 }
 
-function readTermsCount(kdir: string): number {
-  const termsPath = join(kdir, "terms.md");
-  if (!existsSync(termsPath)) return 0;
-  const parsed = parseFrontmatter(readFileSync(termsPath, "utf8"));
-  return parsed.body.split("\n").filter(isTermTableDataRow).length;
-}
-
-function isTermTableDataRow(line: string): boolean {
-  const t = line.trim();
-  return (
-    t.startsWith("|") &&
-    t.endsWith("|") &&
-    !t.includes("---") &&
-    !t.startsWith("| 术语") &&
-    !t.startsWith("| Term")
-  );
-}
-
 export function writeIndexFile(projectName: string): {
+  terms_count: number;
   modules_count: number;
   pitfalls_count: number;
   sites_count: number;
@@ -215,6 +199,7 @@ export function writeIndexFile(projectName: string): {
   const indexPath = join(knowledgeDir(projectName), "_index.md");
   writeFileSync(indexPath, out);
   return {
+    terms_count: data.terms.length,
     modules_count: data.modules.length,
     pitfalls_count: data.pitfalls.length,
     sites_count: data.sites.length,

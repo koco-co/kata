@@ -31,7 +31,7 @@ UI 用例 / 脚本 / 失败结果 ─── ui-automation ───────>
 - `.claude/**` 保存 Claude Code 的 Skill 与插件。
 - `.agents/skills/` 是指向 `.claude/skills/` 的 symlink，两端共用同一份 Skill 正文。
 - 通用 CLI 位于 `cli/**`，两套运行环境共用同一份命令行实现。
-- 项目产物写入 `workspace/{project}/`。源码仓库在 `config/source-repos.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
+- 项目产物写入 `workspace/{project}/`。源码仓库在 `config/repos/sources.yaml` 配置，克隆于 `.repos/`（gitignored），用 `kata repos` 查询。
 
 ## 快速开始
 
@@ -69,7 +69,7 @@ bunx playwright install
 | `/defect-analyze` | 缺陷与变更 | 分析缺陷材料、合并冲突或源码差异。 |
 | `/infra-diagnose` | 故障排查 | SSH 排查数据源与服务器连通性问题。 |
 | `/domain-knowledge` | 知识管理 | 查询或维护项目业务规则、术语和约束。 |
-| `/workspace` | 工作区 | 创建、检查、修复项目工作区骨架。 |
+| `/workspace-management` | 工作区 | 创建、检查、修复项目工作区骨架。 |
 
 路由按用户要完成的动作判断，而不是只看输入文件扩展名：修改既有用例与把用例实现为 UI 自动化是不同的入口。
 
@@ -104,7 +104,18 @@ kata env run <env> -- <command...>
 
 `env run` 默认只继承启动程序所需的基础环境变量。子命令确实需要额外变量时，使用 `--inherit-env NAME1,NAME2` 明确加入。命令输出不得回显 Cookie、令牌或密码。
 
-源码仓库在 `config/source-repos.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
+基础设施配置分为本机私密的 `config/infra/hosts.yaml`、`data_sources.yaml` 和 `credentials.yaml`，仓库只提交三个 `*.example.yaml`。用 CLI 检查和录入：
+
+```bash
+kata config doctor
+kata infra credentials set <name> --username <username>
+kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
+kata infra inspect <host> --check connectivity --project <project>
+```
+
+当前 inspect 只验证 SSH2 connectivity 并生成 `analyses/infra-report/<yyyymm>/<slug>.md`，不执行任意远程命令或服务器变更。
+
+源码仓库在 `config/repos/sources.yaml` 配置（所属项目、本地相对路径、分支、描述、writable），实体克隆在 `.repos/`（gitignored）。通过 `kata repos list|sync-env|show|grep` 查询，`kata repos pull|checkout` 更新或切换本地克隆；`writable: false` 的仓库不可 push、commit、add。
 
 ## 项目目录
 
@@ -117,7 +128,7 @@ kata/
 ├── .agents/                       # Codex Skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI(两端共用)
-├── config/                        # source-repos.yaml 等;私密配置(env/, infra/)不提交
+├── config/                        # repos/sources.yaml 等;私密配置(env/, infra/)不提交
 ├── docs/                          # 使用说明、合同和设计记录
 └── workspace/                     # 项目输入、用例、自动化和运行产物
 ```

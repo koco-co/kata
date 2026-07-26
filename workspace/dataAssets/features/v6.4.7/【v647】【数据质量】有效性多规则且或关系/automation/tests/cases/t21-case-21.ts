@@ -8,7 +8,7 @@ import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
-} from "../data/test-data";
+} from "../fixtures/test-data";
 import { gotoRuleBase } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(120000);

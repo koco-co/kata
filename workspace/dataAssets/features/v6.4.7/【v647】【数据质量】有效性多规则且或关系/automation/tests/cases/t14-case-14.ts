@@ -9,7 +9,7 @@ import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
-} from "../data/test-data";
+} from "../fixtures/test-data";
 import {
   addRuleToPackage,
   configureRangeEnumRule,

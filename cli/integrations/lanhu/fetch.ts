@@ -419,39 +419,34 @@ export function selectRequirementsForFetch(
   return allRequirements;
 }
 
-export function inferKataProjectFromLanhuProjects(
-  configText: string,
-  lanhuProjects: string[],
-): string | undefined {
-  let config: {
-    projects?: Record<string, { repo_profiles?: Record<string, unknown> }>;
-  };
-  try {
-    config = JSON.parse(configText) as typeof config;
-  } catch {
-    return undefined;
-  }
-
-  const aliases = new Set(lanhuProjects.map((project) => project.trim()).filter(Boolean));
-  const candidates = new Set<string>();
-  for (const [projectName, projectConfig] of Object.entries(config.projects ?? {})) {
-    if (aliases.has(projectName)) candidates.add(projectName);
-    const repoProfiles = projectConfig.repo_profiles ?? {};
-    for (const repoProfileName of Object.keys(repoProfiles)) {
-      if (aliases.has(repoProfileName)) candidates.add(projectName);
-    }
-  }
-
-  return candidates.size === 1 ? [...candidates][0] : undefined;
-}
-
-function inferKataProjectFromConfig(
+export function inferKataProjectFromWorkspace(
   projectRoot: string,
   lanhuProjects: string[],
 ): string | undefined {
-  const configPath = resolve(projectRoot, "config.json");
-  if (!existsSync(configPath)) return undefined;
-  return inferKataProjectFromLanhuProjects(readFileSync(configPath, "utf8"), lanhuProjects);
+  const workspace = resolve(projectRoot, "workspace");
+  if (!existsSync(workspace)) return undefined;
+  const aliases = new Set(lanhuProjects.map((project) => project.trim()).filter(Boolean));
+  const candidates = new Set<string>();
+  for (const name of readdirSync(workspace)) {
+    const metadataPath = resolve(workspace, name, "project.json");
+    if (!existsSync(metadataPath)) continue;
+    try {
+      const metadata = JSON.parse(readFileSync(metadataPath, "utf8")) as {
+        name?: string;
+        description?: string;
+      };
+      if (
+        aliases.has(name) ||
+        aliases.has(metadata.name ?? "") ||
+        aliases.has(metadata.description ?? "")
+      ) {
+        candidates.add(name);
+      }
+    } catch {
+      // Invalid project metadata is reported by kata project scan, not inferred here.
+    }
+  }
+  return candidates.size === 1 ? [...candidates][0] : undefined;
 }
 
 function resolveWorkspaceProject(
@@ -460,7 +455,7 @@ function resolveWorkspaceProject(
   lanhuProjects: string[],
 ): string | undefined {
   if (requestedProject && requestedProject !== "auto") return requestedProject;
-  return inferKataProjectFromConfig(projectRoot, lanhuProjects);
+  return inferKataProjectFromWorkspace(projectRoot, lanhuProjects);
 }
 
 interface ParsedTxtSections {

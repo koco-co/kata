@@ -7,7 +7,7 @@
 // 该用例暂以 SparkThrift2.x 替代执行。待 Hive 数据源就绪后需切换为 hive_json_test 表和 Hive DDL。
 import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../_shared/helpers/test-setup";
-import { KEY_RANGE_TABLE } from "../../data/key-range-data";
+import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,

@@ -24,7 +24,7 @@ import { ensureDtstackPreconditionFile } from "../helpers/dtstack-preconditions"
 test.setTimeout(15 * 60 * 1000);
 
 const REPORT_DIMENSION_PRECOND_FILE =
-  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/precond/report-dimension-vehicle-info.yaml";
+  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/fixtures/precond/report-dimension-vehicle-info.yaml";
 
 test("【P0】数据质量通用配置-json格式校验管理列表与弹窗壳可核验", async ({ page, step }) => {
   await step("步骤1: 进入通用配置 json格式校验管理 → 列表字段、操作入口和核心接口可见", async () => {

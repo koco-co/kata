@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验
 cases:
   - id: C001
+    automation:
+      spec_file: t01-json.ts
     title: 验证规则配置页「统计规则」下拉框中「格式-json格式校验」选项位置在「格式校验-自定义正则」上方
     priority: P1
     steps:
@@ -22,6 +24,8 @@ cases:
       - 规则集管理
       - 规则配置-选项UI
   - id: C002
+    automation:
+      spec_file: t02-json.ts
     title: 验证「格式-json格式校验」当前不展示独立悬浮提示图标
     priority: P1
     steps:
@@ -40,6 +44,8 @@ cases:
       - 规则集管理
       - 规则配置-选项UI
   - id: C003
+    automation:
+      spec_file: t03-dom-json-int-json-string.ts
     title: 验证当前 DOM 下「格式-json格式校验」在 INT 与 json/string 字段下均可见
     priority: P1
     steps:
@@ -72,6 +78,8 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - id: C004
+    automation:
+      spec_file: t04-key-value-key-value-key.ts
     title: 验证校验key列表中仅配置了value格式的key可被选中，未配置value格式的key不可选中
     priority: P0
     steps:
@@ -106,6 +114,8 @@ cases:
       - 规则集管理
       - 规则配置-校验key选择
   - id: C005
+    automation:
+      spec_file: t05-key.ts
     title: 验证校验key支持多选和全选操作
     priority: P1
     steps:
@@ -137,6 +147,8 @@ cases:
       - 规则集管理
       - 规则配置-校验key选择
   - id: C006
+    automation:
+      spec_file: t06-key.ts
     title: 验证校验key搜索功能正常
     priority: P1
     steps:
@@ -164,6 +176,8 @@ cases:
       - 规则集管理
       - 规则配置-校验key选择
   - id: C007
+    automation:
+      spec_file: t07-key-200-200.ts
     title: 验证校验key数据量超过200条时默认加载前200条展示
     priority: P1
     steps:
@@ -201,6 +215,8 @@ cases:
       - 规则集管理
       - 规则配置-校验key选择
   - id: C008
+    automation:
+      spec_file: t08-key.ts
     title: 验证校验key回显格式及勾选仅对当前层级生效
     priority: P1
     steps:
@@ -231,6 +247,8 @@ cases:
       - 规则集管理
       - 规则配置-校验key选择
   - id: C009
+    automation:
+      spec_file: t09-key-key.ts
     title: 验证校验key输入框悬浮时展示全部key名，默认仅显示前两个
     priority: P1
     steps:
@@ -257,6 +275,8 @@ cases:
       - 规则集管理
       - 规则配置-校验key选择
   - id: C010
+    automation:
+      spec_file: t10-value-key.ts
     title: 验证点击「value格式预览」弹窗仅展示已勾选key的格式信息且支持分页
     priority: P1
     steps:
@@ -296,6 +316,8 @@ cases:
       - 规则集管理
       - 规则配置-value格式预览
   - id: C011
+    automation:
+      spec_file: t11-json-string-json.ts
     title: 验证选择非json或string类型字段时「格式-json格式校验」统计规则选项不可选
     priority: P1
     steps:
@@ -321,6 +343,8 @@ cases:
       - 规则集管理
       - 规则配置
   - id: C012
+    automation:
+      spec_file: t12-key.ts
     title: 验证未选择校验key时保存规则提示统计函数存在必填项未填写
     priority: P1
     steps:
@@ -344,6 +368,8 @@ cases:
       - 规则集管理
       - 规则配置
   - id: C013
+    automation:
+      spec_file: t13-case-13.ts
     title: 验证保存后规则配置参数展示区域各字段内容正确
     priority: P1
     steps:
@@ -372,6 +398,8 @@ cases:
       - 规则集管理
       - 规则配置参数展示
   - id: C014
+    automation:
+      spec_file: t14-json.ts
     title: 验证格式-json格式校验完整主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看通过实例
     priority: P0
     steps:
@@ -443,6 +471,8 @@ cases:
       - 规则任务管理
       - P0-主流程
   - id: C015
+    automation:
+      spec_file: t15-json.ts
     title: 验证格式-json格式校验校验不通过主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看失败明细
     priority: P0
     steps:
@@ -515,6 +545,8 @@ cases:
       - 规则任务管理
       - P0-主流程
   - id: C016
+    automation:
+      spec_file: t16-json-sparkthrift-2-x.ts
     title: 验证「格式-json格式校验」规则在SparkThrift 2.x数据源下执行正确
     priority: P0
     steps:
@@ -546,6 +578,8 @@ cases:
       - 规则任务管理
       - 数据源兼容性
   - id: C017
+    automation:
+      spec_file: t17-json-doris-3-x.ts
     title: 验证「格式-json格式校验」规则在Doris 3.x数据源下执行正确
     priority: P0
     steps:
@@ -579,6 +613,8 @@ cases:
       - 规则任务管理
       - 数据源兼容性
   - id: C018
+    automation:
+      spec_file: t18-json-hive-2-x.ts
     title: 验证「格式-json格式校验」规则在Hive 2.x数据源下执行正确
     priority: P1
     steps:
@@ -610,6 +646,8 @@ cases:
       - 规则任务管理
       - 数据源兼容性
   - id: C019
+    automation:
+      spec_file: t19-json-key.ts
     title: 验证json格式配置中维护上千个key时执行校验与结果展示正常
     priority: P1
     steps:
@@ -676,6 +714,8 @@ cases:
       - 规则任务管理
       - 大数据量场景
   - id: C020
+    automation:
+      spec_file: t20-key.ts
     title: 验证删除已被有效性规则引用的key后规则配置页面回显和编辑功能正常
     priority: P1
     steps:
@@ -710,6 +750,8 @@ cases:
       - 规则任务管理
       - key删除后关联影响
   - id: C021
+    automation:
+      spec_file: t21-key-value.ts
     title: 验证删除已被规则引用的key后value格式预览弹窗和执行校验任务正常
     priority: P1
     steps:
@@ -748,6 +790,8 @@ cases:
       - 规则任务管理
       - key删除后关联影响
   - id: C022
+    automation:
+      spec_file: t22-json.ts
     title: 验证配置格式-json格式校验规则时结合抽样功能执行校验结果正确
     priority: P1
     steps:
@@ -799,6 +843,8 @@ cases:
       - 规则任务管理
       - 抽样场景
   - id: C023
+    automation:
+      spec_file: t23-json.ts
     title: 验证对分区表配置格式-json格式校验规则后指定分区下的数据校验正确
     priority: P1
     steps:
@@ -839,6 +885,8 @@ cases:
       - 规则任务管理
       - 分区场景
   - id: C024
+    automation:
+      spec_file: t24-json.ts
     title: 验证规则库中「格式-json格式校验」内置规则展示信息正确
     priority: P1
     steps:
@@ -862,6 +910,8 @@ cases:
       - 规则库配置
       - 规则库-内置规则展示
   - id: C025
+    automation:
+      spec_file: t25-case-25.ts
     title: 验证校验不通过时明细数据下载功能中校验字段标红
     priority: P0
     steps:
@@ -896,6 +946,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C026
+    automation:
+      spec_file: t26-case-26.ts
     title: 验证校验通过时不记录明细数据，查看详情入口不显示
     priority: P1
     steps:
@@ -928,6 +980,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C027
+    automation:
+      spec_file: t27-case-27.ts
     title: 验证校验失败时支持查看日志
     priority: P2
     steps:
@@ -946,6 +1000,8 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - id: C028
+    automation:
+      spec_file: t28-json.ts
     title: 验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验通过场景）
     priority: P1
     steps:
@@ -982,6 +1038,8 @@ cases:
       - 数据质量报告
       - 质量报告展示
   - id: C029
+    automation:
+      spec_file: t29-json.ts
     title: 验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验不通过场景）
     priority: P0
     steps:

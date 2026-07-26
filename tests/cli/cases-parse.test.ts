@@ -10,6 +10,8 @@ cases:
   - id: C001
     title: 验证单表行数校验通过
     priority: P0
+    automation:
+      spec_file: t01-data-quality.ts
     steps:
       - action: 进入数据质量页
         expected: 显示规则列表
@@ -20,6 +22,7 @@ describe("parseCasesYaml", () => {
     const f = parseCasesYaml(GOOD);
     expect(f.cases).toHaveLength(1);
     expect(f.cases[0].priority).toBe("P0");
+    expect(f.cases[0].automation?.spec_file).toBe("t01-data-quality.ts");
     expect(validateCases(f)).toEqual([]);
   });
   it("flags a case with no steps", () => {
@@ -30,5 +33,10 @@ describe("parseCasesYaml", () => {
   it("rejects bad priority", () => {
     const bad = GOOD.replace("P0", "P9");
     expect(() => parseCasesYaml(bad)).toThrow();
+  });
+  it("rejects unsafe automation spec names", () => {
+    expect(() => parseCasesYaml(GOOD.replace("t01-data-quality.ts", "Data Quality.ts"))).toThrow(
+      /spec_file/,
+    );
   });
 });

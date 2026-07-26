@@ -14,7 +14,7 @@ import { ensureSelectedDtstackPreconditionTables } from "../helpers/dtstack-prec
 test.setTimeout(90 * 60 * 1000);
 
 const PRECOND_TABLES_FILE =
-  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/precond/sparkthrift-rule-validation-tables.yaml";
+  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/fixtures/precond/sparkthrift-rule-validation-tables.yaml";
 
 const scenarios: readonly SparkThriftQualityRuleValidationScenario[] = [
   {

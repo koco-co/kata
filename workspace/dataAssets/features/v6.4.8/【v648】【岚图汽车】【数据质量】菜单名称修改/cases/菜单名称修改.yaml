@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】菜单名称修改
 cases:
   - id: C001
+    automation:
+      spec_file: t01-c001.ts
     title: 验证新建项目菜单名称正确修改
     priority: P1
     steps:
@@ -16,6 +18,8 @@ cases:
       - 未分类
       - 未分类
   - id: C002
+    automation:
+      spec_file: t02-c002.ts
     title: 验证历史项目菜单名称正确修改
     priority: P0
     steps:

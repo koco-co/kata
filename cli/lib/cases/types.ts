@@ -30,6 +30,8 @@ export interface CaseItem {
   tags?: string[];
   /** 证据关联(替代 .process/),如需求条目或截图路径 */
   source_ref?: string;
+  /** Generated Playwright file name relative to the feature automation/tests/cases directory. */
+  automation?: { spec_file: string };
 }
 
 /** Root document of cases/需求名.yaml. */

@@ -5,7 +5,7 @@
 // META: {"id":"t1","priority":"P1","title":"【P1】验证规则配置页「统计规则」下拉框中「格式-json格式校验」选项位置在自定义正则上方"}
 import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
 import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../data/data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
 import { addRuleToPackage, createRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-utils";
 
 

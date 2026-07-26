@@ -169,7 +169,7 @@
     "features/v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验/automation/tests/cases/规则集管理/t04-search-verify-content.ts": {
       "no-wait-timeout": 8
     },
-    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验/automation/tests/data/test-data.ts": {
+    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验/automation/tests/fixtures/test-data.ts": {
       "no-wait-timeout": 1
     },
     "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/cases/t01-json.ts": {
@@ -203,15 +203,15 @@
       "no-networkidle": 1,
       "no-wait-timeout": 3
     },
-    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/data/data-15694.ts": {
+    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/data-15694.ts": {
       "no-networkidle": 2,
       "no-wait-timeout": 2
     },
-    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/data/test-data-15694.ts": {
+    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/test-data-15694.ts": {
       "no-networkidle": 2,
       "no-wait-timeout": 2
     },
-    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/data/test-data.ts": {
+    "features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/test-data.ts": {
       "no-wait-timeout": 1,
       "selector-quality": 1
     },
@@ -259,24 +259,24 @@
       "no-networkidle": 1,
       "no-wait-timeout": 1
     },
-    "features/v6.4.7/【v647】【数据质量】有效性多规则且或关系/automation/tests/data/test-data.ts": {
+    "features/v6.4.7/【v647】【数据质量】有效性多规则且或关系/automation/tests/fixtures/test-data.ts": {
       "no-wait-timeout": 2
     },
-    "features/v6.4.7/【v647】【数据资产】集成测试用例/automation/tests/smoke.spec.ts": {
+    "features/v6.4.7/【v647】【数据资产】集成测试用例/automation/tests/runners/smoke.spec.ts": {
       "no-networkidle": 17,
       "no-wait-timeout": 76
     },
-    "features/v6.4.8/【v648】【岚图汽车】【数据质量】支持每个数据表的规则集管理/automation/tests/full.spec.ts": {
+    "features/v6.4.8/【v648】【岚图汽车】【数据质量】支持每个数据表的规则集管理/automation/tests/runners/full.spec.ts": {
       "no-networkidle": 50,
       "no-wait-timeout": 101
     },
-    "features/v6.4.8/【v648】【岚图汽车】【数据质量】支持每个数据表的规则集管理/automation/tests/smoke.spec.ts": {
+    "features/v6.4.8/【v648】【岚图汽车】【数据质量】支持每个数据表的规则集管理/automation/tests/runners/smoke.spec.ts": {
       "no-networkidle": 63
     },
-    "features/v6.4.8/【v648】【岚图汽车】【数据质量】菜单名称修改/automation/tests/full.spec.ts": {
+    "features/v6.4.8/【v648】【岚图汽车】【数据质量】菜单名称修改/automation/tests/runners/full.spec.ts": {
       "no-networkidle": 4
     },
-    "features/v6.4.8/【v648】【岚图汽车】【数据质量】菜单名称修改/automation/tests/smoke.spec.ts": {
+    "features/v6.4.8/【v648】【岚图汽车】【数据质量】菜单名称修改/automation/tests/runners/smoke.spec.ts": {
       "no-networkidle": 2
     },
     "features/v7.0.0/【v700】【16035】【浙商证券】【数据质量】StarRocks3.x数据源支持/automation/tests/cases/t01-starrocks-datasource-rule-wizard.ts": {

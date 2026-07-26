@@ -4,6 +4,8 @@ meta:
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】时效性及时性两个字段之间的时间差校验
 cases:
   - id: C001
+    automation:
+      spec_file: t01-timeliness-entry.ts
     title: 验证「多字段时间差校验」任务质量报告正确
     priority: P1
     steps:
@@ -45,6 +47,8 @@ cases:
       - 监控规则
       - 时效性校验
   - id: C002
+    automation:
+      spec_file: t02-multifield-form-contract.ts
     title: 验证「多字段时间差校验」任务不通过/失败结果详情正确
     priority: P1
     steps:
@@ -98,6 +102,8 @@ cases:
       - 监控规则
       - 时效性校验
   - id: C003
+    automation:
+      spec_file: t03-c003.ts
     title: 验证「多字段时间差校验」任务通过结果详情正确
     priority: P1
     steps:
@@ -145,6 +151,8 @@ cases:
       - 监控规则
       - 时效性校验
   - id: C004
+    automation:
+      spec_file: t04-c004.ts
     title: 验证「多字段时间差校验」字段组限制个数正确
     priority: P2
     steps:
@@ -186,6 +194,8 @@ cases:
       - 监控规则
       - 时效性校验
   - id: C005
+    automation:
+      spec_file: t05-c005.ts
     title: 验证「多字段时间差校验」区域配置交互正确
     priority: P2
     steps:
@@ -229,6 +239,8 @@ cases:
       - 监控规则
       - 时效性校验
   - id: C006
+    automation:
+      spec_file: t06-c006.ts
     title: 验证「字段类型异常」校验功能
     priority: P1
     steps:
@@ -358,6 +370,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C007
+    automation:
+      spec_file: t07-c007.ts
     title: 验证「string转long」校验不通过功能
     priority: P1
     steps:
@@ -487,6 +501,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C008
+    automation:
+      spec_file: t08-c008.ts
     title: 验证「string转long」校验通过功能
     priority: P0
     steps:
@@ -616,6 +632,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C009
+    automation:
+      spec_file: t09-c009.ts
     title: 验证「date/datetime/time/timestamp类型」校验不通过功能
     priority: P0
     steps:
@@ -745,6 +763,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C010
+    automation:
+      spec_file: t10-c010.ts
     title: 验证「date/datetime/time/timestamp类型」校验通过功能
     priority: P1
     steps:
@@ -787,6 +807,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C011
+    automation:
+      spec_file: t11-c011.ts
     title: 验证「date类型」校验不通过功能
     priority: P0
     steps:
@@ -916,6 +938,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C012
+    automation:
+      spec_file: t12-c012.ts
     title: 验证「date类型」校验通过功能
     priority: P0
     steps:
@@ -1045,6 +1069,8 @@ cases:
       - 时效性
       - 多字段时间差校验
   - id: C013
+    automation:
+      spec_file: t13-c013.ts
     title: 验证「多字段时间差校验」区域详情正确
     priority: P1
     steps:

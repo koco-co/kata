@@ -20,7 +20,7 @@ import { ensureDtstackPreconditionFile } from "../helpers/dtstack-preconditions"
 test.setTimeout(15 * 60 * 1000);
 
 const DQ_CORE_PRECOND_FILE =
-  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/precond/data-quality-core-tables.yaml";
+  "workspace/dataAssets/features/2099-01-lt-dq-main-flow/tests/fixtures/precond/data-quality-core-tables.yaml";
 
 test("【P0/P1】数据质量报告、规则任务、规则集与自定义SQL模板入口可核验", async ({ page, step }) => {
   await step("步骤1: 切换数据质量报告已生成报告页签 → 筛选项、列表字段与报告详情入口可见", async () => {

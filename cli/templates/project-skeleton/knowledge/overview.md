@@ -17,7 +17,7 @@
 
 ## 术语入口
 
-详见 [terms.md](terms.md)。
+详见 [terms/](terms/)。
 
 ## 模块入口
 

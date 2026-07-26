@@ -9,7 +9,7 @@ import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-se
 import { prepareJsonRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
 import { addRuleToPackage } from "../../../../_shared/pages/validity-json-value-format/rule-editor-base";
 import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
-import { FORMAT_JSON_VERIFICATION_FUNC } from "../data/test-data-15694";
+import { FORMAT_JSON_VERIFICATION_FUNC } from "../fixtures/test-data-15694";
 
 const MULTI_TYPE_TABLE = "quality_test_json_multi_type";
 const UNSUPPORTED_FIELDS = ["id", "age", "salary", "created_at"] as const;
