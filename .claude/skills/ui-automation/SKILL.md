@@ -60,6 +60,6 @@ description: 把 feature 目录里的用例转成在真实环境跑通的 Playwr
 <featureDir>/runs/<run-id>/{allure-results,screenshots,logs,handoff.md}
 ```
 
-骨架用 `kata automation scaffold <featureDir>` 创建，目录违规用 `kata automation normalize` 修复，run 目录用 `kata runs new <feature-id>` 分配。跨 feature 复用的页面对象与 helper 放 `workspace/<project>/_shared/`。
+骨架用 `kata automation scaffold <featureDir>` 创建，目录违规用 `kata automation normalize` 修复。Playwright 必须通过 `kata runs exec <feature-id> --project <project> -- <command...>` 运行，由 CLI 原子分配 `runs/<run-id>/` 并注入 `KATA_RUN_PATH`、`KATA_ALLURE_RESULTS_DIR`；未提供显式 run 路径直接失败。需要只分配目录、分阶段执行时可用 `kata runs new`，但后续命令仍必须显式传入该 run 路径。仓库内禁止 `.runs/`。跨 feature 复用的页面对象与 helper 放 `workspace/<project>/_shared/`。
 
 正式用例的 `automation.spec_file` 是脚本与业务用例的唯一映射；文件名必须是 `t<序号>-<slug>.ts`。准备阶段和交付阶段都必须运行 feature 与 shared automation lint。

@@ -9,6 +9,7 @@ import {
   runsDir,
 } from "../lib/features-layout.ts";
 import { generateRunId, RUN_TYPES, type RunType, runIdType } from "../lib/run-id.ts";
+import { executeWithRunPath } from "../lib/runs-exec.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
 // ─── 共用：按 dirName 或 metadata.id 定位 feature ───
@@ -128,6 +129,35 @@ export function runRunsPrune(opts: {
 /** Register the runs noun (new/path/prune) on the program. */
 export function registerRuns(program: Command): void {
   const runs = program.command("runs").description("运行结果目录操作");
+
+  runs
+    .command("exec <feature-id>")
+    .description("创建 run 并在该 run 环境中执行命令")
+    .requiredOption("--project <name>", "项目名")
+    .option("--type <type>", `运行类型: ${RUN_TYPES.join("|")}`, "run")
+    .argument("<command...>", "要运行的命令；必须放在 -- 之后")
+    .allowUnknownOption(true)
+    .action(
+      async (featureId: string, command: string[], opts: { project: string; type: string }) => {
+        if (!RUN_TYPES.includes(opts.type as RunType)) {
+          throw new Error(`非法运行类型 "${opts.type}"，可选: ${RUN_TYPES.join("|")}`);
+        }
+        const args = command[0] === "--" ? command.slice(1) : command;
+        if (args.length === 0) throw new Error("kata runs exec requires a command after --");
+        const allocation = runRunsPath({
+          project: opts.project,
+          featureId,
+          newRun: true,
+          runType: opts.type as RunType,
+        });
+        process.exitCode = await executeWithRunPath({
+          runId: allocation.runId,
+          runPath: allocation.path,
+          project: opts.project,
+          command: args,
+        });
+      },
+    );
 
   runs
     .command("new <feature-id>")

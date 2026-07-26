@@ -8,7 +8,7 @@
 ## 环境预检
 
 3. `kata env doctor <env>` 校验配置、权限、凭据；cookie 失效请用户用 `kata env cookie set <env> --stdin` 轮换。
-4. `kata runs new <feature-id> --type preflight` 建预检 run 目录。
+4. 用 `kata runs exec <feature-id> --project <project> --type preflight -- kata env run <env> -- <playwright command>` 建预检 run 并执行；不要手动设置结果目录，也不要创建 `.runs/`。
 5. 用真实浏览器（桌面端为真实应用窗口）打开目标环境，验证登录态、目标项目与目标数据源可见。预检发现的环境 / 权限 / 数据问题先修（或报给用户），不带病进入实现阶段。
 
 ## 目录规范

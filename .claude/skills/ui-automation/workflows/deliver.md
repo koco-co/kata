@@ -1,6 +1,6 @@
 # 阶段 3：交付
 
-1. **全量运行**：`kata runs new <feature-id>` 建交付 run，跑 `automation/tests/runners/full.spec.ts` 全量。
+1. **全量运行**：用 `kata runs exec <feature-id> --project <project> --type run -- kata env run <env> -- <playwright command>` 原子创建交付 run 并跑 `automation/tests/runners/full.spec.ts` 全量；结果只能落在该 run 目录，仓库内禁止 `.runs/`。
 2. **结构检查**：`kata cases lint --project <项目> --feature <目录名或 metadata.id> --exit-code`；`kata automation normalize <featureDir>`（dry-run 应无违规）；`kata automation lint <featureDir> --exit-code`；共享页面、helper 和 fixture 另跑 `kata automation lint --shared --exit-code`，所有违规必须清零。
 3. **覆盖检查**：逐条核对 cases YAML 的 `automation.spec_file`、`tests/cases/` 文件和 runner import；缺失或排除用例直接失败，不把只读导航或空壳脚本算作覆盖。
 4. **写 `runs/<run-id>/handoff.md`**，结构照 [../templates/handoff.md](../templates/handoff.md)：

@@ -23,6 +23,7 @@
       "defaultEnv": ["ltqc-local"],
       "scaffold": ["kata automation scaffold"],
       "runsNew": ["kata runs new"],
+      "runsExec": ["kata runs exec", "KATA_RUN_PATH", "KATA_ALLURE_RESULTS_DIR", ".runs"],
       "lintGate": ["kata automation lint", "--exit-code", "--shared"],
       "caseNaming": ["t<序号>-<slug>.ts"],
       "noMockBusinessApi": ["mock"],

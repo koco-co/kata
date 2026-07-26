@@ -30,7 +30,6 @@ workspace/*/features/**/scheduler_restart.curl
 .playwright-cli/*.yml
 allure-results/
 output/
-**/.runs/test-results/
 
 # System and build
 **/.DS_Store

@@ -44,6 +44,9 @@ const SAFE_CHILD_ENV_KEYS = [
   "SystemRoot",
   "ComSpec",
   "PATHEXT",
+  "KATA_RUN_PATH",
+  "KATA_ALLURE_RESULTS_DIR",
+  "KATA_ACTIVE_PROJECT",
 ] as const;
 
 export interface DataAssetsEnvConfig {
