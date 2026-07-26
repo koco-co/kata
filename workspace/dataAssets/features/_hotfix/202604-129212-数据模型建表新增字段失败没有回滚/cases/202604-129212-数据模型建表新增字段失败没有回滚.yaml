@@ -1,6 +1,7 @@
 meta:
   title: 202604-129212-数据模型建表新增字段失败没有回滚
   version: unknown
+  source: http://zenpms.dtstack.cn/zentao/bug-view-129212.html
   feature_id: _hotfix/202604-129212-数据模型建表新增字段失败没有回滚
 cases:
   - id: C001

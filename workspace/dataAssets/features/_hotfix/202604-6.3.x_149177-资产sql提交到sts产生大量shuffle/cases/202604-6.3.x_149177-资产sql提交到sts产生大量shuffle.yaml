@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_149177-资产sql提交到sts产生大量shuffle
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-149177.html
   feature_id: _hotfix/202604-6.3.x_149177-资产sql提交到sts产生大量shuffle
 cases:
   - id: C001

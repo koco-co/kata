@@ -193,7 +193,7 @@ cases:
       - Hive2.x
   - id: C003
     title: 验证规则任务配置规则包后校验正常(20规则包 * 1校验规则)
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
@@ -655,7 +655,7 @@ cases:
       - Hive2.x
   - id: C007
     title: 验证规则任务配置规则包后校验正常(1规则包 * 1校验规则)
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
@@ -2589,7 +2589,7 @@ cases:
       - SparkThrift2.x
   - id: C022
     title: 验证规则集引用规则仅支持删除
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
@@ -2668,7 +2668,7 @@ cases:
       - 未分类
   - id: C025
     title: 验证规则集引用功能正常(规则包选择全部)
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
@@ -2810,7 +2810,7 @@ cases:
       - 规则集详情
   - id: C031
     title: 验证规则集详情数据正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面
         expected: 进入成功
@@ -2843,7 +2843,7 @@ cases:
       - 监控规则
   - id: C033
     title: 验证校验规则增删改功能正常
-    priority: P2
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面,  编辑规则集rule01, 点击下一步
         expected: 进入【编辑规则集 ❯ 基础信息】配置页面
@@ -3226,7 +3226,7 @@ cases:
       - 基础信息
   - id: C052
     title: 验证新建规则集配置页面
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面
         expected: 进入成功

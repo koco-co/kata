@@ -1,6 +1,7 @@
 meta:
   title: 202606-6.3.x_ltqc_151858-总览有效性统计与规则库不一致
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-151858.html
   feature_id: _hotfix/202606-6.3.x_ltqc_151858-总览有效性统计与规则库不一致
 cases:
   - id: C001

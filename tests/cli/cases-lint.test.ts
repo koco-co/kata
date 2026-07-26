@@ -102,6 +102,22 @@ describe("features lint", () => {
     expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(true);
   });
 
+  it("ignores 待确认 inside 等待确认弹窗 step text", () => {
+    const root = ws();
+    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    mkfeature(root, dir, "cases");
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-demo\n",
+    );
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
+      "cases:\n  - id: C001\n    title: 验证取消弹窗\n    steps:\n      - action: 点击【取消】关闭确认弹窗，等待确认弹窗关闭\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(false);
+  });
+
   it("accepts case yaml without 待确认 markers", () => {
     const root = ws();
     const dir = join("v7.0.0", "【v700】【客户】【模块】需求");

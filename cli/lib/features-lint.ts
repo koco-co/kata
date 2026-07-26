@@ -21,8 +21,9 @@ const HOTFIX_DIR_RE = /^\d{6}-[^\s/]+$/;
 // 人类标签命名约定: 【v{版本}】[【lanhu/客户】]【{模块}】{描述}; 常驻需求首段为【standing】。
 // 目录名只是人类路由把手, 机器主键是 metadata.id(slug)。
 const CJK_LABEL_RE = /^【(?:v\d+|standing)】(?:【[^【】]+】){1,3}[^【】]+$/;
-// 未确认点必须在写 yaml 前清零,产物里不允许出现「待确认」标记
-const PENDING_CONFIRM_RE = /待确认/;
+// 未确认点必须在写 yaml 前清零,产物里不允许出现「待确认」标记;
+// 「等待确认弹窗关闭」等操作步骤里的「待确认」子串不算未确认点
+const PENDING_CONFIRM_RE = /(?<!等)待确认/;
 // 用例标题: 正式 feature 以「验证」开头; hotfix 以【<bug_id>】验证开头
 const REGULAR_TITLE_RE = /^验证/;
 const HOTFIX_TITLE_RE = /^【[^【】\s]+】验证/;

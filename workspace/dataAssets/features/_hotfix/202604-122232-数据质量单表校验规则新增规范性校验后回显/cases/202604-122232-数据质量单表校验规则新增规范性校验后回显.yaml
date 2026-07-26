@@ -1,6 +1,7 @@
 meta:
   title: 202604-122232-数据质量单表校验规则新增规范性校验后回显
   version: unknown
+  source: http://zenpms.dtstack.cn/zentao/bug-view-122232.html
   feature_id: _hotfix/202604-122232-数据质量单表校验规则新增规范性校验后回显
 cases:
   - id: C001

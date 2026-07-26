@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_ltqc_145863-数据标准落标检查浮点定点脏数据明细展示优化
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-145863.html
   feature_id: _hotfix/202604-6.3.x_ltqc_145863-数据标准落标检查浮点定点脏数据明细展示优化
 cases:
   - id: C001

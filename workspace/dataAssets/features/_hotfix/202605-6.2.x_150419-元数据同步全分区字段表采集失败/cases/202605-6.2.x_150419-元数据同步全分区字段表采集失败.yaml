@@ -1,6 +1,7 @@
 meta:
   title: 202605-6.2.x_150419-元数据同步全分区字段表采集失败
   version: 6.2.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-150419.html
   feature_id: _hotfix/202605-6.2.x_150419-元数据同步全分区字段表采集失败
 cases:
   - id: C001

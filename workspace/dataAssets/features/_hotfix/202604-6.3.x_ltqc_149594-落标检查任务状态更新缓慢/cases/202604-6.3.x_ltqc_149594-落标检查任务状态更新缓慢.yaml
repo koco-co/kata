@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_ltqc_149594-落标检查任务状态更新缓慢
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-149594.html
   feature_id: _hotfix/202604-6.3.x_ltqc_149594-落标检查任务状态更新缓慢
 cases:
   - id: C001

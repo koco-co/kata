@@ -153,7 +153,7 @@ cases:
       - 未分类
   - id: C009
     title: 验证【数据标准-标准定义-编辑标准】功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 选择标准“姓名”，点击编辑按钮
         expected: 标准编辑页面正常打开

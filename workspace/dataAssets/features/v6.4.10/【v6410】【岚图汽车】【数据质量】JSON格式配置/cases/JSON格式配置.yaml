@@ -144,7 +144,7 @@ cases:
       - 新增key
   - id: C007
     title: 验证编辑key名称、value格式、数据源类型并保存生效
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: 页面正常加载，列表显示key editTarget 的记录
@@ -172,7 +172,7 @@ cases:
       - 编辑key
   - id: C008
     title: 验证新增子层级完整流程
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: 页面正常加载，列表显示 parentKey 记录
@@ -222,7 +222,7 @@ cases:
       - 新增子层级
   - id: C010
     title: 验证单个删除含子层级的key会联动删除子层级数据
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: 页面正常加载，deleteParent 记录在列表中显示「+」图标
@@ -239,7 +239,7 @@ cases:
       - 删除key
   - id: C011
     title: 验证批量删除多条key（含子层级）
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: json格式校验管理页面打开，列表显示已有key数据
@@ -259,7 +259,7 @@ cases:
       - 删除key
   - id: C012
     title: 验证key名模糊搜索功能（含子层级key命中）
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: 页面正常加载，列表显示所有第一层级数据
@@ -398,7 +398,7 @@ cases:
       - 导入
   - id: C018
     title: 验证重复处理规则「重复则覆盖更新」生效
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: 页面正常加载，existKey 记录的value格式显示 ^[a-z]+$
@@ -533,7 +533,7 @@ cases:
       - 导入
   - id: C025
     title: 验证导入功能正常(重复则覆盖更新, 1层key已存在 -> 更新1层key)
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
         expected: 页面正常加载，existKey1 的 value格式显示 ^[a-z]+$，中文名称显示「原始键」

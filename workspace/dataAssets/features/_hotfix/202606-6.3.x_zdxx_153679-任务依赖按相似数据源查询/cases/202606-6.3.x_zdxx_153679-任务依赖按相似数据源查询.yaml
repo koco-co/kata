@@ -1,6 +1,7 @@
 meta:
   title: 202606-6.3.x_zdxx_153679-任务依赖按相似数据源查询
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-153679.html
   feature_id: _hotfix/202606-6.3.x_zdxx_153679-任务依赖按相似数据源查询
 cases:
   - id: C001

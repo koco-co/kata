@@ -30,7 +30,7 @@ cases:
       - 规则配置-key范围校验基础功能
   - id: C002
     title: 验证校验方法切换（包含与不包含）规则保存和执行结果差异
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
         expected: 规则集管理页面正常打开，列表加载完成
@@ -289,7 +289,7 @@ cases:
       - 规则配置-字段类型限制
   - id: C011
     title: 验证string类型字段可成功配置key范围校验规则
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
         expected: 规则集管理页面正常打开，列表加载完成
@@ -666,7 +666,7 @@ cases:
       - 多数据源兼容性
   - id: C024
     title: 验证key数量几千个时按层级校验逻辑正确执行
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
         expected: 规则任务管理页面正常打开，列表加载完成
@@ -990,7 +990,7 @@ cases:
       - 规则库-内置规则展示
   - id: C031
     title: 验证校验不通过时查看明细：标题、字段标红及全字段展示
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 校验结果查询】页面，等待页面加载完成
         expected: 校验结果查询页面正常打开，列表加载完成

@@ -1,6 +1,7 @@
 meta:
   title: 202607-6.3.x_dfsyc_154995-导入数据表业务属性丢失
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-154995.html
   feature_id: _hotfix/202607-6.3.x_dfsyc_154995-导入数据表业务属性丢失
 cases:
   - id: C001

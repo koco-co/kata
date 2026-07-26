@@ -1,6 +1,7 @@
 meta:
   title: 202606-6.2.x_151429-任务依赖兼容相似数据源
   version: 6.2.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-151429.html
   feature_id: _hotfix/202606-6.2.x_151429-任务依赖兼容相似数据源
 cases:
   - id: C001

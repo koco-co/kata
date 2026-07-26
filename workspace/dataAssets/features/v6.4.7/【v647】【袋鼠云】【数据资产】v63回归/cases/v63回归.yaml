@@ -5,7 +5,7 @@ meta:
 cases:
   - id: C001
     title: 验证规则集创建后可独立运行并生成任务查询记录
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务配置】页面，等待任务列表和规则集区域加载完成
         expected: 页面 URL 为 `#/dq/rule`，页面展示【新建监控规则】入口，规则集区域展示【新建规则集】入口
@@ -73,7 +73,7 @@ cases:
       - 规则集变更与删除
   - id: C003
     title: 验证单表完整性字段级规则直接添加后结果正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务配置】页面，等待任务列表加载完成
         expected: 页面展示【新建监控规则】按钮，列表列包含表、规则名称、类型、数据源、执行周期、规则状态
@@ -252,7 +252,7 @@ cases:
       - 唯一性与自定义规则
   - id: C006
     title: 验证自定义 SQL 单表规则通过和不通过结果正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
@@ -540,7 +540,7 @@ cases:
       - 规范性校验
   - id: C012
     title: 验证同源数据对比规则创建和执行成功
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待规则类型选择入口展示
         expected: 页面可选择单表校验规则或多表比对规则
@@ -660,7 +660,7 @@ cases:
       - 状态和日志
   - id: C016
     title: 验证质量报告生成后展示规则结果和数据准确性
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 质量报告】页面，等待报告列表加载完成
         expected: 页面 URL 为 `#/dq/qualityReport`，展示报告列表和生成报告入口

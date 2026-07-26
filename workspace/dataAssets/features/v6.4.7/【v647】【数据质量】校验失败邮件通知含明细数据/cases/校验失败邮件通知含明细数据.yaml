@@ -5,7 +5,7 @@ meta:
 cases:
   - id: C001
     title: 验证编辑规则集修改「是否发送明细数据」后功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
         expected: 成功进入【规则任务配置】页面，页面内容正常加载显示，无报错
@@ -363,7 +363,7 @@ cases:
       - 未分类
   - id: C016
     title: 验证单表规则校验不通过时邮件附件发送功能正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
         expected: 成功进入【规则任务配置】页面，页面内容正常加载显示，无报错

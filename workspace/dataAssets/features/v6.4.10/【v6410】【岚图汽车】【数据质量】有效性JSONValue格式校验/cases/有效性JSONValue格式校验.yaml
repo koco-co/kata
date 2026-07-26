@@ -73,7 +73,7 @@ cases:
       - 规则配置-字段类型限制
   - id: C004
     title: 验证校验key列表中仅配置了value格式的key可被选中，未配置value格式的key不可选中
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
         expected: 规则集管理页面正常打开，列表加载完成
@@ -516,7 +516,7 @@ cases:
       - P0-主流程
   - id: C016
     title: 验证「格式-json格式校验」规则在SparkThrift 2.x数据源下执行正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
         expected: 规则任务管理页面正常打开，列表加载完成
@@ -547,7 +547,7 @@ cases:
       - 数据源兼容性
   - id: C017
     title: 验证「格式-json格式校验」规则在Doris 3.x数据源下执行正确
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
         expected: 规则任务管理页面正常打开，列表加载完成
@@ -863,7 +863,7 @@ cases:
       - 规则库-内置规则展示
   - id: C025
     title: 验证校验不通过时明细数据下载功能中校验字段标红
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 校验结果查询】页面，等待页面加载完成
         expected: 校验结果查询页面正常打开，列表加载完成
@@ -983,7 +983,7 @@ cases:
       - 质量报告展示
   - id: C029
     title: 验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验不通过场景）
-    priority: P1
+    priority: P0
     steps:
       - action: 进入【数据质量 → 数据质量报告】页面，等待页面加载完成
         expected: 数据质量报告页面正常打开，报告列表加载完成

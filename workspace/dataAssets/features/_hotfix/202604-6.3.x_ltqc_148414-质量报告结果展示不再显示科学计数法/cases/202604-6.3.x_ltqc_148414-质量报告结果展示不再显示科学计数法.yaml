@@ -1,6 +1,7 @@
 meta:
   title: 202604-6.3.x_ltqc_148414-质量报告结果展示不再显示科学计数法
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-148414.html
   feature_id: _hotfix/202604-6.3.x_ltqc_148414-质量报告结果展示不再显示科学计数法
 cases:
   - id: C001

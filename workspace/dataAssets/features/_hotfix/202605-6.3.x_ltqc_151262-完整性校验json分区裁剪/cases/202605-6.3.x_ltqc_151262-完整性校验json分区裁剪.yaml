@@ -1,6 +1,7 @@
 meta:
   title: 202605-6.3.x_ltqc_151262-完整性校验json分区裁剪
   version: 6.3.x
+  source: http://zenpms.dtstack.cn/zentao/bug-view-151262.html
   feature_id: _hotfix/202605-6.3.x_ltqc_151262-完整性校验json分区裁剪
 cases:
   - id: C001
