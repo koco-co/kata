@@ -16,14 +16,14 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   addKey,
   clearSearch,
   deleteKey,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

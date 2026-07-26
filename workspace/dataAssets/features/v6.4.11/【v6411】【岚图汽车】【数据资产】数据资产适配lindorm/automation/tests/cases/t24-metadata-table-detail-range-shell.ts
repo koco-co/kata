@@ -7,8 +7,8 @@
 // SourceRefs: SR-2099-01-MD-024, SR-2099-01-MD-DETAIL-QUALITY-SCORE-L1137, SR-2099-01-MD-DETAIL-DATA-PREVIEW-L1155, SR-2099-01-MD-DETAIL-LINEAGE-L1174, SR-2099-01-MD-DETAIL-TASK-DEPENDENCY-L1203, SR-2099-01-MD-DETAIL-FILE-GOVERNANCE-L1217, SR-2099-01-MD-DETAIL-VERSION-CHANGE-L1234, SR-2099-01-MD-DETAIL-OPERATION-RECORD-L1250, SR-UI-PROBE-20260523-MF-METADATA-DETAIL-RANGE-001, SR-SELF-RUN-20260523-MF-METADATA-DETAIL-RANGE-001
 import { expect, type Page, type Response } from "@playwright/test";
 
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { gotoMetadataPage } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
 test.setTimeout(180000);
 

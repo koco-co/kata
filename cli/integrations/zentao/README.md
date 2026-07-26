@@ -35,7 +35,7 @@ KATA_ZENTAO_PASSWORD="your-password"
 
 ```bash
 # 从禅道 Bug 链接导入
-bun run .claude/plugins/zentao/fetch.ts --bug-id 138845 --output workspace/issues/
+bun run cli/integrations/zentao/fetch.ts --bug-id 138845 --output workspace/dataAssets/analyses/
 
 # 或通过 kata 命令（自动解析链接）
 分析一下冲突 http://zenpms.dtstack.cn/zentao/bug-view-138845.html

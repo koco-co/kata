@@ -74,7 +74,18 @@ registerZentao(program);
 registerLanhu(program);
 registerNotify(program);
 
+const topLevel = process.argv[2];
+if (
+  topLevel &&
+  !topLevel.startsWith("-") &&
+  !program.commands.some((command) => command.name() === topLevel) &&
+  process.argv.includes("--help")
+) {
+  process.stderr.write(`未知命令: ${topLevel}\n`);
+  process.exit(1);
+}
+
 program.parseAsync(process.argv).catch((err) => {
   console.error(err instanceof Error ? err.message : String(err));
-  process.exit(1);
+  process.exit(err instanceof Error && "exitCode" in err ? Number(err.exitCode) || 1 : 1);
 });

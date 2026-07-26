@@ -19,8 +19,8 @@ emits:
 feature_id: 2026-03-standard-owner-maintenance
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/支持维护标准负责人_列表展示负责人_创建人信息.md
+  xmind_path: cases/支持维护标准负责人_列表展示负责人_创建人信息.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/支持维护标准负责人_列表展示负责人_创建人信息.md
+  xmind: cases/支持维护标准负责人_列表展示负责人_创建人信息.xmind
   tests_root: null
   latest_results: null

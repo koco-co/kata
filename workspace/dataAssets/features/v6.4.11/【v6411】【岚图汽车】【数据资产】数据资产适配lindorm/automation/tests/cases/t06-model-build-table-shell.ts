@@ -5,11 +5,11 @@
 // generated_at: 2026-05-22T03:30:00Z
 // META: {"id":"DM-001","priority":"P1/P2/P3","title":"数据模型规范建表列表 Shell 可核验"}
 // SourceRefs: SR-2099-01-DM-001, SR-UI-PROBE-20260522-MODEL-001, SR-SELF-RUN-MODEL-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectModelApiHealth,
   expectModelBuildTableShell,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
 
 test.setTimeout(90000);
 

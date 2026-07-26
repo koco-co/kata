@@ -49,5 +49,5 @@ To refresh against upstream:
 1. Pull the desired tag/commit from the upstream repository.
 2. Copy only `lanhu_mcp_server.py`, `pyproject.toml`, `LICENSE`, `.gitignore`.
 3. Re-slim `README.md` and bump the version recorded above.
-4. Run `.claude/plugins/lanhu/mcp-bridge/setup.sh` to re-resolve dependencies,
+4. Run `cli/integrations/lanhu/mcp-bridge/setup.sh` to re-resolve dependencies,
    then exercise the `lanhu` plugin fetch path before committing.

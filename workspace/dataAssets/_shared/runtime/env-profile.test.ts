@@ -37,6 +37,7 @@ const resolved: ResolvedDataAssetsEnv = {
       assets: { id: 547, name: "pw_test_HADOOP", typeId: 45 },
       database: "pw_test",
       schema: "pw_test",
+      requiresOffline: false,
     },
   },
   defaults: { datasource: "sparkthrift" },

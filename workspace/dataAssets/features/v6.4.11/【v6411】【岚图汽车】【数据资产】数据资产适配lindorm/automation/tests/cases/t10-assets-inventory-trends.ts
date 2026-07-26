@@ -5,14 +5,14 @@
 // generated_at: 2026-05-22T13:08:09Z
 // META: {"id":"AI-003","priority":"P3","title":"资产盘点趋势图可核验"}
 // SourceRefs: SR-2099-01-AI-003, SR-2099-01-AI-SEARCH-TREND-L142, SR-UI-PROBE-20260522-ASSETS-TRENDS-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectAssetsInventoryTrendApiHealth,
   expectAssetsInventoryTrendDropdowns,
   expectAssetsInventoryTrendModules,
   gotoAssetsInventory,
   triggerAssetsInventoryScheduleJobs,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
 import {
   ASSETS_INVENTORY_TREND_SCOPE,
   SR_2099_01_AI_003,

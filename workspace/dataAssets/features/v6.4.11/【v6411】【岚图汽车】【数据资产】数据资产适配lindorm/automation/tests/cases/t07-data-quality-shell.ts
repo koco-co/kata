@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-20260522-DQ-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-22T09:36:45Z
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataQualityOverviewShell,
   expectDataQualityReportShell,
@@ -22,7 +22,7 @@ import {
   expectDataQualityRuleSetShell,
   expectDataQualityRuleShell,
   expectMetadataIntegrityShell,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
 test.setTimeout(3 * 60 * 1000);
 

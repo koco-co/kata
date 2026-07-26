@@ -4,14 +4,14 @@
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-26T00:00:00Z
 // SourceRefs: SR-2099-01-DQ-PROJECT-L8248, SR-2099-01-DQ-PROJECT-L8267, SR-UI-PROBE-20260526-DQ-PROJECT-MANAGEMENT-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataQualityDirtyDataManagementContract,
   expectDataQualityDirtyDataStorageEditContract,
   expectDataQualityProjectCreateEditContract,
   expectDataQualityProjectDefaultMonitorDatabaseContract,
   expectDataQualityProjectPinDeleteContract,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
 test.setTimeout(3 * 60 * 1000);
 

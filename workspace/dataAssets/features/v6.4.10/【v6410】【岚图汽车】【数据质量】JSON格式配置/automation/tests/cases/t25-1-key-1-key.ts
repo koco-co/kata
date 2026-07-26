@@ -7,8 +7,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import {
   buildImportXlsx,
   clickHeaderButton,
@@ -21,7 +21,7 @@ import {
   searchKey,
   selectDataSourceType,
   waitModal,
-} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function dismissWelcomeDialog(page: import("@playwright/test").Page) {
   const dialog = page.locator("dialog, .ant-modal").filter({ hasText: "欢迎使用" });

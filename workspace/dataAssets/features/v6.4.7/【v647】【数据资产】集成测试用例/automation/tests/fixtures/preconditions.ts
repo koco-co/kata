@@ -1,8 +1,8 @@
-import { test as base, expect } from "../../../../_shared/fixtures/step-screenshot";
+import { test as base, expect } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   cookieHeaderToPlaywrightState,
   getEnvConfig,
-} from "../../../../_shared/runtime/env-profile";
+} from "../../../../../../_shared/runtime/env-profile";
 import { runUniversalPrecond } from "../precond/universal-precond";
 
 export const test = base.extend<{}, { preconditionsReady: void }>({

@@ -8,8 +8,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { gotoJsonConfigPage } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function createInvalidImportXlsx(filePath: string) {
   const workbook = new ExcelJS.Workbook();

@@ -4,8 +4,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t6","priority":"P2","title":"验证原有枚举值规则同步新增not in选项且可正常保存"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../_shared/helpers/test-setup";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -20,7 +20,7 @@ import {
   openRuleSetEditor,
   saveRuleSet,
   selectRuleFieldAndFunction,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

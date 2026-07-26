@@ -4,9 +4,9 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t39","priority":"P2","title":"【P2】验证key数量达1000条以上时列表加载和搜索性能正常"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName, waitForTableLoaded } from "../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName, waitForTableLoaded } from "../../../../../../_shared/helpers/test-setup";
+import { gotoJsonConfigPage } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 // 注意：这是性能测试，不需要创建1000条数据。
 // 只验证当前列表加载和搜索响应时间。

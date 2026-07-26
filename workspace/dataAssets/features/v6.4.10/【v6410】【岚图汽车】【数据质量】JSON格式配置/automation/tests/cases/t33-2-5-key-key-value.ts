@@ -8,8 +8,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import {
   addChildKey,
   addKey,
@@ -18,7 +18,7 @@ import {
   expandRow,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function createImportXlsx(
   filePath: string,

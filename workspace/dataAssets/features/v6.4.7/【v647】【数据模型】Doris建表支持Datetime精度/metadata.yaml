@@ -19,8 +19,8 @@ emits:
 feature_id: 2026-01-modeling-doris-datetime-precision
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/Doris建表支持Datetime精度.md
+  xmind_path: cases/Doris建表支持Datetime精度.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/Doris建表支持Datetime精度.md
+  xmind: cases/Doris建表支持Datetime精度.xmind
   tests_root: null
   latest_results: null

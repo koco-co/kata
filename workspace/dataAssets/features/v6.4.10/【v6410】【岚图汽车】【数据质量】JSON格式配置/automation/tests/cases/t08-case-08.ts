@@ -3,8 +3,8 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t8","priority":"P1","title":"【P1】验证新增子层级完整流程"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import {
   addKey,
   confirmAndWaitClose,
@@ -16,7 +16,7 @@ import {
   gotoJsonConfigPage,
   searchKey,
   waitModal,
-} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证新增子层级完整流程", async ({ page, step }) => {

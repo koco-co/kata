@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "types": ["node", "bun"],
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["workspace/dataAssets/_shared/runtime/**/*.ts"],
+  "exclude": ["node_modules"]
+}

@@ -5,8 +5,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P1","title":"验证枚举值设置已选择in但未输入枚举值时点击保存提示校验错误"}
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../_shared/helpers/test-setup";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -18,7 +18,7 @@ import {
   openRuleSetEditor,
   selectRuleFieldAndFunction,
   selectRuleRelation,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(600000);
 

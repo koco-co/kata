@@ -1,8 +1,10 @@
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
+  addDataAssetsEnv,
   diagnoseDataAssetsEnv,
   listDataAssetsEnvs,
+  migrateDataAssetsEnvs,
   runDataAssetsCommand,
   setDataAssetsCookie,
   showDataAssetsEnv,
@@ -26,9 +28,24 @@ export function registerEnv(program: Command): void {
   const env = program.command("env").description("管理本机私密的 DataAssets 平台环境");
 
   env
+    .command("add")
+    .description("创建一个本机私密平台环境模板")
+    .argument("<name>", "环境名称")
+    .requiredOption("--url <url>", "平台根地址")
+    .action((name: string, opts: { url: string }) => outputJson(addDataAssetsEnv(name, opts.url)));
+
+  env
     .command("list")
     .description("列出 config/env 中的平台环境，不显示 Cookie")
     .action(() => outputJson(listDataAssetsEnvs()));
+
+  env
+    .command("migrate")
+    .description("将旧版 DataAssets 私密环境迁移到 config/env")
+    .option("--apply", "执行迁移；默认只预览", false)
+    .action(async (opts: { apply: boolean }) =>
+      outputJson(await migrateDataAssetsEnvs({ apply: opts.apply })),
+    );
 
   env
     .command("show")

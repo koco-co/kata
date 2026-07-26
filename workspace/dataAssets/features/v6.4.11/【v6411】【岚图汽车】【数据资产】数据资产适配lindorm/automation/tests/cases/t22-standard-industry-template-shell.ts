@@ -7,8 +7,8 @@
 // SourceRefs: SR-2099-01-STD-022, SR-UI-PROBE-20260523-STANDARD-DEF-001
 import { expect, type Page } from "@playwright/test";
 
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { buildDataAssetsUrl } from "../../../../_shared/helpers/test-setup";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { buildDataAssetsUrl } from "../../../../../../_shared/helpers/test-setup";
 
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const PROJECT_ID = 92;

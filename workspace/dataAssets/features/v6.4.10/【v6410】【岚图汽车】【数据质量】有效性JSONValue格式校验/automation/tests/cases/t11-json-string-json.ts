@@ -5,11 +5,11 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t11","priority":"P1","title":"【P1】验证选择非json或string类型字段时「格式-json格式校验」统计规则选项不可选"}
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption, uniqueName } from "../../../../_shared/helpers/test-setup";
-import { prepareJsonRuleSetDraft } from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
-import { addRuleToPackage } from "../../../../_shared/pages/validity-json-value-format/rule-editor-base";
-import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { selectAntOption, uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { prepareJsonRuleSetDraft } from "../../../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { addRuleToPackage } from "../../../../../../_shared/pages/validity-json-value-format/rule-editor-base";
+import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 import { FORMAT_JSON_VERIFICATION_FUNC } from "../fixtures/test-data-15694";
 
 const MULTI_TYPE_TABLE = "quality_test_json_multi_type";

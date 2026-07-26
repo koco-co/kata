@@ -4,7 +4,7 @@
 // page: _shared/pages/2099-01-lt-dq-main-flow/platform-management-page.ts
 // generated_at: 2026-05-23T07:45:00Z
 // SourceRefs: SR-2099-01-PLAT-AUTO-IMPORT-L6726-L6789, SR-2099-01-PLAT-DATASOURCE-L6804-L6947, SR-2099-01-PLAT-USER-L6962-L7082, SR-2099-01-PLAT-ROLE-L7097-L7151, SR-2099-01-PLAT-NOTIFICATION-L7167-L7433, SR-UI-PROBE-20260523-PLATFORM-CONT-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataSourceAutoImportShell,
   expectDataSourceManageShell,
@@ -12,7 +12,7 @@ import {
   expectNotificationSettingShell,
   expectRoleManageShell,
   expectUserManageShell,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/platform-management-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/platform-management-page";
 
 test.setTimeout(3 * 60 * 1000);
 

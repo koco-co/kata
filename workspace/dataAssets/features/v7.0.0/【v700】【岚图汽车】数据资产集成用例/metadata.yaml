@@ -22,7 +22,7 @@ emits:
 feature_id: 2026-07-data-assets-integration-test
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
+  archive_path: cases/exports/数据资产集成用例.md
   xmind_path: cases/数据资产集成用例.xmind
   requirement_atoms:
     - id: RA-001
@@ -53,10 +53,10 @@ automation:
       case_files:
         - automation/tests/cases/t01-data-standard-module-contract.ts
       automation_status: partial
-  last_handoff_path: runs/20260702-1436-dsstd008/handoff.md
-  last_run_status: partial
+  last_handoff_path: null
+  last_run_status: not-run
 files:
-  archive: cases/archive.md
+  archive: cases/exports/数据资产集成用例.md
   xmind: cases/数据资产集成用例.xmind
   tests_root: automation/tests/
-  latest_results: runs/20260702-1436-dsstd008
+  latest_results: null

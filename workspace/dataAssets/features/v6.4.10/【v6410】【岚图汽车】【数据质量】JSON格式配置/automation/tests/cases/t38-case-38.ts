@@ -4,9 +4,9 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t38","priority":"P2","title":"【P2】验证搜索无结果时的空状态展示"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName, waitForTableLoaded } from "../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName, waitForTableLoaded } from "../../../../../../_shared/helpers/test-setup";
+import { gotoJsonConfigPage } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P2】验证搜索无结果时的空状态展示", async ({ page, step }) => {

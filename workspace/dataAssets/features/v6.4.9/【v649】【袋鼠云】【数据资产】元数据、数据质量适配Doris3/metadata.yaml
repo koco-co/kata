@@ -21,8 +21,8 @@ emits:
 feature_id: 2026-03-assets-doris-3x-adaptation
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/元数据_数据质量适配Doris3.md
+  xmind_path: cases/元数据_数据质量适配Doris3.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -31,7 +31,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/元数据_数据质量适配Doris3.md
+  xmind: cases/元数据_数据质量适配Doris3.xmind
   tests_root: null
   latest_results: null

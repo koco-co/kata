@@ -4,14 +4,14 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t10","priority":"P1","title":"【P1】验证点击「value格式预览」弹窗仅展示已勾选key的格式信息且支持分页"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import {
   addJsonFormatRule,
   openValueFormatPreview,
   prepareJsonRuleSetDraft,
-} from "../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
-import { describeByDatasource } from "../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+} from "../../../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
 
 const RULE_CONFIG_TABLE = "quality_test_json_rule_config";
 const PREVIEW_KEYS = [

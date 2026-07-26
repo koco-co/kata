@@ -4,7 +4,7 @@
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T09:30:00Z
 // SourceRefs: SR-2099-01-DQ-RESULT-FILTERS-001, SR-UI-PROBE-20260523-DQ-RESULT-FILTERS-001, SR-SELF-RUN-20260523-DQ-RESULT-FILTERS-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataQualityGeneratedReportCombinedFilterContract,
   expectDataQualityGeneratedReportDownloadContract,
@@ -22,7 +22,7 @@ import {
   expectDataQualityResultFilterContract,
   expectDataQualityRuleBaseCustomRegexContract,
   expectDataQualityRuleSetFilterContract,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 import { ensureDtstackPreconditionFile } from "../helpers/dtstack-preconditions";
 
 test.setTimeout(15 * 60 * 1000);

@@ -7,9 +7,9 @@
 import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { confirmPopconfirm, waitForTableLoaded } from "../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { confirmPopconfirm, waitForTableLoaded } from "../../../../../../_shared/helpers/test-setup";
+import { gotoJsonConfigPage } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 function cellToString(cell: ExcelJS.Cell): string {
   const v = cell.value;

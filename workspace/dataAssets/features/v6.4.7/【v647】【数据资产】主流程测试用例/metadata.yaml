@@ -20,7 +20,7 @@ feature_id: 2026-04-assets-main-flow-test
 case_drafting:
   status: not-started
   archive_path: null
-  xmind_path: cases/cases.xmind
+  xmind_path: cases/主流程测试用例.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -30,6 +30,6 @@ automation:
   last_run_status: not-run
 files:
   archive: null
-  xmind: cases/cases.xmind
+  xmind: cases/主流程测试用例.xmind
   tests_root: null
   latest_results: null

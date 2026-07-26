@@ -4,13 +4,13 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t21","priority":"P1","title":"验证规则库中新增取值范围&枚举范围内置规则展示正确"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import { gotoRuleBase } from "../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { gotoRuleBase } from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 
 test.setTimeout(120000);
 

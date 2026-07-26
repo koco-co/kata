@@ -4,7 +4,7 @@
 
 ## 主会话会告诉你
 
-- feature 目录与环境名（运行用 `kata env run <env> -- npx playwright test ...`）。
+- feature 目录与环境名（运行用 `kata runs exec <feature-id> --project <project> -- kata env run <env> -- bunx playwright test ...`）。
 - 用例 yaml 路径与用例 id。
 - 该用例的 `automation.spec_file`；文件名只能是 `t<序号>-<slug>.ts`。
 - 探测结论：菜单路径、表单字段、按钮、枚举值的真实文案，以及相关证据文件位置。

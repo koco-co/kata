@@ -4,9 +4,9 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t42","priority":"P1","title":"【P1】验证编辑弹窗与新增弹窗保持一致（value格式有值时展示正则测试控件）"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
-import { addKey, deleteKey, gotoJsonConfigPage, waitModal } from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { addKey, deleteKey, gotoJsonConfigPage, waitModal } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 async function waitTableLoaded(page: import("@playwright/test").Page) {
   await page

@@ -7,8 +7,8 @@
 // SourceRefs: SR-2099-01-MD-CATALOG-UI-L667, SR-2099-01-MD-CATALOG-CREATE-L681, SR-2099-01-MD-CATALOG-QUERY-L699, SR-2099-01-MD-CATALOG-EDIT-L721, SR-2099-01-MD-CATALOG-DELETE-L737, SR-2099-01-MD-CATALOG-MOVE-L753, SR-2099-01-MD-CATALOG-BATCH-MANUAL-L775, SR-2099-01-MD-CATALOG-BATCH-PUBLISH-L794, SR-2099-01-MD-CATALOG-WHOLE-DB-L812, SR-2099-01-MD-CATALOG-IMPORT-L830, SR-2099-01-MD-SUBSCRIBE-L882, SR-2099-01-MD-DATATABLE-PAGINATION-L904, SR-2099-01-MD-019, SR-UI-PROBE-20260523-MF-METADATA-CATALOG-ACTIONS-001, SR-SELF-RUN-20260523-MF-METADATA-CATALOG-ACTIONS-001
 import { expect, type Locator, type Page, type Response } from "@playwright/test";
 
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { gotoMetadataPage } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { gotoMetadataPage } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
 
 test.setTimeout(120000);
 

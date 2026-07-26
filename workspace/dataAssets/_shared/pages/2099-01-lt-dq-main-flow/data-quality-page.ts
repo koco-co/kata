@@ -7,7 +7,9 @@ import ExcelJS from "exceljs";
 
 import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
-const PROJECT_ID = getEnvConfig().projects.quality.id;
+function getProjectId(): string | number {
+  return getEnvConfig().projects.quality.id;
+}
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
 const LTQC_LOCAL_RULESET_AVAILABLE_TABLE = "dwd_voyah_dq_vehicle_null_cnt";
@@ -409,7 +411,7 @@ async function installProject(page: Page): Promise<void> {
       localStorage.setItem("dataAssets_project_id", projectId);
       localStorage.setItem("currentProject", projectId);
     },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
@@ -423,13 +425,13 @@ async function injectProject(page: Page): Promise<void> {
       localStorage.setItem("dataAssets_project_id", projectId);
       localStorage.setItem("currentProject", projectId);
     },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
 export async function gotoDataQualityPage(page: Page, path: string): Promise<void> {
   await installProject(page);
-  const url = buildDataAssetsUrl(path, PROJECT_ID);
+  const url = buildDataAssetsUrl(path, getProjectId());
   let lastStatus: number | undefined;
   let lastBodyText = "";
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -3525,7 +3527,7 @@ async function expectDataQualityRuleSetHistoricalTaskPreconditions(
     buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/pageQuery"),
     {
       data: { current: 1, size: 100, tableName },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 60000,
     },
   );
@@ -3545,7 +3547,7 @@ async function expectDataQualityRuleSetHistoricalTaskPreconditions(
     buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/detail"),
     {
       data: { id: String(ruleSet?.id) },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 60000,
     },
   );
@@ -3559,7 +3561,7 @@ async function expectDataQualityRuleSetHistoricalTaskPreconditions(
   await gotoDataQualityPage(page, "/dq/rule");
   const taskResponse = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitor/pageQuery"), {
     data: { currentPage: 1, pageSize: 100, search: tableName },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(taskResponse.ok(), `${sourceRef}: 查询规则任务列表 HTTP 应成功`).toBe(true);
@@ -3740,7 +3742,7 @@ export async function expectDataQualityRuleSetGlobalParamsContract(
     page,
     "/dassets/v1/valid/monitorRuleSet/detail",
   );
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRecord.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRecord.id}?projectId=${getProjectId()}`);
   const detail = expectDqSuccess(await detailResponse, `${sourceRef}: 规则集详情应请求成功`);
   assertRuleSetDetailPackages(detail, sourceRef);
 
@@ -4190,7 +4192,7 @@ async function attachCustomRegexToArchiveRuleSet(
   const targetRuleSet = ruleSetRecords.find((record) => record.tableName === tableName);
   expect(targetRuleSet?.id, `${sourceRef}: 应存在可挂载自定义正则的规则集 ${tableName}`).toBeTruthy();
 
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet?.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet?.id}?projectId=${getProjectId()}`);
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 规则集编辑页应打开`).toContainText(/编辑规则集|添加规则/, {
     timeout: 30000,
@@ -4324,7 +4326,7 @@ async function queryRuleSetDetail(
   expect(id, `${sourceRef}: 查询规则集详情应有 id`).toBeTruthy();
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/detail"), {
     data: { id: String(id) },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 查询规则集详情 HTTP 应成功`).toBe(true);
@@ -5150,7 +5152,7 @@ export async function expectDataQualityRuleBaseCustomSqlBasicInfoSaveContract(
 
     const listResponse = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleCustom/pageList"), {
       data: { current: 1, size: 100 },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 60000,
     });
     expect(listResponse.ok(), `${sourceRef}: 保存后查询自定义 SQL 模版列表 HTTP 应成功`).toBe(true);
@@ -7003,7 +7005,7 @@ async function deleteCustomRegexByNameBestEffort(page: Page, sourceRef: string, 
 async function listCustomRegexRecords(page: Page, sourceRef: string): Promise<DqRuleBaseCustomRegexRecord[]> {
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleLibrary/list"), {
     data: { current: 1, size: 100 },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 查询自定义正则列表 HTTP 应成功`).toBe(true);
@@ -7030,7 +7032,7 @@ async function createCustomRegexFixture(
 ): Promise<string | number> {
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleLibrary/addOrUpdate"), {
     data,
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 创建自定义正则 fixture HTTP 应成功`).toBe(true);
@@ -7052,7 +7054,7 @@ async function deleteCustomRegexById(
   expect(ruleId, `${sourceRef}: 删除自定义正则应有 id`).toBeTruthy();
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleLibrary/delete"), {
     data: { id: String(ruleId) },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 删除自定义正则 HTTP 应成功`).toBe(true);
@@ -7084,7 +7086,7 @@ async function createCustomSqlTemplateFixture(
       customConfiguration: template.customConfiguration,
       customParam: template.params,
     },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 创建自定义 SQL 模版 fixture HTTP 应成功`).toBe(true);
@@ -7118,7 +7120,7 @@ async function createCustomSqlTemplateFixture(
 async function listCustomSqlRecords(page: Page, sourceRef: string): Promise<DqRuleBaseCustomSqlRecord[]> {
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleCustom/pageList"), {
     data: { current: 1, size: 100 },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 查询自定义 SQL 模版列表 HTTP 应成功`).toBe(true);
@@ -7134,7 +7136,7 @@ async function deleteCustomSqlById(
   expect(ruleId, `${sourceRef}: 删除自定义 SQL 模版应有 id`).toBeTruthy();
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleCustom/delete"), {
     data: { id: String(ruleId) },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 删除自定义 SQL 模版 HTTP 应成功`).toBe(true);
@@ -7613,7 +7615,7 @@ async function gotoEditableRuleSetMonitorRules(page: Page, sourceRef: string): P
     buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/pageQuery"),
     {
       data: { current: 1, size: 100 },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 60000,
     },
   );
@@ -7627,7 +7629,7 @@ async function gotoEditableRuleSetMonitorRules(page: Page, sourceRef: string): P
   );
   const targetRuleSet = expectRuleSetSearchTarget(records, sourceRef);
 
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${getProjectId()}`);
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 规则集编辑页应打开`).toContainText("编辑规则集", {
     timeout: 30000,
@@ -8078,7 +8080,7 @@ async function deleteTempRuleSetByDescriptionBestEffort(
 async function queryRuleSetRecords(page: Page, tableName: string): Promise<DqRuleSetRecord[]> {
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/pageQuery"), {
     data: { current: 1, size: 100, tableName },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `查询规则集列表 HTTP 应成功`).toBe(true);
@@ -8092,7 +8094,7 @@ async function queryRuleSetRecords(page: Page, tableName: string): Promise<DqRul
 async function queryRuleTaskRecords(page: Page, tableName: string): Promise<DqRuleTaskRecord[]> {
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/monitor/pageQuery"), {
     data: { current: 1, size: 100, tableName },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `查询规则任务列表 HTTP 应成功`).toBe(true);
@@ -8114,7 +8116,7 @@ async function expectRuleTaskRuleSetPackages(
     buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/detail"),
     {
       data: { id: String(targetRuleSet?.id) },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 60000,
     },
   );
@@ -8998,7 +9000,7 @@ async function formatBackendSqlJobStatus(page: Page, record: DqMonitorRecord): P
   const response = await page.request
     .post(buildDataAssetsApiUrl("/api/rdos/batch/batchSelectSql/selectStatus"), {
       data: { jobId, type: 0 },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 30000,
     })
     .catch(() => undefined);
@@ -9496,7 +9498,7 @@ async function expectNoMonitorRecordForRuleTask(
     data: {
       currentPage: 1,
       pageSize: 20,
-      projectId: PROJECT_ID,
+      projectId: getProjectId(),
       bizTime: 0,
       fuzzyName: ruleName,
     },
@@ -10222,7 +10224,7 @@ async function listJsonValidationRecords(
 ): Promise<DqJsonValidationConfigRecord[]> {
   const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/jsonValidationConfig/getTreeByPage"), {
     data: { currentPage: 1, pageSize: 100, search },
-    headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+    headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
     timeout: 60000,
   });
   expect(response.ok(), `${sourceRef}: 查询 json格式校验 key HTTP 应成功`).toBe(true);
@@ -10241,7 +10243,7 @@ async function deleteJsonValidationKeyByKeyBestEffort(page: Page, sourceRef: str
     if (!record.id) continue;
     const response = await page.request.post(buildDataAssetsApiUrl("/dassets/v1/valid/jsonValidationConfig/delete"), {
       data: { id: String(record.id) },
-      headers: { [PROJECT_STORAGE_KEY]: String(PROJECT_ID) },
+      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
       timeout: 60000,
     });
     expect(response.ok(), `${sourceRef}: 清理同名 json格式校验 key HTTP 应成功`).toBe(true);
@@ -10542,7 +10544,7 @@ async function expectDqRuleSetEditShell(
   ruleName: string,
   expectedLabels: readonly (string | RegExp)[],
 ): Promise<void> {
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${record.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${record.id}?projectId=${getProjectId()}`);
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 规则集编辑页应打开 ${record.tableName}`).toContainText("编辑规则集", {
     timeout: 30000,
@@ -10579,7 +10581,7 @@ async function expectRuleSetAddFunctionOption(
   );
   const targetRuleSet = expectRuleSetSearchTarget(records, sourceRef);
 
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${getProjectId()}`);
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 规则集编辑页应打开`).toContainText("编辑规则集", {
     timeout: 30000,
@@ -10630,7 +10632,7 @@ async function expectRuleSetCustomRegexOption(
   );
   const targetRuleSet = expectRuleSetSearchTarget(records, sourceRef);
 
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${getProjectId()}`);
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 规则集编辑页应打开`).toContainText("编辑规则集", {
     timeout: 30000,
@@ -10685,7 +10687,7 @@ async function expectRuleSetJsonValidationKeyOption(
   );
   const targetRuleSet = expectRuleSetSearchTarget(records, sourceRef);
 
-  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${PROJECT_ID}`);
+  await gotoDataQualityPage(page, `/dq/ruleSet/edit/${targetRuleSet.id}?projectId=${getProjectId()}`);
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 规则集编辑页应打开`).toContainText("编辑规则集", {
     timeout: 30000,
@@ -10740,7 +10742,7 @@ async function setRuleBaseBuiltInOpenStatus(
         openOrClose: openStatus,
       },
       headers: {
-        [PROJECT_STORAGE_KEY]: String(PROJECT_ID),
+        [PROJECT_STORAGE_KEY]: String(getProjectId()),
       },
       timeout: 60000,
     },
@@ -10875,7 +10877,7 @@ async function findMonitorRecordCandidate(
       data: {
         currentPage,
         pageSize: 20,
-        projectId: PROJECT_ID,
+        projectId: getProjectId(),
         bizTime: 0,
         fuzzyName: options.fuzzyName,
       },

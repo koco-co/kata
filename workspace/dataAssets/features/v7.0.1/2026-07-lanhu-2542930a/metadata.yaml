@@ -17,18 +17,18 @@ inputs:
 relates_to: []
 requirement_context:
   lanhu_requirement_id: "16208"
-  lanhu_project: "资产V7.0.1"
-  prd_version: "7.0.1"
-  dev_version: "6.2及以上标品"
-  customer_scope: "默认配置下其他标品客户不受影响"
+  lanhu_project: 资产V7.0.1
+  prd_version: 7.0.1
+  dev_version: 6.2及以上标品
+  customer_scope: 默认配置下其他标品客户不受影响
 emits:
   cases_xmind: true
   archive: true
   playwright_tests: false
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/2026-07-lanhu-2542930a.md
+  xmind_path: cases/2026-07-lanhu-2542930a.xmind
   requirement_atoms:
     - id: RA-001
       source_ref: lanhu.fixture:page-2542930a#sha256:b20ebc7eb136ec96dbb863fd9395ec1f327e63a13f3e52cbd34bd66ada0ecc8c
@@ -90,7 +90,7 @@ case_drafting:
       evidence_kind: lanhu.fixture
       ambiguity_class: defaultable_unknown
       confidence: medium
-  coverage_matrix_path: .process/coverage-matrix.json
+  coverage_matrix_path: null
   source_refs:
     - source_ref: lanhu.fixture:page-2542930a#sha256:b20ebc7eb136ec96dbb863fd9395ec1f327e63a13f3e52cbd34bd66ada0ecc8c
       path: prd.md
@@ -100,7 +100,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/2026-07-lanhu-2542930a.md
+  xmind: cases/2026-07-lanhu-2542930a.xmind
   tests_root: null
   latest_results: null

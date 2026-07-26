@@ -14,7 +14,7 @@ export function registerKnowledge(program: Command): void {
     .option("--module <name>", "按模块过滤(匹配标题或 tags)")
     .option("--keyword <word>", "按关键词检索(匹配标题/正文/tags)")
     .option("--type <types>", "限定类型,逗号分隔(term,module,pitfall,site)")
-    .option("--status <statuses>", "限定状态,逗号分隔(默认不隐式过滤)")
+    .option("--status <statuses>", "限定状态,逗号分隔；默认仅 verified，使用 all 读取全部状态")
     .option("--json", "JSON 输出", false)
     .action(
       (opts: {
@@ -59,8 +59,7 @@ export function registerKnowledge(program: Command): void {
       }) => {
         if (opts.type === "overview") {
           if (!opts.content) {
-            process.stderr.write(`[knowledge] 类型 ${opts.type} 需要 --content JSON\n`);
-            process.exit(1);
+            throw new Error(`[knowledge] 类型 ${opts.type} 需要 --content JSON`);
           }
           runWrite({
             project: opts.project,
@@ -75,8 +74,7 @@ export function registerKnowledge(program: Command): void {
           return;
         }
         if (!opts.status || !opts.title || !opts.body) {
-          process.stderr.write(`[knowledge] 类型 ${opts.type} 需要 --status/--title/--body\n`);
-          process.exit(1);
+          throw new Error(`[knowledge] 类型 ${opts.type} 需要 --status/--title/--body`);
         }
         runWriteEntry({
           project: opts.project,

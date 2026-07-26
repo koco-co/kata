@@ -5,13 +5,13 @@
 // generated_at: 2026-05-22T03:12:41Z
 // META: {"id":"MD-002","priority":"P1","title":"元数据同步与元模型管理 Shell 可核验"}
 // SourceRefs: SR-2099-01-MD-SYNC-CREATE-L1995, SR-2099-01-MD-SYNC-ALL-TYPES-L2009, SR-2099-01-MD-SYNC-FILTER-L2084, SR-2099-01-MD-SYNC-MANY-TABLES-L2100, SR-2099-01-MD-SYNC-EXCEPTION-L2115, SR-2099-01-MD-SYNC-OWNER-L2130, SR-2099-01-MD-SYNC-INDEX-L2150, SR-2099-01-MD-OFFLINE-LIFECYCLE-L2166, SR-2099-01-MD-OFFLINE-TABLE-AUTO-SYNC-L2181, SR-2099-01-MD-MVIEW-OPERATION-RECORD-L2237, SR-2099-01-MD-OFFLINE-TASK-VIEW-LINEAGE-L2253, SR-2099-01-MD-VIEW-LINEAGE-L2270, SR-2099-01-MD-LINEAGE-PARSE-L2286, SR-2099-01-MD-002, SR-2099-01-MD-003, SR-UI-PROBE-20260522-METADATA-003, SR-UI-PROBE-20260523-MF-METADATA-001, SR-SELF-RUN-METADATA-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectMetaModelShell,
   expectMetadataSyncShell,
   expectSyncTaskAdvancedOptionsShell,
   expectSyncTaskCreateEntry,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-sync-page";
 import { SR_2099_01_MD_002, SR_2099_01_MD_003 } from "../fixtures/metadata-contract";
 
 test.setTimeout(90000);

@@ -4,15 +4,15 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t13","priority":"P1","title":"【P1】验证数据源类型筛选功能"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
 import {
   addKey,
   clearSearch,
   ensureRowVisibleByKey,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证数据源类型筛选功能", async ({ page, step }) => {

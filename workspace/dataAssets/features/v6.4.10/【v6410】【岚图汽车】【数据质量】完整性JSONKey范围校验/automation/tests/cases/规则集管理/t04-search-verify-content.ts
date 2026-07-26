@@ -4,8 +4,8 @@ import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t4","priority":"P1","title":"验证校验内容下拉框支持输入关键词搜索查询"}
-import { expect, test } from "../../../../../_shared/fixtures/step-screenshot";
-import { addRuleToPackage } from "../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
+import { addRuleToPackage } from "../../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -16,7 +16,7 @@ import {
   SCENARIOS,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+} from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
 
 test.setTimeout(600000);
 

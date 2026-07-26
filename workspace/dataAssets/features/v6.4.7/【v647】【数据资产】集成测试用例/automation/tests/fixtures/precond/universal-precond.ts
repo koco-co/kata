@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 import { createHash } from "node:crypto";
-import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
-import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
+import { getEnvConfig } from "../../../../../../../_shared/runtime/env-profile";
+import { setupPreconditions } from "../../../../../../../_shared/helpers/preconditions";
 
 const SOURCE_HASH = createHash("sha256")
   .update("2026-04-zi-chan-ji-cheng:universal-precond:v1")

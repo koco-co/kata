@@ -20,8 +20,8 @@ emits:
 feature_id: 2026-02-dq-builtin-rule-items-increase
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/内置规则增加规则项.md
+  xmind_path: cases/内置规则增加规则项.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -42,7 +42,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/内置规则增加规则项.md
+  xmind: cases/内置规则增加规则项.xmind
   tests_root: automation/tests/
   latest_results: null

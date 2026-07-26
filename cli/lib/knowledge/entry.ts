@@ -17,6 +17,9 @@ export function runReadEntries(opts: {
 }): void {
   const paths = locateProject(opts.project);
   const types = opts.type ? opts.type.split(",").map((t) => t.trim()) : undefined;
+  if (opts.status?.trim() === "all") {
+    opts.status = "verified,observed,conflicting,deprecated";
+  }
   const requestedStatuses = opts.status
     ?.split(",")
     .map((s) => s.trim())
@@ -24,8 +27,7 @@ export function runReadEntries(opts: {
   if (opts.status && requestedStatuses?.length !== opts.status.split(",").length) {
     throw new Error("非法 --status；须为 verified | observed | conflicting | deprecated");
   }
-  const statuses =
-    requestedStatuses ?? (["verified", "observed", "conflicting"] as KnowledgeStatus[]);
+  const statuses = requestedStatuses ?? (["verified"] as KnowledgeStatus[]);
   const entries = readEntries(paths, {
     module: opts.module,
     keyword: opts.keyword,

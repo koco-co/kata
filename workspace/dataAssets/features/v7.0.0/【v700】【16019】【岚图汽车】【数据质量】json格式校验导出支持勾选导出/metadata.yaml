@@ -14,7 +14,7 @@ versions:
 owners: []
 inputs:
   - kind: lanhu
-    ref: "https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&versionId=7e921087-1a63-4fae-b3a8-db7f29d7a673&docId=6e513ee1-fb7f-4e60-897a-21af81c65aba&docType=axure&pageId=9e9d97261f8f4c689afabf0de6f14904"
+    ref: https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&versionId=7e921087-1a63-4fae-b3a8-db7f29d7a673&docId=6e513ee1-fb7f-4e60-897a-21af81c65aba&docType=axure&pageId=9e9d97261f8f4c689afabf0de6f14904
 relates_to: []
 emits:
   cases_xmind: true
@@ -22,22 +22,22 @@ emits:
   playwright_tests: true
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/json格式校验导出支持勾选导出.md
+  xmind_path: cases/json格式校验导出支持勾选导出.xmind
   coverage_matrix_path: null
   requirement_atoms:
     - id: RA-001
-      source_ref: "prd#需求内容"
+      source_ref: prd#需求内容
       title: json格式校验管理列表支持勾选指定行后导出
       ambiguity_class: none
       confidence: high
     - id: RA-002
-      source_ref: "prd#导出文件列结构"
+      source_ref: prd#导出文件列结构
       title: 勾选导出文件含 key/中文名称/value格式/数据源类型/创建人/创建时间/更新人/更新时间/层级关系/父Key 列
       ambiguity_class: low
       confidence: medium
     - id: RA-003
-      source_ref: "prd#交互"
+      source_ref: prd#交互
       title: 勾选列表行后点击导出，仅导出已勾选行
       ambiguity_class: none
       confidence: high
@@ -46,15 +46,14 @@ automation:
   intents:
     - intent_id: SR-INTENT-V700-16019-JSON-EXPORT
       case_files:
-        - automation/tests/cases/t00-json-export-shell.ts
         - automation/tests/cases/t01-json-checkbox-export.ts
         - automation/tests/runners/smoke.spec.ts
         - automation/tests/runners/full.spec.ts
       automation_status: blocked
-  last_handoff_path: runs/20260706-1315-a16019ef/handoff.md
-  last_run_status: failing
+  last_handoff_path: null
+  last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/json格式校验导出支持勾选导出.md
+  xmind: cases/json格式校验导出支持勾选导出.xmind
   tests_root: automation/tests
-  latest_results: runs/20260706-1315-a16019ef
+  latest_results: null

@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t25","priority":"P1","title":"验证仅配置枚举值in校验通过时质量报告详情说明使用枚举值独立说明模板"}
-import { expect, test } from "../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -13,7 +13,7 @@ import {
   ensureQualityReportsReady,
   getQualityReportRuleRow,
   openQualityReportDetail,
-} from "../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
+} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
 
 test.setTimeout(1200000);
 

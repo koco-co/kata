@@ -5,8 +5,8 @@
 // generated_at: 2026-05-24T10:22:39Z
 // status: ready_for_runner_registration
 // SourceRefs: SR-2099-01-DQ-SAMPLING-CONFIG-001, SR-UI-PROBE-20260524-DQ-SAMPLING-CONFIG-002, SR-SELF-RUN-20260524-DQ-SAMPLING-CONFIG-002
-import { test } from "../../../../_shared/fixtures/step-screenshot";
-import { expectDataQualitySamplingConfigShell } from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expectDataQualitySamplingConfigShell } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 
 test.setTimeout(3 * 60 * 1000);
 

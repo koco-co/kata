@@ -5,14 +5,14 @@
 // generated_at: 2026-05-22T03:01:13Z
 // META: {"id":"AI-002","priority":"P2/P3","title":"资产盘点图表模块与筛选项可核验"}
 // SourceRefs: SR-2099-01-AI-002, SR-2099-01-AI-DIRECTORY-DISTRIBUTION-L66, SR-2099-01-AI-VALUE-RANK-L84, SR-2099-01-AI-STORAGE-RESOURCE-L105, SR-UI-PROBE-20260522-ASSETS-001, SR-SELF-RUN-ASSETS-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectAssetsInventoryApiHealth,
   expectAssetsInventoryDropdowns,
   expectAssetsInventoryModules,
   gotoAssetsInventory,
   triggerAssetsInventoryScheduleJobs,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
 import {
   ASSETS_INVENTORY_CHART_SCOPE,
   SR_2099_01_AI_002,

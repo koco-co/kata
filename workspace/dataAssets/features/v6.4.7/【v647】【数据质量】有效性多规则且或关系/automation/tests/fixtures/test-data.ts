@@ -5,12 +5,12 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
  */
 
 import type { Page } from "@playwright/test";
-import { createClient, setupPreconditions } from "../../../../_shared/helpers/preconditions";
+import { createClient, setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
 import {
   applyRuntimeCookies,
   normalizeDataAssetsBaseUrl,
-} from "../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../_shared/runtime/env-profile";
+} from "../../../../../../_shared/helpers/test-setup";
+import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 
 const ENV = getEnvConfig();
 

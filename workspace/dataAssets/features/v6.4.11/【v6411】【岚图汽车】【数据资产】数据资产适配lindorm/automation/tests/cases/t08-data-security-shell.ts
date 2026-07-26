@@ -5,7 +5,7 @@
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-security-page.ts
 // generated_at: 2026-05-22T10:29:45Z
 // SourceRefs: SR-2099-01-SEC-PERMISSION-ASSIGN-L5053-L5358, SR-2099-01-SEC-PERMISSION-RECYCLE-L5375-L5583, SR-2099-01-SEC-MY-PERMISSION-L5599-L5679, SR-2099-01-SEC-PERMISSION-APPLY-L5694-L5777, SR-2099-01-SEC-MASKING-L5794-L6112, SR-2099-01-SEC-USER-RANK-L6126-L6219, SR-2099-01-SEC-APPROVAL-L6236-L6265, SR-2099-01-SEC-RANK-MANAGE-L6279-L6398, SR-2099-01-SEC-AUTO-RANK-L6414-L6561, SR-2099-01-SEC-MANUAL-RANK-L6576-L6709, SR-UI-PROBE-20260522-SEC-001, SR-UI-PROBE-20260523-SECURITY-CONT-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectAutoClassifyRuleShell,
   expectDataClassifyGradeShell,
@@ -13,7 +13,7 @@ import {
   expectDataDesensitizationUseShell,
   expectDataPermissionAssignShell,
   expectRankDataShell,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-security-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-security-page";
 
 test.setTimeout(3 * 60 * 1000);
 

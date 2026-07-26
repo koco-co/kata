@@ -19,8 +19,8 @@ emits:
 feature_id: 2026-02-dq-builtin-reasonability-monotonic
 case_drafting:
   status: completed
-  archive_path: cases/archive.md
-  xmind_path: cases/cases.xmind
+  archive_path: cases/exports/合理性单调递减递增.md
+  xmind_path: cases/合理性单调递减递增.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/archive.md
-  xmind: cases/cases.xmind
+  archive: cases/exports/合理性单调递减递增.md
+  xmind: cases/合理性单调递减递增.xmind
   tests_root: null
   latest_results: null

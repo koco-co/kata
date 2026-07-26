@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t29","priority":"P1","title":"【P1】验证规则库中新增key范围校验内置规则展示信息正确"}
 // TODO: 此用例需要规则库页面导航 + 内置规则展示验证的专用测试数据。
-import { test } from "../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../../_shared/fixtures/step-screenshot";
 
 test.setTimeout(600000);
 

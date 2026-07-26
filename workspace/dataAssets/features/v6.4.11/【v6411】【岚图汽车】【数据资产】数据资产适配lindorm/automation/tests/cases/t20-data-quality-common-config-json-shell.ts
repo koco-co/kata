@@ -5,7 +5,7 @@
 // generated_at: 2026-05-23T10:26:00Z
 // META: {"id":"DQ-020","priority":"P0","title":"通用配置 json格式校验管理列表与导入导出新增弹窗壳可核验"}
 // SourceRefs: SR-2099-01-DQ-COMMON-CONFIG-JSON-001, SR-UI-PROBE-20260523-DQ-COMMON-CONFIG-JSON-001, SR-SELF-RUN-20260523-DQ-COMMON-CONFIG-JSON-001
-import { test } from "../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/fixtures/step-screenshot";
 import {
   expectDataQualityCommonConfigJsonAddFullContract,
   expectDataQualityCommonConfigJsonAddRegexShell,
@@ -18,7 +18,7 @@ import {
   expectDataQualityCommonConfigJsonImportSkipContract,
   expectDataQualityCommonConfigJsonShell,
   expectDataQualityReportDimensionVehicleConfigContract,
-} from "../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
 import { ensureDtstackPreconditionFile } from "../helpers/dtstack-preconditions";
 
 test.setTimeout(15 * 60 * 1000);
