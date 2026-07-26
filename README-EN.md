@@ -29,7 +29,7 @@ Connectivity failures ─────────── infra-diagnose ───
 The repository follows four boundaries:
 
 - `.claude/**` contains Claude Code skills and plugins.
-- `.agents/**` contains native Codex skills; both runtimes are maintained independently and share no prompt bodies.
+- `.agents/skills/` is a symlink to `.claude/skills/`, so both runtimes use the same skill source.
 - The shared CLI lives under `cli/**` and serves both runtimes.
 - Project artifacts live under `workspace/{project}/`. Source repositories are configured in `config/source-repos.yaml`, cloned into `.repos/` (gitignored), and queried via `kata repos`.
 
@@ -71,16 +71,16 @@ See [INSTALL.md](./INSTALL.md) for the full setup.
 | `/domain-knowledge` | Knowledge | Query or maintain project rules, terms, and constraints. |
 | `/workspace` | Workspace | Create, check, or repair project workspace skeletons. |
 
-Routing follows the requested action, not only the input extension: editing a case and turning a case into UI automation are different entry points; see the routing rules in CLAUDE.md.
+Routing follows the requested action, not only the input extension: editing an existing case and turning a case into UI automation are different entry points.
 
 ## Claude Code and Codex
 
 | Runtime | Skill directory | Approach |
 | --- | --- | --- |
-| Claude Code | `.claude/skills/` | Native Claude skills, maintained independently. |
-| OpenAI Codex | `.agents/skills/` | Native Codex skills, maintained independently. |
+| Claude Code | `.claude/skills/` | Canonical skill source. |
+| OpenAI Codex | `.agents/skills/` | Symlink to the Claude skill directory. |
 
-Both sides express the same business conventions in their native formats without sharing prompt bodies; shared capabilities live in `cli/`. Skills do not pin a model, agent count, or mechanical stage list. They define triggers, inputs, outputs, safety boundaries, and completion states.
+Both runtimes use the same skill source; shared capabilities live in `cli/`.
 
 ## Configuration and security
 
@@ -114,7 +114,7 @@ kata/
 │   ├── skills/
 │   ├── plugins/
 │   └── packages/
-├── .agents/                       # Codex skills
+├── .agents/                       # Codex skill symlink
 │   └── skills/
 ├── cli/                           # kata CLI (shared by both runtimes)
 ├── config/                        # source-repos.yaml etc.; secrets (env/, infra/) untracked
