@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../lib/playwright/index";
 // metadata-sync.ts — split from test-setup.ts
 
 import type { Locator, Page } from "@playwright/test";
@@ -44,10 +45,10 @@ export async function syncMetadata(
       if (combobox) {
         await combobox.locator(".ant-select-selector").click({ timeout: 30_000 });
       }
-      await page.waitForTimeout(500 * attempt);
+      await waitForUiSettled(page);
       await page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A").catch(() => {});
       await page.keyboard.type(option).catch(() => {});
-      await page.waitForTimeout(1000 * attempt);
+      await waitForUiSettled(page);
       const dropdown = page.locator(".ant-select-dropdown:visible").last();
       lastDropdownText = ((await dropdown.innerText({ timeout: 1000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
       const exact = dropdown
@@ -67,7 +68,7 @@ export async function syncMetadata(
         return true;
       }
       await page.keyboard.press("Escape").catch(() => {});
-      await page.waitForTimeout(1000 * attempt);
+      await waitForUiSettled(page);
     }
     throw new Error(`Failed to select metadata ${label} ${option}; dropdown=${lastDropdownText}: ${await readSyncErrorText()}`);
   };
@@ -75,8 +76,8 @@ export async function syncMetadata(
   // 导航到元数据同步
   await applyRuntimeCookies(page);
   await page.goto(buildDataAssetsUrl("/metaDataSync"));
-  await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
 
   if (datasourceName && database && tableName) {
     const existingSyncRow = await findExistingSyncRow(page, datasourceName, database, tableName);
@@ -96,7 +97,7 @@ export async function syncMetadata(
     .or(page.locator("button").filter({ hasText: /新增.*同步/ }))
     .first();
   await addBtn.click();
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
 
   // 等待弹窗出现
   const modal = page.locator(".ant-modal:visible, dialog:visible").first();
@@ -107,9 +108,9 @@ export async function syncMetadata(
     const dsCombobox = modal.locator(".ant-select").first();
     if (await dsCombobox.isVisible({ timeout: 5000 }).catch(() => false)) {
       await dsCombobox.locator(".ant-select-selector").click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       await chooseDropdownOption(datasourceName, "datasource", dsCombobox);
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
     }
   }
 
@@ -117,7 +118,7 @@ export async function syncMetadata(
   const dbCombobox = modal.locator(".ant-table-row .ant-select").first();
   if (await dbCombobox.isVisible({ timeout: 5000 }).catch(() => false)) {
     await dbCombobox.locator(".ant-select-selector").click();
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
     const dbOptions = page.locator(".ant-select-dropdown:visible .ant-select-item-option");
     if (database) {
       await chooseDropdownOption(database, "database", dbCombobox);
@@ -129,7 +130,7 @@ export async function syncMetadata(
       }
       await firstDb.click();
     }
-    await page.waitForTimeout(1000);
+    await waitForUiSettled(page);
   }
 
   // 选择数据表（表格行中的第二个 combobox）
@@ -137,10 +138,10 @@ export async function syncMetadata(
   if (await tableCombobox.isVisible({ timeout: 5000 }).catch(() => false)) {
     const trySelectComboboxValue = async (combobox: ReturnType<typeof modal.locator>, option: string, label: string): Promise<boolean> => {
       await combobox.locator(".ant-select-selector").click({ timeout: 30_000 });
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       await page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A").catch(() => {});
       await page.keyboard.type(option).catch(() => {});
-      await page.waitForTimeout(3000);
+      await waitForUiSettled(page);
       const dropdown = page.locator(".ant-select-dropdown:visible").last();
       const exact = dropdown
         .locator(".ant-select-item-option:not(.ant-select-item-option-disabled)")
@@ -148,7 +149,7 @@ export async function syncMetadata(
         .first();
       if (await exact.isVisible({ timeout: 3000 }).catch(() => false)) {
         await exact.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
         return true;
       }
       const fuzzy = dropdown
@@ -157,7 +158,7 @@ export async function syncMetadata(
         .first();
       if (await fuzzy.isVisible({ timeout: 2000 }).catch(() => false)) {
         await fuzzy.click();
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
         return true;
       }
       await page.keyboard.press("Escape").catch(() => {});
@@ -171,7 +172,7 @@ export async function syncMetadata(
         await page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A").catch(() => {});
         await page.keyboard.press("Backspace").catch(() => {});
       }
-      await page.waitForTimeout(800);
+      await waitForUiSettled(page);
       const dropdown = page.locator(".ant-select-dropdown:visible").last();
       const exact = dropdown
         .locator(".ant-select-item-option:not(.ant-select-item-option-disabled)")
@@ -183,7 +184,7 @@ export async function syncMetadata(
         await page.keyboard.press("ArrowDown").catch(() => {});
         await page.keyboard.press("Enter").catch(() => {});
       }
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
       const text = ((await combobox.innerText({ timeout: 3000 }).catch(() => "")) ?? "").replace(/\s+/g, "");
       return text.includes("全部");
     };
@@ -198,7 +199,7 @@ export async function syncMetadata(
       }
       await filterSelector.click({ timeout: 30_000 });
       await page.keyboard.type(tableName ?? "");
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const dropdownOption = page
         .locator(".ant-select-dropdown:visible .ant-select-item-option:not(.ant-select-item-option-disabled)")
         .filter({ hasText: new RegExp(escapeRegExp(tableName ?? ""), "i") })
@@ -208,7 +209,7 @@ export async function syncMetadata(
       } else {
         await page.keyboard.press("Enter").catch(() => {});
       }
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
     };
     const trySelectTableWithRetry = async (combobox: ReturnType<typeof modal.locator>, option: string): Promise<boolean> => {
       const timeoutMs = Number(process.env.METADATA_TABLE_SEARCH_TIMEOUT_MS ?? 180_000);
@@ -217,7 +218,7 @@ export async function syncMetadata(
       while (Date.now() < deadline) {
         attempts += 1;
         if (await trySelectComboboxValue(combobox, option, "table")) return true;
-        await page.waitForTimeout(Math.min(5_000, Math.max(500, deadline - Date.now())));
+        await waitForUiSettled(page);
       }
       if (attempts === 0) return trySelectComboboxValue(combobox, option, "table");
       return false;
@@ -242,7 +243,7 @@ export async function syncMetadata(
       }
     } else {
       await tableCombobox.locator(".ant-select-selector").click();
-      await page.waitForTimeout(500);
+      await waitForUiSettled(page);
       const tableOptions = page.locator(".ant-select-dropdown:visible .ant-select-item-option");
       // 选第一个可用数据表
       const firstTbl = tableOptions.first();
@@ -251,11 +252,11 @@ export async function syncMetadata(
       }
       await firstTbl.click();
     }
-    await page.waitForTimeout(1000);
+    await waitForUiSettled(page);
   }
 
   const waitForModalClosed = async (timeout = 8000): Promise<boolean> => {
-    await page.waitForLoadState("networkidle", { timeout }).catch(() => {});
+    await waitForUiSettled(page);
     return modal.waitFor({ state: "hidden", timeout }).then(() => true).catch(() => false);
   };
   const clickModalButton = async (name: RegExp, pick: "first" | "last" = "first"): Promise<boolean> => {
@@ -268,7 +269,7 @@ export async function syncMetadata(
       if (!(await button.isEnabled({ timeout: 1000 }).catch(() => false))) continue;
       await button.scrollIntoViewIfNeeded().catch(() => {});
       await button.click({ timeout: 30_000 });
-      await page.waitForTimeout(1000);
+      await waitForUiSettled(page);
       return true;
     }
     return false;
@@ -284,7 +285,7 @@ export async function syncMetadata(
 
   if (await modal.isVisible().catch(() => false)) {
     if (await clickModalButton(/下\s*一\s*步/, "last")) {
-      await page.waitForTimeout(1500);
+      await waitForUiSettled(page);
       if (await clickModalButton(/临时同步|新\s*增|保\s*存|确\s*定/, "last")) {
         await waitForModalClosed();
       }
@@ -302,13 +303,13 @@ export async function syncMetadata(
   }
 
   // 等待同步完成
-  await page.waitForLoadState("networkidle");
+  await waitForUiSettled(page);
   if (datasourceName && database) {
     await waitForSyncListCompletion(page, datasourceName, database, selectedSyncTableName);
   } else {
-    await page.waitForTimeout(5000);
+    await waitForUiSettled(page);
   }
-  await page.waitForTimeout(2000);
+  await waitForUiSettled(page);
 }
 
 async function waitForSyncListCompletion(
@@ -321,7 +322,7 @@ async function waitForSyncListCompletion(
   let lastRowText = "";
   let lastTargetRow: Locator | undefined;
   while (Date.now() < deadline) {
-    await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+    await waitForUiSettled(page);
     let rows = page
       .locator(".ant-table-tbody tr")
       .filter({ hasText: datasourceName })
@@ -342,7 +343,7 @@ async function waitForSyncListCompletion(
     } else {
       await page.reload({ waitUntil: "domcontentloaded", timeout: 30_000 }).catch(() => {});
     }
-    await page.waitForTimeout(10_000);
+    await waitForUiSettled(page);
   }
   const instanceText = lastTargetRow ? await readSyncInstanceText(page, lastTargetRow) : "";
   throw new Error(
@@ -362,8 +363,8 @@ async function findExistingSyncRow(
   if (await searchInput.isVisible({ timeout: 3000 }).catch(() => false)) {
     await searchInput.fill(datasourceName, { timeout: 10_000 }).catch(() => {});
     await page.keyboard.press("Enter").catch(() => {});
-    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-    await page.waitForTimeout(1000);
+    await waitForUiSettled(page);
+    await waitForUiSettled(page);
   }
   const row = page
     .locator(".ant-table-tbody tr")
@@ -381,8 +382,8 @@ async function readSyncInstanceText(page: Page, row: Locator): Promise<string> {
     .first();
   if (!(await viewInstance.isVisible({ timeout: 1000 }).catch(() => false))) return "";
   await viewInstance.click({ timeout: 10_000 }).catch(() => {});
-  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
-  await page.waitForTimeout(1000);
+  await waitForUiSettled(page);
+  await waitForUiSettled(page);
   const detailRoot = page.locator(".ant-modal:visible, .ant-drawer:visible").last();
   const raw = (await detailRoot.innerText({ timeout: 3000 }).catch(async () => page.locator("body").innerText({ timeout: 3000 }).catch(() => ""))) ?? "";
   const text = raw.replace(/\s+/g, " ").trim();

@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 冒烟测试（P0）
 // 生成时间：2026-04-06T16:29:26.650Z
 // 用例数量：1
@@ -111,7 +112,7 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
     // 步骤1：进入「资产-数据质量」页面
     await applyRuntimeCookies(page);
     await page.goto(buildDataAssetsUrl("/dq/overview"));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     let projectId: number | null = null;
     await expect
       .poll(
@@ -127,7 +128,7 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
       throw new Error("未获取到可访问的数据质量项目");
     }
     await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-    await page.waitForLoadState("networkidle");
+    await waitForUiSettled(page);
     // 预期：页面正常打开
     await expect(page).toHaveURL(/#\/dq\/overview\?pid=/);
     // 步骤2：查看历史项目下的页面菜单

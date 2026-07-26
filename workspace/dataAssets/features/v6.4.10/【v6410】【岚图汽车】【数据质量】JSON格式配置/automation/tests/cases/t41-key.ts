@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t41-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -52,7 +53,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
           dataSourceType: "Doris3.x",
         });
         await searchKey(page, refTestKey);
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
         await waitForTableLoaded(page, page.locator(".ant-table"));
 
         const newRow = page.locator(".ant-table-row").filter({ hasText: refTestKey }).first();
@@ -86,7 +87,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         // 等待 Popconfirm 并确认
         await confirmPopconfirm(page);
 
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
 
         // 验证 refTestKey 从列表消失
         await expect(page.locator(".ant-table-row").filter({ hasText: refTestKey })).toHaveCount(

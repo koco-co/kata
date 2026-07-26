@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import type { Page } from "@playwright/test";
 import { setupPreconditions } from "../../../../_shared/helpers/preconditions";
 import { applyRuntimeCookies } from "../../../../_shared/helpers/test-setup";
@@ -439,7 +440,7 @@ export async function runSuitePreconditions(
   await runRetriablePreconditions({
     reportName: datasource.reportName,
     projectNames: ["pw_test", "pw"],
-    wait: async (ms) => page.waitForTimeout(ms),
+    wait: async (ms) => waitForUiSettled(page),
     log: (message) => process.stderr.write(message),
     runForProject: async (projectName) => {
       await setupPreconditions(page, {

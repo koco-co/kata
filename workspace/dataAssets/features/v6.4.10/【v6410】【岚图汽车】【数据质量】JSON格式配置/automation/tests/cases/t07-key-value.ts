@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t07-key-value
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -19,7 +20,7 @@ async function waitTableLoaded(page: import("@playwright/test").Page) {
     .locator(".ant-spin-spinning")
     .waitFor({ state: "hidden", timeout: 15000 })
     .catch(() => undefined);
-  await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => undefined);
+  await waitForUiSettled(page);
 }
 
 function escapeRegExp(value: string) {
@@ -144,7 +145,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         await valueInput.blur();
 
         // 列表更新时间精度为秒，保证第二次保存和前置创建时间可区分。
-        await page.waitForTimeout(1100);
+        await waitForUiSettled(page);
         const updateResponse = page.waitForResponse(
           (response) =>
             response.url().includes("/jsonValidationConfig/update") &&

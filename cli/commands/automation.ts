@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import { generateAutomationScripts } from "../lib/automation-case-generator.ts";
 import { generateAutomationRunner, inspectAutomationCoverage } from "../lib/automation-contract.ts";
 import { runAutomationLint } from "../lib/automation-lint.ts";
 import { normalizeAutomation } from "../lib/automation-normalize.ts";
@@ -17,10 +18,33 @@ export function registerAutomation(program: Command): void {
       if (
         coverage.missingSpecFile.length ||
         coverage.missingScript.length ||
-        coverage.orphanScripts.length
+        coverage.orphanScripts.length ||
+        coverage.duplicateSpecFile.length
       ) {
         process.exitCode = 1;
       }
+    });
+
+  automation
+    .command("generate-cases <feature-dir>")
+    .description("为缺失的 automation.spec_file 生成逐条 Playwright 脚本(默认 dry-run)")
+    .option("--apply", "写入缺失脚本并更新 generated.spec.ts", false)
+    .action((featureDir: string, opts: { apply: boolean }) => {
+      const result = generateAutomationScripts(featureDir, { apply: opts.apply });
+      console.log(
+        JSON.stringify(
+          {
+            created: result.created.length,
+            skipped: result.skipped.length,
+            orphanScripts: result.orphanScripts,
+            runner: result.runner,
+            applied: opts.apply,
+          },
+          null,
+          2,
+        ),
+      );
+      if (result.orphanScripts.length > 0) process.exitCode = 1;
     });
 
   automation

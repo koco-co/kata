@@ -7,4 +7,3 @@ import "../cases/t40-rule-multi-null-equiv";
 import "../cases/t41-rule-multi-category";
 import "../cases/t42-rule-list-query";
 import "../cases/t43-dirty-data-manage";
-import "../cases/t44-rule-set-import";

@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/validity-multi-rule-logic/archive.md#case=t09-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -85,7 +86,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
             .getByRole("button", { name: /保\s*存/ })
             .first()
             .click();
-          await page.waitForTimeout(500);
+          await waitForUiSettled(page);
 
           await expect(ruleForm).toBeVisible({ timeout: 5000 });
           await expect(functionRow.locator(".ant-select").nth(3)).toContainText("in");

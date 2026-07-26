@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // spec: features/completeness-json-key-range/archive.md#case=t03-json-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -100,7 +101,7 @@ test.describe(SUITE_NAME, () => {
           .first();
         if (await viewDetailBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
           await viewDetailBtn.click();
-          await page.waitForTimeout(1000);
+          await waitForUiSettled(page);
           const dataDrawer = page
             .locator(".ant-drawer:visible, .dtc-drawer:visible")
             .last();

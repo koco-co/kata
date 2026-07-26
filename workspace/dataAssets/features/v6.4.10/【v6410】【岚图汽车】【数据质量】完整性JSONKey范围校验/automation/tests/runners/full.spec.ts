@@ -1,10 +1,9 @@
+import "./generated.spec";
 // 全量测试（Spark-only 收敛版）
 import "../cases/规则集管理/t01-key.ts";
 import "../cases/规则集管理/t02-method-switch.ts";
 import "../cases/规则集管理/t03-json-key.ts";
-import "../cases/规则集管理/t03-key-multi-select.ts";
 import "../cases/规则集管理/t04-search-verify-content.ts";
-import "../cases/规则集管理/t04-string-json-string-key.ts";
 import "../cases/规则集管理/t05-key.ts";
 import "../cases/规则集管理/t15-case-15.ts";
 import "../cases/规则任务管理/t16-key.ts";

@@ -1,0 +1,24 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C1165",
+  "title": "验证【数据质量 通用配置-json格式校验管理 导入】导入功能正常(重复则覆盖更新, 1~5层key存在相同 -> 报错)",
+  "steps": [
+    {
+      "action": "进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成",
+      "expected": "json格式校验管理页面正常打开，列表加载完成"
+    },
+    {
+      "action": "点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传包含同层级重复key的XLSX文件，点击【确定】按钮",
+      "expected": "导入失败，系统报错提示「同一个层级下的key名不可重复」，列表数据不变"
+    }
+  ]
+} as const;
+
+test.describe("验证【数据质量 通用配置-json格式校验管理 导入】导入功能正常(重复则覆盖更新, 1~5层key存在相同 -> 报错)", () => {
+  test("C1165 验证【数据质量 通用配置-json格式校验管理 导入】导入功能正常(重复则覆盖更新, 1~5层key存在相同 -> 报错)", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

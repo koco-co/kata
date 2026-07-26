@@ -1,3 +1,5 @@
+import "./generated.spec";
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 全量测试（P0+P1+P2）
 // 生成时间：2026-04-06T16:29:26.650Z
 // 用例数量：2
@@ -118,7 +120,7 @@ test.describe("【数据质量】菜单名称修改 - 项目信息", () => {
     await step("步骤1: 进入资产-数据质量页面 → 页面正常打开", async () => {
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview"));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect
         .poll(
           async () => {
@@ -133,7 +135,7 @@ test.describe("【数据质量】菜单名称修改 - 项目信息", () => {
         throw new Error("未获取到可访问的数据质量项目");
       }
       await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(page).toHaveURL(/#\/dq\/overview\?pid=/);
     });
 
@@ -260,7 +262,7 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
     await step("步骤1: 进入资产-数据质量页面 → 页面正常打开", async () => {
       await applyRuntimeCookies(page);
       await page.goto(buildDataAssetsUrl("/dq/overview"));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect
         .poll(
           async () => {
@@ -275,7 +277,7 @@ test.describe("【数据质量】菜单名称修改 - 总览页", () => {
         throw new Error("未获取到可访问的数据质量项目");
       }
       await page.goto(buildDataAssetsUrl("/dq/overview", projectId));
-      await page.waitForLoadState("networkidle");
+      await waitForUiSettled(page);
       await expect(page).toHaveURL(/#\/dq\/overview\?pid=/);
     });
 

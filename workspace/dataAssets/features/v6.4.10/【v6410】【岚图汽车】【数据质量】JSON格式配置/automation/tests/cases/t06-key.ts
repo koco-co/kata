@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t06-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -34,7 +35,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         await clickHeaderButton(page, "新增");
         const modal = await waitModal(page, "新建");
         // 等待表单完全渲染（包括 setFieldsValue 设置默认数据源类型）
-        await page.waitForTimeout(500);
+        await waitForUiSettled(page);
 
         await fillKeyInput(modal, switchTestKey);
         await fillNameInput(modal, "切换测试");

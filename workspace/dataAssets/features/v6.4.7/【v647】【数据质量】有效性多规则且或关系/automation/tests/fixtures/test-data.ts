@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 /**
  * 共享测试数据 & 前置条件
  * 「有效性-取值范围枚举范围规则」全部 27 条用例的公共依赖
@@ -395,7 +396,7 @@ export async function runPreconditions(
     process.stderr.write(
       `[preconditions] ${datasource.reportName} hit transient error, retrying setup (${attempt}/3)...\n`,
     );
-    await page.waitForTimeout(3000 * attempt);
+    await waitForUiSettled(page);
   }
 }
 
@@ -479,7 +480,7 @@ export async function resolveEffectiveQualityProjectId(page: Page): Promise<numb
     }
 
     if (attempt < 3) {
-      await page.waitForTimeout(1000 * attempt).catch(() => undefined);
+      await waitForUiSettled(page);
     }
   }
 

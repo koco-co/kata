@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -69,9 +70,9 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         await modal.waitFor({ state: "visible", timeout: 10000 });
         const fileInput = modal.locator('input[type="file"]');
         await fileInput.setInputFiles(xlsxPath);
-        await page.waitForTimeout(1000);
+        await waitForUiSettled(page);
         await modal.getByRole("button", { name: /^确\s*定$/ }).click();
-        await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => undefined);
+        await waitForUiSettled(page);
       });
 
       // 步骤5：断言弹窗或 Message 提示含必填相关错误信息
@@ -102,7 +103,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
             .isVisible({ timeout: 1000 })
             .catch(() => false);
           if (!hasExportBtn && !errorPattern.test(combinedText)) {
-            await page.waitForTimeout(500);
+            await waitForUiSettled(page);
           }
         },
         errorModal,

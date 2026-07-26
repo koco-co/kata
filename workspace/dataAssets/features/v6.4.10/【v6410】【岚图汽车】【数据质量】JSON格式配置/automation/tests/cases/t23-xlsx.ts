@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: features/json-config-helper/archive.md#case=t23-xlsx
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -51,7 +52,7 @@ test.describe("【通用配置】json格式配置 - 通用配置-json格式校�
         "步骤3: 在导入弹窗中上传 .csv 格式文件 → 文件选择后，系统拒绝或提示格式错误",
         async () => {
           await fileInput.setInputFiles(csvPath);
-          await page.waitForTimeout(800);
+          await waitForUiSettled(page);
         },
         modal,
       );

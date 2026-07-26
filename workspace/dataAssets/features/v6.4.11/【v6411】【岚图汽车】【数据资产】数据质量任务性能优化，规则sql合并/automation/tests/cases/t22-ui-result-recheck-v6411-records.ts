@@ -1,3 +1,4 @@
+import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // spec: cases/archive.md#v6411-sparkthrift-result-recheck
 // intent: SR-INTENT-V6411-RESULT-RECHECK
 // probe: SR-UI-PROBE-V6411-RESULT-RECHECK
@@ -382,7 +383,7 @@ async function gotoTaskQueryPage(page: Page): Promise<void> {
       localStorage.setItem(key, projectId);
     }
   }, PROJECT_ID);
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
   await ensureQualityProjectSelected(page);
   await expect(page.locator("body"), "校验结果查询页面应打开").toContainText("校验结果查询", { timeout: 30_000 });
 }
@@ -400,7 +401,7 @@ async function ensureQualityProjectSelected(page: Page): Promise<void> {
   const option = page.locator(".ant-select-dropdown:visible .ant-select-item-option").filter({ hasText: PROJECT_NAME }).first();
   await expect(option, `质量项目下拉应包含 ${PROJECT_NAME}`).toBeVisible({ timeout: 30_000 });
   await option.click({ timeout: 30_000 });
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
 }
 
 async function readCurrentResultRow(
@@ -427,7 +428,7 @@ async function readCurrentResultRow(
     .first();
   if (await search.isVisible({ timeout: 2_000 }).catch(() => false)) await search.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
 
   const currentRows = page.locator(".ant-table-tbody tr:visible").filter({ hasText: source.tableName }).filter({ hasText: source.ruleName });
   let row: Locator | null = await selectLatestResultRow(currentRows, sourceRef);
@@ -602,7 +603,7 @@ async function readAllScrollableText(page: Page, panel: Locator): Promise<string
         element.scrollTop = Math.round((element.scrollHeight - element.clientHeight) * progress);
       }
     }, step / 8).catch(() => {});
-    await page.waitForTimeout(180);
+    await waitForUiSettled(page);
     snapshots.push(((await panel.innerText({ timeout: 10_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ").trim());
   }
   return [...new Set(snapshots)].join(" ");
@@ -627,7 +628,7 @@ async function readDirtyDataEvidence(
   if (unpassTabCount > 0) {
     const selectedTab = unpassTab.nth(0);
     await selectedTab.click({ timeout: 30_000 }).catch(() => {});
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
   }
 
   const sections = detailPanel.locator("section.ruleView:visible");
@@ -708,7 +709,7 @@ async function readDirtyDataEvidence(
       if (!(await next.isVisible({ timeout: 1_000 }).catch(() => false))) break;
       if (await next.isDisabled().catch(() => false)) break;
       await next.click({ timeout: 30_000 });
-      await page.waitForTimeout(300);
+      await waitForUiSettled(page);
       const nextPage = await readTablePage();
       if (nextPage.headers.length) headers = nextPage.headers;
       rows = rows.concat(nextPage.rows);
@@ -725,7 +726,7 @@ async function readDirtyDataEvidence(
     const closeCount = await closeButton.count().catch(() => 0);
     if (closeCount > 0) await closeButton.nth(0).click({ timeout: 30_000 }).catch(() => {});
     else await page.keyboard.press("Escape").catch(() => {});
-    await page.waitForTimeout(300);
+    await waitForUiSettled(page);
   }
   return evidence;
 }
@@ -740,7 +741,7 @@ async function expandResultDetailPanel(page: Page, panel: Locator, sourceRef: st
   for (const dx of [5, 12, 20]) {
     for (const dy of [0, -20, 20]) {
       await page.mouse.click(box.x + dx, box.y + box.height / 2 + dy).catch(() => {});
-      await page.waitForTimeout(150);
+      await waitForUiSettled(page);
       if (((await panel.boundingBox())?.width ?? 0) > box.width + 100) return;
     }
   }
@@ -754,7 +755,7 @@ async function expandResultDetailPanel(page: Page, panel: Locator, sourceRef: st
     const insidePanelHeight = candidateBox.y >= box.y + 80 && candidateBox.y <= box.y + box.height - 40;
     if (!nearPanelEdge || !insidePanelHeight) continue;
     await candidate.click({ force: true, timeout: 10_000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await waitForUiSettled(page);
     if ((await panel.boundingBox())?.width && ((await panel.boundingBox())?.width ?? 0) > box.width + 100) return;
   }
   await test.info().attach(`${sourceRef}-result-detail-panel-not-expanded.txt`, {
@@ -789,7 +790,7 @@ async function clearResultPlanTime(page: Page, sourceRef: string): Promise<boole
   const clear = page.getByRole("img", { name: "close-circle" }).last();
   if (await clear.isVisible({ timeout: 2_000 }).catch(() => false)) {
     await clear.click({ force: true, timeout: 30_000 });
-    await page.waitForTimeout(200);
+    await waitForUiSettled(page);
     const start = page.getByRole("textbox", { name: "开始日期" }).last();
     const end = page.getByRole("textbox", { name: "结束日期" }).last();
     return (await start.inputValue({ timeout: 3_000 }).catch(() => "")).trim() === "" &&
@@ -956,7 +957,7 @@ async function readRuleSqlEvidence(page: Page, source: SourceRecord, sourceRef: 
     };
   }
   await waitForSpin(page, sourceRef);
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
   const tableLink = taskRow.locator("a").filter({ hasText: source.tableName }).first().or(taskRow.locator("a").first()).first();
   try {
     if (await tableLink.count() > 0) {
@@ -977,7 +978,7 @@ async function readRuleSqlEvidence(page: Page, source: SourceRecord, sourceRef: 
   const drawer = await visiblePanel(page);
   const monitorRules = drawer.getByText("监控规则", { exact: true });
   if (await monitorRules.count() > 0) await monitorRules.first().click({ timeout: 10_000 }).catch(() => {});
-  await page.waitForTimeout(300);
+  await waitForUiSettled(page);
   const drawerText = ((await drawer.innerText({ timeout: 10_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ").trim();
   const sqlLabel = drawer.getByText("规则SQL", { exact: true });
   const sqlLabelCount = await sqlLabel.count();
@@ -1013,7 +1014,7 @@ async function readRuleSqlEvidence(page: Page, source: SourceRecord, sourceRef: 
   await view.click({ timeout: 30_000, force: true });
   const modal = page.locator(".ant-modal:visible, .ant-modal-root:visible").last();
   await modal.isVisible({ timeout: 10_000 }).catch(() => false);
-  await page.waitForTimeout(800);
+  await waitForUiSettled(page);
   const sqlPanel = (await modal.isVisible({ timeout: 1_000 }).catch(() => false)) ? modal : await visiblePanel(page);
   const codeLines = sqlPanel.locator(".monaco-editor .view-lines .view-line:visible, .cm-line:visible, .CodeMirror-line:visible");
   const codeLineCount = await codeLines.count();
@@ -1054,7 +1055,7 @@ async function gotoQualityModulePage(page: Page, module: "ruleSet" | "rule", sou
   }
   await expect(link, `${sourceRef}: 侧栏应展示 ${moduleLabel} 入口`).toBeVisible({ timeout: 30_000 });
   await link.click({ timeout: 30_000 });
-  await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+  await waitForUiSettled(page);
   await expect(page.locator("body"), `${sourceRef}: 数据质量模块应打开`).toContainText(moduleLabel, {
     timeout: 30_000,
   });
@@ -1088,7 +1089,7 @@ async function submitSearch(page: Page, input: Locator, value: string, sourceRef
     .first();
   if (await search.isVisible({ timeout: 2_000 }).catch(() => false)) await search.click({ timeout: 30_000 });
   await waitForSpin(page, sourceRef);
-  await page.waitForTimeout(500);
+  await waitForUiSettled(page);
 }
 
 async function findMatchingRowAcrossPages(
@@ -1172,7 +1173,7 @@ async function collectStatusTooltipTexts(page: Page, row: Locator): Promise<stri
       if (!(await item.isVisible({ timeout: 500 }).catch(() => false))) continue;
       await item.scrollIntoViewIfNeeded({ timeout: 2_000 }).catch(() => {});
       await item.hover({ timeout: 5_000, force: true }).catch(() => {});
-      await page.waitForTimeout(800);
+      await waitForUiSettled(page);
       const tooltipTexts = await page
         .locator(".ant-tooltip:visible, [role='tooltip']:visible")
         .evaluateAll((items) => items.map((item) => (item.textContent ?? "").replace(/\s+/g, " ").trim()).filter(Boolean))
