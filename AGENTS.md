@@ -2,7 +2,7 @@
 
 ## 适用范围
 
-本文件只保留全仓通用规则。具体工作流由 `.agents/skills/**` 说明；环境配置和项目产物分别遵循 `config/AGENTS.md` 与 `workspace/AGENTS.md`。
+本文件只保留全仓通用规则。具体工作流由 `.agents/skills/**` 说明；其中 `.agents/skills` 是指向 `.claude/skills` 的整目录 symlink，单一源在后者，编辑 Skill 只修改 `.claude/skills`；环境配置和项目产物分别遵循 `config/AGENTS.md` 与 `workspace/AGENTS.md`。
 
 ## 修改原则
 
