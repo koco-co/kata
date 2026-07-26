@@ -1,7 +1,7 @@
 # 阶段 3：交付
 
 1. **全量运行**：`kata runs new <feature-id>` 建交付 run，跑 `automation/tests/runners/full.spec.ts` 全量。
-2. **结构检查**：`kata cases lint --project <项目> --feature <id> --exit-code`；`kata automation normalize <featureDir>`（dry-run 应无违规）。
+2. **结构检查**：`kata cases lint --project <项目> --feature <id> --exit-code`；`kata automation normalize <featureDir>`（dry-run 应无违规）；`kata automation lint <featureDir> --exit-code`；共享页面、helper 和 fixture 另跑 `kata automation lint --shared --exit-code`，不得有 baseline 之外的新违规。
 3. **写 `runs/<run-id>/handoff.md`**，结构照 [../templates/handoff.md](../templates/handoff.md)：
    - 每条用例：状态（通过 / 排除）、证据（Allure、截图、平台业务记录的名称或 ID）；
    - 排除的用例写清原因类别与阻塞点；

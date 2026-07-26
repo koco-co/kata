@@ -2,7 +2,7 @@
 // 一致性校验：security area（v6.4.4 数据质量权限点）与 inventory 自洽；真实 UI 自动化留作带环境的单独任务。
 import { test } from "@playwright/test";
 
-import { assertAreaConsistency } from "./inventory-consistency";
+import { assertAreaConsistency } from "../helpers/inventory-consistency";
 
 const EXPECT = {
   area: "security",

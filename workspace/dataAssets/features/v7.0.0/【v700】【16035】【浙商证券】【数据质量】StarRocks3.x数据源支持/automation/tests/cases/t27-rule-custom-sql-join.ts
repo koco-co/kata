@@ -11,7 +11,7 @@ import {
   pollLatestInstance,
   runRuleNowByApi,
 } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
-import { runSr3xSql } from "./_db";
+import { runSr3xSql } from "../helpers/_db";
 
 const TABLE = "zszq_order_join";
 // 孤儿明细查询：订单表中 account_no 不在维表的记录

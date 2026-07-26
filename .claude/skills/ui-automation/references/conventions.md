@@ -2,7 +2,7 @@
 
 ## 目录与命名
 
-- `automation/tests/cases/<用例slug>.spec.ts`：每条用例一个文件，只含本条逻辑。
+- `automation/tests/cases/t<序号>-<slug>.ts`：每条用例一个文件，只含本条逻辑；文件名由 `kata automation lint` 校验。
 - `automation/tests/runners/{smoke,full}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 选主流程几条，full 收全部。
 - `automation/tests/pages/`：页面对象，跨用例复用的页面操作封装。
 - `automation/tests/fixtures/`、`automation/tests/sql/`：前置数据与运行时 SQL。
@@ -22,6 +22,7 @@
 
 - 用 web-first 断言自动等待；`waitForLoadState("networkidle")` 只许出现在探测脚本，不进交付 spec。
 - 禁止裸 `waitForTimeout` 当同步手段；确需轮询用 `expect.poll` 或 `toPass`。
+- 等待、环境硬编码、选择器质量与用例文件命名由 `kata automation lint <featureDir> --exit-code`（以及 `--shared`）机械校验；本规范只保留业务语义与判断依据。
 
 ## 环境与会话
 

@@ -12,7 +12,6 @@ type ProjectListResponse = {
 };
 
 // ─── Shared Constants ────────────────────────────────────────────────
-const defaultBaseUrl = "http://shuzhan63-test-ltqc.k8s.dtstack.cn";
 const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
 
 // ─── Shared Helpers ──────────────────────────────────────────────────
@@ -23,7 +22,9 @@ function getEnv(name: string): string | undefined {
 }
 
 function getRawBaseUrl(): string {
-  return getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL") ?? defaultBaseUrl;
+  const baseUrl = getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL");
+  if (!baseUrl) throw new Error("UI_AUTOTEST_BASE_URL or E2E_BASE_URL must be configured");
+  return baseUrl;
 }
 
 function normalizeDataAssetsBaseUrl(): string {
