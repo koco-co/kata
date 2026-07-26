@@ -19,16 +19,13 @@ Kata 是面向 QA 用例、自动化与工程知识的 CLI 工作区；公开命
 
 ## Git 与 worktree
 
-- 代码、配置、runtime 和契约文档在任务分支 worktree 中完成：`git worktree add -b codex/<slug> .worktrees/<slug> main`；创建前保留主工作树现有改动。
-- 只共享必需的 ignored runtime（`node_modules` 可作只读 symlink）；`config/env/` 与 `.repos/` 由 CLI 经 Git common-dir 定位到主工作树，worktree 内不复制。
-- 合并或清理前盘点 ignored runtime、认证会话、符号链接和本地环境文件；不得用干净的 Git 状态替代运行态核对。
-- 任务验证并提交后默认用 `git merge --no-ff <branch>` 合入 main，再移除 worktree 和任务分支；不得自动 push。
-- Commit 使用 Emoji Conventional Commit，英文标题不超过 72 字符，只包含当前任务文件。
-- `reset --hard`、`branch -D`、强制 push、跨仓库 PR、shared infra 改动和生产部署需用户确认。
+- 代码、配置与文档改动在当前项目的任务 worktree 中完成；验证并提交后合并回主分支，再移除 worktree。
+- Commit 信息参考历史 commit 规范。
 
 ## 安全与本地配置
 
 - 不主动展开、回显、提交或写入日志中的 secrets；Cookie、密码、session 路径和私密 YAML 不得进入提示词、日志、测试夹具或 Git 跟踪文件。
+- 真实客户项目产物放独立私有仓库或制品存储，框架仓库只保留脱敏的最小 fixture。
 - 根 `.env` 是唯一 dotenv，权限为 0600；`config/env/` 权限为 0700，环境文件权限为 0600；使用 `kata env` 管理平台配置和 Cookie。
 - 源码仓库由 `config/repos/sources.yaml` 声明，克隆于 `.repos/`（gitignored），用 `kata repos` 查询；`writable: false` 的仓库不得 push、commit 或 add。
 - 本地私有设置不写入项目级 agent 文档，放用户级配置或 gitignored 文件；详细日志使用 `KATA_LOG_LEVEL=debug kata <command>`。
