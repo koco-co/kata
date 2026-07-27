@@ -1,20 +1,19 @@
 import { expect, type Page } from "@playwright/test";
 
-import { buildDataAssetsUrl } from "../../helpers/test-setup";
-
-const PROJECT_ID = 92;
+import { buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
 async function gotoModelPage(page: Page): Promise<void> {
-  await page.addInitScript((projectId) => {
-    sessionStorage.setItem("X-Valid-Project-ID", String(projectId));
-  }, PROJECT_ID);
-  await page.goto(buildDataAssetsUrl("/builtSpecificationTable", PROJECT_ID), {
+  const projectId = getEnvConfig().projects.quality.id;
+  await page.addInitScript((pid) => {
+    sessionStorage.setItem("X-Valid-Project-ID", String(pid));
+  }, projectId);
+  await page.goto(buildDataAssetsUrl("/builtSpecificationTable", projectId), {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });
-  await page.evaluate((projectId) => {
-    sessionStorage.setItem("X-Valid-Project-ID", String(projectId));
-  }, PROJECT_ID);
+  await page.evaluate((pid) => {
+    sessionStorage.setItem("X-Valid-Project-ID", String(pid));
+  }, projectId);
 }
 
 export async function expectModelBuildTableShell(page: Page, sourceRef: string): Promise<void> {

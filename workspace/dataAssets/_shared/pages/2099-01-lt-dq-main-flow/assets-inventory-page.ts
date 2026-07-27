@@ -1,11 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 
-import { buildDataAssetsApiUrl, buildDataAssetsUrl } from "../../helpers/test-setup";
+import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
 const ASSETS_INVENTORY_PATH = "/assetsStatistics";
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const CARD_TITLE = "已接入数据源";
-const ERROR_TEXTS = ["登录", "亲，是不是走错地方了？", "请选择项目", "SQL 执行异常"] as const;
+// 登录页特征文案（裸「登录」会误伤「按登录人次」等正常指标文案）
+const LOGIN_PAGE_TEXT_RE = /欢迎登录|UIC账号登录|账号登录/;
+const ERROR_TEXTS = ["亲，是不是走错地方了？", "请选择项目", "SQL 执行异常"] as const;
 const METRIC_LABELS = ["昨日新增表数", "源数", "库数", "表数", "存储量"] as const;
 const INVENTORY_MODULE_LABELS = [
   "已接入数据源",
@@ -28,6 +30,8 @@ export const ASSETS_INVENTORY_SCHEDULE_JOBS = {
   saveOneDayDataDistribution: "/dassets/v1/scheduleJob/saveOneDayDataDistribution",
   affectCountStatistic: "/dassets/v1/scheduleJob/affectCountStatistic",
   saveTop10TableData: "/dassets/v1/scheduleJob/saveTop10TableData",
+  saveTodayPreviewData: "/dassets/v1/scheduleJob/saveTodayPreviewData",
+  saveTodaySearchStatistic: "/dassets/v1/scheduleJob/saveTodaySearchStatistic",
 } as const;
 
 export type AssetsInventoryScheduleJob = keyof typeof ASSETS_INVENTORY_SCHEDULE_JOBS;
@@ -49,9 +53,9 @@ function buildAssetsInventoryUrl(baseUrl: string | undefined, pid: number | stri
 export async function gotoAssetsInventory(
   page: Page,
   baseUrl?: string,
-  pid: number | string = 92,
+  pid?: number | string,
 ): Promise<void> {
-  const pidText = String(pid);
+  const pidText = String(pid ?? getEnvConfig().projects.quality.id);
   await page.addInitScript(
     ([storageKey, projectId]) => {
       sessionStorage.setItem(storageKey, projectId);
@@ -108,6 +112,9 @@ export async function triggerAssetsInventoryScheduleJobs(
 
 export async function expectAssetsInventoryShell(page: Page, sourceRef: string): Promise<void> {
   const body = page.locator("body");
+  await expect(body, `${sourceRef}: 不应跳转登录页`).not.toContainText(LOGIN_PAGE_TEXT_RE, {
+    timeout: 10000,
+  });
   for (const errorText of ERROR_TEXTS) {
     await expect(body, `${sourceRef}: 不应出现异常文案「${errorText}」`).not.toContainText(errorText, {
       timeout: 10000,

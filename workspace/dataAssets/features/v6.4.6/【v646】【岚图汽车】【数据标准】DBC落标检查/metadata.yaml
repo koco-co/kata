@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-01-standard-dbc-compliance-check
+feature_id: "v6.4.6/【v646】【岚图汽车】【数据标准】DBC落标检查"
 case_drafting:
   status: completed
   archive_path: cases/exports/DBC落标检查.md

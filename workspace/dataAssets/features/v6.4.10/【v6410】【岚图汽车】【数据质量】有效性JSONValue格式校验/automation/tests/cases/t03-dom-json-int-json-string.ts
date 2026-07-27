@@ -24,7 +24,7 @@ test.describe(`${SUITE_NAME} - ${PAGE_NAME}`, () => {
       await createRuleSetDraft(page, VALUE_FORMAT_TABLE, [packageName]);
     });
 
-    let ruleForm: Awaited<ReturnType<typeof addRuleToPackage>>;
+    let ruleForm!: Awaited<ReturnType<typeof addRuleToPackage>>;
     await step("步骤2: 在规则包中添加有效性校验规则 → 规则表单渲染", async () => {
       ruleForm = await addRuleToPackage(page, packageName, "有效性校验");
       await expect(ruleForm).toBeVisible();

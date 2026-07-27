@@ -5,7 +5,6 @@
 // generated_at: 2026-07-06T04:10:21Z
 import fs from "node:fs";
 import path from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import ExcelJS from "exceljs";

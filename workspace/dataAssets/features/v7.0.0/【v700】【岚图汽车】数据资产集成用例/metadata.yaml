@@ -19,7 +19,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-07-data-assets-integration-test
+feature_id: "v7.0.0/【v700】【岚图汽车】数据资产集成用例"
 case_drafting:
   status: completed
   archive_path: cases/exports/数据资产集成用例.md

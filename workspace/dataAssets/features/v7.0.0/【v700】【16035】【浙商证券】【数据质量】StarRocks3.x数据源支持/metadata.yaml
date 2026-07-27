@@ -17,7 +17,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-06-dq-starrocks3x
+feature_id: "v7.0.0/【v700】【16035】【浙商证券】【数据质量】StarRocks3.x数据源支持"
 requirement_context:
   customer_platform_version: "6.0"
   dev_branch: 6.0_浙商证券定制化分支

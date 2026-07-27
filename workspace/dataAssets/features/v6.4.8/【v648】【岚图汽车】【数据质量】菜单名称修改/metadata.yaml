@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-02-dq-menu-rename
+feature_id: "v6.4.8/【v648】【岚图汽车】【数据质量】菜单名称修改"
 case_drafting:
   status: completed
   archive_path: cases/exports/菜单名称修改.md

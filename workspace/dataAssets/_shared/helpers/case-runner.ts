@@ -21,6 +21,44 @@ const QUOTED_RE = /[「【]([^」】]+)[」】]|[“"]([^”"]+)[”"]|\[([^\]]+
 const ROUTE_RE = /(?:https?:\/\/[^\s，。；)）]+|\/(?:[A-Za-z0-9_?=&./-]+))/;
 const GENERIC_TOKENS = /^(?:按钮|页面|弹窗|功能|操作|成功|正常|正确|失败|结果|列表|内容|数据|信息)$/;
 
+// 用例标题里「输入1/2位小数」之类的片段也会被 ROUTE_RE 命中，只有已知应用路由
+// 首段的路径才允许当作路由跳转，其余一律按页面操作解析。
+const ROUTE_FIRST_SEGMENTS = new Set([
+  "assetsStatistics",
+  "batch",
+  "builtSpecificationTable",
+  "codeTable",
+  "codeTableManage",
+  "dataAuth",
+  "dataClassify",
+  "dataDesensitization",
+  "dataStandard",
+  "dq",
+  "metaDataCenter",
+  "metaDataDetails",
+  "metaDataSearch",
+  "metaDataSync",
+  "notificationCenter",
+  "projects",
+  "standardCatalog",
+  "standardCheck",
+  "standardCheckResult",
+  "standardCode",
+  "standardDefinition",
+  "standardMapping",
+  "standardStatistic",
+  "useDesensitization",
+  "wordRoot",
+]);
+
+export function extractRouteTarget(action: string): string | undefined {
+  const route = action.match(ROUTE_RE)?.[0];
+  if (!route) return undefined;
+  if (/^https?:\/\//i.test(route)) return route;
+  const firstSegment = route.split("/")[1] ?? "";
+  return ROUTE_FIRST_SEGMENTS.has(firstSegment) ? route : undefined;
+}
+
 function replaceRuntimeValue(value: string): string {
   return value.replace(
     /\$\{([A-Z][A-Z0-9_]*)\}/g,
@@ -88,7 +126,7 @@ async function fillField(page: Page, field: string, value: string): Promise<bool
 }
 
 async function performAction(page: Page, action: string): Promise<void> {
-  const route = action.match(ROUTE_RE)?.[0];
+  const route = extractRouteTarget(action);
   if (route) {
     const target = replaceRuntimeValue(route);
     await page.goto(

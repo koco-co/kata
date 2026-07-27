@@ -1,14 +1,15 @@
 schema: FeatureMetadata@2
-id: 【v647】【岚图汽车】【数据质量】主流程用例整理
-display_name: 【209901】【岚图】【数据质量】主流程用例整理
+id: 【v6411】【岚图汽车】【数据资产】数据资产适配lindorm
+display_name: 【v6411】【岚图汽车】【数据资产】数据资产适配lindorm
 status: active
 created_at: 2026-05-14
 updated_at: 2026-05-21
 modules:
-  - dq
+  - assets
 customers:
   - ltqc
-versions: []
+versions:
+  - v6.4.11
 owners: []
 inputs: []
 relates_to: []
@@ -16,7 +17,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2099-01-lt-dq-main-flow
+feature_id: "v6.4.11/【v6411】【岚图汽车】【数据资产】数据资产适配lindorm"
 case_drafting:
   status: completed
   archive_path: cases/exports/数据资产适配lindorm.md

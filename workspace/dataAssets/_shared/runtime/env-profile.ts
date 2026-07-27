@@ -66,8 +66,6 @@ export interface DataAssetsEnvProfile {
   readonly projects: {
     readonly quality: { readonly id: number; readonly name: string };
     readonly offline: { readonly id: number; readonly name: string };
-    readonly owner: { readonly id: number };
-    readonly engines: readonly string[];
   };
   readonly datasources: Record<string, DataAssetsDatasourceProfile>;
   readonly runtime: DataAssetsRuntimeOptions;
@@ -196,11 +194,7 @@ export function loadDataAssetsEnvProfile(
       userId: resolvedEnv.tenant.userId,
       username: resolvedEnv.tenant.username,
     },
-    projects: {
-      ...resolvedEnv.projects,
-      owner: { id: 1 },
-      engines: [],
-    },
+    projects: { ...resolvedEnv.projects },
     datasources,
     runtime: {
       defaultDatasource: resolvedEnv.defaults.datasource,

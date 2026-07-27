@@ -4,6 +4,7 @@ import { waitForUiSettled } from "../../helpers/index";
 import { type Page, expect } from "@playwright/test";
 
 import { locateFormItem, selectAntOption } from "../../helpers/index";
+import { STARROCKS3X_DATASOURCE_LABEL } from "./fixtures";
 import {
   gotoZszqDataAssetsPage,
   postDataAssetsApi,
@@ -89,7 +90,7 @@ export async function createSingleTableRule(page: Page, spec: SingleTableRuleSpe
       if (attempt > 1) await waitForUiSettled(page);
       // ① 监控对象（数据源选择复用已验证的 selectStarRocksDatasource）
       await locateFormItem(page, "规则名称").locator("input").first().fill(spec.ruleName);
-      await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）");
+      await selectStarRocksDatasource(page, STARROCKS3X_DATASOURCE_LABEL);
       const tableForm = page
         .locator(".ant-form-item:visible")
         .filter({ has: page.locator("label", { hasText: "选择数据表" }) })
@@ -549,7 +550,7 @@ export async function createMultiTableCompareRule(
   await locateFormItem(page, "规则名称").locator("input").first().fill(spec.ruleName);
   // 多表向导里数据源选完后表选择器标签是「选择左/右侧表」非「数据表」，selectStarRocksDatasource
   // 的后置断言对多表过严会误抛；数据源本身已选上，故吞掉断言异常继续。
-  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）").catch(() => {});
+  await selectStarRocksDatasource(page, STARROCKS3X_DATASOURCE_LABEL).catch(() => {});
   const leftTableForm = page
     .locator(".ant-form-item:visible")
     .filter({ has: page.locator("label", { hasText: /选择.*表|数据表/ }) })
@@ -560,7 +561,7 @@ export async function createMultiTableCompareRule(
 
   // ② 选择右侧表
   await expect(body, "应进入右侧表步骤").toContainText(/选择右侧表/, { timeout: 20000 });
-  await selectStarRocksDatasource(page, "pw_sr3（STAR_ROCKS_3X）").catch(() => {});
+  await selectStarRocksDatasource(page, STARROCKS3X_DATASOURCE_LABEL).catch(() => {});
   const rightTableForm = page
     .locator(".ant-form-item:visible")
     .filter({ has: page.locator("label", { hasText: /选择.*表|数据表/ }) })

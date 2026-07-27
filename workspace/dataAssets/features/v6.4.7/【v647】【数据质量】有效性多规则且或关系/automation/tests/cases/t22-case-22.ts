@@ -4,6 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t22","priority":"P1","title":"验证取值范围&枚举范围规则校验「不通过时可查看」明细且校验字段标红展示"}
 import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import type { Locator } from "@playwright/test";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -43,7 +44,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
       step,
     }) => {
       // 步骤1：进入【数据质量 → 校验结果查询】页面
-      let instanceRow;
+      let instanceRow!: Locator;
       await step(
         "步骤1: 进入【数据质量 → 校验结果查询】页面，等待列表加载完成 → 校验结果查询页面打开，列表显示已有任务记录",
         async () => {
@@ -52,7 +53,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
           await expect(instanceRow).toBeVisible({ timeout: 10000 });
         },
       );
-      let detailDrawer;
+      let detailDrawer: Locator;
 
       await step(
         "步骤2: 在列表中找到 task_15695_and 最新实例记录，点击【查看详情】打开实例详情 → 实例详情页面打开，取值范围&枚举范围规则行操作列显示【查看详情】链接",

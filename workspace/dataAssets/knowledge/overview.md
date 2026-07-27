@@ -22,7 +22,7 @@ updated: 2026-04-18
 
 ## 术语入口
 
-详见 [terms.md](terms.md)。
+详见 [terms/](terms/) 目录。每个术语一个 .md 文件。
 
 ## 模块入口
 

@@ -11,7 +11,6 @@ import {
   clearSearch,
   ensureRowVisibleByKey,
   gotoJsonConfigPage,
-  searchKey,
 } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {

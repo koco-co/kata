@@ -1,16 +1,19 @@
 import { expect, type Page } from "@playwright/test";
 
-import { buildDataAssetsUrl } from "../../helpers/test-setup";
+import { buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
-const PROJECT_ID = 92;
+
+function getProjectId(): number {
+  return getEnvConfig().projects.quality.id;
+}
 
 async function installProject(page: Page): Promise<void> {
   await page.addInitScript(
     ([key, projectId]) => {
       sessionStorage.setItem(key, projectId);
     },
-    [PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
@@ -19,13 +22,13 @@ async function injectProject(page: Page): Promise<void> {
     ([key, projectId]) => {
       sessionStorage.setItem(key, projectId);
     },
-    [PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
 export async function gotoStandardPage(page: Page, path: string): Promise<void> {
   await installProject(page);
-  await page.goto(buildDataAssetsUrl(path, PROJECT_ID), {
+  await page.goto(buildDataAssetsUrl(path, getProjectId()), {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });

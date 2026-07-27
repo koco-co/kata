@@ -18,7 +18,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-03-assets-doris-3x-adaptation
+feature_id: "v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3"
 case_drafting:
   status: completed
   archive_path: cases/exports/元数据_数据质量适配Doris3.md

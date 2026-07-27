@@ -131,10 +131,10 @@ for (const datasource of ACTIVE_DATASOURCES) {
           sql: tableSQL(tableName, ds.id === "doris3.x", uniqueKeys),
           tableName,
           datasource: ds.preconditionType as "SparkThrift" | "Doris",
-          project: QUALITY_PROJECT_NAME,
-          env: TARGET_ENV,
+          project: QUALITY_PROJECT_NAME(),
+          env: TARGET_ENV(),
           database: ds.database,
-          projectId: QUALITY_PROJECT_ID,
+          projectId: QUALITY_PROJECT_ID(),
           dataSourceId: String(ds.metadataDataSourceId),
           dataSourceType: ds.metadataDataSourceType,
         });

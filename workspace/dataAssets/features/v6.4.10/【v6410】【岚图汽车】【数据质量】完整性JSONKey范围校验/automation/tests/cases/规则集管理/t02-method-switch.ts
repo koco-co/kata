@@ -16,7 +16,6 @@ import {
 } from "../../fixtures/test-data";
 import {
   assertOnlyTheseDetailRows,
-  configureKeyRangeRule,
   KEY_RANGE_RULE_NAME,
   openScenarioEditor,
   SCENARIOS,

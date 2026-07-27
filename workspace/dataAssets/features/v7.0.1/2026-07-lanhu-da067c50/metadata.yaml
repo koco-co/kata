@@ -1,6 +1,6 @@
 schema: FeatureMetadata@2
 id: 2026-07-lanhu-da067c50
-feature_id: 2026-07-lanhu-da067c50
+feature_id: "v7.0.1/2026-07-lanhu-da067c50"
 display_name: 【202607】【数据模型】建表中文名增加支持字符
 status: active
 created_at: 2026-07-23

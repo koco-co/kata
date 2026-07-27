@@ -36,7 +36,7 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expect, test } from "./fixtures/preconditions";
+import { expect, test } from "../fixtures/preconditions";
 import {
   applyRuntimeCookies,
   buildDataAssetsUrl,
@@ -93,10 +93,11 @@ const TS = Date.now().toString(36);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const sqlDir = resolve(__dirname, "sql");
-const SQL_BASE = readFileSync(resolve(sqlDir, "base-tables.sql"), "utf-8");
-const SQL_QUALITY = readFileSync(resolve(sqlDir, "quality-tables.sql"), "utf-8");
-const SQL_ACTIVE_USERS = readFileSync(resolve(sqlDir, "active-users.sql"), "utf-8");
-const SQL_LINEAGE = readFileSync(resolve(sqlDir, "lineage-tables.sql"), "utf-8");
+let sqlBaseCache: string | undefined;
+/** 惰性读取建表 SQL：用例收集阶段不读盘，真正执行时才加载（sql/ 资源随运行环境提供） */
+function sqlBase(): string {
+  return (sqlBaseCache ??= readFileSync(resolve(sqlDir, "base-tables.sql"), "utf-8"));
+}
 
 // ─── Helpers ─────────────────────────────────────────
 
@@ -117,7 +118,7 @@ function escapeRegExp(value: string): string {
 }
 
 function buildRuntimeTableSql(tableName: string): string {
-  return SQL_BASE.replace(/\btest_table\b/g, tableName);
+  return sqlBase().replace(/\btest_table\b/g, tableName);
 }
 
 function buildExecutableCreateSql(
@@ -494,7 +495,7 @@ async function waitForDatabaseCollection(
     )
     .not.toBe("");
 
-  return matchedRecord as DatabaseCollectionRecord;
+  return matchedRecord as unknown as DatabaseCollectionRecord;
 }
 
 async function waitForDatabaseCollectionComplete(
@@ -519,15 +520,16 @@ async function waitForDatabaseCollectionComplete(
       )
       .toBe(1);
   } catch {
-    const latestState = matchedRecord
+    const latestRecord = matchedRecord as DatabaseCollectionRecord | null;
+    const latestState = latestRecord
       ? [
-          `type=${matchedRecord.collectType ?? "unknown"}`,
-          `source=${matchedRecord.collectFrom ?? "unknown"}`,
-          `condition=${matchedRecord.collectCondition ?? "unknown"}`,
-          `status=${Number(matchedRecord.collectStatus) === 1 ? "拾取完成" : "拾取中"}`,
-          `count=${matchedRecord.collectCount ?? "unknown"}`,
-          `createdAt=${matchedRecord.createAt ?? "unknown"}`,
-          `finishDate=${matchedRecord.finishDate ?? "--"}`,
+          `type=${latestRecord.collectType ?? "unknown"}`,
+          `source=${latestRecord.collectFrom ?? "unknown"}`,
+          `condition=${latestRecord.collectCondition ?? "unknown"}`,
+          `status=${Number(latestRecord.collectStatus) === 1 ? "拾取完成" : "拾取中"}`,
+          `count=${latestRecord.collectCount ?? "unknown"}`,
+          `createdAt=${latestRecord.createAt ?? "unknown"}`,
+          `finishDate=${latestRecord.finishDate ?? "--"}`,
         ].join(", ")
       : "record not found in collection list";
     throw new Error(
@@ -535,7 +537,7 @@ async function waitForDatabaseCollectionComplete(
     );
   }
 
-  return matchedRecord as DatabaseCollectionRecord;
+  return matchedRecord as unknown as DatabaseCollectionRecord;
 }
 
 async function expectDatabaseCollectionRow(

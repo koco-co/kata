@@ -21,21 +21,25 @@ export {
   buildDataAssetsUrl,
 } from "../../../../../../_shared/helpers/test-setup";
 
-const ENV = getEnvConfig();
+// env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
+let envCache: ReturnType<typeof getEnvConfig> | undefined;
+function envProfile(): ReturnType<typeof getEnvConfig> {
+  return (envCache ??= getEnvConfig());
+}
 
-// ── 质量项目配置 ──────────────────────────────────────────────────────────────
+// ── 质量项目配置（惰性函数导出：收集期不触 env，调用点在运行时执行）──────────────
 
 /** 当前 dataAssets 套件使用的质量项目 ID */
-export const QUALITY_PROJECT_ID = ENV.projects.quality.id;
+export const QUALITY_PROJECT_ID = (): number => envProfile().projects.quality.id;
 
 /** 所有数据源统一使用的测试数据库名 */
-export const SHARED_DATABASE = ENV.datasources.sparkthrift.sql.database;
+export const SHARED_DATABASE = (): string => envProfile().datasources.sparkthrift.sql.database;
 
 /** Doris 数据源数据库名 */
-export const DORIS_DATABASE = ENV.datasources.doris.sql.database;
+export const DORIS_DATABASE = (): string => envProfile().datasources.doris.sql.database;
 
 /** SparkThrift2.x 数据源数据库名 */
-export const SPARKTHRIFT_DATABASE = ENV.datasources.sparkthrift.sql.database;
+export const SPARKTHRIFT_DATABASE = (): string => envProfile().datasources.sparkthrift.sql.database;
 
 /** 数据源匹配关键字 */
 export const DORIS_DATASOURCE_KEYWORD = "doris";
@@ -76,10 +80,10 @@ export async function injectProjectContext(page: Page, projectId: number): Promi
  */
 export async function gotoRuleSetListWithContext(page: Page): Promise<void> {
   await applyRuntimeCookies(page);
-  await page.goto(buildDataAssetsUrl("/dq/ruleSet", QUALITY_PROJECT_ID));
+  await page.goto(buildDataAssetsUrl("/dq/ruleSet", QUALITY_PROJECT_ID()));
   await waitForUiSettled(page);
   await waitForUiSettled(page);
-  await injectProjectContext(page, QUALITY_PROJECT_ID);
+  await injectProjectContext(page, QUALITY_PROJECT_ID());
   await page.reload();
   await waitForUiSettled(page);
   await waitForUiSettled(page);

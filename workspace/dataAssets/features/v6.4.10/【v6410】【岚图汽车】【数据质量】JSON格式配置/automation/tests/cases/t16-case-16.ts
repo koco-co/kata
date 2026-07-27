@@ -18,42 +18,12 @@ import {
   searchKey,
 } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
 
-async function importXlsx(
-  page: import("@playwright/test").Page,
-  step: Function,
-  filePath: string,
-  duplicateRule: "重复则跳过" | "重复则覆盖更新" = "重复则跳过",
-) {
-  await step(`步骤0: 执行导入操作（${duplicateRule}） → 导入流程提交完成`, async () => {
-    // 等待导入按钮可点击（上一个弹窗关闭后页面稳定）
-    const importBtn = page.getByRole("button", { name: /^导\s*入$/ });
-    await importBtn.waitFor({ state: "visible", timeout: 10000 });
-    await importBtn.click();
-    const modal = page.locator(".ant-modal:visible");
-    await modal.waitFor({ state: "visible", timeout: 10000 });
-    if (duplicateRule === "重复则覆盖更新") {
-      await modal.locator(".ant-radio-wrapper").filter({ hasText: "重复则覆盖更新" }).click();
-    }
-    const fileInput = modal.locator('input[type="file"]');
-    await fileInput.setInputFiles(filePath);
-    // 等待文件显示在上传列表中
-    await modal
-      .locator(".ant-upload-list-item")
-      .waitFor({ state: "visible", timeout: 5000 })
-      .catch(() => {});
-    await modal.getByRole("button", { name: /^确\s*定$/ }).click();
-    // 等待弹窗关闭（表示导入已提交），再等表格刷新
-    await modal.waitFor({ state: "hidden", timeout: 30000 });
-    await page.waitForLoadState("domcontentloaded").catch(() => {});
-    await waitForUiSettled(page);
-  });
-}
-
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
-  test("【P0】验证导入正确文件全流程（重复则跳过）", { timeout: 180000, tag: "@serial" }, async ({
+  test("【P0】验证导入正确文件全流程（重复则跳过）", { tag: "@serial" }, async ({
     page,
     step,
   }) => {
+    test.setTimeout(180000);
     const importKey1 = uniqueName("importKey1");
     const importKey2 = uniqueName("importKey2");
     const subImport1 = uniqueName("subImport1");

@@ -3,14 +3,15 @@ import {
   cookieHeaderToPlaywrightState,
   getEnvConfig,
 } from "../../../../../../_shared/runtime/env-profile";
-import { runUniversalPrecond } from "../precond/universal-precond";
+import { runUniversalPrecond } from "./precond/universal-precond";
 
 export const test = base.extend<{}, { preconditionsReady: void }>({
   preconditionsReady: [
     async ({ browser }, use) => {
       const env = getEnvConfig();
+      const state = cookieHeaderToPlaywrightState(env.urls.baseUrl, env.auth.cookie);
       const page = await browser.newPage({
-        storageState: cookieHeaderToPlaywrightState(env.urls.baseUrl, env.auth.cookie),
+        storageState: { cookies: [...state.cookies], origins: [...state.origins] },
       });
       try {
         await runUniversalPrecond(page);

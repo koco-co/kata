@@ -6,13 +6,30 @@ import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
 
 import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
+import {
+  DQ_RULE_MAIN_TABLE,
+  LTQC_LOCAL_RULESET_AVAILABLE_TABLE,
+  SPARKTHRIFT_SOURCE_TYPE_LABEL,
+  VEHICLE_INFO_DIM_TABLE,
+  VEHICLE_ORDER_TABLE,
+  VEHICLE_QUALITY_RULESET_TABLE,
+} from "./main-flow-fixtures";
 
 function getProjectId(): string | number {
   return getEnvConfig().projects.quality.id;
 }
+
+function getQualityProjectName(): string {
+  return getEnvConfig().projects.quality.name;
+}
+
+function getDefaultDatasource() {
+  const env = getEnvConfig();
+  return env.datasources[env.runtime.defaultDatasource];
+}
+
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
-const LTQC_LOCAL_RULESET_AVAILABLE_TABLE = "dwd_voyah_dq_vehicle_null_cnt";
 
 type DqPageTarget = {
   path: string;
@@ -715,7 +732,7 @@ export async function expectDataQualityOverviewLastUpdateRefreshContract(
   await assertOverviewCountCards(page, sourceRef, beforeRecord);
 
   await gotoDataQualityPage(page, "/dq/rule");
-  const records = await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  const records = await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const targetRecord = expectRuleTaskArchiveTarget(records, sourceRef);
   const ruleName = expectNonEmptyString(targetRecord.ruleName, `${sourceRef}: 可执行任务应包含任务名称`);
   const tableName = expectNonEmptyString(targetRecord.tableName, `${sourceRef}: 可执行任务应包含数据表`);
@@ -1662,8 +1679,8 @@ export async function expectDataQualityReportDuplicateNameValidationContract(
   await chooseDqFieldOptionByText(page, /生成样式/, "质检式", sourceRef);
   await chooseDqFieldOptionByText(page, /规则范围/, "全部", sourceRef);
   await addConfiguredReportAssociatedTable(page, sourceRef, {
-    dataSource: "pw_test_HADOOP",
-    database: "pw_test",
+    dataSource: getDefaultDatasource().metadata.name,
+    database: getDefaultDatasource().sql.database,
     table: "json_report_fail",
     task: "全部",
   });
@@ -1841,8 +1858,8 @@ async function createConfiguredReport(
   await chooseDqFieldOptionByText(page, /规则范围/, "全部", sourceRef);
   for (const table of options.tables) {
     await addConfiguredReportAssociatedTable(page, sourceRef, {
-      dataSource: "pw_test_HADOOP",
-      database: "pw_test",
+      dataSource: getDefaultDatasource().metadata.name,
+      database: getDefaultDatasource().sql.database,
       table,
       task: "全部",
     });
@@ -1966,7 +1983,7 @@ async function clickActiveAntdOption(page: Page, option: string): Promise<boolea
 
   const preferredPartialOption =
     option === "SparkThrift2.x"
-      ? dropdown.locator(".ant-select-item-option").filter({ hasText: /pw_test_HADOOP/ }).filter({ hasText: option }).first()
+      ? dropdown.locator(".ant-select-item-option").filter({ hasText: getDefaultDatasource().metadata.name }).filter({ hasText: option }).first()
       : undefined;
   if (preferredPartialOption && (await preferredPartialOption.isVisible({ timeout: 1000 }).catch(() => false))) {
     await preferredPartialOption.click({ timeout: 30000 });
@@ -2323,7 +2340,7 @@ export async function expectDataQualityRuleTaskImmediateRunContract(
   await expect(body, `${sourceRef}: 保存后应提示成功或返回规则任务管理`).toContainText(/成功|规则任务管理/, {
     timeout: 30000,
   });
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(async () => {
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(async () => {
     const savedPayload = await saveResponse;
     expect(savedPayload.success ?? savedPayload.code === 1, `${sourceRef}: 保存任务后列表应刷新成功`).toBe(true);
     return getDqRuleTaskRecords(savedPayload);
@@ -2331,7 +2348,7 @@ export async function expectDataQualityRuleTaskImmediateRunContract(
 
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 保存后规则任务列表应展示新建立即生成任务`).toBeVisible({
@@ -2367,10 +2384,10 @@ export async function expectDataQualityRuleTaskT1RunContract(page: Page, sourceR
     timeout: 30000,
   });
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 保存后规则任务列表应展示新建 T+1 任务`).toBeVisible({
@@ -2397,10 +2414,10 @@ export async function expectDataQualityRuleTaskPartitionDynamicToExistingContrac
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示分区编辑任务`).toBeVisible({ timeout: 30000 });
@@ -2422,10 +2439,10 @@ export async function expectDataQualityRuleTaskPartitionDynamicToExistingContrac
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存分区后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2446,10 +2463,10 @@ export async function expectDataQualityRuleTaskPartitionManualToDynamicContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示分区编辑任务`).toBeVisible({ timeout: 30000 });
@@ -2471,10 +2488,10 @@ export async function expectDataQualityRuleTaskPartitionManualToDynamicContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存动态分区后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2496,10 +2513,10 @@ export async function expectDataQualityRuleTaskManualMultiLevelPartitionContract
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示二级分区规则任务`).toBeVisible({ timeout: 30000 });
@@ -2518,10 +2535,10 @@ export async function expectDataQualityRuleTaskManualMultiLevelPartitionContract
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存多级分区后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2542,10 +2559,10 @@ export async function expectDataQualityRuleTaskDynamicSinglePartitionContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示分区编辑任务`).toBeVisible({ timeout: 30000 });
@@ -2564,10 +2581,10 @@ export async function expectDataQualityRuleTaskDynamicSinglePartitionContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存一级动态分区后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2588,10 +2605,10 @@ export async function expectDataQualityRuleTaskDynamicMultiPartitionContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示二级分区编辑任务`).toBeVisible({
@@ -2612,10 +2629,10 @@ export async function expectDataQualityRuleTaskDynamicMultiPartitionContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存一二级动态分区后任务行应仍可见`).toBeVisible({
@@ -2657,7 +2674,7 @@ export async function expectDataQualityRuleTaskSamplingConfigContract(
     /成功|规则任务管理/,
     { timeout: 30000 },
   );
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(async () => {
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(async () => {
     const savedPayload = await saveResponse;
     expect(savedPayload.success ?? savedPayload.code === 1, `${sourceRef}: 保存抽样任务后列表应刷新成功`).toBe(true);
     return getDqRuleTaskRecords(savedPayload);
@@ -2665,7 +2682,7 @@ export async function expectDataQualityRuleTaskSamplingConfigContract(
 
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 保存后规则任务列表应展示抽样任务`).toBeVisible({ timeout: 30000 });
@@ -2688,10 +2705,10 @@ export async function expectDataQualityRuleTaskAddSparkEnvParamContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示环境参数任务`).toBeVisible({ timeout: 30000 });
@@ -2705,10 +2722,10 @@ export async function expectDataQualityRuleTaskAddSparkEnvParamContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存环境参数后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2735,10 +2752,10 @@ export async function expectDataQualityRuleTaskEditSparkEnvParamContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示环境参数任务`).toBeVisible({ timeout: 30000 });
@@ -2756,10 +2773,10 @@ export async function expectDataQualityRuleTaskEditSparkEnvParamContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存编辑环境参数后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2770,10 +2787,10 @@ export async function expectDataQualityRuleTaskEditSparkEnvParamContract(
   );
 
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const executableRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(executableRow, `${sourceRef}: 重新进入列表后应可定位环境参数任务`).toBeVisible({
@@ -2798,10 +2815,10 @@ export async function expectDataQualityRuleTaskLogLevelEnvParamContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示环境参数任务`).toBeVisible({ timeout: 30000 });
@@ -2815,10 +2832,10 @@ export async function expectDataQualityRuleTaskLogLevelEnvParamContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存 logLevel 后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2841,10 +2858,10 @@ export async function expectDataQualityRuleTaskExecutorCoresEnvParamContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示环境参数任务`).toBeVisible({ timeout: 30000 });
@@ -2858,10 +2875,10 @@ export async function expectDataQualityRuleTaskExecutorCoresEnvParamContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存 executor cores 后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2872,10 +2889,10 @@ export async function expectDataQualityRuleTaskExecutorCoresEnvParamContract(
   );
 
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const executableRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(executableRow, `${sourceRef}: 重新进入列表后应可定位环境参数任务`).toBeVisible({
@@ -2897,10 +2914,10 @@ export async function expectDataQualityRuleTaskSparkEnvParamDetailsContract(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示环境参数任务`).toBeVisible({ timeout: 30000 });
@@ -2931,10 +2948,10 @@ export async function expectDataQualityRuleTaskUnlimitedTimeoutRunContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存不限制超时后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2957,10 +2974,10 @@ export async function expectDataQualityRuleTaskTimeoutHandlingContract(
     { timeout: 30000 },
   );
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef).catch(() => {});
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef).catch(() => {});
   const savedRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(savedRow, `${sourceRef}: 保存短超时后任务行应仍可见`).toBeVisible({ timeout: 30000 });
@@ -2980,7 +2997,7 @@ export async function expectDataQualityRuleTaskSameTableDifferentRulesContract(
   await createRuleTaskWithRulePackages(page, sourceRef, secondRuleName, ["有效性规则包"]);
 
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const firstRow = page.locator(".ant-table-tbody tr").filter({ hasText: firstRuleName }).first();
   const secondRow = page.locator(".ant-table-tbody tr").filter({ hasText: secondRuleName }).first();
   await expect(firstRow, `${sourceRef}: 同表第一个不同规则任务应保存成功并展示`).toBeVisible({ timeout: 30000 });
@@ -2989,7 +3006,7 @@ export async function expectDataQualityRuleTaskSameTableDifferentRulesContract(
   await runRuleTaskImmediately(page, sourceRef, firstRow);
   await expectLatestMonitorRecordForRuleTask(page, sourceRef, firstRuleName);
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const refreshedSecondRow = page.locator(".ant-table-tbody tr").filter({ hasText: secondRuleName }).first();
   await runRuleTaskImmediately(page, sourceRef, refreshedSecondRow);
   await expectLatestMonitorRecordForRuleTask(page, sourceRef, secondRuleName);
@@ -3008,7 +3025,7 @@ export async function expectDataQualityRuleTaskSameTableSameRulesContract(
   await createRuleTaskWithRulePackages(page, sourceRef, secondRuleName, sharedPackages);
 
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const firstRow = page.locator(".ant-table-tbody tr").filter({ hasText: firstRuleName }).first();
   const secondRow = page.locator(".ant-table-tbody tr").filter({ hasText: secondRuleName }).first();
   await expect(firstRow, `${sourceRef}: 同表第一个相同规则任务应保存成功并展示`).toBeVisible({ timeout: 30000 });
@@ -3023,7 +3040,7 @@ export async function expectDataQualityRuleTaskSameTableSameRulesContract(
   await runRuleTaskImmediately(page, sourceRef, firstRow);
   await expectLatestMonitorRecordForRuleTask(page, sourceRef, firstRuleName);
   await gotoDataQualityPage(page, "/dq/rule");
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const refreshedSecondRow = page.locator(".ant-table-tbody tr").filter({ hasText: secondRuleName }).first();
   await runRuleTaskImmediately(page, sourceRef, refreshedSecondRow);
   await expectLatestMonitorRecordForRuleTask(page, sourceRef, secondRuleName);
@@ -3178,7 +3195,7 @@ async function gotoNewRuleTaskMonitorObjectPage(
 
   await fillDqPageFormField(page, /规则名称/, ruleName);
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   await selectDqFormOptionBySearch(page, /数据表/, LTQC_LOCAL_RULESET_AVAILABLE_TABLE, sourceRef);
   return body;
 }
@@ -3200,7 +3217,7 @@ async function gotoNewRuleTaskMonitorObjectPageForTable(
   });
   await fillDqPageFormField(page, /规则名称/, ruleName);
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   await selectDqFormOptionBySearch(page, /数据表/, tableName, sourceRef);
   if (comparisonTableName) {
     await selectDqFormOptionBySearch(page, /对比表|比较表|关联表/, comparisonTableName, sourceRef);
@@ -3265,7 +3282,7 @@ export async function expectDataQualityRuleSetCreateBasicInfoContract(
   }
 
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   await selectDqFormOptionBySearch(page, /数据表/, LTQC_LOCAL_RULESET_AVAILABLE_TABLE, sourceRef);
   await fillDqPageFormField(page, /规则集描述/, "主流程规则集");
   const packageInput = getRuleSetPackageNameInputs(page).first();
@@ -3293,7 +3310,7 @@ export async function expectDataQualityRuleSetTableFilteringContract(
   page: Page,
   sourceRef: string,
 ): Promise<void> {
-  const configuredTable = "dwd_vehicle_order_di";
+  const configuredTable = VEHICLE_ORDER_TABLE;
   const availableTable = LTQC_LOCAL_RULESET_AVAILABLE_TABLE;
 
   await gotoDataQualityPage(page, "/dq/ruleSet");
@@ -3306,7 +3323,7 @@ export async function expectDataQualityRuleSetTableFilteringContract(
   });
 
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
 
   const tableField = page.locator(".ant-form-item").filter({ hasText: /数据表/ }).first();
   await tableField.locator(".ant-select").first().click({ timeout: 30000 });
@@ -3343,7 +3360,7 @@ export async function expectDataQualityRuleSetPackageNameManagementContract(
   await expect(page, `${sourceRef}: 新建规则集应进入 /dq/ruleSet/add`).toHaveURL(/\/dq\/ruleSet\/add/);
 
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   await selectDqFormOptionBySearch(page, /数据表/, LTQC_LOCAL_RULESET_AVAILABLE_TABLE, sourceRef);
 
   const inputs = getRuleSetPackageNameInputs(page);
@@ -3442,7 +3459,7 @@ export async function expectDataQualityRuleSetDeleteContract(
   sourceRef: string,
 ): Promise<void> {
   const tempTableName = "dwd_supplier_info_di";
-  const configuredTableName = "dwd_vehicle_order_di";
+  const configuredTableName = VEHICLE_ORDER_TABLE;
   const suffix = Date.now();
   const packageName = `主流程删除验证规则包_${suffix}`;
   const description = `主流程删除验证规则集_${suffix}`;
@@ -3491,7 +3508,7 @@ export async function expectDataQualityRuleSetDeleteContract(
   await clickDqText(page, "新建规则集", sourceRef);
   await expect(page, `${sourceRef}: 删除后应能再次进入新建规则集`).toHaveURL(/\/dq\/ruleSet\/add/);
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   const tableField = page.locator(".ant-form-item").filter({ hasText: /数据表/ }).first();
   await tableField.locator(".ant-select").first().click({ timeout: 30000 });
   await tableField.locator("input").first().fill(tempTableName, { timeout: 30000 });
@@ -3521,7 +3538,7 @@ async function expectDataQualityRuleSetHistoricalTaskPreconditions(
   page: Page,
   sourceRef: string,
 ): Promise<void> {
-  const tableName = "dwd_vehicle_order_di";
+  const tableName = VEHICLE_ORDER_TABLE;
   await gotoDataQualityPage(page, "/dq/ruleSet");
   const ruleSetResponse = await page.request.post(
     buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/pageQuery"),
@@ -4187,7 +4204,7 @@ async function attachCustomRegexToArchiveRuleSet(
   ruleName: string,
   ruleId: string,
 ): Promise<string> {
-  const tableName = "dwd_voyah_dq_rule_01_main";
+  const tableName = DQ_RULE_MAIN_TABLE;
   const ruleSetRecords = await queryRuleSetRecords(page, tableName);
   const targetRuleSet = ruleSetRecords.find((record) => record.tableName === tableName);
   expect(targetRuleSet?.id, `${sourceRef}: 应存在可挂载自定义正则的规则集 ${tableName}`).toBeTruthy();
@@ -4266,12 +4283,12 @@ async function ensureReferencedCustomRegexRuleTask(
   ruleName: string,
   packageName: string,
 ): Promise<void> {
-  const tableName = "dwd_voyah_dq_rule_01_main";
+  const tableName = DQ_RULE_MAIN_TABLE;
   const taskName = `已引用自定义正则删除保护任务-${ruleName}`;
   const existingTask = (await queryRuleTaskRecords(page, tableName)).find((record) => record.ruleName === taskName);
   if (existingTask) return;
 
-  const body = await gotoNewRuleTaskMonitorObjectPageForTable(page, sourceRef, taskName, tableName);
+  await gotoNewRuleTaskMonitorObjectPageForTable(page, sourceRef, taskName, tableName);
   await configureManualPartition(page, sourceRef, "stat_date='20260116'");
   await clickNextUntilMonitorRuleConfig(page, sourceRef);
   await selectRuleTaskRulePackageOnCurrentPage(page, sourceRef, [packageName], "有效性校验");
@@ -4857,7 +4874,7 @@ export async function expectDataQualityReportDetailDirtyDataDownloadContract(
   page: Page,
   sourceRef: string,
 ): Promise<void> {
-  await openGeneratedReportDetail(page, sourceRef, "车辆订单唯一性日报", "dwd_vehicle_order_di");
+  await openGeneratedReportDetail(page, sourceRef, "车辆订单唯一性日报", VEHICLE_ORDER_TABLE);
 
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 报告详情应展示车辆订单唯一性任务`).toContainText("车辆订单唯一性任务", {
@@ -4908,7 +4925,7 @@ export async function expectDataQualityReportDetailDirtyDataDownloadContract(
 }
 
 export async function expectDataQualityReportSamplingStatsContract(page: Page, sourceRef: string): Promise<void> {
-  await openGeneratedReportDetail(page, sourceRef, "车辆质量抽样检查日报", "dwd_vehicle_quality_di");
+  await openGeneratedReportDetail(page, sourceRef, "车辆质量抽样检查日报", VEHICLE_QUALITY_RULESET_TABLE);
 
   const body = page.locator("body");
   for (const expectedText of ["车辆质量抽样校验任务", "抽样", "10", "质量评估", "规则校验"]) {
@@ -4927,7 +4944,7 @@ export async function expectDataQualityReportContinuousGenerationContract(
   sourceRef: string,
 ): Promise<void> {
   let row = await openGeneratedReportListAndSearch(page, sourceRef, "车辆质量持续生成报告");
-  await expect(row, `${sourceRef}: 持续生成报告应展示数据表`).toContainText("dwd_vehicle_quality_di", {
+  await expect(row, `${sourceRef}: 持续生成报告应展示数据表`).toContainText(VEHICLE_QUALITY_RULESET_TABLE, {
     timeout: 30000,
   });
   await expect(row, `${sourceRef}: 持续生成报告应展示持续生成中状态`).toContainText("持续生成中", {
@@ -4986,7 +5003,7 @@ export async function expectDataQualityReportSameTableMultiTaskContract(
   page: Page,
   sourceRef: string,
 ): Promise<void> {
-  await openGeneratedReportDetail(page, sourceRef, "车辆订单多任务质量报告", "dwd_vehicle_order_di");
+  await openGeneratedReportDetail(page, sourceRef, "车辆订单多任务质量报告", VEHICLE_ORDER_TABLE);
 
   const body = page.locator("body");
   for (const expectedText of [
@@ -5023,7 +5040,7 @@ export async function expectDataQualityReportSameTableMultiTaskDirtyDataContract
   page: Page,
   sourceRef: string,
 ): Promise<void> {
-  await openGeneratedReportDetail(page, sourceRef, "车辆订单多任务质量报告", "dwd_vehicle_order_di");
+  await openGeneratedReportDetail(page, sourceRef, "车辆订单多任务质量报告", VEHICLE_ORDER_TABLE);
 
   const body = page.locator("body");
   await expect(body, `${sourceRef}: 多任务报告应展示完整性任务`).toContainText("车辆订单完整性任务", {
@@ -5835,10 +5852,10 @@ export async function expectDataQualityProjectPinDeleteContract(
   await expect(page.locator("body"), `${sourceRef}: 项目信息列表应加载成功`).toContainText("创建项目", {
     timeout: 30000,
   });
-  await expect(page.locator(".ant-layout-sider").first(), `${sourceRef}: 当前使用项目应保持为 pw_test`).toContainText(
-    "pw_test",
-    { timeout: 30000 },
-  );
+  await expect(
+    page.locator(".ant-layout-sider").first(),
+    `${sourceRef}: 当前使用项目应保持为 ${getQualityProjectName()}`,
+  ).toContainText(getQualityProjectName(), { timeout: 30000 });
 
   const suffix = String(Date.now());
   const projectName = `autodq_top_${suffix}`;
@@ -5869,10 +5886,10 @@ export async function expectDataQualityProjectPinDeleteContract(
 
     await deleteDqProjectAndAssert(page, sourceRef, projectName, projectIdent);
     deleted = true;
-    await expect(page.locator(".ant-layout-sider").first(), `${sourceRef}: 删除临时项目后当前使用项目仍为 pw_test`).toContainText(
-      "pw_test",
-      { timeout: 30000 },
-    );
+    await expect(
+      page.locator(".ant-layout-sider").first(),
+      `${sourceRef}: 删除临时项目后当前使用项目仍为 ${getQualityProjectName()}`,
+    ).toContainText(getQualityProjectName(), { timeout: 30000 });
   } finally {
     if (created && !deleted) {
       await deleteDqProjectBestEffort(page, projectName, projectIdent);
@@ -6059,33 +6076,34 @@ export async function expectDataQualityReportDimensionVehicleConfigContract(
   }
 
   const selects = page.locator(".ant-select:visible");
+  const datasourceLabel = `${getDefaultDatasource().metadata.name}（${SPARKTHRIFT_SOURCE_TYPE_LABEL}）`;
+  const database = getDefaultDatasource().sql.database;
   await selects.nth(1).click({ timeout: 30000 });
   const sourceDropdown = page.locator(".ant-select-dropdown:visible").last();
-  await expect(sourceDropdown, `${sourceRef}: 数据源下拉应包含 SparkThrift2.x`).toContainText(
-    "pw_test_HADOOP（SparkThrift2.x）",
-    { timeout: 30000 },
-  );
-  await sourceDropdown.getByText("pw_test_HADOOP（SparkThrift2.x）", { exact: true }).click({
+  await expect(sourceDropdown, `${sourceRef}: 数据源下拉应包含 ${datasourceLabel}`).toContainText(datasourceLabel, {
+    timeout: 30000,
+  });
+  await sourceDropdown.getByText(datasourceLabel, { exact: true }).click({
     timeout: 30000,
   });
 
   await selects.nth(2).click({ timeout: 30000 });
-  await page.keyboard.type("pw_test");
+  await page.keyboard.type(database);
   const schemaDropdown = page.locator(".ant-select-dropdown:visible").last();
-  await expect(schemaDropdown, `${sourceRef}: 数据库下拉应包含 pw_test`).toContainText("pw_test", {
+  await expect(schemaDropdown, `${sourceRef}: 数据库下拉应包含 ${database}`).toContainText(database, {
     timeout: 30000,
   });
   await page.keyboard.press("Enter");
 
   await selects.nth(3).click({ timeout: 30000 });
-  await page.keyboard.type("dim_voyah_vehicle_info");
+  await page.keyboard.type(VEHICLE_INFO_DIM_TABLE);
   const tableDropdown = page.locator(".ant-select-dropdown:visible").last();
-  await expect(tableDropdown, `${sourceRef}: 数据表下拉应包含前置维表 dim_voyah_vehicle_info`).toContainText(
-    "dim_voyah_vehicle_info",
+  await expect(tableDropdown, `${sourceRef}: 数据表下拉应包含前置维表 ${VEHICLE_INFO_DIM_TABLE}`).toContainText(
+    VEHICLE_INFO_DIM_TABLE,
     { timeout: 30000 },
   );
-  const tableClicked = await clickActiveAntdOption(page, "dim_voyah_vehicle_info");
-  expect(tableClicked, `${sourceRef}: 数据表下拉应包含可点击前置维表 dim_voyah_vehicle_info`).toBe(true);
+  const tableClicked = await clickActiveAntdOption(page, VEHICLE_INFO_DIM_TABLE);
+  expect(tableClicked, `${sourceRef}: 数据表下拉应包含可点击前置维表 ${VEHICLE_INFO_DIM_TABLE}`).toBe(true);
 
   await selectDqAntSelectOption(page, selects.nth(4), "车辆数统计字段", "vehicle_count", sourceRef);
   await selectDqAntSelectOption(page, selects.nth(5), "车系关联字段", "car_series_code", sourceRef);
@@ -6112,7 +6130,7 @@ export async function expectDataQualityReportDimensionVehicleConfigContract(
   await page.reload({ waitUntil: "domcontentloaded", timeout: 60000 });
   await waitForUiSettled(page);
   for (const savedText of [
-    "dim_voyah_vehicle_info",
+    VEHICLE_INFO_DIM_TABLE,
     "vehicle_count",
     "car_series_code",
     "car_model_code",
@@ -7680,7 +7698,7 @@ async function createMinimalRuleSetForDeletion(
   await clickDqText(page, "新建规则集", sourceRef);
   await expect(page, `${sourceRef}: 新建规则集应进入 /dq/ruleSet/add`).toHaveURL(/\/dq\/ruleSet\/add/);
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   await selectDqFormOptionBySearch(page, /数据表/, tableName, sourceRef);
   await fillDqPageFormField(page, /规则集描述/, description);
   await fillDqPageFormField(page, /规则包名称/, packageName);
@@ -7716,7 +7734,7 @@ async function createSparkThriftArchiveValidationRuleSet(
   await expect(page, `${sourceRef}: 新建规则集应进入 /dq/ruleSet/add`).toHaveURL(/\/dq\/ruleSet\/add/);
 
   await selectDqFormOptionBySearch(page, /数据源/, "SparkThrift2.x", sourceRef);
-  await selectDqFormOptionBySearch(page, /数据库/, "pw_test", sourceRef);
+  await selectDqFormOptionBySearch(page, /数据库/, getDefaultDatasource().sql.database, sourceRef);
   await selectDqFormOptionBySearch(page, /数据表/, scenario.tableName, sourceRef);
   if (scenario.comparisonTableName) {
     await selectDqFormOptionBySearch(page, /对比表|比较表|关联表/, scenario.comparisonTableName, sourceRef);
@@ -8108,9 +8126,9 @@ async function expectRuleTaskRuleSetPackages(
   sourceRef: string,
   packageNames: string[],
 ): Promise<void> {
-  const records = await queryRuleSetRecords(page, "dwd_vehicle_quality_di");
-  const targetRuleSet = records.find((record) => record.tableName === "dwd_vehicle_quality_di");
-  expect(targetRuleSet?.id, `${sourceRef}: 应存在 dwd_vehicle_quality_di 对应规则集`).toBeTruthy();
+  const records = await queryRuleSetRecords(page, VEHICLE_QUALITY_RULESET_TABLE);
+  const targetRuleSet = records.find((record) => record.tableName === VEHICLE_QUALITY_RULESET_TABLE);
+  expect(targetRuleSet?.id, `${sourceRef}: 应存在 ${VEHICLE_QUALITY_RULESET_TABLE} 对应规则集`).toBeTruthy();
 
   const detailResponse = await page.request.post(
     buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/detail"),
@@ -8536,10 +8554,10 @@ async function openRuleTaskScheduleForExistingTask(
   const targetRecord = initialRecords.find((record) => record.ruleName === ruleName);
   expect(targetRecord, `${sourceRef}: 当前环境应存在规则任务「${ruleName}」`).toBeTruthy();
 
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 规则任务列表应展示 ${ruleName}`).toBeVisible({ timeout: 30000 });
@@ -8576,11 +8594,11 @@ async function createRuleTaskWithRulePackages(
       true,
     );
   }
-  await searchRuleTaskByTableName(page, "dwd_vehicle_quality_di", sourceRef);
+  await searchRuleTaskByTableName(page, VEHICLE_QUALITY_RULESET_TABLE, sourceRef);
 
   const taskRow = page
     .locator(".ant-table-tbody tr")
-    .filter({ hasText: "dwd_vehicle_quality_di" })
+    .filter({ hasText: VEHICLE_QUALITY_RULESET_TABLE })
     .filter({ hasText: ruleName })
     .first();
   await expect(taskRow, `${sourceRef}: 保存后规则任务列表应展示 ${ruleName}`).toBeVisible({ timeout: 30000 });
@@ -10340,7 +10358,7 @@ function expectRuleTaskArchiveTarget(records: DqRuleTaskRecord[], sourceRef: str
   ];
   const target =
     records.find((record) => archiveTaskNames.includes(String(record.ruleName ?? ""))) ??
-    records.find((record) => String(record.tableName ?? "").includes("dwd_vehicle_quality_di"));
+    records.find((record) => String(record.tableName ?? "").includes(VEHICLE_QUALITY_RULESET_TABLE));
   expect(
     target,
     `${sourceRef}: 当前环境应存在 Archive 前置规则任务「车辆质量立即生成任务/车辆质量T+1生成任务/车辆质量分区编辑任务/车辆质量环境参数任务」之一`,
@@ -10361,7 +10379,7 @@ function selectRuleTaskBatchCloseTargets(
   const archiveRecords = records.filter(
     (record) =>
       archiveTaskNames.includes(String(record.ruleName ?? "")) ||
-      String(record.tableName ?? "").includes("dwd_vehicle_quality_di"),
+      String(record.tableName ?? "").includes(VEHICLE_QUALITY_RULESET_TABLE),
   );
   const selectedRecords = archiveRecords.filter((record) => record.isClosed === 0).slice(0, 2);
   expect(

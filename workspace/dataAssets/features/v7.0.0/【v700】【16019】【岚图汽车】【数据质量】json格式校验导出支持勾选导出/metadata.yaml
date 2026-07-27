@@ -1,6 +1,6 @@
 schema: FeatureMetadata@2
 id: 【v700】【16019】【岚图汽车】【数据质量】json格式校验导出支持勾选导出
-feature_id: 2026-06-dq-json-export-checkbox
+feature_id: "v7.0.0/【v700】【16019】【岚图汽车】【数据质量】json格式校验导出支持勾选导出"
 display_name: 【v700】【16019】【岚图汽车】【数据质量】json格式校验，导出支持勾选导出
 status: active
 created_at: 2026-06-22

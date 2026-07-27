@@ -12,18 +12,23 @@ import type { Page } from "@playwright/test";
 import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/helpers/test-setup";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 
-const ENV = getEnvConfig();
+// env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
+let envCache: ReturnType<typeof getEnvConfig> | undefined;
+function envProfile(): ReturnType<typeof getEnvConfig> {
+  return (envCache ??= getEnvConfig());
+}
 
-// ── 质量项目常量 ─────────────────────────────────────────────
-export const QUALITY_PROJECT_ID = ENV.projects.quality.id;
-export const QUALITY_PROJECT_NAME = ENV.projects.quality.name;
+// ── 质量项目常量（惰性函数导出：收集期不触 env，调用点在运行时执行）────────────
+export const QUALITY_PROJECT_ID = (): number => envProfile().projects.quality.id;
+export const QUALITY_PROJECT_NAME = (): string => envProfile().projects.quality.name;
 
-// ── 数据源 & 数据库 ──────────────────────────────────────────
-export const SHARED_DATABASE = ENV.datasources.sparkthrift.sql.database;
-export const DORIS_DATABASE = ENV.datasources.doris.sql.database;
-export const SPARKTHRIFT_DATABASE = ENV.datasources.sparkthrift.sql.database;
-export const DORIS_DATASOURCE_KEYWORD = ENV.datasources.doris.aliases[0];
-export const SPARKTHRIFT_DATASOURCE_KEYWORD = ENV.datasources.sparkthrift.batch.name;
+// ── 数据源 & 数据库（同上，惰性函数导出）──────────────────────────────────────
+export const SHARED_DATABASE = (): string => envProfile().datasources.sparkthrift.sql.database;
+export const DORIS_DATABASE = (): string => envProfile().datasources.doris.sql.database;
+export const SPARKTHRIFT_DATABASE = (): string => envProfile().datasources.sparkthrift.sql.database;
+export const DORIS_DATASOURCE_KEYWORD = (): string | undefined => envProfile().datasources.doris.aliases[0];
+export const SPARKTHRIFT_DATASOURCE_KEYWORD = (): string =>
+  envProfile().datasources.sparkthrift.batch?.name ?? "__unconfigured_sparkthrift__";
 
 // ── 测试表 ────────────────────────────────────────────────────
 /** key 值范围校验专用测试表（建在 "pw" 数据库下） */

@@ -10,7 +10,6 @@ import {
   addRuleToPackage,
   configureJsonFormatRule,
   createRuleSetDraft,
-  DORIS_MONITOR_DATASOURCE,
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
 } from "../../../../../../_shared/pages/validity-json-value-format/json-format-utils";

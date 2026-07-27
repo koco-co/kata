@@ -12,7 +12,20 @@ import {
 } from "../../../../../../_shared/helpers/test-setup";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 
-const ENV = getEnvConfig();
+// env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
+let envCache: ReturnType<typeof getEnvConfig> | undefined;
+function envProfile(): ReturnType<typeof getEnvConfig> {
+  return (envCache ??= getEnvConfig());
+}
+
+/** discovery 收集用例时 env 不可用，返回 undefined 让调用方退回默认展开；live 运行由 kata env run 注入 env */
+function tryEnvProfile(): ReturnType<typeof getEnvConfig> | undefined {
+  try {
+    return envProfile();
+  } catch {
+    return undefined;
+  }
+}
 
 export interface DatasourceConfig {
   readonly id: "sparkthrift2.x" | "doris3.x";
@@ -252,7 +265,7 @@ const PROFILE_KEY_TO_DATASOURCE_ID: Record<string, DatasourceConfig["id"]> = {
 };
 
 function loadActiveDatasources(): readonly DatasourceConfig[] {
-  const activeIds = ENV.runtime.activeDatasources;
+  const activeIds = tryEnvProfile()?.runtime.activeDatasources ?? [];
   if (activeIds.length === 0) {
     return DEFAULT_ACTIVE_DATASOURCE_IDS.map((id) => DATASOURCE_BY_ID.get(id)!);
   }
@@ -272,9 +285,10 @@ function loadActiveDatasources(): readonly DatasourceConfig[] {
 export const ACTIVE_DATASOURCES = loadActiveDatasources();
 export const ALL_TABLES = TABLE_DEFINITIONS.map((table) => table.name) as readonly string[];
 
-export const QUALITY_PROJECT_ID = ENV.projects.quality.id;
-export const QUALITY_PROJECT_NAME = ENV.projects.quality.name;
-export const BATCH_PROJECT_NAME = ENV.projects.offline.name;
+// env 派生标量改为惰性函数导出：收集期不触 env，调用点在运行时执行（live 时 env 已由 kata env run 注入）
+export const QUALITY_PROJECT_ID = (): number => envProfile().projects.quality.id;
+export const QUALITY_PROJECT_NAME = (): string => envProfile().projects.quality.name;
+export const BATCH_PROJECT_NAME = (): string => envProfile().projects.offline.name;
 
 let currentDatasource = ACTIVE_DATASOURCES[0] ?? DEFAULT_DATASOURCES[0];
 
@@ -296,10 +310,13 @@ export function resolveVariantName(baseName: string, datasource = getCurrentData
 
 // Candidate batch project names to try when setting up preconditions.
 // Environments may use different naming conventions (e.g. "pw_test" in LTQC, "pw" in ltqcdev).
-const BATCH_PROJECT_CANDIDATES = [
-  BATCH_PROJECT_NAME,
-  BATCH_PROJECT_NAME.replace(/_test$/, ""),
-].filter((v, i, a) => v && a.indexOf(v) === i);
+// 惰性求值：收集期不触 env（见 QUALITY_PROJECT_NAME 注释）
+function batchProjectCandidates(): string[] {
+  const batchProjectName = BATCH_PROJECT_NAME();
+  return [batchProjectName, batchProjectName.replace(/_test$/, "")].filter(
+    (v, i, a) => v && a.indexOf(v) === i,
+  );
+}
 const preconditionsReady = new Set<string>();
 
 export async function runPreconditions(
@@ -323,8 +340,7 @@ export async function runPreconditions(
 
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     // Try each candidate project name on every attempt
-    let lastAttemptError: Error | null = null;
-    for (const candidateProjectName of BATCH_PROJECT_CANDIDATES) {
+    for (const candidateProjectName of batchProjectCandidates()) {
       try {
         await setupPreconditions({
           client: await createClient(page),
@@ -379,7 +395,6 @@ export async function runPreconditions(
         if (!retryableError) {
           throw error;
         }
-        lastAttemptError = error instanceof Error ? error : new Error(message);
         process.stderr.write(
           `[preconditions] ${datasource.reportName} project="${candidateProjectName}" hit error: ${message.slice(0, 100)}\n`,
         );
@@ -458,7 +473,7 @@ export async function resolveEffectiveQualityProjectId(page: Page): Promise<numb
           const namedProject = projects.find((p) =>
             (p.name ?? p.projectName ?? "")
               .toLowerCase()
-              .includes(QUALITY_PROJECT_NAME.toLowerCase()),
+              .includes(QUALITY_PROJECT_NAME().toLowerCase()),
           );
           const resolvedId = namedProject?.id
             ? Number(namedProject.id)
@@ -469,7 +484,7 @@ export async function resolveEffectiveQualityProjectId(page: Page): Promise<numb
           if (resolvedId !== null && Number.isFinite(resolvedId)) {
             _cachedEffectiveQualityProjectId = resolvedId;
             process.stderr.write(
-              `[quality-project] resolved effective project ID: ${_cachedEffectiveQualityProjectId} (hardcoded default: ${QUALITY_PROJECT_ID}).\n`,
+              `[quality-project] resolved effective project ID: ${_cachedEffectiveQualityProjectId} (hardcoded default: ${QUALITY_PROJECT_ID()}).\n`,
             );
             return _cachedEffectiveQualityProjectId;
           }
@@ -504,9 +519,9 @@ export async function resolveEffectiveQualityProjectId(page: Page): Promise<numb
     return _cachedEffectiveQualityProjectId;
   }
 
-  _cachedEffectiveQualityProjectId = QUALITY_PROJECT_ID;
+  _cachedEffectiveQualityProjectId = QUALITY_PROJECT_ID();
   process.stderr.write(
-    `[quality-project] project ID resolution failed or returned no data, using hardcoded default: ${QUALITY_PROJECT_ID}.\n`,
+    `[quality-project] project ID resolution failed or returned no data, using hardcoded default: ${_cachedEffectiveQualityProjectId}.\n`,
   );
   return _cachedEffectiveQualityProjectId;
 }

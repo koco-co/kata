@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 
 export const INVENTORY_PATH =
-  "workspace/dataAssets/features/【v6410】【岚图汽车】【数据质量】已上线需求用例/results/inventory.json";
+  "workspace/dataAssets/features/v7.0.0/【v700】【岚图汽车】【数据质量】已上线需求用例/results/inventory.json";
 
 export type InventoryCase = {
   readonly id: string;

@@ -1,14 +1,15 @@
 #!/usr/bin/env bun
 
 /**
- * 解析 archive.md 中每个用例的监控规则配置，按规则内容去重，
- * 找出哪些用例共享相同的监控规则组合。
+ * 解析用例归档 md（cases/exports/数据质量任务性能优化_规则sql合并.md）中每个用例的
+ * 监控规则配置，按规则内容去重，找出哪些用例共享相同的监控规则组合。
  */
 import { readFileSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 
 const input = process.argv[2];
 if (!input) {
-  console.error("Usage: bun analyze-cases.ts <archive.md>");
+  console.error("Usage: bun analyze-rules.ts <cases/exports/数据质量任务性能优化_规则sql合并.md>");
   process.exit(1);
 }
 
@@ -16,22 +17,6 @@ const text = readFileSync(input, "utf-8");
 
 // 每个用例以 ##### 开头
 const caseBlocks = text.split(/\n(?=##### )/);
-
-// 提取一条规则的标准化 key（忽略规则编号、描述等）
-function normalizeRule(stepText: string): string {
-  // 提取「监控规则N」到下一个「监控规则」或 step 结束之间的内容
-  let config = stepText
-    .replace(/「监控规则\d+」配置如下[：:]\s*/g, "")
-    .replace(/（不合并）/g, "")
-    .replace(/「规则描述」输入「[^」]*」/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  // 去掉编号前缀
-  config = config.replace(/^\|\s*\d+\s*\|/, "");
-
-  return config;
-}
 
 // 提取单条规则的核心参数
 interface RuleDef {
@@ -136,7 +121,6 @@ for (const block of caseBlocks) {
     if (cols.length < 4) continue;
     const stepNum = parseInt(cols[1]);
     const stepText = cols[2];
-    const expected = cols[3];
 
     if (isNaN(stepNum)) continue;
 
@@ -233,7 +217,7 @@ const sortedPacks = Array.from(rulePackMap.entries())
   .sort((a, b) => b[1].cases.length - a[1].cases.length);
 
 let packIdx = 1;
-for (const [rpFp, { cases: caseList, rules }] of sortedPacks) {
+for (const [, { cases: caseList, rules }] of sortedPacks) {
   const ruleIds = rules.map(r => {
     const fp = ruleFingerprint(r);
     return ruleIdMap.get(fp) || "?";
@@ -255,7 +239,7 @@ output += `## 具有完全相同规则配置的用例组\n\n`;
 const identicalGroups = sortedPacks.filter(([_, v]) => v.cases.length > 1);
 
 if (identicalGroups.length > 0) {
-  for (const [rpFp, { cases: caseList }] of identicalGroups) {
+  for (const [, { cases: caseList }] of identicalGroups) {
     output += `### 共享规则组（${caseList.length} 个用例）\n\n`;
     for (const c of caseList) {
       output += `- ${c}\n`;
@@ -312,7 +296,8 @@ for (let i = 0; i < sortedPacks2.length; i++) {
   output += `${i + 1}. ${caseList.length} 个用例共享同一组规则\n`;
 }
 
-const outPath = input.replace(/archive\.md$/, "rule-analysis.md");
+// 输入为 cases/exports/ 下的归档 md，输出固定写到 cases/rule-analysis.md
+const outPath = join(dirname(input), "..", "rule-analysis.md");
 writeFileSync(outPath, output, "utf-8");
 console.log(`Analysis written to: ${outPath}`);
 console.log(`Total cases: ${cases.length}`);

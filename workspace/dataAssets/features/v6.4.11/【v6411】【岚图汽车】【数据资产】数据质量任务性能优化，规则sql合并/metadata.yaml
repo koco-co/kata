@@ -1,6 +1,6 @@
 schema: FeatureMetadata@2
 id: 【v6411】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
-feature_id: 2026-06-lanhu-f06b94f8
+feature_id: "v6.4.11/【v6411】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并"
 display_name: 【v6411】【15862】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
 status: active
 created_at: 2026-06-05
@@ -34,6 +34,15 @@ case_drafting:
       ambiguity_class: non_blocking_question
       confidence: high
   coverage_matrix_path: cases/test-point-checklist.md
+  source_refs:
+    - id: SR-NOTE-RULE-ANALYSIS
+      kind: analysis_note
+      path: cases/rule-analysis.md
+      note: analyze-rules.ts 对归档用例监控规则的去重分析产物（规则指纹/规则包组合/最小覆盖）
+    - id: SR-NOTE-MERGE-SCENARIOS
+      kind: analysis_note
+      path: cases/merge-performance-scenarios.md
+      note: 规则 SQL 合并性能场景说明（合并条件/可合并函数/规则拼接包影响）
 automation:
   status: ready
   intents:

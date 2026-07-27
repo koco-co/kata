@@ -6,8 +6,7 @@
 
 1. 从仓库根目录 `rules/` 拷贝需要覆盖的 `.md` 文件到本目录
 2. 修改该文件即可（保留 frontmatter 若有）
-3. 规则加载由以下命令完成：
-   `kata rules load --project dataAssets`
+3. 规则无需命令加载：CLI 与 skill 在执行任务时直接读取本目录的 `.md` 文件生效（如 `cli/lib/xmind-rules.ts` 按项目级覆盖优先加载）
 
 ## 常见场景
 

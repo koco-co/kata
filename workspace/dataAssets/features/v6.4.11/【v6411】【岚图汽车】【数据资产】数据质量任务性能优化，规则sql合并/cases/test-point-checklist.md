@@ -1,7 +1,7 @@
 # 测试点清单
 
 - 需求: 15862【数据资产】数据质量任务、落标检查任务性能优化，规则sql合并
-- 用例来源: cases/archive.md
+- 用例来源: cases/exports/数据质量任务性能优化_规则sql合并.md
 - 覆盖数量: 72 条，P0 17 条，P1 39 条，P2 16 条
 - 自动化基线: 以当前 Archive 的 P0 优先，P1/P2 作为后续扩展范围
 - 环境修正: 数据库/schema 使用 pw_test，数据表为 pw_test.test_info_1

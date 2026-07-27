@@ -115,32 +115,6 @@ async function navigateToDqPage(page: Page, menuName: string): Promise<void> {
   await waitForUiSettled(page);
 }
 
-/** Click an Ant Design Select, then pick an option by visible text */
-async function selectAntOption(
-  page: Page,
-  selectLocator: import("@playwright/test").Locator,
-  optionText: string | RegExp,
-): Promise<void> {
-  await selectLocator.locator(".ant-select-selector").click();
-  await page
-    .locator(".ant-select-dropdown:visible .ant-select-item-option")
-    .filter({ hasText: optionText })
-    .first()
-    .click();
-}
-
-/** Wait for an Ant Design message (toast) that contains the specified text */
-async function expectAntMessage(page: Page, text: string | RegExp, timeout = 10000): Promise<void> {
-  await expect(
-    page.locator(".ant-message .ant-message-notice").filter({ hasText: text }),
-  ).toBeVisible({ timeout });
-}
-
-/** Generate a unique name with timestamp suffix */
-function uniqueName(prefix: string): string {
-  return `${prefix}_${Date.now().toString(36)}`;
-}
-
 // ─── Tests ───────────────────────────────────────────────────────────
 test.describe("【岚图】规则集管理 - 完整回归测试", () => {
   test.describe.configure({ mode: "serial" });
@@ -526,7 +500,6 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
    */
   async function saveRuleTask(
     page: import("@playwright/test").Page,
-    taskName: string,
     options: { scheduleType?: string; executeImmediately?: boolean } = {},
   ) {
     const { scheduleType = "时", executeImmediately = true } = options;
@@ -740,7 +713,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         await importRulePackage(page, ruleName);
 
         // ── 步骤5: 保存规则任务 task01 后立即执行 ──
-        await saveRuleTask(page, taskName, { scheduleType: "时", executeImmediately: true });
+        await saveRuleTask(page, { scheduleType: "时", executeImmediately: true });
 
         // Wait for execution and verify result: 校验不通过
         await goToRuleTaskPage(page, projectId);
@@ -794,7 +767,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         await importRulePackage(page, ruleName);
 
         // ── 步骤5: 保存规则任务 task01 后立即执行 ──
-        await saveRuleTask(page, taskName1, { scheduleType: "时", executeImmediately: true });
+        await saveRuleTask(page, { scheduleType: "时", executeImmediately: true });
 
         await goToRuleTaskPage(page, projectId);
         const status1 = await waitForTaskExecution(page, taskName1, 90_000);
@@ -846,7 +819,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
 
         // Import the modified rule package
         await importRulePackage(page, ruleName);
-        await saveRuleTask(page, taskName2, { scheduleType: "时", executeImmediately: true });
+        await saveRuleTask(page, { scheduleType: "时", executeImmediately: true });
 
         await goToRuleTaskPage(page, projectId);
         const status2 = await waitForTaskExecution(page, taskName2, 90_000);
@@ -1030,7 +1003,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         await importRulePackage(page, rulePackage2);
 
         // Save and execute
-        await saveRuleTask(page, taskName, { scheduleType: "时", executeImmediately: true });
+        await saveRuleTask(page, { scheduleType: "时", executeImmediately: true });
 
         // ── 步骤3: 选择任务 rule01 立即执行 → 显示未通过数据 ──
         await goToRuleTaskPage(page, projectId);
@@ -1255,7 +1228,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         }
 
         // Save and execute
-        await saveRuleTask(page, taskName, { scheduleType: "时", executeImmediately: true });
+        await saveRuleTask(page, { scheduleType: "时", executeImmediately: true });
 
         // ── 步骤3: 选择任务 rule01 立即执行 ──
         await goToRuleTaskPage(page, projectId);
@@ -1316,7 +1289,7 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         });
 
         // Save and execute
-        await saveRuleTask(page, taskName, { scheduleType: "时", executeImmediately: true });
+        await saveRuleTask(page, { scheduleType: "时", executeImmediately: true });
 
         // ── 步骤3: 选择任务 rule01 立即执行 ──
         await goToRuleTaskPage(page, projectId);
@@ -2591,7 +2564,6 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .getByRole("button", { name: /克隆|复制/ })
         .or(cloneTarget.locator(".anticon-copy"));
       if (await cloneBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
-        const textBefore = await cloneTarget.innerText();
         await cloneBtn.click();
         await waitForUiSettled(page);
 
@@ -2852,15 +2824,10 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       const rulePackRows = page
         .locator("[class*='rulePack'], .ant-form-item")
         .filter({ hasText: /规则包/ });
-      const firstRowDeleteBtn = rulePackRows
-        .first()
-        .locator("[class*='delete'], .anticon-delete, .anticon-minus-circle");
       const secondRowDeleteBtn = rulePackRows
         .nth(1)
         .locator("[class*='delete'], .anticon-delete, .anticon-minus-circle");
 
-      // 第一个没有删除按钮(或不可见)
-      const firstDeleteVisible = await firstRowDeleteBtn.isVisible().catch(() => false);
       // 从设计来看, 只有一个的时候没有删除按钮; 有多个时第一个也可能有 → 此处验证第二个确实有
       await expect(secondRowDeleteBtn).toBeVisible({ timeout: 3_000 });
 
@@ -3933,18 +3900,6 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
         .filter({ hasText: /数据源/ })
         .first();
       await expect(dsFormItem).toBeVisible({ timeout: 3_000 });
-      const dsRequired = dsFormItem.locator(".ant-form-item-required, [class*='required']");
-      // 数据源字段应有必填标记
-      const dsHasRequired =
-        (await dsRequired.isVisible().catch(() => false)) ||
-        (await dsFormItem
-          .locator("label")
-          .evaluate(
-            (el) =>
-              el.classList.contains("ant-form-item-required") ||
-              el.querySelector(".ant-form-item-required") !== null,
-          )
-          .catch(() => false));
 
       // 数据库必填
       const dbFormItem = page
@@ -4169,7 +4124,6 @@ test.describe("【岚图】规则集管理 - 完整回归测试", () => {
       // 步骤 2-3: 选择规则集1, 点击删除 → 二次确认 → 确认删除 → Toast 删除成功
       const ruleSet1Row = page.locator(".ant-table-tbody tr").first();
       await expect(ruleSet1Row).toBeVisible({ timeout: 5_000 });
-      const ruleSet1Name = (await ruleSet1Row.locator("td").first().innerText()).trim();
 
       const deleteBtn1 = ruleSet1Row
         .getByRole("button", { name: /删除/ })

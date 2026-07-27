@@ -1,5 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 
+import { getEnvConfig } from "../../../helpers/test-setup";
 import { DataAssetsShellPage } from "../base/data-assets-shell-page";
 
 type SourceRef = string;
@@ -91,7 +92,7 @@ export class LaunchedPlatformPage {
 
   private async expectQualityGeneralConfigMenu(sourceRef: SourceRef): Promise<void> {
     await this.expectBodyContains(sourceRef, [
-      "pw_test",
+      getEnvConfig().projects.quality.name,
       "数据质量",
       "总览",
       "规则库配置",

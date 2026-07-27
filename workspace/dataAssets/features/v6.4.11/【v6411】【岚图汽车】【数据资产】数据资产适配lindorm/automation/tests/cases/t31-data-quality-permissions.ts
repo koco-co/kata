@@ -5,6 +5,7 @@
 // generated_at: 2026-05-27T00:00:00Z
 // SourceRefs: SR-2099-01-DQ-PERMISSIONS-L8346, SR-2099-01-DQ-PERMISSIONS-L8364, SR-UI-PROBE-20260527-DQ-PERMISSIONS-001
 import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import type { BrowserContextOptions } from "@playwright/test";
 import {
   expectDataQualityCommonConfigPermissionContract,
   expectDataQualityRuleBasePermissionContract,
@@ -18,12 +19,12 @@ test.setTimeout(3 * 60 * 1000);
 
 const limitedEnvName = process.env.KATA_DATAASSETS_DQ_LIMITED_ENV ?? "";
 
-function limitedAccountState() {
+function limitedAccountState(): BrowserContextOptions["storageState"] {
   const primary = getEnvConfig();
   return loadNamedDataAssetsAuthState(limitedEnvName, {
     baseUrl: primary.urls.baseUrl,
     tenantName: primary.auth.tenantName,
-  });
+  }) as unknown as BrowserContextOptions["storageState"];
 }
 
 test("【P0】数据质量权限控制通用配置页面权限控制正确", async ({ browser, page, step }) => {

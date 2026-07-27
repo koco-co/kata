@@ -69,7 +69,13 @@ export async function searchDataMap(page: Page, keyword: string, sourceRef: stri
 
 export async function expectSearchResult(page: Page, keyword: string, expectedTexts: readonly string[], sourceRef: string) {
   await searchDataMap(page, keyword, sourceRef);
-  await expectAnyText(page, expectedTexts, sourceRef);
+  // 必须限定在搜索结果行内断言：body 级匹配会被搜索框回显的关键词恒真化
+  for (const text of expectedTexts) {
+    const resultRow = page.locator(".ant-table-row").filter({ hasText: text }).first();
+    await expect(resultRow, `${sourceRef}: 搜索「${keyword}」的结果应包含「${text}」`).toBeVisible({
+      timeout: 30000,
+    });
+  }
 }
 
 export async function expectEmptySearch(page: Page, keyword: string, sourceRef: string): Promise<void> {
@@ -109,8 +115,8 @@ export async function expectDataCatalogSearch(page: Page, sourceRef: string): Pr
   const catalog = page.locator("text=/数据目录/").first();
   await expect(catalog, `${sourceRef}: 数据目录入口应可见`).toBeVisible({ timeout: 15000 });
   await catalog.click();
-  await expectSearchResult(page, "test_test", ["test_test", "数据目录"], sourceRef);
-  await expectSearchResult(page, "TEST_TEST", ["test_test", "数据目录"], sourceRef);
+  await expectSearchResult(page, "test_test", ["test_test"], sourceRef);
+  await expectSearchResult(page, "TEST_TEST", ["test_test"], sourceRef);
   await expectEmptySearch(page, "!@#$%^&*", sourceRef);
 }
 
@@ -118,7 +124,7 @@ export async function expectPopularSearchCount(page: Page, sourceRef: string): P
   await openDataMap(page, sourceRef);
   await searchDataMap(page, "test", sourceRef);
   await searchDataMap(page, "test", sourceRef);
-  await expectAnyText(page, ["热门查询", "test"], sourceRef);
+  await expectAnyText(page, ["热门查询"], sourceRef);
 }
 
 // ─── 数据地图资产类型统计与类型入口（t12） ───

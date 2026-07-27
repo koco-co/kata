@@ -4,7 +4,6 @@ import type { Page } from "@playwright/test";
 import { getEnvConfig } from "../runtime/env-profile";
 
 type RuntimeEnv = Record<string, string | undefined>;
-type ProjectListResponse = { data?: Array<{ id?: number | string }> };
 
 export function getEnv(name: string): string | undefined {
   return (globalThis as typeof globalThis & { process?: { env?: RuntimeEnv } }).process?.env?.[

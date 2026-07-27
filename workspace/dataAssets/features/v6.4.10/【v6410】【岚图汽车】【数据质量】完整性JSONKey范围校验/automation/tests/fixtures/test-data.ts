@@ -11,9 +11,22 @@ import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 import {
   clearCurrentDatasource as clearLegacyDatasource,
   setCurrentDatasource as setLegacyDatasource,
-} from "../../../validity-multi-rule-logic/tests/data/test-data";
+} from "../../../../../v6.4.7/【v647】【数据质量】有效性多规则且或关系/automation/tests/fixtures/test-data";
 
-const ENV = getEnvConfig();
+// env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
+let envCache: ReturnType<typeof getEnvConfig> | undefined;
+function envProfile(): ReturnType<typeof getEnvConfig> {
+  return (envCache ??= getEnvConfig());
+}
+
+/** discovery 收集用例时 env 不可用，返回 undefined 让调用方退回默认展开；live 运行由 kata env run 注入 env */
+function tryEnvProfile(): ReturnType<typeof getEnvConfig> | undefined {
+  try {
+    return envProfile();
+  } catch {
+    return undefined;
+  }
+}
 
 export interface DatasourceConfig {
   readonly id: "sparkthrift2.x" | "doris3.x";
@@ -230,9 +243,16 @@ const DEFAULT_DATASOURCES: readonly DatasourceConfig[] = [
     preconditionType: "SparkThrift",
     optionPattern: /(sparkthrift|hadoop)/i,
     sourceTypePattern: /sparkthrift/i,
-    database: ENV.datasources.sparkthrift.sql.database,
-    metadataDataSourceId: ENV.datasources.sparkthrift.metadata.id,
-    metadataDataSourceType: ENV.datasources.sparkthrift.metadata.typeId,
+    // env 派生字段用 getter 惰性求值：收集（discovery）阶段构造本数组时不得触 env
+    get database() {
+      return envProfile().datasources.sparkthrift.sql.database;
+    },
+    get metadataDataSourceId() {
+      return envProfile().datasources.sparkthrift.metadata.id;
+    },
+    get metadataDataSourceType() {
+      return envProfile().datasources.sparkthrift.metadata.typeId;
+    },
     primaryFieldType: "string",
   },
   {
@@ -242,12 +262,18 @@ const DEFAULT_DATASOURCES: readonly DatasourceConfig[] = [
     preconditionType: "Doris",
     optionPattern: /doris/i,
     sourceTypePattern: /doris/i,
-    database: ENV.datasources.doris.sql.database,
-    metadataDataSourceId: ENV.datasources.doris.metadata.id,
-    metadataDataSourceType: ENV.datasources.doris.metadata.typeId,
+    get database() {
+      return envProfile().datasources.doris.sql.database;
+    },
+    get metadataDataSourceId() {
+      return envProfile().datasources.doris.metadata.id;
+    },
+    get metadataDataSourceType() {
+      return envProfile().datasources.doris.metadata.typeId;
+    },
     primaryFieldType: "json",
   },
-] as const;
+];
 
 const DATASOURCE_BY_ID = new Map(DEFAULT_DATASOURCES.map((item) => [item.id, item] as const));
 const DEFAULT_ACTIVE_DATASOURCE_IDS: readonly DatasourceConfig["id"][] = ["sparkthrift2.x"];
@@ -259,7 +285,7 @@ const PROFILE_KEY_TO_DATASOURCE_ID: Record<string, DatasourceConfig["id"]> = {
 };
 
 function loadActiveDatasources(): readonly DatasourceConfig[] {
-  const activeProfileKeys = ENV.runtime.activeDatasources;
+  const activeProfileKeys = tryEnvProfile()?.runtime.activeDatasources ?? [];
   if (activeProfileKeys.length === 0) {
     return DEFAULT_ACTIVE_DATASOURCE_IDS.map((id) => DATASOURCE_BY_ID.get(id)!);
   }
@@ -275,9 +301,10 @@ function loadActiveDatasources(): readonly DatasourceConfig[] {
 
 export const ACTIVE_DATASOURCES = loadActiveDatasources();
 export const ALL_TABLES = TABLE_DEFINITIONS.map((table) => table.name) as readonly string[];
-export const QUALITY_PROJECT_ID = ENV.projects.quality.id;
-export const QUALITY_PROJECT_NAME = ENV.projects.quality.name;
-export const TARGET_ENV = ENV.env;
+// env 派生标量改为惰性函数导出：收集期不触 env，调用点在运行时执行（live 时 env 已由 kata env run 注入）
+export const QUALITY_PROJECT_ID = (): number => envProfile().projects.quality.id;
+export const QUALITY_PROJECT_NAME = (): string => envProfile().projects.quality.name;
+export const TARGET_ENV = (): string => envProfile().env;
 export const SUITE_KEYS = [
   KEY_NAMES.k1,
   KEY_NAMES.k2,
@@ -310,10 +337,13 @@ export function resolveVariantName(baseName: string, datasource = getCurrentData
   return `${baseName}_${datasource.cacheKey}`;
 }
 
-const BATCH_PROJECT_CANDIDATES = [
-  QUALITY_PROJECT_NAME,
-  QUALITY_PROJECT_NAME.replace(/_test$/, ""),
-].filter((value, index, array) => value && array.indexOf(value) === index);
+// 惰性求值：收集期不触 env（见 QUALITY_PROJECT_NAME 注释）
+function batchProjectCandidates(): string[] {
+  const qualityProjectName = QUALITY_PROJECT_NAME();
+  return [qualityProjectName, qualityProjectName.replace(/_test$/, "")].filter(
+    (value, index, array) => value && array.indexOf(value) === index,
+  );
+}
 const preconditionsReady = new Set<string>();
 
 export async function runPreconditions(
@@ -332,7 +362,7 @@ export async function runPreconditions(
 
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     let lastAttemptError: Error | null = null;
-    for (const candidateProjectName of BATCH_PROJECT_CANDIDATES) {
+    for (const candidateProjectName of batchProjectCandidates()) {
       try {
         await setupPreconditions({
           client: createPreconditionClient(page),
@@ -426,7 +456,7 @@ export async function resolveEffectiveQualityProjectId(page: Page): Promise<numb
         const namedProject = projects.find((project) =>
           (project.name ?? project.projectName ?? "")
             .toLowerCase()
-            .includes(QUALITY_PROJECT_NAME.toLowerCase()),
+            .includes(QUALITY_PROJECT_NAME().toLowerCase()),
         );
         const resolvedId = namedProject?.id
           ? Number(namedProject.id)
@@ -444,6 +474,6 @@ export async function resolveEffectiveQualityProjectId(page: Page): Promise<numb
     // ignore and fall back to hardcoded id
   }
 
-  cachedEffectiveQualityProjectId = QUALITY_PROJECT_ID;
+  cachedEffectiveQualityProjectId = QUALITY_PROJECT_ID();
   return cachedEffectiveQualityProjectId;
 }

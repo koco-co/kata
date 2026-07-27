@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-04-assets-integration-test
+feature_id: "v6.4.7/【v647】【数据资产】集成测试用例"
 case_drafting:
   status: completed
   archive_path: cases/exports/集成测试用例.md

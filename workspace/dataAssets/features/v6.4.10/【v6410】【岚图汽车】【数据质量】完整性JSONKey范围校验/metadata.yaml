@@ -1,5 +1,5 @@
 schema: FeatureMetadata@2
-id: 【v647】【通用配置】完整性JSONKey范围校验
+id: 【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验
 display_name: 【202604】【通用配置】【数据质量】完整性 — JSON Key 范围校验
 status: active
 created_at: 2026-05-14
@@ -9,7 +9,8 @@ modules:
   - dq
 customers:
   - standard
-versions: []
+versions:
+  - v6.4.10
 owners: []
 inputs: []
 relates_to: []
@@ -17,7 +18,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-04-dq-builtin-completeness-json-key-range
+feature_id: "v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验"
 case_drafting:
   status: completed
   archive_path: cases/exports/完整性JSONKey范围校验.md

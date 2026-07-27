@@ -153,7 +153,15 @@ export class LaunchedAssetsPage {
       dataSourceName,
       { timeout: 30_000 },
     );
-    await this.page.getByText("编辑", { exact: true }).first().click();
+    // 必须定位到目标数据源所在行再点「编辑」，避免误改其他同步任务
+    const targetRow = this.page
+      .locator(".ant-table-tbody tr")
+      .filter({ hasText: dataSourceName })
+      .first();
+    await expect(targetRow, `${sourceRef}: sync task row for ${dataSourceName} should exist`).toBeVisible({
+      timeout: 30_000,
+    });
+    await targetRow.getByText("编辑", { exact: true }).first().click();
     await expect(this.page.locator("body")).toContainText("编辑周期同步任务", { timeout: 30_000 });
     await this.page.getByRole("button", { name: "下一步" }).click();
     await expect(this.page.locator("body")).toContainText("调度配置", { timeout: 30_000 });

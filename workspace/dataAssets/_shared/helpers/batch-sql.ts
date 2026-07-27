@@ -5,9 +5,6 @@ import type { Page } from "@playwright/test";
 
 import { applyRuntimeCookies, buildOfflineUrl } from "./env-setup";
 
-type RuntimeEnv = Record<string, string | undefined>;
-type ProjectListResponse = { data?: Array<{ id?: number | string }> };
-
 /**
  * 在离线开发(batch)中按名称选择指定项目
  *
@@ -212,8 +209,8 @@ async function runSqlInCurrentBatchEditor(
   await page.keyboard.press("Delete");
   await waitForUiSettled(page);
 
-  // 分块键盘输入 SQL (每块 100 字符以提高可靠性)
-  const chunks = sqlContent.match(/.{1,100}/g) ?? [sqlContent];
+  // 分块键盘输入 SQL (每块 100 字符以提高可靠性)；dotAll 保证多行 SQL 的换行不丢失
+  const chunks = sqlContent.match(/.{1,100}/gs) ?? [sqlContent];
   for (const chunk of chunks) {
     await page.keyboard.type(chunk, { delay: 0 });
   }

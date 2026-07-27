@@ -22,7 +22,7 @@ const SURFACE_EXPECTATIONS: Record<
 > = {
   definition: {
     routeHash: "#/dataStandard",
-    bodyTexts: ["标准目录", "hh", "已上线", "下线"],
+    bodyTexts: ["标准目录", "已上线", "下线"],
     buttons: ["导出标准", "导入标准", "新建标准"],
     tableHeaders: ["中文名称", "英文名称", "英文缩写", "业务定义", "状态", "创建时间", "操作"],
     placeholders: ["请输入标准名称进行搜索"],

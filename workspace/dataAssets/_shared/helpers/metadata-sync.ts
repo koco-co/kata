@@ -5,8 +5,6 @@ import type { Locator, Page } from "@playwright/test";
 
 import { applyRuntimeCookies, buildDataAssetsUrl } from "./env-setup";
 
-type RuntimeEnv = Record<string, string | undefined>;
-type ProjectListResponse = { data?: Array<{ id?: number | string }> };
 type SyncMetadataOptions = {
   requireExactTable?: boolean;
   allowFilterFallbackForExactTable?: boolean;
@@ -136,7 +134,7 @@ export async function syncMetadata(
   // 选择数据表（表格行中的第二个 combobox）
   const tableCombobox = modal.locator(".ant-table-row .ant-select").nth(1);
   if (await tableCombobox.isVisible({ timeout: 5000 }).catch(() => false)) {
-    const trySelectComboboxValue = async (combobox: ReturnType<typeof modal.locator>, option: string, label: string): Promise<boolean> => {
+    const trySelectComboboxValue = async (combobox: ReturnType<typeof modal.locator>, option: string): Promise<boolean> => {
       await combobox.locator(".ant-select-selector").click({ timeout: 30_000 });
       await waitForUiSettled(page);
       await page.keyboard.press(process.platform === "darwin" ? "Meta+A" : "Control+A").catch(() => {});
@@ -217,16 +215,16 @@ export async function syncMetadata(
       let attempts = 0;
       while (Date.now() < deadline) {
         attempts += 1;
-        if (await trySelectComboboxValue(combobox, option, "table")) return true;
+        if (await trySelectComboboxValue(combobox, option)) return true;
         await waitForUiSettled(page);
       }
-      if (attempts === 0) return trySelectComboboxValue(combobox, option, "table");
+      if (attempts === 0) return trySelectComboboxValue(combobox, option);
       return false;
     };
     if (tableName) {
       const selectedExactTable = requireExactTable && !allowFilterFallbackForExactTable
         ? await trySelectTableWithRetry(tableCombobox, tableName)
-        : await trySelectComboboxValue(tableCombobox, tableName, "table");
+        : await trySelectComboboxValue(tableCombobox, tableName);
       if (selectedExactTable) {
         selectedSyncTableName = tableName;
       } else {
@@ -332,6 +330,15 @@ async function waitForSyncListCompletion(
       lastTargetRow = rows.first();
       lastRowText = ((await rows.first().innerText({ timeout: 5_000 }).catch(() => "")) ?? "").replace(/\s+/g, " ");
       if (/同步完成/.test(lastRowText)) return;
+      // 失败终态必须显式抛错，不能当作完成静默返回
+      if (/同步失败|同步异常|同步错误/.test(lastRowText)) {
+        const failureInstanceText = await readSyncInstanceText(page, rows.first());
+        throw new Error(
+          `Metadata sync failed for ${datasourceName}/${database}${tableName ? `/${tableName}` : ""}; lastRow=${lastRowText}${
+            failureInstanceText ? `; instance=${failureInstanceText}` : ""
+          }`,
+        );
+      }
       if (!/同步中|运行中|进行中|等待|初始化/.test(lastRowText) && /同步/.test(lastRowText)) return;
     }
     const refresh = page

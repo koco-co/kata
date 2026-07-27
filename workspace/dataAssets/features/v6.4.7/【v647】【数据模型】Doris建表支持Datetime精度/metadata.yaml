@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-01-modeling-doris-datetime-precision
+feature_id: "v6.4.7/【v647】【数据模型】Doris建表支持Datetime精度"
 case_drafting:
   status: completed
   archive_path: cases/exports/Doris建表支持Datetime精度.md

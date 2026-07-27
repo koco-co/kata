@@ -1,6 +1,6 @@
 schema: FeatureMetadata@2
 id: 【v700】【岚图汽车】【数据质量】已上线需求用例
-feature_id: 2026-07-ltqc-launched-cases
+feature_id: "v7.0.0/【v700】【岚图汽车】【数据质量】已上线需求用例"
 display_name: 【v700】【岚图汽车】【数据质量】已上线需求用例
 status: active
 created_at: 2026-05-14

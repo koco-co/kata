@@ -30,11 +30,11 @@
 
 import { test as base, expect as baseExpect, type Locator, type Page } from "@playwright/test";
 
-export type StepFn = (
+export type StepFn = <T>(
   name: string,
-  body: () => Promise<void>,
+  body: () => Promise<T>,
   highlight?: Locator,
-) => Promise<void>;
+) => Promise<T>;
 
 const HIGHLIGHT_STYLE = "outline: 3px solid red !important; outline-offset: 2px !important;";
 
@@ -329,7 +329,11 @@ export const test = base.extend<{ step: StepFn }>({
     let stepIndex = 0;
     const captureMode = resolveStepCaptureMode();
 
-    const stepFn: StepFn = async (name, body, highlight?) => {
+    const stepFn: StepFn = async <T,>(
+      name: string,
+      body: () => Promise<T>,
+      highlight?: Locator,
+    ): Promise<T> => {
       // 解析步骤名：格式 "步骤N: {{操作}} → {{预期}}"
       const arrowIdx = name.indexOf("→");
       const rawDesc = arrowIdx > 0 ? name.slice(0, arrowIdx) : name;
@@ -342,9 +346,10 @@ export const test = base.extend<{ step: StepFn }>({
       currentStepCapture = captureState;
       const stopOverlayWatcher = startOverlaySnapshotWatcher(page);
 
-      await base.step(name, async () => {
+      return base.step(name, async () => {
+        let result!: T;
         try {
-          await body();
+          result = await body();
         } catch (err) {
           stepError = err;
           throw err;
@@ -360,7 +365,7 @@ export const test = base.extend<{ step: StepFn }>({
 
           if (!shouldCapture) {
             await stopOverlayWatcher();
-            return;
+            return result;
           }
 
           // 高亮目标元素（可选，元素不存在时静默跳过；加超时保护避免 evaluate 等待消失的元素）
@@ -436,6 +441,8 @@ export const test = base.extend<{ step: StepFn }>({
             }
           }
         }
+
+        return result;
       });
     };
 

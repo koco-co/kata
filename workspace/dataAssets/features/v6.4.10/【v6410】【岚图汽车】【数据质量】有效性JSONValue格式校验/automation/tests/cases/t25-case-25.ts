@@ -32,6 +32,13 @@ function getCellHighlightColor(cell: ExcelJS.Cell): string {
   );
 }
 
+// ExcelJS Row.values 可能是 1 基数组或 {列号: 值} 字典；统一转成 0 基字符串数组。
+function getRowTexts(row: ExcelJS.Row): string[] {
+  const values = row.values;
+  const list = Array.isArray(values) ? values.slice(1) : Object.values(values);
+  return list.map((value) => String(value ?? "").trim());
+}
+
 describeByDatasource("校验结果查询", () => {
   test("验证校验不通过时明细数据下载功能中校验字段标红", async ({ page }) => {
     const downloadPath = path.join("/tmp", `t25_${Date.now()}.xlsx`);
@@ -61,10 +68,7 @@ describeByDatasource("校验结果查询", () => {
       const sheet = workbook.worksheets[0];
       expect(sheet).toBeDefined();
 
-      const headerTexts = sheet
-        .getRow(1)
-        .values.slice(1)
-        .map((value) => String(value ?? "").trim());
+      const headerTexts = getRowTexts(sheet.getRow(1));
       const infoColumnIndex = headerTexts.findIndex((value) => value === "info") + 1;
       const remarkColumnIndex = headerTexts.findIndex((value) => value === "remark") + 1;
 
@@ -74,7 +78,7 @@ describeByDatasource("校验结果查询", () => {
       let invalidRowIndex = -1;
       for (let rowIndex = 2; rowIndex <= sheet.rowCount; rowIndex += 1) {
         const row = sheet.getRow(rowIndex);
-        const rowTexts = row.values.slice(1).map((value) => String(value ?? "").trim());
+        const rowTexts = getRowTexts(row);
         if (rowTexts.some((value) => value.includes("Tom") || value.includes("1000"))) {
           invalidRowIndex = rowIndex;
           break;

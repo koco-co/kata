@@ -49,12 +49,31 @@ export async function openFirstTableDetail(page: Page, keyword: string, sourceRe
 
 export async function expectTableTagFlow(page: Page, sourceRef: string): Promise<void> {
   await openFirstTableDetail(page, "test_table", sourceRef);
-  await clickButtonByText(page, "编辑", sourceRef);
-  const tagInput = page.locator("input[placeholder*='标签'], .ant-select-selection-search-input").first();
-  await expect(tagInput, `${sourceRef}: 标签输入框应可见`).toBeVisible({ timeout: 15000 });
-  await tagInput.fill("table1_tag");
-  await clickButtonByText(page, "保存", sourceRef);
-  await expectAnyText(page, ["table1_tag"], sourceRef);
+  let tagSaved = false;
+  try {
+    await clickButtonByText(page, "编辑", sourceRef);
+    const tagInput = page.locator("input[placeholder*='标签'], .ant-select-selection-search-input").first();
+    await expect(tagInput, `${sourceRef}: 标签输入框应可见`).toBeVisible({ timeout: 15000 });
+    await tagInput.fill("table1_tag");
+    await clickButtonByText(page, "保存", sourceRef);
+    tagSaved = true;
+    await expectAnyText(page, ["table1_tag"], sourceRef);
+  } finally {
+    // 还原状态：已保存的标签要清掉，未保存成功的弹窗要关闭，避免污染后续用例
+    if (tagSaved) {
+      await clickButtonByText(page, "编辑", sourceRef).catch(() => {});
+      const tagInput = page.locator("input[placeholder*='标签'], .ant-select-selection-search-input").first();
+      if (await tagInput.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await tagInput.fill("");
+        await clickButtonByText(page, "保存", sourceRef).catch(() => {});
+      }
+    } else {
+      const cancelButton = page.getByRole("button", { name: /取消/ }).last();
+      if (await cancelButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await cancelButton.click().catch(() => {});
+      }
+    }
+  }
 }
 
 export async function expectDataPreview(page: Page, sourceRef: string): Promise<void> {

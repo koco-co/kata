@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-03-metadata-db-version-display
+feature_id: "v6.4.7/【v647】【元数据】数据库列表展示版本号"
 case_drafting:
   status: completed
   archive_path: cases/exports/数据库列表展示版本号.md

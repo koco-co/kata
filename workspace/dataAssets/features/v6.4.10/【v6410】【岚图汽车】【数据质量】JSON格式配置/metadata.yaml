@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-04-general-json-config
+feature_id: "v6.4.10/【v6410】【岚图汽车】【数据质量】JSON格式配置"
 case_drafting:
   status: completed
   archive_path: cases/exports/JSON格式配置.md

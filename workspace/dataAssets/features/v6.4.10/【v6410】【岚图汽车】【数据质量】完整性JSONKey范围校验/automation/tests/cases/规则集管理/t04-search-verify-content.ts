@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
+import { selectAntOption, waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // spec: features/completeness-json-key-range/archive.md#case=t04-search-verify-content
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -12,7 +12,6 @@ import {
   setCurrentDatasource,
 } from "../../fixtures/test-data";
 import {
-  configureKeyRangeRule,
   SCENARIOS,
   selectRuleFunction,
   startRuleSetDraft,

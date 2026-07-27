@@ -37,7 +37,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
     });
     test("验证枚举值设置已选择in但未输入枚举值时点击保存提示校验错误", async ({ page, step }) => {
       let ruleForm: Locator;
-      let functionRow: Locator;
+      let functionRow!: Locator;
 
       await step(
         "步骤1: 进入规则集管理页面，等待列表加载完成 → 规则集管理页面正常打开，列表显示已有规则集数据行",

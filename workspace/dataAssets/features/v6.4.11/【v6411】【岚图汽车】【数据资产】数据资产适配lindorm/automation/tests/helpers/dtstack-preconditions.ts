@@ -119,6 +119,10 @@ function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
   if (!datasource) {
     throw new Error(`${profile.env}: 未配置 SparkThrift 前置数据源`);
   }
+  const batch = datasource.batch;
+  if (!batch) {
+    throw new Error(`${profile.env}: SparkThrift 前置数据源缺少 batch 配置`);
+  }
   const projectName = profile.auth.tenantName ?? profile.projects.offline.name;
   const projectId =
     projectName === profile.projects.quality.name
@@ -130,15 +134,15 @@ function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
     baseUrl: profile.urls.baseUrl,
     projectId,
     projectName,
-    datasourceId: datasource.batch.id,
-    datasourceName: datasource.batch.name,
-    datasourceTypeId: datasource.batch.typeId,
+    datasourceId: batch.id,
+    datasourceName: batch.name,
+    datasourceTypeId: batch.typeId,
     datasourceAliases: datasource.aliases,
     metadataDatasourceId: datasource.metadata?.id,
     metadataDatasourceName: datasource.metadata?.name,
     metadataDatasourceTypeId: datasource.metadata?.typeId,
-    database: datasource.batch.database ?? datasource.sql.database,
-    schema: datasource.batch.schema ?? datasource.sql.schema,
+    database: batch.database ?? datasource.sql.database,
+    schema: batch.schema ?? datasource.sql.schema,
     preconditionType: datasource.preconditionType,
   };
 }

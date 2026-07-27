@@ -12,7 +12,11 @@ const ran = new Set<string>();
 export async function runUniversalPrecond(page: Page): Promise<void> {
   const env = getEnvConfig();
   const datasource = env.datasources.doris;
-  const key = `${env.env}:${datasource.batch.id}:${SOURCE_HASH}`;
+  const batch = datasource.batch;
+  if (!batch) {
+    throw new Error(`[precond] doris batch datasource profile is required for env "${env.env}".`);
+  }
+  const key = `${env.env}:${batch.id}:${SOURCE_HASH}`;
   if (ran.has(key)) return;
   if (env.runtime.skipPreconditions) {
     process.stderr.write(`[precond] skipped by profile: ${env.env}\n`);
@@ -27,12 +31,12 @@ export async function runUniversalPrecond(page: Page): Promise<void> {
     projectId: env.projects.offline.id,
     datasourceType: datasource.preconditionType,
     datasourceProfile: {
-      id: datasource.batch.id,
-      name: datasource.batch.name,
-      typeId: datasource.batch.typeId,
+      id: batch.id,
+      name: batch.name,
+      typeId: batch.typeId,
       aliases: datasource.aliases,
-      database: datasource.batch.database,
-      schema: datasource.batch.schema,
+      database: batch.database,
+      schema: batch.schema,
       metadata: datasource.metadata,
       assets: datasource.assets,
     },

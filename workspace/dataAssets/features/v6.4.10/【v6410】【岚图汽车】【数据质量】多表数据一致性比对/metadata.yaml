@@ -16,7 +16,7 @@ emits:
   cases_xmind: true
   archive: true
   playwright_tests: true
-feature_id: 2026-02-dq-builtin-consistency-multi-table
+feature_id: "v6.4.10/【v6410】【岚图汽车】【数据质量】多表数据一致性比对"
 case_drafting:
   status: completed
   archive_path: cases/exports/多表数据一致性比对.md

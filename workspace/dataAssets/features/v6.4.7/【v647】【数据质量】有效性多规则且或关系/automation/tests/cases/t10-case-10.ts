@@ -38,7 +38,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
       page,
       step,
     }) => {
-      let ruleForm: Locator;
+      let ruleForm!: Locator;
       let functionRow: Locator;
 
       await step(

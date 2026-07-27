@@ -8,9 +8,17 @@ const CODE_CATALOG_NAME = "自动化回归码表目录";
 const SOURCE_CASE_ID = "「数据标准」模块集成测试用例";
 const SOURCE_CASE_CATALOG_NAME = "test";
 const SOURCE_CASE_SPARKTHRIFT_TYPE = 45;
-const SOURCE_CASE_SPARKTHRIFT_SOURCE = "pw_test_HADOOP";
-const SOURCE_CASE_SPARKTHRIFT_DB = "pw_test";
 const SOURCE_CASE_REQUIRED_TABLES = ["test_info_1", "test_info_2"] as const;
+
+function sourceCaseSparkThriftSource(): string {
+  const env = getEnvConfig();
+  return env.datasources[env.runtime.defaultDatasource].metadata.name;
+}
+
+function sourceCaseSparkThriftDb(): string {
+  const env = getEnvConfig();
+  return env.datasources[env.runtime.defaultDatasource].sql.database;
+}
 const STANDARD_CHECK_TASK_TYPE_TEMP = 0;
 const STANDARD_CHECK_TASK_TYPE_PERIOD = 1;
 const PARTITION_CONFIG_SELECT = 1;
@@ -560,8 +568,8 @@ export class DataStandardIntegrationPage {
       blockers.push({
         caseId: `${SOURCE_CASE_ID}#前置条件4`,
         reasonCategory: "data_prep",
-        detail: `SparkThrift2.x 数据源 ${sparkThrift.dataSourceName ?? SOURCE_CASE_SPARKTHRIFT_SOURCE}/库 ${
-          sparkThrift.databaseName ?? SOURCE_CASE_SPARKTHRIFT_DB
+        detail: `SparkThrift2.x 数据源 ${sparkThrift.dataSourceName ?? sourceCaseSparkThriftSource()}/库 ${
+          sparkThrift.databaseName ?? sourceCaseSparkThriftDb()
         } 的平台元数据缺少源用例精确表：${sparkThrift.missingTables.join(", ")}；不能用带后缀的 test_info_1_* 表替代。`,
       });
     }
@@ -1500,7 +1508,7 @@ export class DataStandardIntegrationPage {
         },
       )
       .toBe(String(scenario.expected.status));
-    return latestRecord as StandardCheckRunRecord;
+    return latestRecord as unknown as StandardCheckRunRecord;
   }
 
   private async trySyncStandardCheckStatus(recordId: string | number): Promise<void> {
@@ -1535,7 +1543,7 @@ export class DataStandardIntegrationPage {
       .toBe(
         `${scenario.expected.quality}:${scenario.expected.noComplianceCount}:${scenario.expected.checkFailCount}`,
       );
-    return latestTask as StandardCheckTaskRecord;
+    return latestTask as unknown as StandardCheckTaskRecord;
   }
 
   private async waitForStandardCheckColumnResult(
@@ -1581,7 +1589,7 @@ export class DataStandardIntegrationPage {
         },
       )
       .toBe(`${scenario.expected.status}:${scenario.expected.upStandard}`);
-    return latestColumn as StandardCheckColumnRecord;
+    return latestColumn as unknown as StandardCheckColumnRecord;
   }
 
   private assertStandardCheckMetrics(
@@ -1844,7 +1852,7 @@ export class DataStandardIntegrationPage {
       }),
     );
     const datasource = dsData.find((item) =>
-      String(item.dataSourceName ?? item.name ?? "").includes(SOURCE_CASE_SPARKTHRIFT_SOURCE),
+      String(item.dataSourceName ?? item.name ?? "").includes(sourceCaseSparkThriftSource()),
     );
     const dataSourceId = datasource?.dataSourceId ?? datasource?.id;
     if (!datasource || dataSourceId === undefined || dataSourceId === null) {
@@ -1862,7 +1870,7 @@ export class DataStandardIntegrationPage {
         dataSourceIds: [dataSourceId],
       }),
     );
-    const db = dbData.find((item) => String(item.value ?? item.dbName ?? item.name ?? "") === SOURCE_CASE_SPARKTHRIFT_DB);
+    const db = dbData.find((item) => String(item.value ?? item.dbName ?? item.name ?? "") === sourceCaseSparkThriftDb());
     const dbId = db?.key ?? db?.dbId ?? db?.id;
     if (!db || dbId === undefined || dbId === null) {
       return {
@@ -1903,7 +1911,7 @@ export class DataStandardIntegrationPage {
     expect(
       String(datasource.dataSourceName ?? datasource.name ?? ""),
       `${sourceRef}: SparkThrift datasource should follow source case`,
-    ).toContain(SOURCE_CASE_SPARKTHRIFT_SOURCE);
+    ).toContain(sourceCaseSparkThriftSource());
 
     return {
       dataSourceName: String(datasource.dataSourceName ?? datasource.name ?? ""),
@@ -2094,9 +2102,9 @@ export class DataStandardIntegrationPage {
     }
     return {
       dataSourceId: sparkThrift.dataSourceId,
-      dataSourceName: sparkThrift.dataSourceName ?? SOURCE_CASE_SPARKTHRIFT_SOURCE,
+      dataSourceName: sparkThrift.dataSourceName ?? sourceCaseSparkThriftSource(),
       dbId: sparkThrift.databaseId,
-      dbName: sparkThrift.databaseName ?? SOURCE_CASE_SPARKTHRIFT_DB,
+      dbName: sparkThrift.databaseName ?? sourceCaseSparkThriftDb(),
     };
   }
 
@@ -2426,7 +2434,7 @@ export class DataStandardIntegrationPage {
         },
       )
       .not.toBe("");
-    return matchedRecord as DatabaseCollectionRecord;
+    return matchedRecord as unknown as DatabaseCollectionRecord;
   }
 
   private async waitForDatabaseCollectionComplete(
@@ -2448,7 +2456,7 @@ export class DataStandardIntegrationPage {
         },
       )
       .toBe(1);
-    return matchedRecord as DatabaseCollectionRecord;
+    return matchedRecord as unknown as DatabaseCollectionRecord;
   }
 
   private async expectDatabaseCollectionRow(

@@ -2,7 +2,6 @@
 
 import type { Page } from "@playwright/test";
 
-type RuntimeEnv = Record<string, string | undefined>;
 type ProjectListResponse = { data?: Array<{ id?: number | string }> };
 
 export async function getAccessibleProjectIds(page: Page): Promise<number[]> {

@@ -55,7 +55,9 @@ export async function gotoMetadataPage(page: Page, path = "/metaDataCenter"): Pr
 
 export async function expectMetadataShell(page: Page, sourceRef: string): Promise<void> {
   const body = page.locator("body");
-  await expect(body, `${sourceRef}: 不应跳转登录页`).not.toContainText("登录", { timeout: 10000 });
+  await expect(body, `${sourceRef}: 不应跳转登录页`).not.toContainText(/欢迎登录|UIC账号登录|账号登录/, {
+    timeout: 10000,
+  });
   await expect(body, `${sourceRef}: 不应进入 404 页面`).not.toContainText("亲，是不是走错地方了？");
   await expect(body, `${sourceRef}: 元数据顶导应展示`).toContainText("元数据");
   for (const menu of ["数据地图", "元数据同步", "元模型管理", "元数据管理", "订阅的数据", "元数据质量"]) {
@@ -121,6 +123,12 @@ export async function clickButtonByText(page: Page, text: string, sourceRef: str
   await button.click();
 }
 
+/**
+ * 断言页面 body 至少包含 texts 中的一项（OR 语义）。
+ *
+ * 用于同一页面在不同环境/版本下文案存在等价变体的场景；调用方应保证候选文案
+ * 都是真实的业务证据，不要传入搜索框回显等必然成立的词，否则断言退化为恒真。
+ */
 export async function expectAnyText(page: Page, texts: readonly string[], sourceRef: string): Promise<void> {
   const pattern = new RegExp(texts.map(escapeRegExp).join("|"));
   await expect(page.locator("body"), `${sourceRef}: 页面应包含 ${texts.join(" / ")}`).toContainText(pattern, {

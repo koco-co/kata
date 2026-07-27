@@ -2,14 +2,18 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import type { Page } from "@playwright/test";
 import { setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
 import { applyRuntimeCookies } from "../../../../../../_shared/helpers/test-setup";
-import type { DatasourceConfig as BaseDatasourceConfig } from "../../../validity-multi-rule-logic/tests/data/test-data";
+import type { DatasourceConfig as BaseDatasourceConfig } from "../../../../../v6.4.7/【v647】【数据质量】有效性多规则且或关系/automation/tests/fixtures/test-data";
 import { buildSparkFixtureSql, versionJsonFixtureName } from "./json-fixture-sql";
 import { runRetriablePreconditions } from "../../../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 
-const ENV = getEnvConfig();
+// env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
+let envCache: ReturnType<typeof getEnvConfig> | undefined;
+function envProfile(): ReturnType<typeof getEnvConfig> {
+  return (envCache ??= getEnvConfig());
+}
 
-const base = await import("../../../validity-multi-rule-logic/tests/data/test-data");
+const base = await import("../../../../../v6.4.7/【v647】【数据质量】有效性多规则且或关系/automation/tests/fixtures/test-data");
 
 export type DatasourceConfig = BaseDatasourceConfig;
 export const ACTIVE_DATASOURCES = base.ACTIVE_DATASOURCES;
@@ -21,9 +25,10 @@ export const resolveVariantName = base.resolveVariantName;
 export const setCurrentDatasource = base.setCurrentDatasource;
 
 export const SUITE_NAME = "【内置规则丰富】有效性，json中key对应的value值格式校验";
-export const SPARKTHRIFT2X_SOURCE_TYPE = ENV.datasources.sparkthrift.batch.typeId;
+// env 派生标量改为惰性函数导出：收集期不触 env，调用点在运行时执行（live 时 env 已由 kata env run 注入）
+export const SPARKTHRIFT2X_SOURCE_TYPE = (): number => envProfile().datasources.sparkthrift.batch!.typeId;
 export const HIVE2X_SOURCE_TYPE = 7;
-export const DORIS3X_SOURCE_TYPE = ENV.datasources.doris.ui!.sourceTypeId!;
+export const DORIS3X_SOURCE_TYPE = (): number => envProfile().datasources.doris.ui!.sourceTypeId!;
 
 export type JsonValidationSeed = {
   readonly path: readonly string[];
@@ -418,9 +423,9 @@ export const PREVIEW_DELETE_SCENARIO: JsonRuleScenario = {
 export function getJsonValidationDataSourceType(datasource = getCurrentDatasource()): number {
   switch (datasource.id) {
     case "doris3.x":
-      return DORIS3X_SOURCE_TYPE;
+      return DORIS3X_SOURCE_TYPE();
     case "sparkthrift2.x":
-      return SPARKTHRIFT2X_SOURCE_TYPE;
+      return SPARKTHRIFT2X_SOURCE_TYPE();
     default:
       return HIVE2X_SOURCE_TYPE;
   }
@@ -440,7 +445,7 @@ export async function runSuitePreconditions(
   await runRetriablePreconditions({
     reportName: datasource.reportName,
     projectNames: ["pw_test", "pw"],
-    wait: async (ms) => waitForUiSettled(page),
+    wait: async () => waitForUiSettled(page),
     log: (message) => process.stderr.write(message),
     runForProject: async (projectName) => {
       await setupPreconditions(page, {

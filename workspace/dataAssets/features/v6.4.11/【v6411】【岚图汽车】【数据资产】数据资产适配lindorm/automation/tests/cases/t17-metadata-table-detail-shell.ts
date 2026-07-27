@@ -149,8 +149,9 @@ function readQueryRows(response: DataMapQueryResponse): unknown[] {
   const nestedData = data.data;
   if (Array.isArray(nestedData)) return nestedData;
   if (nestedData && typeof nestedData === "object") {
+    const nestedRecord = nestedData as Record<string, unknown>;
     for (const key of ["contentList", "list", "rows", "records", "content"]) {
-      const value = nestedData[key];
+      const value = nestedRecord[key];
       if (Array.isArray(value)) return value;
     }
   }

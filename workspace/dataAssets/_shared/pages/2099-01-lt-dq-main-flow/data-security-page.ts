@@ -1,10 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 
-import { buildDataAssetsUrl } from "../../helpers/test-setup";
+import { buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
-const PROJECT_ID = 92;
 const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
 const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
+
+function getProjectId(): number {
+  return getEnvConfig().projects.quality.id;
+}
 
 type SecurityPageTarget = {
   path: string;
@@ -20,7 +23,7 @@ async function installProject(page: Page): Promise<void> {
       sessionStorage.setItem(assetKey, projectId);
       sessionStorage.setItem(dqKey, projectId);
     },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
@@ -30,13 +33,13 @@ async function injectProject(page: Page): Promise<void> {
       sessionStorage.setItem(assetKey, projectId);
       sessionStorage.setItem(dqKey, projectId);
     },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(PROJECT_ID)],
+    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
   );
 }
 
 export async function gotoDataSecurityPage(page: Page, path: string): Promise<void> {
   await installProject(page);
-  await page.goto(buildDataAssetsUrl(path, PROJECT_ID), {
+  await page.goto(buildDataAssetsUrl(path, getProjectId()), {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });

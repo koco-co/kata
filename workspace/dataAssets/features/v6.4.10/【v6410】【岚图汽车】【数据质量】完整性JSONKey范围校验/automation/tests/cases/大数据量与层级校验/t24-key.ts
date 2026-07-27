@@ -10,7 +10,6 @@ import {
   addKeyRangeRule,
   configureKeyRangeRule,
   createRuleSetDraft,
-  DORIS_MONITOR_DATASOURCE,
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
 } from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
