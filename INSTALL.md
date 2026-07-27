@@ -5,7 +5,7 @@
 | 工具 | 最低版本 | 检查命令 |
 | --- | --- | --- |
 | Node.js | `22` | `node --version` |
-| Bun | 项目锁文件兼容版本 | `bun --version` |
+| Bun | `>= 1.3` | `bun --version` |
 | Git | 任意受支持版本 | `git --version` |
 
 Claude Code 与 Codex 至少安装一种。只有执行真实浏览器测试时才需要 Playwright 浏览器。
@@ -16,15 +16,26 @@ Claude Code 与 Codex 至少安装一种。只有执行真实浏览器测试时�
 # 1. 安装锁文件声明的依赖
 bun install --frozen-lockfile
 
-# 2. 检查工作区
+# 2. 把 kata 命令链接到 Bun 全局 bin 目录
+bun link
+
+# 3. 检查工作区
 kata project scan --project dataAssets
 
-# 3. 运行仓库检查
+# 4. 运行仓库检查
 bun run ci
 
-# 4. 需要 UI 自动化时安装浏览器
+# 5. 需要 UI 自动化时安装浏览器
 bunx playwright install
 ```
+
+`bun link` 把 `kata` 注册到 Bun 全局 bin 目录（通常 `~/.bun/bin`），需确认该目录已在 `PATH` 中；不执行 `bun link` 时 `kata` 不在 `PATH` 上，可改用 `bun run cli/bin/kata.ts <command>` 直接调用。
+
+Windows 克隆必须启用符号链接（`git config --global core.symlinks true`，并在开启开发者模式或管理员权限的终端中克隆），否则 `.agents/skills/` 的 symlink 会退化为普通文本文件，Codex 侧无法加载 Skill。
+
+### 工作区位置
+
+默认所有项目产物写入仓库内的 `workspace/`。要把真实项目数据迁出框架仓库，设置 `KATA_WORKSPACE_ROOT` 指向本机私密目录，CLI 改为在该目录下定位 `<KATA_WORKSPACE_ROOT>/<project>`；框架仓库内只保留脱敏后的最小 fixture。
 
 项目不再使用根目录 `config.json`。不要从旧的 `config.example.json` 创建第二套配置。
 
@@ -97,14 +108,14 @@ Lanhu 和 ZenTao 刷新后的 Cookie 会原子写回对应 YAML。旧根 `.env` 
 
 ## 源码仓库
 
-源码仓库配置只保存在本机忽略文件 `config/repos/sources.yaml`；首次使用请复制脱敏模板 `config/repos/sources.example.yaml` 后填写，实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
+源码仓库目录 `config/repos/sources.yaml` 是本机不跟踪的私密配置（只有脱敏模板 `sources.example.yaml` 入库）；首次使用请复制模板后填写，实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
 
 ```bash
 git clone <remote-url> .repos/<group>/<repo>
 kata repos list
 ```
 
-PowerShell 等价步骤：
+PowerShell 等价步骤（本文其余示例为 bash 语法，管道与重定向在 PowerShell 中需相应改写）：
 
 ```powershell
 New-Item -ItemType Directory -Force config/env | Out-Null

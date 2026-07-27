@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="./assets/readme/hero.png" alt="Kata QA engineering workflow" width="960" />
-</p>
-
-<p align="center">
   <strong>Turn requirements, test cases, automation, and evidence into one reviewable QA workflow.</strong>
 </p>
 
@@ -34,7 +30,7 @@ Servers / data sources ─> controlled checks ──> redacted conclusions
 The goal is not more generated prose. It is traceability from input to command to evidence:
 
 - `.claude/skills/` is the single source of truth for Skill content; `.agents/skills/` is the Codex-side symlink.
-- The shared CLI lives under `cli/`.
+- The shared CLI lives under `cli/`; both runtimes reuse the same implementation.
 - Project inputs, cases, automation, and run artifacts live under `workspace/{project}/`.
 - Platform cookies, plugin credentials, infrastructure credentials, and data-source details stay in ignored local files and never enter Git.
 
@@ -49,10 +45,6 @@ The goal is not more generated prose. It is traceability from input to command t
 | `/domain-knowledge` | Query or maintain product rules and terminology | reusable domain knowledge |
 | `/workspace-management` | Create, repair, and inspect Kata workspaces | standardized workspace structure |
 
-<p align="center">
-  <img src="./assets/readme/requirements-to-cases.png" alt="Requirements become structured test cases and evidence" width="820" />
-</p>
-
 ## Quick start
 
 ### Prerequisites
@@ -66,6 +58,7 @@ The goal is not more generated prose. It is traceability from input to command t
 
 ```bash
 bun install --frozen-lockfile
+bun link   # link the kata command into Bun's global bin directory
 bun run ci
 ```
 
@@ -110,10 +103,10 @@ The migration handles plugin fields only. Database URLs, old DTStack session pat
 
 | Directory | Contents | Tracked |
 | --- | --- | --- |
-| `config/env/` | DataAssets URLs, `auth.cookie`, and environment metadata | `*.example.yaml` only |
-| `config/plugin/` | Lanhu, ZenTao, DingTalk / Feishu / WeCom / SMTP | `*.example.yaml` only |
-| `config/infra/` | hosts, data sources, credential profiles, SSH fingerprints | `*.example.yaml` only |
-| `config/repos/` | external source repository declarations | `sources.example.yaml` only |
+| `config/env/` | DataAssets URLs, `auth.cookie`, and environment metadata | only `*.example.yaml` is tracked; real config stays local |
+| `config/plugin/` | Lanhu, ZenTao, DingTalk / Feishu / WeCom / SMTP | only `*.example.yaml` is tracked; real config stays local |
+| `config/infra/` | hosts, data sources, credential profiles, SSH fingerprints | only `*.example.yaml` is tracked; real config stays local |
+| `config/repos/` | external source repository declarations | only `sources.example.yaml` is tracked; `sources.yaml` stays local |
 
 `config/env/<env>.yaml` is the shared source for Playwright and DTStack platform access: the URL lives in `url` and the cookie in `auth.cookie`. There is no separate DTStack session file or legacy persistent variable path. Explicit one-off or CI overrides may still be passed as environment variables.
 
@@ -139,18 +132,11 @@ Before delivery:
 
 ```bash
 kata automation lint <feature-dir> --exit-code
-kata automation lint --shared --exit-code
+kata automation lint --shared --project dataAssets --exit-code
+kata runs verify --project dataAssets --feature <feature-dir>
 ```
 
 UI automation is only marked passed after the real script executes, assertions pass, Allure results are written, and the system under test creates the expected business record.
-
-<p align="center">
-  <img src="./assets/readme/browser-automation.png" alt="Browser automation turns a failure into a reproducible assertion" width="820" />
-</p>
-
-<p align="center">
-  <img src="./assets/readme/infra-evidence.png" alt="Infrastructure checks become redacted evidence" width="820" />
-</p>
 
 ## Project layout
 
@@ -158,10 +144,12 @@ UI automation is only marked passed after the real script executes, assertions p
 kata/
 ├── .claude/skills/       # single source of truth for Skills
 ├── .agents/skills/       # Codex-side symlink
+├── .codex-plugin/        # Codex plugin manifest
 ├── cli/                  # kata CLI and integrations
 ├── config/               # examples and local configuration boundaries
-├── workspace/            # inputs, cases, runs, and reports
-└── assets/readme/        # static README artwork
+├── lib/                  # shared libraries (db connection strings, Playwright support)
+├── tests/                # CLI, integration, and Skill tests
+└── workspace/            # inputs, cases, runs, and reports
 ```
 
 Skill artifacts are written to the matching feature directory. The run directory `runs/<run-id>/` carries the CLI-written `status.json` and `allure-results/`, plus screenshots, logs, and `handoff.md` from the delivery flow; never report an unexecuted scope as passed.

@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="./assets/readme/hero.png" alt="Kata QA engineering workflow" width="960" />
-</p>
-
-<p align="center">
   <strong>把需求、用例、自动化与证据，串成一条可复核的 QA 工程流水线。</strong>
 </p>
 
@@ -49,10 +45,6 @@ Kata 是面向 Claude Code 与 OpenAI Codex 的 QA 工作区。它把需求分�
 | `/domain-knowledge` | 查询或维护项目业务规则和术语 | 可复用的领域知识 |
 | `/workspace-management` | 创建、修复和检查 Kata 工作区 | 标准化的工作区骨架 |
 
-<p align="center">
-  <img src="./assets/readme/requirements-to-cases.png" alt="Requirements become structured test cases and evidence" width="820" />
-</p>
-
 ## 快速开始
 
 ### 前置条件
@@ -66,6 +58,7 @@ Kata 是面向 Claude Code 与 OpenAI Codex 的 QA 工作区。它把需求分�
 
 ```bash
 bun install --frozen-lockfile
+bun link   # 把 kata 命令链接到 Bun 全局 bin 目录
 bun run ci
 ```
 
@@ -110,10 +103,10 @@ kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --app
 
 | 目录 | 内容 | 是否提交 |
 | --- | --- | --- |
-| `config/env/` | DataAssets 平台 URL、`auth.cookie`、环境元数据 | 仅 `*.example.yaml` |
-| `config/plugin/` | Lanhu、ZenTao、DingTalk / Feishu / WeCom / SMTP | 仅 `*.example.yaml` |
-| `config/infra/` | 主机、数据源、凭据 profile、SSH fingerprint | 仅 `*.example.yaml` |
-| `config/repos/` | 外部源码仓库声明 | 仅 `sources.example.yaml` |
+| `config/env/` | DataAssets 平台 URL、`auth.cookie`、环境元数据 | 仅 `*.example.yaml` 入库，实际配置本机自管 |
+| `config/plugin/` | Lanhu、ZenTao、DingTalk / Feishu / WeCom / SMTP | 仅 `*.example.yaml` 入库，实际配置本机自管 |
+| `config/infra/` | 主机、数据源、凭据 profile、SSH fingerprint | 仅 `*.example.yaml` 入库，实际配置本机自管 |
+| `config/repos/` | 外部源码仓库声明 | 仅 `sources.example.yaml` 入库，`sources.yaml` 本机自管 |
 
 `config/env/<env>.yaml` 是 Playwright 与 DTStack 平台访问的统一来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立的 DTStack session 文件或旧的持久化变量。临时覆盖或 CI 覆盖仍可通过显式环境变量传入。
 
@@ -139,18 +132,11 @@ kata runs exec <feature-id> --project dataAssets -- \
 
 ```bash
 kata automation lint <feature-dir> --exit-code
-kata automation lint --shared --exit-code
+kata automation lint --shared --project dataAssets --exit-code
+kata runs verify --project dataAssets --feature <feature-dir>
 ```
 
 只有脚本真实执行、断言通过、Allure 结果落盘，并且被测平台产生了预期的业务记录，才能把 UI 自动化标记为通过。
-
-<p align="center">
-  <img src="./assets/readme/browser-automation.png" alt="Browser automation turns a failure into a reproducible assertion" width="820" />
-</p>
-
-<p align="center">
-  <img src="./assets/readme/infra-evidence.png" alt="Infrastructure checks become redacted evidence" width="820" />
-</p>
 
 ## 项目结构
 
@@ -158,10 +144,12 @@ kata automation lint --shared --exit-code
 kata/
 ├── .claude/skills/       # Skill 正文唯一来源
 ├── .agents/skills/       # Codex 侧 symlink
+├── .codex-plugin/        # Codex 插件清单
 ├── cli/                  # kata CLI 与集成实现
 ├── config/               # example 模板与本机私密配置边界
-├── workspace/            # 项目输入、用例、run 与报告
-└── assets/readme/        # README 静态视觉资源
+├── lib/                  # 共享库（db 连接串、Playwright 支撑）
+├── tests/                # CLI、集成与 Skill 测试
+└── workspace/            # 项目输入、用例、run 与报告
 ```
 
 Skill 的产物写入对应的 feature 目录。运行目录 `runs/<run-id>/` 由 CLI 写入 `status.json` 与 `allure-results/`，流程产生的截图、日志和 `handoff.md` 也放在同一目录；未运行的范围不得写成通过。

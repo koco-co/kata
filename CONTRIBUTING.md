@@ -3,7 +3,7 @@
 ## Development Setup
 
 ```bash
-bun install
+bun install --frozen-lockfile
 bun run type-check  # verify TypeScript
 bun test            # verify tests
 ```
@@ -12,7 +12,7 @@ bun test            # verify tests
 
 ## Code Style
 
-- Biome for formatting (`bun run lint`)
+- Biome for formatting (`bun run check`)
 - Immutable patterns, no mutation
 - Small focused files (200-400 lines, max 800)
 - TypeScript with strict types
@@ -26,10 +26,12 @@ bun test            # verify tests
 
 ## Commit Convention
 
-```
-<type>: <description>
+```text
+<emoji> <type>: <description>
 
-标题行用英文，description ≤ 72 字符。
+标题行用英文，description ≤ 72 字符。emoji 与 type 的对应沿用仓库历史：
+✨ feat  🐛 fix  📚 docs  🎨 style
+🛠️ refactor  🧪 test  🧹 chore  🔀 merge
 ```
 
 ## PR Checklist
