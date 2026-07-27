@@ -4,7 +4,11 @@
 
 - 日期：2026-07-21
 - 输入：任务运行日志堆栈（rule-engine 服务，taskId=AUTO_20260721_1032）
-- 结论：目标表为空时枚举统计结果为 null，阈值比较未做空值兜底，触发 NullPointerException
+- 严重程度：major
+
+## 结论
+
+目标表为空时枚举统计结果为 null，阈值比较未做空值兜底，触发 NullPointerException。
 
 ## 证据
 

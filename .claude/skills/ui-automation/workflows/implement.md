@@ -17,7 +17,12 @@
 
 ## 运行与修复（self-run + repair）
 
-8. 逐条运行 spec，把命令、退出码与输出记入 run 目录。
+8. 逐条运行 spec：单条用例用 full.spec 全路径加 `-g` 按标题过滤，把命令、退出码与输出记入 run 目录：
+
+   ```bash
+   kata runs exec <feature-id> --project <project> --type selfrun -- \
+     kata env run <env> -- bunx playwright test automation/tests/runners/full.spec.ts -g "<用例标题>"
+   ```
 9. 失败后先分类，再决定修什么：
 
    | 类别 | 特征 | 处理 |

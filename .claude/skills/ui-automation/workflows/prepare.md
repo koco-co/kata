@@ -3,7 +3,7 @@
 ## 定位与读取
 
 1. 按用户给的目录路径或名称片段定位 feature 目录：用 `metadata.yaml` / `cases/*.yaml` 的标题精确匹配唯一目标，不枚举 `features/` 全量。
-2. 读 `cases/需求名.yaml`、`prd.md` 与 `test-points.md`，列出待自动化的用例清单。如果既没有用例源又没有 prd，就阻塞流程，告诉用户先用 test-case skill 编写用例。
+2. 读 `cases/需求名.yaml`、`requirement-notes.md` 与 `test-points.md`，列出待自动化的用例清单（feature 根下若存在 `prd.md`，是 `kata lanhu fetch --feature-dir` 抓取的原始 PRD，可作补充取证）。如果既没有用例源又没有 requirement-notes，就阻塞流程，告诉用户先用 test-case skill 编写用例。
 
 ## 环境预检
 

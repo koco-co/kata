@@ -1,6 +1,6 @@
 ---
 name: infra-diagnose
-description: 数据源或服务器连通性报错时，读取本机配置，执行受控的 Kata SSH2 检查并生成脱敏的 Markdown 报告；不提供任意远程命令和变更操作。
+description: 数据源或服务器连通性报错时，读取本机配置，执行受控的 Kata SSH2 检查并生成脱敏的 Markdown 报告；不提供任意远程命令和变更操作。SSH connectivity 之外的问题（业务缺陷、用例、UI 自动化、知识维护）转对应 skill。
 ---
 
 # infra-diagnose

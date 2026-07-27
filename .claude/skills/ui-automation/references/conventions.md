@@ -6,6 +6,7 @@
 - `automation/tests/runners/{smoke,full}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例。
 - `automation/tests/pages/`：页面对象，跨用例复用的页面操作封装。
 - `automation/tests/fixtures/`、`automation/tests/sql/`：前置数据与运行时 SQL。
+- `automation/scripts/`：探测、取数等一次性辅助脚本与文档（`kata automation normalize` 从 tests/ 移出的文件也归入此处）；不进 tests/，不参与 full run，不放交付 spec。
 - 跨 feature 复用的页面对象 / helper 提升到 `workspace/<project>/_shared/{pages,helpers}/`，不复制。
 
 ## 选择器优先级

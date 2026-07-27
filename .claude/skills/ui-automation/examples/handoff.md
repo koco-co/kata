@@ -2,7 +2,7 @@
 
 # 自动化交付 handoff：【v6411】【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计
 
-- run-id：20260722-143051-a7f3
+- run-id：20260722-1430-run-01
 - 环境：ltqc-local
 - 日期：2026-07-22
 
@@ -12,9 +12,9 @@
 
 | 用例 | 状态 | 证据 |
 |------|------|------|
-| C001 新建规则可选「枚举值个数」并按阈值告警 | 通过 | allure-results/suite-01.json；截图 c01-threshold.png；平台规则记录 AUTO_20260722_rule01 |
+| C001 新建规则可选「枚举值个数」并按阈值告警 | 通过 | allure-results/<uuid>-result.json（Allure 按 uuid 命名结果文件）；截图 c01-threshold.png；平台规则记录 AUTO_20260722_rule01 |
 | C002 空表按 0 参与比较不报错 | 排除 | 见「排除说明」 |
-| C003 阈值填负数禁止提交 | 通过 | allure-results/suite-03.json；平台无新增记录（表单拦截） |
+| C003 阈值填负数禁止提交 | 通过 | allure-results/<uuid>-result.json；平台无新增记录（表单拦截） |
 
 ## 排除说明
 
@@ -39,6 +39,6 @@ kata runs exec <feature-id> --project dataAssets -- kata env run ltqc-local -- b
 ```
 
 - full.spec.ts 全量通过：达成（2 通过 / 1 排除）。
-- runs/20260722-143051-a7f3/ 下有 Allure 结果：达成。
+- runs/20260722-1430-run-01/ 下有 Allure 结果：达成。
 - 平台产生核心业务记录：达成（AUTO_20260722_rule01）。
 - 未验证范围：C002 空表场景（产品 bug 阻塞）；负数边界以外的阈值边界值未覆盖。

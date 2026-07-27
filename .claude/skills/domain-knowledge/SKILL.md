@@ -30,7 +30,7 @@ kata knowledge write --project <项目> --type <term|module|pitfall|site> \
 - `verified`：经用户确认、有源码证据或复测验证过 → 直接写入。
 - `observed`：只观察到一次 → 可以自动记录，但必须写明来源，绝不自动升级为 `verified`。
 - `conflicting`：与既有条目矛盾 → 同名条目语义有变化时默认返回 pending，不覆盖原文；带上 `--confirmed` 后才合并，并保留冲突说明。
-- `deprecated`：已失效 → 只做标注并保留，不删除；同名条目覆盖旧条目。
+- `deprecated`：已失效 → 只做标注并保留，不删除；同名条目语义变化时同样走 pending 机制，带 `--confirmed` 后才合并。
 
 约束：
 
@@ -42,5 +42,5 @@ kata knowledge write --project <项目> --type <term|module|pitfall|site> \
 
 ## 闭环
 
-- **任务开始**：test-case / ui-automation / infra-diagnose 等 skill 识别出模块或报错关键词后，先用 `kata knowledge read --module/--keyword` 注入命中条目再动手，避免重复排查。
+- **任务开始**：test-case / ui-automation 等 skill 识别出模块或报错关键词后，先用 `kata knowledge read --module/--keyword` 注入命中条目再动手，避免重复排查。
 - **任务结束**：把执行中查证过的规则与踩坑按四种状态写回；同名且不冲突的内容自动合并，语义有变化时先确认再合并。

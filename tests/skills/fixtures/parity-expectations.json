@@ -1,62 +1,124 @@
 {
-  "comment": "单源业务声明矩阵:每条 pattern 只读取 .claude/skills/<skill>/SKILL.md；另由契约测试检查 .agents/skills -> ../.claude/skills 的 symlink shape。",
+  "comment": "单源业务声明矩阵:每条 pattern 绑定到 .claude/skills/<skill>/ 内的具体文件,契约测试只读取该文件断言;另由契约测试检查 .agents/skills -> ../.claude/skills 的 symlink shape。",
   "skills": {
     "test-case": {
-      "formalSource": ["cases/需求名.yaml"],
-      "derivatives": ["kata cases build", "需求名.xmind"],
-      "lintGate": ["kata cases lint"],
-      "noPendingConfirm": ["待确认"],
-      "prdDoc": ["prd.md"],
-      "testPoints": ["test-points.md"],
-      "placeholders": ["${DataSourceA}", "${SchemaA}"],
-      "createTableRule": ["CREATE TABLE"],
-      "resolveCmd": ["kata features resolve"],
-      "standingFlag": ["--standing"]
+      "formalSource": [{ "pattern": "cases/需求名.yaml", "file": "SKILL.md" }],
+      "derivatives": [
+        { "pattern": "kata cases build", "file": "workflows/create.md" },
+        { "pattern": "需求名.xmind", "file": "SKILL.md" }
+      ],
+      "lintGate": [{ "pattern": "kata cases lint", "file": "SKILL.md" }],
+      "noPendingConfirm": [{ "pattern": "待确认", "file": "workflows/create.md" }],
+      "notesDoc": [
+        { "pattern": "requirement-notes.md", "file": "SKILL.md" },
+        { "pattern": "requirement-notes.md", "file": "workflows/create.md" },
+        { "pattern": "requirement-notes.md", "file": "workflows/edit.md" },
+        { "pattern": "requirement-notes.md", "file": "prompts/worker.md" },
+        { "pattern": "requirement-notes.md", "file": "checklists/review.md" }
+      ],
+      "featureIdFormat": [{ "pattern": "{group}/{dirName}", "file": "workflows/create.md" }],
+      "testPoints": [{ "pattern": "test-points.md", "file": "SKILL.md" }],
+      "placeholders": [
+        { "pattern": "${DataSourceA}", "file": "examples/cases.yaml" },
+        { "pattern": "${SchemaA}", "file": "prompts/worker.md" }
+      ],
+      "createTableRule": [{ "pattern": "CREATE TABLE", "file": "examples/cases.yaml" }],
+      "resolveCmd": [{ "pattern": "kata features resolve", "file": "workflows/create.md" }],
+      "standingFlag": [{ "pattern": "--standing", "file": "workflows/create.md" }]
     },
     "ui-automation": {
-      "completionFullSpec": ["full.spec.ts"],
-      "completionAllure": ["Allure"],
-      "completionBizRecord": ["业务记录"],
-      "handoff": ["handoff.md"],
-      "envRun": ["kata env run"],
-      "envList": ["kata env list"],
-      "defaultEnv": ["ltqc-local"],
-      "scaffold": ["kata automation scaffold"],
-      "runsNew": ["kata runs new"],
-      "runsExec": ["kata runs exec", "KATA_RUN_PATH", "KATA_ALLURE_RESULTS_DIR", ".runs"],
-      "lintGate": ["kata automation lint", "--exit-code", "--shared"],
-      "caseNaming": ["t<序号>-<slug>.ts"],
-      "noMockBusinessApi": ["mock"],
-      "cookieBoundary": ["config/env/"]
+      "completionFullSpec": [{ "pattern": "full.spec.ts", "file": "SKILL.md" }],
+      "completionAllure": [{ "pattern": "Allure", "file": "SKILL.md" }],
+      "completionBizRecord": [{ "pattern": "业务记录", "file": "SKILL.md" }],
+      "handoff": [{ "pattern": "handoff.md", "file": "workflows/deliver.md" }],
+      "envRun": [{ "pattern": "kata env run", "file": "workflows/implement.md" }],
+      "envList": [{ "pattern": "kata env list", "file": "SKILL.md" }],
+      "defaultEnv": [{ "pattern": "ltqc-local", "file": "SKILL.md" }],
+      "scaffold": [{ "pattern": "kata automation scaffold", "file": "workflows/prepare.md" }],
+      "runsNew": [{ "pattern": "kata runs new", "file": "SKILL.md" }],
+      "runsExec": [
+        { "pattern": "kata runs exec", "file": "workflows/implement.md" },
+        { "pattern": "KATA_RUN_PATH", "file": "SKILL.md" },
+        { "pattern": "KATA_ALLURE_RESULTS_DIR", "file": "SKILL.md" },
+        { "pattern": ".runs", "file": "SKILL.md" }
+      ],
+      "runsVerify": [{ "pattern": "kata runs verify", "file": "workflows/deliver.md" }],
+      "coverageCmd": [{ "pattern": "kata automation coverage", "file": "workflows/deliver.md" }],
+      "lintGate": [
+        { "pattern": "kata automation lint", "file": "workflows/deliver.md" },
+        { "pattern": "--exit-code", "file": "workflows/deliver.md" },
+        { "pattern": "--shared", "file": "workflows/deliver.md" }
+      ],
+      "caseNaming": [{ "pattern": "t<序号>-<slug>.ts", "file": "SKILL.md" }],
+      "noMockBusinessApi": [{ "pattern": "mock", "file": "references/playwright-api.md" }],
+      "cookieBoundary": [{ "pattern": "config/env/", "file": "SKILL.md" }]
     },
     "defect-analyze": {
-      "reportPath": ["analyses/"],
-      "reportFormat": ["report.md"],
-      "fourModes": ["bug", "conflict", "scan", "hotfix"],
-      "scansCreate": ["kata scans create"],
-      "zentaoCreate": ["kata zentao create"]
+      "reportPath": [{ "pattern": "analyses/", "file": "SKILL.md" }],
+      "reportFormat": [{ "pattern": "report.md", "file": "SKILL.md" }],
+      "fourModes": [
+        { "pattern": "bug", "file": "SKILL.md" },
+        { "pattern": "conflict", "file": "SKILL.md" },
+        { "pattern": "scan", "file": "SKILL.md" },
+        { "pattern": "hotfix", "file": "SKILL.md" }
+      ],
+      "scansCreate": [{ "pattern": "kata scans create", "file": "SKILL.md" }],
+      "zentaoCreate": [{ "pattern": "kata zentao create", "file": "SKILL.md" }],
+      "lintGate": [{ "pattern": "kata defects lint", "file": "SKILL.md" }],
+      "conclusionSection": [
+        { "pattern": "## 结论", "file": "templates/bug-report.md" },
+        { "pattern": "## 结论", "file": "templates/conflict-report.md" },
+        { "pattern": "## 结论", "file": "templates/scan-report.md" },
+        { "pattern": "## 结论", "file": "templates/report.md" },
+        { "pattern": "## 结论", "file": "examples/bug-report.md" }
+      ],
+      "severityField": [
+        { "pattern": "- 严重程度：", "file": "templates/bug-report.md" },
+        { "pattern": "- 严重程度：", "file": "examples/bug-report.md" }
+      ]
     },
     "infra-diagnose": {
-      "credentialsPath": ["config/infra/credentials.yaml"],
-      "configFiles": ["hosts.yaml", "data_sources.yaml"],
-      "inspectCmd": ["kata infra inspect", "connectivity"],
-      "credentialSet": ["kata infra credentials set", "--username"],
-      "hostTrust": ["kata infra trust-host", "fingerprint"],
-      "reportPath": ["infra-report/<yyyymm>/<slug>.md"],
-      "ssh2Boundary": ["ssh2", "任意远程命令"]
+      "credentialsPath": [{ "pattern": "config/infra/credentials.yaml", "file": "SKILL.md" }],
+      "configFiles": [
+        { "pattern": "hosts.yaml", "file": "SKILL.md" },
+        { "pattern": "data_sources.yaml", "file": "SKILL.md" }
+      ],
+      "inspectCmd": [
+        { "pattern": "kata infra inspect", "file": "SKILL.md" },
+        { "pattern": "connectivity", "file": "SKILL.md" }
+      ],
+      "credentialSet": [
+        { "pattern": "kata infra credentials set", "file": "SKILL.md" },
+        { "pattern": "--username", "file": "SKILL.md" }
+      ],
+      "hostTrust": [
+        { "pattern": "kata infra trust-host", "file": "SKILL.md" },
+        { "pattern": "fingerprint", "file": "SKILL.md" }
+      ],
+      "reportPath": [{ "pattern": "infra-report/<yyyymm>/<slug>.md", "file": "SKILL.md" }],
+      "lintGate": [{ "pattern": "kata infra lint", "file": "SKILL.md" }],
+      "ssh2Boundary": [
+        { "pattern": "ssh2", "file": "SKILL.md" },
+        { "pattern": "任意远程命令", "file": "SKILL.md" }
+      ]
     },
     "domain-knowledge": {
-      "readCmd": ["knowledge read"],
-      "writeCmd": ["knowledge write"],
-      "statusFlag": ["--status"],
-      "fourStates": ["verified", "observed", "conflicting", "deprecated"],
-      "knowledgeDir": ["workspace/<project>/knowledge/"]
+      "readCmd": [{ "pattern": "knowledge read", "file": "SKILL.md" }],
+      "writeCmd": [{ "pattern": "knowledge write", "file": "SKILL.md" }],
+      "statusFlag": [{ "pattern": "--status", "file": "SKILL.md" }],
+      "fourStates": [
+        { "pattern": "verified", "file": "SKILL.md" },
+        { "pattern": "observed", "file": "SKILL.md" },
+        { "pattern": "conflicting", "file": "SKILL.md" },
+        { "pattern": "deprecated", "file": "SKILL.md" }
+      ],
+      "knowledgeDir": [{ "pattern": "workspace/<project>/knowledge/", "file": "SKILL.md" }]
     },
     "workspace-management": {
-      "scanCmd": ["kata project scan"],
-      "createCmd": ["kata project create"],
-      "dryRun": ["--dry-run"],
-      "confirmed": ["--confirmed"]
+      "scanCmd": [{ "pattern": "kata project scan", "file": "SKILL.md" }],
+      "createCmd": [{ "pattern": "kata project create", "file": "SKILL.md" }],
+      "dryRun": [{ "pattern": "--dry-run", "file": "SKILL.md" }],
+      "confirmed": [{ "pattern": "--confirmed", "file": "SKILL.md" }]
     }
   }
 }

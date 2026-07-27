@@ -1,6 +1,6 @@
 ---
 name: ui-automation
-description: 触发：只发 feature 目录路径或目录名（不带文件扩展名），或要求生成、修复、验证 UI 自动化。把 feature 目录里的用例转成在真实环境跑通的 Playwright 脚本（Web 或 Electron 桌面端），或修复已有自动化。只写非 UI 用例转 test-case；只做静态代码扫描转 defect-analyze。
+description: 触发：只发 feature 目录路径或目录名（不带文件扩展名）且未声明其他意图，或明确要求生成、修复、验证 UI 自动化。把 feature 目录里的用例转成在真实环境跑通的 Playwright 脚本（Web；桌面端 Electron 支持未落地），或修复已有自动化。只写非 UI 用例转 test-case；只做静态代码扫描转 defect-analyze。
 ---
 
 # ui-automation
@@ -12,9 +12,9 @@ description: 触发：只发 feature 目录路径或目录名（不带文件扩�
 | 形态 | 驱动 | 环境差异 |
 |---|---|---|
 | Web（默认） | 真实浏览器 | base_url / cookie 由 `kata env run` 注入 |
-| 桌面端（Electron） | `playwright._electron` 启动真实应用包 | 无 base_url / cookie；确认项是应用包路径、版本与其后端指向；窗口即 page |
+| 桌面端（Electron，未落地） | `playwright._electron` 启动真实应用包 | 无 base_url / cookie；确认项是应用包路径、版本与其后端指向；窗口即 page |
 
-桌面端是 Playwright 的原生能力，与 Web 共用流程、脚本规范与完成标准。原生 App、小程序暂不在支持范围内，出现这类需求时再增加平台分支，不改动既有 Web 内容。
+桌面端是 Playwright 的原生能力，与 Web 共用流程、脚本规范与完成标准，但当前没有已验证的桌面端交付，一律标注「未落地」；接到桌面端需求时先向用户说明这一点，再决定是否按本文流程探索。原生 App、小程序暂不在支持范围内，出现这类需求时再增加平台分支，不改动既有 Web 内容。
 
 ## 环境确认（先于一切探测）
 

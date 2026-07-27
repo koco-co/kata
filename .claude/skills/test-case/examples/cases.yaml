@@ -1,5 +1,5 @@
 # cases.yaml 样例（节选改写自真实需求，展示格式而非事实）
-# meta: 用例集元信息；feature_id 用 kata features resolve 返回的 id
+# meta: 用例集元信息；feature_id 口径为 {group}/{dirName}（feature 目录相对 features/ 的两级路径）
 meta:
   title: 单表校验规则支持枚举值个数统计
   version: v6.4.11

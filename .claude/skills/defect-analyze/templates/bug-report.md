@@ -2,7 +2,11 @@
 
 - 日期：
 - 输入：（堆栈摘要 / console 报错 / HTTP 失败原文）
-- 结论：（一句话根因）
+- 严重程度：<critical|major|normal|minor>
+
+## 结论
+
+（一句话根因。）
 
 ## 证据
 
