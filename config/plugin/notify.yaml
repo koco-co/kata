@@ -1,4 +1,0 @@
-schema_version: 1
-dingtalk:
-  webhook_url: https://oapi.dingtalk.com/robot/send?access_token=098c877147afe9b6473bf512a2d8c133d2aac41732d98c60837a841f7381a7c9
-  sign_secret: SECa93df10ac5f7dcd6c418f74d4ce0e9aac719f4d71452f2e520f6eccf349347f2
