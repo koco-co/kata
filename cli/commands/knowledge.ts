@@ -36,12 +36,16 @@ export function registerKnowledge(program: Command): void {
     .option("--title <title>", "条目标题")
     .option("--body <md>", "条目正文 Markdown")
     .option("--tags <tags>", "标签,逗号分隔")
-    .option("--source <source>", "证据来源")
-    .option("--content <json>", "overview 内容 JSON")
-    .option("--confidence <level>", "term/overview 置信度:high | medium | low", "medium")
+    .option("--source <source>", "证据来源(独立条目必填)")
+    .option("--content <json>", "overview 内容 JSON(仅 overview 类型可用)")
+    .option(
+      "--confidence <level>",
+      "overview 置信度:high | medium | low(仅 overview 类型可用)",
+      "medium",
+    )
     .option("--confirmed", "observed/低置信确认写入", false)
-    .option("--dry-run", "只预览不写入(term/overview)", false)
-    .option("--force", "越过 block 级冲突(term/overview)", false)
+    .option("--dry-run", "只预览不写入(仅 overview 类型可用)", false)
+    .option("--force", "越过 block 级冲突(仅 overview 类型可用)", false)
     .action(
       (opts: {
         project: string;
@@ -73,8 +77,18 @@ export function registerKnowledge(program: Command): void {
           });
           return;
         }
+        const overviewOnly =
+          opts.content !== undefined || opts.dryRun || opts.force || opts.confidence !== "medium";
+        if (overviewOnly) {
+          throw new Error(
+            `[knowledge] --content/--confidence/--dry-run/--force 仅 overview 类型可用;${opts.type} 用 --status/--title/--body 写入`,
+          );
+        }
         if (!opts.status || !opts.title || !opts.body) {
           throw new Error(`[knowledge] 类型 ${opts.type} 需要 --status/--title/--body`);
+        }
+        if (!opts.source) {
+          throw new Error(`[knowledge] 类型 ${opts.type} 需要 --source(证据来源)`);
         }
         runWriteEntry({
           project: opts.project,

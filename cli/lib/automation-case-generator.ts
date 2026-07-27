@@ -4,6 +4,7 @@ import { writeFileAtomic } from "./atomic-writer.ts";
 import { generateAutomationRunner, inspectAutomationCoverage } from "./automation-contract.ts";
 import { parseCasesYaml } from "./cases/parse.ts";
 import type { CaseItem } from "./cases/types.ts";
+import { projectRootFromFeatureDir } from "./features-layout.ts";
 
 export interface GeneratedAutomationScripts {
   created: string[];
@@ -27,7 +28,12 @@ function runtimeSafeText(value: string): string {
 
 function renderScript(featureDir: string, item: CaseItem): string {
   const casesDir = join(featureDir, "automation", "tests", "cases");
-  const sharedRunner = join(featureDir, "..", "..", "..", "_shared", "helpers", "case-runner");
+  const sharedRunner = join(
+    projectRootFromFeatureDir(featureDir),
+    "_shared",
+    "helpers",
+    "case-runner",
+  );
   let importPath = relative(casesDir, sharedRunner).split(sep).join("/");
   if (!importPath.startsWith(".")) importPath = `./${importPath}`;
   const definition = {

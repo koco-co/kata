@@ -3,6 +3,13 @@ import { dirname, join } from "node:path";
 
 const TESTS_ALLOWED = new Set(["cases", "runners", "pages", "helpers", "fixtures", "sql"]);
 const AUTOMATION_TOP_ALLOWED = new Set(["scripts", "tests", ".DS_Store"]);
+// Canonical runners stay in automation/tests/runners/; anything else there goes to backup.
+const CANONICAL_RUNNERS = new Set([
+  "generated.ts",
+  "full.spec.ts",
+  "smoke.spec.ts",
+  "retry-failed.spec.ts",
+]);
 
 export interface NormalizeReport {
   moved: { from: string; to: string }[];
@@ -24,8 +31,8 @@ function listTopEntries(dir: string): string[] {
   return readdirSync(dir);
 }
 
-export function backupDir(featureDir: string): string {
-  const ts = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 15);
+export function backupDir(featureDir: string, now: Date = new Date()): string {
+  const ts = now.toISOString().replace(/[-:.]/g, "").slice(0, 15);
   return join(featureDir, "runs", `${ts}-normalized`);
 }
 
@@ -62,12 +69,29 @@ function planDirectoryContents(
     rmdirSync(sourceDir);
 }
 
+/** Move one stray file into the backup dir; an existing target is a conflict, never overwritten. */
+function planBackupMove(
+  report: NormalizeReport,
+  source: string,
+  target: string,
+  shouldMove: boolean,
+): void {
+  if (existsSync(target)) {
+    report.unfixable.push({ path: source, reason: `备份目标已存在，拒绝覆盖: ${target}` });
+    report.violations++;
+    return;
+  }
+  if (shouldMove) moveIntoBackup(source, target);
+  report.moved.push({ from: source, to: target });
+  report.violations++;
+}
+
 export function normalizeAutomation(
   featureDir: string,
-  opts: { dryRun?: boolean; apply?: boolean } = {},
+  opts: { dryRun?: boolean; apply?: boolean; now?: Date } = {},
 ): NormalizeReport {
   const shouldMove = opts.apply === true && opts.dryRun !== true;
-  const backup = backupDir(featureDir);
+  const backup = backupDir(featureDir, opts.now ?? new Date());
   const report: NormalizeReport = { moved: [], unfixable: [], violations: 0, backupDir: backup };
   const automationDir = join(featureDir, "automation");
   const runnersDir = join(automationDir, "tests", "runners");
@@ -84,11 +108,8 @@ export function normalizeAutomation(
           reason: `automation/ 顶层不应有子目录 "${name}"，请手动移除`,
         });
         report.violations++;
-      } else if (/\.(md|json|yaml)$/.test(name)) {
-        const target = join(backup, "automation", name);
-        if (shouldMove) moveIntoBackup(full, target);
-        report.moved.push({ from: full, to: target });
-        report.violations++;
+      } else if (/\.(md|json|ya?ml)$/.test(name)) {
+        planBackupMove(report, full, join(backup, "automation", name), shouldMove);
       } else {
         report.unfixable.push({
           path: full,
@@ -101,13 +122,17 @@ export function normalizeAutomation(
 
   if (existsSync(runnersDir)) {
     for (const name of listTopEntries(runnersDir)) {
-      if (!name.endsWith(".spec.ts")) continue;
-      if (name.endsWith(".spec.ts")) continue;
+      if (CANONICAL_RUNNERS.has(name)) continue;
       const full = join(runnersDir, name);
-      const target = join(backup, "runners", name);
-      if (shouldMove) moveIntoBackup(full, target);
-      report.moved.push({ from: full, to: target });
-      report.violations++;
+      if (isDir(full)) {
+        report.unfixable.push({
+          path: full,
+          reason: `automation/tests/runners/ 不应有子目录 "${name}"，请手动移除`,
+        });
+        report.violations++;
+        continue;
+      }
+      planBackupMove(report, full, join(backup, "runners", name), shouldMove);
     }
   }
 
@@ -141,6 +166,8 @@ export function normalizeAutomation(
   const allowedRoot = new Set([
     "metadata.yaml",
     "prd.md",
+    "requirement-notes.md",
+    "test-points.md",
     "README.md",
     "cases",
     "automation",

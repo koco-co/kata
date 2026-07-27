@@ -6,10 +6,26 @@ import ExcelJS from "exceljs";
 import { UNCLASSIFIED } from "../xmind-render.ts";
 import type { CasesFile } from "./types.ts";
 
+// Excel 工作表名:去掉非法字符 * ? : \ / [ ],并截断 31 字符上限
+function sheetName(title: string): string {
+  const cleaned = title
+    .replaceAll(/[*?:/\\[\]]/g, "")
+    .trim()
+    .slice(0, 31);
+  return cleaned || "cases";
+}
+
+// ExcelJS 单元格只接受标量;字符串/数字原样传入,其余强转为字符串
+function cellValue(v: unknown): string | number {
+  if (typeof v === "string" || typeof v === "number") return v;
+  if (v === null || v === undefined) return "";
+  return String(v);
+}
+
 /** Render xlsx workbook bytes; one row per case, steps numbered inline. */
 export async function renderXlsx(file: CasesFile): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet(file.meta.title.slice(0, 31) || "cases");
+  const ws = wb.addWorksheet(sheetName(file.meta.title));
   ws.columns = [
     { header: "用例编号", key: "id", width: 10 },
     { header: "所属模块", key: "module", width: 18 },
@@ -21,13 +37,13 @@ export async function renderXlsx(file: CasesFile): Promise<Buffer> {
   ];
   for (const c of file.cases) {
     ws.addRow({
-      id: c.id,
-      module: c.tags?.[0] ?? UNCLASSIFIED,
-      title: c.title,
-      priority: c.priority,
-      precondition: c.precondition ?? "",
-      steps: c.steps.map((s, i) => `${i + 1}. ${s.action}`).join("\n"),
-      expected: c.steps.map((s, i) => `${i + 1}. ${s.expected}`).join("\n"),
+      id: cellValue(c.id),
+      module: cellValue(c.tags?.[0] ?? UNCLASSIFIED),
+      title: cellValue(c.title),
+      priority: cellValue(c.priority),
+      precondition: cellValue(c.precondition ?? ""),
+      steps: cellValue(c.steps.map((s, i) => `${i + 1}. ${s.action}`).join("\n")),
+      expected: cellValue(c.steps.map((s, i) => `${i + 1}. ${s.expected}`).join("\n")),
     });
   }
   const buf = await wb.xlsx.writeBuffer();

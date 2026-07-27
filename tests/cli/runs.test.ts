@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { runRunsPath } from "../../cli/commands/runs.ts";
+import { join, resolve } from "node:path";
+import { runRunsPath, runRunsVerify } from "../../cli/commands/runs.ts";
 import {
   buildDataAssetsChildEnv,
   type ResolvedDataAssetsEnv,
@@ -11,6 +12,7 @@ import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
 } from "../../cli/lib/playwright-run-path.ts";
+import { RUN_ID_RE, runIdType } from "../../cli/lib/run-id.ts";
 import { executeWithRunPath } from "../../cli/lib/runs-exec.ts";
 
 function createProjectRoot(): { root: string; feature: string } {
@@ -20,21 +22,72 @@ function createProjectRoot(): { root: string; feature: string } {
   return { root, feature };
 }
 
+/** Expected run-id prefix YYYYMMDD-HHmm rendered in the local timezone. */
+function localPrefix(now: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}-${p(now.getHours())}${p(now.getMinutes())}`;
+}
+
+function createRun(feature: string, runId: string): string {
+  const runPath = join(feature, "runs", runId);
+  mkdirSync(runPath, { recursive: true });
+  return runPath;
+}
+
+function writeStatus(runPath: string, status: unknown): void {
+  writeFileSync(join(runPath, "status.json"), JSON.stringify(status));
+}
+
 describe("runs execution contract", () => {
   it("allocates canonical runs/<run-id> paths", () => {
     const { root, feature } = createProjectRoot();
+    const now = new Date("2026-07-26T12:00:00Z");
     const allocation = runRunsPath({
       root,
       project: "dataAssets",
       featureId: "feature-a",
       newRun: true,
       runType: "preflight",
-      now: new Date("2026-07-26T12:00:00Z"),
+      now,
     });
 
     expect(allocation.path).toBe(join(feature, "runs", allocation.runId));
-    expect(allocation.runId).toBe("20260726-1200-preflight-01");
+    expect(allocation.runId).toBe(`${localPrefix(now)}-preflight-01`);
     expect(existsSync(allocation.path)).toBe(true);
+  });
+
+  it("allocates increasing sequence numbers exclusively", () => {
+    const { root } = createProjectRoot();
+    const now = new Date("2026-07-26T12:00:00Z");
+    const opts = {
+      root,
+      project: "dataAssets",
+      featureId: "feature-a",
+      newRun: true,
+      runType: "run" as const,
+      now,
+    };
+    const first = runRunsPath(opts);
+    const second = runRunsPath(opts);
+    expect(first.runId).toBe(`${localPrefix(now)}-run-01`);
+    expect(second.runId).toBe(`${localPrefix(now)}-run-02`);
+    expect(existsSync(first.path)).toBe(true);
+    expect(existsSync(second.path)).toBe(true);
+  });
+
+  it("accepts sequence numbers beyond two digits in RUN_ID_RE", () => {
+    expect(RUN_ID_RE.test("20260726-1200-run-205")).toBe(true);
+    expect(runIdType("20260726-1200-run-205")).toBe("run");
+    expect(RUN_ID_RE.test("20260726-1200-run-1")).toBe(false);
+    expect(RUN_ID_RE.test("20260726-1200-run-01.tmp")).toBe(false);
+  });
+
+  it("ignores forged or non-canonical dirs when resolving the latest run", () => {
+    const { root, feature } = createProjectRoot();
+    createRun(feature, "20260726-1200-run-01");
+    createRun(feature, "zzzzz-forged-latest");
+    const latest = runRunsPath({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(latest.runId).toBe("20260726-1200-run-01");
   });
 
   it("requires an allocated canonical run path for Playwright output", () => {
@@ -117,5 +170,125 @@ describe("runs execution contract", () => {
     expect(status.status).toBe("failed");
     expect(status.exitCode).toBe(7);
     expect(existsSync(runPath)).toBe(true);
+  });
+});
+
+describe("runs verify", () => {
+  function passingRun(feature: string): string {
+    const runPath = createRun(feature, "20260726-1200-run-01");
+    writeStatus(runPath, { schemaVersion: 1, status: "command_passed", exitCode: 0 });
+    mkdirSync(join(runPath, "allure-results"));
+    writeFileSync(join(runPath, "allure-results", "abc-result.json"), "{}");
+    return runPath;
+  }
+
+  it("passes a run that satisfies the delivery contract", () => {
+    const { root, feature } = createProjectRoot();
+    const runPath = passingRun(feature);
+    writeFileSync(join(runPath, "handoff.md"), "# handoff\n");
+    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(result.ok).toBe(true);
+    expect(result.runId).toBe("20260726-1200-run-01");
+    expect(result.checks.every((c) => c.passed)).toBe(true);
+  });
+
+  it("fails when status.json is missing", () => {
+    const { root, feature } = createProjectRoot();
+    const runPath = createRun(feature, "20260726-1200-run-01");
+    mkdirSync(join(runPath, "allure-results"));
+    writeFileSync(join(runPath, "allure-results", "abc-result.json"), "{}");
+    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(result.ok).toBe(false);
+    const status = result.checks.find((c) => c.name === "status");
+    expect(status?.passed).toBe(false);
+    expect(status?.message).toContain("status.json 缺失");
+  });
+
+  it("fails for a forged passed status with a non-zero exit code", () => {
+    const { root, feature } = createProjectRoot();
+    const runPath = passingRun(feature);
+    writeStatus(runPath, { schemaVersion: 1, status: "command_passed", exitCode: 7 });
+    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(result.ok).toBe(false);
+    expect(result.checks.find((c) => c.name === "status")?.passed).toBe(false);
+  });
+
+  it("fails for status values outside the schema", () => {
+    const { root, feature } = createProjectRoot();
+    const runPath = passingRun(feature);
+    writeStatus(runPath, { schemaVersion: 1, status: "passed", exitCode: 0 });
+    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(result.ok).toBe(false);
+    writeStatus(runPath, { schemaVersion: 1, status: "failed", exitCode: 3 });
+    expect(runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" }).ok).toBe(false);
+  });
+
+  it("fails when allure-results is missing or empty even with a passing status", () => {
+    const { root, feature } = createProjectRoot();
+    const runPath = passingRun(feature);
+    writeFileSync(join(runPath, "handoff.md"), "# handoff\n");
+    // 清空 allure-results
+    rmSync(join(runPath, "allure-results"), { recursive: true });
+    const missing = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(missing.ok).toBe(false);
+    expect(missing.checks.find((c) => c.name === "allure-results")?.message).toContain("缺失");
+
+    mkdirSync(join(runPath, "allure-results"));
+    const empty = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(empty.ok).toBe(false);
+    expect(empty.checks.find((c) => c.name === "allure-results")?.message).toContain(
+      "无 *-result.json",
+    );
+  });
+
+  it("warns but does not fail when handoff.md is missing", () => {
+    const { root, feature } = createProjectRoot();
+    passingRun(feature);
+    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    expect(result.ok).toBe(true);
+    const handoff = result.checks.find((c) => c.name === "handoff");
+    expect(handoff?.level).toBe("warning");
+    expect(handoff?.passed).toBe(false);
+  });
+
+  it("rejects a forged --run value instead of silently falling back", () => {
+    const { root } = createProjectRoot();
+    expect(() =>
+      runRunsVerify({ root, project: "dataAssets", featureId: "feature-a", runId: "forged" }),
+    ).toThrow(/非法 run-id/);
+  });
+
+  it("exits non-zero via the CLI when verification fails", () => {
+    const { root, feature } = createProjectRoot();
+    createRun(feature, "20260726-1200-run-01"); // 无任何契约产物
+    const kata = resolve(import.meta.dir, "../../cli/bin/kata.ts");
+    const env = { ...process.env, KATA_WORKSPACE_ROOT: join(root, "workspace") };
+    const cwd = resolve(import.meta.dir, "../..");
+    const failing = spawnSync(
+      "bun",
+      [kata, "runs", "verify", "--project", "dataAssets", "--feature", "feature-a"],
+      { cwd, encoding: "utf8", env },
+    );
+    expect(failing.status).toBe(1);
+    expect(failing.stdout).toContain("status.json 缺失");
+
+    passingRun(feature);
+    const passing = spawnSync(
+      "bun",
+      [
+        kata,
+        "runs",
+        "verify",
+        "--project",
+        "dataAssets",
+        "--feature",
+        "feature-a",
+        "--run",
+        "20260726-1200-run-01",
+      ],
+      { cwd, encoding: "utf8", env },
+    );
+    expect(passing.status).toBe(0);
+    expect(passing.stdout).toContain("通过");
   });
 });

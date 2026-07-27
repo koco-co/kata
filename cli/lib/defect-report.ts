@@ -50,8 +50,17 @@ export function lintMarkdownReport(reportPath: string): ReportLintResult {
   for (const required of REQUIRED[kind]) {
     if (!hs.has(required)) violations.push({ line: 1, message: `缺少二级章节: ${required}` });
   }
+  const conclusionLine = hs.get("结论");
+  if (kind === "bug" && conclusionLine !== undefined) {
+    const lines = text.split(/\r?\n/);
+    const nextLine = [...hs.values()].find((n) => n > conclusionLine) ?? lines.length + 1;
+    const conclusionRegion = lines.slice(0, nextLine - 1).join("\n");
+    if (!/^[-*]\s*严重程度[：:]/m.test(conclusionRegion)) {
+      violations.push({ line: conclusionLine, message: "结论章节缺少 - 严重程度： 字段" });
+    }
+  }
   for (const [index, line] of text.split(/\r?\n/).entries()) {
-    if (/<(?:类型|一句话标题|堆栈摘要|slug|...)[^>]*>|TODO|待补充/.test(line)) {
+    if (/<(?:类型|一句话标题|堆栈摘要|slug|\.\.\.)[^>]*>|TODO|待补充/.test(line)) {
       violations.push({ line: index + 1, message: "报告仍包含模板占位符" });
     }
   }
@@ -82,7 +91,9 @@ function section(text: string, title: string): string {
 export function parseBugReportMarkdown(reportPath: string): BugReport {
   const text = readFileSync(reportPath, "utf8");
   const title = text.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? basename(reportPath, ".md");
-  const summary = section(text, "结论") || section(text, "Summary");
+  const summary = (section(text, "结论") || section(text, "Summary"))
+    .replace(/^[-*]\s*(?:严重程度|severity)[：:].*$/gim, "")
+    .trim();
   const actual = section(text, "实际行为") || section(text, "Actual");
   const expected = section(text, "预期行为") || section(text, "Expected");
   const reproduction = section(text, "复现步骤") || section(text, "Reproduction");

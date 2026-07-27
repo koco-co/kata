@@ -2,7 +2,13 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadSourceRepos, mainWorktreeRoot, resolveSourceRepo } from "../../cli/lib/git-source.ts";
+import {
+  assertRepoOperationAllowed,
+  loadSourceRepos,
+  mainWorktreeRoot,
+  RepoOperationNotAllowedError,
+  resolveSourceRepo,
+} from "../../cli/lib/git-source.ts";
 
 const YAML = `repos:
   - name: customltem/dt-center-assets
@@ -90,5 +96,38 @@ describe("mainWorktreeRoot", () => {
   it("resolves the main worktree root through the git common dir", () => {
     // 集成断言:无论从主工作树还是 worktree 跑,都指向主工作树 kata/
     expect(mainWorktreeRoot()).toMatch(/kata$/);
+  });
+});
+
+describe("assertRepoOperationAllowed", () => {
+  const readonlyRepo = {
+    name: "group/repo",
+    project: "dataAssets",
+    path: ".repos/group/repo",
+    branch: "main",
+    writable: false,
+  };
+  const writableRepo = { ...readonlyRepo, writable: true };
+
+  it("allows read-only operations on writable:false repos", () => {
+    for (const op of ["fetch", "pull", "checkout", "grep", "show"]) {
+      expect(() => assertRepoOperationAllowed(readonlyRepo, op)).not.toThrow();
+    }
+  });
+
+  it("rejects mutating operations on writable:false repos with a coded error", () => {
+    for (const op of ["push", "commit", "add"]) {
+      try {
+        assertRepoOperationAllowed(readonlyRepo, op);
+        expect.unreachable();
+      } catch (err) {
+        expect(err).toBeInstanceOf(RepoOperationNotAllowedError);
+        expect((err as RepoOperationNotAllowedError).code).toBe("ERR_REPO_READONLY");
+      }
+    }
+  });
+
+  it("allows any operation on writable:true repos", () => {
+    expect(() => assertRepoOperationAllowed(writableRepo, "push")).not.toThrow();
   });
 });

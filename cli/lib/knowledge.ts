@@ -2,7 +2,7 @@
 
 export interface Frontmatter {
   title: string;
-  type: "overview" | "term" | "module" | "pitfall";
+  type: "overview" | "term" | "module" | "pitfall" | "site";
   tags: string[];
   /** 旧三档置信度;新条目用 status(四态),二者至少其一 */
   confidence?: "high" | "medium" | "low";
@@ -115,14 +115,6 @@ export function todayIso(): string {
 }
 
 export interface ContentTerm {
-  term: string;
-  zh: string;
-  desc: string;
-  alias: string;
-}
-
-/** Row parsed from the terms.md markdown table. */
-export interface TermRow {
   term: string;
   zh: string;
   desc: string;
@@ -325,6 +317,7 @@ export function autoFixFrontmatter(
   let type: Frontmatter["type"];
   if (filePath.includes("/modules/")) type = "module";
   else if (filePath.includes("/pitfalls/")) type = "pitfall";
+  else if (filePath.includes("/sites/")) type = "site";
   else if (filePath.endsWith("overview.md")) type = "overview";
   else if (filePath.endsWith("terms.md")) type = "term";
   else type = "module";
@@ -338,11 +331,13 @@ export function autoFixFrontmatter(
     title = segments[segments.length - 1].replace(/\.md$/, "");
   }
 
+  // 自动注入的是未经人工确认的占位,标 observed(单次观察)而非 verified;
+  // 已有 status: verified 的 frontmatter 可正常解析,不会走到这里被改写。
   const fm: Frontmatter = {
     title,
     type,
     tags: [],
-    confidence: "high",
+    status: "observed",
     source: "",
     updated: today,
   };

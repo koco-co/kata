@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Command } from "commander";
 import {
@@ -8,7 +8,7 @@ import {
   resolveFeatureEntry,
   runsDir,
 } from "../lib/features-layout.ts";
-import { generateRunId, RUN_TYPES, type RunType, runIdType } from "../lib/run-id.ts";
+import { generateRunId, RUN_ID_RE, RUN_TYPES, type RunType, runIdType } from "../lib/run-id.ts";
 import { executeWithRunPath } from "../lib/runs-exec.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
@@ -17,6 +17,17 @@ import { locateProject } from "../lib/workspace-locator.ts";
 const findFeatureEntry = resolveFeatureEntry;
 
 // ─── new / path ───
+
+/** Latest canonical run id under a feature's runs/ dir; forged or legacy names never match. */
+function latestRunId(root: string, featureId: string): string {
+  if (!existsSync(root)) throw new Error(`需求功能 ${featureId} 尚无运行记录`);
+  const runs = readdirSync(root)
+    .filter((n) => n !== RUNS_TMP && RUN_ID_RE.test(n) && statSync(join(root, n)).isDirectory())
+    .sort()
+    .reverse();
+  if (runs.length === 0) throw new Error(`需求功能 ${featureId} 尚无运行记录`);
+  return runs[0];
+}
 
 /** Allocate a new run id (and create the dir) or return the latest run dir for a feature. */
 export function runRunsPath(opts: {
@@ -32,19 +43,12 @@ export function runRunsPath(opts: {
   const root = runsDir(entry.dir);
 
   if (opts.newRun) {
-    mkdirSync(root, { recursive: true });
+    // generateRunId 独占创建 run 目录，直接返回
     const runId = generateRunId({ type: opts.runType ?? "run", runsDir: root, now: opts.now });
-    const path = join(root, runId);
-    mkdirSync(path, { recursive: true });
-    return { runId, path };
+    return { runId, path: join(root, runId) };
   }
-  if (!existsSync(root)) throw new Error(`需求功能 ${opts.featureId} 尚无运行记录`);
-  const runs = readdirSync(root)
-    .filter((n) => n !== RUNS_TMP && statSync(join(root, n)).isDirectory())
-    .sort()
-    .reverse();
-  if (runs.length === 0) throw new Error(`需求功能 ${opts.featureId} 尚无运行记录`);
-  return { runId: runs[0], path: join(root, runs[0]) };
+  const runId = latestRunId(root, opts.featureId);
+  return { runId, path: join(root, runId) };
 }
 
 // ─── prune ───
@@ -124,6 +128,92 @@ export function runRunsPrune(opts: {
   return { plan, removed, kept };
 }
 
+// ─── verify ───
+
+export interface RunsVerifyCheck {
+  name: string;
+  level: "error" | "warning";
+  passed: boolean;
+  message: string;
+}
+
+export interface RunsVerifyResult {
+  runId: string;
+  runPath: string;
+  ok: boolean;
+  checks: RunsVerifyCheck[];
+}
+
+function verifyStatusJson(runPath: string): RunsVerifyCheck {
+  const name = "status";
+  const path = join(runPath, "status.json");
+  if (!existsSync(path)) {
+    return { name, level: "error", passed: false, message: "status.json 缺失" };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return { name, level: "error", passed: false, message: "status.json 不是合法 JSON" };
+  }
+  const status = parsed as Record<string, unknown> | null;
+  if (typeof status !== "object" || status === null || status.schemaVersion !== 1) {
+    return { name, level: "error", passed: false, message: "status.json 不符合 schemaVersion=1" };
+  }
+  // schema 之外的值(伪造 passed、状态机外的字符串、非 0 退出码)一律判失败
+  if (status.status !== "command_passed" || status.exitCode !== 0) {
+    return {
+      name,
+      level: "error",
+      passed: false,
+      message: `status=${String(status.status)} exitCode=${String(status.exitCode)}，要求 command_passed/0`,
+    };
+  }
+  return { name, level: "error", passed: true, message: "command_passed (exitCode=0)" };
+}
+
+function verifyAllureResults(runPath: string): RunsVerifyCheck {
+  const name = "allure-results";
+  const dir = join(runPath, "allure-results");
+  if (!existsSync(dir) || !statSync(dir).isDirectory()) {
+    return { name, level: "error", passed: false, message: "allure-results/ 缺失" };
+  }
+  const count = readdirSync(dir).filter((n) => n.endsWith("-result.json")).length;
+  if (count === 0) {
+    return { name, level: "error", passed: false, message: "allure-results/ 无 *-result.json" };
+  }
+  return { name, level: "error", passed: true, message: `${count} 个 *-result.json` };
+}
+
+function verifyHandoff(runPath: string): RunsVerifyCheck {
+  const exists = existsSync(join(runPath, "handoff.md"));
+  return {
+    name: "handoff",
+    level: "warning",
+    passed: exists,
+    message: exists ? "handoff.md 存在" : "handoff.md 缺失(仅告警，不判失败)",
+  };
+}
+
+/** Verify one run dir against the delivery contract: status.json + allure results (handoff warns). */
+export function runRunsVerify(opts: {
+  project: string;
+  featureId: string;
+  root?: string;
+  runId?: string;
+}): RunsVerifyResult {
+  const paths = locateProject(opts.project, opts.root);
+  const entry = findFeatureEntry(paths.featuresDir, opts.featureId);
+  const root = runsDir(entry.dir);
+  const runId = opts.runId ?? latestRunId(root, opts.featureId);
+  if (!RUN_ID_RE.test(runId)) throw new Error(`非法 run-id "${runId}"`);
+  const runPath = join(root, runId);
+  if (!existsSync(runPath)) throw new Error(`运行目录不存在: ${runPath}`);
+  const checks = [verifyStatusJson(runPath), verifyAllureResults(runPath), verifyHandoff(runPath)];
+  const ok = checks.every((c) => c.level === "warning" || c.passed);
+  return { runId, runPath, ok, checks };
+}
+
 // ─── commander 注册 ───
 
 /** Register the runs noun (new/path/prune) on the program. */
@@ -185,6 +275,33 @@ export function registerRuns(program: Command): void {
     .action((featureId: string, opts: { project: string }) => {
       const { path } = runRunsPath({ project: opts.project, featureId });
       console.log(path);
+    });
+
+  runs
+    .command("verify")
+    .description("校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1")
+    .requiredOption("--project <name>", "项目名")
+    .requiredOption("--feature <feature-id>", "需求功能(目录名或 metadata.id)")
+    .option("--run <run-id>", "指定 run-id(默认最近一次)")
+    .option("--json", "以 JSON 输出结果", false)
+    .action((opts: { project: string; feature: string; run?: string; json: boolean }) => {
+      const result = runRunsVerify({
+        project: opts.project,
+        featureId: opts.feature,
+        runId: opts.run,
+      });
+      if (opts.json) {
+        process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+      } else {
+        console.log(`run:  ${result.runId}`);
+        console.log(`path: ${result.runPath}`);
+        for (const c of result.checks) {
+          const mark = c.passed ? "✓" : c.level === "warning" ? "!" : "✗";
+          console.log(`  ${mark} ${c.name}: ${c.message}`);
+        }
+        console.log(`[runs verify] ${result.ok ? "通过" : "未通过"}`);
+      }
+      if (!result.ok) process.exitCode = 1;
     });
 
   runs

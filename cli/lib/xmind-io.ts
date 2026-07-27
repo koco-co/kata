@@ -9,8 +9,9 @@
  *   kata xmind generate --help
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import JSZip from "jszip";
+import { writeFileAtomic } from "./atomic-writer.ts";
 import type { IntermediateJson, Page, TestCase } from "./intermediate-types.ts";
 import type { RenderOptions } from "./xmind-render.ts";
 import {
@@ -23,6 +24,7 @@ import {
   PRIORITY_MAP,
   sanitizeBr,
   stripPriorityPrefix,
+  useStepsAsNotes,
 } from "./xmind-render.ts";
 
 export interface XMindTopicNode {
@@ -55,7 +57,7 @@ export async function writeXmindSheets(zip: JSZip, outputPath: string): Promise<
     type: "nodebuffer",
     compression: "DEFLATE",
   });
-  writeFileSync(outputPath, out);
+  writeFileAtomic(outputPath, out);
 }
 
 // 折叠策略按「到叶子的高度」自适应，而不是绝对深度：
@@ -92,7 +94,8 @@ export async function applyFoldingToFile(outputPath: string): Promise<void> {
 }
 
 export function buildRawCaseNode(tc: TestCase, options: RenderOptions = {}): XMindTopicNode {
-  const stepNodes: XMindTopicNode[] = options.stepsAsNotes
+  const asNotes = useStepsAsNotes(tc, options);
+  const stepNodes: XMindTopicNode[] = asNotes
     ? []
     : tc.steps.map((s) => ({
         title: sanitizeBr(s.step),
@@ -110,11 +113,7 @@ export function buildRawCaseNode(tc: TestCase, options: RenderOptions = {}): XMi
     node.markers = [{ markerId: markerKey.id }];
   }
 
-  const note = options.stepsAsNotes
-    ? buildCaseNote(tc)
-    : tc.preconditions
-      ? sanitizeBr(tc.preconditions)
-      : "";
+  const note = asNotes ? buildCaseNote(tc) : tc.preconditions ? sanitizeBr(tc.preconditions) : "";
   if (note) {
     node.notes = { plain: { content: note } };
   }
@@ -206,7 +205,8 @@ export async function appendXmind(
   const [sheets, zip] = await readXmindSheets(outputPath);
   const rootTitle = buildRootTitle(data.meta, projectDir);
 
-  const sheet = sheets.find((s) => s.rootTopic?.title === rootTitle) ?? sheets[0];
+  // 目标 sheet 必须按根标题精确命中;不匹配时报错而不是静默写进 sheets[0] 污染首页
+  const sheet = sheets.find((s) => s.rootTopic?.title === rootTitle);
   if (!sheet?.rootTopic) {
     throw new Error(`Cannot find sheet with root title "${rootTitle}" in ${outputPath}`);
   }
@@ -239,7 +239,7 @@ export async function replaceXmind(
   const rootTitle = buildRootTitle(data.meta, projectDir);
   const l1Title = buildL1Title(data.meta);
 
-  const sheet = sheets.find((s) => s.rootTopic?.title === rootTitle) ?? sheets[0];
+  const sheet = sheets.find((s) => s.rootTopic?.title === rootTitle);
   if (!sheet?.rootTopic) {
     throw new Error(`Cannot find sheet with root title "${rootTitle}" in ${outputPath}`);
   }
@@ -249,9 +249,20 @@ export async function replaceXmind(
   } else {
     const attached = sheet.rootTopic.children.attached;
     const reqName = data.meta.requirement_name;
-    const idx = attached.findIndex(
-      (n) => n.title === l1Title || (typeof n.title === "string" && n.title.endsWith(reqName)),
-    );
+    // L1 节点按完整标题精确匹配;旧归档标题可能带前缀,
+    // endsWith 模糊匹配仅在唯一命中时兜底,多命中宁可新增节点也不错杀兄弟需求
+    let idx = attached.findIndex((n) => n.title === l1Title);
+    if (idx < 0) {
+      const fuzzy = attached.flatMap((n, i) =>
+        typeof n.title === "string" && n.title.endsWith(reqName) ? [i] : [],
+      );
+      if (fuzzy.length === 1) {
+        idx = fuzzy[0];
+        console.error(
+          `warn: L1 标题「${l1Title}」精确匹配未命中,按唯一后缀匹配替换「${attached[idx].title}」`,
+        );
+      }
+    }
     if (idx >= 0) {
       attached[idx] = buildRawL1Node(data, options);
     } else {

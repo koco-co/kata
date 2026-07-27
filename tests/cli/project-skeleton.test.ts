@@ -21,6 +21,9 @@ describe("project skeleton contract", () => {
     expect(readProjectMetadata(project)?.name).toBe("demo");
     expect(diff.project_metadata_valid).toBe(true);
     expect(diff.missing_dirs).toContain("analyses/hotfix-case");
+    expect(diff.missing_dirs).toContain("analyses/infra-report");
+    expect(diff.missing_gitkeeps).toContain("knowledge/terms/.gitkeep");
+    expect(diff.missing_files).toContain("knowledge/terms.md");
     expect(diff.skeleton_complete).toBe(false);
   });
 
@@ -42,6 +45,7 @@ describe("project skeleton contract", () => {
       "project.json",
       "_shared/rules/README.md",
       "knowledge/overview.md",
+      "knowledge/terms.md",
     ]);
   });
 });

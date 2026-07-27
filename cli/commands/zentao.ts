@@ -12,20 +12,20 @@ export function registerZentao(program: Command): void {
     .option("--bug-id <number>", "禅道 Bug ID(数字),例如 151858")
     .option(
       "--url <url>",
-      '禅道 Bug 页面 URL,例如 "http://zenpms.dtstack.cn/zentao/bug-view-151858.html"',
+      '禅道 Bug 页面 URL,例如 "https://zentao.example.cn/zentao/bug-view-151858.html"',
     )
     .requiredOption("--output <dir>", "输出目录路径,例如 <hotfixDir>/.temp")
     .action(async (opts: { bugId?: string; url?: string; output: string }) => {
       let bugId: number | undefined;
       if (opts.bugId !== undefined) {
-        bugId = Number.parseInt(opts.bugId, 10);
-        if (Number.isNaN(bugId)) {
+        if (!/^\d+$/.test(opts.bugId)) {
           // 与 runFetch 内部错误输出一致的机器可读契约
           process.stdout.write(
             `${JSON.stringify({ error: `无效的 Bug ID 格式:"${opts.bugId}",必须为正整数` }, null, 2)}\n`,
           );
           process.exit(1);
         }
+        bugId = Number.parseInt(opts.bugId, 10);
       }
       if (bugId === undefined && !opts.url) {
         process.stdout.write(

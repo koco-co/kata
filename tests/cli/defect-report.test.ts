@@ -27,7 +27,96 @@ describe("formal Markdown defect reports", () => {
       [
         "# 登录失败",
         "",
+        "## 结论",
+        "登录接口返回错误",
         "- 严重程度: major",
+        "## 证据",
+        "日志 evidence",
+        "## 实际行为",
+        "页面报错",
+        "## 预期行为",
+        "登录成功",
+        "## 复现步骤",
+        "1. 输入账号",
+        "## 影响范围",
+        "登录用户无法进入系统",
+        "## 根因",
+        "服务异常",
+        "## 建议",
+        "修复服务",
+      ].join("\n"),
+    );
+    expect(lintMarkdownReport(path).violations).toHaveLength(0);
+    expect(parseBugReportMarkdown(path).summary).toBe("登录接口返回错误");
+  });
+
+  it("rejects a bug report without a severity field in the conclusion section", () => {
+    const path = reportPath();
+    writeFileSync(
+      path,
+      [
+        "# 登录失败",
+        "",
+        "## 结论",
+        "登录接口返回错误",
+        "## 证据",
+        "日志 evidence",
+        "## 实际行为",
+        "页面报错",
+        "## 预期行为",
+        "登录成功",
+        "## 复现步骤",
+        "1. 输入账号",
+        "## 影响范围",
+        "登录用户无法进入系统",
+        "## 根因",
+        "服务异常",
+        "## 建议",
+        "修复服务",
+      ].join("\n"),
+    );
+    const violations = lintMarkdownReport(path).violations;
+    expect(violations.some((v) => v.message.includes("严重程度"))).toBe(true);
+  });
+
+  it("only flags real template placeholders, not arbitrary angle brackets", () => {
+    const path = reportPath();
+    writeFileSync(
+      path,
+      [
+        "# 登录失败",
+        "",
+        "## 结论",
+        "返回 401 <abc>",
+        "- 严重程度: major",
+        "## 证据",
+        "日志 evidence",
+        "## 实际行为",
+        "页面报错",
+        "## 预期行为",
+        "登录成功",
+        "## 复现步骤",
+        "1. 输入账号",
+        "## 影响范围",
+        "登录用户无法进入系统",
+        "## 根因",
+        "服务异常",
+        "## 建议",
+        "修复服务",
+      ].join("\n"),
+    );
+    expect(lintMarkdownReport(path).violations).toHaveLength(0);
+  });
+
+  it("accepts the severity field in the report header before the conclusion section", () => {
+    const path = reportPath();
+    writeFileSync(
+      path,
+      [
+        "# 登录失败",
+        "",
+        "- 严重程度：major",
+        "",
         "## 结论",
         "登录接口返回错误",
         "## 证据",
@@ -47,7 +136,6 @@ describe("formal Markdown defect reports", () => {
       ].join("\n"),
     );
     expect(lintMarkdownReport(path).violations).toHaveLength(0);
-    expect(parseBugReportMarkdown(path).summary).toBe("登录接口返回错误");
   });
 
   it("rejects placeholders and missing sections", () => {

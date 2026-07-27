@@ -1,11 +1,14 @@
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import {
+  assertRepoOperationAllowed,
   git,
   isGitSourceRepo,
   loadSourceRepos,
   resolveSourceRepo,
   type SourceRepo,
+  safeGitPath,
+  safeRef,
 } from "../lib/git-source.ts";
 
 function resolveRepo(repoId: string): SourceRepo & { absPath: string } {
@@ -71,13 +74,25 @@ export function registerRepos(program: Command): void {
     .option("--ref <ref>", "指定 ref", "HEAD")
     .action((repo: string, pattern: string, pathArg: string | undefined, opts: { ref: string }) => {
       const { absPath } = resolveRepo(repo);
+      if (!safeRef(opts.ref)) throw new Error(`非法 --ref: ${opts.ref}`);
+      if (pathArg !== undefined && !safeGitPath(pathArg)) {
+        throw new Error(`非法路径: ${pathArg}`);
+      }
       const args = ["grep", "-n", "-e", pattern, opts.ref];
       if (pathArg) args.push("--", pathArg);
       try {
         process.stdout.write(git(absPath, args));
-      } catch {
-        // git grep 无命中返回非零
-        process.exitCode = 1;
+      } catch (err) {
+        const e = err as { status?: number; stderr?: string };
+        // git grep 无命中退出码 1:静默 exit 1;其余(git 缺失/非仓库/ref 错误) stderr + exit 2
+        if (e.status === 1) {
+          process.exitCode = 1;
+          return;
+        }
+        const detail =
+          typeof e.stderr === "string" && e.stderr.trim() ? e.stderr.trim() : String(err);
+        process.stderr.write(`kata repos grep 失败: ${detail}\n`);
+        process.exitCode = 2;
       }
     });
 
@@ -86,8 +101,9 @@ export function registerRepos(program: Command): void {
     .description("git pull --ff-only <repo>;更新本地克隆到远端最新")
     .argument("<repo>", "group/repo 或 repo")
     .action((repo: string) => {
-      const { absPath } = resolveRepo(repo);
-      process.stdout.write(git(absPath, ["pull", "--ff-only"]));
+      const resolved = resolveRepo(repo);
+      assertRepoOperationAllowed(resolved, "pull");
+      process.stdout.write(git(resolved.absPath, ["pull", "--ff-only"]));
     });
 
   repos
@@ -96,7 +112,9 @@ export function registerRepos(program: Command): void {
     .argument("<repo>", "group/repo 或 repo")
     .argument("<branch>", "目标分支")
     .action((repo: string, branch: string) => {
-      const { absPath } = resolveRepo(repo);
-      process.stdout.write(git(absPath, ["checkout", branch]));
+      const resolved = resolveRepo(repo);
+      assertRepoOperationAllowed(resolved, "checkout");
+      if (!safeRef(branch)) throw new Error(`非法分支: ${branch}`);
+      process.stdout.write(git(resolved.absPath, ["checkout", branch]));
     });
 }

@@ -7,6 +7,17 @@ import { isKnowledgeStatus, type KnowledgeStatus, type KnowledgeType } from "./t
 
 const ENTRY_TYPES = ["term", "module", "pitfall", "site"];
 
+/** title 进 frontmatter 单行,tags 进 `[a, b]` 列表;换行/逗号/方括号会破坏磁盘格式。 */
+function assertLegalEntryFields(title: string, tags: string[]): void {
+  if (!title.trim() || /[\r\n]/.test(title)) {
+    throw new Error("非法 title:不能为空且不得包含换行");
+  }
+  const bad = tags.filter((t) => /[\r\n,[\]]/.test(t));
+  if (bad.length > 0) {
+    throw new Error(`非法 tags:${bad.join(", ")}(不得包含逗号/方括号/换行)`);
+  }
+}
+
 export function runReadEntries(opts: {
   project: string;
   module?: string;
@@ -17,6 +28,10 @@ export function runReadEntries(opts: {
 }): void {
   const paths = locateProject(opts.project);
   const types = opts.type ? opts.type.split(",").map((t) => t.trim()) : undefined;
+  const invalidTypes = types?.filter((t) => !ENTRY_TYPES.includes(t)) ?? [];
+  if (invalidTypes.length > 0) {
+    throw new Error(`非法 --type: ${invalidTypes.join(", ")};须为 ${ENTRY_TYPES.join(" | ")}`);
+  }
   if (opts.status?.trim() === "all") {
     opts.status = "verified,observed,conflicting,deprecated";
   }
@@ -73,16 +88,19 @@ export function runWriteEntry(opts: {
   }
   if (!opts.source?.trim()) throw new Error("知识条目必须提供 --source，禁止写入无来源事实");
 
+  const tags = opts.tags
+    ? opts.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [];
+  assertLegalEntryFields(opts.title, tags);
+
   const incoming = {
     title: opts.title,
     type: opts.type as KnowledgeType,
     status: opts.status as KnowledgeStatus,
-    tags: opts.tags
-      ? opts.tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : [],
+    tags,
     source: opts.source.trim(),
     updated: todayIso(),
     body: opts.body,
@@ -102,11 +120,17 @@ export function runWriteEntry(opts: {
       );
       return;
     }
+    if (existing.status === "observed" && incoming.status === "verified" && !opts.confirmed) {
+      process.stdout.write(
+        `${JSON.stringify({ pending: true, promotion: true, title: incoming.title, hint: "observed→verified 属人工确认升级,请加 --confirmed", existing, incoming }, null, 2)}\n`,
+      );
+      return;
+    }
     entry = {
       ...incoming,
       tags: [...new Set([...existing.tags, ...incoming.tags])],
       body:
-        oldBody === newBody
+        oldBody === newBody || oldBody.includes(newBody)
           ? existing.body
           : newBody.includes(oldBody)
             ? incoming.body

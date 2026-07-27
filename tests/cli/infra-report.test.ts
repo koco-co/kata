@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { lintInfraMarkdown } from "../../cli/lib/infra-report.ts";
+import { join, resolve } from "node:path";
+import { lintInfraMarkdown, writeInfraReport } from "../../cli/lib/infra-report.ts";
 
 function report(content: string, segment = "infra-report"): string {
   const root = mkdtempSync(join(tmpdir(), "kata-infra-report-"));
@@ -43,5 +44,49 @@ describe("infra Markdown contract", () => {
     const violations = lintInfraMarkdown(path);
     expect(violations.some((v) => v.rule === "path")).toBe(true);
     expect(violations.some((v) => v.rule === "section")).toBe(true);
+  });
+
+  it("flags unfilled <project> and <host> template placeholders", () => {
+    const path = report(VALID.replace("target", "- 项目：<project>\n- 目标：<host>"));
+    const violations = lintInfraMarkdown(path);
+    expect(violations.some((v) => v.rule === "placeholder")).toBe(true);
+  });
+
+  it("redacts full key-value secrets in written evidence and stays lint-clean", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-infra-write-"));
+    mkdirSync(join(root, "workspace", "demo"), { recursive: true });
+    writeFileSync(join(root, "package.json"), "{}\n");
+    const previous = process.cwd();
+    process.chdir(root);
+    try {
+      const path = writeInfraReport({
+        project: "demo",
+        slug: "redaction-check",
+        hostName: "app",
+        status: "blocked",
+        evidence: ["password = 某某 某", "token: abc123xyz", "SSH result: ready"],
+        conclusion: "blocked by credential binding",
+      });
+      const text = readFileSync(path, "utf8");
+      expect(text).not.toContain("某某");
+      expect(text).not.toContain("abc123xyz");
+      expect(text).toContain("[redacted]");
+      expect(text).toContain("SSH result: ready");
+      expect(lintInfraMarkdown(path)).toEqual([]);
+    } finally {
+      process.chdir(previous);
+    }
+  });
+
+  it("keeps lint violations on stderr and JSON on stdout", () => {
+    const path = report("# Infra\n\n## 基本信息\n\n");
+    const result = spawnSync(
+      "bun",
+      [resolve(import.meta.dir, "../../cli/bin/kata.ts"), "infra", "lint", "--report", path],
+      { encoding: "utf8" },
+    );
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout).violations).toBeGreaterThan(0);
+    expect(result.stderr).toContain("缺少二级章节");
   });
 });

@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node
 import { join } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseFrontmatter } from "../knowledge.ts";
+import { knowledgeDirFromPaths } from "../knowledge-paths.ts";
 import type { ProjectPaths } from "../types.ts";
 import { type KnowledgeEntry, type KnowledgeType, statusFromConfidence } from "./types.ts";
 
@@ -18,12 +19,6 @@ const TYPE_DIRS: Record<string, string> = {
   pitfall: "pitfalls",
   site: "sites",
 };
-
-/** 项目知识库目录:workspace/<p>/knowledge 优先,缺省回落 _shared/knowledge(与 knowledge-paths 同规则)。 */
-export function storeDir(paths: ProjectPaths): string {
-  if (existsSync(paths.knowledgeDir)) return paths.knowledgeDir;
-  return join(paths.sharedDir, "knowledge");
-}
 
 /** 标题 → 文件名 slug:保留中日韩字符,其余非字母数字折叠为 `-`。 */
 export function slugifyTitle(title: string): string {
@@ -69,7 +64,7 @@ function existingEntryPath(dir: string, entry: KnowledgeEntry): string | undefin
 
 /** 写入条目(同名复用旧路径),返回文件路径。 */
 export function writeEntry(paths: ProjectPaths, entry: KnowledgeEntry): string {
-  const dir = storeDir(paths);
+  const dir = knowledgeDirFromPaths(paths);
   const file = existingEntryPath(dir, entry) ?? entryPath(dir, entry);
   mkdirSync(join(file, ".."), { recursive: true });
   writeFileAtomic(file, serialize(entry));
@@ -82,7 +77,7 @@ export function readEntryByTitle(
   type: KnowledgeType,
   title: string,
 ): KnowledgeEntry | null {
-  const dir = storeDir(paths);
+  const dir = knowledgeDirFromPaths(paths);
   const sub = TYPE_DIRS[type];
   if (!sub) return null;
   for (const file of listMarkdown(join(dir, sub))) {
@@ -103,7 +98,7 @@ export function readEntryByTitle(
 }
 
 export function readOverview(paths: ProjectPaths): string | null {
-  const file = join(storeDir(paths), "overview.md");
+  const file = join(knowledgeDirFromPaths(paths), "overview.md");
   return existsSync(file) ? readFileSync(file, "utf8") : null;
 }
 
@@ -170,7 +165,7 @@ export function readEntries(
     statuses?: KnowledgeEntry["status"][];
   } = {},
 ): KnowledgeEntry[] {
-  const dir = storeDir(paths);
+  const dir = knowledgeDirFromPaths(paths);
   const types = (query.types?.length ? query.types : Object.keys(TYPE_DIRS)) as KnowledgeType[];
   // 提升为局部常量,闭包内保持收窄后的类型
   const mod = query.module;

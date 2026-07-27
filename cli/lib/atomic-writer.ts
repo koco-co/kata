@@ -1,15 +1,34 @@
 // cli/lib/atomic-writer.ts
 
 import { randomBytes } from "node:crypto";
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
+import {
+  closeSync,
+  existsSync,
+  fsyncSync,
+  mkdirSync,
+  openSync,
+  renameSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 
-/** Write a file atomically: write to a temp sibling then rename over the target. */
+/** Write a file atomically: fsync a temp sibling then rename over the target; temp is always cleaned up. */
 export function writeFileAtomic(path: string, content: string | Buffer): void {
   mkdirSync(dirname(path), { recursive: true });
   const tmp = join(dirname(path), `.${randomBytes(6).toString("hex")}.tmp`);
-  writeFileSync(tmp, content);
-  renameSync(tmp, path);
+  try {
+    const fd = openSync(tmp, "w");
+    try {
+      writeFileSync(fd, content);
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+    renameSync(tmp, path);
+  } finally {
+    if (existsSync(tmp)) unlinkSync(tmp);
+  }
 }
 
 /** Serialize data as pretty JSON and write it atomically. */

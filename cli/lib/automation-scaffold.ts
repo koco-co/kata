@@ -19,7 +19,7 @@ const FULL_SPEC = `// full regression - aggregate all feature case imports
 
 const CASES_README = `# 用例索引
 
-<!-- t{nn} -> 业务场景映射，由 case-draft 或 playwright-automation 维护 -->
+<!-- t{nn} -> 业务场景映射，由 test-case 或 ui-automation 维护 -->
 `;
 
 export function scaffoldAutomation(

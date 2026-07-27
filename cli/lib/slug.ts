@@ -45,12 +45,18 @@ export function sanitizeSlug(input: string): string {
     return s.toLowerCase();
   });
 
-  return converted
+  const projection = converted
     .join(" ")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .replace(/-{2,}/g, "-");
+  // 扩展区汉字/符号在 ASCII 投影后可能整段丢失或过短，失去区分度时回退确定性哈希
+  if (projection.length < 2) {
+    const hex = createHash("sha256").update(input).digest("hex").slice(0, 8);
+    return `slug-${hex}`;
+  }
+  return projection;
 }
 
 export type SlugSource = { kind: "lanhu"; pageId?: string } | { kind: "prd"; filename?: string };

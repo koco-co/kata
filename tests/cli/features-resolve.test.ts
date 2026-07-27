@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runFeaturesResolve } from "../../cli/commands/features.ts";
+import { runFeaturesList, runFeaturesResolve } from "../../cli/commands/features.ts";
 
 function repo(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-fr-"));
@@ -12,6 +12,11 @@ function repo(): string {
 }
 
 const base = { project: "dataAssets", module: "数据质量", description: "测试需求" };
+
+function currentYyyyMm(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
 
 describe("features resolve", () => {
   it("throws when neither --feature-version nor --standing is given", () => {
@@ -42,4 +47,52 @@ describe("features resolve", () => {
     expect(r.featureDir).toContain("_standing");
     expect(r.dirName).toMatch(/^【standing】/);
   });
+
+  it("dedupes the generated metadata id with -2/-3 suffixes", () => {
+    const root = repo();
+    const baseId = `${currentYyyyMm()}-ce-shi-xu-qiu`;
+    // 另一个版本组里已存在同月同 slug 的需求(以及它的 -2)
+    for (const [version, id] of [
+      ["v6.4.10", baseId],
+      ["v6.4.9", `${baseId}-2`],
+    ] as const) {
+      const dir = join(
+        root,
+        "workspace",
+        "dataAssets",
+        "features",
+        version,
+        "【v6410】【模块】测试需求",
+      );
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, "metadata.yaml"), `id: ${id}\n`);
+    }
+    const r = runFeaturesResolve({ ...base, root, featureVersion: "v6.4.11" });
+    expect(r.featureId).toBe(`${baseId}-3`);
+    expect(readMetaId(r.featureDir)).toBe(`${baseId}-3`);
+  });
+
+  it("lists features while skipping corrupt metadata.yaml instead of crashing", () => {
+    const root = repo();
+    const created = runFeaturesResolve({ ...base, root, featureVersion: "v6.4.11" });
+    const bad = join(
+      root,
+      "workspace",
+      "dataAssets",
+      "features",
+      "v6.4.10",
+      "【v6410】【模块】坏目录",
+    );
+    mkdirSync(bad, { recursive: true });
+    writeFileSync(join(bad, "metadata.yaml"), "id: [unclosed\n");
+
+    const rows = runFeaturesList({ project: "dataAssets", root });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.id).toBe(created.featureId);
+  });
 });
+
+function readMetaId(featureDir: string): string {
+  const text = readFileSync(join(featureDir, "metadata.yaml"), "utf8");
+  return /id:\s*(\S+)/.exec(text)?.[1] ?? "";
+}

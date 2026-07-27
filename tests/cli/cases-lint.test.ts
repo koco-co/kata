@@ -175,4 +175,67 @@ describe("features lint", () => {
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "metadata_reference_missing")).toBe(true);
   });
+
+  it("skips subjective title/P0 rules for non-active zones", () => {
+    const root = ws();
+    const dir = join("_standing", "【standing】【模块】常驻需求");
+    mkfeature(root, dir, "cases");
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-standing\n",
+    );
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "cases", "常驻需求.yaml"),
+      "cases:\n  - id: C001\n    title: 新建规则成功\n    priority: P1\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "case_title_format")).toBe(false);
+    expect(violations.some((v) => v.rule === "p0_ratio")).toBe(false);
+  });
+
+  it("flags duplicate metadata.id across directories", () => {
+    const root = ws();
+    for (const [group, dir] of [
+      ["v7.0.0", "【v700】【客户】【模块】需求"],
+      ["v7.0.1", "【v701】【客户】【模块】另一需求"],
+    ]) {
+      mkfeature(root, group, dir);
+      writeFileSync(
+        join(root, "dataAssets", "features", group, dir, "metadata.yaml"),
+        "id: 202607-01-demo\n",
+      );
+    }
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    const dup = violations.filter((v) => v.rule === "duplicate_feature_id");
+    expect(dup).toHaveLength(1);
+    expect(dup[0]?.message).toContain("202607-01-demo");
+  });
+
+  it("flags metadata.feature_id not matching {group}/{dirName}", () => {
+    const root = ws();
+    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    mkfeature(root, dir);
+    writeFileSync(
+      join(root, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-demo\nfeature_id: v9.9.9/【v999】【客户】【模块】别的\n",
+    );
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "feature_id_mismatch")).toBe(true);
+
+    const ok = ws();
+    mkfeature(ok, dir);
+    writeFileSync(
+      join(ok, "dataAssets", "features", dir, "metadata.yaml"),
+      "id: 202607-01-demo\nfeature_id: v7.0.0/【v700】【客户】【模块】需求\n",
+    );
+    const okResult = runFeaturesLint({ project: "dataAssets", workspaceRoot: ok });
+    expect(okResult.violations.some((v) => v.rule === "feature_id_mismatch")).toBe(false);
+  });
+
+  it("ignores reserved underscore top dirs like _history", () => {
+    const root = ws();
+    mkfeature(root, "_history", "prds");
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations).toHaveLength(0);
+  });
 });

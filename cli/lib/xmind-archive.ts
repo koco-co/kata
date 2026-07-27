@@ -130,6 +130,8 @@ function processArchiveHeading(state: ArchiveParseState, line: string): boolean 
 
 function openArchiveModule(state: ArchiveParseState, name: string): true {
   flushArchiveCase(state);
+  // 标题出现即作废旧锚点,避免 case_id 错挂到远处下一个用例
+  state.pendingCaseId = null;
   state.currentSubGroup = null;
   state.currentPage = null;
   state.currentModule = { name, pages: [] };
@@ -139,6 +141,7 @@ function openArchiveModule(state: ArchiveParseState, name: string): true {
 
 function openArchivePage(state: ArchiveParseState, name: string): true {
   flushArchiveCase(state);
+  state.pendingCaseId = null;
   state.currentSubGroup = null;
   state.currentPage = { name };
   ensureCurrentModule(state).pages.push(state.currentPage);
@@ -147,6 +150,7 @@ function openArchivePage(state: ArchiveParseState, name: string): true {
 
 function openArchiveSubGroup(state: ArchiveParseState, name: string): true {
   flushArchiveCase(state);
+  state.pendingCaseId = null;
   state.currentSubGroup = { name, test_cases: [] };
   if (state.currentPage) {
     if (!state.currentPage.sub_groups) state.currentPage.sub_groups = [];

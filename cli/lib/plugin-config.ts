@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
   chmodSync,
@@ -9,7 +10,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { parse, stringify } from "yaml";
 import { readDotEnvFile } from "./env.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
@@ -47,6 +48,7 @@ export interface NotifyPluginConfig {
     pass?: string;
     from?: string;
     to?: string;
+    secure?: string | boolean;
   };
 }
 
@@ -100,7 +102,8 @@ function envOverride(
   key: string,
 ): string | undefined {
   const override = env[key];
-  if (override !== undefined) return override;
+  // 空字符串视为未设置(如 `VAR=` 的 shell 导出),回落到配置文件值
+  if (override !== undefined && override !== "") return override;
   return scalar(configValue);
 }
 
@@ -134,6 +137,7 @@ export function updatePluginConfig(
   root: string = defaultRepoRoot(),
 ): string {
   const path = pluginConfigPath(name, root);
+  warnIfGitTracked(path, root);
   const current = readYamlObject(path);
   const merged: Record<string, unknown> = { ...current };
   for (const [key, value] of Object.entries(patch)) {
@@ -141,6 +145,19 @@ export function updatePluginConfig(
     else merged[key] = value;
   }
   return writePluginConfig(name, merged, root);
+}
+
+/** config/plugin/*.yaml 是本机私密配置,应被 gitignore;意外被 git 跟踪时写入前提醒。 */
+function warnIfGitTracked(path: string, root: string): void {
+  try {
+    const rel = relative(resolve(root), path);
+    execFileSync("git", ["-C", resolve(root), "ls-files", "--error-unmatch", "--", rel], {
+      stdio: "pipe",
+    });
+    process.stderr.write(`[plugin-config] 警告:${rel} 被 git 跟踪,私密配置不应入库\n`);
+  } catch {
+    // 未被跟踪或非 git 仓库:无需警告
+  }
 }
 
 export function loadLanhuConfig(
@@ -195,6 +212,7 @@ export function loadNotifyConfig(
       pass: envOverride(smtp.pass, env, "KATA_SMTP_PASS"),
       from: envOverride(smtp.from, env, "KATA_SMTP_FROM"),
       to: envOverride(smtp.to, env, "KATA_SMTP_TO"),
+      secure: envOverride(smtp.secure, env, "KATA_SMTP_SECURE"),
     },
   };
 }
@@ -246,6 +264,7 @@ export function migrateDotEnvPlugins(
       pass: values.KATA_SMTP_PASS,
       from: values.KATA_SMTP_FROM,
       to: values.KATA_SMTP_TO,
+      secure: values.KATA_SMTP_SECURE,
     },
   };
   const compact = (value: Record<string, unknown>): Record<string, unknown> => {

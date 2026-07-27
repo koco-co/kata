@@ -16,6 +16,28 @@ function fail(msg: string): never {
   throw new CasesParseError(msg);
 }
 
+function typeName(v: unknown): string {
+  if (v === null) return "null";
+  if (Array.isArray(v)) return "数组";
+  switch (typeof v) {
+    case "string":
+      return "字符串";
+    case "number":
+      return "数字";
+    case "boolean":
+      return "布尔";
+    case "object":
+      return "对象";
+    default:
+      return typeof v;
+  }
+}
+
+// 可选字段类型不符一律报错(旧实现静默丢弃,错误配置无感知)
+function failType(field: string, expect: string, v: unknown): never {
+  fail(`字段 ${field} 期望${expect},实际${typeName(v)}`);
+}
+
 function asString(v: unknown, field: string): string {
   if (typeof v !== "string" || !v.trim()) fail(`字段 ${field} 缺失或不是字符串`);
   return v;
@@ -27,7 +49,8 @@ function asCell(v: unknown, field: string): string {
   return v;
 }
 
-const SPEC_FILE_RE = /^t\d+-[a-z0-9]+(?:-[a-z0-9]+)*\.ts$/;
+/** Generated Playwright spec file name: t<序号>-<slug>.ts(cases build/export 共用). */
+export const SPEC_FILE_RE = /^t\d+-[a-z0-9]+(?:-[a-z0-9]+)*\.ts$/;
 
 function asCaseItem(v: unknown, index: number): CaseItem {
   if (typeof v !== "object" || v === null) fail(`cases[${index}] 不是对象`);
@@ -51,10 +74,23 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     priority: priority as CaseItem["priority"],
     steps,
   };
-  if (typeof o.precondition === "string" && o.precondition.trim())
-    item.precondition = o.precondition;
-  if (Array.isArray(o.tags) && o.tags.every((t) => typeof t === "string")) item.tags = o.tags;
-  if (typeof o.source_ref === "string" && o.source_ref.trim()) item.source_ref = o.source_ref;
+  if (o.precondition !== undefined) {
+    if (typeof o.precondition !== "string")
+      failType(`cases[${index}].precondition`, "字符串", o.precondition);
+    if (o.precondition.trim()) item.precondition = o.precondition;
+  }
+  if (o.tags !== undefined) {
+    if (!Array.isArray(o.tags)) failType(`cases[${index}].tags`, "数组", o.tags);
+    item.tags = o.tags.map((t, i) => {
+      if (typeof t !== "string") failType(`cases[${index}].tags[${i}]`, "字符串", t);
+      return t;
+    });
+  }
+  if (o.source_ref !== undefined) {
+    if (typeof o.source_ref !== "string")
+      failType(`cases[${index}].source_ref`, "字符串", o.source_ref);
+    if (o.source_ref.trim()) item.source_ref = o.source_ref;
+  }
   if (o.automation !== undefined) {
     if (typeof o.automation !== "object" || o.automation === null) {
       fail(`cases[${index}].automation 不是对象`);
@@ -81,13 +117,14 @@ export function parseCasesYaml(yamlText: string): CasesFile {
   if (typeof o.meta !== "object" || o.meta === null) fail("缺 meta 对象");
   const m = o.meta as Record<string, unknown>;
   if (!Array.isArray(o.cases)) fail("缺 cases 数组");
-  return {
-    meta: {
-      title: asString(m.title, "meta.title"),
-      version: asString(m.version, "meta.version"),
-      feature_id: asString(m.feature_id, "meta.feature_id"),
-      ...(typeof m.source === "string" && m.source.trim() ? { source: m.source } : {}),
-    },
-    cases: o.cases.map(asCaseItem),
+  const meta: CasesFile["meta"] = {
+    title: asString(m.title, "meta.title"),
+    version: asString(m.version, "meta.version"),
+    feature_id: asString(m.feature_id, "meta.feature_id"),
   };
+  if (m.source !== undefined) {
+    if (typeof m.source !== "string") failType("meta.source", "字符串", m.source);
+    if (m.source.trim()) meta.source = m.source;
+  }
+  return { meta, cases: o.cases.map(asCaseItem) };
 }

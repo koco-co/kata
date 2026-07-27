@@ -6,6 +6,7 @@ import { parse } from "yaml";
 export interface FeatureMeta {
   schema: string;
   id: string;
+  /** Alternate routing key; when present must be `{group}/{dirName}` (enforced by features lint). */
   feature_id?: string;
   display_name: string;
   status: string;

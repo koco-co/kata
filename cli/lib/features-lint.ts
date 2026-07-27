@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "yaml";
-import { listFeatureDirs, resolveFeatureEntry } from "./features-layout.ts";
+import { LABEL_DIR_RE, listFeatureDirs, resolveFeatureEntry } from "./features-layout.ts";
 
 export interface FeaturesLintContext {
   project: string;
@@ -16,9 +16,6 @@ export interface FeatureLintViolation {
 }
 
 const SLUG_RE = /^\d{4}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
-// 人类标签命名约定: 【v{版本}】[【lanhu/客户】]【{模块}】{描述}; 常驻需求首段为【standing】。
-// 目录名只是人类路由把手, 机器主键是 metadata.id(slug)。
-const CJK_LABEL_RE = /^【(?:v\d+|standing)】(?:【[^【】]+】){1,3}[^【】]+$/;
 // 未确认点必须在写 yaml 前清零,产物里不允许出现「待确认」标记;
 // 「等待确认弹窗关闭」等操作步骤里的「待确认」子串不算未确认点
 const PENDING_CONFIRM_RE = /(?<!等)待确认/;
@@ -106,12 +103,14 @@ function lintMetadataReferences(
 function lintCaseSources(
   dir: string,
   name: string,
-  _zone: string,
+  zone: string,
   envNames: string[],
   violations: FeatureLintViolation[],
 ): void {
   const casesDir = join(dir, "cases");
   if (!existsSync(casesDir)) return;
+  // 标题规范与 P0 占比是正式(active)需求的主观规则; standing/archived/legacy-flat 不查
+  const subjective = zone === "active";
   for (const f of readdirSync(casesDir)) {
     if (!f.endsWith(".yaml")) continue;
     const text = readFileSync(join(casesDir, f), "utf-8");
@@ -142,6 +141,8 @@ function lintCaseSources(
         });
       }
     }
+
+    if (!subjective) continue;
 
     let doc: CaseDoc;
     try {
@@ -198,7 +199,7 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
 
     lintCaseSources(dir, name, entry.zone, envNames, violations);
 
-    const isCjkLabel = CJK_LABEL_RE.test(name);
+    const isCjkLabel = LABEL_DIR_RE.test(name);
 
     if (!SLUG_RE.test(name) && !isCjkLabel) {
       violations.push({
@@ -253,6 +254,18 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
       });
     }
 
+    // metadata.feature_id 是备选路由键, 格式固定为 {group}/{dirName}(legacy-flat 只有 dirName)
+    if (typeof meta.feature_id === "string" && meta.feature_id) {
+      const expected = entry.group ? `${entry.group}/${entry.dirName}` : entry.dirName;
+      if (meta.feature_id !== expected) {
+        violations.push({
+          feature: name,
+          rule: "feature_id_mismatch",
+          message: `metadata.feature_id="${meta.feature_id}"，应为 "${expected}"`,
+        });
+      }
+    }
+
     for (const m of (meta.modules as string[] | undefined) ?? []) {
       if (modulesEnum.length && !modulesEnum.includes(m)) {
         violations.push({
@@ -282,6 +295,31 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
     }
 
     lintMetadataReferences(meta, name, dir, ctx.workspaceRoot, violations);
+  }
+
+  // consistency: 同一 metadata.id(slug) 出现在两个目录即主键冲突, 一律报 error
+  const idLocations = new Map<string, string[]>();
+  for (const entry of allEntries) {
+    const metaPath = join(entry.dir, "metadata.yaml");
+    if (!existsSync(metaPath)) continue;
+    try {
+      const meta = parse(readFileSync(metaPath, "utf-8")) as Record<string, unknown> | null;
+      if (typeof meta?.id === "string" && meta.id) {
+        const location = entry.group ? `${entry.group}/${entry.dirName}` : entry.dirName;
+        idLocations.set(meta.id, [...(idLocations.get(meta.id) ?? []), location]);
+      }
+    } catch {
+      // 解析失败由主循环的 metadata_unparseable 规则报告
+    }
+  }
+  for (const [id, locations] of idLocations) {
+    if (locations.length > 1) {
+      violations.push({
+        feature: id,
+        rule: "duplicate_feature_id",
+        message: `metadata.id "${id}" 出现在多个目录: ${locations.join(", ")}`,
+      });
+    }
   }
 
   return { violations };

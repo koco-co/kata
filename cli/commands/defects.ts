@@ -1,11 +1,16 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import type { Command } from "commander";
 import { runFetch } from "../integrations/zentao/fetch.ts";
-import { renderBugReport, renderConflictReport } from "../lib/bug-report-render.ts";
-import type { BugVariant } from "../lib/bug-report-types.ts";
-import { validateBugReport, validateConflictReport } from "../lib/bug-report-validate.ts";
 import { outputJson } from "../lib/cli.ts";
 import { lintMarkdownReport } from "../lib/defect-report.ts";
 import {
@@ -15,20 +20,11 @@ import {
 } from "../lib/hotfix-report.ts";
 import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
 
-function loadJson(path: string): unknown {
-  if (!existsSync(path)) throw new Error(`JSON 不存在: ${path}`);
-  return JSON.parse(readFileSync(path, "utf-8"));
-}
-
-function writeOut(out: string, content: string): void {
-  const abs = resolve(out);
-  mkdirSync(dirname(abs), { recursive: true });
-  writeFileSync(abs, content, "utf8");
-}
+const BUG_VIEW_ID_RE = /bug-view-(\d+)\.html/;
 
 /** Build the `defects` command: generate and validate formal defect reports. */
 export function registerDefects(program: Command): void {
-  const defects = program.command("defects").description("缺陷与冲突报告渲染");
+  const defects = program.command("defects").description("缺陷报告生成与结构校验");
 
   defects
     .command("hotfix")
@@ -51,21 +47,26 @@ export function registerDefects(program: Command): void {
         }
         if (!/^\d{6}$/.test(opts.yyyymm)) throw new Error("--yyyymm 必须为 YYYYMM");
         locateProject(opts.project);
-        const bugId = opts.bugId === undefined ? undefined : Number.parseInt(opts.bugId, 10);
-        if (opts.bugId !== undefined && (!Number.isInteger(bugId) || (bugId as number) <= 0)) {
-          throw new Error("--bug-id 必须为正整数");
+        if (opts.bugId !== undefined && !/^\d+$/.test(opts.bugId)) {
+          throw new Error("--bug-id 必须为数字");
         }
+        const bugId = opts.bugId === undefined ? undefined : Number.parseInt(opts.bugId, 10);
 
         const temp = mkdtempSync(join(tmpdir(), "kata-hotfix-fetch-"));
         try {
           await runFetch({ bugId, url: opts.url, output: temp, silent: true });
-          const fetchedId =
-            bugId ??
-            (opts.url?.match(/bug-view-(\d+)\.html/)?.[1]
-              ? Number.parseInt(opts.url.match(/bug-view-(\d+)\.html/)?.[1] as string, 10)
-              : undefined);
+          const urlBugId = opts.url?.match(BUG_VIEW_ID_RE)?.[1];
+          const fetchedId = bugId ?? (urlBugId ? Number.parseInt(urlBugId, 10) : undefined);
           if (!fetchedId) throw new Error("无法确定抓取到的 Bug ID");
           const fetchedPath = join(temp, `bug-${fetchedId}.json`);
+          if (!existsSync(fetchedPath)) {
+            const found = readdirSync(temp).filter((file) => /^bug-\d+\.json$/.test(file));
+            throw new Error(
+              found.length > 0
+                ? `禅道抓取结果缺少 bug-${fetchedId}.json；实际产出: ${found.join(", ")}`
+                : `禅道抓取结果缺少 bug-${fetchedId}.json；输出目录无任何 bug-*.json`,
+            );
+          }
           const fetched = JSON.parse(readFileSync(fetchedPath, "utf8")) as {
             bug_id: number;
             url: string;
@@ -92,7 +93,9 @@ export function registerDefects(program: Command): void {
             { encoding: "utf8", mode: 0o600 },
           );
           const violations = lintHotfixMarkdown(reportPath);
-          for (const v of violations) console.log(`${reportPath}:${v.line}:${v.rule}:${v.message}`);
+          for (const v of violations) {
+            process.stderr.write(`${reportPath}:${v.line}:${v.rule}:${v.message}\n`);
+          }
           if (violations.length > 0)
             throw new Error(`生成的 hotfix 报告未通过 lint: ${reportPath}`);
           outputJson({ ok: true, report: reportPath, bugId: fetched.bug_id });
@@ -127,28 +130,5 @@ export function registerDefects(program: Command): void {
       }
       outputJson({ report: opts.report, kind: result.kind, violations: result.violations.length });
       if (opts.exitCode && result.violations.length > 0) process.exitCode = 1;
-    });
-
-  defects
-    .command("render-bug")
-    .description("根据 BugReport JSON 生成缺陷 HTML 报告")
-    .requiredOption("--json <path>", "BugReport JSON 路径")
-    .requiredOption("--out <path>", "输出 HTML 路径")
-    .option("--variant <v>", "报告样式(当前仅 zentao)", "zentao")
-    .action((opts: { json: string; out: string; variant: string }) => {
-      const report = validateBugReport(loadJson(opts.json));
-      writeOut(opts.out, renderBugReport(report, opts.variant as BugVariant));
-      outputJson({ ok: true, out: opts.out, variant: opts.variant });
-    });
-
-  defects
-    .command("render-conflict")
-    .description("根据 ConflictReport JSON 生成冲突 HTML 报告")
-    .requiredOption("--json <path>", "ConflictReport JSON 路径")
-    .requiredOption("--out <path>", "输出 HTML 路径")
-    .action((opts: { json: string; out: string }) => {
-      const report = validateConflictReport(loadJson(opts.json));
-      writeOut(opts.out, renderConflictReport(report));
-      outputJson({ ok: true, out: opts.out });
     });
 }

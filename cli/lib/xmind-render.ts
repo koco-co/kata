@@ -9,16 +9,21 @@
  *   kata xmind generate --help
  */
 
-import { existsSync, writeFileSync } from "node:fs";
+import { randomBytes } from "node:crypto";
+import { existsSync, renameSync, rmSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { MarkerId, TopicBuilder } from "xmind-generator";
 import { Marker, RootTopic, Topic, Workbook } from "xmind-generator";
+import { writeFileAtomic } from "./atomic-writer.ts";
 import type { IntermediateJson, Meta, Module, Page, TestCase } from "./intermediate-types.ts";
-import { loadXmindRules } from "./xmind-rules.ts";
+import { buildRootName, loadXmindRules } from "./xmind-rules.ts";
 
 export type WriteMode = "create" | "append" | "replace";
 export type RootAwareMeta = Meta & { root_name?: string };
 export interface RenderOptions {
   stepsAsNotes?: boolean;
+  /** stepsAsNotes 仅对步骤数达到阈值的用例生效(默认 3);短用例保留大纲步骤节点 */
+  stepsAsNotesMinSteps?: number;
 }
 
 export interface OutputResult {
@@ -67,6 +72,30 @@ export function validateInput(data: unknown): asserts data is IntermediateJson {
   if (!Array.isArray(obj.modules) || obj.modules.length === 0) {
     throw new Error("modules must be a non-empty array");
   }
+  obj.modules.forEach(validateModule);
+}
+
+// 逐模块/逐页校验,避免结构错误拖到渲染深处才暴露
+function validateModule(mod: unknown, index: number): void {
+  if (!mod || typeof mod !== "object") {
+    throw new Error(`modules[${index}] must be an object`);
+  }
+  const m = mod as Record<string, unknown>;
+  if (typeof m.name !== "string" || !m.name) {
+    throw new Error(`modules[${index}].name must be a non-empty string`);
+  }
+  if (!Array.isArray(m.pages)) {
+    throw new Error(`modules[${index}].pages must be an array`);
+  }
+  m.pages.forEach((page, j) => {
+    if (!page || typeof page !== "object") {
+      throw new Error(`modules[${index}].pages[${j}] must be an object`);
+    }
+    const name = (page as Record<string, unknown>).name;
+    if (typeof name !== "string" || !name) {
+      throw new Error(`modules[${index}].pages[${j}].name must be a non-empty string`);
+    }
+  });
 }
 
 // ─── Title builders ──────────────────────────────────────────────────────────
@@ -80,12 +109,7 @@ export function buildRootTitle(meta: RootAwareMeta, projectDir?: string): string
     return meta.root_name;
   }
   if (meta.version) {
-    const rules = loadXmindRules(projectDir);
-    const ver = normalizeVersion(meta.version);
-    return rules.root_title_template
-      .replace("{{project_name}}", meta.project_name ?? "")
-      .replace("{{prd_version}}", ver)
-      .replace("{{iteration_id}}", rules.iteration_id);
+    return buildRootName(meta.version, loadXmindRules(projectDir), meta.project_name);
   }
   return meta.project_name;
 }
@@ -168,8 +192,17 @@ export function buildCaseNote(tc: TestCase): string {
   return parts.join("\n\n");
 }
 
+/**
+ * stepsAsNotes 按步骤数设阈:只有步骤数 ≥ 阈值(默认 3)的用例才把步骤折叠进备注,
+ * 1-2 步的短用例保留大纲步骤节点,避免信息被藏进 notes。
+ */
+export function useStepsAsNotes(tc: TestCase, options: RenderOptions): boolean {
+  return Boolean(options.stepsAsNotes) && tc.steps.length >= (options.stepsAsNotesMinSteps ?? 3);
+}
+
 export function buildCaseTopic(tc: TestCase, options: RenderOptions = {}): TopicBuilder {
-  const caseChildren: TopicBuilder[] = options.stepsAsNotes
+  const asNotes = useStepsAsNotes(tc, options);
+  const caseChildren: TopicBuilder[] = asNotes
     ? []
     : tc.steps.map((s) => Topic(sanitizeBr(s.step)).children([Topic(sanitizeBr(s.expected))]));
 
@@ -182,11 +215,7 @@ export function buildCaseTopic(tc: TestCase, options: RenderOptions = {}): Topic
     caseTopic = caseTopic.markers([marker]);
   }
 
-  const note = options.stepsAsNotes
-    ? buildCaseNote(tc)
-    : tc.preconditions
-      ? sanitizeBr(tc.preconditions)
-      : "";
+  const note = asNotes ? buildCaseNote(tc) : tc.preconditions ? sanitizeBr(tc.preconditions) : "";
   if (note) {
     caseTopic = caseTopic.note(note);
   }
@@ -295,8 +324,30 @@ export async function createXmind(
   const wb = Workbook(root);
   // 库自带的 writeLocalFile 内部不 await writeFile，落盘前就 resolve，
   // 紧接着 applyFoldingToFile 读回会撞上空文件；这里自己同步写盘绕开竞态。
+  // writeFileAtomic 同为同步写,且 tmp+rename 不会留下半截文件。
   const buffer = await wb.archive();
-  writeFileSync(outputPath, Buffer.from(buffer));
+  writeFileAtomic(outputPath, Buffer.from(buffer));
+}
+
+/**
+ * createXmind 的覆盖变体:先写临时文件再 rename 替换目标,
+ * 中断不会留下损坏的 xmind,也不会在生成失败时丢失旧文件。
+ */
+export async function createXmindReplacing(
+  data: IntermediateJson,
+  outputPath: string,
+  projectDir?: string,
+  options: RenderOptions = {},
+): Promise<void> {
+  const tmp = join(dirname(outputPath), `.${randomBytes(6).toString("hex")}.tmp`);
+  rmSync(tmp, { force: true });
+  try {
+    await createXmind(data, tmp, projectDir, options);
+  } catch (err) {
+    rmSync(tmp, { force: true });
+    throw err;
+  }
+  renameSync(tmp, outputPath);
 }
 
 // ─── Mode: append / replace (raw nodes) ─────────────────────────────────────

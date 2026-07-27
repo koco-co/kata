@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { execFileSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -14,7 +15,10 @@ import {
 function makeRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-infra-"));
   mkdirSync(join(root, "config", "infra"), { recursive: true, mode: 0o700 });
-  mkdirSync(join(root, "config", "env"), { recursive: true });
+  mkdirSync(join(root, "config", "env"), { recursive: true, mode: 0o700 });
+  mkdirSync(join(root, "config", "plugin"), { recursive: true, mode: 0o700 });
+  chmodSync(join(root, "config", "env"), 0o700);
+  chmodSync(join(root, "config", "plugin"), 0o700);
   mkdirSync(join(root, "config", "repos"), { recursive: true });
   for (const name of ["hosts", "data_sources", "credentials"] as const) {
     writeFileSync(join(root, "config", "infra", `${name}.example.yaml`), `${name}: {}\n`);
@@ -86,9 +90,59 @@ describe("infrastructure configuration", () => {
     writePrivate(root, "hosts", {
       hosts: { app: { host: "192.0.2.10", credential_ref: "shared" } },
     });
-    const path = trustHostKey("app", "SHA256:verified", root);
+    const fingerprint = `SHA256:${"a".repeat(43)}`;
+    const path = trustHostKey("app", fingerprint, root);
     const text = await Bun.file(path).text();
-    expect(text).toContain("SHA256:verified");
+    expect(text).toContain(fingerprint);
+  });
+
+  it("rejects a malformed host fingerprint", () => {
+    const root = makeRoot();
+    writePrivate(root, "hosts", {
+      hosts: { app: { host: "192.0.2.10", credential_ref: "shared" } },
+    });
+    expect(() => trustHostKey("app", "SHA256:verified", root)).toThrow("fingerprint");
+  });
+
+  it("flags private config files tracked by git", () => {
+    const root = makeRoot();
+    writePrivate(root, "credentials", {
+      credentials: { shared: { kind: "password", username: "qa", password: "test-only" } },
+    });
+    const git = (args: string[]) =>
+      execFileSync("git", ["-C", root, ...args], { stdio: ["pipe", "pipe", "pipe"] });
+    git(["init", "-b", "main"]);
+    git(["add", "config/infra/credentials.yaml"]);
+    const result = runConfigDoctor({ root, scope: "infra" });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some(
+        (item) => item.level === "error" && item.message.includes("must not be tracked by git"),
+      ),
+    ).toBe(true);
+  });
+
+  it("flags example files as exempt from the tracked-file check", () => {
+    const root = makeRoot();
+    const git = (args: string[]) =>
+      execFileSync("git", ["-C", root, ...args], { stdio: ["pipe", "pipe", "pipe"] });
+    git(["init", "-b", "main"]);
+    git(["add", "config"]);
+    const result = runConfigDoctor({ root });
+    expect(result.issues.some((item) => item.message.includes("tracked by git"))).toBe(false);
+  });
+
+  it("requires 0700 on config/env and config/plugin directories", () => {
+    const root = makeRoot();
+    chmodSync(join(root, "config", "env"), 0o755);
+    chmodSync(join(root, "config", "plugin"), 0o755);
+    const result = runConfigDoctor({ root });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.filter(
+        (item) => item.level === "error" && item.message === "must have permission 0700",
+      ),
+    ).toHaveLength(2);
   });
 
   it("warns on missing private files by default and fails in infra scope", () => {

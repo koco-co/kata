@@ -4,7 +4,11 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { parseBugPayload } from "../../cli/integrations/zentao/parse.ts";
-import { lintHotfixMarkdown, renderHotfixMarkdown } from "../../cli/lib/hotfix-report.ts";
+import {
+  lintHotfixMarkdown,
+  migrateLegacyHotfixMarkdown,
+  renderHotfixMarkdown,
+} from "../../cli/lib/hotfix-report.ts";
 
 function report(content: string, slug = "155381-rule-fix"): string {
   const root = mkdtempSync(join(tmpdir(), "kata-hotfix-report-"));
@@ -127,6 +131,66 @@ describe("hotfix Markdown contract", () => {
   it("rejects a report outside the hotfix-case path", () => {
     const path = report(VALID).replace("hotfix-case", "bug-report");
     expect(lintHotfixMarkdown(path).some((v) => v.rule === "path")).toBe(true);
+  });
+
+  it("rejects template placeholders left in the title", () => {
+    const placeholder = VALID.replace(
+      "# 【155381】验证多表校验修复后不再产生笛卡尔关联",
+      "# 【155381】验证【版本名】<title>",
+    );
+    const violations = lintHotfixMarkdown(report(placeholder));
+    expect(violations.some((v) => v.rule === "placeholder")).toBe(true);
+  });
+
+  it("escapes pipe characters inside the regression table operation", () => {
+    const payload = JSON.stringify({
+      status: "success",
+      data: JSON.stringify({
+        bug: {
+          id: "9002",
+          title: "管道符",
+          steps: "<p>执行 a | b 操作</p>",
+          severity: "3",
+          pri: "2",
+          status: "resolved",
+        },
+        actions: {},
+        users: {},
+        builds: {},
+      }),
+    });
+    const bug = parseBugPayload(payload);
+    if (!bug) throw new Error("synthetic ZenTao payload did not parse");
+    const rendered = renderHotfixMarkdown({
+      bug,
+      source: "https://zentao.example/zentao/bug-view-9002.html",
+    });
+    expect(rendered).toContain("a \\| b");
+  });
+
+  it("strips legacy numbering and priority prefixes from migrated titles", () => {
+    const legacy = [
+      "# 旧 hotfix 回归",
+      "",
+      "- 来源: https://zentao.example/zentao/bug-view-155381.html",
+      "",
+      "##### 【155381】验证【P1】多表校验不再产生笛卡尔关联",
+    ].join("\n");
+    const migrated = migrateLegacyHotfixMarkdown(legacy);
+    expect(migrated).toContain("# 【155381】验证多表校验不再产生笛卡尔关联");
+    expect(lintHotfixMarkdown(report(migrated))).toEqual([]);
+  });
+
+  it("keeps lint violations on stderr and JSON on stdout", () => {
+    const path = report(VALID.replace("## Bug 证据", "## 证据"));
+    const result = spawnSync(
+      "bun",
+      [resolve(import.meta.dir, "../../cli/bin/kata.ts"), "defects", "lint", "--report", path],
+      { encoding: "utf8" },
+    );
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({ kind: "hotfix", violations: 1 });
+    expect(result.stderr).toContain("缺少二级章节");
   });
 
   it("rejects a missing section, pending marker, and mismatched bug id", () => {

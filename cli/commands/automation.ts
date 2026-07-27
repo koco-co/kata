@@ -78,34 +78,43 @@ export function registerAutomation(program: Command): void {
     .command("normalize <feature-dir>")
     .description("修复自动化目录违规(stray 文件移入备份)")
     .option("--apply", "执行修复(默认 dry-run)", false)
-    .action((featureDir: string, opts: { apply: boolean }) => {
+    .option("--exit-code", "存在违规时退出码为 1")
+    .action((featureDir: string, opts: { apply: boolean; exitCode?: boolean }) => {
       const report = normalizeAutomation(featureDir, { dryRun: !opts.apply, apply: opts.apply });
       if (!opts.apply && report.moved.length > 0) {
         console.log("[dry-run] 将移动以下文件到备份:");
         for (const m of report.moved) console.log(`  ${m.from} -> ${m.to}`);
       }
       console.log(`[normalize] violations=${report.violations} moved=${report.moved.length}`);
+      if (opts.exitCode && report.violations > 0) process.exitCode = 1;
     });
 
   automation
     .command("lint [feature-dir]")
     .description("检查 Playwright 自动化代码规范")
     .option("--shared", "检查 workspace 项目的 _shared 页面、helper 与 fixture")
+    .option("--project <name>", "--shared 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)")
     .option("--exit-code", "存在 violation 时退出码为 1")
-    .action((featureDir: string | undefined, opts: { shared?: boolean; exitCode?: boolean }) => {
-      const report = runAutomationLint({
-        featureDir,
-        shared: opts.shared === true,
-      });
-      for (const v of report.violations) {
-        console.log(`${v.path}:${v.line}:${v.rule}:${v.message}`);
-      }
-      for (const ignored of report.ignored) {
-        console.log(`ignored ${ignored.path}:${ignored.line}: ${ignored.reason}`);
-      }
-      console.log(
-        `[automation lint] files=${report.scannedFiles} violations=${report.violations.length} ignored=${report.ignored.length}`,
-      );
-      if (opts.exitCode && report.violations.length > 0) process.exitCode = 1;
-    });
+    .action(
+      (
+        featureDir: string | undefined,
+        opts: { shared?: boolean; project?: string; exitCode?: boolean },
+      ) => {
+        const report = runAutomationLint({
+          featureDir,
+          shared: opts.shared === true,
+          project: opts.project,
+        });
+        for (const v of report.violations) {
+          console.log(`${v.path}:${v.line}:${v.rule}:${v.message}`);
+        }
+        for (const ignored of report.ignored) {
+          console.log(`ignored ${ignored.path}:${ignored.line}: ${ignored.reason}`);
+        }
+        console.log(
+          `[automation lint] files=${report.scannedFiles} violations=${report.violations.length} ignored=${report.ignored.length}`,
+        );
+        if (opts.exitCode && report.violations.length > 0) process.exitCode = 1;
+      },
+    );
 }

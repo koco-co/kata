@@ -118,9 +118,140 @@ describe("kata knowledge write", () => {
     ]);
     expect(r.status).not.toBe(0);
   });
+
+  it("rejects entry types carrying overview-only flags", () => {
+    const root = proj();
+    const r = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "module",
+      "--status",
+      "observed",
+      "--title",
+      "x",
+      "--body",
+      "y",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+      "--content",
+      "{}",
+    ]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("仅 overview 类型可用");
+  });
+
+  it("requires --source for entry writes", () => {
+    const root = proj();
+    const r = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "module",
+      "--status",
+      "observed",
+      "--title",
+      "x",
+      "--body",
+      "y",
+    ]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("--source");
+  });
+
+  it("rejects illegal title characters", () => {
+    const root = proj();
+    const r = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "module",
+      "--status",
+      "observed",
+      "--title",
+      "坏\n标题",
+      "--body",
+      "y",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("非法 title");
+  });
+
+  it("does not re-append body already contained in the existing entry", () => {
+    const root = proj();
+    const base = [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "module",
+      "--status",
+      "observed",
+      "--title",
+      "去重条目",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ];
+    expect(kata(root, [...base, "--body", "第一段\n\n第二段"]).status).toBe(0);
+    const r = kata(root, [...base, "--body", "第一段"]);
+    expect(r.status).toBe(0);
+    expect(JSON.parse(r.stdout).action).toBe("merge");
+    const file = join(root, "workspace", "dataAssets", "knowledge", "modules", "去重条目.md");
+    const content = readFileSync(file, "utf8");
+    expect(content.match(/第一段/g)).toHaveLength(1);
+    expect(content).toContain("第二段");
+  });
+
+  it("keeps observed→verified promotion pending until --confirmed", () => {
+    const root = proj();
+    const base = [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "pitfall",
+      "--title",
+      "升级条目",
+      "--body",
+      "同一正文",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ];
+    expect(kata(root, [...base, "--status", "observed"]).status).toBe(0);
+
+    const pending = kata(root, [...base, "--status", "verified"]);
+    expect(pending.status).toBe(0);
+    const pendingOut = JSON.parse(pending.stdout);
+    expect(pendingOut.pending).toBe(true);
+    expect(pendingOut.promotion).toBe(true);
+    const file = join(root, "workspace", "dataAssets", "knowledge", "pitfalls", "升级条目.md");
+    expect(readFileSync(file, "utf8")).toContain("status: observed");
+
+    const confirmed = kata(root, [...base, "--status", "verified", "--confirmed"]);
+    expect(confirmed.status).toBe(0);
+    expect(JSON.parse(confirmed.stdout).status).toBe("verified");
+    expect(readFileSync(file, "utf8")).toContain("status: verified");
+  });
 });
 
 describe("kata knowledge read", () => {
+  it("rejects an unknown --type instead of silently ignoring it", () => {
+    const root = proj();
+    const r = kata(root, ["knowledge", "read", "--project", "dataAssets", "--type", "bogus"]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("非法 --type");
+  });
+
   it("finds entries by keyword with --json", () => {
     const root = proj();
     writeModule(root);
@@ -196,5 +327,33 @@ describe("kata knowledge index", () => {
     );
     expect(index).toContain("数据质量规则");
     expect(index).toContain("modules/数据质量规则.md");
+  });
+
+  it("injects observed (not verified) frontmatter into bare files and keeps verified files intact", () => {
+    const root = proj();
+    const modulesDir = join(root, "workspace", "dataAssets", "knowledge", "modules");
+    mkdirSync(modulesDir, { recursive: true });
+    writeFileSync(join(modulesDir, "bare.md"), "# 裸文件\n\n无 frontmatter。\n");
+    const verified = [
+      "---",
+      "title: 已确认条目",
+      "type: module",
+      "tags: []",
+      "status: verified",
+      'source: "tests"',
+      "updated: 2026-07-01",
+      "---",
+      "",
+      "已确认正文",
+      "",
+    ].join("\n");
+    writeFileSync(join(modulesDir, "verified.md"), verified);
+
+    const r = kata(root, ["knowledge", "index", "--project", "dataAssets"]);
+    expect(r.status).toBe(0);
+    const fixed = readFileSync(join(modulesDir, "bare.md"), "utf8");
+    expect(fixed).toContain("status: observed");
+    expect(fixed).not.toContain("verified");
+    expect(readFileSync(join(modulesDir, "verified.md"), "utf8")).toBe(verified);
   });
 });

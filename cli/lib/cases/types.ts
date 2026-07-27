@@ -9,7 +9,7 @@ export interface CaseMeta {
   title: string;
   /** 需求版本,如 v6.4.11 */
   version: string;
-  /** feature 标识(目录名) */
+  /** feature 标识,格式 {group}/{dirName},如 v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验 */
   feature_id: string;
   /** 用例来源说明(需求文档/链接) */
   source?: string;

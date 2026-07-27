@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { Command } from "commander";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
@@ -70,25 +70,6 @@ function applyMissing(project: string, dir: string, diff: ReturnType<typeof diff
   return { created_dirs, created_files, created_gitkeeps, legacy_renamed: migration.renamed };
 }
 
-function backupGeneratedFiles(
-  dir: string,
-  diff: ReturnType<typeof diffProjectSkeleton>,
-): string | null {
-  const existing = [
-    ...Object.keys(SKELETON_SPEC.template_files),
-    ...SKELETON_SPEC.gitkeep_dirs.map((d) => `${d}/.gitkeep`),
-  ].filter((rel) => existsSync(join(dir, rel)));
-  if (existing.length === 0) return null;
-  const backup = join(dir, ".kata-backups", new Date().toISOString().replace(/[:.]/g, "-"));
-  for (const rel of existing) {
-    const target = join(backup, rel);
-    mkdirSync(resolve(target, ".."), { recursive: true });
-    copyFileSync(join(dir, rel), target);
-  }
-  void diff;
-  return backup;
-}
-
 /** Build the `project` command: scan / create / repair a workspace project. */
 export function registerProject(program: Command): void {
   const project = program.command("project").description("项目工作区的创建、检查与修复");
@@ -156,10 +137,10 @@ export function registerProject(program: Command): void {
       if (diff.invalid_paths.length > 0) {
         throw new Error(`发现用户文件或类型冲突，拒绝覆盖：${diff.invalid_paths.join(", ")}`);
       }
-      const backup_dir = backupGeneratedFiles(dir, diff);
+      // repair 只创建缺失项、不覆盖既有文件,无需备份
       const result = applyMissing(opts.project, dir, diff);
       const after = diffProjectSkeleton(dir, tplRoot());
-      outputJson({ project: opts.project, backup_dir, ...result, scan_after: after });
+      outputJson({ project: opts.project, ...result, scan_after: after });
       if (!after.skeleton_complete) process.exitCode = 2;
     });
 }

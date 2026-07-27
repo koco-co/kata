@@ -23,8 +23,7 @@ export function toSshFingerprint(key: string | Buffer): string {
     typeof key === "string"
       ? Buffer.from(key, /^[0-9a-f]+$/i.test(key) ? "hex" : "base64")
       : createHash("sha256").update(key).digest();
-  const value = typeof key === "string" && !/^[0-9a-f]+$/i.test(key) ? digest : digest;
-  return `SHA256:${value.toString("base64").replace(/=+$/, "")}`;
+  return `SHA256:${digest.toString("base64").replace(/=+$/, "")}`;
 }
 
 export function checkSshConnectivity(

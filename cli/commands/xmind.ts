@@ -1,12 +1,4 @@
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, isAbsolute, join, resolve } from "node:path";
 import type { Command } from "commander";
 import type { IntermediateJson } from "../lib/intermediate-types.ts";
@@ -18,18 +10,19 @@ import {
   buildRootTitle,
   countCases,
   createXmind,
+  createXmindReplacing,
   type OutputResult,
   type RenderOptions,
   validateInput,
   type WriteMode,
 } from "../lib/xmind-render.ts";
 
-// ─── 输入路径校验：限制在仓库根内 ───
+// ─── 输入/输出路径校验：限制在仓库根内 ───
 
-function resolveInsideRoot(input: string, root: string): string {
+function resolveInsideRoot(input: string, root: string, what = "输入路径"): string {
   const abs = isAbsolute(input) ? resolve(input) : resolve(process.cwd(), input);
   if (abs !== root && !abs.startsWith(`${root}/`)) {
-    throw new Error(`输入路径越出仓库根: ${input}`);
+    throw new Error(`${what}越出仓库根: ${input}`);
   }
   return abs;
 }
@@ -70,15 +63,16 @@ async function processMdFile(
 ): Promise<void> {
   const fname = basename(mdPath, ".md");
   const outDir = dirname(mdPath);
-  const tmpDir = join(outDir, "tmp");
 
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
-  if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
 
   const data = archiveToJson(mdPath, project, version);
   const caseCount = countCases(data.modules);
 
   if (jsonOnly) {
+    // tmp/ 只在 --json-only 时需要,不为普通生成污染归档目录
+    const tmpDir = join(outDir, "tmp");
+    if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
     const jsonPath = join(tmpDir, `${fname}.json`);
     writeFileSync(jsonPath, JSON.stringify(data, null, 2), "utf-8");
     console.log(`JSON: ${jsonPath} (${caseCount} cases)`);
@@ -89,9 +83,8 @@ async function processMdFile(
 
   try {
     if (mode === "create") {
-      // create 模式下已存在则先删（与旧实现一致：archive → xmind 是再生型产物）
-      if (existsSync(xmindPath)) unlinkSync(xmindPath);
-      await createXmind(data, xmindPath, projectDir, renderOptions);
+      // create 模式下已存在则原子覆盖(与旧实现一致:archive → xmind 是再生型产物)
+      await createXmindReplacing(data, xmindPath, projectDir, renderOptions);
     } else if (mode === "append") {
       await appendXmind(data, xmindPath, projectDir, renderOptions);
     } else {
@@ -110,11 +103,12 @@ async function runJsonInput(
   projectDir: string | undefined,
   opts: GenerateOptions,
   mode: WriteMode,
+  repoRoot: string,
 ): Promise<void> {
   if (!opts.output) {
     throw new Error("JSON 输入必须显式给 --output");
   }
-  const outputPath = resolve(opts.output);
+  const outputPath = resolveInsideRoot(opts.output, repoRoot, "输出路径");
 
   let raw: unknown;
   try {
@@ -179,6 +173,8 @@ export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
 
   const ext = extname(inputPath).toLowerCase();
   if (ext === ".md") {
+    // --output 同样限制在仓库根内,避免写出项目外
+    const output = opts.output ? resolveInsideRoot(opts.output, repoRoot, "输出路径") : undefined;
     await processMdFile(
       inputPath,
       projectDir,
@@ -186,13 +182,13 @@ export async function runXmindGenerate(opts: GenerateOptions): Promise<void> {
       opts.version,
       opts.jsonOnly,
       mode,
-      opts.output,
+      output,
       { stepsAsNotes: opts.stepsAsNotes },
     );
     return;
   }
 
-  await runJsonInput(inputPath, projectDir, opts, mode);
+  await runJsonInput(inputPath, projectDir, opts, mode, repoRoot);
 }
 
 // ─── commander 注册 ───
@@ -207,7 +203,11 @@ export function registerXmind(program: Command): void {
     .requiredOption("--input <path>", "输入 JSON / MD 文件 / MD 目录")
     .option("--output <path>", "输出 .xmind 路径（MD 输入可自动派生）")
     .option("--mode <mode>", "写入模式: create|append|replace", "create")
-    .option("--project <name>", "XMind 根节点项目名", "数栈测试")
+    .option(
+      "--project <name>",
+      "XMind 根节点项目名（默认 数栈测试；workspace/dataAssets 归档规则文档依赖该默认值，跨项目使用请显式传入）",
+      "数栈测试",
+    )
     .option("--version <ver>", "PRD 版本（如 6.4.9），用于根节点标题模板")
     .option("--json-only", "只输出中间 JSON（仅 MD 输入）")
     .option("--steps-as-notes", "步骤/预期写进备注而非大纲子节点")

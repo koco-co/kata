@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
   chmodSync,
@@ -227,12 +228,17 @@ export function writeCredentialProfile(
   return path;
 }
 
+const HOST_KEY_FINGERPRINT_RE = /^SHA256:[A-Za-z0-9+/]{43}={0,1}$/;
+
 export function trustHostKey(
   name: string,
   fingerprint: string,
   root: string = defaultRepoRoot(),
 ): string {
   const normalized = requiredString(fingerprint, "fingerprint");
+  if (!HOST_KEY_FINGERPRINT_RE.test(normalized)) {
+    throw new Error("fingerprint must match SHA256:<43-char base64>");
+  }
   const path = infraConfigPath("hosts", root);
   const current = readYamlObject(path);
   const hosts = isRecord(current.hosts) ? { ...current.hosts } : {};
@@ -282,6 +288,34 @@ function checkPrivateDir(path: string, issues: ConfigIssue[], required: boolean)
   }
 }
 
+function isExampleConfig(path: string): boolean {
+  const base = path.split("/").pop() ?? path;
+  return base.startsWith("example.") || base.includes(".example.");
+}
+
+/** Flag private config files tracked by git; only redacted *.example files may be committed. */
+function checkTrackedPrivateFiles(
+  root: string,
+  dirs: string[],
+  issues: ConfigIssue[],
+  checked: string[],
+): void {
+  let listing: string;
+  try {
+    listing = execFileSync("git", ["-C", root, "ls-files", "--", ...dirs], {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+  } catch {
+    return; // not a git checkout; nothing to verify
+  }
+  for (const file of listing.split("\n").filter((line) => line.trim())) {
+    checked.push(join(root, file));
+    if (isExampleConfig(file)) continue;
+    issue(issues, "error", join(root, file), "private config file must not be tracked by git");
+  }
+}
+
 export function runConfigDoctor(
   options: { root?: string; scope?: "all" | "infra"; fix?: boolean } = {},
 ): ConfigDoctorResult {
@@ -290,13 +324,16 @@ export function runConfigDoctor(
   const issues: ConfigIssue[] = [];
   const checked: string[] = [];
   const envDir = join(root, "config", "env");
+  const pluginDir = join(root, "config", "plugin");
   const infra = infraDir(root);
   if (options.fix) {
     mkdirSync(infra, { recursive: true, mode: 0o700 });
     chmodSync(infra, 0o700);
     if (scope === "all") {
-      mkdirSync(envDir, { recursive: true, mode: 0o700 });
-      chmodSync(envDir, 0o700);
+      for (const dir of [envDir, pluginDir]) {
+        mkdirSync(dir, { recursive: true, mode: 0o700 });
+        chmodSync(dir, 0o700);
+      }
     }
   }
   for (const example of ["hosts", "data_sources", "credentials"] as const) {
@@ -325,6 +362,7 @@ export function runConfigDoctor(
       issue(issues, "error", infra, (error as Error).message);
     }
   }
+  checkTrackedPrivateFiles(root, ["config/infra"], issues, checked);
   const legacy = [
     join(root, "config.json"),
     join(root, "config", "source-repos.yaml"),
@@ -335,6 +373,10 @@ export function runConfigDoctor(
     if (existsSync(path)) issue(issues, "error", path, "legacy configuration path must be removed");
   }
   if (scope === "all") {
+    checked.push(envDir, pluginDir);
+    checkPrivateDir(envDir, issues, true);
+    checkPrivateDir(pluginDir, issues, true);
+    checkTrackedPrivateFiles(root, ["config/env", "config/plugin"], issues, checked);
     const envExample = join(root, "config", "env", "example.yaml");
     checked.push(envExample);
     if (!existsSync(envExample)) issue(issues, "error", envExample, "tracked example is missing");

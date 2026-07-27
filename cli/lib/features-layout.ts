@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { parse } from "yaml";
 
 // ─── Feature 内三区 ───
@@ -15,8 +15,9 @@ export const ARCHIVED_DIR = "_archived";
 // 版本目录名：语义版本，两段或三段（v6.4 / v6.4.10）
 export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
 
-// 中文标签目录：【vXXX】[【lanhu-id】][【客户】]【模块】需求名；常驻需求首段为【standing】
-export const LABEL_DIR_RE = /^【(?:v\d+|standing)】(?:【[^】]+】)*[^【]/;
+// 中文标签目录：【vXXX】[【lanhu-id】][【客户】]【模块】需求名；常驻需求首段为【standing】。
+// 唯一权威定义；features-lint 与 features resolve 共用，禁止在别处另写同义正则。
+export const LABEL_DIR_RE = /^【(?:v\d+|standing)】(?:【[^【】]+】){1,3}[^【】]+$/;
 
 export type FeatureZone = "active" | "standing" | "archived" | "legacy-flat";
 
@@ -68,11 +69,24 @@ export function listFeatureDirs(featuresRoot: string): FeatureDirEntry[] {
           });
         }
       }
-    } else {
+    } else if (!top.startsWith("_")) {
+      // _history、_tmp 等下划线顶层目录是预留基础设施，不是 feature，不列入清单
       entries.push({ group: "", zone: "legacy-flat", dirName: top, dir: topDir });
     }
   }
   return entries;
+}
+
+/** Walk up from a feature dir to its project root (the parent of features/). */
+export function projectRootFromFeatureDir(featureDir: string): string {
+  let current = resolve(featureDir);
+  for (;;) {
+    if (basename(current) === "features") return dirname(current);
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  throw new Error(`kata: feature 路径不在 features/ 项目目录下: ${featureDir}`);
 }
 
 /** Returns the cases sub-directory path for a given feature directory. */

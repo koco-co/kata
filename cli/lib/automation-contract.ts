@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 import { writeFileAtomic } from "./atomic-writer.ts";
-import { parseCasesYaml } from "./cases/parse.ts";
+import { parseCasesYaml, validateCases } from "./cases/parse.ts";
 
 export interface AutomationCaseLink {
   id: string;
@@ -57,7 +57,10 @@ function hasMissingRelativeImport(file: string): string | undefined {
   return undefined;
 }
 
-function classifyScript(file: string): { status: AutomationCaseStatus; issue?: string } {
+function classifyScript(file: string): {
+  status: AutomationCaseStatus;
+  implementationIssue?: string;
+} {
   const text = readFileSync(file, "utf8");
   if (
     text.includes("runGeneratedCase") ||
@@ -65,24 +68,27 @@ function classifyScript(file: string): { status: AutomationCaseStatus; issue?: s
   ) {
     return {
       status: "mapped-not-implemented",
-      issue: "generic runner requires a real business implementation",
+      implementationIssue: "generic runner requires a real business implementation",
     };
   }
-  if (text.includes("v6411-ui-case-specs") || text.includes("inventory-consistency")) {
+  if (/test\.skip\(\s*true/.test(text)) {
     return {
       status: "mapped-not-implemented",
-      issue: "implementation depends on a removed non-canonical inventory/CSV fixture",
+      implementationIssue: "spec disables itself via test.skip(true)",
     };
   }
   if (/const\s+(?:ENV|PROJECT_ID)\s*=\s*getEnvConfig\(\)/.test(text)) {
     return {
       status: "mapped-not-implemented",
-      issue: "implementation resolves private environment data during module load",
+      implementationIssue: "implementation resolves private environment data during module load",
     };
   }
   const missingImport = hasMissingRelativeImport(file);
   if (missingImport) {
-    return { status: "mapped-not-implemented", issue: `missing relative import: ${missingImport}` };
+    return {
+      status: "mapped-not-implemented",
+      implementationIssue: `missing relative import: ${missingImport}`,
+    };
   }
   return { status: "implemented" };
 }
@@ -90,6 +96,10 @@ function classifyScript(file: string): { status: AutomationCaseStatus; issue?: s
 export function inspectAutomationCoverage(featureDir: string): AutomationCoverage {
   const yamlPath = findYaml(featureDir);
   const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+  const problems = validateCases(file);
+  if (problems.length > 0) {
+    throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
+  }
   const scripts = scriptFiles(join(featureDir, "automation", "tests", "cases"));
   const byBase = new Map(scripts.map((path) => [basename(path), path]));
   const cases: AutomationCaseLink[] = file.cases.map((item) => {

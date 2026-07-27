@@ -33,5 +33,6 @@ export function renderCsv(file: CasesFile): string {
         .join(","),
     );
   }
-  return `${lines.join("\n")}\n`;
+  // 带 BOM 导出,Excel 直接打开时中文不乱码
+  return `\uFEFF${lines.join("\n")}\n`;
 }

@@ -10,13 +10,19 @@ import type { CaseItem, CasesFile } from "./types.ts";
 export const GENERATED_HEADER =
   "<!-- 由 build 生成(kata cases build),勿手改;编辑 cases/*.yaml 后重新 build -->";
 
-// 表格单元格转义:竖线会破坏 markdown 表
+// 表格单元格转义:竖线会破坏 markdown 表;换行会破坏行结构,转 <br>(读回时还原)
 function cell(text: string): string {
-  return text.replaceAll("|", "\\|");
+  return text.replaceAll("|", "\\|").replaceAll("\n", "<br>");
 }
 
 function renderCase(c: CaseItem): string {
-  const lines: string[] = [`##### 【${c.priority}】${c.title}`, ""];
+  // case_id 注释锚点:archive → xmind 读回时据此关联稳定用例编号
+  const lines: string[] = [
+    `<!-- case_id: ${c.id} -->`,
+    "",
+    `##### 【${c.priority}】${c.title}`,
+    "",
+  ];
   if (c.precondition) {
     lines.push("> 前置条件", "", "```", c.precondition, "```", "");
   }
@@ -28,6 +34,23 @@ function renderCase(c: CaseItem): string {
     lines.push("", `> 证据: ${c.source_ref}`);
   }
   return lines.join("\n");
+}
+
+interface MdGroup {
+  cases: CaseItem[];
+  children: Map<string, MdGroup>;
+}
+
+function newGroup(): MdGroup {
+  return { cases: [], children: new Map() };
+}
+
+function renderGroup(group: MdGroup, level: number, out: string[]): void {
+  for (const c of group.cases) out.push(renderCase(c), "");
+  for (const [name, child] of group.children) {
+    out.push("", `${"#".repeat(level)} ${name}`, "");
+    renderGroup(child, level + 1, out);
+  }
 }
 
 /** Render the full markdown export for a CasesFile. */
@@ -42,17 +65,22 @@ export function renderMarkdown(file: CasesFile): string {
     `- 用例数: ${file.cases.length}`,
   ];
   if (file.meta.source) out.push(`- 来源: ${file.meta.source}`);
-  // 按 tags[0] 分模块,保持首次出现顺序
-  const groups = new Map<string, CaseItem[]>();
+  // 按 tags 层级路径分组:tags[0]/[1]/[2] 依次渲染为 ##/###/####,保持首次出现顺序
+  const root = newGroup();
   for (const c of file.cases) {
-    const mod = c.tags?.[0] ?? UNCLASSIFIED;
-    const list = groups.get(mod) ?? [];
-    list.push(c);
-    groups.set(mod, list);
+    const path = (c.tags ?? []).slice(0, 3);
+    if (path.length === 0) path.push(UNCLASSIFIED);
+    let group = root;
+    for (const name of path) {
+      let next = group.children.get(name);
+      if (!next) {
+        next = newGroup();
+        group.children.set(name, next);
+      }
+      group = next;
+    }
+    group.cases.push(c);
   }
-  for (const [mod, cases] of groups) {
-    out.push("", `## ${mod}`, "");
-    for (const c of cases) out.push(renderCase(c), "");
-  }
+  renderGroup(root, 2, out);
   return `${out.join("\n").trimEnd()}\n`;
 }

@@ -1,20 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Handlebars from "handlebars";
-import type { BugReport, BugVariant, ConflictReport } from "./bug-report-types.ts";
+import type { BugReport, BugVariant } from "./bug-report-types.ts";
 import { repoRoot } from "./paths.ts";
-import type { Severity } from "./scan-report-types.ts";
 
 const VARIANT_TEMPLATE: Record<BugVariant, string> = {
   zentao: "bug-report-zentao.html.hbs",
-};
-const CONFLICT_TEMPLATE = "conflict-report.html.hbs";
-
-const SEVERITY_CLASS: Record<Severity, string> = {
-  critical: "critical",
-  major: "major",
-  normal: "normal",
-  minor: "low",
 };
 
 let helpersRegistered = false;
@@ -58,11 +49,5 @@ function getTemplate(file: string): HandlebarsTemplateDelegate {
 
 /** Render a BugReport to HTML using the specified variant template. */
 export function renderBugReport(report: BugReport, variant: BugVariant = "zentao"): string {
-  const severityClass = SEVERITY_CLASS[report.severity] ?? "normal";
-  return getTemplate(VARIANT_TEMPLATE[variant])({ ...report, severityClass });
-}
-
-/** Render a ConflictReport to HTML. */
-export function renderConflictReport(report: ConflictReport): string {
-  return getTemplate(CONFLICT_TEMPLATE)(report);
+  return getTemplate(VARIANT_TEMPLATE[variant])(report);
 }

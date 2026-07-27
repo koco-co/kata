@@ -54,7 +54,7 @@ describe("automation lint", () => {
       "t01-env.ts",
       [
         'const baseUrl = "http://example.test";',
-        'const address = "192.168.1.20";',
+        'const address = "192.0.2.20";',
         'const password = "secret-value";',
         "const cookie = process.env.COOKIE;",
         'const text = "ordinary text";',
@@ -135,5 +135,68 @@ describe("automation lint", () => {
     });
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("no-wait-timeout");
+  });
+
+  it("does not mask // inside regex literals or template strings", () => {
+    const { feature, cases } = featureWorkspace();
+    writeCase(
+      cases,
+      "t01-regex.ts",
+      [
+        "const pair = /[//]+/; await page.waitForTimeout(100);",
+        "const proto = /https?:\\/\\//;",
+        "const tpl = `https://example.test/path`;",
+        'await page.waitForLoadState("networkidle");',
+        "",
+      ].join("\n"),
+    );
+
+    const result = runAutomationLint({ featureDir: feature });
+    const hits = result.violations.map((v) => `${v.line}:${v.rule}`);
+    expect(hits).toContain("1:no-wait-timeout");
+    expect(hits).toContain("3:no-hardcoded-env");
+    expect(hits).toContain("4:no-networkidle");
+    expect(result.violations.filter((v) => v.rule === "no-wait-timeout")).toHaveLength(1);
+  });
+
+  it("flags case file names rejected by the canonical SPEC_FILE_RE", () => {
+    const { feature, cases } = featureWorkspace();
+    writeCase(cases, "t1--double-hyphen.ts", "export {};\n");
+    writeCase(cases, "t12-ok-name.ts", "export {};\n");
+
+    const result = runAutomationLint({ featureDir: feature });
+    const naming = result.violations.filter((v) => v.rule === "case-file-naming");
+    expect(naming).toHaveLength(1);
+    expect(naming[0]?.path).toContain("t1--double-hyphen.ts");
+  });
+
+  it("requires --project or KATA_ACTIVE_PROJECT for --shared", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-al-shared-"));
+    const prev = process.env.KATA_ACTIVE_PROJECT;
+    delete process.env.KATA_ACTIVE_PROJECT;
+    try {
+      expect(() => runAutomationLint({ shared: true, repoRoot: root })).toThrow(/--project/);
+    } finally {
+      if (prev === undefined) delete process.env.KATA_ACTIVE_PROJECT;
+      else process.env.KATA_ACTIVE_PROJECT = prev;
+    }
+  });
+
+  it("returns a non-zero CLI status for normalize --exit-code with violations", () => {
+    const { feature, cases } = featureWorkspace();
+    writeCase(cases, "t01-demo.ts", "export {};\n");
+    writeFileSync(join(feature, "automation", "stray.md"), "# stray\n");
+    const kata = resolve(import.meta.dir, "../../cli/bin/kata.ts");
+    const cwd = resolve(import.meta.dir, "../..");
+    const failing = spawnSync("bun", [kata, "automation", "normalize", feature, "--exit-code"], {
+      cwd,
+      encoding: "utf8",
+    });
+    expect(failing.status).toBe(1);
+    const passing = spawnSync("bun", [kata, "automation", "normalize", feature], {
+      cwd,
+      encoding: "utf8",
+    });
+    expect(passing.status).toBe(0);
   });
 });

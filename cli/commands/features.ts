@@ -3,7 +3,7 @@ import { join } from "node:path";
 import type { Command } from "commander";
 import { stringify } from "yaml";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
-import { readFeatureMeta } from "../lib/feature-meta.ts";
+import { type FeatureMeta, readFeatureMeta } from "../lib/feature-meta.ts";
 import {
   LABEL_DIR_RE,
   listFeatureDirs,
@@ -60,7 +60,21 @@ export function buildLabelDirName(opts: {
 
 function currentYyyyMm(): string {
   const now = new Date();
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/** Collect every metadata.id in the project (corrupt metadata.yaml is ignored; lint reports it). */
+function existingFeatureIds(featuresDir: string): Set<string> {
+  const ids = new Set<string>();
+  for (const entry of listFeatureDirs(featuresDir)) {
+    try {
+      const meta = readFeatureMeta(entry.dir);
+      if (meta?.id) ids.add(meta.id);
+    } catch {
+      // 损坏的 metadata.yaml 不参与查重
+    }
+  }
+  return ids;
 }
 
 /**
@@ -117,7 +131,11 @@ export function runFeaturesResolve(opts: {
 
   mkdirSync(featureDir, { recursive: true });
   const slug = sanitizeSlug(opts.description);
-  const featureId = `${currentYyyyMm()}-${slug || "feature"}`;
+  // 机器主键按 id 查重：同月同 slug 的需求(不同版本/客户)自动追加 -2/-3
+  const baseId = `${currentYyyyMm()}-${slug || "feature"}`;
+  const taken = existingFeatureIds(paths.featuresDir);
+  let featureId = baseId;
+  for (let n = 2; taken.has(featureId); n++) featureId = `${baseId}-${n}`;
   const meta = {
     schema: "FeatureMetadata@2",
     id: featureId,
@@ -183,7 +201,16 @@ export function runFeaturesList(opts: {
   const paths = locateProject(opts.project, opts.root);
   const rows: FeatureRow[] = [];
   for (const entry of listFeatureDirs(paths.featuresDir)) {
-    const meta = readFeatureMeta(entry.dir);
+    let meta: FeatureMeta | null;
+    try {
+      meta = readFeatureMeta(entry.dir);
+    } catch (err) {
+      // 损坏的 metadata.yaml 不拖垮列表: 告警并跳过(诊断走 stderr)
+      console.warn(
+        `kata features list: 跳过损坏的 metadata.yaml(${entry.dir}): ${(err as Error).message}`,
+      );
+      continue;
+    }
     if (!meta) continue;
     rows.push({
       id: meta.id,

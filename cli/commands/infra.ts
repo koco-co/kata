@@ -9,6 +9,7 @@ import {
 } from "../lib/infra-config.ts";
 import { lintInfraMarkdown, writeInfraReport } from "../lib/infra-report.ts";
 import { checkSshConnectivity } from "../lib/infra-ssh.ts";
+import { assertReportSlug } from "../lib/paths.ts";
 
 function readSecret(prompt: string, forceStdin = false): Promise<string> {
   if (forceStdin || !process.stdin.isTTY) {
@@ -57,6 +58,7 @@ function readSecret(prompt: string, forceStdin = false): Promise<string> {
     const cleanup = () => {
       stdin.off("data", onData);
       stdin.setRawMode?.(wasRaw ?? false);
+      stdin.pause();
     };
     stdin.on("data", onData);
   });
@@ -74,7 +76,9 @@ export function registerInfra(program: Command): void {
       const report = resolve(opts.report);
       const violations = lintInfraMarkdown(report);
       for (const violation of violations) {
-        console.log(`${opts.report}:${violation.line}:${violation.rule}:${violation.message}`);
+        process.stderr.write(
+          `${opts.report}:${violation.line}:${violation.rule}:${violation.message}\n`,
+        );
       }
       outputJson({ report: opts.report, violations: violations.length });
       if (opts.exitCode && violations.length > 0) process.exitCode = 1;
@@ -148,6 +152,7 @@ export function registerInfra(program: Command): void {
         });
         const status = result.ok ? "diagnosed" : "blocked";
         const slug = opts.slug ?? `ssh-connectivity-${hostName}`;
+        assertReportSlug(slug);
         const report = writeInfraReport({
           project: opts.project,
           slug,

@@ -48,8 +48,9 @@ export function buildRootName(
   if (!version) return "";
   const p = rules ?? DEFAULTS;
   const ver = version.replace(/^v/i, "");
+  // 占位符全局替换:模板允许同一占位符出现多次
   return p.root_title_template
-    .replace("{{project_name}}", projectName ?? "")
-    .replace("{{prd_version}}", ver)
-    .replace("{{iteration_id}}", p.iteration_id);
+    .replaceAll("{{project_name}}", projectName ?? "")
+    .replaceAll("{{prd_version}}", ver)
+    .replaceAll("{{iteration_id}}", p.iteration_id);
 }

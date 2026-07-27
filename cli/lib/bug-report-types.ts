@@ -1,9 +1,9 @@
 /**
- * Type contracts for defect-analyze bug & conflict HTML reports.
- * Fields are a permissive superset reverse-engineered from the Handlebars
- * templates (bug-report{,-full,-zentao}.html.hbs, conflict-report.html.hbs);
- * variant templates guard optional fields with {{#if}}. Handlebars renders
- * from the raw parsed JSON, so extra fields pass through; these types serve
+ * Type contracts for defect-analyze bug & conflict reports. BugReport backs the
+ * zentao Handlebars template (bug-report-zentao.html.hbs), which guards
+ * optional fields with {{#if}}; Handlebars renders from the raw parsed JSON,
+ * so extra fields pass through. ConflictReport is kept for Markdown-era
+ * validation only (the conflict HTML renderer was removed). These types serve
  * authoring + validation only.
  */
 import type { Severity } from "./scan-report-types.ts";

@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 /**
- * knowledge write 旧路径 — term/overview 聚合文件写入(带冲突检测与审计)。
- * module/pitfall/site 独立条目走 entry.ts 的四态写入。
+ * knowledge write — overview 聚合文件写入(带冲突检测与审计)。
+ * term/module/pitfall/site 独立条目走 entry.ts 的四态写入。
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import {
   type ContentOverview,
-  type ContentTerm,
   confidenceGate,
   type Frontmatter,
   parseContentJson,
@@ -21,16 +20,10 @@ import {
   buildAuditRecord,
   type Conflict,
   detectOverviewConflict,
-  detectTermConflict,
   saveSnapshot,
 } from "../knowledge-guard.ts";
 import { knowledgePath } from "../knowledge-paths.ts";
-import {
-  renderTermRow,
-  upsertOverviewSection,
-  upsertTermRow,
-  writeIndexFile,
-} from "./index-data.ts";
+import { upsertOverviewSection, writeIndexFile } from "./index-data.ts";
 
 type WritePlan = {
   targetPath: string;
@@ -88,31 +81,10 @@ export function runWrite(opts: {
 }
 
 function buildWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {
-  if (opts.type === "term") return buildTermWritePlan(opts, today);
   if (opts.type === "overview") return buildOverviewWritePlan(opts, today);
   throw new KnowledgeWriteError(
-    `[knowledge] 类型 ${opts.type} 不支持 --content;module/pitfall/site 用 --status/--title/--body 写入`,
+    `[knowledge] 类型 ${opts.type} 不支持 --content;term/module/pitfall/site 用 --status/--title/--body 写入`,
   );
-}
-
-function buildTermWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {
-  const parsed = parseContentJson<ContentTerm>("term", opts.content);
-  const targetPath = knowledgePath(opts.project, "terms.md");
-  const beforeContent = existsSync(targetPath) ? readFileSync(targetPath, "utf8") : "";
-  const file = parseFrontmatter(beforeContent);
-  const newFm =
-    file.frontmatter ?? defaultKnowledgeFrontmatter(`${opts.project} 术语表`, "term", today);
-  const baseBody = file.frontmatter
-    ? file.body
-    : `\n# ${newFm.title}\n\n| 术语 | 中文 | 解释 | 别名 |\n|---|---|---|---|\n`;
-  const nextFm = { ...newFm, updated: today };
-  return {
-    targetPath,
-    beforeContent,
-    conflict: detectTermConflict(baseBody, parsed),
-    afterContent:
-      serializeFrontmatter(nextFm) + upsertTermRow(baseBody, renderTermRow(parsed), parsed.term),
-  };
 }
 
 function buildOverviewWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {

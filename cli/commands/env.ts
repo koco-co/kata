@@ -78,8 +78,8 @@ export function registerEnv(program: Command): void {
     .option("--inherit-env <names>", "额外继承的环境变量名，逗号分隔", "")
     .allowUnknownOption(true)
     .action(async (name: string, command: string[], opts: { inheritEnv: string }) => {
-      const args = command[0] === "--" ? command.slice(1) : command;
-      process.exitCode = await runDataAssetsCommand(name, args, {
+      // commander 会吞掉字面量 `--` 并把其后 token 全数收进 variadic operand,无需再剥
+      process.exitCode = await runDataAssetsCommand(name, command, {
         inheritEnv: inheritedEnvNames(opts.inheritEnv),
       });
     });

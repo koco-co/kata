@@ -2,9 +2,8 @@
  * Render CasesFile to xmind by mapping onto the T1 IntermediateJson pipeline.
  */
 
-import { rmSync } from "node:fs";
 import type { IntermediateJson, Module, Page, SubGroup, TestCase } from "../intermediate-types.ts";
-import { createXmind, UNCLASSIFIED } from "../xmind-render.ts";
+import { createXmindReplacing, UNCLASSIFIED } from "../xmind-render.ts";
 import type { CasesFile } from "./types.ts";
 
 /** Map a flat CasesFile back to the hierarchical IntermediateJson for rendering. */
@@ -30,10 +29,11 @@ export function casesToIntermediate(file: CasesFile): IntermediateJson {
       steps: c.steps.map((s) => ({ step: s.action, expected: s.expected })),
     };
     if (!pageName) {
-      // 无页面层级:挂到模块的隐式单页
+      // 无页面层级:挂到模块的隐式单页。页名用 UNCLASSIFIED 而非模块名,
+      // 既避免「模块>同名模块」嵌套,也让渲染层把用例平铺到模块下
       let page = pageIdx.get(modName);
       if (!page) {
-        page = { name: modName, test_cases: [] };
+        page = { name: UNCLASSIFIED, test_cases: [] };
         pageIdx.set(modName, page);
         mod.pages.push(page);
       }
@@ -73,9 +73,7 @@ export function casesToIntermediate(file: CasesFile): IntermediateJson {
   };
 }
 
-/** Render cases/需求名.xmind from a CasesFile; replaces any existing file. */
+/** Render cases/需求名.xmind from a CasesFile; atomically replaces any existing file. */
 export async function renderXmind(file: CasesFile, outPath: string): Promise<void> {
-  // 派生物再生:先删旧文件(createXmind 拒绝覆盖)
-  rmSync(outPath, { force: true });
-  await createXmind(casesToIntermediate(file), outPath);
+  await createXmindReplacing(casesToIntermediate(file), outPath);
 }

@@ -1,10 +1,11 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { resolveSourceRepo } from "../lib/git-source.ts";
-import { auditReportPath, currentYYYYMM } from "../lib/paths.ts";
+import { assertReportSlug, assertYyyymm, auditReportPath, currentYYYYMM } from "../lib/paths.ts";
 import { computeDiffStats, fetchAndDiff } from "../lib/scan-report-diff.ts";
+import { locateProject } from "../lib/workspace-locator.ts";
 
 function defaultSlug(repo: string, base: string, head: string): string {
   const clean = (s: string) =>
@@ -21,8 +22,13 @@ function writeFormalReport(
   slug: string,
   input: string,
   stats: ReturnType<typeof computeDiffStats>,
+  force: boolean,
 ): string {
+  assertReportSlug(slug);
   const out = auditReportPath(project, ym, slug);
+  if (existsSync(out) && !force) {
+    throw new Error(`报告已存在: ${out}（使用 --force 覆盖）`);
+  }
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(
     out,
@@ -70,6 +76,7 @@ export function registerScans(program: Command): void {
     .option("--slug <slug>", "覆盖默认 slug")
     .option("--yyyymm <ym>", "覆盖默认当前 YYYYMM")
     .option("--skip-fetch", "跳过 git fetch", false)
+    .option("--force", "覆盖已存在的同名报告", false)
     .action(
       (opts: {
         project: string;
@@ -80,8 +87,11 @@ export function registerScans(program: Command): void {
         slug?: string;
         yyyymm?: string;
         skipFetch: boolean;
+        force: boolean;
       }) => {
         const yyyymm = opts.yyyymm ?? currentYYYYMM();
+        assertYyyymm(yyyymm);
+        locateProject(opts.project);
         let diffOut: {
           diff: string;
           stats: ReturnType<typeof computeDiffStats>;
@@ -105,7 +115,7 @@ export function registerScans(program: Command): void {
           const repo = resolveSourceRepo(opts.repo);
           if (!repo) throw new Error(`未找到已配置仓库 ${opts.repo}(config/repos/sources.yaml)`);
           const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
-          diffOut = fetchAndDiff(repo.absPath, opts.baseBranch, opts.headBranch, {
+          diffOut = fetchAndDiff(repo, opts.baseBranch, opts.headBranch, {
             skipFetch: opts.skipFetch,
           });
           const report = writeFormalReport(
@@ -114,6 +124,7 @@ export function registerScans(program: Command): void {
             slug,
             `${opts.repo}:${opts.baseBranch}..${opts.headBranch}`,
             diffOut.stats,
+            opts.force,
           );
           outputJson({ ok: true, slug, yyyymm, report });
           return;
@@ -126,6 +137,7 @@ export function registerScans(program: Command): void {
           slug,
           opts.patch ?? "patch",
           diffOut.stats,
+          opts.force,
         );
         outputJson({ ok: true, slug, yyyymm, report });
       },

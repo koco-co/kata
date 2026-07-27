@@ -89,13 +89,13 @@ describe("knowledge store", () => {
 
   it("reads site entries nested one level down (sites/<host>/dom-*.md)", () => {
     const p = proj();
-    const dir = join(p.knowledgeDir, "sites", "172.16.122.52");
+    const dir = join(p.knowledgeDir, "sites", "192.0.2.52");
     mkdirSync(dir, { recursive: true });
     writeFileSync(
       join(dir, "dom-dataAssets.md"),
       [
         "---",
-        "title: 172.16.122.52 DataAssets DOM",
+        "title: 192.0.2.52 DataAssets DOM",
         "type: site",
         "tags: [数据质量]",
         "status: verified",

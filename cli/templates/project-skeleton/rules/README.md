@@ -6,8 +6,7 @@
 
 1. 直接在本目录新建 `.md` 文件，或参考其他项目 `workspace/{project}/_shared/rules/` 下的同名文件改写
 2. 修改该文件即可（保留 frontmatter 若有）
-3. 规则加载由以下命令完成：
-   `kata rules load --project {{project}}`
+3. 规则无需命令加载：CLI 与 skill 在执行任务时直接读取本目录的 `.md` 文件生效
 
 ## 常见场景
 

@@ -40,3 +40,36 @@ describe("parseCasesYaml", () => {
     );
   });
 });
+
+describe("parseCasesYaml strict optional fields", () => {
+  it("rejects a non-array tags field instead of silently dropping it", () => {
+    const bad = GOOD.replace("steps:", "tags: 模块A\n    steps:");
+    expect(() => parseCasesYaml(bad)).toThrow(/cases\[0\]\.tags 期望数组,实际字符串/);
+  });
+  it("rejects non-string elements inside tags", () => {
+    const bad = GOOD.replace("steps:", "tags: [ok, 1]\n    steps:");
+    expect(() => parseCasesYaml(bad)).toThrow(/cases\[0\]\.tags\[1\] 期望字符串,实际数字/);
+  });
+  it("rejects a non-string precondition", () => {
+    const bad = GOOD.replace("steps:", "precondition: 5\n    steps:");
+    expect(() => parseCasesYaml(bad)).toThrow(/cases\[0\]\.precondition 期望字符串,实际数字/);
+  });
+  it("rejects a non-string source_ref", () => {
+    const bad = GOOD.replace("steps:", "source_ref: [a]\n    steps:");
+    expect(() => parseCasesYaml(bad)).toThrow(/cases\[0\]\.source_ref 期望字符串,实际数组/);
+  });
+  it("rejects a non-string meta.source", () => {
+    const bad = GOOD.replace("feature_id: f1", "feature_id: f1\n  source: 3");
+    expect(() => parseCasesYaml(bad)).toThrow(/meta\.source 期望字符串,实际数字/);
+  });
+  it("keeps well-formed optional fields", () => {
+    const good = GOOD.replace(
+      "steps:",
+      "precondition: 前置\n    tags: [模块A, 页面B]\n    source_ref: PRD#1\n    steps:",
+    );
+    const f = parseCasesYaml(good);
+    expect(f.cases[0].precondition).toBe("前置");
+    expect(f.cases[0].tags).toEqual(["模块A", "页面B"]);
+    expect(f.cases[0].source_ref).toBe("PRD#1");
+  });
+});

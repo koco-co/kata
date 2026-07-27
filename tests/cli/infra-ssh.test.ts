@@ -35,6 +35,13 @@ describe("SSH2 connectivity contract", () => {
     );
   });
 
+  it("parses base64 hostHash values without re-hashing", () => {
+    const digest = createHash("sha256").update("fake-host-key").digest();
+    expect(toSshFingerprint(digest.toString("base64"))).toBe(
+      `SHA256:${digest.toString("base64").replace(/=+$/, "")}`,
+    );
+  });
+
   it("rejects an untrusted host key and accepts the exact trusted key", async () => {
     const key = createHash("sha256").update("fake-host-key").digest("hex");
     const fingerprint = toSshFingerprint(key);

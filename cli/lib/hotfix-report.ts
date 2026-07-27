@@ -97,6 +97,11 @@ export function lintHotfixMarkdown(reportPath: string): HotfixReportViolation[] 
     add(violations, text, "bug-id", "一级标题中的 bug id 必须与 frontmatter 一致", "#");
   }
 
+  const titleText = text.match(/^#\s+(.+)$/m)?.[1] ?? "";
+  if (/<[^>\n]+>|版本名/.test(titleText)) {
+    add(violations, text, "placeholder", "一级标题仍包含模板占位符", "#");
+  }
+
   const sections = sectionLines(text);
   for (const section of REQUIRED_SECTIONS) {
     const found = sections.get(section);
@@ -183,7 +188,10 @@ export function renderHotfixMarkdown(source: HotfixReportSource): string {
         `- ${entry.date} ${entry.actor}（${entry.action}）：\n\n  ${entry.comment_md.replaceAll("\n", "\n  ")}`,
     )
     .join("\n");
-  const operation = evidence.replace(/\r?\n+/g, " ").trim();
+  const operation = evidence
+    .replace(/\r?\n+/g, " ")
+    .trim()
+    .replaceAll("|", "\\|");
   const fixedVersion =
     source.fixedVersion?.trim() || bug.fields.resolved_build?.trim() || "unknown";
   const fixBranch = bug.fields.fix_branch?.trim() || "unknown";
@@ -238,6 +246,11 @@ export function migrateLegacyHotfixMarkdown(legacy: string): string {
   const branch = legacy.match(/\b(?:hotfix|release)[_/-][\w./-]+/i)?.[0] ?? "unknown";
   const version = legacy.match(/^[-*]\s*版本[:：]\s*(.+)$/m)?.[1]?.trim();
   const fixedVersion = version && version !== "unknown" ? version : "unknown";
+  const strippedTitle = title
+    .replace(/^【\d+】验证/, "")
+    .trim()
+    .replace(/^【P\d】/, "")
+    .trim();
   const precondition = legacy
     .match(/>\s*前置条件\s*\r?\n([\s\S]*?)(?=\r?\n>\s*用例步骤|\r?\n##\s|$)/)?.[1]
     ?.split(/\r?\n/)
@@ -258,7 +271,7 @@ export function migrateLegacyHotfixMarkdown(legacy: string): string {
     `fixed_version: ${JSON.stringify(fixedVersion)}`,
     "---",
     "",
-    `# 【${bugId}】验证${title.replace(/^【\d+】验证/, "")}`,
+    `# 【${bugId}】验证${strippedTitle}`,
     "",
     "## Bug 证据",
     "",

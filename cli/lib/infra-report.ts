@@ -65,7 +65,7 @@ export function lintInfraMarkdown(reportPath: string): InfraReportViolation[] {
     }
   }
   for (const [index, line] of lines.entries()) {
-    if (/<(?:类型|一句话标题|堆栈摘要|slug|\.\.\.)[^>]*>|TODO|待补充/.test(line)) {
+    if (/<(?:类型|一句话标题|堆栈摘要|slug|project|host|\.\.\.)[^>]*>|TODO|待补充/.test(line)) {
       violations.push({ line: index + 1, rule: "placeholder", message: "报告仍包含模板占位符" });
     }
   }
@@ -84,7 +84,7 @@ export function writeInfraReport(opts: {
   const path = infraReportPath(opts.project, currentYYYYMM(), opts.slug);
   mkdirSync(dirname(path), { recursive: true });
   const safeEvidence = opts.evidence.map((line) =>
-    line.replace(/password|token|cookie|secret/gi, "[redacted]"),
+    line.replace(/(?:password|token|cookie|secret)\b\s*[:=：]?\s*.*/gi, "[redacted]"),
   );
   writeFileSync(
     path,

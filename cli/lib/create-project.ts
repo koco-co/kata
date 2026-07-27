@@ -11,6 +11,7 @@ export const SKELETON_SPEC = {
     "analyses/conflict-report",
     "analyses/scan-report",
     "analyses/hotfix-case",
+    "analyses/infra-report",
     "_shared/rules",
     "knowledge",
     "knowledge/terms",
@@ -24,6 +25,8 @@ export const SKELETON_SPEC = {
     "analyses/conflict-report",
     "analyses/scan-report",
     "analyses/hotfix-case",
+    "analyses/infra-report",
+    "knowledge/terms",
     "knowledge/modules",
     "knowledge/pitfalls",
     "knowledge/sites",
@@ -32,6 +35,7 @@ export const SKELETON_SPEC = {
     "project.json": "project.json",
     "_shared/rules/README.md": "rules/README.md",
     "knowledge/overview.md": "knowledge/overview.md",
+    "knowledge/terms.md": "knowledge/terms.md",
   } as Record<string, string>,
 } as const;
 

@@ -20,14 +20,24 @@ export interface SourceRepo {
 }
 
 /** Run a git command against a source repo; returns stdout. */
+const GIT_MAX_BUFFER = 16 * 1024 * 1024;
+
 export function git(repoPath: string, args: string[]): string {
-  return execFileSync("git", ["-C", repoPath, ...args], {
-    encoding: "utf8",
-    stdio: ["pipe", "pipe", "pipe"],
-  });
+  try {
+    return execFileSync("git", ["-C", repoPath, ...args], {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+      maxBuffer: GIT_MAX_BUFFER,
+    });
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOBUFS") {
+      throw new Error(`git ${args[0] ?? ""} 输出超过 16MB 上限(ENOBUFS);缩小查询范围后重试`);
+    }
+    throw err;
+  }
 }
 
-function safeGitPath(filePath: string): boolean {
+export function safeGitPath(filePath: string): boolean {
   return (
     filePath !== "" &&
     !filePath.startsWith("/") &&
@@ -36,8 +46,35 @@ function safeGitPath(filePath: string): boolean {
   );
 }
 
-function safeRef(ref: string): boolean {
+export function safeRef(ref: string): boolean {
   return ref !== "" && !ref.startsWith("-") && !ref.includes(":") && !ref.includes("\0");
+}
+
+/** writable:false 的仓库只允许只读操作(含更新本地克隆的 fetch/pull/checkout)。 */
+const READONLY_REPO_OPS = new Set([
+  "fetch",
+  "pull",
+  "checkout",
+  "grep",
+  "show",
+  "rev-parse",
+  "log",
+  "diff",
+  "status",
+]);
+
+export class RepoOperationNotAllowedError extends Error {
+  readonly code = "ERR_REPO_READONLY";
+
+  constructor(repo: string, op: string) {
+    super(`仓库 ${repo} 声明 writable: false,禁止 ${op};仅允许只读操作`);
+    this.name = "RepoOperationNotAllowedError";
+  }
+}
+
+export function assertRepoOperationAllowed(repo: SourceRepo, op: string): void {
+  if (repo.writable || READONLY_REPO_OPS.has(op)) return;
+  throw new RepoOperationNotAllowedError(repo.name, op);
 }
 
 export function isGitSourceRepo(repoPath: string): boolean {

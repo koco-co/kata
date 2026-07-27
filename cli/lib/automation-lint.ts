@@ -1,12 +1,31 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
+import { basename, extname, join, relative, resolve, sep } from "node:path";
+import { SPEC_FILE_RE } from "./cases/parse.ts";
+import { projectRootFromFeatureDir } from "./features-layout.ts";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
 const CODE_EXTENSIONS = new Set([".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
-const CASE_FILE_RE = /^t\d+-[a-z0-9-]+\.ts$/;
 const URL_RE = /https?:\/\//i;
 const IP_RE = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 const STRING_RE = /(["'`])(?:\\.|(?!\1)[\s\S])*?\1/g;
+// A `/` after these chars (or after these keywords) opens a regex literal, not a comment/division.
+const REGEX_OPEN_CHARS = new Set("([{,;=:!&|?+-*~^<>");
+const REGEX_OPEN_KEYWORDS = new Set([
+  "await",
+  "case",
+  "delete",
+  "do",
+  "else",
+  "in",
+  "instanceof",
+  "new",
+  "of",
+  "return",
+  "throw",
+  "typeof",
+  "void",
+  "yield",
+]);
 
 export const AUTOMATION_LINT_RULES = [
   "no-wait-timeout",
@@ -75,6 +94,21 @@ function listCodeFiles(root: string): string[] {
   return files;
 }
 
+/** Decide whether the `/` at index i opens a regex literal (vs division); peeks at the masked prefix. */
+function isRegexLiteralStart(chars: string[], i: number): boolean {
+  let j = i - 1;
+  while (j >= 0 && /\s/.test(chars[j])) j--;
+  if (j < 0) return true;
+  const ch = chars[j];
+  if (REGEX_OPEN_CHARS.has(ch)) return true;
+  if (/[\w$]/.test(ch)) {
+    let k = j;
+    while (k >= 0 && /[\w$]/.test(chars[k])) k--;
+    return REGEX_OPEN_KEYWORDS.has(chars.slice(k + 1, j + 1).join(""));
+  }
+  return false;
+}
+
 function maskComments(source: string): MaskedSource {
   const chars = source.split("");
   const ignores = new Map<number, string>();
@@ -129,6 +163,30 @@ function maskComments(source: string): MaskedSource {
       for (let j = commentStart; j < end; j++) if (source[j] === "\n") line++;
       mask(commentStart, end);
       i = end;
+      continue;
+    }
+
+    // Regex literal: skip to the closing `/` so `//` inside a pattern/class is never
+    // mistaken for a line comment (division is excluded via isRegexLiteralStart).
+    if (current === "/" && isRegexLiteralStart(chars, i)) {
+      i++;
+      let inClass = false;
+      while (i < source.length) {
+        const ch = source[i];
+        if (ch === "\\") {
+          i += 2;
+          continue;
+        }
+        if (ch === "\n") break;
+        if (ch === "[") inClass = true;
+        else if (ch === "]") inClass = false;
+        else if (ch === "/" && !inClass) {
+          i++;
+          break;
+        }
+        i++;
+      }
+      while (i < source.length && /[a-z]/i.test(source[i])) i++;
       continue;
     }
 
@@ -310,7 +368,7 @@ function scanCaseFileName(
   const rel = relativeProjectPath(projectDir, absolutePath);
   if (!/(^|\/)automation\/tests\/cases\//.test(rel)) return;
   const path = relativeProjectPath(projectDir, absolutePath);
-  if (!CASE_FILE_RE.test(basename(absolutePath))) {
+  if (!SPEC_FILE_RE.test(basename(absolutePath))) {
     addViolation(
       violations,
       path,
@@ -322,17 +380,6 @@ function scanCaseFileName(
   }
 }
 
-function projectDirFromFeature(featureDir: string): string {
-  let current = resolve(featureDir);
-  for (;;) {
-    if (basename(current) === "features") return dirname(current);
-    const parent = dirname(current);
-    if (parent === current) break;
-    current = parent;
-  }
-  throw new Error(`kata automation lint: feature 路径不在 features/ 项目目录下: ${featureDir}`);
-}
-
 function resolveTarget(options: AutomationLintOptions): ScanTarget {
   if (options.shared === Boolean(options.featureDir)) {
     throw new Error("kata automation lint: 必须指定 <featureDir> 或 --shared 其中一个");
@@ -340,7 +387,12 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
 
   if (options.shared) {
     const root = options.repoRoot ?? locateProjectRoot();
-    const project = options.project ?? process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
+    const project = options.project ?? process.env.KATA_ACTIVE_PROJECT;
+    if (!project) {
+      throw new Error(
+        "kata automation lint --shared: 未指定项目；请传 --project <name>(或设置 KATA_ACTIVE_PROJECT)",
+      );
+    }
     const projectDir = join(root, "workspace", project);
     if (!existsSync(projectDir)) throw new Error(`kata automation lint: 未知项目 ${project}`);
     return {
@@ -354,7 +406,7 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
     throw new Error(`kata automation lint: feature 目录不存在: ${featureDir}`);
   return {
     roots: [join(featureDir, "automation", "tests")],
-    projectDir: projectDirFromFeature(featureDir),
+    projectDir: projectRootFromFeatureDir(featureDir),
   };
 }
 

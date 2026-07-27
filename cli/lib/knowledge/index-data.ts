@@ -1,73 +1,22 @@
 #!/usr/bin/env bun
 /**
- * knowledge-curate.ts — 业务知识库 CRUD + lint/index。
- * Usage:
- *   kata knowledge <action> --project <name> [...]
- * Actions: read-core | read-module | read-pitfall | write | update | index | lint
+ * knowledge 索引数据层。
+ * 扫描 terms/modules/pitfalls/sites 的 file-per-entry 条目,为缺 frontmatter 的
+ * 模板文件自动补全,渲染并写回 _index.md;另提供 overview section 的 upsert
+ * (knowledge write 的 overview 聚合写入使用)。
  */
 
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   autoFixFrontmatter,
-  type ContentTerm,
   type IndexData,
   type IndexEntry,
   parseFrontmatter,
   renderIndex,
-  type TermRow,
   todayIso,
 } from "../knowledge.ts";
 import { knowledgeDir } from "../knowledge-paths.ts";
-
-export function scanEntries(dir: string): IndexEntry[] {
-  if (!existsSync(dir)) return [];
-  const entries: IndexEntry[] = [];
-  for (const f of readdirSync(dir)) {
-    if (!f.endsWith(".md")) continue;
-    const raw = readFileSync(join(dir, f), "utf8");
-    const parsed = parseFrontmatter(raw);
-    if (!parsed.frontmatter) continue;
-    entries.push({
-      name: f.replace(/\.md$/, ""),
-      title: parsed.frontmatter.title,
-      tags: parsed.frontmatter.tags,
-      updated: parsed.frontmatter.updated,
-      status: parsed.frontmatter.status ?? parsed.frontmatter.confidence ?? "",
-    });
-  }
-  return entries;
-}
-
-export function parseTermsTable(body: string): TermRow[] {
-  const rows: TermRow[] = [];
-  const lines = body.split("\n");
-  let inTable = false;
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
-      const cells = trimmed
-        .slice(1, -1)
-        .split("|")
-        .map((c) => c.trim());
-      if (cells.some((c) => /^-+$/.test(c))) {
-        inTable = true;
-        continue;
-      }
-      if (!inTable) continue;
-      if (cells[0] === "术语" || cells[0] === "Term") continue;
-      if (cells.length >= 4) {
-        rows.push({
-          term: cells[0],
-          zh: cells[1],
-          desc: cells[2],
-          alias: cells[3],
-        });
-      }
-    }
-  }
-  return rows;
-}
 
 export function gatherIndexData(projectName: string): {
   data: IndexData;
@@ -208,10 +157,6 @@ export function writeIndexFile(projectName: string): {
   };
 }
 
-export function renderTermRow(t: ContentTerm): string {
-  return `| ${t.term} | ${t.zh} | ${t.desc} | ${t.alias} |`;
-}
-
 export function upsertOverviewSection(
   body: string,
   section: string,
@@ -263,41 +208,8 @@ export function upsertOverviewSection(
   return [...before, ...appended, ...after].join("\n");
 }
 
-export function escapeRegex(s: string): string {
+function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-export function upsertTermRow(body: string, newRow: string, term: string): string {
-  const lines = body.split("\n");
-  const rowPrefix = `| ${term} |`;
-
-  let replacedIdx = -1;
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trimStart().startsWith(rowPrefix)) {
-      replacedIdx = i;
-      break;
-    }
-  }
-
-  if (replacedIdx !== -1) {
-    return [...lines.slice(0, replacedIdx), newRow, ...lines.slice(replacedIdx + 1)].join("\n");
-  }
-
-  // Find last table row (| ... |) and insert after it
-  let lastRowIdx = -1;
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const t = lines[i].trim();
-    if (t.startsWith("|") && t.endsWith("|")) {
-      lastRowIdx = i;
-      break;
-    }
-  }
-  if (lastRowIdx === -1) {
-    // No table, just append
-    const trailingNewline = body.endsWith("\n") ? "" : "\n";
-    return `${body}${trailingNewline}${newRow}\n`;
-  }
-  return [...lines.slice(0, lastRowIdx + 1), newRow, ...lines.slice(lastRowIdx + 1)].join("\n");
 }
 
 // ── CLI ───────────────────────────────────────────────────────────────────────

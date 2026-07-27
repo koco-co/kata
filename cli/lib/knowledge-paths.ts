@@ -1,12 +1,17 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import type { ProjectPaths } from "./types.ts";
 import { locateProject } from "./workspace-locator.ts";
 
-/** Return the knowledge base dir for a project; prefers workspace/<project>/knowledge, falls back to legacy _shared/knowledge. */
-export function knowledgeDir(project: string): string {
-  const paths = locateProject(project);
+/** knowledge dir from located project paths: workspace/<project>/knowledge first, legacy _shared/knowledge fallback. */
+export function knowledgeDirFromPaths(paths: ProjectPaths): string {
   if (existsSync(paths.knowledgeDir)) return paths.knowledgeDir;
   return join(paths.sharedDir, "knowledge");
+}
+
+/** Return the knowledge base dir for a project by name. */
+export function knowledgeDir(project: string): string {
+  return knowledgeDirFromPaths(locateProject(project));
 }
 
 /** Join path segments under the project's knowledge dir. */
