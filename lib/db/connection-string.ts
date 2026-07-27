@@ -44,8 +44,8 @@ export function isSupportedType(t: string): t is DataSourceType {
  * leading `scheme://` is informational and ignored (the datasource type drives
  * the dialect, not the scheme).
  *
- * Example: `mysql://drpeco:DT@Stack#123@172.16.113.225:19030/pw_test`
- *   → { user: "drpeco", password: "DT@Stack#123", host: "172.16.113.225", port: 19030, database: "pw_test" }
+ * Example: `mysql://drpeco:DT@Stack#123@192.0.2.225:19030/pw_test`
+ *   → { user: "drpeco", password: "DT@Stack#123", host: "192.0.2.225", port: 19030, database: "pw_test" }
  *
  * @param url  connection URL (with or without a `scheme://` prefix)
  * @param type optional datasource type, used to fill the default port when omitted
@@ -87,13 +87,19 @@ export function parseConnectionString(url: string, type?: DataSourceType): Conne
   const portColon = hostPort.lastIndexOf(":");
   if (portColon >= 0) {
     host = hostPort.slice(0, portColon);
-    const parsed = Number(hostPort.slice(portColon + 1));
-    if (Number.isFinite(parsed)) port = parsed;
+    const portText = hostPort.slice(portColon + 1);
+    const parsed = Number(portText);
+    // 显式写了端口但解析不出数字是直接配置错误，不能静默回落默认端口
+    if (!Number.isFinite(parsed)) {
+      throw new Error(`[lib/db] invalid port in connection url: '${portText}'`);
+    }
+    port = parsed;
   }
 
-  if (!host) throw new Error(`[lib/db] cannot parse host from url: ${url}`);
+  // 错误消息不回显原始 url：其中可能包含口令
+  if (!host) throw new Error("[lib/db] cannot parse host from connection url");
   if (!Number.isFinite(port)) {
-    throw new Error(`[lib/db] no port in url and no datasource type to default it: ${url}`);
+    throw new Error("[lib/db] no port in connection url and no datasource type to default it");
   }
   return { user, password, host, port, database };
 }

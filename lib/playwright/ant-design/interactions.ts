@@ -272,21 +272,17 @@ export async function waitForOverlay(page: Page, titleText?: string): Promise<Lo
  * 确认 Ant Design Popconfirm 气泡确认框
  *
  * 兼容 ant-popconfirm 和 ant-popover 两种容器。
+ * 气泡未在超时内出现或确认按钮不可见时抛错（与 {@link cancelPopconfirm} 行为一致，
+ * 调用方需要「可选确认」语义时应自行 try/catch）。
  *
  * @param page - Playwright Page 实例
  * @param timeout - 等待气泡出现的超时时间，默认 3000ms
  */
 export async function confirmPopconfirm(page: Page, timeout = 3000): Promise<void> {
   const popconfirm = page.locator(".ant-popconfirm:visible, .ant-popover:visible").first();
-  await popconfirm.waitFor({ state: "visible", timeout }).catch(() => {
-    /* 未弹出则静默跳过 */
-  });
-
-  const confirmBtn = popconfirm.locator(".ant-btn-primary").first();
-  if (await confirmBtn.isVisible().catch(() => false)) {
-    await confirmBtn.click();
-    await page.waitForTimeout(300);
-  }
+  await popconfirm.waitFor({ state: "visible", timeout });
+  await popconfirm.locator(".ant-btn-primary").first().click();
+  await page.waitForTimeout(300);
 }
 
 /**

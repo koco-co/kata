@@ -4,9 +4,9 @@
  * 跨项目通用的 Ant Design 交互、导航、工具函数。
  * 所有项目的 spec 文件均可 import 此库。
  *
- * @example
+ * @example 从 feature automation 目录（workspace/<project>/features/<version>/<feature>/automation/）起算
  * ```typescript
- * import { selectAntOption, expectAntMessage, navigateViaMenu, uniqueName } from "@pw/index";
+ * import { selectAntOption, expectAntMessage, navigateViaMenu, uniqueName } from "../../../../../../lib/playwright";
  * ```
  */
 

@@ -27,6 +27,7 @@ config.json
 
 # Claude Code scheduled-tasks runtime lock (session/pid-specific, never tracked)
 .claude/scheduled_tasks.lock
+.claude/settings.local.json
 
 # Feature runtime products
 workspace/*/features/**/.process/
@@ -35,6 +36,7 @@ workspace/*/features/**/.debug/
 workspace/*/features/**/scheduler_restart.curl
 .playwright-cli/*.yml
 allure-results/
+test-results/
 output/
 
 # System and build

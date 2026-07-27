@@ -4,6 +4,6 @@
     "rootDir": ".",
     "types": ["node", "bun"]
   },
-  "include": ["cli/**/*.ts", "tests/**/*.ts"],
+  "include": ["cli/**/*.ts", "lib/**/*.ts", "tests/**/*.ts", "playwright.config.ts"],
   "exclude": ["node_modules", "workspace", "cli/integrations/dtstack"]
 }

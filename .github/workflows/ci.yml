@@ -13,8 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # base 对比需要完整历史（PR 的 origin/<base> 与 push 的 event.before）
+          fetch-depth: 0
+      # 空白/冲突标记检查：与基线对比，而不是对工作区做空转检查
+      - name: Whitespace check (git diff --check)
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --check "origin/${{ github.base_ref }}...HEAD"
+          else
+            git diff --check "${{ github.event.before }}..HEAD"
+          fi
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.x
       - run: bun install --frozen-lockfile
       - run: bun run ci
+      - run: bunx tsc --noEmit -p cli/integrations/dtstack/tsconfig.json

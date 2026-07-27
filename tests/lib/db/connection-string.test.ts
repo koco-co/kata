@@ -9,11 +9,11 @@ import { splitSqlStatements } from "../../../lib/db/sql-split.ts";
 
 describe("parseConnectionString", () => {
   it("parses a password containing '@' and '#' by splitting on the last '@'", () => {
-    const p = parseConnectionString("mysql://drpeco:DT@Stack#123@172.16.113.225:19030/pw_test");
+    const p = parseConnectionString("mysql://drpeco:DT@Stack#123@192.0.2.225:19030/pw_test");
     expect(p).toEqual({
       user: "drpeco",
       password: "DT@Stack#123",
-      host: "172.16.113.225",
+      host: "192.0.2.225",
       port: 19030,
       database: "pw_test",
     });
@@ -52,6 +52,23 @@ describe("parseConnectionString", () => {
 
   it("throws when there is no port and no type to default it", () => {
     expect(() => parseConnectionString("mysql://u:p@host/db")).toThrow(/no port/);
+  });
+
+  it("throws on an explicit non-numeric port instead of falling back silently", () => {
+    expect(() => parseConnectionString("mysql://u:p@host:abc/db", "starrocks")).toThrow(
+      /invalid port/,
+    );
+  });
+
+  it("does not echo the raw url (which may carry the password) in error messages", () => {
+    for (const bad of ["mysql://u:s3cret@host/db", "mysql://u:s3cret@:9030/db"]) {
+      try {
+        parseConnectionString(bad);
+        throw new Error("expected parseConnectionString to throw");
+      } catch (err) {
+        expect((err as Error).message).not.toContain("s3cret");
+      }
+    }
   });
 });
 

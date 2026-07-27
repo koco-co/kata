@@ -5,6 +5,6 @@
     "types": ["node", "bun"],
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["workspace/dataAssets/_shared/runtime/**/*.ts"],
+  "include": ["workspace/*/_shared/**/*.ts", "workspace/*/features/**/automation/**/*.ts"],
   "exclude": ["node_modules"]
 }
