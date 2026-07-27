@@ -1,8 +1,9 @@
 /**
- * plugins/zentao/client.ts — 禅道 HTTP 会话原语（登录 + cookie 解析 + 会话回退）
+ * cli/integrations/zentao/client.ts — 禅道 HTTP 会话原语（登录 + cookie 解析 + 会话回退）
  * create.ts 直接用；fetch.ts 经 session.ts 复用登录与 cookie 解析。
  */
-import { loadZentaoConfig } from "../../lib/plugin-config.ts";
+import { repoRoot } from "../../lib/paths.ts";
+import { loadZentaoConfig, pluginConfigPath } from "../../lib/plugin-config.ts";
 
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -101,7 +102,10 @@ export async function resolveSession(): Promise<string> {
   }
   if (fallback) return fallback;
   throw Object.assign(
-    new Error("缺少禅道凭据：请配置 config/plugin/zentao.yaml 中的 username/password 或 cookie"),
+    new Error(
+      `缺少禅道凭据：请在 ${pluginConfigPath("zentao", repoRoot())} 配置 username/password 或 cookie，` +
+        "或设置环境变量 KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD / KATA_ZENTAO_COOKIE",
+    ),
     { code: "NO_CREDENTIALS" },
   );
 }

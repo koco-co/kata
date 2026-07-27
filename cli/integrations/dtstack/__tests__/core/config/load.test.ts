@@ -60,7 +60,7 @@ datasources: {}
     delete process.env.MY_PWD;
   });
 
-  test("missing env var becomes empty string", () => {
+  test("missing env var throws and lists the variable name", () => {
     delete process.env.NOT_SET;
     const file = join(dir, "c.yaml");
     writeFileSync(
@@ -76,7 +76,6 @@ datasources:
     password: \${NOT_SET}
 `,
     );
-    const cfg = loadConfig(file);
-    expect(cfg.datasources.x.password).toBe("");
+    expect(() => loadConfig(file)).toThrow(/unset environment variables: NOT_SET/);
   });
 });

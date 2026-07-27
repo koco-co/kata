@@ -35,21 +35,22 @@ describe("fetchAuthedBugJson", () => {
       return new Response(validJson, { status: 200 });
     };
     let wrote = false;
-    const text = await fetchAuthedBugJson(1, creds, {
+    const result = await fetchAuthedBugJson(1, creds, {
       fetchFn,
       readCookieFn: () => "zentaosid=good",
       writeCookieFn: () => {
         wrote = true;
       },
     });
-    assert.equal(text, validJson);
+    assert.equal(result.text, validJson);
+    assert.equal(result.cookie, "zentaosid=good");
     assert.equal(wrote, false);
     assert.equal(calls.length, 1);
     assert.ok(calls[0].includes("bug-view-1.json"));
     assert.ok(!calls.some((u) => u.includes("user-login")));
   });
 
-  it("falls back to login when cookie is stale, then re-saves", async () => {
+  it("falls back to login when cookie is stale, then re-saves and returns the fresh cookie", async () => {
     const calls: string[] = [];
     const fetchFn: FetchFn = async (url) => {
       calls.push(url);
@@ -67,14 +68,16 @@ describe("fetchAuthedBugJson", () => {
           });
     };
     let saved: string | null = null;
-    const text = await fetchAuthedBugJson(1, creds, {
+    const result = await fetchAuthedBugJson(1, creds, {
       fetchFn,
       readCookieFn: () => "zentaosid=stale",
       writeCookieFn: (c) => {
         saved = c;
       },
     });
-    assert.equal(text, validJson);
+    assert.equal(result.text, validJson);
+    // 返回实际生效的新 cookie，调用方（附件下载）不应重读到过期值
+    assert.equal(result.cookie, "zentaosid=fresh");
     assert.equal(saved, "zentaosid=fresh");
     assert.ok(calls.some((u) => u.includes("user-login")));
   });
@@ -85,14 +88,15 @@ describe("fetchAuthedBugJson", () => {
         ? new Response("{}", { status: 200, headers: { "set-cookie": "zentaosid=fresh; path=/" } })
         : new Response(validJson, { status: 200 });
     let saved: string | null = null;
-    const text = await fetchAuthedBugJson(1, creds, {
+    const result = await fetchAuthedBugJson(1, creds, {
       fetchFn,
       readCookieFn: () => null,
       writeCookieFn: (c) => {
         saved = c;
       },
     });
-    assert.equal(text, validJson);
+    assert.equal(result.text, validJson);
+    assert.equal(result.cookie, "zentaosid=fresh");
     assert.equal(saved, "zentaosid=fresh");
   });
 
@@ -117,7 +121,12 @@ describe("fetchAuthedBugJson", () => {
         readCookieFn: () => "zentaosid=stale",
         writeCookieFn: () => {},
       }),
-      (e: Error & { code?: string }) => e.code === "ZENTAO_AUTH_MISSING",
+      (e: Error & { code?: string }) =>
+        e.code === "ZENTAO_AUTH_MISSING" &&
+        // 报错必须列出尝试过的 yaml 路径与可补救的 env 变量名
+        e.message.includes("config/plugin/zentao.yaml") &&
+        e.message.includes("KATA_ZENTAO_ACCOUNT") &&
+        e.message.includes("KATA_ZENTAO_PASSWORD"),
     );
   });
 });

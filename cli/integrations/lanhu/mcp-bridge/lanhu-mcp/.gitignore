@@ -7,6 +7,8 @@ __pycache__/
 venv/
 .env
 uv.lock
+# kata exception: uv.lock is tracked for reproducible installs (see VENDOR.md).
+!uv.lock
 
 # Test/coverage
 .pytest_cache/

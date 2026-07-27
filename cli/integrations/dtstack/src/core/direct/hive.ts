@@ -54,17 +54,19 @@ export class HiveDriver implements SqlDriver {
       runAsync: true,
     });
 
-    await this.utils.waitUntilReady(operation, false);
-    await this.utils.fetchAll(operation);
+    try {
+      await this.utils.waitUntilReady(operation, false);
+      await this.utils.fetchAll(operation);
 
-    const resultHandler = this.utils.getResult(operation);
-    const rows = resultHandler.getValue() as Record<string, unknown>[];
+      const resultHandler = this.utils.getResult(operation);
+      const rows = resultHandler.getValue() as Record<string, unknown>[];
 
-    await operation.close();
-
-    return {
-      rows: rows ?? [],
-    };
+      return {
+        rows: rows ?? [],
+      };
+    } finally {
+      await operation.close();
+    }
   }
 
   async disconnect(): Promise<void> {

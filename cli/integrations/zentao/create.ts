@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
- * plugins/zentao/create.ts — 在禅道创建 bug
- * Contract: 已合并实现 (main 9f92a198e)；运维/风险笔记见 plugins/zentao/NOTES.md
+ * cli/integrations/zentao/create.ts — 在禅道创建 bug
+ * Contract: 已合并实现 (main 9f92a198e)；运维/风险笔记见 cli/integrations/zentao/NOTES.md
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -29,7 +29,7 @@ export interface ZentaoConfig {
 }
 
 /** Load and validate the zentao create config yaml. */
-export function loadZentaoConfig(path: string): ZentaoConfig {
+export function loadZentaoCreateConfig(path: string): ZentaoConfig {
   if (!existsSync(path)) throw new Error(`[zentao-create] 配置文件不存在：${path}`);
   const cfg = parseYaml(readFileSync(path, "utf8")) as Partial<ZentaoConfig>;
   if (!cfg || typeof cfg.product !== "number") {
@@ -162,6 +162,12 @@ function emit(obj: unknown): void {
   process.stdout.write(`${JSON.stringify(obj, null, 2)}\n`);
 }
 
+// 库内不 process.exit()：错误 JSON 先写 stdout（机器契约），再抛带码错误由 CLI 入口兜底退出码
+function fail(payload: { ok: boolean; error: string }, code: string): never {
+  emit(payload);
+  throw Object.assign(new Error(payload.error), { code });
+}
+
 export async function runCreate(opts: {
   report: string;
   config: string;
@@ -169,27 +175,33 @@ export async function runCreate(opts: {
 }): Promise<void> {
   const baseUrl = loadZentaoPluginConfig(repoRoot()).base_url;
   if (!baseUrl) {
-    emit({ ok: false, error: "缺少 config/plugin/zentao.yaml 的 base_url" });
-    process.exit(1);
+    fail(
+      {
+        ok: false,
+        error: "缺少 config/plugin/zentao.yaml 的 base_url（或设置 KATA_ZENTAO_BASE_URL）",
+      },
+      "ZENTAO_CONFIG_MISSING",
+    );
   }
   let report: BugReport;
   try {
     report = parseBugReportMarkdown(opts.report);
   } catch (e) {
-    emit({ ok: false, error: `读取/校验 BugReport 失败：${(e as Error).message}` });
-    process.exit(1);
+    fail(
+      { ok: false, error: `读取/校验 BugReport 失败：${(e as Error).message}` },
+      "REPORT_INVALID",
+    );
   }
   let config: ZentaoConfig;
   let steps: string;
   let payload: Record<string, string>;
   try {
-    config = loadZentaoConfig(opts.config);
+    config = loadZentaoCreateConfig(opts.config);
     // zentao 模板本身只渲染首条主修复建议（其它相关问题应另开 bug）。
     steps = renderBugReport(report, "zentao");
     payload = buildCreatePayload(report, config, steps);
   } catch (e) {
-    emit({ ok: false, error: `配置加载/正文渲染失败：${(e as Error).message}` });
-    process.exit(1);
+    fail({ ok: false, error: `配置加载/正文渲染失败：${(e as Error).message}` }, "CONFIG_INVALID");
   }
 
   if (opts.dryRun) {
@@ -206,13 +218,12 @@ export async function runCreate(opts: {
   try {
     cookie = await resolveSession();
   } catch (e) {
-    emit({ ok: false, error: (e as Error).message });
-    process.exit(1);
+    fail({ ok: false, error: (e as Error).message }, "SESSION_FAILED");
   }
 
-  let text: string;
+  let res: Response;
   try {
-    const res = await fetch(createUrl(baseUrl, config), {
+    res = await fetch(createUrl(baseUrl, config), {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -222,13 +233,26 @@ export async function runCreate(opts: {
       },
       body: new URLSearchParams(payload).toString(),
     });
-    text = await res.text();
   } catch (e) {
-    emit({ ok: false, error: `网络连接失败: ${(e as Error).message}` });
-    process.exit(1);
+    fail({ ok: false, error: `网络连接失败: ${(e as Error).message}` }, "NETWORK_ERROR");
   }
+
+  // HTML 错误页（登录页/网关错误）不当初步成功：先看状态码与 content-type，再解析正文
+  if (!res.ok) {
+    fail({ ok: false, error: `禅道创建请求失败，HTTP ${res.status}` }, "CREATE_HTTP_ERROR");
+  }
+  const contentType = res.headers.get("content-type") ?? "";
+  if (contentType.includes("text/html")) {
+    fail(
+      { ok: false, error: "禅道创建返回了 HTML 页面而非 JSON（会话可能已失效）" },
+      "CREATE_UNEXPECTED_HTML",
+    );
+  }
+  const text = await res.text();
 
   const result = parseCreateResponse(text, baseUrl, report.title);
   emit(result);
-  if (!result.ok) process.exit(1);
+  if (!result.ok) {
+    throw Object.assign(new Error(result.error ?? "禅道创建失败"), { code: "CREATE_FAILED" });
+  }
 }

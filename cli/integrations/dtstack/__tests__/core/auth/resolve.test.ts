@@ -7,7 +7,6 @@ const sess = (cookie: string): Session => ({
   user: "u",
   tenantId: 1,
   tenantName: null,
-  expiresAt: null,
 });
 
 describe("resolveSession", () => {

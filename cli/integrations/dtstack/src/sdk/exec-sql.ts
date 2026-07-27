@@ -2,8 +2,9 @@ import { readFileSync } from "node:fs";
 import { SqlExecutor } from "../core/direct/executor";
 import type { ConnectionConfig, QueryResult } from "../core/direct/types";
 import type { DtStackClientLike } from "../core/http/client";
-import { BatchApi } from "../core/platform/batch";
+import { BatchApi, type ExecutePolicies } from "../core/platform/batch";
 import { ProjectApi } from "../core/platform/project";
+import { isAlreadyExistsError, isMissingObjectError, splitSqlStatements } from "../core/sql";
 
 export type ExecSqlOptions =
   | {
@@ -19,6 +20,8 @@ export type ExecSqlOptions =
       readonly sql?: string;
       readonly file?: string;
       readonly autoCreate?: boolean;
+      readonly onExists?: ExecutePolicies["onExists"];
+      readonly onMissing?: ExecutePolicies["onMissing"];
       readonly client: DtStackClientLike;
     }
   | {
@@ -26,6 +29,8 @@ export type ExecSqlOptions =
       readonly connection: ConnectionConfig;
       readonly sql?: string;
       readonly file?: string;
+      readonly onExists?: ExecutePolicies["onExists"];
+      readonly onMissing?: ExecutePolicies["onMissing"];
     };
 
 function readSqlInput(opts: { sql?: string; file?: string }): string {
@@ -40,11 +45,24 @@ export async function execSql(opts: ExecSqlOptions): Promise<QueryResult[]> {
   if (opts.mode === "direct") {
     const exec = new SqlExecutor(opts.connection);
     try {
-      const stmts = sqlText
-        .split(";")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      return await exec.executeMultiple(stmts);
+      const results: QueryResult[] = [];
+      for (const stmt of splitSqlStatements(sqlText)) {
+        try {
+          results.push(await exec.execute(stmt));
+        } catch (err) {
+          const message = (err as Error).message;
+          if (isAlreadyExistsError(message) && opts.onExists === "warn") {
+            process.stderr.write(`[exec] warning (already exists): ${message}\n`);
+            continue;
+          }
+          if (isMissingObjectError(message) && opts.onMissing === "warn") {
+            process.stderr.write(`[exec] warning (missing object): ${message}\n`);
+            continue;
+          }
+          throw err;
+        }
+      }
+      return results;
     } finally {
       await exec.close();
     }
@@ -63,6 +81,9 @@ export async function execSql(opts: ExecSqlOptions): Promise<QueryResult[]> {
   if (!ds)
     throw new Error(`datasource type ${opts.datasource} not found in project ${opts.project}`);
 
-  await batch.executeDDL(proj.id, ds, sqlText);
+  await batch.executeDDL(proj.id, ds, sqlText, undefined, {
+    onExists: opts.onExists,
+    onMissing: opts.onMissing,
+  });
   return [];
 }

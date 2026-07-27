@@ -5,7 +5,7 @@ export interface ParsedFlags {
   readonly positionals: ReadonlyArray<string>;
 }
 
-const SCHEMA = {
+export const SCHEMA = {
   env: { type: "string" as const, short: "e" },
   config: { type: "string" as const, short: "c" },
   mode: { type: "string" as const },
@@ -32,13 +32,9 @@ const SCHEMA = {
   "sync-timeout": { type: "string" as const },
   "skip-sync": { type: "boolean" as const },
   "auto-create": { type: "boolean" as const },
-  username: { type: "string" as const },
-  password: { type: "string" as const },
   "on-exists": { type: "string" as const },
   "on-missing": { type: "string" as const },
-  json: { type: "boolean" as const },
-  verbose: { type: "boolean" as const },
-} satisfies Parameters<typeof parseArgs>[0]["options"];
+} satisfies NonNullable<Parameters<typeof parseArgs>[0]>["options"];
 
 export function parseFlags(args: ReadonlyArray<string>): ParsedFlags {
   const { values, positionals } = parseArgs({

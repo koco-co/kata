@@ -6,7 +6,9 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { Page } from "@playwright/test";
 
 export interface ExecuteTableOptions {
@@ -81,7 +83,8 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
   const browserCookieStr = browserCookies.map((c) => `${c.name}=${c.value}`).join("; ");
   const cookie = browserCookieStr || process.env[`${env.toUpperCase()}_COOKIE`] || "";
 
-  const sqlFile = `/tmp/${tableName}.sql`;
+  const sqlDir = mkdtempSync(join(tmpdir(), "dtstack-exec-"));
+  const sqlFile = join(sqlDir, `${tableName}.sql`);
   writeFileSync(sqlFile, sql);
   const cli = resolveDtstackCliInvocation();
   try {
@@ -112,7 +115,7 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
       },
     );
   } finally {
-    unlinkSync(sqlFile);
+    rmSync(sqlDir, { recursive: true, force: true });
   }
 
   const pid = String(projectId);

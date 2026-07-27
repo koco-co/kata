@@ -22,6 +22,7 @@ import getpass
 import json
 import os
 import sys
+import tempfile
 
 
 def _emit_error(message: str, code: str) -> None:
@@ -146,11 +147,16 @@ async def _login_and_get_cookie(
             for c in cookies
         )
         if not has_token:
-            await page.screenshot(path="/tmp/lanhu-login-failed.png")
+            # Random temp name: concurrent refreshes must not clobber each other.
+            fd, screenshot_path = tempfile.mkstemp(
+                prefix="lanhu-login-failed-", suffix=".png"
+            )
+            os.close(fd)
+            await page.screenshot(path=screenshot_path)
             await browser.close()
             _emit_error(
                 "Login failed: user_token not found after login. "
-                "Check username/password. Screenshot saved to /tmp/lanhu-login-failed.png",
+                f"Check username/password. Screenshot saved to {screenshot_path}",
                 "LOGIN_FAILED",
             )
 

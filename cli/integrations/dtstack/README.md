@@ -40,6 +40,8 @@ datasources:
 
 ## 测试
 
+在仓库根目录运行：
+
 ```bash
-bun test cli/integrations/dtstack/__tests__
+bun run test:tools
 ```

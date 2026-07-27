@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { splitSqlStatements } from "../sql";
 import { HiveDriver } from "./hive";
 import { MysqlDriver } from "./mysql";
 import type { ConnectionConfig, QueryResult, SqlDriver } from "./types";
@@ -11,13 +12,6 @@ function resolveDriver(type: string): SqlDriver {
     return new HiveDriver();
   }
   throw new Error(`Unsupported driver type: ${type}`);
-}
-
-function splitStatements(sql: string): string[] {
-  return sql
-    .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
 }
 
 export class SqlExecutor {
@@ -53,7 +47,7 @@ export class SqlExecutor {
 
   async executeFile(filePath: string): Promise<QueryResult[]> {
     const content = readFileSync(filePath, "utf-8");
-    const statements = splitStatements(content);
+    const statements = splitSqlStatements(content);
     return this.executeMultiple(statements);
   }
 

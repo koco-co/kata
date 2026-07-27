@@ -58,7 +58,7 @@ describe("AssetsApi", () => {
   });
 
   test("addSyncTask posts expected payload", async () => {
-    const post = mock(async () => ({ code: 1, data: true }));
+    const post = mock(async (_path: string, _body?: unknown) => ({ code: 1, data: true }));
     const api = new AssetsApi({ post } as unknown as DtStackClientLike);
     await api.addSyncTask({
       dataSourceId: 547,
@@ -148,11 +148,9 @@ describe("AssetsApi", () => {
     expect(post.mock.calls.length).toBe(0);
   });
 
-  test("pollDataMapTables throws on timeout with missing names", async () => {
+  test("pollDataMapTables returns false on timeout", async () => {
     const post = mock(async () => ({ code: 1, data: { records: [] } }));
     const api = new AssetsApi({ post } as unknown as DtStackClientLike);
-    await expect(api.pollDataMapTables(["never"], 100)).rejects.toThrow(
-      /Data map sync timed out.*never/,
-    );
+    await expect(api.pollDataMapTables(["never"], 100)).resolves.toBe(false);
   });
 });

@@ -3,7 +3,7 @@
 Bridge script: imports LanhuExtractor from lanhu-mcp submodule,
 fetches PRD page content, and outputs structured JSON to stdout.
 
-Usage (from plugins/lanhu/mcp-bridge/lanhu-mcp directory):
+Usage (from cli/integrations/lanhu/mcp-bridge/lanhu-mcp directory):
     uv run python ../bridge.py --url <lanhu_url> [--page-id <id>]
 
 Environment:
@@ -38,6 +38,9 @@ def _validate_env() -> None:
             "Export it before running this script.",
             "MISSING_COOKIE",
         )
+    # The vendored server reads LANHU_COOKIE at module import time; mirror the
+    # kata variable when the caller only exported KATA_LANHU_COOKIE.
+    os.environ.setdefault("LANHU_COOKIE", cookie)
 
 
 def _setup_sys_path() -> None:

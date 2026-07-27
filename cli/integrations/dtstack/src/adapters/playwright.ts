@@ -1,9 +1,13 @@
 import type { Page } from "@playwright/test";
-import type { DtStackClientLike, DtStackResponse } from "../core/http/client";
+import {
+  type DtStackClientLike,
+  type DtStackResponse,
+  FETCH_TIMEOUT_MS,
+  MAX_RETRY_ATTEMPTS,
+  RETRY_DELAY_MS,
+  RETRYABLE_HTTP_STATUS,
+} from "../core/http/client";
 
-const RETRYABLE_HTTP_STATUS = new Set([502, 503, 504]);
-const MAX_RETRY_ATTEMPTS = 6;
-const RETRY_DELAY_MS = 2_000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export class BrowserDtStackClient implements DtStackClientLike {
@@ -32,7 +36,7 @@ export class BrowserDtStackClient implements DtStackClientLike {
           "Accept-Language": "zh-CN",
           ...extraHeaders,
         },
-        timeout: 30_000,
+        timeout: FETCH_TIMEOUT_MS,
       });
       const text = await response.text();
       if (response.ok())

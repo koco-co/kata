@@ -1,46 +1,47 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   buildCreatePayload,
   createUrl,
-  loadZentaoConfig,
+  loadZentaoCreateConfig,
   mapPriority,
   mapSeverity,
   parseCreateResponse,
 } from "../../../cli/integrations/zentao/create.ts";
+import { lintMarkdownReport, parseBugReportMarkdown } from "../../../cli/lib/defect-report.ts";
 
 const CONFIG = resolve(
   fileURLToPath(new URL(".", import.meta.url)),
   "../../../cli/integrations/zentao/zentao.config.yaml",
 );
 
-describe("loadZentaoConfig", () => {
+describe("loadZentaoCreateConfig", () => {
   it("loads defaults from yaml", () => {
-    const c = loadZentaoConfig(CONFIG);
-    assert.equal(c.product, 23);
-    assert.equal(c.assignee.account, "xianglin");
+    const c = loadZentaoCreateConfig(CONFIG);
+    assert.equal(c.product, 100);
+    assert.equal(c.assignee.account, "example-qa");
     assert.equal(c.opened_build, "trunk");
     assert.equal(c.bug_type, "codeerror");
   });
   it("throws on missing file", () => {
-    assert.throws(() => loadZentaoConfig("/no/such.yaml"));
+    assert.throws(() => loadZentaoCreateConfig("/no/such.yaml"));
   });
 });
 
 describe("mapSeverity / mapPriority", () => {
   it("maps severity via table, default 3", () => {
-    const c = loadZentaoConfig(CONFIG);
+    const c = loadZentaoCreateConfig(CONFIG);
     assert.equal(mapSeverity(c, "critical"), 1);
     assert.equal(mapSeverity(c, "major"), 2);
     assert.equal(mapSeverity(c, "unknown" as never), 3);
   });
   it("maps priority, default 3 when absent", () => {
-    const c = loadZentaoConfig(CONFIG);
+    const c = loadZentaoCreateConfig(CONFIG);
     assert.equal(mapPriority(c, 1), 1);
     assert.equal(mapPriority(c, undefined), 3);
   });
@@ -48,7 +49,7 @@ describe("mapSeverity / mapPriority", () => {
 
 describe("buildCreatePayload", () => {
   it("maps BugReport + config into zentao form fields", () => {
-    const c = loadZentaoConfig(CONFIG);
+    const c = loadZentaoCreateConfig(CONFIG);
     const report = {
       title: "NPE",
       severity: "major",
@@ -56,8 +57,8 @@ describe("buildCreatePayload", () => {
       problem_type: "代码问题",
     } as never;
     const payload = buildCreatePayload(report, c, "<table>steps</table>");
-    assert.equal(payload.product, "23");
-    assert.equal(payload.assignedTo, "xianglin");
+    assert.equal(payload.product, "100");
+    assert.equal(payload.assignedTo, "example-qa");
     assert.equal(payload.openedBuild, "trunk");
     assert.equal(payload.severity, "2");
     assert.equal(payload.pri, "3");
@@ -69,21 +70,21 @@ describe("buildCreatePayload", () => {
 
 describe("createUrl", () => {
   it("builds PATH_INFO create endpoint", () => {
-    const c = loadZentaoConfig(CONFIG);
+    const c = loadZentaoCreateConfig(CONFIG);
     assert.equal(
-      createUrl("http://zenpms.dtstack.cn", c),
-      "http://zenpms.dtstack.cn/zentao/bug-create-23-0-moduleID=0.html",
+      createUrl("https://zentao.example.cn", c),
+      "https://zentao.example.cn/zentao/bug-create-100-0-moduleID=0.html",
     );
   });
 });
 
 describe("parseCreateResponse", () => {
-  const base = "http://zenpms.dtstack.cn";
+  const base = "https://zentao.example.cn";
   it("parses success with explicit id", () => {
     const r = parseCreateResponse('{"result":"success","id":152151}', base, "标题");
     assert.equal(r.ok, true);
     assert.equal(r.bug_id, 152151);
-    assert.equal(r.url, "http://zenpms.dtstack.cn/zentao/bug-view-152151.html");
+    assert.equal(r.url, "https://zentao.example.cn/zentao/bug-view-152151.html");
     assert.equal(r.title, "标题");
   });
   it("parses success id from locate url", () => {
@@ -103,7 +104,7 @@ describe("parseCreateResponse", () => {
     );
     assert.equal(r.ok, true);
     assert.equal(r.bug_id, 152189);
-    assert.equal(r.url, "http://zenpms.dtstack.cn/zentao/bug-view-152189.html");
+    assert.equal(r.url, "https://zentao.example.cn/zentao/bug-view-152189.html");
   });
   it("treats success without any id as ok with a note", () => {
     const r = parseCreateResponse('{"result":"success","message":"保存成功"}', base, "t");
@@ -137,7 +138,7 @@ function runCli(args: string[]): { code: number; stdout: string } {
     const stdout = execFileSync("bun", [KATA_TS, "zentao", "create", ...args], {
       encoding: "utf8",
       cwd: PROJECT_ROOT,
-      env: { ...process.env, KATA_ZENTAO_BASE_URL: "http://zenpms.dtstack.cn" },
+      env: { ...process.env, KATA_ZENTAO_BASE_URL: "https://zentao.example.cn" },
       stdio: ["pipe", "pipe", "pipe"],
     });
     return { code: 0, stdout };
@@ -188,7 +189,7 @@ describe("CLI: --dry-run", () => {
       fields: Record<string, string>;
     };
     assert.equal(out.dryRun, true);
-    assert.equal(out.fields.assignedTo, "xianglin");
+    assert.equal(out.fields.assignedTo, "example-qa");
     assert.equal(out.fields.severity, "2");
   });
 });
@@ -197,5 +198,46 @@ describe("CLI: missing --report", () => {
   it("exits non-zero", () => {
     const { code } = runCli(["--dry-run"]);
     assert.notEqual(code, 0);
+  });
+});
+
+describe("CLI: unreadable report", () => {
+  it("exits 1 with a JSON error on stdout (runCreate throws instead of process.exit)", () => {
+    const { code, stdout } = runCli(["--report", join(TMP, "no-such-report.md"), "--dry-run"]);
+    assert.equal(code, 1);
+    const out = JSON.parse(stdout) as { ok: boolean; error: string };
+    assert.equal(out.ok, false);
+    assert.ok(out.error.includes("读取/校验 BugReport 失败"), `got: ${out.error}`);
+  });
+});
+
+// 缺陷模板（defect-analyze bug-report）→ lint → parseBugReportMarkdown → 建单 payload
+// 的严重程度链路：模板里 `- 严重程度：` 行必须能被解析并映射成禅道 severity 数字。
+describe("severity chain (template → lint → payload)", () => {
+  it("bug 模板含 - 严重程度 行，填充后 lint 通过且严重程度进入 payload", () => {
+    const tpl = readFileSync(
+      join(PROJECT_ROOT, ".claude/skills/defect-analyze/templates/bug-report.md"),
+      "utf8",
+    );
+    assert.match(tpl, /^[-*]\s*严重程度[：:]/m, "bug 模板应包含 - 严重程度： 行");
+
+    const filled = tpl
+      .replace(/^# .*$/m, "# 示例标题")
+      .replace(/^[-*]\s*严重程度.*$/m, "- 严重程度: major")
+      // lint 契约要求严重程度行落在「结论」章节内；模板头部的字段行填充后保留
+      .replace(/^(## 结论)\s*$/m, "$1\n\n- 严重程度: major")
+      .replace(/^（.*）$/gm, "已核实的占位内容")
+      .replace(/<[^>]*>/g, "示例");
+    const reportPath = join(TMP, "analyses/bug-report/202607/severity-chain.md");
+    mkdirSync(dirname(reportPath), { recursive: true });
+    writeFileSync(reportPath, filled);
+
+    const lint = lintMarkdownReport(reportPath);
+    assert.deepEqual(lint.violations, [], "填充后的模板报告应通过 lint");
+
+    const report = parseBugReportMarkdown(reportPath);
+    assert.equal(report.severity, "major");
+    const payload = buildCreatePayload(report, loadZentaoCreateConfig(CONFIG), "<p>steps</p>");
+    assert.equal(payload.severity, "2");
   });
 });

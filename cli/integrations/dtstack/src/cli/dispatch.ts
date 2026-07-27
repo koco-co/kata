@@ -3,7 +3,7 @@ import { loadKataEnvironment } from "../core/config/kata-env";
 import { loadConfig } from "../core/config/load";
 import type { DtStackCliConfig } from "../core/config/schema";
 import { DtStackClient } from "../core/http/client";
-import { getSession, login, logout, whoami } from "../sdk/auth";
+import { getSession, whoami } from "../sdk/auth";
 import { ensureProject } from "../sdk/ensure-project";
 import { execSql } from "../sdk/exec-sql";
 import { pingSql } from "../sdk/ping-sql";
@@ -27,6 +27,12 @@ function optionalCsv(value: unknown): string[] | undefined {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function optionalPolicy(value: unknown, flag: string): "warn" | "fail" | undefined {
+  if (value === undefined) return undefined;
+  if (value === "warn" || value === "fail") return value;
+  throw new Error(`${flag} must be "warn" or "fail", got ${String(value)}`);
 }
 
 /**
@@ -107,10 +113,11 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
 
   if (DRY_RUN) {
     const mode = (values.mode as string | undefined) === "direct" ? "direct" : "platform";
+    const { password: _redacted, ...safeValues } = values;
     process.stdout.write(
       JSON.stringify({
         command: cmd,
-        ...values,
+        ...safeValues,
         mode,
         engines: values.engines ? String(values.engines).split(",") : undefined,
         tablesFrom: values["tables-from"],
@@ -135,21 +142,6 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
   }
 
   switch (cmd) {
-    case "login": {
-      const session = await login({
-        env,
-        config,
-        username: values.username as string | undefined,
-        password: values.password as string | undefined,
-      });
-      process.stdout.write(`logged in as ${session.user} (env=${env})\n`);
-      return;
-    }
-    case "logout": {
-      await logout(env);
-      process.stdout.write(`session cleared for env=${env}\n`);
-      return;
-    }
     case "whoami": {
       const s = await whoami(env, config);
       process.stdout.write(
@@ -161,6 +153,8 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
     }
     case "sql exec": {
       const mode = (values.mode as string | undefined) === "direct" ? "direct" : "platform";
+      const onExists = optionalPolicy(values["on-exists"], "--on-exists");
+      const onMissing = optionalPolicy(values["on-missing"], "--on-missing");
       if (mode === "direct") {
         const source = values.source as string | undefined;
         if (!source) throw new Error("--source required in direct mode");
@@ -171,6 +165,8 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
           connection: ds,
           sql: values.sql as string | undefined,
           file: values.file as string | undefined,
+          onExists,
+          onMissing,
         });
       } else {
         const client = await buildClient(config, env);
@@ -187,6 +183,8 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
           sql: values.sql as string | undefined,
           file: values.file as string | undefined,
           autoCreate: Boolean(values["auto-create"]),
+          onExists,
+          onMissing,
           client,
         });
       }
@@ -196,7 +194,10 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
       const mode = (values.mode as string | undefined) === "direct" ? "direct" : "platform";
       let ok = false;
       if (mode === "direct") {
-        const ds = config.datasources[values.source as string];
+        const source = values.source as string | undefined;
+        if (!source) throw new Error("--source required in direct mode");
+        const ds = config.datasources[source];
+        if (!ds) throw new Error(`datasource not in config: ${source}`);
         ok = await pingSql({ mode: "direct", connection: ds });
       } else {
         const client = await buildClient(config, env);

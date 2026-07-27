@@ -6,8 +6,6 @@ USAGE
 
 COMMANDS
   Authentication
-    login              Log in to a DTStack environment for the current process
-    logout             Clear the current process override
     whoami             Show current session info
 
   SQL execution
@@ -19,11 +17,10 @@ COMMANDS
     precond setup      One-shot: ensure project + DDL + asset import + data-map sync
 
 GLOBAL OPTIONS
-  -e, --env <name>     Environment name from config (default: $DTSTACK_DEFAULT_ENV)
+  -e, --env <name>     Environment name (resolution: --env > $ACTIVE_ENV >
+                       \`kata env run\` > $DTSTACK_DEFAULT_ENV > config defaultEnv > "ltqc")
   -h, --help           Show help (use \`<command> -h\` for command-specific help)
   -v, --version        Show version
-      --json           Print machine-readable JSON output
-      --verbose        Print debug logs
 
 CONFIG SOURCE PRIORITY
   1. --config <path>         Explicit config file path
@@ -70,8 +67,10 @@ OPTIONS
   Common:
       --sql <stmt>            SQL statement (multiple statements separated by \`;\`)
   -f, --file <path>           Path to SQL file
-      --on-exists warn|fail   How to handle "already exists" errors (default: warn)
-      --on-missing warn|fail  How to handle "not exists" errors for DROP (default: warn)
+      --on-exists warn|fail   How to handle "already exists" errors
+                              (default: warn in platform mode, fail in direct mode)
+      --on-missing warn|fail  How to handle "not exists" errors for DROP
+                              (default: warn in platform mode, fail in direct mode)
 
 EXAMPLES
   # Platform mode — most common in test preconditions
@@ -136,6 +135,8 @@ OPTIONS
       --datasource-name <n>   Exact Batch datasource name
       --datasource-type-id <id>
                               Datasource type ID used as a fallback matcher
+      --datasource-aliases <csv>
+                              Extra datasource-name keywords for fallback matching
       --metadata-datasource-id <id>
                               Exact metadata datasource ID for sync task
       --metadata-datasource-name <n>
@@ -143,6 +144,8 @@ OPTIONS
       --metadata-datasource-type-id <id>
                               Metadata datasource type ID fallback matcher
       --database <name>       Target database/schema for DDL, DML and metadata sync
+                              (alias: --db)
+      --schema <name>         Datasource schema fallback when --database is not set
       --tables-from <path>    YAML file with tables (see schema below)
       --skip-sync             Skip step 4-7 (DDL only)
       --sync-timeout <sec>    Data map poll timeout (default: 180)
@@ -164,23 +167,6 @@ EXIT CODES
   1  Generic failure (see stderr)
   2  Data map poll timed out (DDL/import/sync-task succeeded; tables not yet
      visible in data map)
-`;
-
-export const LOGIN_HELP = `\
-dtstack-cli login — Log in and cache cookie
-
-USAGE
-  dtstack-cli login [--env <name>] [--username <u>] [--password <p>]
-
-EXAMPLES
-  dtstack-cli login --env ci78
-`;
-
-export const LOGOUT_HELP = `\
-dtstack-cli logout — Clear cached session
-
-USAGE
-  dtstack-cli logout [--env <name>]
 `;
 
 export const WHOAMI_HELP = `\

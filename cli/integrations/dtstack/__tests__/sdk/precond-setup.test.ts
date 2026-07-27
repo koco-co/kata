@@ -81,7 +81,7 @@ describe("precondSetup", () => {
 
   test("syncs missing tables via addSyncTask + pollDataMapTables", async () => {
     let dataMapHits = 0;
-    const post = mock(async (path: string) => {
+    const post = mock(async (path: string, _body?: unknown) => {
       switch (path) {
         case "/api/rdos/common/project/getProjects":
           return { code: 1, data: [{ id: 1, projectName: "pw_test" }] };
@@ -172,5 +172,49 @@ describe("precondSetup", () => {
     expect(result.syncComplete).toBe(true);
     const syncCalled = post.mock.calls.some((c) => c[0] === "/dmetadata/v1/syncTask/add");
     expect(syncCalled).toBe(false);
+  });
+
+  test("returns syncComplete=false when data map poll times out", async () => {
+    const post = mock(async (path: string) => {
+      switch (path) {
+        case "/api/rdos/common/project/getProjects":
+          return { code: 1, data: [{ id: 1, projectName: "pw_test" }] };
+        case "/dassets/v1/dataSource/pageQuery":
+          return { code: 1, data: { records: [{ id: 99, dataSourceName: "spark-x" }] } };
+        case "/dassets/v1/datamap/queryDetail":
+          // table never becomes visible
+          return { code: 1, data: { records: [] } };
+        case "/dmetadata/v1/dataSource/listMetadataDataSource":
+          return {
+            code: 1,
+            data: [{ dataSourceId: 547, dataSourceName: "spark-x", dataSourceType: 45 }],
+          };
+        case "/dmetadata/v1/syncTask/add":
+          return { code: 1, data: true };
+        default:
+          return { code: 1, data: null };
+      }
+    });
+    const postWithProjectId = mock(async (path: string) => {
+      if (path === "/api/rdos/batch/batchDataSource/list") {
+        return {
+          code: 1,
+          data: [{ id: 9, dataName: "spark-x", dataSourceType: 45, schemaName: "pw_test" }],
+        };
+      }
+      return { code: 1, data: null };
+    });
+    const client = { post, postWithProjectId } as unknown as DtStackClientLike;
+
+    const result = await precondSetup({
+      client,
+      project: "pw_test",
+      datasource: "SparkThrift",
+      tables: [{ name: "t1", sql: "CREATE TABLE t1 (id int)" }],
+      syncTimeoutMs: 100,
+    });
+
+    expect(result.syncComplete).toBe(false);
+    expect(result.tablesCreated).toEqual(["t1"]);
   });
 });

@@ -1,11 +1,10 @@
-import { rsaEncrypt } from "./encrypt";
+import { sm2Encrypt } from "./encrypt";
 
 export interface Session {
   readonly cookie: string;
   readonly user: string;
   readonly tenantId: number | null;
   readonly tenantName: string | null;
-  readonly expiresAt: string | null;
 }
 
 export interface PerformLoginOptions {
@@ -30,11 +29,11 @@ const COOKIE_KEYS = [
   "dt_product_code",
 ];
 
-function parseSetCookie(headerValue: string | null): Map<string, string> {
+function parseSetCookie(headers: Headers): Map<string, string> {
   const out = new Map<string, string>();
-  if (!headerValue) return out;
-  for (const piece of headerValue.split(/,(?=\s*[A-Za-z_]+=)/)) {
-    const [kv] = piece.trim().split(";");
+  // getSetCookie() 逐条返回，避免按逗号切分破坏 Expires 等含逗号的属性
+  for (const line of headers.getSetCookie()) {
+    const [kv] = line.split(";");
     const eq = kv.indexOf("=");
     if (eq > 0) out.set(kv.slice(0, eq).trim(), kv.slice(eq + 1).trim());
   }
@@ -51,10 +50,13 @@ function buildCookieHeader(map: Map<string, string>): string {
 }
 
 export async function performLogin(opts: PerformLoginOptions): Promise<Session> {
-  const encrypt = opts.encrypt ?? rsaEncrypt;
+  const encrypt = opts.encrypt ?? sm2Encrypt;
   const baseUrl = opts.baseUrl.replace(/\/+$/, "");
 
   const pubResp = await fetch(`${baseUrl}/uic/api/v2/account/login/get-publi-key`);
+  if (!pubResp.ok) {
+    throw new Error(`get-publi-key HTTP ${pubResp.status}: ${await pubResp.text()}`);
+  }
   const pubJson = (await pubResp.json()) as PublicKeyResp;
   if (pubJson.code !== 1) throw new Error("failed to fetch public key");
 
@@ -69,7 +71,7 @@ export async function performLogin(opts: PerformLoginOptions): Promise<Session> 
   if (!loginResp.ok) {
     throw new Error(`login HTTP ${loginResp.status}: ${await loginResp.text()}`);
   }
-  const cookieMap = parseSetCookie(loginResp.headers.get("set-cookie"));
+  const cookieMap = parseSetCookie(loginResp.headers);
   if (!cookieMap.has("dt_token")) throw new Error("login response missing dt_token cookie");
 
   const tenantIdStr = cookieMap.get("dt_tenant_id");
@@ -78,6 +80,5 @@ export async function performLogin(opts: PerformLoginOptions): Promise<Session> 
     user: cookieMap.get("dt_username") ?? opts.username,
     tenantId: tenantIdStr ? Number(tenantIdStr) : null,
     tenantName: cookieMap.get("dt_tenant_name") ?? null,
-    expiresAt: null,
   };
 }

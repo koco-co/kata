@@ -16,7 +16,7 @@
 
 ```yaml
 schema_version: 1
-base_url: "http://zenpms.example"
+base_url: "https://zentao.example.cn"
 cookie: "zentaosid=..."
 username: "your-username"
 password: "your-password"
@@ -26,18 +26,32 @@ password: "your-password"
 
 ## 获取 ZENTAO 凭证
 
-1. 访问禅道服务器（如 http://zenpms.dtstack.cn）
+1. 访问禅道服务器（如 https://zentao.example.cn）
 2. 使用公司账号登录
 3. 把 Cookie 或账号密码写入本机 `config/plugin/zentao.yaml`
 
 ## 用法
 
 ```bash
-# 从禅道 Bug 链接导入
-bun run cli/integrations/zentao/fetch.ts --bug-id 138845 --output workspace/dataAssets/analyses/
+# 从禅道 Bug ID 导入
+kata zentao fetch --bug-id 138845 --output workspace/dataAssets/analyses/
 
-# 或通过 kata 命令（自动解析链接）
-分析一下冲突 http://zenpms.dtstack.cn/zentao/bug-view-138845.html
+# 或直接给完整 Bug 页面 URL（自动解析 bug-view-<id>）
+kata zentao fetch --url "https://zentao.example.cn/zentao/bug-view-138845.html" --output workspace/dataAssets/analyses/
+```
+
+## 建单配置
+
+`kata zentao create` 默认读取本目录下的 `zentao.config.yaml`（可用 `--config`
+覆盖）。仓库内的文件是脱敏合成示例（`product: 100`、`assignee: example-qa`），
+实际环境请按目标禅道的产品 ID、负责人账号和版本另备本机配置：
+
+```bash
+# 只组装字段不提交，打印 payload
+kata zentao create --report <bug-report.md> --dry-run
+
+# 实际建单
+kata zentao create --report <bug-report.md> --config <本机 zentao.config.yaml>
 ```
 
 ## 输出格式

@@ -29,17 +29,6 @@ export interface DataMapTable {
   readonly dataSourceType?: number;
 }
 
-export interface SyncedDb {
-  readonly id: number;
-  readonly dbName?: string;
-  readonly name?: string;
-}
-
-export interface SyncedTable {
-  readonly id?: number;
-  readonly tableName: string;
-}
-
 export interface AddSyncTaskInput {
   readonly dataSourceId: number;
   readonly dataSourceType: number;
@@ -176,51 +165,10 @@ export class AssetsApi {
     }
   }
 
-  async listSyncedDbs(dataSourceId: number): Promise<SyncedDb[]> {
-    const resp = await this.client.post<SyncedDb[]>(
-      "/dmetadata/v1/dataDb/listSyncedDbsByDataSourceId",
-      { dataSourceId },
-    );
-    if (resp.code !== 1 || !resp.data) return [];
-    return resp.data;
-  }
-
-  async listSyncedTables(dataSourceId: number, dbId: number): Promise<SyncedTable[]> {
-    const resp = await this.client.post<{ records?: SyncedTable[] }>(
-      "/dmetadata/v1/dataTable/listSyncTables",
-      { current: 1, size: 200, dataSourceId, dbId },
-    );
-    if (resp.code !== 1 || !resp.data) return [];
-    return resp.data.records ?? (resp.data as unknown as SyncedTable[]);
-  }
-
-  async pollSyncComplete(
-    dataSourceId: number,
-    expectedTables?: ReadonlyArray<string>,
-    timeoutMs = 180_000,
-  ): Promise<boolean> {
-    if (expectedTables?.length === 0) return true;
-
-    const pollInterval = 5_000;
-    const startTime = Date.now();
-    const remaining = new Set(expectedTables ?? []);
-
-    while (Date.now() - startTime < timeoutMs) {
-      const syncedTables = await this.listSyncedTables(dataSourceId, 0);
-      for (const table of syncedTables) {
-        remaining.delete(table.tableName);
-      }
-      if (remaining.size === 0) return true;
-
-      const elapsed = Date.now() - startTime;
-      if (elapsed >= timeoutMs) break;
-      await sleep(Math.min(pollInterval, timeoutMs - elapsed));
-    }
-
-    const expected = expectedTables?.length ? expectedTables.join(", ") : "any synced table";
-    throw new Error(`Metadata sync timed out after ${timeoutMs}ms while waiting for ${expected}.`);
-  }
-
+  /**
+   * 轮询数据地图直到所有表可见。
+   * 全部出现返回 true；超时返回 false（由调用方决定如何处理，如 exit 2）。
+   */
   async pollDataMapTables(
     tableNames: ReadonlyArray<string>,
     timeoutMs = 180_000,
@@ -243,8 +191,9 @@ export class AssetsApi {
       await sleep(Math.min(pollInterval, timeoutMs - elapsed));
     }
 
-    throw new Error(
-      `Data map sync timed out after ${timeoutMs}ms. Missing tables: ${[...remaining].join(", ")}`,
+    process.stderr.write(
+      `[assets] data map poll timed out after ${timeoutMs}ms; missing: ${[...remaining].join(", ")}\n`,
     );
+    return false;
   }
 }

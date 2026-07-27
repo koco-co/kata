@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, it } from "node:test";
@@ -9,9 +9,13 @@ import { fileURLToPath } from "node:url";
 import {
   type ChannelConfig,
   detectChannels,
+  escapeHtml,
+  formatEmailHtml,
   formatMessage,
   isEmailEnabled,
+  runSend,
   sendNotification,
+  validateEventData,
 } from "../../../cli/integrations/notify.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -289,6 +293,7 @@ describe("detectChannels", () => {
       KATA_SMTP_PASS: process.env.KATA_SMTP_PASS,
       KATA_SMTP_FROM: process.env.KATA_SMTP_FROM,
       KATA_SMTP_TO: process.env.KATA_SMTP_TO,
+      KATA_SMTP_SECURE: process.env.KATA_SMTP_SECURE,
     };
     // Clear all channel env vars
     for (const key of Object.keys(savedEnv)) {
@@ -360,6 +365,7 @@ describe("isEmailEnabled", () => {
       pass: "secret",
       from: "qa@example.com",
       to: "team@example.com",
+      secure: undefined,
     },
   };
 
@@ -406,9 +412,226 @@ describe("isEmailEnabled", () => {
         pass: undefined,
         from: undefined,
         to: undefined,
+        secure: undefined,
       },
     };
     assert.equal(isEmailEnabled(emptyCfg), false);
+  });
+});
+
+// ── Schema Type Validation ───────────────────────────────────────────────────
+
+describe("validateEventData type checks", () => {
+  it("flags values whose runtime type differs from the declared type", () => {
+    const result = validateEventData("case-generated", { count: "42" });
+    assert.equal(result.typeMismatches.length, 1);
+    assert.deepEqual(result.typeMismatches[0], {
+      field: "count",
+      expected: "number",
+      actual: "42",
+    });
+  });
+
+  it("accepts correct string[] and object[] values", () => {
+    const branches = validateEventData("conflict-analyzed", { branches: ["base", "target"] });
+    assert.deepEqual(branches.typeMismatches, []);
+    const failedCases = validateEventData("ui-test-completed", {
+      passed: 1,
+      failed: 1,
+      failedCases: [{ title: "t", message: "m" }],
+    });
+    assert.deepEqual(failedCases.typeMismatches, []);
+  });
+
+  it("flags string[] and object[] mismatches", () => {
+    const branches = validateEventData("conflict-analyzed", { branches: "base,target" });
+    assert.equal(branches.typeMismatches.length, 1);
+    const failedCases = validateEventData("ui-test-completed", {
+      passed: 1,
+      failed: 1,
+      failedCases: "none",
+    });
+    assert.equal(failedCases.typeMismatches.length, 1);
+  });
+
+  it("ui-test-completed schema accepts reportPath/reportUrl/failedCases", () => {
+    const result = validateEventData("ui-test-completed", {
+      passed: 1,
+      failed: 0,
+      reportPath: "/abs/allure-report",
+      reportUrl: "https://reports.example.com/x/",
+      failedCases: [{ title: "t" }],
+    });
+    assert.deepEqual(result.unknownFields, []);
+    assert.deepEqual(result.typeMismatches, []);
+  });
+
+  it("unknown events report no type mismatches", () => {
+    const result = validateEventData("custom-event", { anything: 1 });
+    assert.deepEqual(result.typeMismatches, []);
+  });
+});
+
+// ── Email HTML Escaping ──────────────────────────────────────────────────────
+
+describe("email HTML escaping", () => {
+  it("escapeHtml escapes &, < and >", () => {
+    assert.equal(escapeHtml("a & <b>"), "a &amp; &lt;b&gt;");
+  });
+
+  it("formatEmailHtml does not pass raw markup through", () => {
+    const html = formatEmailHtml('<script>alert("x")</script>');
+    assert.ok(!html.includes("<script>"), "raw HTML must not reach the mail body");
+    assert.ok(html.includes("&lt;script&gt;"));
+  });
+});
+
+// ── SMTP secure Detection ────────────────────────────────────────────────────
+
+describe("smtp secure detection", () => {
+  let savedEnv: Record<string, string | undefined>;
+
+  beforeEach(() => {
+    savedEnv = {
+      KATA_DINGTALK_WEBHOOK_URL: process.env.KATA_DINGTALK_WEBHOOK_URL,
+      KATA_FEISHU_WEBHOOK_URL: process.env.KATA_FEISHU_WEBHOOK_URL,
+      KATA_WECOM_WEBHOOK_URL: process.env.KATA_WECOM_WEBHOOK_URL,
+      KATA_SMTP_SECURE: process.env.KATA_SMTP_SECURE,
+    };
+    for (const key of Object.keys(savedEnv)) {
+      delete process.env[key];
+    }
+  });
+
+  afterEach(() => {
+    for (const [key, value] of Object.entries(savedEnv)) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  });
+
+  it("reads secure from KATA_SMTP_SECURE", () => {
+    process.env.KATA_SMTP_SECURE = "true";
+    assert.equal(detectChannels(EMPTY_CONFIG_ROOT).email.secure, true);
+  });
+
+  it("reads secure from notify.yaml smtp.secure", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-notify-secure-"));
+    mkdirSync(join(root, "config", "plugin"), { recursive: true });
+    writeFileSync(join(root, "config", "plugin", "notify.yaml"), "smtp:\n  secure: true\n");
+    assert.equal(detectChannels(root).email.secure, true);
+  });
+
+  it("leaves secure undefined when neither env nor yaml sets it", () => {
+    assert.equal(detectChannels(EMPTY_CONFIG_ROOT).email.secure, undefined);
+  });
+});
+
+// ── Delivery Exit Codes ──────────────────────────────────────────────────────
+
+describe("runSend delivery exit codes", () => {
+  let savedEnv: Record<string, string | undefined>;
+  let savedExitCode: number | string | undefined;
+  let stderrChunks: string[];
+  let originalStderrWrite: typeof process.stderr.write;
+  let originalStdoutWrite: typeof process.stdout.write;
+  let originalFetch: typeof fetch;
+
+  beforeEach(() => {
+    savedEnv = {
+      KATA_DINGTALK_WEBHOOK_URL: process.env.KATA_DINGTALK_WEBHOOK_URL,
+      KATA_DINGTALK_KEYWORD: process.env.KATA_DINGTALK_KEYWORD,
+      KATA_DINGTALK_SIGN_SECRET: process.env.KATA_DINGTALK_SIGN_SECRET,
+      KATA_FEISHU_WEBHOOK_URL: process.env.KATA_FEISHU_WEBHOOK_URL,
+      KATA_WECOM_WEBHOOK_URL: process.env.KATA_WECOM_WEBHOOK_URL,
+      KATA_SMTP_HOST: process.env.KATA_SMTP_HOST,
+      KATA_SMTP_USER: process.env.KATA_SMTP_USER,
+      KATA_SMTP_PASS: process.env.KATA_SMTP_PASS,
+      KATA_SMTP_FROM: process.env.KATA_SMTP_FROM,
+      KATA_SMTP_TO: process.env.KATA_SMTP_TO,
+      KATA_SMTP_SECURE: process.env.KATA_SMTP_SECURE,
+    };
+    for (const key of Object.keys(savedEnv)) {
+      delete process.env[key];
+    }
+    savedExitCode = process.exitCode;
+    stderrChunks = [];
+    originalStderrWrite = process.stderr.write.bind(process.stderr);
+    originalStdoutWrite = process.stdout.write.bind(process.stdout);
+    originalFetch = globalThis.fetch;
+    process.stderr.write = (chunk: string | Buffer, ..._args: unknown[]): boolean => {
+      stderrChunks.push(String(chunk));
+      return true;
+    };
+    process.stdout.write = (_chunk: string | Buffer, ..._args: unknown[]): boolean => true;
+  });
+
+  afterEach(() => {
+    process.stderr.write = originalStderrWrite;
+    process.stdout.write = originalStdoutWrite;
+    globalThis.fetch = originalFetch;
+    process.exitCode = savedExitCode;
+    for (const [key, value] of Object.entries(savedEnv)) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  });
+
+  it("exits 2 with a stderr warning when no channel is configured (non dry-run)", async () => {
+    await runSend({ event: "case-generated", data: '{"count":1}', root: EMPTY_CONFIG_ROOT });
+    assert.equal(process.exitCode, 2);
+    assert.ok(
+      stderrChunks.some((line) => line.includes("未配置任何通知渠道")),
+      `stderr should warn about missing channels, got: ${stderrChunks.join("")}`,
+    );
+  });
+
+  it("exits 2 with a stderr warning when every configured channel fails", async () => {
+    process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com/hook";
+    globalThis.fetch = (() => Promise.reject(new Error("network down"))) as typeof fetch;
+    await runSend({ event: "case-generated", data: '{"count":1}', root: EMPTY_CONFIG_ROOT });
+    assert.equal(process.exitCode, 2);
+    assert.ok(
+      stderrChunks.some((line) => line.includes("全部") && line.includes("失败")),
+      `stderr should warn about all-channel failure, got: ${stderrChunks.join("")}`,
+    );
+  });
+
+  it("does not set an exit code in dry-run mode even with zero channels", async () => {
+    await runSend({
+      event: "case-generated",
+      data: '{"count":1}',
+      dryRun: true,
+      root: EMPTY_CONFIG_ROOT,
+    });
+    assert.equal(process.exitCode, savedExitCode);
+  });
+
+  it("passes an AbortSignal to webhook fetch calls", async () => {
+    process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com/hook";
+    let seenSignal: AbortSignal | null = null;
+    globalThis.fetch = ((_url: unknown, init?: RequestInit) => {
+      seenSignal = init?.signal ?? null;
+      return Promise.resolve(
+        new Response(JSON.stringify({ errcode: 0 }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    }) as typeof fetch;
+    const result = await sendNotification(
+      "case-generated",
+      { count: 1 },
+      { root: EMPTY_CONFIG_ROOT },
+    );
+    assert.deepEqual(result.sent, ["dingtalk"]);
+    assert.ok(seenSignal instanceof AbortSignal, "fetch should receive an AbortSignal");
   });
 });
 

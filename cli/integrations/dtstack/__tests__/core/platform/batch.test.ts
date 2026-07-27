@@ -33,7 +33,7 @@ describe("BatchApi.executeDDL", () => {
     );
 
     expect(calledPath).toBe("/api/rdos/batch/batchTableInfo/ddlCreateTableEncryption");
-    expect(Buffer.from(calledBody?.sql, "base64").toString("utf-8")).toBe(
+    expect(Buffer.from(calledBody?.sql ?? "", "base64").toString("utf-8")).toBe(
       "CREATE TABLE s.t (id int)",
     );
   });

@@ -34,7 +34,7 @@ export interface NotifyData {
 export interface FieldSpec {
   name: string;
   required?: boolean;
-  type: "string" | "number" | "boolean" | "string[]" | "enum";
+  type: "string" | "number" | "boolean" | "string[]" | "object[]" | "enum";
   desc: string;
   enum?: string[];
 }
@@ -112,7 +112,10 @@ export const EVENT_SCHEMAS: Record<string, EventSchema> = {
         type: "string",
         desc: "Allure 本地路径（兼容字段）",
       },
-      { name: "reportURL", type: "string", desc: "Allure 在线访问 URL" },
+      { name: "reportURL", type: "string", desc: "Allure 在线访问 URL（兼容字段）" },
+      { name: "reportPath", type: "string", desc: "Allure 本地路径" },
+      { name: "reportUrl", type: "string", desc: "Allure 在线访问 URL" },
+      { name: "failedCases", type: "object[]", desc: "失败用例列表 [{title, message}]" },
       { name: "specFiles", type: "string[]", desc: "spec 文件列表" },
     ],
   },
@@ -172,12 +175,34 @@ export interface ValidationResult {
   missingRequired: string[];
   unknownFields: string[];
   enumViolations: { field: string; value: unknown; allowed: string[] }[];
+  typeMismatches: { field: string; expected: string; actual: unknown }[];
+}
+
+/** Runtime type check for a declared field type (enum membership is checked separately). */
+function fieldTypeMatches(spec: FieldSpec, value: unknown): boolean {
+  switch (spec.type) {
+    case "string":
+      return typeof value === "string";
+    case "number":
+      return typeof value === "number";
+    case "boolean":
+      return typeof value === "boolean";
+    case "string[]":
+      return Array.isArray(value) && value.every((item) => typeof item === "string");
+    case "object[]":
+      return (
+        Array.isArray(value) &&
+        value.every((item) => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+      );
+    case "enum":
+      return true;
+  }
 }
 
 export function validateEventData(event: string, data: NotifyData): ValidationResult {
   const schema = EVENT_SCHEMAS[event];
   if (!schema) {
-    return { missingRequired: [], unknownFields: [], enumViolations: [] };
+    return { missingRequired: [], unknownFields: [], enumViolations: [], typeMismatches: [] };
   }
   const known = new Set(schema.fields.map((f) => f.name));
   const missingRequired = schema.fields
@@ -188,7 +213,11 @@ export function validateEventData(event: string, data: NotifyData): ValidationRe
     .filter((f) => f.type === "enum" && data[f.name] !== undefined && f.enum)
     .filter((f) => !f.enum?.includes(String(data[f.name])))
     .map((f) => ({ field: f.name, value: data[f.name], allowed: f.enum ?? [] }));
-  return { missingRequired, unknownFields, enumViolations };
+  const typeMismatches = schema.fields
+    .filter((f) => data[f.name] !== undefined && data[f.name] !== null)
+    .filter((f) => !fieldTypeMatches(f, data[f.name]))
+    .map((f) => ({ field: f.name, expected: f.type, actual: data[f.name] }));
+  return { missingRequired, unknownFields, enumViolations, typeMismatches };
 }
 
 export function describeEvent(event: string): string {
@@ -573,7 +602,21 @@ export interface ChannelConfig {
     pass: string | undefined;
     from: string | undefined;
     to: string | undefined;
+    secure: boolean | undefined;
   };
+}
+
+/**
+ * Normalize the optional SMTP `secure` (TLS on connect, typically port 465)
+ * flag from notify.yaml / KATA_SMTP_SECURE (env priority is applied by
+ * loadNotifyConfig) to a boolean.
+ */
+function readSmtpSecure(value: string | boolean | undefined): boolean | undefined {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    return /^(?:1|true|yes)$/i.test(value.trim());
+  }
+  return undefined;
 }
 
 export function detectChannels(root?: string): ChannelConfig {
@@ -591,6 +634,7 @@ export function detectChannels(root?: string): ChannelConfig {
       pass: config.smtp?.pass,
       from: config.smtp?.from,
       to: config.smtp?.to,
+      secure: readSmtpSecure(config.smtp?.secure),
     },
   };
 }
@@ -602,6 +646,9 @@ export function isEmailEnabled(cfg: ChannelConfig): boolean {
 }
 
 // ── DingTalk ─────────────────────────────────────────────────────────────────
+
+/** Webhook requests must not hang forever; abort after this many ms. */
+const WEBHOOK_TIMEOUT_MS = 30_000;
 
 function buildDingtalkUrl(baseUrl: string, signSecret?: string): string {
   if (!signSecret) return baseUrl;
@@ -628,6 +675,7 @@ async function sendDingtalk(cfg: ChannelConfig, msg: FormattedMessage): Promise<
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
   });
 
   if (!res.ok) {
@@ -660,6 +708,7 @@ async function sendFeishu(cfg: ChannelConfig, msg: FormattedMessage): Promise<vo
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
   });
 
   if (!res.ok) {
@@ -685,6 +734,7 @@ async function sendWecom(cfg: ChannelConfig, msg: FormattedMessage): Promise<voi
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
   });
 
   if (!res.ok) {
@@ -699,6 +749,19 @@ async function sendWecom(cfg: ChannelConfig, msg: FormattedMessage): Promise<voi
 
 // ── Email ────────────────────────────────────────────────────────────────────
 
+/** Escape user-controlled text before embedding it into the HTML mail body. */
+export function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+export function formatEmailHtml(text: string): string {
+  const htmlBody = text
+    .split("\n")
+    .map((line) => (line === "" ? "<br>" : `<p>${escapeHtml(line)}</p>`))
+    .join("\n");
+  return `<div style="font-family: sans-serif;">${htmlBody}</div>`;
+}
+
 async function sendEmail(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
   const { email } = cfg;
   // Dynamic import to avoid loading nodemailer when not needed
@@ -707,21 +770,16 @@ async function sendEmail(cfg: ChannelConfig, msg: FormattedMessage): Promise<voi
   const transporter = nodemailer.default.createTransport({
     host: email.host,
     port: email.port ? Number.parseInt(email.port, 10) : 587,
-    secure: false,
+    secure: email.secure ?? false,
     auth: { user: email.user, pass: email.pass },
   });
-
-  const htmlBody = msg.text
-    .split("\n")
-    .map((line) => (line === "" ? "<br>" : `<p>${line}</p>`))
-    .join("\n");
 
   await transporter.sendMail({
     from: email.from,
     to: email.to,
     subject: `[kata] ${msg.title}`,
     text: msg.text,
-    html: `<div style="font-family: sans-serif;">${htmlBody}</div>`,
+    html: formatEmailHtml(msg.text),
   });
 }
 
@@ -730,10 +788,10 @@ async function sendEmail(cfg: ChannelConfig, msg: FormattedMessage): Promise<voi
 export async function sendNotification(
   event: EventType,
   data: NotifyData,
-  options: { dryRun?: boolean } = {},
+  options: { dryRun?: boolean; root?: string } = {},
 ): Promise<SendResult> {
   const msg = formatMessage(event, data);
-  const channels = detectChannels();
+  const channels = detectChannels(options.root);
 
   if (options.dryRun) {
     process.stderr.write(`[dry-run] event=${event}\n${msg.text}\n`);
@@ -797,6 +855,8 @@ export interface SendOptions {
   listEvents?: boolean;
   describe?: string;
   strict?: boolean;
+  /** Config root override for tests; defaults to the repo root. */
+  root?: string;
 }
 
 /** Execute the notify send flow; mirrors the former send.ts CLI main(). */
@@ -830,7 +890,8 @@ export async function runSend(opts: SendOptions): Promise<void> {
   const hasIssues =
     validation.missingRequired.length > 0 ||
     validation.unknownFields.length > 0 ||
-    validation.enumViolations.length > 0;
+    validation.enumViolations.length > 0 ||
+    validation.typeMismatches.length > 0;
   if (hasIssues) {
     if (validation.missingRequired.length > 0) {
       process.stderr.write(
@@ -847,6 +908,11 @@ export async function runSend(opts: SendOptions): Promise<void> {
         `[notify] 字段 "${v.field}" 值 "${v.value}" 不在枚举范围: [${v.allowed.join(", ")}]\n`,
       );
     }
+    for (const m of validation.typeMismatches) {
+      process.stderr.write(
+        `[notify] 字段 "${m.field}" 类型应为 ${m.expected},实际值: ${JSON.stringify(m.actual)}\n`,
+      );
+    }
     process.stderr.write(`[notify] 提示: 运行 \`--describe ${opts.event}\` 查看完整 schema\n`);
     if (opts.strict) {
       process.exit(1);
@@ -855,9 +921,21 @@ export async function runSend(opts: SendOptions): Promise<void> {
 
   const result = await sendNotification(opts.event, parsed, {
     dryRun: opts.dryRun,
+    root: opts.root,
   });
 
   if (!opts.dryRun) {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    // A notification that reaches nobody must not exit 0 silently.
+    const attempted = result.sent.length + result.failed.length;
+    if (attempted === 0) {
+      process.stderr.write(
+        "[notify] 警告: 未配置任何通知渠道 (config/plugin/notify.yaml),消息未发送。\n",
+      );
+      process.exitCode = 2;
+    } else if (result.failed.length === attempted) {
+      process.stderr.write(`[notify] 警告: 全部 ${attempted} 个渠道发送失败,消息未送达。\n`);
+      process.exitCode = 2;
+    }
   }
 }

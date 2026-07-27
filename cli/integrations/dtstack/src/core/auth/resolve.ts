@@ -19,7 +19,6 @@ export async function resolveSession(opts: ResolveSessionOptions): Promise<Sessi
       user: FAKE_USER,
       tenantId: null,
       tenantName: null,
-      expiresAt: null,
     };
   }
 

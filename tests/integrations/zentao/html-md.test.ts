@@ -16,6 +16,11 @@ describe("htmlFragmentToMarkdown", () => {
     assert.equal(md, "![](/zentao/file-read-1.png)");
   });
 
+  it("parses tags whose attribute values contain >", () => {
+    const md = htmlFragmentToMarkdown('<img alt="a > b" src="/zentao/file-read-2.png" />');
+    assert.equal(md, "![](/zentao/file-read-2.png)");
+  });
+
   it("strips span wrappers and inline styles but keeps text", () => {
     const md = htmlFragmentToMarkdown('<p>接口<span style="color:#1F1F1F;">/a/b</span>：</p>');
     assert.equal(md, "接口/a/b：");
@@ -26,9 +31,33 @@ describe("htmlFragmentToMarkdown", () => {
     assert.equal(md, "a\nb");
   });
 
-  it("decodes html entities", () => {
+  it("wraps <a> text with its href", () => {
+    const md = htmlFragmentToMarkdown(
+      '<a href="https://zentao.example.cn/zentao/bug-view-1.html">单号</a>',
+    );
+    assert.equal(md, "[单号](https://zentao.example.cn/zentao/bug-view-1.html)");
+  });
+
+  it("keeps text of an unclosed <a> without leaking into following content", () => {
+    const md = htmlFragmentToMarkdown(
+      '<p><a href="/zentao/bug-view-1.html">链接文字</p><p>后续</p>',
+    );
+    assert.equal(md, "链接文字\n后续");
+  });
+
+  it("does not let a nested unclosed <a> swallow the next link", () => {
+    const md = htmlFragmentToMarkdown('<a href="/1.html">第一 <a href="/2.html">第二</a>');
+    assert.equal(md, "第一 [第二](/2.html)");
+  });
+
+  it("decodes entities, then escapes literal < > so markdown cannot swallow them", () => {
     const md = htmlFragmentToMarkdown("<p>1 &lt; 2 &amp;&amp; 3 &gt; 0</p>");
-    assert.equal(md, "1 < 2 && 3 > 0");
+    assert.equal(md, "1 &lt; 2 && 3 &gt; 0");
+  });
+
+  it("escapes raw angle brackets in text", () => {
+    const md = htmlFragmentToMarkdown("<p>期望值 a < b 且 c > d</p>");
+    assert.equal(md, "期望值 a &lt; b 且 c &gt; d");
   });
 
   it("collapses blank lines and trims", () => {

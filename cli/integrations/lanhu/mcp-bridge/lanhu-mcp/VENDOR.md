@@ -18,9 +18,19 @@ Only the files required to install and run the server inside kata:
 | --- | --- |
 | `lanhu_mcp_server.py` | The MCP server itself (`py-modules`, entry point). |
 | `pyproject.toml` | Dependency manifest consumed by `uv sync`. |
+| `uv.lock` | Resolved dependency lockfile; kata tracks it (see below). |
 | `LICENSE` | MIT compliance for the vendored code. |
-| `.gitignore` | Ignores Python build artifacts (`.venv/`, `__pycache__/`, …). |
+| `.gitignore` | Ignores Python build artifacts (`.venv/`, `__pycache__/`, …). Kata adds a `!uv.lock` exception so the lockfile stays tracked. |
 | `README.md` | Slim stub; also referenced by `pyproject.toml` `readme`. |
+
+## Lock file policy
+
+Upstream ignores `uv.lock` (library convention); kata **tracks** it so every
+machine resolves the exact same dependency set. `../setup.sh` therefore
+installs with `uv sync --locked`, which fails instead of silently re-resolving
+when `uv.lock` is stale. After bumping dependencies in `pyproject.toml` (or
+refreshing against upstream), regenerate the lockfile with `uv lock` inside
+this directory and commit the updated `uv.lock` together with the change.
 
 ## What was removed (and why)
 
@@ -47,7 +57,9 @@ Upstream maintenance scaffolding that is noise inside kata's runtime:
 To refresh against upstream:
 
 1. Pull the desired tag/commit from the upstream repository.
-2. Copy only `lanhu_mcp_server.py`, `pyproject.toml`, `LICENSE`, `.gitignore`.
-3. Re-slim `README.md` and bump the version recorded above.
+2. Copy only `lanhu_mcp_server.py`, `pyproject.toml`, `LICENSE`, `.gitignore`
+   (re-applying kata's `!uv.lock` exception).
+3. Re-slim `README.md`, bump the version recorded above, and regenerate
+   `uv.lock` (`uv lock`).
 4. Run `cli/integrations/lanhu/mcp-bridge/setup.sh` to re-resolve dependencies,
    then exercise the `lanhu` plugin fetch path before committing.

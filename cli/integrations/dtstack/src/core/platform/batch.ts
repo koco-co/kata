@@ -1,4 +1,5 @@
 import type { DtStackClientLike } from "../http/client";
+import { isAlreadyExistsError, isMissingObjectError, splitSqlStatements } from "../sql";
 import { BatchScriptRunner } from "./script";
 
 export interface Project {
@@ -23,15 +24,14 @@ export interface BatchDatasource {
   };
 }
 
-function toBase64(str: string): string {
-  return Buffer.from(str, "utf-8").toString("base64");
+/** How to treat already-exists / missing-object errors during executeDDL. */
+export interface ExecutePolicies {
+  readonly onExists?: "warn" | "fail";
+  readonly onMissing?: "warn" | "fail";
 }
 
-function splitStatements(sql: string): string[] {
-  return sql
-    .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
+function toBase64(str: string): string {
+  return Buffer.from(str, "utf-8").toString("base64");
 }
 
 function isCreateStatement(sql: string): boolean {
@@ -47,14 +47,6 @@ function isDropStatement(sql: string): boolean {
 function isInsertStatement(sql: string): boolean {
   const upper = sql.trimStart().toUpperCase();
   return upper.startsWith("INSERT ");
-}
-
-function isAlreadyExistsError(message: string): boolean {
-  return /already exists|已存在/i.test(message);
-}
-
-function isMissingObjectError(message: string): boolean {
-  return /not exist|does not exist|unknown table|不存在/i.test(message);
 }
 
 function extractSchemaFromJdbcUrl(jdbcUrl: string): string | undefined {
@@ -230,16 +222,21 @@ export class BatchApi {
    * - CREATE 走 ddlCreateTableEncryption（直连 metastore，同步生效）
    * - DROP / INSERT / 其它 DML 走 batchScript/startSqlImmediatelyEncryption
    *   （提交 SQL 任务 → 轮询 selectStatus 直到终态，失败抛错）
+   * - policies.onExists === "fail" 时 already-exists 错误抛错（默认 warn 跳过）
+   * - policies.onMissing === "fail" 时 DROP 缺对象错误抛错（默认 warn 跳过）
    */
   async executeDDL(
     projectId: number,
     datasource: BatchDatasource,
     sql: string,
     schemaOverride?: string,
+    policies: ExecutePolicies = {},
   ): Promise<void> {
     const targetSchema = schemaOverride ?? resolveSchemaName(datasource);
+    const onExists = policies.onExists ?? "warn";
+    const onMissing = policies.onMissing ?? "warn";
 
-    const statements = splitStatements(sql);
+    const statements = splitSqlStatements(sql);
 
     for (const stmt of statements) {
       const isDrop = isDropStatement(stmt);
@@ -272,12 +269,15 @@ export class BatchApi {
             },
           );
         } else if (isDrop) {
-          // DROP 语句尝试执行，如果失败则忽略（表可能不存在）
+          // DROP 语句尝试执行，缺对象按 policies.onMissing 处理（默认 warn 跳过）
           try {
             await this.scriptRunner.executeSync(projectId, qualifiedStmt);
           } catch (dropError) {
             const dropMessage = (dropError as Error).message;
             if (isMissingObjectError(dropMessage)) {
+              if (onMissing === "fail") {
+                throw new Error(`SQL execution failed (DROP): ${dropMessage}`);
+              }
               process.stderr.write(`[batch] DROP skipped (target missing): ${dropMessage}\n`);
             } else {
               process.stderr.write(`[batch] DROP warning: ${dropMessage}\n`);
@@ -290,6 +290,9 @@ export class BatchApi {
       } catch (err) {
         const message = (err as Error).message;
         if (isAlreadyExistsError(message)) {
+          if (onExists === "fail") {
+            throw new Error(`SQL execution failed (already exists): ${message}`);
+          }
           process.stderr.write(`[batch] warning (already exists): ${message}\n`);
           continue;
         }
@@ -357,10 +360,11 @@ export class BatchApi {
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         if (i < opts.attempts - 1) {
+          const waitMs = opts.delayMs * (i + 1);
           process.stderr.write(
-            `[batch] retry ${i + 1}/${opts.attempts} after ${opts.delayMs}ms: ${lastError.message.slice(0, 100)}\n`,
+            `[batch] retry ${i + 1}/${opts.attempts} after ${waitMs}ms: ${lastError.message.slice(0, 100)}\n`,
           );
-          await new Promise((resolve) => setTimeout(resolve, opts.delayMs * (i + 1)));
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
         }
       }
     }

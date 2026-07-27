@@ -1,5 +1,5 @@
 /**
- * plugins/zentao/__tests__/fetch.test.ts
+ * tests/integrations/zentao/fetch.test.ts
  *
  * Unit tests for zentao/fetch.ts.
  * No network calls — all tests use pure functions or CLI subprocess with controlled env.
@@ -7,7 +7,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
@@ -27,6 +27,31 @@ const PROJECT_ROOT = resolve(__dirname, "../../../");
 
 const TMP_DIR = join(tmpdir(), `zentao-fetch-test-${process.pid}`);
 
+// Blank every KATA_ZENTAO_* knob so the CLI never picks up values exported by the
+// developer shell. Note: an empty string falls back to the yaml file value, so
+// env blanking alone cannot mask a real config — use makeFakeRoot() for that.
+function strippedZentaoEnv(): NodeJS.ProcessEnv {
+  return {
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([k]) => !k.startsWith("KATA_ZENTAO_")),
+    ),
+    KATA_ZENTAO_BASE_URL: "",
+    KATA_ZENTAO_COOKIE: "",
+    KATA_ZENTAO_ACCOUNT: "",
+    KATA_ZENTAO_PASSWORD: "",
+  };
+}
+
+// Minimal fake repo root (workspace/ + package.json) so locateProjectRoot resolves
+// there and config/plugin/zentao.yaml never exists — the missing-config branch is
+// deterministic regardless of this machine's real plugin config.
+function makeFakeRoot(): string {
+  const root = join(TMP_DIR, "fakeroot");
+  mkdirSync(join(root, "workspace"), { recursive: true });
+  writeFileSync(join(root, "package.json"), "{}\n");
+  return root;
+}
+
 afterEach(() => {
   try {
     rmSync(TMP_DIR, { recursive: true, force: true });
@@ -39,7 +64,7 @@ afterEach(() => {
 
 describe("extractBugIdFromUrl", () => {
   it("extracts bug ID from standard zentao bug URL", () => {
-    const url = "http://zenpms.dtstack.cn/zentao/bug-view-138845.html";
+    const url = "https://zentao.example.cn/zentao/bug-view-138845.html";
     assert.equal(extractBugIdFromUrl(url), 138845);
   });
 
@@ -48,12 +73,12 @@ describe("extractBugIdFromUrl", () => {
   });
 
   it("extracts bug ID from URL with extra query params", () => {
-    const url = "http://zenpms.dtstack.cn/zentao/bug-view-12345.html?foo=bar";
+    const url = "https://zentao.example.cn/zentao/bug-view-12345.html?foo=bar";
     assert.equal(extractBugIdFromUrl(url), 12345);
   });
 
   it("returns null for URL without bug-view pattern", () => {
-    assert.equal(extractBugIdFromUrl("http://zenpms.dtstack.cn/zentao/story-view-100.html"), null);
+    assert.equal(extractBugIdFromUrl("https://zentao.example.cn/zentao/story-view-100.html"), null);
   });
 
   it("returns null for empty string", () => {
@@ -241,21 +266,7 @@ describe("CLI: --help", () => {
 describe("CLI: missing env vars", () => {
   it("exits 1 when KATA_ZENTAO_BASE_URL, KATA_ZENTAO_ACCOUNT, KATA_ZENTAO_PASSWORD are all missing", () => {
     mkdirSync(TMP_DIR, { recursive: true });
-
-    const strippedEnv = {
-      ...Object.fromEntries(
-        Object.entries(process.env).filter(
-          ([k]) =>
-            k !== "KATA_ZENTAO_BASE_URL" &&
-            k !== "KATA_ZENTAO_ACCOUNT" &&
-            k !== "KATA_ZENTAO_PASSWORD",
-        ),
-      ),
-      KATA_ZENTAO_BASE_URL: "",
-      KATA_ZENTAO_ACCOUNT: "",
-      KATA_ZENTAO_PASSWORD: "",
-      // Point HOME away from real user configuration; credentials are explicit in the test env.
-    };
+    const fakeRoot = makeFakeRoot();
 
     let exitCode = 0;
     let stdout = "";
@@ -265,8 +276,8 @@ describe("CLI: missing env vars", () => {
         ["run", KATA_TS, "zentao", "fetch", "--bug-id", "138845", "--output", join(TMP_DIR, "out")],
         {
           encoding: "utf8",
-          cwd: PROJECT_ROOT,
-          env: strippedEnv,
+          cwd: fakeRoot,
+          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -288,25 +299,59 @@ describe("CLI: missing env vars", () => {
   });
 });
 
+// ─── CLI: config root resolution（回归：fetch 必须以仓库根定位 config/plugin/zentao.yaml）───
+
+describe("CLI: config root resolution", () => {
+  it("points at <root>/config/plugin/zentao.yaml and names the env overrides", () => {
+    mkdirSync(TMP_DIR, { recursive: true });
+    const fakeRoot = makeFakeRoot();
+
+    let exitCode = 0;
+    let stdout = "";
+    try {
+      execFileSync(
+        "bun",
+        ["run", KATA_TS, "zentao", "fetch", "--bug-id", "138845", "--output", join(TMP_DIR, "out")],
+        {
+          encoding: "utf8",
+          cwd: fakeRoot,
+          env: strippedZentaoEnv(),
+          stdio: ["pipe", "pipe", "pipe"],
+        },
+      );
+    } catch (err) {
+      const e = err as { status?: number; stdout?: string; stderr?: string };
+      exitCode = e.status ?? 0;
+      stdout = e.stdout ?? "";
+    }
+
+    assert.equal(exitCode, 1, "should exit with code 1");
+    const parsed = JSON.parse(stdout) as { error: string; hint?: string };
+    const expectedYaml = join(fakeRoot, "config", "plugin", "zentao.yaml");
+    assert.ok(
+      parsed.hint?.includes(expectedYaml),
+      `hint should point at ${expectedYaml}, got: ${parsed.hint}`,
+    );
+    assert.ok(
+      !parsed.hint?.includes(join("cli", "config", "plugin")),
+      `hint must not resolve cli/ as config root, got: ${parsed.hint}`,
+    );
+    for (const name of [
+      "KATA_ZENTAO_BASE_URL",
+      "KATA_ZENTAO_COOKIE",
+      "KATA_ZENTAO_ACCOUNT",
+      "KATA_ZENTAO_PASSWORD",
+    ]) {
+      assert.ok(parsed.hint?.includes(name), `hint should mention ${name}, got: ${parsed.hint}`);
+    }
+  });
+});
+
 // ─── CLI: invalid bug ID ──────────────────────────────────────────────────────
 
 describe("CLI: invalid bug ID format", () => {
   it("exits 1 for non-numeric --bug-id", () => {
     mkdirSync(TMP_DIR, { recursive: true });
-
-    const strippedEnv = {
-      ...Object.fromEntries(
-        Object.entries(process.env).filter(
-          ([k]) =>
-            k !== "KATA_ZENTAO_BASE_URL" &&
-            k !== "KATA_ZENTAO_ACCOUNT" &&
-            k !== "KATA_ZENTAO_PASSWORD",
-        ),
-      ),
-      KATA_ZENTAO_BASE_URL: "",
-      KATA_ZENTAO_ACCOUNT: "",
-      KATA_ZENTAO_PASSWORD: "",
-    };
 
     let exitCode = 0;
     let stdout = "";
@@ -326,7 +371,7 @@ describe("CLI: invalid bug ID format", () => {
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
-          env: strippedEnv,
+          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -347,22 +392,38 @@ describe("CLI: invalid bug ID format", () => {
     );
   });
 
-  it("exits 1 for --url without bug-view pattern", () => {
+  it("exits 1 for partially numeric --bug-id that parseInt would have accepted", () => {
     mkdirSync(TMP_DIR, { recursive: true });
 
-    const strippedEnv = {
-      ...Object.fromEntries(
-        Object.entries(process.env).filter(
-          ([k]) =>
-            k !== "KATA_ZENTAO_BASE_URL" &&
-            k !== "KATA_ZENTAO_ACCOUNT" &&
-            k !== "KATA_ZENTAO_PASSWORD",
-        ),
-      ),
-      KATA_ZENTAO_BASE_URL: "",
-      KATA_ZENTAO_ACCOUNT: "",
-      KATA_ZENTAO_PASSWORD: "",
-    };
+    let exitCode = 0;
+    let stdout = "";
+    try {
+      execFileSync(
+        "bun",
+        ["run", KATA_TS, "zentao", "fetch", "--bug-id", "12abc", "--output", join(TMP_DIR, "out")],
+        {
+          encoding: "utf8",
+          cwd: PROJECT_ROOT,
+          env: strippedZentaoEnv(),
+          stdio: ["pipe", "pipe", "pipe"],
+        },
+      );
+    } catch (err) {
+      const e = err as { status?: number; stdout?: string; stderr?: string };
+      exitCode = e.status ?? 0;
+      stdout = e.stdout ?? "";
+    }
+
+    assert.equal(exitCode, 1, "should exit with code 1");
+    const parsed = JSON.parse(stdout) as { error: string };
+    assert.ok(
+      parsed.error.includes("Bug ID") || parsed.error.includes("整数"),
+      `should mention invalid ID format, got: ${parsed.error}`,
+    );
+  });
+
+  it("exits 1 for --url without bug-view pattern", () => {
+    mkdirSync(TMP_DIR, { recursive: true });
 
     let exitCode = 0;
     let stdout = "";
@@ -375,14 +436,14 @@ describe("CLI: invalid bug ID format", () => {
           "zentao",
           "fetch",
           "--url",
-          "http://zenpms.dtstack.cn/zentao/story-view-100.html",
+          "https://zentao.example.cn/zentao/story-view-100.html",
           "--output",
           join(TMP_DIR, "out"),
         ],
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
-          env: strippedEnv,
+          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );

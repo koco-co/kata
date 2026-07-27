@@ -1,7 +1,5 @@
 #!/usr/bin/env bun
 import {
-  LOGIN_HELP,
-  LOGOUT_HELP,
   PRECOND_SETUP_HELP,
   PROJECT_ENSURE_HELP,
   ROOT_HELP,
@@ -39,8 +37,6 @@ async function main(): Promise<void> {
     if (c0 === "sql" && c1 === "ping") printAndExit(SQL_PING_HELP);
     if (c0 === "project" && c1 === "ensure") printAndExit(PROJECT_ENSURE_HELP);
     if (c0 === "precond" && c1 === "setup") printAndExit(PRECOND_SETUP_HELP);
-    if (c0 === "login") printAndExit(LOGIN_HELP);
-    if (c0 === "logout") printAndExit(LOGOUT_HELP);
     if (c0 === "whoami") printAndExit(WHOAMI_HELP);
     printAndExit(ROOT_HELP);
   }

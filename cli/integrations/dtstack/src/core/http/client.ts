@@ -23,9 +23,11 @@ export interface DtStackClientLike {
   ): Promise<DtStackResponse<T>>;
 }
 
-const RETRYABLE_HTTP_STATUS = new Set([502, 503, 504]);
+// 重试与超时常量唯一定义点；浏览器侧适配器（adapters/playwright）复用。
+export const RETRYABLE_HTTP_STATUS = new Set([502, 503, 504]);
 export const MAX_RETRY_ATTEMPTS = 6;
-const RETRY_DELAY_MS = 2_000;
+export const RETRY_DELAY_MS = 2_000;
+export const FETCH_TIMEOUT_MS = 30_000;
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 const isRetryableHttpStatus = (status: number): boolean => RETRYABLE_HTTP_STATUS.has(status);
@@ -56,11 +58,21 @@ export class DtStackClient implements DtStackClientLike {
     const url = `${this.baseUrl}${path}`;
     let lastError: Error | null = null;
     for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt += 1) {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: this.buildHeaders(extraHeaders),
-        body: data ? JSON.stringify(data) : undefined,
-      });
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: "POST",
+          headers: this.buildHeaders(extraHeaders),
+          body: data ? JSON.stringify(data) : undefined,
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        });
+      } catch (err) {
+        // 网络错误 / 超时（fetch reject）与 5xx 一样进入重试循环
+        lastError = err instanceof Error ? err : new Error(String(err));
+        if (attempt === MAX_RETRY_ATTEMPTS) break;
+        await sleep(RETRY_DELAY_MS * attempt);
+        continue;
+      }
       if (response.ok) return response.json() as Promise<DtStackResponse<T>>;
       const text = await response.text();
       lastError = new Error(`HTTP ${response.status} ${response.statusText}: ${text}`);

@@ -15,3 +15,5 @@ smtp:
   pass: ""
   from: ""
   to: ""
+  # TLS on connect (typically port 465); env KATA_SMTP_SECURE overrides.
+  secure: false

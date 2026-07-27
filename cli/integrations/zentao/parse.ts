@@ -1,5 +1,5 @@
 /**
- * plugins/zentao/parse.ts — 禅道 .json 响应解析
+ * cli/integrations/zentao/parse.ts — 禅道 .json 响应解析
  *
  * 第一阶段：从 fetch.ts 迁入的纯解析助手（行为不变）。
  * 第二阶段（Task 3）：在此基础上新增富结构解析 parseBugPayload。

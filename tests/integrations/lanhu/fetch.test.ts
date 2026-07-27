@@ -9,7 +9,9 @@ import { fileURLToPath } from "node:url";
 import {
   buildLanhuBridgeEnv,
   deriveVersionDir,
+  escapeYamlDoubleQuoted,
   extractImageUrls,
+  findAxurePageDir,
   htmlToMarkdown,
   inferKataProjectFromWorkspace,
   parseLanhuUrl,
@@ -85,6 +87,24 @@ describe("parseLanhuUrl", () => {
   it("returns unknown for non-lanhu domain", () => {
     const result = parseLanhuUrl("https://example.com/?docId=123");
     assert.equal(result.pageType, "unknown");
+  });
+
+  it("rejects domains that embed lanhuapp.com as a substring", () => {
+    const suffixTrick = parseLanhuUrl(
+      "https://evil-lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d",
+    );
+    assert.equal(suffixTrick.pageType, "unknown");
+    const hostTrick = parseLanhuUrl(
+      "https://lanhuapp.com.evil.com/web/#/item/project/product?tid=t&pid=p&docId=d",
+    );
+    assert.equal(hostTrick.pageType, "unknown");
+  });
+
+  it("accepts lanhuapp.com subdomains", () => {
+    const result = parseLanhuUrl(
+      "https://www.lanhuapp.com/web/#/item/project/product?tid=t1&pid=p1&docId=d1",
+    );
+    assert.equal(result.pageType, "product-spec");
   });
 
   it("returns unknown for lanhu URL without required params", () => {
@@ -357,6 +377,46 @@ describe("extractImageUrls", () => {
   });
 });
 
+// ─── findAxurePageDir ─────────────────────────────────────────────────────────
+
+describe("findAxurePageDir", () => {
+  it("skips matching entirely when requirementId is empty", () => {
+    // 回归:空 ID 时 startsWith("") 会命中任意目录,把别的需求的截图归到本需求
+    mkdirSync(join(TMP_DIR, "images", "15525-规则配置"), { recursive: true });
+    assert.equal(findAxurePageDir(join(TMP_DIR, "images"), ""), undefined);
+  });
+
+  it("matches the Axure resource dir by requirement id prefix", () => {
+    mkdirSync(join(TMP_DIR, "images", "15525-规则配置"), { recursive: true });
+    assert.equal(findAxurePageDir(join(TMP_DIR, "images"), "15525"), "15525-规则配置");
+  });
+
+  it("returns undefined when the base dir does not exist", () => {
+    assert.equal(findAxurePageDir(join(TMP_DIR, "missing"), "15525"), undefined);
+  });
+
+  it("returns undefined when no dir matches the requirement id", () => {
+    mkdirSync(join(TMP_DIR, "images", "99999-其他需求"), { recursive: true });
+    assert.equal(findAxurePageDir(join(TMP_DIR, "images"), "15525"), undefined);
+  });
+});
+
+// ─── escapeYamlDoubleQuoted ───────────────────────────────────────────────────
+
+describe("escapeYamlDoubleQuoted", () => {
+  it("escapes double quotes and backslashes", () => {
+    assert.equal(escapeYamlDoubleQuoted('标题含"引号"'), '标题含\\"引号\\"');
+    assert.equal(escapeYamlDoubleQuoted("a\\b"), "a\\\\b");
+  });
+
+  it("produces a frontmatter line that YAML parses back to the original value", async () => {
+    const { parse } = await import("yaml");
+    const raw = '需求:V7 "定制" 版';
+    const doc = parse(`title: "${escapeYamlDoubleQuoted(raw)}"`) as { title: string };
+    assert.equal(doc.title, raw);
+  });
+});
+
 // ─── CLI Integration Tests ────────────────────────────────────────────────────
 
 describe("CLI: --help", () => {
@@ -382,27 +442,37 @@ describe("CLI: --help", () => {
 
 describe("CLI: missing KATA_LANHU_COOKIE", () => {
   it("exits 1 when KATA_LANHU_COOKIE is not set", () => {
-    mkdirSync(TMP_DIR, { recursive: true });
+    // A fake repo root without config/plugin/lanhu.yaml guarantees "no cookie
+    // configured" regardless of this machine's real private config.
+    const fakeRoot = join(TMP_DIR, "fake-root");
+    mkdirSync(join(fakeRoot, "workspace"), { recursive: true });
+    mkdirSync(join(fakeRoot, "config", "plugin"), { recursive: true });
+    writeFileSync(join(fakeRoot, "package.json"), JSON.stringify({ name: "kata-test-root" }));
 
-    // Set KATA_LANHU_COOKIE to an empty string so the child process has no cookie.
-    const filteredEnv = {
-      ...Object.fromEntries(Object.entries(process.env).filter(([k]) => k !== "KATA_LANHU_COOKIE")),
-      KATA_LANHU_COOKIE: "",
-      KATA_LANHU_USERNAME: "",
-      KATA_LANHU_PASSWORD: "",
-      LANHU_COOKIE: "",
-      DDS_COOKIE: "",
-    };
+    // Remove cookie/credential vars entirely: an explicit empty value falls back
+    // to the config file, which the fake root does not provide either.
+    const filteredEnv = Object.fromEntries(
+      Object.entries(process.env).filter(
+        ([k]) =>
+          ![
+            "KATA_LANHU_COOKIE",
+            "LANHU_COOKIE",
+            "DDS_COOKIE",
+            "KATA_LANHU_USERNAME",
+            "KATA_LANHU_PASSWORD",
+            "KATA_WORKSPACE_ROOT",
+          ].includes(k),
+      ),
+    );
 
     let exitCode = 0;
     let stderr = "";
     try {
-      // Run from PROJECT_ROOT with the explicit cookie override stripped.
       execSync(
         `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d" --base-dir "${TMP_DIR}/out"`,
         {
           encoding: "utf8",
-          cwd: PROJECT_ROOT,
+          cwd: fakeRoot,
           env: filteredEnv,
           stdio: ["pipe", "pipe", "pipe"],
         },

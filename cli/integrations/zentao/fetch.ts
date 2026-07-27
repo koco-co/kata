@@ -1,19 +1,25 @@
 #!/usr/bin/env bun
 /**
- * plugins/zentao/fetch.ts — 禅道 Bug 抓取器（编排 + CLI）
+ * cli/integrations/zentao/fetch.ts — 禅道 Bug 抓取器（编排 + CLI）
  *
  * Usage:
- *   bun run plugins/zentao/fetch.ts --bug-id 151858 --output workspace/<project>/.temp/zentao
- *   bun run plugins/zentao/fetch.ts --url "http://zenpms.dtstack.cn/zentao/bug-view-151858.html" --output .temp/zentao
- *   bun run plugins/zentao/fetch.ts --help
+ *   kata zentao fetch --bug-id 151858 --output workspace/<project>/.temp/zentao
+ *   kata zentao fetch --url "https://zentao.example.cn/zentao/bug-view-151858.html" --output .temp/zentao
+ *   kata zentao fetch --help
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { loadZentaoConfig } from "../../lib/plugin-config.ts";
+import { repoRoot } from "../../lib/paths.ts";
+import { loadZentaoConfig, pluginConfigPath } from "../../lib/plugin-config.ts";
 
 import { parseBugPayload } from "./parse.ts";
-import { type FetchFn, fetchAuthedBugJson, readCookie, type ZentaoCreds } from "./session.ts";
+import {
+  type AuthedBugJson,
+  type FetchFn,
+  fetchAuthedBugJson,
+  readCookie,
+  type ZentaoCreds,
+} from "./session.ts";
 
 // re-export 供现有测试与外部复用
 export { detectFixBranch, parseZentaoResponseText } from "./parse.ts";
@@ -122,7 +128,7 @@ export async function runFetch(options: {
   output: string;
   silent?: boolean;
 }): Promise<void> {
-  const projectRoot = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../");
+  const projectRoot = repoRoot();
   const pluginConfig = loadZentaoConfig(projectRoot);
 
   // Resolve bug ID
@@ -152,7 +158,9 @@ export async function runFetch(options: {
     writeJsonExit(
       {
         error: `缺少必要的禅道配置：${missing.join(", ")}`,
-        hint: "请在 config/plugin/zentao.yaml 中配置 base_url，以及 cookie 或完整账号密码",
+        hint:
+          `请在 ${pluginConfigPath("zentao", projectRoot)} 中配置 base_url，以及 cookie 或完整账号密码；` +
+          "也可设置环境变量 KATA_ZENTAO_BASE_URL / KATA_ZENTAO_COOKIE / KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD",
       },
       1,
     );
@@ -170,9 +178,9 @@ export async function runFetch(options: {
   };
 
   // Fetch（cookie 优先、失效降级登录）
-  let rawText: string;
+  let raw: AuthedBugJson;
   try {
-    rawText = await fetchAuthedBugJson(bugId, creds);
+    raw = await fetchAuthedBugJson(bugId, creds);
   } catch (err) {
     const e = err as Error & { code?: string };
     if (e.code === "BUG_NOT_FOUND") writeJsonExit({ error: `Bug #${bugId} 不存在` }, 1);
@@ -180,21 +188,23 @@ export async function runFetch(options: {
       writeJsonExit(
         {
           error: "禅道登录失败",
-          hint: "请检查 config/plugin/zentao.yaml 中的 username 和 password",
+          hint: `请检查 ${pluginConfigPath("zentao", projectRoot)} 中的 username 和 password`,
         },
         1,
       );
     }
     if (e.code === "ZENTAO_AUTH_MISSING") {
-      writeJsonExit({ error: e.message, hint: "请在 config/plugin/zentao.yaml 中补充账号密码" }, 1);
+      writeJsonExit({ error: e.message }, 1);
     }
     if (e.code === "NETWORK_ERROR" && options.url) {
       writePartial(outputPath, bugId, "禅道 API 不可达，仅从 URL 提取了 Bug ID");
       return;
     }
-    // e.message 已带各错误码的描述前缀（network/fetch 等），直接透传避免重复前缀
-    writeJsonExit({ error: e.message, partial: true }, 1);
+    // e.message 已带各错误码的描述前缀（network/fetch 等），直接透传避免重复前缀；
+    // 此时未写 partial 文件，不带 partial 标记
+    writeJsonExit({ error: e.message }, 1);
   }
+  const rawText = raw.text;
 
   // Parse → 富结构
   const rich = parseBugPayload(rawText);
@@ -209,22 +219,20 @@ export async function runFetch(options: {
     ...rich.history.map((entry) => entry.comment_md),
   ];
   const referencedAttachments = extractMarkdownAttachmentUrls(evidenceMarkdown);
-  const cookie = readCookie();
-  if (referencedAttachments.length > 0 && !cookie) {
-    writeJsonExit({ error: "KATA_ZENTAO_COOKIE 未配置，无法下载截图证据", partial: true }, 1);
-  }
 
+  // 附件下载复用本次抓取实际生效的 cookie（探活通过的旧 cookie 或新登录回存的 cookie），
+  // 不重新读配置——env 覆盖会让重读拿到已失效的旧值
   let attachments: DownloadedAttachment[] = [];
-  if (cookie) {
+  if (referencedAttachments.length > 0) {
     try {
       attachments = await downloadMarkdownAttachments(
         evidenceMarkdown,
         creds.baseUrl,
         absOutput,
-        cookie,
+        raw.cookie,
       );
     } catch (err) {
-      writeJsonExit({ error: (err as Error).message, partial: true }, 1);
+      writeJsonExit({ error: (err as Error).message }, 1);
     }
   }
 

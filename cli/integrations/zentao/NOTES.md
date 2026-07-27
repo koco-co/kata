@@ -17,7 +17,7 @@
 
 2. **禅道 HTML 净化器是否完整保留 zentao 变体正文未验证。** 早前探针观察到 bug
    152189 正文疑似有区块（根因分析 / 复现步骤 / 数据源信息）被裁剪；该探针已删、
-   不能重跑。模板（`.claude/skills/defect-analyze/templates/bug-report-zentao.html.hbs`）
+   不能重跑。模板（`cli/templates/bug-report-zentao.html.hbs`）
    本身的 HTML 输出有单测守护、且是已批准版本，未擅改。净化器端到端行为待真实联调核对；
    若确证被裁剪，再评估模板简化方案（需重新批准）。
 

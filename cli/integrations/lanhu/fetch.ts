@@ -182,7 +182,9 @@ export function parseLanhuUrl(rawUrl: string): ParsedLanhuUrl {
     return { pageType: "unknown", params: {} };
   }
 
-  if (!url.hostname.includes("lanhuapp.com")) {
+  // Strict host match: "evil-lanhuapp.com" or "lanhuapp.com.evil.com" must not pass.
+  const host = url.hostname;
+  if (host !== "lanhuapp.com" && !host.endsWith(".lanhuapp.com")) {
     return { pageType: "unknown", params: {} };
   }
 
@@ -345,6 +347,14 @@ function currentYYYYMM(): string {
 }
 
 /**
+ * Escape a value for inclusion in a double-quoted YAML scalar.
+ * Without this, titles/project names containing `"` or `\` corrupt the PRD frontmatter.
+ */
+export function escapeYamlDoubleQuoted(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/**
  * Derive a semantic version directory from a Lanhu doc title.
  * "资产V7.0.0（岚图/泸州老窖定制）" → "v7.0.0"; "v6.4.10 迭代" → "v6.4.10".
  * Accepts 2- or 3-segment versions (matching features layout VERSION_DIR_RE); returns null when absent.
@@ -384,6 +394,19 @@ export function resolveOutputLayout(params: {
     prdFileName: `${params.reqDirName}.md`,
     imageRefPrefix: "images",
   };
+}
+
+/**
+ * Find the Axure resource dir matching a requirement inside `axureImagesBase`.
+ * Returns undefined for an empty requirementId — `startsWith("")` matches every
+ * dir and would attribute another requirement's images to this one.
+ */
+export function findAxurePageDir(
+  axureImagesBase: string,
+  requirementId: string,
+): string | undefined {
+  if (!requirementId || !existsSync(axureImagesBase)) return undefined;
+  return readdirSync(axureImagesBase).find((dir) => dir.startsWith(requirementId));
 }
 
 function parseRequirementFromPageName(pageName: string, pagePath: string): ParsedRequirement {
@@ -843,10 +866,9 @@ export async function runFetch(rawUrl: string, options: RunOptions): Promise<voi
   let absBaseDir: string;
   if (options.baseDir) {
     absBaseDir = resolve(projectRoot, options.baseDir);
-  } else if (workspaceProject) {
-    absBaseDir = prdsDir(workspaceProject);
   } else {
-    return;
+    // Guaranteed non-empty by the PROJECT_REQUIRED guard above.
+    absBaseDir = prdsDir(workspaceProject as string);
   }
 
   // Feature 模式只能对准单个需求；命中多个时无法消歧，拒绝而非乱写同一目录
@@ -887,9 +909,7 @@ export async function runFetch(rawUrl: string, options: RunOptions): Promise<voi
     const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
     const axureImagesBase = join(mcpDir, "data", `axure_extract_${docId.slice(0, 8)}`, "images");
     // The page folder name in Axure resources uses the original page name (with ID prefix)
-    const axurePageDir = existsSync(axureImagesBase)
-      ? readdirSync(axureImagesBase).find((dir) => dir.startsWith(reqInfo.requirementId))
-      : undefined;
+    const axurePageDir = findAxurePageDir(axureImagesBase, reqInfo.requirementId);
     const axurePageImagesDir = axurePageDir ? join(axureImagesBase, axurePageDir) : undefined;
 
     if (
@@ -978,12 +998,12 @@ export async function runFetch(rawUrl: string, options: RunOptions): Promise<voi
     const frontMatter = [
       "---",
       `source: "lanhu"`,
-      `source_url: "${rawUrl}"`,
+      `source_url: "${escapeYamlDoubleQuoted(rawUrl)}"`,
       `fetch_date: "${fetchDate}"`,
-      `requirement_id: "${reqInfo.requirementId}"`,
-      `project: "${workspaceProject ?? reqInfo.project}"`,
-      `lanhu_project: "${reqInfo.project}"`,
-      `workspace_project: "${workspaceProject ?? ""}"`,
+      `requirement_id: "${escapeYamlDoubleQuoted(reqInfo.requirementId)}"`,
+      `project: "${escapeYamlDoubleQuoted(workspaceProject ?? reqInfo.project)}"`,
+      `lanhu_project: "${escapeYamlDoubleQuoted(reqInfo.project)}"`,
+      `workspace_project: "${escapeYamlDoubleQuoted(workspaceProject ?? "")}"`,
       `status: "原始"`,
       "---",
     ].join("\n");
