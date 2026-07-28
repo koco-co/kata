@@ -14,11 +14,17 @@ export function metadataProjectId(): number {
 export function metadataScope() {
   const env = getEnvConfig();
   const datasource = env.datasources[env.runtime.defaultDatasource];
+  const offline = env.projects.offline;
+  if (!offline) {
+    throw new Error(
+      `${env.env}: 当前环境未配置离线项目；元数据同步类用例必须显式配置 projects.offline。`,
+    );
+  }
   return {
     projectId: env.projects.quality.id,
     projectName: env.projects.quality.name,
-    offlineProjectId: env.projects.offline.id,
-    offlineProjectName: env.projects.offline.name,
+    offlineProjectId: offline.id,
+    offlineProjectName: offline.name,
     datasourceName: datasource.metadata.name,
     datasourceType: datasource.uiLabel,
     datasourceProfile: datasource,

@@ -1,2 +1,2 @@
 // 冒烟入口：规则库入口 P0。
-import "../cases/t01-rule-base-entry";
+import "../cases/c0001-验证其它历史内置规则规则状态变更正常";

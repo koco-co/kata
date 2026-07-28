@@ -4,6 +4,7 @@
  */
 
 import { parse } from "yaml";
+import { SPEC_FILE_RE } from "./naming.ts";
 import { type CaseItem, type CasesFile, PRIORITIES } from "./types.ts";
 
 export { validateCases } from "./schema.ts";
@@ -49,8 +50,7 @@ function asCell(v: unknown, field: string): string {
   return v;
 }
 
-/** Generated Playwright spec file name: t<序号>-<slug>.ts(cases build/export 共用). */
-export const SPEC_FILE_RE = /^t\d+-[a-z0-9]+(?:-[a-z0-9]+)*\.ts$/;
+export { SPEC_FILE_RE } from "./naming.ts";
 
 function asCaseItem(v: unknown, index: number): CaseItem {
   if (typeof v !== "object" || v === null) fail(`cases[${index}] 不是对象`);
@@ -69,7 +69,7 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     };
   });
   const item: CaseItem = {
-    id: asString(o.id, `cases[${index}].id`),
+    id: asString(o.case_id, `cases[${index}].case_id`),
     title: asString(o.title, `cases[${index}].title`),
     priority: priority as CaseItem["priority"],
     steps,
@@ -97,7 +97,7 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     }
     const specFile = (o.automation as Record<string, unknown>).spec_file;
     if (typeof specFile !== "string" || !SPEC_FILE_RE.test(specFile)) {
-      fail(`cases[${index}].automation.spec_file 必须匹配 t<序号>-<slug>.ts`);
+      fail(`cases[${index}].automation.spec_file 必须匹配 c<四位序号>-<slug>.ts`);
     }
     item.automation = { spec_file: specFile };
   }
@@ -122,6 +122,16 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     version: asString(m.version, "meta.version"),
     feature_id: asString(m.feature_id, "meta.feature_id"),
   };
+  if (m.requirement_id !== undefined) {
+    if (typeof m.requirement_id !== "string" && typeof m.requirement_id !== "number") {
+      failType("meta.requirement_id", "数字字符串", m.requirement_id);
+    }
+    const requirementId = String(m.requirement_id).trim();
+    if (!/^\d+$/.test(requirementId)) {
+      fail("字段 meta.requirement_id 必须是数字字符串");
+    }
+    meta.requirement_id = requirementId;
+  }
   if (m.source !== undefined) {
     if (typeof m.source !== "string") failType("meta.source", "字符串", m.source);
     if (m.source.trim()) meta.source = m.source;

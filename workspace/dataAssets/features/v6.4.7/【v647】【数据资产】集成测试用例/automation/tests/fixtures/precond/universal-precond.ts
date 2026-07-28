@@ -26,9 +26,13 @@ export async function runUniversalPrecond(page: Page): Promise<void> {
   if (env.runtime.allowWrite !== true) {
     throw new Error(`[precond] writes are disabled for dataAssets env "${env.env}".`);
   }
+  const offline = env.projects.offline;
+  if (!offline) {
+    throw new Error(`[precond] offline project is required for env "${env.env}".`);
+  }
   await setupPreconditions(page, {
-    projectName: env.projects.offline.name,
-    projectId: env.projects.offline.id,
+    projectName: offline.name,
+    projectId: offline.id,
     datasourceType: datasource.preconditionType,
     datasourceProfile: {
       id: batch.id,

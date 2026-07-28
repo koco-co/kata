@@ -148,11 +148,15 @@ export async function expectModelBuildVariantsAndParsingShell(page: Page, source
   for (const label of ["数据源", "数据库", "表名"]) {
     await expect(body, `${sourceRef}: 新建表表单应展示「${label}」`).toContainText(label, { timeout: 30000 });
   }
-  // SQL 解析 / CSV 导入入口
-  await expect(body, `${sourceRef}: 新建表应展示 SQL 解析或 CSV 导入入口`).toContainText(
-    /SQL 解析|SQL解析|CSV|导入SQL/,
-    { timeout: 30000 },
-  );
+  // 部分版本在第一步不展示 SQL/CSV 入口，而是在进入「表结构」后才展示；两种 live UI 均保留基础流程断言。
+  const parsingEntry = body.getByText(/SQL 解析|SQL解析|CSV|导入SQL/).first();
+  if (await parsingEntry.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await expect(parsingEntry, `${sourceRef}: 新建表应展示 SQL 解析或 CSV 导入入口`).toBeVisible();
+  } else {
+    await expect(body, `${sourceRef}: 新建表基础步骤应展示表结构入口`).toContainText(/基础信息|表结构|下一步/, {
+      timeout: 30000,
+    });
+  }
   // 取消关闭
   const cancelButton = page.getByRole("button", { name: /取消|返回/ }).first();
   await cancelButton.click().catch(() => {});

@@ -2,8 +2,9 @@ meta:
   title: 2026-07-lanhu-da067c50
   version: v7.0.1
   feature_id: v7.0.1/2026-07-lanhu-da067c50
+  requirement_id: "16210"
 cases:
-  - id: C1
+  - case_id: C0001
     title: 验证表中文名组合使用允许字符后可进入表结构
     priority: P0
     steps:
@@ -29,7 +30,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C2
+  - case_id: C0002
     title: 验证表中文名逐项支持中文英文数字空格及符号
     priority: P0
     steps:
@@ -56,7 +57,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C3
+  - case_id: C0003
     title: 验证表中文名首部空格不能通过建表校验
     priority: P1
     steps:
@@ -81,7 +82,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C4
+  - case_id: C0004
     title: 验证表中文名尾部空格不能通过建表校验
     priority: P1
     steps:
@@ -106,7 +107,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C5
+  - case_id: C0005
     title: 验证表中文名连续空格不能通过建表校验
     priority: P1
     steps:
@@ -131,7 +132,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C6
+  - case_id: C0006
     title: 验证表中文名未列入允许集合的字符不能通过建表校验
     priority: P1
     steps:

@@ -3,7 +3,7 @@ meta:
   version: v6.4.9
   feature_id: v6.4.9/【v649】【Gate】【数据安全】数据表权限分配支持通配符匹配批量配置权限
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证 验证仅勾选DDL权限时「是否开启行列权限配置」开关不显示
     priority: P1
     steps:
@@ -19,7 +19,7 @@ cases:
     tags:
       - 数据安全
       - 行列级权限
-  - id: C002
+  - case_id: C0002
     title: 验证 验证行列权限配置后数据查询时列级过滤和行级条件均实际生效
     priority: P0
     steps:
@@ -35,7 +35,7 @@ cases:
     tags:
       - 数据安全
       - 行列级权限
-  - id: C003
+  - case_id: C0003
     title: 验证通配符无匹配结果时我的权限列表正常展示
     priority: P2
     steps:
@@ -49,7 +49,7 @@ cases:
     tags:
       - 数据安全
       - 我的权限查看
-  - id: C004
+  - case_id: C0004
     title: 验证新建符合通配符规则的表后权限自动生效
     priority: P0
     steps:
@@ -67,7 +67,7 @@ cases:
     tags:
       - 数据安全
       - 我的权限查看
-  - id: C005
+  - case_id: C0005
     title: 验证通配符分配的权限在数据地图中实际生效
     priority: P0
     steps:
@@ -89,7 +89,7 @@ cases:
     tags:
       - 数据安全
       - 我的权限查看
-  - id: C006
+  - case_id: C0006
     title: 验证通配符匹配的表在我的权限查看列表中正确展示
     priority: P0
     steps:
@@ -105,7 +105,7 @@ cases:
     tags:
       - 数据安全
       - 我的权限查看
-  - id: C007
+  - case_id: C0007
     title: 验证抽屉详情页正确展示通配符配置内容
     priority: P1
     steps:
@@ -120,7 +120,7 @@ cases:
       - 数据安全
       - 权限分配
       - 详情
-  - id: C008
+  - case_id: C0008
     title: 验证通配符配置内容在列表数据表字段中正确展示
     priority: P1
     steps:
@@ -133,7 +133,7 @@ cases:
       - 数据安全
       - 权限分配
       - 列表
-  - id: C009
+  - case_id: C0009
     title: 验证权限分配列表中数据库字段去重展示
     priority: P1
     steps:
@@ -146,7 +146,7 @@ cases:
       - 数据安全
       - 权限分配
       - 列表
-  - id: C010
+  - case_id: C0010
     title: 验证权限分配列表新增策略名称字段列
     priority: P1
     steps:
@@ -161,7 +161,7 @@ cases:
       - 数据安全
       - 权限分配
       - 列表
-  - id: C011
+  - case_id: C0011
     title: 验证权限分配列表支持按策略名称筛选查询
     priority: P1
     steps:
@@ -176,7 +176,7 @@ cases:
       - 数据安全
       - 权限分配
       - 列表
-  - id: C012
+  - case_id: C0012
     title: 验证编辑已有策略时通配符配置可正常回显和修改
     priority: P1
     steps:
@@ -197,7 +197,7 @@ cases:
       - 数据安全
       - 权限分配
       - 编辑
-  - id: C013
+  - case_id: C0013
     title: 验证通配符悬浮提示内容正确展示四种匹配模式说明
     priority: P2
     steps:
@@ -219,7 +219,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C014
+  - case_id: C0014
     title: 验证通配符输入为空时提交失败并提示必填
     priority: P1
     steps:
@@ -238,7 +238,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C015
+  - case_id: C0015
     title: 验证使用通配符包含匹配模式*order*可成功提交并匹配对应表
     priority: P1
     steps:
@@ -272,7 +272,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C016
+  - case_id: C0016
     title: 验证使用通配符前后缀匹配模式user*info可成功提交并匹配对应表
     priority: P1
     steps:
@@ -306,7 +306,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C017
+  - case_id: C0017
     title: 验证使用通配符后缀匹配模式*_info可成功提交并匹配对应表
     priority: P1
     steps:
@@ -340,7 +340,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C018
+  - case_id: C0018
     title: 验证使用通配符前缀匹配模式user*可成功提交并匹配对应表
     priority: P0
     steps:
@@ -378,7 +378,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C019
+  - case_id: C0019
     title: 验证数据表字段默认为选择具体表模式
     priority: P1
     steps:
@@ -400,7 +400,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C020
+  - case_id: C0020
     title: 验证切换数据表模式时已填写的字段值被清空
     priority: P2
     steps:
@@ -433,7 +433,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C021
+  - case_id: C0021
     title: 验证通配符输入包含多个星号字符可成功提交并正确匹配
     priority: P1
     steps:
@@ -475,7 +475,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C022
+  - case_id: C0022
     title: 验证通配符仅输入星号*时匹配数据库下所有表
     priority: P1
     steps:
@@ -517,7 +517,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C023
+  - case_id: C0023
     title: 验证多行不同数据库混合模式一行具体表一行通配符提交后权限范围取并集
     priority: P0
     steps:
@@ -569,7 +569,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C024
+  - case_id: C0024
     title: 验证多行不同数据库使用通配符模式提交后权限范围取并集
     priority: P0
     steps:
@@ -621,7 +621,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C025
+  - case_id: C0025
     title: 验证多行选择不同数据库以具体表模式提交后权限取并集
     priority: P1
     steps:
@@ -667,7 +667,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C026
+  - case_id: C0026
     title: 验证多行选择同一数据库时已选表在新行中自动排除
     priority: P1
     steps:
@@ -694,7 +694,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C027
+  - case_id: C0027
     title: 验证策略名称重复时提交失败并提示错误信息
     priority: P1
     steps:
@@ -711,7 +711,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C028
+  - case_id: C0028
     title: 验证策略名称输入超过255字符时受到限制
     priority: P2
     steps:
@@ -726,7 +726,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C029
+  - case_id: C0029
     title: 验证策略名称输入255字符时可成功提交
     priority: P2
     steps:
@@ -749,7 +749,7 @@ cases:
       - 数据安全
       - 权限分配
       - 新增
-  - id: C030
+  - case_id: C0030
     title: 验证策略名称为空时可成功新增权限策略
     priority: P1
     steps:

@@ -1,0 +1,30 @@
+# Playwright 自动化公共配置示例。
+# 实际运行配置文件为同目录下的 playwright.yaml。
+# 不读取根目录 .env。
+
+playwright:
+  # 是否允许 kata automation run 使用数字 requirement_id 自动发现 feature；关闭时仍支持完整路径。
+  requirement_id_mapping: true
+  # 单条用例失败后是否继续执行同一批次的后续用例。
+  continue_on_failure: true
+  # 是否跳过建表、元数据同步等前置准备。
+  skip_precondition_setup: true
+  # 是否按 cases YAML 中 automation.spec_file 的 cNNNN 序号降序执行；开启后 workers 强制为 1。
+  sort_cases: false
+  # 未开启排序时的 Playwright worker 数量。
+  workers: 4
+  # Playwright 项目名称；当前公共配置支持 chromium。
+  browser: chromium
+  # 是否使用无头浏览器。
+  headless: true
+  # 单个 Playwright 测试的默认超时时间（毫秒）。
+  timeout_ms: 60000
+  # Playwright 自动重试次数。
+  retries: 0
+  allure:
+    # 是否生成 Allure 原始结果和 HTML 报告。
+    enabled: true
+    # Allure 原始结果目录，相对路径按仓库根目录解析。
+    results_dir: allure-results
+    # Allure HTML 报告目录，相对路径按仓库根目录解析。
+    report_dir: allure-report

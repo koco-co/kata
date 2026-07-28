@@ -12,6 +12,7 @@ export interface RunExecutionOptions {
   readonly command: readonly string[];
   readonly cwd?: string;
   readonly env?: NodeJS.ProcessEnv;
+  readonly postProcess?: (childExitCode: number) => number | Promise<number>;
 }
 
 export interface RunExecutionStatus {
@@ -59,7 +60,6 @@ export async function executeWithRunPath(options: RunExecutionOptions): Promise<
     ...(options.env ?? {}),
     KATA_ACTIVE_PROJECT: options.project,
     KATA_RUN_PATH: options.runPath,
-    KATA_ALLURE_RESULTS_DIR: join(options.runPath, "allure-results"),
   };
   const child = spawn(options.command[0], options.command.slice(1), {
     cwd: options.cwd ?? process.cwd(),
@@ -84,6 +84,7 @@ export async function executeWithRunPath(options: RunExecutionOptions): Promise<
         resolveExit(code ?? (signal ? 128 + (osConstants.signals[signal] ?? 1) : 1)),
       );
     });
+    if (options.postProcess) exitCode = await options.postProcess(exitCode);
   } finally {
     for (const [signal, handler] of handlers) process.off(signal, handler);
     writeStatus(options.runPath, {

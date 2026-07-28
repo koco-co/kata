@@ -1,5 +1,4 @@
 import type { Command } from "commander";
-import { runFetch } from "../integrations/lanhu/fetch.ts";
 
 /** Build the `lanhu` command: 蓝湖 PRD 抓取,供 case draft 工作流调用。 */
 export function registerLanhu(program: Command): void {
@@ -27,6 +26,7 @@ export function registerLanhu(program: Command): void {
         featureDir?: string;
         pages?: string;
       }) => {
+        const { runFetch } = await import("../integrations/lanhu/fetch.ts");
         await runFetch(opts.url, {
           project: opts.project,
           baseDir: opts.baseDir,

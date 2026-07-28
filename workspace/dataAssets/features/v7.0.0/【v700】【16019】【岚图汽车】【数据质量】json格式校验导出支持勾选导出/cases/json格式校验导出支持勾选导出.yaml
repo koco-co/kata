@@ -2,10 +2,11 @@ meta:
   title: json格式校验导出支持勾选导出
   version: v7.0.0
   feature_id: v7.0.0/【v700】【16019】【岚图汽车】【数据质量】json格式校验导出支持勾选导出
+  requirement_id: "16019"
 cases:
-  - id: C001
+  - case_id: C0001
     automation:
-      spec_file: t01-json-checkbox-export.ts
+      spec_file: c0001-验证勾选多条记录后点击导出导出文件仅含勾选行.ts
     title: 验证勾选多条记录后点击导出，导出文件仅含勾选行
     priority: P0
     steps:
@@ -36,9 +37,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C002
+  - case_id: C0002
     automation:
-      spec_file: t02-c002.ts
+      spec_file: c0002-验证未勾选任何记录时点击导出沿用导出全量旧行为.ts
     title: 验证未勾选任何记录时点击导出，沿用导出全量旧行为
     priority: P0
     steps:
@@ -59,9 +60,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C003
+  - case_id: C0003
     automation:
-      spec_file: t03-c003.ts
+      spec_file: c0003-验证仅勾选单条一层级记录导出文件仅含该条记录.ts
     title: 验证仅勾选单条一层级记录导出，文件仅含该条记录
     priority: P0
     steps:
@@ -82,9 +83,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C004
+  - case_id: C0004
     automation:
-      spec_file: t04-c004.ts
+      spec_file: c0004-验证表头全选后点击导出文件含当前列表全量数据.ts
     title: 验证表头全选后点击导出，文件含当前列表全量数据
     priority: P1
     steps:
@@ -107,9 +108,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C005
+  - case_id: C0005
     automation:
-      spec_file: t05-c005.ts
+      spec_file: c0005-验证勾选父节点时子节点被自动级联进导出文件.ts
     title: 验证勾选父节点时子节点被自动级联进导出文件
     priority: P1
     steps:
@@ -131,9 +132,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C006
+  - case_id: C0006
     automation:
-      spec_file: t06-c006.ts
+      spec_file: c0006-验证勾选导出文件列结构完整且顺序正确.ts
     title: 验证勾选导出文件列结构完整且顺序正确
     priority: P1
     steps:
@@ -150,9 +151,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C007
+  - case_id: C0007
     automation:
-      spec_file: t07-c007.ts
+      spec_file: c0007-验证多层级key的层级关系与父Key取值正确.ts
     title: 验证多层级 key 的「层级关系」与「父 Key」取值正确
     priority: P1
     steps:
@@ -180,9 +181,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C008
+  - case_id: C0008
     automation:
-      spec_file: t08-c008.ts
+      spec_file: c0008-验证导出文件数据源类型列对SparkThrift2xHive2xDoris3x取值正确.ts
     title: 验证导出文件「数据源类型」列对 SparkThrift2.x、Hive2.x、Doris3.x 取值正确
     priority: P1
     steps:
@@ -209,9 +210,9 @@ cases:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
-  - id: C009
+  - case_id: C0009
     automation:
-      spec_file: t09-c009.ts
+      spec_file: c0009-验证先搜索筛选再勾选导出文件仅含搜索结果中勾选的行.ts
     title: 验证先搜索筛选再勾选导出，文件仅含搜索结果中勾选的行
     priority: P2
     steps:

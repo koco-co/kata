@@ -16,7 +16,7 @@ describe("casesToIntermediate", () => {
     const data = casesToIntermediate(
       file([
         {
-          id: "C001",
+          id: "C0001",
           title: "t",
           priority: "P1",
           tags: ["模块A"],
@@ -36,7 +36,7 @@ describe("renderXmind", () => {
     await renderXmind(
       file([
         {
-          id: "C001",
+          id: "C0001",
           title: "t",
           priority: "P1",
           tags: ["模块A"],
@@ -60,7 +60,7 @@ describe("renderXmind", () => {
     const out = join(dir, "需求名.xmind");
     writeFileSync(out, "corrupted-leftover");
     await renderXmind(
-      file([{ id: "C001", title: "t", priority: "P1", steps: [{ action: "a", expected: "e" }] }]),
+      file([{ id: "C0001", title: "t", priority: "P1", steps: [{ action: "a", expected: "e" }] }]),
       out,
     );
     const zip = await JSZip.loadAsync(readFileSync(out));

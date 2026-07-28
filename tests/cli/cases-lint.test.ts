@@ -52,7 +52,7 @@ describe("features lint", () => {
     );
     writeFileSync(
       join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
-      "cases:\n  - id: C001\n    title: 验证字段映射待确认\n",
+      "cases:\n  - case_id: C0001\n    title: 验证字段映射待确认\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(true);
@@ -68,7 +68,7 @@ describe("features lint", () => {
     );
     writeFileSync(
       join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
-      "cases:\n  - id: C001\n    title: 验证取消弹窗\n    steps:\n      - action: 点击【取消】关闭确认弹窗，等待确认弹窗关闭\n",
+      "cases:\n  - case_id: C0001\n    title: 验证取消弹窗\n    steps:\n      - action: 点击【取消】关闭确认弹窗，等待确认弹窗关闭\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(false);
@@ -84,7 +84,7 @@ describe("features lint", () => {
     );
     writeFileSync(
       join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
-      "cases:\n  - id: C001\n    title: 验证字段映射已按 prd 确认\n",
+      "cases:\n  - case_id: C0001\n    title: 验证字段映射已按 prd 确认\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations).toHaveLength(0);
@@ -92,7 +92,7 @@ describe("features lint", () => {
 
   it("flags active-feature case titles not starting with 验证", () => {
     const root = ws();
-    mkValidActive(root, "cases:\n  - id: C001\n    title: 新建规则成功\n    priority: P1\n");
+    mkValidActive(root, "cases:\n  - case_id: C0001\n    title: 新建规则成功\n    priority: P1\n");
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "case_title_format")).toBe(true);
   });
@@ -119,7 +119,7 @@ describe("features lint", () => {
     expect(violations.some((v) => v.rule === "p0_ratio")).toBe(false);
 
     const small = ws();
-    mkValidActive(small, "cases:\n  - id: C001\n    title: 验证唯一场景\n    priority: P1\n");
+    mkValidActive(small, "cases:\n  - case_id: C0001\n    title: 验证唯一场景\n    priority: P1\n");
     const smallResult = runFeaturesLint({ project: "dataAssets", workspaceRoot: small });
     expect(smallResult.violations.some((v) => v.rule === "p0_ratio")).toBe(false);
   });
@@ -134,7 +134,7 @@ describe("features lint", () => {
     );
     writeFileSync(
       join(root, "dataAssets", "features", dir, "cases", "【v700】需求.yaml"),
-      "cases:\n  - id: C001\n    title: 验证字段映射\n    priority: P1\n",
+      "cases:\n  - case_id: C0001\n    title: 验证字段映射\n    priority: P1\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "case_yaml_name")).toBe(true);
@@ -148,7 +148,7 @@ describe("features lint", () => {
     writeFileSync(join(parent, "config", "env", "ltqc-local.yaml"), "base_url: https://x\n");
     mkValidActive(
       root,
-      "cases:\n  - id: C001\n    title: 验证数据源连通\n    priority: P1\n    precondition: 环境 ltqc-local 已部署\n",
+      "cases:\n  - case_id: C0001\n    title: 验证数据源连通\n    priority: P1\n    precondition: 环境 ltqc-local 已部署\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "real_env_name")).toBe(true);
@@ -158,7 +158,7 @@ describe("features lint", () => {
     const root = ws();
     mkValidActive(
       root,
-      "cases:\n  - id: C001\n    title: 验证数据源连通\n    priority: P1\n    precondition: 环境 ltqc-local 已部署\n",
+      "cases:\n  - case_id: C0001\n    title: 验证数据源连通\n    priority: P1\n    precondition: 环境 ltqc-local 已部署\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "real_env_name")).toBe(false);
@@ -186,7 +186,7 @@ describe("features lint", () => {
     );
     writeFileSync(
       join(root, "dataAssets", "features", dir, "cases", "常驻需求.yaml"),
-      "cases:\n  - id: C001\n    title: 新建规则成功\n    priority: P1\n",
+      "cases:\n  - case_id: C0001\n    title: 新建规则成功\n    priority: P1\n",
     );
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
     expect(violations.some((v) => v.rule === "case_title_format")).toBe(false);

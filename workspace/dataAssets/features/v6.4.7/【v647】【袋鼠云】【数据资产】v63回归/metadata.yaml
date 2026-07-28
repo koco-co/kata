@@ -28,19 +28,19 @@ automation:
   intents:
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t02-rule-task-entry-contract.ts
+        - automation/tests/cases/c0002-验证规则集编辑规则内容和删除提示符合标品逻辑.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t03-monitor-rule-create-contract.ts
+        - automation/tests/cases/c0003-验证单表完整性字段级规则直接添加后结果正确.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t04-quality-report-project-menu-contract.ts
+        - automation/tests/cases/c0004-验证完整性表级表行数规则直接添加后结果正确.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t01-environment-preflight.ts
+        - automation/tests/cases/c0001-验证规则集创建后可独立运行并生成任务查询记录.ts
       automation_status: ready
   last_handoff_path: null
   last_run_status: not-run

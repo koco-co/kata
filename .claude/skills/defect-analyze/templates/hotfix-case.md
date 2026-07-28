@@ -2,27 +2,26 @@
 type: hotfix-case
 bug_id: <number>
 source: <ZenTao bug-view URL>
-fix_branch: <branch or unknown>
-fixed_version: <version or unknown>
+keywords: "<发现版本> | <模块> | <数据源类型> | <集群> | <真实解决的最低版本> | <问题原因>"
+evidence_refs:
+- "zentao|<ZenTao bug-view URL>"
+- "knowledge|workspace/<project>/knowledge/<file>:<line>"
+- "source|.repos/<repo>/<file>:<line>"
+problem_cause: ""
+fix_project: ""
+fix_branch: ""
+fixed_version: ""
+resolution: ""
 ---
 
 # 【<bug_id>】验证<title>
 
-## Bug 证据
+## 前置条件
 
-<ZenTao Bug 的现象、复现步骤和解决证据>
+<写清环境/权限、具体业务对象状态、对象关联关系和异常数据；真实值使用占位符。涉及数据状态时写可执行 UI 准备步骤或自包含 SQL。>
 
-## 环境与前置条件
+## 用例步骤
 
-<验证环境、部署版本、数据和账号权限>
-
-## 回归步骤与预期
-
-| 步骤 | 操作 | 预期 |
+| 编号 | 步骤 | 预期 |
 | --- | --- | --- |
-| 1 | <操作> | <预期> |
-
-## 验证状态
-- 已验证：
-- 未验证：
-- 未覆盖原因：
+| 1 | <一个有具体页面、对象、字段或按钮的单行可执行操作> | <与该步骤直接对应的单行可验证结果；多个结果用；分隔> |

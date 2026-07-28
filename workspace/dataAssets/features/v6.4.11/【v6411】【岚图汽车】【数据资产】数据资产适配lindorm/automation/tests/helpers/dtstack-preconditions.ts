@@ -123,11 +123,15 @@ function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
   if (!batch) {
     throw new Error(`${profile.env}: SparkThrift 前置数据源缺少 batch 配置`);
   }
-  const projectName = profile.auth.tenantName ?? profile.projects.offline.name;
+  const offline = profile.projects.offline;
+  if (!offline) {
+    throw new Error(`${profile.env}: 前置建表/元数据同步需要配置 projects.offline`);
+  }
+  const projectName = profile.auth.tenantName ?? offline.name;
   const projectId =
     projectName === profile.projects.quality.name
       ? profile.projects.quality.id
-      : profile.projects.offline.id;
+      : offline.id;
   return {
     env: profile.env,
     cookie: profile.auth.cookie,

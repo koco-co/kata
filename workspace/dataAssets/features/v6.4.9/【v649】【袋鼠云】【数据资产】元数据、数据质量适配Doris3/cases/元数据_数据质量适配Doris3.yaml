@@ -3,7 +3,7 @@ meta:
   version: v6.4.9
   feature_id: v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证「平台管理」中 Doris 3.x 数据源质量项目授权功能正常
     priority: P0
     steps:
@@ -29,7 +29,7 @@ cases:
     tags:
       - 平台管理
       - 数据源管理
-  - id: C002
+  - case_id: C0002
     title: 验证 「元数据」中 Doris 3.x 从离线 Meta 到资产的自动引入与同步功能
     priority: P0
     steps:
@@ -53,7 +53,7 @@ cases:
     tags:
       - 平台管理
       - 数据源管理
-  - id: C003
+  - case_id: C0003
     title: 验证「脏数据管理」中 Doris 3.x 数据源处理脏数据功能正常
     priority: P2
     steps:
@@ -106,7 +106,7 @@ cases:
     tags:
       - 数据质量
       - 脏数据管理
-  - id: C004
+  - case_id: C0004
     title: 验证「质量报告」中 Doris 3.x 功能正常
     priority: P0
     steps:
@@ -134,7 +134,7 @@ cases:
     tags:
       - 数据质量
       - 质量报告
-  - id: C005
+  - case_id: C0005
     title: 验证「质量报告」中 Doris 3.x 数据源质量报告的查询功能正常
     priority: P1
     steps:
@@ -158,7 +158,7 @@ cases:
     tags:
       - 数据质量
       - 质量报告
-  - id: C006
+  - case_id: C0006
     title: 验证「任务实例查询」中 Doris 3.x 数据源任务实例的查询功能正常
     priority: P1
     steps:
@@ -186,7 +186,7 @@ cases:
     tags:
       - 数据质量
       - 任务实例查询
-  - id: C007
+  - case_id: C0007
     title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的周期调度设置功能正常
     priority: P0
     steps:
@@ -248,7 +248,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C008
+  - case_id: C0008
     title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的删除功能正常
     priority: P2
     steps:
@@ -260,7 +260,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C009
+  - case_id: C0009
     title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的查询功能正常
     priority: P2
     steps:
@@ -288,7 +288,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C010
+  - case_id: C0010
     title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的编辑功能正常
     priority: P2
     steps:
@@ -320,7 +320,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C011
+  - case_id: C0011
     title: 验证「规则任务配置」中 Doris 3.x 数据源「规则集」功能正常
     priority: P0
     steps:
@@ -423,7 +423,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C012
+  - case_id: C0012
     title: 验证「规则任务配置」中 Doris 3.x 数据源「多表比对规则」功能正常
     priority: P0
     steps:
@@ -526,7 +526,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C013
+  - case_id: C0013
     title: 验证「规则任务配置」中 Doris 3.x 数据源「自定义SQL」功能正常
     priority: P2
     steps:
@@ -651,7 +651,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C014
+  - case_id: C0014
     title: 验证「规则任务配置」中 Doris 3.x 数据源「唯一性校验」功能正常
     priority: P1
     steps:
@@ -776,7 +776,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C015
+  - case_id: C0015
     title: 验证「规则任务配置」中 Doris 3.x 数据源「有效性校验」功能正常
     priority: P1
     steps:
@@ -901,7 +901,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C016
+  - case_id: C0016
     title: 验证「规则任务配置」中 Doris 3.x 数据源 「完整性校验-表级」功能正常
     priority: P1
     steps:
@@ -971,7 +971,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C017
+  - case_id: C0017
     title: 验证「规则任务配置」中 Doris 3.x 数据源 「完整性校验-字段级」功能正常
     priority: P0
     steps:
@@ -1045,7 +1045,7 @@ cases:
     tags:
       - 数据质量
       - 规则任务配置
-  - id: C018
+  - case_id: C0018
     title: 验证「数据质量概览」页面中 Doris 3.x 数据源的规则任务统计展示正常
     priority: P1
     steps:
@@ -1065,7 +1065,7 @@ cases:
     tags:
       - 数据质量
       - 概览
-  - id: C019
+  - case_id: C0019
     title: 验证「元数据管理」中 Doris 3.x 表详情页各tab信息展示完整性
     priority: P1
     steps:
@@ -1093,7 +1093,7 @@ cases:
     tags:
       - 元数据
       - 元数据管理
-  - id: C020
+  - case_id: C0020
     title: 验证 「元数据」中 Doris 3.x 数据源删除库操作
     priority: P1
     steps:
@@ -1115,7 +1115,7 @@ cases:
     tags:
       - 元数据
       - 元数据管理
-  - id: C021
+  - case_id: C0021
     title: 验证 「元数据」中 Doris 3.x 数据表生命周期设置功能
     priority: P2
     steps:
@@ -1145,7 +1145,7 @@ cases:
     tags:
       - 元数据
       - 元数据管理
-  - id: C022
+  - case_id: C0022
     title: 验证 「元数据」中 Doris 3.x 数据源删除表操作
     priority: P1
     steps:
@@ -1173,7 +1173,7 @@ cases:
     tags:
       - 元数据
       - 元数据管理
-  - id: C023
+  - case_id: C0023
     title: 验证 「元数据」中 Doris 3.x 元模型配置功能正常
     priority: P2
     steps:
@@ -1187,7 +1187,7 @@ cases:
     tags:
       - 元数据
       - 元模型管理
-  - id: C024
+  - case_id: C0024
     title: 验证 「元数据」中 Doris 3.x 数据表业务/个性属性维护功能
     priority: P2
     steps:
@@ -1213,7 +1213,7 @@ cases:
     tags:
       - 元数据
       - 元模型管理
-  - id: C025
+  - case_id: C0025
     title: 验证 Doris 3.x 特有字段类型（JSON/ARRAY/MAP）的元数据采集正确性
     priority: P2
     steps:
@@ -1249,7 +1249,7 @@ cases:
     tags:
       - 元数据
       - 元数据同步
-  - id: C026
+  - case_id: C0026
     title: 验证「元数据同步」中 Doris 3.x 周期同步任务的编辑与删除功能正常
     priority: P1
     steps:
@@ -1271,7 +1271,7 @@ cases:
     tags:
       - 元数据
       - 元数据同步
-  - id: C027
+  - case_id: C0027
     title: 验证元数据同步后 Doris 3.x 表结构与字段信息采集正确性
     priority: P0
     steps:
@@ -1317,7 +1317,7 @@ cases:
     tags:
       - 元数据
       - 元数据同步
-  - id: C028
+  - case_id: C0028
     title: 验证 「元数据」中 Doris 3.x 元数据周期同步功能正常
     priority: P0
     steps:
@@ -1519,7 +1519,7 @@ cases:
     tags:
       - 元数据
       - 元数据同步
-  - id: C029
+  - case_id: C0029
     title: 验证 「元数据」中 Doris 3.x 元数据临时同步功能正常
     priority: P1
     steps:
@@ -1719,7 +1719,7 @@ cases:
     tags:
       - 元数据
       - 元数据同步
-  - id: C030
+  - case_id: C0030
     title: 验证 「元数据」中 Doris 3.x 元数据同步任务中过滤规则的有效性
     priority: P1
     steps:
@@ -1925,7 +1925,7 @@ cases:
     tags:
       - 元数据
       - 元数据同步
-  - id: C031
+  - case_id: C0031
     title: 验证「血缘分析」中 Doris 3.x 数据源的孤立血缘表（无血缘）统计功能正常
     priority: P2
     steps:
@@ -1949,7 +1949,7 @@ cases:
     tags:
       - 元数据
       - 血缘分析
-  - id: C032
+  - case_id: C0032
     title: 验证订阅 Doris 3.x 数据表后元数据发生变更时收到变更通知
     priority: P1
     steps:
@@ -1971,7 +1971,7 @@ cases:
     tags:
       - 元数据
       - 订阅的数据
-  - id: C033
+  - case_id: C0033
     title: 验证修改 Doris 3.x 已订阅数据表的提醒方式功能正常
     priority: P1
     steps:
@@ -1985,7 +1985,7 @@ cases:
     tags:
       - 元数据
       - 订阅的数据
-  - id: C034
+  - case_id: C0034
     title: 验证取消订阅 Doris 3.x 数据表功能正常
     priority: P1
     steps:
@@ -2003,7 +2003,7 @@ cases:
     tags:
       - 元数据
       - 订阅的数据
-  - id: C035
+  - case_id: C0035
     title: 验证订阅 Doris 3.x 数据表并在「订阅的数据」页面查看订阅记录
     priority: P0
     steps:
@@ -2027,7 +2027,7 @@ cases:
     tags:
       - 元数据
       - 订阅的数据
-  - id: C036
+  - case_id: C0036
     title: 验证血缘解析（CREATE TABLE LIKE）
     priority: P2
     steps:
@@ -2069,7 +2069,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - id: C037
+  - case_id: C0037
     title: 验证血缘解析（CREATE TABLE AS SELECT）
     priority: P2
     steps:
@@ -2111,7 +2111,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - id: C038
+  - case_id: C0038
     title: 验证血缘解析（INSERT OVERWRITE）
     priority: P2
     steps:
@@ -2151,7 +2151,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - id: C039
+  - case_id: C0039
     title: 验证血缘解析（INSERT INTO）
     priority: P2
     steps:
@@ -2191,7 +2191,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - id: C040
+  - case_id: C0040
     title: 验证 「元数据」中 Doris 3.x 数据表查询和表数量显示正常
     priority: P0
     steps:
@@ -2395,7 +2395,7 @@ cases:
     tags:
       - 元数据
       - 数据地图
-  - id: C041
+  - case_id: C0041
     title: 验证 Doris 3.x 资产盘点页面显示正常
     priority: P1
     steps:

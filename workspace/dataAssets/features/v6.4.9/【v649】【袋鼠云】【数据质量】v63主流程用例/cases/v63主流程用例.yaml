@@ -3,7 +3,7 @@ meta:
   version: v6.4.9
   feature_id: v6.4.9/【v649】【袋鼠云】【数据质量】v63主流程用例
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证数据地图首页资产类型统计正确
     priority: P2
     steps:
@@ -21,7 +21,7 @@ cases:
       - 元数据
       - 数据地图
       - 首页资产类型统计
-  - id: C002
+  - case_id: C0002
     title: 验证搜索结果页支持按数据源类型筛选查询
     priority: P2
     steps:
@@ -41,7 +41,7 @@ cases:
       - 元数据
       - 数据地图
       - 搜索结果页筛选查询
-  - id: C003
+  - case_id: C0003
     title: 验证视图搜索功能正常
     priority: P2
     steps:
@@ -59,7 +59,7 @@ cases:
       - 元数据
       - 数据地图
       - 视图搜索
-  - id: C004
+  - case_id: C0004
     title: 验证表详情页-批量编辑功能
     priority: P2
     steps:
@@ -81,7 +81,7 @@ cases:
       - 元数据
       - 数据地图
       - 批量编辑
-  - id: C005
+  - case_id: C0005
     title: 验证表删除功能（删除元数据表/删除源表）
     priority: P2
     steps:
@@ -103,7 +103,7 @@ cases:
       - 元数据
       - 数据地图
       - 表删除
-  - id: C006
+  - case_id: C0006
     title: 验证离线任务详情页-血缘解析功能
     priority: P2
     steps:
@@ -121,7 +121,7 @@ cases:
       - 元数据
       - 数据地图
       - 离线任务血缘解析
-  - id: C007
+  - case_id: C0007
     title: 验证元数据同步任务创建与执行
     priority: P0
     steps:
@@ -139,7 +139,7 @@ cases:
       - 元数据
       - 元数据同步
       - 同步任务创建与执行
-  - id: C008
+  - case_id: C0008
     title: 验证同步数据正确性（数据库/数据表/字段）
     priority: P0
     steps:
@@ -155,7 +155,7 @@ cases:
       - 元数据
       - 元数据同步
       - 同步任务创建与执行
-  - id: C009
+  - case_id: C0009
     title: 验证过滤表功能
     priority: P2
     steps:
@@ -173,7 +173,7 @@ cases:
       - 元数据
       - 元数据同步
       - 过滤表
-  - id: C010
+  - case_id: C0010
     title: 验证离线建表自动同步至数据地图
     priority: P0
     steps:
@@ -187,7 +187,7 @@ cases:
       - 元数据
       - 元数据同步
       - 离线建表自动同步
-  - id: C011
+  - case_id: C0011
     title: 验证离线建视图同步至数据地图
     priority: P1
     steps:
@@ -201,7 +201,7 @@ cases:
       - 元数据
       - 元数据同步
       - 离线建表自动同步
-  - id: C012
+  - case_id: C0012
     title: 验证同步任务编辑功能
     priority: P1
     steps:
@@ -215,7 +215,7 @@ cases:
       - 元数据
       - 元数据同步
       - 同步任务编辑
-  - id: C013
+  - case_id: C0013
     title: 验证同步任务删除功能
     priority: P1
     steps:
@@ -227,7 +227,7 @@ cases:
       - 元数据
       - 元数据同步
       - 同步任务删除
-  - id: C014
+  - case_id: C0014
     title: 验证同步实例日志查看
     priority: P2
     steps:
@@ -241,7 +241,7 @@ cases:
       - 元数据
       - 元数据同步
       - 同步实例日志
-  - id: C015
+  - case_id: C0015
     title: 验证技术属性初始化显示正确
     priority: P2
     steps:
@@ -257,7 +257,7 @@ cases:
       - 元数据
       - 元模型管理
       - 技术属性
-  - id: C016
+  - case_id: C0016
     title: 验证通用业务属性CRUD功能
     priority: P0
     steps:
@@ -279,7 +279,7 @@ cases:
       - 元数据
       - 元模型管理
       - 通用业务属性
-  - id: C017
+  - case_id: C0017
     title: 验证个性业务属性-新增（枚举/文本框/树形目录）
     priority: P1
     steps:
@@ -303,7 +303,7 @@ cases:
       - 元数据
       - 元模型管理
       - 个性业务属性-新增
-  - id: C018
+  - case_id: C0018
     title: 验证个性业务属性-编辑
     priority: P1
     steps:
@@ -317,7 +317,7 @@ cases:
       - 元数据
       - 元模型管理
       - 个性业务属性-编辑
-  - id: C019
+  - case_id: C0019
     title: 验证个性业务属性-删除
     priority: P1
     steps:
@@ -329,7 +329,7 @@ cases:
       - 元数据
       - 元模型管理
       - 个性业务属性-删除
-  - id: C020
+  - case_id: C0020
     title: 验证业务属性在数据表详情页生效
     priority: P2
     steps:
@@ -345,7 +345,7 @@ cases:
       - 元数据
       - 元模型管理
       - 业务属性在详情页生效
-  - id: C021
+  - case_id: C0021
     title: 验证页面跳转和面包屑导航正确
     priority: P1
     steps:
@@ -361,7 +361,7 @@ cases:
       - 元数据
       - 元数据管理
       - 页面跳转和面包屑
-  - id: C022
+  - case_id: C0022
     title: 验证数据源列表展示
     priority: P1
     steps:
@@ -375,7 +375,7 @@ cases:
       - 元数据
       - 元数据管理
       - 数据源列表
-  - id: C023
+  - case_id: C0023
     title: 验证数据库列表展示
     priority: P1
     steps:
@@ -389,7 +389,7 @@ cases:
       - 元数据
       - 元数据管理
       - 数据库列表
-  - id: C024
+  - case_id: C0024
     title: 验证数据表列表展示
     priority: P2
     steps:
@@ -401,7 +401,7 @@ cases:
       - 元数据
       - 元数据管理
       - 数据表列表
-  - id: C025
+  - case_id: C0025
     title: 验证数据表详情页信息完整
     priority: P0
     steps:
@@ -419,7 +419,7 @@ cases:
       - 元数据
       - 元数据管理
       - 数据表详情页
-  - id: C026
+  - case_id: C0026
     title: 验证完整度分析-触发定时任务并查看结果
     priority: P2
     steps:
@@ -437,7 +437,7 @@ cases:
       - 元数据
       - 元数据质量
       - 完整度分析
-  - id: C027
+  - case_id: C0027
     title: 验证完整度分析-元模型筛选
     priority: P2
     steps:
@@ -451,7 +451,7 @@ cases:
       - 元数据
       - 元数据质量
       - 完整度分析
-  - id: C028
+  - case_id: C0028
     title: 验证血缘分析-创建
     priority: P0
     steps:
@@ -467,7 +467,7 @@ cases:
       - 元数据
       - 元数据质量
       - 血缘分析
-  - id: C029
+  - case_id: C0029
     title: 验证血缘分析-查询与筛选
     priority: P2
     steps:
@@ -481,7 +481,7 @@ cases:
       - 元数据
       - 元数据质量
       - 血缘分析
-  - id: C030
+  - case_id: C0030
     title: 验证血缘分析-监控触发
     priority: P2
     steps:
@@ -495,7 +495,7 @@ cases:
       - 元数据
       - 元数据质量
       - 血缘分析
-  - id: C031
+  - case_id: C0031
     title: 验证标准目录查询功能
     priority: P2
     steps:
@@ -511,7 +511,7 @@ cases:
       - 数据标准
       - 标准定义
       - 标准目录CRUD
-  - id: C032
+  - case_id: C0032
     title: 验证标准目录创建功能
     priority: P2
     steps:
@@ -527,7 +527,7 @@ cases:
       - 数据标准
       - 标准定义
       - 标准目录CRUD
-  - id: C033
+  - case_id: C0033
     title: 验证标准目录编辑功能
     priority: P2
     steps:
@@ -541,7 +541,7 @@ cases:
       - 数据标准
       - 标准定义
       - 标准目录CRUD
-  - id: C034
+  - case_id: C0034
     title: 验证标准目录删除功能
     priority: P1
     steps:
@@ -553,7 +553,7 @@ cases:
       - 数据标准
       - 标准定义
       - 标准目录CRUD
-  - id: C035
+  - case_id: C0035
     title: 验证数据标准新增功能
     priority: P0
     steps:
@@ -567,7 +567,7 @@ cases:
       - 数据标准
       - 标准定义
       - 数据标准CRUD
-  - id: C036
+  - case_id: C0036
     title: 验证数据标准编辑发布功能
     priority: P0
     steps:
@@ -581,7 +581,7 @@ cases:
       - 数据标准
       - 标准定义
       - 数据标准CRUD
-  - id: C037
+  - case_id: C0037
     title: 验证数据标准下线删除功能
     priority: P0
     steps:
@@ -593,7 +593,7 @@ cases:
       - 数据标准
       - 标准定义
       - 数据标准CRUD
-  - id: C038
+  - case_id: C0038
     title: 验证数据标准导入导出功能
     priority: P2
     steps:
@@ -605,7 +605,7 @@ cases:
       - 数据标准
       - 标准定义
       - 数据标准CRUD
-  - id: C039
+  - case_id: C0039
     title: 验证标准映射创建功能
     priority: P2
     steps:
@@ -619,7 +619,7 @@ cases:
       - 数据标准
       - 标准定义
       - 标准映射
-  - id: C040
+  - case_id: C0040
     title: 验证标准映射-字段绑定与查看编辑
     priority: P1
     steps:
@@ -633,7 +633,7 @@ cases:
       - 数据标准
       - 标准定义
       - 标准映射
-  - id: C041
+  - case_id: C0041
     title: 验证词根管理CRUD功能
     priority: P2
     steps:
@@ -649,7 +649,7 @@ cases:
       - 数据标准
       - 词根管理
       - 词根CRUD
-  - id: C042
+  - case_id: C0042
     title: 验证码表管理CRUD功能
     priority: P2
     steps:
@@ -665,7 +665,7 @@ cases:
       - 数据标准
       - 码表管理
       - 码表CRUD
-  - id: C043
+  - case_id: C0043
     title: 验证建表语句解析功能
     priority: P0
     steps:
@@ -681,7 +681,7 @@ cases:
       - 数据模型
       - 建表
       - 建表语句解析
-  - id: C044
+  - case_id: C0044
     title: 验证CSV创建表功能
     priority: P2
     steps:
@@ -697,7 +697,7 @@ cases:
       - 数据模型
       - 建表
       - CSV创建表
-  - id: C045
+  - case_id: C0045
     title: 验证模型发布审批流程
     priority: P0
     steps:
@@ -709,7 +709,7 @@ cases:
       - 数据模型
       - 建表
       - 模型发布审批
-  - id: C046
+  - case_id: C0046
     title: 验证查询与版本管理功能
     priority: P1
     steps:
@@ -721,7 +721,7 @@ cases:
       - 数据模型
       - 建表
       - 查询与版本管理
-  - id: C047
+  - case_id: C0047
     title: 验证总览页面统计数据正确
     priority: P0
     steps:
@@ -735,7 +735,7 @@ cases:
       - 数据质量
       - 总览
       - 总览页面
-  - id: C048
+  - case_id: C0048
     title: 验证规则库配置-内置规则列表与启停
     priority: P2
     steps:
@@ -751,7 +751,7 @@ cases:
       - 数据质量
       - 规则库配置
       - 内置规则
-  - id: C049
+  - case_id: C0049
     title: 验证规则库配置-自定义规则CRUD
     priority: P0
     steps:
@@ -769,7 +769,7 @@ cases:
       - 数据质量
       - 规则库配置
       - 自定义规则
-  - id: C050
+  - case_id: C0050
     title: 验证规则库配置-SQL模板CRUD
     priority: P1
     steps:
@@ -785,7 +785,7 @@ cases:
       - 数据质量
       - 规则库配置
       - SQL模板
-  - id: C051
+  - case_id: C0051
     title: 验证规则集管理-新建规则集
     priority: P0
     steps:
@@ -809,7 +809,7 @@ cases:
       - 数据质量
       - 规则集管理
       - 新建规则集
-  - id: C052
+  - case_id: C0052
     title: 验证规则集管理-编辑与删除
     priority: P1
     steps:
@@ -825,7 +825,7 @@ cases:
       - 数据质量
       - 规则集管理
       - 编辑与删除
-  - id: C053
+  - case_id: C0053
     title: 验证规则任务-新建单表监控规则
     priority: P0
     steps:
@@ -851,7 +851,7 @@ cases:
       - 数据质量
       - 规则任务管理
       - 新建单表监控规则
-  - id: C054
+  - case_id: C0054
     title: 验证规则任务-开启/关闭检测与立即执行
     priority: P0
     steps:
@@ -865,7 +865,7 @@ cases:
       - 数据质量
       - 规则任务管理
       - 开启/关闭检测与立即执行
-  - id: C055
+  - case_id: C0055
     title: 验证校验结果查询-查看执行结果与报告
     priority: P0
     steps:
@@ -885,7 +885,7 @@ cases:
       - 数据质量
       - 校验结果查询
       - 查看执行结果
-  - id: C056
+  - case_id: C0056
     title: 验证质量报告配置与查看
     priority: P0
     steps:
@@ -899,7 +899,7 @@ cases:
       - 数据质量
       - 数据质量报告
       - 质量报告配置与查看
-  - id: C057
+  - case_id: C0057
     title: 验证项目管理-脏数据管理
     priority: P0
     steps:
@@ -915,7 +915,7 @@ cases:
       - 数据质量
       - 项目管理
       - 脏数据管理
-  - id: C058
+  - case_id: C0058
     title: 验证小文件治理-规则配置
     priority: P2
     steps:
@@ -933,7 +933,7 @@ cases:
       - 数据治理
       - 小文件治理
       - 规则配置
-  - id: C059
+  - case_id: C0059
     title: 验证小文件治理-执行与记录
     priority: P2
     steps:
@@ -947,7 +947,7 @@ cases:
       - 数据治理
       - 小文件治理
       - 执行与记录
-  - id: C060
+  - case_id: C0060
     title: 验证级别管理-新增级别
     priority: P2
     steps:
@@ -959,7 +959,7 @@ cases:
       - 数据安全
       - 分级分类
       - 级别管理
-  - id: C061
+  - case_id: C0061
     title: 验证级别管理-编辑级别
     priority: P1
     steps:
@@ -971,7 +971,7 @@ cases:
       - 数据安全
       - 分级分类
       - 级别管理
-  - id: C062
+  - case_id: C0062
     title: 验证级别管理-删除级别
     priority: P1
     steps:
@@ -981,7 +981,7 @@ cases:
       - 数据安全
       - 分级分类
       - 级别管理
-  - id: C063
+  - case_id: C0063
     title: 验证自动分级规则-添加与生效
     priority: P0
     steps:
@@ -999,7 +999,7 @@ cases:
       - 数据安全
       - 分级分类
       - 自动分级规则
-  - id: C064
+  - case_id: C0064
     title: 验证自动分级规则-编辑与删除
     priority: P2
     steps:
@@ -1015,7 +1015,7 @@ cases:
       - 数据安全
       - 分级分类
       - 自动分级规则
-  - id: C065
+  - case_id: C0065
     title: 验证分级数据查询功能
     priority: P2
     steps:
@@ -1029,7 +1029,7 @@ cases:
       - 数据安全
       - 分级分类
       - 分级数据查询
-  - id: C066
+  - case_id: C0066
     title: 验证分级数据发布功能
     priority: P2
     steps:
@@ -1041,7 +1041,7 @@ cases:
       - 数据安全
       - 分级分类
       - 分级数据查询
-  - id: C067
+  - case_id: C0067
     title: 验证分级数据下架功能
     priority: P1
     steps:
@@ -1053,7 +1053,7 @@ cases:
       - 数据安全
       - 分级分类
       - 分级数据查询
-  - id: C068
+  - case_id: C0068
     title: 验证字段删除后分级数据显示
     priority: P1
     steps:
@@ -1063,7 +1063,7 @@ cases:
       - 数据安全
       - 分级分类
       - 分级数据查询
-  - id: C069
+  - case_id: C0069
     title: 验证字段修改后分级数据显示
     priority: P1
     steps:
@@ -1073,7 +1073,7 @@ cases:
       - 数据安全
       - 分级分类
       - 分级数据查询
-  - id: C070
+  - case_id: C0070
     title: 验证脱敏规则管理-新增规则
     priority: P2
     steps:
@@ -1085,7 +1085,7 @@ cases:
       - 数据安全
       - 数据脱敏
       - 脱敏规则管理
-  - id: C071
+  - case_id: C0071
     title: 验证脱敏规则管理-编辑规则
     priority: P1
     steps:
@@ -1095,7 +1095,7 @@ cases:
       - 数据安全
       - 数据脱敏
       - 脱敏规则管理
-  - id: C072
+  - case_id: C0072
     title: 验证脱敏规则管理-删除规则
     priority: P1
     steps:
@@ -1105,7 +1105,7 @@ cases:
       - 数据安全
       - 数据脱敏
       - 脱敏规则管理
-  - id: C073
+  - case_id: C0073
     title: 验证脱敏表-全部脱敏配置与生效
     priority: P0
     steps:
@@ -1119,7 +1119,7 @@ cases:
       - 数据安全
       - 数据脱敏
       - 脱敏表配置
-  - id: C074
+  - case_id: C0074
     title: 验证脱敏表-部分脱敏配置与生效
     priority: P2
     steps:
@@ -1131,7 +1131,7 @@ cases:
       - 数据安全
       - 数据脱敏
       - 脱敏表配置
-  - id: C075
+  - case_id: C0075
     title: 验证脱敏配置取消
     priority: P1
     steps:
@@ -1143,7 +1143,7 @@ cases:
       - 数据安全
       - 数据脱敏
       - 脱敏表配置
-  - id: C076
+  - case_id: C0076
     title: 验证权限分配功能
     priority: P0
     steps:
@@ -1155,7 +1155,7 @@ cases:
       - 数据安全
       - 数据权限
       - 权限分配
-  - id: C077
+  - case_id: C0077
     title: 验证权限查看功能
     priority: P2
     steps:
@@ -1165,7 +1165,7 @@ cases:
       - 数据安全
       - 数据权限
       - 权限分配
-  - id: C078
+  - case_id: C0078
     title: 验证权限转让功能
     priority: P2
     steps:
@@ -1177,7 +1177,7 @@ cases:
       - 数据安全
       - 数据权限
       - 权限分配
-  - id: C079
+  - case_id: C0079
     title: 验证权限收回功能
     priority: P2
     steps:
@@ -1187,7 +1187,7 @@ cases:
       - 数据安全
       - 数据权限
       - 权限分配
-  - id: C080
+  - case_id: C0080
     title: 验证引入数据源功能
     priority: P0
     steps:
@@ -1201,7 +1201,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 引入数据源
-  - id: C081
+  - case_id: C0081
     title: 验证引入 Doris3.x 数据源
     priority: P0
     steps:
@@ -1213,7 +1213,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 引入数据源
-  - id: C082
+  - case_id: C0082
     title: 验证数据源列表筛选搜索功能
     priority: P1
     steps:
@@ -1229,7 +1229,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 筛选搜索
-  - id: C083
+  - case_id: C0083
     title: 验证数据源详情页
     priority: P1
     steps:
@@ -1241,7 +1241,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 数据源详情
-  - id: C084
+  - case_id: C0084
     title: 验证取消引入数据源功能
     priority: P2
     steps:
@@ -1255,7 +1255,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 取消引入
-  - id: C085
+  - case_id: C0085
     title: 验证数据源质量授权功能
     priority: P2
     steps:
@@ -1267,7 +1267,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 质量授权
-  - id: C086
+  - case_id: C0086
     title: 验证离线项目自动引入meta数据源
     priority: P2
     steps:
@@ -1281,7 +1281,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 离线项目自动引入
-  - id: C087
+  - case_id: C0087
     title: 验证取消引入后关联数据清理
     priority: P2
     steps:
@@ -1297,7 +1297,7 @@ cases:
       - 数据源管理
       - 数据源引入
       - 取消引入-逻辑验证
-  - id: C088
+  - case_id: C0088
     title: 验证添加用户功能
     priority: P0
     steps:
@@ -1315,7 +1315,7 @@ cases:
       - 用户角色管理
       - 用户管理
       - 添加用户
-  - id: C089
+  - case_id: C0089
     title: 验证移出用户功能
     priority: P1
     steps:
@@ -1327,7 +1327,7 @@ cases:
       - 用户角色管理
       - 用户管理
       - 移出用户
-  - id: C090
+  - case_id: C0090
     title: 验证角色管理-查看与编辑
     priority: P2
     steps:
@@ -1343,7 +1343,7 @@ cases:
       - 用户角色管理
       - 角色管理
       - 角色CRUD
-  - id: C091
+  - case_id: C0091
     title: 验证自定义角色新增与删除
     priority: P0
     steps:
@@ -1355,7 +1355,7 @@ cases:
       - 用户角色管理
       - 角色管理
       - 角色CRUD
-  - id: C092
+  - case_id: C0092
     title: 验证角色权限生效
     priority: P2
     steps:
@@ -1369,7 +1369,7 @@ cases:
       - 用户角色管理
       - 角色管理
       - 权限生效
-  - id: C093
+  - case_id: C0093
     title: 验证用户权限转让
     priority: P2
     steps:
@@ -1383,7 +1383,7 @@ cases:
       - 用户角色管理
       - 角色管理
       - 权限转让
-  - id: C094
+  - case_id: C0094
     title: 验证用户组移出产品
     priority: P1
     steps:
@@ -1395,7 +1395,7 @@ cases:
       - 用户角色管理
       - 角色管理
       - 权限转让
-  - id: C095
+  - case_id: C0095
     title: 验证通知配置列表展示
     priority: P2
     steps:
@@ -1409,7 +1409,7 @@ cases:
       - 通知中心
       - 通知配置
       - 通知配置列表
-  - id: C096
+  - case_id: C0096
     title: 验证通知配置-筛选与重置
     priority: P2
     steps:
@@ -1423,7 +1423,7 @@ cases:
       - 通知中心
       - 通知配置
       - 通知配置列表
-  - id: C097
+  - case_id: C0097
     title: 验证通知配置-查看详情
     priority: P2
     steps:
@@ -1435,7 +1435,7 @@ cases:
       - 通知中心
       - 通知配置
       - 通知配置列表
-  - id: C098
+  - case_id: C0098
     title: 验证通知配置-删除
     priority: P2
     steps:
@@ -1449,7 +1449,7 @@ cases:
       - 通知中心
       - 通知配置
       - 通知配置列表
-  - id: C099
+  - case_id: C0099
     title: 验证元数据实时同步告警配置通知功能
     priority: P2
     steps:
@@ -1461,7 +1461,7 @@ cases:
       - 通知中心
       - 规则绑定与触发
       - 元数据同步告警
-  - id: C100
+  - case_id: C0100
     title: 验证数据质量规则告警配置通知功能
     priority: P0
     steps:
@@ -1473,7 +1473,7 @@ cases:
       - 通知中心
       - 规则绑定与触发
       - 元数据同步告警
-  - id: C101
+  - case_id: C0101
     title: 验证不同告警渠道通知正常
     priority: P0
     steps:
@@ -1487,7 +1487,7 @@ cases:
       - 通知中心
       - 规则绑定与触发
       - 元数据同步告警
-  - id: C102
+  - case_id: C0102
     title: 验证通知记录列表展示
     priority: P2
     steps:
@@ -1499,7 +1499,7 @@ cases:
       - 通知中心
       - 通知记录
       - 通知记录查询
-  - id: C103
+  - case_id: C0103
     title: 验证通知记录-查询功能
     priority: P2
     steps:
@@ -1509,7 +1509,7 @@ cases:
       - 通知中心
       - 通知记录
       - 通知记录查询
-  - id: C104
+  - case_id: C0104
     title: 验证通知模板查看功能
     priority: P1
     steps:
@@ -1521,7 +1521,7 @@ cases:
       - 通知中心
       - 通知模板
       - 通知模板管理
-  - id: C105
+  - case_id: C0105
     title: 验证通知模板编辑功能
     priority: P1
     steps:
@@ -1533,7 +1533,7 @@ cases:
       - 通知中心
       - 通知模板
       - 通知模板管理
-  - id: C106
+  - case_id: C0106
     title: 验证已接入数据源统计数据正确
     priority: P2
     steps:
@@ -1547,7 +1547,7 @@ cases:
       - 资产盘点
       - 统计数据
       - 已接入数据源统计
-  - id: C107
+  - case_id: C0107
     title: 验证数据地图分布图数据正确
     priority: P2
     steps:
@@ -1563,7 +1563,7 @@ cases:
       - 资产盘点
       - 统计数据
       - 数据地图分布
-  - id: C108
+  - case_id: C0108
     title: 验证数据目录分布图数据正确
     priority: P2
     steps:
@@ -1577,7 +1577,7 @@ cases:
       - 资产盘点
       - 统计数据
       - 数据目录分布
-  - id: C109
+  - case_id: C0109
     title: 验证元数据变化趋势图数据正确
     priority: P1
     steps:
@@ -1593,7 +1593,7 @@ cases:
       - 资产盘点
       - 趋势图表
       - 元数据变化趋势
-  - id: C110
+  - case_id: C0110
     title: 验证资产查询趋势图数据正确
     priority: P1
     steps:
@@ -1611,7 +1611,7 @@ cases:
       - 资产盘点
       - 趋势图表
       - 资产查询趋势
-  - id: C111
+  - case_id: C0111
     title: 验证数据价值排行图数据正确
     priority: P1
     steps:
@@ -1625,7 +1625,7 @@ cases:
       - 资产盘点
       - 数据分布
       - 数据价值排行
-  - id: C112
+  - case_id: C0112
     title: 验证存储资源排行图数据正确
     priority: P1
     steps:

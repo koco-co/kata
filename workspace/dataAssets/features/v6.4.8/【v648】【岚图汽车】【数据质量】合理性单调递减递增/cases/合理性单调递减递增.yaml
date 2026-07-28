@@ -3,7 +3,7 @@ meta:
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】合理性单调递减递增
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证排序字段类型选择其他类型，合理性校验功能
     priority: P1
     steps:
@@ -30,7 +30,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C002
+  - case_id: C0002
     title: 验证字段选择其他类型，合理性校验功能
     priority: P1
     steps:
@@ -44,7 +44,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C003
+  - case_id: C0003
     title: 验证校验字段/排序字段为stirng类型-stirng类型值包含非数字，合理性校验功能
     priority: P0
     steps:
@@ -88,7 +88,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C004
+  - case_id: C0004
     title: 验证校验字段/排序字段为stirng类型-stirng类型值都为数字，合理性校验功能
     priority: P0
     steps:
@@ -129,7 +129,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C005
+  - case_id: C0005
     title: 验证字段/排序字段类型为decimal/numeric，合理性校验功能
     priority: P1
     steps:
@@ -171,7 +171,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C006
+  - case_id: C0006
     title: 验证字段/排序字段类型为double/double precision，合理性校验功能
     priority: P1
     steps:
@@ -210,7 +210,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C007
+  - case_id: C0007
     title: 验证字段/排序字段类型为float，合理性校验功能
     priority: P1
     steps:
@@ -249,7 +249,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C008
+  - case_id: C0008
     title: 验证字段/排序字段类型为bigint，合理性校验功能
     priority: P1
     steps:
@@ -288,7 +288,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C009
+  - case_id: C0009
     title: 验证字段/排序字段类型为int/integer，合理性校验功能
     priority: P1
     steps:
@@ -324,7 +324,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C010
+  - case_id: C0010
     title: 验证字段/排序字段类型为mediumint，合理性校验功能
     priority: P1
     steps:
@@ -358,7 +358,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C011
+  - case_id: C0011
     title: 验证字段/排序字段类型为smallint，合理性校验功能
     priority: P1
     steps:
@@ -394,7 +394,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C012
+  - case_id: C0012
     title: 验证字段/排序字段类型为tinyint，合理性校验功能
     priority: P1
     steps:
@@ -431,7 +431,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C013
+  - case_id: C0013
     title: 验证合理性校验-分区、抽样设置正确
     priority: P2
     steps:
@@ -574,7 +574,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C014
+  - case_id: C0014
     title: 验证编辑规则-修改合理性校验功能正确
     priority: P1
     steps:
@@ -627,7 +627,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C015
+  - case_id: C0015
     title: 验证编辑规则-添加合理性校验功能正确
     priority: P1
     steps:
@@ -669,7 +669,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C016
+  - case_id: C0016
     title: 验证合理性校验强规则-校验不通过生效
     priority: P0
     steps:
@@ -719,7 +719,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C017
+  - case_id: C0017
     title: 验证合理性校验强规则-校验通过生效
     priority: P1
     steps:
@@ -769,7 +769,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C018
+  - case_id: C0018
     title: 验证合理性校验弱规则-校验不通过生效
     priority: P1
     steps:
@@ -819,7 +819,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C019
+  - case_id: C0019
     title: 验证合理性校验弱规则-校验通过生效
     priority: P1
     steps:
@@ -869,7 +869,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C020
+  - case_id: C0020
     title: 验证数据表质量报告-单调递减校验结果正确
     priority: P1
     steps:
@@ -914,7 +914,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C021
+  - case_id: C0021
     title: 验证数据表质量报告-单调递增校验结果正确
     priority: P0
     steps:
@@ -959,7 +959,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C022
+  - case_id: C0022
     title: 验证合理性校验-单调递减-查看明细正确
     priority: P0
     steps:
@@ -1002,7 +1002,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C023
+  - case_id: C0023
     title: 验证合理性校验-单调递减实例详情正确
     priority: P1
     steps:
@@ -1039,7 +1039,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C024
+  - case_id: C0024
     title: 验证合理性校验-单调递减运行-校验不通过功能
     priority: P1
     steps:
@@ -1075,7 +1075,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C025
+  - case_id: C0025
     title: 验证合理性校验-单调递减运行-校验通过功能
     priority: P0
     steps:
@@ -1111,7 +1111,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C026
+  - case_id: C0026
     title: 验证新建单调递减监控规则
     priority: P1
     steps:
@@ -1148,7 +1148,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C027
+  - case_id: C0027
     title: 验证合理性校验-单调递增-查看明细正确
     priority: P0
     steps:
@@ -1194,7 +1194,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C028
+  - case_id: C0028
     title: 验证合理性校验-单调递增实例详情正确
     priority: P1
     steps:
@@ -1231,7 +1231,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C029
+  - case_id: C0029
     title: 验证合理性校验-单调递增运行-校验不通过功能
     priority: P1
     steps:
@@ -1267,7 +1267,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C030
+  - case_id: C0030
     title: 验证合理性校验-单调递增运行-校验通过功能
     priority: P0
     steps:
@@ -1303,7 +1303,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C031
+  - case_id: C0031
     title: 验证新建单调递增监控规则
     priority: P1
     steps:
@@ -1337,7 +1337,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C032
+  - case_id: C0032
     title: 验证【合理性校验】规则框-校验方法正确
     priority: P1
     steps:
@@ -1353,7 +1353,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C033
+  - case_id: C0033
     title: 验证【合理性校验】规则框-选择排序字段正确
     priority: P1
     steps:
@@ -1369,7 +1369,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C034
+  - case_id: C0034
     title: 验证【合理性校验】规则框-统计函数正确
     priority: P1
     steps:
@@ -1385,7 +1385,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C035
+  - case_id: C0035
     title: 验证【合理性校验】规则框-字段正确
     priority: P1
     steps:
@@ -1401,7 +1401,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C036
+  - case_id: C0036
     title: 验证【合理性校验】规则框正确
     priority: P1
     steps:
@@ -1415,7 +1415,7 @@ cases:
     tags:
       - 合理性校验字段类型限制
       - 未分类
-  - id: C037
+  - case_id: C0037
     title: 验证新增【合理性校验】类型
     priority: P1
     steps:

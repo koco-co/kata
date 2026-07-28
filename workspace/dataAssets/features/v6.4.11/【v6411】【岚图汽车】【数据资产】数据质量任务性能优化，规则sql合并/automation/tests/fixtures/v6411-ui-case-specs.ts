@@ -7,7 +7,8 @@ import { getEnvConfig } from "../../../../../../_shared/helpers";
 /** 从运行时环境解析 SparkThrift 数据源 UI 名称；未选环境时仅保留不可执行占位值。 */
 function resolveSparkDatasourceName(): string {
   try {
-    return getEnvConfig().datasources.sparkthrift?.batch?.name ?? "__unconfigured_sparkthrift__";
+    const datasource = getEnvConfig().datasources.sparkthrift;
+    return datasource?.assets?.name ?? datasource?.metadata?.name ?? datasource?.batch?.name ?? "__unconfigured_sparkthrift__";
   } catch {
     return "__unresolved_sparkthrift__";
   }
@@ -86,9 +87,14 @@ export type V6411SourcePreconditionAudit = {
 };
 
 const FEATURE_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const CSV_PATH = path.join(FEATURE_DIR, "inputs/数据资产_STD-用例_6.4.11.csv");
+const CSV_PATH = path.join(FEATURE_DIR, "inputs/attachments/数据资产_STD-用例_6.4.11.csv");
 
 type CsvRow = Record<string, string>;
+
+let canonicalCsvRowsCache: CsvRow[] | undefined;
+let sourceRuleAuditsCache: V6411SourceRuleAudit[] | undefined;
+let sourcePreconditionAuditsCache: V6411SourcePreconditionAudit[] | undefined;
+let caseMetasCache: V6411UiCaseMeta[] | undefined;
 
 export const EXPECTED_CANONICAL_RULE_COUNTS = [
   21, 21, 21, 21, 15, 15, 15, 13, 13, 13, 10, 9, 9, 8, 9, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0,
@@ -529,6 +535,7 @@ export function explicitRuleCaseNumbers(): number[] {
 }
 
 export function loadV6411UiCaseMetas(): V6411UiCaseMeta[] {
+  if (caseMetasCache) return caseMetasCache;
   const canonicalRows = loadCanonicalCsvRows();
 
   if (canonicalRows.length !== 36) {
@@ -544,10 +551,12 @@ export function loadV6411UiCaseMetas(): V6411UiCaseMeta[] {
   for (const [index, row] of canonicalRows.entries()) {
     cases.push(buildCaseMeta(row, index + 37, index + 1, sparkName, "SparkThrift2.x"));
   }
-  return cases;
+  caseMetasCache = cases;
+  return caseMetasCache;
 }
 
 export function loadV6411SourceRuleAudits(): V6411SourceRuleAudit[] {
+  if (sourceRuleAuditsCache) return sourceRuleAuditsCache;
   const canonicalRows = loadCanonicalCsvRows();
   const audits: V6411SourceRuleAudit[] = [];
   for (const [index, row] of canonicalRows.entries()) {
@@ -556,10 +565,12 @@ export function loadV6411SourceRuleAudits(): V6411SourceRuleAudit[] {
   for (const [index, row] of canonicalRows.entries()) {
     audits.push(buildSourceRuleAudit(row, index + 37, index + 1));
   }
-  return audits;
+  sourceRuleAuditsCache = audits;
+  return sourceRuleAuditsCache;
 }
 
 export function loadV6411SourcePreconditionAudits(): V6411SourcePreconditionAudit[] {
+  if (sourcePreconditionAuditsCache) return sourcePreconditionAuditsCache;
   const canonicalRows = loadCanonicalCsvRows();
   const audits: V6411SourcePreconditionAudit[] = [];
   for (const [index, row] of canonicalRows.entries()) {
@@ -568,7 +579,8 @@ export function loadV6411SourcePreconditionAudits(): V6411SourcePreconditionAudi
   for (const [index, row] of canonicalRows.entries()) {
     audits.push(buildSourcePreconditionAudit(row, index + 37, index + 1));
   }
-  return audits;
+  sourcePreconditionAuditsCache = audits;
+  return sourcePreconditionAuditsCache;
 }
 
 export function ruleFingerprint(rule: V6411RuleSpec): string {
@@ -782,11 +794,13 @@ function normalizePackageName(value: string): string {
 }
 
 function loadCanonicalCsvRows(): CsvRow[] {
+  if (canonicalCsvRowsCache) return canonicalCsvRowsCache;
   const rows = parseCsvTable(fs.readFileSync(CSV_PATH, "utf8"));
-  return rows.filter((row) => {
+  canonicalCsvRowsCache = rows.filter((row) => {
     const modulePath = row["所属模块"] ?? "";
     return modulePath.includes("数据质量任务性能优化，规则sql合并") && !modulePath.includes("doris3.x");
   });
+  return canonicalCsvRowsCache;
 }
 
 function padCaseNo(caseNo: number): string {

@@ -1,3 +1,3 @@
 // Smoke 入口：验证 v6.3 回归环境和数据质量主入口。
-import "../cases/t01-environment-preflight";
-import "../cases/t02-rule-task-entry-contract";
+import "../cases/c0001-验证规则集创建后可独立运行并生成任务查询记录";
+import "../cases/c0002-验证规则集编辑规则内容和删除提示符合标品逻辑";

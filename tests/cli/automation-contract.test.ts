@@ -10,13 +10,13 @@ function fixture(extraCases = ""): string {
   mkdirSync(join(feature, "automation", "tests", "cases"), { recursive: true });
   writeFileSync(
     join(feature, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - id: C001\n    title: 验证样例\n    priority: P1\n    steps:\n      - action: 点击【保存】\n        expected: 保存成功\n    automation:\n      spec_file: t01-demo.ts\n${extraCases}`,
+    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - case_id: C0001\n    title: 验证样例\n    priority: P1\n    steps:\n      - action: 点击【保存】\n        expected: 保存成功\n    automation:\n      spec_file: c0001-验证样例.ts\n${extraCases}`,
   );
   return feature;
 }
 
 function writeSpec(feature: string, content: string): void {
-  writeFileSync(join(feature, "automation", "tests", "cases", "t01-demo.ts"), content);
+  writeFileSync(join(feature, "automation", "tests", "cases", "c0001-验证样例.ts"), content);
 }
 
 describe("automation contract", () => {
@@ -39,12 +39,12 @@ describe("automation contract", () => {
       "// inventory-consistency check for v6411-ui-case-specs\nexport const ok = true;\n",
     );
     const coverage = inspectAutomationCoverage(feature);
-    expect(coverage.implemented).toEqual(["C001"]);
+    expect(coverage.implemented).toEqual(["C0001"]);
   });
 
   it("throws on invalid cases YAML via validateCases", () => {
     const feature = fixture(
-      "  - id: C001\n    title: 重复id\n    priority: P1\n    steps:\n      - action: a\n        expected: b\n",
+      "  - case_id: C0001\n    title: 重复id\n    priority: P1\n    steps:\n      - action: a\n        expected: b\n",
     );
     expect(() => inspectAutomationCoverage(feature)).toThrow(/用例校验未通过/);
   });

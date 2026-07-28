@@ -288,7 +288,11 @@ export const ALL_TABLES = TABLE_DEFINITIONS.map((table) => table.name) as readon
 // env 派生标量改为惰性函数导出：收集期不触 env，调用点在运行时执行（live 时 env 已由 kata env run 注入）
 export const QUALITY_PROJECT_ID = (): number => envProfile().projects.quality.id;
 export const QUALITY_PROJECT_NAME = (): string => envProfile().projects.quality.name;
-export const BATCH_PROJECT_NAME = (): string => envProfile().projects.offline.name;
+export const BATCH_PROJECT_NAME = (): string => {
+  const offline = envProfile().projects.offline;
+  if (!offline) throw new Error("当前环境未配置离线项目");
+  return offline.name;
+};
 
 let currentDatasource = ACTIVE_DATASOURCES[0] ?? DEFAULT_DATASOURCES[0];
 

@@ -11,13 +11,15 @@ export interface CaseMeta {
   version: string;
   /** feature 标识,格式 {group}/{dirName},如 v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验 */
   feature_id: string;
+  /** Lanhu/PRD requirement_id；历史未关联 PRD 的用例集可暂缺。 */
+  requirement_id?: string;
   /** 用例来源说明(需求文档/链接) */
   source?: string;
 }
 
 /** One executable test case. */
 export interface CaseItem {
-  /** 稳定用例编号,如 C001 */
+  /** 稳定用例编号,如 C0001 */
   id: string;
   /** 用例标题 */
   title: string;

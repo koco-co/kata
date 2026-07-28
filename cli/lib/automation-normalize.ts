@@ -8,6 +8,7 @@ const CANONICAL_RUNNERS = new Set([
   "generated.ts",
   "full.spec.ts",
   "smoke.spec.ts",
+  "sort.spec.ts",
   "retry-failed.spec.ts",
 ]);
 

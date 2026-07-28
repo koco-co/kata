@@ -3,7 +3,7 @@ meta:
   version: v6.4.10
   feature_id: v6.4.10/【v6410】【岚图汽车】【数据质量】多表数据一致性比对
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证「多表数据一致性比对」任务不通过质量报告正确
     priority: P0
     steps:
@@ -136,7 +136,7 @@ cases:
     tags:
       - 监控规则
       - 一致性校验
-  - id: C002
+  - case_id: C0002
     title: 验证「多表数据一致性比对」任务通过质量报告正确
     priority: P0
     steps:
@@ -267,7 +267,7 @@ cases:
     tags:
       - 监控规则
       - 一致性校验
-  - id: C003
+  - case_id: C0003
     title: 验证「多表数据一致性比对」不通过任务查看明细正确
     priority: P1
     steps:
@@ -398,7 +398,7 @@ cases:
     tags:
       - 监控规则
       - 一致性校验
-  - id: C004
+  - case_id: C0004
     title: 验证「多表数据一致性比对」任务不通过/失败 结果详情正确
     priority: P1
     steps:
@@ -533,7 +533,7 @@ cases:
     tags:
       - 监控规则
       - 一致性校验
-  - id: C005
+  - case_id: C0005
     title: 验证「多表数据一致性比对」任务通过结果详情正确
     priority: P1
     steps:
@@ -666,7 +666,7 @@ cases:
     tags:
       - 监控规则
       - 一致性校验
-  - id: C006
+  - case_id: C0006
     title: 验证「选择对比表」限制个数正确
     priority: P2
     steps:
@@ -794,7 +794,7 @@ cases:
       - 监控规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C007
+  - case_id: C0007
     title: 验证「选择校验字段」限制个数正确
     priority: P2
     steps:
@@ -922,7 +922,7 @@ cases:
       - 监控规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C008
+  - case_id: C0008
     title: 验证「多表数据一致性比对」区域配置交互正确
     priority: P2
     steps:
@@ -1056,7 +1056,7 @@ cases:
       - 监控规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C009
+  - case_id: C0009
     title: 验证「设置比对细节」校验不通过功能
     priority: P1
     steps:
@@ -1184,7 +1184,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C010
+  - case_id: C0010
     title: 验证「设置比对细节」校验通过功能
     priority: P1
     steps:
@@ -1312,7 +1312,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C011
+  - case_id: C0011
     title: 验证「比对规则」内容正确
     priority: P2
     steps:
@@ -1331,7 +1331,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C012
+  - case_id: C0012
     title: 验证「未选择校验字段」校验不通过功能
     priority: P1
     steps:
@@ -1459,7 +1459,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C013
+  - case_id: C0013
     title: 验证「未选择校验字段」校验通过功能
     priority: P1
     steps:
@@ -1587,7 +1587,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C014
+  - case_id: C0014
     title: 验证「多个对比表」校验不通过功能
     priority: P0
     steps:
@@ -1715,7 +1715,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C015
+  - case_id: C0015
     title: 验证「多个对比表」校验通过功能
     priority: P1
     steps:
@@ -1843,7 +1843,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C016
+  - case_id: C0016
     title: 验证「一个对比表」校验不通过功能
     priority: P0
     steps:
@@ -1971,7 +1971,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C017
+  - case_id: C0017
     title: 验证「一个对比表」校验通过功能
     priority: P0
     steps:
@@ -2099,7 +2099,7 @@ cases:
       - 内置规则
       - 一致性校验
       - 多表数据一致性比对
-  - id: C018
+  - case_id: C0018
     title: 验证「多表数据一致性比对」区域详情正确
     priority: P1
     steps:
@@ -2224,7 +2224,7 @@ cases:
     tags:
       - 监控规则
       - 一致性校验
-  - id: C019
+  - case_id: C0019
     title: 验证「监控规则」新增「一致性校验」规则类型
     priority: P0
     steps:

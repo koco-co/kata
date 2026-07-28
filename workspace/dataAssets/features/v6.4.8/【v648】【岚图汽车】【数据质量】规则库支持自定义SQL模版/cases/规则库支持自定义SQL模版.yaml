@@ -3,7 +3,7 @@ meta:
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】规则库支持自定义SQL模版
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证文案调整
     priority: P2
     steps:
@@ -15,7 +15,7 @@ cases:
     tags:
       - 数据质量-规则库管理
       - 自定义正则
-  - id: C002
+  - case_id: C0002
     title: 验证规则模式字段删除
     priority: P0
     steps:
@@ -31,7 +31,7 @@ cases:
     tags:
       - 数据质量-规则库管理
       - 自定义正则
-  - id: C003
+  - case_id: C0003
     title: 验证新增「自定义SQL模版」tab
     priority: P2
     steps:
@@ -43,7 +43,7 @@ cases:
     tags:
       - 数据质量-规则库管理
       - 自定义SQL模版
-  - id: C004
+  - case_id: C0004
     title: 验证搜索
     priority: P2
     steps:
@@ -55,7 +55,7 @@ cases:
     tags:
       - 数据质量-规则库管理
       - 自定义SQL模版
-  - id: C005
+  - case_id: C0005
     title: 验证列表展示
     priority: P1
     steps:
@@ -71,7 +71,7 @@ cases:
     tags:
       - 数据质量-规则库管理
       - 自定义SQL模版
-  - id: C006
+  - case_id: C0006
     title: 验证列表排序
     priority: P1
     steps:
@@ -81,7 +81,7 @@ cases:
     tags:
       - 数据质量-规则库管理
       - 自定义SQL模版
-  - id: C007
+  - case_id: C0007
     title: 验证新增自定义sql模版
     priority: P0
     steps:
@@ -106,7 +106,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C008
+  - case_id: C0008
     title: 验证规则名称
     priority: P1
     steps:
@@ -123,7 +123,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C009
+  - case_id: C0009
     title: 验证规则分类
     priority: P1
     steps:
@@ -140,7 +140,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C010
+  - case_id: C0010
     title: 验证关联范围 提示词：请选择 提示词正确
     priority: P1
     steps:
@@ -151,7 +151,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C011
+  - case_id: C0011
     title: 验证关联范围 选择枚举 字段级/表级/多表
     priority: P1
     steps:
@@ -162,7 +162,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C012
+  - case_id: C0012
     title: 验证关联范围 必选 为空提示
     priority: P1
     steps:
@@ -173,7 +173,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C013
+  - case_id: C0013
     title: 验证关联范围 仅支持单选 选择成功
     priority: P1
     steps:
@@ -184,7 +184,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C014
+  - case_id: C0014
     title: 验证规则描述
     priority: P1
     steps:
@@ -199,7 +199,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C015
+  - case_id: C0015
     title: 验证全局参数
     priority: P1
     steps:
@@ -212,7 +212,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C016
+  - case_id: C0016
     title: 验证Sql面板
     priority: P1
     steps:
@@ -225,7 +225,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C017
+  - case_id: C0017
     title: 验证参数列表
     priority: P0
     steps:
@@ -244,7 +244,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C018
+  - case_id: C0018
     title: 验证参数列表
     priority: P2
     steps:
@@ -257,7 +257,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C019
+  - case_id: C0019
     title: 验证类型选择
     priority: P0
     steps:
@@ -282,7 +282,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C020
+  - case_id: C0020
     title: 验证参数名称
     priority: P1
     steps:
@@ -299,7 +299,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C021
+  - case_id: C0021
     title: 验证参数说明
     priority: P1
     steps:
@@ -314,7 +314,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C022
+  - case_id: C0022
     title: 验证详情
     priority: P0
     steps:
@@ -327,7 +327,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C023
+  - case_id: C0023
     title: 验证编辑
     priority: P0
     steps:
@@ -346,7 +346,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C024
+  - case_id: C0024
     title: 验证删除
     priority: P0
     steps:
@@ -359,7 +359,7 @@ cases:
       - 数据质量-规则库管理
       - 自定义SQL模版
       - 新增
-  - id: C025
+  - case_id: C0025
     title: 验证新建监控配置-自定义sql
     priority: P0
     steps:
@@ -381,7 +381,7 @@ cases:
     tags:
       - 数据质量-规则任务配置
       - 未分类
-  - id: C026
+  - case_id: C0026
     title: 验证自定义sql-规则类型
     priority: P1
     steps:
@@ -397,7 +397,7 @@ cases:
     tags:
       - 数据质量-规则任务配置
       - 未分类
-  - id: C027
+  - case_id: C0027
     title: 验证自定义sql-引用规则
     priority: P0
     steps:
@@ -417,7 +417,7 @@ cases:
     tags:
       - 数据质量-规则任务配置
       - 未分类
-  - id: C028
+  - case_id: C0028
     title: 验证自定义sql-sql面板
     priority: P1
     steps:
@@ -427,7 +427,7 @@ cases:
     tags:
       - 数据质量-规则任务配置
       - 未分类
-  - id: C029
+  - case_id: C0029
     title: 验证自定义sql：引用规则选择「自定义模版」-参数列表
     priority: P0
     steps:
@@ -443,7 +443,7 @@ cases:
     tags:
       - 数据质量-规则任务配置
       - 未分类
-  - id: C030
+  - case_id: C0030
     title: 验证校验字段
     priority: P1
     steps:
@@ -461,7 +461,7 @@ cases:
     tags:
       - 数据质量-规则任务配置
       - 未分类
-  - id: C031
+  - case_id: C0031
     title: 验证自定义sql任务运行结果查看
     priority: P0
     steps:
@@ -503,7 +503,7 @@ cases:
     tags:
       - 数据质量-任务实例查询
       - 未分类
-  - id: C032
+  - case_id: C0032
     title: 验证验证自定义sql质量报告-规则校验明细
     priority: P0
     steps:

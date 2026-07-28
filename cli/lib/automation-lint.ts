@@ -374,7 +374,7 @@ function scanCaseFileName(
       path,
       1,
       "case-file-naming",
-      "tests/cases/ 下 TypeScript 文件名必须符合 t<序号>-<小写 slug>.ts",
+      "tests/cases/ 下 TypeScript 文件名必须符合 c<四位序号>-<中文/英文/数字/横杆 slug>.ts",
       basename(absolutePath),
     );
   }

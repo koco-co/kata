@@ -2,10 +2,11 @@ meta:
   title: 数据质量任务性能优化_规则sql合并
   version: v6.4.11
   feature_id: v6.4.11/【v6411】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
+  requirement_id: "15862"
 cases:
-  - id: C001
+  - case_id: C0001
     automation:
-      spec_file: t01-c001.ts
+      spec_file: c0001-验证可合并和不可合并-抽样开启-设置分区-不同过滤条件-包含强弱规则-多规则包校验功能.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
@@ -150,9 +151,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C002
+  - case_id: C0002
     automation:
-      spec_file: t02-c002.ts
+      spec_file: c0002-验证可合并和不可合并-抽样开启-设置分区-不同过滤条件-包含强弱规则-单规则包校验功能.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「单规则包」校验功能
     priority: P0
     steps:
@@ -297,9 +298,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C003
+  - case_id: C0003
     automation:
-      spec_file: t03-c003.ts
+      spec_file: c0003-验证可合并和不可合并-抽样开启-设置分区-相同过滤条件-包含强弱规则-多规则包校验功能.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
@@ -444,9 +445,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C004
+  - case_id: C0004
     automation:
-      spec_file: t04-c004.ts
+      spec_file: c0004-验证可合并和不可合并-抽样开启-设置分区-相同过滤条件-包含强弱规则-单规则包校验功能.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「单规则包」校验功能
     priority: P0
     steps:
@@ -591,9 +592,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C005
+  - case_id: C0005
     automation:
-      spec_file: t05-c005.ts
+      spec_file: c0005-验证可合并和不可合并-抽样开启-设置分区校验功能.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -728,9 +729,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C006
+  - case_id: C0006
     automation:
-      spec_file: t06-c006.ts
+      spec_file: c0006-验证可合并和不可合并-抽样开启校验功能.ts
     title: 验证「可合并和不可合并」-「抽样开启」校验功能
     priority: P1
     steps:
@@ -865,9 +866,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C007
+  - case_id: C0007
     automation:
-      spec_file: t07-c007.ts
+      spec_file: c0007-验证可合并和不可合并-抽样关闭校验功能.ts
     title: 验证「可合并和不可合并」-「抽样关闭」校验功能
     priority: P1
     steps:
@@ -1002,9 +1003,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C008
+  - case_id: C0008
     automation:
-      spec_file: t08-c008.ts
+      spec_file: c0008-验证不可合并部分规则-抽样开启-设置分区校验功能.ts
     title: 验证「不可合并部分规则」-「抽样开启」-「设置分区」校验功能
     priority: P0
     steps:
@@ -1138,9 +1139,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C009
+  - case_id: C0009
     automation:
-      spec_file: t09-c009.ts
+      spec_file: c0009-验证不可合并部分规则-抽样开启校验功能.ts
     title: 验证「不可合并部分规则」-「抽样开启」校验功能
     priority: P1
     steps:
@@ -1274,9 +1275,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C010
+  - case_id: C0010
     automation:
-      spec_file: t10-c010.ts
+      spec_file: c0010-验证不可合并部分规则-抽样关闭校验功能.ts
     title: 验证「不可合并部分规则」-「抽样关闭」校验功能
     priority: P1
     steps:
@@ -1410,9 +1411,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C011
+  - case_id: C0011
     automation:
-      spec_file: t11-c011.ts
+      spec_file: c0011-验证完整性有效性-抽样开启-设置分区-包含强弱规则-多规则包校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能
     priority: P1
     steps:
@@ -1529,9 +1530,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C012
+  - case_id: C0012
     automation:
-      spec_file: t12-c012.ts
+      spec_file: c0012-验证完整性有效性-抽样开启-设置分区-包含强弱规则-单规则包校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能
     priority: P1
     steps:
@@ -1642,9 +1643,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C013
+  - case_id: C0013
     automation:
-      spec_file: t13-c013.ts
+      spec_file: c0013-验证完整性有效性-抽样开启-设置分区-不同过滤条件校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能
     priority: P1
     steps:
@@ -1755,9 +1756,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C014
+  - case_id: C0014
     automation:
-      spec_file: t14-c014.ts
+      spec_file: c0014-验证完整性有效性-抽样开启-设置分区-string强转int校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能
     priority: P2
     steps:
@@ -1866,9 +1867,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C015
+  - case_id: C0015
     automation:
-      spec_file: t15-c015.ts
+      spec_file: c0015-验证完整性有效性-抽样开启-设置分区-相同过滤条件校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能
     priority: P2
     steps:
@@ -1979,9 +1980,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C016
+  - case_id: C0016
     automation:
-      spec_file: t16-ui-rebuild-v6411-cases.ts
+      spec_file: c0016-验证有效性校验校验不通过的规则查看明细功能.ts
     title: 验证「有效性校验」校验不通过的规则查看明细功能
     priority: P1
     steps:
@@ -2009,9 +2010,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C017
+  - case_id: C0017
     automation:
-      spec_file: t17-c017.ts
+      spec_file: c0017-验证有效性校验校验不通过质量报告正确.ts
     title: 验证「有效性校验」校验不通过质量报告正确
     priority: P1
     steps:
@@ -2092,9 +2093,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C018
+  - case_id: C0018
     automation:
-      spec_file: t18-c018.ts
+      spec_file: c0018-验证有效性校验校验通过质量报告正确.ts
     title: 验证「有效性校验」校验通过质量报告正确
     priority: P0
     steps:
@@ -2175,9 +2176,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C019
+  - case_id: C0019
     automation:
-      spec_file: t19-c019.ts
+      spec_file: c0019-验证有效性校验-抽样开启-设置分区校验功能.ts
     title: 验证「有效性校验」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -2274,9 +2275,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C020
+  - case_id: C0020
     automation:
-      spec_file: t20-ui-inventory-v6411-records.ts
+      spec_file: c0020-验证有效性校验-抽样开启校验全不通过功能.ts
     title: 验证「有效性校验」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -2373,9 +2374,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C021
+  - case_id: C0021
     automation:
-      spec_file: t21-c021.ts
+      spec_file: c0021-验证有效性校验-抽样开启校验全通过功能.ts
     title: 验证「有效性校验」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -2472,9 +2473,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C022
+  - case_id: C0022
     automation:
-      spec_file: t22-ui-result-recheck-v6411-records.ts
+      spec_file: c0022-验证有效性校验-抽样关闭校验全不通过功能.ts
     title: 验证「有效性校验」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -2571,9 +2572,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C023
+  - case_id: C0023
     automation:
-      spec_file: t23-c023.ts
+      spec_file: c0023-验证有效性校验-抽样关闭校验全通过功能.ts
     title: 验证「有效性校验」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -2670,9 +2671,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C024
+  - case_id: C0024
     automation:
-      spec_file: t24-ui-sort-v6411-records.ts
+      spec_file: c0024-验证完整性校验校验不通过的规则查看明细功能.ts
     title: 验证「完整性校验」校验不通过的规则查看明细功能
     priority: P0
     steps:
@@ -2700,9 +2701,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C025
+  - case_id: C0025
     automation:
-      spec_file: t25-c025.ts
+      spec_file: c0025-验证完整性校验校验不通过质量报告正确.ts
     title: 验证「完整性校验」校验不通过质量报告正确
     priority: P0
     steps:
@@ -2783,9 +2784,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C026
+  - case_id: C0026
     automation:
-      spec_file: t26-c026.ts
+      spec_file: c0026-验证完整性校验校验通过质量报告正确.ts
     title: 验证「完整性校验」校验通过质量报告正确
     priority: P1
     steps:
@@ -2866,9 +2867,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C027
+  - case_id: C0027
     automation:
-      spec_file: t27-c027.ts
+      spec_file: c0027-验证完整性校验-多字段-抽样开启-设置分区校验功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -2969,9 +2970,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C028
+  - case_id: C0028
     automation:
-      spec_file: t28-c028.ts
+      spec_file: c0028-验证完整性校验-单字段-抽样开启-设置分区校验功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -3072,9 +3073,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C029
+  - case_id: C0029
     automation:
-      spec_file: t29-c029.ts
+      spec_file: c0029-验证完整性校验-多字段-抽样开启校验全不通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -3173,9 +3174,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C030
+  - case_id: C0030
     automation:
-      spec_file: t30-c030.ts
+      spec_file: c0030-验证完整性校验-多字段-抽样开启校验全通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -3274,9 +3275,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C031
+  - case_id: C0031
     automation:
-      spec_file: t31-c031.ts
+      spec_file: c0031-验证完整性校验-多字段-抽样关闭校验全不通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -3375,9 +3376,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C032
+  - case_id: C0032
     automation:
-      spec_file: t32-c032.ts
+      spec_file: c0032-验证完整性校验-多字段-抽样关闭校验全通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -3476,9 +3477,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C033
+  - case_id: C0033
     automation:
-      spec_file: t33-c033.ts
+      spec_file: c0033-验证完整性校验-单字段-抽样开启校验全不通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -3577,9 +3578,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C034
+  - case_id: C0034
     automation:
-      spec_file: t34-c034.ts
+      spec_file: c0034-验证完整性校验-单字段-抽样开启校验全通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -3678,9 +3679,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C035
+  - case_id: C0035
     automation:
-      spec_file: t35-c035.ts
+      spec_file: c0035-验证完整性校验-单字段-抽样关闭校验全不通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -3779,9 +3780,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C036
+  - case_id: C0036
     automation:
-      spec_file: t36-c036.ts
+      spec_file: c0036-验证完整性校验-单字段-抽样关闭校验全通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -3880,9 +3881,9 @@ cases:
     tags:
       - doris3.x
       - 未分类
-  - id: C037
+  - case_id: C0037
     automation:
-      spec_file: t37-c037.ts
+      spec_file: c0037-验证多规则包校验功能.ts
     title: 验证「多规则包」校验功能
     priority: P0
     steps:
@@ -4025,9 +4026,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C038
+  - case_id: C0038
     automation:
-      spec_file: t38-c038.ts
+      spec_file: c0038-验证单规则包校验功能.ts
     title: 验证「单规则包」校验功能
     priority: P0
     steps:
@@ -4168,9 +4169,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C039
+  - case_id: C0039
     automation:
-      spec_file: t39-c039.ts
+      spec_file: c0039-验证多规则包校验功能.ts
     title: 验证「多规则包」校验功能
     priority: P0
     steps:
@@ -4311,9 +4312,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C040
+  - case_id: C0040
     automation:
-      spec_file: t40-c040.ts
+      spec_file: c0040-验证单规则包校验功能.ts
     title: 验证「单规则包」校验功能
     priority: P0
     steps:
@@ -4454,9 +4455,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C041
+  - case_id: C0041
     automation:
-      spec_file: t41-c041.ts
+      spec_file: c0041-验证设置分区校验功能.ts
     title: 验证「设置分区」校验功能
     priority: P1
     steps:
@@ -4582,9 +4583,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C042
+  - case_id: C0042
     automation:
-      spec_file: t42-c042.ts
+      spec_file: c0042-验证抽样开启校验功能.ts
     title: 验证「抽样开启」校验功能
     priority: P1
     steps:
@@ -4710,9 +4711,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C043
+  - case_id: C0043
     automation:
-      spec_file: t43-c043.ts
+      spec_file: c0043-验证抽样关闭校验功能.ts
     title: 验证「抽样关闭」校验功能
     priority: P1
     steps:
@@ -4838,9 +4839,9 @@ cases:
     tags:
       - 可合并+不可合并
       - 未分类
-  - id: C044
+  - case_id: C0044
     automation:
-      spec_file: t44-c044.ts
+      spec_file: c0044-验证设置分区校验功能.ts
     title: 验证「设置分区」校验功能
     priority: P0
     steps:
@@ -4965,9 +4966,9 @@ cases:
     tags:
       - 不可合并
       - 未分类
-  - id: C045
+  - case_id: C0045
     automation:
-      spec_file: t45-c045.ts
+      spec_file: c0045-验证抽样开启校验功能.ts
     title: 验证「抽样开启」校验功能
     priority: P1
     steps:
@@ -5092,9 +5093,9 @@ cases:
     tags:
       - 不可合并
       - 未分类
-  - id: C046
+  - case_id: C0046
     automation:
-      spec_file: t46-c046.ts
+      spec_file: c0046-验证抽样关闭校验功能.ts
     title: 验证「抽样关闭」校验功能
     priority: P1
     steps:
@@ -5219,9 +5220,9 @@ cases:
     tags:
       - 不可合并
       - 未分类
-  - id: C047
+  - case_id: C0047
     automation:
-      spec_file: t47-c047.ts
+      spec_file: c0047-验证完整性有效性-抽样开启-设置分区-包含强弱规则-多规则包校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
@@ -5335,9 +5336,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C048
+  - case_id: C0048
     automation:
-      spec_file: t48-c048.ts
+      spec_file: c0048-验证完整性有效性-抽样开启-设置分区-包含强弱规则-单规则包校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能
     priority: P1
     steps:
@@ -5439,9 +5440,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C049
+  - case_id: C0049
     automation:
-      spec_file: t49-c049.ts
+      spec_file: c0049-验证完整性有效性-抽样开启-设置分区-不同过滤条件校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能
     priority: P1
     steps:
@@ -5543,9 +5544,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C050
+  - case_id: C0050
     automation:
-      spec_file: t50-c050.ts
+      spec_file: c0050-验证完整性有效性-抽样开启-设置分区-string强转int校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能
     priority: P2
     steps:
@@ -5645,9 +5646,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C051
+  - case_id: C0051
     automation:
-      spec_file: t51-c051.ts
+      spec_file: c0051-验证完整性有效性-抽样开启-设置分区-相同过滤条件校验功能.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能
     priority: P2
     steps:
@@ -5749,9 +5750,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C052
+  - case_id: C0052
     automation:
-      spec_file: t52-c052.ts
+      spec_file: c0052-验证有效性校验校验不通过的规则查看明细功能.ts
     title: 验证「有效性校验」校验不通过的规则查看明细功能
     priority: P1
     steps:
@@ -5779,9 +5780,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C053
+  - case_id: C0053
     automation:
-      spec_file: t53-c053.ts
+      spec_file: c0053-验证有效性校验校验不通过质量报告正确.ts
     title: 验证「有效性校验」校验不通过质量报告正确
     priority: P1
     steps:
@@ -5853,9 +5854,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C054
+  - case_id: C0054
     automation:
-      spec_file: t54-c054.ts
+      spec_file: c0054-验证有效性校验校验通过质量报告正确.ts
     title: 验证「有效性校验」校验通过质量报告正确
     priority: P0
     steps:
@@ -5927,9 +5928,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C055
+  - case_id: C0055
     automation:
-      spec_file: t55-c055.ts
+      spec_file: c0055-验证有效性校验-抽样开启-设置分区校验功能.ts
     title: 验证「有效性校验」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -6017,9 +6018,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C056
+  - case_id: C0056
     automation:
-      spec_file: t56-c056.ts
+      spec_file: c0056-验证有效性校验-抽样开启校验全不通过功能.ts
     title: 验证「有效性校验」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -6107,9 +6108,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C057
+  - case_id: C0057
     automation:
-      spec_file: t57-c057.ts
+      spec_file: c0057-验证有效性校验-抽样开启校验全通过功能.ts
     title: 验证「有效性校验」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -6197,9 +6198,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C058
+  - case_id: C0058
     automation:
-      spec_file: t58-c058.ts
+      spec_file: c0058-验证有效性校验-抽样关闭校验全不通过功能.ts
     title: 验证「有效性校验」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -6287,9 +6288,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C059
+  - case_id: C0059
     automation:
-      spec_file: t59-c059.ts
+      spec_file: c0059-验证有效性校验-抽样关闭校验全通过功能.ts
     title: 验证「有效性校验」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -6377,9 +6378,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C060
+  - case_id: C0060
     automation:
-      spec_file: t60-c060.ts
+      spec_file: c0060-验证完整性校验校验不通过的规则查看明细功能.ts
     title: 验证「完整性校验」校验不通过的规则查看明细功能
     priority: P0
     steps:
@@ -6407,9 +6408,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C061
+  - case_id: C0061
     automation:
-      spec_file: t61-c061.ts
+      spec_file: c0061-验证完整性校验校验不通过质量报告正确.ts
     title: 验证「完整性校验」校验不通过质量报告正确
     priority: P0
     steps:
@@ -6481,9 +6482,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C062
+  - case_id: C0062
     automation:
-      spec_file: t62-c062.ts
+      spec_file: c0062-验证完整性校验校验通过质量报告正确.ts
     title: 验证「完整性校验」校验通过质量报告正确
     priority: P1
     steps:
@@ -6555,9 +6556,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C063
+  - case_id: C0063
     automation:
-      spec_file: t63-c063.ts
+      spec_file: c0063-验证完整性校验-多字段-抽样开启-设置分区校验功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -6649,9 +6650,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C064
+  - case_id: C0064
     automation:
-      spec_file: t64-c064.ts
+      spec_file: c0064-验证完整性校验-单字段-抽样开启-设置分区校验功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -6743,9 +6744,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C065
+  - case_id: C0065
     automation:
-      spec_file: t65-c065.ts
+      spec_file: c0065-验证完整性校验-多字段-抽样开启校验全不通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -6835,9 +6836,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C066
+  - case_id: C0066
     automation:
-      spec_file: t66-c066.ts
+      spec_file: c0066-验证完整性校验-多字段-抽样开启校验全通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -6927,9 +6928,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C067
+  - case_id: C0067
     automation:
-      spec_file: t67-c067.ts
+      spec_file: c0067-验证完整性校验-多字段-抽样关闭校验全不通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -7019,9 +7020,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C068
+  - case_id: C0068
     automation:
-      spec_file: t68-c068.ts
+      spec_file: c0068-验证完整性校验-多字段-抽样关闭校验全通过功能.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -7111,9 +7112,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C069
+  - case_id: C0069
     automation:
-      spec_file: t69-c069.ts
+      spec_file: c0069-验证完整性校验-单字段-抽样开启校验全不通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -7203,9 +7204,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C070
+  - case_id: C0070
     automation:
-      spec_file: t70-c070.ts
+      spec_file: c0070-验证完整性校验-单字段-抽样开启校验全通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -7295,9 +7296,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C071
+  - case_id: C0071
     automation:
-      spec_file: t71-c071.ts
+      spec_file: c0071-验证完整性校验-单字段-抽样关闭校验全不通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -7387,9 +7388,9 @@ cases:
     tags:
       - 可合并
       - 未分类
-  - id: C072
+  - case_id: C0072
     automation:
-      spec_file: t72-c072.ts
+      spec_file: c0072-验证完整性校验-单字段-抽样关闭校验全通过功能.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:

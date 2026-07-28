@@ -8,6 +8,7 @@ import {
   dataAssetsEnvPath,
   readDataAssetsEnvConfig,
   type ResolvedDataAssetsEnv,
+  type DataAssetsAutomationConfig,
 } from "../../../../cli/lib/dataassets-env";
 
 export type RuntimeEnv = Record<string, string | undefined>;
@@ -65,9 +66,10 @@ export interface DataAssetsEnvProfile {
   };
   readonly projects: {
     readonly quality: { readonly id: number; readonly name: string };
-    readonly offline: { readonly id: number; readonly name: string };
+    readonly offline?: { readonly id: number; readonly name: string };
   };
   readonly datasources: Record<string, DataAssetsDatasourceProfile>;
+  readonly automation?: DataAssetsAutomationConfig;
   readonly runtime: DataAssetsRuntimeOptions;
 }
 
@@ -196,6 +198,7 @@ export function loadDataAssetsEnvProfile(
     },
     projects: { ...resolvedEnv.projects },
     datasources,
+    ...(config.automation === undefined ? {} : { automation: config.automation }),
     runtime: {
       defaultDatasource: resolvedEnv.defaults.datasource,
       activeDatasources: Object.keys(datasources),
@@ -285,8 +288,10 @@ export function bridgeLegacyDataAssetsEnv(
   target.UI_AUTOTEST_COOKIE = profile.auth.cookie;
   delete target.UI_AUTOTEST_SESSION_PATH;
   target.KATA_ACTIVE_PROJECT ??= "dataAssets";
-  target.PW_WORKERS ??= String(profile.runtime.playwright.workers);
-  target.PW_FULLY_PARALLEL ??= profile.runtime.playwright.fullyParallel ? "1" : "0";
-  target.HEADLESS ??= profile.runtime.playwright.headless ? "true" : "false";
+  // Generic Playwright behavior comes exclusively from config/automation/playwright.yaml.
+  // Remove legacy process variables so stale shells cannot silently override the YAML.
+  delete target.PW_WORKERS;
+  delete target.PW_FULLY_PARALLEL;
+  delete target.HEADLESS;
   target.UI_AUTOTEST_STEP_CAPTURE ??= profile.runtime.playwright.stepCapture;
 }

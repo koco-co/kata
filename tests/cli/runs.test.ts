@@ -123,7 +123,7 @@ describe("runs execution contract", () => {
       command: [
         process.execPath,
         "-e",
-        "process.exit(process.env.KATA_RUN_PATH && process.env.KATA_ALLURE_RESULTS_DIR === process.env.KATA_RUN_PATH + '/allure-results' ? 0 : 9)",
+        "process.exit(process.env.KATA_RUN_PATH && !process.env.KATA_ALLURE_RESULTS_DIR ? 0 : 9)",
       ],
     });
 
@@ -143,13 +143,12 @@ describe("runs execution contract", () => {
       {
         PATH: process.env.PATH,
         KATA_RUN_PATH: "/tmp/kata-run",
-        KATA_ALLURE_RESULTS_DIR: "/tmp/kata-run/allure-results",
         SHOULD_NOT_BE_INHERITED: "secret-like-value",
       },
     );
 
     expect(childEnv.KATA_RUN_PATH).toBe("/tmp/kata-run");
-    expect(childEnv.KATA_ALLURE_RESULTS_DIR).toBe("/tmp/kata-run/allure-results");
+    expect(childEnv.KATA_ALLURE_RESULTS_DIR).toBeUndefined();
     expect(childEnv.SHOULD_NOT_BE_INHERITED).toBeUndefined();
   });
 

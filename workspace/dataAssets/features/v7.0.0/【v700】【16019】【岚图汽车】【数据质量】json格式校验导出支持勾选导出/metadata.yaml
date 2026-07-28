@@ -46,7 +46,7 @@ automation:
   intents:
     - intent_id: SR-INTENT-V700-16019-JSON-EXPORT
       case_files:
-        - automation/tests/cases/t01-json-checkbox-export.ts
+        - automation/tests/cases/c0001-验证勾选多条记录后点击导出导出文件仅含勾选行.ts
         - automation/tests/runners/smoke.spec.ts
         - automation/tests/runners/full.spec.ts
       automation_status: blocked

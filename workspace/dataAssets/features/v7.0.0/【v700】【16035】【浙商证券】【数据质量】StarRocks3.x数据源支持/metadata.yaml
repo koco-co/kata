@@ -88,260 +88,260 @@ automation:
   intents:
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-001
       case_files:
-        - automation/tests/cases/t01-starrocks-datasource-rule-wizard.ts
+        - automation/tests/cases/c0001-验证StarRocks3x数据源经引入与质量项目授权后数据质量可选用.ts
       runner_files:
         - automation/tests/runners/smoke.spec.ts
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-002
       case_files:
-        - automation/tests/cases/t02-platform-datasource-authorization.ts
+        - automation/tests/cases/c0002-验证概览页正确统计StarRocks3x数据源规则任务数据.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-003
       case_files:
-        - automation/tests/cases/t03-dq-module-contract.ts
+        - automation/tests/cases/c0003-验证规则集导入规则包后直接执行批量校验StarRocks3x数据表.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: failing
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-004
       case_files:
-        - automation/tests/cases/t04-rule-row-count.ts
+        - automation/tests/cases/c0004-验证StarRocks3x数据源完整性校验表级表行数规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-005
       case_files:
-        - automation/tests/cases/t05-rule-null-count.ts
+        - automation/tests/cases/c0005-验证StarRocks3x数据源完整性校验字段级空值数单字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-006
       case_files:
-        - automation/tests/cases/t06-rule-sum.ts
+        - automation/tests/cases/c0006-验证StarRocks3x数据源完整性校验字段级空值数多字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-007
       case_files:
-        - automation/tests/cases/t07-rule-null-rate.ts
+        - automation/tests/cases/c0007-验证StarRocks3x数据源完整性校验字段级空值率单字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-008
       case_files:
-        - automation/tests/cases/t08-rule-blank-count.ts
+        - automation/tests/cases/c0008-验证StarRocks3x数据源完整性校验字段级空值率多字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-009
       case_files:
-        - automation/tests/cases/t09-rule-repeat-count.ts
+        - automation/tests/cases/c0009-验证StarRocks3x数据源完整性校验字段级空串数单字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-010
       case_files:
-        - automation/tests/cases/t10-rule-blank-rate.ts
+        - automation/tests/cases/c0010-验证StarRocks3x数据源完整性校验字段级空串数多字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-011
       case_files:
-        - automation/tests/cases/t11-rule-avg.ts
+        - automation/tests/cases/c0011-验证StarRocks3x数据源完整性校验字段级空串率单字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-012
       case_files:
-        - automation/tests/cases/t12-rule-neg-ratio.ts
+        - automation/tests/cases/c0012-验证StarRocks3x数据源完整性校验字段级空串率多字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-013
       case_files:
-        - automation/tests/cases/t13-rule-zero-ratio.ts
+        - automation/tests/cases/c0013-验证StarRocks3x数据源准确性校验求和规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-014
       case_files:
-        - automation/tests/cases/t14-rule-pos-ratio.ts
+        - automation/tests/cases/c0014-验证StarRocks3x数据源准确性校验求平均规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-015
       case_files:
-        - automation/tests/cases/t15-rule-value-range.ts
+        - automation/tests/cases/c0015-验证StarRocks3x数据源准确性校验负值比规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-017
       case_files:
-        - automation/tests/cases/t17-rule-enum-count.ts
+        - automation/tests/cases/c0017-验证StarRocks3x数据源准确性校验正值比规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-018
       case_files:
-        - automation/tests/cases/t18-rule-str-maxlen.ts
+        - automation/tests/cases/c0018-验证StarRocks3x数据源规范性校验数值-取值范围规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-019
       case_files:
-        - automation/tests/cases/t19-rule-str-minlen.ts
+        - automation/tests/cases/c0019-验证StarRocks3x数据源规范性校验数值-枚举范围规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-020
       case_files:
-        - automation/tests/cases/t20-rule-format-idcard.ts
+        - automation/tests/cases/c0020-验证StarRocks3x数据源规范性校验数值-枚举个数规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-021
       case_files:
-        - automation/tests/cases/t21-rule-format-mobile.ts
+        - automation/tests/cases/c0021-验证StarRocks3x数据源规范性校验字符串-最大长度规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-022
       case_files:
-        - automation/tests/cases/t22-rule-format-email.ts
+        - automation/tests/cases/c0022-验证StarRocks3x数据源规范性校验字符串-最小长度规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-023
       case_files:
-        - automation/tests/cases/t23-rule-repeat-rate.ts
+        - automation/tests/cases/c0023-验证StarRocks3x数据源规范性校验格式-身份证号规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-024
       case_files:
-        - automation/tests/cases/t24-rule-distinct-count.ts
+        - automation/tests/cases/c0024-验证StarRocks3x数据源规范性校验格式-手机号规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-025
       case_files:
-        - automation/tests/cases/t25-rule-distinct-ratio.ts
+        - automation/tests/cases/c0025-验证StarRocks3x数据源规范性校验格式-邮箱规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-026
       case_files:
-        - automation/tests/cases/t26-rule-custom-sql.ts
+        - automation/tests/cases/c0026-验证StarRocks3x数据源唯一性校验重复数单字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-027
       case_files:
-        - automation/tests/cases/t27-rule-custom-sql-join.ts
+        - automation/tests/cases/c0027-验证StarRocks3x数据源唯一性校验重复数多字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-028
       case_files:
-        - automation/tests/cases/t28-rule-multi-consistency.ts
+        - automation/tests/cases/c0028-验证StarRocks3x数据源唯一性校验重复率单字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-029
       case_files:
-        - automation/tests/cases/t29-rule-null-count-multi.ts
+        - automation/tests/cases/c0029-验证StarRocks3x数据源唯一性校验重复率多字段规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-030
       case_files:
-        - automation/tests/cases/t30-rule-null-rate-multi.ts
+        - automation/tests/cases/c0030-验证StarRocks3x数据源唯一性校验非重复个数规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-031
       case_files:
-        - automation/tests/cases/t31-rule-blank-count-multi.ts
+        - automation/tests/cases/c0031-验证StarRocks3x数据源唯一性校验非重复占比规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-032
       case_files:
-        - automation/tests/cases/t32-rule-blank-rate-multi.ts
+        - automation/tests/cases/c0032-验证StarRocks3x数据源自定义SQL单表规则校验与表删除异常.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-033
       case_files:
-        - automation/tests/cases/t33-rule-repeat-count-multi.ts
+        - automation/tests/cases/c0033-验证StarRocks3x数据源自定义SQL子查询跨表缺失规则校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-034
       case_files:
-        - automation/tests/cases/t34-rule-repeat-rate-multi.ts
+        - automation/tests/cases/c0034-验证StarRocks3x数据源多表比对规则字段一致性校验.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-035
       case_files:
-        - automation/tests/cases/t35-task-query.ts
+        - automation/tests/cases/c0035-验证StarRocks3x数据源多表比对数值差异百分比匹配条件.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-036
       case_files:
-        - automation/tests/cases/t36-rule-edit-rerun.ts
+        - automation/tests/cases/c0036-验证StarRocks3x数据源多表比对字符不区分大小写匹配条件.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-037
       case_files:
-        - automation/tests/cases/t37-rule-delete.ts
+        - automation/tests/cases/c0037-验证StarRocks3x数据源多表比对空值与NULL等价匹配条件.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-038
       case_files:
-        - automation/tests/cases/t38-rule-multi-pct-diff.ts
+        - automation/tests/cases/c0038-验证StarRocks3x数据源多表比对异常数据五类分类统计.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-039
       case_files:
-        - automation/tests/cases/t39-rule-multi-case-insensitive.ts
+        - automation/tests/cases/c0039-验证StarRocks3x数据源规则配置列表查询与筛选.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-040
       case_files:
-        - automation/tests/cases/t40-rule-multi-null-equiv.ts
+        - automation/tests/cases/c0040-验证StarRocks3x数据源规则任务编辑与重跑.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-041
       case_files:
-        - automation/tests/cases/t41-rule-multi-category.ts
+        - automation/tests/cases/c0041-验证StarRocks3x数据源规则任务删除.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-042
       case_files:
-        - automation/tests/cases/t42-rule-list-query.ts
+        - automation/tests/cases/c0042-验证任务查询页查询StarRocks3x规则任务实例与校验通过异常状态详情.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-2026-06-DQ-SR3X-043
       case_files:
-        - automation/tests/cases/t43-dirty-data-manage.ts
+        - automation/tests/cases/c0043-验证脏数据管理配置StarRocks3x数据源脏数据存储与时效.ts
       runner_files:
         - automation/tests/runners/full.spec.ts
         - automation/tests/runners/full-d.spec.ts

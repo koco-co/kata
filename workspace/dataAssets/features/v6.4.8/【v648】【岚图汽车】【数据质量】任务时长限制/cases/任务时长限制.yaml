@@ -3,7 +3,7 @@ meta:
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】任务时长限制
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证编辑历史规则，配置「超时时间」功能正确
     priority: P2
     steps:
@@ -25,7 +25,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C002
+  - case_id: C0002
     title: 验证编辑不限制「超时时间」为自定义，功能正确
     priority: P1
     steps:
@@ -47,7 +47,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C003
+  - case_id: C0003
     title: 验证不限制「超时时间」功能正确
     priority: P0
     steps:
@@ -65,7 +65,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C004
+  - case_id: C0004
     title: 验证运行时长小于「超时时间」功能正确
     priority: P1
     steps:
@@ -85,7 +85,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C005
+  - case_id: C0005
     title: 验证运行时长大于「超时时间」功能正确
     priority: P0
     steps:
@@ -107,7 +107,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C006
+  - case_id: C0006
     title: 验证「超时时间」配置内容交互
     priority: P1
     steps:
@@ -127,7 +127,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C007
+  - case_id: C0007
     title: 验证「调度属性」页面新增「超时时间」
     priority: P2
     steps:

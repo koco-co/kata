@@ -1,1 +1,3 @@
-import "../cases/t01-data-standard-module-contract";
+import "../cases/c0001-验证元数据元数据同步记录查看实例编辑与删除";
+import "../cases/c0003-验证数据模型规范设计与模型元素展示.ts";
+import "../cases/c0004-验证数据质量项目管理搜索与置顶功能.ts";

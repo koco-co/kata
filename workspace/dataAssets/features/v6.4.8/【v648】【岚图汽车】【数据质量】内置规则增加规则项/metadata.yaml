@@ -28,15 +28,15 @@ automation:
   intents:
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t02-monitor-new-rule-categories.ts
+        - automation/tests/cases/c0002-验证内置规则-单调递增单调递减校验规则状态变更正常.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t03-new-builtins-function-contract.ts
+        - automation/tests/cases/c0003-验证内置规则-多字段时间差校验单字段时间差校验规则状态变更正常.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/t01-rule-base-entry.ts
+        - automation/tests/cases/c0001-验证其它历史内置规则规则状态变更正常.ts
       automation_status: ready
   last_handoff_path: null
   last_run_status: not-run

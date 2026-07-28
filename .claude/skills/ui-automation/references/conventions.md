@@ -2,7 +2,7 @@
 
 ## 目录与命名
 
-- `automation/tests/cases/t<序号>-<slug>.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。
+- `automation/tests/cases/c<四位序号>-<slug>.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。
 - `automation/tests/runners/{smoke,full}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例。
 - `automation/tests/pages/`：页面对象，跨用例复用的页面操作封装。
 - `automation/tests/fixtures/`、`automation/tests/sql/`：前置数据与运行时 SQL。

@@ -141,14 +141,16 @@ describe("DataAssets v2 runtime profile", () => {
     ).toThrow(/does not match/);
   });
 
-  test("bridges only process-scoped legacy variables", () => {
+  test("bridges only process-scoped platform variables", () => {
     const profile = loadDataAssetsEnvProfile("ltqc-local", { repoRoot: root, resolved });
     const target: Record<string, string | undefined> = {};
     bridgeLegacyDataAssetsEnv(profile, target);
     expect(target.UI_AUTOTEST_BASE_URL).toBe("http://example.test/dataAssets");
     expect(target.UI_AUTOTEST_COOKIE).toContain("sid=test-cookie");
     expect(target.UI_AUTOTEST_SESSION_PATH).toBeUndefined();
-    expect(target.PW_WORKERS).toBe("1");
+    expect(target.PW_WORKERS).toBeUndefined();
+    expect(target.PW_FULLY_PARALLEL).toBeUndefined();
+    expect(target.HEADLESS).toBeUndefined();
   });
 
   test("converts the Cookie header into in-memory Playwright state", () => {

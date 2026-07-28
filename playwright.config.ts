@@ -8,6 +8,10 @@ import {
   cookieHeaderToPlaywrightState,
   resolveDataAssetsRuntime,
 } from "./workspace/dataAssets/_shared/runtime/env-profile";
+import {
+  loadPlaywrightAutomationConfig,
+  prepareAllureDirectories,
+} from "./workspace/dataAssets/_shared/runtime/playwright-config";
 
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
   if (env.KATA_DISCOVERY_ONLY === "1") return "test-results/discovery";
@@ -23,6 +27,7 @@ if (discoveryOnly && !process.argv.includes("--list")) {
   );
 }
 const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
+const automationConfig = loadPlaywrightAutomationConfig();
 // 仅当激活项目就是 dataAssets 时才解析其 env profile；未设 KATA_ACTIVE_PROJECT 时不炸，
 // 真实执行仍由 resolvePlaywrightRunPath 的 KATA_RUN_PATH 硬闸拦截
 const profile =
@@ -41,21 +46,15 @@ const storageState: PlaywrightTestOptions["storageState"] = profile
       origins: [],
     }
   : undefined;
-const runPath = discoveryOnly ? "test-results/discovery" : resolvePlaywrightRunPath();
-const allureResultsDir = process.env.KATA_ALLURE_RESULTS_DIR ?? `${runPath}/allure-results`;
-
-// 并发控制：默认串行（向后兼容），通过环境变量按需开启并发
-// - PW_FULLY_PARALLEL=1：同文件内（含 describe 内）用例也并发
-// - PW_WORKERS=N：worker 数量；未设置则走 Playwright 默认（CPU / 2）
-const fullyParallel = process.env.PW_FULLY_PARALLEL === "1";
-const workersEnv = process.env.PW_WORKERS;
-const workers = workersEnv && /^\d+$/.test(workersEnv) ? Number(workersEnv) : undefined;
+if (!discoveryOnly) resolvePlaywrightRunPath();
+if (!discoveryOnly && automationConfig.allure.enabled) prepareAllureDirectories(automationConfig);
 
 export default defineConfig({
   testMatch: [
     `workspace/${project}/tests/**/*.spec.ts`,
     `workspace/${project}/features/**/automation/tests/runners/full.spec.ts`,
     `workspace/${project}/features/**/automation/tests/runners/smoke.spec.ts`,
+    `workspace/${project}/features/**/automation/tests/runners/sort.spec.ts`,
     // .debug/ 下放调试遗物（单 case shim、复现脚本）；CI 不应跑，由 testIgnore 兜底
     `workspace/${project}/features/**/automation/tests/.debug/*.spec.ts`,
     `.kata/${project}/ui-blocks/**/*.ts`,
@@ -72,24 +71,32 @@ export default defineConfig({
       : []),
   ],
   outputDir: resolveOutputDir(),
-  fullyParallel,
-  ...(workers !== undefined ? { workers } : {}),
-  timeout: 60000,
-  reporter: [
-    ["line"],
-    [
-      "allure-playwright",
-      {
-        detail: true,
-        // allure-playwright v3 的输出目录选项是 resultsDir（v2 的 outputFolder 已失效，
-        // 写错会被忽略并退回默认 ./allure-results = 仓库根）。
-        resultsDir: allureResultsDir,
-        suiteTitle: true,
-      },
-    ],
-  ],
+  workers: automationConfig.workers,
+  timeout: automationConfig.timeoutMs,
+  retries: automationConfig.retries,
+  reporter: automationConfig.allure.enabled
+    ? [
+        ["line"],
+        [
+          "allure-playwright",
+          {
+            detail: true,
+            resultsDir: automationConfig.allure.resultsDir,
+            suiteTitle: true,
+          },
+        ],
+        [
+          "./cli/lib/allure-report-reporter.ts",
+          {
+            resultsDir: automationConfig.allure.resultsDir,
+            reportDir: automationConfig.allure.reportDir,
+            repoRoot: process.cwd(),
+          },
+        ],
+      ]
+    : [["line"]],
   use: {
-    headless: process.env.HEADLESS !== "false",
+    headless: automationConfig.headless,
     viewport: { width: 1280, height: 720 },
     storageState,
   },

@@ -16,6 +16,7 @@ import { lintMarkdownReport } from "../lib/defect-report.ts";
 import {
   hotfixReportPath,
   lintHotfixMarkdown,
+  loadHotfixEvidence,
   renderHotfixMarkdown,
 } from "../lib/hotfix-report.ts";
 import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
@@ -34,6 +35,7 @@ export function registerDefects(program: Command): void {
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--yyyymm <yyyymm>", "报告年月，例如 202607")
     .requiredOption("--slug <slug>", "报告 slug")
+    .requiredOption("--evidence-file <path>", "已核对的 hotfix 业务证据 JSON 文件")
     .action(
       async (opts: {
         bugId?: string;
@@ -41,12 +43,14 @@ export function registerDefects(program: Command): void {
         project: string;
         yyyymm: string;
         slug: string;
+        evidenceFile: string;
       }) => {
         if ((opts.bugId ? 1 : 0) + (opts.url ? 1 : 0) !== 1) {
           throw new Error("必须且只能提供 --bug-id 或 --url");
         }
         if (!/^\d{6}$/.test(opts.yyyymm)) throw new Error("--yyyymm 必须为 YYYYMM");
         locateProject(opts.project);
+        const evidence = loadHotfixEvidence(resolve(opts.evidenceFile));
         if (opts.bugId !== undefined && !/^\d+$/.test(opts.bugId)) {
           throw new Error("--bug-id 必须为数字");
         }
@@ -89,6 +93,7 @@ export function registerDefects(program: Command): void {
             renderHotfixMarkdown({
               source: fetched.url || opts.url || "",
               bug: fetched as unknown as Parameters<typeof renderHotfixMarkdown>[0]["bug"],
+              evidence,
             }),
             { encoding: "utf8", mode: 0o600 },
           );

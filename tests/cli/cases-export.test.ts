@@ -7,8 +7,8 @@ import { join } from "node:path";
 const YAML = `
 meta: { title: 需求名, version: v1, feature_id: f1 }
 cases:
-  - { id: C001, title: 用例一, priority: P0, tags: [模块A], steps: [ { action: 操作一, expected: 预期一 } ] }
-  - { id: C002, title: 用例二, priority: P1, steps: [ { action: 操作二, expected: 预期二 } ] }
+  - { case_id: C0001, title: 用例一, priority: P0, tags: [模块A], steps: [ { action: 操作一, expected: 预期一 } ] }
+  - { case_id: C0002, title: 用例二, priority: P1, steps: [ { action: 操作二, expected: 预期二 } ] }
 `;
 
 function feature(): string {

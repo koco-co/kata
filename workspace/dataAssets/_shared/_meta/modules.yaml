@@ -5,6 +5,7 @@ enum:
   - modeling
   - standard
   - assets
+  - 数据资产
   - multimodal
   - generalConfig
   - lifecycle

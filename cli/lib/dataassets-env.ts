@@ -45,7 +45,6 @@ const SAFE_CHILD_ENV_KEYS = [
   "ComSpec",
   "PATHEXT",
   "KATA_RUN_PATH",
-  "KATA_ALLURE_RESULTS_DIR",
   "KATA_ACTIVE_PROJECT",
 ] as const;
 
@@ -54,7 +53,7 @@ export interface DataAssetsEnvConfig {
   readonly url: string;
   readonly auth: { readonly cookie: string };
   readonly guard: { readonly expected_tenant: string };
-  readonly projects: { readonly quality: string; readonly offline: string };
+  readonly projects: { readonly quality: string; readonly offline?: string };
   readonly datasources: Record<
     string,
     {
@@ -67,6 +66,27 @@ export interface DataAssetsEnvConfig {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allow_write: boolean };
+  readonly automation?: DataAssetsAutomationConfig;
+}
+
+/** Environment-specific automation defaults; secrets and platform identity stay outside this node. */
+export interface DataAssetsAutomationConfig {
+  readonly cases?: string;
+  readonly table_batch_suffix?: string;
+  readonly table_partition?: string;
+  readonly result_strict?: boolean;
+  readonly case_timeout_ms?: number;
+  readonly result_timeout_ms?: number;
+  readonly table_option_timeout_ms?: number;
+  readonly rule_set_save_prompt_close_timeout_ms?: number;
+  readonly task_search_query?: string;
+  readonly task_scan_max_pages?: number;
+  readonly ruleset_scan_max_pages?: number;
+  readonly spin_timeout_ms?: number;
+  readonly import_form_timeout_ms?: number;
+  readonly select_spin_timeout_ms?: number;
+  readonly resource_group?: string;
+  readonly execute_submit_wait_ms?: number;
 }
 
 interface ApiEnvelope<T> {
@@ -120,7 +140,7 @@ export interface ResolvedDataAssetsEnv {
   };
   readonly projects: {
     readonly quality: { readonly id: number; readonly name: string };
-    readonly offline: { readonly id: number; readonly name: string };
+    readonly offline?: { readonly id: number; readonly name: string };
   };
   readonly datasources: Record<
     string,
@@ -136,6 +156,7 @@ export interface ResolvedDataAssetsEnv {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allowWrite: boolean };
+  readonly automation?: DataAssetsAutomationConfig;
 }
 
 export interface EnvFinding {
@@ -244,6 +265,137 @@ function requiredBoolean(value: unknown, path: string): boolean {
   return value;
 }
 
+function optionalString(value: unknown, path: string): string | undefined {
+  if (value === undefined) return undefined;
+  return requiredString(value, path);
+}
+
+function optionalPositiveInteger(value: unknown, path: string): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
+    throw new Error(`${path} must be a positive integer`);
+  }
+  return value;
+}
+
+function optionalNonNegativeInteger(value: unknown, path: string): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
+    throw new Error(`${path} must be a non-negative integer`);
+  }
+  return value;
+}
+
+function parseAutomationConfig(value: unknown): DataAssetsAutomationConfig | undefined {
+  if (value === undefined) return undefined;
+  const automation = record(value, "automation");
+  exactKeys(
+    automation,
+    [
+      "cases",
+      "table_batch_suffix",
+      "table_partition",
+      "result_strict",
+      "case_timeout_ms",
+      "result_timeout_ms",
+      "table_option_timeout_ms",
+      "rule_set_save_prompt_close_timeout_ms",
+      "task_search_query",
+      "task_scan_max_pages",
+      "ruleset_scan_max_pages",
+      "spin_timeout_ms",
+      "import_form_timeout_ms",
+      "select_spin_timeout_ms",
+      "resource_group",
+      "execute_submit_wait_ms",
+    ],
+    "automation",
+  );
+  const cases = optionalString(automation.cases, "automation.cases");
+  const tableBatchSuffix = optionalString(
+    automation.table_batch_suffix,
+    "automation.table_batch_suffix",
+  );
+  if (tableBatchSuffix !== undefined && !/^[a-z]{8}$/.test(tableBatchSuffix)) {
+    throw new Error("automation.table_batch_suffix must be 8 lowercase letters");
+  }
+  const tablePartition = optionalString(automation.table_partition, "automation.table_partition");
+  if (tablePartition !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(tablePartition)) {
+    throw new Error("automation.table_partition must be yyyy-MM-dd");
+  }
+  if (automation.result_strict !== undefined && typeof automation.result_strict !== "boolean") {
+    throw new Error("automation.result_strict must be boolean");
+  }
+  const resourceGroup = optionalString(automation.resource_group, "automation.resource_group");
+  return {
+    ...(cases === undefined ? {} : { cases }),
+    ...(tableBatchSuffix === undefined ? {} : { table_batch_suffix: tableBatchSuffix }),
+    ...(tablePartition === undefined ? {} : { table_partition: tablePartition }),
+    ...(automation.result_strict === undefined ? {} : { result_strict: automation.result_strict }),
+    ...(optionalPositiveInteger(automation.case_timeout_ms, "automation.case_timeout_ms") ===
+    undefined
+      ? {}
+      : { case_timeout_ms: automation.case_timeout_ms as number }),
+    ...(optionalPositiveInteger(automation.result_timeout_ms, "automation.result_timeout_ms") ===
+    undefined
+      ? {}
+      : { result_timeout_ms: automation.result_timeout_ms as number }),
+    ...(optionalPositiveInteger(
+      automation.table_option_timeout_ms,
+      "automation.table_option_timeout_ms",
+    ) === undefined
+      ? {}
+      : { table_option_timeout_ms: automation.table_option_timeout_ms as number }),
+    ...(optionalPositiveInteger(
+      automation.rule_set_save_prompt_close_timeout_ms,
+      "automation.rule_set_save_prompt_close_timeout_ms",
+    ) === undefined
+      ? {}
+      : {
+          rule_set_save_prompt_close_timeout_ms:
+            automation.rule_set_save_prompt_close_timeout_ms as number,
+        }),
+    ...(optionalString(automation.task_search_query, "automation.task_search_query") === undefined
+      ? {}
+      : { task_search_query: automation.task_search_query as string }),
+    ...(optionalNonNegativeInteger(
+      automation.task_scan_max_pages,
+      "automation.task_scan_max_pages",
+    ) === undefined
+      ? {}
+      : { task_scan_max_pages: automation.task_scan_max_pages as number }),
+    ...(optionalNonNegativeInteger(
+      automation.ruleset_scan_max_pages,
+      "automation.ruleset_scan_max_pages",
+    ) === undefined
+      ? {}
+      : { ruleset_scan_max_pages: automation.ruleset_scan_max_pages as number }),
+    ...(optionalPositiveInteger(automation.spin_timeout_ms, "automation.spin_timeout_ms") ===
+    undefined
+      ? {}
+      : { spin_timeout_ms: automation.spin_timeout_ms as number }),
+    ...(optionalPositiveInteger(
+      automation.import_form_timeout_ms,
+      "automation.import_form_timeout_ms",
+    ) === undefined
+      ? {}
+      : { import_form_timeout_ms: automation.import_form_timeout_ms as number }),
+    ...(optionalPositiveInteger(
+      automation.select_spin_timeout_ms,
+      "automation.select_spin_timeout_ms",
+    ) === undefined
+      ? {}
+      : { select_spin_timeout_ms: automation.select_spin_timeout_ms as number }),
+    ...(resourceGroup === undefined ? {} : { resource_group: resourceGroup }),
+    ...(optionalPositiveInteger(
+      automation.execute_submit_wait_ms,
+      "automation.execute_submit_wait_ms",
+    ) === undefined
+      ? {}
+      : { execute_submit_wait_ms: automation.execute_submit_wait_ms as number }),
+  };
+}
+
 function normalizeRootUrl(value: unknown): string {
   const raw = requiredString(value, "url");
   let url: URL;
@@ -273,7 +425,17 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
   const top = record(raw, "environment");
   exactKeys(
     top,
-    ["schema_version", "url", "auth", "guard", "projects", "datasources", "defaults", "safety"],
+    [
+      "schema_version",
+      "url",
+      "auth",
+      "guard",
+      "projects",
+      "datasources",
+      "defaults",
+      "safety",
+      "automation",
+    ],
     "environment",
   );
   if (top.schema_version !== 2) throw new Error("schema_version must be 2");
@@ -284,6 +446,7 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
   const datasources = record(top.datasources, "datasources");
   const defaults = record(top.defaults, "defaults");
   const safety = record(top.safety, "safety");
+  const automation = parseAutomationConfig(top.automation);
   exactKeys(auth, ["cookie"], "auth");
   exactKeys(guard, ["expected_tenant"], "guard");
   exactKeys(projects, ["quality", "offline"], "projects");
@@ -332,11 +495,14 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
     guard: { expected_tenant: requiredString(guard.expected_tenant, "guard.expected_tenant") },
     projects: {
       quality: requiredString(projects.quality, "projects.quality"),
-      offline: requiredString(projects.offline, "projects.offline"),
+      ...(projects.offline === undefined
+        ? {}
+        : { offline: requiredString(projects.offline, "projects.offline") }),
     },
     datasources: parsedDatasources,
     defaults: { datasource: defaultDatasource },
     safety: { allow_write: safety.allow_write },
+    ...(automation === undefined ? {} : { automation }),
   };
 }
 
@@ -399,7 +565,7 @@ export function addDataAssetsEnv(
     url: normalizeRootUrl(url),
     auth: { cookie: "" },
     guard: { expected_tenant: PLACEHOLDER },
-    projects: { quality: PLACEHOLDER, offline: PLACEHOLDER },
+    projects: { quality: PLACEHOLDER },
     datasources: { sparkthrift: { name: PLACEHOLDER, database: PLACEHOLDER } },
     defaults: { datasource: "sparkthrift" },
     safety: { allow_write: false },
@@ -636,19 +802,27 @@ export async function resolveDataAssetsEnv(
     (project) => projectName(project) === config.projects.quality,
     "quality_project",
   );
-  const offline = exactOne(
-    inventory.offlineProjects,
-    (project) => projectName(project) === config.projects.offline,
-    "offline_project",
+  const needsOfflineProject = Object.values(config.datasources).some(
+    (datasource) => datasource.requires_offline !== false,
   );
-  const offlineId = requiredId(offline.id, "offline_project");
-  const batchDatasources = await post<BatchDatasource[]>(
-    config,
-    "/api/rdos/batch/batchDataSource/list",
-    { projectId: offlineId, syncTask: true },
-    fetchImpl,
-    offlineId,
-  );
+  const offline =
+    needsOfflineProject && config.projects.offline
+      ? exactOne(
+          inventory.offlineProjects,
+          (project) => projectName(project) === config.projects.offline,
+          "offline_project",
+        )
+      : undefined;
+  const offlineId = offline ? requiredId(offline.id, "offline_project") : undefined;
+  const batchDatasources = offlineId
+    ? await post<BatchDatasource[]>(
+        config,
+        "/api/rdos/batch/batchDataSource/list",
+        { projectId: offlineId, syncTask: true },
+        fetchImpl,
+        offlineId,
+      )
+    : [];
 
   const resolvedDatasources: ResolvedDataAssetsEnv["datasources"] = {};
   for (const [key, expected] of Object.entries(config.datasources)) {
@@ -717,11 +891,14 @@ export async function resolveDataAssetsEnv(
     },
     projects: {
       quality: { id: requiredId(quality.id, "quality_project"), name: config.projects.quality },
-      offline: { id: offlineId, name: config.projects.offline },
+      ...(offlineId && config.projects.offline
+        ? { offline: { id: offlineId, name: config.projects.offline } }
+        : {}),
     },
     datasources: resolvedDatasources,
     defaults: config.defaults,
     safety: { allowWrite: config.safety.allow_write },
+    ...(config.automation === undefined ? {} : { automation: config.automation }),
   };
 }
 
@@ -737,19 +914,27 @@ export async function discoverDataAssetsEnv(
   assertTenant(config);
   const fetchImpl = ctx?.fetchImpl ?? fetch;
   const inventory = await fetchInventory(config, fetchImpl);
-  const offline = exactOne(
-    inventory.offlineProjects,
-    (project) => projectName(project) === config.projects.offline,
-    "offline_project",
+  const needsOfflineProject = Object.values(config.datasources).some(
+    (datasource) => datasource.requires_offline !== false,
   );
-  const offlineId = requiredId(offline.id, "offline_project");
-  const batch = await post<BatchDatasource[]>(
-    config,
-    "/api/rdos/batch/batchDataSource/list",
-    { projectId: offlineId, syncTask: true },
-    fetchImpl,
-    offlineId,
-  );
+  const offline =
+    needsOfflineProject && config.projects.offline
+      ? exactOne(
+          inventory.offlineProjects,
+          (project) => projectName(project) === config.projects.offline,
+          "offline_project",
+        )
+      : undefined;
+  const offlineId = offline ? requiredId(offline.id, "offline_project") : undefined;
+  const batch = offlineId
+    ? await post<BatchDatasource[]>(
+        config,
+        "/api/rdos/batch/batchDataSource/list",
+        { projectId: offlineId, syncTask: true },
+        fetchImpl,
+        offlineId,
+      )
+    : [];
   return {
     name: assertDataAssetsEnvName(name),
     tenant: config.guard.expected_tenant,
@@ -912,7 +1097,10 @@ function legacyToV2(raw: Record<string, unknown>, cookie: string): DataAssetsEnv
       url: legacyString(urls.base_url) || legacyString(raw.base_url),
       auth: { cookie: cookie || legacyString(auth.cookie) },
       guard: { expected_tenant: legacyString(auth.tenant_name) || legacyString(raw.tenant_name) },
-      projects: { quality: legacyString(quality.name), offline: legacyString(offline.name) },
+      projects: {
+        quality: legacyString(quality.name),
+        ...(legacyString(offline.name) ? { offline: legacyString(offline.name) } : {}),
+      },
       datasources,
       defaults: { datasource: legacyString(runtime.default_datasource) },
       safety: { allow_write: runtime.allow_write === true },

@@ -1,0 +1,64 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C0347",
+  "title": "验证【正则逻辑无需转义】「有效性验证」-「统计规则」-「格式校验-自定义正则」使用规则库已配置正则流程正常运行",
+  "steps": [
+    {
+      "action": "进入【资产】-【数据质量】-【规则任务管理】页面",
+      "expected": "进入成功"
+    },
+    {
+      "action": "点击【新建监控规则】按钮",
+      "expected": "进入[监控对象]配置页面"
+    },
+    {
+      "action": "监控对象配置如下：[规则名称]输入「test_rule」[选择数据源]选择「${DATASOURCE}」[选择数据库]选择「${DATABASE}」[选择数据表]选择「${TABLE}」[选择分区] 手动输入分区 - \"id=1\"",
+      "expected": "[监控对象]配置完成"
+    },
+    {
+      "action": "点击【下一步】按钮",
+      "expected": "进入[监控规则]配置页面"
+    },
+    {
+      "action": "点击【添加规则】按钮-选择[有效性验证]",
+      "expected": "页面新增[有效性验证]配置栏"
+    },
+    {
+      "action": "有效性验证配置如下：[字段] id[统计规则]- 格式校验-自定义正则 test [期望值] 占比>1%[强弱规则] 弱规则[规则描述] 不作填写",
+      "expected": "[有效性验证]配置完毕"
+    },
+    {
+      "action": "点击【下一步】按钮",
+      "expected": "进入[调度属性]配置页面"
+    },
+    {
+      "action": "调度配置配置如下：[调度周期] 天[生效日期] 2025-12-08→2125-12-08[具体时间] 00：00[规则拼接包] 1",
+      "expected": "[调度属性]配置完毕"
+    },
+    {
+      "action": "点击【新建】按钮",
+      "expected": "新建成功，返回【资产】-【数据质量】-【规则任务管理】页面"
+    },
+    {
+      "action": "找到【test】规则，点击【test】进入详情页面",
+      "expected": "进入【test】规则详情页面"
+    },
+    {
+      "action": "点击【立即执行】按钮",
+      "expected": "弹出提示\"执行成功，稍后可在任务实例中查看\""
+    },
+    {
+      "action": "进入【校验结果查询】，确认相关实例",
+      "expected": "校验通过"
+    }
+  ]
+} as const;
+
+test.describe("验证【正则逻辑无需转义】「有效性验证」-「统计规则」-「格式校验-自定义正则」使用规则库已配置正则流程正常运行", () => {
+  test("C0347 验证【正则逻辑无需转义】「有效性验证」-「统计规则」-「格式校验-自定义正则」使用规则库已配置正则流程正常运行", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

@@ -3,7 +3,7 @@ meta:
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】一个数据表支持创建多个质量规则任务
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证历史质量报告内，质量评估汇总命名变更
     priority: P0
     steps:
@@ -29,7 +29,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C002
+  - case_id: C0002
     title: 验证报告内质量评估汇总命名变更
     priority: P1
     steps:
@@ -55,7 +55,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C003
+  - case_id: C0003
     title: 验证新增报告-多表-全部任务功能
     priority: P1
     steps:
@@ -101,7 +101,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C004
+  - case_id: C0004
     title: 验证新增报告-单表-全部任务功能
     priority: P1
     steps:
@@ -136,7 +136,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C005
+  - case_id: C0005
     title: 验证新增报告-单表-多个任务功能
     priority: P0
     steps:
@@ -166,7 +166,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C006
+  - case_id: C0006
     title: 验证新增报告-单表-单个任务功能
     priority: P1
     steps:
@@ -196,7 +196,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C007
+  - case_id: C0007
     title: 验证新增选择任务字段
     priority: P1
     steps:
@@ -226,7 +226,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C008
+  - case_id: C0008
     title: 验证新增质量报告，报告名称校验功能
     priority: P1
     steps:
@@ -252,7 +252,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C009
+  - case_id: C0009
     title: 验证质量报告页面，根据表名搜索结果正确
     priority: P1
     steps:
@@ -278,7 +278,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C010
+  - case_id: C0010
     title: 验证任务实例查询页面，根据表名搜索结果正确
     priority: P1
     steps:
@@ -304,7 +304,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C011
+  - case_id: C0011
     title: 验证同一张表，不同任务，质量报告正确
     priority: P0
     steps:
@@ -337,7 +337,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C012
+  - case_id: C0012
     title: 验证同一张表，不同任务，质量报告名称相同报错
     priority: P1
     steps:
@@ -370,7 +370,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C013
+  - case_id: C0013
     title: 验证同一张表，不同任务，质量报告名称正确
     priority: P1
     steps:
@@ -405,7 +405,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C014
+  - case_id: C0014
     title: 验证同一张表，不同任务，脏数据明细正确
     priority: P0
     steps:
@@ -446,7 +446,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C015
+  - case_id: C0015
     title: 验证同一张表，不同任务，运行结果正确
     priority: P1
     steps:
@@ -483,7 +483,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C016
+  - case_id: C0016
     title: 验证同一张表，不同任务，任务详情正确
     priority: P1
     steps:
@@ -520,7 +520,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C017
+  - case_id: C0017
     title: 验证同一张表，不同任务名，不同规则，任务创建成功
     priority: P0
     steps:
@@ -551,7 +551,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C018
+  - case_id: C0018
     title: 验证同一张表，不同任务名，相同规则，任务创建成功
     priority: P1
     steps:
@@ -586,7 +586,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C019
+  - case_id: C0019
     title: 验证不同数据源下的表，相同任务名，任务创建成功
     priority: P1
     steps:
@@ -617,7 +617,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C020
+  - case_id: C0020
     title: 验证同一张表创建规则，规则名称校验功能
     priority: P1
     steps:
@@ -649,7 +649,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C021
+  - case_id: C0021
     title: 验证历史已存在规则的数据表，新建质量任务功能
     priority: P1
     steps:

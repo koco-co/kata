@@ -8,7 +8,7 @@ function file(cases: CasesFile["cases"]): CasesFile {
 
 describe("renderCsv", () => {
   it("prefixes a BOM so Excel opens Chinese text correctly", () => {
-    const csv = renderCsv(file([{ id: "C001", title: "用例一", priority: "P0", steps: [] }]));
+    const csv = renderCsv(file([{ id: "C0001", title: "用例一", priority: "P0", steps: [] }]));
     expect(csv.charCodeAt(0)).toBe(0xfeff);
     expect(csv).toContain("用例编号");
   });
@@ -17,7 +17,7 @@ describe("renderCsv", () => {
     const csv = renderCsv(
       file([
         {
-          id: "C001",
+          id: "C0001",
           title: 'a,"b"',
           priority: "P0",
           steps: [{ action: "x\ny", expected: "e" }],

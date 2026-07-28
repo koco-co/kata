@@ -3,11 +3,11 @@ id: 【v700】【数据资产】数据资产集成用例
 display_name: 【v700】【数据资产】数据资产集成用例
 status: active
 created_at: 2026-07-02
-updated_at: 2026-07-02
+updated_at: 2026-07-27
 modules:
   - assets
 customers:
-  - standard
+  - ltqc
 versions:
   - v7.0.0
 owners: []
@@ -47,11 +47,19 @@ case_drafting:
       confidence: medium
   coverage_matrix_path: cases/test-point-checklist.md
 automation:
-  status: ready
+  status: in-progress
   intents:
     - intent_id: SR-INTENT-20260702-DATA-STANDARD-INTEGRATION
       case_files:
-        - automation/tests/cases/t01-data-standard-module-contract.ts
+        - automation/tests/cases/c0001-验证元数据元数据同步记录查看实例编辑与删除.ts
+      automation_status: partial
+    - intent_id: SR-INTENT-20260727-DATA-QUALITY-FOUR-DATASOURCE-SCENARIOS
+      case_files:
+        - automation/tests/cases/c0004-验证数据质量项目管理搜索与置顶功能.ts
+      automation_status: partial
+    - intent_id: SR-INTENT-20260727-DATA-MODEL-LIVE-UI-FLOW
+      case_files:
+        - automation/tests/cases/c0003-验证数据模型规范设计与模型元素展示.ts
       automation_status: partial
   last_handoff_path: null
   last_run_status: not-run

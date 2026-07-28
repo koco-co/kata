@@ -1,0 +1,68 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C0340",
+  "title": "验证【有效性校验，日期格式增加\"YYYY-MM-DD hh:mm:ss\"格式】「有效性验证」中使用日期格式\"YYYY-MM-DD hh:mm:ss\"格式后，相似日期格式不能通过验证（如YYYY-MM-DD+hh:mm:ss）",
+  "steps": [
+    {
+      "action": "前提：使用数据中存在对应数据",
+      "expected": "2. 进入成功"
+    },
+    {
+      "action": "进入【资产】-【数据质量】-【规则任务管理】页面",
+      "expected": "进入[监控对象]配置页面"
+    },
+    {
+      "action": "找到【test】规则，点击【编辑】按钮",
+      "expected": "[监控对象]配置完成"
+    },
+    {
+      "action": "监控对象配置如下：[规则名称]输入「test_rule」[选择数据源]选择「${DATASOURCE}」[选择数据库]选择「${DATABASE}」[选择数据表]选择「${TABLE}」[选择分区]",
+      "expected": "进入[监控规则]配置页面"
+    },
+    {
+      "action": "点击【下一步】按钮",
+      "expected": "页面新增[完整性验证]配置栏"
+    },
+    {
+      "action": "点击【添加规则】按钮-选择[有效性校验]",
+      "expected": "【有效性校验】配置完毕"
+    },
+    {
+      "action": "有效性校验配置如下：[字段] registration_date[统计规则] 格式-日期格式-date-time YYYY-MM-DD hh:mm:ss",
+      "expected": "进入[调度属性]配置页面"
+    },
+    {
+      "action": "点击【下一步】按钮",
+      "expected": "[调度属性]配置完毕"
+    },
+    {
+      "action": "调度配置配置如下：[调度周期] 天[生效日期] 2025-12-08→2125-12-08[具体时间] 00：00[规则拼接包] 1",
+      "expected": "新建成功，返回【资产】-【数据质量】-【规则任务管理】页面"
+    },
+    {
+      "action": "点击【新建】按钮",
+      "expected": "进入【test】规则详情页面"
+    },
+    {
+      "action": "找到【test】规则，点击【test】进入详情页面",
+      "expected": "弹出提示\"执行成功，稍后可在任务实例中查看\""
+    },
+    {
+      "action": "点击【立即执行】按钮",
+      "expected": "相似日期格式数据不符合校验规则，在明细表中查找到了对应记录"
+    },
+    {
+      "action": "进入【校验结果查询】，确认相关实例",
+      "expected": ""
+    }
+  ]
+} as const;
+
+test.describe("验证【有效性校验，日期格式增加\"YYYY-MM-DD hh:mm:ss\"格式】「有效性验证」中使用日期格式\"YYYY-MM-DD hh:mm:ss\"格式后，相似日期格式不能通过验证（如YYYY-MM-DD+hh:mm:ss）", () => {
+  test("C0340 验证【有效性校验，日期格式增加\"YYYY-MM-DD hh:mm:ss\"格式】「有效性验证」中使用日期格式\"YYYY-MM-DD hh:mm:ss\"格式后，相似日期格式不能通过验证（如YYYY-MM-DD+hh:mm:ss）", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

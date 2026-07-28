@@ -3,7 +3,7 @@ meta:
   version: v6.4.10
   feature_id: v6.4.10/【v6410】【袋鼠云】【数据安全】下线行列级别权限配置
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证列级权限配置开关名称更新
     priority: P0
     steps:
@@ -16,7 +16,7 @@ cases:
       - 数据安全 — 下线行级权限
       - UI 文案调整
       - 开关配置
-  - id: C002
+  - case_id: C0002
     title: 验证列级权限配置开关功能正常
     priority: P1
     steps:
@@ -29,7 +29,7 @@ cases:
       - 数据安全 — 下线行级权限
       - UI 文案调整
       - 开关配置
-  - id: C003
+  - case_id: C0003
     title: 验证配置行级权限按钮已隐藏
     priority: P0
     steps:
@@ -40,7 +40,7 @@ cases:
       - 数据安全 — 下线行级权限
       - 行级权限隐藏
       - 配置入口
-  - id: C004
+  - case_id: C0004
     title: 验证行级权限配置入口已隐藏
     priority: P0
     steps:
@@ -51,7 +51,7 @@ cases:
       - 数据安全 — 下线行级权限
       - 行级权限隐藏
       - 配置入口
-  - id: C005
+  - case_id: C0005
     title: 验证权限列表中行级权限列已隐藏
     priority: P0
     steps:
@@ -62,7 +62,7 @@ cases:
       - 数据安全 — 下线行级权限
       - 行级权限隐藏
       - 列表展示
-  - id: C006
+  - case_id: C0006
     title: 验证申请权限时名称更新
     priority: P0
     steps:
@@ -72,7 +72,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 审批页面调整
-  - id: C007
+  - case_id: C0007
     title: 验证审批详情页面行级权限隐藏
     priority: P1
     steps:
@@ -82,7 +82,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 审批页面调整
-  - id: C008
+  - case_id: C0008
     title: 验证批量申请不支持列级权限
     priority: P1
     steps:
@@ -92,7 +92,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 权限申请
-  - id: C009
+  - case_id: C0009
     title: 验证单表支持列级权限申请
     priority: P1
     steps:
@@ -102,7 +102,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 权限申请
-  - id: C010
+  - case_id: C0010
     title: 验证已配置的行级权限继续生效
     priority: P2
     steps:
@@ -114,7 +114,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 历史配置兼容
-  - id: C011
+  - case_id: C0011
     title: 验证系统升级前有行级权限、升级后不可新增行级权限
     priority: P2
     steps:
@@ -124,7 +124,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 边界场景
-  - id: C012
+  - case_id: C0012
     title: 验证无权限用户访问数据安全页面
     priority: P1
     steps:
@@ -134,7 +134,7 @@ cases:
     tags:
       - 数据安全 — 下线行级权限
       - 边界场景
-  - id: C013
+  - case_id: C0013
     title: 验证列级权限开关关闭时表权限控制
     priority: P1
     steps:

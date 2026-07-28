@@ -3,9 +3,9 @@ meta:
   version: v7.0.0
   feature_id: v7.0.0/【v700】【岚图汽车】数据资产集成用例
 cases:
-- id: C001
+- case_id: C0001
   automation:
-    spec_file: t01-data-standard-module-contract.ts
+    spec_file: c0001-验证元数据元数据同步记录查看实例编辑与删除.ts
   title: 验证「元数据」元数据同步记录查看实例编辑与删除
   priority: P0
   steps:
@@ -214,9 +214,9 @@ cases:
     \ AS (SELECT * FROM TA_B) SELECT * FROM TA_C;\n\ndrop table TA_A;\ndrop table TA_B;\ndrop table TA_C;"
   tags:
   - 元数据
-- id: C002
+- case_id: C0002
   automation:
-    spec_file: t02-c002.ts
+    spec_file: c0002-验证数据标准标准统计各维度结果展示.ts
   title: 验证「数据标准」标准统计各维度结果展示
   priority: P1
   steps:
@@ -956,9 +956,9 @@ cases:
     \ '车型2', 32),\n(10, 1000.00, '车型2', 38),\n(11, 180.0145, '车型2', 42),\n(12, 180.0145, '车型2', 42);"
   tags:
   - 数据标准
-- id: C003
+- case_id: C0003
   automation:
-    spec_file: t03-c003.ts
+    spec_file: c0003-验证数据模型规范设计与模型元素展示.ts
   title: 验证「数据模型」规范设计与模型元素展示
   priority: P1
   steps:
@@ -1314,9 +1314,9 @@ cases:
   precondition: 无
   tags:
   - 数据模型
-- id: C004
+- case_id: C0004
   automation:
-    spec_file: t04-c004.ts
+    spec_file: c0004-验证数据质量项目管理搜索与置顶功能.ts
   title: 验证「数据质量」项目管理搜索与置顶功能
   priority: P0
   steps:
@@ -1961,6 +1961,7 @@ cases:
       「统计函数」选择「字段值计算对比」
       「过滤条件」 输入「id < 100」
       「计算逻辑配置」 输入「id*age+money」
+      点击「设置」进入计算逻辑配置页面，确认平台自动为 STRING 类型字段追加 cast 函数
       「对比方法」 选择「计算结果与字段对比，age<=id*age+money」
       「强弱规则」选择「弱规则」
       「规则描述」输入「测试规则」
@@ -1971,6 +1972,7 @@ cases:
       「统计函数」选择「字段值计算对比」
       「过滤条件」 输入「id < 100」
       「计算逻辑配置」 输入「id*age+money」
+      点击「设置」进入计算逻辑配置页面，确认平台自动为 STRING 类型字段追加 cast 函数
       「对比方法」 选择「计算结果值判断」
       「结果值」 选择「>10000且<=11000」
       「强弱规则」选择「弱规则」
@@ -1985,9 +1987,10 @@ cases:
       「关联表」选择「TABLE1」
       「分区」选择「dt='2025-11-08'」
       「关联表主键」选择「id」
-      「计算逻辑配置1」 输入「(${TABLE}.id+TABLE1.id)*${TABLE}.age」
+      点击「设置」进入计算逻辑配置页面
+      「计算逻辑配置1」实际配置为「(test_return2.id+test_schema3.id)*cast(test_return2.age as double)」
       「对比方法」 选择「计算结果对比」
-      「计算逻辑配置2」 输入「(${TABLE}.money-${TABLE}.id)/TABLE1.id」
+      「计算逻辑配置2」实际配置为「(cast(test_return2.money as double)-test_return2.id)/test_schema3.id」
       「对比关系」 选择「!=」
       「强弱规则」选择「弱规则」
       「规则描述」输入「测试规则」
@@ -2001,7 +2004,8 @@ cases:
       「关联表」选择「TABLE1」
       「分区」选择「dt='2025-11-08'」
       「关联表主键」选择「id」
-      「计算逻辑配置」 输入「(${TABLE}.id+TABLE1.id)*${TABLE}.age」
+      点击「设置」进入计算逻辑配置页面，确认平台自动将原始表达式转换为「(test_return2.id+test_schema3.id)*cast(test_return2.age as double)」
+      「计算逻辑配置」实际配置为「(test_return2.id+test_schema3.id)*cast(test_return2.age as double)」
       「对比方法」 选择「计算结果值判断」
       「结果值」 选择「>100或<=400」
       「强弱规则」选择「弱规则」

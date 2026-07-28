@@ -1,0 +1,15 @@
+{
+  "keywords": "<发现版本> | <模块> | <数据源类型> | <集群> | <真实解决的最低版本> | <问题原因>",
+  "evidence_refs": [
+    "zentao|<ZenTao bug-view URL>:<section-or-line>",
+    "knowledge|workspace/<project>/knowledge/<file>:<line>",
+    "source|.repos/<repo>/<file>:<line>"
+  ],
+  "precondition": "- 环境：${EnvironmentA} 已部署待验证版本。\n- 账号：${AccountA} 具备「<具体权限>」。\n- 数据：已存在状态为「<具体状态>」的「<具体业务对象>」，其「<字段/任务/关联对象>」为「<具体关系或异常状态>」。",
+  "steps": [
+    {
+      "action": "进入【<一级菜单> → <二级菜单>】，定位「<具体业务对象>」，点击「<具体按钮>」",
+      "expected": "页面展示「<具体弹窗/字段/状态>」，并显示「<可观察结果>」。"
+    }
+  ]
+}

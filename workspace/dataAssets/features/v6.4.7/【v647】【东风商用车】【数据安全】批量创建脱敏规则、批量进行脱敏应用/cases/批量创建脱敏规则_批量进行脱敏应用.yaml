@@ -3,7 +3,7 @@ meta:
   version: v6.4.7
   feature_id: v6.4.7/【v647】【东风商用车】【数据安全】批量创建脱敏规则、批量进行脱敏应用
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证
     priority: P0
     steps:
@@ -65,7 +65,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则-脱敏方式
-  - id: C002
+  - case_id: C0002
     title: 验证[导入脱敏表]功能正常功能_取消
     priority: P1
     steps:
@@ -78,7 +78,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C003
+  - case_id: C0003
     title: 验证[导入脱敏表]功能正常_ 必填项未填_数据源&数据库&数据表&脱敏字段
     priority: P1
     steps:
@@ -91,7 +91,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C004
+  - case_id: C0004
     title: 验证[导入脱敏表]功能正常_ 导入不存在的数据_数据源&数据库&数据表&脱敏字段
     priority: P0
     steps:
@@ -104,7 +104,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C005
+  - case_id: C0005
     title: 验证[导入脱敏表]功能正常_四个字段都一致
     priority: P0
     steps:
@@ -117,7 +117,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C006
+  - case_id: C0006
     title: 验证[导入脱敏表]功能正常_脱敏字段不一致
     priority: P0
     steps:
@@ -130,7 +130,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C007
+  - case_id: C0007
     title: 验证[导入脱敏表]功能正常_数据表不一致
     priority: P1
     steps:
@@ -143,7 +143,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C008
+  - case_id: C0008
     title: 验证[导入脱敏表]功能正常_数据库不一致
     priority: P0
     steps:
@@ -156,7 +156,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C009
+  - case_id: C0009
     title: 验证[导入脱敏表]功能正常_数据源不一致
     priority: P1
     steps:
@@ -169,7 +169,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C010
+  - case_id: C0010
     title: 验证[上传文件]显示&交互正确
     priority: P1
     steps:
@@ -184,7 +184,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C011
+  - case_id: C0011
     title: 验证[导入脱敏表]页面显示正确
     priority: P1
     steps:
@@ -195,7 +195,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C012
+  - case_id: C0012
     title: 验证[脱敏应用]页面显示正确
     priority: P1
     steps:
@@ -206,7 +206,7 @@ cases:
       - 数据资产-数据安全-数据脱敏管理
       - -脱敏应用
       - -导入脱敏表
-  - id: C013
+  - case_id: C0013
     title: 验证[导入规则]功能正常功能_取消
     priority: P1
     steps:
@@ -218,7 +218,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C014
+  - case_id: C0014
     title: 验证[导入规则]功能正常_导入新规则且重复则覆盖更新
     priority: P0
     steps:
@@ -230,7 +230,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C015
+  - case_id: C0015
     title: 验证[导入规则]功能正常_导入新规则且重复则跳过
     priority: P1
     steps:
@@ -242,7 +242,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C016
+  - case_id: C0016
     title: 验证[导入规则]功能正常_导入重名规则且重复则覆盖更新
     priority: P0
     steps:
@@ -254,7 +254,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C017
+  - case_id: C0017
     title: 验证[导入规则]功能正常_导入重名规则的且重复则跳过
     priority: P1
     steps:
@@ -266,7 +266,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C018
+  - case_id: C0018
     title: 验证[导入规则]功能正常_必填项未填
     priority: P0
     steps:
@@ -280,7 +280,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C019
+  - case_id: C0019
     title: 验证[导入规则]功能正常_错误文件&起步/结束位数超过127等错误数据
     priority: P1
     steps:
@@ -294,7 +294,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C020
+  - case_id: C0020
     title: 验证[导入规则]功能正常_错误文件&脱敏效果填写有误
     priority: P1
     steps:
@@ -308,7 +308,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C021
+  - case_id: C0021
     title: 验证[导入规则]功能正常_错误文件&规则名称过长
     priority: P0
     steps:
@@ -322,7 +322,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C022
+  - case_id: C0022
     title: 验证[上传文件]显示&交互正确
     priority: P1
     steps:
@@ -336,7 +336,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C023
+  - case_id: C0023
     title: 验证[重复处理规则]显示&交互正确
     priority: P1
     steps:
@@ -352,7 +352,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C024
+  - case_id: C0024
     title: 验证[导入规则]页面显示正确
     priority: P1
     steps:
@@ -362,7 +362,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C025
+  - case_id: C0025
     title: 验证查询功能正常_根据规则名称
     priority: P1
     steps:
@@ -372,7 +372,7 @@ cases:
     tags:
       - 数据资产-数据安全-数据脱敏管理
       - -导入规则
-  - id: C026
+  - case_id: C0026
     title: 验证[脱敏管理页面]页面显示正确
     priority: P1
     steps:

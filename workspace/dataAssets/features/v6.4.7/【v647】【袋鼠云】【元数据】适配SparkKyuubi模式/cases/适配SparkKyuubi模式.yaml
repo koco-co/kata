@@ -3,7 +3,7 @@ meta:
   version: v6.4.7
   feature_id: v6.4.7/【v647】【袋鼠云】【元数据】适配SparkKyuubi模式
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证血缘解析功能正常
     priority: P0
     steps:
@@ -94,7 +94,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C002
+  - case_id: C0002
     title: 验证视图血缘关系
     priority: P1
     steps:
@@ -108,7 +108,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C003
+  - case_id: C0003
     title: 验证离线建表【自动同步】到资产功能正常
     priority: P0
     steps:
@@ -135,7 +135,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C004
+  - case_id: C0004
     title: 验证【元数据同步】_【常规表】_【全类型字段】同步正常
     priority: P1
     steps:
@@ -207,7 +207,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C005
+  - case_id: C0005
     title: 验证【元数据同步-临时运行】功能正常
     priority: P0
     steps:
@@ -254,7 +254,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C006
+  - case_id: C0006
     title: 验证质量和离线绑定，多规则包-【表行数-弱规则-校验不通过】-校验结果正确
     priority: P1
     steps:
@@ -326,7 +326,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C007
+  - case_id: C0007
     title: 验证质量和离线绑定，多规则包-【表行数-校验通过】-校验结果正确
     priority: P1
     steps:
@@ -398,7 +398,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C008
+  - case_id: C0008
     title: 验证质量和离线绑定，单规则包-【表行数-弱规则-校验不通过】结果正确
     priority: P1
     steps:
@@ -470,7 +470,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C009
+  - case_id: C0009
     title: 验证质量和离线绑定，单规则包-【表行数-校验通过】结果正确
     priority: P1
     steps:
@@ -542,7 +542,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C010
+  - case_id: C0010
     title: 验证【多表-doris-doris跨源比对】功能正常
     priority: P1
     steps:
@@ -569,7 +569,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C011
+  - case_id: C0011
     title: 验证【多表-数据预览】结果正确
     priority: P1
     steps:
@@ -634,7 +634,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C012
+  - case_id: C0012
     title: 验证【多表-doris-mysql跨源比对】功能正常
     priority: P1
     steps:
@@ -741,7 +741,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C013
+  - case_id: C0013
     title: 验证【多表-同源比对】功能正常
     priority: P1
     steps:
@@ -868,7 +868,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C014
+  - case_id: C0014
     title: 验证【规则集】功能正常
     priority: P1
     steps:
@@ -943,7 +943,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C015
+  - case_id: C0015
     title: 验证【单表-数据预览】结果正确
     priority: P1
     steps:
@@ -1006,7 +1006,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C016
+  - case_id: C0016
     title: 验证单表校验-【完整性校验-字段级-多字段】校验结果正确
     priority: P1
     steps:
@@ -1035,7 +1035,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C017
+  - case_id: C0017
     title: 验证单表校验-【完整性校验-字段级-单字段】结果正确
     priority: P1
     steps:
@@ -1051,7 +1051,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C018
+  - case_id: C0018
     title: 验证质量和离线绑定，多规则包-【表行数-强规则-校验不通过】-校验结果正确
     priority: P0
     steps:
@@ -1107,7 +1107,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C019
+  - case_id: C0019
     title: 验证质量和离线绑定，单规则包-【表行数-添加过滤条件】-校验结果正确
     priority: P0
     steps:
@@ -1185,7 +1185,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C020
+  - case_id: C0020
     title: 验证质量和离线绑定，单规则包-【表行数-强规则-校验不通过】结果正确
     priority: P0
     steps:
@@ -1256,7 +1256,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C021
+  - case_id: C0021
     title: 验证周期调度-【T+1】功能正常
     priority: P1
     steps:
@@ -1272,7 +1272,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C022
+  - case_id: C0022
     title: 验证周期调度-【立即生成】功能正常
     priority: P1
     steps:
@@ -1288,7 +1288,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C023
+  - case_id: C0023
     title: 验证单表校验-【自定义sql-多表逻辑】结果正确
     priority: P0
     steps:
@@ -1367,7 +1367,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C024
+  - case_id: C0024
     title: 验证单表校验-【自定义sql-单表逻辑】结果正确
     priority: P0
     steps:
@@ -1412,7 +1412,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C025
+  - case_id: C0025
     title: 验证单表校验-【唯一性校验】结果正确
     priority: P1
     steps:
@@ -1428,7 +1428,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C026
+  - case_id: C0026
     title: 验证单表校验-【规范性校验】结果正确
     priority: P1
     steps:
@@ -1444,7 +1444,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C027
+  - case_id: C0027
     title: 验证单表校验-【准确性校验】结果正确
     priority: P1
     steps:
@@ -1460,7 +1460,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C028
+  - case_id: C0028
     title: 验证单表校验-【表行数-过滤条件】校验结果正确
     priority: P0
     steps:
@@ -1490,7 +1490,7 @@ cases:
     tags:
       - 【联动】
       - 未分类
-  - id: C029
+  - case_id: C0029
     title: 验证项目增删改查功能
     priority: P0
     steps:

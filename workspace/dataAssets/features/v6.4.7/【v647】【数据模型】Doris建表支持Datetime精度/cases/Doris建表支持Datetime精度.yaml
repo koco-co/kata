@@ -3,7 +3,7 @@ meta:
   version: v6.4.7
   feature_id: v6.4.7/【v647】【数据模型】Doris建表支持Datetime精度
 cases:
-  - id: C001
+  - case_id: C0001
     title: 验证历史DATETIME字段精度正确
     priority: P1
     steps:
@@ -15,7 +15,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C002
+  - case_id: C0002
     title: 验证doris编辑表功能
     priority: P1
     steps:
@@ -33,7 +33,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C003
+  - case_id: C0003
     title: 验证DATETIMEV2、DATETIME类型设置精度后，建表成功
     priority: P0
     steps:
@@ -49,7 +49,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C004
+  - case_id: C0004
     title: 验证DATETIMEV2、DATETIME类型支持设置精度
     priority: P1
     steps:
@@ -65,7 +65,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C005
+  - case_id: C0005
     title: 验证doris建表，字段类型新增DATETIMEV2
     priority: P1
     steps:

@@ -1,0 +1,29 @@
+schema: FeatureMetadata@2
+id: 2026-07-shu-ju-zi-chan-ji-cheng-yong-li
+display_name: 数据资产集成用例
+status: draft
+created_at: 2026-07-27T08:53:02.171Z
+updated_at: 2026-07-27T08:53:02.172Z
+modules:
+  - 数据资产
+customers:
+  - 岚图汽车
+versions:
+  - v7.0.0
+owners: []
+inputs: []
+relates_to: []
+emits: {}
+case_drafting:
+  status: not-started
+  archive_path: null
+  xmind_path: null
+automation:
+  status: not-started
+  intents: []
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: null
+  tests_root: null
+  latest_results: null

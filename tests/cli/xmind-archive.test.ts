@@ -6,7 +6,7 @@ import { archiveToJson, parseArchiveBody } from "../../cli/lib/xmind-archive.ts"
 
 const ARCHIVE = `## 模块A
 ### 页面B
-<!-- case_id: C001 -->
+<!-- case_id: C0001 -->
 ##### 【P0】用例一
 > 用例步骤
 
@@ -19,7 +19,7 @@ describe("parseArchiveBody", () => {
   it("attaches a case_id anchor to the next case", () => {
     const modules = parseArchiveBody(ARCHIVE);
     const c = modules[0].pages[0].test_cases?.[0];
-    expect(c?.case_id).toBe("C001");
+    expect(c?.case_id).toBe("C0001");
     expect(c?.priority).toBe("P0");
     expect(c?.steps).toEqual([{ step: "操作一", expected: "预期一" }]);
   });
@@ -70,6 +70,6 @@ ${ARCHIVE}`,
     expect(json.meta.requirement_name).toBe("我的需求, v2");
     expect(json.meta.requirement_id).toBe(12345);
     expect(json.meta.tags).toEqual(["质量,核心"]);
-    expect(json.modules[0].pages[0].test_cases?.[0]?.case_id).toBe("C001");
+    expect(json.modules[0].pages[0].test_cases?.[0]?.case_id).toBe("C0001");
   });
 });

@@ -3,7 +3,7 @@ meta:
   version: v6.4.7
   feature_id: v6.4.7/【v647】【数据资产】主流程测试用例
 cases:
-- id: C001
+- case_id: C0001
   title: 验证已接入数据源统计数据正确
   priority: P1
   steps:
@@ -17,7 +17,7 @@ cases:
   tags:
   - 主流程v6.3
   - 资产盘点
-- id: C002
+- case_id: C0002
   title: 验证【数据表】表数量统计正确
   priority: P1
   steps:
@@ -38,7 +38,7 @@ cases:
   - 元数据
   - 数据地图
   - 首页【资产类型】功能验证
-- id: C003
+- case_id: C0003
   title: 验证【离线任务】任务数量统计正确
   priority: P1
   steps:
@@ -52,7 +52,7 @@ cases:
   - 元数据
   - 数据地图
   - 首页【资产类型】功能验证
-- id: C004
+- case_id: C0004
   title: 验证筛选条件组合查询功能正常
   priority: P1
   steps:
@@ -89,7 +89,7 @@ cases:
   - 元数据
   - 数据地图
   - 【数据地图】-二级页面【筛选过滤】功能验证
-- id: C005
+- case_id: C0005
   title: 验证【表结构】-【建表语句】模块功能正常
   priority: P1
   steps:
@@ -107,7 +107,7 @@ cases:
   - 元数据
   - 数据地图
   - 【数据地图】-【数据表】详情页面功能验证
-- id: C006
+- case_id: C0006
   title: 验证【血缘关系】功能正常
   priority: P0
   steps:
@@ -163,7 +163,7 @@ cases:
   - 元数据
   - 数据地图
   - 【数据地图】-【数据表】详情页面功能验证
-- id: C007
+- case_id: C0007
   title: 验证元数据同步任务创建流程正常
   priority: P0
   steps:
@@ -179,7 +179,7 @@ cases:
   - 主流程v6.3
   - 元数据
   - 元数据同步
-- id: C008
+- case_id: C0008
   title: 验证通用业务属性-新增功能-逻辑正常
   priority: P1
   steps:
@@ -214,7 +214,7 @@ cases:
   - 主流程v6.3
   - 元数据
   - 元模型管理
-- id: C009
+- case_id: C0009
   title: 验证通用业务属性-删除功能-逻辑正常
   priority: P1
   steps:
@@ -227,7 +227,7 @@ cases:
   - 主流程v6.3
   - 元数据
   - 元模型管理
-- id: C010
+- case_id: C0010
   title: 验证数据表列表-数据展示正确
   priority: P0
   steps:
@@ -240,7 +240,7 @@ cases:
   - 主流程v6.3
   - 元数据
   - 元数据管理
-- id: C011
+- case_id: C0011
   title: 验证数据库列表-生命周期应用功能正确
   priority: P1
   steps:
@@ -267,7 +267,7 @@ cases:
   - 主流程v6.3
   - 元数据
   - 元数据管理
-- id: C012
+- case_id: C0012
   title: 验证数据标准-新建标准
   priority: P0
   steps:
@@ -287,7 +287,7 @@ cases:
   - 数据标准
   - 标准管理
   - 标准定义
-- id: C013
+- case_id: C0013
   title: 验证数据标准-查看详情
   priority: P1
   steps:
@@ -302,7 +302,7 @@ cases:
   - 数据标准
   - 标准管理
   - 标准定义
-- id: C014
+- case_id: C0014
   title: 验证标准映射-创建标准映射功能正常
   priority: P1
   steps:
@@ -347,7 +347,7 @@ cases:
   - 数据标准
   - 标准管理
   - 标准映射
-- id: C015
+- case_id: C0015
   title: 验证标准映射-标准映射字段绑功能正常
   priority: P1
   steps:
@@ -371,7 +371,7 @@ cases:
   - 数据标准
   - 标准管理
   - 标准映射
-- id: C016
+- case_id: C0016
   title: 验证词根管理-新建
   priority: P1
   steps:
@@ -387,7 +387,7 @@ cases:
   - 数据标准
   - 标准基础
   - 词根管理
-- id: C017
+- case_id: C0017
   title: 验证词根管理-删除
   priority: P1
   steps:
@@ -401,7 +401,7 @@ cases:
   - 数据标准
   - 标准基础
   - 词根管理
-- id: C018
+- case_id: C0018
   title: 验证码表管理-新建
   priority: P1
   steps:
@@ -417,7 +417,7 @@ cases:
   - 数据标准
   - 标准基础
   - 码表管理
-- id: C019
+- case_id: C0019
   title: 验证数据库拾取-拾取流程
   priority: P1
   steps:
@@ -449,7 +449,7 @@ cases:
   - 数据标准
   - 标准基础
   - 数据库拾取
-- id: C020
+- case_id: C0020
   title: 验证数据库拾取-批量引用功能正常
   priority: P1
   steps:
@@ -473,7 +473,7 @@ cases:
   - 数据标准
   - 标准基础
   - 数据库拾取
-- id: C021
+- case_id: C0021
   title: 验证创建不同类型sparkThrift表功能正常
   priority: P1
   steps:
@@ -504,7 +504,7 @@ cases:
   - 主流程v6.3
   - 数据模型
   - 建表
-- id: C022
+- case_id: C0022
   title: 验证建表语句解析功能正确
   priority: P1
   steps:
@@ -538,7 +538,7 @@ cases:
   - 主流程v6.3
   - 数据模型
   - 建表
-- id: C023
+- case_id: C0023
   title: 验证「规范设计」-新增数仓层级功能正常
   priority: P1
   steps:
@@ -570,7 +570,7 @@ cases:
   - 主流程v6.3
   - 数据模型
   - 建表
-- id: C024
+- case_id: C0024
   title: 验证数据模型-审批功能
   priority: P0
   steps:
@@ -605,7 +605,7 @@ cases:
   - 主流程v6.3
   - 数据模型
   - 建表
-- id: C025
+- case_id: C0025
   title: 验证单表校验-【完整性校验-字段级-单字段】结果正确
   priority: P1
   steps:
@@ -624,7 +624,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C026
+- case_id: C0026
   title: 验证单表校验-【准确性校验】结果正确
   priority: P0
   steps:
@@ -643,7 +643,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C027
+- case_id: C0027
   title: 验证单表校验-【规范性校验】结果正确
   priority: P0
   steps:
@@ -662,7 +662,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C028
+- case_id: C0028
   title: 验证单表校验-【唯一性校验】结果正确
   priority: P0
   steps:
@@ -681,7 +681,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C029
+- case_id: C0029
   title: 验证单表校验-【自定义sql-单表逻辑】结果正确
   priority: P0
   steps:
@@ -729,7 +729,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C030
+- case_id: C0030
   title: 验证【规则集】功能正常
   priority: P1
   steps:
@@ -805,7 +805,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C031
+- case_id: C0031
   title: 验证【多表-同源比对】功能正常
   priority: P1
   steps:
@@ -935,7 +935,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C032
+- case_id: C0032
   title: 验证【多表-doris-mysql跨源比对】功能正常
   priority: P1
   steps:
@@ -1045,7 +1045,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C033
+- case_id: C0033
   title: 验证【联动】质量和离线绑定，单规则包-【表行数-强规则-校验不通过】结果正确
   priority: P0
   steps:
@@ -1122,7 +1122,7 @@ cases:
   - 主流程v6.3
   - 数据质量
   - 规则任务配置
-- id: C034
+- case_id: C0034
   title: 验证项目增删改查功能
   priority: P0
   steps:
@@ -1155,7 +1155,7 @@ cases:
   - 数据质量
   - 项目管理
   - 项目信息
-- id: C035
+- case_id: C0035
   title: 验证数据权限-新增功能正常
   priority: P1
   steps:
@@ -1184,7 +1184,7 @@ cases:
   - 主流程v6.3
   - 数据安全
   - 数据权限管理
-- id: C036
+- case_id: C0036
   title: 验证表脱敏功能正常
   priority: P1
   steps:
@@ -1203,7 +1203,7 @@ cases:
   - 主流程v6.3
   - 数据安全
   - 数据脱敏管理doris/sparkThrift
-- id: C037
+- case_id: C0037
   title: 验证分级分类生效
   priority: P0
   steps:
@@ -1223,7 +1223,7 @@ cases:
   - 数据安全
   - 数据分级分类
   - 级别管理
-- id: C038
+- case_id: C0038
   title: 验证自动分级-添加流程正确
   priority: P1
   steps:
@@ -1239,7 +1239,7 @@ cases:
   - 数据安全
   - 数据分级分类
   - 自动分级
-- id: C039
+- case_id: C0039
   title: 验证手动分级-添加功能正确
   priority: P1
   steps:

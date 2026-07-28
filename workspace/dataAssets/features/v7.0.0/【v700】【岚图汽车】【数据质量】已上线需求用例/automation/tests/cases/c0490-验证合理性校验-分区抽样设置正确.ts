@@ -1,0 +1,44 @@
+// Generated from the canonical cases YAML; keep business steps in the YAML source.
+import { test } from "@playwright/test";
+import { runGeneratedCase } from "../../../../../../_shared/helpers/case-runner";
+
+const CASE = {
+  "id": "C0490",
+  "title": "验证合理性校验-分区、抽样设置正确",
+  "steps": [
+    {
+      "action": "进入「数据质量」-「规则任务管理」-「监控对象」页面",
+      "expected": "进入成功"
+    },
+    {
+      "action": "开启「抽样检查配置」，勾选「字段内容去重设置」「过滤条件设置」「抽样设置」",
+      "expected": "开启配置成功"
+    },
+    {
+      "action": "「字段内容去重设置」配置为「score」「过滤条件设置」配置为「手动配置」「age >= 20」「抽样设置」配置为「百分比配置」「12.55%」",
+      "expected": "配置成功"
+    },
+    {
+      "action": "「规则名称」输入「test_rule」「选择数据源」选择「${DATASOURCE}」「选择数据库」选择「${DATABASE}」「选择数据表」选择「${TABLE}」「选择分区」选择sex='女'",
+      "expected": "监控对象配置成功"
+    },
+    {
+      "action": "添加「合理性校验」规则，规则填写：「字段」选择「int_col」，「统计函数」选择「数据变化趋势」，「过滤条件」输入「id<100」「选择排序字段」选择「id」，「校验方法」选择「单调递增」「强弱规则」选择「弱规则」，「规则描述」输入「合理性校验测试」，点击保存",
+      "expected": "监控规则配置完成"
+    },
+    {
+      "action": "配置「调度属性」，保存规则",
+      "expected": "规则保存成功"
+    },
+    {
+      "action": "立即运行规则",
+      "expected": "规则校验成功，数据正确"
+    }
+  ]
+} as const;
+
+test.describe("验证合理性校验-分区、抽样设置正确", () => {
+  test("C0490 验证合理性校验-分区、抽样设置正确", async ({ page }) => {
+    await runGeneratedCase(page, CASE);
+  });
+});

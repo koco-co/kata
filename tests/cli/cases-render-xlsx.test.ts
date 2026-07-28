@@ -7,7 +7,7 @@ function file(title: string, cases: CasesFile["cases"]): CasesFile {
   return { meta: { title, version: "v1", feature_id: "g/f" }, cases };
 }
 
-const CASE = { id: "C001", title: "用例一", priority: "P0" as const, steps: [] };
+const CASE = { id: "C0001", title: "用例一", priority: "P0" as const, steps: [] };
 
 async function firstSheetName(buf: Buffer): Promise<string> {
   const wb = new ExcelJS.Workbook();

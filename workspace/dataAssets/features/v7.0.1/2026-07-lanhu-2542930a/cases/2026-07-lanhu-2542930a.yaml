@@ -2,8 +2,9 @@ meta:
   title: 2026-07-lanhu-2542930a
   version: v7.0.1
   feature_id: v7.0.1/2026-07-lanhu-2542930a
+  requirement_id: "16208"
 cases:
-  - id: C1
+  - case_id: C0001
     title: 验证中文名称空格策略在新增和编辑中生效
     priority: P0
     steps:
@@ -38,7 +39,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C2
+  - case_id: C0002
     title: 验证中文名称非法字符和长度边界仍受控
     priority: P1
     steps:
@@ -75,7 +76,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C3
+  - case_id: C0003
     title: 验证标准导入支持含空格的中文名称
     priority: P0
     steps:
@@ -107,7 +108,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C4
+  - case_id: C0004
     title: 验证仅中文名称必填策略允许英文名称为空
     priority: P0
     steps:
@@ -145,7 +146,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C5
+  - case_id: C0005
     title: 验证英文名称填写时仍执行原有格式校验
     priority: P1
     steps:
@@ -182,7 +183,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C6
+  - case_id: C0006
     title: 验证默认全局策略下原有校验逻辑不变
     priority: P1
     steps:
@@ -229,7 +230,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C7
+  - case_id: C0007
     title: 验证标准映射按中文字段匹配并可补录英文名称
     priority: P1
     steps:
@@ -263,7 +264,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C8
+  - case_id: C0008
     title: 验证数据模型表结构字段导入允许英文名称为空
     priority: P1
     steps:
@@ -302,7 +303,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C9
+  - case_id: C0009
     title: 验证标准编辑后中文字段关联关系不丢失
     priority: P1
     steps:
@@ -330,7 +331,7 @@ cases:
     tags:
       - 未分类
       - 未分类
-  - id: C10
+  - case_id: C0010
     title: 验证数据质量规则配置可使用英文名称为空的标准
     priority: P1
     steps:
