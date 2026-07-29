@@ -1,7 +1,11 @@
 meta:
-  title: 规则任务支持编辑分区信息
+  title: 【规则任务配置优化】质量规则任务支持编辑分区信息
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】规则任务支持编辑分区信息
+  requirement_id: "15524"
+  case_module_id: "10192"
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择动态分区)
@@ -9,7 +13,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 手动输入分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -18,11 +37,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
         expected: "数据预览成功: 暂无数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 已存在规则任务, 监控规则配置如下
       监控对象:
@@ -125,7 +149,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 手动输入分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -134,11 +173,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 已存在规则任务, 监控规则配置如下
       监控对象:
@@ -241,7 +285,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择动态分区: factory_date/sale_date = bdp.system.bizdate2) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -250,11 +309,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 已存在规则任务, 监控规则配置如下
       监控对象:
@@ -364,11 +428,25 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 选择动态分区: factory_date/sale_date = bdp.system.bizdate"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 3条数据"
       - action: 运行规则任务rule01, 立即执行
         expected: 1) 任务运行成功
@@ -385,7 +463,7 @@ cases:
     precondition: |-
       1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES 
+      VALUES
       ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
 
       2) 建表语句如下:
@@ -420,7 +498,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -431,7 +509,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -439,12 +517,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -468,7 +546,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -477,11 +570,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 已存在规则任务, 监控规则配置如下
       监控对象:
@@ -584,7 +682,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -593,11 +706,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
         expected: "数据预览成功: 暂无数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 已存在规则任务, 监控规则配置如下
       监控对象:
@@ -700,7 +818,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -709,7 +842,9 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置不变
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置不变
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "分区配置不变, 实例继续运行, 结果不变: 校验不通过"
       - action: 检查后续生成的rule01实例的详情页
@@ -818,14 +953,30 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 手动输入分区: factory_date=20260202/sale_date=20260202"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202/sale_date=20260202
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验不通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 暂无数据"
       - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
@@ -869,7 +1020,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -880,7 +1031,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -888,12 +1039,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -917,7 +1068,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 手动输入分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -926,11 +1092,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 已存在规则任务, 监控规则配置如下
       监控对象:
@@ -1033,7 +1204,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择动态分区: factory_date/sale_date = bdp.system.bizdate2) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1042,13 +1228,18 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      1)选择动态分区需要额外执行DML语句:
+      1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
       VALUES
       ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
@@ -1134,7 +1325,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择动态分区: factory_date/sale_date = bdp.system.bizdate2) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1143,11 +1349,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
@@ -1237,14 +1448,30 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 选择已有分区: factory_date=20260202/sale_date=20260202"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202/sale_date=20260202
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验不通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 3条数据"
       - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
@@ -1288,7 +1515,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -1299,7 +1526,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -1307,12 +1534,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -1336,7 +1563,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1345,11 +1587,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
         expected: "数据预览成功: 暂无数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -1431,7 +1678,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1)监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=20260202/sale_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202/sale_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1440,7 +1702,9 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202/sale_date=20260202 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置不变
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置不变
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "分区配置不变, 实例继续运行, 结果不变: 校验不通过"
       - action: 检查后续生成的rule01实例的详情页
@@ -1547,7 +1811,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 手动输入分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1556,11 +1835,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
         expected: "数据预览成功: 暂无数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -1645,14 +1929,30 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 手动输入分区: factory_date=20260202"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验不通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 3条数据"
       - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
@@ -1696,7 +1996,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -1707,7 +2007,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -1715,12 +2015,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -1744,7 +2044,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择动态分区: factory_date = bdp.system.bizdate2) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date = bdp.system.bizdate
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1753,11 +2068,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
@@ -1845,7 +2165,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择动态分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1854,13 +2189,18 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      1)选择动态分区需要额外执行DML语句:
+      1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
       VALUES
       ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
@@ -1946,7 +2286,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -1955,11 +2310,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -2044,14 +2404,30 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 选择已有分区: factory_date=20260202"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验不通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 暂无数据"
       - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
@@ -2095,7 +2471,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -2106,7 +2482,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -2114,12 +2490,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -2143,7 +2519,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -2152,11 +2543,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202/sale_date=20260202 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置不变
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置不变
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验不通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验不通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -2239,7 +2635,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 手动输入分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -2248,11 +2659,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
         expected: "数据预览成功: 暂无数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -2335,18 +2751,38 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 手动输入分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 手动输入分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 运行成功
       - action: 运行规则任务rule01, 立即执行
         expected: "校验结果: 校验不通过"
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "数据预览成功: 3条数据"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 后面配置不变, 保存后再次运行任务
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
       - action: 检查后续生成的rule01实例的详情页
         expected: ""
     precondition: |-
@@ -2433,14 +2869,30 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 选择动态分区:  factory_date = bdp.system.bizdate"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date = bdp.system.bizdate
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验不通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 3条数据"
       - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115 , 点击数据预览"
@@ -2456,7 +2908,7 @@ cases:
     precondition: |-
       1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES 
+      VALUES
       ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
 
       2) 建表语句如下:
@@ -2491,7 +2943,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -2502,7 +2954,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -2510,12 +2962,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -2539,7 +2991,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择动态分区:  factory_date = bdp.system.bizdate2) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择动态分区: factory_date = bdp.system.bizdate
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -2548,11 +3015,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       1) 选择动态分区需要额外执行DML语句:
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
@@ -2560,7 +3032,7 @@ cases:
       ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
 
 
-      2)建表语句如下:
+      2) 建表语句如下:
       =========================================================
       -- 1. 建表语句 (DDL)
       -- =========================================================
@@ -2639,7 +3111,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -2648,11 +3135,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115, 点击数据预览"
         expected: "数据预览成功: 3条数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -2735,7 +3227,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 运行规则任务rule01, 立即执行
         expected: 运行成功
@@ -2744,11 +3251,16 @@ cases:
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
         expected: "数据预览成功: 暂无数据"
       - action: 后面配置不变, 保存后再次运行任务
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置变更成功
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置变更成功
       - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
         expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
       - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置变更成功, 变更范围:1) 表名悬浮提示中的分区配置信息2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过"
+        expected: |-
+          分区配置变更成功, 变更范围:
+          1) 表名悬浮提示中的分区配置信息
+          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
       建表语句如下:
       =========================================================
@@ -2831,14 +3343,30 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: 配置成功
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_vehicle_sales_dates - 选择已有分区: factory_date=20260202"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
         expected: 运行成功
-      - action: "监控规则: 完整性校验: - 生效范围: 字段级 - 字段: final_price - 统计函数: 字段取值校验 - 期望值: >= 0"
+      - action: |-
+          监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
         expected: "校验结果: 校验不通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认 - 实例生成方式: 「立即生成」"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
+          - 实例生成方式: 「立即生成」
         expected: "数据预览成功: 3条数据"
       - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功2) 规则任务rule01详情页中, 分区配置不变
+        expected: |-
+          1) 任务运行成功
+          2) 规则任务rule01详情页中, 分区配置不变
       - action: 进入【校验结果查询】, 检查实例详情页面
         expected: "分区配置不变, 实例继续运行, 结果不变: 校验不通过"
       - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202 , 点击数据预览"
@@ -2880,7 +3408,7 @@ cases:
       -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
       -- 用于测试：基础的分区扫描功能
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
       ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
       ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
@@ -2891,7 +3419,7 @@ cases:
       -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
       -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
       ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
 
@@ -2899,12 +3427,12 @@ cases:
       -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
       -- 用于测试：边界值校验
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES 
+      VALUES
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
       -- 【场景E：字段级异常 (脏数据)】 4条
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES 
+      VALUES
       -- 1. [NULL异常]: 车型名称为 NULL
       ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
       -- 2. [空串异常]: 交付中心为 Empty String ('')
@@ -2928,7 +3456,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: T+1生成"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: T+1生成
         expected: 配置成功
       - action: 选择规则任务rule01, 关闭检测, 等待T+1生成
         expected: 生成成功
@@ -3005,7 +3548,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 立即生成规则任务实例
         expected: 生成成功
@@ -3088,7 +3646,22 @@ cases:
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择已有分区: factory_date=202602022) 监控规则: 完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「T+1生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择已有分区: factory_date=20260202
+          2) 监控规则: 完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「T+1生成」
         expected: 配置成功
       - action: 等待T+1生成规则任务实例
         expected: 实例生成成功
@@ -3180,13 +3753,17 @@ cases:
       - action: 新建规则任务A, 配置监控对象、监控规则后, 检查调度属性页面
         expected: "调度配置中新增字段: 实例生成方式"
       - action: 检查实例生成方式配置项
-        expected: "1) 枚举: T+1生成(默认)、立即生成2) 悬浮提示: 选中「T+1生成」，代表实例生成按照配置项设置的时间生成实例，默认是22：00；选中「立即生成」，代表提交后立即生成当天开始未来时间内的实例，之后的实例生成还是按照配置项设置的时间生成实例；"
+        expected: |-
+          1) 枚举: T+1生成(默认)、立即生成
+          2) 悬浮提示: 选中「T+1生成」，代表实例生成按照配置项设置的时间生成实例，默认是22：00；选中「立即生成」，代表提交后立即生成当天开始未来时间内的实例，之后的实例生成还是按照配置项设置的时间生成实例；
       - action: 保存规则任务, 检查规则任务详情页
         expected: "新增字段: 实例生成方式, 回显内容正确"
       - action: 选择规则任务A, 进入任务详情页-「编辑调度属性」配置页面
         expected: "调度配置中存在字段: 实例生成方式"
       - action: 检查实例生成方式配置项
-        expected: "1) 枚举: T+1生成(默认)、立即生成2) 悬浮提示: 选中「T+1生成」，代表实例生成按照配置项设置的时间生成实例，默认是22：00；选中「立即生成」，代表提交后立即生成当天开始未来时间内的实例，之后的实例生成还是按照配置项设置的时间生成实例；"
+        expected: |-
+          1) 枚举: T+1生成(默认)、立即生成
+          2) 悬浮提示: 选中「T+1生成」，代表实例生成按照配置项设置的时间生成实例，默认是22：00；选中「立即生成」，代表提交后立即生成当天开始未来时间内的实例，之后的实例生成还是按照配置项设置的时间生成实例；
     precondition: 无
     tags:
       - 规则任务管理
@@ -3198,7 +3775,9 @@ cases:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 选择规则任务A, 进入编辑页
-        expected: 1) 分区配置处于可编辑状态2) 分区配置信息回显正常
+        expected: |-
+          1) 分区配置处于可编辑状态
+          2) 分区配置信息回显正常
     precondition: 规则任务列表已存在监控对象为分区表的任务A
     tags:
       - 规则任务管理

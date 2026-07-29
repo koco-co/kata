@@ -7,19 +7,21 @@ import path from "node:path";
 import { test, type Page } from "@playwright/test";
 
 import { getEnvConfig } from "../../../../../../_shared/helpers";
+import { loadV6411AutomationSettings } from "../../tests/fixtures/v6411-automation-config";
 
 const ENV = getEnvConfig();
 const BASE_URL = ENV.urls.baseUrl;
 const PROJECT_ID = String(ENV.projects.quality.id);
 const OLD_DATASOURCE = "test_lindorm_spark_DORIS_doris3";
-const TABLE_SUFFIX = (process.env.V6411_CLEAN_TABLE_SUFFIX ?? "qzmkxjrp").trim();
+const AUTOMATION = loadV6411AutomationSettings();
+const TABLE_SUFFIX = AUTOMATION.tableBatchSuffix;
 const OUT_DIR = path.join(process.env.KATA_RUN_PATH ?? ".", "cleanup-old-doris");
 
 test.setTimeout(90 * 60 * 1000);
 
 function dorisTableNames(): string[] {
   const tables: string[] = [];
-  const filter = (process.env.V6411_CLEAN_CASES ?? "1-36").trim();
+  const filter = AUTOMATION.cases;
   for (let caseNo = 1; caseNo <= 36; caseNo += 1) {
     const included = filter.split(",").some((item) => {
       const range = item.match(/^(\d+)-(\d+)$/);
@@ -95,5 +97,4 @@ test("清理旧 Doris 数据源的 v6411 规则任务与规则集", async ({ pag
   fs.writeFileSync(path.join(OUT_DIR, "summary.json"), JSON.stringify(summary, null, 2));
   console.log(`[cleanup] done: ${JSON.stringify(summary)}`);
 });
-
 

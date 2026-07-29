@@ -8,13 +8,14 @@
 
 ## Phase 2：只改 yaml
 
-唯一的编辑对象是 `cases/需求名.yaml`。xmind / md / csv / xlsx 都是派生物，手工修改会在下次 build 时被覆盖。用户给的是 xmind 或 csv 时，同样落到 yaml 上改，改完重新 build。
+唯一的编辑对象是 `cases/需求名.yaml`。XMind/Markdown/CSV/XLSX 都是派生物，手工修改会在下次 build 时被覆盖。用户给的是 CSV/XLSX/Markdown/XMind 时，原文件归档到 `cases/imports/`，先转成 YAML 再编辑，改完重新 build。
 
 feature 目录下没有 `cases/需求名.yaml` 时，本工作流没有可编辑的权威源：用户手头有 xmind / csv / md 等历史用例材料时，先按 create 工作流把材料逐条确认、落成 yaml 权威源，再回到本流程编辑；什么材料都没有时直接转 create。
 
 ## Phase 3：修改规则
 
 - 表单字段、按钮、Tab、枚举值逐字匹配证据原文：「sql」不改成「SQL」，「字段」不写成「字段级」。
+- 表单项与两个及以上编号项必须逐行写进 YAML `|-`；只做换行标准化，不改原句、SQL 或函数语义。
 - 缺少证据的前置条件 / 步骤 / 预期不凭空补造，也不许标「待确认」：逐个向用户确认（一次一个、带推荐答案），确认后按答案修改；用户也确认不了的条目维持原样，交付时列出条目与原因。该 feature 已有 `requirement-notes.md` 时先查它，能答的不问。
 - 修错的用例改完后直接陈述行为与结果；不在正文写「为什么这么改」的说明——让测试数据与预期本身体现语义（数据只命中目标行，预期只点中该行）。
 - 改动涉及菜单、字段、规则语义时，先按 SKILL.md 的纪律核对知识库，避免把错误用例「保真」地搬运下去。
@@ -25,7 +26,7 @@ feature 目录下没有 `cases/需求名.yaml` 时，本工作流没有可编辑
 
 ## Phase 5：重建与检查
 
-每改完一批就重建并检查：
+每改完一批就重建并检查；默认只生成 XMind，其他格式以 YAML `meta.exports` 为准：
 
 ```bash
 kata cases build --feature <featureDir>

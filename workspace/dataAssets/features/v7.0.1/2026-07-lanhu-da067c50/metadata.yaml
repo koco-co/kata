@@ -23,12 +23,12 @@ requirement_context:
   customer_scope: 标准数据模型建表流程
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: false
 case_drafting:
   status: completed
-  archive_path: cases/exports/2026-07-lanhu-da067c50.md
-  xmind_path: cases/2026-07-lanhu-da067c50.xmind
+  archive_path: null
+  xmind_path: cases/exports/2026-07-lanhu-da067c50.xmind
   requirement_atoms:
     - id: RA-001
       source_ref: lanhu.fixture:page-da067c50#sha256:c7f825a13d0cbf398f3f6bffea177264084843fcdb61ec5c2fdeed7c6fc7d0c3
@@ -58,7 +58,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/2026-07-lanhu-da067c50.md
-  xmind: cases/2026-07-lanhu-da067c50.xmind
+  archive: null
+  xmind: cases/exports/2026-07-lanhu-da067c50.xmind
   tests_root: null
   latest_results: null

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
+import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
 
 import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 import {
@@ -9262,7 +9263,7 @@ async function waitForMonitorRecordStatus(
   ruleName: string,
   expectedStatus: RegExp,
 ): Promise<{ target: DqMonitorRecord; statusLabel: string }> {
-  const timeoutMs = Number(process.env.KATA_DQ_MONITOR_TIMEOUT_MS ?? 2_700_000);
+  const timeoutMs = loadPlaywrightAutomationConfig().monitorTimeoutMs;
   const deadline = Date.now() + timeoutMs;
   let latestTarget: DqMonitorRecord | undefined;
   let latestStatus = "";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { generateAutomationScripts } from "../../cli/lib/automation-case-generator.ts";
@@ -12,10 +12,10 @@ function fixture(): string {
   mkdirSync(join(feature, "automation", "tests", "runners"), { recursive: true });
   writeFileSync(
     join(feature, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - case_id: C0001\n    title: 验证已存在脚本\n    priority: P1\n    steps:\n      - action: 点击【保存】按钮\n        expected: 保存成功\n    automation:\n      spec_file: c0001-验证已存在脚本.ts\n  - case_id: C0002\n    title: 验证缺失脚本\n    priority: P1\n    steps:\n      - action: 点击【提交】按钮\n        expected: 提交成功\n    automation:\n      spec_file: c0002-验证缺失脚本.ts\n`,
+    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - case_id: C0001\n    title: 验证已存在脚本\n    priority: P1\n    steps:\n      - action: 点击【保存】按钮\n        expected: 保存成功\n    automation:\n      spec_file: c0001-existing-case.spec.ts\n  - case_id: C0002\n    title: 验证缺失脚本\n    priority: P1\n    steps:\n      - action: 点击【提交】按钮\n        expected: 提交成功\n    automation:\n      spec_file: c0002-missing-case.spec.ts\n`,
   );
   writeFileSync(
-    join(feature, "automation", "tests", "cases", "c0001-验证已存在脚本.ts"),
+    join(feature, "automation", "tests", "cases", "c0001-existing-case.spec.ts"),
     "export {};\n",
   );
   writeFileSync(
@@ -26,20 +26,18 @@ function fixture(): string {
 }
 
 describe("automation case generator", () => {
-  it("creates a mapped-not-implemented script without treating it as implemented", () => {
+  it("reports a missing implementation without creating a generic placeholder", () => {
     const feature = fixture();
-    const result = generateAutomationScripts(feature, { apply: true });
-    expect(result.created).toHaveLength(1);
+    const result = generateAutomationScripts(feature);
+    expect(result.created).toHaveLength(0);
+    expect(result.unmapped).toEqual(["C0002:c0002-missing-case.spec.ts"]);
     expect(result.orphanScripts).toEqual([]);
 
-    const generated = join(feature, "automation", "tests", "cases", "c0002-验证缺失脚本.ts");
-    expect(existsSync(generated)).toBe(true);
-    expect(readFileSync(generated, "utf8")).toContain("runGeneratedCase");
-    expect(
-      readFileSync(join(feature, "automation", "tests", "runners", "generated.ts"), "utf8"),
-    ).not.toContain("c0002-验证缺失脚本.ts");
-    expect(
-      readFileSync(join(feature, "automation", "tests", "runners", "full.spec.ts"), "utf8"),
-    ).toContain('./generated"');
+    const generated = join(feature, "automation", "tests", "cases", "c0002-missing-case.spec.ts");
+    expect(existsSync(generated)).toBe(false);
+    expect(() => generateAutomationScripts(feature, { apply: true })).toThrow(
+      /拒绝生成通用占位脚本/,
+    );
+    expect(existsSync(generated)).toBe(false);
   });
 });

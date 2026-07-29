@@ -1,0 +1,8 @@
+target=http://iov-bigdata-tianji-dev-stack.voyah.cn/dataAssets/#/dq/ruleSet?pid=1
+status=0
+error=original=page.goto: net::ERR_NAME_NOT_RESOLVED at http://iov-bigdata-tianji-dev-stack.voyah.cn/dataAssets/#/dq/ruleSet?pid=1
+Call log:
+[2m  - navigating to "http://iov-bigdata-tianji-dev-stack.voyah.cn/dataAssets/#/dq/ruleSet?pid=1", waiting until "domcontentloaded"[22m
+; fallback=page.goto: net::ERR_NAME_NOT_RESOLVED at http://iov-bigdata-tianji-dev-stack.voyah.cn/dataAssets/
+Call log:
+[2m  - navigating to "http://iov-bigdata-tianji-dev-stack.voyah.cn/dataAssets/", waiting until "domcontentloaded"[22m

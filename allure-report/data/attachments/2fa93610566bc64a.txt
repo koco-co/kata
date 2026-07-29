@@ -1,0 +1,252 @@
+[v6411-ui-rebuild] planned §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] base-table-manual-precondition §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] metadata-manual-precondition §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] rule-set-edited-existing §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] rule-task-existing §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] rule-task-edit-save-attempted §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] rule-task-edit-save-finished §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] rule-task-edited-saved §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] immediate-run-clicked §65 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=1 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=2 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=3 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=4 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=5 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=6 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=7 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=8 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=9 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=10 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=11 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=12 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=13 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=14 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=15 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=16 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=17 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=18 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=19 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=20 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=21 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=22 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=23 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=24 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=25 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=26 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=27 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=28 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=29 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=30 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=31 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=32 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=33 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=34 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=35 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=36 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=37 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=38 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=39 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=40 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=41 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=42 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=43 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=44 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=45 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=46 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=47 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=48 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=49 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=50 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=51 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=52 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=53 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=54 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=55 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=56 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=57 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=58 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=59 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=60 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=61 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=62 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=63 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=64 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=65 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=66 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=67 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=68 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=69 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=70 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=71 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=72 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=73 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=74 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=75 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=76 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=77 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=78 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=79 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=80 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=81 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=82 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=83 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=84 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=85 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=86 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=87 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=88 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=89 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=90 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=91 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=92 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=93 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=94 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=95 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=96 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=97 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=98 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=99 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=100 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=101 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=102 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=103 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=104 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=105 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=106 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=107 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=108 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=109 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=110 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=111 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=112 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=113 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=114 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=115 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=116 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=117 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=118 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=119 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=120 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 ignored historical rows before trigger=2026-07-29T15:52:41.357Z
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=121 row-missing query=test_info_1_qzmkxjrp_65
+[v6411-ui-rebuild] result-poll SR-UI-V6411-REBUILD-65 attempt=122 classification=validation-unpass status=校验异常 tooltip=校验不通过: 5 text=dtstack_smoke.test_info_1_qzmkxjrp_65 §65 验证完整性校验-多字段-抽样开启校验全不通过功能 校验异常 SparkThrift2.x / dtstack_smoke_LINDORM_SPARK 手动触发 否 2026-07-29 23:51:02 2026-07-29 23:51:03 2026-07-29 23:52:53 1分49秒 admin@dtstack.com admin@dtstack.com --

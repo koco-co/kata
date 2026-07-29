@@ -3,10 +3,13 @@ meta:
   version: v6.4.10
   feature_id: v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验
   requirement_id: "15693"
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-验证统计函数选择key范围校验后字段选择变为单选.ts
+      spec_file: c0001-key-range-single-field-selection.spec.ts
     title: 验证统计函数选择key范围校验后字段选择变为单选
     priority: P0
     steps:
@@ -33,7 +36,7 @@ cases:
       - 规则配置-key范围校验基础功能
   - case_id: C0002
     automation:
-      spec_file: c0002-验证校验方法切换包含与不包含规则保存和执行结果差异.ts
+      spec_file: c0002-include-exclude-method-results.spec.ts
     title: 验证校验方法切换（包含与不包含）规则保存和执行结果差异
     priority: P0
     steps:
@@ -81,7 +84,7 @@ cases:
       - 规则配置-key范围校验基础功能
   - case_id: C0003
     automation:
-      spec_file: c0003-验证校验内容支持多选和全选操作.ts
+      spec_file: c0003-validation-content-multi-select.spec.ts
     title: 验证校验内容支持多选和全选操作
     priority: P1
     steps:
@@ -110,7 +113,7 @@ cases:
       - 规则配置-key范围校验基础功能
   - case_id: C0004
     automation:
-      spec_file: c0004-验证校验内容下拉框支持输入关键词搜索查询.ts
+      spec_file: c0004-search-validation-content.spec.ts
     title: 验证校验内容下拉框支持输入关键词搜索查询
     priority: P1
     steps:
@@ -137,7 +140,7 @@ cases:
       - 规则配置-key范围校验基础功能
   - case_id: C0005
     automation:
-      spec_file: c0005-验证key数据量超过200条时默认加载前200条及搜索功能.ts
+      spec_file: c0005-large-key-list-search.spec.ts
     title: 验证key数据量超过200条时默认加载前200条及搜索功能
     priority: P1
     steps:
@@ -172,8 +175,7 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0006
-    automation:
-      spec_file: c0006-验证校验内容回显格式为同层级key用横线拼接不同层级用分号分隔.ts
+
     title: 验证校验内容回显格式为同层级key用横线拼接不同层级用分号分隔
     priority: P1
     steps:
@@ -197,8 +199,7 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0007
-    automation:
-      spec_file: c0007-验证数据质量报告中校验内容默认显示前两个悬浮展示全部.ts
+
     title: 验证数据质量报告中校验内容默认显示前两个悬浮展示全部
     priority: P1
     steps:
@@ -231,8 +232,7 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0008
-    automation:
-      spec_file: c0008-验证规则集管理与规则任务管理中校验内容全量展示无截断反向用例.ts
+
     title: 验证规则集管理与规则任务管理中校验内容全量展示无截断（反向用例）
     priority: P1
     steps:
@@ -263,8 +263,7 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0009
-    automation:
-      spec_file: c0009-验证校验内容标签旁悬浮提示文案正确.ts
+
     title: 验证校验内容标签旁悬浮提示文案正确
     priority: P1
     steps:
@@ -276,14 +275,14 @@ cases:
         expected: tooltip显示文案为"校验内容key信息需要在通用配置模块维护。"，文案完全匹配，无多余空格或乱码
       - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
         expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+    precondition: |-
+      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
     tags:
       - 数据质量
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0010
-    automation:
-      spec_file: c0010-验证json类型字段可成功配置key范围校验规则.ts
+
     title: 验证json类型字段可成功配置key范围校验规则
     priority: P0
     steps:
@@ -309,8 +308,7 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - case_id: C0011
-    automation:
-      spec_file: c0011-验证string类型字段可成功配置key范围校验规则.ts
+
     title: 验证string类型字段可成功配置key范围校验规则
     priority: P0
     steps:
@@ -336,8 +334,7 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - case_id: C0012
-    automation:
-      spec_file: c0012-验证非json和string类型字段选择key范围校验后任务执行报错.ts
+
     title: 验证非json和string类型字段选择key范围校验后任务执行报错
     priority: P1
     steps:
@@ -357,14 +354,14 @@ cases:
           2) 该规则行**校验异常**（任务运行失败或校验未通过），错误信息提示字段类型不支持 key 范围校验
       - action: 使用 Doris3.x 数据源重复以上步骤，将 `age`/`create_date`/`user_id` 改为 Doris3.x 对应类型（`INT`/`DATE`/`BIGINT`），其余 UI 操作不变；预期结果与 SparkThrift2.x 一致
         expected: Doris3.x 数据源下，UI 同样允许选择非 json/string 字段，但执行后【校验结果查询】中报错信息一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_field_type（含INT类型字段"age"、DATE类型字段"create_date"、BIGINT类型字段"user_id"），规则包名称"字段类型测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"字段类型测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 age，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_field_type_test"创建
+    precondition: |-
+      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_field_type（含INT类型字段"age"、DATE类型字段"create_date"、BIGINT类型字段"user_id"），规则包名称"字段类型测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"字段类型测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 age，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_field_type_test"创建
     tags:
       - 数据质量
       - 规则集管理
       - 规则配置-字段类型限制
   - case_id: C0013
-    automation:
-      spec_file: c0013-验证未选择字段时保存key范围校验规则提示必填.ts
+
     title: 验证未选择字段时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -384,8 +381,7 @@ cases:
       - 规则集管理
       - 规则配置-表单校验（逆向）
   - case_id: C0014
-    automation:
-      spec_file: c0014-验证未选择校验内容时保存key范围校验规则提示必填.ts
+
     title: 验证未选择校验内容时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -406,7 +402,7 @@ cases:
       - 规则配置-表单校验（逆向）
   - case_id: C0015
     automation:
-      spec_file: c0015-验证未选择校验方法时保存key范围校验规则提示必填.ts
+      spec_file: c0015-require-validation-method.spec.ts
     title: 验证未选择校验方法时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -427,7 +423,7 @@ cases:
       - 规则配置-表单校验（逆向）
   - case_id: C0016
     automation:
-      spec_file: c0016-验证规则配置参数卡片完整展示所有字段.ts
+      spec_file: c0016-validation-config-card-fields.spec.ts
     title: 验证规则配置参数卡片完整展示所有字段
     priority: P1
     steps:
@@ -463,7 +459,7 @@ cases:
       - 规则配置参数展示
   - case_id: C0017
     automation:
-      spec_file: c0017-验证key范围校验完整规则集配置导入规则包执行任务在校验结果查询中查看实例结果.ts
+      spec_file: c0017-key-range-end-to-end.spec.ts
     title: 验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果
     priority: P0
     steps:
@@ -530,7 +526,7 @@ cases:
       - 导入规则包-key范围校验主流程
   - case_id: C0018
     automation:
-      spec_file: c0018-验证Doris3x数据源的json字段支持key范围校验.ts
+      spec_file: c0018-doris-json-key-range.spec.ts
     title: 验证Doris3.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -562,7 +558,7 @@ cases:
       - 多数据源兼容性
   - case_id: C0019
     automation:
-      spec_file: c0019-验证SparkThrift2x数据源的json字段支持key范围校验.ts
+      spec_file: c0019-sparkthrift-json-key-range.spec.ts
     title: 验证SparkThrift2.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -591,7 +587,7 @@ cases:
       - 多数据源兼容性
   - case_id: C0020
     automation:
-      spec_file: c0020-验证Doris3x数据源的string字段支持key范围校验.ts
+      spec_file: c0020-doris-string-key-range.spec.ts
     title: 验证Doris3.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -623,7 +619,7 @@ cases:
       - 多数据源兼容性
   - case_id: C0021
     automation:
-      spec_file: c0021-验证SparkThrift2x数据源的string字段支持key范围校验.ts
+      spec_file: c0021-sparkthrift-string-key-range.spec.ts
     title: 验证SparkThrift2.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -652,7 +648,7 @@ cases:
       - 多数据源兼容性
   - case_id: C0022
     automation:
-      spec_file: c0022-验证Hive2x数据源的string字段支持key范围校验.ts
+      spec_file: c0022-hive-string-key-range.spec.ts
     title: 验证Hive2.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -681,7 +677,7 @@ cases:
       - 多数据源兼容性
   - case_id: C0023
     automation:
-      spec_file: c0023-验证Hive2x数据源的json字段支持key范围校验.ts
+      spec_file: c0023-hive-json-key-range.spec.ts
     title: 验证Hive2.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -713,7 +709,7 @@ cases:
       - 多数据源兼容性
   - case_id: C0024
     automation:
-      spec_file: c0024-验证key数量几千个时按层级校验逻辑正确执行.ts
+      spec_file: c0024-large-key-hierarchy-validation.spec.ts
     title: 验证key数量几千个时按层级校验逻辑正确执行
     priority: P0
     steps:
@@ -817,7 +813,7 @@ cases:
       - 大数据量与层级校验
   - case_id: C0025
     automation:
-      spec_file: c0025-验证千级key数据量下校验内容选择列表的加载搜索和选择性能.ts
+      spec_file: c0025-large-key-content-search-performance.spec.ts
     title: 验证千级key数据量下校验内容选择列表的加载搜索和选择性能
     priority: P1
     steps:
@@ -898,7 +894,7 @@ cases:
       - 大数据量与层级校验
   - case_id: C0026
     automation:
-      spec_file: c0026-验证删除已被规则引用的key后规则配置回显和编辑功能正常.ts
+      spec_file: c0026-delete-referenced-key-config.spec.ts
     title: 验证删除已被规则引用的key后规则配置回显和编辑功能正常
     priority: P1
     steps:
@@ -922,7 +918,7 @@ cases:
       - key被删除后的关联影响
   - case_id: C0027
     automation:
-      spec_file: c0027-验证删除已被规则引用的key后执行校验任务不受影响.ts
+      spec_file: c0027-delete-referenced-key-execution.spec.ts
     title: 验证删除已被规则引用的key后执行校验任务不受影响
     priority: P1
     steps:
@@ -933,7 +929,7 @@ cases:
       - action: 进入【数据质量 → 校验结果查询】页面，找到”task_json_key_exec_test”最新实例记录并打开实例详情
         expected: |-
           1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=40 质检结果=校验通过 
+          2) 实例详情中 id=40 质检结果=校验通过
           3) 页面未出现引用已删除 key 的报错信息，规则结果可正常展示
       - action: 使用 Doris3.x 数据源重复以上步骤，将 `info` 字段类型从 SparkThrift2.x 的 `STRING` 改为 Doris3.x 的 `JSON`，其余 UI 操作不变；预期结果与 SparkThrift2.x 一致
         expected: Doris3.x 数据源下，删除被引用 key 后任务执行结果与 SparkThrift2.x 一致
@@ -951,7 +947,7 @@ cases:
       - key被删除后的关联影响
   - case_id: C0028
     automation:
-      spec_file: c0028-验证key范围校验规则结合抽样功能正确执行.ts
+      spec_file: c0028-key-range-with-sampling.spec.ts
     title: 验证key范围校验规则结合抽样功能正确执行
     priority: P1
     steps:
@@ -983,7 +979,7 @@ cases:
       - 抽样与分区场景
   - case_id: C0029
     automation:
-      spec_file: c0029-验证对分区表配置key范围校验规则指定分区下数据校验正确.ts
+      spec_file: c0029-key-range-partition-validation.spec.ts
     title: 验证对分区表配置key范围校验规则指定分区下数据校验正确
     priority: P1
     steps:
@@ -1022,7 +1018,7 @@ cases:
       - 抽样与分区场景
   - case_id: C0030
     automation:
-      spec_file: c0030-验证规则库中新增key范围校验内置规则展示信息正确.ts
+      spec_file: c0030-key-range-built-in-rule.spec.ts
     title: 验证规则库中新增key范围校验内置规则展示信息正确
     priority: P1
     steps:
@@ -1051,7 +1047,7 @@ cases:
       - 规则库-内置规则展示
   - case_id: C0031
     automation:
-      spec_file: c0031-验证校验不通过时查看明细标题字段标红及全字段展示.ts
+      spec_file: c0031-failed-validation-details.spec.ts
     title: 验证校验不通过时查看明细：标题、字段标红及全字段展示
     priority: P0
     steps:
@@ -1081,7 +1077,7 @@ cases:
       - 校验明细与日志
   - case_id: C0032
     automation:
-      spec_file: c0032-验证下载明细数据中校验字段标红展示.ts
+      spec_file: c0032-failed-download-marked-fields.spec.ts
     title: 验证下载明细数据中校验字段标红展示
     priority: P1
     steps:
@@ -1095,14 +1091,15 @@ cases:
         expected: Excel文件中，不符合规则记录的"info"字段对应单元格呈红色背景或红色字体标注，与页面展示一致
       - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
         expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成最新实例记录，且存在校验不通过规则行
+    precondition: |-
+      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成最新实例记录，且存在校验不通过规则行
     tags:
       - 数据质量
       - 校验结果查询
       - 校验明细与日志
   - case_id: C0033
     automation:
-      spec_file: c0033-验证校验通过时结果查询页不显示明细入口.ts
+      spec_file: c0033-passed-validation-no-details.spec.ts
     title: 验证校验通过时结果查询页不显示明细入口
     priority: P1
     steps:
@@ -1126,7 +1123,7 @@ cases:
       - 校验明细与日志
   - case_id: C0034
     automation:
-      spec_file: c0034-验证校验失败时支持查看日志.ts
+      spec_file: c0034-failed-validation-log.spec.ts
     title: 验证校验失败时支持查看日志
     priority: P2
     steps:
@@ -1138,14 +1135,15 @@ cases:
         expected: 日志弹窗正常打开，显示任务执行失败的错误日志内容，日志内容包含报错时间戳和错误描述信息
       - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
         expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"故障测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"故障测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择已配置但随后被删除的 key（如 key_deleted_test），点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_fail_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"故障测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功；随后在通用配置中删除 key_deleted_test，再执行任务"task_json_fail_test"，任务执行失败；在【数据质量 → 校验结果查询】页面已生成该任务执行状态为"执行失败"的实例记录
+    precondition: |-
+      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"故障测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"故障测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择已配置但随后被删除的 key（如 key_deleted_test），点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_fail_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"故障测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功；随后在通用配置中删除 key_deleted_test，再执行任务"task_json_fail_test"，任务执行失败；在【数据质量 → 校验结果查询】页面已生成该任务执行状态为"执行失败"的实例记录
     tags:
       - 数据质量
       - 校验结果查询
       - 校验明细与日志
   - case_id: C0035
     automation:
-      spec_file: c0035-验证质量报告中校验通过行的各列展示内容正确.ts
+      spec_file: c0035-passed-quality-report-columns.spec.ts
     title: 验证质量报告中校验通过行的各列展示内容正确
     priority: P0
     steps:
@@ -1174,7 +1172,7 @@ cases:
       - 质量报告-展示验证
   - case_id: C0036
     automation:
-      spec_file: c0036-验证质量报告中校验不通过行的各列展示内容正确.ts
+      spec_file: c0036-failed-quality-report-columns.spec.ts
     title: 验证质量报告中校验不通过行的各列展示内容正确
     priority: P0
     steps:
@@ -1202,8 +1200,7 @@ cases:
       - 数据质量报告
       - 质量报告-展示验证
   - case_id: C0037
-    automation:
-      spec_file: c0037-验证质量报告中不包含校验方法的详情说明格式正确.ts
+
     title: 验证质量报告中不包含校验方法的详情说明格式正确
     priority: P1
     steps:
@@ -1218,7 +1215,8 @@ cases:
           3) 两者格式均正确体现"不包含"校验方法
       - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
         expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"不包含校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"不包含校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【不包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_not_include_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"不包含校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成对应实例记录，且实例详情中同时存在校验通过行和校验不通过行
+    precondition: |-
+      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"不包含校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"不包含校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【不包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_not_include_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"不包含校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成对应实例记录，且实例详情中同时存在校验通过行和校验不通过行
     tags:
       - 数据质量
       - 数据质量报告

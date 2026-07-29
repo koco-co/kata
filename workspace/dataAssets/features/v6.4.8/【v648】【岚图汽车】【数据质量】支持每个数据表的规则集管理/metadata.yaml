@@ -14,13 +14,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.8/【v648】【岚图汽车】【数据质量】支持每个数据表的规则集管理"
 case_drafting:
   status: completed
-  archive_path: cases/exports/支持每个数据表的规则集管理.md
-  xmind_path: cases/支持每个数据表的规则集管理.xmind
+  archive_path: null
+  xmind_path: cases/exports/支持每个数据表的规则集管理.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/支持每个数据表的规则集管理.md
-  xmind: cases/支持每个数据表的规则集管理.xmind
+  archive: null
+  xmind: cases/exports/支持每个数据表的规则集管理.xmind
   tests_root: automation/tests/
   latest_results: null

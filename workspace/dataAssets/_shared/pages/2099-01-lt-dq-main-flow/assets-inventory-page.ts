@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
 
 import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 
@@ -24,7 +25,6 @@ const INVENTORY_API_PATHS = [
   "/dassets/v1/dataInventory/top10Tables",
 ] as const;
 const REQUIRED_DATASOURCE_OPTIONS = ["SparkThrift2.x", "Doris3.x"] as const;
-const DEFAULT_SCHEDULE_JOB_TIMEOUT_MS = 10 * 60 * 1000;
 
 export const ASSETS_INVENTORY_SCHEDULE_JOBS = {
   saveOneDayDataDistribution: "/dassets/v1/scheduleJob/saveOneDayDataDistribution",
@@ -282,9 +282,7 @@ async function readAssetsInventorySnapshot(page: Page): Promise<AssetsInventoryS
 }
 
 function getScheduleJobTimeoutMs(): number {
-  const raw = process.env.KATA_DATAASSETS_SCHEDULE_JOB_TIMEOUT_MS;
-  const configured = raw ? Number.parseInt(raw, 10) : Number.NaN;
-  return Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_SCHEDULE_JOB_TIMEOUT_MS;
+  return loadPlaywrightAutomationConfig().scheduleJobTimeoutMs;
 }
 
 export function isAssetsScheduleJobAcceptedStatus(status: number): boolean {

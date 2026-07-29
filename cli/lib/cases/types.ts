@@ -3,6 +3,8 @@
  * Derivatives (xmind/md/csv/xlsx) are rendered from CasesFile and never hand-edited.
  */
 
+import type { CaseExportFormat } from "./formats.ts";
+
 /** File-level metadata for one feature's case set. */
 export interface CaseMeta {
   /** 用例集标题(通常即需求名) */
@@ -13,8 +15,14 @@ export interface CaseMeta {
   feature_id: string;
   /** Lanhu/PRD requirement_id；历史未关联 PRD 的用例集可暂缺。 */
   requirement_id?: string;
+  /** 禅道中存放该需求用例的模块 ID；未知时显式写空字符串。 */
+  case_module_id: string;
   /** 用例来源说明(需求文档/链接) */
   source?: string;
+  /** 原始导入材料文件名,相对于 cases/imports/. */
+  imports?: string[];
+  /** 由 YAML 生成的目标格式；缺省只生成 xmind。 */
+  exports?: CaseExportFormat[];
 }
 
 /** One executable test case. */

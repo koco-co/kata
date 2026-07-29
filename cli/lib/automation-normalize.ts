@@ -1,14 +1,21 @@
 import { existsSync, mkdirSync, readdirSync, renameSync, rmdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const TESTS_ALLOWED = new Set(["cases", "runners", "pages", "helpers", "fixtures", "sql"]);
-const AUTOMATION_TOP_ALLOWED = new Set(["scripts", "tests", ".DS_Store"]);
+const TESTS_ALLOWED = new Set([
+  "cases",
+  "runners",
+  "pages",
+  "flows",
+  "assertions",
+  "fixtures",
+  "sql",
+]);
+const AUTOMATION_TOP_ALLOWED = new Set(["scripts", "tests"]);
 // Canonical runners stay in automation/tests/runners/; anything else there goes to backup.
 const CANONICAL_RUNNERS = new Set([
   "generated.ts",
   "full.spec.ts",
   "smoke.spec.ts",
-  "sort.spec.ts",
   "retry-failed.spec.ts",
 ]);
 

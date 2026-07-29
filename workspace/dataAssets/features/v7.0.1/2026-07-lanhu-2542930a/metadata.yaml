@@ -23,12 +23,12 @@ requirement_context:
   customer_scope: 默认配置下其他标品客户不受影响
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: false
 case_drafting:
   status: completed
-  archive_path: cases/exports/2026-07-lanhu-2542930a.md
-  xmind_path: cases/2026-07-lanhu-2542930a.xmind
+  archive_path: null
+  xmind_path: cases/exports/2026-07-lanhu-2542930a.xmind
   requirement_atoms:
     - id: RA-001
       source_ref: lanhu.fixture:page-2542930a#sha256:b20ebc7eb136ec96dbb863fd9395ec1f327e63a13f3e52cbd34bd66ada0ecc8c
@@ -100,7 +100,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/2026-07-lanhu-2542930a.md
-  xmind: cases/2026-07-lanhu-2542930a.xmind
+  archive: null
+  xmind: cases/exports/2026-07-lanhu-2542930a.xmind
   tests_root: null
   latest_results: null

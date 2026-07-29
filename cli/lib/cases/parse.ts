@@ -4,7 +4,9 @@
  */
 
 import { parse } from "yaml";
+import { CASE_EXPORT_FORMATS, isCaseExportFormat } from "./formats.ts";
 import { SPEC_FILE_RE } from "./naming.ts";
+import { normalizeStructuredText } from "./normalize.ts";
 import { type CaseItem, type CasesFile, PRIORITIES } from "./types.ts";
 
 export { validateCases } from "./schema.ts";
@@ -47,7 +49,7 @@ function asString(v: unknown, field: string): string {
 // 步骤单元格:允许空字符串(续行/纯验证行),但必须是字符串
 function asCell(v: unknown, field: string): string {
   if (typeof v !== "string") fail(`字段 ${field} 缺失或不是字符串`);
-  return v;
+  return normalizeStructuredText(v);
 }
 
 export { SPEC_FILE_RE } from "./naming.ts";
@@ -77,7 +79,7 @@ function asCaseItem(v: unknown, index: number): CaseItem {
   if (o.precondition !== undefined) {
     if (typeof o.precondition !== "string")
       failType(`cases[${index}].precondition`, "字符串", o.precondition);
-    if (o.precondition.trim()) item.precondition = o.precondition;
+    if (o.precondition.trim()) item.precondition = normalizeStructuredText(o.precondition);
   }
   if (o.tags !== undefined) {
     if (!Array.isArray(o.tags)) failType(`cases[${index}].tags`, "数组", o.tags);
@@ -97,7 +99,9 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     }
     const specFile = (o.automation as Record<string, unknown>).spec_file;
     if (typeof specFile !== "string" || !SPEC_FILE_RE.test(specFile)) {
-      fail(`cases[${index}].automation.spec_file 必须匹配 c<四位序号>-<slug>.ts`);
+      fail(
+        `cases[${index}].automation.spec_file 必须匹配 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符`,
+      );
     }
     item.automation = { spec_file: specFile };
   }
@@ -121,6 +125,7 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     title: asString(m.title, "meta.title"),
     version: asString(m.version, "meta.version"),
     feature_id: asString(m.feature_id, "meta.feature_id"),
+    case_module_id: "",
   };
   if (m.requirement_id !== undefined) {
     if (typeof m.requirement_id !== "string" && typeof m.requirement_id !== "number") {
@@ -132,9 +137,40 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     }
     meta.requirement_id = requirementId;
   }
+  if (m.case_module_id === undefined) {
+    fail('字段 meta.case_module_id 缺失；未知时写空字符串 ""');
+  }
+  if (typeof m.case_module_id !== "string" && typeof m.case_module_id !== "number") {
+    failType("meta.case_module_id", "空字符串或数字字符串", m.case_module_id);
+  }
+  const caseModuleId = String(m.case_module_id).trim();
+  if (caseModuleId && !/^\d+$/.test(caseModuleId)) {
+    fail("字段 meta.case_module_id 必须是空字符串或数字字符串");
+  }
+  meta.case_module_id = caseModuleId;
   if (m.source !== undefined) {
     if (typeof m.source !== "string") failType("meta.source", "字符串", m.source);
     if (m.source.trim()) meta.source = m.source;
+  }
+  if (m.imports !== undefined) {
+    if (!Array.isArray(m.imports)) failType("meta.imports", "字符串数组", m.imports);
+    meta.imports = m.imports.map((value, i) => {
+      if (typeof value !== "string" || !value.trim()) {
+        fail(`字段 meta.imports[${i}] 缺失或不是非空字符串`);
+      }
+      return value;
+    });
+  }
+  if (m.exports !== undefined) {
+    if (!Array.isArray(m.exports)) failType("meta.exports", "格式数组", m.exports);
+    meta.exports = m.exports.map((value, i) => {
+      if (typeof value !== "string" || !isCaseExportFormat(value)) {
+        fail(
+          `字段 meta.exports[${i}] 格式非法: ${String(value)}(允许 ${CASE_EXPORT_FORMATS.join("/")})`,
+        );
+      }
+      return value;
+    });
   }
   return { meta, cases: o.cases.map(asCaseItem) };
 }

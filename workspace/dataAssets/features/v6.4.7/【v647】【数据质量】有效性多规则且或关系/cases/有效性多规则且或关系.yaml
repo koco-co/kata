@@ -3,10 +3,13 @@ meta:
   version: v6.4.7
   feature_id: v6.4.7/【v647】【数据质量】有效性多规则且或关系
   requirement_id: "15695"
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-验证在规则集中配置取值范围枚举范围规则且关系完整流程数值类型字段.ts
+      spec_file: c0001-range-enum-and-numeric-flow.spec.ts
     title: 验证在规则集中配置取值范围&枚举范围规则且关系完整流程（数值类型字段）
     priority: P0
     steps:
@@ -81,7 +84,7 @@ cases:
       - 规则配置-新增取值范围&枚举范围规则（P0核心流程）
   - case_id: C0002
     automation:
-      spec_file: c0002-验证在规则集中配置取值范围枚举范围规则或关系时保存成功.ts
+      spec_file: c0002-range-enum-or-save.spec.ts
     title: 验证在规则集中配置取值范围&枚举范围规则或关系时保存成功
     priority: P0
     steps:
@@ -145,7 +148,7 @@ cases:
       - 规则配置-或关系
   - case_id: C0003
     automation:
-      spec_file: c0003-验证在规则集中仅填写取值范围可正常保存.ts
+      spec_file: c0003-range-only-save.spec.ts
     title: 验证在规则集中仅填写取值范围可正常保存
     priority: P1
     steps:
@@ -210,7 +213,7 @@ cases:
       - 规则配置-仅取值范围配置
   - case_id: C0004
     automation:
-      spec_file: c0004-验证在规则集中仅填写枚举值可正常保存.ts
+      spec_file: c0004-enum-only-save.spec.ts
     title: 验证在规则集中仅填写枚举值可正常保存
     priority: P1
     steps:
@@ -272,7 +275,7 @@ cases:
       - 规则配置-仅枚举值配置
   - case_id: C0005
     automation:
-      spec_file: c0005-验证在规则集中枚举值选择notin保存成功.ts
+      spec_file: c0005-enum-not-in-save.spec.ts
     title: 验证在规则集中枚举值选择not in保存成功
     priority: P1
     steps:
@@ -334,7 +337,7 @@ cases:
       - 枚举值 in/not in 切换
   - case_id: C0006
     automation:
-      spec_file: c0006-验证原有枚举值规则同步新增notin选项且可正常保存.ts
+      spec_file: c0006-existing-enum-not-in-option.spec.ts
     title: 验证原有枚举值规则同步新增not in选项且可正常保存
     priority: P1
     steps:
@@ -395,7 +398,7 @@ cases:
       - 枚举值 in/not in 切换
   - case_id: C0007
     automation:
-      spec_file: c0007-验证string类型字段在规则集中配置取值范围枚举范围规则时系统可正常保存.ts
+      spec_file: c0007-string-range-enum-save.spec.ts
     title: 验证string类型字段在规则集中配置取值范围&枚举范围规则时系统可正常保存
     priority: P1
     steps:
@@ -457,7 +460,7 @@ cases:
       - string类型字段强转double验证
   - case_id: C0008
     automation:
-      spec_file: c0008-验证取值范围设置期望值已填写但操作符未选择时点击保存提示校验错误.ts
+      spec_file: c0008-range-operator-required.spec.ts
     title: 验证取值范围设置期望值已填写但操作符未选择时点击保存提示校验错误
     priority: P1
     steps:
@@ -483,7 +486,7 @@ cases:
       - 逆向用例-表单校验
   - case_id: C0009
     automation:
-      spec_file: c0009-验证枚举值下拉框已选择in但值输入框为空时点击保存提示校验错误.ts
+      spec_file: c0009-enum-in-value-required.spec.ts
     title: 验证枚举值下拉框已选择in但值输入框为空时点击保存提示校验错误
     priority: P1
     steps:
@@ -508,7 +511,7 @@ cases:
       - 逆向用例-表单校验
   - case_id: C0010
     automation:
-      spec_file: c0010-验证取值范围和枚举值均已填写但关系未选择时点击保存提示校验错误.ts
+      spec_file: c0010-range-enum-relation-required.spec.ts
     title: 验证取值范围和枚举值均已填写但关系未选择时点击保存提示校验错误
     priority: P1
     steps:
@@ -533,7 +536,7 @@ cases:
       - 逆向用例-表单校验
   - case_id: C0011
     automation:
-      spec_file: c0011-验证取值范围和枚举值均未填写时点击保存提示至少填写一项.ts
+      spec_file: c0011-range-or-enum-required.spec.ts
     title: 验证取值范围和枚举值均未填写时点击保存提示至少填写一项
     priority: P1
     steps:
@@ -556,7 +559,7 @@ cases:
       - 逆向用例-表单校验
   - case_id: C0012
     automation:
-      spec_file: c0012-验证在规则集中已保存的且关系规则编辑切换为或关系后保存成功.ts
+      spec_file: c0012-edit-and-switch-relation.spec.ts
     title: 验证在规则集中已保存的且关系规则编辑切换为或关系后保存成功
     priority: P0
     steps:
@@ -575,7 +578,7 @@ cases:
       - 规则编辑-且或关系切换
   - case_id: C0013
     automation:
-      spec_file: c0013-验证在规则集中取值范围枚举范围规则支持克隆且克隆后配置内容与原规则一致.ts
+      spec_file: c0013-clone-range-enum-rule.spec.ts
     title: 验证在规则集中取值范围&枚举范围规则支持克隆且克隆后配置内容与原规则一致
     priority: P2
     steps:
@@ -600,7 +603,7 @@ cases:
       - 规则克隆与删除
   - case_id: C0014
     automation:
-      spec_file: c0014-验证在规则集中配置过滤条件后规则保存成功.ts
+      spec_file: c0014-filtered-rule-save.spec.ts
     title: 验证在规则集中配置过滤条件后规则保存成功
     priority: P1
     steps:
@@ -661,8 +664,7 @@ cases:
       - 规则集管理
       - 过滤条件配置验证
   - case_id: C0015
-    automation:
-      spec_file: c0015-验证执行含取值范围枚举范围且关系规则的任务后质量报告展示正确.ts
+
     title: 验证执行含取值范围&枚举范围且关系规则的任务后质量报告展示正确
     priority: P0
     steps:
@@ -727,7 +729,7 @@ cases:
       - P0执行流程-且关系
   - case_id: C0016
     automation:
-      spec_file: c0016-验证执行含取值范围枚举范围或关系规则的任务后校验通过.ts
+      spec_file: c0016-or-rule-passed-task.spec.ts
     title: 验证执行含取值范围&枚举范围或关系规则的任务后校验通过
     priority: P0
     steps:
@@ -787,7 +789,7 @@ cases:
       - P0执行流程-或关系
   - case_id: C0017
     automation:
-      spec_file: c0017-验证弱规则标识在质量报告中展示正确.ts
+      spec_file: c0017-weak-rule-report-marker.spec.ts
     title: 验证弱规则标识在质量报告中展示正确
     priority: P2
     steps:
@@ -846,7 +848,7 @@ cases:
       - 弱规则与校验失败查看日志
   - case_id: C0018
     automation:
-      spec_file: c0018-验证取值范围枚举范围规则执行失败时可查看日志.ts
+      spec_file: c0018-range-enum-failed-log.spec.ts
     title: 验证取值范围&枚举范围规则执行失败时可查看日志
     priority: P2
     steps:
@@ -864,7 +866,7 @@ cases:
       - 弱规则与校验失败查看日志
   - case_id: C0019
     automation:
-      spec_file: c0019-验证结合抽样功能执行取值范围枚举范围校验结果正确.ts
+      spec_file: c0019-range-enum-sampling.spec.ts
     title: 验证结合抽样功能执行取值范围&枚举范围校验结果正确
     priority: P2
     steps:
@@ -937,7 +939,7 @@ cases:
       - 抽样场景验证
   - case_id: C0020
     automation:
-      spec_file: c0020-验证对分区表指定分区执行取值范围枚举范围校验结果正确.ts
+      spec_file: c0020-range-enum-partition.spec.ts
     title: 验证对分区表指定分区执行取值范围&枚举范围校验结果正确
     priority: P2
     steps:
@@ -997,7 +999,7 @@ cases:
       - 分区表场景验证
   - case_id: C0021
     automation:
-      spec_file: c0021-验证规则库中新增取值范围枚举范围内置规则展示正确.ts
+      spec_file: c0021-range-enum-built-in-rule.spec.ts
     title: 验证规则库中新增取值范围&枚举范围内置规则展示正确
     priority: P1
     steps:
@@ -1021,7 +1023,7 @@ cases:
       - 规则库展示验证
   - case_id: C0022
     automation:
-      spec_file: c0022-验证取值范围枚举范围规则校验不通过时可查看明细且校验字段标红展示.ts
+      spec_file: c0022-range-enum-failed-details.spec.ts
     title: 验证取值范围&枚举范围规则校验不通过时可查看明细且校验字段标红展示
     priority: P0
     steps:
@@ -1084,7 +1086,7 @@ cases:
       - 校验不通过时明细查看与下载
   - case_id: C0023
     automation:
-      spec_file: c0023-验证取值范围枚举范围规则校验不通过时下载明细数据中校验字段标红展示.ts
+      spec_file: c0023-range-enum-failed-download.spec.ts
     title: 验证取值范围&枚举范围规则校验不通过时下载明细数据中校验字段标红展示
     priority: P1
     steps:
@@ -1107,7 +1109,7 @@ cases:
       - 校验不通过时明细查看与下载
   - case_id: C0024
     automation:
-      spec_file: c0024-验证取值范围枚举范围规则校验通过时不记录明细数据且操作列不显示查看详情.ts
+      spec_file: c0024-range-enum-passed-no-details.spec.ts
     title: 验证取值范围&枚举范围规则校验通过时不记录明细数据且操作列不显示查看详情
     priority: P1
     steps:
@@ -1128,7 +1130,7 @@ cases:
       - 校验不通过时明细查看与下载
   - case_id: C0025
     automation:
-      spec_file: c0025-验证仅配置枚举值in校验通过时质量报告详情说明使用枚举值独立说明模板.ts
+      spec_file: c0025-enum-in-passed-report.spec.ts
     title: 验证仅配置枚举值in校验通过时质量报告详情说明使用枚举值独立说明模板
     priority: P1
     steps:
@@ -1171,7 +1173,7 @@ cases:
       - 枚举值单独使用时质量报告说明
   - case_id: C0026
     automation:
-      spec_file: c0026-验证仅配置枚举值in校验不通过时质量报告详情说明包含越界值数量统计.ts
+      spec_file: c0026-enum-in-failed-report.spec.ts
     title: 验证仅配置枚举值in校验不通过时质量报告详情说明包含越界值数量统计
     priority: P1
     steps:
@@ -1227,7 +1229,7 @@ cases:
       - 枚举值单独使用时质量报告说明
   - case_id: C0027
     automation:
-      spec_file: c0027-验证仅配置枚举值notin校验不通过时质量报告详情说明展示notin规则描述.ts
+      spec_file: c0027-enum-not-in-failed-report.spec.ts
     title: 验证仅配置枚举值not in校验不通过时质量报告详情说明展示not in规则描述
     priority: P1
     steps:

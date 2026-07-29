@@ -16,5 +16,12 @@
 ## Playwright 硬闸
 - exit 0 不算证据：须 run 的 `status.json` 为 `command_passed`、Allure 结果落盘、被测平台产生核心流程业务记录；交付前通过 `kata automation lint <featureDir> --exit-code` 与 `kata automation lint --shared --exit-code`。
 
+## CLI 文档同步
+- 任何 CLI 命令、子命令、参数、默认值或行为调整，都必须同步更新 `cli/README.md`、对应的 `kata --help`/嵌套 help，以及 CLI 文档同步测试；CLI README 是递归 help 的完整参考。
+
+## 自动化用例文件名
+- `automation/tests/cases/` 下的正式用例脚本统一使用 `c0001-<lowercase-english-kebab-slug>.spec.ts`；slug 由模型参考中文标题判断并持久化到 cases YAML 的 `automation.spec_file`。
+- 标题后续调整不自动重算既有 slug；文件迁移和 runner 同步以 YAML 中明确声明的 `spec_file` 为准，缺失脚本不得生成通用占位文件。
+
 ## 本地上下文
 - 只能调整语气或声明默认值，不得定义路由、策略、写入范围、插件权限、引用要求或输出模式。

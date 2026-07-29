@@ -5,17 +5,24 @@ import { join } from "node:path";
 import JSZip from "jszip";
 import type { IntermediateJson, TestCase } from "../../cli/lib/intermediate-types.ts";
 import {
+  buildL1Labels,
+  buildL1Title,
   buildRootTitle,
   createXmind,
   createXmindReplacing,
   useStepsAsNotes,
   validateInput,
 } from "../../cli/lib/xmind-render.ts";
-import { buildRootName } from "../../cli/lib/xmind-rules.ts";
+import { buildRootName, loadXmindProjectConfig } from "../../cli/lib/xmind-rules.ts";
 
 function data(overrides: Partial<IntermediateJson["meta"]> = {}): IntermediateJson {
   return {
-    meta: { project_name: "proj", requirement_name: "需求A", ...overrides },
+    meta: {
+      project_name: "dataAssets",
+      requirement_name: "需求A",
+      version: "v6.4.9",
+      ...overrides,
+    },
     modules: [
       {
         name: "模块A",
@@ -55,25 +62,52 @@ describe("validateInput", () => {
 });
 
 describe("root title builders", () => {
-  it("buildRootName replaces every occurrence of a placeholder", () => {
-    const name = buildRootName(
-      "v6.4.11",
-      {
-        root_title_template: "{{project_name}}/{{project_name}} v{{prd_version}}",
-        iteration_id: "23",
-      },
-      "proj",
-    );
-    expect(name).toBe("proj/proj v6.4.11");
+  it("loads the tracked project mapping and builds the canonical title", () => {
+    expect(loadXmindProjectConfig("dataAssets")).toEqual({
+      root_name: "数据资产",
+      zentao_module_id: "23",
+    });
+    expect(buildRootName("v6.4.11", "dataAssets")).toBe("数据资产v6.4.11迭代用例(#23)");
+    expect(buildRootName("v6.4.5", "batchWorks")).toBe("离线开发v6.4.5迭代用例(#24)");
   });
-  it("buildRootTitle delegates to the rules implementation", () => {
-    const meta = { project_name: "proj", requirement_name: "需求A", version: "v6.4.11" };
-    expect(buildRootTitle(meta)).toBe(buildRootName("v6.4.11", undefined, "proj"));
+  it("buildRootTitle delegates to the project mapping", () => {
+    const meta = {
+      project_name: "dataAssets",
+      requirement_name: "需求A",
+      version: "v6.4.11",
+    };
+    expect(buildRootTitle(meta)).toBe("数据资产v6.4.11迭代用例(#23)");
   });
-  it("root_name wins over the version template", () => {
-    expect(
-      buildRootTitle({ project_name: "p", requirement_name: "r", version: "v1", root_name: "根" }),
-    ).toBe("根");
+  it("rejects an unmapped project instead of falling back to feature ids", () => {
+    expect(() =>
+      buildRootTitle({
+        project_name: "v6.4.9/feature",
+        requirement_name: "需求A",
+        version: "v6.4.9",
+      }),
+    ).toThrow(/未配置 XMind 项目映射/);
+  });
+});
+
+describe("L1 metadata", () => {
+  it("appends the optional case module id and labels the requirement id", () => {
+    const meta = {
+      project_name: "dataAssets",
+      requirement_name: "【数据质量】邮件明细(#99999)",
+      requirement_id: "15602",
+      case_module_id: "10307",
+    };
+    expect(buildL1Title(meta)).toBe("【数据质量】邮件明细(#10307)");
+    expect(buildL1Labels(meta)).toEqual(["(#15602)"]);
+  });
+  it("omits an empty case module suffix and a missing requirement label", () => {
+    const meta = {
+      project_name: "batchWorks",
+      requirement_name: "【建投】导入数据支持中途停止测试",
+      case_module_id: "",
+    };
+    expect(buildL1Title(meta)).toBe("【建投】导入数据支持中途停止测试");
+    expect(buildL1Labels(meta)).toEqual([]);
   });
 });
 
@@ -95,7 +129,9 @@ describe("createXmindReplacing", () => {
     await createXmind(data(), out);
     await createXmindReplacing(data({ requirement_name: "需求B" }), out);
     const zip = await JSZip.loadAsync(readFileSync(out));
-    const sheets = JSON.parse(await zip.file("content.json").async("string"));
+    const content = zip.file("content.json");
+    if (!content) throw new Error("missing content.json");
+    const sheets = JSON.parse(await content.async("string"));
     const titles = sheets[0].rootTopic.children.attached.map((n: { title?: string }) => n.title);
     expect(titles).toEqual(["需求B"]);
     expect(readdirSync(dir).filter((f) => f.endsWith(".tmp"))).toEqual([]);

@@ -2,7 +2,6 @@ import { dirname, resolve } from "node:path";
 import {
   DATAASSETS_CONFIG_ENV,
   DATAASSETS_RESOLVED_ENV,
-  LEGACY_DATAASSETS_ENV,
   assertDataAssetsTenantCookie,
   assertDataAssetsEnvName,
   dataAssetsEnvPath,
@@ -43,12 +42,6 @@ export interface DataAssetsRuntimeOptions {
     readonly projectApiMs: number;
     readonly preconditionRequestMs: number;
     readonly metadataSyncMs: number;
-  };
-  readonly playwright: {
-    readonly headless: boolean;
-    readonly workers: number;
-    readonly fullyParallel: boolean;
-    readonly stepCapture: string;
   };
 }
 
@@ -98,8 +91,6 @@ export interface NamedAuthProfileGuard {
   readonly tenantName: string;
 }
 
-let legacyWarningShown = false;
-
 function parseResolved(value: string | undefined): ResolvedDataAssetsEnv {
   if (!value) {
     throw new Error(
@@ -122,16 +113,6 @@ function parseResolved(value: string | undefined): ResolvedDataAssetsEnv {
 export function resolveDataAssetsEnvName(env: RuntimeEnv = process.env): string {
   const resolved = env[DATAASSETS_RESOLVED_ENV];
   if (resolved) return assertDataAssetsEnvName(parseResolved(resolved).env);
-  const legacy = env[LEGACY_DATAASSETS_ENV];
-  if (legacy) {
-    if (!legacyWarningShown) {
-      process.stderr.write(
-        "[deprecated] KATA_DATAASSETS_ENV no longer resolves an environment by itself; use `kata env run`.\n",
-      );
-      legacyWarningShown = true;
-    }
-    return assertDataAssetsEnvName(legacy);
-  }
   throw new Error(
     "DataAssets environment is not selected. Use `kata env run <name> -- <command...>`.",
   );
@@ -211,12 +192,6 @@ export function loadDataAssetsEnvProfile(
         preconditionRequestMs: 120_000,
         metadataSyncMs: 180_000,
       },
-      playwright: {
-        headless: true,
-        workers: 1,
-        fullyParallel: false,
-        stepCapture: "all",
-      },
     },
   };
 }
@@ -278,20 +253,4 @@ export function loadNamedDataAssetsAuthState(
   }
   assertDataAssetsTenantCookie(config);
   return cookieHeaderToPlaywrightState(`${config.url}/dataAssets`, config.auth.cookie);
-}
-
-export function bridgeLegacyDataAssetsEnv(
-  profile: DataAssetsEnvProfile,
-  target: RuntimeEnv = process.env,
-): void {
-  target.UI_AUTOTEST_BASE_URL = profile.urls.dataAssetsBaseUrl;
-  target.UI_AUTOTEST_COOKIE = profile.auth.cookie;
-  delete target.UI_AUTOTEST_SESSION_PATH;
-  target.KATA_ACTIVE_PROJECT ??= "dataAssets";
-  // Generic Playwright behavior comes exclusively from config/automation/playwright.yaml.
-  // Remove legacy process variables so stale shells cannot silently override the YAML.
-  delete target.PW_WORKERS;
-  delete target.PW_FULLY_PARALLEL;
-  delete target.HEADLESS;
-  target.UI_AUTOTEST_STEP_CAPTURE ??= profile.runtime.playwright.stepCapture;
 }

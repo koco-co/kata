@@ -18,7 +18,6 @@ import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
 export const DATAASSETS_RESOLVED_ENV = "KATA_DATAASSETS_RESOLVED";
 export const DATAASSETS_CONFIG_ENV = "KATA_DATAASSETS_CONFIG";
-export const LEGACY_DATAASSETS_ENV = "KATA_DATAASSETS_ENV";
 
 const ENV_NAME_RE = /^[a-z0-9][a-z0-9-]*$/;
 const PLACEHOLDER = "CHANGE_ME";
@@ -87,6 +86,12 @@ export interface DataAssetsAutomationConfig {
   readonly select_spin_timeout_ms?: number;
   readonly resource_group?: string;
   readonly execute_submit_wait_ms?: number;
+  readonly doris_jdbc_url?: string;
+  readonly doris_user?: string;
+  readonly doris_password?: string;
+  readonly doris_connect_timeout_ms?: number;
+  readonly limited_env?: string;
+  readonly probe_table?: string;
 }
 
 interface ApiEnvelope<T> {
@@ -157,6 +162,8 @@ export interface ResolvedDataAssetsEnv {
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allowWrite: boolean };
   readonly automation?: DataAssetsAutomationConfig;
+  /** Non-fatal platform compatibility diagnostics collected during resolution. */
+  readonly warnings?: readonly string[];
 }
 
 export interface EnvFinding {
@@ -298,6 +305,8 @@ function parseAutomationConfig(value: unknown): DataAssetsAutomationConfig | und
       "result_strict",
       "case_timeout_ms",
       "result_timeout_ms",
+      "result_query_retry_timeout_ms",
+      "result_query_retry_interval_ms",
       "table_option_timeout_ms",
       "rule_set_save_prompt_close_timeout_ms",
       "task_search_query",
@@ -308,6 +317,12 @@ function parseAutomationConfig(value: unknown): DataAssetsAutomationConfig | und
       "select_spin_timeout_ms",
       "resource_group",
       "execute_submit_wait_ms",
+      "doris_jdbc_url",
+      "doris_user",
+      "doris_password",
+      "doris_connect_timeout_ms",
+      "limited_env",
+      "probe_table",
     ],
     "automation",
   );
@@ -340,6 +355,18 @@ function parseAutomationConfig(value: unknown): DataAssetsAutomationConfig | und
     undefined
       ? {}
       : { result_timeout_ms: automation.result_timeout_ms as number }),
+    ...(optionalPositiveInteger(
+      automation.result_query_retry_timeout_ms,
+      "automation.result_query_retry_timeout_ms",
+    ) === undefined
+      ? {}
+      : { result_query_retry_timeout_ms: automation.result_query_retry_timeout_ms as number }),
+    ...(optionalPositiveInteger(
+      automation.result_query_retry_interval_ms,
+      "automation.result_query_retry_interval_ms",
+    ) === undefined
+      ? {}
+      : { result_query_retry_interval_ms: automation.result_query_retry_interval_ms as number }),
     ...(optionalPositiveInteger(
       automation.table_option_timeout_ms,
       "automation.table_option_timeout_ms",
@@ -393,6 +420,27 @@ function parseAutomationConfig(value: unknown): DataAssetsAutomationConfig | und
     ) === undefined
       ? {}
       : { execute_submit_wait_ms: automation.execute_submit_wait_ms as number }),
+    ...(optionalString(automation.doris_jdbc_url, "automation.doris_jdbc_url") === undefined
+      ? {}
+      : { doris_jdbc_url: automation.doris_jdbc_url as string }),
+    ...(optionalString(automation.doris_user, "automation.doris_user") === undefined
+      ? {}
+      : { doris_user: automation.doris_user as string }),
+    ...(optionalString(automation.doris_password, "automation.doris_password") === undefined
+      ? {}
+      : { doris_password: automation.doris_password as string }),
+    ...(optionalPositiveInteger(
+      automation.doris_connect_timeout_ms,
+      "automation.doris_connect_timeout_ms",
+    ) === undefined
+      ? {}
+      : { doris_connect_timeout_ms: automation.doris_connect_timeout_ms as number }),
+    ...(optionalString(automation.limited_env, "automation.limited_env") === undefined
+      ? {}
+      : { limited_env: automation.limited_env as string }),
+    ...(optionalString(automation.probe_table, "automation.probe_table") === undefined
+      ? {}
+      : { probe_table: automation.probe_table as string }),
   };
 }
 
@@ -686,6 +734,20 @@ async function readLimitedPlatformResponse<T>(
   }
 }
 
+class PlatformApiFailure extends Error {
+  readonly path: string;
+  readonly code: number | undefined;
+  readonly apiMessage: string | undefined;
+
+  constructor(path: string, code: number | undefined, apiMessage: string | undefined) {
+    super(`authentication_or_api_failure: ${path}`);
+    this.name = "PlatformApiFailure";
+    this.path = path;
+    this.code = code;
+    this.apiMessage = apiMessage;
+  }
+}
+
 async function post<T>(
   config: DataAssetsEnvConfig,
   path: string,
@@ -730,7 +792,7 @@ async function post<T>(
       throw error;
     }
     if (envelope.code !== 1 || envelope.data === undefined || envelope.data === null) {
-      throw new Error(`authentication_or_api_failure: ${path}`);
+      throw new PlatformApiFailure(path, envelope.code, envelope.message);
     }
     return envelope.data;
   } finally {
@@ -755,6 +817,19 @@ function requiredId(value: unknown, label: string): number {
   return id;
 }
 
+const ASSETS_DATASOURCE_PAGE_QUERY_PATH = "/dassets/v1/dataSource/pageQuery";
+const ASSETS_DATASOURCE_PAGE_QUERY_CLASS_LOADING_MARKER =
+  "NoClassDefFoundError: com/dtstack/metadata/controller/data/DataSourceController$1";
+
+function canUseMetadataDatasourceInventory(error: unknown): boolean {
+  return (
+    error instanceof PlatformApiFailure &&
+    error.path === ASSETS_DATASOURCE_PAGE_QUERY_PATH &&
+    error.code === 1011 &&
+    error.apiMessage?.includes(ASSETS_DATASOURCE_PAGE_QUERY_CLASS_LOADING_MARKER) === true
+  );
+}
+
 async function fetchInventory(
   config: DataAssetsEnvConfig,
   fetchImpl: typeof fetch,
@@ -763,16 +838,11 @@ async function fetchInventory(
   offlineProjects: NamedProject[];
   assetsDatasources: AssetsDatasource[];
   metadataDatasources: MetadataDatasource[];
+  assetsInventoryFallback: boolean;
 }> {
-  const [qualityProjects, offlineProjects, assetsPage, metadataDatasources] = await Promise.all([
+  const [qualityProjects, offlineProjects, metadataDatasources] = await Promise.all([
     post<NamedProject[]>(config, "/dassets/v1/valid/project/getProjects", {}, fetchImpl),
     post<NamedProject[]>(config, "/api/rdos/common/project/getProjects", {}, fetchImpl),
-    post<{ contentList?: AssetsDatasource[]; records?: AssetsDatasource[] }>(
-      config,
-      "/dassets/v1/dataSource/pageQuery",
-      { current: 1, size: 500, search: "" },
-      fetchImpl,
-    ),
     post<MetadataDatasource[]>(
       config,
       "/dmetadata/v1/dataSource/listMetadataDataSource",
@@ -780,11 +850,29 @@ async function fetchInventory(
       fetchImpl,
     ),
   ]);
+  let assetsDatasources: AssetsDatasource[];
+  let assetsInventoryFallback = false;
+  try {
+    const assetsPage = await post<{
+      contentList?: AssetsDatasource[];
+      records?: AssetsDatasource[];
+    }>(config, ASSETS_DATASOURCE_PAGE_QUERY_PATH, { current: 1, size: 500, search: "" }, fetchImpl);
+    assetsDatasources = assetsPage.contentList ?? assetsPage.records ?? [];
+  } catch (error) {
+    if (!canUseMetadataDatasourceInventory(error)) throw error;
+    assetsInventoryFallback = true;
+    assetsDatasources = metadataDatasources.map((item) => ({
+      id: item.dataSourceId,
+      dataSourceName: item.dataSourceName,
+      dataSourceType: item.dataSourceType,
+    }));
+  }
   return {
     qualityProjects,
     offlineProjects,
-    assetsDatasources: assetsPage.contentList ?? assetsPage.records ?? [],
+    assetsDatasources,
     metadataDatasources,
+    assetsInventoryFallback,
   };
 }
 
@@ -899,6 +987,9 @@ export async function resolveDataAssetsEnv(
     defaults: config.defaults,
     safety: { allowWrite: config.safety.allow_write },
     ...(config.automation === undefined ? {} : { automation: config.automation }),
+    ...(inventory.assetsInventoryFallback
+      ? { warnings: ["assets_datasource_inventory_fallback"] }
+      : {}),
   };
 }
 
@@ -963,6 +1054,9 @@ export async function discoverDataAssetsEnv(
       name: item.dataName,
       typeId: item.dataSourceType ?? item.type,
     })),
+    ...(inventory.assetsInventoryFallback
+      ? { warnings: ["assets_datasource_inventory_fallback"] }
+      : {}),
   };
 }
 
@@ -1019,7 +1113,10 @@ export async function diagnoseDataAssetsEnv(
   }
   if (!options?.offline && config && findings.every((item) => item.severity !== "error")) {
     try {
-      await resolveDataAssetsEnv(normalized, { ...options, config });
+      const resolved = await resolveDataAssetsEnv(normalized, { ...options, config });
+      for (const warning of resolved.warnings ?? []) {
+        findings.push({ code: warning, severity: "warn", path: `${path}#datasources` });
+      }
     } catch (error) {
       findings.push({
         code: error instanceof Error ? error.message.split(":", 1)[0] : "online_validation_failed",
@@ -1238,7 +1335,6 @@ export function buildDataAssetsChildEnv(
   const root = rootFrom(ctx);
   return {
     ...selectDataAssetsChildBaseEnv(base, ctx?.inheritEnv ?? []),
-    [LEGACY_DATAASSETS_ENV]: assertDataAssetsEnvName(name),
     [DATAASSETS_CONFIG_ENV]: dataAssetsEnvPath(name, root),
     [DATAASSETS_RESOLVED_ENV]: JSON.stringify(resolved),
     KATA_ACTIVE_PROJECT: "dataAssets",

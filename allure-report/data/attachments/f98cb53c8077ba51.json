@@ -1,0 +1,8 @@
+{
+  "tagName": "BUTTON",
+  "className": "ant-btn ant-btn-primary",
+  "text": "保 存",
+  "disabled": false,
+  "ariaDisabled": null,
+  "outerHTML": "<button type=\"button\" class=\"ant-btn ant-btn-primary\"><span>保 存</span></button>"
+}

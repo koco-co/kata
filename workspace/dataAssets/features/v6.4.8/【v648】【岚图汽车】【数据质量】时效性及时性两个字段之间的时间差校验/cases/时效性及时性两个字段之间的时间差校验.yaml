@@ -2,10 +2,13 @@ meta:
   title: 时效性及时性两个字段之间的时间差校验
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】时效性及时性两个字段之间的时间差校验
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-验证多字段时间差校验任务质量报告正确.ts
+      spec_file: c0001-multi-field-time-difference-report.spec.ts
     title: 验证「多字段时间差校验」任务质量报告正确
     priority: P1
     steps:
@@ -48,7 +51,7 @@ cases:
       - 时效性校验
   - case_id: C0002
     automation:
-      spec_file: c0002-验证多字段时间差校验任务不通过失败结果详情正确.ts
+      spec_file: c0002-multi-field-time-difference-failed-details.spec.ts
     title: 验证「多字段时间差校验」任务不通过/失败结果详情正确
     priority: P1
     steps:
@@ -102,8 +105,7 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0003
-    automation:
-      spec_file: c0003-验证多字段时间差校验任务通过结果详情正确.ts
+
     title: 验证「多字段时间差校验」任务通过结果详情正确
     priority: P1
     steps:
@@ -151,8 +153,7 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0004
-    automation:
-      spec_file: c0004-验证多字段时间差校验字段组限制个数正确.ts
+
     title: 验证「多字段时间差校验」字段组限制个数正确
     priority: P2
     steps:
@@ -194,8 +195,7 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0005
-    automation:
-      spec_file: c0005-验证多字段时间差校验区域配置交互正确.ts
+
     title: 验证「多字段时间差校验」区域配置交互正确
     priority: P2
     steps:
@@ -239,8 +239,7 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0006
-    automation:
-      spec_file: c0006-验证字段类型异常校验功能.ts
+
     title: 验证「字段类型异常」校验功能
     priority: P1
     steps:
@@ -315,11 +314,11 @@ cases:
       25,                               -- TINYINT 类型
       13800138000,                      -- BIGINT 类型
       'zhangsan@example.com',           -- STRING 类型
-      8500.50,                          -- DECIMAL 类型
+      8500. 50,                          -- DECIMAL 类型
       TRUE,                             -- BOOLEAN 类型
       '北京市朝阳区XX路88号',           -- STRING 类型
-      95.5,                             -- FLOAT 类型
-      125000.75                         -- DOUBLE 类型
+      95. 5,                             -- FLOAT 类型
+      125000. 75                         -- DOUBLE 类型
       ),
       -- 第二行数据
       (
@@ -337,11 +336,11 @@ cases:
       30,
       13900139000,
       'lisi@example.com',
-      9800.00,
+      9800. 00,
       FALSE,
       '上海市浦东新区XX街66号',
-      88.8,
-      189000.99
+      88. 8,
+      189000. 99
       ),
       -- 第三行数据
       (
@@ -359,19 +358,18 @@ cases:
       28,
       13700137000,
       'wangwu@example.com',
-      7999.99,
+      7999. 99,
       TRUE,
       '广州市天河区XX大道99号',
-      92.0,
-      98500.50
+      92. 0,
+      98500. 50
       );
     tags:
       - 内置规则
       - 时效性
       - 多字段时间差校验
   - case_id: C0007
-    automation:
-      spec_file: c0007-验证string转long校验不通过功能.ts
+
     title: 验证「string转long」校验不通过功能
     priority: P1
     steps:
@@ -446,11 +444,11 @@ cases:
       25,                               -- TINYINT 类型
       13800138000,                      -- BIGINT 类型
       'zhangsan@example.com',           -- STRING 类型
-      8500.50,                          -- DECIMAL 类型
+      8500. 50,                          -- DECIMAL 类型
       TRUE,                             -- BOOLEAN 类型
       '北京市朝阳区XX路88号',           -- STRING 类型
-      95.5,                             -- FLOAT 类型
-      125000.75                         -- DOUBLE 类型
+      95. 5,                             -- FLOAT 类型
+      125000. 75                         -- DOUBLE 类型
       ),
       -- 第二行数据
       (
@@ -468,11 +466,11 @@ cases:
       30,
       13900139000,
       'lisi@example.com',
-      9800.00,
+      9800. 00,
       FALSE,
       '上海市浦东新区XX街66号',
-      88.8,
-      189000.99
+      88. 8,
+      189000. 99
       ),
       -- 第三行数据
       (
@@ -490,19 +488,18 @@ cases:
       28,
       13700137000,
       'wangwu@example.com',
-      7999.99,
+      7999. 99,
       TRUE,
       '广州市天河区XX大道99号',
-      92.0,
-      98500.50
+      92. 0,
+      98500. 50
       );
     tags:
       - 内置规则
       - 时效性
       - 多字段时间差校验
   - case_id: C0008
-    automation:
-      spec_file: c0008-验证string转long校验通过功能.ts
+
     title: 验证「string转long」校验通过功能
     priority: P0
     steps:
@@ -579,11 +576,11 @@ cases:
        25,
        13800138000,
        'zhangsan@example.com',
-       15000.50,
+       15000. 50,
        TRUE,
        '北京市海淀区中关村',
-       95.5,
-       123456.789
+       95. 5,
+       123456. 789
        ),
        (
        DATE '2026-01-01',
@@ -600,11 +597,11 @@ cases:
        30,
        13900139000,
        'lisi@example.com',
-       20000.00,
+       20000. 00,
        FALSE,
        '上海市浦东新区陆家嘴',
-       88.8,
-       987654.321
+       88. 8,
+       987654. 321
        ),
        (
        DATE '1970-01-01',
@@ -621,19 +618,18 @@ cases:
        0,
        0,
        '',
-       0.00,
+       0. 00,
        NULL,
        '',
-       0.0,
-       0.0
+       0. 0,
+       0. 0
        );
     tags:
       - 内置规则
       - 时效性
       - 多字段时间差校验
   - case_id: C0009
-    automation:
-      spec_file: c0009-验证datedatetimetimetimestamp类型校验不通过功能.ts
+
     title: 验证「date/datetime/time/timestamp类型」校验不通过功能
     priority: P0
     steps:
@@ -710,11 +706,11 @@ cases:
               25,
               13800138000,
               'zhangsan@example.com',
-              15000.50,
+              15000. 50,
               TRUE,
               '北京市海淀区中关村',
-              95.5,
-              123456.789
+              95. 5,
+              123456. 789
           ),
           (
               DATE '2026-01-01',
@@ -731,11 +727,11 @@ cases:
               30,
               13900139000,
               'lisi@example.com',
-              20000.00,
+              20000. 00,
               FALSE,
               '上海市浦东新区陆家嘴',
-              88.8,
-              987654.321
+              88. 8,
+              987654. 321
           ),
           (
               DATE '1970-01-01',
@@ -752,19 +748,18 @@ cases:
               0,
               0,
               '',
-              0.00,
+              0. 00,
               NULL,
               '',
-              0.0,
-              0.0
+              0. 0,
+              0. 0
           );
     tags:
       - 内置规则
       - 时效性
       - 多字段时间差校验
   - case_id: C0010
-    automation:
-      spec_file: c0010-验证datedatetimetimetimestamp类型校验通过功能.ts
+
     title: 验证「date/datetime/time/timestamp类型」校验通过功能
     priority: P1
     steps:
@@ -807,8 +802,7 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0011
-    automation:
-      spec_file: c0011-验证date类型校验不通过功能.ts
+
     title: 验证「date类型」校验不通过功能
     priority: P0
     steps:
@@ -885,11 +879,11 @@ cases:
        25,
        13800138000,
        'zhangsan@example.com',
-       15000.50,
+       15000. 50,
        TRUE,
        '北京市海淀区中关村',
-       95.5,
-       123456.789
+       95. 5,
+       123456. 789
        ),
        (
        DATE '2026-01-01',
@@ -906,11 +900,11 @@ cases:
        30,
        13900139000,
        'lisi@example.com',
-       20000.00,
+       20000. 00,
        FALSE,
        '上海市浦东新区陆家嘴',
-       88.8,
-       987654.321
+       88. 8,
+       987654. 321
        ),
        (
        DATE '1970-01-01',
@@ -927,19 +921,18 @@ cases:
        0,
        0,
        '',
-       0.00,
+       0. 00,
        NULL,
        '',
-       0.0,
-       0.0
+       0. 0,
+       0. 0
        );
     tags:
       - 内置规则
       - 时效性
       - 多字段时间差校验
   - case_id: C0012
-    automation:
-      spec_file: c0012-验证date类型校验通过功能.ts
+
     title: 验证「date类型」校验通过功能
     priority: P0
     steps:
@@ -1016,11 +1009,11 @@ cases:
        25,
        13800138000,
        'zhangsan@example.com',
-       15000.50,
+       15000. 50,
        TRUE,
        '北京市海淀区中关村',
-       95.5,
-       123456.789
+       95. 5,
+       123456. 789
        ),
        (
        DATE '2026-01-01',
@@ -1037,11 +1030,11 @@ cases:
        30,
        13900139000,
        'lisi@example.com',
-       20000.00,
+       20000. 00,
        FALSE,
        '上海市浦东新区陆家嘴',
-       88.8,
-       987654.321
+       88. 8,
+       987654. 321
        ),
        (
        DATE '1970-01-01',
@@ -1058,19 +1051,18 @@ cases:
        0,
        0,
        '',
-       0.00,
+       0. 00,
        NULL,
        '',
-       0.0,
-       0.0
+       0. 0,
+       0. 0
        );
     tags:
       - 内置规则
       - 时效性
       - 多字段时间差校验
   - case_id: C0013
-    automation:
-      spec_file: c0013-验证多字段时间差校验区域详情正确.ts
+
     title: 验证「多字段时间差校验」区域详情正确
     priority: P1
     steps:
@@ -1143,11 +1135,11 @@ cases:
       25,                               -- TINYINT 类型
       13800138000,                      -- BIGINT 类型
       'zhangsan@example.com',           -- STRING 类型
-      8500.50,                          -- DECIMAL 类型
+      8500. 50,                          -- DECIMAL 类型
       TRUE,                             -- BOOLEAN 类型
       '北京市朝阳区XX路88号',           -- STRING 类型
-      95.5,                             -- FLOAT 类型
-      125000.75                         -- DOUBLE 类型
+      95. 5,                             -- FLOAT 类型
+      125000. 75                         -- DOUBLE 类型
       ),
       -- 第二行数据
       (
@@ -1165,11 +1157,11 @@ cases:
       30,
       13900139000,
       'lisi@example.com',
-      9800.00,
+      9800. 00,
       FALSE,
       '上海市浦东新区XX街66号',
-      88.8,
-      189000.99
+      88. 8,
+      189000. 99
       ),
       -- 第三行数据
       (
@@ -1187,11 +1179,11 @@ cases:
       28,
       13700137000,
       'wangwu@example.com',
-      7999.99,
+      7999. 99,
       TRUE,
       '广州市天河区XX大道99号',
-      92.0,
-      98500.50
+      92. 0,
+      98500. 50
       );
     tags:
       - 监控规则

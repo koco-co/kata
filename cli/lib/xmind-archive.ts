@@ -3,10 +3,8 @@
  * xmind-gen.ts — Converts intermediate JSON or Archive Markdown to .xmind files.
  *
  * Usage:
- *   kata xmind generate --input <json|md|dir> --output <xmind> [--mode create|append|replace]
- *   kata xmind generate --input <dir>           (batch convert all .md in dir)
- *   kata xmind generate --input <md> --json-only (output intermediate JSON only)
- *   kata xmind generate --help
+ * Internal archive helpers. Public conversion is exposed through `kata cases import`
+ * and `kata cases build`, with YAML as the intermediate state.
  */
 
 import { readFileSync } from "node:fs";
@@ -259,11 +257,7 @@ function buildArchiveMeta(
   const requirementName =
     typeof fm.suite_name === "string" ? fm.suite_name : basename(mdPath, ".md");
   const resolvedProject =
-    typeof fm.product_line === "string"
-      ? fm.product_line
-      : typeof fm.root_name === "string"
-        ? fm.root_name
-        : projectName;
+    typeof fm.product_line === "string" ? fm.product_line : projectName;
   const meta: RootAwareMeta = {
     project_name: resolvedProject,
     requirement_name: requirementName,
@@ -271,7 +265,6 @@ function buildArchiveMeta(
   const resolvedVersion =
     version ?? (typeof fm.prd_version === "string" ? fm.prd_version : undefined);
 
-  if (typeof fm.root_name === "string") meta.root_name = fm.root_name;
   if (resolvedVersion) meta.version = resolvedVersion;
   if (typeof fm.prd_id === "number") meta.requirement_id = fm.prd_id;
   if (Array.isArray(fm.tags)) {

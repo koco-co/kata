@@ -1,0 +1,77 @@
+{
+  "caseNo": 59,
+  "sourceCaseId": "185950",
+  "datasourceName": "dtstack_smoke_LINDORM_SPARK",
+  "datasourceType": "SparkThrift2.x",
+  "database": "dtstack_smoke",
+  "tableName": "test_info_1_qzmkxjrp_59",
+  "fullTableName": "dtstack_smoke.test_info_1_qzmkxjrp_59",
+  "compareTableName": "test_info_1_qzmkxjrp_59_cmp",
+  "fullCompareTableName": "dtstack_smoke.test_info_1_qzmkxjrp_59_cmp",
+  "ruleName": "§59 验证有效性校验-抽样关闭校验全通过功能",
+  "fullTitle": "验证「有效性校验」-「抽样关闭」校验全通过功能",
+  "packageName": "有效性可合并规则",
+  "packageCount": 1,
+  "samplingEnabled": false,
+  "partitionEnabled": false,
+  "ruleSpec": {
+    "caseNo": 59,
+    "title": "验证「有效性校验」-「抽样关闭」校验全通过功能",
+    "packageName": "有效性可合并规则",
+    "packageCount": 1,
+    "samplingEnabled": false,
+    "partitionEnabled": false,
+    "expectedRuleCount": 4,
+    "rules": [
+      {
+        "index": 1,
+        "category": "有效性校验",
+        "fields": [
+          "id"
+        ],
+        "functionName": "数值-取值范围",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": ">0且<=100",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §59 复用 Doris §23 规则明细；「监控规则1」配置如下： 「字段」：「id」 「统计函数」：「数值-取值范围」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「>0且<=100」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 2,
+        "category": "有效性校验",
+        "fields": [
+          "string_num"
+        ],
+        "functionName": "数值-枚举个数",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": ">=1",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §59 复用 Doris §23 规则明细；「监控规则2」配置如下： 「字段」：「string_num」 「统计函数」：「数值-枚举个数」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「>=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 3,
+        "category": "有效性校验",
+        "fields": [
+          "age"
+        ],
+        "functionName": "枚举值",
+        "filter": "id<=100",
+        "expected": "in25,30,28,35,22,29,34,20,18",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §59 复用 Doris §23 规则明细；「监控规则3」配置如下： 「字段」：「age」 「统计函数」：「枚举值」 「过滤条件」：「手动配置：id<=100」 「枚举值信息」：「in25,30,28,35,22,29,34,20,18」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 4,
+        "category": "有效性校验",
+        "fields": [
+          "id"
+        ],
+        "functionName": "取值范围&枚举范围",
+        "filter": "id<=100",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §59 复用 Doris §23 规则明细；「监控规则4」配置如下： 「字段」：「id」 「统计函数」：「取值范围&枚举范围」 「过滤条件」：「手动配置：id<=100」 「取值范围」：「期望值>0或<100」 「枚举值」：「not in 0」 「取值范围和枚举值关系」：「且」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      }
+    ]
+  }
+}

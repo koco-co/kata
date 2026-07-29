@@ -1,56 +1,62 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { parse } from "yaml";
+import { locateProjectRoot } from "./workspace-locator.ts";
 
-export interface XmindRules {
-  root_title_template: string;
-  iteration_id: string;
+export interface XmindProjectConfig {
+  root_name: string;
+  zentao_module_id: string;
 }
 
-// 中性默认值。如需带产品名前缀，在项目级 `workspace/{project}/_shared/rules/xmind-structure.md`
-// 中 override `root_title_template` 与 `iteration_id`。模板支持 {{project_name}}、{{prd_version}}、{{iteration_id}}。
-const DEFAULTS: XmindRules = {
-  root_title_template: "{{project_name}}v{{prd_version}}迭代用例(#{{iteration_id}})",
-  iteration_id: "23",
-};
-
-/** Parse xmind-structure.md content, overriding base rules with any `root_title_template` / `iteration_id` found. */
-function parseRulesFromContent(content: string, base: XmindRules): XmindRules {
-  const result = { ...base };
-  const tmplMatch = content.match(/root_title_template:\s*`([^`]+)`/);
-  if (tmplMatch) result.root_title_template = tmplMatch[1];
-  const idMatch = content.match(/iteration_id:\s*(\S+)/);
-  if (idMatch) result.iteration_id = idMatch[1];
-  return result;
+interface XmindProjectsFile {
+  projects?: Record<string, unknown>;
 }
 
-/** Load xmind rendering rules: project override (workspace/<project>/_shared/rules) over neutral defaults. */
-export function loadXmindRules(projectDir?: string): XmindRules {
-  let result = { ...DEFAULTS };
-  if (projectDir) {
-    try {
-      const projPath = join(projectDir, "_shared", "rules", "xmind-structure.md");
-      if (existsSync(projPath)) {
-        result = parseRulesFromContent(readFileSync(projPath, "utf-8"), result);
-      }
-    } catch {
-      // 读取失败回落默认值
-    }
+function projectsPath(root: string): string {
+  return join(root, "config", "xmind", "projects.yaml");
+}
+
+function validateProjectConfig(project: string, value: unknown): XmindProjectConfig {
+  if (!value || typeof value !== "object") {
+    throw new Error(`XMind 项目 ${project} 配置必须是对象`);
   }
-  return result;
+  const config = value as Record<string, unknown>;
+  if (typeof config.root_name !== "string" || !config.root_name.trim()) {
+    throw new Error(`XMind 项目 ${project} 缺少 root_name`);
+  }
+  const moduleId =
+    typeof config.zentao_module_id === "number"
+      ? String(config.zentao_module_id)
+      : config.zentao_module_id;
+  if (typeof moduleId !== "string" || !/^\d+$/.test(moduleId)) {
+    throw new Error(`XMind 项目 ${project} 的 zentao_module_id 必须是数字字符串`);
+  }
+  return { root_name: config.root_name.trim(), zentao_module_id: moduleId };
 }
 
-/** Build the xmind root node title from a version string and rendering rules. */
+/** Load one project's canonical XMind-root mapping. Unknown projects are hard errors. */
+export function loadXmindProjectConfig(
+  project: string,
+  root: string = locateProjectRoot(),
+): XmindProjectConfig {
+  const path = projectsPath(root);
+  if (!existsSync(path)) throw new Error(`XMind 项目映射不存在: ${path}`);
+  const parsed = (parse(readFileSync(path, "utf8")) ?? {}) as XmindProjectsFile;
+  const value = parsed.projects?.[project];
+  if (!value) {
+    throw new Error(`未配置 XMind 项目映射: ${project}(${path})`);
+  }
+  return validateProjectConfig(project, value);
+}
+
+/** Build `{root_name}v{version}迭代用例(#{zentao_module_id})`. */
 export function buildRootName(
   version: string | undefined,
-  rules?: XmindRules,
-  projectName?: string,
+  project: string,
+  root?: string,
 ): string {
-  if (!version) return "";
-  const p = rules ?? DEFAULTS;
-  const ver = version.replace(/^v/i, "");
-  // 占位符全局替换:模板允许同一占位符出现多次
-  return p.root_title_template
-    .replaceAll("{{project_name}}", projectName ?? "")
-    .replaceAll("{{prd_version}}", ver)
-    .replaceAll("{{iteration_id}}", p.iteration_id);
+  if (!version?.trim()) throw new Error(`XMind 根节点缺少版本号: ${project}`);
+  const config = loadXmindProjectConfig(project, root);
+  const normalized = version.trim().replace(/^v/i, "");
+  return `${config.root_name}v${normalized}迭代用例(#${config.zentao_module_id})`;
 }

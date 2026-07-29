@@ -24,7 +24,7 @@ describe("automation lint", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(
       cases,
-      "c0001-demo.ts",
+      "c0001-demo.spec.ts",
       [
         "// waitForTimeout(1)",
         '/* waitForLoadState("networkidle") */',
@@ -51,7 +51,7 @@ describe("automation lint", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(
       cases,
-      "c0001-env.ts",
+      "c0001-env.spec.ts",
       [
         'const baseUrl = "http://example.test";',
         'const address = "192.0.2.20";',
@@ -73,7 +73,7 @@ describe("automation lint", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(
       cases,
-      "c0001-ignore.ts",
+      "c0001-ignore.spec.ts",
       [
         "await page.waitForTimeout(100); // kata-lint-ignore: probe-only script",
         "await page.waitForTimeout(200); // kata-lint-ignore:",
@@ -84,7 +84,7 @@ describe("automation lint", () => {
     const result = runAutomationLint({ featureDir: feature });
     expect(result.ignored).toEqual([
       {
-        path: "features/v7.0.0/demo/automation/tests/cases/c0001-ignore.ts",
+        path: "features/v7.0.0/demo/automation/tests/cases/c0001-ignore.spec.ts",
         line: 1,
         reason: "probe-only script",
       },
@@ -95,11 +95,11 @@ describe("automation lint", () => {
 
   it("reports every violation immediately and never writes a baseline", () => {
     const { feature, cases } = featureWorkspace();
-    writeCase(cases, "c0001-demo.ts", "await page.waitForTimeout(100);\n");
+    writeCase(cases, "c0001-demo.spec.ts", "await page.waitForTimeout(100);\n");
 
     const first = runAutomationLint({ featureDir: feature });
     expect(first.violations).toHaveLength(1);
-    writeCase(cases, "c0003-env.ts", 'const baseUrl = "https://example.test";\n');
+    writeCase(cases, "c0003-env.spec.ts", 'const baseUrl = "https://example.test";\n');
     const hardcoded = runAutomationLint({ featureDir: feature });
     expect(hardcoded.violations.some((v) => v.rule === "no-hardcoded-env")).toBe(true);
     expect(hardcoded.violations.filter((v) => v.rule === "no-hardcoded-env")).toHaveLength(1);
@@ -141,7 +141,7 @@ describe("automation lint", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(
       cases,
-      "c0001-regex.ts",
+      "c0001-regex.spec.ts",
       [
         "const pair = /[//]+/; await page.waitForTimeout(100);",
         "const proto = /https?:\\/\\//;",
@@ -161,13 +161,28 @@ describe("automation lint", () => {
 
   it("flags case file names rejected by the canonical SPEC_FILE_RE", () => {
     const { feature, cases } = featureWorkspace();
-    writeCase(cases, "c001-double-hyphen.ts", "export {};\n");
-    writeCase(cases, "c0002-ok-name.ts", "export {};\n");
+    writeCase(cases, "c001-double-hyphen.spec.ts", "export {};\n");
+    writeCase(cases, "c0002-ok-name.spec.ts", "export {};\n");
 
     const result = runAutomationLint({ featureDir: feature });
     const naming = result.violations.filter((v) => v.rule === "case-file-naming");
     expect(naming).toHaveLength(1);
-    expect(naming[0]?.path).toContain("c001-double-hyphen.ts");
+    expect(naming[0]?.path).toContain("c001-double-hyphen.spec.ts");
+  });
+
+  it("rejects natural-language generated placeholders in case files", () => {
+    const { feature, cases } = featureWorkspace();
+    writeCase(
+      cases,
+      "c0001-generated.spec.ts",
+      [
+        "// Generated from the canonical cases YAML; keep business steps in the YAML source.",
+        'import { runGeneratedCase } from "shared";',
+        "",
+      ].join("\n"),
+    );
+    const result = runAutomationLint({ featureDir: feature });
+    expect(result.violations.filter((v) => v.rule === "no-generated-placeholder")).toHaveLength(1);
   });
 
   it("requires --project or KATA_ACTIVE_PROJECT for --shared", () => {
@@ -184,7 +199,7 @@ describe("automation lint", () => {
 
   it("returns a non-zero CLI status for normalize --exit-code with violations", () => {
     const { feature, cases } = featureWorkspace();
-    writeCase(cases, "c0001-demo.ts", "export {};\n");
+    writeCase(cases, "c0001-demo.spec.ts", "export {};\n");
     writeFileSync(join(feature, "automation", "stray.md"), "# stray\n");
     const kata = resolve(import.meta.dir, "../../cli/bin/kata.ts");
     const cwd = resolve(import.meta.dir, "../..");

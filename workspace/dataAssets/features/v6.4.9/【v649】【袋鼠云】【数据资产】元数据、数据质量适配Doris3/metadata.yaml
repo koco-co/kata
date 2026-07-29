@@ -16,13 +16,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3"
 case_drafting:
   status: completed
-  archive_path: cases/exports/元数据_数据质量适配Doris3.md
-  xmind_path: cases/元数据_数据质量适配Doris3.xmind
+  archive_path: null
+  xmind_path: cases/exports/元数据_数据质量适配Doris3.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -31,7 +31,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/元数据_数据质量适配Doris3.md
-  xmind: cases/元数据_数据质量适配Doris3.xmind
+  archive: null
+  xmind: cases/exports/元数据_数据质量适配Doris3.xmind
   tests_root: null
   latest_results: null

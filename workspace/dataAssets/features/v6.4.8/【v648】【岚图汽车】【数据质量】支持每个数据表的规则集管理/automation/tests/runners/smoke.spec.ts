@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { getEnvConfig, waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 冒烟测试（P0）
 // 生成时间：2026-04-06T18:11:16.521Z
 // 用例数量：7
@@ -7,24 +7,18 @@ import { expect, test } from "@playwright/test";
 
 // ─── Shared Types ────────────────────────────────────────────────────
 type Page = import("@playwright/test").Page;
-type RuntimeEnv = Record<string, string | undefined>;
 type ProjectListResponse = {
   data?: Array<{ id?: number | string }>;
 };
 
 // ─── Shared Constants ────────────────────────────────────────────────
-const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
+const runtimeCookie = getEnvConfig().auth.cookie.trim();
 
 // ─── Shared Helpers ──────────────────────────────────────────────────
-function getEnv(name: string): string | undefined {
-  return (globalThis as typeof globalThis & { process?: { env?: RuntimeEnv } }).process?.env?.[
-    name
-  ];
-}
 
 function getRawBaseUrl(): string {
-  const baseUrl = getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL");
-  if (!baseUrl) throw new Error("UI_AUTOTEST_BASE_URL or E2E_BASE_URL must be configured");
+  const baseUrl = getEnvConfig().urls.baseUrl;
+  if (!baseUrl) throw new Error("DataAssets environment must be resolved with kata env run");
   return baseUrl;
 }
 

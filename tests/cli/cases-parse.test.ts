@@ -6,12 +6,13 @@ meta:
   title: 数据质量规则合并
   version: v6.4.11
   feature_id: f1
+  case_module_id: ""
 cases:
   - case_id: C0001
     title: 验证单表行数校验通过
     priority: P0
     automation:
-      spec_file: c0001-验证单表行数校验通过.ts
+      spec_file: c0001-single-table-row-count.spec.ts
     steps:
       - action: 进入数据质量页
         expected: 显示规则列表
@@ -22,8 +23,21 @@ describe("parseCasesYaml", () => {
     const f = parseCasesYaml(GOOD);
     expect(f.cases).toHaveLength(1);
     expect(f.cases[0].priority).toBe("P0");
-    expect(f.cases[0].automation?.spec_file).toBe("c0001-验证单表行数校验通过.ts");
+    expect(f.cases[0].automation?.spec_file).toBe("c0001-single-table-row-count.spec.ts");
     expect(validateCases(f)).toEqual([]);
+  });
+  it("keeps a numeric case module id and accepts the explicit empty default", () => {
+    expect(parseCasesYaml(GOOD).meta.case_module_id).toBe("");
+    const withId = parseCasesYaml(GOOD.replace('case_module_id: ""', 'case_module_id: "10307"'));
+    expect(withId.meta.case_module_id).toBe("10307");
+  });
+  it("rejects a missing or non-numeric case module id", () => {
+    expect(() => parseCasesYaml(GOOD.replace('  case_module_id: ""\n', ""))).toThrow(
+      /meta\.case_module_id/,
+    );
+    expect(() =>
+      parseCasesYaml(GOOD.replace('case_module_id: ""', "case_module_id: abc")),
+    ).toThrow(/meta\.case_module_id/);
   });
   it("flags a case with no steps", () => {
     const f = parseCasesYaml(GOOD);
@@ -36,7 +50,7 @@ describe("parseCasesYaml", () => {
   });
   it("rejects unsafe automation spec names", () => {
     expect(() =>
-      parseCasesYaml(GOOD.replace("c0001-验证单表行数校验通过.ts", "Data Quality.ts")),
+      parseCasesYaml(GOOD.replace("c0001-single-table-row-count.spec.ts", "Data Quality.ts")),
     ).toThrow(/spec_file/);
   });
 });

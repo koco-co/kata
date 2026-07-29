@@ -2,6 +2,7 @@ import { waitForUiSettled } from "../../../../lib/playwright/index";
 // metadata-sync.ts — split from test-setup.ts
 
 import type { Locator, Page } from "@playwright/test";
+import { loadPlaywrightAutomationConfig } from "../../../../lib/automation/playwright-config";
 
 import { applyRuntimeCookies, buildDataAssetsUrl } from "./env-setup";
 
@@ -27,7 +28,9 @@ export async function syncMetadata(
   tableName?: string,
   options: SyncMetadataOptions = {},
 ): Promise<void> {
-  const requireExactTable = options.requireExactTable ?? process.env.METADATA_SYNC_REQUIRE_EXACT_TABLE === "true";
+  const automationConfig = loadPlaywrightAutomationConfig();
+  const requireExactTable =
+    options.requireExactTable ?? automationConfig.metadataSyncRequireExactTable;
   const allowFilterFallbackForExactTable = options.allowFilterFallbackForExactTable ?? false;
   let selectedSyncTableName: string | undefined;
   const readSyncErrorText = async (): Promise<string> => {
@@ -210,7 +213,7 @@ export async function syncMetadata(
       await waitForUiSettled(page);
     };
     const trySelectTableWithRetry = async (combobox: ReturnType<typeof modal.locator>, option: string): Promise<boolean> => {
-      const timeoutMs = Number(process.env.METADATA_TABLE_SEARCH_TIMEOUT_MS ?? 180_000);
+      const timeoutMs = automationConfig.metadataTableSearchTimeoutMs;
       const deadline = Date.now() + timeoutMs;
       let attempts = 0;
       while (Date.now() < deadline) {
@@ -316,7 +319,7 @@ async function waitForSyncListCompletion(
   database: string,
   tableName?: string,
 ): Promise<void> {
-  const deadline = Date.now() + Number(process.env.METADATA_SYNC_TIMEOUT_MS ?? 600_000);
+  const deadline = Date.now() + loadPlaywrightAutomationConfig().metadataSyncTimeoutMs;
   let lastRowText = "";
   let lastTargetRow: Locator | undefined;
   while (Date.now() < deadline) {

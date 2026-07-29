@@ -15,13 +15,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.11/【v6411】【岚图汽车】【数据资产】数据资产适配lindorm"
 case_drafting:
   status: completed
-  archive_path: cases/exports/数据资产适配lindorm.md
-  xmind_path: cases/数据资产适配lindorm.xmind
+  archive_path: null
+  xmind_path: cases/exports/数据资产适配lindorm.xmind
   requirement_atoms:
     - id: RA-LT-DQ-MAIN-FLOW
       source_ref: case.archive:lt-dq-main-flow#sha256:a3f913394e9316af2659d2573c9f59ac053dcc217d72c087b3842bbfa08647c0
@@ -34,7 +34,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/数据资产适配lindorm.md
-  xmind: cases/数据资产适配lindorm.xmind
+  archive: null
+  xmind: cases/exports/数据资产适配lindorm.xmind
   tests_root: automation/tests
   latest_results: null

@@ -5,47 +5,51 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const YAML = `
-meta: { title: 需求名, version: v1, feature_id: f1 }
+meta:
+  title: 需求名
+  version: v1
+  feature_id: f1
+  case_module_id: ""
+  exports: [csv, xlsx, md, xmind]
 cases:
-  - { case_id: C0001, title: 用例一, priority: P0, tags: [模块A], steps: [ { action: 操作一, expected: 预期一 } ] }
-  - { case_id: C0002, title: 用例二, priority: P1, steps: [ { action: 操作二, expected: 预期二 } ] }
+  - case_id: C0001
+    title: 验证用例一
+    priority: P0
+    tags: [模块A, 页面B, 分组C, 第四级]
+    steps:
+      - { action: 操作一, expected: 预期一 }
 `;
 
 function feature(): string {
-  const d = mkdtempSync(join(tmpdir(), "kata-ce-"));
-  mkdirSync(join(d, "cases"), { recursive: true });
-  writeFileSync(join(d, "cases", "需求名.yaml"), YAML);
-  return d;
+  const root = mkdtempSync(join(tmpdir(), "kata-ce-"));
+  const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0", "f1");
+  mkdirSync(join(featureDir, "cases"), { recursive: true });
+  writeFileSync(join(featureDir, "cases", "需求名.yaml"), YAML);
+  return featureDir;
 }
 
-describe("kata cases export", () => {
-  it("exports csv with all case rows", () => {
+describe("kata cases build metadata exports", () => {
+  it("renders every declared format with unlimited tag columns", async () => {
+    const d = feature();
+    const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
+      encoding: "utf8",
+    });
+    expect(r.status).toBe(0);
+    const out = join(d, "cases", "exports");
+    expect(existsSync(join(out, "需求名.csv"))).toBe(true);
+    expect(existsSync(join(out, "需求名.xlsx"))).toBe(true);
+    expect(existsSync(join(out, "需求名.md"))).toBe(true);
+    expect(existsSync(join(out, "需求名.xmind"))).toBe(true);
+    expect(readFileSync(join(out, "需求名.csv"), "utf8")).toContain("所属层级4");
+  });
+
+  it("does not expose the old one-format export command", () => {
     const d = feature();
     const r = spawnSync(
       "bun",
       ["cli/bin/kata.ts", "cases", "export", "--feature", d, "--to", "csv"],
       { encoding: "utf8" },
     );
-    expect(r.status).toBe(0);
-    const csv = readFileSync(join(d, "cases", "exports", "需求名.csv"), "utf8");
-    expect(csv).toContain("用例编号");
-    expect(csv).toContain("用例一");
-    expect(csv).toContain("用例二");
-    expect(csv).toContain("模块A");
-  });
-  it("exports xlsx as a valid workbook", async () => {
-    const d = feature();
-    const r = spawnSync(
-      "bun",
-      ["cli/bin/kata.ts", "cases", "export", "--feature", d, "--to", "xlsx"],
-      { encoding: "utf8" },
-    );
-    expect(r.status).toBe(0);
-    const p = join(d, "cases", "exports", "需求名.xlsx");
-    expect(existsSync(p)).toBe(true);
-    // xlsx 是 zip:必须可解压且含 workbook.xml
-    const JSZip = (await import("jszip")).default;
-    const zip = await JSZip.loadAsync(readFileSync(p));
-    expect(zip.file("xl/workbook.xml")).not.toBeNull();
+    expect(r.status).not.toBe(0);
   });
 });

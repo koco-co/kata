@@ -16,18 +16,16 @@ import { registerProject } from "../commands/project.ts";
 import { registerRepos } from "../commands/repos.ts";
 import { registerRuns } from "../commands/runs.ts";
 import { registerScans } from "../commands/scans.ts";
-import { registerXmind } from "../commands/xmind.ts";
 import { registerZentao } from "../commands/zentao.ts";
 
 const program = new Command();
 // 不注册根级 .version():commander 会用它拦截任意位置的 --version,
-// 与 `kata xmind generate --version <PRD 版本>` 子命令选项冲突(子命令永远收不到)。
+// 与子命令自身的版本参数避免冲突。
 program.name("kata").description("kata 工作区命令行");
 
 registerFeatures(program);
 registerCases(program);
 registerConfig(program);
-registerXmind(program);
 registerRuns(program);
 registerEnv(program);
 registerRepos(program);

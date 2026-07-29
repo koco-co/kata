@@ -2,10 +2,13 @@ meta:
   title: StarRocks3.x数据源支持
   version: v7.0.0
   feature_id: v7.0.0/【v700】【16035】【浙商证券】【数据质量】StarRocks3.x数据源支持
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-验证StarRocks3x数据源经引入与质量项目授权后数据质量可选用.ts
+      spec_file: c0001-starrocks-import-authorize-and-select.spec.ts
     title: 验证 StarRocks 3.x 数据源经引入与质量项目授权后数据质量可选用
     priority: P0
     steps:
@@ -34,7 +37,7 @@ cases:
       - 数据源管理
   - case_id: C0002
     automation:
-      spec_file: c0002-验证概览页正确统计StarRocks3x数据源规则任务数据.ts
+      spec_file: c0002-starrocks-overview-task-statistics.spec.ts
     title: 验证概览页正确统计 StarRocks 3.x 数据源规则任务数据
     priority: P1
     steps:
@@ -42,12 +45,12 @@ cases:
         expected: 概览页加载成功，展示规则统计卡片、运维指标、告警汇总
       - action: 查看「单表规则总数」「多表规则总数」卡片
         expected: |-
-          1)单表规则总数为 3
-          2)多表规则总数为 1
+          1) 单表规则总数为 3
+          2) 多表规则总数为 1
       - action: 查看「运维指标」区
         expected: |-
-          1)任务总数为 4
-          2)校验通过为 2、校验异常为 2，与实际任务结果一致
+          1) 任务总数为 4
+          2) 校验通过为 2、校验异常为 2，与实际任务结果一致
       - action: 将概览右上时间范围筛选为近一周
         expected: 运维指标与告警按所选时间范围刷新，仅统计该区间内运行的实例
     precondition: |-
@@ -58,7 +61,7 @@ cases:
       - 概览
   - case_id: C0003
     automation:
-      spec_file: c0003-验证规则集导入规则包后直接执行批量校验StarRocks3x数据表.ts
+      spec_file: c0003-starrocks-batch-rule-package-run.spec.ts
     title: 验证规则集导入规则包后直接执行批量校验 StarRocks 3.x 数据表
     priority: P0
     steps:
@@ -80,15 +83,15 @@ cases:
           - * 校验SQL(请输入不符合规则要求的明细数据查询SQL)
           确认生成规则包「证券基础校验包」后点击「下一步」
         expected: |-
-          1)文件解析成功，规则包「证券基础校验包」含 2 条规则
-          2)完整性校验、唯一性校验的表名、字段名、字段中文名、校验SQL 与导入文件内容一致
+          1) 文件解析成功，规则包「证券基础校验包」含 2 条规则
+          2) 完整性校验、唯一性校验的表名、字段名、字段中文名、校验SQL 与导入文件内容一致
       - action: 在「调度配置」将「调度周期」切换为「手动触发」，点击「保存」
         expected: 规则集「证券基础校验集」保存成功，规则配置页左上「规则集」区展示该规则集卡片，卡片显示 1 表、1 规则包
       - action: 在「规则集」区找到「证券基础校验集」卡片，点击右上角「更多」菜单中的「立即执行」；进入【任务查询】查看最新实例「查看明细」
         expected: |-
-          1)实例状态为「校验异常」
-          2)完整性校验的导入 SQL 返回 security_name 为空的 order_id=1003 明细
-          3)唯一性校验的导入 SQL 返回 security_code=600036 的重复明细
+          1) 实例状态为「校验异常」
+          2) 完整性校验的导入 SQL 返回 security_name 为空的 order_id=1003 明细
+          3) 唯一性校验的导入 SQL 返回 security_code=600036 的重复明细
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库中执行以下建表 SQL（可重入），security_name 含 1 条空值、security_code 含 1 组重复值：
@@ -114,7 +117,7 @@ cases:
       - 规则配置
   - case_id: C0004
     automation:
-      spec_file: c0004-验证StarRocks3x数据源完整性校验表级表行数规则校验.ts
+      spec_file: c0004-starrocks-table-row-count-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验表级表行数规则校验
     priority: P0
     steps:
@@ -135,8 +138,8 @@ cases:
           - 规则描述: 表行数大于5校验
           点击「保存」
         expected: |-
-          1)切换规则类型为表级后统计函数仅「表行数」
-          2)规则保存成功
+          1) 切换规则类型为表级后统计函数仅「表行数」
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，点击「完成」
         expected: 规则任务创建成功，规则配置列表展示该任务
       - action: 在列表点击 zszq_trade_orders 打开规则详情，点击「立即执行」，进入【任务查询】查看最新实例
@@ -172,7 +175,7 @@ cases:
       - 规则配置
   - case_id: C0005
     automation:
-      spec_file: c0005-验证StarRocks3x数据源完整性校验字段级空值数单字段规则校验.ts
+      spec_file: c0005-starrocks-null-count-single-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值数单字段规则校验
     priority: P0
     steps:
@@ -225,7 +228,7 @@ cases:
       - 规则配置
   - case_id: C0006
     automation:
-      spec_file: c0006-验证StarRocks3x数据源完整性校验字段级空值数多字段规则校验.ts
+      spec_file: c0006-starrocks-null-count-multi-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值数多字段规则校验
     priority: P2
     steps:
@@ -247,8 +250,8 @@ cases:
           - 规则描述: 多字段空值数校验
           点击「保存」
         expected: |-
-          1)字段支持多选，security_name 与 account_no 均被选中
-          2)规则保存成功
+          1) 字段支持多选，security_name 与 account_no 均被选中
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（仅 order_id=1004 两字段同时为 NULL，空值数=1，不满足 = 0）
       - action: 对「校验异常」实例「查看明细」
@@ -276,7 +279,7 @@ cases:
       - 规则配置
   - case_id: C0007
     automation:
-      spec_file: c0007-验证StarRocks3x数据源完整性校验字段级空值率单字段规则校验.ts
+      spec_file: c0007-starrocks-null-rate-single-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值率单字段规则校验
     priority: P1
     steps:
@@ -326,7 +329,7 @@ cases:
       - 规则配置
   - case_id: C0008
     automation:
-      spec_file: c0008-验证StarRocks3x数据源完整性校验字段级空值率多字段规则校验.ts
+      spec_file: c0008-starrocks-null-rate-multi-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值率多字段规则校验
     priority: P2
     steps:
@@ -348,8 +351,8 @@ cases:
           - 规则描述: 多字段空值率校验
           点击「保存」
         expected: |-
-          1)字段多选成功
-          2)规则保存成功
+          1) 字段多选成功
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（仅 order_id=1004 两字段同时为 NULL，空值率=1/5=20%，不满足 <= 10%）
       - action: 对「校验异常」实例「查看明细」
@@ -374,7 +377,7 @@ cases:
       - 规则配置
   - case_id: C0009
     automation:
-      spec_file: c0009-验证StarRocks3x数据源完整性校验字段级空串数单字段规则校验.ts
+      spec_file: c0009-starrocks-empty-string-count-single-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串数单字段规则校验
     priority: P1
     steps:
@@ -424,7 +427,7 @@ cases:
       - 规则配置
   - case_id: C0010
     automation:
-      spec_file: c0010-验证StarRocks3x数据源完整性校验字段级空串数多字段规则校验.ts
+      spec_file: c0010-starrocks-empty-string-count-multi-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串数多字段规则校验
     priority: P2
     steps:
@@ -446,8 +449,8 @@ cases:
           - 规则描述: 多字段空串数校验
           点击「保存」
         expected: |-
-          1)字段多选成功
-          2)规则保存成功
+          1) 字段多选成功
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（仅 order_id=1004 两字段同时为空串，空串数=1，不满足 = 0）
       - action: 对「校验异常」实例「查看明细」
@@ -472,7 +475,7 @@ cases:
       - 规则配置
   - case_id: C0011
     automation:
-      spec_file: c0011-验证StarRocks3x数据源完整性校验字段级空串率单字段规则校验.ts
+      spec_file: c0011-starrocks-empty-string-rate-single-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串率单字段规则校验
     priority: P1
     steps:
@@ -522,7 +525,7 @@ cases:
       - 规则配置
   - case_id: C0012
     automation:
-      spec_file: c0012-验证StarRocks3x数据源完整性校验字段级空串率多字段规则校验.ts
+      spec_file: c0012-starrocks-empty-string-rate-multi-field.spec.ts
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串率多字段规则校验
     priority: P2
     steps:
@@ -544,8 +547,8 @@ cases:
           - 规则描述: 多字段空串率校验
           点击「保存」
         expected: |-
-          1)字段多选成功
-          2)规则保存成功
+          1) 字段多选成功
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（仅 order_id=1004 两字段同时为空串，空串率=1/5=20%，不满足 <= 10%）
       - action: 对「校验异常」实例「查看明细」
@@ -570,7 +573,7 @@ cases:
       - 规则配置
   - case_id: C0013
     automation:
-      spec_file: c0013-验证StarRocks3x数据源准确性校验求和规则校验.ts
+      spec_file: c0013-starrocks-sum-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源准确性校验求和规则校验
     priority: P0
     steps:
@@ -617,7 +620,7 @@ cases:
       - 规则配置
   - case_id: C0014
     automation:
-      spec_file: c0014-验证StarRocks3x数据源准确性校验求平均规则校验.ts
+      spec_file: c0014-starrocks-average-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源准确性校验求平均规则校验
     priority: P1
     steps:
@@ -664,7 +667,7 @@ cases:
       - 规则配置
   - case_id: C0015
     automation:
-      spec_file: c0015-验证StarRocks3x数据源准确性校验负值比规则校验.ts
+      spec_file: c0015-starrocks-negative-ratio-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源准确性校验负值比规则校验
     priority: P1
     steps:
@@ -712,8 +715,7 @@ cases:
       - 数据质量
       - 规则配置
   - case_id: C0016
-    automation:
-      spec_file: c0016-验证StarRocks3x数据源准确性校验零值比规则校验.ts
+
     title: 验证 StarRocks 3.x 数据源准确性校验零值比规则校验
     priority: P1
     steps:
@@ -762,7 +764,7 @@ cases:
       - 规则配置
   - case_id: C0017
     automation:
-      spec_file: c0017-验证StarRocks3x数据源准确性校验正值比规则校验.ts
+      spec_file: c0017-starrocks-positive-ratio-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源准确性校验正值比规则校验
     priority: P1
     steps:
@@ -809,7 +811,7 @@ cases:
       - 规则配置
   - case_id: C0018
     automation:
-      spec_file: c0018-验证StarRocks3x数据源规范性校验数值-取值范围规则校验.ts
+      spec_file: c0018-starrocks-numeric-range-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验数值-取值范围规则校验
     priority: P0
     steps:
@@ -860,7 +862,7 @@ cases:
       - 规则配置
   - case_id: C0019
     automation:
-      spec_file: c0019-验证StarRocks3x数据源规范性校验数值-枚举范围规则校验.ts
+      spec_file: c0019-starrocks-numeric-enum-range-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验数值-枚举范围规则校验
     priority: P1
     steps:
@@ -910,7 +912,7 @@ cases:
       - 规则配置
   - case_id: C0020
     automation:
-      spec_file: c0020-验证StarRocks3x数据源规范性校验数值-枚举个数规则校验.ts
+      spec_file: c0020-starrocks-numeric-enum-count-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验数值-枚举个数规则校验
     priority: P1
     steps:
@@ -957,7 +959,7 @@ cases:
       - 规则配置
   - case_id: C0021
     automation:
-      spec_file: c0021-验证StarRocks3x数据源规范性校验字符串-最大长度规则校验.ts
+      spec_file: c0021-starrocks-string-max-length-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验字符串-最大长度规则校验
     priority: P1
     steps:
@@ -1005,7 +1007,7 @@ cases:
       - 规则配置
   - case_id: C0022
     automation:
-      spec_file: c0022-验证StarRocks3x数据源规范性校验字符串-最小长度规则校验.ts
+      spec_file: c0022-starrocks-string-min-length-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验字符串-最小长度规则校验
     priority: P2
     steps:
@@ -1053,7 +1055,7 @@ cases:
       - 规则配置
   - case_id: C0023
     automation:
-      spec_file: c0023-验证StarRocks3x数据源规范性校验格式-身份证号规则校验.ts
+      spec_file: c0023-starrocks-id-card-format-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验格式-身份证号规则校验
     priority: P1
     steps:
@@ -1102,7 +1104,7 @@ cases:
       - 规则配置
   - case_id: C0024
     automation:
-      spec_file: c0024-验证StarRocks3x数据源规范性校验格式-手机号规则校验.ts
+      spec_file: c0024-starrocks-phone-format-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验格式-手机号规则校验
     priority: P1
     steps:
@@ -1151,7 +1153,7 @@ cases:
       - 规则配置
   - case_id: C0025
     automation:
-      spec_file: c0025-验证StarRocks3x数据源规范性校验格式-邮箱规则校验.ts
+      spec_file: c0025-starrocks-email-format-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源规范性校验格式-邮箱规则校验
     priority: P1
     steps:
@@ -1200,7 +1202,7 @@ cases:
       - 规则配置
   - case_id: C0026
     automation:
-      spec_file: c0026-验证StarRocks3x数据源唯一性校验重复数单字段规则校验.ts
+      spec_file: c0026-starrocks-duplicate-count-single-field.spec.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复数单字段规则校验
     priority: P0
     steps:
@@ -1246,7 +1248,7 @@ cases:
       - 规则配置
   - case_id: C0027
     automation:
-      spec_file: c0027-验证StarRocks3x数据源唯一性校验重复数多字段规则校验.ts
+      spec_file: c0027-starrocks-duplicate-count-multi-field.spec.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复数多字段规则校验
     priority: P2
     steps:
@@ -1267,8 +1269,8 @@ cases:
           - 规则描述: 证券代码与账户号联合重复数校验
           点击「保存」
         expected: |-
-          1)字段多选成功
-          2)规则保存成功
+          1) 字段多选成功
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（联合字段存在重复，不满足 = 0）
       - action: 对「校验异常」实例「查看明细」
@@ -1295,7 +1297,7 @@ cases:
       - 规则配置
   - case_id: C0028
     automation:
-      spec_file: c0028-验证StarRocks3x数据源唯一性校验重复率单字段规则校验.ts
+      spec_file: c0028-starrocks-duplicate-rate-single-field.spec.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复率单字段规则校验
     priority: P1
     steps:
@@ -1344,7 +1346,7 @@ cases:
       - 规则配置
   - case_id: C0029
     automation:
-      spec_file: c0029-验证StarRocks3x数据源唯一性校验重复率多字段规则校验.ts
+      spec_file: c0029-starrocks-duplicate-rate-multi-field.spec.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验重复率多字段规则校验
     priority: P2
     steps:
@@ -1365,8 +1367,8 @@ cases:
           - 规则描述: 证券代码与账户号联合重复率校验
           点击「保存」
         expected: |-
-          1)字段多选成功
-          2)规则保存成功
+          1) 字段多选成功
+          2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（联合重复率 40% 不满足 <= 0%）
       - action: 对「校验异常」实例「查看明细」
@@ -1396,7 +1398,7 @@ cases:
       - 规则配置
   - case_id: C0030
     automation:
-      spec_file: c0030-验证StarRocks3x数据源唯一性校验非重复个数规则校验.ts
+      spec_file: c0030-starrocks-distinct-count-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验非重复个数规则校验
     priority: P1
     steps:
@@ -1443,7 +1445,7 @@ cases:
       - 规则配置
   - case_id: C0031
     automation:
-      spec_file: c0031-验证StarRocks3x数据源唯一性校验非重复占比规则校验.ts
+      spec_file: c0031-starrocks-distinct-ratio-rule.spec.ts
     title: 验证 StarRocks 3.x 数据源唯一性校验非重复占比规则校验
     priority: P1
     steps:
@@ -1490,7 +1492,7 @@ cases:
       - 规则配置
   - case_id: C0032
     automation:
-      spec_file: c0032-验证StarRocks3x数据源自定义SQL单表规则校验与表删除异常.ts
+      spec_file: c0032-starrocks-custom-sql-single-table-delete-error.spec.ts
     title: 验证 StarRocks 3.x 数据源自定义SQL单表规则校验与表删除异常
     priority: P0
     steps:
@@ -1516,8 +1518,8 @@ cases:
         expected: 实例状态由「运行中」→「校验通过」（SQL 返回 0 行，满足 = 0）
       - action: 执行 DROP TABLE zszq_trade_custom 后再次「立即执行」，在【任务查询】查看最新实例详情
         expected: |-
-          1)实例状态为「校验异常」
-          2)实例日志含表不存在/SQL 执行失败错误信息
+          1) 实例状态为「校验异常」
+          2) 实例日志含表不存在/SQL 执行失败错误信息
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_amount 含 1 行负值：
@@ -1537,7 +1539,7 @@ cases:
       - 规则配置
   - case_id: C0033
     automation:
-      spec_file: c0033-验证StarRocks3x数据源自定义SQL子查询跨表缺失规则校验.ts
+      spec_file: c0033-starrocks-custom-sql-cross-table-missing.spec.ts
     title: 验证 StarRocks 3.x 数据源自定义SQL子查询跨表缺失规则校验
     priority: P0
     steps:
@@ -1588,7 +1590,7 @@ cases:
       - 规则配置
   - case_id: C0034
     automation:
-      spec_file: c0034-验证StarRocks3x数据源多表比对规则字段一致性校验.ts
+      spec_file: c0034-starrocks-table-compare-field-consistency.spec.ts
     title: 验证 StarRocks 3.x 数据源多表比对规则字段一致性校验
     priority: P0
     steps:
@@ -1616,8 +1618,8 @@ cases:
         expected: 实例状态为「校验通过」（order_id=1003 两表 trade_amount 差值 11999.99 在数值差异绝对值容差 12000 内，记录数 3=3，差异总数=0）
       - action: 编辑该多表比对规则，将「数值差异绝对值」容差由 12000 改为 10000，保存后重新「立即执行」，在【任务查询】查看最新实例「查看明细」
         expected: |-
-          1)实例状态为「校验异常」（order_id=1003 差值 11999.99 超出容差 10000，差异总数=1）
-          2)「逻辑主键匹配，但数据不匹配」展示 order_id=1003（左 88000.00 / 右 99999.99）
+          1) 实例状态为「校验异常」（order_id=1003 差值 11999.99 超出容差 10000，差异总数=1）
+          2) 「逻辑主键匹配，但数据不匹配」展示 order_id=1003（左 88000.00 / 右 99999.99）
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），左右两表 trade_amount 存在 1 处不一致：
@@ -1645,7 +1647,7 @@ cases:
       - 规则配置
   - case_id: C0035
     automation:
-      spec_file: c0035-验证StarRocks3x数据源多表比对数值差异百分比匹配条件.ts
+      spec_file: c0035-starrocks-table-compare-value-difference.spec.ts
     title: 验证 StarRocks 3.x 数据源多表比对数值差异百分比匹配条件
     priority: P1
     steps:
@@ -1700,7 +1702,7 @@ cases:
       - 规则配置
   - case_id: C0036
     automation:
-      spec_file: c0036-验证StarRocks3x数据源多表比对字符不区分大小写匹配条件.ts
+      spec_file: c0036-starrocks-table-compare-case-insensitive.spec.ts
     title: 验证 StarRocks 3.x 数据源多表比对字符不区分大小写匹配条件
     priority: P1
     steps:
@@ -1755,7 +1757,7 @@ cases:
       - 规则配置
   - case_id: C0037
     automation:
-      spec_file: c0037-验证StarRocks3x数据源多表比对空值与NULL等价匹配条件.ts
+      spec_file: c0037-starrocks-table-compare-null-equivalence.spec.ts
     title: 验证 StarRocks 3.x 数据源多表比对空值与NULL等价匹配条件
     priority: P1
     steps:
@@ -1810,7 +1812,7 @@ cases:
       - 规则配置
   - case_id: C0038
     automation:
-      spec_file: c0038-验证StarRocks3x数据源多表比对异常数据五类分类统计.ts
+      spec_file: c0038-starrocks-table-compare-anomaly-categories.spec.ts
     title: 验证 StarRocks 3.x 数据源多表比对异常数据五类分类统计
     priority: P0
     steps:
@@ -1837,11 +1839,11 @@ cases:
       - action: 在「执行配置」将「调度周期」切换为「手动触发」并「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例「查看明细」
         expected: |-
           实例状态为「校验异常」，「异常数据」五个分类各 1 行:
-          1)「逻辑主键匹配，但数据不匹配」1 行（order_id=1002，左 200.00 / 右 999.00）
-          2)「左表数据在右表未找到」1 行（order_id=1003）
-          3)「右表数据在左表未找到」1 行（order_id=1004）
-          4)「左表逻辑主键为空」1 行
-          5)「右表逻辑主键为空」1 行
+          1) 「逻辑主键匹配，但数据不匹配」1 行（order_id=1002，左 200.00 / 右 999.00）
+          2) 「左表数据在右表未找到」1 行（order_id=1003）
+          3) 「右表数据在左表未找到」1 行（order_id=1004）
+          4) 「左表逻辑主键为空」1 行
+          5) 「右表逻辑主键为空」1 行
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），id 为存储主键、order_id 为比对逻辑主键（可空），数据覆盖五类异常各 1 行：
@@ -1871,7 +1873,7 @@ cases:
       - 规则配置
   - case_id: C0039
     automation:
-      spec_file: c0039-验证StarRocks3x数据源规则配置列表查询与筛选.ts
+      spec_file: c0039-starrocks-rule-config-search-filter.spec.ts
     title: 验证 StarRocks 3.x 数据源规则配置列表查询与筛选
     priority: P2
     steps:
@@ -1885,13 +1887,14 @@ cases:
         expected: 列表恢复全部数据，分页控件展示总条数并可翻页
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
-      2) 规则配置列表已存在多条 StarRocks 3.x 规则任务，分属不同数据表与最近修改人。
+      2) 规则配置列表已存在多条 StarRocks
+      3. x 规则任务，分属不同数据表与最近修改人。
     tags:
       - 数据质量
       - 规则配置
   - case_id: C0040
     automation:
-      spec_file: c0040-验证StarRocks3x数据源规则任务编辑与重跑.ts
+      spec_file: c0040-starrocks-rule-task-edit-rerun.spec.ts
     title: 验证 StarRocks 3.x 数据源规则任务编辑与重跑
     priority: P2
     steps:
@@ -1914,7 +1917,7 @@ cases:
       - 规则配置
   - case_id: C0041
     automation:
-      spec_file: c0041-验证StarRocks3x数据源规则任务删除.ts
+      spec_file: c0041-starrocks-rule-task-delete.spec.ts
     title: 验证 StarRocks 3.x 数据源规则任务删除
     priority: P2
     steps:
@@ -1922,8 +1925,8 @@ cases:
         expected: 弹出删除确认弹窗
       - action: 在确认弹窗点击「确定」
         expected: |-
-          1)提示删除成功
-          2)该规则从规则配置列表移除，列表总条数减 1
+          1) 提示删除成功
+          2) 该规则从规则配置列表移除，列表总条数减 1
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 规则配置列表已存在 1 条针对 zszq_trade_null 的待删除规则任务。
@@ -1932,7 +1935,7 @@ cases:
       - 规则配置
   - case_id: C0042
     automation:
-      spec_file: c0042-验证任务查询页查询StarRocks3x规则任务实例与校验通过异常状态详情.ts
+      spec_file: c0042-starrocks-task-instance-details.spec.ts
     title: 验证任务查询页查询 StarRocks 3.x 规则任务实例与校验通过、异常状态详情
     priority: P0
     steps:
@@ -1942,17 +1945,17 @@ cases:
         expected: 列表仅展示匹配的规则任务，数据源列显示 StarRocks3.x / ${DataSourceA}
       - action: 点击该「校验通过」实例所在行查看实例详情
         expected: |-
-          1)实例状态为「校验通过」
-          2)规则卡片展示统计函数实际值与期望值，实际值满足期望
+          1) 实例状态为「校验通过」
+          2) 规则卡片展示统计函数实际值与期望值，实际值满足期望
       - action: 清空搜索，查询「校验异常」的空值数任务，查看实例详情并点击「查看明细」
         expected: |-
-          1)实例状态为「校验异常」
-          2)规则卡片展示实际值不满足期望
-          3)明细展示不满足规则的脏数据记录
+          1) 实例状态为「校验异常」
+          2) 规则卡片展示实际值不满足期望
+          3) 明细展示不满足规则的脏数据记录
       - action: 将「计划时间」筛选为近一周并查看列表底部分页
         expected: |-
-          1)列表按计划时间区间过滤
-          2)分页控件展示总条数并可翻页
+          1) 列表按计划时间区间过滤
+          2) 分页控件展示总条数并可翻页
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) ${DataSourceA} 下已执行产生 2 类实例：1 个「校验通过」实例（完整性表行数任务）、1 个「校验异常」实例（完整性空值数任务，含脏数据明细）。
@@ -1961,7 +1964,7 @@ cases:
       - 任务查询
   - case_id: C0043
     automation:
-      spec_file: c0043-验证脏数据管理配置StarRocks3x数据源脏数据存储与时效.ts
+      spec_file: c0043-starrocks-dirty-data-storage-retention.spec.ts
     title: 验证脏数据管理配置 StarRocks 3.x 数据源脏数据存储与时效
     priority: P1
     steps:

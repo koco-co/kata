@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-07-29T16:04:31.442Z",
+  "caseNo": 62,
+  "sourceCaseId": "185947",
+  "datasourceName": "dtstack_smoke_LINDORM_SPARK",
+  "datasourceType": "SparkThrift2.x",
+  "tableName": "test_info_1_qzmkxjrp_62",
+  "fullTableName": "dtstack_smoke.test_info_1_qzmkxjrp_62",
+  "compareTableName": "test_info_1_qzmkxjrp_62_cmp",
+  "fullCompareTableName": "dtstack_smoke.test_info_1_qzmkxjrp_62_cmp",
+  "ruleName": "§62 验证完整性校验校验通过质量报告正确",
+  "fullTitle": "验证「完整性校验」校验通过质量报告正确",
+  "packageName": "可合并完整性规则",
+  "packageCount": 1,
+  "samplingEnabled": false,
+  "partitionEnabled": false,
+  "result": {
+    "classification": "validation-pass",
+    "statusText": "校验通过",
+    "tooltipTexts": [],
+    "rowText": "dtstack_smoke.test_info_1_qzmkxjrp_62\t\n§62 验证完整性校验校验通过质量报告正确\n\t\n校验通过\n\tSparkThrift2.x / dtstack_smoke_LINDORM_SPARK\t手动触发\t\n否\n\t2026-07-29 23:58:45\t2026-07-29 23:58:46\t2026-07-30 00:00:49\t2分3秒\tadmin@dtstack.com\tadmin@dtstack.com\t--",
+    "planTimeCleared": true
+  }
+}

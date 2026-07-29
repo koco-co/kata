@@ -1,7 +1,11 @@
 meta:
-  title: 数据表权限分配支持通配符匹配批量配置权限
+  title: 【数据安全】数据表权限分配支持通配符匹配批量配置权限
   version: v6.4.9
   feature_id: v6.4.9/【v649】【Gate】【数据安全】数据表权限分配支持通配符匹配批量配置权限
+  requirement_id: "15648"
+  case_module_id: "10305"
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证 验证仅勾选DDL权限时「是否开启行列权限配置」开关不显示
@@ -76,7 +80,12 @@ cases:
       - action: 进入【元数据-数据地图】页面
         expected: 成功进入【数据地图】页面
       - action: 依次搜索并验证以下表是否可访问：user_info、user_detail、user_log、order_info、product_info、order_detail
-        expected: 所有6个表的搜索结果均能找到，并按权限规则分类： - ab*匹配：user_info✓、user_detail✓、user_log✓ - _info匹配：user_info✓、order_info✓、product_info✓ - abcd匹配：order_detail✓ - order匹配：order_info✓、order_detail✓
+        expected: |-
+          所有6个表的搜索结果均能找到，并按权限规则分类：
+          - ab*匹配： user_info✓、user_detail✓、user_log✓
+          - _info匹配： user_info✓、order_info✓、product_info✓
+          - abcd匹配： order_detail✓
+          - order匹配： order_info✓、order_detail✓
       - action: 点击进入每个表的详情页，查看数据预览
         expected: 所有表的数据预览正常展示，说明DQL权限在数据地图中已生效
     precondition: |-

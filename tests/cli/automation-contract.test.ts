@@ -10,13 +10,16 @@ function fixture(extraCases = ""): string {
   mkdirSync(join(feature, "automation", "tests", "cases"), { recursive: true });
   writeFileSync(
     join(feature, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - case_id: C0001\n    title: 验证样例\n    priority: P1\n    steps:\n      - action: 点击【保存】\n        expected: 保存成功\n    automation:\n      spec_file: c0001-验证样例.ts\n${extraCases}`,
+    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - case_id: C0001\n    title: 验证样例\n    priority: P1\n    steps:\n      - action: 点击【保存】\n        expected: 保存成功\n    automation:\n      spec_file: c0001-sample-case.spec.ts\n${extraCases}`,
   );
   return feature;
 }
 
 function writeSpec(feature: string, content: string): void {
-  writeFileSync(join(feature, "automation", "tests", "cases", "c0001-验证样例.ts"), content);
+  writeFileSync(
+    join(feature, "automation", "tests", "cases", "c0001-sample-case.spec.ts"),
+    content,
+  );
 }
 
 describe("automation contract", () => {

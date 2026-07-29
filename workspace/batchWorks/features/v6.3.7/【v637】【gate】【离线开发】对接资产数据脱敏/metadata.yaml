@@ -1,0 +1,35 @@
+schema: FeatureMetadata@2
+id: 2026-07-dui-jie-zi-chan-shu-ju-tuo-min
+display_name: 【gate】对接资产数据脱敏
+status: active
+created_at: 2026-07-29T16:36:59.948Z
+updated_at: 2026-07-29T16:36:59.948Z
+modules:
+  - 离线开发
+customers:
+  - gate
+versions:
+  - v6.3.7
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+feature_id: v6.3.7/【v637】【gate】【离线开发】对接资产数据脱敏
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/对接资产数据脱敏.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/对接资产数据脱敏.xmind
+  tests_root: null
+  latest_results: null

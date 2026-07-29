@@ -1,0 +1,34 @@
+schema: FeatureMetadata@2
+id: 2026-07-6-2-yin-qing-bug-xiu-fu
+display_name: 【6.2】引擎bug修复
+status: active
+created_at: 2026-07-29T16:37:01.031Z
+updated_at: 2026-07-29T16:37:01.031Z
+modules:
+  - 离线开发
+customers: []
+versions:
+  - v6.4.3
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+feature_id: v6.4.3/【v643】【离线开发】6.2引擎bug修复
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/6.2引擎bug修复.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/6.2引擎bug修复.xmind
+  tests_root: null
+  latest_results: null

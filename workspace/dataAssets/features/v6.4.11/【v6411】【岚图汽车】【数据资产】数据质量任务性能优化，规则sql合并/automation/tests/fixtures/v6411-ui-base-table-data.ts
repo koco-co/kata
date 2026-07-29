@@ -43,16 +43,20 @@ export function sourceDefaultRows(): V6411BaseTableRow[] {
 }
 
 export function validityDetailUnpassRows(): V6411BaseTableRow[] {
-  return Array.from({ length: 120 }, (_, index) => {
-    const seq = String(index + 1).padStart(3, "0");
+  // §52/§60 use the one-time 10,000-row dirty-detail patch. Keep the
+  // fixture aligned with that SQL instead of the earlier 120-row donor data:
+  // id cycles through 1..99, while age remains 25 and string_num is unique.
+  return Array.from({ length: 10_000 }, (_, index) => {
+    const sequence = index;
+    const seq = String(sequence + 1).padStart(6, "0");
     return row(
-      10,
+      1 + (sequence % 99),
       25,
-      String(10_000 + index),
+      String(10_000 + sequence),
       `脏数据${seq}`,
       `明细校验地址${seq}`,
       "9",
-      -30 - (index % 30),
+      -30 - (sequence % 30),
       `有效性不通过明细${seq}`,
     );
   });

@@ -11,5 +11,5 @@
 ## 常见场景
 
 - 用例编写规范：新建或改写 `case-writing.md`
-- XMind 结构约束：新建或改写 `xmind-structure.md`
+- XMind 展示结构约束：新建或改写 `xmind-structure.md`；Root 名称和禅道模块 ID 只能改根目录 `config/xmind/projects.yaml`
 - 仅项目独有规则：直接新建 `.md` 文件（如 `hotfix-frontmatter.md`）

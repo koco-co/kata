@@ -8,6 +8,7 @@ import {
   uniqueName,
 } from "../../../../../../_shared/helpers/test-setup";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
 import {
   clearCurrentDatasource as clearLegacyDatasource,
   setCurrentDatasource as setLegacyDatasource,
@@ -48,9 +49,8 @@ type TableDefinition = {
   readonly sqlByDatasource: DatasourceSqlMap;
 };
 
-const PRECONDITION_REQUEST_TIMEOUT_MS = Number(
-  process.env.PRECONDITION_REQUEST_TIMEOUT_MS ?? 120_000,
-);
+const PRECONDITION_REQUEST_TIMEOUT_MS =
+  loadPlaywrightAutomationConfig().preconditionRequestTimeoutMs;
 const PRECONDITION_RETRYABLE_HTTP_STATUS = new Set([502, 503, 504]);
 const sleep = (ms: number) => new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 
@@ -350,7 +350,7 @@ export async function runPreconditions(
   page: Page,
   datasource = getCurrentDatasource(),
 ): Promise<void> {
-  if (process.env.OFFLINE_MODE === "1") {
+  if (loadPlaywrightAutomationConfig().skipPreconditionSetup) {
     return;
   }
   if (preconditionsReady.has(datasource.cacheKey)) {

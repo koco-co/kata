@@ -4,7 +4,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { stringify } from "yaml";
 import {
-  bridgeLegacyDataAssetsEnv,
   cookieHeaderToPlaywrightState,
   loadDataAssetsEnvProfile,
   loadNamedDataAssetsAuthState,
@@ -98,7 +97,7 @@ afterEach(() => rmSync(root, { recursive: true, force: true }));
 describe("DataAssets v2 runtime profile", () => {
   test("requires kata env run instead of an implicit default", () => {
     expect(() => resolveDataAssetsEnvName({})).toThrow(/kata env run/);
-    expect(() => resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "ltqc-local" })).not.toThrow();
+    expect(() => resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "ltqc-local" })).toThrow(/kata env run/);
     expect(() => loadDataAssetsEnvProfile("ltqc-local", { repoRoot: root, env: {} })).toThrow(
       /kata env run/,
     );
@@ -139,18 +138,6 @@ describe("DataAssets v2 runtime profile", () => {
         { repoRoot: root },
       ),
     ).toThrow(/does not match/);
-  });
-
-  test("bridges only process-scoped platform variables", () => {
-    const profile = loadDataAssetsEnvProfile("ltqc-local", { repoRoot: root, resolved });
-    const target: Record<string, string | undefined> = {};
-    bridgeLegacyDataAssetsEnv(profile, target);
-    expect(target.UI_AUTOTEST_BASE_URL).toBe("http://example.test/dataAssets");
-    expect(target.UI_AUTOTEST_COOKIE).toContain("sid=test-cookie");
-    expect(target.UI_AUTOTEST_SESSION_PATH).toBeUndefined();
-    expect(target.PW_WORKERS).toBeUndefined();
-    expect(target.PW_FULLY_PARALLEL).toBeUndefined();
-    expect(target.HEADLESS).toBeUndefined();
   });
 
   test("converts the Cookie header into in-memory Playwright state", () => {

@@ -11,6 +11,7 @@ import {
   normalizeDataAssetsBaseUrl,
 } from "../../../../../../_shared/helpers/test-setup";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;
@@ -327,12 +328,10 @@ export async function runPreconditions(
   page: Page,
   datasource = getCurrentDatasource(),
 ): Promise<void> {
-  if (process.env.OFFLINE_MODE === "1" || process.env.SKIP_PRECONDITIONS === "1") {
-    if (process.env.SKIP_PRECONDITIONS === "1") {
-      process.stderr.write(
-        `[preconditions] ${datasource.reportName} preconditions skipped by SKIP_PRECONDITIONS=1.\n`,
-      );
-    }
+  if (loadPlaywrightAutomationConfig().skipPreconditionSetup) {
+    process.stderr.write(
+      `[preconditions] ${datasource.reportName} preconditions skipped by public automation config.\n`,
+    );
     return;
   }
   if (preconditionsReady.has(datasource.cacheKey)) {

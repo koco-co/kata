@@ -4,6 +4,8 @@ import { resolveFeatureEntry } from "../lib/features-layout.ts";
 import { runFeaturesLint } from "../lib/features-lint.ts";
 import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
 import { registerCasesBuild } from "./cases-build.ts";
+import { registerCasesImport } from "./cases-import.ts";
+import { registerCasesSync } from "./cases-sync.ts";
 
 /** Run case-related structural lint: feature dir layout + naming + metadata sanity. */
 export function runCasesLint(opts: { project: string; feature?: string }): {
@@ -17,8 +19,10 @@ export function runCasesLint(opts: { project: string; feature?: string }): {
 }
 
 export function registerCases(program: Command): void {
-  const cases = program.command("cases").description("用例产物检查");
+  const cases = program.command("cases").description("用例导入、构建与检查");
   registerCasesBuild(cases);
+  registerCasesImport(cases);
+  registerCasesSync(cases);
   cases
     .command("lint")
     .description("检查 feature 目录结构、命名与 metadata 合法性")

@@ -14,13 +14,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.6/【v646】【岚图汽车】【数据标准】DBC落标检查"
 case_drafting:
   status: completed
-  archive_path: cases/exports/DBC落标检查.md
-  xmind_path: cases/DBC落标检查.xmind
+  archive_path: null
+  xmind_path: cases/exports/DBC落标检查.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/DBC落标检查.md
-  xmind: cases/DBC落标检查.xmind
+  archive: null
+  xmind: cases/exports/DBC落标检查.xmind
   tests_root: null
   latest_results: null

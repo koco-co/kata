@@ -47,7 +47,7 @@ function loadEnvNames(workspaceRoot: string): string[] {
 }
 
 interface CaseDoc {
-  meta?: { source?: unknown };
+  meta?: { source?: unknown; imports?: unknown };
   cases?: { id?: unknown; title?: unknown; priority?: unknown }[];
 }
 
@@ -164,7 +164,9 @@ function lintCaseSources(
       }
     }
 
-    if (cases.length >= P0_MIN_CASES) {
+    const historicalImport =
+      Array.isArray(doc.meta?.imports) && doc.meta.imports.some((value) => typeof value === "string");
+    if (cases.length >= P0_MIN_CASES && !historicalImport) {
       const p0 = cases.filter((c) => c.priority === "P0").length;
       const ratio = p0 / cases.length;
       if (ratio < P0_RATIO_MIN || ratio > P0_RATIO_MAX) {

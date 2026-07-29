@@ -21,12 +21,11 @@ inputs:
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 case_drafting:
   status: completed
-  archive_path: cases/exports/数据质量任务性能优化_规则sql合并.md
-  xmind_path: cases/数据质量任务性能优化_规则sql合并.xmind
+  xmind_path: cases/exports/数据质量任务性能优化_规则sql合并.xmind
   requirement_atoms:
     - id: RA-15862-SQL-MERGE
       source_ref: lanhu.fixture:15862-fullpage#sha256:ca9a8f1f95ece81fcf53a8e2a9fc0aab3ed8639a0c68fe22920a191c13bfc4e7
@@ -43,17 +42,18 @@ case_drafting:
       kind: analysis_note
       path: cases/merge-performance-scenarios.md
       note: 规则 SQL 合并性能场景说明（合并条件/可合并函数/规则拼接包影响）
+  archive_path: null
 automation:
   status: ready
   intents:
     - intent_id: SR-INTENT-V6411-SQL-MERGE
       case_files:
-        - cases/exports/数据质量任务性能优化_规则sql合并.md
+        - cases/数据质量任务性能优化_规则sql合并.yaml
       automation_status: ready
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/数据质量任务性能优化_规则sql合并.md
-  xmind: cases/数据质量任务性能优化_规则sql合并.xmind
+  xmind: cases/exports/数据质量任务性能优化_规则sql合并.xmind
   tests_root: automation/tests
   latest_results: null
+  archive: null

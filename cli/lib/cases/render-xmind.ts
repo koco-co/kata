@@ -2,12 +2,21 @@
  * Render CasesFile to xmind by mapping onto the T1 IntermediateJson pipeline.
  */
 
+import { RootTopic, Topic, type TopicBuilder, Workbook } from "xmind-generator";
+import { writeFileAtomic } from "../atomic-writer.ts";
 import type { IntermediateJson, Module, Page, SubGroup, TestCase } from "../intermediate-types.ts";
-import { createXmindReplacing, UNCLASSIFIED } from "../xmind-render.ts";
+import {
+  buildCaseTopic,
+  buildL1Labels,
+  buildL1Title,
+  buildRootTitle,
+  normalizeXmindBuffer,
+  UNCLASSIFIED,
+} from "../xmind-render.ts";
 import type { CasesFile } from "./types.ts";
 
 /** Map a flat CasesFile back to the hierarchical IntermediateJson for rendering. */
-export function casesToIntermediate(file: CasesFile): IntermediateJson {
+export function casesToIntermediate(file: CasesFile, projectName: string): IntermediateJson {
   // 按 tags 层级路径 [module, page, subgroup] 还原树;保持首次出现顺序
   const modules: Module[] = [];
   const moduleIdx = new Map<string, Module>();
@@ -64,16 +73,91 @@ export function casesToIntermediate(file: CasesFile): IntermediateJson {
   }
   return {
     meta: {
-      project_name: file.meta.feature_id,
+      project_name: projectName,
       requirement_name: file.meta.title,
       version: file.meta.version,
+      case_module_id: file.meta.case_module_id,
+      ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
       ...(file.meta.source ? { description: file.meta.source } : {}),
     },
     modules,
   };
 }
 
-/** Render cases/需求名.xmind from a CasesFile; atomically replaces any existing file. */
-export async function renderXmind(file: CasesFile, outPath: string): Promise<void> {
-  await createXmindReplacing(casesToIntermediate(file), outPath);
+interface TopicGroup {
+  name: string;
+  items: Array<{ kind: "case"; value: TestCase } | { kind: "group"; value: TopicGroup }>;
+  groups: Map<string, TopicGroup>;
+}
+
+function newTopicGroup(name: string): TopicGroup {
+  return { name, items: [], groups: new Map() };
+}
+
+function casesToTopicRoot(file: CasesFile): TopicGroup {
+  const root = newTopicGroup(UNCLASSIFIED);
+  for (const c of file.cases) {
+    let current = root;
+    const tags = c.tags ?? [];
+    for (const tag of tags) {
+      let group = current.groups.get(tag);
+      if (!group) {
+        group = newTopicGroup(tag);
+        current.groups.set(tag, group);
+        current.items.push({ kind: "group", value: group });
+      }
+      current = group;
+    }
+    current.items.push({
+      kind: "case",
+      value: {
+        case_id: c.id,
+        title: c.title,
+        priority: c.priority,
+        ...(c.precondition ? { preconditions: c.precondition } : {}),
+        steps: c.steps.map((s) => ({ step: s.action, expected: s.expected })),
+      },
+    });
+  }
+  return root;
+}
+
+function topicChildren(group: TopicGroup): TopicBuilder[] {
+  return group.items.map((item) =>
+    item.kind === "case"
+      ? buildCaseTopic(item.value)
+      : Topic(item.value.name).children(topicChildren(item.value)),
+  );
+}
+
+function casesMeta(file: CasesFile, projectName: string) {
+  return {
+    project_name: projectName,
+    requirement_name: file.meta.title,
+    version: file.meta.version,
+    ...(file.meta.source ? { description: file.meta.source } : {}),
+    ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
+    case_module_id: file.meta.case_module_id,
+  };
+}
+
+/** Render a CasesFile to a deterministic XMind buffer with unlimited tag depth. */
+export async function renderXmindBuffer(file: CasesFile, projectName: string): Promise<Buffer> {
+  const meta = casesMeta(file, projectName);
+  const l1Children = topicChildren(casesToTopicRoot(file));
+  let l1 = Topic(buildL1Title(meta)).children(l1Children);
+  const labels = buildL1Labels(meta);
+  if (labels.length > 0) l1 = l1.labels(labels);
+  const root = RootTopic(buildRootTitle(meta)).children([l1]).sheetTitle(buildRootTitle(meta));
+  const buffer = await Workbook(root).archive();
+  return normalizeXmindBuffer(Buffer.from(buffer));
+}
+
+/** Render cases/exports/需求名.xmind from a CasesFile. */
+export async function renderXmind(
+  file: CasesFile,
+  outPath: string,
+  projectName: string,
+): Promise<void> {
+  writeFileAtomic(outPath, await renderXmindBuffer(file, projectName));
 }

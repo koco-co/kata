@@ -14,13 +14,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.10/【v6410】【袋鼠云】【数据安全】下线行列级别权限配置"
 case_drafting:
   status: completed
-  archive_path: cases/exports/下线行列级别权限配置.md
-  xmind_path: cases/下线行列级别权限配置.xmind
+  archive_path: null
+  xmind_path: cases/exports/下线行列级别权限配置.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/下线行列级别权限配置.md
-  xmind: cases/下线行列级别权限配置.xmind
+  archive: null
+  xmind: cases/exports/下线行列级别权限配置.xmind
   tests_root: null
   latest_results: null

@@ -6,6 +6,7 @@ import type { DatasourceConfig as BaseDatasourceConfig } from "../../../../../v6
 import { buildSparkFixtureSql, versionJsonFixtureName } from "./json-fixture-sql";
 import { runRetriablePreconditions } from "../../../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;
@@ -278,20 +279,8 @@ const TABLE_DEFINITIONS: readonly TableDefinition[] = [
 ] as const;
 
 const preconditionsReady = new Set<string>();
-const DEFAULT_METADATA_SYNC_TIMEOUT_SECONDS = 90;
-
 function getMetadataSyncTimeoutSeconds(): number {
-  const raw = process.env.UI_AUTOTEST_METADATA_SYNC_TIMEOUT_SECONDS;
-  if (!raw) {
-    return DEFAULT_METADATA_SYNC_TIMEOUT_SECONDS;
-  }
-
-  const parsed = Number(raw);
-  if (Number.isFinite(parsed) && parsed > 0) {
-    return parsed;
-  }
-
-  return DEFAULT_METADATA_SYNC_TIMEOUT_SECONDS;
+  return Math.ceil(loadPlaywrightAutomationConfig().metadataSyncTimeoutMs / 1000);
 }
 
 function namedSeed(path: readonly string[], value?: string): JsonValidationSeed {

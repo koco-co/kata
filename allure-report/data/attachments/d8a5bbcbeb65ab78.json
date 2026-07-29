@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-07-29T16:13:58.334Z",
+  "caseNo": 61,
+  "sourceCaseId": "185948",
+  "datasourceName": "dtstack_smoke_LINDORM_SPARK",
+  "datasourceType": "SparkThrift2.x",
+  "tableName": "test_info_1_qzmkxjrp_61",
+  "fullTableName": "dtstack_smoke.test_info_1_qzmkxjrp_61",
+  "compareTableName": "test_info_1_qzmkxjrp_61_cmp",
+  "fullCompareTableName": "dtstack_smoke.test_info_1_qzmkxjrp_61_cmp",
+  "ruleName": "§61 验证完整性校验校验不通过质量报告正确",
+  "fullTitle": "验证「完整性校验」校验不通过质量报告正确",
+  "packageName": "可合并完整性规则",
+  "packageCount": 1,
+  "samplingEnabled": false,
+  "partitionEnabled": false,
+  "result": {
+    "classification": "unknown",
+    "statusText": "",
+    "tooltipTexts": [],
+    "rowText": "校验结果查询未出现结果行: query=test_info_1_qzmkxjrp_61; expectedRuleName=§61 验证完整性校验校验不通过质量报告正确; timeoutMs=480000",
+    "planTimeCleared": true
+  }
+}

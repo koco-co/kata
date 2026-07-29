@@ -6,11 +6,14 @@ import path from "node:path";
 import { test, type Page } from "@playwright/test";
 
 import { getEnvConfig } from "../../../../../../_shared/helpers";
+import { loadV6411AutomationSettings } from "../../tests/fixtures/v6411-automation-config";
 
 const ENV = getEnvConfig();
 const BASE_URL = ENV.urls.baseUrl;
 const PROJECT_ID = String(ENV.projects.quality.id);
-const TABLE_NAME = (process.env.V6411_PROBE_TABLE ?? "test_info_1_qzmkxjrp_37").trim();
+const AUTOMATION = loadV6411AutomationSettings();
+const TABLE_NAME =
+  AUTOMATION.probeTable ?? `test_info_1_${AUTOMATION.tableBatchSuffix}_37`;
 const OUT_DIR = path.join(process.env.KATA_RUN_PATH ?? ".", "probe");
 
 test.setTimeout(10 * 60 * 1000);
@@ -86,4 +89,3 @@ test("探测规则集编辑向导下一步行为", async ({ page }) => {
     await dump(page, `0${attempt + 2}-after-next-${attempt}`);
   }
 });
-

@@ -14,10 +14,30 @@ playwright:
   browser: chromium
   # 是否使用无头浏览器。
   headless: true
+  # 每个步骤截图策略：all=全部，failed=仅失败，off=关闭。
+  step_capture: all
   # 单个 Playwright 测试的默认超时时间（毫秒）。
   timeout_ms: 60000
   # Playwright 自动重试次数；正式回归默认不重试，保留真实失败。
   retries: 0
+  # 元数据同步是否必须在下拉列表中命中精确表名；需要过滤回退的场景由用例显式覆盖。
+  metadata_sync_require_exact_table: false
+  # 元数据同步弹窗中等待表选项出现的最长时间（毫秒）。
+  metadata_table_search_timeout_ms: 180000
+  # 元数据同步任务列表等待终态的最长时间（毫秒）。
+  metadata_sync_timeout_ms: 600000
+  # 前置条件 API 单次请求超时时间（毫秒）。
+  precondition_request_timeout_ms: 120000
+  # 前置条件同步任务等待时间（秒）。
+  precondition_sync_timeout_sec: 300
+  # 前置条件脚本整体超时时间（毫秒）。
+  precondition_timeout_ms: 1800000
+  # 数据质量任务/校验结果轮询等待终态的最长时间（毫秒）。
+  monitor_timeout_ms: 2700000
+  # 数据资产定时任务状态轮询的最长时间（毫秒）。
+  schedule_job_timeout_ms: 1800000
+  # 是否在用例结束后执行 feature 自己定义的清理动作。
+  cleanup: true
   allure:
     # 是否生成 Allure 原始结果和 HTML 报告；正式回归必须保持开启。
     enabled: true

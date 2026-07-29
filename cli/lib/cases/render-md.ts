@@ -15,12 +15,12 @@ function cell(text: string): string {
   return text.replaceAll("|", "\\|").replaceAll("\n", "<br>");
 }
 
-function renderCase(c: CaseItem): string {
+function renderCase(c: CaseItem, headingLevel: number): string {
   // case_id 注释锚点:archive → xmind 读回时据此关联稳定用例编号
   const lines: string[] = [
     `<!-- case_id: ${c.id} -->`,
     "",
-    `##### 【${c.priority}】${c.title}`,
+    `${"#".repeat(headingLevel)} 【${c.priority}】${c.title}`,
     "",
   ];
   if (c.precondition) {
@@ -46,7 +46,7 @@ function newGroup(): MdGroup {
 }
 
 function renderGroup(group: MdGroup, level: number, out: string[]): void {
-  for (const c of group.cases) out.push(renderCase(c), "");
+  for (const c of group.cases) out.push(renderCase(c, Math.max(5, level + 1)), "");
   for (const [name, child] of group.children) {
     out.push("", `${"#".repeat(level)} ${name}`, "");
     renderGroup(child, level + 1, out);
@@ -65,10 +65,10 @@ export function renderMarkdown(file: CasesFile): string {
     `- 用例数: ${file.cases.length}`,
   ];
   if (file.meta.source) out.push(`- 来源: ${file.meta.source}`);
-  // 按 tags 层级路径分组:tags[0]/[1]/[2] 依次渲染为 ##/###/####,保持首次出现顺序
+  // 按 tags 层级路径动态渲染为 ##/###/####/...，保持首次出现顺序
   const root = newGroup();
   for (const c of file.cases) {
-    const path = (c.tags ?? []).slice(0, 3);
+    const path = c.tags ?? [];
     if (path.length === 0) path.push(UNCLASSIFIED);
     let group = root;
     for (const name of path) {

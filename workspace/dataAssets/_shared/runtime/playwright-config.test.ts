@@ -2,8 +2,9 @@ import { describe, expect, test } from "bun:test";
 
 import {
   loadPlaywrightAutomationConfig,
+  parsePlaywrightAutomationOverrides,
   PLAYWRIGHT_AUTOMATION_CONFIG_PATH,
-} from "./playwright-config";
+} from "../../../../lib/automation/playwright-config";
 
 describe("shared Playwright automation config", () => {
   test("loads the YAML defaults without dotenv", () => {
@@ -15,6 +16,7 @@ describe("shared Playwright automation config", () => {
     expect(config.sortCases).toBe(false);
     expect(config.workers).toBe(4);
     expect(config.headless).toBe(true);
+    expect(config.stepCapture).toBe("all");
     expect(config.allure.enabled).toBe(true);
     expect(config.allure.resultsDir).toEndWith("/allure-results");
   });
@@ -36,5 +38,11 @@ describe("shared Playwright automation config", () => {
     expect(() =>
       loadPlaywrightAutomationConfig({ overrides: { workers: 0 } }),
     ).toThrow("命令行 Playwright 配置.workers 必须是正整数");
+    expect(() =>
+      parsePlaywrightAutomationOverrides({ step_capture: "sometimes" }),
+    ).toThrow("step_capture 必须是 all、failed 或 off");
+    expect(parsePlaywrightAutomationOverrides({ step_capture: "failed" })).toEqual({
+      stepCapture: "failed",
+    });
   });
 });

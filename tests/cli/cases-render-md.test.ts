@@ -4,7 +4,10 @@ import type { CasesFile } from "../../cli/lib/cases/types.ts";
 import { parseArchiveBody } from "../../cli/lib/xmind-archive.ts";
 
 function file(cases: CasesFile["cases"]): CasesFile {
-  return { meta: { title: "需求名", version: "v1", feature_id: "g/f" }, cases };
+  return {
+    meta: { title: "需求名", version: "v1", feature_id: "g/f", case_module_id: "" },
+    cases,
+  };
 }
 
 describe("renderMarkdown", () => {

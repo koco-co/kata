@@ -2,6 +2,9 @@ meta:
   title: 落标检查任务性能优化_规则sql合并
   version: v6.4.11
   feature_id: v6.4.11/【v6411】【岚图汽车】【数据资产】落标检查任务性能优化，规则sql合并
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证「有车型」-「不绑定车型关联字段」-「date/timestamp数据类型」校验逻辑正确
@@ -36,7 +39,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -69,7 +72,7 @@ cases:
       (11003, 180.23, 459897, NULL, '保时捷718', 36, 92, 7, FALSE, CAST(NULL AS DATE), CAST('2026-01-13 16:40:00' AS TIMESTAMP)),
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -106,7 +109,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -139,7 +142,7 @@ cases:
       (11003, 180.23, 459897, NULL, '保时捷718', 36, 92, 7, FALSE, CAST(NULL AS DATE), CAST('2026-01-13 16:40:00' AS TIMESTAMP)),
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -176,7 +179,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -210,7 +213,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -247,7 +250,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -281,7 +284,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -318,7 +321,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -352,7 +355,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -389,7 +392,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -423,7 +426,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -460,7 +463,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -493,7 +496,7 @@ cases:
       (11003, 180.23, 459897, NULL, '保时捷718', 36, 92, 7, FALSE, CAST(NULL AS DATE), CAST('2026-01-13 16:40:00' AS TIMESTAMP)),
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -530,7 +533,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -563,7 +566,7 @@ cases:
       (11003, 180.23, 459897, NULL, '保时捷718', 36, 92, 7, FALSE, CAST(NULL AS DATE), CAST('2026-01-13 16:40:00' AS TIMESTAMP)),
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -600,7 +603,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info 
+      1、 已存在表order_info
 
       CREATE TABLE IF NOT EXISTS tytest.order_info(
           user_id INT COMMENT'用户ID',
@@ -628,7 +631,7 @@ cases:
               1000,
               160,
               NULL,
-              265.2,
+              265. 2,
               '小米su7',
               25,
               80,
@@ -643,7 +646,7 @@ cases:
               102,
               170,
               66,
-              140.80,
+              140. 80,
               '小米su7',
               30,
               85,
@@ -656,7 +659,7 @@ cases:
           ),
           (
               1100,
-              180.23,
+              180. 23,
               459897,
               187,
               '保时捷718',
@@ -708,7 +711,7 @@ cases:
               102,
               170,
               66,
-              15483.568,
+              15483. 568,
               '小米su7',
               31,
               87,
@@ -736,9 +739,9 @@ cases:
           ),
           (
               110030,
-              180.23,
+              180. 23,
               459897,
-              80.55485,
+              80. 55485,
               '保时捷718',
               36,
               92,
@@ -751,9 +754,9 @@ cases:
           ),
           (
               110030,
-              180.23,
+              180. 23,
               459897,
-              80.55485,
+              80. 55485,
               '保时捷718',
               36,
               92,
@@ -766,7 +769,7 @@ cases:
           ),
           (
               11003,
-              180.23,
+              180. 23,
               459897,
               NULL,
               '保时捷718',
@@ -796,9 +799,9 @@ cases:
           ),
           (
               11003,
-              180.23,
+              180. 23,
               459897,
-              80.55485,
+              80. 55485,
               NULL,
               36,
               92,
@@ -810,7 +813,7 @@ cases:
               '80.55485'
           );
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -847,7 +850,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info 
+      1、 已存在表order_info
 
       CREATE TABLE IF NOT EXISTS tytest.order_info(
           user_id INT COMMENT'用户ID',
@@ -875,7 +878,7 @@ cases:
               1000,
               160,
               NULL,
-              265.2,
+              265. 2,
               '小米su7',
               25,
               80,
@@ -890,7 +893,7 @@ cases:
               102,
               170,
               66,
-              140.80,
+              140. 80,
               '小米su7',
               30,
               85,
@@ -903,7 +906,7 @@ cases:
           ),
           (
               1100,
-              180.23,
+              180. 23,
               459897,
               187,
               '保时捷718',
@@ -955,7 +958,7 @@ cases:
               102,
               170,
               66,
-              15483.568,
+              15483. 568,
               '小米su7',
               31,
               87,
@@ -983,9 +986,9 @@ cases:
           ),
           (
               110030,
-              180.23,
+              180. 23,
               459897,
-              80.55485,
+              80. 55485,
               '保时捷718',
               36,
               92,
@@ -998,9 +1001,9 @@ cases:
           ),
           (
               110030,
-              180.23,
+              180. 23,
               459897,
-              80.55485,
+              80. 55485,
               '保时捷718',
               36,
               92,
@@ -1013,7 +1016,7 @@ cases:
           ),
           (
               11003,
-              180.23,
+              180. 23,
               459897,
               NULL,
               '保时捷718',
@@ -1043,9 +1046,9 @@ cases:
           ),
           (
               11003,
-              180.23,
+              180. 23,
               459897,
-              80.55485,
+              80. 55485,
               NULL,
               36,
               92,
@@ -1057,7 +1060,7 @@ cases:
               '80.55485'
           );
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1094,7 +1097,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -1128,7 +1131,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1165,7 +1168,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -1199,7 +1202,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1236,7 +1239,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -1274,7 +1277,7 @@ cases:
       (102, 'XYZ001', '欧阳静', 25.001548952140236541, NULL, NULL, 0, NULL, 1234.56, TRUE, CAST('2024-11-15' AS DATE), CAST('2026-05-28 11:20:00' AS TIMESTAMP)),
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1311,7 +1314,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -1349,7 +1352,7 @@ cases:
       (102, 'XYZ001', '欧阳静', 25.001548952140236541, NULL, NULL, 0, NULL, 1234.56, TRUE, CAST('2024-11-15' AS DATE), CAST('2026-05-28 11:20:00' AS TIMESTAMP)),
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1386,7 +1389,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -1425,7 +1428,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1462,7 +1465,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -1501,7 +1504,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1538,7 +1541,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -1577,7 +1580,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1614,7 +1617,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项达标情况正确，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -1653,7 +1656,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不同的数据类型
       - 未分类
@@ -1688,7 +1691,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 6个检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -1722,7 +1725,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -1757,7 +1760,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -1791,7 +1794,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -1826,7 +1829,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -1860,7 +1863,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -1895,7 +1898,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -1929,7 +1932,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -1966,7 +1969,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 数据精度未达标、重复数达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2000,7 +2003,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2037,7 +2040,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 字符串长度未达标、重复数达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2071,7 +2074,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2108,7 +2111,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 字符串长度、数据精度、空值数、取值范围、精度倍数5个检查项都未达标、重复数达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2142,7 +2145,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2179,7 +2182,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 取值范围未达标、重复数达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2213,7 +2216,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2248,7 +2251,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2282,7 +2285,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2319,7 +2322,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 精度倍数未达标、重复数达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2353,7 +2356,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2390,7 +2393,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 数据精度未达标、重复数达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2424,7 +2427,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2459,7 +2462,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -2493,7 +2496,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2528,7 +2531,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 6个检查项都达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -2567,7 +2570,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2604,7 +2607,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 取值范围未达标、重复数达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -2643,7 +2646,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2680,7 +2683,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 空值数未达标、重复数达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -2719,7 +2722,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2754,7 +2757,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -2793,7 +2796,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2828,7 +2831,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 检查项都达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -2867,7 +2870,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2904,7 +2907,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 字符串长度未达标、重复数达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -2943,7 +2946,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并+不可合并
       - 未分类
@@ -2978,7 +2981,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3012,7 +3015,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3047,7 +3050,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3081,7 +3084,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3116,7 +3119,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3150,7 +3153,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3185,7 +3188,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3219,7 +3222,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3256,7 +3259,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3290,7 +3293,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3327,7 +3330,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3361,7 +3364,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3396,7 +3399,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3430,7 +3433,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3467,7 +3470,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3501,7 +3504,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3536,7 +3539,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3570,7 +3573,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3607,7 +3610,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3641,7 +3644,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3678,7 +3681,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3712,7 +3715,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3747,7 +3750,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -3781,7 +3784,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3816,7 +3819,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -3855,7 +3858,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3892,7 +3895,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -3931,7 +3934,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -3968,7 +3971,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -4007,7 +4010,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -4042,7 +4045,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -4081,7 +4084,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -4116,7 +4119,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -4155,7 +4158,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -4192,7 +4195,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 该检查项未达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -4231,7 +4234,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 不可合并
       - 未分类
@@ -4268,7 +4271,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 5个检查项都未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -4302,7 +4305,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并
       - 未分类
@@ -4337,7 +4340,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 5个检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -4371,7 +4374,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并
       - 未分类
@@ -4408,7 +4411,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 5个检查项都未达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -4442,7 +4445,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并
       - 未分类
@@ -4477,7 +4480,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 5个检查项都达标，详情正确
     precondition: |-
-      1、已存在表order_info
+      1、 已存在表order_info
       CREATE TABLE IF NOT EXISTS tytest.order_info (
       user_id INT COMMENT '用户ID',
       tall FLOAT COMMENT '身高',
@@ -4511,7 +4514,7 @@ cases:
       (1001, 160, NULL, 265, NULL, 26, 82, 17, FALSE, CAST('2024-01-15' AS DATE), CAST('2026-01-13 18:20:00' AS TIMESTAMP)),
       (11003, 180.23, 459897, 80.55485, NULL, 36, 92, 5, NULL, CAST('2024-07-10' AS DATE), CAST(NULL AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并
       - 未分类
@@ -4548,7 +4551,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 5个检查项都未达标，详情正确，脏数据明细正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -4586,7 +4589,7 @@ cases:
       (102, 'XYZ001', '欧阳静', 25.001548952140236541, NULL, NULL, 0, NULL, 1234.56, TRUE, CAST('2024-11-15' AS DATE), CAST('2026-05-28 11:20:00' AS TIMESTAMP)),
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并
       - 未分类
@@ -4621,7 +4624,7 @@ cases:
       - action: 等待该检查任务按周期运行完成，查看结果详情
         expected: 5个检查项都达标，详情正确
     precondition: |-
-      1、已存在表test_info_1
+      1、 已存在表test_info_1
       CREATE TABLE tytest.test_info_1 (
       id INT COMMENT '用户ID',
       string_num STRING COMMENT 'string类型的编号',
@@ -4660,7 +4663,7 @@ cases:
       (105, NULL, NULL, 18.50, 100, 999, 0, 88.8, NULL, FALSE, CAST('2024-08-05' AS DATE), CAST('2026-05-28 14:10:00' AS TIMESTAMP)),
       (106, 'XYZ003', NULL, 123.45, 107, 999, 90, 88.8, 888.88, TRUE, CAST('2024-07-25' AS DATE), CAST('2026-05-28 09:00:00' AS TIMESTAMP));
 
-      2、已存在标准目录：test
+      2、 已存在标准目录：test
     tags:
       - 可合并
       - 未分类

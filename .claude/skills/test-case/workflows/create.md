@@ -48,7 +48,7 @@ kata knowledge read --project <项目> --module <模块>
 
 ## Phase 6：写 cases/需求名.yaml
 
-格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 按 `{group}/{dirName}` 口径填写（feature 目录相对 `features/` 的两级路径，group 为版本目录或 `_standing`，如 `v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计`）。只写 requirement-notes.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。尚未实现自动化的用例允许暂不填写 `automation.spec_file`，由 coverage 报告为 `unmapped`；已有映射但脚本尚未实现时报告为 `mapped-not-implemented`，不得伪造通过。
+格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 按 `{group}/{dirName}` 口径填写（feature 目录相对 `features/` 的两级路径，group 为版本目录或 `_standing`，如 `v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计`）。`meta.case_module_id` 必填，未知写 `""`；默认 `meta.exports: [xmind]`。所有表单项和两个及以上编号项逐行写入 YAML `|-`。只写 requirement-notes.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。尚未实现自动化的用例允许暂不填写 `automation.spec_file`，由 coverage 报告为 `unmapped`；已有映射但脚本尚未实现时报告为 `mapped-not-implemented`，不得伪造通过。
 
 ## Phase 7：派生与检查
 

@@ -2,6 +2,9 @@ meta:
   title: 一个数据表支持创建多个质量规则任务
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】一个数据表支持创建多个质量规则任务
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证历史质量报告内，质量评估汇总命名变更
@@ -13,7 +16,7 @@ cases:
         expected: 展示表名_任务名称，即table1_test_rule
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -25,7 +28,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      4、历史已存在table1的1个规则任务test_rule，报告名称为“table1质量报告”
+      4、 历史已存在table1的1个规则任务test_rule，报告名称为“table1质量报告”
     tags:
       - 未分类
       - 未分类
@@ -39,7 +42,7 @@ cases:
         expected: 展示表名_任务名称，即table1_test_rule
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -51,7 +54,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      4、已存在table1的1个规则任务test_rule，报告名称为“table1质量报告”
+      4、 已存在table1的1个规则任务test_rule，报告名称为“table1质量报告”
     tags:
       - 未分类
       - 未分类
@@ -66,11 +69,12 @@ cases:
       - action: 「选择任务」选择全部，点击确定
         expected: 保存成功
       - action: 查看报告内容
-        expected: 展示任务1、任务2、任务3相关的表级报告
+        expected: |-
+          展示任务1、任务2、任务3相关的表级报告
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -86,7 +90,7 @@ cases:
 
       SELECT * FROM table1;
 
-      4.hive2.x/sparkthrift2.x/doris3.x数据表已配置规则集
+      4. hive2.x/sparkthrift2.x/doris3.x数据表已配置规则集
       规则包1:
       自定义sql：
       select * from table1； 固定值>2，弱规则
@@ -94,7 +98,7 @@ cases:
       有效性校验：
       字段id-取值范围-期望值>3，弱规则
 
-      5、已存在table1的2个规则任务，任务1、任务2
+      5、 已存在table1的2个规则任务，任务1、任务2
 
       已存在table2的1个规则任务，
       任务3
@@ -116,7 +120,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -132,7 +136,7 @@ cases:
 
       SELECT * FROM table1;
 
-      5、已存在table1的2个规则任务，任务1、任务2
+      5、 已存在table1的2个规则任务，任务1、任务2
     tags:
       - 未分类
       - 未分类
@@ -150,7 +154,7 @@ cases:
         expected: 展示任务1、任务2相关的表级报告
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -162,7 +166,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      5、已存在table1的2个规则任务，任务1、任务2
+      5、 已存在table1的2个规则任务，任务1、任务2
     tags:
       - 未分类
       - 未分类
@@ -180,7 +184,7 @@ cases:
         expected: 只展示任务1相关的表级报告
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -192,7 +196,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      5、已存在table1的2个规则任务，任务1、任务2
+      5、 已存在table1的2个规则任务，任务1、任务2
     tags:
       - 未分类
       - 未分类
@@ -210,7 +214,7 @@ cases:
         expected: 只展示「全部」
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -222,7 +226,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      5、已存在table1的2个规则任务，任务1、任务2
+      5、 已存在table1的2个规则任务，任务1、任务2
     tags:
       - 未分类
       - 未分类
@@ -236,7 +240,7 @@ cases:
         expected: 报错：已存在相同的报告名称
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -248,7 +252,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      4、已存在table1的1个规则任务，报告名称为“table1质量报告”
+      4、 已存在table1的1个规则任务，报告名称为“table1质量报告”
     tags:
       - 未分类
       - 未分类
@@ -262,7 +266,7 @@ cases:
         expected: 返回“任务1”“任务2”配置的两条单表报告以及当前表的自定义报告信息
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -274,7 +278,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      4、已存在table1的1个规则任务，任务名称为“任务1”“任务2”
+      4、 已存在table1的1个规则任务，任务名称为“任务1”“任务2”
     tags:
       - 未分类
       - 未分类
@@ -288,7 +292,7 @@ cases:
         expected: 返回“任务1”、“任务2”两条规则的实例
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -300,7 +304,7 @@ cases:
       USING paimon tblproperties ( 'primary-key' = 'id' );
       INSERT INTO table1 VALUES (1, '11','林大','100','男'), (2, '12','王二','99','男'),(3, '13','张三','99','男'),(4, '14','李四','100','女');
       SELECT * FROM table1;
-      4、已存在table1的1个规则任务，任务名称为“任务1”“任务2”
+      4、 已存在table1的1个规则任务，任务名称为“任务1”“任务2”
     tags:
       - 未分类
       - 未分类
@@ -322,7 +326,7 @@ cases:
         expected: 质量报告结果正确，没有错乱
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -355,7 +359,7 @@ cases:
         expected: 提示：已存在相同的报告名称
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -390,7 +394,7 @@ cases:
         expected: 保存成功，详情页报告命名为“table1_test_rule1“
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -428,7 +432,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -465,7 +469,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -502,7 +506,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -536,7 +540,7 @@ cases:
         expected: 规则保存成功
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -568,7 +572,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -602,7 +606,7 @@ cases:
         expected: 规则保存成功
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -668,7 +672,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -685,7 +689,7 @@ cases:
       SELECT * FROM table1;
 
 
-      4、历史已存在table的单表规则：test_rule
+      4、 历史已存在table的单表规则：test_rule
     tags:
       - 未分类
       - 未分类

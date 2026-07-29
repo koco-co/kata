@@ -2,6 +2,9 @@ meta:
   title: 合理性单调递减递增
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】合理性单调递减递增
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证排序字段类型选择其他类型，合理性校验功能
@@ -18,7 +21,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -63,7 +66,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -106,7 +109,7 @@ cases:
         expected: 展示id=‘5’的数据
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       CREATE TABLE IF NOT EXISTS table1 (
@@ -150,7 +153,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -192,7 +195,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -229,7 +232,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -270,7 +273,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -307,7 +310,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -341,7 +344,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -375,7 +378,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -413,7 +416,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -595,7 +598,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -614,7 +617,7 @@ cases:
       (10, 800, 10.10, 1010.1010, 1010.10);
 
 
-      4、已存在table1的规则：test_rule
+      4、 已存在table1的规则：test_rule
       存在合理性校验规则：
       规则填写：
       「字段」选择「int_col」，
@@ -646,7 +649,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -665,7 +668,7 @@ cases:
       (10, 800, 10.10, 1010.1010, 1010.10);
 
 
-      4、已存在table1的规则：test_rule
+      4、 已存在table1的规则：test_rule
     tags:
       - 合理性校验字段类型限制
       - 未分类
@@ -688,7 +691,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -713,7 +716,7 @@ cases:
       (9, 900, 2.22, 999.999, 999.99),
       (10, 1000, 1.11, 1010.1010, 1010.10);
 
-      4、已存在离线任务，hivesql
+      4、 已存在离线任务，hivesql
       「租户A」-「离线开发」-「项目A」-「test」
       sql为：select 1
     tags:
@@ -738,7 +741,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -763,7 +766,7 @@ cases:
       (9, 900, 2.22, 999.999, 999.99),
       (10, 1000, 1.11, 1010.1010, 1010.10);
 
-      4、已存在离线任务，hivesql
+      4、 已存在离线任务，hivesql
       「租户A」-「离线开发」-「项目A」-「test」
       sql为：select 1
     tags:
@@ -788,7 +791,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -813,7 +816,7 @@ cases:
       (9, 900, 2.22, 999.999, 999.99),
       (10, 1000, 1.11, 1010.1010, 1010.10);
 
-      4、已存在离线任务，hivesql
+      4、 已存在离线任务，hivesql
       「租户A」-「离线开发」-「项目A」-「test」
       sql为：select 1
     tags:
@@ -838,7 +841,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -863,7 +866,7 @@ cases:
       (9, 900, 2.22, 999.999, 999.99),
       (10, 1000, 1.11, 1010.1010, 1010.10);
 
-      4、已存在离线任务，hivesql
+      4、 已存在离线任务，hivesql
       「租户A」-「离线开发」-「项目A」-「test」
       sql为：select 1
     tags:
@@ -889,7 +892,7 @@ cases:
         expected: ？？？？
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -934,7 +937,7 @@ cases:
         expected: ？？？？
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -977,7 +980,7 @@ cases:
         expected: 1）标题为「查看“合理性校验-数据变化趋势”明细」，下方展示运行时间、下载明细2）列表展示字段为表的全部字段，字段int_col标红展示，展示字段id=8的1条数据
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -1019,7 +1022,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -1057,7 +1060,7 @@ cases:
         expected: 校验不通过
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -1093,7 +1096,7 @@ cases:
         expected: 校验通过
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -1128,7 +1131,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -1167,7 +1170,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -1211,7 +1214,7 @@ cases:
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
 
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
 
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
@@ -1249,7 +1252,7 @@ cases:
         expected: 校验不通过
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -1285,7 +1288,7 @@ cases:
         expected: 校验通过
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -1319,7 +1322,7 @@ cases:
         expected: 详情页展示数据正确
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (
@@ -1427,7 +1430,7 @@ cases:
         expected: 新增「合理性校验」
     precondition: |-
       1. 资产平台已存在${DATASOURCE}_${DATABASE}_${TABLE}并授权给当前测试项目
-      2.${DATASOURCE}有相似数据源${DATASOURCE1}
+      2. ${DATASOURCE}有相似数据源${DATASOURCE1}
       3. ${TABLE} DDL\DML 如下：
       drop table if exists table1;
       create table if not EXISTS table1 (

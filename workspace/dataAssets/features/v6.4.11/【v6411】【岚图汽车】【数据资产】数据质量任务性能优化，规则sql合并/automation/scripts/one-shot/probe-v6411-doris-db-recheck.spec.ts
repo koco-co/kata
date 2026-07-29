@@ -10,8 +10,10 @@ const ENV = getEnvConfig();
 const BASE_URL = ENV.urls.baseUrl;
 const PROJECT_ID = String(ENV.projects.quality.id);
 const OUT_DIR = path.join(process.env.KATA_RUN_PATH ?? ".", "probe-doris-db-recheck");
-const DATASOURCE = "dtstack_smoke_DORIS_doris3";
-const DATABASE = "test_lindorm_spark";
+const DORIS = ENV.datasources.doris;
+if (!DORIS) throw new Error("当前环境未配置 doris 数据源");
+const DATASOURCE = DORIS.assets.name;
+const DATABASE = DORIS.sql.database;
 
 test.setTimeout(10 * 60 * 1000);
 
@@ -57,4 +59,3 @@ test("复核新 Doris 数据源实时库列表", async ({ page }) => {
   await page.screenshot({ path: path.join(OUT_DIR, "recheck.png") });
   console.log(`[recheck] searched=${DATABASE} options=${JSON.stringify(options)} text=${text.slice(0, 200)}`);
 });
-

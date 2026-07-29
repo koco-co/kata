@@ -1,0 +1,83 @@
+import { isMap, isScalar, isSeq, parseDocument, Scalar, stringify } from "yaml";
+import type { CaseExportFormat } from "./formats.ts";
+import { normalizeCasesFile, normalizeStructuredText } from "./normalize.ts";
+import type { CaseItem, CasesFile } from "./types.ts";
+
+function serializedCase(item: CaseItem) {
+  return {
+    case_id: item.id,
+    ...(item.automation ? { automation: item.automation } : {}),
+    title: item.title,
+    priority: item.priority,
+    ...(item.precondition ? { precondition: item.precondition } : {}),
+    steps: item.steps,
+    ...(item.tags ? { tags: item.tags } : {}),
+    ...(item.source_ref ? { source_ref: item.source_ref } : {}),
+  };
+}
+
+/** Serialize canonical cases YAML with stable field order and block scalars for multiline text. */
+export function serializeCasesYaml(input: CasesFile): string {
+  const file = normalizeCasesFile(input);
+  const meta = {
+    title: file.meta.title,
+    version: file.meta.version,
+    feature_id: file.meta.feature_id,
+    ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
+    case_module_id: file.meta.case_module_id,
+    ...(file.meta.source ? { source: file.meta.source } : {}),
+    ...(file.meta.imports ? { imports: file.meta.imports } : {}),
+    ...(file.meta.exports ? { exports: file.meta.exports } : {}),
+  };
+  return stringify(
+    {
+      meta,
+      cases: file.cases.map(serializedCase),
+    },
+    { lineWidth: 0 },
+  );
+}
+
+function normalizeScalar(node: unknown): void {
+  if (!isScalar(node) || typeof node.value !== "string") return;
+  const normalized = normalizeStructuredText(node.value);
+  node.value = normalized;
+  if (normalized.includes("\n")) node.type = Scalar.BLOCK_LITERAL;
+}
+
+/**
+ * Normalize an existing YAML document without discarding comments or unrelated
+ * fields. Used for repository-wide migrations of canonical case sources.
+ */
+export function normalizeCasesYamlText(
+  yamlText: string,
+  options: {
+    defaultCaseModuleId?: string;
+    exports?: CaseExportFormat[];
+  } = {},
+): string {
+  const document = parseDocument(yamlText);
+  if (document.errors.length > 0) {
+    throw new Error(`yaml 解析失败: ${document.errors.map((error) => error.message).join("; ")}`);
+  }
+  if (document.getIn(["meta", "case_module_id"]) === undefined) {
+    document.setIn(["meta", "case_module_id"], options.defaultCaseModuleId ?? "");
+  }
+  if (options.exports) document.setIn(["meta", "exports"], options.exports);
+
+  const cases = document.getIn(["cases"], true);
+  if (isSeq(cases)) {
+    for (const item of cases.items) {
+      if (!isMap(item)) continue;
+      normalizeScalar(item.get("precondition", true));
+      const steps = item.get("steps", true);
+      if (!isSeq(steps)) continue;
+      for (const step of steps.items) {
+        if (!isMap(step)) continue;
+        normalizeScalar(step.get("action", true));
+        normalizeScalar(step.get("expected", true));
+      }
+    }
+  }
+  return document.toString({ lineWidth: 0 });
+}

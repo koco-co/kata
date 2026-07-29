@@ -1,17 +1,35 @@
 meta:
-  title: 支持每个数据表的规则集管理
+  title: 【岚图】【规则集管理】支持每个数据表的规则集管理
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】支持每个数据表的规则集管理
+  requirement_id: "15522"
+  case_module_id: "10193"
+  exports:
+    - xmind
 cases:
   - case_id: C0001
-    automation:
-      spec_file: c0001-验证删除规则集后对已配置过历史规则的任务不生效.ts
+
     title: 验证删除规则集后, 对已配置过历史规则的任务不生效
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
@@ -99,14 +117,28 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0002
-    automation:
-      spec_file: c0002-验证编辑规则集后对已配置过历史规则的任务不生效.ts
+
     title: 验证编辑规则集后, 对已配置过历史规则的任务不生效
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
@@ -114,9 +146,14 @@ cases:
         expected: 引入成功, 配置参数正确
       - action: 保存规则任务task01后, 立即执行
         expected: "任务运行成功, 校验结果: 校验不通过"
-      - action: "修改【规则集-规则包rule01】中的校验规则:- 期望值: >= -200"
+      - action: |-
+          修改【规则集-规则包rule01】中的校验规则:
+          - 期望值: >= -200
         expected: 配置成功
-      - action: "新建规则任务task02并立即执行:1) 监控对象: t2 (与dwd_voyah_vehicle_sales_dates同表结构同数据)2) 监控规则: rule01中的校验规则"
+      - action: |-
+          新建规则任务task02并立即执行:
+          1) 监控对象: t2 (与dwd_voyah_vehicle_sales_dates同表结构同数据)
+          2) 监控规则: rule01中的校验规则
         expected: "任务运行成功, 校验结果: 校验通过"
       - action: 重新运行历史规则任务task01, 在【校验结果查询】中查看运行状态
         expected: "任务运行成功, 校验结果: 校验不通过"
@@ -196,8 +233,7 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0003
-    automation:
-      spec_file: c0003-验证规则任务配置规则包后校验正常20规则包1校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(20规则包 * 1校验规则)
     priority: P0
     steps:
@@ -207,7 +243,19 @@ cases:
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:SELECT     *FROM (    SELECT         *,        -- [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -- [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验 (规则 1-10: 这里的逻辑是“找出为空或NULL的数据“)    -- =========================================================    -- 规则1: vin 空串    (trim(vin) = '') OR    -- 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性 (规则 11, 14, 15, 16)    -- =========================================================    OR     -- 规则11: final_price < 0    (final_price < 0)        OR    -- 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -- 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -- 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性 (规则 17, 18, 19, 20)    -- =========================================================    OR    -- 规则17,19,20: order_id 出现重复 (统计数 > 1)    (calc_order_dup_count > 1)    OR    -- 规则18: vin 出现重复 (统计数 > 1)    (calc_vin_dup_count > 1);"
+      - action: |-
+          SQL验证:SELECT     *FROM (    SELECT         *,        -
+          - [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -
+          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -
+          - A. 完整性校验 (规则 1-10: 这里的逻辑是“找出为空或NULL的数据“)    -- =========================================================    -
+          - 规则1: vin 空串    (trim(vin) = '') OR    -
+          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性 (规则 11, 14, 15, 16)    -- =========================================================    OR     -
+          - 规则11: final_price < 0    (final_price < 0)        OR    -
+          - 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -
+          - 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -
+          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性 (规则 17, 18, 19, 20)    -- =========================================================    OR    -
+          - 规则17,19,20: order_id 出现重复 (统计数 > 1)    (calc_order_dup_count > 1)    OR    -
+          - 规则18: vin 出现重复 (统计数 > 1)    (calc_vin_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 变更分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -220,88 +268,88 @@ cases:
 
       监控规则: 引入20规则包, 每个包含1个校验规则
 
-      1、完整性校验:
+      1、 完整性校验:
       - 生效范围: 字段级
       - 字段: vin
       - 统计函数: 空串数
       - 期望值: = 0
 
-      2、完整性校验:
+      2、 完整性校验:
       - 生效范围: 字段级
       - 字段: vin
       - 统计函数: 空值数
       - 期望值: = 0
 
-      3、完整性校验:
+      3、 完整性校验:
       - 生效范围: 字段级
       - 字段: order_id
       - 统计函数: 空值数
       - 期望值: = 0
 
-      4、完整性校验:
+      4、 完整性校验:
       - 生效范围: 字段级
       - 字段: car_model
       - 统计函数: 空值数
       - 期望值: = 0
 
-      5、完整性校验:
+      5、 完整性校验:
       - 生效范围: 字段级
       - 字段: guide_price
       - 统计函数: 空值数
       - 期望值: = 0
 
-      6、完整性校验:
+      6、 完整性校验:
       - 生效范围: 字段级
       - 字段: final_price
       - 统计函数: 空值数
       - 期望值: = 0
 
-      7、完整性校验:
+      7、 完整性校验:
       - 生效范围: 字段级
       - 字段: dealer_name
       - 统计函数: 空值数
       - 期望值: = 0
 
-      8、完整性校验:
+      8、 完整性校验:
       - 生效范围: 字段级
       - 字段: order_status
       - 统计函数: 空值数
       - 期望值: = 0
 
-      9、完整性校验:
+      9、 完整性校验:
       - 生效范围: 字段级
       - 字段: factory_date
       - 统计函数: 空值数
       - 期望值: = 0
 
-      10、完整性校验:
+      10、 完整性校验:
       - 生效范围: 字段级
       - 字段: sale_date
       - 统计函数: 空值数
       - 期望值: = 0
 
-      11、完整性校验:
+      11、 完整性校验:
       - 生效范围: 字段级
       - 字段: final_price
       - 统计函数: 字段取值校验
       - 期望值: >= 0
 
-      12、完整性校验:
+      12、 完整性校验:
       - 生效范围: 单表
       - 统计函数: 表行数
       - 期望值: >= 0
 
-      13、完整性校验:
+      13、 完整性校验:
       - 生效范围: 多表数据行数对比
       - 对比表: dwd_voyah_vehicle_sales_dates
       - 分区: factory_date=20260202/sale_date=20260202
 
-      14、有效性校验:
+      14、 有效性校验:
       - 字段: vin
       - 统计规则: 字符串长度
       - 期望值> 0
 
-      15、有效性校验:
+      15、 有效性校验:
       - 字段: guide_price
       - 统计规则: 数值-取值范围
       - 期望值: 0  出售: 20260201 (产销周期约半个月，正常)
@@ -350,8 +398,7 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0004
-    automation:
-      spec_file: c0004-验证规则任务配置规则包后校验正常1规则包10校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 10校验规则)
     priority: P1
     steps:
@@ -361,7 +408,19 @@ cases:
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:SELECT     *FROM (    SELECT         *,        -- [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -- 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -- 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -- 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -- 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -- 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -- 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -- 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -- 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -- 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -- 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);"
+      - action: |-
+          SQL验证:SELECT     *FROM (    SELECT         *,        -
+          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -
+          - 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -
+          - 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -
+          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -
+          - 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -
+          - 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -
+          - 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -
+          - 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -
+          - 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -
+          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -
+          - 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -456,14 +515,44 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0005
-    automation:
-      spec_file: c0005-验证规则任务配置规则包后校验正常2规则包2校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(2规则包 * 2校验规则)
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_sales_time_quality- 选择分区: pt_date='20260204' / data_type='abnormal_monotonicity'2) 监控规则: 引入规则包1(一致性校验、合理性校验)、规则包2(时效性校验)一致性校验: - 校验类型: 多表数据一致性对比- 校验字段: /- 校验表主键: order_id- 对比表1: dwd_voyah_sales_time_quality02- 输入分区: pt_date=20260203/data_type='normal'- 对比表主键: order_id合理性校验:- 字段: order_id- 统计函数: 数据变化趋势- 过滤条件: /- 排序字段: order_id- 校验方法: 单调递增时效性校验- 字段: order_id- 统计函数: 周期性校验（单字段时间差校验）- 过滤条件: /- 排序字段: order_id- 时间差: <= 1 秒时效性校验- 字段: order_id- 统计函数: 及时性校验（多字段时间差校验）- 对比字段组1: order_time, payment_time- 时间差: <= 1 秒- 大小关系: order_time < payment_time3) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_sales_time_quality
+          - 选择分区: pt_date='20260204' / data_type='abnormal_monotonicity'
+          2) 监控规则: 引入规则包1(一致性校验、合理性校验)、规则包2(时效性校验)一致性校验:
+          - 校验类型: 多表数据一致性对比
+          - 校验字段: /
+          - 校验表主键: order_id
+          - 对比表1: dwd_voyah_sales_time_quality02
+          - 输入分区: pt_date=20260203/data_type='normal'
+          - 对比表主键: order_id合理性校验:
+          - 字段: order_id
+          - 统计函数: 数据变化趋势
+          - 过滤条件: /
+          - 排序字段: order_id
+          - 校验方法: 单调递增时效性校验
+          - 字段: order_id
+          - 统计函数: 周期性校验（单字段时间差校验）
+          - 过滤条件: /
+          - 排序字段: order_id
+          - 时间差: <= 1 秒时效性校验
+          - 字段: order_id
+          - 统计函数: 及时性校验（多字段时间差校验）
+          - 对比字段组1: order_time, payment_time
+          - 时间差: <= 1 秒
+          - 大小关系: order_time < payment_time
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 选择任务rule01, 立即执行
         expected: 显示表数据中未通过的数据
@@ -515,7 +604,9 @@ cases:
       (10004, 'LTV004', '2026-02-01 11:00:00', '2026-02-01 11:02:00', 1);
 
       -- ---------------------------------------------------------
-      -- 场景B: [异常数据 - 规则1: 行内字段时间差校验]
+      -
+      - 场景B: [异常数据
+      - 规则1: 行内字段时间差校验]
       -- 分区: 20260202 / abnormal_diff_row
       -- 异常点: ID 20002 的支付时间 早于 下定时间 (逻辑错误)
       -- ---------------------------------------------------------
@@ -525,7 +616,9 @@ cases:
       (20002, 'LTV_ERR_02', '2026-02-02 09:30:00', '2026-02-02 09:29:59', 1); -- 异常: 支付比下单早1秒
 
       -- ---------------------------------------------------------
-      -- 场景C: [异常数据 - 规则2: 相邻两行时间差校验]
+      -
+      - 场景C: [异常数据
+      - 规则2: 相邻两行时间差校验]
       -- 分区: 20260203 / abnormal_diff_adjacent
       -- 异常点: ID 30002 和 30003 的 order_time 完全一致 (时间差为0)
       -- 假设规则要求: 订单系统处理能力限制，相邻订单间隔必须 >= 1秒
@@ -537,7 +630,9 @@ cases:
       (30003, 'LTV_GAP_03', '2026-02-03 14:00:05', '2026-02-03 14:12:00', 1); -- 异常: 与上一行时间差为0
 
       -- ---------------------------------------------------------
-      -- 场景D: [异常数据 - 规则3: 字段单调性校验]
+      -
+      - 场景D: [异常数据
+      - 规则3: 字段单调性校验]
       -- 分区: 20260204 / abnormal_monotonicity
       -- 异常点: order_id 出现乱序 (40003 在 40002 之前出现)
       -- 预期: 按照 order_time 排序后，order_id 应该也是递增的
@@ -573,20 +668,46 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0006
-    automation:
-      spec_file: c0006-验证规则任务配置规则包后校验正常1规则包3校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 3校验规则)
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验、有效性校、唯一性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 0有效性校验:- 字段: vin- 统计规则: 字符串长度 - 校验方法: 固定制- 期望值> 0唯一性校验- 字段: order_id- 统计函数: 重复数- 校验方法: 固定值- 期望值: =03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验、有效性校、唯一性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0有效性校验:
+          - 字段: vin
+          - 统计规则: 字符串长度
+          - 校验方法: 固定制- 期望值> 0唯一性校验
+          - 字段: order_id
+          - 统计函数: 重复数
+          - 校验方法: 固定值
+          - 期望值: =0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
-        expected: "1) 显示表数据中未通过的数据2) 状态: 只要有一个未通过, 状态为: 校验异常"
-      - action: SQL验证:SELECT * FROM dwd_voyah_vehicle_sales_dates WHERE     -- 1. 完整性校验异常 (final_price < 0 或为 NULL)    (final_price < 0 OR final_price IS NULL)        OR        -- 2. 有效性校验异常 (vin 长度 <= 0，包含 NULL 或 纯空格字符串)    (length(trim(vin)) = 0 OR vin IS NULL)        OR        -- 3. 唯一性校验异常 (order_id 重复)    order_id IN (        SELECT order_id         FROM dwd_voyah_vehicle_sales_dates         GROUP BY order_id         HAVING COUNT(1) > 1    );
+        expected: |-
+          1) 显示表数据中未通过的数据
+          2) 状态: 只要有一个未通过, 状态为: 校验异常
+      - action: |-
+          SQL验证:SELECT * FROM dwd_voyah_vehicle_sales_dates WHERE     --
+          1. 完整性校验异常 (final_price < 0 或为 NULL)    (final_price < 0 OR final_price IS NULL)        OR        --
+          2. 有效性校验异常 (vin 长度 <= 0，包含 NULL 或 纯空格字符串)    (length(trim(vin)) = 0 OR vin IS NULL)        OR        --
+          3. 唯一性校验异常 (order_id 重复)    order_id IN (        SELECT order_id         FROM dwd_voyah_vehicle_sales_dates         GROUP BY order_id         HAVING COUNT(1) > 1    );
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -666,14 +787,28 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0007
-    automation:
-      spec_file: c0007-验证规则任务配置规则包后校验正常1规则包1校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 1校验规则)
     priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
@@ -759,14 +894,28 @@ cases:
       - 校验结果查询
       - Hive2.x
   - case_id: C0008
-    automation:
-      spec_file: c0008-验证删除规则集后对已配置过历史规则的任务不生效.ts
+
     title: 验证删除规则集后, 对已配置过历史规则的任务不生效
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
@@ -861,14 +1010,28 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0009
-    automation:
-      spec_file: c0009-验证编辑规则集后对已配置过历史规则的任务不生效.ts
+
     title: 验证编辑规则集后, 对已配置过历史规则的任务不生效
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
@@ -876,9 +1039,14 @@ cases:
         expected: 引入成功, 配置参数正确
       - action: 保存规则任务task01后, 立即执行
         expected: "任务运行成功, 校验结果: 校验不通过"
-      - action: "修改【规则集-规则包rule01】中的校验规则:- 期望值: >= -200"
+      - action: |-
+          修改【规则集-规则包rule01】中的校验规则:
+          - 期望值: >= -200
         expected: 配置成功
-      - action: "新建规则任务task02并立即执行:1) 监控对象: t2 (与dwd_voyah_vehicle_sales_dates同表结构同数据)2) 监控规则: rule01中的校验规则"
+      - action: |-
+          新建规则任务task02并立即执行:
+          1) 监控对象: t2 (与dwd_voyah_vehicle_sales_dates同表结构同数据)
+          2) 监控规则: rule01中的校验规则
         expected: "任务运行成功, 校验结果: 校验通过"
       - action: 重新运行历史规则任务task01, 在【校验结果查询】中查看运行状态
         expected: "任务运行成功, 校验结果: 校验不通过"
@@ -965,8 +1133,7 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0010
-    automation:
-      spec_file: c0010-验证规则任务配置规则包后校验正常20规则包1校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(20规则包 * 1校验规则)
     priority: P1
     steps:
@@ -976,7 +1143,18 @@ cases:
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:SELECT     *FROM (    SELECT         *,        -- [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -- [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验    -- =========================================================    -- 规则1: vin 空串    (trim(vin) = '') OR    -- 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性 (规则 11, 14, 15, 16)    -- =========================================================    OR     -- 规则11: final_price < 0    (final_price < 0)        OR    -- 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -- 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -- 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性 (规则 17, 18, 19, 20)    -- =========================================================    OR    -- 规则17,19,20: order_id 出现重复 (统计数 > 1)    (calc_order_dup_count > 1)    OR    -- 规则18: vin 出现重复 (统计数 > 1)    (calc_vin_dup_count > 1);"
+      - action: |-
+          SQL验证:SELECT     *FROM (    SELECT         *,        -
+          - [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -
+          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验    -- =========================================================    -
+          - 规则1: vin 空串    (trim(vin) = '') OR    -
+          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性 (规则 11, 14, 15, 16)    -- =========================================================    OR     -
+          - 规则11: final_price < 0    (final_price < 0)        OR    -
+          - 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -
+          - 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -
+          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性 (规则 17, 18, 19, 20)    -- =========================================================    OR    -
+          - 规则17,19,20: order_id 出现重复 (统计数 > 1)    (calc_order_dup_count > 1)    OR    -
+          - 规则18: vin 出现重复 (统计数 > 1)    (calc_vin_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -989,113 +1167,113 @@ cases:
 
       监控规则: 引入20规则包, 每个包含1个校验规则
 
-      1、完整性校验:
+      1、 完整性校验:
       - 生效范围: 字段级
       - 字段: vin
       - 统计函数: 空串数
       - 期望值: = 0
 
-      2、完整性校验:
+      2、 完整性校验:
       - 生效范围: 字段级
       - 字段: vin
       - 统计函数: 空值数
       - 期望值: = 0
 
-      3、完整性校验:
+      3、 完整性校验:
       - 生效范围: 字段级
       - 字段: order_id
       - 统计函数: 空值数
       - 期望值: = 0
 
-      4、完整性校验:
+      4、 完整性校验:
       - 生效范围: 字段级
       - 字段: car_model
       - 统计函数: 空值数
       - 期望值: = 0
 
-      5、完整性校验:
+      5、 完整性校验:
       - 生效范围: 字段级
       - 字段: guide_price
       - 统计函数: 空值数
       - 期望值: = 0
 
-      6、完整性校验:
+      6、 完整性校验:
       - 生效范围: 字段级
       - 字段: final_price
       - 统计函数: 空值数
       - 期望值: = 0
 
-      7、完整性校验:
+      7、 完整性校验:
       - 生效范围: 字段级
       - 字段: dealer_name
       - 统计函数: 空值数
       - 期望值: = 0
 
-      8、完整性校验:
+      8、 完整性校验:
       - 生效范围: 字段级
       - 字段: order_status
       - 统计函数: 空值数
       - 期望值: = 0
 
-      9、完整性校验:
+      9、 完整性校验:
       - 生效范围: 字段级
       - 字段: factory_date
       - 统计函数: 空值数
       - 期望值: = 0
 
-      10、完整性校验:
+      10、 完整性校验:
       - 生效范围: 字段级
       - 字段: sale_date
       - 统计函数: 空值数
       - 期望值: = 0
 
-      11、完整性校验:
+      11、 完整性校验:
       - 生效范围: 字段级
       - 字段: final_price
       - 统计函数: 字段取值校验
       - 期望值: >= 0
 
-      12、完整性校验:
+      12、 完整性校验:
       - 生效范围: 单表
       - 统计函数: 表行数
       - 期望值: >= 0
 
-      13、完整性校验:
+      13、 完整性校验:
       - 生效范围: 多表数据行数对比
       - 对比表: dwd_voyah_vehicle_sales_dates
       - 分区: factory_date=20260202/sale_date=20260202
 
-      14、有效性校验:
+      14、 有效性校验:
       - 字段: vin
       - 统计规则: 字符串长度
       - 期望值> 0
 
-      15、有效性校验:
+      15、 有效性校验:
       - 字段: guide_price
       - 统计规则: 数值-取值范围
       - 期望值: 0 <= x <= 1000000
 
-      16、有效性校验:
+      16、 有效性校验:
       - 字段: car_model
       - 统计规则: 数值-枚举个数
       - 期望值: = 3
 
-      17、有效性校验:
+      17、 有效性校验:
       - 字段: order_id
       - 统计规则: 重复数
       - 期望值: = 0
 
-      18、有效性校验:
+      18、 有效性校验:
       - 字段: vin
       - 统计规则: 重复数
       - 期望值: = 0
 
-      19、唯一性校验
+      19、 唯一性校验
       - 字段: order_id
       - 统计函数: 重复数
       - 期望值: =0
 
-      20、唯一性校验
+      20、 唯一性校验
       - 字段: order_id
       - 统计函数: 重复率
       - 期望值: =0
@@ -1189,8 +1367,7 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0011
-    automation:
-      spec_file: c0011-验证规则任务配置规则包后校验正常1规则包10校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 10校验规则)
     priority: P1
     steps:
@@ -1200,7 +1377,19 @@ cases:
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:SELECT     *FROM (    SELECT         *,        -- [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -- 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -- 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -- 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -- 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -- 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -- 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -- 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -- 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -- 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -- 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);"
+      - action: |-
+          SQL验证:SELECT     *FROM (    SELECT         *,        -
+          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -
+          - 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -
+          - 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -
+          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -
+          - 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -
+          - 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -
+          - 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -
+          - 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -
+          - 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -
+          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -
+          - 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -1356,20 +1545,55 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0012
-    automation:
-      spec_file: c0012-验证规则任务配置规则包后校验正常2规则包2校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(2规则包 * 2校验规则)
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_sales_time_quality- 选择分区: pt_date='20260204' / data_type='abnormal_monotonicity'2) 监控规则: 引入规则包1(一致性校验、合理性校验)、规则包2(时效性校验)一致性校验: - 校验类型: 多表数据一致性对比- 校验字段: /- 校验表主键: order_id- 对比表1: dwd_voyah_sales_time_quality02- 输入分区: pt_date=20260203/data_type='normal'- 对比表主键: order_id合理性校验:- 字段: order_id- 统计函数: 数据变化趋势- 过滤条件: /- 排序字段: order_id- 校验方法: 单调递增时效性校验- 字段: order_id- 统计函数: 周期性校验（单字段时间差校验）- 过滤条件: /- 排序字段: order_id- 时间差: <= 1 秒时效性校验- 字段: order_id- 统计函数: 及时性校验（多字段时间差校验）- 对比字段组1: order_time, payment_time- 时间差: <= 1 秒- 大小关系: order_time < payment_time3) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_sales_time_quality
+          - 选择分区: pt_date='20260204' / data_type='abnormal_monotonicity'
+          2) 监控规则: 引入规则包1(一致性校验、合理性校验)、规则包2(时效性校验)一致性校验:
+          - 校验类型: 多表数据一致性对比
+          - 校验字段: /
+          - 校验表主键: order_id
+          - 对比表1: dwd_voyah_sales_time_quality02
+          - 输入分区: pt_date=20260203/data_type='normal'
+          - 对比表主键: order_id合理性校验:
+          - 字段: order_id
+          - 统计函数: 数据变化趋势
+          - 过滤条件: /
+          - 排序字段: order_id
+          - 校验方法: 单调递增时效性校验
+          - 字段: order_id
+          - 统计函数: 周期性校验（单字段时间差校验）
+          - 过滤条件: /
+          - 排序字段: order_id
+          - 时间差: <= 1 秒时效性校验
+          - 字段: order_id
+          - 统计函数: 及时性校验（多字段时间差校验）
+          - 对比字段组1: order_time, payment_time
+          - 时间差: <= 1 秒
+          - 大小关系: order_time < payment_time
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:WITH iqr_stats AS (    -- 计算 guide_price 的四分位数和 IQR 阈值    SELECT         percentile_approx(guide_price, 0.25) as q1,        percentile_approx(guide_price, 0.75) as q3,        (percentile_approx(guide_price, 0.75) - percentile_approx(guide_price, 0.25)) * 1.5 as iqr_range    FROM dwd_voyah_vehicle_sales_dates),duplicate_orders AS (    -- 识别 order_id 重复的数据    SELECT order_id    FROM dwd_voyah_vehicle_sales_dates    GROUP BY order_id    HAVING COUNT(1) > 1)SELECT     t.*,    CASE         WHEN t.final_price < 0 OR t.final_price IS NULL THEN '完整性校验异常:成交价<0或为空'        WHEN length(trim(t.vin)) = 0 OR t.vin IS NULL THEN '有效性校验异常:VIN长度<=0'        WHEN d.order_id IS NOT NULL THEN '唯一性校验异常:订单号重复'        WHEN t.guide_price < (i.q1 - i.iqr_range) OR t.guide_price > (i.q3 + i.iqr_range) THEN '统计性校验异常:指导价IQR离群'        ELSE NULL     END AS error_reasonFROM     dwd_voyah_vehicle_sales_dates tCROSS JOIN iqr_stats iLEFT JOIN duplicate_orders d ON t.order_id = d.order_idWHERE     -- 1. 完整性校验: final_price < 0 或 NULL    (t.final_price < 0 OR t.final_price IS NULL)        -- 2. 有效性校验: vin 长度 <= 0 (含纯空格或NULL)    OR (length(trim(t.vin)) = 0 OR t.vin IS NULL)        -- 3. 唯一性校验: order_id 重复    OR (d.order_id IS NOT NULL)        -- 4. 统计性校验: guide_price 为 IQR 离群点    OR (t.guide_price < (i.q1 - i.iqr_range) OR t.guide_price > (i.q3 + i.iqr_range));"
+      - action: |-
+          SQL验证:WITH iqr_stats AS (    -- 计算 guide_price 的四分位数和 IQR 阈值    SELECT         percentile_approx(guide_price, 0.25) as q1,        percentile_approx(guide_price, 0.75) as q3,        (percentile_approx(guide_price, 0.75) - percentile_approx(guide_price, 0.25)) * 1.5 as iqr_range    FROM dwd_voyah_vehicle_sales_dates),duplicate_orders AS (    -- 识别 order_id 重复的数据    SELECT order_id    FROM dwd_voyah_vehicle_sales_dates    GROUP BY order_id    HAVING COUNT(1) > 1)SELECT     t.*,    CASE         WHEN t.final_price < 0 OR t.final_price IS NULL THEN '完整性校验异常:成交价<0或为空'        WHEN length(trim(t.vin)) = 0 OR t.vin IS NULL THEN '有效性校验异常:VIN长度<=0'        WHEN d.order_id IS NOT NULL THEN '唯一性校验异常:订单号重复'        WHEN t.guide_price < (i.q1 - i.iqr_range) OR t.guide_price > (i.q3 + i.iqr_range) THEN '统计性校验异常:指导价IQR离群'        ELSE NULL     END AS error_reasonFROM     dwd_voyah_vehicle_sales_dates tCROSS JOIN iqr_stats iLEFT JOIN duplicate_orders d ON t.order_id = d.order_idWHERE     -
+          - 1. 完整性校验: final_price < 0 或 NULL    (t.final_price < 0 OR t.final_price IS NULL)        -
+          - 2. 有效性校验: vin 长度 <= 0 (含纯空格或NULL)    OR (length(trim(t.vin)) = 0 OR t.vin IS NULL)        -
+          - 3. 唯一性校验: order_id 重复    OR (d.order_id IS NOT NULL)        -
+          - 4. 统计性校验: guide_price 为 IQR 离群点    OR (t.guide_price < (i.q1 - i.iqr_range) OR t.guide_price > (i.q3 + i.iqr_range));
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -1456,20 +1680,45 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0013
-    automation:
-      spec_file: c0013-验证规则任务配置规则包后校验正常1规则包3校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 3校验规则)
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 0有效性校验:- 字段: vin- 统计规则: 字符串长度 - 校验方法: 固定制- 期望值> 0唯一性校验- 字段: order_id- 统计函数: 重复数- 校验方法: 固定值- 期望值: =03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0有效性校验:
+          - 字段: vin
+          - 统计规则: 字符串长度
+          - 校验方法: 固定制- 期望值> 0唯一性校验
+          - 字段: order_id
+          - 统计函数: 重复数
+          - 校验方法: 固定值
+          - 期望值: =0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: SQL验证:SELECT * FROM dwd_voyah_vehicle_sales_dates WHERE     -- 1. 完整性校验异常 (final_price < 0 或为 NULL)    (final_price < 0 OR final_price IS NULL)        OR        -- 2. 有效性校验异常 (vin 长度 <= 0，包含 NULL 或 纯空格字符串)    (length(trim(vin)) = 0 OR vin IS NULL)        OR        -- 3. 唯一性校验异常 (order_id 重复)    order_id IN (        SELECT order_id         FROM dwd_voyah_vehicle_sales_dates         GROUP BY order_id         HAVING COUNT(1) > 1    );
+      - action: |-
+          SQL验证:SELECT * FROM dwd_voyah_vehicle_sales_dates WHERE     --
+          1. 完整性校验异常 (final_price < 0 或为 NULL)    (final_price < 0 OR final_price IS NULL)        OR        --
+          2. 有效性校验异常 (vin 长度 <= 0，包含 NULL 或 纯空格字符串)    (length(trim(vin)) = 0 OR vin IS NULL)        OR        --
+          3. 唯一性校验异常 (order_id 重复)    order_id IN (        SELECT order_id         FROM dwd_voyah_vehicle_sales_dates         GROUP BY order_id         HAVING COUNT(1) > 1    );
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -1556,14 +1805,28 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0014
-    automation:
-      spec_file: c0014-验证规则任务配置规则包后校验正常1规则包1校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 1校验规则)
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
@@ -1656,14 +1919,28 @@ cases:
       - 校验结果查询
       - Doris3.x
   - case_id: C0015
-    automation:
-      spec_file: c0015-验证删除规则集后对已配置过历史规则的任务不生效.ts
+
     title: 验证删除规则集后, 对已配置过历史规则的任务不生效
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
@@ -1751,22 +2028,41 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0016
-    automation:
-      spec_file: c0016-验证编辑规则集后对已配置过历史规则的任务不生效.ts
+
     title: 验证编辑规则集后, 对已配置过历史规则的任务不生效
     priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 引入规则包rule01中所有校验规则
         expected: 引入成功, 配置参数正确
       - action: 保存规则任务task01后, 立即执行
         expected: "任务运行成功, 校验结果: 校验不通过"
-      - action: "修改【规则集-规则包rule01】中的校验规则:- 期望值: >= -200"
+      - action: |-
+          修改【规则集-规则包rule01】中的校验规则:
+          - 期望值: >= -200
         expected: 配置成功
-      - action: "新建规则任务task02并立即执行:1) 监控对象: t2 (与dwd_voyah_vehicle_sales_dates同表结构同数据)2) 监控规则: rule01中的校验规则"
+      - action: |-
+          新建规则任务task02并立即执行:
+          1) 监控对象: t2 (与dwd_voyah_vehicle_sales_dates同表结构同数据)
+          2) 监控规则: rule01中的校验规则
         expected: "任务运行成功, 校验结果: 校验通过"
       - action: 重新运行历史规则任务task01, 在【校验结果查询】中查看运行状态
         expected: "任务运行成功, 校验结果: 校验不通过"
@@ -1831,7 +2127,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
 
-      VALUES 
+      VALUES
 
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
 
@@ -1851,7 +2147,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
 
-      VALUES 
+      VALUES
 
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
 
@@ -1865,7 +2161,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
 
-      VALUES 
+      VALUES
 
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
@@ -1873,7 +2169,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
 
-      VALUES 
+      VALUES
 
       -- 1. [NULL异常]: 车型名称为 NULL
 
@@ -1900,8 +2196,7 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0017
-    automation:
-      spec_file: c0017-验证规则任务配置规则包后校验正常20规则包1校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(20规则包 * 1校验规则)
     priority: P1
     steps:
@@ -1911,7 +2206,16 @@ cases:
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:SELECT     *FROM (    SELECT         *,        -- [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -- [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验    -- =========================================================    -- 规则1: vin 空串    (trim(vin) = '') OR    -- 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性    -- =========================================================    OR     -- 规则11: final_price < 0    (final_price < 0)        OR    -- 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -- 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -- 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性    -- =========================================================    OR    -- 规则17,19,20    (calc_order_dup_count > 1)    OR    -- 规则18    (calc_vin_dup_count > 1);"
+      - action: |-
+          SQL验证:SELECT     *FROM (    SELECT         *,        -
+          - [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -
+          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验    -- =========================================================    -
+          - 规则1: vin 空串    (trim(vin) = '') OR    -
+          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性    -- =========================================================    OR     -
+          - 规则11: final_price < 0    (final_price < 0)        OR    -
+          - 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -
+          - 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -
+          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性    -- =========================================================    OR    -- 规则17,19,20    (calc_order_dup_count > 1)    OR    -- 规则18    (calc_vin_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -1924,88 +2228,88 @@ cases:
 
       监控规则: 引入20规则包, 每个包含1个校验规则
 
-      1、完整性校验:
+      1、 完整性校验:
       - 生效范围: 字段级
       - 字段: vin
       - 统计函数: 空串数
       - 期望值: = 0
 
-      2、完整性校验:
+      2、 完整性校验:
       - 生效范围: 字段级
       - 字段: vin
       - 统计函数: 空值数
       - 期望值: = 0
 
-      3、完整性校验:
+      3、 完整性校验:
       - 生效范围: 字段级
       - 字段: order_id
       - 统计函数: 空值数
       - 期望值: = 0
 
-      4、完整性校验:
+      4、 完整性校验:
       - 生效范围: 字段级
       - 字段: car_model
       - 统计函数: 空值数
       - 期望值: = 0
 
-      5、完整性校验:
+      5、 完整性校验:
       - 生效范围: 字段级
       - 字段: guide_price
       - 统计函数: 空值数
       - 期望值: = 0
 
-      6、完整性校验:
+      6、 完整性校验:
       - 生效范围: 字段级
       - 字段: final_price
       - 统计函数: 空值数
       - 期望值: = 0
 
-      7、完整性校验:
+      7、 完整性校验:
       - 生效范围: 字段级
       - 字段: dealer_name
       - 统计函数: 空值数
       - 期望值: = 0
 
-      8、完整性校验:
+      8、 完整性校验:
       - 生效范围: 字段级
       - 字段: order_status
       - 统计函数: 空值数
       - 期望值: = 0
 
-      9、完整性校验:
+      9、 完整性校验:
       - 生效范围: 字段级
       - 字段: factory_date
       - 统计函数: 空值数
       - 期望值: = 0
 
-      10、完整性校验:
+      10、 完整性校验:
       - 生效范围: 字段级
       - 字段: sale_date
       - 统计函数: 空值数
       - 期望值: = 0
 
-      11、完整性校验:
+      11、 完整性校验:
       - 生效范围: 字段级
       - 字段: final_price
       - 统计函数: 字段取值校验
       - 期望值: >= 0
 
-      12、完整性校验:
+      12、 完整性校验:
       - 生效范围: 单表
       - 统计函数: 表行数
       - 期望值: >= 0
 
-      13、完整性校验:
+      13、 完整性校验:
       - 生效范围: 多表数据行数对比
       - 对比表: dwd_voyah_vehicle_sales_dates
       - 分区: factory_date=20260202/sale_date=20260202
 
-      14、有效性校验:
+      14、 有效性校验:
       - 字段: vin
       - 统计规则: 字符串长度
       - 期望值> 0
 
-      15、有效性校验:
+      15、 有效性校验:
       - 字段: guide_price
       - 统计规则: 数值-取值范围
       - 期望值: 0  出售: 20260201 (产销周期约半个月，正常)
@@ -2054,8 +2358,7 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0018
-    automation:
-      spec_file: c0018-验证规则任务配置规则包后校验正常1规则包10校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 10校验规则)
     priority: P1
     steps:
@@ -2065,7 +2368,19 @@ cases:
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: "SQL验证:SELECT     *FROM (    SELECT         *,        -- [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -- 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -- 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -- 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -- 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -- 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -- 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -- 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -- 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -- 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -- 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);"
+      - action: |-
+          SQL验证:SELECT     *FROM (    SELECT         *,        -
+          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -
+          - 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -
+          - 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -
+          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -
+          - 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -
+          - 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -
+          - 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -
+          - 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -
+          - 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -
+          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -
+          - 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -2160,8 +2475,7 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0019
-    automation:
-      spec_file: c0019-验证规则任务配置规则包后校验正常2规则包2校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(2规则包 * 2校验规则)
     priority: P0
     steps:
@@ -2169,11 +2483,36 @@ cases:
         expected: 进入成功
       - action: "新建监控规则, 配置如下:"
         expected: "执行成功, 校验结果: 校验不通过"
-      - action: "监控对象: - 规则名称: rule01 - 数据表: dwd_voyah_sales_time_quality - 选择分区: pt_date='20260204' / data_type='abnormal_monotonicity'"
+      - action: |-
+          监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_sales_time_quality
+          - 选择分区: pt_date='20260204' / data_type='abnormal_monotonicity'
         expected: 显示表数据中未通过的数据
-      - action: "监控规则: 引入规则包1(完整性校验、合理性校验)、规则包2(时效性校验) 完整性校验: - 生效范围: 字段级 - 字段: order_id - 统计函数: 字段取值校验 - 期望值: >= 0 合理性校验: - 字段: order_id - 统计函数: 数据变化趋势 - 过滤条件: / - 排序字段: order_id - 校验方法: 单调递增 有效性校验: - 字段: vin - 统计规则: 字符串长度 - 校验方法: 固定制 - 期望值> 0 唯一性校验 - 字段: order_id - 统计函数: 重复数 - 校验方法: 固定值 - 期望值: =0"
+      - action: |-
+          监控规则: 引入规则包1(完整性校验、合理性校验)、规则包2(时效性校验) 完整性校验:
+          - 生效范围: 字段级
+          - 字段: order_id
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0 合理性校验:
+          - 字段: order_id
+          - 统计函数: 数据变化趋势
+          - 过滤条件: /
+          - 排序字段: order_id
+          - 校验方法: 单调递增 有效性校验:
+          - 字段: vin
+          - 统计规则: 字符串长度
+          - 校验方法: 固定制 - 期望值> 0 唯一性校验
+          - 字段: order_id
+          - 统计函数: 重复数
+          - 校验方法: 固定值
+          - 期望值: =0
         expected: "执行成功, 校验结果: 校验通过"
-      - action: "调度属性: - 调度周期: 时 - 生效日期: T~T+1 - 间隔时间: 1小时 - 其它默认"
+      - action: |-
+          调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时 - 其它默认
         expected: ""
       - action: 选择任务rule01, 立即执行
         expected: ""
@@ -2182,7 +2521,7 @@ cases:
       - action: "编辑规则任务rule01, 分区: pt_date='20260201' / data_type='normal'其它配置不变, 保存后重新执行任务"
         expected: ""
     precondition: |-
-      建表语句如下: 
+      建表语句如下:
 
       创建两个表: dwd_voyah_sales_time_quality、dwd_voyah_sales_time_quality02
 
@@ -2248,7 +2587,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_sales_time_quality PARTITION (pt_date='20260201', data_type='normal')
 
-      VALUES 
+      VALUES
 
       (10001, 'LTV001', '2026-02-01 10:00:00', '2026-02-01 10:05:00', 1),
 
@@ -2260,7 +2599,9 @@ cases:
 
       -- ---------------------------------------------------------
 
-      -- 场景B: [异常数据 - 规则1: 行内字段时间差校验]
+      -
+      - 场景B: [异常数据
+      - 规则1: 行内字段时间差校验]
 
       -- 分区: 20260202 / abnormal_diff_row
 
@@ -2270,7 +2611,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_sales_time_quality PARTITION (pt_date='20260202', data_type='abnormal_diff_row')
 
-      VALUES 
+      VALUES
 
       (20001, 'LTV_ERR_01', '2026-02-02 09:00:00', '2026-02-02 09:10:00', 1), -- 正常
 
@@ -2278,7 +2619,9 @@ cases:
 
       -- ---------------------------------------------------------
 
-      -- 场景C: [异常数据 - 规则2: 相邻两行时间差校验]
+      -
+      - 场景C: [异常数据
+      - 规则2: 相邻两行时间差校验]
 
       -- 分区: 20260203 / abnormal_diff_adjacent
 
@@ -2290,7 +2633,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_sales_time_quality PARTITION (pt_date='20260203', data_type='abnormal_diff_adjacent')
 
-      VALUES 
+      VALUES
 
       (30001, 'LTV_GAP_01', '2026-02-03 14:00:00', '2026-02-03 14:05:00', 1),
 
@@ -2300,7 +2643,9 @@ cases:
 
       -- ---------------------------------------------------------
 
-      -- 场景D: [异常数据 - 规则3: 字段单调性校验]
+      -
+      - 场景D: [异常数据
+      - 规则3: 字段单调性校验]
 
       -- 分区: 20260204 / abnormal_monotonicity
 
@@ -2312,7 +2657,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_sales_time_quality PARTITION (pt_date='20260204', data_type='abnormal_monotonicity')
 
-      VALUES 
+      VALUES
 
       (40001, 'LTV_SORT_01', '2026-02-04 15:00:00', '2026-02-04 15:05:00', 1),
 
@@ -2344,7 +2689,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_sales_time_quality02 PARTITION (pt_date='20260203', data_type='normal')
 
-      VALUES 
+      VALUES
 
       -- 这里的 Order_ID (300xx) 与原表测试分区 (400xx) 完全不同，确保主键对比失败
 
@@ -2357,20 +2702,45 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0020
-    automation:
-      spec_file: c0020-验证规则任务配置规则包后校验正常1规则包3校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 3校验规则)
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 0有效性校验:- 字段: vin- 统计规则: 字符串长度 - 校验方法: 固定制- 期望值> 0唯一性校验- 字段: order_id- 统计函数: 重复数- 校验方法: 固定值- 期望值: =03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0有效性校验:
+          - 字段: vin
+          - 统计规则: 字符串长度
+          - 校验方法: 固定制- 期望值> 0唯一性校验
+          - 字段: order_id
+          - 统计函数: 重复数
+          - 校验方法: 固定值
+          - 期望值: =0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 进入「校验结果查询」, 检查规则任务详情页
         expected: 显示表数据中未通过的数据
-      - action: SQL验证:SELECT * FROM dwd_voyah_vehicle_sales_dates WHERE     -- 1. 完整性校验异常 (final_price < 0 或为 NULL)    (final_price < 0 OR final_price IS NULL)        OR        -- 2. 有效性校验异常 (vin 长度 <= 0，包含 NULL 或 纯空格字符串)    (length(trim(vin)) = 0 OR vin IS NULL)        OR        -- 3. 唯一性校验异常 (order_id 重复)    order_id IN (        SELECT order_id         FROM dwd_voyah_vehicle_sales_dates         GROUP BY order_id         HAVING COUNT(1) > 1    );
+      - action: |-
+          SQL验证:SELECT * FROM dwd_voyah_vehicle_sales_dates WHERE     --
+          1. 完整性校验异常 (final_price < 0 或为 NULL)    (final_price < 0 OR final_price IS NULL)        OR        --
+          2. 有效性校验异常 (vin 长度 <= 0，包含 NULL 或 纯空格字符串)    (length(trim(vin)) = 0 OR vin IS NULL)        OR        --
+          3. 唯一性校验异常 (order_id 重复)    order_id IN (        SELECT order_id         FROM dwd_voyah_vehicle_sales_dates         GROUP BY order_id         HAVING COUNT(1) > 1    );
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -2483,14 +2853,28 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0021
-    automation:
-      spec_file: c0021-验证规则任务配置规则包后校验正常1规则包1校验规则.ts
+
     title: 验证规则任务配置规则包后校验正常(1规则包 * 1校验规则)
     priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:1) 监控对象: - 规则名称: rule01- 数据表: dwd_voyah_vehicle_sales_dates- 选择分区: /2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验: - 生效范围: 字段级- 字段: final_price- 统计函数: 字段取值校验- 期望值: >= 03) 调度属性:- 调度周期: 时- 生效日期: T~T+1- 间隔时间: 1小时- 其它默认- 实例生成方式: 「立即生成」"
+      - action: |-
+          新建监控规则, 配置如下:
+          1) 监控对象:
+          - 规则名称: rule01
+          - 数据表: dwd_voyah_vehicle_sales_dates
+          - 选择分区: /
+          2) 监控规则: 引入规则包、规则类型(完整性校验)完整性校验:
+          - 生效范围: 字段级
+          - 字段: final_price
+          - 统计函数: 字段取值校验
+          - 期望值: >= 0
+          3) 调度属性:
+          - 调度周期: 时
+          - 生效日期: T~T+1
+          - 间隔时间: 1小时- 其它默认
+          - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
@@ -2561,7 +2945,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
 
-      VALUES 
+      VALUES
 
       ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
 
@@ -2581,7 +2965,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
 
-      VALUES 
+      VALUES
 
       ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
 
@@ -2595,7 +2979,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
 
-      VALUES 
+      VALUES
 
       ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
 
@@ -2603,7 +2987,7 @@ cases:
 
       INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
 
-      VALUES 
+      VALUES
 
       -- 1. [NULL异常]: 车型名称为 NULL
 
@@ -2630,8 +3014,7 @@ cases:
       - 校验结果查询
       - SparkThrift2.x
   - case_id: C0022
-    automation:
-      spec_file: c0022-验证规则集引用规则仅支持删除.ts
+
     title: 验证规则集引用规则仅支持删除
     priority: P0
     steps:
@@ -2664,8 +3047,7 @@ cases:
       - 规则任务管理
       - 未分类
   - case_id: C0023
-    automation:
-      spec_file: c0023-验证更换规则包但不引入校验规则配置不变.ts
+
     title: 验证更换规则包但不引入, 校验规则配置不变
     priority: P1
     steps:
@@ -2678,14 +3060,16 @@ cases:
       - action: 更换为规则包2 (不引入)
         expected: 规则包下的校验规则配置内容不变
       - action: 保存后, 检查规则任务配置信息
-        expected: "保存成功, 配置内容不变:1) 规则包: 规则包12) 校验规则: 规则包1中的校验规则"
+        expected: |-
+          保存成功, 配置内容不变:
+          1) 规则包: 规则包1
+          2) 校验规则: 规则包1中的校验规则
     precondition: 监控规则-规则包中1、2已存在校验规则
     tags:
       - 规则任务管理
       - 未分类
   - case_id: C0024
-    automation:
-      spec_file: c0024-验证规则集引用功能正常覆盖引入.ts
+
     title: 验证规则集引用功能正常(覆盖引入)
     priority: P0
     steps:
@@ -2715,8 +3099,7 @@ cases:
       - 规则任务管理
       - 未分类
   - case_id: C0025
-    automation:
-      spec_file: c0025-验证规则集引用功能正常规则包选择全部.ts
+
     title: 验证规则集引用功能正常(规则包选择全部)
     priority: P0
     steps:
@@ -2724,7 +3107,8 @@ cases:
         expected: 进入成功
       - action: 新建监控规则, 配置监控对象(hive_table)后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
-      - action: 选择hive_rulePkg01、02、03规则包, 检查规则类型下拉框数据
+      - action: |-
+          选择hive_rulePkg01、02、03规则包, 检查规则类型下拉框数据
         expected: 支持选择完整性校验~合理性校验共8项
       - action: 勾选所有规则类型后, 点击【引入】
         expected: "引入成功, 不同规则包间的相同校验规则均被引入至规则任务: 完整性校验*2 + 唯一性校验*11 + 其它6种校验*1"
@@ -2741,8 +3125,7 @@ cases:
       - 规则任务管理
       - 未分类
   - case_id: C0026
-    automation:
-      spec_file: c0026-验证规则集引用功能正常规则包多选.ts
+
     title: 验证规则集引用功能正常(规则包多选)
     priority: P0
     steps:
@@ -2768,8 +3151,7 @@ cases:
       - 规则任务管理
       - 未分类
   - case_id: C0027
-    automation:
-      spec_file: c0027-验证规则集引用功能正常规则包单选.ts
+
     title: 验证规则集引用功能正常(规则包单选)
     priority: P1
     steps:
@@ -2810,8 +3192,7 @@ cases:
       - 规则任务管理
       - 未分类
   - case_id: C0028
-    automation:
-      spec_file: c0028-验证监控规则页面变更.ts
+
     title: 验证监控规则页面变更
     priority: P1
     steps:
@@ -2820,14 +3201,15 @@ cases:
       - action: 点击新建监控规则, 配置监控对象后点击下一步
         expected: 进入【新建单表校验规则 ❯ 监控规则】配置页面
       - action: 检查【监控规则】页面变更
-        expected: 1) 新增规则包(必填)、规则类型(非必填)下拉框、引入按钮2) 原右上角按钮(添加规则、查看全局参数)隐藏
+        expected: |-
+          1) 新增规则包(必填)、规则类型(非必填)下拉框、引入按钮
+          2) 原右上角按钮(添加规则、查看全局参数)隐藏
     precondition: 无
     tags:
       - 规则任务管理
       - 未分类
   - case_id: C0029
-    automation:
-      spec_file: c0029-验证列表字段名称变更规则名称任务名称.ts
+
     title: 验证列表字段名称变更(规则名称 ❯ 任务名称)
     priority: P2
     steps:
@@ -2840,8 +3222,7 @@ cases:
       - 规则任务管理
       - 未分类
   - case_id: C0030
-    automation:
-      spec_file: c0030-验证规则集详情页面显示正常20规则包10校验规则.ts
+
     title: 验证规则集详情页面显示正常(20规则包 * 10校验规则)
     priority: P2
     steps:
@@ -2860,7 +3241,7 @@ cases:
       - action: 运行规则任务后, 进入【校验结果查询】, 检查【校验结果详情页】
         expected: 显示规则任务关联的规则包中, 所有的校验规则
     precondition: |-
-      1、规则集管理列表中已存在一条记录rule01
+      1、 规则集管理列表中已存在一条记录rule01
 
       2、 rule01中存在20个规则包rulePkg01~20
 
@@ -2869,17 +3250,22 @@ cases:
       - 规则集管理
       - 规则集详情
   - case_id: C0031
-    automation:
-      spec_file: c0031-验证规则集详情数据正确.ts
+
     title: 验证规则集详情数据正确
     priority: P0
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面
         expected: 进入成功
       - action: 选择规则集rule01, 点击表名
-        expected: "右侧抽屉形式展开详情页, 包含基本信息和规则详情, 具体如下:1) 标题: ${数据表名称}规则集详情2) 基本信息: 包含表名、所属数据库、所属数据源、规则包数量、规则数量、规则集描述、更新人、更新时间3) 规则详情: - 展示该规则集记录中已配置的规则包内容, 包含规则包名称及关联的校验规则- 每个规则包支持折叠, 默认展开"
+        expected: |-
+          右侧抽屉形式展开详情页, 包含基本信息和规则详情, 具体如下:
+          1) 标题: ${数据表名称}规则集详情
+          2) 基本信息: 包含表名、所属数据库、所属数据源、规则包数量、规则数量、规则集描述、更新人、更新时间
+          3) 规则详情: - 展示该规则集记录中已配置的规则包内容, 包含规则包名称及关联的校验规则- 每个规则包支持折叠, 默认展开
       - action: 检查【规则集详情页】中的基本信息&规则详情数据
-        expected: 1) 基本信息与规则集列表记录保持一致2) 规则详情与规则集记录中配置的规则包内容一致
+        expected: |-
+          1) 基本信息与规则集列表记录保持一致
+          2) 规则详情与规则集记录中配置的规则包内容一致
       - action: 进入【规则任务管理】中, 配置规则任务引入该规则包并保存
         expected: 保存成功
       - action: 检查【规则任务详情页】
@@ -2891,8 +3277,7 @@ cases:
       - 规则集管理
       - 规则集详情
   - case_id: C0032
-    automation:
-      spec_file: c0032-验证更换规则包名称后校验规则配置不变.ts
+
     title: 验证更换规则包名称后, 校验规则配置不变
     priority: P1
     steps:
@@ -2906,8 +3291,7 @@ cases:
       - 编辑规则集
       - 监控规则
   - case_id: C0033
-    automation:
-      spec_file: c0033-验证校验规则增删改功能正常.ts
+
     title: 验证校验规则增删改功能正常
     priority: P0
     steps:
@@ -2939,8 +3323,7 @@ cases:
       - 编辑规则集
       - 监控规则
   - case_id: C0034
-    automation:
-      spec_file: c0034-验证查看全局参数功能正常.ts
+
     title: 验证查看全局参数功能正常
     priority: P2
     steps:
@@ -2954,8 +3337,7 @@ cases:
       - 编辑规则集
       - 监控规则
   - case_id: C0035
-    automation:
-      spec_file: c0035-验证规则包增删改功能.ts
+
     title: 验证规则包增删改功能
     priority: P2
     steps:
@@ -2968,7 +3350,9 @@ cases:
       - action: 删除任一规则包
         expected: "二次弹窗确认: 删除时进行二次确认提示: 删除规则包后该规则包下已经配置好的规则会同步被删除，请确认是否删除?"
       - action: 二次确认删除
-        expected: "1) Toast提示: 删除成功2) 可再次添加规则包"
+        expected: |-
+          1) Toast提示: 删除成功
+          2) 可再次添加规则包
       - action: 删除至1个规则包
         expected: 删除按钮消失
       - action: 编辑规则包中的校验规则内容, 并保存
@@ -2979,8 +3363,7 @@ cases:
       - 编辑规则集
       - 监控规则
   - case_id: C0036
-    automation:
-      spec_file: c0036-验证规则包下拉框数据正常.ts
+
     title: 验证规则包下拉框数据正常
     priority: P2
     steps:
@@ -2996,8 +3379,7 @@ cases:
       - 编辑规则集
       - 监控规则
   - case_id: C0037
-    automation:
-      spec_file: c0037-验证规则包名称不可重复.ts
+
     title: 验证规则包名称不可重复
     priority: P2
     steps:
@@ -3005,7 +3387,10 @@ cases:
         expected: 进入【编辑规则集 ❯ 基础信息】配置页面
       - action: 在规则包配置中, 点击增加按钮, 添加规则包
         expected: 添加成功, 从第二个规则包开始均提供删除按钮
-      - action: "配置内容:1) 规则包1: rule012) 规则包2: rule01"
+      - action: |-
+          配置内容:
+          1) 规则包1: rule01
+          2) 规则包2: rule01
         expected: "置红提示: 规则包名称不可重复"
     precondition: 无
     tags:
@@ -3013,8 +3398,7 @@ cases:
       - 编辑规则集
       - 基础信息
   - case_id: C0038
-    automation:
-      spec_file: c0038-验证规则包名称增删改功能.ts
+
     title: 验证规则包名称增删改功能
     priority: P2
     steps:
@@ -3038,8 +3422,7 @@ cases:
       - 编辑规则集
       - 基础信息
   - case_id: C0039
-    automation:
-      spec_file: c0039-验证选择数据表选项过滤已配置的表.ts
+
     title: 验证选择数据表选项过滤已配置的表
     priority: P1
     steps:
@@ -3057,8 +3440,7 @@ cases:
       - 编辑规则集
       - 基础信息
   - case_id: C0040
-    automation:
-      spec_file: c0040-验证选择数据表配置功能正常.ts
+
     title: 验证选择数据表配置功能正常
     priority: P2
     steps:
@@ -3080,8 +3462,7 @@ cases:
       - 编辑规则集
       - 基础信息
   - case_id: C0041
-    automation:
-      spec_file: c0041-验证编辑规则集配置页面.ts
+
     title: 验证编辑规则集配置页面
     priority: P1
     steps:
@@ -3090,19 +3471,23 @@ cases:
       - action: 选择规则集记录rule01, 点击编辑
         expected: 进入【编辑规则集 ❯ 基础信息】配置页面, 所有字段均可编辑
       - action: 基础信息UICHECK
-        expected: "1) 选择数据表: ${最近一次编辑保存时的配置记录}2) 规则包: ${最近一次编辑保存时的规则包名称}3) 按钮: 取消/下一步"
+        expected: |-
+          1) 选择数据表: ${最近一次编辑保存时的配置记录}
+          2) 规则包: ${最近一次编辑保存时的规则包名称}
+          3) 按钮: 取消/下一步
       - action: 点击下一步
         expected: 进入【编辑规则集 ❯ 监控规则】配置页面
       - action: 监控规则UICHECK
-        expected: "1) 规则包&校验规则: ${最近一次编辑保存时的规则包&校验规则}2) 按钮: 下一步/保存"
+        expected: |-
+          1) 规则包&校验规则: ${最近一次编辑保存时的规则包&校验规则}
+          2) 按钮: 下一步/保存
     precondition: 规则集列表已存在规则集记录rule01
     tags:
       - 规则集管理
       - 编辑规则集
       - 基础信息
   - case_id: C0042
-    automation:
-      spec_file: c0042-验证更换规则包名称后校验规则配置不变.ts
+
     title: 验证更换规则包名称后, 校验规则配置不变
     priority: P1
     steps:
@@ -3120,8 +3505,7 @@ cases:
       - 新建规则集
       - 监控规则
   - case_id: C0043
-    automation:
-      spec_file: c0043-验证完整性校验字段变更规则类型生效范围.ts
+
     title: 验证【完整性校验】字段变更(规则类型 ❯ 生效范围)
     priority: P2
     steps:
@@ -3137,8 +3521,7 @@ cases:
       - 新建规则集
       - 监控规则
   - case_id: C0044
-    automation:
-      spec_file: c0044-验证校验规则增删改功能正常.ts
+
     title: 验证校验规则增删改功能正常
     priority: P2
     steps:
@@ -3172,8 +3555,7 @@ cases:
       - 新建规则集
       - 监控规则
   - case_id: C0045
-    automation:
-      spec_file: c0045-验证查看全局参数功能正常.ts
+
     title: 验证查看全局参数功能正常
     priority: P2
     steps:
@@ -3189,8 +3571,7 @@ cases:
       - 新建规则集
       - 监控规则
   - case_id: C0046
-    automation:
-      spec_file: c0046-验证规则包增删改功能.ts
+
     title: 验证规则包增删改功能
     priority: P2
     steps:
@@ -3199,7 +3580,10 @@ cases:
       - action: 正常配置基础信息内容, 点击下一步
         expected: 进入监控规则配置页面
       - action: 在规则包配置中, 点击增加按钮, 添加规则包
-        expected: 1)添加成功, 从第二个规则包开始均提供删除按钮2) 每个规则包都支持查看全局参数和添加规则按钮3) 规则包支持折叠和展开, 默认展开
+        expected: |-
+          1) 添加成功, 从第二个规则包开始均提供删除按钮
+          2) 每个规则包都支持查看全局参数和添加规则按钮
+          3) 规则包支持折叠和展开, 默认展开
       - action: 折叠/展开规则包
         expected: 操作成功
       - action: 添加至20个规则包
@@ -3207,7 +3591,9 @@ cases:
       - action: 删除任一规则包
         expected: "二次弹窗确认: 删除时进行二次确认提示: 删除规则包后该规则包下已经配置好的规则会同步被删除，请确认是否删除?"
       - action: 二次确认删除
-        expected: "1) Toast提示: 删除成功2) 可再次添加规则包"
+        expected: |-
+          1) Toast提示: 删除成功
+          2) 可再次添加规则包
       - action: 删除至1个规则包
         expected: 删除按钮消失
       - action: 编辑规则包中的校验规则内容, 保存
@@ -3218,8 +3604,7 @@ cases:
       - 新建规则集
       - 监控规则
   - case_id: C0047
-    automation:
-      spec_file: c0047-验证规则包下拉框数据正常.ts
+
     title: 验证规则包下拉框数据正常
     priority: P2
     steps:
@@ -3239,8 +3624,7 @@ cases:
       - 新建规则集
       - 监控规则
   - case_id: C0048
-    automation:
-      spec_file: c0048-验证规则包名称不可重复.ts
+
     title: 验证规则包名称不可重复
     priority: P2
     steps:
@@ -3250,7 +3634,10 @@ cases:
         expected: 配置成功
       - action: 在规则包配置中, 点击增加按钮, 添加规则包
         expected: 添加成功, 从第二个规则包开始均提供删除按钮
-      - action: "配置内容:1) 规则包1: rule012) 规则包2: rule01"
+      - action: |-
+          配置内容:
+          1) 规则包1: rule01
+          2) 规则包2: rule01
         expected: "置红提示: 规则包名称不可重复"
     precondition: 无
     tags:
@@ -3258,8 +3645,7 @@ cases:
       - 新建规则集
       - 基础信息
   - case_id: C0049
-    automation:
-      spec_file: c0049-验证规则包名称增删改功能.ts
+
     title: 验证规则包名称增删改功能
     priority: P1
     steps:
@@ -3285,8 +3671,7 @@ cases:
       - 新建规则集
       - 基础信息
   - case_id: C0050
-    automation:
-      spec_file: c0050-验证选择数据表选项过滤已配置的表.ts
+
     title: 验证选择数据表选项过滤已配置的表
     priority: P0
     steps:
@@ -3304,8 +3689,7 @@ cases:
       - 新建规则集
       - 基础信息
   - case_id: C0051
-    automation:
-      spec_file: c0051-验证选择数据表配置功能正常.ts
+
     title: 验证选择数据表配置功能正常
     priority: P2
     steps:
@@ -3314,7 +3698,8 @@ cases:
       - action: 点击新增规则集
         expected: 进入【新建规则集 ❯ 基础信息】配置页面
       - action: 配置选择数据源
-        expected: 1)下拉显示在平台管理中已授权的数据源2)支持选择的数据源类型包括hive2.x/sparkthrift2.x/doris3.x
+        expected: |-
+          1) 下拉显示在平台管理中已授权的数据源2)支持选择的数据源类型包括hive2.x/sparkthrift2.x/doris3.x
       - action: 配置选择数据库
         expected: 下拉显示所选数据源下的数据库配置
       - action: 配置选择数据表
@@ -3327,8 +3712,7 @@ cases:
       - 新建规则集
       - 基础信息
   - case_id: C0052
-    automation:
-      spec_file: c0052-验证新建规则集配置页面.ts
+
     title: 验证新建规则集配置页面
     priority: P0
     steps:
@@ -3337,26 +3721,35 @@ cases:
       - action: 点击新增规则集
         expected: 进入【新建规则集 ❯ 基础信息】配置页面, 支持配置基础信息和监控规则
       - action: 基础信息UICHECK
-        expected: "支持配置选择数据表、规则包:1) 选择数据表: 选择数据源(必填)、选择数据库(必填)、选择数据表(必填)、规则集描述2) 规则包: 支持对规则包名称进行增删改, 必填3) 按钮: 取消/下一步"
+        expected: |-
+          支持配置选择数据表、规则包:
+          1) 选择数据表: 选择数据源(必填)、选择数据库(必填)、选择数据表(必填)、规则集描述
+          2) 规则包: 支持对规则包名称进行增删改, 必填
+          3) 按钮: 取消/下一步
       - action: 正常配置基础信息内容, 点击下一步
         expected: 进入【新建规则集 ❯ 监控规则】配置页面
       - action: 监控规则UICHECK
-        expected: "1)支持对每一个规则包配置不同的校验规则2)支持规则包的增删改操作3) 支持对规则包中的校验规则增删改和克隆操作4) 支持查看全局参数5) 按钮: 下一步/保存"
+        expected: |-
+          1) 支持对每一个规则包配置不同的校验规则
+          2) 支持规则包的增删改操作
+          3) 支持对规则包中的校验规则增删改和克隆操作
+          4) 支持查看全局参数
+          5) 按钮: 下一步/保存
     precondition: 无
     tags:
       - 规则集管理
       - 新建规则集
       - 基础信息
   - case_id: C0053
-    automation:
-      spec_file: c0053-验证分页组件功能正常.ts
+
     title: 验证分页组件功能正常
     priority: P2
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面
         expected: 进入成功
       - action: 分页组件UICHECK
-        expected: 1) 共x条数据, 每页显示xx条2) 支持数字页码切换3) 支持前/后页箭头页码切换4) 支持10、20、50、100 页数切换
+        expected: |-
+          1) 共x条数据, 每页显示xx条2) 支持数字页码切换3) 支持前/后页箭头页码切换4) 支持10、20、50、100 页数切换
       - action: 切换数字页码
         expected: 页码切换成功, 数据显示正常
       - action: 切换前后页箭头页码
@@ -3369,8 +3762,7 @@ cases:
       - 新建规则集
       - 基础信息
   - case_id: C0054
-    automation:
-      spec_file: c0054-验证规则集管理删除功能.ts
+
     title: 验证规则集管理删除功能
     priority: P0
     steps:
@@ -3402,32 +3794,43 @@ cases:
       - 新建规则集
       - 基础信息
   - case_id: C0055
-    automation:
-      spec_file: c0055-验证规则集管理页面.ts
+
     title: 验证规则集管理页面
     priority: P1
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面
         expected: 进入成功
       - action: 检查页面UI
-        expected: 1、支持规则集列表展示, 包含表名、所属数据库、所属数据源、规则包数量、规则数量、规则集描述、更新人、更新时间、操作2、支持对规则集的增删改查3、支持对规则集分页列表展示
+        expected: |-
+          1、 支持规则集列表展示, 包含表名、所属数据库、所属数据源、规则包数量、规则数量、规则集描述、更新人、更新时间、操作
+          2、 支持对规则集的增删改查
+          3、 支持对规则集分页列表展示
       - action: 检查列表数据
-        expected: "1) 表名: ${最后一次编辑规则集时的表名}2) 所属数据库:  ${最后一次编辑规则集时的数据库}3) 所属数据源:  ${最后一次编辑规则集时的数据源}4) 规则包数量:  ${最后一次编辑规则集时的规则包数量, 不超过20}5) 规则数量:  ${最后一次编辑规则集时的规则数量}6) 规则集描述:  ${最后一次编辑规则集时的规则集描述}7) 更新人:  ${最后一次编辑规则集时的账号}8) 更新时间:  ${最后一次编辑规则集时的时间}"
+        expected: |-
+          1) 表名: ${最后一次编辑规则集时的表名}
+          2) 所属数据库:  ${最后一次编辑规则集时的数据库}
+          3) 所属数据源:  ${最后一次编辑规则集时的数据源}
+          4) 规则包数量:  ${最后一次编辑规则集时的规则包数量, 不超过20}
+          5) 规则数量:  ${最后一次编辑规则集时的规则数量}
+          6) 规则集描述:  ${最后一次编辑规则集时的规则集描述}
+          7) 更新人:  ${最后一次编辑规则集时的账号}
+          8) 更新时间:  ${最后一次编辑规则集时的时间}
     precondition: 无
     tags:
       - 规则集管理
       - 新建规则集
       - 基础信息
   - case_id: C0056
-    automation:
-      spec_file: c0056-验证规则集管理查询功能.ts
+
     title: 验证规则集管理查询功能
     priority: P2
     steps:
       - action: 进入【数据资产】-【数据质量】-【规则集管理】页面
         expected: 进入成功
       - action: 检查查询框
-        expected: "1、提示: 输入表名搜索2、支持回车查询、搜索icon查询"
+        expected: |-
+          1、 提示: 输入表名搜索
+          2、 支持回车查询、搜索icon查询
       - action: 输入表部分名查询
         expected: 模糊查询成功
       - action: 输入表全名查询

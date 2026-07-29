@@ -1,0 +1,930 @@
+meta:
+  title: 【江苏银行】计算引擎适配Gaussdb9.1
+  version: v6.4.3
+  feature_id: v6.4.3/【v643】【江苏银行】【离线开发】计算引擎适配Gaussdb9.1
+  requirement_id: "14913"
+  case_module_id: "9673"
+  imports:
+    - 202511-离线开发v6.4.3.xmind
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    title: "验证「创建项目」添加GaussDB 数据源显示正常(初始化方式: 创建)"
+    priority: P0
+    precondition: |-
+      1) 「公共管理-控制台」中已存在GaussDB组件
+
+      2) GaussDB数据源名称: ${datasourceA}
+    steps:
+      - action: 进入「离线开发」页面, 点击「创建项目」
+        expected: 进入创建项目页面
+      - action: |-
+          配置如下:
+          项目标识&项目名称: ${nameA}
+          计算引擎配置: GaussDB, 初始化方式: 「创建」
+        expected: 配置成功, 初始化方式问号hover提示：当选择不创建且不对接 Schema 时，创建任务后编辑SQL时需要去指定使用的Schema
+      - action: 点击「创建项目」
+        expected: 创建成功
+      - action: 进入${nameA}项目的「数据源」页面
+        expected: 数据源列表存在类型为GaussDB, 数据源名称为${nameA}_GaussDB的数据源记录
+  - case_id: C0002
+    title: "验证「创建项目」添加GaussDB 数据源显示正常(初始化方式: 对接)"
+    priority: P2
+    precondition: |-
+      1) 「公共管理-控制台」中已存在GaussDB组件
+
+      2) GaussDB数据源名称: ${datasourceA}
+    steps:
+      - action: 进入「离线开发」页面, 点击「创建项目」
+        expected: 进入创建项目页面
+      - action: |-
+          配置如下:
+          项目标识&项目名称: ${nameA}
+          计算引擎配置: GaussDB, 初始化方式:「对接已有GaussDB Schema」、${schemaA}、${表类目A}
+        expected: 配置成功
+      - action: 点击「创建项目」
+        expected: 创建成功
+      - action: 进入${nameA}项目的「数据源」页面
+        expected: 数据源列表存在类型为GaussDB, 数据源名称为${nameA}_GaussDB的数据源记录
+  - case_id: C0003
+    title: "验证「创建项目」添加GaussDB数据源显示正常(初始化方式: 不创建且不对接)"
+    priority: P2
+    precondition: |-
+      1) 「公共管理-控制台」中已存在GaussDB组件
+
+      2) GaussDB数据源名称: ${datasourceA}
+    steps:
+      - action: 进入「离线开发」页面, 点击「创建项目」
+        expected: 进入创建项目页面
+      - action: |-
+          配置如下:
+          项目标识&项目名称: ${nameA}
+          计算引擎配置: GaussDB, 初始化方式:  「不创建且不对接 Schema」
+        expected: 配置成功
+      - action: 点击「创建项目」
+        expected: 创建成功
+      - action: 进入${nameA}项目的「数据源」页面
+        expected: 数据源列表存在类型为GaussDB, 数据源名称为${nameA}_GaussDB的数据源记录
+  - case_id: C0004
+    title: 验证「数据开发」GaussDB SQL任务创建功能正常
+    priority: P2
+    precondition: "「离线开发-数据源」中已存在GaussDB Meta数据源, 数据源名称: ${datasourceA}"
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 右键「任务开发」, 选择GaussDB SQL任务
+        expected: 选择成功
+      - action: |-
+          新建周期任务:
+          任务名称: ${nameA}
+          任务类型: GaussDB SQL
+          集群名称: ${datasourceA}
+        expected: 周期任务创建成功
+      - action: |-
+          进入「手动任务」, 新建手动任务:
+          任务名称: ${nameB}
+          任务类型: GaussDB SQL
+          集群名称: ${datasourceA}
+        expected: 手动任务创建成功
+      - action: |-
+          进入「临时查询」, 新建临时查询:
+          查询名称: ${nameC}
+          任务类型: GaussDB SQL
+          集群名称: ${datasourceA}
+        expected: 临时查询创建成功
+  - case_id: C0005
+    title: 验证 GaussDB SQL任务调度功能运行正常(DDL)
+    priority: P0
+    precondition: |-
+      1. 平台中已配置 GaussDB 数据源，连接状态正常。
+      2. 准备三个对接GaussDB的离线SQL任务：
+      ${task01}
+      drop table if exists t_user;
+      CREATE TABLE t_user (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(50),
+          age INT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      ${task02}
+      ALTER TABLE t_user ADD COLUMN email VARCHAR(100);
+
+      ${task03}
+      CREATE INDEX if not exists idx_t_user_age ON t_user(age);
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}, 临时运行后, 保存并提交
+        expected: 提交至运维中心
+      - action: 进入调度属性-任务间依赖, 给SQL任务添加依赖关系( ${task02}、${task03} -> ${task01} ) 后再次提交
+        expected: 依赖添加成功
+      - action: 周期运行, 查看结果
+        expected: 周期任务实例中新增该任务的实例记录并运行成功
+      - action: 查看表结构
+        expected: 表结构变更
+      - action: 补数据运行, 查看结果
+        expected: 补数据任务实例中新增该任务的实例记录并运行成功
+      - action: 查看表结构
+        expected: 表结构变更
+      - action: 进入「离线开发-数据开发-手动任务」页面
+        expected: 进入成功
+      - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}并添加依赖关系后, 提交到运维中心手动运行
+        expected: 手动任务实例中新增该任务的实例记录并运行成功
+      - action: 查看表结构
+        expected: 表结构变更
+  - case_id: C0006
+    title: 验证 GaussDB SQL任务调度功能运行正常(DML)
+    priority: P1
+    precondition: |-
+      1. 平台中已配置 GaussDB 数据源，连接状态正常。
+      2. 当前离线项目中已存在GaussDB表:
+      CREATE TABLE t_user (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(50),
+          age INT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      email VARCHAR(100)
+      );
+
+
+      3. 准备三个对接GaussDB的离线SQL任务：
+      ${task01}
+      INSERT INTO t_user (name, age, email) VALUES ('Alice', 25, 'alice@example.com');
+
+
+      ${task02}
+      UPDATE t_user SET age = 26 WHERE name = 'Alice';
+
+
+      ${task03}
+      DELETE FROM t_user WHERE name = 'Alice';
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}, 临时运行后, 保存并提交
+        expected: 提交至运维中心
+      - action: 进入调度属性-任务间依赖, 给SQL任务添加依赖关系(${task03} -> ${task02} -> ${task01}) 后再次提交
+        expected: 依赖添加成功
+      - action: 周期运行, 查看结果
+        expected: 周期任务实例中新增该任务的实例记录并运行成功
+      - action: 补数据运行, 查看结果
+        expected: 补数据任务实例中新增该任务的实例记录并运行成功
+      - action: 进入「离线开发-数据开发-手动任务」页面
+        expected: 进入成功
+      - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}并添加依赖关系后, 提交到运维中心手动运行
+        expected: 手动任务实例中新增该任务的实例记录并运行成功
+  - case_id: C0007
+    title: 验证 GaussDB SQL任务调度功能运行正常(DQL)
+    priority: P1
+    precondition: |-
+      1. 平台中已配置 GaussDB 数据源，连接状态正常。
+      2. 当前离线项目中已存在GaussDB表:
+      CREATE TABLE t_user (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(50),
+          age INT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      email VARCHAR(100)
+      );
+
+
+      3. 准备三个对接GaussDB的离线SQL任务：
+      ${task01}
+      SELECT * FROM t_user;
+
+
+      ${task02}
+      SELECT id, name, age FROM t_user WHERE age > 20;
+
+
+      ${task03}
+      SELECT age, COUNT(*) AS cnt
+      FROM t_user
+      GROUP BY age
+      ORDER BY age;
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}, 临时运行后, 保存并提交
+        expected: 提交至运维中心
+      - action: 周期运行, 查看结果
+        expected: 周期任务实例中新增该任务的实例记录并运行成功
+      - action: 补数据运行, 查看结果
+        expected: 补数据任务实例中新增该任务的实例记录并运行成功
+      - action: 进入「离线开发-数据开发-手动任务」页面
+        expected: 进入成功
+      - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}后, 提交到运维中心手动运行
+        expected: 手动任务实例中新增该任务的实例记录并运行成功
+  - case_id: C0008
+    title: 验证GaussDB数据源项目维度数据库绑定账号功能正常
+    priority: P2
+    precondition: |-
+      GaussDB 数据源已经配置root 和 test_user账号
+      ​
+
+      1. 创建用户（密码自己换）​
+      CREATE USER test_user WITH PASSWORD 'test123456@';
+      2. 建一个专用角色​
+      CREATE ROLE test_role PASSWORD 'test123456@';
+      3. 给这个角色授予访问数据库的权限​
+      GRANT ALL PRIVILEGES ON DATABASE test_gaussdb_3 TO test_role;
+      4. 授予对 public 模式（或其他模式）的 USAGE 权限​
+      GRANT USAGE ON SCHEMA public TO test_role;
+      5. 授予对 public 模式下所有现有表的 SELECT, INSERT 等权限​
+      GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO test_role;
+      6. 设置未来新建表也自动授权​
+      ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO test_role;
+      7. 把角色授予用户​
+      GRANT test_role TO test_user;
+      ​
+
+      列出当前数据库用户所有可查询的表​
+
+      SELECT
+      n.nspname AS schema_name,
+      c.relname AS table_name
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE c.relkind = 'r' -- 普通表
+      AND has_table_privilege(c.oid, 'SELECT');
+      ​
+
+      ​
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 新建 GaussDB SQL 任务
+        expected: 创建成功
+      - action: "执行SQL: SELECT * FROM ${schemaA}.${tableA};"
+        expected: 查询成功, 当前为root用户在执行
+      - action: 进入项目管理-项目设置-开发设置-GaussDB配置中，开启项目绑定数据库账号, 新增test_user账号
+        expected: 新增成功, 数据回显正常
+      - action: "执行SQL: SELECT * FROM ${schemaA}.${tableA};"
+        expected: 查询失败
+      - action: "执行SQL: SELECT * FROM batch_v53.${tableB};"
+        expected: 查询成功, 当前为test_user用户在执行
+  - case_id: C0009
+    title: 验证GaussDB全数据类型支持并返回结果
+    priority: P1
+    precondition: |-
+      gaussdb建表语句:
+
+      -- 创建银行客户账户与交易测试表，涵盖多种 openGauss 支持的数据类型
+      drop table if exists bank_customer_account;
+      CREATE TABLE bank_customer_account (
+          customer_id            BIGINT,                          -- 数值类型（整型）
+          account_number          INTEGER,                         -- 账号（整型）
+          credit_limit             NUMERIC(18,2),                  -- 任意精度（货币类型）
+          is_premium               BOOLEAN,                         -- 布尔类型
+          customer_name             VARCHAR(200),                   -- 字符类型
+          remarks_blob              BYTEA,                           -- 二进制类型
+          open_date                 DATE,                            -- 日期类型
+          last_transaction_ts        TIMESTAMP,                       -- 时间戳类型
+          transaction_interval        TSTZRANGE,                      -- 范围类型 (带时区范围)
+          customer_uuid              UUID,                            -- UUID 类型 :contentReference[oaicite:0]{index=0}
+          metadata_json               JSONB,                           -- JSONB 类型 :contentReference[oaicite:1]{index=1}
+          login_hll                   hll,                             -- HLL 类型 :contentReference[oaicite:2]{index=2}
+          permission_bits              BIT VARYING(16),                 -- 位串类型 :contentReference[oaicite:3]{index=3}
+          transaction_counts          INTEGER[],                       -- 数组类型 :contentReference[oaicite:4]{index=4}
+          object_oid                   OID,                             -- 对象标识符类型 (OID) :contentReference[oaicite:5]{index=5}
+          config_xml                    XML,                             -- XML 类型 :contentReference[oaicite:6]{index=6}
+          acct_balance_double         DOUBLE PRECISION,              -- 浮点数 (双精度)
+          small_balance                 SMALLINT                        -- 小整数
+      );
+
+      -- 插入一条模拟银行客户账户数据
+      INSERT INTO bank_customer_account VALUES (
+          1000000000001,                     -- customer_id
+          12345678,                           -- account_number
+          250000. 50,                          -- credit_limit
+          TRUE,                               -- is_premium
+          '李四-高端客户',                      -- customer_name
+          E'\\xDEADBEEFCAFE',                  -- 备注 (bytea, 十六进制)
+          DATE '2022-01-15',                   -- open_date
+          TIMESTAMP '2025-11-17 09:45:30',     -- last_transaction_ts
+          tstzrange(
+             TIMESTAMP WITH TIME ZONE '2025-11-01 00:00:00+08',
+             TIMESTAMP WITH TIME ZONE '2025-11-17 23:59:59+08'
+          ),                                   -- transaction_interval
+          '3f50f5a2-9d0b-4f3d-b244-9adbe1f12345', -- customer_uuid
+          '{"preferred_channel":"mobile","alerts": ["sms","email"]}'::JSONB,  -- metadata_json
+          hll_empty(),                         -- login_hll (初始 HLL)
+          B'1011001110001111',                 -- permission_bits (16 位二进制)
+          ARRAY[5, 10, 15],                     -- transaction_counts (示例数组)
+          9999::OID,                           -- object_oid (示范一个 OID 值)
+          '<settings><tier>gold</tier><region>asia</region></settings>'::XML,  -- config_xml
+          12345. 6789,                          -- acct_balance_double
+          32000                                -- small_balance
+      );
+
+      -- 查询所有列，验证插入
+      SELECT * FROM bank_customer_account;
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
+        expected: 执行成功, 返回结果显示正常
+      - action: 进入「离线开发-数据开发-手动任务」页面
+        expected: 进入成功
+      - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
+        expected: 执行成功, 返回结果显示正常
+      - action: 进入「离线开发-数据开发-临时查询」页面
+        expected: 进入成功
+      - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
+        expected: 执行成功, 返回结果显示正常
+  - case_id: C0010
+    title: 验证 GaussDB 语法提示功能正常
+    priority: P1
+    precondition: |-
+      gaussdb 数据源中已存在表t_user, 建表语句如下:
+
+      drop table if exists t_user;
+      CREATE TABLE t_user (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(50),
+          age INT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 新建 GaussDB SQL 任务
+        expected: 创建成功
+      - action: 在编辑器中输入 SEL
+        expected: 自动提示补全 SELECT
+      - action: 输入 SELECT * FROM t_
+        expected: 提示补全表名 t_user
+      - action: 输入系统函数前缀 RA
+        expected: 自动提示 RANK()
+  - case_id: C0011
+    title: 验证 GaussDB 任务支持停止运行中的任务
+    priority: P1
+    precondition: |-
+      准备长时间执行 SQL：
+
+      select pg_sleep(100);
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 新建 GaussDB SQL 任务
+        expected: 创建成功
+      - action: 输入SQL测试语句并执行
+        expected: 运行成功, 控制台开始打印日志
+      - action: 点击「停止」
+        expected: 运行终止, 日志停止打印
+  - case_id: C0012
+    title: 验证 GaussDB 任务支持系统函数
+    priority: P0
+    precondition: |-
+      gaussdb建表语句
+      -- 创建测试表
+      DROP TABLE IF EXISTS customer_transactions;
+      CREATE TABLE customer_transactions (
+          customer_id       BIGINT,
+          transaction_id     BIGINT,
+          amount             NUMERIC(12,2),
+          transaction_time   TIMESTAMP WITH TIME ZONE,
+          channel            VARCHAR(50),
+          tags               TEXT[],
+          login_count_hll    hll,  -- 用 HLL 统计客户登录 / 交易来源
+          remarks            TEXT
+      );
+
+      -- 插入一些示例数据
+      INSERT INTO customer_transactions VALUES
+          (1, 1001, 200.00, '2025-11-15 10:00:00+08', 'web', ARRAY['first', 'promo'], hll_add(hll_empty(), hll_hash_integer(1)), '首次登录'),
+          (1, 1002, 150.00, '2025-11-16 12:10:00+08', 'mobile', ARRAY['repeat'], hll_add(hll_empty(), hll_hash_integer(2)), '常规交易'),
+          (2, 2001, 300.00, '2025-11-15 09:00:00+08', 'web', ARRAY['vip'], hll_add(hll_empty(), hll_hash_integer(1)), 'VIP 客户交易'),
+          (2, 2002, 450.00, '2025-11-17 14:30:00+08', 'mobile', ARRAY['vip', 'promo'], hll_add(hll_empty(), hll_hash_integer(2)), '促销交易'),
+          (3, 3001, 500.00, '2025-11-17 08:05:00+08', 'atm', ARRAY['offline'], hll_add(hll_empty(), hll_hash_integer(3)), 'ATM 取款');
+
+      WITH agg AS (
+        SELECT
+          customer_id,
+          -- 聚合函数
+          COUNT(*) AS txn_count,
+          SUM(amount) AS total_amount,
+          AVG(amount) AS avg_amount,
+          MIN(amount) AS min_amount,
+          MAX(amount) AS max_amount,
+          MIN(transaction_time) AS first_txn_time,
+          MAX(transaction_time) AS last_txn_time
+        FROM customer_transactions
+        GROUP BY customer_id
+      )
+      SELECT
+        customer_id,
+        txn_count,
+        total_amount,
+        avg_amount,
+        min_amount,
+        max_amount,
+
+        -- 窗口函数
+        ROW_NUMBER()     OVER (ORDER BY total_amount DESC)        AS rn_by_amt,
+        RANK()           OVER (ORDER BY total_amount DESC)        AS rank_by_amount,
+        DENSE_RANK()     OVER (ORDER BY total_amount DESC)        AS dense_rank_by_amount,
+        FIRST_VALUE(total_amount) OVER (ORDER BY customer_id)     AS first_total_amount,
+        LAST_VALUE(total_amount)  OVER (
+          ORDER BY customer_id
+          ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+        ) AS last_total_amount,
+        PERCENT_RANK()   OVER (ORDER BY total_amount)              AS pct_rank_amount,
+
+        -- 日期函数
+        current_date                                               AS today,
+        current_timestamp                                          AS now_ts,
+        date_trunc('day', first_txn_time)                          AS first_txn_day,
+        EXTRACT(YEAR FROM first_txn_time)                           AS first_txn_year,
+        FLOOR( EXTRACT(EPOCH FROM (now_ts - first_txn_time)) / 3600 ) AS hours_since_first_txn
+
+      FROM agg
+      ORDER BY total_amount DESC;
+
+
+
+      窗口函数：RANK()、ROW_NUMBER()、DENSE_RANK()、LAG、LEAD、FIRST_VALUE()、LAST_VALUE()、PERCENT_RANK()
+      https://support.huaweicloud.com/distributed-devg-v8-gaussdb/gaussdb-12-0374.html
+
+      聚集函数：sum(expression)、max(expression)、min(expression)、avg(expression)、count(expression)、count(*)
+      https://support.huaweicloud.com/distributed-devg-v8-gaussdb/gaussdb-12-2648.html
+
+      数组函数：array_except(anyarray, anyarray)、array_append(anyarray, anyelement)、array_prepend(anyelement, anyarray)、array_cat(anyarray, anyarray)
+      https://support.huaweicloud.com/distributed-devg-v8-gaussdb/gaussdb-12-2645.html
+
+      日期函数：current_date、current_timestamp、trunc(arg1, arg2)、year()、timediff()、subtime(expr1,expr2)
+      https://support.huaweicloud.com/distributed-devg-v8-gaussdb/gaussdb-12-2620.html
+    steps:
+      - action: 进入「离线开发-数据开发-周期任务」页面
+        expected: 进入成功
+      - action: 新建 GaussDB SQL 任务
+        expected: 创建成功
+      - action: 输入SQL测试语句并执行
+        expected: 执行成功, 返回3行结果
+  - case_id: C0013
+    title: 验证 GaussDB 任务支持自定义函数
+    priority: P0
+    precondition: |-
+      建表语句:
+
+      --
+      1. 创建银行交易表
+      CREATE TABLE bank_transaction (
+          txn_id          BIGINT PRIMARY KEY,
+          account_id       BIGINT NOT NULL,
+          txn_amount       NUMERIC(18,
+      2) NOT NULL,
+          txn_type         VARCHAR(20),     -- 例如 'deposit' / 'withdraw'
+          txn_time         TIMESTAMP WITH TIME ZONE NOT NULL,
+          txn_currency     VARCHAR(3),      -- 货币 ISO 代码
+          description      VARCHAR(200)
+      );
+
+
+      -- 2. 插入几条测试交易数据
+      INSERT INTO bank_transaction(txn_id, account_id, txn_amount, txn_type, txn_time, txn_currency, description) VALUES
+      (1, 1001, 1000.00, 'deposit', '2025-11-17 10:00:00+08', 'USD', 'Initial deposit'),
+      (2, 1001, 200.00, 'withdraw', '2025-11-17 11:00:00+08', 'USD', 'ATM withdrawal'),
+      (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
+      (4, 1002, 50.00, 'other', '2025-11-17 13:00:00+08', 'EUR', 'Misc fee');
+    steps:
+      - action: 进入「离线开发-数据开发-函数管理」页面
+        expected: 进入成功
+      - action: 选择GaussDB SQL - 自定义函数, 右键「新建自定义函数」
+        expected: |-
+          弹出「新建自定义函数」弹窗, 内容展示如下:
+          1) 函数类型: 必填标识, 默认展示为GaussDB SQL, 置灰不可点击
+          2) 函数名称: 必填标识, 置灰提示“请输入函数名称”
+          3) 用途: 非必填, 置灰提示“请输入用途”
+          4) SQL: 必填标识, “函数名称”未填写时SQL内函数名称位置为空,置灰提示:
+          create function ${项目标识}.${函数名称}
+          RETURNS character varying
+          LANGUAGE 'plpgsq!'
+          COST 100
+          VOLATILE
+          AS $BODY$ BEGIN perform "PRO_BU_MAINTAIN" (to_Char(now(), yyyy-mm-dd')::varchar);
+          RETURN 'ok':
+          END
+          $BODY$;
+          ALTER FUNCTION odS."PROCOMPUT
+          INTAINCOMPUT"() OWNER TO bi:
+
+          5) 参数说明: 非必填, 置灰提示“请输入参数说明”
+          6) 存储位置: 必填标识, 默认展示自定义函数, 支持切换自定义函数下创建的文件夹
+      - action: |-
+          自定义函数配置如下:
+          1) 函数名称: calculate_fee
+          2) 用途: 根据交易类型和金额计算手续费
+          3) SQL:
+          CREATE FUNCTION ${项目标识}.calculate_fee
+          (p_amount NUMERIC, p_type VARCHAR)
+          RETURNS NUMERIC
+          LANGUAGE plpgsql
+          IMMUTABLE
+          AS $$
+          DECLARE
+              v_fee NUMERIC := 0;
+          BEGIN
+              IF p_type = 'withdraw' THEN
+                  -- 假设提现手续费 1%
+                  v_fee := p_amount * 0.01;
+              ELSIF p_type = 'deposit' THEN
+                  -- 存款手续费 固定 2 单位货币
+                  v_fee := 2.00;
+              ELSE
+                  -- 其它交易类型默认费用
+                  v_fee := p_amount * 0.005;
+              END IF;
+
+              RETURN v_fee;
+          END;
+          $$;
+
+          4) 参数说明: 无
+          5) 存储位置: 自定义函数
+        expected: 添加成功
+      - action: 进入离线开发-周期任务, 创建gaussdb sql任务
+        expected: 创建成功
+      - action: 执行建表语句并插入数据
+        expected: 执行成功
+      - action: |-
+          调用自定义函数:
+          SELECT
+              txn_id,
+              account_id,
+              txn_amount,
+              txn_type,
+              calculate_fee(txn_amount, txn_type) AS fee,
+              txn_amount - calculate_fee(txn_amount, txn_type) AS net_amount,
+              txn_time
+          FROM bank_transaction;
+        expected: SQL执行成功, 结果正常返回
+  - case_id: C0014
+    title: 验证 GaussDB 新建自定义函数(异常场景)
+    priority: P2
+    steps:
+      - action: 进入「离线开发-数据开发-函数管理」页面
+        expected: 进入成功
+      - action: 选择GaussDB SQL - 自定义函数, 右键「新建自定义函数」
+        expected: |-
+          弹出「新建自定义函数」弹窗, 内容展示如下:
+          1) 函数类型: 必填标识, 默认展示为GaussDB SQL, 置灰不可点击
+          2) 函数名称: 必填标识, 置灰提示“请输入函数名称”
+          3) 用途: 非必填, 置灰提示“请输入用途”
+          4) SQL: 必填标识, “函数名称”未填写时SQL内函数名称位置为空,置灰提示:
+          create function ${项目标识}.${函数名称}
+          RETURNS character varying
+          LANGUAGE 'plpgsq!'
+          COST 100
+          VOLATILE
+          AS $BODY$ BEGIN perform "PRO_BU_MAINTAIN" (to_Char(now(), yyyy-mm-dd')::varchar);
+          RETURN 'ok':
+          END
+          $BODY$;
+          ALTER FUNCTION odS."PROCOMPUT
+          INTAINCOMPUT"() OWNER TO bi:
+
+          5) 参数说明: 非必填, 置灰提示“请输入参数说明”
+          6) 存储位置: 必填标识, 默认展示自定义函数, 支持切换自定义函数下创建的文件夹
+      - action: 「函数名称」为空, 提交表单
+        expected: "置红提示: 函数名称不可为空！"
+      - action: 「函数名称」输入123, 提交表单
+        expected: "置红提示: 函数名称开头必须是英文！"
+      - action: 「函数名称」输入非法字符#¥%, 提交表单
+        expected: "置红提示: 函数名称只能由字母、数字、下划线组成！"
+      - action: 「函数名称」输入21个英文字符, 提交表单
+        expected: "置红提示: 函数名称不得超过20个字符！"
+      - action: 「函数名称」输入20个英文字符, 提交表单
+        expected: 无红色提示, 「SQL」配置项中自动补充函数名称
+      - action: 「用途」输入201个字符, 提交表单
+        expected: "置红提示: 请控制在200个字符以内！"
+      - action: 「用途」输入200个字符, 提交表单
+        expected: 无红色提示
+      - action: 「SQL」为空, 提交表单
+        expected: SQL不能为空！
+      - action: 「参数说明」输入201个字符, 提交表单
+        expected: "置红提示: 请控制在200个字符以内！"
+      - action: 「参数说明」输入200个字符, 提交表单
+        expected: 无红色提示
+  - case_id: C0015
+    title: 验证 GaussDB 自定义函数增删改查功能正常
+    priority: P1
+    steps:
+      - action: 进入「离线开发-数据开发-函数管理」页面
+        expected: 进入成功
+      - action: |-
+          新建GaussDB 自定义函数, 配置如下:
+          1) 函数名称: calculate_fee
+          2) SQL:
+          CREATE FUNCTION ${项目标识}.calculate_fee
+          (p_amount NUMERIC, p_type VARCHAR)
+          RETURNS NUMERIC
+          LANGUAGE plpgsql
+          IMMUTABLE
+          AS $$
+          DECLARE
+              v_fee NUMERIC := 0;
+          BEGIN
+              IF p_type = 'withdraw' THEN
+                  -- 假设提现手续费 1%
+                  v_fee := p_amount * 0.01;
+              ELSIF p_type = 'deposit' THEN
+                  -- 存款手续费 固定 2 单位货币
+                  v_fee := 2.00;
+              ELSE
+                  -- 其它交易类型默认费用
+                  v_fee := p_amount * 0.005;
+              END IF;
+
+              RETURN v_fee;
+          END;
+          $$;
+        expected: "Toast提示: 创建成功"
+      - action: |-
+          右键编辑calculate_fee函数, 配置如下:
+          用途: 根据交易类型和金额计算手续费
+        expected: "Toast提示: 编辑成功"
+      - action: 在「自定义函数」目录下新增子目录A后, 右键移动calculate_fee函数存储位置到目录A
+        expected: 移动成功
+      - action: 点击calculate_fee函数
+        expected: 展示「函数信息」, 内容回显正确
+      - action: 右键删除calculate_fee函数
+        expected: "Toast提示: 删除成功"
+  - case_id: C0016
+    title: 验证 GaussDB 任务支持存储过程
+    priority: P0
+    precondition: |-
+      建表语句:
+
+      --
+      1. 创建银行交易表
+      CREATE TABLE bank_transaction (
+          txn_id          BIGINT PRIMARY KEY,
+          account_id       BIGINT NOT NULL,
+          txn_amount       NUMERIC(18,
+      2) NOT NULL,
+          txn_type         VARCHAR(20),     -- 例如 'deposit' / 'withdraw'
+          txn_time         TIMESTAMP WITH TIME ZONE NOT NULL,
+          txn_currency     VARCHAR(3),      -- 货币 ISO 代码
+          description      VARCHAR(200)
+      );
+
+
+      -- 2. 插入几条测试交易数据
+      INSERT INTO bank_transaction(txn_id, account_id, txn_amount, txn_type, txn_time, txn_currency, description) VALUES
+      (1, 1001, 1000.00, 'deposit', '2025-11-17 10:00:00+08', 'USD', 'Initial deposit'),
+      (2, 1001, 200.00, 'withdraw', '2025-11-17 11:00:00+08', 'USD', 'ATM withdrawal'),
+      (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
+      (4, 1002, 50.00, 'other', '2025-11-17 13:00:00+08', 'EUR', 'Misc fee');
+    steps:
+      - action: 进入「离线开发-数据开发-函数管理」页面
+        expected: 进入成功
+      - action: 选择GaussDB SQL - 存储过程, 右键「新建存储过程」
+        expected: |-
+          弹出「新建存储过程」弹窗, 内容展示如下:
+          1) 存储过程类型: 必填标识, 默认展示为GaussDB SQL, 置灰不可点击
+          2) 存储过程名称: 必填标识, 置灰提示“请输入存储过程”
+          3) 用途: 非必填, 置灰提示“请输入用途”
+          4) SQL: 必填标识, “存储过程名称”未填写时SQL内存储过程名称位置为空,置灰提示:
+          create or replace procedure ${项目标识}.${存储过程名称}
+          RETURNS character varying
+          LANGUAGE 'plpgsq!'
+          COST 100
+          VOLATILE
+          AS $BODY$ BEGIN perform "PRO_BU_MAINTAIN" (to_Char(now(), yyyy-mm-dd')::varchar);
+          RETURN 'ok':
+          END
+          $BODY$;
+          ALTER FUNCTION odS."PROCOMPUT
+          INTAINCOMPUT"() OWNER TO bi:
+
+          5) 参数说明: 非必填, 置灰提示“请输入参数说明”
+          6) 存储位置: 必填标识, 默认展示存储过程, 支持切换存储过程下创建的文件夹
+      - action: |-
+          存储过程配置如下:
+          1) 存储过程名称: proc_account_summary
+          2) 用途:
+          3) SQL:
+          create or replace procedure gauss_create.process_account_txns (
+              p_account_id IN BIGINT,
+              deleted_count OUT INTEGER,
+              updated_count OUT INTEGER
+          ) IS
+          BEGIN
+              -- 删除 txn_type = 'other' 的记录
+              DELETE FROM bank_transaction
+              WHERE account_id = p_account_id AND txn_type = 'other';
+              deleted_count := SQL%ROWCOUNT;
+
+              -- 更新 deposit 交易金额（增加10%）
+              UPDATE bank_transaction
+              SET txn_amount = txn_amount * 1.10
+              WHERE account_id = p_account_id AND txn_type = 'deposit';
+              updated_count := SQL%ROWCOUNT;
+          END;
+
+          4) 参数说明: 无
+          5) 存储位置: 存储过程
+        expected: 添加成功
+      - action: 进入离线开发-周期任务, 创建gaussdb sql任务
+        expected: 创建成功
+      - action: 执行建表语句并插入数据
+        expected: 执行成功
+      - action: |-
+          调用存储过程:
+          DECLARE
+              v_deleted INTEGER;
+              v_updated INTEGER;
+          BEGIN
+              gauss_create.process_account_txns(1002, v_deleted, v_updated);
+              RAISE NOTICE 'Deleted % rows, Updated % rows', v_deleted, v_updated;
+          END;
+        expected: SQL执行成功, 结果正常返回
+      - action: "执行: select  * from bank_transaction;"
+        expected: 存储过程执行生效
+  - case_id: C0017
+    title: 验证 GaussDB 新建存储过程(异常场景)
+    priority: P2
+    steps:
+      - action: 进入「离线开发-数据开发-函数管理」页面
+        expected: 进入成功
+      - action: 选择GaussDB SQL - 存储过程, 右键「新建存储过程」
+        expected: |-
+          弹出「新建存储过程」弹窗, 内容展示如下:
+          1) 存储过程类型: 必填标识, 默认展示为GaussDB SQL, 置灰不可点击
+          2) 存储过程名称: 必填标识, 置灰提示“请输入存储过程”
+          3) 用途: 非必填, 置灰提示“请输入用途”
+          4) SQL: 必填标识, “存储过程名称”未填写时SQL内存储过程名称位置为空,置灰提示:
+          create or replace procedure ${项目标识}.${存储过程名称}
+          RETURNS character varying
+          LANGUAGE 'plpgsq!'
+          COST 100
+          VOLATILE
+          AS $BODY$ BEGIN perform "PRO_BU_MAINTAIN" (to_Char(now(), yyyy-mm-dd')::varchar);
+          RETURN 'ok':
+          END
+          $BODY$;
+          ALTER FUNCTION odS."PROCOMPUT
+          INTAINCOMPUT"() OWNER TO bi:
+
+          5) 参数说明: 非必填, 置灰提示“请输入参数说明”
+          6) 存储位置: 必填标识, 默认展示存储过程, 支持切换存储过程下创建的文件夹
+      - action: 「存储过程名称」为空, 提交表单
+        expected: "置红提示: 存储过程名称不可为空！"
+      - action: 「存储过程名称」输入123, 提交表单
+        expected: "置红提示: 存储过程名称开头必须是英文！"
+      - action: 「存储过程名称」输入非法字符#¥%, 提交表单
+        expected: "置红提示: 存储过程名称只能由字母、数字、下划线组成！"
+      - action: 「存储过程名称」输入21个英文字符, 提交表单
+        expected: "置红提示: 存储过程名称不得超过20个字符！"
+      - action: 「存储过程名称」输入20个英文字符, 提交表单
+        expected: 无红色提示, 「SQL」配置项中自动补充存储过程名称
+      - action: 「用途」输入201个字符, 提交表单
+        expected: "置红提示: 请控制在200个字符以内！"
+      - action: 「用途」输入200个字符, 提交表单
+        expected: 无红色提示
+      - action: 「SQL」为空, 提交表单
+        expected: SQL不能为空！
+      - action: 「参数说明」输入201个字符, 提交表单
+        expected: "置红提示: 请控制在200个字符以内！"
+      - action: 「参数说明」输入200个字符, 提交表单
+        expected: 无红色提示
+  - case_id: C0018
+    title: 验证 GaussDB 存储过程增删改查功能正常
+    priority: P1
+    steps:
+      - action: 进入「离线开发-数据开发-函数管理」页面
+        expected: 进入成功
+      - action: |-
+          新建GaussDB 存储过程, 配置如下:
+          1) 存储过程名称: proc_account_summary
+          2) SQL:
+          CREATE OR REPLACE PROCEDURE ${项目标识}.proc_account_summary(
+              IN p_account_id BIGINT,
+              OUT o_txn_count BIGINT,
+              OUT o_total_amount NUMERIC
+          )
+          LANGUAGE plpgsql
+          AS $$
+          BEGIN
+              SELECT COUNT(*), SUM(txn_amount)
+                INTO o_txn_count, o_total_amount
+              FROM bank_transaction
+              WHERE account_id = p_account_id;
+              RAISE NOTICE 'Account % has % transactions, total_amount = %', p_account_id, o_txn_count, o_total_amount;
+          END;
+          $$;
+        expected: "Toast提示: 创建成功"
+      - action: |-
+          右键编辑proc_account_summary 存储过程, 配置如下:
+          用途: 根据交易类型和金额计算手续费
+        expected: "Toast提示: 编辑成功"
+      - action: 在「自定义函数」目录下新增子目录A后, 右键移动proc_account_summary 存储过程存储位置到目录A
+        expected: 移动成功
+      - action: 点击 proc_account_summary 存储过程
+        expected: 展示「存储过程信息」, 内容回显正确
+      - action: 右键删除 proc_account_summary 存储过程
+        expected: "Toast提示: 删除成功"
+  - case_id: C0019
+    title: 验证 GaussDB 任务一键发布&导入导出发布功能正常
+    priority: P0
+    precondition: |-
+      存在两个项目projectA(测试项目), projectB(生产项目), 项目A, B均已对接gaussdb数据源
+
+      gaussdb建表语句:
+
+      -- 创建银行客户账户与交易测试表，涵盖多种 openGauss 支持的数据类型
+      drop table if exists bank_customer_account;
+      CREATE TABLE bank_customer_account (
+          customer_id            BIGINT,                          -- 数值类型（整型）
+          account_number          INTEGER,                         -- 账号（整型）
+          credit_limit             NUMERIC(18,2),                  -- 任意精度（货币类型）
+          is_premium               BOOLEAN,                         -- 布尔类型
+          customer_name             VARCHAR(200),                   -- 字符类型
+          remarks_blob              BYTEA,                           -- 二进制类型
+          open_date                 DATE,                            -- 日期类型
+          last_transaction_ts        TIMESTAMP,                       -- 时间戳类型
+          transaction_interval        TSTZRANGE,                      -- 范围类型 (带时区范围)
+          customer_uuid              UUID,                            -- UUID 类型 :contentReference[oaicite:0]{index=0}
+          metadata_json               JSONB,                           -- JSONB 类型 :contentReference[oaicite:1]{index=1}
+          login_hll                   hll,                             -- HLL 类型 :contentReference[oaicite:2]{index=2}
+          permission_bits              BIT VARYING(16),                 -- 位串类型 :contentReference[oaicite:3]{index=3}
+          transaction_counts          INTEGER[],                       -- 数组类型 :contentReference[oaicite:4]{index=4}
+          object_oid                   OID,                             -- 对象标识符类型 (OID) :contentReference[oaicite:5]{index=5}
+          config_xml                    XML,                             -- XML 类型 :contentReference[oaicite:6]{index=6}
+          acct_balance_double         DOUBLE PRECISION,              -- 浮点数 (双精度)
+          small_balance                 SMALLINT                        -- 小整数
+      );
+
+      -- 插入一条模拟银行客户账户数据
+      INSERT INTO bank_customer_account VALUES (
+          1000000000001,                     -- customer_id
+          12345678,                           -- account_number
+          250000. 50,                          -- credit_limit
+          TRUE,                               -- is_premium
+          '李四-高端客户',                      -- customer_name
+          E'\\xDEADBEEFCAFE',                  -- 备注 (bytea, 十六进制)
+          DATE '2022-01-15',                   -- open_date
+          TIMESTAMP '2025-11-17 09:45:30',     -- last_transaction_ts
+          tstzrange(
+             TIMESTAMP WITH TIME ZONE '2025-11-01 00:00:00+08',
+             TIMESTAMP WITH TIME ZONE '2025-11-17 23:59:59+08'
+          ),                                   -- transaction_interval
+          '3f50f5a2-9d0b-4f3d-b244-9adbe1f12345', -- customer_uuid
+          '{"preferred_channel":"mobile","alerts": ["sms","email"]}'::JSONB,  -- metadata_json
+          hll_empty(),                         -- login_hll (初始 HLL)
+          B'1011001110001111',                 -- permission_bits (16 位二进制)
+          ARRAY[5, 10, 15],                     -- transaction_counts (示例数组)
+          9999::OID,                           -- object_oid (示范一个 OID 值)
+          '<settings><tier>gold</tier><region>asia</region></settings>'::XML,  -- config_xml
+          12345. 6789,                          -- acct_balance_double
+          32000                                -- small_balance
+      );
+
+      -- 查询所有列，验证插入
+      SELECT * FROM bank_customer_account;
+    steps:
+      - action: 进入projectA(测试项目) -> 数据开发-周期任务
+        expected: 进入成功
+      - action: 创建gaussdb sql任务taskA, 执行建表语句后, 保存并发布
+        expected: 发布成功, 跳转到「创建发布包」页面
+      - action: 勾选任务taskA并打包
+        expected: 打包成功, 跳转到「发布至目标项目」页面
+      - action: 点击「导出」按钮
+        expected: zip文件${fileA}导出成功
+      - action: 点击「发布」按钮
+        expected: 发布状态由「待发布」 -> 「发布成功」
+      - action: 切换到projectB(生产项目) -> 数据开发-周期任务
+        expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
+      - action: 临时运行任务taskA后删除
+        expected: 运行/删除成功, GaussDB 任务一键发布功能正常
+      - action: 进入projectB(生产项目) -> 任务发布 -> 发布至本项目
+        expected: 进入成功
+      - action: 点击「导入发布包」, 选择zip文件${fileA}后, 点击「发布」按钮
+        expected: 弹出「发布包校验」弹窗, 「数据源」需要手动配置, 其他配置均校验通过
+      - action: 「数据源 - 本项目数据源」中选择projectB(生产项目)中的gaussdb数据源后, 点击「发布」
+        expected: 发布成功
+      - action: 检查 projectB(生产项目) -> 数据开发-周期任务
+        expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
+      - action: 临时运行任务taskA
+        expected: 运行成功, GaussDB 任务导入导出发布功能正常
+  - case_id: C0020
+    title: 验证 GaussDB 数据源映射配置功能正常
+    priority: P1
+    precondition: |-
+      存在两个项目projectA(测试项目), projectB(生产项目)
+      1. projectA(测试项目)已对接gaussdb数据源${datasourceA}
+      2. projectB(生产项目)已对接gaussdb数据源${datasourceB}
+    steps:
+      - action: 进入projectA(测试项目) -> 数据源
+        expected: 进入成功
+      - action: 选择数据源${datasourceA}, 点击「映射配置」
+        expected: 弹出「映射配置」弹窗, 存在必填项「发布目标」
+      - action: 展开「发布目标」
+        expected: 加载出projectB(生产项目)中的所有同类型(GaussDB)的Meta数据源名称
+      - action: 选择${datasourceB}后, 点击「确定」
+        expected: 映射配置成功
+      - action: 再次点击「映射配置」
+        expected: 数据源映射配置回显正常

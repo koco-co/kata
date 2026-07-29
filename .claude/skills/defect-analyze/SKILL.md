@@ -24,19 +24,14 @@ description: 缺陷分诊四种模式——收到异常堆栈、console 报错�
 
 **scan**：用 `kata scans create --project <项目> --repo <仓库> --base-branch <base 分支> --head-branch <目标分支>` 取 diff，或用 `--patch <patch>` 读取已有 patch（不需要 fetch 时加 `--skip-fetch`），逐文件做静态审查；用户没给 diff 时先确认分支对，连分支对也没有时用 `git diff HEAD~1` 自取最近一次提交的 diff，并在报告中注明 diff 来源。只报告能由所给 diff 与周边代码证实的缺陷，每条都附 `文件:行号` 与理由。报告结构以 [templates/scan-report.md](templates/scan-report.md) 为准；提交前运行 `kata defects lint --report <report.md> --exit-code`。
 
-**hotfix**：先用 `kata defects hotfix --bug-id <id> --project <项目> --yyyymm <yyyymm> --slug <slug> --evidence-file <evidence.json>` 获取 ZenTao Bug 证据，并把已经核对过的业务证据传入生成器，生成单条、字段固定、可直接对齐禅道的回归用例 Markdown。没有证据文件不得生成报告；生成后运行 `kata defects lint --report <report.md> --exit-code`。不生成 YAML、XMind 或 exports。
+**hotfix**：收到 ZenTao Bug ID 或 URL 时按下面的 4 步闭环执行：
 
-hotfix 用例必须遵守以下内容规范：
+1. **取证**：读取 Bug 原文和开发备注，用 `kata knowledge read`、`kata repos grep/show` 及既有用例补查业务语义。完成标准：用例中的菜单、字段、对象、状态和异常数据都有来源；证据不全就停在取证。
+2. **起草**：按 [examples/hotfix-case.md](examples/hotfix-case.md) 的正例组织 `templates/hotfix-evidence.json`。正文只写禅道的标题、前置条件和 `编号 | 步骤 | 预期` 表格；多个表单项或结果放在同一单元格，用 `<br>` 换行。完成标准：每一步都有可观察预期。
+3. **生成**：运行 `kata defects hotfix --bug-id <id> --project <项目> --yyyymm <yyyymm> --slug <slug> --evidence-file <evidence.json>`。生成器负责固定 frontmatter 和表格排版，证据文件只作生成门禁。
+4. **验收**：运行 `kata defects lint --report <report.md> --exit-code`。完成标准：命令退出码为 0；不生成 YAML、XMind 或 exports。
 
-- 正文只允许禅道用例字段：用例标题、`前置条件`、`用例步骤`；不得出现 `Bug 证据`、`环境与前置条件`、`回归步骤与预期`、`验证状态` 等自定义章节。
-- `用例步骤` 必须使用禅道同款 `编号 | 步骤 | 预期` 三列表格；步骤编号从 1 连续递增，每一步都有对应的非空、可验证预期。步骤和预期单元格必须保持单行；一个步骤包含多个表单项或结果时，仍放在同一个单元格内，用 `；` 分隔，不得换行或使用 `<br>`。
-- frontmatter 是相对禅道唯一增加的内容，字段固定为 `type`、`bug_id`、`source`、`keywords`、`evidence_refs`、`problem_cause`、`fix_project`、`fix_branch`、`fixed_version`、`resolution`。`keywords` 按项目 hotfix frontmatter 规则保留 6 个 `|` 分段；`evidence_refs` 记录 ZenTao、知识库以及源码/已有用例/UI 证据。修复原因、修复工程、修复分支、修复版本和解决方案只从开发备注提取；备注没有提供时统一填空字符串 `""`，不得使用 `unknown`，不得推断或补写。
-- `前置条件` 可以脱敏；账号、Cookie、Token、密码、数据源、库表、业务对象等真实值必须替换为 `${AccountA}`、`${DataSourceA}`、`${SchemaA}`、`${TableA}` 等占位符。不得把任何真实凭据写入报告、示例或禅道字段。
-- `前置条件` 必须让不熟悉业务的执行人能够复现：写清环境/权限、业务对象的具体状态、对象之间的关联关系和异常数据；涉及数据状态时按 `workspace/<project>/_shared/rules/hotfix-prerequisites.md` 写可执行的 UI 准备步骤或完整 SQL。禁止“准备可返回较长失败信息的场景”“准备测试对象”“按 Bug 原始场景执行”等无法操作的描述。
-- 生成前必须完成证据闭环：①读取 `kata knowledge read --project <project> --module <module>`，必要时用 `--keyword` 补查；②读取 ZenTao Bug 原文、步骤和开发备注；③用 `kata repos grep/show` 或本地源码检索确认实现语义；④检索同模块已有 YAML/Markdown/自动化用例，优先复用真实菜单、字段、对象和数据准备方式。不能由证据确认的业务事实不写入用例。
-- `evidence_refs` 使用 `kind|path-or-url:line` 形式，至少包含 `zentao`、`knowledge` 和 `source`/`case`/`ui` 三类证据。证据只记录来源和行号，不把调试过程或敏感值写入正文。
-- `kata defects hotfix` 的 `--evidence-file` JSON 必须包含 `keywords`、`evidence_refs`、`precondition` 和 `steps`；`steps` 中每项都必须有具体 `action` 与对应 `expected`。格式参考 [templates/hotfix-evidence.json](templates/hotfix-evidence.json)。生成器不再为缺失证据补通用前置、通用步骤或通用预期。
-- 同步禅道时，正文按固定字段写入；frontmatter 只供本地追踪修复元数据，不把修复元数据混入步骤内容。
+hotfix 的固定字段、表格结构、占位符、空泛内容和敏感信息规则由 CLI 校验；不要在本文件重复维护规则。
 
 ## 纪律
 

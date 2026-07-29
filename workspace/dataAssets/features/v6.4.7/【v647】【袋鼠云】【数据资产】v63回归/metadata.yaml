@@ -14,13 +14,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.7/【v647】【袋鼠云】【数据资产】v63回归"
 case_drafting:
   status: completed
-  archive_path: cases/exports/v63回归.md
-  xmind_path: cases/v63回归.xmind
+  archive_path: null
+  xmind_path: cases/exports/v63回归.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -28,24 +28,24 @@ automation:
   intents:
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/c0002-验证规则集编辑规则内容和删除提示符合标品逻辑.ts
+        - automation/tests/cases/c0002-rule-set-edit-delete-prompt.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/c0003-验证单表完整性字段级规则直接添加后结果正确.ts
+        - automation/tests/cases/c0003-field-integrity-rule-result.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/c0004-验证完整性表级表行数规则直接添加后结果正确.ts
+        - automation/tests/cases/c0004-table-row-count-rule-result.spec.ts
       automation_status: ready
     - intent_id: SR-INTENT-001
       case_files:
-        - automation/tests/cases/c0001-验证规则集创建后可独立运行并生成任务查询记录.ts
+        - automation/tests/cases/c0001-rule-set-independent-run.spec.ts
       automation_status: ready
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/v63回归.md
-  xmind: cases/v63回归.xmind
+  archive: null
+  xmind: cases/exports/v63回归.xmind
   tests_root: automation/tests/
   latest_results: null

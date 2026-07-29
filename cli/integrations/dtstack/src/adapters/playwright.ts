@@ -79,7 +79,7 @@ export async function createClientFromPage(
     }
   }
   const targetBaseUrl =
-    baseUrl ?? kataBaseUrl ?? process.env.UI_AUTOTEST_BASE_URL ?? process.env.E2E_BASE_URL;
+    baseUrl ?? kataBaseUrl;
   if (!targetBaseUrl) {
     throw new Error(
       "DTStack base URL is required; run Playwright through `kata env run <env> -- ...` or pass baseUrl",

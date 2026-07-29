@@ -123,7 +123,7 @@ describe("runs execution contract", () => {
       command: [
         process.execPath,
         "-e",
-        "process.exit(process.env.KATA_RUN_PATH && !process.env.KATA_ALLURE_RESULTS_DIR ? 0 : 9)",
+        "process.exit(process.env.KATA_RUN_PATH && !process.env.SHOULD_NOT_BE_INHERITED ? 0 : 9)",
       ],
     });
 
@@ -148,7 +148,7 @@ describe("runs execution contract", () => {
     );
 
     expect(childEnv.KATA_RUN_PATH).toBe("/tmp/kata-run");
-    expect(childEnv.KATA_ALLURE_RESULTS_DIR).toBeUndefined();
+    expect(childEnv.KATA_DATAASSETS_ENV).toBeUndefined();
     expect(childEnv.SHOULD_NOT_BE_INHERITED).toBeUndefined();
   });
 

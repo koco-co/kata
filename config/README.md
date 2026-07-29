@@ -1,17 +1,18 @@
 # Kata runtime configuration
 
-Kata keeps runtime configuration under four owners:
+Kata keeps configuration under five owners:
 
 ```text
 config/env/       Platform automation environments and local auth state
 config/infra/     Private SSH hosts, data sources, host keys and credentials
 config/plugin/    Private Lanhu, ZenTao and notification integration settings
 config/repos/     Local private source-repository catalog (sources.yaml is untracked)
+config/xmind/     Tracked public project-to-XMind-root mappings
 ```
 
-Keep the config directories at `0700` and every non-example YAML at `0600`;
-`kata config doctor` checks both. Only the tracked `*.example.yaml` templates
-and this README belong in Git.
+Keep private config directories at `0700` and every private non-example YAML at
+`0600`; `kata config doctor` checks both. Tracked public configuration under
+`config/xmind/`, the `*.example.yaml` templates, and this README belong in Git.
 
 Use the CLI to inspect and write configuration. This directory does not contain
 an additional Agent instruction layer.
@@ -37,6 +38,11 @@ The following files are local and must never be committed:
 The tracked `*.example.yaml` files contain schema examples only. They must not
 contain real hosts, passwords, cookies, tokens, connection strings or session
 paths.
+
+`xmind/projects.yaml` is the single source of truth for XMind root titles.
+Every supported project declares a display `root_name` and its fixed ZenTao
+module ID. Missing project mappings are hard errors; renderers do not infer a
+fallback from a feature path.
 
 Plugin examples follow the same rule. Use `kata config plugins-migrate` once
 with an explicit old dotenv path, then remove that dotenv file. Runtime

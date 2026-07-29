@@ -14,13 +14,13 @@ inputs: []
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v6.4.9/【v649】【袋鼠云】【数据质量】v63主流程用例"
 case_drafting:
   status: completed
-  archive_path: cases/exports/v63主流程用例.md
-  xmind_path: null
+  archive_path: null
+  xmind_path: cases/exports/v63主流程用例.xmind
   requirement_atoms: []
   coverage_matrix_path: null
 automation:
@@ -29,7 +29,7 @@ automation:
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/v63主流程用例.md
-  xmind: null
+  archive: null
+  xmind: cases/exports/v63主流程用例.xmind
   tests_root: null
   latest_results: null

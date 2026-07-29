@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-07-29T16:16:21.902Z",
+  "caseNo": 60,
+  "sourceCaseId": "185949",
+  "datasourceName": "dtstack_smoke_LINDORM_SPARK",
+  "datasourceType": "SparkThrift2.x",
+  "tableName": "test_info_1_qzmkxjrp_60",
+  "fullTableName": "dtstack_smoke.test_info_1_qzmkxjrp_60",
+  "compareTableName": "test_info_1_qzmkxjrp_60_cmp",
+  "fullCompareTableName": "dtstack_smoke.test_info_1_qzmkxjrp_60_cmp",
+  "ruleName": "§60 验证完整性校验校验不通过的规则查看明细功能",
+  "fullTitle": "验证「完整性校验」校验不通过的规则查看明细功能",
+  "packageName": "可合并完整性规则",
+  "packageCount": 1,
+  "samplingEnabled": false,
+  "partitionEnabled": false,
+  "result": {
+    "classification": "run-failed",
+    "statusText": "脚本失败",
+    "tooltipTexts": [],
+    "rowText": "SR-UI-V6411-REBUILD-60: Error: DQ-PAGE-/dq/taskQuery: 应展示质量项目下拉\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.ant-layout-sider:visible .ant-select:visible, aside:visible .ant-select:visible, [class*=\\'sider\\']:visible .ant-select:visible').first()\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - DQ-PAGE-/dq/taskQuery: 应展示质量项目下拉 with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ant-layout-sider:visible .ant-select:visible, aside:visible .ant-select:visible, [class*=\\'sider\\']:visible .ant-select:visible').first()\u001b[22m\n"
+  }
+}

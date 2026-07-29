@@ -1,0 +1,35 @@
+schema: FeatureMetadata@2
+id: 【v649】【数据质量】校验失败邮件通知含明细数据
+display_name: 【202603】【数据质量】校验失败邮件通知含明细数据
+status: active
+created_at: 2026-05-14
+updated_at: 2026-05-14
+modules:
+  - dq
+customers:
+  - standard
+versions: []
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+  playwright_tests: true
+feature_id: "v6.4.9/【v649】【数据质量】校验失败邮件通知含明细数据"
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/校验失败邮件通知含明细数据.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/校验失败邮件通知含明细数据.xmind
+  tests_root: null
+  latest_results: null

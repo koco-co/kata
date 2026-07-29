@@ -31,10 +31,6 @@ type: hotfix-case
 bug_id: 155381
 source: https://zentao.example/zentao/bug-view-155381.html
 keywords: "6.3 | 数据标准 | | | 6.3 | 关联任务下线提示"
-evidence_refs:
-- "zentao|https://zentao.example/zentao/bug-view-155381.html:1"
-- "knowledge|workspace/dataAssets/knowledge/modules/data-quality.md:89-90"
-- "case|workspace/dataAssets/features/v7.0.0/cases/数据标准.yaml:1-8"
 problem_cause: ""
 fix_project: ""
 fix_branch: ""
@@ -127,7 +123,7 @@ describe("hotfix Markdown contract", () => {
     expect(rendered).toContain('fix_branch: "hotfix_9.9.x_9001"');
     expect(rendered).toContain('resolution: "统一统计口径"');
     expect(rendered).toContain('keywords: "9.9 | 数据质量 | | | 9.9 | 统计口径错误"');
-    expect(rendered).toContain("evidence_refs:");
+    expect(rendered).not.toContain("evidence_refs:");
     expect(rendered).toContain("## 前置条件");
     expect(rendered).toContain("| 编号 | 步骤 | 预期 |");
     expect(rendered).not.toContain("## Bug 证据");
@@ -137,9 +133,31 @@ describe("hotfix Markdown contract", () => {
     expect(lintHotfixMarkdown(report(VALID))).toEqual([]);
   });
 
+  it("rejects evidence refs from the report frontmatter", () => {
+    const invalid = VALID.replace(
+      'problem_cause: ""',
+      'evidence_refs:\n- "zentao|https://zentao.example/zentao/bug-view-155381.html:1"\nproblem_cause: ""',
+    );
+    expect(lintHotfixMarkdown(report(invalid)).some((v) => v.rule === "frontmatter")).toBe(true);
+  });
+
   it("rejects a structurally valid but vague business precondition", () => {
     const vague = VALID.replace(/- 数据：[^\n]+/, "- 数据：准备与 Bug 场景对应的测试对象。");
     expect(lintHotfixMarkdown(report(vague)).some((v) => v.rule === "precondition")).toBe(true);
+  });
+
+  it("rejects generic fallback expectations and deployment caveats", () => {
+    const invalid = VALID.replace(
+      `- 环境：\${EnvironmentA}。`,
+      "- 当前验证环境不要求部署修复包；未部署时只采集现场证据，不得断言修复效果。",
+    ).replace(
+      "| 1 | 创建并执行多表校验任务 | 任务执行成功，结果不产生笛卡尔关联 |",
+      "| 1 | 按 Bug 来源复现原始场景 | 修复后不再出现来源 Bug 中描述的异常。 |",
+    );
+    const violations = lintHotfixMarkdown(report(invalid));
+    expect(violations.some((v) => v.rule === "precondition")).toBe(true);
+    expect(violations.some((v) => v.rule === "steps-operation")).toBe(true);
+    expect(violations.some((v) => v.rule === "steps-expected")).toBe(true);
   });
 
   it("requires business evidence before rendering a report", () => {
@@ -243,10 +261,6 @@ describe("hotfix Markdown contract", () => {
       "bug_id: 155381",
       "source: https://zentao.example/zentao/bug-view-155381.html",
       'keywords: "9.9 | 数据质量 | | | 9.9 | 统计口径"',
-      "evidence_refs:",
-      '- "zentao|https://zentao.example/zentao/bug-view-155381.html:1"',
-      '- "knowledge|workspace/dataAssets/knowledge/modules/data-quality.md:1-4"',
-      '- "source|.repos/example/src/stat.ts:20-30"',
       "---",
       "# 旧 hotfix 回归",
       "",
@@ -323,10 +337,18 @@ describe("hotfix Markdown contract", () => {
     expect(violations.some((v) => v.rule === "section")).toBe(true);
   });
 
-  it("rejects multiline step cells", () => {
+  it("keeps br tags inside step cells for readable multi-result content", () => {
+    const readable = VALID.replace(
+      "| 1 | 创建并执行多表校验任务 | 任务执行成功，结果不产生笛卡尔关联 |",
+      "| 1 | 创建并执行多表校验任务<br>查看执行详情 | 任务执行成功<br>结果不产生笛卡尔关联 |",
+    );
+    expect(lintHotfixMarkdown(report(readable))).toEqual([]);
+  });
+
+  it("rejects physical line breaks inside a step row", () => {
     const invalid = VALID.replace(
       "| 1 | 创建并执行多表校验任务 | 任务执行成功，结果不产生笛卡尔关联 |",
-      "| 1 | 创建并执行多表校验任务\n继续填写表单 | 任务执行成功；结果不产生笛卡尔关联 |",
+      "| 1 | 创建并执行多表校验任务\n查看执行详情 | 任务执行成功，结果不产生笛卡尔关联 |",
     );
     expect(lintHotfixMarkdown(report(invalid)).some((v) => v.rule === "steps-linebreak")).toBe(
       true,

@@ -12,9 +12,9 @@ import {
 } from "../../cli/lib/xmind-io.ts";
 import { createXmind } from "../../cli/lib/xmind-render.ts";
 
-function data(reqName: string, caseTitle: string, project = "proj"): IntermediateJson {
+function data(reqName: string, caseTitle: string, project = "dataAssets"): IntermediateJson {
   return {
-    meta: { project_name: project, requirement_name: reqName },
+    meta: { project_name: project, requirement_name: reqName, version: "v1.0" },
     modules: [
       {
         name: "模块A",
@@ -63,8 +63,8 @@ describe("appendXmind", () => {
   it("throws instead of polluting the first sheet when the root title misses", async () => {
     const dir = mkdtempSync(join(tmpdir(), "kata-io-"));
     const out = join(dir, "a.xmind");
-    await createXmind(data("需求A", "t1", "projA"), out);
-    await expect(appendXmind(data("需求B", "t2", "projB"), out)).rejects.toThrow(
+    await createXmind(data("需求A", "t1", "dataAssets"), out);
+    await expect(appendXmind(data("需求B", "t2", "batchWorks"), out)).rejects.toThrow(
       /Cannot find sheet with root title/,
     );
     expect(await l1Titles(out)).toEqual(["需求A"]);

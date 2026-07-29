@@ -3,11 +3,17 @@
 ## 目录与命名
 
 - `automation/tests/cases/c<四位序号>-<slug>.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。
-- `automation/tests/runners/{smoke,full}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例。
-- `automation/tests/pages/`：页面对象，跨用例复用的页面操作封装。
-- `automation/tests/fixtures/`、`automation/tests/sql/`：前置数据与运行时 SQL。
-- `automation/scripts/`：探测、取数等一次性辅助脚本与文档（`kata automation normalize` 从 tests/ 移出的文件也归入此处）；不进 tests/，不参与 full run，不放交付 spec。
-- 跨 feature 复用的页面对象 / helper 提升到 `workspace/<project>/_shared/{pages,helpers}/`，不复制。
+- `automation/tests/runners/{generated,full,smoke,retry-failed}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例。
+- `automation/tests/{pages,flows,assertions,fixtures,sql}/`：分别放页面对象、业务流程、业务断言、前置数据/fixture 与运行时 SQL；单 feature 能力不得放入 `_shared`。
+- `automation/scripts/one-shot/`：探测、取数、排序、结果重查、清理、同步等一次性脚本与支持代码；不进 tests/，不参与 full run，不放交付 spec。
+- 跨 feature 复用至少两次的低层能力才提升到 `workspace/<project>/_shared/{pages,helpers,fixtures,runtime}/`，禁止复制和为单 feature 提前抽象。
+- `automation/tests/cases/` 只允许真实业务实现；缺实现的用例必须保持 `unmapped`，不能生成自然语言占位脚本。
+
+## 配置来源
+
+- 公共默认值只读 `config/automation/playwright.yaml`，环境值只读 `config/env/<env>.yaml` 的 `automation` 节点。
+- 运行时只允许通过通用 CLI 的重复 `--set path=value` 临时覆盖；不读取 `.env`，不保留历史兼容变量。
+- `requirement_id` 从用例 YAML 的 `meta.requirement_id` 解析，使用 `kata automation run <requirement_id> --env <env>` 选择 feature。
 
 ## 选择器优先级
 

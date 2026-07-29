@@ -1,5 +1,5 @@
 {
-  "_note": "原始 inventory.json 从未入库；本文件按 automation/tests/cases/t01~t06 的 EXPECT 契约从 cases/岚图数据质量验收功能用例.xlsx 重建（title/line/section 取自真实行，priority/version 按契约分布确定性指派），未经 live 验证。",
+  "_note": "原始 inventory.json 从未入库；本文件按 automation/tests/cases/c0001~c0006 的 EXPECT 契约从 cases/岚图数据质量验收功能用例.xlsx 重建（title/line/section 取自真实行，priority/version 按契约分布确定性指派），未经 live 验证。",
   "cases": [
     {
       "id": "LR-0001",

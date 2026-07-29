@@ -13,17 +13,17 @@ versions:
 owners: []
 inputs:
   - kind: manual
-    ref: cases/数据资产集成用例.xmind
+    ref: cases/exports/数据资产集成用例.xmind
 relates_to: []
 emits:
   cases_xmind: true
-  archive: true
+  archive: false
   playwright_tests: true
 feature_id: "v7.0.0/【v700】【岚图汽车】数据资产集成用例"
 case_drafting:
   status: completed
-  archive_path: cases/exports/数据资产集成用例.md
-  xmind_path: cases/数据资产集成用例.xmind
+  archive_path: null
+  xmind_path: cases/exports/数据资产集成用例.xmind
   requirement_atoms:
     - id: RA-001
       source_ref: xmind#元数据(#9633)
@@ -51,20 +51,20 @@ automation:
   intents:
     - intent_id: SR-INTENT-20260702-DATA-STANDARD-INTEGRATION
       case_files:
-        - automation/tests/cases/c0001-验证元数据元数据同步记录查看实例编辑与删除.ts
+        - automation/tests/cases/c0001-metadata-sync-record-actions.spec.ts
       automation_status: partial
     - intent_id: SR-INTENT-20260727-DATA-QUALITY-FOUR-DATASOURCE-SCENARIOS
       case_files:
-        - automation/tests/cases/c0004-验证数据质量项目管理搜索与置顶功能.ts
+        - automation/tests/cases/c0004-quality-project-search-and-pin.spec.ts
       automation_status: partial
     - intent_id: SR-INTENT-20260727-DATA-MODEL-LIVE-UI-FLOW
       case_files:
-        - automation/tests/cases/c0003-验证数据模型规范设计与模型元素展示.ts
+        - automation/tests/cases/c0003-data-model-design-and-elements.spec.ts
       automation_status: partial
   last_handoff_path: null
   last_run_status: not-run
 files:
-  archive: cases/exports/数据资产集成用例.md
-  xmind: cases/数据资产集成用例.xmind
+  archive: null
+  xmind: cases/exports/数据资产集成用例.xmind
   tests_root: automation/tests/
   latest_results: null

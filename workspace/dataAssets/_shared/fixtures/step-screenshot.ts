@@ -29,6 +29,7 @@
  */
 
 import { test as base, expect as baseExpect, type Locator, type Page } from "@playwright/test";
+import { loadPlaywrightAutomationConfig } from "../../../../lib/automation/playwright-config";
 
 export type StepFn = <T>(
   name: string,
@@ -53,7 +54,7 @@ type StepCaptureState = {
 type StepCaptureMode = "all" | "failed" | "off";
 
 function resolveStepCaptureMode(): StepCaptureMode {
-  const raw = (process.env.UI_AUTOTEST_STEP_CAPTURE ?? "all").toLowerCase();
+  const raw = loadPlaywrightAutomationConfig().stepCapture;
   if (raw === "failed") {
     return "failed";
   }

@@ -1,0 +1,7 @@
+{
+  "mode": "manual-table-and-metadata",
+  "datasource": "dtstack_smoke_LINDORM_SPARK",
+  "database": "dtstack_smoke",
+  "table": "dtstack_smoke.test_info_1_qzmkxjrp_63",
+  "note": "底表和元数据由回归发起人提前完成；本用例跳过 Playwright 建表和元数据同步，后续 UI 表选择负责验证主表可用。"
+}

@@ -1,0 +1,35 @@
+schema: FeatureMetadata@2
+id: 2026-07-ben-di-shu-ju-dao-ru-oracle
+display_name: 【江苏银行】本地数据导入- oracle
+status: active
+created_at: 2026-07-29T16:37:00.751Z
+updated_at: 2026-07-29T16:37:00.751Z
+modules:
+  - 离线开发
+customers:
+  - 江苏银行
+versions:
+  - v6.4.2
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+feature_id: v6.4.2/【v642】【江苏银行】【离线开发】本地数据导入- oracle
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/本地数据导入- oracle.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/本地数据导入- oracle.xmind
+  tests_root: null
+  latest_results: null

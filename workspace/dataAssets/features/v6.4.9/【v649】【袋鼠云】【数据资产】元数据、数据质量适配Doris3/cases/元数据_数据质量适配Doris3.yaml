@@ -1,7 +1,11 @@
 meta:
-  title: 元数据_数据质量适配Doris3
+  title: 【数据资产】元数据、数据质量适配doris3.x
   version: v6.4.9
   feature_id: v6.4.9/【v649】【袋鼠云】【数据资产】元数据、数据质量适配Doris3
+  requirement_id: "15603"
+  case_module_id: "10306"
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证「平台管理」中 Doris 3.x 数据源质量项目授权功能正常
@@ -25,7 +29,8 @@ cases:
         expected: 资产平台其他模块都可以加载到该数据源
     precondition: |-
       1) 「公共管理-数据源中心」已存在Doris 3.x数据源${datasource1}
-      2) 「离线开发」已存在Meta标识的Doris 3.x数据源${datasource2}
+      2) 「离线开发」已存在Meta标识的Doris
+      3. x数据源${datasource2}
     tags:
       - 平台管理
       - 数据源管理
@@ -96,11 +101,11 @@ cases:
       PROPERTIES (
           replication_num = 1);
 
-      INSERT INTO vehicle_sales VALUES 
+      INSERT INTO vehicle_sales VALUES
       (1001, 'LFPHFDEB3R2S12345', '岚图FREE', 31.88, '2025-09-01', '武汉岚图中心', '张三'),
       (1002, 'LFPHFDEB3R2S12346', '岚图梦想家', 45.99, '2025-09-02', '北京岚图体验店', '李四');
 
-      INSERT INTO vehicle_sales VALUES 
+      INSERT INTO vehicle_sales VALUES
       (1003, 'LFPHFDEB3R2S12347', '岚图追光', -5.00, '2025-09-03', '上海岚图空间', '王五'),  -- 价格非法
       (1004, '', '岚图FREE', 32.88, '2025-09-04', '广州岚图展厅', '赵六');               -- VIN为空
     tags:
@@ -1061,7 +1066,8 @@ cases:
         expected: 跳转至对应的规则任务详情页面，展示该 Doris 3.x 表的规则配置和执行结果信息
     precondition: |-
       1) Doris 3.x 数据源已引入资产平台并授权给质量项目
-      2) 已配置并执行了至少一条 Doris 3.x 数据源的规则任务，且存在校验通过和校验失败的实例记录
+      2) 已配置并执行了至少一条 Doris
+      3. x 数据源的规则任务，且存在校验通过和校验失败的实例记录
     tags:
       - 数据质量
       - 概览
@@ -1089,7 +1095,8 @@ cases:
         expected: 展示该表的元数据变更记录（如有），包含变更时间、变更类型、变更内容
     precondition: |-
       1) Doris 3.x 数据源已引入资产平台，元数据同步完成
-      2) 存在已同步的 Doris 3.x 数据表 vehicle_info_part1，且已配置过业务属性
+      2) 存在已同步的 Doris
+      3. x 数据表 vehicle_info_part1，且已配置过业务属性
     tags:
       - 元数据
       - 元数据管理
@@ -1194,7 +1201,9 @@ cases:
       - action: 进入【数据资产】-【元数据】-【元模型管理】页面
         expected: 进入成功
       - action: 下滑找到Doris 3.x元模型, 点击「编辑元模型」
-        expected: 1) 展示的技术属性与Doris 2.x保持一致
+        expected: |-
+          1) 展示的技术属性与Doris
+          2. x保持一致
       - action: 进入【数据资产】-【元数据】-【元数据管理】页面
         expected: 支持维护通用业务属性、个性业务属性
       - action: 选择数据源类型为「Doris 3.x」的数据源, 点击进入
@@ -1235,7 +1244,8 @@ cases:
         expected: 特有字段类型未被截断或显示为Unknown
     precondition: |-
       | 1) Doris 3.x 数据源已引入资产平台
-      2) 已在 Doris 3.x 中创建包含特有字段类型的测试表:
+      2) 已在 Doris
+      3. x 中创建包含特有字段类型的测试表:
       CREATE TABLE IF NOT EXISTS doris3x_type_test (
           id BIGINT COMMENT '主键',
           json_data JSON COMMENT 'JSON数据',
@@ -1303,7 +1313,8 @@ cases:
         expected: 字段信息与实际 Doris 建表语句完全一致
     precondition: |-
       | 1) Doris 3.x 数据源已引入资产平台
-      2) 已在 Doris 3.x 中创建测试表:
+      2) 已在 Doris
+      3. x 中创建测试表:
       CREATE TABLE IF NOT EXISTS sync_verify_test (
           id BIGINT COMMENT '主键ID',
           name VARCHAR(100) COMMENT '名称',
@@ -1945,7 +1956,8 @@ cases:
         expected: 跳转至该数据库下的表列表页，可查看各表的血缘状态详情
     precondition: |-
       1) Doris 3.x 数据源已引入资产平台，元数据同步完成
-      2) Doris 3.x 数据库中存在多张表，部分表已通过离线任务建立血缘关系（如通过INSERT INTO/CREATE TABLE AS SELECT等SQL），部分表无任何上下游血缘关系
+      2) Doris
+      3. x 数据库中存在多张表，部分表已通过离线任务建立血缘关系（如通过INSERT INTO/CREATE TABLE AS SELECT等SQL），部分表无任何上下游血缘关系
     tags:
       - 元数据
       - 血缘分析
@@ -1967,7 +1979,8 @@ cases:
         expected: 通知方式与订阅时设置的提醒方式一致
     precondition: |-
       1) 已订阅 Doris 3.x 数据表 vehicle_info_part1，提醒方式已配置
-      2) 离线开发中已对接 Doris 3.x 集群
+      2) 离线开发中已对接 Doris
+      3. x 集群
     tags:
       - 元数据
       - 订阅的数据
@@ -2023,7 +2036,8 @@ cases:
         expected: 订阅时间为当前时间
     precondition: |-
       | 1) Doris 3.x 数据源已引入资产平台，元数据同步完成
-      2) 存在已同步的 Doris 3.x 数据表 vehicle_info_part1，该表尚未被当前用户订阅
+      2) 存在已同步的 Doris
+      3. x 数据表 vehicle_info_part1，该表尚未被当前用户订阅
     tags:
       - 元数据
       - 订阅的数据

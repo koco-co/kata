@@ -1,0 +1,110 @@
+{
+  "caseNo": 63,
+  "sourceCaseId": "185946",
+  "datasourceName": "dtstack_smoke_LINDORM_SPARK",
+  "datasourceType": "SparkThrift2.x",
+  "database": "dtstack_smoke",
+  "tableName": "test_info_1_qzmkxjrp_63",
+  "fullTableName": "dtstack_smoke.test_info_1_qzmkxjrp_63",
+  "compareTableName": "test_info_1_qzmkxjrp_63_cmp",
+  "fullCompareTableName": "dtstack_smoke.test_info_1_qzmkxjrp_63_cmp",
+  "ruleName": "§63 验证完整性校验-多字段-抽样开启-设置分区校验功能",
+  "fullTitle": "验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能",
+  "packageName": "完整性可合并规则",
+  "packageCount": 1,
+  "samplingEnabled": true,
+  "partitionEnabled": true,
+  "ruleSpec": {
+    "caseNo": 63,
+    "title": "验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能",
+    "packageName": "完整性可合并规则",
+    "packageCount": 1,
+    "samplingEnabled": true,
+    "partitionEnabled": true,
+    "expectedRuleCount": 6,
+    "rules": [
+      {
+        "index": 1,
+        "category": "完整性校验",
+        "scope": "字段级",
+        "fields": [
+          "id",
+          "age"
+        ],
+        "functionName": "空值数",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": "!=1",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §63 复用 Doris §27 规则明细；「监控规则1」配置如下： 「生效范围」：「字段级」 「字段」：「id，age」 「字段间规则逻辑」：「and」 「统计函数」：「空值数」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「!=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 2,
+        "category": "完整性校验",
+        "scope": "字段级",
+        "fields": [
+          "id",
+          "age"
+        ],
+        "functionName": "空值率",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": "=0",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §63 复用 Doris §27 规则明细；「监控规则2」配置如下： 「生效范围」：「字段级」 「字段」：「id，age」 「字段间规则逻辑」：「or」 「统计函数」：「空值率」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「=0」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 3,
+        "category": "完整性校验",
+        "scope": "字段级",
+        "fields": [
+          "name",
+          "address"
+        ],
+        "functionName": "空串数",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": ">=100",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §63 复用 Doris §27 规则明细；「监控规则3」配置如下： 「生效范围」：「字段级」 「字段」：「name，address」 「字段间规则逻辑」：「or」 「统计函数」：「空串数」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「>=100」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 4,
+        "category": "完整性校验",
+        "scope": "字段级",
+        "fields": [
+          "name",
+          "address"
+        ],
+        "functionName": "空串率",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": "!=0",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §63 复用 Doris §27 规则明细；「监控规则4」配置如下： 「生效范围」：「字段级」 「字段」：「name，address」 「字段间规则逻辑」：「and」 「统计函数」：「空串率」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「!=0」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 5,
+        "category": "完整性校验",
+        "scope": "单表",
+        "functionName": "表行数",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": ">0",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §63 复用 Doris §27 规则明细；「监控规则5」配置如下： 「生效范围」：「单表」 「统计函数」：「表行数」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「>0」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      },
+      {
+        "index": 6,
+        "category": "完整性校验",
+        "scope": "单表",
+        "functionName": "表行数",
+        "filter": "id<=100",
+        "method": "固定值",
+        "expected": "=0",
+        "strength": "弱规则",
+        "notes": "SparkThrift 镜像 §63 复用 Doris §27 规则明细；「监控规则6」配置如下： 「生效范围」：「单表」 「统计函数」：「表行数」 「过滤条件」：「手动配置：id<=100」 「校验方法」：「固定值」 「期望值」：「=0」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」"
+      }
+    ]
+  }
+}

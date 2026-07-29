@@ -2,6 +2,9 @@ meta:
   title: Doris建表支持Datetime精度
   version: v6.4.7
   feature_id: v6.4.7/【v647】【数据模型】Doris建表支持Datetime精度
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证历史DATETIME字段精度正确
@@ -57,7 +60,8 @@ cases:
         expected: 进入表结构步骤
       - action: 新增多个字段，col1、col2选择DATETIME、DATETIMEV2类型
         expected: 主键后新增精度列，col1、col2精度默认为0，其他字段精度展示--
-      - action: 精度输入0、1、2、3、4、5、6
+      - action: |-
+          精度输入0、1、2、3、4、5、6
         expected: 允许输入
       - action: 精度输入小数、英文、特殊字符、负数、大于6的整数
         expected: 不允许输入

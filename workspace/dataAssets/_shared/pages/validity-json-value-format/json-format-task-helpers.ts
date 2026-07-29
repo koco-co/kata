@@ -8,6 +8,7 @@
 // 场景常量取自 validity-json-value-format feature 的 fixtures。
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
 
 import {
   getCurrentDatasource,
@@ -216,7 +217,7 @@ async function hasTerminalInstance(page: Page, taskName: string): Promise<boolea
 
 /** 轮询等待任务最新实例达到终态。 */
 async function waitForTerminalInstance(page: Page, taskName: string): Promise<void> {
-  const timeoutMs = Number(process.env.KATA_DQ_MONITOR_TIMEOUT_MS ?? 2_700_000);
+  const timeoutMs = loadPlaywrightAutomationConfig().monitorTimeoutMs;
   await expect
     .poll(async () => hasTerminalInstance(page, taskName), {
       message: `任务「${taskName}」的校验实例应达到终态（校验通过/校验失败/校验异常）`,

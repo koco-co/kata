@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-07-29T16:27:17.416Z",
+  "caseNo": 56,
+  "sourceCaseId": "185953",
+  "datasourceName": "dtstack_smoke_LINDORM_SPARK",
+  "datasourceType": "SparkThrift2.x",
+  "tableName": "test_info_1_qzmkxjrp_56",
+  "fullTableName": "dtstack_smoke.test_info_1_qzmkxjrp_56",
+  "compareTableName": "test_info_1_qzmkxjrp_56_cmp",
+  "fullCompareTableName": "dtstack_smoke.test_info_1_qzmkxjrp_56_cmp",
+  "ruleName": "§56 验证有效性校验-抽样开启校验全不通过功能",
+  "fullTitle": "验证「有效性校验」-「抽样开启」校验全不通过功能",
+  "packageName": "有效性可合并规则",
+  "packageCount": 1,
+  "samplingEnabled": true,
+  "partitionEnabled": false,
+  "result": {
+    "classification": "run-failed",
+    "statusText": "脚本失败",
+    "tooltipTexts": [],
+    "rowText": "SR-UI-V6411-REBUILD-56: Error: SR-UI-V6411-REBUILD-56: 校验结果查询页面应打开\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('body')\nExpected substring: \u001b[32m\"校验结果查询\"\u001b[39m\nReceived string:    \u001b[31m\"发现新版本，请刷新获取新版本。若该提示长时间存在，请联系管理员。\"\u001b[39m\nTimeout: 30000ms\n\nCall log:\n\u001b[2m  - SR-UI-V6411-REBUILD-56: 校验结果查询页面应打开 with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('body')\u001b[22m\n\u001b[2m    63 × locator resolved to <body>…</body>\u001b[22m\n\u001b[2m       - unexpected value \"发现新版本，请刷新获取新版本。若该提示长时间存在，请联系管理员。\"\u001b[22m\n"
+  }
+}

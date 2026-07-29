@@ -3,23 +3,23 @@
  * xmind-gen.ts — Converts intermediate JSON or Archive Markdown to .xmind files.
  *
  * Usage:
- *   kata xmind generate --input <json|md|dir> --output <xmind> [--mode create|append|replace]
- *   kata xmind generate --input <dir>           (batch convert all .md in dir)
- *   kata xmind generate --input <md> --json-only (output intermediate JSON only)
- *   kata xmind generate --help
+ * Internal XMind renderer. Public conversion is exposed through
+ * `kata cases import` and `kata cases build`, with YAML as the intermediate state.
  */
 
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { existsSync, renameSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
+import JSZip from "jszip";
 import type { MarkerId, TopicBuilder } from "xmind-generator";
 import { Marker, RootTopic, Topic, Workbook } from "xmind-generator";
 import { writeFileAtomic } from "./atomic-writer.ts";
+import { normalizeStructuredText } from "./cases/normalize.ts";
 import type { IntermediateJson, Meta, Module, Page, TestCase } from "./intermediate-types.ts";
-import { buildRootName, loadXmindRules } from "./xmind-rules.ts";
+import { buildRootName } from "./xmind-rules.ts";
 
 export type WriteMode = "create" | "append" | "replace";
-export type RootAwareMeta = Meta & { root_name?: string };
+export type RootAwareMeta = Meta;
 export interface RenderOptions {
   stepsAsNotes?: boolean;
   /** stepsAsNotes 仅对步骤数达到阈值的用例生效(默认 3);短用例保留大纲步骤节点 */
@@ -37,6 +37,87 @@ export interface OutputResult {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 export const UNCLASSIFIED = "未分类";
+
+const XMindEpoch = new Date(0);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function stableUuid(seed: string): string {
+  const hex = createHash("sha256").update(`kata-xmind:${seed}`).digest("hex");
+  const versioned = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-${(
+    8 + (parseInt(hex.slice(16, 17), 16) % 4)
+  ).toString(16)}${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+  return versioned;
+}
+
+function normalizeContentIds(value: unknown, path: string): unknown {
+  if (Array.isArray(value))
+    return value.map((item, index) => normalizeContentIds(item, `${path}/${index}`));
+  if (!value || typeof value !== "object") return value;
+  const object = value as Record<string, unknown>;
+  const normalized: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(object)) {
+    if ((key === "id" || key === "revisionId") && typeof item === "string" && UUID_RE.test(item)) {
+      normalized[key] = stableUuid(`${path}/${key}`);
+    } else {
+      normalized[key] = normalizeContentIds(item, `${path}/${key}`);
+    }
+  }
+  return normalized;
+}
+
+interface FoldableTopic {
+  branch?: string;
+  children?: { attached?: FoldableTopic[] };
+}
+
+/** Keep root expanded and fold every non-root node that has children. */
+export function applyProgressiveFolding(content: unknown): void {
+  if (!Array.isArray(content)) return;
+  const visit = (topic: FoldableTopic, isRoot: boolean): void => {
+    const children = topic.children?.attached ?? [];
+    if (isRoot) delete topic.branch;
+    else if (children.length > 0) topic.branch = "folded";
+    else delete topic.branch;
+    for (const child of children) visit(child, false);
+  };
+  for (const sheet of content) {
+    if (!sheet || typeof sheet !== "object") continue;
+    const rootTopic = (sheet as { rootTopic?: FoldableTopic }).rootTopic;
+    if (rootTopic) visit(rootTopic, true);
+  }
+}
+
+/** Normalize folding, generated UUIDs and ZIP timestamps for repeatable builds. */
+export async function normalizeXmindBuffer(input: Buffer): Promise<Buffer> {
+  const source = await JSZip.loadAsync(input);
+  const output = new JSZip();
+  for (const name of Object.keys(source.files).sort()) {
+    const entry = source.files[name];
+    let content: string | Buffer;
+    if (name === "content.json") {
+      const parsed = JSON.parse(await entry.async("string"));
+      applyProgressiveFolding(parsed);
+      content = `${JSON.stringify(normalizeContentIds(parsed, "content"))}\n`;
+    } else {
+      content = await entry.async("nodebuffer");
+    }
+    output.file(name, content, {
+      date: XMindEpoch,
+      createFolders: false,
+      dir: entry.dir,
+      compression: "DEFLATE",
+      compressionOptions: { level: 9 },
+    });
+  }
+  return Buffer.from(
+    await output.generateAsync({
+      type: "nodebuffer",
+      platform: "UNIX",
+      compression: "DEFLATE",
+      compressionOptions: { level: 9 },
+    }),
+  );
+}
 
 // ─── Priority map ─────────────────────────────────────────────────────────────
 
@@ -104,19 +185,14 @@ export function normalizeVersion(version: string): string {
   return version.replace(/^v/i, "");
 }
 
-export function buildRootTitle(meta: RootAwareMeta, projectDir?: string): string {
-  if (meta.root_name) {
-    return meta.root_name;
-  }
-  if (meta.version) {
-    return buildRootName(meta.version, loadXmindRules(projectDir), meta.project_name);
-  }
-  return meta.project_name;
+export function buildRootTitle(meta: RootAwareMeta, _legacyProjectDir?: string): string {
+  return buildRootName(meta.version, meta.project_name);
 }
 
 export function buildL1Title(meta: Meta): string {
-  // Strip trailing (#xxxxx) from requirement_name if present (frontmatter suite_name may include it)
-  return meta.requirement_name.replace(/\(#\d+\)\s*$/, "").trim();
+  const base = meta.requirement_name.replace(/\s*[（(]#\d+[）)]\s*$/, "").trim();
+  const moduleId = meta.case_module_id === undefined ? "" : String(meta.case_module_id).trim();
+  return moduleId ? `${base}(#${moduleId})` : base;
 }
 
 export function buildL1Labels(meta: Meta): string[] {
@@ -136,7 +212,7 @@ export function stripPriorityPrefix(title: string): string {
 // ─── Sanitize <br> tags to newlines ─────────────────────────────────────────
 
 export function sanitizeBr(text: string): string {
-  return text.replace(/<br\s*\/?>/gi, "\n");
+  return normalizeStructuredText(text);
 }
 
 // ─── Case count ──────────────────────────────────────────────────────────────
@@ -326,7 +402,7 @@ export async function createXmind(
   // 紧接着 applyFoldingToFile 读回会撞上空文件；这里自己同步写盘绕开竞态。
   // writeFileAtomic 同为同步写,且 tmp+rename 不会留下半截文件。
   const buffer = await wb.archive();
-  writeFileAtomic(outputPath, Buffer.from(buffer));
+  writeFileAtomic(outputPath, await normalizeXmindBuffer(Buffer.from(buffer)));
 }
 
 /**

@@ -1,0 +1,35 @@
+schema: FeatureMetadata@2
+id: 2026-07-yi-zu-hu-wei-du-shu-ju-ge-li
+display_name: 【中电信息】以租户维度数据隔离
+status: active
+created_at: 2026-07-29T16:37:01.376Z
+updated_at: 2026-07-29T16:37:01.376Z
+modules:
+  - 离线开发
+customers:
+  - 中电信息
+versions:
+  - v6.4.4
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+feature_id: v6.4.4/【v644】【中电信息】【离线开发】以租户维度数据隔离
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/以租户维度数据隔离.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/以租户维度数据隔离.xmind
+  tests_root: null
+  latest_results: null

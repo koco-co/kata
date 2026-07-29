@@ -7,18 +7,22 @@ import path from "node:path";
 import { test } from "@playwright/test";
 
 import { getEnvConfig, syncMetadata } from "../../../../../../_shared/helpers";
+import { loadV6411AutomationSettings } from "../../tests/fixtures/v6411-automation-config";
 
 const ENV = getEnvConfig();
-const DATASOURCE = process.env.V6411_SYNC_DATASOURCE?.trim() || ENV.datasources.doris?.assets?.name || ENV.datasources.doris?.batch?.name || "dtstack_smoke_DORIS_doris3";
-const DATABASE = process.env.V6411_SYNC_DATABASE?.trim() || ENV.datasources.doris?.sql.database || "test_lindorm_spark";
-const TABLE_SUFFIX = (process.env.V6411_CLEAN_TABLE_SUFFIX ?? "qzmkxjrp").trim();
+const AUTOMATION = loadV6411AutomationSettings();
+const DORIS = ENV.datasources.doris;
+if (!DORIS) throw new Error("当前环境未配置 doris 数据源");
+const DATASOURCE = DORIS.assets.name;
+const DATABASE = DORIS.sql.database;
+const TABLE_SUFFIX = AUTOMATION.tableBatchSuffix;
 const OUT_DIR = path.join(process.env.KATA_RUN_PATH ?? ".", "metadata-sync-new-doris");
 
 test.setTimeout(90 * 60 * 1000);
 
 function targetTables(): string[] {
   const tables: string[] = [];
-  const filter = (process.env.V6411_SYNC_CASES ?? "1-36").trim();
+  const filter = AUTOMATION.cases;
   for (let caseNo = 1; caseNo <= 36; caseNo += 1) {
     const included = filter.split(",").some((item) => {
       const range = item.match(/^(\d+)-(\d+)$/);
@@ -57,5 +61,4 @@ test("新 Doris 数据源元数据按表临时同步", async ({ page }) => {
     throw new Error(`元数据同步失败 ${failures.length} 张表: ${failures.map((item) => item.table).join(", ")}`);
   }
 });
-
 

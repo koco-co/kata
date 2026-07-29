@@ -11,12 +11,13 @@
 - [ ] P0 只标主流程与核心功能，占比约 1/4 ~ 1/3；不允许把所有用例标成同一优先级。用例数 ≥8 时占比由 lint 自动校验，<8 时 lint 不查，需人工核对。
 - [ ] 前置条件可以直接执行：环境、数据、账号权限都写具体；正文提到具体表名时，前置条件里有同名的 `CREATE TABLE`。
 - [ ] 步骤的 action 与 expected 成对出现；表单字段逐项列出；按钮、字段、枚举值与证据原文逐字一致。
+- [ ] `meta.case_module_id` 存在（未知为 `""`）；`meta.exports` 默认只有 `xmind`；结构化表单项和两个及以上编号项均逐行写在 YAML `|-` 中。
 - [ ] 正文中不出现真实主机地址、账号密码等未脱敏信息（真实环境名、标题格式已由 lint 拦截）。
 - [ ] 每条事实都有依据（requirement-notes.md / 知识库 / 源码 / 用户确认）；「待确认」字样由 lint 拦截，但要改在源头：未确认的内容一开始就不该写进来。
 
 ## 派生物
 
-- [ ] `需求名.xmind` 与 `exports/需求名.md` 是本次由 yaml build 生成的，未经手工修改。
+- [ ] `cases/exports/` 下的文件与 YAML `meta.exports` 一致（默认只有 `需求名.xmind`），均由本次 build 生成且未经手工修改。
 - [ ] `kata cases lint --project <项目> --feature <id> --exit-code` 通过。
 
 ## 边界说明

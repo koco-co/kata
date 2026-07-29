@@ -3,10 +3,15 @@ meta:
   version: v6.4.11
   feature_id: v6.4.11/【v6411】【岚图汽车】【数据资产】数据质量任务性能优化，规则sql合并
   requirement_id: "15862"
+  imports:
+    - 数据质量.csv
+  exports:
+    - xmind
+  case_module_id: ""
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-验证可合并和不可合并-抽样开启-设置分区-不同过滤条件-包含强弱规则-多规则包校验功能.ts
+      spec_file: c0001-mergeable-sample-partition-filter-strength-multi-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
@@ -81,7 +86,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「10」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、过滤条件相同的规则按强弱分类进行合并：1、5、7、9进行合并；2、10进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 过滤条件相同的规则按强弱分类进行合并：1、5、7、9进行合并；2、10进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
@@ -153,8 +158,8 @@ cases:
       - 未分类
   - case_id: C0002
     automation:
-      spec_file: c0002-验证可合并和不可合并-抽样开启-设置分区-不同过滤条件-包含强弱规则-单规则包校验功能.ts
-    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「单规则包」校验功能
+      spec_file: c0002-mergeable-sample-partition-filter-strength-single-pack.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -228,7 +233,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「1」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、过滤条件相同的规则1、3、5、7、9进行合并；规则2、10进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 过滤条件相同的规则1、3、5、7、9进行合并；规则2、10进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
@@ -300,7 +305,7 @@ cases:
       - 未分类
   - case_id: C0003
     automation:
-      spec_file: c0003-验证可合并和不可合并-抽样开启-设置分区-相同过滤条件-包含强弱规则-多规则包校验功能.ts
+      spec_file: c0003-mergeable-sample-partition-same-filter-strength-multi-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
@@ -375,7 +380,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「10」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、子规则按强弱规则分类进行sql合并：1、4、5、7、9进行合并；2、3、8、10进行合并 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）同一强弱规则类别的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 子规则按强弱规则分类进行sql合并：1、4、5、7、9进行合并；2、3、8、10进行合并 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）同一强弱规则类别的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
@@ -447,8 +452,8 @@ cases:
       - 未分类
   - case_id: C0004
     automation:
-      spec_file: c0004-验证可合并和不可合并-抽样开启-设置分区-相同过滤条件-包含强弱规则-单规则包校验功能.ts
-    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「单规则包」校验功能
+      spec_file: c0004-mergeable-sample-partition-same-filter-strength-single-pack.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -522,7 +527,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「1」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、子规则1、2、3、4、5、7、8、9、10进行sql合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 子规则1、2、3、4、5、7、8、9、10进行sql合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
@@ -594,7 +599,7 @@ cases:
       - 未分类
   - case_id: C0005
     automation:
-      spec_file: c0005-验证可合并和不可合并-抽样开启-设置分区校验功能.ts
+      spec_file: c0005-mergeable-sample-partition.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -731,7 +736,7 @@ cases:
       - 未分类
   - case_id: C0006
     automation:
-      spec_file: c0006-验证可合并和不可合并-抽样开启校验功能.ts
+      spec_file: c0006-mergeable-sample.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」校验功能
     priority: P1
     steps:
@@ -868,7 +873,7 @@ cases:
       - 未分类
   - case_id: C0007
     automation:
-      spec_file: c0007-验证可合并和不可合并-抽样关闭校验功能.ts
+      spec_file: c0007-mergeable-no-sample.spec.ts
     title: 验证「可合并和不可合并」-「抽样关闭」校验功能
     priority: P1
     steps:
@@ -1005,7 +1010,7 @@ cases:
       - 未分类
   - case_id: C0008
     automation:
-      spec_file: c0008-验证不可合并部分规则-抽样开启-设置分区校验功能.ts
+      spec_file: c0008-partial-unmergeable-sample-partition.spec.ts
     title: 验证「不可合并部分规则」-「抽样开启」-「设置分区」校验功能
     priority: P0
     steps:
@@ -1066,13 +1071,13 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -1134,14 +1139,14 @@ cases:
       SELECT 5
       ) users;
 
-      2、【资产-数据质量-规则库配置】已存在自定义SQL模板：
+      2、 【资产-数据质量-规则库配置】已存在自定义SQL模板：
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - doris3.x
       - 未分类
   - case_id: C0009
     automation:
-      spec_file: c0009-验证不可合并部分规则-抽样开启校验功能.ts
+      spec_file: c0009-partial-unmergeable-sample.spec.ts
     title: 验证「不可合并部分规则」-「抽样开启」校验功能
     priority: P1
     steps:
@@ -1202,13 +1207,13 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -1270,14 +1275,14 @@ cases:
       SELECT 5
       ) users;
 
-      2、【资产-数据质量-规则库配置】已存在自定义SQL模板：
+      2、 【资产-数据质量-规则库配置】已存在自定义SQL模板：
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - doris3.x
       - 未分类
   - case_id: C0010
     automation:
-      spec_file: c0010-验证不可合并部分规则-抽样关闭校验功能.ts
+      spec_file: c0010-partial-unmergeable-no-sample.spec.ts
     title: 验证「不可合并部分规则」-「抽样关闭」校验功能
     priority: P1
     steps:
@@ -1338,13 +1343,13 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -1406,14 +1411,14 @@ cases:
       SELECT 5
       ) users;
 
-      2、【资产-数据质量-规则库配置】已存在自定义SQL模板：
+      2、 【资产-数据质量-规则库配置】已存在自定义SQL模板：
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - doris3.x
       - 未分类
   - case_id: C0011
     automation:
-      spec_file: c0011-验证完整性有效性-抽样开启-设置分区-包含强弱规则-多规则包校验功能.ts
+      spec_file: c0011-completeness-validity-sample-partition-strength-multi-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能
     priority: P1
     steps:
@@ -1454,7 +1459,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「4」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、按强弱规则分类进行sql合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）按强弱分类，相同类别的规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 按强弱规则分类进行sql合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）按强弱分类，相同类别的规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -1462,7 +1467,7 @@ cases:
       - action: 重复前面子规则配置，修改调度属性中「规则拼接包」为「8」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
@@ -1532,7 +1537,7 @@ cases:
       - 未分类
   - case_id: C0012
     automation:
-      spec_file: c0012-验证完整性有效性-抽样开启-设置分区-包含强弱规则-单规则包校验功能.ts
+      spec_file: c0012-completeness-validity-sample-partition-strength-single-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能
     priority: P1
     steps:
@@ -1573,7 +1578,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「1」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -1645,7 +1650,7 @@ cases:
       - 未分类
   - case_id: C0013
     automation:
-      spec_file: c0013-验证完整性有效性-抽样开启-设置分区-不同过滤条件校验功能.ts
+      spec_file: c0013-completeness-validity-sample-partition-different-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能
     priority: P1
     steps:
@@ -1686,7 +1691,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、过滤条件相同的进行合并（规则1、5、6合并；4、9合并；2、7合并）其余子规则不进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 过滤条件相同的进行合并（规则1、5、6合并；4、9合并；2、7合并）其余子规则不进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -1758,7 +1763,7 @@ cases:
       - 未分类
   - case_id: C0014
     automation:
-      spec_file: c0014-验证完整性有效性-抽样开启-设置分区-string强转int校验功能.ts
+      spec_file: c0014-completeness-validity-sample-partition-string-to-int.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能
     priority: P2
     steps:
@@ -1797,7 +1802,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6通过，子规则3、4、7、8不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -1869,7 +1874,7 @@ cases:
       - 未分类
   - case_id: C0015
     automation:
-      spec_file: c0015-验证完整性有效性-抽样开启-设置分区-相同过滤条件校验功能.ts
+      spec_file: c0015-completeness-validity-sample-partition-same-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能
     priority: P2
     steps:
@@ -1910,7 +1915,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -1982,7 +1987,7 @@ cases:
       - 未分类
   - case_id: C0016
     automation:
-      spec_file: c0016-验证有效性校验校验不通过的规则查看明细功能.ts
+      spec_file: c0016-validity-failed-details.spec.ts
     title: 验证「有效性校验」校验不通过的规则查看明细功能
     priority: P1
     steps:
@@ -2012,7 +2017,7 @@ cases:
       - 未分类
   - case_id: C0017
     automation:
-      spec_file: c0017-验证有效性校验校验不通过质量报告正确.ts
+      spec_file: c0017-validity-failed-report.spec.ts
     title: 验证「有效性校验」校验不通过质量报告正确
     priority: P1
     steps:
@@ -2023,7 +2028,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并有效性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“0%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“有效性校验”；规则名称（可搜索）-已配置的子规则；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验未通过；未通过原因-“xxxx未通过”；详情说明-xxxx，不符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“查看详情”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -2085,7 +2090,7 @@ cases:
       SELECT 5
       ) users;
 
-      2、资产已存在有效性校验规则“可合并有效性规则”，且子规则全部不通过：
+      2、 资产已存在有效性校验规则“可合并有效性规则”，且子规则全部不通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -2095,7 +2100,7 @@ cases:
       - 未分类
   - case_id: C0018
     automation:
-      spec_file: c0018-验证有效性校验校验通过质量报告正确.ts
+      spec_file: c0018-validity-passed-report.spec.ts
     title: 验证「有效性校验」校验通过质量报告正确
     priority: P0
     steps:
@@ -2106,7 +2111,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并有效性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“100%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“有效性校验”；规则名称（可搜索）-已配置的子规则；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验通过；未通过原因-“--”；详情说明-xxxx，符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“--”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -2168,7 +2173,7 @@ cases:
       SELECT 5
       ) users;
 
-      2、资产已存在有效性校验规则“可合并有效性规则”，且子规则全部为通过：
+      2、 资产已存在有效性校验规则“可合并有效性规则”，且子规则全部为通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -2178,7 +2183,7 @@ cases:
       - 未分类
   - case_id: C0019
     automation:
-      spec_file: c0019-验证有效性校验-抽样开启-设置分区校验功能.ts
+      spec_file: c0019-validity-sample-partition.spec.ts
     title: 验证「有效性校验」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -2207,7 +2212,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2通过，子规则3、4不通过，且实例详情展示正确
     precondition: |-
@@ -2277,7 +2282,7 @@ cases:
       - 未分类
   - case_id: C0020
     automation:
-      spec_file: c0020-验证有效性校验-抽样开启校验全不通过功能.ts
+      spec_file: c0020-validity-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -2306,7 +2311,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -2376,7 +2381,7 @@ cases:
       - 未分类
   - case_id: C0021
     automation:
-      spec_file: c0021-验证有效性校验-抽样开启校验全通过功能.ts
+      spec_file: c0021-validity-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -2405,7 +2410,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -2475,7 +2480,7 @@ cases:
       - 未分类
   - case_id: C0022
     automation:
-      spec_file: c0022-验证有效性校验-抽样关闭校验全不通过功能.ts
+      spec_file: c0022-validity-no-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -2504,7 +2509,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -2574,7 +2579,7 @@ cases:
       - 未分类
   - case_id: C0023
     automation:
-      spec_file: c0023-验证有效性校验-抽样关闭校验全通过功能.ts
+      spec_file: c0023-validity-no-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -2603,7 +2608,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -2673,7 +2678,7 @@ cases:
       - 未分类
   - case_id: C0024
     automation:
-      spec_file: c0024-验证完整性校验校验不通过的规则查看明细功能.ts
+      spec_file: c0024-completeness-failed-details.spec.ts
     title: 验证「完整性校验」校验不通过的规则查看明细功能
     priority: P0
     steps:
@@ -2703,7 +2708,7 @@ cases:
       - 未分类
   - case_id: C0025
     automation:
-      spec_file: c0025-验证完整性校验校验不通过质量报告正确.ts
+      spec_file: c0025-completeness-failed-report.spec.ts
     title: 验证「完整性校验」校验不通过质量报告正确
     priority: P0
     steps:
@@ -2714,7 +2719,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并完整性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“0%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“完整性校验”；规则名称（可搜索）-“可合并完整性规则”；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验未通过；未通过原因-“xxxx未通过”；详情说明-xxxx，不符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“查看详情”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -2776,7 +2781,7 @@ cases:
       SELECT 5
       ) users;
 
-      2、资产已存在完整性校验规则“可合并完整性规则”，且子规则全部不通过：
+      2、 资产已存在完整性校验规则“可合并完整性规则”，且子规则全部不通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -2786,7 +2791,7 @@ cases:
       - 未分类
   - case_id: C0026
     automation:
-      spec_file: c0026-验证完整性校验校验通过质量报告正确.ts
+      spec_file: c0026-completeness-passed-report.spec.ts
     title: 验证「完整性校验」校验通过质量报告正确
     priority: P1
     steps:
@@ -2797,7 +2802,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并完整性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“100%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“完整性校验”；规则名称（可搜索）-已配置的子规则；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验通过；未通过原因-“--”；详情说明-xxxx，符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“--”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -2859,7 +2864,7 @@ cases:
       SELECT 5
       ) users;
 
-      2、资产已存在完整性校验规则“可合并完整性规则”，且子规则全部为通过：
+      2、 资产已存在完整性校验规则“可合并完整性规则”，且子规则全部为通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -2869,7 +2874,7 @@ cases:
       - 未分类
   - case_id: C0027
     automation:
-      spec_file: c0027-验证完整性校验-多字段-抽样开启-设置分区校验功能.ts
+      spec_file: c0027-completeness-multi-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -2902,9 +2907,10 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: |-
+          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -2972,7 +2978,7 @@ cases:
       - 未分类
   - case_id: C0028
     automation:
-      spec_file: c0028-验证完整性校验-单字段-抽样开启-设置分区校验功能.ts
+      spec_file: c0028-completeness-single-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -3005,9 +3011,10 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: |-
+          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -3075,7 +3082,7 @@ cases:
       - 未分类
   - case_id: C0029
     automation:
-      spec_file: c0029-验证完整性校验-多字段-抽样开启校验全不通过功能.ts
+      spec_file: c0029-completeness-multi-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -3106,7 +3113,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -3176,7 +3183,7 @@ cases:
       - 未分类
   - case_id: C0030
     automation:
-      spec_file: c0030-验证完整性校验-多字段-抽样开启校验全通过功能.ts
+      spec_file: c0030-completeness-multi-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -3207,7 +3214,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -3277,7 +3284,7 @@ cases:
       - 未分类
   - case_id: C0031
     automation:
-      spec_file: c0031-验证完整性校验-多字段-抽样关闭校验全不通过功能.ts
+      spec_file: c0031-completeness-multi-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -3308,7 +3315,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -3378,7 +3385,7 @@ cases:
       - 未分类
   - case_id: C0032
     automation:
-      spec_file: c0032-验证完整性校验-多字段-抽样关闭校验全通过功能.ts
+      spec_file: c0032-completeness-multi-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -3409,7 +3416,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -3479,7 +3486,7 @@ cases:
       - 未分类
   - case_id: C0033
     automation:
-      spec_file: c0033-验证完整性校验-单字段-抽样开启校验全不通过功能.ts
+      spec_file: c0033-completeness-single-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -3510,7 +3517,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -3580,7 +3587,7 @@ cases:
       - 未分类
   - case_id: C0034
     automation:
-      spec_file: c0034-验证完整性校验-单字段-抽样开启校验全通过功能.ts
+      spec_file: c0034-completeness-single-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -3611,7 +3618,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -3681,7 +3688,7 @@ cases:
       - 未分类
   - case_id: C0035
     automation:
-      spec_file: c0035-验证完整性校验-单字段-抽样关闭校验全不通过功能.ts
+      spec_file: c0035-completeness-single-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -3712,7 +3719,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -3782,7 +3789,7 @@ cases:
       - 未分类
   - case_id: C0036
     automation:
-      spec_file: c0036-验证完整性校验-单字段-抽样关闭校验全通过功能.ts
+      spec_file: c0036-completeness-single-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -3813,7 +3820,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -3883,8 +3890,8 @@ cases:
       - 未分类
   - case_id: C0037
     automation:
-      spec_file: c0037-验证多规则包校验功能.ts
-    title: 验证「多规则包」校验功能
+      spec_file: c0037-mergeable-sample-partition-filter-strength-multi-pack.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -3962,7 +3969,7 @@ cases:
       - action: 点击规则详情-规则sql查看按钮，查看【规则SQL】右边规则包下拉项
         expected: 显示10个规则包下拉项
       - action: 切换规则包，查看规则sql
-        expected: 1、过滤条件相同的规则按强弱分类进行合并：1、5、7、9进行合并；2、10、11进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 过滤条件相同的规则按强弱分类进行合并：1、5、7、9进行合并；2、10、11进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 其余不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 查看质量报告
@@ -4028,8 +4035,8 @@ cases:
       - 未分类
   - case_id: C0038
     automation:
-      spec_file: c0038-验证单规则包校验功能.ts
-    title: 验证「单规则包」校验功能
+      spec_file: c0038-mergeable-sample-partition-filter-strength-single-pack.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4105,7 +4112,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「1」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、过滤条件相同的规则1、3、5、7、9、11进行合并；规则2、10进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 过滤条件相同的规则1、3、5、7、9、11进行合并；规则2、10进行合并。 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 其余不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 查看质量报告
@@ -4171,8 +4178,8 @@ cases:
       - 未分类
   - case_id: C0039
     automation:
-      spec_file: c0039-验证多规则包校验功能.ts
-    title: 验证「多规则包」校验功能
+      spec_file: c0039-mergeable-sample-partition-same-filter-strength-multi-pack.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4248,7 +4255,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「10」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、子规则按强弱规则分类进行sql合并：1、4、5、7、9进行合并；2、3、8、10、11进行合并 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）同一强弱规则类别的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；（去重 count（ distinct）） 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 子规则按强弱规则分类进行sql合并：1、4、5、7、9进行合并；2、3、8、10、11进行合并 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）同一强弱规则类别的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；（去重 count（ distinct）） 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 其余子规则sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 查看质量报告
@@ -4314,8 +4321,8 @@ cases:
       - 未分类
   - case_id: C0040
     automation:
-      spec_file: c0040-验证单规则包校验功能.ts
-    title: 验证「单规则包」校验功能
+      spec_file: c0040-mergeable-sample-partition-same-filter-strength-single-pack.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4391,7 +4398,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「1」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、子规则1、2、3、4、5、7、8、9、10、11进行sql合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 子规则1、2、3、4、5、7、8、9、10、11进行sql合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 其余子规则sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 查看质量报告
@@ -4457,8 +4464,8 @@ cases:
       - 未分类
   - case_id: C0041
     automation:
-      spec_file: c0041-验证设置分区校验功能.ts
-    title: 验证「设置分区」校验功能
+      spec_file: c0041-mergeable-sample-partition.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4585,8 +4592,8 @@ cases:
       - 未分类
   - case_id: C0042
     automation:
-      spec_file: c0042-验证抽样开启校验功能.ts
-    title: 验证「抽样开启」校验功能
+      spec_file: c0042-mergeable-sample.spec.ts
+    title: 验证「可合并和不可合并」-「抽样开启」校验功能
     priority: P1
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4713,8 +4720,8 @@ cases:
       - 未分类
   - case_id: C0043
     automation:
-      spec_file: c0043-验证抽样关闭校验功能.ts
-    title: 验证「抽样关闭」校验功能
+      spec_file: c0043-mergeable-no-sample.spec.ts
+    title: 验证「可合并和不可合并」-「抽样关闭」校验功能
     priority: P1
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4841,8 +4848,8 @@ cases:
       - 未分类
   - case_id: C0044
     automation:
-      spec_file: c0044-验证设置分区校验功能.ts
-    title: 验证「设置分区」校验功能
+      spec_file: c0044-partial-unmergeable-sample-partition.spec.ts
+    title: 验证「不可合并部分规则」-「抽样开启」-「设置分区」校验功能
     priority: P0
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -4902,13 +4909,13 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -4961,15 +4968,15 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、【资产-数据质量-规则库配置】已存在自定义SQL模板：
+      2、 【资产-数据质量-规则库配置】已存在自定义SQL模板：
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - 不可合并
       - 未分类
   - case_id: C0045
     automation:
-      spec_file: c0045-验证抽样开启校验功能.ts
-    title: 验证「抽样开启」校验功能
+      spec_file: c0045-partial-unmergeable-sample.spec.ts
+    title: 验证「不可合并部分规则」-「抽样开启」校验功能
     priority: P1
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -5029,13 +5036,13 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -5088,15 +5095,15 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、【资产-数据质量-规则库配置】已存在自定义SQL模板：
+      2、 【资产-数据质量-规则库配置】已存在自定义SQL模板：
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - 不可合并
       - 未分类
   - case_id: C0046
     automation:
-      spec_file: c0046-验证抽样关闭校验功能.ts
-    title: 验证「抽样关闭」校验功能
+      spec_file: c0046-partial-unmergeable-no-sample.spec.ts
+    title: 验证「不可合并部分规则」-「抽样关闭」校验功能
     priority: P1
     steps:
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
@@ -5156,13 +5163,13 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
+        expected: 1、 sql不进行合并： 1）每一条校验规则，都单独去扫描一遍源数据表； 2）各个规则的判断计算语句都是分开写的，一条规则对应一段查询逻辑； 3）每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起； 4）不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
         expected: 结果正确，符合配置的规则内容
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -5215,14 +5222,14 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、【资产-数据质量-规则库配置】已存在自定义SQL模板：
+      2、 【资产-数据质量-规则库配置】已存在自定义SQL模板：
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - 不可合并
       - 未分类
   - case_id: C0047
     automation:
-      spec_file: c0047-验证完整性有效性-抽样开启-设置分区-包含强弱规则-多规则包校验功能.ts
+      spec_file: c0047-completeness-validity-sample-partition-strength-multi-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
@@ -5267,7 +5274,8 @@ cases:
       - action: 点击规则详情-规则sql查看按钮，查看【规则SQL】右边规则包下拉项
         expected: 显示2个规则包下拉项
       - action: 查看规则sql
-        expected: 1、按强弱规则分类进行sql合并：2、3、7、9、10进行合并，1、4、5、6、8进行合并 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）按强弱分类，相同类别的规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: |-
+          1、 按强弱规则分类进行sql合并：2、3、7、9、10进行合并，1、4、5、6、8进行合并 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）按强弱分类，相同类别的规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7、10通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -5279,9 +5287,9 @@ cases:
       - action: 点击规则详情-规则sql查看按钮，查看【规则SQL】右边规则包下拉项
         expected: 显示1个规则包下拉项
     precondition: |-
-      已有表test_info_1 
+      已有表test_info_1
 
-      CREATE TABLE pw_test.test_info_1 ( 
+      CREATE TABLE pw_test.test_info_1 (
 
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -5296,7 +5304,7 @@ cases:
       PARTITIONED BY (
       dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
       )
-      STORED AS ORC; 
+      STORED AS ORC;
 
       -- 插入6行数据
       INSERT INTO TABLE pw_test.test_info_1
@@ -5338,7 +5346,7 @@ cases:
       - 未分类
   - case_id: C0048
     automation:
-      spec_file: c0048-验证完整性有效性-抽样开启-设置分区-包含强弱规则-单规则包校验功能.ts
+      spec_file: c0048-completeness-validity-sample-partition-strength-single-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能
     priority: P1
     steps:
@@ -5379,7 +5387,7 @@ cases:
       - action: 配置「调度属性」，设置「规则拼接包」为「1」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -5442,7 +5450,7 @@ cases:
       - 未分类
   - case_id: C0049
     automation:
-      spec_file: c0049-验证完整性有效性-抽样开启-设置分区-不同过滤条件校验功能.ts
+      spec_file: c0049-completeness-validity-sample-partition-different-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能
     priority: P1
     steps:
@@ -5483,7 +5491,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、过滤条件相同的进行合并（规则1、5、6合并；4、9合并；2、7合并）其余子规则不进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 过滤条件相同的进行合并（规则1、5、6合并；4、9合并；2、7合并）其余子规则不进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -5546,7 +5554,7 @@ cases:
       - 未分类
   - case_id: C0050
     automation:
-      spec_file: c0050-验证完整性有效性-抽样开启-设置分区-string强转int校验功能.ts
+      spec_file: c0050-completeness-validity-sample-partition-string-to-int.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能
     priority: P2
     steps:
@@ -5585,7 +5593,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6通过，子规则3、4、7、8不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -5648,7 +5656,7 @@ cases:
       - 未分类
   - case_id: C0051
     automation:
-      spec_file: c0051-验证完整性有效性-抽样开启-设置分区-相同过滤条件校验功能.ts
+      spec_file: c0051-completeness-validity-sample-partition-same-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能
     priority: P2
     steps:
@@ -5689,7 +5697,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
@@ -5752,7 +5760,7 @@ cases:
       - 未分类
   - case_id: C0052
     automation:
-      spec_file: c0052-验证有效性校验校验不通过的规则查看明细功能.ts
+      spec_file: c0052-validity-failed-details.spec.ts
     title: 验证「有效性校验」校验不通过的规则查看明细功能
     priority: P1
     steps:
@@ -5782,7 +5790,7 @@ cases:
       - 未分类
   - case_id: C0053
     automation:
-      spec_file: c0053-验证有效性校验校验不通过质量报告正确.ts
+      spec_file: c0053-validity-failed-report.spec.ts
     title: 验证「有效性校验」校验不通过质量报告正确
     priority: P1
     steps:
@@ -5793,7 +5801,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并有效性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“0%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“有效性校验”；规则名称（可搜索）-已配置的子规则；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验未通过；未通过原因-“xxxx未通过”；详情说明-xxxx，不符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“查看详情”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -5846,7 +5854,7 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、资产已存在有效性校验规则“可合并有效性规则”，且子规则全部不通过：
+      2、 资产已存在有效性校验规则“可合并有效性规则”，且子规则全部不通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -5856,7 +5864,7 @@ cases:
       - 未分类
   - case_id: C0054
     automation:
-      spec_file: c0054-验证有效性校验校验通过质量报告正确.ts
+      spec_file: c0054-validity-passed-report.spec.ts
     title: 验证「有效性校验」校验通过质量报告正确
     priority: P0
     steps:
@@ -5867,7 +5875,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并有效性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“100%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“有效性校验”；规则名称（可搜索）-已配置的子规则；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验通过；未通过原因-“--”；详情说明-xxxx，符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“--”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -5920,7 +5928,7 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、资产已存在有效性校验规则“可合并有效性规则”，且子规则全部为通过：
+      2、 资产已存在有效性校验规则“可合并有效性规则”，且子规则全部为通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -5930,7 +5938,7 @@ cases:
       - 未分类
   - case_id: C0055
     automation:
-      spec_file: c0055-验证有效性校验-抽样开启-设置分区校验功能.ts
+      spec_file: c0055-validity-sample-partition.spec.ts
     title: 验证「有效性校验」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -5959,7 +5967,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2通过，子规则3、4不通过，且实例详情展示正确
     precondition: |-
@@ -6020,7 +6028,7 @@ cases:
       - 未分类
   - case_id: C0056
     automation:
-      spec_file: c0056-验证有效性校验-抽样开启校验全不通过功能.ts
+      spec_file: c0056-validity-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -6049,7 +6057,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -6110,7 +6118,7 @@ cases:
       - 未分类
   - case_id: C0057
     automation:
-      spec_file: c0057-验证有效性校验-抽样开启校验全通过功能.ts
+      spec_file: c0057-validity-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -6139,7 +6147,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -6200,7 +6208,7 @@ cases:
       - 未分类
   - case_id: C0058
     automation:
-      spec_file: c0058-验证有效性校验-抽样关闭校验全不通过功能.ts
+      spec_file: c0058-validity-no-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -6229,7 +6237,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -6290,7 +6298,7 @@ cases:
       - 未分类
   - case_id: C0059
     automation:
-      spec_file: c0059-验证有效性校验-抽样关闭校验全通过功能.ts
+      spec_file: c0059-validity-no-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -6319,7 +6327,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -6380,7 +6388,7 @@ cases:
       - 未分类
   - case_id: C0060
     automation:
-      spec_file: c0060-验证完整性校验校验不通过的规则查看明细功能.ts
+      spec_file: c0060-completeness-failed-details.spec.ts
     title: 验证「完整性校验」校验不通过的规则查看明细功能
     priority: P0
     steps:
@@ -6410,7 +6418,7 @@ cases:
       - 未分类
   - case_id: C0061
     automation:
-      spec_file: c0061-验证完整性校验校验不通过质量报告正确.ts
+      spec_file: c0061-completeness-failed-report.spec.ts
     title: 验证「完整性校验」校验不通过质量报告正确
     priority: P0
     steps:
@@ -6421,7 +6429,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并完整性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“0%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“完整性校验”；规则名称（可搜索）-“可合并完整性规则”；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验未通过；未通过原因-“xxxx未通过”；详情说明-xxxx，不符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“查看详情”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -6474,7 +6482,7 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、资产已存在完整性校验规则“可合并完整性规则”，且子规则全部不通过：
+      2、 资产已存在完整性校验规则“可合并完整性规则”，且子规则全部不通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -6484,7 +6492,7 @@ cases:
       - 未分类
   - case_id: C0062
     automation:
-      spec_file: c0062-验证完整性校验校验通过质量报告正确.ts
+      spec_file: c0062-completeness-passed-report.spec.ts
     title: 验证「完整性校验」校验通过质量报告正确
     priority: P1
     steps:
@@ -6495,7 +6503,7 @@ cases:
       - action: 查看质量报告详情展示
         expected: 从上到下依次为： 1）质量评估汇总（test_info_1_可合并完整性规则）：表名-test_info_1；数据源-「${DATASOURCE}」；数据库：「${DATABASE}」 ；检测数据范围-“设置的分区”；表行数-“6”；抽样行数-“--”；字段数-“8”；车辆数-“--”；校验规则数-“4”；校验通过率-“100%” 2）车辆信息汇总：车系、车型（可筛选）、动力类型、车辆数、表中包含车辆数、车辆总数、表中包含总车辆数 3）规则校验明细：规则类型（可筛选）-“完整性校验”；规则名称（可搜索）-已配置的子规则；字段名称（可搜索）-已配置的字段；字段类型（可搜索）-字段对应的类型；质检结果（可筛选）-校验通过；未通过原因-“--”；详情说明-xxxx，符合规则“xxx”；最近一次校验结束时间-xxxx-xx-xx xx:xx:xx；操作-“--”
     precondition: |-
-      1、已有表test_info_1
+      1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
       id INT COMMENT '用户ID',
       age INT COMMENT '年龄',
@@ -6548,7 +6556,7 @@ cases:
       UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
       ) users;
 
-      2、资产已存在完整性校验规则“可合并完整性规则”，且子规则全部为通过：
+      2、 资产已存在完整性校验规则“可合并完整性规则”，且子规则全部为通过：
       数据源：「${DATASOURCE}」
       数据库：「${DATABASE}」
       数据表：test_info_1
@@ -6558,7 +6566,7 @@ cases:
       - 未分类
   - case_id: C0063
     automation:
-      spec_file: c0063-验证完整性校验-多字段-抽样开启-设置分区校验功能.ts
+      spec_file: c0063-completeness-multi-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -6591,9 +6599,10 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: |-
+          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -6652,7 +6661,7 @@ cases:
       - 未分类
   - case_id: C0064
     automation:
-      spec_file: c0064-验证完整性校验-单字段-抽样开启-设置分区校验功能.ts
+      spec_file: c0064-completeness-single-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
@@ -6685,9 +6694,10 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: |-
+          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -6746,7 +6756,7 @@ cases:
       - 未分类
   - case_id: C0065
     automation:
-      spec_file: c0065-验证完整性校验-多字段-抽样开启校验全不通过功能.ts
+      spec_file: c0065-completeness-multi-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -6777,7 +6787,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -6838,7 +6848,7 @@ cases:
       - 未分类
   - case_id: C0066
     automation:
-      spec_file: c0066-验证完整性校验-多字段-抽样开启校验全通过功能.ts
+      spec_file: c0066-completeness-multi-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -6869,7 +6879,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -6930,7 +6940,7 @@ cases:
       - 未分类
   - case_id: C0067
     automation:
-      spec_file: c0067-验证完整性校验-多字段-抽样关闭校验全不通过功能.ts
+      spec_file: c0067-completeness-multi-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -6961,7 +6971,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -7022,7 +7032,7 @@ cases:
       - 未分类
   - case_id: C0068
     automation:
-      spec_file: c0068-验证完整性校验-多字段-抽样关闭校验全通过功能.ts
+      spec_file: c0068-completeness-multi-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -7053,7 +7063,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -7114,7 +7124,7 @@ cases:
       - 未分类
   - case_id: C0069
     automation:
-      spec_file: c0069-验证完整性校验-单字段-抽样开启校验全不通过功能.ts
+      spec_file: c0069-completeness-single-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
@@ -7145,7 +7155,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -7206,7 +7216,7 @@ cases:
       - 未分类
   - case_id: C0070
     automation:
-      spec_file: c0070-验证完整性校验-单字段-抽样开启校验全通过功能.ts
+      spec_file: c0070-completeness-single-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
@@ -7237,7 +7247,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-
@@ -7298,7 +7308,7 @@ cases:
       - 未分类
   - case_id: C0071
     automation:
-      spec_file: c0071-验证完整性校验-单字段-抽样关闭校验全不通过功能.ts
+      spec_file: c0071-completeness-single-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
@@ -7329,7 +7339,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
     precondition: |-
@@ -7390,7 +7400,7 @@ cases:
       - 未分类
   - case_id: C0072
     automation:
-      spec_file: c0072-验证完整性校验-单字段-抽样关闭校验全通过功能.ts
+      spec_file: c0072-completeness-single-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
@@ -7421,7 +7431,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
-        expected: 1、sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
+        expected: 1、 sql进行合并： 1）源表只扫描一次：FROM 后面的源表只出现 1 次； ​2）所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算； 3）计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
     precondition: |-

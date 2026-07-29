@@ -3,10 +3,13 @@ meta:
   version: v6.4.10
   feature_id: v6.4.10/【v6410】【岚图汽车】【数据质量】JSON格式配置
   requirement_id: "15696"
+  case_module_id: ""
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     automation:
-      spec_file: c0001-验证新增key完整正向流程含正则测试.ts
+      spec_file: c0001-add-key-positive-flow-regex-check.spec.ts
     title: 验证新增key完整正向流程（含正则测试）
     priority: P0
     steps:
@@ -55,7 +58,7 @@ cases:
       - 新增key
   - case_id: C0002
     automation:
-      spec_file: c0002-验证新增key时key字段为空不可提交.ts
+      spec_file: c0002-add-key-empty-name-blocked.spec.ts
     title: 验证新增key时key字段为空不可提交
     priority: P1
     steps:
@@ -74,7 +77,7 @@ cases:
       - 新增key
   - case_id: C0003
     automation:
-      spec_file: c0003-验证新增key时key字段输入超255字符不可提交.ts
+      spec_file: c0003-add-key-name-over-255-blocked.spec.ts
     title: 验证新增key时key字段输入超255字符不可提交
     priority: P1
     steps:
@@ -89,7 +92,7 @@ cases:
       - 新增key
   - case_id: C0004
     automation:
-      spec_file: c0004-验证新增key时key字段输入恰好255字符边界值可成功提交.ts
+      spec_file: c0004-add-key-name-255-char-boundary.spec.ts
     title: 验证新增key时key字段输入恰好255字符边界值可成功提交
     priority: P1
     steps:
@@ -108,7 +111,7 @@ cases:
       - 新增key
   - case_id: C0005
     automation:
-      spec_file: c0005-验证新增key时数据源类型三种选项可正常切换.ts
+      spec_file: c0005-switch-data-source-types.spec.ts
     title: 验证新增key时数据源类型三种选项可正常切换
     priority: P2
     steps:
@@ -135,7 +138,7 @@ cases:
       - 新增key
   - case_id: C0006
     automation:
-      spec_file: c0006-验证新增key表单中切换数据源类型后其余字段内容仍保留.ts
+      spec_file: c0006-preserve-form-values-when-switching-source.spec.ts
     title: 验证新增key表单中切换数据源类型后其余字段内容仍保留
     priority: P1
     steps:
@@ -157,7 +160,7 @@ cases:
       - 新增key
   - case_id: C0007
     automation:
-      spec_file: c0007-验证编辑key名称value格式数据源类型并保存生效.ts
+      spec_file: c0007-edit-key-and-save.spec.ts
     title: 验证编辑key名称、value格式、数据源类型并保存生效
     priority: P0
     steps:
@@ -187,7 +190,7 @@ cases:
       - 编辑key
   - case_id: C0008
     automation:
-      spec_file: c0008-验证新增子层级完整流程.ts
+      spec_file: c0008-add-child-key-flow.spec.ts
     title: 验证新增子层级完整流程
     priority: P0
     steps:
@@ -219,7 +222,7 @@ cases:
       - 新增子层级
   - case_id: C0009
     automation:
-      spec_file: c0009-验证第5层级的新增子层级按钮是置灰不可点击disabled.ts
+      spec_file: c0009-fifth-level-child-button-disabled.spec.ts
     title: 验证第5层级的新增子层级按钮是置灰、不可点击（disabled）
     priority: P1
     steps:
@@ -241,7 +244,7 @@ cases:
       - 新增子层级
   - case_id: C0010
     automation:
-      spec_file: c0010-验证单个删除含子层级的key会联动删除子层级数据.ts
+      spec_file: c0010-delete-key-with-children-cascade.spec.ts
     title: 验证单个删除含子层级的key会联动删除子层级数据
     priority: P0
     steps:
@@ -260,7 +263,7 @@ cases:
       - 删除key
   - case_id: C0011
     automation:
-      spec_file: c0011-验证批量删除多条key含子层级.ts
+      spec_file: c0011-batch-delete-keys-with-children.spec.ts
     title: 验证批量删除多条key（含子层级）
     priority: P0
     steps:
@@ -282,7 +285,7 @@ cases:
       - 删除key
   - case_id: C0012
     automation:
-      spec_file: c0012-验证key名模糊搜索功能含子层级key命中.ts
+      spec_file: c0012-fuzzy-search-key-names.spec.ts
     title: 验证key名模糊搜索功能（含子层级key命中）
     priority: P0
     steps:
@@ -304,7 +307,7 @@ cases:
       - 搜索与筛选
   - case_id: C0013
     automation:
-      spec_file: c0013-验证数据源类型筛选功能.ts
+      spec_file: c0013-filter-by-data-source-type.spec.ts
     title: 验证数据源类型筛选功能
     priority: P1
     steps:
@@ -326,7 +329,7 @@ cases:
       - 搜索与筛选
   - case_id: C0014
     automation:
-      spec_file: c0014-验证5层层级展开下钻及展开图标显示逻辑.ts
+      spec_file: c0014-expand-five-level-key-hierarchy.spec.ts
     title: 验证5层层级展开下钻及展开图标显示逻辑
     priority: P1
     steps:
@@ -355,7 +358,7 @@ cases:
       - 层级展开
   - case_id: C0015
     automation:
-      spec_file: c0015-验证value格式有内容时正则测试控件显示及匹配通过失败场景.ts
+      spec_file: c0015-test-value-format-regex.spec.ts
     title: 验证value格式有内容时正则测试控件显示及匹配通过失败场景
     priority: P1
     steps:
@@ -380,7 +383,7 @@ cases:
       - 正则测试
   - case_id: C0016
     automation:
-      spec_file: c0016-验证导入正确文件全流程重复则跳过.ts
+      spec_file: c0016-import-valid-file-skip-duplicates.spec.ts
     title: 验证导入正确文件全流程（重复则跳过）
     priority: P0
     steps:
@@ -412,7 +415,7 @@ cases:
       - 导入
   - case_id: C0017
     automation:
-      spec_file: c0017-验证导入模板下载功能.ts
+      spec_file: c0017-download-import-template.spec.ts
     title: 验证导入模板下载功能
     priority: P1
     steps:
@@ -433,7 +436,7 @@ cases:
       - 导入
   - case_id: C0018
     automation:
-      spec_file: c0018-验证重复处理规则重复则覆盖更新生效.ts
+      spec_file: c0018-duplicate-overwrite-rule.spec.ts
     title: 验证重复处理规则「重复则覆盖更新」生效
     priority: P0
     steps:
@@ -454,7 +457,7 @@ cases:
       - 导入
   - case_id: C0019
     automation:
-      spec_file: c0019-验证重复处理规则重复则跳过对已存在key不覆盖.ts
+      spec_file: c0019-duplicate-skip-existing-key.spec.ts
     title: 验证重复处理规则「重复则跳过」对已存在key不覆盖
     priority: P1
     steps:
@@ -475,7 +478,7 @@ cases:
       - 导入
   - case_id: C0020
     automation:
-      spec_file: c0020-验证导入文件key名超255字符时标红并批注长度超限.ts
+      spec_file: c0020-import-key-name-over-255-marked.spec.ts
     title: 验证导入文件key名超255字符时标红并批注长度超限
     priority: P1
     steps:
@@ -497,7 +500,7 @@ cases:
       - 导入
   - case_id: C0021
     automation:
-      spec_file: c0021-验证导入文件必填项未填写时标红并批注必填项未填写.ts
+      spec_file: c0021-import-required-field-missing-marked.spec.ts
     title: 验证导入文件必填项未填写时标红并批注必填项未填写
     priority: P1
     steps:
@@ -519,7 +522,7 @@ cases:
       - 导入
   - case_id: C0022
     automation:
-      spec_file: c0022-验证导入文件二层key上一层级key名无法匹配时标红并批注提示.ts
+      spec_file: c0022-import-parent-key-mismatch-marked.spec.ts
     title: 验证导入文件二层key上一层级key名无法匹配时标红并批注提示
     priority: P1
     steps:
@@ -545,7 +548,7 @@ cases:
       - 导入
   - case_id: C0023
     automation:
-      spec_file: c0023-验证导入非xlsx格式文件时报错.ts
+      spec_file: c0023-reject-non-xlsx-import.spec.ts
     title: 验证导入非xlsx格式文件时报错
     priority: P1
     steps:
@@ -562,7 +565,7 @@ cases:
       - 导入
   - case_id: C0024
     automation:
-      spec_file: c0024-验证导入功能正常重复则覆盖更新15层key存在相同-报错.ts
+      spec_file: c0024-import-overwrite-conflicting-hierarchy.spec.ts
     title: 验证导入功能正常(重复则覆盖更新, 1~5层key存在相同 -> 报错)
     priority: P1
     steps:
@@ -582,7 +585,7 @@ cases:
       - 导入
   - case_id: C0025
     automation:
-      spec_file: c0025-验证导入功能正常重复则覆盖更新1层key已存在-更新1层key.ts
+      spec_file: c0025-import-overwrite-existing-root-key-update.spec.ts
     title: 验证导入功能正常(重复则覆盖更新, 1层key已存在 -> 更新1层key)
     priority: P0
     steps:
@@ -602,7 +605,7 @@ cases:
       - 导入
   - case_id: C0026
     automation:
-      spec_file: c0026-验证导入功能正常重复则覆盖更新1层key不存在-新增1层key.ts
+      spec_file: c0026-import-overwrite-missing-root-key-add.spec.ts
     title: 验证导入功能正常(重复则覆盖更新, 1层key不存在 -> 新增1层key)
     priority: P1
     steps:
@@ -622,7 +625,7 @@ cases:
       - 导入
   - case_id: C0027
     automation:
-      spec_file: c0027-验证导入功能正常重复则覆盖更新25层上一层key存在key存在value不存在-更新N层value.ts
+      spec_file: c0027-import-overwrite-existing-key-missing-value.spec.ts
     title: 验证导入功能正常(重复则覆盖更新, 2~5层上一层key存在+key存在+value不存在 -> 更新N层value)
     priority: P1
     steps:
@@ -644,7 +647,7 @@ cases:
       - 导入
   - case_id: C0028
     automation:
-      spec_file: c0028-验证导入功能正常重复则覆盖更新25层上一层key存在key不存在-新增N层key.ts
+      spec_file: c0028-import-overwrite-missing-key-add-level.spec.ts
     title: 验证导入功能正常(重复则覆盖更新, 2~5层上一层key存在+key不存在 -> 新增N层key)
     priority: P1
     steps:
@@ -664,7 +667,7 @@ cases:
       - 导入
   - case_id: C0029
     automation:
-      spec_file: c0029-验证导入功能正常重复则覆盖更新25层上一层key不存在-报错.ts
+      spec_file: c0029-import-overwrite-missing-parent-error.spec.ts
     title: 验证导入功能正常(重复则覆盖更新, 2~5层上一层key不存在 -> 报错)
     priority: P1
     steps:
@@ -684,7 +687,7 @@ cases:
       - 导入
   - case_id: C0030
     automation:
-      spec_file: c0030-验证导入功能正常重复则跳过15层key存在相同-报错.ts
+      spec_file: c0030-import-skip-conflicting-hierarchy.spec.ts
     title: 验证导入功能正常(重复则跳过, 1~5层key存在相同 -> 报错)
     priority: P1
     steps:
@@ -704,7 +707,7 @@ cases:
       - 导入
   - case_id: C0031
     automation:
-      spec_file: c0031-验证导入功能正常重复则跳过1层key已存在-跳过不变.ts
+      spec_file: c0031-import-skip-existing-root-key.spec.ts
     title: 验证导入功能正常(重复则跳过, 1层key已存在 -> 跳过不变)
     priority: P1
     steps:
@@ -724,7 +727,7 @@ cases:
       - 导入
   - case_id: C0032
     automation:
-      spec_file: c0032-验证导入功能正常重复则跳过1层key不存在-新增1层key.ts
+      spec_file: c0032-import-skip-missing-root-key-add.spec.ts
     title: 验证导入功能正常(重复则跳过, 1层key不存在 -> 新增1层key)
     priority: P1
     steps:
@@ -744,7 +747,7 @@ cases:
       - 导入
   - case_id: C0033
     automation:
-      spec_file: c0033-验证导入功能正常重复则跳过25层上一层key存在key存在value不存在-跳过不变.ts
+      spec_file: c0033-import-skip-existing-key-missing-value.spec.ts
     title: 验证导入功能正常(重复则跳过, 2~5层上一层key存在+key存在+value不存在 -> 跳过不变)
     priority: P1
     steps:
@@ -766,7 +769,7 @@ cases:
       - 导入
   - case_id: C0034
     automation:
-      spec_file: c0034-验证导入功能正常重复则跳过25层上一层key存在key不存在-新增N层key.ts
+      spec_file: c0034-import-skip-missing-key-add-level.spec.ts
     title: 验证导入功能正常(重复则跳过, 2~5层上一层key存在+key不存在 -> 新增N层key)
     priority: P1
     steps:
@@ -786,7 +789,7 @@ cases:
       - 导入
   - case_id: C0035
     automation:
-      spec_file: c0035-验证导入功能正常重复则跳过25层上一层key不存在-报错.ts
+      spec_file: c0035-import-skip-missing-parent-error.spec.ts
     title: 验证导入功能正常(重复则跳过, 2~5层上一层key不存在 -> 报错)
     priority: P1
     steps:
@@ -806,7 +809,7 @@ cases:
       - 导入
   - case_id: C0036
     automation:
-      spec_file: c0036-验证导出列表数据完整流程及文件命名.ts
+      spec_file: c0036-export-key-list-file.spec.ts
     title: 验证导出列表数据完整流程及文件命名
     priority: P0
     steps:
@@ -836,7 +839,7 @@ cases:
       - 导出
   - case_id: C0037
     automation:
-      spec_file: c0037-验证筛选后导出仅包含筛选结果数据.ts
+      spec_file: c0037-export-filtered-results-only.spec.ts
     title: 验证筛选后导出仅包含筛选结果数据
     priority: P1
     steps:
@@ -857,7 +860,7 @@ cases:
       - 导出
   - case_id: C0038
     automation:
-      spec_file: c0038-验证搜索无结果时的空状态展示.ts
+      spec_file: c0038-empty-search-state.spec.ts
     title: 验证搜索无结果时的空状态展示
     priority: P2
     steps:
@@ -874,7 +877,7 @@ cases:
       - 空列表与分页
   - case_id: C0039
     automation:
-      spec_file: c0039-验证key数量达1000条以上时列表加载和搜索性能正常.ts
+      spec_file: c0039-large-key-list-performance.spec.ts
     title: 验证key数量达1000条以上时列表加载和搜索性能正常
     priority: P2
     steps:
@@ -893,7 +896,7 @@ cases:
       - 大数据量场景
   - case_id: C0040
     automation:
-      spec_file: c0040-验证大数据量场景key记录下载数量是否存在限制.ts
+      spec_file: c0040-large-key-download-limit.spec.ts
     title: 验证大数据量场景key记录下载数量是否存在限制
     priority: P1
     steps:
@@ -910,7 +913,7 @@ cases:
       - 大数据量场景
   - case_id: C0041
     automation:
-      spec_file: c0041-验证删除已被完整性和有效性校验规则引用的key后规则不受影响.ts
+      spec_file: c0041-delete-referenced-key-preserves-rules.spec.ts
     title: 验证删除已被完整性和有效性校验规则引用的key后规则不受影响
     priority: P1
     steps:
@@ -968,7 +971,7 @@ cases:
       - key删除后关联影响
   - case_id: C0042
     automation:
-      spec_file: c0042-验证编辑页与新增页表单结构保持一致字段顺序必填项title拼接中文名称.ts
+      spec_file: c0042-edit-add-form-consistency.spec.ts
     title: 验证编辑页与新增页表单结构保持一致（字段顺序、必填项、title 拼接中文名称）
     priority: P1
     steps:
@@ -997,7 +1000,7 @@ cases:
       - 编辑页与新增页表单结构对比
   - case_id: C0043
     automation:
-      spec_file: c0043-验证筛选导出三种筛选组合的行为一致性数据源类型单筛key名模糊单筛组合筛.ts
+      spec_file: c0043-combined-export-filters.spec.ts
     title: 验证筛选导出三种筛选组合的行为一致性（数据源类型单筛 / key 名模糊单筛 / 组合筛）
     priority: P1
     steps:
@@ -1021,7 +1024,7 @@ cases:
       - 筛选导出行为一致性（已知产品 Bug）
   - case_id: C0044
     automation:
-      spec_file: c0044-验证导入xlsx第2个sheet页的第一层级key名不存在时标红列应为第一层级key名而非key.ts
+      spec_file: c0044-import-second-sheet-parent-key-error-column.spec.ts
     title: 验证导入 xlsx 第 2 个 sheet 页的第一层级 key 名不存在时，标红列应为「第一层级 key 名」而非「key」
     priority: P1
     steps:

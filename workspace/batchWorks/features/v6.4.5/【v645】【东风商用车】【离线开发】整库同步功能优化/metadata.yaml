@@ -1,0 +1,35 @@
+schema: FeatureMetadata@2
+id: 2026-07-zheng-ku-tong-bu-gong-neng-you-hua
+display_name: 【东风商用车】整库同步功能优化
+status: active
+created_at: 2026-07-29T16:37:01.687Z
+updated_at: 2026-07-29T16:37:01.687Z
+modules:
+  - 离线开发
+customers:
+  - 东风商用车
+versions:
+  - v6.4.5
+owners: []
+inputs: []
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+feature_id: v6.4.5/【v645】【东风商用车】【离线开发】整库同步功能优化
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/整库同步功能优化.xmind
+  requirement_atoms: []
+  coverage_matrix_path: null
+automation:
+  status: not-started
+  intents: []
+  last_handoff_path: null
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/整库同步功能优化.xmind
+  tests_root: null
+  latest_results: null

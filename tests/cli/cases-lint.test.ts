@@ -108,6 +108,16 @@ describe("features lint", () => {
     expect(violations.some((v) => v.rule === "p0_ratio")).toBe(true);
   });
 
+  it("preserves historical-import priorities instead of enforcing the authored P0 ratio", () => {
+    const root = ws();
+    const cases = Array.from({ length: 8 }, (_, i) => {
+      return `  - id: C${String(i + 1).padStart(3, "0")}\n    title: 验证历史场景${i + 1}\n    priority: P1`;
+    }).join("\n");
+    mkValidActive(root, `meta:\n  imports:\n    - history.xmind\ncases:\n${cases}\n`);
+    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
+    expect(violations.some((v) => v.rule === "p0_ratio")).toBe(false);
+  });
+
   it("accepts P0 ratio inside the band and skips small case sets", () => {
     const root = ws();
     const cases = Array.from({ length: 8 }, (_, i) => {

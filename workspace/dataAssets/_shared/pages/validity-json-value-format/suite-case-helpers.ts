@@ -6,6 +6,7 @@
 // 每个分组在 beforeAll/beforeEach 中切换当前数据源，并在 beforeEach 中执行套件前置条件（带缓存，二次执行为空操作）。
 
 import { test } from "../../fixtures/step-screenshot";
+import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -29,7 +30,7 @@ export function describeByDatasource(pageName: string, fn: () => void): void {
       test.beforeEach(async ({ page }) => {
         setCurrentDatasource(datasource);
         // 与 v6.4.7 前置条件约定一致：只读/跳过模式下不执行建表前置。
-        if (process.env.OFFLINE_MODE === "1" || process.env.SKIP_PRECONDITIONS === "1") {
+        if (loadPlaywrightAutomationConfig().skipPreconditionSetup) {
           return;
         }
         await runSuitePreconditions(page, datasource);

@@ -87,7 +87,7 @@ export type V6411SourcePreconditionAudit = {
 };
 
 const FEATURE_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const CSV_PATH = path.join(FEATURE_DIR, "inputs/attachments/数据资产_STD-用例_6.4.11.csv");
+const CSV_PATH = path.join(FEATURE_DIR, "automation/scripts/inputs/数据资产_STD-用例_6.4.11.csv");
 
 type CsvRow = Record<string, string>;
 

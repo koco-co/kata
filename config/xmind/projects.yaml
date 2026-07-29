@@ -1,0 +1,7 @@
+projects:
+  dataAssets:
+    root_name: 数据资产
+    zentao_module_id: "23"
+  batchWorks:
+    root_name: 离线开发
+    zentao_module_id: "24"

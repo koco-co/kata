@@ -33,6 +33,7 @@ export const AUTOMATION_LINT_RULES = [
   "no-hardcoded-env",
   "selector-quality",
   "case-file-naming",
+  "no-generated-placeholder",
 ] as const;
 
 export type AutomationLintRule = (typeof AUTOMATION_LINT_RULES)[number];
@@ -286,6 +287,26 @@ function scanSourceFile(
   const originalLines = source.split(/\r?\n/);
   const maskedLines = masked.text.split(/\r?\n/);
 
+  if (
+    /(^|\/)automation\/tests\/cases\//.test(path) &&
+    (source.includes("runGeneratedCase") ||
+      source.includes("Generated from the canonical cases YAML"))
+  ) {
+    const markerLine = originalLines.findIndex(
+      (line) =>
+        line.includes("runGeneratedCase") ||
+        line.includes("Generated from the canonical cases YAML"),
+    );
+    addViolation(
+      violations,
+      path,
+      markerLine < 0 ? 1 : markerLine + 1,
+      "no-generated-placeholder",
+      "tests/cases/ 不允许使用通用自然语言 runner；必须实现真实业务页面动作和断言",
+      originalLines[markerLine < 0 ? 0 : markerLine] ?? "",
+    );
+  }
+
   for (let index = 0; index < maskedLines.length; index++) {
     const lineNumber = index + 1;
     const maskedLine = maskedLines[index] ?? "";
@@ -374,7 +395,7 @@ function scanCaseFileName(
       path,
       1,
       "case-file-naming",
-      "tests/cases/ 下 TypeScript 文件名必须符合 c<四位序号>-<中文/英文/数字/横杆 slug>.ts",
+      "tests/cases/ 下 TypeScript 文件名必须符合 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符",
       basename(absolutePath),
     );
   }

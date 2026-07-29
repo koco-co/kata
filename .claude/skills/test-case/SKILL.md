@@ -1,11 +1,11 @@
 ---
 name: test-case
-description: 用例编写、编辑、同步与标准化。两种触发方式——① 给需求源（Lanhu/Axure URL、PRD md、设计稿截图、功能描述）编写新用例，只发 URL 即可触发；② 给既有用例文件（.yaml/.xmind/.csv/.md），或要求编辑、同步、标准化。只发目录路径一律转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
+description: 用例编写、编辑、同步与标准化。两种触发方式——① 给需求源（Lanhu/Axure URL、PRD md、设计稿截图、功能描述）编写新用例，只发 URL 即可触发；② 给既有用例文件（.yaml/.csv/.xlsx/.md/.xmind），或要求编辑、同步、标准化。只发目录路径一律转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
 ---
 
 # test-case
 
-用例以 `cases/需求名.yaml` 为唯一权威来源；`requirement-notes.md` 记录确认过的需求内容，`test-points.md` 记录对齐过的覆盖范围，两者落在 feature 根，是 create 的依据；`cases/需求名.xmind` 与 `cases/exports/需求名.md` 是从 yaml 派生的产物，只经 `kata cases build` 重建，禁止手工修改。自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有已实现的用例才要求 `automation.spec_file` 指向可加载的真实脚本。
+用例以 `cases/需求名.yaml` 为唯一权威来源；CSV/XLSX/Markdown/XMind 输入先转成 YAML，所有输出再从 YAML 生成。`requirement-notes.md` 记录确认过的需求内容，`test-points.md` 记录对齐过的覆盖范围，两者落在 feature 根，是 create 的依据；派生物统一写入 `cases/exports/`，默认只生成 XMind，只有 YAML `meta.exports` 显式声明时才额外生成 CSV/XLSX/Markdown。派生物只经 `kata cases build` 重建，禁止手工修改。自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有已实现的用例才要求 `automation.spec_file` 指向可加载的真实脚本。
 
 ## 分流
 
@@ -29,7 +29,7 @@ description: 用例编写、编辑、同步与标准化。两种触发方式—�
 
 ## 完成标准
 
-- create：`requirement-notes.md`、`test-points.md`、`cases/需求名.yaml`、XMind 与 Markdown 派生物都存在，lint 通过。
+- create：`requirement-notes.md`、`test-points.md`、`cases/需求名.yaml` 与 YAML 声明的派生物都存在（默认只有 XMind），lint 通过。
 - edit：按实际已有的产物维护；语义变化必须先同步 `requirement-notes.md` / `test-points.md`，再重建派生物并通过 lint。
 - `kata cases lint --project <project> --feature <目录名或 metadata.id> --exit-code` 无 violation（yaml 含「待确认」字样会触发硬闸）。
 - 交付前按 [checklists/review.md](checklists/review.md) 自审，并在回复里说明已验证与未验证的范围。
@@ -37,7 +37,7 @@ description: 用例编写、编辑、同步与标准化。两种触发方式—�
 
 ## 产物位置
 
-feature 目录由 `kata features resolve --json` 返回（取 `featureDir`），禁止自己拼路径。用例 yaml 写入 `<featureDir>/cases/需求名.yaml`；`requirement-notes.md` 与 `test-points.md` 落在 `<featureDir>/` 根；派生物由 build 写入 `<featureDir>/cases/需求名.xmind` 与 `<featureDir>/cases/exports/需求名.md`。
+feature 目录由 `kata features resolve --json` 返回（取 `featureDir`），禁止自己拼路径。用例 YAML 写入 `<featureDir>/cases/需求名.yaml`；历史输入原样归档到 `<featureDir>/cases/imports/`；`requirement-notes.md` 与 `test-points.md` 落在 `<featureDir>/` 根；派生物由 build 统一写入 `<featureDir>/cases/exports/`。
 
 ## 需要子代理时
 

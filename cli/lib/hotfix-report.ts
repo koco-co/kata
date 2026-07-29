@@ -32,7 +32,6 @@ const FRONTMATTER_KEYS = [
   "bug_id",
   "source",
   "keywords",
-  "evidence_refs",
   "problem_cause",
   "fix_project",
   "fix_branch",
@@ -46,8 +45,11 @@ const SECRET_PATTERNS = [
 ] as const;
 const VAGUE_CONTENT_PATTERNS = [
   /准备[^\n]*(?:与\s*Bug\s*场景对应|测试对象)/i,
-  /按\s*Bug\s*原始场景/,
+  /按\s*Bug\s*(?:来源|原始)[^\n]*(?:复现|执行)/i,
+  /按\s*Bug\s*场景准备[^\n]*/i,
   /来源\s*Bug\s*所述异常/,
+  /修复后不再出现来源\s*Bug[^\n]*异常/i,
+  /(?:当前验证环境|验证环境)[^\n]*(?:不要求部署|未部署)[^\n]*(?:只验证|不得断言|现场证据)/i,
   /页面或任务结果符合预期/,
   /(?:较长|很长)[^\n]*(?:失败信息|错误信息|错误提示|字段列表)/,
 ] as const;
@@ -141,10 +143,6 @@ function isString(value: unknown): value is string {
   return typeof value === "string";
 }
 
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every(isString);
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -213,12 +211,6 @@ function validateEvidence(evidence: HotfixEvidence, source: string): string[] {
         errors.push(`steps[${index + 1}].expected 不能为空`);
       } else if (vagueContent(step.expected)) {
         errors.push(`steps[${index + 1}].expected 不能使用通用预期`);
-      }
-      if (isRecord(step) && isString(step.action) && /\r?\n/.test(step.action)) {
-        errors.push(`steps[${index + 1}].action 必须保持单行`);
-      }
-      if (isRecord(step) && isString(step.expected) && /\r?\n/.test(step.expected)) {
-        errors.push(`steps[${index + 1}].expected 必须保持单行`);
       }
     });
   }
@@ -310,50 +302,6 @@ export function lintHotfixMarkdown(reportPath: string): HotfixReportViolation[] 
       "frontmatter.keywords 必须包含 6 个由 | 分隔的位置",
       "keywords:",
     );
-  }
-
-  const refs = frontMatter.evidence_refs;
-  if (!isStringArray(refs) || refs.length < 3) {
-    add(
-      violations,
-      text,
-      "evidence",
-      "frontmatter.evidence_refs 至少需要 3 条字符串证据，包含 zentao、knowledge 和 source/case/ui",
-      "evidence_refs:",
-    );
-  } else {
-    const kinds = evidenceKinds(refs);
-    if (
-      !kinds.has("zentao") ||
-      !kinds.has("knowledge") ||
-      !(["source", "case", "ui"] as const).some((kind) => kinds.has(kind))
-    ) {
-      add(
-        violations,
-        text,
-        "evidence",
-        "evidence_refs 必须包含 zentao、knowledge 和 source/case/ui 三类证据",
-        "evidence_refs:",
-      );
-    }
-    if (!refs.some((ref) => ref.startsWith("zentao|") && ref.includes(source))) {
-      add(
-        violations,
-        text,
-        "evidence",
-        "zentao 证据必须与 frontmatter.source 一致",
-        "evidence_refs:",
-      );
-    }
-    if (refs.some((ref) => !/^\w+\|\S+:\d+(?:-\d+)?$/.test(ref.trim()))) {
-      add(
-        violations,
-        text,
-        "evidence",
-        "evidence_refs 每项必须使用 kind|path-or-url:line 格式",
-        "evidence_refs:",
-      );
-    }
   }
 
   for (const key of [
@@ -461,13 +409,6 @@ export function lintHotfixMarkdown(reportPath: string): HotfixReportViolation[] 
         message: "预期必须写具体可观察结果，不能使用通用预期",
       });
     }
-    if (/\r?\n/.test(row.operation) || /\r?\n/.test(row.expected)) {
-      violations.push({
-        line: row.line,
-        rule: "steps-linebreak",
-        message: "步骤和预期必须保持单行，多个内容用；分隔",
-      });
-    }
   });
 
   if (stepSection) {
@@ -483,7 +424,7 @@ export function lintHotfixMarkdown(reportPath: string): HotfixReportViolation[] 
         violations.push({
           line: stepSection.line + index + 1,
           rule: "steps-linebreak",
-          message: "步骤表格不得拆成多行，多个内容用；放在同一个单元格内",
+          message: "步骤表格不得拆成多行，单元格内多个内容使用 <br>",
         });
       }
     }
@@ -626,7 +567,7 @@ function developerMetadata(notes: string): Record<string, string> {
 
 function markdownCell(value: string): string {
   return redactSecrets(value)
-    .replace(/\r?\n+/g, "；")
+    .replace(/\r?\n+/g, "<br>")
     .replaceAll("|", "\\|")
     .trim();
 }
@@ -653,8 +594,6 @@ export function renderHotfixMarkdown(source: HotfixReportSource): string {
     `bug_id: ${bugId}`,
     `source: ${yamlString(source.source.trim())}`,
     `keywords: ${yamlString(source.evidence.keywords)}`,
-    "evidence_refs:",
-    ...source.evidence.evidence_refs.map((ref) => `- ${yamlString(ref)}`),
     `problem_cause: ${yamlString(metadata.problem_cause)}`,
     `fix_project: ${yamlString(metadata.fix_project)}`,
     `fix_branch: ${yamlString(metadata.fix_branch)}`,
@@ -710,7 +649,7 @@ function normalizeLegacyStepTable(table: string): string {
       if (current) rows.push(current);
       current = line.trim();
     } else if (current && line.trim()) {
-      current += `；${line.trim()}`;
+      current += ` <br>${line.trim()}`;
     }
   }
   if (current) rows.push(current);
@@ -790,10 +729,6 @@ export function migrateLegacyHotfixMarkdown(legacy: string): string {
     `bug_id: ${bugId}`,
     `source: ${yamlString(source)}`,
     `keywords: ${yamlString(isString(legacyFrontMatter.keywords) ? legacyFrontMatter.keywords : "")}`,
-    "evidence_refs:",
-    ...(Array.isArray(legacyFrontMatter.evidence_refs)
-      ? legacyFrontMatter.evidence_refs.filter(isString).map((ref) => `- ${yamlString(ref)}`)
-      : []),
     `problem_cause: ${yamlString(metadata.problem_cause)}`,
     `fix_project: ${yamlString(metadata.fix_project)}`,
     `fix_branch: ${yamlString(metadata.fix_branch)}`,

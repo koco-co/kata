@@ -1,12 +1,12 @@
 -- v6.4.11 岚图汽车数据质量任务性能优化，规则 SQL 合并
 -- 目标: Doris3.x §01–§36（36 条）；SparkThrift §37–§72 由 lindorm-test_info_1.sql 提供
--- Doris 数据源: test_lindorm_spark_DORIS_doris
+-- Doris 数据源由环境文件 datasources.doris.name 决定
 --
 -- 执行前将 {{DATABASE}} 替换为环境文件 datasources.doris.database，
 -- 将 {{SUFFIX}} 替换为 Playwright 使用的同一 8 位小写字母后缀。
 -- 分区字段 dt 使用与 Spark 批次一致的 T-1 日期 2026-07-19。
--- 本文件只提供人工建表 SQL；Playwright 设置 V6411_UI_SKIP_BASE_TABLE_CREATE=1
--- 后同时跳过 Doris 底表创建和元数据同步。
+-- 本文件只提供人工建表 SQL；Playwright 正式回归使用
+-- playwright.skip_precondition_setup=true 同时跳过 Doris 底表创建和元数据同步。
 
 -- §01 主表（源用例 1；无独立 DDL 时按 donor 映射复用结构）
 CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_01 (
@@ -1479,42 +1479,16 @@ PROPERTIES (
 );
 ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_16 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
 INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_16
-SELECT
-1 + user_idx AS id,
-CASE user_idx
-WHEN 0 THEN 25 WHEN 1 THEN 30 WHEN 2 THEN 28
-WHEN 3 THEN 35 WHEN 4 THEN 22 ELSE 29
-END AS age,
-CASE user_idx
-WHEN 0 THEN '001' WHEN 1 THEN '002' WHEN 2 THEN '003'
-WHEN 3 THEN '004' WHEN 4 THEN '005' ELSE '006'
-END AS string_num,
-CASE user_idx
-WHEN 0 THEN '张三' WHEN 1 THEN '李四' WHEN 2 THEN '王五'
-WHEN 3 THEN '赵六' WHEN 4 THEN '小明' ELSE '小红'
-END AS name,
-CASE user_idx
-WHEN 0 THEN '北京市朝阳区' WHEN 1 THEN '上海市浦东新区' WHEN 2 THEN '广州市天河区'
-WHEN 3 THEN '深圳市南山区' WHEN 4 THEN '杭州市西湖区' ELSE '成都市武侯区'
-END AS address,
-CASE user_idx
-WHEN 0 THEN '5000.00' WHEN 1 THEN '6800.50' WHEN 2 THEN '4200.00'
-WHEN 3 THEN '9500.00' WHEN 4 THEN '3100.00' ELSE '5600.00'
-END AS money,
-DATE_ADD(CURRENT_DATE(), INTERVAL -30 + user_idx DAY) AS buy_date,
-CASE user_idx
-WHEN 0 THEN '订单已完成' WHEN 1 THEN '待发货' WHEN 2 THEN '已取消'
-WHEN 3 THEN '配送中' WHEN 4 THEN '已完成' ELSE '退款中'
-END AS date_detail,
-DATE('2026-07-19') AS dt
-FROM (
-SELECT 0 AS user_idx UNION ALL
-SELECT 1 UNION ALL
-SELECT 2 UNION ALL
-SELECT 3 UNION ALL
-SELECT 4 UNION ALL
-SELECT 5
-) users;
+SELECT CAST(1 + MOD(number, 99) AS INT) AS id,
+       25 AS age,
+       CAST(10000 + number AS STRING) AS string_num,
+       CONCAT('脏数据', LPAD(CAST(number + 1 AS STRING), 6, '0')) AS name,
+       CONCAT('明细校验地址', LPAD(CAST(number + 1 AS STRING), 6, '0')) AS address,
+       '9' AS money,
+       DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY) AS buy_date,
+       CONCAT('有效性不通过明细', LPAD(CAST(number + 1 AS STRING), 6, '0')) AS date_detail,
+       '2026-07-19' AS dt
+FROM numbers("number" = "10000");
 
 -- §17 主表（源用例 17；无独立 DDL 时按 donor 映射复用结构）
 CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_17 (
@@ -1943,42 +1917,16 @@ PROPERTIES (
 );
 ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_24 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
 INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_24
-SELECT
-1 + user_idx AS id,
-CASE user_idx
-WHEN 0 THEN 25 WHEN 1 THEN 30 WHEN 2 THEN 28
-WHEN 3 THEN 35 WHEN 4 THEN 22 ELSE 29
-END AS age,
-CASE user_idx
-WHEN 0 THEN '001' WHEN 1 THEN '002' WHEN 2 THEN '003'
-WHEN 3 THEN '004' WHEN 4 THEN '005' ELSE '006'
-END AS string_num,
-CASE user_idx
-WHEN 0 THEN '张三' WHEN 1 THEN '李四' WHEN 2 THEN '王五'
-WHEN 3 THEN '赵六' WHEN 4 THEN '小明' ELSE '小红'
-END AS name,
-CASE user_idx
-WHEN 0 THEN '北京市朝阳区' WHEN 1 THEN '上海市浦东新区' WHEN 2 THEN '广州市天河区'
-WHEN 3 THEN '深圳市南山区' WHEN 4 THEN '杭州市西湖区' ELSE '成都市武侯区'
-END AS address,
-CASE user_idx
-WHEN 0 THEN '5000.00' WHEN 1 THEN '6800.50' WHEN 2 THEN '4200.00'
-WHEN 3 THEN '9500.00' WHEN 4 THEN '3100.00' ELSE '5600.00'
-END AS money,
-DATE_ADD(CURRENT_DATE(), INTERVAL -30 + user_idx DAY) AS buy_date,
-CASE user_idx
-WHEN 0 THEN '订单已完成' WHEN 1 THEN '待发货' WHEN 2 THEN '已取消'
-WHEN 3 THEN '配送中' WHEN 4 THEN '已完成' ELSE '退款中'
-END AS date_detail,
-DATE('2026-07-19') AS dt
-FROM (
-SELECT 0 AS user_idx UNION ALL
-SELECT 1 UNION ALL
-SELECT 2 UNION ALL
-SELECT 3 UNION ALL
-SELECT 4 UNION ALL
-SELECT 5
-) users;
+SELECT CAST(1 + MOD(number, 99) AS INT) AS id,
+       NULL AS age,
+       '' AS string_num,
+       '' AS name,
+       '' AS address,
+       NULL AS money,
+       NULL AS buy_date,
+       '' AS date_detail,
+       '2026-07-19' AS dt
+FROM numbers("number" = "10000");
 
 -- §25 主表（源用例 25；无独立 DDL 时按 donor 映射复用结构）
 CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_25 (

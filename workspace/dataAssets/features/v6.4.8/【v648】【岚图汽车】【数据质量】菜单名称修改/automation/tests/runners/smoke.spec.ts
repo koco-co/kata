@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { getEnvConfig, waitForUiSettled } from "../../../../../../_shared/helpers/index";
 // 冒烟测试（P0）
 // 生成时间：2026-04-06T16:29:26.650Z
 // 用例数量：1
@@ -7,27 +7,19 @@ import { expect, test } from "@playwright/test";
 
 test.describe("【数据质量】菜单名称修改 - 总览页", () => {
   type Page = import("@playwright/test").Page;
-  type RuntimeEnv = Record<string, string | undefined>;
   type ProjectListResponse = {
     data?: Array<{
       id?: number | string;
     }>;
   };
-  const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
+  const runtimeCookie = getEnvConfig().auth.cookie.trim();
 
   const visibleMenus = ["总览", "规则任务管理", "校验结果查询", "数据质量报告", "规则集管理"];
   const orderedMenus = ["总览", "规则集管理", "规则任务管理", "校验结果查询", "数据质量报告"];
   const removedMenus = ["概览", "规则任务配置", "任务实例查询", "质量报告"];
-  function getEnv(name: string): string | undefined {
-    return (
-      globalThis as typeof globalThis & {
-        process?: { env?: RuntimeEnv };
-      }
-    ).process?.env?.[name];
-  }
   function getRawBaseUrl(): string {
-    const baseUrl = getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL");
-    if (!baseUrl) throw new Error("UI_AUTOTEST_BASE_URL or E2E_BASE_URL must be configured");
+    const baseUrl = getEnvConfig().urls.baseUrl;
+    if (!baseUrl) throw new Error("DataAssets environment must be resolved with kata env run");
     return baseUrl;
   }
   function normalizeDataAssetsBaseUrl(): string {

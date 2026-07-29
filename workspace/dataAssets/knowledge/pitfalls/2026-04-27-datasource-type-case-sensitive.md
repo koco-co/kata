@@ -42,8 +42,7 @@ PRD 与 archive MD 习惯用引擎/产品名小写写法（`sparkthrift2.x`、`h
 
 ## 验证
 ```bash
-KATA_DATAASSETS_ENV=ltqc-local KATA_ACTIVE_PROJECT=dataAssets \
-  npx playwright test "workspace/dataAssets/tests/202604/【通用配置】json格式配置/smoke.spec.ts" \
+kata env run ltqc-local -- npx playwright test "workspace/dataAssets/tests/202604/【通用配置】json格式配置/smoke.spec.ts" \
   --reporter=list --workers=1
 ```
 预期：3/3 P0 pass（10s + 17s + 16s ≈ 1.0 min）

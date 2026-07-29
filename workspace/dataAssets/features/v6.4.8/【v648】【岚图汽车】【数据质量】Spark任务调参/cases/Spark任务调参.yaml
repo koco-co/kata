@@ -1,7 +1,11 @@
 meta:
-  title: Spark任务调参
+  title: 【规则调度设置】spark任务调参
   version: v6.4.8
   feature_id: v6.4.8/【v648】【岚图汽车】【数据质量】Spark任务调参
+  requirement_id: "15532"
+  case_module_id: "10190"
+  exports:
+    - xmind
 cases:
   - case_id: C0001
     title: 验证Spark环境参数配置生效(spark.driver.maxResultSize)

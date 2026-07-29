@@ -34,7 +34,8 @@ export interface Meta {
   requirement_name: string;
   version?: string;
   module_key?: string;
-  requirement_id?: number;
+  requirement_id?: string | number;
+  case_module_id?: string | number;
   requirement_ticket?: string;
   description?: string;
   tags?: string[];

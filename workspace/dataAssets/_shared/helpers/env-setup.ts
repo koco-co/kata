@@ -3,16 +3,8 @@
 import type { Page } from "@playwright/test";
 import { getEnvConfig } from "../runtime/env-profile";
 
-type RuntimeEnv = Record<string, string | undefined>;
-
-export function getEnv(name: string): string | undefined {
-  return (globalThis as typeof globalThis & { process?: { env?: RuntimeEnv } }).process?.env?.[
-    name
-  ];
-}
-
 function getRawBaseUrl(): string {
-  return getEnv("UI_AUTOTEST_BASE_URL") ?? getEnv("E2E_BASE_URL") ?? "";
+  return getEnvConfig().urls.baseUrl;
 }
 
 export function normalizeBaseUrl(product: string): string {
@@ -61,7 +53,8 @@ export function buildOfflineUrl(path: string): string {
 }
 
 export async function applyRuntimeCookies(page: Page, product = "dataAssets"): Promise<void> {
-  const runtimeCookie = getEnv("UI_AUTOTEST_COOKIE")?.trim();
+  const profile = getEnvConfig();
+  const runtimeCookie = profile.auth.cookie.trim();
   if (!runtimeCookie) return;
 
   const cookieUrl = normalizeBaseUrl(product);
@@ -76,7 +69,7 @@ export async function applyRuntimeCookies(page: Page, product = "dataAssets"): P
     cookieMap.set(name, value);
   }
 
-  const baseUrl = getRawBaseUrl();
+  const baseUrl = profile.urls.baseUrl;
   await page.context().addCookies(
     Array.from(cookieMap.entries()).map(([name, value]) => ({
       name,
