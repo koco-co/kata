@@ -3,6 +3,15 @@
 import { buildDataAssetsApiUrl } from "../../../../../../../_shared/automation/runtime/env-setup";
 import { existsSync, unlinkSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
+import type {
+  DqApiResponse,
+  DqMonitorRecord,
+  DqMonitorRecordPage,
+} from "../../../../../../../_shared/automation/pages/data-quality/contracts";
+import {
+  getProjectId,
+  gotoDataQualityPage,
+} from "../../../../../../../_shared/automation/pages/data-quality/project-context";
 import {
   downloadDqArtifactWithSuggestedName,
   expectDownloadedArtifactContains,
@@ -11,14 +20,9 @@ import {
   selectDqDateRange,
 } from "./page-context";
 import {
-  DqApiResponse,
-  DqMonitorRecord,
-  DqMonitorRecordPage,
   expectDqSuccess,
   expectMonitorRecordPage,
   expectNonEmptyString,
-  getProjectId,
-  gotoDataQualityPage,
   waitForDqJson,
 } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 

@@ -9,6 +9,11 @@ import {
   VEHICLE_ORDER_TABLE,
   VEHICLE_QUALITY_RULESET_TABLE,
 } from "../../fixtures/data-quality-tables";
+import type { DqApiResponse } from "../../../../../../../_shared/automation/pages/data-quality/contracts";
+import {
+  getDefaultDatasource,
+  gotoDataQualityPage,
+} from "../../../../../../../_shared/automation/pages/data-quality/project-context";
 import {
   downloadDqArtifactWithSuggestedName,
   expectDownloadedArtifactContains,
@@ -19,7 +24,6 @@ import {
   selectDqFormOption,
 } from "./page-context";
 import {
-  DqApiResponse,
   chooseDqFieldOptionByText,
   clickActiveAntdOption,
   clickDqCompactButton,
@@ -31,8 +35,6 @@ import {
   fillDqFormItemInput,
   fillDqPageFormField,
   getActiveAntdOptionTexts,
-  getDefaultDatasource,
-  gotoDataQualityPage,
   selectDqFormOptions,
   waitForDqJson,
 } from "../../../../../../../_shared/automation/pages/data-quality/page-context";

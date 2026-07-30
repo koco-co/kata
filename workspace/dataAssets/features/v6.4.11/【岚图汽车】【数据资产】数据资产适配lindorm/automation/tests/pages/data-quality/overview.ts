@@ -2,7 +2,7 @@
 
 import { expect, type Page } from "@playwright/test";
 import { expectDqPage } from "./page-context";
-import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
 
 export async function expectDataQualityOverviewShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {

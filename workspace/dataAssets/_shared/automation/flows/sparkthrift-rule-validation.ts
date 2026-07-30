@@ -5,17 +5,24 @@ import { buildDataAssetsApiUrl } from "../runtime/env-setup";
 import { waitForUiSettled } from "../../../../../runtime/automation/playwright";
 import { expect, type Page } from "@playwright/test";
 import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/config/playwright";
-import {
+import type {
   DqApiResponse,
   DqMonitorRecord,
   DqMonitorRecordPage,
   DqRuleSetPageData,
   DqRuleSetRecord,
   DqRuleTaskPageQuery,
-  PROJECT_STORAGE_KEY,
   SparkThriftEnvParam,
   SparkThriftQualityRuleValidationScenario,
   SparkThriftRuleValidationFusionChecks,
+} from "../pages/data-quality/contracts";
+import {
+  getProjectId,
+  getScenarioDatasource,
+  gotoDataQualityPage,
+  PROJECT_STORAGE_KEY,
+} from "../pages/data-quality/project-context";
+import {
   checkDqNoReport,
   chooseDqFieldOptionByText,
   chooseFirstDqSelectOption,
@@ -41,10 +48,7 @@ import {
   formatRuleBaseCustomRelationRange,
   formatRuleBaseCustomRuleType,
   getDqRuleTaskRecords,
-  getProjectId,
   getRuleSetPageRecordsAllowEmpty,
-  getScenarioDatasource,
-  gotoDataQualityPage,
   gotoMonitorRecordQueryPage,
   gotoNewRuleTaskMonitorObjectPageForTable,
   gotoRuleTaskScheduleAttributesPage,

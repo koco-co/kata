@@ -8,6 +8,22 @@ import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
 import { DQ_RULE_MAIN_TABLE } from "../../fixtures/data-quality-tables";
+import type {
+  DqApiResponse,
+  DqRuleBaseCustomSqlPage,
+  DqRuleBaseCustomSqlRecord,
+  DqRuleSetPackage,
+  DqRuleSetPageData,
+  DqRuleSetRecord,
+  DqRuleSetRule,
+  DqRuleTaskPageQuery,
+  DqRuleTaskRecord,
+} from "../../../../../../../_shared/automation/pages/data-quality/contracts";
+import {
+  getProjectId,
+  gotoDataQualityPage,
+  PROJECT_STORAGE_KEY,
+} from "../../../../../../../_shared/automation/pages/data-quality/project-context";
 import {
   expectDqAdminFullMenu,
   expectDqApiPaths,
@@ -20,16 +36,6 @@ import {
   selectDqFormOption,
 } from "./page-context";
 import {
-  DqApiResponse,
-  DqRuleBaseCustomSqlPage,
-  DqRuleBaseCustomSqlRecord,
-  DqRuleSetPackage,
-  DqRuleSetPageData,
-  DqRuleSetRecord,
-  DqRuleSetRule,
-  DqRuleTaskPageQuery,
-  DqRuleTaskRecord,
-  PROJECT_STORAGE_KEY,
   checkDqNoReport,
   chooseDqFieldOptionByText,
   chooseFirstDqSelectOption,
@@ -51,8 +57,6 @@ import {
   formatRuleBaseCustomRuleType,
   getActiveAntdOptionTexts,
   getDqRuleTaskRecords,
-  getProjectId,
-  gotoDataQualityPage,
   gotoNewRuleTaskMonitorObjectPageForTable,
   queryRuleSetRecords,
   saveRuleSetRuleRow,

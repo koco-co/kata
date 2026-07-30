@@ -5,12 +5,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
-import {
+import type {
   DqRuleSetPageData,
   DqRuleSetRecord,
-  expectNonEmptyString,
-  gotoDataQualityPage,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+} from "../../../../../../../_shared/automation/pages/data-quality/contracts";
+import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import { expectNonEmptyString } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 type DqPageTarget = {
   path: string;

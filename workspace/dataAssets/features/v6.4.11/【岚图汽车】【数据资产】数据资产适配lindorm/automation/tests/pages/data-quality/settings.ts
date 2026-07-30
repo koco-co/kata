@@ -8,6 +8,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
+import type {
+  DqApiResponse,
+  DqRuleSetPageData,
+} from "../../../../../../../_shared/automation/pages/data-quality/contracts";
+import {
+  getProjectId,
+  gotoDataQualityPage,
+  PROJECT_STORAGE_KEY,
+} from "../../../../../../../_shared/automation/pages/data-quality/project-context";
 import {
   expectDqAdminFullMenu,
   expectDqApiPaths,
@@ -17,14 +26,9 @@ import {
   expectRuleSetSearchTarget,
 } from "./page-context";
 import {
-  DqApiResponse,
-  DqRuleSetPageData,
-  PROJECT_STORAGE_KEY,
   clickDqCompactButton,
   expectDqSuccess,
   expectNonEmptyString,
-  getProjectId,
-  gotoDataQualityPage,
   waitForDqJson,
 } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 

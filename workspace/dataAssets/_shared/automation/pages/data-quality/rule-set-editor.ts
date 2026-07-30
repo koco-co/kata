@@ -5,53 +5,19 @@ import {
   waitForTableLoaded,
   waitForUiSettled,
 } from "../../../../../../runtime/automation/playwright";
-import { buildDataAssetsUrl } from "../../runtime/env-setup";
 import { getEnvConfig } from "../../runtime/env-profile";
+import { gotoDataQualityPage } from "./project-context";
 
-const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
-const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
 const PACKAGE_SECTION_SELECTOR = ".ruleSetMonitor__package";
 const RULE_FORM_SELECTOR = ".ruleForm";
-const initializedPages = new WeakSet<Page>();
-
-function qualityProjectId(): number {
-  return getEnvConfig().projects.quality.id;
-}
 
 function qualityProjectName(): string {
   return getEnvConfig().projects.quality.name;
 }
 
-async function ensureProjectContext(page: Page): Promise<void> {
-  if (!initializedPages.has(page)) {
-    await page.addInitScript(
-      ([assetKey, dqKey, id]) => {
-        sessionStorage.setItem(assetKey, id);
-        sessionStorage.setItem(dqKey, id);
-        localStorage.setItem("currentProject", id);
-      },
-      [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(qualityProjectId())],
-    );
-    initializedPages.add(page);
-  }
-
-  await page.evaluate(
-    ([assetKey, dqKey, id]) => {
-      sessionStorage.setItem(assetKey, id);
-      sessionStorage.setItem(dqKey, id);
-      localStorage.setItem("currentProject", id);
-    },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(qualityProjectId())],
-  );
-}
-
 async function gotoRuleSetList(page: Page): Promise<void> {
   const path = "/dq/ruleSet";
-  await page.goto(buildDataAssetsUrl(path, qualityProjectId()), {
-    waitUntil: "domcontentloaded",
-    timeout: 60_000,
-  });
-  await ensureProjectContext(page);
+  await gotoDataQualityPage(page, path);
   expect(page.url(), `应保持在 DataAssets ${path} 路由`).toContain(`#${path}`);
   await expect(page.locator("body"), `项目选择器应显示 ${qualityProjectName()}`).toContainText(
     qualityProjectName(),

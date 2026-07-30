@@ -1,287 +1,28 @@
-// 数据质量跨需求共享的项目上下文、导航与页面交互基础能力。
+// 数据质量跨需求共享的 API 与页面交互能力；项目上下文由 project-context.ts 负责。
 
-import { getEnvConfig } from "../../runtime/env-profile";
-import { buildDataAssetsApiUrl, buildDataAssetsUrl } from "../../runtime/env-setup";
+import { buildDataAssetsApiUrl } from "../../runtime/env-setup";
 import { waitForUiSettled } from "../../../../../../runtime/automation/playwright";
 import { expect, type Page } from "@playwright/test";
-
-export function getProjectId(): string | number {
-  return getEnvConfig().projects.quality.id;
-}
-
-export function getDefaultDatasource() {
-  const env = getEnvConfig();
-  return env.datasources[env.runtime.defaultDatasource];
-}
-
-export const PROJECT_STORAGE_KEY = "X-Valid-Project-ID";
-
-const DQ_PROJECT_STORAGE_KEY = "dq_project_id";
-
-export type DqRuleTaskRecord = {
-  id?: string | number;
-  monitorId?: string | number;
-  tableName?: string;
-  ruleName?: string;
-  sourceTypeName?: string;
-  dataName?: string;
-  assetsPeriodTypeName?: string;
-  periodTypeName?: string;
-  recentNotifyNum?: number | string;
-  modifyUser?: string[] | string;
-  gmtModified?: string;
-  isClosed?: number;
-  associated?: number;
-};
-
-export type DqRuleTaskPageQuery = {
-  success?: boolean;
-  code?: number;
-  data?: {
-    data?: DqRuleTaskRecord[];
-    rows?: DqRuleTaskRecord[];
-    list?: DqRuleTaskRecord[];
-    records?: DqRuleTaskRecord[];
-    total?: number;
-    totalCount?: number;
-    count?: number;
-  };
-};
-
-export type DqRuleSetRecord = {
-  id?: string | number;
-  tableName?: string;
-  schemaName?: string;
-  sourceName?: string;
-  sourceTypeName?: string;
-  packageCount?: number | string;
-  ruleCount?: number | string;
-  description?: string | null;
-  gmtModified?: string;
-  lastEditUser?: string;
-  packageVOList?: DqRuleSetPackage[];
-};
-
-export type DqRuleSetPageData = {
-  contentList?: DqRuleSetRecord[];
-  current?: string | number;
-  size?: string | number;
-  total?: string | number;
-};
-
-export type DqRuleSetPackage = {
-  packageName?: string;
-  rules?: DqRuleSetRule[];
-};
-
-export type DqRuleSetRule = {
-  functionName?: string | null;
-  columnName?: string | null;
-  description?: string | null;
-  ruleLibraryId?: string | number | null;
-  ruleLibraryValue?: string | null;
-  standardRules?: DqRuleSetRule[] | null;
-};
-
-export type DqApiResponse<T> = {
-  success?: boolean;
-  code?: number;
-  data?: T;
-};
-
-export type SparkThriftEnvParam = {
-  name: string;
-  value: string;
-};
-
-export type SparkThriftRuleValidationFusionChecks = {
-  ruleSetListAndConfiguredTableFilter?: boolean;
-  ruleSetDetail?: boolean;
-  ruleSetPackageNameManagement?: boolean;
-  ruleSetGlobalParams?: boolean;
-  ruleSetRuleEdit?: boolean;
-  taskDetectionToggle?: boolean;
-  monitorRecordTableSearch?: boolean;
-  sameTableSecondTask?: boolean;
-  passHasNoDirtyDetail?: boolean;
-  partitionModesVisible?: boolean;
-  t1BeforeImmediateWithEnvParams?: readonly SparkThriftEnvParam[];
-  samplingRows?: string;
-  failByEditingExistingTask?: {
-    partitionMode: "existing" | "manual";
-    deleteRuleSetBeforeRun?: boolean;
-  };
-  dirtyDetail?: {
-    highlightedColumns?: readonly string[];
-    verifyDownloadEntry?: boolean;
-  };
-};
-
-export type SparkThriftQualityRuleValidationScenario = {
-  archiveLine: number;
-  title: string;
-  tableName: string;
-  comparisonTableName?: string;
-  ruleCategory: string;
-  scope?: "字段级" | "单表" | "多表";
-  statisticFunction: string;
-  fields: readonly string[];
-  comparisonFields?: readonly string[];
-  primaryKeys?: readonly string[];
-  comparisonPrimaryKeys?: readonly string[];
-  fieldLogic?: "and" | "or";
-  sourceRefKind?: string;
-  /** 用例运行的数据源；缺省沿用环境默认数据源，当前 v700 需要显式覆盖 Doris。 */
-  datasourceKey?: "sparkthrift" | "doris";
-  customSqlTemplate?: {
-    ruleName: string;
-    ruleType: number;
-    relationRange: number;
-    ruleDesc: string;
-    customConfiguration: string;
-    params: readonly DqRuleBaseCustomSqlParam[];
-  };
-  ruleOptions?: readonly {
-    label: RegExp;
-    value: string;
-  }[];
-  ruleInputs?: readonly {
-    label: string;
-    value: string;
-  }[];
-  expectation?: {
-    method: string;
-    operator?: string;
-    value: string;
-  };
-  description: string;
-  passPartition: string;
-  failPartition: string;
-  passExpectedValue: string;
-  failExpectedValue: string;
-  dirtyEvidence: readonly string[];
-  fusionChecks?: SparkThriftRuleValidationFusionChecks;
-};
-
-type DqRuleBaseCustomSqlParam = {
-  param?: string;
-  type?: number;
-  paramName?: string;
-  description?: string | null;
-  value?: string | null;
-};
-
-export type DqRuleBaseCustomSqlRecord = {
-  id?: string | number;
-  projectId?: string | number;
-  ruleName?: string;
-  ruleType?: number;
-  relationRange?: number;
-  ruleDesc?: string | null;
-  associationRuleCount?: string | number;
-  customConfiguration?: string;
-  customParam?: DqRuleBaseCustomSqlParam[];
-};
-
-export type DqRuleBaseCustomSqlPage = {
-  contentList?: DqRuleBaseCustomSqlRecord[];
-  total?: string | number;
-};
-
-export type DqMonitorRecord = {
-  id?: string | number;
-  monitorId?: string | number;
-  tableName?: string;
-  ruleName?: string;
-  status?: number;
-  sourceTypeName?: string;
-  sourceName?: string;
-  periodTypeName?: string;
-  assetsPeriodTypeName?: string;
-  associated?: number;
-  cycTime?: string;
-  executeTime?: string | null;
-  execEndTime?: string;
-  execTimeStr?: string | null;
-  submitUser?: string;
-  modifyUser?: string;
-  jobKey?: string;
-  flowJobId?: string;
-};
-
-export type DqMonitorRecordPage = {
-  currentPage?: number;
-  pageSize?: number;
-  totalCount?: number;
-  totalPage?: number;
-  data?: DqMonitorRecord[];
-};
-
-async function installProject(page: Page): Promise<void> {
-  await page.addInitScript(
-    ([assetKey, dqKey, projectId]) => {
-      sessionStorage.setItem(assetKey, projectId);
-      sessionStorage.setItem(dqKey, projectId);
-      localStorage.setItem(assetKey, projectId);
-      localStorage.setItem(dqKey, projectId);
-      localStorage.setItem("dataAssets_project_id", projectId);
-      localStorage.setItem("currentProject", projectId);
-    },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
-  );
-}
-
-async function injectProject(page: Page): Promise<void> {
-  await page.evaluate(
-    ([assetKey, dqKey, projectId]) => {
-      sessionStorage.setItem(assetKey, projectId);
-      sessionStorage.setItem(dqKey, projectId);
-      localStorage.setItem(assetKey, projectId);
-      localStorage.setItem(dqKey, projectId);
-      localStorage.setItem("dataAssets_project_id", projectId);
-      localStorage.setItem("currentProject", projectId);
-    },
-    [PROJECT_STORAGE_KEY, DQ_PROJECT_STORAGE_KEY, String(getProjectId())],
-  );
-}
-
-export async function gotoDataQualityPage(page: Page, path: string): Promise<void> {
-  await installProject(page);
-  const url = buildDataAssetsUrl(path, getProjectId());
-  let lastStatus: number | undefined;
-  let lastBodyText = "";
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const response = await page.goto(url, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    lastStatus = response?.status();
-    await injectProject(page);
-    await waitForUiSettled(page);
-
-    const transient = await getTransientDqShellText(page, lastStatus);
-    if (!transient) return;
-    lastBodyText = transient;
-    await waitForUiSettled(page);
-  }
-
-  throw new Error(
-    `数据质量页面未能稳定加载: ${url}, lastStatus=${lastStatus ?? "unknown"}, body=${lastBodyText}`,
-  );
-}
-
-async function getTransientDqShellText(page: Page, status?: number): Promise<string> {
-  const bodyText = await page
-    .locator("body")
-    .innerText({ timeout: 5000 })
-    .catch(() => "");
-  if (status && status >= 500) return bodyText || `HTTP ${status}`;
-  if (bodyText.includes("发现新版本，请刷新获取新版本") || bodyText.includes("502 Bad Gateway"))
-    return bodyText;
-  const bodyChildCount = await page.evaluate(() => document.body.childElementCount).catch(() => 0);
-  if (bodyText.trim().length === 0 && bodyChildCount === 0) return "empty body";
-  return "";
-}
+import type {
+  DqApiResponse,
+  DqMonitorRecord,
+  DqMonitorRecordPage,
+  DqRuleBaseCustomSqlPage,
+  DqRuleBaseCustomSqlRecord,
+  DqRuleSetPageData,
+  DqRuleSetRecord,
+  DqRuleTaskPageQuery,
+  DqRuleTaskRecord,
+  SparkThriftQualityRuleValidationScenario,
+} from "./contracts";
+import {
+  getDefaultDatasource,
+  getProjectId,
+  getScenarioDatasource,
+  gotoDataQualityPage,
+  injectDataQualityProjectContext,
+  PROJECT_STORAGE_KEY,
+} from "./project-context";
 
 export async function getActiveAntdOptionTexts(page: Page): Promise<string[]> {
   return page.evaluate(() => {
@@ -1231,18 +972,6 @@ export async function gotoRuleTaskScheduleAttributesPage(
   );
 }
 
-export function getScenarioDatasource(scenario: SparkThriftQualityRuleValidationScenario): {
-  sourceName: string;
-  database: string;
-} {
-  const env = getEnvConfig();
-  const key = scenario.datasourceKey ?? env.runtime.defaultDatasource;
-  const profile = env.datasources[key];
-  if (!profile) throw new Error(`环境未配置数据源 ${key}`);
-  const sourceName = profile.aliases.find((alias) => alias !== key) ?? profile.uiLabel;
-  return { sourceName, database: profile.sql.database };
-}
-
 export async function runRuleTaskImmediately(
   page: Page,
   sourceRef: string,
@@ -1309,7 +1038,7 @@ export async function gotoMonitorRecordQueryPage(
   const menuEntry = page.getByRole("link", { name: "校验结果查询" }).first();
   if (await menuEntry.isVisible({ timeout: 5000 }).catch(() => false)) {
     await menuEntry.click({ timeout: 30000 });
-    await injectProject(page);
+    await injectDataQualityProjectContext(page);
     await waitForUiSettled(page);
   }
 
@@ -1335,7 +1064,7 @@ async function gotoRuleTaskManagementPage(page: Page, sourceRef: string): Promis
   const menuEntry = page.getByRole("link", { name: "规则任务管理" }).first();
   if (await menuEntry.isVisible({ timeout: 5000 }).catch(() => false)) {
     await menuEntry.click({ timeout: 30000 });
-    await injectProject(page);
+    await injectDataQualityProjectContext(page);
     await waitForUiSettled(page);
   }
 

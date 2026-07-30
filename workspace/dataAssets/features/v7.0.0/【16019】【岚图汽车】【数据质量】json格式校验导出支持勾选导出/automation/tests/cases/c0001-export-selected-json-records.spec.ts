@@ -9,7 +9,7 @@ import ExcelJS from "exceljs";
 import type { Locator, Page } from "@playwright/test";
 
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
-import { gotoDataQualityPage } from "../../../../../../_shared/automation/pages/data-quality/page-context";
+import { gotoDataQualityPage } from "../../../../../../_shared/automation/pages/data-quality/project-context";
 
 type ExportRows = {
   headers: string[];

@@ -2,10 +2,8 @@
 
 import { expect, type Page } from "@playwright/test";
 import { expectDqApiPaths, expectDqPage } from "./page-context";
-import {
-  clickDqText,
-  gotoDataQualityPage,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import { clickDqText } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 export async function expectDataQualityRuleSetShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {
