@@ -1,7 +1,5 @@
 # 所有 Playwright 场景共用的运行配置。
 playwright:
-  # 是否允许 kata automation run 使用数字 requirement_id 自动发现 feature；关闭时仍支持完整路径。
-  requirement_id_mapping: true
   # 用例失败后是否继续执行同一批次的后续用例。
   continue_on_failure: true
   # 是否跳过建表、元数据同步等前置准备；正式回归按环境和命令行要求设置。

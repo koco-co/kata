@@ -15,9 +15,11 @@ import {
 import { RUN_ID_RE, runIdType } from "../../cli/lib/run-id.ts";
 import { executeWithRunPath } from "../../cli/lib/runs-exec.ts";
 
+const FEATURE_PATH = "v1.0/【模块】需求";
+
 function createProjectRoot(): { root: string; feature: string } {
   const root = mkdtempSync(join(tmpdir(), "kata-runs-"));
-  const feature = join(root, "workspace", "dataAssets", "features", "v1.0", "feature-a");
+  const feature = join(root, "workspace", "dataAssets", "features", "v1.0", "【模块】需求");
   mkdirSync(feature, { recursive: true });
   return { root, feature };
 }
@@ -45,7 +47,7 @@ describe("runs execution contract", () => {
     const allocation = runRunsPath({
       root,
       project: "dataAssets",
-      featureId: "feature-a",
+      featurePath: FEATURE_PATH,
       newRun: true,
       runType: "preflight",
       now,
@@ -62,7 +64,7 @@ describe("runs execution contract", () => {
     const opts = {
       root,
       project: "dataAssets",
-      featureId: "feature-a",
+      featurePath: FEATURE_PATH,
       newRun: true,
       runType: "run" as const,
       now,
@@ -86,7 +88,7 @@ describe("runs execution contract", () => {
     const { root, feature } = createProjectRoot();
     createRun(feature, "20260726-1200-run-01");
     createRun(feature, "zzzzz-forged-latest");
-    const latest = runRunsPath({ root, project: "dataAssets", featureId: "feature-a" });
+    const latest = runRunsPath({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(latest.runId).toBe("20260726-1200-run-01");
   });
 
@@ -185,7 +187,7 @@ describe("runs verify", () => {
     const { root, feature } = createProjectRoot();
     const runPath = passingRun(feature);
     writeFileSync(join(runPath, "handoff.md"), "# handoff\n");
-    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const result = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(result.ok).toBe(true);
     expect(result.runId).toBe("20260726-1200-run-01");
     expect(result.checks.every((c) => c.passed)).toBe(true);
@@ -196,7 +198,7 @@ describe("runs verify", () => {
     const runPath = createRun(feature, "20260726-1200-run-01");
     mkdirSync(join(runPath, "allure-results"));
     writeFileSync(join(runPath, "allure-results", "abc-result.json"), "{}");
-    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const result = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(result.ok).toBe(false);
     const status = result.checks.find((c) => c.name === "status");
     expect(status?.passed).toBe(false);
@@ -207,7 +209,7 @@ describe("runs verify", () => {
     const { root, feature } = createProjectRoot();
     const runPath = passingRun(feature);
     writeStatus(runPath, { schemaVersion: 1, status: "command_passed", exitCode: 7 });
-    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const result = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(result.ok).toBe(false);
     expect(result.checks.find((c) => c.name === "status")?.passed).toBe(false);
   });
@@ -216,10 +218,12 @@ describe("runs verify", () => {
     const { root, feature } = createProjectRoot();
     const runPath = passingRun(feature);
     writeStatus(runPath, { schemaVersion: 1, status: "passed", exitCode: 0 });
-    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const result = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(result.ok).toBe(false);
     writeStatus(runPath, { schemaVersion: 1, status: "failed", exitCode: 3 });
-    expect(runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" }).ok).toBe(false);
+    expect(runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH }).ok).toBe(
+      false,
+    );
   });
 
   it("fails when allure-results is missing or empty even with a passing status", () => {
@@ -228,12 +232,12 @@ describe("runs verify", () => {
     writeFileSync(join(runPath, "handoff.md"), "# handoff\n");
     // 清空 allure-results
     rmSync(join(runPath, "allure-results"), { recursive: true });
-    const missing = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const missing = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(missing.ok).toBe(false);
     expect(missing.checks.find((c) => c.name === "allure-results")?.message).toContain("缺失");
 
     mkdirSync(join(runPath, "allure-results"));
-    const empty = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const empty = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(empty.ok).toBe(false);
     expect(empty.checks.find((c) => c.name === "allure-results")?.message).toContain(
       "无 *-result.json",
@@ -243,7 +247,7 @@ describe("runs verify", () => {
   it("warns but does not fail when handoff.md is missing", () => {
     const { root, feature } = createProjectRoot();
     passingRun(feature);
-    const result = runRunsVerify({ root, project: "dataAssets", featureId: "feature-a" });
+    const result = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(result.ok).toBe(true);
     const handoff = result.checks.find((c) => c.name === "handoff");
     expect(handoff?.level).toBe("warning");
@@ -253,7 +257,7 @@ describe("runs verify", () => {
   it("rejects a forged --run value instead of silently falling back", () => {
     const { root } = createProjectRoot();
     expect(() =>
-      runRunsVerify({ root, project: "dataAssets", featureId: "feature-a", runId: "forged" }),
+      runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH, runId: "forged" }),
     ).toThrow(/非法 run-id/);
   });
 
@@ -265,7 +269,7 @@ describe("runs verify", () => {
     const cwd = resolve(import.meta.dir, "../..");
     const failing = spawnSync(
       "bun",
-      [kata, "runs", "verify", "--project", "dataAssets", "--feature", "feature-a"],
+      [kata, "runs", "verify", "--project", "dataAssets", "--feature", FEATURE_PATH],
       { cwd, encoding: "utf8", env },
     );
     expect(failing.status).toBe(1);
@@ -281,7 +285,7 @@ describe("runs verify", () => {
         "--project",
         "dataAssets",
         "--feature",
-        "feature-a",
+        FEATURE_PATH,
         "--run",
         "20260726-1200-run-01",
       ],

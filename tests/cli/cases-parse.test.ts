@@ -4,8 +4,6 @@ import { parseCasesYaml, validateCases } from "../../cli/lib/cases/parse.ts";
 const GOOD = `
 meta:
   title: 数据质量规则合并
-  version: v6.4.11
-  feature_id: f1
   case_module_id: ""
 cases:
   - case_id: C0001
@@ -35,9 +33,9 @@ describe("parseCasesYaml", () => {
     expect(() => parseCasesYaml(GOOD.replace('  case_module_id: ""\n', ""))).toThrow(
       /meta\.case_module_id/,
     );
-    expect(() =>
-      parseCasesYaml(GOOD.replace('case_module_id: ""', "case_module_id: abc")),
-    ).toThrow(/meta\.case_module_id/);
+    expect(() => parseCasesYaml(GOOD.replace('case_module_id: ""', "case_module_id: abc"))).toThrow(
+      /meta\.case_module_id/,
+    );
   });
   it("flags a case with no steps", () => {
     const f = parseCasesYaml(GOOD);
@@ -58,8 +56,6 @@ describe("parseCasesYaml", () => {
     const aggregate = `
 meta:
   title: 泸州老窖定制化回归基线
-  version: v7.0.0
-  feature_id: v7.0.0/f
   case_module_id: ""
   layout: requirements
 requirements:
@@ -86,7 +82,7 @@ cases:
 
   it("rejects an aggregate case that references an unknown requirement", () => {
     const aggregate = `
-meta: { title: t, version: v1.0, feature_id: v1.0/f, case_module_id: "", layout: requirements }
+meta: { title: t, case_module_id: "", layout: requirements }
 requirements:
   - requirement_id: "1"
     title: R1
@@ -120,7 +116,7 @@ describe("parseCasesYaml strict optional fields", () => {
     expect(() => parseCasesYaml(bad)).toThrow(/cases\[0\]\.source_ref 期望字符串,实际数组/);
   });
   it("rejects a non-string meta.source", () => {
-    const bad = GOOD.replace("feature_id: f1", "feature_id: f1\n  source: 3");
+    const bad = GOOD.replace('case_module_id: ""', 'case_module_id: ""\n  source: 3');
     expect(() => parseCasesYaml(bad)).toThrow(/meta\.source 期望字符串,实际数字/);
   });
   it("keeps well-formed optional fields", () => {
@@ -132,5 +128,14 @@ describe("parseCasesYaml strict optional fields", () => {
     expect(f.cases[0].precondition).toBe("前置");
     expect(f.cases[0].tags).toEqual(["模块A", "页面B"]);
     expect(f.cases[0].source_ref).toBe("PRD#1");
+  });
+
+  it("rejects retired meta.version and meta.feature_id fields", () => {
+    expect(() =>
+      parseCasesYaml(GOOD.replace("case_module_id", "version: v1\n  case_module_id")),
+    ).toThrow(/meta\.version 已退役/);
+    expect(() =>
+      parseCasesYaml(GOOD.replace("case_module_id", "feature_id: legacy\n  case_module_id")),
+    ).toThrow(/meta\.feature_id 已退役/);
   });
 });

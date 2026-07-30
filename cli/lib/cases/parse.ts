@@ -131,10 +131,14 @@ export function parseCasesYaml(yamlText: string): CasesFile {
   if (typeof o.meta !== "object" || o.meta === null) fail("缺 meta 对象");
   const m = o.meta as Record<string, unknown>;
   if (!Array.isArray(o.cases)) fail("缺 cases 数组");
+  if (m.version !== undefined) {
+    fail("字段 meta.version 已退役；版本由父级 feature 目录推导");
+  }
+  if (m.feature_id !== undefined) {
+    fail("字段 meta.feature_id 已退役；feature 由所在目录路径推导");
+  }
   const meta: CasesFile["meta"] = {
     title: asString(m.title, "meta.title"),
-    version: asString(m.version, "meta.version"),
-    feature_id: asString(m.feature_id, "meta.feature_id"),
     case_module_id: "",
   };
   if (m.layout !== undefined) {

@@ -90,6 +90,10 @@ cp config/infra/credentials.example.yaml config/infra/credentials.yaml
 kata config doctor
 ```
 
+通知只会由成功的业务命令自动创建；`enabled_events: []`（或缺失）不会发送。需要先在本机
+`config/plugin/notify.yaml` 明确填写事件白名单，再用 `kata notify preview` 校验展示内容；
+`kata notify list/show/retry` 只操作项目本地的通知账本，不接受任意自定义发送内容。
+
 如果旧版本还留着根目录的 `.env`，可以先预览再执行插件字段迁移：
 
 ```bash
@@ -124,7 +128,7 @@ chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
 Playwright 必须绑定到显式 run，不能直接在仓库内留下 `.runs/`：
 
 ```bash
-kata runs exec <feature-id> --project dataAssets -- \
+kata runs exec <版本目录/需求目录名> --project dataAssets -- \
   kata env run ci63 -- bunx playwright test <spec>
 ```
 

@@ -15,7 +15,7 @@ import {
   P0_PASS_SCENARIO,
   type JsonRuleScenario,
   runSuitePreconditions,
-} from "../../../features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/test-data";
+} from "../../../features/v6.4.10/【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/test-data";
 import { waitForUiSettled } from "../../helpers/index";
 import {
   chooseFormOptionByText,

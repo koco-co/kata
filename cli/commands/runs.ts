@@ -1,8 +1,14 @@
 import { existsSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import type { Command } from "commander";
 import {
+  emitBusinessNotificationSafely,
+  formatTaipeiTime,
+  workspaceRelativePath,
+} from "../integrations/notify.ts";
+import {
   type FeatureDirEntry,
+  featureIdentity,
   listFeatureDirs,
   RUNS_TMP,
   resolveFeatureEntry,
@@ -12,34 +18,34 @@ import { generateRunId, RUN_ID_RE, RUN_TYPES, type RunType, runIdType } from "..
 import { executeWithRunPath } from "../lib/runs-exec.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
-// ─── 共用：按 dirName 或 metadata.id 定位 feature ───
+// ─── 共用：按 feature 相对路径定位 ───
 
 const findFeatureEntry = resolveFeatureEntry;
 
 // ─── new / path ───
 
 /** Latest canonical run id under a feature's runs/ dir; forged or legacy names never match. */
-function latestRunId(root: string, featureId: string): string {
-  if (!existsSync(root)) throw new Error(`需求功能 ${featureId} 尚无运行记录`);
+function latestRunId(root: string, featurePath: string): string {
+  if (!existsSync(root)) throw new Error(`需求功能 ${featurePath} 尚无运行记录`);
   const runs = readdirSync(root)
     .filter((n) => n !== RUNS_TMP && RUN_ID_RE.test(n) && statSync(join(root, n)).isDirectory())
     .sort()
     .reverse();
-  if (runs.length === 0) throw new Error(`需求功能 ${featureId} 尚无运行记录`);
+  if (runs.length === 0) throw new Error(`需求功能 ${featurePath} 尚无运行记录`);
   return runs[0];
 }
 
 /** Allocate a new run id (and create the dir) or return the latest run dir for a feature. */
 export function runRunsPath(opts: {
   project: string;
-  featureId: string;
+  featurePath: string;
   root?: string;
   newRun?: boolean;
   runType?: RunType;
   now?: Date;
 }): { runId: string; path: string } {
   const paths = locateProject(opts.project, opts.root);
-  const entry = findFeatureEntry(paths.featuresDir, opts.featureId);
+  const entry = findFeatureEntry(paths.featuresDir, opts.featurePath);
   const root = runsDir(entry.dir);
 
   if (opts.newRun) {
@@ -47,7 +53,7 @@ export function runRunsPath(opts: {
     const runId = generateRunId({ type: opts.runType ?? "run", runsDir: root, now: opts.now });
     return { runId, path: join(root, runId) };
   }
-  const runId = latestRunId(root, opts.featureId);
+  const runId = latestRunId(root, opts.featurePath);
   return { runId, path: join(root, runId) };
 }
 
@@ -82,7 +88,7 @@ function planPruneForFeature(featureDirAbs: string, keep: number): FeaturePruneP
 /** Prune run dirs across a project's features (or one feature); archived zone is skipped. */
 export function runRunsPrune(opts: {
   project: string;
-  featureId?: string;
+  featurePath?: string;
   root?: string;
   keep: number;
   apply?: boolean;
@@ -93,8 +99,8 @@ export function runRunsPrune(opts: {
 
   // 只清 active/standing zone；archived 不清
   let targets: FeatureDirEntry[];
-  if (opts.featureId) {
-    targets = [findFeatureEntry(featuresRoot, opts.featureId)];
+  if (opts.featurePath) {
+    targets = [findFeatureEntry(featuresRoot, opts.featurePath)];
   } else {
     targets = listFeatureDirs(featuresRoot).filter((e) => e.zone !== "archived");
   }
@@ -142,6 +148,178 @@ export interface RunsVerifyResult {
   runPath: string;
   ok: boolean;
   checks: RunsVerifyCheck[];
+}
+
+interface AllureResult {
+  status?: string;
+  name?: string;
+  fullName?: string;
+  statusDetails?: { message?: string };
+  start?: number;
+  stop?: number;
+}
+
+function readAllureSummary(runPath: string):
+  | {
+      passed: number;
+      failed: number;
+      broken: number;
+      skipped: number;
+      durationMs: number;
+      failedCases: Array<{ title: string; message?: string }>;
+    }
+  | undefined {
+  const dir = join(runPath, "allure-results");
+  if (!existsSync(dir)) return undefined;
+  const results: AllureResult[] = [];
+  for (const name of readdirSync(dir).filter((entry) => entry.endsWith("-result.json"))) {
+    try {
+      results.push(JSON.parse(readFileSync(join(dir, name), "utf8")) as AllureResult);
+    } catch {
+      return undefined;
+    }
+  }
+  if (results.length === 0) return undefined;
+  const counters = { passed: 0, failed: 0, broken: 0, skipped: 0 };
+  const failedCases: Array<{ title: string; message?: string }> = [];
+  const starts: number[] = [];
+  const stops: number[] = [];
+  for (const result of results) {
+    if (result.status === "passed") counters.passed += 1;
+    else if (result.status === "failed") counters.failed += 1;
+    else if (result.status === "broken") counters.broken += 1;
+    else counters.skipped += 1;
+    if (result.status === "failed" || result.status === "broken") {
+      failedCases.push({
+        title: result.fullName || result.name || "未命名用例",
+        ...(result.statusDetails?.message
+          ? { message: result.statusDetails.message.split("\n")[0] }
+          : {}),
+      });
+    }
+    if (typeof result.start === "number") starts.push(result.start);
+    if (typeof result.stop === "number") stops.push(result.stop);
+  }
+  return {
+    ...counters,
+    durationMs:
+      starts.length > 0 && stops.length > 0 ? Math.max(...stops) - Math.min(...starts) : 0,
+    failedCases,
+  };
+}
+
+function finishedAt(runPath: string): Date | undefined {
+  try {
+    const status = JSON.parse(readFileSync(join(runPath, "status.json"), "utf8")) as {
+      schemaVersion?: number;
+      runId?: string;
+      finishedAt?: string;
+    };
+    if (status.schemaVersion !== 1 || typeof status.runId !== "string" || !status.finishedAt)
+      return undefined;
+    const date = new Date(status.finishedAt);
+    return Number.isNaN(date.getTime()) ? undefined : date;
+  } catch {
+    return undefined;
+  }
+}
+
+interface PendingInputRecord {
+  schema_version: 1;
+  status: "pending";
+  case_title: string;
+  question: string;
+}
+
+function readPendingInput(runPath: string): PendingInputRecord | undefined {
+  const path = join(runPath, "pending-input.json");
+  if (!existsSync(path)) return undefined;
+  try {
+    const value = JSON.parse(readFileSync(path, "utf8")) as Partial<PendingInputRecord>;
+    if (
+      value.schema_version !== 1 ||
+      value.status !== "pending" ||
+      typeof value.case_title !== "string" ||
+      typeof value.question !== "string" ||
+      !value.case_title.trim() ||
+      !value.question.trim()
+    ) {
+      return undefined;
+    }
+    return value as PendingInputRecord;
+  } catch {
+    return undefined;
+  }
+}
+
+function hasStartedRunRecord(runPath: string): boolean {
+  try {
+    const status = JSON.parse(readFileSync(join(runPath, "status.json"), "utf8")) as {
+      schemaVersion?: number;
+      runId?: string;
+    };
+    return status.schemaVersion === 1 && typeof status.runId === "string";
+  } catch {
+    return false;
+  }
+}
+
+async function notifyRunsVerification(
+  result: RunsVerifyResult,
+  project: string,
+  featurePath: string,
+): Promise<void> {
+  const paths = locateProject(project);
+  const entry = findFeatureEntry(paths.featuresDir, featurePath);
+  const root = dirname(dirname(paths.projectDir));
+  const identity = featureIdentity(project, paths.featuresDir, entry);
+  const pending = readPendingInput(result.runPath);
+  if (pending && hasStartedRunRecord(result.runPath)) {
+    const emitted = await emitBusinessNotificationSafely(
+      "ui-test-needs-input",
+      {
+        project,
+        version: identity.version,
+        feature: identity.title,
+        completed_at: formatTaipeiTime(),
+        run_id: result.runId,
+        case_title: pending.case_title,
+        question: pending.question,
+        pending_record_path: workspaceRelativePath(
+          root,
+          join(result.runPath, "pending-input.json"),
+        ),
+      },
+      { root },
+    );
+    process.stderr.write(
+      `[notify] ui-test-needs-input: ${emitted.state}${emitted.reason ? ` (${emitted.reason})` : ""}\n`,
+    );
+    return;
+  }
+  const completed = finishedAt(result.runPath);
+  const summary = readAllureSummary(result.runPath);
+  // No result record means preflight/configuration/lint failure; it must never broadcast.
+  if (!completed || !summary) return;
+  const base = {
+    project,
+    version: identity.version,
+    feature: identity.title,
+    completed_at: formatTaipeiTime(completed),
+    run_id: result.runId,
+    passed: summary.passed,
+    failed: summary.failed,
+    broken: summary.broken,
+    skipped: summary.skipped,
+    duration_ms: summary.durationMs,
+    allure_path: workspaceRelativePath(root, join(result.runPath, "allure-results")),
+  };
+  const event = result.ok ? "ui-test-completed" : "ui-test-failed";
+  const data = result.ok ? base : { ...base, failed_cases: summary.failedCases };
+  const emitted = await emitBusinessNotificationSafely(event, data, { root });
+  process.stderr.write(
+    `[notify] ${event}: ${emitted.state}${emitted.reason ? ` (${emitted.reason})` : ""}\n`,
+  );
 }
 
 function verifyStatusJson(runPath: string): RunsVerifyCheck {
@@ -198,14 +376,14 @@ function verifyHandoff(runPath: string): RunsVerifyCheck {
 /** Verify one run dir against the delivery contract: status.json + allure results (handoff warns). */
 export function runRunsVerify(opts: {
   project: string;
-  featureId: string;
+  featurePath: string;
   root?: string;
   runId?: string;
 }): RunsVerifyResult {
   const paths = locateProject(opts.project, opts.root);
-  const entry = findFeatureEntry(paths.featuresDir, opts.featureId);
+  const entry = findFeatureEntry(paths.featuresDir, opts.featurePath);
   const root = runsDir(entry.dir);
-  const runId = opts.runId ?? latestRunId(root, opts.featureId);
+  const runId = opts.runId ?? latestRunId(root, opts.featurePath);
   if (!RUN_ID_RE.test(runId)) throw new Error(`非法 run-id "${runId}"`);
   const runPath = join(root, runId);
   if (!existsSync(runPath)) throw new Error(`运行目录不存在: ${runPath}`);
@@ -221,14 +399,14 @@ export function registerRuns(program: Command): void {
   const runs = program.command("runs").description("运行结果目录操作");
 
   runs
-    .command("exec <feature-id>")
+    .command("exec <feature-path>")
     .description("创建 run 并在该 run 环境中执行命令")
     .requiredOption("--project <name>", "项目名")
     .option("--type <type>", `运行类型: ${RUN_TYPES.join("|")}`, "run")
     .argument("<command...>", "要运行的命令；必须放在 -- 之后")
     .allowUnknownOption(true)
     .action(
-      async (featureId: string, command: string[], opts: { project: string; type: string }) => {
+      async (featurePath: string, command: string[], opts: { project: string; type: string }) => {
         if (!RUN_TYPES.includes(opts.type as RunType)) {
           throw new Error(`非法运行类型 "${opts.type}"，可选: ${RUN_TYPES.join("|")}`);
         }
@@ -236,7 +414,7 @@ export function registerRuns(program: Command): void {
         if (args.length === 0) throw new Error("kata runs exec requires a command after --");
         const allocation = runRunsPath({
           project: opts.project,
-          featureId,
+          featurePath,
           newRun: true,
           runType: opts.type as RunType,
         });
@@ -250,17 +428,17 @@ export function registerRuns(program: Command): void {
     );
 
   runs
-    .command("new <feature-id>")
+    .command("new <feature-path>")
     .description("为需求功能分配新运行目录(等同旧 results path --new-run)")
     .requiredOption("--project <name>", "项目名")
     .option("--type <type>", `运行类型: ${RUN_TYPES.join("|")}`, "run")
-    .action((featureId: string, opts: { project: string; type: string }) => {
+    .action((featurePath: string, opts: { project: string; type: string }) => {
       if (!RUN_TYPES.includes(opts.type as RunType)) {
         throw new Error(`非法运行类型 "${opts.type}"，可选: ${RUN_TYPES.join("|")}`);
       }
       const { path } = runRunsPath({
         project: opts.project,
-        featureId,
+        featurePath,
         newRun: true,
         runType: opts.type as RunType,
       });
@@ -269,11 +447,11 @@ export function registerRuns(program: Command): void {
     });
 
   runs
-    .command("path <feature-id>")
+    .command("path <feature-path>")
     .description("输出需求功能最近一次运行目录")
     .requiredOption("--project <name>", "项目名")
-    .action((featureId: string, opts: { project: string }) => {
-      const { path } = runRunsPath({ project: opts.project, featureId });
+    .action((featurePath: string, opts: { project: string }) => {
+      const { path } = runRunsPath({ project: opts.project, featurePath });
       console.log(path);
     });
 
@@ -281,13 +459,13 @@ export function registerRuns(program: Command): void {
     .command("verify")
     .description("校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1")
     .requiredOption("--project <name>", "项目名")
-    .requiredOption("--feature <feature-id>", "需求功能(目录名或 metadata.id)")
+    .requiredOption("--feature <feature-path>", "需求功能（相对 features/ 的完整路径）")
     .option("--run <run-id>", "指定 run-id(默认最近一次)")
     .option("--json", "以 JSON 输出结果", false)
-    .action((opts: { project: string; feature: string; run?: string; json: boolean }) => {
+    .action(async (opts: { project: string; feature: string; run?: string; json: boolean }) => {
       const result = runRunsVerify({
         project: opts.project,
-        featureId: opts.feature,
+        featurePath: opts.feature,
         runId: opts.run,
       });
       if (opts.json) {
@@ -302,22 +480,26 @@ export function registerRuns(program: Command): void {
         console.log(`[runs verify] ${result.ok ? "通过" : "未通过"}`);
       }
       if (!result.ok) process.exitCode = 1;
+      await notifyRunsVerification(result, opts.project, opts.feature);
     });
 
   runs
-    .command("prune [feature-id]")
+    .command("prune [feature-path]")
     .description("清理旧运行目录：保留最近 N 个 + baseline + 已发布")
     .requiredOption("--project <name>", "项目名")
     .option("--keep <n>", "保留最近 N 个运行", "5")
     .option("--apply", "真正执行删除(默认 dry-run)", false)
     .action(
-      (featureId: string | undefined, opts: { project: string; keep: string; apply: boolean }) => {
+      (
+        featurePath: string | undefined,
+        opts: { project: string; keep: string; apply: boolean },
+      ) => {
         const keep = Number.parseInt(opts.keep, 10);
         if (Number.isNaN(keep) || keep < 0)
           throw new Error(`--keep 需为非负整数，收到 "${opts.keep}"`);
         const { removed, kept } = runRunsPrune({
           project: opts.project,
-          featureId,
+          featurePath,
           keep,
           apply: opts.apply,
         });

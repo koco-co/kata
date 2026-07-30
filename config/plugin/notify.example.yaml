@@ -1,14 +1,20 @@
 # Copy to notify.yaml locally; do not commit the copied file.
-schema_version: 1
+# `enabled_events` is intentionally empty: a local webhook alone never enables delivery.
+is_enable: true
+enabled_events: []
 dingtalk:
+  is_enable: true
   webhook_url: ""
   keyword: ""
   sign_secret: ""
 feishu:
+  is_enable: true
   webhook_url: ""
 wecom:
+  is_enable: true
   webhook_url: ""
 smtp:
+  is_enable: true
   host: ""
   port: 587
   user: ""

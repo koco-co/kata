@@ -1,253 +1,38 @@
-#!/usr/bin/env bun
 /**
- * kata notify — send IM/email notifications
+ * Business notification delivery.
  *
- * Usage:
- *   kata notify send --event case-generated --data '{"count":42,"file":"test.xmind"}'
- *   kata notify send --dry-run --event case-generated --data '{"count":42}'
- *   kata notify send --help
+ * This module deliberately has no public "send arbitrary event" API. Real
+ * sends are emitted only by command handlers after their business result is
+ * persisted. `kata notify preview` uses the schema/renderer below but never
+ * enters the delivery path.
  */
 
 import crypto from "node:crypto";
-import { loadNotifyConfig } from "../lib/plugin-config.ts";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { writeJsonAtomic } from "../lib/atomic-writer.ts";
+import { loadNotifyConfig, type NotifyPluginConfig } from "../lib/plugin-config.ts";
+import { locateProject } from "../lib/workspace-locator.ts";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+export const NOTIFICATION_EVENTS = [
+  "cases-built",
+  "cases-imported",
+  "ui-test-completed",
+  "ui-test-failed",
+  "ui-test-needs-input",
+  "bug-analysis-completed",
+  "conflict-analysis-completed",
+  "scan-completed",
+  "hotfix-report-created",
+] as const;
 
-export type EventType =
-  | "case-generated"
-  | "bug-file"
-  | "conflict-analyzed"
-  | "case-hotfix"
-  | "ui-test-completed"
-  | "ui-test-needs-input"
-  | "archive-converted"
-  | "workflow-failed"
-  | (string & {});
+export type NotificationEventType = (typeof NOTIFICATION_EVENTS)[number];
+export type NotificationValue = string | number | string[] | FailedCase[];
+export type NotificationData = Record<string, NotificationValue>;
 
-export interface NotifyData {
-  [key: string]: unknown;
-}
-
-// ── Event Schemas ────────────────────────────────────────────────────────────
-// Single source of truth: drives --help, --describe and runtime field validation.
-
-export interface FieldSpec {
-  name: string;
-  required?: boolean;
-  type: "string" | "number" | "boolean" | "string[]" | "object[]" | "enum";
-  desc: string;
-  enum?: string[];
-}
-
-export interface EventSchema {
-  summary: string;
-  fields: FieldSpec[];
-}
-
-export const EVENT_SCHEMAS: Record<string, EventSchema> = {
-  "case-generated": {
-    summary: "测试用例生成完成（XMind / Archive）",
-    fields: [
-      { name: "count", type: "number", desc: "用例数量" },
-      { name: "file", type: "string", desc: "XMind 文件路径" },
-      { name: "archiveFile", type: "string", desc: "Archive MD 路径" },
-      { name: "requirement", type: "string", desc: "需求名称" },
-      { name: "duration", type: "number", desc: "耗时（秒）" },
-    ],
-  },
-  "bug-file": {
-    summary: "Bug 分析报告生成完成",
-    fields: [
-      { name: "summary", type: "string", desc: "一句话摘要" },
-      {
-        name: "problemType",
-        type: "string",
-        desc: "问题类型（前端/后端/...）",
-      },
-      {
-        name: "severity",
-        type: "string",
-        desc: "严重度（critical/high/medium/low）",
-      },
-      { name: "rootCause", type: "string", desc: "根因描述" },
-      { name: "fixSuggestion", type: "string", desc: "修复建议" },
-      { name: "reportFile", type: "string", desc: "HTML 报告路径" },
-    ],
-  },
-  "conflict-analyzed": {
-    summary: "Git 合并冲突分析完成",
-    fields: [
-      { name: "conflictCount", type: "number", desc: "冲突总数" },
-      { name: "autoResolvable", type: "number", desc: "可自动合并数" },
-      { name: "manualRequired", type: "number", desc: "需人工决策数" },
-      { name: "branches", type: "string[]", desc: "分支链（[base, target]）" },
-      { name: "reportFile", type: "string", desc: "HTML 报告路径" },
-    ],
-  },
-  "case-hotfix": {
-    summary: "Hotfix 验证用例生成完成",
-    fields: [
-      { name: "bugId", type: "string", desc: "禅道 Bug ID" },
-      { name: "branch", type: "string", desc: "修复分支名" },
-      { name: "caseCount", type: "number", desc: "用例数量" },
-      { name: "file", type: "string", desc: "XMind 文件路径" },
-    ],
-  },
-  "ui-test-completed": {
-    summary: "UI 自动化测试套件执行完成",
-    fields: [
-      { name: "passed", required: true, type: "number", desc: "通过数" },
-      { name: "failed", required: true, type: "number", desc: "失败数" },
-      { name: "broken", type: "number", desc: "异常数" },
-      { name: "skipped", type: "number", desc: "跳过数" },
-      { name: "total", type: "number", desc: "总数（不传则自动求和）" },
-      { name: "env", type: "string", desc: "环境标识（如 ltqcdev）" },
-      { name: "envLabel", type: "string", desc: "环境展示名/URL" },
-      { name: "tenant", type: "string", desc: "租户" },
-      { name: "project", type: "string", desc: "项目名" },
-      { name: "suite", type: "string", desc: "套件/需求名" },
-      { name: "durationMs", type: "number", desc: "总耗时（毫秒）" },
-      {
-        name: "reportFile",
-        type: "string",
-        desc: "Allure 本地路径（兼容字段）",
-      },
-      { name: "reportURL", type: "string", desc: "Allure 在线访问 URL（兼容字段）" },
-      { name: "reportPath", type: "string", desc: "Allure 本地路径" },
-      { name: "reportUrl", type: "string", desc: "Allure 在线访问 URL" },
-      { name: "failedCases", type: "object[]", desc: "失败用例列表 [{title, message}]" },
-      { name: "specFiles", type: "string[]", desc: "spec 文件列表" },
-    ],
-  },
-  "ui-test-needs-input": {
-    summary: "UI 自动化遇到无法自主判断的偏差，等待用户裁定",
-    fields: [
-      {
-        name: "question",
-        required: true,
-        type: "string",
-        desc: "向用户提出的一句话问题",
-      },
-      {
-        name: "reasonType",
-        required: true,
-        type: "enum",
-        enum: [
-          "dom_mismatch",
-          "assertion_ambiguity",
-          "flow_missing",
-          "selector_unknown",
-          "potential_bug",
-        ],
-        desc: "原因类型（卡片中按映射展示中文）",
-      },
-      { name: "caseTitle", required: true, type: "string", desc: "用例标题" },
-      { name: "expected", type: "string", desc: "用例预期文本" },
-      { name: "actual", type: "string", desc: "页面实际表现" },
-      {
-        name: "evidence",
-        type: "string",
-        desc: "DOM snippet / 截图路径 / 关键源码引用",
-      },
-      { name: "project", type: "string", desc: "项目名" },
-      { name: "suite", type: "string", desc: "套件/需求名" },
-    ],
-  },
-  "archive-converted": {
-    summary: "Archive MD 批量归档完成（仅在新增文件时触发）",
-    fields: [
-      { name: "fileCount", type: "number", desc: "新增文件数" },
-      { name: "caseCount", type: "number", desc: "用例数量（缺失时整行隐藏）" },
-      { name: "outputDir", type: "string", desc: "归档目录（缺失时整行隐藏）" },
-    ],
-  },
-  "workflow-failed": {
-    summary: "工作流异常中断",
-    fields: [
-      { name: "step", required: true, type: "string", desc: "失败步骤标识" },
-      { name: "reason", required: true, type: "string", desc: "失败原因" },
-      { name: "retryable", type: "string", desc: "是否可重试（默认是）" },
-    ],
-  },
-};
-
-export interface ValidationResult {
-  missingRequired: string[];
-  unknownFields: string[];
-  enumViolations: { field: string; value: unknown; allowed: string[] }[];
-  typeMismatches: { field: string; expected: string; actual: unknown }[];
-}
-
-/** Runtime type check for a declared field type (enum membership is checked separately). */
-function fieldTypeMatches(spec: FieldSpec, value: unknown): boolean {
-  switch (spec.type) {
-    case "string":
-      return typeof value === "string";
-    case "number":
-      return typeof value === "number";
-    case "boolean":
-      return typeof value === "boolean";
-    case "string[]":
-      return Array.isArray(value) && value.every((item) => typeof item === "string");
-    case "object[]":
-      return (
-        Array.isArray(value) &&
-        value.every((item) => Boolean(item) && typeof item === "object" && !Array.isArray(item))
-      );
-    case "enum":
-      return true;
-  }
-}
-
-export function validateEventData(event: string, data: NotifyData): ValidationResult {
-  const schema = EVENT_SCHEMAS[event];
-  if (!schema) {
-    return { missingRequired: [], unknownFields: [], enumViolations: [], typeMismatches: [] };
-  }
-  const known = new Set(schema.fields.map((f) => f.name));
-  const missingRequired = schema.fields
-    .filter((f) => f.required && (data[f.name] === undefined || data[f.name] === null))
-    .map((f) => f.name);
-  const unknownFields = Object.keys(data).filter((k) => !known.has(k));
-  const enumViolations = schema.fields
-    .filter((f) => f.type === "enum" && data[f.name] !== undefined && f.enum)
-    .filter((f) => !f.enum?.includes(String(data[f.name])))
-    .map((f) => ({ field: f.name, value: data[f.name], allowed: f.enum ?? [] }));
-  const typeMismatches = schema.fields
-    .filter((f) => data[f.name] !== undefined && data[f.name] !== null)
-    .filter((f) => !fieldTypeMatches(f, data[f.name]))
-    .map((f) => ({ field: f.name, expected: f.type, actual: data[f.name] }));
-  return { missingRequired, unknownFields, enumViolations, typeMismatches };
-}
-
-export function describeEvent(event: string): string {
-  const schema = EVENT_SCHEMAS[event];
-  if (!schema) {
-    const known = Object.keys(EVENT_SCHEMAS).join(", ");
-    return `未知事件 "${event}"。已知事件: ${known}`;
-  }
-  const lines = [`事件: ${event}`, `说明: ${schema.summary}`, "", "字段:"];
-  const nameWidth = Math.max(...schema.fields.map((f) => f.name.length));
-  const typeWidth = Math.max(...schema.fields.map((f) => f.type.length));
-  for (const f of schema.fields) {
-    const flag = f.required ? "*" : " ";
-    const enumHint = f.type === "enum" && f.enum ? `  [${f.enum.join(" | ")}]` : "";
-    lines.push(
-      `  ${flag} ${f.name.padEnd(nameWidth)}  ${f.type.padEnd(typeWidth)}  ${f.desc}${enumHint}`,
-    );
-  }
-  lines.push("", "* = 必填");
-  return lines.join("\n");
-}
-
-export function listAllEvents(): string {
-  const lines = ["全部事件类型:"];
-  const nameWidth = Math.max(...Object.keys(EVENT_SCHEMAS).map((n) => n.length));
-  for (const [name, schema] of Object.entries(EVENT_SCHEMAS)) {
-    lines.push(`  ${name.padEnd(nameWidth)}  ${schema.summary}`);
-  }
-  lines.push("", "查看单个事件字段: --describe <event>");
-  return lines.join("\n");
+export interface FailedCase {
+  title: string;
+  message?: string;
 }
 
 export interface FormattedMessage {
@@ -255,688 +40,708 @@ export interface FormattedMessage {
   text: string;
 }
 
-export interface SendResult {
-  sent: string[];
-  failed: string[];
-  skipped: string[];
+interface FieldSpec {
+  readonly name: string;
+  readonly type: "string" | "number" | "string[]" | "failed[]";
+  readonly required?: boolean;
 }
 
-// ── Message Formatting ───────────────────────────────────────────────────────
-
-export function formatMessage(event: EventType, data: NotifyData): FormattedMessage {
-  const timestamp = new Date().toLocaleString("zh-CN", {
-    timeZone: "Asia/Shanghai",
-  });
-  const text = formatByEvent(event, data, timestamp);
-
-  const firstLine = text.split("\n")[0];
-  const title = firstLine.replace(/^[\p{Emoji}\s]+/u, "").trim();
-
-  return { title, text };
+interface EventSchema {
+  readonly action: string;
+  readonly fields: readonly FieldSpec[];
 }
 
-function formatByEvent(event: EventType, data: NotifyData, timestamp: string): string {
-  switch (event) {
-    case "case-generated":
-      return [
-        "## ✅ 用例生成完成",
-        "",
-        `> **${data.requirement ?? "测试用例"}** 已生成`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        `| 📊 用例数 | **${data.count ?? "-"}** |`,
-        `| 📁 XMind | ${data.file ?? "-"} |`,
-        `| 📝 Archive | ${data.archiveFile ?? "-"} |`,
-        `| ⏱ 耗时 | ${data.duration ? `${data.duration}s` : "-"} |`,
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ].join("\n");
+const CONTEXT: readonly FieldSpec[] = [
+  { name: "project", type: "string", required: true },
+  { name: "version", type: "string", required: true },
+  { name: "feature", type: "string", required: true },
+  { name: "completed_at", type: "string", required: true },
+];
 
-    case "bug-file":
-      return [
-        "## 🐛 Bug 分析报告",
-        "",
-        `> ${data.summary ?? "分析完成"}`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        `| 🏷 类型 | ${data.problemType ?? "-"} |`,
-        `| 🔴 严重度 | **${data.severity ?? "-"}** |`,
-        `| 📍 根因 | ${data.rootCause ?? "-"} |`,
-        `| 📄 报告 | ${data.reportFile ?? "-"} |`,
-        "",
-        data.fixSuggestion ? `**💡 修复建议：** ${data.fixSuggestion}` : "",
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ]
-        .filter(Boolean)
-        .join("\n");
+export const EVENT_SCHEMAS: Record<NotificationEventType, EventSchema> = {
+  "cases-built": {
+    action: "用例构建完成",
+    fields: [
+      ...CONTEXT,
+      { name: "case_count", type: "number", required: true },
+      { name: "created_count", type: "number", required: true },
+      { name: "updated_count", type: "number", required: true },
+      { name: "artifact_paths", type: "string[]", required: true },
+      { name: "duration_ms", type: "number", required: true },
+    ],
+  },
+  "cases-imported": {
+    action: "历史用例导入完成",
+    fields: [
+      ...CONTEXT,
+      { name: "source_format", type: "string", required: true },
+      { name: "source_path", type: "string", required: true },
+      { name: "feature_count", type: "number", required: true },
+      { name: "case_count", type: "number", required: true },
+      { name: "yaml_paths", type: "string[]", required: true },
+    ],
+  },
+  "ui-test-completed": {
+    action: "UI 自动化验证通过",
+    fields: [
+      ...CONTEXT,
+      { name: "run_id", type: "string", required: true },
+      { name: "passed", type: "number", required: true },
+      { name: "failed", type: "number", required: true },
+      { name: "broken", type: "number", required: true },
+      { name: "skipped", type: "number", required: true },
+      { name: "duration_ms", type: "number", required: true },
+      { name: "allure_path", type: "string", required: true },
+    ],
+  },
+  "ui-test-failed": {
+    action: "UI 自动化验证失败",
+    fields: [
+      ...CONTEXT,
+      { name: "run_id", type: "string", required: true },
+      { name: "passed", type: "number", required: true },
+      { name: "failed", type: "number", required: true },
+      { name: "broken", type: "number", required: true },
+      { name: "skipped", type: "number", required: true },
+      { name: "duration_ms", type: "number", required: true },
+      { name: "allure_path", type: "string", required: true },
+      { name: "failed_cases", type: "failed[]", required: true },
+    ],
+  },
+  "ui-test-needs-input": {
+    action: "UI 自动化等待确认",
+    fields: [
+      ...CONTEXT,
+      { name: "run_id", type: "string", required: true },
+      { name: "case_title", type: "string", required: true },
+      { name: "question", type: "string", required: true },
+      { name: "pending_record_path", type: "string", required: true },
+    ],
+  },
+  "bug-analysis-completed": {
+    action: "缺陷分析报告校验完成",
+    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+  },
+  "conflict-analysis-completed": {
+    action: "冲突分析报告校验完成",
+    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+  },
+  "scan-completed": {
+    action: "扫描报告校验完成",
+    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+  },
+  "hotfix-report-created": {
+    action: "Hotfix 回归报告创建完成",
+    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+  },
+};
 
-    case "conflict-analyzed": {
-      const total = data.conflictCount ?? "-";
-      const auto = data.autoResolvable ?? "-";
-      const manual = data.manualRequired ?? "-";
-      return [
-        "## ⚠️ 合并冲突分析",
-        "",
-        `> 检测到 **${total}** 处冲突`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        `| 📊 冲突总数 | **${total}** |`,
-        `| 🤖 可自动合并 | ${auto} |`,
-        `| 👤 需人工决策 | ${manual} |`,
-        `| 📄 报告 | ${data.reportFile ?? "-"} |`,
-        "",
-        data.branches ? `**🔀 分支：** ${(data.branches as string[]).join(" ← ")}` : "",
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ]
-        .filter(Boolean)
-        .join("\n");
-    }
-
-    case "case-hotfix":
-      return [
-        "## 🔧 Hotfix 用例生成",
-        "",
-        `> Bug **#${data.bugId ?? "-"}** 的验证用例已就绪`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        `| 🐛 Bug ID | #${data.bugId ?? "-"} |`,
-        `| 🔀 修复分支 | ${data.branch ?? "-"} |`,
-        `| 📊 用例数 | ${data.caseCount ?? "-"} |`,
-        `| 📁 文件 | ${data.file ?? "-"} |`,
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ].join("\n");
-
-    case "ui-test-completed":
-      return formatUiTestCompleted(data, timestamp);
-
-    case "archive-converted": {
-      const fileCount = data.fileCount;
-      const caseCount = data.caseCount;
-      const outputDir = data.outputDir;
-      const rows = [
-        ...(fileCount !== undefined && fileCount !== null
-          ? [`| 📁 新增文件数 | **${fileCount}** |`]
-          : []),
-        ...(caseCount !== undefined && caseCount !== null
-          ? [`| 📊 用例数 | **${caseCount}** |`]
-          : []),
-        ...(outputDir ? [`| 📂 目录 | ${outputDir} |`] : []),
-      ];
-      return [
-        "## 📦 归档转化完成",
-        "",
-        `> **${fileCount ?? "-"}** 个文件已标准化归档`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        ...rows,
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ].join("\n");
-    }
-
-    case "ui-test-needs-input": {
-      const REASON_TYPE_LABELS: Record<string, string> = {
-        dom_mismatch: "DOM 与用例不一致",
-        assertion_ambiguity: "断言文本歧义",
-        flow_missing: "流程步骤缺失",
-        selector_unknown: "选择器无法确定",
-        potential_bug: "疑似业务 Bug",
-      };
-      const caseTitle = data.caseTitle ? String(data.caseTitle) : "-";
-      const rawReason = data.reasonType ? String(data.reasonType) : "-";
-      const reasonType = REASON_TYPE_LABELS[rawReason] ?? rawReason;
-      const question = data.question ? String(data.question) : "-";
-      const expected = data.expected ? String(data.expected) : "";
-      const actual = data.actual ? String(data.actual) : "";
-      const evidence = data.evidence ? String(data.evidence) : "";
-      const suite = data.suite ? String(data.suite) : "";
-      const project = data.project ? String(data.project) : "";
-
-      const titleSuffix = suite ? ` · ${suite}` : "";
-      const rows = [
-        ...(project ? [`| 📦 项目 | \`${project}\` |`] : []),
-        ...(suite ? [`| 🎯 套件 | ${suite} |`] : []),
-        `| 📝 用例 | ${caseTitle} |`,
-        `| 🏷 类型 | ${reasonType} |`,
-        ...(expected ? [`| 📖 用例预期 | ${expected} |`] : []),
-        ...(actual ? [`| 🖥 实际表现 | ${actual} |`] : []),
-      ];
-
-      const lines: string[] = [
-        `## ⏸ UI 自动化等待用户确认${titleSuffix}`,
-        "",
-        `> ${question}`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        ...rows,
-        "",
-      ];
-      if (evidence) {
-        lines.push(`**🔍 证据：** ${evidence}`, "");
-      }
-      lines.push(
-        "**⚡ 请回到 Claude Code 会话回答问题，工作流已暂停等待你的判断。**",
-        "",
-        "---",
-        `🕐 ${timestamp} · Kata`,
-      );
-      return lines.join("\n");
-    }
-
-    case "workflow-failed":
-      return [
-        "## ❌ 工作流异常中断",
-        "",
-        `> 步骤 **${data.step ?? "-"}** 执行失败`,
-        "",
-        "| 项目 | 详情 |",
-        "| --- | --- |",
-        `| 📍 失败步骤 | **${data.step ?? "-"}** |`,
-        `| 💬 原因 | ${data.reason ?? "-"} |`,
-        `| 🔄 可重试 | ${data.retryable ?? "是"} |`,
-        "",
-        "**⚡ 建议：** 检查上述原因后重新执行该步骤",
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ].join("\n");
-
-    default:
-      return [
-        `## 📢 Kata 通知 | ${event}`,
-        "",
-        "```json",
-        JSON.stringify(data, null, 2),
-        "```",
-        "",
-        `---`,
-        `🕐 ${timestamp} · Kata`,
-      ].join("\n");
-  }
+export interface ValidationResult {
+  missingRequired: string[];
+  unknownFields: string[];
+  typeMismatches: string[];
+  invalidPaths: string[];
 }
 
-function formatUiTestCompleted(data: NotifyData, timestamp: string): string {
-  const passed = Number(data.passed ?? 0);
-  const failed = Number(data.failed ?? 0);
-  const broken = Number(data.broken ?? 0);
-  const skipped = Number(data.skipped ?? 0);
-  const total = Number(data.total ?? passed + failed + broken + skipped);
-  const executed = total - skipped;
-  const rate = executed > 0 ? `${Math.round((passed / executed) * 100)}%` : "-";
-
-  const failedTotal = failed + broken;
-  const statusIcon = failedTotal > 0 ? "🔴" : passed > 0 ? "🟢" : "⚪";
-  const statusText = failedTotal > 0 ? "存在失败" : passed > 0 ? "全部通过" : "无通过用例";
-
-  const envLabel = data.envLabel ? String(data.envLabel) : "";
-  const envCode = data.env ? String(data.env) : "";
-  const envDisplay = envLabel || envCode || "-";
-  const tenant = data.tenant ? String(data.tenant) : "";
-  const project = data.project ? String(data.project) : "";
-  const suite = data.suite ? String(data.suite) : "";
-  const durationText = formatDuration(Number(data.durationMs ?? 0));
-
-  const titlePrefix = suite ? `${suite} - ` : "";
-
-  const rows = [
-    `| 🏷 环境 | ${formatEnvCell(envDisplay, envCode, envLabel)} |`,
-    ...(tenant ? [`| 🏢 租户 | \`${tenant}\` |`] : []),
-    ...(project ? [`| 📦 项目 | \`${project}\` |`] : []),
-    ...(suite ? [`| 🎯 需求 | ${suite} |`] : []),
-    `| 📊 总计 | **${total}**（执行 ${executed} · 跳过 ${skipped}） |`,
-    `| ✅ 通过 | **${passed}** |`,
-    `| ❌ 失败 | **${failed}** |`,
-    ...(broken > 0 ? [`| ⚠️ 异常 | **${broken}** |`] : []),
-    `| 📈 通过率 | **${rate}** |`,
-    `| ⏱ 耗时 | ${durationText} |`,
-  ];
-
-  const lines: string[] = [
-    `## 🧪 ${titlePrefix}UI 自动化测试完成 ${statusIcon}`,
-    "",
-    `> **${statusText}** · 通过率 **${rate}**（${passed}/${executed}）`,
-    "",
-    "| 指标 | 值 |",
-    "| --- | --- |",
-    ...rows,
-    "",
-  ];
-
-  // Allure report section (supports both new `reportPath`/`reportUrl` and legacy `reportFile`/`reportURL`)
-  const reportPath = data.reportPath
-    ? String(data.reportPath)
-    : data.reportFile
-      ? String(data.reportFile)
-      : "";
-  const reportUrl = data.reportUrl
-    ? String(data.reportUrl)
-    : data.reportURL
-      ? String(data.reportURL)
-      : "";
-  if (reportPath || reportUrl) {
-    lines.push("**📄 Allure 报告**");
-    lines.push("");
-    if (reportUrl) {
-      lines.push(`- 🔗 [在线查看](${reportUrl})`);
-    }
-    if (reportPath) {
-      lines.push(`- 📁 本地路径：\`${reportPath}\``);
-      lines.push(`- ▶️ 打开命令：\`allure open "${reportPath}"\``);
-    }
-    lines.push("");
-  }
-
-  // Top failed cases
-  const failedCases = Array.isArray(data.failedCases)
-    ? (data.failedCases as Array<{ title?: string; message?: string }>)
-    : [];
-  if (failedCases.length > 0) {
-    const topN = 5;
-    lines.push(`**❌ 失败用例（Top ${Math.min(topN, failedCases.length)}）**`);
-    lines.push("");
-    for (const fc of failedCases.slice(0, topN)) {
-      const title = fc.title ?? "(未命名)";
-      const msg = fc.message ? ` — ${fc.message}` : "";
-      lines.push(`- ${title}${msg}`);
-    }
-    if (failedCases.length > topN) {
-      lines.push(`- …另有 ${failedCases.length - topN} 条失败，详见报告`);
-    }
-    lines.push("");
-  }
-
-  lines.push("---");
-  lines.push(`🕐 ${timestamp} · Kata`);
-
-  return lines.join("\n");
+function isNotificationEvent(value: string): value is NotificationEventType {
+  return (NOTIFICATION_EVENTS as readonly string[]).includes(value);
 }
 
-function formatEnvCell(display: string, code: string, _label: string): string {
-  // When we have a URL (label starts with http/https), render as clickable link + small code tag
-  if (/^https?:\/\//i.test(display)) {
-    const codeSuffix = code && code !== display ? ` · \`${code}\`` : "";
-    return `[${display}](${display})${codeSuffix}`;
-  }
-  // Only env code (ltqc) available
-  return `\`${display}\``;
-}
-
-function formatDuration(ms: number): string {
-  if (!ms || ms < 0) return "-";
-  const totalSec = Math.round(ms / 1000);
-  if (totalSec < 60) return `${totalSec}s`;
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  if (min < 60) return sec > 0 ? `${min}m ${sec}s` : `${min}m`;
-  const hour = Math.floor(min / 60);
-  const remMin = min % 60;
-  return `${hour}h ${remMin}m`;
-}
-
-// ── Channel Detection ────────────────────────────────────────────────────────
-
-export interface ChannelConfig {
-  dingtalk: string | undefined;
-  dingtalkKeyword: string | undefined;
-  dingtalkSignSecret: string | undefined;
-  feishu: string | undefined;
-  wecom: string | undefined;
-  email: {
-    host: string | undefined;
-    port: string | undefined;
-    user: string | undefined;
-    pass: string | undefined;
-    from: string | undefined;
-    to: string | undefined;
-    secure: boolean | undefined;
-  };
-}
-
-/**
- * Normalize the optional SMTP `secure` (TLS on connect, typically port 465)
- * flag from notify.yaml / KATA_SMTP_SECURE (env priority is applied by
- * loadNotifyConfig) to a boolean.
- */
-function readSmtpSecure(value: string | boolean | undefined): boolean | undefined {
-  if (typeof value === "boolean") return value;
-  if (typeof value === "string" && value.trim() !== "") {
-    return /^(?:1|true|yes)$/i.test(value.trim());
-  }
-  return undefined;
-}
-
-export function detectChannels(root?: string): ChannelConfig {
-  const config = loadNotifyConfig(root);
-  return {
-    dingtalk: config.dingtalk?.webhook_url,
-    dingtalkKeyword: config.dingtalk?.keyword,
-    dingtalkSignSecret: config.dingtalk?.sign_secret,
-    feishu: config.feishu?.webhook_url,
-    wecom: config.wecom?.webhook_url,
-    email: {
-      host: config.smtp?.host,
-      port: config.smtp?.port === undefined ? undefined : String(config.smtp.port),
-      user: config.smtp?.user,
-      pass: config.smtp?.pass,
-      from: config.smtp?.from,
-      to: config.smtp?.to,
-      secure: readSmtpSecure(config.smtp?.secure),
-    },
-  };
-}
-
-export function isEmailEnabled(cfg: ChannelConfig): boolean {
-  return Boolean(
-    cfg.email.host && cfg.email.user && cfg.email.pass && cfg.email.from && cfg.email.to,
+function isRelativeWorkspacePath(value: string): boolean {
+  return (
+    Boolean(value) &&
+    !value.startsWith("/") &&
+    !/^[A-Za-z]:[\\/]/.test(value) &&
+    !value.split(/[\\/]/).includes("..")
   );
 }
 
-// ── DingTalk ─────────────────────────────────────────────────────────────────
+function matchesType(type: FieldSpec["type"], value: unknown): boolean {
+  if (type === "string") return typeof value === "string" && value.trim() !== "";
+  if (type === "number") return typeof value === "number" && Number.isFinite(value);
+  if (type === "string[]")
+    return Array.isArray(value) && value.every((item) => typeof item === "string");
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        Boolean(item) &&
+        typeof item === "object" &&
+        typeof (item as FailedCase).title === "string" &&
+        ((item as FailedCase).message === undefined ||
+          typeof (item as FailedCase).message === "string"),
+    )
+  );
+}
 
-/** Webhook requests must not hang forever; abort after this many ms. */
-const WEBHOOK_TIMEOUT_MS = 30_000;
+/** Strictly validate a public preview payload or an internally generated business event. */
+export function validateEventData(event: string, data: Record<string, unknown>): ValidationResult {
+  if (!isNotificationEvent(event)) {
+    return { missingRequired: ["event"], unknownFields: [], typeMismatches: [], invalidPaths: [] };
+  }
+  const schema = EVENT_SCHEMAS[event];
+  const known = new Set(schema.fields.map((field) => field.name));
+  const missingRequired = schema.fields
+    .filter(
+      (field) => field.required && (data[field.name] === undefined || data[field.name] === null),
+    )
+    .map((field) => field.name);
+  const typeMismatches = schema.fields
+    .filter((field) => data[field.name] !== undefined && !matchesType(field.type, data[field.name]))
+    .map((field) => field.name);
+  const invalidPaths: string[] = [];
+  for (const [name, value] of Object.entries(data)) {
+    if (name.endsWith("_path") && typeof value === "string" && !isRelativeWorkspacePath(value)) {
+      invalidPaths.push(name);
+    }
+    if (
+      name.endsWith("_paths") &&
+      Array.isArray(value) &&
+      value.some((item) => typeof item !== "string" || !isRelativeWorkspacePath(item))
+    ) {
+      invalidPaths.push(name);
+    }
+  }
+  return {
+    missingRequired,
+    unknownFields: Object.keys(data).filter((name) => !known.has(name)),
+    typeMismatches,
+    invalidPaths,
+  };
+}
+
+export function assertValidNotification(
+  event: string,
+  data: Record<string, unknown>,
+): asserts data is NotificationData {
+  const validation = validateEventData(event, data);
+  const details = [
+    validation.missingRequired.length ? `缺失字段: ${validation.missingRequired.join(", ")}` : "",
+    validation.unknownFields.length ? `未知字段: ${validation.unknownFields.join(", ")}` : "",
+    validation.typeMismatches.length ? `字段类型错误: ${validation.typeMismatches.join(", ")}` : "",
+    validation.invalidPaths.length
+      ? `必须是工作区相对路径: ${validation.invalidPaths.join(", ")}`
+      : "",
+  ].filter(Boolean);
+  if (!isNotificationEvent(event) || details.length > 0) {
+    throw new Error(`通知事件无效(${event}): ${details.join("；") || "未知事件"}`);
+  }
+}
+
+export function listAllEvents(): string {
+  return NOTIFICATION_EVENTS.map((event) => `${event}  ${EVENT_SCHEMAS[event].action}`).join("\n");
+}
+
+export function describeEvent(event: string): string {
+  if (!isNotificationEvent(event)) return `未知事件: ${event}`;
+  const schema = EVENT_SCHEMAS[event];
+  return [
+    `事件: ${event}`,
+    `动作: ${schema.action}`,
+    "字段:",
+    ...schema.fields.map(
+      (field) => `- ${field.name} (${field.type}${field.required ? ", 必填" : ""})`,
+    ),
+  ].join("\n");
+}
+
+function durationText(value: number): string {
+  const seconds = Math.max(0, Math.round(value / 1000));
+  if (seconds < 60) return `${seconds} 秒`;
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes} 分 ${seconds % 60} 秒`;
+}
+
+function line(label: string, value: unknown): string[] {
+  return typeof value === "string" && value !== ""
+    ? [`${label}：${value}`]
+    : typeof value === "number"
+      ? [`${label}：${value}`]
+      : [];
+}
+
+function pathLines(label: string, paths: string[]): string[] {
+  return paths.length === 0 ? [] : [`${label}：`, ...paths.map((path) => `- ${path}`)];
+}
+
+/** Render a concise DingTalk-safe, non-tabular message. */
+export function formatMessage(
+  event: NotificationEventType,
+  data: NotificationData,
+): FormattedMessage {
+  assertValidNotification(event, data);
+  const action = EVENT_SCHEMAS[event].action;
+  const title = `[${data.project}][${data.version}][${data.feature}] ${action}`;
+  const lines = [`## ${title}`, ""];
+
+  if (event === "cases-built") {
+    lines.push(
+      ...line("用例数", data.case_count),
+      ...line("新增产物", data.created_count),
+      ...line("更新产物", data.updated_count),
+    );
+    lines.push(...pathLines("本次产物", data.artifact_paths as string[]));
+    lines.push(...line("耗时", durationText(data.duration_ms as number)));
+  } else if (event === "cases-imported") {
+    lines.push(...line("输入格式", data.source_format), ...line("输入文件", data.source_path));
+    lines.push(...line("需求数", data.feature_count), ...line("用例数", data.case_count));
+    lines.push(...pathLines("YAML", data.yaml_paths as string[]));
+  } else if (event === "ui-test-completed" || event === "ui-test-failed") {
+    lines.push(...line("运行", data.run_id));
+    lines.push(
+      ...line("通过", data.passed),
+      ...line("失败", data.failed),
+      ...line("异常", data.broken),
+      ...line("跳过", data.skipped),
+    );
+    lines.push(
+      ...line("耗时", durationText(data.duration_ms as number)),
+      ...line("Allure", data.allure_path),
+    );
+    if (event === "ui-test-failed") {
+      const failed = data.failed_cases as FailedCase[];
+      if (failed.length > 0) {
+        lines.push("失败用例：");
+        for (const item of failed.slice(0, 5))
+          lines.push(`- ${item.title}${item.message ? `：${item.message}` : ""}`);
+        if (failed.length > 5) lines.push(`- 其余 ${failed.length - 5} 条详见 Allure`);
+      }
+    }
+  } else if (event === "ui-test-needs-input") {
+    lines.push(
+      ...line("运行", data.run_id),
+      ...line("用例", data.case_title),
+      ...line("待确认", data.question),
+    );
+    lines.push(...line("待确认记录", data.pending_record_path));
+  } else {
+    lines.push(...line("报告", data.report_path));
+  }
+  lines.push(...line("完成时间", data.completed_at), "", "Kata");
+  return { title, text: lines.join("\n") };
+}
+
+export function formatTaipeiTime(date: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const pick = (type: string) => parts.find((part) => part.type === type)?.value ?? "00";
+  return `${pick("year")}-${pick("month")}-${pick("day")} ${pick("hour")}:${pick("minute")}:${pick("second")} Asia/Taipei`;
+}
+
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value as Record<string, unknown>)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonical((value as Record<string, unknown>)[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function digest(value: unknown): string {
+  return crypto.createHash("sha256").update(canonical(value)).digest("hex");
+}
+
+export function eventIdFor(event: NotificationEventType, data: NotificationData): string {
+  return `${event}-${digest({ event, data }).slice(0, 20)}`;
+}
+
+export interface DeliveryState {
+  status: "sent" | "failed" | "skipped" | "blocked";
+  attempts: number;
+  updated_at: string;
+  error?: string;
+}
+
+export interface NotificationLedger {
+  schema_version: 1;
+  event_id: string;
+  event: NotificationEventType;
+  idempotency_key: string;
+  data: NotificationData;
+  created_at: string;
+  updated_at: string;
+  deliveries: Record<string, DeliveryState>;
+}
+
+function stateDir(root: string, project: string): string {
+  return join(locateProject(project, root).projectDir, ".state", "notifications");
+}
+
+function ledgerPath(root: string, project: string, eventId: string): string {
+  return join(stateDir(root, project), `${eventId}.json`);
+}
+
+function readLedger(path: string): NotificationLedger | undefined {
+  if (!existsSync(path)) return undefined;
+  const value = JSON.parse(readFileSync(path, "utf8")) as NotificationLedger;
+  if (value.schema_version !== 1 || !isNotificationEvent(value.event) || !value.event_id) {
+    throw new Error(`通知账本损坏: ${path}`);
+  }
+  return value;
+}
+
+function writeLedger(root: string, ledger: NotificationLedger): void {
+  writeJsonAtomic(ledgerPath(root, String(ledger.data.project), ledger.event_id), ledger);
+}
+
+function configAllows(
+  config: NotifyPluginConfig,
+  event: NotificationEventType,
+): string | undefined {
+  if (config.is_enable === false) return "全局通知已关闭";
+  if (!config.enabled_events || config.enabled_events.length === 0)
+    return "enabled_events 未配置；未发送";
+  if (!config.enabled_events.includes(event)) return `事件 ${event} 未在 enabled_events 中启用`;
+  return undefined;
+}
+
+type ChannelName = "dingtalk" | "feishu" | "wecom" | "email";
+export type NotificationFetch = (
+  input: string | URL | Request,
+  init?: RequestInit,
+) => Promise<Response>;
+
+class DeliveryError extends Error {
+  constructor(
+    message: string,
+    readonly retryable: boolean,
+  ) {
+    super(message);
+  }
+}
 
 function buildDingtalkUrl(baseUrl: string, signSecret?: string): string {
   if (!signSecret) return baseUrl;
-
   const timestamp = Date.now();
-  const stringToSign = `${timestamp}\n${signSecret}`;
-  const sign = crypto.createHmac("sha256", signSecret).update(stringToSign).digest("base64");
-  const encodedSign = encodeURIComponent(sign);
-
-  return `${baseUrl}&timestamp=${timestamp}&sign=${encodedSign}`;
+  const sign = crypto
+    .createHmac("sha256", signSecret)
+    .update(`${timestamp}\n${signSecret}`)
+    .digest("base64");
+  const separator = baseUrl.includes("?") ? "&" : "?";
+  return `${baseUrl}${separator}timestamp=${timestamp}&sign=${encodeURIComponent(sign)}`;
 }
 
-async function sendDingtalk(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
-  if (!cfg.dingtalk) throw new Error("缺 dingtalk webhook 配置");
-  const url = buildDingtalkUrl(cfg.dingtalk, cfg.dingtalkSignSecret);
-  const title = cfg.dingtalkKeyword ? `${cfg.dingtalkKeyword} ${msg.title}` : msg.title;
-
-  const body = {
-    msgtype: "markdown",
-    markdown: { title, text: msg.text },
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
-  });
-
-  if (!res.ok) {
-    throw new Error(`DingTalk responded ${res.status}: ${await res.text()}`);
-  }
-
-  const json = (await res.json()) as { errcode?: number; errmsg?: string };
-  if (json.errcode && json.errcode !== 0) {
-    throw new Error(`DingTalk error ${json.errcode}: ${json.errmsg}`);
+async function postJson(
+  fetchImpl: NotificationFetch,
+  url: string,
+  body: unknown,
+): Promise<Response> {
+  try {
+    const response = await fetchImpl(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (!response.ok) throw new DeliveryError(`HTTP ${response.status}`, response.status >= 500);
+    return response;
+  } catch (error) {
+    if (error instanceof DeliveryError) throw error;
+    throw new DeliveryError("网络或超时错误", true);
   }
 }
 
-// ── Feishu ───────────────────────────────────────────────────────────────────
-
-async function sendFeishu(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
-  const body = {
-    msg_type: "post",
-    content: {
-      post: {
-        zh_cn: {
-          title: msg.title,
-          content: [[{ tag: "text", text: msg.text }]],
-        },
+async function deliverDingtalk(
+  config: NotifyPluginConfig,
+  message: FormattedMessage,
+  fetchImpl: NotificationFetch,
+): Promise<void> {
+  const dingtalk = config.dingtalk;
+  if (!dingtalk?.webhook_url) throw new DeliveryError("钉钉 webhook 未配置", false);
+  const response = await postJson(
+    fetchImpl,
+    buildDingtalkUrl(dingtalk.webhook_url, dingtalk.sign_secret),
+    {
+      msgtype: "markdown",
+      markdown: {
+        title: dingtalk.keyword ? `${dingtalk.keyword} ${message.title}` : message.title,
+        text: message.text,
       },
     },
-  };
-
-  if (!cfg.feishu) throw new Error("缺 feishu webhook 配置");
-  const res = await fetch(cfg.feishu, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Feishu responded ${res.status}: ${await res.text()}`);
-  }
-
-  const json = (await res.json()) as { code?: number; msg?: string };
-  if (json.code && json.code !== 0) {
-    throw new Error(`Feishu error ${json.code}: ${json.msg}`);
-  }
+  );
+  const result = (await response.json().catch(() => ({}))) as { errcode?: number };
+  if (result.errcode && result.errcode !== 0)
+    throw new DeliveryError(`钉钉业务错误 ${result.errcode}`, false);
 }
 
-// ── WeCom ────────────────────────────────────────────────────────────────────
+async function deliverFeishu(
+  config: NotifyPluginConfig,
+  message: FormattedMessage,
+  fetchImpl: NotificationFetch,
+): Promise<void> {
+  const url = config.feishu?.webhook_url;
+  if (!url) throw new DeliveryError("飞书 webhook 未配置", false);
+  const response = await postJson(fetchImpl, url, {
+    msg_type: "text",
+    content: { text: `${message.title}\n${message.text}` },
+  });
+  const result = (await response.json().catch(() => ({}))) as { code?: number };
+  if (result.code && result.code !== 0)
+    throw new DeliveryError(`飞书业务错误 ${result.code}`, false);
+}
 
-async function sendWecom(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
-  const body = {
+async function deliverWecom(
+  config: NotifyPluginConfig,
+  message: FormattedMessage,
+  fetchImpl: NotificationFetch,
+): Promise<void> {
+  const url = config.wecom?.webhook_url;
+  if (!url) throw new DeliveryError("企微 webhook 未配置", false);
+  const response = await postJson(fetchImpl, url, {
     msgtype: "markdown",
-    markdown: { content: msg.text },
-  };
-
-  if (!cfg.wecom) throw new Error("缺 wecom webhook 配置");
-  const res = await fetch(cfg.wecom, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
+    markdown: { content: message.text },
   });
+  const result = (await response.json().catch(() => ({}))) as { errcode?: number };
+  if (result.errcode && result.errcode !== 0)
+    throw new DeliveryError(`企微业务错误 ${result.errcode}`, false);
+}
 
-  if (!res.ok) {
-    throw new Error(`WeCom responded ${res.status}: ${await res.text()}`);
+async function deliverEmail(config: NotifyPluginConfig, message: FormattedMessage): Promise<void> {
+  const smtp = config.smtp;
+  if (!smtp?.host || !smtp.user || !smtp.pass || !smtp.from || !smtp.to) {
+    throw new DeliveryError("SMTP 配置不完整", false);
   }
-
-  const json = (await res.json()) as { errcode?: number; errmsg?: string };
-  if (json.errcode && json.errcode !== 0) {
-    throw new Error(`WeCom error ${json.errcode}: ${json.errmsg}`);
+  try {
+    const nodemailer = await import("nodemailer");
+    const secure = smtp.secure === true || smtp.secure === "true";
+    const transporter = nodemailer.default.createTransport({
+      host: smtp.host,
+      port: smtp.port ? Number(smtp.port) : 587,
+      secure,
+      auth: { user: smtp.user, pass: smtp.pass },
+    });
+    await transporter.sendMail({
+      from: smtp.from,
+      to: smtp.to,
+      subject: `[kata] ${message.title}`,
+      text: message.text,
+    });
+  } catch {
+    throw new DeliveryError("SMTP 网络或投递错误", true);
   }
 }
 
-// ── Email ────────────────────────────────────────────────────────────────────
-
-/** Escape user-controlled text before embedding it into the HTML mail body. */
-export function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function enabledChannels(config: NotifyPluginConfig): ChannelName[] {
+  const result: ChannelName[] = [];
+  if (config.dingtalk?.is_enable !== false && config.dingtalk?.webhook_url) result.push("dingtalk");
+  if (config.feishu?.is_enable !== false && config.feishu?.webhook_url) result.push("feishu");
+  if (config.wecom?.is_enable !== false && config.wecom?.webhook_url) result.push("wecom");
+  if (
+    config.smtp?.is_enable !== false &&
+    config.smtp?.host &&
+    config.smtp.user &&
+    config.smtp.pass &&
+    config.smtp.from &&
+    config.smtp.to
+  )
+    result.push("email");
+  return result;
 }
 
-export function formatEmailHtml(text: string): string {
-  const htmlBody = text
-    .split("\n")
-    .map((line) => (line === "" ? "<br>" : `<p>${escapeHtml(line)}</p>`))
-    .join("\n");
-  return `<div style="font-family: sans-serif;">${htmlBody}</div>`;
+async function deliverWithRetry(
+  channel: ChannelName,
+  config: NotifyPluginConfig,
+  message: FormattedMessage,
+  fetchImpl: NotificationFetch,
+): Promise<{ attempts: number; error?: string }> {
+  for (let attempts = 1; attempts <= 3; attempts += 1) {
+    try {
+      if (channel === "dingtalk") await deliverDingtalk(config, message, fetchImpl);
+      else if (channel === "feishu") await deliverFeishu(config, message, fetchImpl);
+      else if (channel === "wecom") await deliverWecom(config, message, fetchImpl);
+      else await deliverEmail(config, message);
+      return { attempts };
+    } catch (error) {
+      const reason =
+        error instanceof DeliveryError ? error : new DeliveryError("未知投递错误", false);
+      if (!reason.retryable || attempts === 3) return { attempts, error: reason.message };
+    }
+  }
+  return { attempts: 3, error: "未知投递错误" };
 }
 
-async function sendEmail(cfg: ChannelConfig, msg: FormattedMessage): Promise<void> {
-  const { email } = cfg;
-  // Dynamic import to avoid loading nodemailer when not needed
-  const nodemailer = await import("nodemailer");
-
-  const transporter = nodemailer.default.createTransport({
-    host: email.host,
-    port: email.port ? Number.parseInt(email.port, 10) : 587,
-    secure: email.secure ?? false,
-    auth: { user: email.user, pass: email.pass },
-  });
-
-  await transporter.sendMail({
-    from: email.from,
-    to: email.to,
-    subject: `[kata] ${msg.title}`,
-    text: msg.text,
-    html: formatEmailHtml(msg.text),
-  });
+export interface EmitNotificationOptions {
+  root?: string;
+  fetchImpl?: NotificationFetch;
+  now?: Date;
+  /** Retry a durable pending delivery; ordinary business emission is idempotent. */
+  retry?: boolean;
 }
 
-// ── Orchestration ────────────────────────────────────────────────────────────
+export interface EmitNotificationResult {
+  event_id: string;
+  state: "sent" | "partial" | "failed" | "skipped" | "blocked" | "duplicate";
+  sent: string[];
+  failed: string[];
+  reason?: string;
+}
 
-export async function sendNotification(
-  event: EventType,
-  data: NotifyData,
-  options: { dryRun?: boolean; root?: string } = {},
-): Promise<SendResult> {
-  const msg = formatMessage(event, data);
-  const channels = detectChannels(options.root);
-
-  if (options.dryRun) {
-    process.stderr.write(`[dry-run] event=${event}\n${msg.text}\n`);
-    const output = { dry_run: true, message: msg.text };
-    process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
-    return { sent: [], failed: [], skipped: [] };
+/** Persist and synchronously deliver a business-derived event. Never throws for delivery failures. */
+export async function emitBusinessNotification(
+  event: NotificationEventType,
+  data: NotificationData,
+  options: EmitNotificationOptions = {},
+): Promise<EmitNotificationResult> {
+  assertValidNotification(event, data);
+  const root = resolve(options.root ?? process.cwd());
+  const eventId = eventIdFor(event, data);
+  const path = ledgerPath(root, String(data.project), eventId);
+  let ledger = readLedger(path);
+  if (!ledger) {
+    const now = formatTaipeiTime(options.now);
+    ledger = {
+      schema_version: 1,
+      event_id: eventId,
+      event,
+      idempotency_key: digest({ event, data }),
+      data,
+      created_at: now,
+      updated_at: now,
+      deliveries: {},
+    };
+    writeLedger(root, ledger);
+  } else if (
+    !options.retry &&
+    Object.values(ledger.deliveries).some((delivery) => delivery.status === "sent")
+  ) {
+    return { event_id: eventId, state: "duplicate", sent: [], failed: [] };
   }
 
-  const tasks: Array<{ name: string; fn: () => Promise<void> }> = [];
-  const skipped: string[] = [];
-
-  if (channels.dingtalk) {
-    tasks.push({ name: "dingtalk", fn: () => sendDingtalk(channels, msg) });
-  } else {
-    skipped.push("dingtalk");
+  const config = loadNotifyConfig(root);
+  const blocked = configAllows(config, event);
+  const timestamp = formatTaipeiTime(options.now);
+  if (blocked) {
+    ledger.deliveries.configuration = {
+      status: "blocked",
+      attempts: 0,
+      error: blocked,
+      updated_at: timestamp,
+    };
+    ledger.updated_at = timestamp;
+    writeLedger(root, ledger);
+    return { event_id: eventId, state: "blocked", sent: [], failed: [], reason: blocked };
   }
 
-  if (channels.feishu) {
-    tasks.push({ name: "feishu", fn: () => sendFeishu(channels, msg) });
-  } else {
-    skipped.push("feishu");
+  const channels = enabledChannels(config);
+  if (channels.length === 0) {
+    const reason = "没有启用且配置完整的通知渠道";
+    ledger.deliveries.configuration = {
+      status: "skipped",
+      attempts: 0,
+      error: reason,
+      updated_at: timestamp,
+    };
+    ledger.updated_at = timestamp;
+    writeLedger(root, ledger);
+    return { event_id: eventId, state: "skipped", sent: [], failed: [], reason };
   }
 
-  if (channels.wecom) {
-    tasks.push({ name: "wecom", fn: () => sendWecom(channels, msg) });
-  } else {
-    skipped.push("wecom");
-  }
-
-  if (isEmailEnabled(channels)) {
-    tasks.push({ name: "email", fn: () => sendEmail(channels, msg) });
-  } else {
-    skipped.push("email");
-  }
-
-  const results = await Promise.allSettled(tasks.map((t) => t.fn()));
-
+  const message = formatMessage(event, data);
   const sent: string[] = [];
   const failed: string[] = [];
-
-  results.forEach((result, index) => {
-    const name = tasks[index].name;
-    if (result.status === "fulfilled") {
-      sent.push(name);
-    } else {
-      failed.push(name);
-      process.stderr.write(`[notify] ${name} failed: ${result.reason}\n`);
-    }
-  });
-
-  return { sent, failed, skipped };
+  for (const channel of channels) {
+    const previous = ledger.deliveries[channel];
+    if (previous?.status === "sent") continue;
+    const outcome = await deliverWithRetry(channel, config, message, options.fetchImpl ?? fetch);
+    ledger.deliveries[channel] = {
+      status: outcome.error ? "failed" : "sent",
+      attempts: (previous?.attempts ?? 0) + outcome.attempts,
+      ...(outcome.error ? { error: outcome.error } : {}),
+      updated_at: formatTaipeiTime(options.now),
+    };
+    if (outcome.error) failed.push(channel);
+    else sent.push(channel);
+    ledger.updated_at = formatTaipeiTime(options.now);
+    writeLedger(root, ledger);
+  }
+  const state = failed.length > 0 ? (sent.length > 0 ? "partial" : "failed") : "sent";
+  return { event_id: eventId, state, sent, failed };
 }
 
-// ── CLI Entry Point ──────────────────────────────────────────────────────────
-
-/** Parsed `kata notify send` options (raw --data JSON string). */
-export interface SendOptions {
-  event?: string;
-  data?: string;
-  dryRun?: boolean;
-  listEvents?: boolean;
-  describe?: string;
-  strict?: boolean;
-  /** Config root override for tests; defaults to the repo root. */
-  root?: string;
-}
-
-/** Execute the notify send flow and return the exit code for the CLI boundary. */
-export async function runSend(opts: SendOptions): Promise<number> {
-  const data = opts.data ?? "{}";
-
-  if (opts.listEvents) {
-    process.stdout.write(`${listAllEvents()}\n`);
-    return 0;
-  }
-
-  if (opts.describe) {
-    process.stdout.write(`${describeEvent(opts.describe)}\n`);
-    return 0;
-  }
-
-  if (!opts.event) {
-    process.stderr.write("[notify] --event 必填（或使用 --list-events / --describe）\n");
-    return 1;
-  }
-
-  let parsed: NotifyData;
+/**
+ * Command handlers use this boundary so a webhook/config/ledger failure never
+ * rewrites the outcome of an already completed business operation.
+ */
+export async function emitBusinessNotificationSafely(
+  event: NotificationEventType,
+  data: NotificationData,
+  options: EmitNotificationOptions = {},
+): Promise<EmitNotificationResult> {
   try {
-    parsed = JSON.parse(data) as NotifyData;
-  } catch {
-    process.stderr.write(`[notify] Invalid --data JSON: ${data}\n`);
-    return 1;
+    return await emitBusinessNotification(event, data, options);
+  } catch (error) {
+    return {
+      event_id: eventIdFor(event, data),
+      state: "failed",
+      sent: [],
+      failed: [],
+      reason: `通知已阻断: ${error instanceof Error ? error.message : "未知错误"}`,
+    };
   }
+}
 
-  const validation = validateEventData(opts.event, parsed);
-  const hasIssues =
-    validation.missingRequired.length > 0 ||
-    validation.unknownFields.length > 0 ||
-    validation.enumViolations.length > 0 ||
-    validation.typeMismatches.length > 0;
-  if (hasIssues) {
-    if (validation.missingRequired.length > 0) {
-      process.stderr.write(
-        `[notify] 缺失必填字段 (${opts.event}): ${validation.missingRequired.join(", ")}\n`,
-      );
-    }
-    if (validation.unknownFields.length > 0) {
-      process.stderr.write(
-        `[notify] 未知字段将被丢弃 (${opts.event}): ${validation.unknownFields.join(", ")}\n`,
-      );
-    }
-    for (const v of validation.enumViolations) {
-      process.stderr.write(
-        `[notify] 字段 "${v.field}" 值 "${v.value}" 不在枚举范围: [${v.allowed.join(", ")}]\n`,
-      );
-    }
-    for (const m of validation.typeMismatches) {
-      process.stderr.write(
-        `[notify] 字段 "${m.field}" 类型应为 ${m.expected},实际值: ${JSON.stringify(m.actual)}\n`,
-      );
-    }
-    process.stderr.write(`[notify] 提示: 运行 \`--describe ${opts.event}\` 查看完整 schema\n`);
-    if (opts.strict) {
-      return 1;
-    }
-  }
+export interface NotificationListItem {
+  event_id: string;
+  event: NotificationEventType;
+  feature: string;
+  created_at: string;
+  state: string;
+}
 
-  const result = await sendNotification(opts.event, parsed, {
-    dryRun: opts.dryRun,
-    root: opts.root,
-  });
+export function listNotificationLedgers(project: string, root?: string): NotificationListItem[] {
+  const dir = stateDir(resolve(root ?? process.cwd()), project);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => readLedger(join(dir, name)))
+    .filter((ledger): ledger is NotificationLedger => Boolean(ledger))
+    .map((ledger) => ({
+      event_id: ledger.event_id,
+      event: ledger.event,
+      feature: String(ledger.data.feature),
+      created_at: ledger.created_at,
+      state: Object.values(ledger.deliveries).some((delivery) => delivery.status === "failed")
+        ? "failed"
+        : Object.values(ledger.deliveries).some((delivery) => delivery.status === "sent")
+          ? "sent"
+          : (Object.values(ledger.deliveries)[0]?.status ?? "recorded"),
+    }))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
 
-  if (!opts.dryRun) {
-    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    // A notification that reaches nobody must not exit 0 silently.
-    const attempted = result.sent.length + result.failed.length;
-    if (attempted === 0) {
-      process.stderr.write(
-        "[notify] 警告: 未配置任何通知渠道 (config/plugin/notify.yaml),消息未发送。\n",
-      );
-      return 2;
-    } else if (result.failed.length === attempted) {
-      process.stderr.write(`[notify] 警告: 全部 ${attempted} 个渠道发送失败,消息未送达。\n`);
-      return 2;
-    }
-  }
-  return 0;
+export function showNotificationLedger(
+  eventId: string,
+  project: string,
+  root?: string,
+): NotificationLedger {
+  const ledger = readLedger(ledgerPath(resolve(root ?? process.cwd()), project, eventId));
+  if (!ledger) throw new Error(`通知事件不存在: ${eventId}`);
+  return ledger;
+}
+
+export async function retryNotification(
+  eventId: string,
+  project: string,
+  options: EmitNotificationOptions = {},
+): Promise<EmitNotificationResult> {
+  const root = resolve(options.root ?? process.cwd());
+  const ledger = showNotificationLedger(eventId, project, root);
+  return emitBusinessNotification(ledger.event, ledger.data, { ...options, root, retry: true });
+}
+
+/** Safely convert an absolute artifact path to the repository-relative form allowed in messages. */
+export function workspaceRelativePath(root: string, path: string): string {
+  const result = relative(resolve(root), resolve(path)).split("\\").join("/");
+  if (!isRelativeWorkspacePath(result)) throw new Error(`通知路径不在工作区内: ${path}`);
+  return result;
 }

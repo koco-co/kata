@@ -1,0 +1,203 @@
+meta:
+  title: 数据库列表展示版本号
+  case_module_id: ""
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    title: 验证「元数据管理」页面，「导出元数据」的文件中，「版本号」正常展示的功能
+    priority: P0
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris」数据源的版本号正常展示
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0002
+    title: 验证「元数据管理」页面，「HANA」数据源「版本号」正常展示的功能
+    priority: P0
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「HANA」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0003
+    title: 验证「元数据管理」页面，「doris2.x」数据源「版本号」正常展示的功能
+    priority: P0
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「doris2.x」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0004
+    title: 验证「元数据管理」页面，「DM」数据源「版本号」正常展示的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「DM」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0005
+    title: 验证「元数据管理」页面，「PostgreSQL」数据源「版本号」正常展示的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「PostgreSQL」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0006
+    title: 验证「元数据管理」页面，「sqlserver」数据源「版本号」正常展示的功能
+    priority: P0
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「sqlserver」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0007
+    title: 验证「元数据管理」页面，「oracle」数据源「版本号」正常展示的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「oracle」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0008
+    title: 验证「元数据管理」页面，「mysql」数据源「版本号」正常展示的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「mysql」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0009
+    title: 验证「元数据管理」页面，「trino」数据源「版本号」正常展示的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「trino」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0010
+    title: 验证「元数据管理」页面，「sparkthrift」数据源「版本号」正常展示的功能
+    priority: P0
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「sparkthrift」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0011
+    title: 验证「元数据管理」页面，「hive」数据源「版本号」正常展示的功能
+    priority: P1
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 「hive」数据源的版本号正常展示，数据与底层查询的版本保持一致
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0012
+    title: 验证「元数据管理」页面，「导出元数据」的文件中，新增「版本号」的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 点击「导出元数据」
+        expected: 元数据正常导出
+      - action: 查看导出文件
+        expected: 文件中新增「版本号」信息列（位于「数据库名称」和「数据表数量」列中间）
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0013
+    title: 验证「元数据管理」页面，新增「版本号」的功能
+    priority: P2
+    steps:
+      - action: 进入「元数据-元数据管理」页面
+        expected: 页面正常打开
+      - action: 查看页面信息展示
+        expected: 列表新增「版本号」信息列（位于「数据库」的右侧）
+    precondition: |-
+      1、 进入元数据-元数据管理页面
+      2、 资产成功引入以下数据源：
+      hive、sparkthrift、trino、mysql、oracle、sqlserver、达梦、PostgreSQL、doris
+    tags:
+      - 未分类
+      - 未分类

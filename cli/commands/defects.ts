@@ -8,8 +8,14 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import type { Command } from "commander";
+import {
+  emitBusinessNotificationSafely,
+  formatTaipeiTime,
+  type NotificationEventType,
+  workspaceRelativePath,
+} from "../integrations/notify.ts";
 import { runFetch } from "../integrations/zentao/fetch.ts";
 import { outputJson } from "../lib/cli.ts";
 import { lintMarkdownReport } from "../lib/defect-report.ts";
@@ -22,6 +28,51 @@ import {
 import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
 
 const BUG_VIEW_ID_RE = /bug-view-(\d+)\.html/;
+
+function reportNotificationContext(reportPath: string): {
+  root: string;
+  project: string;
+  version: string;
+  feature: string;
+  reportPath: string;
+} {
+  const parts = resolve(reportPath).split(/[\\/]/);
+  const workspaceIndex = parts.lastIndexOf("workspace");
+  if (workspaceIndex < 1 || !parts[workspaceIndex + 1]) {
+    throw new Error(`报告不在 workspace/<project>/ 下，无法创建通知: ${reportPath}`);
+  }
+  const root = parts.slice(0, workspaceIndex).join("/") || "/";
+  const version = basename(dirname(reportPath));
+  const title =
+    readFileSync(reportPath, "utf8")
+      .match(/^#\s+(.+)$/m)?.[1]
+      ?.trim() ?? basename(reportPath, ".md");
+  return {
+    root,
+    project: parts[workspaceIndex + 1],
+    version,
+    feature: title,
+    reportPath: workspaceRelativePath(root, reportPath),
+  };
+}
+
+async function notifyLintedReport(reportPath: string, event: NotificationEventType): Promise<void> {
+  const context = reportNotificationContext(reportPath);
+  const result = await emitBusinessNotificationSafely(
+    event,
+    {
+      project: context.project,
+      version: context.version,
+      feature: context.feature,
+      completed_at: formatTaipeiTime(),
+      report_path: context.reportPath,
+    },
+    { root: context.root },
+  );
+  process.stderr.write(
+    `[notify] ${event}: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
+  );
+}
 
 /** Build the `defects` command: generate and validate formal defect reports. */
 export function registerDefects(program: Command): void {
@@ -104,6 +155,7 @@ export function registerDefects(program: Command): void {
           if (violations.length > 0)
             throw new Error(`生成的 hotfix 报告未通过 lint: ${reportPath}`);
           outputJson({ ok: true, report: reportPath, bugId: fetched.bug_id });
+          await notifyLintedReport(reportPath, "hotfix-report-created");
         } finally {
           rmSync(temp, { recursive: true, force: true });
         }
@@ -115,7 +167,7 @@ export function registerDefects(program: Command): void {
     .description("校验正式 Markdown 缺陷报告结构")
     .requiredOption("--report <path>", "报告 Markdown 路径")
     .option("--exit-code", "存在 violation 时退出码为 1")
-    .action((opts: { report: string; exitCode?: boolean }) => {
+    .action(async (opts: { report: string; exitCode?: boolean }) => {
       const reportPath = resolve(opts.report);
       const isHotfix = /[\\/]analyses[\\/]hotfix-case[\\/]/.test(reportPath);
       if (isHotfix) {
@@ -127,6 +179,7 @@ export function registerDefects(program: Command): void {
         }
         outputJson({ report: opts.report, kind: "hotfix", violations: violations.length });
         if (opts.exitCode && violations.length > 0) process.exitCode = 1;
+        if (violations.length === 0) await notifyLintedReport(reportPath, "hotfix-report-created");
         return;
       }
       const result = lintMarkdownReport(reportPath);
@@ -135,5 +188,13 @@ export function registerDefects(program: Command): void {
       }
       outputJson({ report: opts.report, kind: result.kind, violations: result.violations.length });
       if (opts.exitCode && result.violations.length > 0) process.exitCode = 1;
+      if (result.violations.length === 0) {
+        const event: Record<typeof result.kind, NotificationEventType> = {
+          bug: "bug-analysis-completed",
+          conflict: "conflict-analysis-completed",
+          scan: "scan-completed",
+        };
+        await notifyLintedReport(reportPath, event[result.kind]);
+      }
     });
 }

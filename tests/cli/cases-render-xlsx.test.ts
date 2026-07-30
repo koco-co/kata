@@ -4,7 +4,7 @@ import { renderXlsx } from "../../cli/lib/cases/render-xlsx.ts";
 import type { CasesFile } from "../../cli/lib/cases/types.ts";
 
 function file(title: string, cases: CasesFile["cases"]): CasesFile {
-  return { meta: { title, version: "v1", feature_id: "g/f", case_module_id: "" }, cases };
+  return { meta: { title, case_module_id: "" }, cases };
 }
 
 const CASE = { id: "C0001", title: "用例一", priority: "P0" as const, steps: [] };

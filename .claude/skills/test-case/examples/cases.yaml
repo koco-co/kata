@@ -1,9 +1,7 @@
 # cases.yaml 样例（节选改写自真实需求，展示格式而非事实）
-# meta: 用例集元信息；feature_id 口径为 {group}/{dirName}（feature 目录相对 features/ 的两级路径）
+# meta: 用例集业务元信息；版本和 feature 身份由所在目录路径推导。
 meta:
   title: 单表校验规则支持枚举值个数统计
-  version: v6.4.11
-  feature_id: v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计
   requirement_id: "15862"
   case_module_id: ""
   source: https://lanhuapp.com/web/#/item/project/... (需求设计稿链接)

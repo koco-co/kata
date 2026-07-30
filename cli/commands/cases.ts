@@ -7,15 +7,13 @@ import { registerCasesBuild } from "./cases-build.ts";
 import { registerCasesImport } from "./cases-import.ts";
 import { registerCasesSync } from "./cases-sync.ts";
 
-/** Run case-related structural lint: feature dir layout + naming + metadata sanity. */
+/** Run case-related structural lint: feature dir layout + naming + YAML source contract. */
 export function runCasesLint(opts: { project: string; feature?: string }): {
   violations: { feature: string; rule: string; message: string }[];
 } {
   const workspaceRoot = join(locateProjectRoot(), "workspace");
-  const featureId = opts.feature
-    ? resolveFeatureEntry(locateProject(opts.project).featuresDir, opts.feature).dirName
-    : undefined;
-  return runFeaturesLint({ project: opts.project, workspaceRoot, featureId });
+  if (opts.feature) resolveFeatureEntry(locateProject(opts.project).featuresDir, opts.feature);
+  return runFeaturesLint({ project: opts.project, workspaceRoot, featurePath: opts.feature });
 }
 
 export function registerCases(program: Command): void {
@@ -25,9 +23,9 @@ export function registerCases(program: Command): void {
   registerCasesSync(cases);
   cases
     .command("lint")
-    .description("检查 feature 目录结构、命名与 metadata 合法性")
+    .description("检查 feature 目录结构、命名与 YAML 来源约束")
     .requiredOption("--project <name>", "项目名")
-    .option("--feature <id>", "只检查单个 feature")
+    .option("--feature <path>", "只检查单个 feature（相对 features/ 的完整路径）")
     .option("--exit-code", "存在 violation 时退出码为 1")
     .action((opts: { project: string; feature?: string; exitCode?: boolean }) => {
       const { violations } = runCasesLint({ project: opts.project, feature: opts.feature });

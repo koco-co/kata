@@ -6,7 +6,6 @@ import { parse } from "yaml";
 import { readAutomationOverrideFile } from "./overrides.ts";
 
 export interface PlaywrightAutomationOverrides {
-  readonly requirementIdMapping?: boolean;
   readonly continueOnFailure?: boolean;
   readonly skipPreconditionSetup?: boolean;
   readonly sortCases?: boolean;
@@ -31,7 +30,6 @@ export interface PlaywrightAutomationOverrides {
 }
 
 export interface PlaywrightAutomationConfig {
-  readonly requirementIdMapping: boolean;
   readonly continueOnFailure: boolean;
   readonly skipPreconditionSetup: boolean;
   readonly sortCases: boolean;
@@ -121,7 +119,6 @@ function resolveDirectory(value: string, key: string): string {
 
 const PLAYWRIGHT_KEYS = [
   "continue_on_failure",
-  "requirement_id_mapping",
   "skip_precondition_setup",
   "sort_cases",
   "workers",
@@ -155,10 +152,6 @@ function parseCompleteValues(
   const sortCases = requiredBoolean(value.sort_cases, `${source}.sort_cases`);
   const configuredWorkers = requiredPositiveInteger(value.workers, `${source}.workers`);
   return {
-    requirementIdMapping: requiredBoolean(
-      value.requirement_id_mapping,
-      `${source}.requirement_id_mapping`,
-    ),
     continueOnFailure: requiredBoolean(value.continue_on_failure, `${source}.continue_on_failure`),
     skipPreconditionSetup: requiredBoolean(
       value.skip_precondition_setup,
@@ -220,8 +213,6 @@ function parseCompleteValues(
 
 function validatePartialValues(value: Record<string, unknown>, source: string): void {
   exactKeys(value, PLAYWRIGHT_KEYS, source);
-  if (value.requirement_id_mapping !== undefined)
-    requiredBoolean(value.requirement_id_mapping, `${source}.requirement_id_mapping`);
   if (value.continue_on_failure !== undefined)
     requiredBoolean(value.continue_on_failure, `${source}.continue_on_failure`);
   if (value.skip_precondition_setup !== undefined)
@@ -280,7 +271,6 @@ function validatePartialValues(value: Record<string, unknown>, source: string): 
 
 function rawConfig(config: PlaywrightAutomationConfig): Record<string, unknown> {
   return {
-    requirement_id_mapping: config.requirementIdMapping,
     continue_on_failure: config.continueOnFailure,
     skip_precondition_setup: config.skipPreconditionSetup,
     sort_cases: config.sortCases,
@@ -316,9 +306,6 @@ function mergeOverrides(
   return parseCompleteValues(
     {
       ...raw,
-      ...(overrides.requirementIdMapping === undefined
-        ? {}
-        : { requirement_id_mapping: overrides.requirementIdMapping }),
       ...(overrides.continueOnFailure === undefined
         ? {}
         : { continue_on_failure: overrides.continueOnFailure }),
@@ -379,9 +366,6 @@ export function parsePlaywrightAutomationOverrides(
   validatePartialValues(values, source);
   const allure = values.allure as Record<string, unknown> | undefined;
   return {
-    ...(values.requirement_id_mapping === undefined
-      ? {}
-      : { requirementIdMapping: values.requirement_id_mapping as boolean }),
     ...(values.continue_on_failure === undefined
       ? {}
       : { continueOnFailure: values.continue_on_failure as boolean }),

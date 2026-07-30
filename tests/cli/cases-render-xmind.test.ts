@@ -7,12 +7,12 @@ import { casesToIntermediate, renderXmind } from "../../cli/lib/cases/render-xmi
 import type { CasesFile } from "../../cli/lib/cases/types.ts";
 import { UNCLASSIFIED } from "../../cli/lib/xmind-render.ts";
 
+const CONTEXT = { version: "v6.4.9", featureKey: "dataAssets:v6.4.9/【数据质量】需求名" };
+
 function file(cases: CasesFile["cases"]): CasesFile {
   return {
     meta: {
       title: "需求名",
-      version: "v6.4.9",
-      feature_id: "v6.4.9/g",
       requirement_id: "15602",
       case_module_id: "10307",
     },
@@ -33,6 +33,7 @@ describe("casesToIntermediate", () => {
         },
       ]),
       "dataAssets",
+      CONTEXT,
     );
     expect(data.modules[0].name).toBe("模块A");
     expect(data.modules[0].pages[0].name).toBe(UNCLASSIFIED);
@@ -46,8 +47,6 @@ describe("renderXmind", () => {
     const aggregate: CasesFile = {
       meta: {
         title: "泸州老窖定制化回归基线",
-        version: "v7.0.0",
-        feature_id: "v7.0.0/g",
         case_module_id: "",
         layout: "requirements",
       },
@@ -81,7 +80,10 @@ describe("renderXmind", () => {
         },
       ],
     };
-    await renderXmind(aggregate, out, "dataAssets");
+    await renderXmind(aggregate, out, "dataAssets", {
+      version: "v7.0.0",
+      featureKey: "dataAssets:v7.0.0/【15911】【泸州老窖】【数据资产】泸州老窖定制化回归基线",
+    });
     const zip = await JSZip.loadAsync(readFileSync(out));
     const content = zip.file("content.json");
     if (!content) throw new Error("missing content.json");
@@ -123,6 +125,7 @@ describe("renderXmind", () => {
       ]),
       out,
       "dataAssets",
+      CONTEXT,
     );
     const zip = await JSZip.loadAsync(readFileSync(out));
     const content = zip.file("content.json");
@@ -150,6 +153,7 @@ describe("renderXmind", () => {
       file([{ id: "C0001", title: "t", priority: "P1", steps: [{ action: "a", expected: "e" }] }]),
       out,
       "dataAssets",
+      CONTEXT,
     );
     const zip = await JSZip.loadAsync(readFileSync(out));
     expect(zip.file("content.json")).not.toBeNull();
@@ -170,6 +174,7 @@ describe("renderXmind", () => {
       ]),
       out,
       "dataAssets",
+      CONTEXT,
     );
     const zip = await JSZip.loadAsync(readFileSync(out));
     const content = zip.file("content.json");
@@ -201,6 +206,7 @@ describe("renderXmind", () => {
       ]),
       out,
       "dataAssets",
+      CONTEXT,
     );
     const zip = await JSZip.loadAsync(readFileSync(out));
     const content = zip.file("content.json");
@@ -238,6 +244,7 @@ describe("renderXmind", () => {
       ]),
       out,
       "dataAssets",
+      CONTEXT,
     );
     const zip = await JSZip.loadAsync(readFileSync(out));
     const content = zip.file("content.json");

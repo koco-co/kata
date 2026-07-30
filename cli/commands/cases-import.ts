@@ -2,27 +2,30 @@ import { randomBytes } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   renameSync,
-  rmSync,
   rmdirSync,
+  rmSync,
   unlinkSync,
 } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import type { Command } from "commander";
-import { stringify } from "yaml";
-import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import {
-  importCases,
-  type SplitXmindEntry,
-  splitXmindCases,
-} from "../lib/cases/importers.ts";
-import { validateCases } from "../lib/cases/parse.ts";
+  emitBusinessNotificationSafely,
+  formatTaipeiTime,
+  workspaceRelativePath,
+} from "../integrations/notify.ts";
+import { writeFileAtomic } from "../lib/atomic-writer.ts";
+import { importCases, splitXmindCases } from "../lib/cases/importers.ts";
+import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { serializeCasesYaml } from "../lib/cases/serialize.ts";
-import { readFeatureMeta } from "../lib/feature-meta.ts";
-import { casesDir, listFeatureDirs } from "../lib/features-layout.ts";
-import { sanitizeSlug } from "../lib/slug.ts";
+import {
+  casesDir,
+  featureIdentity,
+  projectRootFromFeatureDir,
+  resolveFeatureEntry,
+} from "../lib/features-layout.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 import { resolveFeatureInput } from "./cases-build.ts";
 
@@ -38,10 +41,22 @@ export interface CasesImportOptions {
   apply?: boolean;
 }
 
+export interface CasesImportReport {
+  applied: boolean;
+  format: string;
+  profile: string;
+  source: string;
+  archive: string;
+  yaml: string;
+  cases: number;
+  exports: string[];
+  warnings: string[];
+}
+
 export async function runCasesImport(
   featureDir: string,
   opts: Omit<CasesImportOptions, "feature" | "project">,
-): Promise<void> {
+): Promise<CasesImportReport> {
   const sourcePath = resolve(opts.from);
   if (!existsSync(sourcePath)) throw new Error(`导入文件不存在: ${sourcePath}`);
   const sourceName = basename(sourcePath);
@@ -66,7 +81,7 @@ export async function runCasesImport(
   const problems = validateCases(preview.file);
   if (problems.length > 0)
     throw new Error(`导入生成的 YAML 校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
-  const report = {
+  const report: CasesImportReport = {
     applied: Boolean(opts.apply),
     format: preview.format,
     profile: preview.profile,
@@ -74,12 +89,12 @@ export async function runCasesImport(
     archive: archivedPath,
     yaml: yamlPath,
     cases: preview.file.cases.length,
-    exports: preview.file.meta.exports,
+    exports: preview.file.meta.exports ?? [],
     warnings: preview.warnings,
   };
   if (!opts.apply) {
     console.log(JSON.stringify(report, null, 2));
-    return;
+    return report;
   }
 
   let copied = false;
@@ -96,6 +111,7 @@ export async function runCasesImport(
     }
     writeFileAtomic(yamlPath, serializeCasesYaml(preview.file));
     console.log(JSON.stringify(report, null, 2));
+    return report;
   } catch (error) {
     if (copied && existsSync(archivedPath)) unlinkSync(archivedPath);
     throw error;
@@ -124,7 +140,6 @@ export interface CasesSplitImportReport {
     archive: string;
     requirement_id?: string;
     case_module_id: string;
-    metadata_id?: string;
     cases: number;
     skipped?: "no cases";
     warnings: string[];
@@ -132,83 +147,14 @@ export interface CasesSplitImportReport {
   conflicts: SplitConflict[];
 }
 
-function currentYyyyMm(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function existingFeatureIds(featuresDir: string): Set<string> {
-  const ids = new Set<string>();
-  for (const entry of listFeatureDirs(featuresDir)) {
-    const meta = readFeatureMeta(entry.dir);
-    if (meta?.id) ids.add(meta.id);
-  }
-  return ids;
-}
-
-function assignFeatureIds(entries: SplitXmindEntry[], featuresDir: string): Map<string, string> {
-  const taken = existingFeatureIds(featuresDir);
-  const assigned = new Map<string, string>();
-  for (const entry of entries) {
-    if (entry.skipped) continue;
-    const slug = sanitizeSlug(entry.yaml_name) || "feature";
-    const base = `${currentYyyyMm()}-${slug}`;
-    let id = base;
-    for (let suffix = 2; taken.has(id); suffix += 1) id = `${base}-${suffix}`;
-    taken.add(id);
-    assigned.set(entry.target_feature, id);
-  }
-  return assigned;
-}
-
-function customerFromTarget(targetFeature: string): string | undefined {
-  const dirName = targetFeature.split("/").at(-1) ?? "";
-  const match = dirName.match(/^【v[^】]+】(?:【([^】]+)】)?【离线开发】/);
-  return match?.[1];
-}
-
-function featureMetadata(entry: SplitXmindEntry, metadataId: string, version: string) {
-  const now = new Date().toISOString();
-  const xmindPath = `cases/exports/${entry.yaml_name}.xmind`;
-  const customer = customerFromTarget(entry.target_feature);
-  return {
-    schema: "FeatureMetadata@2",
-    id: metadataId,
-    display_name: entry.title,
-    status: "active",
-    created_at: now,
-    updated_at: now,
-    modules: ["离线开发"],
-    customers: customer ? [customer] : [],
-    versions: [version],
-    owners: [],
-    inputs: [],
-    relates_to: [],
-    emits: {
-      cases_xmind: true,
-      archive: false,
-    },
-    feature_id: entry.target_feature,
-    case_drafting: {
-      status: "completed",
-      archive_path: null,
-      xmind_path: xmindPath,
-      requirement_atoms: [],
-      coverage_matrix_path: null,
-    },
-    automation: {
-      status: "not-started",
-      intents: [],
-      last_handoff_path: null,
-      last_run_status: "not-run",
-    },
-    files: {
-      archive: null,
-      xmind: xmindPath,
-      tests_root: null,
-      latest_results: null,
-    },
-  };
+function featureVersion(featureDir: string): string {
+  const projectDir = projectRootFromFeatureDir(featureDir);
+  const project = projectDir.split(/[\\/]/).at(-1);
+  if (!project) throw new Error(`无法从 feature 路径识别项目: ${featureDir}`);
+  const featuresDir = join(projectDir, "features");
+  const featurePath = relative(featuresDir, resolve(featureDir)).split("\\").join("/");
+  const entry = resolveFeatureEntry(featuresDir, featurePath);
+  return featureIdentity(project, featuresDir, entry).version;
 }
 
 /** Preview or atomically apply an XMind-L1 split import across a project. */
@@ -238,7 +184,6 @@ export async function runCasesSplitImport(opts: {
     }
   }
 
-  const metadataIds = assignFeatureIds(preview.entries, paths.featuresDir);
   const seenTargets = new Set<string>();
   const conflicts: SplitConflict[] = [];
   for (const entry of preview.entries) {
@@ -264,9 +209,6 @@ export async function runCasesSplitImport(opts: {
       archive: join(targetDir, "cases", "imports", sourceName),
       ...(entry.requirement_id ? { requirement_id: entry.requirement_id } : {}),
       case_module_id: entry.case_module_id,
-      ...(metadataIds.get(entry.target_feature)
-        ? { metadata_id: metadataIds.get(entry.target_feature) }
-        : {}),
       cases: entry.cases,
       ...(entry.skipped ? { skipped: entry.skipped } : {}),
       warnings: entry.warnings,
@@ -292,10 +234,7 @@ export async function runCasesSplitImport(opts: {
     throw new Error(`split import 存在 ${conflicts.length} 个冲突，未写入任何文件`);
   }
 
-  const transaction = join(
-    paths.featuresDir,
-    `.kata-import-${randomBytes(8).toString("hex")}`,
-  );
+  const transaction = join(paths.featuresDir, `.kata-import-${randomBytes(8).toString("hex")}`);
   const installed: Array<{ final: string; staged: string }> = [];
   const createdVersionDirs: string[] = [];
   try {
@@ -310,12 +249,6 @@ export async function runCasesSplitImport(opts: {
       writeFileAtomic(
         join(stagedFeature, "cases", `${entry.yaml_name}.yaml`),
         serializeCasesYaml(entry.file),
-      );
-      const metadataId = metadataIds.get(entry.target_feature);
-      if (!metadataId) throw new Error(`缺 metadata.id: ${entry.target_feature}`);
-      writeFileAtomic(
-        join(stagedFeature, "metadata.yaml"),
-        stringify(featureMetadata(entry, metadataId, preview.version), { lineWidth: 0 }),
       );
     }
 
@@ -365,7 +298,7 @@ export function registerCasesImport(cases: Command): void {
     .option("--feature <dir>", "单 feature 导入的 feature 目录路径")
     .option(
       "--project <name>",
-      "项目名；--split 时必填，或 feature 传目录名/metadata.id 时必填",
+      "项目名；--split 时必填，或 feature 传相对 features/ 的完整路径时必填",
     )
     .option("--version <version>", "--split 的目标版本 vX.Y.Z")
     .requiredOption("--from <file>", "历史输入文件路径")
@@ -383,16 +316,66 @@ export function registerCasesImport(cases: Command): void {
             "--split 不接受 --feature/--name/--requirement-id/--case-module-id；这些值从各 L1 读取",
           );
         }
-        await runCasesSplitImport({
+        const report = await runCasesSplitImport({
           project: opts.project,
           version: opts.version,
           from: opts.from,
           apply: opts.apply,
         });
+        if (report.applied) {
+          const paths = locateProject(opts.project);
+          const root = dirname(dirname(paths.projectDir));
+          const result = await emitBusinessNotificationSafely(
+            "cases-imported",
+            {
+              project: opts.project,
+              version: report.version,
+              feature: `批量导入 ${report.features} 个需求`,
+              completed_at: formatTaipeiTime(),
+              source_format: "xmind",
+              source_path: workspaceRelativePath(
+                root,
+                report.mappings.find((item) => !item.skipped)?.archive ?? report.source,
+              ),
+              feature_count: report.features,
+              case_count: report.cases,
+              yaml_paths: report.mappings
+                .filter((item) => !item.skipped)
+                .map((item) => workspaceRelativePath(root, item.yaml)),
+            },
+            { root },
+          );
+          process.stderr.write(
+            `[notify] cases-imported: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
+          );
+        }
         return;
       }
       if (!opts.feature) throw new Error("单 feature 导入必须提供 --feature");
       if (opts.version) throw new Error("--version 仅与 --split 一起使用");
-      await runCasesImport(resolveFeatureInput(opts.feature, opts.project), opts);
+      const featureDir = resolveFeatureInput(opts.feature, opts.project);
+      const report = await runCasesImport(featureDir, opts);
+      if (!report.applied) return;
+      const file = parseCasesYaml(readFileSync(report.yaml, "utf8"));
+      const projectDir = projectRootFromFeatureDir(featureDir);
+      const root = dirname(dirname(projectDir));
+      const result = await emitBusinessNotificationSafely(
+        "cases-imported",
+        {
+          project: projectDir.split(/[\\/]/).at(-1) ?? "",
+          version: featureVersion(featureDir),
+          feature: file.meta.title,
+          completed_at: formatTaipeiTime(),
+          source_format: report.format,
+          source_path: workspaceRelativePath(root, report.archive),
+          feature_count: 1,
+          case_count: report.cases,
+          yaml_paths: [workspaceRelativePath(root, report.yaml)],
+        },
+        { root },
+      );
+      process.stderr.write(
+        `[notify] cases-imported: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
+      );
     });
 }

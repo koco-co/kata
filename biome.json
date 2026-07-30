@@ -50,6 +50,7 @@
       "**/*.js",
       "**/*.json",
       "!!**/node_modules",
+      "!!allure-report",
       "!!workspace",
       "!!.claude/worktrees",
       "!!.worktrees",

@@ -119,7 +119,6 @@ export function projectMetadataPath(projectDirAbs: string): string {
 export interface ProjectMetadata {
   name: string;
   description?: string;
-  schema?: string;
 }
 
 export function readProjectMetadata(projectDirAbs: string): ProjectMetadata | null {

@@ -5,14 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const YAML = `
-meta: { title: 需求名, version: v1.0, feature_id: v1.0/f1, case_module_id: "" }
+meta: { title: 需求名, case_module_id: "" }
 cases:
   - { case_id: C0001, title: 用例一, priority: P0, steps: [ { action: a, expected: e } ] }
 `;
 
 function feature(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-cb-"));
-  const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0", "f1");
+  const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0", "【模块】需求名");
   mkdirSync(join(featureDir, "cases"), { recursive: true });
   writeFileSync(join(featureDir, "cases", "需求名.yaml"), YAML);
   return featureDir;
@@ -37,7 +37,7 @@ describe("kata cases build", () => {
     const d = feature();
     writeFileSync(
       join(d, "cases", "需求名.yaml"),
-      'meta: { title: t, version: v1.0, feature_id: v1.0/f, case_module_id: "" }\ncases: []\n',
+      'meta: { title: t, case_module_id: "" }\ncases: []\n',
     );
     const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
       encoding: "utf8",

@@ -16,7 +16,9 @@
         { "pattern": "requirement-notes.md", "file": "prompts/worker.md" },
         { "pattern": "requirement-notes.md", "file": "checklists/review.md" }
       ],
-      "featureIdFormat": [{ "pattern": "{group}/{dirName}", "file": "workflows/create.md" }],
+      "featurePathFormat": [
+        { "pattern": "<项目>:<版本目录>/<需求目录名>", "file": "workflows/create.md" }
+      ],
       "testPoints": [{ "pattern": "test-points.md", "file": "SKILL.md" }],
       "placeholders": [
         { "pattern": "${DataSourceA}", "file": "examples/cases.yaml" },

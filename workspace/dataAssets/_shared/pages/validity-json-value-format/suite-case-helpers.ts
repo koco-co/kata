@@ -13,7 +13,7 @@ import {
   runSuitePreconditions,
   setCurrentDatasource,
   SUITE_NAME,
-} from "../../../features/v6.4.10/【v6410】【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/test-data";
+} from "../../../features/v6.4.10/【岚图汽车】【数据质量】有效性JSONValue格式校验/automation/tests/fixtures/test-data";
 
 /**
  * 按数据源参数化 describe 分组。

@@ -1,6 +1,5 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
-import { parse } from "yaml";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { basename, dirname, join, relative, resolve } from "node:path";
 
 // ─── Feature 内三区 ───
 export const AREA_CASES = "cases";
@@ -15,9 +14,47 @@ export const ARCHIVED_DIR = "_archived";
 // 版本目录名：语义版本，两段或三段（v6.4 / v6.4.10）
 export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
 
-// 中文标签目录：【vXXX】[【需求ID】][【客户】]【模块】需求名；常驻需求首段为【standing】。
-// 唯一权威定义；features-lint 与 features resolve 共用，禁止在别处另写同义正则。
-export const LABEL_DIR_RE = /^【(?:v\d+|standing)】(?:【[^【】]+】){1,3}[^【】]+$/;
+// 需求目录名只表达需求身份；版本仅由父目录表达。
+// 【需求ID】和【客户】可选，最后一个【】固定为模块。
+export const LABEL_DIR_RE = /^(?:【\d+】)?(?:【[^【】]+】)?【[^【】]+】[^【】]+$/;
+export const LEGACY_LABEL_DIR_RE = /^【(?:v\d+|standing)】(?:【[^【】]+】){1,3}[^【】]+$/;
+
+export interface ParsedFeatureDirName {
+  requirementId?: string;
+  customer?: string;
+  module: string;
+  title: string;
+}
+
+/** Parse the canonical feature directory name, or return undefined when malformed. */
+export function parseFeatureDirName(dirName: string): ParsedFeatureDirName | undefined {
+  const match = dirName.match(/^(?:【(\d+)】)?(?:【([^【】]+)】)?【([^【】]+)】([^【】]+)$/);
+  if (!match) return undefined;
+  const [, requirementId, customer, module, title] = match;
+  if (!module?.trim() || !title?.trim()) return undefined;
+  return {
+    ...(requirementId ? { requirementId } : {}),
+    ...(customer ? { customer } : {}),
+    module,
+    title,
+  };
+}
+
+/** Build a canonical feature directory name. Version is intentionally not duplicated here. */
+export function buildFeatureDirName(opts: {
+  module: string;
+  description: string;
+  customer?: string;
+  requirementId?: string;
+}): string {
+  const parts: string[] = [];
+  if (opts.requirementId) parts.push(`【${opts.requirementId}】`);
+  if (opts.customer) parts.push(`【${opts.customer}】`);
+  parts.push(`【${opts.module}】`);
+  const name = `${parts.join("")}${opts.description}`;
+  if (!parseFeatureDirName(name)) throw new Error(`生成的目录名不符合需求目录协议: ${name}`);
+  return name;
+}
 
 export type FeatureZone = "active" | "standing" | "archived" | "legacy-flat";
 
@@ -25,10 +62,18 @@ export interface FeatureDirEntry {
   /** Group: version dir name (v6.4.10), _standing, or _archived/v6.4.6; "" for legacy flat dirs. */
   group: string;
   zone: FeatureZone;
-  /** Directory name (human-readable CJK label or slug). */
+  /** Directory name (human-readable label). */
   dirName: string;
   /** Absolute path. */
   dir: string;
+}
+
+export interface FeatureIdentity extends ParsedFeatureDirName {
+  project: string;
+  relativePath: string;
+  featureKey: string;
+  version: string;
+  zone: FeatureZone;
 }
 
 function isDir(p: string): boolean {
@@ -40,7 +85,7 @@ function listChildDirs(p: string): string[] {
   return readdirSync(p).filter((n) => !n.startsWith(".") && isDir(join(p, n)));
 }
 
-/** Scan features/ two-level structure; legacy flat dirs surface with zone=legacy-flat for lint/reporting. */
+/** Scan features/ two-level structure; legacy flat dirs surface for lint/reporting only. */
 export function listFeatureDirs(featuresRoot: string): FeatureDirEntry[] {
   const entries: FeatureDirEntry[] = [];
   for (const top of listChildDirs(featuresRoot)) {
@@ -70,11 +115,44 @@ export function listFeatureDirs(featuresRoot: string): FeatureDirEntry[] {
         }
       }
     } else if (!top.startsWith("_")) {
-      // _history、_tmp 等下划线顶层目录是预留基础设施，不是 feature，不列入清单
       entries.push({ group: "", zone: "legacy-flat", dirName: top, dir: topDir });
     }
   }
   return entries;
+}
+
+/** Current, project-scoped feature path below features/. */
+export function featureRelativePath(featuresRoot: string, entry: FeatureDirEntry): string {
+  const path = relative(resolve(featuresRoot), resolve(entry.dir)).split("\\").join("/");
+  if (!path || path.startsWith("../") || path === "..") {
+    throw new Error(`feature 不在 features/ 目录内: ${entry.dir}`);
+  }
+  return path;
+}
+
+/** Project + path is the only feature identity exposed outside the filesystem. */
+export function featureIdentity(
+  project: string,
+  featuresRoot: string,
+  entry: FeatureDirEntry,
+): FeatureIdentity {
+  const parsed = parseFeatureDirName(entry.dirName);
+  if (!parsed) throw new Error(`需求目录不符合协议: ${featureRelativePath(featuresRoot, entry)}`);
+  const relativePath = featureRelativePath(featuresRoot, entry);
+  let version = entry.group;
+  if (entry.zone === "archived") {
+    const archivedVersion = entry.group.split("/").at(-1);
+    if (!archivedVersion) throw new Error(`归档 feature 缺少版本目录: ${relativePath}`);
+    version = archivedVersion;
+  }
+  return {
+    project,
+    relativePath,
+    featureKey: `${project}:${relativePath}`,
+    version,
+    zone: entry.zone,
+    ...parsed,
+  };
 }
 
 /** Walk up from a feature dir to its project root (the parent of features/). */
@@ -99,31 +177,24 @@ export function runsDir(featureDir: string): string {
   return join(featureDir, AREA_RUNS);
 }
 
-/** Resolve a feature's runs/ dir by its on-disk dirName across version layers; throws when not found. */
-export function resolveFeatureRunsDir(featuresRoot: string, featureId: string): string {
-  return runsDir(resolveFeatureEntry(featuresRoot, featureId).dir);
+/** Resolve a feature's runs/ dir from its canonical relative path. */
+export function resolveFeatureRunsDir(featuresRoot: string, featurePath: string): string {
+  return runsDir(resolveFeatureEntry(featuresRoot, featurePath).dir);
 }
 
-/** Resolve a feature by its human directory name or metadata.yaml id.
- * Metadata ids must be unique; silently selecting one would route automation
- * and reports to the wrong feature.
+/**
+ * Resolve only by its canonical relative path below features/.
+ * Bare names and retired metadata IDs intentionally do not route operations.
  */
 export function resolveFeatureEntry(featuresRoot: string, selector: string): FeatureDirEntry {
-  const entries = listFeatureDirs(featuresRoot);
-  const byDir = entries.filter((e) => e.dirName === selector);
-  if (byDir.length === 1) return byDir[0];
-  if (byDir.length > 1) throw new Error(`需求功能目录名匹配多个 feature: ${selector}`);
-  const byId = entries.filter((e) => {
-    const path = join(e.dir, "metadata.yaml");
-    if (!existsSync(path)) return false;
-    try {
-      const metadata = parse(readFileSync(path, "utf8")) as Record<string, unknown> | null;
-      return metadata?.id === selector || metadata?.feature_id === selector;
-    } catch {
-      return false;
-    }
-  });
-  if (byId.length === 1) return byId[0];
-  if (byId.length > 1) throw new Error(`metadata.id 匹配多个 feature: ${selector}`);
+  const normalized = selector.replaceAll("\\", "/").replace(/^\.\//, "");
+  if (!normalized.includes("/") || normalized.startsWith("/") || normalized.includes("../")) {
+    throw new Error(`需求功能必须使用相对 features/ 的完整路径: ${selector}`);
+  }
+  const matches = listFeatureDirs(featuresRoot).filter(
+    (entry) => featureRelativePath(featuresRoot, entry) === normalized,
+  );
+  const [match] = matches;
+  if (match) return match;
   throw new Error(`未找到需求功能: ${selector}`);
 }

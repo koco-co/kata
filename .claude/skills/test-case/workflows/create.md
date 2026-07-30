@@ -16,10 +16,10 @@
 
 ```bash
 kata features resolve --project <项目> --module <模块> --description <需求名> \
-  --feature-version <vX.Y.Z> [--customer <客户>] --requirement-id <需求ID> [--lanhu-page <pageId>] --json
+  --feature-version <vX.Y.Z> [--customer <客户>] [--requirement-id <顶层需求ID>] --json
 ```
 
-`--requirement-id` 使用页面树或禅道中的真实需求编号，写入 feature 目录第二个 `【】`；`--lanhu-page` 仅保留为来源 pageId，不能替代需求编号。
+`--requirement-id` 仅使用已核实属于顶层需求的真实编号，写入 feature 目录第一个 `【】`；子需求和历史需求编号保留在 YAML `requirements[]` 或 `meta.requirement_id` 中。Lanhu 全量链接保存在 `prd.md`，不再单独保存 pageId。
 
 取返回的 featureDir 作为产物目录。常驻需求（无迭代版本）改传 `--standing`。
 
@@ -50,13 +50,13 @@ kata knowledge read --project <项目> --module <模块>
 
 ## Phase 6：写 cases/需求名.yaml
 
-格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带【vXXX】【客户】【模块】前缀；`meta.feature_id` 按 `{group}/{dirName}` 口径填写（feature 目录相对 `features/` 的两级路径，group 为版本目录或 `_standing`，如 `v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计`）。`meta.case_module_id` 必填，未知写 `""`；默认 `meta.exports: [xmind]`。所有表单项和两个及以上编号项逐行写入 YAML `|-`。只写 requirement-notes.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。尚未实现自动化的用例允许暂不填写 `automation.spec_file`，由 coverage 报告为 `unmapped`；已有映射但脚本尚未实现时报告为 `mapped-not-implemented`，不得伪造通过。
+格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带目录标签前缀；不得写 `meta.version` 或 `meta.feature_id`，版本与 feature 唯一身份由相对路径 `<项目>:<版本目录>/<需求目录名>` 推导。`meta.case_module_id` 必填，未知写 `""`；默认 `meta.exports: [xmind]`。所有表单项和两个及以上编号项逐行写入 YAML `|-`。只写 requirement-notes.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。尚未实现自动化的用例允许暂不填写 `automation.spec_file`，由 coverage 报告为 `unmapped`；已有映射但脚本尚未实现时报告为 `mapped-not-implemented`，不得伪造通过。
 
 ## Phase 7：派生与检查
 
 ```bash
 kata cases build --feature <featureDir>
-kata cases lint --project <项目> --feature <目录名或 metadata.id> --exit-code
+kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
 ```
 
 有报错就改 yaml 重建，直到全部通过。yaml 里出现「待确认」字样时，lint 会直接报 violation。

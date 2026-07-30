@@ -29,7 +29,7 @@ Commands:
   project         项目工作区的创建、检查与修复
   zentao          禅道集成:bug 抓取与创建
   lanhu           蓝湖集成:PRD 内容与截图抓取
-  notify          IM/邮件通知集成
+  notify          业务通知预览、查询与失败重试
   help [command]  display help for command
 ```
 
@@ -41,13 +41,13 @@ Usage: kata features [options] [command]
 需求功能目录操作
 
 Options:
-  -h, --help                   display help for command
+  -h, --help                     display help for command
 
 Commands:
-  resolve [options]            按中文标签协议定位(不存在则创建)需求功能目录
-  list [options]               列出项目下的需求功能
-  show [options] <feature-id>  查看单个需求功能的元数据与最近运行
-  help [command]               display help for command
+  resolve [options]              按路径标签协议定位（不存在则创建）需求功能目录
+  list [options]                 列出项目下的需求功能
+  show [options] <feature-path>  查看单个需求功能的路径身份与最近运行
+  help [command]                 display help for command
 ```
 
 ## kata cases
@@ -66,7 +66,7 @@ Commands:
   import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
   sync [options]    按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认
                     dry-run)
-  lint [options]    检查 feature 目录结构、命名与 metadata 合法性
+  lint [options]    检查 feature 目录结构、命名与 YAML 来源约束
   help [command]    display help for command
 ```
 
@@ -94,15 +94,15 @@ Usage: kata runs [options] [command]
 运行结果目录操作
 
 Options:
-  -h, --help                                display help for command
+  -h, --help                                  display help for command
 
 Commands:
-  exec [options] <feature-id> <command...>  创建 run 并在该 run 环境中执行命令
-  new [options] <feature-id>                为需求功能分配新运行目录(等同旧 results path --new-run)
-  path [options] <feature-id>               输出需求功能最近一次运行目录
-  verify [options]                          校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1
-  prune [options] [feature-id]              清理旧运行目录：保留最近 N 个 + baseline + 已发布
-  help [command]                            display help for command
+  exec [options] <feature-path> <command...>  创建 run 并在该 run 环境中执行命令
+  new [options] <feature-path>                为需求功能分配新运行目录(等同旧 results path --new-run)
+  path [options] <feature-path>               输出需求功能最近一次运行目录
+  verify [options]                            校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1
+  prune [options] [feature-path]              清理旧运行目录：保留最近 N 个 + baseline + 已发布
+  help [command]                              display help for command
 ```
 
 ## kata env
@@ -220,18 +220,18 @@ Usage: kata automation [options] [command]
 自动化目录结构管理
 
 Options:
-  -h, --help                                     display help for command
+  -h, --help                                    display help for command
 
 Commands:
-  run [options] <feature-dir-or-requirement-id>  按 requirement_id 或 feature 目录执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
-  coverage <feature-dir>                         检查 cases YAML 与 automation/tests/cases 的逐条映射
-  generate-cases [options] <feature-dir>         检查缺失的 automation.spec_file；不会生成通用占位脚本
-  generate [options] <feature-dir>               按 automation.spec_file 生成 runner import(默认 dry-run)
-  migrate-placeholders [options] <feature-dir>   移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
-  scaffold [options] <feature-dir>               创建自动化骨架(tests/cases、runners、pages、fixtures、sql)
-  normalize [options] <feature-dir>              修复自动化目录违规(stray 文件移入备份)
-  lint [options] [feature-dir]                   检查 Playwright 自动化代码规范
-  help [command]                                 display help for command
+  run [options] <feature-path>                  按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
+  coverage <feature-dir>                        检查 cases YAML 与 automation/tests/cases 的逐条映射
+  generate-cases [options] <feature-dir>        检查缺失的 automation.spec_file；不会生成通用占位脚本
+  generate [options] <feature-dir>              按 automation.spec_file 生成 runner import(默认 dry-run)
+  migrate-placeholders [options] <feature-dir>  移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
+  scaffold [options] <feature-dir>              创建自动化骨架(tests/cases、runners、pages、fixtures、sql)
+  normalize [options] <feature-dir>             修复自动化目录违规(stray 文件移入备份)
+  lint [options] [feature-dir]                  检查 Playwright 自动化代码规范
+  help [command]                                display help for command
 ```
 
 ## kata project
@@ -287,14 +287,17 @@ Commands:
 ```text
 Usage: kata notify [options] [command]
 
-IM/邮件通知集成
+业务通知预览、查询与失败重试
 
 Options:
-  -h, --help      display help for command
+  -h, --help                  display help for command
 
 Commands:
-  send [options]  发送通知(钉钉/飞书/企微/邮件,按 config/plugin/notify.yaml 配置的渠道)
-  help [command]  display help for command
+  preview [options]           仅校验并预览固定业务事件内容；绝不发送通知
+  list [options]              只读列出项目的本地通知账本
+  show [options] <event-id>   只读查看一个本地通知账本（不含渠道凭据）
+  retry [options] <event-id>  按账本重试此前失败的渠道；不会接受自定义内容
+  help [command]              display help for command
 ```
 
 ## kata features resolve
@@ -302,18 +305,17 @@ Commands:
 ```text
 Usage: kata features resolve [options]
 
-按中文标签协议定位(不存在则创建)需求功能目录
+按路径标签协议定位（不存在则创建）需求功能目录
 
 Options:
   --project <name>             项目名
-  --module <module>            模块名(进入【模块】段)
-  --description <text>         需求名(目录尾段,机器 id 取其拼音 slug)
-  --customer <customer>        客户名(可选,【客户】段)
+  --module <module>            模块名（进入【模块】段）
+  --description <text>         需求名（目录尾段）
+  --customer <customer>        客户名（可选，【客户】段）
   --feature-version <version>  迭代版本 vX.Y.Z（与 --standing 二选一，必传其一）
   --standing                   常驻需求（落 features/_standing/），与 --feature-version
                                互斥 (default: false)
-  --requirement-id <id>        页面树/禅道真实需求编号(可选,写入目录第二【】段)
-  --lanhu-page <pageId>        蓝湖 pageId(仅来源标识,必须同时传 --requirement-id,不写入目录)
+  --requirement-id <id>        确认属于顶层需求的真实编号（可选）
   --json                       以 JSON 输出结果 (default: false)
   -h, --help                   display help for command
 ```
@@ -330,8 +332,6 @@ Options:
   --module <module>      按模块过滤
   --customer <customer>  按客户过滤
   --version <version>    按版本过滤
-  --owner <owner>        按负责人过滤
-  --status <status>      按状态过滤
   --json                 以 JSON 输出结果 (default: false)
   -h, --help             display help for command
 ```
@@ -339,9 +339,9 @@ Options:
 ## kata features show
 
 ```text
-Usage: kata features show [options] <feature-id>
+Usage: kata features show [options] <feature-path>
 
-查看单个需求功能的元数据与最近运行
+查看单个需求功能的路径身份与最近运行
 
 Options:
   --project <name>  项目名
@@ -358,7 +358,7 @@ Usage: kata cases build [options]
 
 Options:
   --feature <dir>   feature 目录路径
-  --project <name>  项目名；feature 传目录名或 metadata.id 时必填
+  --project <name>  项目名；feature 传相对 features/ 的完整路径时必填
   -h, --help        display help for command
 ```
 
@@ -371,7 +371,7 @@ Usage: kata cases import [options]
 
 Options:
   --feature <dir>        单 feature 导入的 feature 目录路径
-  --project <name>       项目名；--split 时必填，或 feature 传目录名/metadata.id 时必填
+  --project <name>       项目名；--split 时必填，或 feature 传相对 features/ 的完整路径时必填
   --version <version>    --split 的目标版本 vX.Y.Z
   --from <file>          历史输入文件路径
   --name <name>          用例集名称；默认取输入文件名
@@ -392,7 +392,7 @@ Usage: kata cases sync [options]
 
 Options:
   --feature <dir>   feature 目录路径
-  --project <name>  项目名；feature 传目录名或 metadata.id 时必填
+  --project <name>  项目名；feature 传相对 features/ 的完整路径时必填
   --apply           按预览计划实际重命名并更新 runner (default: false)
   -h, --help        display help for command
 ```
@@ -402,11 +402,11 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录结构、命名与 metadata 合法性
+检查 feature 目录结构、命名与 YAML 来源约束
 
 Options:
   --project <name>  项目名
-  --feature <id>    只检查单个 feature
+  --feature <path>  只检查单个 feature（相对 features/ 的完整路径）
   --exit-code       存在 violation 时退出码为 1
   -h, --help        display help for command
 ```
@@ -442,12 +442,12 @@ Options:
 ## kata runs exec
 
 ```text
-Usage: kata runs exec [options] <feature-id> <command...>
+Usage: kata runs exec [options] <feature-path> <command...>
 
 创建 run 并在该 run 环境中执行命令
 
 Arguments:
-  feature-id
+  feature-path
   command           要运行的命令；必须放在 -- 之后
 
 Options:
@@ -459,7 +459,7 @@ Options:
 ## kata runs new
 
 ```text
-Usage: kata runs new [options] <feature-id>
+Usage: kata runs new [options] <feature-path>
 
 为需求功能分配新运行目录(等同旧 results path --new-run)
 
@@ -472,7 +472,7 @@ Options:
 ## kata runs path
 
 ```text
-Usage: kata runs path [options] <feature-id>
+Usage: kata runs path [options] <feature-path>
 
 输出需求功能最近一次运行目录
 
@@ -489,17 +489,17 @@ Usage: kata runs verify [options]
 校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1
 
 Options:
-  --project <name>        项目名
-  --feature <feature-id>  需求功能(目录名或 metadata.id)
-  --run <run-id>          指定 run-id(默认最近一次)
-  --json                  以 JSON 输出结果 (default: false)
-  -h, --help              display help for command
+  --project <name>          项目名
+  --feature <feature-path>  需求功能（相对 features/ 的完整路径）
+  --run <run-id>            指定 run-id(默认最近一次)
+  --json                    以 JSON 输出结果 (default: false)
+  -h, --help                display help for command
 ```
 
 ## kata runs prune
 
 ```text
-Usage: kata runs prune [options] [feature-id]
+Usage: kata runs prune [options] [feature-path]
 
 清理旧运行目录：保留最近 N 个 + baseline + 已发布
 
@@ -853,9 +853,9 @@ Options:
 ## kata automation run
 
 ```text
-Usage: kata automation run [options] <feature-dir-or-requirement-id>
+Usage: kata automation run [options] <feature-path>
 
-按 requirement_id 或 feature 目录执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
+按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
 
 Options:
   --env <name>                  平台环境名
@@ -867,8 +867,6 @@ Options:
   --workers <number>            临时覆盖 Playwright worker 数
   --sort-cases                  按 cases YAML 中 case_id 降序执行
   --no-sort-cases               按 cases YAML 原顺序执行
-  --requirement-id-mapping      是否允许用数字 requirement_id 自动发现 feature
-  --no-requirement-id-mapping   是否允许用数字 requirement_id 自动发现 feature
   --headless                    使用无头/有头浏览器
   --headed                      使用无头/有头浏览器
   --continue-on-failure         失败后是否继续后续用例
@@ -1051,39 +1049,69 @@ Options:
   -h, --help           display help for command
 ```
 
-## kata notify send
+## kata notify preview
 
 ```text
-Usage: kata notify send [options]
+Usage: kata notify preview [options]
 
-发送通知(钉钉/飞书/企微/邮件,按 config/plugin/notify.yaml 配置的渠道)
+仅校验并预览固定业务事件内容；绝不发送通知
 
 Options:
-  -e, --event <type>  事件类型(使用 --list-events 查看所有)
-  -d, --data <json>   事件数据(JSON 字符串,字段见 --describe <event>) (default: "{}")
-  --dry-run           仅格式化消息,不实际发送
-  --list-events       列出所有支持的事件类型
-  --describe <event>  打印某个事件支持的字段、类型和必填项
-  --strict            未知字段或缺失必填字段时直接失败(默认仅告警)
+  -e, --event <type>  业务事件类型
+  -d, --data <json>   严格符合事件 schema 的 JSON 对象
+  --list-events       列出支持的业务事件
+  --describe <event>  显示一个事件的字段契约
   -h, --help          display help for command
 
-全部事件类型:
-  case-generated       测试用例生成完成（XMind / Archive）
-  bug-file             Bug 分析报告生成完成
-  conflict-analyzed    Git 合并冲突分析完成
-  case-hotfix          Hotfix 验证用例生成完成
-  ui-test-completed    UI 自动化测试套件执行完成
-  ui-test-needs-input  UI 自动化遇到无法自主判断的偏差，等待用户裁定
-  archive-converted    Archive MD 批量归档完成（仅在新增文件时触发）
-  workflow-failed      工作流异常中断
+支持事件:
+cases-built  用例构建完成
+cases-imported  历史用例导入完成
+ui-test-completed  UI 自动化验证通过
+ui-test-failed  UI 自动化验证失败
+ui-test-needs-input  UI 自动化等待确认
+bug-analysis-completed  缺陷分析报告校验完成
+conflict-analysis-completed  冲突分析报告校验完成
+scan-completed  扫描报告校验完成
+hotfix-report-created  Hotfix 回归报告创建完成
 
-查看单个事件字段: --describe <event>
+使用 --describe <event> 查看严格字段契约。
+```
 
-示例:
-  $ kata notify send --list-events
-  $ kata notify send --describe ui-test-needs-input
-  $ kata notify send --event case-generated --data '{"count":42,"file":"test.xmind"}'
-  $ kata notify send --dry-run --event workflow-failed --data '{"step":"writer","reason":"timeout"}'
+## kata notify list
+
+```text
+Usage: kata notify list [options]
+
+只读列出项目的本地通知账本
+
+Options:
+  --project <name>  项目名
+  -h, --help        display help for command
+```
+
+## kata notify show
+
+```text
+Usage: kata notify show [options] <event-id>
+
+只读查看一个本地通知账本（不含渠道凭据）
+
+Options:
+  --project <name>  项目名
+  -h, --help        display help for command
+```
+
+## kata notify retry
+
+```text
+Usage: kata notify retry [options] <event-id>
+
+按账本重试此前失败的渠道；不会接受自定义内容
+
+Options:
+  --project <name>  项目名
+  --confirmed       确认按当前配置重试失败渠道
+  -h, --help        display help for command
 ```
 
 ## kata env cookie set

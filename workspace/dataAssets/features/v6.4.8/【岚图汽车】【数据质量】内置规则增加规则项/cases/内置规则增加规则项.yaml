@@ -1,0 +1,225 @@
+meta:
+  title: 【质量规则库】内置规则增加规则项
+  requirement_id: "15531"
+  case_module_id: ""
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    automation:
+      spec_file: c0001-historical-built-in-rule-status.spec.ts
+    title: 验证【其它历史内置规则】规则状态变更正常
+    priority: P1
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 选择【其它历史内置规则】, 开启所有规则状态
+        expected: 开启成功
+      - action: 进入【规则集管理】, 新建规则集-监控规则配置页面
+        expected: 进入成功
+      - action: 点击「添加规则」, 检查下拉框数据
+        expected: 历史规则分类正常选择
+      - action: 选择完整性校验, 检查校验规则块中可选的内置规则
+        expected: 所有内置规则均可选择
+      - action: 依次选择有效性校验、唯一性校验、统计性校验, 检查规则块中的可选内置规则
+        expected: 所有内置规则均可选择
+      - action: 在「规则库配置」中, 关闭完整性校验~统计性校验的内置规则
+        expected: 规则状态全部关闭
+      - action: 重新进入【规则集管理】, 新建规则集-监控规则配置页面, 检查添加规则后的可选内置规则
+        expected: 已关闭的内置规则不再支持选择
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0002
+    automation:
+      spec_file: c0002-monotonic-rule-status.spec.ts
+    title: 验证【内置规则-单调递增、单调递减校验】规则状态变更正常
+    priority: P0
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 选择【内置规则-单调递增、单调递减校验】, 开启规则状态
+        expected: 开启成功
+      - action: 进入【规则集管理】, 新建规则集-监控规则配置页面
+        expected: 进入成功
+      - action: 选择合理性校验后, 检查校验规则配置项
+        expected: "1) 支持配置规则: 单调递增、单调递减校验"
+      - action: 返回规则库配置, 关闭【内置规则-单调递增、单调递减校验】规则状态
+        expected: 选择该规则包的任务支持配置该内置规则
+      - action: 重新进入规则集管理, 配置监控规则, 选择一致性校验
+        expected: 关闭成功
+      - action: 返回规则库配置, 筛选出所有【规则分类】为合理性校验的内置规则, 并关闭规则状态
+        expected: "1) 合理性校验中: 不再支持配置规则(单调递增、单调递减校验)"
+      - action: 重新进入规则集管理, 配置监控规则
+        expected: 选择该规则包的任务也不支持配置该内置规则
+      - action: ""
+        expected: 关闭成功
+      - action: ""
+        expected: "1) 添加规则中不再支持: 合理性校验"
+      - action: ""
+        expected: 选择该规则包的任务也不支持配置该规则类型
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0003
+    automation:
+      spec_file: c0003-time-difference-rule-status.spec.ts
+    title: 验证【内置规则-多字段时间差校验&单字段时间差校验】规则状态变更正常
+    priority: P1
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 选择【内置规则-多字段时间差校验&单字段时间差校验】, 开启规则状态
+        expected: 开启成功
+      - action: 进入【规则集管理】, 新建规则集-监控规则配置页面
+        expected: 进入成功
+      - action: 点击【添加规则】
+        expected: |-
+          新增三个规则分类:
+          1) 时效性校验
+          2) 合理性校验
+      - action: 添加时效性校验后, 检查校验规则配置项
+        expected: |-
+          1) 支持配置规则: 多字段时间差校验、单字段时间差校验
+          2) 选择该规则包的任务也不支持配置该内置规则
+      - action: 返回规则库配置, 关闭【内置规则-多字段时间差校验、单字段时间差校验】规则状态
+        expected: 关闭成功
+      - action: 重新进入规则集管理, 配置监控规则, 选择时效性校验
+        expected: |-
+          1) 时效性校验中: 不再支持配置规则(多字段时间差校验、单字段时间差校验)
+          2) 选择该规则包的任务也不支持配置该内置规则
+      - action: 返回规则库配置, 筛选出所有【规则分类】为时效性校验的内置规则, 并关闭规则状态
+        expected: 关闭成功
+      - action: 重新进入规则集管理, 配置监控规则
+        expected: |-
+          1) 添加规则中不再支持: 时效性校验
+          2) 选择该规则包的任务也不支持配置该规则类型
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0004
+
+    title: 验证【导出规则库】中的内置规则正确
+    priority: P0
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 点击导出规则库并保存
+        expected: 保存成功
+      - action: 检查导出文件内容
+        expected: |-
+          包含新增内置规则:
+          1) 及时性校验
+          2) 周期性校验
+          3) 数据变化趋势不再显示隐藏规则:
+          1) 重复值检测
+          2) NULL值检测
+      - action: 检查内置规则信息
+        expected: 规则信息正确
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0005
+
+    title: 验证【合理性校验】筛选功能正常
+    priority: P1
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: "规则分类分类筛选: 合理性校验"
+        expected: 筛选成功, 结果正确
+      - action: "规则分类分类筛选: 合理性校验 + 有效性校验"
+        expected: 组合筛选成功, 结果正确
+      - action: 重置后, 确定
+        expected: 筛选成功, 结果正确
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0006
+
+    title: 验证【时效性校验】筛选功能正常
+    priority: P1
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: "规则分类分类筛选: 时效性校验"
+        expected: 筛选成功, 结果正确
+      - action: "规则分类分类筛选: 时效性校验 + 唯一性校验"
+        expected: 组合筛选成功, 结果正确
+      - action: 重置后, 确定
+        expected: 筛选成功, 结果正确
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0007
+
+    title: 验证新增规则分类正确
+    priority: P2
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 点击规则分类筛选项
+        expected: 规则分类新增“一致性校验“、“时效性校验“、“合理性校验“
+    precondition: 规则库配置列表已存在“一致性校验”、“时效性校验”、“合理性校验”的记录
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0008
+
+    title: 验证重复内置规则隐藏
+    priority: P1
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 检查内置规则列表
+        expected: |-
+          1) 规则分类为「有效性校验」，规则名称为「重复值检测」、「null值检测」的规则隐藏，不做展示
+          2) 规则状态默认为关闭状态
+      - action: 进入【规则集管理】, 新建规则集-监控规则配置页面, 添加「有效性校验」规则
+        expected: 添加成功
+      - action: 检查有效性校验块的配置项
+        expected: 不再支持选择重复值检测、NULL值检测的规则
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类
+  - case_id: C0009
+
+    title: 验证新增内置规则
+    priority: P0
+    steps:
+      - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
+        expected: 进入成功
+      - action: 检查内置规则列表
+        expected: 新增3个内置规则
+      - action: "检查新增内置规则: 及时性校验"
+        expected: |-
+          1) 规则名称: 及时性校验
+          2) 规则解释: 多字段时间差校验
+          3) 规则分类: 时效性校验
+          4) 关联范围: 字段
+          5) 规则描述: 比较两个时间类型字段之间的时间差是否符合要求，支持校验多个字段组时间差
+      - action: "检查新增内置规则: 周期性校验"
+        expected: |-
+          1) 规则名称: 周期性校验
+          2) 规则解释: 单字段时间差校验
+          3) 规则分类: 时效性校验
+          4) 关联范围: 字段
+          5) 规则描述: 比较时间字段内相邻两行数据的时间差是否符合要求
+      - action: "检查新增内置规则: 数据变化趋势"
+        expected: |-
+          1) 规则名称: 数据变化趋势
+          2) 规则解释: 单调递增、单调递减校验
+          3) 规则分类: 合理性校验
+          4) 关联范围: 字段
+          5) 规则描述: 比较字段内数据排序后是否符合单调递增/单调递减的逻辑
+    precondition: 无
+    tags:
+      - 规则库配置
+      - 未分类

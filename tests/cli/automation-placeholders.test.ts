@@ -14,8 +14,6 @@ function fixture(): string {
     [
       "meta:",
       "  title: demo",
-      "  version: v7.0.0",
-      "  feature_id: demo",
       '  case_module_id: ""',
       "cases:",
       "  - case_id: C0001",

@@ -7,8 +7,6 @@ import { join } from "node:path";
 const YAML = `
 meta:
   title: 需求名
-  version: v1
-  feature_id: f1
   case_module_id: ""
   exports: [csv, xlsx, md, xmind]
 cases:
@@ -22,7 +20,7 @@ cases:
 
 function feature(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-ce-"));
-  const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0", "f1");
+  const featureDir = join(root, "workspace", "dataAssets", "features", "v1.0", "【模块】需求名");
   mkdirSync(join(featureDir, "cases"), { recursive: true });
   writeFileSync(join(featureDir, "cases", "需求名.yaml"), YAML);
   return featureDir;

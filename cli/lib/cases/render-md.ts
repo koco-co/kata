@@ -4,7 +4,7 @@
  */
 
 import { UNCLASSIFIED } from "../xmind-render.ts";
-import type { CaseItem, CasesFile } from "./types.ts";
+import type { CaseItem, CaseRenderContext, CasesFile } from "./types.ts";
 
 /** Header marker required on every build-derived artifact. */
 export const GENERATED_HEADER =
@@ -54,14 +54,14 @@ function renderGroup(group: MdGroup, level: number, out: string[]): void {
 }
 
 /** Render the full markdown export for a CasesFile. */
-export function renderMarkdown(file: CasesFile): string {
+export function renderMarkdown(file: CasesFile, context: CaseRenderContext): string {
   const out: string[] = [
     GENERATED_HEADER,
     "",
     `# ${file.meta.title} 测试用例`,
     "",
-    `- 版本: ${file.meta.version}`,
-    `- feature: ${file.meta.feature_id}`,
+    `- 版本: ${context.version}`,
+    `- feature: ${context.featureKey}`,
     `- 用例数: ${file.cases.length}`,
   ];
   if (file.meta.source) out.push(`- 来源: ${file.meta.source}`);

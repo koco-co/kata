@@ -7,7 +7,7 @@ package-lock.json
 # One migration-cycle fallback; migrate-dataassets removes verified legacy Cookie files.
 workspace/*/_shared/env/.local/
 /config/env/*
-!/config/env/example.yaml
+!/config/env/env.example.yaml
 # Source repository topology is local-only; commit only the redacted template.
 /config/repos/sources.yaml
 # Infrastructure topology and credentials are local; only unusable examples are tracked.
@@ -32,6 +32,7 @@ config.json
 # Feature runtime products
 workspace/*/features/**/.process/
 workspace/*/features/**/runs/
+workspace/*/.state/
 workspace/*/features/**/.debug/
 workspace/*/features/**/scheduler_restart.curl
 .playwright-cli/*.yml

@@ -50,11 +50,7 @@ export function loadXmindProjectConfig(
 }
 
 /** Build `{root_name}v{version}迭代用例(#{zentao_module_id})`. */
-export function buildRootName(
-  version: string | undefined,
-  project: string,
-  root?: string,
-): string {
+export function buildRootName(version: string | undefined, project: string, root?: string): string {
   if (!version?.trim()) throw new Error(`XMind 根节点缺少版本号: ${project}`);
   const config = loadXmindProjectConfig(project, root);
   const normalized = version.trim().replace(/^v/i, "");

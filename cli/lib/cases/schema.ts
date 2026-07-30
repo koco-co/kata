@@ -11,8 +11,6 @@ import { type CasesFile, PRIORITIES } from "./types.ts";
 export function validateCases(file: CasesFile): string[] {
   const problems: string[] = [];
   if (!file.meta.title?.trim()) problems.push("meta.title 为空");
-  if (!file.meta.version?.trim()) problems.push("meta.version 为空");
-  if (!file.meta.feature_id?.trim()) problems.push("meta.feature_id 为空");
   if (file.meta.requirement_id !== undefined && !/^\d+$/.test(file.meta.requirement_id)) {
     problems.push("meta.requirement_id 必须是数字字符串");
   }

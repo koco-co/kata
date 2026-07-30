@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { readDotEnvFile } from "../../cli/lib/env.ts";
@@ -74,7 +74,8 @@ describe("plugin config env override", () => {
     // 空值键出现在 removedKeys(会从 dotenv 清除)但不写入 yaml 内容
     expect(result.removedKeys).toContain("KATA_ZENTAO_BASE_URL");
     expect(readFileSync(pluginConfigPath("lanhu", root), "utf8")).toContain("lanhu");
-    expect(readFileSync(pluginConfigPath("zentao", root), "utf8")).not.toContain("base_url");
+    // schema_version 已移除；仅含空值的插件不再制造空配置文件。
+    expect(existsSync(pluginConfigPath("zentao", root))).toBe(false);
   });
 });
 

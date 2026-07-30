@@ -14,238 +14,121 @@ function mkfeature(root: string, ...segments: string[]) {
   mkdirSync(join(root, "dataAssets", "features", ...segments), { recursive: true });
 }
 
-/** 正式 feature 最小合法夹具: metadata + 一个 cases yaml; 返回 yaml 路径便于覆写内容。 */
-function mkValidActive(root: string, casesYaml: string): void {
-  const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+function mkValidActive(root: string, casesYaml: string): string {
+  const dir = join("v7.0.0", "【客户】【模块】需求");
   mkfeature(root, dir, "cases");
-  writeFileSync(join(root, "dataAssets", "features", dir, "metadata.yaml"), "id: 202607-01-demo\n");
   writeFileSync(join(root, "dataAssets", "features", dir, "cases", "需求.yaml"), casesYaml);
+  return dir;
 }
 
 describe("features lint", () => {
-  it("flags active feature dirs missing metadata.yaml", () => {
+  it("accepts a canonical active directory without feature metadata", () => {
     const root = ws();
-    mkfeature(root, "v7.0.0", "【v700】【客户】【模块】需求", "cases");
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "metadata_missing")).toBe(true);
+    mkValidActive(root, "cases:\n  - id: C0001\n    title: 验证字段映射\n    priority: P1\n");
+    expect(runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations).toHaveLength(
+      0,
+    );
   });
 
-  it("accepts active feature dirs with valid metadata", () => {
+  it("flags legacy child version labels", () => {
     const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
-    mkfeature(root, dir, "cases");
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\n",
-    );
+    mkfeature(root, "v7.0.0", "【v700】【客户】【模块】需求");
     const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations).toHaveLength(0);
+    expect(violations.some((v) => v.rule === "legacy_version_label")).toBe(true);
   });
 
-  it("flags 待确认 markers in active feature case yaml", () => {
+  it("flags residual metadata and manifests", () => {
     const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
-    mkfeature(root, dir, "cases");
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\n",
+    const dir = mkValidActive(root, "cases: []\n");
+    const feature = join(root, "dataAssets", "features", dir);
+    writeFileSync(join(feature, "metadata.yaml"), "id: retired\n");
+    writeFileSync(join(feature, "manifest.json"), "{}\n");
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
     );
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
-      "cases:\n  - case_id: C0001\n    title: 验证字段映射待确认\n",
-    );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(true);
+    expect(rules).toContain("feature_metadata_retired");
+    expect(rules).toContain("manifest_residual");
   });
 
-  it("ignores 待确认 inside 等待确认弹窗 step text", () => {
+  it("flags retired meta.feature_id and meta.version", () => {
     const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
-    mkfeature(root, dir, "cases");
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\n",
+    mkValidActive(
+      root,
+      "meta:\n  feature_id: legacy\n  version: v7.0.0\ncases:\n  - id: C0001\n    title: 验证字段\n    priority: P1\n",
     );
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
-      "cases:\n  - case_id: C0001\n    title: 验证取消弹窗\n    steps:\n      - action: 点击【取消】关闭确认弹窗，等待确认弹窗关闭\n",
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
     );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "pending_confirmation")).toBe(false);
+    expect(rules).toContain("case_feature_id_retired");
+    expect(rules).toContain("case_version_retired");
   });
 
-  it("accepts case yaml without 待确认 markers", () => {
+  it("flags 待确认 markers but ignores 等待确认弹窗", () => {
     const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
-    mkfeature(root, dir, "cases");
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\n",
+    mkValidActive(root, "cases:\n  - id: C0001\n    title: 验证字段待确认\n");
+    expect(
+      runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.some(
+        (v) => v.rule === "pending_confirmation",
+      ),
+    ).toBe(true);
+
+    const safe = ws();
+    mkValidActive(
+      safe,
+      "cases:\n  - id: C0001\n    title: 验证取消弹窗\n    steps:\n      - action: 点击【取消】关闭确认弹窗，等待确认弹窗关闭\n",
     );
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "cases", "需求.yaml"),
-      "cases:\n  - case_id: C0001\n    title: 验证字段映射已按 prd 确认\n",
-    );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations).toHaveLength(0);
+    expect(
+      runFeaturesLint({ project: "dataAssets", workspaceRoot: safe }).violations.some(
+        (v) => v.rule === "pending_confirmation",
+      ),
+    ).toBe(false);
   });
 
-  it("flags active-feature case titles not starting with 验证", () => {
+  it("enforces authored active-case title and P0 ratio rules", () => {
     const root = ws();
-    mkValidActive(root, "cases:\n  - case_id: C0001\n    title: 新建规则成功\n    priority: P1\n");
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "case_title_format")).toBe(true);
-  });
-
-  it("flags P0 ratio outside [20%,40%] when cases >= 8", () => {
-    const root = ws();
-    const cases = Array.from({ length: 8 }, (_, i) => {
-      const p = i === 0 ? "P0" : "P1";
-      return `  - id: C${String(i + 1).padStart(3, "0")}\n    title: 验证场景${i + 1}\n    priority: ${p}`;
+    const cases = Array.from({ length: 8 }, (_, index) => {
+      const priority = index === 0 ? "P0" : "P1";
+      return `  - id: C${String(index + 1).padStart(4, "0")}\n    title: ${index === 0 ? "非验证标题" : `验证场景${index + 1}`}\n    priority: ${priority}`;
     }).join("\n");
     mkValidActive(root, `cases:\n${cases}\n`);
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "p0_ratio")).toBe(true);
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
+    );
+    expect(rules).toContain("case_title_format");
+    expect(rules).toContain("p0_ratio");
   });
 
-  it("preserves historical-import priorities instead of enforcing the authored P0 ratio", () => {
+  it("does not apply subjective case rules to standing features", () => {
     const root = ws();
-    const cases = Array.from({ length: 8 }, (_, i) => {
-      return `  - id: C${String(i + 1).padStart(3, "0")}\n    title: 验证历史场景${i + 1}\n    priority: P1`;
-    }).join("\n");
-    mkValidActive(root, `meta:\n  imports:\n    - history.xmind\ncases:\n${cases}\n`);
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "p0_ratio")).toBe(false);
-  });
-
-  it("accepts P0 ratio inside the band and skips small case sets", () => {
-    const root = ws();
-    const cases = Array.from({ length: 8 }, (_, i) => {
-      const p = i < 2 ? "P0" : "P1";
-      return `  - id: C${String(i + 1).padStart(3, "0")}\n    title: 验证场景${i + 1}\n    priority: ${p}`;
-    }).join("\n");
-    mkValidActive(root, `cases:\n${cases}\n`);
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "p0_ratio")).toBe(false);
-
-    const small = ws();
-    mkValidActive(small, "cases:\n  - case_id: C0001\n    title: 验证唯一场景\n    priority: P1\n");
-    const smallResult = runFeaturesLint({ project: "dataAssets", workspaceRoot: small });
-    expect(smallResult.violations.some((v) => v.rule === "p0_ratio")).toBe(false);
-  });
-
-  it("flags case yaml filenames containing 【】", () => {
-    const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    const dir = join("_standing", "【模块】常驻需求");
     mkfeature(root, dir, "cases");
     writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\n",
+      join(root, "dataAssets", "features", dir, "cases", "常驻需求.yaml"),
+      "cases:\n  - id: C0001\n    title: 新建规则成功\n    priority: P1\n",
     );
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "cases", "【v700】需求.yaml"),
-      "cases:\n  - case_id: C0001\n    title: 验证字段映射\n    priority: P1\n",
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
     );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "case_yaml_name")).toBe(true);
+    expect(rules).not.toContain("case_title_format");
+    expect(rules).not.toContain("p0_ratio");
   });
 
-  it("flags real env names from config/env in case yaml", () => {
+  it("flags invalid case filenames and real environment names", () => {
     const parent = mkdtempSync(join(tmpdir(), "kata-fl-env-"));
     const root = join(parent, "workspace");
     mkdirSync(join(root, "dataAssets", "features"), { recursive: true });
     mkdirSync(join(parent, "config", "env"), { recursive: true });
     writeFileSync(join(parent, "config", "env", "ltqc-local.yaml"), "base_url: https://x\n");
-    mkValidActive(
-      root,
-      "cases:\n  - case_id: C0001\n    title: 验证数据源连通\n    priority: P1\n    precondition: 环境 ltqc-local 已部署\n",
-    );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "real_env_name")).toBe(true);
-  });
-
-  it("skips the env-name rule when config/env is absent", () => {
-    const root = ws();
-    mkValidActive(
-      root,
-      "cases:\n  - case_id: C0001\n    title: 验证数据源连通\n    priority: P1\n    precondition: 环境 ltqc-local 已部署\n",
-    );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "real_env_name")).toBe(false);
-  });
-
-  it("flags metadata paths that do not exist", () => {
-    const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
+    const dir = join("v7.0.0", "【客户】【模块】需求");
     mkfeature(root, dir, "cases");
     writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\ncase_drafting:\n  xmind_path: cases/missing.xmind\n",
+      join(root, "dataAssets", "features", dir, "cases", "【模块】需求.yaml"),
+      "cases:\n  - id: C0001\n    title: 验证连通\n    priority: P1\n    precondition: ltqc-local 已部署\n",
     );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "metadata_reference_missing")).toBe(true);
-  });
-
-  it("skips subjective title/P0 rules for non-active zones", () => {
-    const root = ws();
-    const dir = join("_standing", "【standing】【模块】常驻需求");
-    mkfeature(root, dir, "cases");
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-standing\n",
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (v) => v.rule,
     );
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "cases", "常驻需求.yaml"),
-      "cases:\n  - case_id: C0001\n    title: 新建规则成功\n    priority: P1\n",
-    );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "case_title_format")).toBe(false);
-    expect(violations.some((v) => v.rule === "p0_ratio")).toBe(false);
-  });
-
-  it("flags duplicate metadata.id across directories", () => {
-    const root = ws();
-    for (const [group, dir] of [
-      ["v7.0.0", "【v700】【客户】【模块】需求"],
-      ["v7.0.1", "【v701】【客户】【模块】另一需求"],
-    ]) {
-      mkfeature(root, group, dir);
-      writeFileSync(
-        join(root, "dataAssets", "features", group, dir, "metadata.yaml"),
-        "id: 202607-01-demo\n",
-      );
-    }
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    const dup = violations.filter((v) => v.rule === "duplicate_feature_id");
-    expect(dup).toHaveLength(1);
-    expect(dup[0]?.message).toContain("202607-01-demo");
-  });
-
-  it("flags metadata.feature_id not matching {group}/{dirName}", () => {
-    const root = ws();
-    const dir = join("v7.0.0", "【v700】【客户】【模块】需求");
-    mkfeature(root, dir);
-    writeFileSync(
-      join(root, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\nfeature_id: v9.9.9/【v999】【客户】【模块】别的\n",
-    );
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations.some((v) => v.rule === "feature_id_mismatch")).toBe(true);
-
-    const ok = ws();
-    mkfeature(ok, dir);
-    writeFileSync(
-      join(ok, "dataAssets", "features", dir, "metadata.yaml"),
-      "id: 202607-01-demo\nfeature_id: v7.0.0/【v700】【客户】【模块】需求\n",
-    );
-    const okResult = runFeaturesLint({ project: "dataAssets", workspaceRoot: ok });
-    expect(okResult.violations.some((v) => v.rule === "feature_id_mismatch")).toBe(false);
-  });
-
-  it("ignores reserved underscore top dirs like _history", () => {
-    const root = ws();
-    mkfeature(root, "_history", "prds");
-    const { violations } = runFeaturesLint({ project: "dataAssets", workspaceRoot: root });
-    expect(violations).toHaveLength(0);
+    expect(rules).toContain("case_yaml_name");
+    expect(rules).toContain("real_env_name");
   });
 });

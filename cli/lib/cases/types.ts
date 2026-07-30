@@ -9,10 +9,6 @@ import type { CaseExportFormat } from "./formats.ts";
 export interface CaseMeta {
   /** 用例集标题(通常即需求名) */
   title: string;
-  /** 需求版本,如 v6.4.11 */
-  version: string;
-  /** feature 标识,格式 {group}/{dirName},如 v6.4.11/【v6411】【岚图汽车】【数据质量】单表校验 */
-  feature_id: string;
   /** Lanhu/PRD requirement_id；历史未关联 PRD 的用例集可暂缺。 */
   requirement_id?: string;
   /** 禅道中存放该需求用例的模块 ID；未知时显式写空字符串。 */
@@ -25,6 +21,12 @@ export interface CaseMeta {
   exports?: CaseExportFormat[];
   /** XMind layout contract; requirements creates one L1 topic per requirement. */
   layout?: "flat" | "requirements";
+}
+
+/** Runtime-only information derived from the feature directory, never serialized to cases YAML. */
+export interface CaseRenderContext {
+  version: string;
+  featureKey: string;
 }
 
 /** One requirement represented as an L1 topic in the aggregate layout. */

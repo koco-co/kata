@@ -20,7 +20,7 @@
 - 根据 YAML 所在 workspace 项目读取 `config/xmind/projects.yaml`。
 - 固定格式：`{root_name}v{version}迭代用例(#{zentao_module_id})`。
 - `dataAssets` 示例：`数据资产v6.4.9迭代用例(#23)`。
-- 未配置项目映射时硬错误，不从 `feature_id`、目录名或需求标题回退推断。
+- 未配置项目映射时硬错误，不从需求标题回退推断。
 
 ## L1 需求节点
 
@@ -33,7 +33,7 @@
 
 | XMind 层级 | YAML 来源 | 说明 |
 | --- | --- | --- |
-| Root | 项目映射 + `meta.version` | 项目迭代根节点 |
+| Root | 项目映射 + feature 父级版本目录 | 项目迭代根节点 |
 | L1 | `meta.title` + `meta.case_module_id` | 需求名称；标签取 `meta.requirement_id` |
 | L2+ | `cases[].tags[]` | 标签有多少级就生成多少级，不设上限 |
 | 用例 | `cases[].title` | 标题以「验证」开头，优先级通过 marker 表达 |
@@ -49,4 +49,4 @@
 
 ## 版本格式
 
-`meta.version` 使用完整版本号（如 `v6.4.9`），不得缩写成 `v6.4` 来代替已知的三段版本。
+版本取 feature 父级目录，使用完整版本号（如 `v6.4.9`），不得缩写成 `v6.4` 来代替已知的三段版本。

@@ -172,7 +172,6 @@ export function normalizeAutomation(
   }
 
   const allowedRoot = new Set([
-    "metadata.yaml",
     "prd.md",
     "requirement-notes.md",
     "test-points.md",

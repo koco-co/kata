@@ -300,7 +300,7 @@ export function registerCasesSync(cases: Command): void {
     .command("sync")
     .description("按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认 dry-run)")
     .requiredOption("--feature <dir>", "feature 目录路径")
-    .option("--project <name>", "项目名；feature 传目录名或 metadata.id 时必填")
+    .option("--project <name>", "项目名；feature 传相对 features/ 的完整路径时必填")
     .option("--apply", "按预览计划实际重命名并更新 runner", false)
     .action((opts: { feature: string; project?: string; apply?: boolean }) => {
       try {

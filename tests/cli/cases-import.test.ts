@@ -19,8 +19,9 @@ import type { CasesFile } from "../../cli/lib/cases/types.ts";
 
 const FEATURE = join(
   process.cwd(),
-  "workspace/dataAssets/features/v7.0.0/【v700】【岚图汽车】数据资产集成用例",
+  "workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据资产】数据资产集成用例",
 );
+const CONTEXT = { version: "v6.4.9", featureKey: "dataAssets:v6.4.9/【数据质量】需求测试" };
 
 function tempFile(name: string, content: string | Buffer): string {
   const dir = mkdtempSync(join(tmpdir(), "kata-import-test-"));
@@ -87,8 +88,6 @@ describe("case format imports", () => {
     const sourceFile: CasesFile = {
       meta: {
         title: "需求测试",
-        version: "v6.4.9",
-        feature_id: "v6.4.9/f",
         case_module_id: "",
       },
       cases: [
@@ -103,7 +102,7 @@ describe("case format imports", () => {
     };
     const md = await importCases({
       featureDir: FEATURE,
-      sourcePath: tempFile("history.md", renderMarkdown(sourceFile)),
+      sourcePath: tempFile("history.md", renderMarkdown(sourceFile, CONTEXT)),
       name: "history",
       importName: "history.md",
     });
@@ -129,6 +128,7 @@ describe("case format imports", () => {
             meta: { ...sourceFile.meta, case_module_id: "" },
           },
           "dataAssets",
+          CONTEXT,
         ),
       ),
       name: "需求测试",
@@ -206,7 +206,7 @@ describe("case format imports", () => {
     expect(result.skipped_count).toBe(1);
     expect(result.case_count).toBe(1);
     expect(result.entries[0].target_feature).toBe(
-      "v6.4.5/【v645】【江南布衣】【离线开发】任务发布支持更新表结构",
+      "v6.4.5/【15375】【江南布衣】【离线开发】任务发布支持更新表结构",
     );
     expect(result.entries[0].requirement_id).toBe("15375");
     expect(result.entries[0].case_module_id).toBe("10147");
@@ -264,7 +264,7 @@ describe("case format imports", () => {
     );
     const root = mkdtempSync(join(tmpdir(), "kata-split-root-"));
     const featuresDir = join(root, "workspace", "batchWorks", "features");
-    const conflict = join(featuresDir, "v6.4.5", "【v645】【甲客户】【离线开发】需求甲");
+    const conflict = join(featuresDir, "v6.4.5", "【20001】【甲客户】【离线开发】需求甲");
     mkdirSync(conflict, { recursive: true });
     writeFileSync(join(conflict, "sentinel.txt"), "keep");
 
@@ -279,7 +279,7 @@ describe("case format imports", () => {
     ).rejects.toThrow(/冲突，未写入任何文件/);
 
     expect(readFileSync(join(conflict, "sentinel.txt"), "utf8")).toBe("keep");
-    expect(existsSync(join(featuresDir, "v6.4.5", "【v645】【乙客户】【离线开发】需求乙"))).toBe(
+    expect(existsSync(join(featuresDir, "v6.4.5", "【20002】【乙客户】【离线开发】需求乙"))).toBe(
       false,
     );
     expect(readdirSync(featuresDir).filter((name) => name.startsWith(".kata-import-"))).toEqual([]);

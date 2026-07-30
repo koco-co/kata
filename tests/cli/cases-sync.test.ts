@@ -13,7 +13,7 @@ describe("kata cases sync", () => {
     const newName = "c0001-login-flow.spec.ts";
     writeFileSync(
       join(feature, "cases", "需求.yaml"),
-      `meta: { title: 需求, version: v1, feature_id: v1/f, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: ${newName}\n    title: 验证新标题\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n`,
+      `meta: { title: 需求, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: ${newName}\n    title: 验证新标题\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n`,
     );
     writeFileSync(
       join(feature, "automation", "tests", "cases", oldName),
@@ -39,7 +39,7 @@ describe("kata cases sync", () => {
     mkdirSync(join(feature, "automation", "tests", "cases", "规则集管理"), { recursive: true });
     writeFileSync(
       join(feature, "cases", "需求.yaml"),
-      'meta: { title: 需求, version: v1, feature_id: v1/f, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: c0001-rule-set.spec.ts\n    title: 验证规则集\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n',
+      'meta: { title: 需求, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: c0001-rule-set.spec.ts\n    title: 验证规则集\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n',
     );
     writeFileSync(
       join(feature, "automation", "tests", "cases", "规则集管理", "c0001-legacy-rule.ts"),
@@ -62,7 +62,7 @@ describe("kata cases sync", () => {
     const legacy = "c0001-legacy-rule.ts";
     writeFileSync(
       join(feature, "cases", "需求.yaml"),
-      `meta: { title: 需求, version: v1, feature_id: v1/f, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: ${target}\n    title: 验证规则集\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n`,
+      `meta: { title: 需求, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: ${target}\n    title: 验证规则集\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n`,
     );
     writeFileSync(join(feature, "automation", "tests", "cases", target), "export {};\n");
     writeFileSync(

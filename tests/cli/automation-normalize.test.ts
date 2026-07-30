@@ -80,9 +80,8 @@ describe("automation normalize", () => {
     );
   });
 
-  it("allows requirement-notes.md and test-points.md at the feature root", () => {
+  it("allows requirement-notes.md and test-points.md at the metadata-free feature root", () => {
     const root = feature();
-    writeFileSync(join(root, "metadata.yaml"), "id: x\n");
     writeFileSync(join(root, "prd.md"), "# prd\n");
     writeFileSync(join(root, "requirement-notes.md"), "# notes\n");
     writeFileSync(join(root, "test-points.md"), "# points\n");

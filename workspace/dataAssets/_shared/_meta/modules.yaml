@@ -1,12 +1,8 @@
 enum:
-  - dq
-  - security
-  - metadata
-  - modeling
-  - standard
-  - assets
+  - 元数据
+  - 数据安全
+  - 数据标准
+  - 数据模型
+  - 数据治理
+  - 数据质量
   - 数据资产
-  - multimodal
-  - generalConfig
-  - lifecycle
-  - lineage

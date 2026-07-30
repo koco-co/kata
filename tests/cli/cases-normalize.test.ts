@@ -92,8 +92,6 @@ describe("normalizeCasesYamlText", () => {
   it("preserves comments while adding defaults and block-style structured text", () => {
     const source = `meta:
   title: 需求
-  version: v1.0
-  feature_id: v1.0/f
 cases:
   - case_id: C0001
     title: 验证表单

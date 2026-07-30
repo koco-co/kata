@@ -26,7 +26,6 @@ interface AutomationRunOptions {
   readonly project: string;
   readonly type: string;
   readonly sortCases?: boolean;
-  readonly requirementIdMapping?: boolean;
   readonly workers?: string;
   readonly headless?: boolean;
   readonly headed?: boolean;
@@ -65,9 +64,6 @@ function buildPlaywrightOverrides(
   command: Command,
 ): PlaywrightAutomationOverrides {
   return {
-    ...(cliValue(command, "requirementIdMapping", options.requirementIdMapping) === undefined
-      ? {}
-      : { requirementIdMapping: booleanValue(options.requirementIdMapping) }),
     ...(cliValue(command, "continueOnFailure", options.continueOnFailure) === undefined
       ? {}
       : { continueOnFailure: booleanValue(options.continueOnFailure) }),
@@ -92,9 +88,6 @@ function mergeExplicitPlaywrightOverrides(
   explicit: PlaywrightAutomationOverrides,
 ): void {
   const values: Record<string, unknown> = {
-    ...(explicit.requirementIdMapping === undefined
-      ? {}
-      : { requirement_id_mapping: explicit.requirementIdMapping }),
     ...(explicit.continueOnFailure === undefined
       ? {}
       : { continue_on_failure: explicit.continueOnFailure }),
@@ -139,9 +132,7 @@ async function runAutomation(
     "命令行 Playwright 配置.playwright",
   );
   const config = loadPlaywrightAutomationConfig({ overrides: playwrightOverrides });
-  const feature = resolveAutomationFeature(featureSelector, options.project, undefined, {
-    requirementIdMapping: config.requirementIdMapping,
-  });
+  const feature = resolveAutomationFeature(featureSelector, options.project);
   const runnerPath = resolve(feature.dir, "automation/tests/runners/full.spec.ts");
   if (!existsSync(runnerPath)) throw new Error(`runner 不存在: ${runnerPath}`);
   if (options.type === "run" && !config.allure.enabled) {
@@ -150,7 +141,7 @@ async function runAutomation(
   const automationOverrides = overrideFile.automation;
   const allocation = runRunsPath({
     project: options.project,
-    featureId: feature.dirName,
+    featurePath: feature.relativePath,
     newRun: true,
     runType: options.type as RunType,
   });
@@ -234,9 +225,9 @@ export function registerAutomation(program: Command): void {
   const automation = program.command("automation").description("自动化目录结构管理");
 
   const run = automation
-    .command("run <feature-dir-or-requirement-id>")
+    .command("run <feature-path>")
     .description(
-      "按 requirement_id 或 feature 目录执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖",
+      "按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖",
     )
     .requiredOption("--env <name>", "平台环境名")
     .option("--project <name>", "工作区项目名", "dataAssets")
@@ -253,12 +244,6 @@ export function registerAutomation(program: Command): void {
     "--no-sort-cases",
     "按 cases YAML 中 case_id 降序执行",
     "按 cases YAML 原顺序执行",
-  );
-  booleanOption(
-    run,
-    "--requirement-id-mapping",
-    "--no-requirement-id-mapping",
-    "是否允许用数字 requirement_id 自动发现 feature",
   );
   booleanOption(run, "--headless", "--headed", "使用无头/有头浏览器");
   booleanOption(run, "--continue-on-failure", "--no-continue-on-failure", "失败后是否继续后续用例");

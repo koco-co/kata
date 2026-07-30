@@ -21,7 +21,7 @@ import {
   getCurrentDatasource,
   injectProjectContext,
   resolveEffectiveQualityProjectId,
-} from "../../../features/v6.4.10/【v6410】【岚图汽车】【数据质量】完整性JSONKey范围校验/automation/tests/fixtures/test-data";
+} from "../../../features/v6.4.10/【岚图汽车】【数据质量】完整性JSONKey范围校验/automation/tests/fixtures/test-data";
 import {
   DORIS_MONITOR_DATASOURCE,
   type MonitorDatasourceConfig,

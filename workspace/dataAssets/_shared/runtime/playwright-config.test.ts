@@ -10,7 +10,6 @@ describe("shared Playwright automation config", () => {
   test("loads the YAML defaults without dotenv", () => {
     expect(PLAYWRIGHT_AUTOMATION_CONFIG_PATH).toEndWith("config/automation/playwright.yaml");
     const config = loadPlaywrightAutomationConfig({});
-    expect(config.requirementIdMapping).toBe(true);
     expect(config.continueOnFailure).toBe(true);
     expect(config.skipPreconditionSetup).toBe(true);
     expect(config.sortCases).toBe(false);

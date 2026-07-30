@@ -13,10 +13,14 @@ import {
   normalizeXmindBuffer,
   UNCLASSIFIED,
 } from "../xmind-render.ts";
-import type { CasesFile } from "./types.ts";
+import type { CaseRenderContext, CasesFile } from "./types.ts";
 
 /** Map a flat CasesFile back to the hierarchical IntermediateJson for rendering. */
-export function casesToIntermediate(file: CasesFile, projectName: string): IntermediateJson {
+export function casesToIntermediate(
+  file: CasesFile,
+  projectName: string,
+  context: CaseRenderContext,
+): IntermediateJson {
   // 按 tags 层级路径 [module, page, subgroup] 还原树;保持首次出现顺序
   const modules: Module[] = [];
   const moduleIdx = new Map<string, Module>();
@@ -75,7 +79,7 @@ export function casesToIntermediate(file: CasesFile, projectName: string): Inter
     meta: {
       project_name: projectName,
       requirement_name: file.meta.title,
-      version: file.meta.version,
+      version: context.version,
       case_module_id: file.meta.case_module_id,
       ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
       ...(file.meta.source ? { description: file.meta.source } : {}),
@@ -143,11 +147,11 @@ function requirementTopics(file: CasesFile): TopicBuilder[] {
   });
 }
 
-function casesMeta(file: CasesFile, projectName: string) {
+function casesMeta(file: CasesFile, projectName: string, context: CaseRenderContext) {
   return {
     project_name: projectName,
     requirement_name: file.meta.title,
-    version: file.meta.version,
+    version: context.version,
     ...(file.meta.source ? { description: file.meta.source } : {}),
     ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
     case_module_id: file.meta.case_module_id,
@@ -155,8 +159,12 @@ function casesMeta(file: CasesFile, projectName: string) {
 }
 
 /** Render a CasesFile to a deterministic XMind buffer with unlimited tag depth. */
-export async function renderXmindBuffer(file: CasesFile, projectName: string): Promise<Buffer> {
-  const meta = casesMeta(file, projectName);
+export async function renderXmindBuffer(
+  file: CasesFile,
+  projectName: string,
+  context: CaseRenderContext,
+): Promise<Buffer> {
+  const meta = casesMeta(file, projectName, context);
   let l1Topics: TopicBuilder[];
   if (file.meta.layout === "requirements") {
     l1Topics = requirementTopics(file);
@@ -177,6 +185,7 @@ export async function renderXmind(
   file: CasesFile,
   outPath: string,
   projectName: string,
+  context: CaseRenderContext,
 ): Promise<void> {
-  writeFileAtomic(outPath, await renderXmindBuffer(file, projectName));
+  writeFileAtomic(outPath, await renderXmindBuffer(file, projectName, context));
 }

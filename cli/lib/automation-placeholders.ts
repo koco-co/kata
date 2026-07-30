@@ -19,7 +19,10 @@ function escapeRegExp(value: string): string {
 function isGeneratedPlaceholder(path: string): boolean {
   if (!existsSync(path)) return false;
   const source = readFileSync(path, "utf8");
-  return source.includes("runGeneratedCase") || source.includes("Generated from the canonical cases YAML");
+  return (
+    source.includes("runGeneratedCase") ||
+    source.includes("Generated from the canonical cases YAML")
+  );
 }
 
 function removeMapping(yaml: string, specFile: string): string {

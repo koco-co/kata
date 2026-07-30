@@ -15,7 +15,6 @@
 `config/plugin/zentao.yaml`：
 
 ```yaml
-schema_version: 1
 base_url: "https://zentao.example.cn"
 cookie: "zentaosid=..."
 username: "your-username"

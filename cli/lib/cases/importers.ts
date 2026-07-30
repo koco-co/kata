@@ -1,10 +1,9 @@
 import { readFileSync } from "node:fs";
-import { basename, join, relative, resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import ExcelJS from "exceljs";
 import JSZip from "jszip";
 import { parse as parseYaml } from "yaml";
-import { buildLabelDirName } from "../../commands/features.ts";
-import { projectRootFromFeatureDir } from "../features-layout.ts";
+import { buildFeatureDirName } from "../features-layout.ts";
 import { parseFrontMatter } from "../frontmatter.ts";
 import { splitMdTableRow } from "../md-table.ts";
 import { UNCLASSIFIED } from "../xmind-render.ts";
@@ -43,13 +42,8 @@ interface RawXmindTopic {
 }
 
 function featureMeta(options: ImportOptions, requirementId?: string): CaseMeta {
-  const featureRoot = join(projectRootFromFeatureDir(options.featureDir), "features");
-  const featureId = relative(featureRoot, resolve(options.featureDir)).split("\\").join("/");
-  const version = featureId.split("/")[0] || "unknown";
   return {
     title: options.name,
-    version,
-    feature_id: featureId,
     ...(requirementId ? { requirement_id: requirementId } : {}),
     case_module_id: options.caseModuleId?.trim() ?? "",
     imports: [options.importName],
@@ -603,7 +597,7 @@ function splitL1Title(raw: string): { title: string; caseModuleId: string } {
 
 function splitFeatureIdentity(
   title: string,
-  version: string,
+  requirementId?: string,
 ): {
   customer?: string;
   description: string;
@@ -616,11 +610,11 @@ function splitFeatureIdentity(
   const withoutCustomer = customer ? title.slice(first?.[0].length ?? 0) : title;
   const description = withoutCustomer.replace(/[【】]/g, "").trim();
   if (!description) throw new Error(`XMind L1 无法生成 feature 描述: ${title}`);
-  const dirName = buildLabelDirName({
-    featureVersion: version,
+  const dirName = buildFeatureDirName({
     module: "离线开发",
     description,
     ...(customer ? { customer } : {}),
+    ...(requirementId ? { requirementId } : {}),
   });
   const yamlName = description.replace(/[\\/:]/g, "-").trim();
   if (!yamlName || yamlName === "." || yamlName === "..") {
@@ -648,7 +642,6 @@ export async function splitXmindCases(options: SplitXmindOptions): Promise<Split
       const sourceL1 = l1.title?.trim() ?? "";
       if (!sourceL1) throw new Error(`XMind 画布 ${sheetIndex + 1} 的 L1 ${l1Index + 1} 标题为空`);
       const { title, caseModuleId } = splitL1Title(sourceL1);
-      const identity = splitFeatureIdentity(title, version);
       const warnings: string[] = [];
       const cases = collectXmindCases(
         topicChildren(l1).map((topic, index) => ({
@@ -659,6 +652,7 @@ export async function splitXmindCases(options: SplitXmindOptions): Promise<Split
         warnings,
       );
       const requirementId = requirementIdFromTopic(l1);
+      const identity = splitFeatureIdentity(title, requirementId);
       if (!requirementId) {
         warnings.push(`${sourceL1}: 缺少 requirement_id，YAML 省略且 XMind 不添加标签`);
       }
@@ -680,8 +674,6 @@ export async function splitXmindCases(options: SplitXmindOptions): Promise<Split
       const file: CasesFile = {
         meta: {
           title,
-          version,
-          feature_id: targetFeature,
           ...(requirementId ? { requirement_id: requirementId } : {}),
           case_module_id: caseModuleId,
           imports: [sourceName],

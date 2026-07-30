@@ -31,7 +31,7 @@ description: 用例编写、编辑、同步与标准化。两种触发方式—�
 
 - create：`requirement-notes.md`、`test-points.md`、`cases/需求名.yaml` 与 YAML 声明的派生物都存在（默认只有 XMind），lint 通过。
 - edit：按实际已有的产物维护；语义变化必须先同步 `requirement-notes.md` / `test-points.md`，再重建派生物并通过 lint。
-- `kata cases lint --project <project> --feature <目录名或 metadata.id> --exit-code` 无 violation（yaml 含「待确认」字样会触发硬闸）。
+- `kata cases lint --project <project> --feature <版本目录/需求目录名> --exit-code` 无 violation（yaml 含「待确认」字样会触发硬闸）。
 - 交付前按 [checklists/review.md](checklists/review.md) 自审，并在回复里说明已验证与未验证的范围。
 - 被真实阻塞卡住时只交付草稿，回复里说清缺什么、需要谁补；不得拿草稿冒充完成。
 

@@ -5,7 +5,7 @@
 ## 主会话会告诉你
 
 - feature 目录的绝对路径与需求名（yaml 文件名）。
-- 版本号与 feature_id（写进 `meta`）。
+- 需求目录相对路径（版本和 feature 身份均由此推导，不写进 `meta`）。
 - 确认过的测试点清单 `<featureDir>/test-points.md`（覆盖清单逐条写，未覆盖清单里的点不写）。
 - 确认过的需求文档 `<featureDir>/requirement-notes.md`（每条内容含来源标注）与抓取产物、截图。
 - 适用的知识条目（`kata knowledge read --project <项目> --module <模块>` 的命中结果：界面文案、规则语义）。

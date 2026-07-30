@@ -1,0 +1,185 @@
+meta:
+  title: 【5.2】表生命周期统一
+  requirement_id: "14895"
+  case_module_id: "9647"
+  imports:
+    - 202511-离线开发v6.4.3.xmind
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    title: 验证表生命周期更新功能正常(Hive表已存在于平台)
+    priority: P0
+    precondition: |-
+      1) 存在Hive数据源${datasourceA}, 该数据源下有数据库${schemaA}, 该数据库下有数据表${tableA}
+
+      2) 离线开发-数据地图-数据表管理中已存在表${tableA}, 生命周期为9999天
+    steps:
+      - action: 进入离线开发-数据地图-数据表管理-我管理的表
+        expected: 进入成功
+      - action: 查看表名为${tableA}的生命周期
+        expected: 生命周期为9999天
+      - action: 进入数据资产-元数据-元数据管理-${datasourceA}-${schemaA}
+        expected: 进入成功, 存在表记录${tableA}, 且生命周期为9999天
+      - action: 勾选表${tableA}后, 点击「批量编辑生命周期」, 设置为3天后确定
+        expected: 表${tableA}的生命周期更新为3天
+      - action: 返回到离线开发-数据地图-数据表管理-我管理的表, 查看表${tableA}的生命周期
+        expected: 表生命周期由9999天变更为3天
+      - action: 选择表${tableA}, 点击「编辑」
+        expected: 进入编辑页面
+      - action: 生命周期改为1天, 点击「保存」
+        expected: 表生命周期由3天变更为1天
+      - action: 返回到数据资产-元数据-元数据管理-${datasourceA}-${schemaA}
+        expected: 进入成功, 表${tableA}的生命周期由3天变更为1天
+      - action: 进入「离线开发-安全审计」页面
+        expected: 进入成功
+      - action: 检查「安全审计-离线开发」的审计日志列表记录
+        expected: "存在一条「动作」为「修改生命周期」的操作记录, 详细内容为: 更新${tableA}的生命周期，由 3 天调整为 1 天"
+  - case_id: C0002
+    title: 验证表生命周期更新功能正常(Hive表不存在于平台)
+    priority: P2
+    precondition: |-
+      存在Hive数据源${datasourceA}, 该数据源下有数据库${schemaA}, 该数据库下有数据表${tableA}, 该表尚未同步至离线平台
+
+      建表语句:
+      CREATE TABLE example_partitioned_table (
+        id INT,
+        name STRING,
+        age SMALLINT,
+        bio STRING,
+        last_seen TIMESTAMP,
+        is_active BOOLEAN,
+        height DECIMAL(3,2),
+        email STRING,
+        registration_date TIMESTAMP,
+        profile_picture BINARY,
+        salary DOUBLE,
+        revision INT
+      )
+      COMMENT 'Example Partitioned Table'
+      PARTITIONED BY (birth_date DATE)
+      ROW FORMAT DELIMITED
+      FIELDS TERMINATED BY ','
+      STORED AS TEXTFILE;
+
+      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1994-06-14') VALUES
+      (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
+
+      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
+      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
+
+      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
+      (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
+    steps:
+      - action: 进入离线开发-数据源
+        expected: 进入成功
+      - action: |-
+          选择数据源${datasourceA}, 点击「同步元数据」, 配置如下:
+          部分表: example_partitioned_table
+          表类目: 类目管理
+          生命周期: 9999天
+        expected: 配置成功
+      - action: 进入离线开发-数据地图-数据表管理-我管理的表
+        expected: 进入成功
+      - action: 查看表名为${tableA}的生命周期
+        expected: 生命周期为9999天
+      - action: 进入数据资产-元数据-元数据管理-${datasourceA}-${schemaA}
+        expected: 进入成功, 存在表记录${tableA}, 且生命周期为9999天
+      - action: 勾选表${tableA}后, 点击「批量编辑生命周期」, 设置为3天后确定
+        expected: 表${tableA}的生命周期更新为3天
+      - action: 返回到离线开发-数据地图-数据表管理-我管理的表, 查看表${tableA}的生命周期
+        expected: 表生命周期由9999天变更为3天
+      - action: 选择表${tableA}, 点击「编辑」
+        expected: 进入编辑页面
+      - action: 生命周期改为1天, 点击「保存」
+        expected: 表生命周期由3天变更为1天
+      - action: 返回到数据资产-元数据-元数据管理-${datasourceA}-${schemaA}
+        expected: 进入成功, 表${tableA}的生命周期由3天变更为1天
+      - action: 进入「离线开发-安全审计」页面
+        expected: 进入成功
+      - action: 检查「安全审计-离线开发」的审计日志列表记录
+        expected: "存在一条「动作」为「修改生命周期」的操作记录, 详细内容为: 更新${tableA}的生命周期，由 3 天调整为 1 天"
+  - case_id: C0003
+    title: 验证表生命周期更新功能正常(Hive表不存在)
+    priority: P2
+    precondition: |-
+      建表语句:
+      CREATE TABLE example_partitioned_table (
+        id INT,
+        name STRING,
+        age SMALLINT,
+        bio STRING,
+        last_seen TIMESTAMP,
+        is_active BOOLEAN,
+        height DECIMAL(3,2),
+        email STRING,
+        registration_date TIMESTAMP,
+        profile_picture BINARY,
+        salary DOUBLE,
+        revision INT
+      )
+      COMMENT 'Example Partitioned Table'
+      PARTITIONED BY (birth_date DATE)
+      ROW FORMAT DELIMITED
+      FIELDS TERMINATED BY ','
+      STORED AS TEXTFILE;
+
+      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1994-06-14') VALUES
+      (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
+
+      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
+      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
+
+      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
+      (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
+    steps:
+      - action: 进入离线开发-数据开发-周期任务
+        expected: 进入成功
+      - action: 创建SparkSQL任务, 并执行建表语句
+        expected: 执行成功
+      - action: 进入离线开发-数据地图-数据表管理-我管理的表
+        expected: 进入成功
+      - action: 查看表名为${tableA}的生命周期
+        expected: 生命周期为9999天
+      - action: 进入数据资产-元数据-元数据管理-${datasourceA}-${schemaA}
+        expected: 进入成功, 存在表记录${tableA}, 且生命周期为9999天
+      - action: 勾选表${tableA}后, 点击「批量编辑生命周期」, 设置为3天后确定
+        expected: 表${tableA}的生命周期更新为3天
+      - action: 返回到离线开发-数据地图-数据表管理-我管理的表, 查看表${tableA}的生命周期
+        expected: 表生命周期由9999天变更为3天
+      - action: 选择表${tableA}, 点击「编辑」
+        expected: 进入编辑页面
+      - action: 生命周期改为1天, 点击「保存」
+        expected: 表生命周期由3天变更为1天
+      - action: 返回到数据资产-元数据-元数据管理-${datasourceA}-${schemaA}
+        expected: 进入成功, 表${tableA}的生命周期由3天变更为1天
+      - action: 进入「离线开发-安全审计」页面
+        expected: 进入成功
+      - action: 检查「安全审计-离线开发」的审计日志列表记录
+        expected: "存在一条「动作」为「修改生命周期」的操作记录, 详细内容为: 更新${tableA}的生命周期，由 3 天调整为 1 天"
+  - case_id: C0004
+    title: 验证审计日志-离线开发正确展示表生命周期变更记录
+    priority: P0
+    precondition: |-
+      1) 存在Hive数据源${datasourceA}, 该数据源下有数据库${schemaA}, 该数据库下有数据表${tableA}
+
+      2) 离线开发-数据地图-数据表管理中已存在表${tableA}, 生命周期为9999天
+    steps:
+      - action: 进入离线开发-数据地图-数据表管理-我管理的表
+        expected: 进入成功
+      - action: 查看表名为${tableA}的生命周期
+        expected: 生命周期为9999天
+      - action: 依次编辑并保存表${tableA}的生命周期, 由9999天 -> 500天 -> 50天 -> 1天
+        expected: 生命周期变更成功
+      - action: 进入「离线开发-安全审计-离线开发」页面
+        expected: |-
+          存在三条「动作」为「修改生命周期」的操作记录, 详细内容依次为:
+          1) 更新${tableA}的生命周期，由 50 天调整为 1 天
+          2) 更新${tableA}的生命周期，由 500 天调整为 50 天
+          3) 更新${tableA}的生命周期，由 9999 天调整为 500 天
+      - action: 「按操作对象筛选」选择「表」后, 展开「安全审计-离线开发-按动作筛选」选项
+        expected: 新增筛选项「修改生命周期」
+      - action: 选择「修改生命周期」后, 检查筛选结果
+        expected: 仅展示操作对象为「表」, 且动作为「修改生命周期」的记录
+      - action: 等待一天后, 进入「离线开发-数据地图-数据表管理-我管理的表」, 检查表${tableA}
+        expected: 表${tableA}不存在 (生命周期已过期)

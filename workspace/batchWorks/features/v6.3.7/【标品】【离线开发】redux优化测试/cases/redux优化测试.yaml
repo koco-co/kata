@@ -1,0 +1,77 @@
+meta:
+  title: 【标品】redux优化测试
+  case_module_id: "8888"
+  imports:
+    - 202506-离线开发v6.3.7.xmind
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    title: 验证「数据源-整库同步-数据源同步目标」中下拉框内的数据源展示正常
+    priority: P2
+    steps:
+      - action: 进入「数据源-整库同步」页面, 点击「数据同步目标」下拉框, 检查下拉列表数据
+        expected: 下拉列表数据与「数据源」列表中的记录保持一致
+  - case_id: C0002
+    title: 验证【数据开发】批量操作-数据源下拉框内的数据展示正常
+    priority: P2
+    steps:
+      - action: 进入「数据开发-批量操作」页面, 点击「数据源」下拉框
+        expected: 下拉列表内容与「数据源」列表中的记录保持一致
+  - case_id: C0003
+    title: 验证【数据开发】数据同步-来源和目标的数据源下拉框的数据展示正常
+    priority: P2
+    steps:
+      - action: 进入「数据开发-周期任务」页面, 右击「任务开发」, 选择新建任务
+        expected: |-
+          1) 弹出「新建周期任务」弹窗
+          2) 「周期任务类型」 默认选中「数据同步」
+          3) 「周期任务名称」为空
+      - action: 「周期任务名称」输入不重复且无特殊字符的内容, 其他选项保持默认, 点击「确定」
+        expected: 表单提交成功, 进入到「数据同步」任务
+      - action: 点击「数据源」下拉框, 检查下拉列表数据
+        expected: 下拉列表内容与「数据源」列表中的记录保持一致
+  - case_id: C0004
+    title: 验证【数据开发】数据同步脚本模式-导入模版中的数据源下拉框的数据展示正常
+    priority: P2
+    steps:
+      - action: 进入「数据开发-周期任务」页面, 右击「任务开发」, 新建一个「数据同步-脚本模式」任务
+        expected: |-
+          1) 弹出「新建周期任务」弹窗
+          2) 「周期任务类型」 默认选中「数据同步」
+          3) 「配置模式」选中「脚本模式」
+      - action: 新建任务后, 点击「导入模版」
+        expected: |-
+          1) 弹出「导入模版」弹窗
+          2) 展示字段: 来源类型、数据源、目标类型、数据源
+      - action: "「来源类型」选择「数据源A(如: MySQL)」, 检查「数据源」的下拉框内容"
+        expected: 下拉列表内容与「数据源」列表中「数据源A(MySQL)」的所有数据源记录保持一致
+      - action: "「目标类型」选择「数据源A(如: MySQL)」, 检查「数据源」的下拉框内容"
+        expected: 下拉列表内容与「数据源」列表中「数据源A(MySQL)」的所有数据源记录保持一致
+  - case_id: C0005
+    title: 验证【数据开发】fileCopy 任务中的数据源下拉框数据展示正常
+    priority: P2
+    precondition: 提前配置好filecopy任务
+    steps:
+      - action: 进入「数据开发-周期任务」页面, 右击「任务开发」, 选择新建filecopy任务
+        expected: 新建成功
+      - action: 点击「数据源」下拉框, 检查下拉列表数据
+        expected: 下拉列表内容与「数据源」列表中的记录保持一致
+  - case_id: C0006
+    title: 验证【数据地图】查找数据-项目名称展示正常
+    priority: P2
+    steps:
+      - action: 进入「数据地图-查找数据」页面, 点击「项目名称」下拉框, 检查下拉列表数据
+        expected: 下拉列表内容与「数据源」列表中的记录保持一致
+  - case_id: C0007
+    title: 验证【数据地图】数据表管理-项目名称展示正常
+    priority: P2
+    steps:
+      - action: 进入「数据地图-数据表管理」页面, 点击「项目名称」下拉框, 检查下拉列表数据
+        expected: 下拉列表内容与「数据源」列表中的记录保持一致
+  - case_id: C0008
+    title: 验证【创建项目】existAssets 接口是否多次调用
+    priority: P2
+    steps:
+      - action: 进入「项目列表-创建项目」,检查进入「创建项目」页面调用的existAssets接口
+        expected: 仅调用一次existAssets接口

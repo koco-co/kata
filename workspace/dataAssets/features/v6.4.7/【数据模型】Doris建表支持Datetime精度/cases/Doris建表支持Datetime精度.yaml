@@ -1,0 +1,86 @@
+meta:
+  title: Doris建表支持Datetime精度
+  case_module_id: ""
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    title: 验证历史DATETIME字段精度正确
+    priority: P1
+    steps:
+      - action: 进入数据地图，搜索table1，查看表详情
+        expected: 字段新增精度列，col1的精度值为0，其他字段展示--
+      - action: 进入「数据模型-规范建表」，编辑table1，查看字段
+        expected: 新增精度列，col1的精度值为0，不可编辑，其他字段展示--
+    precondition: 历史已存在doris表table1，字段col1的字段类型为DTATETIME
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0002
+    title: 验证doris编辑表功能
+    priority: P1
+    steps:
+      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，填写信息
+        expected: 进入表结构步骤
+      - action: 新增多个字段，col1、col2选择DATETIME、DATETIMEV2类型
+        expected: 主键后新增精度列，col1、col2精度默认为0
+      - action: col1精度为0，col2精度为6，建表
+        expected: 建表成功
+      - action: 编辑模型查看展示
+        expected: |-
+          1） col1字段类型为DATETIME，精度为0，精度不可编辑
+          2） col2字段类型为DATETIME，精度为6，精度不可编辑
+          3） 其他字段精度展示--
+      - action: 新增字段col3，col4，字段类型选择DATETIME、DATETIMEV2类型
+        expected: 可填写精度信息
+    precondition: 无
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0003
+    title: 验证DATETIMEV2、DATETIME类型设置精度后，建表成功
+    priority: P0
+    steps:
+      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，填写信息
+        expected: 进入表结构步骤
+      - action: 新增多个字段，col1、col2选择DATETIME、DATETIMEV2类型
+        expected: 主键后新增精度列，col1、col2精度默认为0
+      - action: col1精度为0，col2精度为6，建表
+        expected: 建表成功
+      - action: 查看表详情页
+        expected: 字段新增精度列，col1字段类型为DATETIME，精度为0；col2字段类型为DATETIME，精度为6；其他字段精度展示--
+    precondition: 无
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0004
+    title: 验证DATETIMEV2、DATETIME类型支持设置精度
+    priority: P1
+    steps:
+      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，填写信息
+        expected: 进入表结构步骤
+      - action: 新增多个字段，col1、col2选择DATETIME、DATETIMEV2类型
+        expected: 主键后新增精度列，col1、col2精度默认为0，其他字段精度展示--
+      - action: |-
+          精度输入0、1、2、3、4、5、6
+        expected: 允许输入
+      - action: 精度输入小数、英文、特殊字符、负数、大于6的整数
+        expected: 不允许输入
+    precondition: 无
+    tags:
+      - 未分类
+      - 未分类
+  - case_id: C0005
+    title: 验证doris建表，字段类型新增DATETIMEV2
+    priority: P1
+    steps:
+      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，选择主键表，点击下一步
+        expected: 进入表结构步骤
+      - action: 新增字段，查看数据类型
+        expected: 数据类型DATETIME下方新增类型为“DATETIMEV2”；
+      - action: 切换明细表/模型表，查看数据类型
+        expected: 数据类型DATETIME下方新增类型为“DATETIMEV2”；
+    precondition: 无
+    tags:
+      - 未分类
+      - 未分类

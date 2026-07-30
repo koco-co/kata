@@ -1,12 +1,18 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "yaml";
-import { LABEL_DIR_RE, listFeatureDirs, resolveFeatureEntry } from "./features-layout.ts";
+import {
+  featureRelativePath,
+  LEGACY_LABEL_DIR_RE,
+  listFeatureDirs,
+  parseFeatureDirName,
+  resolveFeatureEntry,
+} from "./features-layout.ts";
 
 export interface FeaturesLintContext {
   project: string;
   workspaceRoot: string;
-  featureId?: string;
+  featurePath?: string;
 }
 
 export interface FeatureLintViolation {
@@ -15,13 +21,10 @@ export interface FeatureLintViolation {
   message: string;
 }
 
-const SLUG_RE = /^\d{4}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
-// 未确认点必须在写 yaml 前清零,产物里不允许出现「待确认」标记;
-// 「等待确认弹窗关闭」等操作步骤里的「待确认」子串不算未确认点
+// 未确认点必须在写 yaml 前清零，产物里不允许出现「待确认」标记；
+// 「等待确认弹窗关闭」等操作步骤里的「待确认」子串不算未确认点。
 const PENDING_CONFIRM_RE = /(?<!等)待确认/;
-// 用例标题：正式 feature 以「验证」开头
 const REGULAR_TITLE_RE = /^验证/;
-// P0 占比容差带(对应提示词「约 1/4 ~ 1/3」), 仅正式 feature 且用例数达标才查
 const P0_MIN_CASES = 8;
 const P0_RATIO_MIN = 0.2;
 const P0_RATIO_MAX = 0.4;
@@ -29,158 +32,115 @@ const P0_RATIO_MAX = 0.4;
 function loadEnum(sharedRoot: string, file: string): string[] {
   const path = join(sharedRoot, "_meta", file);
   if (!existsSync(path)) return [];
-  const parsed = parse(readFileSync(path, "utf-8"));
-  return parsed?.enum ?? [];
+  const parsed = parse(readFileSync(path, "utf-8")) as { enum?: unknown } | null;
+  return Array.isArray(parsed?.enum)
+    ? parsed.enum.filter((value): value is string => typeof value === "string")
+    : [];
 }
 
-/** 真实环境名取自 config/env/<env>.yaml 文件名(绝不读内容,0600 私密); 无配置时跳过该规则。 */
+/** 真实环境名取自 config/env/<env>.yaml 文件名（绝不读内容，0600 私密）；无配置时跳过。 */
 function loadEnvNames(workspaceRoot: string): string[] {
   const envDir = join(workspaceRoot, "..", "config", "env");
   if (!existsSync(envDir)) return [];
-  return (
-    readdirSync(envDir)
-      .filter((f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"))
-      .map((f) => f.replace(/\.yaml$/, ""))
-      // 过短的名字误报面太大(如 env 叫 test), 不参与拦截
-      .filter((n) => n.length >= 4)
-  );
+  return readdirSync(envDir)
+    .filter((f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"))
+    .map((f) => f.replace(/\.yaml$/, ""))
+    .filter((name) => name.length >= 4);
 }
 
 interface CaseDoc {
-  meta?: { source?: unknown; imports?: unknown };
-  cases?: { id?: unknown; title?: unknown; priority?: unknown }[];
+  meta?: { imports?: unknown; feature_id?: unknown; version?: unknown };
+  cases?: { title?: unknown; priority?: unknown }[];
 }
 
-function lintMetadataReferences(
-  meta: Record<string, unknown>,
-  feature: string,
-  featureDir: string,
-  workspaceRoot: string,
-  violations: FeatureLintViolation[],
-): void {
-  const check = (value: unknown, field: string, baseDir = featureDir): void => {
-    if (typeof value !== "string" || value.length === 0) return;
-    const target = value.startsWith("workspace/")
-      ? join(workspaceRoot, "..", value)
-      : join(baseDir, value);
-    if (!existsSync(target)) {
-      violations.push({
-        feature,
-        rule: "metadata_reference_missing",
-        message: `${field} references missing path: ${value}`,
-      });
-    }
-  };
-
-  const drafting = (meta.case_drafting as Record<string, unknown> | undefined) ?? {};
-  check(drafting.archive_path, "case_drafting.archive_path");
-  check(drafting.xmind_path, "case_drafting.xmind_path");
-  check(drafting.coverage_matrix_path, "case_drafting.coverage_matrix_path");
-  for (const source of (drafting.source_refs as Record<string, unknown>[] | undefined) ?? []) {
-    check(source.path, "case_drafting.source_refs.path");
-  }
-
-  const files = (meta.files as Record<string, unknown> | undefined) ?? {};
-  check(files.archive, "files.archive");
-  check(files.xmind, "files.xmind");
-  check(files.tests_root, "files.tests_root");
-  check(files.latest_results, "files.latest_results");
-
-  const automation = (meta.automation as Record<string, unknown> | undefined) ?? {};
-  check(automation.last_handoff_path, "automation.last_handoff_path");
-  check(automation.latest_results, "automation.latest_results");
-  for (const intent of (automation.intents as Record<string, unknown>[] | undefined) ?? []) {
-    for (const path of (intent.case_files as unknown[] | undefined) ?? []) {
-      check(path, "automation.intents.case_files");
-    }
-    for (const path of (intent.runner_files as unknown[] | undefined) ?? []) {
-      check(path, "automation.intents.runner_files");
-    }
-  }
-}
-
-/** cases/*.yaml 内容规则: 「待确认」标记、文件名、标题格式、P0 占比、真实环境名 */
+/** Cases source checks independent of the retired feature metadata. */
 function lintCaseSources(
   dir: string,
-  name: string,
+  feature: string,
   zone: string,
   envNames: string[],
   violations: FeatureLintViolation[],
 ): void {
   const casesDir = join(dir, "cases");
   if (!existsSync(casesDir)) return;
-  // 标题规范与 P0 占比是正式(active)需求的主观规则; standing/archived/legacy-flat 不查
   const subjective = zone === "active";
-  for (const f of readdirSync(casesDir)) {
-    if (!f.endsWith(".yaml")) continue;
-    const text = readFileSync(join(casesDir, f), "utf-8");
-
+  for (const filename of readdirSync(casesDir)) {
+    if (!filename.endsWith(".yaml")) continue;
+    const text = readFileSync(join(casesDir, filename), "utf-8");
     if (PENDING_CONFIRM_RE.test(text)) {
       violations.push({
-        feature: name,
+        feature,
         rule: "pending_confirmation",
-        message: `cases/${f} contains "待确认"; confirm open points before writing cases`,
+        message: `cases/${filename} contains "待确认"; confirm open points before writing cases`,
       });
     }
-
-    if (/[【】]/.test(f)) {
+    if (/[【】]/.test(filename)) {
       violations.push({
-        feature: name,
+        feature,
         rule: "case_yaml_name",
-        message: `cases/${f} 文件名不得含【】前缀; 文件名即需求名`,
+        message: `cases/${filename} 文件名不得含【】前缀; 文件名即用例集名称`,
       });
     }
-
     for (const envName of envNames) {
       const escaped = envName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       if (new RegExp(`(^|[^\\p{L}\\p{N}_-])${escaped}([^\\p{L}\\p{N}_-]|$)`, "u").test(text)) {
         violations.push({
-          feature: name,
+          feature,
           rule: "real_env_name",
-          message: `cases/${f} 出现真实环境名 "${envName}"; 环境名一律占位(\${DataSourceA} 等)`,
+          message: `cases/${filename} 出现真实环境名 "${envName}"; 环境名一律占位（\${DataSourceA} 等）`,
         });
       }
     }
-
-    if (!subjective) continue;
 
     let doc: CaseDoc;
     try {
       doc = (parse(text) as CaseDoc | null) ?? {};
     } catch {
-      continue; // 结构问题由 kata cases build 校验, lint 不重复报
+      continue; // syntax errors are reported by cases build
     }
+    if (doc.meta?.feature_id !== undefined) {
+      violations.push({
+        feature,
+        rule: "case_feature_id_retired",
+        message: `cases/${filename} 不得保存 meta.feature_id；由所在 feature 路径推导`,
+      });
+    }
+    if (doc.meta?.version !== undefined) {
+      violations.push({
+        feature,
+        rule: "case_version_retired",
+        message: `cases/${filename} 不得保存 meta.version；由父级版本目录推导`,
+      });
+    }
+    if (!subjective) continue;
     const cases = Array.isArray(doc.cases) ? doc.cases : [];
-
-    for (const [i, c] of cases.entries()) {
-      if (typeof c.title !== "string") continue;
-      const ok = REGULAR_TITLE_RE.test(c.title);
-      if (!ok) {
+    for (const [index, item] of cases.entries()) {
+      if (typeof item.title === "string" && !REGULAR_TITLE_RE.test(item.title)) {
         violations.push({
-          feature: name,
+          feature,
           rule: "case_title_format",
-          message: `cases/${f} 第 ${i + 1} 条标题须以「验证」开头: "${c.title}"`,
+          message: `cases/${filename} 第 ${index + 1} 条标题须以「验证」开头: "${item.title}"`,
         });
       }
     }
-
     const historicalImport =
-      Array.isArray(doc.meta?.imports) && doc.meta.imports.some((value) => typeof value === "string");
+      Array.isArray(doc.meta?.imports) &&
+      doc.meta.imports.some((value) => typeof value === "string");
     if (cases.length >= P0_MIN_CASES && !historicalImport) {
-      const p0 = cases.filter((c) => c.priority === "P0").length;
+      const p0 = cases.filter((item) => item.priority === "P0").length;
       const ratio = p0 / cases.length;
       if (ratio < P0_RATIO_MIN || ratio > P0_RATIO_MAX) {
         violations.push({
-          feature: name,
+          feature,
           rule: "p0_ratio",
-          message: `cases/${f} P0 占比 ${p0}/${cases.length} (${Math.round(ratio * 100)}%) 超出 [20%,40%]; P0 只给主流程与核心功能`,
+          message: `cases/${filename} P0 占比 ${p0}/${cases.length} (${Math.round(ratio * 100)}%) 超出 [20%,40%]`,
         });
       }
     }
   }
 }
 
-/** Lint every feature dir under a project's features/ for real structural errors. */
+/** Lint every current feature directory under a project. */
 export function runFeaturesLint(ctx: FeaturesLintContext): { violations: FeatureLintViolation[] } {
   const featuresDir = join(ctx.workspaceRoot, ctx.project, "features");
   const sharedDir = join(ctx.workspaceRoot, ctx.project, "_shared");
@@ -189,140 +149,61 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
 
   const modulesEnum = loadEnum(sharedDir, "modules.yaml");
   const customersEnum = loadEnum(sharedDir, "customers.yaml");
-  const versionsEnum = loadEnum(sharedDir, "versions.yaml");
   const envNames = loadEnvNames(ctx.workspaceRoot);
-
   const allEntries = listFeatureDirs(featuresDir);
-  const entries = ctx.featureId ? [resolveFeatureEntry(featuresDir, ctx.featureId)] : allEntries;
+  const entries = ctx.featurePath
+    ? [resolveFeatureEntry(featuresDir, ctx.featurePath)]
+    : allEntries;
 
   for (const entry of entries) {
-    const name = entry.dirName;
-    const dir = entry.dir;
-
-    lintCaseSources(dir, name, entry.zone, envNames, violations);
-
-    const isCjkLabel = LABEL_DIR_RE.test(name);
-
-    if (!SLUG_RE.test(name) && !isCjkLabel) {
+    const feature = featureRelativePath(featuresDir, entry);
+    lintCaseSources(entry.dir, feature, entry.zone, envNames, violations);
+    const parsed = parseFeatureDirName(entry.dirName);
+    if (!parsed) {
       violations.push({
-        feature: name,
-        rule: "dir_name_invalid",
-        message: "Directory name must be a slug or a 【v…】 human label",
+        feature,
+        rule: LEGACY_LABEL_DIR_RE.test(entry.dirName) ? "legacy_version_label" : "dir_name_invalid",
+        message: LEGACY_LABEL_DIR_RE.test(entry.dirName)
+          ? "需求目录不得重复保存【vXXX】；版本只由父目录表达"
+          : "需求目录必须匹配 [【顶层需求ID】][【客户】]【模块】需求名称",
       });
       continue;
     }
-
-    const metaPath = join(dir, "metadata.yaml");
-    if (!existsSync(metaPath)) {
+    if (entry.zone === "legacy-flat") {
       violations.push({
-        feature: name,
-        rule: "metadata_missing",
-        message: "metadata.yaml not present",
-      });
-      continue;
-    }
-
-    let meta: Record<string, unknown>;
-    try {
-      meta = parse(readFileSync(metaPath, "utf-8")) ?? {};
-    } catch (err) {
-      violations.push({ feature: name, rule: "metadata_unparseable", message: String(err) });
-      continue;
-    }
-
-    if (!meta.id || typeof meta.id !== "string") {
-      violations.push({
-        feature: name,
-        rule: "metadata_id_missing",
-        message: "metadata.yaml has no string id",
+        feature,
+        rule: "legacy_flat_feature",
+        message: "需求必须位于版本目录、_standing 或 _archived/<version> 下",
       });
     }
-
-    // 迁移完成后不再保留 manifest.json; 残留说明 metadata 未收敛为单版本
-    if (existsSync(join(dir, "manifest.json"))) {
+    if (existsSync(join(entry.dir, "metadata.yaml"))) {
       violations.push({
-        feature: name,
+        feature,
+        rule: "feature_metadata_retired",
+        message: "metadata.yaml 已退役；feature 身份完全由目录路径表达",
+      });
+    }
+    if (existsSync(join(entry.dir, "manifest.json"))) {
+      violations.push({
+        feature,
         rule: "manifest_residual",
-        message: "manifest.json still exists; merge it into metadata.yaml",
+        message: "manifest.json 已退役；不得保留 feature 身份副本",
       });
     }
-
-    // CJK 人类标签目录的机器主键是 metadata.id, 目录名不要求等于 id; slug 目录则要求一致
-    if (!isCjkLabel && typeof meta.id === "string" && meta.id !== name) {
+    if (modulesEnum.length > 0 && !modulesEnum.includes(parsed.module)) {
       violations.push({
-        feature: name,
-        rule: "id_dir_mismatch",
-        message: `metadata.id="${meta.id}" but dir="${name}"`,
+        feature,
+        rule: "module_not_in_enum",
+        message: `模块 "${parsed.module}" 不在 _shared/_meta/modules.yaml`,
       });
     }
-
-    // metadata.feature_id 是备选路由键, 格式固定为 {group}/{dirName}(legacy-flat 只有 dirName)
-    if (typeof meta.feature_id === "string" && meta.feature_id) {
-      const expected = entry.group ? `${entry.group}/${entry.dirName}` : entry.dirName;
-      if (meta.feature_id !== expected) {
-        violations.push({
-          feature: name,
-          rule: "feature_id_mismatch",
-          message: `metadata.feature_id="${meta.feature_id}"，应为 "${expected}"`,
-        });
-      }
-    }
-
-    for (const m of (meta.modules as string[] | undefined) ?? []) {
-      if (modulesEnum.length && !modulesEnum.includes(m)) {
-        violations.push({
-          feature: name,
-          rule: "module_not_in_enum",
-          message: `Module "${m}" not in _shared/_meta/modules.yaml`,
-        });
-      }
-    }
-    for (const c of (meta.customers as string[] | undefined) ?? []) {
-      if (customersEnum.length && !customersEnum.includes(c)) {
-        violations.push({
-          feature: name,
-          rule: "customer_not_in_enum",
-          message: `Customer "${c}" not in _shared/_meta/customers.yaml`,
-        });
-      }
-    }
-    for (const v of (meta.versions as string[] | undefined) ?? []) {
-      if (versionsEnum.length && !versionsEnum.includes(v)) {
-        violations.push({
-          feature: name,
-          rule: "version_not_in_enum",
-          message: `Version "${v}" not in _shared/_meta/versions.yaml`,
-        });
-      }
-    }
-
-    lintMetadataReferences(meta, name, dir, ctx.workspaceRoot, violations);
-  }
-
-  // consistency: 同一 metadata.id(slug) 出现在两个目录即主键冲突, 一律报 error
-  const idLocations = new Map<string, string[]>();
-  for (const entry of allEntries) {
-    const metaPath = join(entry.dir, "metadata.yaml");
-    if (!existsSync(metaPath)) continue;
-    try {
-      const meta = parse(readFileSync(metaPath, "utf-8")) as Record<string, unknown> | null;
-      if (typeof meta?.id === "string" && meta.id) {
-        const location = entry.group ? `${entry.group}/${entry.dirName}` : entry.dirName;
-        idLocations.set(meta.id, [...(idLocations.get(meta.id) ?? []), location]);
-      }
-    } catch {
-      // 解析失败由主循环的 metadata_unparseable 规则报告
-    }
-  }
-  for (const [id, locations] of idLocations) {
-    if (locations.length > 1) {
+    if (parsed.customer && customersEnum.length > 0 && !customersEnum.includes(parsed.customer)) {
       violations.push({
-        feature: id,
-        rule: "duplicate_feature_id",
-        message: `metadata.id "${id}" 出现在多个目录: ${locations.join(", ")}`,
+        feature,
+        rule: "customer_not_in_enum",
+        message: `客户 "${parsed.customer}" 不在 _shared/_meta/customers.yaml`,
       });
     }
   }
-
   return { violations };
 }

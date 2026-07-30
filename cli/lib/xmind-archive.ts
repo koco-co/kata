@@ -256,8 +256,7 @@ function buildArchiveMeta(
 ): RootAwareMeta {
   const requirementName =
     typeof fm.suite_name === "string" ? fm.suite_name : basename(mdPath, ".md");
-  const resolvedProject =
-    typeof fm.product_line === "string" ? fm.product_line : projectName;
+  const resolvedProject = typeof fm.product_line === "string" ? fm.product_line : projectName;
   const meta: RootAwareMeta = {
     project_name: resolvedProject,
     requirement_name: requirementName,

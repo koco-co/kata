@@ -1,0 +1,147 @@
+meta:
+  title: 下线行列级别权限配置
+  case_module_id: ""
+  exports:
+    - xmind
+cases:
+  - case_id: C0001
+    title: 验证列级权限配置开关名称更新
+    priority: P0
+    steps:
+      - action: 进入【数据安全 > 权限配置】页面
+        expected: 权限配置开关名称显示为「是否开启列级权限配置」
+      - action: 鼠标悬浮在开关提示图标上
+        expected: 悬浮提示显示「若不配置默认拥有该表的所有列级权限」
+    precondition: 登录系统，有数据安全权限配置权限
+    tags:
+      - 数据安全 — 下线行级权限
+      - UI 文案调整
+      - 开关配置
+  - case_id: C0002
+    title: 验证列级权限配置开关功能正常
+    priority: P1
+    steps:
+      - action: 切换「是否开启列级权限配置」开关到开启状态
+        expected: 开关正常开启，列级权限配置生效
+      - action: 切换开关到关闭状态
+        expected: 开关正常关闭
+    precondition: 进入权限配置页面
+    tags:
+      - 数据安全 — 下线行级权限
+      - UI 文案调整
+      - 开关配置
+  - case_id: C0003
+    title: 验证配置行级权限按钮已隐藏
+    priority: P0
+    steps:
+      - action: 查看权限配置页面中操作区域
+        expected: 原「配置行级权限」按钮不再显示
+    precondition: 进入权限配置页面
+    tags:
+      - 数据安全 — 下线行级权限
+      - 行级权限隐藏
+      - 配置入口
+  - case_id: C0004
+    title: 验证行级权限配置入口已隐藏
+    priority: P0
+    steps:
+      - action: 查看页面中所有权限配置区域
+        expected: 行级权限配置入口全部隐藏
+    precondition: 进入权限配置页面
+    tags:
+      - 数据安全 — 下线行级权限
+      - 行级权限隐藏
+      - 配置入口
+  - case_id: C0005
+    title: 验证权限列表中行级权限列已隐藏
+    priority: P0
+    steps:
+      - action: 查看权限列表页面
+        expected: 列表中原行级权限列已隐藏，不再展示「行级权限」列
+    precondition: 进入权限列表页面
+    tags:
+      - 数据安全 — 下线行级权限
+      - 行级权限隐藏
+      - 列表展示
+  - case_id: C0006
+    title: 验证申请权限时名称更新
+    priority: P0
+    steps:
+      - action: 进入权限申请页面
+        expected: 权限申请页面的名称显示为「列级权限配置」
+    precondition: 有权限申请页面访问权限
+    tags:
+      - 数据安全 — 下线行级权限
+      - 审批页面调整
+  - case_id: C0007
+    title: 验证审批详情页面行级权限隐藏
+    priority: P1
+    steps:
+      - action: 进入审批详情页面
+        expected: 所有审批详情页面中行级权限相关信息（文案、列表列、数据）均已隐藏
+    precondition: 存在待审批的权限申请单
+    tags:
+      - 数据安全 — 下线行级权限
+      - 审批页面调整
+  - case_id: C0008
+    title: 验证批量申请不支持列级权限
+    priority: P1
+    steps:
+      - action: 在权限申请页面选择「批量申请」操作
+        expected: 提示文案显示「若想申请表的列级权限，请针对具体表进行权限申请，批量操作不支持列级权限的申请」
+    precondition: 进入权限申请页面，有多张表可选择
+    tags:
+      - 数据安全 — 下线行级权限
+      - 权限申请
+  - case_id: C0009
+    title: 验证单表支持列级权限申请
+    priority: P1
+    steps:
+      - action: 在权限申请页面选择具体的数据表进行权限申请
+        expected: 支持选择列级权限进行申请
+    precondition: 进入权限申请页面
+    tags:
+      - 数据安全 — 下线行级权限
+      - 权限申请
+  - case_id: C0010
+    title: 验证已配置的行级权限继续生效
+    priority: P2
+    steps:
+      - action: 检查使用原行级权限控制的用户是否能正常访问数据
+        expected: 已有行级权限配置保留，权限控制继续生效
+      - action: 进入权限配置页面
+        expected: 前端不再显示行级权限的配置入口和按钮
+    precondition: 系统中前期已配置行级权限
+    tags:
+      - 数据安全 — 下线行级权限
+      - 历史配置兼容
+  - case_id: C0011
+    title: 验证系统升级前有行级权限、升级后不可新增行级权限
+    priority: P2
+    steps:
+      - action: 以管理员身份登录系统，进入【数据安全 > 权限配置】页面
+        expected: 原行级权限入口隐藏，不存在新增行级权限的入口或按钮
+    precondition: 系统从旧版本升级到 6.3 版本，原系统已配置行级权限
+    tags:
+      - 数据安全 — 下线行级权限
+      - 边界场景
+  - case_id: C0012
+    title: 验证无权限用户访问数据安全页面
+    priority: P1
+    steps:
+      - action: 直接访问数据安全权限配置页面 URL
+        expected: 页面提示无权限或跳转到首页，不展示任何配置内容
+    precondition: 登录用户无数据安全模块权限
+    tags:
+      - 数据安全 — 下线行级权限
+      - 边界场景
+  - case_id: C0013
+    title: 验证列级权限开关关闭时表权限控制
+    priority: P1
+    steps:
+      - action: 查看当前数据表的列级权限控制
+        expected: 不配置列级权限时，默认拥有该表的所有列级权限
+    precondition: 「是否开启列级权限配置」开关处于关闭状态
+    tags:
+      - 数据安全 — 下线行级权限
+      - 边界场景

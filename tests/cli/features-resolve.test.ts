@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runFeaturesList, runFeaturesResolve } from "../../cli/commands/features.ts";
@@ -13,118 +13,67 @@ function repo(): string {
 
 const base = { project: "dataAssets", module: "数据质量", description: "测试需求" };
 
-function currentYyyyMm(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
-
 describe("features resolve", () => {
-  it("throws when neither --feature-version nor --standing is given", () => {
+  it("requires exactly one of --feature-version and --standing", () => {
     const root = repo();
     expect(() => runFeaturesResolve({ ...base, root })).toThrow(/缺 --feature-version/);
-  });
-
-  it("throws when --feature-version and --standing are both given", () => {
-    const root = repo();
     expect(() =>
       runFeaturesResolve({ ...base, root, featureVersion: "v6.4.11", standing: true }),
     ).toThrow(/互斥/);
   });
 
-  it("resolves an active feature dir with --feature-version", () => {
+  it("creates a canonical active path without metadata.yaml", () => {
     const root = repo();
-    const r = runFeaturesResolve({ ...base, root, featureVersion: "v6.4.11" });
-    expect(r.zone).toBe("active");
-    expect(r.featureDir).toContain("v6.4.11");
-    expect(r.created).toBe(true);
-    expect(existsSync(join(r.featureDir, "metadata.yaml"))).toBe(true);
-  });
-
-  it("uses the requirement id in the label and never uses the Lanhu pageId", () => {
-    const root = repo();
-    const r = runFeaturesResolve({
+    const result = runFeaturesResolve({
       ...base,
       root,
       featureVersion: "v7.0.0",
+      customer: "泸州老窖",
       requirementId: "15911",
-      lanhuPage: "7ef1d18e9bb04ca495903a55bc84a088",
     });
-    expect(r.dirName).toContain("【15911】");
-    expect(r.dirName).not.toContain("7ef1d18e9bb04ca495903a55bc84a088");
+    expect(result.zone).toBe("active");
+    expect(result.relative_path).toBe("v7.0.0/【15911】【泸州老窖】【数据质量】测试需求");
+    expect(result.feature_key).toBe(`dataAssets:${result.relative_path}`);
+    expect(existsSync(join(result.featureDir, "metadata.yaml"))).toBe(false);
   });
 
-  it("rejects a Lanhu pageId without an explicit requirement id", () => {
+  it("keeps a path without a top-level requirement id when none is verified", () => {
     const root = repo();
-    expect(() =>
-      runFeaturesResolve({
-        ...base,
-        root,
-        featureVersion: "v7.0.0",
-        lanhuPage: "7ef1d18e9bb04ca495903a55bc84a088",
-      }),
-    ).toThrow(/--requirement-id/);
+    const result = runFeaturesResolve({ ...base, root, featureVersion: "v7.0.0" });
+    expect(result.dirName).toBe("【数据质量】测试需求");
   });
 
-  it("rejects a non-numeric requirement id", () => {
+  it("rejects a non-numeric top-level requirement id", () => {
     const root = repo();
     expect(() =>
       runFeaturesResolve({ ...base, root, featureVersion: "v7.0.0", requirementId: "page-15911" }),
     ).toThrow(/需求 ID/);
   });
 
-  it("resolves a standing feature dir with --standing", () => {
+  it("creates a standing path without duplicating a standing tag", () => {
     const root = repo();
-    const r = runFeaturesResolve({ ...base, root, standing: true });
-    expect(r.zone).toBe("standing");
-    expect(r.featureDir).toContain("_standing");
-    expect(r.dirName).toMatch(/^【standing】/);
+    const result = runFeaturesResolve({ ...base, root, standing: true });
+    expect(result.relative_path).toBe("_standing/【数据质量】测试需求");
   });
 
-  it("dedupes the generated metadata id with -2/-3 suffixes", () => {
-    const root = repo();
-    const baseId = `${currentYyyyMm()}-ce-shi-xu-qiu`;
-    // 另一个版本组里已存在同月同 slug 的需求(以及它的 -2)
-    for (const [version, id] of [
-      ["v6.4.10", baseId],
-      ["v6.4.9", `${baseId}-2`],
-    ] as const) {
-      const dir = join(
-        root,
-        "workspace",
-        "dataAssets",
-        "features",
-        version,
-        "【v6410】【模块】测试需求",
-      );
-      mkdirSync(dir, { recursive: true });
-      writeFileSync(join(dir, "metadata.yaml"), `id: ${id}\n`);
-    }
-    const r = runFeaturesResolve({ ...base, root, featureVersion: "v6.4.11" });
-    expect(r.featureId).toBe(`${baseId}-3`);
-    expect(readMetaId(r.featureDir)).toBe(`${baseId}-3`);
-  });
-
-  it("lists features while skipping corrupt metadata.yaml instead of crashing", () => {
+  it("derives version and latest run status from the filesystem", () => {
     const root = repo();
     const created = runFeaturesResolve({ ...base, root, featureVersion: "v6.4.11" });
-    const bad = join(
-      root,
-      "workspace",
-      "dataAssets",
-      "features",
-      "v6.4.10",
-      "【v6410】【模块】坏目录",
-    );
-    mkdirSync(bad, { recursive: true });
-    writeFileSync(join(bad, "metadata.yaml"), "id: [unclosed\n");
+    const oldRun = join(created.featureDir, "runs", "20260729-1200-run-01");
+    const latestRun = join(created.featureDir, "runs", "20260730-1200-run-01");
+    mkdirSync(oldRun, { recursive: true });
+    mkdirSync(latestRun, { recursive: true });
+    writeFileSync(join(oldRun, "status.json"), JSON.stringify({ status: "command_passed" }));
+    writeFileSync(join(latestRun, "status.json"), JSON.stringify({ status: "failed" }));
 
-    const rows = runFeaturesList({ project: "dataAssets", root });
+    const rows = runFeaturesList({
+      project: "dataAssets",
+      root,
+      version: "v6.4.11",
+      lastRun: "failed",
+    });
     expect(rows).toHaveLength(1);
-    expect(rows[0]?.id).toBe(created.featureId);
+    expect(rows[0]?.version).toBe("v6.4.11");
+    expect(rows[0]?.last_run_status).toBe("failed");
   });
 });
-
-function readMetaId(featureDir: string): string {
-  const text = readFileSync(join(featureDir, "metadata.yaml"), "utf8");
-  return /id:\s*(\S+)/.exec(text)?.[1] ?? "";
-}

@@ -1,725 +1,190 @@
 import assert from "node:assert/strict";
-import { execSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { afterEach, beforeEach, describe, it } from "node:test";
-import { fileURLToPath } from "node:url";
-
+import { describe, it } from "node:test";
 import {
-  type ChannelConfig,
-  detectChannels,
-  escapeHtml,
-  formatEmailHtml,
+  emitBusinessNotification,
+  eventIdFor,
   formatMessage,
-  isEmailEnabled,
-  runSend,
-  sendNotification,
+  formatTaipeiTime,
+  listNotificationLedgers,
+  type NotificationData,
+  type NotificationFetch,
+  retryNotification,
+  showNotificationLedger,
   validateEventData,
 } from "../../../cli/integrations/notify.ts";
 
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
-const EMPTY_CONFIG_ROOT = mkdtempSync(join(tmpdir(), "kata-notify-test-"));
+const repo = resolve(import.meta.dir, "../../..");
+const kata = join(repo, "cli", "bin", "kata.ts");
 
-// ── Message Formatting ───────────────────────────────────────────────────────
+function root(): string {
+  const result = mkdtempSync(join(tmpdir(), "kata-notify-"));
+  mkdirSync(join(result, "workspace", "dataAssets"), { recursive: true });
+  mkdirSync(join(result, "config", "plugin"), { recursive: true });
+  return result;
+}
 
-describe("formatMessage", () => {
-  it("case-generated: includes count, file, duration in markdown table", () => {
-    const msg = formatMessage("case-generated", { count: 42, file: "test.xmind", duration: 30 });
-    assert.ok(msg.text.includes("42"), "should include count");
-    assert.ok(msg.text.includes("test.xmind"), "should include file");
-    assert.ok(msg.text.includes("30"), "should include duration");
-    assert.ok(msg.text.includes("✅"), "should contain ✅");
-    assert.ok(msg.text.includes("| 项目 | 详情 |"), "should have markdown table header");
-  });
-
-  it("case-generated: title is heading without emoji/hash", () => {
-    const msg = formatMessage("case-generated", { count: 1, file: "a.xmind" });
-    assert.equal(msg.title, "用例生成完成");
-  });
-
-  it("bug-file: includes reportFile, summary, and severity", () => {
-    const msg = formatMessage("bug-file", {
-      reportFile: "report.html",
-      summary: "3 issues",
-      severity: "严重",
-    });
-    assert.ok(msg.text.includes("report.html"));
-    assert.ok(msg.text.includes("3 issues"));
-    assert.ok(msg.text.includes("严重"));
-    assert.ok(msg.text.includes("🐛"));
-  });
-
-  it("bug-file: title strips emoji and markdown heading", () => {
-    const msg = formatMessage("bug-file", {});
-    assert.equal(msg.title, "Bug 分析报告");
-  });
-
-  it("conflict-analyzed: includes reportFile and conflictCount", () => {
-    const msg = formatMessage("conflict-analyzed", {
-      reportFile: "conflicts.html",
-      conflictCount: 5,
-    });
-    assert.ok(msg.text.includes("conflicts.html"));
-    assert.ok(msg.text.includes("5"));
-    assert.ok(msg.text.includes("⚠️"));
-  });
-
-  it("case-hotfix: includes bugId, branch, file", () => {
-    const msg = formatMessage("case-hotfix", {
-      bugId: "BUG-123",
-      branch: "hotfix/fix",
-      file: "case.xmind",
-    });
-    assert.ok(msg.text.includes("BUG-123"));
-    assert.ok(msg.text.includes("hotfix/fix"));
-    assert.ok(msg.text.includes("case.xmind"));
-    assert.ok(msg.text.includes("🔧"));
-  });
-
-  it("ui-test-completed: includes passed, failed, reportFile (legacy), pass rate", () => {
-    const msg = formatMessage("ui-test-completed", {
-      passed: 10,
-      failed: 2,
-      reportFile: "ui-report.html",
-    });
-    assert.ok(msg.text.includes("10"));
-    assert.ok(msg.text.includes("2"));
-    assert.ok(msg.text.includes("ui-report.html"));
-    assert.ok(msg.text.includes("🧪"));
-    assert.ok(msg.text.includes("83%"), "should calculate pass rate");
-  });
-
-  it("validateEventData: flags missing required, unknown fields and enum violations", async () => {
-    const { validateEventData } = await import("../../../cli/integrations/notify.ts");
-    const result = validateEventData("ui-test-needs-input", {
-      question: "x",
-      reasonType: "bogus",
-      wrongField: 1,
-    });
-    assert.deepEqual(result.missingRequired.sort(), ["caseTitle"]);
-    assert.deepEqual(result.unknownFields, ["wrongField"]);
-    assert.equal(result.enumViolations.length, 1);
-    assert.equal(result.enumViolations[0].field, "reasonType");
-  });
-
-  it("describeEvent: returns multi-line schema for known event", async () => {
-    const { describeEvent } = await import("../../../cli/integrations/notify.ts");
-    const text = describeEvent("ui-test-needs-input");
-    assert.ok(text.includes("question"));
-    assert.ok(text.includes("dom_mismatch"));
-    assert.ok(text.includes("* = 必填"));
-  });
-
-  it("listAllEvents: lists every event in EVENT_SCHEMAS", async () => {
-    const { listAllEvents, EVENT_SCHEMAS } = await import("../../../cli/integrations/notify.ts");
-    const text = listAllEvents();
-    for (const name of Object.keys(EVENT_SCHEMAS)) {
-      assert.ok(text.includes(name), `missing ${name} in listAllEvents output`);
-    }
-  });
-
-  it("ui-test-needs-input: includes question, expected, actual, suite", () => {
-    const msg = formatMessage("ui-test-needs-input", {
-      project: "dataAssets",
-      suite: "json格式配置",
-      caseTitle: "验证 JSON 格式校验提示",
-      reasonType: "dom_mismatch",
-      question: "用例预期『校验通过』但页面显示『匹配成功』，是 Bug 还是用例文案要更新？",
-      expected: "校验通过",
-      actual: "匹配成功",
-      evidence: "div.result-banner",
-    });
-    assert.ok(msg.text.includes("等待用户确认"));
-    assert.ok(msg.text.includes("DOM 与用例不一致"), "reasonType should be rendered in Chinese");
-    assert.ok(!msg.text.includes("dom_mismatch"), "raw enum should not appear in user-facing text");
-    assert.ok(msg.text.includes("校验通过"));
-    assert.ok(msg.text.includes("匹配成功"));
-    assert.ok(msg.text.includes("json格式配置"));
-    assert.ok(msg.text.includes("⏸"));
-  });
-
-  it("ui-test-completed: shows red icon when failures exist", () => {
-    const msg = formatMessage("ui-test-completed", { passed: 5, failed: 3 });
-    assert.ok(msg.text.includes("🔴"), "should show red icon for failures");
-  });
-
-  it("ui-test-completed: shows green icon when all pass", () => {
-    const msg = formatMessage("ui-test-completed", { passed: 10, failed: 0 });
-    assert.ok(msg.text.includes("🟢"), "should show green icon for all pass");
-  });
-
-  it("ui-test-completed: requirement name prepended to title and 需求 row present", () => {
-    const msg = formatMessage("ui-test-completed", {
-      suite: "【通用配置】json格式配置-15696",
-      passed: 10,
-      failed: 0,
-    });
-    assert.ok(
-      msg.text.startsWith("## 🧪 【通用配置】json格式配置-15696 - UI 自动化测试完成"),
-      "title should include requirement name prefix",
-    );
-    assert.ok(msg.text.includes("🎯 需求"), "label should be 需求 not 套件");
-  });
-
-  it("ui-test-completed: envLabel URL rendered as clickable link", () => {
-    const msg = formatMessage("ui-test-completed", {
-      env: "ltqc",
-      envLabel: "http://shuzhan63-test-ltqc.k8s.dtstack.cn",
-      passed: 1,
-      failed: 0,
-    });
-    assert.ok(
-      msg.text.includes(
-        "[http://shuzhan63-test-ltqc.k8s.dtstack.cn](http://shuzhan63-test-ltqc.k8s.dtstack.cn)",
-      ),
-      "should render URL as markdown link",
-    );
-    assert.ok(msg.text.includes("`ltqc`"), "should append env code");
-  });
-
-  it("ui-test-completed: env code only when no URL available", () => {
-    const msg = formatMessage("ui-test-completed", {
-      env: "ltqc",
-      passed: 1,
-      failed: 0,
-    });
-    assert.ok(msg.text.includes("| 🏷 环境 | `ltqc` |"));
-    assert.ok(!msg.text.includes("[ltqc]"));
-  });
-
-  it("ui-test-completed: renders tenant/project/duration and allure open command", () => {
-    const msg = formatMessage("ui-test-completed", {
-      env: "ltqc",
-      envLabel: "http://shuzhan63-test-ltqc.k8s.dtstack.cn",
-      tenant: "pw_test",
-      project: "pw_test",
-      suite: "【通用配置】json格式配置-15696",
-      passed: 40,
-      failed: 3,
-      skipped: 0,
-      broken: 0,
-      durationMs: 125_000,
-      reportPath: "/abs/path/allure-report",
-      failedCases: [
-        { title: "【P1】验证A", message: "timeout" },
-        { title: "【P0】验证B", message: "element not found" },
-      ],
-    });
-    assert.ok(msg.text.includes("pw_test"));
-    assert.ok(msg.text.includes("【通用配置】json格式配置-15696"));
-    assert.ok(msg.text.includes("93%"), "pass rate 40/43");
-    assert.ok(msg.text.includes("2m 5s"), "duration formatting");
-    assert.ok(msg.text.includes("allure open"));
-    assert.ok(msg.text.includes("/abs/path/allure-report"));
-    assert.ok(msg.text.includes("【P1】验证A"));
-    assert.ok(msg.text.includes("timeout"));
-  });
-
-  it("ui-test-completed: online link section when reportUrl provided", () => {
-    const msg = formatMessage("ui-test-completed", {
-      passed: 1,
-      failed: 0,
-      reportUrl: "https://reports.example.com/abc/",
-    });
-    assert.ok(msg.text.includes("在线查看"));
-    assert.ok(msg.text.includes("https://reports.example.com/abc/"));
-  });
-
-  it("ui-test-completed: caps failedCases list at 5 and shows overflow note", () => {
-    const many = Array.from({ length: 8 }, (_, i) => ({
-      title: `case-${i}`,
-      message: `msg-${i}`,
-    }));
-    const msg = formatMessage("ui-test-completed", {
-      passed: 0,
-      failed: 8,
-      failedCases: many,
-    });
-    assert.ok(msg.text.includes("case-0"));
-    assert.ok(msg.text.includes("case-4"));
-    assert.ok(!msg.text.includes("case-5 —"), "should not list the 6th case");
-    assert.ok(msg.text.includes("另有 3 条失败"));
-  });
-
-  it("archive-converted: includes fileCount and caseCount", () => {
-    const msg = formatMessage("archive-converted", { fileCount: 3, caseCount: 120 });
-    assert.ok(msg.text.includes("3"));
-    assert.ok(msg.text.includes("120"));
-    assert.ok(msg.text.includes("📦"));
-  });
-
-  it("workflow-failed: includes step and reason", () => {
-    const msg = formatMessage("workflow-failed", { step: "writer", reason: "timeout" });
-    assert.ok(msg.text.includes("writer"));
-    assert.ok(msg.text.includes("timeout"));
-    assert.ok(msg.text.includes("❌"));
-  });
-
-  it("unknown event: falls back to JSON dump", () => {
-    const msg = formatMessage("custom-event", { foo: "bar" });
-    assert.ok(msg.text.includes("custom-event"));
-    assert.ok(msg.text.includes("bar"));
-    assert.ok(msg.text.includes("📢"));
-  });
-
-  it("missing data fields show dash placeholder", () => {
-    const msg = formatMessage("case-generated", {});
-    assert.ok(msg.text.includes("-"), "should use - for missing fields");
-  });
-
-  it("all events include timestamp footer", () => {
-    const msg = formatMessage("case-generated", { count: 1 });
-    assert.ok(msg.text.includes("Kata"), "should have Kata footer");
-    assert.ok(msg.text.includes("🕐"), "should have timestamp icon");
-  });
-});
-
-// ── Channel Detection ────────────────────────────────────────────────────────
-
-describe("detectChannels", () => {
-  let savedEnv: Record<string, string | undefined>;
-
-  beforeEach(() => {
-    savedEnv = {
-      KATA_DINGTALK_WEBHOOK_URL: process.env.KATA_DINGTALK_WEBHOOK_URL,
-      KATA_DINGTALK_KEYWORD: process.env.KATA_DINGTALK_KEYWORD,
-      KATA_DINGTALK_SIGN_SECRET: process.env.KATA_DINGTALK_SIGN_SECRET,
-      KATA_FEISHU_WEBHOOK_URL: process.env.KATA_FEISHU_WEBHOOK_URL,
-      KATA_WECOM_WEBHOOK_URL: process.env.KATA_WECOM_WEBHOOK_URL,
-      KATA_SMTP_HOST: process.env.KATA_SMTP_HOST,
-      KATA_SMTP_USER: process.env.KATA_SMTP_USER,
-      KATA_SMTP_PASS: process.env.KATA_SMTP_PASS,
-      KATA_SMTP_FROM: process.env.KATA_SMTP_FROM,
-      KATA_SMTP_TO: process.env.KATA_SMTP_TO,
-      KATA_SMTP_SECURE: process.env.KATA_SMTP_SECURE,
-    };
-    // Clear all channel env vars
-    for (const key of Object.keys(savedEnv)) {
-      delete process.env[key];
-    }
-  });
-
-  afterEach(() => {
-    for (const [key, value] of Object.entries(savedEnv)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
-    }
-  });
-
-  it("returns undefined channels when no env vars set", () => {
-    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
-    assert.equal(cfg.dingtalk, undefined);
-    assert.equal(cfg.feishu, undefined);
-    assert.equal(cfg.wecom, undefined);
-    assert.equal(cfg.email.host, undefined);
-  });
-
-  it("detects dingtalk channel", () => {
-    process.env.KATA_DINGTALK_WEBHOOK_URL =
-      "https://oapi.dingtalk.com/robot/send?access_token=test";
-    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
-    assert.equal(cfg.dingtalk, "https://oapi.dingtalk.com/robot/send?access_token=test");
-  });
-
-  it("detects feishu channel", () => {
-    process.env.KATA_FEISHU_WEBHOOK_URL = "https://open.feishu.cn/open-apis/bot/v2/hook/test";
-    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
-    assert.equal(cfg.feishu, "https://open.feishu.cn/open-apis/bot/v2/hook/test");
-  });
-
-  it("detects wecom channel", () => {
-    process.env.KATA_WECOM_WEBHOOK_URL =
-      "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=test";
-    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
-    assert.equal(cfg.wecom, "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=test");
-  });
-
-  it("detects dingtalk keyword and sign secret", () => {
-    process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com";
-    process.env.KATA_DINGTALK_KEYWORD = "【测试】";
-    process.env.KATA_DINGTALK_SIGN_SECRET = "SEC_test_secret";
-    const cfg = detectChannels(EMPTY_CONFIG_ROOT);
-    assert.equal(cfg.dingtalkKeyword, "【测试】");
-    assert.equal(cfg.dingtalkSignSecret, "SEC_test_secret");
-  });
-});
-
-// ── Email Enabled Check ──────────────────────────────────────────────────────
-
-describe("isEmailEnabled", () => {
-  const fullEmailCfg: ChannelConfig = {
-    dingtalk: undefined,
-    dingtalkKeyword: undefined,
-    dingtalkSignSecret: undefined,
-    feishu: undefined,
-    wecom: undefined,
-    email: {
-      host: "smtp.example.com",
-      port: "587",
-      user: "user@example.com",
-      pass: "secret",
-      from: "qa@example.com",
-      to: "team@example.com",
-      secure: undefined,
-    },
+function payload(overrides: Partial<NotificationData> = {}): NotificationData {
+  return {
+    project: "dataAssets",
+    version: "v7.0.0",
+    feature: "规则 SQL 合并",
+    completed_at: "2026-07-30 12:00:00 Asia/Taipei",
+    case_count: 2,
+    created_count: 1,
+    updated_count: 0,
+    artifact_paths: ["workspace/dataAssets/features/v7.0.0/f/cases/exports/cases.xmind"],
+    duration_ms: 1200,
+    ...overrides,
   };
+}
 
-  it("returns true when all email fields are set", () => {
-    assert.equal(isEmailEnabled(fullEmailCfg), true);
+function enableDingtalk(at: string): void {
+  mkdirSync(join(at, "config", "plugin"), { recursive: true });
+  writeFileSync(
+    join(at, "config", "plugin", "notify.yaml"),
+    "is_enable: true\nenabled_events:\n  - cases-built\ndingtalk:\n  is_enable: true\n  webhook_url: https://example.invalid/robot\n",
+  );
+}
+
+describe("business notifications", () => {
+  it("renders concrete vertical content without tables, placeholders, or absolute paths", () => {
+    const message = formatMessage("cases-built", payload());
+    assert.equal(message.title, "[dataAssets][v7.0.0][规则 SQL 合并] 用例构建完成");
+    assert.match(message.text, /用例数：2/);
+    assert.ok(!message.text.includes("|"));
+    assert.ok(!message.text.includes("：-"));
+    assert.ok(!message.text.includes("/Users/"));
   });
 
-  it("returns false when host is missing", () => {
-    const cfg: ChannelConfig = {
-      ...fullEmailCfg,
-      email: { ...fullEmailCfg.email, host: undefined },
+  it("rejects unknown fields, missing required values, and absolute paths before delivery", () => {
+    const invalid = validateEventData("cases-built", {
+      ...payload({ artifact_paths: ["/Users/poco/secret.xmind"] }),
+      unknown: "no",
+    });
+    assert.deepEqual(invalid.unknownFields, ["unknown"]);
+    assert.deepEqual(invalid.invalidPaths, ["artifact_paths"]);
+    assert.deepEqual(validateEventData("cases-built", {}).missingRequired.sort(), [
+      "artifact_paths",
+      "case_count",
+      "completed_at",
+      "created_count",
+      "duration_ms",
+      "feature",
+      "project",
+      "updated_count",
+      "version",
+    ]);
+  });
+
+  it("defaults to no delivery when enabled_events is absent, while retaining an audit ledger", async () => {
+    const testRoot = root();
+    const result = await emitBusinessNotification("cases-built", payload(), { root: testRoot });
+    assert.equal(result.state, "blocked");
+    assert.match(result.reason ?? "", /enabled_events/);
+    const ledgers = listNotificationLedgers("dataAssets", testRoot);
+    assert.equal(ledgers.length, 1);
+    assert.equal(ledgers[0]?.state, "blocked");
+  });
+
+  it("uses one stable ledger and retries only a failed channel", async () => {
+    const testRoot = root();
+    enableDingtalk(testRoot);
+    let calls = 0;
+    const fetchImpl: NotificationFetch = async () => {
+      calls += 1;
+      return calls === 1
+        ? new Response("boom", { status: 500 })
+        : new Response('{"errcode":0}', { status: 200 });
     };
-    assert.equal(isEmailEnabled(cfg), false);
-  });
-
-  it("returns false when user is missing", () => {
-    const cfg: ChannelConfig = {
-      ...fullEmailCfg,
-      email: { ...fullEmailCfg.email, user: undefined },
-    };
-    assert.equal(isEmailEnabled(cfg), false);
-  });
-
-  it("returns false when pass is missing", () => {
-    const cfg: ChannelConfig = {
-      ...fullEmailCfg,
-      email: { ...fullEmailCfg.email, pass: undefined },
-    };
-    assert.equal(isEmailEnabled(cfg), false);
-  });
-
-  it("returns false when to is missing", () => {
-    const cfg: ChannelConfig = { ...fullEmailCfg, email: { ...fullEmailCfg.email, to: undefined } };
-    assert.equal(isEmailEnabled(cfg), false);
-  });
-
-  it("returns false when no email fields set", () => {
-    const emptyCfg: ChannelConfig = {
-      ...fullEmailCfg,
-      email: {
-        host: undefined,
-        port: undefined,
-        user: undefined,
-        pass: undefined,
-        from: undefined,
-        to: undefined,
-        secure: undefined,
-      },
-    };
-    assert.equal(isEmailEnabled(emptyCfg), false);
-  });
-});
-
-// ── Schema Type Validation ───────────────────────────────────────────────────
-
-describe("validateEventData type checks", () => {
-  it("flags values whose runtime type differs from the declared type", () => {
-    const result = validateEventData("case-generated", { count: "42" });
-    assert.equal(result.typeMismatches.length, 1);
-    assert.deepEqual(result.typeMismatches[0], {
-      field: "count",
-      expected: "number",
-      actual: "42",
+    const result = await emitBusinessNotification("cases-built", payload(), {
+      root: testRoot,
+      fetchImpl,
     });
-  });
-
-  it("accepts correct string[] and object[] values", () => {
-    const branches = validateEventData("conflict-analyzed", { branches: ["base", "target"] });
-    assert.deepEqual(branches.typeMismatches, []);
-    const failedCases = validateEventData("ui-test-completed", {
-      passed: 1,
-      failed: 1,
-      failedCases: [{ title: "t", message: "m" }],
+    assert.equal(result.state, "sent");
+    assert.equal(calls, 2, "one transient failure plus one retry");
+    const eventId = eventIdFor("cases-built", payload());
+    const duplicate = await emitBusinessNotification("cases-built", payload(), {
+      root: testRoot,
+      fetchImpl,
     });
-    assert.deepEqual(failedCases.typeMismatches, []);
-  });
-
-  it("flags string[] and object[] mismatches", () => {
-    const branches = validateEventData("conflict-analyzed", { branches: "base,target" });
-    assert.equal(branches.typeMismatches.length, 1);
-    const failedCases = validateEventData("ui-test-completed", {
-      passed: 1,
-      failed: 1,
-      failedCases: "none",
-    });
-    assert.equal(failedCases.typeMismatches.length, 1);
-  });
-
-  it("ui-test-completed schema accepts reportPath/reportUrl/failedCases", () => {
-    const result = validateEventData("ui-test-completed", {
-      passed: 1,
-      failed: 0,
-      reportPath: "/abs/allure-report",
-      reportUrl: "https://reports.example.com/x/",
-      failedCases: [{ title: "t" }],
-    });
-    assert.deepEqual(result.unknownFields, []);
-    assert.deepEqual(result.typeMismatches, []);
-  });
-
-  it("unknown events report no type mismatches", () => {
-    const result = validateEventData("custom-event", { anything: 1 });
-    assert.deepEqual(result.typeMismatches, []);
-  });
-});
-
-// ── Email HTML Escaping ──────────────────────────────────────────────────────
-
-describe("email HTML escaping", () => {
-  it("escapeHtml escapes &, < and >", () => {
-    assert.equal(escapeHtml("a & <b>"), "a &amp; &lt;b&gt;");
-  });
-
-  it("formatEmailHtml does not pass raw markup through", () => {
-    const html = formatEmailHtml('<script>alert("x")</script>');
-    assert.ok(!html.includes("<script>"), "raw HTML must not reach the mail body");
-    assert.ok(html.includes("&lt;script&gt;"));
-  });
-});
-
-// ── SMTP secure Detection ────────────────────────────────────────────────────
-
-describe("smtp secure detection", () => {
-  let savedEnv: Record<string, string | undefined>;
-
-  beforeEach(() => {
-    savedEnv = {
-      KATA_DINGTALK_WEBHOOK_URL: process.env.KATA_DINGTALK_WEBHOOK_URL,
-      KATA_FEISHU_WEBHOOK_URL: process.env.KATA_FEISHU_WEBHOOK_URL,
-      KATA_WECOM_WEBHOOK_URL: process.env.KATA_WECOM_WEBHOOK_URL,
-      KATA_SMTP_SECURE: process.env.KATA_SMTP_SECURE,
-    };
-    for (const key of Object.keys(savedEnv)) {
-      delete process.env[key];
-    }
-  });
-
-  afterEach(() => {
-    for (const [key, value] of Object.entries(savedEnv)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
-    }
-  });
-
-  it("reads secure from KATA_SMTP_SECURE", () => {
-    process.env.KATA_SMTP_SECURE = "true";
-    assert.equal(detectChannels(EMPTY_CONFIG_ROOT).email.secure, true);
-  });
-
-  it("reads secure from notify.yaml smtp.secure", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-notify-secure-"));
-    mkdirSync(join(root, "config", "plugin"), { recursive: true });
-    writeFileSync(join(root, "config", "plugin", "notify.yaml"), "smtp:\n  secure: true\n");
-    assert.equal(detectChannels(root).email.secure, true);
-  });
-
-  it("leaves secure undefined when neither env nor yaml sets it", () => {
-    assert.equal(detectChannels(EMPTY_CONFIG_ROOT).email.secure, undefined);
-  });
-});
-
-// ── Delivery Exit Codes ──────────────────────────────────────────────────────
-
-describe("runSend delivery exit codes", () => {
-  let savedEnv: Record<string, string | undefined>;
-  let savedExitCode: number | string | null | undefined;
-  let stderrChunks: string[];
-  let originalStderrWrite: typeof process.stderr.write;
-  let originalStdoutWrite: typeof process.stdout.write;
-  let originalFetch: typeof fetch;
-
-  beforeEach(() => {
-    savedEnv = {
-      KATA_DINGTALK_WEBHOOK_URL: process.env.KATA_DINGTALK_WEBHOOK_URL,
-      KATA_DINGTALK_KEYWORD: process.env.KATA_DINGTALK_KEYWORD,
-      KATA_DINGTALK_SIGN_SECRET: process.env.KATA_DINGTALK_SIGN_SECRET,
-      KATA_FEISHU_WEBHOOK_URL: process.env.KATA_FEISHU_WEBHOOK_URL,
-      KATA_WECOM_WEBHOOK_URL: process.env.KATA_WECOM_WEBHOOK_URL,
-      KATA_SMTP_HOST: process.env.KATA_SMTP_HOST,
-      KATA_SMTP_USER: process.env.KATA_SMTP_USER,
-      KATA_SMTP_PASS: process.env.KATA_SMTP_PASS,
-      KATA_SMTP_FROM: process.env.KATA_SMTP_FROM,
-      KATA_SMTP_TO: process.env.KATA_SMTP_TO,
-      KATA_SMTP_SECURE: process.env.KATA_SMTP_SECURE,
-    };
-    for (const key of Object.keys(savedEnv)) {
-      delete process.env[key];
-    }
-    savedExitCode = process.exitCode;
-    stderrChunks = [];
-    originalStderrWrite = process.stderr.write.bind(process.stderr);
-    originalStdoutWrite = process.stdout.write.bind(process.stdout);
-    originalFetch = globalThis.fetch;
-    process.stderr.write = (chunk: string | Buffer, ..._args: unknown[]): boolean => {
-      stderrChunks.push(String(chunk));
-      return true;
-    };
-    process.stdout.write = (_chunk: string | Buffer, ..._args: unknown[]): boolean => true;
-  });
-
-  afterEach(() => {
-    process.stderr.write = originalStderrWrite;
-    process.stdout.write = originalStdoutWrite;
-    globalThis.fetch = originalFetch;
-    process.exitCode = savedExitCode;
-    for (const [key, value] of Object.entries(savedEnv)) {
-      if (value === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = value;
-      }
-    }
-  });
-
-  it("exits 2 with a stderr warning when no channel is configured (non dry-run)", async () => {
-    const exitCode = await runSend({
-      event: "case-generated",
-      data: '{"count":1}',
-      root: EMPTY_CONFIG_ROOT,
-    });
-    assert.equal(exitCode, 2);
-    assert.equal(process.exitCode, savedExitCode);
-    assert.ok(
-      stderrChunks.some((line) => line.includes("未配置任何通知渠道")),
-      `stderr should warn about missing channels, got: ${stderrChunks.join("")}`,
-    );
-  });
-
-  it("exits 2 with a stderr warning when every configured channel fails", async () => {
-    process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com/hook";
-    globalThis.fetch = Object.assign(() => Promise.reject(new Error("network down")), {
-      preconnect: () => {},
-    });
-    const exitCode = await runSend({
-      event: "case-generated",
-      data: '{"count":1}',
-      root: EMPTY_CONFIG_ROOT,
-    });
-    assert.equal(exitCode, 2);
-    assert.equal(process.exitCode, savedExitCode);
-    assert.ok(
-      stderrChunks.some((line) => line.includes("全部") && line.includes("失败")),
-      `stderr should warn about all-channel failure, got: ${stderrChunks.join("")}`,
-    );
-  });
-
-  it("does not set an exit code in dry-run mode even with zero channels", async () => {
-    const exitCode = await runSend({
-      event: "case-generated",
-      data: '{"count":1}',
-      dryRun: true,
-      root: EMPTY_CONFIG_ROOT,
-    });
-    assert.equal(exitCode, 0);
-    assert.equal(process.exitCode, savedExitCode);
-  });
-
-  it("passes an AbortSignal to webhook fetch calls", async () => {
-    process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com/hook";
-    let seenSignal: AbortSignal | null = null;
-    globalThis.fetch = Object.assign(
-      (_url: string | URL | Request, init?: RequestInit) => {
-        seenSignal = init?.signal ?? null;
-        return Promise.resolve(
-          new Response(JSON.stringify({ errcode: 0 }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          }),
-        );
-      },
-      { preconnect: () => {} },
-    );
-    const result = await sendNotification(
-      "case-generated",
-      { count: 1 },
-      { root: EMPTY_CONFIG_ROOT },
-    );
-    assert.deepEqual(result.sent, ["dingtalk"]);
-    assert.ok(seenSignal, "fetch should receive an AbortSignal");
+    assert.equal(duplicate.state, "duplicate");
+    assert.equal(calls, 2);
     assert.equal(
-      Object.getPrototypeOf(seenSignal),
-      AbortSignal.prototype,
-      "fetch should receive an AbortSignal",
+      showNotificationLedger(eventId, "dataAssets", testRoot).deliveries.dingtalk?.attempts,
+      2,
     );
   });
-});
 
-// ── Dry Run ──────────────────────────────────────────────────────────────────
-
-describe("sendNotification dry-run", () => {
-  it("returns empty sent/failed/skipped arrays in dry-run mode", async () => {
-    // Capture stdout by redirecting temporarily
-    const chunks: Buffer[] = [];
-    const originalWrite = process.stdout.write.bind(process.stdout);
-    process.stdout.write = (chunk: string | Buffer, ..._args: unknown[]): boolean => {
-      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-      return true;
-    };
-
-    const result = await sendNotification(
-      "case-generated",
-      { count: 1, file: "a.xmind", duration: 5 },
-      { dryRun: true },
-    );
-
-    process.stdout.write = originalWrite;
-
-    const output = Buffer.concat(chunks).toString("utf8");
-    const parsed = JSON.parse(output) as { dry_run: boolean; message: string };
-
-    assert.equal(result.sent.length, 0);
-    assert.equal(result.failed.length, 0);
-    assert.equal(result.skipped.length, 0);
-    assert.equal(parsed.dry_run, true);
-    assert.ok(parsed.message.includes("用例生成完成"));
-  });
-});
-
-// ── CLI Integration ──────────────────────────────────────────────────────────
-
-describe("CLI --help", () => {
-  it("--help exits with code 0 and shows usage", () => {
-    const result = execSync(`bun run "${KATA_TS}" notify send --help`, {
-      encoding: "utf8",
-      stdio: ["pipe", "pipe", "pipe"],
+  it("keeps a failed delivery recoverable through the immutable ledger", async () => {
+    const testRoot = root();
+    enableDingtalk(testRoot);
+    const failingFetch: NotificationFetch = async () => new Response("bad", { status: 400 });
+    const failed = await emitBusinessNotification("cases-built", payload(), {
+      root: testRoot,
+      fetchImpl: failingFetch,
     });
-    assert.ok(
-      result.includes("notify") || result.includes("event"),
-      "help text should mention event",
+    assert.equal(failed.state, "failed");
+    const retried = await retryNotification(failed.event_id, "dataAssets", {
+      root: testRoot,
+      fetchImpl: async () => new Response('{"errcode":0}', { status: 200 }),
+    });
+    assert.equal(retried.state, "sent");
+    assert.equal(
+      showNotificationLedger(failed.event_id, "dataAssets", testRoot).deliveries.dingtalk?.status,
+      "sent",
+    );
+  });
+
+  it("formats timestamp in Asia/Taipei", () => {
+    assert.equal(
+      formatTaipeiTime(new Date("2026-07-30T04:00:00.000Z")),
+      "2026-07-30 12:00:00 Asia/Taipei",
     );
   });
 });
 
-describe("CLI --dry-run", () => {
-  it("outputs dry_run JSON to stdout", () => {
-    const stdout = execSync(
-      `bun run "${KATA_TS}" notify send --dry-run --event case-generated --data '{"count":1,"file":"test.xmind","duration":30}'`,
-      { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
+describe("notify CLI", () => {
+  it("only previews synthetic payloads and removes the legacy sender", () => {
+    const data = JSON.stringify(payload());
+    const preview = spawnSync(
+      "bun",
+      [kata, "notify", "preview", "--event", "cases-built", "--data", data],
+      {
+        cwd: repo,
+        encoding: "utf8",
+      },
     );
-    const parsed = JSON.parse(stdout) as { dry_run: boolean; message: string };
-    assert.equal(parsed.dry_run, true);
-    assert.ok(parsed.message.includes("用例生成完成"));
+    assert.equal(preview.status, 0, preview.stderr);
+    assert.equal(JSON.parse(preview.stdout).preview, true);
+    const removed = spawnSync("bun", [kata, "notify", "send", "--event", "cases-built"], {
+      cwd: repo,
+      encoding: "utf8",
+    });
+    assert.notEqual(removed.status, 0);
+    assert.match(removed.stderr, /已移除/);
+    const help = execFileSync("bun", [kata, "notify", "--help"], { cwd: repo, encoding: "utf8" });
+    assert.ok(!/^\s+send\b/m.test(help));
   });
 
-  it("dry-run with workflow-failed event outputs correct message", () => {
-    const stdout = execSync(
-      `bun run "${KATA_TS}" notify send --dry-run --event workflow-failed --data '{"step":"writer","reason":"timeout"}'`,
-      { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
+  it("does not create a delivery ledger when previewing", () => {
+    const before = existsSync(join(repo, "workspace", "dataAssets", ".state", "notifications"));
+    const data = JSON.stringify(payload());
+    const result = spawnSync(
+      "bun",
+      [kata, "notify", "preview", "--event", "cases-built", "--data", data],
+      {
+        cwd: repo,
+        encoding: "utf8",
+      },
     );
-    const parsed = JSON.parse(stdout) as { dry_run: boolean; message: string };
-    assert.ok(parsed.message.includes("writer"));
-    assert.ok(parsed.message.includes("timeout"));
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      existsSync(join(repo, "workspace", "dataAssets", ".state", "notifications")),
+      before,
+    );
   });
 });

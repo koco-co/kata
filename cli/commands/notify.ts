@@ -1,42 +1,99 @@
 import type { Command } from "commander";
-import { listAllEvents, runSend } from "../integrations/notify.ts";
+import {
+  assertValidNotification,
+  describeEvent,
+  formatMessage,
+  listAllEvents,
+  listNotificationLedgers,
+  type NotificationData,
+  type NotificationEventType,
+  retryNotification,
+  showNotificationLedger,
+} from "../integrations/notify.ts";
 
-/** Build the `notify` command: IM/邮件通知发送(钉钉/飞书/企微/SMTP)。 */
+function parsePreviewData(raw: string): NotificationData {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("--data 必须是 JSON 对象");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("--data 必须是 JSON 对象");
+  }
+  return parsed as NotificationData;
+}
+
+/** Build the notification inspection surface. It intentionally contains no real-send command. */
 export function registerNotify(program: Command): void {
-  const notify = program.command("notify").description("IM/邮件通知集成");
+  const notify = program.command("notify").description("业务通知预览、查询与失败重试");
 
   notify
-    .command("send")
-    .description("发送通知(钉钉/飞书/企微/邮件,按 config/plugin/notify.yaml 配置的渠道)")
-    .option("-e, --event <type>", "事件类型(使用 --list-events 查看所有)")
-    .option("-d, --data <json>", "事件数据(JSON 字符串,字段见 --describe <event>)", "{}")
-    .option("--dry-run", "仅格式化消息,不实际发送")
-    .option("--list-events", "列出所有支持的事件类型")
-    .option("--describe <event>", "打印某个事件支持的字段、类型和必填项")
-    .option("--strict", "未知字段或缺失必填字段时直接失败(默认仅告警)")
+    .command("preview")
+    .description("仅校验并预览固定业务事件内容；绝不发送通知")
+    .option("-e, --event <type>", "业务事件类型")
+    .option("-d, --data <json>", "严格符合事件 schema 的 JSON 对象")
+    .option("--list-events", "列出支持的业务事件")
+    .option("--describe <event>", "显示一个事件的字段契约")
     .addHelpText(
       "after",
-      `
-${listAllEvents()}
-
-示例:
-  $ kata notify send --list-events
-  $ kata notify send --describe ui-test-needs-input
-  $ kata notify send --event case-generated --data '{"count":42,"file":"test.xmind"}'
-  $ kata notify send --dry-run --event workflow-failed --data '{"step":"writer","reason":"timeout"}'
-`,
+      `\n支持事件:\n${listAllEvents()}\n\n使用 --describe <event> 查看严格字段契约。\n`,
     )
-    .action(
-      async (opts: {
-        event?: string;
-        data: string;
-        dryRun?: boolean;
-        listEvents?: boolean;
-        describe?: string;
-        strict?: boolean;
-      }) => {
-        const exitCode = await runSend(opts);
-        if (exitCode !== 0) process.exitCode = exitCode;
-      },
-    );
+    .action((opts: { event?: string; data?: string; listEvents?: boolean; describe?: string }) => {
+      if (opts.listEvents) {
+        process.stdout.write(`${listAllEvents()}\n`);
+        return;
+      }
+      if (opts.describe) {
+        process.stdout.write(`${describeEvent(opts.describe)}\n`);
+        return;
+      }
+      if (!opts.event || !opts.data) throw new Error("preview 必须同时提供 --event 与 --data");
+      const data = parsePreviewData(opts.data);
+      assertValidNotification(opts.event, data);
+      const message = formatMessage(opts.event as NotificationEventType, data);
+      process.stdout.write(
+        `${JSON.stringify({ preview: true, event: opts.event, ...message }, null, 2)}\n`,
+      );
+    });
+
+  notify
+    .command("list")
+    .description("只读列出项目的本地通知账本")
+    .requiredOption("--project <name>", "项目名")
+    .action((opts: { project: string }) => {
+      process.stdout.write(`${JSON.stringify(listNotificationLedgers(opts.project), null, 2)}\n`);
+    });
+
+  notify
+    .command("show <event-id>")
+    .description("只读查看一个本地通知账本（不含渠道凭据）")
+    .requiredOption("--project <name>", "项目名")
+    .action((eventId: string, opts: { project: string }) => {
+      process.stdout.write(
+        `${JSON.stringify(showNotificationLedger(eventId, opts.project), null, 2)}\n`,
+      );
+    });
+
+  notify
+    .command("retry <event-id>")
+    .description("按账本重试此前失败的渠道；不会接受自定义内容")
+    .requiredOption("--project <name>", "项目名")
+    .requiredOption("--confirmed", "确认按当前配置重试失败渠道")
+    .action(async (eventId: string, opts: { project: string; confirmed: boolean }) => {
+      if (!opts.confirmed) throw new Error("重试通知必须显式提供 --confirmed");
+      const result = await retryNotification(eventId, opts.project);
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    });
+
+  // Keep an explicit migration error without advertising the dangerous legacy command in help.
+  notify
+    .command("send", { hidden: true })
+    .allowUnknownOption(true)
+    .allowExcessArguments(true)
+    .action(() => {
+      throw new Error(
+        "kata notify send 已移除；使用 kata notify preview 仅预览，真实通知仅由业务命令在成功后自动创建",
+      );
+    });
 }

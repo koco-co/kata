@@ -4,48 +4,35 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { resolveAutomationFeature } from "../../cli/lib/automation-feature-resolver.ts";
 
-function scaffold(requirementId = "12345"): { root: string; featureDir: string } {
+function scaffold(): { root: string; featureDir: string; featurePath: string } {
   const root = mkdtempSync(join(tmpdir(), "kata-automation-feature-"));
-  const featureDir = join(
-    root,
-    "workspace",
-    "dataAssets",
-    "features",
-    "v6.4.11",
-    "【v6411】【模块】测试需求",
-  );
-  mkdirSync(featureDir, { recursive: true });
+  const featurePath = "v6.4.11/【模块】测试需求";
+  const featureDir = join(root, "workspace", "dataAssets", "features", featurePath);
   mkdirSync(join(featureDir, "cases"), { recursive: true });
   writeFileSync(join(root, "package.json"), "{}\n");
-  writeFileSync(join(featureDir, "prd.md"), `---\nrequirement_id: ${requirementId}\n---\n`);
-  writeFileSync(
-    join(featureDir, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  version: v6.4.11\n  feature_id: v6.4.11/demo\n  requirement_id: "${requirementId}"\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证示例\n    priority: P1\n    steps:\n      - action: 点击保存\n        expected: 保存成功\n`,
-  );
-  return { root, featureDir };
+  return { root, featureDir, featurePath };
 }
 
 describe("automation feature resolver", () => {
-  it("resolves a numeric requirement_id by scanning cases YAML", () => {
-    const { root, featureDir } = scaffold();
-    const result = resolveAutomationFeature("12345", "dataAssets", root);
+  it("resolves the complete path below features/", () => {
+    const { root, featureDir, featurePath } = scaffold();
+    const result = resolveAutomationFeature(featurePath, "dataAssets", root);
     expect(result.dir).toBe(featureDir);
-    expect(result.requirementId).toBe("12345");
-  });
-
-  it("rejects a cases YAML whose ID disagrees with prd.md", () => {
-    const { root, featureDir } = scaffold("12345");
-    writeFileSync(
-      join(featureDir, "cases", "demo.yaml"),
-      'meta:\n  title: demo\n  version: v6.4.11\n  feature_id: v6.4.11/demo\n  requirement_id: "99999"\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证示例\n    priority: P1\n    steps:\n      - action: 点击保存\n        expected: 保存成功\n',
-    );
-    expect(() => resolveAutomationFeature("99999", "dataAssets", root)).toThrow(/不一致/);
+    expect(result.relativePath).toBe(featurePath);
   });
 
   it("keeps direct feature directory selectors working", () => {
-    const { root, featureDir } = scaffold();
+    const { root, featureDir, featurePath } = scaffold();
     const result = resolveAutomationFeature(featureDir, "dataAssets", root);
     expect(result.dir).toBe(featureDir);
-    expect(result.requirementId).toBeUndefined();
+    expect(result.relativePath).toBe(featurePath);
+  });
+
+  it("rejects numeric requirement IDs and bare directory names", () => {
+    const { root } = scaffold();
+    expect(() => resolveAutomationFeature("12345", "dataAssets", root)).toThrow(/完整路径/);
+    expect(() => resolveAutomationFeature("【模块】测试需求", "dataAssets", root)).toThrow(
+      /完整路径/,
+    );
   });
 });

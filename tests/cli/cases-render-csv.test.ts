@@ -4,7 +4,7 @@ import type { CasesFile } from "../../cli/lib/cases/types.ts";
 
 function file(cases: CasesFile["cases"]): CasesFile {
   return {
-    meta: { title: "需求名", version: "v1", feature_id: "g/f", case_module_id: "" },
+    meta: { title: "需求名", case_module_id: "" },
     cases,
   };
 }

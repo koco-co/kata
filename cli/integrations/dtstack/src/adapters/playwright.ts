@@ -78,8 +78,7 @@ export async function createClientFromPage(
       throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
     }
   }
-  const targetBaseUrl =
-    baseUrl ?? kataBaseUrl;
+  const targetBaseUrl = baseUrl ?? kataBaseUrl;
   if (!targetBaseUrl) {
     throw new Error(
       "DTStack base URL is required; run Playwright through `kata env run <env> -- ...` or pass baseUrl",

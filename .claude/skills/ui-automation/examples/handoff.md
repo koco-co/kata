@@ -1,6 +1,6 @@
 <!-- 填写示例（脱敏虚构，展示格式与详细程度，不是真实交付）。 -->
 
-# 自动化交付 handoff：【v6411】【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计
+# 自动化交付 handoff：v6.4.11/【岚图汽车】【数据质量】单表校验规则支持枚举值个数统计
 
 - run-id：20260722-1430-run-01
 - 环境：ltqc-local
@@ -35,7 +35,7 @@
 重跑命令：
 
 ```bash
-kata runs exec <feature-id> --project dataAssets -- kata env run ltqc-local -- bunx playwright test automation/tests/runners/full.spec.ts
+kata runs exec <版本目录/需求目录名> --project dataAssets -- kata env run ltqc-local -- bunx playwright test automation/tests/runners/full.spec.ts
 ```
 
 - full.spec.ts 全量通过：达成（2 通过 / 1 排除）。

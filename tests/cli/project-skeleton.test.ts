@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -47,5 +47,15 @@ describe("project skeleton contract", () => {
       "knowledge/overview.md",
       "knowledge/terms.md",
     ]);
+  });
+
+  it("keeps project metadata free of unused schema markers", () => {
+    const template = JSON.parse(
+      readFileSync(
+        join(import.meta.dir, "../../cli/templates/project-skeleton/project.json"),
+        "utf8",
+      ),
+    );
+    expect(template).toEqual({ name: "{{project}}", description: "" });
   });
 });
