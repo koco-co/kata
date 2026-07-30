@@ -169,6 +169,10 @@ describe("skill contract", () => {
     expect(infraPlaybook).toContain("主机使用 `server-default`");
     expect(infraPlaybook).toContain("数据源使用 `data-source-default`");
     expect(infraPlaybook).not.toContain("每个 host 或 data source 必须显式绑定");
+
+    const workspaceManagement = readSkillMd("workspace-management");
+    expect(workspaceManagement).toContain("再次运行 `kata project scan");
+    expect(workspaceManagement).not.toContain("CLAUDE.md 本地配置节");
   });
 });
 
