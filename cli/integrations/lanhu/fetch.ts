@@ -75,6 +75,18 @@ interface ErrorOutput {
   code: string;
 }
 
+export class LanhuIntegrationError extends Error {
+  readonly exitCode = 1;
+
+  constructor(
+    readonly code: string,
+    message: string,
+  ) {
+    super(`${code}: ${message}`);
+    this.name = "LanhuIntegrationError";
+  }
+}
+
 export interface PrdExtractOptions {
   featureDir: string;
   force?: boolean;
@@ -193,12 +205,10 @@ function ensureLanhuMcpReady(projectRoot: string): void {
 
   // Check if the bundled lanhu-mcp directory exists at all
   if (!existsSync(mcpDir)) {
-    process.stderr.write(
-      "[lanhu] 外部依赖缺失: lanhu-mcp 目录不存在。\n" +
-        "[lanhu] Lanhu/Axure PRD 抓取需要此依赖。\n" +
-        `[lanhu] 请确认 ${LANHU_MCP_RELATIVE_DIR} 已存在。\n`,
+    throw new LanhuIntegrationError(
+      "LANHU_MCP_MISSING",
+      `外部依赖 ${LANHU_MCP_RELATIVE_DIR} 不存在，无法抓取 Lanhu/Axure PRD`,
     );
-    process.exit(1);
   }
 
   const setupScript = join(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "setup.sh");
@@ -209,11 +219,10 @@ function ensureLanhuMcpReady(projectRoot: string): void {
       cwd: projectRoot,
     });
   } catch {
-    process.stderr.write(
-      "[lanhu] 外部依赖安装失败: lanhu-mcp Python 环境初始化出错。\n" +
-        "[lanhu] 请确保已安装 Python 3 和 uv (https://docs.astral.sh/uv/)，然后重试。\n",
+    throw new LanhuIntegrationError(
+      "LANHU_MCP_SETUP_FAILED",
+      "lanhu-mcp Python 环境初始化失败；请确认已安装 Python 3 和 uv",
     );
-    process.exit(1);
   }
 }
 
@@ -298,27 +307,15 @@ function callBridgeListPagesWithRetry(
   }
 
   if (!result.isCookieError) {
-    process.stderr.write(
-      `${JSON.stringify({ error: result.error, code: result.code }, null, 2)}\n`,
-    );
-    process.exit(1);
+    throw new LanhuIntegrationError(result.code, result.error);
   }
 
-  process.stderr.write("Cookie 失效，正在自动刷新...\n");
   const newCookie = refreshCookie(projectRoot, rawUrl);
   if (!newCookie) {
-    process.stderr.write(
-      `${JSON.stringify(
-        {
-          error:
-            "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
-          code: "COOKIE_REFRESH_FAILED",
-        },
-        null,
-        2,
-      )}\n`,
+    throw new LanhuIntegrationError(
+      "COOKIE_REFRESH_FAILED",
+      "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
     );
-    process.exit(1);
   }
 
   const retry = tryCallBridgeListPages(projectRoot, rawUrl, newCookie);
@@ -326,9 +323,7 @@ function callBridgeListPagesWithRetry(
     return { listResult: retry, cookie: newCookie };
   }
 
-  process.stderr.write(`${JSON.stringify({ error: retry.error, code: retry.code }, null, 2)}\n`);
-  process.exit(1);
-  throw new Error("Unreachable");
+  throw new LanhuIntegrationError(retry.code, retry.error);
 }
 
 function tryCallBridge(
@@ -381,7 +376,7 @@ function refreshCookie(projectRoot: string, targetUrl: string): string | null {
         ...(config.username ? { KATA_LANHU_USERNAME: config.username } : {}),
         ...(config.password ? { KATA_LANHU_PASSWORD: config.password } : {}),
       },
-      stdio: ["inherit", "pipe", "inherit"],
+      stdio: ["ignore", "pipe", "pipe"],
       timeout: 120_000,
     });
     const cookie = newCookie.trim();
@@ -409,29 +404,17 @@ function callBridgeWithRetry(
 
   // Not a cookie error — fail immediately
   if (!result.isCookieError) {
-    process.stderr.write(
-      `${JSON.stringify({ error: result.error, code: result.code }, null, 2)}\n`,
-    );
-    process.exit(1);
+    throw new LanhuIntegrationError(result.code, result.error);
   }
 
   // Cookie error — attempt auto-refresh
-  process.stderr.write("Cookie 失效，正在自动刷新...\n");
   const newCookie = refreshCookie(projectRoot, rawUrl);
 
   if (!newCookie) {
-    process.stderr.write(
-      `${JSON.stringify(
-        {
-          error:
-            "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
-          code: "COOKIE_REFRESH_FAILED",
-        },
-        null,
-        2,
-      )}\n`,
+    throw new LanhuIntegrationError(
+      "COOKIE_REFRESH_FAILED",
+      "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
     );
-    process.exit(1);
   }
 
   // Retry with new cookie
@@ -440,9 +423,7 @@ function callBridgeWithRetry(
     return retry;
   }
 
-  process.stderr.write(`${JSON.stringify({ error: retry.error, code: retry.code }, null, 2)}\n`);
-  process.exit(1);
-  throw new Error("Unreachable");
+  throw new LanhuIntegrationError(retry.code, retry.error);
 }
 
 function assertCanonicalExtractUrl(parsed: ParsedLanhuUrl): {
@@ -452,7 +433,10 @@ function assertCanonicalExtractUrl(parsed: ParsedLanhuUrl): {
 } {
   const { docId, versionId, pageId } = parsed.params;
   if (!docId || !versionId || !pageId) {
-    throw new Error("INVALID_URL: PRD 提取 URL 必须同时包含 docId、versionId 与 pageId");
+    throw new LanhuIntegrationError(
+      "INVALID_URL",
+      "PRD 提取 URL 必须同时包含 docId、versionId 与 pageId",
+    );
   }
   return { docId, versionId, pageId };
 }
@@ -516,7 +500,7 @@ export async function runPrdExtract(
   const projectRoot = repoRoot();
   const parsed = parseLanhuUrl(rawUrl);
   if (parsed.pageType !== "product-spec") {
-    throw new Error("INVALID_URL: 仅支持蓝湖 PRD/Axure 产品文档 URL");
+    throw new LanhuIntegrationError("INVALID_URL", "仅支持蓝湖 PRD/Axure 产品文档 URL");
   }
   const identity = assertCanonicalExtractUrl(parsed);
   const featureDir = resolve(projectRoot, options.featureDir);
@@ -546,21 +530,36 @@ export async function runPrdExtract(
   let cookie = loadLanhuConfig(projectRoot).cookie ?? "";
   if (!cookie) {
     const newCookie = refreshCookie(projectRoot, rawUrl);
-    if (!newCookie) throw new Error("KATA_LANHU_COOKIE 未配置且自动登录失败");
+    if (!newCookie) {
+      throw new LanhuIntegrationError("MISSING_COOKIE", "KATA_LANHU_COOKIE 未配置且自动登录失败");
+    }
     cookie = newCookie;
   }
   ensureLanhuMcpReady(projectRoot);
   const listCall = callBridgeListPagesWithRetry(projectRoot, rawUrl, cookie);
   cookie = listCall.cookie;
   const selected = listCall.listResult.pages.filter((page) => page.id === identity.pageId);
-  if (selected.length !== 1) throw new Error(`蓝湖中无法唯一定位 pageId=${identity.pageId}`);
+  if (selected.length !== 1) {
+    throw new LanhuIntegrationError(
+      "PAGE_NOT_FOUND",
+      `蓝湖中无法唯一定位 pageId=${identity.pageId}`,
+    );
+  }
   const selectedPage = selected[0];
   const requirementId = selectedPage.requirement_id ?? selectedPage.name.match(/^(\d+)/)?.[1] ?? "";
-  if (!requirementId) throw new Error(`蓝湖页面名称不含需求 ID: ${selectedPage.name}`);
+  if (!requirementId) {
+    throw new LanhuIntegrationError(
+      "REQUIREMENT_ID_MISSING",
+      `蓝湖页面名称不含需求 ID: ${selectedPage.name}`,
+    );
+  }
 
   const bridge = callBridgeWithRetry(projectRoot, rawUrl, identity.pageId, cookie);
   if (bridge.pages.length !== 1) {
-    throw new Error(`蓝湖 pageId=${identity.pageId} 返回 ${bridge.pages.length} 个页面`);
+    throw new LanhuIntegrationError(
+      "PAGE_COUNT_MISMATCH",
+      `蓝湖 pageId=${identity.pageId} 返回 ${bridge.pages.length} 个页面`,
+    );
   }
   const evidencePages: PrdEvidencePage[] = [];
   const copiedAssets: string[] = [];
@@ -570,7 +569,10 @@ export async function runPrdExtract(
         page.content,
       )
     ) {
-      throw new Error("蓝湖桥接结果混入 MCP 工作提示，拒绝写入证据");
+      throw new LanhuIntegrationError(
+        "PROMPT_CONTAMINATION",
+        "蓝湖桥接结果混入 MCP 工作提示，拒绝写入证据",
+      );
     }
     const pageAssets: string[] = [];
     for (const [index, source] of page.images.entries()) {

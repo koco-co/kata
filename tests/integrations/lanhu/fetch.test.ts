@@ -45,6 +45,8 @@ describe("Lanhu bridge runtime paths", () => {
 
     assert.ok(source.includes("cli/integrations/lanhu/mcp-bridge"));
     assert.equal(source.includes(".claude/plugins/lanhu"), false);
+    assert.equal(source.includes("process.exit("), false);
+    assert.equal(source.includes("process.stderr.write"), false);
   });
 
   it("uses low-level static extraction and exact URL versions without MCP prompt wrappers", () => {
