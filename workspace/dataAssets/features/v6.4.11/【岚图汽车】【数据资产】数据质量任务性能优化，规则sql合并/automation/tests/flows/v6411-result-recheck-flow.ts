@@ -441,27 +441,62 @@ async function readCurrentResultRow(
     .filter({ has: page.locator(".anticon-search") })
     .first();
   if (await search.isVisible({ timeout: 2_000 }).catch(() => false)) await search.click({ timeout: 30_000 });
-  const retryDeadline = Date.now() + AUTOMATION.resultQueryRetryTimeoutMs;
-  let row: Locator | null = null;
+  const pollingState: { row: Locator | null } = { row: null };
   let broadQuerySubmitted = false;
-  do {
-    await waitForSpin(page, sourceRef);
-    await waitForUiSettled(page);
-    const currentRows = page.locator(".ant-table-tbody tr:visible").filter({ hasText: source.tableName }).filter({ hasText: source.ruleName });
-    row = await selectLatestResultRow(currentRows, sourceRef);
-    if (!row && !broadQuerySubmitted) {
-      await submitSearch(page, input, "test_info_1_", sourceRef);
-      broadQuerySubmitted = true;
-      row = await selectLatestResultRow(
-        page.locator(".ant-table-tbody tr:visible").filter({ hasText: source.tableName }).filter({ hasText: source.ruleName }),
-        sourceRef,
-      );
-      row ??= await findMatchingRowAcrossPages(page, source.tableName, source.ruleName, sourceRef);
-    }
-    if (row || Date.now() >= retryDeadline) break;
-    await page.waitForTimeout(Math.min(AUTOMATION.resultQueryRetryIntervalMs, Math.max(0, retryDeadline - Date.now())));
-    await submitSearch(page, input, broadQuerySubmitted ? "test_info_1_" : source.tableName, sourceRef);
-  } while (Date.now() < retryDeadline);
+  let pollingError: unknown;
+  try {
+    await expect
+      .poll(
+        async () => {
+          try {
+            await waitForSpin(page, sourceRef);
+            await waitForUiSettled(page);
+            const currentRows = page
+              .locator(".ant-table-tbody tr:visible")
+              .filter({ hasText: source.tableName })
+              .filter({ hasText: source.ruleName });
+            pollingState.row = await selectLatestResultRow(currentRows, sourceRef);
+            if (!pollingState.row && !broadQuerySubmitted) {
+              await submitSearch(page, input, "test_info_1_", sourceRef);
+              broadQuerySubmitted = true;
+              pollingState.row = await selectLatestResultRow(
+                page
+                  .locator(".ant-table-tbody tr:visible")
+                  .filter({ hasText: source.tableName })
+                  .filter({ hasText: source.ruleName }),
+                sourceRef,
+              );
+              pollingState.row ??= await findMatchingRowAcrossPages(
+                page,
+                source.tableName,
+                source.ruleName,
+                sourceRef,
+              );
+            }
+            if (pollingState.row) return true;
+            await submitSearch(
+              page,
+              input,
+              broadQuerySubmitted ? "test_info_1_" : source.tableName,
+              sourceRef,
+            );
+            return false;
+          } catch (error) {
+            pollingError = error;
+            throw error;
+          }
+        },
+        {
+          message: `${sourceRef}: 等待最新校验结果行出现`,
+          timeout: AUTOMATION.resultQueryRetryTimeoutMs,
+          intervals: [AUTOMATION.resultQueryRetryIntervalMs],
+        },
+      )
+      .toBe(true);
+  } catch {
+    if (pollingError) throw pollingError;
+  }
+  const row = pollingState.row;
   if (!row || !(await row.isVisible({ timeout: 10_000 }).catch(() => false))) {
     const rows = await page
       .locator(".ant-table-tbody tr:visible")
