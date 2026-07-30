@@ -18,6 +18,7 @@ forbidden_globs:
   - runtime/cases/**
   - runtime/playwright/**
   - runtime/db/**
+  - workspace/**/automation/README.md
   - workspace/**/automation/scripts/**
   - workspace/*/_shared/helpers/**
   - workspace/*/_shared/rules/**
@@ -99,6 +100,7 @@ describe("repository policy", () => {
       "runtime/cases/parse.ts",
       "runtime/playwright/index.ts",
       "runtime/db/index.ts",
+      "workspace/dataAssets/features/v1/a/automation/README.md",
       "workspace/dataAssets/_shared/helpers/index.ts",
       "workspace/dataAssets/_shared/rules/README.md",
       "workspace/dataAssets/_shared/pages/data-quality/page.ts",
@@ -115,6 +117,7 @@ describe("repository policy", () => {
       "runtime/cases/parse.ts",
       "runtime/playwright/index.ts",
       "runtime/db/index.ts",
+      "workspace/dataAssets/features/v1/a/automation/README.md",
       "workspace/dataAssets/_shared/helpers/index.ts",
       "workspace/dataAssets/_shared/rules/README.md",
       "workspace/dataAssets/_shared/pages/data-quality/page.ts",

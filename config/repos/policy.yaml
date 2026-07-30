@@ -38,6 +38,7 @@ forbidden_globs:
   - runtime/cases/**
   - runtime/playwright/**
   - runtime/db/**
+  - workspace/**/automation/README.md
   - workspace/**/automation/scripts/**
   - workspace/*/_shared/helpers/**
   - workspace/*/_shared/rules/**
