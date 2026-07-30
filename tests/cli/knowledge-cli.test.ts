@@ -38,6 +38,18 @@ function writeModule(root: string) {
   ]);
 }
 
+describe("knowledge library boundary", () => {
+  it("returns data instead of writing CLI output directly", () => {
+    for (const file of ["entry.ts", "write.ts"]) {
+      const source = readFileSync(
+        resolve(import.meta.dir, `../../cli/lib/knowledge/${file}`),
+        "utf8",
+      );
+      expect(source).not.toContain("process.stdout.write");
+    }
+  });
+});
+
 describe("kata knowledge write", () => {
   it("writes a module entry with status frontmatter", () => {
     const root = proj();
@@ -241,6 +253,46 @@ describe("kata knowledge write", () => {
     expect(confirmed.status).toBe(0);
     expect(JSON.parse(confirmed.stdout).status).toBe("verified");
     expect(readFileSync(file, "utf8")).toContain("status: verified");
+  });
+
+  it("returns a blocked overview plan with exit code 2 without changing the file", () => {
+    const root = proj();
+    const file = join(root, "workspace", "dataAssets", "knowledge", "overview.md");
+    const original = [
+      "---",
+      "title: dataAssets 业务概览",
+      "type: overview",
+      "tags: []",
+      "confidence: high",
+      'source: "user"',
+      "updated: 2026-07-30",
+      "---",
+      "",
+      "# dataAssets 业务概览",
+      "",
+      "## 定位",
+      "",
+      "旧内容",
+      "",
+    ].join("\n");
+    writeFileSync(file, original);
+
+    const result = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "overview",
+      "--content",
+      JSON.stringify({ section: "定位", body: "新内容", mode: "replace" }),
+      "--confidence",
+      "high",
+    ]);
+
+    expect(result.status).toBe(2);
+    expect(JSON.parse(result.stdout).blocked).toBe(true);
+    expect(readFileSync(file, "utf8")).toBe(original);
   });
 });
 

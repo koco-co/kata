@@ -32,6 +32,34 @@ type WritePlan = {
   conflict: Conflict | null;
 };
 
+export type KnowledgeOverviewWriteResult =
+  | {
+      blocked: true;
+      action: "write";
+      type: string;
+      file: string;
+      conflict: Conflict;
+      hint: string;
+    }
+  | {
+      dry_run: true;
+      action: "write";
+      type: string;
+      file: string;
+      before: string;
+      after: string;
+      conflict: Conflict | null;
+    }
+  | {
+      action: "write";
+      type: string;
+      file: string;
+      before: string;
+      after: string;
+      snapshot: string | null;
+      conflict: Conflict | null;
+    };
+
 export class KnowledgeWriteError extends Error {
   readonly exitCode: number;
 
@@ -51,7 +79,7 @@ export function runWrite(opts: {
   dryRun: boolean;
   overwrite: boolean;
   force: boolean;
-}): void {
+}): KnowledgeOverviewWriteResult {
   const gate = confidenceGate(opts.confidence, opts.confirmed);
   if (!gate.allowed) {
     throw new KnowledgeWriteError(`[knowledge] ${gate.reason}`);
@@ -61,13 +89,26 @@ export function runWrite(opts: {
 
   // ── 冲突守卫:block 级冲突必须 --force 才能越过 ──
   if (plan.conflict && plan.conflict.severity === "block" && !opts.force) {
-    writeBlockedWrite(opts, plan);
-    throw new KnowledgeWriteError("知识写入被冲突守卫阻断", 2);
+    return {
+      blocked: true,
+      action: "write",
+      type: opts.type,
+      file: plan.targetPath,
+      conflict: plan.conflict,
+      hint: "冲突阻断。核对后可加 --force 强制写入。",
+    };
   }
 
   if (opts.dryRun) {
-    writeDryRunWrite(opts, plan);
-    return;
+    return {
+      dry_run: true,
+      action: "write",
+      type: opts.type,
+      file: plan.targetPath,
+      before: plan.beforeContent,
+      after: plan.afterContent,
+      conflict: plan.conflict,
+    };
   }
 
   const snapshotName = plan.beforeContent
@@ -77,7 +118,15 @@ export function runWrite(opts: {
   writeFileSync(plan.targetPath, plan.afterContent);
   writeIndexFile(opts.project);
   appendWriteAudit(opts, plan, snapshotName);
-  writeCommittedWrite(opts, plan, snapshotName);
+  return {
+    action: "write",
+    type: opts.type,
+    file: plan.targetPath,
+    before: plan.beforeContent,
+    after: plan.afterContent,
+    snapshot: snapshotName,
+    conflict: plan.conflict,
+  };
 }
 
 function buildWritePlan(opts: Parameters<typeof runWrite>[0], today: string): WritePlan {
@@ -114,29 +163,6 @@ function defaultKnowledgeFrontmatter(
   return { title, type, tags: [], confidence: "high", source: "", updated: today };
 }
 
-function writeBlockedWrite(opts: Parameters<typeof runWrite>[0], plan: WritePlan): void {
-  writeJson({
-    blocked: true,
-    action: "write",
-    type: opts.type,
-    file: plan.targetPath,
-    conflict: plan.conflict,
-    hint: "冲突阻断。核对后可加 --force 强制写入。",
-  });
-}
-
-function writeDryRunWrite(opts: Parameters<typeof runWrite>[0], plan: WritePlan): void {
-  writeJson({
-    dry_run: true,
-    action: "write",
-    type: opts.type,
-    file: plan.targetPath,
-    before: plan.beforeContent,
-    after: plan.afterContent,
-    conflict: plan.conflict,
-  });
-}
-
 function appendWriteAudit(
   opts: Parameters<typeof runWrite>[0],
   plan: WritePlan,
@@ -156,24 +182,4 @@ function appendWriteAudit(
       forced: opts.force,
     }),
   );
-}
-
-function writeCommittedWrite(
-  opts: Parameters<typeof runWrite>[0],
-  plan: WritePlan,
-  snapshotName: string | null,
-): void {
-  writeJson({
-    action: "write",
-    type: opts.type,
-    file: plan.targetPath,
-    before: plan.beforeContent,
-    after: plan.afterContent,
-    snapshot: snapshotName,
-    conflict: plan.conflict,
-  });
-}
-
-function writeJson(value: unknown): void {
-  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }

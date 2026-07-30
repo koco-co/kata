@@ -1,5 +1,6 @@
 import type { Command } from "commander";
-import { runReadEntries, runWriteEntry } from "../lib/knowledge/entry.ts";
+import { outputJson } from "../lib/cli.ts";
+import { formatKnowledgeRead, runReadEntries, runWriteEntry } from "../lib/knowledge/entry.ts";
 import { writeIndexFile } from "../lib/knowledge/index-data.ts";
 import { runWrite } from "../lib/knowledge/write.ts";
 
@@ -24,7 +25,11 @@ export function registerKnowledge(program: Command): void {
         type?: string;
         status?: string;
         json: boolean;
-      }) => runReadEntries(opts),
+      }) => {
+        const result = runReadEntries(opts);
+        if (opts.json) outputJson(result);
+        else process.stdout.write(formatKnowledgeRead(result));
+      },
     );
 
   knowledge
@@ -65,7 +70,7 @@ export function registerKnowledge(program: Command): void {
           if (!opts.content) {
             throw new Error(`[knowledge] 类型 ${opts.type} 需要 --content JSON`);
           }
-          runWrite({
+          const result = runWrite({
             project: opts.project,
             type: opts.type,
             content: opts.content,
@@ -75,6 +80,8 @@ export function registerKnowledge(program: Command): void {
             overwrite: false,
             force: opts.force,
           });
+          outputJson(result);
+          if ("blocked" in result && result.blocked) process.exitCode = 2;
           return;
         }
         const overviewOnly =
@@ -90,16 +97,18 @@ export function registerKnowledge(program: Command): void {
         if (!opts.source) {
           throw new Error(`[knowledge] 类型 ${opts.type} 需要 --source(证据来源)`);
         }
-        runWriteEntry({
-          project: opts.project,
-          type: opts.type,
-          status: opts.status,
-          title: opts.title,
-          body: opts.body,
-          tags: opts.tags,
-          source: opts.source,
-          confirmed: opts.confirmed,
-        });
+        outputJson(
+          runWriteEntry({
+            project: opts.project,
+            type: opts.type,
+            status: opts.status,
+            title: opts.title,
+            body: opts.body,
+            tags: opts.tags,
+            source: opts.source,
+            confirmed: opts.confirmed,
+          }),
+        );
       },
     );
 
@@ -109,6 +118,6 @@ export function registerKnowledge(program: Command): void {
     .requiredOption("--project <name>", "项目名")
     .action((opts: { project: string }) => {
       const result = writeIndexFile(opts.project);
-      process.stdout.write(`${JSON.stringify({ project: opts.project, ...result }, null, 2)}\n`);
+      outputJson({ project: opts.project, ...result });
     });
 }
