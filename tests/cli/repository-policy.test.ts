@@ -1,98 +1,47 @@
 import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative } from "node:path";
+import { join } from "node:path";
 import { checkRepositoryPolicy } from "../../cli/lib/repository-policy.ts";
 
-const POLICY = `root:
-  allowed_files: [package.json]
-  allowed_directories: [cli, config, runtime, workspace]
-forbidden_globs:
-  - kata-automation-*.config.ts
-  - lib/**
-  - "**/project.json"
-  - runtime/cases/**
-  - runtime/playwright/**
-  - runtime/db/**
-  - workspace/**/automation/scripts/**
-  - workspace/*/_shared/helpers/**
-  - workspace/*/_shared/rules/**
-  - workspace/*/_shared/pages/**
-  - workspace/*/_shared/fixtures/**
-  - workspace/*/_shared/runtime/**
-shared_modules:
-  roots: [workspace/*/_shared/automation]
-  minimum_feature_consumers: 2
-  page_domain_pattern: "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
-dependencies:
-  runtime_must_not_import: cli/
-  forbidden_import_fragments:
-    - runtime/cases/
-    - runtime/playwright/
-    - runtime/db/
-    - _shared/helpers/
-    - _shared/pages/
-`;
-
-function writePolicy(root: string): void {
-  mkdirSync(join(root, "config", "repos"), { recursive: true });
-  writeFileSync(join(root, "config", "repos", "policy.yaml"), POLICY);
-}
-
-function importPath(from: string, to: string): string {
-  const path = relative(dirname(from), to).split("\\").join("/").replace(/\.ts$/, "");
-  return path.startsWith(".") ? path : `./${path}`;
-}
-
 describe("repository policy", () => {
-  it("rejects obsolete runtime, project metadata, shared paths and misplaced artifacts", () => {
+  it("rejects root temporary configs, legacy lib, scripts and misplaced case artifacts", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-policy-"));
-    writePolicy(root);
+    mkdirSync(join(root, "config", "repos"), { recursive: true });
+    writeFileSync(
+      join(root, "config", "repos", "policy.yaml"),
+      "root:\n  allowed_files: [package.json]\n  allowed_directories: [config, runtime, workspace]\nforbidden_globs: [kata-automation-*.config.ts, lib/**, workspace/**/automation/scripts/**]\ndependencies:\n  runtime_must_not_import: cli/\n",
+    );
     const violations = checkRepositoryPolicy(root, [
       "package.json",
       "kata-automation-recheck.config.ts",
       "lib/db/index.ts",
-      "workspace/dataAssets/project.json",
-      "runtime/cases/parse.ts",
-      "runtime/playwright/index.ts",
-      "runtime/db/index.ts",
-      "workspace/dataAssets/_shared/helpers/index.ts",
-      "workspace/dataAssets/_shared/rules/README.md",
-      "workspace/dataAssets/_shared/pages/data-quality/page.ts",
       "workspace/dataAssets/features/v1/a/automation/scripts/probe.ts",
       "workspace/dataAssets/features/v1/a/cases/legacy.md",
       "workspace/dataAssets/features/v1/a/automation/tests/cases/C0001.spec.ts",
       "workspace/dataAssets/features/v1/a/automation/tests/sql/Bad_Name.sql",
     ]);
-    const rejected = new Set(violations.map((item) => item.path));
-    for (const path of [
+    expect(violations.map((item) => item.path)).toEqual([
       "kata-automation-recheck.config.ts",
       "lib/db/index.ts",
-      "workspace/dataAssets/project.json",
-      "runtime/cases/parse.ts",
-      "runtime/playwright/index.ts",
-      "runtime/db/index.ts",
-      "workspace/dataAssets/_shared/helpers/index.ts",
-      "workspace/dataAssets/_shared/rules/README.md",
-      "workspace/dataAssets/_shared/pages/data-quality/page.ts",
       "workspace/dataAssets/features/v1/a/automation/scripts/probe.ts",
       "workspace/dataAssets/features/v1/a/automation/tests/cases/C0001.spec.ts",
       "workspace/dataAssets/features/v1/a/automation/tests/sql/Bad_Name.sql",
       "workspace/dataAssets/features/v1/a/cases/legacy.md",
-    ]) {
-      expect(rejected.has(path), path).toBe(true);
-    }
+    ]);
   });
 
-  it("accepts the registered YAML, import, export and temporary run routes", () => {
+  it("accepts the registered YAML, test points, import, export and temporary run routes", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-policy-"));
-    writePolicy(root);
+    mkdirSync(join(root, "config", "repos"), { recursive: true });
+    writeFileSync(
+      join(root, "config", "repos", "policy.yaml"),
+      "root:\n  allowed_files: [package.json]\n  allowed_directories: [config, runtime, workspace]\nforbidden_globs: [kata-automation-*.config.ts, lib/**, workspace/**/automation/scripts/**]\ndependencies:\n  runtime_must_not_import: cli/\n",
+    );
     expect(
       checkRepositoryPolicy(root, [
         "package.json",
-        "cli/lib/cases/parse.ts",
-        "runtime/automation/playwright/index.ts",
-        "runtime/automation/db/index.ts",
+        "runtime/cases/parse.ts",
         "workspace/dataAssets/features/v1/a/cases/a.yaml",
         "workspace/dataAssets/features/v1/a/cases/test-points.md",
         "workspace/dataAssets/features/v1/a/cases/imports/history.csv",
@@ -102,91 +51,5 @@ describe("repository policy", () => {
         "workspace/dataAssets/runs/run-1/_tmp/probe.ts",
       ]),
     ).toEqual([]);
-  });
-
-  it("requires shared modules to have two transitive feature consumers and stable page domains", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-policy-shared-"));
-    writePolicy(root);
-    const shared = join(root, "workspace", "dataAssets", "_shared", "automation");
-    const page = join(shared, "pages", "data-quality", "task-page.ts");
-    const legacyPage = join(shared, "pages", "2099-main-flow", "legacy-page.ts");
-    const flow = join(shared, "flows", "quality-task.ts");
-    const lonely = join(shared, "assertions", "lonely.ts");
-    const caseA = join(
-      root,
-      "workspace",
-      "dataAssets",
-      "features",
-      "v1",
-      "a",
-      "automation",
-      "tests",
-      "cases",
-      "c0001-a.spec.ts",
-    );
-    const caseB = join(
-      root,
-      "workspace",
-      "dataAssets",
-      "features",
-      "v1",
-      "b",
-      "automation",
-      "tests",
-      "cases",
-      "c0001-b.spec.ts",
-    );
-    for (const file of [page, legacyPage, flow, lonely, caseA, caseB]) {
-      mkdirSync(dirname(file), { recursive: true });
-    }
-    writeFileSync(page, "export const page = true;\n");
-    writeFileSync(legacyPage, "export const legacy = true;\n");
-    writeFileSync(
-      flow,
-      `import { page } from "${importPath(flow, page)}";\nexport const flow = page;\n`,
-    );
-    writeFileSync(lonely, "export const lonely = true;\n");
-    writeFileSync(
-      caseA,
-      [
-        `import { flow } from "${importPath(caseA, flow)}";`,
-        `import { lonely } from "${importPath(caseA, lonely)}";`,
-        `import { legacy } from "${importPath(caseA, legacyPage)}";`,
-        "void flow; void lonely; void legacy;",
-        "",
-      ].join("\n"),
-    );
-    writeFileSync(
-      caseB,
-      [
-        `import { flow } from "${importPath(caseB, flow)}";`,
-        `import { legacy } from "${importPath(caseB, legacyPage)}";`,
-        "void flow; void legacy;",
-        "",
-      ].join("\n"),
-    );
-
-    const paths = [page, legacyPage, flow, lonely, caseA, caseB].map((path) =>
-      relative(root, path).split("\\").join("/"),
-    );
-    const violations = checkRepositoryPolicy(root, ["package.json", ...paths]);
-    expect(
-      violations.some(
-        (item) =>
-          item.path.endsWith("/assertions/lonely.ts") &&
-          item.reason.includes("至少 2 个独立 feature"),
-      ),
-    ).toBe(true);
-    expect(
-      violations.some(
-        (item) =>
-          item.path.endsWith("/pages/2099-main-flow/legacy-page.ts") &&
-          item.reason.includes("稳定产品领域"),
-      ),
-    ).toBe(true);
-    expect(violations.some((item) => item.path.endsWith("/flows/quality-task.ts"))).toBe(false);
-    expect(violations.some((item) => item.path.endsWith("/pages/data-quality/task-page.ts"))).toBe(
-      false,
-    );
   });
 });

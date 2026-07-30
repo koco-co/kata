@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join, relative, resolve, sep } from "node:path";
-import { SPEC_FILE_RE } from "../cases/parse.ts";
+import { SPEC_FILE_RE } from "../../../runtime/cases/parse.ts";
 import { projectRootFromFeatureDir } from "../features-layout.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
 
