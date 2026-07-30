@@ -13,7 +13,7 @@
 
 - 公共默认值只读 `config/automation/playwright.yaml`，环境值只读 `config/env/<env>.yaml` 的 `automation` 节点。
 - 运行时只允许通过通用 CLI 的重复 `--set path=value` 临时覆盖；不读取 `.env`，不保留历史兼容变量。
-- `requirement_id` 从用例 YAML 的 `meta.requirement_id` 解析，使用 `kata automation run <requirement_id> --env <env>` 选择 feature。
+- `requirement_id` 从用例 YAML 的 `meta.requirement_id` 解析；运行时使用 `kata automation run <feature-path> --project <project> --env <env>` 选择唯一 feature。
 
 ## 选择器优先级
 

@@ -9,7 +9,7 @@
 2. 校验运行证据与覆盖
    - 运行 `kata runs verify --project <project> --feature <featureDir> --run <run-id>`。
    - 运行 `kata automation coverage <featureDir>`，逐条核对 YAML 映射、case 脚本和 runner import。
-   - 完成条件：run 状态、Allure 和必要证据满足 verify；`missingScript`、`orphanScripts`、`duplicateSpecFile` 为零，未实现或排除项使整体保持未完成。
+   - 完成条件：run 状态、Allure 和必要证据满足 verify；`missingScript`、`orphanScripts`、`duplicateSpecFile` 为零，任何未实现项使整体保持未完成。
 
 3. 执行结构闸门
    - 运行 `kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code`。

@@ -8,17 +8,17 @@
 
 ## 用例结果
 
-（每条用例一行：状态（通过 / 排除）与证据——Allure 结果、关键截图、平台业务记录的名称或 ID。）
+（每条用例一行：状态（通过 / 未完成）与证据——Allure 结果、关键截图、平台业务记录的名称或 ID。）
 
 | 用例 | 状态 | 证据 |
 |------|------|------|
 | C0001 新建规则可选「枚举值个数」并按阈值告警 | 通过 | allure-results/<uuid>-result.json（Allure 按 uuid 命名结果文件）；截图 c01-threshold.png；平台规则记录 AUTO_20260722_rule01 |
-| C0002 空表按 0 参与比较不报错 | 排除 | 见「排除说明」 |
+| C0002 空表按 0 参与比较不报错 | 未完成 | 见「未完成说明」 |
 | C0003 阈值填负数禁止提交 | 通过 | allure-results/<uuid>-result.json；平台无新增记录（表单拦截） |
 
-## 排除说明
+## 未完成说明
 
-（被排除用例的原因类别与阻塞点；没有排除的用例就写「无」。）
+（未完成用例的原因类别与阻塞点；全部通过时写「无」。）
 
 - C0002：产品 bug——空表运行触发 NPE（见 analyses/bug-report/202607/enum-count-null.md），停止该用例，未弱化断言；待修复后回补。
 
@@ -38,7 +38,8 @@
 kata runs exec <版本目录/需求目录名> --project dataAssets -- kata env run ltqc-local -- bunx playwright test automation/tests/runners/full.spec.ts
 ```
 
-- full.spec.ts 全量通过：达成（2 通过 / 1 排除）。
+- full.spec.ts 全量通过：未达成（2 通过 / 1 未完成）。
 - runs/20260722-1430-run-01/ 下有 Allure 结果：达成。
 - 平台产生核心业务记录：达成（AUTO_20260722_rule01）。
+- 整体交付状态：未完成。
 - 未验证范围：C0002 空表场景（产品 bug 阻塞）；负数边界以外的阈值边界值未覆盖。

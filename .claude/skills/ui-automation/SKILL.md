@@ -30,7 +30,7 @@ description: 生成、修复、运行或验证 feature 目录中的 Playwright U
 
 ## Delivery
 
-- 返回重跑 full 的命令、通过与排除清单、Allure 与截图位置、平台业务记录名称或 ID。
+- 返回重跑 full 的命令、通过与未完成清单、Allure 与截图位置、平台业务记录名称或 ID。
 - 分开报告脚本问题、产品 Bug、数据问题、权限问题和环境问题。
 - 只读导航只有用户明确要求只读覆盖时才算覆盖；只跑 smoke、仅语法检查或仅有 runner exit 0 均不算完成。
 

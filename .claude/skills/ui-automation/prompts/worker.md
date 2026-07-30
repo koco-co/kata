@@ -6,7 +6,7 @@
 
 - feature 目录相对路径与环境名（单条运行：`kata runs exec <版本目录/需求目录名> --project <project> --type selfrun -- kata env run <env> -- bunx playwright test automation/tests/runners/full.spec.ts -g "<用例标题>"`）。
 - 用例 yaml 路径与用例 id。
-- 该用例的 `automation.spec_file`；文件名只能是 `c<四位序号>-<slug>.ts`。
+- 该用例的 `automation.spec_file`；文件名只能是 `c<四位序号>-<slug>.spec.ts`。
 - 探测结论：菜单路径、表单字段、按钮、枚举值的真实文案，以及相关证据文件位置。
 - 脚本规范文件：[../references/conventions.md](../references/conventions.md)。
 

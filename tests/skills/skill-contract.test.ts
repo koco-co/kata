@@ -224,6 +224,17 @@ describe("skill contract", () => {
     expect(skill).toContain("Electron 未落地");
   });
 
+  it("ui-automation 资源与 CLI 和完成语义一致", () => {
+    const content = readSkillContent("ui-automation");
+    expect(content).not.toContain("c<四位序号>-<slug>.ts");
+    expect(content).not.toContain("kata automation run <requirement_id>");
+    expect(content).toContain("kata automation run <feature-path>");
+
+    const example = readFileSync(join(skillDir("ui-automation"), "examples/handoff.md"), "utf8");
+    expect(example).toContain("full.spec.ts 全量通过：未达成");
+    expect(example).not.toContain("全量通过：达成（2 通过 / 1 排除）");
+  });
+
   it("流程型 Skill 的每个顶层步骤都有可检查完成条件", () => {
     const processFiles = [
       ["defect-analyze", "SKILL.md"],
