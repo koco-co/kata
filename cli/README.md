@@ -472,8 +472,7 @@ Usage: kata config plugins-migrate [options]
 
 Options:
   --source <path>  旧 dotenv 文件路径
-  --root <path>    目标 Kata 工作区根目录 (default:
-                   "<kata-root>")
+  --root <path>    目标 Kata 工作区根目录 (default: <kata-root>)
   --apply          写入 config/plugin/*.yaml
   -h, --help       display help for command
 ```

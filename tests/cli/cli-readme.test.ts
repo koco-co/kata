@@ -16,4 +16,14 @@ describe("CLI documentation", () => {
     expect(readme).toContain("<kata-root>");
     expect(readme).not.toContain(process.cwd());
   });
+
+  it("renders a stable symbolic default instead of the checkout path", () => {
+    const result = spawnSync("bun", ["cli/bin/kata.ts", "config", "plugins-migrate", "--help"], {
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("(default: <kata-root>)");
+    expect(result.stdout).not.toContain(process.cwd());
+  });
 });

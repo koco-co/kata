@@ -1,4 +1,4 @@
-import type { Command } from "commander";
+import { type Command, Option } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { runConfigDoctor } from "../lib/infra-config.ts";
 import { migrateDotEnvPlugins } from "../lib/plugin-config.ts";
@@ -28,7 +28,9 @@ export function registerConfig(program: Command): void {
     .command("plugins-migrate")
     .description("从显式指定的旧 dotenv 文件迁移插件配置；默认 dry-run")
     .requiredOption("--source <path>", "旧 dotenv 文件路径")
-    .option("--root <path>", "目标 Kata 工作区根目录", process.cwd())
+    .addOption(
+      new Option("--root <path>", "目标 Kata 工作区根目录").default(process.cwd(), "<kata-root>"),
+    )
     .option("--apply", "写入 config/plugin/*.yaml")
     .action((opts: { source: string; root: string; apply?: boolean }) => {
       if (!opts.apply) {
