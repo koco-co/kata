@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   assertRepoOperationAllowed,
   loadSourceRepos,
   mainWorktreeRoot,
+  quarantineInvalidRemoteRefs,
   RepoOperationNotAllowedError,
   resolveSourceRepo,
 } from "../../cli/lib/git-source.ts";
@@ -135,5 +137,29 @@ describe("assertRepoOperationAllowed", () => {
 
   it("allows any operation on writable:true repos", () => {
     expect(() => assertRepoOperationAllowed(writableRepo, "push")).not.toThrow();
+  });
+});
+
+describe("quarantineInvalidRemoteRefs", () => {
+  it("moves only invalid origin loose refs outside refs/ and leaves working files untouched", () => {
+    const root = setup();
+    const repo = join(root, "repo");
+    execFileSync("git", ["init", repo]);
+    const gitDir = join(repo, ".git");
+    const originRefs = join(gitDir, "refs", "remotes", "origin");
+    mkdirSync(originRefs, { recursive: true });
+    writeFileSync(join(originRefs, "release_6.2 2.x"), `${"1".repeat(40)}\n`);
+    writeFileSync(join(originRefs, "release_6.3.x"), `${"2".repeat(40)}\n`);
+    writeFileSync(join(repo, "package.json"), "{}\n");
+
+    const repaired = quarantineInvalidRemoteRefs(repo);
+
+    expect(repaired).toHaveLength(1);
+    expect(repaired[0]?.ref).toBe("refs/remotes/origin/release_6.2 2.x");
+    expect(existsSync(join(originRefs, "release_6.2 2.x"))).toBe(false);
+    expect(existsSync(join(originRefs, "release_6.3.x"))).toBe(true);
+    expect(existsSync(join(repo, "package.json"))).toBe(true);
+    expect(repaired[0]?.backup).toStartWith("kata-repair/invalid-refs/");
+    expect(existsSync(join(gitDir, repaired[0]?.backup ?? ""))).toBe(true);
   });
 });

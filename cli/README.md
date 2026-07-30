@@ -138,7 +138,7 @@ Options:
   -h, --help                              display help for command
 
 Commands:
-  prepare [options]                       按项目/模块/客户匹配仓库，并切换、快进到配置的 release 分支
+  prepare [options]                       按需求匹配仓库，隔离非法远端引用，并快进到配置的 release 分支
   list                                    列出已配置并可定位的源码仓库
   sync-env                                报告全部已配置仓库的当前 branch/commit(不 fetch)
   show <repo> <refPath>                   git show <repo> <ref:path>;只读查看源文件
@@ -636,7 +636,7 @@ Commands:
 ```text
 Usage: kata repos prepare [options]
 
-按项目/模块/客户匹配仓库，并切换、快进到配置的 release 分支
+按需求匹配仓库，隔离非法远端引用，并快进到配置的 release 分支
 
 Options:
   --project <name>   工作区项目

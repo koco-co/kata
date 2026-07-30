@@ -28,7 +28,7 @@ export function registerRepos(program: Command): void {
 
   repos
     .command("prepare")
-    .description("按项目/模块/客户匹配仓库，并切换、快进到配置的 release 分支")
+    .description("按需求匹配仓库，隔离非法远端引用，并快进到配置的 release 分支")
     .requiredOption("--project <name>", "工作区项目")
     .requiredOption("--module <name>", "需求模块")
     .requiredOption("--customer <name>", "客户；标品需求传“标品”")

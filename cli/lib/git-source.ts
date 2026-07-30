@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
 import { parse } from "yaml";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
@@ -59,6 +59,7 @@ const READONLY_REPO_OPS = new Set([
   "fetch",
   "pull",
   "checkout",
+  "repair-refs",
   "grep",
   "show",
   "rev-parse",
@@ -89,6 +90,66 @@ export function isGitSourceRepo(repoPath: string): boolean {
   } catch {
     return false;
   }
+}
+
+export interface QuarantinedGitRef {
+  ref: string;
+  /** Backup location relative to the repository git directory. */
+  backup: string;
+}
+
+function looseRefFiles(root: string): string[] {
+  if (!existsSync(root)) return [];
+  const files: string[] = [];
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    const entryPath = join(root, entry.name);
+    if (entry.isDirectory()) files.push(...looseRefFiles(entryPath));
+    else if (entry.isFile()) files.push(entryPath);
+  }
+  return files;
+}
+
+function isValidGitRef(ref: string): boolean {
+  try {
+    execFileSync("git", ["check-ref-format", ref], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Move malformed loose remote-tracking refs out of refs/ before fetch.
+ *
+ * Git rejects the whole fetch when even one loose ref has an illegal name.
+ * Only syntax-invalid refs under refs/remotes/origin are quarantined; valid
+ * refs, packed refs and working-tree files are left untouched.
+ */
+export function quarantineInvalidRemoteRefs(repoPath: string): QuarantinedGitRef[] {
+  const gitDir = git(repoPath, ["rev-parse", "--path-format=absolute", "--git-dir"]).trim();
+  const originRoot = join(gitDir, "refs", "remotes", "origin");
+  const quarantineRoot = join(gitDir, "kata-repair", "invalid-refs");
+  const repaired: QuarantinedGitRef[] = [];
+
+  for (const file of looseRefFiles(originRoot)) {
+    const suffix = relative(originRoot, file);
+    const ref = `refs/remotes/origin/${suffix.split("\\").join("/")}`;
+    if (isValidGitRef(ref)) continue;
+
+    let backup = join(quarantineRoot, suffix);
+    let sequence = 1;
+    while (existsSync(backup)) {
+      backup = join(quarantineRoot, `${suffix}.${sequence}`);
+      sequence += 1;
+    }
+    mkdirSync(dirname(backup), { recursive: true });
+    renameSync(file, backup);
+    repaired.push({
+      ref,
+      backup: relative(gitDir, backup).split("\\").join("/"),
+    });
+  }
+  return repaired;
 }
 
 function sourceRefForBranch(repoPath: string, branch?: string): string {
@@ -217,6 +278,7 @@ export interface PreparedSourceRepo {
   path: string;
   branch: string;
   commit: string;
+  repaired_refs: QuarantinedGitRef[];
 }
 
 /** Fetch, checkout and fast-forward the configured branch for matched source repositories. */
@@ -229,10 +291,11 @@ export function prepareSourceRepos(
   return selected.map((repo) => {
     const absPath = join(mainRoot, repo.path);
     if (!isGitSourceRepo(absPath)) throw new Error(`${absPath} 不是 git 仓库`);
-    for (const operation of ["fetch", "checkout", "pull"]) {
+    for (const operation of ["repair-refs", "fetch", "checkout", "pull"]) {
       assertRepoOperationAllowed(repo, operation);
     }
     if (!safeRef(repo.branch)) throw new Error(`仓库 ${repo.name} branch 非法: ${repo.branch}`);
+    const repairedRefs = quarantineInvalidRemoteRefs(absPath);
     git(absPath, ["fetch", "origin", repo.branch]);
     try {
       git(absPath, ["checkout", repo.branch]);
@@ -245,6 +308,7 @@ export function prepareSourceRepos(
       path: absPath,
       branch: repo.branch,
       commit: git(absPath, ["rev-parse", "--verify", "HEAD^{commit}"]).trim(),
+      repaired_refs: repairedRefs,
     };
   });
 }

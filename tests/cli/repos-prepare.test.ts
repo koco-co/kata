@@ -1,8 +1,13 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadSourceRepos, selectSourceRepos } from "../../cli/lib/git-source.ts";
+import {
+  loadSourceRepos,
+  prepareSourceRepos,
+  selectSourceRepos,
+} from "../../cli/lib/git-source.ts";
 
 function rootWithConfig(yaml: string): string {
   const root = mkdtempSync(join(tmpdir(), "kata-repos-"));
@@ -78,5 +83,58 @@ repos:
     writable: false
 `);
     expect(() => loadSourceRepos(root)).toThrow(/modules|customers/);
+  });
+
+  it("quarantines invalid origin refs before fetching the configured release branch", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-repos-prepare-"));
+    try {
+      execFileSync("git", ["init", "-b", "main", root]);
+      const remote = join(root, "remote.git");
+      const seed = join(root, "seed");
+      const repo = join(root, ".repos", "group", "data-assets");
+      execFileSync("git", ["init", "--bare", remote]);
+      execFileSync("git", ["init", "-b", "release_6.3.x", seed]);
+      execFileSync("git", ["-C", seed, "config", "user.email", "kata@example.invalid"]);
+      execFileSync("git", ["-C", seed, "config", "user.name", "Kata Test"]);
+      writeFileSync(join(seed, "README.md"), "release source\n");
+      execFileSync("git", ["-C", seed, "add", "README.md"]);
+      execFileSync("git", ["-C", seed, "commit", "-m", "seed"]);
+      execFileSync("git", ["-C", seed, "remote", "add", "origin", remote]);
+      execFileSync("git", ["-C", seed, "push", "origin", "release_6.3.x"]);
+      mkdirSync(join(root, ".repos", "group"), { recursive: true });
+      execFileSync("git", ["clone", "--branch", "release_6.3.x", remote, repo]);
+
+      const originRefs = join(repo, ".git", "refs", "remotes", "origin");
+      mkdirSync(originRefs, { recursive: true });
+      writeFileSync(join(originRefs, "release_6.2 2.x"), `${"1".repeat(40)}\n`);
+      mkdirSync(join(root, "config", "repos"), { recursive: true });
+      writeFileSync(
+        join(root, "config", "repos", "sources.yaml"),
+        `repos:
+  - name: group/data-assets
+    project: dataAssets
+    path: .repos/group/data-assets
+    branch: release_6.3.x
+    modules: [数据标准]
+    customers: [标品]
+    writable: false
+`,
+      );
+
+      const prepared = prepareSourceRepos(
+        { project: "dataAssets", module: "数据标准", customer: "标品" },
+        root,
+      );
+
+      expect(prepared).toHaveLength(1);
+      expect(prepared[0]?.branch).toBe("release_6.3.x");
+      expect(prepared[0]?.repaired_refs.map((item) => item.ref)).toEqual([
+        "refs/remotes/origin/release_6.2 2.x",
+      ]);
+      expect(existsSync(join(originRefs, "release_6.2 2.x"))).toBe(false);
+      expect(existsSync(join(repo, "README.md"))).toBe(true);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
