@@ -9,11 +9,16 @@ import {
   VEHICLE_ORDER_TABLE,
   VEHICLE_QUALITY_RULESET_TABLE,
 } from "../../fixtures/data-quality-tables";
+import {
+  expectDqSuccess,
+  waitForDqJson,
+} from "../../../../../../../_shared/automation/pages/data-quality/api";
 import type { DqApiResponse } from "../../../../../../../_shared/automation/pages/data-quality/contracts";
 import {
   getDefaultDatasource,
   gotoDataQualityPage,
 } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import { expectNonEmptyString } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
   downloadDqArtifactWithSuggestedName,
   expectDownloadedArtifactContains,
@@ -30,13 +35,10 @@ import {
   clickDqText,
   closeDqOverlay,
   exactTextPattern,
-  expectDqSuccess,
-  expectNonEmptyString,
   fillDqFormItemInput,
   fillDqPageFormField,
   getActiveAntdOptionTexts,
   selectDqFormOptions,
-  waitForDqJson,
 } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 type DqGeneratedReportRecord = {

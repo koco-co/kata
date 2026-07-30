@@ -3,6 +3,10 @@
 import { buildDataAssetsApiUrl } from "../../../../../../../_shared/automation/runtime/env-setup";
 import { existsSync, unlinkSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
+import {
+  expectDqSuccess,
+  waitForDqJson,
+} from "../../../../../../../_shared/automation/pages/data-quality/api";
 import type {
   DqApiResponse,
   DqMonitorRecord,
@@ -13,18 +17,16 @@ import {
   gotoDataQualityPage,
 } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
 import {
+  expectMonitorRecordPage,
+  expectNonEmptyString,
+} from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
+import {
   downloadDqArtifactWithSuggestedName,
   expectDownloadedArtifactContains,
   expectDqApiPaths,
   expectDqPage,
   selectDqDateRange,
 } from "./page-context";
-import {
-  expectDqSuccess,
-  expectMonitorRecordPage,
-  expectNonEmptyString,
-  waitForDqJson,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 type DqMonitorRecordCandidateOptions = {
   fuzzyName: string;

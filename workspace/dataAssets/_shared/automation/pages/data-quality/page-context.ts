@@ -1,27 +1,17 @@
-// 数据质量跨需求共享的 API 与页面交互能力；项目上下文由 project-context.ts 负责。
+// 数据质量跨需求共享的页面交互能力。
 
-import { buildDataAssetsApiUrl } from "../../runtime/env-setup";
 import { waitForUiSettled } from "../../../../../../runtime/automation/playwright";
 import { expect, type Page } from "@playwright/test";
+import { getDqRuleTaskRecords, waitForRuleTaskPageQuery } from "./api";
 import type {
-  DqApiResponse,
-  DqMonitorRecord,
-  DqMonitorRecordPage,
-  DqRuleBaseCustomSqlPage,
-  DqRuleBaseCustomSqlRecord,
-  DqRuleSetPageData,
-  DqRuleSetRecord,
-  DqRuleTaskPageQuery,
   DqRuleTaskRecord,
   SparkThriftQualityRuleValidationScenario,
 } from "./contracts";
 import {
   getDefaultDatasource,
-  getProjectId,
   getScenarioDatasource,
   gotoDataQualityPage,
   injectDataQualityProjectContext,
-  PROJECT_STORAGE_KEY,
 } from "./project-context";
 
 export async function getActiveAntdOptionTexts(page: Page): Promise<string[]> {
@@ -115,124 +105,6 @@ export async function gotoNewRuleTaskMonitorObjectPageForTable(
     await selectDqFormOptionBySearch(page, /对比表|比较表|关联表/, comparisonTableName, sourceRef);
   }
   return body;
-}
-
-export function waitForDqJson<T>(
-  page: Page,
-  apiPath: string,
-  matches?: (payload: DqApiResponse<T>) => boolean,
-): Promise<DqApiResponse<T>> {
-  return page
-    .waitForResponse(
-      async (response) => {
-        if (!response.url().includes(apiPath) || response.status() !== 200) return false;
-        if (!matches) return true;
-        return matches((await response.json()) as DqApiResponse<T>);
-      },
-      { timeout: 60000 },
-    )
-    .then((response) => response.json() as Promise<DqApiResponse<T>>);
-}
-
-export function expectDqSuccess<T>(payload: DqApiResponse<T>, message: string): T {
-  expect(payload.success ?? payload.code === 1, message).toBe(true);
-  expect(payload.data, `${message}: data 应存在`).toBeTruthy();
-  return payload.data as T;
-}
-
-export async function deleteCustomSqlByNameBestEffort(
-  page: Page,
-  sourceRef: string,
-  ruleName: string,
-): Promise<void> {
-  const records = await listCustomSqlRecords(page, sourceRef);
-  for (const record of records.filter((item) => item.ruleName === ruleName)) {
-    expect(
-      Number(record.associationRuleCount),
-      `${sourceRef}: 清理同名自定义 SQL 前不应存在引用规则`,
-    ).toBe(0);
-    await deleteCustomSqlById(page, sourceRef, record.id);
-  }
-}
-
-export async function listCustomSqlRecords(
-  page: Page,
-  sourceRef: string,
-): Promise<DqRuleBaseCustomSqlRecord[]> {
-  const response = await page.request.post(
-    buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleCustom/pageList"),
-    {
-      data: { current: 1, size: 100 },
-      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
-      timeout: 60000,
-    },
-  );
-  expect(response.ok(), `${sourceRef}: 查询自定义 SQL 模版列表 HTTP 应成功`).toBe(true);
-  const payload = (await response.json()) as DqApiResponse<DqRuleBaseCustomSqlPage>;
-  return (
-    expectDqSuccess(payload, `${sourceRef}: 查询自定义 SQL 模版列表应请求成功`).contentList ?? []
-  );
-}
-
-export async function deleteCustomSqlById(
-  page: Page,
-  sourceRef: string,
-  ruleId: string | number | undefined,
-): Promise<void> {
-  expect(ruleId, `${sourceRef}: 删除自定义 SQL 模版应有 id`).toBeTruthy();
-  const response = await page.request.post(
-    buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleCustom/delete"),
-    {
-      data: { id: String(ruleId) },
-      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
-      timeout: 60000,
-    },
-  );
-  expect(response.ok(), `${sourceRef}: 删除自定义 SQL 模版 HTTP 应成功`).toBe(true);
-  expectDqSuccess(
-    (await response.json()) as DqApiResponse<boolean>,
-    `${sourceRef}: 删除自定义 SQL 模版应请求成功`,
-  );
-}
-
-export function formatRuleBaseCustomRuleType(ruleType: unknown, sourceRef: string): string {
-  const labels = new Map<unknown, string>([
-    [1, "完整性校验"],
-    [2, "唯一性校验"],
-    [3, "有效性校验"],
-    [6, "统计性校验"],
-    [7, "一致性校验"],
-    [8, "时效性校验"],
-    [9, "合理性校验"],
-  ]);
-  const label = labels.get(ruleType);
-  expect(label, `${sourceRef}: 自定义规则分类编码应可映射`).toBeTruthy();
-  return label as string;
-}
-
-export function formatRuleBaseCustomRelationRange(
-  relationRange: unknown,
-  sourceRef: string,
-): string {
-  const labels = new Map<unknown, string>([
-    [1, "多表"],
-    [2, "单表"],
-    [3, "字段"],
-  ]);
-  const label = labels.get(relationRange);
-  expect(label, `${sourceRef}: 自定义规则关联范围编码应可映射`).toBeTruthy();
-  return label as string;
-}
-
-export function getRuleSetPageRecordsAllowEmpty(
-  pageData: DqRuleSetPageData,
-  message: string,
-): DqRuleSetRecord[] {
-  const records = pageData.contentList ?? [];
-  expect(Number(pageData.current), `${message}: current 应为数字`).toBeGreaterThan(0);
-  expect(Number(pageData.size), `${message}: size 应为数字`).toBeGreaterThan(0);
-  expect(Number(pageData.total), `${message}: total 应为数字`).not.toBeNaN();
-  return records;
 }
 
 export async function clickDqText(page: Page, label: string, sourceRef: string): Promise<void> {
@@ -624,26 +496,6 @@ async function confirmRuleSetSavePromptIfVisible(
     timeout: 30000,
   });
   return true;
-}
-
-export async function queryRuleSetRecords(
-  page: Page,
-  tableName: string,
-): Promise<DqRuleSetRecord[]> {
-  const response = await page.request.post(
-    buildDataAssetsApiUrl("/dassets/v1/valid/monitorRuleSet/pageQuery"),
-    {
-      data: { current: 1, size: 100, tableName },
-      headers: { [PROJECT_STORAGE_KEY]: String(getProjectId()) },
-      timeout: 60000,
-    },
-  );
-  expect(response.ok(), `查询规则集列表 HTTP 应成功`).toBe(true);
-  const pageData = expectDqSuccess(
-    (await response.json()) as DqApiResponse<DqRuleSetPageData>,
-    `查询规则集列表应请求成功`,
-  );
-  return getRuleSetPageRecordsAllowEmpty(pageData, `查询规则集列表应返回分页结构`);
 }
 
 async function selectVisibleDqOption(
@@ -1147,22 +999,6 @@ export async function saveRuleSetRuleRow(
   });
 }
 
-export function getDqRuleTaskRecords(payload: DqRuleTaskPageQuery): DqRuleTaskRecord[] {
-  return (
-    payload.data?.data ?? payload.data?.rows ?? payload.data?.list ?? payload.data?.records ?? []
-  );
-}
-
-export function waitForRuleTaskPageQuery(page: Page): Promise<DqRuleTaskPageQuery> {
-  return page
-    .waitForResponse(
-      (response) =>
-        response.url().includes("/dassets/v1/valid/monitor/pageQuery") && response.status() === 200,
-      { timeout: 60000 },
-    )
-    .then((response) => response.json() as Promise<DqRuleTaskPageQuery>);
-}
-
 export async function searchRuleTaskByTableName(
   page: Page,
   tableName: string,
@@ -1197,52 +1033,4 @@ export function escapeRegExp(value: string): string {
 
 export function exactTextPattern(value: string): RegExp {
   return new RegExp(`^\\s*${escapeRegExp(value)}\\s*$`);
-}
-
-export function expectNonEmptyString(value: unknown, message: string): string {
-  expect(typeof value, message).toBe("string");
-  const text = value as string;
-  expect(text.length, message).toBeGreaterThan(0);
-  return text;
-}
-
-export function expectMonitorRecordPage(
-  pageData: DqMonitorRecordPage,
-  message: string,
-): DqMonitorRecord[] {
-  const records = pageData.data ?? [];
-  expect(pageData.currentPage, `${message}: currentPage 应为数字`).toBeGreaterThan(0);
-  expect(pageData.pageSize, `${message}: pageSize 应为数字`).toBeGreaterThan(0);
-  expect(pageData.totalCount, `${message}: totalCount 应覆盖当前返回记录数`).toBeGreaterThanOrEqual(
-    records.length,
-  );
-  expect(records.length, message).toBeGreaterThan(0);
-  for (const record of records) {
-    expectNonEmptyString(record.tableName, `${message}: 实例应包含表名`);
-    expectNonEmptyString(record.ruleName, `${message}: 实例应包含任务名称`);
-    formatMonitorRecordStatus(record.status, message);
-    expectNonEmptyString(record.sourceTypeName, `${message}: 实例应包含数据源类型`);
-    expectNonEmptyString(record.sourceName, `${message}: 实例应包含数据源名称`);
-    expectNonEmptyString(record.cycTime, `${message}: 实例应包含计划时间`);
-    expectNonEmptyString(record.modifyUser, `${message}: 实例应包含最近修改人`);
-  }
-  return records;
-}
-
-export function formatMonitorRecordStatus(status: unknown, sourceRef: string): string {
-  const numericStatus = Number(status);
-  const labels = new Map<number, string>([
-    [0, "未运行"],
-    [1, "运行中"],
-    [2, "校验中"],
-    [3, "校验通过"],
-    [4, "校验失败"],
-    [5, "等待运行"],
-    [6, "取消"],
-    [7, "冻结"],
-    [11, "校验异常"],
-  ]);
-  const label = labels.get(numericStatus);
-  expect(label, `${sourceRef}: monitorRecord status=${String(status)} 应为已知状态`).toBeTruthy();
-  return label as string;
 }

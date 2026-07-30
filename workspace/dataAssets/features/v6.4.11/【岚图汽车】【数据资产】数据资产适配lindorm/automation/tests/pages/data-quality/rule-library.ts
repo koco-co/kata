@@ -8,6 +8,15 @@ import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
 import { DQ_RULE_MAIN_TABLE } from "../../fixtures/data-quality-tables";
+import {
+  deleteCustomSqlById,
+  deleteCustomSqlByNameBestEffort,
+  expectDqSuccess,
+  getDqRuleTaskRecords,
+  queryRuleSetRecords,
+  waitForDqJson,
+  waitForRuleTaskPageQuery,
+} from "../../../../../../../_shared/automation/pages/data-quality/api";
 import type {
   DqApiResponse,
   DqRuleBaseCustomSqlPage,
@@ -24,6 +33,11 @@ import {
   gotoDataQualityPage,
   PROJECT_STORAGE_KEY,
 } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import {
+  expectNonEmptyString,
+  formatRuleBaseCustomRelationRange,
+  formatRuleBaseCustomRuleType,
+} from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
   expectDqAdminFullMenu,
   expectDqApiPaths,
@@ -48,23 +62,13 @@ import {
   clickRuleSetPackageAddButton,
   clickRuleSetSubmitButton,
   configureManualPartition,
-  deleteCustomSqlById,
-  deleteCustomSqlByNameBestEffort,
-  expectDqSuccess,
-  expectNonEmptyString,
   fillRuleSetRuleDescription,
-  formatRuleBaseCustomRelationRange,
-  formatRuleBaseCustomRuleType,
   getActiveAntdOptionTexts,
-  getDqRuleTaskRecords,
   gotoNewRuleTaskMonitorObjectPageForTable,
-  queryRuleSetRecords,
   saveRuleSetRuleRow,
   selectRuleSetField,
   selectRuleTaskRulePackageOnCurrentPage,
   switchRuleSetStrength,
-  waitForDqJson,
-  waitForRuleTaskPageQuery,
 } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 type DqRuleBaseTemplateRecord = {

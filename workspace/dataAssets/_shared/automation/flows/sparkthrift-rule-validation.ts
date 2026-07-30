@@ -5,6 +5,15 @@ import { buildDataAssetsApiUrl } from "../runtime/env-setup";
 import { waitForUiSettled } from "../../../../../runtime/automation/playwright";
 import { expect, type Page } from "@playwright/test";
 import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/config/playwright";
+import {
+  deleteCustomSqlByNameBestEffort,
+  expectDqSuccess,
+  getDqRuleTaskRecords,
+  listCustomSqlRecords,
+  queryRuleSetRecords,
+  waitForDqJson,
+  waitForRuleTaskPageQuery,
+} from "../pages/data-quality/api";
 import type {
   DqApiResponse,
   DqMonitorRecord,
@@ -23,6 +32,14 @@ import {
   PROJECT_STORAGE_KEY,
 } from "../pages/data-quality/project-context";
 import {
+  expectMonitorRecordPage,
+  expectNonEmptyString,
+  formatMonitorRecordStatus,
+  formatRuleBaseCustomRelationRange,
+  formatRuleBaseCustomRuleType,
+  getRuleSetPageRecordsAllowEmpty,
+} from "../pages/data-quality/record-assertions";
+import {
   checkDqNoReport,
   chooseDqFieldOptionByText,
   chooseFirstDqSelectOption,
@@ -36,24 +53,13 @@ import {
   clickRuleSetSubmitButton,
   closeVisibleDqOverlayIfAny,
   configureManualPartition,
-  deleteCustomSqlByNameBestEffort,
   escapeRegExp,
-  expectDqSuccess,
-  expectMonitorRecordPage,
-  expectNonEmptyString,
   fillDqFormItemInput,
   fillDqPageFormField,
   fillRuleSetRuleDescription,
-  formatMonitorRecordStatus,
-  formatRuleBaseCustomRelationRange,
-  formatRuleBaseCustomRuleType,
-  getDqRuleTaskRecords,
-  getRuleSetPageRecordsAllowEmpty,
   gotoMonitorRecordQueryPage,
   gotoNewRuleTaskMonitorObjectPageForTable,
   gotoRuleTaskScheduleAttributesPage,
-  listCustomSqlRecords,
-  queryRuleSetRecords,
   runRuleTaskImmediately,
   saveRuleSetRuleRow,
   searchRuleTaskByTableName,
@@ -62,8 +68,6 @@ import {
   selectRuleTaskRulePackageOnCurrentPage,
   submitMonitorRecordSearch,
   switchRuleSetStrength,
-  waitForDqJson,
-  waitForRuleTaskPageQuery,
 } from "../pages/data-quality/page-context";
 
 type DqGlobalParamRecord = {

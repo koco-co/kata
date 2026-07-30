@@ -10,7 +10,7 @@ import type {
   DqRuleSetRecord,
 } from "../../../../../../../_shared/automation/pages/data-quality/contracts";
 import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
-import { expectNonEmptyString } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+import { expectNonEmptyString } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 
 type DqPageTarget = {
   path: string;

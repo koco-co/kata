@@ -3,22 +3,24 @@
 import { expect, type Page } from "@playwright/test";
 import { VEHICLE_QUALITY_RULESET_TABLE } from "../../fixtures/data-quality-tables";
 import { expectDqPage } from "./page-context";
+import {
+  expectDqSuccess,
+  getDqRuleTaskRecords,
+  waitForDqJson,
+  waitForRuleTaskPageQuery,
+} from "../../../../../../../_shared/automation/pages/data-quality/api";
 import type { DqMonitorRecordPage } from "../../../../../../../_shared/automation/pages/data-quality/contracts";
 import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import { expectMonitorRecordPage } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
   chooseDqFieldOptionByText,
   clickDqCompactButton,
   clickDqText,
-  expectDqSuccess,
-  expectMonitorRecordPage,
-  getDqRuleTaskRecords,
   gotoMonitorRecordQueryPage,
   gotoRuleTaskScheduleAttributesPage,
   runRuleTaskImmediately,
   searchRuleTaskByTableName,
   submitMonitorRecordSearch,
-  waitForDqJson,
-  waitForRuleTaskPageQuery,
 } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 export async function expectDataQualityRuleShell(page: Page, sourceRef: string): Promise<void> {

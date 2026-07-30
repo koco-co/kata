@@ -8,6 +8,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
+import {
+  expectDqSuccess,
+  waitForDqJson,
+} from "../../../../../../../_shared/automation/pages/data-quality/api";
 import type {
   DqApiResponse,
   DqRuleSetPageData,
@@ -17,6 +21,7 @@ import {
   gotoDataQualityPage,
   PROJECT_STORAGE_KEY,
 } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import { expectNonEmptyString } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
   expectDqAdminFullMenu,
   expectDqApiPaths,
@@ -25,12 +30,7 @@ import {
   expectRuleSetPage,
   expectRuleSetSearchTarget,
 } from "./page-context";
-import {
-  clickDqCompactButton,
-  expectDqSuccess,
-  expectNonEmptyString,
-  waitForDqJson,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+import { clickDqCompactButton } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
 
 function getQualityProjectName(): string {
   return getEnvConfig().projects.quality.name;
