@@ -204,12 +204,13 @@ Usage: kata defects [options] [command]
 缺陷报告生成与结构校验
 
 Options:
-  -h, --help        display help for command
+  -h, --help         display help for command
 
 Commands:
-  hotfix [options]  从 ZenTao Bug 证据生成 Markdown hotfix 回归报告
-  lint [options]    校验正式 Markdown 缺陷报告结构
-  help [command]    display help for command
+  hotfix [options]   从 ZenTao Bug 证据生成 Markdown hotfix 回归报告
+  lint [options]     校验正式 Markdown 缺陷报告结构
+  publish [options]  校验并发布正式缺陷报告完成通知
+  help [command]     display help for command
 ```
 
 ## kata infra
@@ -471,7 +472,8 @@ Usage: kata config plugins-migrate [options]
 
 Options:
   --source <path>  旧 dotenv 文件路径
-  --root <path>    目标 Kata 工作区根目录 (default: "<kata-root>")
+  --root <path>    目标 Kata 工作区根目录 (default:
+                   "<kata-root>")
   --apply          写入 config/plugin/*.yaml
   -h, --help       display help for command
 ```
@@ -858,6 +860,19 @@ Options:
   -h, --help       display help for command
 ```
 
+## kata defects publish
+
+```text
+Usage: kata defects publish [options]
+
+校验并发布正式缺陷报告完成通知
+
+Options:
+  --report <path>  报告 Markdown 路径
+  --confirmed      确认报告已完成评审并允许发送通知
+  -h, --help       display help for command
+```
+
 ## kata infra lint
 
 ```text
@@ -1197,13 +1212,13 @@ Options:
 支持事件:
 cases-built  用例构建完成
 cases-imported  历史用例导入完成
-ui-test-completed  UI 自动化验证通过
-ui-test-failed  UI 自动化验证失败
+ui-test-completed  UI 自动化通过
+ui-test-failed  UI 自动化失败
 ui-test-needs-input  UI 自动化等待确认
-bug-analysis-completed  缺陷分析报告校验完成
-conflict-analysis-completed  冲突分析报告校验完成
-scan-completed  扫描报告校验完成
-hotfix-report-created  Hotfix 回归报告创建完成
+bug-analysis-completed  缺陷分析完成
+conflict-analysis-completed  冲突分析完成
+scan-completed  代码扫描完成
+hotfix-report-created  Hotfix 回归报告完成
 
 使用 --describe <event> 查看严格字段契约。
 ```

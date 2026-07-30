@@ -9,7 +9,7 @@
 
 import crypto from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { writeJsonAtomic } from "../lib/atomic-writer.ts";
 import { loadNotifyConfig, type NotifyPluginConfig } from "../lib/plugin-config.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
@@ -38,6 +38,47 @@ export interface FailedCase {
 export interface FormattedMessage {
   title: string;
   text: string;
+}
+
+export interface NotificationCardRow {
+  icon: string;
+  label: string;
+  value: string | number;
+}
+
+export interface NotificationCard {
+  status: "success" | "failed" | "waiting" | "warning";
+  emoji: "✅" | "❌" | "⏳" | "⚠️";
+  title: string;
+  subject: string;
+  rows: NotificationCardRow[];
+  callout?: string;
+  details?: string[];
+  footer: string;
+}
+
+export interface FeishuInteractiveMessage {
+  msg_type: "interactive";
+  card: {
+    schema: "2.0";
+    config: { update_multi: true };
+    body: {
+      direction: "vertical";
+      padding: string;
+      elements: Array<Record<string, unknown>>;
+    };
+    header: {
+      title: { tag: "plain_text"; content: string };
+      template: "green" | "red" | "orange" | "yellow";
+      padding: string;
+    };
+  };
+}
+
+export interface EmailCardMessage {
+  subject: string;
+  text: string;
+  html: string;
 }
 
 interface FieldSpec {
@@ -82,7 +123,7 @@ export const EVENT_SCHEMAS: Record<NotificationEventType, EventSchema> = {
     ],
   },
   "ui-test-completed": {
-    action: "UI 自动化验证通过",
+    action: "UI 自动化通过",
     fields: [
       ...CONTEXT,
       { name: "run_id", type: "string", required: true },
@@ -95,7 +136,7 @@ export const EVENT_SCHEMAS: Record<NotificationEventType, EventSchema> = {
     ],
   },
   "ui-test-failed": {
-    action: "UI 自动化验证失败",
+    action: "UI 自动化失败",
     fields: [
       ...CONTEXT,
       { name: "run_id", type: "string", required: true },
@@ -119,20 +160,37 @@ export const EVENT_SCHEMAS: Record<NotificationEventType, EventSchema> = {
     ],
   },
   "bug-analysis-completed": {
-    action: "缺陷分析报告校验完成",
-    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+    action: "缺陷分析完成",
+    fields: [
+      ...CONTEXT,
+      { name: "report_path", type: "string", required: true },
+      { name: "severity", type: "string" },
+      { name: "summary", type: "string" },
+    ],
   },
   "conflict-analysis-completed": {
-    action: "冲突分析报告校验完成",
-    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+    action: "冲突分析完成",
+    fields: [
+      ...CONTEXT,
+      { name: "report_path", type: "string", required: true },
+      { name: "summary", type: "string" },
+    ],
   },
   "scan-completed": {
-    action: "扫描报告校验完成",
-    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+    action: "代码扫描完成",
+    fields: [
+      ...CONTEXT,
+      { name: "report_path", type: "string", required: true },
+      { name: "summary", type: "string" },
+    ],
   },
   "hotfix-report-created": {
-    action: "Hotfix 回归报告创建完成",
-    fields: [...CONTEXT, { name: "report_path", type: "string", required: true }],
+    action: "Hotfix 回归报告完成",
+    fields: [
+      ...CONTEXT,
+      { name: "report_path", type: "string", required: true },
+      { name: "summary", type: "string" },
+    ],
   },
 };
 
@@ -252,73 +310,308 @@ function durationText(value: number): string {
   return `${minutes} 分 ${seconds % 60} 秒`;
 }
 
-function line(label: string, value: unknown): string[] {
-  return typeof value === "string" && value !== ""
-    ? [`${label}：${value}`]
-    : typeof value === "number"
-      ? [`${label}：${value}`]
-      : [];
+function shortPath(value: string): string {
+  return basename(value.replaceAll("\\", "/"));
 }
 
-function pathLines(label: string, paths: string[]): string[] {
-  return paths.length === 0 ? [] : [`${label}：`, ...paths.map((path) => `- ${path}`)];
+function shortPaths(value: NotificationValue | undefined): string | undefined {
+  if (!Array.isArray(value) || value.length === 0) return undefined;
+  const names = value.filter((item): item is string => typeof item === "string").map(shortPath);
+  return names.length > 0 ? names.join("、") : undefined;
 }
 
-/** Render a concise DingTalk-safe, non-tabular message. */
+function cleanSubject(value: NotificationValue | undefined): string {
+  if (typeof value !== "string") return "";
+  return value
+    .replace(
+      /^(?:Bug|Conflict|Scan)\s*分析报告[：:]\s*|^(?:缺陷|冲突|扫描)\s*分析报告[：:]\s*/i,
+      "",
+    )
+    .trim();
+}
+
+function conciseSummary(value: NotificationValue | undefined, limit = 80): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const summary = value
+    .split(/\n\s*\n/)[0]
+    ?.replace(/\s+/g, " ")
+    .trim();
+  if (!summary) return undefined;
+  return summary.length > limit ? `${summary.slice(0, limit)}…` : summary;
+}
+
+function severityLabel(value: NotificationValue | undefined): string | undefined {
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+  const normalized = value.trim().toLowerCase();
+  return `${normalized.charAt(0).toUpperCase()}${normalized.slice(1)}`;
+}
+
+function shortCompletedAt(value: NotificationValue | undefined): string {
+  if (typeof value !== "string") return "";
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})(?:\s+\S+)?$/);
+  return match
+    ? `${match[1]}/${match[2]}/${match[3]} ${match[4]}:${match[5]}:${match[6]}`
+    : value.replace(/\s+Asia\/Taipei$/, "");
+}
+
+function row(
+  icon: string,
+  label: string,
+  value: NotificationValue | string | undefined,
+): NotificationCardRow | undefined {
+  if (typeof value === "number") return { icon, label, value };
+  if (typeof value === "string" && value.trim() !== "") return { icon, label, value: value.trim() };
+  return undefined;
+}
+
+function compactRows(rows: Array<NotificationCardRow | undefined>): NotificationCardRow[] {
+  return rows.filter((item): item is NotificationCardRow => item !== undefined);
+}
+
+function statusForEvent(event: NotificationEventType): Pick<NotificationCard, "status" | "emoji"> {
+  if (event === "ui-test-failed") return { status: "failed", emoji: "❌" };
+  if (event === "ui-test-needs-input") return { status: "waiting", emoji: "⏳" };
+  return { status: "success", emoji: "✅" };
+}
+
+function isReportEvent(event: NotificationEventType): boolean {
+  return [
+    "bug-analysis-completed",
+    "conflict-analysis-completed",
+    "scan-completed",
+    "hotfix-report-created",
+  ].includes(event);
+}
+
+/** Build one channel-neutral notification card from the strict event payload. */
+export function buildNotificationCard(
+  event: NotificationEventType,
+  data: NotificationData,
+): NotificationCard {
+  assertValidNotification(event, data);
+  const status = statusForEvent(event);
+  const rows: Array<NotificationCardRow | undefined> = [row("📦", "项目", data.project)];
+  if (!isReportEvent(event)) rows.push(row("🏷️", "版本", data.version));
+  let callout: string | undefined;
+  let details: string[] | undefined;
+
+  if (event === "cases-built") {
+    rows.push(
+      row("📊", "用例数", data.case_count),
+      row("🆕", "新增", data.created_count),
+      row("♻️", "更新", data.updated_count),
+      row("📄", "产物", shortPaths(data.artifact_paths)),
+      row("⏱️", "耗时", durationText(data.duration_ms as number)),
+    );
+  } else if (event === "cases-imported") {
+    rows.push(
+      row("📥", "输入格式", data.source_format),
+      row(
+        "📂",
+        "输入文件",
+        typeof data.source_path === "string" ? shortPath(data.source_path) : undefined,
+      ),
+      row("🧩", "需求数", data.feature_count),
+      row("📊", "用例数", data.case_count),
+      row("📝", "YAML", shortPaths(data.yaml_paths)),
+    );
+  } else if (event === "ui-test-completed" || event === "ui-test-failed") {
+    rows.push(
+      row("🆔", "运行", data.run_id),
+      row("✅", "通过", data.passed),
+      row("❌", "失败", data.failed),
+      row("⚠️", "异常", data.broken),
+      row("⏭️", "跳过", data.skipped),
+      row("⏱️", "耗时", durationText(data.duration_ms as number)),
+      row(
+        "📊",
+        "Allure",
+        typeof data.allure_path === "string" ? shortPath(data.allure_path) : undefined,
+      ),
+    );
+    if (event === "ui-test-failed") {
+      const failed = data.failed_cases as FailedCase[];
+      details = failed
+        .slice(0, 3)
+        .map(
+          (item, index) => `${index + 1}. ${item.title}${item.message ? `：${item.message}` : ""}`,
+        );
+      if (failed.length > 3) details.push(`另有 ${failed.length - 3} 条，详见 Allure`);
+    }
+  } else if (event === "ui-test-needs-input") {
+    rows.push(row("🆔", "运行", data.run_id), row("🧪", "用例", data.case_title));
+    callout = typeof data.question === "string" ? data.question : undefined;
+  } else {
+    rows.push(
+      row("💡", "结论", conciseSummary(data.summary)),
+      event === "bug-analysis-completed"
+        ? row("🐛", "严重程度", severityLabel(data.severity))
+        : undefined,
+      row(
+        "📄",
+        "报告",
+        typeof data.report_path === "string" ? shortPath(data.report_path) : undefined,
+      ),
+    );
+  }
+
+  return {
+    ...status,
+    title: EVENT_SCHEMAS[event].action,
+    subject: cleanSubject(data.feature),
+    rows: compactRows(rows),
+    ...(callout ? { callout } : {}),
+    ...(details && details.length > 0 ? { details } : {}),
+    footer: `🕐 ${shortCompletedAt(data.completed_at)} · Kata`,
+  };
+}
+
+function markdownCell(value: string | number): string {
+  return String(value).replaceAll("\\", "\\\\").replaceAll("|", "\\|").replace(/\r?\n/g, "<br>");
+}
+
+function markdownInline(value: string): string {
+  return value.replaceAll("\\", "\\\\").replaceAll("*", "\\*").replace(/\r?\n/g, " ");
+}
+
+/** Render the DingTalk/WeCom Markdown card. */
+export function renderMarkdownCard(card: NotificationCard): FormattedMessage {
+  const title = `${card.emoji} ${card.title}`;
+  const lines = [`## ${title}`, "", `> **${markdownInline(card.subject)}**`];
+  if (card.callout) lines.push("", `> ${markdownInline(card.callout)}`);
+  if (card.rows.length > 0) {
+    lines.push("", "| 项目 | 详情 |", "| --- | --- |");
+    for (const item of card.rows) {
+      lines.push(`| ${item.icon} ${item.label} | ${markdownCell(item.value)} |`);
+    }
+  }
+  if (card.details && card.details.length > 0) {
+    lines.push("", "**失败用例**", ...card.details.map((item) => markdownInline(item)));
+  }
+  lines.push("", "---", "", card.footer);
+  return { title, text: lines.join("\n") };
+}
+
+function renderPlainTextCard(card: NotificationCard): FormattedMessage {
+  const title = `${card.emoji} ${card.title}`;
+  const lines = [title, card.subject];
+  if (card.callout) lines.push(card.callout);
+  for (const item of card.rows) lines.push(`${item.icon} ${item.label}：${item.value}`);
+  if (card.details) lines.push(...card.details);
+  lines.push(card.footer);
+  return { title, text: lines.join("\n") };
+}
+
+function htmlEscape(value: string | number): string {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+/** Render a multipart email payload with an HTML table and plain-text fallback. */
+export function renderEmailCard(card: NotificationCard): EmailCardMessage {
+  const plain = renderPlainTextCard(card);
+  const rows = card.rows
+    .map(
+      (item) =>
+        `<tr><th style="text-align:left;padding:8px;border:1px solid #ddd">${htmlEscape(`${item.icon} ${item.label}`)}</th><td style="padding:8px;border:1px solid #ddd">${htmlEscape(item.value)}</td></tr>`,
+    )
+    .join("");
+  const details =
+    card.details && card.details.length > 0
+      ? `<h3>失败用例</h3>${card.details.map((item) => `<p style="margin:8px 0">${htmlEscape(item)}</p>`).join("")}`
+      : "";
+  return {
+    subject: plain.title,
+    text: plain.text,
+    html: [
+      `<h2>${htmlEscape(plain.title)}</h2>`,
+      `<blockquote>${htmlEscape(card.subject)}</blockquote>`,
+      card.callout ? `<blockquote>${htmlEscape(card.callout)}</blockquote>` : "",
+      rows
+        ? `<table style="border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px;border:1px solid #ddd">项目</th><th style="text-align:left;padding:8px;border:1px solid #ddd">详情</th></tr></thead><tbody>${rows}</tbody></table>`
+        : "",
+      details,
+      `<hr><p>${htmlEscape(card.footer)}</p>`,
+    ].join(""),
+  };
+}
+
+/** Render a Feishu custom-bot Interactive Card 2.0 payload. */
+export function renderFeishuCard(card: NotificationCard): FeishuInteractiveMessage {
+  const summaryLines = card.rows.map(
+    (item) => `**${item.icon} ${item.label}**  ${markdownInline(String(item.value))}`,
+  );
+  const elements: Array<Record<string, unknown>> = [
+    {
+      tag: "markdown",
+      content: `**${markdownInline(card.subject)}**`,
+      text_align: "left",
+      text_size: "normal_v2",
+    },
+  ];
+  if (card.callout) {
+    elements.push({
+      tag: "markdown",
+      content: `> ${markdownInline(card.callout)}`,
+      text_align: "left",
+      text_size: "normal_v2",
+    });
+  }
+  if (summaryLines.length > 0) {
+    elements.push({
+      tag: "markdown",
+      content: summaryLines.join("\n"),
+      text_align: "left",
+      text_size: "normal_v2",
+    });
+  }
+  if (card.details && card.details.length > 0) {
+    elements.push({
+      tag: "markdown",
+      content: `**失败用例**\n${card.details.map(markdownInline).join("\n")}`,
+      text_align: "left",
+      text_size: "normal_v2",
+    });
+  }
+  elements.push(
+    { tag: "hr" },
+    { tag: "note", elements: [{ tag: "plain_text", content: card.footer }] },
+  );
+  const template = {
+    success: "green",
+    failed: "red",
+    waiting: "orange",
+    warning: "yellow",
+  }[card.status] as FeishuInteractiveMessage["card"]["header"]["template"];
+  return {
+    msg_type: "interactive",
+    card: {
+      schema: "2.0",
+      config: { update_multi: true },
+      body: {
+        direction: "vertical",
+        padding: "12px 12px 12px 12px",
+        elements,
+      },
+      header: {
+        title: { tag: "plain_text", content: `${card.emoji} ${card.title}` },
+        template,
+        padding: "12px 12px 12px 12px",
+      },
+    },
+  };
+}
+
+/** Backward-compatible preview renderer: DingTalk/WeCom Markdown. */
 export function formatMessage(
   event: NotificationEventType,
   data: NotificationData,
 ): FormattedMessage {
-  assertValidNotification(event, data);
-  const action = EVENT_SCHEMAS[event].action;
-  const title = `[${data.project}][${data.version}][${data.feature}] ${action}`;
-  const lines = [`## ${title}`, ""];
-
-  if (event === "cases-built") {
-    lines.push(
-      ...line("用例数", data.case_count),
-      ...line("新增产物", data.created_count),
-      ...line("更新产物", data.updated_count),
-    );
-    lines.push(...pathLines("本次产物", data.artifact_paths as string[]));
-    lines.push(...line("耗时", durationText(data.duration_ms as number)));
-  } else if (event === "cases-imported") {
-    lines.push(...line("输入格式", data.source_format), ...line("输入文件", data.source_path));
-    lines.push(...line("需求数", data.feature_count), ...line("用例数", data.case_count));
-    lines.push(...pathLines("YAML", data.yaml_paths as string[]));
-  } else if (event === "ui-test-completed" || event === "ui-test-failed") {
-    lines.push(...line("运行", data.run_id));
-    lines.push(
-      ...line("通过", data.passed),
-      ...line("失败", data.failed),
-      ...line("异常", data.broken),
-      ...line("跳过", data.skipped),
-    );
-    lines.push(
-      ...line("耗时", durationText(data.duration_ms as number)),
-      ...line("Allure", data.allure_path),
-    );
-    if (event === "ui-test-failed") {
-      const failed = data.failed_cases as FailedCase[];
-      if (failed.length > 0) {
-        lines.push("失败用例：");
-        for (const item of failed.slice(0, 5))
-          lines.push(`- ${item.title}${item.message ? `：${item.message}` : ""}`);
-        if (failed.length > 5) lines.push(`- 其余 ${failed.length - 5} 条详见 Allure`);
-      }
-    }
-  } else if (event === "ui-test-needs-input") {
-    lines.push(
-      ...line("运行", data.run_id),
-      ...line("用例", data.case_title),
-      ...line("待确认", data.question),
-    );
-    lines.push(...line("待确认记录", data.pending_record_path));
-  } else {
-    lines.push(...line("报告", data.report_path));
-  }
-  lines.push(...line("完成时间", data.completed_at), "", "Kata");
-  return { title, text: lines.join("\n") };
+  return renderMarkdownCard(buildNotificationCard(event, data));
 }
 
 export function formatTaipeiTime(date: Date = new Date()): string {
@@ -352,7 +645,8 @@ function digest(value: unknown): string {
 }
 
 export function eventIdFor(event: NotificationEventType, data: NotificationData): string {
-  return `${event}-${digest({ event, data }).slice(0, 20)}`;
+  const { completed_at: _completedAt, ...identity } = data;
+  return `${event}-${digest({ event, data: identity }).slice(0, 20)}`;
 }
 
 export interface DeliveryState {
@@ -405,7 +699,7 @@ function configAllows(
   return undefined;
 }
 
-type ChannelName = "dingtalk" | "feishu" | "wecom" | "email";
+export type ChannelName = "dingtalk" | "feishu" | "wecom" | "email";
 export type NotificationFetch = (
   input: string | URL | Request,
   init?: RequestInit,
@@ -453,11 +747,12 @@ async function postJson(
 
 async function deliverDingtalk(
   config: NotifyPluginConfig,
-  message: FormattedMessage,
+  card: NotificationCard,
   fetchImpl: NotificationFetch,
 ): Promise<void> {
   const dingtalk = config.dingtalk;
   if (!dingtalk?.webhook_url) throw new DeliveryError("钉钉 webhook 未配置", false);
+  const message = renderMarkdownCard(card);
   const response = await postJson(
     fetchImpl,
     buildDingtalkUrl(dingtalk.webhook_url, dingtalk.sign_secret),
@@ -476,15 +771,12 @@ async function deliverDingtalk(
 
 async function deliverFeishu(
   config: NotifyPluginConfig,
-  message: FormattedMessage,
+  card: NotificationCard,
   fetchImpl: NotificationFetch,
 ): Promise<void> {
   const url = config.feishu?.webhook_url;
   if (!url) throw new DeliveryError("飞书 webhook 未配置", false);
-  const response = await postJson(fetchImpl, url, {
-    msg_type: "text",
-    content: { text: `${message.title}\n${message.text}` },
-  });
+  const response = await postJson(fetchImpl, url, renderFeishuCard(card));
   const result = (await response.json().catch(() => ({}))) as { code?: number };
   if (result.code && result.code !== 0)
     throw new DeliveryError(`飞书业务错误 ${result.code}`, false);
@@ -492,11 +784,12 @@ async function deliverFeishu(
 
 async function deliverWecom(
   config: NotifyPluginConfig,
-  message: FormattedMessage,
+  card: NotificationCard,
   fetchImpl: NotificationFetch,
 ): Promise<void> {
   const url = config.wecom?.webhook_url;
   if (!url) throw new DeliveryError("企微 webhook 未配置", false);
+  const message = renderMarkdownCard(card);
   const response = await postJson(fetchImpl, url, {
     msgtype: "markdown",
     markdown: { content: message.text },
@@ -506,13 +799,14 @@ async function deliverWecom(
     throw new DeliveryError(`企微业务错误 ${result.errcode}`, false);
 }
 
-async function deliverEmail(config: NotifyPluginConfig, message: FormattedMessage): Promise<void> {
+async function deliverEmail(config: NotifyPluginConfig, card: NotificationCard): Promise<void> {
   const smtp = config.smtp;
   if (!smtp?.host || !smtp.user || !smtp.pass || !smtp.from || !smtp.to) {
     throw new DeliveryError("SMTP 配置不完整", false);
   }
   try {
     const nodemailer = await import("nodemailer");
+    const message = renderEmailCard(card);
     const secure = smtp.secure === true || smtp.secure === "true";
     const transporter = nodemailer.default.createTransport({
       host: smtp.host,
@@ -523,8 +817,9 @@ async function deliverEmail(config: NotifyPluginConfig, message: FormattedMessag
     await transporter.sendMail({
       from: smtp.from,
       to: smtp.to,
-      subject: `[kata] ${message.title}`,
+      subject: `[Kata] ${message.subject}`,
       text: message.text,
+      html: message.html,
     });
   } catch {
     throw new DeliveryError("SMTP 网络或投递错误", true);
@@ -551,15 +846,15 @@ function enabledChannels(config: NotifyPluginConfig): ChannelName[] {
 async function deliverWithRetry(
   channel: ChannelName,
   config: NotifyPluginConfig,
-  message: FormattedMessage,
+  card: NotificationCard,
   fetchImpl: NotificationFetch,
 ): Promise<{ attempts: number; error?: string }> {
   for (let attempts = 1; attempts <= 3; attempts += 1) {
     try {
-      if (channel === "dingtalk") await deliverDingtalk(config, message, fetchImpl);
-      else if (channel === "feishu") await deliverFeishu(config, message, fetchImpl);
-      else if (channel === "wecom") await deliverWecom(config, message, fetchImpl);
-      else await deliverEmail(config, message);
+      if (channel === "dingtalk") await deliverDingtalk(config, card, fetchImpl);
+      else if (channel === "feishu") await deliverFeishu(config, card, fetchImpl);
+      else if (channel === "wecom") await deliverWecom(config, card, fetchImpl);
+      else await deliverEmail(config, card);
       return { attempts };
     } catch (error) {
       const reason =
@@ -599,11 +894,12 @@ export async function emitBusinessNotification(
   let ledger = readLedger(path);
   if (!ledger) {
     const now = formatTaipeiTime(options.now);
+    const { completed_at: _completedAt, ...identity } = data;
     ledger = {
       schema_version: 1,
       event_id: eventId,
       event,
-      idempotency_key: digest({ event, data }),
+      idempotency_key: digest({ event, data: identity }),
       data,
       created_at: now,
       updated_at: now,
@@ -646,13 +942,13 @@ export async function emitBusinessNotification(
     return { event_id: eventId, state: "skipped", sent: [], failed: [], reason };
   }
 
-  const message = formatMessage(event, data);
+  const card = buildNotificationCard(event, data);
   const sent: string[] = [];
   const failed: string[] = [];
   for (const channel of channels) {
     const previous = ledger.deliveries[channel];
     if (previous?.status === "sent") continue;
-    const outcome = await deliverWithRetry(channel, config, message, options.fetchImpl ?? fetch);
+    const outcome = await deliverWithRetry(channel, config, card, options.fetchImpl ?? fetch);
     ledger.deliveries[channel] = {
       status: outcome.error ? "failed" : "sent",
       attempts: (previous?.attempts ?? 0) + outcome.attempts,

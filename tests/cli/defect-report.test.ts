@@ -1,8 +1,18 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { lintMarkdownReport, parseBugReportMarkdown } from "../../cli/lib/defect-report.ts";
+
+const kata = resolve(import.meta.dir, "../../cli/bin/kata.ts");
 
 function reportPath(kind = "bug") {
   const root = mkdtempSync(join(tmpdir(), "kata-report-"));
@@ -142,5 +152,75 @@ describe("formal Markdown defect reports", () => {
     const path = reportPath("scan");
     writeFileSync(path, "# Scan：<一句话标题>\n\n## 结论\n待补充\n");
     expect(lintMarkdownReport(path).violations.length).toBeGreaterThan(0);
+  });
+
+  it("keeps lint side-effect free and sends only through explicit publish", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-defect-publish-"));
+    const path = join(
+      root,
+      "workspace",
+      "dataAssets",
+      "analyses",
+      "bug-report",
+      "202607",
+      "git-ref.md",
+    );
+    mkdirSync(join(path, ".."), { recursive: true });
+    writeFileSync(
+      path,
+      [
+        "# Bug 分析报告：非法引用阻断源码更新",
+        "",
+        "- 严重程度：major",
+        "",
+        "## 结论",
+        "非法 origin 引用导致 fetch 失败，隔离后恢复。",
+        "## 证据",
+        "Git 报告 bad object。",
+        "## 实际行为",
+        "源码更新失败。",
+        "## 预期行为",
+        "源码更新成功。",
+        "## 复现步骤",
+        "1. 执行 repos prepare。",
+        "## 影响范围",
+        "源码准备流程。",
+        "## 根因",
+        "远端跟踪引用名称非法。",
+        "## 建议",
+        "隔离非法引用后重试。",
+      ].join("\n"),
+    );
+    const stateDir = join(root, "workspace", "dataAssets", ".state", "notifications");
+
+    const linted = spawnSync("bun", [kata, "defects", "lint", "--report", path, "--exit-code"], {
+      encoding: "utf8",
+    });
+    expect(linted.status).toBe(0);
+    expect(existsSync(stateDir)).toBe(false);
+
+    const unconfirmed = spawnSync("bun", [kata, "defects", "publish", "--report", path], {
+      encoding: "utf8",
+    });
+    expect(unconfirmed.status).not.toBe(0);
+
+    const published = spawnSync(
+      "bun",
+      [kata, "defects", "publish", "--report", path, "--confirmed"],
+      { encoding: "utf8" },
+    );
+    expect(published.status).toBe(0);
+    expect(existsSync(stateDir)).toBe(true);
+    const ledgers = readdirSync(stateDir).filter((file) => file.endsWith(".json"));
+    expect(ledgers).toHaveLength(1);
+    const ledger = JSON.parse(readFileSync(join(stateDir, ledgers[0] ?? ""), "utf8")) as {
+      event: string;
+      data: Record<string, unknown>;
+    };
+    expect(ledger.event).toBe("bug-analysis-completed");
+    expect(ledger.data).toMatchObject({
+      severity: "major",
+      summary: "非法 origin 引用导致 fetch 失败，隔离后恢复。",
+    });
   });
 });

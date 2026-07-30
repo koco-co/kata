@@ -18,7 +18,11 @@ import {
 } from "../integrations/notify.ts";
 import { runFetch } from "../integrations/zentao/fetch.ts";
 import { outputJson } from "../lib/cli.ts";
-import { lintMarkdownReport } from "../lib/defect-report.ts";
+import {
+  lintMarkdownReport,
+  parseBugReportMarkdown,
+  type ReportKind,
+} from "../lib/defect-report.ts";
 import {
   hotfixReportPath,
   lintHotfixMarkdown,
@@ -56,8 +60,39 @@ function reportNotificationContext(reportPath: string): {
   };
 }
 
-async function notifyLintedReport(reportPath: string, event: NotificationEventType): Promise<void> {
+function markdownSection(text: string, heading: string): string {
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex((line) => line.trim() === `## ${heading}`);
+  if (start < 0) return "";
+  const end = lines.findIndex((line, index) => index > start && /^##\s+/.test(line));
+  return lines
+    .slice(start + 1, end < 0 ? lines.length : end)
+    .join("\n")
+    .replace(/^[-*]\s*严重程度[：:].*$/gim, "")
+    .trim();
+}
+
+function reportEvent(kind: ReportKind | "hotfix"): NotificationEventType {
+  return {
+    bug: "bug-analysis-completed",
+    conflict: "conflict-analysis-completed",
+    scan: "scan-completed",
+    hotfix: "hotfix-report-created",
+  }[kind] as NotificationEventType;
+}
+
+async function notifyPublishedReport(
+  reportPath: string,
+  event: NotificationEventType,
+): Promise<Awaited<ReturnType<typeof emitBusinessNotificationSafely>>> {
   const context = reportNotificationContext(reportPath);
+  const text = readFileSync(reportPath, "utf8");
+  const summary =
+    markdownSection(text, "结论") ||
+    text.match(/^#\s+(.+)$/m)?.[1]?.trim() ||
+    basename(reportPath, ".md");
+  const severity =
+    event === "bug-analysis-completed" ? parseBugReportMarkdown(reportPath).severity : undefined;
   const result = await emitBusinessNotificationSafely(
     event,
     {
@@ -66,12 +101,15 @@ async function notifyLintedReport(reportPath: string, event: NotificationEventTy
       feature: context.feature,
       completed_at: formatTaipeiTime(),
       report_path: context.reportPath,
+      summary,
+      ...(severity ? { severity } : {}),
     },
     { root: context.root },
   );
   process.stderr.write(
     `[notify] ${event}: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
   );
+  return result;
 }
 
 /** Build the `defects` command: generate and validate formal defect reports. */
@@ -155,7 +193,7 @@ export function registerDefects(program: Command): void {
           if (violations.length > 0)
             throw new Error(`生成的 hotfix 报告未通过 lint: ${reportPath}`);
           outputJson({ ok: true, report: reportPath, bugId: fetched.bug_id });
-          await notifyLintedReport(reportPath, "hotfix-report-created");
+          await notifyPublishedReport(reportPath, "hotfix-report-created");
         } finally {
           rmSync(temp, { recursive: true, force: true });
         }
@@ -179,7 +217,6 @@ export function registerDefects(program: Command): void {
         }
         outputJson({ report: opts.report, kind: "hotfix", violations: violations.length });
         if (opts.exitCode && violations.length > 0) process.exitCode = 1;
-        if (violations.length === 0) await notifyLintedReport(reportPath, "hotfix-report-created");
         return;
       }
       const result = lintMarkdownReport(reportPath);
@@ -188,13 +225,53 @@ export function registerDefects(program: Command): void {
       }
       outputJson({ report: opts.report, kind: result.kind, violations: result.violations.length });
       if (opts.exitCode && result.violations.length > 0) process.exitCode = 1;
-      if (result.violations.length === 0) {
-        const event: Record<typeof result.kind, NotificationEventType> = {
-          bug: "bug-analysis-completed",
-          conflict: "conflict-analysis-completed",
-          scan: "scan-completed",
-        };
-        await notifyLintedReport(reportPath, event[result.kind]);
+    });
+
+  defects
+    .command("publish")
+    .description("校验并发布正式缺陷报告完成通知")
+    .requiredOption("--report <path>", "报告 Markdown 路径")
+    .requiredOption("--confirmed", "确认报告已完成评审并允许发送通知")
+    .action(async (opts: { report: string; confirmed: boolean }) => {
+      if (!opts.confirmed) throw new Error("发布报告必须显式提供 --confirmed");
+      const reportPath = resolve(opts.report);
+      const isHotfix = /[\\/]analyses[\\/]hotfix-case[\\/]/.test(reportPath);
+      if (isHotfix) {
+        const violations = lintHotfixMarkdown(reportPath);
+        for (const violation of violations) {
+          process.stderr.write(
+            `${opts.report}:${violation.line}:${violation.rule}:${violation.message}\n`,
+          );
+        }
+        if (violations.length > 0) {
+          throw new Error(`报告未通过 lint，禁止发布: ${opts.report}`);
+        }
+        const notification = await notifyPublishedReport(reportPath, reportEvent("hotfix"));
+        outputJson({
+          ok: true,
+          report: opts.report,
+          kind: "hotfix",
+          event: reportEvent("hotfix"),
+          notification,
+        });
+        return;
       }
+
+      const result = lintMarkdownReport(reportPath);
+      for (const violation of result.violations) {
+        process.stderr.write(`${opts.report}:${violation.line}:report:${violation.message}\n`);
+      }
+      if (result.violations.length > 0) {
+        throw new Error(`报告未通过 lint，禁止发布: ${opts.report}`);
+      }
+      const event = reportEvent(result.kind);
+      const notification = await notifyPublishedReport(reportPath, event);
+      outputJson({
+        ok: true,
+        report: opts.report,
+        kind: result.kind,
+        event,
+        notification,
+      });
     });
 }
