@@ -6,20 +6,11 @@
  * then downloads images and produces per-requirement PRD files.
  *
  * Usage:
- *   kata lanhu fetch --url "https://lanhuapp.com/web/#/item/..." --project <project>
- *   kata lanhu fetch --url "https://lanhuapp.com/web/#/item/..." --pages "15525,15529"
- *   kata lanhu fetch --help
+ *   kata prd extract --url "https://lanhuapp.com/web/#/item/..." --feature <feature-dir>
  */
 
 import { type SpawnSyncOptionsWithStringEncoding, spawnSync } from "node:child_process";
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 import sharp from "sharp";
 import { writeFileAtomic } from "../../lib/atomic-writer.ts";
@@ -84,42 +75,9 @@ interface ErrorOutput {
   code: string;
 }
 
-interface ParsedRequirement {
-  project: string;
-  requirementId: string;
-  requirementName: string;
-}
-
-interface RequirementCandidate {
-  page: BridgeListPage;
-  parsed: ParsedRequirement;
-}
-
-export interface RunOptions {
-  project?: string;
-  baseDir?: string;
-  pagesFilter?: string;
-  /** Target a single feature dir; writes prd.md + inputs/ instead of {baseDir}/{yyyymm}/ staging. */
-  featureDir?: string;
-}
-
 export interface PrdExtractOptions {
   featureDir: string;
   force?: boolean;
-}
-
-/** Where a requirement's fetched files land, computed from feature-dir vs legacy base-dir mode. */
-export interface OutputLayout {
-  /** Directory the requirement's prd markdown is written to. */
-  reqDir: string;
-  /** Absolute dir for screenshot images. */
-  imagesDir: string;
-  /** Absolute dir for reference .txt files. */
-  refDocsDir: string;
-  /** Markdown filename written at reqDir. */
-  prdFileName: string;
-  /** Path prefix used in markdown image refs (relative to reqDir). */
-  imageRefPrefix: string;
 }
 
 interface CommandFailure {
@@ -199,72 +157,6 @@ export function parseLanhuUrl(rawUrl: string): ParsedLanhuUrl {
   return { pageType: "unknown", params: {} };
 }
 
-// ─── HTML → Markdown ─────────────────────────────────────────────────────────
-
-export function htmlToMarkdown(html: string): string {
-  return (
-    html
-      // Block elements → newlines
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/p>/gi, "\n\n")
-      .replace(/<\/div>/gi, "\n")
-      .replace(/<\/li>/gi, "\n")
-      .replace(/<\/h[1-6]>/gi, "\n\n")
-      .replace(/<h([1-6])[^>]*>/gi, (_, n) => `${"#".repeat(Number(n))} `)
-      .replace(/<li[^>]*>/gi, "- ")
-      .replace(/<[^>]+>/g, "")
-      // Decode common HTML entities
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      // Collapse excess blank lines
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-  );
-}
-
-// ─── Slug ─────────────────────────────────────────────────────────────────────
-
-export function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\u4e00-\u9fa5-]/g, "")
-    .slice(0, 60);
-}
-
-// ─── Image extraction ────────────────────────────────────────────────────────
-
-export function extractImageUrls(data: unknown): string[] {
-  const urls: string[] = [];
-
-  function walk(node: unknown): void {
-    if (!node || typeof node !== "object") return;
-    if (Array.isArray(node)) {
-      for (const item of node) walk(item);
-      return;
-    }
-    const obj = node as Record<string, unknown>;
-    for (const [key, value] of Object.entries(obj)) {
-      if (
-        typeof value === "string" &&
-        (key === "url" || key === "src" || key === "imageUrl" || key === "cover") &&
-        (value.startsWith("http") || value.startsWith("//"))
-      ) {
-        urls.push(value.startsWith("//") ? `https:${value}` : value);
-      } else {
-        walk(value);
-      }
-    }
-  }
-
-  walk(data);
-  return [...new Set(urls)];
-}
-
 // ─── Image Compression ──────────────────────────────────────────────────────
 
 const MAX_IMAGE_DIMENSION = 2000;
@@ -290,89 +182,6 @@ async function compressImage(srcPath: string, destPath: string): Promise<void> {
     })
     .toBuffer();
   writeFileSync(destPath, compressed);
-}
-
-// ─── HTTP Helpers ─────────────────────────────────────────────────────────────
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/**
- * Escape a value for inclusion in a double-quoted YAML scalar.
- * Without this, titles/project names containing `"` or `\` corrupt the PRD frontmatter.
- */
-export function escapeYamlDoubleQuoted(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
-
-/**
- * Derive a semantic version directory from a Lanhu doc title.
- * "资产V7.0.0（岚图/泸州老窖定制）" → "v7.0.0"; "v6.4.10 迭代" → "v6.4.10".
- * Accepts 2- or 3-segment versions (matching features layout VERSION_DIR_RE); returns null when absent.
- */
-export function deriveVersionDir(title: string): string | null {
-  // 末尾负向先行同时排除「数字」与「点」：否则 \d+ 会把多位段（如 10）回溯拆成 1+0，
-  // 让 "V6.4.10.0" 漏判成 "v6.4.1"。要求版本后面既不接数字也不接点，才算完整版本号。
-  const m = title.match(/[vV](\d+(?:\.\d+){1,2})(?![\d.])/);
-  return m ? `v${m[1]}` : null;
-}
-
-/**
- * Resolve where a requirement's files land. Feature mode writes directly into the feature
- * dir using the kata inputs/ convention (prd.md + inputs/lanhu-snapshots + inputs/reference-docs);
- * legacy mode stages under {baseDir}/{yyyymm}/{reqDirName}/ with images/ + tmp/.
- */
-export function resolveOutputLayout(params: {
-  featureDir?: string;
-  baseDir: string;
-  yyyymm: string;
-  reqDirName: string;
-}): OutputLayout {
-  if (params.featureDir) {
-    return {
-      reqDir: params.featureDir,
-      imagesDir: join(params.featureDir, "inputs", "lanhu-snapshots"),
-      refDocsDir: join(params.featureDir, "inputs", "reference-docs"),
-      prdFileName: "prd.md",
-      imageRefPrefix: "inputs/lanhu-snapshots",
-    };
-  }
-  const reqDir = join(params.baseDir, params.yyyymm, params.reqDirName);
-  return {
-    reqDir,
-    imagesDir: join(reqDir, "images"),
-    refDocsDir: join(reqDir, "tmp"),
-    prdFileName: `${params.reqDirName}.md`,
-    imageRefPrefix: "images",
-  };
-}
-
-/**
- * Find the Axure resource dir matching a requirement inside `axureImagesBase`.
- * Returns undefined for an empty requirementId — `startsWith("")` matches every
- * dir and would attribute another requirement's images to this one.
- */
-export function findAxurePageDir(
-  axureImagesBase: string,
-  requirementId: string,
-): string | undefined {
-  if (!requirementId || !existsSync(axureImagesBase)) return undefined;
-  return readdirSync(axureImagesBase).find((dir) => dir.startsWith(requirementId));
-}
-
-export function selectRequirementsForFetch(
-  allRequirements: RequirementCandidate[],
-  options: { pageId?: string; pagesFilter?: string },
-): RequirementCandidate[] {
-  if (options.pagesFilter) {
-    const filterIds = new Set(options.pagesFilter.split(",").map((id) => id.trim()));
-    return allRequirements.filter((r) => filterIds.has(r.parsed.requirementId));
-  }
-
-  if (options.pageId) {
-    return allRequirements.filter((r) => r.page.id === options.pageId);
-  }
-
-  return allRequirements;
 }
 
 // ─── Bridge Helpers ──────────────────────────────────────────────────────────
@@ -817,15 +626,4 @@ export async function runPrdExtract(
     cached: false,
     requirement_id: requirementId,
   };
-}
-
-// ─── Canonical compatibility entry ────────────────────────────────────────────
-
-/** @deprecated Use runPrdExtract. Kept for source compatibility with existing callers. */
-export async function runFetch(rawUrl: string, options: RunOptions): Promise<void> {
-  if (!options.featureDir) {
-    throw new Error("runFetch 已弃用且只允许转发 canonical PRD 提取；必须提供 featureDir");
-  }
-  const canonical = await runPrdExtract(rawUrl, { featureDir: options.featureDir });
-  process.stdout.write(`${JSON.stringify(canonical, null, 2)}\n`);
 }

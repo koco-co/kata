@@ -1,23 +1,12 @@
 import assert from "node:assert/strict";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import {
-  buildLanhuBridgeEnv,
-  deriveVersionDir,
-  escapeYamlDoubleQuoted,
-  extractImageUrls,
-  findAxurePageDir,
-  htmlToMarkdown,
-  parseLanhuUrl,
-  resolveOutputLayout,
-  selectRequirementsForFetch,
-  slugify,
-} from "../../../cli/integrations/lanhu/fetch.ts";
+import { buildLanhuBridgeEnv, parseLanhuUrl } from "../../../cli/integrations/lanhu/fetch.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
@@ -66,6 +55,28 @@ describe("Lanhu bridge runtime paths", () => {
     assert.ok(bridge.includes("page_filenames=html_filenames"));
     assert.ok(vendor.includes("_select_document_version"));
     assert.ok(vendor.includes("params.get('version_id')"));
+  });
+});
+
+describe("legacy Lanhu compatibility surface", () => {
+  it("does not expose or retain the migrated lanhu command", () => {
+    assert.equal(existsSync(resolve(PROJECT_ROOT, "cli/commands/lanhu.ts")), false);
+
+    let exitCode = 0;
+    let stderr = "";
+    try {
+      execSync(`bun run "${KATA_TS}" lanhu --help`, {
+        encoding: "utf8",
+        cwd: PROJECT_ROOT,
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+    } catch (err) {
+      const e = err as { status?: number; stderr?: string };
+      exitCode = e.status ?? 1;
+      stderr = e.stderr ?? "";
+    }
+    assert.notEqual(exitCode, 0);
+    assert.match(stderr, /未知命令: lanhu/);
   });
 });
 
@@ -137,275 +148,6 @@ describe("parseLanhuUrl", () => {
   });
 });
 
-// ─── htmlToMarkdown ───────────────────────────────────────────────────────────
-
-describe("htmlToMarkdown", () => {
-  it("converts <br> to newline", () => {
-    const result = htmlToMarkdown("line1<br>line2");
-    assert.ok(result.includes("line1\nline2"));
-  });
-
-  it("strips plain HTML tags", () => {
-    const result = htmlToMarkdown("<p>Hello <b>world</b></p>");
-    assert.ok(result.includes("Hello world"));
-    assert.ok(!result.includes("<"));
-  });
-
-  it("decodes HTML entities", () => {
-    const result = htmlToMarkdown("a &amp; b &lt;c&gt; &quot;d&quot; &nbsp;e");
-    assert.ok(result.includes('a & b <c> "d"'));
-    assert.ok(result.includes("e"));
-  });
-
-  it("converts heading tags", () => {
-    const result = htmlToMarkdown("<h2>Section</h2>");
-    assert.ok(result.includes("## Section"));
-  });
-
-  it("converts list items", () => {
-    const result = htmlToMarkdown("<ul><li>Item A</li><li>Item B</li></ul>");
-    assert.ok(result.includes("- Item A"));
-    assert.ok(result.includes("- Item B"));
-  });
-
-  it("collapses excessive blank lines", () => {
-    const result = htmlToMarkdown("<p>A</p><p></p><p></p><p>B</p>");
-    assert.ok(!result.includes("\n\n\n"));
-  });
-});
-
-// ─── slugify ─────────────────────────────────────────────────────────────────
-
-describe("slugify", () => {
-  it("lowercases and replaces spaces with dashes", () => {
-    assert.equal(slugify("Hello World"), "hello-world");
-  });
-
-  it("strips special characters except dashes and CJK", () => {
-    assert.equal(slugify("foo!@#bar"), "foobar");
-  });
-
-  it("preserves CJK characters", () => {
-    const result = slugify("商品管理列表");
-    assert.ok(result.includes("商品管理列表"));
-  });
-
-  it("truncates to 60 characters", () => {
-    const long = "a".repeat(100);
-    assert.equal(slugify(long).length, 60);
-  });
-
-  it("handles empty string", () => {
-    assert.equal(slugify(""), "");
-  });
-});
-
-// ─── deriveVersionDir ─────────────────────────────────────────────────────────
-
-describe("deriveVersionDir", () => {
-  it("derives a 3-segment version from a Lanhu doc title", () => {
-    assert.equal(deriveVersionDir("资产V7.0.0（岚图/泸州老窖定制）"), "v7.0.0");
-  });
-
-  it("derives a lowercase 3-segment version", () => {
-    assert.equal(deriveVersionDir("v6.4.10 迭代需求"), "v6.4.10");
-  });
-
-  it("derives a 2-segment version", () => {
-    assert.equal(deriveVersionDir("数据资产 V6.4 版本"), "v6.4");
-  });
-
-  it("returns null when the title has no version", () => {
-    assert.equal(deriveVersionDir("数据质量需求池"), null);
-  });
-
-  it("returns null for a single-segment version (needs at least vX.Y)", () => {
-    assert.equal(deriveVersionDir("V7 预研"), null);
-  });
-
-  it("does not capture a partial version when a 4th segment follows", () => {
-    assert.equal(deriveVersionDir("build v7.0.0.1"), null);
-  });
-
-  it("does not split a multi-digit segment of a 4-segment version", () => {
-    // 回归：曾因 \d+ 回溯把 "10" 拆成 "1"，让 "V6.4.10.0" 误判成 "v6.4.1"
-    assert.equal(deriveVersionDir("V6.4.10.0"), null);
-    assert.equal(deriveVersionDir("数据V6.4.10.0标定"), null);
-  });
-});
-
-// ─── resolveOutputLayout ──────────────────────────────────────────────────────
-
-describe("resolveOutputLayout", () => {
-  it("feature mode writes into the feature dir using inputs/ convention", () => {
-    const layout = resolveOutputLayout({
-      featureDir: "/abs/feature",
-      baseDir: "/abs/base",
-      yyyymm: "202606",
-      reqDirName: "需求A",
-    });
-    assert.equal(layout.reqDir, "/abs/feature");
-    assert.equal(layout.imagesDir, "/abs/feature/inputs/lanhu-snapshots");
-    assert.equal(layout.refDocsDir, "/abs/feature/inputs/reference-docs");
-    assert.equal(layout.prdFileName, "prd.md");
-    assert.equal(layout.imageRefPrefix, "inputs/lanhu-snapshots");
-  });
-
-  it("legacy mode stages under {baseDir}/{yyyymm}/{reqDirName}/ with images + tmp", () => {
-    const layout = resolveOutputLayout({
-      baseDir: "/abs/base",
-      yyyymm: "202606",
-      reqDirName: "需求A",
-    });
-    assert.equal(layout.reqDir, "/abs/base/202606/需求A");
-    assert.equal(layout.imagesDir, "/abs/base/202606/需求A/images");
-    assert.equal(layout.refDocsDir, "/abs/base/202606/需求A/tmp");
-    assert.equal(layout.prdFileName, "需求A.md");
-    assert.equal(layout.imageRefPrefix, "images");
-  });
-});
-
-// ─── Page selection ──────────────────────────────────────────────────────────
-
-describe("selectRequirementsForFetch", () => {
-  it("uses URL pageId to select one Axure requirement instead of exporting the full document", () => {
-    const selected = selectRequirementsForFetch(
-      [
-        {
-          page: {
-            id: "cd882ee83c4d440d878b49cc31f67cb6",
-            name: "15698【数据地图】查询优化",
-            path: "岚图/15698【数据地图】查询优化",
-            requirement_id: "15698",
-          },
-          parsed: {
-            project: "岚图",
-            requirementId: "15698",
-            requirementName: "【数据地图】查询优化",
-          },
-        },
-        {
-          page: {
-            id: "5ff4dd80f815449d9bf323d5b7490f36",
-            name: "15662【数据地图】支持筛选数据表是否绑定数据目录",
-            path: "岚图/15662【数据地图】支持筛选数据表是否绑定数据目录",
-            requirement_id: "15662",
-          },
-          parsed: {
-            project: "岚图",
-            requirementId: "15662",
-            requirementName: "【数据地图】支持筛选数据表是否绑定数据目录",
-          },
-        },
-      ],
-      {
-        pageId: "5ff4dd80f815449d9bf323d5b7490f36",
-      },
-    );
-
-    assert.deepEqual(
-      selected.map((item) => item.parsed.requirementId),
-      ["15662"],
-    );
-  });
-});
-
-// ─── extractImageUrls ─────────────────────────────────────────────────────────
-
-describe("extractImageUrls", () => {
-  it("extracts url fields starting with http", () => {
-    const data = { url: "https://cdn.lanhu.com/img1.png" };
-    const urls = extractImageUrls(data);
-    assert.ok(urls.includes("https://cdn.lanhu.com/img1.png"));
-  });
-
-  it("extracts imageUrl fields", () => {
-    const data = { imageUrl: "https://cdn.lanhu.com/img2.png" };
-    const urls = extractImageUrls(data);
-    assert.ok(urls.includes("https://cdn.lanhu.com/img2.png"));
-  });
-
-  it("converts protocol-relative URLs to https", () => {
-    const data = { url: "//cdn.lanhu.com/img3.png" };
-    const urls = extractImageUrls(data);
-    assert.ok(urls.includes("https://cdn.lanhu.com/img3.png"));
-  });
-
-  it("deduplicates identical URLs", () => {
-    const data = [
-      { url: "https://cdn.lanhu.com/dup.png" },
-      { url: "https://cdn.lanhu.com/dup.png" },
-    ];
-    const urls = extractImageUrls(data);
-    assert.equal(urls.filter((u) => u === "https://cdn.lanhu.com/dup.png").length, 1);
-  });
-
-  it("recurses into nested objects", () => {
-    const data = { outer: { inner: { url: "https://cdn.lanhu.com/nested.png" } } };
-    const urls = extractImageUrls(data);
-    assert.ok(urls.includes("https://cdn.lanhu.com/nested.png"));
-  });
-
-  it("recurses into arrays", () => {
-    const data = [
-      { url: "https://cdn.lanhu.com/arr1.png" },
-      { url: "https://cdn.lanhu.com/arr2.png" },
-    ];
-    const urls = extractImageUrls(data);
-    assert.equal(urls.length, 2);
-  });
-
-  it("ignores non-http string fields not named url/src/imageUrl/cover", () => {
-    const data = { title: "https://cdn.lanhu.com/not-an-image.png" };
-    const urls = extractImageUrls(data);
-    assert.equal(urls.length, 0);
-  });
-
-  it("returns empty array for null input", () => {
-    assert.deepEqual(extractImageUrls(null), []);
-  });
-});
-
-// ─── findAxurePageDir ─────────────────────────────────────────────────────────
-
-describe("findAxurePageDir", () => {
-  it("skips matching entirely when requirementId is empty", () => {
-    // 回归:空 ID 时 startsWith("") 会命中任意目录,把别的需求的截图归到本需求
-    mkdirSync(join(TMP_DIR, "images", "15525-规则配置"), { recursive: true });
-    assert.equal(findAxurePageDir(join(TMP_DIR, "images"), ""), undefined);
-  });
-
-  it("matches the Axure resource dir by requirement id prefix", () => {
-    mkdirSync(join(TMP_DIR, "images", "15525-规则配置"), { recursive: true });
-    assert.equal(findAxurePageDir(join(TMP_DIR, "images"), "15525"), "15525-规则配置");
-  });
-
-  it("returns undefined when the base dir does not exist", () => {
-    assert.equal(findAxurePageDir(join(TMP_DIR, "missing"), "15525"), undefined);
-  });
-
-  it("returns undefined when no dir matches the requirement id", () => {
-    mkdirSync(join(TMP_DIR, "images", "99999-其他需求"), { recursive: true });
-    assert.equal(findAxurePageDir(join(TMP_DIR, "images"), "15525"), undefined);
-  });
-});
-
-// ─── escapeYamlDoubleQuoted ───────────────────────────────────────────────────
-
-describe("escapeYamlDoubleQuoted", () => {
-  it("escapes double quotes and backslashes", () => {
-    assert.equal(escapeYamlDoubleQuoted('标题含"引号"'), '标题含\\"引号\\"');
-    assert.equal(escapeYamlDoubleQuoted("a\\b"), "a\\\\b");
-  });
-
-  it("produces a frontmatter line that YAML parses back to the original value", async () => {
-    const { parse } = await import("yaml");
-    const raw = '需求:V7 "定制" 版';
-    const doc = parse(`title: "${escapeYamlDoubleQuoted(raw)}"`) as { title: string };
-    assert.equal(doc.title, raw);
-  });
-});
-
 // ─── CLI Integration Tests ────────────────────────────────────────────────────
 
 describe("CLI: --help", () => {
@@ -413,7 +155,7 @@ describe("CLI: --help", () => {
     let stdout = "";
     let exitCode = 0;
     try {
-      stdout = execSync(`bun run "${KATA_TS}" lanhu fetch --help`, {
+      stdout = execSync(`bun run "${KATA_TS}" prd extract --help`, {
         encoding: "utf8",
         cwd: PROJECT_ROOT,
         env: { ...process.env },
@@ -458,7 +200,7 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d&versionId=v&pageId=p" --feature-dir "${TMP_DIR}/feature"`,
+        `bun run "${KATA_TS}" prd extract --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d&versionId=v&pageId=p" --feature "${TMP_DIR}/feature"`,
         {
           encoding: "utf8",
           cwd: fakeRoot,
@@ -488,7 +230,7 @@ describe("CLI: invalid URL format", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" lanhu fetch --url "https://example.com/not-lanhu" --feature-dir "${TMP_DIR}/feature"`,
+        `bun run "${KATA_TS}" prd extract --url "https://example.com/not-lanhu" --feature "${TMP_DIR}/feature"`,
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
@@ -518,7 +260,7 @@ describe("CLI: invalid URL format", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=only-tid" --feature-dir "${TMP_DIR}/feature"`,
+        `bun run "${KATA_TS}" prd extract --url "https://lanhuapp.com/web/#/item/project/product?tid=only-tid" --feature "${TMP_DIR}/feature"`,
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,

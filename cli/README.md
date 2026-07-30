@@ -30,7 +30,6 @@ Commands:
   project         项目工作区的创建、检查与修复
   prd             PRD 证据提取、确认式定稿与检查
   zentao          禅道集成:bug 抓取与创建
-  lanhu           蓝湖集成:PRD 内容与截图抓取
   notify          业务通知预览、查询与失败重试
   help [command]  display help for command
 ```
@@ -303,21 +302,6 @@ Commands:
   fetch [options]   从禅道 Bug 链接提取缺陷详情、解决叙述和修复分支
   create [options]  从正式 Markdown 报告在禅道创建 bug(fixed assignee,zentao variant body)
   help [command]    display help for command
-```
-
-## kata lanhu
-
-```text
-Usage: kata lanhu [options] [command]
-
-蓝湖集成:PRD 内容与截图抓取
-
-Options:
-  -h, --help       display help for command
-
-Commands:
-  fetch [options]  已弃用：兼容入口，转发到 kata prd extract
-  help [command]   display help for command
 ```
 
 ## kata notify
@@ -1175,23 +1159,6 @@ Options:
                    "<kata-root>/cli/integrations/zentao/zentao.config.yaml")
   --dry-run        只组装字段不提交,打印 payload (default: false)
   -h, --help       display help for command
-```
-
-## kata lanhu fetch
-
-```text
-Usage: kata lanhu fetch [options]
-
-已弃用：兼容入口，转发到 kata prd extract
-
-Options:
-  --url <url>          蓝湖页面 URL,例如
-                       "https://lanhuapp.com/web/#/item/project/product?tid=xxx&pid=xxx&docId=xxx"
-  --project <name>     已弃用
-  --base-dir <dir>     已弃用
-  --feature-dir <dir>  目标 feature 目录；证据写入 prd/evidence/，截图写入 prd/assets/
-  --pages <ids>        已弃用；页面只取 URL 的 pageId
-  -h, --help           display help for command
 ```
 
 ## kata notify preview

@@ -10,7 +10,6 @@ import { registerEnv } from "../commands/env.ts";
 import { registerFeatures } from "../commands/features.ts";
 import { registerInfra } from "../commands/infra.ts";
 import { registerKnowledge } from "../commands/knowledge.ts";
-import { registerLanhu } from "../commands/lanhu.ts";
 import { registerNotify } from "../commands/notify.ts";
 import { registerPrd } from "../commands/prd.ts";
 import { registerProject } from "../commands/project.ts";
@@ -40,7 +39,6 @@ registerAutomation(program);
 registerProject(program);
 registerPrd(program);
 registerZentao(program);
-registerLanhu(program);
 registerNotify(program);
 
 const topLevel = process.argv[2];

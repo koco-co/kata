@@ -64,8 +64,3 @@ export function defectReportPath(
   assertReportSlug(slug);
   return join(locateProject(project).analysesDir, `${type}-report`, yyyymm, `${slug}.md`);
 }
-
-/** PRD history dir: workspace/<project>/features/_history/prds (lanhu fetch landing zone). */
-export function prdsDir(project: string): string {
-  return join(locateProject(project).featuresDir, "_history", "prds");
-}
