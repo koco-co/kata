@@ -1,17 +1,15 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { applyRuntimeCookies, normalizeDataAssetsBaseUrl } from "../../../../../../_shared/automation/runtime/env-setup";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 /**
  * 共享测试数据 & 前置条件
  * 「有效性-取值范围枚举范围规则」全部 27 条用例的公共依赖
  */
 
 import type { Page } from "@playwright/test";
-import { createClient, setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
-import {
-  applyRuntimeCookies,
-  normalizeDataAssetsBaseUrl,
-} from "../../../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
+import { createClient, setupPreconditions } from "../../../../../../_shared/automation/preconditions/setup-preconditions";
+
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/config/playwright";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;

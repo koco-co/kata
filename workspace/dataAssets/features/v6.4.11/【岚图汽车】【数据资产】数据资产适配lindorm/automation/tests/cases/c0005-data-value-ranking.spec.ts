@@ -5,14 +5,14 @@
 // generated_at: 2026-05-22T03:20:00Z
 // META: {"id":"STD-001","priority":"P2/P3","title":"标准统计与落标检查 Shell 可核验"}
 // SourceRefs: SR-2099-01-STD-STAT-STATUS-L3284, SR-2099-01-STD-STAT-CODE-ROOT-L3298, SR-2099-01-STD-STAT-HOT-STANDARD-L3312, SR-2099-01-STD-STAT-HOT-CODE-L3326, SR-2099-01-STD-STAT-CATALOG-STANDARD-L3340, SR-2099-01-STD-STAT-CATALOG-CODE-L3354, SR-2099-01-STD-STAT-TREND-STANDARD-L3368, SR-2099-01-STD-STAT-TREND-CODE-L3382, SR-2099-01-STD-STAT-SOURCE-STANDARD-L3396, SR-2099-01-STD-STAT-SOURCE-CODE-L3410, SR-2099-01-STD-001, SR-UI-PROBE-20260522-STANDARD-001, SR-SELF-RUN-STANDARD-001
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   expectDataStandardQueryShell,
   expectStandardBasisSearchShell,
   expectStandardCheckShell,
   expectStandardStatisticApis,
   expectStandardStatisticShell,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
+} from "../pages/standard-page";
 
 test.setTimeout(90000);
 

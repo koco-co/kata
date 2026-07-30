@@ -1,14 +1,11 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { applyRuntimeCookies, normalizeDataAssetsBaseUrl } from "../../../../../../_shared/automation/runtime/env-setup";
+import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 import type { Page } from "@playwright/test";
 import type { DtStackClientLike, DtStackResponse } from "dtstack-sdk";
-import { setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
-import {
-  applyRuntimeCookies,
-  normalizeDataAssetsBaseUrl,
-  uniqueName,
-} from "../../../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
+import { setupPreconditions } from "../../../../../../_shared/automation/preconditions/setup-preconditions";
+
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/config/playwright";
 import {
   clearCurrentDatasource as clearLegacyDatasource,
   setCurrentDatasource as setLegacyDatasource,

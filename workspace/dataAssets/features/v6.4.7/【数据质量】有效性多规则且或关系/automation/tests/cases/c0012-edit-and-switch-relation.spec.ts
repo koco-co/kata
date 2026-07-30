@@ -3,22 +3,14 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t12","priority":"P1","title":"验证在规则集中已保存的且关系规则编辑切换为或关系后保存成功"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import {
-  addRuleToPackage,
-  configureRangeEnumRule,
-  getRulePackage,
-  getRuleSetListRow,
-  gotoRuleSetList,
-  openRuleSetEditor,
-  saveRuleSet,
-  selectRuleRelation,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { addRuleToPackage, getRulePackage, saveRuleSet } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { configureRangeEnumRule, getRuleSetListRow, gotoRuleSetList, openRuleSetEditor, selectRuleRelation } from "../pages/range-enum-rule-editor";
 
 test.setTimeout(600000);
 

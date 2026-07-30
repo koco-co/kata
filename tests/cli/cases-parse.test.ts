@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { parseCasesYaml, validateCases } from "../../runtime/cases/parse.ts";
+import { parseCasesYaml, validateCases } from "../../cli/lib/cases/parse.ts";
 
 const GOOD = `
 meta:

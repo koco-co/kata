@@ -6,8 +6,8 @@
 // generated_at: 2026-05-24T21:40:00+08:00
 // META: {"id":"STD-034","priority":"P1/P2","title":"标准映射映射记录与字段绑定边界 Shell 可核验"}
 // SourceRefs: SR-2099-01-STD-MAPPING-SCORE-L4015, SR-2099-01-STD-MAPPING-TABLE-L4031, SR-2099-01-STD-MAPPING-TARGET-TABLE-L4191, SR-2099-01-STD-034, SR-UI-PROBE-20260524-MF-STANDARD-MAPPING-BOUNDARIES-001, SR-SELF-RUN-20260524-MF-STANDARD-MAPPING-BOUNDARIES-001
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { expectStandardMappingBoundaryDialogsShell } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectStandardMappingBoundaryDialogsShell } from "../pages/standard-page";
 
 test.setTimeout(120000);
 

@@ -1,16 +1,16 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/validity-multi-rule-logic/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t21","priority":"P1","title":"验证规则库中新增取值范围&枚举范围内置规则展示正确"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import { gotoRuleBase } from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { gotoRuleBase } from "../pages/range-enum-rule-editor";
 
 test.setTimeout(120000);
 

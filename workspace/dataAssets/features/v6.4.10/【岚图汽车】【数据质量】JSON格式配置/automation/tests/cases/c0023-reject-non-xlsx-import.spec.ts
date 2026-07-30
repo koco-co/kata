@@ -1,12 +1,12 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t23-xlsx
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t23","priority":"P1","title":"【P1】验证导入非xlsx格式文件时报错"}
 import * as fs from "fs";
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { clickHeaderButton, gotoJsonConfigPage, waitModal } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { clickHeaderButton, gotoJsonConfigPage, waitModal } from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证导入非xlsx格式文件时报错", { tag: "@serial" }, async ({ page, step }) => {

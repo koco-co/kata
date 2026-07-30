@@ -4,9 +4,9 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t02","priority":"P0","title":"规则任务配置页展示规则集与监控规则核心入口"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-SELF-RUN-001
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { SOURCE_REFS, V63_REGRESSION_SCOPE } from "../fixtures/v63-regression-contract";
-import { expectDataQualityShell, expectTexts, gotoDataQualityPage } from "../../../../../../_shared/pages/assets-v63-regression/v63-regression-page";
+import { expectDataQualityShell, expectTexts, gotoDataQualityPage } from "../pages/data-quality-page";
 
 test.setTimeout(90000);
 

@@ -1,5 +1,5 @@
-import { getEnvConfig } from "../../../../../../_shared/helpers";
-import { readAutomationOverrideFile } from "../../../../../../../../runtime/automation/overrides";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { readAutomationOverrideFile } from "../../../../../../../../runtime/automation/config/overrides";
 
 export interface V6411AutomationSettings {
   readonly cases: string;

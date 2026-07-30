@@ -4,9 +4,9 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t01","priority":"P0","title":"验证规则库配置入口可访问并展示内置规则能力"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-001, SR-UI-PROBE-002, SR-SELF-RUN-001
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { EXPECTED_RULE_BASE_TEXT, SOURCE_REFS } from "../fixtures/rule-library-contract";
-import { gotoRuleBaseCandidate } from "../../../../../../_shared/pages/rule-library/rule-library-page";
+import { gotoRuleBaseCandidate } from "../pages/rule-library-page";
 
 test.setTimeout(90000);
 

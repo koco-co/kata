@@ -1,4 +1,5 @@
-import { getEnvConfig, waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // 冒烟测试（P0）
 // 生成时间：2026-04-06T18:11:16.521Z
 // 用例数量：7

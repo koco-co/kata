@@ -3,23 +3,14 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t3","priority":"P1","title":"验证在规则集中仅填写取值范围可正常保存"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import {
-  addRuleToPackage,
-  configureRangeEnumRule,
-  getRulePackage,
-  getRuleSetListRow,
-  gotoRuleSetList,
-  keepOnlyRulePackages,
-  openRuleSetEditor,
-  saveRuleSet,
-  selectRuleFieldAndFunction,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { addRuleToPackage, getRulePackage, saveRuleSet } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { configureRangeEnumRule, getRuleSetListRow, gotoRuleSetList, keepOnlyRulePackages, openRuleSetEditor, selectRuleFieldAndFunction } from "../pages/range-enum-rule-editor";
 
 test.setTimeout(600000);
 

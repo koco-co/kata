@@ -1,11 +1,12 @@
 import "./generated";
-import { getEnvConfig, waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // 全量测试（P0+P1+P2）
 // 生成时间：2026-04-06T16:29:26.650Z
 // 用例数量：2
 // 修复时间：2026-04-06T16:41:30.000Z - 修复 removedMenus 子串误判 & finally 清理异常处理
 
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 
 test.describe("【数据质量】菜单名称修改 - 项目信息", () => {
   type Page = import("@playwright/test").Page;

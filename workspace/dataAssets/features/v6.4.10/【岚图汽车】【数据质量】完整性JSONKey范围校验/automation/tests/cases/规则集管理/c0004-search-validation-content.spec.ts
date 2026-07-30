@@ -1,11 +1,11 @@
-import { selectAntOption, waitForUiSettled } from "../../../../../../../_shared/helpers/index";
+import { selectAntOption, waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
 // spec: features/completeness-json-key-range/archive.md#case=t04-search-verify-content
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t4","priority":"P1","title":"验证校验内容下拉框支持输入关键词搜索查询"}
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
-import { addRuleToPackage } from "../../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { addRuleToPackage } from "../../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -15,7 +15,7 @@ import {
   SCENARIOS,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+} from "../../flows/rule-set-flow";
 
 test.setTimeout(600000);
 

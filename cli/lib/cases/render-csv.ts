@@ -2,7 +2,7 @@
  * Render CasesFile to CSV text (ZenTao-style subset) for cases/exports/需求名.csv.
  */
 
-import type { CasesFile } from "../../../runtime/cases/types.ts";
+import type { CasesFile } from "./types.ts";
 import { UNCLASSIFIED } from "./xmind/xmind-render.ts";
 
 function tagCount(file: CasesFile): number {

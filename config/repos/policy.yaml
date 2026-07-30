@@ -29,13 +29,21 @@ root:
     - cli
     - config
     - runtime
-    - scripts
     - tests
     - workspace
 forbidden_globs:
   - kata-automation-*.config.ts
   - lib/**
+  - "**/project.json"
+  - runtime/cases/**
+  - runtime/playwright/**
+  - runtime/db/**
   - workspace/**/automation/scripts/**
+  - workspace/*/_shared/helpers/**
+  - workspace/*/_shared/rules/**
+  - workspace/*/_shared/pages/**
+  - workspace/*/_shared/fixtures/**
+  - workspace/*/_shared/runtime/**
 artifacts:
   cases_yaml:
     route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml
@@ -55,5 +63,16 @@ artifacts:
   automation_run_temporary:
     route: workspace/<project>/runs/<run-id>/_tmp/
     tracked: false
+shared_modules:
+  roots:
+    - workspace/*/_shared/automation
+  minimum_feature_consumers: 2
+  page_domain_pattern: "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
 dependencies:
   runtime_must_not_import: cli/
+  forbidden_import_fragments:
+    - runtime/cases/
+    - runtime/playwright/
+    - runtime/db/
+    - _shared/helpers/
+    - _shared/pages/

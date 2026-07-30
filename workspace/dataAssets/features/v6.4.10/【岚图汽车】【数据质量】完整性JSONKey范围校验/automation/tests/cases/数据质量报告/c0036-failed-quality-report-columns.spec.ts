@@ -3,15 +3,15 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t36","priority":"P2","title":"验证校验失败时支持查看日志"}
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
-import { ensureSavedScenarioRuleSet, SCENARIOS } from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { ensureSavedScenarioRuleSet, SCENARIOS } from "../../flows/rule-set-flow";
 import {
   ensureRuleTasks,
   executeTaskFromList,
   FAIL_LOG_TASK_NAME,
   openTaskLogDrawer,
   waitForTaskInstanceFinished,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

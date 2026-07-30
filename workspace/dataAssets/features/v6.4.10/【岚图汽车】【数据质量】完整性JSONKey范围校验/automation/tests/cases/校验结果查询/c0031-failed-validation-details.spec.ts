@@ -3,13 +3,13 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t31","priority":"P1","title":"验证下载明细数据中校验字段标红展示"}
-import { test } from "../../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ensureRuleTasks,
   executeTaskFromList,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

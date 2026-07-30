@@ -2,8 +2,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadDataAssetsEnvProfile } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
+import { loadDataAssetsEnvProfile } from "../../../../../../_shared/automation/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/config/playwright";
 
 const preparedPreconditionGroups = new Set<string>();
 

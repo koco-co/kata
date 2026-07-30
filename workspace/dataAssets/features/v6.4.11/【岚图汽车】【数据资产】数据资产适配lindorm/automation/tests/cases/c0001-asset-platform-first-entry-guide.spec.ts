@@ -5,13 +5,13 @@
 // generated_at: 2026-05-22T03:01:13Z
 // META: {"id":"AI-001","priority":"P1/P3","title":"资产盘点引导弹窗与已接入数据源统计"}
 // SourceRefs: SR-2099-01-AI-GUIDE-L16, SR-2099-01-AI-001, SR-ENV-PREFLIGHT-001, SR-UI-PROBE-20260523-ASSETS-GUIDE-001, SR-SELF-RUN-001
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   expectAssetsInventoryGuideDialogFlow,
   expectAssetsInventoryShell,
   gotoAssetsInventory,
   triggerAssetsInventoryScheduleJob,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page";
+} from "../pages/assets-inventory-page";
 import {
   ASSETS_INVENTORY_SCOPE,
   SR_2099_01_AI_001,

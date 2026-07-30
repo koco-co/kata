@@ -2,7 +2,7 @@
 // 唯一性·非重复个数：zszq_distinct_cnt（security_code: 600519,000001,600036,600036,601318）。
 // 实测平台「非重复个数」= 只出现一次的值数 = 3（600519/000001/601318；600036 出现 2 次不计），而非 distinct=4。
 // 故 =4/=5 均校验异常（实例 logInfo「校验不通过: 1」），=3 校验通过。archive 按 distinct=4 的假设需按实修正。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_distinct_cnt";
 

@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t23","priority":"P1","title":"验证取值范围&枚举范围规则校验「不通过时下载」明细数据中校验字段标红展示"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -14,7 +14,7 @@ import {
   openTaskInstanceDetail,
   openTaskRuleDetailDataDrawer,
   waitForTaskInstanceFinished,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

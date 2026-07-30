@@ -2,7 +2,7 @@
 // 规范性·格式-邮箱：zszq_account_email（3 行，2 条合法 + invalid-email 非法）。
 // 实测平台格式校验 metric =「符合格式的合法行数」(生成 SQL: count WHERE email REGEXP 合法邮箱正则)，
 // 即合法数=2。>=3 校验异常（期望≥3条合法、实际2，有非法行）；>=2 校验通过（实际合法2达标）。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_account_email";
 

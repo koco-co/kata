@@ -1,6 +1,6 @@
 // spec: cases/archive.md#case=完整性字段级空值数  intent: SR-INTENT-2026-06-DQ-SR3X-005  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 完整性·字段级·空值数：zszq_trade_null（security_name 含 1 个 NULL）。=0 校验异常 / <=1 校验通过。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -8,7 +8,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_null";
 

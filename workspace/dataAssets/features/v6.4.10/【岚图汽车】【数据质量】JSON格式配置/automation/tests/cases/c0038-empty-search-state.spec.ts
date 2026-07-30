@@ -1,12 +1,12 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { uniqueName, waitForTableLoaded, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t38-case-38
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t38","priority":"P2","title":"【P2】验证搜索无结果时的空状态展示"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName, waitForTableLoaded } from "../../../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
+import { gotoJsonConfigPage } from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P2】验证搜索无结果时的空状态展示", async ({ page, step }) => {

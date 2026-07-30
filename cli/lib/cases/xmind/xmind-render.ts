@@ -13,10 +13,10 @@ import { dirname, join } from "node:path";
 import JSZip from "jszip";
 import type { MarkerId, TopicBuilder } from "xmind-generator";
 import { Marker, RootTopic, Topic, Workbook } from "xmind-generator";
-import { normalizeStructuredText } from "../../../../runtime/cases/normalize.ts";
 import { writeFileAtomic } from "../../atomic-writer.ts";
 import type { IntermediateJson, Meta, Module, Page, TestCase } from "../../intermediate-types.ts";
 import { buildRootName } from "../../xmind-rules.ts";
+import { normalizeStructuredText } from "../normalize.ts";
 
 export type WriteMode = "create" | "append" | "replace";
 export type RootAwareMeta = Meta;

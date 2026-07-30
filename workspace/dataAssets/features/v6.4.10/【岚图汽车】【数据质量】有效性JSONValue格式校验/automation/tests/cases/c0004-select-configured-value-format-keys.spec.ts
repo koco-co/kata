@@ -1,13 +1,13 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/validity-json-value-format/archive.md#case=t04-key-value-key-value-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t4","priority":"P1","title":"【P1】验证校验key列表中仅配置了value格式的key可被选中，未配置value格式的key不可选中"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption, uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import { FORMAT_JSON_VERIFICATION_FUNC, VALUE_FORMAT_TABLE } from "../fixtures/data-15694";
-import { addRuleToPackage, createRuleSetDraft } from "../../../../../../_shared/pages/validity-json-value-format/json-format-utils";
+import { addRuleToPackage, createRuleSetDraft } from "../pages/json-format-rule";
 
 
 const SUITE_NAME = "【内置规则丰富】有效性，json中key对应的value值格式校验(#15694)";

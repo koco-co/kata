@@ -1,4 +1,5 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/automation/runtime/env-setup";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 /**
  * 共享测试数据
  * 「#15694 内置规则丰富 - 格式-json格式校验」全部用例的公共依赖
@@ -11,14 +12,14 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
  *   - person-email：未配置 value格式（在 TreeSelect 中显示为 disabled）
  */
 import type { Page } from "@playwright/test";
-import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
+
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
 
 // ── Re-export 公共工具（方便 helpers 文件直接从此处 import）──────────────────
 export {
   applyRuntimeCookies,
   buildDataAssetsUrl,
-} from "../../../../../../_shared/helpers/test-setup";
+} from "../../../../../../_shared/automation/runtime/env-setup";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;

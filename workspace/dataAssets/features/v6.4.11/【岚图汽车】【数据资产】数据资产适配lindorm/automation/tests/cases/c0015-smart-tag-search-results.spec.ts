@@ -4,25 +4,11 @@
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T09:30:00Z
 // SourceRefs: SR-2099-01-DQ-RESULT-FILTERS-001, SR-UI-PROBE-20260523-DQ-RESULT-FILTERS-001, SR-SELF-RUN-20260523-DQ-RESULT-FILTERS-001
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import {
-  expectDataQualityGeneratedReportCombinedFilterContract,
-  expectDataQualityGeneratedReportDownloadContract,
-  expectDataQualityGeneratedReportFilterContract,
-  expectDataQualityGeneratedReportStatusFilterContract,
-  expectDataQualityFailedResultLogDownloadContract,
-  expectDataQualityReportDetailFieldRuleFilterContract,
-  expectDataQualityReportDetailMultiTableRuleFilterContract,
-  expectDataQualityReportDetailDirtyDataDownloadContract,
-  expectDataQualityReportSamplingStatsContract,
-  expectDataQualityReportContinuousGenerationContract,
-  expectDataQualityReportSameTableMultiTaskContract,
-  expectDataQualityReportSameTableMultiTaskDirtyDataContract,
-  expectDataQualityReportDetailSingleTableRuleFilterContract,
-  expectDataQualityResultFilterContract,
-  expectDataQualityRuleBaseCustomRegexContract,
-  expectDataQualityRuleSetFilterContract,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectDataQualityGeneratedReportCombinedFilterContract, expectDataQualityGeneratedReportDownloadContract, expectDataQualityGeneratedReportFilterContract, expectDataQualityGeneratedReportStatusFilterContract, expectDataQualityReportDetailFieldRuleFilterContract, expectDataQualityReportDetailMultiTableRuleFilterContract, expectDataQualityReportDetailDirtyDataDownloadContract, expectDataQualityReportSamplingStatsContract, expectDataQualityReportContinuousGenerationContract, expectDataQualityReportSameTableMultiTaskContract, expectDataQualityReportSameTableMultiTaskDirtyDataContract, expectDataQualityReportDetailSingleTableRuleFilterContract } from "../pages/data-quality/reports";
+import { expectDataQualityFailedResultLogDownloadContract, expectDataQualityResultFilterContract } from "../pages/data-quality/results";
+import { expectDataQualityRuleBaseCustomRegexContract } from "../pages/data-quality/rule-library";
+import { expectDataQualityRuleSetFilterContract } from "../pages/data-quality/rule-sets";
 import { ensureDtstackPreconditionFile } from "../fixtures/dtstack-preconditions";
 
 test.setTimeout(15 * 60 * 1000);

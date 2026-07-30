@@ -3,21 +3,21 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t21","priority":"P1","title":"【P1】验证删除已被规则引用的key后value格式预览弹窗和执行校验任务正常"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { PREVIEW_DELETE_SCENARIO } from "../fixtures/test-data";
 import {
   openScenarioRuleSetPackage,
   openValueFormatPreview,
-} from "../../../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
+} from "../flows/rule-set-flow";
 import {
   ensureExecutedJsonTask,
   ensureJsonFormatTask,
   getTaskDetailRuleCard,
   openTaskInstanceDetail,
   waitForVisibleTaskRow,
-} from "../../../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
-import { deleteKey, gotoJsonConfigPage } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
-import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+} from "../flows/rule-task-flow";
+import { deleteKey, gotoJsonConfigPage } from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
+import { describeByDatasource } from "../fixtures/suite-matrix";
 
 test.setTimeout(600000);
 

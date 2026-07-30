@@ -3,12 +3,9 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t2","priority":"P1","title":"验证校验方法切换（包含与不包含）规则保存和执行结果差异"}
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../../../../_shared/helpers";
-import {
-  addRuleToPackage,
-  saveRuleSet,
-} from "../../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../../../../runtime/automation/playwright";
+import { addRuleToPackage, saveRuleSet } from "../../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -20,7 +17,7 @@ import {
   openScenarioEditor,
   SCENARIOS,
   seedScenarioRuleSet,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+} from "../../flows/rule-set-flow";
 import {
   executeTaskFromList,
   getTaskDetailRuleCard,
@@ -28,7 +25,7 @@ import {
   openTaskInstanceDetail,
   openTaskRuleDetailDataDrawer,
   waitForTaskInstanceFinished,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../flows/rule-task-flow";
 
 
 for (const datasource of ACTIVE_DATASOURCES) {

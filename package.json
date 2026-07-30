@@ -22,7 +22,7 @@
   },
   "scripts": {
     "test:tools": "bun test --cwd cli/integrations/dtstack --timeout 30000",
-    "check": "bun scripts/check-repository-policy.ts && biome check .",
+    "check": "bun cli/bin/kata.ts repo lint --exit-code && biome check .",
     "check:fix": "biome check --fix .",
     "type-check": "tsc --noEmit",
     "test:workspace": "bun test --timeout 30000 ./workspace/dataAssets/_shared",

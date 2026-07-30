@@ -6,12 +6,12 @@
 // META: {"id":"MD-026","priority":"P3/P1","title":"数据地图热门标签/热门查询与首页关键词搜索 Shell 可核验"}
 // status: ready_for_serial_orchestrator_registration
 // SourceRefs: SR-2099-01-MD-026-L498, SR-2099-01-MD-TABLE-TAG-L517, SR-2099-01-MD-FIELD-TAG-L533, SR-2099-01-MD-VIEW-TAG-L553, SR-2099-01-MD-HOT-QUERY-SHELL-L569, SR-2099-01-MD-HOT-QUERY-SIZE-L584, SR-2099-01-MD-HOT-QUERY-COUNT-L598, SR-2099-01-MD-HOT-QUERY-JUMP-L615, SR-UI-PROBE-20260524-MF-METADATA-HOT-QUERY-002, SR-SELF-RUN-20260524-MF-METADATA-HOT-QUERY-002
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   expectDataMapHotQueryHistoryShell,
   expectDataMapHotSectionsAndKeywordSearchShell,
   expectDataMapHotTagsNavigationShell,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-search-page";
+} from "../pages/metadata-search-page";
 
 test.setTimeout(90000);
 

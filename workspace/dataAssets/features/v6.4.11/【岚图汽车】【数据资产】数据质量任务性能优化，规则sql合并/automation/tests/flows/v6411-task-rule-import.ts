@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { attachV6411Screenshot } from "../fixtures/v6411-screenshot";
 

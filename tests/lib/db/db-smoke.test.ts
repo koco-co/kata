@@ -2,7 +2,7 @@
 // 并设置 KATA_RUN_LIVE=1 才跑，防止全量测试触发真实库。
 // 本地验证: KATA_RUN_LIVE=1 KATA_DB_URL='mysql://...' bun test tests/lib/db
 import { describe, expect, it } from "bun:test";
-import { withDb } from "../../../runtime/db/index.ts";
+import { withDb } from "../../../runtime/automation/db/index.ts";
 
 const url = process.env.KATA_DB_URL;
 const live = process.env.KATA_RUN_LIVE === "1" && !!url;

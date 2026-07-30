@@ -2,14 +2,14 @@
 // 多表比对·异常数据五类分类：zszq_cmp_cat_left/right（order_id 为逻辑主键，覆盖五类异常各 1 行）。
 // 记录数差异≤0% → 校验异常（存在主键匹配数据不一致/仅左有/仅右有/左右主键为空）。
 // 注：五类分类明细需在详情「查看明细」逐类核对，本用例核心断言校验异常状态；五类逐行明细见 handoff 未验证范围。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createMultiTableCompareRule,
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const LEFT = "zszq_cmp_cat_left";
 const RIGHT = "zszq_cmp_cat_right";

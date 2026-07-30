@@ -1,12 +1,16 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { applyRuntimeCookies } from "../../../../../../_shared/automation/runtime/env-setup";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 import type { Page } from "@playwright/test";
-import { setupPreconditions } from "../../../../../../_shared/helpers/preconditions";
-import { applyRuntimeCookies } from "../../../../../../_shared/helpers/test-setup";
+import {
+  createClient,
+  setupPreconditions,
+} from "../../../../../../_shared/automation/preconditions/setup-preconditions";
+
 import type { DatasourceConfig as BaseDatasourceConfig } from "../../../../../v6.4.7/【数据质量】有效性多规则且或关系/automation/tests/fixtures/test-data";
 import { buildSparkFixtureSql, versionJsonFixtureName } from "./json-fixture-sql";
-import { runRetriablePreconditions } from "../../../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
-import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
+import { runRetriablePreconditions } from "../preconditions/json-suite";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/config/playwright";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;
@@ -437,13 +441,14 @@ export async function runSuitePreconditions(
     wait: async () => waitForUiSettled(page),
     log: (message) => process.stderr.write(message),
     runForProject: async (projectName) => {
-      await setupPreconditions(page, {
-        datasourceType: datasource.preconditionType,
+      await setupPreconditions({
+        client: await createClient(page),
+        datasource: datasource.preconditionType,
         tables: TABLE_DEFINITIONS.map((table) => ({
           name: table.name,
           sql: table.sqlByDatasource[datasource.id],
         })),
-        projectName,
+        project: projectName,
         syncTimeoutMs: getMetadataSyncTimeoutSeconds() * 1000,
       });
     },

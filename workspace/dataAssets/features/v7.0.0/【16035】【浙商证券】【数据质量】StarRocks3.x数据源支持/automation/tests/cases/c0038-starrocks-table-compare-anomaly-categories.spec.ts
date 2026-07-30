@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=多表比对数值差异百分比  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 多表比对·数值差异百分比：zszq_cmp_pct_left/right（order_id=1003 trade_amount 1000 vs 1050，差 50=5%）。
 // 仅记录数差异≤0% → 校验异常（1003 不一致）。编辑增勾数值差异百分比≤10% → 校验通过（5% 在容差内）。编辑走 UI。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createMultiTableCompareRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const LEFT = "zszq_cmp_pct_left";
 const RIGHT = "zszq_cmp_pct_right";

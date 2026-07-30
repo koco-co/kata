@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=多表比对空值与NULL等价  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 多表比对·空值与NULL等价：zszq_cmp_null_left/right（order_id=1003 security_name '' vs NULL）。
 // 仅记录数差异≤0% → 校验异常（空串 vs NULL）。编辑增勾空值与NULL等价 → 校验通过（视为相等）。编辑走 UI。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createMultiTableCompareRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const LEFT = "zszq_cmp_null_left";
 const RIGHT = "zszq_cmp_null_right";

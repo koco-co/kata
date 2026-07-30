@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"验证取值范围&枚举范围规则校验「通过时不记录」明细数据且操作列不显示查看详情"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -14,7 +14,7 @@ import {
   getTaskDetailRuleCard,
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

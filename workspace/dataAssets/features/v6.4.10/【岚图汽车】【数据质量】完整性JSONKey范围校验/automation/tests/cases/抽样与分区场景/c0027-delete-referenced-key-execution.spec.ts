@@ -4,7 +4,7 @@
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t27","priority":"P1","title":"【P1】验证key范围校验规则结合抽样功能正确执行"}
 // TODO: 此用例需要抽样功能配置 + 大数据量前置条件，当前先做骨架。
-import { test } from "../../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 
 test.setTimeout(600000);
 

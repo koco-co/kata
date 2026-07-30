@@ -3,12 +3,12 @@ import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "no
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { type Command, Option } from "commander";
-import { AUTOMATION_OVERRIDE_FILE_ENV } from "../../runtime/automation/overrides.ts";
+import { AUTOMATION_OVERRIDE_FILE_ENV } from "../../runtime/automation/config/overrides.ts";
 import {
   loadPlaywrightAutomationConfig,
   type PlaywrightAutomationOverrides,
   parsePlaywrightAutomationOverrides,
-} from "../../runtime/automation/playwright-config.ts";
+} from "../../runtime/automation/config/playwright.ts";
 import { generateAutomationScripts } from "../lib/automation/automation-case-generator.ts";
 import {
   generateAutomationRunner,
@@ -390,7 +390,7 @@ export function registerAutomation(program: Command): void {
   automation
     .command("lint [feature-dir]")
     .description("检查 Playwright 自动化代码规范")
-    .option("--shared", "检查 workspace 项目的 _shared 页面、helper 与 fixture")
+    .option("--shared", "检查 workspace 项目的 _shared/automation 共享自动化代码")
     .option("--project <name>", "--shared 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)")
     .option("--exit-code", "存在 violation 时退出码为 1")
     .action(

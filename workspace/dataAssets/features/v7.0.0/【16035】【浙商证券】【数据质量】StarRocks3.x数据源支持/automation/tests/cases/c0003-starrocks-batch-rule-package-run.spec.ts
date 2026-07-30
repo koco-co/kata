@@ -2,7 +2,7 @@
 // A562：规范性·数值-枚举范围。zszq_trade_enum（trade_type 1/2/3/1，order_id=1003 的 trade_type=3 不在枚举 {1,2}）。
 // 枚举集合即填进「期望值」（固定值，比较符 =，阈值=「1,2」）：期望值 = 1,2 → 1003 越界，校验异常（违规 1 行）；
 // 编辑期望值为 1,2,3 → 无越界，校验通过。zszq_trade_enum 表由 _db.ts 运行时建表自包含。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 import { runSr3xSql } from "../fixtures/db";
 
 const TABLE = "zszq_trade_enum";

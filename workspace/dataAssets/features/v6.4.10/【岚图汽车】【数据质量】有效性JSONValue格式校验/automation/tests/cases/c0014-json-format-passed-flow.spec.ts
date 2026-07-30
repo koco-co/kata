@@ -3,16 +3,16 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t14","priority":"P0","title":"【P0】验证格式-json格式校验完整主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看通过实例"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { P0_PASS_SCENARIO } from "../fixtures/test-data";
 import {
   ensureValueFormatMainBaseline,
   getTaskDetailRuleCard,
   openTaskInstanceDetail,
   waitForVisibleTaskRow,
-} from "../../../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
-import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
-import { buildValidationKeyLabelPattern } from "../../../../../../_shared/pages/validity-json-value-format/validation-key-label";
+} from "../flows/rule-task-flow";
+import { describeByDatasource } from "../fixtures/suite-matrix";
+import { buildValidationKeyLabelPattern } from "../assertions/validation-key-label";
 
 test.setTimeout(600000);
 

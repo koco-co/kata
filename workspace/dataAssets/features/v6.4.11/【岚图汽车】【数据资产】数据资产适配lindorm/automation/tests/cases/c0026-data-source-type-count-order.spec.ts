@@ -7,8 +7,8 @@
 // SourceRefs: SR-2099-01-MD-DETAIL-UI-L942, SR-2099-01-MD-DETAIL-DELETE-L956, SR-2099-01-MD-DETAIL-EXPORT-L977, SR-2099-01-MD-DETAIL-SUBSCRIBE-L994, SR-2099-01-MD-DETAIL-FIELD-PAGING-L1050, SR-2099-01-MD-DETAIL-CREATE-SQL-L1074, SR-2099-01-MD-DETAIL-BATCH-EDIT-L1092, SR-2099-01-MD-DETAIL-ADD-TAG-L1115, SR-2099-01-MD-SUBSCRIBE-CREATE-L3157, SR-2099-01-MD-SUBSCRIBE-DETAIL-L3172, SR-2099-01-MD-SUBSCRIBE-EDIT-L3186, SR-2099-01-MD-SUBSCRIBE-MODAL-L3200, SR-2099-01-MD-026, SR-UI-PROBE-20260523-MF-METADATA-TABLE-DETAIL-ACTIONS-001, SR-SELF-RUN-20260523-MF-METADATA-TABLE-DETAIL-ACTIONS-001
 import { expect, type Locator, type Page, type Response } from "@playwright/test";
 
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { gotoMetadataPage } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { gotoMetadataPage } from "../pages/metadata-shell-page";
 
 test.setTimeout(120000);
 

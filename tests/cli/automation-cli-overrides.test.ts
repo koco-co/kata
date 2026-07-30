@@ -3,7 +3,7 @@ import { parseAutomationSetEntries } from "../../cli/lib/automation/cli-override
 import {
   AUTOMATION_OVERRIDE_FILE_ENV,
   automationOverrideFileFromArgv,
-} from "../../runtime/automation/overrides.ts";
+} from "../../runtime/automation/config/overrides.ts";
 
 describe("automation CLI overrides", () => {
   test("supports nested public and environment-specific paths", () => {

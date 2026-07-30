@@ -1,8 +1,8 @@
 // spec: cases/archive.md#case=任务查询  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 任务查询：产生 1 个校验通过实例(zszq_trade_orders 行数>5) + 1 个校验异常实例(zszq_trade_null 空值数=0)，
 // 进任务查询页校验列表壳层 + 两类实例状态经 monitorRecord/pageQuery 真实可查。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { expectTaskQueryShell } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectTaskQueryShell } from "../pages/data-quality-page";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const PASS_TABLE = "zszq_trade_orders";
 const FAIL_TABLE = "zszq_trade_null";

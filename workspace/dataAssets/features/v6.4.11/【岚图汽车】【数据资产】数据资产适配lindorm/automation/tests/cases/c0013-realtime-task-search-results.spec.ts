@@ -3,18 +3,11 @@
 // probe: SR-UI-PROBE-20260523-DQ-REPORT-CONFIG-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T07:40:00Z
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import {
-  expectDataQualityCustomReportCreateContract,
-  expectDataQualityGeneratedReportTab,
-  expectDataQualityReportDuplicateNameValidationContract,
-  expectDataQualityReportEditViewDeleteContract,
-  expectDataQualityReportCreateEntry,
-  expectDataQualityRuleBaseCustomSqlTemplate,
-  expectDataQualityRuleSetCreateEntry,
-  expectDataQualityRuleTaskCreateEntry,
-  expectDataQualitySingleTableReportCreateContract,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectDataQualityCustomReportCreateContract, expectDataQualityGeneratedReportTab, expectDataQualityReportDuplicateNameValidationContract, expectDataQualityReportEditViewDeleteContract, expectDataQualityReportCreateEntry, expectDataQualitySingleTableReportCreateContract } from "../pages/data-quality/reports";
+import { expectDataQualityRuleBaseCustomSqlTemplate } from "../pages/data-quality/rule-library";
+import { expectDataQualityRuleSetCreateEntry } from "../pages/data-quality/rule-sets";
+import { expectDataQualityRuleTaskCreateEntry } from "../pages/data-quality/rule-tasks";
 import { ensureDtstackPreconditionFile } from "../fixtures/dtstack-preconditions";
 
 test.setTimeout(15 * 60 * 1000);

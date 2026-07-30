@@ -3,13 +3,13 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t34","priority":"P0","title":"验证质量报告中校验通过行的各列展示内容正确"}
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ensureQualityReportsReady,
   gotoQualityReport,
   MAIN_TASK_NAME,
   openQualityReportDetail,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

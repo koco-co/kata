@@ -7,9 +7,9 @@
 // SourceRefs: SR-2099-01-STD-QUALITY-BINDING-L3867, SR-2099-01-STD-QUALITY-LIMIT-L3892, SR-2099-01-STD-QUALITY-ADD-DELETE-L3907, SR-2099-01-STD-QUALITY-EDIT-L3925, SR-2099-01-STD-QUALITY-CLEAR-L3942, SR-2099-01-STD-DEFINE-OFFLINE-USED-L4208, SR-2099-01-STD-TEMPLATE-REF-CODE-L4486, SR-2099-01-STD-041, SR-UI-PROBE-20260523-STANDARD-DEF-001, SR-UI-PROBE-20260522-DQ-001
 import { expect } from "@playwright/test";
 
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { expectDataQualityRuleTaskCreateEntry } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
-import { expectDataStandardDetailImportExportShell } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/standard-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectDataQualityRuleTaskCreateEntry } from "../pages/data-quality/rule-tasks";
+import { expectDataStandardDetailImportExportShell } from "../pages/standard-page";
 
 test.setTimeout(120000);
 

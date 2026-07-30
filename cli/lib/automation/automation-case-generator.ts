@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseCasesYaml } from "../../../runtime/cases/parse.ts";
+import { parseCasesYaml } from "../cases/parse.ts";
 import { inspectAutomationCoverage } from "./automation-contract.ts";
 
 export interface GeneratedAutomationScripts {

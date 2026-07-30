@@ -3,7 +3,7 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t16","priority":"P1","title":"验证执行含取值范围&枚举范围或关系规则的任务后校验通过"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -17,7 +17,7 @@ import {
   getTaskDetailRuleCard,
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-task-helpers";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

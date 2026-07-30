@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { renderMarkdown } from "../../cli/lib/cases/render-md.ts";
+import type { CasesFile } from "../../cli/lib/cases/types.ts";
 import { parseArchiveBody } from "../../cli/lib/cases/xmind/archive.ts";
-import type { CasesFile } from "../../runtime/cases/types.ts";
 
 const CONTEXT = { version: "v1", featureKey: "dataAssets:v1.0.0/【模块】需求名" };
 

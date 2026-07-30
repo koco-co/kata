@@ -1,4 +1,6 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { syncMetadata } from "../../../../../../_shared/automation/flows/metadata-sync";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,8 +8,8 @@ import { fileURLToPath } from "node:url";
 import { expect, type Locator, type Page, type Request, type Response, test } from "@playwright/test";
 import { createConnection, type ConnectionOptions } from "mysql2/promise";
 
-import { getEnvConfig, syncMetadata } from "../../../../../../_shared/helpers";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
+
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/config/playwright";
 import {
   EXPLICIT_RULE_CASE_SPECS,
   explicitRuleCaseNumbers,

@@ -7,12 +7,12 @@
 // SourceRefs: SR-2099-01-MD-VIEW-TECH-L1807, SR-2099-01-MD-VIEW-MULTI-SOURCE-L1821, SR-2099-01-MD-VIEW-METADATA-L1837, SR-2099-01-MD-VIEW-EXPORT-L1853, SR-2099-01-MD-VIEW-DELETE-L1868, SR-2099-01-MD-MVIEW-TECH-L1883, SR-2099-01-MD-MVIEW-MULTI-SOURCE-L1897, SR-2099-01-MD-MVIEW-METADATA-L1913, SR-2099-01-MD-MVIEW-EXPORT-L1935, SR-2099-01-MD-MVIEW-DELETE-L1950, SR-2099-01-MD-SYNC-VIEW-L1965, SR-2099-01-MD-SYNC-MVIEW-L1979, SR-2099-01-MD-OFFLINE-VIEW-SYNC-L2204, SR-2099-01-MD-OFFLINE-MVIEW-SYNC-L2221, SR-UI-PROBE-20260527-MF-METADATA-VIEW-DETAIL-001
 import { expect, type Locator, type Page } from "@playwright/test";
 
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   createDeletableAsset,
   deleteDeletableAsset,
   openFirstTableDetail,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/metadata-table-detail-page";
+} from "../pages/metadata-table-detail-page";
 
 test.setTimeout(12 * 60 * 1000);
 

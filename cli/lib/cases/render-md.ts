@@ -3,7 +3,7 @@
  * Output carries the generated-file header; it is never hand-edited.
  */
 
-import type { CaseItem, CaseRenderContext, CasesFile } from "../../../runtime/cases/types.ts";
+import type { CaseItem, CaseRenderContext, CasesFile } from "./types.ts";
 import { UNCLASSIFIED } from "./xmind/xmind-render.ts";
 
 /** Header marker required on every build-derived artifact. */

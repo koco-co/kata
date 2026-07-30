@@ -1,11 +1,11 @@
-import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
 // spec: features/completeness-json-key-range/archive.md#case=t32-case-32
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t32","priority":"P1","title":"验证规则库中新增key范围校验内置规则展示信息正确"}
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
-import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../flows/rule-set-flow";
 
 test.setTimeout(600000);
 

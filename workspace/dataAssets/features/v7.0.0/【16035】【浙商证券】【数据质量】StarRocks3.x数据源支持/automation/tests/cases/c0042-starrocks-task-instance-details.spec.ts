@@ -1,10 +1,10 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: cases/archive.md#case=规则配置列表查询与筛选  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 规则配置列表查询与筛选：表名搜索 → 最近修改人筛选 → 我收藏的表 → 分页。前置依赖 KEEP_RULES 已建多条规则。
 // 真实 DOM（live probe）：分页 .ant-pagination-total-text=「共N条数据」；最近修改人为 placeholder「选择最近修改人」
 // 的 ant-select；行操作列已收藏显示「取消收藏」、未收藏显示「收藏」。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { gotoZszqDataAssetsPage } from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-quality-page";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { gotoZszqDataAssetsPage } from "../pages/data-quality-page";
 
 test.describe("@serial 【P2】验证 StarRocks 3.x 数据源规则配置列表查询与筛选", () => {
   test("【P2】表名搜索 / 最近修改人 / 我收藏的表 / 分页", async ({ page, step }) => {

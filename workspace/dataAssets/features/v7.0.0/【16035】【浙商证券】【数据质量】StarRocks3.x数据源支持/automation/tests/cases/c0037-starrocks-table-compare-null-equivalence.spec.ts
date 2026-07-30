@@ -1,12 +1,12 @@
 // spec: cases/archive.md#case=规则任务删除  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 规则任务删除：zszq_trade_null 建 1 条规则 → 在规则列表 UI 点「删除」并确认 → 断言规则行从列表移除。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
   deleteRuleByTable,
   deleteRuleViaUi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_null";
 

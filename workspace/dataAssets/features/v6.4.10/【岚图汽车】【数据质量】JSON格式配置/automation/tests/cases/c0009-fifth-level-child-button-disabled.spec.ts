@@ -1,11 +1,11 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t09-5-disabled
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P1","title":"【P1】验证第5层级的新增子层级按钮是置灰、不可点击（disabled）"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   addChildKey,
   addKey,
@@ -13,7 +13,7 @@ import {
   expandRow,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证第5层级的新增子层级按钮是置灰、不可点击（disabled）", { tag: "@serial" }, async ({

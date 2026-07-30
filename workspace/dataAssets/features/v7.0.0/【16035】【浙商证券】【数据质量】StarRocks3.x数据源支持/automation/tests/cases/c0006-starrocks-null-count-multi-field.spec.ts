@@ -1,6 +1,6 @@
 // spec: cases/archive.md#case=准确性求和  intent: SR-INTENT-2026-06-DQ-SR3X-006  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 准确性·求和：zszq_trade_sum（trade_amount 合计 131000）。=131000 校验通过 / =130000 校验异常。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -8,7 +8,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_sum";
 

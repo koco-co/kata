@@ -3,14 +3,14 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t29","priority":"P1","title":"【P1】验证质量报告中「格式-json格式校验」规则行各列字段展示正确（校验不通过场景）"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { REPORT_FAIL_SCENARIO } from "../fixtures/test-data";
 import {
   getQualityReportRuleRow,
   openPreparedQualityReport,
   openQualityReportRuleDetail,
-} from "../../../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
-import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+} from "../flows/rule-task-flow";
+import { describeByDatasource } from "../fixtures/suite-matrix";
 
 test.setTimeout(600000);
 

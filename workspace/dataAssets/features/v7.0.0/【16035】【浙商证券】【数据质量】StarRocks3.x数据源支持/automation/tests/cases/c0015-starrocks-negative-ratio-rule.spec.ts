@@ -3,7 +3,7 @@
 // 已知缺陷：range 规则生成 SQL 把数值阈值带引号（trade_price>'2000'），StarRocks 按字典序比较而非数值，
 // 故 <=2000 会误判 300.50/800 越界。为产出稳定回归：Fail 用 <=1000（越界→异常）；
 // Pass 用 <=999999（字典序无更大值→0越界→通过，已 live 验证 status=3）。详见 handoff 缺陷标注。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -11,7 +11,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_price_range";
 

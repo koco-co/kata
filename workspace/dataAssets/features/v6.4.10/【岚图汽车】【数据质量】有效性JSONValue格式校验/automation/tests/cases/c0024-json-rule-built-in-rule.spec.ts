@@ -3,9 +3,9 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"【P1】验证规则库中「格式-json格式校验」内置规则展示信息正确"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { gotoRuleBaseAndSearch } from "../../../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
-import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { gotoRuleBaseAndSearch } from "../flows/rule-set-flow";
+import { describeByDatasource } from "../fixtures/suite-matrix";
 
 test.setTimeout(120000);
 

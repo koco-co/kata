@@ -3,7 +3,7 @@
  */
 
 import ExcelJS from "exceljs";
-import type { CasesFile } from "../../../runtime/cases/types.ts";
+import type { CasesFile } from "./types.ts";
 import { UNCLASSIFIED } from "./xmind/xmind-render.ts";
 
 function tagCount(file: CasesFile): number {

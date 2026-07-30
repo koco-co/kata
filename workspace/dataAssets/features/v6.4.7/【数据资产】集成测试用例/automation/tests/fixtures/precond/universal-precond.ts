@@ -1,7 +1,10 @@
 import type { Page } from "@playwright/test";
 import { createHash } from "node:crypto";
-import { getEnvConfig } from "../../../../../../../_shared/runtime/env-profile";
-import { setupPreconditions } from "../../../../../../../_shared/helpers/preconditions";
+import { getEnvConfig } from "../../../../../../../_shared/automation/runtime/env-profile";
+import {
+  createClient,
+  setupPreconditions,
+} from "../../../../../../../_shared/automation/preconditions/setup-preconditions";
 
 const SOURCE_HASH = createHash("sha256")
   .update("2026-04-zi-chan-ji-cheng:universal-precond:v1")
@@ -30,10 +33,11 @@ export async function runUniversalPrecond(page: Page): Promise<void> {
   if (!offline) {
     throw new Error(`[precond] offline project is required for env "${env.env}".`);
   }
-  await setupPreconditions(page, {
-    projectName: offline.name,
+  await setupPreconditions({
+    client: await createClient(page),
+    project: offline.name,
     projectId: offline.id,
-    datasourceType: datasource.preconditionType,
+    datasource: datasource.preconditionType,
     datasourceProfile: {
       id: batch.id,
       name: batch.name,

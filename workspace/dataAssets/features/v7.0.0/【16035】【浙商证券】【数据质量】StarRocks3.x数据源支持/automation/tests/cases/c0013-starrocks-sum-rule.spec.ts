@@ -1,6 +1,6 @@
 // spec: cases/archive.md#case=准确性零值比  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 准确性·零值比：zszq_trade_zero（5行，1行为零，零值比=20%）。=0% 校验异常 / <=20% 校验通过。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -8,7 +8,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_zero";
 

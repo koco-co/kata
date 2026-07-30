@@ -1,4 +1,5 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: cases/archive.md#v6411-sparkthrift-result-recheck
 // intent: SR-INTENT-V6411-RESULT-RECHECK
 // probe: SR-UI-PROBE-V6411-RESULT-RECHECK
@@ -8,7 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { getEnvConfig } from "../../../../../../_shared/helpers";
+
 import { loadV6411AutomationSettings } from "../fixtures/v6411-automation-config";
 import {
   EXPLICIT_RULE_CASE_SPECS,

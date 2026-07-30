@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=完整性字段级空值数多字段  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 完整性·字段级·空值数·多字段：zszq_trade_multi_null（仅 order_id=1004 两字段同时 NULL，空值数=1）。
 // Fail: =0（1不满足）；Pass: <=1（1满足）。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_multi_null";
 const FIELDS = ["security_name", "account_no"];

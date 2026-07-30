@@ -18,5 +18,5 @@ description: 当用户要「初始化工作区」「新建项目工作区」「�
 
 - 所有产物只写入 `workspace/<project>/`，不外溢到其他目录。
 - 骨架的标准结构以 `kata project scan` 的对比结果为准，不要凭记忆在对话里罗列目录。
-- 项目的权威元数据只读写 `workspace/<project>/project.json`，不使用全局项目注册表或根 `config.json`。
+- 项目标识以 `workspace/<project>/` 的目录名为准，不额外创建重复的项目元数据文件。
 - 不直接手改 `config/env/` 下的平台配置；需要调整时改用 `kata env` / `kata env cookie` 命令操作。

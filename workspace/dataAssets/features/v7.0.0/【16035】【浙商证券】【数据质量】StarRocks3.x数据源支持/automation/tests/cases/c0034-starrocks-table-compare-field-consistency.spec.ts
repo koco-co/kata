@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=唯一性重复率多字段  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 唯一性·重复率·多字段：zszq_repeat_rate_multi（5行，(security_code,account_no) 联合 2 行重复，重复率=40%）。
 // Fail: <=0%（40%不满足）；Pass: <=40%（40%满足）。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_repeat_rate_multi";
 const FIELDS = ["security_code", "account_no"];

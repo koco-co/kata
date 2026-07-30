@@ -1,4 +1,8 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { executeSqlViaBatchDoris } from "../flows/batch-sql";
+import { applyRuntimeCookies, buildDataAssetsUrl, normalizeDataAssetsBaseUrl } from "../../../../../../_shared/automation/runtime/env-setup";
+import { syncMetadata } from "../../../../../../_shared/automation/flows/metadata-sync";
+import { expectAntMessage, uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
+import { getQualityProjectId } from "../preconditions/quality-project";
 /**
  * 资产-集成测试用例 回归自动化
  * 环境：ci78 (http://172.16.124.78)
@@ -37,16 +41,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "../fixtures/preconditions";
-import {
-  applyRuntimeCookies,
-  buildDataAssetsUrl,
-  executeSqlViaBatchDoris,
-  expectAntMessage,
-  getQualityProjectId,
-  normalizeDataAssetsBaseUrl,
-  syncMetadata,
-  uniqueName,
-} from "../../../../../../_shared/helpers/test-setup";
+
 
 // ─── Types ───────────────────────────────────────────
 type Page = import("@playwright/test").Page;

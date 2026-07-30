@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=完整性字段级空串数  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 完整性·字段级·空串数：zszq_trade_blank（security_name 含 1 个空字符串）。
 // Fail: =0（1不满足）；Pass: <=1（1满足）。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_blank";
 

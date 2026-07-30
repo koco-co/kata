@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { normalizeStructuredText } from "../../cli/lib/cases/normalize.ts";
 import { normalizeCasesYamlText } from "../../cli/lib/cases/serialize.ts";
-import { normalizeStructuredText } from "../../runtime/cases/normalize.ts";
 
 describe("normalizeStructuredText", () => {
   it("normalizes CRLF and br tags", () => {

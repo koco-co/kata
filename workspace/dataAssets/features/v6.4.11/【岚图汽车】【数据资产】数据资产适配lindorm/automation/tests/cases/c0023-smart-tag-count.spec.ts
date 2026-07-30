@@ -2,8 +2,8 @@
 // intent: SR-INTENT-2099-01-DQ-RULE-TASK-TIMEOUT-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // SourceRefs: SR-2099-01-DQ-RULE-TASK-TIMEOUT-HANDLING-L7924, SR-UI-PROBE-20260527-DQ-RULE-TASK-TIMEOUT-HANDLING-L7924-001
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { expectDataQualityRuleTaskTimeoutHandlingContract } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectDataQualityRuleTaskTimeoutHandlingContract } from "../pages/data-quality/rule-tasks";
 import { ensureDtstackPreconditionFile } from "../fixtures/dtstack-preconditions";
 
 test.setTimeout(15 * 60 * 1000);

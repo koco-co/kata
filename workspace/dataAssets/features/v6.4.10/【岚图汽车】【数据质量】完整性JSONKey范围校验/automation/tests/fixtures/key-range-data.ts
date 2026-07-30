@@ -9,8 +9,8 @@
  *   - QUALITY_PROJECT_ID 由 env-profile 自动解析，对应当前 dataAssets 套件使用的质量项目 ID
  */
 import type { Page } from "@playwright/test";
-import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/helpers/test-setup";
-import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
+import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/automation/runtime/env-setup";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;

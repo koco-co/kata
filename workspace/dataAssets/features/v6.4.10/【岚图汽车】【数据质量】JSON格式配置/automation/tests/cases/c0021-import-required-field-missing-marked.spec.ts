@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { todayStr, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -8,9 +8,9 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { todayStr } from "../../../../../../_shared/helpers/test-setup";
-import { gotoJsonConfigPage, searchKey } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
+import { gotoJsonConfigPage, searchKey } from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 /** 生成测试用 xlsx，sheet 含一行 key 为空的数据 */
 async function createImportXlsx(

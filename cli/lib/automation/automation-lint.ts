@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join, relative, resolve, sep } from "node:path";
-import { SPEC_FILE_RE } from "../../../runtime/cases/parse.ts";
+import { SPEC_FILE_RE } from "../cases/parse.ts";
 import { projectRootFromFeatureDir } from "../features-layout.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
 
@@ -222,6 +222,15 @@ function validIp(value: string): boolean {
   return value.split(".").every((part) => Number(part) >= 0 && Number(part) <= 255);
 }
 
+function isNonRoutableSentinelUrl(value: string): boolean {
+  try {
+    const hostname = new URL(value).hostname.toLowerCase();
+    return hostname === "invalid" || hostname.endsWith(".invalid");
+  } catch {
+    return false;
+  }
+}
+
 function stringLiterals(line: string): Array<{ start: number; value: string }> {
   const result: Array<{ start: number; value: string }> = [];
   for (const match of line.matchAll(STRING_RE)) {
@@ -244,7 +253,7 @@ function scanHardcodedEnvironment(
     const prefix = maskedLine.slice(0, literal.start);
     const sensitiveAssignment = /\b(?:cookie|password|token)\b\s*(?:=|:)\s*$/i.test(prefix);
 
-    if (URL_RE.test(value)) {
+    if (URL_RE.test(value) && !isNonRoutableSentinelUrl(value)) {
       addViolation(
         violations,
         path,
@@ -262,7 +271,7 @@ function scanHardcodedEnvironment(
         "发现硬编码 IP 地址；请从运行环境或配置注入地址",
         originalLine,
       );
-    } else if (sensitiveAssignment) {
+    } else if (sensitiveAssignment && value.length > 0) {
       addViolation(
         violations,
         path,
@@ -416,12 +425,8 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
     }
     const projectDir = join(root, "workspace", project);
     if (!existsSync(projectDir)) throw new Error(`kata automation lint: 未知项目 ${project}`);
-    const canonicalSharedRoot = join(projectDir, "_shared", "automation");
-    const sharedRoot = existsSync(canonicalSharedRoot)
-      ? canonicalSharedRoot
-      : join(projectDir, "_shared");
     return {
-      roots: ["pages", "helpers", "fixtures"].map((area) => join(sharedRoot, area)),
+      roots: [join(projectDir, "_shared", "automation")],
       projectDir,
     };
   }
@@ -437,7 +442,10 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
 
 export function runAutomationLint(options: AutomationLintOptions): AutomationLintReport {
   const target = resolveTarget(options);
-  const files = target.roots.flatMap((root) => listCodeFiles(root)).sort();
+  const files = target.roots
+    .flatMap((root) => listCodeFiles(root))
+    .filter((path) => !(options.shared && /\.(?:spec|test)\.[cm]?[jt]sx?$/.test(path)))
+    .sort();
   const rawViolations: AutomationLintViolation[] = [];
   const ignored: AutomationLintIgnore[] = [];
 

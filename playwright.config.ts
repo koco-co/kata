@@ -8,11 +8,11 @@ import {
   loadPlaywrightAutomationConfig,
   PLAYWRIGHT_AUTOMATION_REPO_ROOT,
   prepareAllureDirectories,
-} from "./runtime/automation/playwright-config";
+} from "./runtime/automation/config/playwright";
 import {
   cookieHeaderToPlaywrightState,
   resolveDataAssetsRuntime,
-} from "./workspace/dataAssets/_shared/runtime/env-profile";
+} from "./workspace/dataAssets/_shared/automation/runtime/env-profile";
 
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
   if (env.KATA_DISCOVERY_ONLY === "1") return "test-results/discovery";

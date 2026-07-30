@@ -1,4 +1,5 @@
-import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
+import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../../_shared/automation/runtime/env-setup";
+import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
 // spec: features/completeness-json-key-range/archive.md#case=t16-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -6,13 +7,8 @@ import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
 // META: {"id":"t16","priority":"P0","title":"【P0】验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果"}
 
 import { executeTableSQL } from "dtstack-sdk/adapters/execute-table";
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
-import {
-  applyRuntimeCookies,
-  buildDataAssetsUrl,
-  selectAntOption,
-  uniqueName,
-} from "../../../../../../../_shared/helpers";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
@@ -24,7 +20,7 @@ import {
   setCurrentDatasource,
   TARGET_ENV,
 } from "../../fixtures/test-data";
-import type { MonitorDatasourceConfig } from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+import type { MonitorDatasourceConfig } from "../../pages/rule-set-page";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,
@@ -33,12 +29,12 @@ import {
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
   saveRuleSet,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/key-range-utils";
+} from "../../pages/rule-set-page";
 import {
   executeTaskFromList,
   getTableRowByTaskName,
   gotoValidationResults,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

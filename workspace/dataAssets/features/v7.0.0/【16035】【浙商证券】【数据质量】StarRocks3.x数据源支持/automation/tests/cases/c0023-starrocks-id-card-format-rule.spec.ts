@@ -1,6 +1,6 @@
 // spec: cases/archive.md#case=唯一性重复率  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 唯一性·重复率：zszq_repeat_rate（5行，security_code '600036'重复2行，重复率=40%）。<=0% 校验异常 / <=40% 校验通过。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -8,7 +8,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_repeat_rate";
 

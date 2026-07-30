@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { todayStr, uniqueName } from "../../../runtime/playwright/utils.ts";
+import { todayStr, uniqueName } from "../../../runtime/automation/playwright/utils.ts";
 
 describe("uniqueName", () => {
   it("returns string starting with prefix", () => {

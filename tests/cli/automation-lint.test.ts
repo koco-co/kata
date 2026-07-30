@@ -57,6 +57,8 @@ describe("automation lint", () => {
         'const address = "192.0.2.20";',
         'const password = "secret-value";',
         "const cookie = process.env.COOKIE;",
+        'const auth = { cookie: "" };',
+        'const sentinelUrl = "http://discovery.invalid";',
         'const text = "ordinary text";',
         "",
       ].join("\n"),
@@ -109,10 +111,19 @@ describe("automation lint", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-al-shared-"));
     const projectDir = join(root, "workspace", "dataAssets");
     mkdirSync(join(projectDir, "_shared", "automation", "pages"), { recursive: true });
+    mkdirSync(join(projectDir, "_shared", "automation", "flows"), { recursive: true });
     mkdirSync(join(projectDir, "_shared", "_meta"), { recursive: true });
     writeFileSync(
       join(projectDir, "_shared", "automation", "pages", "page.ts"),
       "await page.waitForTimeout(100);\n",
+    );
+    writeFileSync(
+      join(projectDir, "_shared", "automation", "flows", "flow.ts"),
+      "await page.waitForTimeout(150);\n",
+    );
+    writeFileSync(
+      join(projectDir, "_shared", "automation", "flows", "flow.test.ts"),
+      "await page.waitForTimeout(175);\n",
     );
     writeFileSync(
       join(projectDir, "_shared", "_meta", "metadata.ts"),
@@ -120,12 +131,15 @@ describe("automation lint", () => {
     );
 
     const result = runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root });
-    expect(result.scannedFiles).toBe(1);
-    expect(result.violations).toHaveLength(1);
-    expect(result.violations[0]?.path).toBe("_shared/automation/pages/page.ts");
+    expect(result.scannedFiles).toBe(2);
+    expect(result.violations).toHaveLength(2);
+    expect(result.violations.map((item) => item.path).sort()).toEqual([
+      "_shared/automation/flows/flow.ts",
+      "_shared/automation/pages/page.ts",
+    ]);
   });
 
-  it("keeps legacy _shared pages, helpers and fixtures lintable during migration", () => {
+  it("does not treat legacy _shared paths as a compatibility fallback", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-al-shared-legacy-"));
     const projectDir = join(root, "workspace", "dataAssets");
     mkdirSync(join(projectDir, "_shared", "pages"), { recursive: true });
@@ -135,8 +149,7 @@ describe("automation lint", () => {
     );
 
     const result = runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root });
-    expect(result.scannedFiles).toBe(1);
-    expect(result.violations[0]?.path).toBe("_shared/pages/page.ts");
+    expect(result).toEqual({ scannedFiles: 0, violations: [], ignored: [] });
   });
 
   it("returns a non-zero CLI status with --exit-code", () => {

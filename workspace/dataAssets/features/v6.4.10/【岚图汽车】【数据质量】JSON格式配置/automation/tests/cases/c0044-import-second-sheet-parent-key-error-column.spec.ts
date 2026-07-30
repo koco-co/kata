@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t44-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -16,14 +16,14 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 import ExcelJS from "exceljs";
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   addKey,
   clearSearch,
   deleteKey,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

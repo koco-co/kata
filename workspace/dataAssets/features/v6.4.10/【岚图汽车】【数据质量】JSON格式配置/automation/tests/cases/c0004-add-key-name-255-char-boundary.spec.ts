@@ -3,8 +3,8 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t4","priority":"P1","title":"【P1】验证新增key时key字段输入恰好255字符边界值可成功提交"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { addKey, deleteKey, gotoJsonConfigPage, searchKey } from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { addKey, deleteKey, gotoJsonConfigPage, searchKey } from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证新增key时key字段输入恰好255字符边界值可成功提交", async ({ page, step }) => {

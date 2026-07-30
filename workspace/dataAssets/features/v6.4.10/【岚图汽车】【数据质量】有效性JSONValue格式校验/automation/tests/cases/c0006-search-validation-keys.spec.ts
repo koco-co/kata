@@ -1,18 +1,18 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/validity-json-value-format/archive.md#case=t06-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t6","priority":"P1","title":"【P1】验证校验key搜索功能正常"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   addJsonFormatRule,
   openValidationKeyDropdown,
   prepareJsonRuleSetDraft,
   searchValidationKey,
-} from "../../../../../../_shared/pages/validity-json-value-format/json-format-suite-helpers";
-import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+} from "../flows/rule-set-flow";
+import { describeByDatasource } from "../fixtures/suite-matrix";
 
 const RULE_CONFIG_TABLE = "quality_test_json_rule_config";
 

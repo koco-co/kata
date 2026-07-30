@@ -3,8 +3,8 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P0","title":"【P0】验证新增key完整正向流程（含正则测试）"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../../../runtime/automation/playwright";
 import {
   clickHeaderButton,
   confirmAndWaitClose,
@@ -16,7 +16,7 @@ import {
   searchKey,
   selectDataSourceType,
   waitModal,
-} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P0】验证新增key完整正向流程（含正则测试）", async ({ page, step }) => {

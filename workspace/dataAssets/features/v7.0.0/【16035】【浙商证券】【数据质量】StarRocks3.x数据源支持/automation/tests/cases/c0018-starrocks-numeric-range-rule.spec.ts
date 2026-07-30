@@ -5,7 +5,7 @@
 // PRODUCT-BUG（已提 bug）：本 build UI 提供「字符串-最大长度」统计函数，但后端无对应函数模板，提交规则时
 // /monitor/add 返回 {code:3009,"函数模板不存在"}，规则无法创建/保存。该用例因此**保存失败、执行不通过**
 // ——失败即如实反映产品缺陷，不跳过；后端补函数模板后即应转通过。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -13,7 +13,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_str_maxlen";
 

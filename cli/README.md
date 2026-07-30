@@ -20,6 +20,7 @@ Commands:
   config          运行时配置检查
   runs            运行结果目录操作
   env             管理本机私密的 DataAssets 平台环境
+  repo            当前 Kata 仓库规范检查
   repos           查询 config/repos/sources.yaml 配置的源码仓库(.repos/ 本地克隆)
   knowledge       项目知识的查询、维护与索引
   scans           代码 diff 扫描报告
@@ -125,6 +126,21 @@ Commands:
   run [options] <name> <command...>  在线精确解析环境后运行命令
   cookie                             管理环境 Cookie
   help [command]                     display help for command
+```
+
+## kata repo
+
+```text
+Usage: kata repo [options] [command]
+
+当前 Kata 仓库规范检查
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  lint [options]  检查当前 Kata 仓库的目录、文件名与依赖边界
+  help [command]  display help for command
 ```
 
 ## kata repos
@@ -455,8 +471,7 @@ Usage: kata config plugins-migrate [options]
 
 Options:
   --source <path>  旧 dotenv 文件路径
-  --root <path>    目标 Kata 工作区根目录 (default:
-                   "<kata-root>")
+  --root <path>    目标 Kata 工作区根目录 (default: "<kata-root>")
   --apply          写入 config/plugin/*.yaml
   -h, --help       display help for command
 ```
@@ -629,6 +644,18 @@ Options:
 Commands:
   set [options] <name>  从 stdin 读取并在线验证 Cookie，成功后原子替换
   help [command]        display help for command
+```
+
+## kata repo lint
+
+```text
+Usage: kata repo lint [options]
+
+检查当前 Kata 仓库的目录、文件名与依赖边界
+
+Options:
+  --exit-code  存在违规时退出码为 1
+  -h, --help   display help for command
 ```
 
 ## kata repos prepare
@@ -1008,7 +1035,7 @@ Usage: kata automation lint [options] [feature-dir]
 检查 Playwright 自动化代码规范
 
 Options:
-  --shared          检查 workspace 项目的 _shared 页面、helper 与 fixture
+  --shared          检查 workspace 项目的 _shared/automation 共享自动化代码
   --project <name>  --shared 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)
   --exit-code       存在 violation 时退出码为 1
   -h, --help        display help for command

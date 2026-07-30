@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=唯一性非重复占比  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 唯一性·非重复占比：zszq_distinct_rate（5行，只出现一次的值数=3 → 非重复占比=3/5=60%）。
 // 同 t24，平台「非重复」按「只出现一次」算（非 distinct）。=100% 校验异常 / >=60% 校验通过。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_distinct_rate";
 

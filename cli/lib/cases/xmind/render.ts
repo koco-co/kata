@@ -3,7 +3,6 @@
  */
 
 import { RootTopic, Topic, type TopicBuilder, Workbook } from "xmind-generator";
-import type { CaseRenderContext, CasesFile } from "../../../../runtime/cases/types.ts";
 import { writeFileAtomic } from "../../atomic-writer.ts";
 import type {
   IntermediateJson,
@@ -12,6 +11,7 @@ import type {
   SubGroup,
   TestCase,
 } from "../../intermediate-types.ts";
+import type { CaseRenderContext, CasesFile } from "../types.ts";
 import {
   buildCaseTopic,
   buildL1Labels,

@@ -1,7 +1,7 @@
 import { isMap, isScalar, isSeq, parseDocument, Scalar, stringify } from "yaml";
-import type { CaseExportFormat } from "../../../runtime/cases/formats.ts";
-import { normalizeCasesFile, normalizeStructuredText } from "../../../runtime/cases/normalize.ts";
-import type { CaseItem, CasesFile } from "../../../runtime/cases/types.ts";
+import type { CaseExportFormat } from "./formats.ts";
+import { normalizeCasesFile, normalizeStructuredText } from "./normalize.ts";
+import type { CaseItem, CasesFile } from "./types.ts";
 
 function serializedCase(item: CaseItem) {
   return {

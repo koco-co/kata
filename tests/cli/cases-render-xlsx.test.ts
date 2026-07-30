@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import ExcelJS from "exceljs";
 import { renderXlsx } from "../../cli/lib/cases/render-xlsx.ts";
-import type { CasesFile } from "../../runtime/cases/types.ts";
+import type { CasesFile } from "../../cli/lib/cases/types.ts";
 
 function file(title: string, cases: CasesFile["cases"]): CasesFile {
   return { meta: { title, case_module_id: "" }, cases };

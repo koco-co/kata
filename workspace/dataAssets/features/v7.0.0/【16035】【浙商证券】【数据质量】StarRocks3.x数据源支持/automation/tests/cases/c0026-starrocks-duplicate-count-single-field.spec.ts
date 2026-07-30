@@ -1,7 +1,7 @@
 // spec: cases/archive.md#case=自定义SQL单表  probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 自定义SQL·单表：zszq_trade_custom（trade_amount 含 1 行负值，SQL 返回 1 行）。
 // Fail: =0（SQL 返回 1 行不满足）；Pass: >=1（无需 DB 写入，1 行满足 >=1）。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -9,7 +9,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_custom";
 const SQL = "SELECT order_id, trade_amount FROM zszq_trade_custom WHERE trade_amount < 0";

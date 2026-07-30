@@ -3,26 +3,13 @@
 // probe: SR-UI-PROBE-20260522-DQ-001
 // page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-22T09:36:45Z
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import {
-  expectDataQualityOverviewShell,
-  expectDataQualityReportShell,
-  expectDataQualityRuleBaseBuiltInRulesShell,
-  expectDataQualityRuleBaseBuiltInExportContract,
-  expectDataQualityRuleBaseBuiltInStatusToggleContract,
-  expectDataQualityRuleBaseCustomRegexAddContract,
-  expectDataQualityRuleBaseCustomRegexEditDetailDeleteContract,
-  expectDataQualityRuleBaseCustomSqlBasicInfoSaveContract,
-  expectDataQualityRuleBaseCustomSqlDetailEditProtectionContract,
-  expectDataQualityRuleBaseCustomSqlParamConfigContract,
-  expectDataQualityRuleBaseReferencedCustomRegexDeleteProtectionContract,
-  expectDataQualityMenuRenameContract,
-  expectDataQualityResultShell,
-  expectDataQualityRuleBaseShell,
-  expectDataQualityRuleSetShell,
-  expectDataQualityRuleShell,
-  expectMetadataIntegrityShell,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectDataQualityOverviewShell, expectDataQualityMenuRenameContract, expectMetadataIntegrityShell } from "../pages/data-quality/overview";
+import { expectDataQualityReportShell } from "../pages/data-quality/reports";
+import { expectDataQualityResultShell } from "../pages/data-quality/results";
+import { expectDataQualityRuleBaseBuiltInRulesShell, expectDataQualityRuleBaseBuiltInExportContract, expectDataQualityRuleBaseBuiltInStatusToggleContract, expectDataQualityRuleBaseCustomRegexAddContract, expectDataQualityRuleBaseCustomRegexEditDetailDeleteContract, expectDataQualityRuleBaseCustomSqlBasicInfoSaveContract, expectDataQualityRuleBaseCustomSqlDetailEditProtectionContract, expectDataQualityRuleBaseCustomSqlParamConfigContract, expectDataQualityRuleBaseReferencedCustomRegexDeleteProtectionContract, expectDataQualityRuleBaseShell } from "../pages/data-quality/rule-library";
+import { expectDataQualityRuleSetShell } from "../pages/data-quality/rule-sets";
+import { expectDataQualityRuleShell } from "../pages/data-quality/rule-tasks";
 
 test.setTimeout(3 * 60 * 1000);
 

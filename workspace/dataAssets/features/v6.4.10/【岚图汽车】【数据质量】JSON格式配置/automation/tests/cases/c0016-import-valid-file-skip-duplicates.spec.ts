@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t16-case-16
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
@@ -7,8 +7,8 @@ import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
 
 import * as fs from "fs";
 import * as path from "path";
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   buildImportXlsx,
   clearSearch,
@@ -16,7 +16,7 @@ import {
   expandRow,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P0】验证导入正确文件全流程（重复则跳过）", { tag: "@serial" }, async ({

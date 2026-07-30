@@ -1,9 +1,7 @@
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { expect } from "@playwright/test";
-import {
-  expectSparkThriftQualityRuleMatrixContract,
-  type SparkThriftQualityRuleValidationScenario,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { type SparkThriftQualityRuleValidationScenario } from "../../../../../../_shared/automation/pages/data-quality/page-context";
+import { expectSparkThriftQualityRuleMatrixContract } from "../../../../../../_shared/automation/pages/data-quality/sparkthrift-rule-validation";
 
 test.setTimeout(45 * 60 * 1000);
 

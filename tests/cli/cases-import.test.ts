@@ -14,8 +14,8 @@ import { runCasesSplitImport } from "../../cli/commands/cases-import.ts";
 import { importCases, splitXmindCases } from "../../cli/lib/cases/importers.ts";
 import { renderMarkdown } from "../../cli/lib/cases/render-md.ts";
 import { renderXlsx } from "../../cli/lib/cases/render-xlsx.ts";
+import type { CasesFile } from "../../cli/lib/cases/types.ts";
 import { renderXmindBuffer } from "../../cli/lib/cases/xmind/render.ts";
-import type { CasesFile } from "../../runtime/cases/types.ts";
 
 const FEATURE = join(
   process.cwd(),

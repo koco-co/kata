@@ -1,11 +1,11 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/json-config-helper/archive.md#case=t06-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t6","priority":"P1","title":"【P1】验证新增key表单中切换数据源类型后其余字段内容仍保留"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   clickHeaderButton,
   fillKeyInput,
@@ -14,7 +14,7 @@ import {
   gotoJsonConfigPage,
   selectDataSourceType,
   waitModal,
-} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 test.describe("【通用配置】json格式配置 - 通用配置-json格式校验管理", () => {
   test("【P1】验证新增key表单中切换数据源类型后其余字段内容仍保留", { tag: "@serial" }, async ({

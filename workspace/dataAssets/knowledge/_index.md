@@ -14,7 +14,7 @@
 
 ## Modules
 
-- [data-quality.md](modules/data-quality.md) — 数据质量模块业务规则（产品级） [tags: 数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束] (updated: 2026-06-29, status: verified)
+- [data-quality.md](modules/data-quality.md) — 数据质量模块业务规则（产品级） [tags: 数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束] (updated: 2026-07-30, status: verified)
 - [落标检查与元数据同步菜单位置.md](modules/落标检查与元数据同步菜单位置.md) — 落标检查与元数据同步菜单位置 [tags: 数据标准, 落标检查, 元数据同步, 菜单路径] (updated: 2026-07-26, status: verified)
 - [调度引擎-environment_param_template-表结构与取值.md](modules/调度引擎-environment_param_template-表结构与取值.md) — 调度引擎 environment_param_template 表结构与取值 [tags: 调度引擎, 环境参数, Spark, SQL, 落标检查] (updated: 2026-07-26, status: verified)
 
@@ -38,4 +38,4 @@
 - [sites/172.16.122.52/dom-dataAssets.md](sites/172.16.122.52/dom-dataAssets.md) — 172.16.122.52 DataAssets DOM [tags: selector, dataAssets, 数据地图, 热门标签, 字段标签, 自动分级, 识别模式, 数据脱敏] (updated: 2026-05-13, status: verified)
 - [sites/shuzhan60-test-zszq/dom-dataAssets.md](sites/shuzhan60-test-zszq/dom-dataAssets.md) — shuzhan60-test-zszq DataAssets 数据质量 DOM（浙商证券标品） [tags: dataAssets, 数据质量, 浙商证券, zszq, StarRocks, 规则配置, 多表比对, 规则集, 任务查询, 实时校验, 脏数据, 平台管理, 菜单基线] (updated: 2026-06-24, status: verified)
 
-<!-- last-indexed: 2026-07-27T02:29:15.638Z -->
+<!-- last-indexed: 2026-07-30T12:08:19.759Z -->

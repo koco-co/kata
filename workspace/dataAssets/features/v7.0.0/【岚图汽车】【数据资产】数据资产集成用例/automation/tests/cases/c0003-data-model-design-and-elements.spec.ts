@@ -5,7 +5,7 @@ import {
   expectModelBuildTableTypeHdfsInteraction,
   expectModelBuildVariantsAndParsingShell,
   expectModelNormDesignShell,
-} from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
+} from "../../../../../../_shared/automation/pages/data-model/model-page";
 
 test.describe("C0003 验证「数据模型」规范设计、建表变体与审批入口", () => {
   test("数据模型管理员入口与建表变体", async ({ page }) => {

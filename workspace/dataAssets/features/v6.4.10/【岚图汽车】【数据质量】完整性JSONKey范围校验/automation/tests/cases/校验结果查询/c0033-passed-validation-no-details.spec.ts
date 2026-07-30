@@ -1,18 +1,18 @@
-import { waitForUiSettled } from "../../../../../../../_shared/helpers/index";
+import { waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
 // spec: features/completeness-json-key-range/archive.md#case=t33-case-33
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t33","priority":"P1","title":"验证校验不通过时查看明细：标题、字段标红及全字段展示"}
-import { expect, test } from "../../../../../../../_shared/fixtures/step-screenshot";
-import { expectDetailTitle } from "../../../../../../../_shared/pages/completeness-json-key-range/suite-helpers";
+import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectDetailTitle } from "../../flows/rule-set-flow";
 import {
   ensureRuleTasks,
   executeTaskFromList,
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../../../../../../_shared/pages/completeness-json-key-range/task-helpers";
+} from "../../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

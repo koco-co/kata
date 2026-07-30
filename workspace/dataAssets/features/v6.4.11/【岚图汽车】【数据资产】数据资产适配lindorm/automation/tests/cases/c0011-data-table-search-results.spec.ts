@@ -5,8 +5,8 @@
 // generated_at: 2026-05-22T13:36:56Z
 // META: {"id":"DM-002","priority":"P1","title":"数据模型建表表类型与 HDFS 路径交互可核验"}
 // SourceRefs: SR-2099-01-DM-002, SR-UI-PROBE-20260522-MODEL-WIZARD-001
-import { test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { expectModelBuildTableTypeHdfsInteraction } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/model-page";
+import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expectModelBuildTableTypeHdfsInteraction } from "../../../../../../_shared/automation/pages/data-model/model-page";
 import { MODEL_BUILD_TABLE_TYPE_SCOPE, SR_2099_01_DM_002 } from "../fixtures/model-contract";
 
 test.setTimeout(120000);

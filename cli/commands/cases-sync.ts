@@ -10,10 +10,10 @@ import {
 } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 import type { Command } from "commander";
-import { SPEC_FILE_RE } from "../../runtime/cases/naming.ts";
-import { parseCasesYaml } from "../../runtime/cases/parse.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { generateAutomationRunner } from "../lib/automation/automation-contract.ts";
+import { SPEC_FILE_RE } from "../lib/cases/naming.ts";
+import { parseCasesYaml } from "../lib/cases/parse.ts";
 import { findCasesYaml, resolveFeatureInput } from "./cases-build.ts";
 
 type SyncStatus = "rename" | "unchanged" | "unmapped" | "missing" | "conflict" | "invalid";

@@ -2,7 +2,7 @@
 // 自定义SQL·子查询跨表缺失：zszq_order_join 含 1 条账户(ACC999)在维表 zszq_account_dim 中不存在的孤儿记录。
 // 规则 SQL 用 NOT IN 子查询查孤儿明细，期望=0。运行时往维表补插 ACC999 后孤儿消失 → 由校验异常转校验通过。
 // 前置数据用 runSr3xSql 直连 SR3.x 自建（自包含、可重入）；运行时数据变更亦走 DB 工具。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 import { runSr3xSql } from "../fixtures/db";
 
 const TABLE = "zszq_order_join";

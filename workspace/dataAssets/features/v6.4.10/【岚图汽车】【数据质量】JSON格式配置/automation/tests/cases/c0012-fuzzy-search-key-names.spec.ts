@@ -3,8 +3,8 @@
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t12","priority":"P1","title":"【P1】验证key名模糊搜索功能（含子层级key命中）"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { uniqueName } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { uniqueName } from "../../../../../../../../runtime/automation/playwright";
 import {
   addChildKey,
   addKey,
@@ -13,7 +13,7 @@ import {
   expandRow,
   gotoJsonConfigPage,
   searchKey,
-} from "../../../../../../_shared/pages/json-config-helper/json-config-helpers";
+} from "../../../../../../_shared/automation/pages/data-quality/json-configuration";
 
 /** 精确匹配 key 列文本的行定位器（对抗脏数据：key 列第一个 td 的 cell 精确匹配） */
 function rowByExactKey(page: import("@playwright/test").Page, keyName: string) {

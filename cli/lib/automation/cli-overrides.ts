@@ -1,5 +1,5 @@
 import { parse as parseYaml } from "yaml";
-import type { AutomationOverrideFile } from "../../../runtime/automation/overrides.ts";
+import type { AutomationOverrideFile } from "../../../runtime/automation/config/overrides.ts";
 
 function parseSetValue(value: string, path: string): unknown {
   try {

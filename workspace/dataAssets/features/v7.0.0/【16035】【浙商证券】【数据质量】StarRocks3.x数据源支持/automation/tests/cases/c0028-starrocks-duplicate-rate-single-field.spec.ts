@@ -2,7 +2,7 @@
 // 多表比对·字段一致性：zszq_orders_left/right（order_id=1003 trade_amount 88000 vs 99999.99，差 11999.99）。
 // 匹配条件 记录数差异≤0% + 数值差异绝对值≤12000 → 校验通过（差 11999.99 在容差内）。
 // 编辑把数值差异绝对值容差改 10000 → 重跑校验异常（差 11999.99 超容差，差异 1 行）。编辑走 UI。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createMultiTableCompareRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const LEFT = "zszq_orders_left";
 const RIGHT = "zszq_orders_right";

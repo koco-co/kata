@@ -9,8 +9,8 @@ import path from "node:path";
 import ExcelJS from "exceljs";
 import type { Locator, Page } from "@playwright/test";
 
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { gotoDataQualityPage } from "../../../../../../_shared/pages/2099-01-lt-dq-main-flow/data-quality-page";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { gotoDataQualityPage } from "../../../../../../_shared/automation/pages/data-quality/page-context";
 
 type ExportRows = {
   headers: string[];

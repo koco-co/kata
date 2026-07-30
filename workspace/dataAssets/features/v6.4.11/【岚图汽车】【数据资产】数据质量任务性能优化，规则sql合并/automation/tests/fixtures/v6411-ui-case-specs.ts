@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { getEnvConfig } from "../../../../../../_shared/helpers";
+import { getEnvConfig } from "../../../../../../_shared/automation/runtime/env-profile";
 
 /** 从运行时环境解析 SparkThrift 数据源 UI 名称；未选环境时仅保留不可执行占位值。 */
 function resolveSparkDatasourceName(): string {

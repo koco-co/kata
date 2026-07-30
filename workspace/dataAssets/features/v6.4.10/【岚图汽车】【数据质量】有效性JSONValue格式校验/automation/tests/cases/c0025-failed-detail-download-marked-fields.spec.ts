@@ -6,15 +6,15 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import ExcelJS from "exceljs";
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { P0_FAIL_SCENARIO } from "../fixtures/test-data";
 import {
   ensureExecutedJsonTask,
   openTaskInstanceDetail,
   openTaskRuleDetailDataDrawer,
   waitForVisibleTaskRow,
-} from "../../../../../../_shared/pages/validity-json-value-format/json-format-task-helpers";
-import { describeByDatasource } from "../../../../../../_shared/pages/validity-json-value-format/suite-case-helpers";
+} from "../flows/rule-task-flow";
+import { describeByDatasource } from "../fixtures/suite-matrix";
 
 test.setTimeout(600000);
 

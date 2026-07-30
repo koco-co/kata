@@ -2,7 +2,7 @@
 // intent: SR-INTENT-2026-06-DQ-SR3X-004
 // probe: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ
 // 完整性·表级·表行数：建规则→立即执行→任务实例校验通过/异常 双向（zszq_trade_orders 表行数=6）。
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   cleanupRulesByTable,
   createSingleTableRule,
@@ -10,7 +10,7 @@ import {
   expectInstanceStatus,
   pollLatestInstance,
   runRuleNowByApi,
-} from "../../../../../../_shared/pages/2026-06-dq-starrocks3x/starrocks3x-rule-flow";
+} from "../flows/rule-flow";
 
 const TABLE = "zszq_trade_orders";
 

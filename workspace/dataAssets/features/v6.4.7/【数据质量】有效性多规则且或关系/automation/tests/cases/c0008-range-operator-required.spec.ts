@@ -1,24 +1,19 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { selectAntOption, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/validity-multi-rule-logic/archive.md#case=t08-case-08
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t8","priority":"P1","title":"验证取值范围设置期望值已填写但操作符未选择时点击保存提示校验错误"}
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import {
-  addRuleToPackage,
-  gotoRuleSetList,
-  openRuleSetEditor,
-  selectRuleFieldAndFunction,
-  selectRuleRelation,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { addRuleToPackage } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { gotoRuleSetList, openRuleSetEditor, selectRuleFieldAndFunction, selectRuleRelation } from "../pages/range-enum-rule-editor";
 
 test.setTimeout(600000);
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderCsv } from "../../cli/lib/cases/render-csv.ts";
-import type { CasesFile } from "../../runtime/cases/types.ts";
+import type { CasesFile } from "../../cli/lib/cases/types.ts";
 
 function file(cases: CasesFile["cases"]): CasesFile {
   return {

@@ -1,25 +1,18 @@
-import { waitForUiSettled } from "../../../../../../_shared/helpers/index";
+import { selectAntOption, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/validity-multi-rule-logic/archive.md#case=t05-not-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t5","priority":"P1","title":"验证在规则集中枚举值选择not in后保存成功且编辑时回显正确"}
-import { expect, test } from "../../../../../../_shared/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../../../_shared/helpers/test-setup";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
 } from "../fixtures/test-data";
-import {
-  addRuleToPackage,
-  getRulePackage,
-  getRuleSetListRow,
-  gotoRuleSetList,
-  openRuleSetEditor,
-  saveRuleSet,
-  selectRuleFieldAndFunction,
-} from "../../../../../../_shared/pages/validity-multi-rule-logic/rule-editor-helpers";
+import { addRuleToPackage, getRulePackage, saveRuleSet } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { getRuleSetListRow, gotoRuleSetList, openRuleSetEditor, selectRuleFieldAndFunction } from "../pages/range-enum-rule-editor";
 
 test.setTimeout(600000);
 
