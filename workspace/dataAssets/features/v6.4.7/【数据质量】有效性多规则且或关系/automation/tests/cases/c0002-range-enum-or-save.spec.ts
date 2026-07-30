@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t02-case-02
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t2","priority":"P1","title":"验证在规则集中配置取值范围&枚举范围规则或关系时保存成功"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

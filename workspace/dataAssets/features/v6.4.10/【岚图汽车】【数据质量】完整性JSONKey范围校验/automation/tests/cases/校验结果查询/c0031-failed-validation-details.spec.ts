@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t31-case-31
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t31","priority":"P1","title":"验证下载明细数据中校验字段标红展示"}
 import { test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

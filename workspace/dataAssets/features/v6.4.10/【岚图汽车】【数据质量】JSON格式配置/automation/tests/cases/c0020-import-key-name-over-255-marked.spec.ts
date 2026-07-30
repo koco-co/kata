@@ -2,7 +2,6 @@ import { todayStr, waitForUiSettled } from "../../../../../../../../runtime/auto
 // spec: features/json-config-helper/archive.md#case=t20-key-255
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t20","priority":"P1","title":"【P1】验证导入文件key名超255字符时标红并批注长度超限"}
 
 import ExcelJS from "exceljs";

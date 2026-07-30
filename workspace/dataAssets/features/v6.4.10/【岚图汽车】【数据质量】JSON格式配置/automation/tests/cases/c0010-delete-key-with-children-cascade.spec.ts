@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t10-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t10","priority":"P1","title":"【P1】验证单个删除含子层级的key会联动删除子层级数据"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

@@ -1,7 +1,6 @@
 // spec: features/rule-library/archive.md#case=t01-rule-base-entry
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t01","priority":"P0","title":"验证规则库配置入口可访问并展示内置规则能力"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-001, SR-UI-PROBE-002, SR-SELF-RUN-001
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

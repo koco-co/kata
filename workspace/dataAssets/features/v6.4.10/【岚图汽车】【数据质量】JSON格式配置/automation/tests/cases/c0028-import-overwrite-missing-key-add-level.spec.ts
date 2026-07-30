@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t28-2-5-key-key-n-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t28","priority":"P1","title":"【P1】验证导入功能正常(重复则覆盖更新, 2~5层上一层key存在+key不存在 -> 新增N层key)"}
 
 import * as fs from "fs";

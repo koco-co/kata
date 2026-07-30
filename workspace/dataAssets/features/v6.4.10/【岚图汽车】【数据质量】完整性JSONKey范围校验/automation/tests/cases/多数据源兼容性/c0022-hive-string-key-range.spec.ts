@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t22-hive2-x-json-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t22","priority":"P1","title":"【P1】验证Hive2.x数据源的json字段支持key范围校验"}
 // NOTE: 当前基础设施缺少 Hive2.x 数据源配置（test-data.ts/key-range-utils.ts 未定义 Hive 连接器），
 // 该用例暂以 SparkThrift2.x 替代执行。archive.md 前置条件中 Hive2.x json 的建表 SQL 也误引用了 Doris。

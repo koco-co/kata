@@ -1,7 +1,6 @@
 // spec: features/assets-v63-regression/archive.md#case=t01-environment-preflight
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t01","priority":"P0","title":"校验 ci63 登录态、质量项目与数据资产基座可用"}
 // SourceRefs: SR-INTENT-001, SR-ENV-PREFLIGHT-001, SR-UI-PROBE-001, SR-SELF-RUN-001
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

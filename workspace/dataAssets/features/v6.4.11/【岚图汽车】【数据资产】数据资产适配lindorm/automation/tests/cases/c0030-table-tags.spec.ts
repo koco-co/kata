@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8248,#L8267
 // intent: SR-INTENT-2099-01-DQ-PROJECT-MANAGEMENT-L8248-L8267
 // probe: SR-UI-PROBE-20260526-DQ-PROJECT-MANAGEMENT-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-26T00:00:00Z
 // SourceRefs: SR-2099-01-DQ-PROJECT-L8248, SR-2099-01-DQ-PROJECT-L8267, SR-UI-PROBE-20260526-DQ-PROJECT-MANAGEMENT-001
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

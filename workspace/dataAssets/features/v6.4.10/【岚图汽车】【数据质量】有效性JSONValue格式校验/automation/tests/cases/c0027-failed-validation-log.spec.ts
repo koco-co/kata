@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t27-case-27
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t27","priority":"P2","title":"【P2】验证校验失败时支持查看日志"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

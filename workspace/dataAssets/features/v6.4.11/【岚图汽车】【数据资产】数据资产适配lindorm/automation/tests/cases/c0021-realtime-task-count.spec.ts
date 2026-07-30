@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L848,#L864
 // intent: SR-INTENT-2099-01-MD-021
 // probe: results/20260523-1915-mf-metadata-catalog-import-01/playwright/ui-probe/probe.json
-// page: inline shell assertions; metadata shell project bootstrap
 // generated_at: 2026-05-23T11:15:00Z
 // META: {"id":"MD-021","priority":"P2","title":"元数据数据地图搜索热度/修改时间排序接口 Shell 可核验"}
 // SourceRefs: SR-2099-01-MD-SORT-SEARCH-HEAT-L848, SR-2099-01-MD-SORT-MODIFIED-TIME-L864, SR-2099-01-MD-021, SR-UI-PROBE-20260523-MF-METADATA-SORT-001, SR-SELF-RUN-20260523-MF-METADATA-SORT-001

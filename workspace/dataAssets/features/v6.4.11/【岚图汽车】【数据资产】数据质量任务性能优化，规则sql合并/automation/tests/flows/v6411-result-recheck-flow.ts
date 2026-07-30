@@ -3,7 +3,6 @@ import { waitForUiSettled } from "../../../../../../../../runtime/automation/pla
 // spec: cases/archive.md#v6411-sparkthrift-result-recheck
 // intent: SR-INTENT-V6411-RESULT-RECHECK
 // probe: SR-UI-PROBE-V6411-RESULT-RECHECK
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

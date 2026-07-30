@@ -1,7 +1,6 @@
 // spec: features/timeliness-monitor/archive.md#case=t01-timeliness-entry
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P0","title":"验证监控对象配置后支持添加时效性校验"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

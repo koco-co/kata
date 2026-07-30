@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t42-value
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t42","priority":"P1","title":"【P1】验证编辑弹窗与新增弹窗保持一致（value格式有值时展示正则测试控件）"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

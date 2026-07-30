@@ -1,7 +1,6 @@
 // spec: features/json-config-helper/archive.md#case=t02-key-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t2","priority":"P1","title":"【P1】验证新增key时key字段为空不可提交"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

@@ -1,7 +1,6 @@
 // spec: features/json-config-helper/archive.md#case=t12-key-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t12","priority":"P1","title":"【P1】验证key名模糊搜索功能（含子层级key命中）"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

@@ -2,7 +2,6 @@ import { selectAntOption, waitForUiSettled } from "../../../../../../../../../ru
 // spec: features/completeness-json-key-range/archive.md#case=t04-search-verify-content
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t4","priority":"P1","title":"验证校验内容下拉框支持输入关键词搜索查询"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { addRuleToPackage } from "../../../../../../../_shared/automation/pages/data-quality/rule-set-editor";

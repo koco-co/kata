@@ -2,7 +2,6 @@ import { selectAntOption, waitForUiSettled } from "../../../../../../../../runti
 // spec: features/validity-multi-rule-logic/archive.md#case=t09-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P1","title":"验证枚举值设置已选择in但未输入枚举值时点击保存提示校验错误"}
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

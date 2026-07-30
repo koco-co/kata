@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t24-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"【P1】验证规则库中「格式-json格式校验」内置规则展示信息正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { gotoRuleBaseAndSearch } from "../flows/rule-set-flow";

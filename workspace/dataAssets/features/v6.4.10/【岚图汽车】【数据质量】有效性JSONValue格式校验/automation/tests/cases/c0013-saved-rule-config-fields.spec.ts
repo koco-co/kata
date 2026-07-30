@@ -2,7 +2,6 @@ import { expectAntMessage, uniqueName, waitForUiSettled } from "../../../../../.
 // spec: features/validity-json-value-format/archive.md#case=t13-case-13
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t13","priority":"P1","title":"【P1】验证保存后规则配置参数展示区域各字段内容正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

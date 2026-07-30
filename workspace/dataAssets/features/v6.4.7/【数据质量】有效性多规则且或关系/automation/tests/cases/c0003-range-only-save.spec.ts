@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t03-case-03
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t3","priority":"P1","title":"验证在规则集中仅填写取值范围可正常保存"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

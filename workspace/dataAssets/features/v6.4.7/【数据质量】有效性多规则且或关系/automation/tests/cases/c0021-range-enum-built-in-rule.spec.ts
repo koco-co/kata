@@ -2,7 +2,6 @@ import { waitForUiSettled } from "../../../../../../../../runtime/automation/pla
 // spec: features/validity-multi-rule-logic/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t21","priority":"P1","title":"验证规则库中新增取值范围&枚举范围内置规则展示正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

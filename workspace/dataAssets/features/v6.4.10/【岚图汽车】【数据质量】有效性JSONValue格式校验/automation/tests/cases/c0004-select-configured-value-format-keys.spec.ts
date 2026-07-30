@@ -2,7 +2,6 @@ import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../..
 // spec: features/validity-json-value-format/archive.md#case=t04-key-value-key-value-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t4","priority":"P1","title":"【P1】验证校验key列表中仅配置了value格式的key可被选中，未配置value格式的key不可选中"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

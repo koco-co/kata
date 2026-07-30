@@ -2,7 +2,6 @@ import { waitForUiSettled } from "../../../../../../../../runtime/automation/pla
 // spec: features/json-config-helper/archive.md#case=t43-case-43
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t43","priority":"P1","title":"【P1】验证导入失败时仅出现单个错误通知"}
 
 import ExcelJS from "exceljs";

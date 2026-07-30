@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7226-L7290
 // intent: SR-INTENT-2099-01-QUALITY-DATAMAP-SEARCH-027
 // probe: results/20260523-mf-quality-datamap-search-01/playwright/ui-probe/probe.json
-// page: _shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page.ts
 // generated_at: 2026-05-23T12:30:00Z
 // META: {"id":"QUALITY-DATAMAP-027","priority":"P0","title":"数据地图标签/指标/字段结果页搜索 Shell 与 queryDetail 合同可核验"}
 // SourceRefs: SR-INTENT-2099-01-QUALITY-DATAMAP-SEARCH-027, SR-UI-PROBE-20260523-MF-QUALITY-DATAMAP-SEARCH-001, SR-SELF-RUN-20260523-MF-QUALITY-DATAMAP-SEARCH-001

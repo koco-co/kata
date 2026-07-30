@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t26-case-26
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t26","priority":"P1","title":"【P1】验证校验通过时不记录明细数据，查看详情入口不显示"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { REPORT_PASS_SCENARIO } from "../fixtures/test-data";

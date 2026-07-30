@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t37-case-37
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t37","priority":"P1","title":"【P1】验证筛选后导出仅包含筛选结果数据"}
 
 import ExcelJS from "exceljs";

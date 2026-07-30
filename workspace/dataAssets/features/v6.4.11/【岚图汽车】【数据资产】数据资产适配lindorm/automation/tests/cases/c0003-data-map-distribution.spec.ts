@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L163,#L178,#L196
 // intent: SR-INTENT-2099-01-MD-001
 // probe: SR-UI-PROBE-20260522-METADATA-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/metadata-search-page.ts
 // generated_at: 2026-05-22T03:12:41Z
 // META: {"id":"MD-001","priority":"P3/P2","title":"数据地图首页和搜索类型下拉可核验"}
 // SourceRefs: SR-2099-01-MD-LANDING-L163, SR-2099-01-MD-SEARCH-DROPDOWN-L178, SR-2099-01-MD-DATATABLE-SEARCH-L196, SR-2099-01-MD-001, SR-UI-PROBE-20260522-METADATA-001, SR-SELF-RUN-METADATA-001

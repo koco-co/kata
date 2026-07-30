@@ -212,6 +212,21 @@ describe("automation lint", () => {
     expect(result.violations.filter((v) => v.rule === "no-generated-placeholder")).toHaveLength(1);
   });
 
+  it("rejects duplicate page metadata because imports are the page dependency source", () => {
+    const { feature, cases } = featureWorkspace();
+    writeCase(
+      cases,
+      "c0001-page-metadata.spec.ts",
+      [
+        "// page: _shared/pages/PLACEHOLDER-page.ts",
+        'import { test } from "../fixtures/test";',
+        "",
+      ].join("\n"),
+    );
+    const result = runAutomationLint({ featureDir: feature });
+    expect(result.violations.filter((v) => v.rule === "no-page-metadata")).toHaveLength(1);
+  });
+
   it("requires --project or KATA_ACTIVE_PROJECT for --shared", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-al-shared-"));
     const prev = process.env.KATA_ACTIVE_PROJECT;

@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t25-case-25
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t25","priority":"P1","title":"【P1】验证校验不通过时明细数据下载功能中校验字段标红"}
 import * as fs from "node:fs";
 import * as path from "node:path";

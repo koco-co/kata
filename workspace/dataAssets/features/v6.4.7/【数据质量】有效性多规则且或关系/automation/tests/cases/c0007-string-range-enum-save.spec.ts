@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t07-string
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t7","priority":"P1","title":"验证string类型字段在规则集中配置取值范围&枚举范围规则时系统可正常保存"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

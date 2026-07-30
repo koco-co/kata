@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t22-case-22
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t22","priority":"P1","title":"验证取值范围&枚举范围规则校验「不通过时可查看」明细且校验字段标红展示"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import type { Locator } from "@playwright/test";

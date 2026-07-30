@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L16,#L32-L48
 // intent: SR-INTENT-2099-01-AI-001
 // probe: SR-UI-PROBE-20260523-ASSETS-GUIDE-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page.ts
 // generated_at: 2026-05-22T03:01:13Z
 // META: {"id":"AI-001","priority":"P1/P3","title":"资产盘点引导弹窗与已接入数据源统计"}
 // SourceRefs: SR-2099-01-AI-GUIDE-L16, SR-2099-01-AI-001, SR-ENV-PREFLIGHT-001, SR-UI-PROBE-20260523-ASSETS-GUIDE-001, SR-SELF-RUN-001

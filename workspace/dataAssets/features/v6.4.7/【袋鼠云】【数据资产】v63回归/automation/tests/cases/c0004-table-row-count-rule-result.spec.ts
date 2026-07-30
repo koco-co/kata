@@ -1,7 +1,6 @@
 // spec: features/assets-v63-regression/archive.md#case=t04-quality-report-project-menu-contract
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t04","priority":"P0","title":"质量报告和项目管理相关菜单可访问"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-003, SR-SELF-RUN-001
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L4472-L4501
 // intent: SR-INTENT-2099-01-STD-022
 // probe: results/20260523-1500-mf-standard-definition-01/playwright/ui-probe/snapshot.json
-// page: inline standard project bootstrap
 // generated_at: 2026-05-23T19:20:00+08:00
 // META: {"id":"STD-022","priority":"P2/P3","title":"行业模版列表与引用标准入口只读 Shell 可核验"}
 // SourceRefs: SR-2099-01-STD-022, SR-UI-PROBE-20260523-STANDARD-DEF-001

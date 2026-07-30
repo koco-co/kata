@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t14-case-14
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t14","priority":"P1","title":"验证在规则集中配置过滤条件后规则保存成功"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../../../../runtime/automation/playwright";

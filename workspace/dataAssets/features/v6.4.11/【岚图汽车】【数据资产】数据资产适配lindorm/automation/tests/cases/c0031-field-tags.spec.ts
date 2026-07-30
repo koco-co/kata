@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L8346,#L8364
 // intent: SR-INTENT-2099-01-DQ-PERMISSIONS-L8346-L8364
 // probe: SR-UI-PROBE-20260527-DQ-PERMISSIONS-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-27T00:00:00Z
 // SourceRefs: SR-2099-01-DQ-PERMISSIONS-L8346, SR-2099-01-DQ-PERMISSIONS-L8364, SR-UI-PROBE-20260527-DQ-PERMISSIONS-001
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

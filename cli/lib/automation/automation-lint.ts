@@ -34,6 +34,7 @@ export const AUTOMATION_LINT_RULES = [
   "selector-quality",
   "case-file-naming",
   "no-generated-placeholder",
+  "no-page-metadata",
 ] as const;
 
 export type AutomationLintRule = (typeof AUTOMATION_LINT_RULES)[number];
@@ -313,6 +314,19 @@ function scanSourceFile(
       "no-generated-placeholder",
       "tests/cases/ 不允许使用通用自然语言 runner；必须实现真实业务页面动作和断言",
       originalLines[markerLine < 0 ? 0 : markerLine] ?? "",
+    );
+  }
+
+  for (let index = 0; index < originalLines.length; index += 1) {
+    const originalLine = originalLines[index] ?? "";
+    if (!/^\s*\/\/\s*page\s*:/i.test(originalLine)) continue;
+    addViolation(
+      violations,
+      path,
+      index + 1,
+      "no-page-metadata",
+      "页面依赖必须由真实 import 表达；删除易失效的 // page: 重复元数据",
+      originalLine,
     );
   }
 

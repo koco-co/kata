@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t26-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t26","priority":"P1","title":"【P1】验证删除已被规则引用的key后执行校验任务不受影响"}
 // TODO: 此用例需要 key 删除 + 任务执行场景的专用测试数据，当前先做骨架。
 import { test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";

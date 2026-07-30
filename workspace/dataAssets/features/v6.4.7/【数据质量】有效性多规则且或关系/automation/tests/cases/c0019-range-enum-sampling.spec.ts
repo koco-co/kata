@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t19-case-19
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t19","priority":"P2","title":"验证结合抽样功能执行取值范围&枚举范围校验结果正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

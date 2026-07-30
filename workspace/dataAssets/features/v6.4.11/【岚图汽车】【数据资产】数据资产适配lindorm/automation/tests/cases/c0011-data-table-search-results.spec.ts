@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L4583-L4597
 // intent: SR-INTENT-2099-01-DM-002
 // probe: SR-UI-PROBE-20260522-MODEL-WIZARD-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/model-page.ts
 // generated_at: 2026-05-22T13:36:56Z
 // META: {"id":"DM-002","priority":"P1","title":"数据模型建表表类型与 HDFS 路径交互可核验"}
 // SourceRefs: SR-2099-01-DM-002, SR-UI-PROBE-20260522-MODEL-WIZARD-001

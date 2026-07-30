@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7945,#L8040,#L8059,#L8078,#L8096,#L8115,#L8134,#L8153,#L8172,#L8190,#L8209,#L8227,#L8402
 // intent: SR-INTENT-2099-01-DQ-RESULT-FILTERS-001
 // probe: results/20260523-1730-mf-quality-result-filters-01/playwright/ui-probe/probe.json
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T09:30:00Z
 // SourceRefs: SR-2099-01-DQ-RESULT-FILTERS-001, SR-UI-PROBE-20260523-DQ-RESULT-FILTERS-001, SR-SELF-RUN-20260523-DQ-RESULT-FILTERS-001
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

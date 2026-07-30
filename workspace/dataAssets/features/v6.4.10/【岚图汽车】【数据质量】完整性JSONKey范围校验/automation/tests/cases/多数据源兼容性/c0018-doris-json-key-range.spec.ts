@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t18-sparkthrift2-x-json-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t18","priority":"P1","title":"【P1】验证SparkThrift2.x数据源的json字段支持key范围校验"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../../runtime/automation/playwright";

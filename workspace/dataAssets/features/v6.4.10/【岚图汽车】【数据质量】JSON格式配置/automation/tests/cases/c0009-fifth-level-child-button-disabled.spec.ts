@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t09-5-disabled
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P1","title":"【P1】验证第5层级的新增子层级按钮是置灰、不可点击（disabled）"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7690,#L7966,#L7984,#L8003,#L8021,#L8040,#L8402
 // intent: SR-INTENT-2099-01-DQ-REPORT-CONFIG-001
 // probe: SR-UI-PROBE-20260523-DQ-REPORT-CONFIG-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T07:40:00Z
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { expectDataQualityCustomReportCreateContract, expectDataQualityGeneratedReportTab, expectDataQualityReportDuplicateNameValidationContract, expectDataQualityReportEditViewDeleteContract, expectDataQualityReportCreateEntry, expectDataQualitySingleTableReportCreateContract } from "../pages/data-quality/reports";

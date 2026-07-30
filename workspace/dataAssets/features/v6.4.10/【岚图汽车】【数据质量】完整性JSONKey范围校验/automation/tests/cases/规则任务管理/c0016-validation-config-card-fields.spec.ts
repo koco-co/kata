@@ -3,7 +3,6 @@ import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../..
 // spec: features/completeness-json-key-range/archive.md#case=t16-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t16","priority":"P0","title":"【P0】验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果"}
 
 import { executeTableSQL } from "dtstack-sdk/adapters/execute-table";

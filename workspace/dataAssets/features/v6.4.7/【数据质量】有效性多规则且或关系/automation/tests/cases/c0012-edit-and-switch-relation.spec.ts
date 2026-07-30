@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t12-case-12
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t12","priority":"P1","title":"验证在规则集中已保存的且关系规则编辑切换为或关系后保存成功"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

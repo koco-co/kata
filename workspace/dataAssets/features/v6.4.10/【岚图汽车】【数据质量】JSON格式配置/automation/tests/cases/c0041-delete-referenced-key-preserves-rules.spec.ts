@@ -2,7 +2,6 @@ import { confirmPopconfirm, uniqueName, waitForTableLoaded, waitForUiSettled } f
 // spec: features/json-config-helper/archive.md#case=t41-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t41","priority":"P1","title":"【P1】验证删除已被完整性和有效性校验规则引用的key后规则不受影响"}
 //
 // 完整流程说明（需手动验证的部分）：

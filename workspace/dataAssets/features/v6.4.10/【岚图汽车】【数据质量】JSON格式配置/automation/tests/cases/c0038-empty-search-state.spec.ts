@@ -2,7 +2,6 @@ import { uniqueName, waitForTableLoaded, waitForUiSettled } from "../../../../..
 // spec: features/json-config-helper/archive.md#case=t38-case-38
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t38","priority":"P2","title":"【P2】验证搜索无结果时的空状态展示"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

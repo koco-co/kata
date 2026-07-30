@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L12973-L12988
 // intent: SR-INTENT-2099-01-DQ-SAMPLING-CONFIG-001
 // probe: results/20260524-mf-quality-sampling-config-02/playwright/ui-probe/probe.json
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-24T10:22:39Z
 // status: ready_for_runner_registration
 // SourceRefs: SR-2099-01-DQ-SAMPLING-CONFIG-001, SR-UI-PROBE-20260524-DQ-SAMPLING-CONFIG-002, SR-SELF-RUN-20260524-DQ-SAMPLING-CONFIG-002

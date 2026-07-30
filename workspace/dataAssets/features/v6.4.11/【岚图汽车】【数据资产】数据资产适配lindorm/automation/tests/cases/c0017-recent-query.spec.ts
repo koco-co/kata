@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L928-L940,#L1014-L1033
 // intent: SR-INTENT-2099-01-MD-017
 // probe: live self-run against ltqc-local data map detail shell
-// page: inline shell assertions; metadata shell project bootstrap
 // generated_at: 2026-05-23T17:05:00+08:00
 // META: {"id":"MD-017","priority":"P3","title":"元数据数据表详情页 Shell 与表结构字段可核验"}
 // SourceRefs: SR-2099-01-MD-017, SR-UI-PROBE-20260523-MF-METADATA-DETAIL-001, SR-SELF-RUN-20260523-MF-METADATA-DETAIL-001

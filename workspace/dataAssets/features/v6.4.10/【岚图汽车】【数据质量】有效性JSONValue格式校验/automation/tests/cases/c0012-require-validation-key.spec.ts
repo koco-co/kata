@@ -2,7 +2,6 @@ import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../..
 // spec: features/validity-json-value-format/archive.md#case=t12-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t12","priority":"P1","title":"【P1】验证未选择校验key时保存规则提示统计函数存在必填项未填写"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

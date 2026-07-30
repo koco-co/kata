@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L498,#L517,#L533,#L553,#L569,#L584,#L598,#L615
 // intent: SR-INTENT-2099-01-MD-026
 // probe: results/20260524-mf-metadata-hot-query-02/playwright/ui-probe/probe.json
-// page: _shared/pages/2099-01-lt-dq-main-flow/metadata-search-page.ts
 // generated_at: 2026-05-24T18:20:00+08:00
 // META: {"id":"MD-026","priority":"P3/P1","title":"数据地图热门标签/热门查询与首页关键词搜索 Shell 可核验"}
 // status: ready_for_serial_orchestrator_registration

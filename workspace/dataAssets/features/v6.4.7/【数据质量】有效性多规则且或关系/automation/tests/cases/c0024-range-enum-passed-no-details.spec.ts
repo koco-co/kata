@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t24-case-24
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"验证取值范围&枚举范围规则校验「通过时不记录」明细数据且操作列不显示查看详情"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

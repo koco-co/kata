@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t15-case-15
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t15","priority":"P1","title":"验证规则集管理与规则任务管理中校验内容全量展示无截断"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { ensureSavedScenarioRuleSet, openScenarioEditor, SCENARIOS } from "../../flows/rule-set-flow";

@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t14-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t14","priority":"P0","title":"【P0】验证格式-json格式校验完整主流程：规则集配置+导入规则包+执行任务+在校验结果查询中查看通过实例"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { P0_PASS_SCENARIO } from "../fixtures/test-data";

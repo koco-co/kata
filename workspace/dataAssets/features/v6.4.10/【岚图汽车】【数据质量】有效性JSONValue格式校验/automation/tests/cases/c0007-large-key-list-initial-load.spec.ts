@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t07-key-200-200
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t7","priority":"P1","title":"【P1】验证校验key数据量超过200条时默认加载前200条展示"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t29-2-5-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t29","priority":"P1","title":"【P1】验证导入功能正常(重复则覆盖更新, 2~5层上一层key不存在 -> 报错)"}
 
 import ExcelJS from "exceljs";

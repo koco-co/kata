@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t01-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P0","title":"验证统计函数选择key范围校验后字段选择变为单选"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../../../../../runtime/automation/playwright";

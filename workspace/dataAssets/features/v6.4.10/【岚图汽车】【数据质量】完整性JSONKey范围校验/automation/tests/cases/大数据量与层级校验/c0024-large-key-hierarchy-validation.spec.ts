@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t24-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t24","priority":"P1","title":"【P1】验证千级key数据量下校验内容选择列表的加载搜索和选择性能"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../../runtime/automation/playwright";

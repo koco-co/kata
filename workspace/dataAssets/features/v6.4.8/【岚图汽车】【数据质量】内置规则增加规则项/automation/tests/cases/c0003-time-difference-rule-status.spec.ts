@@ -1,7 +1,6 @@
 // spec: features/rule-library/archive.md#case=t03-new-builtins-function-contract
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t03","priority":"P1","title":"验证新增内置规则名称、解释、分类、关联范围和描述契约"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-UI-PROBE-003, SR-SELF-RUN-001
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

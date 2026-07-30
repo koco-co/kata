@@ -2,7 +2,6 @@ import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../..
 // spec: features/validity-json-value-format/archive.md#case=t05-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t5","priority":"P1","title":"【P1】验证校验key支持多选和全选操作"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

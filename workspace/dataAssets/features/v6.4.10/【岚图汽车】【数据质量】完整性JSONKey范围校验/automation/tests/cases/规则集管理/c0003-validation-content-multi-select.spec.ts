@@ -2,7 +2,6 @@ import { waitForUiSettled } from "../../../../../../../../../runtime/automation/
 // spec: features/completeness-json-key-range/archive.md#case=t03-json-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P0","title":"验证json类型字段可成功配置key范围校验规则"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

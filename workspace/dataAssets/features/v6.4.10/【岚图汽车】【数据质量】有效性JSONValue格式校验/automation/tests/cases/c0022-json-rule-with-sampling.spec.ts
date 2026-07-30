@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t22-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t22","priority":"P1","title":"【P1】验证配置格式-json格式校验规则时结合抽样功能执行校验结果正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

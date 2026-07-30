@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/validity-json-value-format/archive.md#case=t10-value-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t10","priority":"P1","title":"【P1】验证点击「value格式预览」弹窗仅展示已勾选key的格式信息且支持分页"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

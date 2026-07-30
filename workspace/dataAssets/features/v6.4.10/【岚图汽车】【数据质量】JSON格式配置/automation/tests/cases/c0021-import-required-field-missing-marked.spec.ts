@@ -2,7 +2,6 @@ import { todayStr, waitForUiSettled } from "../../../../../../../../runtime/auto
 // spec: features/json-config-helper/archive.md#case=t21-case-21
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t21","priority":"P1","title":"【P1】验证导入文件必填项未填写时标红并批注必填项未填写"}
 
 import ExcelJS from "exceljs";

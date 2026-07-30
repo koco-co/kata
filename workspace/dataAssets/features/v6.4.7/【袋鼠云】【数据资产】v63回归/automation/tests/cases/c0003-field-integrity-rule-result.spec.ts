@@ -1,7 +1,6 @@
 // spec: features/assets-v63-regression/archive.md#case=t03-monitor-rule-create-contract
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t03","priority":"P0","title":"新建单表校验规则的监控对象步骤字段可见"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-SELF-RUN-001
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

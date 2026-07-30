@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L124,#L142
 // intent: SR-INTENT-2099-01-AI-003
 // probe: SR-UI-PROBE-20260522-ASSETS-TRENDS-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page.ts
 // generated_at: 2026-05-22T13:08:09Z
 // META: {"id":"AI-003","priority":"P3","title":"资产盘点趋势图可核验"}
 // SourceRefs: SR-2099-01-AI-003, SR-2099-01-AI-SEARCH-TREND-L142, SR-UI-PROBE-20260522-ASSETS-TRENDS-001

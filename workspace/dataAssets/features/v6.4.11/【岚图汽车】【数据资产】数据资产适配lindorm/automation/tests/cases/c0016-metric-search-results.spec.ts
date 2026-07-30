@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L631-L679,#L647-L665
 // intent: SR-INTENT-2099-01-MD-016
 // probe: results/20260523-1700-mf-metadata-catalog-01/playwright/ui-probe/probe.json
-// page: inline shell assertions; metadata shell project bootstrap
 // generated_at: 2026-05-23T17:45:00+08:00
 // SourceRefs: SR-2099-01-MD-016, SR-UI-PROBE-20260523-MF-METADATA-CATALOG-001, SR-SELF-RUN-20260523-MF-METADATA-SECONDARY-001
 import { expect, type Page } from "@playwright/test";

@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t02-method-switch
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t2","priority":"P1","title":"验证校验方法切换（包含与不包含）规则保存和执行结果差异"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { selectAntOption } from "../../../../../../../../../runtime/automation/playwright";

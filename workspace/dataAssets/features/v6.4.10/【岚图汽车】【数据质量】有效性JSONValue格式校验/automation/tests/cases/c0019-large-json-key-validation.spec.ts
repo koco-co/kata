@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t19-json-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t19","priority":"P1","title":"【P1】验证json格式配置中维护上千个key时执行校验与结果展示正常"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

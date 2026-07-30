@@ -1,7 +1,6 @@
 // spec: features/json-config-helper/archive.md#case=t08-case-08
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t8","priority":"P1","title":"【P1】验证新增子层级完整流程"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

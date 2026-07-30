@@ -2,7 +2,6 @@ import { selectAntOption, waitForUiSettled } from "../../../../../../../../runti
 // spec: features/validity-multi-rule-logic/archive.md#case=t06-enum-orig-not-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t6","priority":"P2","title":"验证原有枚举值规则同步新增not in选项且可正常保存"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

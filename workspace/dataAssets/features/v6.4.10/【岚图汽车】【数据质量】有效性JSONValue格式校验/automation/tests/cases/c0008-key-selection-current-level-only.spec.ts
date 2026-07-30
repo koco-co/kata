@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t08-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t8","priority":"P1","title":"【P1】验证校验key回显格式及勾选仅对当前层级生效"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

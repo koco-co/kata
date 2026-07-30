@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t20-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t20","priority":"P1","title":"【P1】验证删除已被有效性规则引用的key后规则配置页面回显和编辑功能正常"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { DELETE_REFERENCE_SCENARIO } from "../fixtures/test-data";

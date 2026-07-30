@@ -1,7 +1,6 @@
 // spec: features/v7.0.0/【岚图汽车】【数据资产】数据资产集成用例/cases/archive.md#case=「数据标准」模块集成测试用例
 // intent: SR-INTENT-20260702-DATA-STANDARD-INTEGRATION
 // probe: SR-UI-PROBE-20260702-DATA-STANDARD-LTQC
-// page: _shared/pages/2026-07-data-assets-integration-test/data-standard-page.ts
 // generated_at: 2026-07-02T02:57:40Z
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

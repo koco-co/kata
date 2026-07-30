@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7452,#L7575,#L7632,#L7924,#L7945,#L7966,#L8382,#L8402
 // intent: SR-INTENT-2099-01-DQ-001
 // probe: SR-UI-PROBE-20260522-DQ-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-22T09:36:45Z
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { expectDataQualityOverviewShell, expectDataQualityMenuRenameContract, expectMetadataIntegrityShell } from "../pages/data-quality/overview";

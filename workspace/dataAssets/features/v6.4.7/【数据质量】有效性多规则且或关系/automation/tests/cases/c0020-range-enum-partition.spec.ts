@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t20-case-20
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t20","priority":"P2","title":"验证对分区表指定分区执行取值范围&枚举范围校验结果正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

@@ -1,7 +1,6 @@
 // spec: features/json-config-helper/archive.md#case=t36-case-36
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t36","priority":"P0","title":"【P0】验证导出列表数据完整流程及文件命名"}
 
 import ExcelJS from "exceljs";

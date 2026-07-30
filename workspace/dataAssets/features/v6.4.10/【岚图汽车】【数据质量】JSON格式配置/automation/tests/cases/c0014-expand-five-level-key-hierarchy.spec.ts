@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/json-config-helper/archive.md#case=t14-5
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t14","priority":"P1","title":"【P1】验证5层层级展开下钻及展开图标显示逻辑"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

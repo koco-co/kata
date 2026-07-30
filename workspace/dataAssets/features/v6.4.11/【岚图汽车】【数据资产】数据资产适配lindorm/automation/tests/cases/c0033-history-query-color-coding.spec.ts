@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L1274-L1286;#L1294-L1306;#L1311-L1323;#L1328-L1328
 // intent: SR-INTENT-2099-01-MD-033
 // probe: results/20260524-mf-metadata-sidebar-01/playwright/ui-probe/probe.json
-// page: _shared/pages/2099-01-lt-dq-main-flow/metadata-shell-page.ts
 // generated_at: 2026-05-24T12:40:39Z
 // META: {"id":"MD-033","priority":"P2/P3","title":"元数据表详情右侧信息面板标签只读 Shell 可核验"}
 // SourceRefs: SR-2099-01-MD-033, SR-UI-PROBE-20260524-MF-METADATA-SIDEBAR-001, SR-SELF-RUN-20260524-MF-METADATA-SIDEBAR-001

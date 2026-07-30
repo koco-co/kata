@@ -2,7 +2,6 @@ import { uniqueName, waitForUiSettled } from "../../../../../../../../runtime/au
 // spec: features/validity-json-value-format/archive.md#case=t01-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t1","priority":"P1","title":"【P1】验证规则配置页「统计规则」下拉框中「格式-json格式校验」选项位置在自定义正则上方"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 

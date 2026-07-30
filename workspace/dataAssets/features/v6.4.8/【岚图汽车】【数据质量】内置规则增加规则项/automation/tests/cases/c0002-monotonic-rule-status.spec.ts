@@ -1,7 +1,6 @@
 // spec: features/rule-library/archive.md#case=t02-monitor-new-rule-categories
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t02","priority":"P0","title":"验证新增内置规则分类可在监控规则添加菜单中选择"}
 // SourceRefs: SR-INTENT-001, SR-UI-PROBE-002, SR-UI-PROBE-003, SR-SELF-RUN-001
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

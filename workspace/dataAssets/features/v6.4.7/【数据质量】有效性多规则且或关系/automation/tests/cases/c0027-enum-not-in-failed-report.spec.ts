@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t27-not-in-not-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t27","priority":"P1","title":"验证仅配置枚举值not in校验不通过时质量报告详情说明展示not in规则描述"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

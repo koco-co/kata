@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t34-case-34
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t34","priority":"P0","title":"验证质量报告中校验通过行的各列展示内容正确"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

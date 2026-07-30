@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t18-case-18
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t18","priority":"P2","title":"验证取值范围&枚举范围规则执行失败时可查看日志"}
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L3442-L3458,#L3958-L3996,#L4191-L4204
 // intent: SR-INTENT-2099-01-STD-014
 // probe: SR-UI-PROBE-20260523-MF-STANDARD-DIR-MAP-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/standard-page.ts
 // generated_at: 2026-05-23T16:20:00+08:00
 // META: {"id":"STD-014","priority":"P1/P2/P3","title":"标准目录与标准映射只读 Shell 可核验"}
 // SourceRefs: SR-2099-01-STD-014, SR-UI-PROBE-20260523-MF-STANDARD-DIR-MAP-001, SR-SELF-RUN-20260523-MF-STANDARD-DIR-MAP-001

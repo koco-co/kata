@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t26-in
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t26","priority":"P1","title":"验证仅配置枚举值in校验不通过时质量报告详情说明包含越界值数量统计"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

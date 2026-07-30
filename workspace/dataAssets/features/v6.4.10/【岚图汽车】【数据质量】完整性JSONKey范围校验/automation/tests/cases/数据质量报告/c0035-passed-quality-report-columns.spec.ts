@@ -1,7 +1,6 @@
 // spec: features/completeness-json-key-range/archive.md#case=t35-case-35
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t35","priority":"P1","title":"验证校验通过时结果查询页不显示明细入口"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

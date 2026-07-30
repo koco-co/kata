@@ -2,7 +2,6 @@ import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../..
 // spec: features/validity-json-value-format/archive.md#case=t11-json-string-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t11","priority":"P1","title":"【P1】验证选择非json或string类型字段时「格式-json格式校验」统计规则选项不可选"}
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";

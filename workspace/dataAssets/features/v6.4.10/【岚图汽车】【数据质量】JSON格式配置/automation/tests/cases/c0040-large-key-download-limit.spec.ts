@@ -1,7 +1,6 @@
 // spec: features/json-config-helper/archive.md#case=t40-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t40","priority":"P1","title":"【P1】验证大数据量场景key记录下载数量是否存在限制"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { confirmPopconfirm, waitForTableLoaded } from "../../../../../../../../runtime/automation/playwright";

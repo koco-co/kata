@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t09-key-key
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t9","priority":"P1","title":"【P1】验证校验key输入框悬浮时展示全部key名，默认仅显示前两个"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t23-json
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t23","priority":"P1","title":"【P1】验证对分区表配置格式-json格式校验规则后指定分区下的数据校验正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

@@ -1,7 +1,6 @@
 // spec: features/validity-json-value-format/archive.md#case=t16-json-sparkthrift-2-x
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t16","priority":"P1","title":"【P1】验证「格式-json格式校验」规则在SparkThrift 2.x数据源下执行正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../runtime/automation/playwright";

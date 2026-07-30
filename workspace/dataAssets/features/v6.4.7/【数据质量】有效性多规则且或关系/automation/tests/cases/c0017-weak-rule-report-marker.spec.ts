@@ -1,7 +1,6 @@
 // spec: features/validity-multi-rule-logic/archive.md#case=t17-case-17
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
-// page: _shared/pages/PLACEHOLDER-page.ts
 // META: {"id":"t17","priority":"P2","title":"验证弱规则标识在校验结果查询实例详情中展示正确"}
 import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {

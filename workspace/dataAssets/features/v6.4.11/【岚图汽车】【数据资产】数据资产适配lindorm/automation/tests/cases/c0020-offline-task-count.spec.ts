@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L7750,#L7769,#L7789,#L7808,#L7827,#L7846,#L7865,#L7884,#L7903
 // intent: SR-INTENT-2099-01-DQ-COMMON-CONFIG-JSON-001
 // probe: results/20260523-1810-mf-quality-common-config-json-01/playwright/probe/probe.json
-// page: _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
 // generated_at: 2026-05-23T10:26:00Z
 // META: {"id":"DQ-020","priority":"P0","title":"通用配置 json格式校验管理列表与导入导出新增弹窗壳可核验"}
 // SourceRefs: SR-2099-01-DQ-COMMON-CONFIG-JSON-001, SR-UI-PROBE-20260523-DQ-COMMON-CONFIG-JSON-001, SR-SELF-RUN-20260523-DQ-COMMON-CONFIG-JSON-001

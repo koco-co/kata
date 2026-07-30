@@ -1,7 +1,6 @@
 // spec: features/2099-01-lt-dq-main-flow/岚图主流程用例整理.md#L50,#L66,#L84,#L105
 // intent: SR-INTENT-2099-01-AI-002
 // probe: SR-UI-PROBE-20260522-ASSETS-001
-// page: _shared/pages/2099-01-lt-dq-main-flow/assets-inventory-page.ts
 // generated_at: 2026-05-22T03:01:13Z
 // META: {"id":"AI-002","priority":"P2/P3","title":"资产盘点图表模块与筛选项可核验"}
 // SourceRefs: SR-2099-01-AI-002, SR-2099-01-AI-DIRECTORY-DISTRIBUTION-L66, SR-2099-01-AI-VALUE-RANK-L84, SR-2099-01-AI-STORAGE-RESOURCE-L105, SR-UI-PROBE-20260522-ASSETS-001, SR-SELF-RUN-ASSETS-001
