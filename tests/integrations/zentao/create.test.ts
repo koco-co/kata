@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
@@ -15,10 +15,9 @@ import {
 } from "../../../cli/integrations/zentao/create.ts";
 import { lintMarkdownReport, parseBugReportMarkdown } from "../../../cli/lib/defect-report.ts";
 
-const CONFIG = resolve(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "../../../cli/integrations/zentao/zentao.config.yaml",
-);
+const TEST_DIR = fileURLToPath(new URL(".", import.meta.url));
+const PROJECT_ROOT = resolve(TEST_DIR, "../../..");
+const CONFIG = join(PROJECT_ROOT, "config/plugin/zentao.example.yaml");
 
 describe("loadZentaoCreateConfig", () => {
   it("loads defaults from yaml", () => {
@@ -30,6 +29,21 @@ describe("loadZentaoCreateConfig", () => {
   });
   it("throws on missing file", () => {
     assert.throws(() => loadZentaoCreateConfig("/no/such.yaml"));
+  });
+  it("requires the canonical nested create mapping", () => {
+    const legacy = join(tmpdir(), `zentao-legacy-config-${process.pid}.yaml`);
+    writeFileSync(legacy, "product: 100\nassignee:\n  account: qa\nopened_build: trunk\n");
+    try {
+      assert.throws(() => loadZentaoCreateConfig(legacy), /create/);
+    } finally {
+      rmSync(legacy, { force: true });
+    }
+  });
+  it("does not retain a second tracked config authority under the integration", () => {
+    assert.equal(
+      existsSync(join(PROJECT_ROOT, "cli/integrations/zentao/zentao.config.yaml")),
+      false,
+    );
   });
 });
 
@@ -132,8 +146,7 @@ describe("parseCreateResponse", () => {
   });
 });
 
-const KATA_TS = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../cli/bin/kata.ts");
-const PROJECT_ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../");
+const KATA_TS = join(PROJECT_ROOT, "cli/bin/kata.ts");
 const TMP = join(tmpdir(), `zentao-create-test-${process.pid}`);
 afterEach(() => {
   try {
@@ -142,10 +155,15 @@ afterEach(() => {
 });
 
 function runCli(args: string[]): { code: number; stdout: string; stderr: string } {
+  const cliRoot = join(TMP, "repo");
+  mkdirSync(join(cliRoot, "workspace"), { recursive: true });
+  mkdirSync(join(cliRoot, "config", "plugin"), { recursive: true });
+  writeFileSync(join(cliRoot, "package.json"), '{"name":"kata-zentao-create-test"}\n');
+  writeFileSync(join(cliRoot, "config", "plugin", "zentao.yaml"), readFileSync(CONFIG, "utf8"));
   try {
     const stdout = execFileSync("bun", [KATA_TS, "zentao", "create", ...args], {
       encoding: "utf8",
-      cwd: PROJECT_ROOT,
+      cwd: cliRoot,
       env: { ...process.env, KATA_ZENTAO_BASE_URL: "https://zentao.example.cn" },
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -155,6 +173,17 @@ function runCli(args: string[]): { code: number; stdout: string; stderr: string 
     return { code: e.status ?? 1, stdout: e.stdout ?? "", stderr: e.stderr ?? "" };
   }
 }
+
+describe("CLI: canonical config", () => {
+  it("uses config/plugin/zentao.yaml without a second --config route", () => {
+    const help = execFileSync("bun", [KATA_TS, "zentao", "create", "--help"], {
+      encoding: "utf8",
+      cwd: PROJECT_ROOT,
+    });
+    assert.equal(help.includes("--config"), false);
+    assert.ok(help.includes("config/plugin/zentao.yaml"));
+  });
+});
 
 describe("CLI: --dry-run", () => {
   it("assembles fields without posting", () => {
@@ -189,8 +218,8 @@ describe("CLI: --dry-run", () => {
         "",
       ].join("\n"),
     );
-    const { code, stdout } = runCli(["--report", reportPath, "--dry-run"]);
-    assert.equal(code, 0);
+    const { code, stdout, stderr } = runCli(["--report", reportPath, "--dry-run"]);
+    assert.equal(code, 0, stderr);
     const out = JSON.parse(stdout) as {
       ok: boolean;
       dryRun: boolean;

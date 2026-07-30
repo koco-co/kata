@@ -41,16 +41,16 @@ kata zentao fetch --url "https://zentao.example.cn/zentao/bug-view-138845.html" 
 
 ## 建单配置
 
-`kata zentao create` 默认读取本目录下的 `zentao.config.yaml`（可用 `--config`
-覆盖）。仓库内的文件是脱敏合成示例（`product: 100`、`assignee: example-qa`），
-实际环境请按目标禅道的产品 ID、负责人账号和版本另备本机配置：
+`kata zentao create` 只读取本机私密的 `config/plugin/zentao.yaml`。复制
+`zentao.example.yaml` 后，在 `create` 节点中填写目标禅道的产品 ID、模块 ID、
+负责人账号和版本；仓库不跟踪真实映射。
 
 ```bash
 # 只组装字段不提交，打印 payload
 kata zentao create --report <bug-report.md> --dry-run
 
 # 实际建单
-kata zentao create --report <bug-report.md> --config <本机 zentao.config.yaml>
+kata zentao create --report <bug-report.md>
 ```
 
 ## 输出格式

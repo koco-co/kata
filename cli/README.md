@@ -300,7 +300,7 @@ Options:
 
 Commands:
   fetch [options]   从禅道 Bug 链接提取缺陷详情、解决叙述和修复分支
-  create [options]  从正式 Markdown 报告在禅道创建 bug(fixed assignee,zentao variant body)
+  create [options]  按 config/plugin/zentao.yaml 的映射从正式 Markdown 报告创建 bug
   help [command]    display help for command
 ```
 
@@ -1151,12 +1151,10 @@ Options:
 ```text
 Usage: kata zentao create [options]
 
-从正式 Markdown 报告在禅道创建 bug(fixed assignee,zentao variant body)
+按 config/plugin/zentao.yaml 的映射从正式 Markdown 报告创建 bug
 
 Options:
   --report <path>  BugReport Markdown 路径
-  --config <path>  ZenTao 配置 yaml (default:
-                   "<kata-root>/cli/integrations/zentao/zentao.config.yaml")
   --dry-run        只组装字段不提交,打印 payload (default: false)
   -h, --help       display help for command
 ```

@@ -55,6 +55,10 @@ with an explicit old dotenv path, then remove that dotenv file. Runtime
 environment variables remain supported only as explicit CI or one-off
 overrides; the repository does not load a root `.env` automatically.
 
+ZenTao fetch credentials and the `kata zentao create` product/module/assignee
+mapping share `config/plugin/zentao.yaml`; its tracked example documents both
+sections. There is no second create-config file under `cli/`.
+
 Set `KATA_WORKSPACE_ROOT` to an absolute path to move the project workspace
 out of the framework repository: the CLI then resolves projects under
 `<KATA_WORKSPACE_ROOT>/<project>` instead of the in-repo `workspace/`, so

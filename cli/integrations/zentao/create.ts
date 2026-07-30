@@ -4,14 +4,15 @@
  * Contract: 已合并实现 (main 9f92a198e)；运维/风险笔记见 cli/integrations/zentao/NOTES.md
  */
 import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 import { renderBugReport } from "../../lib/bug-report-render.ts";
 import type { BugReport } from "../../lib/bug-report-types.ts";
 import { parseBugReportMarkdown } from "../../lib/defect-report.ts";
 import { repoRoot } from "../../lib/paths.ts";
-import { loadZentaoConfig as loadZentaoPluginConfig } from "../../lib/plugin-config.ts";
+import {
+  loadZentaoConfig as loadZentaoPluginConfig,
+  pluginConfigPath,
+} from "../../lib/plugin-config.ts";
 import type { Severity } from "../../lib/scan-report-types.ts";
 import { resolveSession } from "./client.ts";
 
@@ -31,12 +32,15 @@ export interface ZentaoConfig {
 /** Load and validate the zentao create config yaml. */
 export function loadZentaoCreateConfig(path: string): ZentaoConfig {
   if (!existsSync(path)) throw new Error(`[zentao-create] 配置文件不存在：${path}`);
-  const cfg = parseYaml(readFileSync(path, "utf8")) as Partial<ZentaoConfig>;
+  const root = parseYaml(readFileSync(path, "utf8")) as { create?: Partial<ZentaoConfig> };
+  const cfg = root?.create;
   if (!cfg || typeof cfg.product !== "number") {
-    throw new Error("[zentao-create] 配置无效：缺少 product");
+    throw new Error("[zentao-create] 配置无效：缺少 create.product");
   }
-  if (!cfg.assignee?.account) throw new Error("[zentao-create] 配置无效：缺少 assignee.account");
-  if (!cfg.opened_build) throw new Error("[zentao-create] 配置无效：缺少 opened_build");
+  if (!cfg.assignee?.account) {
+    throw new Error("[zentao-create] 配置无效：缺少 create.assignee.account");
+  }
+  if (!cfg.opened_build) throw new Error("[zentao-create] 配置无效：缺少 create.opened_build");
   return {
     product: cfg.product,
     branch: cfg.branch ?? 0,
@@ -174,19 +178,16 @@ export function parseCreateResponse(text: string, baseUrl: string, title: string
 
 // ─── 运行 / CLI ────────────────────────────────────────────────────────────────
 
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-export const DEFAULT_CONFIG = resolve(__dirname, "zentao.config.yaml");
-
 function fail(code: string, message: string): never {
   throw new ZentaoCreateError(code, message);
 }
 
 export async function runCreate(opts: {
   report: string;
-  config: string;
   dryRun: boolean;
 }): Promise<CreateResult | CreateDryRunResult> {
-  const baseUrl = loadZentaoPluginConfig(repoRoot()).base_url;
+  const projectRoot = repoRoot();
+  const baseUrl = loadZentaoPluginConfig(projectRoot).base_url;
   if (!baseUrl) {
     fail(
       "ZENTAO_CONFIG_MISSING",
@@ -203,7 +204,7 @@ export async function runCreate(opts: {
   let steps: string;
   let payload: Record<string, string>;
   try {
-    config = loadZentaoCreateConfig(opts.config);
+    config = loadZentaoCreateConfig(pluginConfigPath("zentao", projectRoot));
     // zentao 模板本身只渲染首条主修复建议（其它相关问题应另开 bug）。
     steps = renderBugReport(report, "zentao");
     payload = buildCreatePayload(report, config, steps);

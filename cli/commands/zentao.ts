@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { DEFAULT_CONFIG, runCreate } from "../integrations/zentao/create.ts";
+import { runCreate } from "../integrations/zentao/create.ts";
 import { runFetch, ZentaoIntegrationError } from "../integrations/zentao/fetch.ts";
 import { outputJson } from "../lib/cli.ts";
 
@@ -35,13 +35,10 @@ export function registerZentao(program: Command): void {
 
   zentao
     .command("create")
-    .description("从正式 Markdown 报告在禅道创建 bug(fixed assignee,zentao variant body)")
+    .description("按 config/plugin/zentao.yaml 的映射从正式 Markdown 报告创建 bug")
     .requiredOption("--report <path>", "BugReport Markdown 路径")
-    .option("--config <path>", "ZenTao 配置 yaml", DEFAULT_CONFIG)
     .option("--dry-run", "只组装字段不提交,打印 payload", false)
-    .action(async (opts: { report: string; config: string; dryRun: boolean }) => {
-      outputJson(
-        await runCreate({ report: opts.report, config: opts.config, dryRun: opts.dryRun }),
-      );
+    .action(async (opts: { report: string; dryRun: boolean }) => {
+      outputJson(await runCreate({ report: opts.report, dryRun: opts.dryRun }));
     });
 }
