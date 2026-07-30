@@ -235,6 +235,13 @@ describe("skill contract", () => {
     expect(example).not.toContain("全量通过：达成（2 通过 / 1 排除）");
   });
 
+  it("test-case few-shot 不伪造自动化映射且用例可独立准备", () => {
+    const example = readFileSync(join(skillDir("test-case"), "examples/cases.yaml"), "utf8");
+    expect(example).not.toContain("\n    automation:");
+    expect(example).not.toMatch(/precondition:\s*同 C\d+/);
+    expect(example).toContain("INSERT INTO user_profile");
+  });
+
   it("流程型 Skill 的每个顶层步骤都有可检查完成条件", () => {
     const processFiles = [
       ["defect-analyze", "SKILL.md"],
