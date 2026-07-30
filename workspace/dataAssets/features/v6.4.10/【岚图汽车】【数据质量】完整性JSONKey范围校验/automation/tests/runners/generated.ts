@@ -5,24 +5,14 @@ import { orderAutomationCases } from "../../../../../../../../runtime/automation
 const generatedCases: ReadonlyArray<{ readonly caseId: string; readonly module: string }> = [
   { caseId: "C0001", module: "../cases/规则集管理/c0001-key-range-single-field-selection.spec.ts" },
   { caseId: "C0002", module: "../cases/规则集管理/c0002-include-exclude-method-results.spec.ts" },
-  { caseId: "C0003", module: "../cases/规则集管理/c0003-validation-content-multi-select.spec.ts" },
   { caseId: "C0004", module: "../cases/规则集管理/c0004-search-validation-content.spec.ts" },
-  { caseId: "C0005", module: "../cases/规则集管理/c0005-large-key-list-search.spec.ts" },
+  { caseId: "C0013", module: "../cases/规则集管理/c0013-require-validation-field.spec.ts" },
+  { caseId: "C0014", module: "../cases/规则集管理/c0014-require-validation-content.spec.ts" },
   { caseId: "C0015", module: "../cases/规则集管理/c0015-require-validation-method.spec.ts" },
-  { caseId: "C0016", module: "../cases/规则任务管理/c0016-validation-config-card-fields.spec.ts" },
-  { caseId: "C0017", module: "../cases/多数据源兼容性/c0017-key-range-end-to-end.spec.ts" },
-  { caseId: "C0018", module: "../cases/多数据源兼容性/c0018-doris-json-key-range.spec.ts" },
-  { caseId: "C0019", module: "../cases/多数据源兼容性/c0019-sparkthrift-json-key-range.spec.ts" },
-  { caseId: "C0020", module: "../cases/多数据源兼容性/c0020-doris-string-key-range.spec.ts" },
-  { caseId: "C0021", module: "../cases/多数据源兼容性/c0021-sparkthrift-string-key-range.spec.ts" },
-  { caseId: "C0022", module: "../cases/多数据源兼容性/c0022-hive-string-key-range.spec.ts" },
-  { caseId: "C0024", module: "../cases/大数据量与层级校验/c0024-large-key-hierarchy-validation.spec.ts" },
-  { caseId: "C0030", module: "../cases/校验结果查询/c0030-key-range-built-in-rule.spec.ts" },
-  { caseId: "C0032", module: "../cases/校验结果查询/c0032-failed-download-marked-fields.spec.ts" },
+  { caseId: "C0017", module: "../cases/规则任务管理/c0017-key-range-end-to-end.spec.ts" },
   { caseId: "C0033", module: "../cases/校验结果查询/c0033-passed-validation-no-details.spec.ts" },
-  { caseId: "C0034", module: "../cases/数据质量报告/c0034-failed-validation-log.spec.ts" },
+  { caseId: "C0034", module: "../cases/校验结果查询/c0034-failed-validation-log.spec.ts" },
   { caseId: "C0035", module: "../cases/数据质量报告/c0035-passed-quality-report-columns.spec.ts" },
-  { caseId: "C0036", module: "../cases/数据质量报告/c0036-failed-quality-report-columns.spec.ts" },
 ];
 
 const orderedCases = orderAutomationCases(

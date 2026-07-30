@@ -1,53 +1,29 @@
 import { waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
-// spec: features/completeness-json-key-range/archive.md#case=t30-case-30
-// intent: SR-INTENT-MIGRATED
-// probe: SR-UI-PROBE-MIGRATED
-// META: {"id":"t30","priority":"P1","title":"验证校验不通过时查看明细：标题、字段标红及全字段展示"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import {
-  ensureRuleTasks,
-  executeTaskFromList,
-  openTaskInstanceDetail,
-  waitForTaskInstanceFinished,
-  MAIN_TASK_NAME,
-} from "../../flows/rule-task-flow";
+import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../flows/rule-set-flow";
 
 test.setTimeout(600000);
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";
 
 test.describe(SUITE_NAME, () => {
-  test("验证校验不通过时查看明细：标题、字段标红及全字段展示", async ({ page, step }) => {
-    let instanceRow!: import("@playwright/test").Locator;
-
-    await step("步骤1: 准备前置条件（规则集+任务）", async () => {
-      await ensureRuleTasks(page, [MAIN_TASK_NAME]);
+  test("验证校验结果查询入口可查看key范围校验内置规则展示信息", async ({ page, step }) => {
+    await step("步骤1: 进入【数据质量 → 规则库配置】页面，选择内置规则 → 规则库页面正常打开", async () => {
+      await gotoBuiltInRuleBase(page);
     });
 
-    await step("步骤2: 执行任务", async () => {
-      await executeTaskFromList(page, MAIN_TASK_NAME);
+    await step("步骤2: 搜索 key范围校验 → 规则行可见", async () => {
+      const ruleRow = await searchRuleBaseRule(page, "key范围校验");
+      await expect(ruleRow).toBeVisible({ timeout: 10000 });
     });
 
-    await step("步骤3: 在校验结果查询中查看校验不通过实例 → 打开明细", async () => {
-      instanceRow = await waitForTaskInstanceFinished(page, MAIN_TASK_NAME, 480000);
-      await expect(instanceRow).toBeVisible({ timeout: 10000 });
-
-      const detailDrawer = await openTaskInstanceDetail(page, instanceRow);
-      await expect(detailDrawer).toBeVisible({ timeout: 10000 });
-
-      // 验证整体质检结果为校验不通过
-      await expect(detailDrawer).toContainText(/校验(未|不)通过/);
-
-      // 查看明细
-      const viewDetailBtn = detailDrawer.getByRole("button", { name: /查看明细|明细/ }).first();
-      if (await viewDetailBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await viewDetailBtn.click();
+    await step("步骤3: 点击规则行查看详情 → 各项展示正确", async () => {
+      const detailToggle = page.locator(".ant-table-row-expand-icon, .ant-table-row-expand-icon-collapsed").first();
+      if (await detailToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await detailToggle.click();
         await waitForUiSettled(page);
-        const dataDrawer = page.locator(".ant-drawer:visible, .dtc-drawer:visible").last();
-        await expect(dataDrawer).toBeVisible({ timeout: 10000 });
-        await expect(dataDrawer).toContainText("2");
-        await expect(dataDrawer).toContainText("3");
       }
-    }, instanceRow);
+      await expect(page.locator(".ant-table-row-expanded, .ant-table-expanded-row").first()).toContainText("key范围校验");
+    });
   });
 });

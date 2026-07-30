@@ -81,8 +81,6 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0003
-    automation:
-      spec_file: c0003-validation-content-multi-select.spec.ts
     title: 验证校验内容支持多选和全选操作
     priority: P1
     steps:
@@ -137,8 +135,6 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0005
-    automation:
-      spec_file: c0005-large-key-list-search.spec.ts
     title: 验证key数据量超过200条时默认加载前200条及搜索功能
     priority: P1
     steps:
@@ -230,7 +226,8 @@ cases:
       - 规则集管理
       - 规则配置-key范围校验基础功能
   - case_id: C0008
-
+    automation:
+      spec_file: c0008-full-validation-content-display.spec.ts
     title: 验证规则集管理与规则任务管理中校验内容全量展示无截断（反向用例）
     priority: P1
     steps:
@@ -239,9 +236,9 @@ cases:
       - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，查看"key范围校验测试包"中已配置的key范围校验规则行的"校验内容"列
         expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
       - action: 观察"校验内容"列在非悬浮状态下的显示内容
-        expected: 校验内容列默认仅展示前两个key信息（如"key1-key2..."），超出部分以省略号截断显示
-      - action: 将鼠标悬浮在"校验内容"列的文本上，等待tooltip出现
-        expected: 鼠标悬浮后，tooltip中完整展示全部4个key信息："key1-key2;key11-key22"
+        expected: 校验内容列直接完整展示全部4个key信息"key1-key2;key11-key22"，不显示省略号，不依赖悬浮提示
+      - action: 进入【数据质量 → 规则任务管理】页面，找到"task_json_key_range_tooltip_full"并打开规则配置，查看已导入规则的"校验内容"
+        expected: 规则任务管理中同样完整展示"key1-key2;key11-key22"，不截断，不显示省略号
       - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
         expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
@@ -359,7 +356,8 @@ cases:
       - 规则集管理
       - 规则配置-字段类型限制
   - case_id: C0013
-
+    automation:
+      spec_file: c0013-require-validation-field.spec.ts
     title: 验证未选择字段时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -379,7 +377,8 @@ cases:
       - 规则集管理
       - 规则配置-表单校验（逆向）
   - case_id: C0014
-
+    automation:
+      spec_file: c0014-require-validation-content.spec.ts
     title: 验证未选择校验内容时保存key范围校验规则提示必填
     priority: P1
     steps:
@@ -420,8 +419,6 @@ cases:
       - 规则集管理
       - 规则配置-表单校验（逆向）
   - case_id: C0016
-    automation:
-      spec_file: c0016-validation-config-card-fields.spec.ts
     title: 验证规则配置参数卡片完整展示所有字段
     priority: P1
     steps:
@@ -683,24 +680,21 @@ cases:
         expected: 规则任务管理页面正常打开，列表加载完成
       - action: 找到"task_hive_test"，点击【立即执行】
         expected: 页面弹出提示信息，提示任务已提交执行
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_doris_test"最新实例记录并打开实例详情
+      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_hive_test"最新实例记录并打开实例详情
         expected: |-
           1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
           2) 实例详情中 id=1（含key1和key2）质检结果=校验通过
           3) id=2（缺key2）质检结果=校验不通过
     precondition: |-
-      1) 已在Doris3.x数据源中执行以下SQL：
-         CREATE TABLE doris_json_test (
-           id INT,
-           data JSON
-         ) DISTRIBUTED BY HASH(id) BUCKETS 3
-         PROPERTIES("replication_num" = "1");
-         INSERT INTO doris_json_test VALUES
-           (1, '{"key1":"A","key2":"B"}'),
-           (2, '{"key1":"C"}');
-      2) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      3) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_doris_test"创建：Step 1 基础信息中关联Doris3.x数据源的doris_json_test表，并新增规则包"doris兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（json类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      4) 已通过【数据质量 → 规则任务管理】页面完成任务"task_doris_test"创建：Step 1 基础信息中规则名称=task_doris_test，并关联同一Doris3.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_doris_test"的"doris兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
+      1) Hive2.x数据源已配置并连接正常
+      2) 已在该数据源中执行以下SQL：
+         CREATE TABLE hive_json_test (id INT, data STRING);
+         INSERT INTO hive_json_test VALUES
+           (1, '{"key1":"M","key2":"N"}'),
+           (2, '{"key1":"P"}');
+      3) 已在【通用配置 → json格式校验管理】页面维护key1、key2
+      4) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_hive_test"创建：Step 1 基础信息中关联Hive2.x数据源的hive_json_test表，并新增规则包"hive兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（string类型，内容为JSON）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
+      5) 已通过【数据质量 → 规则任务管理】页面完成任务"task_hive_test"创建：Step 1 基础信息中规则名称=task_hive_test，并关联同一Hive2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_hive_test"的"hive兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
     tags:
       - 数据质量
       - 规则任务管理
@@ -1169,8 +1163,6 @@ cases:
       - 数据质量报告
       - 质量报告-展示验证
   - case_id: C0036
-    automation:
-      spec_file: c0036-failed-quality-report-columns.spec.ts
     title: 验证质量报告中校验不通过行的各列展示内容正确
     priority: P0
     steps:

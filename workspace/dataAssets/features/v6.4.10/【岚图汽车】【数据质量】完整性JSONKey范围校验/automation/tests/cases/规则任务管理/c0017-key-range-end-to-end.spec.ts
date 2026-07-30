@@ -1,9 +1,5 @@
 import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../../_shared/automation/runtime/env-setup";
 import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
-// spec: features/completeness-json-key-range/archive.md#case=t16-key
-// intent: SR-INTENT-MIGRATED
-// probe: SR-UI-PROBE-MIGRATED
-// META: {"id":"t16","priority":"P0","title":"【P0】验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果"}
 
 import { executeTableSQL } from "dtstack-sdk/adapters/execute-table";
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
@@ -37,6 +33,8 @@ import {
 
 test.setTimeout(600000);
 
+const CASE_TITLE =
+  "验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果";
 const KEY_LABELS: Record<string, string> = {
   key1: "姓名",
   key2: "年龄",
@@ -104,15 +102,15 @@ async function selectWithSearch(
 }
 
 for (const datasource of ACTIVE_DATASOURCES) {
-  test.describe(`t16 - ${datasource.reportName}`, () => {
+  test.describe(`C0017 - ${datasource.reportName}`, () => {
     test.beforeAll(() => setCurrentDatasource(datasource));
     test.beforeEach(() => setCurrentDatasource(datasource));
     test.afterAll(() => clearCurrentDatasource());
 
-    test("key范围校验完整流程", async ({ page, step }) => {
-      const tableName = uniqueName("t16key_range_tbl");
-      const packageName = uniqueName("t16key_range_pkg");
-      const taskName = uniqueName("t16key_range_tsk");
+    test(CASE_TITLE, async ({ page, step }) => {
+      const tableName = uniqueName("c0017_key_range_tbl");
+      const packageName = uniqueName("c0017_key_range_pkg");
+      const taskName = uniqueName("c0017_key_range_tsk");
       const uniqueKeys = fixedKeys();
 
       // 步骤1: 打开页面 + 创建表

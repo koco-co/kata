@@ -1,10 +1,5 @@
-// spec: features/completeness-json-key-range/archive.md#case=t22-hive2-x-json-key
-// intent: SR-INTENT-MIGRATED
-// probe: SR-UI-PROBE-MIGRATED
-// META: {"id":"t22","priority":"P1","title":"【P1】验证Hive2.x数据源的json字段支持key范围校验"}
-// NOTE: 当前基础设施缺少 Hive2.x 数据源配置（test-data.ts/key-range-utils.ts 未定义 Hive 连接器），
-// 该用例暂以 SparkThrift2.x 替代执行。archive.md 前置条件中 Hive2.x json 的建表 SQL 也误引用了 Doris。
-// 待 Hive 数据源就绪后需切换为 hive_json_test 表和 Hive 分区 DDL。
+// NOTE: 当前基础设施缺少 Hive2.x 数据源配置（test-data.ts 未定义 Hive 连接器），
+// 现有代码仅保存为部分实现，不进入 generated full runner。
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { uniqueName } from "../../../../../../../../../runtime/automation/playwright";
 import { KEY_RANGE_TABLE } from "../../fixtures/key-range-data";
@@ -18,7 +13,7 @@ import {
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";
 const PAGE_NAME = "规则集管理";
-const CASE_TITLE = "【P1】验证Hive2.x数据源的json字段支持key范围校验";
+const CASE_TITLE = "验证Hive2.x数据源的string字段支持key范围校验";
 
 async function runKeyRangeCaseByDatasource(
   page: import("@playwright/test").Page,
@@ -26,7 +21,7 @@ async function runKeyRangeCaseByDatasource(
   datasourceLabel: string,
   datasourceConfig: typeof SPARKTHRIFT_MONITOR_DATASOURCE,
 ): Promise<void> {
-  const packageName = uniqueName("tt22_" + (datasourceLabel.includes("Spark") ? "spark" : "doris"));
+  const packageName = uniqueName("c0022_" + (datasourceLabel.includes("Spark") ? "spark" : "doris"));
 
   await step("步骤1: 打开规则集管理页面（" + datasourceLabel + "）", async () => {
     await gotoRuleSetList(page);
@@ -57,7 +52,7 @@ async function runKeyRangeCaseByDatasource(
       method: "包含",
       keyNames: ["key1"],
       ruleStrength: "强规则",
-      description: "【P1】验证Hive2.x数据源的json字段支持key范围校验-" + datasourceLabel,
+      description: "验证Hive2.x数据源的string字段支持key范围校验-" + datasourceLabel,
     });
     await expect(ruleForm).toContainText("key范围校验", { timeout: 5000 });
   });

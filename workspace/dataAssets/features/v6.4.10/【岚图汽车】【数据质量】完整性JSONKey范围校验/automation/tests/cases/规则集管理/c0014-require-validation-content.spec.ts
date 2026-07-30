@@ -6,7 +6,7 @@ import {
 } from "../../fixtures/test-data";
 import { verifyRequiredKeyRangeField } from "../../flows/rule-set-flow";
 
-const CASE_TITLE = "验证未选择校验方法时保存key范围校验规则提示必填";
+const CASE_TITLE = "验证未选择校验内容时保存key范围校验规则提示必填";
 
 for (const datasource of ACTIVE_DATASOURCES) {
   test.describe(`完整性 key 范围校验 - ${datasource.reportName}`, () => {
@@ -16,7 +16,7 @@ for (const datasource of ACTIVE_DATASOURCES) {
     test.afterAll(() => clearCurrentDatasource());
 
     test(CASE_TITLE, async ({ page }) => {
-      await verifyRequiredKeyRangeField(page, "method");
+      await verifyRequiredKeyRangeField(page, "content");
     });
   });
 }

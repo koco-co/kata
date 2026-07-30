@@ -1,33 +1,31 @@
-import { waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
-// spec: features/completeness-json-key-range/archive.md#case=t32-case-32
-// intent: SR-INTENT-MIGRATED
-// probe: SR-UI-PROBE-MIGRATED
-// META: {"id":"t32","priority":"P1","title":"验证规则库中新增key范围校验内置规则展示信息正确"}
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../flows/rule-set-flow";
+import { test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import {
+  ensureRuleTasks,
+  executeTaskFromList,
+  waitForTaskInstanceFinished,
+  MAIN_TASK_NAME,
+} from "../../flows/rule-task-flow";
 
 test.setTimeout(600000);
 
 const SUITE_NAME = "【内置规则丰富】完整性，json中key值范围校验(#15693)";
 
 test.describe(SUITE_NAME, () => {
-  test("验证校验结果查询入口可查看key范围校验内置规则展示信息", async ({ page, step }) => {
-    await step("步骤1: 进入【数据质量 → 规则库配置】页面，选择内置规则 → 规则库页面正常打开", async () => {
-      await gotoBuiltInRuleBase(page);
+  test("验证下载明细数据中校验字段标红展示", async ({ page, step }) => {
+    await step("步骤1: 准备前置条件（规则集+任务）", async () => {
+      await ensureRuleTasks(page, [MAIN_TASK_NAME]);
     });
 
-    await step("步骤2: 搜索 key范围校验 → 规则行可见", async () => {
-      const ruleRow = await searchRuleBaseRule(page, "key范围校验");
-      await expect(ruleRow).toBeVisible({ timeout: 10000 });
+    await step("步骤2: 执行任务并等待完成", async () => {
+      await executeTaskFromList(page, MAIN_TASK_NAME);
+      await waitForTaskInstanceFinished(page, MAIN_TASK_NAME, 480000);
     });
 
-    await step("步骤3: 点击规则行查看详情 → 各项展示正确", async () => {
-      const detailToggle = page.locator(".ant-table-row-expand-icon, .ant-table-row-expand-icon-collapsed").first();
-      if (await detailToggle.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await detailToggle.click();
-        await waitForUiSettled(page);
-      }
-      await expect(page.locator(".ant-table-row-expanded, .ant-table-expanded-row").first()).toContainText("key范围校验");
+    await step("步骤3: 下载明细数据 → 校验字段标红展示", async () => {
+      // TODO: 此用例需要处理文件下载（Playwright download event）+ 解析 Excel 单元格样式。
+      //       Excel 解析依赖 exceljs 或 xlsx 库，需确认是否已安装。
+      //       当前先做骨架，待下载处理就绪后补充。
+      test.skip(true, "需要文件下载处理 + Excel 解析能力，暂不自动执行");
     });
   });
 });

@@ -17,6 +17,7 @@ import {
   applyRuntimeCookies,
   buildDataAssetsUrl,
 } from "../../../../../../_shared/automation/runtime/env-setup";
+import { addRuleToPackage } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
 import {
   selectAntOption,
   uniqueName,
@@ -289,6 +290,37 @@ export async function saveInvalidRuleSet(page: Page): Promise<void> {
     .last()
     .click();
   await waitForUiSettled(page);
+}
+
+export type MissingKeyRangeField = "field" | "content" | "method";
+
+/** 验证 key 范围校验表单的单个必填项，不把三个 YAML 用例合并进同一 spec。 */
+export async function verifyRequiredKeyRangeField(
+  page: Page,
+  missing: MissingKeyRangeField,
+): Promise<void> {
+  await startRuleSetDraft(page, SCENARIOS.main);
+  const ruleForm = await addRuleToPackage(page, SCENARIOS.main.packageName, "完整性校验");
+  await selectAntOption(page, locateFormItemSelect(ruleForm, /规则类型/), /字段级|字段/);
+
+  if (missing !== "field") {
+    await selectAntOption(page, locateFormItemSelect(ruleForm, /^字段/), "info");
+  }
+  await selectRuleFunction(ruleForm, "key范围校验");
+  if (missing !== "method") {
+    await selectAntOption(page, locateFormItemSelect(ruleForm, /校验方法/), "包含");
+  }
+  if (missing !== "content") {
+    await setVerificationContent(page, ruleForm, ["key1"]);
+  }
+
+  await saveInvalidRuleSet(page);
+  const messages: Record<MissingKeyRangeField, string> = {
+    field: "请选择字段",
+    content: "请选择校验内容",
+    method: "请选择校验方法",
+  };
+  await expectRuleError(ruleForm, messages[missing]);
 }
 
 /**

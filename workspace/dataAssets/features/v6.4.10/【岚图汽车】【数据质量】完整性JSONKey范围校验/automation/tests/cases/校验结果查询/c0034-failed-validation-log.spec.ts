@@ -1,7 +1,3 @@
-// spec: features/completeness-json-key-range/archive.md#case=t36-case-36
-// intent: SR-INTENT-MIGRATED
-// probe: SR-UI-PROBE-MIGRATED
-// META: {"id":"t36","priority":"P2","title":"验证校验失败时支持查看日志"}
 import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
 import { ensureSavedScenarioRuleSet, SCENARIOS } from "../../flows/rule-set-flow";
 import {
