@@ -10,12 +10,14 @@ import {
   waitForRuleTaskPageQuery,
 } from "../../../../../../../_shared/automation/pages/data-quality/api";
 import type { DqMonitorRecordPage } from "../../../../../../../_shared/automation/pages/data-quality/contracts";
-import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
-import { expectMonitorRecordPage } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
   chooseDqFieldOptionByText,
   clickDqCompactButton,
   clickDqText,
+} from "../../../../../../../_shared/automation/pages/data-quality/form-controls";
+import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pages/data-quality/project-context";
+import { expectMonitorRecordPage } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
+import {
   gotoMonitorRecordQueryPage,
   gotoRuleTaskScheduleAttributesPage,
   runRuleTaskImmediately,

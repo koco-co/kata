@@ -39,6 +39,16 @@ import {
   formatRuleBaseCustomRuleType,
 } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
+  checkDqNoReport,
+  chooseDqFieldOptionByText,
+  chooseFirstDqSelectOption,
+  clickActiveAntdOption,
+  clickDqCompactButton,
+  clickDqSubmitButton,
+  clickDqText,
+  getActiveAntdOptionTexts,
+} from "../../../../../../../_shared/automation/pages/data-quality/form-controls";
+import {
   expectDqAdminFullMenu,
   expectDqApiPaths,
   expectDqLimitedPermission,
@@ -50,20 +60,12 @@ import {
   selectDqFormOption,
 } from "./page-context";
 import {
-  checkDqNoReport,
-  chooseDqFieldOptionByText,
-  chooseFirstDqSelectOption,
-  clickActiveAntdOption,
-  clickDqCompactButton,
-  clickDqSubmitButton,
-  clickDqText,
   clickNextUntilMonitorRuleConfig,
   clickNextUntilScheduleConfig,
   clickRuleSetPackageAddButton,
   clickRuleSetSubmitButton,
   configureManualPartition,
   fillRuleSetRuleDescription,
-  getActiveAntdOptionTexts,
   gotoNewRuleTaskMonitorObjectPageForTable,
   saveRuleSetRuleRow,
   selectRuleSetField,

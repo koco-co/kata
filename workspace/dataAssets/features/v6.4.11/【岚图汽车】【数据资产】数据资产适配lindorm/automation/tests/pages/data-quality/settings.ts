@@ -30,7 +30,7 @@ import {
   expectRuleSetPage,
   expectRuleSetSearchTarget,
 } from "./page-context";
-import { clickDqCompactButton } from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+import { clickDqCompactButton } from "../../../../../../../_shared/automation/pages/data-quality/form-controls";
 
 function getQualityProjectName(): string {
   return getEnvConfig().projects.quality.name;

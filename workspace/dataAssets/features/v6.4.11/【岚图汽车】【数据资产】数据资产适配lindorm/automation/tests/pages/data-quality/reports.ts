@@ -39,7 +39,7 @@ import {
   fillDqPageFormField,
   getActiveAntdOptionTexts,
   selectDqFormOptions,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+} from "../../../../../../../_shared/automation/pages/data-quality/form-controls";
 
 type DqGeneratedReportRecord = {
   id?: string | number;
