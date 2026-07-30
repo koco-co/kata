@@ -229,6 +229,8 @@ describe("skill contract", () => {
     expect(content).not.toContain("c<四位序号>-<slug>.ts");
     expect(content).not.toContain("kata automation run <requirement_id>");
     expect(content).toContain("kata automation run <feature-path>");
+    expect(content).toContain("kata automation lint --shared --project <project> --exit-code");
+    expect(content).not.toContain("kata automation lint --shared --exit-code");
 
     const example = readFileSync(join(skillDir("ui-automation"), "examples/handoff.md"), "utf8");
     expect(example).toContain("full.spec.ts 全量通过：未达成");

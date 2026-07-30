@@ -30,6 +30,6 @@
 
 ```bash
 bun run type-check:workspace
-bun cli/bin/kata.ts automation lint --shared --exit-code
+bun cli/bin/kata.ts automation lint --shared --project dataAssets --exit-code
 bun run test:workspace
 ```
