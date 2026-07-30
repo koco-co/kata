@@ -110,14 +110,14 @@
       ]
     },
     "domain-knowledge": {
-      "readCmd": [{ "pattern": "knowledge read", "file": "SKILL.md" }],
-      "writeCmd": [{ "pattern": "knowledge write", "file": "SKILL.md" }],
-      "statusFlag": [{ "pattern": "--status", "file": "SKILL.md" }],
+      "readCmd": [{ "pattern": "knowledge read", "file": "workflows/read.md" }],
+      "writeCmd": [{ "pattern": "knowledge write", "file": "workflows/write.md" }],
+      "statusFlag": [{ "pattern": "--status", "file": "workflows/read.md" }],
       "fourStates": [
-        { "pattern": "verified", "file": "SKILL.md" },
-        { "pattern": "observed", "file": "SKILL.md" },
-        { "pattern": "conflicting", "file": "SKILL.md" },
-        { "pattern": "deprecated", "file": "SKILL.md" }
+        { "pattern": "verified", "file": "workflows/write.md" },
+        { "pattern": "observed", "file": "workflows/write.md" },
+        { "pattern": "conflicting", "file": "workflows/write.md" },
+        { "pattern": "deprecated", "file": "workflows/write.md" }
       ],
       "knowledgeDir": [{ "pattern": "workspace/<project>/knowledge/", "file": "SKILL.md" }]
     },
