@@ -39,6 +39,22 @@ function readSkillMd(skill: string): string {
   return readFileSync(join(skillDir(skill), "SKILL.md"), "utf8");
 }
 
+function expectCheckableTopLevelSteps(path: string): void {
+  const text = readFileSync(path, "utf8");
+  const lines = text.split(/\r?\n/);
+  const starts = lines
+    .map((line, index) => (/^\d+\.\s+\S/.test(line) ? index : -1))
+    .filter((index) => index >= 0);
+  expect(starts.length, `${path} 没有顶层步骤`).toBeGreaterThan(0);
+  for (const [position, start] of starts.entries()) {
+    const end = starts[position + 1] ?? lines.length;
+    expect(
+      lines.slice(start, end).join("\n"),
+      `${path}:${start + 1} 缺少可检查的完成条件`,
+    ).toContain("完成条件：");
+  }
+}
+
 /** 沿 `kata --help` 逐层 BFS,收集全部已注册的命令路径(noun / noun verb / noun verb sub)。 */
 function collectCliCommands(): Set<string> {
   const registered = new Set<string>();
@@ -175,6 +191,11 @@ describe("skill contract", () => {
     expect(workspaceManagement).not.toContain("CLAUDE.md 本地配置节");
 
     expect(existsSync(join(skillDir("defect-analyze"), "templates/report.md"))).toBe(false);
+  });
+
+  it("test-case 的每个 workflow 步骤都有可检查完成条件", () => {
+    expectCheckableTopLevelSteps(join(skillDir("test-case"), "workflows/create.md"));
+    expectCheckableTopLevelSteps(join(skillDir("test-case"), "workflows/edit.md"));
   });
 });
 

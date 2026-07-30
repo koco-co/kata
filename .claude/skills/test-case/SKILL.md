@@ -1,40 +1,49 @@
 ---
 name: test-case
-description: 用例编写、编辑、同步与标准化。需求源（Lanhu/Axure URL、PRD、截图、功能描述）走 create；既有 .yaml/.csv/.xlsx/.md/.xmind 或编辑诉求走 edit。只发目录路径转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
+description: 编写、编辑、导入、同步或标准化 Kata 测试用例。Lanhu/Axure URL、PRD、截图和功能描述等需求源走 create；既有 .yaml、.csv、.xlsx、.md、.xmind 或明确编辑诉求走 edit。只发 feature 目录且要求 UI 自动化时转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
 ---
 
-# test-case
+# Outcome
 
-`prd/prd.md` 是确认后的唯一需求权威，`cases/test-points.md` 是从 PRD 派生并经用户确认的覆盖设计，`cases/需求名.yaml` 是用例唯一权威。`需求名.xmind` 等派生物只经 `kata cases build` 写入 `cases/exports/`。
+建立或更新可追溯的需求、测试点和 YAML 用例权威，并只通过 `kata cases build` 生成 XMind 等派生格式。
 
-| 输入 | 工作流 |
-| --- | --- |
-| 需求源或编写新用例 | [workflows/create.md](workflows/create.md) |
-| 既有用例或编辑、同步、标准化 | [workflows/edit.md](workflows/edit.md) |
+## Routing
 
-## 硬规则
+- 新需求、PRD、设计稿、截图或功能描述：完整执行 [workflows/create.md](workflows/create.md)。
+- 既有 YAML 或 CSV、XLSX、Markdown、XMind，以及标题同步、格式标准化等编辑：完整执行 [workflows/edit.md](workflows/edit.md)。
+- 只给 feature 目录并要求生成、修复或验证 UI 自动化：转 `ui-automation`。
+- ZenTao Bug ID/URL 的 hotfix 回归报告：转 `defect-analyze`；需要正式 YAML 回归用例时再返回本 Skill。
 
-- 新需求先完成 PRD 流程：蓝湖证据提取、知识注入、相关 release 源码准备、遗漏扫描、逐问确认、最终发布确认。最终确认前不得生成 `prd/prd.md`。
-- 需求疑点一次只问一个；每题说明证据、影响、风险和推荐答案。知识库、蓝湖或源码能回答的事实不得再问用户。
-- PRD 稳定 ID 使用 `FR/BR/ER/AC/PD-001`；测试点引用 PRD ID，用例 `source_ref` 引用测试点 ID。
-- `cases/test-points.md` frontmatter 的 `prd_digest` 与 YAML `meta.test_points_digest` 必须形成摘要链；过期时 lint/build 阻断。
-- 产物不得出现「待确认」「用户确认补充」或 MCP 工作提示。无法确认的需求不发布，无法纳入覆盖的测试点写明不覆盖原因。
-- 菜单、字段、枚举和规则先查 `kata knowledge read`，不足再查已准备的源码。可跨需求复用且经确认的规则才写回知识库，随后运行 `kata knowledge index`。
+## Steps
 
-## 产物
+1. 选择工作流并定位 feature
+   - 新 feature 由 CLI 解析身份；既有 feature 从用户给定的规范路径定位。
+   - 完成条件：项目和 `<项目>:<版本目录>/<需求目录名>` 唯一，create/edit 分支明确。
 
-```text
-<feature>/
-├── prd/
-│   ├── prd.md
-│   ├── evidence/lanhu.json
-│   ├── assets/
-│   └── .process/session.json
-└── cases/
-    ├── test-points.md
-    ├── 需求名.yaml
-    ├── imports/
-    └── exports/
-```
+2. 维护权威链
+   - `prd/prd.md` 是确认后的需求权威，`cases/test-points.md` 是覆盖设计，`cases/需求名.yaml` 是用例权威。
+   - 完成条件：每个测试点可追溯到 PRD，每条用例可追溯到测试点；摘要链与当前内容一致。
 
-feature 目录只能由 `kata features resolve --json` 定位。交付前运行 `kata prd lint`、`kata cases build`、`kata cases lint --exit-code`，并按 [checklists/review.md](checklists/review.md) 自审。
+3. 构建并验证派生物
+   - 只从 YAML 生成 `cases/exports/需求名.xmind`、Markdown、CSV 或 XLSX。
+   - 完成条件：`kata prd lint`、`kata cases build` 和 `kata cases lint --exit-code` 均成功；派生物没有手工改动。
+
+## Delivery
+
+- 返回 feature 路径、PRD、测试点、YAML 和实际生成的 exports。
+- 逐项说明已验证、缺少业务证据而保持不变、以及被明确排除的覆盖。
+- 导入原件归档在 `cases/imports/`；默认只导出 XMind，其他格式由 YAML `meta.exports` 明确声明。
+
+## Guardrails
+
+- 需求事实不足时不猜菜单、字段、枚举、步骤或预期；能从知识、证据和源码查明的事实不再询问用户。
+- create 流程在最终发布确认前不写 `prd/prd.md`；正式产物不包含「待确认」「用户确认补充」或模型工作提示。
+- YAML 是唯一用例源；不手改 `cases/exports/`，也不为缺失自动化伪造 `automation.spec_file`、占位脚本或通过状态。
+- 环境与数据使用语义化占位符，不写真实凭据、Cookie 或私密配置。
+
+## References
+
+- create 分支：完整读取 [workflows/create.md](workflows/create.md)。
+- edit 分支：完整读取 [workflows/edit.md](workflows/edit.md)。
+- 写 YAML 时按需读取 [examples/cases.yaml](examples/cases.yaml)。
+- 交付前完整执行 [checklists/review.md](checklists/review.md)。
