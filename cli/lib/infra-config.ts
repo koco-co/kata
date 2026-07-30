@@ -325,12 +325,13 @@ export function runConfigDoctor(
   const checked: string[] = [];
   const envDir = join(root, "config", "env");
   const pluginDir = join(root, "config", "plugin");
+  const reposDir = join(root, "config", "repos");
   const infra = infraDir(root);
   if (options.fix) {
     mkdirSync(infra, { recursive: true, mode: 0o700 });
     chmodSync(infra, 0o700);
     if (scope === "all") {
-      for (const dir of [envDir, pluginDir]) {
+      for (const dir of [envDir, pluginDir, reposDir]) {
         mkdirSync(dir, { recursive: true, mode: 0o700 });
         chmodSync(dir, 0o700);
       }
@@ -373,17 +374,32 @@ export function runConfigDoctor(
     if (existsSync(path)) issue(issues, "error", path, "legacy configuration path must be removed");
   }
   if (scope === "all") {
-    checked.push(envDir, pluginDir);
+    checked.push(envDir, pluginDir, reposDir);
     checkPrivateDir(envDir, issues, true);
     checkPrivateDir(pluginDir, issues, true);
-    checkTrackedPrivateFiles(root, ["config/env", "config/plugin"], issues, checked);
-    const envExample = join(root, "config", "env", "example.yaml");
+    checkPrivateDir(reposDir, issues, true);
+    checkTrackedPrivateFiles(
+      root,
+      ["config/env", "config/plugin", "config/repos/sources.yaml"],
+      issues,
+      checked,
+    );
+    const envExample = join(envDir, "env.example.yaml");
     checked.push(envExample);
     if (!existsSync(envExample)) issue(issues, "error", envExample, "tracked example is missing");
-    const sources = join(root, "config", "repos", "sources.yaml");
+    const sourcesExample = join(reposDir, "sources.example.yaml");
+    checked.push(sourcesExample);
+    if (!existsSync(sourcesExample)) {
+      issue(issues, "error", sourcesExample, "tracked example is missing");
+    }
+    const sources = join(reposDir, "sources.yaml");
     checked.push(sources);
-    if (!existsSync(sources))
-      issue(issues, "error", sources, "tracked source-repository catalog is missing");
+    checkPrivatePath(sources, issues, false, "private source-repository catalog");
   }
-  return { ok: !issues.some((item) => item.level === "error"), scope, issues, checked };
+  return {
+    ok: !issues.some((item) => item.level === "error"),
+    scope,
+    issues,
+    checked: [...new Set(checked)],
+  };
 }

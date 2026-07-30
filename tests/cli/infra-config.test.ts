@@ -19,12 +19,13 @@ function makeRoot(): string {
   mkdirSync(join(root, "config", "plugin"), { recursive: true, mode: 0o700 });
   chmodSync(join(root, "config", "env"), 0o700);
   chmodSync(join(root, "config", "plugin"), 0o700);
-  mkdirSync(join(root, "config", "repos"), { recursive: true });
+  mkdirSync(join(root, "config", "repos"), { recursive: true, mode: 0o700 });
+  chmodSync(join(root, "config", "repos"), 0o700);
   for (const name of ["hosts", "data_sources", "credentials"] as const) {
     writeFileSync(join(root, "config", "infra", `${name}.example.yaml`), `${name}: {}\n`);
   }
-  writeFileSync(join(root, "config", "env", "example.yaml"), "schema_version: 1\n");
-  writeFileSync(join(root, "config", "repos", "sources.yaml"), "repos: []\n");
+  writeFileSync(join(root, "config", "env", "env.example.yaml"), "schema_version: 2\n");
+  writeFileSync(join(root, "config", "repos", "sources.example.yaml"), "repos: []\n");
   return root;
 }
 
@@ -130,19 +131,37 @@ describe("infrastructure configuration", () => {
     git(["add", "config"]);
     const result = runConfigDoctor({ root });
     expect(result.issues.some((item) => item.message.includes("tracked by git"))).toBe(false);
+    expect(new Set(result.checked).size).toBe(result.checked.length);
   });
 
-  it("requires 0700 on config/env and config/plugin directories", () => {
+  it("checks canonical examples while treating the private source catalog as optional", () => {
+    const root = makeRoot();
+    const result = runConfigDoctor({ root });
+    expect(result.ok).toBe(true);
+    expect(result.checked).toContain(join(root, "config", "env", "env.example.yaml"));
+    expect(result.checked).toContain(join(root, "config", "repos", "sources.example.yaml"));
+    expect(
+      result.issues.some(
+        (item) =>
+          item.level === "warning" &&
+          item.path === join(root, "config", "repos", "sources.yaml") &&
+          item.message.includes("not configured"),
+      ),
+    ).toBe(true);
+  });
+
+  it("requires 0700 on every private configuration directory", () => {
     const root = makeRoot();
     chmodSync(join(root, "config", "env"), 0o755);
     chmodSync(join(root, "config", "plugin"), 0o755);
+    chmodSync(join(root, "config", "repos"), 0o755);
     const result = runConfigDoctor({ root });
     expect(result.ok).toBe(false);
     expect(
       result.issues.filter(
         (item) => item.level === "error" && item.message === "must have permission 0700",
       ),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 
   it("warns on missing private files by default and fails in infra scope", () => {
