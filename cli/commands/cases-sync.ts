@@ -303,11 +303,6 @@ export function registerCasesSync(cases: Command): void {
     .option("--project <name>", "项目名；feature 传相对 features/ 的完整路径时必填")
     .option("--apply", "按预览计划实际重命名并更新 runner", false)
     .action((opts: { feature: string; project?: string; apply?: boolean }) => {
-      try {
-        runCasesSync(resolveFeatureInput(opts.feature, opts.project), opts.apply);
-      } catch (error) {
-        console.error((error as Error).message);
-        process.exit(1);
-      }
+      runCasesSync(resolveFeatureInput(opts.feature, opts.project), opts.apply);
     });
 }

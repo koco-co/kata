@@ -217,44 +217,39 @@ export function registerCasesBuild(cases: Command): void {
     .requiredOption("--feature <dir>", "feature 目录路径")
     .option("--project <name>", "项目名；feature 传相对 features/ 的完整路径时必填")
     .action(async (opts: { feature: string; project?: string }) => {
-      try {
-        const featureDir = resolveFeatureInput(opts.feature, opts.project);
-        const startedAt = new Date();
-        const report = await runCasesBuild(featureDir);
-        for (const path of report.created) console.log(`created ${path}`);
-        for (const path of report.updated) console.log(`updated ${path}`);
-        for (const path of report.unchanged) console.log(`unchanged ${path}`);
-        for (const path of report.deleted) console.log(`deleted ${path}`);
-        if (report.created.length + report.updated.length > 0) {
-          const { yamlPath } = findCasesYaml(featureDir);
-          const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
-          const projectDir = projectRootFromFeatureDir(featureDir);
-          const { context } = renderContextForFeature(featureDir);
-          const root = dirname(dirname(projectDir));
-          const result = await emitBusinessNotificationSafely(
-            "cases-built",
-            {
-              project: projectDir.split(/[\\/]/).at(-1) ?? "",
-              version: context.version,
-              feature: file.meta.title,
-              completed_at: formatTaipeiTime(),
-              case_count: file.cases.length,
-              created_count: report.created.length,
-              updated_count: report.updated.length,
-              artifact_paths: [...report.created, ...report.updated].map((path) =>
-                workspaceRelativePath(root, path),
-              ),
-              duration_ms: Date.now() - startedAt.getTime(),
-            },
-            { root },
-          );
-          process.stderr.write(
-            `[notify] cases-built: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
-          );
-        }
-      } catch (e) {
-        console.error((e as Error).message);
-        process.exit(1);
+      const featureDir = resolveFeatureInput(opts.feature, opts.project);
+      const startedAt = new Date();
+      const report = await runCasesBuild(featureDir);
+      for (const path of report.created) console.log(`created ${path}`);
+      for (const path of report.updated) console.log(`updated ${path}`);
+      for (const path of report.unchanged) console.log(`unchanged ${path}`);
+      for (const path of report.deleted) console.log(`deleted ${path}`);
+      if (report.created.length + report.updated.length > 0) {
+        const { yamlPath } = findCasesYaml(featureDir);
+        const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+        const projectDir = projectRootFromFeatureDir(featureDir);
+        const { context } = renderContextForFeature(featureDir);
+        const root = dirname(dirname(projectDir));
+        const result = await emitBusinessNotificationSafely(
+          "cases-built",
+          {
+            project: projectDir.split(/[\\/]/).at(-1) ?? "",
+            version: context.version,
+            feature: file.meta.title,
+            completed_at: formatTaipeiTime(),
+            case_count: file.cases.length,
+            created_count: report.created.length,
+            updated_count: report.updated.length,
+            artifact_paths: [...report.created, ...report.updated].map((path) =>
+              workspaceRelativePath(root, path),
+            ),
+            duration_ms: Date.now() - startedAt.getTime(),
+          },
+          { root },
+        );
+        process.stderr.write(
+          `[notify] cases-built: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
+        );
       }
     });
 }
