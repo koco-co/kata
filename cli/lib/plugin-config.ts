@@ -66,7 +66,24 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function pluginDir(root: string = defaultRepoRoot()): string {
-  return join(resolve(root), "config", "plugin");
+  const resolved = resolve(root);
+  const local = join(resolved, "config", "plugin");
+  if (existsSync(join(local, "lanhu.yaml")) || existsSync(join(local, "zentao.yaml"))) {
+    return local;
+  }
+  try {
+    const common = execFileSync(
+      "git",
+      ["-C", resolved, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    ).trim();
+    const main = dirname(common);
+    const shared = join(main, "config", "plugin");
+    if (existsSync(shared)) return shared;
+  } catch {
+    // A test fixture or non-git workspace keeps using its own config directory.
+  }
+  return local;
 }
 
 export function pluginConfigPath(name: PluginConfigName, root: string = defaultRepoRoot()): string {

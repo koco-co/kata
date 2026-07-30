@@ -14,6 +14,10 @@ export interface SourceRepo {
   path: string;
   /** Default branch used as the query ref. */
   branch: string;
+  /** Requirement modules this repo can answer; "*" means common. */
+  modules?: string[];
+  /** Requirement customers this repo can answer; "*" means common. */
+  customers?: string[];
   description?: string;
   /** false = read + pull/checkout only; true = authoring allowed (no such commands today). */
   writable: boolean;
@@ -136,7 +140,15 @@ export function mainWorktreeRoot(root: string = locateProjectRoot()): string {
 
 /** Load and validate config/repos/sources.yaml; throws on missing/malformed entries. */
 export function loadSourceRepos(root: string = locateProjectRoot()): SourceRepo[] {
-  const configPath = join(root, "config", "repos", "sources.yaml");
+  const localConfigPath = join(root, "config", "repos", "sources.yaml");
+  let configPath = localConfigPath;
+  if (!existsSync(configPath)) {
+    try {
+      configPath = join(mainWorktreeRoot(root), "config", "repos", "sources.yaml");
+    } catch {
+      configPath = localConfigPath;
+    }
+  }
   if (!existsSync(configPath)) {
     throw new Error(`未找到源码仓库配置 ${configPath}`);
   }
@@ -152,13 +164,87 @@ export function loadSourceRepos(root: string = locateProjectRoot()): SourceRepo[
     if (o.writable !== undefined && typeof o.writable !== "boolean") {
       throw new Error(`${configPath} repos[${i}].writable 必须是布尔值`);
     }
+    for (const field of ["modules", "customers"] as const) {
+      if (
+        !Array.isArray(o[field]) ||
+        o[field].length === 0 ||
+        o[field].some((value) => typeof value !== "string" || !value.trim())
+      ) {
+        throw new Error(`${configPath} repos[${i}].${field} 必须是非空字符串数组`);
+      }
+    }
     return {
       name: o.name as string,
       project: o.project as string,
       path: o.path as string,
       branch: o.branch as string,
+      modules: o.modules as string[],
+      customers: o.customers as string[],
       ...(typeof o.description === "string" ? { description: o.description } : {}),
       writable: o.writable === true,
+    };
+  });
+}
+
+export interface SourceRepoCriteria {
+  project: string;
+  module: string;
+  customer: string;
+}
+
+function matchesSelector(values: string[], target: string): boolean {
+  return values.includes("*") || values.includes(target);
+}
+
+/** Match only repositories explicitly declared for the requirement context. */
+export function selectSourceRepos(repos: SourceRepo[], criteria: SourceRepoCriteria): SourceRepo[] {
+  const matches = repos.filter(
+    (repo) =>
+      repo.project === criteria.project &&
+      matchesSelector(repo.modules ?? [], criteria.module) &&
+      matchesSelector(repo.customers ?? [], criteria.customer),
+  );
+  if (matches.length === 0) {
+    throw new Error(
+      `没有源码仓库匹配 project=${criteria.project}, module=${criteria.module}, customer=${criteria.customer}`,
+    );
+  }
+  return matches;
+}
+
+export interface PreparedSourceRepo {
+  repo: string;
+  path: string;
+  branch: string;
+  commit: string;
+}
+
+/** Fetch, checkout and fast-forward the configured branch for matched source repositories. */
+export function prepareSourceRepos(
+  criteria: SourceRepoCriteria,
+  root: string = locateProjectRoot(),
+): PreparedSourceRepo[] {
+  const selected = selectSourceRepos(loadSourceRepos(root), criteria);
+  const mainRoot = mainWorktreeRoot(root);
+  return selected.map((repo) => {
+    const absPath = join(mainRoot, repo.path);
+    if (!isGitSourceRepo(absPath)) throw new Error(`${absPath} 不是 git 仓库`);
+    for (const operation of ["fetch", "checkout", "pull"]) {
+      assertRepoOperationAllowed(repo, operation);
+    }
+    if (!safeRef(repo.branch)) throw new Error(`仓库 ${repo.name} branch 非法: ${repo.branch}`);
+    git(absPath, ["fetch", "origin", repo.branch]);
+    try {
+      git(absPath, ["checkout", repo.branch]);
+    } catch {
+      git(absPath, ["checkout", "-b", repo.branch, `origin/${repo.branch}`]);
+    }
+    git(absPath, ["pull", "--ff-only", "origin", repo.branch]);
+    return {
+      repo: repo.name,
+      path: absPath,
+      branch: repo.branch,
+      commit: git(absPath, ["rev-parse", "--verify", "HEAD^{commit}"]).trim(),
     };
   });
 }

@@ -26,6 +26,7 @@ import {
   resolveFeatureEntry,
 } from "../lib/features-layout.ts";
 import { assertWritable } from "../lib/path-policy.ts";
+import { assertCaseDigestChain } from "../lib/prd.ts";
 import type { ProjectPaths } from "../lib/types.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
@@ -192,6 +193,11 @@ function commitArtifacts(
 export async function runCasesBuild(featureDir: string): Promise<CasesBuildReport> {
   const { yamlPath, name } = findCasesYaml(featureDir);
   const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+  assertCaseDigestChain(
+    featureDir,
+    file.meta.test_points_digest,
+    file.cases.map((item) => item.source_ref),
+  );
   const problems = validateCases(file);
   if (problems.length > 0) {
     throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);

@@ -21,6 +21,8 @@ export interface CaseMeta {
   exports?: CaseExportFormat[];
   /** XMind layout contract; requirements creates one L1 topic per requirement. */
   layout?: "flat" | "requirements";
+  /** Digest of cases/test-points.md; required when the feature has prd/prd.md. */
+  test_points_digest?: string;
 }
 
 /** Runtime-only information derived from the feature directory, never serialized to cases YAML. */

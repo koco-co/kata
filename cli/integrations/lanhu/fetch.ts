@@ -14,19 +14,18 @@
 import { type SpawnSyncOptionsWithStringEncoding, spawnSync } from "node:child_process";
 import {
   copyFileSync,
-  createWriteStream,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
-import { basename, extname, join, resolve } from "node:path";
-import { pipeline } from "node:stream/promises";
+import { extname, join, resolve } from "node:path";
 import sharp from "sharp";
-import { prdsDir, repoRoot } from "../../lib/paths.ts";
+import { writeFileAtomic } from "../../lib/atomic-writer.ts";
+import { repoRoot } from "../../lib/paths.ts";
 import { loadLanhuConfig, updatePluginConfig } from "../../lib/plugin-config.ts";
+import { computePrdDigest, type PrdEvidence, type PrdEvidencePage } from "../../lib/prd.ts";
 
 const LANHU_BRIDGE_RELATIVE_DIR = "cli/integrations/lanhu/mcp-bridge";
 const LANHU_MCP_RELATIVE_DIR = `${LANHU_BRIDGE_RELATIVE_DIR}/lanhu-mcp`;
@@ -51,6 +50,7 @@ interface ParsedLanhuUrl {
 }
 
 interface BridgePage {
+  id?: string;
   name: string;
   path: string;
   content: string;
@@ -61,6 +61,7 @@ interface BridgeOutput {
   title: string;
   doc_type: string;
   total_pages: number;
+  version_id?: string;
   pages: BridgePage[];
 }
 
@@ -76,30 +77,6 @@ interface BridgeListOutput {
   doc_type: string;
   total_pages: number;
   pages: BridgeListPage[];
-}
-
-interface ImageRef {
-  url: string;
-  name: string;
-}
-
-interface RequirementInfo {
-  requirement_id: string;
-  requirement_name: string;
-  project: string;
-  lanhu_project: string;
-  workspace_project: string | null;
-  prd_dir: string;
-  prd_path: string;
-  images_count: number;
-}
-
-interface FetchOutput {
-  title: string;
-  /** Semantic version dir (e.g. "v7.0.0") derived from the doc title; null when absent. */
-  derived_version: string | null;
-  total_requirements: number;
-  requirements: RequirementInfo[];
 }
 
 interface ErrorOutput {
@@ -124,6 +101,11 @@ export interface RunOptions {
   pagesFilter?: string;
   /** Target a single feature dir; writes prd.md + inputs/ instead of {baseDir}/{yyyymm}/ staging. */
   featureDir?: string;
+}
+
+export interface PrdExtractOptions {
+  featureDir: string;
+  force?: boolean;
 }
 
 /** Where a requirement's fetched files land, computed from feature-dir vs legacy base-dir mode. */
@@ -312,39 +294,7 @@ async function compressImage(srcPath: string, destPath: string): Promise<void> {
 
 // ─── HTTP Helpers ─────────────────────────────────────────────────────────────
 
-const COMMON_HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  Accept: "image/webp,image/apng,image/*,*/*;q=0.8",
-  Referer: "https://lanhuapp.com/",
-};
-
-async function downloadImage(imageUrl: string, destPath: string, cookie: string): Promise<void> {
-  const response = await fetch(imageUrl, {
-    headers: {
-      ...COMMON_HEADERS,
-      Cookie: cookie,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Image download failed: HTTP ${response.status}`);
-  }
-
-  if (!response.body) {
-    throw new Error("Response body is null");
-  }
-
-  const dest = createWriteStream(destPath);
-  await pipeline(response.body as unknown as NodeJS.ReadableStream, dest);
-}
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function currentYYYYMM(): string {
-  const now = new Date();
-  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
 
 /**
  * Escape a value for inclusion in a double-quoted YAML scalar.
@@ -409,23 +359,6 @@ export function findAxurePageDir(
   return readdirSync(axureImagesBase).find((dir) => dir.startsWith(requirementId));
 }
 
-function parseRequirementFromPageName(pageName: string, pagePath: string): ParsedRequirement {
-  // pagePath format: "岚图/15525【内置规则丰富】一致性，..."
-  // pageName format: "15525【内置规则丰富】一致性，..."
-  const pathParts = pagePath.split("/");
-  const project = pathParts.length > 1 ? pathParts[0] : "";
-
-  // Extract requirement ID (leading number from name)
-  const idMatch = pageName.match(/^(\d+)/);
-  const requirementId = idMatch ? idMatch[1] : "";
-
-  // Requirement name without the leading ID prefix
-  // "15525【内置规则丰富】一致性，..." → "【内置规则丰富】一致性，..."
-  const requirementName = pageName.replace(/^\d+/, "").replace(/\//g, "_");
-
-  return { project, requirementId, requirementName };
-}
-
 export function selectRequirementsForFetch(
   allRequirements: RequirementCandidate[],
   options: { pageId?: string; pagesFilter?: string },
@@ -470,58 +403,6 @@ export function inferKataProjectFromWorkspace(
     }
   }
   return candidates.size === 1 ? [...candidates][0] : undefined;
-}
-
-function resolveWorkspaceProject(
-  projectRoot: string,
-  requestedProject: string | undefined,
-  lanhuProjects: string[],
-): string | undefined {
-  if (requestedProject && requestedProject !== "auto") return requestedProject;
-  return inferKataProjectFromWorkspace(projectRoot, lanhuProjects);
-}
-
-interface ParsedTxtSections {
-  tips: string;
-  componentText: string;
-  fullText: string;
-}
-
-/**
- * Parse structured sections from lanhu-mcp .txt files.
- * The .txt files contain sections like:
- *   [Important Tips/Warnings]
- *   [Flowchart/Component Text]
- *   [Full Page Text]
- */
-function parseTxtSections(txtFiles: string[]): ParsedTxtSections {
-  const result: ParsedTxtSections = {
-    tips: "",
-    componentText: "",
-    fullText: "",
-  };
-
-  for (const txtPath of txtFiles) {
-    if (!existsSync(txtPath)) continue;
-    const content = readFileSync(txtPath, "utf8");
-
-    // Split by section headers
-    const tipsMatch = content.match(/\[Important Tips\/Warnings\]\s*\n([\s\S]*?)(?=\n\[|$)/);
-    const componentMatch = content.match(/\[Flowchart\/Component Text\]\s*\n([\s\S]*?)(?=\n\[|$)/);
-    const fullTextMatch = content.match(/\[Full Page Text\]\s*\n([\s\S]*?)(?=\n\[|$)/);
-
-    if (tipsMatch?.[1]?.trim()) {
-      result.tips += (result.tips ? "\n\n" : "") + tipsMatch[1].trim();
-    }
-    if (componentMatch?.[1]?.trim()) {
-      result.componentText += (result.componentText ? "\n\n" : "") + componentMatch[1].trim();
-    }
-    if (fullTextMatch?.[1]?.trim()) {
-      result.fullText += (result.fullText ? "\n\n" : "") + fullTextMatch[1].trim();
-    }
-  }
-
-  return result;
 }
 
 // ─── Bridge Helpers ──────────────────────────────────────────────────────────
@@ -785,298 +666,196 @@ function callBridgeWithRetry(
   throw new Error("Unreachable");
 }
 
-// ─── Main Logic ───────────────────────────────────────────────────────────────
+function assertCanonicalExtractUrl(parsed: ParsedLanhuUrl): {
+  docId: string;
+  versionId: string;
+  pageId: string;
+} {
+  const { docId, versionId, pageId } = parsed.params;
+  if (!docId || !versionId || !pageId) {
+    throw new Error("INVALID_URL: PRD 提取 URL 必须同时包含 docId、versionId 与 pageId");
+  }
+  return { docId, versionId, pageId };
+}
 
-export async function runFetch(rawUrl: string, options: RunOptions): Promise<void> {
+function cachedEvidenceIsUsable(
+  path: string,
+  manifestPath: string,
+  assetsDir: string,
+  identity: { docId: string; versionId: string; pageId: string },
+): PrdEvidence | undefined {
+  if (!existsSync(path) || !existsSync(manifestPath)) return undefined;
+  try {
+    const evidenceText = readFileSync(path, "utf8");
+    const evidence = JSON.parse(evidenceText) as PrdEvidence;
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      contract?: string;
+      doc_id?: string;
+      version_id?: string;
+      page_id?: string;
+      evidence_digest?: string;
+      assets?: string[];
+    };
+    if (
+      evidence.contract !== "kata.prd.evidence/v1" ||
+      evidence.doc_id !== identity.docId ||
+      evidence.version_id !== identity.versionId ||
+      evidence.page_id !== identity.pageId ||
+      manifest.contract !== "kata.prd.extract-cache/v1" ||
+      manifest.doc_id !== identity.docId ||
+      manifest.version_id !== identity.versionId ||
+      manifest.page_id !== identity.pageId ||
+      manifest.evidence_digest !== computePrdDigest(evidenceText)
+    ) {
+      return undefined;
+    }
+    const assets = evidence.pages.flatMap((page) => page.assets).sort();
+    if (JSON.stringify(assets) !== JSON.stringify([...(manifest.assets ?? [])].sort())) {
+      return undefined;
+    }
+    if (assets.some((asset) => !existsSync(join(assetsDir, asset)))) return undefined;
+    return evidence;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Extract immutable Lanhu evidence and screenshots. This command deliberately does not
+ * generate a PRD: the model must inject knowledge/source facts and complete Q&A first.
+ */
+export async function runPrdExtract(
+  rawUrl: string,
+  options: PrdExtractOptions,
+): Promise<{
+  evidence_path: string;
+  evidence_digest: string;
+  assets: string[];
+  cached: boolean;
+  requirement_id: string;
+}> {
   const projectRoot = repoRoot();
+  const parsed = parseLanhuUrl(rawUrl);
+  if (parsed.pageType !== "product-spec") {
+    throw new Error("INVALID_URL: 仅支持蓝湖 PRD/Axure 产品文档 URL");
+  }
+  const identity = assertCanonicalExtractUrl(parsed);
+  const featureDir = resolve(projectRoot, options.featureDir);
+  const evidenceDir = join(featureDir, "prd", "evidence");
+  const assetsDir = join(featureDir, "prd", "assets");
+  const processDir = join(featureDir, "prd", ".process");
+  const evidencePath = join(evidenceDir, "lanhu.json");
+  const extractManifestPath = join(processDir, "extract.json");
+  mkdirSync(evidenceDir, { recursive: true });
+  mkdirSync(assetsDir, { recursive: true });
+  mkdirSync(processDir, { recursive: true });
+
+  if (!options.force) {
+    const cached = cachedEvidenceIsUsable(evidencePath, extractManifestPath, assetsDir, identity);
+    if (cached) {
+      const text = readFileSync(evidencePath);
+      return {
+        evidence_path: evidencePath,
+        evidence_digest: computePrdDigest(text),
+        assets: cached.pages.flatMap((page) => page.assets),
+        cached: true,
+        requirement_id: cached.requirement_id,
+      };
+    }
+  }
+
   let cookie = loadLanhuConfig(projectRoot).cookie ?? "";
   if (!cookie) {
-    // No cookie at all — try to get one via auto-login
-    process.stderr.write("KATA_LANHU_COOKIE 未配置，尝试自动登录获取...\n");
     const newCookie = refreshCookie(projectRoot, rawUrl);
-    if (!newCookie) {
-      const err: ErrorOutput = {
-        error:
-          "KATA_LANHU_COOKIE 未配置且自动登录失败。请配置 config/plugin/lanhu.yaml 或 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD。",
-        code: "MISSING_COOKIE",
-      };
-      process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
-      process.exit(1);
-    }
+    if (!newCookie) throw new Error("KATA_LANHU_COOKIE 未配置且自动登录失败");
     cookie = newCookie;
   }
-
-  // 2. Parse URL
-  const parsed = parseLanhuUrl(rawUrl);
-  if (parsed.pageType === "unknown") {
-    const err: ErrorOutput = {
-      error:
-        "Invalid or unsupported Lanhu URL. Expected format: https://lanhuapp.com/web/#/item/project/product?tid=xxx&pid=xxx&docId=xxx",
-      code: "INVALID_URL",
-    };
-    process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
-    process.exit(1);
-  }
-
-  // 3. Ensure bridge dependencies are ready
   ensureLanhuMcpReady(projectRoot);
-
-  // 4. List all pages from document
   const listCall = callBridgeListPagesWithRetry(projectRoot, rawUrl, cookie);
-  const listResult = listCall.listResult;
   cookie = listCall.cookie;
-  const title = listResult.title || "蓝湖需求文档";
+  const selected = listCall.listResult.pages.filter((page) => page.id === identity.pageId);
+  if (selected.length !== 1) throw new Error(`蓝湖中无法唯一定位 pageId=${identity.pageId}`);
+  const selectedPage = selected[0];
+  const requirementId = selectedPage.requirement_id ?? selectedPage.name.match(/^(\d+)/)?.[1] ?? "";
+  if (!requirementId) throw new Error(`蓝湖页面名称不含需求 ID: ${selectedPage.name}`);
 
-  // 5. Parse page names to extract requirement info
-  const allRequirements = listResult.pages.map((page) => ({
-    page,
-    parsed: parseRequirementFromPageName(page.name, page.path),
-  }));
-
-  // 6. Prefer explicit --pages; otherwise use URL pageId to avoid exporting the whole Axure doc.
-  const selectedRequirements = selectRequirementsForFetch(allRequirements, {
-    pageId: parsed.params.pageId,
-    pagesFilter: options.pagesFilter,
-  });
-
-  if (selectedRequirements.length === 0) {
-    const err: ErrorOutput = {
-      error: `No requirements matched the filter: ${options.pagesFilter ?? parsed.params.pageId ?? ""}`,
-      code: "NO_MATCHING_REQUIREMENTS",
-    };
-    process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
-    process.exit(1);
+  const bridge = callBridgeWithRetry(projectRoot, rawUrl, identity.pageId, cookie);
+  if (bridge.pages.length !== 1) {
+    throw new Error(`蓝湖 pageId=${identity.pageId} 返回 ${bridge.pages.length} 个页面`);
   }
-
-  // 7. Process each requirement
-  const yyyymm = currentYYYYMM();
-  const workspaceProject = resolveWorkspaceProject(
-    projectRoot,
-    options.project,
-    selectedRequirements.map(({ parsed }) => parsed.project),
-  );
-  if (!options.baseDir && !workspaceProject) {
-    const err: ErrorOutput = {
-      error: "Cannot resolve a kata project. Pass --project or --base-dir.",
-      code: "PROJECT_REQUIRED",
-    };
-    process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
-    process.exit(1);
-  }
-  let absBaseDir: string;
-  if (options.baseDir) {
-    absBaseDir = resolve(projectRoot, options.baseDir);
-  } else {
-    // Guaranteed non-empty by the PROJECT_REQUIRED guard above.
-    absBaseDir = prdsDir(workspaceProject as string);
-  }
-
-  // Feature 模式只能对准单个需求；命中多个时无法消歧，拒绝而非乱写同一目录
-  const absFeatureDir = options.featureDir ? resolve(projectRoot, options.featureDir) : undefined;
-  if (absFeatureDir && selectedRequirements.length !== 1) {
-    const err: ErrorOutput = {
-      error: `--feature-dir targets a single requirement, but ${selectedRequirements.length} matched. Narrow with --pages or a page-scoped URL.`,
-      code: "FEATURE_DIR_MULTI_REQUIREMENT",
-    };
-    process.stderr.write(`${JSON.stringify(err, null, 2)}\n`);
-    process.exit(1);
-  }
-
-  const requirementInfos: RequirementInfo[] = [];
-
-  for (const { page, parsed: reqInfo } of selectedRequirements) {
-    const reqDirName = reqInfo.requirementName;
-    const layout = resolveOutputLayout({
-      featureDir: absFeatureDir,
-      baseDir: absBaseDir,
-      yyyymm,
-      reqDirName,
-    });
-    const reqDir = layout.reqDir;
-    const imagesDir = layout.imagesDir;
-    const tmpDir = layout.refDocsDir;
-    mkdirSync(imagesDir, { recursive: true });
-    mkdirSync(tmpDir, { recursive: true });
-
-    // Fetch content for this specific requirement
-    const bridgeResult = callBridgeWithRetry(projectRoot, rawUrl, undefined, cookie, page.name);
-
-    // Collect images: prefer per-element images from Axure resource dir over full-page screenshot
-    const collectedImages: ImageRef[] = [];
-
-    // Try to find Axure resource images for this page
-    const docId = parsed.params.docId ?? "";
-    const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
-    const axureImagesBase = join(mcpDir, "data", `axure_extract_${docId.slice(0, 8)}`, "images");
-    // The page folder name in Axure resources uses the original page name (with ID prefix)
-    const axurePageDir = findAxurePageDir(axureImagesBase, reqInfo.requirementId);
-    const axurePageImagesDir = axurePageDir ? join(axureImagesBase, axurePageDir) : undefined;
-
+  const evidencePages: PrdEvidencePage[] = [];
+  const copiedAssets: string[] = [];
+  for (const page of bridge.pages) {
     if (
-      axurePageImagesDir &&
-      existsSync(axurePageImagesDir) &&
-      statSync(axurePageImagesDir).isDirectory()
+      /二狗工作指引|STAGE\s*[1-4]|Return Format|Your Mission|Building God's View/i.test(
+        page.content,
+      )
     ) {
-      // Copy meaningful images from Axure resource dir (skip tiny icons)
-      const MIN_IMAGE_SIZE = 2048; // 2KB minimum to skip tiny SVG icons
-      const imageFiles = readdirSync(axurePageImagesDir).filter((f) => {
-        const ext = extname(f).toLowerCase();
-        if (![".png", ".jpg", ".jpeg", ".svg", ".webp"].includes(ext)) return false;
-        const filePath = join(axurePageImagesDir, f);
-        return statSync(filePath).size >= MIN_IMAGE_SIZE;
-      });
-
-      for (const [idx, file] of imageFiles.entries()) {
-        const srcPath = join(axurePageImagesDir, file);
-        const ext = extname(file);
-        const fileName = `${idx + 1}-${basename(file, ext)}${ext}`;
-        const destPath = join(imagesDir, fileName);
-        await compressImage(srcPath, destPath);
-        collectedImages.push({ url: srcPath, name: fileName });
-      }
+      throw new Error("蓝湖桥接结果混入 MCP 工作提示，拒绝写入证据");
     }
-
-    // Also copy the full-page screenshot and save .txt to tmp/
-    let imgIdx = collectedImages.length;
-    const txtFiles: string[] = []; // track .txt files for later parsing
-    for (const bridgePage of bridgeResult.pages) {
-      for (const imgSrc of bridgePage.images) {
-        // Save .txt files to tmp/ for archival and later parsing
-        if (imgSrc.endsWith(".txt")) {
-          if (existsSync(imgSrc)) {
-            const txtName = basename(imgSrc);
-            const destPath = join(tmpDir, txtName);
-            copyFileSync(imgSrc, destPath);
-            txtFiles.push(destPath);
-          }
-          continue;
-        }
-        // Skip non-image files (e.g. styles.json)
-        if (imgSrc.endsWith(".json")) continue;
-        imgIdx++;
-        try {
-          if (
-            imgSrc.startsWith("http://") ||
-            imgSrc.startsWith("https://") ||
-            imgSrc.startsWith("//")
-          ) {
-            const fullUrl = imgSrc.startsWith("//") ? `https:${imgSrc}` : imgSrc;
-            const urlObj = new URL(fullUrl);
-            const rawName = urlObj.pathname.split("/").pop() ?? `image-${imgIdx}`;
-            const ext = rawName.includes(".") ? (rawName.split(".").pop() ?? "png") : "png";
-            const slug = slugify(rawName.replace(/\.[^.]+$/, "")) || `image-${imgIdx}`;
-            const fileName = `${imgIdx}-${slug}.${ext}`;
-            const destPath = join(imagesDir, fileName);
-            await downloadImage(fullUrl, destPath, cookie);
-            await compressImage(destPath, destPath);
-            collectedImages.push({ url: fullUrl, name: fileName });
-          } else if (existsSync(imgSrc)) {
-            const ext = extname(imgSrc) || ".png";
-            const rawName = basename(imgSrc, ext);
-            const slug = slugify(rawName) || `screenshot-${imgIdx}`;
-            const fileName = `${imgIdx}-fullpage-${slug}${ext}`;
-            const destPath = join(imagesDir, fileName);
-            await compressImage(imgSrc, destPath);
-            collectedImages.push({ url: imgSrc, name: fileName });
-          }
-        } catch {
-          // Non-fatal: skip failed images
-        }
-      }
+    const pageAssets: string[] = [];
+    for (const [index, source] of page.images.entries()) {
+      if (!existsSync(source)) continue;
+      const ext = extname(source).toLowerCase() || ".png";
+      const purpose = index === 0 ? "overview" : `detail-${index + 1}`;
+      const name = `${identity.pageId}-${purpose}${ext}`;
+      await compressImage(source, join(assetsDir, name));
+      pageAssets.push(name);
+      copiedAssets.push(name);
     }
-
-    // Parse structured text from .txt files
-    const parsedSections = parseTxtSections(txtFiles);
-
-    // Separate element images and fullpage screenshots
-    const elementImages = collectedImages.filter((img) => !img.name.includes("fullpage-"));
-    const fullpageImages = collectedImages.filter((img) => img.name.includes("fullpage-"));
-
-    // Build well-organized markdown
-    const fetchDate = new Date().toISOString().slice(0, 10);
-
-    const frontMatter = [
-      "---",
-      `source: "lanhu"`,
-      `source_url: "${escapeYamlDoubleQuoted(rawUrl)}"`,
-      `fetch_date: "${fetchDate}"`,
-      `requirement_id: "${escapeYamlDoubleQuoted(reqInfo.requirementId)}"`,
-      `project: "${escapeYamlDoubleQuoted(workspaceProject ?? reqInfo.project)}"`,
-      `lanhu_project: "${escapeYamlDoubleQuoted(reqInfo.project)}"`,
-      `workspace_project: "${escapeYamlDoubleQuoted(workspaceProject ?? "")}"`,
-      `status: "原始"`,
-      "---",
-    ].join("\n");
-
-    const bodyParts: string[] = [`# ${reqInfo.requirementName}`];
-
-    // Important tips/warnings (red text annotations from product)
-    if (parsedSections.tips) {
-      bodyParts.push(`## 重要提示\n\n${parsedSections.tips}`);
-    }
-
-    // Element images section — high-res UI components for field/control recognition
-    if (elementImages.length > 0) {
-      const elementImgMd = elementImages
-        .map((img, idx) => `![页面元素-${idx + 1}](${layout.imageRefPrefix}/${img.name})`)
-        .join("\n\n");
-      bodyParts.push(`## 页面元素截图\n\n${elementImgMd}`);
-    }
-
-    // Flowchart/Component text — UI control labels extracted from Axure
-    if (parsedSections.componentText) {
-      bodyParts.push(`## 控件文本\n\n${parsedSections.componentText}`);
-    }
-
-    // Full-page screenshot — overall page layout reference
-    if (fullpageImages.length > 0) {
-      const fullpageImgMd = fullpageImages
-        .map((img, idx) => `![全页截图-${idx + 1}](${layout.imageRefPrefix}/${img.name})`)
-        .join("\n\n");
-      bodyParts.push(`## 整页截图\n\n${fullpageImgMd}`);
-    }
-
-    // Full page text — complete page text description
-    if (parsedSections.fullText) {
-      bodyParts.push(`## 页面完整文本\n\n${parsedSections.fullText}`);
-    }
-
-    // Fallback: if no parsed sections, include raw bridge content
-    if (!parsedSections.tips && !parsedSections.componentText && !parsedSections.fullText) {
-      for (const bridgePage of bridgeResult.pages) {
-        if (bridgePage.content) {
-          const cleaned = bridgePage.content
-            .replace(/\[图片\]\s*images\/[^\s]+(\s*\(\d+x\d+\))?/g, "")
-            .replace(/\n{3,}/g, "\n\n");
-          bodyParts.push(cleaned);
-        }
-      }
-    }
-
-    const prdContent = `${frontMatter}\n\n${bodyParts.join("\n\n")}\n`;
-
-    // Write assembled PRD (feature mode → prd.md at feature root; legacy → {reqName}.md)
-    const prdPath = join(reqDir, layout.prdFileName);
-    writeFileSync(prdPath, prdContent, "utf8");
-
-    requirementInfos.push({
-      requirement_id: reqInfo.requirementId,
-      requirement_name: reqInfo.requirementName,
-      project: workspaceProject ?? reqInfo.project,
-      lanhu_project: reqInfo.project,
-      workspace_project: workspaceProject ?? null,
-      prd_dir: reqDir,
-      prd_path: prdPath,
-      images_count: collectedImages.length,
+    evidencePages.push({
+      id: page.id || identity.pageId,
+      name: page.name,
+      path: page.path,
+      text: page.content.trim(),
+      assets: pageAssets,
     });
   }
-
-  // 8. Output JSON result（derived_version 供 orchestration 传给 `features resolve --feature-version`）
-  const output: FetchOutput = {
-    title,
-    derived_version: deriveVersionDir(title),
-    total_requirements: requirementInfos.length,
-    requirements: requirementInfos,
+  const evidence: PrdEvidence = {
+    contract: "kata.prd.evidence/v1",
+    source: "lanhu",
+    source_url: rawUrl,
+    doc_id: identity.docId,
+    version_id: identity.versionId,
+    page_id: identity.pageId,
+    requirement_id: requirementId,
+    title: listCall.listResult.title,
+    pages: evidencePages,
   };
-  process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+  const text = `${JSON.stringify(evidence, null, 2)}\n`;
+  writeFileAtomic(evidencePath, text);
+  const evidenceDigest = computePrdDigest(text);
+  writeFileAtomic(
+    extractManifestPath,
+    `${JSON.stringify(
+      {
+        contract: "kata.prd.extract-cache/v1",
+        doc_id: identity.docId,
+        version_id: identity.versionId,
+        page_id: identity.pageId,
+        evidence_digest: evidenceDigest,
+        assets: copiedAssets,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  return {
+    evidence_path: evidencePath,
+    evidence_digest: evidenceDigest,
+    assets: copiedAssets,
+    cached: false,
+    requirement_id: requirementId,
+  };
+}
+
+// ─── Canonical compatibility entry ────────────────────────────────────────────
+
+/** @deprecated Use runPrdExtract. Kept for source compatibility with existing callers. */
+export async function runFetch(rawUrl: string, options: RunOptions): Promise<void> {
+  if (!options.featureDir) {
+    throw new Error("runFetch 已弃用且只允许转发 canonical PRD 提取；必须提供 featureDir");
+  }
+  const canonical = await runPrdExtract(rawUrl, { featureDir: options.featureDir });
+  process.stdout.write(`${JSON.stringify(canonical, null, 2)}\n`);
 }

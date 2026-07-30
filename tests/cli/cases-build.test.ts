@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { computePrdDigest } from "../../cli/lib/prd.ts";
 
 const YAML = `
 meta: { title: 需求名, case_module_id: "" }
@@ -43,5 +44,49 @@ describe("kata cases build", () => {
       encoding: "utf8",
     });
     expect(r.status).not.toBe(0);
+  });
+  it("blocks stale cases when test-points no longer matches the PRD digest chain", () => {
+    const d = feature();
+    mkdirSync(join(d, "prd"), { recursive: true });
+    const prd = `---
+source: lanhu
+source_url: "https://lanhuapp.com/"
+requirement_id: "1"
+evidence_digest: "sha256:evidence"
+---
+# 需求
+`;
+    writeFileSync(join(d, "prd", "prd.md"), prd);
+    const actualPrdDigest = computePrdDigest(prd);
+    writeFileSync(
+      join(d, "cases", "test-points.md"),
+      `---
+prd_digest: "${actualPrdDigest}"
+---
+# 测试点
+
+| ID | 测试点 | 类型 | 优先级 | PRD 依据 |
+| --- | --- | --- | --- | --- |
+| TP-001 | 验证需求 | 正常 | P0 | FR-001, AC-001 |
+`,
+    );
+    writeFileSync(
+      join(d, "cases", "需求名.yaml"),
+      `meta:
+  title: 需求名
+  case_module_id: ""
+  test_points_digest: "sha256:stale"
+cases:
+  - case_id: C0001
+    title: 用例一
+    priority: P0
+    steps: [{ action: a, expected: e }]
+`,
+    );
+    const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
+      encoding: "utf8",
+    });
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("test_points_digest");
   });
 });

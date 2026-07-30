@@ -25,6 +25,7 @@ export function serializeCasesYaml(input: CasesFile): string {
     ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
     case_module_id: file.meta.case_module_id,
     ...(file.meta.layout ? { layout: file.meta.layout } : {}),
+    ...(file.meta.test_points_digest ? { test_points_digest: file.meta.test_points_digest } : {}),
     ...(file.meta.source ? { source: file.meta.source } : {}),
     ...(file.meta.imports ? { imports: file.meta.imports } : {}),
     ...(file.meta.exports ? { exports: file.meta.exports } : {}),

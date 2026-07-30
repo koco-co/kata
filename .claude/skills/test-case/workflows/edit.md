@@ -1,42 +1,27 @@
 # 编辑：修改、同步、标准化既有用例
 
-语义不变是底线：只搬运、修正、转换，不新增没有依据的内容。
+## 1. 确认权威源
 
-## Phase 1：确认意图
+只编辑 `cases/需求名.yaml`。CSV/XLSX/Markdown/XMind 原件归档到 `cases/imports/`，先转换为 YAML；`cases/exports/` 禁止手改。
 
-编辑诉求模糊时，先问用户一个问题确认意图，再改动用例内容。
+## 2. 区分改动性质
 
-## Phase 2：只改 yaml
+- 纯格式或派生物修复：不改变 PRD、测试点和摘要。
+- 覆盖设计变化：先更新并确认 `cases/test-points.md`，再更新 YAML 的 `meta.test_points_digest`。
+- 需求语义变化：回到 create 的证据刷新、遗漏扫描、逐问确认和 PRD 发布流程；PRD 更新后重新确认测试点。
 
-唯一的编辑对象是 `cases/需求名.yaml`。XMind/Markdown/CSV/XLSX 都是派生物，手工修改会在下次 build 时被覆盖。用户给的是 CSV/XLSX/Markdown/XMind 时，原文件归档到 `cases/imports/`，先转成 YAML 再编辑，改完重新 build。
+`prd/prd.md` 是需求事实来源。缺少证据的字段、步骤和预期逐个确认，不能确认的条目维持原样并在交付时说明；不得写「待确认」或「用户确认补充」。
 
-feature 目录下没有 `cases/需求名.yaml` 时，本工作流没有可编辑的权威源：用户手头有 xmind / csv / md 等历史用例材料时，先按 create 工作流把材料逐条确认、落成 yaml 权威源，再回到本流程编辑；什么材料都没有时直接转 create。
+## 3. 修改和重建
 
-## Phase 3：修改规则
-
-- 表单字段、按钮、Tab、枚举值逐字匹配证据原文：「sql」不改成「SQL」，「字段」不写成「字段级」。
-- 表单项与两个及以上编号项必须逐行写进 YAML `|-`；只做换行标准化，不改原句、SQL 或函数语义。
-- 缺少证据的前置条件 / 步骤 / 预期不凭空补造，也不许标「待确认」：逐个向用户确认（一次一个、带推荐答案），确认后按答案修改；用户也确认不了的条目维持原样，交付时列出条目与原因。该 feature 已有 `requirement-notes.md` 时先查它，能答的不问。
-- 修错的用例改完后直接陈述行为与结果；不在正文写「为什么这么改」的说明——让测试数据与预期本身体现语义（数据只命中目标行，预期只点中该行）。
-- 改动涉及菜单、字段、规则语义时，先按 SKILL.md 的纪律核对知识库，避免把错误用例「保真」地搬运下去。
-
-## Phase 4：同步依据
-
-语义变化时先同步 `requirement-notes.md` 与 `test-points.md`；只调整格式或派生物时不新增内容。`automation.spec_file` 只允许跟随实际脚本重命名；未实现的用例可以移除映射、回到 `unmapped`，不得指向不存在的文件。
-
-## Phase 5：重建与检查
-
-每改完一批就重建并检查；默认只生成 XMind，其他格式以 YAML `meta.exports` 为准：
+- 字段、按钮、Tab、枚举逐字匹配 PRD/知识/源码证据。
+- 表单项和两个以上编号项在 YAML 中逐行表达。
+- `automation.spec_file` 只跟随真实脚本；缺脚本不得伪造映射或通过状态。
 
 ```bash
+kata prd lint --feature <featureDir> --exit-code
 kata cases build --feature <featureDir>
-kata cases lint --project <项目> --feature <id> --exit-code
+kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
 ```
 
-## Phase 6：批量标准化
-
-按功能族逐条过，逐条理解语义后再改。只有全部用例过完、lint 清零、yaml 与派生物一致，才算完成。单条用例被证据 / 权限阻塞时，记录该条及原因，继续处理其余；不得因为用例多、耗时长而中途停下问「是否继续」。
-
-## Phase 7：交付自审
-
-交付前按 [../checklists/review.md](../checklists/review.md) 自审，主动核对 yaml 与派生物在用例数量、优先级、标题、前置条件、步骤、预期上的一致性，不把比对工作留给用户。
+批量标准化要逐条理解语义；单条阻塞时继续完成其余条目，最后统一报告阻塞证据。

@@ -23,6 +23,11 @@ import {
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
 const LANHU_FETCH_TS = resolve(__dirname, "../../../cli/integrations/lanhu/fetch.ts");
+const LANHU_BRIDGE_PY = resolve(__dirname, "../../../cli/integrations/lanhu/mcp-bridge/bridge.py");
+const LANHU_VENDOR_PY = resolve(
+  __dirname,
+  "../../../cli/integrations/lanhu/mcp-bridge/lanhu-mcp/lanhu_mcp_server.py",
+);
 const PROJECT_ROOT = resolve(__dirname, "../../..");
 
 const TMP_DIR = join(tmpdir(), `lanhu-fetch-test-${process.pid}`);
@@ -52,6 +57,16 @@ describe("Lanhu bridge runtime paths", () => {
 
     assert.ok(source.includes("cli/integrations/lanhu/mcp-bridge"));
     assert.equal(source.includes(".claude/plugins/lanhu"), false);
+  });
+
+  it("uses low-level static extraction and exact URL versions without MCP prompt wrappers", () => {
+    const bridge = readFileSync(LANHU_BRIDGE_PY, "utf8");
+    const vendor = readFileSync(LANHU_VENDOR_PY, "utf8");
+    assert.ok(bridge.includes("_extract_static_page"));
+    assert.equal(bridge.includes("lanhu_get_ai_analyze_page_result"), false);
+    assert.ok(bridge.includes("page_filenames=html_filenames"));
+    assert.ok(vendor.includes("_select_document_version"));
+    assert.ok(vendor.includes("params.get('version_id')"));
   });
 });
 
@@ -469,7 +484,7 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d" --base-dir "${TMP_DIR}/out"`,
+        `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d&versionId=v&pageId=p" --feature-dir "${TMP_DIR}/feature"`,
         {
           encoding: "utf8",
           cwd: fakeRoot,
@@ -499,7 +514,7 @@ describe("CLI: invalid URL format", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" lanhu fetch --url "https://example.com/not-lanhu" --base-dir "${TMP_DIR}/out"`,
+        `bun run "${KATA_TS}" lanhu fetch --url "https://example.com/not-lanhu" --feature-dir "${TMP_DIR}/feature"`,
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
@@ -529,7 +544,7 @@ describe("CLI: invalid URL format", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=only-tid" --base-dir "${TMP_DIR}/out"`,
+        `bun run "${KATA_TS}" lanhu fetch --url "https://lanhuapp.com/web/#/item/project/product?tid=only-tid" --feature-dir "${TMP_DIR}/feature"`,
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,

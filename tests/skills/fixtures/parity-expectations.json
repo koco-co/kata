@@ -9,17 +9,15 @@
       ],
       "lintGate": [{ "pattern": "kata cases lint", "file": "SKILL.md" }],
       "noPendingConfirm": [{ "pattern": "待确认", "file": "workflows/create.md" }],
-      "notesDoc": [
-        { "pattern": "requirement-notes.md", "file": "SKILL.md" },
-        { "pattern": "requirement-notes.md", "file": "workflows/create.md" },
-        { "pattern": "requirement-notes.md", "file": "workflows/edit.md" },
-        { "pattern": "requirement-notes.md", "file": "prompts/worker.md" },
-        { "pattern": "requirement-notes.md", "file": "checklists/review.md" }
+      "prdAuthority": [
+        { "pattern": "prd/prd.md", "file": "SKILL.md" },
+        { "pattern": "kata prd finalize", "file": "workflows/create.md" },
+        { "pattern": "publish_confirmed", "file": "workflows/create.md" }
       ],
       "featurePathFormat": [
         { "pattern": "<项目>:<版本目录>/<需求目录名>", "file": "workflows/create.md" }
       ],
-      "testPoints": [{ "pattern": "test-points.md", "file": "SKILL.md" }],
+      "testPoints": [{ "pattern": "cases/test-points.md", "file": "SKILL.md" }],
       "placeholders": [
         { "pattern": "${DataSourceA}", "file": "examples/cases.yaml" },
         { "pattern": "${SchemaA}", "file": "prompts/worker.md" }

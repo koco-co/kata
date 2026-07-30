@@ -2252,6 +2252,18 @@ class LanhuExtractor:
         }
         self.client = httpx.AsyncClient(timeout=HTTP_TIMEOUT, headers=headers, follow_redirects=True)
 
+    @staticmethod
+    def _select_document_version(versions: list, requested_version_id: str | None) -> dict:
+        """Select the URL's exact version instead of silently using versions[0]."""
+        if not versions:
+            raise Exception("Document version info not found")
+        if requested_version_id:
+            for version in versions:
+                if version.get("id") == requested_version_id:
+                    return version
+            raise Exception(f"Requested version not found: {requested_version_id}")
+        return versions[0]
+
     def parse_url(self, url: str) -> dict:
         """
         解析蓝湖URL，支持多种格式：
@@ -2447,8 +2459,8 @@ class LanhuExtractor:
         if not versions:
             raise Exception("Document version info not found")
 
-        latest_version = versions[0]
-        json_url = latest_version.get('json_url')
+        selected_version = self._select_document_version(versions, params.get('version_id'))
+        json_url = selected_version.get('json_url')
         if not json_url:
             raise Exception("Mapping JSON URL not found")
 
@@ -2566,8 +2578,8 @@ class LanhuExtractor:
 
         # 添加版本信息
         result['total_versions'] = len(versions)
-        if latest_version.get('version_info'):
-            result['latest_version'] = latest_version.get('version_info')
+        if selected_version.get('version_info'):
+            result['latest_version'] = selected_version.get('version_info')
 
         # 添加项目信息（如果成功获取）
         if project_info:
@@ -2582,7 +2594,13 @@ class LanhuExtractor:
 
         return result
 
-    async def download_resources(self, url: str, output_dir: str, force_update: bool = False) -> dict:
+    async def download_resources(
+        self,
+        url: str,
+        output_dir: str,
+        force_update: bool = False,
+        page_filenames: list[str] | None = None,
+    ) -> dict:
         """
         下载所有Axure资源（支持智能缓存）
 
@@ -2604,7 +2622,7 @@ class LanhuExtractor:
 
         # 获取项目级mapping JSON
         versions = doc_info.get('versions', [])
-        version_info = versions[0]
+        version_info = self._select_document_version(versions, params.get('version_id'))
         version_id = version_info.get('id', '')  # 版本ID字段名是'id'
         json_url = version_info.get('json_url')
 
@@ -2639,6 +2657,12 @@ class LanhuExtractor:
 
         # 下载每个页面的资源
         pages = project_mapping.get('pages', {})
+        if page_filenames is not None:
+            requested = set(page_filenames)
+            pages = {name: info for name, info in pages.items() if name in requested}
+            missing = requested.difference(pages.keys())
+            if missing:
+                raise Exception(f"Requested page resources not found: {sorted(missing)}")
         is_first_page = True
 
         downloaded_files = []
@@ -6019,4 +6043,3 @@ if __name__ == "__main__":
     SERVER_HOST = os.getenv("SERVER_HOST", "0.0.0.0")
     SERVER_PORT = int(os.getenv("SERVER_PORT", "8100"))
     mcp.run(transport="http", path="/mcp", host=SERVER_HOST, port=SERVER_PORT)
-

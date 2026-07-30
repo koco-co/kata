@@ -4,6 +4,7 @@ meta:
   title: 单表校验规则支持枚举值个数统计
   requirement_id: "15862"
   case_module_id: ""
+  test_points_digest: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
   source: https://lanhuapp.com/web/#/item/project/... (需求设计稿链接)
   exports:
     - xmind
@@ -11,6 +12,7 @@ cases:
   # case_id 从 C0001 递增；tags 按 模块/页面/功能点 层级写
   - case_id: C0001
     title: 验证新建单表规则时统计函数可选「枚举值个数」并按枚举个数阈值告警
+    source_ref: TP-001
     priority: P0
     automation:
       spec_file: c0001-enum-count-validation.spec.ts
@@ -50,6 +52,7 @@ cases:
       - 统计函数
   - case_id: C0002
     title: 验证「枚举值个数」不支持非字符类型字段时给出提示
+    source_ref: TP-002
     priority: P1
     precondition: 同 C0001。
     steps:

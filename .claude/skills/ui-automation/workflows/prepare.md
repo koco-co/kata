@@ -3,7 +3,7 @@
 ## 定位与读取
 
 1. 按用户给的 feature 绝对路径，或相对 `features/` 的完整路径定位 feature；项目级命令不接受名称片段、metadata ID 或 requirement ID。
-2. 读 `cases/需求名.yaml`、`requirement-notes.md` 与 `test-points.md`，列出待自动化的用例清单（feature 根下若存在 `prd.md`，是 `kata lanhu fetch --feature-dir` 抓取的原始 PRD，可作补充取证）。如果既没有用例源又没有 requirement-notes，就阻塞流程，告诉用户先用 test-case skill 编写用例。
+2. 读 `cases/需求名.yaml`、`prd/prd.md` 与 `cases/test-points.md`，列出待自动化的用例清单。如果没有用例 YAML，或 canonical feature 缺最终 PRD，就阻塞流程，告诉用户先用 test-case skill 完成确认式 PRD 与用例编写。
 
 ## 环境预检
 

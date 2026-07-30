@@ -27,6 +27,7 @@ Commands:
   infra           基础设施配置和 SSH connectivity 检查
   automation      自动化目录结构管理
   project         项目工作区的创建、检查与修复
+  prd             PRD 证据提取、确认式定稿与检查
   zentao          禅道集成:bug 抓取与创建
   lanhu           蓝湖集成:PRD 内容与截图抓取
   notify          业务通知预览、查询与失败重试
@@ -137,6 +138,7 @@ Options:
   -h, --help                              display help for command
 
 Commands:
+  prepare [options]                       按项目/模块/客户匹配仓库，并切换、快进到配置的 release 分支
   list                                    列出已配置并可定位的源码仓库
   sync-env                                报告全部已配置仓库的当前 branch/commit(不 fetch)
   show <repo> <refPath>                   git show <repo> <ref:path>;只读查看源文件
@@ -251,6 +253,24 @@ Commands:
   help [command]    display help for command
 ```
 
+## kata prd
+
+```text
+Usage: kata prd [options] [command]
+
+PRD 证据提取、确认式定稿与检查
+
+Options:
+  -h, --help          display help for command
+
+Commands:
+  migrate [options]   迁移旧根目录 PRD、需求笔记与测试点；默认 dry-run
+  extract [options]   从蓝湖提取原始证据与截图；不直接生成 PRD
+  finalize [options]  校验已确认会话并确定性生成 prd/prd.md
+  lint [options]      检查 PRD 结构、未决项、提示词污染、frontmatter 与图片引用
+  help [command]      display help for command
+```
+
 ## kata zentao
 
 ```text
@@ -278,7 +298,7 @@ Options:
   -h, --help       display help for command
 
 Commands:
-  fetch [options]  从蓝湖 URL 抓取 PRD 内容和截图,按需求生成独立 PRD 文件
+  fetch [options]  已弃用：兼容入口，转发到 kata prd extract
   help [command]   display help for command
 ```
 
@@ -434,7 +454,8 @@ Usage: kata config plugins-migrate [options]
 
 Options:
   --source <path>  旧 dotenv 文件路径
-  --root <path>    目标 Kata 工作区根目录 (default: "/Users/poco/Projects/kata")
+  --root <path>    目标 Kata 工作区根目录 (default:
+                   "/Users/poco/Projects/kata/.worktrees/prd-pipeline")
   --apply          写入 config/plugin/*.yaml
   -h, --help       display help for command
 ```
@@ -607,6 +628,20 @@ Options:
 Commands:
   set [options] <name>  从 stdin 读取并在线验证 Cookie，成功后原子替换
   help [command]        display help for command
+```
+
+## kata repos prepare
+
+```text
+Usage: kata repos prepare [options]
+
+按项目/模块/客户匹配仓库，并切换、快进到配置的 release 分支
+
+Options:
+  --project <name>   工作区项目
+  --module <name>    需求模块
+  --customer <name>  客户；标品需求传“标品”
+  -h, --help         display help for command
 ```
 
 ## kata repos list
@@ -1001,6 +1036,59 @@ Options:
   -h, --help        display help for command
 ```
 
+## kata prd migrate
+
+```text
+Usage: kata prd migrate [options]
+
+迁移旧根目录 PRD、需求笔记与测试点；默认 dry-run
+
+Options:
+  --project <name>  工作区项目
+  --feature <path>  仅迁移相对 features/ 的一个需求
+  --apply           执行迁移；不传时只输出计划
+  -h, --help        display help for command
+```
+
+## kata prd extract
+
+```text
+Usage: kata prd extract [options]
+
+从蓝湖提取原始证据与截图；不直接生成 PRD
+
+Options:
+  --url <url>      含 docId、versionId、pageId 的蓝湖需求 URL
+  --feature <dir>  目标 feature 目录
+  --force          忽略相同版本缓存并重新提取
+  -h, --help       display help for command
+```
+
+## kata prd finalize
+
+```text
+Usage: kata prd finalize [options]
+
+校验已确认会话并确定性生成 prd/prd.md
+
+Options:
+  --feature <dir>  目标 feature 目录
+  -h, --help       display help for command
+```
+
+## kata prd lint
+
+```text
+Usage: kata prd lint [options]
+
+检查 PRD 结构、未决项、提示词污染、frontmatter 与图片引用
+
+Options:
+  --feature <dir>  目标 feature 目录
+  --exit-code      存在错误时退出码为 1
+  -h, --help       display help for command
+```
+
 ## kata zentao fetch
 
 ```text
@@ -1026,7 +1114,7 @@ Usage: kata zentao create [options]
 Options:
   --report <path>  BugReport Markdown 路径
   --config <path>  ZenTao 配置 yaml (default:
-                   "/Users/poco/Projects/kata/cli/integrations/zentao/zentao.config.yaml")
+                   "/Users/poco/Projects/kata/.worktrees/prd-pipeline/cli/integrations/zentao/zentao.config.yaml")
   --dry-run        只组装字段不提交,打印 payload (default: false)
   -h, --help       display help for command
 ```
@@ -1036,16 +1124,15 @@ Options:
 ```text
 Usage: kata lanhu fetch [options]
 
-从蓝湖 URL 抓取 PRD 内容和截图,按需求生成独立 PRD 文件
+已弃用：兼容入口，转发到 kata prd extract
 
 Options:
   --url <url>          蓝湖页面 URL,例如
                        "https://lanhuapp.com/web/#/item/project/product?tid=xxx&pid=xxx&docId=xxx"
-  --project <name>     项目名称
-  --base-dir <dir>     PRD 输出基目录(覆盖项目默认)
-  --feature-dir <dir>  直接写入指定 feature 目录:prd.md + inputs/lanhu-snapshots +
-                       inputs/reference-docs(不按 yyyymm 暂存,仅限单个需求)
-  --pages <ids>        要获取的需求 ID(逗号分隔),不指定则获取全部
+  --project <name>     已弃用
+  --base-dir <dir>     已弃用
+  --feature-dir <dir>  目标 feature 目录；证据写入 prd/evidence/，截图写入 prd/assets/
+  --pages <ids>        已弃用；页面只取 URL 的 pageId
   -h, --help           display help for command
 ```
 

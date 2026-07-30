@@ -122,6 +122,47 @@ def _find_screenshots_for_pages(pages: list[dict]) -> dict[str, list[str]]:
     return result
 
 
+def _extract_static_page(resource_dir: str, html_filename: str) -> tuple[str, list[str]]:
+    """Extract readable text and local image assets without launching Chromium."""
+    from bs4 import BeautifulSoup
+
+    html_path = Path(resource_dir) / html_filename
+    if not html_path.exists():
+        return "", []
+    soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+    for node in soup(["script", "style", "noscript"]):
+        node.decompose()
+    lines: list[str] = []
+    seen: set[str] = set()
+    for raw in soup.get_text("\n").splitlines():
+        line = re.sub(r"\s+", " ", raw).strip()
+        if line and line not in seen:
+            seen.add(line)
+            lines.append(line)
+
+    assets: list[str] = []
+    asset_seen: set[str] = set()
+    refs: list[str] = []
+    for image in soup.find_all("img"):
+        src = image.get("src")
+        if isinstance(src, str):
+            refs.append(src)
+    for node in soup.find_all(style=True):
+        refs.extend(re.findall(r"url\(['\"]?([^)'\"\s]+)", node.get("style", "")))
+    for ref in refs:
+        if ref.startswith(("data:", "http://", "https://", "//")):
+            continue
+        candidate = (html_path.parent / ref).resolve()
+        try:
+            candidate.relative_to(Path(resource_dir).resolve())
+        except ValueError:
+            continue
+        if candidate.is_file() and str(candidate) not in asset_seen:
+            asset_seen.add(str(candidate))
+            assets.append(str(candidate))
+    return "\n".join(lines), assets
+
+
 async def _list_pages(url: str) -> dict:
     """Fetch page list only, without analysis."""
     from lanhu_mcp_server import LanhuExtractor
@@ -148,111 +189,67 @@ async def _list_pages(url: str) -> dict:
 
 async def _run(url: str, page_id: str | None, page_names_filter: str | None = None) -> dict:
     """
-    Core logic: fetch pages list, then analyze content in text_only mode.
+    Fetch raw Axure extraction results without invoking the MCP agent prompt wrapper.
 
     Returns the structured output dict.
     """
     # Import after sys.path and env are configured (module-level COOKIE read).
-    from lanhu_mcp_server import LanhuExtractor, lanhu_get_ai_analyze_page_result
+    from lanhu_mcp_server import DATA_DIR, LanhuExtractor, fix_html_files
 
     extractor = LanhuExtractor()
-
-    # 1. Get the full page listing
-    pages_info = await extractor.get_pages_list(url)
-    all_pages: List[dict] = pages_info.get("pages", [])
-
-    # 2. Determine which pages to analyze
-    if page_id is not None:
-        matching = [p for p in all_pages if p.get("id") == page_id]
-        if not matching:
-            _emit_error(
-                f"No page found with id '{page_id}'. "
-                f"Available ids: {[p.get('id') for p in all_pages[:20]]}",
-                "PAGE_NOT_FOUND",
-            )
-        target_page_names: str | List[str] = [p["name"] for p in matching]
-    elif page_names_filter is not None:
-        filter_terms = [t.strip() for t in page_names_filter.split(",") if t.strip()]
-        matching = [
-            p for p in all_pages
-            if any(term in p.get("name", "") for term in filter_terms)
-        ]
-        if not matching:
-            _emit_error(
-                f"No pages matched filters {filter_terms}. "
-                f"Available pages: {[p.get('name') for p in all_pages[:20]]}",
-                "PAGE_NOT_FOUND",
-            )
-        target_page_names = [p["name"] for p in matching]
-    else:
-        target_page_names = "all"
-
-    # 3. Analyze pages in full mode with tester perspective
-    from fastmcp.utilities.types import Image
-
-    raw_results = await lanhu_get_ai_analyze_page_result(
-        url=url,
-        page_names=target_page_names,
-        mode="full",
-        analysis_mode="tester",
-        ctx=None,
-    )
-
-    # raw_results is List[Union[str, Image]].
-    # Separate text blocks and image paths.
-    text_blocks: list[str] = []
-    image_paths: list[str] = []
-    for item in raw_results:
-        if isinstance(item, str):
-            text_blocks.append(item)
-        elif isinstance(item, Image):
-            if item.path:
-                abs_path = item.path if item.path.is_absolute() else Path.cwd() / item.path
-                if abs_path.exists():
-                    image_paths.append(str(abs_path.resolve()))
-
-    combined_text = "\n".join(text_blocks)
-
-    # 4. Build per-page output entries.
-    page_entries = _split_content_by_pages(combined_text, all_pages, page_id, page_names_filter)
-
-    # Attach screenshots by matching filenames to page names
-    screenshot_map = _find_screenshots_for_pages(page_entries)
-    for entry in page_entries:
-        matched = screenshot_map.get(entry.get("name", ""), [])
-        if matched:
-            entry["images"] = matched
-
-    # If screenshot matching found nothing, fall back to inline Image paths
-    has_any_matched = any(entry.get("images") for entry in page_entries)
-    if not has_any_matched and image_paths and page_entries:
-        if len(page_entries) == 1:
-            page_entries[0]["images"] = image_paths
+    try:
+        params = extractor.parse_url(url)
+        doc_id = params["doc_id"]
+        version_id = params.get("version_id") or "latest"
+        cache_key = f"{doc_id[:8]}_{version_id[:8]}"
+        resource_dir = str(DATA_DIR / f"axure_extract_{cache_key}")
+        output_dir = str(DATA_DIR / f"axure_extract_{cache_key}_screenshots")
+        pages_info = await extractor.get_pages_list(url)
+        all_pages: List[dict] = pages_info.get("pages", [])
+        if page_id is not None:
+            selected = [p for p in all_pages if p.get("id") == page_id]
+        elif page_names_filter is not None:
+            terms = [term.strip() for term in page_names_filter.split(",") if term.strip()]
+            selected = [
+                p for p in all_pages
+                if any(term in p.get("name", "") for term in terms)
+            ]
         else:
-            per_page = max(1, len(image_paths) // len(page_entries))
-            for i, entry in enumerate(page_entries):
-                start = i * per_page
-                end = start + per_page if i < len(page_entries) - 1 else len(image_paths)
-                entry["images"] = image_paths[start:end]
+            selected = all_pages
+        if not selected:
+            _emit_error("No matching Lanhu pages", "PAGE_NOT_FOUND")
 
-    # 5. Determine which pages are in the result set
-    if page_id is not None:
-        result_pages = [p for p in all_pages if p.get("id") == page_id]
-    elif page_names_filter is not None:
-        filter_terms = [t.strip() for t in page_names_filter.split(",") if t.strip()]
-        result_pages = [
-            p for p in all_pages
-            if any(term in p.get("name", "") for term in filter_terms)
-        ]
-    else:
-        result_pages = all_pages
+        filenames = [p["filename"].replace(".html", "") for p in selected]
+        html_filenames = [p["filename"] for p in selected]
+        download_result = await extractor.download_resources(
+            url,
+            resource_dir,
+            force_update=True,
+            page_filenames=html_filenames,
+        )
+        if download_result["status"] in ["downloaded", "updated"]:
+            fix_html_files(resource_dir)
 
-    return {
-        "title": pages_info.get("document_name", ""),
-        "doc_type": pages_info.get("document_type", "axure"),
-        "total_pages": len(result_pages),
-        "pages": page_entries,
-    }
+        page_entries = []
+        for page in selected:
+            filename = page["filename"].replace(".html", "")
+            text, images = _extract_static_page(resource_dir, page["filename"])
+            page_entries.append({
+                "id": page.get("id", ""),
+                "name": page.get("name", ""),
+                "path": page.get("path", page.get("name", "")),
+                "content": text,
+                "images": images,
+            })
+        return {
+            "title": pages_info.get("document_name", ""),
+            "doc_type": pages_info.get("document_type", "axure"),
+            "version_id": download_result.get("version_id", ""),
+            "total_pages": len(page_entries),
+            "pages": page_entries,
+        }
+    finally:
+        await extractor.close()
 
 
 def _split_content_by_pages(

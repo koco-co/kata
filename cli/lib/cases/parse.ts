@@ -172,6 +172,15 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     if (typeof m.source !== "string") failType("meta.source", "字符串", m.source);
     if (m.source.trim()) meta.source = m.source;
   }
+  if (m.test_points_digest !== undefined) {
+    if (
+      typeof m.test_points_digest !== "string" ||
+      !/^sha256:[a-f0-9]{64}$/.test(m.test_points_digest)
+    ) {
+      fail("字段 meta.test_points_digest 必须是 sha256 摘要");
+    }
+    meta.test_points_digest = m.test_points_digest;
+  }
   if (m.imports !== undefined) {
     if (!Array.isArray(m.imports)) failType("meta.imports", "字符串数组", m.imports);
     meta.imports = m.imports.map((value, i) => {
