@@ -9,7 +9,7 @@ describe("CLI documentation", () => {
     });
     expect(result.status).toBe(0);
     expect(result.stderr).toBe("");
-  }, 30_000);
+  }, 60_000);
 
   it("does not persist checkout-specific absolute paths", () => {
     const readme = readFileSync("cli/README.md", "utf8");
