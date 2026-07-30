@@ -349,8 +349,7 @@ cases:
           id INT,
           order_id STRING,
           order_date STRING,
-          amount DECIMAL(10,
-      2)
+          amount DECIMAL(10,2)
       )
       STORED AS ORC;
       DESC source_table2;
@@ -607,8 +606,7 @@ cases:
       CREATE TABLE IF NOT EXISTS source_table_m2 (
           id INT,
           product_name STRING,
-          price DECIMAL(10,
-      2) ,
+          price DECIMAL(10,2),
           stock INT
       )
       STORED AS ORC;
@@ -714,8 +712,7 @@ cases:
       DROP TABLE IF EXISTS source_tableB;
       CREATE TABLE IF NOT EXISTS source_tableB (
           order_id INT,
-          amount DECIMAL(10,
-      2)
+          amount DECIMAL(10,2)
       )
       STORED AS ORC;
       DESC source_tableB;
@@ -2467,8 +2464,7 @@ cases:
           id INT,
           order_id STRING,
           order_date STRING,
-          amount DECIMAL(10,
-      2)
+          amount DECIMAL(10,2)
       )
       STORED AS ORC;
       DESC source_table2;
@@ -2748,8 +2744,7 @@ cases:
       CREATE TABLE IF NOT EXISTS source_table_m2 (
           id INT,
           product_name STRING,
-          price DECIMAL(10,
-      2) ,
+          price DECIMAL(10,2),
           stock INT
       )
       STORED AS ORC;
@@ -2856,8 +2851,7 @@ cases:
       DROP TABLE IF EXISTS source_tableB;
       CREATE TABLE IF NOT EXISTS source_tableB (
           order_id INT,
-          amount DECIMAL(10,
-      2)
+          amount DECIMAL(10,2)
       )
       STORED AS ORC;
       DESC source_tableB;

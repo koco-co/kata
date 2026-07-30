@@ -859,23 +859,23 @@ export interface SendOptions {
   root?: string;
 }
 
-/** Execute the notify send flow; mirrors the former send.ts CLI main(). */
-export async function runSend(opts: SendOptions): Promise<void> {
+/** Execute the notify send flow and return the exit code for the CLI boundary. */
+export async function runSend(opts: SendOptions): Promise<number> {
   const data = opts.data ?? "{}";
 
   if (opts.listEvents) {
     process.stdout.write(`${listAllEvents()}\n`);
-    return;
+    return 0;
   }
 
   if (opts.describe) {
     process.stdout.write(`${describeEvent(opts.describe)}\n`);
-    return;
+    return 0;
   }
 
   if (!opts.event) {
     process.stderr.write("[notify] --event 必填（或使用 --list-events / --describe）\n");
-    process.exit(1);
+    return 1;
   }
 
   let parsed: NotifyData;
@@ -883,7 +883,7 @@ export async function runSend(opts: SendOptions): Promise<void> {
     parsed = JSON.parse(data) as NotifyData;
   } catch {
     process.stderr.write(`[notify] Invalid --data JSON: ${data}\n`);
-    process.exit(1);
+    return 1;
   }
 
   const validation = validateEventData(opts.event, parsed);
@@ -915,7 +915,7 @@ export async function runSend(opts: SendOptions): Promise<void> {
     }
     process.stderr.write(`[notify] 提示: 运行 \`--describe ${opts.event}\` 查看完整 schema\n`);
     if (opts.strict) {
-      process.exit(1);
+      return 1;
     }
   }
 
@@ -932,10 +932,11 @@ export async function runSend(opts: SendOptions): Promise<void> {
       process.stderr.write(
         "[notify] 警告: 未配置任何通知渠道 (config/plugin/notify.yaml),消息未发送。\n",
       );
-      process.exitCode = 2;
+      return 2;
     } else if (result.failed.length === attempted) {
       process.stderr.write(`[notify] 警告: 全部 ${attempted} 个渠道发送失败,消息未送达。\n`);
-      process.exitCode = 2;
+      return 2;
     }
   }
+  return 0;
 }

@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { type DataAssetsEnvConfig, resolveDataAssetsEnv } from "../../cli/lib/dataassets-env.ts";
 
+function fetchMock(
+  implementation: (input: string | URL | Request) => Promise<Response>,
+): typeof fetch {
+  return Object.assign(implementation, {
+    preconnect: (_url: string | URL, _options?: Parameters<typeof fetch.preconnect>[1]) => {},
+  });
+}
+
 function response(body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status: 200,
@@ -30,7 +38,7 @@ function config(): DataAssetsEnvConfig {
 describe("DataAssets environment datasource inventory compatibility", () => {
   test("falls back to exact metadata sources for the known server class-loading failure", async () => {
     const paths: string[] = [];
-    const fetchImpl: typeof fetch = async (input) => {
+    const fetchImpl = fetchMock(async (input) => {
       const path = new URL(String(input)).pathname;
       paths.push(path);
       switch (path) {
@@ -53,7 +61,7 @@ describe("DataAssets environment datasource inventory compatibility", () => {
         default:
           throw new Error(`unexpected test endpoint: ${path}`);
       }
-    };
+    });
 
     const resolved = await resolveDataAssetsEnv("fixture", {
       config: config(),
@@ -71,7 +79,7 @@ describe("DataAssets environment datasource inventory compatibility", () => {
   });
 
   test("keeps exact datasource matching when the fallback inventory is used", async () => {
-    const fetchImpl: typeof fetch = async (input) => {
+    const fetchImpl = fetchMock(async (input) => {
       const path = new URL(String(input)).pathname;
       switch (path) {
         case "/dassets/v1/valid/project/getProjects":
@@ -93,7 +101,7 @@ describe("DataAssets environment datasource inventory compatibility", () => {
         default:
           throw new Error(`unexpected test endpoint: ${path}`);
       }
-    };
+    });
 
     await expect(resolveDataAssetsEnv("fixture", { config: config(), fetchImpl })).rejects.toThrow(
       "datasource_sparkthrift_assets_not_found",

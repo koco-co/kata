@@ -62,4 +62,4 @@ description: 触发：只发 feature 目录路径或目录名（不带文件扩�
 
 骨架用 `kata automation scaffold <featureDir>` 创建，目录违规用 `kata automation normalize` 修复。Playwright 必须经 `kata runs exec <feature-id> --project <project> -- <command...>` 运行，由 CLI 以原子方式分配 `runs/<run-id>/` 并注入 `KATA_RUN_PATH`；缺少显式 run 路径时直接失败。只需要分配目录、分阶段执行时可用 `kata runs new`，但后续命令仍必须显式传入该 run 路径。仓库内禁止 `.runs/`。跨 feature 复用至少两次的页面对象、fixture 与 helper 放在 `workspace/<project>/_shared/`；单 feature 的业务流程、断言与 fixture 留在自己的 `tests/{flows,assertions,fixtures}`。
 
-用例的自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有 `implemented` 状态的用例才能进入 full runner，且其 `automation.spec_file` 必须指向可加载的 `c<四位序号>-<slug>.ts`。准备阶段和交付阶段都必须运行 feature 与 shared automation lint。
+用例的自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有 `implemented` 状态的用例才能进入 full runner，且其 `automation.spec_file` 必须指向可加载的 `c<四位序号>-<英文slug>.spec.ts`。英文 slug 由大模型根据中文用例标题自主判断，只保留一个。准备阶段和交付阶段都必须运行 feature 与 shared automation lint。

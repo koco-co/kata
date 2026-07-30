@@ -7,6 +7,7 @@ function serializedCase(item: CaseItem) {
   return {
     case_id: item.id,
     ...(item.automation ? { automation: item.automation } : {}),
+    ...(item.requirement_id ? { requirement_id: item.requirement_id } : {}),
     title: item.title,
     priority: item.priority,
     ...(item.precondition ? { precondition: item.precondition } : {}),
@@ -25,6 +26,7 @@ export function serializeCasesYaml(input: CasesFile): string {
     feature_id: file.meta.feature_id,
     ...(file.meta.requirement_id ? { requirement_id: file.meta.requirement_id } : {}),
     case_module_id: file.meta.case_module_id,
+    ...(file.meta.layout ? { layout: file.meta.layout } : {}),
     ...(file.meta.source ? { source: file.meta.source } : {}),
     ...(file.meta.imports ? { imports: file.meta.imports } : {}),
     ...(file.meta.exports ? { exports: file.meta.exports } : {}),
@@ -32,6 +34,7 @@ export function serializeCasesYaml(input: CasesFile): string {
   return stringify(
     {
       meta,
+      ...(file.requirements ? { requirements: file.requirements } : {}),
       cases: file.cases.map(serializedCase),
     },
     { lineWidth: 0 },

@@ -469,13 +469,11 @@ cases:
     precondition: |-
       建表语句:
 
-      --
-      1. 创建银行交易表
+      -- 1. 创建银行交易表
       CREATE TABLE bank_transaction (
           txn_id          BIGINT PRIMARY KEY,
           account_id       BIGINT NOT NULL,
-          txn_amount       NUMERIC(18,
-      2) NOT NULL,
+          txn_amount       NUMERIC(18,2) NOT NULL,
           txn_type         VARCHAR(20),     -- 例如 'deposit' / 'withdraw'
           txn_time         TIMESTAMP WITH TIME ZONE NOT NULL,
           txn_currency     VARCHAR(3),      -- 货币 ISO 代码
@@ -658,13 +656,11 @@ cases:
     precondition: |-
       建表语句:
 
-      --
-      1. 创建银行交易表
+      -- 1. 创建银行交易表
       CREATE TABLE bank_transaction (
           txn_id          BIGINT PRIMARY KEY,
           account_id       BIGINT NOT NULL,
-          txn_amount       NUMERIC(18,
-      2) NOT NULL,
+          txn_amount       NUMERIC(18,2) NOT NULL,
           txn_type         VARCHAR(20),     -- 例如 'deposit' / 'withdraw'
           txn_time         TIMESTAMP WITH TIME ZONE NOT NULL,
           txn_currency     VARCHAR(3),      -- 货币 ISO 代码

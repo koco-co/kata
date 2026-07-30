@@ -9,9 +9,9 @@ function file(title: string, cases: CasesFile["cases"]): CasesFile {
 
 const CASE = { id: "C0001", title: "用例一", priority: "P0" as const, steps: [] };
 
-async function firstSheetName(buf: Buffer): Promise<string> {
+async function firstSheetName(buf: Uint8Array): Promise<string> {
   const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(buf);
+  await wb.xlsx.load(buf as unknown as Parameters<ExcelJS.Workbook["xlsx"]["load"]>[0]);
   return wb.worksheets[0].name;
 }
 
@@ -34,7 +34,7 @@ describe("renderXlsx", () => {
   it("coerces non-string cell values instead of crashing", async () => {
     const buf = await renderXlsx(file("t", [{ ...CASE, id: 123 as unknown as string }]));
     const wb = new ExcelJS.Workbook();
-    await wb.xlsx.load(buf);
+    await wb.xlsx.load(buf as unknown as Parameters<ExcelJS.Workbook["xlsx"]["load"]>[0]);
     expect(wb.worksheets[0].getRow(2).getCell(1).value).toBe(123);
   });
 });

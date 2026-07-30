@@ -321,8 +321,7 @@ cases:
           2) 目标Schema 下拉框仅展示: ${project07对接的Schema}
       - action: 当前Schema、目标Schema下拉框中, 分别输入project01~10中创建或对接的Schema
         expected: |-
-          1) 当前Schema下拉框仅查询到测试项目中对接的Schema(project0
-          2) , 无法查询当前租户其它项目或其它租户项目中的Schema
+          1) 当前Schema下拉框仅查询到测试项目中对接的Schema(project02), 无法查询当前租户其它项目或其它租户项目中的Schema
           2) 目标Schema下拉框仅查询到生产项目中对接的Schema(project07), 无法查询当前租户其它项目或其它租户项目中的Schema
       - action: 选择Doris数据源, 点击「映射配置」, 重复步骤2~3
         expected: Doris映射配置中的Schema租户隔离功能正常

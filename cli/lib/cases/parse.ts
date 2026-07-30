@@ -7,7 +7,7 @@ import { parse } from "yaml";
 import { CASE_EXPORT_FORMATS, isCaseExportFormat } from "./formats.ts";
 import { SPEC_FILE_RE } from "./naming.ts";
 import { normalizeStructuredText } from "./normalize.ts";
-import { type CaseItem, type CasesFile, PRIORITIES } from "./types.ts";
+import { type CaseItem, type CaseRequirement, type CasesFile, PRIORITIES } from "./types.ts";
 
 export { validateCases } from "./schema.ts";
 export type { CaseItem, CaseMeta, CasesFile } from "./types.ts";
@@ -76,6 +76,16 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     priority: priority as CaseItem["priority"],
     steps,
   };
+  if (o.requirement_id !== undefined) {
+    if (typeof o.requirement_id !== "string" && typeof o.requirement_id !== "number") {
+      failType(`cases[${index}].requirement_id`, "数字字符串", o.requirement_id);
+    }
+    const requirementId = String(o.requirement_id).trim();
+    if (!/^\d+$/.test(requirementId)) {
+      fail(`字段 cases[${index}].requirement_id 必须是数字字符串`);
+    }
+    item.requirement_id = requirementId;
+  }
   if (o.precondition !== undefined) {
     if (typeof o.precondition !== "string")
       failType(`cases[${index}].precondition`, "字符串", o.precondition);
@@ -127,6 +137,12 @@ export function parseCasesYaml(yamlText: string): CasesFile {
     feature_id: asString(m.feature_id, "meta.feature_id"),
     case_module_id: "",
   };
+  if (m.layout !== undefined) {
+    if (m.layout !== "flat" && m.layout !== "requirements") {
+      fail(`字段 meta.layout 非法: ${String(m.layout)}(允许 flat/requirements)`);
+    }
+    meta.layout = m.layout;
+  }
   if (m.requirement_id !== undefined) {
     if (typeof m.requirement_id !== "string" && typeof m.requirement_id !== "number") {
       failType("meta.requirement_id", "数字字符串", m.requirement_id);
@@ -172,5 +188,28 @@ export function parseCasesYaml(yamlText: string): CasesFile {
       return value;
     });
   }
-  return { meta, cases: o.cases.map(asCaseItem) };
+  let requirements: CaseRequirement[] | undefined;
+  if (o.requirements !== undefined) {
+    if (!Array.isArray(o.requirements)) failType("requirements", "需求数组", o.requirements);
+    requirements = o.requirements.map((value, index) => {
+      if (typeof value !== "object" || value === null) {
+        fail(`requirements[${index}] 不是对象`);
+      }
+      const r = value as Record<string, unknown>;
+      const id = r.requirement_id;
+      if (typeof id !== "string" && typeof id !== "number") {
+        failType(`requirements[${index}].requirement_id`, "数字字符串", id);
+      }
+      const requirementId = String(id).trim();
+      if (!/^\d+$/.test(requirementId)) {
+        fail(`字段 requirements[${index}].requirement_id 必须是数字字符串`);
+      }
+      return {
+        requirement_id: requirementId,
+        title: asString(r.title, `requirements[${index}].title`),
+        source: asString(r.source, `requirements[${index}].source`),
+      };
+    });
+  }
+  return { meta, ...(requirements ? { requirements } : {}), cases: o.cases.map(asCaseItem) };
 }

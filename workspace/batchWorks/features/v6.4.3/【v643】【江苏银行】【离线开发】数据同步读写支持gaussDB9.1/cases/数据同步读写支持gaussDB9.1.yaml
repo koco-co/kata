@@ -2533,8 +2533,7 @@ cases:
     precondition: |-
       1. 当前项目中已经成功引入GaussDB数据源
       2. 当前项目中存在新建成功的读GaussDB向导模式的数据同步任务
-      3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）
-      4. 存在非数据同步配置的hive、mysql表：test_hive_01、test_mysql_01，表内各包含五条数据
+      3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）4.存在非数据同步配置的hive、mysql表：test_hive_01、test_mysql_01，表内各包含五条数据
     steps:
       - action: 点击上述数据同步任务右上方的“发布”
         expected: 进入任务发布页面

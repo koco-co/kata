@@ -534,7 +534,7 @@ describe("smtp secure detection", () => {
 
 describe("runSend delivery exit codes", () => {
   let savedEnv: Record<string, string | undefined>;
-  let savedExitCode: number | string | undefined;
+  let savedExitCode: number | string | null | undefined;
   let stderrChunks: string[];
   let originalStderrWrite: typeof process.stderr.write;
   let originalStdoutWrite: typeof process.stdout.write;
@@ -584,8 +584,13 @@ describe("runSend delivery exit codes", () => {
   });
 
   it("exits 2 with a stderr warning when no channel is configured (non dry-run)", async () => {
-    await runSend({ event: "case-generated", data: '{"count":1}', root: EMPTY_CONFIG_ROOT });
-    assert.equal(process.exitCode, 2);
+    const exitCode = await runSend({
+      event: "case-generated",
+      data: '{"count":1}',
+      root: EMPTY_CONFIG_ROOT,
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(process.exitCode, savedExitCode);
     assert.ok(
       stderrChunks.some((line) => line.includes("未配置任何通知渠道")),
       `stderr should warn about missing channels, got: ${stderrChunks.join("")}`,
@@ -594,9 +599,16 @@ describe("runSend delivery exit codes", () => {
 
   it("exits 2 with a stderr warning when every configured channel fails", async () => {
     process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com/hook";
-    globalThis.fetch = (() => Promise.reject(new Error("network down"))) as typeof fetch;
-    await runSend({ event: "case-generated", data: '{"count":1}', root: EMPTY_CONFIG_ROOT });
-    assert.equal(process.exitCode, 2);
+    globalThis.fetch = Object.assign(() => Promise.reject(new Error("network down")), {
+      preconnect: () => {},
+    });
+    const exitCode = await runSend({
+      event: "case-generated",
+      data: '{"count":1}',
+      root: EMPTY_CONFIG_ROOT,
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(process.exitCode, savedExitCode);
     assert.ok(
       stderrChunks.some((line) => line.includes("全部") && line.includes("失败")),
       `stderr should warn about all-channel failure, got: ${stderrChunks.join("")}`,
@@ -604,34 +616,43 @@ describe("runSend delivery exit codes", () => {
   });
 
   it("does not set an exit code in dry-run mode even with zero channels", async () => {
-    await runSend({
+    const exitCode = await runSend({
       event: "case-generated",
       data: '{"count":1}',
       dryRun: true,
       root: EMPTY_CONFIG_ROOT,
     });
+    assert.equal(exitCode, 0);
     assert.equal(process.exitCode, savedExitCode);
   });
 
   it("passes an AbortSignal to webhook fetch calls", async () => {
     process.env.KATA_DINGTALK_WEBHOOK_URL = "https://example.com/hook";
     let seenSignal: AbortSignal | null = null;
-    globalThis.fetch = ((_url: unknown, init?: RequestInit) => {
-      seenSignal = init?.signal ?? null;
-      return Promise.resolve(
-        new Response(JSON.stringify({ errcode: 0 }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        }),
-      );
-    }) as typeof fetch;
+    globalThis.fetch = Object.assign(
+      (_url: string | URL | Request, init?: RequestInit) => {
+        seenSignal = init?.signal ?? null;
+        return Promise.resolve(
+          new Response(JSON.stringify({ errcode: 0 }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      },
+      { preconnect: () => {} },
+    );
     const result = await sendNotification(
       "case-generated",
       { count: 1 },
       { root: EMPTY_CONFIG_ROOT },
     );
     assert.deepEqual(result.sent, ["dingtalk"]);
-    assert.ok(seenSignal instanceof AbortSignal, "fetch should receive an AbortSignal");
+    assert.ok(seenSignal, "fetch should receive an AbortSignal");
+    assert.equal(
+      Object.getPrototypeOf(seenSignal),
+      AbortSignal.prototype,
+      "fetch should receive an AbortSignal",
+    );
   });
 });
 

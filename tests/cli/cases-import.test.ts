@@ -3,8 +3,8 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -49,6 +49,38 @@ describe("case format imports", () => {
     expect(result.file.cases[0].title).toBe("验证「单规则包」校验功能");
     expect(result.file.cases[0].tags).toEqual(["数据质量", "模块A", "页面B", "第三级"]);
     expect(result.file.cases[0].priority).toBe("P0");
+  });
+
+  it("pairs wrapped ZenTao steps by top-level markers and keeps nested expected items", async () => {
+    const source = tempFile(
+      "zentao-wrapped.csv",
+      [
+        "相关需求,所属模块,用例标题,优先级,步骤,预期",
+        '#131604,数据资产目录(#7775),验证目录操作审计 - 列表- 翻页,3,"1. “上一页”/“下一页”翻页\n2. 指定页码翻页\n3. 搜索后翻页：\n先进行搜索查询；\n再进行翻页\n4. 翻页后搜索：\n先翻页到最后一页；\n再进行搜索查询","1. 1）“上一页”数据正确；\n2）“下一页”数据正确\n2. 数据正确\n3. 数据正确\n4. 1）页码更新为第一页；\n2）筛选数据正确"',
+      ].join("\n"),
+    );
+    const result = await importCases({
+      featureDir: FEATURE,
+      sourcePath: source,
+      name: "zentao-wrapped",
+      importName: "zentao-wrapped.csv",
+      requirementId: "131604",
+    });
+    expect(result.file.cases[0]?.steps).toEqual([
+      {
+        action: "“上一页”/“下一页”翻页",
+        expected: "1）“上一页”数据正确；\n2） “下一页”数据正确",
+      },
+      { action: "指定页码翻页", expected: "数据正确" },
+      {
+        action: "搜索后翻页：\n先进行搜索查询；\n再进行翻页",
+        expected: "数据正确",
+      },
+      {
+        action: "翻页后搜索：\n先翻页到最后一页；\n再进行搜索查询",
+        expected: "1）页码更新为第一页；\n2） 筛选数据正确",
+      },
+    ]);
   });
 
   it("round-trips markdown and xmind through YAML-shaped cases", async () => {
@@ -131,9 +163,10 @@ describe("case format imports", () => {
                               children: {
                                 attached: [
                                   {
-                                    title:
-                                      "配置如下: - 数据源: ${DataSourceA} - 数据表: user_profile",
-                                    children: { attached: [{ title: "1) 发布成功 2) 表结构更新" }] },
+                                    title: `配置如下: - 数据源: \${DataSourceA} - 数据表: user_profile`,
+                                    children: {
+                                      attached: [{ title: "1) 发布成功 2) 表结构更新" }],
+                                    },
                                   },
                                 ],
                               },
@@ -156,9 +189,14 @@ describe("case format imports", () => {
         },
       ]),
     );
-    const sourcePath = tempFile("iteration.xmind", Buffer.from(await zip.generateAsync({
-      type: "nodebuffer",
-    })));
+    const sourcePath = tempFile(
+      "iteration.xmind",
+      Buffer.from(
+        await zip.generateAsync({
+          type: "nodebuffer",
+        }),
+      ),
+    );
     const result = await splitXmindCases({
       sourcePath,
       project: "batchWorks",
@@ -175,7 +213,7 @@ describe("case format imports", () => {
     expect(result.entries[0].file?.meta.title).toBe("【江南布衣】任务发布支持更新表结构");
     expect(result.entries[0].file?.cases[0].tags).toEqual(["任务发布"]);
     expect(result.entries[0].file?.cases[0].steps[0]).toEqual({
-      action: "配置如下:\n- 数据源: ${DataSourceA}\n- 数据表: user_profile",
+      action: `配置如下:\n- 数据源: \${DataSourceA}\n- 数据表: user_profile`,
       expected: "1) 发布成功\n2) 表结构更新",
     });
     expect(result.entries[1].skipped).toBe("no cases");
@@ -226,11 +264,7 @@ describe("case format imports", () => {
     );
     const root = mkdtempSync(join(tmpdir(), "kata-split-root-"));
     const featuresDir = join(root, "workspace", "batchWorks", "features");
-    const conflict = join(
-      featuresDir,
-      "v6.4.5",
-      "【v645】【甲客户】【离线开发】需求甲",
-    );
+    const conflict = join(featuresDir, "v6.4.5", "【v645】【甲客户】【离线开发】需求甲");
     mkdirSync(conflict, { recursive: true });
     writeFileSync(join(conflict, "sentinel.txt"), "keep");
 
@@ -245,11 +279,9 @@ describe("case format imports", () => {
     ).rejects.toThrow(/冲突，未写入任何文件/);
 
     expect(readFileSync(join(conflict, "sentinel.txt"), "utf8")).toBe("keep");
-    expect(
-      existsSync(
-        join(featuresDir, "v6.4.5", "【v645】【乙客户】【离线开发】需求乙"),
-      ),
-    ).toBe(false);
+    expect(existsSync(join(featuresDir, "v6.4.5", "【v645】【乙客户】【离线开发】需求乙"))).toBe(
+      false,
+    );
     expect(readdirSync(featuresDir).filter((name) => name.startsWith(".kata-import-"))).toEqual([]);
   });
 });

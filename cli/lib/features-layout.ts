@@ -15,7 +15,7 @@ export const ARCHIVED_DIR = "_archived";
 // 版本目录名：语义版本，两段或三段（v6.4 / v6.4.10）
 export const VERSION_DIR_RE = /^v\d+(?:\.\d+){1,2}$/;
 
-// 中文标签目录：【vXXX】[【lanhu-id】][【客户】]【模块】需求名；常驻需求首段为【standing】。
+// 中文标签目录：【vXXX】[【需求ID】][【客户】]【模块】需求名；常驻需求首段为【standing】。
 // 唯一权威定义；features-lint 与 features resolve 共用，禁止在别处另写同义正则。
 export const LABEL_DIR_RE = /^【(?:v\d+|standing)】(?:【[^【】]+】){1,3}[^【】]+$/;
 

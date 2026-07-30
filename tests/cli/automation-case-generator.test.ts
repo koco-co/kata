@@ -12,7 +12,7 @@ function fixture(): string {
   mkdirSync(join(feature, "automation", "tests", "runners"), { recursive: true });
   writeFileSync(
     join(feature, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\ncases:\n  - case_id: C0001\n    title: 验证已存在脚本\n    priority: P1\n    steps:\n      - action: 点击【保存】按钮\n        expected: 保存成功\n    automation:\n      spec_file: c0001-existing-case.spec.ts\n  - case_id: C0002\n    title: 验证缺失脚本\n    priority: P1\n    steps:\n      - action: 点击【提交】按钮\n        expected: 提交成功\n    automation:\n      spec_file: c0002-missing-case.spec.ts\n`,
+    `meta:\n  title: demo\n  version: v7.0.0\n  feature_id: demo\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证已存在脚本\n    priority: P1\n    steps:\n      - action: 点击【保存】按钮\n        expected: 保存成功\n    automation:\n      spec_file: c0001-existing-case.spec.ts\n  - case_id: C0002\n    title: 验证缺失脚本\n    priority: P1\n    steps:\n      - action: 点击【提交】按钮\n        expected: 提交成功\n    automation:\n      spec_file: c0002-missing-case.spec.ts\n`,
   );
   writeFileSync(
     join(feature, "automation", "tests", "cases", "c0001-existing-case.spec.ts"),

@@ -68,9 +68,7 @@ cases:
       (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
 
       INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
-      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE,
-      1. 76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0,
-      2) ;
+      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
 
       INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
       (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
@@ -132,9 +130,7 @@ cases:
       (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
 
       INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
-      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE,
-      1. 76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0,
-      2) ;
+      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
 
       INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
       (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);

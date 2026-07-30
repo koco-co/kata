@@ -4,9 +4,11 @@ import { normalizeCasesYamlText } from "../../cli/lib/cases/serialize.ts";
 
 describe("normalizeStructuredText", () => {
   it("normalizes CRLF and br tags", () => {
-    expect(normalizeStructuredText("第一行<br>第二行\r\n第三行")).toBe(
-      "第一行\n第二行\n第三行",
-    );
+    expect(normalizeStructuredText("第一行<br>第二行\r\n第三行")).toBe("第一行\n第二行\n第三行");
+  });
+
+  it("normalizes tabs to spaces for canonical YAML block scalars", () => {
+    expect(normalizeStructuredText("\t1) 表A\n\t2) 表B")).toBe("  1) 表A\n  2) 表B");
   });
 
   it("splits obvious concatenated numbered items", () => {
@@ -15,14 +17,22 @@ describe("normalizeStructuredText", () => {
     );
   });
 
+  it("splits nested full-width numbered items without treating rule numbers as markers", () => {
+    expect(
+      normalizeStructuredText(
+        "1、规则1、5、7合并；规则2、10合并。 1）源表只扫描一次 2）规则并行计算 3）结果拆成多行",
+      ),
+    ).toBe(
+      "1、 规则1、5、7合并；规则2、10合并。\n1） 源表只扫描一次\n2） 规则并行计算\n3） 结果拆成多行",
+    );
+  });
+
   it("splits list markers concatenated directly after numeric field values", () => {
     expect(
       normalizeStructuredText(
         "配置如下:1) 监控对象: date=202602022) 监控规则: value>=03) 调度属性: 每小时",
       ),
-    ).toBe(
-      "配置如下:\n1) 监控对象: date=20260202\n2) 监控规则: value>=0\n3) 调度属性: 每小时",
-    );
+    ).toBe("配置如下:\n1) 监控对象: date=20260202\n2) 监控规则: value>=0\n3) 调度属性: 每小时");
   });
 
   it("keeps a numbered run intact after form bullets expose markers on separate lines", () => {
@@ -38,11 +48,9 @@ describe("normalizeStructuredText", () => {
   it("puts concatenated form bullets on separate lines", () => {
     expect(
       normalizeStructuredText(
-        "配置如下: - 数据源: ${DataSourceA} - 数据表: user_profile - 规则强弱: 强规则",
+        `配置如下: - 数据源: \${DataSourceA} - 数据表: user_profile - 规则强弱: 强规则`,
       ),
-    ).toBe(
-      "配置如下:\n- 数据源: ${DataSourceA}\n- 数据表: user_profile\n- 规则强弱: 强规则",
-    );
+    ).toBe(`配置如下:\n- 数据源: \${DataSourceA}\n- 数据表: user_profile\n- 规则强弱: 强规则`);
   });
 
   it("splits a form bullet concatenated after another bullet", () => {
@@ -68,8 +76,7 @@ describe("normalizeStructuredText", () => {
   });
 
   it("does not treat decimal data as concatenated numbered items", () => {
-    const data =
-      "1. 新建测试表并写入数据：张三，11，72.11，1，1；2，李四，20，60.22，2，2";
+    const data = "1. 新建测试表并写入数据：张三，11，72.11，1，1；2，李四，20，60.22，2，2";
     expect(normalizeStructuredText(data)).toBe(data);
   });
 

@@ -20,7 +20,7 @@ function scaffold(requirementId = "12345"): { root: string; featureDir: string }
   writeFileSync(join(featureDir, "prd.md"), `---\nrequirement_id: ${requirementId}\n---\n`);
   writeFileSync(
     join(featureDir, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  version: v6.4.11\n  feature_id: v6.4.11/demo\n  requirement_id: "${requirementId}"\ncases:\n  - case_id: C0001\n    title: 验证示例\n    priority: P1\n    steps:\n      - action: 点击保存\n        expected: 保存成功\n`,
+    `meta:\n  title: demo\n  version: v6.4.11\n  feature_id: v6.4.11/demo\n  requirement_id: "${requirementId}"\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证示例\n    priority: P1\n    steps:\n      - action: 点击保存\n        expected: 保存成功\n`,
   );
   return { root, featureDir };
 }
@@ -37,7 +37,7 @@ describe("automation feature resolver", () => {
     const { root, featureDir } = scaffold("12345");
     writeFileSync(
       join(featureDir, "cases", "demo.yaml"),
-      'meta:\n  title: demo\n  version: v6.4.11\n  feature_id: v6.4.11/demo\n  requirement_id: "99999"\ncases:\n  - case_id: C0001\n    title: 验证示例\n    priority: P1\n    steps:\n      - action: 点击保存\n        expected: 保存成功\n',
+      'meta:\n  title: demo\n  version: v6.4.11\n  feature_id: v6.4.11/demo\n  requirement_id: "99999"\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证示例\n    priority: P1\n    steps:\n      - action: 点击保存\n        expected: 保存成功\n',
     );
     expect(() => resolveAutomationFeature("99999", "dataAssets", root)).toThrow(/不一致/);
   });

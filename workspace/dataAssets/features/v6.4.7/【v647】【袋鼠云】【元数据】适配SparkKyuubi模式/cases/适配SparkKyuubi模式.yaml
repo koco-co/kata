@@ -10,7 +10,9 @@ cases:
     title: 验证血缘解析功能正常
     priority: P0
     steps:
-      - action: 1）执行并提交离线任务； 2）查看对应表血缘关系
+      - action: |-
+          1） 执行并提交离线任务；
+          2） 查看对应表血缘关系
         expected: 表级血缘/字段级血缘正确
     precondition: |-
       创建spark sql的血缘表
@@ -101,9 +103,13 @@ cases:
     title: 验证视图血缘关系
     priority: P1
     steps:
-      - action: 1）提交离线任务 2）查看数据地图视图的血缘关系-表级血缘
+      - action: |-
+          1） 提交离线任务
+          2） 查看数据地图视图的血缘关系-表级血缘
         expected: 表级血缘关系正确：
-      - action: 1）提交离线任务 2）查看数据地图视图的血缘关系-字段级血缘
+      - action: |-
+          1） 提交离线任务
+          2） 查看数据地图视图的血缘关系-字段级血缘
         expected: 字段级血缘关系正确
       - action: 查看跨库血缘
         expected: 表级血缘和字段级血缘正常
@@ -142,7 +148,12 @@ cases:
     title: 验证【元数据同步】_【常规表】_【全类型字段】同步正常
     priority: P1
     steps:
-      - action: 1）点击【元数据】-【元数据同步】-【新增周期同步任务】 2）选择数据源${DATASOURCE_TYPE} 3）选择数据库${DATABASE} 4）选择数据表${TABLE} 5）依次点击【添加】_【下一步】_【新增】按钮
+      - action: |-
+          1） 点击【元数据】-【元数据同步】-【新增周期同步任务】
+          2） 选择数据源${DATASOURCE_TYPE}
+          3） 选择数据库${DATABASE}
+          4） 选择数据表${TABLE}
+          5） 依次点击【添加】_【下一步】_【新增】按钮
         expected: 表同步成功， 且表详情信息展示正确， 数据预览正确
     precondition: |-
       已存在包含全类型字段的表A，DDL/DML如下
@@ -264,11 +275,15 @@ cases:
       - action: 进入「数据资产-数据质量」，新建单表校验，选择表doris2 规则：选择表行数，固定值>3,弱规则。再任意添加其他两种类型的规则，使校验通过 调度：自动关联离线调度周期。规则包个数3 绑定任务：前置条件doris2doris
         expected: 新建成功
       - action: 等待离线周期实例运行，进入「数据资产-数据质量-任务实例查询」
-        expected: 1）页面生成一条实例，校验未通过 2）查看明细展示doris1中的三条数据
+        expected: |-
+          1） 页面生成一条实例，校验未通过
+          2） 查看明细展示doris1中的三条数据
       - action: 进入「离线开发-运维中心-周期任务实例」
         expected: 离线任务运行成功
       - action: 进入「离线开发-运维中心-周期任务」，对doris2doris任务补当前数据及下游，查看结果
-        expected: 1）补数据质量工作流中有3个规则包，任务都运行成功 2）质量生成一条实例，校验未通过
+        expected: |-
+          1） 补数据质量工作流中有3个规则包，任务都运行成功
+          2） 质量生成一条实例，校验未通过
     precondition: |-
       1、 doris数据源已存在表
       建表语句：
@@ -340,7 +355,9 @@ cases:
       - action: 进入「离线开发-运维中心-周期任务实例」
         expected: 离线任务运行成功
       - action: 进入「离线开发-运维中心-周期任务」，对doris2doris任务补当前数据及下游，查看结果
-        expected: 1）补数据质量工作流中有3个规则包，任务都运行成功 2）质量生成一条实例，校验通过
+        expected: |-
+          1） 补数据质量工作流中有3个规则包，任务都运行成功
+          2） 质量生成一条实例，校验通过
     precondition: |-
       1、 doris数据源已存在表
       建表语句：
@@ -410,9 +427,13 @@ cases:
       - action: 等待离线实例运行，查看质量实例
         expected: 质量新增一条实例，状态为运行中
       - action: 运行结束后，查看离线和质量实例的运行结果
-        expected: 1）质量实例：校验未通过，查看明细展示doris1中的三条数据 2）离线实例：运行成功
+        expected: |-
+          1） 质量实例：校验未通过，查看明细展示doris1中的三条数据
+          2） 离线实例：运行成功
       - action: 进入「离线开发-运维中心-周期任务」，对doris2doris任务补当前数据及下游，查看结果
-        expected: 1）补数据质量工作流中有1个规则包，任务都运行成功 2）质量生成一条实例，校验未通过
+        expected: |-
+          1） 补数据质量工作流中有1个规则包，任务都运行成功
+          2） 质量生成一条实例，校验未通过
     precondition: |-
       1、 doris数据源已存在表
       建表语句：
@@ -482,7 +503,9 @@ cases:
       - action: 等待离线实例运行，查看质量实例
         expected: 质量新增一条实例，状态为运行中
       - action: 运行结束后，查看离线和质量实例的运行结果
-        expected: 1）质量实例：校验通过 2）离线实例：运行成功
+        expected: |-
+          1） 质量实例：校验通过
+          2） 离线实例：运行成功
       - action: 进入离线，对doris2doris任务补数据-当前任务及下游，查看结果
         expected: 同步骤2-3
     precondition: |-
@@ -644,7 +667,9 @@ cases:
       - action: 新建多表比对，左表选择前置中的表doris_demo_data_types_source,过滤条件为part_date='${utc0yyyy_MM_dd_1d}'
         expected: 右表数据源不会默认回填左表选择的数据源，下拉框允许选择所有授权给质量项目的数据源
       - action: 右表选择前置中的表mysql_demo_data_types_source，点击下一步
-        expected: 1）字段类型一致的进行映射 2）不一致的不映射并提示：主表与对照表字段类型不一致，无法比对
+        expected: |-
+          1） 字段类型一致的进行映射
+          2） 不一致的不映射并提示：主表与对照表字段类型不一致，无法比对
       - action: 同名映射
         expected: 勾选成功
       - action: 勾选user_id为主键
@@ -753,7 +778,9 @@ cases:
       - action: 右表选择前置中的表doris_demo1_data_types_source，点击下一步
         expected: 进入选择字段步骤
       - action: 同名映射
-        expected: 1）字段类型一致的进行映射 2）不一致的不映射并提示：主表与对照表字段类型不一致，无法比对
+        expected: |-
+          1） 字段类型一致的进行映射
+          2） 不一致的不映射并提示：主表与对照表字段类型不一致，无法比对
       - action: 勾选user_id为主键
         expected: 勾选成功
       - action: 勾选【记录数百分比差异】-0%
@@ -939,9 +966,9 @@ cases:
 
       规则集sql：
 
-      1）select * from doris_demo_data_types_source；
-      2）select user_id，name from doris_demo_data_types_source；
-      3）select * from doris_demo_data_types_source where user_id >1005;
+      1） select * from doris_demo_data_types_source；
+      2） select user_id，name from doris_demo_data_types_source；
+      3） select * from doris_demo_data_types_source where user_id >1005;
       4) select 1 from doris_demo_data_types_source;
     tags:
       - 【联动】
@@ -1061,11 +1088,15 @@ cases:
       - action: 进入「数据资产-数据质量」，新建单表校验，选择表doris2 规则：选择表行数，固定值>3,强规则。再任意添加其他两种类型的规则，使校验通过 调度：自动关联离线调度周期。规则包个数3 绑定任务：前置条件saprk2spark
         expected: 新建成功
       - action: 等待离线周期实例运行，进入「数据资产-数据质量-任务实例查询」
-        expected: 1）页面生成一条实例，校验未通过 2）查看明细展示doris_demo_data_types_source中的三条数据
+        expected: |-
+          1） 页面生成一条实例，校验未通过
+          2） 查看明细展示doris_demo_data_types_source中的三条数据
       - action: 进入「离线开发-运维中心-周期任务实例」
         expected: 离线任务运行失败
       - action: 进入「离线开发-运维中心-周期任务」，对saprk2spark任务补当前数据及下游，查看结果
-        expected: 1）补数据质量工作流中有3个规则包，离线任务运行失败，报错质量任务校验不通过 2）质量生成一条实例，校验不通过
+        expected: |-
+          1） 补数据质量工作流中有3个规则包，离线任务运行失败，报错质量任务校验不通过
+          2） 质量生成一条实例，校验不通过
     precondition: |-
       1、 doris数据源已存在表
       建表语句：
@@ -1119,7 +1150,9 @@ cases:
       - action: 等待离线实例运行，查看质量实例
         expected: 质量新增一条实例，状态为运行中
       - action: 运行结束后，查看离线和质量实例的运行结果
-        expected: 1）质量实例：校验通过 2）离线实例：运行成功
+        expected: |-
+          1） 质量实例：校验通过
+          2） 离线实例：运行成功
       - action: 进入离线，对spark2spark任务补数据-当前任务及下游，查看结果
         expected: 同步骤2-3
     precondition: |-
@@ -1197,9 +1230,13 @@ cases:
       - action: 等待离线实例运行，查看质量实例
         expected: 质量新增一条实例，状态为运行中
       - action: 运行结束后，查看离线和质量实例的运行结果
-        expected: 1）质量实例：校验未通过，查看明细展示doris1中的三条数据 2）离线实例：运行失败，失败原因：上游质量任务失败
+        expected: |-
+          1） 质量实例：校验未通过，查看明细展示doris1中的三条数据
+          2） 离线实例：运行失败，失败原因：上游质量任务失败
       - action: 进入「离线开发-运维中心-周期任务」，对spark_2_spark任务补当前数据及下游，查看结果
-        expected: 1）补数据质量工作流中有1个规则包，离线任务运行失败，报错质量任务校验不通过 2）质量生成一条实例，校验不通过
+        expected: |-
+          1） 补数据质量工作流中有1个规则包，离线任务运行失败，报错质量任务校验不通过
+          2） 质量生成一条实例，校验不通过
     precondition: |-
       1、 saprk数据源已存在表
       建表语句：

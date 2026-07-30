@@ -343,9 +343,9 @@ cases:
     steps:
       - action: 点击标准的标准名称
         expected: |-
-          1）右侧标准详情抽屉的弹出
-          2）头部显示标准中文名、发布状态、创建时间、最近发布时间、最近发布用户
-          3）tab页显示“标准信息”和“版本变更”
+          1） 右侧标准详情抽屉的弹出
+          2） 头部显示标准中文名、发布状态、创建时间、最近发布时间、最近发布用户
+          3） tab页显示“标准信息”和“版本变更”
     tags:
       - 数据标准（#10412）
       - 标准管理
@@ -413,8 +413,8 @@ cases:
         expected: 弹出新建词根弹窗
       - action: 填写内容，点击确定
         expected: |-
-          1）新增词根成功！
-          2）词根列表新增该词根
+          1） 新增词根成功！
+          2） 词根列表新增该词根
     tags:
       - 数据标准（#10412）
       - 标准基础
@@ -426,8 +426,8 @@ cases:
     steps:
       - action: 点击删除并二次确认
         expected: |-
-          1）提示删除成功；
-          2）词根列表删除该词根
+          1） 提示删除成功；
+          2） 词根列表删除该词根
     tags:
       - 数据标准（#10412）
       - 标准基础
@@ -441,8 +441,8 @@ cases:
         expected: 弹出新建代码弹窗
       - action: 填写内容，点击确定
         expected: |-
-          1）提示新增代码成功！
-          2）代码列表新增该代码
+          1） 提示新增代码成功！
+          2） 代码列表新增该代码
     tags:
       - 数据标准（#10412）
       - 标准基础
@@ -457,23 +457,23 @@ cases:
       - action: 点击拾取来源下拉框
         expected: 下拉项中可见 `Doris2.x` 等受支持的数据源类型
       - action: |-
-          1）拾取类型选择词根管理
-          2）拾取来源选择 `Doris2.x`
-          3）拾取条件填写 `重复数 > 1`
-          4）点击确定
+          1） 拾取类型选择词根管理
+          2） 拾取来源选择 `Doris2.x`
+          3） 拾取条件填写 `重复数 > 1`
+          4） 点击确定
         expected: 全局提示：新建拾取成功；拾取列表新增该拾取
       - action: |-
-          1）拾取类型选择数据标准
-          2）拾取来源选择 `Doris2.x`
-          3）拾取条件填写 `重复数 > 1`
-          4）点击确定
+          1） 拾取类型选择数据标准
+          2） 拾取来源选择 `Doris2.x`
+          3） 拾取条件填写 `重复数 > 1`
+          4） 点击确定
         expected: 全局提示：新建拾取成功；拾取列表新增该拾取
       - action: |-
-          1）等待拾取完成
-          2）查看拾取
+          1） 等待拾取完成
+          2） 查看拾取
         expected: |-
-          1）拾取成功
-          2）拾取列表数据正确
+          1） 拾取成功
+          2） 拾取列表数据正确
     tags:
       - 数据标准（#10412）
       - 标准基础
@@ -509,29 +509,29 @@ cases:
     steps:
       - action: |-
           创建Hive PARQUET非事务内部表：
-          	- “表类型”选择“内部表”
-          	- “hdfs存储路径”为空
+            - “表类型”选择“内部表”
+            - “hdfs存储路径”为空
         expected: |-
           生成的建表语句正确；
           PARQUET表创建成功；
       - action: |-
           创建Hive ORC非事务内部表：
-          	- “表类型”选择“内部表”
-          	- “hdfs存储路径”为空
+            - “表类型”选择“内部表”
+            - “hdfs存储路径”为空
         expected: |-
           生成的建表语句正确；
           ORC表创建成功；
       - action: |-
           创建Hive TEXTFILE非事务内部表：
-          	- “表类型”选择“内部表”
-          	- “hdfs存储路径”为指定路径（非默认路径）
+            - “表类型”选择“内部表”
+            - “hdfs存储路径”为指定路径（非默认路径）
         expected: |-
           生成的建表语句正确；
           TEXTFILE表创建成功；
       - action: |-
           创建Hive外部表：
-          	- “表类型”选择“外部表”
-          	- “hdfs存储路径”为指定路径（非默认路径）
+            - “表类型”选择“外部表”
+            - “hdfs存储路径”为指定路径（非默认路径）
         expected: |-
           生成的建表语句正确；
           事务表创建成功；
@@ -554,8 +554,8 @@ cases:
         expected: 字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
       - action: 范围分区表语句解析
         expected: |-
-          1）字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
-          2）范围分区信息解析成功
+          1） 字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
+          2） 范围分区信息解析成功
       - action: 各数据类型字段解析
         expected: 所有支持的字段类型均解析
     precondition: |-
@@ -622,27 +622,27 @@ cases:
           表名：自定义内容：「T_doris_A」
           中文名：doris表A
           数据模型类型：【主键表】
-          2）点击下一步
+          2） 点击下一步
         expected: |-
-          1）进入数据模型新建页面
-          2）进入表结构页面
+          1） 进入数据模型新建页面
+          2） 进入表结构页面
       - action: |-
           新增多个字段，其中包含字段ID
           字段id勾选主键，分区字段，动态分区，分桶字段(分桶数1)，编辑动态分区配置：同前置条件
         expected: 新增成功
       - action: 点击【生成建表语句】按钮，建表
         expected: |-
-          1）提示：提交审批成功
-          2）我的模型-已审批页面记录新增一条记录为审批中
+          1） 提示：提交审批成功
+          2） 我的模型-已审批页面记录新增一条记录为审批中
       - action: 管理员用户进入「审批中心」，审批拒绝
         expected: |-
-          1）表未新建，数据模型新增一条记录，为未建表状态
-          2）数据开发用户，我的模型-已审批页面记录状态变为已拒绝
+          1） 表未新建，数据模型新增一条记录，为未建表状态
+          2） 数据开发用户，我的模型-已审批页面记录状态变为已拒绝
       - action: 管理员用户进入「审批中心」，审批通过
         expected: |-
-          1）数据模型新增一条记录，为已建表状态
-          2）表详情正确
-          3）数据开发用户，我的模型-已审批页面记录状态变为已通过
+          1） 数据模型新增一条记录，为已建表状态
+          2） 表详情正确
+          3） 数据开发用户，我的模型-已审批页面记录状态变为已通过
     tags:
       - 数据模型（#10413）
       - 建表
@@ -797,10 +797,10 @@ cases:
         已含 3 条数据（user_id: 1001/1002/1003）
       - doris_demo_data_types_source 已完成元数据同步至资产平台
       - 规则集 SQL 模板（下载后按以下内容填写）：
-          1）select * from doris_demo_data_types_source
-          2）select user_id, name from doris_demo_data_types_source
-          3）select * from doris_demo_data_types_source where user_id > 1005
-          4）select 1 from doris_demo_data_types_source
+          1） select * from doris_demo_data_types_source
+          2） select user_id, name from doris_demo_data_types_source
+          3） select * from doris_demo_data_types_source where user_id > 1005
+          4） select 1 from doris_demo_data_types_source
 
       -- 原始建表 SQL 参考 --
       drop table if exists doris_demo_data_types_source;
@@ -856,9 +856,9 @@ cases:
 
       规则集sql：
 
-      1）select * from doris_demo_data_types_source；
-      2）select user_id，name from doris_demo_data_types_source；
-      3）select * from doris_demo_data_types_source where user_id >1005;
+      1） select * from doris_demo_data_types_source；
+      2） select user_id，name from doris_demo_data_types_source；
+      3） select * from doris_demo_data_types_source where user_id >1005;
       4) select 1 from doris_demo_data_types_source;
     tags:
       - 数据质量（#10414）
@@ -1130,12 +1130,12 @@ cases:
         expected: 质量任务列表新增一条实例，状态显示"运行中"
       - action: 等待质量实例和离线实例均运行结束，查看各自结果
         expected: |-
-          1）质量实例状态"运行成功"，校验结果"校验不通过"；点击【查看明细】展示 doris1 中的 3 条数据（实际行数=3，不满足 > 3 条件）
-          2）离线实例状态"运行失败"，失败原因包含"上游质量任务失败"文字
+          1） 质量实例状态"运行成功"，校验结果"校验不通过"；点击【查看明细】展示 doris1 中的 3 条数据（实际行数=3，不满足 > 3 条件）
+          2） 离线实例状态"运行失败"，失败原因包含"上游质量任务失败"文字
       - action: 进入【离线开发-运维中心-周期任务】，找到 doris2doris 任务，点击【补数据】，选择当前日期及下游，提交并等待完成
         expected: |-
-          1）补数据工作流中包含 1 个规则包，离线任务运行失败，失败日志/原因包含"质量任务校验不通过"
-          2）质量任务新生成一条实例，校验结果显示"校验不通过"
+          1） 补数据工作流中包含 1 个规则包，离线任务运行失败，失败日志/原因包含"质量任务校验不通过"
+          2） 质量任务新生成一条实例，校验结果显示"校验不通过"
     precondition: |-
       - 数据源类型：Doris（Meta数据源）
       - 离线项目：env_rebuild_test
@@ -1233,16 +1233,16 @@ cases:
           添加第二条记录：数据库（schema2），数据表（s2_table1）
 
           「数据权限配置」：
-          1）选择”表级权限”：DDL、DML、DQL；
-          2）选择”有效期配置”：2023-10-20；
-          3）开启”是否开启行列权限配置”
+          1） 选择”表级权限”：DDL、DML、DQL；
+          2） 选择”有效期配置”：2023-10-20；
+          3） 开启”是否开启行列权限配置”
 
           「行列权限配置」：
           配置s1_table1以及s2_table1的行级权限和列级权限
 
           「权限生效用户」：
-          1）选择”用户组”；
-          2）选择”用户”
+          1） 选择”用户组”；
+          2） 选择”用户”
 
           点击【新增权限策略】
     tags:
@@ -1270,14 +1270,14 @@ cases:
     priority: P0
     steps:
       - action: |-
-          1）准备“全部脱敏”类型规则
-          2）“全部脱敏”脱敏应用XX表的username字段；
-          3）查看该表数据预览
+          1） 准备“全部脱敏”类型规则
+          2） “全部脱敏”脱敏应用XX表的username字段；
+          3） 查看该表数据预览
         expected: 该表username字段数据全脱敏
       - action: |-
-          1）准备“部分脱敏”类型规则
-          2）“部分脱敏”脱敏应用XX表的username字段；
-          3）查看该表数据预览
+          1） 准备“部分脱敏”类型规则
+          2） “部分脱敏”脱敏应用XX表的username字段；
+          3） 查看该表数据预览
         expected: 该表username字段数据部分脱敏
     tags:
       - 数据安全（#10415）

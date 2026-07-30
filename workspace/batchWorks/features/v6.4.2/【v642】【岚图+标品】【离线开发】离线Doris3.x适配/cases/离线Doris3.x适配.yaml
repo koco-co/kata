@@ -837,14 +837,10 @@ cases:
 
       INSERT INTO TABLE example_managed_table VALUES
       (1001, '张伟', 28, '热爱编程与开源技术，擅长Java和Python开发。', '1996-05-12', '2025-06-04 10:30:00', TRUE, 1.75, 'zhangwei@example.com', '2024-03-15 10:30:00', NULL, 12000.0, 1),
-      (1002, '李娜', 32, '资深产品经理，拥有多年互联网产品设计经验。', '1992-08-24', '2025-06-04 09:15:00', FALSE,
-      1. 68, 'lina@example.com', '2024-07-22 09:15:00', NULL, 15000.0,
-      2) ,
-      (1003, '王强', 45, '企业高管，专注于战略规划与市场拓展。', '1980-01-30', '2025-06-03 18:45:00', TRUE, 1.80, 'wangqiang@example.com', '2025-01-10 14:20:00', NULL, 25000.0,
-      1) ;
+      (1002, '李娜', 32, '资深产品经理，拥有多年互联网产品设计经验。', '1992-08-24', '2025-06-04 09:15:00', FALSE, 1.68, 'lina@example.com', '2024-07-22 09:15:00', NULL, 15000.0, 2),
+      (1003, '王强', 45, '企业高管，专注于战略规划与市场拓展。', '1980-01-30', '2025-06-03 18:45:00', TRUE, 1.80, 'wangqiang@example.com', '2025-01-10 14:20:00', NULL, 25000.0, 1);
 
-      Doris
-      2. x表, 建表语句如下:
+      Doris2.x表, 建表语句如下:
       CREATE TABLE example_primary_key_table (
           id LARGEINT NOT NULL COMMENT '主键 ID',
           registration_date DATETIME NOT NULL COMMENT '注册时间',
@@ -1050,9 +1046,7 @@ cases:
     title: "验证「创建项目」添加Doris 数据源显示正常(初始化方式: 创建)"
     priority: P0
     precondition: |-
-      1) 「公共管理-控制台」中已分别存在Doris
-      2. x、Doris
-      3. x组件
+      1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
 
       2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
     steps:
@@ -1072,16 +1066,13 @@ cases:
       - action: 进入「数据源」页面
         expected: |-
           进入成功, 数据源列表存在如下数据源记录:
-          1) 类型为Doris
-          2. x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
+          1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
           2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
   - case_id: C0011
     title: "验证「创建项目」添加Doris 数据源显示正常(初始化方式: 对接)"
     priority: P2
     precondition: |-
-      1) 「公共管理-控制台」中已分别存在Doris
-      2. x、Doris
-      3. x组件
+      1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
 
       2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
     steps:
@@ -1101,16 +1092,13 @@ cases:
       - action: 进入「数据源」页面
         expected: |-
           进入成功, 数据源列表存在如下数据源记录:
-          1) 类型为Doris
-          2. x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
+          1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
           2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
   - case_id: C0012
     title: "验证「创建项目」添加Doris数据源显示正常(初始化方式: 不创建且不对接)"
     priority: P2
     precondition: |-
-      1) 「公共管理-控制台」中已分别存在Doris
-      2. x、Doris
-      3. x组件
+      1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
 
       2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
     steps:
@@ -1130,8 +1118,7 @@ cases:
       - action: 进入「数据源」页面
         expected: |-
           进入成功, 数据源列表存在如下数据源记录:
-          1) 类型为Doris
-          2. x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
+          1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
           2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
   - case_id: C0013
     title: 验证「数据开发」Doris SQL任务创建功能正常
@@ -1553,10 +1540,8 @@ cases:
       (id, registration_date, name, age, salary, is_active, revision)
       VALUES
       (1, '2023-01-01 10:00:00', 'Alice',   30, 12000, TRUE,  1),
-      (2, '2023-02-15 09:30:00', 'Bob',     25, 9000,  FALSE,
-      1) ,
-      (3, '2023-03-20 14:45:00', 'Charlie', 35, 15000, TRUE,
-      2) ;
+      (2, '2023-02-15 09:30:00', 'Bob',     25, 9000,  FALSE, 1),
+      (3, '2023-03-20 14:45:00', 'Charlie', 35, 15000, TRUE,  2);
 
       ${task02}
       INSERT INTO sales_records VALUES
@@ -1632,10 +1617,8 @@ cases:
 
       INSERT INTO user_profile VALUES
       (1, '2023-01-01 10:00:00', 'Alice', 30, 12000, TRUE, 1),
-      (2, '2023-02-15 09:30:00', 'Bob', 25, 9000, FALSE,
-      1) ,
-      (3, '2023-03-20 14:45:00', 'Charlie', 35, 15000, TRUE,
-      2) ;
+      (2, '2023-02-15 09:30:00', 'Bob', 25, 9000, FALSE, 1),
+      (3, '2023-03-20 14:45:00', 'Charlie', 35, 15000, TRUE, 2);
 
       INSERT INTO sales_records VALUES
       (1001, 1, '2023-05-20', 199.99, 'East'),
@@ -1707,20 +1690,15 @@ cases:
 
 
 
-      --
-      1. 创建用户（密码自己换）
+      -- 1. 创建用户（密码自己换）
       CREATE USER 'test_user'@'%' IDENTIFIED BY 'test123456';
-      --
-      2. 建一个专用角色
+      -- 2. 建一个专用角色
       CREATE ROLE 'test_role';
-      --
-      3. 给这个角色授予 report_db 库的全部权限（含查询、导入、DDL）
+      -- 3. 给这个角色授予 report_db 库的全部权限（含查询、导入、DDL）
       GRANT ALL ON lantu_test.* TO ROLE 'test_role';
-      --
-      4. 把角色授予用户
+      -- 4. 把角色授予用户
       GRANT 'test_role' TO 'test_user'@'%';
-      --
-      5. 立即生效
+      -- 5. 立即生效
       SET PROPERTY FOR 'test_user'@'%' 'resource.tags' = '*';
     steps:
       - action: 进入「离线开发-数据开发-周期任务」页面

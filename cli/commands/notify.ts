@@ -35,7 +35,8 @@ ${listAllEvents()}
         describe?: string;
         strict?: boolean;
       }) => {
-        await runSend(opts);
+        const exitCode = await runSend(opts);
+        if (exitCode !== 0) process.exitCode = exitCode;
       },
     );
 }

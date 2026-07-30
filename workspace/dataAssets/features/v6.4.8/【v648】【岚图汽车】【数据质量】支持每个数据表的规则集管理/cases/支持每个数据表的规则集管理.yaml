@@ -28,7 +28,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
@@ -137,7 +138,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
@@ -246,14 +248,23 @@ cases:
       - action: |-
           SQL验证:SELECT     *FROM (    SELECT         *,        -
           - [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -
-          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -
-          - A. 完整性校验 (规则 1-10: 这里的逻辑是“找出为空或NULL的数据“)    -- =========================================================    -
+          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -
+          - =========================================================    -
+          - A. 完整性校验 (规则 1-10: 这里的逻辑是“找出为空或NULL的数据“)    -
+          - =========================================================    -
           - 规则1: vin 空串    (trim(vin) = '') OR    -
-          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性 (规则 11, 14, 15, 16)    -- =========================================================    OR     -
+          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -
+          - =========================================================    -
+          - B. 取值范围与有效性 (规则 11, 14, 15, 16)    -
+          - =========================================================    OR     -
           - 规则11: final_price < 0    (final_price < 0)        OR    -
           - 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -
           - 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -
-          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性 (规则 17, 18, 19, 20)    -- =========================================================    OR    -
+          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -
+          - 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -
+          - =========================================================    -
+          - C. 唯一性与重复性 (规则 17, 18, 19, 20)    -
+          - =========================================================    OR    -
           - 规则17,19,20: order_id 出现重复 (统计数 > 1)    (calc_order_dup_count > 1)    OR    -
           - 规则18: vin 出现重复 (统计数 > 1)    (calc_vin_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
@@ -410,16 +421,31 @@ cases:
         expected: 显示表数据中未通过的数据
       - action: |-
           SQL验证:SELECT     *FROM (    SELECT         *,        -
-          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -
+          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -
+          - --------------------------------------------------------
+          - -
+          - 1. 完整性校验 (字段级)    -
+          - --------------------------------------------------------
+          - -
           - 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -
           - 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -
-          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -
+          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -
+          - --------------------------------------------------------
+          - -
+          - 2. 有效性校验    -
+          - --------------------------------------------------------
+          - -
           - 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -
           - 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -
           - 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -
           - 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -
           - 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -
-          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -
+          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -
+          - --------------------------------------------------------
+          - -
+          - 3. 唯一性校验    -
+          - --------------------------------------------------------
+          - -
           - 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
@@ -552,7 +578,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
         expected: "执行成功, 校验结果: 校验不通过"
       - action: 选择任务rule01, 立即执行
         expected: 显示表数据中未通过的数据
@@ -687,7 +714,8 @@ cases:
           - 期望值: >= 0有效性校验:
           - 字段: vin
           - 统计规则: 字符串长度
-          - 校验方法: 固定制- 期望值> 0唯一性校验
+          - 校验方法: 固定制
+          - 期望值> 0唯一性校验
           - 字段: order_id
           - 统计函数: 重复数
           - 校验方法: 固定值
@@ -695,7 +723,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
@@ -807,7 +836,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
@@ -914,7 +944,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
@@ -1030,7 +1061,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
@@ -1146,13 +1178,23 @@ cases:
       - action: |-
           SQL验证:SELECT     *FROM (    SELECT         *,        -
           - [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -
-          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验    -- =========================================================    -
+          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -
+          - =========================================================    -
+          - A. 完整性校验    -
+          - =========================================================    -
           - 规则1: vin 空串    (trim(vin) = '') OR    -
-          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性 (规则 11, 14, 15, 16)    -- =========================================================    OR     -
+          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -
+          - =========================================================    -
+          - B. 取值范围与有效性 (规则 11, 14, 15, 16)    -
+          - =========================================================    OR     -
           - 规则11: final_price < 0    (final_price < 0)        OR    -
           - 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -
           - 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -
-          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性 (规则 17, 18, 19, 20)    -- =========================================================    OR    -
+          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -
+          - 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -
+          - =========================================================    -
+          - C. 唯一性与重复性 (规则 17, 18, 19, 20)    -
+          - =========================================================    OR    -
           - 规则17,19,20: order_id 出现重复 (统计数 > 1)    (calc_order_dup_count > 1)    OR    -
           - 规则18: vin 出现重复 (统计数 > 1)    (calc_vin_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
@@ -1379,16 +1421,31 @@ cases:
         expected: 显示表数据中未通过的数据
       - action: |-
           SQL验证:SELECT     *FROM (    SELECT         *,        -
-          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -
+          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -
+          - --------------------------------------------------------
+          - -
+          - 1. 完整性校验 (字段级)    -
+          - --------------------------------------------------------
+          - -
           - 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -
           - 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -
-          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -
+          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -
+          - --------------------------------------------------------
+          - -
+          - 2. 有效性校验    -
+          - --------------------------------------------------------
+          - -
           - 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -
           - 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -
           - 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -
           - 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -
           - 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -
-          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -
+          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -
+          - --------------------------------------------------------
+          - -
+          - 3. 唯一性校验    -
+          - --------------------------------------------------------
+          - -
           - 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
@@ -1582,7 +1639,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
         expected: "执行成功, 校验结果: 校验不通过"
@@ -1593,7 +1651,8 @@ cases:
           - 1. 完整性校验: final_price < 0 或 NULL    (t.final_price < 0 OR t.final_price IS NULL)        -
           - 2. 有效性校验: vin 长度 <= 0 (含纯空格或NULL)    OR (length(trim(t.vin)) = 0 OR t.vin IS NULL)        -
           - 3. 唯一性校验: order_id 重复    OR (d.order_id IS NOT NULL)        -
-          - 4. 统计性校验: guide_price 为 IQR 离群点    OR (t.guide_price < (i.q1 - i.iqr_range) OR t.guide_price > (i.q3 + i.iqr_range));
+          - 4. 统计性校验: guide_price 为 IQR 离群点    OR (t.guide_price < (i.q1
+          - i.iqr_range) OR t.guide_price > (i.q3 + i.iqr_range));
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -1699,7 +1758,8 @@ cases:
           - 期望值: >= 0有效性校验:
           - 字段: vin
           - 统计规则: 字符串长度
-          - 校验方法: 固定制- 期望值> 0唯一性校验
+          - 校验方法: 固定制
+          - 期望值> 0唯一性校验
           - 字段: order_id
           - 统计函数: 重复数
           - 校验方法: 固定值
@@ -1707,7 +1767,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
@@ -1825,7 +1886,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
@@ -1939,7 +2001,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 新建监控规则, 配置监控对象(dwd_voyah_vehicle_sales_dates)后点击下一步
@@ -2048,7 +2111,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 引入规则包rule01中所有校验规则
@@ -2209,13 +2273,25 @@ cases:
       - action: |-
           SQL验证:SELECT     *FROM (    SELECT         *,        -
           - [辅助计算] 针对规则 17,19,20: 计算 order_id 重复数        COUNT(1) OVER(PARTITION BY order_id) as calc_order_dup_count,        -
-          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- =========================================================    -- A. 完整性校验    -- =========================================================    -
+          - [辅助计算] 针对规则 18: 计算 vin 重复数        COUNT(1) OVER(PARTITION BY vin) as calc_vin_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -
+          - =========================================================    -
+          - A. 完整性校验    -
+          - =========================================================    -
           - 规则1: vin 空串    (trim(vin) = '') OR    -
-          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -- =========================================================    -- B. 取值范围与有效性    -- =========================================================    OR     -
+          - 规则2-10: 各关键字段判空    (vin IS NULL) OR    (order_id IS NULL) OR    (car_model IS NULL) OR    (guide_price IS NULL) OR    (final_price IS NULL) OR    (dealer_name IS NULL) OR    (order_status IS NULL) OR    (factory_date IS NULL) OR    (sale_date IS NULL)    -
+          - =========================================================    -
+          - B. 取值范围与有效性    -
+          - =========================================================    OR     -
           - 规则11: final_price < 0    (final_price < 0)        OR    -
           - 规则14: vin 长度 <= 0 (注: 空串/NULL已被上面捕获，此处兜底)    (length(vin) <= 0)    OR    -
           - 规则15: guide_price 超出 [0, 1000000] 范围    (guide_price < 0 OR guide_price > 1000000)    OR    -
-          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -- 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- =========================================================    -- C. 唯一性与重复性    -- =========================================================    OR    -- 规则17,19,20    (calc_order_dup_count > 1)    OR    -- 规则18    (calc_vin_dup_count > 1);
+          - 规则16: car_model 枚举校验 (假设标准值为3个: FREE, 梦想家, 追光)    -
+          - 如果当前值不在这3个里面，且不是NULL，则视为脏数据    (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -
+          - =========================================================    -
+          - C. 唯一性与重复性    -
+          - =========================================================    OR    -
+          - 规则17,19,20    (calc_order_dup_count > 1)    OR    -
+          - 规则18    (calc_vin_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
         expected: "执行成功, 校验结果: 校验通过"
@@ -2370,16 +2446,31 @@ cases:
         expected: 显示表数据中未通过的数据
       - action: |-
           SQL验证:SELECT     *FROM (    SELECT         *,        -
-          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -- ---------------------------------------------------------    -- 1. 完整性校验 (字段级)    -- ---------------------------------------------------------    -
+          - [辅助计算] 唯一性校验: 计算 order_id 的重复次数        COUNT(1) OVER(PARTITION BY order_id) as order_dup_count    FROM         dwd_voyah_vehicle_sales_dates) tWHERE     -
+          - --------------------------------------------------------
+          - -
+          - 1. 完整性校验 (字段级)    -
+          - --------------------------------------------------------
+          - -
           - 规则: vin 空串数=0 (即: 找出 vin 为空串的数据)    (trim(vin) = '')        OR         -
           - 规则: car_model 空值数=0 (即: 找出 car_model 为 NULL 的数据)    (car_model IS NULL)        OR         -
-          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -- ---------------------------------------------------------    -- 2. 有效性校验    -- ---------------------------------------------------------    -
+          - 规则: final_price 期望值 >= 0 (即: 找出 < 0 的数据)    (final_price < 0)    -
+          - --------------------------------------------------------
+          - -
+          - 2. 有效性校验    -
+          - --------------------------------------------------------
+          - -
           - 规则: vin 字符串长度 > 0 (即: 找出长度 <= 0 或 NULL 的数据)    -
           - 注: 此规则与上面的“空串数“、“空值数“有重叠，此处做兜底    OR (length(vin) <= 0 OR vin IS NULL)        -
           - 规则: guide_price 取值范围 [0, 1000000] (即: 找出在此范围之外的数据)    OR (guide_price < 0 OR guide_price > 1000000)        -
           - 规则: car_model 枚举个数 = 3 (即: 找出不属于这3个标准车型的数据)    -
           - 假设标准枚举值为: 岚图FREE, 岚图梦想家, 岚图追光    -
-          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -- ---------------------------------------------------------    -- 3. 唯一性校验    -- ---------------------------------------------------------    -
+          - 注: NULL值已被前面的完整性校验捕获，此处主要校验“未知枚举值“    OR (car_model IS NOT NULL AND car_model NOT IN ('岚图FREE', '岚图梦想家', '岚图追光'))    -
+          - --------------------------------------------------------
+          - -
+          - 3. 唯一性校验    -
+          - --------------------------------------------------------
+          - -
           - 规则: order_id 重复数/重复率期望为0 (即: 找出重复出现的订单)    OR (order_dup_count > 1);
         expected: 返回的数据与规则过滤出的数据一致
       - action: "编辑规则任务rule01, 分区: factory_date=20260115/sale_date=20260201其它配置不变, 保存后重新执行任务"
@@ -2502,7 +2593,8 @@ cases:
           - 校验方法: 单调递增 有效性校验:
           - 字段: vin
           - 统计规则: 字符串长度
-          - 校验方法: 固定制 - 期望值> 0 唯一性校验
+          - 校验方法: 固定制
+          - 期望值> 0 唯一性校验
           - 字段: order_id
           - 统计函数: 重复数
           - 校验方法: 固定值
@@ -2512,7 +2604,8 @@ cases:
           调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时 - 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
         expected: ""
       - action: 选择任务rule01, 立即执行
         expected: ""
@@ -2721,7 +2814,8 @@ cases:
           - 期望值: >= 0有效性校验:
           - 字段: vin
           - 统计规则: 字符串长度
-          - 校验方法: 固定制- 期望值> 0唯一性校验
+          - 校验方法: 固定制
+          - 期望值> 0唯一性校验
           - 字段: order_id
           - 统计函数: 重复数
           - 校验方法: 固定值
@@ -2729,7 +2823,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
@@ -2873,7 +2968,8 @@ cases:
           3) 调度属性:
           - 调度周期: 时
           - 生效日期: T~T+1
-          - 间隔时间: 1小时- 其它默认
+          - 间隔时间: 1小时
+          - 其它默认
           - 实例生成方式: 「立即生成」
         expected: 配置成功
       - action: 选择任务rule01, 立即执行
@@ -3699,7 +3795,8 @@ cases:
         expected: 进入【新建规则集 ❯ 基础信息】配置页面
       - action: 配置选择数据源
         expected: |-
-          1) 下拉显示在平台管理中已授权的数据源2)支持选择的数据源类型包括hive2.x/sparkthrift2.x/doris3.x
+          1) 下拉显示在平台管理中已授权的数据源
+          2) 支持选择的数据源类型包括hive2.x/sparkthrift2.x/doris3.x
       - action: 配置选择数据库
         expected: 下拉显示所选数据源下的数据库配置
       - action: 配置选择数据表
@@ -3749,7 +3846,10 @@ cases:
         expected: 进入成功
       - action: 分页组件UICHECK
         expected: |-
-          1) 共x条数据, 每页显示xx条2) 支持数字页码切换3) 支持前/后页箭头页码切换4) 支持10、20、50、100 页数切换
+          1) 共x条数据, 每页显示xx条
+          2) 支持数字页码切换
+          3) 支持前/后页箭头页码切换
+          4) 支持10、20、50、100 页数切换
       - action: 切换数字页码
         expected: 页码切换成功, 数据显示正常
       - action: 切换前后页箭头页码

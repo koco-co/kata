@@ -29,7 +29,10 @@ cases:
       - action: col1精度为0，col2精度为6，建表
         expected: 建表成功
       - action: 编辑模型查看展示
-        expected: 1）col1字段类型为DATETIME，精度为0，精度不可编辑2）col2字段类型为DATETIME，精度为6，精度不可编辑3）其他字段精度展示--
+        expected: |-
+          1） col1字段类型为DATETIME，精度为0，精度不可编辑
+          2） col2字段类型为DATETIME，精度为6，精度不可编辑
+          3） 其他字段精度展示--
       - action: 新增字段col3，col4，字段类型选择DATETIME、DATETIMEV2类型
         expected: 可填写精度信息
     precondition: 无

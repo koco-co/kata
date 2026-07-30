@@ -40,6 +40,38 @@ describe("features resolve", () => {
     expect(existsSync(join(r.featureDir, "metadata.yaml"))).toBe(true);
   });
 
+  it("uses the requirement id in the label and never uses the Lanhu pageId", () => {
+    const root = repo();
+    const r = runFeaturesResolve({
+      ...base,
+      root,
+      featureVersion: "v7.0.0",
+      requirementId: "15911",
+      lanhuPage: "7ef1d18e9bb04ca495903a55bc84a088",
+    });
+    expect(r.dirName).toContain("【15911】");
+    expect(r.dirName).not.toContain("7ef1d18e9bb04ca495903a55bc84a088");
+  });
+
+  it("rejects a Lanhu pageId without an explicit requirement id", () => {
+    const root = repo();
+    expect(() =>
+      runFeaturesResolve({
+        ...base,
+        root,
+        featureVersion: "v7.0.0",
+        lanhuPage: "7ef1d18e9bb04ca495903a55bc84a088",
+      }),
+    ).toThrow(/--requirement-id/);
+  });
+
+  it("rejects a non-numeric requirement id", () => {
+    const root = repo();
+    expect(() =>
+      runFeaturesResolve({ ...base, root, featureVersion: "v7.0.0", requirementId: "page-15911" }),
+    ).toThrow(/需求 ID/);
+  });
+
   it("resolves a standing feature dir with --standing", () => {
     const root = repo();
     const r = runFeaturesResolve({ ...base, root, standing: true });

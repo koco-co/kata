@@ -277,8 +277,7 @@ cases:
 
               for i in range(rows_needed):
                   writer.writerow(row_data)
-                  if (i +
-      1) % 1000 == 0:
+                  if (i + 1) % 1000 == 0:
                       print(f"已写入 {i + 1}/{rows_needed} 行", end="\r")
 
           final_size = os.path.getsize(out_path)
@@ -303,8 +302,7 @@ cases:
           generate_data_csv(data_path, ncols, size_mb * 1024 * 1024, header=True)
           end = datetime.now()
 
-          print(f"\n生成完成，用时 {round((end - start).total_seconds(),
-      2) } 秒")
+          print(f"\n生成完成，用时 {round((end - start).total_seconds(), 2)} 秒")
           print(f"输出目录: {os.path.abspath(out_dir)}")
     steps:
       - action: 进入离线开发-数据开发页面

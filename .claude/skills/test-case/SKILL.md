@@ -5,7 +5,7 @@ description: 用例编写、编辑、同步与标准化。两种触发方式—�
 
 # test-case
 
-用例以 `cases/需求名.yaml` 为唯一权威来源；CSV/XLSX/Markdown/XMind 输入先转成 YAML，所有输出再从 YAML 生成。`requirement-notes.md` 记录确认过的需求内容，`test-points.md` 记录对齐过的覆盖范围，两者落在 feature 根，是 create 的依据；派生物统一写入 `cases/exports/`，默认只生成 XMind，只有 YAML `meta.exports` 显式声明时才额外生成 CSV/XLSX/Markdown。派生物只经 `kata cases build` 重建，禁止手工修改。自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有已实现的用例才要求 `automation.spec_file` 指向可加载的真实脚本。
+用例以 `cases/需求名.yaml` 为唯一权威来源；CSV/XLSX/Markdown/XMind 输入先转成 YAML，所有输出再从 YAML 生成。`requirement-notes.md` 记录确认过的需求内容，`test-points.md` 记录对齐过的覆盖范围，两者落在 feature 根，是 create 的依据；派生物统一写入 `cases/exports/`，默认只生成 `需求名.xmind`，只有 YAML `meta.exports` 显式声明时才额外生成 CSV/XLSX/Markdown。派生物只经 `kata cases build` 重建，禁止手工修改。自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有已实现的用例才要求 `automation.spec_file` 指向可加载的真实脚本。
 
 ## 分流
 

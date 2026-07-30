@@ -8,8 +8,8 @@ import type { CasesFile } from "./types.ts";
  * bullets. Ordinary prose, versions, SQL, and function syntax are preserved.
  */
 
-const NUMBERED_ITEM_RE = /(?<![\p{L}\p{N}_])(\d{1,3})([.)、])\s*/gu;
-const CONCATENATED_NUMBERED_ITEM_RE = /(\d)([.)、])\s*/gu;
+const NUMBERED_ITEM_RE = /(?<![\p{L}\p{N}_])(\d{1,3})([.)）、])\s*/gu;
+const CONCATENATED_NUMBERED_ITEM_RE = /(\d)([.)）、])\s*/gu;
 const FORM_ITEM_RE = /(-\s+(?:(?!-\s+)[^:\n：]){1,40}[:：]\s*)/gu;
 const BULLET_ITEM_RE = /-\s+/gu;
 
@@ -48,30 +48,42 @@ function splitNumberedItems(line: string): string[] | undefined {
     const next = line.slice(marker.end).match(/^\s*(.)/u)?.[1];
     return next !== undefined && !/[\d.,，。;；+*/=)\]】]/u.test(next);
   };
-  const isSequential = (markers: TextMarker[]): boolean =>
-    markers.length >= 2 &&
-    markers.every(
-      (marker, index) => index === 0 || marker.number === (markers[index - 1].number ?? 0) + 1,
-    ) &&
-    markers.every(beginsItemText);
+  const findSequentialRun = (
+    markers: TextMarker[],
+    requireOne = false,
+  ): TextMarker[] | undefined => {
+    const byDelimiter = new Map<string, TextMarker[]>();
+    for (const marker of markers.filter(beginsItemText)) {
+      const delimiter = marker.prefix.at(-1) ?? "";
+      byDelimiter.set(delimiter, [...(byDelimiter.get(delimiter) ?? []), marker]);
+    }
+    for (const sameDelimiter of byDelimiter.values()) {
+      for (let start = 0; start < sameDelimiter.length - 1; start += 1) {
+        if (requireOne && sameDelimiter[start].number !== 1) continue;
+        const run = [sameDelimiter[start]];
+        for (let next = start + 1; next < sameDelimiter.length; next += 1) {
+          const candidate = sameDelimiter[next];
+          if (candidate.number !== (run.at(-1)?.number ?? 0) + 1) break;
+          run.push(candidate);
+        }
+        if (run.length >= 2) return run;
+      }
+    }
+    return undefined;
+  };
 
   const strict = collect(NUMBERED_ITEM_RE).filter(hasBoundary);
-  if (isSequential(strict)) return splitByMarkers(line, strict);
+  const strictRun = findSequentialRun(strict);
+  if (strictRun) return splitByMarkers(line, strictRun);
 
   // Historical exports often concatenate the next marker directly after a
   // numeric field value, e.g. "...20260202" + "2) 监控规则". In that shape
   // only the final digit before ")" is the marker. Require a full 1,2,...
   // sequence to keep this fallback away from ordinary SQL/function syntax.
   const concatenated = collect(CONCATENATED_NUMBERED_ITEM_RE);
-  const delimiter = concatenated[0]?.prefix.at(-1);
-  if (
-    concatenated[0]?.number === 1 &&
-    hasBoundary(concatenated[0]) &&
-    concatenated.every((marker) => marker.prefix.at(-1) === delimiter) &&
-    isSequential(concatenated)
-  ) {
-    return splitByMarkers(line, concatenated);
-  }
+  const concatenatedRun = findSequentialRun(concatenated, true);
+  if (concatenatedRun && hasBoundary(concatenatedRun[0]))
+    return splitByMarkers(line, concatenatedRun);
   return undefined;
 }
 
@@ -87,7 +99,7 @@ function splitFormItems(line: string): string[] | undefined {
   }
   if (markers.length === 1) {
     const prefix = line.slice(0, markers[0].index).trim();
-    if (/^\d+[.)、]/u.test(prefix) || /^-\s+/u.test(prefix) || /[:：]$/u.test(prefix)) {
+    if (/^\d+[.)）、]/u.test(prefix) || /^-\s+/u.test(prefix) || /[:：]$/u.test(prefix)) {
       return splitByMarkers(line, markers);
     }
   }
@@ -104,7 +116,7 @@ function splitBulletItems(line: string): string[] | undefined {
   if (markers.length < 2) return undefined;
   const prefix = line.slice(0, markers[0].index).trim();
   const structuredPrefix =
-    prefix.length === 0 || /^\d+[.)、]/u.test(prefix) || /[:：]$/u.test(prefix);
+    prefix.length === 0 || /^\d+[.)）、]/u.test(prefix) || /[:：]$/u.test(prefix);
   if (!structuredPrefix) return undefined;
   const hasFormItem = markers.some((marker, index) => {
     const next = markers[index + 1];
@@ -121,14 +133,15 @@ function normalizeLine(line: string): string[] {
   if (bullets) return bullets;
   const form = splitFormItems(line);
   if (form) return form;
-  return [line.replace(/^(\s*\d+[.)、])\s*/u, "$1 ").trimEnd()];
+  return [line.replace(/^(\s*\d+[.)）、])\s*/u, "$1 ").trimEnd()];
 }
 
 export function normalizeStructuredText(value: string): string {
   let normalized = value
     .replace(/^\uFEFF/, "")
     .replace(/\r\n?/g, "\n")
-    .replace(/<br\s*\/?>/gi, "\n");
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/\t/g, "  ");
   // A numbered-item split can expose form bullets on the new lines. Iterate to
   // a fixed point so parse -> serialize -> parse is stable.
   for (let pass = 0; pass < 8; pass += 1) {
@@ -143,11 +156,12 @@ export function normalizeStructuredText(value: string): string {
 export function normalizeCasesFile(file: CasesFile): CasesFile {
   return {
     meta: { ...file.meta },
+    ...(file.requirements
+      ? { requirements: file.requirements.map((requirement) => ({ ...requirement })) }
+      : {}),
     cases: file.cases.map((item) => ({
       ...item,
-      ...(item.precondition
-        ? { precondition: normalizeStructuredText(item.precondition) }
-        : {}),
+      ...(item.precondition ? { precondition: normalizeStructuredText(item.precondition) } : {}),
       steps: item.steps.map((step) => ({
         action: normalizeStructuredText(step.action),
         expected: normalizeStructuredText(step.expected),

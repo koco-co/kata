@@ -9,7 +9,12 @@ function parseSetValue(value: string, path: string): unknown {
   }
 }
 
-function setNestedValue(root: AutomationOverrideFile, path: string, value: unknown): void {
+type MutableAutomationOverrideFile = {
+  playwright?: Record<string, unknown>;
+  automation?: Record<string, unknown>;
+};
+
+function setNestedValue(root: MutableAutomationOverrideFile, path: string, value: unknown): void {
   const parts = path.split(".");
   if (parts.length < 2 || !["playwright", "automation"].includes(parts[0] ?? "")) {
     throw new Error(`--set 只允许 playwright.* 或 automation.*，实际为: ${path}`);
@@ -34,7 +39,7 @@ function setNestedValue(root: AutomationOverrideFile, path: string, value: unkno
     current = current[key] as Record<string, unknown>;
   }
   const leaf = parts.at(-1) as string;
-  if (Object.prototype.hasOwnProperty.call(current, leaf)) {
+  if (Object.hasOwn(current, leaf)) {
     throw new Error(`--set 配置重复: ${path}`);
   }
   current[leaf] = value;
@@ -42,7 +47,7 @@ function setNestedValue(root: AutomationOverrideFile, path: string, value: unkno
 
 /** Parse generic path=value overrides without adding feature-specific CLI flags. */
 export function parseAutomationSetEntries(entries: readonly string[]): AutomationOverrideFile {
-  const result: AutomationOverrideFile = { playwright: {}, automation: {} };
+  const result: MutableAutomationOverrideFile = { playwright: {}, automation: {} };
   for (const raw of entries) {
     const separator = raw.indexOf("=");
     if (separator <= 0) throw new Error(`--set 必须使用 path=value 格式，实际为: ${raw}`);

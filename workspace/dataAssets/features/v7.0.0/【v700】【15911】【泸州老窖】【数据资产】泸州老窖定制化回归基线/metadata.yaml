@@ -1,0 +1,71 @@
+schema: FeatureMetadata@2
+id: 2026-07-lu-zhou-lao-jiao-ding-zhi-hua-hui-gui-ji-xian
+display_name: 泸州老窖定制化回归基线
+status: draft
+created_at: 2026-07-30T03:34:59.288Z
+updated_at: 2026-07-30T03:34:59.288Z
+modules:
+  - 数据资产
+customers:
+  - 泸州老窖
+versions:
+  - v7.0.0
+owners: []
+inputs:
+  - kind: lanhu
+    ref: https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&versionId=6df27b45-b95e-4c3e-b79c-30515d3f4292&docId=6e513ee1-fb7f-4e60-897a-21af81c65aba&docType=axure&pageId=7ef1d18e9bb04ca495903a55bc84a088&image_id=6e513ee1-fb7f-4e60-897a-21af81c65aba&parentId=c6a5fc42-259e-406b-acc5-9f77aa000414
+  - kind: zentao
+    ref: 泸州老窖数栈定开项目需求与历史用例导出
+requirement_context:
+  primary_requirement_id: "15911"
+  requirement_ids:
+    - "13176"
+    - "13177"
+    - "13178"
+    - "13179"
+    - "13180"
+    - "13181"
+    - "13182"
+    - "13183"
+    - "13184"
+    - "13185"
+    - "13186"
+    - "13187"
+    - "13188"
+    - "13548"
+    - "13549"
+    - "13550"
+    - "13551"
+    - "13552"
+    - "13553"
+    - "13923"
+    - "13925"
+    - "14050"
+    - "14280"
+    - "15911"
+    - "16178"
+  excluded_requirement_ids:
+    - "15863"
+  baseline: 当前有效行为；历史用例仅作覆盖线索
+relates_to: []
+emits:
+  cases_xmind: true
+  archive: false
+  playwright_tests: false
+case_drafting:
+  status: completed
+  archive_path: null
+  xmind_path: cases/exports/泸州老窖定制化回归基线.xmind
+  source_refs:
+    - requirement-notes.md
+    - test-points.md
+    - cases/泸州老窖定制化回归基线.yaml
+automation:
+  status: not-started
+  intents: []
+  last_run_status: not-run
+files:
+  archive: null
+  xmind: cases/exports/泸州老窖定制化回归基线.xmind
+  tests_root: null
+  latest_results: null

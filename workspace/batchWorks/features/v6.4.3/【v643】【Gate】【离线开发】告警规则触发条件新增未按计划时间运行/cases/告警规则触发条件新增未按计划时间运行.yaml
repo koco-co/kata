@@ -308,8 +308,7 @@ cases:
     title: 验证yarn 资源队列阻塞，触发【未按计划时间】告警
     priority: P0
     precondition: |-
-      1) 进入控制台-多集群管理-集群配置-Flink计算组件, 将 Flink on YARN
-      1. 12 的yarnAccepterTaskNumber 参数设置为1
+      1) 进入控制台-多集群管理-集群配置-Flink计算组件, 将 Flink on YARN 1.12 的yarnAccepterTaskNumber 参数设置为1
 
       2) 配置多个离线周期任务, 并设置最短调度周期
     steps:

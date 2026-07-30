@@ -23,6 +23,15 @@ export interface CaseMeta {
   imports?: string[];
   /** 由 YAML 生成的目标格式；缺省只生成 xmind。 */
   exports?: CaseExportFormat[];
+  /** XMind layout contract; requirements creates one L1 topic per requirement. */
+  layout?: "flat" | "requirements";
+}
+
+/** One requirement represented as an L1 topic in the aggregate layout. */
+export interface CaseRequirement {
+  requirement_id: string;
+  title: string;
+  source: string;
 }
 
 /** One executable test case. */
@@ -31,6 +40,8 @@ export interface CaseItem {
   id: string;
   /** 用例标题 */
   title: string;
+  /** Requirement link used by the aggregate XMind layout. */
+  requirement_id?: string;
   priority: "P0" | "P1" | "P2";
   /** 前置条件 */
   precondition?: string;
@@ -47,6 +58,7 @@ export interface CaseItem {
 /** Root document of cases/需求名.yaml. */
 export interface CasesFile {
   meta: CaseMeta;
+  requirements?: CaseRequirement[];
   cases: CaseItem[];
 }
 

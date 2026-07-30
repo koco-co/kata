@@ -53,6 +53,53 @@ describe("parseCasesYaml", () => {
       parseCasesYaml(GOOD.replace("c0001-single-table-row-count.spec.ts", "Data Quality.ts")),
     ).toThrow(/spec_file/);
   });
+
+  it("parses an explicit requirements aggregate and preserves requirement links", () => {
+    const aggregate = `
+meta:
+  title: 泸州老窖定制化回归基线
+  version: v7.0.0
+  feature_id: v7.0.0/f
+  case_module_id: ""
+  layout: requirements
+requirements:
+  - requirement_id: "16178"
+    title: 【泸州老窖】新增行级权限管控
+    source: 禅道需求 16178
+cases:
+  - case_id: C0001
+    requirement_id: "16178"
+    title: 验证行级权限配置
+    priority: P0
+    steps:
+      - action: 配置行级权限
+        expected: 仅授权数据可见
+`;
+    const f = parseCasesYaml(aggregate);
+    expect(f.meta.layout).toBe("requirements");
+    expect(f.requirements).toEqual([
+      { requirement_id: "16178", title: "【泸州老窖】新增行级权限管控", source: "禅道需求 16178" },
+    ]);
+    expect(f.cases[0].requirement_id).toBe("16178");
+    expect(validateCases(f)).toEqual([]);
+  });
+
+  it("rejects an aggregate case that references an unknown requirement", () => {
+    const aggregate = `
+meta: { title: t, version: v1.0, feature_id: v1.0/f, case_module_id: "", layout: requirements }
+requirements:
+  - requirement_id: "1"
+    title: R1
+    source: S1
+cases:
+  - case_id: C0001
+    requirement_id: "2"
+    title: C
+    priority: P1
+    steps: [{ action: a, expected: e }]
+`;
+    expect(validateCases(parseCasesYaml(aggregate))).toContain("用例 C0001 引用了未知需求 2");
+  });
 });
 
 describe("parseCasesYaml strict optional fields", () => {

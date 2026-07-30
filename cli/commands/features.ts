@@ -35,20 +35,20 @@ function normalizeVersionDir(version: string): string {
   return v;
 }
 
-/** Build the CJK human label dir name: 【v{compact}】[【lanhu】][【客户】]【模块】{描述}; standing uses 【standing】. */
+/** Build the CJK human label dir name: 【v{compact}】[【需求ID】][【客户】]【模块】{描述}; standing uses 【standing】. */
 export function buildLabelDirName(opts: {
   featureVersion: string;
   module: string;
   description: string;
   customer?: string;
-  lanhuPage?: string;
+  requirementId?: string;
 }): string {
   const first =
     opts.featureVersion === STANDING_DIR
       ? "【standing】"
       : `【v${opts.featureVersion.replace(/^v/, "").replace(/\./g, "")}】`;
   const parts = [first];
-  if (opts.lanhuPage) parts.push(`【${opts.lanhuPage}】`);
+  if (opts.requirementId) parts.push(`【${opts.requirementId}】`);
   if (opts.customer) parts.push(`【${opts.customer}】`);
   parts.push(`【${opts.module}】`);
   const label = `${parts.join("")}${opts.description}`;
@@ -61,6 +61,15 @@ export function buildLabelDirName(opts: {
 function currentYyyyMm(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function normalizeRequirementId(requirementId?: string): string | undefined {
+  if (requirementId === undefined) return undefined;
+  const normalized = requirementId.trim();
+  if (!/^\d+$/.test(normalized)) {
+    throw new Error(`非法需求 ID "${requirementId}"：必须是数字编号`);
+  }
+  return normalized;
 }
 
 /** Collect every metadata.id in the project (corrupt metadata.yaml is ignored; lint reports it). */
@@ -91,6 +100,7 @@ export function runFeaturesResolve(opts: {
   customer?: string;
   featureVersion?: string;
   standing?: boolean;
+  requirementId?: string;
   lanhuPage?: string;
   root?: string;
 }): FeaturesResolveResult {
@@ -102,6 +112,12 @@ export function runFeaturesResolve(opts: {
       "缺 --feature-version：版本类需求必须显式传版本号（不知道就向用户确认，不要自己编）；确为常驻需求时传 --standing",
     );
   }
+  if (opts.lanhuPage && !opts.requirementId) {
+    throw new Error(
+      "--lanhu-page 仅是来源 pageId，不能作为目录需求编号；请同时传页面树中的真实 --requirement-id",
+    );
+  }
+  const requirementId = normalizeRequirementId(opts.requirementId);
   const paths = locateProject(opts.project, opts.root);
   const versionDir = opts.featureVersion ? normalizeVersionDir(opts.featureVersion) : STANDING_DIR;
   const dirName = buildLabelDirName({
@@ -109,7 +125,7 @@ export function runFeaturesResolve(opts: {
     module: opts.module,
     description: opts.description,
     customer: opts.customer,
-    lanhuPage: opts.lanhuPage,
+    requirementId,
   });
   const featureDir = join(paths.featuresDir, versionDir, dirName);
 
@@ -284,7 +300,11 @@ export function registerFeatures(program: Command): void {
     .option("--customer <customer>", "客户名(可选,【客户】段)")
     .option("--feature-version <version>", "迭代版本 vX.Y.Z（与 --standing 二选一，必传其一）")
     .option("--standing", "常驻需求（落 features/_standing/），与 --feature-version 互斥", false)
-    .option("--lanhu-page <pageId>", "蓝湖 pageId(可选,【lanhu-id】段)")
+    .option("--requirement-id <id>", "页面树/禅道真实需求编号(可选,写入目录第二【】段)")
+    .option(
+      "--lanhu-page <pageId>",
+      "蓝湖 pageId(仅来源标识,必须同时传 --requirement-id,不写入目录)",
+    )
     .option("--json", "以 JSON 输出结果", false)
     .action(
       (opts: {
@@ -294,6 +314,7 @@ export function registerFeatures(program: Command): void {
         customer?: string;
         featureVersion?: string;
         standing?: boolean;
+        requirementId?: string;
         lanhuPage?: string;
         json: boolean;
       }) => {
@@ -304,6 +325,7 @@ export function registerFeatures(program: Command): void {
           customer: opts.customer,
           featureVersion: opts.featureVersion,
           standing: opts.standing,
+          requirementId: opts.requirementId,
           lanhuPage: opts.lanhuPage,
         });
         if (opts.json) {

@@ -61,7 +61,8 @@ Options:
   -h, --help        display help for command
 
 Commands:
-  build [options]   按 YAML meta.exports 生成派生文件；缺省仅生成 XMind
+  build [options]   按 YAML meta.exports 生成派生文件；缺省仅生成 XMind；requirements
+                    布局按需求生成多个 L1
   import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
   sync [options]    按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认
                     dry-run)
@@ -311,7 +312,8 @@ Options:
   --feature-version <version>  迭代版本 vX.Y.Z（与 --standing 二选一，必传其一）
   --standing                   常驻需求（落 features/_standing/），与 --feature-version
                                互斥 (default: false)
-  --lanhu-page <pageId>        蓝湖 pageId(可选,【lanhu-id】段)
+  --requirement-id <id>        页面树/禅道真实需求编号(可选,写入目录第二【】段)
+  --lanhu-page <pageId>        蓝湖 pageId(仅来源标识,必须同时传 --requirement-id,不写入目录)
   --json                       以 JSON 输出结果 (default: false)
   -h, --help                   display help for command
 ```
@@ -352,7 +354,7 @@ Options:
 ```text
 Usage: kata cases build [options]
 
-按 YAML meta.exports 生成派生文件；缺省仅生成 XMind
+按 YAML meta.exports 生成派生文件；缺省仅生成 XMind；requirements 布局按需求生成多个 L1
 
 Options:
   --feature <dir>   feature 目录路径

@@ -98,7 +98,9 @@ function casesToTopicRoot(file: CasesFile): TopicGroup {
   const root = newTopicGroup(UNCLASSIFIED);
   for (const c of file.cases) {
     let current = root;
-    const tags = c.tags ?? [];
+    // “未分类”是导入过程的占位层级，不是用户业务分类；直接跳过，
+    // 让用例落到最近的真实分类或 L1 下。
+    const tags = (c.tags ?? []).filter((tag) => tag !== UNCLASSIFIED);
     for (const tag of tags) {
       let group = current.groups.get(tag);
       if (!group) {
@@ -130,6 +132,17 @@ function topicChildren(group: TopicGroup): TopicBuilder[] {
   );
 }
 
+function requirementTopics(file: CasesFile): TopicBuilder[] {
+  return (file.requirements ?? []).map((requirement) => {
+    const requirementCases = file.cases.filter(
+      (item) => item.requirement_id === requirement.requirement_id,
+    );
+    return Topic(requirement.title)
+      .labels([`(#${requirement.requirement_id})`])
+      .children(topicChildren(casesToTopicRoot({ ...file, cases: requirementCases })));
+  });
+}
+
 function casesMeta(file: CasesFile, projectName: string) {
   return {
     project_name: projectName,
@@ -144,11 +157,17 @@ function casesMeta(file: CasesFile, projectName: string) {
 /** Render a CasesFile to a deterministic XMind buffer with unlimited tag depth. */
 export async function renderXmindBuffer(file: CasesFile, projectName: string): Promise<Buffer> {
   const meta = casesMeta(file, projectName);
-  const l1Children = topicChildren(casesToTopicRoot(file));
-  let l1 = Topic(buildL1Title(meta)).children(l1Children);
-  const labels = buildL1Labels(meta);
-  if (labels.length > 0) l1 = l1.labels(labels);
-  const root = RootTopic(buildRootTitle(meta)).children([l1]).sheetTitle(buildRootTitle(meta));
+  let l1Topics: TopicBuilder[];
+  if (file.meta.layout === "requirements") {
+    l1Topics = requirementTopics(file);
+  } else {
+    const l1Children = topicChildren(casesToTopicRoot(file));
+    let l1 = Topic(buildL1Title(meta)).children(l1Children);
+    const labels = buildL1Labels(meta);
+    if (labels.length > 0) l1 = l1.labels(labels);
+    l1Topics = [l1];
+  }
+  const root = RootTopic(buildRootTitle(meta)).children(l1Topics).sheetTitle(buildRootTitle(meta));
   const buffer = await Workbook(root).archive();
   return normalizeXmindBuffer(Buffer.from(buffer));
 }

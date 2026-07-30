@@ -16,8 +16,10 @@
 
 ```bash
 kata features resolve --project <项目> --module <模块> --description <需求名> \
-  --feature-version <vX.Y.Z> [--customer <客户>] [--lanhu-page <pageId>] --json
+  --feature-version <vX.Y.Z> [--customer <客户>] --requirement-id <需求ID> [--lanhu-page <pageId>] --json
 ```
+
+`--requirement-id` 使用页面树或禅道中的真实需求编号，写入 feature 目录第二个 `【】`；`--lanhu-page` 仅保留为来源 pageId，不能替代需求编号。
 
 取返回的 featureDir 作为产物目录。常驻需求（无迭代版本）改传 `--standing`。
 

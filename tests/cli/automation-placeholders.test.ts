@@ -16,6 +16,7 @@ function fixture(): string {
       "  title: demo",
       "  version: v7.0.0",
       "  feature_id: demo",
+      '  case_module_id: ""',
       "cases:",
       "  - case_id: C0001",
       "    title: 占位用例",

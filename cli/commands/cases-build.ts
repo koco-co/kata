@@ -182,7 +182,7 @@ export async function runCasesBuild(featureDir: string): Promise<CasesBuildRepor
 export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
-    .description("按 YAML meta.exports 生成派生文件；缺省仅生成 XMind")
+    .description("按 YAML meta.exports 生成派生文件；缺省仅生成 XMind；requirements 布局按需求生成多个 L1")
     .requiredOption("--feature <dir>", "feature 目录路径")
     .option("--project <name>", "项目名；feature 传目录名或 metadata.id 时必填")
     .action(async (opts: { feature: string; project?: string }) => {

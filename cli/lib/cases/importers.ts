@@ -3,9 +3,9 @@ import { basename, join, relative, resolve } from "node:path";
 import ExcelJS from "exceljs";
 import JSZip from "jszip";
 import { parse as parseYaml } from "yaml";
+import { buildLabelDirName } from "../../commands/features.ts";
 import { projectRootFromFeatureDir } from "../features-layout.ts";
 import { parseFrontMatter } from "../frontmatter.ts";
-import { buildLabelDirName } from "../../commands/features.ts";
 import { splitMdTableRow } from "../md-table.ts";
 import { UNCLASSIFIED } from "../xmind-render.ts";
 import { loadXmindProjectConfig } from "../xmind-rules.ts";
@@ -100,7 +100,30 @@ function numberedLines(value: string): string[] {
   const lines = normalizeStructuredText(value).split("\n");
   const meaningful = lines.map((line) => line.trim()).filter(Boolean);
   if (meaningful.length === 0) return [];
-  const numbered = meaningful.map((line) => line.match(/^(\d+)[.)、:]\s*(.*)$/));
+
+  // ZenTao exports may wrap one top-level step across several lines while
+  // keeping the next top-level step's `1.`/`2.` marker on its own line. Only
+  // dot/colon markers are top-level here; full-width `1）` markers are nested
+  // assertions and must stay inside the current step's text.
+  const topLevel = meaningful.map((line, index) => {
+    const match = line.match(/^(\d+)[.．:：]\s*(.*)$/);
+    return match ? { index, number: Number(match[1]), text: match[2] } : undefined;
+  });
+  const starts = topLevel.flatMap((item) => (item ? [item] : []));
+  const isSequential =
+    starts.length > 0 &&
+    starts[0]?.number === 1 &&
+    starts.every((item, index) => item.number === index + 1);
+  if (isSequential) {
+    return starts.map((start, index) => {
+      const end = starts[index + 1]?.index ?? meaningful.length;
+      return [start.text, ...meaningful.slice(start.index + 1, end)].join("\n").trim();
+    });
+  }
+
+  // Keep the legacy single-line numbered form for callers that use closing
+  // parentheses as the only marker style.
+  const numbered = meaningful.map((line) => line.match(/^(\d+)[.)）、:]\s*(.*)$/));
   if (numbered.every(Boolean)) {
     return numbered.map((match) => match?.[2] ?? "");
   }
@@ -268,11 +291,7 @@ async function parseXlsxTable(sourcePath: string): Promise<RawTable> {
 }
 
 function markdownCell(value: string): string {
-  return normalizeStructuredText(
-    value
-    .replace(/\\\|/g, "|")
-      .replace(/\\\\/g, "\\"),
-  );
+  return normalizeStructuredText(value.replace(/\\\|/g, "|").replace(/\\\\/g, "\\"));
 }
 
 function parseMarkdownCaseBody(body: string, location: string) {
@@ -564,9 +583,7 @@ export interface SplitXmindPreview {
 
 function topicLabels(topic: RawXmindTopic): string[] {
   return (topic.labels ?? [])
-    .map((label) =>
-      typeof label === "string" ? label : (label.label ?? label.title ?? ""),
-    )
+    .map((label) => (typeof label === "string" ? label : (label.label ?? label.title ?? "")))
     .filter(Boolean);
 }
 
@@ -584,7 +601,10 @@ function splitL1Title(raw: string): { title: string; caseModuleId: string } {
   };
 }
 
-function splitFeatureIdentity(title: string, version: string): {
+function splitFeatureIdentity(
+  title: string,
+  version: string,
+): {
   customer?: string;
   description: string;
   dirName: string;
