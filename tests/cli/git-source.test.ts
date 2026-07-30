@@ -15,16 +15,22 @@ const YAML = `repos:
     project: dataAssets
     path: .repos/customltem/dt-center-assets
     branch: release_6.3.x_ltqc
+    modules: ["*"]
+    customers: ["*"]
     description: 数据资产后端
     writable: false
   - name: dt-insight-web/dt-center-assets
     project: dataAssets
     path: .repos/dt-insight-web/dt-center-assets
     branch: release_6.3.x
+    modules: ["*"]
+    customers: ["*"]
   - name: customltem/dt-insight-studio
     project: dataAssets
     path: .repos/customltem/dt-insight-studio
     branch: dataAssets/release_6.3.x_ltqc
+    modules: ["*"]
+    customers: ["*"]
     writable: true
 `;
 

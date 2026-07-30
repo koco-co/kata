@@ -19,6 +19,12 @@ export function validateCases(file: CasesFile): string[] {
   } else if (!/^(?:\d+)?$/.test(file.meta.case_module_id)) {
     problems.push("meta.case_module_id 必须是空字符串或数字字符串");
   }
+  if (
+    file.meta.test_points_digest !== undefined &&
+    !/^sha256:[a-f0-9]{64}$/.test(file.meta.test_points_digest)
+  ) {
+    problems.push("meta.test_points_digest 必须是 sha256 摘要");
+  }
   if (file.meta.imports) {
     if (file.meta.imports.some((value) => !value.trim())) {
       problems.push("meta.imports 不能包含空文件名");

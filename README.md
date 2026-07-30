@@ -112,6 +112,9 @@ kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --app
 | `config/infra/` | 主机、数据源、凭据 profile、SSH fingerprint | 仅 `*.example.yaml` 入库，实际配置本机自管 |
 | `config/repos/` | 外部源码仓库声明 | 仅 `sources.example.yaml` 入库，`sources.yaml` 本机自管 |
 
+`sources.yaml` 的每个仓库必须声明 release `branch` 以及适用的 `modules`、`customers`。
+`kata repos prepare` 只更新与当前需求项目、模块、客户明确匹配的仓库。
+
 `config/env/<env>.yaml` 是 Playwright 与 DTStack 平台访问的统一来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立的 DTStack session 文件或旧的持久化变量。临时覆盖或 CI 覆盖仍可通过显式环境变量传入。
 
 本机目录和文件应收紧权限：

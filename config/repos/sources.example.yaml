@@ -1,4 +1,15 @@
 # Copy this file to sources.yaml and fill it with repositories approved for the
 # current workstation. Never commit the local sources.yaml: it may contain
 # internal names, branches, URLs, or customer-specific topology.
-repos: []
+repos:
+  - name: group/repository
+    project: dataAssets
+    path: .repos/group/repository
+    branch: release/7.0
+    modules: [数据标准]
+    customers: [标品]
+    writable: false
+
+# 跨模块或跨客户的公共仓库须显式使用 "*"，不得省略筛选字段。
+# modules: ["*"]
+# customers: ["*"]

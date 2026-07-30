@@ -52,12 +52,13 @@ function casePathViolation(path: string): string | undefined {
   if (!isFeatureCasesPath(path)) return undefined;
   const suffix = path.replace(/^.*?\/cases\//, "");
   if (suffix === "imports/.gitkeep" || suffix === "exports/.gitkeep") return undefined;
+  if (suffix === "test-points.md") return undefined;
   if (suffix.endsWith(".yaml") && !suffix.includes("/")) return undefined;
   if (/^imports\/[^/]+$/.test(suffix) && CASE_INPUT_EXTENSIONS.has(extension(suffix)))
     return undefined;
   if (/^exports\/[^/]+$/.test(suffix) && CASE_INPUT_EXTENSIONS.has(extension(suffix)))
     return undefined;
-  return "cases 仅允许根目录 YAML、imports/ 历史输入或 exports/ YAML 派生产物";
+  return "cases 仅允许根目录 YAML、test-points.md、imports/ 历史输入或 exports/ YAML 派生产物";
 }
 
 function policyGlobMatches(path: string, glob: string): boolean {

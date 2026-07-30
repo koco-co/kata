@@ -35,6 +35,12 @@ The following files are local and must never be committed:
 - non-example files under `env/`
 - non-example files under `plugin/`
 
+Every `repos/sources.yaml` entry declares `project`, configured release
+`branch`, and non-empty `modules` / `customers` selector arrays. Use the
+literal `"*"` only for a repository intentionally shared across every module
+or customer. `kata repos prepare --project ... --module ... --customer ...`
+updates only matching repositories and blocks when none match.
+
 The tracked `*.example.yaml` files contain schema examples only. They must not
 contain real hosts, passwords, cookies, tokens, connection strings or session
 paths.

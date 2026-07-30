@@ -6,18 +6,18 @@ export function registerLanhu(program: Command): void {
 
   lanhu
     .command("fetch")
-    .description("从蓝湖 URL 抓取 PRD 内容和截图,按需求生成独立 PRD 文件")
+    .description("已弃用：兼容入口，转发到 kata prd extract")
     .requiredOption(
       "--url <url>",
       '蓝湖页面 URL,例如 "https://lanhuapp.com/web/#/item/project/product?tid=xxx&pid=xxx&docId=xxx"',
     )
-    .option("--project <name>", "项目名称")
-    .option("--base-dir <dir>", "PRD 输出基目录(覆盖项目默认)")
+    .option("--project <name>", "已弃用")
+    .option("--base-dir <dir>", "已弃用")
     .option(
       "--feature-dir <dir>",
-      "直接写入指定 feature 目录:prd.md + inputs/lanhu-snapshots + inputs/reference-docs(不按 yyyymm 暂存,仅限单个需求)",
+      "目标 feature 目录；证据写入 prd/evidence/，截图写入 prd/assets/",
     )
-    .option("--pages <ids>", "要获取的需求 ID(逗号分隔),不指定则获取全部")
+    .option("--pages <ids>", "已弃用；页面只取 URL 的 pageId")
     .action(
       async (opts: {
         url: string;
@@ -26,13 +26,21 @@ export function registerLanhu(program: Command): void {
         featureDir?: string;
         pages?: string;
       }) => {
-        const { runFetch } = await import("../integrations/lanhu/fetch.ts");
-        await runFetch(opts.url, {
-          project: opts.project,
-          baseDir: opts.baseDir,
-          featureDir: opts.featureDir,
-          pagesFilter: opts.pages,
-        });
+        if (!opts.featureDir) {
+          throw new Error("kata lanhu fetch 已弃用；请传 --feature-dir，或改用 kata prd extract");
+        }
+        if (opts.pages) {
+          throw new Error("kata lanhu fetch 不再接受 --pages；需求页面由 URL 的 pageId 唯一定位");
+        }
+        process.stderr.write("[deprecated] kata lanhu fetch -> kata prd extract\n");
+        const { runPrdExtract } = await import("../integrations/lanhu/fetch.ts");
+        process.stdout.write(
+          `${JSON.stringify(
+            await runPrdExtract(opts.url, { featureDir: opts.featureDir }),
+            null,
+            2,
+          )}\n`,
+        );
       },
     );
 }

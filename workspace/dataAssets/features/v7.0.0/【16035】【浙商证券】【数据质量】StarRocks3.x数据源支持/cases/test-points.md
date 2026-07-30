@@ -1,3 +1,7 @@
+---
+prd_digest: "stale:legacy"
+---
+
 # 测试点设计 / 覆盖矩阵 — 浙商证券 StarRocks 3.x 数据质量适配
 
 > 本文件是 case-draft 的输入契约（覆盖设计 + 测试点清单）。

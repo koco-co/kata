@@ -1,3 +1,7 @@
+---
+prd_digest: "stale:legacy"
+---
+
 # 测试点清单
 
 - 需求: 数据资产集成用例

@@ -80,11 +80,12 @@ describe("automation normalize", () => {
     );
   });
 
-  it("allows requirement-notes.md and test-points.md at the metadata-free feature root", () => {
+  it("keeps canonical prd and cases directories at the metadata-free feature root", () => {
     const root = feature();
-    writeFileSync(join(root, "prd.md"), "# prd\n");
-    writeFileSync(join(root, "requirement-notes.md"), "# notes\n");
-    writeFileSync(join(root, "test-points.md"), "# points\n");
+    mkdirSync(join(root, "prd"), { recursive: true });
+    mkdirSync(join(root, "cases"), { recursive: true });
+    writeFileSync(join(root, "prd", "prd.md"), "# prd\n");
+    writeFileSync(join(root, "cases", "test-points.md"), "# points\n");
 
     const report = normalizeAutomation(root, { dryRun: true });
     expect(report.violations).toBe(0);

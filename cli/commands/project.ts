@@ -6,7 +6,6 @@ import { outputJson } from "../lib/cli.ts";
 import {
   diffProjectSkeleton,
   migrateLegacyHistorys,
-  readProjectMetadata,
   renderTemplate,
   SKELETON_SPEC,
   TEMPLATE_ROOT_REL,
@@ -76,16 +75,13 @@ export function registerProject(program: Command): void {
 
   project
     .command("scan")
-    .description("检查项目骨架与项目元数据")
+    .description("检查项目骨架")
     .requiredOption("--project <name>", "项目名")
     .action((opts: { project: string }) => {
-      const { dir, diff } = planFor(opts.project);
-      const metadata = readProjectMetadata(dir);
+      const { diff } = planFor(opts.project);
       outputJson({
         project: opts.project,
         exists: diff.exists,
-        project_metadata: metadata,
-        project_metadata_valid: diff.project_metadata_valid,
         missing_dirs: diff.missing_dirs,
         missing_files: diff.missing_files,
         missing_gitkeeps: diff.missing_gitkeeps,

@@ -7,6 +7,7 @@ external clone/install.
 ## Source
 
 - **Upstream repository**: https://github.com/dsphper/lanhu-mcp
+- **Upstream reference commit**: `e85acd3e490dedd854f6b74e68345e75352e3fe1`
 - **Vendored version**: `1.0.0` (see `pyproject.toml`)
 - **License**: MIT (`LICENSE` retained)
 
@@ -22,6 +23,10 @@ Only the files required to install and run the server inside kata:
 | `LICENSE` | MIT compliance for the vendored code. |
 | `.gitignore` | Ignores Python build artifacts (`.venv/`, `__pycache__/`, …). Kata adds a `!uv.lock` exception so the lockfile stays tracked. |
 | `README.md` | Slim stub; also referenced by `pyproject.toml` `readme`. |
+
+Kata's bridge consumes the extractor's low-level page text and screenshot
+results directly. It does not persist `lanhu_get_ai_analyze_page_result`
+prompts or the upstream staged-agent instructions as PRD content.
 
 ## Lock file policy
 

@@ -5,6 +5,7 @@ import {
   git,
   isGitSourceRepo,
   loadSourceRepos,
+  prepareSourceRepos,
   resolveSourceRepo,
   type SourceRepo,
   safeGitPath,
@@ -24,6 +25,16 @@ export function registerRepos(program: Command): void {
   const repos = program
     .command("repos")
     .description("查询 config/repos/sources.yaml 配置的源码仓库(.repos/ 本地克隆)");
+
+  repos
+    .command("prepare")
+    .description("按项目/模块/客户匹配仓库，并切换、快进到配置的 release 分支")
+    .requiredOption("--project <name>", "工作区项目")
+    .requiredOption("--module <name>", "需求模块")
+    .requiredOption("--customer <name>", "客户；标品需求传“标品”")
+    .action((opts: { project: string; module: string; customer: string }) => {
+      outputJson(prepareSourceRepos(opts));
+    });
 
   repos
     .command("list")

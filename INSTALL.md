@@ -115,6 +115,13 @@ git clone <remote-url> .repos/<group>/<repo>
 kata repos list
 ```
 
+每个仓库还必须显式填写适用的 `modules` 与 `customers`；公共仓库使用 `"*"`，不能省略。
+生成 PRD 前用以下命令只准备与当前需求匹配的 release 分支：
+
+```bash
+kata repos prepare --project dataAssets --module 数据标准 --customer 标品
+```
+
 PowerShell 等价步骤（本文其余示例为 bash 语法，管道与重定向在 PowerShell 中需相应改写）：
 
 ```powershell

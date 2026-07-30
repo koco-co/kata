@@ -1,7 +1,7 @@
 // lib/create-project.ts
 
-import { existsSync, readFileSync, renameSync, statSync } from "node:fs";
-import { basename, join } from "node:path";
+import { existsSync, renameSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 export const SKELETON_SPEC = {
   dirs: [
@@ -12,7 +12,6 @@ export const SKELETON_SPEC = {
     "analyses/scan-report",
     "analyses/hotfix-case",
     "analyses/infra-report",
-    "_shared/rules",
     "knowledge",
     "knowledge/terms",
     "knowledge/modules",
@@ -32,8 +31,6 @@ export const SKELETON_SPEC = {
     "knowledge/sites",
   ],
   template_files: {
-    "project.json": "project.json",
-    "_shared/rules/README.md": "rules/README.md",
     "knowledge/overview.md": "knowledge/overview.md",
     "knowledge/terms.md": "knowledge/terms.md",
   } as Record<string, string>,
@@ -112,34 +109,12 @@ export function validateProjectName(name: string): ValidationResult {
   return { valid: true };
 }
 
-export function projectMetadataPath(projectDirAbs: string): string {
-  return join(projectDirAbs, "project.json");
-}
-
-export interface ProjectMetadata {
-  name: string;
-  description?: string;
-}
-
-export function readProjectMetadata(projectDirAbs: string): ProjectMetadata | null {
-  const path = projectMetadataPath(projectDirAbs);
-  if (!existsSync(path)) return null;
-  try {
-    const value = JSON.parse(readFileSync(path, "utf8")) as ProjectMetadata;
-    if (!value || typeof value !== "object" || typeof value.name !== "string") return null;
-    return value;
-  } catch {
-    return null;
-  }
-}
-
 export interface SkeletonDiff {
   exists: boolean;
   missing_dirs: string[];
   missing_files: string[];
   missing_gitkeeps: string[];
   invalid_paths: string[];
-  project_metadata_valid: boolean;
   skeleton_complete: boolean;
 }
 
@@ -208,9 +183,6 @@ export function diffProjectSkeleton(projectDirAbs: string, templateRootAbs: stri
     }
   }
 
-  const metadata = readProjectMetadata(projectDirAbs);
-  const project_metadata_valid = metadata?.name === basename(projectDirAbs);
-
   void templateRootAbs;
 
   const skeleton_complete =
@@ -218,8 +190,7 @@ export function diffProjectSkeleton(projectDirAbs: string, templateRootAbs: stri
     missing_dirs.length === 0 &&
     missing_gitkeeps.length === 0 &&
     missing_files.length === 0 &&
-    invalid_paths.length === 0 &&
-    project_metadata_valid;
+    invalid_paths.length === 0;
 
   return {
     exists,
@@ -227,7 +198,6 @@ export function diffProjectSkeleton(projectDirAbs: string, templateRootAbs: stri
     missing_files,
     missing_gitkeeps,
     invalid_paths,
-    project_metadata_valid,
     skeleton_complete,
   };
 }

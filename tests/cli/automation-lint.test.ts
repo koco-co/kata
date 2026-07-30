@@ -125,6 +125,20 @@ describe("automation lint", () => {
     expect(result.violations[0]?.path).toBe("_shared/automation/pages/page.ts");
   });
 
+  it("keeps legacy _shared pages, helpers and fixtures lintable during migration", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-al-shared-legacy-"));
+    const projectDir = join(root, "workspace", "dataAssets");
+    mkdirSync(join(projectDir, "_shared", "pages"), { recursive: true });
+    writeFileSync(
+      join(projectDir, "_shared", "pages", "page.ts"),
+      "await page.waitForTimeout(100);\n",
+    );
+
+    const result = runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root });
+    expect(result.scannedFiles).toBe(1);
+    expect(result.violations[0]?.path).toBe("_shared/pages/page.ts");
+  });
+
   it("returns a non-zero CLI status with --exit-code", () => {
     const { feature, cases } = featureWorkspace();
     writeCase(cases, "t01-demo.ts", "await page.waitForTimeout(100);\n");

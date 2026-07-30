@@ -172,11 +172,9 @@ export function normalizeAutomation(
   }
 
   const allowedRoot = new Set([
-    "prd.md",
-    "requirement-notes.md",
-    "test-points.md",
-    "README.md",
+    "prd",
     "cases",
+    "README.md",
     "automation",
     "runs",
     "inputs",

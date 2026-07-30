@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join, relative, resolve, sep } from "node:path";
-import { SPEC_FILE_RE } from "../../../runtime/cases/parse.ts";
+import { SPEC_FILE_RE } from "../cases/parse.ts";
 import { projectRootFromFeatureDir } from "../features-layout.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
 
@@ -416,8 +416,12 @@ function resolveTarget(options: AutomationLintOptions): ScanTarget {
     }
     const projectDir = join(root, "workspace", project);
     if (!existsSync(projectDir)) throw new Error(`kata automation lint: 未知项目 ${project}`);
+    const canonicalSharedRoot = join(projectDir, "_shared", "automation");
+    const sharedRoot = existsSync(canonicalSharedRoot)
+      ? canonicalSharedRoot
+      : join(projectDir, "_shared");
     return {
-      roots: ["pages", "helpers", "fixtures"].map((area) => join(projectDir, "_shared", area)),
+      roots: ["pages", "helpers", "fixtures"].map((area) => join(sharedRoot, area)),
       projectDir,
     };
   }

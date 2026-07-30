@@ -41,7 +41,7 @@ classifiers = [
 ]
 dependencies = [
     "fastmcp>=0.2.0",
-    "httpx>=0.27.0",
+    "httpx[socks]>=0.27.0",
     "beautifulsoup4>=4.12.0",
     "playwright>=1.48.0",
     "lxml>=5.0.0",
@@ -156,4 +156,3 @@ exclude = [
     "logs",
 ]
 max-complexity = 10
-

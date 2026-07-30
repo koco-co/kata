@@ -1,66 +1,96 @@
-# 编写：需求源 → 用例
+# 编写：需求源 → 完整 PRD → 测试点 → 用例
 
-## 总原则
+## 1. 定位 feature
 
-写进 yaml 的任何内容，动笔前都必须已有答案；答案只能来自需求源、知识库、源码或用户确认。四者都答不了的内容不进产物——宁可不写，也不留「待确认」。
-
-## Phase 1：取证
-
-- Lanhu/Axure URL：用 `kata lanhu fetch`（参数见 `--help`）抓取设计稿与 PRD 内容；`--feature-dir` 会把原始 PRD 落到 `<featureDir>/prd.md`。目标 feature 目录已有 `prd.md` 时禁止重复跑 `--feature-dir`（会覆盖既有 PRD）；确需重抓时先与用户确认，再落到暂存目录。
-- PRD md、截图、功能描述：由用户直接提供，或读取用户给出的路径。
-- 用户只发 URL、不带任何文字时：全程不输出计划与进度，直接执行；但 Phase 2、4、5 的澄清提问与确认不受此限，必须照问。过程中唯一对用户可见的输出是最终的产物说明；若被阻塞，则用两行说明缺口（首行写缺什么，次行写需要用户补什么）。
-
-## Phase 2：确认需求身份，定位 feature 目录
-
-先自行推断 workspace 项目，没有候选、或多个候选无法消歧时才问用户。需求名、版本号、模块、客户不知道的就逐个问用户（一次一个、带推荐答案），禁止自己编。确认后执行：
+从需求源核实项目、版本、顶层需求 ID、客户、模块和需求名；只问无法查证且会改变目录身份的决策。运行：
 
 ```bash
 kata features resolve --project <项目> --module <模块> --description <需求名> \
   --feature-version <vX.Y.Z> [--customer <客户>] [--requirement-id <顶层需求ID>] --json
 ```
 
-`--requirement-id` 仅使用已核实属于顶层需求的真实编号，写入 feature 目录第一个 `【】`；子需求和历史需求编号保留在 YAML `requirements[]` 或 `meta.requirement_id` 中。Lanhu 全量链接保存在 `prd.md`，不再单独保存 pageId。
+无迭代版本才使用 `--standing`。身份由 `<项目>:<版本目录>/<需求目录名>` 推导，不写 metadata。
 
-取返回的 featureDir 作为产物目录。常驻需求（无迭代版本）改传 `--standing`。
+## 2. 提取蓝湖证据
 
-## Phase 3：读知识库命中条目
+```bash
+kata prd extract --url <含 docId/versionId/pageId 的完整链接> --feature <featureDir>
+```
 
-编写任何包含菜单 / 页面 / 表单字段的用例前，必须先读：
+只生成 `prd/evidence/lanhu.json` 与 `prd/assets/`，不得直接生成 PRD。相同 docId/versionId/pageId 且摘要和图片完整时使用缓存；版本变化或显式 `--force` 才重取。提取失败时阻断，不得从 URL 猜需求。
+
+非蓝湖材料也必须先整理成可追踪证据，再进入以下确认流程。
+
+## 3. 注入知识并准备源码
+
+先读取已验证知识：
 
 ```bash
 kata knowledge read --project <项目> --module <模块>
 ```
 
-命令返回命中条目（界面文案、规则语义、踩坑），以这些条目为准；条目不足时按 `--keyword <关键词>` 补查，或用 `kata repos grep/show` 查源码枚举。
+再按真实需求身份准备相关仓库：
 
-## Phase 4：逐个确认疑点，落盘 requirement-notes.md
+```bash
+kata repos prepare --project <项目> --module <模块> --customer <客户或标品>
+```
 
-把需求源与知识库都答不了的疑点逐个向用户确认。规则：
+分支只取 `config/repos/sources.yaml` 的 `branch`。命令必须匹配显式 `modules/customers`；无匹配即阻断。准备后用 `kata repos grep/show` 查当前实现、枚举和约束，不询问可查事实。
 
-- 一次只问一个问题，每题给出推荐答案；全部疑点清零前不动笔写任何产物。
-- 能自己查到的不要问：知识库或 `kata repos grep/show` 源码枚举能命中的直接采用，不占用提问。
-- 确认维度至少覆盖：业务条件与前置、边界值、枚举全集、异常流、权限与角色、数据依赖。
-- 用例设计原则（P0 占比 1/4 ~ 1/3、枚举逐项覆盖等）按默认值执行，不逐项问；需要偏离默认值时才单独确认。
-- 疑点清零后，把确认过的内容整理成 `<featureDir>/requirement-notes.md` 落盘，结构照 [../templates/requirement-notes.md](../templates/requirement-notes.md)，填写示例见 [../examples/requirement-notes.md](../examples/requirement-notes.md)：每条标注来源（需求源 / 知识库 / 源码 / 用户确认），并写明适用的设计原则。requirement-notes.md 记录确认过的需求内容，后续编写与编辑都以它为准。
-- 用户中途要求「别问了直接写」：剩余疑点按未确认处理——对应内容不进 yaml，交付时列出。
+## 4. 遗漏与冲突扫描
 
-## Phase 5：对齐测试点，落盘 test-points.md
+对蓝湖、verified 知识与 release 源码进行两轮检查：
 
-把 requirement-notes.md 拆成测试点清单交给用户确认，清单要覆盖正常流 / 异常流 / 边界，枚举值逐项覆盖，P0 占比约 1/4 ~ 1/3。用户确认后照 [../templates/test-points.md](../templates/test-points.md) 落盘 `<featureDir>/test-points.md`：确认过的进入覆盖清单（标注依据的 requirement-notes 条目），用户也确认不了的进入未覆盖清单（写清原因）。
+1. 梳理需求明确写出的目标、范围、角色、字段、状态、异常、兼容和验收。
+2. 查蓝湖遗漏、来源冲突及用户可能没考虑到的问题，重点覆盖权限、边界值、枚举全集、历史数据、失败恢复、并发、兼容和依赖影响。
 
-## Phase 6：写 cases/需求名.yaml
+冲突解释：
 
-格式照 [../examples/cases.yaml](../examples/cases.yaml)。文件名就是需求名，不带目录标签前缀；不得写 `meta.version` 或 `meta.feature_id`，版本与 feature 唯一身份由相对路径 `<项目>:<版本目录>/<需求目录名>` 推导。`meta.case_module_id` 必填，未知写 `""`；默认 `meta.exports: [xmind]`。所有表单项和两个及以上编号项逐行写入 YAML `|-`。只写 requirement-notes.md 有依据、且在 test-points.md 覆盖清单里的内容；未覆盖清单里的点不写进 yaml。尚未实现自动化的用例允许暂不填写 `automation.spec_file`，由 coverage 报告为 `unmapped`；已有映射但脚本尚未实现时报告为 `mapped-not-implemented`，不得伪造通过。
+- 蓝湖表示预期变更；
+- verified 知识表示既有业务规则；
+- release 源码表示当前实现和技术约束；
+- 目标行为冲突时由用户决策。
 
-## Phase 7：派生与检查
+## 5. 逐问确认并记录会话
+
+一次只问一个问题，按依赖顺序推进。每题必须包含：
+
+- 当前证据及冲突；
+- 不决策的风险和业务影响；
+- 一个明确的推荐答案；
+- 用户的最终答案。
+
+把知识查询、已准备仓库的 branch/commit、两轮遗漏扫描、运行时问题、答案、证据和决策写入 `prd/.process/session.json`。不得把「待确认」写进正式产物。第一轮结束后再做一次遗漏扫描；然后向用户展示完整决策摘要，单独取得“发布最终 PRD”的确认，才把 session 状态设为 `publish_confirmed`。
+
+会话结构与完整示例见 [../examples/prd-session.json](../examples/prd-session.json)。运行时 Q 编号只保留在 `.process`，正式 PRD 将其整理为 `PD-001` 等可读决策。
+
+## 6. 定稿并检查 PRD
+
+```bash
+kata prd finalize --feature <featureDir>
+kata prd lint --feature <featureDir> --exit-code
+```
+
+PRD frontmatter 只允许 `source/source_url/requirement_id/evidence_digest`。正文按相关性输出：身份来源、背景目标、范围、角色前置、现状变更、业务场景、字段校验、状态数据、异常兼容、依赖影响、产品决策、验收、截图追踪。空章节跳过。图片只引用已存在的 `assets/...`。
+
+刷新既有 PRD 时先提取并比较 evidence digest；未完成差异分析、补问和发布确认前不得覆盖。确认后原子替换 `prd/prd.md`，Git 保存历史；测试点和用例摘要链随即过期。
+
+## 7. 设计并确认测试点
+
+只从最终 PRD 派生测试点，引用 `FR/BR/ER/AC/PD`。与用户确认覆盖范围、优先级和明确不覆盖项，不再重复确认需求。按 [../templates/test-points.md](../templates/test-points.md) 写入 `cases/test-points.md`，frontmatter 的 `prd_digest` 为完整 `prd/prd.md` 的 SHA-256。
+
+## 8. 写 YAML 并构建
+
+格式见 [../examples/cases.yaml](../examples/cases.yaml)。`meta.test_points_digest` 记录完整 `cases/test-points.md` 的 SHA-256；`source_ref` 引用测试点 ID。`meta.case_module_id` 必填，未知写 `""`；默认导出 XMind。
 
 ```bash
 kata cases build --feature <featureDir>
 kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
 ```
 
-有报错就改 yaml 重建，直到全部通过。yaml 里出现「待确认」字样时，lint 会直接报 violation。
+修复源 YAML 后重建，禁止手改派生物。
+尚未实现自动化且没有 `automation.spec_file` 的用例由 coverage 报告为 `unmapped`，不得伪造脚本或通过状态。
 
-## Phase 8：交付
+## 9. 知识闭环
 
-按 [../checklists/review.md](../checklists/review.md) 自审后，给出产物路径与覆盖说明：覆盖了哪些测试点；未覆盖的逐条对照 test-points.md 未覆盖清单说明原因。
+仅将跨需求复用、已确认且有来源的规则写回知识库；需求特有内容留在 PRD。遇到冲突写 `conflicting`，不得覆盖旧结论。写入后运行 `kata knowledge index --project <项目>`。

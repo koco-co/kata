@@ -1,3 +1,7 @@
+---
+prd_digest: "stale:legacy"
+---
+
 # 泸州老窖定制化回归基线 测试点清单
 
 - 依据：`requirement-notes.md`

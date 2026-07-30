@@ -8,6 +8,7 @@ import {
   parseFeatureDirName,
   resolveFeatureEntry,
 } from "./features-layout.ts";
+import { assertCaseDigestChain, lintPrdFeature } from "./prd.ts";
 
 export interface FeaturesLintContext {
   project: string;
@@ -49,7 +50,12 @@ function loadEnvNames(workspaceRoot: string): string[] {
 }
 
 interface CaseDoc {
-  meta?: { imports?: unknown; feature_id?: unknown; version?: unknown };
+  meta?: {
+    imports?: unknown;
+    feature_id?: unknown;
+    version?: unknown;
+    test_points_digest?: unknown;
+  };
   cases?: { title?: unknown; priority?: unknown }[];
 }
 
@@ -158,6 +164,62 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   for (const entry of entries) {
     const feature = featureRelativePath(featuresDir, entry);
     lintCaseSources(entry.dir, feature, entry.zone, envNames, violations);
+    for (const legacy of ["prd.md", "requirement-notes.md", "test-points.md"]) {
+      if (existsSync(join(entry.dir, legacy))) {
+        violations.push({
+          feature,
+          rule: "legacy_requirement_authority",
+          message: `${legacy} 不得位于 feature 根；运行 kata prd migrate`,
+        });
+      }
+    }
+    if (existsSync(join(entry.dir, "prd", "prd.md"))) {
+      const prdReport = lintPrdFeature(entry.dir);
+      for (const item of prdReport.errors) {
+        violations.push({
+          feature,
+          rule: `prd_${item.rule}`,
+          message: item.message,
+        });
+      }
+      const casesDir = join(entry.dir, "cases");
+      const yamlName = existsSync(casesDir)
+        ? readdirSync(casesDir).find((name) => name.endsWith(".yaml"))
+        : undefined;
+      let testPointsDigest: string | undefined;
+      if (yamlName) {
+        try {
+          const doc = parse(readFileSync(join(casesDir, yamlName), "utf8")) as CaseDoc | null;
+          if (typeof doc?.meta?.test_points_digest === "string") {
+            testPointsDigest = doc.meta.test_points_digest;
+          }
+        } catch {
+          // YAML syntax is reported by cases build; digest chain will still be stale.
+        }
+      }
+      try {
+        let sourceRefs: Array<string | undefined> = [];
+        if (yamlName) {
+          try {
+            const doc = parse(readFileSync(join(casesDir, yamlName), "utf8")) as {
+              cases?: Array<{ source_ref?: unknown }>;
+            };
+            sourceRefs = (doc.cases ?? []).map((item) =>
+              typeof item.source_ref === "string" ? item.source_ref : undefined,
+            );
+          } catch {
+            // Build reports malformed YAML.
+          }
+        }
+        assertCaseDigestChain(entry.dir, testPointsDigest, sourceRefs);
+      } catch (error) {
+        violations.push({
+          feature,
+          rule: "case_digest_chain",
+          message: (error as Error).message,
+        });
+      }
+    }
     const parsed = parseFeatureDirName(entry.dirName);
     if (!parsed) {
       violations.push({
