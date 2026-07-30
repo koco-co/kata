@@ -8,7 +8,7 @@ import {
   buildNotificationCard,
   emitBusinessNotification,
   eventIdFor,
-  formatMessage,
+  formatMarkdownMessage,
   formatTaipeiTime,
   listNotificationLedgers,
   NOTIFICATION_EVENTS,
@@ -151,7 +151,7 @@ describe("business notifications", () => {
   });
 
   it("renders a concise success card with an emoji, Markdown table and short artifact names", () => {
-    const message = formatMessage("cases-built", payload());
+    const message = formatMarkdownMessage("cases-built", payload());
     assert.equal(message.title, "✅ 用例构建完成");
     assert.match(message.text, /^## ✅ 用例构建完成/m);
     assert.match(message.text, /> \*\*规则 SQL 合并\*\*/);
@@ -169,7 +169,7 @@ describe("business notifications", () => {
   });
 
   it("omits unavailable rows while preserving meaningful zero values", () => {
-    const message = formatMessage(
+    const message = formatMarkdownMessage(
       "cases-built",
       payload({ artifact_paths: [], duration_ms: 0, created_count: 0, updated_count: 0 }),
     );
@@ -181,7 +181,7 @@ describe("business notifications", () => {
   });
 
   it("renders report cards with a short title, severity, conclusion and filename", () => {
-    const message = formatMessage("bug-analysis-completed", {
+    const message = formatMarkdownMessage("bug-analysis-completed", {
       project: "dataAssets",
       version: "202607",
       feature: "Bug 分析报告：非法远端跟踪引用阻断源码仓库更新",
@@ -239,7 +239,7 @@ describe("business notifications", () => {
         { title: "失败四", message: "超时" },
       ],
     };
-    const message = formatMessage("ui-test-failed", data);
+    const message = formatMarkdownMessage("ui-test-failed", data);
     const email = renderEmailCard(buildNotificationCard("ui-test-failed", data));
     assert.equal(message.title, "❌ UI 自动化失败");
     assert.match(message.text, /1\. 失败一：断言不一致/);
@@ -252,7 +252,7 @@ describe("business notifications", () => {
 
   it("highlights the full pending question without exposing the internal record path", () => {
     const question = "目标环境缺少可写 Schema，是否切换到备用数据源？";
-    const message = formatMessage("ui-test-needs-input", {
+    const message = formatMarkdownMessage("ui-test-needs-input", {
       project: "dataAssets",
       version: "v7.0.0",
       feature: "规则 SQL 合并",
@@ -402,7 +402,7 @@ describe("business notifications", () => {
 });
 
 describe("notify CLI", () => {
-  it("only previews synthetic payloads and removes the legacy sender", () => {
+  it("only previews synthetic payloads and does not register a sender", () => {
     const data = JSON.stringify(payload());
     const preview = spawnSync(
       "bun",
@@ -419,7 +419,8 @@ describe("notify CLI", () => {
       encoding: "utf8",
     });
     assert.notEqual(removed.status, 0);
-    assert.match(removed.stderr, /已移除/);
+    assert.match(removed.stderr, /unknown command.*send/i);
+    assert.doesNotMatch(removed.stderr, /已移除/);
     const help = execFileSync("bun", [kata, "notify", "--help"], { cwd: repo, encoding: "utf8" });
     assert.ok(!/^\s+send\b/m.test(help));
   });

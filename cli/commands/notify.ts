@@ -2,7 +2,7 @@ import type { Command } from "commander";
 import {
   assertValidNotification,
   describeEvent,
-  formatMessage,
+  formatMarkdownMessage,
   listAllEvents,
   listNotificationLedgers,
   type NotificationData,
@@ -51,7 +51,7 @@ export function registerNotify(program: Command): void {
       if (!opts.event || !opts.data) throw new Error("preview 必须同时提供 --event 与 --data");
       const data = parsePreviewData(opts.data);
       assertValidNotification(opts.event, data);
-      const message = formatMessage(opts.event as NotificationEventType, data);
+      const message = formatMarkdownMessage(opts.event as NotificationEventType, data);
       process.stdout.write(
         `${JSON.stringify({ preview: true, event: opts.event, ...message }, null, 2)}\n`,
       );
@@ -84,16 +84,5 @@ export function registerNotify(program: Command): void {
       if (!opts.confirmed) throw new Error("重试通知必须显式提供 --confirmed");
       const result = await retryNotification(eventId, opts.project);
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-    });
-
-  // Keep an explicit migration error without advertising the dangerous legacy command in help.
-  notify
-    .command("send", { hidden: true })
-    .allowUnknownOption(true)
-    .allowExcessArguments(true)
-    .action(() => {
-      throw new Error(
-        "kata notify send 已移除；使用 kata notify preview 仅预览，真实通知仅由业务命令在成功后自动创建",
-      );
     });
 }

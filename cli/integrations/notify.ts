@@ -606,8 +606,8 @@ export function renderFeishuCard(card: NotificationCard): FeishuInteractiveMessa
   };
 }
 
-/** Backward-compatible preview renderer: DingTalk/WeCom Markdown. */
-export function formatMessage(
+/** Render the DingTalk/WeCom Markdown representation used by CLI previews. */
+export function formatMarkdownMessage(
   event: NotificationEventType,
   data: NotificationData,
 ): FormattedMessage {
