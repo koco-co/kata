@@ -161,6 +161,14 @@ describe("skill contract", () => {
     const create = readFileSync(join(skillDir("test-case"), "workflows/create.md"), "utf8");
     expect(create).toContain("报告为 `unmapped`");
     expect(create).not.toContain("每条正式用例填写 `automation.spec_file`");
+
+    const infraPlaybook = readFileSync(
+      join(skillDir("infra-diagnose"), "references/playbook.md"),
+      "utf8",
+    );
+    expect(infraPlaybook).toContain("主机使用 `server-default`");
+    expect(infraPlaybook).toContain("数据源使用 `data-source-default`");
+    expect(infraPlaybook).not.toContain("每个 host 或 data source 必须显式绑定");
   });
 });
 

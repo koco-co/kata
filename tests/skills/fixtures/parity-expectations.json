@@ -77,25 +77,33 @@
       ]
     },
     "infra-diagnose": {
-      "credentialsPath": [{ "pattern": "config/infra/credentials.yaml", "file": "SKILL.md" }],
+      "credentialsPath": [
+        { "pattern": "config/infra/credentials.yaml", "file": "references/playbook.md" }
+      ],
       "configFiles": [
-        { "pattern": "hosts.yaml", "file": "SKILL.md" },
-        { "pattern": "data_sources.yaml", "file": "SKILL.md" }
+        { "pattern": "hosts.yaml", "file": "references/playbook.md" },
+        { "pattern": "data_sources.yaml", "file": "references/playbook.md" }
       ],
       "inspectCmd": [
-        { "pattern": "kata infra inspect", "file": "SKILL.md" },
-        { "pattern": "connectivity", "file": "SKILL.md" }
+        { "pattern": "kata infra inspect", "file": "references/playbook.md" },
+        { "pattern": "connectivity", "file": "references/playbook.md" }
       ],
       "credentialSet": [
-        { "pattern": "kata infra credentials set", "file": "SKILL.md" },
-        { "pattern": "--username", "file": "SKILL.md" }
+        { "pattern": "kata infra credentials set", "file": "references/playbook.md" },
+        { "pattern": "--username", "file": "references/playbook.md" }
       ],
       "hostTrust": [
-        { "pattern": "kata infra trust-host", "file": "SKILL.md" },
-        { "pattern": "fingerprint", "file": "SKILL.md" }
+        { "pattern": "kata infra trust-host", "file": "references/playbook.md" },
+        { "pattern": "fingerprint", "file": "references/playbook.md" }
       ],
-      "reportPath": [{ "pattern": "infra-report/<yyyymm>/<slug>.md", "file": "SKILL.md" }],
-      "lintGate": [{ "pattern": "kata infra lint", "file": "SKILL.md" }],
+      "defaultCredentials": [
+        { "pattern": "server-default", "file": "references/playbook.md" },
+        { "pattern": "data-source-default", "file": "references/playbook.md" }
+      ],
+      "reportPath": [
+        { "pattern": "infra-report/<yyyymm>/<slug>.md", "file": "references/playbook.md" }
+      ],
+      "lintGate": [{ "pattern": "kata infra lint", "file": "references/playbook.md" }],
       "ssh2Boundary": [
         { "pattern": "ssh2", "file": "SKILL.md" },
         { "pattern": "任意远程命令", "file": "SKILL.md" }

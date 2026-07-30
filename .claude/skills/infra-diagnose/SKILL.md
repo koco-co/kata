@@ -1,73 +1,47 @@
 ---
 name: infra-diagnose
-description: 数据源或服务器连通性报错时，读取本机配置，执行受控的 Kata SSH2 检查并生成脱敏的 Markdown 报告；不提供任意远程命令和变更操作。SSH connectivity 之外的问题（业务缺陷、用例、UI 自动化、知识维护）转对应 skill。
+description: 诊断 Kata 工作区中已登记服务器或数据源的 SSH 连通性问题，包括配置缺失、host key 未信任、网络失败和认证失败，并生成脱敏报告。仅适用于受控 connectivity 检查；业务缺陷转 defect-analyze，用例与 UI 自动化问题转对应 Skill。
 ---
 
-# infra-diagnose
+# Outcome
 
-只覆盖「配置可用性 + 单目标 SSH connectivity」。只产出一份报告，其中只保存脱敏后的检查结果和结论。
+对一个明确目标完成受控 SSH2 connectivity 检查，交付一份可通过 CLI 校验、且不含凭据或完整终端日志的 Markdown 报告。
 
-## Phase 1：检查配置
+## Routing
 
-```bash
-kata config doctor --scope infra --exit-code
-```
+- 服务器或数据源无法连接、SSH 认证失败、host key 异常：执行本 Skill。
+- SQL、服务接口或产品行为异常：转 `defect-analyze`。
+- 用例编写、UI 自动化或知识维护：转对应 Skill。
+- 用户要求执行任意远程命令或改变远程系统：说明超出本 Skill 权限边界并停止。
 
-确认 `hosts.yaml`、`data_sources.yaml`、`credentials.yaml` 之间的引用完整，且私密文件权限正确。
+## Steps
 
-## Phase 2：受控 connectivity 检查
+1. 检查本机配置
+   - 完整读取 [references/playbook.md](references/playbook.md)，执行其中的配置检查。
+   - 完成条件：目标唯一解析到 `hosts.yaml` 中的主机，所引用的 Credential Profile 存在，配置检查退出码为 0。
 
-```bash
-kata infra inspect <host> \
-  --check connectivity \
-  --project <project> \
-  --slug <slug>
-```
+2. 执行 connectivity 检查
+   - 按 playbook 处理凭据和 host key，再通过 `kata infra inspect` 执行唯一受支持的 `connectivity` 检查。
+   - 完成条件：检查命令已结束，并在 `workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md` 写入成功或失败结论；未知或变化的指纹必须保持阻断状态。
 
-只支持 `connectivity` 一种检查。SSH 连接基于 `ssh2` 实现，host key 必须显式信任才能连接；首次连接时先核对指纹，再执行：
+3. 校验交付报告
+   - 使用 `kata infra lint` 校验报告。
+   - 完成条件：lint 退出码为 0，报告不含密码、Cookie、连接串、私密 YAML 正文或完整终端日志。
 
-```bash
-kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
-```
+## Delivery
 
-此后指纹一旦变化即阻断连接，不能通过关闭校验绕过。
+- 返回报告路径、检查状态、失败阶段和下一条可执行恢复命令。
+- 明确区分“SSH connectivity 已验证”和“业务原始访问路径尚未验证”。
+- 未完成配置、信任或认证时交付阻塞结论，不把局部成功表述为业务可用。
 
-## Phase 3：查看与校验报告
+## Guardrails
 
-报告写入 `workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md`，其中不保存密码、Cookie、连接串或完整终端日志。报告状态只记录本次检查是否完成；SSH 成功不代表业务原始路径已验证。
+- 只使用 Kata 的 `ssh2` 检查能力，不执行任意远程命令、shell、脚本上传、服务重启、防火墙修改、配置变更或数据操作。
+- 凭据只保存在本机 `config/infra/credentials.yaml`；通过 `kata infra credentials set --username` 交互录入，不在命令参数、对话或日志中传递密码。
+- host key 必须通过 `kata infra trust-host --fingerprint` 显式信任；不关闭校验，也不自动接受变化后的指纹。
+- 不自动把一次 connectivity 结果写成 `verified` 业务知识。
 
-交付前运行：
+## References
 
-```bash
-kata infra lint --report workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md --exit-code
-```
-
-## 配置文件
-
-- `config/infra/hosts.yaml`：SSH 主机、端口、`credential_ref` 和已核验的 host key 指纹。
-- `config/infra/data_sources.yaml`：数据源地址、协议、端口、数据库和 `credential_ref`。
-- `config/infra/credentials.yaml`：本机私密 Credential Profile，权限 `0600`，永不提交；写入时使用原子替换。
-- 未显式提供 `credential_ref` 时，服务器主机使用 `server-default`，数据源使用 `data-source-default`；两类凭据不交叉尝试。
-- 某个绑定缺失或认证被拒绝时，只报告该绑定，不逐个尝试其他凭据。
-- 密码只能通过交互方式录入，不允许用命令行参数传入：
-
-  ```bash
-  kata infra credentials set <name> --username <username>
-  ```
-
-  用户未提供凭据时只使用本机默认 profile。连接失败时立即返回脱敏后的错误并要求用户补充凭据，不在自动化进程中等待交互输入。
-
-- 测试或自动化场景可以从 stdin 录入：
-
-  ```bash
-  printf '%s\n' '<password>' | kata infra credentials set <name> --username <username> --stdin
-  ```
-
-  CLI 输出只返回 profile 名和文件路径，不输出密码。
-
-## 边界
-
-- 不执行任意 `exec`、shell、脚本上传或远程命令拼接。
-- 不使用 `sshpass`、`StrictHostKeyChecking=no` 或环境变量默认密码。
-- 不做服务重启、防火墙、配置文件、进程和数据方面的变更。
-- 不自动写回 `verified` 知识。
+- 执行本 Skill 时完整读取 [references/playbook.md](references/playbook.md)，其中是命令、配置默认值和逐步完成条件的唯一来源。
+- 生成报告时使用 [templates/infra-report.md](templates/infra-report.md)。
