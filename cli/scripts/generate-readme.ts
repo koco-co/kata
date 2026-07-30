@@ -8,10 +8,14 @@ const root = process.cwd();
 const cli = join(root, "cli", "bin", "kata.ts");
 const readme = join(root, "cli", "README.md");
 
+export function normalizeHelp(output: string): string {
+  return output.replaceAll(root, "<kata-root>");
+}
+
 function help(path: string[]): string {
   const result = spawnSync("bun", [cli, ...path, "--help"], { cwd: root, encoding: "utf8" });
   if (result.status !== 0) throw new Error(result.stderr || `无法读取 kata ${path.join(" ")} help`);
-  return result.stdout.trimEnd();
+  return normalizeHelp(result.stdout.trimEnd());
 }
 
 function commandNames(output: string): string[] {

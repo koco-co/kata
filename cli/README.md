@@ -455,7 +455,8 @@ Usage: kata config plugins-migrate [options]
 
 Options:
   --source <path>  旧 dotenv 文件路径
-  --root <path>    目标 Kata 工作区根目录 (default: "/Users/poco/Projects/kata")
+  --root <path>    目标 Kata 工作区根目录 (default:
+                   "<kata-root>")
   --apply          写入 config/plugin/*.yaml
   -h, --help       display help for command
 ```
@@ -1130,7 +1131,7 @@ Usage: kata zentao create [options]
 Options:
   --report <path>  BugReport Markdown 路径
   --config <path>  ZenTao 配置 yaml (default:
-                   "/Users/poco/Projects/kata/cli/integrations/zentao/zentao.config.yaml")
+                   "<kata-root>/cli/integrations/zentao/zentao.config.yaml")
   --dry-run        只组装字段不提交,打印 payload (default: false)
   -h, --help       display help for command
 ```
