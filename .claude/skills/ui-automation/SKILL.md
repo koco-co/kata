@@ -1,65 +1,52 @@
 ---
 name: ui-automation
-description: 触发：只发 feature 目录路径或目录名（不带文件扩展名）且未声明其他意图，或明确要求生成、修复、验证 UI 自动化。把 feature 目录里的用例转成在真实环境跑通的 Playwright 脚本（Web；桌面端 Electron 支持未落地），或修复已有自动化。只写非 UI 用例转 test-case；只做静态代码扫描转 defect-analyze。
+description: 生成、修复、运行或验证 feature 目录中的 Playwright UI 自动化；用户只发送 feature 目录路径且未声明其他意图时也触发。当前正式支持 Web，Electron 仅可在说明未落地并取得用户决定后探索；非 UI 用例转 test-case，静态代码扫描转 defect-analyze。
 ---
 
-# ui-automation
+# Outcome
 
-把用例转成在真实环境跑通的 Playwright 脚本——Web 走真实浏览器，桌面端（Electron）走真实应用窗口——并实际运行到全部通过。
+将 YAML 用例实现为目标 Web 环境中真实执行的 Playwright 脚本，并用运行结果、Allure 和平台业务记录证明完成状态。
 
-## 目标形态
+## Routing
 
-| 形态 | 驱动 | 环境差异 |
-|---|---|---|
-| Web（默认） | 真实浏览器 | base_url / cookie 由 `kata env run` 注入 |
-| 桌面端（Electron，未落地） | `playwright._electron` 启动真实应用包 | 无 base_url / cookie；确认项是应用包路径、版本与其后端指向；窗口即 page |
+- Web 已落地：依次执行 prepare、implement、deliver。
+- Electron 未落地：先说明没有已验证交付链，取得用户是否探索的决定；未经决定不套用 Web 完成声明。
+- 原生 App、小程序和非 Playwright 平台：超出当前能力，说明边界。
+- 只写非 UI 用例：转 `test-case`；只做静态扫描：转 `defect-analyze`。
 
-桌面端是 Playwright 的原生能力，与 Web 共用流程、脚本规范与完成标准，但当前没有已验证的桌面端交付，一律标注「未落地」；接到桌面端需求时先向用户说明这一点，再决定是否按本文流程探索。原生 App、小程序暂不在支持范围内，出现这类需求时再增加平台分支，不改动既有 Web 内容。
+## Steps
 
-## 环境确认（先于一切探测）
+1. 确认 feature 与环境
+   - 没有环境名时先运行 `kata env list`，推荐 `ltqc-local` 并说明依据；用户确认默认后不重复询问。
+   - 完成条件：feature 路径、目标环境和待自动化 YAML 用例清单唯一，Cookie 只确认配置状态而不读取或回显值。
 
-- 用户没给环境名时：先运行 `kata env list`，再一次性问清用哪个环境，默认推荐 `ltqc-local` 并附上理由。
-- 用户回复「确认」「使用默认」即等于选定 `ltqc-local`，直接进入预检，不再重复询问。
-- 无法交互提问时：只输出环境确认文案（各环境的 base_url / 租户 / 项目 / cookie 是否已配置），等用户回复；cookie 内容绝不出现在对话中。
+2. 顺序执行工作流
+   - 完整执行 [workflows/prepare.md](workflows/prepare.md)、[workflows/implement.md](workflows/implement.md) 和 [workflows/deliver.md](workflows/deliver.md)。
+   - 完成条件：前一阶段的完成条件全部满足后才进入下一阶段；失败项有明确分类和证据。
 
-## 流程
+3. 判断交付状态
+   - 只有 `automation/tests/runners/full.spec.ts` 全量通过、本次 run 有 Allure 结果、且平台产生核心流程业务记录时才算完成。
+   - 完成条件：三项证据均来自同一目标环境和同一 `runs/<run-id>/`；任一缺失即交付未完成状态。
 
-| Phase | 文件 | 做什么 |
-|---|---|---|
-| 1 准备 | [workflows/prepare.md](workflows/prepare.md) | 定位 feature、读用例源、环境预检、建骨架 |
-| 2 实现 | [workflows/implement.md](workflows/implement.md) | 核对真实 UI、生成脚本、运行与修复 |
-| 3 交付 | [workflows/deliver.md](workflows/deliver.md) | 全量运行、lint、handoff、验收说明 |
+## Delivery
 
-## 完成标准
+- 返回重跑 full 的命令、通过与排除清单、Allure 与截图位置、平台业务记录名称或 ID。
+- 分开报告脚本问题、产品 Bug、数据问题、权限问题和环境问题。
+- 只读导航只有用户明确要求只读覆盖时才算覆盖；只跑 smoke、仅语法检查或仅有 runner exit 0 均不算完成。
 
-以下三条同时满足才算完成：
+## Guardrails
 
-1. `automation/tests/runners/full.spec.ts` 在目标环境全量通过；
-2. 本次 `runs/<run-id>/` 下有 Allure 结果；
-3. 被测平台已产生该用例核心流程的业务记录数据（规则、任务等确已真实创建）。
+- 创建、编辑、保存、删除、运行和导入等业务动作通过真实页面完成；后端接口只用于经授权的前置数据或诊断，不替代被测 UI 行为。
+- 不用弱断言、吞错、`test.skip` 或 mock 被测业务接口换取通过。
+- 菜单、字段和按钮以真实探测为准；书面用例错误时记录差异并交回 `test-case` 修正 YAML。
+- Cookie 只经 `kata env run` 注入，真实值保存在权限为 `0600` 的 `config/env/<env>.yaml`，不进入对话、日志、代码或 fixture。
+- Playwright 只能经 `kata runs exec` 或已分配的 `kata runs new` 路径运行；CLI 注入 `KATA_RUN_PATH`。结果进入 feature 的 `runs/<run-id>/`，仓库根目录不创建 `.runs`。
+- 正式脚本使用 `c<四位序号>-<英文slug>.spec.ts`；slug 根据中文标题判断并只保留一个，既有 slug 不因标题修改自动重算。
 
-只读脚本（纯导航 + 可见性断言）只有在用户明确要求只读覆盖时才算覆盖；否则应把该用例排除，并在 handoff 中写清原因，不得声称完成。只跑通 smoke 不算完成。
+## References
 
-## 纪律
-
-- 业务动作（创建 / 编辑 / 保存 / 删除 / 运行 / 导入）必须走页面操作；未经用户针对具体动作的明确授权，不得用后端接口替代 UI。
-- 不得靠弱化断言、`try-catch` 吞错、`test.skip` 或 mock 被测业务接口来换取通过。
-- 菜单、字段、按钮等以真实探测为准（浏览器或应用窗口），不要把需求文档的描述当作 UI 依据；`kata knowledge read` 的命中条目可作候选，与探测结果冲突时以探测为准。
-- Cookie 只经 `kata env run <env> -- <command>` 注入；真实值只保存在 `config/env/<env>.yaml`（权限 0600），不进对话、日志、代码、测试夹具。
-
-## 知识闭环
-
-- 定位 feature 后先运行 `kata knowledge read --project <project> --module <模块>` 注入命中条目；修复过程中遇到报错时，按 `--keyword <报错关键词>` 补查。
-- 交付前把探测核实过的页面信息和踩坑记录按四种状态写回（`kata knowledge write`，见 domain-knowledge skill）；仅单次观察到的现象要先向用户确认再写入，没有新知识就不写入。
-
-## 产物位置
-
-```
-<featureDir>/automation/tests/{cases,runners,pages,flows,assertions,fixtures,sql}/
-<featureDir>/runs/<run-id>/_tmp/（一次性且未跟踪的临时代码）
-<featureDir>/runs/<run-id>/{allure-results,screenshots,logs,handoff.md}
-```
-
-骨架用 `kata automation scaffold <featureDir>` 创建，目录违规用 `kata automation normalize` 修复。Playwright 必须经 `kata runs exec <版本目录/需求目录名> --project <project> -- <command...>` 运行，由 CLI 以原子方式分配 `runs/<run-id>/` 并注入 `KATA_RUN_PATH`；缺少显式 run 路径时直接失败。只需要分配目录、分阶段执行时可用 `kata runs new`，但后续命令仍必须显式传入该 run 路径。仓库内禁止 `.runs/`。跨 feature 复用至少两次的页面对象、fixture 与 helper 放在 `workspace/<project>/_shared/`；单 feature 的业务流程、断言与 fixture 留在自己的 `tests/{flows,assertions,fixtures}`。
-
-用例的自动化映射分 `unmapped`、`mapped-not-implemented`、`implemented` 三种状态；只有 `implemented` 状态的用例才能进入 full runner，且其 `automation.spec_file` 必须指向可加载的 `c<四位序号>-<英文slug>.spec.ts`。英文 slug 由大模型根据中文用例标题自主判断，只保留一个。准备阶段和交付阶段都必须运行 feature 与 shared automation lint。
+- 准备阶段：完整读取 [workflows/prepare.md](workflows/prepare.md)。
+- 实现阶段：完整读取 [workflows/implement.md](workflows/implement.md) 和 [references/conventions.md](references/conventions.md)。
+- 交付阶段：完整读取 [workflows/deliver.md](workflows/deliver.md)。
+- 需要具体 API 时按需读取 [references/playwright-api.md](references/playwright-api.md)。
+- 用户明确要求并行子代理时，读取 [prompts/worker.md](prompts/worker.md)。

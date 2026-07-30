@@ -197,6 +197,15 @@ describe("skill contract", () => {
     expectCheckableTopLevelSteps(join(skillDir("test-case"), "workflows/create.md"));
     expectCheckableTopLevelSteps(join(skillDir("test-case"), "workflows/edit.md"));
   });
+
+  it("ui-automation 明确已落地平台且 workflow 步骤可检查", () => {
+    const skill = readSkillMd("ui-automation");
+    expect(skill).toContain("Web 已落地");
+    expect(skill).toContain("Electron 未落地");
+    for (const workflow of ["prepare.md", "implement.md", "deliver.md"]) {
+      expectCheckableTopLevelSteps(join(skillDir("ui-automation"), "workflows", workflow));
+    }
+  });
 });
 
 describe("codex plugin", () => {

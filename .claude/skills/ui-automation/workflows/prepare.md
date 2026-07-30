@@ -1,19 +1,30 @@
 # Phase 1：准备
 
-## 定位与读取
+## Steps
 
-1. 按用户给的 feature 绝对路径，或相对 `features/` 的完整路径定位 feature；项目级命令不接受名称片段、metadata ID 或 requirement ID。
-2. 读 `cases/需求名.yaml`、`prd/prd.md` 与 `cases/test-points.md`，列出待自动化的用例清单。如果没有用例 YAML，或 canonical feature 缺最终 PRD，就阻塞流程，告诉用户先用 test-case skill 完成确认式 PRD 与用例编写。
+1. 定位并读取 feature
+   - 接受用户给出的绝对 feature 路径，或相对 `features/` 的完整路径；项目级命令不接受名称片段、metadata ID 或 requirement ID。
+   - 读取 `cases/需求名.yaml`、`prd/prd.md` 和 `cases/test-points.md`，列出待自动化用例。
+   - 完成条件：feature 唯一、YAML 可解析、正式 PRD 和测试点存在；缺失时停止并转 `test-case`。
 
-## 环境预检
+2. 校验环境
+   - 运行 `kata env doctor <env>`；Cookie 失效时让用户通过 `kata env cookie set <env> --stdin` 更新。
+   - 完成条件：环境配置、权限、凭据和在线精确解析均通过，任何秘密都未进入输出。
 
-3. 运行 `kata env doctor <env>` 校验配置、权限与凭据；cookie 失效时请用户用 `kata env cookie set <env> --stdin` 更换。
-4. 用 `kata runs exec <版本目录/需求目录名> --project <project> --type preflight -- kata env run <env> -- <playwright command>` 创建预检 run 并执行；不要手动设置结果目录，也不要创建 `.runs/`。
-5. 用真实浏览器（桌面端为真实应用窗口）打开目标环境，确认登录态有效、目标项目与目标数据源可见。预检发现的环境、权限或数据问题要先修复（或报给用户），不带病进入实现阶段。
+3. 执行真实预检
+   - 使用：
 
-## 目录规范
+     ```bash
+     kata runs exec <版本目录/需求目录名> --project <project> --type preflight -- \
+       kata env run <env> -- <playwright command>
+     ```
 
-6. 用 `kata automation scaffold <featureDir>` 补齐骨架；已有 `automation/` 目录时，先执行 `kata automation normalize <featureDir>` 预览，确认迁移范围后再加 `--apply`。
-7. 准备阶段的静态闸门：运行 `kata automation lint <featureDir> --exit-code` 与 `kata automation lint --shared --exit-code`；所有违规必须先修复再继续。
+   - 在真实浏览器中确认登录态、目标项目和目标数据源可见。
+   - 完成条件：预检 run 已分配，浏览器证据证明目标页面可达；环境、权限或数据阻塞已解决或明确交付。
 
-预检通过后进入 [implement.md](implement.md)。
+4. 校验目录与静态闸门
+   - 使用 `kata automation scaffold <featureDir>` 补齐骨架。已有 automation 时先运行 `kata automation normalize <featureDir>` 预览，确认范围后才加 `--apply`。
+   - 运行 `kata automation lint <featureDir> --exit-code` 和项目明确的 shared lint。
+   - 完成条件：结构违规为零，预览之外没有文件迁移，现有用户实现未被覆盖。
+
+完成全部条件后进入 [implement.md](implement.md)。
