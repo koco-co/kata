@@ -12,7 +12,7 @@ import { basename, resolve } from "node:path";
 import { repoRoot } from "../../lib/paths.ts";
 import { loadZentaoConfig, pluginConfigPath } from "../../lib/plugin-config.ts";
 
-import { parseBugPayload } from "./parse.ts";
+import { parseBugPayload, type RichBug } from "./parse.ts";
 import {
   type AuthedBugJson,
   type FetchFn,
@@ -21,22 +21,45 @@ import {
   type ZentaoCreds,
 } from "./session.ts";
 
-// re-export 供现有测试与外部复用
-export { detectFixBranch, parseZentaoResponseText } from "./parse.ts";
-
 // ─── 类型定义 ────────────────────────────────────────────────────────────────
-interface ErrorOutput {
-  error: string;
-  hint?: string;
-  partial?: boolean;
-}
-
-interface PartialBugOutput {
+export interface PartialBugOutput {
   bug_id: number;
   title: null;
   fix_branch: null;
   error: string;
   partial: true;
+}
+
+export interface ZentaoFetchOutput {
+  bug_id: number;
+  url: string;
+  title: RichBug["title"];
+  severity: RichBug["fields"]["severity"];
+  priority: RichBug["fields"]["priority"];
+  status: RichBug["fields"]["status"];
+  fix_branch: RichBug["fields"]["fix_branch"];
+  assigned_to: RichBug["fields"]["assigned_to"];
+  module: RichBug["fields"]["module"];
+  fields: RichBug["fields"];
+  sections: RichBug["sections"];
+  history: RichBug["history"];
+  attachments: DownloadedAttachment[];
+  output_path: string;
+}
+
+export type ZentaoFetchResult = PartialBugOutput | ZentaoFetchOutput;
+
+export class ZentaoIntegrationError extends Error {
+  readonly exitCode = 1;
+
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly hint?: string,
+  ) {
+    super(`${code}: ${message}${hint ? `\n${hint}` : ""}`);
+    this.name = "ZentaoIntegrationError";
+  }
 }
 
 // ─── URL 解析 ────────────────────────────────────────────────────────────────
@@ -104,12 +127,7 @@ export async function downloadMarkdownAttachments(
 }
 
 // ─── 输出辅助 ────────────────────────────────────────────────────────────────
-function writeJsonExit(payload: ErrorOutput, code: number): never {
-  process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
-  process.exit(code);
-}
-
-function writePartial(outputPath: string, bugId: number, error: string): void {
+function writePartial(outputPath: string, bugId: number, error: string): PartialBugOutput {
   const partial: PartialBugOutput = {
     bug_id: bugId,
     title: null,
@@ -118,7 +136,7 @@ function writePartial(outputPath: string, bugId: number, error: string): void {
     partial: true,
   };
   writeFileSync(outputPath, JSON.stringify(partial, null, 2), "utf8");
-  process.stdout.write(`${JSON.stringify(partial, null, 2)}\n`);
+  return partial;
 }
 
 // ─── 主流程 ──────────────────────────────────────────────────────────────────
@@ -126,8 +144,7 @@ export async function runFetch(options: {
   bugId?: number;
   url?: string;
   output: string;
-  silent?: boolean;
-}): Promise<void> {
+}): Promise<ZentaoFetchResult> {
   const projectRoot = repoRoot();
   const pluginConfig = loadZentaoConfig(projectRoot);
 
@@ -138,11 +155,14 @@ export async function runFetch(options: {
   } else if (options.url) {
     const extracted = extractBugIdFromUrl(options.url);
     if (extracted === null) {
-      writeJsonExit({ error: "无法从 URL 提取 Bug ID，预期格式：bug-view-{数字}.html" }, 1);
+      throw new ZentaoIntegrationError(
+        "INVALID_BUG_URL",
+        "无法从 URL 提取 Bug ID，预期格式：bug-view-{数字}.html",
+      );
     }
-    bugId = extracted as number;
+    bugId = extracted;
   } else {
-    writeJsonExit({ error: "必须提供 --bug-id 或 --url 参数" }, 1);
+    throw new ZentaoIntegrationError("BUG_ID_REQUIRED", "必须提供 --bug-id 或 --url 参数");
   }
 
   // Validate env
@@ -155,14 +175,11 @@ export async function runFetch(options: {
   if (!configuredCookie && !account) missing.push("username");
   if (!configuredCookie && !password) missing.push("password");
   if (missing.length > 0) {
-    writeJsonExit(
-      {
-        error: `缺少必要的禅道配置：${missing.join(", ")}`,
-        hint:
-          `请在 ${pluginConfigPath("zentao", projectRoot)} 中配置 base_url，以及 cookie 或完整账号密码；` +
-          "也可设置环境变量 KATA_ZENTAO_BASE_URL / KATA_ZENTAO_COOKIE / KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD",
-      },
-      1,
+    throw new ZentaoIntegrationError(
+      "ZENTAO_CONFIG_MISSING",
+      `缺少必要的禅道配置：${missing.join(", ")}`,
+      `请在 ${pluginConfigPath("zentao", projectRoot)} 中配置 base_url，以及 cookie 或完整账号密码；` +
+        "也可设置环境变量 KATA_ZENTAO_BASE_URL / KATA_ZENTAO_COOKIE / KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD",
     );
   }
 
@@ -183,34 +200,30 @@ export async function runFetch(options: {
     raw = await fetchAuthedBugJson(bugId, creds);
   } catch (err) {
     const e = err as Error & { code?: string };
-    if (e.code === "BUG_NOT_FOUND") writeJsonExit({ error: `Bug #${bugId} 不存在` }, 1);
+    if (e.code === "BUG_NOT_FOUND") {
+      throw new ZentaoIntegrationError("BUG_NOT_FOUND", `Bug #${bugId} 不存在`);
+    }
     if (e.code === "LOGIN_FAILED") {
-      writeJsonExit(
-        {
-          error: "禅道登录失败",
-          hint: `请检查 ${pluginConfigPath("zentao", projectRoot)} 中的 username 和 password`,
-        },
-        1,
+      throw new ZentaoIntegrationError(
+        "LOGIN_FAILED",
+        "禅道登录失败",
+        `请检查 ${pluginConfigPath("zentao", projectRoot)} 中的 username 和 password`,
       );
     }
     if (e.code === "ZENTAO_AUTH_MISSING") {
-      writeJsonExit({ error: e.message }, 1);
+      throw new ZentaoIntegrationError("ZENTAO_AUTH_MISSING", e.message);
     }
     if (e.code === "NETWORK_ERROR" && options.url) {
-      writePartial(outputPath, bugId, "禅道 API 不可达，仅从 URL 提取了 Bug ID");
-      return;
+      return writePartial(outputPath, bugId, "禅道 API 不可达，仅从 URL 提取了 Bug ID");
     }
-    // e.message 已带各错误码的描述前缀（network/fetch 等），直接透传避免重复前缀；
-    // 此时未写 partial 文件，不带 partial 标记
-    writeJsonExit({ error: e.message }, 1);
+    throw new ZentaoIntegrationError(e.code ?? "FETCH_FAILED", e.message);
   }
   const rawText = raw.text;
 
   // Parse → 富结构
   const rich = parseBugPayload(rawText);
   if (!rich) {
-    writePartial(outputPath, bugId, "禅道返回了无法解析的响应");
-    return;
+    return writePartial(outputPath, bugId, "禅道返回了无法解析的响应");
   }
 
   const evidenceMarkdown = [
@@ -232,12 +245,13 @@ export async function runFetch(options: {
         raw.cookie,
       );
     } catch (err) {
-      writeJsonExit({ error: (err as Error).message }, 1);
+      const error = err as Error & { code?: string };
+      throw new ZentaoIntegrationError(error.code ?? "ATTACHMENT_FETCH_FAILED", error.message);
     }
   }
 
   // 装配输出：保留 legacy 顶层字段 + 富结构
-  const output = {
+  const output: ZentaoFetchOutput = {
     bug_id: rich.bug_id ?? bugId,
     url: options.url ?? `${creds.baseUrl}/zentao/bug-view-${bugId}.html`,
     title: rich.title,
@@ -254,5 +268,5 @@ export async function runFetch(options: {
     output_path: outputPath,
   };
   writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
-  if (!options.silent) process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+  return output;
 }

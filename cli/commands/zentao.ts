@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { DEFAULT_CONFIG, runCreate } from "../integrations/zentao/create.ts";
-import { runFetch } from "../integrations/zentao/fetch.ts";
+import { runFetch, ZentaoIntegrationError } from "../integrations/zentao/fetch.ts";
+import { outputJson } from "../lib/cli.ts";
 
 /** Build the `zentao` command: low-level bug fetch and formal report registration. */
 export function registerZentao(program: Command): void {
@@ -19,21 +20,17 @@ export function registerZentao(program: Command): void {
       let bugId: number | undefined;
       if (opts.bugId !== undefined) {
         if (!/^\d+$/.test(opts.bugId)) {
-          // 与 runFetch 内部错误输出一致的机器可读契约
-          process.stdout.write(
-            `${JSON.stringify({ error: `无效的 Bug ID 格式:"${opts.bugId}",必须为正整数` }, null, 2)}\n`,
+          throw new ZentaoIntegrationError(
+            "INVALID_BUG_ID",
+            `无效的 Bug ID 格式:"${opts.bugId}",必须为正整数`,
           );
-          process.exit(1);
         }
         bugId = Number.parseInt(opts.bugId, 10);
       }
       if (bugId === undefined && !opts.url) {
-        process.stdout.write(
-          `${JSON.stringify({ error: "必须提供 --bug-id 或 --url 参数" }, null, 2)}\n`,
-        );
-        process.exit(1);
+        throw new ZentaoIntegrationError("BUG_ID_REQUIRED", "必须提供 --bug-id 或 --url 参数");
       }
-      await runFetch({ bugId, url: opts.url, output: opts.output });
+      outputJson(await runFetch({ bugId, url: opts.url, output: opts.output }));
     });
 
   zentao

@@ -147,7 +147,7 @@ export function registerDefects(program: Command): void {
 
         const temp = mkdtempSync(join(tmpdir(), "kata-hotfix-fetch-"));
         try {
-          await runFetch({ bugId, url: opts.url, output: temp, silent: true });
+          await runFetch({ bugId, url: opts.url, output: temp });
           const urlBugId = opts.url?.match(BUG_VIEW_ID_RE)?.[1];
           const fetchedId = bugId ?? (urlBugId ? Number.parseInt(urlBugId, 10) : undefined);
           if (!fetchedId) throw new Error("无法确定抓取到的 Bug ID");

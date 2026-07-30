@@ -14,15 +14,18 @@ import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
-  detectFixBranch,
   downloadMarkdownAttachments,
   extractBugIdFromUrl,
   extractMarkdownAttachmentUrls,
-  parseZentaoResponseText,
 } from "../../../cli/integrations/zentao/fetch.ts";
+import {
+  detectFixBranch,
+  parseZentaoResponseText,
+} from "../../../cli/integrations/zentao/parse.ts";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
+const ZENTAO_FETCH_TS = resolve(__dirname, "../../../cli/integrations/zentao/fetch.ts");
 const PROJECT_ROOT = resolve(__dirname, "../../../");
 
 const TMP_DIR = join(tmpdir(), `zentao-fetch-test-${process.pid}`);
@@ -58,6 +61,14 @@ afterEach(() => {
   } catch {
     // ignore
   }
+});
+
+describe("ZenTao fetch library boundary", () => {
+  it("returns results or throws instead of writing CLI output or exiting", () => {
+    const source = readFileSync(ZENTAO_FETCH_TS, "utf8");
+    assert.equal(source.includes("process.exit("), false);
+    assert.equal(source.includes("process.stdout.write"), false);
+  });
 });
 
 // ─── extractBugIdFromUrl ──────────────────────────────────────────────────────
@@ -269,7 +280,7 @@ describe("CLI: missing env vars", () => {
     const fakeRoot = makeFakeRoot();
 
     let exitCode = 0;
-    let stdout = "";
+    let stderr = "";
     try {
       execFileSync(
         "bun",
@@ -282,19 +293,18 @@ describe("CLI: missing env vars", () => {
         },
       );
     } catch (err) {
-      const e = err as { status?: number; stdout?: string; stderr?: string };
+      const e = err as { status?: number; stderr?: string };
       exitCode = e.status ?? 0;
-      stdout = e.stdout ?? "";
+      stderr = e.stderr ?? "";
     }
 
     assert.equal(exitCode, 1, "should exit with code 1");
-    const parsed = JSON.parse(stdout) as { error: string; hint?: string };
     assert.ok(
-      parsed.error.includes("KATA_ZENTAO_BASE_URL") ||
-        parsed.error.includes("KATA_ZENTAO_ACCOUNT") ||
-        parsed.error.includes("KATA_ZENTAO_PASSWORD") ||
-        parsed.error.includes("缺少"),
-      `should mention missing vars, got: ${parsed.error}`,
+      stderr.includes("KATA_ZENTAO_BASE_URL") ||
+        stderr.includes("KATA_ZENTAO_ACCOUNT") ||
+        stderr.includes("KATA_ZENTAO_PASSWORD") ||
+        stderr.includes("缺少"),
+      `should mention missing vars, got: ${stderr}`,
     );
   });
 });
@@ -307,7 +317,7 @@ describe("CLI: config root resolution", () => {
     const fakeRoot = makeFakeRoot();
 
     let exitCode = 0;
-    let stdout = "";
+    let stderr = "";
     try {
       execFileSync(
         "bun",
@@ -320,21 +330,20 @@ describe("CLI: config root resolution", () => {
         },
       );
     } catch (err) {
-      const e = err as { status?: number; stdout?: string; stderr?: string };
+      const e = err as { status?: number; stderr?: string };
       exitCode = e.status ?? 0;
-      stdout = e.stdout ?? "";
+      stderr = e.stderr ?? "";
     }
 
     assert.equal(exitCode, 1, "should exit with code 1");
-    const parsed = JSON.parse(stdout) as { error: string; hint?: string };
     const expectedYaml = join(fakeRoot, "config", "plugin", "zentao.yaml");
     assert.ok(
-      parsed.hint?.includes(expectedYaml),
-      `hint should point at ${expectedYaml}, got: ${parsed.hint}`,
+      stderr.includes(expectedYaml),
+      `hint should point at ${expectedYaml}, got: ${stderr}`,
     );
     assert.ok(
-      !parsed.hint?.includes(join("cli", "config", "plugin")),
-      `hint must not resolve cli/ as config root, got: ${parsed.hint}`,
+      !stderr.includes(join("cli", "config", "plugin")),
+      `hint must not resolve cli/ as config root, got: ${stderr}`,
     );
     for (const name of [
       "KATA_ZENTAO_BASE_URL",
@@ -342,7 +351,7 @@ describe("CLI: config root resolution", () => {
       "KATA_ZENTAO_ACCOUNT",
       "KATA_ZENTAO_PASSWORD",
     ]) {
-      assert.ok(parsed.hint?.includes(name), `hint should mention ${name}, got: ${parsed.hint}`);
+      assert.ok(stderr.includes(name), `hint should mention ${name}, got: ${stderr}`);
     }
   });
 });
@@ -354,7 +363,7 @@ describe("CLI: invalid bug ID format", () => {
     mkdirSync(TMP_DIR, { recursive: true });
 
     let exitCode = 0;
-    let stdout = "";
+    let stderr = "";
     try {
       execFileSync(
         "bun",
@@ -376,19 +385,15 @@ describe("CLI: invalid bug ID format", () => {
         },
       );
     } catch (err) {
-      const e = err as { status?: number; stdout?: string; stderr?: string };
+      const e = err as { status?: number; stderr?: string };
       exitCode = e.status ?? 0;
-      stdout = e.stdout ?? "";
+      stderr = e.stderr ?? "";
     }
 
     assert.equal(exitCode, 1, "should exit with code 1");
-    // Should output error about invalid bug ID before reaching env check
-    const parsed = JSON.parse(stdout) as { error: string };
     assert.ok(
-      parsed.error.includes("Bug ID") ||
-        parsed.error.includes("格式") ||
-        parsed.error.includes("整数"),
-      `should mention invalid ID format, got: ${parsed.error}`,
+      stderr.includes("Bug ID") || stderr.includes("格式") || stderr.includes("整数"),
+      `should mention invalid ID format, got: ${stderr}`,
     );
   });
 
@@ -396,7 +401,7 @@ describe("CLI: invalid bug ID format", () => {
     mkdirSync(TMP_DIR, { recursive: true });
 
     let exitCode = 0;
-    let stdout = "";
+    let stderr = "";
     try {
       execFileSync(
         "bun",
@@ -409,16 +414,15 @@ describe("CLI: invalid bug ID format", () => {
         },
       );
     } catch (err) {
-      const e = err as { status?: number; stdout?: string; stderr?: string };
+      const e = err as { status?: number; stderr?: string };
       exitCode = e.status ?? 0;
-      stdout = e.stdout ?? "";
+      stderr = e.stderr ?? "";
     }
 
     assert.equal(exitCode, 1, "should exit with code 1");
-    const parsed = JSON.parse(stdout) as { error: string };
     assert.ok(
-      parsed.error.includes("Bug ID") || parsed.error.includes("整数"),
-      `should mention invalid ID format, got: ${parsed.error}`,
+      stderr.includes("Bug ID") || stderr.includes("整数"),
+      `should mention invalid ID format, got: ${stderr}`,
     );
   });
 
@@ -426,7 +430,7 @@ describe("CLI: invalid bug ID format", () => {
     mkdirSync(TMP_DIR, { recursive: true });
 
     let exitCode = 0;
-    let stdout = "";
+    let stderr = "";
     try {
       execFileSync(
         "bun",
@@ -448,16 +452,15 @@ describe("CLI: invalid bug ID format", () => {
         },
       );
     } catch (err) {
-      const e = err as { status?: number; stdout?: string; stderr?: string };
+      const e = err as { status?: number; stderr?: string };
       exitCode = e.status ?? 0;
-      stdout = e.stdout ?? "";
+      stderr = e.stderr ?? "";
     }
 
     assert.equal(exitCode, 1, "should exit with code 1");
-    const parsed = JSON.parse(stdout) as { error: string };
     assert.ok(
-      parsed.error.includes("Bug ID") || parsed.error.includes("bug-view"),
-      `should mention URL format issue, got: ${parsed.error}`,
+      stderr.includes("Bug ID") || stderr.includes("bug-view"),
+      `should mention URL format issue, got: ${stderr}`,
     );
   });
 });
