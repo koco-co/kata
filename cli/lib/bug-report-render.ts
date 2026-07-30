@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import Handlebars from "handlebars";
 import type { BugReport, BugVariant } from "./bug-report-types.ts";
-import { repoRoot } from "./paths.ts";
 
 const VARIANT_TEMPLATE: Record<BugVariant, string> = {
   zentao: "bug-report-zentao.html.hbs",
 };
+const TEMPLATE_DIR = fileURLToPath(new URL("../templates/", import.meta.url));
 
 let helpersRegistered = false;
 function registerHelpers(): void {
@@ -41,7 +42,7 @@ function getTemplate(file: string): HandlebarsTemplateDelegate {
   const cached = cache.get(file);
   if (cached) return cached;
   registerHelpers();
-  const src = readFileSync(join(repoRoot(), "cli/templates", file), "utf8");
+  const src = readFileSync(join(TEMPLATE_DIR, file), "utf8");
   const tpl = Handlebars.compile(src);
   cache.set(file, tpl);
   return tpl;
