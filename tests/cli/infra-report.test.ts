@@ -28,9 +28,9 @@ const VALID = [
   "blocked",
   "## 变更计划与结果",
   "no remote change",
-  "## Original-path Retest",
+  "## 原始路径复测",
   "not run",
-  "## Knowledge writeback",
+  "## 知识回写",
   "not run",
 ].join("\n");
 
@@ -72,6 +72,10 @@ describe("infra Markdown contract", () => {
       expect(text).not.toContain("abc123xyz");
       expect(text).toContain("[redacted]");
       expect(text).toContain("SSH result: ready");
+      expect(text).toContain("## 原始路径复测");
+      expect(text).toContain("## 知识回写");
+      expect(text).not.toContain("Original-path Retest");
+      expect(text).not.toContain("Knowledge writeback");
       expect(lintInfraMarkdown(path)).toEqual([]);
     } finally {
       process.chdir(previous);

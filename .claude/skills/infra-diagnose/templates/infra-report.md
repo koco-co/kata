@@ -1,4 +1,4 @@
-# Infra connectivity report: <slug>
+# 基础设施连通性报告：<slug>
 
 - 状态：diagnosed | blocked
 - 项目：<project>
@@ -28,10 +28,10 @@
 
 说明本次是否执行了变更；未执行时也要明确说明。
 
-## Original-path Retest
+## 原始路径复测
 
 填写原始请求路径的复测结果；未执行复测时明确说明。
 
-## Knowledge writeback
+## 知识回写
 
 说明是否写回知识库；默认不自动写回。

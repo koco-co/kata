@@ -15,8 +15,8 @@ const REQUIRED_SECTIONS = [
   "证据",
   "结论",
   "变更计划与结果",
-  "Original-path Retest",
-  "Knowledge writeback",
+  "原始路径复测",
+  "知识回写",
 ] as const;
 
 function headings(text: string): Map<string, number> {
@@ -89,7 +89,7 @@ export function writeInfraReport(opts: {
   writeFileSync(
     path,
     [
-      `# Infrastructure 诊断报告：${basename(opts.slug)}`,
+      `# 基础设施连通性报告：${basename(opts.slug)}`,
       "",
       `- 状态：${opts.status}`,
       `- 目标：${opts.hostName}`,
@@ -120,11 +120,11 @@ export function writeInfraReport(opts: {
       "",
       "- 本次未执行任何远程变更。",
       "",
-      "## Original-path Retest",
+      "## 原始路径复测",
       "",
       "- 本最小版本未执行原始业务路径复测。",
       "",
-      "## Knowledge writeback",
+      "## 知识回写",
       "",
       "- 本次未自动写入知识库。",
       "",
