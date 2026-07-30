@@ -153,6 +153,8 @@ describe("skill contract", () => {
     );
     expect(implement).toContain("kata runs exec");
     expect(implement).toContain("bunx playwright test");
+    expect(implement).toContain("c<四位序号>-<slug>.spec.ts");
+    expect(implement).not.toContain("c<四位序号>-<slug>.ts");
     expect(implement).not.toContain("npx playwright test");
     expect(implement.indexOf("kata runs exec")).toBeLessThan(implement.indexOf("kata env run"));
 

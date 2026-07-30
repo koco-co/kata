@@ -10,7 +10,7 @@
 
 ## 生成（generate）
 
-4. 根据每条用例的 `automation.spec_file` 生成或维护 `automation/tests/cases/c<四位序号>-<slug>.ts`，runner 只负责 import；脚本规范见 [../references/conventions.md](../references/conventions.md)。
+4. 根据每条用例的 `automation.spec_file` 生成或维护 `automation/tests/cases/c<四位序号>-<slug>.spec.ts`，runner 只负责 import；脚本规范见 [../references/conventions.md](../references/conventions.md)。
 5. 运行一律走 `kata runs exec <版本目录/需求目录名> --project <project> -- kata env run <env> -- bunx playwright test ...`，不裸跑——run 路径与环境变量由 kata 注入。
 6. 用例的每个步骤都必须实现为真实页面动作，断言落在真实业务结果上；「导航 + 可见性」不算业务覆盖。
 7. 会改变平台状态的用例，必须创建唯一的测试记录，并用 UI 证据（路由、DOM 文案、截图、Allure 附件）断言记录名称、ID 与状态。在共享环境重建记录前，先清理或隔离历史自动化数据。
