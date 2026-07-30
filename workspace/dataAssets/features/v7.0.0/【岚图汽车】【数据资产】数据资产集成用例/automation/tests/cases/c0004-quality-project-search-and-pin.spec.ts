@@ -1,7 +1,7 @@
 import { test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import { expect } from "@playwright/test";
 import { type SparkThriftQualityRuleValidationScenario } from "../../../../../../_shared/automation/pages/data-quality/page-context";
-import { expectSparkThriftQualityRuleMatrixContract } from "../../../../../../_shared/automation/pages/data-quality/sparkthrift-rule-validation";
+import { expectSparkThriftQualityRuleMatrixContract } from "../../../../../../_shared/automation/flows/sparkthrift-rule-validation";
 
 test.setTimeout(45 * 60 * 1000);
 

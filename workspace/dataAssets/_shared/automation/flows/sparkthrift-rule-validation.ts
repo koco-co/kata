@@ -1,10 +1,10 @@
 // SparkThrift 数据质量规则校验的跨需求页面流程与断言。
 
-import { getEnvConfig } from "../../runtime/env-profile";
-import { buildDataAssetsApiUrl } from "../../runtime/env-setup";
-import { waitForUiSettled } from "../../../../../../runtime/automation/playwright";
+import { getEnvConfig } from "../runtime/env-profile";
+import { buildDataAssetsApiUrl } from "../runtime/env-setup";
+import { waitForUiSettled } from "../../../../../runtime/automation/playwright";
 import { expect, type Page } from "@playwright/test";
-import { loadPlaywrightAutomationConfig } from "../../../../../../runtime/automation/config/playwright";
+import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/config/playwright";
 import {
   DqApiResponse,
   DqMonitorRecord,
@@ -60,7 +60,7 @@ import {
   switchRuleSetStrength,
   waitForDqJson,
   waitForRuleTaskPageQuery,
-} from "./page-context";
+} from "../pages/data-quality/page-context";
 
 type DqGlobalParamRecord = {
   paramName?: string;
