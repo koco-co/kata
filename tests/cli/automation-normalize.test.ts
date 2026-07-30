@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { backupDir, normalizeAutomation } from "../../cli/lib/automation-normalize.ts";
+import { backupDir, normalizeAutomation } from "../../cli/lib/automation/automation-normalize.ts";
 
 function feature(): string {
   return mkdtempSync(join(tmpdir(), "kata-auto-normalize-"));

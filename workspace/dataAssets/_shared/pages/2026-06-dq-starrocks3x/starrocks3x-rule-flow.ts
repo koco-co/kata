@@ -2,7 +2,7 @@ import { waitForUiSettled } from "../../helpers/index";
 // StarRocks3.x 数据质量「单表校验规则」深链路操作：建规则 → 详情抽屉 → 立即执行 → 轮询实例 → 编辑期望值 → 删除清理。
 // 全部流程已对 zszq-test/pw_sr3 真实环境探测验证（SourceRef: SR-UI-PROBE-2026-06-DQ-SR3X-ZSZQ）。
 import { type Page, expect } from "@playwright/test";
-import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/playwright-config";
 
 import { locateFormItem, selectAntOption } from "../../helpers/index";
 import { STARROCKS3X_DATASOURCE_LABEL } from "./fixtures";

@@ -8,7 +8,7 @@
 // 场景常量取自 validity-json-value-format feature 的 fixtures。
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/playwright-config";
 
 import {
   getCurrentDatasource,

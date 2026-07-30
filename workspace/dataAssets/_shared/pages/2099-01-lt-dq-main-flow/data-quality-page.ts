@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
-import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/playwright-config";
 
 import { buildDataAssetsApiUrl, buildDataAssetsUrl, getEnvConfig } from "../../helpers/test-setup";
 import {

@@ -1,6 +1,8 @@
 meta:
   title: 数据资产集成用例
   case_module_id: ""
+  imports:
+    - archive.md
   exports:
     - xmind
 cases:

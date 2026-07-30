@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inspectAutomationCoverage } from "../../cli/lib/automation-contract.ts";
+import { inspectAutomationCoverage } from "../../cli/lib/automation/automation-contract.ts";
 
 function fixture(extraCases = ""): string {
   const feature = mkdtempSync(join(tmpdir(), "kata-contract-"));

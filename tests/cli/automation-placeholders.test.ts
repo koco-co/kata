@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { migrateGeneratedPlaceholders } from "../../cli/lib/automation-placeholders.ts";
+import { migrateGeneratedPlaceholders } from "../../cli/lib/automation/automation-placeholders.ts";
 
 function fixture(): string {
   const feature = mkdtempSync(join(tmpdir(), "kata-placeholder-migration-"));

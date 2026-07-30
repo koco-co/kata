@@ -1,4 +1,4 @@
-// spec: features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例/results/inventory.json#area=metadata
+// spec: features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例/automation/tests/fixtures/launched-requirements-inventory.yaml#area=metadata
 // 一致性校验：metadata area 与 inventory 自洽；真实 UI 自动化留作带环境的单独任务。
 import { test } from "@playwright/test";
 
@@ -11,9 +11,7 @@ const EXPECT = {
   versionPattern: /^v6\.4\.10$/,
 } as const;
 
-const cases = assertAreaConsistency(EXPECT);
-
-test.describe(`元数据 / metadata inventory consistency (${cases.length})`, () => {
+test.describe("元数据 / metadata inventory consistency", () => {
   test("metadata area inventory 自洽", () => {
     assertAreaConsistency(EXPECT);
   });

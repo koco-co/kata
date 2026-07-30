@@ -3,12 +3,12 @@ import { defineConfig, devices, type PlaywrightTestOptions } from "@playwright/t
 import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
-} from "./cli/lib/playwright-run-path";
+} from "./cli/lib/automation/playwright-run-path.ts";
 import {
   loadPlaywrightAutomationConfig,
   PLAYWRIGHT_AUTOMATION_REPO_ROOT,
   prepareAllureDirectories,
-} from "./lib/automation/playwright-config";
+} from "./runtime/automation/playwright-config";
 import {
   cookieHeaderToPlaywrightState,
   resolveDataAssetsRuntime,
@@ -70,27 +70,28 @@ export default defineConfig({
   workers: automationConfig.workers,
   timeout: automationConfig.timeoutMs,
   retries: automationConfig.retries,
-  reporter: automationConfig.allure.enabled
-    ? [
-        ["line"],
-        [
-          "allure-playwright",
-          {
-            detail: true,
-            resultsDir: automationConfig.allure.resultsDir,
-            suiteTitle: true,
-          },
-        ],
-        [
-          allureReportReporter,
-          {
-            resultsDir: automationConfig.allure.resultsDir,
-            reportDir: automationConfig.allure.reportDir,
-            repoRoot: process.cwd(),
-          },
-        ],
-      ]
-    : [["line"]],
+  reporter:
+    !discoveryOnly && automationConfig.allure.enabled
+      ? [
+          ["line"],
+          [
+            "allure-playwright",
+            {
+              detail: true,
+              resultsDir: automationConfig.allure.resultsDir,
+              suiteTitle: true,
+            },
+          ],
+          [
+            allureReportReporter,
+            {
+              resultsDir: automationConfig.allure.resultsDir,
+              reportDir: automationConfig.allure.reportDir,
+              repoRoot: process.cwd(),
+            },
+          ],
+        ]
+      : [["line"]],
   use: {
     headless: automationConfig.headless,
     viewport: { width: 1280, height: 720 },

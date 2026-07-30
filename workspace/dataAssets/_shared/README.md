@@ -23,8 +23,9 @@ dataAssets 项目所有 feature 共用的自动化基础设施。只有被至少
 - 项目 ID、数据源名、库名等环境相关取值一律来自 `getEnvConfig()`，不写硬编码字面量
 - 环境预置的业务表/数据源显示名集中登记在对应 feature 目录的 `tests/fixtures` 模块
 - `tests/runners/` 只保留 `generated.ts`、`full.spec.ts`、`smoke.spec.ts`、
-  `retry-failed.spec.ts` 四种编排入口；探测、排序、重查等一次性脚本放到
-  `automation/scripts/one-shot/`，不参与 full run
+  `retry-failed.spec.ts` 四种编排入口；正式可复用实现归入 `tests/` 对应领域目录。
+  探测、排序、重查等一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`，禁止创建
+  `automation/scripts/`。
 - 自动化公共默认值只来自 `config/automation/playwright.yaml`；环境值来自
   `config/env/<env>.yaml` 的 `automation` 节点，临时覆盖统一使用 CLI `--set`
 - 单元测试与各模块同目录（`*.test.ts`），运行 `bun run test:workspace`

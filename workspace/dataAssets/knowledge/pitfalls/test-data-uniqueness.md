@@ -44,7 +44,7 @@ const tableName = uniqueName("t16tbl");
 ## 示例
 
 ```typescript
-import { uniqueName } from "../../../../lib/playwright";
+import { uniqueName } from "../../../../runtime/playwright";
 
 const tableName = uniqueName("test_json_key_range");
 // → "test_json_key_range_1777529675366" (34 字符 ✓)

@@ -23,5 +23,10 @@
 - `automation/tests/cases/` 下的正式用例脚本统一使用 `c0001-<lowercase-english-kebab-slug>.spec.ts`；slug 由模型参考中文标题判断并持久化到 cases YAML 的 `automation.spec_file`。
 - 标题后续调整不自动重算既有 slug；文件迁移和 runner 同步以 YAML 中明确声明的 `spec_file` 为准，缺失脚本不得生成通用占位文件。
 
+## 产物位置与命名
+- `config/repos/policy.yaml` 是当前项目的受控产物路由与命名规则；`bun run check` 会检查 Git 已跟踪及未忽略的未跟踪文件。禁止在根目录输出临时配置，禁止使用 `lib/` 或 `automation/scripts/`。
+- 模型在写入前先选择 policy 中最合适的目录和文件名：历史用例输入放 `cases/imports/`，YAML 是唯一中间态，派生文件只放 `cases/exports/`；正式自动化源代码只放 `automation/tests/`，一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`。
+- 若 policy 没有合适的产物类型或目录，必须先说明拟生成内容、建议路径和命名并获得用户明确同意；获同意后同一变更必须更新 policy、相应文档和校验测试，随后才能写入该产物。
+
 ## 本地上下文
 - 只能调整语气或声明默认值，不得定义路由、策略、写入范围、插件权限、引用要求或输出模式。

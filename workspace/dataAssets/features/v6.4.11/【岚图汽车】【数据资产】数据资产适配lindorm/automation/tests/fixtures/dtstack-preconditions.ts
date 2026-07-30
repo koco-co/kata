@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadDataAssetsEnvProfile } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
 
 const preparedPreconditionGroups = new Set<string>();
 

@@ -3,9 +3,9 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import JSZip from "jszip";
-import { casesToIntermediate, renderXmind } from "../../cli/lib/cases/render-xmind.ts";
-import type { CasesFile } from "../../cli/lib/cases/types.ts";
-import { UNCLASSIFIED } from "../../cli/lib/xmind-render.ts";
+import { casesToIntermediate, renderXmind } from "../../cli/lib/cases/xmind/render.ts";
+import { UNCLASSIFIED } from "../../cli/lib/cases/xmind/xmind-render.ts";
+import type { CasesFile } from "../../runtime/cases/types.ts";
 
 const CONTEXT = { version: "v6.4.9", featureKey: "dataAssets:v6.4.9/【数据质量】需求名" };
 

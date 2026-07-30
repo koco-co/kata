@@ -1,9 +1,0 @@
-[v6411-ui-rebuild] planned §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] base-table-manual-precondition §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] metadata-manual-precondition §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] rule-set-edited-existing §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] rule-task-existing §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] rule-task-edit-save-attempted §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] rule-task-edit-save-finished §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] rule-task-edited-saved §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能
-[v6411-ui-rebuild] immediate-run-clicked §59 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_59 §59 验证有效性校验-抽样关闭校验全通过功能

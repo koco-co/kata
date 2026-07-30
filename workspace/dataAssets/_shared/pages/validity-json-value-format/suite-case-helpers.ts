@@ -6,7 +6,7 @@
 // 每个分组在 beforeAll/beforeEach 中切换当前数据源，并在 beforeEach 中执行套件前置条件（带缓存，二次执行为空操作）。
 
 import { test } from "../../fixtures/step-screenshot";
-import { loadPlaywrightAutomationConfig } from "../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../runtime/automation/playwright-config";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,

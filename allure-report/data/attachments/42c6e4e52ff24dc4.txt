@@ -1,9 +1,0 @@
-[v6411-ui-rebuild] planned §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] base-table-manual-precondition §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] metadata-manual-precondition §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] rule-set-edited-existing §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] rule-task-existing §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] rule-task-edit-save-attempted §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] rule-task-edit-save-finished §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] rule-task-edited-saved §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能
-[v6411-ui-rebuild] immediate-run-clicked §60 dtstack_smoke_LINDORM_SPARK dtstack_smoke.test_info_1_qzmkxjrp_60 §60 验证完整性校验校验不通过的规则查看明细功能

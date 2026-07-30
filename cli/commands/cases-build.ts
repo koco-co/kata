@@ -7,19 +7,19 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import type { Command } from "commander";
+import { type CaseExportFormat, caseExports } from "../../runtime/cases/formats.ts";
+import { parseCasesYaml, validateCases } from "../../runtime/cases/parse.ts";
+import type { CaseRenderContext, CasesFile } from "../../runtime/cases/types.ts";
 import {
   emitBusinessNotificationSafely,
   formatTaipeiTime,
   workspaceRelativePath,
 } from "../integrations/notify.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
-import { type CaseExportFormat, caseExports } from "../lib/cases/formats.ts";
-import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
 import { renderXlsx } from "../lib/cases/render-xlsx.ts";
-import { renderXmindBuffer } from "../lib/cases/render-xmind.ts";
-import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
+import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
 import {
   featureIdentity,
   projectRootFromFeatureDir,

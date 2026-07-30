@@ -11,6 +11,7 @@ import {
 } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import type { Command } from "commander";
+import { parseCasesYaml, validateCases } from "../../runtime/cases/parse.ts";
 import {
   emitBusinessNotificationSafely,
   formatTaipeiTime,
@@ -18,7 +19,6 @@ import {
 } from "../integrations/notify.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { importCases, splitXmindCases } from "../lib/cases/importers.ts";
-import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { serializeCasesYaml } from "../lib/cases/serialize.ts";
 import {
   casesDir,

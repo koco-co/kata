@@ -223,13 +223,14 @@ Options:
   -h, --help                                    display help for command
 
 Commands:
+  sql                                           校验和渲染自动化 SQL 模板；不连接数据库
   run [options] <feature-path>                  按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
   coverage <feature-dir>                        检查 cases YAML 与 automation/tests/cases 的逐条映射
   generate-cases [options] <feature-dir>        检查缺失的 automation.spec_file；不会生成通用占位脚本
   generate [options] <feature-dir>              按 automation.spec_file 生成 runner import(默认 dry-run)
   migrate-placeholders [options] <feature-dir>  移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
   scaffold [options] <feature-dir>              创建自动化骨架(tests/cases、runners、pages、fixtures、sql)
-  normalize [options] <feature-dir>             修复自动化目录违规(stray 文件移入备份)
+  normalize [options] <feature-dir>             检查自动化目录违规；仅迁移有明确受控目标的旧文件
   lint [options] [feature-dir]                  检查 Playwright 自动化代码规范
   help [command]                                display help for command
 ```
@@ -850,6 +851,22 @@ Options:
   -h, --help           display help for command
 ```
 
+## kata automation sql
+
+```text
+Usage: kata automation sql [options] [command]
+
+校验和渲染自动化 SQL 模板；不连接数据库
+
+Options:
+  -h, --help                   display help for command
+
+Commands:
+  lint [options] <sql-file>    按全局 SQL profile 校验模板
+  render [options] <sql-file>  将显式 --set 值渲染到 stdout，不写入项目目录
+  help [command]               display help for command
+```
+
 ## kata automation run
 
 ```text
@@ -940,7 +957,7 @@ Options:
 ```text
 Usage: kata automation normalize [options] <feature-dir>
 
-修复自动化目录违规(stray 文件移入备份)
+检查自动化目录违规；仅迁移有明确受控目标的旧文件
 
 Options:
   --apply      执行修复(默认 dry-run) (default: false)
@@ -1140,4 +1157,29 @@ Options:
   --username <username>  认证用户名
   --stdin                从 stdin 读取密码，不回显
   -h, --help             display help for command
+```
+
+## kata automation sql lint
+
+```text
+Usage: kata automation sql lint [options] <sql-file>
+
+按全局 SQL profile 校验模板
+
+Options:
+  --profile <name>  config/automation/sql-profiles.yaml 中的 profile
+  -h, --help        display help for command
+```
+
+## kata automation sql render
+
+```text
+Usage: kata automation sql render [options] <sql-file>
+
+将显式 --set 值渲染到 stdout，不写入项目目录
+
+Options:
+  --profile <name>   先按 profile 校验模板
+  --set <KEY=value>  占位符替换值，可重复 (default: [])
+  -h, --help         display help for command
 ```

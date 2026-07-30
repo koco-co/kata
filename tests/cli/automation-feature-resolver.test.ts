@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { resolveAutomationFeature } from "../../cli/lib/automation-feature-resolver.ts";
+import { resolveAutomationFeature } from "../../cli/lib/automation/automation-feature-resolver.ts";
 
 function scaffold(): { root: string; featureDir: string; featurePath: string } {
   const root = mkdtempSync(join(tmpdir(), "kata-automation-feature-"));

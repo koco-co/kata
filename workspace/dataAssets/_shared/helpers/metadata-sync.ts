@@ -1,8 +1,8 @@
-import { waitForUiSettled } from "../../../../lib/playwright/index";
+import { waitForUiSettled } from "../../../../runtime/playwright/index";
 // metadata-sync.ts — split from test-setup.ts
 
 import type { Locator, Page } from "@playwright/test";
-import { loadPlaywrightAutomationConfig } from "../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../runtime/automation/playwright-config";
 
 import { applyRuntimeCookies, buildDataAssetsUrl } from "./env-setup";
 

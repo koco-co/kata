@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { archiveToJson, parseArchiveBody } from "../../cli/lib/xmind-archive.ts";
+import { archiveToJson, parseArchiveBody } from "../../cli/lib/cases/xmind/archive.ts";
 
 const ARCHIVE = `## 模块A
 ### 页面B

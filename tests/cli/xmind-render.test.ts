@@ -3,7 +3,6 @@ import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import JSZip from "jszip";
-import type { IntermediateJson, TestCase } from "../../cli/lib/intermediate-types.ts";
 import {
   buildL1Labels,
   buildL1Title,
@@ -12,7 +11,8 @@ import {
   createXmindReplacing,
   useStepsAsNotes,
   validateInput,
-} from "../../cli/lib/xmind-render.ts";
+} from "../../cli/lib/cases/xmind/xmind-render.ts";
+import type { IntermediateJson, TestCase } from "../../cli/lib/intermediate-types.ts";
 import { buildRootName, loadXmindProjectConfig } from "../../cli/lib/xmind-rules.ts";
 
 function data(overrides: Partial<IntermediateJson["meta"]> = {}): IntermediateJson {

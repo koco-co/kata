@@ -2,15 +2,15 @@ import { describe, expect, it } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { IntermediateJson } from "../../cli/lib/intermediate-types.ts";
 import {
   appendXmind,
   buildRawCaseNode,
   readXmindSheets,
   replaceXmind,
   writeXmindSheets,
-} from "../../cli/lib/xmind-io.ts";
-import { createXmind } from "../../cli/lib/xmind-render.ts";
+} from "../../cli/lib/cases/xmind/io.ts";
+import { createXmind } from "../../cli/lib/cases/xmind/xmind-render.ts";
+import type { IntermediateJson } from "../../cli/lib/intermediate-types.ts";
 
 function data(reqName: string, caseTitle: string, project = "dataAssets"): IntermediateJson {
   return {

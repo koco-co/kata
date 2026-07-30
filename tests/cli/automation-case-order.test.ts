@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { orderAutomationCases } from "../../lib/automation/case-order.ts";
+import { orderAutomationCases } from "../../runtime/automation/case-order.ts";
 
 const cases = [
   { caseId: "C0001", module: "one" },

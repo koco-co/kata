@@ -1,10 +1,8 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, isAbsolute, join, resolve } from "node:path";
 import type { Command } from "commander";
-import type { IntermediateJson } from "../lib/intermediate-types.ts";
-import { locateProjectRoot } from "../lib/workspace-locator.ts";
-import { archiveToJson } from "../lib/xmind-archive.ts";
-import { appendXmind, applyFoldingToFile, replaceXmind } from "../lib/xmind-io.ts";
+import { archiveToJson } from "../lib/cases/xmind/archive.ts";
+import { appendXmind, applyFoldingToFile, replaceXmind } from "../lib/cases/xmind/io.ts";
 import {
   buildL1Title,
   buildRootTitle,
@@ -15,7 +13,9 @@ import {
   type RenderOptions,
   validateInput,
   type WriteMode,
-} from "../lib/xmind-render.ts";
+} from "../lib/cases/xmind/xmind-render.ts";
+import type { IntermediateJson } from "../lib/intermediate-types.ts";
+import { locateProjectRoot } from "../lib/workspace-locator.ts";
 
 // ─── 输入/输出路径校验：限制在仓库根内 ───
 

@@ -55,8 +55,8 @@ description: 触发：只发 feature 目录路径或目录名（不带文件扩�
 ## 产物位置
 
 ```
-<featureDir>/automation/scripts/
 <featureDir>/automation/tests/{cases,runners,pages,flows,assertions,fixtures,sql}/
+<featureDir>/runs/<run-id>/_tmp/（一次性且未跟踪的临时代码）
 <featureDir>/runs/<run-id>/{allure-results,screenshots,logs,handoff.md}
 ```
 

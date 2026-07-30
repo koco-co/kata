@@ -1,0 +1,9 @@
+profiles:
+  data-assets-15862-doris:
+    required_placeholders: [DATABASE, SUFFIX]
+    forbidden_fragments: [pw_test]
+    required_fragments: ["CREATE TABLE", "INSERT INTO", "ALTER TABLE"]
+  data-assets-15862-sparkthrift:
+    required_placeholders: [DATABASE, SUFFIX]
+    forbidden_fragments: [pw_test]
+    required_fragments: ["CREATE TABLE", "INSERT INTO"]

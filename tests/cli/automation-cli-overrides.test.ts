@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { parseAutomationSetEntries } from "../../lib/automation/cli-overrides.ts";
+import { parseAutomationSetEntries } from "../../cli/lib/automation/cli-overrides.ts";
 import {
   AUTOMATION_OVERRIDE_FILE_ENV,
   automationOverrideFileFromArgv,
-} from "../../lib/automation/overrides.ts";
+} from "../../runtime/automation/overrides.ts";
 
 describe("automation CLI overrides", () => {
   test("supports nested public and environment-specific paths", () => {

@@ -1,2 +1,2 @@
 // 冒烟测试（P0）
-import "../cases/c0001-验证多字段时间差校验任务质量报告正确";
+import "../cases/c0001-multi-field-time-difference-report.spec";

@@ -72,6 +72,66 @@ export interface LoadDataAssetsProfileOptions {
   readonly resolved?: ResolvedDataAssetsEnv;
 }
 
+function discoveryDataAssetsProfile(): DataAssetsEnvProfile {
+  const datasource = (name: string, typeId: number): DataAssetsDatasourceProfile => ({
+    enabled: true,
+    uiLabel: name,
+    preconditionType: name === "sparkthrift" ? "SparkThrift" : "Doris",
+    aliases: [name],
+    metadata: { id: 0, name, typeId },
+    assets: { id: 0, name },
+    ui: { sourceTypeId: typeId },
+    sql: { database: "discovery", schema: "discovery" },
+    requiresOffline: name === "sparkthrift",
+  });
+  return {
+    schemaVersion: 2,
+    project: "dataAssets",
+    env: "discovery",
+    urls: {
+      baseUrl: "http://discovery.invalid/dataAssets",
+      dataAssetsBaseUrl: "http://discovery.invalid/dataAssets",
+      offlineBaseUrl: "http://discovery.invalid",
+      portalBaseUrl: "http://discovery.invalid",
+    },
+    auth: { cookie: "", tenantName: "discovery" },
+    projects: { quality: { id: 0, name: "discovery" } },
+    datasources: {
+      doris: datasource("doris", 0),
+      sparkthrift: datasource("sparkthrift", 0),
+    },
+    automation: {
+      cases: "1",
+      table_batch_suffix: "discovry",
+      table_partition: "2000-01-01",
+      result_strict: false,
+      case_timeout_ms: 1,
+      result_timeout_ms: 1,
+      result_query_retry_timeout_ms: 1,
+      result_query_retry_interval_ms: 1,
+      table_option_timeout_ms: 1,
+      rule_set_save_prompt_close_timeout_ms: 1,
+      task_search_query: "discovery",
+      task_scan_max_pages: 0,
+      ruleset_scan_max_pages: 0,
+      spin_timeout_ms: 1,
+      import_form_timeout_ms: 1,
+      select_spin_timeout_ms: 1,
+      resource_group: "discovery",
+      execute_submit_wait_ms: 1,
+    },
+    runtime: {
+      defaultDatasource: "doris",
+      activeDatasources: ["doris", "sparkthrift"],
+      tablePrefix: "discovery",
+      skipPreconditions: true,
+      cleanup: false,
+      allowWrite: false,
+      timeouts: { projectApiMs: 1, preconditionRequestMs: 1, metadataSyncMs: 1 },
+    },
+  };
+}
+
 export interface PlaywrightCookieState {
   readonly cookies: ReadonlyArray<{
     readonly name: string;
@@ -129,6 +189,9 @@ export function loadDataAssetsEnvProfile(
   opts?: LoadDataAssetsProfileOptions,
 ): DataAssetsEnvProfile {
   const runtimeEnv = opts?.env ?? process.env;
+  if (runtimeEnv.KATA_DISCOVERY_ONLY === "1" && !opts?.resolved) {
+    return discoveryDataAssetsProfile();
+  }
   const resolvedEnv = opts?.resolved ?? parseResolved(runtimeEnv[DATAASSETS_RESOLVED_ENV]);
   const selected = assertDataAssetsEnvName(envName ?? resolveDataAssetsEnvName(runtimeEnv));
   if (resolvedEnv.env !== selected) throw new Error("resolved environment does not match selected environment");

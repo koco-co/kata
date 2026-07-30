@@ -4,7 +4,7 @@ import {
   loadPlaywrightAutomationConfig,
   parsePlaywrightAutomationOverrides,
   PLAYWRIGHT_AUTOMATION_CONFIG_PATH,
-} from "../../../../lib/automation/playwright-config";
+} from "../../../../runtime/automation/playwright-config";
 
 describe("shared Playwright automation config", () => {
   test("loads the YAML defaults without dotenv", () => {

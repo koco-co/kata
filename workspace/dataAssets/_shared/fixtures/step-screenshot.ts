@@ -29,7 +29,7 @@
  */
 
 import { test as base, expect as baseExpect, type Locator, type Page } from "@playwright/test";
-import { loadPlaywrightAutomationConfig } from "../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../runtime/automation/playwright-config";
 
 export type StepFn = <T>(
   name: string,

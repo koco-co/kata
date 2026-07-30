@@ -1,0 +1,59 @@
+# Repository-owned artifact policy. Private repository sources remain in sources.yaml.
+root:
+  allowed_files:
+    - .gitattributes
+    - .gitignore
+    - CLAUDE.md
+    - CONTRIBUTING.md
+    - INSTALL.md
+    - LICENSE
+    - README-EN.md
+    - README.md
+    - AGENTS.md
+    - biome.json
+    - bun.lock
+    - bunfig.toml
+    - package.json
+    - playwright.config.ts
+    - tsconfig.base.json
+    - tsconfig.json
+    - tsconfig.workspace.json
+  allowed_directories:
+    - .agents
+    - .claude
+    - .codex-plugin
+    - .github
+    - .repos
+    - .vscode
+    - assets
+    - cli
+    - config
+    - runtime
+    - scripts
+    - tests
+    - workspace
+forbidden_globs:
+  - kata-automation-*.config.ts
+  - lib/**
+  - workspace/**/automation/scripts/**
+artifacts:
+  cases_yaml:
+    route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml
+    filename: <name>.yaml
+  case_import:
+    route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext>
+    extensions: [csv, xlsx, md, xmind]
+  case_export:
+    route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>
+    extensions: [csv, xlsx, md, xmind]
+  automation_case:
+    route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/
+    filename: c0001-lowercase-english-kebab-slug.spec.ts
+  automation_sql_template:
+    route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/
+    filename: lowercase-english-kebab.sql
+  automation_run_temporary:
+    route: workspace/<project>/runs/<run-id>/_tmp/
+    tracked: false
+dependencies:
+  runtime_must_not_import: cli/

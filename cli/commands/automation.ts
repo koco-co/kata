@@ -1,22 +1,26 @@
 import { randomUUID } from "node:crypto";
-import { existsSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { type Command, Option } from "commander";
-import { parseAutomationSetEntries } from "../../lib/automation/cli-overrides.ts";
-import { AUTOMATION_OVERRIDE_FILE_ENV } from "../../lib/automation/overrides.ts";
+import { AUTOMATION_OVERRIDE_FILE_ENV } from "../../runtime/automation/overrides.ts";
 import {
   loadPlaywrightAutomationConfig,
   type PlaywrightAutomationOverrides,
   parsePlaywrightAutomationOverrides,
-} from "../../lib/automation/playwright-config.ts";
-import { generateAutomationScripts } from "../lib/automation-case-generator.ts";
-import { generateAutomationRunner, inspectAutomationCoverage } from "../lib/automation-contract.ts";
-import { resolveAutomationFeature } from "../lib/automation-feature-resolver.ts";
-import { runAutomationLint } from "../lib/automation-lint.ts";
-import { normalizeAutomation } from "../lib/automation-normalize.ts";
-import { migrateGeneratedPlaceholders } from "../lib/automation-placeholders.ts";
-import { scaffoldAutomation } from "../lib/automation-scaffold.ts";
+} from "../../runtime/automation/playwright-config.ts";
+import { generateAutomationScripts } from "../lib/automation/automation-case-generator.ts";
+import {
+  generateAutomationRunner,
+  inspectAutomationCoverage,
+} from "../lib/automation/automation-contract.ts";
+import { resolveAutomationFeature } from "../lib/automation/automation-feature-resolver.ts";
+import { runAutomationLint } from "../lib/automation/automation-lint.ts";
+import { normalizeAutomation } from "../lib/automation/automation-normalize.ts";
+import { migrateGeneratedPlaceholders } from "../lib/automation/automation-placeholders.ts";
+import { scaffoldAutomation } from "../lib/automation/automation-scaffold.ts";
+import { parseAutomationSetEntries } from "../lib/automation/cli-overrides.ts";
+import { lintSqlFile, renderSql } from "../lib/automation/sql.ts";
 import { RUN_TYPES, type RunType } from "../lib/run-id.ts";
 import { executeWithRunPath } from "../lib/runs-exec.ts";
 import { runRunsPath } from "./runs.ts";
@@ -223,6 +227,31 @@ async function runAutomation(
 /** Build the `automation` command: scaffold + normalize a feature's automation dir. */
 export function registerAutomation(program: Command): void {
   const automation = program.command("automation").description("自动化目录结构管理");
+  const sql = automation.command("sql").description("校验和渲染自动化 SQL 模板；不连接数据库");
+  sql
+    .command("lint <sql-file>")
+    .description("按全局 SQL profile 校验模板")
+    .requiredOption("--profile <name>", "config/automation/sql-profiles.yaml 中的 profile")
+    .action((sqlFile: string, opts: { profile: string }) => {
+      const result = lintSqlFile(sqlFile, opts.profile);
+      console.log(JSON.stringify(result, null, 2));
+      if (result.errors.length > 0) process.exitCode = 1;
+    });
+  sql
+    .command("render <sql-file>")
+    .description("将显式 --set 值渲染到 stdout，不写入项目目录")
+    .requiredOption("--profile <name>", "先按 profile 校验模板")
+    .option(
+      "--set <KEY=value>",
+      "占位符替换值，可重复",
+      (value: string, previous: string[] = []) => [...previous, value],
+      [],
+    )
+    .action((sqlFile: string, opts: { profile: string; set: string[] }) => {
+      const result = lintSqlFile(sqlFile, opts.profile);
+      if (result.errors.length > 0) throw new Error(result.errors.join("；"));
+      console.log(renderSql(readFileSync(sqlFile, "utf8"), opts.set));
+    });
 
   const run = automation
     .command("run <feature-path>")
@@ -345,7 +374,7 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("normalize <feature-dir>")
-    .description("修复自动化目录违规(stray 文件移入备份)")
+    .description("检查自动化目录违规；仅迁移有明确受控目标的旧文件")
     .option("--apply", "执行修复(默认 dry-run)", false)
     .option("--exit-code", "存在违规时退出码为 1")
     .action((featureDir: string, opts: { apply: boolean; exitCode?: boolean }) => {

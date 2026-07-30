@@ -1,1 +1,1 @@
-import "../cases/c0001-验证新增key完整正向流程含正则测试";
+import "../cases/c0001-add-key-positive-flow-regex-check.spec";

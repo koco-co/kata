@@ -1,29 +1,24 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  diffProjectSkeleton,
-  readProjectMetadata,
-  SKELETON_SPEC,
-} from "../../cli/lib/create-project.ts";
+import { diffProjectSkeleton, SKELETON_SPEC } from "../../cli/lib/create-project.ts";
 
 describe("project skeleton contract", () => {
-  it("treats project.json as canonical metadata and detects missing entries", () => {
+  it("derives project identity from the workspace directory without project.json", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-project-skeleton-"));
     const project = join(root, "demo");
     mkdirSync(project, { recursive: true });
-    writeFileSync(join(project, "project.json"), '{"name":"demo","description":"test"}\n');
     const diff = diffProjectSkeleton(
       project,
       join(import.meta.dir, "../../cli/templates/project-skeleton"),
     );
-    expect(readProjectMetadata(project)?.name).toBe("demo");
-    expect(diff.project_metadata_valid).toBe(true);
+    expect(existsSync(join(project, "project.json"))).toBe(false);
     expect(diff.missing_dirs).toContain("analyses/hotfix-case");
     expect(diff.missing_dirs).toContain("analyses/infra-report");
     expect(diff.missing_gitkeeps).toContain("knowledge/terms/.gitkeep");
     expect(diff.missing_files).toContain("knowledge/terms.md");
+    expect(diff.missing_files).not.toContain("project.json");
     expect(diff.skeleton_complete).toBe(false);
   });
 
@@ -31,7 +26,6 @@ describe("project skeleton contract", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-project-skeleton-"));
     const project = join(root, "demo");
     mkdirSync(project, { recursive: true });
-    writeFileSync(join(project, "project.json"), '{"name":"demo"}\n');
     writeFileSync(join(project, "knowledge"), "user content\n");
     const diff = diffProjectSkeleton(
       project,
@@ -40,22 +34,17 @@ describe("project skeleton contract", () => {
     expect(diff.invalid_paths).toContain("knowledge");
   });
 
-  it("keeps the skeleton specification free of global project registry files", () => {
+  it("keeps the skeleton free of project metadata and dead shared rules", () => {
     expect(Object.keys(SKELETON_SPEC.template_files)).toEqual([
-      "project.json",
-      "_shared/rules/README.md",
       "knowledge/overview.md",
       "knowledge/terms.md",
     ]);
-  });
-
-  it("keeps project metadata free of unused schema markers", () => {
-    const template = JSON.parse(
-      readFileSync(
-        join(import.meta.dir, "../../cli/templates/project-skeleton/project.json"),
-        "utf8",
-      ),
-    );
-    expect(template).toEqual({ name: "{{project}}", description: "" });
+    expect(SKELETON_SPEC.dirs).not.toContain("_shared/rules");
+    expect(
+      existsSync(join(import.meta.dir, "../../cli/templates/project-skeleton/project.json")),
+    ).toBe(false);
+    expect(
+      existsSync(join(import.meta.dir, "../../cli/templates/project-skeleton/rules/README.md")),
+    ).toBe(false);
   });
 });

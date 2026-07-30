@@ -36,8 +36,8 @@ export {
   waitForOverlay,
   // Table
   waitForTableLoaded,
-} from "../../../../lib/playwright/index";
-export { waitForUiSettled } from "../../../../lib/playwright/index";
+} from "../../../../runtime/playwright/index";
+export { waitForUiSettled } from "../../../../runtime/playwright/index";
 export * from "./batch-sql";
 export * from "./env-setup";
 export * from "./metadata-sync";

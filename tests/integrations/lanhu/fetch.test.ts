@@ -254,11 +254,12 @@ describe("resolveOutputLayout", () => {
 // ─── Project inference ───────────────────────────────────────────────────────
 
 describe("inferKataProjectFromWorkspace", () => {
-  it("maps a Lanhu project alias to workspace/project.json", () => {
+  it("maps a Lanhu alias through the repository-owned project mapping", () => {
     mkdirSync(join(TMP_DIR, "workspace", "dataAssets"), { recursive: true });
+    mkdirSync(join(TMP_DIR, "config", "plugin"), { recursive: true });
     writeFileSync(
-      join(TMP_DIR, "workspace", "dataAssets", "project.json"),
-      JSON.stringify({ name: "dataAssets", description: "岚图" }),
+      join(TMP_DIR, "config", "plugin", "lanhu-projects.yaml"),
+      "projects:\n  dataAssets:\n    aliases: [岚图, 数据资产治理平台]\n",
     );
     assert.equal(inferKataProjectFromWorkspace(TMP_DIR, ["岚图"]), "dataAssets");
   });
@@ -266,12 +267,18 @@ describe("inferKataProjectFromWorkspace", () => {
   it("refuses ambiguous Lanhu project aliases instead of guessing", () => {
     mkdirSync(join(TMP_DIR, "workspace", "dataAssets"), { recursive: true });
     mkdirSync(join(TMP_DIR, "workspace", "anotherProject"), { recursive: true });
-    for (const project of ["dataAssets", "anotherProject"]) {
-      writeFileSync(
-        join(TMP_DIR, "workspace", project, "project.json"),
-        JSON.stringify({ name: project, description: "岚图" }),
-      );
-    }
+    mkdirSync(join(TMP_DIR, "config", "plugin"), { recursive: true });
+    writeFileSync(
+      join(TMP_DIR, "config", "plugin", "lanhu-projects.yaml"),
+      [
+        "projects:",
+        "  dataAssets:",
+        "    aliases: [岚图]",
+        "  anotherProject:",
+        "    aliases: [岚图]",
+        "",
+      ].join("\n"),
+    );
     assert.equal(inferKataProjectFromWorkspace(TMP_DIR, ["岚图"]), undefined);
   });
 });

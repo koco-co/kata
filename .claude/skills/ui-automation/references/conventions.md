@@ -2,10 +2,10 @@
 
 ## 目录与命名
 
-- `automation/tests/cases/c<四位序号>-<slug>.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。
+- `automation/tests/cases/c<四位序号>-<slug>.spec.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。
 - `automation/tests/runners/{generated,full,smoke,retry-failed}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例。
 - `automation/tests/{pages,flows,assertions,fixtures,sql}/`：分别放页面对象、业务流程、业务断言、前置数据/fixture 与运行时 SQL；单 feature 能力不得放入 `_shared`。
-- `automation/scripts/one-shot/`：探测、取数、排序、结果重查、清理、同步等一次性脚本与支持代码；不进 tests/，不参与 full run，不放交付 spec。
+- `automation/scripts/` 禁止使用。探测、取数、排序、结果重查、清理、同步等一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`；可重复执行的业务实现必须归入 `automation/tests/{flows,assertions,fixtures,pages,sql}`。
 - 跨 feature 复用至少两次的低层能力才提升到 `workspace/<project>/_shared/{pages,helpers,fixtures,runtime}/`，禁止复制和为单 feature 提前抽象。
 - `automation/tests/cases/` 只允许真实业务实现；缺实现的用例必须保持 `unmapped`，不能生成自然语言占位脚本。
 

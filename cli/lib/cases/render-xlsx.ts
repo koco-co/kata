@@ -3,8 +3,8 @@
  */
 
 import ExcelJS from "exceljs";
-import { UNCLASSIFIED } from "../xmind-render.ts";
-import type { CasesFile } from "./types.ts";
+import type { CasesFile } from "../../../runtime/cases/types.ts";
+import { UNCLASSIFIED } from "./xmind/xmind-render.ts";
 
 function tagCount(file: CasesFile): number {
   return Math.max(1, ...file.cases.map((item) => item.tags?.length ?? 0));

@@ -226,6 +226,9 @@ test.describe("v700 16019 json格式校验勾选导出 @serial", () => {
 
 function defaultRunSubdir(subdir: string): string {
   const runPath = process.env.KATA_RUN_PATH;
+  if (process.env.KATA_DISCOVERY_ONLY === "1") {
+    return path.resolve(process.cwd(), "workspace/dataAssets/runs/discovery/_tmp", subdir);
+  }
   if (!runPath) throw new Error("KATA_RUN_PATH is required; run through kata automation or kata runs exec");
   return path.join(path.resolve(runPath), subdir);
 }

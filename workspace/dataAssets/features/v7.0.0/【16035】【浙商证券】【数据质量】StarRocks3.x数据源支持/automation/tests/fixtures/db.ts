@@ -1,7 +1,7 @@
 // 本 feature 的 StarRocks 运行时 SQL 绑定。
 // 用例用它在运行时建表/删表/改数据，使「前置条件」自包含、可重入。
 // 连接信息从本机 config/infra/data_sources.yaml 与 credentials.yaml 读取，不写进脚本。
-import { type DataSourceType, withDb } from "../../../../../../../../lib/db";
+import { type DataSourceType, withDb } from "../../../../../../../../runtime/db";
 import { readInfraConfig } from "../../../../../../../../cli/lib/infra-config";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
 

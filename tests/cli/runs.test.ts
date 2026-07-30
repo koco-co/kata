@@ -5,13 +5,13 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { runRunsPath, runRunsVerify } from "../../cli/commands/runs.ts";
 import {
+  resolvePlaywrightOutputDir,
+  resolvePlaywrightRunPath,
+} from "../../cli/lib/automation/playwright-run-path.ts";
+import {
   buildDataAssetsChildEnv,
   type ResolvedDataAssetsEnv,
 } from "../../cli/lib/dataassets-env.ts";
-import {
-  resolvePlaywrightOutputDir,
-  resolvePlaywrightRunPath,
-} from "../../cli/lib/playwright-run-path.ts";
 import { RUN_ID_RE, runIdType } from "../../cli/lib/run-id.ts";
 import { executeWithRunPath } from "../../cli/lib/runs-exec.ts";
 

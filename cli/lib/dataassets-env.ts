@@ -76,6 +76,8 @@ export interface DataAssetsAutomationConfig {
   readonly result_strict?: boolean;
   readonly case_timeout_ms?: number;
   readonly result_timeout_ms?: number;
+  readonly result_query_retry_timeout_ms?: number;
+  readonly result_query_retry_interval_ms?: number;
   readonly table_option_timeout_ms?: number;
   readonly rule_set_save_prompt_close_timeout_ms?: number;
   readonly task_search_query?: string;

@@ -6,7 +6,7 @@ import type { DatasourceConfig as BaseDatasourceConfig } from "../../../../../v6
 import { buildSparkFixtureSql, versionJsonFixtureName } from "./json-fixture-sql";
 import { runRetriablePreconditions } from "../../../../../../_shared/pages/validity-json-value-format/json-suite-preconditions";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
 
 // env profile 惰性解析：用例收集（discovery）阶段无 KATA_DATAASSETS_RESOLVED，顶层不得触 env
 let envCache: ReturnType<typeof getEnvConfig> | undefined;

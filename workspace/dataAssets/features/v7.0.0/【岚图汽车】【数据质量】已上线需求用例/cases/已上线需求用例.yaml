@@ -1,6 +1,8 @@
 meta:
   title: 数据质量已上线需求用例
   case_module_id: ""
+  imports:
+    - 岚图数据质量验收功能用例.xlsx
   exports:
     - xmind
 cases:

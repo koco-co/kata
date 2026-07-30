@@ -1,11 +1,12 @@
 // 岚图已上线需求用例：inventory 一致性校验工具。
-// 现阶段交付只保证各 area 切片与 results/inventory.json 自洽（计数/优先级/ID/可追溯字段）；
+// 现阶段交付只保证各 area 切片与 YAML fixture 自洽（计数/优先级/ID/可追溯字段）；
 // 真实 UI 自动化（page-object 流程）留作带环境的 playwright-automation 单独任务，不在本层。
 
 import { readFileSync } from "node:fs";
+import { parse } from "yaml";
 
 export const INVENTORY_PATH =
-  "workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例/results/inventory.json";
+  "workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例/automation/tests/fixtures/launched-requirements-inventory.yaml";
 
 export type InventoryCase = {
   readonly id: string;
@@ -30,7 +31,7 @@ export type AreaExpectation = {
 };
 
 export function loadInventory(path: string = INVENTORY_PATH): Inventory {
-  return JSON.parse(readFileSync(path, "utf8")) as Inventory;
+  return parse(readFileSync(path, "utf8")) as Inventory;
 }
 
 // 校验某 area 切片：计数、优先级分布、ID 唯一与格式、source_ref/version/line/title 可追溯。

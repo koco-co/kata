@@ -3,13 +3,18 @@ import { basename, resolve } from "node:path";
 import ExcelJS from "exceljs";
 import JSZip from "jszip";
 import { parse as parseYaml } from "yaml";
+import { normalizeStructuredText } from "../../../runtime/cases/normalize.ts";
+import {
+  type CaseItem,
+  type CaseMeta,
+  type CasesFile,
+  PRIORITIES,
+} from "../../../runtime/cases/types.ts";
 import { buildFeatureDirName } from "../features-layout.ts";
 import { parseFrontMatter } from "../frontmatter.ts";
 import { splitMdTableRow } from "../md-table.ts";
-import { UNCLASSIFIED } from "../xmind-render.ts";
 import { loadXmindProjectConfig } from "../xmind-rules.ts";
-import { normalizeStructuredText } from "./normalize.ts";
-import { type CaseItem, type CaseMeta, type CasesFile, PRIORITIES } from "./types.ts";
+import { UNCLASSIFIED } from "./xmind/xmind-render.ts";
 
 export interface ImportOptions {
   featureDir: string;

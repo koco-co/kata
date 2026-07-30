@@ -1,4 +1,4 @@
-import { waitForUiSettled } from "../../../../lib/playwright/index";
+import { waitForUiSettled } from "../../../../runtime/playwright/index";
 // batch-sql.ts — split from test-setup.ts
 
 import type { Page } from "@playwright/test";

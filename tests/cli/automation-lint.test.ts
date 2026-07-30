@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { runAutomationLint } from "../../cli/lib/automation-lint.ts";
+import { runAutomationLint } from "../../cli/lib/automation/automation-lint.ts";
 
 function featureWorkspace(): { root: string; feature: string; cases: string } {
   const root = mkdtempSync(join(tmpdir(), "kata-al-"));
@@ -105,24 +105,24 @@ describe("automation lint", () => {
     expect(hardcoded.violations.filter((v) => v.rule === "no-hardcoded-env")).toHaveLength(1);
   });
 
-  it("scans only the selected shared areas", () => {
+  it("scans only the shared automation area", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-al-shared-"));
     const projectDir = join(root, "workspace", "dataAssets");
-    mkdirSync(join(projectDir, "_shared", "pages"), { recursive: true });
-    mkdirSync(join(projectDir, "_shared", "rules"), { recursive: true });
+    mkdirSync(join(projectDir, "_shared", "automation", "pages"), { recursive: true });
+    mkdirSync(join(projectDir, "_shared", "_meta"), { recursive: true });
     writeFileSync(
-      join(projectDir, "_shared", "pages", "page.ts"),
+      join(projectDir, "_shared", "automation", "pages", "page.ts"),
       "await page.waitForTimeout(100);\n",
     );
     writeFileSync(
-      join(projectDir, "_shared", "rules", "rule.ts"),
+      join(projectDir, "_shared", "_meta", "metadata.ts"),
       "await page.waitForTimeout(200);\n",
     );
 
     const result = runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root });
     expect(result.scannedFiles).toBe(1);
     expect(result.violations).toHaveLength(1);
-    expect(result.violations[0]?.path).toBe("_shared/pages/page.ts");
+    expect(result.violations[0]?.path).toBe("_shared/automation/pages/page.ts");
   });
 
   it("returns a non-zero CLI status with --exit-code", () => {

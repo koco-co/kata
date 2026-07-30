@@ -7,7 +7,7 @@ import { expect, type Locator, type Page, type Request, type Response, test } fr
 import { createConnection, type ConnectionOptions } from "mysql2/promise";
 
 import { getEnvConfig, syncMetadata } from "../../../../../../_shared/helpers";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
 import {
   EXPLICIT_RULE_CASE_SPECS,
   explicitRuleCaseNumbers,
@@ -21,7 +21,7 @@ import { hasTaskRuleImportFields, reimportAllTaskRules } from "./v6411-task-rule
 import {
   assertV6411ResultDetails,
   clearV6411ResultPlanTimeFilter,
-} from "../../scripts/one-shot/support/v6411-result-recheck-flow";
+} from "./v6411-result-recheck-flow";
 import { attachV6411Screenshot, attachV6411Text } from "../fixtures/v6411-screenshot";
 import { loadV6411AutomationSettings } from "../fixtures/v6411-automation-config";
 
@@ -881,7 +881,7 @@ function datasourceUiLabel(build: UiCaseBuild): string {
 async function createBaseTable(page: Page, build: UiCaseBuild, sourceRef: string): Promise<void> {
   if (build.datasourceType === "SparkThrift2.x") {
     throw new Error(
-      `${sourceRef}: SparkThrift 建表由回归发起人按 automation/tests/sql/lindorm-test_info_1.sql 手工完成后再执行`,
+      `${sourceRef}: SparkThrift 建表由回归发起人按 automation/tests/sql/sparkthrift-base-tables.sql 手工完成后再执行`,
     );
   }
   await createDorisBaseTable(page, build, sourceRef);

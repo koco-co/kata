@@ -8,7 +8,7 @@ import {
   uniqueName,
 } from "../../../../../../_shared/helpers/test-setup";
 import { getEnvConfig } from "../../../../../../_shared/runtime/env-profile";
-import { loadPlaywrightAutomationConfig } from "../../../../../../../../lib/automation/playwright-config";
+import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/playwright-config";
 import {
   clearCurrentDatasource as clearLegacyDatasource,
   setCurrentDatasource as setLegacyDatasource,

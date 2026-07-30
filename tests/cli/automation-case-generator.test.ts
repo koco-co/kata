@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { generateAutomationScripts } from "../../cli/lib/automation-case-generator.ts";
+import { generateAutomationScripts } from "../../cli/lib/automation/automation-case-generator.ts";
 
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-automation-generator-"));
