@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import expectations from "./fixtures/parity-expectations.json";
 
 // 单源业务合同:声明矩阵只校验 Claude skill 树的内容。
@@ -43,7 +43,7 @@ function expectCheckableTopLevelSteps(path: string): void {
   const text = readFileSync(path, "utf8");
   const lines = text.split(/\r?\n/);
   const starts = lines
-    .map((line, index) => (/^\d+\.\s+\S/.test(line) ? index : -1))
+    .map((line, index) => (/^(?:##\s+)?\d+\.\s+\S/.test(line) ? index : -1))
     .filter((index) => index >= 0);
   expect(starts.length, `${path} 没有顶层步骤`).toBeGreaterThan(0);
   for (const [position, start] of starts.entries()) {
@@ -162,6 +162,31 @@ describe("skill contract", () => {
     }
   });
 
+  it("Skill 内的本地 Markdown 指针都能解析到真实文件", () => {
+    const broken: string[] = [];
+    const visit = (dir: string): void => {
+      for (const entry of readdirSync(dir)) {
+        const path = join(dir, entry);
+        if (statSync(path).isDirectory()) {
+          visit(path);
+          continue;
+        }
+        if (!entry.endsWith(".md")) continue;
+        const text = readFileSync(path, "utf8");
+        for (const match of text.matchAll(/!?\[[^\]]*]\(([^)]+)\)/g)) {
+          const rawTarget = match[1].trim();
+          if (/^(?:https?:|mailto:|#)/.test(rawTarget)) continue;
+          const target = rawTarget.split("#", 1)[0];
+          if (target && !existsSync(resolve(dirname(path), target))) {
+            broken.push(`${path}: ${rawTarget}`);
+          }
+        }
+      }
+    };
+    visit(join(ROOT, ".claude/skills"));
+    expect(broken).toEqual([]);
+  });
+
   it("关键 workflow 契约绑定到具体文件并保持执行顺序", () => {
     const implement = readFileSync(
       join(skillDir("ui-automation"), "workflows/implement.md"),
@@ -193,17 +218,35 @@ describe("skill contract", () => {
     expect(existsSync(join(skillDir("defect-analyze"), "templates/report.md"))).toBe(false);
   });
 
-  it("test-case 的每个 workflow 步骤都有可检查完成条件", () => {
-    expectCheckableTopLevelSteps(join(skillDir("test-case"), "workflows/create.md"));
-    expectCheckableTopLevelSteps(join(skillDir("test-case"), "workflows/edit.md"));
-  });
-
-  it("ui-automation 明确已落地平台且 workflow 步骤可检查", () => {
+  it("ui-automation 明确已落地平台", () => {
     const skill = readSkillMd("ui-automation");
     expect(skill).toContain("Web 已落地");
     expect(skill).toContain("Electron 未落地");
-    for (const workflow of ["prepare.md", "implement.md", "deliver.md"]) {
-      expectCheckableTopLevelSteps(join(skillDir("ui-automation"), "workflows", workflow));
+  });
+
+  it("流程型 Skill 的每个顶层步骤都有可检查完成条件", () => {
+    const processFiles = [
+      ["defect-analyze", "SKILL.md"],
+      ...["bug.md", "conflict.md", "scan.md", "hotfix.md"].map((file) => [
+        "defect-analyze",
+        `workflows/${file}`,
+      ]),
+      ["domain-knowledge", "SKILL.md"],
+      ["domain-knowledge", "workflows/read.md"],
+      ["domain-knowledge", "workflows/write.md"],
+      ["infra-diagnose", "SKILL.md"],
+      ["infra-diagnose", "references/playbook.md"],
+      ["test-case", "SKILL.md"],
+      ["test-case", "workflows/create.md"],
+      ["test-case", "workflows/edit.md"],
+      ["ui-automation", "SKILL.md"],
+      ["ui-automation", "workflows/prepare.md"],
+      ["ui-automation", "workflows/implement.md"],
+      ["ui-automation", "workflows/deliver.md"],
+      ["workspace-management", "SKILL.md"],
+    ];
+    for (const [skill, file] of processFiles) {
+      expectCheckableTopLevelSteps(join(skillDir(skill), file));
     }
   });
 });
