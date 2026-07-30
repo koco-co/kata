@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { importCases } from "../../cli/lib/cases/importers.ts";
 import { renderMarkdown } from "../../cli/lib/cases/render-md.ts";
 import type { CasesFile } from "../../cli/lib/cases/types.ts";
-import { parseArchiveBody } from "../../cli/lib/cases/xmind/archive.ts";
 
 const CONTEXT = { version: "v1", featureKey: "dataAssets:v1.0.0/【模块】需求名" };
 
@@ -60,7 +63,7 @@ describe("renderMarkdown", () => {
     expect(md).toMatch(/<!-- case_id: C0001 -->\n\n##### 【P0】t/);
   });
 
-  it("roundtrips through the archive parser with ids, steps and priority intact", () => {
+  it("roundtrips through the canonical Markdown importer with ids, steps and priority intact", async () => {
     const src = file([
       {
         id: "C0001",
@@ -72,16 +75,23 @@ describe("renderMarkdown", () => {
       },
       { id: "C0002", title: "无标签", priority: "P2", steps: [{ action: "x", expected: "y" }] },
     ]);
-    const modules = parseArchiveBody(renderMarkdown(src, CONTEXT));
-    expect(modules.map((m) => m.name)).toEqual(["模块A", "未分类"]);
-    const pageB = modules[0].pages.find((p) => p.name === "页面B");
-    const c1 = pageB?.test_cases?.[0];
-    expect(c1?.case_id).toBe("C0001");
+    const dir = mkdtempSync(join(tmpdir(), "kata-render-md-"));
+    const sourcePath = join(dir, "history.md");
+    writeFileSync(sourcePath, renderMarkdown(src, CONTEXT));
+    const imported = await importCases({
+      featureDir: dir,
+      sourcePath,
+      name: "需求名",
+      importName: "history.md",
+    });
+    const [c1, c2] = imported.file.cases;
+    expect(c1?.id).toBe("C0001");
     expect(c1?.priority).toBe("P0");
-    expect(c1?.preconditions).toBe("前置一\n前置二");
-    expect(c1?.steps).toEqual([{ step: "a|1\nb", expected: "e\nf" }]);
-    const c2 = modules[1].pages[0].test_cases?.[0];
-    expect(c2?.case_id).toBe("C0002");
+    expect(c1?.precondition).toBe("前置一\n前置二");
+    expect(c1?.steps).toEqual([{ action: "a|1\nb", expected: "e\nf" }]);
+    expect(c1?.tags).toEqual(["模块A", "页面B"]);
+    expect(c2?.id).toBe("C0002");
     expect(c2?.priority).toBe("P2");
+    expect(c2?.tags).toBeUndefined();
   });
 });

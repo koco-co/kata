@@ -399,7 +399,7 @@ export async function createXmind(
   const root = RootTopic(rootTitle).children([l1]).sheetTitle(rootTitle);
   const wb = Workbook(root);
   // 库自带的 writeLocalFile 内部不 await writeFile，落盘前就 resolve，
-  // 紧接着 applyFoldingToFile 读回会撞上空文件；这里自己同步写盘绕开竞态。
+  // 紧接着读取产物会撞上空文件；这里自己同步写盘绕开竞态。
   // writeFileAtomic 同为同步写,且 tmp+rename 不会留下半截文件。
   const buffer = await wb.archive();
   writeFileAtomic(outputPath, await normalizeXmindBuffer(Buffer.from(buffer)));

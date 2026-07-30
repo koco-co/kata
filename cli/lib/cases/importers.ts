@@ -297,7 +297,15 @@ function parseMarkdownCaseBody(body: string, location: string) {
     for (const line of body.slice(stepStart).split("\n")) {
       if (!line.startsWith("|")) continue;
       const cells = splitMdTableRow(line);
-      if (cells.length < 3 || /^\s*-+\s*$/.test(cells[0]) || cells[0].trim() === "编号") continue;
+      if (cells[0] === "") cells.shift();
+      if (cells.at(-1) === "") cells.pop();
+      if (
+        cells.length < 3 ||
+        cells.every((cell) => /^\s*-+\s*$/.test(cell)) ||
+        cells[0].trim() === "编号"
+      ) {
+        continue;
+      }
       steps.push({ action: markdownCell(cells[1]), expected: markdownCell(cells[2]) });
     }
   }

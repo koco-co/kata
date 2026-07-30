@@ -13,5 +13,7 @@ describe("public CLI surface", () => {
   it("does not retain an unregistered legacy xmind implementation", () => {
     const repoRoot = resolve(import.meta.dir, "../..");
     expect(existsSync(join(repoRoot, "cli", "commands", "xmind.ts"))).toBe(false);
+    expect(existsSync(join(repoRoot, "cli", "lib", "cases", "xmind", "archive.ts"))).toBe(false);
+    expect(existsSync(join(repoRoot, "cli", "lib", "cases", "xmind", "io.ts"))).toBe(false);
   });
 });
