@@ -17,7 +17,9 @@ describe("kata cases sync", () => {
     );
     writeFileSync(
       join(feature, "automation", "tests", "cases", oldName),
-      "export const implemented = true;\n",
+      ['import { test } from "@playwright/test";', 'test("验证新标题", async () => {});', ""].join(
+        "\n",
+      ),
     );
 
     const report = runCasesSync(feature, true);

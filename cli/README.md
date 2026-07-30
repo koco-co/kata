@@ -243,7 +243,7 @@ Options:
 Commands:
   sql                                           校验和渲染自动化 SQL 模板；不连接数据库
   run [options] <feature-path>                  按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
-  coverage <feature-dir>                        检查 cases YAML 与 automation/tests/cases 的逐条映射
+  coverage <feature-dir>                        检查 cases YAML 与正式自动化脚本的映射、标题和实现状态
   generate-cases [options] <feature-dir>        检查缺失的 automation.spec_file；不会生成通用占位脚本
   generate [options] <feature-dir>              按 automation.spec_file 生成 runner import(默认 dry-run)
   migrate-placeholders [options] <feature-dir>  移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
@@ -958,7 +958,7 @@ Options:
 ```text
 Usage: kata automation coverage [options] <feature-dir>
 
-检查 cases YAML 与 automation/tests/cases 的逐条映射
+检查 cases YAML 与正式自动化脚本的映射、标题和实现状态
 
 Options:
   -h, --help  display help for command

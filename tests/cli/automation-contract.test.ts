@@ -27,7 +27,7 @@ describe("automation contract", () => {
     const feature = fixture();
     writeSpec(
       feature,
-      'import { test } from "@playwright/test";\ntest.skip(true, "not ready");\ntest("x", async () => {});\n',
+      'import { test } from "@playwright/test";\ntest.skip(true, "not ready");\ntest("验证样例", async () => {});\n',
     );
     const coverage = inspectAutomationCoverage(feature);
     expect(coverage.mappedNotImplemented).toHaveLength(1);
@@ -39,10 +39,52 @@ describe("automation contract", () => {
     const feature = fixture();
     writeSpec(
       feature,
-      "// inventory-consistency check for v6411-ui-case-specs\nexport const ok = true;\n",
+      [
+        'import { test } from "@playwright/test";',
+        "// inventory-consistency check for v6411-ui-case-specs",
+        'test("验证样例", async () => {});',
+        "",
+      ].join("\n"),
     );
     const coverage = inspectAutomationCoverage(feature);
     expect(coverage.implemented).toEqual(["C0001"]);
+  });
+
+  it("does not count an explicit TODO case as implemented", () => {
+    const feature = fixture();
+    writeSpec(
+      feature,
+      [
+        'import { test } from "@playwright/test";',
+        "// TODO: 当前先保证页面主流程可执行，业务断言待补充。",
+        'test("验证样例", async () => {});',
+        "",
+      ].join("\n"),
+    );
+    const coverage = inspectAutomationCoverage(feature);
+    expect(coverage.mappedNotImplemented[0]).toContain("explicit incomplete marker");
+  });
+
+  it("requires the canonical YAML title in executable source", () => {
+    const feature = fixture();
+    writeSpec(
+      feature,
+      [
+        '// META: {"title":"验证样例"}',
+        'import { test } from "@playwright/test";',
+        'test("验证缩写标题", async () => {});',
+        "",
+      ].join("\n"),
+    );
+    const coverage = inspectAutomationCoverage(feature);
+    expect(coverage.mappedNotImplemented[0]).toContain("canonical YAML title");
+  });
+
+  it("requires a real test declaration", () => {
+    const feature = fixture();
+    writeSpec(feature, 'export const title = "验证样例";\n');
+    const coverage = inspectAutomationCoverage(feature);
+    expect(coverage.mappedNotImplemented[0]).toContain("no Playwright test declaration");
   });
 
   it("throws on invalid cases YAML via validateCases", () => {

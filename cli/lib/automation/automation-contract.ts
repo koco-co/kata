@@ -57,7 +57,24 @@ function hasMissingRelativeImport(file: string): string | undefined {
   return undefined;
 }
 
-function classifyScript(file: string): {
+function executableSource(text: string): string {
+  return text
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*\/\//.test(line))
+    .join("\n");
+}
+
+function containsCanonicalTitle(text: string, title: string): boolean {
+  const source = executableSource(text);
+  if (source.includes(title)) return true;
+  const escapedDoubleQuotedTitle = JSON.stringify(title).slice(1, -1);
+  return source.includes(escapedDoubleQuotedTitle);
+}
+
+function classifyScript(
+  file: string,
+  expectedTitle: string,
+): {
   status: AutomationCaseStatus;
   implementationIssue?: string;
 } {
@@ -77,6 +94,12 @@ function classifyScript(file: string): {
       implementationIssue: "spec disables itself via test.skip(true)",
     };
   }
+  if (/\b(?:TODO|FIXME)\s*:|当前先(?:做骨架|保证)|待(?:下载处理就绪后)?补充/.test(text)) {
+    return {
+      status: "mapped-not-implemented",
+      implementationIssue: "spec contains an explicit incomplete marker",
+    };
+  }
   if (/const\s+(?:ENV|PROJECT_ID)\s*=\s*getEnvConfig\(\)/.test(text)) {
     return {
       status: "mapped-not-implemented",
@@ -88,6 +111,19 @@ function classifyScript(file: string): {
     return {
       status: "mapped-not-implemented",
       implementationIssue: `missing relative import: ${missingImport}`,
+    };
+  }
+  const source = executableSource(text);
+  if (!/\btest\s*\(/.test(source)) {
+    return {
+      status: "mapped-not-implemented",
+      implementationIssue: "spec contains no Playwright test declaration",
+    };
+  }
+  if (!containsCanonicalTitle(text, expectedTitle)) {
+    return {
+      status: "mapped-not-implemented",
+      implementationIssue: "canonical YAML title is absent from executable source",
     };
   }
   return { status: "implemented" };
@@ -115,7 +151,10 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
         implementationIssue: "spec_file does not point to an existing script",
       };
     }
-    const classification = classifyScript(join(featureDir, "automation", "tests", "cases", script));
+    const classification = classifyScript(
+      join(featureDir, "automation", "tests", "cases", script),
+      item.title,
+    );
     return { id: item.id, title: item.title, specFile, ...classification };
   });
   const missingSpecFile = cases.filter((item) => !item.specFile).map((item) => item.id);
