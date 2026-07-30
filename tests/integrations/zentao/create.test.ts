@@ -33,6 +33,14 @@ describe("loadZentaoCreateConfig", () => {
   });
 });
 
+describe("ZenTao create library boundary", () => {
+  it("returns results or throws instead of writing CLI output", () => {
+    const source = readFileSync(resolve(PROJECT_ROOT, "cli/integrations/zentao/create.ts"), "utf8");
+    assert.equal(source.includes("process.exit("), false);
+    assert.equal(source.includes("process.stdout.write"), false);
+  });
+});
+
 describe("mapSeverity / mapPriority", () => {
   it("maps severity via table, default 3", () => {
     const c = loadZentaoCreateConfig(CONFIG);
@@ -133,7 +141,7 @@ afterEach(() => {
   } catch {}
 });
 
-function runCli(args: string[]): { code: number; stdout: string } {
+function runCli(args: string[]): { code: number; stdout: string; stderr: string } {
   try {
     const stdout = execFileSync("bun", [KATA_TS, "zentao", "create", ...args], {
       encoding: "utf8",
@@ -141,10 +149,10 @@ function runCli(args: string[]): { code: number; stdout: string } {
       env: { ...process.env, KATA_ZENTAO_BASE_URL: "https://zentao.example.cn" },
       stdio: ["pipe", "pipe", "pipe"],
     });
-    return { code: 0, stdout };
+    return { code: 0, stdout, stderr: "" };
   } catch (err) {
-    const e = err as { status?: number; stdout?: string };
-    return { code: e.status ?? 1, stdout: e.stdout ?? "" };
+    const e = err as { status?: number; stdout?: string; stderr?: string };
+    return { code: e.status ?? 1, stdout: e.stdout ?? "", stderr: e.stderr ?? "" };
   }
 }
 
@@ -202,12 +210,15 @@ describe("CLI: missing --report", () => {
 });
 
 describe("CLI: unreadable report", () => {
-  it("exits 1 with a JSON error on stdout (runCreate throws instead of process.exit)", () => {
-    const { code, stdout } = runCli(["--report", join(TMP, "no-such-report.md"), "--dry-run"]);
+  it("exits 1 with a diagnostic on stderr", () => {
+    const { code, stdout, stderr } = runCli([
+      "--report",
+      join(TMP, "no-such-report.md"),
+      "--dry-run",
+    ]);
     assert.equal(code, 1);
-    const out = JSON.parse(stdout) as { ok: boolean; error: string };
-    assert.equal(out.ok, false);
-    assert.ok(out.error.includes("读取/校验 BugReport 失败"), `got: ${out.error}`);
+    assert.equal(stdout, "");
+    assert.ok(stderr.includes("读取/校验 BugReport 失败"), `got: ${stderr}`);
   });
 });
 

@@ -40,6 +40,8 @@ export function registerZentao(program: Command): void {
     .option("--config <path>", "ZenTao 配置 yaml", DEFAULT_CONFIG)
     .option("--dry-run", "只组装字段不提交,打印 payload", false)
     .action(async (opts: { report: string; config: string; dryRun: boolean }) => {
-      await runCreate({ report: opts.report, config: opts.config, dryRun: opts.dryRun });
+      outputJson(
+        await runCreate({ report: opts.report, config: opts.config, dryRun: opts.dryRun }),
+      );
     });
 }

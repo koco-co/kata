@@ -96,6 +96,25 @@ export interface CreateResult {
   note?: string;
 }
 
+export interface CreateDryRunResult {
+  ok: true;
+  dryRun: true;
+  endpoint: string;
+  fields: Record<string, string>;
+}
+
+export class ZentaoCreateError extends Error {
+  readonly exitCode = 1;
+
+  constructor(
+    readonly code: string,
+    message: string,
+  ) {
+    super(`${code}: ${message}`);
+    this.name = "ZentaoCreateError";
+  }
+}
+
 // 扫描整段响应里的 bug id：禅道不同版本会把它放进 PATH_INFO 链接
 // （bug-view-N）或查询串（…&bugID=N），locate/load 还可能是嵌套对象，
 // 所以统一对整段文本做匹配，而不是只看固定字段。
@@ -158,39 +177,27 @@ export function parseCreateResponse(text: string, baseUrl: string, title: string
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 export const DEFAULT_CONFIG = resolve(__dirname, "zentao.config.yaml");
 
-function emit(obj: unknown): void {
-  process.stdout.write(`${JSON.stringify(obj, null, 2)}\n`);
-}
-
-// 库内不 process.exit()：错误 JSON 先写 stdout（机器契约），再抛带码错误由 CLI 入口兜底退出码
-function fail(payload: { ok: boolean; error: string }, code: string): never {
-  emit(payload);
-  throw Object.assign(new Error(payload.error), { code });
+function fail(code: string, message: string): never {
+  throw new ZentaoCreateError(code, message);
 }
 
 export async function runCreate(opts: {
   report: string;
   config: string;
   dryRun: boolean;
-}): Promise<void> {
+}): Promise<CreateResult | CreateDryRunResult> {
   const baseUrl = loadZentaoPluginConfig(repoRoot()).base_url;
   if (!baseUrl) {
     fail(
-      {
-        ok: false,
-        error: "缺少 config/plugin/zentao.yaml 的 base_url（或设置 KATA_ZENTAO_BASE_URL）",
-      },
       "ZENTAO_CONFIG_MISSING",
+      "缺少 config/plugin/zentao.yaml 的 base_url（或设置 KATA_ZENTAO_BASE_URL）",
     );
   }
   let report: BugReport;
   try {
     report = parseBugReportMarkdown(opts.report);
   } catch (e) {
-    fail(
-      { ok: false, error: `读取/校验 BugReport 失败：${(e as Error).message}` },
-      "REPORT_INVALID",
-    );
+    fail("REPORT_INVALID", `读取/校验 BugReport 失败：${(e as Error).message}`);
   }
   let config: ZentaoConfig;
   let steps: string;
@@ -201,24 +208,23 @@ export async function runCreate(opts: {
     steps = renderBugReport(report, "zentao");
     payload = buildCreatePayload(report, config, steps);
   } catch (e) {
-    fail({ ok: false, error: `配置加载/正文渲染失败：${(e as Error).message}` }, "CONFIG_INVALID");
+    fail("CONFIG_INVALID", `配置加载/正文渲染失败：${(e as Error).message}`);
   }
 
   if (opts.dryRun) {
-    emit({
+    return {
       ok: true,
       dryRun: true,
       endpoint: createUrl(baseUrl, config),
       fields: { ...payload, steps: `<${steps.length} chars>` },
-    });
-    return;
+    };
   }
 
   let cookie: string;
   try {
     cookie = await resolveSession();
   } catch (e) {
-    fail({ ok: false, error: (e as Error).message }, "SESSION_FAILED");
+    fail("SESSION_FAILED", (e as Error).message);
   }
 
   let res: Response;
@@ -234,25 +240,22 @@ export async function runCreate(opts: {
       body: new URLSearchParams(payload).toString(),
     });
   } catch (e) {
-    fail({ ok: false, error: `网络连接失败: ${(e as Error).message}` }, "NETWORK_ERROR");
+    fail("NETWORK_ERROR", `网络连接失败: ${(e as Error).message}`);
   }
 
   // HTML 错误页（登录页/网关错误）不当初步成功：先看状态码与 content-type，再解析正文
   if (!res.ok) {
-    fail({ ok: false, error: `禅道创建请求失败，HTTP ${res.status}` }, "CREATE_HTTP_ERROR");
+    fail("CREATE_HTTP_ERROR", `禅道创建请求失败，HTTP ${res.status}`);
   }
   const contentType = res.headers.get("content-type") ?? "";
   if (contentType.includes("text/html")) {
-    fail(
-      { ok: false, error: "禅道创建返回了 HTML 页面而非 JSON（会话可能已失效）" },
-      "CREATE_UNEXPECTED_HTML",
-    );
+    fail("CREATE_UNEXPECTED_HTML", "禅道创建返回了 HTML 页面而非 JSON（会话可能已失效）");
   }
   const text = await res.text();
 
   const result = parseCreateResponse(text, baseUrl, report.title);
-  emit(result);
   if (!result.ok) {
-    throw Object.assign(new Error(result.error ?? "禅道创建失败"), { code: "CREATE_FAILED" });
+    fail("CREATE_FAILED", result.error ?? "禅道创建失败");
   }
+  return result;
 }
