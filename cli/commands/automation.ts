@@ -389,7 +389,7 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("lint [feature-dir]")
-    .description("检查 Playwright 自动化代码、用例文件名与重复页面元数据")
+    .description("检查 Playwright 自动化代码、用例文件名、页面元数据与共享路径")
     .option("--shared", "检查 workspace 项目的 _shared/automation 共享自动化代码")
     .option("--project <name>", "--shared 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)")
     .option("--exit-code", "存在 violation 时退出码为 1")

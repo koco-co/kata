@@ -249,7 +249,7 @@ Commands:
   migrate-placeholders [options] <feature-dir>  移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
   scaffold [options] <feature-dir>              创建自动化骨架(tests/cases、runners、pages、fixtures、sql)
   normalize [options] <feature-dir>             检查自动化目录违规；仅迁移有明确受控目标的旧文件
-  lint [options] [feature-dir]                  检查 Playwright 自动化代码、用例文件名与重复页面元数据
+  lint [options] [feature-dir]                  检查 Playwright 自动化代码、用例文件名、页面元数据与共享路径
   help [command]                                display help for command
 ```
 
@@ -1030,7 +1030,7 @@ Options:
 ```text
 Usage: kata automation lint [options] [feature-dir]
 
-检查 Playwright 自动化代码、用例文件名与重复页面元数据
+检查 Playwright 自动化代码、用例文件名、页面元数据与共享路径
 
 Options:
   --shared          检查 workspace 项目的 _shared/automation 共享自动化代码

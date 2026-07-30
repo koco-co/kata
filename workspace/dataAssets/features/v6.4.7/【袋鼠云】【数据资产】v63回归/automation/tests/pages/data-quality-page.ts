@@ -1,7 +1,6 @@
 // v63-regression-page.ts — 数据资产 v6.3 回归（袋鼠云 ci63）数据质量壳层页对象。
 // 覆盖：数据质量页面导航、壳层断言、质量项目列表接口与侧边菜单切换。
-// 选择器与导航模式对齐 _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts
-// 与 metadata-shell-page.ts 的既有实现。
+// 选择器与导航遵循当前 feature 的页面契约。
 
 import { expect, type Page } from "@playwright/test";
 

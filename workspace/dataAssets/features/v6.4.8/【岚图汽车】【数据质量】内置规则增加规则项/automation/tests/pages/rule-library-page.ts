@@ -1,6 +1,6 @@
 // rule-library-page.ts — 【岚图汽车】【数据质量】内置规则增加规则项 页面对象。
 // 覆盖：规则库配置入口候选路由、新建单表校验规则向导（监控对象 → 监控规则步骤）、
-// 添加规则菜单读取。选择器模式对齐 _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts。
+// 添加规则菜单读取。
 
 import { expect, type Page } from "@playwright/test";
 

@@ -1,6 +1,6 @@
 // timeliness-monitor-page.ts — 【岚图汽车】【数据质量】时效性/及时性两个字段之间的时间差校验 页面对象。
 // 覆盖：新建单表校验规则向导、监控对象填写、表字段接口、时效性校验规则入口与配置区契约。
-// 选择器模式对齐 _shared/pages/2099-01-lt-dq-main-flow/data-quality-page.ts。
+// 选择器与导航遵循当前 feature 的页面契约。
 
 import { expect, type Page } from "@playwright/test";
 

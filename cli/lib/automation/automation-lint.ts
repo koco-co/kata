@@ -35,6 +35,7 @@ export const AUTOMATION_LINT_RULES = [
   "case-file-naming",
   "no-generated-placeholder",
   "no-page-metadata",
+  "no-legacy-shared-path",
 ] as const;
 
 export type AutomationLintRule = (typeof AUTOMATION_LINT_RULES)[number];
@@ -319,15 +320,26 @@ function scanSourceFile(
 
   for (let index = 0; index < originalLines.length; index += 1) {
     const originalLine = originalLines[index] ?? "";
-    if (!/^\s*\/\/\s*page\s*:/i.test(originalLine)) continue;
-    addViolation(
-      violations,
-      path,
-      index + 1,
-      "no-page-metadata",
-      "页面依赖必须由真实 import 表达；删除易失效的 // page: 重复元数据",
-      originalLine,
-    );
+    if (/^\s*\/\/\s*page\s*:/i.test(originalLine)) {
+      addViolation(
+        violations,
+        path,
+        index + 1,
+        "no-page-metadata",
+        "页面依赖必须由真实 import 表达；删除易失效的 // page: 重复元数据",
+        originalLine,
+      );
+    }
+    if (/_shared\/(?:pages|helpers|rules|fixtures|runtime)\//.test(originalLine)) {
+      addViolation(
+        violations,
+        path,
+        index + 1,
+        "no-legacy-shared-path",
+        "引用了已删除的项目共享路径；使用 _shared/automation 下的真实模块",
+        originalLine,
+      );
+    }
   }
 
   for (let index = 0; index < maskedLines.length; index++) {

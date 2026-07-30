@@ -227,6 +227,21 @@ describe("automation lint", () => {
     expect(result.violations.filter((v) => v.rule === "no-page-metadata")).toHaveLength(1);
   });
 
+  it("rejects references to removed project shared paths", () => {
+    const { feature, cases } = featureWorkspace();
+    writeCase(
+      cases,
+      "c0001-legacy-shared-path.spec.ts",
+      [
+        "// copied from _shared/pages/old-flow/page.ts",
+        'const obsolete = "_shared/helpers/navigation";',
+        "",
+      ].join("\n"),
+    );
+    const result = runAutomationLint({ featureDir: feature });
+    expect(result.violations.filter((v) => v.rule === "no-legacy-shared-path")).toHaveLength(2);
+  });
+
   it("requires --project or KATA_ACTIVE_PROJECT for --shared", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-al-shared-"));
     const prev = process.env.KATA_ACTIVE_PROJECT;
