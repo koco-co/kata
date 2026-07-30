@@ -1,44 +1,52 @@
 ---
 name: defect-analyze
-description: 缺陷分诊四种模式——收到异常堆栈、console 报错或 HTTP 失败时做 bug 根因分析；收到带冲突标记的文本时解决合并冲突；收到 diff、分支对、变更文件集或评审 / MR / PR 请求时做静态缺陷扫描；收到 ZenTao bug URL 或 bug ID 时生成 hotfix 回归报告。需要生成 YAML 回归用例时转 test-case。
+description: 分析异常堆栈、console 报错和 HTTP 失败，裁决带冲突标记的文本，扫描 diff、分支、MR 或 PR 中的静态缺陷，或根据 ZenTao Bug ID/URL 生成 hotfix 回归报告。需要 YAML 回归用例时转 test-case；基础设施连通性问题转 infra-diagnose。
 ---
 
-# defect-analyze
+# Outcome
 
-按输入类型分流到四种模式；Markdown 文件是报告的唯一权威来源，提交前运行对应的报告 lint。
+根据输入选择唯一缺陷分支，产出证据可追溯、可通过 CLI 校验的 Markdown 报告；只有用户明确要求时才进一步修改文件或写入外部系统。
 
-## 分流
+## Routing
 
-| 输入 | 模式 | 报告路径 |
-|---|---|---|
-| 异常堆栈、console 报错、HTTP 失败 | bug | `analyses/bug-report/<yyyymm>/<slug>.md` |
-| 带冲突标记（`<<<<<<<`）的文本 | conflict | `analyses/conflict-report/<yyyymm>/<slug>.md` |
-| diff、分支对、变更文件集、评审 / MR / PR | scan | `analyses/scan-report/<yyyymm>/<slug>.md` |
-| ZenTao bug ID 或 bug-view URL | hotfix | `analyses/hotfix-case/<yyyymm>/<slug>.md` |
+| 输入 | 模式 | 完整流程 | 报告路径 |
+|---|---|---|---|
+| 异常堆栈、console 报错、HTTP 失败 | bug | [workflows/bug.md](workflows/bug.md) | `analyses/bug-report/<yyyymm>/<slug>.md` |
+| 带 `<<<<<<<` 等冲突标记的文本 | conflict | [workflows/conflict.md](workflows/conflict.md) | `analyses/conflict-report/<yyyymm>/<slug>.md` |
+| diff、分支对、变更文件集、评审、MR、PR | scan | [workflows/scan.md](workflows/scan.md) | `analyses/scan-report/<yyyymm>/<slug>.md` |
+| ZenTao Bug ID 或 bug-view URL | hotfix | [workflows/hotfix.md](workflows/hotfix.md) | `analyses/hotfix-case/<yyyymm>/<slug>.md` |
 
-## 模式规则
+生成 YAML 或 XMind 回归用例时转 `test-case`。服务器或数据源 connectivity 问题转 `infra-diagnose`。
 
-**bug**：实际行为、预期行为、复现步骤、影响范围、根因五项分开陈述；根因要有日志、堆栈或代码位置支撑。需要查源码时用 `kata repos grep/show`。报告结构以 [templates/bug-report.md](templates/bug-report.md) 为准，填写示例见 [examples/bug-report.md](examples/bug-report.md)。用户确认要登记到 ZenTao 时，先通过报告 lint，再运行 `kata zentao create --report <report.md>` 创建。
+## Steps
 
-**conflict**：给出方案前，先把冲突双方各自的意图和依据写清楚，再给出合并建议与理由；不能只凭一方信息下裁决。报告结构以 [templates/conflict-report.md](templates/conflict-report.md) 为准；提交前运行 `kata defects lint --report <report.md> --exit-code`。
+1. 选择分支
+   - 只根据当前输入选择一个 workflow；输入同时命中多种模式时，以用户明确交付物为准。
+   - 完成条件：模式唯一，目标项目和报告路径可确定。
 
-**scan**：用 `kata scans create --project <项目> --repo <仓库> --base-branch <base 分支> --head-branch <目标分支>` 取 diff，或用 `--patch <patch>` 读取已有 patch（不需要 fetch 时加 `--skip-fetch`），逐文件做静态审查；用户没给 diff 时先确认分支对，连分支对也没有时用 `git diff HEAD~1` 自取最近一次提交的 diff，并在报告中注明 diff 来源。只报告能由所给 diff 与周边代码证实的缺陷，每条都附 `文件:行号` 与理由。报告结构以 [templates/scan-report.md](templates/scan-report.md) 为准；提交前运行 `kata defects lint --report <report.md> --exit-code`。
+2. 执行分支工作流
+   - 完整读取所选 workflow 及其明确指向的模板、示例或证据文件。
+   - 完成条件：workflow 的每项完成条件均已满足，或已记录精确证据缺口。
 
-**hotfix**：收到 ZenTao Bug ID 或 URL 时按下面的 4 步闭环执行：
+3. 校验报告
+   - 对正式报告运行 `kata defects lint --report <report.md> --exit-code`。
+   - 完成条件：lint 退出码为 0；若无法满足，交付阻塞原因而不是发布不完整报告。
 
-1. **取证**：读取 Bug 原文和开发备注，用 `kata knowledge read`、`kata repos grep/show` 及既有用例补查业务语义。完成标准：用例中的菜单、字段、对象、状态和异常数据都有来源；证据不全就停在取证。
-2. **起草**：按 [examples/hotfix-case.md](examples/hotfix-case.md) 的正例组织 `templates/hotfix-evidence.json`。正文只写禅道的标题、前置条件和 `编号 | 步骤 | 预期` 表格；多个表单项或结果放在同一单元格，用 `<br>` 换行。完成标准：每一步都有可观察预期。
-3. **生成**：运行 `kata defects hotfix --bug-id <id> --project <项目> --yyyymm <yyyymm> --slug <slug> --evidence-file <evidence.json>`。生成器负责固定 frontmatter 和表格排版，证据文件只作生成门禁。
-4. **验收**：运行 `kata defects lint --report <report.md> --exit-code`。完成标准：命令退出码为 0；不生成 YAML、XMind 或 exports。
+## Delivery
 
-hotfix 的固定字段、表格结构、占位符、空泛内容和敏感信息规则由 CLI 校验；不要在本文件重复维护规则。
+- 先给结论，再给证据、影响和建议；不输出过程流水账。
+- 每条结论附文件行号、日志原文、命令输出或业务来源。
+- 明确区分已证实缺陷、假设、未验证项和外部写入是否执行。
 
-## 纪律
+## Guardrails
 
-- 每条结论必须可追溯到证据（`文件:行号`、日志原文、命令输出）；禁止编造日志、负责人、模块、菜单、字段、数据状态或根因。
-- 报告是写给人看的 Markdown：先给结论、后附证据，不写过程流水账；通用骨架见 [templates/report.md](templates/report.md)。
-- 默认只读；修改源码、解决冲突、登记 ZenTao 均需用户另行授权。知识库没有命中时不得用猜测替代；应记录检索缺口并停止生成，除非已有源码、真实用例或用户确认足以支撑该事实。
+- 默认只读。用户明确要求修复源码或解决冲突时，该请求才授权对应本地修改；登记 ZenTao 或其他外部写入必须单独明确。
+- 不编造日志、负责人、模块、菜单、字段、数据状态或根因。知识无命中时继续查源码、真实用例或用户证据；仍不足则交付证据缺口。
+- 报告是唯一分析权威；机械格式、占位符、空泛内容和敏感信息由 CLI lint 校验，不在各 workflow 重复维护。
 
-## 边界
+## References
 
-- 基础设施 connectivity 报告由 infra-diagnose 独立负责，不属于本 Skill 的报告范围。
+- bug：完整读取 [workflows/bug.md](workflows/bug.md)。
+- conflict：完整读取 [workflows/conflict.md](workflows/conflict.md)。
+- scan：完整读取 [workflows/scan.md](workflows/scan.md)。
+- hotfix：完整读取 [workflows/hotfix.md](workflows/hotfix.md)。

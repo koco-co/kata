@@ -173,6 +173,8 @@ describe("skill contract", () => {
     const workspaceManagement = readSkillMd("workspace-management");
     expect(workspaceManagement).toContain("再次运行 `kata project scan");
     expect(workspaceManagement).not.toContain("CLAUDE.md 本地配置节");
+
+    expect(existsSync(join(skillDir("defect-analyze"), "templates/report.md"))).toBe(false);
   });
 });
 

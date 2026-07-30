@@ -61,14 +61,13 @@
         { "pattern": "scan", "file": "SKILL.md" },
         { "pattern": "hotfix", "file": "SKILL.md" }
       ],
-      "scansCreate": [{ "pattern": "kata scans create", "file": "SKILL.md" }],
-      "zentaoCreate": [{ "pattern": "kata zentao create", "file": "SKILL.md" }],
+      "scansCreate": [{ "pattern": "kata scans create", "file": "workflows/scan.md" }],
+      "zentaoCreate": [{ "pattern": "kata zentao create", "file": "workflows/bug.md" }],
       "lintGate": [{ "pattern": "kata defects lint", "file": "SKILL.md" }],
       "conclusionSection": [
         { "pattern": "## 结论", "file": "templates/bug-report.md" },
         { "pattern": "## 结论", "file": "templates/conflict-report.md" },
         { "pattern": "## 结论", "file": "templates/scan-report.md" },
-        { "pattern": "## 结论", "file": "templates/report.md" },
         { "pattern": "## 结论", "file": "examples/bug-report.md" }
       ],
       "severityField": [
