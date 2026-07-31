@@ -1,4 +1,4 @@
-// spec: features/v7.0.0/【岚图汽车】【数据资产】数据资产集成用例/cases/archive.md#case=「数据标准」模块集成测试用例
+// case: C0002 验证「数据标准」标准统计各维度结果展示
 // intent: SR-INTENT-20260702-DATA-STANDARD-INTEGRATION
 // probe: SR-UI-PROBE-20260702-DATA-STANDARD-LTQC
 // generated_at: 2026-07-02T02:57:40Z

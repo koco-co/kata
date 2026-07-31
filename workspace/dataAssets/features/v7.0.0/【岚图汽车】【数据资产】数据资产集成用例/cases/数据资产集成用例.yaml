@@ -7,8 +7,6 @@ meta:
     - xmind
 cases:
   - case_id: C0001
-    automation:
-      spec_file: c0001-metadata-sync-record-actions.spec.ts
     title: 验证「元数据」元数据同步记录查看实例编辑与删除
     priority: P0
     steps:
@@ -281,7 +279,8 @@ cases:
     tags:
       - 元数据
   - case_id: C0002
-
+    automation:
+      spec_file: c0002-data-standard-statistics.spec.ts
     title: 验证「数据标准」标准统计各维度结果展示
     priority: P1
     steps:
