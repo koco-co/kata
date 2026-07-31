@@ -3,6 +3,7 @@ import { basename, extname, join, relative, resolve, sep } from "node:path";
 import { SPEC_FILE_RE } from "../cases/parse.ts";
 import { projectRootFromFeatureDir } from "../features-layout.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
+import { findMissingRelativeImports } from "./relative-imports.ts";
 
 const CODE_EXTENSIONS = new Set([".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
 const URL_RE = /https?:\/\//i;
@@ -33,6 +34,7 @@ export const AUTOMATION_LINT_RULES = [
   "no-hardcoded-env",
   "selector-quality",
   "case-file-naming",
+  "no-missing-relative-import",
   "no-generated-placeholder",
   "no-page-metadata",
   "no-legacy-shared-path",
@@ -297,6 +299,17 @@ function scanSourceFile(
   const masked = maskComments(source);
   const originalLines = source.split(/\r?\n/);
   const maskedLines = masked.text.split(/\r?\n/);
+
+  for (const missingImport of findMissingRelativeImports(absolutePath, masked.text)) {
+    addViolation(
+      violations,
+      path,
+      missingImport.line,
+      "no-missing-relative-import",
+      `相对 import「${missingImport.specifier}」不存在；请更新 runner 或恢复目标模块`,
+      originalLines[missingImport.line - 1] ?? "",
+    );
+  }
 
   if (
     /(^|\/)automation\/tests\/cases\//.test(path) &&

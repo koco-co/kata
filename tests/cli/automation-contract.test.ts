@@ -39,6 +39,8 @@ describe("automation contract", () => {
       [
         'import { test } from "@playwright/test";',
         "// inventory-consistency check for v6411-ui-case-specs",
+        '// import "./missing.spec";',
+        '/* import "./also-missing.spec"; */',
         'test("验证样例", async () => {});',
         "",
       ].join("\n"),

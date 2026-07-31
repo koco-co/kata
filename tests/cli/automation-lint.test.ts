@@ -28,6 +28,7 @@ describe("automation lint", () => {
       [
         "// waitForTimeout(1)",
         '/* waitForLoadState("networkidle") */',
+        '/* import "../cases/missing.spec" */',
         "await page.waitForTimeout(100);",
         'await page.waitForLoadState("networkidle");',
         'await page.locator(".css-1a2b3c").nth(0).nth(1).nth(2);',
@@ -105,6 +106,22 @@ describe("automation lint", () => {
     const hardcoded = runAutomationLint({ featureDir: feature });
     expect(hardcoded.violations.some((v) => v.rule === "no-hardcoded-env")).toBe(true);
     expect(hardcoded.violations.filter((v) => v.rule === "no-hardcoded-env")).toHaveLength(1);
+  });
+
+  it("flags missing relative imports in manually maintained runners", () => {
+    const { feature } = featureWorkspace();
+    const runners = join(feature, "automation", "tests", "runners");
+    mkdirSync(runners, { recursive: true });
+    writeFileSync(join(runners, "smoke.spec.ts"), 'import "../cases/c0001-missing.spec";\n');
+
+    const result = runAutomationLint({ featureDir: feature });
+    expect(result.violations).toContainEqual(
+      expect.objectContaining({
+        path: "features/v7.0.0/demo/automation/tests/runners/smoke.spec.ts",
+        line: 1,
+        rule: "no-missing-relative-import",
+      }),
+    );
   });
 
   it("scans only the shared automation area", () => {

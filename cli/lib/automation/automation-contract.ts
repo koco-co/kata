@@ -1,7 +1,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseCasesYaml, validateCases } from "../cases/parse.ts";
+import { findMissingRelativeImports } from "./relative-imports.ts";
 
 export interface AutomationCaseLink {
   id: string;
@@ -49,16 +50,6 @@ function scriptFiles(dir: string): string[] {
   return out.sort();
 }
 
-function hasMissingRelativeImport(file: string): string | undefined {
-  const text = readFileSync(file, "utf8");
-  for (const match of text.matchAll(/(?:from|import\s*\()\s*["'](\.[^"']+)["']/g)) {
-    const target = join(dirname(file), match[1]);
-    const candidates = [target, `${target}.ts`, `${target}.tsx`, join(target, "index.ts")];
-    if (!candidates.some((candidate) => existsSync(candidate))) return match[1];
-  }
-  return undefined;
-}
-
 function executableSource(text: string): string {
   return text
     .split(/\r?\n/)
@@ -86,6 +77,7 @@ function classifyScript(
   titleMismatch?: string;
 } {
   const text = readFileSync(file, "utf8");
+  const source = executableSource(text);
   if (
     text.includes("runGeneratedCase") ||
     text.includes("Generated from the canonical cases YAML")
@@ -113,14 +105,13 @@ function classifyScript(
       implementationIssue: "implementation resolves private environment data during module load",
     };
   }
-  const missingImport = hasMissingRelativeImport(file);
+  const missingImport = findMissingRelativeImports(file, source)[0];
   if (missingImport) {
     return {
       status: "mapped-not-implemented",
-      implementationIssue: `missing relative import: ${missingImport}`,
+      implementationIssue: `missing relative import: ${missingImport.specifier}`,
     };
   }
-  const source = executableSource(text);
   if (!/\btest\s*\(/.test(source)) {
     return {
       status: "mapped-not-implemented",
