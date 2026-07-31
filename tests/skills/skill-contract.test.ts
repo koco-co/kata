@@ -265,7 +265,7 @@ describe("skill contract", () => {
       ["infra-diagnose", "references/playbook.md"],
       ["test-case", "SKILL.md"],
       ["test-case", "workflows/create.md"],
-      ["test-case", "workflows/edit.md"],
+      ["test-case", "workflows/update.md"],
       ["ui-automation", "SKILL.md"],
       ["ui-automation", "workflows/prepare.md"],
       ["ui-automation", "workflows/implement.md"],

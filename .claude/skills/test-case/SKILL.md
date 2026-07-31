@@ -1,6 +1,6 @@
 ---
 name: test-case
-description: 编写、编辑、导入、同步或标准化 Kata 测试用例。Lanhu/Axure URL、PRD、截图和功能描述等需求源走 create；既有 .yaml、.csv、.xlsx、.md、.xmind 或明确编辑诉求走 edit。只发 feature 目录且要求 UI 自动化时转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
+description: 编写、更新、导入、同步或标准化 Kata 测试用例。Lanhu/Axure URL、PRD、截图和功能描述等需求源走 create；既有 .yaml、.csv、.xlsx、.md、.xmind 或明确更新诉求走 update。只发 feature 目录且要求 UI 自动化时转 ui-automation；ZenTao hotfix 回归转 defect-analyze。
 ---
 
 # Outcome
@@ -10,7 +10,7 @@ description: 编写、编辑、导入、同步或标准化 Kata 测试用例。L
 ## Routing
 
 - 新需求、PRD、设计稿、截图或功能描述：完整执行 [workflows/create.md](workflows/create.md)。
-- 既有 YAML 或 CSV、XLSX、Markdown、XMind，以及标题同步、格式标准化等编辑：完整执行 [workflows/edit.md](workflows/edit.md)。
+- 既有 YAML 或 CSV、XLSX、Markdown、XMind，以及标题同步、格式标准化等更新：完整执行 [workflows/update.md](workflows/update.md)。
 - 只给 feature 目录并要求生成、修复或验证 UI 自动化：转 `ui-automation`。
 - ZenTao Bug ID/URL 的 hotfix 回归报告：转 `defect-analyze`；需要正式 YAML 回归用例时再返回本 Skill。
 
@@ -18,7 +18,7 @@ description: 编写、编辑、导入、同步或标准化 Kata 测试用例。L
 
 1. 选择工作流并定位 feature
    - 新 feature 由 CLI 解析身份；既有 feature 从用户给定的规范路径定位。
-   - 完成条件：项目和 `<项目>:<版本目录>/<需求目录名>` 唯一，create/edit 分支明确。
+   - 完成条件：项目和 `<项目>:<版本目录>/<需求目录名>` 唯一，create/update 分支明确。
 
 2. 维护权威链
    - `prd/prd.md` 是确认后的需求权威，`cases/test-points.md` 是覆盖设计，`cases/需求名.yaml` 是用例权威。
@@ -44,6 +44,6 @@ description: 编写、编辑、导入、同步或标准化 Kata 测试用例。L
 ## References
 
 - create 分支：完整读取 [workflows/create.md](workflows/create.md)。
-- edit 分支：完整读取 [workflows/edit.md](workflows/edit.md)。
+- update 分支：完整读取 [workflows/update.md](workflows/update.md)。
 - 写 YAML 时按需读取 [examples/cases.yaml](examples/cases.yaml)。
 - 交付前完整执行 [checklists/review.md](checklists/review.md)。
