@@ -1,6 +1,6 @@
 ---
 meta:
-  title: 泸州老窖定制化回归基线
+  title: 资产定制化代码剥离
   case_module_id: ''
   layout: requirements
   source: 禅道泸州老窖数栈定开项目需求与历史用例；蓝湖泸州老窖定制化需求及历史迭代原型；当前环境功能入口快照
@@ -76,9 +76,6 @@ requirements:
 - requirement_id: '14280'
   title: "【泸州老窖】码表支持引入数据表创建"
   source: 禅道需求 14280；蓝湖 V6.3.5
-- requirement_id: '15911'
-  title: "【泸州老窖】资产定制化代码剥离"
-  source: 禅道需求 15911；蓝湖 15911；语雀 6.4.11
 - requirement_id: '16178'
   title: "【泸州老窖】新增行级权限管控"
   source: 禅道需求 16178
@@ -5325,32 +5322,8 @@ cases:
   - action: 对已配置为引用数据表的码表导入与其相同编码的手动码表文件
     expected: 导入不执行覆盖，提示已存在相同代码且配置方式为引用数据表；手动码表仍支持原有导入导出
   source_ref: '禅道需求 #14280；用户确认测试点'
-- requirement_id: '15911'
-  case_id: C0261
-  title: 验证泸州老窖定制代码部署在独立应用中
-  priority: P0
-  steps:
-  - action: 部署定制应用与标品应用，检查定制功能入口和应用边界
-    expected: 定制功能均可从独立应用访问，标品应用不加载定制实现，应用边界可识别
-  source_ref: '禅道需求 #15911；用户确认测试点'
-- requirement_id: '15911'
-  case_id: C0262
-  title: 验证标品升级不被定制代码阻断且定制功能保持兼容
-  priority: P0
-  steps:
-  - action: 在保留历史定制数据的环境升级标品版本，升级后分别访问标品和定制功能
-    expected: 标品升级成功；定制应用可继续访问历史数据和功能，未出现类、路由或配置冲突
-  source_ref: '禅道需求 #15911；用户确认测试点'
-- requirement_id: '15911'
-  case_id: C0263
-  title: 验证定制应用故障不影响标品核心功能
-  priority: P1
-  steps:
-  - action: 模拟定制应用不可用，访问标品元数据、标准和安全核心页面
-    expected: 标品核心功能可用；定制功能给出明确隔离错误，不污染标品请求和数据
-  source_ref: '禅道需求 #15911；用户确认测试点'
 - requirement_id: '16178'
-  case_id: C0264
+  case_id: C0261
   title: 验证行级权限配置入口和授权规则保存
   priority: P0
   steps:
@@ -5358,7 +5331,7 @@ cases:
     expected: 配置成功，规则绑定到目标角色/用户并可在详情中查看
   source_ref: '禅道需求 #16178；用户确认测试点'
 - requirement_id: '16178'
-  case_id: C0265
+  case_id: C0262
   title: 验证仅具备行级权限的用户只能看到授权数据行
   priority: P0
   steps:
@@ -5366,7 +5339,7 @@ cases:
     expected: 列表、详情和预览均只返回授权行，未授权行不可通过分页、搜索或排序绕过
   source_ref: '禅道需求 #16178；用户确认测试点'
 - requirement_id: '16178'
-  case_id: C0266
+  case_id: C0263
   title: 验证行级和列级权限组合生效
   priority: P0
   steps:
@@ -5374,7 +5347,7 @@ cases:
     expected: 仅返回授权行，且仅展示/导出授权字段；两类权限均不被互相覆盖
   source_ref: '禅道需求 #16178；用户确认测试点'
 - requirement_id: '16178'
-  case_id: C0267
+  case_id: C0264
   title: 验证无行级权限用户访问受控资产被阻断
   priority: P1
   steps:
@@ -5382,7 +5355,7 @@ cases:
     expected: 页面不返回受控数据，接口返回明确无权限结果，不能通过改变查询条件绕过
   source_ref: '禅道需求 #16178；用户确认测试点'
 - requirement_id: '16178'
-  case_id: C0268
+  case_id: C0265
   title: 验证编辑和删除行级权限后实时生效
   priority: P1
   steps:
@@ -5390,7 +5363,7 @@ cases:
     expected: 旧授权立即失效，新授权按最新规则生效，权限变更可追踪
   source_ref: '禅道需求 #16178；用户确认测试点'
 - requirement_id: '16178'
-  case_id: C0269
+  case_id: C0266
   title: 验证导出和接口调用不能绕过行级权限
   priority: P0
   steps:
