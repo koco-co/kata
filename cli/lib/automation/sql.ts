@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse } from "yaml";
+import { locateProjectRoot } from "../workspace-locator.ts";
 
 interface SqlProfile {
   required_placeholders?: string[];
@@ -18,7 +19,7 @@ export interface SqlLintResult {
   readonly errors: string[];
 }
 
-function loadProfile(profile: string, repoRoot = process.cwd()): SqlProfile {
+function loadProfile(profile: string, repoRoot = locateProjectRoot()): SqlProfile {
   const configPath = resolve(repoRoot, "config/automation/sql-profiles.yaml");
   const config = parse(readFileSync(configPath, "utf8")) as SqlProfilesFile;
   const result = config.profiles?.[profile];
@@ -26,7 +27,11 @@ function loadProfile(profile: string, repoRoot = process.cwd()): SqlProfile {
   return result;
 }
 
-export function lintSql(sql: string, profileName: string, repoRoot = process.cwd()): SqlLintResult {
+export function lintSql(
+  sql: string,
+  profileName: string,
+  repoRoot = locateProjectRoot(),
+): SqlLintResult {
   const profile = loadProfile(profileName, repoRoot);
   const errors: string[] = [];
   for (const placeholder of profile.required_placeholders ?? []) {
@@ -45,7 +50,7 @@ export function lintSql(sql: string, profileName: string, repoRoot = process.cwd
 export function lintSqlFile(
   path: string,
   profileName: string,
-  repoRoot = process.cwd(),
+  repoRoot = locateProjectRoot(),
 ): SqlLintResult {
   const sqlPath = resolve(path);
   return { ...lintSql(readFileSync(sqlPath, "utf8"), profileName, repoRoot), sqlPath };

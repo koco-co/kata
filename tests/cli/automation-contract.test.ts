@@ -1,8 +1,11 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { inspectAutomationCoverage } from "../../cli/lib/automation/automation-contract.ts";
+import { join, resolve } from "node:path";
+import {
+  generateAutomationRunner,
+  inspectAutomationCoverage,
+} from "../../cli/lib/automation/automation-contract.ts";
 
 function fixture(extraCases = "", specFile = "c0001-sample-case.spec.ts"): string {
   const feature = mkdtempSync(join(tmpdir(), "kata-contract-"));
@@ -107,5 +110,28 @@ describe("automation contract", () => {
       "  - case_id: C0001\n    title: 重复id\n    priority: P1\n    steps:\n      - action: a\n        expected: b\n",
     );
     expect(() => inspectAutomationCoverage(feature)).toThrow(/用例校验未通过/);
+  });
+
+  it("generates runtime imports from the repository root when invoked in a subdirectory", () => {
+    const feature = fixture();
+    writeSpec(
+      feature,
+      'import { test } from "@playwright/test";\ntest("验证样例", async () => {});\n',
+    );
+    const previous = process.cwd();
+    const repoRoot = resolve(import.meta.dir, "../..");
+    try {
+      process.chdir(join(repoRoot, "cli"));
+      generateAutomationRunner(feature, { apply: true });
+    } finally {
+      process.chdir(previous);
+    }
+    const runnerDir = join(feature, "automation", "tests", "runners");
+    const generated = readFileSync(join(runnerDir, "generated.ts"), "utf8");
+    const configImport = generated.match(/loadPlaywrightAutomationConfig } from "([^"]+)"/)?.[1];
+    expect(configImport).toBeDefined();
+    expect(resolve(runnerDir, configImport as string)).toBe(
+      join(repoRoot, "runtime", "automation", "config", "playwright"),
+    );
   });
 });

@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseCasesYaml, validateCases } from "../cases/parse.ts";
+import { locateProjectRoot } from "../workspace-locator.ts";
 import { findMissingRelativeImports } from "./relative-imports.ts";
 
 export interface AutomationCaseLink {
@@ -202,6 +203,7 @@ export function generateAutomationRunner(
   const coverage = inspectAutomationCoverage(featureDir);
   const casesDir = join(featureDir, "automation", "tests", "cases");
   const runnerDir = join(featureDir, "automation", "tests", "runners");
+  const repoRoot = locateProjectRoot();
   const full = join(featureDir, "automation", "tests", "runners", "full.spec.ts");
   const fullText = existsSync(full) ? readFileSync(full, "utf8") : "";
   const imports = coverage.cases
@@ -223,7 +225,7 @@ export function generateAutomationRunner(
     });
   const configImportPath = relative(
     resolve(runnerDir),
-    resolve(process.cwd(), "runtime/automation/config/playwright"),
+    resolve(repoRoot, "runtime/automation/config/playwright"),
   )
     .split("\\")
     .join("/");
@@ -232,7 +234,7 @@ export function generateAutomationRunner(
     : `./${configImportPath}`;
   const rawOrderImportPath = relative(
     resolve(runnerDir),
-    resolve(process.cwd(), "runtime/automation/runner/case-order"),
+    resolve(repoRoot, "runtime/automation/runner/case-order"),
   )
     .split("\\")
     .join("/");
