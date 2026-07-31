@@ -5,7 +5,7 @@ meta:
   imports:
     - 202512-离线开发v6.4.4.xmind
   exports:
-    - xmind
+    - 任务提交至调度前需先通过审批.xmind
 cases:
   - case_id: C0001
     title: 验证新增「离线任务提交审批」配置项

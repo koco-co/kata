@@ -3,7 +3,7 @@ meta:
   requirement_id: "15647"
   case_module_id: "10287"
   exports:
-    - xmind
+    - 支持维护标准负责人_列表展示负责人_创建人信息.xmind
 cases:
   - case_id: C0001
     title: 验证【数据标准-标准定义】历史标准数据编辑正确

@@ -4,7 +4,7 @@ meta:
   imports:
     - 数据质量.csv
   exports:
-    - xmind
+    - 数据质量任务性能优化_规则sql合并.xmind
   case_module_id: ""
 cases:
   - case_id: C0001

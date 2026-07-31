@@ -2,7 +2,7 @@ meta:
   title: 任务时长限制
   case_module_id: ""
   exports:
-    - xmind
+    - 任务时长限制.xmind
 cases:
   - case_id: C0001
     title: 验证编辑历史规则，配置「超时时间」功能正确

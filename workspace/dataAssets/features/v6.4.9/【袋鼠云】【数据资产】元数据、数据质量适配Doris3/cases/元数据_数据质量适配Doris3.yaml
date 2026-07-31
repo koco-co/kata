@@ -3,7 +3,7 @@ meta:
   requirement_id: "15603"
   case_module_id: "10306"
   exports:
-    - xmind
+    - 元数据_数据质量适配Doris3.xmind
 cases:
   - case_id: C0001
     title: 验证「平台管理」中 Doris 3.x 数据源质量项目授权功能正常

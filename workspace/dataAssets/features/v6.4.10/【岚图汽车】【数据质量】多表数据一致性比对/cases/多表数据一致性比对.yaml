@@ -2,7 +2,7 @@ meta:
   title: 多表数据一致性比对
   case_module_id: ""
   exports:
-    - xmind
+    - 多表数据一致性比对.xmind
 cases:
   - case_id: C0001
     title: 验证「多表数据一致性比对」任务不通过质量报告正确

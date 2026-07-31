@@ -3,7 +3,7 @@ meta:
   requirement_id: "15524"
   case_module_id: "10192"
   exports:
-    - xmind
+    - 规则任务支持编辑分区信息.xmind
 cases:
   - case_id: C0001
     title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择动态分区)

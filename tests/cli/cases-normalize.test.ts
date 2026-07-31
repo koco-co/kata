@@ -101,10 +101,10 @@ cases:
       - action: "配置如下: - 数据源: A - 数据表: B"
         expected: "1) 成功 2) 返回"
 `;
-    const normalized = normalizeCasesYamlText(source, { exports: ["xmind"] });
+    const normalized = normalizeCasesYamlText(source, { exports: ["需求.xmind"] });
     expect(normalized).toContain("# 字段顺序来自历史用例");
     expect(normalized).toContain('case_module_id: ""');
-    expect(normalized).toContain("exports:\n    - xmind");
+    expect(normalized).toContain("exports:\n    - 需求.xmind");
     expect(normalized).toContain("action: |-\n          配置如下:");
     expect(normalized).toContain("expected: |-\n          1) 成功\n          2) 返回");
   });

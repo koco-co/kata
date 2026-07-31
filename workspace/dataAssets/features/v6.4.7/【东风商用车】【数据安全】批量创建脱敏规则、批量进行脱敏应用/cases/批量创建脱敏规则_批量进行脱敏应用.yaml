@@ -2,7 +2,7 @@ meta:
   title: 批量创建脱敏规则_批量进行脱敏应用
   case_module_id: ""
   exports:
-    - xmind
+    - 批量创建脱敏规则_批量进行脱敏应用.xmind
 cases:
   - case_id: C0001
     title: 验证

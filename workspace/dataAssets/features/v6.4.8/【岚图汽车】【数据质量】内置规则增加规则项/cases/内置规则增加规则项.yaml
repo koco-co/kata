@@ -3,7 +3,7 @@ meta:
   requirement_id: "15531"
   case_module_id: ""
   exports:
-    - xmind
+    - 内置规则增加规则项.xmind
 cases:
   - case_id: C0001
     automation:

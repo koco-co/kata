@@ -3,8 +3,6 @@
  * Derivatives (xmind/md/csv/xlsx) are rendered from CasesFile and never hand-edited.
  */
 
-import type { CaseExportFormat } from "./formats.ts";
-
 /** File-level metadata for one feature's case set. */
 export interface CaseMeta {
   /** 用例集标题(通常即需求名) */
@@ -17,8 +15,8 @@ export interface CaseMeta {
   source?: string;
   /** 原始导入材料文件名,相对于 cases/imports/. */
   imports?: string[];
-  /** 由 YAML 生成的目标格式；缺省只生成 xmind。 */
-  exports?: CaseExportFormat[];
+  /** 由 YAML 生成的目标文件名,相对于 cases/exports/；缺省生成同名 xmind。 */
+  exports?: string[];
   /** XMind layout contract; requirements creates one L1 topic per requirement. */
   layout?: "flat" | "requirements";
   /** Digest of cases/test-points.md; required when the feature has prd/prd.md. */

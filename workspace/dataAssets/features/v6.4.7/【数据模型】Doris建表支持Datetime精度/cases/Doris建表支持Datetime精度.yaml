@@ -2,7 +2,7 @@ meta:
   title: Doris建表支持Datetime精度
   case_module_id: ""
   exports:
-    - xmind
+    - Doris建表支持Datetime精度.xmind
 cases:
   - case_id: C0001
     title: 验证历史DATETIME字段精度正确

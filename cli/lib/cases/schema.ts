@@ -3,7 +3,7 @@
  * validateCases returns a list of problems; empty means valid.
  */
 
-import { isCaseExportFormat } from "./formats.ts";
+import { parseCaseExportName } from "./formats.ts";
 import { CASE_ID_RE, caseIdForIndex, SPEC_FILE_RE } from "./naming.ts";
 import { type CasesFile, PRIORITIES } from "./types.ts";
 
@@ -26,8 +26,13 @@ export function validateCases(file: CasesFile): string[] {
     problems.push("meta.test_points_digest 必须是 sha256 摘要");
   }
   if (file.meta.imports) {
-    if (file.meta.imports.some((value) => !value.trim())) {
-      problems.push("meta.imports 不能包含空文件名");
+    const duplicates = file.meta.imports.filter(
+      (value, index, all) => all.indexOf(value) !== index,
+    );
+    if (duplicates.length > 0)
+      problems.push(`meta.imports 存在重复文件名: ${duplicates.join(", ")}`);
+    if (file.meta.imports.some((value) => !parseCaseExportName(value))) {
+      problems.push("meta.imports 包含不支持的文件名");
     }
   }
   if (file.meta.exports) {
@@ -35,9 +40,10 @@ export function validateCases(file: CasesFile): string[] {
     const duplicates = file.meta.exports.filter(
       (value, index, all) => all.indexOf(value) !== index,
     );
-    if (duplicates.length > 0) problems.push(`meta.exports 存在重复格式: ${duplicates.join(", ")}`);
-    if (file.meta.exports.some((value) => !isCaseExportFormat(value))) {
-      problems.push("meta.exports 包含不支持的格式");
+    if (duplicates.length > 0)
+      problems.push(`meta.exports 存在重复文件名: ${duplicates.join(", ")}`);
+    if (file.meta.exports.some((value) => !parseCaseExportName(value))) {
+      problems.push("meta.exports 包含不支持的文件名");
     }
   }
   if (file.meta.layout && !["flat", "requirements"].includes(file.meta.layout)) {

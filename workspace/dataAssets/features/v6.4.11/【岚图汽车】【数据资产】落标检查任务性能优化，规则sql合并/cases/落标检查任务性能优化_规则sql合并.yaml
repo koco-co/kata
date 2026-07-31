@@ -2,7 +2,7 @@ meta:
   title: 落标检查任务性能优化_规则sql合并
   case_module_id: ""
   exports:
-    - xmind
+    - 落标检查任务性能优化_规则sql合并.xmind
 cases:
   - case_id: C0001
     title: 验证「有车型」-「不绑定车型关联字段」-「date/timestamp数据类型」校验逻辑正确

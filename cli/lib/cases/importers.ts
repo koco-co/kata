@@ -47,7 +47,7 @@ function featureMeta(options: ImportOptions, requirementId?: string): CaseMeta {
     ...(requirementId ? { requirement_id: requirementId } : {}),
     case_module_id: options.caseModuleId?.trim() ?? "",
     imports: [options.importName],
-    exports: ["xmind"],
+    exports: [`${options.name}.xmind`],
   };
 }
 
@@ -685,7 +685,7 @@ export async function splitXmindCases(options: SplitXmindOptions): Promise<Split
           ...(requirementId ? { requirement_id: requirementId } : {}),
           case_module_id: caseModuleId,
           imports: [sourceName],
-          exports: ["xmind"],
+          exports: [`${identity.yamlName}.xmind`],
         },
         cases,
       };

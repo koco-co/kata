@@ -4,7 +4,7 @@ meta:
   imports:
     - 202506-离线开发v6.3.7.xmind
   exports:
-    - xmind
+    - 对接资产数据脱敏.xmind
 cases:
   - case_id: C0001
     title: 验证「脱敏配置项」配置后的显示

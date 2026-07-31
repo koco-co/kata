@@ -5,7 +5,7 @@ meta:
   imports:
     - 202511-离线开发v6.4.3.xmind
   exports:
-    - xmind
+    - 告警规则触发条件新增未按计划时间运行.xmind
 cases:
   - case_id: C0001
     title: 验证告警规则配置 新增触发方式「未按计划时间运行」 与 输入框交互校验

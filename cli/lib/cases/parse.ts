@@ -4,7 +4,7 @@
  */
 
 import { parse } from "yaml";
-import { CASE_EXPORT_FORMATS, isCaseExportFormat } from "./formats.ts";
+import { CASE_EXPORT_FORMATS, parseCaseExportName } from "./formats.ts";
 import { SPEC_FILE_RE } from "./naming.ts";
 import { normalizeStructuredText } from "./normalize.ts";
 import { type CaseItem, type CaseRequirement, type CasesFile, PRIORITIES } from "./types.ts";
@@ -184,18 +184,20 @@ export function parseCasesYaml(yamlText: string): CasesFile {
   if (m.imports !== undefined) {
     if (!Array.isArray(m.imports)) failType("meta.imports", "字符串数组", m.imports);
     meta.imports = m.imports.map((value, i) => {
-      if (typeof value !== "string" || !value.trim()) {
-        fail(`字段 meta.imports[${i}] 缺失或不是非空字符串`);
+      if (typeof value !== "string" || !parseCaseExportName(value)) {
+        fail(
+          `字段 meta.imports[${i}] 文件名非法: ${String(value)}(允许 .${CASE_EXPORT_FORMATS.join("/.")})`,
+        );
       }
       return value;
     });
   }
   if (m.exports !== undefined) {
-    if (!Array.isArray(m.exports)) failType("meta.exports", "格式数组", m.exports);
+    if (!Array.isArray(m.exports)) failType("meta.exports", "文件名数组", m.exports);
     meta.exports = m.exports.map((value, i) => {
-      if (typeof value !== "string" || !isCaseExportFormat(value)) {
+      if (typeof value !== "string" || !parseCaseExportName(value)) {
         fail(
-          `字段 meta.exports[${i}] 格式非法: ${String(value)}(允许 ${CASE_EXPORT_FORMATS.join("/")})`,
+          `字段 meta.exports[${i}] 文件名非法: ${String(value)}(允许 .${CASE_EXPORT_FORMATS.join("/.")})`,
         );
       }
       return value;

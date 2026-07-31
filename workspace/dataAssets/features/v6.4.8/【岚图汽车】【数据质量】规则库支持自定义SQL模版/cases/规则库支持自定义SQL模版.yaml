@@ -2,7 +2,7 @@ meta:
   title: 规则库支持自定义SQL模版
   case_module_id: ""
   exports:
-    - xmind
+    - 规则库支持自定义SQL模版.xmind
 cases:
   - case_id: C0001
     title: 验证文案调整

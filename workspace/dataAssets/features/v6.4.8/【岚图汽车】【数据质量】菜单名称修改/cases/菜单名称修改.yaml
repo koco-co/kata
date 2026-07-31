@@ -2,7 +2,7 @@ meta:
   title: 菜单名称修改
   case_module_id: ""
   exports:
-    - xmind
+    - 菜单名称修改.xmind
 cases:
   - case_id: C0001
 

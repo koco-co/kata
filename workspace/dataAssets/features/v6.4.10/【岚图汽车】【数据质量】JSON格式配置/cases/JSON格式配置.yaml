@@ -3,7 +3,7 @@ meta:
   requirement_id: "15696"
   case_module_id: ""
   exports:
-    - xmind
+    - JSON格式配置.xmind
 cases:
   - case_id: C0001
     automation:

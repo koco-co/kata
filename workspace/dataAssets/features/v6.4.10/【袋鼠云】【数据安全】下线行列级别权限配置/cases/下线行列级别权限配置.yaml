@@ -2,7 +2,7 @@ meta:
   title: 下线行列级别权限配置
   case_module_id: ""
   exports:
-    - xmind
+    - 下线行列级别权限配置.xmind
 cases:
   - case_id: C0001
     title: 验证列级权限配置开关名称更新

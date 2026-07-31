@@ -8,7 +8,7 @@ const YAML = `
 meta:
   title: 需求名
   case_module_id: ""
-  exports: [csv, xlsx, md, xmind]
+  exports: [交付用例.csv, 交付用例.xlsx, 交付用例.md, 交付用例.xmind]
 cases:
   - case_id: C0001
     title: 验证用例一
@@ -27,18 +27,22 @@ function feature(): string {
 }
 
 describe("kata cases build metadata exports", () => {
-  it("renders every declared format with unlimited tag columns", async () => {
+  it("renders every explicitly named derivative and removes stale artifacts", async () => {
     const d = feature();
+    const out = join(d, "cases", "exports");
+    mkdirSync(out, { recursive: true });
+    writeFileSync(join(out, "历史导出.xmind"), "stale");
     const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
       encoding: "utf8",
     });
     expect(r.status).toBe(0);
-    const out = join(d, "cases", "exports");
-    expect(existsSync(join(out, "需求名.csv"))).toBe(true);
-    expect(existsSync(join(out, "需求名.xlsx"))).toBe(true);
-    expect(existsSync(join(out, "需求名.md"))).toBe(true);
-    expect(existsSync(join(out, "需求名.xmind"))).toBe(true);
-    expect(readFileSync(join(out, "需求名.csv"), "utf8")).toContain("所属层级4");
+    expect(existsSync(join(out, "交付用例.csv"))).toBe(true);
+    expect(existsSync(join(out, "交付用例.xlsx"))).toBe(true);
+    expect(existsSync(join(out, "交付用例.md"))).toBe(true);
+    expect(existsSync(join(out, "交付用例.xmind"))).toBe(true);
+    expect(existsSync(join(out, "需求名.xmind"))).toBe(false);
+    expect(existsSync(join(out, "历史导出.xmind"))).toBe(false);
+    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("所属层级4");
   });
 
   it("does not expose the old one-format export command", () => {

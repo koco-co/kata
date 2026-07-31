@@ -4,7 +4,7 @@ meta:
   imports:
     - archive.md
   exports:
-    - xmind
+    - 数据资产集成用例.xmind
 cases:
   - case_id: C0001
     title: 验证「元数据」元数据同步记录查看实例编辑与删除

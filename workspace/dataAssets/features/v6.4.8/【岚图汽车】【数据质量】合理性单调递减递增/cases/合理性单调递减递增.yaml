@@ -2,7 +2,7 @@ meta:
   title: 合理性单调递减递增
   case_module_id: ""
   exports:
-    - xmind
+    - 合理性单调递减递增.xmind
 cases:
   - case_id: C0001
     title: 验证排序字段类型选择其他类型，合理性校验功能

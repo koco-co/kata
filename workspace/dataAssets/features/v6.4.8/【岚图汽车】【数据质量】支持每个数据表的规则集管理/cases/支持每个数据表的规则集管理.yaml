@@ -3,7 +3,7 @@ meta:
   requirement_id: "15522"
   case_module_id: "10193"
   exports:
-    - xmind
+    - 支持每个数据表的规则集管理.xmind
 cases:
   - case_id: C0001
 

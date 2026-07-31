@@ -25,7 +25,7 @@
 
 ## 产物位置与命名
 - `config/repos/policy.yaml` 是当前项目的受控产物路由与命名规则；`bun run check` 会检查 Git 已跟踪及未忽略的未跟踪文件。禁止在根目录输出临时配置，禁止使用 `lib/` 或 `automation/scripts/`。
-- 模型在写入前先选择 policy 中最合适的目录和文件名：历史用例输入放 `cases/imports/`，YAML 是唯一中间态，派生文件只放 `cases/exports/`；正式自动化源代码只放 `automation/tests/`，一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`。
+- 模型在写入前先选择 policy 中最合适的目录和文件名：历史用例输入放 `cases/imports/`，YAML 是唯一中间态，派生文件只放 `cases/exports/`；`meta.imports` 和 `meta.exports` 只记录各目录下的具体文件名，未声明 `exports` 时默认生成与 YAML 同名的 `.xmind`；正式自动化源代码只放 `automation/tests/`，一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`。
 - 若 policy 没有合适的产物类型或目录，必须先说明拟生成内容、建议路径和命名并获得用户明确同意；获同意后同一变更必须更新 policy、相应文档和校验测试，随后才能写入该产物。
 
 ## 本地上下文

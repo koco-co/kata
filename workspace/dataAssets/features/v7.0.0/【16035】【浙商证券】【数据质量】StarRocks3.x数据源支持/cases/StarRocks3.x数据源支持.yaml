@@ -2,7 +2,7 @@ meta:
   title: StarRocks3.x数据源支持
   case_module_id: ""
   exports:
-    - xmind
+    - StarRocks3.x数据源支持.xmind
 cases:
   - case_id: C0001
     automation:

@@ -2,7 +2,7 @@ meta:
   title: 数据库列表展示版本号
   case_module_id: ""
   exports:
-    - xmind
+    - 数据库列表展示版本号.xmind
 cases:
   - case_id: C0001
     title: 验证「元数据管理」页面，「导出元数据」的文件中，「版本号」正常展示的功能

@@ -5,7 +5,7 @@ meta:
   imports:
     - 202512-离线开发v6.4.4.xmind
   exports:
-    - xmind
+    - 任务支持克隆至业务流程.xmind
 cases:
   - case_id: C0001
     title: 验证支持「克隆至业务流程」的操作范围

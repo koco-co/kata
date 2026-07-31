@@ -52,6 +52,21 @@ describe("parseCasesYaml", () => {
     ).toThrow(/spec_file/);
   });
 
+  it("requires declared import and export file names instead of bare formats", () => {
+    const named = GOOD.replace(
+      '  case_module_id: ""',
+      '  case_module_id: ""\n  imports: [历史用例.csv]\n  exports: [交付用例.xmind, 交付用例.md]',
+    );
+    expect(parseCasesYaml(named).meta).toMatchObject({
+      imports: ["历史用例.csv"],
+      exports: ["交付用例.xmind", "交付用例.md"],
+    });
+    expect(() => parseCasesYaml(named.replace("交付用例.xmind", "xmind"))).toThrow(/文件名/);
+    expect(() => parseCasesYaml(named.replace("历史用例.csv", "../历史用例.csv"))).toThrow(
+      /文件名/,
+    );
+  });
+
   it("parses an explicit requirements aggregate and preserves requirement links", () => {
     const aggregate = `
 meta:

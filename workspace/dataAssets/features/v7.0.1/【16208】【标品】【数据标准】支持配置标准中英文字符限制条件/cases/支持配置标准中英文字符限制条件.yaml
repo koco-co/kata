@@ -3,7 +3,7 @@ meta:
   requirement_id: "16208"
   case_module_id: ""
   exports:
-    - xmind
+    - 支持配置标准中英文字符限制条件.xmind
 cases:
   - case_id: C0001
     title: 验证中文名称空格策略在新增和编辑中生效

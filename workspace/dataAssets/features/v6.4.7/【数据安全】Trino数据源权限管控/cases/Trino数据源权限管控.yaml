@@ -2,7 +2,7 @@ meta:
   title: Trino数据源权限管控
   case_module_id: ""
   exports:
-    - xmind
+    - Trino数据源权限管控.xmind
 cases:
   - case_id: C0001
     title: 验证【资产-数据安全-数据权限管理-权限回收】-【trino数据源】权限回收功能正确

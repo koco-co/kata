@@ -5,7 +5,7 @@ meta:
   layout: requirements
   source: 禅道泸州老窖数栈定开项目需求与历史用例；蓝湖泸州老窖定制化需求及历史迭代原型；当前环境功能入口快照
   exports:
-  - xmind
+  - 资产定制化代码剥离.xmind
 requirements:
 - requirement_id: '13176'
   title: "【数据资产目录】数据资产编码管理"

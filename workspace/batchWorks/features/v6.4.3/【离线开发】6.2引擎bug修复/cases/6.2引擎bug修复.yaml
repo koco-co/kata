@@ -5,7 +5,7 @@ meta:
   imports:
     - 202511-离线开发v6.4.3.xmind
   exports:
-    - xmind
+    - 6.2引擎bug修复.xmind
 cases:
   - case_id: C0001
     title: 验证HiveSQL任务正常运行

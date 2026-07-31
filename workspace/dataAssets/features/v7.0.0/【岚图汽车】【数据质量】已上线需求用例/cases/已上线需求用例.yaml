@@ -4,7 +4,7 @@ meta:
   imports:
     - 岚图数据质量验收功能用例.xlsx
   exports:
-    - xmind
+    - 已上线需求用例.xmind
 cases:
   - case_id: C0001
     automation:

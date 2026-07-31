@@ -2,7 +2,7 @@ meta:
   title: 数据资产适配lindorm
   case_module_id: ""
   exports:
-    - xmind
+    - 数据资产适配lindorm.xmind
 cases:
   - case_id: C0001
     automation:

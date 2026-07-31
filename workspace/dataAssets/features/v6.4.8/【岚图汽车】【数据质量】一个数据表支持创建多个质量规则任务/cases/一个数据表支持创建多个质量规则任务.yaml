@@ -2,7 +2,7 @@ meta:
   title: 一个数据表支持创建多个质量规则任务
   case_module_id: ""
   exports:
-    - xmind
+    - 一个数据表支持创建多个质量规则任务.xmind
 cases:
   - case_id: C0001
     title: 验证历史质量报告内，质量评估汇总命名变更

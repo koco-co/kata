@@ -5,7 +5,7 @@ meta:
   imports:
     - 202510-离线开发v6.4.2.xmind
   exports:
-    - xmind
+    - 本地数据导入- oracle.xmind
 cases:
   - case_id: C0001
     title: 验证导入模式为追加，导入数据正确

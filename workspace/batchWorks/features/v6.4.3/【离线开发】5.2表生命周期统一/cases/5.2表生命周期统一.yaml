@@ -5,7 +5,7 @@ meta:
   imports:
     - 202511-离线开发v6.4.3.xmind
   exports:
-    - xmind
+    - 5.2表生命周期统一.xmind
 cases:
   - case_id: C0001
     title: 验证表生命周期更新功能正常(Hive表已存在于平台)

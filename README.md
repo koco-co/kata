@@ -126,6 +126,21 @@ chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
 
 基础设施诊断按连接类型使用默认 profile：服务器使用 `server-default`，数据源使用 `data-source-default`；用户配置的 `credential_ref` 优先。默认凭据只写在本机的 `config/infra/credentials.yaml` 中；连接失败时立即返回脱敏后的错误，不会交叉尝试另一类凭据，也不执行任意远程命令。
 
+## 用例文件流
+
+历史用例只进入 `cases/imports/`，可编辑的唯一中间态是 `cases/<用例集>.yaml`，所有 CSV、XLSX、Markdown 和 XMind 派生产物只由 `kata cases build` 写入 `cases/exports/`。元数据记录具体文件名，而不是笼统格式：
+
+```yaml
+meta:
+  imports:
+    - 数据质量.csv
+  exports:
+    - 数据质量.xmind
+    - 数据质量.md
+```
+
+`imports` 和 `exports` 均相对于各自目录；构建仅保留 YAML 已声明的派生文件。省略 `exports` 时默认生成与 YAML 同名的 `.xmind`。
+
 ## 真实自动化运行
 
 Playwright 必须绑定到显式 run，不能直接在仓库内留下 `.runs/`：

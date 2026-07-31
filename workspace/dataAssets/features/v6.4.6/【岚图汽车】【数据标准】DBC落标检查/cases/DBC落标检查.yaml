@@ -2,7 +2,7 @@ meta:
   title: DBC落标检查
   case_module_id: ""
   exports:
-    - xmind
+    - DBC落标检查.xmind
 cases:
   - case_id: C0001
     title: 验证【落标检查】-【落标检查结果】-【导出】选择“已达标”落标检查结果，“检查列表内容+不达标明细数据”仅导出结果excel文件

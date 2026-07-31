@@ -62,7 +62,7 @@ Options:
   -h, --help        display help for command
 
 Commands:
-  build [options]   按 YAML meta.exports 生成派生文件；缺省仅生成 XMind；requirements
+  build [options]   按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements
                     布局按需求生成多个 L1
   import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
   sync [options]    按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认
@@ -376,7 +376,7 @@ Options:
 ```text
 Usage: kata cases build [options]
 
-按 YAML meta.exports 生成派生文件；缺省仅生成 XMind；requirements 布局按需求生成多个 L1
+按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements 布局按需求生成多个 L1
 
 Options:
   --feature <dir>   feature 目录路径

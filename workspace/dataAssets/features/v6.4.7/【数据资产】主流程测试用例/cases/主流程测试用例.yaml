@@ -2,7 +2,7 @@ meta:
   title: 数据资产主流程测试用例
   case_module_id: ""
   exports:
-    - xmind
+    - 主流程测试用例.xmind
 cases:
   - case_id: C0001
     title: 验证已接入数据源统计数据正确

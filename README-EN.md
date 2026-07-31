@@ -119,6 +119,21 @@ chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
 
 Infrastructure diagnosis uses type-specific default profiles: `server-default` for servers and `data-source-default` for data sources. An explicit `credential_ref` wins. Defaults belong only in the local `config/infra/credentials.yaml`; failures return a redacted actionable error, never cross-try credential types, and never run arbitrary remote commands.
 
+## Case file flow
+
+Historical cases belong only in `cases/imports/`; the sole editable intermediate is `cases/<case-set>.yaml`; and CSV, XLSX, Markdown, and XMind derivatives are written only by `kata cases build` to `cases/exports/`. Metadata records exact file names, not generic formats:
+
+```yaml
+meta:
+  imports:
+    - data-quality.csv
+  exports:
+    - data-quality.xmind
+    - data-quality.md
+```
+
+Both `imports` and `exports` are relative to their respective directories. A build keeps only YAML-declared derivatives; omitting `exports` defaults to an XMind file named after the YAML source.
+
 ## Real automation runs
 
 Playwright must be bound to an explicit run; do not leave `.runs/` directories in the repository:

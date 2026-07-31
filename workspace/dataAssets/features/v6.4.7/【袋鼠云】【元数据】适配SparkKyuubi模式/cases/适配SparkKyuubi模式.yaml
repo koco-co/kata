@@ -2,7 +2,7 @@ meta:
   title: 适配SparkKyuubi模式
   case_module_id: ""
   exports:
-    - xmind
+    - 适配SparkKyuubi模式.xmind
 cases:
   - case_id: C0001
     title: 验证血缘解析功能正常

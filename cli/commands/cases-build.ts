@@ -13,7 +13,7 @@ import {
   workspaceRelativePath,
 } from "../integrations/notify.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
-import { type CaseExportFormat, caseExports } from "../lib/cases/formats.ts";
+import { type CaseExportFormat, caseExports, parseCaseExportName } from "../lib/cases/formats.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
@@ -29,13 +29,6 @@ import { assertWritable } from "../lib/path-policy.ts";
 import { assertCaseDigestChain } from "../lib/prd.ts";
 import type { ProjectPaths } from "../lib/types.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
-
-const FORMAT_EXTENSIONS: Record<CaseExportFormat, string> = {
-  csv: "csv",
-  xlsx: "xlsx",
-  md: "md",
-  xmind: "xmind",
-};
 
 // 写入边界:只允许写在 feature 目录内
 function featurePaths(featureDir: string): ProjectPaths {
@@ -85,6 +78,7 @@ export function findCasesYaml(featureDir: string): { yamlPath: string; name: str
 }
 
 interface DerivedArtifact {
+  name: string;
   format: CaseExportFormat;
   path: string;
   content: Buffer;
@@ -97,8 +91,8 @@ export interface CasesBuildReport {
   deleted: string[];
 }
 
-function outputPath(featureDir: string, name: string, format: CaseExportFormat): string {
-  return join(featureDir, "cases", "exports", `${name}.${FORMAT_EXTENSIONS[format]}`);
+function outputPath(featureDir: string, name: string): string {
+  return join(featureDir, "cases", "exports", name);
 }
 
 async function renderArtifacts(
@@ -106,10 +100,11 @@ async function renderArtifacts(
   featureDir: string,
   name: string,
 ): Promise<DerivedArtifact[]> {
-  const formats = caseExports(file.meta.exports);
+  const exports = caseExports(file.meta.exports, name);
   const renderContext = renderContextForFeature(featureDir);
   const artifacts: DerivedArtifact[] = [];
-  for (const format of formats) {
+  for (const output of exports) {
+    const { format } = output;
     let content: Buffer;
     if (format === "csv") content = Buffer.from(renderCsv(file), "utf8");
     else if (format === "xlsx") content = await renderXlsx(file);
@@ -118,22 +113,22 @@ async function renderArtifacts(
     else {
       content = await renderXmindBuffer(file, renderContext.projectName, renderContext.context);
     }
-    artifacts.push({ format, path: outputPath(featureDir, name, format), content });
+    artifacts.push({
+      name: output.name,
+      format,
+      path: outputPath(featureDir, output.name),
+      content,
+    });
   }
   return artifacts;
 }
 
-function commitArtifacts(
-  artifacts: DerivedArtifact[],
-  featureDir: string,
-  name: string,
-): CasesBuildReport {
+function commitArtifacts(artifacts: DerivedArtifact[], featureDir: string): CasesBuildReport {
   const outputDir = join(featureDir, "cases", "exports");
   mkdirSync(outputDir, { recursive: true });
   const desired = new Set(artifacts.map((artifact) => artifact.path));
-  const recognized = new Set(Object.values(FORMAT_EXTENSIONS).map((ext) => `${name}.${ext}`));
   const stale = readdirSync(outputDir)
-    .filter((entry) => recognized.has(entry))
+    .filter((entry) => Boolean(parseCaseExportName(entry)))
     .map((entry) => join(outputDir, entry))
     .filter((path) => !desired.has(path));
   const changed = artifacts.filter((artifact) => {
@@ -160,8 +155,8 @@ function commitArtifacts(
       renameSync(target, backup);
       backups.push({ target, backup });
     }
-    for (const artifact of changed) {
-      const staged = join(transaction, `${artifact.format}.${FORMAT_EXTENSIONS[artifact.format]}`);
+    for (const [index, artifact] of changed.entries()) {
+      const staged = join(transaction, `${index}.artifact`);
       writeFileAtomic(staged, artifact.content);
       renameSync(staged, artifact.path);
       installed.push(artifact.path);
@@ -204,7 +199,7 @@ export async function runCasesBuild(featureDir: string): Promise<CasesBuildRepor
   }
   const artifacts = await renderArtifacts(file, featureDir, name);
   for (const artifact of artifacts) assertWritable(featurePaths(featureDir), artifact.path);
-  return commitArtifacts(artifacts, featureDir, name);
+  return commitArtifacts(artifacts, featureDir);
 }
 
 /** Register the metadata-driven build verb. */
@@ -212,7 +207,7 @@ export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
     .description(
-      "按 YAML meta.exports 生成派生文件；缺省仅生成 XMind；requirements 布局按需求生成多个 L1",
+      "按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements 布局按需求生成多个 L1",
     )
     .requiredOption("--feature <dir>", "feature 目录路径")
     .option("--project <name>", "项目名；feature 传相对 features/ 的完整路径时必填")

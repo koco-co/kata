@@ -1,5 +1,4 @@
 import { isMap, isScalar, isSeq, parseDocument, Scalar, stringify } from "yaml";
-import type { CaseExportFormat } from "./formats.ts";
 import { normalizeCasesFile, normalizeStructuredText } from "./normalize.ts";
 import type { CaseItem, CasesFile } from "./types.ts";
 
@@ -55,7 +54,7 @@ export function normalizeCasesYamlText(
   yamlText: string,
   options: {
     defaultCaseModuleId?: string;
-    exports?: CaseExportFormat[];
+    exports?: string[];
   } = {},
 ): string {
   const document = parseDocument(yamlText);

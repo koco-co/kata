@@ -4,7 +4,7 @@ meta:
   imports:
     - 202506-离线开发v6.3.7.xmind
   exports:
-    - xmind
+    - redux优化测试.xmind
 cases:
   - case_id: C0001
     title: 验证「数据源-整库同步-数据源同步目标」中下拉框内的数据源展示正常

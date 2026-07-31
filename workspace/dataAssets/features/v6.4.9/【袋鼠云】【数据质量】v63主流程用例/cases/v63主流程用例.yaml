@@ -2,7 +2,7 @@ meta:
   title: v63主流程用例
   case_module_id: ""
   exports:
-    - xmind
+    - v63主流程用例.xmind
 cases:
   - case_id: C0001
     title: 验证数据地图首页资产类型统计正确

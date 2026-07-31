@@ -5,7 +5,7 @@ meta:
   imports:
     - 202510-离线开发v6.4.2.xmind
   exports:
-    - xmind
+    - 离线Doris3.x适配.xmind
 cases:
   - case_id: C0001
     title: 验证「数据源」页面正确展示Doris3.x版本信息

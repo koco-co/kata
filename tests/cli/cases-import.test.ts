@@ -50,6 +50,8 @@ describe("case format imports", () => {
     expect(result.file.cases[0].title).toBe("验证「单规则包」校验功能");
     expect(result.file.cases[0].tags).toEqual(["数据质量", "模块A", "页面B", "第三级"]);
     expect(result.file.cases[0].priority).toBe("P0");
+    expect(result.file.meta.imports).toEqual(["history.csv"]);
+    expect(result.file.meta.exports).toEqual(["history.xmind"]);
   });
 
   it("pairs wrapped ZenTao steps by top-level markers and keeps nested expected items", async () => {
@@ -211,6 +213,7 @@ describe("case format imports", () => {
     expect(result.entries[0].requirement_id).toBe("15375");
     expect(result.entries[0].case_module_id).toBe("10147");
     expect(result.entries[0].file?.meta.title).toBe("【江南布衣】任务发布支持更新表结构");
+    expect(result.entries[0].file?.meta.exports).toEqual(["任务发布支持更新表结构.xmind"]);
     expect(result.entries[0].file?.cases[0].tags).toEqual(["任务发布"]);
     expect(result.entries[0].file?.cases[0].steps[0]).toEqual({
       action: `配置如下:\n- 数据源: \${DataSourceA}\n- 数据表: user_profile`,

@@ -2,7 +2,7 @@ meta:
   title: 时效性周期性同一个字段的时间差校验
   case_module_id: ""
   exports:
-    - xmind
+    - 时效性周期性同一个字段的时间差校验.xmind
 cases:
   - case_id: C0001
     title: 验证「单字段时间差校验」任务质量报告正确

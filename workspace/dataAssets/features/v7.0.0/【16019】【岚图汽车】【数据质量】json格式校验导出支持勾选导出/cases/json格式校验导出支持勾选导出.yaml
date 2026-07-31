@@ -3,7 +3,7 @@ meta:
   requirement_id: "16019"
   case_module_id: ""
   exports:
-    - xmind
+    - json格式校验导出支持勾选导出.xmind
 cases:
   - case_id: C0001
     automation:

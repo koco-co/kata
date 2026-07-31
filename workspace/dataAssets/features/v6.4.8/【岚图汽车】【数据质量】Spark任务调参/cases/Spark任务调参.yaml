@@ -3,7 +3,7 @@ meta:
   requirement_id: "15532"
   case_module_id: "10190"
   exports:
-    - xmind
+    - Spark任务调参.xmind
 cases:
   - case_id: C0001
     title: 验证Spark环境参数配置生效(spark.driver.maxResultSize)

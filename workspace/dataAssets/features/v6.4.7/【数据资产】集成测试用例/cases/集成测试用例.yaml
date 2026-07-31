@@ -2,7 +2,7 @@ meta:
   title: 集成测试用例
   case_module_id: ""
   exports:
-    - xmind
+    - 集成测试用例.xmind
 cases:
   - case_id: C0001
 

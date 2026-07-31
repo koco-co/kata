@@ -3,7 +3,7 @@ meta:
   requirement_id: "15648"
   case_module_id: "10305"
   exports:
-    - xmind
+    - 数据表权限分配支持通配符匹配批量配置权限.xmind
 cases:
   - case_id: C0001
     title: 验证 验证仅勾选DDL权限时「是否开启行列权限配置」开关不显示

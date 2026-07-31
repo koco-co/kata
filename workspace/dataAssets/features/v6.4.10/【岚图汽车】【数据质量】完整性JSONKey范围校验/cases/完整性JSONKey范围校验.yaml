@@ -3,7 +3,7 @@ meta:
   requirement_id: "15693"
   case_module_id: ""
   exports:
-    - xmind
+    - 完整性JSONKey范围校验.xmind
 cases:
   - case_id: C0001
     automation:

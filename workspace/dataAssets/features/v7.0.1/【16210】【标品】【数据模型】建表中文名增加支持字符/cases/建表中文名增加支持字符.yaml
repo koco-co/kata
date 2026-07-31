@@ -3,7 +3,7 @@ meta:
   requirement_id: "16210"
   case_module_id: ""
   exports:
-    - xmind
+    - 建表中文名增加支持字符.xmind
 cases:
   - case_id: C0001
     title: 验证表中文名组合使用允许字符后可进入表结构

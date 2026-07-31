@@ -2,7 +2,7 @@ meta:
   title: 时效性及时性两个字段之间的时间差校验
   case_module_id: ""
   exports:
-    - xmind
+    - 时效性及时性两个字段之间的时间差校验.xmind
 cases:
   - case_id: C0001
     automation:

@@ -3,7 +3,7 @@ meta:
   requirement_id: "15695"
   case_module_id: ""
   exports:
-    - xmind
+    - 有效性多规则且或关系.xmind
 cases:
   - case_id: C0001
     automation:

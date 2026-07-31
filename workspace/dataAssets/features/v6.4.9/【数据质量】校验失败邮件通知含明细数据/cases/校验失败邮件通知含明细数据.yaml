@@ -3,7 +3,7 @@ meta:
   requirement_id: "15602"
   case_module_id: "10307"
   exports:
-    - xmind
+    - 校验失败邮件通知含明细数据.xmind
 cases:
   - case_id: C0001
     title: 验证编辑规则集修改「是否发送明细数据」后功能正确
