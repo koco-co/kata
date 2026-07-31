@@ -20,17 +20,18 @@
    完成条件：CLI 返回实际 `write`、`merge` 或 `replace-confirmed` 动作；返回 pending 时保持文件未变并交付待确认差异。
 
 3. 写入项目概览
-   - 仅 `overview` 使用 `--content <json>`；其确认、dry-run 和冲突选项以 `kata knowledge write --help` 为准。
-   - 完成条件：CLI 成功写入概览，且没有把独立条目参数与 overview 参数混用。
+   - 仅 `overview` 使用 `--content <json>`，并提供 `--status` 与 `--source`；其确认、dry-run 和冲突选项以 `kata knowledge write --help` 为准。
+   - 完成条件：CLI 成功写入概览，状态和来源与本次证据一致，且没有把独立条目参数与 overview 参数混用。
 
 4. 重建并复读
 
    ```bash
    kata knowledge index --project <项目>
+   kata knowledge lint --project <项目> --exit-code
    kata knowledge read --project <项目> --status all --keyword <标题关键词>
    ```
 
-   - 完成条件：索引重建成功，复读结果中的正文、状态和来源与本次决策一致。
+   - 完成条件：索引重建成功、lint 无违规，复读结果中的正文、状态和来源与本次决策一致。
 
 ## Delivery
 

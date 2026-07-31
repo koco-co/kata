@@ -34,7 +34,7 @@ export interface AuditRecord {
   before_hash: string;
   after_hash: string;
   snapshot: string;
-  confidence?: string;
+  status?: string;
   confirmed: boolean;
   forced: boolean;
 }
@@ -137,7 +137,7 @@ export function buildAuditRecord(params: {
   before: string;
   after: string;
   snapshot: string;
-  confidence?: string;
+  status?: string;
   confirmed: boolean;
   forced: boolean;
 }): AuditRecord {
@@ -149,7 +149,7 @@ export function buildAuditRecord(params: {
     before_hash: params.before ? shortHash(params.before) : "",
     after_hash: params.after ? shortHash(params.after) : "",
     snapshot: params.snapshot,
-    confidence: params.confidence,
+    status: params.status,
     confirmed: params.confirmed,
     forced: params.forced,
   };

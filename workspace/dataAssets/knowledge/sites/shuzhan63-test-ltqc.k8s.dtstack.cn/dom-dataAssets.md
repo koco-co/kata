@@ -1,12 +1,15 @@
 ---
-product: dataAssets
-source_url: http://shuzhan63-test-ltqc.k8s.dtstack.cn/dataAssets/#/dq/overview
 title: DataAssets · 数据资产
-hash: #/dq/overview
-type: dom-calibration
+type: site
+tags: [dataAssets, 岚图汽车, 数据质量, 数据资产, DOM, 页面校准]
+status: observed
+source: 历史 live DOM 校准；正文 SourceRef: SR-UI-PROBE-20260522-*
+updated: 2026-05-22
 ---
 
-## DOM Calibration Notes
+# DataAssets · 数据资产
+
+## DOM 校准范围
 
 This file is generated from the live product DOM and should stay project-scoped.
 

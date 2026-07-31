@@ -12,6 +12,7 @@ import {
   validateProjectName,
 } from "../lib/create-project.ts";
 import { writeIndexFile } from "../lib/knowledge/index-data.ts";
+import { todayIso } from "../lib/knowledge.ts";
 import { repoRoot } from "../lib/workspace-locator.ts";
 
 function tplRoot(): string {
@@ -62,7 +63,7 @@ function applyMissing(project: string, dir: string, diff: ReturnType<typeof diff
     const src = join(tplRoot(), SKELETON_SPEC.template_files[rel]);
     const dst = join(dir, rel);
     const raw = readFileSync(src, "utf8");
-    writeFileAtomic(dst, renderTemplate(raw, { project }));
+    writeFileAtomic(dst, renderTemplate(raw, { project, today: todayIso() }));
     created_files.push(dst);
   }
   writeIndexFile(project);

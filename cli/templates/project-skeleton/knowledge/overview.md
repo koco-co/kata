@@ -1,19 +1,23 @@
+---
+title: {{project}} 业务概览
+type: overview
+tags: []
+status: observed
+source: ""
+updated: {{today}}
+---
+
 # {{project}} 业务概览
 
-> 本文件由 `knowledge-curate` skill 维护。
-> 用户可直接编辑，但 AI 写入应走 `kata knowledge` CLI。
-> 填充指南：按当前 `knowledge-curate` skill 的知识规则维护，业务事实、实现说明与项目规则须分仓保存。
+> AI 更新业务事实时使用 `kata knowledge write`；用户可直接编辑。
 
 ## 产品定位
 
-（占位：一句话描述该项目是做什么的，服务对象是谁，核心价值主张）
+尚未记录经验证的产品定位。补充时应说明证据来源与适用范围。
 
 ## 主流程
 
-（占位：列出 2-5 条主要业务流程，每条一段简短描述 + 关键步骤）
-
-1. …
-2. …
+尚未记录经验证的跨模块流程。补充流程前应以需求、源码或站点实证为依据。
 
 ## 术语入口
 

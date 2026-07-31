@@ -4,10 +4,8 @@ export interface Frontmatter {
   title: string;
   type: "overview" | "term" | "module" | "pitfall" | "site";
   tags: string[];
-  /** 旧三档置信度;新条目用 status(四态),二者至少其一 */
-  confidence?: "high" | "medium" | "low";
   /** 四态:verified | observed | conflicting | deprecated */
-  status?: string;
+  status: "verified" | "observed" | "conflicting" | "deprecated";
   source: string;
   updated: string;
 }
@@ -68,10 +66,8 @@ export function parseFrontmatter(raw: string): ParsedFile {
       fm.title = value;
     } else if (key === "type") {
       fm.type = value as Frontmatter["type"];
-    } else if (key === "confidence") {
-      fm.confidence = value as Frontmatter["confidence"];
     } else if (key === "status") {
-      fm.status = value;
+      fm.status = value as Frontmatter["status"];
     } else if (key === "source") {
       fm.source = value;
     } else if (key === "updated") {
@@ -79,12 +75,13 @@ export function parseFrontmatter(raw: string): ParsedFile {
     }
   }
 
-  // Validate required fields:status(新)与 confidence(旧)至少其一
+  // Canonical knowledge entries always use the four-state status field.
   if (
     typeof fm.title !== "string" ||
     typeof fm.type !== "string" ||
     !Array.isArray(fm.tags) ||
-    (typeof fm.status !== "string" && typeof fm.confidence !== "string") ||
+    !["overview", "term", "module", "pitfall", "site"].includes(fm.type) ||
+    !["verified", "observed", "conflicting", "deprecated"].includes(fm.status ?? "") ||
     typeof fm.source !== "string" ||
     typeof fm.updated !== "string"
   ) {
@@ -100,7 +97,7 @@ export function serializeFrontmatter(fm: Frontmatter): string {
     `title: ${fm.title}`,
     `type: ${fm.type}`,
     `tags: [${fm.tags.join(", ")}]`,
-    fm.status ? `status: ${fm.status}` : `confidence: ${fm.confidence ?? "medium"}`,
+    `status: ${fm.status}`,
     `source: ${fm.source === "" ? '""' : fm.source}`,
     `updated: ${fm.updated}`,
     "---",
@@ -275,27 +272,6 @@ export function searchPitfalls(
     name,
     match_by: Array.from(by).sort(),
   }));
-}
-
-export function confidenceGate(
-  confidence: string,
-  confirmed: boolean,
-): { allowed: boolean; reason?: string } {
-  if (confidence === "high") return { allowed: true };
-  if (confidence === "low") {
-    return {
-      allowed: false,
-      reason: "Low confidence is forbidden; upgrade to medium in skill layer",
-    };
-  }
-  if (confidence === "medium") {
-    if (confirmed) return { allowed: true };
-    return {
-      allowed: false,
-      reason: "Non-high confidence requires --confirmed flag",
-    };
-  }
-  return { allowed: false, reason: `Unknown confidence: ${confidence}` };
 }
 
 export function autoFixFrontmatter(

@@ -1,6 +1,6 @@
 ---
 title: 172.16.122.52 DataAssets DOM
-type: module
+type: site
 tags: [selector, dataAssets, 数据地图, 热门标签, 字段标签, 自动分级, 识别模式, 数据脱敏]
 status: verified
 source: ui.probe.snapshot@2026-05-13-ci63-rank-increment-mode

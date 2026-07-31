@@ -2,7 +2,9 @@ import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { formatKnowledgeRead, runReadEntries, runWriteEntry } from "../lib/knowledge/entry.ts";
 import { writeIndexFile } from "../lib/knowledge/index-data.ts";
+import { formatKnowledgeLint, lintKnowledge } from "../lib/knowledge/lint.ts";
 import { runWrite } from "../lib/knowledge/write.ts";
+import { listWorkspaceProjects } from "../lib/workspace-locator.ts";
 
 /** Build the `knowledge` command: read / write / index over the project knowledge base. */
 export function registerKnowledge(program: Command): void {
@@ -34,21 +36,21 @@ export function registerKnowledge(program: Command): void {
 
   knowledge
     .command("write")
-    .description("写入知识:独立条目用 --status/--title/--body;overview 用 --content JSON")
+    .description(
+      "写入知识:独立条目用 --status/--title/--body;overview 用 --content/--status/--source",
+    )
     .requiredOption("--project <name>", "项目名")
     .requiredOption("--type <type>", "term | overview | module | pitfall | site")
-    .option("--status <status>", "四态:verified | observed | conflicting | deprecated")
+    .option(
+      "--status <status>",
+      "四态:verified | observed | conflicting | deprecated；overview 默认 observed",
+    )
     .option("--title <title>", "条目标题")
     .option("--body <md>", "条目正文 Markdown")
     .option("--tags <tags>", "标签,逗号分隔")
-    .option("--source <source>", "证据来源(独立条目必填)")
+    .option("--source <source>", "证据来源(写入知识必填)")
     .option("--content <json>", "overview 内容 JSON(仅 overview 类型可用)")
-    .option(
-      "--confidence <level>",
-      "overview 置信度:high | medium | low(仅 overview 类型可用)",
-      "medium",
-    )
-    .option("--confirmed", "observed/低置信确认写入", false)
+    .option("--confirmed", "确认 observed→verified 的状态升级", false)
     .option("--dry-run", "只预览不写入(仅 overview 类型可用)", false)
     .option("--force", "越过 block 级冲突(仅 overview 类型可用)", false)
     .action(
@@ -61,7 +63,6 @@ export function registerKnowledge(program: Command): void {
         tags?: string;
         source?: string;
         content?: string;
-        confidence: string;
         confirmed: boolean;
         dryRun: boolean;
         force: boolean;
@@ -70,11 +71,20 @@ export function registerKnowledge(program: Command): void {
           if (!opts.content) {
             throw new Error(`[knowledge] 类型 ${opts.type} 需要 --content JSON`);
           }
+          if (!opts.source) {
+            throw new Error(`[knowledge] 类型 ${opts.type} 需要 --source(证据来源)`);
+          }
+          if (opts.title || opts.body || opts.tags) {
+            throw new Error(
+              `[knowledge] 类型 ${opts.type} 只接受 --content，不接受 --title/--body/--tags`,
+            );
+          }
           const result = runWrite({
             project: opts.project,
             type: opts.type,
             content: opts.content,
-            confidence: opts.confidence,
+            status: opts.status ?? "observed",
+            source: opts.source,
             confirmed: opts.confirmed,
             dryRun: opts.dryRun,
             overwrite: false,
@@ -84,11 +94,10 @@ export function registerKnowledge(program: Command): void {
           if ("blocked" in result && result.blocked) process.exitCode = 2;
           return;
         }
-        const overviewOnly =
-          opts.content !== undefined || opts.dryRun || opts.force || opts.confidence !== "medium";
+        const overviewOnly = opts.content !== undefined || opts.dryRun || opts.force;
         if (overviewOnly) {
           throw new Error(
-            `[knowledge] --content/--confidence/--dry-run/--force 仅 overview 类型可用;${opts.type} 用 --status/--title/--body 写入`,
+            `[knowledge] --content/--dry-run/--force 仅 overview 类型可用;${opts.type} 用 --status/--title/--body 写入`,
           );
         }
         if (!opts.status || !opts.title || !opts.body) {
@@ -119,5 +128,26 @@ export function registerKnowledge(program: Command): void {
     .action((opts: { project: string }) => {
       const result = writeIndexFile(opts.project);
       outputJson({ project: opts.project, ...result });
+    });
+
+  knowledge
+    .command("lint")
+    .description("检查知识条目结构、状态来源、标题与模板残留")
+    .option("--project <name>", "项目名")
+    .option("--all-projects", "检查 workspace 下全部项目")
+    .option("--exit-code", "存在违规时退出码为 1")
+    .action((opts: { project?: string; allProjects?: boolean; exitCode?: boolean }) => {
+      if (Boolean(opts.project) === Boolean(opts.allProjects)) {
+        throw new Error("[knowledge] lint 须指定 --project <name> 或 --all-projects 之一");
+      }
+      const projects = opts.allProjects ? listWorkspaceProjects() : [opts.project as string];
+      if (projects.length === 0) throw new Error("[knowledge] lint 未发现可检查的 workspace 项目");
+      const reports = projects.map((project) => lintKnowledge(project));
+      for (const report of reports) {
+        if (report.violations.length > 0) process.stderr.write(`${formatKnowledgeLint(report)}\n`);
+      }
+      const violations = reports.flatMap((report) => report.violations);
+      outputJson(opts.allProjects ? { projects: reports } : reports[0]);
+      if (opts.exitCode && violations.length > 0) process.exitCode = 1;
     });
 }

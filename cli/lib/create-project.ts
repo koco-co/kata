@@ -202,6 +202,6 @@ export function diffProjectSkeleton(projectDirAbs: string, templateRootAbs: stri
   };
 }
 
-export function renderTemplate(raw: string, vars: { project: string }): string {
-  return raw.split("{{project}}").join(vars.project);
+export function renderTemplate(raw: string, vars: { project: string; today: string }): string {
+  return raw.split("{{project}}").join(vars.project).split("{{today}}").join(vars.today);
 }

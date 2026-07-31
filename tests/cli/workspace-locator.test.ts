@@ -2,7 +2,11 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { locateProject, locateProjectRoot } from "../../cli/lib/workspace-locator.ts";
+import {
+  listWorkspaceProjects,
+  locateProject,
+  locateProjectRoot,
+} from "../../cli/lib/workspace-locator.ts";
 
 function scaffold(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-ws-"));
@@ -50,6 +54,13 @@ describe("locateProject", () => {
       if (prev === undefined) delete process.env.KATA_WORKSPACE_ROOT;
       else process.env.KATA_WORKSPACE_ROOT = prev;
     }
+  });
+
+  it("lists workspace projects for project-wide read-only checks", () => {
+    const root = scaffold();
+    mkdirSync(join(root, "workspace", "batchWorks"), { recursive: true });
+    writeFileSync(join(root, "workspace", "README.md"), "not a project\n");
+    expect(listWorkspaceProjects(root)).toEqual(["batchWorks", "dataAssets"]);
   });
 });
 

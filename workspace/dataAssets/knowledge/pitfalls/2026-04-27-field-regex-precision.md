@@ -2,9 +2,9 @@
 title: /字段/ 误命中"字段级"
 type: pitfall
 tags: []
-status: verified
-source: ""
-updated: 2026-04-27
+status: observed
+source: 历史知识条目；原始证据未登记，2026-07-31 已降级为 observed
+updated: 2026-07-31
 ---
 
 # /字段/ 误命中"字段级"

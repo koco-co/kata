@@ -123,7 +123,7 @@ function scanAndFixKnowledgeFile(
       title: parsed.frontmatter.title,
       tags: parsed.frontmatter.tags,
       updated: parsed.frontmatter.updated,
-      status: parsed.frontmatter.status ?? parsed.frontmatter.confidence ?? "",
+      status: parsed.frontmatter.status,
     },
   ];
 }

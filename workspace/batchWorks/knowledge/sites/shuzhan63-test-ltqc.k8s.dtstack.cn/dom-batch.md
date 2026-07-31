@@ -1,12 +1,15 @@
 ---
-product: batch
-source_url: http://shuzhan63-test-ltqc.k8s.dtstack.cn/batch/#/projects
 title: BatchWorks · 离线开发
-hash: #/projects
-type: dom-calibration
+type: site
+tags: [batchWorks, 离线开发, DOM, 项目列表, 数据地图]
+status: observed
+source: 历史 live DOM 校准；http://shuzhan63-test-ltqc.k8s.dtstack.cn/batch/#/projects
+updated: 2026-07-25
 ---
 
-## DOM Calibration Notes
+# BatchWorks · 离线开发
+
+## DOM 校准范围
 
 This file is generated from the live product DOM and should stay project-scoped.
 

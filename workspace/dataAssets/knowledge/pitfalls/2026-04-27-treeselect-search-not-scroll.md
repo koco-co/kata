@@ -2,9 +2,9 @@
 title: TreeSelect / Select 用搜索框过滤，不要逐层展开滚动
 type: pitfall
 tags: []
-status: verified
-source: ""
-updated: 2026-04-27
+status: observed
+source: 历史知识条目；原始证据未登记，2026-07-31 已降级为 observed
+updated: 2026-07-31
 ---
 
 # TreeSelect / Select 用搜索框过滤，不要逐层展开滚动

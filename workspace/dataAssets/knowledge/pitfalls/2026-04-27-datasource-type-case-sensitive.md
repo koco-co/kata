@@ -2,9 +2,9 @@
 title: 数据源类型 select 选项大小写敏感（Hive2.x ≠ hive2.x）
 type: pitfall
 tags: []
-status: verified
-source: ""
-updated: 2026-04-27
+status: observed
+source: 历史知识条目；原始证据未登记，2026-07-31 已降级为 observed
+updated: 2026-07-31
 ---
 
 # 数据源类型 select 选项大小写敏感（Hive2.x ≠ hive2.x）

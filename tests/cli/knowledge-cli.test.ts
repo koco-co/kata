@@ -263,7 +263,7 @@ describe("kata knowledge write", () => {
       "title: dataAssets 业务概览",
       "type: overview",
       "tags: []",
-      "confidence: high",
+      "status: verified",
       'source: "user"',
       "updated: 2026-07-30",
       "---",
@@ -286,13 +286,96 @@ describe("kata knowledge write", () => {
       "overview",
       "--content",
       JSON.stringify({ section: "定位", body: "新内容", mode: "replace" }),
-      "--confidence",
-      "high",
+      "--status",
+      "verified",
+      "--source",
+      "tests/knowledge-cli.test.ts",
     ]);
 
     expect(result.status).toBe(2);
     expect(JSON.parse(result.stdout).blocked).toBe(true);
     expect(readFileSync(file, "utf8")).toBe(original);
+  });
+
+  it("persists overview status and source from explicit CLI inputs", () => {
+    const root = proj();
+    const result = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "overview",
+      "--content",
+      JSON.stringify({ section: "定位", body: "测试项目", mode: "append" }),
+      "--status",
+      "observed",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ]);
+
+    expect(result.status).toBe(0);
+    const written = readFileSync(
+      join(root, "workspace", "dataAssets", "knowledge", "overview.md"),
+      "utf8",
+    );
+    expect(written).toContain("status: observed");
+    expect(written).toContain("source: tests/knowledge-cli.test.ts");
+  });
+
+  it("requires evidence and confirmation before an overview becomes verified", () => {
+    const root = proj();
+    const file = join(root, "workspace", "dataAssets", "knowledge", "overview.md");
+    writeFileSync(
+      file,
+      [
+        "---",
+        "title: dataAssets 业务概览",
+        "type: overview",
+        "tags: []",
+        "status: observed",
+        'source: "old evidence"',
+        "updated: 2026-07-30",
+        "---",
+        "",
+        "# dataAssets 业务概览",
+        "",
+      ].join("\n"),
+    );
+    const base = [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "overview",
+      "--content",
+      JSON.stringify({ section: "定位", body: "已复测", mode: "append" }),
+      "--status",
+      "verified",
+      "--source",
+      "tests/knowledge-cli.test.ts",
+    ];
+
+    expect(kata(root, base).status).not.toBe(0);
+    expect(kata(root, [...base, "--confirmed"]).status).toBe(0);
+    expect(readFileSync(file, "utf8")).toContain("status: verified");
+  });
+
+  it("rejects overview writes without a source", () => {
+    const root = proj();
+    const result = kata(root, [
+      "knowledge",
+      "write",
+      "--project",
+      "dataAssets",
+      "--type",
+      "overview",
+      "--content",
+      JSON.stringify({ section: "定位", body: "没有来源", mode: "append" }),
+    ]);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("--source");
   });
 });
 
@@ -407,5 +490,45 @@ describe("kata knowledge index", () => {
     expect(fixed).toContain("status: observed");
     expect(fixed).not.toContain("verified");
     expect(readFileSync(join(modulesDir, "verified.md"), "utf8")).toBe(verified);
+  });
+});
+
+describe("kata knowledge lint", () => {
+  it("reports violations through --project and sets the requested exit code", () => {
+    const root = proj();
+    writeFileSync(
+      join(root, "workspace", "dataAssets", "knowledge", "overview.md"),
+      [
+        "---",
+        "title: dataAssets 业务概览",
+        "type: overview",
+        "tags: []",
+        "status: observed",
+        'source: ""',
+        "updated: 2026-07-31",
+        "---",
+        "",
+        "# dataAssets 业务概览",
+        "",
+        "<!-- TODO: 填写产品定位 -->",
+        "",
+      ].join("\n"),
+    );
+
+    const result = kata(root, ["knowledge", "lint", "--project", "dataAssets", "--exit-code"]);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("template-marker");
+    expect(JSON.parse(result.stdout).violations.length).toBeGreaterThan(0);
+  });
+
+  it("checks every current workspace project with --all-projects", () => {
+    const root = proj();
+    mkdirSync(join(root, "workspace", "batchWorks", "knowledge"), { recursive: true });
+
+    const result = kata(root, ["knowledge", "lint", "--all-projects", "--exit-code"]);
+    expect(result.status).toBe(0);
+    expect(
+      JSON.parse(result.stdout).projects.map((item: { project: string }) => item.project),
+    ).toEqual(["batchWorks", "dataAssets"]);
   });
 });

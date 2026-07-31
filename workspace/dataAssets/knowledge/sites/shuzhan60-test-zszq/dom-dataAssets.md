@@ -1,6 +1,6 @@
 ---
 title: shuzhan60-test-zszq DataAssets 数据质量 DOM（浙商证券标品）
-type: module
+type: site
 tags: [dataAssets, 数据质量, 浙商证券, zszq, StarRocks, 规则配置, 多表比对, 规则集, 任务查询, 实时校验, 脏数据, 平台管理, 菜单基线]
 status: verified
 source: ui.probe.live@2026-06-23-zszq-admin（admin@dtstack.com，项目 pw_test，只读探测，未保存任何改动）

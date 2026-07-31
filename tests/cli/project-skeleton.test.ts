@@ -1,8 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { diffProjectSkeleton, SKELETON_SPEC } from "../../cli/lib/create-project.ts";
+import {
+  diffProjectSkeleton,
+  renderTemplate,
+  SKELETON_SPEC,
+} from "../../cli/lib/create-project.ts";
 
 describe("project skeleton contract", () => {
   it("derives project identity from the workspace directory without project.json", () => {
@@ -46,5 +50,17 @@ describe("project skeleton contract", () => {
     expect(
       existsSync(join(import.meta.dir, "../../cli/templates/project-skeleton/rules/README.md")),
     ).toBe(false);
+  });
+
+  it("renders an observed overview without obsolete skill or placeholder text", () => {
+    const raw = readFileSync(
+      join(import.meta.dir, "../../cli/templates/project-skeleton/knowledge/overview.md"),
+      "utf8",
+    );
+    const rendered = renderTemplate(raw, { project: "demo", today: "2026-07-31" });
+    expect(rendered).toContain("status: observed");
+    expect(rendered).toContain("updated: 2026-07-31");
+    expect(rendered).not.toContain("knowledge-curate");
+    expect(rendered).not.toContain("占位：");
   });
 });

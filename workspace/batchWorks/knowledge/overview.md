@@ -1,28 +1,23 @@
 ---
 title: batchWorks 业务概览
 type: overview
-tags: []
+tags: [离线开发]
 status: observed
-source: ""
-updated: 2026-07-30
+source: config/xmind/projects.yaml；workspace/batchWorks/_shared/_meta/modules.yaml；workspace/batchWorks/knowledge/_index.md（2026-07-31）
+updated: 2026-07-31
 ---
 
 # batchWorks 业务概览
 
-> 本文件由 `knowledge-curate` skill 维护。
-> 用户可直接编辑，但 AI 写入应走 `kata knowledge` CLI。
-> 填充指南：按当前 `knowledge-curate` skill 的知识规则维护，业务事实、实现说明与项目规则须分仓保存。
+> AI 更新业务事实时使用 `kata knowledge write`；用户可直接编辑。
 
 ## 产品定位
 
-（占位：一句话描述该项目是做什么的，服务对象是谁，核心价值主张）
+在项目映射中，batchWorks 对应「离线开发」。当前概览只确认该项目归属与名称；尚未收录可标为 verified 的产品级定位。
 
 ## 主流程
 
-（占位：列出 2-5 条主要业务流程，每条一段简短描述 + 关键步骤）
-
-1. …
-2. …
+尚未收录经验证的跨模块流程。生成用例或自动化前，应从需求、源码或站点实证补充对应模块知识，不能把历史用例标题当作业务事实。
 
 ## 术语入口
 

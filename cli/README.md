@@ -175,8 +175,10 @@ Options:
 
 Commands:
   read [options]   统一检索知识条目(term/module/pitfall/site)与项目概览
-  write [options]  写入知识:独立条目用 --status/--title/--body;overview 用 --content JSON
+  write [options]  写入知识:独立条目用 --status/--title/--body;overview 用
+                   --content/--status/--source
   index [options]  重建知识库索引 _index.md
+  lint [options]   检查知识条目结构、状态来源、标题与模板残留
   help [command]   display help for command
 ```
 
@@ -762,23 +764,22 @@ Options:
 ```text
 Usage: kata knowledge write [options]
 
-写入知识:独立条目用 --status/--title/--body;overview 用 --content JSON
+写入知识:独立条目用 --status/--title/--body;overview 用 --content/--status/--source
 
 Options:
-  --project <name>      项目名
-  --type <type>         term | overview | module | pitfall | site
-  --status <status>     四态:verified | observed | conflicting | deprecated
-  --title <title>       条目标题
-  --body <md>           条目正文 Markdown
-  --tags <tags>         标签,逗号分隔
-  --source <source>     证据来源(独立条目必填)
-  --content <json>      overview 内容 JSON(仅 overview 类型可用)
-  --confidence <level>  overview 置信度:high | medium | low(仅 overview 类型可用)
-                        (default: "medium")
-  --confirmed           observed/低置信确认写入 (default: false)
-  --dry-run             只预览不写入(仅 overview 类型可用) (default: false)
-  --force               越过 block 级冲突(仅 overview 类型可用) (default: false)
-  -h, --help            display help for command
+  --project <name>   项目名
+  --type <type>      term | overview | module | pitfall | site
+  --status <status>  四态:verified | observed | conflicting | deprecated；overview
+                     默认 observed
+  --title <title>    条目标题
+  --body <md>        条目正文 Markdown
+  --tags <tags>      标签,逗号分隔
+  --source <source>  证据来源(写入知识必填)
+  --content <json>   overview 内容 JSON(仅 overview 类型可用)
+  --confirmed        确认 observed→verified 的状态升级 (default: false)
+  --dry-run          只预览不写入(仅 overview 类型可用) (default: false)
+  --force            越过 block 级冲突(仅 overview 类型可用) (default: false)
+  -h, --help         display help for command
 ```
 
 ## kata knowledge index
@@ -790,6 +791,20 @@ Usage: kata knowledge index [options]
 
 Options:
   --project <name>  项目名
+  -h, --help        display help for command
+```
+
+## kata knowledge lint
+
+```text
+Usage: kata knowledge lint [options]
+
+检查知识条目结构、状态来源、标题与模板残留
+
+Options:
+  --project <name>  项目名
+  --all-projects    检查 workspace 下全部项目
+  --exit-code       存在违规时退出码为 1
   -h, --help        display help for command
 ```
 

@@ -63,7 +63,7 @@ describe("knowledge store", () => {
     expect(hits[0]?.status).toBe("observed");
   });
 
-  it("maps legacy confidence frontmatter to status", () => {
+  it("does not treat legacy confidence frontmatter as a readable entry", () => {
     const p = proj();
     const dir = join(p.knowledgeDir, "pitfalls");
     mkdirSync(dir, { recursive: true });
@@ -82,9 +82,7 @@ describe("knowledge store", () => {
         "旧正文",
       ].join("\n"),
     );
-    const hits = readEntries(p, { keyword: "旧条目" });
-    expect(hits).toHaveLength(1);
-    expect(hits[0]?.status).toBe("verified");
+    expect(readEntries(p, { keyword: "旧条目" })).toHaveLength(0);
   });
 
   it("reads site entries nested one level down (sites/<host>/dom-*.md)", () => {
