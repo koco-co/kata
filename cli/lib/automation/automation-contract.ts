@@ -9,6 +9,7 @@ export interface AutomationCaseLink {
   specFile?: string;
   status: AutomationCaseStatus;
   implementationIssue?: string;
+  titleMismatch?: string;
 }
 
 export type AutomationCaseStatus = "unmapped" | "mapped-not-implemented" | "implemented";
@@ -23,6 +24,7 @@ export interface AutomationCoverage {
   missingScript: string[];
   orphanScripts: string[];
   duplicateSpecFile: string[];
+  titleMismatches: string[];
 }
 
 function findYaml(featureDir: string): string {
@@ -68,9 +70,20 @@ function specFileMatchesCaseId(caseId: string, specFile: string): boolean {
   return specFile.startsWith(`c${caseId.slice(1).toLowerCase()}-`);
 }
 
-function classifyScript(file: string): {
+function containsCanonicalTitle(text: string, title: string): boolean {
+  const source = executableSource(text);
+  if (source.includes(title)) return true;
+  const escapedDoubleQuotedTitle = JSON.stringify(title).slice(1, -1);
+  return source.includes(escapedDoubleQuotedTitle);
+}
+
+function classifyScript(
+  file: string,
+  expectedTitle: string,
+): {
   status: AutomationCaseStatus;
   implementationIssue?: string;
+  titleMismatch?: string;
 } {
   const text = readFileSync(file, "utf8");
   if (
@@ -114,7 +127,12 @@ function classifyScript(file: string): {
       implementationIssue: "spec contains no Playwright test declaration",
     };
   }
-  return { status: "implemented" };
+  return {
+    status: "implemented",
+    ...(containsCanonicalTitle(text, expectedTitle)
+      ? {}
+      : { titleMismatch: "canonical YAML title is absent from executable source" }),
+  };
 }
 
 export function inspectAutomationCoverage(featureDir: string): AutomationCoverage {
@@ -148,7 +166,10 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
         implementationIssue: "spec_file does not point to an existing script",
       };
     }
-    const classification = classifyScript(join(featureDir, "automation", "tests", "cases", script));
+    const classification = classifyScript(
+      join(featureDir, "automation", "tests", "cases", script),
+      item.title,
+    );
     return { id: item.id, title: item.title, specFile, ...classification };
   });
   const missingSpecFile = cases.filter((item) => !item.specFile).map((item) => item.id);
@@ -177,6 +198,9 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
     missingScript,
     orphanScripts,
     duplicateSpecFile,
+    titleMismatches: cases
+      .flatMap((item) => (item.titleMismatch ? [`${item.id}:${item.titleMismatch}`] : []))
+      .sort(),
   };
 }
 

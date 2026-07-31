@@ -45,6 +45,7 @@ describe("automation contract", () => {
     );
     const coverage = inspectAutomationCoverage(feature);
     expect(coverage.implemented).toEqual(["C0001"]);
+    expect(coverage.titleMismatches).toEqual([]);
   });
 
   it("does not count an explicit TODO case as implemented", () => {
@@ -75,6 +76,9 @@ describe("automation contract", () => {
     );
     const coverage = inspectAutomationCoverage(feature);
     expect(coverage.implemented).toEqual(["C0001"]);
+    expect(coverage.titleMismatches).toEqual([
+      "C0001:canonical YAML title is absent from executable source",
+    ]);
   });
 
   it("requires the spec_file case ID prefix to match the YAML case ID", () => {
