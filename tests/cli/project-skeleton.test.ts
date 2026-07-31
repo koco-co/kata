@@ -38,6 +38,22 @@ describe("project skeleton contract", () => {
     expect(diff.invalid_paths).toContain("knowledge");
   });
 
+  it("requires .gitkeep only while a skeleton directory is empty", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-project-skeleton-"));
+    const project = join(root, "demo");
+    const features = join(project, "features");
+    mkdirSync(join(features, "v1", "feature-a"), { recursive: true });
+    writeFileSync(join(features, "v1", "feature-a", "cases.yaml"), "cases: []\n");
+
+    const diff = diffProjectSkeleton(
+      project,
+      join(import.meta.dir, "../../cli/templates/project-skeleton"),
+    );
+
+    expect(diff.missing_gitkeeps).not.toContain("features/.gitkeep");
+    expect(diff.missing_gitkeeps).toContain("analyses/bug-report/.gitkeep");
+  });
+
   it("keeps the skeleton free of project metadata and dead shared rules", () => {
     expect(Object.keys(SKELETON_SPEC.template_files)).toEqual([
       "knowledge/overview.md",

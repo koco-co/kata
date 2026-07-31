@@ -86,6 +86,19 @@ function casePathViolation(path: string): string | undefined {
   return "cases 仅允许根目录 YAML、test-points.md、imports/ 历史输入或 exports/ YAML 派生产物";
 }
 
+function redundantGitkeepViolations(paths: readonly string[]): PolicyViolation[] {
+  return paths
+    .filter((path) => basename(path) === ".gitkeep")
+    .filter((path) => {
+      const prefix = `${posix.dirname(path)}/`;
+      return paths.some((candidate) => candidate !== path && candidate.startsWith(prefix));
+    })
+    .map((path) => ({
+      path,
+      reason: ".gitkeep 仅用于保留空目录；目录已有内容时必须删除",
+    }));
+}
+
 function globPattern(glob: string): RegExp {
   let pattern = "^";
   for (let index = 0; index < glob.length; index += 1) {
@@ -297,6 +310,7 @@ export function checkRepositoryPolicy(
   }
   return [
     ...violations,
+    ...redundantGitkeepViolations(paths),
     ...dependencyViolations(root, paths, policy),
     ...sharedModuleViolations(root, paths, policy),
   ].sort((a, b) => `${a.path}:${a.reason}`.localeCompare(`${b.path}:${b.reason}`));

@@ -156,6 +156,25 @@ describe("repository policy", () => {
     ).toEqual([]);
   });
 
+  it("rejects .gitkeep files once their directory contains real content", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-policy-"));
+    writePolicy(root);
+
+    expect(
+      checkRepositoryPolicy(root, [
+        "package.json",
+        "workspace/dataAssets/features/.gitkeep",
+        "workspace/dataAssets/features/v1/feature-a/cases/cases.yaml",
+        "workspace/dataAssets/knowledge/terms/.gitkeep",
+      ]),
+    ).toEqual([
+      {
+        path: "workspace/dataAssets/features/.gitkeep",
+        reason: ".gitkeep 仅用于保留空目录；目录已有内容时必须删除",
+      },
+    ]);
+  });
+
   it("requires shared modules to have two transitive feature consumers and stable page domains", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-policy-shared-"));
     writePolicy(root);

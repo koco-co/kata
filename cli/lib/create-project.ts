@@ -1,6 +1,6 @@
 // lib/create-project.ts
 
-import { existsSync, renameSync, statSync } from "node:fs";
+import { existsSync, readdirSync, renameSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 export const SKELETON_SPEC = {
@@ -156,7 +156,12 @@ export function diffProjectSkeleton(projectDirAbs: string, templateRootAbs: stri
 
   const missing_gitkeeps: string[] = [];
   for (let i = 0; i < spec.gitkeeps.length; i++) {
-    if (!existsSync(spec.gitkeeps[i])) {
+    const dir = join(projectDirAbs, SKELETON_SPEC.gitkeep_dirs[i]);
+    const hasContent =
+      existsSync(dir) &&
+      statSync(dir).isDirectory() &&
+      readdirSync(dir).some((entry) => entry !== ".gitkeep");
+    if (!hasContent && !existsSync(spec.gitkeeps[i])) {
       missing_gitkeeps.push(`${SKELETON_SPEC.gitkeep_dirs[i]}/.gitkeep`);
     }
   }
