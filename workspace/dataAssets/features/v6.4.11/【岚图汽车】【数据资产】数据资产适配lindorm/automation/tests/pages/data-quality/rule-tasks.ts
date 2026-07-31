@@ -19,11 +19,13 @@ import { gotoDataQualityPage } from "../../../../../../../_shared/automation/pag
 import { expectMonitorRecordPage } from "../../../../../../../_shared/automation/pages/data-quality/record-assertions";
 import {
   gotoMonitorRecordQueryPage,
+  submitMonitorRecordSearch,
+} from "../../../../../../../_shared/automation/pages/data-quality/monitor-record-page";
+import {
   gotoRuleTaskScheduleAttributesPage,
   runRuleTaskImmediately,
   searchRuleTaskByTableName,
-  submitMonitorRecordSearch,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+} from "../../../../../../../_shared/automation/pages/data-quality/rule-task-page";
 
 export async function expectDataQualityRuleShell(page: Page, sourceRef: string): Promise<void> {
   await expectDqPage(page, sourceRef, {

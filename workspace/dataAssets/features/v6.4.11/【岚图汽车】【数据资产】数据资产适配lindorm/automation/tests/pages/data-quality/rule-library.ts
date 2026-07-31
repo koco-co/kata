@@ -60,18 +60,20 @@ import {
   selectDqFormOption,
 } from "./page-context";
 import {
-  clickNextUntilMonitorRuleConfig,
-  clickNextUntilScheduleConfig,
   clickRuleSetPackageAddButton,
   clickRuleSetSubmitButton,
-  configureManualPartition,
   fillRuleSetRuleDescription,
-  gotoNewRuleTaskMonitorObjectPageForTable,
   saveRuleSetRuleRow,
   selectRuleSetField,
-  selectRuleTaskRulePackageOnCurrentPage,
   switchRuleSetStrength,
-} from "../../../../../../../_shared/automation/pages/data-quality/page-context";
+} from "../../../../../../../_shared/automation/pages/data-quality/rule-set-page";
+import {
+  clickNextUntilMonitorRuleConfig,
+  clickNextUntilScheduleConfig,
+  configureManualPartition,
+  gotoNewRuleTaskMonitorObjectPageForTable,
+  selectRuleTaskRulePackageOnCurrentPage,
+} from "../../../../../../../_shared/automation/pages/data-quality/rule-task-page";
 
 type DqRuleBaseTemplateRecord = {
   id?: string | number;

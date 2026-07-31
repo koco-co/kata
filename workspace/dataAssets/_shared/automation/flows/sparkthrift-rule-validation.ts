@@ -54,23 +54,27 @@ import {
   getRuleSetPageRecordsAllowEmpty,
 } from "../pages/data-quality/record-assertions";
 import {
-  clickNextUntilMonitorRuleConfig,
-  clickNextUntilScheduleConfig,
+  gotoMonitorRecordQueryPage,
+  submitMonitorRecordSearch,
+} from "../pages/data-quality/monitor-record-page";
+import {
   clickRuleSetPackageAddButton,
   clickRuleSetSubmitButton,
-  configureManualPartition,
   fillRuleSetRuleDescription,
-  gotoMonitorRecordQueryPage,
+  saveRuleSetRuleRow,
+  selectRuleSetField,
+  switchRuleSetStrength,
+} from "../pages/data-quality/rule-set-page";
+import {
+  clickNextUntilMonitorRuleConfig,
+  clickNextUntilScheduleConfig,
+  configureManualPartition,
   gotoNewRuleTaskMonitorObjectPageForTable,
   gotoRuleTaskScheduleAttributesPage,
   runRuleTaskImmediately,
-  saveRuleSetRuleRow,
   searchRuleTaskByTableName,
-  selectRuleSetField,
   selectRuleTaskRulePackageOnCurrentPage,
-  submitMonitorRecordSearch,
-  switchRuleSetStrength,
-} from "../pages/data-quality/page-context";
+} from "../pages/data-quality/rule-task-page";
 
 type DqGlobalParamRecord = {
   paramName?: string;

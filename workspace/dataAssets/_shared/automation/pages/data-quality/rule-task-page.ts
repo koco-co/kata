@@ -1,4 +1,4 @@
-// 数据质量跨需求共享的页面交互能力。
+// 数据质量规则任务页面流程与交互能力。
 
 import { waitForUiSettled } from "../../../../../../runtime/automation/playwright";
 import { expect, type Page } from "@playwright/test";
@@ -8,7 +8,6 @@ import type {
   SparkThriftQualityRuleValidationScenario,
 } from "./contracts";
 import {
-  clickActiveAntdOption,
   clickDqCompactButton,
   clickDqText,
   closeVisibleDqOverlayIfAny,
@@ -94,81 +93,6 @@ export async function clickNextUntilMonitorRuleConfig(
     /引用规则包|添加规则|新增规则包/,
     { timeout: 30000 },
   );
-}
-
-export async function clickRuleSetPackageAddButton(page: Page, sourceRef: string): Promise<void> {
-  const addButton = page.getByRole("button", { name: /增加|添加规则包|新增规则包|添加/ }).first();
-  await expect(addButton, `${sourceRef}: 应展示新增规则包入口`).toBeVisible({ timeout: 30000 });
-  await addButton.click({ timeout: 30000 });
-}
-
-export async function clickRuleSetSubmitButton(page: Page, sourceRef: string): Promise<void> {
-  if (await confirmRuleSetSavePromptIfVisible(page, sourceRef)) return;
-
-  const submitButton = page
-    .getByRole("button", { name: /完成|提交|确\s*定|保\s*存/ })
-    .filter({ hasNotText: /取消|上一步/ })
-    .last();
-  await expect(submitButton, `${sourceRef}: 规则集配置页应展示提交入口`).toBeVisible({
-    timeout: 30000,
-  });
-  try {
-    await submitButton.click({ timeout: 30000 });
-  } catch (error) {
-    if (await confirmRuleSetSavePromptIfVisible(page, sourceRef, true)) return;
-    throw error;
-  }
-  const savePrompt = page.getByText("保存提示", { exact: true }).last();
-  const promptAppeared = await expect
-    .poll(async () => savePrompt.isVisible({ timeout: 500 }).catch(() => false), { timeout: 5000 })
-    .toBe(true)
-    .then(() => true)
-    .catch(() => false);
-  if (promptAppeared) {
-    await page
-      .getByRole("button", { name: /^保\s*存$/ })
-      .last()
-      .click({ force: true, timeout: 30000 });
-    await expect(savePrompt, `${sourceRef}: 保存提示确认后应关闭`).toBeHidden({ timeout: 30000 });
-  }
-  await confirmRuleSetSavePromptIfVisible(page, sourceRef);
-  await expect(page.locator("body"), `${sourceRef}: 提交规则集后页面主体应保持可见`).toBeVisible({
-    timeout: 30000,
-  });
-}
-
-async function confirmRuleSetSavePromptIfVisible(
-  page: Page,
-  sourceRef: string,
-  forceClick = false,
-): Promise<boolean> {
-  const confirm = page.getByRole("dialog").filter({ hasText: "保存提示" }).last();
-  const promptTitle = page.getByText("保存提示", { exact: true }).last();
-  if (
-    !(await confirm.isVisible({ timeout: 5000 }).catch(() => false)) &&
-    !(await promptTitle.isVisible({ timeout: 1000 }).catch(() => false))
-  ) {
-    return false;
-  }
-
-  const confirmButton = (await confirm.isVisible({ timeout: 1000 }).catch(() => false))
-    ? confirm.getByRole("button", { name: /^保\s*存$|^确\s*定$|^提交$|^完成$/ }).last()
-    : page.getByRole("button", { name: /^保\s*存$/ }).last();
-  if (await confirmButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await confirmButton.click({ force: forceClick, timeout: 30000 });
-  } else {
-    await confirm
-      .getByRole("button", { name: /^保\s*存$|^确\s*定$|^提交$|^完成$/ })
-      .last()
-      .click({ force: forceClick, timeout: 30000 });
-  }
-  await expect(
-    page.locator("body"),
-    `${sourceRef}: 确认规则集保存后页面主体应保持可见`,
-  ).toBeVisible({
-    timeout: 30000,
-  });
-  return true;
 }
 
 async function selectVisibleDqOption(
@@ -421,43 +345,6 @@ export async function runRuleTaskImmediately(
   ).toContainText(/成功|提交|执行|规则任务管理/, { timeout: 30000 });
 }
 
-function monitorRecordSearchInput(page: Page): ReturnType<Page["locator"]> {
-  return page
-    .getByPlaceholder("请输入表名/任务名称搜索")
-    .or(page.locator("input[placeholder*='任务名称']"))
-    .or(page.locator("input[placeholder*='表名']"))
-    .first();
-}
-
-export async function gotoMonitorRecordQueryPage(
-  page: Page,
-  sourceRef: string,
-): Promise<ReturnType<Page["locator"]>> {
-  await page.keyboard.press("Escape").catch(() => {});
-  await gotoDataQualityPage(page, "/dq/taskQuery");
-
-  const menuEntry = page.getByRole("link", { name: "校验结果查询" }).first();
-  if (await menuEntry.isVisible({ timeout: 5000 }).catch(() => false)) {
-    await menuEntry.click({ timeout: 30000 });
-    await injectDataQualityProjectContext(page);
-    await waitForUiSettled(page);
-  }
-
-  await expect(page, `${sourceRef}: URL 应进入校验结果查询路由`).toHaveURL(/\/dq\/taskQuery/, {
-    timeout: 30000,
-  });
-  await expect(
-    page.getByRole("button", { name: "新建监控规则" }),
-    `${sourceRef}: 校验结果查询不应停留在规则任务管理主内容`,
-  ).not.toBeVisible({ timeout: 10000 });
-
-  const searchInput = monitorRecordSearchInput(page);
-  await expect(searchInput, `${sourceRef}: 校验结果查询应展示表名/任务名称搜索框`).toBeVisible({
-    timeout: 30000,
-  });
-  return searchInput;
-}
-
 async function gotoRuleTaskManagementPage(page: Page, sourceRef: string): Promise<void> {
   await closeVisibleDqOverlayIfAny(page, sourceRef);
   await gotoDataQualityPage(page, "/dq/rule");
@@ -476,76 +363,6 @@ async function gotoRuleTaskManagementPage(page: Page, sourceRef: string): Promis
     page.getByRole("button", { name: "新建监控规则" }),
     `${sourceRef}: 规则任务管理应展示新建监控规则入口`,
   ).toBeVisible({ timeout: 30000 });
-}
-
-export async function submitMonitorRecordSearch(page: Page): Promise<void> {
-  const searchButton = page.getByRole("button", { name: /查\s*询|search/i }).first();
-  if (await searchButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await searchButton.click({ timeout: 30000 });
-    return;
-  }
-  await page.keyboard.press("Enter");
-}
-
-export async function selectRuleSetField(
-  page: Page,
-  fieldName: string,
-  sourceRef: string,
-): Promise<void> {
-  const fieldSelect = page
-    .locator(".ant-select")
-    .filter({ hasText: /请选择字段|字段/ })
-    .last();
-  if (!(await fieldSelect.isVisible({ timeout: 3000 }).catch(() => false))) return;
-  await fieldSelect.click({ timeout: 30000 });
-  await page.keyboard.type(fieldName);
-  const dropdown = page.locator(".ant-select-dropdown:visible").last();
-  await expect(dropdown, `${sourceRef}: 字段下拉应包含「${fieldName}」`).toContainText(fieldName, {
-    timeout: 30000,
-  });
-  const clicked = await clickActiveAntdOption(page, fieldName);
-  expect(clicked, `${sourceRef}: 字段下拉应包含可点击字段「${fieldName}」`).toBe(true);
-}
-
-export async function switchRuleSetStrength(
-  page: Page,
-  label: "强规则" | "弱规则",
-  sourceRef: string,
-): Promise<void> {
-  const field = page
-    .locator(".ant-form-item:visible")
-    .filter({ hasText: /强弱规则/ })
-    .last();
-  await expect(field, `${sourceRef}: 应展示强弱规则配置项`).toBeVisible({ timeout: 30000 });
-  if ((await field.textContent({ timeout: 30000 }))?.includes(label)) return;
-  await field.locator(".ant-select").first().click({ timeout: 30000 });
-  const clicked = await clickActiveAntdOption(page, label);
-  expect(clicked, `${sourceRef}: 强弱规则下拉应包含「${label}」`).toBe(true);
-  await expect(field, `${sourceRef}: 强弱规则应选中「${label}」`).toContainText(label, {
-    timeout: 30000,
-  });
-}
-
-export async function fillRuleSetRuleDescription(page: Page, value: string): Promise<void> {
-  const control = page
-    .locator('textarea[placeholder*="规则描述"]:visible, input[placeholder*="规则描述"]:visible')
-    .last();
-  await control.fill(value, { timeout: 30000 });
-  await expect(control, "规则描述应填入目标值").toHaveValue(value, { timeout: 30000 });
-}
-
-export async function saveRuleSetRuleRow(
-  page: Page,
-  sourceRef: string,
-  action: string,
-): Promise<void> {
-  await page
-    .getByRole("button", { name: /^保\s*存$/ })
-    .last()
-    .click({ timeout: 30000 });
-  await expect(page.locator("body"), `${sourceRef}: ${action}后页面应保持可见`).toBeVisible({
-    timeout: 30000,
-  });
 }
 
 export async function searchRuleTaskByTableName(
