@@ -133,6 +133,7 @@ meta:
 ```
 
 Both `imports` and `exports` are relative to their respective directories. A build keeps only YAML-declared derivatives; omitting `exports` defaults to an XMind file named after the YAML source.
+`kata cases lint --project <project>` verifies that every declared historical input exists in `cases/imports/`.
 
 ## Real automation runs
 

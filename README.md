@@ -140,6 +140,7 @@ meta:
 ```
 
 `imports` 和 `exports` 均相对于各自目录；构建仅保留 YAML 已声明的派生文件。省略 `exports` 时默认生成与 YAML 同名的 `.xmind`。
+`kata cases lint --project <项目>` 会校验每个已声明的历史输入实际存在于 `cases/imports/`。
 
 ## 真实自动化运行
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -130,5 +131,47 @@ describe("features lint", () => {
     );
     expect(rules).toContain("case_yaml_name");
     expect(rules).toContain("real_env_name");
+  });
+
+  it("flags a declared historical import that is absent from cases/imports", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      "meta:\n  imports: [历史用例.csv]\ncases:\n  - id: C0001\n    title: 验证字段\n    priority: P1\n",
+    );
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    expect(violations.some((violation) => violation.rule === "case_import_missing")).toBe(true);
+  });
+
+  it("accepts a declared historical import that exists in cases/imports", () => {
+    const root = ws();
+    const feature = mkValidActive(
+      root,
+      "meta:\n  imports: [历史用例.csv]\ncases:\n  - id: C0001\n    title: 验证字段\n    priority: P1\n",
+    );
+    const importsDir = join(root, "dataAssets", "features", feature, "cases", "imports");
+    mkdirSync(importsDir);
+    writeFileSync(join(importsDir, "历史用例.csv"), "用例标题\n验证字段\n");
+    const violations = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations;
+    expect(violations.some((violation) => violation.rule === "case_import_missing")).toBe(false);
+  });
+
+  it("uses KATA_WORKSPACE_ROOT when the CLI lints cases", () => {
+    const workspaceRoot = ws();
+    mkValidActive(
+      workspaceRoot,
+      "cases:\n  - id: C0001\n    title: 非验证标题\n    priority: P1\n",
+    );
+    const result = spawnSync(
+      "bun",
+      ["cli/bin/kata.ts", "cases", "lint", "--project", "dataAssets", "--exit-code"],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: { ...process.env, KATA_WORKSPACE_ROOT: workspaceRoot },
+      },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("case_title_format");
   });
 });

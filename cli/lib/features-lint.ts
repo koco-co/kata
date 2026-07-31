@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { parse } from "yaml";
+import { parseCaseExportName } from "./cases/formats.ts";
 import {
   featureRelativePath,
   LEGACY_LABEL_DIR_RE,
@@ -13,6 +14,8 @@ import { assertCaseDigestChain, lintPrdFeature } from "./prd.ts";
 export interface FeaturesLintContext {
   project: string;
   workspaceRoot: string;
+  /** Kata repository root; may differ from an externally redirected workspace. */
+  repoRoot?: string;
   featurePath?: string;
 }
 
@@ -40,8 +43,8 @@ function loadEnum(sharedRoot: string, file: string): string[] {
 }
 
 /** 真实环境名取自 config/env/<env>.yaml 文件名（绝不读内容，0600 私密）；无配置时跳过。 */
-function loadEnvNames(workspaceRoot: string): string[] {
-  const envDir = join(workspaceRoot, "..", "config", "env");
+function loadEnvNames(repoRoot: string | undefined, workspaceRoot: string): string[] {
+  const envDir = join(repoRoot ?? dirname(workspaceRoot), "config", "env");
   if (!existsSync(envDir)) return [];
   return readdirSync(envDir)
     .filter((f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"))
@@ -118,6 +121,20 @@ function lintCaseSources(
         message: `cases/${filename} 不得保存 meta.version；由父级版本目录推导`,
       });
     }
+    if (Array.isArray(doc.meta?.imports)) {
+      for (const value of doc.meta.imports) {
+        if (typeof value !== "string") continue;
+        const parsedImport = parseCaseExportName(value);
+        if (!parsedImport) continue;
+        if (!existsSync(join(casesDir, "imports", parsedImport.name))) {
+          violations.push({
+            feature,
+            rule: "case_import_missing",
+            message: `cases/${filename} 声明的历史输入不存在: cases/imports/${parsedImport.name}`,
+          });
+        }
+      }
+    }
     if (!subjective) continue;
     const cases = Array.isArray(doc.cases) ? doc.cases : [];
     for (const [index, item] of cases.entries()) {
@@ -155,7 +172,7 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
 
   const modulesEnum = loadEnum(sharedDir, "modules.yaml");
   const customersEnum = loadEnum(sharedDir, "customers.yaml");
-  const envNames = loadEnvNames(ctx.workspaceRoot);
+  const envNames = loadEnvNames(ctx.repoRoot, ctx.workspaceRoot);
   const allEntries = listFeatureDirs(featuresDir);
   const entries = ctx.featurePath
     ? [resolveFeatureEntry(featuresDir, ctx.featurePath)]

@@ -1,8 +1,8 @@
-import { join } from "node:path";
+import { dirname } from "node:path";
 import type { Command } from "commander";
 import { resolveFeatureEntry } from "../lib/features-layout.ts";
 import { runFeaturesLint } from "../lib/features-lint.ts";
-import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
+import { locateProject } from "../lib/workspace-locator.ts";
 import { registerCasesBuild } from "./cases-build.ts";
 import { registerCasesImport } from "./cases-import.ts";
 import { registerCasesSync } from "./cases-sync.ts";
@@ -11,9 +11,14 @@ import { registerCasesSync } from "./cases-sync.ts";
 export function runCasesLint(opts: { project: string; feature?: string }): {
   violations: { feature: string; rule: string; message: string }[];
 } {
-  const workspaceRoot = join(locateProjectRoot(), "workspace");
-  if (opts.feature) resolveFeatureEntry(locateProject(opts.project).featuresDir, opts.feature);
-  return runFeaturesLint({ project: opts.project, workspaceRoot, featurePath: opts.feature });
+  const project = locateProject(opts.project);
+  if (opts.feature) resolveFeatureEntry(project.featuresDir, opts.feature);
+  return runFeaturesLint({
+    project: opts.project,
+    workspaceRoot: dirname(project.projectDir),
+    repoRoot: project.root,
+    featurePath: opts.feature,
+  });
 }
 
 export function registerCases(program: Command): void {
@@ -23,7 +28,7 @@ export function registerCases(program: Command): void {
   registerCasesSync(cases);
   cases
     .command("lint")
-    .description("检查 feature 目录结构、命名与 YAML 来源约束")
+    .description("检查 feature 目录、命名、YAML 来源与历史导入文件")
     .requiredOption("--project <name>", "项目名")
     .option("--feature <path>", "只检查单个 feature（相对 features/ 的完整路径）")
     .option("--exit-code", "存在 violation 时退出码为 1")

@@ -67,7 +67,7 @@ Commands:
   import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
   sync [options]    按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认
                     dry-run)
-  lint [options]    检查 feature 目录结构、命名与 YAML 来源约束
+  lint [options]    检查 feature 目录、命名、YAML 来源与历史导入文件
   help [command]    display help for command
 ```
 
@@ -424,7 +424,7 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录结构、命名与 YAML 来源约束
+检查 feature 目录、命名、YAML 来源与历史导入文件
 
 Options:
   --project <name>  项目名
