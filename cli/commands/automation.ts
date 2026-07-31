@@ -363,7 +363,9 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("scaffold <feature-dir>")
-    .description("创建自动化骨架(tests/cases、runners、pages、fixtures、sql)")
+    .description(
+      "创建自动化骨架(tests/cases、runners、pages、fixtures、sql)；用例映射以 YAML 为准，不生成重复索引",
+    )
     .option("--force", "覆盖已存在文件", false)
     .action((featureDir: string, opts: { force: boolean }) => {
       const r = scaffoldAutomation(featureDir, { force: opts.force });
