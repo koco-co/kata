@@ -1,4 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join } from "node:path";
+import { writeAutomationRunOverrideFile } from "../../cli/commands/automation.ts";
 import { parseAutomationSetEntries } from "../../cli/lib/automation/cli-overrides.ts";
 import {
   AUTOMATION_OVERRIDE_FILE_ENV,
@@ -40,5 +44,22 @@ describe("automation CLI overrides", () => {
         [AUTOMATION_OVERRIDE_FILE_ENV]: "/tmp/kata-automation-config-fixture.overrides.json",
       }),
     ).toBe("/tmp/kata-automation-config-fixture.overrides.json");
+  });
+
+  test("writes the temporary override below the allocated run instead of the repository root", () => {
+    const runPath = mkdtempSync(join(tmpdir(), "kata-automation-run-"));
+    const override = {
+      playwright: { workers: 1 },
+      automation: { cases: "1-2" },
+    };
+    try {
+      const path = writeAutomationRunOverrideFile(runPath, override);
+      expect(dirname(path)).toBe(join(runPath, "_tmp"));
+      expect(basename(path)).toMatch(/^kata-automation-config-.+\.overrides\.json$/);
+      expect(JSON.parse(readFileSync(path, "utf8"))).toEqual(override);
+      expect(statSync(path).mode & 0o777).toBe(0o600);
+    } finally {
+      rmSync(runPath, { recursive: true, force: true });
+    }
   });
 });

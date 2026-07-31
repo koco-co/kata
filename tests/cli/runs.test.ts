@@ -113,6 +113,29 @@ describe("runs execution contract", () => {
     ).toThrow(/workspace\/<project>\/features/);
   });
 
+  it("accepts an allocated run in KATA_WORKSPACE_ROOT", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-runs-external-"));
+    const workspaceRoot = join(root, "private-workspace");
+    const runPath = join(
+      workspaceRoot,
+      "dataAssets",
+      "features",
+      "v1.0",
+      "【模块】需求",
+      "runs",
+      "20260726-1200-run-01",
+    );
+    mkdirSync(runPath, { recursive: true });
+    const env = {
+      KATA_ACTIVE_PROJECT: "dataAssets",
+      KATA_RUN_PATH: runPath,
+      KATA_WORKSPACE_ROOT: workspaceRoot,
+    };
+
+    expect(resolvePlaywrightRunPath(env, root)).toBe(runPath);
+    expect(resolvePlaywrightOutputDir(env, root)).toBe(join(runPath, "test-results"));
+  });
+
   it("passes the run environment and persists a successful status", async () => {
     const root = mkdtempSync(join(tmpdir(), "kata-runs-exec-"));
     const runPath = join(root, "runs", "20260726-1200-run-01");
@@ -145,11 +168,13 @@ describe("runs execution contract", () => {
       {
         PATH: process.env.PATH,
         KATA_RUN_PATH: "/tmp/kata-run",
+        KATA_WORKSPACE_ROOT: "/private/workspace",
         SHOULD_NOT_BE_INHERITED: "secret-like-value",
       },
     );
 
     expect(childEnv.KATA_RUN_PATH).toBe("/tmp/kata-run");
+    expect(childEnv.KATA_WORKSPACE_ROOT).toBe("/private/workspace");
     expect(childEnv.KATA_DATAASSETS_ENV).toBeUndefined();
     expect(childEnv.SHOULD_NOT_BE_INHERITED).toBeUndefined();
   });

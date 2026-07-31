@@ -17,7 +17,8 @@ export function resolvePlaywrightRunPath(
   }
 
   const runPath = resolve(rawRunPath);
-  const featuresRoot = resolve(root, "workspace", project, "features");
+  const workspaceRoot = env.KATA_WORKSPACE_ROOT ?? join(root, "workspace");
+  const featuresRoot = resolve(workspaceRoot, project, "features");
   const relativePath = relative(featuresRoot, runPath);
   const segments = relativePath.split(sep).filter(Boolean);
   const outside =

@@ -33,6 +33,8 @@ root:
     - workspace
 forbidden_globs:
   - kata-automation-*.config.ts
+  - kata-automation-config-*.ts
+  - kata-automation-config-*.overrides.json
   - lib/**
   - "**/project.json"
   - runtime/cases/**

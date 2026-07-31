@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import { type Command, Option } from "commander";
 import { AUTOMATION_OVERRIDE_FILE_ENV } from "../../runtime/automation/config/overrides.ts";
 import {
@@ -23,6 +22,7 @@ import { parseAutomationSetEntries } from "../lib/automation/cli-overrides.ts";
 import { lintSqlFile, renderSql } from "../lib/automation/sql.ts";
 import { RUN_TYPES, type RunType } from "../lib/run-id.ts";
 import { executeWithRunPath } from "../lib/runs-exec.ts";
+import { locateProjectRoot } from "../lib/workspace-locator.ts";
 import { runRunsPath } from "./runs.ts";
 
 interface AutomationRunOptions {
@@ -122,6 +122,22 @@ function buildAutomationOverrideFile(
   return result;
 }
 
+/** Persist a private, single-run override only under the allocated run's ignored temporary area. */
+export function writeAutomationRunOverrideFile(
+  runPath: string,
+  override: { playwright: Record<string, unknown>; automation: Record<string, unknown> },
+): string {
+  const tempDir = join(runPath, "_tmp");
+  mkdirSync(tempDir, { recursive: true, mode: 0o700 });
+  const path = join(tempDir, `kata-automation-config-${randomUUID()}.overrides.json`);
+  writeFileSync(path, JSON.stringify(override, null, 2), {
+    encoding: "utf8",
+    mode: 0o600,
+    flag: "wx",
+  });
+  return path;
+}
+
 async function runAutomation(
   featureSelector: string,
   options: AutomationRunOptions,
@@ -149,30 +165,11 @@ async function runAutomation(
     newRun: true,
     runType: options.type as RunType,
   });
-  const repoRoot = process.cwd();
-  // Keep the temporary ESM wrapper in the repository root. Playwright resolves
-  // testMatch and relative reporter paths from the config file directory.
-  const configPath = join(repoRoot, `kata-automation-config-${randomUUID()}.ts`);
-  const overridePath = configPath.replace(/\.ts$/, ".overrides.json");
-  const playwrightConfigPath = pathToFileURL(resolve(repoRoot, "playwright.config.ts")).href;
-  writeFileSync(
-    configPath,
-    `import config from ${JSON.stringify(playwrightConfigPath)};\nexport default config;\n`,
-    {
-      encoding: "utf8",
-      mode: 0o600,
-      flag: "wx",
-    },
-  );
-  writeFileSync(
-    overridePath,
-    JSON.stringify(
-      { playwright: overrideFile.playwright, automation: automationOverrides },
-      null,
-      2,
-    ),
-    { encoding: "utf8", mode: 0o600, flag: "wx" },
-  );
+  const repoRoot = locateProjectRoot();
+  const overridePath = writeAutomationRunOverrideFile(allocation.path, {
+    playwright: overrideFile.playwright,
+    automation: automationOverrides,
+  });
   const runnerArg = relative(repoRoot, runnerPath);
   const commandArgs = [
     process.execPath,
@@ -191,7 +188,7 @@ async function runAutomation(
     "--project",
     config.browser,
     "--config",
-    configPath,
+    resolve(repoRoot, "playwright.config.ts"),
   ];
   try {
     const exitCode = await executeWithRunPath({
@@ -199,6 +196,7 @@ async function runAutomation(
       runPath: allocation.path,
       project: options.project,
       command: commandArgs,
+      cwd: repoRoot,
       env: { [AUTOMATION_OVERRIDE_FILE_ENV]: overridePath },
       postProcess: (childExitCode) => {
         if (!config.allure.enabled) return childExitCode;
@@ -219,7 +217,6 @@ async function runAutomation(
     );
     if (exitCode !== 0) process.exitCode = exitCode;
   } finally {
-    rmSync(configPath, { force: true });
     rmSync(overridePath, { force: true });
   }
 }

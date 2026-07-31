@@ -13,6 +13,8 @@ const POLICY = `root:
   allowed_directories: [cli, config, runtime, workspace]
 forbidden_globs:
   - kata-automation-*.config.ts
+  - kata-automation-config-*.ts
+  - kata-automation-config-*.overrides.json
   - lib/**
   - "**/project.json"
   - runtime/cases/**
@@ -95,6 +97,8 @@ describe("repository policy", () => {
     const violations = checkRepositoryPolicy(root, [
       "package.json",
       "kata-automation-recheck.config.ts",
+      "kata-automation-config-stale.ts",
+      "kata-automation-config-stale.overrides.json",
       "lib/db/index.ts",
       "workspace/dataAssets/project.json",
       "runtime/cases/parse.ts",
@@ -112,6 +116,8 @@ describe("repository policy", () => {
     const rejected = new Set(violations.map((item) => item.path));
     for (const path of [
       "kata-automation-recheck.config.ts",
+      "kata-automation-config-stale.ts",
+      "kata-automation-config-stale.overrides.json",
       "lib/db/index.ts",
       "workspace/dataAssets/project.json",
       "runtime/cases/parse.ts",
