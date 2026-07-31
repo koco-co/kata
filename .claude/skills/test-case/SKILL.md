@@ -25,14 +25,14 @@ description: 编写、编辑、导入、同步或标准化 Kata 测试用例。L
    - 完成条件：每个测试点可追溯到 PRD，每条用例可追溯到测试点；摘要链与当前内容一致。
 
 3. 构建并验证派生物
-   - 只从 YAML 生成 `cases/exports/需求名.xmind`、Markdown、CSV 或 XLSX。
+   - 只从 YAML 的 `meta.exports` 中声明的具体文件名生成 `cases/exports/需求名.xmind`、Markdown、CSV 或 XLSX；省略 `exports` 时默认生成与 YAML 同名的 XMind。
    - 完成条件：`kata prd lint`、`kata cases build` 和 `kata cases lint --exit-code` 均成功；派生物没有手工改动。
 
 ## Delivery
 
 - 返回 feature 路径、PRD、测试点、YAML 和实际生成的 exports。
 - 逐项说明已验证、缺少业务证据而保持不变、以及被明确排除的覆盖。
-- 导入原件归档在 `cases/imports/`；默认只导出 XMind，其他格式由 YAML `meta.exports` 明确声明。
+- 导入原件归档在 `cases/imports/`；默认只导出 YAML 同名的 XMind。其他格式由 YAML `meta.exports` 以具体文件名明确声明，例如 `需求名.xmind`、`需求名.md`。
 
 ## Guardrails
 

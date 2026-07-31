@@ -244,6 +244,13 @@ describe("skill contract", () => {
     expect(example).toContain("INSERT INTO user_profile");
   });
 
+  it("test-case 的导出元数据始终声明具体派生文件名", () => {
+    const content = readSkillContent("test-case");
+    const example = readFileSync(join(skillDir("test-case"), "examples/cases.yaml"), "utf8");
+    expect(content).not.toContain("exports: [xmind]");
+    expect(example).toContain("- 需求名.xmind");
+  });
+
   it("流程型 Skill 的每个顶层步骤都有可检查完成条件", () => {
     const processFiles = [
       ["defect-analyze", "SKILL.md"],

@@ -7,7 +7,7 @@ meta:
   test_points_digest: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
   source: https://lanhuapp.com/web/#/item/project/... (需求设计稿链接)
   exports:
-    - xmind
+    - 需求名.xmind
 cases:
   # case_id 从 C0001 递增；tags 按 模块/页面/功能点 层级写
   - case_id: C0001

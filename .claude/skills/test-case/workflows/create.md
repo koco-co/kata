@@ -71,7 +71,7 @@
    - 完成条件：每个需求 ID 已覆盖或有明确不覆盖理由，用户确认覆盖设计，摘要与当前 PRD 一致。
 
 8. 写 YAML 并构建
-   - 格式见 [../examples/cases.yaml](../examples/cases.yaml)。`meta.test_points_digest` 是完整测试点文件的 SHA-256；`source_ref` 引用测试点 ID；`meta.case_module_id` 必填，未知写 `""`；默认导出 XMind。
+   - 格式见 [../examples/cases.yaml](../examples/cases.yaml)。`meta.test_points_digest` 是完整测试点文件的 SHA-256；`source_ref` 引用测试点 ID；`meta.case_module_id` 必填，未知写 `""`；省略 `meta.exports` 时默认生成 YAML 同名 XMind，显式导出须写具体文件名。
 
      ```bash
      kata cases build --feature <featureDir>
