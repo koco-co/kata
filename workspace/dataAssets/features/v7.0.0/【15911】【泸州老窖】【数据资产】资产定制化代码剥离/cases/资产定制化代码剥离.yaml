@@ -4,6 +4,8 @@ meta:
   case_module_id: ''
   layout: requirements
   source: 禅道泸州老窖数栈定开项目需求与历史用例；蓝湖泸州老窖定制化需求及历史迭代原型；当前环境功能入口快照
+  imports:
+  - 数据资产_STD-用例.csv
   exports:
   - 资产定制化代码剥离.xmind
 requirements:
@@ -5324,49 +5326,81 @@ cases:
   source_ref: '禅道需求 #14280；用户确认测试点'
 - requirement_id: '16178'
   case_id: C0261
-  title: 验证行级权限配置入口和授权规则保存
-  priority: P0
+  title: 验证「我的权限查看」可查看表的行级权限配置
+  priority: P2
+  precondition: 当前用户已在「数据权限分配」中获得表 ${TableA} 的行级权限配置。
   steps:
-  - action: 进入泸州老窖定制分支的权限管控入口，创建角色行级过滤规则并保存
-    expected: 配置成功，规则绑定到目标角色/用户并可在详情中查看
-  source_ref: '禅道需求 #16178；用户确认测试点'
+  - action: 进入「我的权限查看」，在表 ${TableA} 数据上点击【查看】
+    expected: 弹窗显示当前用户对表 ${TableA} 的行级权限配置
+  tags:
+  - 数据安全
+  - 数据权限管理
+  - 行级权限
+  source_ref: T24
 - requirement_id: '16178'
   case_id: C0262
-  title: 验证仅具备行级权限的用户只能看到授权数据行
-  priority: P0
+  title: 验证「数据权限分配」配置行级权限的交互逻辑
+  priority: P1
+  precondition: |-
+    1) 当前用户具有数据权限分配权限。
+    2) 已选择支持 DQL 行级权限的表 ${TableA}，表中包含字段 col1、col2、col3。
   steps:
-  - action: 使用配置了行级范围的用户查询数据表列表、详情和数据预览
-    expected: 列表、详情和预览均只返回授权行，未授权行不可通过分页、搜索或排序绕过
-  source_ref: '禅道需求 #16178；用户确认测试点'
+  - action: 点击【配置行级权限】
+    expected: |-
+      1) 显示数据表行级权限配置弹窗
+      2) 「规则关系」提供「且」「或」两个单选项，默认选中「且」
+      3) 「选择字段」下拉项包含所选表的全部字段
+      4) 「操作符」下拉项包含「=」「!=」「包含」「正则」「in」「not in」「null」
+      5) 展示条件值输入框
+  - action: |-
+      配置以下多条权限关系后点击【确定】：
+      col1 = value1 and col2 in (value2,value3) and col3 is null
+    expected: 弹窗关闭
+  - action: 再次打开配置弹窗，删除「col3 is null」条件后点击【确定】
+    expected: 弹窗关闭
+  - action: 点击行级权限条件区域的【+】
+    expected: 下方新增一组条件组件
+  - action: 点击某组条件的【删除】图标
+    expected: 删除当前条件组件
+  - action: 连续添加条件，尝试生成超过 5 组条件
+    expected: 提示最多只支持 5 组条件
+  - action: 将某组条件的操作符选择为「null」
+    expected: 该条件右侧输入框不可编辑
+  - action: 在条件值输入框中输入超过 200 个字符
+    expected: 提示输入超限
+  tags:
+  - 数据安全
+  - 数据权限管理
+  - 行级权限
+  source_ref: T24
 - requirement_id: '16178'
   case_id: C0263
-  title: 验证行级和列级权限组合生效
-  priority: P0
-  steps:
-  - action: 为同一角色同时配置行范围和字段可见范围，访问资产详情和导出
-    expected: 仅返回授权行，且仅展示/导出授权字段；两类权限均不被互相覆盖
-  source_ref: '禅道需求 #16178；用户确认测试点'
-- requirement_id: '16178'
-  case_id: C0264
-  title: 验证无行级权限用户访问受控资产被阻断
+  title: 验证行级权限的各类过滤条件在数据预览中生效
   priority: P1
+  precondition: |-
+    1) 当前用户具有数据权限分配权限。
+    2) 表 ${TableA} 支持 DQL 行级权限，且 col1、col2 中存在覆盖 value1、value2、其他值及 NULL 的测试数据。
   steps:
-  - action: 使用未被授权的用户访问受控数据表并尝试查询和预览
-    expected: 页面不返回受控数据，接口返回明确无权限结果，不能通过改变查询条件绕过
-  source_ref: '禅道需求 #16178；用户确认测试点'
-- requirement_id: '16178'
-  case_id: C0265
-  title: 验证编辑和删除行级权限后实时生效
-  priority: P1
-  steps:
-  - action: 修改或删除角色的行级规则后重新登录并访问同一资产
-    expected: 旧授权立即失效，新授权按最新规则生效，权限变更可追踪
-  source_ref: '禅道需求 #16178；用户确认测试点'
-- requirement_id: '16178'
-  case_id: C0266
-  title: 验证导出和接口调用不能绕过行级权限
-  priority: P0
-  steps:
-  - action: 使用受限用户分别执行页面导出、详情接口和列表接口
-    expected: 导出文件及接口响应均只包含授权行和列，不存在越权数据
-  source_ref: '禅道需求 #16178；用户确认测试点'
+  - action: 在「数据权限分配」中配置行级权限「col1 = value1」，然后在「元数据-数据地图」预览表 ${TableA}
+    expected: 只显示符合「col1 = value1」条件的数据
+  - action: 将行级权限修改为「col1 != value1」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 != value1」条件的数据
+  - action: 将行级权限修改为「col1 包含 value1」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 like '%value1%'」条件的数据
+  - action: 将行级权限修改为正则条件「col1 REGEXP '^value1'」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 REGEXP '^value1'」条件的数据
+  - action: 将行级权限修改为「col1 in ('value1','value2')」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 in ('value1','value2')」条件的数据
+  - action: 将行级权限修改为「col1 not in ('value1','value2')」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 not in ('value1','value2')」条件的数据
+  - action: 将行级权限修改为「col1 is null」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 is null」条件的数据
+  - action: 将规则关系设为「且」，配置「col1 in ('value1','value2')」与「col2 is null」，然后预览表 ${TableA}
+    expected: 只显示同时符合「col1 in ('value1','value2') and col2 is null」条件的数据
+  - action: 将规则关系设为「或」，配置「col1 in ('value1','value2')」与「col2 is null」，然后预览表 ${TableA}
+    expected: 只显示符合「col1 in ('value1','value2') or col2 is null」条件的数据
+  tags:
+  - 数据安全
+  - 数据权限管理
+  - 行级权限
+  source_ref: T24
