@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join, relative, resolve, sep } from "node:path";
 import { SPEC_FILE_RE } from "../cases/parse.ts";
-import { projectRootFromFeatureDir } from "../features-layout.ts";
-import { locateProjectRoot } from "../workspace-locator.ts";
+import { listFeatureDirs, projectRootFromFeatureDir } from "../features-layout.ts";
+import { locateProject, locateProjectRoot } from "../workspace-locator.ts";
 import { findMissingRelativeImports } from "./relative-imports.ts";
 
 const CODE_EXTENSIONS = new Set([".cjs", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
@@ -59,6 +59,7 @@ export interface AutomationLintIgnore {
 export interface AutomationLintOptions {
   featureDir?: string;
   shared?: boolean;
+  allFeatures?: boolean;
   project?: string;
   repoRoot?: string;
 }
@@ -450,23 +451,33 @@ function scanCaseFileName(
 }
 
 function resolveTarget(options: AutomationLintOptions): ScanTarget {
-  if (options.shared === Boolean(options.featureDir)) {
-    throw new Error("kata automation lint: 必须指定 <featureDir> 或 --shared 其中一个");
+  const modes = [
+    Boolean(options.featureDir),
+    options.shared === true,
+    options.allFeatures === true,
+  ].filter(Boolean);
+  if (modes.length !== 1) {
+    throw new Error(
+      "kata automation lint: 必须指定 <featureDir>、--shared 或 --all-features 其中一个",
+    );
   }
 
-  if (options.shared) {
+  if (options.shared || options.allFeatures) {
     const root = options.repoRoot ?? locateProjectRoot();
     const project = options.project ?? process.env.KATA_ACTIVE_PROJECT;
     if (!project) {
       throw new Error(
-        "kata automation lint --shared: 未指定项目；请传 --project <name>(或设置 KATA_ACTIVE_PROJECT)",
+        "kata automation lint: --shared 或 --all-features 模式需要 --project <name>(或设置 KATA_ACTIVE_PROJECT)",
       );
     }
-    const projectDir = join(root, "workspace", project);
-    if (!existsSync(projectDir)) throw new Error(`kata automation lint: 未知项目 ${project}`);
+    const paths = locateProject(project, root);
     return {
-      roots: [join(projectDir, "_shared", "automation")],
-      projectDir,
+      roots: options.shared
+        ? [join(paths.sharedDir, "automation")]
+        : listFeatureDirs(paths.featuresDir)
+            .map((feature) => join(feature.dir, "automation", "tests"))
+            .filter(existsSync),
+      projectDir: paths.projectDir,
     };
   }
 

@@ -19,6 +19,18 @@ function writeCase(cases: string, name: string, content: string): string {
   return path;
 }
 
+function withWorkspaceRoot<T>(workspaceRoot: string | undefined, callback: () => T): T {
+  const previous = process.env.KATA_WORKSPACE_ROOT;
+  if (workspaceRoot === undefined) delete process.env.KATA_WORKSPACE_ROOT;
+  else process.env.KATA_WORKSPACE_ROOT = workspaceRoot;
+  try {
+    return callback();
+  } finally {
+    if (previous === undefined) delete process.env.KATA_WORKSPACE_ROOT;
+    else process.env.KATA_WORKSPACE_ROOT = previous;
+  }
+}
+
 describe("automation lint", () => {
   it("detects the configured rules while ignoring comments", () => {
     const { feature, cases } = featureWorkspace();
@@ -147,13 +159,67 @@ describe("automation lint", () => {
       "await page.waitForTimeout(200);\n",
     );
 
-    const result = runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root });
+    const result = withWorkspaceRoot(undefined, () =>
+      runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root }),
+    );
     expect(result.scannedFiles).toBe(2);
     expect(result.violations).toHaveLength(2);
     expect(result.violations.map((item) => item.path).sort()).toEqual([
       "_shared/automation/flows/flow.ts",
       "_shared/automation/pages/page.ts",
     ]);
+  });
+
+  it("scans every feature automation area in a project", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-al-all-features-"));
+    const features = join(root, "workspace", "dataAssets", "features", "v7.0.0");
+    const firstCases = join(features, "【数据质量】需求甲", "automation", "tests", "cases");
+    const secondCases = join(features, "【数据质量】需求乙", "automation", "tests", "cases");
+    mkdirSync(firstCases, { recursive: true });
+    mkdirSync(secondCases, { recursive: true });
+    writeCase(firstCases, "c0001-first.spec.ts", "export const first = true;\n");
+    writeCase(secondCases, "c0002-second.spec.ts", "await page.waitForTimeout(100);\n");
+
+    const result = withWorkspaceRoot(undefined, () =>
+      runAutomationLint({ allFeatures: true, project: "dataAssets", repoRoot: root }),
+    );
+    expect(result.scannedFiles).toBe(2);
+    expect(result.violations).toContainEqual(
+      expect.objectContaining({
+        path: "features/v7.0.0/【数据质量】需求乙/automation/tests/cases/c0002-second.spec.ts",
+        rule: "no-wait-timeout",
+      }),
+    );
+  });
+
+  it("honors KATA_WORKSPACE_ROOT for project-wide and shared lint", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-al-external-root-"));
+    const external = mkdtempSync(join(tmpdir(), "kata-al-workspace-"));
+    const page = join(external, "dataAssets", "_shared", "automation", "pages", "page.ts");
+    const cases = join(
+      external,
+      "dataAssets",
+      "features",
+      "v7.0.0",
+      "【数据质量】外置需求",
+      "automation",
+      "tests",
+      "cases",
+    );
+    mkdirSync(join(external, "dataAssets", "_shared", "automation", "pages"), { recursive: true });
+    mkdirSync(cases, { recursive: true });
+    writeFileSync(page, "export const page = true;\n");
+    writeCase(cases, "c0001-external.spec.ts", "export const external = true;\n");
+
+    withWorkspaceRoot(external, () => {
+      expect(
+        runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root }).scannedFiles,
+      ).toBe(1);
+      expect(
+        runAutomationLint({ allFeatures: true, project: "dataAssets", repoRoot: root })
+          .scannedFiles,
+      ).toBe(1);
+    });
   });
 
   it("does not treat legacy _shared paths as a compatibility fallback", () => {
@@ -165,7 +231,9 @@ describe("automation lint", () => {
       "await page.waitForTimeout(100);\n",
     );
 
-    const result = runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root });
+    const result = withWorkspaceRoot(undefined, () =>
+      runAutomationLint({ shared: true, project: "dataAssets", repoRoot: root }),
+    );
     expect(result).toEqual({ scannedFiles: 0, violations: [], ignored: [] });
   });
 
@@ -264,7 +332,10 @@ describe("automation lint", () => {
     const prev = process.env.KATA_ACTIVE_PROJECT;
     delete process.env.KATA_ACTIVE_PROJECT;
     try {
-      expect(() => runAutomationLint({ shared: true, repoRoot: root })).toThrow(/--project/);
+      withWorkspaceRoot(undefined, () => {
+        expect(() => runAutomationLint({ shared: true, repoRoot: root })).toThrow(/--project/);
+        expect(() => runAutomationLint({ allFeatures: true, repoRoot: root })).toThrow(/--project/);
+      });
     } finally {
       if (prev === undefined) delete process.env.KATA_ACTIVE_PROJECT;
       else process.env.KATA_ACTIVE_PROJECT = prev;

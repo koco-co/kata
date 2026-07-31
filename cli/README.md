@@ -1034,7 +1034,8 @@ Usage: kata automation lint [options] [feature-dir]
 
 Options:
   --shared          检查 workspace 项目的 _shared/automation 共享自动化代码
-  --project <name>  --shared 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)
+  --all-features    检查指定项目下全部 feature 的自动化代码
+  --project <name>  --shared 或 --all-features 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)
   --exit-code       存在 violation 时退出码为 1
   -h, --help        display help for command
 ```

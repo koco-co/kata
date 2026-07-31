@@ -139,6 +139,7 @@ kata runs exec <版本目录/需求目录名> --project dataAssets -- \
 
 ```bash
 kata automation lint <feature-dir> --exit-code
+kata automation lint --all-features --project dataAssets --exit-code
 kata automation lint --shared --project dataAssets --exit-code
 kata runs verify --project dataAssets --feature <feature-dir>
 ```
@@ -154,7 +155,7 @@ kata/
 ├── .codex-plugin/        # Codex 插件清单
 ├── cli/                  # kata CLI 与集成实现
 ├── config/               # example 模板与本机私密配置边界
-├── lib/                  # 共享库（db 连接串、Playwright 支撑）
+├── runtime/              # 可复用的数据库、Playwright 与 runner 支撑
 ├── tests/                # CLI、集成与 Skill 测试
 └── workspace/            # 项目输入、用例、run 与报告
 ```
@@ -168,6 +169,7 @@ bun install --frozen-lockfile
 bun run check
 bun run type-check
 bun test
+bun run test:automation-lint
 bun run ci
 ```
 

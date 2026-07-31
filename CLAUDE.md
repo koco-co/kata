@@ -14,7 +14,7 @@
 - `.repos/` 的 `writable: false` 是声明式约束，由 `kata repos` 命令的写看守强制执行，不依赖模型自律。
 
 ## Playwright 硬闸
-- exit 0 不算证据：须 run 的 `status.json` 为 `command_passed`、Allure 结果落盘、被测平台产生核心流程业务记录；交付前通过 `kata automation lint <featureDir> --exit-code` 与 `kata automation lint --shared --project <project> --exit-code`。
+- exit 0 不算证据：须 run 的 `status.json` 为 `command_passed`、Allure 结果落盘、被测平台产生核心流程业务记录；单个 feature 交付前通过 `kata automation lint <featureDir> --exit-code` 与 `kata automation lint --shared --project <project> --exit-code`，项目级交付改用 `kata automation lint --all-features --project <project> --exit-code` 并继续检查共享代码。
 
 ## CLI 文档同步
 - 任何 CLI 命令、子命令、参数、默认值或行为调整，都必须同步更新 `cli/README.md`、对应的 `kata --help`/嵌套 help，以及 CLI 文档同步测试；CLI README 是递归 help 的完整参考。

@@ -132,6 +132,7 @@ Before delivery:
 
 ```bash
 kata automation lint <feature-dir> --exit-code
+kata automation lint --all-features --project dataAssets --exit-code
 kata automation lint --shared --project dataAssets --exit-code
 kata runs verify --project dataAssets --feature <feature-dir>
 ```
@@ -147,7 +148,7 @@ kata/
 ├── .codex-plugin/        # Codex plugin manifest
 ├── cli/                  # kata CLI and integrations
 ├── config/               # examples and local configuration boundaries
-├── lib/                  # shared libraries (db connection strings, Playwright support)
+├── runtime/              # reusable database, Playwright, and runner support
 ├── tests/                # CLI, integration, and Skill tests
 └── workspace/            # inputs, cases, runs, and reports
 ```
@@ -161,6 +162,7 @@ bun install --frozen-lockfile
 bun run check
 bun run type-check
 bun test
+bun run test:automation-lint
 bun run ci
 ```
 

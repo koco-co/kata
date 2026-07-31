@@ -393,16 +393,21 @@ export function registerAutomation(program: Command): void {
     .command("lint [feature-dir]")
     .description("检查 Playwright 自动化代码、用例文件名、页面元数据与共享路径")
     .option("--shared", "检查 workspace 项目的 _shared/automation 共享自动化代码")
-    .option("--project <name>", "--shared 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)")
+    .option("--all-features", "检查指定项目下全部 feature 的自动化代码")
+    .option(
+      "--project <name>",
+      "--shared 或 --all-features 模式下的项目名(默认取 KATA_ACTIVE_PROJECT)",
+    )
     .option("--exit-code", "存在 violation 时退出码为 1")
     .action(
       (
         featureDir: string | undefined,
-        opts: { shared?: boolean; project?: string; exitCode?: boolean },
+        opts: { shared?: boolean; allFeatures?: boolean; project?: string; exitCode?: boolean },
       ) => {
         const report = runAutomationLint({
           featureDir,
           shared: opts.shared === true,
+          allFeatures: opts.allFeatures === true,
           project: opts.project,
         });
         for (const v of report.violations) {
