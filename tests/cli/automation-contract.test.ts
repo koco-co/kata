@@ -4,22 +4,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { inspectAutomationCoverage } from "../../cli/lib/automation/automation-contract.ts";
 
-function fixture(extraCases = ""): string {
+function fixture(extraCases = "", specFile = "c0001-sample-case.spec.ts"): string {
   const feature = mkdtempSync(join(tmpdir(), "kata-contract-"));
   mkdirSync(join(feature, "cases"), { recursive: true });
   mkdirSync(join(feature, "automation", "tests", "cases"), { recursive: true });
   writeFileSync(
     join(feature, "cases", "demo.yaml"),
-    `meta:\n  title: demo\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证样例\n    priority: P1\n    steps:\n      - action: 点击【保存】\n        expected: 保存成功\n    automation:\n      spec_file: c0001-sample-case.spec.ts\n${extraCases}`,
+    `meta:\n  title: demo\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证样例\n    priority: P1\n    steps:\n      - action: 点击【保存】\n        expected: 保存成功\n    automation:\n      spec_file: ${specFile}\n${extraCases}`,
   );
   return feature;
 }
 
-function writeSpec(feature: string, content: string): void {
-  writeFileSync(
-    join(feature, "automation", "tests", "cases", "c0001-sample-case.spec.ts"),
-    content,
-  );
+function writeSpec(feature: string, content: string, specFile = "c0001-sample-case.spec.ts"): void {
+  writeFileSync(join(feature, "automation", "tests", "cases", specFile), content);
 }
 
 describe("automation contract", () => {
@@ -65,7 +62,7 @@ describe("automation contract", () => {
     expect(coverage.mappedNotImplemented[0]).toContain("explicit incomplete marker");
   });
 
-  it("requires the canonical YAML title in executable source", () => {
+  it("uses the YAML spec_file mapping when script titles are more granular", () => {
     const feature = fixture();
     writeSpec(
       feature,
@@ -77,7 +74,19 @@ describe("automation contract", () => {
       ].join("\n"),
     );
     const coverage = inspectAutomationCoverage(feature);
-    expect(coverage.mappedNotImplemented[0]).toContain("canonical YAML title");
+    expect(coverage.implemented).toEqual(["C0001"]);
+  });
+
+  it("requires the spec_file case ID prefix to match the YAML case ID", () => {
+    const specFile = "c0002-wrong-case.spec.ts";
+    const feature = fixture("", specFile);
+    writeSpec(
+      feature,
+      'import { test } from "@playwright/test";\ntest("验证样例", async () => {});\n',
+      specFile,
+    );
+    const coverage = inspectAutomationCoverage(feature);
+    expect(coverage.mappedNotImplemented[0]).toContain("case ID prefix");
   });
 
   it("requires a real test declaration", () => {

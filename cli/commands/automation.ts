@@ -288,7 +288,7 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("coverage <feature-dir>")
-    .description("检查 cases YAML 与正式自动化脚本的映射、标题和实现状态")
+    .description("检查 cases YAML 与正式自动化脚本的一一映射、脚本完整性和实现状态")
     .action((featureDir: string) => {
       const coverage = inspectAutomationCoverage(featureDir);
       console.log(JSON.stringify(coverage, null, 2));

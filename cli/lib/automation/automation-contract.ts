@@ -64,17 +64,11 @@ function executableSource(text: string): string {
     .join("\n");
 }
 
-function containsCanonicalTitle(text: string, title: string): boolean {
-  const source = executableSource(text);
-  if (source.includes(title)) return true;
-  const escapedDoubleQuotedTitle = JSON.stringify(title).slice(1, -1);
-  return source.includes(escapedDoubleQuotedTitle);
+function specFileMatchesCaseId(caseId: string, specFile: string): boolean {
+  return specFile.startsWith(`c${caseId.slice(1).toLowerCase()}-`);
 }
 
-function classifyScript(
-  file: string,
-  expectedTitle: string,
-): {
+function classifyScript(file: string): {
   status: AutomationCaseStatus;
   implementationIssue?: string;
 } {
@@ -120,12 +114,6 @@ function classifyScript(
       implementationIssue: "spec contains no Playwright test declaration",
     };
   }
-  if (!containsCanonicalTitle(text, expectedTitle)) {
-    return {
-      status: "mapped-not-implemented",
-      implementationIssue: "canonical YAML title is absent from executable source",
-    };
-  }
   return { status: "implemented" };
 }
 
@@ -142,6 +130,15 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
     const specFile = item.automation?.spec_file;
     const script = specFile ? byBase.get(specFile) : undefined;
     if (!specFile) return { id: item.id, title: item.title, specFile, status: "unmapped" as const };
+    if (!specFileMatchesCaseId(item.id, specFile)) {
+      return {
+        id: item.id,
+        title: item.title,
+        specFile,
+        status: "mapped-not-implemented" as const,
+        implementationIssue: "spec_file case ID prefix does not match YAML case_id",
+      };
+    }
     if (!script) {
       return {
         id: item.id,
@@ -151,10 +148,7 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
         implementationIssue: "spec_file does not point to an existing script",
       };
     }
-    const classification = classifyScript(
-      join(featureDir, "automation", "tests", "cases", script),
-      item.title,
-    );
+    const classification = classifyScript(join(featureDir, "automation", "tests", "cases", script));
     return { id: item.id, title: item.title, specFile, ...classification };
   });
   const missingSpecFile = cases.filter((item) => !item.specFile).map((item) => item.id);
