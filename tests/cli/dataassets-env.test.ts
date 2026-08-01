@@ -5,6 +5,7 @@ import { join } from "node:path";
 import {
   type DataAssetsEnvConfig,
   migrateDataAssetsEnvs,
+  readDataAssetsEnvConfig,
   resolveDataAssetsEnv,
 } from "../../cli/lib/dataassets-env.ts";
 
@@ -126,6 +127,21 @@ describe("DataAssets environment datasource inventory compatibility", () => {
       await expect(migrateDataAssetsEnvs({ repoRoot: root })).rejects.toThrow(/符号链接/);
     } finally {
       rmSync(legacy, { force: true });
+      rmSync(root, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects a symlinked environment directory before reading it", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-env-read-"));
+    const configDir = join(root, "config");
+    const outside = mkdtempSync(join(tmpdir(), "kata-env-read-outside-"));
+    mkdirSync(configDir, { recursive: true });
+    symlinkSync(outside, join(configDir, "env"));
+    try {
+      expect(() => readDataAssetsEnvConfig("fixture", { repoRoot: root })).toThrow(/符号链接/);
+    } finally {
+      rmSync(join(configDir, "env"), { force: true });
       rmSync(root, { recursive: true, force: true });
       rmSync(outside, { recursive: true, force: true });
     }

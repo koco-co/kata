@@ -560,6 +560,7 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
 
 function assertSecureConfigPath(name: string, root: string): string {
   const envDir = dataAssetsEnvDir(root);
+  assertNoSymlinkPath(root, envDir, "environment directory");
   const path = dataAssetsEnvPath(name, root);
   assertContained(root, path);
   if (!existsSync(envDir)) throw new Error(`environment directory not found: ${envDir}`);
