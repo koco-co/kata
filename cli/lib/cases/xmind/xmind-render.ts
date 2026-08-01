@@ -183,10 +183,6 @@ function validateModule(mod: unknown, index: number): void {
 
 // ─── Title builders ──────────────────────────────────────────────────────────
 
-export function normalizeVersion(version: string): string {
-  return version.replace(/^v/i, "");
-}
-
 export function buildRootTitle(meta: RootAwareMeta): string {
   return buildRootName(meta.version, meta.project_name);
 }
@@ -217,37 +213,10 @@ export function sanitizeBr(text: string): string {
   return normalizeStructuredText(text);
 }
 
-// ─── Case count ──────────────────────────────────────────────────────────────
-
-export function countCases(modules: Module[]): number {
-  let count = 0;
-  for (const mod of modules) {
-    for (const page of mod.pages) {
-      for (const sg of page.sub_groups ?? []) {
-        count += sg.test_cases.length;
-      }
-      count += page.test_cases?.length ?? 0;
-    }
-  }
-  return count;
-}
-
 // ─── "未分类" flattening ─────────────────────────────────────────────────────
 
 export function isUnclassified(name: string): boolean {
   return name === UNCLASSIFIED;
-}
-
-/**
- * Collect all cases from a page (direct + sub_groups).
- */
-export function _collectPageCases(page: Page): TestCase[] {
-  const cases: TestCase[] = [];
-  for (const sg of page.sub_groups ?? []) {
-    cases.push(...sg.test_cases);
-  }
-  cases.push(...(page.test_cases ?? []));
-  return cases;
 }
 
 // ─── Topic tree builder (with 未分类 flattening + P0 stripping) ─────────────

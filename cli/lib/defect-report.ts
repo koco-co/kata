@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { basename, dirname, join, relative } from "node:path";
+import { basename, dirname } from "node:path";
 import type { BugReport } from "./bug-report-types.ts";
 import { validateBugReport } from "./bug-report-validate.ts";
 
@@ -126,12 +126,4 @@ export function parseBugReportMarkdown(reportPath: string): BugReport {
     root_cause: rootCause,
     impact,
   });
-}
-
-export function reportTemplatePath(root: string, kind: ReportKind): string {
-  return join(root, ".claude", "skills", "defect-analyze", "templates", `${kind}-report.md`);
-}
-
-export function reportRelativePath(root: string, reportPath: string): string {
-  return relative(root, reportPath).split("\\").join("/");
 }
