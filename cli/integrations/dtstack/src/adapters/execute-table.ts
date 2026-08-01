@@ -38,6 +38,11 @@ export function resolveDtstackCliInvocation(): { command: string; argsPrefix: st
   return { command: "bun", argsPrefix: ["cli/integrations/dtstack/src/cli.ts"] };
 }
 
+/** Keep the SQL input inside the mkdtemp directory even when tableName is untrusted. */
+export function buildSqlTempPath(sqlDir: string): string {
+  return join(sqlDir, "query.sql");
+}
+
 /**
  * 执行 SQL 并同步元数据。
  *
@@ -84,7 +89,7 @@ export async function executeTableSQL(page: Page, options: ExecuteTableOptions):
   const cookie = browserCookieStr || process.env[`${env.toUpperCase()}_COOKIE`] || "";
 
   const sqlDir = mkdtempSync(join(tmpdir(), "dtstack-exec-"));
-  const sqlFile = join(sqlDir, `${tableName}.sql`);
+  const sqlFile = buildSqlTempPath(sqlDir);
   writeFileSync(sqlFile, sql);
   const cli = resolveDtstackCliInvocation();
   try {

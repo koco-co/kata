@@ -1,8 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
-import { resolveDtstackCliInvocation } from "../../src/adapters/execute-table";
+import { buildSqlTempPath, resolveDtstackCliInvocation } from "../../src/adapters/execute-table";
 
 describe("execute-table adapter", () => {
+  test("uses a fixed temporary SQL filename instead of interpolating table names", () => {
+    expect(buildSqlTempPath("/tmp/dtstack-exec-abc")).toBe("/tmp/dtstack-exec-abc/query.sql");
+  });
+
   test("resolves a usable dtstack-cli invocation", () => {
     const invocation = resolveDtstackCliInvocation();
 
