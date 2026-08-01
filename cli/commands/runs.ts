@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { Command } from "commander";
 import {
@@ -173,6 +173,8 @@ interface AllureResult {
   start?: number;
   stop?: number;
 }
+
+const ALLURE_RESULT_STATUSES = new Set(["passed", "failed", "broken", "skipped"]);
 
 function readAllureSummary(runPath: string):
   | {
@@ -368,14 +370,34 @@ function verifyStatusJson(runPath: string): RunsVerifyCheck {
 function verifyAllureResults(runPath: string): RunsVerifyCheck {
   const name = "allure-results";
   const dir = join(runPath, "allure-results");
-  if (!existsSync(dir) || !statSync(dir).isDirectory()) {
+  if (!existsSync(dir) || !isRealDirectory(dir)) {
     return { name, level: "error", passed: false, message: "allure-results/ 缺失" };
   }
-  const count = readdirSync(dir).filter((n) => n.endsWith("-result.json")).length;
-  if (count === 0) {
+  const files = readdirSync(dir).filter((n) => n.endsWith("-result.json"));
+  if (files.length === 0) {
     return { name, level: "error", passed: false, message: "allure-results/ 无 *-result.json" };
   }
-  return { name, level: "error", passed: true, message: `${count} 个 *-result.json` };
+  for (const file of files) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(readFileSync(join(dir, file), "utf8"));
+    } catch {
+      return { name, level: "error", passed: false, message: `${file} 不是合法 JSON` };
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { name, level: "error", passed: false, message: `${file} 不是 Allure 结果对象` };
+    }
+    const status = (parsed as AllureResult).status;
+    if (!status || !ALLURE_RESULT_STATUSES.has(status)) {
+      return {
+        name,
+        level: "error",
+        passed: false,
+        message: `${file} 缺少明确的 Allure status（仅接受 passed/failed/broken/skipped）`,
+      };
+    }
+  }
+  return { name, level: "error", passed: true, message: `${files.length} 个有效 *-result.json` };
 }
 
 function verifyHandoff(runPath: string): RunsVerifyCheck {

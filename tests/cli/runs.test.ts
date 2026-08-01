@@ -226,7 +226,10 @@ describe("runs verify", () => {
     const runPath = createRun(feature, "20260726-1200-run-01");
     writeStatus(runPath, { schemaVersion: 1, status: "command_passed", exitCode: 0 });
     mkdirSync(join(runPath, "allure-results"));
-    writeFileSync(join(runPath, "allure-results", "abc-result.json"), "{}");
+    writeFileSync(
+      join(runPath, "allure-results", "abc-result.json"),
+      JSON.stringify({ status: "passed", name: "demo" }),
+    );
     return runPath;
   }
 
@@ -289,6 +292,25 @@ describe("runs verify", () => {
     expect(empty.checks.find((c) => c.name === "allure-results")?.message).toContain(
       "无 *-result.json",
     );
+  });
+
+  it("rejects malformed and unknown-status Allure result files", () => {
+    const { root, feature } = createProjectRoot();
+    const runPath = createRun(feature, "20260726-1200-run-01");
+    writeStatus(runPath, { schemaVersion: 1, status: "command_passed", exitCode: 0 });
+    mkdirSync(join(runPath, "allure-results"));
+    const resultPath = join(runPath, "allure-results", "abc-result.json");
+    writeFileSync(resultPath, "{}");
+    const malformed = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
+    expect(malformed.ok).toBe(false);
+    expect(malformed.checks.find((c) => c.name === "allure-results")?.message).toContain(
+      "缺少明确",
+    );
+
+    writeFileSync(resultPath, JSON.stringify({ status: "unknown", name: "demo" }));
+    const unknown = runRunsVerify({ root, project: "dataAssets", featurePath: FEATURE_PATH });
+    expect(unknown.ok).toBe(false);
+    expect(unknown.checks.find((c) => c.name === "allure-results")?.message).toContain("缺少明确");
   });
 
   it("warns but does not fail when handoff.md is missing", () => {
