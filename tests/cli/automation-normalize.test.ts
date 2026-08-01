@@ -54,6 +54,7 @@ describe("automation normalize", () => {
     for (const name of ["generated.ts", "full.spec.ts", "smoke.spec.ts", "retry-failed.spec.ts"]) {
       writeFileSync(join(runners, name), 'import "x";\n');
     }
+    writeFileSync(join(runners, "full-a.spec.ts"), 'import "x";\n');
     writeFileSync(join(runners, "legacy.spec.ts"), 'import "x";\n');
     writeFileSync(join(runners, "notes.md"), "# note\n");
 
@@ -62,6 +63,7 @@ describe("automation normalize", () => {
     expect(applied.violations).toBe(2);
     const remaining = readdirSync(runners).sort();
     expect(remaining).toEqual([
+      "full-a.spec.ts",
       "full.spec.ts",
       "generated.ts",
       "retry-failed.spec.ts",

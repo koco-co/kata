@@ -19,6 +19,10 @@ const CANONICAL_RUNNERS = new Set([
   "smoke.spec.ts",
   "retry-failed.spec.ts",
 ]);
+// 并行分片 runner(full-a/b/c/d.spec.ts)是合法的快速跑批入口，交付仍以 full.spec.ts 为准。
+function isCanonicalRunner(name: string): boolean {
+  return CANONICAL_RUNNERS.has(name) || /^full-[a-z0-9]+\.spec\.ts$/.test(name);
+}
 
 export interface NormalizeReport {
   moved: { from: string; to: string }[];
@@ -142,7 +146,7 @@ export function normalizeAutomation(
 
   if (existsSync(runnersDir)) {
     for (const name of listTopEntries(runnersDir)) {
-      if (CANONICAL_RUNNERS.has(name)) continue;
+      if (isCanonicalRunner(name)) continue;
       const full = join(runnersDir, name);
       if (isDir(full)) {
         report.unfixable.push({
