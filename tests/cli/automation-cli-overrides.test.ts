@@ -39,11 +39,24 @@ describe("automation CLI overrides", () => {
   });
 
   test("allows Playwright workers to resolve the temporary override through the inherited path", () => {
-    expect(
-      automationOverrideFileFromArgv(["bun", "playwright", "test"], {
-        [AUTOMATION_OVERRIDE_FILE_ENV]: "/tmp/kata-automation-config-fixture.overrides.json",
-      }),
-    ).toBe("/tmp/kata-automation-config-fixture.overrides.json");
+    const runPath = mkdtempSync(join(tmpdir(), "kata-automation-run-"));
+    try {
+      const overridePath = join(runPath, "_tmp", "kata-automation-config-fixture.overrides.json");
+      expect(
+        automationOverrideFileFromArgv(["bun", "playwright", "test"], {
+          KATA_RUN_PATH: runPath,
+          [AUTOMATION_OVERRIDE_FILE_ENV]: overridePath,
+        }),
+      ).toBe(overridePath);
+      expect(() =>
+        automationOverrideFileFromArgv(["bun", "playwright", "test"], {
+          KATA_RUN_PATH: runPath,
+          [AUTOMATION_OVERRIDE_FILE_ENV]: "/tmp/kata-automation-config-fixture.overrides.json",
+        }),
+      ).toThrow("必须位于当前 run 的 _tmp");
+    } finally {
+      rmSync(runPath, { recursive: true, force: true });
+    }
   });
 
   test("writes the temporary override below the allocated run instead of the repository root", () => {

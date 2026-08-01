@@ -2,11 +2,15 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { type Command, Option } from "commander";
-import { AUTOMATION_OVERRIDE_FILE_ENV } from "../../runtime/automation/config/overrides.ts";
+import {
+  AUTOMATION_OVERRIDE_FILE_ENV,
+  automationOverrideTempDir,
+} from "../../runtime/automation/config/overrides.ts";
 import {
   loadPlaywrightAutomationConfig,
   type PlaywrightAutomationOverrides,
   parsePlaywrightAutomationOverrides,
+  resolveAllureDirectories,
 } from "../../runtime/automation/config/playwright.ts";
 import { generateAutomationScripts } from "../lib/automation/automation-case-generator.ts";
 import {
@@ -127,7 +131,7 @@ export function writeAutomationRunOverrideFile(
   runPath: string,
   override: { playwright: Record<string, unknown>; automation: Record<string, unknown> },
 ): string {
-  const tempDir = join(runPath, "_tmp");
+  const tempDir = automationOverrideTempDir(runPath);
   mkdirSync(tempDir, { recursive: true, mode: 0o700 });
   const path = join(tempDir, `kata-automation-config-${randomUUID()}.overrides.json`);
   writeFileSync(path, JSON.stringify(override, null, 2), {
@@ -200,8 +204,7 @@ async function runAutomation(
       env: { [AUTOMATION_OVERRIDE_FILE_ENV]: overridePath },
       postProcess: (childExitCode) => {
         if (!config.allure.enabled) return childExitCode;
-        const resultsDir = config.allure.resultsDir;
-        const reportDir = config.allure.reportDir;
+        const { resultsDir, reportDir } = resolveAllureDirectories(config, allocation.path);
         const resultCount = existsSync(resultsDir)
           ? readdirSync(resultsDir).filter((name) => name.endsWith("-result.json")).length
           : 0;

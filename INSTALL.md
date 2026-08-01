@@ -81,7 +81,7 @@ kata infra inspect <host> --check connectivity --project <project>
 kata runs exec <feature-id> --project dataAssets -- kata env run ci63 -- bunx playwright test <spec>
 ```
 
-`kata runs exec` 会创建 `workspace/<project>/features/<feature>/runs/<run-id>/`，并注入 `KATA_RUN_PATH`。Playwright 的公共配置来自 `config/automation/playwright.yaml`；Allure 默认生成在仓库根目录，并由正式 `kata automation run` 同步一份到该 run 目录。没有显式 run 路径时 Playwright 直接失败；仓库内不使用 `.runs/`。
+`kata runs exec` 会创建 `workspace/<project>/features/<feature>/runs/<run-id>/`，并注入 `KATA_RUN_PATH`。Playwright 的公共配置来自 `config/automation/playwright.yaml`；Allure 原始结果和 HTML 报告直接生成在该 run 目录下。没有显式 run 路径时 Playwright 直接失败；仓库内不使用 `.runs/`。
 
 子命令默认不会继承根进程中的全部变量。确实需要额外变量时显式加入：
 

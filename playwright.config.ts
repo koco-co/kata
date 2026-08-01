@@ -8,6 +8,7 @@ import {
   loadPlaywrightAutomationConfig,
   PLAYWRIGHT_AUTOMATION_REPO_ROOT,
   prepareAllureDirectories,
+  resolveAllureDirectories,
 } from "./runtime/automation/config/playwright";
 import {
   cookieHeaderToPlaywrightState,
@@ -47,6 +48,10 @@ const storageState: PlaywrightTestOptions["storageState"] = profile
   : undefined;
 if (!discoveryOnly) resolvePlaywrightRunPath();
 if (!discoveryOnly && automationConfig.allure.enabled) prepareAllureDirectories(automationConfig);
+const allureDirectories =
+  !discoveryOnly && automationConfig.allure.enabled
+    ? resolveAllureDirectories(automationConfig)
+    : undefined;
 const allureReportReporter = resolve(
   PLAYWRIGHT_AUTOMATION_REPO_ROOT,
   "cli/lib/allure-report-reporter.ts",
@@ -78,15 +83,15 @@ export default defineConfig({
             "allure-playwright",
             {
               detail: true,
-              resultsDir: automationConfig.allure.resultsDir,
+              resultsDir: allureDirectories?.resultsDir,
               suiteTitle: true,
             },
           ],
           [
             allureReportReporter,
             {
-              resultsDir: automationConfig.allure.resultsDir,
-              reportDir: automationConfig.allure.reportDir,
+              resultsDir: allureDirectories?.resultsDir,
+              reportDir: allureDirectories?.reportDir,
               repoRoot: process.cwd(),
             },
           ],

@@ -111,10 +111,20 @@ function requiredStepCapture(value: unknown, key: string): "all" | "failed" | "o
   return result;
 }
 
-function resolveDirectory(value: string, key: string): string {
-  const resolved = path.isAbsolute(value) ? path.resolve(value) : path.resolve(REPO_ROOT, value);
-  if (resolved === path.parse(resolved).root) throw new Error(`${key} 不允许指向文件系统根目录`);
-  return resolved;
+const ALLURE_DIRECTORY_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+function requiredAllureDirectoryName(value: string, key: string): string {
+  if (
+    !ALLURE_DIRECTORY_NAME_RE.test(value) ||
+    value === "." ||
+    value === ".." ||
+    value.includes("..") ||
+    value.includes("/") ||
+    value.includes("\\")
+  ) {
+    throw new Error(`${key} 必须是当前 run 下的单级目录名`);
+  }
+  return value;
 }
 
 const PLAYWRIGHT_KEYS = [
@@ -199,11 +209,11 @@ function parseCompleteValues(
     cleanup: requiredBoolean(value.cleanup, `${source}.cleanup`),
     allure: {
       enabled: requiredBoolean(allure.enabled, `${source}.allure.enabled`),
-      resultsDir: resolveDirectory(
+      resultsDir: requiredAllureDirectoryName(
         requiredString(allure.results_dir, `${source}.allure.results_dir`),
         `${source}.allure.results_dir`,
       ),
-      reportDir: resolveDirectory(
+      reportDir: requiredAllureDirectoryName(
         requiredString(allure.report_dir, `${source}.allure.report_dir`),
         `${source}.allure.report_dir`,
       ),
@@ -263,9 +273,15 @@ function validatePartialValues(value: Record<string, unknown>, source: string): 
     exactKeys(allure, ALLURE_KEYS, `${source}.allure`);
     if (allure.enabled !== undefined) requiredBoolean(allure.enabled, `${source}.allure.enabled`);
     if (allure.results_dir !== undefined)
-      requiredString(allure.results_dir, `${source}.allure.results_dir`);
+      requiredAllureDirectoryName(
+        requiredString(allure.results_dir, `${source}.allure.results_dir`),
+        `${source}.allure.results_dir`,
+      );
     if (allure.report_dir !== undefined)
-      requiredString(allure.report_dir, `${source}.allure.report_dir`);
+      requiredAllureDirectoryName(
+        requiredString(allure.report_dir, `${source}.allure.report_dir`),
+        `${source}.allure.report_dir`,
+      );
   }
 }
 
@@ -460,9 +476,49 @@ function processIsAlive(pid: number): boolean {
   }
 }
 
-export function prepareAllureDirectories(config: PlaywrightAutomationConfig): () => void {
-  const { resultsDir, reportDir } = config.allure;
+function assertRunDirectory(runPath: string): string {
+  const resolved = path.resolve(runPath);
+  if (resolved === path.parse(resolved).root) {
+    throw new Error("KATA_RUN_PATH 不允许指向文件系统根目录");
+  }
+  let stat: fs.Stats;
+  try {
+    stat = fs.lstatSync(resolved);
+  } catch {
+    throw new Error(`KATA_RUN_PATH 不存在: ${resolved}`);
+  }
+  if (stat.isSymbolicLink()) throw new Error("KATA_RUN_PATH 不得是符号链接");
+  if (!stat.isDirectory()) throw new Error("KATA_RUN_PATH 必须是目录");
+  return resolved;
+}
+
+function assertAllureChild(runPath: string, childPath: string): void {
+  const relative = path.relative(runPath, childPath);
+  if (!relative || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new Error("Allure 目录必须位于当前 run 内");
+  }
+  if (!fs.existsSync(childPath)) return;
+  const stat = fs.lstatSync(childPath);
+  if (stat.isSymbolicLink()) throw new Error("Allure 目录不得是符号链接");
+  if (!stat.isDirectory()) throw new Error("Allure 目录必须是目录");
+}
+
+export function resolveAllureDirectories(
+  config: PlaywrightAutomationConfig,
+  runPath = process.env.KATA_RUN_PATH,
+): { resultsDir: string; reportDir: string } {
+  if (!runPath) throw new Error("KATA_RUN_PATH 是 Allure 目录的唯一运行根目录");
+  const resolvedRunPath = assertRunDirectory(runPath);
+  const resultsDir = path.join(resolvedRunPath, config.allure.resultsDir);
+  const reportDir = path.join(resolvedRunPath, config.allure.reportDir);
   if (resultsDir === reportDir) throw new Error("Allure results_dir 和 report_dir 不能相同");
+  assertAllureChild(resolvedRunPath, resultsDir);
+  assertAllureChild(resolvedRunPath, reportDir);
+  return { resultsDir, reportDir };
+}
+
+export function prepareAllureDirectories(config: PlaywrightAutomationConfig): () => void {
+  const { resultsDir, reportDir } = resolveAllureDirectories(config);
   try {
     execFileSync(allureCommand(), ["--version"], { stdio: "ignore" });
   } catch {

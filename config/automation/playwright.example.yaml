@@ -42,7 +42,7 @@ playwright:
   allure:
     # 是否生成 Allure 原始结果和 HTML 报告。
     enabled: true
-    # Allure 原始结果目录，相对路径按仓库根目录解析。
+    # Allure 原始结果目录名，相对当前分配的 run 目录解析。
     results_dir: allure-results
-    # Allure HTML 报告目录，相对路径按仓库根目录解析。
+    # Allure HTML 报告目录名，相对当前分配的 run 目录解析。
     report_dir: allure-report

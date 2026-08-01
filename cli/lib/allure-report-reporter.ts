@@ -33,14 +33,5 @@ export default class AllureReportReporter implements Reporter {
         stdio: "inherit",
       },
     );
-    const runPath = process.env.KATA_RUN_PATH;
-    if (runPath) {
-      const runResults = path.join(runPath, "allure-results");
-      const runReport = path.join(runPath, "allure-report");
-      fs.rmSync(runResults, { recursive: true, force: true });
-      fs.rmSync(runReport, { recursive: true, force: true });
-      fs.cpSync(this.options.resultsDir, runResults, { recursive: true });
-      fs.cpSync(this.options.reportDir, runReport, { recursive: true });
-    }
   }
 }
