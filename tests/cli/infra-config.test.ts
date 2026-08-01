@@ -115,6 +115,20 @@ describe("infrastructure configuration", () => {
     }
   });
 
+  it("rejects a symlinked private config directory before reading", () => {
+    const root = makeRoot();
+    const outside = mkdtempSync(join(tmpdir(), "kata-infra-read-outside-"));
+    const infra = join(root, "config", "infra");
+    rmSync(infra, { recursive: true, force: true });
+    symlinkSync(outside, infra);
+    try {
+      expect(() => readInfraConfig(root)).toThrow(/符号链接/);
+    } finally {
+      rmSync(infra, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
   it("records an explicitly trusted host fingerprint", async () => {
     const root = makeRoot();
     writePrivate(root, "hosts", {

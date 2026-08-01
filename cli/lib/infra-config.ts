@@ -164,6 +164,7 @@ function parseCredentials(value: unknown, path: string): Record<string, Credenti
 }
 
 export function readInfraConfig(root: string = defaultRepoRoot()): InfraConfig {
+  assertNoSymlinkPath(resolve(root), infraDir(root), "infra directory");
   const hostsPath = infraConfigPath("hosts", root);
   const dataSourcesPath = infraConfigPath("data_sources", root);
   const credentialsPath = infraConfigPath("credentials", root);
@@ -222,6 +223,7 @@ export function writeCredentialProfile(
   }
   requiredString(profile.username, "credential.username");
   requiredString(profile.password, "credential.password");
+  assertNoSymlinkPath(resolve(root), infraDir(root), "infra directory");
   const path = infraConfigPath("credentials", root);
   const current = readYamlObject(path);
   const credentials = isRecord(current.credentials) ? { ...current.credentials } : {};
@@ -241,6 +243,7 @@ export function trustHostKey(
   if (!HOST_KEY_FINGERPRINT_RE.test(normalized)) {
     throw new Error("fingerprint must match SHA256:<43-char base64>");
   }
+  assertNoSymlinkPath(resolve(root), infraDir(root), "infra directory");
   const path = infraConfigPath("hosts", root);
   const current = readYamlObject(path);
   const hosts = isRecord(current.hosts) ? { ...current.hosts } : {};
