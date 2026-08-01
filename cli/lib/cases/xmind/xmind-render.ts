@@ -185,7 +185,7 @@ export function normalizeVersion(version: string): string {
   return version.replace(/^v/i, "");
 }
 
-export function buildRootTitle(meta: RootAwareMeta, _legacyProjectDir?: string): string {
+export function buildRootTitle(meta: RootAwareMeta): string {
   return buildRootName(meta.version, meta.project_name);
 }
 
@@ -378,14 +378,13 @@ export function buildTopicTree(
 export async function createXmind(
   data: IntermediateJson,
   outputPath: string,
-  projectDir?: string,
   options: RenderOptions = {},
 ): Promise<void> {
   if (existsSync(outputPath)) {
     throw new Error(`Output file already exists (use --mode append or replace): ${outputPath}`);
   }
 
-  const rootTitle = buildRootTitle(data.meta, projectDir);
+  const rootTitle = buildRootTitle(data.meta);
   const l1Title = buildL1Title(data.meta);
   const { topics: l2Topics, promoted } = buildTopicTree(data.modules, options);
 
@@ -412,13 +411,12 @@ export async function createXmind(
 export async function createXmindReplacing(
   data: IntermediateJson,
   outputPath: string,
-  projectDir?: string,
   options: RenderOptions = {},
 ): Promise<void> {
   const tmp = join(dirname(outputPath), `.${randomBytes(6).toString("hex")}.tmp`);
   rmSync(tmp, { force: true });
   try {
-    await createXmind(data, tmp, projectDir, options);
+    await createXmind(data, tmp, options);
   } catch (err) {
     rmSync(tmp, { force: true });
     throw err;
