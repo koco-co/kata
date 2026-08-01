@@ -24,6 +24,7 @@ import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
 import sharp from "sharp";
 import { writeFileAtomic } from "../../lib/atomic-writer.ts";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../../lib/features-layout.ts";
 import { repoRoot } from "../../lib/paths.ts";
 import { loadLanhuConfig, updatePluginConfig } from "../../lib/plugin-config.ts";
 import { computePrdDigest, type PrdEvidence, type PrdEvidencePage } from "../../lib/prd.ts";
@@ -524,12 +525,17 @@ export async function runPrdExtract(
     throw new LanhuIntegrationError("INVALID_URL", "仅支持蓝湖 PRD/Axure 产品文档 URL");
   }
   const identity = assertCanonicalExtractUrl(parsed);
-  const featureDir = resolve(projectRoot, options.featureDir);
+  const featureDir = assertFeatureNoSymlink(resolve(projectRoot, options.featureDir));
   const evidenceDir = join(featureDir, "prd", "evidence");
   const assetsDir = join(featureDir, "prd", "assets");
   const processDir = join(featureDir, "prd", ".process");
   const evidencePath = join(evidenceDir, "lanhu.json");
   const extractManifestPath = join(processDir, "extract.json");
+  assertNoSymlinkPath(featureDir, evidenceDir, "PRD evidence");
+  assertNoSymlinkPath(featureDir, assetsDir, "PRD assets");
+  assertNoSymlinkPath(featureDir, processDir, "PRD process");
+  assertNoSymlinkPath(featureDir, evidencePath, "PRD evidence");
+  assertNoSymlinkPath(featureDir, extractManifestPath, "PRD extract manifest");
   mkdirSync(evidenceDir, { recursive: true });
   mkdirSync(assetsDir, { recursive: true });
   mkdirSync(processDir, { recursive: true });
@@ -601,7 +607,9 @@ export async function runPrdExtract(
       const ext = extname(source).toLowerCase() || ".png";
       const purpose = index === 0 ? "overview" : `detail-${index + 1}`;
       const name = `${identity.pageId}-${purpose}${ext}`;
-      await compressImage(source, join(assetsDir, name));
+      const target = join(assetsDir, name);
+      assertNoSymlinkPath(featureDir, target, "PRD asset");
+      await compressImage(source, target);
       pageAssets.push(name);
       copiedAssets.push(name);
     }
@@ -625,8 +633,10 @@ export async function runPrdExtract(
     pages: evidencePages,
   };
   const text = `${JSON.stringify(evidence, null, 2)}\n`;
+  assertNoSymlinkPath(featureDir, evidencePath, "PRD evidence");
   writeFileAtomic(evidencePath, text);
   const evidenceDigest = computePrdDigest(text);
+  assertNoSymlinkPath(featureDir, extractManifestPath, "PRD extract manifest");
   writeFileAtomic(
     extractManifestPath,
     `${JSON.stringify(

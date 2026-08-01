@@ -1,6 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { computePrdDigest } from "../../cli/lib/prd.ts";
@@ -88,5 +96,23 @@ cases:
     });
     expect(r.status).not.toBe(0);
     expect(r.stderr).toContain("test_points_digest");
+  });
+
+  it("rejects a symlinked cases directory before rendering", () => {
+    const d = feature();
+    const outside = mkdtempSync(join(tmpdir(), "kata-cb-outside-"));
+    rmSync(join(d, "cases"), { recursive: true, force: true });
+    symlinkSync(outside, join(d, "cases"));
+    try {
+      const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
+        encoding: "utf8",
+      });
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("符号链接");
+      expect(existsSync(join(outside, "exports"))).toBe(false);
+    } finally {
+      rmSync(join(d, "cases"), { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 });

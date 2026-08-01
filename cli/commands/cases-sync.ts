@@ -14,7 +14,7 @@ import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { generateAutomationRunner } from "../lib/automation/automation-contract.ts";
 import { SPEC_FILE_RE } from "../lib/cases/naming.ts";
 import { parseCasesYaml } from "../lib/cases/parse.ts";
-import { assertNoSymlinkPath } from "../lib/features-layout.ts";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../lib/features-layout.ts";
 import { findCasesYaml, resolveFeatureInput } from "./cases-build.ts";
 
 type SyncStatus = "rename" | "unchanged" | "unmapped" | "missing" | "conflict" | "invalid";
@@ -227,11 +227,13 @@ function reportFromPlan(
 }
 
 export function runCasesSync(featureDir: string, apply = false): CasesSyncReport {
+  assertFeatureNoSymlink(featureDir);
   const casesDir = automationDir(featureDir);
   assertNoSymlinkPath(featureDir, casesDir, "automation cases");
   const { yamlPath } = findCasesYaml(featureDir);
   const plan = planSync(featureDir, yamlPath);
   const runners = runnerPaths(featureDir);
+  assertNoSymlinkPath(featureDir, dirname(runners.generated), "automation runners");
   if (!apply) {
     const report = reportFromPlan(false, yamlPath, runners.generated, plan);
     console.log(JSON.stringify(report, null, 2));

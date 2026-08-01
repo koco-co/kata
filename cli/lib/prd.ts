@@ -11,6 +11,7 @@ import {
 import { basename, dirname, join, normalize, relative, resolve } from "node:path";
 import { parse, stringify } from "yaml";
 import { writeFileAtomic } from "./atomic-writer.ts";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "./features-layout.ts";
 
 export const PRD_SECTION_ORDER = [
   "需求身份与来源",
@@ -261,14 +262,18 @@ function renderPrd(evidence: PrdEvidence, session: PrdSession): string {
 }
 
 export function finalizePrd(featureDir: string): { path: string; digest: string } {
+  assertFeatureNoSymlink(featureDir);
   const evidencePath = join(featureDir, "prd", "evidence", "lanhu.json");
   const sessionPath = join(featureDir, "prd", ".process", "session.json");
+  assertNoSymlinkPath(featureDir, evidencePath, "PRD evidence");
+  assertNoSymlinkPath(featureDir, sessionPath, "PRD session");
   const evidenceText = readFileSync(evidencePath, "utf8");
   const evidence = readJson<PrdEvidence>(evidencePath);
   const session = readJson<PrdSession>(sessionPath);
   assertFinalizable(featureDir, evidence, evidenceText, session);
   const output = renderPrd(evidence, session);
   const outputPath = join(featureDir, "prd", "prd.md");
+  assertNoSymlinkPath(featureDir, outputPath, "PRD output");
   writeFileAtomic(outputPath, output);
   return { path: outputPath, digest: computePrdDigest(output) };
 }
@@ -295,9 +300,11 @@ export function lintPrdFeature(featureDir: string): {
   errors: PrdLintItem[];
   warnings: PrdLintItem[];
 } {
+  assertFeatureNoSymlink(featureDir);
   const errors: PrdLintItem[] = [];
   const warnings: PrdLintItem[] = [];
   const prdPath = join(featureDir, "prd", "prd.md");
+  assertNoSymlinkPath(featureDir, prdPath, "PRD");
   if (!existsSync(prdPath)) {
     errors.push({ rule: "prd_missing", message: "缺少 prd/prd.md" });
     return { errors, warnings };
@@ -332,6 +339,7 @@ export function lintPrdFeature(featureDir: string): {
     errors.push({ rule: "stable_ids", message: "PRD 追踪矩阵至少需要 FR 与 AC 稳定 ID" });
   }
   const assetsRoot = resolve(featureDir, "prd", "assets");
+  assertNoSymlinkPath(featureDir, assetsRoot, "PRD assets");
   const referenced = new Set<string>();
   for (const ref of markdownImages(markdown)) {
     if (!ref.startsWith("assets/") || ref.includes("\\") || ref.split("/").includes("..")) {
@@ -375,9 +383,12 @@ export function assertCaseDigestChain(
   testPointsDigest?: string,
   caseSourceRefs: Array<string | undefined> = [],
 ): void {
+  assertFeatureNoSymlink(featureDir);
   const prdPath = join(featureDir, "prd", "prd.md");
+  assertNoSymlinkPath(featureDir, prdPath, "PRD");
   if (!existsSync(prdPath)) return; // Historical feature: grandfathered until canonical PRD exists.
   const testPointsPath = join(featureDir, "cases", "test-points.md");
+  assertNoSymlinkPath(featureDir, testPointsPath, "test points");
   if (!existsSync(testPointsPath)) {
     throw new Error("canonical PRD 已存在，但缺少 cases/test-points.md");
   }
@@ -416,6 +427,7 @@ export interface LegacyPrdMigration {
 
 /** Move retired feature-root requirement artifacts into the canonical evidence/cases layout. */
 export function migrateLegacyPrdLayout(featureDir: string, apply: boolean): LegacyPrdMigration {
+  assertFeatureNoSymlink(featureDir);
   const evidenceDir = join(featureDir, "prd", "evidence");
   const casesDir = join(featureDir, "cases");
   const candidates: Array<{ from: string; to: string; staleTestPoints?: boolean }> = [
@@ -440,6 +452,10 @@ export function migrateLegacyPrdLayout(featureDir: string, apply: boolean): Lega
   const moves = candidates
     .filter((item) => existsSync(item.from))
     .map(({ from, to }) => ({ from, to }));
+  for (const item of candidates) {
+    assertNoSymlinkPath(featureDir, item.from, "legacy PRD");
+    assertNoSymlinkPath(featureDir, item.to, "PRD migration target");
+  }
   if (!apply) return { moves };
   for (const item of candidates) {
     if (!existsSync(item.from)) continue;

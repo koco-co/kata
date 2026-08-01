@@ -21,6 +21,7 @@ import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
 import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
 import {
+  assertFeatureNoSymlink,
   assertNoSymlinkPath,
   featureIdentity,
   projectRootFromFeatureDir,
@@ -75,11 +76,15 @@ function renderContextForFeature(featureDir: string): {
 /** Locate the single canonical yaml under <featureDir>/cases. */
 export function findCasesYaml(featureDir: string): { yamlPath: string; name: string } {
   const casesDir = join(featureDir, "cases");
+  assertFeatureNoSymlink(featureDir);
+  assertNoSymlinkPath(featureDir, casesDir, "cases");
   if (!existsSync(casesDir)) throw new Error(`cases 目录不存在: ${casesDir}`);
   const yamls = readdirSync(casesDir).filter((f) => f.endsWith(".yaml"));
   if (yamls.length === 0) throw new Error(`cases/ 下没有 yaml 用例源: ${casesDir}`);
   if (yamls.length > 1) throw new Error(`cases/ 下 yaml 不唯一: ${yamls.join(", ")}`);
-  return { yamlPath: join(casesDir, yamls[0]), name: yamls[0].replace(/\.yaml$/, "") };
+  const yamlPath = join(casesDir, yamls[0]);
+  assertNoSymlinkPath(featureDir, yamlPath, "cases YAML");
+  return { yamlPath, name: yamls[0].replace(/\.yaml$/, "") };
 }
 
 interface DerivedArtifact {
@@ -191,6 +196,7 @@ function commitArtifacts(artifacts: DerivedArtifact[], featureDir: string): Case
 
 /** Build all declared derived artifacts for one feature directory. */
 export async function runCasesBuild(featureDir: string): Promise<CasesBuildReport> {
+  assertFeatureNoSymlink(featureDir);
   const { yamlPath, name } = findCasesYaml(featureDir);
   const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
   assertCaseDigestChain(

@@ -208,6 +208,12 @@ export function projectRootFromFeatureDir(featureDir: string): string {
   throw new Error(`kata: feature 路径不在 features/ 项目目录下: ${featureDir}`);
 }
 
+/** Reject a feature directory that is itself a symlink. */
+export function assertFeatureNoSymlink(featureDir: string): string {
+  const resolved = resolve(featureDir);
+  return assertNoSymlinkPath(dirname(resolved), resolved, "feature");
+}
+
 /** Returns the cases sub-directory path for a given feature directory. */
 export function casesDir(featureDir: string): string {
   return join(featureDir, AREA_CASES);

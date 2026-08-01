@@ -21,11 +21,14 @@ import { importCases, splitXmindCases } from "../lib/cases/importers.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { serializeCasesYaml } from "../lib/cases/serialize.ts";
 import {
+  assertFeatureNoSymlink,
+  assertNoSymlinkPath,
   casesDir,
   featureIdentity,
   projectRootFromFeatureDir,
   resolveFeatureEntry,
 } from "../lib/features-layout.ts";
+import { assertWritable } from "../lib/path-policy.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 import { resolveFeatureInput } from "./cases-build.ts";
 
@@ -57,6 +60,7 @@ export async function runCasesImport(
   featureDir: string,
   opts: Omit<CasesImportOptions, "feature" | "project">,
 ): Promise<CasesImportReport> {
+  assertFeatureNoSymlink(featureDir);
   const sourcePath = resolve(opts.from);
   if (!existsSync(sourcePath)) throw new Error(`导入文件不存在: ${sourcePath}`);
   const sourceName = basename(sourcePath);
@@ -64,12 +68,15 @@ export async function runCasesImport(
   if (!name || name.includes("/") || name.includes("\\"))
     throw new Error(`非法用例集名称: ${name}`);
   const dir = casesDir(featureDir);
+  assertNoSymlinkPath(featureDir, dir, "cases");
   const yamlPath = join(dir, `${name}.yaml`);
   if (existsSync(yamlPath)) {
     throw new Error(`目标 YAML 已存在，import 不覆盖: ${yamlPath}`);
   }
   const importsDir = join(dir, "imports");
   const archivedPath = join(importsDir, sourceName);
+  assertNoSymlinkPath(featureDir, archivedPath, "cases import");
+  assertNoSymlinkPath(featureDir, yamlPath, "cases YAML");
   const preview = await importCases({
     featureDir,
     sourcePath,
@@ -168,6 +175,7 @@ export async function runCasesSplitImport(opts: {
   const sourcePath = resolve(opts.from);
   if (!existsSync(sourcePath)) throw new Error(`导入文件不存在: ${sourcePath}`);
   const paths = locateProject(opts.project, opts.root);
+  assertWritable(paths, paths.featuresDir);
   const preview = await splitXmindCases({
     sourcePath,
     project: opts.project,
@@ -189,6 +197,7 @@ export async function runCasesSplitImport(opts: {
   for (const entry of preview.entries) {
     if (entry.skipped) continue;
     const target = join(paths.featuresDir, entry.target_feature);
+    assertWritable(paths, target);
     if (seenTargets.has(target)) {
       conflicts.push({ source_l1: entry.source_l1, target, reason: "输入内目标 feature 重复" });
     }
@@ -235,6 +244,7 @@ export async function runCasesSplitImport(opts: {
   }
 
   const transaction = join(paths.featuresDir, `.kata-import-${randomBytes(8).toString("hex")}`);
+  assertWritable(paths, transaction);
   const installed: Array<{ final: string; staged: string }> = [];
   const createdVersionDirs: string[] = [];
   try {
