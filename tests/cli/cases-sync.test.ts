@@ -56,7 +56,7 @@ describe("kata cases sync", () => {
     ).toBe(true);
   });
 
-  it("resolves a duplicate destination by keeping the fuller implementation", () => {
+  it("blocks a duplicate destination when implementations differ", () => {
     const feature = mkdtempSync(join(tmpdir(), "kata-sync-conflict-test-"));
     mkdirSync(join(feature, "cases"), { recursive: true });
     mkdirSync(join(feature, "automation", "tests", "cases"), { recursive: true });
@@ -72,11 +72,32 @@ describe("kata cases sync", () => {
       "import { expect } from '@playwright/test';\nexpect(true).toBe(true);\n",
     );
 
+    expect(() => runCasesSync(feature, true)).toThrow(/内容不一致/);
+    expect(readFileSync(join(feature, "automation", "tests", "cases", target), "utf8")).toContain(
+      "export {}",
+    );
+    expect(existsSync(join(feature, "automation", "tests", "cases", legacy))).toBe(true);
+  });
+
+  it("deduplicates duplicate destinations only when implementations are byte-identical", () => {
+    const feature = mkdtempSync(join(tmpdir(), "kata-sync-identical-test-"));
+    mkdirSync(join(feature, "cases"), { recursive: true });
+    mkdirSync(join(feature, "automation", "tests", "cases"), { recursive: true });
+    const target = "c0001-rule-set.spec.ts";
+    const legacy = "c0001-legacy-rule.ts";
+    writeFileSync(
+      join(feature, "cases", "需求.yaml"),
+      `meta: { title: 需求, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      spec_file: ${target}\n    title: 验证规则集\n    priority: P1\n    steps:\n      - { action: 操作, expected: 预期 }\n`,
+    );
+    const content = "export const implemented = true;\n";
+    writeFileSync(join(feature, "automation", "tests", "cases", target), content);
+    writeFileSync(join(feature, "automation", "tests", "cases", legacy), content);
+
     const report = runCasesSync(feature, true);
     expect(report.renames[0]?.status).toBe("conflict");
-    expect(report.renames[0]?.reason).toContain("内容更完整");
-    expect(readFileSync(join(feature, "automation", "tests", "cases", target), "utf8")).toContain(
-      "expect(true)",
+    expect(report.renames[0]?.reason).toContain("内容完全一致");
+    expect(readFileSync(join(feature, "automation", "tests", "cases", target), "utf8")).toBe(
+      content,
     );
     expect(existsSync(join(feature, "automation", "tests", "cases", legacy))).toBe(false);
   });

@@ -55,15 +55,6 @@ function casePrefix(caseId: string): string {
   return `c${caseId.slice(1).toLowerCase()}-`;
 }
 
-function scriptScore(content: string): number {
-  return (
-    content.length +
-    (content.match(/expect\s*\(/g) ?? []).length * 500 +
-    (content.match(/assert|toBe|toHave|page\.|locator\(/g) ?? []).length * 200 +
-    (content.match(/test\s*\(|register[A-Z]/g) ?? []).length * 50
-  );
-}
-
 interface ScriptCandidate {
   relativePath: string;
   absolutePath: string;
@@ -90,7 +81,7 @@ function scriptFiles(casesDir: string): ScriptCandidate[] {
 }
 
 function conflictChoice(candidates: ScriptCandidate[]): {
-  chosen: ScriptCandidate;
+  chosen?: ScriptCandidate;
   reason: string;
 } {
   const contents = candidates.map((candidate) => ({
@@ -107,13 +98,8 @@ function conflictChoice(candidates: ScriptCandidate[]): {
       reason: "候选文件内容完全一致，保留规范 .spec.ts 文件",
     };
   }
-  const ranked = [...contents].sort(
-    (left, right) => scriptScore(right.content) - scriptScore(left.content),
-  );
-  const chosen = ranked[0];
   return {
-    chosen: chosen.candidate,
-    reason: `候选实现按断言、业务步骤和实现内容评分，保留内容更完整的文件（score=${scriptScore(chosen.content)}）`,
+    reason: "候选实现内容不一致，无法安全自动选择；请先人工确认唯一权威脚本",
   };
 }
 
@@ -179,6 +165,18 @@ function planSync(featureDir: string, yamlPath: string): SyncRename[] {
     }
     const choice = conflictChoice(available);
     const isConflict = available.length > 1;
+    if (!choice.chosen) {
+      return {
+        caseId: item.id,
+        oldName: "",
+        newName,
+        oldPath: "",
+        newPath: "",
+        status: "conflict",
+        candidates: available.map((candidate) => candidate.relativePath),
+        reason: choice.reason,
+      };
+    }
     const destination =
       targetCandidates[0]?.absolutePath ?? join(dirname(choice.chosen.absolutePath), newName);
     return {
@@ -238,6 +236,14 @@ export function runCasesSync(featureDir: string, apply = false): CasesSyncReport
   if (invalid.length > 0) {
     throw new Error(
       `自动化文件名同步存在非法映射:\n${invalid.map((item) => `  - ${item.caseId}: ${item.newName} (${item.reason})`).join("\n")}`,
+    );
+  }
+  const unresolved = plan.filter((item) => item.status === "conflict" && !item.chosenName);
+  if (unresolved.length > 0) {
+    throw new Error(
+      `自动化文件名同步存在未决冲突，未写入任何文件:\n${unresolved
+        .map((item) => `  - ${item.caseId}: ${item.candidates.join(", ")} (${item.reason})`)
+        .join("\n")}`,
     );
   }
   const actions = plan.filter(
