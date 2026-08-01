@@ -3,6 +3,7 @@ import { outputJson } from "../lib/cli.ts";
 import { listFeatureDirs, resolveFeatureEntry } from "../lib/features-layout.ts";
 import { finalizePrd, lintPrdFeature, migrateLegacyPrdLayout } from "../lib/prd.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
+import { resolveFeatureInput } from "./cases-build.ts";
 
 /** Canonical PRD evidence, confirmation and validation commands. */
 export function registerPrd(program: Command): void {
@@ -38,14 +39,21 @@ export function registerPrd(program: Command): void {
     .option("--force", "忽略相同版本缓存并重新提取")
     .action(async (opts: { url: string; feature: string; force?: boolean }) => {
       const { runPrdExtract } = await import("../integrations/lanhu/fetch.ts");
-      outputJson(await runPrdExtract(opts.url, { featureDir: opts.feature, force: opts.force }));
+      outputJson(
+        await runPrdExtract(opts.url, {
+          featureDir: resolveFeatureInput(opts.feature),
+          force: opts.force,
+        }),
+      );
     });
 
   prd
     .command("finalize")
     .description("校验已确认会话并确定性生成 prd/prd.md")
     .requiredOption("--feature <dir>", "目标 feature 目录")
-    .action((opts: { feature: string }) => outputJson(finalizePrd(opts.feature)));
+    .action((opts: { feature: string }) =>
+      outputJson(finalizePrd(resolveFeatureInput(opts.feature))),
+    );
 
   prd
     .command("lint")
@@ -53,7 +61,7 @@ export function registerPrd(program: Command): void {
     .requiredOption("--feature <dir>", "目标 feature 目录")
     .option("--exit-code", "存在错误时退出码为 1")
     .action((opts: { feature: string; exitCode?: boolean }) => {
-      const report = lintPrdFeature(opts.feature);
+      const report = lintPrdFeature(resolveFeatureInput(opts.feature));
       for (const item of report.errors) console.log(`error [${item.rule}] ${item.message}`);
       for (const item of report.warnings) console.log(`warning [${item.rule}] ${item.message}`);
       console.log(
