@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { runRunsPath, runRunsVerify } from "../../cli/commands/runs.ts";
+import { runRunsPath, runRunsPrune, runRunsVerify } from "../../cli/commands/runs.ts";
 import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
@@ -90,6 +90,28 @@ describe("runs execution contract", () => {
     createRun(feature, "zzzzz-forged-latest");
     const latest = runRunsPath({ root, project: "dataAssets", featurePath: FEATURE_PATH });
     expect(latest.runId).toBe("20260726-1200-run-01");
+  });
+
+  it("prunes only canonical run directories and preserves unrelated evidence", () => {
+    const { root, feature } = createProjectRoot();
+    createRun(feature, "20260726-1200-run-01");
+    createRun(feature, "20260726-1200-run-02");
+    mkdirSync(join(feature, "runs", "notes"), { recursive: true });
+    writeFileSync(join(feature, "runs", "notes", "keep.txt"), "evidence\n");
+
+    const result = runRunsPrune({
+      root,
+      project: "dataAssets",
+      featurePath: FEATURE_PATH,
+      keep: 0,
+      apply: true,
+    });
+
+    expect(result.removed).toEqual([
+      "【模块】需求/20260726-1200-run-01",
+      "【模块】需求/20260726-1200-run-02",
+    ]);
+    expect(existsSync(join(feature, "runs", "notes", "keep.txt"))).toBe(true);
   });
 
   it("requires an allocated canonical run path for Playwright output", () => {

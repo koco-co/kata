@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { Command } from "commander";
 import {
@@ -22,13 +22,22 @@ import { locateProject } from "../lib/workspace-locator.ts";
 
 const findFeatureEntry = resolveFeatureEntry;
 
+function isRealDirectory(path: string): boolean {
+  try {
+    const stat = lstatSync(path);
+    return stat.isDirectory() && !stat.isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
 // ─── new / path ───
 
 /** Latest canonical run id under a feature's runs/ dir; forged or legacy names never match. */
 function latestRunId(root: string, featurePath: string): string {
-  if (!existsSync(root)) throw new Error(`需求功能 ${featurePath} 尚无运行记录`);
+  if (!isRealDirectory(root)) throw new Error(`需求功能 ${featurePath} 尚无运行记录`);
   const runs = readdirSync(root)
-    .filter((n) => n !== RUNS_TMP && RUN_ID_RE.test(n) && statSync(join(root, n)).isDirectory())
+    .filter((n) => n !== RUNS_TMP && RUN_ID_RE.test(n) && isRealDirectory(join(root, n)))
     .sort()
     .reverse();
   if (runs.length === 0) throw new Error(`需求功能 ${featurePath} 尚无运行记录`);
@@ -49,6 +58,9 @@ export function runRunsPath(opts: {
   const root = runsDir(entry.dir);
 
   if (opts.newRun) {
+    if (existsSync(root) && !isRealDirectory(root)) {
+      throw new Error(`需求功能 runs/ 不能是符号链接或非目录: ${root}`);
+    }
     // generateRunId 独占创建 run 目录，直接返回
     const runId = generateRunId({ type: opts.runType ?? "run", runsDir: root, now: opts.now });
     return { runId, path: join(root, runId) };
@@ -68,9 +80,9 @@ export interface FeaturePrunePlan {
 /** Compute the prune plan for one feature: keep latest N + baseline + .published runs. */
 function planPruneForFeature(featureDirAbs: string, keep: number): FeaturePrunePlan {
   const dir = runsDir(featureDirAbs);
-  if (!existsSync(dir)) return { featureDir: featureDirAbs, remove: [], keep: [] };
+  if (!isRealDirectory(dir)) return { featureDir: featureDirAbs, remove: [], keep: [] };
   const all = readdirSync(dir)
-    .filter((n) => n !== RUNS_TMP && statSync(join(dir, n)).isDirectory())
+    .filter((n) => n !== RUNS_TMP && RUN_ID_RE.test(n) && isRealDirectory(join(dir, n)))
     .sort(); // run-id 字典序即时间序
 
   const published = new Set(all.filter((n) => existsSync(join(dir, n, ".published"))));
@@ -120,7 +132,10 @@ export function runRunsPrune(opts: {
       }
       // 清空每个 feature 的 runs/_tmp/*
       const tmpDir = join(root, RUNS_TMP);
-      if (existsSync(tmpDir)) {
+      if (existsSync(tmpDir) && !isRealDirectory(tmpDir)) {
+        throw new Error(`runs/_tmp 不能是符号链接或非目录: ${tmpDir}`);
+      }
+      if (isRealDirectory(tmpDir)) {
         for (const n of readdirSync(tmpDir)) {
           rmSync(join(tmpDir, n), { recursive: true, force: true });
         }
