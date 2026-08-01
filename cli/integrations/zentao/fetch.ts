@@ -71,6 +71,31 @@ export function extractBugIdFromUrl(url: string): number | null {
   return Number.isNaN(id) ? null : id;
 }
 
+/** Remove URL credentials and transient query state before persisting evidence. */
+export function sanitizeEvidenceUrl(value: string, fallback: string): string {
+  try {
+    const url = new URL(value, fallback);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return fallback;
+    url.username = "";
+    url.password = "";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
+  } catch {
+    return fallback;
+  }
+}
+
+function canonicalBugPageUrl(baseUrl: string, bugId: number): string {
+  const base = new URL(baseUrl);
+  base.pathname = `${base.pathname.replace(/\/+$/, "")}/zentao/bug-view-${bugId}.html`;
+  base.username = "";
+  base.password = "";
+  base.search = "";
+  base.hash = "";
+  return base.toString();
+}
+
 // ─── 内嵌附件证据 ────────────────────────────────────────────────────────────
 const MARKDOWN_IMAGE_PATTERN = /!\[[^\]]*\]\(([^)]+)\)/g;
 const ZENTAO_FILE_PATH_PATTERN = /^\/zentao\/file-read-\d+\.[a-z0-9]+$/i;
@@ -120,7 +145,10 @@ export async function downloadMarkdownAttachments(
 
     const outputPath = resolve(outputDir, basename(url.pathname));
     writeFileSync(outputPath, Buffer.from(await response.arrayBuffer()));
-    attachments.push({ source_url: url.toString(), output_path: outputPath });
+    attachments.push({
+      source_url: sanitizeEvidenceUrl(url.toString(), base.toString()),
+      output_path: outputPath,
+    });
   }
 
   return attachments;
@@ -251,9 +279,10 @@ export async function runFetch(options: {
   }
 
   // 装配输出：保留 legacy 顶层字段 + 富结构
+  const canonicalUrl = canonicalBugPageUrl(creds.baseUrl, rich.bug_id ?? bugId);
   const output: ZentaoFetchOutput = {
     bug_id: rich.bug_id ?? bugId,
-    url: options.url ?? `${creds.baseUrl}/zentao/bug-view-${bugId}.html`,
+    url: options.url ? sanitizeEvidenceUrl(options.url, canonicalUrl) : canonicalUrl,
     title: rich.title,
     severity: rich.fields.severity,
     priority: rich.fields.priority,

@@ -17,6 +17,7 @@ import {
   downloadMarkdownAttachments,
   extractBugIdFromUrl,
   extractMarkdownAttachmentUrls,
+  sanitizeEvidenceUrl,
 } from "../../../cli/integrations/zentao/fetch.ts";
 import {
   detectFixBranch,
@@ -106,6 +107,23 @@ describe("extractBugIdFromUrl", () => {
 
   it("handles large bug ID numbers", () => {
     assert.equal(extractBugIdFromUrl("/zentao/bug-view-9999999.html"), 9_999_999);
+  });
+});
+
+describe("sanitizeEvidenceUrl", () => {
+  it("removes credentials, query parameters, and fragments before persistence", () => {
+    assert.equal(
+      sanitizeEvidenceUrl(
+        "https://user:secret@zentao.example.cn/zentao/bug-view-1.html?token=secret#details",
+        "https://zentao.example.cn/zentao/bug-view-1.html",
+      ),
+      "https://zentao.example.cn/zentao/bug-view-1.html",
+    );
+  });
+
+  it("rejects non-HTTP URLs and falls back to the canonical evidence URL", () => {
+    const fallback = "https://zentao.example.cn/zentao/bug-view-1.html";
+    assert.equal(sanitizeEvidenceUrl("javascript:alert(1)", fallback), fallback);
   });
 });
 
@@ -211,7 +229,9 @@ describe("embedded attachment evidence", () => {
     const output = join(TMP_DIR, "attachments");
     const calls: Array<{ url: string; cookie: string | null }> = [];
     const downloaded = await downloadMarkdownAttachments(
-      ["![](/zentao/file-read-1.png)\n![](/zentao/file-read-1.png)"],
+      [
+        "![](/zentao/file-read-1.png?token=secret#preview)\n![](/zentao/file-read-1.png?token=secret#preview)",
+      ],
       "http://zt.example",
       output,
       "zentaosid=good",
@@ -226,10 +246,11 @@ describe("embedded attachment evidence", () => {
 
     assert.equal(calls.length, 1);
     assert.deepEqual(calls[0], {
-      url: "http://zt.example/zentao/file-read-1.png",
+      url: "http://zt.example/zentao/file-read-1.png?token=secret#preview",
       cookie: "zentaosid=good",
     });
     assert.equal(downloaded.length, 1);
+    assert.equal(downloaded[0].source_url, "http://zt.example/zentao/file-read-1.png");
     assert.deepEqual(readFileSync(join(output, "file-read-1.png")), Buffer.from([1, 2, 3]));
   });
 
