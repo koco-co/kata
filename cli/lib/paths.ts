@@ -49,11 +49,6 @@ export function infraReportPath(project: string, yyyymm: string, slug: string): 
   return join(locateProject(project).analysesDir, "infra-report", yyyymm, `${slug}.md`);
 }
 
-/** Internal defect evidence directory; formal reports use analyses/<type>-report/<yyyymm>/<slug>.md. */
-export function defectDir(project: string, yyyymm: string, slug: string): string {
-  return join(locateProject(project).analysesDir, "bug-report", yyyymm, `${slug}.data`);
-}
-
 export function defectReportPath(
   project: string,
   type: "bug" | "conflict" | "scan",
