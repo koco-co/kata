@@ -210,6 +210,8 @@ describe("skill contract", () => {
     expect(infraPlaybook).toContain("主机使用 `server-default`");
     expect(infraPlaybook).toContain("数据源使用 `data-source-default`");
     expect(infraPlaybook).not.toContain("每个 host 或 data source 必须显式绑定");
+    expect(infraPlaybook).not.toMatch(/printf\s+['\"]%s/);
+    expect(infraPlaybook).toContain("不要把密码写入脚本、命令行、shell 历史或日志");
 
     const workspaceManagement = readSkillMd("workspace-management");
     expect(workspaceManagement).toContain("再次运行 `kata project scan");
@@ -235,6 +237,13 @@ describe("skill contract", () => {
     const example = readFileSync(join(skillDir("ui-automation"), "examples/handoff.md"), "utf8");
     expect(example).toContain("full.spec.ts 全量通过：未达成");
     expect(example).not.toContain("全量通过：达成（2 通过 / 1 排除）");
+
+    const api = readFileSync(
+      join(skillDir("ui-automation"), "references/playwright-api.md"),
+      "utf8",
+    );
+    expect(api).toContain("const consoleErrors = [];");
+    expect(api).not.toContain("addCookies(cookies)");
   });
 
   it("test-case few-shot 不伪造自动化映射且用例可独立准备", () => {

@@ -26,11 +26,7 @@ kata config doctor --scope infra --exit-code
 kata infra credentials set <name> --username <username>
 ```
 
-测试或自动化场景可从 stdin 录入：
-
-```bash
-printf '%s\n' '<password>' | kata infra credentials set <name> --username <username> --stdin
-```
+自动化场景由受控的密钥管理器将值传入 stdin；不要把密码写入脚本、命令行、shell 历史或日志。
 
 CLI 只返回 Profile 名和文件路径。认证失败时保留当前绑定，不轮询其他 Profile。
 

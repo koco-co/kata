@@ -6,13 +6,13 @@
 
 ```javascript
 const context = await browser.newContext();
-// cookie 从 kata env run 注入的运行时配置解析，不直接读 YAML、不打印
-await context.addCookies(cookies);
+// 认证由 kata env run 注入；不在脚本中读取、拼接或打印 Cookie。
 const page = await context.newPage();
 await page.goto(targetUrl);
 
 // API 证据：被动监听，不拦截
 const apiCalls = [];
+const consoleErrors = [];
 page.on("response", (res) => {
   if (/\/dassets\//.test(res.url())) apiCalls.push({ url: res.url(), status: res.status() });
 });
