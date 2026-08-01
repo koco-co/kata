@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../features-layout.ts";
 
 export interface ScaffoldResult {
   created: string[];
@@ -21,11 +22,14 @@ export function scaffoldAutomation(
   featureDir: string,
   opts: { force?: boolean } = {},
 ): ScaffoldResult {
+  assertFeatureNoSymlink(featureDir);
   const result: ScaffoldResult = { created: [], skipped: [], overwritten: [] };
   const testsDir = join(featureDir, "automation", "tests");
+  assertNoSymlinkPath(featureDir, testsDir, "automation tests");
 
   for (const sub of SUBDIRS) {
     const dir = join(testsDir, sub);
+    assertNoSymlinkPath(featureDir, dir, "automation scaffold");
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
       result.created.push(dir);
@@ -33,6 +37,7 @@ export function scaffoldAutomation(
   }
 
   const smoke = join(testsDir, "runners", "smoke.spec.ts");
+  assertNoSymlinkPath(featureDir, smoke, "automation smoke runner");
   if (!existsSync(smoke)) {
     writeFileSync(smoke, SMOKE_SPEC);
     result.created.push(smoke);
@@ -44,6 +49,7 @@ export function scaffoldAutomation(
   }
 
   const full = join(testsDir, "runners", "full.spec.ts");
+  assertNoSymlinkPath(featureDir, full, "automation full runner");
   if (!existsSync(full)) {
     writeFileSync(full, FULL_SPEC);
     result.created.push(full);

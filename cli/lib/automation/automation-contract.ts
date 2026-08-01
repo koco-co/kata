@@ -1,8 +1,8 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseCasesYaml, validateCases } from "../cases/parse.ts";
-import { assertNoSymlinkPath } from "../features-layout.ts";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../features-layout.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
 import { findMissingRelativeImports } from "./relative-imports.ts";
 
@@ -32,9 +32,13 @@ export interface AutomationCoverage {
 
 function findYaml(featureDir: string): string {
   const dir = join(featureDir, "cases");
+  assertFeatureNoSymlink(featureDir);
+  assertNoSymlinkPath(featureDir, dir, "cases");
   const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".yaml")) : [];
   if (files.length !== 1) throw new Error(`cases/ 下 yaml 必须唯一，当前为 ${files.length}`);
-  return join(dir, files[0]);
+  const yamlPath = join(dir, files[0]);
+  assertNoSymlinkPath(featureDir, yamlPath, "cases YAML");
+  return yamlPath;
 }
 
 function scriptFiles(dir: string): string[] {
@@ -44,7 +48,9 @@ function scriptFiles(dir: string): string[] {
     for (const name of readdirSync(current)) {
       const path = join(current, name);
       if (name === ".gitkeep") continue;
-      if (statSync(path).isDirectory()) walk(path);
+      const stat = lstatSync(path);
+      if (stat.isSymbolicLink()) throw new Error(`automation cases 不得经过符号链接: ${path}`);
+      if (stat.isDirectory()) walk(path);
       else if (name.endsWith(".ts")) out.push(relative(dir, path).split("\\").join("/"));
     }
   };
@@ -267,9 +273,11 @@ export function generateAutomationRunner(
     "",
   ].join("\n");
   if (opts.apply) {
+    assertNoSymlinkPath(featureDir, runner, "automation runner");
     writeFileAtomic(runner, content);
     const full = join(featureDir, "automation", "tests", "runners", "full.spec.ts");
     if (existsSync(full)) {
+      assertNoSymlinkPath(featureDir, full, "automation full runner");
       const normalizedFull = fullText.replace(/import ["']\.\/generated\.spec["'];?\n?/g, "");
       if (!normalizedFull.includes("./generated")) {
         writeFileAtomic(full, `import "./generated";\n${normalizedFull}`);

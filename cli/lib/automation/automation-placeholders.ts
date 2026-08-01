@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../features-layout.ts";
 import { generateAutomationRunner, inspectAutomationCoverage } from "./automation-contract.ts";
 
 export interface PlaceholderMigrationReport {
@@ -39,8 +40,11 @@ export function migrateGeneratedPlaceholders(
   featureDir: string,
   options: { readonly apply?: boolean } = {},
 ): PlaceholderMigrationReport {
+  assertFeatureNoSymlink(featureDir);
   const coverage = inspectAutomationCoverage(featureDir);
   const casesDir = join(featureDir, "automation", "tests", "cases");
+  assertNoSymlinkPath(featureDir, casesDir, "automation cases");
+  assertNoSymlinkPath(featureDir, coverage.yamlPath, "cases YAML");
   const placeholderScripts = coverage.cases
     .filter((item) => item.specFile && isGeneratedPlaceholder(join(casesDir, item.specFile)))
     .map((item) => item.specFile as string);
@@ -48,7 +52,11 @@ export function migrateGeneratedPlaceholders(
   for (const specFile of placeholderScripts) yaml = removeMapping(yaml, specFile);
 
   if (options.apply) {
-    for (const specFile of placeholderScripts) unlinkSync(join(casesDir, specFile));
+    for (const specFile of placeholderScripts) {
+      const scriptPath = join(casesDir, specFile);
+      assertNoSymlinkPath(featureDir, scriptPath, "automation placeholder");
+      unlinkSync(scriptPath);
+    }
     if (placeholderScripts.length > 0) writeFileAtomic(coverage.yamlPath, yaml);
     const runner = generateAutomationRunner(featureDir, { apply: true });
     return {

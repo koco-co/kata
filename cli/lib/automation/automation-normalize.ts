@@ -1,5 +1,6 @@
 import { existsSync, lstatSync, mkdirSync, readdirSync, renameSync, rmdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../features-layout.ts";
 
 const TESTS_ALLOWED = new Set([
   "cases",
@@ -105,11 +106,15 @@ export function normalizeAutomation(
   featureDir: string,
   opts: { dryRun?: boolean; apply?: boolean; now?: Date } = {},
 ): NormalizeReport {
+  assertFeatureNoSymlink(featureDir);
   const shouldMove = opts.apply === true && opts.dryRun !== true;
   const backup = backupDir(featureDir, opts.now ?? new Date());
+  assertNoSymlinkPath(featureDir, backup, "automation backup");
   const report: NormalizeReport = { moved: [], unfixable: [], violations: 0, backupDir: backup };
   const automationDir = join(featureDir, "automation");
   const runnersDir = join(automationDir, "tests", "runners");
+  assertNoSymlinkPath(featureDir, automationDir, "automation");
+  assertNoSymlinkPath(featureDir, runnersDir, "automation runners");
 
   if (existsSync(automationDir)) {
     for (const name of listTopEntries(automationDir)) {

@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCasesYaml } from "../cases/parse.ts";
+import { assertNoSymlinkPath } from "../features-layout.ts";
 import { inspectAutomationCoverage } from "./automation-contract.ts";
 
 export interface GeneratedAutomationScripts {
@@ -12,9 +13,12 @@ export interface GeneratedAutomationScripts {
 
 function caseYaml(featureDir: string): string {
   const dir = join(featureDir, "cases");
+  assertNoSymlinkPath(featureDir, dir, "cases");
   const files = existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith(".yaml")) : [];
   if (files.length !== 1) throw new Error(`cases/ 下 yaml 必须唯一，当前为 ${files.length}`);
-  return join(dir, files[0]);
+  const yamlPath = join(dir, files[0]);
+  assertNoSymlinkPath(featureDir, yamlPath, "cases YAML");
+  return yamlPath;
 }
 
 export function generateAutomationScripts(

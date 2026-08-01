@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -27,5 +27,16 @@ describe("scaffoldAutomation", () => {
     expect(existsSync(join(testsDir, "runners", "full.spec.ts"))).toBe(true);
     expect(result.created).not.toContain(casesReadme);
     expect(existsSync(casesReadme)).toBe(false);
+  });
+
+  test("refuses to scaffold through a symlinked automation directory", () => {
+    const outside = mkdtempSync(join(tmpdir(), "kata-automation-scaffold-outside-"));
+    symlinkSync(outside, join(featureDir, "automation"));
+    try {
+      expect(() => scaffoldAutomation(featureDir)).toThrow(/符号链接/);
+    } finally {
+      rmSync(join(featureDir, "automation"), { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 });
