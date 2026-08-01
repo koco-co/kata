@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { parse } from "yaml";
+import { assertNoSymlinkPath } from "./features-layout.ts";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
 /** A source repo entry from config/repos/sources.yaml. */
@@ -203,13 +204,16 @@ export function mainWorktreeRoot(root: string = locateProjectRoot()): string {
 export function loadSourceRepos(root: string = locateProjectRoot()): SourceRepo[] {
   const localConfigPath = join(root, "config", "repos", "sources.yaml");
   let configPath = localConfigPath;
+  let configAnchor = root;
   if (!existsSync(configPath)) {
     try {
-      configPath = join(mainWorktreeRoot(root), "config", "repos", "sources.yaml");
+      configAnchor = mainWorktreeRoot(root);
+      configPath = join(configAnchor, "config", "repos", "sources.yaml");
     } catch {
       configPath = localConfigPath;
     }
   }
+  assertNoSymlinkPath(configAnchor, configPath, "源码仓库配置");
   if (!existsSync(configPath)) {
     throw new Error(`未找到源码仓库配置 ${configPath}`);
   }

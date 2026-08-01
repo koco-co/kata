@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -71,6 +71,22 @@ describe("loadSourceRepos", () => {
   it("throws on malformed entries", () => {
     const root = setup("repos:\n  - name: a/b\n    project: p\n");
     expect(() => loadSourceRepos(root)).toThrow("repos[0].path");
+  });
+
+  it("rejects a symlinked private source catalog before reading", () => {
+    const root = setup();
+    const outside = mkdtempSync(join(tmpdir(), "kata-git-source-outside-"));
+    const config = join(root, "config", "repos", "sources.yaml");
+    rmSync(config, { force: true });
+    const outsideConfig = join(outside, "sources.yaml");
+    writeFileSync(outsideConfig, YAML);
+    symlinkSync(outsideConfig, config);
+    try {
+      expect(() => loadSourceRepos(root)).toThrow(/符号链接/);
+    } finally {
+      rmSync(config, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 });
 
