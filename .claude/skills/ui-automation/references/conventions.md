@@ -6,7 +6,7 @@
 - `automation/tests/runners/{generated,full,smoke,retry-failed}.spec.ts`：只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例。
 - `automation/tests/{pages,flows,assertions,fixtures,sql}/`：分别放页面对象、业务流程、业务断言、前置数据/fixture 与运行时 SQL；单 feature 能力不得放入 `_shared`。
 - `automation/scripts/` 禁止使用。探测、取数、排序、结果重查、清理、同步等一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`；可重复执行的业务实现必须归入 `automation/tests/{flows,assertions,fixtures,pages,sql}`。
-- 跨 feature 复用至少两次的低层能力才提升到 `workspace/<project>/_shared/{pages,helpers,fixtures,runtime}/`，禁止复制和为单 feature 提前抽象。
+- 跨 feature 复用至少两次的低层能力才提升到 `workspace/<project>/_shared/automation/{pages,flows,fixtures,preconditions,runtime,assertions}/`，禁止复制和为单 feature 提前抽象。
 - `automation/tests/cases/` 只允许真实业务实现；缺实现的用例必须保持 `unmapped`，不能生成自然语言占位脚本。
 
 ## 配置来源
@@ -41,10 +41,3 @@
 
 - 失败截图与 trace 存入 run 目录；关键业务结果的截图附进 Allure。
 - console 错误与失败请求的监听（`page.on("console"/"requestfailed")`）要接入断言或日志。
-
-## 桌面端（Electron）差异
-
-- 每个 spec 独立 `electron.launch()` 并 `close()`，用例之间不共享应用进程与窗口状态（对应 Web 的独立 context 规则）。
-- 窗口即 page；多窗口用 `electronApp.windows()` 枚举，不假设单窗口。
-- 没有 cookie 注入与 base_url：登录走应用自身的 UI 流程，后端指向由应用启动参数或配置决定，在环境确认阶段先问清。
-- 选择器、断言、等待、证据与测试记录前缀规则与 Web 完全一致。

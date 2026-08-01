@@ -276,6 +276,21 @@ describe("skill contract", () => {
       expectCheckableTopLevelSteps(join(skillDir(skill), file));
     }
   });
+
+  it("每个 SKILL.md 使用统一的四阶段执行合同", () => {
+    const requiredStages = ["1. 查明事实", "2. 确认关键决策", "3. 执行", "4. 验证"];
+    for (const skill of skillNames) {
+      const content = readSkillMd(skill);
+      for (const stage of requiredStages) {
+        expect(content, `${skill} 缺少 ${stage}`).toContain(stage);
+      }
+      expect(content, `${skill} 缺少 Outcome`).toContain("# Outcome");
+      expect(content, `${skill} 缺少 Routing`).toContain("## Routing");
+      expect(content, `${skill} 缺少 Delivery`).toContain("## Delivery");
+      expect(content, `${skill} 缺少 Guardrails`).toContain("## Guardrails");
+      expect(content, `${skill} 缺少 References`).toContain("## References");
+    }
+  });
 });
 
 describe("codex plugin", () => {

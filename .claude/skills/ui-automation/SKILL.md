@@ -16,17 +16,23 @@ description: 生成、修复、运行或验证 feature 目录中的 Playwright U
 
 ## Steps
 
-1. 确认 feature 与环境
-   - 没有环境名时先运行 `kata env list`，推荐 `ltqc-local` 并说明依据；用户确认默认后不重复询问。
-   - 完成条件：feature 路径、目标环境和待自动化 YAML 用例清单唯一，Cookie 只确认配置状态而不读取或回显值。
+1. 查明事实
+   - 读取 feature YAML、环境清单（无环境名时先运行 `kata env list`，推荐 `ltqc-local` 并说明依据）、[workflows/prepare.md](workflows/prepare.md)、[workflows/implement.md](workflows/implement.md) 和 [workflows/deliver.md](workflows/deliver.md)。
+   - 不向用户询问可以从 `kata env list`、CLI、源码或当前 run 自行查明的事实；Cookie 只确认配置状态，不读取或回显值。
+   - 完成条件：feature 路径、目标 Web 环境和待自动化 YAML 用例清单唯一，已有脚本与共享依赖已盘点。
 
-2. 顺序执行工作流
-   - 完整执行 [workflows/prepare.md](workflows/prepare.md)、[workflows/implement.md](workflows/implement.md) 和 [workflows/deliver.md](workflows/deliver.md)。
-   - 完成条件：前一阶段的完成条件全部满足后才进入下一阶段；失败项有明确分类和证据。
+2. 确认关键决策
+   - 只询问环境选择、业务写入、Electron 探索或缺失业务证据等会改变结果且无法从环境确定的决策。
+   - Web 交付依次执行 prepare、implement、deliver；Electron 未落地时不套用 Web 完成声明。
+   - 完成条件：实现范围、真实业务动作、环境权限和交付证据标准明确。
 
-3. 判断交付状态
-   - 只有 `automation/tests/runners/full.spec.ts` 全量通过、本次 run 有 Allure 结果、且平台产生核心流程业务记录时才算完成。
-   - 完成条件：三项证据均来自同一目标环境和同一 `runs/<run-id>/`；任一缺失即交付未完成状态。
+3. 执行
+   - 按阶段完整执行 prepare、implement、deliver；正式运行只经 `kata runs exec` 或已分配 run，业务动作通过真实页面完成。
+   - 完成条件：目标用例均已处理，脚本、runner、共享依赖和 YAML 映射无遗漏，未使用 skip、mock 或弱占位绕过。
+
+4. 验证
+   - 运行 `kata automation lint`、项目级共享 lint、`automation/tests/runners/full.spec.ts`、Allure 和 `kata runs verify`，核对同一 run 的平台核心业务记录。
+   - 完成条件：full 结果、Allure 结果和业务记录三项证据均来自同一环境与 `runs/<run-id>/`；缺项明确交付未完成。
 
 ## Delivery
 

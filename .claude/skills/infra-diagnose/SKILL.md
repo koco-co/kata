@@ -16,17 +16,23 @@ description: 诊断 Kata 工作区中已登记服务器或数据源的 SSH 连�
 
 ## Steps
 
-1. 检查本机配置
-   - 完整读取 [references/playbook.md](references/playbook.md)，执行其中的配置检查。
-   - 完成条件：目标唯一解析到 `hosts.yaml` 中的主机，所引用的 Credential Profile 存在，配置检查退出码为 0。
+1. 查明事实
+   - 读取 [references/playbook.md](references/playbook.md)、本机 hosts/credential 配置和 `kata infra` 当前检查结果。
+   - 不向用户询问可以从配置、CLI 或主机指纹记录自行查明的事实。
+   - 完成条件：目标唯一解析到 `hosts.yaml`，Credential Profile 存在，受控检查命令和报告路径已确定。
 
-2. 执行 connectivity 检查
-   - 按 playbook 处理凭据和 host key，再通过 `kata infra inspect` 执行唯一受支持的 `connectivity` 检查。
-   - 完成条件：检查命令已结束，并在 `workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md` 写入成功或失败结论；未知或变化的指纹必须保持阻断状态。
+2. 确认关键决策
+   - 只询问是否信任未知或变化的 host fingerprint，以及任何超出 connectivity 的远程写入请求；默认保持阻断。
+   - SQL、服务接口或产品行为异常转交 `defect-analyze`，不在本 Skill 扩大范围。
+   - 完成条件：信任边界、远程动作边界和报告状态明确。
 
-3. 校验交付报告
-   - 使用 `kata infra lint` 校验报告。
-   - 完成条件：lint 退出码为 0，报告不含密码、Cookie、连接串、私密 YAML 正文或完整终端日志。
+3. 执行
+   - 按 playbook 处理凭据和 host key，通过 `kata infra inspect` 执行唯一受支持的 `connectivity` 检查并生成脱敏报告。
+   - 完成条件：检查结束，报告写入 `workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md`，未执行远程变更。
+
+4. 验证
+   - 使用 `kata infra lint` 校验报告，复查密码、Cookie、连接串、私密 YAML 正文和完整终端日志未进入报告。
+   - 完成条件：lint 退出码为 0，并单独标明 SSH connectivity 与业务原始路径的验证状态。
 
 ## Delivery
 

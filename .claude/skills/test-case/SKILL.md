@@ -16,17 +16,23 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 
 ## Steps
 
-1. 选择工作流并定位 feature
-   - 新 feature 由 CLI 解析身份；既有 feature 从用户给定的规范路径定位。
-   - 完成条件：项目和 `<项目>:<版本目录>/<需求目录名>` 唯一，create/update 分支明确。
+1. 查明事实
+   - 读取需求源、用户指定 feature、已有 `prd/prd.md`、`cases/test-points.md`、`cases/需求名.yaml` 以及相关知识和 CLI 状态。
+   - 不向用户询问可以从需求源、路径、CLI 或已有文件自行查明的事实。
+   - 完成条件：项目和 `<项目>:<版本目录>/<需求目录名>` 唯一，create/update 分支和证据缺口明确。
 
-2. 维护权威链
-   - `prd/prd.md` 是确认后的需求权威，`cases/test-points.md` 是覆盖设计，`cases/需求名.yaml` 是用例权威。
-   - 完成条件：每个测试点可追溯到 PRD，每条用例可追溯到测试点；摘要链与当前内容一致。
+2. 确认关键决策
+   - 只询问需求语义、覆盖取舍、最终发布或不可恢复删除等无法从证据确定且会改变结果的决策。
+   - 明确无业务证据的步骤保持待确认，不把历史用例或当前 UI 猜成需求事实。
+   - 完成条件：PRD、测试点、YAML 权威链的变更范围和排除项明确。
 
-3. 构建并验证派生物
-   - 只从 YAML 的 `meta.exports` 中声明的具体文件名生成 `cases/exports/需求名.xmind`、Markdown、CSV 或 XLSX；省略 `exports` 时默认生成与 YAML 同名的 XMind。
-   - 完成条件：`kata prd lint`、`kata cases build` 和 `kata cases lint --exit-code` 均成功；派生物没有手工改动。
+3. 执行
+   - create/update workflow 按确认范围维护 `prd/prd.md`、`cases/test-points.md` 和 `cases/<name>.yaml`；只通过 `kata cases build` 生成 exports。
+   - 完成条件：每个测试点可追溯到 PRD，每条用例可追溯到测试点，未伪造自动化映射或占位脚本。
+
+4. 验证
+   - 运行 `kata prd lint`、`kata cases build` 和 `kata cases lint --exit-code`，并复读 YAML 摘要链及实际 exports。
+   - 完成条件：机械校验成功，派生物无手工改动，并逐项标明已验证、缺业务证据未验证和明确排除项。
 
 ## Delivery
 

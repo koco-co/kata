@@ -17,22 +17,23 @@ description: 创建、检查或修复 `workspace/<project>/` 下的 Kata 项目�
 
 ## Steps
 
-1. 定位目标
-   - 确认项目名唯一对应 `workspace/<project>/`，先运行 `kata project scan --project <项目>`。
-   - 完成条件：扫描命令成功返回项目是否存在、缺失项和类型冲突；操作目标没有落到 `workspace/` 之外。
+1. 查明事实
+   - 读取项目路径、CLI 模板和 `kata project scan --project <项目>` 输出，确认当前骨架、类型冲突和用户文件。
+   - 不向用户询问可以从路径、扫描器或 CLI help 自行查明的事实。
+   - 完成条件：项目唯一位于 `workspace/<project>/`，缺失项、冲突项和写入边界均已列出。
 
-2. 预览变更
-   - 新建或补齐时运行 `kata project create --project <项目> --dry-run`。
-   - 修复时运行 `kata project repair --project <项目>`；该命令默认 dry-run。
-   - 完成条件：预览仅包含缺失的生成项，所有用户文件或类型冲突均已明确列出。
+2. 确认关键决策
+   - 只询问新建项目、应用修复以及不可恢复删除或冲突文件处理等会改变结果且无法从环境确定的决策。
+   - 平台 URL、Cookie 和运行环境转交 `kata env`，不扩大为骨架修改。
+   - 完成条件：create/repair 分支、确认开关和冲突处理方式明确。
 
-3. 执行已确认的写入
-   - create 分支使用 `--confirmed`；repair 分支使用 `--apply`。
-   - 完成条件：命令成功，且没有覆盖、重命名或删除既有用户文件。
+3. 执行
+   - create 使用 `kata project create --project <项目> --dry-run` 后按确认使用 `--confirmed`；repair 使用默认 dry-run 后按确认使用 `--apply`。
+   - 完成条件：只创建缺失骨架项，不覆盖、重命名或删除既有用户文件，写入未越过项目目录。
 
-4. 复核结果
-   - 再次运行 `kata project scan --project <项目>`。
-   - 完成条件：`skeleton_complete` 为 true；若仍有冲突，保持原文件不变并交付精确路径。
+4. 验证
+   - 再次运行 `kata project scan --project <项目>`，并复核差异路径和类型。
+   - 完成条件：`skeleton_complete` 为 true；仍有冲突时保持原文件不变并交付精确路径。
 
 ## Delivery
 

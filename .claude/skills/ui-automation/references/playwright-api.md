@@ -84,23 +84,4 @@ await context.tracing.start({ screenshots: true, snapshots: true });
 await context.tracing.stop({ path: "runs/<run-id>/trace/trace.zip" });
 ```
 
-## Electron 桌面端
-
-同一套 locator / 断言 API，差异只在启动与上下文来源：
-
-```typescript
-import { _electron as electron } from "@playwright/test";
-
-// 启动真实应用包；入口路径来自环境确认，不硬编码、不进 git 跟踪文件
-const electronApp = await electron.launch({ args: ["<app-main>"] });
-const window = await electronApp.firstWindow(); // window 就是 Page，后续操作与 Web 一致
-
-electronApp.windows();                           // 多窗口枚举，不假设单窗口
-await electronApp.evaluate(({ app }) => app.getVersion()); // 主进程信息，仅诊断用
-await window.screenshot({ path: "runs/<run-id>/screenshots/boot.png" });
-
-await electronApp.close(); // 每个 spec 独立 launch 并关闭
-```
-
-- 无 `context.addCookies` 与 base_url 导航：登录态与后端指向由应用自身管理，业务动作仍必须走窗口 UI。
 - tracing、截图、`console` / `requestfailed` 监听在 window（Page）上照常使用。
