@@ -10,4 +10,13 @@ describe("CLI command error boundary", () => {
       .filter((name) => readFileSync(join(commandDir, name), "utf8").includes("process.exit("));
     expect(offenders).toEqual([]);
   });
+
+  it("keeps DTStack dispatch reusable by returning errors to its root entry", () => {
+    const dispatch = readFileSync(
+      resolve(import.meta.dir, "../../cli/integrations/dtstack/src/cli/dispatch.ts"),
+      "utf8",
+    );
+    expect(dispatch).not.toContain("process.exit(");
+    expect(dispatch).toContain("class DtStackCliError");
+  });
 });

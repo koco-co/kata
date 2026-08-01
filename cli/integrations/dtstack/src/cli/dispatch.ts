@@ -12,6 +12,16 @@ import { parseFlags } from "./parse-args";
 
 const DRY_RUN = process.env.DTSTACK_CLI_TEST_DRY === "1";
 
+export class DtStackCliError extends Error {
+  readonly exitCode: number;
+
+  constructor(message: string, exitCode: number) {
+    super(message);
+    this.name = "DtStackCliError";
+    this.exitCode = exitCode;
+  }
+}
+
 function optionalNumber(value: unknown): number | undefined {
   if (value === undefined || value === "") return undefined;
   const numberValue = Number(value);
@@ -209,7 +219,7 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
         });
       }
       process.stdout.write(ok ? "ok\n" : "fail\n");
-      process.exit(ok ? 0 : 1);
+      if (!ok) throw new DtStackCliError("sql ping failed", 1);
       return;
     }
     case "project ensure": {
@@ -249,7 +259,8 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
         syncTimeoutMs: values["sync-timeout"] ? Number(values["sync-timeout"]) * 1000 : undefined,
       });
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-      if (!result.syncComplete && !values["skip-sync"]) process.exit(2);
+      if (!result.syncComplete && !values["skip-sync"])
+        throw new DtStackCliError("precond setup sync did not complete", 2);
       return;
     }
     default:
