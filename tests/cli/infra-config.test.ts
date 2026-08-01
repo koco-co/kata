@@ -1,6 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
-import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -84,6 +92,27 @@ describe("infrastructure configuration", () => {
       credentials: Record<string, unknown>;
     };
     expect(parsed.credentials.shared).toBeDefined();
+  });
+
+  it("rejects a symlinked private config directory before writing", () => {
+    const root = makeRoot();
+    const outside = mkdtempSync(join(tmpdir(), "kata-infra-outside-"));
+    const infra = join(root, "config", "infra");
+    rmSync(infra, { recursive: true, force: true });
+    symlinkSync(outside, infra);
+    try {
+      expect(() =>
+        writeCredentialProfile(
+          "shared",
+          { kind: "password", username: "qa", password: "test-only" },
+          root,
+        ),
+      ).toThrow(/符号链接/);
+      expect(readdirSync(outside)).toEqual([]);
+    } finally {
+      rmSync(infra, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it("records an explicitly trusted host fingerprint", async () => {

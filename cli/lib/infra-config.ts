@@ -12,6 +12,7 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parse, stringify } from "yaml";
+import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
 export type InfraConfigKind = "hosts" | "data_sources" | "credentials";
@@ -191,7 +192,8 @@ export function readInfraConfig(root: string = defaultRepoRoot()): InfraConfig {
   return { hosts, data_sources, credentials };
 }
 
-function writeYamlAtomic(path: string, value: unknown): void {
+function writeYamlAtomic(path: string, value: unknown, root: string): void {
+  assertNoSymlinkPath(resolve(root), path, "infrastructure config");
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
   chmodSync(dirname(path), 0o700);
   const tmp = `${path}.${randomUUID()}.tmp`;
@@ -224,7 +226,7 @@ export function writeCredentialProfile(
   const current = readYamlObject(path);
   const credentials = isRecord(current.credentials) ? { ...current.credentials } : {};
   credentials[name] = { kind: "password", username: profile.username, password: profile.password };
-  writeYamlAtomic(path, { credentials });
+  writeYamlAtomic(path, { credentials }, root);
   return path;
 }
 
@@ -245,7 +247,7 @@ export function trustHostKey(
   const host = hosts[name];
   if (!isRecord(host)) throw new Error(`unknown infrastructure host: ${name}`);
   hosts[name] = { ...host, host_key: normalized };
-  writeYamlAtomic(path, { hosts });
+  writeYamlAtomic(path, { hosts }, root);
   return path;
 }
 
@@ -328,10 +330,12 @@ export function runConfigDoctor(
   const reposDir = join(root, "config", "repos");
   const infra = infraDir(root);
   if (options.fix) {
+    assertNoSymlinkPath(root, infra, "infra directory");
     mkdirSync(infra, { recursive: true, mode: 0o700 });
     chmodSync(infra, 0o700);
     if (scope === "all") {
       for (const dir of [envDir, pluginDir, reposDir]) {
+        assertNoSymlinkPath(root, dir, "private config directory");
         mkdirSync(dir, { recursive: true, mode: 0o700 });
         chmodSync(dir, 0o700);
       }
