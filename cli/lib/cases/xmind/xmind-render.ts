@@ -70,9 +70,10 @@ interface FoldableTopic {
   children?: { attached?: FoldableTopic[] };
 }
 
-/** Keep root expanded and fold every non-root node that has children. */
-export function applyProgressiveFolding(content: unknown): void {
-  if (!Array.isArray(content)) return;
+/** Return a copy with the root expanded and every non-root branch folded. */
+export function applyProgressiveFolding(content: unknown): unknown {
+  if (!Array.isArray(content)) return content;
+  const folded = structuredClone(content);
   const visit = (topic: FoldableTopic, isRoot: boolean): void => {
     const children = topic.children?.attached ?? [];
     if (isRoot) delete topic.branch;
@@ -80,11 +81,12 @@ export function applyProgressiveFolding(content: unknown): void {
     else delete topic.branch;
     for (const child of children) visit(child, false);
   };
-  for (const sheet of content) {
+  for (const sheet of folded) {
     if (!sheet || typeof sheet !== "object") continue;
     const rootTopic = (sheet as { rootTopic?: FoldableTopic }).rootTopic;
     if (rootTopic) visit(rootTopic, true);
   }
+  return folded;
 }
 
 /** Normalize folding, generated UUIDs and ZIP timestamps for repeatable builds. */
@@ -96,8 +98,8 @@ export async function normalizeXmindBuffer(input: Buffer): Promise<Buffer> {
     let content: string | Buffer;
     if (name === "content.json") {
       const parsed = JSON.parse(await entry.async("string"));
-      applyProgressiveFolding(parsed);
-      content = `${JSON.stringify(normalizeContentIds(parsed, "content"))}\n`;
+      const folded = applyProgressiveFolding(parsed);
+      content = `${JSON.stringify(normalizeContentIds(folded, "content"))}\n`;
     } else {
       content = await entry.async("nodebuffer");
     }

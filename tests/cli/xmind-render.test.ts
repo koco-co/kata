@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import JSZip from "jszip";
 import {
+  applyProgressiveFolding,
   buildL1Labels,
   buildL1Title,
   buildRootTitle,
@@ -58,6 +59,26 @@ describe("validateInput", () => {
     const bad = data();
     bad.modules[0].pages.push({} as never);
     expect(() => validateInput(bad)).toThrow(/modules\[0\]\.pages\[1\]\.name/);
+  });
+});
+
+describe("applyProgressiveFolding", () => {
+  it("returns folded content without mutating the source tree", () => {
+    const source = [
+      {
+        rootTopic: {
+          title: "root",
+          branch: "folded",
+          children: { attached: [{ title: "child", children: { attached: [{ title: "leaf" }] } }] },
+        },
+      },
+    ];
+    const folded = applyProgressiveFolding(source) as typeof source;
+    expect(source[0]?.rootTopic.branch).toBe("folded");
+    expect(folded[0]?.rootTopic.branch).toBeUndefined();
+    expect(
+      (folded[0]?.rootTopic.children.attached[0] as { branch?: string } | undefined)?.branch,
+    ).toBe("folded");
   });
 });
 
