@@ -285,7 +285,9 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("coverage <feature-dir>")
-    .description("检查 cases YAML 与正式自动化脚本的一一映射、标题追踪、脚本完整性和实现状态")
+    .description(
+      "检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态",
+    )
     .action((featureDir: string) => {
       const coverage = inspectAutomationCoverage(featureDir);
       console.log(JSON.stringify(coverage, null, 2));
@@ -302,7 +304,9 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("generate-cases <feature-dir>")
-    .description("检查缺失的 automation.spec_file；不会生成通用占位脚本")
+    .description(
+      "检查缺失的 Playwright automation.spec_file；API executor 单独报告，不生成通用占位脚本",
+    )
     .option("--apply", "拒绝并明确提示，不生成占位脚本", false)
     .action((featureDir: string, opts: { apply: boolean }) => {
       const result = generateAutomationScripts(featureDir, { apply: opts.apply });
@@ -311,6 +315,7 @@ export function registerAutomation(program: Command): void {
           {
             created: result.created.length,
             skipped: result.skipped.length,
+            api: result.api,
             unmapped: result.unmapped,
             orphanScripts: result.orphanScripts,
             applied: opts.apply,
@@ -324,7 +329,9 @@ export function registerAutomation(program: Command): void {
 
   automation
     .command("generate <feature-dir>")
-    .description("按 automation.spec_file 生成 runner import(默认 dry-run)")
+    .description(
+      "按 Playwright automation.spec_file 生成 runner import；忽略 API executor(默认 dry-run)",
+    )
     .option("--apply", "写入 generated.ts", false)
     .action((featureDir: string, opts: { apply: boolean }) => {
       const result = generateAutomationRunner(featureDir, { apply: opts.apply });

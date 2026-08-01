@@ -16,7 +16,7 @@ import { SPEC_FILE_RE } from "../lib/cases/naming.ts";
 import { parseCasesYaml } from "../lib/cases/parse.ts";
 import { findCasesYaml, resolveFeatureInput } from "./cases-build.ts";
 
-type SyncStatus = "rename" | "unchanged" | "unmapped" | "missing" | "conflict" | "invalid";
+type SyncStatus = "api" | "rename" | "unchanged" | "unmapped" | "missing" | "conflict" | "invalid";
 
 interface SyncRename {
   caseId: string;
@@ -122,6 +122,18 @@ function planSync(featureDir: string, yamlPath: string): SyncRename[] {
   const casesDir = automationDir(featureDir);
   const scripts = scriptFiles(casesDir);
   return file.cases.map((item) => {
+    if (item.automation?.executor === "api") {
+      return {
+        caseId: item.id,
+        oldName: "",
+        newName: "",
+        oldPath: "",
+        newPath: "",
+        status: "api",
+        candidates: [],
+        reason: "API executor 不参与 Playwright 文件名同步",
+      };
+    }
     const newName = item.automation?.spec_file ?? "";
     const newPath = newName ? join(casesDir, newName) : "";
     if (!newName) {
@@ -298,7 +310,9 @@ export function runCasesSync(featureDir: string, apply = false): CasesSyncReport
 export function registerCasesSync(cases: Command): void {
   cases
     .command("sync")
-    .description("按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认 dry-run)")
+    .description(
+      "按 YAML 中已声明的 Playwright spec_file 同步文件名和 generated runner；API executor 单独报告(默认 dry-run)",
+    )
     .requiredOption("--feature <dir>", "feature 目录路径")
     .option("--project <name>", "项目名；feature 传相对 features/ 的完整路径时必填")
     .option("--apply", "按预览计划实际重命名并更新 runner", false)

@@ -64,3 +64,18 @@ cases:
     tags:
       - 数据质量
       - 规则配置
+  # 纯接口用例使用 executor: api；不会生成或映射 Playwright spec.ts。
+  - case_id: C0003
+    title: 验证规则详情接口返回已保存的枚举值个数配置
+    source_ref: TP-003
+    priority: P1
+    precondition: 已保存一条使用「枚举值个数」统计函数的规则 ${RuleA}。
+    automation:
+      executor: api
+    steps:
+      - action: 调用规则详情接口查询 ${RuleA}
+        expected: 响应成功，统计函数字段与已保存配置一致
+    tags:
+      - 数据质量
+      - 规则配置
+      - 接口

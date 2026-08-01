@@ -16,7 +16,7 @@
 
 3. 修改 YAML 并重建
    - 字段、按钮、Tab、枚举逐字匹配 PRD、知识或源码证据；表单项和两个以上编号项在 YAML 中逐行表达。
-   - `automation.spec_file` 只跟随真实脚本；缺脚本时保持 `unmapped`。
+   - `automation.spec_file` 只跟随真实 Playwright 脚本；缺脚本时保持 `unmapped`。纯接口用例写 `automation.executor: api`，不得同时声明 `spec_file`。
    - 批量修改先计算完整变更集，再原子写入 YAML；可独立处理的阻塞条目保持原样并在最终结果中逐条列出。
 
      ```bash

@@ -65,8 +65,8 @@ Commands:
   build [options]   按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements
                     布局按需求生成多个 L1
   import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
-  sync [options]    按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认
-                    dry-run)
+  sync [options]    按 YAML 中已声明的 Playwright spec_file 同步文件名和 generated
+                    runner；API executor 单独报告(默认 dry-run)
   lint [options]    检查 feature 目录、命名、YAML 来源与历史导入文件
   help [command]    display help for command
 ```
@@ -245,9 +245,9 @@ Options:
 Commands:
   sql                                           校验和渲染自动化 SQL 模板；不连接数据库
   run [options] <feature-path>                  按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖
-  coverage <feature-dir>                        检查 cases YAML 与正式自动化脚本的一一映射、标题追踪、脚本完整性和实现状态
-  generate-cases [options] <feature-dir>        检查缺失的 automation.spec_file；不会生成通用占位脚本
-  generate [options] <feature-dir>              按 automation.spec_file 生成 runner import(默认 dry-run)
+  coverage <feature-dir>                        检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态
+  generate-cases [options] <feature-dir>        检查缺失的 Playwright automation.spec_file；API executor 单独报告，不生成通用占位脚本
+  generate [options] <feature-dir>              按 Playwright automation.spec_file 生成 runner import；忽略 API executor(默认 dry-run)
   migrate-placeholders [options] <feature-dir>  移除由自然语言通用 runner 生成的占位脚本和映射(默认 dry-run)
   scaffold [options] <feature-dir>              创建自动化骨架(tests/cases、runners、pages、fixtures、sql)；用例映射以 YAML 为准，不生成重复索引
   normalize [options] <feature-dir>             检查自动化目录违规；仅迁移有明确受控目标的旧文件
@@ -412,7 +412,8 @@ Options:
 ```text
 Usage: kata cases sync [options]
 
-按 YAML 中已声明的 spec_file 同步自动化文件名和 generated runner(默认 dry-run)
+按 YAML 中已声明的 Playwright spec_file 同步文件名和 generated runner；API executor 单独报告(默认
+dry-run)
 
 Options:
   --feature <dir>   feature 目录路径
@@ -973,7 +974,7 @@ Options:
 ```text
 Usage: kata automation coverage [options] <feature-dir>
 
-检查 cases YAML 与正式自动化脚本的一一映射、标题追踪、脚本完整性和实现状态
+检查 cases YAML 自动化覆盖；API executor 单独报告，Playwright 校验映射、标题和实现状态
 
 Options:
   -h, --help  display help for command
@@ -984,7 +985,7 @@ Options:
 ```text
 Usage: kata automation generate-cases [options] <feature-dir>
 
-检查缺失的 automation.spec_file；不会生成通用占位脚本
+检查缺失的 Playwright automation.spec_file；API executor 单独报告，不生成通用占位脚本
 
 Options:
   --apply     拒绝并明确提示，不生成占位脚本 (default: false)
@@ -996,7 +997,7 @@ Options:
 ```text
 Usage: kata automation generate [options] <feature-dir>
 
-按 automation.spec_file 生成 runner import(默认 dry-run)
+按 Playwright automation.spec_file 生成 runner import；忽略 API executor(默认 dry-run)
 
 Options:
   --apply     写入 generated.ts (default: false)

@@ -36,6 +36,20 @@ export interface CaseRequirement {
   source: string;
 }
 
+/** Execution backend for a case automation mapping. */
+export type CaseAutomationExecutor = "api" | "playwright";
+
+/**
+ * Automation mapping for one case.
+ *
+ * Legacy mappings that only declare spec_file remain implicit Playwright mappings.
+ * API cases deliberately have no Playwright spec_file.
+ */
+export interface CaseAutomation {
+  executor?: CaseAutomationExecutor;
+  spec_file?: string;
+}
+
 /** One executable test case. */
 export interface CaseItem {
   /** 稳定用例编号,如 C0001 */
@@ -53,8 +67,8 @@ export interface CaseItem {
   tags?: string[];
   /** 证据关联(替代 .process/),如需求条目或截图路径 */
   source_ref?: string;
-  /** Generated Playwright file name relative to the feature automation/tests/cases directory. */
-  automation?: { spec_file: string };
+  /** Automation backend and optional Playwright file mapping. */
+  automation?: CaseAutomation;
 }
 
 /** Root document of cases/需求名.yaml. */
