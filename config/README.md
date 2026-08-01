@@ -21,7 +21,7 @@ an additional Agent instruction layer.
 kata config doctor
 kata config doctor --scope infra
 kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --apply
-kata infra credentials set <credential-name>
+kata infra credentials set <credential-name> --username <username>
 kata infra trust-host <host> --fingerprint <SHA256 fingerprint>
 kata infra inspect <host> --check connectivity --project <project>
 ```
