@@ -144,6 +144,10 @@ export function parseLanhuUrl(rawUrl: string): ParsedLanhuUrl {
     return { pageType: "unknown", params: {} };
   }
 
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return { pageType: "unknown", params: {} };
+  }
+
   // Strict host match: "evil-lanhuapp.com" or "lanhuapp.com.evil.com" must not pass.
   const host = url.hostname;
   if (host !== "lanhuapp.com" && !host.endsWith(".lanhuapp.com")) {

@@ -129,6 +129,13 @@ describe("parseLanhuUrl", () => {
     assert.equal(result.pageType, "unknown");
   });
 
+  it("rejects non-HTTP(S) URLs even when the hostname matches", () => {
+    const result = parseLanhuUrl(
+      "file://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d",
+    );
+    assert.equal(result.pageType, "unknown");
+  });
+
   it("rejects domains that embed lanhuapp.com as a substring", () => {
     const suffixTrick = parseLanhuUrl(
       "https://evil-lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d",
