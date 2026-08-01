@@ -7,7 +7,7 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
@@ -264,6 +264,23 @@ describe("embedded attachment evidence", () => {
         async () => new Response("missing", { status: 404 }),
       ),
       (error: Error & { code?: string }) => error.code === "ATTACHMENT_FETCH_FAILED",
+    );
+  });
+
+  it("rejects a symlinked attachment output directory before downloading", async () => {
+    const outside = join(TMP_DIR, "outside");
+    const output = join(TMP_DIR, "linked-output");
+    mkdirSync(outside, { recursive: true });
+    symlinkSync(outside, output);
+    await assert.rejects(
+      downloadMarkdownAttachments(
+        ["![](/zentao/file-read-1.png)"],
+        "http://zt.example",
+        output,
+        "zentaosid=good",
+        async () => new Response(new Uint8Array([1]), { status: 200 }),
+      ),
+      /符号链接/,
     );
   });
 });

@@ -8,7 +8,8 @@
  *   kata zentao fetch --help
  */
 import { mkdirSync, writeFileSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
+import { assertNoSymlinkPath } from "../../lib/features-layout.ts";
 import { repoRoot } from "../../lib/paths.ts";
 import { loadZentaoConfig, pluginConfigPath } from "../../lib/plugin-config.ts";
 
@@ -100,6 +101,12 @@ function canonicalBugPageUrl(baseUrl: string, bugId: number): string {
 const MARKDOWN_IMAGE_PATTERN = /!\[[^\]]*\]\(([^)]+)\)/g;
 const ZENTAO_FILE_PATH_PATTERN = /^\/zentao\/file-read-\d+\.[a-z0-9]+$/i;
 
+function assertOutputPath(target: string, label: string): string {
+  const resolved = resolve(target);
+  assertNoSymlinkPath(dirname(resolved), resolved, label);
+  return resolved;
+}
+
 export interface DownloadedAttachment {
   source_url: string;
   output_path: string;
@@ -127,7 +134,8 @@ export async function downloadMarkdownAttachments(
 ): Promise<DownloadedAttachment[]> {
   const base = new URL(baseUrl);
   const attachments: DownloadedAttachment[] = [];
-  mkdirSync(outputDir, { recursive: true });
+  const absOutputDir = assertOutputPath(outputDir, "禅道附件输出目录");
+  mkdirSync(absOutputDir, { recursive: true });
 
   for (const reference of extractMarkdownAttachmentUrls(markdownSections)) {
     const url = new URL(reference, base);
@@ -143,7 +151,10 @@ export async function downloadMarkdownAttachments(
       });
     }
 
-    const outputPath = resolve(outputDir, basename(url.pathname));
+    const outputPath = assertOutputPath(
+      resolve(absOutputDir, basename(url.pathname)),
+      "禅道附件输出文件",
+    );
     writeFileSync(outputPath, Buffer.from(await response.arrayBuffer()));
     attachments.push({
       source_url: sanitizeEvidenceUrl(url.toString(), base.toString()),
@@ -212,7 +223,7 @@ export async function runFetch(options: {
   }
 
   // Output dir
-  const absOutput = resolve(options.output);
+  const absOutput = assertOutputPath(options.output, "禅道抓取输出目录");
   mkdirSync(absOutput, { recursive: true });
   const outputPath = `${absOutput}/bug-${bugId}.json`;
 
