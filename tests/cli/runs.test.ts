@@ -11,7 +11,12 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { runRunsPath, runRunsPrune, runRunsVerify } from "../../cli/commands/runs.ts";
+import {
+  parseKeepCount,
+  runRunsPath,
+  runRunsPrune,
+  runRunsVerify,
+} from "../../cli/commands/runs.ts";
 import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
@@ -49,6 +54,14 @@ function writeStatus(runPath: string, status: unknown): void {
 }
 
 describe("runs execution contract", () => {
+  it("accepts only safe non-negative integer prune counts", () => {
+    expect(parseKeepCount("0")).toBe(0);
+    expect(parseKeepCount("05")).toBe(5);
+    expect(() => parseKeepCount("5junk")).toThrow(/非负整数/);
+    expect(() => parseKeepCount("1.5")).toThrow(/非负整数/);
+    expect(() => parseKeepCount("9007199254740992")).toThrow(/非负整数/);
+  });
+
   it("allocates canonical runs/<run-id> paths", () => {
     const { root, feature } = createProjectRoot();
     const now = new Date("2026-07-26T12:00:00Z");

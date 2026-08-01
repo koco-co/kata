@@ -77,6 +77,17 @@ export interface FeaturePrunePlan {
   keep: string[];
 }
 
+export function parseKeepCount(raw: string): number {
+  if (!/^\d+$/.test(raw)) {
+    throw new Error(`--keep 需为非负整数，收到 "${raw}"`);
+  }
+  const keep = Number(raw);
+  if (!Number.isSafeInteger(keep)) {
+    throw new Error(`--keep 需为非负整数，收到 "${raw}"`);
+  }
+  return keep;
+}
+
 /** Compute the prune plan for one feature: keep latest N + baseline + .published runs. */
 function planPruneForFeature(featureDirAbs: string, keep: number): FeaturePrunePlan {
   const dir = runsDir(featureDirAbs);
@@ -531,9 +542,7 @@ export function registerRuns(program: Command): void {
         featurePath: string | undefined,
         opts: { project: string; keep: string; apply: boolean },
       ) => {
-        const keep = Number.parseInt(opts.keep, 10);
-        if (Number.isNaN(keep) || keep < 0)
-          throw new Error(`--keep 需为非负整数，收到 "${opts.keep}"`);
+        const keep = parseKeepCount(opts.keep);
         const { removed, kept } = runRunsPrune({
           project: opts.project,
           featurePath,
