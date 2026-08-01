@@ -23,8 +23,8 @@
    - 完成条件：预检 run 已分配，浏览器证据证明目标页面可达；环境、权限或数据阻塞已解决或明确交付。
 
 4. 校验目录与静态闸门
-   - 使用 `kata automation scaffold <featureDir>` 补齐骨架。已有 automation 时先运行 `kata automation normalize <featureDir>` 预览，确认范围后才加 `--apply`。
-   - 运行 `kata automation lint <featureDir> --exit-code` 和 `kata automation lint --shared --project <project> --exit-code`。
+   - 使用 `kata automation scaffold <feature-dir>` 补齐骨架。已有 automation 时先运行 `kata automation normalize <feature-dir>` 预览，确认范围后才加 `--apply`。
+   - 运行 `kata automation lint <feature-dir> --exit-code` 和 `kata automation lint --shared --project <project> --exit-code`。
    - 完成条件：结构违规为零，预览之外没有文件迁移，现有用户实现未被覆盖。
 
 完成全部条件后进入 [implement.md](implement.md)。

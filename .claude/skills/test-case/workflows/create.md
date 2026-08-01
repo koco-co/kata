@@ -18,7 +18,7 @@
    - Lanhu 使用：
 
      ```bash
-     kata prd extract --url <含 docId/versionId/pageId 的完整链接> --feature <featureDir>
+     kata prd extract --url <含 docId/versionId/pageId 的完整链接> --feature <feature-dir>
      ```
 
    - 只生成 `prd/evidence/lanhu.json` 与 `prd/assets/`。相同 docId/versionId/pageId 且摘要和图片完整时使用缓存；版本变化或显式 `--force` 才重取。
@@ -57,8 +57,8 @@
 6. 定稿并检查 PRD
 
    ```bash
-   kata prd finalize --feature <featureDir>
-   kata prd lint --feature <featureDir> --exit-code
+   kata prd finalize --feature <feature-dir>
+   kata prd lint --feature <feature-dir> --exit-code
    ```
 
    - PRD frontmatter 只允许 `source/source_url/requirement_id/evidence_digest`；正文使用稳定 `FR/BR/ER/AC/PD-001` ID，空章节跳过，图片只引用实际存在的 assets。
@@ -74,7 +74,7 @@
    - 格式见 [../examples/cases.yaml](../examples/cases.yaml)。`meta.test_points_digest` 是完整测试点文件的 SHA-256；`source_ref` 引用测试点 ID；`meta.case_module_id` 必填，未知写 `""`；省略 `meta.exports` 时默认生成 YAML 同名 XMind，显式导出须写具体文件名。
 
      ```bash
-     kata cases build --feature <featureDir>
+     kata cases build --feature <feature-dir>
      kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
      ```
 

@@ -30,7 +30,7 @@
    - 完成条件：每个用例有通过证据或明确失败类别、最后命令和退出码；没有无限重试或被吞掉的错误。
 
 5. 运行实现闸门
-   - 每轮修复后运行 `kata automation lint <featureDir> --exit-code`；修改共享能力时同步运行 shared lint。
+   - 每轮修复后运行 `kata automation lint <feature-dir> --exit-code`；修改共享能力时同步运行 shared lint。
    - 用 [../references/conventions.md](../references/conventions.md) 检查页面对象、流程、断言、fixture 和 SQL 归属。
    - 完成条件：feature 与受影响 shared lint 均为零违规，准备进入 full 运行。
 

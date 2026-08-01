@@ -20,8 +20,8 @@
    - 批量修改先计算完整变更集，再原子写入 YAML；可独立处理的阻塞条目保持原样并在最终结果中逐条列出。
 
      ```bash
-     kata prd lint --feature <featureDir> --exit-code
-     kata cases build --feature <featureDir>
+     kata prd lint --feature <feature-dir> --exit-code
+     kata cases build --feature <feature-dir>
      kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
      ```
 
