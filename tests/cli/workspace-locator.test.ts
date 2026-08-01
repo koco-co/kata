@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -30,6 +30,14 @@ describe("locateProject", () => {
   it("throws for unknown project", () => {
     const root = scaffold();
     expect(() => locateProject("nope", root)).toThrow();
+  });
+
+  it("rejects a project directory that is a symlink", () => {
+    const root = scaffold();
+    const outside = mkdtempSync(join(tmpdir(), "kata-ws-outside-"));
+    rmSync(join(root, "workspace", "dataAssets"), { recursive: true, force: true });
+    symlinkSync(outside, join(root, "workspace", "dataAssets"));
+    expect(() => locateProject("dataAssets", root)).toThrow(/未知项目/);
   });
 
   it("rejects project names that could escape the workspace", () => {

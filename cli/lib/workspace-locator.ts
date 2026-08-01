@@ -1,10 +1,11 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readdirSync } from "node:fs";
 import { join, resolve, sep } from "node:path";
 import type { ProjectPaths } from "./types.ts";
 
 function isDirectory(path: string): boolean {
   try {
-    return statSync(path).isDirectory();
+    const stat = lstatSync(path);
+    return stat.isDirectory() && !stat.isSymbolicLink();
   } catch {
     return false;
   }
