@@ -1,6 +1,14 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { runRunsPath, runRunsPrune, runRunsVerify } from "../../cli/commands/runs.ts";
@@ -117,6 +125,7 @@ describe("runs execution contract", () => {
   it("requires an allocated canonical run path for Playwright output", () => {
     const { root, feature } = createProjectRoot();
     const runPath = join(feature, "runs", "20260726-1200-run-01");
+    mkdirSync(runPath, { recursive: true });
     const env = { KATA_ACTIVE_PROJECT: "dataAssets", KATA_RUN_PATH: runPath };
 
     expect(resolvePlaywrightRunPath(env, root)).toBe(runPath);
@@ -156,6 +165,28 @@ describe("runs execution contract", () => {
 
     expect(resolvePlaywrightRunPath(env, root)).toBe(runPath);
     expect(resolvePlaywrightOutputDir(env, root)).toBe(join(runPath, "test-results"));
+  });
+
+  it("rejects a run path that escapes through a feature symlink", () => {
+    const { root } = createProjectRoot();
+    const featuresRoot = join(root, "workspace", "dataAssets", "features");
+    const outside = mkdtempSync(join(tmpdir(), "kata-run-outside-"));
+    const linkedFeature = join(featuresRoot, "v1.0", "【模块】链接");
+    symlinkSync(outside, linkedFeature);
+    try {
+      expect(() =>
+        resolvePlaywrightRunPath(
+          {
+            KATA_ACTIVE_PROJECT: "dataAssets",
+            KATA_RUN_PATH: join(linkedFeature, "runs", "20260726-1200-run-01"),
+          },
+          root,
+        ),
+      ).toThrow(/symbolic links/);
+    } finally {
+      rmSync(outside, { recursive: true, force: true });
+      rmSync(linkedFeature, { force: true });
+    }
   });
 
   it("passes the run environment and persists a successful status", async () => {
