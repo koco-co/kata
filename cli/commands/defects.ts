@@ -29,7 +29,8 @@ import {
   loadHotfixEvidence,
   renderHotfixMarkdown,
 } from "../lib/hotfix-report.ts";
-import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
+import { assertWritable } from "../lib/path-policy.ts";
+import { locateProject } from "../lib/workspace-locator.ts";
 
 const BUG_VIEW_ID_RE = /bug-view-(\d+)\.html/;
 
@@ -138,7 +139,7 @@ export function registerDefects(program: Command): void {
           throw new Error("必须且只能提供 --bug-id 或 --url");
         }
         if (!/^\d{6}$/.test(opts.yyyymm)) throw new Error("--yyyymm 必须为 YYYYMM");
-        locateProject(opts.project);
+        const projectPaths = locateProject(opts.project);
         const evidence = loadHotfixEvidence(resolve(opts.evidenceFile));
         if (opts.bugId !== undefined && !/^\d+$/.test(opts.bugId)) {
           throw new Error("--bug-id 必须为数字");
@@ -171,11 +172,12 @@ export function registerDefects(program: Command): void {
           if (!fetched.title || !fetched.sections)
             throw new Error("禅道返回内容不完整，未生成报告");
           const reportPath = hotfixReportPath(
-            locateProjectRoot(),
+            projectPaths.root,
             opts.project,
             opts.yyyymm,
             opts.slug,
           );
+          assertWritable(projectPaths, reportPath);
           mkdirSync(dirname(reportPath), { recursive: true });
           writeFileSync(
             reportPath,

@@ -1,6 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
+import { assertWritable } from "./path-policy.ts";
 import { currentYYYYMM, infraReportPath } from "./paths.ts";
+import { locateProject } from "./workspace-locator.ts";
 
 export interface InfraReportViolation {
   line: number;
@@ -92,6 +94,7 @@ export function writeInfraReport(opts: {
   fingerprint?: string;
 }): string {
   const path = infraReportPath(opts.project, currentYYYYMM(), opts.slug);
+  assertWritable(locateProject(opts.project), path);
   mkdirSync(dirname(path), { recursive: true });
   const safeEvidence = opts.evidence.map((line) =>
     line.replace(/(?:password|token|cookie|secret)\b\s*[:=：]?\s*.*/gi, "[redacted]"),

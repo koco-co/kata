@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
 import { resolveSourceRepo } from "../lib/git-source.ts";
+import { assertWritable } from "../lib/path-policy.ts";
 import { assertReportSlug, assertYyyymm, auditReportPath, currentYYYYMM } from "../lib/paths.ts";
 import { computeDiffStats, fetchAndDiff } from "../lib/scan-report-diff.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
@@ -26,6 +27,7 @@ function writeFormalReport(
 ): string {
   assertReportSlug(slug);
   const out = auditReportPath(project, ym, slug);
+  assertWritable(locateProject(project), out);
   if (existsSync(out) && !force) {
     throw new Error(`报告已存在: ${out}（使用 --force 覆盖）`);
   }

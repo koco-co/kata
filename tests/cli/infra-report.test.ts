@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { lintInfraMarkdown, writeInfraReport } from "../../cli/lib/infra-report.ts";
@@ -119,6 +119,31 @@ describe("infra Markdown contract", () => {
       ).toThrow(/不覆盖历史证据/);
     } finally {
       process.chdir(previous);
+    }
+  });
+
+  it("refuses to write through a symlinked report directory", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-infra-symlink-"));
+    mkdirSync(join(root, "workspace", "demo", "analyses"), { recursive: true });
+    writeFileSync(join(root, "package.json"), "{}\n");
+    const outside = mkdtempSync(join(tmpdir(), "kata-infra-symlink-outside-"));
+    symlinkSync(outside, join(root, "workspace", "demo", "analyses", "infra-report"));
+    const previous = process.cwd();
+    process.chdir(root);
+    try {
+      expect(() =>
+        writeInfraReport({
+          project: "demo",
+          slug: "symlink-check",
+          hostName: "app",
+          status: "blocked",
+          evidence: [],
+          conclusion: "blocked",
+        }),
+      ).toThrow(/符号链接/);
+    } finally {
+      process.chdir(previous);
+      rmSync(outside, { recursive: true, force: true });
     }
   });
 
