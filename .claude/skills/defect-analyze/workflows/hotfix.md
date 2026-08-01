@@ -18,6 +18,8 @@
      --yyyymm <yyyymm> --slug <slug> --evidence-file <evidence.json>
    ```
 
+   `--bug-id` 与 `--url`（Bug 页面 URL，从中提取 ID）可二选一；同时省略时命令报错。
+
    生成器使用 [../templates/hotfix-case.md](../templates/hotfix-case.md) 固定 frontmatter 与表格格式。
 
    完成条件：只生成 Markdown hotfix 报告，不生成 YAML、XMind 或 exports。
