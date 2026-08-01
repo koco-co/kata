@@ -27,6 +27,30 @@ function entry(partial: Partial<KnowledgeEntry>): KnowledgeEntry {
 }
 
 describe("knowledge store", () => {
+  it("does not read the retired _shared/knowledge fallback", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-kn-legacy-"));
+    const projectDir = join(root, "workspace", "dataAssets");
+    mkdirSync(join(projectDir, "_shared", "knowledge", "pitfalls"), { recursive: true });
+    writeFileSync(join(root, "package.json"), "{}\n");
+    writeFileSync(
+      join(projectDir, "_shared", "knowledge", "pitfalls", "retired.md"),
+      [
+        "---",
+        "title: 旧知识",
+        "type: pitfall",
+        "tags: []",
+        "status: verified",
+        'source: ""',
+        "updated: 2026-07-25",
+        "---",
+        "",
+        "旧内容",
+      ].join("\n"),
+    );
+    const p = locateProject("dataAssets", root);
+    expect(readEntries(p, { keyword: "旧知识" })).toHaveLength(0);
+  });
+
   it("writes and reads back an entry with status", () => {
     const p = proj();
     writeEntry(p, entry({ title: "Hive2 大小写敏感", tags: ["hive"], body: "Hive2.x ≠ hive2.x" }));

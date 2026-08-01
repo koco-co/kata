@@ -1,12 +1,10 @@
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { ProjectPaths } from "./types.ts";
 import { locateProject } from "./workspace-locator.ts";
 
-/** knowledge dir from located project paths: workspace/<project>/knowledge first, legacy _shared/knowledge fallback. */
+/** Resolve the canonical knowledge directory under workspace/<project>/knowledge. */
 export function knowledgeDirFromPaths(paths: ProjectPaths): string {
-  if (existsSync(paths.knowledgeDir)) return paths.knowledgeDir;
-  return join(paths.sharedDir, "knowledge");
+  return paths.knowledgeDir;
 }
 
 /** Return the knowledge base dir for a project by name. */
