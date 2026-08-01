@@ -11,6 +11,7 @@ import crypto from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { writeJsonAtomic } from "../lib/atomic-writer.ts";
+import { assertNoSymlinkPath } from "../lib/features-layout.ts";
 import { loadNotifyConfig, type NotifyPluginConfig } from "../lib/plugin-config.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
@@ -668,7 +669,10 @@ export interface NotificationLedger {
 }
 
 function stateDir(root: string, project: string): string {
-  return join(locateProject(project, root).projectDir, ".state", "notifications");
+  const projectDir = locateProject(project, root).projectDir;
+  const directory = join(projectDir, ".state", "notifications");
+  assertNoSymlinkPath(projectDir, directory, "通知账本目录");
+  return directory;
 }
 
 function ledgerPath(root: string, project: string, eventId: string): string {
@@ -685,7 +689,11 @@ function readLedger(path: string): NotificationLedger | undefined {
 }
 
 function writeLedger(root: string, ledger: NotificationLedger): void {
-  writeJsonAtomic(ledgerPath(root, String(ledger.data.project), ledger.event_id), ledger);
+  const project = String(ledger.data.project);
+  const path = ledgerPath(root, project, ledger.event_id);
+  const projectDir = locateProject(project, root).projectDir;
+  assertNoSymlinkPath(projectDir, path, "通知账本");
+  writeJsonAtomic(path, ledger);
 }
 
 function configAllows(
