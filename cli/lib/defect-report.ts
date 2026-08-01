@@ -47,6 +47,16 @@ export function lintMarkdownReport(reportPath: string): ReportLintResult {
   const text = readFileSync(reportPath, "utf8");
   if (!/^#\s+\S/m.test(text)) violations.push({ line: 1, message: "缺一级标题" });
   const hs = headings(text);
+  const seenHeadings = new Set<string>();
+  for (const [index, line] of text.split(/\r?\n/).entries()) {
+    const match = line.match(/^##\s+(.+?)\s*$/);
+    if (!match) continue;
+    const heading = match[1].trim();
+    if (seenHeadings.has(heading)) {
+      violations.push({ line: index + 1, message: `二级章节重复: ${heading}` });
+    }
+    seenHeadings.add(heading);
+  }
   for (const required of REQUIRED[kind]) {
     if (!hs.has(required)) violations.push({ line: 1, message: `缺少二级章节: ${required}` });
   }

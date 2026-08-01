@@ -53,6 +53,16 @@ export function lintInfraMarkdown(reportPath: string): InfraReportViolation[] {
   const lines = text.split(/\r?\n/);
   if (!/^#\s+\S/m.test(text)) violations.push({ line: 1, rule: "title", message: "缺一级标题" });
   const hs = headings(text);
+  const seenHeadings = new Set<string>();
+  for (const [index, line] of lines.entries()) {
+    const match = line.match(/^##\s+(.+?)\s*$/);
+    if (!match) continue;
+    const heading = match[1].trim();
+    if (seenHeadings.has(heading)) {
+      violations.push({ line: index + 1, rule: "section", message: `二级章节重复: ${heading}` });
+    }
+    seenHeadings.add(heading);
+  }
   for (const required of REQUIRED_SECTIONS) {
     const line = hs.get(required);
     if (!line) {

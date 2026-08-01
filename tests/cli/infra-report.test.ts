@@ -52,6 +52,16 @@ describe("infra Markdown contract", () => {
     expect(violations.some((v) => v.rule === "placeholder")).toBe(true);
   });
 
+  it("rejects duplicate second-level sections", () => {
+    const path = report(
+      VALID.replace("## 证据\nredacted result", "## 证据\nfirst\n## 证据\nsecond"),
+    );
+    const violations = lintInfraMarkdown(path);
+    expect(violations.some((v) => v.rule === "section" && v.message.includes("二级章节重复"))).toBe(
+      true,
+    );
+  });
+
   it("redacts full key-value secrets in written evidence and stays lint-clean", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-infra-write-"));
     mkdirSync(join(root, "workspace", "demo"), { recursive: true });

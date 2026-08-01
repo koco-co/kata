@@ -154,6 +154,39 @@ describe("formal Markdown defect reports", () => {
     expect(lintMarkdownReport(path).violations.length).toBeGreaterThan(0);
   });
 
+  it("rejects duplicate second-level sections instead of silently keeping the last one", () => {
+    const path = reportPath();
+    writeFileSync(
+      path,
+      [
+        "# 登录失败",
+        "",
+        "## 结论",
+        "登录接口返回错误",
+        "- 严重程度: major",
+        "## 证据",
+        "第一份证据",
+        "## 证据",
+        "第二份证据",
+        "## 实际行为",
+        "页面报错",
+        "## 预期行为",
+        "登录成功",
+        "## 复现步骤",
+        "1. 输入账号",
+        "## 影响范围",
+        "登录用户无法进入系统",
+        "## 根因",
+        "服务异常",
+        "## 建议",
+        "修复服务",
+      ].join("\n"),
+    );
+    expect(
+      lintMarkdownReport(path).violations.some((v) => v.message.includes("二级章节重复")),
+    ).toBe(true);
+  });
+
   it("keeps lint side-effect free and sends only through explicit publish", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-defect-publish-"));
     const path = join(
