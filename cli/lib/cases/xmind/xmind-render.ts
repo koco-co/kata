@@ -114,13 +114,10 @@ export async function normalizeXmindBuffer(input: Buffer): Promise<Buffer> {
 // ─── Priority map ─────────────────────────────────────────────────────────────
 
 export const PRIORITY_MAP: Record<string, MarkerId> = {
-  // P0 为最高优先级，P0~P4 与徽标 priority-1~priority-5 一一对应（P0→priority-1）。
-  // 与 xmind-patch、case-edit/history-convert 的读回映射保持双向一致。
+  // 当前 CasesFile 只允许 P0~P2，与徽标 priority-1~priority-3 一一对应。
   P0: Marker.Priority.p1,
   P1: Marker.Priority.p2,
   P2: Marker.Priority.p3,
-  P3: Marker.Priority.p4,
-  P4: Marker.Priority.p5,
 };
 
 // ─── Title builders ──────────────────────────────────────────────────────────
