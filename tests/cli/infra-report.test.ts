@@ -82,6 +82,36 @@ describe("infra Markdown contract", () => {
     }
   });
 
+  it("refuses to overwrite an existing report", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-infra-overwrite-"));
+    mkdirSync(join(root, "workspace", "demo"), { recursive: true });
+    writeFileSync(join(root, "package.json"), "{}\n");
+    const previous = process.cwd();
+    process.chdir(root);
+    try {
+      writeInfraReport({
+        project: "demo",
+        slug: "same-report",
+        hostName: "app",
+        status: "blocked",
+        evidence: [],
+        conclusion: "blocked",
+      });
+      expect(() =>
+        writeInfraReport({
+          project: "demo",
+          slug: "same-report",
+          hostName: "app",
+          status: "diagnosed",
+          evidence: [],
+          conclusion: "changed",
+        }),
+      ).toThrow(/不覆盖历史证据/);
+    } finally {
+      process.chdir(previous);
+    }
+  });
+
   it("keeps lint violations on stderr and JSON on stdout", () => {
     const path = report("# Infra\n\n## 基本信息\n\n");
     const result = spawnSync(

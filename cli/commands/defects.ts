@@ -184,7 +184,7 @@ export function registerDefects(program: Command): void {
               bug: fetched as unknown as Parameters<typeof renderHotfixMarkdown>[0]["bug"],
               evidence,
             }),
-            { encoding: "utf8", mode: 0o600 },
+            { encoding: "utf8", mode: 0o600, flag: "wx" },
           );
           const violations = lintHotfixMarkdown(reportPath);
           for (const v of violations) {
