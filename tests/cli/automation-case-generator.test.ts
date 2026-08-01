@@ -40,4 +40,19 @@ describe("automation case generator", () => {
     );
     expect(existsSync(generated)).toBe(false);
   });
+
+  it("does not route API executor cases into Playwright generation", () => {
+    const feature = fixture();
+    const yamlPath = join(feature, "cases", "demo.yaml");
+    const yaml = Bun.file(yamlPath).text();
+    return yaml.then((text) => {
+      writeFileSync(
+        yamlPath,
+        `${text}  - case_id: C0003\n    title: 验证门户接口\n    priority: P1\n    steps:\n      - action: 调用接口\n        expected: 返回成功\n    automation:\n      executor: api\n`,
+      );
+      const result = generateAutomationScripts(feature);
+      expect(result.api).toEqual(["C0003"]);
+      expect(result.unmapped).toEqual(["C0002:c0002-missing-case.spec.ts"]);
+    });
+  });
 });

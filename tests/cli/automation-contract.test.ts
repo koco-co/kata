@@ -32,6 +32,29 @@ describe("automation contract", () => {
     expect(() => inspectAutomationCoverage(feature)).toThrow(/不得经过符号链接/);
   });
 
+  it("reports API cases separately without treating them as missing Playwright coverage", () => {
+    const feature = mkdtempSync(join(tmpdir(), "kata-contract-api-"));
+    mkdirSync(join(feature, "cases"), { recursive: true });
+    mkdirSync(join(feature, "automation", "tests", "cases"), { recursive: true });
+    writeFileSync(
+      join(feature, "cases", "demo.yaml"),
+      `meta:\n  title: demo\n  case_module_id: ""\ncases:\n  - case_id: C0001\n    title: 验证门户接口分页\n    priority: P1\n    steps:\n      - action: 调用门户接口\n        expected: 返回正确分页数据\n    automation:\n      executor: api\n  - case_id: C0002\n    title: 验证页面展示\n    priority: P1\n    steps:\n      - action: 打开页面\n        expected: 页面展示正确\n`,
+    );
+
+    const coverage = inspectAutomationCoverage(feature);
+    expect(coverage.api).toEqual(["C0001"]);
+    expect(coverage.unmapped).toEqual(["C0002"]);
+    expect(coverage.missingSpecFile).toEqual(["C0002"]);
+    expect(coverage.cases[0]).toMatchObject({
+      id: "C0001",
+      executor: "api",
+      status: "api",
+    });
+
+    const runner = generateAutomationRunner(feature);
+    expect(runner.imports).toEqual([]);
+  });
+
   it("surfaces implementationIssue for specs disabled via test.skip(true)", () => {
     const feature = fixture();
     writeSpec(

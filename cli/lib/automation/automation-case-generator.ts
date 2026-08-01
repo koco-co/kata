@@ -7,6 +7,7 @@ import { inspectAutomationCoverage } from "./automation-contract.ts";
 export interface GeneratedAutomationScripts {
   created: string[];
   skipped: string[];
+  api: string[];
   unmapped: string[];
   orphanScripts: string[];
 }
@@ -33,11 +34,16 @@ export function generateAutomationScripts(
   const result: GeneratedAutomationScripts = {
     created: [],
     skipped: [],
+    api: [],
     unmapped: [],
     orphanScripts: coverage.orphanScripts,
   };
 
   for (const item of yaml.cases) {
+    if (item.automation?.executor === "api") {
+      result.api.push(item.id);
+      continue;
+    }
     const specFile = item.automation?.spec_file;
     if (!specFile) {
       result.unmapped.push(item.id);

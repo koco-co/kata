@@ -2,7 +2,7 @@
 
 ## 目录与命名
 
-- `automation/tests/cases/c<四位序号>-<slug>.spec.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。
+- `automation/tests/cases/c<四位序号>-<slug>.spec.ts`：每条已自动化用例一个文件；cases YAML 通过 `automation.spec_file` 指向它，文件名由 `kata automation lint` 校验。`automation.executor: api` 的用例不属于 Playwright runner，也不得声明 `spec_file`。
 - `automation/tests/runners/`：`generated.ts`（由 `kata automation coverage` 生成，只做 import 编排）、`full.spec.ts`、`smoke.spec.ts`、`retry-failed.spec.ts` 与并行分片 `full-a.spec.ts` 等为合法 runner；均只做 import 与编排，不写业务逻辑。smoke 收主流程的几条用例，full 收全部用例，分片（`full-*.spec.ts`）只作快速跑批入口，交付以 `full.spec.ts` 为准。
 - `automation/tests/{pages,flows,assertions,fixtures,sql}/`：分别放页面对象、业务流程、业务断言、前置数据/fixture 与运行时 SQL；单 feature 能力不得放入 `_shared`。
 - `automation/scripts/` 禁止使用。探测、取数、排序、结果重查、清理、同步等一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`；可重复执行的业务实现必须归入 `automation/tests/{flows,assertions,fixtures,pages,sql}`。

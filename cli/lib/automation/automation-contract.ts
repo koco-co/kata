@@ -9,17 +9,19 @@ import { findMissingRelativeImports } from "./relative-imports.ts";
 export interface AutomationCaseLink {
   id: string;
   title: string;
+  executor: "api" | "playwright";
   specFile?: string;
   status: AutomationCaseStatus;
   implementationIssue?: string;
   titleMismatch?: string;
 }
 
-export type AutomationCaseStatus = "unmapped" | "mapped-not-implemented" | "implemented";
+export type AutomationCaseStatus = "api" | "unmapped" | "mapped-not-implemented" | "implemented";
 
 export interface AutomationCoverage {
   yamlPath: string;
   cases: AutomationCaseLink[];
+  api: string[];
   unmapped: string[];
   mappedNotImplemented: string[];
   implemented: string[];
@@ -146,13 +148,20 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
   const scripts = scriptFiles(casesDir);
   const byBase = new Map(scripts.map((path) => [basename(path), path]));
   const cases: AutomationCaseLink[] = file.cases.map((item) => {
+    const executor = item.automation?.executor ?? "playwright";
     const specFile = item.automation?.spec_file;
+    if (executor === "api") {
+      return { id: item.id, title: item.title, executor, status: "api" as const };
+    }
     const script = specFile ? byBase.get(specFile) : undefined;
-    if (!specFile) return { id: item.id, title: item.title, specFile, status: "unmapped" as const };
+    if (!specFile) {
+      return { id: item.id, title: item.title, executor, specFile, status: "unmapped" as const };
+    }
     if (!specFileMatchesCaseId(item.id, specFile)) {
       return {
         id: item.id,
         title: item.title,
+        executor,
         specFile,
         status: "mapped-not-implemented" as const,
         implementationIssue: "spec_file case ID prefix does not match YAML case_id",
@@ -162,15 +171,18 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
       return {
         id: item.id,
         title: item.title,
+        executor,
         specFile,
         status: "mapped-not-implemented" as const,
         implementationIssue: "spec_file does not point to an existing script",
       };
     }
     const classification = classifyScript(join(casesDir, script), item.title);
-    return { id: item.id, title: item.title, specFile, ...classification };
+    return { id: item.id, title: item.title, executor, specFile, ...classification };
   });
-  const missingSpecFile = cases.filter((item) => !item.specFile).map((item) => item.id);
+  const missingSpecFile = cases
+    .filter((item) => item.executor === "playwright" && !item.specFile)
+    .map((item) => item.id);
   const missingScript = cases
     .filter((item) => item.specFile && !byBase.has(item.specFile))
     .map((item) => `${item.id}:${item.specFile}`);
@@ -187,6 +199,7 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
   return {
     yamlPath,
     cases,
+    api: cases.filter((item) => item.status === "api").map((item) => item.id),
     unmapped: cases.filter((item) => item.status === "unmapped").map((item) => item.id),
     mappedNotImplemented: cases
       .filter((item) => item.status === "mapped-not-implemented")

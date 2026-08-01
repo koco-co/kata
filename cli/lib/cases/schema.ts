@@ -94,10 +94,22 @@ export function validateCases(file: CasesFile): string[] {
     } else if (file.meta.layout === "requirements") {
       problems.push(`用例 ${c.id} 缺 requirement_id`);
     }
-    if (c.automation && !SPEC_FILE_RE.test(c.automation.spec_file)) {
-      problems.push(
-        `用例 ${c.id} automation.spec_file 必须匹配 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符`,
-      );
+    if (c.automation) {
+      const { executor, spec_file: specFile } = c.automation;
+      if (executor !== undefined && executor !== "api" && executor !== "playwright") {
+        problems.push(`用例 ${c.id} automation.executor 非法: ${executor}`);
+      }
+      if (specFile !== undefined && !SPEC_FILE_RE.test(specFile)) {
+        problems.push(
+          `用例 ${c.id} automation.spec_file 必须匹配 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符`,
+        );
+      }
+      if (executor === "api" && specFile !== undefined) {
+        problems.push(`用例 ${c.id} automation.executor 为 api 时不得声明 spec_file`);
+      }
+      if (executor === undefined && specFile === undefined) {
+        problems.push(`用例 ${c.id} automation 至少声明 executor 或 spec_file`);
+      }
     }
     // action/expected 允许为空字符串(续行/纯验证行是合法 QA 写法)
   }

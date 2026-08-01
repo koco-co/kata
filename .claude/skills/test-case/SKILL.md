@@ -44,7 +44,7 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 
 - 需求事实不足时不猜菜单、字段、枚举、步骤或预期；能从知识、证据和源码查明的事实不再询问用户。
 - create 流程在最终发布确认前不写 `prd/prd.md`；正式产物不包含「待确认」「用户确认补充」或模型工作提示。
-- YAML 是唯一用例源；不手改 `cases/exports/`，也不为缺失自动化伪造 `automation.spec_file`、占位脚本或通过状态。
+- YAML 是唯一用例源；不手改 `cases/exports/`，也不为缺失自动化伪造 `automation.spec_file`、占位脚本或通过状态。纯接口用例写 `automation.executor: api`，不得同时声明 Playwright `spec_file`。
 - 环境与数据使用语义化占位符，不写真实凭据、Cookie 或私密配置。
 
 ## References

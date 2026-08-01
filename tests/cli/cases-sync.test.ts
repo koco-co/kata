@@ -5,6 +5,18 @@ import { join } from "node:path";
 import { runCasesSync } from "../../cli/commands/cases-sync.ts";
 
 describe("kata cases sync", () => {
+  it("reports API executor cases separately from unmapped Playwright cases", () => {
+    const feature = mkdtempSync(join(tmpdir(), "kata-sync-api-test-"));
+    mkdirSync(join(feature, "cases"), { recursive: true });
+    writeFileSync(
+      join(feature, "cases", "需求.yaml"),
+      'meta: { title: 需求, case_module_id: "" }\ncases:\n  - case_id: C0001\n    automation:\n      executor: api\n    title: 验证接口\n    priority: P1\n    steps:\n      - { action: 调用接口, expected: 返回成功 }\n',
+    );
+
+    const report = runCasesSync(feature);
+    expect(report.renames[0]?.status).toBe("api");
+  });
+
   it("renames the unique legacy file to the explicit YAML spec_file", () => {
     const feature = mkdtempSync(join(tmpdir(), "kata-sync-test-"));
     mkdirSync(join(feature, "cases"), { recursive: true });

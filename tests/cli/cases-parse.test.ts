@@ -52,6 +52,58 @@ describe("parseCasesYaml", () => {
     ).toThrow(/spec_file/);
   });
 
+  it("accepts API automation without a Playwright spec file", () => {
+    const api = GOOD.replace(
+      "      spec_file: c0001-single-table-row-count.spec.ts",
+      "      executor: api",
+    );
+    const file = parseCasesYaml(api);
+    expect(file.cases[0].automation).toEqual({ executor: "api" });
+    expect(validateCases(file)).toEqual([]);
+  });
+
+  it("keeps legacy spec_file mappings as implicit Playwright automation", () => {
+    const file = parseCasesYaml(GOOD);
+    expect(file.cases[0].automation).toEqual({
+      spec_file: "c0001-single-table-row-count.spec.ts",
+    });
+    expect(validateCases(file)).toEqual([]);
+  });
+
+  it("accepts an explicit Playwright intent without a spec mapping", () => {
+    const playwright = GOOD.replace(
+      "      spec_file: c0001-single-table-row-count.spec.ts",
+      "      executor: playwright",
+    );
+    const file = parseCasesYaml(playwright);
+    expect(file.cases[0].automation).toEqual({ executor: "playwright" });
+    expect(validateCases(file)).toEqual([]);
+  });
+
+  it("rejects empty mappings, unsupported executors and API mappings with spec_file", () => {
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace("      spec_file: c0001-single-table-row-count.spec.ts", "      {}"),
+      ),
+    ).toThrow(/automation.*至少声明/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "      spec_file: c0001-single-table-row-count.spec.ts",
+          "      executor: selenium",
+        ),
+      ),
+    ).toThrow(/automation\.executor/);
+    expect(() =>
+      parseCasesYaml(
+        GOOD.replace(
+          "      spec_file: c0001-single-table-row-count.spec.ts",
+          "      executor: api\n      spec_file: c0001-single-table-row-count.spec.ts",
+        ),
+      ),
+    ).toThrow(/executor.*api.*spec_file|spec_file.*executor.*api/);
+  });
+
   it("requires declared import and export file names instead of bare formats", () => {
     const named = GOOD.replace(
       '  case_module_id: ""',

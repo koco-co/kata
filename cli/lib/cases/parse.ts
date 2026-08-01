@@ -7,7 +7,14 @@ import { parse } from "yaml";
 import { CASE_EXPORT_FORMATS, parseCaseExportName } from "./formats.ts";
 import { SPEC_FILE_RE } from "./naming.ts";
 import { normalizeStructuredText } from "./normalize.ts";
-import { type CaseItem, type CaseRequirement, type CasesFile, PRIORITIES } from "./types.ts";
+import {
+  type CaseAutomation,
+  type CaseAutomationExecutor,
+  type CaseItem,
+  type CaseRequirement,
+  type CasesFile,
+  PRIORITIES,
+} from "./types.ts";
 
 export { validateCases } from "./schema.ts";
 export type { CaseItem, CaseMeta, CasesFile } from "./types.ts";
@@ -107,13 +114,27 @@ function asCaseItem(v: unknown, index: number): CaseItem {
     if (typeof o.automation !== "object" || o.automation === null) {
       fail(`cases[${index}].automation 不是对象`);
     }
-    const specFile = (o.automation as Record<string, unknown>).spec_file;
-    if (typeof specFile !== "string" || !SPEC_FILE_RE.test(specFile)) {
+    const automation = o.automation as Record<string, unknown>;
+    const executor = automation.executor;
+    const specFile = automation.spec_file;
+    if (executor !== undefined && executor !== "api" && executor !== "playwright") {
+      fail(`cases[${index}].automation.executor 非法: ${String(executor)}(允许 api/playwright)`);
+    }
+    if (specFile !== undefined && (typeof specFile !== "string" || !SPEC_FILE_RE.test(specFile))) {
       fail(
         `cases[${index}].automation.spec_file 必须匹配 c<四位序号>-<英文slug>.spec.ts；slug 只能包含小写字母、数字和连字符`,
       );
     }
-    item.automation = { spec_file: specFile };
+    if (executor === "api" && specFile !== undefined) {
+      fail(`cases[${index}].automation.executor 为 api 时不得声明 spec_file`);
+    }
+    if (executor === undefined && specFile === undefined) {
+      fail(`cases[${index}].automation 至少声明 executor 或 spec_file`);
+    }
+    item.automation = {
+      ...(executor === undefined ? {} : { executor: executor as CaseAutomationExecutor }),
+      ...(specFile === undefined ? {} : { spec_file: specFile as string }),
+    } satisfies CaseAutomation;
   }
   return item;
 }

@@ -78,7 +78,7 @@
      kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
      ```
 
-   - 修复源 YAML 后重建。未实现自动化且没有 `automation.spec_file` 的用例由 coverage 报告为 `unmapped`。
+   - 修复源 YAML 后重建。纯接口用例写 `automation.executor: api` 且不声明 `spec_file`；Playwright 用例只有存在真实脚本时才声明 `spec_file`，否则由 coverage 报告为 `unmapped`。
    - 完成条件：build 与 lint 均成功，YAML 标题、步骤和预期可执行，exports 与当前 YAML 同步。
 
 9. 完成知识闭环
