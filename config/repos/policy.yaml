@@ -64,7 +64,7 @@ artifacts:
     route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/
     filename: lowercase-english-kebab.sql
   automation_run_temporary:
-    route: workspace/<project>/runs/<run-id>/_tmp/
+    route: workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/
     tracked: false
 shared_modules:
   roots:

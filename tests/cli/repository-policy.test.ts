@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
+import { parse } from "yaml";
 import {
   checkRepositoryPolicy,
   trackedAndUntrackedPaths,
@@ -151,9 +152,34 @@ describe("repository policy", () => {
         "workspace/dataAssets/features/v1/a/cases/exports/a.xmind",
         "workspace/dataAssets/features/v1/a/automation/tests/cases/c0001-create-rule.spec.ts",
         "workspace/dataAssets/features/v1/a/automation/tests/sql/base-tables.sql",
-        "workspace/dataAssets/runs/run-1/_tmp/probe.ts",
+        "workspace/dataAssets/features/v1/a/runs/20990101-0000-run-01/_tmp/probe.ts",
       ]),
     ).toEqual([]);
+  });
+
+  it("keeps the temporary run policy aligned with the ignored feature run path", () => {
+    const repoRoot = resolve(import.meta.dir, "../..");
+    const policy = parse(
+      readFileSync(join(repoRoot, "config", "repos", "policy.yaml"), "utf8"),
+    ) as {
+      artifacts: { automation_run_temporary: { route: string; tracked: boolean } };
+    };
+
+    expect(policy.artifacts.automation_run_temporary).toEqual({
+      route: "workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/",
+      tracked: false,
+    });
+    const ignored = spawnSync(
+      "git",
+      [
+        "check-ignore",
+        "--no-index",
+        "--quiet",
+        "workspace/dataAssets/features/v1/a/runs/20990101-0000-run-01/_tmp/probe.ts",
+      ],
+      { cwd: repoRoot },
+    );
+    expect(ignored.status).toBe(0);
   });
 
   it("rejects .gitkeep files once their directory contains real content", () => {
