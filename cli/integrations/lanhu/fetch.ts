@@ -10,7 +10,17 @@
  */
 
 import { type SpawnSyncOptionsWithStringEncoding, spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
 import sharp from "sharp";
 import { writeFileAtomic } from "../../lib/atomic-writer.ts";
@@ -366,25 +376,32 @@ function refreshCookie(projectRoot: string, targetUrl: string): string | null {
   const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
   const config = loadLanhuConfig(projectRoot);
   const args = ["run", "python", refreshScript, "--target-url", targetUrl];
+  const outputDir = mkdtempSync(join(tmpdir(), "kata-lanhu-cookie-"));
+  const outputPath = join(outputDir, "cookie");
 
   try {
-    const newCookie = runCommand("uv", args, {
+    runCommand("uv", args, {
       cwd: mcpDir,
       encoding: "utf8",
       env: {
         ...process.env,
         ...(config.username ? { KATA_LANHU_USERNAME: config.username } : {}),
         ...(config.password ? { KATA_LANHU_PASSWORD: config.password } : {}),
+        KATA_LANHU_COOKIE_OUTPUT: outputPath,
       },
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 120_000,
     });
+    if (!existsSync(outputPath) || lstatSync(outputPath).isSymbolicLink()) return null;
+    const newCookie = readFileSync(outputPath, "utf8");
     const cookie = newCookie.trim();
     if (!cookie) return null;
     updatePluginConfig("lanhu", { cookie }, projectRoot);
     return cookie;
   } catch {
     return null;
+  } finally {
+    rmSync(outputDir, { recursive: true, force: true });
   }
 }
 

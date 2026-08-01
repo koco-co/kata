@@ -3,15 +3,14 @@
 Refresh Lanhu cookie by logging in via Playwright headless browser.
 
 Credential resolution order:
-  1. --username / --password CLI args
-  2. KATA_LANHU_USERNAME / KATA_LANHU_PASSWORD env vars
-  3. Interactive prompt (stdin)
+  1. KATA_LANHU_USERNAME / KATA_LANHU_PASSWORD env vars
+  2. Interactive prompt (stdin)
 
 After login, navigates to --target-url (if provided) to acquire
-project-scoped cookies, then outputs the cookie string to stdout.
+project-scoped cookies, then writes the cookie to KATA_LANHU_COOKIE_OUTPUT.
 
 Usage:
-  uv run python refresh-cookie.py [--target-url URL]
+  KATA_LANHU_COOKIE_OUTPUT=/path/to/private-file uv run python refresh-cookie.py [--target-url URL]
 """
 
 from __future__ import annotations
@@ -31,9 +30,9 @@ def _emit_error(message: str, code: str) -> None:
     sys.exit(1)
 
 
-def _resolve_credentials(args: argparse.Namespace) -> tuple[str, str]:
-    username = args.username or os.getenv("KATA_LANHU_USERNAME", "")
-    password = args.password or os.getenv("KATA_LANHU_PASSWORD", "")
+def _resolve_credentials() -> tuple[str, str]:
+    username = os.getenv("KATA_LANHU_USERNAME", "")
+    password = os.getenv("KATA_LANHU_PASSWORD", "")
 
     if username and password:
         return username, password
@@ -175,8 +174,6 @@ async def _login_and_get_cookie(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Refresh Lanhu cookie via login")
-    parser.add_argument("--username", default=None, help="Lanhu username (email/phone)")
-    parser.add_argument("--password", default=None, help="Lanhu password")
     parser.add_argument(
         "--target-url",
         default=None,
@@ -184,14 +181,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    username, password = _resolve_credentials(args)
+    username, password = _resolve_credentials()
 
-    print(f"正在登录蓝湖 ({username})...", file=sys.stderr)
+    print("正在登录蓝湖...", file=sys.stderr)
 
     cookie = asyncio.run(_login_and_get_cookie(username, password, args.target_url))
 
-    # Output cookie to stdout
-    sys.stdout.write(cookie)
+    output_path = os.getenv("KATA_LANHU_COOKIE_OUTPUT", "").strip()
+    if not output_path:
+        _emit_error("KATA_LANHU_COOKIE_OUTPUT is required.", "NO_COOKIE_OUTPUT")
+    try:
+        fd = os.open(output_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as output:
+            output.write(cookie)
+        os.chmod(output_path, 0o600)
+    except OSError as error:
+        _emit_error(f"Unable to write cookie output: {error}", "COOKIE_OUTPUT_ERROR")
 
 
 if __name__ == "__main__":

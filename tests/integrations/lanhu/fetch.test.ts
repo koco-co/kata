@@ -12,6 +12,10 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const KATA_TS = resolve(__dirname, "../../../cli/bin/kata.ts");
 const LANHU_FETCH_TS = resolve(__dirname, "../../../cli/integrations/lanhu/fetch.ts");
 const LANHU_BRIDGE_PY = resolve(__dirname, "../../../cli/integrations/lanhu/mcp-bridge/bridge.py");
+const LANHU_REFRESH_PY = resolve(
+  __dirname,
+  "../../../cli/integrations/lanhu/mcp-bridge/refresh-cookie.py",
+);
 const LANHU_VENDOR_PY = resolve(
   __dirname,
   "../../../cli/integrations/lanhu/mcp-bridge/lanhu-mcp/lanhu_mcp_server.py",
@@ -57,6 +61,15 @@ describe("Lanhu bridge runtime paths", () => {
     assert.ok(bridge.includes("page_filenames=html_filenames"));
     assert.ok(vendor.includes("_select_document_version"));
     assert.ok(vendor.includes("params.get('version_id')"));
+  });
+
+  it("keeps Lanhu credential and cookie refresh values out of CLI arguments and logs", () => {
+    const refresh = readFileSync(LANHU_REFRESH_PY, "utf8");
+    assert.equal(refresh.includes('parser.add_argument("--password"'), false);
+    assert.equal(refresh.includes('parser.add_argument("--username"'), false);
+    assert.equal(refresh.includes("正在登录蓝湖 ({username})"), false);
+    assert.equal(refresh.includes("sys.stdout.write(cookie)"), false);
+    assert.ok(refresh.includes("KATA_LANHU_COOKIE_OUTPUT"));
   });
 });
 
