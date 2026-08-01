@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, renameSync, rmdirSync, statSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, renameSync, rmdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const TESTS_ALLOWED = new Set([
@@ -28,7 +28,8 @@ export interface NormalizeReport {
 
 function isDir(path: string): boolean {
   try {
-    return statSync(path).isDirectory();
+    const stat = lstatSync(path);
+    return stat.isDirectory() && !stat.isSymbolicLink();
   } catch {
     return false;
   }
@@ -36,6 +37,12 @@ function isDir(path: string): boolean {
 
 function listTopEntries(dir: string): string[] {
   if (!existsSync(dir)) return [];
+  try {
+    const stat = lstatSync(dir);
+    if (!stat.isDirectory() || stat.isSymbolicLink()) return [];
+  } catch {
+    return [];
+  }
   return readdirSync(dir);
 }
 
@@ -150,6 +157,14 @@ export function normalizeAutomation(
       const full = join(testsDir, name);
       if (TESTS_ALLOWED.has(name)) continue;
       if (name === "data" || name === "precond") {
+        if (!isDir(full)) {
+          report.unfixable.push({
+            path: full,
+            reason: `automation/tests/${name} 必须是实体目录，拒绝跟随符号链接或其他路径类型`,
+          });
+          report.violations++;
+          continue;
+        }
         planDirectoryContents(
           report,
           full,

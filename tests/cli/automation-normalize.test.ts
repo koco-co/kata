@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,6 +17,19 @@ function feature(): string {
 }
 
 describe("automation normalize", () => {
+  it("does not follow a symlinked data directory during migration", () => {
+    const root = feature();
+    const outside = mkdtempSync(join(tmpdir(), "kata-auto-normalize-outside-"));
+    writeFileSync(join(outside, "outside.ts"), "export {};");
+    mkdirSync(join(root, "automation", "tests"), { recursive: true });
+    symlinkSync(outside, join(root, "automation", "tests", "data"));
+
+    const report = normalizeAutomation(root, { apply: true });
+    expect(report.unfixable[0]?.reason).toContain("拒绝跟随符号链接");
+    expect(existsSync(join(outside, "outside.ts"))).toBe(true);
+    expect(existsSync(join(root, "automation", "tests", "data"))).toBe(true);
+  });
+
   it("dry-runs and applies data/sql/root runner migration", () => {
     const root = feature();
     mkdirSync(join(root, "automation", "tests", "data"), { recursive: true });
