@@ -53,13 +53,13 @@ kata infra inspect <host> \
   --slug <slug>
 ```
 
-命令依次检查网络、host key 和 SSH 认证，并将唯一报告写入：
+命令通过一次受控 SSH 连接覆盖网络连通、host key 验证和 SSH 认证，并将唯一报告写入：
 
 ```text
 workspace/<project>/analyses/infra-report/<yyyymm>/<slug>.md
 ```
 
-完成条件：命令已结束，报告记录了明确的成功阶段或失败阶段及脱敏错误；SSH 成功只证明 connectivity，不证明业务原始路径。
+完成条件：命令已结束，报告记录了明确的成功阶段或失败阶段及脱敏错误；SSH 成功仅证明 connectivity，不证明业务原始路径。
 
 ## 5. 校验报告
 

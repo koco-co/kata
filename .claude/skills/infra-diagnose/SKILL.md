@@ -9,7 +9,7 @@ description: 诊断 Kata 工作区中已登记服务器或数据源的 SSH 连�
 
 ## Routing
 
-- 服务器或数据源无法连接、SSH 认证失败、host key 异常：执行本 Skill。
+- 服务器连接失败（网络不可达）、SSH 认证失败、host key 异常：执行本 Skill。
 - SQL、服务接口或产品行为异常：转 `defect-analyze`。
 - 用例编写、UI 自动化或知识维护：转对应 Skill。
 - 用户要求执行任意远程命令或改变远程系统：说明超出本 Skill 权限边界并停止。
@@ -37,7 +37,7 @@ description: 诊断 Kata 工作区中已登记服务器或数据源的 SSH 连�
 ## Delivery
 
 - 返回报告路径、检查状态、失败阶段和下一条可执行恢复命令。
-- 明确区分“SSH connectivity 已验证”和“业务原始访问路径尚未验证”。
+- 明确区分“SSH connectivity 已验证”和“业务原始路径尚未验证”。
 - 未完成配置、信任或认证时交付阻塞结论，不把局部成功表述为业务可用。
 
 ## Guardrails
