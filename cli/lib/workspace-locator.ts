@@ -22,7 +22,7 @@ function isRepoRoot(dir: string): boolean {
   return isDirectory(join(dir, "workspace")) && existsSync(join(dir, "package.json"));
 }
 
-function workspaceRoot(root: string): string {
+export function workspaceRoot(root: string): string {
   return process.env.KATA_WORKSPACE_ROOT ?? join(root, "workspace");
 }
 

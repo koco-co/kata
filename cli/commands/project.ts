@@ -10,16 +10,18 @@ import {
   TEMPLATE_ROOT_REL,
   validateProjectName,
 } from "../lib/create-project.ts";
+import { assertNoSymlinkPath } from "../lib/features-layout.ts";
 import { writeIndexFile } from "../lib/knowledge/index-data.ts";
 import { todayIso } from "../lib/knowledge.ts";
-import { repoRoot } from "../lib/workspace-locator.ts";
+import { repoRoot, workspaceRoot } from "../lib/workspace-locator.ts";
 
 function tplRoot(): string {
   return resolve(repoRoot(), TEMPLATE_ROOT_REL);
 }
 
 function projectDir(project: string): string {
-  return join(repoRoot(), "workspace", project);
+  const workspace = workspaceRoot(repoRoot());
+  return assertNoSymlinkPath(workspace, join(workspace, project), "项目工作区");
 }
 
 function ensureProjectName(project: string): void {
