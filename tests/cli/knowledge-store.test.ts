@@ -151,4 +151,21 @@ describe("knowledge store", () => {
       rmSync(outside, { recursive: true, force: true });
     }
   });
+
+  it("rejects reads through a symlinked knowledge subdirectory", () => {
+    const p = proj();
+    const outside = mkdtempSync(join(tmpdir(), "kata-kn-read-outside-"));
+    const target = join(p.knowledgeDir, "pitfalls");
+    writeFileSync(
+      join(outside, "outside.md"),
+      "---\ntitle: 越界读取\ntype: pitfall\nstatus: verified\n---\n\n外部正文\n",
+    );
+    symlinkSync(outside, target);
+    try {
+      expect(() => readEntries(p, { types: ["pitfall"] })).toThrow(/符号链接/);
+    } finally {
+      rmSync(target, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
 });

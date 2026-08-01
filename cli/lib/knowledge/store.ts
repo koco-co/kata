@@ -4,7 +4,7 @@
  * 读取扫描全部子目录，只接受规范四态 status frontmatter。
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseFrontmatter } from "../knowledge.ts";
@@ -102,7 +102,9 @@ export function readEntryByTitle(
 
 export function readOverview(paths: ProjectPaths): string | null {
   const file = join(knowledgeDirFromPaths(paths), "overview.md");
-  return existsSync(file) ? readFileSync(file, "utf8") : null;
+  if (!existsSync(file)) return null;
+  if (lstatSync(file).isSymbolicLink()) throw new Error(`知识库概览不得经过符号链接: ${file}`);
+  return readFileSync(file, "utf8");
 }
 
 interface RawHit {
@@ -141,11 +143,16 @@ function parseEntryFile(type: KnowledgeType, file: string): RawHit | null {
 /** 递归收集 dir 下全部 .md;站点条目带一层 host 子目录(sites/<host>/dom-*.md),不递归会漏。 */
 function listMarkdown(dir: string): string[] {
   if (!existsSync(dir)) return [];
+  const rootStat = lstatSync(dir);
+  if (rootStat.isSymbolicLink()) throw new Error(`知识库目录不得经过符号链接: ${dir}`);
+  if (!rootStat.isDirectory()) return [];
   const out: string[] = [];
   const walk = (d: string): void => {
     for (const name of readdirSync(d)) {
       const p = join(d, name);
-      if (statSync(p).isDirectory()) walk(p);
+      const stat = lstatSync(p);
+      if (stat.isSymbolicLink()) throw new Error(`知识库条目不得经过符号链接: ${p}`);
+      if (stat.isDirectory()) walk(p);
       else if (name.endsWith(".md")) out.push(p);
     }
   };
