@@ -32,8 +32,6 @@ workspace/*/features/**/.process/
 workspace/*/features/**/runs/
 workspace/*/.state/
 workspace/*/features/**/.debug/
-workspace/*/features/**/scheduler_restart.curl
-.playwright-cli/*.yml
 allure-results/
 /allure-report/
 test-results/
