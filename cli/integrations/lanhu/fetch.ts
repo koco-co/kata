@@ -25,9 +25,9 @@ import { extname, join, resolve } from "node:path";
 import sharp from "sharp";
 import { writeFileAtomic } from "../../lib/atomic-writer.ts";
 import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../../lib/features-layout.ts";
-import { repoRoot } from "../../lib/paths.ts";
 import { loadLanhuConfig, updatePluginConfig } from "../../lib/plugin-config.ts";
 import { computePrdDigest, type PrdEvidence, type PrdEvidencePage } from "../../lib/prd.ts";
+import { repoRoot } from "../../lib/workspace-locator.ts";
 
 const LANHU_BRIDGE_RELATIVE_DIR = "cli/integrations/lanhu/mcp-bridge";
 const LANHU_MCP_RELATIVE_DIR = `${LANHU_BRIDGE_RELATIVE_DIR}/lanhu-mcp`;

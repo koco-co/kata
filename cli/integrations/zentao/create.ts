@@ -8,12 +8,12 @@ import { parse as parseYaml } from "yaml";
 import { renderBugReport } from "../../lib/bug-report-render.ts";
 import type { BugReport } from "../../lib/bug-report-types.ts";
 import { parseBugReportMarkdown } from "../../lib/defect-report.ts";
-import { repoRoot } from "../../lib/paths.ts";
 import {
   loadZentaoConfig as loadZentaoPluginConfig,
   pluginConfigPath,
 } from "../../lib/plugin-config.ts";
 import type { Severity } from "../../lib/scan-report-types.ts";
+import { repoRoot } from "../../lib/workspace-locator.ts";
 import { resolveSession } from "./client.ts";
 
 // ─── 配置 ─────────────────────────────────────────────────────────────────────

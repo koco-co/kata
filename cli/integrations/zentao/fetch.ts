@@ -10,8 +10,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { assertNoSymlinkPath } from "../../lib/features-layout.ts";
-import { repoRoot } from "../../lib/paths.ts";
 import { loadZentaoConfig, pluginConfigPath } from "../../lib/plugin-config.ts";
+import { repoRoot } from "../../lib/workspace-locator.ts";
 
 import { parseBugPayload, type RichBug } from "./parse.ts";
 import {

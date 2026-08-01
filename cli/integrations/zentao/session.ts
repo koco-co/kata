@@ -1,8 +1,9 @@
 /**
  * cli/integrations/zentao/session.ts — 禅道会话：cookie 优先复用，失效降级账号密码登录
  */
-import { repoRoot } from "../../lib/paths.ts";
+
 import { loadZentaoConfig, pluginConfigPath, updatePluginConfig } from "../../lib/plugin-config.ts";
+import { repoRoot } from "../../lib/workspace-locator.ts";
 import { type FetchFn, zentaoLogin } from "./client.ts";
 
 export type { FetchFn };

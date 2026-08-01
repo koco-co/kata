@@ -1,9 +1,6 @@
 import { join } from "node:path";
 import { isValidSlug } from "./slug.ts";
-import { locateProject, locateProjectRoot } from "./workspace-locator.ts";
-
-/** Alias of locateProjectRoot for report renderers that need the repo root. */
-export const repoRoot = locateProjectRoot;
+import { locateProject } from "./workspace-locator.ts";
 
 export class ReportPathError extends Error {
   code: "INVALID_REPORT_SLUG" | "INVALID_YYYYMM";

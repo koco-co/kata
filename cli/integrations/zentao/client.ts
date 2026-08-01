@@ -2,8 +2,9 @@
  * cli/integrations/zentao/client.ts — 禅道 HTTP 会话原语（登录 + cookie 解析 + 会话回退）
  * create.ts 直接用；fetch.ts 经 session.ts 复用登录与 cookie 解析。
  */
-import { repoRoot } from "../../lib/paths.ts";
+
 import { loadZentaoConfig, pluginConfigPath } from "../../lib/plugin-config.ts";
+import { repoRoot } from "../../lib/workspace-locator.ts";
 
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
