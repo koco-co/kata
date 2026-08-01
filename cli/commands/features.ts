@@ -11,6 +11,7 @@ import {
   STANDING_DIR,
   VERSION_DIR_RE,
 } from "../lib/features-layout.ts";
+import { assertWritable } from "../lib/path-policy.ts";
 import { RUN_ID_RE } from "../lib/run-id.ts";
 import { locateProject } from "../lib/workspace-locator.ts";
 
@@ -70,6 +71,7 @@ export function runFeaturesResolve(opts: {
     requirementId: normalizeRequirementId(opts.requirementId),
   });
   const featureDir = join(paths.featuresDir, versionDir, dirName);
+  assertWritable(paths, featureDir);
   const created = !existsSync(featureDir);
   if (created) mkdirSync(featureDir, { recursive: true });
 

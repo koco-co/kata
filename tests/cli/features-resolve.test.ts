@@ -1,5 +1,13 @@
 import { describe, expect, it } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runFeaturesList, runFeaturesResolve } from "../../cli/commands/features.ts";
@@ -64,6 +72,22 @@ describe("features resolve", () => {
     const root = repo();
     const result = runFeaturesResolve({ ...base, root, standing: true });
     expect(result.relative_path).toBe("_standing/【数据质量】测试需求");
+  });
+
+  it("rejects a symlinked version directory before creating a feature", () => {
+    const root = repo();
+    const outside = mkdtempSync(join(tmpdir(), "kata-fr-outside-"));
+    const version = join(root, "workspace", "dataAssets", "features", "v7.0.0");
+    symlinkSync(outside, version);
+    try {
+      expect(() => runFeaturesResolve({ ...base, root, featureVersion: "v7.0.0" })).toThrow(
+        /符号链接/,
+      );
+      expect(readdirSync(outside)).toEqual([]);
+    } finally {
+      rmSync(version, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it("derives version and latest run status from the filesystem", () => {
