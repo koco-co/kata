@@ -180,6 +180,13 @@ describe("repository policy", () => {
       { cwd: repoRoot },
     );
     expect(ignored.status).toBe(0);
+
+    const rootReport = spawnSync(
+      "git",
+      ["check-ignore", "--no-index", "--quiet", "allure-report/index.html"],
+      { cwd: repoRoot },
+    );
+    expect(rootReport.status).toBe(0);
   });
 
   it("rejects .gitkeep files once their directory contains real content", () => {
