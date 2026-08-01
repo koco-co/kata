@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { assertInside, assertWritable, PathError } from "../../cli/lib/path-policy.ts";
@@ -38,5 +38,13 @@ describe("assertInside", () => {
   it("assertWritable rejects .git internal path", () => {
     const p = locateProject("dataAssets", scaffold());
     expect(() => assertWritable(p, join(p.projectDir, ".git", "config"))).toThrow(PathError);
+  });
+
+  it("assertWritable rejects symlinked workspace paths", () => {
+    const p = locateProject("dataAssets", scaffold());
+    const outside = mkdtempSync(join(tmpdir(), "kata-pp-outside-"));
+    const link = join(p.projectDir, "linked");
+    symlinkSync(outside, link);
+    expect(() => assertWritable(p, join(link, "artifact.md"))).toThrow(/符号链接/);
   });
 });

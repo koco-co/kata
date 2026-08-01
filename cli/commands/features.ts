@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Command } from "commander";
 import {
@@ -105,7 +105,7 @@ function latestRunStatus(featureDir: string): string {
   const dir = runsDir(featureDir);
   if (!existsSync(dir)) return "not-run";
   const latest = readdirSync(dir)
-    .filter((name) => RUN_ID_RE.test(name) && statSync(join(dir, name)).isDirectory())
+    .filter((name) => RUN_ID_RE.test(name) && lstatSync(join(dir, name)).isDirectory())
     .sort()
     .at(-1);
   if (!latest) return "not-run";
@@ -172,7 +172,7 @@ export function runFeaturesShow(opts: { project: string; featurePath: string; ro
   const rd = runsDir(entry.dir);
   const recentRuns = existsSync(rd)
     ? readdirSync(rd)
-        .filter((name) => RUN_ID_RE.test(name) && statSync(join(rd, name)).isDirectory())
+        .filter((name) => RUN_ID_RE.test(name) && lstatSync(join(rd, name)).isDirectory())
         .sort()
         .reverse()
         .slice(0, 5)

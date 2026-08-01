@@ -21,6 +21,7 @@ import { renderXlsx } from "../lib/cases/render-xlsx.ts";
 import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
 import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
 import {
+  assertNoSymlinkPath,
   featureIdentity,
   projectRootFromFeatureDir,
   resolveFeatureEntry,
@@ -45,7 +46,11 @@ function featurePaths(featureDir: string): ProjectPaths {
 }
 
 export function resolveFeatureInput(feature: string, project?: string): string {
-  if (existsSync(feature)) return resolve(feature);
+  if (existsSync(feature)) {
+    const resolved = resolve(feature);
+    const projectRoot = projectRootFromFeatureDir(resolved);
+    return assertNoSymlinkPath(join(projectRoot, "features"), resolved, "feature");
+  }
   if (!project)
     throw new Error(
       `--feature 不是路径；使用相对 features/ 的完整路径时必须同时提供 --project: ${feature}`,

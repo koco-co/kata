@@ -1,5 +1,5 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { existsSync, lstatSync, readdirSync } from "node:fs";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 // ─── Feature 内三区 ───
 export const AREA_CASES = "cases";
@@ -93,7 +93,32 @@ export interface FeatureIdentity extends ParsedFeatureDirName {
 }
 
 function isDir(p: string): boolean {
-  return existsSync(p) && statSync(p).isDirectory();
+  try {
+    return lstatSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+/** Reject symbolic links between a trusted workspace anchor and a target path. */
+export function assertNoSymlinkPath(anchor: string, target: string, label = "路径"): string {
+  const base = resolve(anchor);
+  const resolved = resolve(target);
+  const rel = relative(base, resolved);
+  if (rel === ".." || rel.startsWith(`..${sep}`) || rel.startsWith(sep)) {
+    throw new Error(`${label} 不在允许目录内: ${resolved}`);
+  }
+  let current = base;
+  for (const component of rel.split(sep).filter(Boolean)) {
+    current = join(current, component);
+    if (!existsSync(current)) break;
+    const stat = lstatSync(current);
+    if (stat.isSymbolicLink()) throw new Error(`${label} 不得经过符号链接: ${current}`);
+  }
+  if (existsSync(base) && lstatSync(base).isSymbolicLink()) {
+    throw new Error(`${label} 不得以符号链接作为根: ${base}`);
+  }
+  return resolved;
 }
 
 function listChildDirs(p: string): string[] {

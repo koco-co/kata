@@ -1,11 +1,11 @@
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   renameSync,
   rmSync,
-  statSync,
   unlinkSync,
 } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
@@ -67,7 +67,9 @@ function scriptFiles(casesDir: string): ScriptCandidate[] {
     for (const name of readdirSync(current)) {
       if (name === ".gitkeep") continue;
       const absolutePath = join(current, name);
-      if (statSync(absolutePath).isDirectory()) walk(absolutePath);
+      const stat = lstatSync(absolutePath);
+      if (stat.isSymbolicLink()) continue;
+      if (stat.isDirectory()) walk(absolutePath);
       else if (name.endsWith(".ts")) {
         out.push({
           relativePath: relative(casesDir, absolutePath).split("\\").join("/"),
