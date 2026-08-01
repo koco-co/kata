@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { type DataAssetsEnvConfig, resolveDataAssetsEnv } from "../../cli/lib/dataassets-env.ts";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import {
+  type DataAssetsEnvConfig,
+  migrateDataAssetsEnvs,
+  resolveDataAssetsEnv,
+} from "../../cli/lib/dataassets-env.ts";
 
 function fetchMock(
   implementation: (input: string | URL | Request) => Promise<Response>,
@@ -106,5 +113,21 @@ describe("DataAssets environment datasource inventory compatibility", () => {
     await expect(resolveDataAssetsEnv("fixture", { config: config(), fetchImpl })).rejects.toThrow(
       "datasource_sparkthrift_assets_not_found",
     );
+  });
+
+  test("rejects a symlinked legacy environment directory before reading it", async () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-env-migration-"));
+    const outside = mkdtempSync(join(tmpdir(), "kata-env-migration-outside-"));
+    const parent = join(root, "workspace", "dataAssets", "_shared");
+    const legacy = join(parent, "env");
+    mkdirSync(parent, { recursive: true });
+    symlinkSync(outside, legacy);
+    try {
+      await expect(migrateDataAssetsEnvs({ repoRoot: root })).rejects.toThrow(/符号链接/);
+    } finally {
+      rmSync(legacy, { force: true });
+      rmSync(root, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 });

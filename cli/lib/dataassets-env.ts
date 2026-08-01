@@ -14,6 +14,7 @@ import {
 import { constants as osConstants } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { parse, stringify } from "yaml";
+import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
 export const DATAASSETS_RESOLVED_ENV = "KATA_DATAASSETS_RESOLVED";
@@ -1210,6 +1211,9 @@ function legacyToV2(raw: Record<string, unknown>, cookie: string): DataAssetsEnv
 }
 
 function readYamlRecord(path: string): Record<string, unknown> {
+  if (lstatSync(path).isSymbolicLink()) {
+    throw new Error(`legacy environment file must not be a symbolic link: ${path}`);
+  }
   try {
     return record(parse(readFileSync(path, "utf8")), path);
   } catch {
@@ -1249,6 +1253,7 @@ export async function migrateDataAssetsEnvs(
 }> {
   const root = rootFrom(options);
   const legacyDir = join(root, "workspace", "dataAssets", "_shared", "env");
+  assertNoSymlinkPath(root, legacyDir, "legacy DataAssets environment directory");
   if (!existsSync(legacyDir))
     throw new Error(`legacy DataAssets environment directory not found: ${legacyDir}`);
   const migrated: Array<{
@@ -1261,7 +1266,9 @@ export async function migrateDataAssetsEnvs(
     .filter((item) => item.endsWith(".yaml"))
     .sort()) {
     const name = assertDataAssetsEnvName(file.replace(/\.yaml$/, ""));
-    const base = readYamlRecord(join(legacyDir, file));
+    const legacyPath = join(legacyDir, file);
+    assertNoSymlinkPath(root, legacyPath, "legacy DataAssets environment file");
+    const base = readYamlRecord(legacyPath);
     const { cookie, source } = readLegacyCookie(root, name, base);
     migrated.push({
       name,
