@@ -26,7 +26,9 @@ export function reportKindFromPath(reportPath: string): ReportKind {
   const parent = basename(dirname(dirname(reportPath)));
   const match = parent.match(/^(bug|conflict|scan)-report$/);
   if (!match || !/^\d{6}$/.test(year) || !reportPath.endsWith(".md")) {
-    throw new Error("报告路径必须为 analyses/{bug,conflict,scan}-report/<yyyymm>/<slug>.md");
+    throw new Error(
+      "报告路径必须为 analyses/{bug,conflict,scan}-report/<yyyymm>/<slug>.md；hotfix 报告使用 analyses/hotfix-case/",
+    );
   }
   return match[1] as ReportKind;
 }

@@ -10,7 +10,11 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { lintMarkdownReport, parseBugReportMarkdown } from "../../cli/lib/defect-report.ts";
+import {
+  lintMarkdownReport,
+  parseBugReportMarkdown,
+  reportKindFromPath,
+} from "../../cli/lib/defect-report.ts";
 
 const kata = resolve(import.meta.dir, "../../cli/bin/kata.ts");
 
@@ -185,6 +189,14 @@ describe("formal Markdown defect reports", () => {
     expect(
       lintMarkdownReport(path).violations.some((v) => v.message.includes("二级章节重复")),
     ).toBe(true);
+  });
+
+  it("reportKindFromPath 报错文案指引 hotfix-case 路径", () => {
+    expect(() =>
+      reportKindFromPath(
+        join("workspace", "dataAssets", "analyses", "hotfix-case", "202607", "x.md"),
+      ),
+    ).toThrow(/hotfix-case/);
   });
 
   it("keeps lint side-effect free and sends only through explicit publish", () => {
