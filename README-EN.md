@@ -177,7 +177,7 @@ Skill artifacts are written to the matching feature directory. The run directory
 bun install --frozen-lockfile
 bun run check
 bun run type-check
-bun test
+bun test --timeout 30000 ./tests ./cli/lib
 bun run test:automation-lint
 bun run ci
 ```

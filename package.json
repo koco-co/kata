@@ -31,7 +31,7 @@
     "test:knowledge-lint": "bun cli/bin/kata.ts knowledge lint --all-projects --exit-code",
     "type-check:workspace": "tsc -p tsconfig.workspace.json --noEmit",
     "ci": "bun run check && bun run type-check && bun run type-check:workspace && bun run test:automation-lint && bun run test && bun run test:workspace && bun run test:workspace-discovery && bun run test:tools",
-    "test": "bun test --timeout 30000",
+    "test": "bun test --timeout 30000 ./tests ./cli/lib",
     "test:watch": "bun test --watch"
   },
   "dependencies": {

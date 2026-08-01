@@ -184,7 +184,7 @@ Skill 的产物写入对应的 feature 目录。运行目录 `runs/<run-id>/` �
 bun install --frozen-lockfile
 bun run check
 bun run type-check
-bun test
+bun test --timeout 30000 ./tests ./cli/lib
 bun run test:automation-lint
 bun run ci
 ```
