@@ -231,7 +231,7 @@ export function registerAutomation(program: Command): void {
   sql
     .command("lint <sql-file>")
     .description("按全局 SQL profile 校验模板")
-    .requiredOption("--profile <name>", "config/automation/sql-profiles.yaml 中的 profile")
+    .requiredOption("--profile <name>", "SQL 方言 profile 名称或已注册数据源类型")
     .action((sqlFile: string, opts: { profile: string }) => {
       const result = lintSqlFile(sqlFile, opts.profile);
       console.log(JSON.stringify(result, null, 2));
@@ -240,10 +240,10 @@ export function registerAutomation(program: Command): void {
   sql
     .command("render <sql-file>")
     .description("将显式 --set 值渲染到 stdout，不写入项目目录")
-    .requiredOption("--profile <name>", "先按 profile 校验模板")
+    .requiredOption("--profile <name>", "先按 SQL 方言 profile 校验模板")
     .option(
       "--set <KEY=value>",
-      "占位符替换值，可重复",
+      "语义占位符替换值，例如 SchemaA=dq、RunSuffix=run01，可重复",
       (value: string, previous: string[] = []) => [...previous, value],
       [],
     )

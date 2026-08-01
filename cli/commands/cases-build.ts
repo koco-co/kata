@@ -13,6 +13,7 @@ import {
   workspaceRelativePath,
 } from "../integrations/notify.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
+import { lintCaseContent, loadCasesLintConfig } from "../lib/cases/content-lint.ts";
 import { type CaseExportFormat, caseExports, parseCaseExportName } from "../lib/cases/formats.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
@@ -30,7 +31,7 @@ import {
 import { assertWritable } from "../lib/path-policy.ts";
 import { assertCaseDigestChain } from "../lib/prd.ts";
 import type { ProjectPaths } from "../lib/types.ts";
-import { locateProject } from "../lib/workspace-locator.ts";
+import { locateProject, locateProjectRoot } from "../lib/workspace-locator.ts";
 
 // 写入边界:只允许写在 feature 目录内
 function featurePaths(featureDir: string): ProjectPaths {
@@ -207,6 +208,14 @@ export async function runCasesBuild(featureDir: string): Promise<CasesBuildRepor
   const problems = validateCases(file);
   if (problems.length > 0) {
     throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
+  }
+  const contentProblems = lintCaseContent(file, loadCasesLintConfig(locateProjectRoot()));
+  if (contentProblems.length > 0) {
+    throw new Error(
+      `用例内容 lint 未通过:\n${contentProblems
+        .map((problem) => `  - [${problem.rule}] ${problem.message}`)
+        .join("\n")}`,
+    );
   }
   const artifacts = await renderArtifacts(file, featureDir, name);
   for (const artifact of artifacts) assertWritable(featurePaths(featureDir), artifact.path);

@@ -8,8 +8,10 @@ cases:
     title: 验证「单字段时间差校验」任务质量报告正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「order_date」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「order_date」 「时间差」选择为「<=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -140,8 +142,10 @@ cases:
     title: 验证「单字段时间差校验」任务不通过/失败结果详情正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「order_date」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「order_date」 「时间差」选择为「<=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -149,7 +153,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则
-        expected: 实例运行结果符合预期
+        expected: 实例运行结果与预期值一致
       - action: 查看不通过的实例详情
         expected: 抽屉式展开详情，页面包含： 任务名称、监控报告tab、表级报告tab
       - action: 点击【监控报告】tab
@@ -292,8 +296,10 @@ cases:
     title: 验证「单字段时间差校验」任务通过结果详情正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「order_date」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「order_date」 「时间差」选择为「<=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -301,7 +307,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则
-        expected: 实例运行结果符合预期
+        expected: 实例运行结果与预期值一致
       - action: 查看实例详情
         expected: 抽屉式展开详情，页面包含： 任务名称、监控报告tab、表级报告tab
       - action: 点击【监控报告】tab
@@ -432,8 +438,10 @@ cases:
     title: 验证「单字段时间差校验」区域配置交互正确
     priority: P2
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 点击【添加规则】按钮，选择「时效性校验」规则
@@ -560,8 +568,10 @@ cases:
     title: 验证「字段类型异常」校验功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则1」配置如下：（int类型） 「监控规则」新增「时效性校验」 「字段」选择为「 id」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「id」 「时间差」选择为「=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -697,8 +707,10 @@ cases:
     title: 验证「string转long」校验不通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 date_str_ymd_hms_ms」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「date_str_ymd_hms_ms」 「时间差」选择为「=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -706,7 +718,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -826,8 +838,10 @@ cases:
     title: 验证「string转long」校验通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 date_str_ymd_hms」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「date_str_ymd_hms」 「时间差」选择为「>=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -835,7 +849,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
 
@@ -957,8 +971,10 @@ cases:
     title: 验证「不同格式的timestamp类型」校验功能
     priority: P2
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则1」配置如下：（yyyy-MM-dd HH:mm:ss） 「监控规则」新增「时效性校验」 「字段」选择为「 sync_timestamp」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 sync_timestamp」 「时间差」选择为「>=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -972,7 +988,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS
@@ -1108,8 +1124,10 @@ cases:
     title: 验证「timestamp类型」校验不通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 sync_timestamp」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 sync_timestamp」 「时间差」选择为「=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1117,7 +1135,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -1237,8 +1255,10 @@ cases:
     title: 验证「timestamp类型」校验通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 sync_timestamp」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 sync_timestamp」 「时间差」选择为「>=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1246,7 +1266,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -1366,8 +1386,10 @@ cases:
     title: 验证「不同格式的time类型」校验功能
     priority: P2
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则1」配置如下：（HH:mm:ss） 「监控规则」新增「时效性校验」 「字段」选择为「 work_time」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 work_time」 「时间差」选择为「>=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1379,7 +1401,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS
@@ -1521,8 +1543,10 @@ cases:
     title: 验证「time类型」校验不通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 work_time」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 work_time」 「时间差」选择为「=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1530,7 +1554,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -1650,8 +1674,10 @@ cases:
     title: 验证「time类型」校验通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 work_time」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 work_time」 「时间差」选择为「>=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1659,7 +1685,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -1779,8 +1805,10 @@ cases:
     title: 验证「datetime类型」校验不通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 update_datetime」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 update_datetime」 「时间差」选择为「=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1788,7 +1816,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -1908,8 +1936,10 @@ cases:
     title: 验证「datetime类型」校验通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 update_datetime」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 update_datetime」 「时间差」选择为「>=1秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -1917,7 +1947,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -2037,8 +2067,10 @@ cases:
     title: 验证「不同格式的date类型」校验功能
     priority: P2
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则1」配置如下：（yyyy-MM-dd） 「监控规则」新增「时效性校验」 「字段」选择为「 create_date」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「create_date」 「时间差」选择为「<=1天」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -2052,7 +2084,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
       CREATE TABLE IF NOT EXISTS tableA (
@@ -2172,8 +2204,10 @@ cases:
     title: 验证「date类型」校验不通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 create_date」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 create_date」 「时间差」选择为「<=1毫秒」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -2181,7 +2215,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
 
@@ -2302,8 +2336,10 @@ cases:
     title: 验证「date类型」校验通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → 单字段时间差校验】页面
+        expected: 已进入【数据质量 → 单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「 create_date」 「统计函数」选择「周期性校验（单字段时间差校验）」 「过滤条件」设置为「id<100」 「选择排序字段」为「 create_date」 「时间差」选择为「<=1天」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -2311,7 +2347,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
 
@@ -2432,8 +2468,10 @@ cases:
     title: 验证「单字段时间差校验」区域详情正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 点击【添加规则】按钮，选择「时效性校验」规则
@@ -2567,8 +2605,10 @@ cases:
     title: 验证「监控规则」新增「时效性校验」规则类型
     priority: P0
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 点击【添加规则】按钮

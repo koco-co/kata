@@ -10,12 +10,14 @@ cases:
     title: 验证「脱敏配置项」配置后的显示
     priority: P2
     steps:
+      - action: 进入【离线开发 → 脱敏配置项配置后的显示】页面
+        expected: 已进入【离线开发 → 脱敏配置项配置后的显示】页面，显示页面标题与主要操作区域
       - action: 开启离线脱敏配置项, 进入「离线开发-数据地图-脱敏管理」页面, 检查页面内容
         expected: "提示: 已开启应用资产数据脱敏, 当前数据脱敏只取自资产内所配的规则"
       - action: 关闭配置项, 检查「脱敏管理」页面内容
         expected: 关闭配置项, 检查「脱敏管理」页面内容
   - case_id: C0002
-    title: 验证「Doris数据源」跨集群脱敏功能正常(不脱敏)
+    title: 验证「Doris数据源」跨集群脱敏完成目标操作且状态更新(不脱敏)
     priority: P0
     precondition: |-
       1) 数据资产-脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -26,6 +28,8 @@ cases:
 
       4) 开启离线脱敏配置项
     steps:
+      - action: 进入【离线开发 → Doris数据源跨集群脱敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源跨集群脱敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建Doris任务A, 执行SQL语句
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「部分覆盖」规则A, 并添加doris_asset_data脱敏表及字段phone, 默认选项不变, 重新进入Doris任务A, 执行SELECT * FROM doris_asset_data;
@@ -36,7 +40,7 @@ cases:
       - action: 进入「周期任务-基础属性」, 切换Doris数据源, 重新进入Doris任务A, 执行SELECT * FROM doris_asset_data;
         expected: 报错, 当前数据源下没有对应的doris_asset_data表
   - case_id: C0003
-    title: 验证「Doris数据源」数据拖敏功能正常(全部覆盖)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(全部覆盖)
     priority: P0
     precondition: |-
       1) 开启离线脱敏配置项
@@ -51,6 +55,8 @@ cases:
 
       「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「创建」的Doris项目.
         expected: 创建成功
       - action: 进入「数据开发-周期任务」, 新建Doris任务A, 执行简单查询「任务A」
@@ -77,7 +83,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0004
-    title: 验证「Doris数据源」数据拖敏功能正常(部分覆盖)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(部分覆盖)
     priority: P0
     precondition: |-
       1) 脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -92,6 +98,8 @@ cases:
 
       6) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用非admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「对接已有Doris Schema」的Doris项目.
         expected: ""
       - action: 进入「数据开发-周期任务」, 新建Doris任务A, 执行简单查询「任务A」
@@ -116,7 +124,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0005
-    title: 验证「Doris数据源」数据拖敏功能正常(转义脱敏)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(转义脱敏)
     priority: P0
     precondition: |-
       1) 脱敏规则A: A -> B @ -> @@@
@@ -131,6 +139,8 @@ cases:
 
       6) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建Doris任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「转义脱敏」规则A, 并添加doris_asset_data脱敏表及字段asset_id和email, 默认选项不变
@@ -153,7 +163,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0006
-    title: 验证「Doris数据源」数据拖敏功能正常(算法脱敏)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(算法脱敏)
     priority: P0
     precondition: |-
       1) 建表语句 DROP TABLE IF EXISTS doris_asset_data; CREATE TABLE doris_asset_data ( id INT, asset_id VARCHAR(20), user_name VARCHAR(50), id_card VARCHAR(20), phone VARCHAR(15), email VARCHAR(50), amount DECIMAL(15,2), create_time DATETIME DEFAULT CURRENT_TIMESTAMP ) ENGINE=OLAP DUPLICATE KEY(id) DISTRIBUTED BY HASH(id) BUCKETS 4 PROPERTIES ( "replication_num" = "1" ); INSERT INTO doris_asset_data (id, asset_id, user_name, id_card, phone, email, amount) VALUES (1, 'A1001', '张三', '110105199001011234', '13800138000', 'zhangsan@example.com', 150000.00), (2, 'A1002', '李四', '310115198502029876', '13912345678', 'lisi@company.org', 987654.32), (3, 'A1003', '王五', '440305200010103333', '13755556666', 'wangwu@test.net', 50000.50), (4, 'A1004', '赵六', '510124197712128888', '18600001111', 'zhaoliu@demo.com', 1234567.89); SELECT * FROM doris_asset_data;
@@ -161,6 +171,8 @@ cases:
       3) 简单查询「任务A」 SELECT * FROM doris_asset_data;
       4) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTRING(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTRING(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTRING(phone, 1, 3)) AS total_amount_in_prefix FROM doris_asset_data WHERE amount > 100000 ) t ORDER BY phone_prefix, rank_in_prefix; 5) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建Doris任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「算法脱敏」规则A, 并添加doris_asset_data脱敏表及字段id_card, 默认选项不变
@@ -183,7 +195,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0007
-    title: 验证「Doris数据源」脱敏规则冲突时功能正常
+    title: 验证「Doris数据源」脱敏规则冲突时完成目标操作且状态更新
     priority: P0
     precondition: |-
       1) 数据资产-脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -220,6 +232,8 @@ cases:
       SELECT * FROM doris_asset_data;
       4) 开启离线脱敏配置项
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建Doris任务A , 执行SQL语句
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「离线开发-数据地图-脱敏管理」中添加「算法脱敏」规则B, 并添加doris_asset_data脱敏表及字段phone, 默认选项不变, 然后进入Doris任务A, 执行SELECT * FROM doris_asset_data;
@@ -246,7 +260,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0008
-    title: 验证「Hive数据源」数据拖敏功能正常(全部覆盖)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(全部覆盖)
     priority: P1
     precondition: |-
       1) 开启离线脱敏配置项
@@ -259,6 +273,8 @@ cases:
 
       5) 「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「创建」的Hadoop项目.
         expected: ""
       - action: 进入「数据开发-周期任务」, 新建Hive任务A, 执行简单查询「任务A」
@@ -288,7 +304,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0009
-    title: 验证「Hive数据源」数据拖敏功能正常(部分覆盖)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(部分覆盖)
     priority: P1
     precondition: |-
       1) 脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -297,6 +313,8 @@ cases:
       4) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       5) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 6)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 切换租户,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「对接已有hive Schema」的Hive项目.
         expected: ""
       - action: 进入「数据开发-周期任务」, 执行简单查询「任务A」
@@ -321,7 +339,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0010
-    title: 验证「Hive数据源」数据拖敏功能正常(转义脱敏)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(转义脱敏)
     priority: P1
     precondition: |-
       1) 脱敏规则A: A -> B @ -> @@@
@@ -330,6 +348,8 @@ cases:
       4) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       5) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 6)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建hive任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「转义脱敏」规则A, 并添加hive_asset_data脱敏表及字段asset_id和email, 默认选项不变
@@ -352,7 +372,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0011
-    title: 验证「Hive数据源」数据拖敏功能正常(算法脱敏)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(算法脱敏)
     priority: P1
     precondition: |-
       1) 开启离线脱敏配置项
@@ -360,6 +380,8 @@ cases:
       3) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       4) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 5)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建hive任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「算法脱敏」规则A, 并添加hive_asset_data脱敏表及字段id_card, 默认选项不变
@@ -382,7 +404,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0012
-    title: 验证「Hive数据源」脱敏规则冲突时功能正常
+    title: 验证「Hive数据源」脱敏规则冲突时完成目标操作且状态更新
     priority: P1
     precondition: |-
       1) 数据资产-脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -393,6 +415,8 @@ cases:
 
       5) 开启离线脱敏配置项
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 新建hive任务A , 执行SQL语句
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「离线开发-数据地图-脱敏管理」中添加「算法脱敏」规则B, 并添加hive_asset_data脱敏表及字段phone, 默认选项不变, 然后进入hive任务A, 执行SELECT * FROM hive_asset_data;
@@ -434,6 +458,8 @@ cases:
 
       「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源删表重新创建后的脱敏效果】页面
+        expected: 已进入【离线开发 → Doris数据源删表重新创建后的脱敏效果】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 执行建表语句, 执行「任务A」
         expected: 脱敏效果仍然存在
       - action: 执行复杂查询「任务B」
@@ -480,6 +506,8 @@ cases:
 
       「任务C」 SELECT *, addStr("test") FROM hive_asset_data_test;
     steps:
+      - action: 进入【离线开发 → Hive数据源删表重新创建后的脱敏效果】页面
+        expected: 已进入【离线开发 → Hive数据源删表重新创建后的脱敏效果】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-周期任务」, 执行建表语句, 执行「任务A」
         expected: 脱敏效果仍然存在
       - action: 执行复杂查询「任务B」
@@ -493,7 +521,7 @@ cases:
     tags:
       - 周期任务 ❯
   - case_id: C0015
-    title: 验证「Doris数据源」数据拖敏功能正常(全部覆盖)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(全部覆盖)
     priority: P1
     precondition: |-
       1) 开启离线脱敏配置项
@@ -510,6 +538,8 @@ cases:
 
       5) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「创建」的Doris项目.
         expected: 创建成功
       - action: 进入「数据开发-手动任务」, 新建Doris任务A, 执行简单查询「任务A」
@@ -536,7 +566,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0016
-    title: 验证「Doris数据源」数据拖敏功能正常(部分覆盖)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(部分覆盖)
     priority: P1
     precondition: |-
       1) 脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -547,6 +577,8 @@ cases:
 
       6) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用非admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「对接已有Doris Schema」的Doris项目.
         expected: ""
       - action: 进入「数据开发-手动任务」, 新建Doris任务A, 执行简单查询「任务A」
@@ -571,7 +603,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0017
-    title: 验证「Doris数据源」数据拖敏功能正常(转义脱敏)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(转义脱敏)
     priority: P1
     precondition: |-
       1) 脱敏规则A: A -> B @ -> @@@
@@ -586,6 +618,8 @@ cases:
 
       6) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-手动任务」, 新建Doris任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「转义脱敏」规则A, 并添加doris_asset_data脱敏表及字段asset_id和email, 默认选项不变
@@ -608,7 +642,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0018
-    title: 验证「Doris数据源」数据拖敏功能正常(算法脱敏)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(算法脱敏)
     priority: P1
     precondition: |-
       1) 建表语句 DROP TABLE IF EXISTS doris_asset_data; CREATE TABLE doris_asset_data ( id INT, asset_id VARCHAR(20), user_name VARCHAR(50), id_card VARCHAR(20), phone VARCHAR(15), email VARCHAR(50), amount DECIMAL(15,2), create_time DATETIME DEFAULT CURRENT_TIMESTAMP ) ENGINE=OLAP DUPLICATE KEY(id) DISTRIBUTED BY HASH(id) BUCKETS 4 PROPERTIES ( "replication_num" = "1" ); INSERT INTO doris_asset_data (id, asset_id, user_name, id_card, phone, email, amount) VALUES (1, 'A1001', '张三', '110105199001011234', '13800138000', 'zhangsan@example.com', 150000.00), (2, 'A1002', '李四', '310115198502029876', '13912345678', 'lisi@company.org', 987654.32), (3, 'A1003', '王五', '440305200010103333', '13755556666', 'wangwu@test.net', 50000.50), (4, 'A1004', '赵六', '510124197712128888', '18600001111', 'zhaoliu@demo.com', 1234567.89); SELECT * FROM doris_asset_data;
@@ -616,6 +650,8 @@ cases:
       3) 简单查询「任务A」 SELECT * FROM doris_asset_data;
       4) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTRING(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTRING(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTRING(phone, 1, 3)) AS total_amount_in_prefix FROM doris_asset_data WHERE amount > 100000 ) t ORDER BY phone_prefix, rank_in_prefix; 5) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-手动任务」, 新建Doris任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「算法脱敏」规则A, 并添加doris_asset_data脱敏表及字段id_card, 默认选项不变
@@ -638,7 +674,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0019
-    title: 验证「Hive数据源」数据拖敏功能正常(全部覆盖)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(全部覆盖)
     priority: P0
     precondition: |-
       1) 开启离线脱敏配置项
@@ -651,6 +687,8 @@ cases:
 
       5) 「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「创建」的Hadoop项目.
         expected: ""
       - action: 进入「数据开发-手动任务」, 新建Hive任务A, 执行简单查询「任务A」
@@ -680,7 +718,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0020
-    title: 验证「Hive数据源」数据拖敏功能正常(部分覆盖)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(部分覆盖)
     priority: P0
     precondition: |-
       1) 脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -689,6 +727,8 @@ cases:
       4) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       5) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 6)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 切换租户,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「对接已有hive Schema」的Hive项目.
         expected: ""
       - action: 进入「数据开发-手动任务」, 执行简单查询「任务A」
@@ -713,7 +753,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0021
-    title: 验证「Hive数据源」数据拖敏功能正常(转义脱敏)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(转义脱敏)
     priority: P0
     precondition: |-
       1) 脱敏规则A: A -> B @ -> @@@
@@ -722,6 +762,8 @@ cases:
       4) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       5) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 6)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-手动任务」, 新建hive任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「转义脱敏」规则A, 并添加hive_asset_data脱敏表及字段asset_id和email, 默认选项不变
@@ -744,7 +786,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0022
-    title: 验证「Hive数据源」数据拖敏功能正常(算法脱敏)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(算法脱敏)
     priority: P0
     precondition: |-
       1) 开启离线脱敏配置项
@@ -752,6 +794,8 @@ cases:
       3) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       4) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 5)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-手动任务」, 新建hive任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「算法脱敏」规则A, 并添加hive_asset_data脱敏表及字段id_card, 默认选项不变
@@ -774,7 +818,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0023
-    title: 验证「Hive数据源」脱敏规则冲突时功能正常
+    title: 验证「Hive数据源」脱敏规则冲突时完成目标操作且状态更新
     priority: P0
     precondition: |-
       1) 数据资产-脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -810,6 +854,8 @@ cases:
 
       4) 开启离线脱敏配置项
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-手动任务」, 新建hive任务A , 执行SQL语句
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「离线开发-数据地图-脱敏管理」中添加「算法脱敏」规则B, 并添加hive_asset_data脱敏表及字段phone, 默认选项不变, 然后进入hive任务A, 执行SELECT * FROM hive_asset_data;
@@ -836,7 +882,7 @@ cases:
     tags:
       - 手动任务 ❯
   - case_id: C0024
-    title: 验证「Doris数据源」数据拖敏功能正常(全部覆盖)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(全部覆盖)
     priority: P0
     precondition: |-
       1) 开启离线脱敏配置项
@@ -853,6 +899,8 @@ cases:
 
       5) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「创建」的Doris项目.
         expected: 创建成功
       - action: 进入「数据开发-临时查询」, 新建Doris任务A, 执行简单查询「任务A」
@@ -879,7 +927,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0025
-    title: 验证「Doris数据源」数据拖敏功能正常(部分覆盖)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(部分覆盖)
     priority: P1
     precondition: |-
       1) 脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -890,6 +938,8 @@ cases:
 
       6) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用非admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「对接已有Doris Schema」的Doris项目.
         expected: ""
       - action: 进入「数据开发-临时查询」, 新建Doris任务A, 执行简单查询「任务A」
@@ -914,7 +964,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0026
-    title: 验证「Doris数据源」数据拖敏功能正常(转义脱敏)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(转义脱敏)
     priority: P1
     precondition: |-
       1) 脱敏规则A: A -> B @ -> @@@
@@ -929,6 +979,8 @@ cases:
 
       6) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-临时查询」, 新建Doris任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「转义脱敏」规则A, 并添加doris_asset_data脱敏表及字段asset_id和email, 默认选项不变
@@ -951,7 +1003,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0027
-    title: 验证「Doris数据源」数据拖敏功能正常(算法脱敏)
+    title: 验证「Doris数据源」数据拖敏完成目标操作且状态更新(算法脱敏)
     priority: P1
     precondition: |-
       1) 建表语句 DROP TABLE IF EXISTS doris_asset_data; CREATE TABLE doris_asset_data ( id INT, asset_id VARCHAR(20), user_name VARCHAR(50), id_card VARCHAR(20), phone VARCHAR(15), email VARCHAR(50), amount DECIMAL(15,2), create_time DATETIME DEFAULT CURRENT_TIMESTAMP ) ENGINE=OLAP DUPLICATE KEY(id) DISTRIBUTED BY HASH(id) BUCKETS 4 PROPERTIES ( "replication_num" = "1" ); INSERT INTO doris_asset_data (id, asset_id, user_name, id_card, phone, email, amount) VALUES (1, 'A1001', '张三', '110105199001011234', '13800138000', 'zhangsan@example.com', 150000.00), (2, 'A1002', '李四', '310115198502029876', '13912345678', 'lisi@company.org', 987654.32), (3, 'A1003', '王五', '440305200010103333', '13755556666', 'wangwu@test.net', 50000.50), (4, 'A1004', '赵六', '510124197712128888', '18600001111', 'zhaoliu@demo.com', 1234567.89); SELECT * FROM doris_asset_data;
@@ -959,6 +1011,8 @@ cases:
       3) 简单查询「任务A」 SELECT * FROM doris_asset_data;
       4) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTRING(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTRING(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTRING(phone, 1, 3)) AS total_amount_in_prefix FROM doris_asset_data WHERE amount > 100000 ) t ORDER BY phone_prefix, rank_in_prefix; 5) 自定义jar资源包及使用方法 https://dtstack.yuque.com/rd-center/wict2z/end0mqgnq3wevx3p 「任务C」 SELECT *, addStr("test") FROM doris_asset_data;
     steps:
+      - action: 进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-临时查询」, 新建Doris任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「算法脱敏」规则A, 并添加doris_asset_data脱敏表及字段id_card, 默认选项不变
@@ -981,7 +1035,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0028
-    title: 验证「Hive数据源」数据拖敏功能正常(全部覆盖)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(全部覆盖)
     priority: P1
     precondition: |-
       1) 开启离线脱敏配置项
@@ -994,6 +1048,8 @@ cases:
 
       5) 「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 使用admin账号,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「创建」的Hadoop项目.
         expected: ""
       - action: 进入「数据开发-临时查询」, 新建Hive任务A, 执行简单查询「任务A」
@@ -1023,7 +1079,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0029
-    title: 验证「Hive数据源」数据拖敏功能正常(部分覆盖)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(部分覆盖)
     priority: P1
     precondition: |-
       1) 脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -1032,6 +1088,8 @@ cases:
       4) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       5) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 6)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 切换租户,  进入「项目列表-创建项目」, 新建一个「初始化方式」为「对接已有hive Schema」的Hive项目.
         expected: ""
       - action: 进入「数据开发-临时查询」, 执行简单查询「任务A」
@@ -1056,7 +1114,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0030
-    title: 验证「Hive数据源」数据拖敏功能正常(转义脱敏)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(转义脱敏)
     priority: P0
     precondition: |-
       1) 脱敏规则A: A -> B @ -> @@@
@@ -1065,6 +1123,8 @@ cases:
       4) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       5) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 6)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-临时查询」, 新建hive任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「转义脱敏」规则A, 并添加hive_asset_data脱敏表及字段asset_id和email, 默认选项不变
@@ -1087,7 +1147,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0031
-    title: 验证「Hive数据源」数据拖敏功能正常(算法脱敏)
+    title: 验证「Hive数据源」数据拖敏完成目标操作且状态更新(算法脱敏)
     priority: P1
     precondition: |-
       1) 开启离线脱敏配置项
@@ -1095,6 +1155,8 @@ cases:
       3) 简单查询「任务A」 SELECT * FROM hive_asset_data;
       4) 复杂查询「任务B」 SELECT id, asset_id, user_name, id_card, phone, amount, email, phone_prefix, total_users_in_prefix, total_amount_in_prefix, RANK() OVER (PARTITION BY phone_prefix ORDER BY amount DESC) AS rank_in_prefix FROM ( SELECT id, asset_id, user_name, id_card, phone, amount, email, SUBSTR(phone, 1, 3) AS phone_prefix, COUNT(id) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_users_in_prefix, SUM(amount) OVER (PARTITION BY SUBSTR(phone, 1, 3)) AS total_amount_in_prefix FROM hive_asset_data WHERE amount > 100000 ) AS t ORDER BY phone_prefix, rank_in_prefix; 5)「任务C」 SELECT *, addStr("test") FROM hive_asset_data;
     steps:
+      - action: 进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Hive数据源数据拖敏完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-临时查询」, 新建hive任务A, 执行简单查询「任务A」
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「数据资产-数据安全」中添加「算法脱敏」规则A, 并添加hive_asset_data脱敏表及字段id_card, 默认选项不变
@@ -1117,7 +1179,7 @@ cases:
     tags:
       - 临时查询 ❯
   - case_id: C0032
-    title: 验证「Hive数据源」脱敏规则冲突时功能正常
+    title: 验证「Hive数据源」脱敏规则冲突时完成目标操作且状态更新
     priority: P1
     precondition: |-
       1) 数据资产-脱敏规则A: 将从第「1」位至第「7」位替换为：「*」
@@ -1153,6 +1215,8 @@ cases:
 
       4) 开启离线脱敏配置项
     steps:
+      - action: 进入【离线开发 → 临时查询】页面
+        expected: 已进入【离线开发 → 临时查询】页面，显示页面标题与主要操作区域
       - action: 进入「数据开发-临时查询」, 新建hive任务A , 执行SQL语句
         expected: 正常查询出SQL结果, 数据未进行脱敏处理
       - action: 在「离线开发-数据地图-脱敏管理」中添加「算法脱敏」规则B, 并添加hive_asset_data脱敏表及字段phone, 默认选项不变, 然后进入hive任务A, 执行SELECT * FROM hive_asset_data;

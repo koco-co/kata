@@ -15,18 +15,24 @@ cases:
     source_ref: TP-001
     priority: P0
     precondition: |-
-      1) 数据质量存在项目 ${ProjectA} 且关联数据源 ${DataSourceA}。
-      2) 在 ${DataSourceA} 中执行以下 SQL，创建包含两个不同 city 值的 user_profile:
-         CREATE TABLE user_profile (
-           id BIGINT,
-           city STRING,
-           status INT
-         );
-         INSERT INTO user_profile VALUES
-           (1, 'beijing', 1),
-           (2, 'shanghai', 1);
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：SparkThrift2.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0001;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0001 (
+            id BIGINT,
+            city STRING,
+            status INT
+          );
+          INSERT INTO ${SchemaA}.test_table_15862_c0001 VALUES
+            (1, 'beijing', 1),
+            (2, 'shanghai', 1);
     steps:
-      - action: 进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 展示规则库配置列表与「新建监控规则」入口
+      - action: 点击「新建监控规则」-「单表校验规则」
         expected: 弹出规则创建向导，进入第一步「监控对象」
       - action: |-
           选择监控对象:
@@ -56,9 +62,22 @@ cases:
     source_ref: TP-002
     priority: P1
     precondition: |-
-      1) 数据质量存在项目 ${ProjectA} 且关联数据源 ${DataSourceA}。
-      2) ${DataSourceA} 下存在表 user_profile，其中 status 字段类型为 INT。
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：SparkThrift2.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0002;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0002 (
+            id BIGINT,
+            status INT
+          );
+          INSERT INTO ${SchemaA}.test_table_15862_c0002 VALUES
+            (1, 1),
+            (2, 2);
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 展示规则库配置列表与「新建监控规则」入口
       - action: 进入单表校验规则第二步「监控规则」，校验字段选择 INT 类型的 status
         expected: 统计函数下拉不出现「枚举值个数」；hover 提示「仅支持字符类型字段」
     tags:

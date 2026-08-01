@@ -1,1508 +1,1605 @@
 meta:
   title: 【东风商用车】整库同步功能优化
-  requirement_id: "15353"
-  case_module_id: "10177"
+  requirement_id: '15353'
+  case_module_id: '10177'
   imports:
-    - 202601-离线开发v6.4.5.xmind
+  - 202601-离线开发v6.4.5.xmind
   exports:
-    - 整库同步功能优化.xmind
+  - 整库同步功能优化.xmind
 cases:
-  - case_id: C0001
-    title: 验证进入整库同步配置页面新增配置（过滤条件）
-    priority: P1
-    precondition: |-
-      -- 用户表
-      CREATE TABLE `t_user` (
-        id INT PRIMARY KEY,
-        username VARCHAR(50),
-        create_time DATETIME
-      );
+- case_id: C0001
+  title: 验证进入整库同步配置页面新增配置（过滤条件）
+  priority: P1
+  precondition: "-- 用户表\nCREATE TABLE `t_user` (\n  id INT PRIMARY KEY,\n  username VARCHAR(50),\n  create_time DATETIME\n\
+    );\n\n-- 订单表\nCREATE TABLE `t_order` (\n  id INT PRIMARY KEY,\n  user_id INT,\n  total_amount DECIMAL(10, 2),\n  create_time\
+    \ DATETIME\n);\n\n\n-- 插入用户\nINSERT INTO t_user VALUES (1, '张三', '2026-01-05');\nINSERT INTO t_user VALUES (2, '李四', '2026-01-10');\n\
+    \n-- 插入 5 条订单\nINSERT INTO t_order VALUES (101, 1, 299.00, '2026-01-15');\nINSERT INTO t_order VALUES (102, 1, 59.50,\
+    \  '2026-01-16');\nINSERT INTO t_order VALUES (103, 2, 1200.00, '2026-01-20');\nINSERT INTO t_order VALUES (104, 1, 88.00,\
+    \   '2026-02-01');\nINSERT INTO t_order VALUES (105, 2, 450.00,  '2026-02-02');"
+  steps:
+  - action: 进入【离线开发 → mysql】页面
+    expected: 已进入【离线开发 → mysql】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 检查页面配置项显示
+    expected: '在「数据同步目标」上方新增「过滤条件」配置项, 提示:
 
-      -- 订单表
-      CREATE TABLE `t_order` (
-        id INT PRIMARY KEY,
-        user_id INT,
-        total_amount DECIMAL(10, 2),
-        create_time DATETIME
-      );
+      where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持 limit 关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：
+
+      1） 全量同步：第一次做数据导入时在默认配置下为全量导入，可不用设置 where 条件。
+
+      2） 增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，在默认配置下需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如 tableA 增量的字段为 create_time，则填写 create_time{`
+      > `} 您需要的日期，如果需要日期动态变化，请参考帮助文档。'
+  - action: 检查源端信息
+    expected: '1) 页面顶部显示源端数据源：test_mysql (MySQL)
+
+      2) 源端表列表存在2张表（user、order）
+
+      3) 每张表前有复选框可选择'
+  tags:
+  - 数据源-整库同步
+  - 数据过滤
+  - mysql
+- case_id: C0002
+  title: 验证「过滤条件功能」输入where条件保存成功
+  priority: P0
+  precondition: "-- 数据源: MySQL\n-- 源端user表\nCREATE TABLE user (\n    id INT PRIMARY KEY COMMENT '用户ID',\n    name VARCHAR(100)\
+    \ COMMENT '用户名',\n    age INT COMMENT '年龄',\n    create_time DATETIME COMMENT '创建时间'\n);"
+  steps:
+  - action: 进入【离线开发 → mysql】页面
+    expected: 已进入【离线开发 → mysql】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【过滤条件】输入框中输入：create_at > '2026-01-01'
+    expected: 输入内容正常显示
+  - action: 继续配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
+    expected: 配置完成
+  - action: 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
+    expected: 任务配置中, 数据来源的数据过滤显示：create_at > '2026-01-01'
+  - action: 点击数据预览
+    expected: 返回符合条件的结果
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 数据过滤
+  - mysql
+- case_id: C0003
+  title: 验证「过滤条件功能」不输入任何过滤条件保存成功（过滤条件为空）
+  priority: P2
+  precondition: "-- 数据源: MySQL\n-- 源端user表\nCREATE TABLE user (\n    id INT PRIMARY KEY COMMENT '用户ID',\n    name VARCHAR(100)\
+    \ COMMENT '用户名',\n    age INT COMMENT '年龄',\n    create_time DATETIME COMMENT '创建时间'\n);"
+  steps:
+  - action: 进入【离线开发 → mysql】页面
+    expected: 已进入【离线开发 → mysql】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 保持【过滤条件】输入框为空，不输入任何内容
+    expected: 输入框显示为空
+  - action: 配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
+    expected: 配置完成
+  - action: 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
+    expected: 数据过滤为空
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 数据过滤
+  - mysql
+- case_id: C0004
+  title: 验证进入整库同步配置页面新增配置（过滤条件）
+  priority: P1
+  precondition: "-- 用户表\nCREATE TABLE t_user (\n  id NUMBER PRIMARY KEY,\n  username VARCHAR2(50),\n  create_time DATE\n);\n\
+    \n-- 订单表\nCREATE TABLE t_order (\n  id NUMBER PRIMARY KEY,\n  user_id NUMBER,\n  total_amount NUMBER(10, 2),\n  create_time\
+    \ DATE\n);\n\n\n-- 插入用户\nINSERT INTO t_user VALUES (1, '张三', TO_DATE('2026-01-05', 'YYYY-MM-DD'));\nINSERT INTO t_user\
+    \ VALUES (2, '李四', TO_DATE('2026-01-10', 'YYYY-MM-DD'));\n\n-- 插入 5 条订单\nINSERT INTO t_order VALUES (101, 1, 299.00, TO_DATE('2026-01-15',\
+    \ 'YYYY-MM-DD'));\nINSERT INTO t_order VALUES (102, 1, 59.50,  TO_DATE('2026-01-16', 'YYYY-MM-DD'));\nINSERT INTO t_order\
+    \ VALUES (103, 2, 1200.00, TO_DATE('2026-01-20', 'YYYY-MM-DD'));\nINSERT INTO t_order VALUES (104, 1, 88.00,   TO_DATE('2026-02-01',\
+    \ 'YYYY-MM-DD'));\nINSERT INTO t_order VALUES (105, 2, 450.00,  TO_DATE('2026-02-02', 'YYYY-MM-DD'));"
+  steps:
+  - action: 进入【离线开发 → oralce】页面
+    expected: 已进入【离线开发 → oralce】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 检查页面配置项显示
+    expected: '在「数据同步目标」上方新增「过滤条件」配置项, 提示:
+
+      where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持 limit 关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：
+
+      1） 全量同步：第一次做数据导入时在默认配置下为全量导入，可不用设置 where 条件。
+
+      2） 增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，在默认配置下需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如 tableA 增量的字段为 create_time，则填写 create_time{`
+      > `} 您需要的日期，如果需要日期动态变化，请参考帮助文档。'
+  - action: 检查源端信息
+    expected: '1) 页面顶部显示源端数据源：test_oracle (oracle)
+
+      2) 源端表列表存在2张表（user、order）
+
+      3) 每张表前有复选框可选择'
+  tags:
+  - 数据源-整库同步
+  - 数据过滤
+  - oralce
+- case_id: C0005
+  title: 验证「过滤条件功能」输入where条件保存成功
+  priority: P1
+  precondition: 源端表user表中包含create_time字段
+  steps:
+  - action: 进入【离线开发 → oralce】页面
+    expected: 已进入【离线开发 → oralce】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【过滤条件】输入框中输入：CREATE_TIME > TO_DATE('2026-01-01', 'YYYY-MM-DD')
+    expected: 输入内容正常显示
+  - action: 继续配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
+    expected: 配置完成
+  - action: 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
+    expected: 任务配置中, 数据来源的数据过滤显示：CREATE_TIME > TO_DATE('2026-01-01', 'YYYY-MM-DD')
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 数据过滤
+  - oralce
+- case_id: C0006
+  title: 验证「过滤条件功能」不输入任何过滤条件保存成功（过滤条件为空）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → oralce】页面
+    expected: 已进入【离线开发 → oralce】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 保持【过滤条件】输入框为空，不输入任何内容
+    expected: 输入框显示为空
+  - action: 配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
+    expected: 配置完成
+  - action: 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
+    expected: 数据过滤为空
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 数据过滤
+  - oralce
+- case_id: C0007
+  title: 验证「脏数据管理」勾选记录保存后展开详细配置项（ 记录保存勾选）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive
+    expected: 配置完成
+  - action: 找到【脏数据管理】配置区域
+    expected: '1) 显示"记录保存"复选框
+
+      2) 复选框默认未勾选'
+  - action: 勾选【记录保存】复选框
+    expected: '1) 下方展开详细配置项
+
+      2) 显示"脏数据写入hive表"配置
+
+      3) 显示"脏数据存储生命周期"输入框（默认值：90）'
+  - action: 取消勾选
+    expected: 隐藏脏数据配置项
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0008
+  title: 验证「脏数据管理」脏数据存储生命周期填写90保存成功（脏数据存储生命周期：90天，默认值）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 查看【脏数据存储生命周期】输入框默认值
+    expected: 显示为90天
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: '脏数据配置同步成功: 90天'
+  - action: 运行任务
+    expected: 数据同步成功
+  - action: 进入运维中心, 查看脏数据管理页面
+    expected: 存在脏数据表
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0009
+  title: 验证「脏数据管理」脏数据存储生命周期填写1保存成功（脏数据存储生命周期：1天，最小值）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据存储生命周期】输入框中输入：1
+    expected: 显示为1天
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: '脏数据配置同步成功: 1天'
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0010
+  title: 验证「脏数据写入hive表」脏数据表创建在当前离线项目对接的Hive数据源中
+  priority: P1
+  precondition: 已配置脏数据
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 保持脏数据写入hive表为空, 发布任务
+    expected: 发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据生成成功
+  - action: 查询当前schema下的hive表
+    expected: '存在脏数据表, 表名: dirty_任务ID'
+  - action: 进入运维中心, 查看脏数据管理页面
+    expected: 存在脏数据表
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0011
+  title: 验证「脏数据管理」脏数据超过条数填写10保存成功（hive + 脏数据超过条数：10）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框中输入：10
+    expected: 输入内容显示为"10"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为"10"
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为10, 超过则报错
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0012
+  title: 验证「脏数据管理」脏数据超过条数填写0保存成功（脏数据超过条数：0）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框中输入：0
+    expected: 输入内容显示为"0"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为"0"
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为0
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0013
+  title: 验证「脏数据管理」脏数据超过条数填写-1保存成功（脏数据超过条数：-1）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框中输入：-1
+    expected: 输入内容显示为"-1"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为"-1"
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据记录在脏数据表, 不限制条数
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0014
+  title: 验证「脏数据管理」脏数据超过条数不填写保存成功（脏数据超过条数为空）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框, 不输入任何内容
+    expected: 输入框显示为空
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为空
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据打印在日志中，限制条数为0
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0015
+  title: 验证「脏数据管理」脏数据记录比例填写10保存成功（脏数据记录比例：10%）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据记录比例】输入框中输入：10
+    expected: 输入内容显示为"10"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: '脏数据配置同步成功: 10%'
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - hive
+- case_id: C0016
+  title: 验证「脏数据管理」勾选记录保存后展开详细配置项（sparkthrift + 脏数据管理 + 记录保存勾选）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift
+    expected: 配置完成
+  - action: 找到【脏数据管理】配置区域
+    expected: '1) 显示"记录保存"复选框
+
+      2) 复选框默认未勾选'
+  - action: 勾选【记录保存】复选框
+    expected: '1) 下方展开详细配置项
+
+      2) 显示"脏数据写入sparkthrift表"配置
+
+      3) 显示"脏数据表名"输入框（默认值：dirty_任务ID）
+
+      4) 显示"脏数据超过条数"输入框
+
+      5) 显示"脏数据记录比例"输入框
+
+      6) 显示"脏数据存储生命周期"输入框（默认值：90）'
+  - action: 取消勾选
+    expected: 隐藏所有脏数据配置项
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0017
+  title: 验证「脏数据管理」脏数据存储生命周期填写90保存成功（脏数据存储生命周期：90天，默认值）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 查看【脏数据存储生命周期】输入框默认值
+    expected: 显示为90天
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: '脏数据配置同步成功: 90天'
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0018
+  title: 验证「脏数据管理」脏数据存储生命周期填写1保存成功（脏数据存储生命周期：1天，最小值）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据存储生命周期】输入框中输入：1
+    expected: 显示为1天
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: '脏数据配置同步成功: 1天'
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0019
+  title: 验证「脏数据写入sparkthrift表」脏数据表创建在当前离线项目对接的sparkthrift数据源中
+  priority: P0
+  precondition: 已配置脏数据
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 保持脏数据写入sparkthrift表为空, 发布任务
+    expected: 发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据生成成功
+  - action: 查询当前schema下的sparkthrift表
+    expected: '存在脏数据表, 表名: dirty_任务ID'
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0020
+  title: 验证「脏数据管理」脏数据超过条数填写10保存成功（sparkthrift + 脏数据超过条数：10）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框中输入：10
+    expected: 输入内容显示为"10"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为"10"
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为10, 超过则报错
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0021
+  title: 验证「脏数据管理」脏数据超过条数填写0保存成功（脏数据超过条数：0）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框中输入：0
+    expected: 输入内容显示为"0"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为"0"
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为0
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0022
+  title: 验证「脏数据管理」脏数据超过条数填写-1保存成功（脏数据超过条数：-1）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框中输入：-1
+    expected: 输入内容显示为"-1"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为"-1"
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据记录在脏数据表, 不限制条数
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0023
+  title: 验证「脏数据管理」脏数据超过条数不填写保存成功（脏数据超过条数为空）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据超过条数】输入框, 不输入任何内容
+    expected: 输入框显示为空
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 脏数据配置同步成功, "脏数据超过条数"显示为空
+  - action: 运行任务
+    expected: 数据同步成功, 脏数据打印在日志中，限制条数为0
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0024
+  title: 验证「脏数据管理」脏数据记录比例填写10保存成功（脏数据记录比例：10%）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
+    expected: 配置完成
+  - action: 在【脏数据记录比例】输入框中输入：10
+    expected: 输入内容显示为"10"
+  - action: 配置其他必填项, 点击【发布任务】按钮
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: '脏数据配置同步成功: 10%'
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 脏数据管理
+  - sparkthrift
+- case_id: C0025
+  title: 验证点击建表语句, 可编辑monaco编辑器
+  priority: P1
+  precondition: 目标表列表中存在user表
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: '1) 打开建表语句弹窗, 可进行编辑
+
+      2) 取消 / 确定按钮'
+  - action: 查看建表SQL内容
+    expected: '1) SQL为CREATE TABLE语句
+
+      2) hive表字段与源表字段一致
+
+      3) 创建的orc表'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0026
+  title: 验证「分区字段」输入分区字段保存成功（分区字段：pt）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 在【分区字段】输入框中输入：pt
+    expected: 输入内容显示为"pt"
+  - action: 选择至少1张源端表，点击【发布任务】
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看表结构
+    expected: 表为默认的orc分区表
+  - action: 查看生成的数据同步任务配置
+    expected: 选择目标中, 存在分区字段, 显示为"pt=xx"
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0027
+  title: 验证「分区字段」不输入分区保存成功（分区字段为空）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 在【分区字段】输入框不填写
+    expected: '1、 输入内容显示为空
+
+      2、 非必填, 默认显示："请输入分区字段"'
+  - action: 选择至少1张源端表，点击【发布任务】
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看表结构
+    expected: 表为非分区表
+  - action: 查看生成的数据同步任务配置
+    expected: 选择目标中, 不存在分区配置项
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0028
+  title: 验证Monaco中配置分区字段但在分区字段输入框中不填写以SQL为准（SQL优先级 > 输入框）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
+    expected: 修改并保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: 'hive表创建成功, 表结构正确: 默认orc分区表'
+  - action: 查看数据同步任务
+    expected: 存在分区输入框
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0029
+  title: 验证Monaco中不配置分区字段但在分区字段输入框中填写（SQL优先级 > 输入框）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
+    expected: 修改并保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: 'hive表创建成功, 表结构正确: 不是分区表'
+  - action: 查看数据同步任务
+    expected: 不存在分区输入框
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0030
+  title: 验证Monaco编辑器中保存后优先级更高（SQL优先级 > 高级设置）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 添加高级设置规则
+    expected: 添加成功, 规则生效
+  - action: 点击建表语句后, 直接确定
+    expected: 保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 高级规则不生效
+  - action: 查看数据同步任务
+    expected: 配置正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0031
+  title: 验证未点击过建表语句按钮,  高级设置生效
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 添加高级设置规则——表名转换规则
+    expected: 添加成功, 规则生效
+  - action: 不点击建表语句后, 勾选记录后确定
+    expected: 保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 高级规则已生效
+  - action: 查看数据同步任务
+    expected: 配置正确
+  - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段名转换规则
+    expected: 规则生效
+  - action: 发布并检查
+    expected: 表结构正确, 高级规则生效
+  - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
+    expected: 规则生效
+  - action: 发布并检查
+    expected: 表结构正确, 高级规则生效
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0032
+  title: 验证点击过建表语句确定按钮,  高级设置不生效
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 添加高级设置规则——表名转换规则
+    expected: 添加成功, 规则生效
+  - action: 点击建表语句并确定后, 勾选记录
+    expected: 保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 高级规则不生效
+  - action: 查看数据同步任务
+    expected: 配置正确
+  - action: 重新对确定过的建表语句的记录, 添加高级设置规则——字段名转换规则
+    expected: 规则不生效
+  - action: 发布并检查
+    expected: 表结构正确, 规则不生效
+  - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
+    expected: 规则不生效
+  - action: 发布并检查
+    expected: 表结构正确, 规则不生效
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0033
+  title: 验证非create table语句, 保存失败
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 删除所有内容后, 改为非create table 开头的语句并保存
+    expected: '异常提示: 解析建表SQL失败'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0034
+  title: 验证创建2 个creare table, 发布失败
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】
+    expected: 进入建表语句弹窗
+  - action: 往下添加create table语句, 保存
+    expected: '提示: DDL语法错误'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0035
+  title: 验证sql语法错误, 发布任务正常报错
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 修改SQL为语法错误的语句, 保存
+    expected: 保存成功
+  - action: 填写其它必填项后, 发布任务
+    expected: 发布失败, 任务状态中提示具体错误原因并阻止提交信息
+  - action: 检查数据开发-周期任务-任务开发目录
+    expected: 存在clone_databases目录, 存在对应虚节点任务, 不存在对应的数据同步任务
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0036
+  title: 验证「SQL编辑」修改字段类型后保存成功（修改字段类型）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器中找到id字段，将字段类型从"INT"修改为"BIGINT"
+    expected: 修改并保存成功
+  - action: 再次点击user表的【建表语句】
+    expected: 回显正确, id字段类型为"BIGINT"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务
+    expected: '映射正确: 同名映射'
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0037
+  title: 验证「SQL编辑」修改字段名后保存成功（修改字段名）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器中找到id字段，将字段名从"id"修改为"user_id"
+    expected: 修改后SQL内容为：user_id INT COMMENT '用户ID'
+  - action: 点击【确定】按钮
+    expected: Toast提示："修改成功"
+  - action: 再次点击user表的【建表语句】链接
+    expected: '字段名为"user_id"
+
+      '
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 包含user_id字段
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0038
+  title: 验证「SQL编辑」修改存储格式后保存成功（修改存储格式）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 将"STORED AS ORC"修改为"STORED AS PARQUET"
+    expected: 修改并保存成功
+  - action: 再次点击user表的【建表语句】链接
+    expected: 存储格式为"STORED AS PARQUET"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0039
+  title: 验证「SQL编辑」修改表名后保存成功（修改表名）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击Oracle数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 将"user"修改为"user_info"
+    expected: 修改并保存成功
+  - action: 再次点击user表的【建表语句】链接
+    expected: 表名为"user_info"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0040
+  title: 验证「SQL异常」删除所有SQL内容后保存Toast提示建表SQL不能为空（空SQL）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 删除所有内容后, 保存
+    expected: '提示: 建表SQL不能为空'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0041
+  title: 验证Monaco编辑器支持SQL语法高亮、自动补全
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 删除所有内容后, 输入CRE
+    expected: '自动提示: CREATE'
+  - action: 回车确认
+    expected: CREATE语法高亮
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0042
+  title: 验证整库同步任务配置正确(多字段 -> 少字段)
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器删除部分字段并确定
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务配置
+    expected: '映射方式: 同名映射'
+  - action: 运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0043
+  title: 验证整库同步任务配置正确(少字段 -> 多字段)
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器添加部分字段并确定
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务配置
+    expected: '映射方式: 同名映射'
+  - action: 运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确, 没有的字段数据补NULL
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0044
+  title: 验证整库同步任务配置正确(多表, 全部改)
+  priority: P1
+  precondition: 存在2 个mysql表
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的2 个user表记录, 依次点击【建表语句】并修改
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构均修改正确
+  - action: 依次查看数据同步任务配置
+    expected: 映射方式均为同名映射
+  - action: 依次运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0045
+  title: 验证整库同步任务配置正确(多表, 部分改)
+  priority: P1
+  precondition: 存在2 个mysql表
+  steps:
+  - action: 进入【离线开发 → hive】页面
+    expected: 已进入【离线开发 → hive】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的2 个user表记录, 依次点击【建表语句】并部分修改
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构均修改正确
+  - action: 依次查看数据同步任务配置
+    expected: 映射方式均为同名映射
+  - action: 依次运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - hive
+- case_id: C0046
+  title: 验证点击建表语句, 可编辑monaco编辑器
+  priority: P1
+  precondition: 目标表列表中存在user表
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: '1) 打开建表语句弹窗, 可进行编辑
+
+      2) 取消 / 确定按钮'
+  - action: 查看建表SQL内容
+    expected: '1) SQL为CREATE TABLE语句
+
+      2) hive表字段与源表字段一致
+
+      3) 创建的orc表'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0047
+  title: 验证「分区字段」输入分区字段保存成功（分区字段：pt）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择成功
+  - action: 在【分区字段】输入框中输入：pt
+    expected: 输入内容显示为"pt"
+  - action: 选择至少1张源端表，点击【发布任务】
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 选择目标中, 存在分区字段, 显示为"pt=xx"
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0048
+  title: 验证「分区字段」不输入分区保存成功（分区字段为空）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择成功
+  - action: 在【分区字段】输入框不填写
+    expected: '1、 输入内容显示为空
+
+      2、 非必填, 默认显示："请输入分区字段"'
+  - action: 选择至少1张源端表，点击【发布任务】
+    expected: 任务发布成功
+  - action: 进入任务开发目录，查看生成的数据同步任务配置
+    expected: 选择目标中, 不存在分区配置项
+  - action: 运行任务
+    expected: 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0049
+  title: 验证Monaco中配置分区字段但在分区字段输入框中不填写以SQL为准（SQL优先级 > 输入框）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
+    expected: 修改并保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: 'hive表创建成功, 表结构正确: 默认orc分区表'
+  - action: 查看数据同步任务
+    expected: 存在分区输入框
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0050
+  title: 验证Monaco中不配置分区字段但在分区字段输入框中填写（SQL优先级 > 输入框）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
+    expected: 修改并保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: 'hive表创建成功, 表结构正确: 不是分区表'
+  - action: 查看数据同步任务
+    expected: 不存在分区输入框
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0051
+  title: 验证未点击过建表语句按钮,  高级设置生效
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 添加高级设置规则——表名转换规则
+    expected: 添加成功, 规则生效
+  - action: 不点击建表语句后, 勾选记录后确定
+    expected: 保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 高级规则已生效
+  - action: 查看数据同步任务
+    expected: 配置正确
+  - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段名转换规则
+    expected: 规则生效
+  - action: 发布并检查
+    expected: 高级规则生效, 表结构正确
+  - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
+    expected: 规则生效
+  - action: 发布并检查
+    expected: 高级规则生效, 表结构正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0052
+  title: 验证点击过建表语句确定按钮,  高级设置不生效
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 添加高级设置规则——表名转换规则
+    expected: 添加成功, 规则生效
+  - action: 点击建表语句并确定后, 勾选记录
+    expected: 保存成功
+  - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 高级规则不生效
+  - action: 查看数据同步任务
+    expected: 配置正确
+  - action: 重新对确定过的建表语句的记录, 添加高级设置规则——字段名转换规则
+    expected: 规则不生效
+  - action: 发布并检查
+    expected: 表结构正确, 规则不生效
+  - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
+    expected: 规则不生效
+  - action: 发布并检查
+    expected: 表结构正确, 规则不生效
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0053
+  title: 验证非create table语句, 保存失败
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 删除所有内容后, 改为非create table 开头的语句并保存
+    expected: '异常提示: 解析建表SQL失败'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0054
+  title: 验证sql语法错误, 发布任务正常报错
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 修改SQL为语法错误的语句, 保存
+    expected: 保存成功
+  - action: 填写其它必填项后, 发布任务
+    expected: 发布失败, 任务状态中提示具体错误原因并阻止提交信息
+  - action: 检查数据开发-周期任务-任务开发目录
+    expected: 存在clone_databases目录, 存在对应虚节点任务, 不存在对应的数据同步任务
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0055
+  title: 验证「SQL编辑」修改字段类型后保存成功（修改字段类型）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器中找到id字段，将字段类型从"INT"修改为"BIGINT"
+    expected: 修改并保存成功
+  - action: 再次点击user表的【建表语句】链接
+    expected: 回显正确, id字段类型为"BIGINT"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0056
+  title: 验证「SQL编辑」修改字段名后保存成功（修改字段名）
+  priority: P0
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器中找到id字段，将字段名从"id"修改为"user_id"
+    expected: 修改后SQL内容为：user_id INT COMMENT '用户ID'
+  - action: 点击【确定】按钮
+    expected: Toast提示："修改成功"
+  - action: 再次点击user表的【建表语句】链接
+    expected: 字段名为"user_id"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 包含user_id字段
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 设置调度属性为立即生成, 17min后, 周期运行
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0057
+  title: 验证「SQL编辑」修改存储格式后保存成功（修改存储格式）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 将"STORED AS ORC"修改为"STORED AS PARQUET"
+    expected: 修改并保存成功
+  - action: 再次点击user表的【建表语句】链接
+    expected: 存储格式为"STORED AS PARQUET"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0058
+  title: 验证「SQL编辑」修改表名后保存成功（修改表名）
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 将"user"修改为"user_info"
+    expected: 修改并保存成功
+  - action: 再次点击user表的【建表语句】链接
+    expected: 表名为"user_info"
+  - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务
+    expected: 映射正确
+  - action: 运行任务
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0059
+  title: 验证「SQL异常」删除所有SQL内容后保存Toast提示建表SQL不能为空（空SQL）
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 删除所有内容后, 保存
+    expected: '提示: 建表SQL不能为空'
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0060
+  title: 验证Monaco编辑器支持SQL语法高亮、自动补全
+  priority: P2
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 进入建表语句弹窗, 删除所有内容后, 输入CRE
+    expected: '自动提示: CREATE'
+  - action: 回车确认
+    expected: CREATE语法高亮
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0061
+  title: 验证整库同步任务配置正确(多字段 -> 少字段)
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器删除部分字段并确定
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务配置
+    expected: '映射方式: 同名映射'
+  - action: 运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0062
+  title: 验证整库同步任务配置正确(少字段 -> 多字段)
+  priority: P1
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
+    expected: 进入建表语句弹窗
+  - action: 在SQL编辑器添加部分字段并确定
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构正确
+  - action: 查看数据同步任务配置
+    expected: '映射方式: 同名映射'
+  - action: 运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确, 没有的字段数据补NULL
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0063
+  title: 验证整库同步任务配置正确(多表, 全部改)
+  priority: P1
+  precondition: 存在2 个mysql表
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的2 个user表记录, 依次点击【建表语句】并修改
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构均修改正确
+  - action: 依次查看数据同步任务配置
+    expected: 映射方式均为同名映射
+  - action: 依次运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0064
+  title: 验证整库同步任务配置正确(多表, 部分改)
+  priority: P0
+  precondition: 存在2 个mysql表
+  steps:
+  - action: 进入【离线开发 → sparkthrift】页面
+    expected: 已进入【离线开发 → sparkthrift】页面，显示页面标题与主要操作区域
+  - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
+    expected: 进入整库同步配置页面
+  - action: 在【数据同步目标】下拉框中选择"Hive"数据源
+    expected: 选择Hive数据源成功
+  - action: 找到目标表列表中的2 个user表记录, 依次点击【建表语句】并部分修改
+    expected: 修改并保存成功
+  - action: 发布任务并执行，查看表结构
+    expected: hive表创建成功, 表结构均修改正确
+  - action: 依次查看数据同步任务配置
+    expected: 映射方式均为同名映射
+  - action: 依次运行数据同步任务
+    expected: 运行成功, 数据同步成功, 数据写入正确
+  tags:
+  - 数据源-整库同步
+  - 建表语句
+  - sparkthrift
+- case_id: C0065
+  title: 验证「历史任务兼容性」已发布的整库同步任务正常（MySQL2Hive）
+  priority: P0
+  precondition: '1、 存在升级之前创建的整库同步任务
 
 
-      -- 插入用户
-      INSERT INTO t_user VALUES (1, '张三', '2026-01-05');
-      INSERT INTO t_user VALUES (2, '李四', '2026-01-10');
-
-      -- 插入 5 条订单
-      INSERT INTO t_order VALUES (101, 1, 299.00, '2026-01-15');
-      INSERT INTO t_order VALUES (102, 1, 59.50,  '2026-01-16');
-      INSERT INTO t_order VALUES (103, 2, 1200.00, '2026-01-20');
-      INSERT INTO t_order VALUES (104, 1, 88.00,   '2026-02-01');
-      INSERT INTO t_order VALUES (105, 2, 450.00,  '2026-02-02');
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 检查页面配置项显示
-        expected: |-
-          在「数据同步目标」上方新增「过滤条件」配置项, 提示:
-          where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持 limit 关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：
-          1） 全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。
-          2） 增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如 tableA 增量的字段为 create_time，则填写 create_time{` > `} 您需要的日期，如果需要日期动态变化，请参考帮助文档。
-      - action: 检查源端信息
-        expected: |-
-          1) 页面顶部显示源端数据源：test_mysql (MySQL)
-          2) 源端表列表存在2张表（user、order）
-          3) 每张表前有复选框可选择
-    tags:
-      - 数据源-整库同步
-      - 数据过滤
-      - mysql
-  - case_id: C0002
-    title: 验证「过滤条件功能」输入where条件保存成功
-    priority: P0
-    precondition: |-
-      -- 数据源: MySQL
-      -- 源端user表
-      CREATE TABLE user (
-          id INT PRIMARY KEY COMMENT '用户ID',
-          name VARCHAR(100) COMMENT '用户名',
-          age INT COMMENT '年龄',
-          create_time DATETIME COMMENT '创建时间'
-      );
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【过滤条件】输入框中输入：create_at > '2026-01-01'
-        expected: 输入内容正常显示
-      - action: 继续配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
-        expected: 配置完成
-      - action: 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
-        expected: 任务配置中, 数据来源的数据过滤显示：create_at > '2026-01-01'
-      - action: 点击数据预览
-        expected: 返回符合条件的结果
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 数据过滤
-      - mysql
-  - case_id: C0003
-    title: 验证「过滤条件功能」不输入任何过滤条件保存成功（过滤条件为空）
-    priority: P2
-    precondition: |-
-      -- 数据源: MySQL
-      -- 源端user表
-      CREATE TABLE user (
-          id INT PRIMARY KEY COMMENT '用户ID',
-          name VARCHAR(100) COMMENT '用户名',
-          age INT COMMENT '年龄',
-          create_time DATETIME COMMENT '创建时间'
-      );
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 保持【过滤条件】输入框为空，不输入任何内容
-        expected: 输入框显示为空
-      - action: 配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
-        expected: 配置完成
-      - action: 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
-        expected: 数据过滤为空
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 数据过滤
-      - mysql
-  - case_id: C0004
-    title: 验证进入整库同步配置页面新增配置（过滤条件）
-    priority: P1
-    precondition: |-
-      -- 用户表
-      CREATE TABLE t_user (
-        id NUMBER PRIMARY KEY,
-        username VARCHAR2(50),
-        create_time DATE
-      );
-
-      -- 订单表
-      CREATE TABLE t_order (
-        id NUMBER PRIMARY KEY,
-        user_id NUMBER,
-        total_amount NUMBER(10, 2),
-        create_time DATE
-      );
+    2、 同步任务名称为："old_sync_task"'
+  steps:
+  - action: 进入【离线开发 → 数据开发-周期任务】页面
+    expected: 已进入【离线开发 → 数据开发-周期任务】页面，显示页面标题与主要操作区域
+  - action: 进入【数据源】页面，点击同步历史
+    expected: ''
+  - action: 进入数据开发-周期任务-clone_database目录下
+    expected: 存在对应历史任务
+  - action: 编辑历史任务old_sync_task
+    expected: 操作完成且页面展示对应结果进行编辑
+  - action: 运行历史任务old_sync_task
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据开发-周期任务
+- case_id: C0066
+  title: 验证「历史任务兼容性」已发布的整库同步任务正常（Oracle2Hive）
+  priority: P1
+  precondition: '1、 存在升级之前创建的整库同步任务
 
 
-      -- 插入用户
-      INSERT INTO t_user VALUES (1, '张三', TO_DATE('2026-01-05', 'YYYY-MM-DD'));
-      INSERT INTO t_user VALUES (2, '李四', TO_DATE('2026-01-10', 'YYYY-MM-DD'));
+    2、 同步任务名称为："old_sync_task"'
+  steps:
+  - action: 进入【离线开发 → 数据开发-周期任务】页面
+    expected: 已进入【离线开发 → 数据开发-周期任务】页面，显示页面标题与主要操作区域
+  - action: 进入【数据源】页面，点击同步历史
+    expected: 正常显示整库同步配置历史记录
+  - action: 选择一条记录, 点击查看详情
+    expected: 进入详情页面
+  - action: 进入数据开发-周期任务-clone_database目录下
+    expected: 存在对应历史数据同步任务
+  - action: 设置调度属性为立即生成, 17min后, 周期运行
+    expected: 17min后, 运行成功, 数据同步成功
+  tags:
+  - 数据开发-周期任务
+- case_id: C0067
+  title: 验证「历史任务兼容性」已发布的整库同步任务正常（MysQL2SparkThrift）
+  priority: P1
+  precondition: '1、 存在升级之前创建的整库同步任务
 
-      -- 插入 5 条订单
-      INSERT INTO t_order VALUES (101, 1, 299.00, TO_DATE('2026-01-15', 'YYYY-MM-DD'));
-      INSERT INTO t_order VALUES (102, 1, 59.50,  TO_DATE('2026-01-16', 'YYYY-MM-DD'));
-      INSERT INTO t_order VALUES (103, 2, 1200.00, TO_DATE('2026-01-20', 'YYYY-MM-DD'));
-      INSERT INTO t_order VALUES (104, 1, 88.00,   TO_DATE('2026-02-01', 'YYYY-MM-DD'));
-      INSERT INTO t_order VALUES (105, 2, 450.00,  TO_DATE('2026-02-02', 'YYYY-MM-DD'));
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 检查页面配置项显示
-        expected: |-
-          在「数据同步目标」上方新增「过滤条件」配置项, 提示:
-          where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持 limit 关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：
-          1） 全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。
-          2） 增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如 tableA 增量的字段为 create_time，则填写 create_time{` > `} 您需要的日期，如果需要日期动态变化，请参考帮助文档。
-      - action: 检查源端信息
-        expected: |-
-          1) 页面顶部显示源端数据源：test_oracle (oracle)
-          2) 源端表列表存在2张表（user、order）
-          3) 每张表前有复选框可选择
-    tags:
-      - 数据源-整库同步
-      - 数据过滤
-      - oralce
-  - case_id: C0005
-    title: 验证「过滤条件功能」输入where条件保存成功
-    priority: P1
-    precondition: 源端表user表中包含create_time字段
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【过滤条件】输入框中输入：CREATE_TIME > TO_DATE('2026-01-01', 'YYYY-MM-DD')
-        expected: 输入内容正常显示
-      - action: 继续配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
-        expected: 配置完成
-      - action: 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
-        expected: 任务配置中, 数据来源的数据过滤显示：CREATE_TIME > TO_DATE('2026-01-01', 'YYYY-MM-DD')
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 数据过滤
-      - oralce
-  - case_id: C0006
-    title: 验证「过滤条件功能」不输入任何过滤条件保存成功（过滤条件为空）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 保持【过滤条件】输入框为空，不输入任何内容
-        expected: 输入框显示为空
-      - action: 配置其他必填项：选择数据同步目标为Hive，选择至少1张源端表
-        expected: 配置完成
-      - action: 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入数据开发-任务开发目录，查看生成的数据同步任务配置
-        expected: 数据过滤为空
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 数据过滤
-      - oralce
-  - case_id: C0007
-    title: 验证「脏数据管理」勾选记录保存后展开详细配置项（ 记录保存勾选）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive
-        expected: 配置完成
-      - action: 找到【脏数据管理】配置区域
-        expected: |-
-          1) 显示"记录保存"复选框
-          2) 复选框默认未勾选
-      - action: 勾选【记录保存】复选框
-        expected: |-
-          1) 下方展开详细配置项
-          2) 显示"脏数据写入hive表"配置
-          3) 显示"脏数据存储生命周期"输入框（默认值：90）
-      - action: 取消勾选
-        expected: 隐藏脏数据配置项
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0008
-    title: 验证「脏数据管理」脏数据存储生命周期填写90保存成功（脏数据存储生命周期：90天，默认值）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 查看【脏数据存储生命周期】输入框默认值
-        expected: 显示为90天
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: "脏数据配置同步成功: 90天"
-      - action: 运行任务
-        expected: 数据同步成功
-      - action: 进入运维中心, 查看脏数据管理页面
-        expected: 存在脏数据表
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0009
-    title: 验证「脏数据管理」脏数据存储生命周期填写1保存成功（脏数据存储生命周期：1天，最小值）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据存储生命周期】输入框中输入：1
-        expected: 显示为1天
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: "脏数据配置同步成功: 1天"
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0010
-    title: 验证「脏数据写入hive表」脏数据表创建在当前离线项目对接的Hive数据源中
-    priority: P1
-    precondition: 已配置脏数据
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 保持脏数据写入hive表为空, 发布任务
-        expected: 发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据生成成功
-      - action: 查询当前schema下的hive表
-        expected: "存在脏数据表, 表名: dirty_任务ID"
-      - action: 进入运维中心, 查看脏数据管理页面
-        expected: 存在脏数据表
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0011
-    title: 验证「脏数据管理」脏数据超过条数填写10保存成功（hive + 脏数据超过条数：10）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框中输入：10
-        expected: 输入内容显示为"10"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为"10"
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为10, 超过则报错
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0012
-    title: 验证「脏数据管理」脏数据超过条数填写0保存成功（脏数据超过条数：0）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框中输入：0
-        expected: 输入内容显示为"0"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为"0"
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为0
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0013
-    title: 验证「脏数据管理」脏数据超过条数填写-1保存成功（脏数据超过条数：-1）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框中输入：-1
-        expected: 输入内容显示为"-1"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为"-1"
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据记录在脏数据表, 不限制条数
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0014
-    title: 验证「脏数据管理」脏数据超过条数不填写保存成功（脏数据超过条数为空）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框, 不输入任何内容
-        expected: 输入框显示为空
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为空
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据打印在日志中，限制条数为0
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0015
-    title: 验证「脏数据管理」脏数据记录比例填写10保存成功（脏数据记录比例：10%）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为Hive, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据记录比例】输入框中输入：10
-        expected: 输入内容显示为"10"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: "脏数据配置同步成功: 10%"
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - hive
-  - case_id: C0016
-    title: 验证「脏数据管理」勾选记录保存后展开详细配置项（sparkthrift + 脏数据管理 + 记录保存勾选）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift
-        expected: 配置完成
-      - action: 找到【脏数据管理】配置区域
-        expected: |-
-          1) 显示"记录保存"复选框
-          2) 复选框默认未勾选
-      - action: 勾选【记录保存】复选框
-        expected: |-
-          1) 下方展开详细配置项
-          2) 显示"脏数据写入sparkthrift表"配置
-          3) 显示"脏数据表名"输入框（默认值：dirty_任务ID）
-          4) 显示"脏数据超过条数"输入框
-          5) 显示"脏数据记录比例"输入框
-          6) 显示"脏数据存储生命周期"输入框（默认值：90）
-      - action: 取消勾选
-        expected: 隐藏所有脏数据配置项
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0017
-    title: 验证「脏数据管理」脏数据存储生命周期填写90保存成功（脏数据存储生命周期：90天，默认值）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 查看【脏数据存储生命周期】输入框默认值
-        expected: 显示为90天
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: "脏数据配置同步成功: 90天"
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0018
-    title: 验证「脏数据管理」脏数据存储生命周期填写1保存成功（脏数据存储生命周期：1天，最小值）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据存储生命周期】输入框中输入：1
-        expected: 显示为1天
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: "脏数据配置同步成功: 1天"
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0019
-    title: 验证「脏数据写入sparkthrift表」脏数据表创建在当前离线项目对接的sparkthrift数据源中
-    priority: P0
-    precondition: 已配置脏数据
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 保持脏数据写入sparkthrift表为空, 发布任务
-        expected: 发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据生成成功
-      - action: 查询当前schema下的sparkthrift表
-        expected: "存在脏数据表, 表名: dirty_任务ID"
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0020
-    title: 验证「脏数据管理」脏数据超过条数填写10保存成功（sparkthrift + 脏数据超过条数：10）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框中输入：10
-        expected: 输入内容显示为"10"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为"10"
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为10, 超过则报错
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0021
-    title: 验证「脏数据管理」脏数据超过条数填写0保存成功（脏数据超过条数：0）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框中输入：0
-        expected: 输入内容显示为"0"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为"0"
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据记录在脏数据表, 限制条数为0
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0022
-    title: 验证「脏数据管理」脏数据超过条数填写-1保存成功（脏数据超过条数：-1）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框中输入：-1
-        expected: 输入内容显示为"-1"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为"-1"
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据记录在脏数据表, 不限制条数
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0023
-    title: 验证「脏数据管理」脏数据超过条数不填写保存成功（脏数据超过条数为空）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据超过条数】输入框, 不输入任何内容
-        expected: 输入框显示为空
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 脏数据配置同步成功, "脏数据超过条数"显示为空
-      - action: 运行任务
-        expected: 数据同步成功, 脏数据打印在日志中，限制条数为0
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0024
-    title: 验证「脏数据管理」脏数据记录比例填写10保存成功（脏数据记录比例：10%）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 选择数据同步目标为sparkthrift, 勾选脏数据管理-记录保存
-        expected: 配置完成
-      - action: 在【脏数据记录比例】输入框中输入：10
-        expected: 输入内容显示为"10"
-      - action: 配置其他必填项, 点击【发布任务】按钮
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: "脏数据配置同步成功: 10%"
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 脏数据管理
-      - sparkthrift
-  - case_id: C0025
-    title: 验证点击建表语句, 可编辑monaco编辑器
-    priority: P1
-    precondition: 目标表列表中存在user表
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: |-
-          1) 打开建表语句弹窗, 可进行编辑
-          2) 取消 / 确定按钮
-      - action: 查看建表SQL内容
-        expected: |-
-          1) SQL为CREATE TABLE语句
-          2) hive表字段与源表字段一致
-          3) 创建的orc表
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0026
-    title: 验证「分区字段」输入分区字段保存成功（分区字段：pt）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 在【分区字段】输入框中输入：pt
-        expected: 输入内容显示为"pt"
-      - action: 选择至少1张源端表，点击【发布任务】
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看表结构
-        expected: 表为默认的orc分区表
-      - action: 查看生成的数据同步任务配置
-        expected: 选择目标中, 存在分区字段, 显示为"pt=xx"
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0027
-    title: 验证「分区字段」不输入分区保存成功（分区字段为空）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 在【分区字段】输入框不填写
-        expected: |-
-          1、 输入内容显示为空
-          2、 非必填, 默认显示："请输入分区字段"
-      - action: 选择至少1张源端表，点击【发布任务】
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看表结构
-        expected: 表为非分区表
-      - action: 查看生成的数据同步任务配置
-        expected: 选择目标中, 不存在分区配置项
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0028
-    title: 验证Monaco中配置分区字段但在分区字段输入框中不填写以SQL为准（SQL优先级 > 输入框）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
-        expected: 修改并保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: "hive表创建成功, 表结构正确: 默认orc分区表"
-      - action: 查看数据同步任务
-        expected: 存在分区输入框
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0029
-    title: 验证Monaco中不配置分区字段但在分区字段输入框中填写（SQL优先级 > 输入框）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
-        expected: 修改并保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: "hive表创建成功, 表结构正确: 不是分区表"
-      - action: 查看数据同步任务
-        expected: 不存在分区输入框
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0030
-    title: 验证Monaco编辑器中保存后优先级更高（SQL优先级 > 高级设置）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 添加高级设置规则
-        expected: 添加成功, 规则生效
-      - action: 点击建表语句后, 直接确定
-        expected: 保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 高级规则不生效
-      - action: 查看数据同步任务
-        expected: 配置正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0031
-    title: 验证未点击过建表语句按钮,  高级设置生效
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 添加高级设置规则——表名转换规则
-        expected: 添加成功, 规则生效
-      - action: 不点击建表语句后, 勾选记录后确定
-        expected: 保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 高级规则已生效
-      - action: 查看数据同步任务
-        expected: 配置正确
-      - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段名转换规则
-        expected: 规则生效
-      - action: 发布并检查
-        expected: 表结构正确, 高级规则生效
-      - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
-        expected: 规则生效
-      - action: 发布并检查
-        expected: 表结构正确, 高级规则生效
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0032
-    title: 验证点击过建表语句确定按钮,  高级设置不生效
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 添加高级设置规则——表名转换规则
-        expected: 添加成功, 规则生效
-      - action: 点击建表语句并确定后, 勾选记录
-        expected: 保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 高级规则不生效
-      - action: 查看数据同步任务
-        expected: 配置正确
-      - action: 重新对确定过的建表语句的记录, 添加高级设置规则——字段名转换规则
-        expected: 规则不生效
-      - action: 发布并检查
-        expected: 表结构正确, 规则不生效
-      - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
-        expected: 规则不生效
-      - action: 发布并检查
-        expected: 表结构正确, 规则不生效
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0033
-    title: 验证非create table语句, 保存失败
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 删除所有内容后, 改为非create table 开头的语句并保存
-        expected: "异常提示: 解析建表SQL失败"
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0034
-    title: 验证创建多个creare table, 发布失败
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】
-        expected: 进入建表语句弹窗
-      - action: 往下添加create table语句, 保存
-        expected: "提示: DDL语法错误"
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0035
-    title: 验证sql语法错误, 发布任务正常报错
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 修改SQL为语法错误的语句, 保存
-        expected: 保存成功
-      - action: 填写其它必填项后, 发布任务
-        expected: 发布失败, 任务状态中提示错误信息
-      - action: 检查数据开发-周期任务-任务开发目录
-        expected: 存在clone_databases目录, 存在对应虚节点任务, 不存在对应的数据同步任务
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0036
-    title: 验证「SQL编辑」修改字段类型后保存成功（修改字段类型）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器中找到id字段，将字段类型从"INT"修改为"BIGINT"
-        expected: 修改并保存成功
-      - action: 再次点击user表的【建表语句】
-        expected: 回显正确, id字段类型为"BIGINT"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务
-        expected: "映射正确: 同名映射"
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0037
-    title: 验证「SQL编辑」修改字段名后保存成功（修改字段名）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器中找到id字段，将字段名从"id"修改为"user_id"
-        expected: 修改后SQL内容为：user_id INT COMMENT '用户ID'
-      - action: 点击【确定】按钮
-        expected: Toast提示："修改成功"
-      - action: 再次点击user表的【建表语句】链接
-        expected: |
-          字段名为"user_id"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 包含user_id字段
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0038
-    title: 验证「SQL编辑」修改存储格式后保存成功（修改存储格式）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 将"STORED AS ORC"修改为"STORED AS PARQUET"
-        expected: 修改并保存成功
-      - action: 再次点击user表的【建表语句】链接
-        expected: 存储格式为"STORED AS PARQUET"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0039
-    title: 验证「SQL编辑」修改表名后保存成功（修改表名）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击Oracle数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 将"user"修改为"user_info"
-        expected: 修改并保存成功
-      - action: 再次点击user表的【建表语句】链接
-        expected: 表名为"user_info"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0040
-    title: 验证「SQL异常」删除所有SQL内容后保存Toast提示建表SQL不能为空（空SQL）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 删除所有内容后, 保存
-        expected: "提示: 建表SQL不能为空"
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0041
-    title: 验证Monaco编辑器支持SQL语法高亮、自动补全
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 删除所有内容后, 输入CRE
-        expected: "自动提示: CREATE"
-      - action: 回车确认
-        expected: CREATE语法高亮
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0042
-    title: 验证整库同步任务配置正确(多字段 -> 少字段)
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器删除部分字段并确定
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务配置
-        expected: "映射方式: 同名映射"
-      - action: 运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0043
-    title: 验证整库同步任务配置正确(少字段 -> 多字段)
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器添加部分字段并确定
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务配置
-        expected: "映射方式: 同名映射"
-      - action: 运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确, 没有的字段数据补NULL
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0044
-    title: 验证整库同步任务配置正确(多表, 全部改)
-    priority: P1
-    precondition: 存在多个mysql表
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的多个user表记录, 依次点击【建表语句】并修改
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构均修改正确
-      - action: 依次查看数据同步任务配置
-        expected: 映射方式均为同名映射
-      - action: 依次运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0045
-    title: 验证整库同步任务配置正确(多表, 部分改)
-    priority: P1
-    precondition: 存在多个mysql表
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的多个user表记录, 依次点击【建表语句】并部分修改
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构均修改正确
-      - action: 依次查看数据同步任务配置
-        expected: 映射方式均为同名映射
-      - action: 依次运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - hive
-  - case_id: C0046
-    title: 验证点击建表语句, 可编辑monaco编辑器
-    priority: P1
-    precondition: 目标表列表中存在user表
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: |-
-          1) 打开建表语句弹窗, 可进行编辑
-          2) 取消 / 确定按钮
-      - action: 查看建表SQL内容
-        expected: |-
-          1) SQL为CREATE TABLE语句
-          2) hive表字段与源表字段一致
-          3) 创建的orc表
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0047
-    title: 验证「分区字段」输入分区字段保存成功（分区字段：pt）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择成功
-      - action: 在【分区字段】输入框中输入：pt
-        expected: 输入内容显示为"pt"
-      - action: 选择至少1张源端表，点击【发布任务】
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 选择目标中, 存在分区字段, 显示为"pt=xx"
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0048
-    title: 验证「分区字段」不输入分区保存成功（分区字段为空）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择成功
-      - action: 在【分区字段】输入框不填写
-        expected: |-
-          1、 输入内容显示为空
-          2、 非必填, 默认显示："请输入分区字段"
-      - action: 选择至少1张源端表，点击【发布任务】
-        expected: 任务发布成功
-      - action: 进入任务开发目录，查看生成的数据同步任务配置
-        expected: 选择目标中, 不存在分区配置项
-      - action: 运行任务
-        expected: 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0049
-    title: 验证Monaco中配置分区字段但在分区字段输入框中不填写以SQL为准（SQL优先级 > 输入框）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
-        expected: 修改并保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: "hive表创建成功, 表结构正确: 默认orc分区表"
-      - action: 查看数据同步任务
-        expected: 存在分区输入框
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0050
-    title: 验证Monaco中不配置分区字段但在分区字段输入框中填写（SQL优先级 > 输入框）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 删除分区字段输入框中的值, 但保留monaco编辑器中的分区
-        expected: 修改并保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: "hive表创建成功, 表结构正确: 不是分区表"
-      - action: 查看数据同步任务
-        expected: 不存在分区输入框
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0051
-    title: 验证未点击过建表语句按钮,  高级设置生效
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 添加高级设置规则——表名转换规则
-        expected: 添加成功, 规则生效
-      - action: 不点击建表语句后, 勾选记录后确定
-        expected: 保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 高级规则已生效
-      - action: 查看数据同步任务
-        expected: 配置正确
-      - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段名转换规则
-        expected: 规则生效
-      - action: 发布并检查
-        expected: 高级规则生效, 表结构正确
-      - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
-        expected: 规则生效
-      - action: 发布并检查
-        expected: 高级规则生效, 表结构正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0052
-    title: 验证点击过建表语句确定按钮,  高级设置不生效
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 添加高级设置规则——表名转换规则
-        expected: 添加成功, 规则生效
-      - action: 点击建表语句并确定后, 勾选记录
-        expected: 保存成功
-      - action: 其它正常填写后, 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 高级规则不生效
-      - action: 查看数据同步任务
-        expected: 配置正确
-      - action: 重新对确定过的建表语句的记录, 添加高级设置规则——字段名转换规则
-        expected: 规则不生效
-      - action: 发布并检查
-        expected: 表结构正确, 规则不生效
-      - action: 重新对一个未改动过建表语句的记录, 添加高级设置规则——字段类型转换规则
-        expected: 规则不生效
-      - action: 发布并检查
-        expected: 表结构正确, 规则不生效
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0053
-    title: 验证非create table语句, 保存失败
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 删除所有内容后, 改为非create table 开头的语句并保存
-        expected: "异常提示: 解析建表SQL失败"
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0054
-    title: 验证sql语法错误, 发布任务正常报错
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 修改SQL为语法错误的语句, 保存
-        expected: 保存成功
-      - action: 填写其它必填项后, 发布任务
-        expected: 发布失败, 任务状态中提示错误信息
-      - action: 检查数据开发-周期任务-任务开发目录
-        expected: 存在clone_databases目录, 存在对应虚节点任务, 不存在对应的数据同步任务
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0055
-    title: 验证「SQL编辑」修改字段类型后保存成功（修改字段类型）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器中找到id字段，将字段类型从"INT"修改为"BIGINT"
-        expected: 修改并保存成功
-      - action: 再次点击user表的【建表语句】链接
-        expected: 回显正确, id字段类型为"BIGINT"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0056
-    title: 验证「SQL编辑」修改字段名后保存成功（修改字段名）
-    priority: P0
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击oracle数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"sparkthrift"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器中找到id字段，将字段名从"id"修改为"user_id"
-        expected: 修改后SQL内容为：user_id INT COMMENT '用户ID'
-      - action: 点击【确定】按钮
-        expected: Toast提示："修改成功"
-      - action: 再次点击user表的【建表语句】链接
-        expected: 字段名为"user_id"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 包含user_id字段
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 设置调度属性为立即生成, 17min后, 周期运行
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0057
-    title: 验证「SQL编辑」修改存储格式后保存成功（修改存储格式）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 将"STORED AS ORC"修改为"STORED AS PARQUET"
-        expected: 修改并保存成功
-      - action: 再次点击user表的【建表语句】链接
-        expected: 存储格式为"STORED AS PARQUET"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0058
-    title: 验证「SQL编辑」修改表名后保存成功（修改表名）
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 将"user"修改为"user_info"
-        expected: 修改并保存成功
-      - action: 再次点击user表的【建表语句】链接
-        expected: 表名为"user_info"
-      - action: 点击【发布任务】按钮，任务发布并执行成功后，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务
-        expected: 映射正确
-      - action: 运行任务
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0059
-    title: 验证「SQL异常」删除所有SQL内容后保存Toast提示建表SQL不能为空（空SQL）
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 删除所有内容后, 保存
-        expected: "提示: 建表SQL不能为空"
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0060
-    title: 验证Monaco编辑器支持SQL语法高亮、自动补全
-    priority: P2
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 进入建表语句弹窗, 删除所有内容后, 输入CRE
-        expected: "自动提示: CREATE"
-      - action: 回车确认
-        expected: CREATE语法高亮
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0061
-    title: 验证整库同步任务配置正确(多字段 -> 少字段)
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器删除部分字段并确定
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务配置
-        expected: "映射方式: 同名映射"
-      - action: 运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0062
-    title: 验证整库同步任务配置正确(少字段 -> 多字段)
-    priority: P1
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的user表记录, 点击【建表语句】链接
-        expected: 进入建表语句弹窗
-      - action: 在SQL编辑器添加部分字段并确定
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构正确
-      - action: 查看数据同步任务配置
-        expected: "映射方式: 同名映射"
-      - action: 运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确, 没有的字段数据补NULL
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0063
-    title: 验证整库同步任务配置正确(多表, 全部改)
-    priority: P1
-    precondition: 存在多个mysql表
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的多个user表记录, 依次点击【建表语句】并修改
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构均修改正确
-      - action: 依次查看数据同步任务配置
-        expected: 映射方式均为同名映射
-      - action: 依次运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0064
-    title: 验证整库同步任务配置正确(多表, 部分改)
-    priority: P0
-    precondition: 存在多个mysql表
-    steps:
-      - action: 进入【离线开发】→【数据源】页面，点击MySQL数据源的【整库同步】按钮
-        expected: 进入整库同步配置页面
-      - action: 在【数据同步目标】下拉框中选择"Hive"数据源
-        expected: 选择Hive数据源成功
-      - action: 找到目标表列表中的多个user表记录, 依次点击【建表语句】并部分修改
-        expected: 修改并保存成功
-      - action: 发布任务并执行，查看表结构
-        expected: hive表创建成功, 表结构均修改正确
-      - action: 依次查看数据同步任务配置
-        expected: 映射方式均为同名映射
-      - action: 依次运行数据同步任务
-        expected: 运行成功, 数据同步成功, 数据写入正确
-    tags:
-      - 数据源-整库同步
-      - 建表语句
-      - sparkthrift
-  - case_id: C0065
-    title: 验证「历史任务兼容性」已发布的整库同步任务正常（MySQL2Hive）
-    priority: P0
-    precondition: |-
-      1、 存在升级之前创建的整库同步任务
 
-      2、 同步任务名称为："old_sync_task"
-    steps:
-      - action: 进入【数据源】页面，点击同步历史
-        expected: ""
-      - action: 进入数据开发-周期任务-clone_database目录下
-        expected: 存在对应历史任务
-      - action: 编辑历史任务old_sync_task
-        expected: 可以正常进行编辑
-      - action: 运行历史任务old_sync_task
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据开发-周期任务
-  - case_id: C0066
-    title: 验证「历史任务兼容性」已发布的整库同步任务正常（Oracle2Hive）
-    priority: P1
-    precondition: |-
-      1、 存在升级之前创建的整库同步任务
+    2、 同步任务名称为："old_sync_task"'
+  steps:
+  - action: 进入【离线开发 → 数据开发-周期任务】页面
+    expected: 已进入【离线开发 → 数据开发-周期任务】页面，显示页面标题与主要操作区域
+  - action: 进入【数据源】页面，点击同步历史
+    expected: 正常显示整库同步配置历史记录
+  - action: 选择一条记录, 点击查看详情
+    expected: 进入详情页面
+  - action: 进入数据开发-周期任务-clone_database目录下
+    expected: 存在对应历史数据同步任务
+  - action: 设置调度属性为立即生成, 17min后, 周期运行
+    expected: 17min后, 运行成功, 数据同步成功
+  tags:
+  - 数据开发-周期任务
+- case_id: C0068
+  title: 验证「历史任务兼容性」已发布的整库同步任务正常（Oracle2SparkThrift）
+  priority: P1
+  precondition: '1、 存在升级之前创建的整库同步任务
 
-      2、 同步任务名称为："old_sync_task"
-    steps:
-      - action: 进入【数据源】页面，点击同步历史
-        expected: 正常显示整库同步配置历史记录
-      - action: 选择一条记录, 点击查看详情
-        expected: 进入详情页面
-      - action: 进入数据开发-周期任务-clone_database目录下
-        expected: 存在对应历史数据同步任务
-      - action: 设置调度属性为立即生成, 17min后, 周期运行
-        expected: 17min后, 运行成功, 数据同步成功
-    tags:
-      - 数据开发-周期任务
-  - case_id: C0067
-    title: 验证「历史任务兼容性」已发布的整库同步任务正常（MysQL2SparkThrift）
-    priority: P1
-    precondition: |-
-      1、 存在升级之前创建的整库同步任务
 
-      2、 同步任务名称为："old_sync_task"
-    steps:
-      - action: 进入【数据源】页面，点击同步历史
-        expected: 正常显示整库同步配置历史记录
-      - action: 选择一条记录, 点击查看详情
-        expected: 进入详情页面
-      - action: 进入数据开发-周期任务-clone_database目录下
-        expected: 存在对应历史数据同步任务
-      - action: 设置调度属性为立即生成, 17min后, 周期运行
-        expected: 17min后, 运行成功, 数据同步成功
-    tags:
-      - 数据开发-周期任务
-  - case_id: C0068
-    title: 验证「历史任务兼容性」已发布的整库同步任务正常（Oracle2SparkThrift）
-    priority: P1
-    precondition: |-
-      1、 存在升级之前创建的整库同步任务
+    2、 同步任务名称为："old_sync_task"'
+  steps:
+  - action: 进入【离线开发 → 数据开发-周期任务】页面
+    expected: 已进入【离线开发 → 数据开发-周期任务】页面，显示页面标题与主要操作区域
+  - action: 进入【数据源】页面，点击同步历史
+    expected: '1、 正常显示整库同步配置历史记录
 
-      2、 同步任务名称为："old_sync_task"
-    steps:
-      - action: 进入【数据源】页面，点击同步历史
-        expected: |-
-          1、 正常显示整库同步配置历史记录
-          2、 正常查看详情
-      - action: 进入数据开发-周期任务-clone_database目录下
-        expected: 存在对应历史任务
-      - action: 编辑历史任务old_sync_task
-        expected: 可以正常进行编辑
-      - action: 运行历史任务old_sync_task
-        expected: 运行成功, 数据同步成功
-    tags:
-      - 数据开发-周期任务
+      2、 正常查看详情'
+  - action: 进入数据开发-周期任务-clone_database目录下
+    expected: 存在对应历史任务
+  - action: 编辑历史任务old_sync_task
+    expected: 操作完成且页面展示对应结果进行编辑
+  - action: 运行历史任务old_sync_task
+    expected: 运行成功, 数据同步成功
+  tags:
+  - 数据开发-周期任务

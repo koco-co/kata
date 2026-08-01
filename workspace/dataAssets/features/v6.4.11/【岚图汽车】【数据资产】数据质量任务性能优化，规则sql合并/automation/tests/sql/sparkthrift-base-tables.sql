@@ -1,14 +1,14 @@
 -- v6.4.11 岚图汽车数据质量任务性能优化，规则 SQL 合并
 -- 目标: SparkThrift2.x §37–§72（36 条）；Doris §01–§36 不在本次回归范围
 --
--- 执行前将 {{DATABASE}} 替换为环境文件 datasources.sparkthrift.sql.database，
--- 将 {{SUFFIX}} 替换为 Playwright 使用的同一 8 位小写字母后缀。
+-- 执行前将 ${SchemaA} 替换为环境文件 datasources.sparkthrift.sql.database，
+-- 将 ${RunSuffix} 替换为 Playwright 使用的同一 8 位小写字母后缀。
 -- 分区字段 dt 统一使用上海时区执行日的 T-1（${bizDate}）。
 -- 本文件只提供人工建表 SQL；Playwright 正式回归使用
 -- playwright.skip_precondition_setup=true 同时跳过底表创建和元数据同步。
 
 -- §37 主表（源用例 37；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_37 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_37 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -24,7 +24,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_37
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_37
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -60,7 +60,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §37 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_37_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_37_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -76,7 +76,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_37_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_37_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -112,7 +112,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §38 主表（源用例 38；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_38 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_38 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -128,7 +128,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_38
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_38
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -164,7 +164,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §38 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_38_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_38_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -180,7 +180,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_38_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_38_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -216,7 +216,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §39 主表（源用例 39；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_39 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_39 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -232,7 +232,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_39
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_39
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -268,7 +268,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §39 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_39_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_39_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -284,7 +284,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_39_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_39_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -320,7 +320,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §40 主表（源用例 40；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_40 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_40 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -336,7 +336,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_40
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_40
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -372,7 +372,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §40 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_40_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_40_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -388,7 +388,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_40_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_40_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -424,7 +424,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §41 主表（源用例 41；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_41 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_41 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -440,7 +440,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_41
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_41
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -476,7 +476,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §41 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_41_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_41_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -492,7 +492,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_41_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_41_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -528,7 +528,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §42 主表（源用例 42；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_42 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_42 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -544,7 +544,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_42
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_42
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -580,7 +580,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §42 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_42_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_42_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -596,7 +596,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_42_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_42_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -632,7 +632,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §43 主表（源用例 43；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_43 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_43 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -648,7 +648,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_43
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_43
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -684,7 +684,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §43 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_43_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_43_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -700,7 +700,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_43_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_43_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -736,7 +736,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §44 主表（源用例 44；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_44 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_44 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -752,7 +752,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_44
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_44
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -788,7 +788,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §44 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_44_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_44_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -804,7 +804,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_44_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_44_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -840,7 +840,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §45 主表（源用例 45；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_45 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_45 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -856,7 +856,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_45
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_45
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -892,7 +892,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §45 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_45_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_45_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -908,7 +908,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_45_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_45_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -944,7 +944,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §46 主表（源用例 46；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_46 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_46 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -960,7 +960,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_46
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_46
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -996,7 +996,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §46 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_46_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_46_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1012,7 +1012,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_46_cmp
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_46_cmp
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1048,7 +1048,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §47 主表（源用例 47；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_47 ( 
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_47 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1064,7 +1064,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_47
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_47
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1100,7 +1100,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §48 主表（源用例 48；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_48 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_48 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1116,7 +1116,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_48
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_48
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1152,7 +1152,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §49 主表（源用例 49；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_49 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_49 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1168,7 +1168,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_49
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_49
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1204,7 +1204,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §50 主表（源用例 50；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_50 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_50 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1220,7 +1220,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_50
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_50
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1256,7 +1256,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §51 主表（源用例 51；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_51 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_51 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1272,7 +1272,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_51
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_51
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1308,7 +1308,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §52 主表（源用例 52；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_52 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_52 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1324,7 +1324,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_52
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_52
 PARTITION (dt)
 SELECT CAST(1 + (sequence % 99) AS INT) AS id,
        25 AS age,
@@ -1338,7 +1338,7 @@ SELECT CAST(1 + (sequence % 99) AS INT) AS id,
 FROM range(10000) AS dirty(sequence);
 
 -- §53 主表（源用例 53；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_53 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_53 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1354,7 +1354,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_53
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_53
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1390,7 +1390,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §54 主表（源用例 54；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_54 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_54 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1406,7 +1406,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_54
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_54
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1442,7 +1442,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §55 主表（源用例 55；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_55 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_55 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1458,7 +1458,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_55
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_55
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1494,7 +1494,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §56 主表（源用例 56；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_56 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_56 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1510,7 +1510,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_56
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_56
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1546,7 +1546,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §57 主表（源用例 57；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_57 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_57 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1562,7 +1562,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_57
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_57
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1598,7 +1598,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §58 主表（源用例 58；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_58 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_58 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1614,7 +1614,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_58
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_58
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1650,7 +1650,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §59 主表（源用例 59；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_59 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_59 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1666,7 +1666,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_59
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_59
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1702,7 +1702,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §60 主表（源用例 60；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_60 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_60 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1718,7 +1718,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_60
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_60
 PARTITION (dt)
 SELECT CAST(1 + (sequence % 99) AS INT) AS id,
        NULL AS age,
@@ -1732,7 +1732,7 @@ SELECT CAST(1 + (sequence % 99) AS INT) AS id,
 FROM range(10000) AS dirty(sequence);
 
 -- §61 主表（源用例 61；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_61 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_61 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1748,7 +1748,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_61
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_61
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1784,7 +1784,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §62 主表（源用例 62；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_62 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_62 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1800,7 +1800,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_62
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_62
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1836,7 +1836,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §63 主表（源用例 63；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_63 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_63 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1852,7 +1852,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_63
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_63
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1888,7 +1888,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §64 主表（源用例 64；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_64 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_64 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1904,7 +1904,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_64
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_64
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1940,7 +1940,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §65 主表（源用例 65；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_65 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_65 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1956,7 +1956,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_65
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_65
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -1992,7 +1992,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §66 主表（源用例 66；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_66 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_66 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2008,7 +2008,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_66
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_66
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -2044,7 +2044,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §67 主表（源用例 67；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_67 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_67 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2060,7 +2060,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_67
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_67
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -2096,7 +2096,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §68 主表（源用例 68；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_68 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_68 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2112,7 +2112,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_68
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_68
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -2148,7 +2148,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §69 主表（源用例 69；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_69 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_69 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2164,7 +2164,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_69
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_69
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -2200,7 +2200,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §70 主表（源用例 70；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_70 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_70 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2216,7 +2216,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_70
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_70
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -2252,7 +2252,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §71 主表（源用例 71；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_71 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_71 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2268,7 +2268,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_71
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_71
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,
@@ -2304,7 +2304,7 @@ UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
 ) users;
 
 -- §72 主表（源用例 72；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_72 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_72 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2320,7 +2320,7 @@ dt STRING COMMENT '分区日期，格式：yyyy-MM-dd'
 )
 STORED AS ORC;
 
-INSERT INTO TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_72
+INSERT INTO TABLE ${SchemaA}.test_info_1_${RunSuffix}_72
 PARTITION (dt)
 SELECT
 1 + user_idx AS id,

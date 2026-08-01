@@ -10,6 +10,8 @@ cases:
     title: 验证「数据开发-周期任务」「数据来源-Path」显示&交互正确
     priority: P0
     steps:
+      - action: 进入【离线开发 → Path】页面
+        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务，【数据来源】步骤“数据源”选择restful数据源，查看页面显示
         expected: |-
           1） “数据源”下方新增字段：Path
@@ -25,10 +27,12 @@ cases:
       - action: 「Path」输入2-200个合法字符且以/开头
         expected: 输入框正常回显已输入内容
   - case_id: C0002
-    title: 验证「数据开发-周期任务」数据同步功能正常_restful2other_post_数据源url未配置path
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url未配置path
     priority: P0
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -46,10 +50,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 补数据运行成功，数据均正常写入目标数据源中
   - case_id: C0003
-    title: 验证「数据开发-周期任务」数据同步功能正常_restful2other_post_数据源url已配置path
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url已配置path
     priority: P0
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -67,10 +73,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 补数据运行失败
   - case_id: C0004
-    title: 验证「数据开发-周期任务」数据同步功能正常_restful2other_get_数据源url未配置path&请求参数
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url未配置path&请求参数
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -96,10 +104,12 @@ cases:
           1） 数据同步任务C保存成功
           2） 补数据运行成功，数据均正常写入目标数据源中
   - case_id: C0005
-    title: 验证「数据开发-周期任务」数据同步功能正常_restful2other_get_数据源url已配置path&请求参数
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url已配置path&请求参数
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -128,6 +138,8 @@ cases:
     title: 验证「数据开发-周期任务」「选择目标-Path」显示&交互正确
     priority: P1
     steps:
+      - action: 进入【离线开发 → Path】页面
+        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务，【选择目标】步骤“数据同步目标”选择restful数据源，查看页面显示
         expected: |-
           1） “数据同步目标”下方新增字段：Path
@@ -143,10 +155,12 @@ cases:
       - action: 「Path」输入2-200个合法字符且以/开头
         expected: 输入框正常回显已输入内容
   - case_id: C0007
-    title: 验证「数据开发-周期任务」数据同步功能正常_other2restful_post_数据源url未配置path
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url未配置path
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -164,10 +178,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 补数据运行成功，数据均正常写入restful数据源中
   - case_id: C0008
-    title: 验证「数据开发-周期任务」数据同步功能正常_other2restful_post_数据源url已配置path
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url已配置path
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -185,10 +201,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 补数据运行失败
   - case_id: C0009
-    title: 验证「数据开发-周期任务」数据同步功能正常_other2restful_get_数据源url未配置path&请求参数
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url未配置path&请求参数
     priority: P0
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -214,10 +232,12 @@ cases:
           1） 数据同步任务C保存成功
           2） 补数据运行成功，数据均正常写入restful数据源中
   - case_id: C0010
-    title: 验证「数据开发-周期任务」数据同步功能正常_other2restful_get_数据源url已配置path&请求参数
+    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url已配置path&请求参数
     priority: P0
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -246,6 +266,8 @@ cases:
     title: 验证「数据开发-手动任务」「数据来源-Path」显示&交互正确
     priority: P1
     steps:
+      - action: 进入【离线开发 → Path】页面
+        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务，【数据来源】步骤“数据源”选择restful数据源，查看页面显示
         expected: |-
           1） “数据源”下方新增字段：Path
@@ -261,10 +283,12 @@ cases:
       - action: 「Path」输入2-200个合法字符且以/开头
         expected: 输入框正常回显已输入内容
   - case_id: C0012
-    title: 验证「数据开发-手动任务」数据同步功能正常_restful2other_post_数据源url未配置path
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url未配置path
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -282,10 +306,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 手动运行成功，数据均正常写入目标数据源中
   - case_id: C0013
-    title: 验证「数据开发-手动任务」数据同步功能正常_restful2other_post_数据源url已配置path
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url已配置path
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -303,10 +329,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 手动运行失败
   - case_id: C0014
-    title: 验证「数据开发-手动任务」数据同步功能正常_restful2other_get_数据源url未配置path&请求参数
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url未配置path&请求参数
     priority: P0
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -332,10 +360,12 @@ cases:
           1） 数据同步任务C保存成功
           2） 手动运行成功，数据均正常写入目标数据源中
   - case_id: C0015
-    title: 验证「数据开发-手动任务」数据同步功能正常_restful2other_get_数据源url已配置path&请求参数
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url已配置path&请求参数
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -364,6 +394,8 @@ cases:
     title: 验证「数据开发-手动任务」「选择目标-Path」显示&交互正确
     priority: P1
     steps:
+      - action: 进入【离线开发 → Path】页面
+        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务，【选择目标】步骤“数据同步目标”选择restful数据源，查看页面显示
         expected: |-
           1） “数据同步目标”下方新增字段：Path
@@ -379,10 +411,12 @@ cases:
       - action: 「Path」输入2-200个合法字符且以/开头
         expected: 输入框正常回显已输入内容
   - case_id: C0017
-    title: 验证「数据开发-手动任务」数据同步功能正常_other2restful_post_数据源url未配置path
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url未配置path
     priority: P0
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -400,10 +434,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 手动运行成功，数据均正常写入restful数据源中
   - case_id: C0018
-    title: 验证「数据开发-手动任务」数据同步功能正常_other2restful_post_数据源url已配置path
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url已配置path
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -421,10 +457,12 @@ cases:
           1） 数据同步任务B保存成功
           2） 手动运行失败
   - case_id: C0019
-    title: 验证「数据开发-手动任务」数据同步功能正常_other2restful_get_数据源url未配置path&请求参数
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url未配置path&请求参数
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功
@@ -450,10 +488,12 @@ cases:
           1） 数据同步任务C保存成功
           2） 手动运行成功，数据均正常写入restful数据源中
   - case_id: C0020
-    title: 验证「数据开发-手动任务」数据同步功能正常_other2restful_get_数据源url已配置path&请求参数
+    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url已配置path&请求参数
     priority: P1
     precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
         expected: |-
           1） 数据同步任务A保存成功

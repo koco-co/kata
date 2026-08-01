@@ -1,0 +1,135 @@
+forbidden_terms:
+  uncertainty:
+    - 可能
+    - 或许
+    - 也许
+    - 大概
+    - 大致
+    - 预计
+    - 推测
+    - 猜测
+    - 疑似
+    - 似乎
+    - 通常
+    - 一般情况下
+    - 理论上
+    - 原则上
+  weak_action:
+    - 尝试
+    - 试着
+    - 尽量
+    - 酌情
+    - 视情况
+    - 必要时
+    - 按需
+    - 适当
+  vague_setup:
+    - 准备
+    - 预置
+    - 当前账号
+    - 构造数据
+    - 构造值
+    - 测试对象
+    - 待定
+    - 待补充
+    - 暂定
+    - 后续补充
+    - 测试数据
+    - 测试表
+    - 测试字段
+    - 测试账号
+    - 测试用户
+  vague_object:
+    - 类似
+    - 相关
+    - 相应
+    - 等等
+    - 诸如此类
+    - 若干
+    - 一些
+    - 一批
+    - 少量
+    - 大量
+    - 多个
+    - 多条
+    - 多张
+    - 某个
+    - 某些
+    - 某一
+    - 某条
+    - 某张
+    - 某目录
+    - 任一表
+  login_state:
+    - 已登录
+    - 已登陆
+    - 登录后
+    - 登陆后
+    - 先登录
+    - 先登陆
+  generic_assertion:
+    - 数据正确
+    - 结果正确
+    - 显示正常
+    - 功能正常
+    - 操作正常
+    - 流程正常
+    - 返回正常
+    - 页面正常
+    - 展示正常
+    - 信息正常
+    - 统计数值正常
+    - 数据与原型设计一致
+    - 与构造值一致
+    - 与条件一致
+    - 可以正常
+    - 提示错误
+    - 逻辑正常
+    - 功能逻辑正常
+    - UI展示正确
+    - 符合预期
+    - 无异常
+  process_residue:
+    - 用户确认补充
+    - AI补充
+    - AI生成
+    - 待人工确认
+    - 未分类
+
+first_step_pattern: '^进入【[^】\n]+\s*→\s*[^】\n]+】页面(?:[。；;，,]|$)'
+first_step_expected: '进入【实际一级模块 → 实际页面】页面'
+first_step_example: '进入【数据质量 → 规则库配置】页面'
+
+default_datasource_type: SparkThrift2.x
+datasource_types:
+  - SparkThrift2.x
+  - SparkThrift
+  - Hive
+  - Hive1.x
+  - Hive2.x
+  - Hive3.x
+  - Doris
+  - Doris2.x
+  - Doris3.x
+  - StarRocks3.x
+  - MySQL
+  - PostgreSQL
+  - Oracle
+  - GaussDB
+  - GaussDB9.1
+  - Vastbase
+  - OceanBase
+  - OceanBaseOracle
+  - Impala
+  - Lindorm
+  - Kyuubi
+
+table_roles:
+  - source
+  - target
+  - comparison
+  - dimension
+
+empty_table_markers:
+  - 该表为空表
+  - 该表不写入数据

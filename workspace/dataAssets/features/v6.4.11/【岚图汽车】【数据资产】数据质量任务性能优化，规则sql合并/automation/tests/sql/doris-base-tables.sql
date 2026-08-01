@@ -2,14 +2,14 @@
 -- 目标: Doris3.x §01–§36（36 条）；SparkThrift §37–§72 由 lindorm-test_info_1.sql 提供
 -- Doris 数据源由环境文件 datasources.doris.name 决定
 --
--- 执行前将 {{DATABASE}} 替换为环境文件 datasources.doris.database，
--- 将 {{SUFFIX}} 替换为 Playwright 使用的同一 8 位小写字母后缀。
+-- 执行前将 ${SchemaA} 替换为环境文件 datasources.doris.database，
+-- 将 ${RunSuffix} 替换为 Playwright 使用的同一 8 位小写字母后缀。
 -- 分区字段 dt 使用与 Spark 批次一致的 T-1 日期 2026-07-19。
 -- 本文件只提供人工建表 SQL；Playwright 正式回归使用
 -- playwright.skip_precondition_setup=true 同时跳过 Doris 底表创建和元数据同步。
 
 -- §01 主表（源用例 1；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_01 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_01 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -27,8 +27,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_01 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_01
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_01 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_01
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -67,7 +67,7 @@ SELECT 5
 ) users;
 
 -- §01 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_01_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_01_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -85,8 +85,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_01_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_01_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_01_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_01_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -125,7 +125,7 @@ SELECT 5
 ) users;
 
 -- §02 主表（源用例 2；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_02 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_02 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -143,8 +143,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_02 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_02
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_02 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_02
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -183,7 +183,7 @@ SELECT 5
 ) users;
 
 -- §02 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_02_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_02_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -201,8 +201,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_02_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_02_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_02_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_02_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -241,7 +241,7 @@ SELECT 5
 ) users;
 
 -- §03 主表（源用例 3；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_03 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_03 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -259,8 +259,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_03 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_03
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_03 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_03
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -299,7 +299,7 @@ SELECT 5
 ) users;
 
 -- §03 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_03_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_03_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -317,8 +317,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_03_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_03_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_03_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_03_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -357,7 +357,7 @@ SELECT 5
 ) users;
 
 -- §04 主表（源用例 4；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_04 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_04 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -375,8 +375,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_04 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_04
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_04 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_04
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -415,7 +415,7 @@ SELECT 5
 ) users;
 
 -- §04 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_04_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_04_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -433,8 +433,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_04_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_04_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_04_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_04_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -473,7 +473,7 @@ SELECT 5
 ) users;
 
 -- §05 主表（源用例 5；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_05 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_05 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -491,8 +491,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_05 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_05
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_05 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_05
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -531,7 +531,7 @@ SELECT 5
 ) users;
 
 -- §05 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_05_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_05_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -549,8 +549,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_05_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_05_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_05_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_05_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -589,7 +589,7 @@ SELECT 5
 ) users;
 
 -- §06 主表（源用例 6；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_06 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_06 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -607,8 +607,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_06 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_06
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_06 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_06
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -647,7 +647,7 @@ SELECT 5
 ) users;
 
 -- §06 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_06_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_06_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -665,8 +665,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_06_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_06_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_06_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_06_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -705,7 +705,7 @@ SELECT 5
 ) users;
 
 -- §07 主表（源用例 7；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_07 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_07 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -723,8 +723,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_07 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_07
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_07 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_07
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -763,7 +763,7 @@ SELECT 5
 ) users;
 
 -- §07 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_07_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_07_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -781,8 +781,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_07_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_07_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_07_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_07_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -821,7 +821,7 @@ SELECT 5
 ) users;
 
 -- §08 主表（源用例 8；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_08 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_08 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -839,8 +839,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_08 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_08
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_08 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_08
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -879,7 +879,7 @@ SELECT 5
 ) users;
 
 -- §08 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_08_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_08_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -897,8 +897,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_08_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_08_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_08_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_08_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -937,7 +937,7 @@ SELECT 5
 ) users;
 
 -- §09 主表（源用例 9；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_09 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_09 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -955,8 +955,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_09 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_09
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_09 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_09
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -995,7 +995,7 @@ SELECT 5
 ) users;
 
 -- §09 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_09_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_09_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1013,8 +1013,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_09_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_09_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_09_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_09_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1053,7 +1053,7 @@ SELECT 5
 ) users;
 
 -- §10 主表（源用例 10；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_10 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_10 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1071,8 +1071,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_10 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_10
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_10 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_10
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1111,7 +1111,7 @@ SELECT 5
 ) users;
 
 -- §10 对比表（同结构、同数据；显式完整 DDL）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_10_cmp (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_10_cmp (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1129,8 +1129,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_10_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_10_cmp
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_10_cmp ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_10_cmp
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1169,7 +1169,7 @@ SELECT 5
 ) users;
 
 -- §11 主表（源用例 11；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_11 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_11 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1187,8 +1187,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_11 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_11
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_11 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_11
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1227,7 +1227,7 @@ SELECT 5
 ) users;
 
 -- §12 主表（源用例 12；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_12 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_12 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1245,8 +1245,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_12 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_12
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_12 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_12
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1285,7 +1285,7 @@ SELECT 5
 ) users;
 
 -- §13 主表（源用例 13；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_13 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_13 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1303,8 +1303,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_13 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_13
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_13 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_13
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1343,7 +1343,7 @@ SELECT 5
 ) users;
 
 -- §14 主表（源用例 14；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_14 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_14 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1361,8 +1361,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_14 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_14
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_14 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_14
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1401,7 +1401,7 @@ SELECT 5
 ) users;
 
 -- §15 主表（源用例 15；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_15 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_15 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1419,8 +1419,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_15 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_15
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_15 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_15
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1459,7 +1459,7 @@ SELECT 5
 ) users;
 
 -- §16 主表（源用例 16；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_16 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_16 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1477,8 +1477,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_16 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_16
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_16 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_16
 SELECT CAST(1 + MOD(number, 99) AS INT) AS id,
        25 AS age,
        CAST(10000 + number AS STRING) AS string_num,
@@ -1491,7 +1491,7 @@ SELECT CAST(1 + MOD(number, 99) AS INT) AS id,
 FROM numbers("number" = "10000");
 
 -- §17 主表（源用例 17；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_17 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_17 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1509,8 +1509,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_17 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_17
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_17 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_17
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1549,7 +1549,7 @@ SELECT 5
 ) users;
 
 -- §18 主表（源用例 18；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_18 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_18 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1567,8 +1567,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_18 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_18
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_18 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_18
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1607,7 +1607,7 @@ SELECT 5
 ) users;
 
 -- §19 主表（源用例 19；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_19 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_19 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1625,8 +1625,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_19 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_19
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_19 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_19
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1665,7 +1665,7 @@ SELECT 5
 ) users;
 
 -- §20 主表（源用例 20；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_20 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_20 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1683,8 +1683,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_20 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_20
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_20 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_20
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1723,7 +1723,7 @@ SELECT 5
 ) users;
 
 -- §21 主表（源用例 21；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_21 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_21 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1741,8 +1741,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_21 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_21
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_21 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_21
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1781,7 +1781,7 @@ SELECT 5
 ) users;
 
 -- §22 主表（源用例 22；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_22 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_22 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1799,8 +1799,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_22 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_22
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_22 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_22
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1839,7 +1839,7 @@ SELECT 5
 ) users;
 
 -- §23 主表（源用例 23；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_23 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_23 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1857,8 +1857,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_23 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_23
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_23 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_23
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1897,7 +1897,7 @@ SELECT 5
 ) users;
 
 -- §24 主表（源用例 24；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_24 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_24 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1915,8 +1915,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_24 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_24
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_24 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_24
 SELECT CAST(1 + MOD(number, 99) AS INT) AS id,
        NULL AS age,
        '' AS string_num,
@@ -1929,7 +1929,7 @@ SELECT CAST(1 + MOD(number, 99) AS INT) AS id,
 FROM numbers("number" = "10000");
 
 -- §25 主表（源用例 25；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_25 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_25 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -1947,8 +1947,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_25 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_25
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_25 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_25
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -1987,7 +1987,7 @@ SELECT 5
 ) users;
 
 -- §26 主表（源用例 26；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_26 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_26 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2005,8 +2005,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_26 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_26
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_26 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_26
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2045,7 +2045,7 @@ SELECT 5
 ) users;
 
 -- §27 主表（源用例 27；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_27 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_27 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2063,8 +2063,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_27 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_27
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_27 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_27
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2103,7 +2103,7 @@ SELECT 5
 ) users;
 
 -- §28 主表（源用例 28；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_28 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_28 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2121,8 +2121,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_28 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_28
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_28 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_28
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2161,7 +2161,7 @@ SELECT 5
 ) users;
 
 -- §29 主表（源用例 29；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_29 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_29 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2179,8 +2179,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_29 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_29
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_29 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_29
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2219,7 +2219,7 @@ SELECT 5
 ) users;
 
 -- §30 主表（源用例 30；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_30 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_30 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2237,8 +2237,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_30 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_30
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_30 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_30
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2277,7 +2277,7 @@ SELECT 5
 ) users;
 
 -- §31 主表（源用例 31；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_31 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_31 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2295,8 +2295,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_31 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_31
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_31 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_31
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2335,7 +2335,7 @@ SELECT 5
 ) users;
 
 -- §32 主表（源用例 32；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_32 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_32 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2353,8 +2353,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_32 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_32
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_32 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_32
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2393,7 +2393,7 @@ SELECT 5
 ) users;
 
 -- §33 主表（源用例 33；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_33 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_33 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2411,8 +2411,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_33 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_33
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_33 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_33
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2451,7 +2451,7 @@ SELECT 5
 ) users;
 
 -- §34 主表（源用例 34；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_34 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_34 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2469,8 +2469,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_34 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_34
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_34 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_34
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2509,7 +2509,7 @@ SELECT 5
 ) users;
 
 -- §35 主表（源用例 35；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_35 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_35 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2527,8 +2527,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_35 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_35
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_35 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_35
 SELECT
 1 + user_idx AS id,
 CASE user_idx
@@ -2567,7 +2567,7 @@ SELECT 5
 ) users;
 
 -- §36 主表（源用例 36；无独立 DDL 时按 donor 映射复用结构）
-CREATE TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_36 (
+CREATE TABLE ${SchemaA}.test_info_1_${RunSuffix}_36 (
 id INT COMMENT '用户ID',
 age INT COMMENT '年龄',
 string_num STRING COMMENT 'string类型的编号',
@@ -2585,8 +2585,8 @@ PROPERTIES (
 "replication_num" = "1",
 "compression" = "LZ4"
 );
-ALTER TABLE {{DATABASE}}.test_info_1_{{SUFFIX}}_36 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
-INSERT INTO {{DATABASE}}.test_info_1_{{SUFFIX}}_36
+ALTER TABLE ${SchemaA}.test_info_1_${RunSuffix}_36 ADD PARTITION p20260719 VALUES [('2026-07-19'), ('2026-07-20'));
+INSERT INTO ${SchemaA}.test_info_1_${RunSuffix}_36
 SELECT
 1 + user_idx AS id,
 CASE user_idx

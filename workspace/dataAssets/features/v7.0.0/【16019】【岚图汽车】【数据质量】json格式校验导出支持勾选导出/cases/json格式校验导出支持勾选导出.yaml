@@ -8,9 +8,11 @@ cases:
   - case_id: C0001
     automation:
       spec_file: c0001-export-selected-json-records.spec.ts
-    title: 验证勾选多条记录后点击导出，导出文件仅含勾选行
+    title: 验证勾选2 条记录后点击导出，导出文件仅含勾选行
     priority: P0
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: |-
           1) 列表每行首列显示复选框，表头显示全选复选框
@@ -39,10 +41,11 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0002
-
     title: 验证未勾选任何记录时点击导出，沿用导出全量旧行为
     priority: P0
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: |-
           1) 所有行复选框均未勾选
@@ -55,16 +58,17 @@ cases:
         expected: |-
           1) 文件含当前列表全部记录
           2) 验证零勾选时沿用「导出全部数据」旧行为，不受勾选导出影响
-    precondition: json格式校验管理列表已存在多条 key 记录（数据源类型 SparkThrift2.x），页面初始无任何行被勾选
+    precondition: json格式校验管理列表已存在2 条 key 记录（数据源类型 SparkThrift2.x），页面初始无任何行被勾选
     tags:
       - 数据质量
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0003
-
     title: 验证仅勾选单条一层级记录导出，文件仅含该条记录
     priority: P0
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: 列表正常加载，每行显示复选框
       - action: 仅勾选 singleExport 一行复选框
@@ -83,10 +87,11 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0004
-
     title: 验证表头全选后点击导出，文件含当前列表全量数据
     priority: P1
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: |-
           1) 列表正常加载，表头显示全选复选框
@@ -107,10 +112,11 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0005
-
     title: 验证勾选父节点时子节点被自动级联进导出文件
     priority: P1
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: 列表正常加载，parentOnly 行显示展开图标
       - action: 不展开 parentOnly，仅勾选 parentOnly 一行复选框
@@ -130,10 +136,11 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0006
-
     title: 验证勾选导出文件列结构完整且顺序正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: 列表正常加载，每行显示复选框
       - action: 勾选任意 1 行，点击顶部【导出】按钮，等待文件下载完成
@@ -148,15 +155,14 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0007
-
     title: 验证多层级 key 的「层级关系」与「父 Key」取值正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 父 Key】页面
+        expected: 已进入【数据质量 → 父 Key】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，逐层展开 lvl1 → lvl2 → lvl3 → lvl4 → lvl5
-        expected: |-
-          五层节点均在列表中可见，lvl1、lvl2、lvl3、lvl4 各父层显示展开图标
-      - action: |-
-          勾选 lvl1、lvl2、lvl3、lvl4、lvl5 五行，点击顶部【导出】按钮，等待文件下载完成
+        expected: 五层节点均在列表中可见，lvl1、lvl2、lvl3、lvl4 各父层显示展开图标
+      - action: 勾选 lvl1、lvl2、lvl3、lvl4、lvl5 五行，点击顶部【导出】按钮，等待文件下载完成
         expected: |-
           1) 五行复选框均选中，列表底部显示「当前选中：5」
           2) 浏览器触发文件下载
@@ -179,10 +185,11 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0008
-
     title: 验证导出文件「数据源类型」列对 SparkThrift2.x、Hive2.x、Doris3.x 取值正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: |-
           1) 列表正常加载，keySpark、keyHive、keyDoris 三行均显示
@@ -207,10 +214,11 @@ cases:
       - 通用配置-json格式校验管理
       - 勾选导出
   - case_id: C0009
-
     title: 验证先搜索筛选再勾选导出，文件仅含搜索结果中勾选的行
     priority: P2
     steps:
+      - action: 进入【数据质量 → 勾选导出】页面
+        expected: 已进入【数据质量 → 勾选导出】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量 → 通用配置 → json格式校验管理】，等待列表数据加载完成
         expected: 列表正常加载，顶部显示搜索框「请输入key名称查询」
       - action: 在搜索框输入 vehicle，触发查询，等待列表刷新

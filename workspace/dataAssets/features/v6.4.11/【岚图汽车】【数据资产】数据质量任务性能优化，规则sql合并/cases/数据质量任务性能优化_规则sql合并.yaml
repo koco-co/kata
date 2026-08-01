@@ -13,8 +13,10 @@ cases:
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 多规则包】页面
+        expected: 已进入【数据资产 → 多规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+多规则包」
         expected: |-
           其余不进行合并：
@@ -81,7 +83,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+多规则包」，点击「下一步」按钮
@@ -92,12 +94,12 @@ cases:
         expected: |-
           1、 过滤条件相同的规则按强弱分类进行合并：1、5、7、9进行合并；2、10进行合并。
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 合并的子规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -162,15 +164,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0002
     automation:
       spec_file: c0002-mergeable-sample-partition-filter-strength-single-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 单规则包】页面
+        expected: 已进入【数据资产 → 单规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+单规则包」
         expected: |-
           其余不进行合并：
@@ -237,7 +240,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+单规则包」，点击「下一步」按钮
@@ -248,12 +251,12 @@ cases:
         expected: |-
           1、 过滤条件相同的规则1、3、5、7、9进行合并；规则2、10进行合并。
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 合并的子规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -318,15 +321,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0003
     automation:
       spec_file: c0003-mergeable-sample-partition-same-filter-strength-multi-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 多规则包】页面
+        expected: 已进入【数据资产 → 多规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包」，点击【添加规则-完整性校验】
@@ -393,7 +397,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包」，点击「下一步」按钮
@@ -404,12 +408,12 @@ cases:
         expected: |-
           1、 子规则按强弱规则分类进行sql合并：1、4、5、7、9进行合并；2、3、8、10进行合并
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 同一强弱规则类别的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 同一强弱规则类别的子规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -474,15 +478,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0004
     automation:
       spec_file: c0004-mergeable-sample-partition-same-filter-strength-single-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 单规则包】页面
+        expected: 已进入【数据资产 → 单规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+单规则包」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+单规则包」，点击【添加规则-完整性校验】
@@ -549,7 +554,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+单规则包」，点击「下一步」按钮
@@ -560,12 +565,12 @@ cases:
         expected: |-
           1、 子规则1、2、3、4、5、7、8、9、10进行sql合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -630,15 +635,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0005
     automation:
       spec_file: c0005-mergeable-sample-partition.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并部分规则」
         expected: 基础信息配置成功； 进入「监控规则」配置页
       - action: 点击「新增规则包」-「可合并+不可合并部分规则」，点击【添加规则-完整性校验】
@@ -690,7 +696,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并部分规则」，点击「下一步」按钮
@@ -702,9 +708,9 @@ cases:
           1） 子规则1、2、4、5都进行合并，且脏数据存储表为同一个
           2） 其余子规则与原本sql逻辑一致，未进行改变
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -769,15 +775,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0006
     automation:
       spec_file: c0006-mergeable-sample.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并部分规则」
         expected: 基础信息配置成功； 进入「监控规则」配置页
       - action: 点击「新增规则包」-「可合并+不可合并部分规则」，点击【添加规则-完整性校验】
@@ -829,7 +836,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并部分规则」，点击「下一步」按钮
@@ -841,9 +848,9 @@ cases:
           1） 子规则1、2、4、5都进行合并，且脏数据存储表为同一个
           2） 其余子规则与原本sql逻辑一致，未进行改变
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -908,15 +915,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0007
     automation:
       spec_file: c0007-mergeable-no-sample.spec.ts
     title: 验证「可合并和不可合并」-「抽样关闭」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并部分规则」
         expected: 基础信息配置成功； 进入「监控规则」配置页
       - action: 点击「新增规则包」-「可合并+不可合并部分规则」，点击【添加规则-完整性校验】
@@ -968,7 +976,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并部分规则」，点击「下一步」按钮
@@ -980,9 +988,9 @@ cases:
           1） 子规则1、2、4、5都进行合并，且脏数据存储表为同一个
           2） 其余子规则与原本sql逻辑一致，未进行改变
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1047,15 +1055,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0008
     automation:
       spec_file: c0008-partial-unmergeable-sample-partition.spec.ts
     title: 验证「不可合并部分规则」-「抽样开启」-「设置分区」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「不可合并部分规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「不可合并部分规则」，点击【添加规则-完整性校验】
@@ -1103,7 +1112,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「不可合并部分规则」，点击「下一步」按钮
@@ -1118,9 +1127,9 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       1、 已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1188,15 +1197,16 @@ cases:
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0009
     automation:
       spec_file: c0009-partial-unmergeable-sample.spec.ts
     title: 验证「不可合并部分规则」-「抽样开启」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「不可合并部分规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「不可合并部分规则」，点击【添加规则-完整性校验】
@@ -1244,7 +1254,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「不可合并部分规则」，点击「下一步」按钮
@@ -1259,9 +1269,9 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       1、 已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1329,15 +1339,16 @@ cases:
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0010
     automation:
       spec_file: c0010-partial-unmergeable-no-sample.spec.ts
     title: 验证「不可合并部分规则」-「抽样关闭」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「不可合并部分规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「不可合并部分规则」，点击【添加规则-完整性校验】
@@ -1385,7 +1396,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「不可合并部分规则」，点击「下一步」按钮
@@ -1400,9 +1411,9 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       1、 已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1470,15 +1481,16 @@ cases:
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0011
     automation:
       spec_file: c0011-completeness-validity-sample-partition-strength-multi-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 多规则包】页面
+        expected: 已进入【数据资产 → 多规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并包含强弱规则，为单规则包」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并包含强弱规则，为单规则包」，点击【添加规则-完整性校验】
@@ -1506,7 +1518,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完完整性+有效性可合并包含强弱规则，为单规则包」，点击「下一步」按钮
@@ -1517,12 +1529,12 @@ cases:
         expected: |-
           1、 按强弱规则分类进行sql合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 按强弱分类，相同类别的规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 按强弱分类，相同类别的规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
       - action: 重复前面子规则配置，修改调度属性中「规则拼接包」为「8」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 点开规则详情，查看规则sql
@@ -1533,7 +1545,7 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1598,15 +1610,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0012
     automation:
       spec_file: c0012-completeness-validity-sample-partition-strength-single-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 单规则包】页面
+        expected: 已进入【数据资产 → 单规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并包含强弱规则，为单规则包」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并包含强弱规则，为单规则包」，点击【添加规则-完整性校验】
@@ -1634,7 +1647,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完完整性+有效性可合并包含强弱规则，为单规则包」，点击「下一步」按钮
@@ -1645,12 +1658,12 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1715,15 +1728,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0013
     automation:
       spec_file: c0013-completeness-validity-sample-partition-different-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 不同过滤条件】页面
+        expected: 已进入【数据资产 → 不同过滤条件】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并规则过滤条件不同」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并规则过滤条件不同」，点击【添加规则-完整性校验】
@@ -1751,7 +1765,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并规则过滤条件不同」，点击「下一步」按钮
@@ -1762,12 +1776,12 @@ cases:
         expected: |-
           1、 过滤条件相同的进行合并（规则1、5、6合并；4、9合并；2、7合并）其余子规则不进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1832,15 +1846,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0014
     automation:
       spec_file: c0014-completeness-validity-sample-partition-string-to-int.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → string强转int】页面
+        expected: 已进入【数据资产 → string强转int】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并规则过滤条件相同」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并规则过滤条件相同」，点击【添加规则-完整性校验】
@@ -1866,7 +1881,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并规则过滤条件相同」，点击「下一步」按钮
@@ -1877,12 +1892,12 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6通过，子规则3、4、7、8不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -1947,15 +1962,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0015
     automation:
       spec_file: c0015-completeness-validity-sample-partition-same-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 相同过滤条件】页面
+        expected: 已进入【数据资产 → 相同过滤条件】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并规则过滤条件相同」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并规则过滤条件相同」，点击【添加规则-完整性校验】
@@ -1983,7 +1999,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并规则过滤条件相同」，点击「下一步」按钮
@@ -1994,12 +2010,12 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -2064,19 +2080,20 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0016
     automation:
       spec_file: c0016-validity-failed-details.spec.ts
     title: 验证「有效性校验」校验不通过的规则查看明细功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → doris3.x】页面
+        expected: 已进入【数据资产 → doris3.x】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务管理」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 查看规则sql
         expected: 子规则为有效性：数值-取值范围、数值-枚举个数、枚举值、取值范围&枚举范围的脏数据存储表为同一个
       - action: 进入「资产-数据质量-校验结果查询」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 选中该表名，查看任务结果详情
         expected: 显示校验未通过的子规则详情，展示【查看明细】按钮
       - action: 点击【查看明细】按钮
@@ -2087,7 +2104,7 @@ cases:
       - action: 点击【下载明细】按钮
         expected: 可下载到本地，内容正确，行数<=100
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示表“test_info_1”的报告
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的报告
       - action: 进入该报告的详情页，查看报告详情
         expected: 规则校验明细表中显示“操作-查看详情”
       - action: 点击【查看详情】按钮
@@ -2097,15 +2114,16 @@ cases:
     precondition: 资产已存在有效性校验规则“可合并有效性规则”，且子规则为有效性：数值-取值范围、数值-枚举个数、枚举值、取值范围&枚举范围，全部为不通过
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0017
     automation:
       spec_file: c0017-validity-failed-report.spec.ts
     title: 验证「有效性校验」校验不通过质量报告正确
     priority: P1
     steps:
+      - action: 进入【数据资产 → doris3.x】页面
+        expected: 已进入【数据资产 → doris3.x】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -2184,15 +2202,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0018
     automation:
       spec_file: c0018-validity-passed-report.spec.ts
     title: 验证「有效性校验」校验通过质量报告正确
     priority: P0
     steps:
+      - action: 进入【数据资产 → doris3.x】页面
+        expected: 已进入【数据资产 → doris3.x】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -2271,15 +2290,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0019
     automation:
       spec_file: c0019-validity-sample-partition.spec.ts
     title: 验证「有效性校验」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -2295,7 +2315,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -2306,7 +2326,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2通过，子规则3、4不通过，且实例详情展示正确
@@ -2374,15 +2394,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0020
     automation:
       spec_file: c0020-validity-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -2398,7 +2419,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -2409,7 +2430,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
@@ -2477,15 +2498,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0021
     automation:
       spec_file: c0021-validity-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -2501,7 +2523,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -2512,7 +2534,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
@@ -2580,15 +2602,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0022
     automation:
       spec_file: c0022-validity-no-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -2604,7 +2627,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -2615,7 +2638,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
@@ -2683,15 +2706,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0023
     automation:
       spec_file: c0023-validity-no-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -2707,7 +2731,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -2718,7 +2742,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
@@ -2786,19 +2810,20 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0024
     automation:
       spec_file: c0024-completeness-failed-details.spec.ts
     title: 验证「完整性校验」校验不通过的规则查看明细功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → doris3.x】页面
+        expected: 已进入【数据资产 → doris3.x】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务管理」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 查看规则sql
         expected: 子规则为完整性：空值数、空值率、空串数、空串率、表行数的脏数据存储表为同一个
       - action: 进入「资产-数据质量-校验结果查询」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 选中该表名，查看任务结果详情
         expected: 显示校验未通过的子规则详情，展示【查看明细】按钮
       - action: 点击【查看明细】按钮
@@ -2809,7 +2834,7 @@ cases:
       - action: 点击【下载明细】按钮
         expected: 可下载到本地，内容正确，行数<=100
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示表“test_info_1”的报告
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的报告
       - action: 进入该报告的详情页，查看报告详情
         expected: 规则校验明细表中显示“操作-查看详情”
       - action: 点击【查看详情】按钮
@@ -2819,15 +2844,16 @@ cases:
     precondition: 资产已存在完整性校验规则“可合并完整性规则”，且子规则为完整性：空值数、空值率、空串数、空串率、表行数，全部为不通过
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0025
     automation:
       spec_file: c0025-completeness-failed-report.spec.ts
     title: 验证「完整性校验」校验不通过质量报告正确
     priority: P0
     steps:
+      - action: 进入【数据资产 → doris3.x】页面
+        expected: 已进入【数据资产 → doris3.x】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -2906,15 +2932,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0026
     automation:
       spec_file: c0026-completeness-passed-report.spec.ts
     title: 验证「完整性校验」校验通过质量报告正确
     priority: P1
     steps:
+      - action: 进入【数据资产 → doris3.x】页面
+        expected: 已进入【数据资产 → doris3.x】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -2993,15 +3020,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0027
     automation:
       spec_file: c0027-completeness-multi-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3021,7 +3049,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3032,11 +3060,10 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: |-
-          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -3101,15 +3128,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0028
     automation:
       spec_file: c0028-completeness-single-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3129,7 +3157,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3140,11 +3168,10 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: |-
-          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE test_info_1 (
@@ -3209,15 +3236,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0029
     automation:
       spec_file: c0029-completeness-multi-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3235,7 +3263,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3246,7 +3274,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -3314,15 +3342,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0030
     automation:
       spec_file: c0030-completeness-multi-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3340,7 +3369,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3351,7 +3380,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -3419,15 +3448,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0031
     automation:
       spec_file: c0031-completeness-multi-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3445,7 +3475,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3456,7 +3486,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -3524,15 +3554,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0032
     automation:
       spec_file: c0032-completeness-multi-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3550,7 +3581,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3561,7 +3592,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -3629,15 +3660,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0033
     automation:
       spec_file: c0033-completeness-single-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3655,7 +3687,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3666,7 +3698,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -3734,15 +3766,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0034
     automation:
       spec_file: c0034-completeness-single-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3760,7 +3793,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3771,7 +3804,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -3839,15 +3872,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0035
     automation:
       spec_file: c0035-completeness-single-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql没有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3865,7 +3899,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3876,7 +3910,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -3944,15 +3978,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0036
     automation:
       spec_file: c0036-completeness-single-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql没有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -3970,7 +4005,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -3981,7 +4016,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -4049,15 +4084,16 @@ cases:
       ) users;
     tags:
       - doris3.x
-      - 未分类
   - case_id: C0037
     automation:
       spec_file: c0037-mergeable-sample-partition-filter-strength-multi-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 多规则包】页面
+        expected: 已进入【数据资产 → 多规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+多规则包」
         expected: 配置完成
       - action: 点击「新增规则包」-「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+多规则包」，点击【添加规则-完整性校验】
@@ -4121,7 +4157,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+多规则包」，点击「下一步」按钮
@@ -4134,7 +4170,7 @@ cases:
         expected: |-
           1、 过滤条件相同的规则按强弱分类进行合并：1、5、7、9进行合并；2、10、11进行合并。
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 合并的子规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: |-
@@ -4146,9 +4182,9 @@ cases:
       - action: 查看质量报告
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: ""
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: ""
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -4203,15 +4239,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0038
     automation:
       spec_file: c0038-mergeable-sample-partition-filter-strength-single-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「不同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 单规则包】页面
+        expected: 已进入【数据资产 → 单规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+不同过滤条件+单规则包」
         expected: 成功填写，进入下一页
       - action: 点击「新增规则包」-「可合并+不可合并+抽样开启+设置分区+不同过滤条件+单规则包」，点击【添加规则-完整性校验】
@@ -4275,7 +4312,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+不同过滤条件+包含强弱规则+单规则包」，点击「下一步」按钮
@@ -4286,7 +4323,7 @@ cases:
         expected: |-
           1、 过滤条件相同的规则1、3、5、7、9、11进行合并；规则2、10进行合并。
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 合并的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 合并的子规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: |-
@@ -4298,9 +4335,9 @@ cases:
       - action: 查看质量报告
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: ""
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: ""
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -4355,15 +4392,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0039
     automation:
       spec_file: c0039-mergeable-sample-partition-same-filter-strength-multi-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 多规则包】页面
+        expected: 已进入【数据资产 → 多规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包」
         expected: 配置成功
       - action: 点击「新增规则包」-「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包」，点击【添加规则-完整性校验】
@@ -4427,7 +4465,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+多规则包」，点击「下一步」按钮
@@ -4438,7 +4476,7 @@ cases:
         expected: |-
           1、 子规则按强弱规则分类进行sql合并：1、4、5、7、9进行合并；2、3、8、10、11进行合并
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 同一强弱规则类别的子规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；（去重 count（ distinct））
+          2） 同一强弱规则类别的子规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；（去重 count（ distinct））
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: |-
@@ -4450,9 +4488,9 @@ cases:
       - action: 查看质量报告
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: ""
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: ""
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -4507,15 +4545,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0040
     automation:
       spec_file: c0040-mergeable-sample-partition-same-filter-strength-single-pack.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」-「相同过滤条件」-「单规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 单规则包】页面
+        expected: 已进入【数据资产 → 单规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并+抽样开启+设置分区+相同过滤条件+单规则包」
         expected: 配置成功
       - action: 点击「新增规则包」-「可合并+不可合并+抽样开启+设置分区+相同过滤条件+单规则包」，点击【添加规则-完整性校验】
@@ -4579,7 +4618,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并+抽样开启+设置分区+相同过滤条件+包含强弱规则+单规则包」，点击「下一步」按钮
@@ -4590,7 +4629,7 @@ cases:
         expected: |-
           1、 子规则1、2、3、4、5、7、8、9、10、11进行sql合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: |-
@@ -4602,9 +4641,9 @@ cases:
       - action: 查看质量报告
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: ""
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: ""
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -4659,15 +4698,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0041
     automation:
       spec_file: c0041-mergeable-sample-partition.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并部分规则」
         expected: 基础信息配置成功； 进入「监控规则」配置页
       - action: 点击「新增规则包」-「可合并+不可合并部分规则」，点击【添加规则-完整性校验】
@@ -4719,7 +4759,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并部分规则」，点击「下一步」按钮
@@ -4731,9 +4771,9 @@ cases:
           1） 子规则1、2、4、5都进行合并，且脏数据存储表为同一个
           2） 其余子规则与原本sql逻辑一致，未进行改变
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -4789,15 +4829,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0042
     automation:
       spec_file: c0042-mergeable-sample.spec.ts
     title: 验证「可合并和不可合并」-「抽样开启」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并部分规则」
         expected: 基础信息配置成功； 进入「监控规则」配置页
       - action: 点击「新增规则包」-「可合并+不可合并部分规则」，点击【添加规则-完整性校验】
@@ -4849,7 +4890,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并部分规则」，点击「下一步」按钮
@@ -4861,9 +4902,9 @@ cases:
           1） 子规则1、2、4、5都进行合并，且脏数据存储表为同一个
           2） 其余子规则与原本sql逻辑一致，未进行改变
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -4919,15 +4960,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0043
     automation:
       spec_file: c0043-mergeable-no-sample.spec.ts
     title: 验证「可合并和不可合并」-「抽样关闭」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「可合并+不可合并部分规则」
         expected: 基础信息配置成功； 进入「监控规则」配置页
       - action: 点击「新增规则包」-「可合并+不可合并部分规则」，点击【添加规则-完整性校验】
@@ -4979,7 +5021,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「可合并+不可合并部分规则」，点击「下一步」按钮
@@ -4991,9 +5033,9 @@ cases:
           1） 子规则1、2、4、5都进行合并，且脏数据存储表为同一个
           2） 其余子规则与原本sql逻辑一致，未进行改变
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5049,15 +5091,16 @@ cases:
       ) users;
     tags:
       - 可合并+不可合并
-      - 未分类
   - case_id: C0044
     automation:
       spec_file: c0044-partial-unmergeable-sample-partition.spec.ts
     title: 验证「不可合并部分规则」-「抽样开启」-「设置分区」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「不可合并部分规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「不可合并部分规则」，点击【添加规则-完整性校验】
@@ -5105,7 +5148,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「不可合并部分规则」，点击「下一步」按钮
@@ -5120,9 +5163,9 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5181,15 +5224,16 @@ cases:
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - 不可合并
-      - 未分类
   - case_id: C0045
     automation:
       spec_file: c0045-partial-unmergeable-sample.spec.ts
     title: 验证「不可合并部分规则」-「抽样开启」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「不可合并部分规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「不可合并部分规则」，点击【添加规则-完整性校验】
@@ -5237,7 +5281,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「不可合并部分规则」，点击「下一步」按钮
@@ -5252,9 +5296,9 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5313,15 +5357,16 @@ cases:
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - 不可合并
-      - 未分类
   - case_id: C0046
     automation:
       spec_file: c0046-partial-unmergeable-no-sample.spec.ts
     title: 验证「不可合并部分规则」-「抽样关闭」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「不可合并部分规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「不可合并部分规则」，点击【添加规则-完整性校验】
@@ -5369,7 +5414,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「不可合并部分规则」，点击「下一步」按钮
@@ -5384,9 +5429,9 @@ cases:
           3） 每条规则算出结果后单独成行，最后拼接把所有规则数据凑到一起；
           4） 不同规则的数据分开存入不同的脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: 结果符合预期，且实例详情展示正确，未通过的子规则可查看明细
+        expected: 结果与预期值一致，且实例详情展示正确，未通过的子规则可查看明细
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       1、 已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5445,15 +5490,16 @@ cases:
       自定义规则测试：规则分类-完整性校验；关联范围-字段；sql-select * from ${tableName} where ${colName} = ${value}
     tags:
       - 不可合并
-      - 未分类
   - case_id: C0047
     automation:
       spec_file: c0047-completeness-validity-sample-partition-strength-multi-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「多规则包」校验功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 多规则包】页面
+        expected: 已进入【数据资产 → 多规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并包含强弱规则，为多规则包」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并包含强弱规则，为多规则包」，点击【添加规则-完整性校验】
@@ -5483,7 +5529,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并包含强弱规则，为多规则包」，点击「下一步」按钮
@@ -5496,12 +5542,12 @@ cases:
         expected: |-
           1、 按强弱规则分类进行sql合并：2、3、7、9、10进行合并，1、4、5、6、8进行合并
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 按强弱分类，相同类别的规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 按强弱分类，相同类别的规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7、10通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
       - action: 修改前面的子规则全部都为弱规则，其余内容不更改，在「规则任务管理」页重新引入该规则包
         expected: 引入正确，规则内容置灰，进入「调度属性」
       - action: 配置「调度属性」，设置「规则拼接包」为「4」，保存规则，且「调度属性」中配置「规则报告」为最新结果
@@ -5565,15 +5611,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0048
     automation:
       spec_file: c0048-completeness-validity-sample-partition-strength-single-pack.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「包含强弱规则」-「单规则包」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 单规则包】页面
+        expected: 已进入【数据资产 → 单规则包】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并包含强弱规则，为单规则包」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并包含强弱规则，为单规则包」，点击【添加规则-完整性校验】
@@ -5601,7 +5648,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完完整性+有效性可合并包含强弱规则，为单规则包」，点击「下一步」按钮
@@ -5612,12 +5659,12 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5673,15 +5720,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0049
     automation:
       spec_file: c0049-completeness-validity-sample-partition-different-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「不同过滤条件」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 不同过滤条件】页面
+        expected: 已进入【数据资产 → 不同过滤条件】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并规则过滤条件不同」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并规则过滤条件不同」，点击【添加规则-完整性校验】
@@ -5709,7 +5757,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并规则过滤条件不同」，点击「下一步」按钮
@@ -5720,12 +5768,12 @@ cases:
         expected: |-
           1、 过滤条件相同的进行合并（规则1、5、6合并；4、9合并；2、7合并）其余子规则不进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5781,15 +5829,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0050
     automation:
       spec_file: c0050-completeness-validity-sample-partition-string-to-int.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「string强转int」校验功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → string强转int】页面
+        expected: 已进入【数据资产 → string强转int】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并规则过滤条件相同」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并规则过滤条件相同」，点击【添加规则-完整性校验】
@@ -5815,7 +5864,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并规则过滤条件相同」，点击「下一步」按钮
@@ -5826,12 +5875,12 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6通过，子规则3、4、7、8不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5887,15 +5936,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0051
     automation:
       spec_file: c0051-completeness-validity-sample-partition-same-filter.spec.ts
     title: 验证「完整性+有效性」-「抽样开启」-「设置分区」-「相同过滤条件」校验功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 相同过滤条件】页面
+        expected: 已进入【数据资产 → 相同过滤条件】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性+有效性可合并规则过滤条件相同」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性+有效性可合并规则过滤条件相同」，点击【添加规则-完整性校验】
@@ -5923,7 +5973,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性+有效性可合并规则过滤条件相同」，点击「下一步」按钮
@@ -5934,12 +5984,12 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2、5、6、7通过，子规则3、4、8、9不通过，且实例详情展示正确
       - action: 查看质量报告
-        expected: 结果正确，符合配置的规则内容
+        expected: 结果与预期记录一致，符合配置的规则内容
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -5995,19 +6045,20 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0052
     automation:
       spec_file: c0052-validity-failed-details.spec.ts
     title: 验证「有效性校验」校验不通过的规则查看明细功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 可合并】页面
+        expected: 已进入【数据资产 → 可合并】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务管理」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 查看规则sql
         expected: 子规则为有效性：数值-取值范围、数值-枚举个数、枚举值、取值范围&枚举范围的脏数据存储表为同一个
       - action: 进入「资产-数据质量-校验结果查询」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 选中该表名，查看任务结果详情
         expected: 显示校验未通过的子规则详情，展示【查看明细】按钮
       - action: 点击【查看明细】按钮
@@ -6018,7 +6069,7 @@ cases:
       - action: 点击【下载明细】按钮
         expected: 可下载到本地，内容正确，行数<=100
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示表“test_info_1”的报告
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的报告
       - action: 进入该报告的详情页，查看报告详情
         expected: 规则校验明细表中显示“操作-查看详情”
       - action: 点击【查看详情】按钮
@@ -6028,15 +6079,16 @@ cases:
     precondition: 资产已存在有效性校验规则“可合并有效性规则”，且子规则为有效性：数值-取值范围、数值-枚举个数、枚举值、取值范围&枚举范围，全部为不通过
     tags:
       - 可合并
-      - 未分类
   - case_id: C0053
     automation:
       spec_file: c0053-validity-failed-report.spec.ts
     title: 验证「有效性校验」校验不通过质量报告正确
     priority: P1
     steps:
+      - action: 进入【数据资产 → 可合并】页面
+        expected: 已进入【数据资产 → 可合并】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -6106,15 +6158,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - 可合并
-      - 未分类
   - case_id: C0054
     automation:
       spec_file: c0054-validity-passed-report.spec.ts
     title: 验证「有效性校验」校验通过质量报告正确
     priority: P0
     steps:
+      - action: 进入【数据资产 → 可合并】页面
+        expected: 已进入【数据资产 → 可合并】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并有效性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -6184,15 +6237,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - 可合并
-      - 未分类
   - case_id: C0055
     automation:
       spec_file: c0055-validity-sample-partition.spec.ts
     title: 验证「有效性校验」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -6208,7 +6262,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -6219,7 +6273,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 子规则1、2通过，子规则3、4不通过，且实例详情展示正确
@@ -6278,15 +6332,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0056
     automation:
       spec_file: c0056-validity-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -6302,7 +6357,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -6313,7 +6368,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
@@ -6372,15 +6427,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0057
     automation:
       spec_file: c0057-validity-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样开启」校验全通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -6396,7 +6452,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -6407,7 +6463,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
@@ -6466,15 +6522,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0058
     automation:
       spec_file: c0058-validity-no-sample-all-failed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -6490,7 +6547,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -6501,7 +6558,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部不通过，且实例详情展示正确
@@ -6560,15 +6617,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0059
     automation:
       spec_file: c0059-validity-no-sample-all-passed.spec.ts
     title: 验证「有效性校验」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「有效性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「有效性可合并规则」，点击【添加规则-有效性校验】
@@ -6584,7 +6642,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「有效性可合并规则」，点击「下一步」按钮
@@ -6595,7 +6653,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 4个子规则全部通过，且实例详情展示正确
@@ -6654,19 +6712,20 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0060
     automation:
       spec_file: c0060-completeness-failed-details.spec.ts
     title: 验证「完整性校验」校验不通过的规则查看明细功能
     priority: P0
     steps:
+      - action: 进入【数据资产 → 可合并】页面
+        expected: 已进入【数据资产 → 可合并】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务管理」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 查看规则sql
         expected: 子规则为完整性：空值数、空值率、空串数、空串率、表行数的脏数据存储表为同一个
       - action: 进入「资产-数据质量-校验结果查询」页面
-        expected: 页面正常打开，显示表“test_info_1”的规则
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的规则
       - action: 选中该表名，查看任务结果详情
         expected: 显示校验未通过的子规则详情，展示【查看明细】按钮
       - action: 点击【查看明细】按钮
@@ -6677,7 +6736,7 @@ cases:
       - action: 点击【下载明细】按钮
         expected: 可下载到本地，内容正确，行数<=100
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示表“test_info_1”的报告
+        expected: 页面加载完成且显示目标控件打开，显示表“test_info_1”的报告
       - action: 进入该报告的详情页，查看报告详情
         expected: 规则校验明细表中显示“操作-查看详情”
       - action: 点击【查看详情】按钮
@@ -6687,15 +6746,16 @@ cases:
     precondition: 资产已存在完整性校验规则“可合并完整性规则”，且子规则为完整性：空值数、空值率、空串数、空串率、表行数，全部为不通过
     tags:
       - 可合并
-      - 未分类
   - case_id: C0061
     automation:
       spec_file: c0061-completeness-failed-report.spec.ts
     title: 验证「完整性校验」校验不通过质量报告正确
     priority: P0
     steps:
+      - action: 进入【数据资产 → 可合并】页面
+        expected: 已进入【数据资产 → 可合并】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -6765,15 +6825,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - 可合并
-      - 未分类
   - case_id: C0062
     automation:
       spec_file: c0062-completeness-passed-report.spec.ts
     title: 验证「完整性校验」校验通过质量报告正确
     priority: P1
     steps:
+      - action: 进入【数据资产 → 可合并】页面
+        expected: 已进入【数据资产 → 可合并】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-数据质量报告」页面
-        expected: 页面正常打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
+        expected: 页面加载完成且显示目标控件打开，显示报告名称为“test_info_1_可合并完整性规则”的报告
       - action: 选中该报告，点击“查看报告-报告详情”
         expected: 进入该报告的详情页
       - action: 查看质量报告详情展示
@@ -6843,15 +6904,16 @@ cases:
       共6行数据，8个字段，4个校验规则
     tags:
       - 可合并
-      - 未分类
   - case_id: C0063
     automation:
       spec_file: c0063-completeness-multi-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -6871,7 +6933,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 手动设置分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -6882,11 +6944,10 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: |-
-          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -6942,15 +7003,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0064
     automation:
       spec_file: c0064-completeness-single-field-sample-partition.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」-「设置分区」校验功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 设置分区】页面
+        expected: 已进入【数据资产 → 设置分区】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -6970,7 +7032,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 选择已有分区 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -6981,11 +7043,10 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
-        expected: |-
-          子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
+        expected: 子规则1、2、5通过，子规则3、4、6不通过，且实例详情展示正确
     precondition: |-
       已有表test_info_1
       CREATE TABLE pw_test.test_info_1 (
@@ -7041,15 +7102,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0065
     automation:
       spec_file: c0065-completeness-multi-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7067,7 +7129,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7078,7 +7140,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -7137,15 +7199,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0066
     automation:
       spec_file: c0066-completeness-multi-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7163,7 +7226,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7174,7 +7237,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -7233,15 +7296,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0067
     automation:
       spec_file: c0067-completeness-multi-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7259,7 +7323,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7270,7 +7334,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -7329,15 +7393,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0068
     automation:
       spec_file: c0068-completeness-multi-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「多字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7355,7 +7420,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7366,7 +7431,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -7425,15 +7490,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0069
     automation:
       spec_file: c0069-completeness-single-field-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全不通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7451,7 +7517,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7462,7 +7528,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -7521,15 +7587,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0070
     automation:
       spec_file: c0070-completeness-single-field-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样开启」校验全通过功能
     priority: P1
     steps:
+      - action: 进入【数据资产 → 抽样开启】页面
+        expected: 已进入【数据资产 → 抽样开启】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样开启：sql有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7547,7 +7614,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「抽样检查设置」：「抽样设置：百分比抽样50%」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7558,7 +7625,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -7617,15 +7684,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0071
     automation:
       spec_file: c0071-completeness-single-field-no-sample-all-failed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全不通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql没有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7643,7 +7711,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7654,7 +7722,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部不通过，且实例详情展示正确
@@ -7713,15 +7781,16 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类
   - case_id: C0072
     automation:
       spec_file: c0072-completeness-single-field-no-sample-all-passed.spec.ts
     title: 验证「完整性校验」-「单字段」-「抽样关闭」校验全通过功能
     priority: P2
     steps:
+      - action: 进入【数据资产 → 抽样关闭】页面
+        expected: 已进入【数据资产 → 抽样关闭】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则集管理-基础信息」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 「规则包名称」填写「完整性可合并规则」
         expected: 抽样关闭：sql没有rand()函数和 tableName_temp_sample_table_xxx 临时抽样表
       - action: 点击「新增规则包」-「完整性可合并规则」，点击【添加规则-完整性校验】
@@ -7739,7 +7808,7 @@ cases:
       - action: 点击【保存】按钮
         expected: 规则保存成功
       - action: 进入「规则任务管理-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」 不开启「抽样检查设置」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 引入规则包「完整性可合并规则」，点击「下一步」按钮
@@ -7750,7 +7819,7 @@ cases:
         expected: |-
           1、 sql进行合并：
           1） 源表只扫描一次：FROM 后面的源表只出现 1 次； ​
-          2） 所有可合并规则写在同一个select里面：用多个 SUM (CASE WHEN) 把规则并行计算；
+          2） 所有可合并规则写在同一个select里面：用2 个 SUM (CASE WHEN) 把规则并行计算；
           3） 计算后再把结果拆成多行，每行代表单个规则进行输出，最终把结果插入同一张脏数据表
       - action: 临时运行规则，查看实例详情
         expected: 5个子规则全部通过，且实例详情展示正确
@@ -7809,4 +7878,3 @@ cases:
       ) users;
     tags:
       - 可合并
-      - 未分类

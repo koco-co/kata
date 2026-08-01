@@ -7,7 +7,7 @@ meta:
     - 导入数据支持中途停止测试.xmind
 cases:
   - case_id: C0001
-    title: 验证本地数据导入时取消导入功能正常(MySQL)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(MySQL)
     priority: P0
     precondition: |-
       csv文件内容如下:
@@ -33,6 +33,8 @@ cases:
       ) COMMENT '员工信息表_MySQL'
       ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析
@@ -74,7 +76,7 @@ cases:
           3) 「取消导入」按钮
           执行select * from 得到的表数据存在两份csv文件记录
   - case_id: C0002
-    title: 验证本地数据导入时取消导入功能正常(SR)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(SR)
     priority: P1
     precondition: |-
       csv文件内容如下:
@@ -118,6 +120,8 @@ cases:
       DISTRIBUTED BY HASH(employee_id) BUCKETS 3
       PROPERTIES("replication_num" = "1");
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析
@@ -162,7 +166,7 @@ cases:
           3) 「取消导入」按钮
           执行select * from 得到的表数据存在两份csv文件记录
   - case_id: C0003
-    title: 验证本地数据导入时取消导入功能正常(Oushu)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(Oushu)
     priority: P1
     precondition: |-
       csv文件内容如下:
@@ -188,6 +192,8 @@ cases:
       )
       DISTRIBUTED BY (employee_id);
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析
@@ -218,7 +224,7 @@ cases:
           3) 「取消导入」按钮
           执行select * from 得到的表数据在之前的脏数据表上加上完整的csv文件记录
   - case_id: C0004
-    title: 验证本地数据导入时取消导入功能正常(Oracle)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(Oracle)
     priority: P0
     precondition: |-
       csv文件内容如下:
@@ -244,6 +250,8 @@ cases:
           tech_stack VARCHAR2(200)
       );
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析
@@ -285,7 +293,7 @@ cases:
           3) 「取消导入」按钮
           执行select * from 得到的表数据存在两份csv文件记录
   - case_id: C0005
-    title: 验证本地数据导入时取消导入功能正常(dmoracle)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(dmoracle)
     priority: P1
     precondition: |-
       csv文件内容如下:
@@ -311,6 +319,8 @@ cases:
           tech_stack VARCHAR(200)
       );
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析
@@ -352,7 +362,7 @@ cases:
           3) 「取消导入」按钮
           执行select * from 得到的表数据存在两份csv文件记录
   - case_id: C0006
-    title: 验证本地数据导入时取消导入功能正常(oboracle)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(oboracle)
     priority: P1
     precondition: |-
       csv文件内容如下:
@@ -377,6 +387,8 @@ cases:
           tech_stack VARCHAR2(200)
       );
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析
@@ -418,7 +430,7 @@ cases:
           3) 「取消导入」按钮
           执行select * from 得到的表数据存在两份csv文件记录
   - case_id: C0007
-    title: 验证本地数据导入时取消导入功能正常(GP)
+    title: 验证本地数据导入时取消导入完成目标操作且状态更新(GP)
     priority: P1
     precondition: |-
       csv文件内容如下:
@@ -443,6 +455,8 @@ cases:
           tech_stack VARCHAR(200)
       );
     steps:
+      - action: 进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 本地数据导入时取消导入完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入数据开发-周期任务页面, 选中任一任务后, 点击导入, 选择csv文件后, 点击下一步
         expected: |-
           1) 导入csv文件后, 弹出本地数据导入页面, 并将csv文件内容自动解析

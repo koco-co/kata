@@ -1,1329 +1,1174 @@
 meta:
   title: 数据资产主流程测试用例
-  case_module_id: ""
+  case_module_id: ''
   exports:
-    - 主流程测试用例.xmind
+  - 主流程测试用例.xmind
 cases:
-  - case_id: C0001
-    title: 验证已接入数据源统计数据正确
-    priority: P1
-    steps:
-      - action: 进入资产-【资产盘点】页面
-        expected: 进入成功
-      - action: 查看“已接入数据源”
-        expected: 显示截止前一天为止接入的数据源类型的统计卡片
-      - action: 查看统计数据：昨日新增表数、源数、库数、表数以及存储量
-        expected: 统计数据为对应数据源类型下前一天的统计数据
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 资产盘点
-  - case_id: C0002
-    title: 验证【数据表】表数量统计正确
-    priority: P1
-    steps:
-      - action: |-
-          1. 新增元数据同步-周期同步任务
-          2. 选择${DataSourceType}数据源，选择catalog||schema||database
-          3. 选择数据表-table1
-          4. 勾选【全部内容】
-          5. 点击【临时同步】按钮
-        expected: 元数据同步任务创建成功，任务状态-运行中(实例状态运行中)
-      - action: 任务运行完成,实例运行成功
-        expected: 【数据表】统计数量+1
-      - action: 数据地图选择table1，删除元表
-        expected: 【数据表】统计数量-1
-    precondition: ${DataSourceType}数据源下存在表 table1
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 数据地图
-      - 首页【资产类型】功能验证
-  - case_id: C0003
-    title: 验证【离线任务】任务数量统计正确
-    priority: P1
-    steps:
-      - action: |-
-          1. 离线平台新增SQL 建表任务
-          2. 临时运行/提交
-        expected: 【离线任务】任务统计数量+1
-    precondition: ${DataSourceType}数据源下存在表 table1
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 数据地图
-      - 首页【资产类型】功能验证
-  - case_id: C0004
-    title: 验证筛选条件组合查询功能正常
-    priority: P1
-    steps:
-      - action: 选择【查询结果类型】为【数据表】
-        expected: 选择成功
-      - action: 选择【数据源类型】为${DATASOURCE_TYPE}
-        expected: |-
-          1. 筛选框展示资产平台引入的所有数据源类型
-          2. 数据源类型数量统计正确
-          3. 选择成功
-      - action: 选择【数据源】为${DATASOURCE_NAME}
-        expected: |-
-          1. 展示资产平台已引入${DATASOURCE_TYPE}类型的所有数据源名称
-          2. 选择成功
-      - action: 选择【数据库】为${DATABASE}
-        expected: |-
-          1. 如果当前数据源-数据库下没有同步任何表到资产平台，则展示为空
-          2. 如果当前数据源-数据库下已经同步${TABLE_NAME}到资产平台，则【数据库】选择${DATABASE}成功
-      - action: 选择【负责人】为${TABLE_OWNER}
-        expected: |-
-          1. 如果存在表指定负责人，则【负责人】选择${TABLE_OWNER}成功
-          2. 如果没有表指定负责人，则【负责人】展示为空
-      - action: 选择【表标签】为${TABLE_TAG}
-        expected: |-
-          1. 如果存在表设置表标签，则【表标签】选择${TABLE_TAG}成功
-          2. 如果没有表设置表标签，则【表标签】展示为空
-      - action: 设置完所有筛选条件后，筛选
-        expected: |-
-          1. 过滤出所有符合组合条件的数据
-          2. 没有匹配条件的数据则展示“暂无数据”缺省页
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 数据地图
-      - 【数据地图】-二级页面【筛选过滤】功能验证
-  - case_id: C0005
-    title: 验证【表结构】-【建表语句】模块功能正常
-    priority: P1
-    steps:
-      - action: 点击【建表语句】按钮
-        expected: 建表语句显示正确
-      - action: 复制建表语句，去底层执行SQL
-        expected: 执行成功
-    precondition: |-
-      create table if not exists test_table(id int COMMENT '主键' ,name varchar(255) COMMENT '姓名',info varchar(255) COMMENT '信息');
-      insert into test_table values(1,'one','desc 1');
-      insert into test_table values(2,'two','desc 2');
-      insert into test_table values(3,'three','desc 3');
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 数据地图
-      - 【数据地图】-【数据表】详情页面功能验证
-  - case_id: C0006
-    title: 验证【血缘关系】功能正常
-    priority: P0
-    steps:
-      - action: 点击表详情【血缘关系】按钮
-        expected: 展示【表级血缘】【字段级血缘】【展示文字信息】【资产类型】【导航器】【表按钮】
-      - action: 点击【表级血缘】按钮
-        expected: 展示当前表的上下游表
-      - action: ！文案校验
-        expected: 每个节点都可右击查看该节点的全链路血缘，存在逆向可展开节点时建议右击查看~
-      - action: 点击中央【表按钮】
-        expected: 弹表详情弹窗
-      - action: 表详情弹窗内容校验
-        expected: 展示“表名””复制按钮”“技术属性模块”“业务属性模块“字段信息”“非分区字段”“分区字段””字段名称字段中文名搜索框“
-      - action: 输入存在的字段名称，字段中文名，点击搜索
-        expected: 返回匹配的字段信息
-      - action: 输入不存在的字段名称，字段中文名，点击搜索
-        expected: 展示“暂无数据”
-      - action: 点击分页，切换pagesize
-        expected: pagesize切换成功，数据展示正确，跳转正确
-      - action: 点击【字段级血缘】
-        expected: 展示当前表所有字段及血缘关系
-      - action: 点击【字段名称】
-        expected: 存在血缘字段时，弹血缘字段，没有血缘字段时，提示“字段血缘关系为空”
-      - action: 点击【展示文字信息】按钮
-        expected: 展示当前表全名
-      - action: 点击【居中】按钮
-        expected: 图居中展示
-      - action: 点击【放大】按钮
-        expected: 图放大
-      - action: 点击【放小】按钮
-        expected: 图放小
-      - action: 点击【下载】按钮
-        expected: 下载血缘PNG成功，查看内容正确
-      - action: 点击【展示/隐藏】按钮
-        expected: 展示/不展示导航器
-    precondition: |-
-      1. 当前离线项目已存在血缘SQL
+- case_id: C0001
+  title: 验证已接入数据源统计字段值与步骤中列出的固定输入值一致
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 资产盘点】页面
+    expected: 已进入【数据资产 → 资产盘点】页面，显示页面标题与主要操作区域
+  - action: 进入资产-【资产盘点】页面
+    expected: 进入成功
+  - action: 查看“已接入数据源”
+    expected: 显示截止前一天为止接入的数据源类型的统计卡片
+  - action: 查看统计数据：昨日新增表数、源数、库数、表数以及存储量
+    expected: 统计数据为对应数据源类型下前一天的统计数据
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 资产盘点
+- case_id: C0002
+  title: 验证【数据表】表数量统计正确
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 首页资产类型功能验证】页面
+    expected: 已进入【数据资产 → 首页资产类型功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 首页资产类型功能验证】页面
+    expected: 已进入【数据资产 → 首页资产类型功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 首页资产类型功能验证】页面
+    expected: 已进入【数据资产 → 首页资产类型功能验证】页面，显示页面标题与主要操作区域
+  - action: '1. 新增元数据同步-周期同步任务
 
-      CREATE TABLE  wwz_001 (
-          id INT COMMENT "用户ID",
-          name VARCHAR(50) COMMENT "用户姓名"
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      2. 选择${DataSourceType}数据源，选择catalog||schema||database
 
-      CREATE TABLE  wwz_002 (
-          id INT COMMENT "用户ID",
-          name VARCHAR(50) COMMENT "用户姓名"
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      3. 选择数据表-table1
 
-      CREATE TABLE  wwz_003 (
-          id INT COMMENT "用户ID",
-          name VARCHAR(50) COMMENT "用户姓名"
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      4. 勾选【全部内容】
 
-      --样例一 需先执行wwz_001、wwz_002建表
-      -- insert into ... select
-      insert into wwz_001 select id,name from wwz_002;
+      5. 点击【临时同步】按钮'
+    expected: 元数据同步任务创建成功，任务状态-运行中(实例状态运行中)
+  - action: 任务运行完成,实例运行成功
+    expected: 【数据表】统计数量+1
+  - action: 数据地图选择table1，删除元表
+    expected: 【数据表】统计数量-1
+  precondition: ${DataSourceType}数据源下存在表 table1
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 数据地图
+  - 首页【资产类型】功能验证
+- case_id: C0003
+  title: 验证【离线任务】任务数量统计正确
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 首页资产类型功能验证】页面
+    expected: 已进入【数据资产 → 首页资产类型功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 首页资产类型功能验证】页面
+    expected: 已进入【数据资产 → 首页资产类型功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 首页资产类型功能验证】页面
+    expected: 已进入【数据资产 → 首页资产类型功能验证】页面，显示页面标题与主要操作区域
+  - action: '1. 离线平台新增SQL 建表任务
 
-      --样例二 需先执行wwz_002建表
-      -- create as ... select
-      create table wwz_001 DISTRIBUTED BY HASH(id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      ) as select * from wwz_002;
+      2. 临时运行/提交'
+    expected: 【离线任务】任务统计数量+1
+  precondition: ${DataSourceType}数据源下存在表 table1
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 数据地图
+  - 首页【资产类型】功能验证
+- case_id: C0004
+  title: 验证筛选条件组合查询完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 数据地图-二级页面筛选过滤功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-二级页面筛选过滤功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 数据地图-二级页面筛选过滤功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-二级页面筛选过滤功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 数据地图-二级页面筛选过滤功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-二级页面筛选过滤功能验证】页面，显示页面标题与主要操作区域
+  - action: 选择【查询结果类型】为【数据表】
+    expected: 选择成功
+  - action: 选择【数据源类型】为${DATASOURCE_TYPE}
+    expected: '1. 筛选框展示资产平台引入的所有数据源类型
 
-      --样例三  需先执行wwz_001、wwz_002、wwz_003建表
-      -- insert into ... select union all
-      insert into wwz_001 select * from wwz_002 union all  select * from wwz_003;
+      2. 数据源类型数量统计正确
 
-      --样例四  需先执行wwz_001、wwz_002、wwz_003建表
-      -- insert overwrite ... select ... union all
-      insert OVERWRITE table wwz_001 select * from wwz_002 union all  select * from wwz_003;
+      3. 选择成功'
+  - action: 选择【数据源】为${DATASOURCE_NAME}
+    expected: '1. 展示资产平台已引入${DATASOURCE_TYPE}类型的所有数据源名称
 
-      --样例五  需先执行wwz_001、wwz_002、wwz_003建表
-      -- insert into ... select + 子查询
-      insert into wwz_001 select id,name from wwz_002 where id in (select id from wwz_003 where id>1);
+      2. 选择成功'
+  - action: 选择【数据库】为${DATABASE}
+    expected: '1. 如果当前数据源-数据库下没有同步任何表到资产平台，则展示为空
 
-      --样例六  需先执行wwz_001、wwz_002建表
-      -- insert into ... with as ...
-      INSERT INTO wwz_001 (id, name) WITH wwz_003 AS (SELECT id, name FROM wwz_002) SELECT id, name FROM wwz_003;
-      INSERT INTO wwz_001 (id, name) WITH wwz_003 AS (SELECT * FROM wwz_002) SELECT * FROM wwz_003;
+      2. 如果当前数据源-数据库下已经同步${TABLE_NAME}到资产平台，则【数据库】选择${DATABASE}成功'
+  - action: 选择【负责人】为${TABLE_OWNER}
+    expected: '1. 如果存在表指定负责人，则【负责人】选择${TABLE_OWNER}成功
 
-      drop table wwz_001;
-      drop table wwz_002;
-      drop table wwz_003;
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 数据地图
-      - 【数据地图】-【数据表】详情页面功能验证
-  - case_id: C0007
-    title: 验证元数据同步任务创建流程正常
-    priority: P0
-    steps:
-      - action: |-
-          1） 点击【元数据】-【元数据同步】-【新增周期同步任务】
-          2） 选择数据源${DATASOURCE_TYPE}
-          3） 选择数据库${DATABASE}
-          4） 选择数据表${TABLE}
-          5） 依次点击【添加】_【下一步】_【新增】按钮
-        expected: “新增周期同步任务”成功，任务列表展示同步任务，列信息正确，同步状态展示正常
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 元数据同步
-  - case_id: C0008
-    title: 验证通用业务属性-新增功能-逻辑正常
-    priority: P1
-    steps:
-      - action: |-
-          新增枚举属性：
-          1） 属性类型为“枚举”
-          2） 输入表单内容
-          3） 点击【确定】
-        expected: 列表中显示新建的业务属性，且数据正确
-      - action: |-
-          新增string类型文本框属性：
-          1） 属性类型为“文本框”，字段类型为“string”
-          2） 输入表单内容
-          3） 点击【确定】
-        expected: 列表中显示新建的业务属性，且数据正确
-      - action: |-
-          新增bigint类型文本框属性：
-          1） 属性类型为“文本框”，字段类型为“bigint”
-          2） 输入表单内容
-          3） 点击【确定】
-        expected: 列表中显示新建的业务属性，且数据正确
-      - action: |-
-          新增树形目录属性：
-          1） 属性类型为“树形目录”
-          2） 输入表单内容
-          3） 点击【确定】
-        expected: 列表中显示新建的业务属性，且数据正确
-      - action: 进入${DATASOURCE_TYPE}数据源类型的数据表详情页，查看「业务属性」
-        expected: 显示此新增的业务属性名
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 元模型管理
-  - case_id: C0009
-    title: 验证通用业务属性-删除功能-逻辑正常
-    priority: P1
-    steps:
-      - action: 删除业务属性${SX}
-        expected: 列表不显示业务属性${SX}
-      - action: 进入${DATASOURCE_TYPE}数据源类型的数据表详情页，查看「业务属性」
-        expected: 该业务属性不显示
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 元模型管理
-  - case_id: C0010
-    title: 验证数据表列表-数据展示正确
-    priority: P0
-    steps:
-      - action: |-
-          位置：元数据-元数据管理-${DATASOURCE _TYPE}数据源-某数据库
-          查看列表
-        expected: |-
-          列表展示当前数据库下数据表+视图信息正确（数据与表详情页一直即可）：
-              表名、表中文名、创建时间、存储大小、更新时间
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 元数据管理
-  - case_id: C0011
-    title: 验证数据库列表-生命周期应用功能正确
-    priority: P1
-    steps:
-      - action: |-
-          tableB（未同步至资产）所属数据源和所属数据库为：datasourceB、schemaB
-          只配置datasourceB的生命周期为3天；schemaB未设置生命周期；
-          将tableB同步至资产；
-          查看tableB的生命周期
-        expected: tableB的生命周期为3天
-      - action: |-
-          tableC（未同步至资产）所属数据源和所属数据库为：datasourceC、schemaC
-          datasourceC未设置生命周期；schemaC设置生命周期为10天；
-          将tableC同步至资产；
-          查看tableC的生命周期
-        expected: tableC的生命周期为10天
-      - action: |-
-          tableA（未同步至资产）所属数据源和所属数据库为：datasourceA、schemaA
-          先配置datasourceA的生命周期为3天；后配置schemaA的生命周期为10天；
-          将tableA同步至资产；
-          查看tableA的生命周期
-        expected: tableA的生命周期为10天
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 元数据
-      - 元数据管理
-  - case_id: C0012
-    title: 验证数据标准-新建标准
-    priority: P0
-    steps:
-      - action: |-
-          1） 点击新建标准
-          2） 输入合格的所有业务属性值和所有技术属性值，点击【保存】|【上线】
-        expected: |-
-          1） 页面跳转至数据标准列表页
-          2） 列表刷新展示新建的数据标准，且状态为“待上线”|"已上线"
-      - action: |-
-          1） 点击新建标准
-          2） 输入合格的所有业务属性值和所有技术属性值，点击【取消】
-        expected: 页面跳转至数据标准列表页
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准管理
-      - 标准定义
-  - case_id: C0013
-    title: 验证数据标准-查看详情
-    priority: P1
-    steps:
-      - action: 点击标准的标准名称
-        expected: |-
-          1） 右侧标准详情抽屉的弹出
-          2） 头部显示标准中文名、发布状态、创建时间、最近发布时间、最近发布用户
-          3） tab页显示“标准信息”和“版本变更”
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准管理
-      - 标准定义
-  - case_id: C0014
-    title: 验证标准映射-创建标准映射功能正常
-    priority: P1
-    steps:
-      - action: |-
-          1） 点击【标准映射】
-          2） 查看创建标准映射弹窗
-        expected: ''
-      - action: “数据源类型”选择${DATASOURCE_TYPE}数据源类型
-        expected: “数据源”下拉项显示${DATASOURCE_TYPE}数据源类型下的数据源
-      - action: “数据源”选择${DATASOURCE_TYPE}数据源类型下的数据源
-        expected: “数据库”下拉项显示所选数据源下所有已同步的数据库
-      - action: |-
-          1） 选择数据库
-          2） 点击【添加】
-          3） 点击【确定】
-        expected: 创建标准映射成功
-    precondition: |-
-      准备表：
-      create table active_users (
-          user_id bigint NOT NULL COMMENT '用户ID',
-          name string NOT NULL COMMENT '用户姓名',
-          email string NULL COMMENT '邮箱地址',
-          address string NULL COMMENT '住址（邮寄地址）',
-          age tinyint NULL COMMENT '用户年龄',
-          sex tinyint NULL COMMENT '用户性别（男/女）',
-          last_active datetime COMMENT '最近活跃时间 最近登陆时间',
-          property0 tinyint NOT NULL,
-          property1 tinyint NOT NULL,
-          property2 tinyint NOT NULL,
-          property3 tinyint NOT NULL
-      )
-      DISTRIBUTED BY HASH(`user_id`)
-      PROPERTIES(
-          "replication_num" = "1"
-      );
+      2. 如果没有表指定负责人，则【负责人】展示为空'
+  - action: 选择【表标签】为${TABLE_TAG}
+    expected: '1. 如果存在表设置表标签，则【表标签】选择${TABLE_TAG}成功
 
+      2. 如果没有表设置表标签，则【表标签】展示为空'
+  - action: 设置完所有筛选条件后，筛选
+    expected: '1. 过滤出所有符合组合条件的数据
 
-      准备数据标准：
-      email（邮箱地址）
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准管理
-      - 标准映射
-  - case_id: C0015
-    title: 验证标准映射-标准映射字段绑功能正常
-    priority: P1
-    steps:
-      - action: |-
-          1） 点击邮箱地址的【字段映射】；
-          2） 查看字段绑定弹窗
-        expected: ''
-      - action: “数据源类型”选择${DATASOURCE_TYPE}数据源类型
-        expected: “数据源”下拉项显示${DATASOURCE_TYPE}数据源类型下的数据源
-      - action: “数据源”选择${DATASOURCE_TYPE}数据源类型下的数据源
-        expected: “数据库”下拉项显示所选数据源下所有已同步的数据库
-      - action: “数据库”选择数据库
-        expected: “数据表”选择所选库下所有已同步的数据表
-      - action: 选择“数据表”，点击【确定】
-        expected: 字段绑定成功
-      - action: 查看对数据标准的“映射记录”
-        expected: 映射记录显示新绑定字段
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准管理
-      - 标准映射
-  - case_id: C0016
-    title: 验证词根管理-新建
-    priority: P1
-    steps:
-      - action: 点击新建词根
-        expected: 弹出新建词根弹窗
-      - action: 填写内容，点击确定
-        expected: |-
-          1） 新增词根成功！
-          2） 词根列表新增该词根
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准基础
-      - 词根管理
-  - case_id: C0017
-    title: 验证词根管理-删除
-    priority: P1
-    steps:
-      - action: 点击删除并二次确认
-        expected: |-
-          1） 提示删除成功；
-          2） 词根列表删除该词根
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准基础
-      - 词根管理
-  - case_id: C0018
-    title: 验证码表管理-新建
-    priority: P1
-    steps:
-      - action: 点击新建代码
-        expected: 弹出新建代码弹窗
-      - action: 填写内容，点击确定
-        expected: |-
-          1） 提示新增代码成功！
-          2） 代码列表新增该代码
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准基础
-      - 码表管理
-  - case_id: C0019
-    title: 验证数据库拾取-拾取流程
-    priority: P1
-    steps:
-      - action: 点击数据库拾取页面的新建拾取icon
-        expected: 弹出新建拾取弹窗
-      - action: 点击拾取来源下拉框
-        expected: 新增数据源类型下拉项
-      - action: |-
-          1） 拾取类型选择词根管理
-          2） 拾取来源选择${DATASOURCE_TYPE}数据源类型下的数据源
-          3） 填写拾取条件
-          4） 点击确定
-        expected: 全局提示：新建拾取成功；拾取列表新增该拾取
-      - action: |-
-          1） 拾取类型选择数据标准
-          2） 拾取来源选择${DATASOURCE_TYPE}数据源类型下的数据源
-          3） 填写拾取条件
-          4） 点击确定
-        expected: 全局提示：新建拾取成功；拾取列表新增该拾取
-      - action: |-
-          1） 等待拾取完成
-          2） 查看拾取
-        expected: |-
-          1） 拾取成功
-          2） 拾取列表数据正确
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准基础
-      - 数据库拾取
-  - case_id: C0020
-    title: 验证数据库拾取-批量引用功能正常
-    priority: P1
-    steps:
-      - action: |-
-          位置：数据标准-标准基础-数据库拾取；
-          选择‘词根管理’类型，点击【查看拾取】；
-          点击【批量引用】，二次确认
-        expected: |-
-          当前页面所选词根变为“已引用”状态；
-          勾选的词根均可在‘词根管理’菜单中查询到；
-      - action: |-
-          位置：数据标准-标准基础-数据库拾取；
-          选择‘数据标准’类型，点击【查看拾取】；
-          点击【批量引用】，二次确认
-        expected: |-
-          当前页面所选标准变为“已引用”状态；
-          勾选的标准均可在‘数据标准’菜单中查询到；
-    precondition: 准备词根拾取以及数据标准拾取
-    tags:
-      - 主流程v6.3
-      - 数据标准
-      - 标准基础
-      - 数据库拾取
-  - case_id: C0021
-    title: 验证创建不同类型sparkThrift表功能正常
-    priority: P1
-    steps:
-      - action: |-
-          创建Hive PARQUET非事务内部表：
-            - “表类型”选择“内部表”
-            - “hdfs存储路径”为空
-        expected: |-
-          生成的建表语句正确；
-          PARQUET表创建成功；
-      - action: |-
-          创建Hive ORC非事务内部表：
-            - “表类型”选择“内部表”
-            - “hdfs存储路径”为空
-        expected: |-
-          生成的建表语句正确；
-          ORC表创建成功；
-      - action: |-
-          创建Hive TEXTFILE非事务内部表：
-            - “表类型”选择“内部表”
-            - “hdfs存储路径”为指定路径（非默认路径）
-        expected: |-
-          生成的建表语句正确；
-          TEXTFILE表创建成功；
-      - action: |-
-          创建Hive外部表：
-            - “表类型”选择“外部表”
-            - “hdfs存储路径”为指定路径（非默认路径）
-        expected: |-
-          生成的建表语句正确；
-          事务表创建成功；
-          该表存储路径正确
-      - action: 创建Hive分区表
-        expected: |-
-          生成的建表语句正确；
-          分区表创建成功；
-          该表分区字段正确
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据模型
-      - 建表
-  - case_id: C0022
-    title: 验证建表语句解析功能正确
-    priority: P1
-    steps:
-      - action: 主键表建表语句解析
-        expected: 字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
-      - action: 范围分区表语句解析
-        expected: |-
-          1） 字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
-          2） 范围分区信息解析成功
-      - action: 各数据类型字段解析
-        expected: 所有支持的字段类型均解析
-    precondition: |-
-      建表语句如下
-      CREATE TABLE IF NOT EXISTS `batch_test_v53x_new_asset`.`ods_bu_par4_df` (
-      `busine_line_id` STRING COMMENT '业务线ID',
-      `busine_line` INT COMMENT '业务线',
-      `bu_id` STRING COMMENT '事业 部ID',
-      `bu_name` STRING COMMENT '事业部',
-      `busi_team` STRING COMMENT '隶属商务团队',
-      `busi_team_date` STRING COMMENT '隶属时间',
-      `load_dt` TIMESTAMP COMMENT '隶属时间'
-      )
-      COMMENT 'dim维度表_新核心业务线'
-      PARTITIONED BY (
-      `data_dt` STRING COMMENT '数据时间',
-      `is_save` INT COMMENT '数据是否保留：0-否，1-是'
-      )
-      STORED AS PARQUET
-      TBLPROPERTIES ('transactional'='true');
-    tags:
-      - 主流程v6.3
-      - 数据模型
-      - 建表
-  - case_id: C0023
-    title: 验证「规范设计」-新增数仓层级功能正常
-    priority: P1
-    steps:
-      - action: 进入「资产」-「数据模型」-「规范建表」页面
-        expected: 进入成功
-      - action: 点击「规范设计」按钮
-        expected: 进入「规范设计」页面成功
-      - action: 点击「新增数据层级」按钮
-        expected: 弹「新增数据层级」弹窗
-      - action: |-
-          「中文名称」输入「新增层级」
-          「英文名称」输入「add_catalog」
-          「描述」输入「test _ desc」
-        expected: 配置完成
-      - action: 点击「确定」按钮
-        expected: 新增数仓层级成功
-      - action: 选择「新增层级」，点击「规范设计」按钮
-        expected: 弹「规范设计」弹窗
-      - action: 「模型元素」配置「业务系统」「主题域」，点击「确定」按钮
-        expected: 配置成功
-      - action: 进入「建表」页面，「数仓层级」选择「新增层级」
-        expected: 展示「新增层级」下的「规范设计内容」
-      - action: 新增表流程结束
-        expected: 新增表成功
-      - action: 查看表所属数仓层级
-        expected: 该表存储在「新增层级」下
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据模型
-      - 建表
-  - case_id: C0024
-    title: 验证数据模型-审批功能
-    priority: P0
-    steps:
-      - action: |-
-          数据开发角色用户，进入数据模型-新建表，选择doris数据源、数据库、数仓层级、模型元素
-          表名：自定义内容：「T_doris_A」
-          中文名：doris表A
-          数据模型类型：【主键表】
-          2） 点击下一步
-        expected: |-
-          1） 进入数据模型新建页面
-          2） 进入表结构页面
-      - action: |-
-          新增多个字段，其中包含字段ID
-          字段id勾选主键，分区字段，动态分区，分桶字段(分桶数1)，编辑动态分区配置：同前置条件
-        expected: 新增成功
-      - action: 点击【生成建表语句】按钮，建表
-        expected: |-
-          1） 提示：提交审批成功
-          2） 我的模型-已审批页面记录新增一条记录为审批中
-      - action: 管理员用户进入「审批中心」，审批拒绝
-        expected: |-
-          1） 表未新建，数据模型新增一条记录，为未建表状态
-          2） 数据开发用户，我的模型-已审批页面记录状态变为已拒绝
-      - action: 管理员用户进入「审批中心」，审批通过
-        expected: |-
-          1） 数据模型新增一条记录，为已建表状态
-          2） 表详情正确
-          3） 数据开发用户，我的模型-已审批页面记录状态变为已通过
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据模型
-      - 建表
-  - case_id: C0025
-    title: 验证单表校验-【完整性校验-字段级-单字段】结果正确
-    priority: P1
-    steps:
-      - action: |-
-          新建单表规则，选择doris表
-          规则选择完整性校验-字段级，分别创建空值数、空值率、空串数、空串率的子规则，配置使校验通过
-        expected: 新建成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-      - action: 修改规则，配置使其都校验不通过
-        expected: 编辑成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0026
-    title: 验证单表校验-【准确性校验】结果正确
-    priority: P0
-    steps:
-      - action: |-
-          新建单表规则，选择doris表
-          规则选择准确性校验，分别创建求和、求平均、负值比、零值比、正值比的子规则，配置使校验通过
-        expected: 新建成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-      - action: 修改规则，配置使其都校验不通过
-        expected: 编辑成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0027
-    title: 验证单表校验-【规范性校验】结果正确
-    priority: P0
-    steps:
-      - action: |-
-          新建单表规则，选择doris表
-          规则选择规范性校验，分别创建取值范围、枚举范围、枚举个数、身份证号、手机号、邮箱、最大长度、最小长度、字符串长度、数据精度、空值数、重复数、枚举值的子规则，配置使校验通过
-        expected: 新建成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-      - action: 修改规则，配置使其都校验不通过
-        expected: 编辑成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0028
-    title: 验证单表校验-【唯一性校验】结果正确
-    priority: P0
-    steps:
-      - action: |-
-          新建单表规则，选择doris表
-          规则选择唯一性校验，分别创建重复数、重复率、非重复个数、非重复占比的子规则，配置使校验通过
-        expected: 新建成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-      - action: 修改规则，配置使其都校验不通过
-        expected: 编辑成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0029
-    title: 验证单表校验-【自定义sql-单表逻辑】结果正确
-    priority: P0
-    steps:
-      - action: |-
-          新建单表规则，选择前置中的doris表
-          规则选择自定义sql，输入样例sql，固定值<10000
-        expected: 新建成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-      - action: 修改规则，配置使其校验不通过
-        expected: 编辑成功
-      - action: 立即运行查看结果
-        expected: 结果正确
-    precondition: |-
-      doris数据源已存在表
-      DROP TABLE IF EXISTS doris_test;
-      CREATE TABLE IF NOT EXISTS doris_test (
-          id INT,
-          name STRING,
-          age INT
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
-      insert into doris_test values(1,'qq',11);
-      select * from doris_test;
+      2. 没有匹配条件的数据则展示“暂无数据”缺省页'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 数据地图
+  - 【数据地图】-二级页面【筛选过滤】功能验证
+- case_id: C0005
+  title: 验证【表结构】-【建表语句】模块完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 建表语句】页面
+    expected: 已进入【数据资产 → 建表语句】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 数据地图-数据表详情页面功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-数据表详情页面功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 数据地图-数据表详情页面功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-数据表详情页面功能验证】页面，显示页面标题与主要操作区域
+  - action: 点击【建表语句】按钮
+    expected: 建表语句显示正确
+  - action: 复制建表语句，去底层执行SQL
+    expected: 执行成功
+  precondition: 'create table if not exists test_table(id int COMMENT ''主键'' ,name varchar(255) COMMENT ''姓名'',info varchar(255)
+    COMMENT ''信息'');
 
+    insert into test_table values(1,''one'',''desc 1'');
 
-      样例一：
-      select * from doris
+    insert into test_table values(2,''two'',''desc 2'');
 
-      样例二：
-      select id,name,age from doris
+    insert into test_table values(3,''three'',''desc 3'');'
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 数据地图
+  - 【数据地图】-【数据表】详情页面功能验证
+- case_id: C0006
+  title: 验证【血缘关系】完成目标操作且状态更新
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 数据地图-数据表详情页面功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-数据表详情页面功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 数据地图-数据表详情页面功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-数据表详情页面功能验证】页面，显示页面标题与主要操作区域
+  - action: 进入【数据资产 → 数据地图-数据表详情页面功能验证】页面
+    expected: 已进入【数据资产 → 数据地图-数据表详情页面功能验证】页面，显示页面标题与主要操作区域
+  - action: 点击表详情【血缘关系】按钮
+    expected: 展示【表级血缘】【字段级血缘】【展示文字信息】【资产类型】【导航器】【表按钮】
+  - action: 点击【表级血缘】按钮
+    expected: 展示当前表的上下游表
+  - action: ！文案校验
+    expected: 每个节点都可右击查看该节点的全链路血缘，存在逆向可展开节点时建议右击查看~
+  - action: 点击中央【表按钮】
+    expected: 弹表详情弹窗
+  - action: 表详情弹窗内容校验
+    expected: 展示“表名””复制按钮”“技术属性模块”“业务属性模块“字段信息”“非分区字段”“分区字段””字段名称字段中文名搜索框“
+  - action: 输入存在的字段名称，字段中文名，点击搜索
+    expected: 返回匹配的字段信息
+  - action: 输入不存在的字段名称，字段中文名，点击搜索
+    expected: 展示“暂无数据”
+  - action: 点击分页，切换pagesize
+    expected: pagesize切换成功，数据展示正确，跳转正确
+  - action: 点击【字段级血缘】
+    expected: 展示当前表所有字段及血缘关系
+  - action: 点击【字段名称】
+    expected: 存在血缘字段时，弹血缘字段，没有血缘字段时，提示“字段血缘关系为空”
+  - action: 点击【展示文字信息】按钮
+    expected: 展示当前表全名
+  - action: 点击【居中】按钮
+    expected: 图居中展示
+  - action: 点击【放大】按钮
+    expected: 图放大
+  - action: 点击【放小】按钮
+    expected: 图放小
+  - action: 点击【下载】按钮
+    expected: 下载血缘PNG成功，查看内容正确
+  - action: 点击【展示/隐藏】按钮
+    expected: 展示/不展示导航器
+  precondition: "1. 当前离线项目已存在血缘SQL\n\nCREATE TABLE  wwz_001 (\n    id INT COMMENT \"用户ID\",\n    name VARCHAR(50) COMMENT\
+    \ \"用户姓名\"\n)\nDISTRIBUTED BY HASH(id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\nCREATE TABLE \
+    \ wwz_002 (\n    id INT COMMENT \"用户ID\",\n    name VARCHAR(50) COMMENT \"用户姓名\"\n)\nDISTRIBUTED BY HASH(id) BUCKETS 10\n\
+    PROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\nCREATE TABLE  wwz_003 (\n    id INT COMMENT \"用户ID\",\n    name VARCHAR(50)\
+    \ COMMENT \"用户姓名\"\n)\nDISTRIBUTED BY HASH(id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\n--样例一\
+    \ 需先执行wwz_001、wwz_002建表\n-- insert into ... select\ninsert into wwz_001 select id,name from wwz_002;\n\n--样例二 需先执行wwz_002建表\n\
+    -- create as ... select\ncreate table wwz_001 DISTRIBUTED BY HASH(id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\"\
+    \ = \"1\"\n) as select * from wwz_002;\n\n--样例三  需先执行wwz_001、wwz_002、wwz_003建表\n-- insert into ... select union all\n\
+    insert into wwz_001 select * from wwz_002 union all  select * from wwz_003;\n\n--样例四  需先执行wwz_001、wwz_002、wwz_003建表\n\
+    -- insert overwrite ... select ... union all\ninsert OVERWRITE table wwz_001 select * from wwz_002 union all  select *\
+    \ from wwz_003;\n\n--样例五  需先执行wwz_001、wwz_002、wwz_003建表\n-- insert into ... select + 子查询\ninsert into wwz_001 select id,name\
+    \ from wwz_002 where id in (select id from wwz_003 where id>1);\n\n--样例六  需先执行wwz_001、wwz_002建表\n-- insert into ... with\
+    \ as ...\nINSERT INTO wwz_001 (id, name) WITH wwz_003 AS (SELECT id, name FROM wwz_002) SELECT id, name FROM wwz_003;\n\
+    INSERT INTO wwz_001 (id, name) WITH wwz_003 AS (SELECT * FROM wwz_002) SELECT * FROM wwz_003;\n\ndrop table wwz_001;\n\
+    drop table wwz_002;\ndrop table wwz_003;"
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 数据地图
+  - 【数据地图】-【数据表】详情页面功能验证
+- case_id: C0007
+  title: 验证元数据同步任务创建各步骤完成且状态更新
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 元数据同步】页面
+    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
+  - action: '1） 点击【元数据】-【元数据同步】-【新增周期同步任务】
 
-      样例三：
-      select id,name from doris
+      2） 选择数据源${DATASOURCE_TYPE}
 
-      样例四：
-      select id,name,1 from doris
+      3） 选择数据库${DATABASE}
 
-      样例五：
-      select SUM(id) from doris
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0030
-    title: 验证【规则集】功能正常
-    priority: P1
-    steps:
-      - action: 新建规则集，选择前置的doris表，点击下一步
-        expected: 进入规则配置
-      - action: 下载规则模板，填写前置中的规则sql，上传
-        expected: 上传成功,规则导入正确
-      - action: 配置周期调度，点击创建
-        expected: 创建成功
-      - action: 立即执行，查看运行结果
-        expected: 运行结果正确
-    precondition: |-
-      1、 doris数据源已存在表：
-      建表语句：
-      drop table if exists doris_demo_data_types_source;
-      CREATE TABLE IF NOT EXISTS doris_demo_data_types_source (
-          user_id BIGINT COMMENT "用户ID",
-          created_date DATE COMMENT "创建日期",
-          name VARCHAR(50) COMMENT "姓名",
-          age TINYINT COMMENT "年龄",
-          status SMALLINT COMMENT "状态码",
-          price DECIMAL(10, 2) COMMENT "价格",
-          weight FLOAT COMMENT "重量",
-          rating DOUBLE COMMENT "评分",
-          description STRING COMMENT "描述信息",
-          gender VARCHAR(10) COMMENT "性别",
-          department VARCHAR(20) COMMENT "部门",
-          created_time DATETIME COMMENT "创建时间",
-          birth_date DATE COMMENT "出生日期",
-          is_active BOOLEAN COMMENT "是否激活",
-          tags VARCHAR(100) COMMENT "标签",
-          total_amount BIGINT COMMENT "总金额",
-          order_count INT COMMENT "订单数量"
-      )
-      ENGINE=olap
-      DUPLICATE KEY(user_id, created_date, name)
-      DISTRIBUTED BY HASH(user_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      4） 选择数据表${TABLE}
 
-      -- 插入示例数据
-      INSERT INTO doris_demo_data_types_source VALUES
-      (
-          1001, '2024-01-15', '张三', 25, 1,
-          99. 99, 65.5, 4.5,
-          '技术部员工', '男', '技术部',
-          '2024-01-15 10:30:00', '1998-05-20',
-          true, '科技,财经', 1500, 5
-      ),
-      (
-          1002, '2024-01-16', '李四', 30, 2,
-          199. 50, 55.2, 4.8,
-          '市场部经理', '女', '市场部',
-          '2024-01-16 14:20:00', '1993-12-10',
-          true, '娱乐', 2500, 8
-      ),
-      (
-          1003, '2024-01-17', '王五', 22, 0,
-          49. 99, 70.1, 3.9,
-          '销售专员', '其他', '销售部',
-          '2024-01-17 16:45:00', '2001-08-25',
-          false, '科技,体育', 800, 3
-      );
+      5） 依次点击【添加】_【下一步】_【新增】按钮'
+    expected: “新增周期同步任务”成功，任务列表展示同步任务，列信息正确，同步状态页面展示步骤要求的字段、状态和结果
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 元数据同步
+- case_id: C0008
+  title: 验证通用业务属性-新增功能-保存后页面展示步骤要求的状态和数据
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 元模型管理】页面
+    expected: 已进入【数据资产 → 元模型管理】页面，显示页面标题与主要操作区域
+  - action: '新增枚举属性：
 
-      规则集sql：
+      1） 属性类型为“枚举”
 
-      1） select * from doris_demo_data_types_source；
-      2） select user_id，name from doris_demo_data_types_source；
-      3） select * from doris_demo_data_types_source where user_id >1005;
-      4) select 1 from doris_demo_data_types_source;
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0031
-    title: 验证【多表-同源比对】功能正常
-    priority: P1
-    steps:
-      - action: 新建多表比对，左表选择前置中的表doris_demo_data_types_source
-        expected: 右表数据源默认回填左表选择的数据源，置灰不可修改
-      - action: 右表选择前置中的表doris_demo1_data_types_source，点击下一步
-        expected: 进入选择字段步骤
-      - action: 同名映射
-        expected: |-
-          1） 字段类型一致的进行映射
-          2） 不一致的不映射并提示：主表与对照表字段类型不一致，无法比对
-      - action: 勾选user_id为主键
-        expected: 勾选成功
-      - action: 勾选【记录数百分比差异】-0%
-        expected: 勾选成功
-      - action: 创建规则
-        expected: 创建成功
-      - action: 立即运行规则，查看结果
-        expected: 质量实例校验不通过
-      - action: 编辑规则，修改【记录数百分比差异】-100%
-        expected: 修改成功
-      - action: 立即运行规则，查看结果
-        expected: 质量实例校验通过
-    precondition: |-
-      doris数据源已存在表doris_demo_data_types_source、doris_demo1_data_types_source
+      2） 输入表单内容
 
-      建表语句：
-      drop table if exists doris_demo_data_types_source;
-      CREATE TABLE IF NOT EXISTS doris_demo_data_types_source (
-          user_id BIGINT COMMENT "用户ID",
-          created_date DATE COMMENT "创建日期",
-          name VARCHAR(50) COMMENT "姓名",
-          age TINYINT COMMENT "年龄",
-          status SMALLINT COMMENT "状态码",
-          price DECIMAL(10, 2) COMMENT "价格",
-          weight FLOAT COMMENT "重量",
-          rating DOUBLE COMMENT "评分",
-          description STRING COMMENT "描述信息",
-          gender VARCHAR(10) COMMENT "性别",
-          department VARCHAR(20) COMMENT "部门",
-          created_time DATETIME COMMENT "创建时间",
-          birth_date DATE COMMENT "出生日期",
-          is_active BOOLEAN COMMENT "是否激活",
-          tags VARCHAR(100) COMMENT "标签",
-          total_amount BIGINT COMMENT "总金额",
-          order_count INT COMMENT "订单数量"
-      )
-      ENGINE=olap
-      DUPLICATE KEY(user_id, created_date, name)
-      DISTRIBUTED BY HASH(user_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      3） 点击【确定】'
+    expected: 列表中显示新建的业务属性，且字段值与步骤中列出的固定输入值一致
+  - action: '新增string类型文本框属性：
 
-      -- 插入示例数据
-      INSERT INTO doris_demo_data_types_source VALUES
-      (
-          1001, '2024-01-15', '张三', 25, 1,
-          99. 99, 65.5, 4.5,
-          '技术部员工', '男', '技术部',
-          '2024-01-15 10:30:00', '1998-05-20',
-          true, '科技,财经', 1500, 5
-      ),
-      (
-          1002, '2024-01-16', '李四', 30, 2,
-          199. 50, 55.2, 4.8,
-          '市场部经理', '女', '市场部',
-          '2024-01-16 14:20:00', '1993-12-10',
-          true, '娱乐', 2500, 8
-      ),
-      (
-          1003, '2024-01-17', '王五', 22, 0,
-          49. 99, 70.1, 3.9,
-          '销售专员', '其他', '销售部',
-          '2024-01-17 16:45:00', '2001-08-25',
-          false, '科技,体育', 800, 3
-      );
+      1） 属性类型为“文本框”，字段类型为“string”
 
+      2） 输入表单内容
 
+      3） 点击【确定】'
+    expected: 列表中显示新建的业务属性，且字段值与步骤中列出的固定输入值一致
+  - action: '新增bigint类型文本框属性：
 
+      1） 属性类型为“文本框”，字段类型为“bigint”
 
+      2） 输入表单内容
 
-      drop table if exists doris_demo1_data_types_source;
-      CREATE TABLE IF NOT EXISTS doris_demo1_data_types_source (
-          user_id BIGINT COMMENT "用户ID",
-          created_date VARCHAR(20) COMMENT "创建日期",
-          name VARCHAR(50) COMMENT "姓名",
-          age INT COMMENT "年龄",
-          status INT COMMENT "状态码",
-          price VARCHAR(20) COMMENT "价格",
-          weight VARCHAR(20) COMMENT "重量",
-          rating VARCHAR(20) COMMENT "评分",
-          description VARCHAR(500) COMMENT "描述信息",
-          gender VARCHAR(10) COMMENT "性别",
-          department VARCHAR(20) COMMENT "部门",
-          created_time VARCHAR(30) COMMENT "创建时间",
-          birth_date VARCHAR(20) COMMENT "出生日期",
-          is_active VARCHAR(10) COMMENT "是否激活",
-          tags VARCHAR(100) COMMENT "标签",
-          total_amount INT COMMENT "总金额",
-          order_count INT COMMENT "订单数量"
-      )
-      ENGINE=olap
-      DUPLICATE KEY(user_id, created_date, name)
-      DISTRIBUTED BY HASH(user_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      3） 点击【确定】'
+    expected: 列表中显示新建的业务属性，且字段值与步骤中列出的固定输入值一致
+  - action: '新增树形目录属性：
 
-      -- 插入示例数据
-      INSERT INTO doris_demo_data_types_source VALUES
-      (
-          1001, '2024-01-15', '张三', 25, 1,
-          99, 65, 4,
-          '技术部员工', '男', '技术部',
-          '2024-01-15 10:30:00', '1998-05-20',
-          'true', '科技,财经', 1500, 5
-      ),
-      (
-          1002, '2024-01-16', '李四', 30, 2,
-          199, 55, 4,
-          '市场部经理', '女', '市场部',
-          '2024-01-16 14:20:00', '1993-12-10',
-          'true', '娱乐', 2500, 8
-      )
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0032
-    title: 验证【多表-doris-mysql跨源比对】功能正常
-    priority: P1
-    steps:
-      - action: 新建多表比对，左表选择前置中的表doris_demo_data_types_source,过滤条件为part_date='${utc0yyyy_MM_dd_1d}'
-        expected: 右表数据源不会默认回填左表选择的数据源，下拉框允许选择所有授权给质量项目的数据源
-      - action: 右表选择前置中的表mysql_demo_data_types_source，点击下一步
-        expected: ''
-      - action: 同名映射
-        expected: |-
-          1） 字段类型一致的进行映射
-          2） 不一致的不映射并提示：主表与对照表字段类型不一致，无法比对
-      - action: 勾选user_id为主键
-        expected: 勾选成功
-      - action: 勾选【记录数百分比差异】-0%
-        expected: 勾选成功
-      - action: 创建规则
-        expected: 创建成功
-      - action: 立即运行规则，查看结果
-        expected: 质量实例校验不通过
-      - action: 编辑规则，修改【记录数百分比差异】-50%
-        expected: 修改成功
-      - action: 立即运行规则，查看结果
-        expected: 质量实例校验通过
-    precondition: |-
-      1、 doris数据源已存在表
-      建表语句：
-      drop table if exists doris_demo_data_types_source;
-      CREATE TABLE IF NOT EXISTS doris_demo_data_types_source (
-          user_id BIGINT COMMENT "用户ID",
-          created_date DATE COMMENT "创建日期",
-          name VARCHAR(50) COMMENT "姓名",
-          age TINYINT COMMENT "年龄",
-          status SMALLINT COMMENT "状态码",
-          price DECIMAL(10, 2) COMMENT "价格",
-          weight FLOAT COMMENT "重量",
-          rating DOUBLE COMMENT "评分",
-          description STRING COMMENT "描述信息",
-          gender VARCHAR(10) COMMENT "性别",
-          department VARCHAR(20) COMMENT "部门",
-          created_time DATETIME COMMENT "创建时间",
-          birth_date DATE COMMENT "出生日期",
-          is_active BOOLEAN COMMENT "是否激活",
-          tags VARCHAR(100) COMMENT "标签",
-          total_amount BIGINT COMMENT "总金额",
-          order_count INT COMMENT "订单数量"
-      )
-      ENGINE=olap
-      DUPLICATE KEY(user_id, created_date, name)
-      DISTRIBUTED BY HASH(user_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      1） 属性类型为“树形目录”
 
-      -- 插入示例数据
-      INSERT INTO doris_demo_data_types_source VALUES
-      (
-          1001, '2024-01-15', '张三', 25, 1,
-          99. 99, 65.5, 4.5,
-          '技术部员工', '男', '技术部',
-          '2024-01-15 10:30:00', '1998-05-20',
-          true, '科技,财经', 1500, 5
-      ),
-      (
-          1002, '2024-01-16', '李四', 30, 2,
-          199. 50, 55.2, 4.8,
-          '市场部经理', '女', '市场部',
-          '2024-01-16 14:20:00', '1993-12-10',
-          true, '娱乐', 2500, 8
-      ),
-      (
-          1003, '2024-01-17', '王五', 22, 0,
-          49. 99, 70.1, 3.9,
-          '销售专员', '其他', '销售部',
-          '2024-01-17 16:45:00', '2001-08-25',
-          false, '科技,体育', 800, 3
-      );
+      2） 输入表单内容
+
+      3） 点击【确定】'
+    expected: 列表中显示新建的业务属性，且字段值与步骤中列出的固定输入值一致
+  - action: 进入${DATASOURCE_TYPE}数据源类型的数据表详情页，查看「业务属性」
+    expected: 显示此新增的业务属性名
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 元模型管理
+- case_id: C0009
+  title: 验证通用业务属性-删除功能-保存后页面展示步骤要求的状态和数据
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 元模型管理】页面
+    expected: 已进入【数据资产 → 元模型管理】页面，显示页面标题与主要操作区域
+  - action: 删除业务属性${SX}
+    expected: 列表不显示业务属性${SX}
+  - action: 进入${DATASOURCE_TYPE}数据源类型的数据表详情页，查看「业务属性」
+    expected: 该业务属性不显示
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 元模型管理
+- case_id: C0010
+  title: 验证数据表列表-数据展示正确
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 元数据管理】页面
+    expected: 已进入【数据资产 → 元数据管理】页面，显示页面标题与主要操作区域
+  - action: '位置：元数据-元数据管理-${DATASOURCE _TYPE}数据源-某数据库
+
+      查看列表'
+    expected: "列表展示当前数据库下数据表+视图信息正确（数据与表详情页一直即可）：\n    表名、表中文名、创建时间、存储大小、更新时间"
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 元数据管理
+- case_id: C0011
+  title: 验证数据库列表-生命周期应用功能正确
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 元数据管理】页面
+    expected: 已进入【数据资产 → 元数据管理】页面，显示页面标题与主要操作区域
+  - action: 'tableB（未同步至资产）所属数据源和所属数据库为：datasourceB、schemaB
+
+      只配置datasourceB的生命周期为3天；schemaB未设置生命周期；
+
+      将tableB同步至资产；
+
+      查看tableB的生命周期'
+    expected: tableB的生命周期为3天
+  - action: 'tableC（未同步至资产）所属数据源和所属数据库为：datasourceC、schemaC
+
+      datasourceC未设置生命周期；schemaC设置生命周期为10天；
+
+      将tableC同步至资产；
+
+      查看tableC的生命周期'
+    expected: tableC的生命周期为10天
+  - action: 'tableA（未同步至资产）所属数据源和所属数据库为：datasourceA、schemaA
+
+      先配置datasourceA的生命周期为3天；后配置schemaA的生命周期为10天；
+
+      将tableA同步至资产；
+
+      查看tableA的生命周期'
+    expected: tableA的生命周期为10天
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 元数据
+  - 元数据管理
+- case_id: C0012
+  title: 验证数据标准-新建标准
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 标准定义】页面
+    expected: 已进入【数据资产 → 标准定义】页面，显示页面标题与主要操作区域
+  - action: '1） 点击新建标准
+
+      2） 输入合格的所有业务属性值和所有技术属性值，点击【保存】|【上线】'
+    expected: '1） 页面跳转至数据标准列表页
+
+      2） 列表刷新展示新建的数据标准，且状态为“待上线”|"已上线"'
+  - action: '1） 点击新建标准
+
+      2） 输入合格的所有业务属性值和所有技术属性值，点击【取消】'
+    expected: 页面跳转至数据标准列表页
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准管理
+  - 标准定义
+- case_id: C0013
+  title: 验证数据标准-查看详情
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 标准定义】页面
+    expected: 已进入【数据资产 → 标准定义】页面，显示页面标题与主要操作区域
+  - action: 点击标准的标准名称
+    expected: '1） 右侧标准详情抽屉的弹出
+
+      2） 头部显示标准中文名、发布状态、创建时间、最近发布时间、最近发布用户
+
+      3） tab页显示“标准信息”和“版本变更”'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准管理
+  - 标准定义
+- case_id: C0014
+  title: 验证标准映射-创建标准映射完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 标准映射】页面
+    expected: 已进入【数据资产 → 标准映射】页面，显示页面标题与主要操作区域
+  - action: '1） 点击【标准映射】
+
+      2） 查看创建标准映射弹窗'
+    expected: ''
+  - action: “数据源类型”选择${DATASOURCE_TYPE}数据源类型
+    expected: “数据源”下拉项显示${DATASOURCE_TYPE}数据源类型下的数据源
+  - action: “数据源”选择${DATASOURCE_TYPE}数据源类型下的数据源
+    expected: “数据库”下拉项显示所选数据源下所有已同步的数据库
+  - action: '1） 选择数据库
+
+      2） 点击【添加】
+
+      3） 点击【确定】'
+    expected: 创建标准映射成功
+  precondition: "配置表：\ncreate table active_users (\n    user_id bigint NOT NULL COMMENT '用户ID',\n    name string NOT NULL\
+    \ COMMENT '用户姓名',\n    email string NULL COMMENT '邮箱地址',\n    address string NULL COMMENT '住址（邮寄地址）',\n    age tinyint\
+    \ NULL COMMENT '用户年龄',\n    sex tinyint NULL COMMENT '用户性别（男/女）',\n    last_active datetime COMMENT '最近活跃时间 最近登陆时间',\n\
+    \    property0 tinyint NOT NULL,\n    property1 tinyint NOT NULL,\n    property2 tinyint NOT NULL,\n    property3 tinyint\
+    \ NOT NULL\n)\nDISTRIBUTED BY HASH(`user_id`)\nPROPERTIES(\n    \"replication_num\" = \"1\"\n);\n\n\n配置数据标准：\nemail（邮箱地址）"
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准管理
+  - 标准映射
+- case_id: C0015
+  title: 验证标准映射-标准映射字段绑完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 标准映射】页面
+    expected: 已进入【数据资产 → 标准映射】页面，显示页面标题与主要操作区域
+  - action: '1） 点击邮箱地址的【字段映射】；
+
+      2） 查看字段绑定弹窗'
+    expected: ''
+  - action: “数据源类型”选择${DATASOURCE_TYPE}数据源类型
+    expected: “数据源”下拉项显示${DATASOURCE_TYPE}数据源类型下的数据源
+  - action: “数据源”选择${DATASOURCE_TYPE}数据源类型下的数据源
+    expected: “数据库”下拉项显示所选数据源下所有已同步的数据库
+  - action: “数据库”选择数据库
+    expected: “数据表”选择所选库下所有已同步的数据表
+  - action: 选择“数据表”，点击【确定】
+    expected: 字段绑定成功
+  - action: 查看对数据标准的“映射记录”
+    expected: 映射记录显示新绑定字段
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准管理
+  - 标准映射
+- case_id: C0016
+  title: 验证词根管理-新建
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 词根管理】页面
+    expected: 已进入【数据资产 → 词根管理】页面，显示页面标题与主要操作区域
+  - action: 点击新建词根
+    expected: 弹出新建词根弹窗
+  - action: 填写内容，点击确定
+    expected: '1） 新增词根成功！
+
+      2） 词根列表新增该词根'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准基础
+  - 词根管理
+- case_id: C0017
+  title: 验证词根管理-删除
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 词根管理】页面
+    expected: 已进入【数据资产 → 词根管理】页面，显示页面标题与主要操作区域
+  - action: 点击删除并二次确认
+    expected: '1） 提示删除成功；
+
+      2） 词根列表删除该词根'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准基础
+  - 词根管理
+- case_id: C0018
+  title: 验证码表管理-新建
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 码表管理】页面
+    expected: 已进入【数据资产 → 码表管理】页面，显示页面标题与主要操作区域
+  - action: 点击新建代码
+    expected: 弹出新建代码弹窗
+  - action: 填写内容，点击确定
+    expected: '1） 提示新增代码成功！
+
+      2） 代码列表新增该代码'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准基础
+  - 码表管理
+- case_id: C0019
+  title: 验证数据库拾取-拾取流程
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 数据库拾取】页面
+    expected: 已进入【数据资产 → 数据库拾取】页面，显示页面标题与主要操作区域
+  - action: 点击数据库拾取页面的新建拾取icon
+    expected: 弹出新建拾取弹窗
+  - action: 点击拾取来源下拉框
+    expected: 新增数据源类型下拉项
+  - action: '1） 拾取类型选择词根管理
+
+      2） 拾取来源选择${DATASOURCE_TYPE}数据源类型下的数据源
+
+      3） 填写拾取条件
+
+      4） 点击确定'
+    expected: 全局提示：新建拾取成功；拾取列表新增该拾取
+  - action: '1） 拾取类型选择数据标准
+
+      2） 拾取来源选择${DATASOURCE_TYPE}数据源类型下的数据源
+
+      3） 填写拾取条件
+
+      4） 点击确定'
+    expected: 全局提示：新建拾取成功；拾取列表新增该拾取
+  - action: '1） 等待拾取完成
+
+      2） 查看拾取'
+    expected: '1） 拾取成功
+
+      2） 拾取列表字段值与步骤中列出的固定输入值一致'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准基础
+  - 数据库拾取
+- case_id: C0020
+  title: 验证数据库拾取-批量引用完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 数据库拾取】页面
+    expected: 已进入【数据资产 → 数据库拾取】页面，显示页面标题与主要操作区域
+  - action: '位置：数据标准-标准基础-数据库拾取；
+
+      选择‘词根管理’类型，点击【查看拾取】；
+
+      点击【批量引用】，二次确认'
+    expected: '当前页面所选词根变为“已引用”状态；
+
+      勾选的词根均可在‘词根管理’菜单中查询到；'
+  - action: '位置：数据标准-标准基础-数据库拾取；
+
+      选择‘数据标准’类型，点击【查看拾取】；
+
+      点击【批量引用】，二次确认'
+    expected: '当前页面所选标准变为“已引用”状态；
+
+      勾选的标准均可在‘数据标准’菜单中查询到；'
+  precondition: 配置词根拾取以及数据标准拾取
+  tags:
+  - 主流程v6.3
+  - 数据标准
+  - 标准基础
+  - 数据库拾取
+- case_id: C0021
+  title: 验证创建不同类型sparkThrift表完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 建表】页面
+    expected: 已进入【数据资产 → 建表】页面，显示页面标题与主要操作区域
+  - action: "创建Hive PARQUET非事务内部表：\n  - “表类型”选择“内部表”\n  - “hdfs存储路径”为空"
+    expected: '生成的建表语句正确；
+
+      PARQUET表创建成功；'
+  - action: "创建Hive ORC非事务内部表：\n  - “表类型”选择“内部表”\n  - “hdfs存储路径”为空"
+    expected: '生成的建表语句正确；
+
+      ORC表创建成功；'
+  - action: "创建Hive TEXTFILE非事务内部表：\n  - “表类型”选择“内部表”\n  - “hdfs存储路径”为指定路径（非默认路径）"
+    expected: '生成的建表语句正确；
+
+      TEXTFILE表创建成功；'
+  - action: "创建Hive外部表：\n  - “表类型”选择“外部表”\n  - “hdfs存储路径”为指定路径（非默认路径）"
+    expected: '生成的建表语句正确；
+
+      事务表创建成功；
+
+      该表存储路径正确'
+  - action: 创建Hive分区表
+    expected: '生成的建表语句正确；
+
+      分区表创建成功；
+
+      该表分区字段正确'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据模型
+  - 建表
+- case_id: C0022
+  title: 验证建表语句解析功能正确
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 建表】页面
+    expected: 已进入【数据资产 → 建表】页面，显示页面标题与主要操作区域
+  - action: 主键表建表语句解析
+    expected: 字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
+  - action: 范围分区表语句解析
+    expected: '1） 字段名、字段中文名、字段类型、字符长度、数值长度、字段精度、主键、分区字段、分区类型等解析成功
+
+      2） 范围分区信息解析成功'
+  - action: 各数据类型字段解析
+    expected: 所有支持的字段类型均解析
+  precondition: '建表语句如下
+
+    CREATE TABLE IF NOT EXISTS `batch_test_v53x_new_asset`.`ods_bu_par4_df` (
+
+    `busine_line_id` STRING COMMENT ''业务线ID'',
+
+    `busine_line` INT COMMENT ''业务线'',
+
+    `bu_id` STRING COMMENT ''事业 部ID'',
+
+    `bu_name` STRING COMMENT ''事业部'',
+
+    `busi_team` STRING COMMENT ''隶属商务团队'',
+
+    `busi_team_date` STRING COMMENT ''隶属时间'',
+
+    `load_dt` TIMESTAMP COMMENT ''隶属时间''
+
+    )
+
+    COMMENT ''dim维度表_新核心业务线''
+
+    PARTITIONED BY (
+
+    `data_dt` STRING COMMENT ''数据时间'',
+
+    `is_save` INT COMMENT ''数据是否保留：0-否，1-是''
+
+    )
+
+    STORED AS PARQUET
+
+    TBLPROPERTIES (''transactional''=''true'');'
+  tags:
+  - 主流程v6.3
+  - 数据模型
+  - 建表
+- case_id: C0023
+  title: 验证「规范设计」-新增数仓层级完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 建表】页面
+    expected: 已进入【数据资产 → 建表】页面，显示页面标题与主要操作区域
+  - action: 进入「资产」-「数据模型」-「规范建表」页面
+    expected: 进入成功
+  - action: 点击「规范设计」按钮
+    expected: 进入「规范设计」页面成功
+  - action: 点击「新增数据层级」按钮
+    expected: 弹「新增数据层级」弹窗
+  - action: '「中文名称」输入「新增层级」
+
+      「英文名称」输入「add_catalog」
+
+      「描述」输入「test _ desc」'
+    expected: 配置完成
+  - action: 点击「确定」按钮
+    expected: 新增数仓层级成功
+  - action: 选择「新增层级」，点击「规范设计」按钮
+    expected: 弹「规范设计」弹窗
+  - action: 「模型元素」配置「业务系统」「主题域」，点击「确定」按钮
+    expected: 配置成功
+  - action: 进入「建表」页面，「数仓层级」选择「新增层级」
+    expected: 展示「新增层级」下的「规范设计内容」
+  - action: 新增表流程结束
+    expected: 新增表成功
+  - action: 查看表所属数仓层级
+    expected: 该表存储在「新增层级」下
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据模型
+  - 建表
+- case_id: C0024
+  title: 验证数据模型-审批功能
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 建表】页面
+    expected: 已进入【数据资产 → 建表】页面，显示页面标题与主要操作区域
+  - action: '数据开发角色用户，进入数据模型-新建表，选择doris数据源、数据库、数仓层级、模型元素
+
+      表名：自定义内容：「T_doris_A」
+
+      中文名：doris表A
+
+      数据模型类型：【主键表】
+
+      2） 点击下一步'
+    expected: '1） 进入数据模型新建页面
+
+      2） 进入表结构页面'
+  - action: '新增2 个字段，其中包含字段ID
+
+      字段id勾选主键，分区字段，动态分区，分桶字段(分桶数1)，编辑动态分区配置：同前置条件'
+    expected: 新增成功
+  - action: 点击【生成建表语句】按钮，建表
+    expected: '1） 提示：提交审批成功
+
+      2） 我的模型-已审批页面记录新增一条记录为审批中'
+  - action: 管理员用户进入「审批中心」，审批拒绝
+    expected: '1） 表未新建，数据模型新增一条记录，为未建表状态
+
+      2） 数据开发用户，我的模型-已审批页面记录状态变为已拒绝'
+  - action: 管理员用户进入「审批中心」，审批通过
+    expected: '1） 数据模型新增一条记录，为已建表状态
+
+      2） 表详情正确
+
+      3） 数据开发用户，我的模型-已审批页面记录状态变为已通过'
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据模型
+  - 建表
+- case_id: C0025
+  title: 验证单表校验-【完整性校验-字段级-单字段】结果与预期记录一致
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 字段级】页面
+    expected: 已进入【数据资产 → 字段级】页面，显示页面标题与主要操作区域
+  - action: '新建单表规则，选择doris表
+
+      规则选择完整性校验-字段级，分别创建空值数、空值率、空串数、空串率的子规则，配置使校验通过'
+    expected: 新建成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  - action: 修改规则，配置使其都校验不通过
+    expected: 编辑成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0026
+  title: 验证单表校验-【准确性校验】结果与预期记录一致
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 规则任务配置】页面
+    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
+  - action: '新建单表规则，选择doris表
+
+      规则选择准确性校验，分别创建求和、求平均、负值比、零值比、正值比的子规则，配置使校验通过'
+    expected: 新建成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  - action: 修改规则，配置使其都校验不通过
+    expected: 编辑成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0027
+  title: 验证单表校验-【规范性校验】结果与预期记录一致
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 规则任务配置】页面
+    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
+  - action: '新建单表规则，选择doris表
+
+      规则选择规范性校验，分别创建取值范围、枚举范围、枚举个数、身份证号、手机号、邮箱、最大长度、最小长度、字符串长度、数据精度、空值数、重复数、枚举值的子规则，配置使校验通过'
+    expected: 新建成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  - action: 修改规则，配置使其都校验不通过
+    expected: 编辑成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0028
+  title: 验证单表校验-【唯一性校验】结果与预期记录一致
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 规则任务配置】页面
+    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
+  - action: '新建单表规则，选择doris表
+
+      规则选择唯一性校验，分别创建重复数、重复率、非重复个数、非重复占比的子规则，配置使校验通过'
+    expected: 新建成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  - action: 修改规则，配置使其都校验不通过
+    expected: 编辑成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0029
+  title: 验证单表校验-【自定义sql-单表逻辑】结果与预期记录一致
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 单表逻辑】页面
+    expected: 已进入【数据资产 → 单表逻辑】页面，显示页面标题与主要操作区域
+  - action: '新建单表规则，选择前置中的doris表
+
+      规则选择自定义sql，输入样例sql，固定值<10000'
+    expected: 新建成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  - action: 修改规则，配置使其校验不通过
+    expected: 编辑成功
+  - action: 立即运行查看结果
+    expected: 结果与预期记录一致
+  precondition: "doris数据源已存在表\nDROP TABLE IF EXISTS doris_test;\nCREATE TABLE IF NOT EXISTS doris_test (\n    id INT,\n  \
+    \  name STRING,\n    age INT\n)\nDISTRIBUTED BY HASH(id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\
+    insert into doris_test values(1,'qq',11);\nselect * from doris_test;\n\n\n样例一：\nselect * from doris\n\n样例二：\nselect id,name,age\
+    \ from doris\n\n样例三：\nselect id,name from doris\n\n样例四：\nselect id,name,1 from doris\n\n样例五：\nselect SUM(id) from doris"
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0030
+  title: 验证【规则集】完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 规则任务配置】页面
+    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
+  - action: 新建规则集，选择前置的doris表，点击下一步
+    expected: 进入规则配置
+  - action: 下载规则模板，填写前置中的规则sql，上传
+    expected: 上传成功,规则导入正确
+  - action: 配置周期调度，点击创建
+    expected: 创建成功
+  - action: 立即执行，查看运行结果
+    expected: 运行结果与预期记录一致
+  precondition: "1、 doris数据源已存在表：\n建表语句：\ndrop table if exists doris_demo_data_types_source;\nCREATE TABLE IF NOT EXISTS doris_demo_data_types_source\
+    \ (\n    user_id BIGINT COMMENT \"用户ID\",\n    created_date DATE COMMENT \"创建日期\",\n    name VARCHAR(50) COMMENT \"姓名\"\
+    ,\n    age TINYINT COMMENT \"年龄\",\n    status SMALLINT COMMENT \"状态码\",\n    price DECIMAL(10, 2) COMMENT \"价格\",\n \
+    \   weight FLOAT COMMENT \"重量\",\n    rating DOUBLE COMMENT \"评分\",\n    description STRING COMMENT \"描述信息\",\n    gender\
+    \ VARCHAR(10) COMMENT \"性别\",\n    department VARCHAR(20) COMMENT \"部门\",\n    created_time DATETIME COMMENT \"创建时间\"\
+    ,\n    birth_date DATE COMMENT \"出生日期\",\n    is_active BOOLEAN COMMENT \"是否激活\",\n    tags VARCHAR(100) COMMENT \"标签\"\
+    ,\n    total_amount BIGINT COMMENT \"总金额\",\n    order_count INT COMMENT \"订单数量\"\n)\nENGINE=olap\nDUPLICATE KEY(user_id,\
+    \ created_date, name)\nDISTRIBUTED BY HASH(user_id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\n\
+    -- 插入示例数据\nINSERT INTO doris_demo_data_types_source VALUES\n(\n    1001, '2024-01-15', '张三', 25, 1,\n    99. 99, 65.5,\
+    \ 4.5,\n    '技术部员工', '男', '技术部',\n    '2024-01-15 10:30:00', '1998-05-20',\n    true, '科技,财经', 1500, 5\n),\n(\n    1002,\
+    \ '2024-01-16', '李四', 30, 2,\n    199. 50, 55.2, 4.8,\n    '市场部经理', '女', '市场部',\n    '2024-01-16 14:20:00', '1993-12-10',\n\
+    \    true, '娱乐', 2500, 8\n),\n(\n    1003, '2024-01-17', '王五', 22, 0,\n    49. 99, 70.1, 3.9,\n    '销售专员', '其他', '销售部',\n\
+    \    '2024-01-17 16:45:00', '2001-08-25',\n    false, '科技,体育', 800, 3\n);\n\n规则集sql：\n\n1） select * from doris_demo_data_types_source；\n\
+    2） select user_id，name from doris_demo_data_types_source；\n3） select * from doris_demo_data_types_source where user_id\
+    \ >1005;\n4) select 1 from doris_demo_data_types_source;"
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0031
+  title: 验证【多表-同源比对】完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 同源比对】页面
+    expected: 已进入【数据资产 → 同源比对】页面，显示页面标题与主要操作区域
+  - action: 新建多表比对，左表选择前置中的表doris_demo_data_types_source
+    expected: 右表数据源默认回填左表选择的数据源，置灰不可修改
+  - action: 右表选择前置中的表doris_demo1_data_types_source，点击下一步
+    expected: 进入选择字段步骤
+  - action: 同名映射
+    expected: '1） 字段类型一致的进行映射
+
+      2） 不一致的不映射并提示：主表与对照表字段类型不一致，无法比对'
+  - action: 勾选user_id为主键
+    expected: 勾选成功
+  - action: 勾选【记录数百分比差异】-0%
+    expected: 勾选成功
+  - action: 创建规则
+    expected: 创建成功
+  - action: 立即运行规则，查看结果
+    expected: 质量实例校验不通过
+  - action: 编辑规则，修改【记录数百分比差异】-100%
+    expected: 修改成功
+  - action: 立即运行规则，查看结果
+    expected: 质量实例校验通过
+  precondition: "doris数据源已存在表doris_demo_data_types_source、doris_demo1_data_types_source\n\n建表语句：\ndrop table if exists doris_demo_data_types_source;\n\
+    CREATE TABLE IF NOT EXISTS doris_demo_data_types_source (\n    user_id BIGINT COMMENT \"用户ID\",\n    created_date DATE\
+    \ COMMENT \"创建日期\",\n    name VARCHAR(50) COMMENT \"姓名\",\n    age TINYINT COMMENT \"年龄\",\n    status SMALLINT COMMENT\
+    \ \"状态码\",\n    price DECIMAL(10, 2) COMMENT \"价格\",\n    weight FLOAT COMMENT \"重量\",\n    rating DOUBLE COMMENT \"评分\"\
+    ,\n    description STRING COMMENT \"描述信息\",\n    gender VARCHAR(10) COMMENT \"性别\",\n    department VARCHAR(20) COMMENT\
+    \ \"部门\",\n    created_time DATETIME COMMENT \"创建时间\",\n    birth_date DATE COMMENT \"出生日期\",\n    is_active BOOLEAN COMMENT\
+    \ \"是否激活\",\n    tags VARCHAR(100) COMMENT \"标签\",\n    total_amount BIGINT COMMENT \"总金额\",\n    order_count INT COMMENT\
+    \ \"订单数量\"\n)\nENGINE=olap\nDUPLICATE KEY(user_id, created_date, name)\nDISTRIBUTED BY HASH(user_id) BUCKETS 10\nPROPERTIES\
+    \ (\n    \"replication_num\" = \"1\"\n);\n\n-- 插入示例数据\nINSERT INTO doris_demo_data_types_source VALUES\n(\n    1001, '2024-01-15',\
+    \ '张三', 25, 1,\n    99. 99, 65.5, 4.5,\n    '技术部员工', '男', '技术部',\n    '2024-01-15 10:30:00', '1998-05-20',\n    true,\
+    \ '科技,财经', 1500, 5\n),\n(\n    1002, '2024-01-16', '李四', 30, 2,\n    199. 50, 55.2, 4.8,\n    '市场部经理', '女', '市场部',\n \
+    \   '2024-01-16 14:20:00', '1993-12-10',\n    true, '娱乐', 2500, 8\n),\n(\n    1003, '2024-01-17', '王五', 22, 0,\n    49.\
+    \ 99, 70.1, 3.9,\n    '销售专员', '其他', '销售部',\n    '2024-01-17 16:45:00', '2001-08-25',\n    false, '科技,体育', 800, 3\n);\n\
+    \n\n\n\n\ndrop table if exists doris_demo1_data_types_source;\nCREATE TABLE IF NOT EXISTS doris_demo1_data_types_source\
+    \ (\n    user_id BIGINT COMMENT \"用户ID\",\n    created_date VARCHAR(20) COMMENT \"创建日期\",\n    name VARCHAR(50) COMMENT\
+    \ \"姓名\",\n    age INT COMMENT \"年龄\",\n    status INT COMMENT \"状态码\",\n    price VARCHAR(20) COMMENT \"价格\",\n    weight\
+    \ VARCHAR(20) COMMENT \"重量\",\n    rating VARCHAR(20) COMMENT \"评分\",\n    description VARCHAR(500) COMMENT \"描述信息\",\n\
+    \    gender VARCHAR(10) COMMENT \"性别\",\n    department VARCHAR(20) COMMENT \"部门\",\n    created_time VARCHAR(30) COMMENT\
+    \ \"创建时间\",\n    birth_date VARCHAR(20) COMMENT \"出生日期\",\n    is_active VARCHAR(10) COMMENT \"是否激活\",\n    tags VARCHAR(100)\
+    \ COMMENT \"标签\",\n    total_amount INT COMMENT \"总金额\",\n    order_count INT COMMENT \"订单数量\"\n)\nENGINE=olap\nDUPLICATE\
+    \ KEY(user_id, created_date, name)\nDISTRIBUTED BY HASH(user_id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"\
+    1\"\n);\n\n-- 插入示例数据\nINSERT INTO doris_demo_data_types_source VALUES\n(\n    1001, '2024-01-15', '张三', 25, 1,\n    99,\
+    \ 65, 4,\n    '技术部员工', '男', '技术部',\n    '2024-01-15 10:30:00', '1998-05-20',\n    'true', '科技,财经', 1500, 5\n),\n(\n  \
+    \  1002, '2024-01-16', '李四', 30, 2,\n    199, 55, 4,\n    '市场部经理', '女', '市场部',\n    '2024-01-16 14:20:00', '1993-12-10',\n\
+    \    'true', '娱乐', 2500, 8\n)"
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0032
+  title: 验证【多表-doris-mysql跨源比对】完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → mysql跨源比对】页面
+    expected: 已进入【数据资产 → mysql跨源比对】页面，显示页面标题与主要操作区域
+  - action: 新建多表比对，左表选择前置中的表doris_demo_data_types_source,过滤条件为part_date='${utc0yyyy_MM_dd_1d}'
+    expected: 右表数据源不会默认回填左表选择的数据源，下拉框允许选择所有授权给质量项目的数据源
+  - action: 右表选择前置中的表mysql_demo_data_types_source，点击下一步
+    expected: ''
+  - action: 同名映射
+    expected: '1） 字段类型一致的进行映射
+
+      2） 不一致的不映射并提示：主表与对照表字段类型不一致，无法比对'
+  - action: 勾选user_id为主键
+    expected: 勾选成功
+  - action: 勾选【记录数百分比差异】-0%
+    expected: 勾选成功
+  - action: 创建规则
+    expected: 创建成功
+  - action: 立即运行规则，查看结果
+    expected: 质量实例校验不通过
+  - action: 编辑规则，修改【记录数百分比差异】-50%
+    expected: 修改成功
+  - action: 立即运行规则，查看结果
+    expected: 质量实例校验通过
+  precondition: "1、 doris数据源已存在表\n建表语句：\ndrop table if exists doris_demo_data_types_source;\nCREATE TABLE IF NOT EXISTS doris_demo_data_types_source\
+    \ (\n    user_id BIGINT COMMENT \"用户ID\",\n    created_date DATE COMMENT \"创建日期\",\n    name VARCHAR(50) COMMENT \"姓名\"\
+    ,\n    age TINYINT COMMENT \"年龄\",\n    status SMALLINT COMMENT \"状态码\",\n    price DECIMAL(10, 2) COMMENT \"价格\",\n \
+    \   weight FLOAT COMMENT \"重量\",\n    rating DOUBLE COMMENT \"评分\",\n    description STRING COMMENT \"描述信息\",\n    gender\
+    \ VARCHAR(10) COMMENT \"性别\",\n    department VARCHAR(20) COMMENT \"部门\",\n    created_time DATETIME COMMENT \"创建时间\"\
+    ,\n    birth_date DATE COMMENT \"出生日期\",\n    is_active BOOLEAN COMMENT \"是否激活\",\n    tags VARCHAR(100) COMMENT \"标签\"\
+    ,\n    total_amount BIGINT COMMENT \"总金额\",\n    order_count INT COMMENT \"订单数量\"\n)\nENGINE=olap\nDUPLICATE KEY(user_id,\
+    \ created_date, name)\nDISTRIBUTED BY HASH(user_id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\n\
+    -- 插入示例数据\nINSERT INTO doris_demo_data_types_source VALUES\n(\n    1001, '2024-01-15', '张三', 25, 1,\n    99. 99, 65.5,\
+    \ 4.5,\n    '技术部员工', '男', '技术部',\n    '2024-01-15 10:30:00', '1998-05-20',\n    true, '科技,财经', 1500, 5\n),\n(\n    1002,\
+    \ '2024-01-16', '李四', 30, 2,\n    199. 50, 55.2, 4.8,\n    '市场部经理', '女', '市场部',\n    '2024-01-16 14:20:00', '1993-12-10',\n\
+    \    true, '娱乐', 2500, 8\n),\n(\n    1003, '2024-01-17', '王五', 22, 0,\n    49. 99, 70.1, 3.9,\n    '销售专员', '其他', '销售部',\n\
+    \    '2024-01-17 16:45:00', '2001-08-25',\n    false, '科技,体育', 800, 3\n);\n\n\n2、 mysql数据源已存在表：\n-- 删除已存在的表（如果存在）\nDROP\
+    \ TABLE IF EXISTS mysql_demo_data_types_source;\nCREATE TABLE IF NOT EXISTS mysql_demo_data_types_source (\n    user_id\
+    \ VARCHAR(20) COMMENT '用户ID',\n    created_date VARCHAR(20) COMMENT '创建日期',\n    name VARCHAR(50) COMMENT '姓名',\n    age\
+    \ VARCHAR(10) COMMENT '年龄',\n    status VARCHAR(10) COMMENT '状态码',\n    price VARCHAR(20) COMMENT '价格',\n    weight VARCHAR(20)\
+    \ COMMENT '重量',\n    rating VARCHAR(20) COMMENT '评分',\n    description VARCHAR(500) COMMENT '描述信息',\n    gender VARCHAR(10)\
+    \ COMMENT '性别',\n    department VARCHAR(20) COMMENT '部门',\n    created_time VARCHAR(30) COMMENT '创建时间',\n    birth_date\
+    \ VARCHAR(20) COMMENT '出生日期',\n    is_active VARCHAR(10) COMMENT '是否激活(是/否)',\n    tags VARCHAR(100) COMMENT '标签',\n \
+    \   total_amount VARCHAR(20) COMMENT '总金额',\n    order_count VARCHAR(10) COMMENT '订单数量',\n    PRIMARY KEY (user_id)\n\
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='MySQL数据源表';\n\nINSERT INTO mysql_demo_data_types_source VALUES\n('1001',\
+    \ '2024-01-15', '张三', '25', '1', '99.99', '65.5', '4.5', '技术部员工', '男', '技术部', '2024-01-15 10:30:00', '1998-05-20', '是',\
+    \ '科技,财经', '1500', '5'),\n('1002', '2024-01-16', '李四', '30', '2', '199.50', '55.2', '4.8', '市场部经理', '女', '市场部', '2024-01-16\
+    \ 14:20:00', '1993-12-10', '是', '娱乐', '2500', '8')"
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0033
+  title: 验证【联动】质量和离线绑定，单规则包-【表行数-强规则-校验不通过】结果与预期记录一致
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 校验不通过】页面
+    expected: 已进入【数据资产 → 校验不通过】页面，显示页面标题与主要操作区域
+  - action: 修改质量规则，固定值>3,强规则
+    expected: 新建成功
+  - action: 等待离线实例运行，查看质量实例
+    expected: 质量新增一条实例，状态为运行中
+  - action: 运行结束后，查看离线和质量实例的运行结果
+    expected: '1） 质量实例：校验未通过，查看明细展示doris1中的三条数据
+
+      2） 离线实例：运行失败，失败原因：上游质量任务失败'
+  - action: 进入「离线开发-运维中心-周期任务」，对doris2doris任务补当前数据及下游，查看结果
+    expected: '1） 补数据质量工作流中有1个规则包，离线任务运行失败，报错质量任务校验不通过
+
+      2） 质量生成一条实例，校验不通过'
+  precondition: "1、 doris数据源已存在表\n建表语句：\ndrop table if exists doris1;\nCREATE TABLE IF NOT EXISTS doris_demo_data_types_source\
+    \ (\n    user_id BIGINT COMMENT \"用户ID\",\n    created_date DATE COMMENT \"创建日期\",\n    name VARCHAR(50) COMMENT \"姓名\"\
+    ,\n    age TINYINT COMMENT \"年龄\",\n    status SMALLINT COMMENT \"状态码\",\n    price DECIMAL(10, 2) COMMENT \"价格\",\n \
+    \   weight FLOAT COMMENT \"重量\",\n    rating DOUBLE COMMENT \"评分\",\n    description STRING COMMENT \"描述信息\",\n    gender\
+    \ VARCHAR(10) COMMENT \"性别\",\n    department VARCHAR(20) COMMENT \"部门\",\n    created_time DATETIME COMMENT \"创建时间\"\
+    ,\n    birth_date DATE COMMENT \"出生日期\",\n    is_active BOOLEAN COMMENT \"是否激活\",\n    tags VARCHAR(100) COMMENT \"标签\"\
+    ,\n    total_amount BIGINT COMMENT \"总金额\",\n    order_count INT COMMENT \"订单数量\"\n)\nENGINE=olap\nDUPLICATE KEY(user_id,\
+    \ created_date, name)\nDISTRIBUTED BY HASH(user_id) BUCKETS 10\nPROPERTIES (\n    \"replication_num\" = \"1\"\n);\n\n\
+    -- 插入示例数据\nINSERT INTO doris1 VALUES\n(\n    1001, '2024-01-15', '张三', 25, 1,\n    99. 99, 65.5, 4.5,\n    '技术部员工', '男',\
+    \ '技术部',\n    '2024-01-15 10:30:00', '1998-05-20',\n    true, '科技,财经', 1500, 5\n),\n(\n    1002, '2024-01-16', '李四', 30,\
+    \ 2,\n    199. 50, 55.2, 4.8,\n    '市场部经理', '女', '市场部',\n    '2024-01-16 14:20:00', '1993-12-10',\n    true, '娱乐', 2500,\
+    \ 8\n),\n(\n    1003, '2024-01-17', '王五', 22, 0,\n    49. 99, 70.1, 3.9,\n    '销售专员', '其他', '销售部',\n    '2024-01-17 16:45:00',\
+    \ '2001-08-25',\n    false, '科技,体育', 800, 3\n);\n\n2、 离线已存在doris2doris数据同步任务：doris1-->doris2 覆盖\n\n3、 doris2为空表，doris1中有3条表数据，覆盖模式"
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 规则任务配置
+- case_id: C0034
+  title: 验证项目增删改查功能
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 项目信息】页面
+    expected: 已进入【数据资产 → 项目信息】页面，显示页面标题与主要操作区域
+  - action: '点击「创建项目」按钮，配置如下
+
+      「项目名称」输入「超64字符文本」
+
+      「项目标识」输入「超64字符文本&特殊字符」
+
+      「管理员」不选择
+
+      「项目描述」输入「测试项目描述信息」
+
+      点击「确定」按钮'
+    expected: '提示「项目名称」输入框64字符限制；
+
+      提示「项目标识」输入框64字符限制以及特殊字符不支持提示；
+
+      「管理员」必填项未填提示；'
+  - action: '点击「创建项目」按钮，配置如下
+
+      「项目名称」输入「测试项目」
+
+      「项目标识」输入「测试项目标识」
+
+      「管理员」选择${已引入到资产平台的用户,例如admin@dtstack.com}
+
+      「项目描述」输入「测试项目描述信息」
+
+      点击「确定」按钮'
+    expected: 质量项目创建成功
+  - action: 选择新增项目，点击「置顶」按钮
+    expected: 项目置顶成功，提示“操作成功”
+  - action: 删除项目，二次确认
+    expected: 项目删除成功
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据质量
+  - 项目管理
+  - 项目信息
+- case_id: C0035
+  title: 验证数据权限-新增完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 数据权限管理】页面
+    expected: 已进入【数据资产 → 数据权限管理】页面，显示页面标题与主要操作区域
+  - action: '「权限范围选择」：
+
+      添加第一条记录：数据库（schema1），数据表（s1_table1、s1_table2、s1_table3）
+
+      添加第二条记录：数据库（schema2），数据表（s2_table1）
 
 
-      2、 mysql数据源已存在表：
-      -- 删除已存在的表（如果存在）
-      DROP TABLE IF EXISTS mysql_demo_data_types_source;
-      CREATE TABLE IF NOT EXISTS mysql_demo_data_types_source (
-          user_id VARCHAR(20) COMMENT '用户ID',
-          created_date VARCHAR(20) COMMENT '创建日期',
-          name VARCHAR(50) COMMENT '姓名',
-          age VARCHAR(10) COMMENT '年龄',
-          status VARCHAR(10) COMMENT '状态码',
-          price VARCHAR(20) COMMENT '价格',
-          weight VARCHAR(20) COMMENT '重量',
-          rating VARCHAR(20) COMMENT '评分',
-          description VARCHAR(500) COMMENT '描述信息',
-          gender VARCHAR(10) COMMENT '性别',
-          department VARCHAR(20) COMMENT '部门',
-          created_time VARCHAR(30) COMMENT '创建时间',
-          birth_date VARCHAR(20) COMMENT '出生日期',
-          is_active VARCHAR(10) COMMENT '是否激活(是/否)',
-          tags VARCHAR(100) COMMENT '标签',
-          total_amount VARCHAR(20) COMMENT '总金额',
-          order_count VARCHAR(10) COMMENT '订单数量',
-          PRIMARY KEY (user_id)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='MySQL数据源表';
+      「数据权限配置」：
 
-      INSERT INTO mysql_demo_data_types_source VALUES
-      ('1001', '2024-01-15', '张三', '25', '1', '99.99', '65.5', '4.5', '技术部员工', '男', '技术部', '2024-01-15 10:30:00', '1998-05-20', '是', '科技,财经', '1500', '5'),
-      ('1002', '2024-01-16', '李四', '30', '2', '199.50', '55.2', '4.8', '市场部经理', '女', '市场部', '2024-01-16 14:20:00', '1993-12-10', '是', '娱乐', '2500', '8')
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0033
-    title: 验证【联动】质量和离线绑定，单规则包-【表行数-强规则-校验不通过】结果正确
-    priority: P0
-    steps:
-      - action: 修改质量规则，固定值>3,强规则
-        expected: 新建成功
-      - action: 等待离线实例运行，查看质量实例
-        expected: 质量新增一条实例，状态为运行中
-      - action: 运行结束后，查看离线和质量实例的运行结果
-        expected: |-
-          1） 质量实例：校验未通过，查看明细展示doris1中的三条数据
-          2） 离线实例：运行失败，失败原因：上游质量任务失败
-      - action: 进入「离线开发-运维中心-周期任务」，对doris2doris任务补当前数据及下游，查看结果
-        expected: |-
-          1） 补数据质量工作流中有1个规则包，离线任务运行失败，报错质量任务校验不通过
-          2） 质量生成一条实例，校验不通过
-    precondition: |-
-      1、 doris数据源已存在表
-      建表语句：
-      drop table if exists doris1;
-      CREATE TABLE IF NOT EXISTS doris_demo_data_types_source (
-          user_id BIGINT COMMENT "用户ID",
-          created_date DATE COMMENT "创建日期",
-          name VARCHAR(50) COMMENT "姓名",
-          age TINYINT COMMENT "年龄",
-          status SMALLINT COMMENT "状态码",
-          price DECIMAL(10, 2) COMMENT "价格",
-          weight FLOAT COMMENT "重量",
-          rating DOUBLE COMMENT "评分",
-          description STRING COMMENT "描述信息",
-          gender VARCHAR(10) COMMENT "性别",
-          department VARCHAR(20) COMMENT "部门",
-          created_time DATETIME COMMENT "创建时间",
-          birth_date DATE COMMENT "出生日期",
-          is_active BOOLEAN COMMENT "是否激活",
-          tags VARCHAR(100) COMMENT "标签",
-          total_amount BIGINT COMMENT "总金额",
-          order_count INT COMMENT "订单数量"
-      )
-      ENGINE=olap
-      DUPLICATE KEY(user_id, created_date, name)
-      DISTRIBUTED BY HASH(user_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "1"
-      );
+      1） 选择“表级权限”：DDL、DML、DQL；
 
-      -- 插入示例数据
-      INSERT INTO doris1 VALUES
-      (
-          1001, '2024-01-15', '张三', 25, 1,
-          99. 99, 65.5, 4.5,
-          '技术部员工', '男', '技术部',
-          '2024-01-15 10:30:00', '1998-05-20',
-          true, '科技,财经', 1500, 5
-      ),
-      (
-          1002, '2024-01-16', '李四', 30, 2,
-          199. 50, 55.2, 4.8,
-          '市场部经理', '女', '市场部',
-          '2024-01-16 14:20:00', '1993-12-10',
-          true, '娱乐', 2500, 8
-      ),
-      (
-          1003, '2024-01-17', '王五', 22, 0,
-          49. 99, 70.1, 3.9,
-          '销售专员', '其他', '销售部',
-          '2024-01-17 16:45:00', '2001-08-25',
-          false, '科技,体育', 800, 3
-      );
+      2） 选择“有效期配置”：2023-10-20；
 
-      2、 离线已存在doris2doris数据同步任务：doris1-->doris2 覆盖
+      3） 开启“是否开启行列权限配置”
 
-      3、 doris2为空表，doris1中有3条表数据，覆盖模式
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 规则任务配置
-  - case_id: C0034
-    title: 验证项目增删改查功能
-    priority: P0
-    steps:
-      - action: |-
-          点击「创建项目」按钮，配置如下
-          「项目名称」输入「超64字符文本」
-          「项目标识」输入「超64字符文本&特殊字符」
-          「管理员」不选择
-          「项目描述」输入「测试项目描述信息」
-          点击「确定」按钮
-        expected: |-
-          提示「项目名称」输入框64字符限制；
-          提示「项目标识」输入框64字符限制以及特殊字符不支持提示；
-          「管理员」必填项未填提示；
-      - action: |-
-          点击「创建项目」按钮，配置如下
-          「项目名称」输入「测试项目」
-          「项目标识」输入「测试项目标识」
-          「管理员」选择${已引入到资产平台的用户,例如admin@dtstack.com}
-          「项目描述」输入「测试项目描述信息」
-          点击「确定」按钮
-        expected: 质量项目创建成功
-      - action: 选择新增项目，点击「置顶」按钮
-        expected: 项目置顶成功，提示“操作成功”
-      - action: 删除项目，二次确认
-        expected: 项目删除成功
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据质量
-      - 项目管理
-      - 项目信息
-  - case_id: C0035
-    title: 验证数据权限-新增功能正常
-    priority: P1
-    steps:
-      - action: |-
-          「权限范围选择」：
-          添加第一条记录：数据库（schema1），数据表（s1_table1、s1_table2、s1_table3）
-          添加第二条记录：数据库（schema2），数据表（s2_table1）
 
-          「数据权限配置」：
-          1） 选择“表级权限”：DDL、DML、DQL；
-          2） 选择“有效期配置”：2023-10-20；
-          3） 开启“是否开启行列权限配置”
+      「行列权限配置」：
 
-          「行列权限配置」：
-          配置s1_table1以及s2_table1的行级权限和列级权限
+      配置s1_table1以及s2_table1的行级权限和列级权限
 
-          「权限生效用户」：
-          1） 选择“用户组”；
-          2） 选择“用户”
 
-          点击【新增权限策略】
-        expected: |-
-          1） 提示新增数据成功
-          2） 页面跳转至列表页，列表新增1条数据（新增的数据显示在最前面）；
-          3） 「安全审计」新增审计日志：
-              - 操作模块：数据安全-数据权限分配
-              - 动作：新增权限
-              - 详细内容：新增了权限策略，新增了${数据源名称}数据源下的权限信息，生效于XX等共XX个用户，权限有效期为2023-10-20
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据安全
-      - 数据权限管理
-  - case_id: C0036
-    title: 验证表脱敏功能正常
-    priority: P1
-    steps:
-      - action: |-
-          1） 准备“全部脱敏”类型规则
-          2） “全部脱敏”脱敏应用XX表的username字段；
-          3） 查看该表数据预览
-        expected: 该表username字段数据全脱敏
-      - action: |-
-          1） 准备“部分脱敏”类型规则
-          2） “部分脱敏”脱敏应用XX表的username字段；
-          3） 查看该表数据预览
-        expected: 该表username字段数据部分脱敏
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据安全
-      - 数据脱敏管理doris/sparkThrift
-  - case_id: C0037
-    title: 验证分级分类生效
-    priority: P0
-    steps:
-      - action: |-
-          1） 配置“保密”级别，“开放用户等级”为L2；
-          2） 【自动分级】中为SparkThrift2.x类型配置“字段名识别”referrer_url，级别为：保密；
-          3） 【立即生效】；
-          4） 生效成功后，L1、L2、L3用户分别进入SparkThrift2.x表（包含referrer_url字段）的表详情页-数据预览
-        expected: |-
-          1） L1用户无权限查看到表referrer_url字段数据
-          2） L2用户有权限查看到表referrer_url字段数据
-          3） L3用户有权限查看到表referrer_url字段数据
-          4） 离线校验
-    precondition: |-
-      准备L1、L2、L3三个等级的用户
-    tags:
-      - 主流程v6.3
-      - 数据安全
-      - 数据分级分类
-      - 级别管理
-  - case_id: C0038
-    title: 验证自动分级-添加流程正确
-    priority: P1
-    steps:
-      - action: 点击自动分级页面的「添加」icon
-        expected: 跳转至添加规则的基础信息页面
-      - action: 填写必填内容，点击下一步
-        expected: 跳转至配置规则页面
-      - action: 选择${DATASOURCE_TYPE}数据源类型，填写其他必填内容，点击立即生效
-        expected: 该数据源类型的符合识别规则的字段被分级成功
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据安全
-      - 数据分级分类
-      - 自动分级
-  - case_id: C0039
-    title: 验证手动分级-添加功能正确
-    priority: P1
-    steps:
-      - action: 点击手动分级，进入添加手动分级页面
-        expected: ''
-      - action: 查看分类下拉项
-        expected: 展示所有未删除的分类
-      - action: 检查“数据源类型”、“数据源”、“数据库”，以及手动分级栏中数据表、字段选项的级联查询
-        expected: 级联查询功能正常
-      - action: |-
-          1） 输入分类
-          2） 添加若干组分级和表、字段
-          3） 点击发布
-        expected: 添加手动分级成功
-    precondition: 无
-    tags:
-      - 主流程v6.3
-      - 数据安全
-      - 数据分级分类
-      - 分级数据
+      「权限生效用户」：
+
+      1） 选择“用户组”；
+
+      2） 选择“用户”
+
+
+      点击【新增权限策略】'
+    expected: "1） 提示新增数据成功\n2） 页面跳转至列表页，列表新增1条数据（新增的数据显示在最前面）；\n3） 「安全审计」新增审计日志：\n    - 操作模块：数据安全-数据权限分配\n    - 动作：新增权限\n\
+      \    - 详细内容：新增了权限策略，新增了${数据源名称}数据源下的权限信息，生效于XX等共XX个用户，权限有效期为2023-10-20"
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据安全
+  - 数据权限管理
+- case_id: C0036
+  title: 验证表脱敏完成目标操作且状态更新
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → sparkThrift】页面
+    expected: 已进入【数据资产 → sparkThrift】页面，显示页面标题与主要操作区域
+  - action: '1） 配置“全部脱敏”类型规则
+
+      2） “全部脱敏”脱敏应用XX表的username字段；
+
+      3） 查看该表数据预览'
+    expected: 该表username字段数据全脱敏
+  - action: '1） 配置“部分脱敏”类型规则
+
+      2） “部分脱敏”脱敏应用XX表的username字段；
+
+      3） 查看该表数据预览'
+    expected: 该表username字段数据部分脱敏
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据安全
+  - 数据脱敏管理doris/sparkThrift
+- case_id: C0037
+  title: 验证分级分类生效
+  priority: P0
+  steps:
+  - action: 进入【数据资产 → 级别管理】页面
+    expected: 已进入【数据资产 → 级别管理】页面，显示页面标题与主要操作区域
+  - action: '1） 配置“保密”级别，“开放用户等级”为L2；
+
+      2） 【自动分级】中为SparkThrift2.x类型配置“字段名识别”referrer_url，级别为：保密；
+
+      3） 【立即生效】；
+
+      4） 生效成功后，L1、L2、L3用户分别进入SparkThrift2.x表（包含referrer_url字段）的表详情页-数据预览'
+    expected: '1） L1用户无权限查看到表referrer_url字段数据
+
+      2） L2用户有权限查看到表referrer_url字段数据
+
+      3） L3用户有权限查看到表referrer_url字段数据
+
+      4） 离线校验'
+  precondition: 配置L1、L2、L3三个等级的用户
+  tags:
+  - 主流程v6.3
+  - 数据安全
+  - 数据分级分类
+  - 级别管理
+- case_id: C0038
+  title: 验证自动分级-添加流程正确
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 自动分级】页面
+    expected: 已进入【数据资产 → 自动分级】页面，显示页面标题与主要操作区域
+  - action: 点击自动分级页面的「添加」icon
+    expected: 跳转至添加规则的基础信息页面
+  - action: 填写必填内容，点击下一步
+    expected: 跳转至配置规则页面
+  - action: 选择${DATASOURCE_TYPE}数据源类型，填写其他必填内容，点击立即生效
+    expected: 该数据源类型的符合识别规则的字段被分级成功
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据安全
+  - 数据分级分类
+  - 自动分级
+- case_id: C0039
+  title: 验证手动分级-添加功能正确
+  priority: P1
+  steps:
+  - action: 进入【数据资产 → 分级数据】页面
+    expected: 已进入【数据资产 → 分级数据】页面，显示页面标题与主要操作区域
+  - action: 点击手动分级，进入添加手动分级页面
+    expected: ''
+  - action: 查看分类下拉项
+    expected: 展示所有未删除的分类
+  - action: 检查“数据源类型”、“数据源”、“数据库”，以及手动分级栏中数据表、字段选项的级联查询
+    expected: 级联查询完成目标操作且状态更新
+  - action: '1） 输入分类
+
+      2） 添加3 条组分级和表、字段
+
+      3） 点击发布'
+    expected: 添加手动分级成功
+  precondition: 无
+  tags:
+  - 主流程v6.3
+  - 数据安全
+  - 数据分级分类
+  - 分级数据

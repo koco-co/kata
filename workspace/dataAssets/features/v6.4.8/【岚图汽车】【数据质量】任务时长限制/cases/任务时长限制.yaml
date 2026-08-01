@@ -8,10 +8,12 @@ cases:
     title: 验证编辑历史规则，配置「超时时间」功能正确
     priority: P2
     steps:
+      - action: 进入【数据质量 → 编辑历史规则，配置超时时间功能正确】页面
+        expected: 已进入【数据质量 → 编辑历史规则，配置超时时间功能正确】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 选择「规则B」，点击编辑，进入「调度属性」页
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 查看「超时时间」区域
         expected: 默认选择为「不限制」
       - action: 编辑「超时时间」选择「自定义」
@@ -23,17 +25,16 @@ cases:
       - action: 查看任务状态
         expected: 显示为“中途停止”
     precondition: 存在历史规则任务B
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0002
     title: 验证编辑不限制「超时时间」为自定义，功能正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 编辑不限制超时时间为自定义，功能正确】页面
+        expected: 已进入【数据质量 → 编辑不限制超时时间为自定义，功能正确】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 选择「规则A」，点击编辑，进入「调度属性」页
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 查看「超时时间」区域
         expected: 显示为「不限制」
       - action: 编辑「超时时间」选择「自定义」
@@ -45,37 +46,35 @@ cases:
       - action: 查看任务状态
         expected: 显示为“中途停止”
     precondition: 存在规则A为不限制「超时时间」
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0003
     title: 验证不限制「超时时间」功能正确
     priority: P0
     steps:
+      - action: 进入【数据质量 → 不限制超时时间功能正确】页面
+        expected: 已进入【数据质量 → 不限制超时时间功能正确】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 正确配置「监控规则」，进入「调度属性」配置页
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 正确配置「调度属性」，「超时时间」选择「不限制」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
         expected: 生成正确实例详情，质量报告展示正确
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0004
     title: 验证运行时长小于「超时时间」功能正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 运行时长小于超时时间功能正确】页面
+        expected: 已进入【数据质量 → 运行时长小于超时时间功能正确】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 正确配置「监控规则」，进入「调度属性」配置页
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 正确配置「调度属性」，「超时时间」选择「自定义」
         expected: 弹出时间配置框，可配置小时、分钟
       - action: 配置为：10时00分，保存规则，且「调度属性」中配置「规则报告」为最新结果
@@ -83,19 +82,18 @@ cases:
       - action: 临时运行规则，查看实例详情及质量报告
         expected: 运行时间小于10小时，生成正确实例详情，质量报告展示正确
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0005
     title: 验证运行时长大于「超时时间」功能正确
     priority: P0
     steps:
+      - action: 进入【数据质量 → 运行时长大于超时时间功能正确】页面
+        expected: 已进入【数据质量 → 运行时长大于超时时间功能正确】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 正确配置「监控规则」，进入「调度属性」配置页
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 正确配置「调度属性」，「超时时间」选择「自定义」
         expected: 弹出时间配置框，可配置小时、分钟
       - action: 配置为：00时05分，保存规则，且「调度属性」中配置「规则报告」为最新结果
@@ -105,15 +103,14 @@ cases:
       - action: 查看任务状态
         expected: 显示为“中途停止”
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0006
     title: 验证「超时时间」配置内容交互
     priority: P1
     steps:
+      - action: 进入【数据质量 → 超时时间配置内容交互】页面
+        expected: 已进入【数据质量 → 超时时间配置内容交互】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务管理-调度属性」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 查看区域配置内容
         expected: 默认选择「不限制」
       - action: 鼠标悬浮“？”
@@ -125,20 +122,16 @@ cases:
       - action: 点击分钟下拉框
         expected: 可选择“00～59”
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0007
     title: 验证「调度属性」页面新增「超时时间」
     priority: P2
     steps:
+      - action: 进入【数据质量 → 超时时间】页面
+        expected: 已进入【数据质量 → 超时时间】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务管理-调度属性」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 查看页面
         expected: |-
           1） 「调度配置」区域新增「超时时间」
           2） 可选择「不限制」和「自定义」
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类

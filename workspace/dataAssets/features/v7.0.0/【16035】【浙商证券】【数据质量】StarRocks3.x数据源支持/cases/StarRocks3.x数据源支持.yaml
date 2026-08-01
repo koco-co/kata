@@ -3,6 +3,7 @@ meta:
   case_module_id: ""
   exports:
     - StarRocks3.x数据源支持.xmind
+  requirement_id: "16035"
 cases:
   - case_id: C0001
     automation:
@@ -10,6 +11,8 @@ cases:
     title: 验证 StarRocks 3.x 数据源经引入与质量项目授权后数据质量可选用
     priority: P0
     steps:
+      - action: 进入【数据质量 → 数据源管理】页面
+        expected: 已进入【数据质量 → 数据源管理】页面，显示页面标题与主要操作区域
       - action: |-
           在控制台「公共管理-数据源中心」找到 ${DataSourceA}，对其做「应用授权」:
           - 勾选应用: 数据资产
@@ -39,6 +42,8 @@ cases:
     title: 验证概览页正确统计 StarRocks 3.x 数据源规则任务数据
     priority: P1
     steps:
+      - action: 进入【数据质量 → 概览】页面
+        expected: 已进入【数据质量 → 概览】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量】-【概览】
         expected: 概览页加载成功，展示规则统计卡片、运维指标、告警汇总
       - action: 查看「单表规则总数」「多表规则总数」卡片
@@ -63,10 +68,12 @@ cases:
     title: 验证规则集导入规则包后直接执行批量校验 StarRocks 3.x 数据表
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建规则集」，填写「基础信息」:
           - 规则集名称: 证券基础校验集
-          - 校验数据源: ${DataSourceA}（STAR_ROCKS_3X）
+          - 校验数据源: ${DataSourceA}（StarRocks3.x）
           - 规则集描述: 证券基础完整性与唯一性校验
           点击「下一步」
         expected: 进入「规则内容」步骤
@@ -94,22 +101,27 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库中执行以下建表 SQL（可重入），security_name 含 1 条空值、security_code 含 1 组重复值：
 
-      DROP TABLE IF EXISTS zszq_ruleset;
-      CREATE TABLE zszq_ruleset (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_ruleset VALUES
-      (1001,'600036','招商银行'),
-      (1002,'000001','平安银行'),
-      (1003,'600036',NULL);
-      -- security_name 空值数=1；security_code='600036' 重复（1 组，2 行）
-      3) 已准备规则包导入文件「证券基础校验包.xlsx」，表头逐字为「* 规则名称、规则描述、* 表名、表中文名、字段名、字段中文名、* 校验SQL(请输入不符合规则要求的明细数据查询SQL)」，文件内容如下：
-      - 第 1 行：规则名称=完整性校验；规则描述=证券名称不能为空；表名=zszq_ruleset；表中文名=证券规则集校验表；字段名=security_name；字段中文名=证券名称；校验SQL=SELECT order_id, security_code, security_name FROM zszq_ruleset WHERE security_name IS NULL
-      - 第 2 行：规则名称=唯一性校验；规则描述=证券代码不可重复；表名=zszq_ruleset；表中文名=证券规则集校验表；字段名=security_code；字段中文名=证券代码；校验SQL=SELECT order_id, security_code, security_name FROM zszq_ruleset WHERE security_code IN (SELECT security_code FROM zszq_ruleset GROUP BY security_code HAVING COUNT(1) > 1)
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0003;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0003 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0003 VALUES
+          (1001,'600036','招商银行'),
+          (1002,'000001','平安银行'),
+          (1003,'600036',NULL);
+          -- security_name 空值数=1；security_code='600036' 重复（1 组，2 行）
+          3) 已配置规则包导入文件「证券基础校验包.xlsx」，表头逐字为「* 规则名称、规则描述、* 表名、表中文名、字段名、字段中文名、* 校验SQL(请输入不符合规则要求的明细数据查询SQL)」，文件内容如下：
+          - 第 1 行：规则名称=完整性校验；规则描述=证券名称不能为空；表名=test_table_16035_c0003；表中文名=证券规则集校验表；字段名=security_name；字段中文名=证券名称；校验SQL=SELECT order_id, security_code, security_name FROM test_table_16035_c0003 WHERE security_name IS NULL
+          - 第 2 行：规则名称=唯一性校验；规则描述=证券代码不可重复；表名=test_table_16035_c0003；表中文名=证券规则集校验表；字段名=security_code；字段中文名=证券代码；校验SQL=SELECT order_id, security_code, security_name FROM test_table_16035_c0003 WHERE security_code IN (SELECT security_code FROM test_table_16035_c0003 GROUP BY security_code HAVING COUNT(1) > 1)
     tags:
       - 数据质量
       - 规则配置
@@ -119,11 +131,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验表级表行数规则校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: StarRocks表行数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_orders
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0004
           点击「下一步」
         expected: 数据源/Schema/数据表三级联动正常，加载到 StarRocks 表
       - action: |-
@@ -140,7 +154,7 @@ cases:
           2) 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，点击「完成」
         expected: 规则任务创建成功，规则配置列表展示该任务
-      - action: 在列表点击 zszq_trade_orders 打开规则详情，点击「立即执行」，进入【任务查询】查看最新实例
+      - action: 在列表点击 test_table_16035_c0004 打开规则详情，点击「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验通过」（表行数 6 > 5）
       - action: |-
           返回规则详情编辑规则:
@@ -151,23 +165,28 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入）：
 
-      DROP TABLE IF EXISTS zszq_trade_orders;
-      CREATE TABLE zszq_trade_orders (
-        order_id      BIGINT        COMMENT '交易订单ID',
-        security_code VARCHAR(10)   COMMENT '证券代码',
-        trade_amount  DECIMAL(18,2) COMMENT '交易金额',
-        trade_date    DATE          COMMENT '交易日期'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_orders VALUES
-      (1001,'600036',25000.00,'2025-01-01'),
-      (1002,'000001',18000.00,'2025-01-01'),
-      (1003,'601318',88000.00,'2025-01-02'),
-      (1004,'600519',150000.00,'2025-01-02'),
-      (1005,'000858',60000.00,'2025-01-02'),
-      (1006,'300750',36000.00,'2025-01-02');
-      -- 表行数=6
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0004;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0004 (
+            order_id      BIGINT        COMMENT '交易订单ID',
+            security_code VARCHAR(10)   COMMENT '证券代码',
+            trade_amount  DECIMAL(18,2) COMMENT '交易金额',
+            trade_date    DATE          COMMENT '交易日期'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0004 VALUES
+          (1001,'600036',25000.00,'2025-01-01'),
+          (1002,'000001',18000.00,'2025-01-01'),
+          (1003,'601318',88000.00,'2025-01-02'),
+          (1004,'600519',150000.00,'2025-01-02'),
+          (1005,'000858',60000.00,'2025-01-02'),
+          (1006,'300750',36000.00,'2025-01-02');
+          -- 表行数=6
     tags:
       - 数据质量
       - 规则配置
@@ -177,11 +196,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值数单字段规则校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券名称空值数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_null
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0005
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -208,19 +229,24 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），security_name 含 1 条空值：
 
-      DROP TABLE IF EXISTS zszq_trade_null;
-      CREATE TABLE zszq_trade_null (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_null VALUES
-      (1001,'600036','招商银行'),
-      (1002,'000001','平安银行'),
-      (1003,'601318',NULL);
-      -- security_name 空值数=1（order_id=1003）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0005;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0005 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0005 VALUES
+          (1001,'600036','招商银行'),
+          (1002,'000001','平安银行'),
+          (1003,'601318',NULL);
+          -- security_name 空值数=1（order_id=1003）
     tags:
       - 数据质量
       - 规则配置
@@ -230,11 +256,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值数多字段规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 多字段空值数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_multi_null
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0006
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -258,20 +286,25 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），仅 order_id=1004 一行 security_name 与 account_no 同时为 NULL：
 
-      DROP TABLE IF EXISTS zszq_trade_multi_null;
-      CREATE TABLE zszq_trade_multi_null (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称',
-        account_no    VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_multi_null VALUES
-      (1001,'招商银行','ACC001'),
-      (1002,NULL,'ACC002'),
-      (1003,'中国平安',NULL),
-      (1004,NULL,NULL);
-      -- 仅 order_id=1004 security_name 与 account_no 同时为 NULL，空值数=1
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0006;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0006 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称',
+            account_no    VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0006 VALUES
+          (1001,'招商银行','ACC001'),
+          (1002,NULL,'ACC002'),
+          (1003,'中国平安',NULL),
+          (1004,NULL,NULL);
+          -- 仅 order_id=1004 security_name 与 account_no 同时为 NULL，空值数=1
     tags:
       - 数据质量
       - 规则配置
@@ -281,11 +314,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值率单字段规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券名称空值率校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_null_rate
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0007
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -312,16 +347,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中 security_name 含 1 条空值（空值率 20%）：
 
-      DROP TABLE IF EXISTS zszq_trade_null_rate;
-      CREATE TABLE zszq_trade_null_rate (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_null_rate VALUES
-      (1001,'招商银行'),(1002,'平安银行'),(1003,'中国平安'),(1004,'贵州茅台'),(1005,NULL);
-      -- security_name 空值率=1/5=20%
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0007;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0007 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0007 VALUES
+          (1001,'招商银行'),(1002,'平安银行'),(1003,'中国平安'),(1004,'贵州茅台'),(1005,NULL);
+          -- security_name 空值率=1/5=20%
     tags:
       - 数据质量
       - 规则配置
@@ -331,11 +371,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空值率多字段规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 多字段空值率校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_multi_null_rate
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0008
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -359,17 +401,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中仅 order_id=1004 一行 security_name 与 account_no 同时为 NULL：
 
-      DROP TABLE IF EXISTS zszq_multi_null_rate;
-      CREATE TABLE zszq_multi_null_rate (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称',
-        account_no    VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_multi_null_rate VALUES
-      (1001,'招商银行','ACC001'),(1002,'平安银行',NULL),(1003,NULL,'ACC003'),(1004,NULL,NULL),(1005,'贵州茅台','ACC005');
-      -- 仅 order_id=1004 security_name 与 account_no 同时为 NULL，空值率=1/5=20%
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0008;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0008 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称',
+            account_no    VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0008 VALUES
+          (1001,'招商银行','ACC001'),(1002,'平安银行',NULL),(1003,NULL,'ACC003'),(1004,NULL,NULL),(1005,'贵州茅台','ACC005');
+          -- 仅 order_id=1004 security_name 与 account_no 同时为 NULL，空值率=1/5=20%
     tags:
       - 数据质量
       - 规则配置
@@ -379,11 +426,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串数单字段规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券名称空串数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_blank
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0009
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -410,16 +459,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），security_name 含 1 条空字符串：
 
-      DROP TABLE IF EXISTS zszq_trade_blank;
-      CREATE TABLE zszq_trade_blank (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_blank VALUES
-      (1001,'招商银行'),(1002,''),(1003,'平安银行');
-      -- security_name 空串数=1（order_id=1002 为空字符串，非 NULL）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0009;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0009 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0009 VALUES
+          (1001,'招商银行'),(1002,''),(1003,'平安银行');
+          -- security_name 空串数=1（order_id=1002 为空字符串，非 NULL）
     tags:
       - 数据质量
       - 规则配置
@@ -429,11 +483,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串数多字段规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 多字段空串数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_multi_blank
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0010
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -457,17 +513,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），仅 order_id=1004 一行 security_name 与 account_no 同时为空字符串：
 
-      DROP TABLE IF EXISTS zszq_multi_blank;
-      CREATE TABLE zszq_multi_blank (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称',
-        account_no    VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_multi_blank VALUES
-      (1001,'招商银行','ACC001'),(1002,'','ACC002'),(1003,'中国平安',''),(1004,'','');
-      -- 仅 order_id=1004 security_name 与 account_no 同时为空字符串，空串数=1
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0010;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0010 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称',
+            account_no    VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0010 VALUES
+          (1001,'招商银行','ACC001'),(1002,'','ACC002'),(1003,'中国平安',''),(1004,'','');
+          -- 仅 order_id=1004 security_name 与 account_no 同时为空字符串，空串数=1
     tags:
       - 数据质量
       - 规则配置
@@ -477,11 +538,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串率单字段规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券名称空串率校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_blank_rate
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0011
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -508,16 +571,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中 security_name 含 1 条空字符串（空串率 20%）：
 
-      DROP TABLE IF EXISTS zszq_blank_rate;
-      CREATE TABLE zszq_blank_rate (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_blank_rate VALUES
-      (1001,'招商银行'),(1002,'平安银行'),(1003,'中国平安'),(1004,'贵州茅台'),(1005,'');
-      -- security_name 空串率=1/5=20%（order_id=1005 为空字符串）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0011;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0011 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0011 VALUES
+          (1001,'招商银行'),(1002,'平安银行'),(1003,'中国平安'),(1004,'贵州茅台'),(1005,'');
+          -- security_name 空串率=1/5=20%（order_id=1005 为空字符串）
     tags:
       - 数据质量
       - 规则配置
@@ -527,11 +595,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源完整性校验字段级空串率多字段规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 多字段空串率校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_multi_blank_rate
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0012
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -555,17 +625,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中仅 order_id=1004 一行 security_name 与 account_no 同时为空字符串：
 
-      DROP TABLE IF EXISTS zszq_multi_blank_rate;
-      CREATE TABLE zszq_multi_blank_rate (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称',
-        account_no    VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_multi_blank_rate VALUES
-      (1001,'招商银行','ACC001'),(1002,'平安银行',''),(1003,'','ACC003'),(1004,'',''),(1005,'贵州茅台','ACC005');
-      -- 仅 order_id=1004 security_name 与 account_no 同时为空字符串，空串率=1/5=20%
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0012;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0012 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称',
+            account_no    VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0012 VALUES
+          (1001,'招商银行','ACC001'),(1002,'平安银行',''),(1003,'','ACC003'),(1004,'',''),(1005,'贵州茅台','ACC005');
+          -- 仅 order_id=1004 security_name 与 account_no 同时为空字符串，空串率=1/5=20%
     tags:
       - 数据质量
       - 规则配置
@@ -575,11 +650,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源准确性校验求和规则校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 交易金额求和校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_sum
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0013
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -603,16 +680,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_amount 合计为 131000.00：
 
-      DROP TABLE IF EXISTS zszq_trade_sum;
-      CREATE TABLE zszq_trade_sum (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_sum VALUES
-      (1001,25000.00),(1002,18000.00),(1003,88000.00);
-      -- sum(trade_amount)=131000.00
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0013;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0013 (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0013 VALUES
+          (1001,25000.00),(1002,18000.00),(1003,88000.00);
+          -- sum(trade_amount)=131000.00
     tags:
       - 数据质量
       - 规则配置
@@ -622,11 +704,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源准确性校验求平均规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 交易金额求平均校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_avg
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0014
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -650,16 +734,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_amount 平均值为 200.00：
 
-      DROP TABLE IF EXISTS zszq_trade_avg;
-      CREATE TABLE zszq_trade_avg (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_avg VALUES
-      (1001,100.00),(1002,200.00),(1003,300.00);
-      -- avg(trade_amount)=200.00
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0014;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0014 (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0014 VALUES
+          (1001,100.00),(1002,200.00),(1003,300.00);
+          -- avg(trade_amount)=200.00
     tags:
       - 数据质量
       - 规则配置
@@ -669,11 +758,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源准确性校验负值比规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 交易盈亏负值比校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_neg
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0015
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -699,29 +790,35 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行 trade_pnl 中 2 行为负值（负值比 40%）：
 
-      DROP TABLE IF EXISTS zszq_trade_neg;
-      CREATE TABLE zszq_trade_neg (
-        order_id  BIGINT        COMMENT '交易订单ID',
-        trade_pnl DECIMAL(18,2) COMMENT '交易盈亏'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_neg VALUES
-      (1001,1200.00),(1002,-300.00),(1003,800.00),(1004,-150.00),(1005,500.00);
-      -- 负值比=2/5=40%（order_id=1002、1004）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0015;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0015 (
+            order_id  BIGINT        COMMENT '交易订单ID',
+            trade_pnl DECIMAL(18,2) COMMENT '交易盈亏'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0015 VALUES
+          (1001,1200.00),(1002,-300.00),(1003,800.00),(1004,-150.00),(1005,500.00);
+          -- 负值比=2/5=40%（order_id=1002、1004）
     tags:
       - 数据质量
       - 规则配置
   - case_id: C0016
-
     title: 验证 StarRocks 3.x 数据源准确性校验零值比规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 成交量零值比校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_zero
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0016
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -747,16 +844,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行 trade_volume 中 1 行为零（零值比 20%）：
 
-      DROP TABLE IF EXISTS zszq_trade_zero;
-      CREATE TABLE zszq_trade_zero (
-        order_id     BIGINT COMMENT '交易订单ID',
-        trade_volume BIGINT COMMENT '成交量'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_zero VALUES
-      (1001,100),(1002,200),(1003,0),(1004,300),(1005,400);
-      -- 零值比=1/5=20%（order_id=1003）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0016;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0016 (
+            order_id     BIGINT COMMENT '交易订单ID',
+            trade_volume BIGINT COMMENT '成交量'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0016 VALUES
+          (1001,100),(1002,200),(1003,0),(1004,300),(1005,400);
+          -- 零值比=1/5=20%（order_id=1003）
     tags:
       - 数据质量
       - 规则配置
@@ -766,11 +868,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源准确性校验正值比规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 交易盈亏正值比校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_pos
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0017
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -794,16 +898,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行 trade_pnl 中 3 行为正值（正值比 60%）：
 
-      DROP TABLE IF EXISTS zszq_trade_pos;
-      CREATE TABLE zszq_trade_pos (
-        order_id  BIGINT        COMMENT '交易订单ID',
-        trade_pnl DECIMAL(18,2) COMMENT '交易盈亏'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_pos VALUES
-      (1001,1200.00),(1002,-300.00),(1003,800.00),(1004,-150.00),(1005,500.00);
-      -- 正值比=3/5=60%（order_id=1001、1003、1005）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0017;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0017 (
+            order_id  BIGINT        COMMENT '交易订单ID',
+            trade_pnl DECIMAL(18,2) COMMENT '交易盈亏'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0017 VALUES
+          (1001,1200.00),(1002,-300.00),(1003,800.00),(1004,-150.00),(1005,500.00);
+          -- 正值比=3/5=60%（order_id=1001、1003、1005）
     tags:
       - 数据质量
       - 规则配置
@@ -813,11 +922,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验数值-取值范围规则校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 成交价取值范围校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_price_range
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0018
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -844,17 +955,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_price 含 1 行超出 [0,1000] 区间：
 
-      DROP TABLE IF EXISTS zszq_price_range;
-      CREATE TABLE zszq_price_range (
-        order_id    BIGINT        COMMENT '交易订单ID',
-        trade_price DECIMAL(18,2) COMMENT '成交价'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_price_range VALUES
-      (1001,120.00),(1002,300.50),(1003,1500.00),(1004,800.00);
-      -- 数值口径下区间 [0,1000]：order_id=1003（1500）越界
-      3) 已知产品缺陷（已提 bug）：数值-取值范围规则生成的校验 SQL 给数值阈值加引号（如 trade_price>'2000'），StarRocks 3.x 按字典序而非数值比较，取值范围校验按字符串字典序判定；通过用例的区间上界取 999999 以规避字典序误判。
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0018;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0018 (
+            order_id    BIGINT        COMMENT '交易订单ID',
+            trade_price DECIMAL(18,2) COMMENT '成交价'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0018 VALUES
+          (1001,120.00),(1002,300.50),(1003,1500.00),(1004,800.00);
+          -- 数值口径下区间 [0,1000]：order_id=1003（1500）越界
+          3) 已知产品缺陷（已提 bug）：数值-取值范围规则生成的校验 SQL 给数值阈值加引号（如 trade_price>'2000'），StarRocks 3.x 按字典序而非数值比较，取值范围校验按字符串字典序判定；通过用例的区间上界取 999999 以规避字典序误判。
     tags:
       - 数据质量
       - 规则配置
@@ -864,11 +980,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验数值-枚举范围规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 交易类型枚举范围校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_enum
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0019
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -895,16 +1013,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_type 含 1 行不在枚举集合内：
 
-      DROP TABLE IF EXISTS zszq_trade_enum;
-      CREATE TABLE zszq_trade_enum (
-        order_id   BIGINT   COMMENT '交易订单ID',
-        trade_type TINYINT  COMMENT '交易类型 1=买入 2=卖出 3=申购'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_enum VALUES
-      (1001,1),(1002,2),(1003,3),(1004,1);
-      -- 期望枚举集合 {1,2}：order_id=1003（trade_type=3）不在集合，违规行数=1
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0019;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0019 (
+            order_id   BIGINT   COMMENT '交易订单ID',
+            trade_type TINYINT  COMMENT '交易类型 1=买入 2=卖出 3=申购'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0019 VALUES
+          (1001,1),(1002,2),(1003,3),(1004,1);
+          -- 期望枚举集合 {1,2}：order_id=1003（trade_type=3）不在集合，违规行数=1
     tags:
       - 数据质量
       - 规则配置
@@ -914,11 +1037,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验数值-枚举个数规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 交易类型枚举个数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_enum_cnt
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0020
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -942,16 +1067,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_type 去重后枚举个数为 3：
 
-      DROP TABLE IF EXISTS zszq_enum_cnt;
-      CREATE TABLE zszq_enum_cnt (
-        order_id   BIGINT   COMMENT '交易订单ID',
-        trade_type TINYINT  COMMENT '交易类型 1=买入 2=卖出 3=申购'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_enum_cnt VALUES
-      (1001,1),(1002,2),(1003,3),(1004,1);
-      -- 枚举个数=3（1/2/3）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0020;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0020 (
+            order_id   BIGINT   COMMENT '交易订单ID',
+            trade_type TINYINT  COMMENT '交易类型 1=买入 2=卖出 3=申购'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0020 VALUES
+          (1001,1),(1002,2),(1003,3),(1004,1);
+          -- 枚举个数=3（1/2/3）
     tags:
       - 数据质量
       - 规则配置
@@ -961,11 +1091,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验字符串-最大长度规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券代码最大长度校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_str_maxlen
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0021
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -989,17 +1121,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），security_code 最大长度为 8：
 
-      DROP TABLE IF EXISTS zszq_str_maxlen;
-      CREATE TABLE zszq_str_maxlen (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(20)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_str_maxlen VALUES
-      (1001,'600036'),(1002,'00000123'),(1003,'601318');
-      -- security_code 最大长度=8（order_id=1002）
-      3) 已知产品缺陷（已提 bug）：当前 build 后端缺少「字符串-最大长度」函数模板，提交规则时 /monitor/add 返回 code:3009「函数模板不存在」，规则暂无法创建；下列步骤预期为后端补齐函数模板后的目标行为。
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0021;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0021 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(20)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0021 VALUES
+          (1001,'600036'),(1002,'00000123'),(1003,'601318');
+          -- security_code 最大长度=8（order_id=1002）
+          3) 已知产品缺陷（已提 bug）：当前 build 后端缺少「字符串-最大长度」函数模板，提交规则时 /monitor/add 返回 code:3009「函数模板不存在」，规则暂无法创建；下列步骤预期为后端补齐函数模板后的目标行为。
     tags:
       - 数据质量
       - 规则配置
@@ -1009,11 +1146,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验字符串-最小长度规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券代码最小长度校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_str_minlen
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0022
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1037,17 +1176,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），security_code 最小长度为 4：
 
-      DROP TABLE IF EXISTS zszq_str_minlen;
-      CREATE TABLE zszq_str_minlen (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(20)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_str_minlen VALUES
-      (1001,'600036'),(1002,'0001'),(1003,'601318');
-      -- security_code 最小长度=4（order_id=1002）
-      3) 已知产品缺陷（已提 bug）：当前 build 后端缺少「字符串-最小长度」函数模板，提交规则时 /monitor/add 返回 code:3009「函数模板不存在」，规则暂无法创建；下列步骤预期为后端补齐函数模板后的目标行为。
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0022;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0022 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(20)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0022 VALUES
+          (1001,'600036'),(1002,'0001'),(1003,'601318');
+          -- security_code 最小长度=4（order_id=1002）
+          3) 已知产品缺陷（已提 bug）：当前 build 后端缺少「字符串-最小长度」函数模板，提交规则时 /monitor/add 返回 code:3009「函数模板不存在」，规则暂无法创建；下列步骤预期为后端补齐函数模板后的目标行为。
     tags:
       - 数据质量
       - 规则配置
@@ -1057,11 +1201,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验格式-身份证号规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 身份证号格式校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_account_idcard
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0023
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1087,16 +1233,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），id_card 含 2 条合法 + 1 条非法身份证号：
 
-      DROP TABLE IF EXISTS zszq_account_idcard;
-      CREATE TABLE zszq_account_idcard (
-        account_no VARCHAR(20)  COMMENT '账户号',
-        id_card    VARCHAR(18)  COMMENT '身份证号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(account_no)
-      DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_account_idcard VALUES
-      ('ACC001','310115199001012345'),('ACC002','11010119900307889X'),('ACC003','12345');
-      -- 符合身份证格式的合法行数=2（ACC001、ACC002）；ACC003 的 12345 非法
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0023;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0023 (
+            account_no VARCHAR(20)  COMMENT '账户号',
+            id_card    VARCHAR(18)  COMMENT '身份证号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(account_no)
+          DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0023 VALUES
+          ('ACC001','310115199001012345'),('ACC002','11010119900307889X'),('ACC003','12345');
+          -- 符合身份证格式的合法行数=2（ACC001、ACC002）；ACC003 的 12345 非法
     tags:
       - 数据质量
       - 规则配置
@@ -1106,11 +1257,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验格式-手机号规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 手机号格式校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_account_mobile
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0024
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1136,16 +1289,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），mobile 含 2 条合法 + 1 条非法手机号：
 
-      DROP TABLE IF EXISTS zszq_account_mobile;
-      CREATE TABLE zszq_account_mobile (
-        account_no VARCHAR(20)  COMMENT '账户号',
-        mobile     VARCHAR(20)  COMMENT '手机号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(account_no)
-      DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_account_mobile VALUES
-      ('ACC001','13800138000'),('ACC002','13912345678'),('ACC003','123456');
-      -- 符合手机号格式的合法行数=2（ACC001、ACC002）；ACC003 的 123456 非法
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0024;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0024 (
+            account_no VARCHAR(20)  COMMENT '账户号',
+            mobile     VARCHAR(20)  COMMENT '手机号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(account_no)
+          DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0024 VALUES
+          ('ACC001','13800138000'),('ACC002','13912345678'),('ACC003','123456');
+          -- 符合手机号格式的合法行数=2（ACC001、ACC002）；ACC003 的 123456 非法
     tags:
       - 数据质量
       - 规则配置
@@ -1155,11 +1313,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源规范性校验格式-邮箱规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 邮箱格式校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_account_email
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0025
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1185,16 +1345,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），email 含 2 条合法 + 1 条非法邮箱：
 
-      DROP TABLE IF EXISTS zszq_account_email;
-      CREATE TABLE zszq_account_email (
-        account_no VARCHAR(20)  COMMENT '账户号',
-        email      VARCHAR(50)  COMMENT '邮箱'
-      )
-      ENGINE=OLAP DUPLICATE KEY(account_no)
-      DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_account_email VALUES
-      ('ACC001','zhang@zszq.com'),('ACC002','li@zszq.com'),('ACC003','invalid-email');
-      -- 符合邮箱格式的合法行数=2（ACC001、ACC002）；ACC003 的 invalid-email 非法
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0025;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0025 (
+            account_no VARCHAR(20)  COMMENT '账户号',
+            email      VARCHAR(50)  COMMENT '邮箱'
+          )
+          ENGINE=OLAP DUPLICATE KEY(account_no)
+          DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0025 VALUES
+          ('ACC001','zhang@zszq.com'),('ACC002','li@zszq.com'),('ACC003','invalid-email');
+          -- 符合邮箱格式的合法行数=2（ACC001、ACC002）；ACC003 的 invalid-email 非法
     tags:
       - 数据质量
       - 规则配置
@@ -1204,11 +1369,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源唯一性校验重复数单字段规则校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券代码重复数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_repeat
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0026
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1231,16 +1398,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），security_code 存在 1 组重复值：
 
-      DROP TABLE IF EXISTS zszq_trade_repeat;
-      CREATE TABLE zszq_trade_repeat (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_repeat VALUES
-      (1001,'600036'),(1002,'000001'),(1003,'600036');
-      -- security_code='600036' 出现 2 次：重复组数=1，涉及 order_id=1001、1003 两行（期望 = 0 表示无任何重复，与口径无关）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0026;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0026 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0026 VALUES
+          (1001,'600036'),(1002,'000001'),(1003,'600036');
+          -- security_code='600036' 出现 2 次：重复组数=1，涉及 order_id=1001、1003 两行（期望 = 0 表示无任何重复，与口径无关）
     tags:
       - 数据质量
       - 规则配置
@@ -1250,11 +1422,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源唯一性校验重复数多字段规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 多字段联合重复数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_repeat_multi
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0027
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1279,17 +1453,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），(security_code, account_no) 联合存在 1 组重复：
 
-      DROP TABLE IF EXISTS zszq_repeat_multi;
-      CREATE TABLE zszq_repeat_multi (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码',
-        account_no    VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_repeat_multi VALUES
-      (1001,'600036','ACC001'),(1002,'000001','ACC002'),(1003,'600036','ACC001');
-      -- (security_code,account_no)=(600036,ACC001) 联合重复：重复组数=1，涉及 order_id=1001、1003
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0027;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0027 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码',
+            account_no    VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0027 VALUES
+          (1001,'600036','ACC001'),(1002,'000001','ACC002'),(1003,'600036','ACC001');
+          -- (security_code,account_no)=(600036,ACC001) 联合重复：重复组数=1，涉及 order_id=1001、1003
     tags:
       - 数据质量
       - 规则配置
@@ -1299,11 +1478,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源唯一性校验重复率单字段规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券代码重复率校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_repeat_rate
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0028
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1329,16 +1510,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中 2 行 security_code 重复（重复率 40%）：
 
-      DROP TABLE IF EXISTS zszq_repeat_rate;
-      CREATE TABLE zszq_repeat_rate (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_repeat_rate VALUES
-      (1001,'600036'),(1002,'000001'),(1003,'601318'),(1004,'600519'),(1005,'600036');
-      -- security_code='600036' 出现 2 次，重复记录 2 行，重复率=2/5=40%
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0028;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0028 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0028 VALUES
+          (1001,'600036'),(1002,'000001'),(1003,'601318'),(1004,'600519'),(1005,'600036');
+          -- security_code='600036' 出现 2 次，重复记录 2 行，重复率=2/5=40%
     tags:
       - 数据质量
       - 规则配置
@@ -1348,11 +1534,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源唯一性校验重复率多字段规则校验
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 多字段联合重复率校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_repeat_rate_multi
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0029
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1380,17 +1568,22 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中 (security_code, account_no) 联合 2 行重复（重复率 40%）：
 
-      DROP TABLE IF EXISTS zszq_repeat_rate_multi;
-      CREATE TABLE zszq_repeat_rate_multi (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码',
-        account_no    VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_repeat_rate_multi VALUES
-      (1001,'600036','ACC001'),(1002,'000001','ACC002'),(1003,'601318','ACC003'),(1004,'600519','ACC004'),(1005,'600036','ACC001');
-      -- (600036,ACC001) 联合重复 2 行，重复率=2/5=40%
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0029;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0029 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码',
+            account_no    VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0029 VALUES
+          (1001,'600036','ACC001'),(1002,'000001','ACC002'),(1003,'601318','ACC003'),(1004,'600519','ACC004'),(1005,'600036','ACC001');
+          -- (600036,ACC001) 联合重复 2 行，重复率=2/5=40%
     tags:
       - 数据质量
       - 规则配置
@@ -1400,11 +1593,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源唯一性校验非重复个数规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券代码非重复个数校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_distinct_cnt
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0030
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1428,16 +1623,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），security_code 中仅出现一次的值有 3 个：
 
-      DROP TABLE IF EXISTS zszq_distinct_cnt;
-      CREATE TABLE zszq_distinct_cnt (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_distinct_cnt VALUES
-      (1001,'600036'),(1002,'000001'),(1003,'601318'),(1004,'600519'),(1005,'600036');
-      -- 非重复个数=3（仅出现一次的值 000001/601318/600519；600036 出现 2 次）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0030;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0030 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0030 VALUES
+          (1001,'600036'),(1002,'000001'),(1003,'601318'),(1004,'600519'),(1005,'600036');
+          -- 非重复个数=3（仅出现一次的值 000001/601318/600519；600036 出现 2 次）
     tags:
       - 数据质量
       - 规则配置
@@ -1447,11 +1647,13 @@ cases:
     title: 验证 StarRocks 3.x 数据源唯一性校验非重复占比规则校验
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 证券代码非重复占比校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_distinct_rate
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0031
           点击「下一步」
         expected: 三级联动正常
       - action: |-
@@ -1475,16 +1677,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），5 行中仅出现一次的值有 3 个（非重复占比 3/5=60%）：
 
-      DROP TABLE IF EXISTS zszq_distinct_rate;
-      CREATE TABLE zszq_distinct_rate (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(10)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_distinct_rate VALUES
-      (1001,'600036'),(1002,'000001'),(1003,'601318'),(1004,'600519'),(1005,'600036');
-      -- 非重复占比=3/5=60%（仅出现一次的值 000001/601318/600519；600036 出现 2 次）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0031;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0031 (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(10)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0031 VALUES
+          (1001,'600036'),(1002,'000001'),(1003,'601318'),(1004,'600519'),(1005,'600036');
+          -- 非重复占比=3/5=60%（仅出现一次的值 000001/601318/600519；600036 出现 2 次）
     tags:
       - 数据质量
       - 规则配置
@@ -1494,16 +1701,18 @@ cases:
     title: 验证 StarRocks 3.x 数据源自定义SQL单表规则校验与表删除异常
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 自定义SQL负值校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_trade_custom
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0032
           点击「下一步」
         expected: 三级联动正常
       - action: |-
           点击「添加规则」-「自定义SQL」，配置规则:
-          - SQL: SELECT order_id, trade_amount FROM zszq_trade_custom WHERE trade_amount < 0
+          - SQL: SELECT order_id, trade_amount FROM test_table_16035_c0032 WHERE trade_amount < 0
           - 校验方法: 固定值
           - 期望值: = 0
           - 强弱规则: 强规则
@@ -1514,7 +1723,7 @@ cases:
         expected: 实例状态由「运行中」→「校验异常」（SQL 返回负值明细 1 行，不满足 = 0）
       - action: 将 order_id=1002 的 trade_amount 更新为 100.00，重新「立即执行」，在【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验通过」（SQL 返回 0 行，满足 = 0）
-      - action: 执行 DROP TABLE zszq_trade_custom 后再次「立即执行」，在【任务查询】查看最新实例详情
+      - action: 执行 DROP TABLE test_table_16035_c0032 后再次「立即执行」，在【任务查询】查看最新实例详情
         expected: |-
           1) 实例状态为「校验异常」
           2) 实例日志含表不存在/SQL 执行失败错误信息
@@ -1522,16 +1731,21 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），trade_amount 含 1 行负值：
 
-      DROP TABLE IF EXISTS zszq_trade_custom;
-      CREATE TABLE zszq_trade_custom (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_trade_custom VALUES
-      (1001,25000.00),(1002,-100.00),(1003,88000.00);
-      -- 负值行数=1（order_id=1002）
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0032;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0032 (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0032 VALUES
+          (1001,25000.00),(1002,-100.00),(1003,88000.00);
+          -- 负值行数=1（order_id=1002）
     tags:
       - 数据质量
       - 规则配置
@@ -1541,16 +1755,18 @@ cases:
     title: 验证 StarRocks 3.x 数据源自定义SQL子查询跨表缺失规则校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「单表校验规则」，配置监控对象:
           - 规则名称: 自定义SQL子查询跨表缺失校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择数据表: zszq_order_join
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择数据表: test_table_16035_c0033_source
           点击「下一步」
         expected: 三级联动正常
       - action: |-
           点击「添加规则」-「自定义SQL」，配置规则:
-          - SQL: SELECT order_id, account_no FROM zszq_order_join WHERE account_no NOT IN (SELECT account_no FROM zszq_account_dim)
+          - SQL: SELECT order_id, account_no FROM test_table_16035_c0033_source WHERE account_no NOT IN (SELECT account_no FROM test_table_16035_c0033_target)
           - 校验方法: 固定值
           - 期望值: = 0
           - 强弱规则: 强规则
@@ -1559,30 +1775,35 @@ cases:
         expected: 规则保存成功
       - action: 点击「下一步」将「调度周期」切换为「手动触发」，「完成」，点表名打开详情「立即执行」，进入【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验异常」（SQL 返回孤儿明细 1 行，不满足 = 0）
-      - action: 向 zszq_account_dim 插入 ('ACC999','王五')，重新「立即执行」，在【任务查询】查看最新实例
+      - action: 向 test_table_16035_c0033_target 插入 ('ACC999','王五')，重新「立即执行」，在【任务查询】查看最新实例
         expected: 实例状态由「运行中」→「校验通过」（SQL 返回 0 行，满足 = 0）
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），订单表含 1 条账户在维表中不存在的孤儿记录：
 
-      DROP TABLE IF EXISTS zszq_order_join;
-      CREATE TABLE zszq_order_join (
-        order_id   BIGINT       COMMENT '交易订单ID',
-        account_no VARCHAR(20)  COMMENT '账户号'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_order_join VALUES (1001,'ACC001'),(1002,'ACC002'),(1003,'ACC999');
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0033_source;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0033_source (
+            order_id   BIGINT       COMMENT '交易订单ID',
+            account_no VARCHAR(20)  COMMENT '账户号'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0033_source VALUES (1001,'ACC001'),(1002,'ACC002'),(1003,'ACC999');
 
-      DROP TABLE IF EXISTS zszq_account_dim;
-      CREATE TABLE zszq_account_dim (
-        account_no   VARCHAR(20)  COMMENT '账户号',
-        account_name VARCHAR(50)  COMMENT '账户名'
-      )
-      ENGINE=OLAP DUPLICATE KEY(account_no)
-      DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_account_dim VALUES ('ACC001','张三'),('ACC002','李四');
-      -- order_id=1003 的 ACC999 在维表不存在，孤儿记录=1
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0033_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0033_target (
+            account_no   VARCHAR(20)  COMMENT '账户号',
+            account_name VARCHAR(50)  COMMENT '账户名'
+          )
+          ENGINE=OLAP DUPLICATE KEY(account_no)
+          DISTRIBUTED BY HASH(account_no) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0033_target VALUES ('ACC001','张三'),('ACC002','李四');
+          -- order_id=1003 的 ACC999 在维表不存在，孤儿记录=1
     tags:
       - 数据质量
       - 规则配置
@@ -1592,17 +1813,19 @@ cases:
     title: 验证 StarRocks 3.x 数据源多表比对规则字段一致性校验
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「多表比对规则」，进入「选择左侧表」:
           - 规则名称: 多表比对金额一致性校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择左侧表: zszq_orders_left
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择左侧表: test_table_16035_c0034_source
           点击「下一步」
         expected: 进入「选择右侧表」步骤
       - action: |-
           在「选择右侧表」:
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择右侧表: zszq_orders_right
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择右侧表: test_table_16035_c0034_target
           点击「下一步」
         expected: 进入「选择字段」步骤
       - action: |-
@@ -1622,24 +1845,29 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），左右两表 trade_amount 存在 1 处不一致：
 
-      DROP TABLE IF EXISTS zszq_orders_left;
-      CREATE TABLE zszq_orders_left (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_orders_left VALUES (1001,25000.00),(1002,18000.00),(1003,88000.00);
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0034_source;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0034_source (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0034_source VALUES (1001,25000.00),(1002,18000.00),(1003,88000.00);
 
-      DROP TABLE IF EXISTS zszq_orders_right;
-      CREATE TABLE zszq_orders_right (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_orders_right VALUES (1001,25000.00),(1002,18000.00),(1003,99999.99);
-      -- order_id=1003 的 trade_amount 两表不一致（88000.00 / 99999.99）
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0034_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0034_target (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0034_target VALUES (1001,25000.00),(1002,18000.00),(1003,99999.99);
+          -- order_id=1003 的 trade_amount 两表不一致（88000.00 / 99999.99）
     tags:
       - 数据质量
       - 规则配置
@@ -1649,17 +1877,19 @@ cases:
     title: 验证 StarRocks 3.x 数据源多表比对数值差异百分比匹配条件
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「多表比对规则」，进入「选择左侧表」:
           - 规则名称: 多表比对数值差异百分比校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择左侧表: zszq_cmp_pct_left
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择左侧表: test_table_16035_c0035_source
           点击「下一步」
         expected: 进入「选择右侧表」步骤
       - action: |-
           在「选择右侧表」:
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择右侧表: zszq_cmp_pct_right
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择右侧表: test_table_16035_c0035_target
           点击「下一步」
         expected: 进入「选择字段」步骤
       - action: |-
@@ -1677,24 +1907,29 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），左右两表仅 order_id=1003 的 trade_amount 存在 5% 差值：
 
-      DROP TABLE IF EXISTS zszq_cmp_pct_left;
-      CREATE TABLE zszq_cmp_pct_left (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_pct_left VALUES (1001,100.00),(1002,200.00),(1003,1000.00);
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0035_source;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0035_source (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0035_source VALUES (1001,100.00),(1002,200.00),(1003,1000.00);
 
-      DROP TABLE IF EXISTS zszq_cmp_pct_right;
-      CREATE TABLE zszq_cmp_pct_right (
-        order_id     BIGINT        COMMENT '交易订单ID',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_pct_right VALUES (1001,100.00),(1002,200.00),(1003,1050.00);
-      -- order_id=1003 两表差值 50，占较小值 1000 的 5%
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0035_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0035_target (
+            order_id     BIGINT        COMMENT '交易订单ID',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0035_target VALUES (1001,100.00),(1002,200.00),(1003,1050.00);
+          -- order_id=1003 两表差值 50，占较小值 1000 的 5%
     tags:
       - 数据质量
       - 规则配置
@@ -1704,17 +1939,19 @@ cases:
     title: 验证 StarRocks 3.x 数据源多表比对字符不区分大小写匹配条件
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「多表比对规则」，进入「选择左侧表」:
           - 规则名称: 多表比对字符不区分大小写校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择左侧表: zszq_cmp_case_left
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择左侧表: test_table_16035_c0036_source
           点击「下一步」
         expected: 进入「选择右侧表」步骤
       - action: |-
           在「选择右侧表」:
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择右侧表: zszq_cmp_case_right
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择右侧表: test_table_16035_c0036_target
           点击「下一步」
         expected: 进入「选择字段」步骤
       - action: |-
@@ -1732,24 +1969,29 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），左右两表仅 order_id=1003 的 security_code 大小写不同：
 
-      DROP TABLE IF EXISTS zszq_cmp_case_left;
-      CREATE TABLE zszq_cmp_case_left (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(20)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_case_left VALUES (1001,'sh600036'),(1002,'sz000001'),(1003,'SH600519');
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0036_source;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0036_source (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(20)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0036_source VALUES (1001,'sh600036'),(1002,'sz000001'),(1003,'SH600519');
 
-      DROP TABLE IF EXISTS zszq_cmp_case_right;
-      CREATE TABLE zszq_cmp_case_right (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_code VARCHAR(20)  COMMENT '证券代码'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_case_right VALUES (1001,'sh600036'),(1002,'sz000001'),(1003,'sh600519');
-      -- order_id=1003 左 'SH600519' 右 'sh600519'，仅大小写不同
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0036_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0036_target (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_code VARCHAR(20)  COMMENT '证券代码'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0036_target VALUES (1001,'sh600036'),(1002,'sz000001'),(1003,'sh600519');
+          -- order_id=1003 左 'SH600519' 右 'sh600519'，仅大小写不同
     tags:
       - 数据质量
       - 规则配置
@@ -1759,17 +2001,19 @@ cases:
     title: 验证 StarRocks 3.x 数据源多表比对空值与NULL等价匹配条件
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「多表比对规则」，进入「选择左侧表」:
           - 规则名称: 多表比对空值与NULL等价校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择左侧表: zszq_cmp_null_left
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择左侧表: test_table_16035_c0037_source
           点击「下一步」
         expected: 进入「选择右侧表」步骤
       - action: |-
           在「选择右侧表」:
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择右侧表: zszq_cmp_null_right
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择右侧表: test_table_16035_c0037_target
           点击「下一步」
         expected: 进入「选择字段」步骤
       - action: |-
@@ -1787,24 +2031,29 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），左右两表仅 order_id=1003 的 security_name 为空串与 NULL 之别：
 
-      DROP TABLE IF EXISTS zszq_cmp_null_left;
-      CREATE TABLE zszq_cmp_null_left (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_null_left VALUES (1001,'招商银行'),(1002,'平安银行'),(1003,'');
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0037_source;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0037_source (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0037_source VALUES (1001,'招商银行'),(1002,'平安银行'),(1003,'');
 
-      DROP TABLE IF EXISTS zszq_cmp_null_right;
-      CREATE TABLE zszq_cmp_null_right (
-        order_id      BIGINT       COMMENT '交易订单ID',
-        security_name VARCHAR(50)  COMMENT '证券名称'
-      )
-      ENGINE=OLAP DUPLICATE KEY(order_id)
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_null_right VALUES (1001,'招商银行'),(1002,'平安银行'),(1003,NULL);
-      -- order_id=1003 左为空串 '' 右为 NULL
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0037_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0037_target (
+            order_id      BIGINT       COMMENT '交易订单ID',
+            security_name VARCHAR(50)  COMMENT '证券名称'
+          )
+          ENGINE=OLAP DUPLICATE KEY(order_id)
+          DISTRIBUTED BY HASH(order_id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0037_target VALUES (1001,'招商银行'),(1002,'平安银行'),(1003,NULL);
+          -- order_id=1003 左为空串 '' 右为 NULL
     tags:
       - 数据质量
       - 规则配置
@@ -1814,17 +2063,19 @@ cases:
     title: 验证 StarRocks 3.x 数据源多表比对异常数据五类分类统计
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: |-
           进入【数据质量】-【规则配置】，点击「新建监控规则」-「多表比对规则」，进入「选择左侧表」:
           - 规则名称: 多表比对异常数据分类统计校验
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择左侧表: zszq_cmp_cat_left
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择左侧表: test_table_16035_c0038_source
           点击「下一步」
         expected: 进入「选择右侧表」步骤
       - action: |-
           在「选择右侧表」:
-          - 选择数据源: ${DataSourceA}（STAR_ROCKS_3X）
-          - 选择右侧表: zszq_cmp_cat_right
+          - 选择数据源: ${DataSourceA}（StarRocks3.x）
+          - 选择右侧表: test_table_16035_c0038_target
           点击「下一步」
         expected: 进入「选择字段」步骤
       - action: |-
@@ -1846,26 +2097,31 @@ cases:
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) 在 ${DataSourceA} 的 ${SchemaA} 库执行以下建表 SQL（可重入），id 为存储主键、order_id 为比对逻辑主键（可空），数据覆盖五类异常各 1 行：
 
-      DROP TABLE IF EXISTS zszq_cmp_cat_left;
-      CREATE TABLE zszq_cmp_cat_left (
-        id           BIGINT        COMMENT '存储主键',
-        order_id     BIGINT        COMMENT '交易订单ID（比对逻辑主键，可空）',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(id)
-      DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_cat_left VALUES (1,1001,100.00),(2,1002,200.00),(3,1003,300.00),(4,NULL,500.00);
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0038_source;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0038_source (
+            id           BIGINT        COMMENT '存储主键',
+            order_id     BIGINT        COMMENT '交易订单ID（比对逻辑主键，可空）',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(id)
+          DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0038_source VALUES (1,1001,100.00),(2,1002,200.00),(3,1003,300.00),(4,NULL,500.00);
 
-      DROP TABLE IF EXISTS zszq_cmp_cat_right;
-      CREATE TABLE zszq_cmp_cat_right (
-        id           BIGINT        COMMENT '存储主键',
-        order_id     BIGINT        COMMENT '交易订单ID（比对逻辑主键，可空）',
-        trade_amount DECIMAL(18,2) COMMENT '交易金额'
-      )
-      ENGINE=OLAP DUPLICATE KEY(id)
-      DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
-      INSERT INTO zszq_cmp_cat_right VALUES (1,1001,100.00),(2,1002,999.00),(3,1004,400.00),(4,NULL,600.00);
-      -- 1001 两表一致；1002 主键匹配但金额不一致；1003 仅左表有；1004 仅右表有；左右各 1 行 order_id 为空
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0038_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0038_target (
+            id           BIGINT        COMMENT '存储主键',
+            order_id     BIGINT        COMMENT '交易订单ID（比对逻辑主键，可空）',
+            trade_amount DECIMAL(18,2) COMMENT '交易金额'
+          )
+          ENGINE=OLAP DUPLICATE KEY(id)
+          DISTRIBUTED BY HASH(id) BUCKETS 10 PROPERTIES ("replication_num" = "1");
+          INSERT INTO ${SchemaA}.test_table_16035_c0038_target VALUES (1,1001,100.00),(2,1002,999.00),(3,1004,400.00),(4,NULL,600.00);
+          -- 1001 两表一致；1002 主键匹配但金额不一致；1003 仅左表有；1004 仅右表有；左右各 1 行 order_id 为空
     tags:
       - 数据质量
       - 规则配置
@@ -1875,6 +2131,8 @@ cases:
     title: 验证 StarRocks 3.x 数据源规则配置列表查询与筛选
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量】-【规则配置】，在「规则」区「输入表名搜索」框输入 zszq_trade_repeat
         expected: 列表仅展示表名匹配 zszq_trade_repeat 的规则
       - action: 清空表名搜索，在「最近修改人」下拉选择当前修改人
@@ -1885,7 +2143,7 @@ cases:
         expected: 列表恢复全部数据，分页控件展示总条数并可翻页
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
-      2) 规则配置列表已存在多条 StarRocks
+      2) 规则配置列表已存在2 条 StarRocks
       3. x 规则任务，分属不同数据表与最近修改人。
     tags:
       - 数据质量
@@ -1896,6 +2154,8 @@ cases:
     title: 验证 StarRocks 3.x 数据源规则任务编辑与重跑
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量】-【规则配置】，点击 zszq_trade_orders 打开规则详情，查看监控对象与监控规则
         expected: 规则详情正确回显数据源/Schema/数据表与已配规则（规则类型/字段/统计函数/期望值等）
       - action: 查看监控对象的数据源/Schema/数据表
@@ -1919,6 +2179,8 @@ cases:
     title: 验证 StarRocks 3.x 数据源规则任务删除
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则配置】页面
+        expected: 已进入【数据质量 → 规则配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量】-【规则配置】，在 zszq_trade_null 规则行「操作」列点击「删除」
         expected: 弹出删除确认弹窗
       - action: 在确认弹窗点击「确定」
@@ -1937,6 +2199,8 @@ cases:
     title: 验证任务查询页查询 StarRocks 3.x 规则任务实例与校验通过、异常状态详情
     priority: P0
     steps:
+      - action: 进入【数据质量 → 任务查询】页面
+        expected: 已进入【数据质量 → 任务查询】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量】-【任务查询】
         expected: 任务查询列表加载成功，展示 表/任务名称/状态/类型/数据源/执行周期/是否关联任务/计划时间 等列
       - action: 在「请输入表名/任务名称搜索」输入校验通过的任务名称并查询
@@ -1966,10 +2230,12 @@ cases:
     title: 验证脏数据管理配置 StarRocks 3.x 数据源脏数据存储与时效
     priority: P1
     steps:
+      - action: 进入【数据质量 → 项目管理】页面
+        expected: 已进入【数据质量 → 项目管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据质量】-【项目管理】-【脏数据管理】
         expected: 页面加载成功，顶部说明脏数据默认回写校验数据源源库、默认存储时效 90 天；列表展示 数据源/数据源类型/脏数据存储库/数据存储时效/更新人/脏数据存储/操作 列
       - action: 在「请输入数据源名称」搜索 ${DataSourceA}
-        expected: 列表仅展示 ${DataSourceA}（STAR_ROCKS_3X）的脏数据存储配置行
+        expected: 列表仅展示 ${DataSourceA}（StarRocks3.x）的脏数据存储配置行
       - action: |-
           开启「独立存储」开关，在 ${DataSourceA} 行的「操作」中配置:
           - 脏数据存储库: ${SchemaA}
@@ -1981,6 +2247,18 @@ cases:
     precondition: |-
       1) StarRocks 3.x 数据源 ${DataSourceA} 已完成质量项目授权。
       2) ${DataSourceA} 下已执行产生脏数据的规则任务（如完整性空值数「校验异常」实例）。
+
+      数据源 A：
+      - 数据源：${DataSourceA}
+      - 数据源类型：StarRocks3.x
+      - 数据库：${SchemaA}
+      - 该表为空表
+      - 初始化 SQL：
+          DROP TABLE IF EXISTS ${SchemaA}.test_table_16035_c0043;
+          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_16035_c0043 (
+            id BIGINT,
+            error_message VARCHAR(256)
+          )
     tags:
       - 数据质量
       - 项目管理

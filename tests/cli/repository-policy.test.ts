@@ -67,7 +67,7 @@ describe("repository policy", () => {
       scripts: { check: string };
     };
     expect(packageJson.scripts.check).toBe(
-      "bun cli/bin/kata.ts repo lint --exit-code && bun run test:knowledge-lint && biome check .",
+      "bun cli/bin/kata.ts repo lint --exit-code && bun run test:knowledge-lint && bun run test:cases-lint && biome check .",
     );
 
     const result = spawnSync(

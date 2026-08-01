@@ -5,12 +5,13 @@ meta:
     - 菜单名称修改.xmind
 cases:
   - case_id: C0001
-
     title: 验证新建项目菜单名称正确修改
     priority: P1
     steps:
+      - action: 进入【数据质量 → 新建项目菜单名称正确修改】页面
+        expected: 已进入【数据质量 → 新建项目菜单名称正确修改】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 查看页面菜单
         expected: |-
           1） 「概览」名称改为「总览」
@@ -19,16 +20,14 @@ cases:
           4） 「质量报告」名称改为「数据质量报告」
           5） 新增一级菜单「规则集管理」
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类
   - case_id: C0002
-
     title: 验证历史项目菜单名称正确修改
     priority: P0
     steps:
+      - action: 进入【数据质量 → 历史项目菜单名称正确修改】页面
+        expected: 已进入【数据质量 → 历史项目菜单名称正确修改】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 查看历史项目下的页面菜单
         expected: |-
           1） 「概览」名称改为「总览」
@@ -37,6 +36,3 @@ cases:
           4） 「质量报告」名称改为「数据质量报告」
           5） 新增一级菜单「规则集管理」
     precondition: 无
-    tags:
-      - 未分类
-      - 未分类

@@ -8,13 +8,15 @@ meta:
     - 5.2表生命周期统一.xmind
 cases:
   - case_id: C0001
-    title: 验证表生命周期更新功能正常(Hive表已存在于平台)
+    title: 验证表生命周期更新完成目标操作且状态更新(Hive表已存在于平台)
     priority: P0
     precondition: |-
       1) 存在Hive数据源${datasourceA}, 该数据源下有数据库${schemaA}, 该数据库下有数据表${tableA}
 
       2) 离线开发-数据地图-数据表管理中已存在表${tableA}, 生命周期为9999天
     steps:
+      - action: 进入【离线开发 → 表生命周期更新完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 表生命周期更新完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入离线开发-数据地图-数据表管理-我管理的表
         expected: 进入成功
       - action: 查看表名为${tableA}的生命周期
@@ -36,7 +38,7 @@ cases:
       - action: 检查「安全审计-离线开发」的审计日志列表记录
         expected: "存在一条「动作」为「修改生命周期」的操作记录, 详细内容为: 更新${tableA}的生命周期，由 3 天调整为 1 天"
   - case_id: C0002
-    title: 验证表生命周期更新功能正常(Hive表不存在于平台)
+    title: 验证表生命周期更新完成目标操作且状态更新(Hive表不存在于平台)
     priority: P2
     precondition: |-
       存在Hive数据源${datasourceA}, 该数据源下有数据库${schemaA}, 该数据库下有数据表${tableA}, 该表尚未同步至离线平台
@@ -71,6 +73,8 @@ cases:
       INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
       (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
     steps:
+      - action: 进入【离线开发 → 表生命周期更新完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 表生命周期更新完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入离线开发-数据源
         expected: 进入成功
       - action: |-
@@ -100,7 +104,7 @@ cases:
       - action: 检查「安全审计-离线开发」的审计日志列表记录
         expected: "存在一条「动作」为「修改生命周期」的操作记录, 详细内容为: 更新${tableA}的生命周期，由 3 天调整为 1 天"
   - case_id: C0003
-    title: 验证表生命周期更新功能正常(Hive表不存在)
+    title: 验证表生命周期更新完成目标操作且状态更新(Hive表不存在)
     priority: P2
     precondition: |-
       建表语句:
@@ -133,6 +137,8 @@ cases:
       INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
       (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
     steps:
+      - action: 进入【离线开发 → 表生命周期更新完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 表生命周期更新完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入离线开发-数据开发-周期任务
         expected: 进入成功
       - action: 创建SparkSQL任务, 并执行建表语句
@@ -165,6 +171,8 @@ cases:
 
       2) 离线开发-数据地图-数据表管理中已存在表${tableA}, 生命周期为9999天
     steps:
+      - action: 进入【离线开发 → 审计日志】页面
+        expected: 已进入【离线开发 → 审计日志】页面，显示页面标题与主要操作区域
       - action: 进入离线开发-数据地图-数据表管理-我管理的表
         expected: 进入成功
       - action: 查看表名为${tableA}的生命周期

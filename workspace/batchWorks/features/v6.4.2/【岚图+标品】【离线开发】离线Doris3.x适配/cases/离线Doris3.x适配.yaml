@@ -12,6 +12,8 @@ cases:
     priority: P2
     precondition: 「公共管理-数据源中心」已存在一条Doris3.x类型的数据源记录
     steps:
+      - action: 进入【离线开发 → 数据源】页面
+        expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据源」页面
         expected: 进入成功
       - action: 点击「引入数据源」
@@ -27,7 +29,7 @@ cases:
       - action: 选择Doris3.x
         expected: 过滤出类型为「Doris3.x」的数据源记录
   - case_id: C0002
-    title: 验证整库同步功能正常(Doris3.x → Other)
+    title: 验证整库同步完成目标操作且状态更新(Doris3.x → Other)
     priority: P0
     precondition: |-
       「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
@@ -131,6 +133,8 @@ cases:
 
       SELECT * FROM example_primary_key_table;
     steps:
+      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据源」页面
         expected: 进入成功
       - action: 选择一条Doris3.x类型的数据源记录, 点击「整库同步」
@@ -178,7 +182,7 @@ cases:
       - action: "T+1后, 新建DorisSQL任务, 执行SQL: SELECT * FROM ${schemaC}.${tableC};"
         expected: 查询成功, 表记录与Doris3.x表记录一致
   - case_id: C0003
-    title: 验证整库同步功能正常(Doris2.x → Other)
+    title: 验证整库同步完成目标操作且状态更新(Doris2.x → Other)
     priority: P2
     precondition: |-
       「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
@@ -269,6 +273,8 @@ cases:
           '{"工具": ["Pandas", "Tableau"], "学历": "硕士"}'
       );
     steps:
+      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据源」页面
         expected: 进入成功
       - action: 选择一条Doris2.x类型的数据源记录, 点击「整库同步」
@@ -316,7 +322,7 @@ cases:
       - action: "T+1后, 新建DorisSQL任务, 执行SQL: SELECT * FROM ${schemaC}.${tableC};"
         expected: 查询成功, 表记录与Doris2.x表记录一致
   - case_id: C0004
-    title: 验证整库同步功能正常(Other → Doris3.x)
+    title: 验证整库同步完成目标操作且状态更新(Other → Doris3.x)
     priority: P1
     precondition: |-
       「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
@@ -448,6 +454,8 @@ cases:
 
       SELECT * from mysql_example_table;
     steps:
+      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据源」页面
         expected: 进入成功
       - action: 选择一条Starrocks类型的数据源记录, 点击「整库同步」
@@ -483,7 +491,7 @@ cases:
       - action: "T+1后, 新建MySQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableB};"
         expected: 查询成功, 表记录与MySQL表记录一致
   - case_id: C0005
-    title: 验证整库同步功能正常(Other → Doris2.x)
+    title: 验证整库同步完成目标操作且状态更新(Other → Doris2.x)
     priority: P2
     precondition: |-
       「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
@@ -616,6 +624,8 @@ cases:
 
       SELECT * from mysql_example_table;
     steps:
+      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据源」页面
         expected: 进入成功
       - action: 选择一条Starrocks类型的数据源记录, 点击「整库同步」
@@ -651,7 +661,7 @@ cases:
       - action: "T+1后, 新建MySQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableB};"
         expected: 查询成功, 表记录与MySQL表记录一致
   - case_id: C0006
-    title: 验证数据同步功能正常(Doris3.x → Other、session模式)
+    title: 验证数据同步完成目标操作且状态更新(Doris3.x → Other、session模式)
     priority: P0
     precondition: |-
       1. 「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
@@ -752,6 +762,8 @@ cases:
           '{"经历": ["创业", "大厂"], "国家": "中国"}'
       );
     steps:
+      - action: 进入【离线开发 → 数据开发】页面
+        expected: 已进入【离线开发 → 数据开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发」页面
         expected: 进入成功
       - action: |-
@@ -806,7 +818,7 @@ cases:
       - action: "新建DorisSQL任务, 执行SQL: SELECT * FROM ${schemaD}.${tableA};"
         expected: 查询成功, 表记录与Doris3.x表记录一致
   - case_id: C0007
-    title: 验证数据同步功能正常(Other → Doris3.x、per_job模式)
+    title: 验证数据同步完成目标操作且状态更新(Other → Doris3.x、per_job模式)
     priority: P1
     precondition: |-
       1. 「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
@@ -934,6 +946,8 @@ cases:
           '{"经历": ["创业", "大厂"], "国家": "中国"}'
       );
     steps:
+      - action: 进入【离线开发 → 数据开发】页面
+        expected: 已进入【离线开发 → 数据开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发」页面
         expected: 进入成功
       - action: |-
@@ -987,7 +1001,7 @@ cases:
       - action: "执行DorisSQL: SELECT * FROM ${schemaB}.${tableD};"
         expected: 查询成功, 表记录与Doris2.x表记录一致
   - case_id: C0008
-    title: 验证 Doris3.x 同步任务导入前后准备语句执行有效
+    title: 验证 Doris3.x 同步任务导入前后配置语句执行有效
     priority: P1
     precondition: |-
       建表语句
@@ -1001,6 +1015,8 @@ cases:
       PROPERTIES("replication_num"="1");
       INSERT INTO doris2_src_prepare VALUES (1,'x');
     steps:
+      - action: 进入【离线开发 → 数据开发】页面
+        expected: 已进入【离线开发 → 数据开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发」页面
         expected: 进入成功
       - action: 新建数据同步任务
@@ -1016,8 +1032,8 @@ cases:
           数据源: Doris3.x
           Schema: ${schemaB}
           表:  一键生成目标表
-          导入前准备语句：TRUNCATE TABLE IF EXISTS ${schemaB}.${tableB};
-          导入后准备语句:  INSERT INTO ${schemaB}.${tableB} VALUES(2, 'done');
+          导入前配置语句：TRUNCATE TABLE IF EXISTS ${schemaB}.${tableB};
+          导入后配置语句:  INSERT INTO ${schemaB}.${tableB} VALUES(2, 'done');
         expected: 配置成功
       - action: |-
           其他配置:
@@ -1032,6 +1048,8 @@ cases:
     title: 验证「控制台」新增Doris3.x组件版本
     priority: P1
     steps:
+      - action: 进入【离线开发 → 控制台新增Doris3.x组件版本】页面
+        expected: 已进入【离线开发 → 控制台新增Doris3.x组件版本】页面，显示页面标题与主要操作区域
       - action: 进入「控制台-多集群管理-集群配置-计算组件」
         expected: 进入成功
       - action: 组件配置添加Doris
@@ -1041,13 +1059,15 @@ cases:
       - action: 展开「组件版本」
         expected: 默认选择2.x, 下拉支持选择2.x和3.x
   - case_id: C0010
-    title: "验证「创建项目」添加Doris 数据源显示正常(初始化方式: 创建)"
+    title: "验证「创建项目」添加Doris 数据源显示目标记录及字段值(初始化方式: 创建)"
     priority: P0
     precondition: |-
       1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
 
       2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
     steps:
+      - action: 进入【离线开发 → 离线开发】页面
+        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发」页面
         expected: 进入成功
       - action: 点击「创建项目」
@@ -1067,13 +1087,15 @@ cases:
           1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
           2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
   - case_id: C0011
-    title: "验证「创建项目」添加Doris 数据源显示正常(初始化方式: 对接)"
+    title: "验证「创建项目」添加Doris 数据源显示目标记录及字段值(初始化方式: 对接)"
     priority: P2
     precondition: |-
       1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
 
       2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
     steps:
+      - action: 进入【离线开发 → 离线开发】页面
+        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发」页面
         expected: 进入成功
       - action: 点击「创建项目」
@@ -1093,13 +1115,15 @@ cases:
           1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
           2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
   - case_id: C0012
-    title: "验证「创建项目」添加Doris数据源显示正常(初始化方式: 不创建且不对接)"
+    title: "验证「创建项目」添加Doris数据源显示目标记录及字段值(初始化方式: 不创建且不对接)"
     priority: P2
     precondition: |-
       1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
 
       2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
     steps:
+      - action: 进入【离线开发 → 创建项目添加Doris数据源显示目标记录及字段值】页面
+        expected: 已进入【离线开发 → 创建项目添加Doris数据源显示目标记录及字段值】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发」页面
         expected: 进入成功
       - action: 点击「创建项目」
@@ -1119,10 +1143,12 @@ cases:
           1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
           2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
   - case_id: C0013
-    title: 验证「数据开发」Doris SQL任务创建功能正常
+    title: 验证「数据开发」Doris SQL任务创建完成目标操作且状态更新
     priority: P2
     precondition: "「离线开发-数据源」中已存在Doris 3.x Meta数据源, 数据源名称: ${ClusterA}"
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 右键「任务开发」, 选择Doris SQL任务
@@ -1150,7 +1176,7 @@ cases:
     priority: P0
     precondition: |-
       1. 平台中已配置 Doris3.x 数据源，连接状态正常。
-      2. 准备测试语句, 建表语句如下:
+      2. 配置测试语句, 建表语句如下:
       DROP table if exists example_primary_key_table;
       CREATE TABLE if not exists example_primary_key_table (
           id LARGEINT NOT NULL COMMENT '主键 ID',
@@ -1249,23 +1275,27 @@ cases:
 
       select * from example_primary_key_table;
     steps:
+      - action: 进入【离线开发 → DorisSQL 任务可正常运行并返回结果】页面
+        expected: 已进入【离线开发 → DorisSQL 任务可正常运行并返回结果】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建Doris SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示正常
+        expected: 执行成功, 返回结果显示目标记录及字段值
       - action: 进入「离线开发-数据开发-手动任务」页面
         expected: 进入成功
       - action: 新建Doris SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示正常
+        expected: 执行成功, 返回结果显示目标记录及字段值
       - action: 进入「离线开发-数据开发-临时查询」页面
         expected: 进入成功
       - action: 新建Doris SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示正常
+        expected: 执行成功, 返回结果显示目标记录及字段值
   - case_id: C0015
-    title: 验证 DorisSQL 语法提示功能正常
+    title: 验证 DorisSQL 语法提示完成目标操作且状态更新
     priority: P2
     precondition: Doris3.x 数据源中已存在表${tableA}, e.g. doris3_sql_run
     steps:
+      - action: 进入【离线开发 → DorisSQL 语法提示完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → DorisSQL 语法提示完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 DorisSQL 任务
@@ -1280,7 +1310,7 @@ cases:
     title: 验证 DorisSQL 任务支持停止运行中的任务
     priority: P1
     precondition: |-
-      准备长时间执行 SQL：
+      配置长时间执行 SQL：
       DROP TABLE IF EXISTS doris3_sql_long;
       CREATE TABLE doris3_sql_long (id INT)
       ENGINE=OLAP
@@ -1288,6 +1318,8 @@ cases:
       PROPERTIES("replication_num"="1");
       INSERT INTO doris3_sql_long SELECT * FROM numbers(10e7);
     steps:
+      - action: 进入【离线开发 → DorisSQL 任务支持停止运行中的任务】页面
+        expected: 已进入【离线开发 → DorisSQL 任务支持停止运行中的任务】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 DorisSQL 任务
@@ -1313,6 +1345,8 @@ cases:
       INSERT INTO doris3_sql_run VALUES (1,'a'),(2,'b');
       SELECT * FROM doris3_sql_run;
     steps:
+      - action: 进入【离线开发 → DorisSQL 支持系统函数调用】页面
+        expected: 已进入【离线开发 → DorisSQL 支持系统函数调用】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 DorisSQL 任务
@@ -1337,6 +1371,8 @@ cases:
        用途: 接收一个参数, 返回拼接上hello后的字符串
        命令格式：${函数名称}(string), e.g. addStr(string)
     steps:
+      - action: 进入【离线开发 → DorisSQL 支持自定义函数】页面
+        expected: 已进入【离线开发 → DorisSQL 支持自定义函数】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 DorisSQL 任务
@@ -1344,10 +1380,12 @@ cases:
       - action: '输入测试语句: select addStr("test");并执行'
         expected: "执行成功, 返回结果: hello test"
   - case_id: C0019
-    title: 验证Doris3.x表查询功能正常
+    title: 验证Doris3.x表查询完成目标操作且状态更新
     priority: P2
-    precondition: 离线平台已对接多个 Doris3.x 集群${ClusterA}，${ClusterB}, 均连接正常
+    precondition: 离线平台已对接2 个 Doris3.x 集群${ClusterA}，${ClusterB}, 均连接正常
     steps:
+      - action: 进入【离线开发 → Doris3.x表查询完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris3.x表查询完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-表查询」页面
         expected: 进入成功
       - action: 表类型中选择Doris
@@ -1361,12 +1399,12 @@ cases:
       - action: 点击数据预览
         expected: 展示表${tableA}的表记录
   - case_id: C0020
-    title: 验证Doris3.x同步元数据功能正常
+    title: 验证Doris3.x同步元数据完成目标操作且状态更新
     priority: P0
     precondition: |-
       1. 离线平台中已配置 Doris3.x 集群数据源，连接状态正常。
 
-      2. Doris 集群中存在测试表(在底层创建, 而不是平台中创建, 离线项目标识为${schemaA})：
+      2. Doris 集群中存在数据表(在底层创建, 而不是平台中创建, 离线项目标识为${schemaA})：
 
       DROP TABLE IF EXISTS ${schemaA}.doris_meta_sync_test;
       CREATE TABLE ${schemaA}.doris_meta_sync_test (
@@ -1393,6 +1431,8 @@ cases:
 
       INSERT INTO ${schemaA}.doris_meta_sync_test2 VALUES (1,'a','2025-10-01');
     steps:
+      - action: 进入【离线开发 → Doris3.x同步元数据完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → Doris3.x同步元数据完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-表查询」页面
         expected: 进入成功
       - action: 选择Doris-${schemaA}, 查询表doris_meta_sync_test
@@ -1425,7 +1465,7 @@ cases:
     priority: P0
     precondition: |-
       1. 平台中已配置 Doris3.x 数据源，连接状态正常。
-      2. 准备三个对接doris3.x的离线SQL任务：
+      2. 配置三个对接doris3.x的离线SQL任务：
       ${task01}
       DROP TABLE if exists user_profile;
       CREATE TABLE IF NOT EXISTS user_profile (
@@ -1471,6 +1511,8 @@ cases:
       -- 增加列
       ALTER TABLE user_profile ADD COLUMN department VARCHAR(100) COMMENT '所属部门';
     steps:
+      - action: 进入【离线开发 → DorisSQL任务调度功能运行正常】页面
+        expected: 已进入【离线开发 → DorisSQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 并临时运行
@@ -1532,7 +1574,7 @@ cases:
 
 
 
-      3. 准备两个对接doris3.x的离线SQL任务：
+      3. 配置两个对接doris3.x的离线SQL任务：
       ${task01}
        INSERT INTO doris3x_test.user_profile
       (id, registration_date, name, age, salary, is_active, revision)
@@ -1553,6 +1595,8 @@ cases:
       -- 条件删除
       DELETE FROM sales_records WHERE sale_date < '2023-01-01';
     steps:
+      - action: 进入【离线开发 → DorisSQL任务调度功能运行正常】页面
+        expected: 已进入【离线开发 → DorisSQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 并临时运行
@@ -1623,7 +1667,7 @@ cases:
       (1002, 2, '2024-02-15', 299.50, 'West');
 
 
-      3. 准备两个对接doris3.x的离线SQL任务：
+      3. 配置两个对接doris3.x的离线SQL任务：
       ${task01}
       -- 基础查询
       SELECT name, age, salary
@@ -1666,6 +1710,8 @@ cases:
       FROM user_profile
       GROUP BY CUBE(is_active, age_group);
     steps:
+      - action: 进入【离线开发 → DorisSQL任务调度功能运行正常】页面
+        expected: 已进入【离线开发 → DorisSQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 并临时运行
@@ -1681,7 +1727,7 @@ cases:
       - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 提交到运维中心后手动运行
         expected: 运行成功, 手动任务实例中新增该任务的实例记录
   - case_id: C0024
-    title: 验证项目维度数据库绑定账号功能正常
+    title: 验证项目维度数据库绑定账号完成目标操作且状态更新
     priority: P2
     precondition: |-
       Doris 3.x 数据源已经配置root 和 test_user账号, test_user账号仅有lantu_test 权限
@@ -1699,6 +1745,8 @@ cases:
       -- 5. 立即生效
       SET PROPERTY FOR 'test_user'@'%' 'resource.tags' = '*';
     steps:
+      - action: 进入【离线开发 → 项目维度数据库绑定账号完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → 项目维度数据库绑定账号完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 DorisSQL 任务

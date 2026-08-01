@@ -250,7 +250,7 @@ describe("skill contract", () => {
     const example = readFileSync(join(skillDir("test-case"), "examples/cases.yaml"), "utf8");
     expect(example).not.toContain("\n    automation:");
     expect(example).not.toMatch(/precondition:\s*同 C\d+/);
-    expect(example).toContain("INSERT INTO user_profile");
+    expect(example).toContain(`INSERT INTO \${SchemaA}.test_table_15862_c0001`);
   });
 
   it("test-case 的导出元数据始终声明具体派生文件名", () => {

@@ -427,13 +427,14 @@ Options:
 ```text
 Usage: kata cases lint [options]
 
-检查 feature 目录、命名、YAML 来源与历史导入文件
+检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
 
 Options:
-  --project <name>  项目名
-  --feature <path>  只检查单个 feature（相对 features/ 的完整路径）
-  --exit-code       存在 violation 时退出码为 1
-  -h, --help        display help for command
+  --project <name>    项目名；与 --all-projects 二选一
+  --all-projects      检查 workspace 下全部项目；与 --project 二选一
+  --feature <path>    只检查单个 feature（相对 features/ 的完整路径）
+  --exit-code         存在 violation 时退出码为 1
+  -h, --help          display help for command
 ```
 
 ## kata config doctor
@@ -1277,7 +1278,7 @@ Usage: kata automation sql lint [options] <sql-file>
 按全局 SQL profile 校验模板
 
 Options:
-  --profile <name>  config/automation/sql-profiles.yaml 中的 profile
+  --profile <name>  SQL 方言 profile 名称或已注册数据源类型（由 CLI 读取 config/automation/sql-profiles.yaml）
   -h, --help        display help for command
 ```
 
@@ -1289,7 +1290,7 @@ Usage: kata automation sql render [options] <sql-file>
 将显式 --set 值渲染到 stdout，不写入项目目录
 
 Options:
-  --profile <name>   先按 profile 校验模板
-  --set <KEY=value>  占位符替换值，可重复 (default: [])
+  --profile <name>   先按 SQL 方言 profile 校验模板
+  --set <KEY=value>  语义占位符替换值，例如 SchemaA=dq、RunSuffix=run01，可重复 (default: [])
   -h, --help         display help for command
 ```

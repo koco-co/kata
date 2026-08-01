@@ -1,9 +1,125 @@
 profiles:
-  data-assets-15862-doris:
-    required_placeholders: [DATABASE, SUFFIX]
-    forbidden_fragments: [pw_test]
-    required_fragments: ["CREATE TABLE", "INSERT INTO", "ALTER TABLE"]
-  data-assets-15862-sparkthrift:
-    required_placeholders: [DATABASE, SUFFIX]
-    forbidden_fragments: [pw_test]
-    required_fragments: ["CREATE TABLE", "INSERT INTO"]
+  spark-sql:
+    datasource_types: [SparkThrift2.x, SparkThrift]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    forbidden_patterns:
+      - name: Doris/StarRocks 分桶语法
+        pattern: '\bDISTRIBUTED\s+BY\b'
+      - name: Doris/StarRocks KEY 模型语法
+        pattern: '\b(?:DUPLICATE|AGGREGATE|UNIQUE)\s+KEY\b'
+      - name: Doris/StarRocks OLAP 引擎语法
+        pattern: '\bENGINE\s*=\s*OLAP\b'
+      - name: Doris/StarRocks 副本属性
+        pattern: '["]replication_num["]'
+
+  hive-sql:
+    datasource_types: [Hive, Hive1.x, Hive2.x, Hive3.x]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    forbidden_patterns:
+      - name: Doris/StarRocks 分桶语法
+        pattern: '\bDISTRIBUTED\s+BY\b'
+      - name: Doris/StarRocks OLAP 引擎语法
+        pattern: '\bENGINE\s*=\s*OLAP\b'
+
+  doris-sql:
+    datasource_types: [Doris, Doris2.x, Doris3.x]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    forbidden_patterns:
+      - name: Spark/Hive 分区字段语法
+        pattern: '\bPARTITIONED\s+BY\b'
+      - name: Spark/Hive 存储格式语法
+        pattern: '\bSTORED\s+AS\b'
+      - name: Spark 数据源提供器语法
+        pattern: '\bUSING\s+(?:PARQUET|ORC|TEXT|CSV|JSON)\b'
+
+  starrocks-sql:
+    datasource_types: [StarRocks3.x]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    forbidden_patterns:
+      - name: Spark/Hive 分区字段语法
+        pattern: '\bPARTITIONED\s+BY\b'
+      - name: Spark/Hive 存储格式语法
+        pattern: '\bSTORED\s+AS\b'
+      - name: Spark 数据源提供器语法
+        pattern: '\bUSING\s+(?:PARQUET|ORC|TEXT|CSV|JSON)\b'
+
+  mysql-sql:
+    datasource_types: [MySQL]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    forbidden_patterns:
+      - name: Spark/Hive 分区字段语法
+        pattern: '\bPARTITIONED\s+BY\b|\bSTORED\s+AS\b'
+      - name: Doris/StarRocks 分桶语法
+        pattern: '\bDISTRIBUTED\s+BY\b|\b(?:DUPLICATE|AGGREGATE|UNIQUE)\s+KEY\b'
+
+  postgresql-sql:
+    datasource_types: [PostgreSQL, GaussDB, GaussDB9.1, Vastbase]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    forbidden_patterns:
+      - name: Spark/Hive 存储格式语法
+        pattern: '\bPARTITIONED\s+BY\b|\bSTORED\s+AS\b'
+      - name: Doris/StarRocks 分桶语法
+        pattern: '\bDISTRIBUTED\s+BY\b|\bENGINE\s*=\s*OLAP\b'
+
+  oracle-sql:
+    datasource_types: [Oracle, OceanBase, OceanBaseOracle]
+    required_patterns:
+      - name: Oracle 删除表语句
+        pattern: '\bDROP\s+TABLE\b'
+      - name: Oracle 创建表语句
+        pattern: '\bCREATE\s+TABLE\b'
+    forbidden_patterns:
+      - name: Oracle 不支持 IF EXISTS 删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: Oracle 不支持 IF NOT EXISTS 创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+      - name: Doris/StarRocks 分桶语法
+        pattern: '\bDISTRIBUTED\s+BY\b|\bENGINE\s*=\s*OLAP\b'
+
+  impala-sql:
+    datasource_types: [Impala]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+
+  lindorm-sql:
+    datasource_types: [Lindorm]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+
+  kyuubi-sql:
+    datasource_types: [Kyuubi]
+    required_patterns:
+      - name: 可重复删除表
+        pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
+      - name: 幂等创建表
+        pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'

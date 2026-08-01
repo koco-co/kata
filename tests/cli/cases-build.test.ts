@@ -16,7 +16,13 @@ import { computePrdDigest } from "../../cli/lib/prd.ts";
 const YAML = `
 meta: { title: 需求名, case_module_id: "" }
 cases:
-  - { case_id: C0001, title: 用例一, priority: P0, steps: [ { action: a, expected: e } ] }
+  - case_id: C0001
+    title: 验证用例一
+    priority: P0
+    precondition: 无
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 展示规则库配置列表
 `;
 
 function feature(): string {
@@ -52,6 +58,29 @@ describe("kata cases build", () => {
       encoding: "utf8",
     });
     expect(r.status).not.toBe(0);
+  });
+  it("blocks derived artifacts when authored-case content lint fails", () => {
+    const d = feature();
+    writeFileSync(
+      join(d, "cases", "需求名.yaml"),
+      `meta: { title: 需求名, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证用例一
+    priority: P0
+    precondition: 准备测试数据
+    steps:
+      - action: 点击新增按钮
+        expected: 打开新增弹窗
+`,
+    );
+    const r = spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", "--feature", d], {
+      encoding: "utf8",
+    });
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("case_forbidden_term");
+    expect(r.stderr).toContain("case_first_step_navigation");
+    expect(existsSync(join(d, "cases", "exports", "需求名.xmind"))).toBe(false);
   });
   it("blocks stale cases when test-points no longer matches the PRD digest chain", () => {
     const d = feature();

@@ -10,8 +10,10 @@ cases:
     title: 验证「多字段时间差校验」任务质量报告正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「order_date1；order_date2」 「时间差」选择为「<=1秒」 「大小关系」配置为「order_date1>order_date2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -57,8 +59,10 @@ cases:
     title: 验证「多字段时间差校验」任务不通过/失败结果详情正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「order_date1；order_date2」 「时间差」选择为「<=1秒」 「大小关系」配置为「order_date1>order_date2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -66,7 +70,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则
-        expected: 实例运行结果符合预期
+        expected: 实例运行结果与预期值一致
       - action: 查看不通过的实例详情
         expected: 抽屉式展开详情，页面包含： 任务名称、监控报告tab、表级报告tab
       - action: 点击【监控报告】tab
@@ -119,12 +123,13 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0003
-
     title: 验证「多字段时间差校验」任务通过结果详情正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「order_date1；order_date2」 「时间差」选择为「<=1秒」 「大小关系」配置为「order_date1>order_date2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -132,7 +137,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则
-        expected: 实例运行结果符合预期
+        expected: 实例运行结果与预期值一致
       - action: 查看实例详情
         expected: 抽屉式展开详情，页面包含： 任务名称、监控报告tab、表级报告tab
       - action: 点击【监控报告】tab
@@ -173,12 +178,13 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0004
-
     title: 验证「多字段时间差校验」字段组限制个数正确
     priority: P2
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 点击【添加规则】按钮，选择「时效性校验」规则
@@ -215,12 +221,13 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0005
-
     title: 验证「多字段时间差校验」区域配置交互正确
     priority: P2
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 点击【添加规则】按钮，选择「时效性校验」规则
@@ -259,12 +266,13 @@ cases:
       - 监控规则
       - 时效性校验
   - case_id: C0006
-
     title: 验证「字段类型异常」校验功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 多字段时间差校验】页面
+        expected: 已进入【数据质量 → 多字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: |-
@@ -396,12 +404,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0007
-
     title: 验证「string转long」校验不通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → 多字段时间差校验】页面
+        expected: 已进入【数据质量 → 多字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「date_str_ymd_hms_ms1；date_str_ymd_hms_ms2」。「时间差」选择为「<1天」。「大小关系」配置为「date_str_ymd_hms_ms1<date_str_ymd_hms_ms2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -526,12 +535,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0008
-
     title: 验证「string转long」校验通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → 多字段时间差校验】页面
+        expected: 已进入【数据质量 → 多字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「date_str_ymd_hms1；date_str_ymd_hms2」。「时间差」选择为「>=1天」。「大小关系」配置为「date_str_ymd_hms1<date_str_ymd_hms2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -656,12 +666,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0009
-
     title: 验证「date/datetime/time/timestamp类型」校验不通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → timestamp类型】页面
+        expected: 已进入【数据质量 → timestamp类型】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: |-
@@ -791,12 +802,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0010
-
     title: 验证「date/datetime/time/timestamp类型」校验通过功能
     priority: P1
     steps:
+      - action: 进入【数据质量 → timestamp类型】页面
+        expected: 已进入【数据质量 → timestamp类型】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: |-
@@ -839,12 +851,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0011
-
     title: 验证「date类型」校验不通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → 多字段时间差校验】页面
+        expected: 已进入【数据质量 → 多字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「create_date 1；create_date 2」 「时间差」选择为「<1天」 「大小关系」配置为「create_date 1<create_date 2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -852,7 +865,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
 
@@ -969,12 +982,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0012
-
     title: 验证「date类型」校验通过功能
     priority: P0
     steps:
+      - action: 进入【数据质量 → 多字段时间差校验】页面
+        expected: 已进入【数据质量 → 多字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 「监控规则」配置如下： 「监控规则」新增「时效性校验」 「字段」选择为「id」 「统计函数」选择「及时性校验（多字段时间差校验）」 「过滤条件」设置为「id<100」 「选择对比字段组」为「create_date 1；create_date 2」 「时间差」选择为「>=1天」 「大小关系」配置为「create_date 1<create_date 2」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
@@ -982,7 +996,7 @@ cases:
       - action: 配置「调度属性」，保存规则，且「调度属性」中配置「规则报告」为最新结果
         expected: 规则保存成功
       - action: 临时运行规则，查看实例详情及质量报告
-        expected: 实例运行结果符合预期，且实例详情展示正确，质量报告展示正确
+        expected: 实例运行结果与预期值一致，且实例详情展示正确，质量报告展示正确
     precondition: |-
       已存在spark表A
 
@@ -1099,12 +1113,13 @@ cases:
       - 时效性
       - 多字段时间差校验
   - case_id: C0013
-
     title: 验证「多字段时间差校验」区域详情正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 时效性校验】页面
+        expected: 已进入【数据质量 → 时效性校验】页面，显示页面标题与主要操作区域
       - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面正常打开
+        expected: 页面加载完成且显示目标控件打开
       - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
         expected: 监控对象配置成功； 进入「监控规则」配置页
       - action: 点击【添加规则】按钮，选择「时效性校验」规则
@@ -1115,7 +1130,7 @@ cases:
           1） 「字段」，可选择对应数据表下的所有字段
           2） 「统计函数」，可选择「及时性校验（多字段时间差校验）」
           3） 「过滤条件」，可选择「选项配置」、「手动配置」
-          4） 「选择对比字段组」，选择对应数据表下的所有字段，可配置多个对比字段组
+          4） 「选择对比字段组」，选择对应数据表下的所有字段，可配置2 个对比字段组
           5） 「时间差」，可配置「>/</>=/<=/=/!= xx 毫秒/秒/分钟/小时/天」
           6） 「大小关系」，可配置字段1 >/< 字段2
           7） 可对「对比字段组」进行新增删除操作

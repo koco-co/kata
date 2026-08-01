@@ -11,6 +11,8 @@ cases:
     title: 验证【其它历史内置规则】规则状态变更正常
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 选择【其它历史内置规则】, 开启所有规则状态
@@ -30,13 +32,14 @@ cases:
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0002
     automation:
       spec_file: c0002-monotonic-rule-status.spec.ts
     title: 验证【内置规则-单调递增、单调递减校验】规则状态变更正常
     priority: P0
     steps:
+      - action: 进入【数据质量 → 单调递减校验】页面
+        expected: 已进入【数据质量 → 单调递减校验】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 选择【内置规则-单调递增、单调递减校验】, 开启规则状态
@@ -62,13 +65,14 @@ cases:
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0003
     automation:
       spec_file: c0003-time-difference-rule-status.spec.ts
     title: 验证【内置规则-多字段时间差校验&单字段时间差校验】规则状态变更正常
     priority: P1
     steps:
+      - action: 进入【数据质量 → 多字段时间差校验&单字段时间差校验】页面
+        expected: 已进入【数据质量 → 多字段时间差校验&单字段时间差校验】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 选择【内置规则-多字段时间差校验&单字段时间差校验】, 开启规则状态
@@ -99,12 +103,12 @@ cases:
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0004
-
     title: 验证【导出规则库】中的内置规则正确
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 点击导出规则库并保存
@@ -122,46 +126,46 @@ cases:
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0005
-
-    title: 验证【合理性校验】筛选功能正常
+    title: 验证【合理性校验】筛选完成目标操作且状态更新
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: "规则分类分类筛选: 合理性校验"
-        expected: 筛选成功, 结果正确
+        expected: 筛选成功, 结果与预期记录一致
       - action: "规则分类分类筛选: 合理性校验 + 有效性校验"
-        expected: 组合筛选成功, 结果正确
+        expected: 组合筛选成功, 结果与预期记录一致
       - action: 重置后, 确定
-        expected: 筛选成功, 结果正确
+        expected: 筛选成功, 结果与预期记录一致
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0006
-
-    title: 验证【时效性校验】筛选功能正常
+    title: 验证【时效性校验】筛选完成目标操作且状态更新
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: "规则分类分类筛选: 时效性校验"
-        expected: 筛选成功, 结果正确
+        expected: 筛选成功, 结果与预期记录一致
       - action: "规则分类分类筛选: 时效性校验 + 唯一性校验"
-        expected: 组合筛选成功, 结果正确
+        expected: 组合筛选成功, 结果与预期记录一致
       - action: 重置后, 确定
-        expected: 筛选成功, 结果正确
+        expected: 筛选成功, 结果与预期记录一致
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0007
-
     title: 验证新增规则分类正确
     priority: P2
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 点击规则分类筛选项
@@ -169,12 +173,12 @@ cases:
     precondition: 规则库配置列表已存在“一致性校验”、“时效性校验”、“合理性校验”的记录
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0008
-
     title: 验证重复内置规则隐藏
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 检查内置规则列表
@@ -188,12 +192,12 @@ cases:
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类
   - case_id: C0009
-
     title: 验证新增内置规则
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 已进入【数据质量 → 规则库配置】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则库配置】页面
         expected: 进入成功
       - action: 检查内置规则列表
@@ -204,7 +208,7 @@ cases:
           2) 规则解释: 多字段时间差校验
           3) 规则分类: 时效性校验
           4) 关联范围: 字段
-          5) 规则描述: 比较两个时间类型字段之间的时间差是否符合要求，支持校验多个字段组时间差
+          5) 规则描述: 比较两个时间类型字段之间的时间差是否符合要求，支持校验2 个字段组时间差
       - action: "检查新增内置规则: 周期性校验"
         expected: |-
           1) 规则名称: 周期性校验
@@ -222,4 +226,3 @@ cases:
     precondition: 无
     tags:
       - 规则库配置
-      - 未分类

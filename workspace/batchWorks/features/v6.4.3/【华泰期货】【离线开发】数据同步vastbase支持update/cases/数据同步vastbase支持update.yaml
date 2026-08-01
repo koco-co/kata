@@ -11,6 +11,8 @@ cases:
     title: 验证数据来源为inceptor、mysql、oracle数据源，vastbase作为目标端时，主键冲突支持可选update
     priority: P0
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -50,6 +52,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'Bob');
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -95,6 +99,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'keke');
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -139,6 +145,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'hello');
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -184,6 +192,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'keke');
     steps:
+      - action: 进入【离线开发 → 周期运行——】页面
+        expected: 已进入【离线开发 → 周期运行——】页面，显示页面标题与主要操作区域
       - action: 上述任务提交至运维中心
         expected: 任务提交成功
       - action: 进入运维中心-周期任务管理，选择上述任务点击补数据
@@ -218,6 +228,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'Bob');
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -251,6 +263,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'keke');
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -303,6 +317,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu','mengfei_chongtu');
       INSERT INTO test_table VALUES (3, 'keke','kako_chongtu');
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -334,6 +350,8 @@ cases:
     title: 验证数据来源为inceptor、mysql、oracle数据源，vastbase作为目标端时，主键冲突支持可选on duplicate key update
     priority: P0
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -373,6 +391,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'Bob');
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -418,6 +438,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'keke');
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -462,6 +484,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'hello');
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -507,6 +531,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'keke');
     steps:
+      - action: 进入【离线开发 → 手动任务运行——】页面
+        expected: 已进入【离线开发 → 手动任务运行——】页面，显示页面标题与主要操作区域
       - action: 上述任务提交至运维中心
         expected: 任务提交成功
       - action: 进入运维中心-手动任务管理，选择上述任务点击运行
@@ -541,6 +567,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'Bob');
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -574,6 +602,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu');
       INSERT INTO test_table VALUES (3, 'keke');
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-
@@ -626,6 +656,8 @@ cases:
       INSERT INTO test_table VALUES (1, 'Alice_chongtu','mengfei_chongtu');
       INSERT INTO test_table VALUES (3, 'keke','kako_chongtu');
     steps:
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
       - action: 进入数据开发模块，新建向导模式的数据同步任务
         expected: 新建成功
       - action: |-

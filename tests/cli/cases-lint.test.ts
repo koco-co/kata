@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { runFeaturesLint } from "../../cli/lib/features-lint.ts";
 
 function ws(): string {
@@ -173,5 +173,68 @@ describe("features lint", () => {
     );
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("case_title_format");
+  });
+
+  it("enforces global authored-case content rules without exposing a case location", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      `meta:
+  title: 需求
+  requirement_id: "16178"
+  case_module_id: ""
+cases:
+  - case_id: C0001
+    requirement_id: "16178"
+    title: 验证新增规则
+    priority: P0
+    precondition: 准备规则
+    steps:
+      - action: 点击新增按钮
+        expected: 打开新增弹窗
+`,
+    );
+    const violations = runFeaturesLint({
+      project: "dataAssets",
+      workspaceRoot: root,
+      repoRoot: resolve(import.meta.dir, "../.."),
+    }).violations;
+    expect(violations.map((item) => item.rule)).toContain("case_forbidden_term");
+    expect(violations.map((item) => item.rule)).toContain("case_first_step_navigation");
+    const message = violations.map((item) => item.message).join("\n");
+    expect(message).toContain("实际: 点击新增按钮");
+    expect(message).not.toContain("C0001");
+  });
+
+  it("lints every workspace project through --all-projects", () => {
+    const workspaceRoot = ws();
+    mkdirSync(join(workspaceRoot, "batchWorks", "features", "v1.0", "【模块】需求", "cases"), {
+      recursive: true,
+    });
+    writeFileSync(
+      join(workspaceRoot, "batchWorks", "features", "v1.0", "【模块】需求", "cases", "需求.yaml"),
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证需求
+    priority: P0
+    precondition: 无
+    steps:
+      - action: 点击新增
+        expected: 打开新增弹窗
+`,
+    );
+    const result = spawnSync(
+      "bun",
+      ["cli/bin/kata.ts", "cases", "lint", "--all-projects", "--exit-code"],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: { ...process.env, KATA_WORKSPACE_ROOT: workspaceRoot },
+      },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("batchWorks");
+    expect(result.stdout).toContain("case_first_step_navigation");
   });
 });

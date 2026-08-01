@@ -1,7 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parse } from "yaml";
+import {
+  type CasesLintConfig,
+  lintCaseContent,
+  loadCasesLintConfig,
+} from "./cases/content-lint.ts";
 import { parseCaseExportName } from "./cases/formats.ts";
+import { parseCasesYaml } from "./cases/parse.ts";
 import {
   featureRelativePath,
   LEGACY_LABEL_DIR_RE,
@@ -10,6 +16,7 @@ import {
   resolveFeatureEntry,
 } from "./features-layout.ts";
 import { assertCaseDigestChain, lintPrdFeature } from "./prd.ts";
+import { locateProjectRoot } from "./workspace-locator.ts";
 
 export interface FeaturesLintContext {
   project: string;
@@ -68,6 +75,7 @@ function lintCaseSources(
   feature: string,
   zone: string,
   envNames: string[],
+  contentConfig: CasesLintConfig,
   violations: FeatureLintViolation[],
 ): void {
   const casesDir = join(dir, "cases");
@@ -136,6 +144,18 @@ function lintCaseSources(
       }
     }
     if (!subjective) continue;
+    try {
+      const authored = parseCasesYaml(text);
+      for (const violation of lintCaseContent(authored, contentConfig)) {
+        violations.push({
+          feature,
+          rule: violation.rule,
+          message: violation.message,
+        });
+      }
+    } catch {
+      // Structural/YAML failures are owned by cases build; semantic lint starts after parsing.
+    }
     const cases = Array.isArray(doc.cases) ? doc.cases : [];
     for (const [index, item] of cases.entries()) {
       if (typeof item.title === "string" && !REGULAR_TITLE_RE.test(item.title)) {
@@ -173,6 +193,7 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
   const modulesEnum = loadEnum(sharedDir, "modules.yaml");
   const customersEnum = loadEnum(sharedDir, "customers.yaml");
   const envNames = loadEnvNames(ctx.repoRoot, ctx.workspaceRoot);
+  const contentConfig = loadCasesLintConfig(ctx.repoRoot ?? locateProjectRoot());
   const allEntries = listFeatureDirs(featuresDir);
   const entries = ctx.featurePath
     ? [resolveFeatureEntry(featuresDir, ctx.featurePath)]
@@ -180,7 +201,7 @@ export function runFeaturesLint(ctx: FeaturesLintContext): { violations: Feature
 
   for (const entry of entries) {
     const feature = featureRelativePath(featuresDir, entry);
-    lintCaseSources(entry.dir, feature, entry.zone, envNames, violations);
+    lintCaseSources(entry.dir, feature, entry.zone, envNames, contentConfig, violations);
     for (const legacy of ["prd.md", "requirement-notes.md", "test-points.md"]) {
       if (existsSync(join(entry.dir, legacy))) {
         violations.push({

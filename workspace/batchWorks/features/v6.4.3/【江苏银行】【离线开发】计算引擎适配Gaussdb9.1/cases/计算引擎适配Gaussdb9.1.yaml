@@ -8,13 +8,15 @@ meta:
     - 计算引擎适配Gaussdb9.1.xmind
 cases:
   - case_id: C0001
-    title: "验证「创建项目」添加GaussDB 数据源显示正常(初始化方式: 创建)"
+    title: "验证「创建项目」添加GaussDB 数据源显示目标记录及字段值(初始化方式: 创建)"
     priority: P0
     precondition: |-
       1) 「公共管理-控制台」中已存在GaussDB组件
 
       2) GaussDB数据源名称: ${datasourceA}
     steps:
+      - action: 进入【离线开发 → 离线开发】页面
+        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发」页面, 点击「创建项目」
         expected: 进入创建项目页面
       - action: |-
@@ -27,13 +29,15 @@ cases:
       - action: 进入${nameA}项目的「数据源」页面
         expected: 数据源列表存在类型为GaussDB, 数据源名称为${nameA}_GaussDB的数据源记录
   - case_id: C0002
-    title: "验证「创建项目」添加GaussDB 数据源显示正常(初始化方式: 对接)"
+    title: "验证「创建项目」添加GaussDB 数据源显示目标记录及字段值(初始化方式: 对接)"
     priority: P2
     precondition: |-
       1) 「公共管理-控制台」中已存在GaussDB组件
 
       2) GaussDB数据源名称: ${datasourceA}
     steps:
+      - action: 进入【离线开发 → 离线开发】页面
+        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发」页面, 点击「创建项目」
         expected: 进入创建项目页面
       - action: |-
@@ -46,13 +50,15 @@ cases:
       - action: 进入${nameA}项目的「数据源」页面
         expected: 数据源列表存在类型为GaussDB, 数据源名称为${nameA}_GaussDB的数据源记录
   - case_id: C0003
-    title: "验证「创建项目」添加GaussDB数据源显示正常(初始化方式: 不创建且不对接)"
+    title: "验证「创建项目」添加GaussDB数据源显示目标记录及字段值(初始化方式: 不创建且不对接)"
     priority: P2
     precondition: |-
       1) 「公共管理-控制台」中已存在GaussDB组件
 
       2) GaussDB数据源名称: ${datasourceA}
     steps:
+      - action: 进入【离线开发 → 离线开发】页面
+        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发」页面, 点击「创建项目」
         expected: 进入创建项目页面
       - action: |-
@@ -65,10 +71,12 @@ cases:
       - action: 进入${nameA}项目的「数据源」页面
         expected: 数据源列表存在类型为GaussDB, 数据源名称为${nameA}_GaussDB的数据源记录
   - case_id: C0004
-    title: 验证「数据开发」GaussDB SQL任务创建功能正常
+    title: 验证「数据开发」GaussDB SQL任务创建完成目标操作且状态更新
     priority: P2
     precondition: "「离线开发-数据源」中已存在GaussDB Meta数据源, 数据源名称: ${datasourceA}"
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 右键「任务开发」, 选择GaussDB SQL任务
@@ -96,7 +104,7 @@ cases:
     priority: P0
     precondition: |-
       1. 平台中已配置 GaussDB 数据源，连接状态正常。
-      2. 准备三个对接GaussDB的离线SQL任务：
+      2. 配置三个对接GaussDB的离线SQL任务：
       ${task01}
       drop table if exists t_user;
       CREATE TABLE t_user (
@@ -112,6 +120,8 @@ cases:
       ${task03}
       CREATE INDEX if not exists idx_t_user_age ON t_user(age);
     steps:
+      - action: 进入【离线开发 → GaussDB SQL任务调度功能运行正常】页面
+        expected: 已进入【离线开发 → GaussDB SQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}, 临时运行后, 保存并提交
@@ -147,7 +157,7 @@ cases:
       );
 
 
-      3. 准备三个对接GaussDB的离线SQL任务：
+      3. 配置三个对接GaussDB的离线SQL任务：
       ${task01}
       INSERT INTO t_user (name, age, email) VALUES ('Alice', 25, 'alice@example.com');
 
@@ -159,6 +169,8 @@ cases:
       ${task03}
       DELETE FROM t_user WHERE name = 'Alice';
     steps:
+      - action: 进入【离线开发 → GaussDB SQL任务调度功能运行正常】页面
+        expected: 已进入【离线开发 → GaussDB SQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}, 临时运行后, 保存并提交
@@ -188,7 +200,7 @@ cases:
       );
 
 
-      3. 准备三个对接GaussDB的离线SQL任务：
+      3. 配置三个对接GaussDB的离线SQL任务：
       ${task01}
       SELECT * FROM t_user;
 
@@ -203,6 +215,8 @@ cases:
       GROUP BY age
       ORDER BY age;
     steps:
+      - action: 进入【离线开发 → GaussDB SQL任务调度功能运行正常】页面
+        expected: 已进入【离线开发 → GaussDB SQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}, 临时运行后, 保存并提交
@@ -216,7 +230,7 @@ cases:
       - action: 创建GaussDB SQL任务${task01}、${task02}、${task03}后, 提交到运维中心手动运行
         expected: 手动任务实例中新增该任务的实例记录并运行成功
   - case_id: C0008
-    title: 验证GaussDB数据源项目维度数据库绑定账号功能正常
+    title: 验证GaussDB数据源项目维度数据库绑定账号完成目标操作且状态更新
     priority: P2
     precondition: |-
       GaussDB 数据源已经配置root 和 test_user账号
@@ -251,6 +265,8 @@ cases:
 
       ​
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
@@ -269,7 +285,7 @@ cases:
     precondition: |-
       gaussdb建表语句:
 
-      -- 创建银行客户账户与交易测试表，涵盖多种 openGauss 支持的数据类型
+      -- 创建银行客户账户与交易数据表，涵盖多种 openGauss 支持的数据类型
       drop table if exists bank_customer_account;
       CREATE TABLE bank_customer_account (
           customer_id            BIGINT,                          -- 数值类型（整型）
@@ -320,20 +336,22 @@ cases:
       -- 查询所有列，验证插入
       SELECT * FROM bank_customer_account;
     steps:
+      - action: 进入【离线开发 → GaussDB全数据类型支持并返回结果】页面
+        expected: 已进入【离线开发 → GaussDB全数据类型支持并返回结果】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示正常
+        expected: 执行成功, 返回结果显示目标记录及字段值
       - action: 进入「离线开发-数据开发-手动任务」页面
         expected: 进入成功
       - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示正常
+        expected: 执行成功, 返回结果显示目标记录及字段值
       - action: 进入「离线开发-数据开发-临时查询」页面
         expected: 进入成功
       - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示正常
+        expected: 执行成功, 返回结果显示目标记录及字段值
   - case_id: C0010
-    title: 验证 GaussDB 语法提示功能正常
+    title: 验证 GaussDB 语法提示完成目标操作且状态更新
     priority: P1
     precondition: |-
       gaussdb 数据源中已存在表t_user, 建表语句如下:
@@ -346,6 +364,8 @@ cases:
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     steps:
+      - action: 进入【离线开发 → GaussDB 语法提示完成目标操作且状态更新】页面
+        expected: 已进入【离线开发 → GaussDB 语法提示完成目标操作且状态更新】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
@@ -360,10 +380,12 @@ cases:
     title: 验证 GaussDB 任务支持停止运行中的任务
     priority: P1
     precondition: |-
-      准备长时间执行 SQL：
+      配置长时间执行 SQL：
 
       select pg_sleep(100);
     steps:
+      - action: 进入【离线开发 → GaussDB 任务支持停止运行中的任务】页面
+        expected: 已进入【离线开发 → GaussDB 任务支持停止运行中的任务】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
@@ -377,7 +399,7 @@ cases:
     priority: P0
     precondition: |-
       gaussdb建表语句
-      -- 创建测试表
+      -- 创建数据表
       DROP TABLE IF EXISTS customer_transactions;
       CREATE TABLE customer_transactions (
           customer_id       BIGINT,
@@ -390,7 +412,7 @@ cases:
           remarks            TEXT
       );
 
-      -- 插入一些示例数据
+      -- 插入1 条示例数据
       INSERT INTO customer_transactions VALUES
           (1, 1001, 200.00, '2025-11-15 10:00:00+08', 'web', ARRAY['first', 'promo'], hll_add(hll_empty(), hll_hash_integer(1)), '首次登录'),
           (1, 1002, 150.00, '2025-11-16 12:10:00+08', 'mobile', ARRAY['repeat'], hll_add(hll_empty(), hll_hash_integer(2)), '常规交易'),
@@ -455,6 +477,8 @@ cases:
       日期函数：current_date、current_timestamp、trunc(arg1, arg2)、year()、timediff()、subtime(expr1,expr2)
       https://support.huaweicloud.com/distributed-devg-v8-gaussdb/gaussdb-12-2620.html
     steps:
+      - action: 进入【离线开发 → GaussDB 任务支持系统函数】页面
+        expected: 已进入【离线开发 → GaussDB 任务支持系统函数】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
@@ -486,6 +510,8 @@ cases:
       (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
       (4, 1002, 50.00, 'other', '2025-11-17 13:00:00+08', 'EUR', 'Misc fee');
     steps:
+      - action: 进入【离线开发 → GaussDB 任务支持自定义函数】页面
+        expected: 已进入【离线开发 → GaussDB 任务支持自定义函数】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 自定义函数, 右键「新建自定义函数」
@@ -561,6 +587,8 @@ cases:
     title: 验证 GaussDB 新建自定义函数(异常场景)
     priority: P2
     steps:
+      - action: 进入【离线开发 → GaussDB 新建自定义函数】页面
+        expected: 已进入【离线开发 → GaussDB 新建自定义函数】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 自定义函数, 右键「新建自定义函数」
@@ -605,9 +633,11 @@ cases:
       - action: 「参数说明」输入200个字符, 提交表单
         expected: 无红色提示
   - case_id: C0015
-    title: 验证 GaussDB 自定义函数增删改查功能正常
+    title: 验证 GaussDB 自定义函数增删改查完成目标操作且状态更新
     priority: P1
     steps:
+      - action: 进入【离线开发 → 函数管理】页面
+        expected: 已进入【离线开发 → 函数管理】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-函数管理」页面
         expected: 进入成功
       - action: |-
@@ -673,6 +703,8 @@ cases:
       (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
       (4, 1002, 50.00, 'other', '2025-11-17 13:00:00+08', 'EUR', 'Misc fee');
     steps:
+      - action: 进入【离线开发 → GaussDB 任务支持存储过程】页面
+        expected: 已进入【离线开发 → GaussDB 任务支持存储过程】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 存储过程, 右键「新建存储过程」
@@ -742,6 +774,8 @@ cases:
     title: 验证 GaussDB 新建存储过程(异常场景)
     priority: P2
     steps:
+      - action: 进入【离线开发 → GaussDB 新建存储过程】页面
+        expected: 已进入【离线开发 → GaussDB 新建存储过程】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 存储过程, 右键「新建存储过程」
@@ -786,9 +820,11 @@ cases:
       - action: 「参数说明」输入200个字符, 提交表单
         expected: 无红色提示
   - case_id: C0018
-    title: 验证 GaussDB 存储过程增删改查功能正常
+    title: 验证 GaussDB 存储过程增删改查完成目标操作且状态更新
     priority: P1
     steps:
+      - action: 进入【离线开发 → 函数管理】页面
+        expected: 已进入【离线开发 → 函数管理】页面，显示页面标题与主要操作区域
       - action: 进入「离线开发-数据开发-函数管理」页面
         expected: 进入成功
       - action: |-
@@ -822,14 +858,14 @@ cases:
       - action: 右键删除 proc_account_summary 存储过程
         expected: "Toast提示: 删除成功"
   - case_id: C0019
-    title: 验证 GaussDB 任务一键发布&导入导出发布功能正常
+    title: 验证 GaussDB 任务一键发布&导入导出发布完成目标操作且状态更新
     priority: P0
     precondition: |-
       存在两个项目projectA(测试项目), projectB(生产项目), 项目A, B均已对接gaussdb数据源
 
       gaussdb建表语句:
 
-      -- 创建银行客户账户与交易测试表，涵盖多种 openGauss 支持的数据类型
+      -- 创建银行客户账户与交易数据表，涵盖多种 openGauss 支持的数据类型
       drop table if exists bank_customer_account;
       CREATE TABLE bank_customer_account (
           customer_id            BIGINT,                          -- 数值类型（整型）
@@ -880,6 +916,8 @@ cases:
       -- 查询所有列，验证插入
       SELECT * FROM bank_customer_account;
     steps:
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
       - action: 进入projectA(测试项目) -> 数据开发-周期任务
         expected: 进入成功
       - action: 创建gaussdb sql任务taskA, 执行建表语句后, 保存并发布
@@ -893,7 +931,7 @@ cases:
       - action: 切换到projectB(生产项目) -> 数据开发-周期任务
         expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
       - action: 临时运行任务taskA后删除
-        expected: 运行/删除成功, GaussDB 任务一键发布功能正常
+        expected: 运行/删除成功, GaussDB 任务一键发布完成目标操作且状态更新
       - action: 进入projectB(生产项目) -> 任务发布 -> 发布至本项目
         expected: 进入成功
       - action: 点击「导入发布包」, 选择zip文件${fileA}后, 点击「发布」按钮
@@ -903,15 +941,17 @@ cases:
       - action: 检查 projectB(生产项目) -> 数据开发-周期任务
         expected: 新增周期任务taskA, 任务内容与projectA(测试项目)中的taskA保持一致
       - action: 临时运行任务taskA
-        expected: 运行成功, GaussDB 任务导入导出发布功能正常
+        expected: 运行成功, GaussDB 任务导入导出发布完成目标操作且状态更新
   - case_id: C0020
-    title: 验证 GaussDB 数据源映射配置功能正常
+    title: 验证 GaussDB 数据源映射配置完成目标操作且状态更新
     priority: P1
     precondition: |-
       存在两个项目projectA(测试项目), projectB(生产项目)
       1. projectA(测试项目)已对接gaussdb数据源${datasourceA}
       2. projectB(生产项目)已对接gaussdb数据源${datasourceB}
     steps:
+      - action: 进入【离线开发 → 数据源】页面
+        expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
       - action: 进入projectA(测试项目) -> 数据源
         expected: 进入成功
       - action: 选择数据源${datasourceA}, 点击「映射配置」

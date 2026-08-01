@@ -9,6 +9,8 @@ cases:
     title: 验证Spark环境参数配置生效(spark.driver.maxResultSize)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -22,11 +24,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0002
     title: 验证Spark环境参数配置生效(logLevel)
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -40,11 +43,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0003
     title: 验证Spark环境参数配置生效(spark.speculation)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -58,11 +62,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0004
     title: 验证Spark环境参数配置生效(spark.network.timeout)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -76,11 +81,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0005
     title: 验证Spark环境参数配置生效(spark.sql.shuffle.partitions)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -94,11 +100,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0006
     title: 验证Spark环境参数配置生效(spark.yarn.executor.memoryOverhead)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -112,11 +119,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0007
     title: 验证Spark环境参数配置生效(spark.driver.memory)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -130,11 +138,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0008
     title: 验证Spark环境参数配置生效(spark.driver.cores)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -148,11 +157,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0009
     title: 验证Spark环境参数配置生效(spark.executor.memory)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -162,15 +172,16 @@ cases:
       - action: 运行规则任务
         expected: 任务运行成功, 校验结果正常
       - action: 进入Apache Hadoop YARN界面, 检查【Allocated Memory MB】字段下, 对应任务的值
-        expected: 单个 Container 的 Allocated Memory MB 应显著增加（通常显示为 2048MB + Overhead
+        expected: 单个 Container 的 Allocated Memory MB 应显著增加（在默认配置下显示为 2048MB + Overhead
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0010
     title: 验证Spark环境参数配置生效(spark.executor.cores)
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -184,11 +195,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0011
     title: 验证Spark环境参数配置生效(spark.executor.instances)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -202,29 +214,31 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0012
-    title: 验证规则任务详情-环境参数显示正常(SparkThrift2.x)
+    title: 验证规则任务详情-环境参数显示目标记录及字段值(SparkThrift2.x)
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
         expected: 进入【新建单表校验规则 ❯ 调度属性】配置页面
       - action: 点击【环境参数配置】
-        expected: 进入【环境参数配置】页面, 可进行编辑, 默认内容:## Driver程序使用的CPU核数,默认为1# spark.driver.cores=1## Driver程序使用内存大小,默认1g# spark.driver.memory=1g## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。## 若Job结果超过限制则会异常退出，若结果集限制过大也可能造成OOM问题，默认1g# spark.driver.maxResultSize=1g## 启动的executor的数量，默认为1# spark.executor.instances=1## 每个executor使用的CPU核数，默认为1# spark.executor.cores=1## 每个executor内存大小,默认1g# spark.executor.memory=1g## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN# logLevel = INFO## spark中所有网络交互的最大超时时间# spark.network.timeout=120s## executor的OffHeap内存，和spark.executor.memory配置使用# spark.yarn.executor.memoryOverhead=## 设置spark sql shuffle分区数，默认200# spark.sql.shuffle.partitions=200## 开启spark推测行为，默认false# spark.speculation=false
+        expected: 进入【环境参数配置】页面, 可进行编辑, 默认内容:## Driver程序使用的CPU核数,默认为1# spark.driver.cores=1## Driver程序使用内存大小,默认1g# spark.driver.memory=1g## 对Spark每个action结果集大小的限制，最少是1M，若设为0则不限制大小。## 若Job结果超过限制则会异常退出，若结果集限制过大也当造成OOM问题，默认1g# spark.driver.maxResultSize=1g## 启动的executor的数量，默认为1# spark.executor.instances=1## 每个executor使用的CPU核数，默认为1# spark.executor.cores=1## 每个executor内存大小,默认1g# spark.executor.memory=1g## spark 日志级别可选ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN# logLevel = INFO## spark中所有网络交互的最大超时时间# spark.network.timeout=120s## executor的OffHeap内存，和spark.executor.memory配置使用# spark.yarn.executor.memoryOverhead=## 设置spark sql shuffle分区数，默认200# spark.sql.shuffle.partitions=200## 开启spark根据实际值行为，默认false# spark.speculation=false
       - action: 保存后, 进入规则任务详情页中, 点击【环境参数】
-        expected: 展开环境参数抽屉, 参数显示正常
+        expected: 展开环境参数抽屉, 参数显示目标记录及字段值
       - action: 运行规则任务
         expected: 运行成功, 校验结果正常
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0013
     title: 验证调度属性编辑环境参数配置(SparkThrift2.x)
     priority: P0
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -238,11 +252,12 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类
   - case_id: C0014
     title: 验证调度属性新增环境参数配置(SparkThrift2.x)
     priority: P1
     steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 已进入【数据质量 → 规则任务管理】页面，显示页面标题与主要操作区域
       - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
         expected: 进入成功
       - action: 点击新建监控规则, 依次配置监控对象(SparkThrift2.x), 监控规则后, 点击下一步
@@ -256,4 +271,3 @@ cases:
     precondition: 无
     tags:
       - 规则任务管理
-      - 未分类

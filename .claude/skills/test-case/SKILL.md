@@ -28,6 +28,10 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 
 3. 执行
    - create/update workflow 按确认范围维护 `prd/prd.md`、`cases/test-points.md` 和 `cases/<name>.yaml`；只通过 `kata cases build` 生成 exports。
+   - YAML 用例首步骤必须独立写页面入口 `进入【实际一级模块 → 实际页面】页面`；前置条件只写权限所需的角色登录，不写泛化登录状态。
+   - 触发数据准备时，在前置条件固定声明数据源占位符、精确数据源类型、数据库占位符和完整 SQL；需求沉默时显式使用 `SparkThrift2.x`，不能把其他类型的 SQL 当作 Spark。
+   - 表名遵循 `test_table_<requirement_id>_<case_id>`；多表只允许 `source/target/comparison/dimension` 角色，运行后缀由自动化运行时追加。
+   - 不读取 `config/`；所有禁词、页面入口、数据源配对、方言和表名硬规则通过 `kata cases lint/build` 执行。
    - 完成条件：每个测试点可追溯到 PRD，每条用例可追溯到测试点，未伪造自动化映射或占位脚本。
 
 4. 验证
@@ -46,6 +50,7 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 - create 流程在最终发布确认前不写 `prd/prd.md`；正式产物不包含「待确认」「用户确认补充」或模型工作提示。
 - YAML 是唯一用例源；不手改 `cases/exports/`，也不为缺失自动化伪造 `automation.spec_file`、占位脚本或通过状态。纯接口用例写 `automation.executor: api`，不得同时声明 Playwright `spec_file`。
 - 环境与数据使用语义化占位符，不写真实凭据、Cookie 或私密配置。
+- 禁止把“准备、尝试、可能、类似、已登录、数据正确、功能正常”等含糊或状态残留写进用例语义字段；`用户确认补充` 等过程文字也不得进入正式产物。
 
 ## References
 

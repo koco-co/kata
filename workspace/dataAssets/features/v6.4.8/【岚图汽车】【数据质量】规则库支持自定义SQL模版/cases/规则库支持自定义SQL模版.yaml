@@ -8,6 +8,8 @@ cases:
     title: 验证文案调整
     priority: P2
     steps:
+      - action: 进入【数据质量 → 自定义正则】页面
+        expected: 已进入【数据质量 → 自定义正则】页面，显示页面标题与主要操作区域
       - action: 查看原先的“自定义规则”tab名称
         expected: 已成功修改为“自定义正则”
       - action: 查看原先“新增自定义规则”按钮名称
@@ -20,6 +22,8 @@ cases:
     title: 验证规则模式字段删除
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义正则】页面
+        expected: 已进入【数据质量 → 自定义正则】页面，显示页面标题与主要操作区域
       - action: 查看自定义正则列表
         expected: 「规则模式」字段已删除，不显示
       - action: 点击「新增自定义正则」按钮，新增页面「规则模式」字段已删除不显示
@@ -36,6 +40,8 @@ cases:
     title: 验证新增「自定义SQL模版」tab
     priority: P2
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: “自定义正则”tab右侧，已新增tab“自定义sql模版”
         expected: 名称正确
       - action: 点击“自定义sql模版”tab
@@ -48,10 +54,12 @@ cases:
     title: 验证搜索
     priority: P2
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 提示词：请输入规则名称进行搜索
         expected: 提示词正确
       - action: 支持规则名称搜索输入模糊搜索
-        expected: 搜索结果正确
+        expected: 搜索结果与预期记录一致
     precondition: 无
     tags:
       - 数据质量-规则库管理
@@ -60,12 +68,14 @@ cases:
     title: 验证列表展示
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 列表展示规则名称、规则分类、关联范围、关联规则数、规则描述、操作
         expected: 列表字段显示正确
       - action: 支持规则分类筛选，点击漏斗，枚举内容支持多选
-        expected: 筛选结果正确
+        expected: 筛选结果与预期记录一致
       - action: 支持规则范围筛选，点击漏斗，枚举内容支持多选
-        expected: 筛选结果正确
+        expected: 筛选结果与预期记录一致
       - action: 查看关联规则数
         expected: 数量正确
     precondition: 无
@@ -76,6 +86,8 @@ cases:
     title: 验证列表排序
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 按照修改时间倒排
         expected: 排序正确
     precondition: 无
@@ -86,6 +98,8 @@ cases:
     title: 验证新增自定义sql模版
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 点击「新增自定义sql模版」
         expected: 成功进入新增页面，自定义sql模版  >  新建自定义sql模版
       - action: 基本信息：输入合法的规则名称、规则分类、关联范围、规则描述
@@ -111,6 +125,8 @@ cases:
     title: 验证规则名称
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 提示词：请输入
         expected: 提示词正确
       - action: 必填
@@ -128,6 +144,8 @@ cases:
     title: 验证规则分类
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 提示词：请选择
         expected: 提示词正确
       - action: 选择枚举
@@ -145,6 +163,8 @@ cases:
     title: 验证关联范围 提示词：请选择 提示词正确
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: ""
         expected: ""
     precondition: 无
@@ -156,6 +176,8 @@ cases:
     title: 验证关联范围 选择枚举 字段级/表级/多表
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: ""
         expected: ""
     precondition: 无
@@ -167,6 +189,8 @@ cases:
     title: 验证关联范围 必选 为空提示
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: ""
         expected: ""
     precondition: 无
@@ -178,6 +202,8 @@ cases:
     title: 验证关联范围 仅支持单选 选择成功
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: ""
         expected: ""
     precondition: 无
@@ -189,6 +215,8 @@ cases:
     title: 验证规则描述
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 提示词：请输入
         expected: 提示词正确
       - action: 必填
@@ -204,6 +232,8 @@ cases:
     title: 验证全局参数
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 点击全局参数
         expected: 成功出现全局参数弹框
       - action: 查看内容
@@ -217,6 +247,8 @@ cases:
     title: 验证Sql面板
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 输入sql
         expected: 输入成功
       - action: sql支持参数化
@@ -230,6 +262,8 @@ cases:
     title: 验证参数列表
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 若输入sql无参数化
         expected: 参数列表显示暂无数据
       - action: 输入sql包含3个参数化字段
@@ -249,6 +283,8 @@ cases:
     title: 验证参数列表
     priority: P2
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 参数来源sql输入的参数${xxxx}
         expected: 保存一致
       - action: 排序
@@ -262,6 +298,8 @@ cases:
     title: 验证类型选择
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 必选
         expected: 为空提示
       - action: 选择枚举包含
@@ -287,6 +325,8 @@ cases:
     title: 验证参数名称
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 当类型选择当前校验表
         expected: 参数名称置灰无需配置
       - action: 当类型选择其他类型
@@ -304,6 +344,8 @@ cases:
     title: 验证参数说明
     priority: P1
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 非必填
         expected: 支持为空
       - action: 最大支持输入255
@@ -319,6 +361,8 @@ cases:
     title: 验证详情
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 点击列表自定义sql模版名称
         expected: 成功出现详情页面
       - action: 查看详情字段及值
@@ -332,6 +376,8 @@ cases:
     title: 验证编辑
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 点击编辑按钮
         expected: 成功进入编辑页面，面包屑正确：自定义sql模版  >  编辑自定义sql模版
       - action: 编辑规则和新增校验规则一致，必填信息正确修改，点击保存
@@ -351,6 +397,8 @@ cases:
     title: 验证删除
     priority: P0
     steps:
+      - action: 进入【数据质量 → 自定义SQL模版】页面
+        expected: 已进入【数据质量 → 自定义SQL模版】页面，显示页面标题与主要操作区域
       - action: 未被自定义sql引用的模版，点击删除按钮，二次确认是否可以删除，点击确定
         expected: 删除成功
       - action: 已被被自定义sql引用的模版，点击删除按钮，二次确认是否可以删除，点击确定
@@ -364,6 +412,8 @@ cases:
     title: 验证新建监控配置-自定义sql
     priority: P0
     steps:
+      - action: 进入【数据质量 → 数据质量-规则任务配置】页面
+        expected: 已进入【数据质量 → 数据质量-规则任务配置】页面，显示页面标题与主要操作区域
       - action: 点击新建监控配置，「监控对象」配置页面正确填写，点击下一步
         expected: 成功进入「监控规则」配置页面
       - action: 点击添加规则，选择自定义SQL，规则类型选择：完整性，引用规则选择：自定义SQL模版xx
@@ -381,11 +431,12 @@ cases:
     precondition: 无
     tags:
       - 数据质量-规则任务配置
-      - 未分类
   - case_id: C0026
     title: 验证自定义sql-规则类型
     priority: P1
     steps:
+      - action: 进入【数据质量 → 数据质量-规则任务配置】页面
+        expected: 已进入【数据质量 → 数据质量-规则任务配置】页面，显示页面标题与主要操作区域
       - action: 提示词：选择规则类型
         expected: 提示词正确
       - action: 选择枚举
@@ -397,11 +448,12 @@ cases:
     precondition: 无
     tags:
       - 数据质量-规则任务配置
-      - 未分类
   - case_id: C0027
     title: 验证自定义sql-引用规则
     priority: P0
     steps:
+      - action: 进入【数据质量 → 数据质量-规则任务配置】页面
+        expected: 已进入【数据质量 → 数据质量-规则任务配置】页面，显示页面标题与主要操作区域
       - action: 提示词：选择引用规则
         expected: 提示词正确
       - action: 选择枚举
@@ -417,21 +469,23 @@ cases:
     precondition: 无
     tags:
       - 数据质量-规则任务配置
-      - 未分类
   - case_id: C0028
     title: 验证自定义sql-sql面板
     priority: P1
     steps:
+      - action: 进入【数据质量 → 数据质量-规则任务配置】页面
+        expected: 已进入【数据质量 → 数据质量-规则任务配置】页面，显示页面标题与主要操作区域
       - action: 引用规则选择「自定义模版」
         expected: sql面板正常回显sql模版填写的sql，且不支持编辑；若引用的sql模版填写SQL发生变更，规则编辑更新
     precondition: 无
     tags:
       - 数据质量-规则任务配置
-      - 未分类
   - case_id: C0029
     title: 验证自定义sql：引用规则选择「自定义模版」-参数列表
     priority: P0
     steps:
+      - action: 进入【数据质量 → 数据质量-规则任务配置】页面
+        expected: 已进入【数据质量 → 数据质量-规则任务配置】页面，显示页面标题与主要操作区域
       - action: 引用规则选择「自定义模版」
         expected: 参数列表根据模版展示；若模版发生变更，此处同步更新
       - action: 参数、参数类型、参数名称，和模版配置的一样
@@ -443,11 +497,12 @@ cases:
     precondition: 无
     tags:
       - 数据质量-规则任务配置
-      - 未分类
   - case_id: C0030
     title: 验证校验字段
     priority: P1
     steps:
+      - action: 进入【数据质量 → 数据质量-规则任务配置】页面
+        expected: 已进入【数据质量 → 数据质量-规则任务配置】页面，显示页面标题与主要操作区域
       - action: 引入的自定义sql模版约定了“关联范围”为“字段级，多表”
         expected: 支持选择校验字段，反之不支持选择？
       - action: 单表
@@ -461,11 +516,12 @@ cases:
     precondition: 无
     tags:
       - 数据质量-规则任务配置
-      - 未分类
   - case_id: C0031
     title: 验证自定义sql任务运行结果查看
     priority: P0
     steps:
+      - action: 进入【数据质量 → 数据质量-任务实例查询】页面
+        expected: 已进入【数据质量 → 数据质量-任务实例查询】页面，显示页面标题与主要操作区域
       - action: 查看监控报告
         expected: 支持校验未通过（数量）、校验通过（数量）tab切换
       - action: 选中校验未通过「数量」tab
@@ -475,11 +531,11 @@ cases:
       - action: 点击查看明细
         expected: 成功打开明细弹框，明细内容正确，明细列表展示不符合要求的2条数据，展示数据表内的全部字段
       - action: 支持通过运行时间筛选
-        expected: 筛选结果正确
+        expected: 筛选结果与预期记录一致
       - action: 若配置规则时选择“校验字段”：end_time1、start_time1
         expected: 明细表end_time1、start_time1标红展示，显示正确
       - action: 点击下载明细
-        expected: 受筛选条件影响，下载成功，下载结果正确，校验字段标红
+        expected: 受筛选条件影响，下载成功，下载结果与预期记录一致，校验字段标红
     precondition: |-
       1、 配置自定义sql模版，${自定义sql模版名称}
       配置规则分类：完整性
@@ -503,11 +559,12 @@ cases:
       4、 周期任务运行成功
     tags:
       - 数据质量-任务实例查询
-      - 未分类
   - case_id: C0032
     title: 验证验证自定义sql质量报告-规则校验明细
     priority: P0
     steps:
+      - action: 进入【数据质量 → 数据质量-质量报告】页面
+        expected: 已进入【数据质量 → 数据质量-质量报告】页面，显示页面标题与主要操作区域
       - action: 查看质量报告-规则校验明细
         expected: 列表显示：规则类型  规则名称  字段名称  字段类型  质检结果  未通过原因  详情说明  操作
       - action: 查看规则类型
@@ -552,4 +609,3 @@ cases:
       5、 生成质量报告
     tags:
       - 数据质量-质量报告
-      - 未分类
