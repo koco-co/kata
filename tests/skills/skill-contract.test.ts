@@ -210,7 +210,7 @@ describe("skill contract", () => {
     expect(infraPlaybook).toContain("主机使用 `server-default`");
     expect(infraPlaybook).toContain("数据源使用 `data-source-default`");
     expect(infraPlaybook).not.toContain("每个 host 或 data source 必须显式绑定");
-    expect(infraPlaybook).not.toMatch(/printf\s+['\"]%s/);
+    expect(infraPlaybook).not.toMatch(/printf\s+['"]%s/);
     expect(infraPlaybook).toContain("不要把密码写入脚本、命令行、shell 历史或日志");
 
     const workspaceManagement = readSkillMd("workspace-management");
