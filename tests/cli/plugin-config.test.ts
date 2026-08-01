@@ -1,5 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -68,6 +78,21 @@ describe("plugin configuration", () => {
     updatePluginConfig("lanhu", { cookie: "fresh" }, value);
     expect(readFileSync(pluginConfigPath("lanhu", value), "utf8")).toContain("fresh");
     expect(statSync(pluginConfigPath("lanhu", value)).mode & 0o777).toBe(0o600);
+  });
+
+  test("rejects a symlinked local plugin directory before reading or writing", () => {
+    const value = root();
+    const outside = mkdtempSync(join(tmpdir(), "kata-plugin-outside-"));
+    const dir = join(value, "config", "plugin");
+    rmSync(dir, { recursive: true, force: true });
+    symlinkSync(outside, dir);
+    try {
+      expect(() => updatePluginConfig("lanhu", { cookie: "fresh" }, value)).toThrow(/符号链接/);
+      expect(existsSync(join(outside, "lanhu.yaml"))).toBe(false);
+    } finally {
+      rmSync(dir, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   test("migrates only supported non-empty dotenv values", () => {

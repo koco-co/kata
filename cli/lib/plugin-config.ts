@@ -10,9 +10,10 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { parse, stringify } from "yaml";
 import { readDotEnvFile } from "./env.ts";
+import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
 export type PluginConfigName = "lanhu" | "zentao" | "notify";
@@ -97,7 +98,18 @@ export function pluginExamplePath(
   return join(pluginDir(root), `${name}.example.yaml`);
 }
 
-function readYamlObject(path: string): Record<string, unknown> {
+function assertPluginPath(path: string, root: string): void {
+  const resolvedRoot = resolve(root);
+  const resolvedPath = resolve(path);
+  if (resolvedPath === resolvedRoot || resolvedPath.startsWith(`${resolvedRoot}${sep}`)) {
+    assertNoSymlinkPath(resolvedRoot, resolvedPath, "plugin config");
+    return;
+  }
+  assertNoSymlinkPath(dirname(resolvedPath), resolvedPath, "shared plugin config");
+}
+
+function readYamlObject(path: string, root: string): Record<string, unknown> {
+  assertPluginPath(path, root);
   if (!existsSync(path)) return {};
   const stat = lstatSync(path);
   if (stat.isSymbolicLink()) throw new Error(`${path} must not be a symbolic link`);
@@ -140,7 +152,8 @@ function envOverride(
   return scalar(configValue);
 }
 
-function writeYamlAtomic(path: string, value: unknown): void {
+function writeYamlAtomic(path: string, value: unknown, root: string): void {
+  assertPluginPath(path, root);
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
   chmodSync(dirname(path), 0o700);
   const tmp = `${path}.${randomUUID()}.tmp`;
@@ -160,7 +173,7 @@ export function writePluginConfig(
   root: string = defaultRepoRoot(),
 ): string {
   const path = pluginConfigPath(name, root);
-  writeYamlAtomic(path, value);
+  writeYamlAtomic(path, value, root);
   return path;
 }
 
@@ -170,8 +183,9 @@ export function updatePluginConfig(
   root: string = defaultRepoRoot(),
 ): string {
   const path = pluginConfigPath(name, root);
+  assertPluginPath(path, root);
   warnIfGitTracked(path, root);
-  const current = readYamlObject(path);
+  const current = readYamlObject(path, root);
   const merged: Record<string, unknown> = { ...current };
   for (const [key, value] of Object.entries(patch)) {
     if (isRecord(value) && isRecord(merged[key])) merged[key] = { ...merged[key], ...value };
@@ -197,7 +211,7 @@ export function loadLanhuConfig(
   root: string = defaultRepoRoot(),
   env: NodeJS.ProcessEnv = process.env,
 ): LanhuPluginConfig {
-  const raw = readYamlObject(pluginConfigPath("lanhu", root));
+  const raw = readYamlObject(pluginConfigPath("lanhu", root), root);
   return {
     cookie: envOverride(raw.cookie, env, "KATA_LANHU_COOKIE"),
     username: envOverride(raw.username, env, "KATA_LANHU_USERNAME"),
@@ -209,7 +223,7 @@ export function loadZentaoConfig(
   root: string = defaultRepoRoot(),
   env: NodeJS.ProcessEnv = process.env,
 ): ZentaoPluginConfig {
-  const raw = readYamlObject(pluginConfigPath("zentao", root));
+  const raw = readYamlObject(pluginConfigPath("zentao", root), root);
   return {
     base_url: envOverride(raw.base_url, env, "KATA_ZENTAO_BASE_URL"),
     cookie: envOverride(raw.cookie, env, "KATA_ZENTAO_COOKIE"),
@@ -222,7 +236,7 @@ export function loadNotifyConfig(
   root: string = defaultRepoRoot(),
   env: NodeJS.ProcessEnv = process.env,
 ): NotifyPluginConfig {
-  const raw = readYamlObject(pluginConfigPath("notify", root));
+  const raw = readYamlObject(pluginConfigPath("notify", root), root);
   const dingtalk = isRecord(raw.dingtalk) ? raw.dingtalk : {};
   const feishu = isRecord(raw.feishu) ? raw.feishu : {};
   const wecom = isRecord(raw.wecom) ? raw.wecom : {};
