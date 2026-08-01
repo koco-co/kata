@@ -4,8 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import JSZip from "jszip";
 import type { CasesFile } from "../../cli/lib/cases/types.ts";
-import { casesToIntermediate, renderXmind } from "../../cli/lib/cases/xmind/render.ts";
-import { UNCLASSIFIED } from "../../cli/lib/cases/xmind/xmind-render.ts";
+import { renderXmind } from "../../cli/lib/cases/xmind/render.ts";
 
 const CONTEXT = { version: "v6.4.9", featureKey: "dataAssets:v6.4.9/【数据质量】需求名" };
 
@@ -19,26 +18,6 @@ function file(cases: CasesFile["cases"]): CasesFile {
     cases,
   };
 }
-
-describe("casesToIntermediate", () => {
-  it("uses UNCLASSIFIED for the implicit page instead of duplicating the module name", () => {
-    const data = casesToIntermediate(
-      file([
-        {
-          id: "C0001",
-          title: "t",
-          priority: "P1",
-          tags: ["模块A"],
-          steps: [{ action: "a", expected: "e" }],
-        },
-      ]),
-      "dataAssets",
-      CONTEXT,
-    );
-    expect(data.modules[0].name).toBe("模块A");
-    expect(data.modules[0].pages[0].name).toBe(UNCLASSIFIED);
-  });
-});
 
 describe("renderXmind", () => {
   it("renders the requirement module id as an L1 label and keeps preconditions on case notes", async () => {

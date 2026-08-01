@@ -1,66 +1,22 @@
 import { describe, expect, it } from "bun:test";
-import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import JSZip from "jszip";
+import type { CaseItem } from "../../cli/lib/cases/types.ts";
 import {
   applyProgressiveFolding,
   buildL1Labels,
   buildL1Title,
   buildRootTitle,
-  createXmind,
-  createXmindReplacing,
   useStepsAsNotes,
-  validateInput,
 } from "../../cli/lib/cases/xmind/xmind-render.ts";
-import type { IntermediateJson, TestCase } from "../../cli/lib/intermediate-types.ts";
 import { buildRootName, loadXmindProjectConfig } from "../../cli/lib/xmind-rules.ts";
 
-function data(overrides: Partial<IntermediateJson["meta"]> = {}): IntermediateJson {
+function tc(steps: number): CaseItem {
   return {
-    meta: {
-      project_name: "dataAssets",
-      requirement_name: "需求A",
-      version: "v6.4.9",
-      ...overrides,
-    },
-    modules: [
-      {
-        name: "模块A",
-        pages: [{ name: "页面B", test_cases: [{ title: "t", priority: "P1", steps: [] }] }],
-      },
-    ],
-  };
-}
-
-function tc(steps: number): TestCase {
-  return {
+    id: "C0001",
     title: "t",
     priority: "P1",
-    steps: Array.from({ length: steps }, (_, i) => ({ step: `s${i}`, expected: `e${i}` })),
+    steps: Array.from({ length: steps }, (_, i) => ({ action: `s${i}`, expected: `e${i}` })),
   };
 }
-
-describe("validateInput", () => {
-  it("accepts a well-formed document", () => {
-    expect(() => validateInput(data())).not.toThrow();
-  });
-  it("reports the offending module index, not just the first module", () => {
-    const bad = data();
-    bad.modules.push({ name: "", pages: [] } as never);
-    expect(() => validateInput(bad)).toThrow(/modules\[1\]\.name/);
-  });
-  it("rejects a module without a pages array", () => {
-    const bad = data();
-    bad.modules[0] = { name: "模块A" } as never;
-    expect(() => validateInput(bad)).toThrow(/modules\[0\]\.pages/);
-  });
-  it("rejects a page without a name", () => {
-    const bad = data();
-    bad.modules[0].pages.push({} as never);
-    expect(() => validateInput(bad)).toThrow(/modules\[0\]\.pages\[1\]\.name/);
-  });
-});
 
 describe("applyProgressiveFolding", () => {
   it("returns folded content without mutating the source tree", () => {
@@ -140,21 +96,5 @@ describe("useStepsAsNotes", () => {
   });
   it("honors an explicit threshold", () => {
     expect(useStepsAsNotes(tc(2), { stepsAsNotes: true, stepsAsNotesMinSteps: 2 })).toBe(true);
-  });
-});
-
-describe("createXmindReplacing", () => {
-  it("atomically replaces an existing xmind", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "kata-cr-"));
-    const out = join(dir, "a.xmind");
-    await createXmind(data(), out);
-    await createXmindReplacing(data({ requirement_name: "需求B" }), out);
-    const zip = await JSZip.loadAsync(readFileSync(out));
-    const content = zip.file("content.json");
-    if (!content) throw new Error("missing content.json");
-    const sheets = JSON.parse(await content.async("string"));
-    const titles = sheets[0].rootTopic.children.attached.map((n: { title?: string }) => n.title);
-    expect(titles).toEqual(["需求B"]);
-    expect(readdirSync(dir).filter((f) => f.endsWith(".tmp"))).toEqual([]);
   });
 });
