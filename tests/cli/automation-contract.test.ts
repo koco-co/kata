@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
@@ -23,6 +23,15 @@ function writeSpec(feature: string, content: string, specFile = "c0001-sample-ca
 }
 
 describe("automation contract", () => {
+  it("rejects a cases directory that resolves through a symlink", () => {
+    const feature = fixture();
+    const outside = mkdtempSync(join(tmpdir(), "kata-contract-outside-"));
+    const casesDir = join(feature, "automation", "tests", "cases");
+    rmSync(casesDir, { recursive: true, force: true });
+    symlinkSync(outside, casesDir);
+    expect(() => inspectAutomationCoverage(feature)).toThrow(/不得经过符号链接/);
+  });
+
   it("surfaces implementationIssue for specs disabled via test.skip(true)", () => {
     const feature = fixture();
     writeSpec(

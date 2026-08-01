@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseCasesYaml, validateCases } from "../cases/parse.ts";
+import { assertNoSymlinkPath } from "../features-layout.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
 import { findMissingRelativeImports } from "./relative-imports.ts";
 
@@ -134,7 +135,9 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
   if (problems.length > 0) {
     throw new Error(`用例校验未通过:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
   }
-  const scripts = scriptFiles(join(featureDir, "automation", "tests", "cases"));
+  const casesDir = join(featureDir, "automation", "tests", "cases");
+  assertNoSymlinkPath(featureDir, casesDir, "automation cases");
+  const scripts = scriptFiles(casesDir);
   const byBase = new Map(scripts.map((path) => [basename(path), path]));
   const cases: AutomationCaseLink[] = file.cases.map((item) => {
     const specFile = item.automation?.spec_file;
@@ -158,10 +161,7 @@ export function inspectAutomationCoverage(featureDir: string): AutomationCoverag
         implementationIssue: "spec_file does not point to an existing script",
       };
     }
-    const classification = classifyScript(
-      join(featureDir, "automation", "tests", "cases", script),
-      item.title,
-    );
+    const classification = classifyScript(join(casesDir, script), item.title);
     return { id: item.id, title: item.title, specFile, ...classification };
   });
   const missingSpecFile = cases.filter((item) => !item.specFile).map((item) => item.id);
@@ -203,6 +203,8 @@ export function generateAutomationRunner(
   const coverage = inspectAutomationCoverage(featureDir);
   const casesDir = join(featureDir, "automation", "tests", "cases");
   const runnerDir = join(featureDir, "automation", "tests", "runners");
+  assertNoSymlinkPath(featureDir, casesDir, "automation cases");
+  assertNoSymlinkPath(featureDir, runnerDir, "automation runners");
   const repoRoot = locateProjectRoot();
   const full = join(featureDir, "automation", "tests", "runners", "full.spec.ts");
   const fullText = existsSync(full) ? readFileSync(full, "utf8") : "";

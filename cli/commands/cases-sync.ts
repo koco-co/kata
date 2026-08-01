@@ -14,6 +14,7 @@ import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { generateAutomationRunner } from "../lib/automation/automation-contract.ts";
 import { SPEC_FILE_RE } from "../lib/cases/naming.ts";
 import { parseCasesYaml } from "../lib/cases/parse.ts";
+import { assertNoSymlinkPath } from "../lib/features-layout.ts";
 import { findCasesYaml, resolveFeatureInput } from "./cases-build.ts";
 
 type SyncStatus = "rename" | "unchanged" | "unmapped" | "missing" | "conflict" | "invalid";
@@ -226,6 +227,8 @@ function reportFromPlan(
 }
 
 export function runCasesSync(featureDir: string, apply = false): CasesSyncReport {
+  const casesDir = automationDir(featureDir);
+  assertNoSymlinkPath(featureDir, casesDir, "automation cases");
   const { yamlPath } = findCasesYaml(featureDir);
   const plan = planSync(featureDir, yamlPath);
   const runners = runnerPaths(featureDir);
@@ -260,7 +263,6 @@ export function runCasesSync(featureDir: string, apply = false): CasesSyncReport
     ? readFileSync(runners.generated, "utf8")
     : undefined;
   const fullOriginal = existsSync(runners.full) ? readFileSync(runners.full, "utf8") : undefined;
-  const casesDir = automationDir(featureDir);
   const transaction = join(casesDir, `.kata-sync-${Date.now()}`);
   mkdirSync(transaction, { recursive: true });
   const staged = new Map<string, { stagePath: string; originalPath: string }>();
