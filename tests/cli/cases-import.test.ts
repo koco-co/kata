@@ -287,4 +287,41 @@ describe("case format imports", () => {
     );
     expect(readdirSync(featuresDir).filter((name) => name.startsWith(".kata-import-"))).toEqual([]);
   });
+
+  it("reports an applied split as false when every requirement has no cases", async () => {
+    const zip = new JSZip();
+    zip.file(
+      "content.json",
+      JSON.stringify([
+        {
+          rootTopic: {
+            title: "离线开发v6.4.5迭代用例(#24)",
+            children: {
+              attached: [{ title: "【客户】无用例需求" }],
+            },
+          },
+        },
+      ]),
+    );
+    const sourcePath = tempFile(
+      "empty-batch.xmind",
+      Buffer.from(await zip.generateAsync({ type: "nodebuffer" })),
+    );
+    const root = mkdtempSync(join(tmpdir(), "kata-split-empty-root-"));
+    const featuresDir = join(root, "workspace", "batchWorks", "features");
+    mkdirSync(featuresDir, { recursive: true });
+
+    const report = await runCasesSplitImport({
+      project: "batchWorks",
+      version: "v6.4.5",
+      from: sourcePath,
+      apply: true,
+      root,
+    });
+
+    expect(report.applied).toBe(false);
+    expect(report.features).toBe(0);
+    expect(report.skipped).toBe(1);
+    expect(readdirSync(featuresDir).filter((name) => name.startsWith(".kata-import-"))).toEqual([]);
+  });
 });

@@ -286,7 +286,7 @@ export async function runCasesSplitImport(opts: {
     throw error;
   }
 
-  report.applied = true;
+  report.applied = installed.length > 0;
   console.log(JSON.stringify(report, null, 2));
   return report;
 }
