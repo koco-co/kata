@@ -477,7 +477,7 @@ export function registerRuns(program: Command): void {
 
   runs
     .command("new <feature-path>")
-    .description("为需求功能分配新运行目录(等同旧 results path --new-run)")
+    .description("为需求功能分配新的规范运行目录")
     .requiredOption("--project <name>", "项目名")
     .option("--type <type>", `运行类型: ${RUN_TYPES.join("|")}`, "run")
     .action((featurePath: string, opts: { project: string; type: string }) => {

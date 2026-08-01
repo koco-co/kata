@@ -78,7 +78,7 @@ kata infra inspect <host> --check connectivity --project <project>
 运行依赖该环境的 Playwright 命令必须绑定到正式 run：
 
 ```bash
-kata runs exec <feature-id> --project dataAssets -- kata env run ci63 -- bunx playwright test <spec>
+kata runs exec <feature-path> --project dataAssets -- kata env run ci63 -- bunx playwright test <spec>
 ```
 
 `kata runs exec` 会创建 `workspace/<project>/features/<feature>/runs/<run-id>/`，并注入 `KATA_RUN_PATH`。Playwright 的公共配置来自 `config/automation/playwright.yaml`；Allure 原始结果和 HTML 报告直接生成在该 run 目录下。没有显式 run 路径时 Playwright 直接失败；仓库内不使用 `.runs/`。

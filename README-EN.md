@@ -140,7 +140,7 @@ Both `imports` and `exports` are relative to their respective directories. A bui
 Playwright must be bound to an explicit run; do not leave `.runs/` directories in the repository:
 
 ```bash
-kata runs exec <feature-id> --project dataAssets -- \
+kata runs exec <feature-path> --project dataAssets -- \
   kata env run ci63 -- bunx playwright test <spec>
 ```
 

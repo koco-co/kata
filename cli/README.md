@@ -99,7 +99,7 @@ Options:
 
 Commands:
   exec [options] <feature-path> <command...>  创建 run 并在该 run 环境中执行命令
-  new [options] <feature-path>                为需求功能分配新运行目录(等同旧 results path --new-run)
+  new [options] <feature-path>                为需求功能分配新的规范运行目录
   path [options] <feature-path>               输出需求功能最近一次运行目录
   verify [options]                            校验运行目录交付契约(status.json/allure-results/handoff.md)，失败退出码 1
   prune [options] [feature-path]              清理旧运行目录：保留最近 N 个 + baseline + 已发布
@@ -485,7 +485,7 @@ Options:
 ```text
 Usage: kata runs new [options] <feature-path>
 
-为需求功能分配新运行目录(等同旧 results path --new-run)
+为需求功能分配新的规范运行目录
 
 Options:
   --project <name>  项目名
