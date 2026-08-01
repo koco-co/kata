@@ -23,6 +23,16 @@ const LANHU_VENDOR_PY = resolve(
 const PROJECT_ROOT = resolve(__dirname, "../../..");
 
 const TMP_DIR = join(tmpdir(), `lanhu-fetch-test-${process.pid}`);
+const TEST_FEATURE_RELATIVE = join("v1", "【测试客户】【测试模块】蓝湖需求提取测试");
+
+function createFakeProjectRoot(name: string): { root: string; feature: string } {
+  const root = join(TMP_DIR, name);
+  const feature = join(root, "workspace", "dataAssets", "features", TEST_FEATURE_RELATIVE);
+  mkdirSync(feature, { recursive: true });
+  mkdirSync(join(root, "config", "plugin"), { recursive: true });
+  writeFileSync(join(root, "package.json"), JSON.stringify({ name: "kata-test-root" }));
+  return { root, feature };
+}
 
 afterEach(() => {
   try {
@@ -197,10 +207,7 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
   it("exits 1 when KATA_LANHU_COOKIE is not set", () => {
     // A fake repo root without config/plugin/lanhu.yaml guarantees "no cookie
     // configured" regardless of this machine's real private config.
-    const fakeRoot = join(TMP_DIR, "fake-root");
-    mkdirSync(join(fakeRoot, "workspace"), { recursive: true });
-    mkdirSync(join(fakeRoot, "config", "plugin"), { recursive: true });
-    writeFileSync(join(fakeRoot, "package.json"), JSON.stringify({ name: "kata-test-root" }));
+    const { root: fakeRoot, feature } = createFakeProjectRoot("fake-root");
 
     // Remove cookie/credential vars entirely: an explicit empty value falls back
     // to the config file, which the fake root does not provide either.
@@ -222,7 +229,7 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" prd extract --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d&versionId=v&pageId=p" --feature "${TMP_DIR}/feature"`,
+        `bun run "${KATA_TS}" prd extract --url "https://lanhuapp.com/web/#/item/project/product?tid=t&pid=p&docId=d&versionId=v&pageId=p" --feature "${feature}"`,
         {
           encoding: "utf8",
           cwd: fakeRoot,
@@ -246,16 +253,16 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
 
 describe("CLI: invalid URL format", () => {
   it("exits 1 for non-lanhu URL", () => {
-    mkdirSync(TMP_DIR, { recursive: true });
+    const { root, feature } = createFakeProjectRoot("invalid-url-root");
 
     let exitCode = 0;
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" prd extract --url "https://example.com/not-lanhu" --feature "${TMP_DIR}/feature"`,
+        `bun run "${KATA_TS}" prd extract --url "https://example.com/not-lanhu" --feature "${feature}"`,
         {
           encoding: "utf8",
-          cwd: PROJECT_ROOT,
+          cwd: root,
           env: { ...process.env, KATA_LANHU_COOKIE: "fake-cookie-for-url-test" },
           stdio: ["pipe", "pipe", "pipe"],
         },
@@ -276,16 +283,16 @@ describe("CLI: invalid URL format", () => {
   });
 
   it("exits 1 for URL missing required params", () => {
-    mkdirSync(TMP_DIR, { recursive: true });
+    const { root, feature } = createFakeProjectRoot("missing-params-root");
 
     let exitCode = 0;
     let stderr = "";
     try {
       execSync(
-        `bun run "${KATA_TS}" prd extract --url "https://lanhuapp.com/web/#/item/project/product?tid=only-tid" --feature "${TMP_DIR}/feature"`,
+        `bun run "${KATA_TS}" prd extract --url "https://lanhuapp.com/web/#/item/project/product?tid=only-tid" --feature "${feature}"`,
         {
           encoding: "utf8",
-          cwd: PROJECT_ROOT,
+          cwd: root,
           env: { ...process.env, KATA_LANHU_COOKIE: "fake-cookie-for-url-test" },
           stdio: ["pipe", "pipe", "pipe"],
         },
