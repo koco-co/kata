@@ -26,6 +26,21 @@ export interface ParsedFeatureDirName {
   title: string;
 }
 
+function assertSafeFeatureDirName(dirName: string): void {
+  if (
+    dirName === "." ||
+    dirName === ".." ||
+    dirName.includes("/") ||
+    dirName.includes("\\") ||
+    [...dirName].some((character) => {
+      const codePoint = character.codePointAt(0) ?? 0;
+      return codePoint <= 0x1f || codePoint === 0x7f;
+    })
+  ) {
+    throw new Error(`需求目录名不能包含路径分隔符或控制字符: ${dirName}`);
+  }
+}
+
 /** Parse the canonical feature directory name, or return undefined when malformed. */
 export function parseFeatureDirName(dirName: string): ParsedFeatureDirName | undefined {
   const match = dirName.match(/^(?:【(\d+)】)?(?:【([^【】]+)】)?【([^【】]+)】([^【】]+)$/);
@@ -53,6 +68,7 @@ export function buildFeatureDirName(opts: {
   parts.push(`【${opts.module}】`);
   const name = `${parts.join("")}${opts.description}`;
   if (!parseFeatureDirName(name)) throw new Error(`生成的目录名不符合需求目录协议: ${name}`);
+  assertSafeFeatureDirName(name);
   return name;
 }
 
@@ -188,7 +204,12 @@ export function resolveFeatureRunsDir(featuresRoot: string, featurePath: string)
  */
 export function resolveFeatureEntry(featuresRoot: string, selector: string): FeatureDirEntry {
   const normalized = selector.replaceAll("\\", "/").replace(/^\.\//, "");
-  if (!normalized.includes("/") || normalized.startsWith("/") || normalized.includes("../")) {
+  const segments = normalized.split("/");
+  if (
+    !normalized.includes("/") ||
+    normalized.startsWith("/") ||
+    segments.some((segment) => segment === "" || segment === "." || segment === "..")
+  ) {
     throw new Error(`需求功能必须使用相对 features/ 的完整路径: ${selector}`);
   }
   const matches = listFeatureDirs(featuresRoot).filter(

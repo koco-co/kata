@@ -50,6 +50,16 @@ describe("features resolve", () => {
     ).toThrow(/需求 ID/);
   });
 
+  it("rejects path separators in feature identity fields", () => {
+    const root = repo();
+    expect(() =>
+      runFeaturesResolve({ ...base, root, featureVersion: "v7.0.0", description: "需求/越界" }),
+    ).toThrow(/路径分隔符/);
+    expect(() =>
+      runFeaturesResolve({ ...base, root, featureVersion: "v7.0.0", module: "数据\\质量" }),
+    ).toThrow(/路径分隔符/);
+  });
+
   it("creates a standing path without duplicating a standing tag", () => {
     const root = repo();
     const result = runFeaturesResolve({ ...base, root, standing: true });
