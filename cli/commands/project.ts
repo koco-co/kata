@@ -5,7 +5,6 @@ import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { outputJson } from "../lib/cli.ts";
 import {
   diffProjectSkeleton,
-  migrateLegacyHistorys,
   renderTemplate,
   SKELETON_SPEC,
   TEMPLATE_ROOT_REL,
@@ -45,7 +44,6 @@ function missingPlan(diff: ReturnType<typeof diffProjectSkeleton>) {
 
 function applyMissing(project: string, dir: string, diff: ReturnType<typeof diffProjectSkeleton>) {
   mkdirSync(dir, { recursive: true });
-  const migration = migrateLegacyHistorys(dir);
   const created_dirs: string[] = [];
   for (const rel of diff.missing_dirs) {
     const abs = join(dir, rel);
@@ -67,7 +65,7 @@ function applyMissing(project: string, dir: string, diff: ReturnType<typeof diff
     created_files.push(dst);
   }
   writeIndexFile(project);
-  return { created_dirs, created_files, created_gitkeeps, legacy_renamed: migration.renamed };
+  return { created_dirs, created_files, created_gitkeeps };
 }
 
 /** Build the `project` command: scan / create / repair a workspace project. */
