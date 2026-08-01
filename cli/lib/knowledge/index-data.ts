@@ -16,21 +16,25 @@ import {
   renderIndex,
   todayIso,
 } from "../knowledge.ts";
-import { knowledgeDir } from "../knowledge-paths.ts";
+import { assertWritable } from "../path-policy.ts";
+import type { ProjectPaths } from "../types.ts";
+import { locateProject } from "../workspace-locator.ts";
 
 export function gatherIndexData(projectName: string): {
   data: IndexData;
   fixedFiles: string[];
 } {
-  const kdir = knowledgeDir(projectName);
+  const paths = locateProject(projectName);
+  const kdir = paths.knowledgeDir;
+  assertWritable(paths, kdir);
   const today = todayIso();
   const fixedFiles: string[] = [];
-  fixSingleKnowledgeFiles(kdir, today, fixedFiles);
+  fixSingleKnowledgeFiles(kdir, today, fixedFiles, paths);
 
-  const terms = scanAndFixKnowledgeDir(kdir, "terms", today, fixedFiles);
-  const modules = scanAndFixKnowledgeDir(kdir, "modules", today, fixedFiles);
-  const pitfalls = scanAndFixKnowledgeDir(kdir, "pitfalls", today, fixedFiles);
-  const sites = scanAndFixSites(kdir, today, fixedFiles);
+  const terms = scanAndFixKnowledgeDir(kdir, "terms", today, fixedFiles, paths);
+  const modules = scanAndFixKnowledgeDir(kdir, "modules", today, fixedFiles, paths);
+  const pitfalls = scanAndFixKnowledgeDir(kdir, "pitfalls", today, fixedFiles, paths);
+  const sites = scanAndFixSites(kdir, today, fixedFiles, paths);
 
   return {
     data: {
@@ -45,10 +49,16 @@ export function gatherIndexData(projectName: string): {
   };
 }
 
-function fixSingleKnowledgeFiles(kdir: string, today: string, fixedFiles: string[]): void {
+function fixSingleKnowledgeFiles(
+  kdir: string,
+  today: string,
+  fixedFiles: string[],
+  paths: ProjectPaths,
+): void {
   for (const single of ["overview.md"]) {
     const full = join(kdir, single);
     if (!existsSync(full)) continue;
+    assertWritable(paths, full);
     const raw = readFileSync(full, "utf8");
     const fix = autoFixFrontmatter(raw, full, today);
     if (fix.fixed) {
@@ -63,9 +73,11 @@ function scanAndFixKnowledgeDir(
   subdir: "terms" | "modules" | "pitfalls",
   today: string,
   fixedFiles: string[],
+  paths: ProjectPaths,
 ): IndexEntry[] {
   const dir = join(kdir, subdir);
   if (!existsSync(dir)) return [];
+  assertWritable(paths, dir);
   return readdirSync(dir).flatMap((f) => {
     if (!f.endsWith(".md")) return [];
     return scanAndFixKnowledgeFile(
@@ -74,16 +86,24 @@ function scanAndFixKnowledgeDir(
       `${subdir}/${f}`,
       today,
       fixedFiles,
+      paths,
     );
   });
 }
 
-function scanAndFixSites(kdir: string, today: string, fixedFiles: string[]): IndexEntry[] {
+function scanAndFixSites(
+  kdir: string,
+  today: string,
+  fixedFiles: string[],
+  paths: ProjectPaths,
+): IndexEntry[] {
   const sites: IndexEntry[] = [];
   const sitesDir = join(kdir, "sites");
   if (!existsSync(sitesDir)) return sites;
+  assertWritable(paths, sitesDir);
   for (const domainDir of readdirSync(sitesDir)) {
     const domainPath = join(sitesDir, domainDir);
+    assertWritable(paths, domainPath);
     if (!statSync(domainPath).isDirectory()) continue;
     for (const f of readdirSync(domainPath)) {
       if (!f.endsWith(".md")) continue;
@@ -94,6 +114,7 @@ function scanAndFixSites(kdir: string, today: string, fixedFiles: string[]): Ind
           `sites/${domainDir}/${f}`,
           today,
           fixedFiles,
+          paths,
         ),
       );
     }
@@ -107,7 +128,9 @@ function scanAndFixKnowledgeFile(
   fixedName: string,
   today: string,
   fixedFiles: string[],
+  paths: ProjectPaths,
 ): IndexEntry[] {
+  assertWritable(paths, full);
   let raw = readFileSync(full, "utf8");
   const fix = autoFixFrontmatter(raw, full, today);
   if (fix.fixed) {
@@ -145,7 +168,9 @@ export function writeIndexFile(projectName: string): {
 } {
   const { data, fixedFiles } = gatherIndexData(projectName);
   const out = renderIndex(projectName, data);
-  const indexPath = join(knowledgeDir(projectName), "_index.md");
+  const paths = locateProject(projectName);
+  const indexPath = join(paths.knowledgeDir, "_index.md");
+  assertWritable(paths, indexPath);
   writeFileSync(indexPath, out);
   return {
     terms_count: data.terms.length,

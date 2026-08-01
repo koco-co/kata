@@ -12,7 +12,8 @@
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { knowledgeDir } from "./knowledge-paths.ts";
+import { assertWritable } from "./path-policy.ts";
+import { locateProject } from "./workspace-locator.ts";
 
 // ── 类型 ────────────────────────────────────────────────────────────────────
 
@@ -113,21 +114,30 @@ export function saveSnapshot(
   beforeContent: string,
 ): string {
   if (!beforeContent) return "";
-  const kdir = knowledgeDir(project);
+  const paths = locateProject(project);
+  assertWritable(paths, absTargetPath);
+  const kdir = paths.knowledgeDir;
   const historyDir = join(kdir, HISTORY_DIR);
+  assertWritable(paths, historyDir);
   mkdirSync(historyDir, { recursive: true });
 
   const rel = absTargetPath.startsWith(kdir) ? absTargetPath.slice(kdir.length + 1) : absTargetPath;
   const flat = rel.replace(/[\\/]/g, "__");
   const snapshotName = `${todayStamp()}__${flat}__${shortHash(beforeContent)}.bak`;
-  writeFileSync(join(historyDir, snapshotName), beforeContent);
+  const snapshotPath = join(historyDir, snapshotName);
+  assertWritable(paths, snapshotPath);
+  writeFileSync(snapshotPath, beforeContent);
   return snapshotName;
 }
 
 export function appendAudit(project: string, record: AuditRecord): void {
-  const kdir = knowledgeDir(project);
+  const paths = locateProject(project);
+  const kdir = paths.knowledgeDir;
+  assertWritable(paths, kdir);
   mkdirSync(kdir, { recursive: true });
-  appendFileSync(join(kdir, AUDIT_FILE), `${JSON.stringify(record)}\n`);
+  const auditPath = join(kdir, AUDIT_FILE);
+  assertWritable(paths, auditPath);
+  appendFileSync(auditPath, `${JSON.stringify(record)}\n`);
 }
 
 export function buildAuditRecord(params: {

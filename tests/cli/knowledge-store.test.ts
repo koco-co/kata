@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readEntries, writeEntry } from "../../cli/lib/knowledge/store.ts";
@@ -137,5 +137,18 @@ describe("knowledge store", () => {
     const p = proj();
     writeEntry(p, entry({ type: "term", title: "数据血缘", body: "上下游关系" }));
     expect(readEntries(p, { types: ["term"] })[0]?.title).toBe("数据血缘");
+  });
+
+  it("rejects writes through a symlinked knowledge subdirectory", () => {
+    const p = proj();
+    const outside = mkdtempSync(join(tmpdir(), "kata-kn-outside-"));
+    const target = join(p.knowledgeDir, "pitfalls");
+    symlinkSync(outside, target);
+    try {
+      expect(() => writeEntry(p, entry({ title: "不要越界写入" }))).toThrow(/符号链接/);
+    } finally {
+      rmSync(target, { force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 });

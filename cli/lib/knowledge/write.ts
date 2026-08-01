@@ -22,6 +22,8 @@ import {
   saveSnapshot,
 } from "../knowledge-guard.ts";
 import { knowledgePath } from "../knowledge-paths.ts";
+import { assertWritable } from "../path-policy.ts";
+import { locateProject } from "../workspace-locator.ts";
 import { upsertOverviewSection, writeIndexFile } from "./index-data.ts";
 import { isKnowledgeStatus, type KnowledgeStatus } from "./types.ts";
 
@@ -162,7 +164,9 @@ function buildWritePlan(opts: OverviewWriteOptions, today: string): WritePlan {
 
 function buildOverviewWritePlan(opts: OverviewWriteOptions, today: string): WritePlan {
   const parsed = parseContentJson<ContentOverview>("overview", opts.content);
+  const paths = locateProject(opts.project);
   const targetPath = knowledgePath(opts.project, "overview.md");
+  assertWritable(paths, targetPath);
   const beforeContent = existsSync(targetPath) ? readFileSync(targetPath, "utf8") : "";
   const file = parseFrontmatter(beforeContent);
   if (file.frontmatter?.status === "observed" && opts.status === "verified" && !opts.confirmed) {

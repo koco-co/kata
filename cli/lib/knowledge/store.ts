@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { writeFileAtomic } from "../atomic-writer.ts";
 import { parseFrontmatter } from "../knowledge.ts";
 import { knowledgeDirFromPaths } from "../knowledge-paths.ts";
+import { assertWritable } from "../path-policy.ts";
 import type { ProjectPaths } from "../types.ts";
 import type { KnowledgeEntry, KnowledgeType } from "./types.ts";
 
@@ -65,7 +66,9 @@ function existingEntryPath(dir: string, entry: KnowledgeEntry): string | undefin
 /** 写入条目(同名复用旧路径),返回文件路径。 */
 export function writeEntry(paths: ProjectPaths, entry: KnowledgeEntry): string {
   const dir = knowledgeDirFromPaths(paths);
+  assertWritable(paths, dir);
   const file = existingEntryPath(dir, entry) ?? entryPath(dir, entry);
+  assertWritable(paths, file);
   mkdirSync(join(file, ".."), { recursive: true });
   writeFileAtomic(file, serialize(entry));
   return file;
