@@ -53,6 +53,16 @@ function importPath(from: string, to: string): string {
 }
 
 describe("repository policy", () => {
+  it("keeps the deleted standalone contributor guide outside the root allow-list", () => {
+    const repoRoot = resolve(import.meta.dir, "../..");
+    const policy = parse(
+      readFileSync(join(repoRoot, "config", "policies", "repo-policy.yaml"), "utf8"),
+    ) as { root: { allowed_files: string[] } };
+
+    expect(existsSync(join(repoRoot, "CONTRIBUTING.md"))).toBe(false);
+    expect(policy.root.allowed_files).not.toContain("CONTRIBUTING.md");
+  });
+
   it("exposes the current-repository check through kata repo lint without a root script", () => {
     const repoRoot = resolve(import.meta.dir, "../..");
     expect(existsSync(join(repoRoot, "scripts", "check-repository-policy.ts"))).toBe(false);

@@ -13,6 +13,9 @@ config/automation/ Playwright 运行时行为配置，纳入 Git
 `kata config doctor` 会检查两者。整个私密目录均被 Git 忽略，任何真实值都不得提交。
 `config/policies/`、`config/examples/`、`config/automation/` 和本 README 必须纳入 Git。
 
+`policies/repo-policy.yaml` 同时锁定根目录文档边界：贡献与工程规则统一维护在
+`CLAUDE.md`（`AGENTS.md` 指向同一内容），不再保留独立的 `CONTRIBUTING.md`。
+
 每个私密配置文件只对应一个脱敏模板，精确关系由下方生成区维护。模板只保留字段结构、
 默认行为和填写说明，可以复制使用，但不得写入真实地址、Cookie、密码、Webhook、签名密钥、
 SSH 指纹或内部仓库拓扑。已有本机私密文件不会被文档生成命令覆盖。

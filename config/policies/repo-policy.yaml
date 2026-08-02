@@ -6,7 +6,6 @@ root:
     - .gitattributes
     - .gitignore
     - CLAUDE.md
-    - CONTRIBUTING.md
     - INSTALL.md
     - LICENSE
     - README-EN.md
