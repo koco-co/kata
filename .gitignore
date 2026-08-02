@@ -2,6 +2,8 @@
 node_modules
 package-lock.json
 .env
+.env.envs
+.env.local
 config.json
 # Private runtime config root: everything under config/private/ is local-only.
 # Tracked config lives in config/policies/, config/examples/ and config/automation/.
