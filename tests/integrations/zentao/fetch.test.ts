@@ -47,7 +47,7 @@ function strippedZentaoEnv(): NodeJS.ProcessEnv {
 }
 
 // Minimal fake repo root (workspace/ + package.json) so locateProjectRoot resolves
-// there and config/plugin/zentao.yaml never exists — the missing-config branch is
+// there and config/private/integrations/zentao.yaml never exists — the missing-config branch is
 // deterministic regardless of this machine's real plugin config.
 function makeFakeRoot(): string {
   const root = join(TMP_DIR, "fakeroot");
@@ -347,10 +347,10 @@ describe("CLI: missing env vars", () => {
   });
 });
 
-// ─── CLI: config root resolution（回归：fetch 必须以仓库根定位 config/plugin/zentao.yaml）───
+// ─── CLI: config root resolution（回归：fetch 必须以仓库根定位 config/private/integrations/zentao.yaml）───
 
 describe("CLI: config root resolution", () => {
-  it("points at <root>/config/plugin/zentao.yaml and names the env overrides", () => {
+  it("points at <root>/config/private/integrations/zentao.yaml and names the env overrides", () => {
     mkdirSync(TMP_DIR, { recursive: true });
     const fakeRoot = makeFakeRoot();
 
@@ -374,13 +374,13 @@ describe("CLI: config root resolution", () => {
     }
 
     assert.equal(exitCode, 1, "should exit with code 1");
-    const expectedYaml = join(fakeRoot, "config", "plugin", "zentao.yaml");
+    const expectedYaml = join(fakeRoot, "config", "private", "integrations", "zentao.yaml");
     assert.ok(
       stderr.includes(expectedYaml),
       `hint should point at ${expectedYaml}, got: ${stderr}`,
     );
     assert.ok(
-      !stderr.includes(join("cli", "config", "plugin")),
+      !stderr.includes(join("cli", "config", "private", "integrations")),
       `hint must not resolve cli/ as config root, got: ${stderr}`,
     );
     for (const name of [

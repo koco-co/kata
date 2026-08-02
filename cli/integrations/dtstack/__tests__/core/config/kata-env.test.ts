@@ -5,9 +5,9 @@ import { join } from "node:path";
 import { stringify } from "yaml";
 import { loadKataEnvironment } from "../../../src/core/config/kata-env";
 
-test("loadKataEnvironment reads URL and cookie from config/env", () => {
+test("loadKataEnvironment reads URL and cookie from config/private/environments", () => {
   const root = mkdtempSync(join(tmpdir(), "dtstack-kata-env-"));
-  const envDir = join(root, "config", "env");
+  const envDir = join(root, "config", "private", "environments");
   mkdirSync(envDir, { recursive: true, mode: 0o700 });
   chmodSync(envDir, 0o700);
   const configPath = join(envDir, "ci78.yaml");

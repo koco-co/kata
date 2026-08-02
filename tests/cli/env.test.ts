@@ -1,14 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { readDotEnvFile } from "../../cli/lib/env.ts";
-import {
-  loadZentaoConfig,
-  migrateDotEnvPlugins,
-  pluginConfigPath,
-} from "../../cli/lib/plugin-config.ts";
+import { loadZentaoConfig, pluginConfigPath } from "../../cli/lib/plugin-config.ts";
 
 const KATA = resolve(import.meta.dir, "../../cli/bin/kata.ts");
 
@@ -23,59 +18,13 @@ function kata(root: string, args: string[]) {
   return spawnSync("bun", [KATA, ...args], { encoding: "utf8", cwd: root });
 }
 
-describe("readDotEnvFile", () => {
-  it("parses export prefixes, inline comments, quotes and empty values", () => {
-    const dir = mkdtempSync(join(tmpdir(), "kata-dotenv-"));
-    const file = join(dir, ".env");
-    writeFileSync(
-      file,
-      [
-        "# full-line comment",
-        "export KATA_A=1",
-        "KATA_B=two # trailing comment",
-        'KATA_C="quoted # not a comment"',
-        "KATA_D=",
-        "export KATA_E='single quoted'",
-        "KATA_F=value#not-a-comment",
-        "",
-      ].join("\n"),
-    );
-    expect(readDotEnvFile(file)).toEqual({
-      KATA_A: "1",
-      KATA_B: "two",
-      KATA_C: "quoted # not a comment",
-      KATA_D: "",
-      KATA_E: "single quoted",
-      KATA_F: "value#not-a-comment",
-    });
-  });
-
-  it("returns an empty map for a missing file", () => {
-    expect(readDotEnvFile(join(tmpdir(), "kata-no-such-env-file"))).toEqual({});
-  });
-});
-
 describe("plugin config env override", () => {
   it("treats an empty-string env var as unset and falls back to the YAML value", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-plugin-env-"));
-    mkdirSync(join(root, "config", "plugin"), { recursive: true });
+    mkdirSync(join(root, "config", "private", "integrations"), { recursive: true });
     writeFileSync(pluginConfigPath("zentao", root), "cookie: yaml-cookie\n");
     expect(loadZentaoConfig(root, { KATA_ZENTAO_COOKIE: "" }).cookie).toBe("yaml-cookie");
     expect(loadZentaoConfig(root, { KATA_ZENTAO_COOKIE: "env-cookie" }).cookie).toBe("env-cookie");
-  });
-
-  it("migrates dotenv files with export prefixes and inline comments", () => {
-    const root = mkdtempSync(join(tmpdir(), "kata-plugin-mig-"));
-    mkdirSync(join(root, "config", "plugin"), { recursive: true });
-    const source = join(root, "old.env");
-    writeFileSync(source, "export KATA_LANHU_COOKIE=lanhu # rotated\nKATA_ZENTAO_BASE_URL=\n");
-    const result = migrateDotEnvPlugins(source, root);
-    expect(result.removedKeys).toContain("KATA_LANHU_COOKIE");
-    // 空值键出现在 removedKeys(会从 dotenv 清除)但不写入 yaml 内容
-    expect(result.removedKeys).toContain("KATA_ZENTAO_BASE_URL");
-    expect(readFileSync(pluginConfigPath("lanhu", root), "utf8")).toContain("lanhu");
-    // schema_version 已移除；仅含空值的插件不再制造空配置文件。
-    expect(existsSync(pluginConfigPath("zentao", root))).toBe(false);
   });
 });
 

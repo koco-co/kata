@@ -3,7 +3,7 @@ title: batchWorks 业务概览
 type: overview
 tags: [离线开发]
 status: observed
-source: config/xmind/projects.yaml；workspace/batchWorks/_shared/_meta/modules.yaml；workspace/batchWorks/knowledge/_index.md（2026-07-31）
+source: config/policies/xmind-mapping.yaml；workspace/batchWorks/_shared/_meta/modules.yaml；workspace/batchWorks/knowledge/_index.md（2026-07-31）
 updated: 2026-07-31
 ---
 

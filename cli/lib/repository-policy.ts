@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, posix, relative, resolve } from "node:path";
 import { parse } from "yaml";
+import { repoPolicyPath } from "./config-paths.ts";
 
 export interface RepositoryPolicy {
   root: { allowed_files: string[]; allowed_directories: string[] };
@@ -30,8 +31,8 @@ function normalize(path: string): string {
   return path.split("\\").join("/");
 }
 
-function readPolicy(repoRoot: string): RepositoryPolicy {
-  const path = resolve(repoRoot, "config/repos/policy.yaml");
+export function readPolicy(repoRoot: string): RepositoryPolicy {
+  const path = repoPolicyPath(repoRoot);
   const parsed = parse(readFileSync(path, "utf8")) as RepositoryPolicy;
   if (
     !parsed?.root ||

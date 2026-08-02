@@ -12,6 +12,16 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { parse, stringify } from "yaml";
+import {
+  environmentsDir,
+  environmentsExamplePath,
+  infrastructureDir,
+  infrastructureExamplePath,
+  integrationsDir,
+  privateRoot,
+  repositoriesExamplePath,
+  repositoriesPath,
+} from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
@@ -61,7 +71,7 @@ export interface ConfigDoctorResult {
 }
 
 export function infraDir(root: string = defaultRepoRoot()): string {
-  return join(resolve(root), "config", "infra");
+  return infrastructureDir(root);
 }
 
 export function infraConfigPath(kind: InfraConfigKind, root: string = defaultRepoRoot()): string {
@@ -69,7 +79,7 @@ export function infraConfigPath(kind: InfraConfigKind, root: string = defaultRep
 }
 
 export function infraExamplePath(kind: InfraConfigKind, root: string = defaultRepoRoot()): string {
-  return join(infraDir(root), `${kind}.example.yaml`);
+  return infrastructureExamplePath(kind, root);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -328,16 +338,16 @@ export function runConfigDoctor(
   const scope = options.scope ?? "all";
   const issues: ConfigIssue[] = [];
   const checked: string[] = [];
-  const envDir = join(root, "config", "env");
-  const pluginDir = join(root, "config", "plugin");
-  const reposDir = join(root, "config", "repos");
+  const privateDir = privateRoot(root);
+  const envDir = environmentsDir(root);
+  const pluginDir = integrationsDir(root);
   const infra = infraDir(root);
   if (options.fix) {
     assertNoSymlinkPath(root, infra, "infra directory");
     mkdirSync(infra, { recursive: true, mode: 0o700 });
     chmodSync(infra, 0o700);
     if (scope === "all") {
-      for (const dir of [envDir, pluginDir, reposDir]) {
+      for (const dir of [privateDir, envDir, pluginDir]) {
         assertNoSymlinkPath(root, dir, "private config directory");
         mkdirSync(dir, { recursive: true, mode: 0o700 });
         chmodSync(dir, 0o700);
@@ -370,7 +380,7 @@ export function runConfigDoctor(
       issue(issues, "error", infra, (error as Error).message);
     }
   }
-  checkTrackedPrivateFiles(root, ["config/infra"], issues, checked);
+  checkTrackedPrivateFiles(root, ["config/private/infrastructure"], issues, checked);
   const legacy = [
     join(root, "config.json"),
     join(root, "config", "source-repos.yaml"),
@@ -381,27 +391,22 @@ export function runConfigDoctor(
     if (existsSync(path)) issue(issues, "error", path, "legacy configuration path must be removed");
   }
   if (scope === "all") {
-    checked.push(envDir, pluginDir, reposDir);
+    checked.push(privateDir, envDir, pluginDir);
+    checkPrivateDir(privateDir, issues, true);
     checkPrivateDir(envDir, issues, true);
     checkPrivateDir(pluginDir, issues, true);
-    checkPrivateDir(reposDir, issues, true);
-    checkTrackedPrivateFiles(
-      root,
-      ["config/env", "config/plugin", "config/repos/sources.yaml"],
-      issues,
-      checked,
-    );
-    const envExample = join(envDir, "env.example.yaml");
+    checkTrackedPrivateFiles(root, ["config/private"], issues, checked);
+    const envExample = environmentsExamplePath(root);
     checked.push(envExample);
     if (!existsSync(envExample)) issue(issues, "error", envExample, "tracked example is missing");
-    const sourcesExample = join(reposDir, "sources.example.yaml");
-    checked.push(sourcesExample);
-    if (!existsSync(sourcesExample)) {
-      issue(issues, "error", sourcesExample, "tracked example is missing");
+    const repositoriesExample = repositoriesExamplePath(root);
+    checked.push(repositoriesExample);
+    if (!existsSync(repositoriesExample)) {
+      issue(issues, "error", repositoriesExample, "tracked example is missing");
     }
-    const sources = join(reposDir, "sources.yaml");
-    checked.push(sources);
-    checkPrivatePath(sources, issues, false, "private source-repository catalog");
+    const repositories = repositoriesPath(root);
+    checked.push(repositories);
+    checkPrivatePath(repositories, issues, false, "private source-repository catalog");
   }
   return {
     ok: !issues.some((item) => item.level === "error"),

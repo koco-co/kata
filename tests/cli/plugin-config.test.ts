@@ -15,15 +15,14 @@ import { join } from "node:path";
 import {
   loadNotifyConfig,
   loadZentaoConfig,
-  migrateDotEnvPlugins,
   pluginConfigPath,
   updatePluginConfig,
 } from "../../cli/lib/plugin-config.ts";
 
 function root(): string {
   const value = mkdtempSync(join(tmpdir(), "kata-plugin-"));
-  mkdirSync(join(value, "config", "plugin"), { recursive: true, mode: 0o700 });
-  chmodSync(join(value, "config", "plugin"), 0o700);
+  mkdirSync(join(value, "config", "private", "integrations"), { recursive: true, mode: 0o700 });
+  chmodSync(join(value, "config", "private", "integrations"), 0o700);
   return value;
 }
 
@@ -83,7 +82,7 @@ describe("plugin configuration", () => {
   test("rejects a symlinked local plugin directory before reading or writing", () => {
     const value = root();
     const outside = mkdtempSync(join(tmpdir(), "kata-plugin-outside-"));
-    const dir = join(value, "config", "plugin");
+    const dir = join(value, "config", "private", "integrations");
     rmSync(dir, { recursive: true, force: true });
     symlinkSync(outside, dir);
     try {
@@ -93,21 +92,5 @@ describe("plugin configuration", () => {
       rmSync(dir, { force: true });
       rmSync(outside, { recursive: true, force: true });
     }
-  });
-
-  test("migrates only supported non-empty dotenv values", () => {
-    const value = root();
-    const source = join(value, "old.env");
-    writeFileSync(
-      source,
-      "KATA_LANHU_COOKIE=lanhu\nKATA_ZENTAO_BASE_URL=http://zt\nKATA_DINGTALK_SIGN_SECRET=secret\nKATA_DB_URL=mysql://ignored\n",
-      { mode: 0o600 },
-    );
-    const result = migrateDotEnvPlugins(source, value);
-    expect(result.written).toHaveLength(3);
-    expect(result.removedKeys).toContain("KATA_LANHU_COOKIE");
-    expect(result.removedKeys).not.toContain("KATA_DB_URL");
-    expect(readFileSync(pluginConfigPath("zentao", value), "utf8")).toContain("http://zt");
-    expect(readFileSync(pluginConfigPath("zentao", value), "utf8")).not.toContain("schema_version");
   });
 });

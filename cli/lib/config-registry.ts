@@ -1,0 +1,653 @@
+/**
+ * Central config registry: the single source of truth for every config/ family.
+ *
+ * Each family declares its canonical files, example templates, privacy, role and
+ * validators. `kata config list/show/validate/docs` and the README generated
+ * region derive entirely from this table — adding a family means adding one
+ * entry here and a validator, nothing else.
+ *
+ * Loaders are NOT migrated to `loadConfigFamily` yet (step 3); this registry is
+ * the truth source for tooling and documentation.
+ */
+import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
+import { parse } from "yaml";
+import { loadSqlProfilesFile } from "./automation/sql.ts";
+import { loadCasesLintConfig } from "./cases/content-lint.ts";
+import { privateRoot as configPrivateRoot } from "./config-paths.ts";
+import { readDataAssetsEnvConfig } from "./dataassets-env.ts";
+import { loadSourceRepos } from "./git-source.ts";
+import { infraConfigPath, readInfraConfig } from "./infra-config.ts";
+import { loadLanhuConfig, loadNotifyConfig, loadZentaoConfig } from "./plugin-config.ts";
+import { readPolicy } from "./repository-policy.ts";
+import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
+import { loadXmindMappingFile } from "./xmind-rules.ts";
+
+export type ConfigRole = "contract" | "runtime" | "secret";
+export type ConfigFamilyName =
+  | "environments"
+  | "integrations"
+  | "infrastructure"
+  | "repositories"
+  | "repo-policy"
+  | "cases-lint"
+  | "sql-profiles"
+  | "xmind-mapping"
+  | "automation";
+
+export interface ConfigFamilyEntry {
+  name: ConfigFamilyName;
+  /** 职责：契约（框架强制）、运行时行为、私密配置 */
+  role: ConfigRole;
+  /** 是否私密（位于 config/private/ 下，整体 gitignored） */
+  private: boolean;
+  /** 一句话职责说明（进入 `config list` 与 README 生成区） */
+  docs: string;
+  /** 固定文件（相对 repoRoot）；多实例族的实例文件由 instancesDir 给出 */
+  files: string[];
+  /** 多实例目录（相对 repoRoot），如 environments 的 config/private/environments */
+  instancesDir?: string;
+  /** example 模板（相对 repoRoot，全部 tracked） */
+  examples: string[];
+  /** 单文件深度加载：加载并校验一个配置文件，失败抛带路径的错误 */
+  loadFile: (path: string, root: string) => unknown;
+  /** 单文件校验：解析 + 结构 + 未知字段检查，失败抛带路径的错误 */
+  validateFile: (path: string, root: string) => void;
+  /** example 校验：解析 + 结构 + 未知字段检查 */
+  validateExample: (path: string) => void;
+  /** 顶层允许的键（用于未知字段检查） */
+  allowedKeys: string[];
+}
+
+function readYaml(path: string): unknown {
+  return parse(readFileSync(path, "utf8"));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+/** 未知字段守卫：顶层键超出允许列表即报错（旧字段/旧格式在此被驱逐）。 */
+export function assertKnownKeys(
+  record: Record<string, unknown>,
+  allowed: string[],
+  path: string,
+): void {
+  const unknown = Object.keys(record).filter((key) => !allowed.includes(key));
+  if (unknown.length > 0) {
+    throw new Error(`${path} 包含未知字段: ${unknown.join(", ")}`);
+  }
+}
+
+/** 深脱敏：命中敏感键名的字符串值替换为占位符，其余原样返回。 */
+export function redactSecrets(value: unknown): unknown {
+  const SECRET_KEY = /(cookie|password|pass|secret|token|webhook|sign)/i;
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value.map(redactSecrets);
+  if (isRecord(value)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value)) {
+      out[key] = SECRET_KEY.test(key) ? "<redacted>" : redactSecrets(item);
+    }
+    return out;
+  }
+  return value;
+}
+
+const EXAMPLES_ROOT = "config/examples";
+
+function validateTopLevel(path: string, allowed: string[]): Record<string, unknown> {
+  const doc = readYaml(path);
+  if (!isRecord(doc)) throw new Error(`${path} 必须是对象`);
+  assertKnownKeys(doc, allowed, path);
+  return doc;
+}
+
+const INTEGRATION_ALLOWED = [
+  "is_enable",
+  "enabled_events",
+  "dingtalk",
+  "feishu",
+  "wecom",
+  "smtp",
+  "base_url",
+  "cookie",
+  "username",
+  "password",
+] as const;
+
+function integrationValidate(path: string): void {
+  const name = basename(path)
+    .replace(/\.example\.yaml$/, "")
+    .replace(/\.yaml$/, "");
+  if (!["lanhu", "zentao", "notify"].includes(name)) {
+    throw new Error(`${path} 不是受支持的集成配置名`);
+  }
+  const allowed =
+    name === "notify"
+      ? ["is_enable", "enabled_events", "dingtalk", "feishu", "wecom", "smtp"]
+      : name === "zentao"
+        ? ["base_url", "cookie", "username", "password", "create"]
+        : ["base_url", "cookie", "username", "password"];
+  validateTopLevel(path, allowed);
+}
+
+const INFRA_KINDS = ["hosts", "data_sources", "credentials"] as const;
+
+function infraValidate(path: string, root: string): void {
+  const kind = basename(path, ".yaml").replace(/\.example$/, "");
+  if (!INFRA_KINDS.includes(kind as (typeof INFRA_KINDS)[number])) {
+    throw new Error(`${path} 不是受支持的基础设施配置名`);
+  }
+  const doc = validateTopLevel(path, [...INFRA_KINDS]);
+  const key = kind === "hosts" ? "hosts" : kind === "data_sources" ? "data_sources" : "credentials";
+  if (!isRecord(doc[key])) throw new Error(`${path} 缺 ${key} 对象`);
+  // 私密三件套齐备时做深度校验
+  if (kind !== "credentials" && INFRA_KINDS.every((k) => existsSync(infraConfigPath(k, root)))) {
+    readInfraConfig(root);
+  }
+}
+
+export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
+  {
+    name: "environments",
+    role: "secret",
+    private: true,
+    docs: "平台 URL、Cookie、租户、项目、数据源与环境自动化参数",
+    files: [],
+    instancesDir: "config/private/environments",
+    examples: [join(EXAMPLES_ROOT, "environments", "env.example.yaml")],
+    loadFile: (path, root) => readDataAssetsEnvConfig(basename(path, ".yaml"), { repoRoot: root }),
+    validateFile: (path, root) => {
+      validateTopLevel(path, [
+        "schema_version",
+        "url",
+        "auth",
+        "guard",
+        "projects",
+        "datasources",
+        "defaults",
+        "safety",
+        "automation",
+      ]);
+      readDataAssetsEnvConfig(basename(path, ".yaml"), { repoRoot: root });
+    },
+    validateExample: (path) => {
+      const doc = validateTopLevel(path, [
+        "schema_version",
+        "url",
+        "auth",
+        "guard",
+        "projects",
+        "datasources",
+        "defaults",
+        "safety",
+        "automation",
+      ]);
+      if (doc.schema_version !== 2) throw new Error(`${path} schema_version 必须为 2`);
+      if (!isRecord(doc.auth) || typeof doc.auth.cookie !== "string") {
+        throw new Error(`${path} 缺 auth.cookie`);
+      }
+    },
+    allowedKeys: [
+      "schema_version",
+      "url",
+      "auth",
+      "guard",
+      "projects",
+      "datasources",
+      "defaults",
+      "safety",
+      "automation",
+    ],
+  },
+  {
+    name: "integrations",
+    role: "secret",
+    private: true,
+    docs: "Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置",
+    files: [
+      "config/private/integrations/lanhu.yaml",
+      "config/private/integrations/zentao.yaml",
+      "config/private/integrations/notify.yaml",
+    ],
+    examples: [
+      join(EXAMPLES_ROOT, "integrations", "lanhu.example.yaml"),
+      join(EXAMPLES_ROOT, "integrations", "zentao.example.yaml"),
+      join(EXAMPLES_ROOT, "integrations", "notify.example.yaml"),
+    ],
+    loadFile: (path, root) => {
+      const name = basename(path, ".yaml");
+      if (name === "lanhu") return loadLanhuConfig(root);
+      if (name === "zentao") return loadZentaoConfig(root);
+      if (name === "notify") return loadNotifyConfig(root);
+      throw new Error(`${path} 不是受支持的集成配置名`);
+    },
+    validateFile: (path, root) => {
+      integrationValidate(path);
+      const name = basename(path, ".yaml");
+      if (name === "lanhu") loadLanhuConfig(root);
+      else if (name === "zentao") loadZentaoConfig(root);
+      else if (name === "notify") loadNotifyConfig(root);
+      else throw new Error(`${path} 不是受支持的集成配置名`);
+    },
+    validateExample: integrationValidate,
+    allowedKeys: [...INTEGRATION_ALLOWED],
+  },
+  {
+    name: "infrastructure",
+    role: "secret",
+    private: true,
+    docs: "SSH 主机、数据源、凭据 profile 与已核验指纹",
+    files: [
+      "config/private/infrastructure/hosts.yaml",
+      "config/private/infrastructure/data_sources.yaml",
+      "config/private/infrastructure/credentials.yaml",
+    ],
+    examples: [
+      join(EXAMPLES_ROOT, "infrastructure", "hosts.example.yaml"),
+      join(EXAMPLES_ROOT, "infrastructure", "data_sources.example.yaml"),
+      join(EXAMPLES_ROOT, "infrastructure", "credentials.example.yaml"),
+    ],
+    loadFile: (path, root) => {
+      infraValidate(path, root);
+      return readYaml(path);
+    },
+    validateFile: infraValidate,
+    validateExample: (path) => {
+      // 仅做结构校验；example 不与私密文件做深度关联检查。
+      const kind = basename(path, ".example.yaml");
+      if (!INFRA_KINDS.includes(kind as (typeof INFRA_KINDS)[number])) {
+        throw new Error(`${path} 不是受支持的基础设施配置名`);
+      }
+      const doc = validateTopLevel(path, [...INFRA_KINDS]);
+      const key =
+        kind === "hosts" ? "hosts" : kind === "data_sources" ? "data_sources" : "credentials";
+      if (!isRecord(doc[key])) throw new Error(`${path} 缺 ${key} 对象`);
+    },
+    allowedKeys: [...INFRA_KINDS],
+  },
+  {
+    name: "repositories",
+    role: "secret",
+    private: true,
+    docs: "本机源码仓库路径、分支与筛选范围",
+    files: ["config/private/repositories.yaml"],
+    examples: [join(EXAMPLES_ROOT, "repositories.example.yaml")],
+    loadFile: (path, root) => {
+      if (existsSync(join(root, "config", "private", "repositories.yaml"))) {
+        return loadSourceRepos(root);
+      }
+      return readYaml(path);
+    },
+    validateFile: (path, root) => {
+      validateTopLevel(path, ["repos"]);
+      loadSourceRepos(root);
+    },
+    validateExample: (path) => {
+      const doc = validateTopLevel(path, ["repos"]);
+      if (!Array.isArray(doc.repos)) throw new Error(`${path} 缺 repos 数组`);
+      doc.repos.forEach((entry, i) => {
+        if (!isRecord(entry)) throw new Error(`${path} repos[${i}] 必须是对象`);
+        for (const field of ["name", "project", "path", "branch"]) {
+          if (typeof entry[field] !== "string" || !(entry[field] as string).trim()) {
+            throw new Error(`${path} repos[${i}].${field} 缺失或不是字符串`);
+          }
+        }
+      });
+    },
+    allowedKeys: ["repos"],
+  },
+  {
+    name: "repo-policy",
+    role: "contract",
+    private: false,
+    docs: "仓库产物路由与命名契约（repo lint / bun run check 读取）",
+    files: ["config/policies/repo-policy.yaml"],
+    examples: [],
+    loadFile: (path, root) => {
+      readPolicy(root);
+      return readYaml(path);
+    },
+    validateFile: (_path, root) => {
+      readPolicy(root);
+    },
+    validateExample: (path) => {
+      throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
+    },
+    allowedKeys: ["root", "forbidden_globs"],
+  },
+  {
+    name: "cases-lint",
+    role: "contract",
+    private: false,
+    docs: "用例内容 lint 契约（first-step 入口模式、禁用词、数据源类型）",
+    files: ["config/policies/cases-lint.yaml"],
+    examples: [],
+    loadFile: (path, root) => {
+      loadCasesLintConfig(root);
+      return readYaml(path);
+    },
+    validateFile: (_path, root) => {
+      loadCasesLintConfig(root);
+    },
+    validateExample: (path) => {
+      throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
+    },
+    allowedKeys: [
+      "forbidden_terms",
+      "first_step_pattern",
+      "first_step_expected",
+      "first_step_example",
+      "default_datasource_type",
+      "datasource_types",
+      "table_roles",
+      "empty_table_markers",
+    ],
+  },
+  {
+    name: "sql-profiles",
+    role: "contract",
+    private: false,
+    docs: "SQL 方言契约（方言 profile、必需/禁用片段与占位符）",
+    files: ["config/policies/sql-profiles.yaml"],
+    examples: [],
+    loadFile: (path) => {
+      const doc = readYaml(path);
+      if (!isRecord(doc) || !isRecord(doc.profiles)) throw new Error(`${path} 缺 profiles 对象`);
+      return loadSqlProfilesFile(resolve(path, "..", "..", ".."));
+    },
+    validateFile: (path) => {
+      const doc = readYaml(path);
+      if (!isRecord(doc) || !isRecord(doc.profiles)) throw new Error(`${path} 缺 profiles 对象`);
+    },
+    validateExample: (path) => {
+      throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
+    },
+    allowedKeys: ["profiles"],
+  },
+  {
+    name: "xmind-mapping",
+    role: "contract",
+    private: false,
+    docs: "XMind 根标题与 ZenTao 模块 ID 映射契约",
+    files: ["config/policies/xmind-mapping.yaml"],
+    examples: [],
+    loadFile: (path, root) => {
+      loadXmindMappingFile(root);
+      return readYaml(path);
+    },
+    validateFile: (_path, root) => {
+      loadXmindMappingFile(root);
+    },
+    validateExample: (path) => {
+      throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
+    },
+    allowedKeys: ["projects"],
+  },
+  {
+    name: "automation",
+    role: "runtime",
+    private: false,
+    docs: "Playwright 运行时行为设置（可被 --set 覆盖）",
+    files: ["config/automation/playwright.yaml"],
+    examples: [],
+    loadFile: (path) => {
+      const doc = readYaml(path);
+      if (!isRecord(doc) || !isRecord(doc.playwright))
+        throw new Error(`${path} 缺 playwright 对象`);
+      return doc;
+    },
+    validateFile: (path) => {
+      const doc = readYaml(path);
+      if (!isRecord(doc) || !isRecord(doc.playwright))
+        throw new Error(`${path} 缺 playwright 对象`);
+    },
+    validateExample: (path) => {
+      throw new Error(`${path} 不是 example 模板（运行时配置无模板）`);
+    },
+    allowedKeys: ["playwright"],
+  },
+];
+
+export function familyByName(name: string): ConfigFamilyEntry {
+  const family = CONFIG_FAMILIES.find((item) => item.name === name);
+  if (!family) {
+    throw new Error(
+      `未知配置族: ${name};可用: ${CONFIG_FAMILIES.map((item) => item.name).join(" | ")}`,
+    );
+  }
+  return family;
+}
+
+/**
+ * 统一加载入口：加载并校验一个配置族的单文件实例（多实例族取实例名对应的文件）。
+ * 失败抛带路径的错误。敏感字段不脱敏——调用方展示前自行 redactSecrets。
+ */
+export function loadConfigFamily(
+  family: ConfigFamilyName,
+  instance: string,
+  root: string = defaultRepoRoot(),
+): unknown {
+  const entry = familyByName(family);
+  const path = join(root, instance);
+  if (!existsSync(path)) throw new Error(`配置不存在: ${path}`);
+  return entry.loadFile(path, root);
+}
+
+export interface ConfigIssue {
+  level: "error" | "warning";
+  path: string;
+  message: string;
+}
+
+export interface ConfigValidateResult {
+  ok: boolean;
+  issues: ConfigIssue[];
+}
+
+function familyInstances(family: ConfigFamilyEntry, root: string): string[] {
+  if (family.instancesDir) {
+    const dir = join(root, family.instancesDir);
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir)
+      .filter((file) => file.endsWith(".yaml"))
+      .sort()
+      .map((file) => join(dir, file));
+  }
+  return family.files.map((file) => join(root, file));
+}
+
+/** 校验全部族：私密文件存在则校验（干净克隆缺文件不算错），example 必须存在且可校验，契约文件必须存在。 */
+export function validateAllConfig(root: string = defaultRepoRoot()): ConfigValidateResult {
+  const issues: ConfigIssue[] = [];
+  for (const family of CONFIG_FAMILIES) {
+    const files = familyInstances(family, root);
+    for (const path of files) {
+      if (!existsSync(path)) {
+        if (!family.private) {
+          issues.push({ level: "error", path, message: "契约/运行时配置文件缺失" });
+        }
+        continue;
+      }
+      try {
+        family.validateFile(path, root);
+      } catch (error) {
+        issues.push({ level: "error", path, message: (error as Error).message });
+      }
+      if (family.private && (statSync(path).mode & 0o777) !== 0o600) {
+        issues.push({ level: "error", path, message: "私密文件权限必须为 0600" });
+      }
+    }
+    for (const example of family.examples) {
+      const path = join(root, example);
+      if (!existsSync(path)) {
+        issues.push({ level: "error", path, message: "example 模板缺失" });
+        continue;
+      }
+      try {
+        family.validateExample(path);
+      } catch (error) {
+        issues.push({ level: "error", path, message: (error as Error).message });
+      }
+    }
+  }
+  const privateRoot = configPrivateRoot(root);
+  if (existsSync(privateRoot) && (statSync(privateRoot).mode & 0o777) !== 0o700) {
+    issues.push({ level: "error", path: privateRoot, message: "私密根目录权限必须为 0700" });
+  }
+  issues.push(...scanLegacyConfigRefs(root));
+  return { ok: !issues.some((issue) => issue.level === "error"), issues };
+}
+
+/** 旧布局路径字面量（出现在代码/测试/文档中即视为残留，无兼容红线）。 */
+const LEGACY_CONFIG_PATTERNS = [
+  "config/repos/",
+  "config/plugin/",
+  "config/infra/",
+  "config/env/",
+  "config/lint/",
+  "config/xmind/",
+];
+
+/**
+ * 扫描已跟踪文件中出现的旧配置路径字面量。无 git 的临时根/非仓库直接跳过；
+ * 干净仓库期望零命中，任何命中都是需修复的残留。
+ */
+export function scanLegacyConfigRefs(root: string = defaultRepoRoot()): ConfigIssue[] {
+  let output: string;
+  try {
+    output = execFileSync(
+      "git",
+      ["-C", root, "grep", "-l", "-E", LEGACY_CONFIG_PATTERNS.join("|")],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    );
+  } catch {
+    // 无匹配（exit 1）或非 git 仓库（exit 128）：都视为无残留。
+    return [];
+  }
+  return output
+    .split("\n")
+    .filter(Boolean)
+    .map((file) => ({
+      level: "error" as const,
+      path: file,
+      message: "旧配置路径残留，必须迁移到新布局（policies/private/examples）",
+    }));
+}
+
+export interface FamilyShowResult {
+  name: ConfigFamilyName;
+  role: ConfigRole;
+  private: boolean;
+  configured: boolean;
+  files: Array<{ path: string; exists: boolean; value: unknown }>;
+  errors: string[];
+}
+
+/** 展示一族的有效配置；敏感字段一律脱敏。 */
+export function showFamily(name: string, root: string = defaultRepoRoot()): FamilyShowResult {
+  const family = familyByName(name);
+  const files = familyInstances(family, root);
+  const entries: FamilyShowResult["files"] = [];
+  const errors: string[] = [];
+  for (const path of files) {
+    if (!existsSync(path)) {
+      entries.push({ path, exists: false, value: undefined });
+      continue;
+    }
+    try {
+      entries.push({ path, exists: true, value: redactSecrets(family.loadFile(path, root)) });
+    } catch (error) {
+      errors.push((error as Error).message);
+      entries.push({ path, exists: true, value: undefined });
+    }
+  }
+  return {
+    name: family.name,
+    role: family.role,
+    private: family.private,
+    configured: files.some((path) => existsSync(path)),
+    files: entries,
+    errors,
+  };
+}
+
+export interface FamilySummary {
+  name: ConfigFamilyName;
+  role: ConfigRole;
+  private: boolean;
+  docs: string;
+  files: string[];
+  instancesDir?: string;
+  examples: string[];
+}
+
+export function listFamilies(): FamilySummary[] {
+  return CONFIG_FAMILIES.map((family) => ({
+    name: family.name,
+    role: family.role,
+    private: family.private,
+    docs: family.docs,
+    files: family.files,
+    instancesDir: family.instancesDir,
+    examples: family.examples,
+  }));
+}
+
+// ─── README 生成区 ─────────────────────────────────────────────────────────
+
+const DOCS_BEGIN = "<!-- BEGIN GENERATED -->";
+const DOCS_END = "<!-- END GENERATED -->";
+
+function tableRow(cells: string[]): string {
+  return `| ${cells.join(" | ")} |`;
+}
+
+/** 由注册表派生 README 生成区内容。 */
+export function renderConfigDocsSection(): string {
+  const rows = CONFIG_FAMILIES.map((family) =>
+    tableRow([
+      `\`${family.name}\``,
+      family.role,
+      family.private ? "私密" : "跟踪",
+      family.docs,
+      family.examples.length > 0 ? family.examples.map((e) => `\`${e}\``).join("<br>") : "—",
+    ]),
+  );
+  return [
+    DOCS_BEGIN,
+    "",
+    "配置族一览（由 config 注册表派生，禁止手改）:",
+    "",
+    tableRow(["族", "职责", "私密性", "说明", "example 模板"]),
+    tableRow(["---", "---", "---", "---", "---"]),
+    ...rows,
+    "",
+    DOCS_END,
+  ].join("\n");
+}
+
+export function applyConfigDocs(
+  readmePath: string,
+  root: string = defaultRepoRoot(),
+  options: { check?: boolean } = {},
+): { ok: boolean; changed: boolean } {
+  const path = resolve(root, readmePath);
+  const current = readFileSync(path, "utf8");
+  const generated = renderConfigDocsSection();
+  const begin = current.indexOf(DOCS_BEGIN);
+  const end = current.indexOf(DOCS_END);
+  let next: string;
+  if (begin === -1 || end === -1 || end <= begin) {
+    next = `${current.trimEnd()}\n\n${generated}\n`;
+  } else {
+    next = `${current.slice(0, begin)}${generated}${current.slice(end + DOCS_END.length)}`;
+  }
+  const changed = next !== current;
+  if (changed && !options.check) {
+    writeFileSync(path, next);
+  }
+  return { ok: !changed, changed };
+}

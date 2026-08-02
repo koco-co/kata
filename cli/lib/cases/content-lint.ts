@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { parse } from "yaml";
 import { lintSql } from "../automation/sql.ts";
+import { casesLintPath } from "../config-paths.ts";
 import type { CaseItem, CasesFile } from "./types.ts";
 
 export interface CasesLintConfig {
@@ -41,7 +41,7 @@ function strings(value: unknown): value is string[] {
 
 /** Load the executable global authored-case policy. It deliberately has no schema/version marker. */
 export function loadCasesLintConfig(repoRoot: string): CasesLintConfig {
-  const path = resolve(repoRoot, "config/lint/cases.yaml");
+  const path = casesLintPath(repoRoot);
   const value = parse(readFileSync(path, "utf8")) as Partial<CasesLintConfig> | null;
   if (!value || typeof value !== "object") throw new Error(`用例内容 lint 配置无效: ${path}`);
   if (

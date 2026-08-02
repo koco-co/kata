@@ -13,7 +13,7 @@ from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from typing import Annotated, Optional, Union, List, Any
 
-# 配置只从显式环境变量读取；Kata CLI 会从 config/plugin/lanhu.yaml 注入它们。
+# 配置只从显式环境变量读取；Kata CLI 会从 config/private/integrations/lanhu.yaml 注入它们。
 
 # 东八区时区（北京时间）
 CHINA_TZ = timezone(timedelta(hours=8))

@@ -199,11 +199,12 @@ export function loadDataAssetsEnvProfile(
   const injectedPath = runtimeEnv[DATAASSETS_CONFIG_ENV];
   const root = resolve(
     opts?.repoRoot ??
-      (injectedPath ? dirname(dirname(dirname(resolve(injectedPath)))) : process.cwd()),
+      // config/private/environments/<env>.yaml → repo root
+      (injectedPath ? dirname(dirname(dirname(dirname(resolve(injectedPath))))) : process.cwd()),
   );
   const expectedPath = dataAssetsEnvPath(selected, root);
   if (injectedPath && resolve(injectedPath) !== resolve(expectedPath)) {
-    throw new Error("KATA_DATAASSETS_CONFIG does not match the selected config/env file");
+    throw new Error("KATA_DATAASSETS_CONFIG does not match the selected config/private/environments file");
   }
   const config = readDataAssetsEnvConfig(selected, { repoRoot: root });
   const datasources: Record<string, DataAssetsDatasourceProfile> = {};

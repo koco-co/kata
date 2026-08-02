@@ -1,10 +1,46 @@
-import { type Command, Option } from "commander";
+import type { Command } from "commander";
 import { outputJson } from "../lib/cli.ts";
+import {
+  applyConfigDocs,
+  listFamilies,
+  showFamily,
+  validateAllConfig,
+} from "../lib/config-registry.ts";
 import { runConfigDoctor } from "../lib/infra-config.ts";
-import { migrateDotEnvPlugins } from "../lib/plugin-config.ts";
 
 export function registerConfig(program: Command): void {
   const config = program.command("config").description("运行时配置检查");
+
+  config
+    .command("list")
+    .description("按注册表列出全部配置族：路径、私密性、职责与 example 模板")
+    .action(() => outputJson(listFamilies()));
+
+  config
+    .command("show")
+    .description("显示一个配置族的有效配置，敏感字段一律脱敏")
+    .argument("<family>", "配置族名，见 config list")
+    .action((family: string) => outputJson(showFamily(family)));
+
+  config
+    .command("validate")
+    .description("校验全部配置族：结构、未知字段、example 完整性、权限")
+    .option("--exit-code", "存在错误时退出码为 1")
+    .action((opts: { exitCode?: boolean }) => {
+      const result = validateAllConfig();
+      outputJson(result);
+      if (opts.exitCode && !result.ok) process.exitCode = 1;
+    });
+
+  config
+    .command("docs")
+    .description("重写 config/README.md 生成区；--check 只校验不一致时退出码为 1")
+    .option("--check", "只校验不写入", false)
+    .action((opts: { check: boolean }) => {
+      const result = applyConfigDocs("config/README.md", undefined, { check: opts.check });
+      outputJson(result);
+      if (opts.check && !result.ok) process.exitCode = 1;
+    });
 
   config
     .command("doctor")
@@ -22,22 +58,5 @@ export function registerConfig(program: Command): void {
       });
       outputJson(result);
       if (opts.exitCode && !result.ok) process.exitCode = 1;
-    });
-
-  config
-    .command("plugins-migrate")
-    .description("从显式指定的旧 dotenv 文件迁移插件配置；默认 dry-run")
-    .requiredOption("--source <path>", "旧 dotenv 文件路径")
-    .addOption(
-      new Option("--root <path>", "目标 Kata 工作区根目录").default(process.cwd(), "<kata-root>"),
-    )
-    .option("--apply", "写入 config/plugin/*.yaml")
-    .action((opts: { source: string; root: string; apply?: boolean }) => {
-      if (!opts.apply) {
-        outputJson({ dry_run: true, source: opts.source, apply_hint: "--apply" });
-        return;
-      }
-      const result = migrateDotEnvPlugins(opts.source, opts.root);
-      outputJson({ ok: true, written: result.written, migrated_keys: result.removedKeys });
     });
 }

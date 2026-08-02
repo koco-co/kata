@@ -2,10 +2,11 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { parse } from "yaml";
+import { mainWorktreeRoot, repositoriesPath } from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
-/** A source repo entry from config/repos/sources.yaml. */
+/** A source repo entry from config/private/repositories.yaml. */
 export interface SourceRepo {
   /** Unique id in "group/repo" form. */
   name: string;
@@ -185,30 +186,19 @@ export function readGitSourceFile(
   }
 }
 
-// ─── 配置加载(config/repos/sources.yaml)───
+// ─── 配置加载(config/private/repositories.yaml)───
 
-/**
- * Main worktree root. `.repos/` lives only in the main worktree (gitignored),
- * so resolve through the git common dir instead of the current root.
- */
-export function mainWorktreeRoot(root: string = locateProjectRoot()): string {
-  const common = execFileSync(
-    "git",
-    ["-C", root, "rev-parse", "--path-format=absolute", "--git-common-dir"],
-    { encoding: "utf8" },
-  ).trim();
-  return dirname(common);
-}
+export { mainWorktreeRoot } from "./config-paths.ts";
 
-/** Load and validate config/repos/sources.yaml; throws on missing/malformed entries. */
+/** Load and validate config/private/repositories.yaml; throws on missing/malformed entries. */
 export function loadSourceRepos(root: string = locateProjectRoot()): SourceRepo[] {
-  const localConfigPath = join(root, "config", "repos", "sources.yaml");
+  const localConfigPath = repositoriesPath(root);
   let configPath = localConfigPath;
   let configAnchor = root;
   if (!existsSync(configPath)) {
     try {
       configAnchor = mainWorktreeRoot(root);
-      configPath = join(configAnchor, "config", "repos", "sources.yaml");
+      configPath = repositoriesPath(configAnchor);
     } catch {
       configPath = localConfigPath;
     }

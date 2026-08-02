@@ -137,7 +137,7 @@ export async function dispatchCommand(args: ReadonlyArray<string>): Promise<void
     return;
   }
 
-  // 解析配置：显式 dtstack 配置优先，其次使用 kata env run 注入的 config/env profile。
+  // 解析配置：显式 dtstack 配置优先，其次使用 kata env run 注入的 config/private/environments profile。
   const configPath = resolveConfigPath(values);
   let config: DtStackCliConfig;
   let env: string;

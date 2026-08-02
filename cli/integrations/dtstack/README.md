@@ -13,7 +13,7 @@ import { precondSetup } from "dtstack-sdk";
 ## 配置
 
 通过 `kata env run <env> -- ...` 运行时，平台地址和 Cookie 直接来自
-`config/env/<env>.yaml` 的 `url` 与 `auth.cookie`。`--config` 或
+`config/private/environments/<env>.yaml` 的 `url` 与 `auth.cookie`。`--config` 或
 `DTSTACK_CONFIG` 仍可显式提供 direct DB datasource 配置；不再使用独立
 session 文件。
 

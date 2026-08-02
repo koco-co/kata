@@ -43,8 +43,8 @@ dependencies:
 `;
 
 function writePolicy(root: string): void {
-  mkdirSync(join(root, "config", "repos"), { recursive: true });
-  writeFileSync(join(root, "config", "repos", "policy.yaml"), POLICY);
+  mkdirSync(join(root, "config", "policies"), { recursive: true });
+  writeFileSync(join(root, "config", "policies", "repo-policy.yaml"), POLICY);
 }
 
 function importPath(from: string, to: string): string {
@@ -67,7 +67,7 @@ describe("repository policy", () => {
       scripts: { check: string };
     };
     expect(packageJson.scripts.check).toBe(
-      "bun cli/bin/kata.ts repo lint --exit-code && bun run test:knowledge-lint && bun run test:cases-lint && biome check .",
+      "bun cli/bin/kata.ts repo lint --exit-code && bun cli/bin/kata.ts config validate --exit-code && bun cli/bin/kata.ts config docs --check && bun run test:knowledge-lint && bun run test:cases-lint && biome check .",
     );
 
     const result = spawnSync(
@@ -160,7 +160,7 @@ describe("repository policy", () => {
   it("keeps the temporary run policy aligned with the ignored feature run path", () => {
     const repoRoot = resolve(import.meta.dir, "../..");
     const policy = parse(
-      readFileSync(join(repoRoot, "config", "repos", "policy.yaml"), "utf8"),
+      readFileSync(join(repoRoot, "config", "policies", "repo-policy.yaml"), "utf8"),
     ) as {
       artifacts: { automation_run_temporary: { route: string; tracked: boolean } };
     };

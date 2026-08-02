@@ -27,7 +27,7 @@ const kata = join(repo, "cli", "bin", "kata.ts");
 function root(): string {
   const result = mkdtempSync(join(tmpdir(), "kata-notify-"));
   mkdirSync(join(result, "workspace", "dataAssets"), { recursive: true });
-  mkdirSync(join(result, "config", "plugin"), { recursive: true });
+  mkdirSync(join(result, "config", "private", "integrations"), { recursive: true });
   return result;
 }
 
@@ -47,17 +47,17 @@ function payload(overrides: Partial<NotificationData> = {}): NotificationData {
 }
 
 function enableDingtalk(at: string): void {
-  mkdirSync(join(at, "config", "plugin"), { recursive: true });
+  mkdirSync(join(at, "config", "private", "integrations"), { recursive: true });
   writeFileSync(
-    join(at, "config", "plugin", "notify.yaml"),
+    join(at, "config", "private", "integrations", "notify.yaml"),
     "is_enable: true\nenabled_events:\n  - cases-built\ndingtalk:\n  is_enable: true\n  webhook_url: https://example.invalid/robot\n",
   );
 }
 
 function enableFeishuAndWecom(at: string): void {
-  mkdirSync(join(at, "config", "plugin"), { recursive: true });
+  mkdirSync(join(at, "config", "private", "integrations"), { recursive: true });
   writeFileSync(
-    join(at, "config", "plugin", "notify.yaml"),
+    join(at, "config", "private", "integrations", "notify.yaml"),
     [
       "is_enable: true",
       "enabled_events:",

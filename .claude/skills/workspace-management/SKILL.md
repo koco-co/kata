@@ -46,7 +46,7 @@ description: 创建、检查或修复 `workspace/<project>/` 下的 Kata 项目�
 - 所有骨架产物只写入 `workspace/<project>/`。
 - 项目标识只取目录名，不创建 `project.json` 等重复元数据。
 - 骨架标准只以 `kata project scan` 和 CLI 模板为准，不凭记忆补目录。
-- 平台环境通过 `kata env list|show|doctor|add|cookie` 管理；不直接编辑 `config/env/` 私密文件。
+- 平台环境通过 `kata env list|show|doctor|add|cookie` 管理；不直接编辑 `config/private/environments/` 私密文件。
 
 ## References
 

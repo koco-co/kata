@@ -1,5 +1,5 @@
 # 仓库产物路由和命名策略。CLI repository lint / kata run check 会读取本文件；
-# 私有源码仓库清单仍保存在未跟踪的 config/repos/sources.yaml。
+# 私有源码仓库清单仍保存在未跟踪的 config/private/repositories.yaml。
 root:
   # 根目录允许直接存在的受跟踪文件；新增根文件前必须同步本策略。
   allowed_files:

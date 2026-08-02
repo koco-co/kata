@@ -8,7 +8,7 @@ bun run type-check  # verify TypeScript
 bun test            # verify tests
 ```
 
-本机运行配置请使用 `config/env/`、`config/plugin/` 和 `config/infra/` 下的 ignored YAML；模板文件以 `.example.yaml` 结尾。仓库不自动加载根 `.env`。
+本机运行配置请使用 `config/private/environments/`、`config/private/integrations/` 和 `config/private/infrastructure/` 下的 ignored YAML；模板文件以 `.example.yaml` 结尾。仓库不自动加载根 `.env`。
 
 ## Code Style
 

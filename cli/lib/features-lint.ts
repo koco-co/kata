@@ -8,6 +8,7 @@ import {
 } from "./cases/content-lint.ts";
 import { parseCaseExportName } from "./cases/formats.ts";
 import { parseCasesYaml } from "./cases/parse.ts";
+import { environmentsDir } from "./config-paths.ts";
 import {
   featureRelativePath,
   LEGACY_LABEL_DIR_RE,
@@ -49,9 +50,9 @@ function loadEnum(sharedRoot: string, file: string): string[] {
     : [];
 }
 
-/** 真实环境名取自 config/env/<env>.yaml 文件名（绝不读内容，0600 私密）；无配置时跳过。 */
+/** 真实环境名取自 config/private/environments/<env>.yaml 文件名（绝不读内容，0600 私密）；无配置时跳过。 */
 function loadEnvNames(repoRoot: string | undefined, workspaceRoot: string): string[] {
-  const envDir = join(repoRoot ?? dirname(workspaceRoot), "config", "env");
+  const envDir = environmentsDir(repoRoot ?? dirname(workspaceRoot));
   if (!existsSync(envDir)) return [];
   return readdirSync(envDir)
     .filter((f) => f.endsWith(".yaml") && f !== "example.yaml" && !f.endsWith(".example.yaml"))

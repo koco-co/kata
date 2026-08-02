@@ -11,8 +11,8 @@ import {
 
 function rootWithConfig(yaml: string): string {
   const root = mkdtempSync(join(tmpdir(), "kata-repos-"));
-  mkdirSync(join(root, "config", "repos"), { recursive: true });
-  writeFileSync(join(root, "config", "repos", "sources.yaml"), yaml);
+  mkdirSync(join(root, "config", "private"), { recursive: true });
+  writeFileSync(join(root, "config", "private", "repositories.yaml"), yaml);
   return root;
 }
 
@@ -107,9 +107,9 @@ repos:
       const originRefs = join(repo, ".git", "refs", "remotes", "origin");
       mkdirSync(originRefs, { recursive: true });
       writeFileSync(join(originRefs, "release_6.2 2.x"), `${"1".repeat(40)}\n`);
-      mkdirSync(join(root, "config", "repos"), { recursive: true });
+      mkdirSync(join(root, "config", "private"), { recursive: true });
       writeFileSync(
-        join(root, "config", "repos", "sources.yaml"),
+        join(root, "config", "private", "repositories.yaml"),
         `repos:
   - name: group/data-assets
     project: dataAssets

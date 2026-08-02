@@ -12,7 +12,7 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { parse, stringify } from "yaml";
-import { readDotEnvFile } from "./env.ts";
+import { integrationsDir, integrationsExamplePath, sharedPrivateRoot } from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
@@ -67,22 +67,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function pluginDir(root: string = defaultRepoRoot()): string {
-  const resolved = resolve(root);
-  const local = join(resolved, "config", "plugin");
+  const local = integrationsDir(root);
   if (existsSync(join(local, "lanhu.yaml")) || existsSync(join(local, "zentao.yaml"))) {
     return local;
   }
-  try {
-    const common = execFileSync(
-      "git",
-      ["-C", resolved, "rev-parse", "--path-format=absolute", "--git-common-dir"],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    ).trim();
-    const main = dirname(common);
-    const shared = join(main, "config", "plugin");
-    if (existsSync(shared)) return shared;
-  } catch {
-    // A test fixture or non-git workspace keeps using its own config directory.
+  const shared = sharedPrivateRoot(root);
+  if (shared && existsSync(join(shared, "integrations"))) {
+    return join(shared, "integrations");
   }
   return local;
 }
@@ -95,7 +86,7 @@ export function pluginExamplePath(
   name: PluginConfigName,
   root: string = defaultRepoRoot(),
 ): string {
-  return join(pluginDir(root), `${name}.example.yaml`);
+  return integrationsExamplePath(name, root);
 }
 
 function assertPluginPath(path: string, root: string): void {
@@ -194,7 +185,7 @@ export function updatePluginConfig(
   return writePluginConfig(name, merged, root);
 }
 
-/** config/plugin/*.yaml 是本机私密配置,应被 gitignore;意外被 git 跟踪时写入前提醒。 */
+/** config/private/integrations/*.yaml 是本机私密配置,应被 gitignore;意外被 git 跟踪时写入前提醒。 */
 function warnIfGitTracked(path: string, root: string): void {
   try {
     const rel = relative(resolve(root), path);
@@ -279,85 +270,5 @@ export function loadPluginConfigs(
     lanhu: loadLanhuConfig(root, env),
     zentao: loadZentaoConfig(root, env),
     notify: loadNotifyConfig(root, env),
-  };
-}
-
-/** One-shot migration helper; it reads a caller-supplied dotenv path explicitly. */
-export function migrateDotEnvPlugins(
-  sourcePath: string,
-  root: string = defaultRepoRoot(),
-): { written: string[]; removedKeys: string[] } {
-  const values = readDotEnvFile(resolve(sourcePath));
-  const written: string[] = [];
-  const lanhu: LanhuPluginConfig = {
-    cookie: values.KATA_LANHU_COOKIE,
-    username: values.KATA_LANHU_USERNAME,
-    password: values.KATA_LANHU_PASSWORD,
-  };
-  const zentao: ZentaoPluginConfig = {
-    base_url: values.KATA_ZENTAO_BASE_URL,
-    cookie: values.KATA_ZENTAO_COOKIE,
-    username: values.KATA_ZENTAO_ACCOUNT,
-    password: values.KATA_ZENTAO_PASSWORD,
-  };
-  const notify: NotifyPluginConfig = {
-    dingtalk: {
-      webhook_url: values.KATA_DINGTALK_WEBHOOK_URL,
-      keyword: values.KATA_DINGTALK_KEYWORD,
-      sign_secret: values.KATA_DINGTALK_SIGN_SECRET,
-    },
-    feishu: { webhook_url: values.KATA_FEISHU_WEBHOOK_URL },
-    wecom: { webhook_url: values.KATA_WECOM_WEBHOOK_URL },
-    smtp: {
-      host: values.KATA_SMTP_HOST,
-      port: values.KATA_SMTP_PORT,
-      user: values.KATA_SMTP_USER,
-      pass: values.KATA_SMTP_PASS,
-      from: values.KATA_SMTP_FROM,
-      to: values.KATA_SMTP_TO,
-      secure: values.KATA_SMTP_SECURE,
-    },
-  };
-  const compact = (value: Record<string, unknown>): Record<string, unknown> => {
-    const result: Record<string, unknown> = {};
-    for (const [key, item] of Object.entries(value)) {
-      if (isRecord(item)) {
-        const nested = compact(item);
-        if (Object.keys(nested).length > 0) result[key] = nested;
-      } else if (item !== undefined && item !== "") {
-        result[key] = item;
-      }
-    }
-    return result;
-  };
-  for (const [name, value] of Object.entries({ lanhu, zentao, notify }) as Array<
-    [PluginConfigName, Record<string, unknown>]
-  >) {
-    const payload = compact(value);
-    if (Object.keys(payload).length === 0) continue;
-    written.push(writePluginConfig(name, payload, root));
-  }
-  return {
-    written,
-    removedKeys: [
-      "KATA_LANHU_COOKIE",
-      "KATA_LANHU_USERNAME",
-      "KATA_LANHU_PASSWORD",
-      "KATA_ZENTAO_BASE_URL",
-      "KATA_ZENTAO_COOKIE",
-      "KATA_ZENTAO_ACCOUNT",
-      "KATA_ZENTAO_PASSWORD",
-      "KATA_DINGTALK_WEBHOOK_URL",
-      "KATA_DINGTALK_KEYWORD",
-      "KATA_DINGTALK_SIGN_SECRET",
-      "KATA_FEISHU_WEBHOOK_URL",
-      "KATA_WECOM_WEBHOOK_URL",
-      "KATA_SMTP_HOST",
-      "KATA_SMTP_PORT",
-      "KATA_SMTP_USER",
-      "KATA_SMTP_PASS",
-      "KATA_SMTP_FROM",
-      "KATA_SMTP_TO",
-    ].filter((key) => values[key] !== undefined),
   };
 }

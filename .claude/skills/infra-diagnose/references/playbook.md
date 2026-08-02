@@ -10,9 +10,9 @@ kata config doctor --scope infra --exit-code
 
 配置文件职责：
 
-- `config/infra/hosts.yaml`：SSH 主机、端口、Credential Profile 引用和 host key。
-- `config/infra/data_sources.yaml`：数据库或数据源的连接元数据和 Credential Profile 引用。
-- `config/infra/credentials.yaml`：本机私密认证材料。
+- `config/private/infrastructure/hosts.yaml`：SSH 主机、端口、Credential Profile 引用和 host key。
+- `config/private/infrastructure/data_sources.yaml`：数据库或数据源的连接元数据和 Credential Profile 引用。
+- `config/private/infrastructure/credentials.yaml`：本机私密认证材料。
 
 未填写 `credential_ref` 时，主机使用 `server-default`，数据源使用 `data-source-default`。加载器只检查目标最终绑定的 Profile，不会在认证失败后尝试其他凭据。
 

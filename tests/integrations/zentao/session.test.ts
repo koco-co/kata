@@ -22,7 +22,7 @@ describe("isAuthedBugJson", () => {
 
 describe("zentaoConfigPath", () => {
   it("points to the local plugin config", () => {
-    assert.ok(zentaoConfigPath().endsWith("/config/plugin/zentao.yaml"));
+    assert.ok(zentaoConfigPath().endsWith("/config/private/integrations/zentao.yaml"));
     assert.equal(zentaoConfigPath().includes("/.kata/"), false);
   });
 });
@@ -124,7 +124,7 @@ describe("fetchAuthedBugJson", () => {
       (e: Error & { code?: string }) =>
         e.code === "ZENTAO_AUTH_MISSING" &&
         // 报错必须列出尝试过的 yaml 路径与可补救的 env 变量名
-        e.message.includes("config/plugin/zentao.yaml") &&
+        e.message.includes("config/private/integrations/zentao.yaml") &&
         e.message.includes("KATA_ZENTAO_ACCOUNT") &&
         e.message.includes("KATA_ZENTAO_PASSWORD"),
     );

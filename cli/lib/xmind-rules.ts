@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { parse } from "yaml";
+import { xmindMappingPath } from "./config-paths.ts";
 import { locateProjectRoot } from "./workspace-locator.ts";
 
 export interface XmindProjectConfig {
@@ -13,7 +13,7 @@ interface XmindProjectsFile {
 }
 
 function projectsPath(root: string): string {
-  return join(root, "config", "xmind", "projects.yaml");
+  return xmindMappingPath(root);
 }
 
 function validateProjectConfig(project: string, value: unknown): XmindProjectConfig {
@@ -32,6 +32,20 @@ function validateProjectConfig(project: string, value: unknown): XmindProjectCon
     throw new Error(`XMind 项目 ${project} 的 zentao_module_id 必须是数字字符串`);
   }
   return { root_name: config.root_name.trim(), zentao_module_id: moduleId };
+}
+
+/** Load and validate the XMind mapping contract file (every declared project must be well-formed). */
+export function loadXmindMappingFile(root: string = locateProjectRoot()): XmindProjectsFile {
+  const path = projectsPath(root);
+  if (!existsSync(path)) throw new Error(`XMind 项目映射不存在: ${path}`);
+  const parsed = (parse(readFileSync(path, "utf8")) ?? {}) as XmindProjectsFile;
+  if (!parsed.projects || typeof parsed.projects !== "object") {
+    throw new Error(`XMind 项目映射无效: ${path}`);
+  }
+  for (const [project, value] of Object.entries(parsed.projects)) {
+    validateProjectConfig(project, value);
+  }
+  return parsed;
 }
 
 /** Load one project's canonical XMind-root mapping. Unknown projects are hard errors. */

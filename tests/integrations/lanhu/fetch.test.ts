@@ -29,7 +29,7 @@ function createFakeProjectRoot(name: string): { root: string; feature: string } 
   const root = join(TMP_DIR, name);
   const feature = join(root, "workspace", "dataAssets", "features", TEST_FEATURE_RELATIVE);
   mkdirSync(feature, { recursive: true });
-  mkdirSync(join(root, "config", "plugin"), { recursive: true });
+  mkdirSync(join(root, "config", "private", "integrations"), { recursive: true });
   writeFileSync(join(root, "package.json"), JSON.stringify({ name: "kata-test-root" }));
   return { root, feature };
 }
@@ -205,7 +205,7 @@ describe("CLI: --help", () => {
 
 describe("CLI: missing KATA_LANHU_COOKIE", () => {
   it("exits 1 when KATA_LANHU_COOKIE is not set", () => {
-    // A fake repo root without config/plugin/lanhu.yaml guarantees "no cookie
+    // A fake repo root without config/private/integrations/lanhu.yaml guarantees "no cookie
     // configured" regardless of this machine's real private config.
     const { root: fakeRoot, feature } = createFakeProjectRoot("fake-root");
 

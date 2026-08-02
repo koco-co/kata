@@ -44,8 +44,8 @@ afterEach(() => {
 
 function setup(yaml: string = YAML): string {
   dir = mkdtempSync(join(tmpdir(), "kata-git-source-"));
-  mkdirSync(join(dir, "config", "repos"), { recursive: true });
-  writeFileSync(join(dir, "config", "repos", "sources.yaml"), yaml);
+  mkdirSync(join(dir, "config", "private"), { recursive: true });
+  writeFileSync(join(dir, "config", "private", "repositories.yaml"), yaml);
   return dir;
 }
 
@@ -76,7 +76,7 @@ describe("loadSourceRepos", () => {
   it("rejects a symlinked private source catalog before reading", () => {
     const root = setup();
     const outside = mkdtempSync(join(tmpdir(), "kata-git-source-outside-"));
-    const config = join(root, "config", "repos", "sources.yaml");
+    const config = join(root, "config", "private", "repositories.yaml");
     rmSync(config, { force: true });
     const outsideConfig = join(outside, "sources.yaml");
     writeFileSync(outsideConfig, YAML);

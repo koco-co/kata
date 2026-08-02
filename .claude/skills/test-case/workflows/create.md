@@ -38,7 +38,7 @@
      kata repos prepare --project <项目> --module <模块> --customer <客户或标品>
      ```
 
-   - 分支只取 `config/repos/sources.yaml` 的 `branch`；必须显式匹配 modules/customers。准备后用 `kata repos grep/show` 查当前实现、枚举和约束。
+   - 分支只取 `config/private/repositories.yaml` 的 `branch`；必须显式匹配 modules/customers。准备后用 `kata repos grep/show` 查当前实现、枚举和约束。
    - 完成条件：知识查询结果、每个命中仓库的 branch/commit 及源码证据已记录；无匹配仓库时明确阻断。
 
 4. 扫描遗漏与冲突

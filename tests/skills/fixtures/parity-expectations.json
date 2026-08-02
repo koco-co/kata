@@ -50,7 +50,7 @@
       ],
       "caseNaming": [{ "pattern": "c<四位序号>-<英文slug>.spec.ts", "file": "SKILL.md" }],
       "noMockBusinessApi": [{ "pattern": "mock", "file": "references/playwright-api.md" }],
-      "cookieBoundary": [{ "pattern": "config/env/", "file": "SKILL.md" }]
+      "cookieBoundary": [{ "pattern": "config/private/environments/", "file": "SKILL.md" }]
     },
     "defect-analyze": {
       "reportPath": [{ "pattern": "analyses/", "file": "SKILL.md" }],
@@ -77,7 +77,10 @@
     },
     "infra-diagnose": {
       "credentialsPath": [
-        { "pattern": "config/infra/credentials.yaml", "file": "references/playbook.md" }
+        {
+          "pattern": "config/private/infrastructure/credentials.yaml",
+          "file": "references/playbook.md"
+        }
       ],
       "configFiles": [
         { "pattern": "hosts.yaml", "file": "references/playbook.md" },

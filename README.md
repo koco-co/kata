@@ -79,52 +79,43 @@ printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
 kata env doctor ci63 --offline
 
 # 插件配置：从模板复制后只在本机填写
-cp config/plugin/lanhu.example.yaml config/plugin/lanhu.yaml
-cp config/plugin/zentao.example.yaml config/plugin/zentao.yaml
-cp config/plugin/notify.example.yaml config/plugin/notify.yaml
+cp config/examples/integrations/lanhu.example.yaml config/private/integrations/lanhu.yaml
+cp config/examples/integrations/zentao.example.yaml config/private/integrations/zentao.yaml
+cp config/examples/integrations/notify.example.yaml config/private/integrations/notify.yaml
 
 # 基础设施配置：只在本机填写
-cp config/infra/hosts.example.yaml config/infra/hosts.yaml
-cp config/infra/data_sources.example.yaml config/infra/data_sources.yaml
-cp config/infra/credentials.example.yaml config/infra/credentials.yaml
+cp config/examples/infrastructure/hosts.example.yaml config/private/infrastructure/hosts.yaml
+cp config/examples/infrastructure/data_sources.example.yaml config/private/infrastructure/data_sources.yaml
+cp config/examples/infrastructure/credentials.example.yaml config/private/infrastructure/credentials.yaml
 kata config doctor
 ```
 
 通知只会由成功的业务命令自动创建；`enabled_events: []`（或缺失）不会发送。需要先在本机
-`config/plugin/notify.yaml` 明确填写事件白名单，再用 `kata notify preview` 校验展示内容；
+`config/private/integrations/notify.yaml` 明确填写事件白名单，再用 `kata notify preview` 校验展示内容；
 `kata notify list/show/retry` 只操作项目本地的通知账本，不接受任意自定义发送内容。
-
-如果旧版本还留着根目录的 `.env`，可以先预览再执行插件字段迁移：
-
-```bash
-kata config plugins-migrate --source /path/to/old.env --root /path/to/kata
-kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --apply
-```
-
-迁移命令只处理插件字段；数据库 URL、DTStack 旧 session 路径和其他未知字段不会写入插件 YAML。
 
 ## 配置边界
 
 | 目录 | 内容 | 是否提交 |
 | --- | --- | --- |
-| `config/env/` | DataAssets 平台 URL、`auth.cookie`、环境元数据 | 仅 `*.example.yaml` 入库，实际配置本机自管 |
-| `config/plugin/` | Lanhu、ZenTao、DingTalk / Feishu / WeCom / SMTP | 仅 `*.example.yaml` 入库，实际配置本机自管 |
-| `config/infra/` | 主机、数据源、凭据 profile、SSH fingerprint | 仅 `*.example.yaml` 入库，实际配置本机自管 |
-| `config/repos/` | 外部源码仓库声明 | 仅 `sources.example.yaml` 入库，`sources.yaml` 本机自管 |
+| `config/policies/` | 产物路由、lint、SQL 方言、XMind 映射契约 | 全部入库 |
+| `config/private/` | 环境、集成、基础设施、源码仓库的私密配置 | 整个目录 gitignored |
+| `config/examples/` | 私密配置的脱敏模板（镜像 `private/` 结构） | 全部入库 |
+| `config/automation/` | Playwright 运行时行为设置 | 入库 |
 
-`sources.yaml` 的每个仓库必须声明 release `branch` 以及适用的 `modules`、`customers`。
+`config/private/repositories.yaml` 的每个仓库必须声明 release `branch` 以及适用的 `modules`、`customers`。
 `kata repos prepare` 只更新与当前需求项目、模块、客户明确匹配的仓库。
 
-`config/env/<env>.yaml` 是 Playwright 与 DTStack 平台访问的统一来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立的 DTStack session 文件或旧的持久化变量。临时覆盖或 CI 覆盖仍可通过显式环境变量传入。
+`config/private/environments/<env>.yaml` 是 Playwright 与 DTStack 平台访问的统一来源：URL 放在 `url`，Cookie 放在 `auth.cookie`。不再维护独立的 DTStack session 文件或旧的持久化变量。临时覆盖或 CI 覆盖仍可通过显式环境变量传入。
 
 本机目录和文件应收紧权限：
 
 ```bash
-chmod 700 config/env config/plugin config/infra
-chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
+chmod 700 config/private/environments config/private/integrations config/private/infrastructure
+chmod 600 config/private/environments/*.yaml config/private/integrations/*.yaml config/private/infrastructure/*.yaml
 ```
 
-基础设施诊断按连接类型使用默认 profile：服务器使用 `server-default`，数据源使用 `data-source-default`；用户配置的 `credential_ref` 优先。默认凭据只写在本机的 `config/infra/credentials.yaml` 中；连接失败时立即返回脱敏后的错误，不会交叉尝试另一类凭据，也不执行任意远程命令。
+基础设施诊断按连接类型使用默认 profile：服务器使用 `server-default`，数据源使用 `data-source-default`；用户配置的 `credential_ref` 优先。默认凭据只写在本机的 `config/private/infrastructure/credentials.yaml` 中；连接失败时立即返回脱敏后的错误，不会交叉尝试另一类凭据，也不执行任意远程命令。
 
 ## 用例文件流
 

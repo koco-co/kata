@@ -11,8 +11,8 @@
 
 ## 配置
 
-复制 `config/plugin/zentao.example.yaml` 为本机私密的
-`config/plugin/zentao.yaml`：
+复制 `config/examples/integrations/zentao.example.yaml` 为本机私密的
+`config/private/integrations/zentao.yaml`：
 
 ```yaml
 base_url: "https://zentao.example.cn"
@@ -27,7 +27,7 @@ password: "your-password"
 
 1. 访问禅道服务器（如 https://zentao.example.cn）
 2. 使用公司账号登录
-3. 把 Cookie 或账号密码写入本机 `config/plugin/zentao.yaml`
+3. 把 Cookie 或账号密码写入本机 `config/private/integrations/zentao.yaml`
 
 ## 用法
 
@@ -41,7 +41,7 @@ kata zentao fetch --url "https://zentao.example.cn/zentao/bug-view-138845.html" 
 
 ## 建单配置
 
-`kata zentao create` 只读取本机私密的 `config/plugin/zentao.yaml`。复制
+`kata zentao create` 只读取本机私密的 `config/private/integrations/zentao.yaml`。复制
 `zentao.example.yaml` 后，在 `create` 节点中填写目标禅道的产品 ID、模块 ID、
 负责人账号和版本；仓库不跟踪真实映射。
 

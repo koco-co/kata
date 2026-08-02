@@ -45,7 +45,7 @@ const resolved: ResolvedDataAssetsEnv = {
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), "dataassets-env-v2-runtime-"));
-  const dir = join(root, "config", "env");
+  const dir = join(root, "config", "private", "environments");
   mkdirSync(dir, { recursive: true, mode: 0o700 });
   chmodSync(dir, 0o700);
   writeFileSync(
@@ -123,7 +123,7 @@ describe("DataAssets v2 runtime profile", () => {
     const profile = resolveDataAssetsRuntime(
       {
         KATA_DATAASSETS_RESOLVED: serialized,
-        KATA_DATAASSETS_CONFIG: join(root, "config/env/ltqc-local.yaml"),
+        KATA_DATAASSETS_CONFIG: join(root, "config/private/environments/ltqc-local.yaml"),
       },
       { repoRoot: root },
     );
@@ -135,7 +135,7 @@ describe("DataAssets v2 runtime profile", () => {
       resolveDataAssetsRuntime(
         {
           KATA_DATAASSETS_RESOLVED: JSON.stringify(resolved),
-          KATA_DATAASSETS_CONFIG: join(root, "config/env/other.yaml"),
+          KATA_DATAASSETS_CONFIG: join(root, "config/private/environments/other.yaml"),
         },
         { repoRoot: root },
       ),

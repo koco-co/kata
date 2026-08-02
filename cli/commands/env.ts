@@ -4,7 +4,6 @@ import {
   addDataAssetsEnv,
   diagnoseDataAssetsEnv,
   listDataAssetsEnvs,
-  migrateDataAssetsEnvs,
   runDataAssetsCommand,
   setDataAssetsCookie,
   showDataAssetsEnv,
@@ -36,16 +35,8 @@ export function registerEnv(program: Command): void {
 
   env
     .command("list")
-    .description("列出 config/env 中的平台环境，不显示 Cookie")
+    .description("列出 config/private/environments 中的平台环境，不显示 Cookie")
     .action(() => outputJson(listDataAssetsEnvs()));
-
-  env
-    .command("migrate")
-    .description("将旧版 DataAssets 私密环境迁移到 config/env")
-    .option("--apply", "执行迁移；默认只预览", false)
-    .action(async (opts: { apply: boolean }) =>
-      outputJson(await migrateDataAssetsEnvs({ apply: opts.apply })),
-    );
 
   env
     .command("show")

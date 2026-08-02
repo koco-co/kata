@@ -26,7 +26,7 @@ export async function resolveSession(opts: ResolveSessionOptions): Promise<Sessi
   const password = process.env.DTSTACK_PASSWORD ?? envCfg.login?.password;
   if (!username || !password) {
     throw new Error(
-      "no credentials available for auto-login (configure auth.cookie in config/env or explicit DTSTACK_USERNAME/DTSTACK_PASSWORD)",
+      "no credentials available for auto-login (configure auth.cookie in config/private/environments or explicit DTSTACK_USERNAME/DTSTACK_PASSWORD)",
     );
   }
   const fresh = await opts.doLogin(envCfg.baseUrl, username, password);

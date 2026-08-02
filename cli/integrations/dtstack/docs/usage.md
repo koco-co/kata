@@ -31,7 +31,7 @@ GLOBAL OPTIONS
 CONFIG SOURCE PRIORITY
   1. --config <path>         Explicit config file path
   2. $DTSTACK_CONFIG         Env var pointing to config file
-  3. config/env/<env>.yaml    Selected by `kata env run <env> -- ...`
+  3. config/private/environments/<env>.yaml    Selected by `kata env run <env> -- ...`
   4. dtstack-cli.yaml         Default direct-DB config (if no kata env)
   5. Env vars                Explicit one-off fallback
 
@@ -46,7 +46,7 @@ ENVIRONMENT
 NOTE
   Playwright / platform API 场景建议使用：
   kata env run <env> -- dtstack-cli ...
-  它会复用 config/env/<env>.yaml 的 URL 和 auth.cookie。
+  它会复用 config/private/environments/<env>.yaml 的 URL 和 auth.cookie。
 ```
 
 ## sql exec

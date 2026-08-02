@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse } from "yaml";
+import { sqlProfilesPath } from "../config-paths.ts";
 import { locateProjectRoot } from "../workspace-locator.ts";
 
 interface SqlPattern {
@@ -27,8 +28,18 @@ export interface SqlLintResult {
   readonly errors: string[];
 }
 
+/** Load and validate the SQL profiles contract file. */
+export function loadSqlProfilesFile(repoRoot = locateProjectRoot()): SqlProfilesFile {
+  const configPath = sqlProfilesPath(repoRoot);
+  const config = parse(readFileSync(configPath, "utf8")) as SqlProfilesFile;
+  if (!config?.profiles || typeof config.profiles !== "object") {
+    throw new Error(`SQL profiles 配置无效: ${configPath}`);
+  }
+  return config;
+}
+
 function loadProfile(profile: string, repoRoot = locateProjectRoot()): SqlProfile {
-  const configPath = resolve(repoRoot, "config/automation/sql-profiles.yaml");
+  const configPath = resolve(repoRoot, "config/policies/sql-profiles.yaml");
   const config = parse(readFileSync(configPath, "utf8")) as SqlProfilesFile;
   const direct = config.profiles?.[profile];
   const result =

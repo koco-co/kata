@@ -28,7 +28,7 @@ export interface AuthedBugJson {
   cookie: string;
 }
 
-// ─── cookie 持久化（本机 config/plugin/zentao.yaml）──────────────────────────
+// ─── cookie 持久化（本机 config/private/integrations/zentao.yaml）──────────────
 /** Absolute path to the local ZenTao plugin config file. */
 export function zentaoConfigPath(): string {
   return pluginConfigPath("zentao", repoRoot());

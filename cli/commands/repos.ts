@@ -15,7 +15,7 @@ import {
 function resolveRepo(repoId: string): SourceRepo & { absPath: string } {
   const repo = resolveSourceRepo(repoId);
   if (!repo) {
-    throw new Error(`未找到已配置源码仓库 ${repoId};检查 config/repos/sources.yaml`);
+    throw new Error(`未找到已配置源码仓库 ${repoId};检查 config/private/repositories.yaml`);
   }
   return repo;
 }
@@ -24,7 +24,7 @@ function resolveRepo(repoId: string): SourceRepo & { absPath: string } {
 export function registerRepos(program: Command): void {
   const repos = program
     .command("repos")
-    .description("查询 config/repos/sources.yaml 配置的源码仓库(.repos/ 本地克隆)");
+    .description("查询 config/private/repositories.yaml 配置的源码仓库(.repos/ 本地克隆)");
 
   repos
     .command("prepare")

@@ -79,45 +79,36 @@ printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
 kata env doctor ci63 --offline
 
 # Plugin configuration: copy templates and fill them locally
-cp config/plugin/lanhu.example.yaml config/plugin/lanhu.yaml
-cp config/plugin/zentao.example.yaml config/plugin/zentao.yaml
-cp config/plugin/notify.example.yaml config/plugin/notify.yaml
+cp config/examples/integrations/lanhu.example.yaml config/private/integrations/lanhu.yaml
+cp config/examples/integrations/zentao.example.yaml config/private/integrations/zentao.yaml
+cp config/examples/integrations/notify.example.yaml config/private/integrations/notify.yaml
 
 # Infrastructure configuration: fill only on this machine
-cp config/infra/hosts.example.yaml config/infra/hosts.yaml
-cp config/infra/data_sources.example.yaml config/infra/data_sources.yaml
-cp config/infra/credentials.example.yaml config/infra/credentials.yaml
+cp config/examples/infrastructure/hosts.example.yaml config/private/infrastructure/hosts.yaml
+cp config/examples/infrastructure/data_sources.example.yaml config/private/infrastructure/data_sources.yaml
+cp config/examples/infrastructure/credentials.example.yaml config/private/infrastructure/credentials.yaml
 kata config doctor
 ```
-
-If an older checkout still has a root `.env`, preview and then apply the plugin-only migration:
-
-```bash
-kata config plugins-migrate --source /path/to/old.env --root /path/to/kata
-kata config plugins-migrate --source /path/to/old.env --root /path/to/kata --apply
-```
-
-The migration handles plugin fields only. Database URLs, old DTStack session paths, and unknown fields are not written into plugin YAML files.
 
 ## Configuration boundaries
 
 | Directory | Contents | Tracked |
 | --- | --- | --- |
-| `config/env/` | DataAssets URLs, `auth.cookie`, and environment metadata | only `*.example.yaml` is tracked; real config stays local |
-| `config/plugin/` | Lanhu, ZenTao, DingTalk / Feishu / WeCom / SMTP | only `*.example.yaml` is tracked; real config stays local |
-| `config/infra/` | hosts, data sources, credential profiles, SSH fingerprints | only `*.example.yaml` is tracked; real config stays local |
-| `config/repos/` | external source repository declarations | only `sources.example.yaml` is tracked; `sources.yaml` stays local |
+| `config/policies/` | artifact routing, lint, SQL dialect and XMind mapping contracts | tracked |
+| `config/private/` | private environments, integrations, infrastructure and repository config | whole directory gitignored |
+| `config/examples/` | redacted templates mirroring `config/private/` | tracked |
+| `config/automation/` | Playwright runtime behavior settings | tracked |
 
-`config/env/<env>.yaml` is the shared source for Playwright and DTStack platform access: the URL lives in `url` and the cookie in `auth.cookie`. There is no separate DTStack session file or legacy persistent variable path. Explicit one-off or CI overrides may still be passed as environment variables.
+`config/private/environments/<env>.yaml` is the shared source for Playwright and DTStack platform access: the URL lives in `url` and the cookie in `auth.cookie`. There is no separate DTStack session file or legacy persistent variable path. Explicit one-off or CI overrides may still be passed as environment variables.
 
 Restrict local permissions:
 
 ```bash
-chmod 700 config/env config/plugin config/infra
-chmod 600 config/env/*.yaml config/plugin/*.yaml config/infra/*.yaml
+chmod 700 config/private/environments config/private/integrations config/private/infrastructure
+chmod 600 config/private/environments/*.yaml config/private/integrations/*.yaml config/private/infrastructure/*.yaml
 ```
 
-Infrastructure diagnosis uses type-specific default profiles: `server-default` for servers and `data-source-default` for data sources. An explicit `credential_ref` wins. Defaults belong only in the local `config/infra/credentials.yaml`; failures return a redacted actionable error, never cross-try credential types, and never run arbitrary remote commands.
+Infrastructure diagnosis uses type-specific default profiles: `server-default` for servers and `data-source-default` for data sources. An explicit `credential_ref` wins. Defaults belong only in the local `config/private/infrastructure/credentials.yaml`; failures return a redacted actionable error, never cross-try credential types, and never run arbitrary remote commands.
 
 ## Case file flow
 

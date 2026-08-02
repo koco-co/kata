@@ -191,7 +191,7 @@ export async function runCreate(opts: {
   if (!baseUrl) {
     fail(
       "ZENTAO_CONFIG_MISSING",
-      "缺少 config/plugin/zentao.yaml 的 base_url（或设置 KATA_ZENTAO_BASE_URL）",
+      "缺少 config/private/integrations/zentao.yaml 的 base_url（或设置 KATA_ZENTAO_BASE_URL）",
     );
   }
   let report: BugReport;

@@ -1,10 +1,10 @@
 // main-flow-fixtures.ts — 主流程页对象依赖的环境预置业务表
 //
 // 这些表是环境里预先造好的业务 fixture 数据，不属于运行时 env profile
-// （config/env/*.yaml 只描述数据源/库，不登记业务表）。集中在此登记，
+// （config/private/environments/*.yaml 只描述数据源/库，不登记业务表）。集中在此登记，
 // 环境迁移或换数时只需核对本文件。
 
-/** 数据源类型在 UI 下拉中的显示名（config/env 只登记数据源名，不含类型显示名）。 */
+/** 数据源类型在 UI 下拉中的显示名（config/private/environments 只登记数据源名，不含类型显示名）。 */
 export const SPARKTHRIFT_SOURCE_TYPE_LABEL = "SparkThrift2.x";
 
 /** 自定义正则挂载校验使用的预置规则集主表。 */

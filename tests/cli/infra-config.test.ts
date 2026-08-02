@@ -22,18 +22,26 @@ import {
 
 function makeRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-infra-"));
-  mkdirSync(join(root, "config", "infra"), { recursive: true, mode: 0o700 });
-  mkdirSync(join(root, "config", "env"), { recursive: true, mode: 0o700 });
-  mkdirSync(join(root, "config", "plugin"), { recursive: true, mode: 0o700 });
-  chmodSync(join(root, "config", "env"), 0o700);
-  chmodSync(join(root, "config", "plugin"), 0o700);
-  mkdirSync(join(root, "config", "repos"), { recursive: true, mode: 0o700 });
-  chmodSync(join(root, "config", "repos"), 0o700);
+  mkdirSync(join(root, "config", "private", "infrastructure"), { recursive: true, mode: 0o700 });
+  mkdirSync(join(root, "config", "private", "environments"), { recursive: true, mode: 0o700 });
+  mkdirSync(join(root, "config", "private", "integrations"), { recursive: true, mode: 0o700 });
+  chmodSync(join(root, "config", "private", "environments"), 0o700);
+  chmodSync(join(root, "config", "private", "integrations"), 0o700);
+  mkdirSync(join(root, "config", "private"), { recursive: true, mode: 0o700 });
+  chmodSync(join(root, "config", "private"), 0o700);
+  mkdirSync(join(root, "config", "examples", "infrastructure"), { recursive: true, mode: 0o700 });
+  mkdirSync(join(root, "config", "examples", "environments"), { recursive: true, mode: 0o700 });
   for (const name of ["hosts", "data_sources", "credentials"] as const) {
-    writeFileSync(join(root, "config", "infra", `${name}.example.yaml`), `${name}: {}\n`);
+    writeFileSync(
+      join(root, "config", "examples", "infrastructure", `${name}.example.yaml`),
+      `${name}: {}\n`,
+    );
   }
-  writeFileSync(join(root, "config", "env", "env.example.yaml"), "schema_version: 2\n");
-  writeFileSync(join(root, "config", "repos", "sources.example.yaml"), "repos: []\n");
+  writeFileSync(
+    join(root, "config", "examples", "environments", "env.example.yaml"),
+    "schema_version: 2\n",
+  );
+  writeFileSync(join(root, "config", "examples", "repositories.example.yaml"), "repos: []\n");
   return root;
 }
 
@@ -87,7 +95,7 @@ describe("infrastructure configuration", () => {
       { kind: "password", username: "qa", password: "test-only" },
       root,
     );
-    expect(path.endsWith("config/infra/credentials.yaml")).toBe(true);
+    expect(path.endsWith("config/private/infrastructure/credentials.yaml")).toBe(true);
     const parsed = parseYaml(await Bun.file(path).text()) as {
       credentials: Record<string, unknown>;
     };
@@ -97,7 +105,7 @@ describe("infrastructure configuration", () => {
   it("rejects a symlinked private config directory before writing", () => {
     const root = makeRoot();
     const outside = mkdtempSync(join(tmpdir(), "kata-infra-outside-"));
-    const infra = join(root, "config", "infra");
+    const infra = join(root, "config", "private", "infrastructure");
     rmSync(infra, { recursive: true, force: true });
     symlinkSync(outside, infra);
     try {
@@ -118,7 +126,7 @@ describe("infrastructure configuration", () => {
   it("rejects a symlinked private config directory before reading", () => {
     const root = makeRoot();
     const outside = mkdtempSync(join(tmpdir(), "kata-infra-read-outside-"));
-    const infra = join(root, "config", "infra");
+    const infra = join(root, "config", "private", "infrastructure");
     rmSync(infra, { recursive: true, force: true });
     symlinkSync(outside, infra);
     try {
@@ -156,7 +164,7 @@ describe("infrastructure configuration", () => {
     const git = (args: string[]) =>
       execFileSync("git", ["-C", root, ...args], { stdio: ["pipe", "pipe", "pipe"] });
     git(["init", "-b", "main"]);
-    git(["add", "config/infra/credentials.yaml"]);
+    git(["add", "config/private/infrastructure/credentials.yaml"]);
     const result = runConfigDoctor({ root, scope: "infra" });
     expect(result.ok).toBe(false);
     expect(
@@ -181,13 +189,15 @@ describe("infrastructure configuration", () => {
     const root = makeRoot();
     const result = runConfigDoctor({ root });
     expect(result.ok).toBe(true);
-    expect(result.checked).toContain(join(root, "config", "env", "env.example.yaml"));
-    expect(result.checked).toContain(join(root, "config", "repos", "sources.example.yaml"));
+    expect(result.checked).toContain(
+      join(root, "config", "examples", "environments", "env.example.yaml"),
+    );
+    expect(result.checked).toContain(join(root, "config", "examples", "repositories.example.yaml"));
     expect(
       result.issues.some(
         (item) =>
           item.level === "warning" &&
-          item.path === join(root, "config", "repos", "sources.yaml") &&
+          item.path === join(root, "config", "private", "repositories.yaml") &&
           item.message.includes("not configured"),
       ),
     ).toBe(true);
@@ -195,9 +205,9 @@ describe("infrastructure configuration", () => {
 
   it("requires 0700 on every private configuration directory", () => {
     const root = makeRoot();
-    chmodSync(join(root, "config", "env"), 0o755);
-    chmodSync(join(root, "config", "plugin"), 0o755);
-    chmodSync(join(root, "config", "repos"), 0o755);
+    chmodSync(join(root, "config", "private", "environments"), 0o755);
+    chmodSync(join(root, "config", "private", "integrations"), 0o755);
+    chmodSync(join(root, "config", "private"), 0o755);
     const result = runConfigDoctor({ root });
     expect(result.ok).toBe(false);
     expect(

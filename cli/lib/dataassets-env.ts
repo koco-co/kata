@@ -1,5 +1,5 @@
 import { execFileSync, spawn } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import {
   chmodSync,
   existsSync,
@@ -14,6 +14,7 @@ import {
 import { constants as osConstants } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { parse, stringify } from "yaml";
+import { environmentsDir } from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
@@ -209,7 +210,7 @@ export function assertDataAssetsEnvName(name: string): string {
 }
 
 export function dataAssetsEnvDir(root = defaultRepoRoot()): string {
-  return join(resolve(root), "config", "env");
+  return environmentsDir(root);
 }
 
 export function dataAssetsEnvPath(name: string, root = defaultRepoRoot()): string {
@@ -1159,166 +1160,6 @@ function normalizeCookieInput(cookie: string): string {
     throw new Error("stdin must contain one non-empty Cookie header line");
   }
   return cleanCookie;
-}
-
-function nested(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : {};
-}
-
-function legacyString(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function legacyToV2(raw: Record<string, unknown>, cookie: string): DataAssetsEnvConfig {
-  const urls = nested(raw.urls);
-  const auth = nested(raw.auth);
-  const projects = nested(raw.projects);
-  const quality = nested(projects.quality);
-  const offline = nested(projects.offline);
-  const runtime = nested(raw.runtime);
-  const datasources: DataAssetsEnvConfig["datasources"] = {};
-  for (const [key, value] of Object.entries(nested(raw.datasources))) {
-    const source = nested(value);
-    const assets = nested(source.assets);
-    const metadata = nested(source.metadata);
-    const batch = nested(source.batch);
-    const sql = nested(source.sql);
-    const database = legacyString(sql.database) || legacyString(batch.database);
-    const schema = legacyString(sql.schema) || legacyString(batch.schema);
-    datasources[key] = {
-      name: legacyString(assets.name) || legacyString(metadata.name) || legacyString(batch.name),
-      database,
-      ...(schema && schema !== database ? { schema } : {}),
-    };
-  }
-  return parseConfigText(
-    stringify({
-      schema_version: 2,
-      url: legacyString(urls.base_url) || legacyString(raw.base_url),
-      auth: { cookie: cookie || legacyString(auth.cookie) },
-      guard: { expected_tenant: legacyString(auth.tenant_name) || legacyString(raw.tenant_name) },
-      projects: {
-        quality: legacyString(quality.name),
-        ...(legacyString(offline.name) ? { offline: legacyString(offline.name) } : {}),
-      },
-      datasources,
-      defaults: { datasource: legacyString(runtime.default_datasource) },
-      safety: { allow_write: runtime.allow_write === true },
-    }),
-    "legacy profile",
-  );
-}
-
-function readYamlRecord(path: string): Record<string, unknown> {
-  if (lstatSync(path).isSymbolicLink()) {
-    throw new Error(`legacy environment file must not be a symbolic link: ${path}`);
-  }
-  try {
-    return record(parse(readFileSync(path, "utf8")), path);
-  } catch {
-    throw new Error(`invalid legacy environment YAML: ${path}`);
-  }
-}
-
-function readLegacyCookie(
-  root: string,
-  name: string,
-  base: Record<string, unknown>,
-): { cookie: string; source?: string } {
-  const localPath = join(
-    root,
-    "workspace",
-    "dataAssets",
-    "_shared",
-    "env",
-    ".local",
-    `${name}.yaml`,
-  );
-  if (!existsSync(localPath)) return { cookie: legacyString(nested(base.auth).cookie) };
-  assertNotSymlink(localPath, "legacy cookie file");
-  if (mode(localPath) !== ENV_FILE_MODE)
-    throw new Error(`legacy cookie file permissions must be 0600: ${localPath}`);
-  return { cookie: legacyString(nested(readYamlRecord(localPath).auth).cookie), source: localPath };
-}
-
-export async function migrateDataAssetsEnvs(
-  options?: DataAssetsEnvContext & { apply?: boolean },
-): Promise<{
-  applied: boolean;
-  ok: boolean;
-  profiles: Array<{ name: string; cookieConfigured: boolean; cookiePreserved: boolean }>;
-  removedLegacyCookieFiles: string[];
-  retainedLegacyCookieFiles: string[];
-}> {
-  const root = rootFrom(options);
-  const legacyDir = join(root, "workspace", "dataAssets", "_shared", "env");
-  assertNoSymlinkPath(root, legacyDir, "legacy DataAssets environment directory");
-  if (!existsSync(legacyDir))
-    throw new Error(`legacy DataAssets environment directory not found: ${legacyDir}`);
-  const migrated: Array<{
-    name: string;
-    config: DataAssetsEnvConfig;
-    cookieSource?: string;
-    cookieHash: string;
-  }> = [];
-  for (const file of readdirSync(legacyDir)
-    .filter((item) => item.endsWith(".yaml"))
-    .sort()) {
-    const name = assertDataAssetsEnvName(file.replace(/\.yaml$/, ""));
-    const legacyPath = join(legacyDir, file);
-    assertNoSymlinkPath(root, legacyPath, "legacy DataAssets environment file");
-    const base = readYamlRecord(legacyPath);
-    const { cookie, source } = readLegacyCookie(root, name, base);
-    migrated.push({
-      name,
-      config: legacyToV2(base, cookie),
-      cookieSource: source,
-      cookieHash: createHash("sha256").update(cookie).digest("hex"),
-    });
-  }
-  if (migrated.length === 0) throw new Error("no legacy DataAssets environments found");
-  if (options?.apply) {
-    ensureEnvDir(root);
-    for (const item of migrated) atomicWrite(dataAssetsEnvPath(item.name, root), item.config);
-  }
-
-  const removedLegacyCookieFiles: string[] = [];
-  const retainedLegacyCookieFiles: string[] = [];
-  const profiles: Array<{ name: string; cookieConfigured: boolean; cookiePreserved: boolean }> = [];
-  for (const item of migrated) {
-    let cookiePreserved = true;
-    if (options?.apply) {
-      const written = readDataAssetsEnvConfig(item.name, { repoRoot: root });
-      cookiePreserved =
-        createHash("sha256").update(written.auth.cookie).digest("hex") === item.cookieHash;
-      if (!cookiePreserved) throw new Error(`cookie hash verification failed for ${item.name}`);
-      if (item.cookieSource && item.config.auth.cookie) {
-        try {
-          await resolveDataAssetsEnv(item.name, { ...options, repoRoot: root, config: written });
-          unlinkSync(item.cookieSource);
-          removedLegacyCookieFiles.push(item.cookieSource);
-        } catch {
-          retainedLegacyCookieFiles.push(item.cookieSource);
-        }
-      }
-    } else if (item.cookieSource) {
-      retainedLegacyCookieFiles.push(item.cookieSource);
-    }
-    profiles.push({
-      name: item.name,
-      cookieConfigured: item.config.auth.cookie !== "",
-      cookiePreserved,
-    });
-  }
-  return {
-    applied: options?.apply === true,
-    ok: options?.apply !== true || retainedLegacyCookieFiles.length === 0,
-    profiles,
-    removedLegacyCookieFiles,
-    retainedLegacyCookieFiles,
-  };
 }
 
 function selectDataAssetsChildBaseEnv(

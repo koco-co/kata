@@ -329,7 +329,7 @@ function callBridgeListPagesWithRetry(
   if (!newCookie) {
     throw new LanhuIntegrationError(
       "COOKIE_REFRESH_FAILED",
-      "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
+      "Cookie 刷新失败。请更新 config/private/integrations/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
     );
   }
 
@@ -435,7 +435,7 @@ function callBridgeWithRetry(
   if (!newCookie) {
     throw new LanhuIntegrationError(
       "COOKIE_REFRESH_FAILED",
-      "Cookie 刷新失败。请更新 config/plugin/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
+      "Cookie 刷新失败。请更新 config/private/integrations/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
     );
   }
 

@@ -71,7 +71,7 @@ export function registerScans(program: Command): void {
     .command("create")
     .description("初始化扫描并写入正式 Markdown 报告")
     .requiredOption("--project <name>", "项目名")
-    .option("--repo <name>", "config/repos/sources.yaml 中的 group/repo 或 repo 短名")
+    .option("--repo <name>", "config/private/repositories.yaml 中的 group/repo 或 repo 短名")
     .option("--base-branch <ref>", "基线分支")
     .option("--head-branch <ref>", "目标分支")
     .option("--patch <path>", "已有 patch 文件；与分支对二选一")
@@ -115,7 +115,8 @@ export function registerScans(program: Command): void {
             );
           }
           const repo = resolveSourceRepo(opts.repo);
-          if (!repo) throw new Error(`未找到已配置仓库 ${opts.repo}(config/repos/sources.yaml)`);
+          if (!repo)
+            throw new Error(`未找到已配置仓库 ${opts.repo}(config/private/repositories.yaml)`);
           const slug = opts.slug ?? defaultSlug(opts.repo, opts.baseBranch, opts.headBranch);
           diffOut = fetchAndDiff(repo, opts.baseBranch, opts.headBranch, {
             skipFetch: opts.skipFetch,

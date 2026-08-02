@@ -35,7 +35,7 @@ export function registerZentao(program: Command): void {
 
   zentao
     .command("create")
-    .description("按 config/plugin/zentao.yaml 的映射从正式 Markdown 报告创建 bug")
+    .description("按 config/private/integrations/zentao.yaml 的映射从正式 Markdown 报告创建 bug")
     .requiredOption("--report <path>", "BugReport Markdown 路径")
     .option("--dry-run", "只组装字段不提交,打印 payload", false)
     .action(async (opts: { report: string; dryRun: boolean }) => {

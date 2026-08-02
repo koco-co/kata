@@ -2,21 +2,10 @@
 node_modules
 package-lock.json
 .env
-.env.envs
-.env.local
-/config/env/*
-!/config/env/env.example.yaml
-# Source repository topology is local-only; commit only the redacted template.
-/config/repos/sources.yaml
-# Infrastructure topology and credentials are local; only unusable examples are tracked.
-/config/infra/*
-!/config/infra/
-!/config/infra/*.example.yaml
-# Plugin endpoints and credentials are local; only redacted examples are tracked.
-/config/plugin/*
-!/config/plugin/
-!/config/plugin/*.example.yaml
 config.json
+# Private runtime config root: everything under config/private/ is local-only.
+# Tracked config lives in config/policies/, config/examples/ and config/automation/.
+/config/private/
 
 # Hidden runtime root
 .kata/

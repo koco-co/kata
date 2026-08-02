@@ -45,7 +45,7 @@ description: 生成、修复、运行或验证 feature 目录中的 Playwright U
 - 创建、编辑、保存、删除、运行和导入等业务动作通过真实页面完成；后端接口只用于经授权的前置数据或诊断，不替代被测 UI 行为。
 - 不用弱断言、吞错、`test.skip` 或 mock 被测业务接口换取通过。
 - 菜单、字段和按钮以真实探测为准；书面用例错误时记录差异并交回 `test-case` 修正 YAML。
-- Cookie 只经 `kata env run` 注入，真实值保存在权限为 `0600` 的 `config/env/<env>.yaml`，不进入对话、日志、代码或 fixture。
+- Cookie 只经 `kata env run` 注入，真实值保存在权限为 `0600` 的 `config/private/environments/<env>.yaml`，不进入对话、日志、代码或 fixture。
 - Playwright 只能经 `kata runs exec` 或已分配的 `kata runs new` 路径运行；CLI 注入 `KATA_RUN_PATH`。结果进入 feature 的 `runs/<run-id>/`，仓库根目录不创建 `.runs`。
 - 正式脚本使用 `c<四位序号>-<英文slug>.spec.ts`；slug 根据中文标题判断并只保留一个，既有 slug 不因标题修改自动重算。
 

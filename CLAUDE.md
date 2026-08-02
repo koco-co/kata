@@ -5,6 +5,9 @@
 ## 验证纪律
 - 改动落盘即运行受影响范围的测试；失败在当前 worktree 查明根因，不得用 skip、TODO 或注释绕过；区分「已运行」「从代码确认」「尚未验证」，未执行完整范围不得声称全部通过。
 
+## 提交粒度
+- 按改动点分次 commit，消息风格参考既有 git 提交历史（`<emoji> <type>: <中文摘要>`）；不得整体一次性提交。
+
 ## 设计立场
 - 默认 dry-run，改变 Git 暂存区或外部系统须有显式开关；稳定 ID、用户内容与不可重建信息不得无提示覆盖。
 - 库函数只返回结果或抛出带错误码的错误，不得在库内调用 `process.exit()`。
@@ -19,12 +22,17 @@
 ## CLI 文档同步
 - 任何 CLI 命令、子命令、参数、默认值或行为调整，都必须同步更新 `cli/README.md`、对应的 `kata --help`/嵌套 help，以及 CLI 文档同步测试；CLI README 是递归 help 的完整参考。
 
+## Config 文档同步
+- 结构类变更（新增/移动/删除配置族、改路径、改私密性、改 example 对应）必须运行 `kata config docs` 重写 `config/README.md` 生成区并保持 `kata config docs --check` 通过；生成区内容由 config 注册表派生，禁止手改。
+- 策略类变更（安全边界、权限要求、使用说明）同步更新 `config/README.md` 手写区。
+- 旧布局不兼容：禁止为旧路径、旧文件名或旧格式提供别名、回退读取或 migrate 命令；任何代码、测试、文档中的旧路径字面量都会被 `kata config validate` 的残留守卫拒绝。
+
 ## 自动化用例文件名
 - `automation/tests/cases/` 下的正式用例脚本统一使用 `c0001-<lowercase-english-kebab-slug>.spec.ts`；slug 由模型参考中文标题判断并持久化到 cases YAML 的 `automation.spec_file`。
 - 标题后续调整不自动重算既有 slug；文件迁移和 runner 同步以 YAML 中明确声明的 `spec_file` 为准，缺失脚本不得生成通用占位文件。
 
 ## 产物位置与命名
-- `config/repos/policy.yaml` 是当前项目的受控产物路由与命名规则；`bun run check` 会检查 Git 已跟踪及未忽略的未跟踪文件。禁止在根目录输出临时配置，禁止使用 `lib/` 或 `automation/scripts/`。
+- `config/policies/repo-policy.yaml` 是当前项目的受控产物路由与命名规则；`bun run check` 会检查 Git 已跟踪及未忽略的未跟踪文件。禁止在根目录输出临时配置，禁止使用 `lib/` 或 `automation/scripts/`。
 - 模型在写入前先选择 policy 中最合适的目录和文件名：历史用例输入放 `cases/imports/`，YAML 是唯一中间态，派生文件只放 `cases/exports/`；`meta.imports` 和 `meta.exports` 只记录各目录下的具体文件名，未声明 `exports` 时默认生成与 YAML 同名的 `.xmind`；正式自动化源代码只放 `automation/tests/`，一次性代码只可放未跟踪的 `runs/<run-id>/_tmp/`。
 - 若 policy 没有合适的产物类型或目录，必须先说明拟生成内容、建议路径和命名并获得用户明确同意；获同意后同一变更必须更新 policy、相应文档和校验测试，随后才能写入该产物。
 

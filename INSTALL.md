@@ -41,13 +41,13 @@ Windows 克隆必须启用符号链接（`git config --global core.symlinks true
 
 ## DataAssets 环境
 
-每个平台使用一个本机私密文件：`config/env/<env>.yaml`。先创建目录并收紧权限：
+每个平台使用一个本机私密文件：`config/private/environments/<env>.yaml`。先创建目录并收紧权限：
 
 ```bash
-mkdir -p config/env
-chmod 700 config/env
+mkdir -p config/private/environments
+chmod 700 config/private/environments
 kata env add ci63 --url https://platform.example
-chmod 600 config/env/ci63.yaml
+chmod 600 config/private/environments/ci63.yaml
 ```
 
 补全稳定项目名、数据源名、租户和写入开关后，从标准输入写入 Cookie：
@@ -62,11 +62,11 @@ kata env doctor ci63
 
 ## 基础设施配置
 
-复制并填写 `config/infra/hosts.example.yaml`、`data_sources.example.yaml` 和 `credentials.example.yaml` 到对应的本机私密文件。真实密码、host fingerprint 和连接信息不得提交：
+复制并填写 `config/examples/infrastructure/` 下的 `hosts.example.yaml`、`data_sources.example.yaml` 和 `credentials.example.yaml` 到 `config/private/infrastructure/` 对应的本机私密文件。真实密码、host fingerprint 和连接信息不得提交：
 
 ```bash
-mkdir -p config/infra
-chmod 700 config/infra
+mkdir -p config/private/infrastructure
+chmod 700 config/private/infrastructure
 kata config doctor
 kata infra credentials set <name> --username <username>
 kata infra trust-host <host> --fingerprint <SHA256-fingerprint>
@@ -94,21 +94,21 @@ kata env run ci63 --inherit-env HTTP_PROXY,NO_PROXY -- bunx playwright test
 插件配置按用途写入本机 ignored YAML：
 
 ```bash
-mkdir -p config/plugin
-cp config/plugin/lanhu.example.yaml config/plugin/lanhu.yaml
-cp config/plugin/zentao.example.yaml config/plugin/zentao.yaml
-cp config/plugin/notify.example.yaml config/plugin/notify.yaml
-chmod 700 config/plugin
-chmod 600 config/plugin/*.yaml
+mkdir -p config/private/integrations
+cp config/examples/integrations/lanhu.example.yaml config/private/integrations/lanhu.yaml
+cp config/examples/integrations/zentao.example.yaml config/private/integrations/zentao.yaml
+cp config/examples/integrations/notify.example.yaml config/private/integrations/notify.yaml
+chmod 700 config/private/integrations
+chmod 600 config/private/integrations/*.yaml
 ```
 
-Lanhu 和 ZenTao 刷新后的 Cookie 会原子写回对应 YAML。旧根 `.env` 可以用 `kata config plugins-migrate` 预览并迁移插件字段；数据库 URL、旧 DTStack session 路径和未知字段不会被迁移。仓库不再自动加载根 `.env`。
+Lanhu 和 ZenTao 刷新后的 Cookie 会原子写回对应 YAML。仓库不自动加载根 `.env`，也不提供旧 dotenv 迁移命令；旧 `.env` 中的字段需要手动填回新布局的私密文件。
 
-不要提交 `config/plugin/*.yaml`、`config/env/*.yaml`、`config/infra/*.yaml`、会话文件或命令输出中的凭据。真实凭据一旦出现在聊天、日志或提交历史中，应在对应服务端立即轮换；删除本地文件不能使已经发出的令牌失效。
+不要提交 `config/private/` 下的任何文件、会话文件或命令输出中的凭据。真实凭据一旦出现在聊天、日志或提交历史中，应在对应服务端立即轮换；删除本地文件不能使已经发出的令牌失效。
 
 ## 源码仓库
 
-源码仓库目录 `config/repos/sources.yaml` 是本机不跟踪的私密配置（只有脱敏模板 `sources.example.yaml` 入库）；首次使用请复制模板后填写，实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
+源码仓库目录 `config/private/repositories.yaml` 是本机不跟踪的私密配置（只有脱敏模板 `config/examples/repositories.example.yaml` 入库）；首次使用请复制模板后填写，实体克隆在 `.repos/`（gitignored，仓库太大不入库）。把仓库克隆到配置的相对路径后，用 `kata repos list` 确认就位：
 
 ```bash
 git clone <remote-url> .repos/<group>/<repo>
@@ -125,7 +125,7 @@ kata repos prepare --project dataAssets --module 数据标准 --customer 标品
 PowerShell 等价步骤（本文其余示例为 bash 语法，管道与重定向在 PowerShell 中需相应改写）：
 
 ```powershell
-New-Item -ItemType Directory -Force config/env | Out-Null
+New-Item -ItemType Directory -Force config/private/environments | Out-Null
 kata project scan --project dataAssets
 kata env add ci63 --url https://platform.example
 ```

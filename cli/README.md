@@ -21,7 +21,7 @@ Commands:
   runs            运行结果目录操作
   env             管理本机私密的 DataAssets 平台环境
   repo            当前 Kata 仓库规范检查
-  repos           查询 config/repos/sources.yaml 配置的源码仓库(.repos/ 本地克隆)
+  repos           查询 config/private/repositories.yaml 配置的源码仓库(.repos/ 本地克隆)
   knowledge       项目知识的查询、维护与索引
   scans           代码 diff 扫描报告
   defects         缺陷报告生成与结构校验
@@ -67,7 +67,7 @@ Commands:
   import [options]  将 CSV/XLSX/MD/XMind 转为 YAML；XMind 可按 L1 拆分(默认 dry-run)
   sync [options]    按 YAML 中已声明的 Playwright spec_file 同步文件名和 generated
                     runner；API executor 单独报告(默认 dry-run)
-  lint [options]    检查 feature 目录、命名、YAML 来源与历史导入文件
+  lint [options]    检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
   help [command]    display help for command
 ```
 
@@ -79,12 +79,15 @@ Usage: kata config [options] [command]
 运行时配置检查
 
 Options:
-  -h, --help                 display help for command
+  -h, --help          display help for command
 
 Commands:
-  doctor [options]           检查配置目录、示例、权限、Schema 引用和旧路径
-  plugins-migrate [options]  从显式指定的旧 dotenv 文件迁移插件配置；默认 dry-run
-  help [command]             display help for command
+  list                按注册表列出全部配置族：路径、私密性、职责与 example 模板
+  show <family>       显示一个配置族的有效配置，敏感字段一律脱敏
+  validate [options]  校验全部配置族：结构、未知字段、example 完整性、权限
+  docs [options]      重写 config/README.md 生成区；--check 只校验不一致时退出码为 1
+  doctor [options]    检查配置目录、示例、权限、Schema 引用和旧路径
+  help [command]      display help for command
 ```
 
 ## kata runs
@@ -118,8 +121,8 @@ Options:
 
 Commands:
   add [options] <name>               创建一个本机私密平台环境模板
-  list                               列出 config/env 中的平台环境，不显示 Cookie
-  migrate [options]                  将旧版 DataAssets 私密环境迁移到 config/env
+  list                               列出 config/private/environments 中的平台环境，不显示
+                                     Cookie
   show <name>                        显示单个平台环境，Cookie 始终脱敏
   doctor [options] [name]            检查一个或全部环境的配置、权限、凭据和在线精确解析
   run [options] <name> <command...>  在线精确解析环境后运行命令
@@ -147,7 +150,7 @@ Commands:
 ```text
 Usage: kata repos [options] [command]
 
-查询 config/repos/sources.yaml 配置的源码仓库(.repos/ 本地克隆)
+查询 config/private/repositories.yaml 配置的源码仓库(.repos/ 本地克隆)
 
 Options:
   -h, --help                              display help for command
@@ -302,7 +305,8 @@ Options:
 
 Commands:
   fetch [options]   从禅道 Bug 链接提取缺陷详情、解决叙述和修复分支
-  create [options]  按 config/plugin/zentao.yaml 的映射从正式 Markdown 报告创建 bug
+  create [options]  按 config/private/integrations/zentao.yaml 的映射从正式 Markdown
+                    报告创建 bug
   help [command]    display help for command
 ```
 
@@ -430,11 +434,60 @@ Usage: kata cases lint [options]
 检查 feature 目录、命名、YAML 来源、用例内容与历史导入文件
 
 Options:
-  --project <name>    项目名；与 --all-projects 二选一
-  --all-projects      检查 workspace 下全部项目；与 --project 二选一
-  --feature <path>    只检查单个 feature（相对 features/ 的完整路径）
-  --exit-code         存在 violation 时退出码为 1
-  -h, --help          display help for command
+  --project <name>  项目名；与 --all-projects 二选一
+  --all-projects    检查 workspace 下全部项目；与 --project 二选一
+  --feature <path>  只检查单个 feature（相对 features/ 的完整路径）
+  --exit-code       存在 violation 时退出码为 1
+  -h, --help        display help for command
+```
+
+## kata config list
+
+```text
+Usage: kata config list [options]
+
+按注册表列出全部配置族：路径、私密性、职责与 example 模板
+
+Options:
+  -h, --help  display help for command
+```
+
+## kata config show
+
+```text
+Usage: kata config show [options] <family>
+
+显示一个配置族的有效配置，敏感字段一律脱敏
+
+Arguments:
+  family      配置族名，见 config list
+
+Options:
+  -h, --help  display help for command
+```
+
+## kata config validate
+
+```text
+Usage: kata config validate [options]
+
+校验全部配置族：结构、未知字段、example 完整性、权限
+
+Options:
+  --exit-code  存在错误时退出码为 1
+  -h, --help   display help for command
+```
+
+## kata config docs
+
+```text
+Usage: kata config docs [options]
+
+重写 config/README.md 生成区；--check 只校验不一致时退出码为 1
+
+Options:
+  --check     只校验不写入 (default: false)
+  -h, --help  display help for command
 ```
 
 ## kata config doctor
@@ -448,20 +501,6 @@ Options:
   --scope <scope>  检查范围: all 或 infra (default: "all")
   --fix            只修复目录和权限，不创建凭据
   --exit-code      存在错误时退出码为 1
-  -h, --help       display help for command
-```
-
-## kata config plugins-migrate
-
-```text
-Usage: kata config plugins-migrate [options]
-
-从显式指定的旧 dotenv 文件迁移插件配置；默认 dry-run
-
-Options:
-  --source <path>  旧 dotenv 文件路径
-  --root <path>    目标 Kata 工作区根目录 (default: <kata-root>)
-  --apply          写入 config/plugin/*.yaml
   -h, --help       display help for command
 ```
 
@@ -556,21 +595,9 @@ Options:
 ```text
 Usage: kata env list [options]
 
-列出 config/env 中的平台环境，不显示 Cookie
+列出 config/private/environments 中的平台环境，不显示 Cookie
 
 Options:
-  -h, --help  display help for command
-```
-
-## kata env migrate
-
-```text
-Usage: kata env migrate [options]
-
-将旧版 DataAssets 私密环境迁移到 config/env
-
-Options:
-  --apply     执行迁移；默认只预览 (default: false)
   -h, --help  display help for command
 ```
 
@@ -819,7 +846,7 @@ Usage: kata scans create [options]
 
 Options:
   --project <name>     项目名
-  --repo <name>        config/repos/sources.yaml 中的 group/repo 或 repo 短名
+  --repo <name>        config/private/repositories.yaml 中的 group/repo 或 repo 短名
   --base-branch <ref>  基线分支
   --head-branch <ref>  目标分支
   --patch <path>       已有 patch 文件；与分支对二选一
@@ -1169,7 +1196,7 @@ Options:
 ```text
 Usage: kata zentao create [options]
 
-按 config/plugin/zentao.yaml 的映射从正式 Markdown 报告创建 bug
+按 config/private/integrations/zentao.yaml 的映射从正式 Markdown 报告创建 bug
 
 Options:
   --report <path>  BugReport Markdown 路径
@@ -1278,7 +1305,7 @@ Usage: kata automation sql lint [options] <sql-file>
 按全局 SQL profile 校验模板
 
 Options:
-  --profile <name>  SQL 方言 profile 名称或已注册数据源类型（由 CLI 读取 config/automation/sql-profiles.yaml）
+  --profile <name>  SQL 方言 profile 名称或已注册数据源类型
   -h, --help        display help for command
 ```
 

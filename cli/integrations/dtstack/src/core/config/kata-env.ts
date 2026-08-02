@@ -34,7 +34,8 @@ export function loadKataEnvironment(
   if (!configPath) return undefined;
   const name = assertDataAssetsEnvName(envName);
   const absolutePath = resolve(configPath);
-  const root = resolve(dirname(dirname(dirname(absolutePath))));
+  // config/private/environments/<env>.yaml → repo root
+  const root = resolve(dirname(dirname(dirname(dirname(absolutePath)))));
   const expectedName = basename(absolutePath).replace(/\.ya?ml$/i, "");
   if (assertDataAssetsEnvName(expectedName) !== name) {
     throw new Error("KATA_DATAASSETS_CONFIG does not match the selected environment");

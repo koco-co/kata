@@ -118,8 +118,11 @@ describe("features lint", () => {
     const parent = mkdtempSync(join(tmpdir(), "kata-fl-env-"));
     const root = join(parent, "workspace");
     mkdirSync(join(root, "dataAssets", "features"), { recursive: true });
-    mkdirSync(join(parent, "config", "env"), { recursive: true });
-    writeFileSync(join(parent, "config", "env", "ltqc-local.yaml"), "base_url: https://x\n");
+    mkdirSync(join(parent, "config", "private", "environments"), { recursive: true });
+    writeFileSync(
+      join(parent, "config", "private", "environments", "ltqc-local.yaml"),
+      "base_url: https://x\n",
+    );
     const dir = join("v7.0.0", "【客户】【模块】需求");
     mkfeature(root, dir, "cases");
     writeFileSync(

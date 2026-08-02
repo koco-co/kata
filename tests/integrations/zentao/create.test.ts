@@ -17,7 +17,7 @@ import { lintMarkdownReport, parseBugReportMarkdown } from "../../../cli/lib/def
 
 const TEST_DIR = fileURLToPath(new URL(".", import.meta.url));
 const PROJECT_ROOT = resolve(TEST_DIR, "../../..");
-const CONFIG = join(PROJECT_ROOT, "config/plugin/zentao.example.yaml");
+const CONFIG = join(PROJECT_ROOT, "config/examples/integrations/zentao.example.yaml");
 
 describe("loadZentaoCreateConfig", () => {
   it("loads defaults from yaml", () => {
@@ -157,9 +157,12 @@ afterEach(() => {
 function runCli(args: string[]): { code: number; stdout: string; stderr: string } {
   const cliRoot = join(TMP, "repo");
   mkdirSync(join(cliRoot, "workspace"), { recursive: true });
-  mkdirSync(join(cliRoot, "config", "plugin"), { recursive: true });
+  mkdirSync(join(cliRoot, "config", "private", "integrations"), { recursive: true });
   writeFileSync(join(cliRoot, "package.json"), '{"name":"kata-zentao-create-test"}\n');
-  writeFileSync(join(cliRoot, "config", "plugin", "zentao.yaml"), readFileSync(CONFIG, "utf8"));
+  writeFileSync(
+    join(cliRoot, "config", "private", "integrations", "zentao.yaml"),
+    readFileSync(CONFIG, "utf8"),
+  );
   try {
     const stdout = execFileSync("bun", [KATA_TS, "zentao", "create", ...args], {
       encoding: "utf8",
@@ -175,13 +178,13 @@ function runCli(args: string[]): { code: number; stdout: string; stderr: string 
 }
 
 describe("CLI: canonical config", () => {
-  it("uses config/plugin/zentao.yaml without a second --config route", () => {
+  it("uses config/private/integrations/zentao.yaml without a second --config route", () => {
     const help = execFileSync("bun", [KATA_TS, "zentao", "create", "--help"], {
       encoding: "utf8",
       cwd: PROJECT_ROOT,
     });
     assert.equal(help.includes("--config"), false);
-    assert.ok(help.includes("config/plugin/zentao.yaml"));
+    assert.ok(help.includes("config/private/integrations/zentao.yaml"));
   });
 });
 

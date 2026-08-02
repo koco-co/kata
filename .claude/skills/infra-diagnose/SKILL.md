@@ -43,7 +43,7 @@ description: 诊断 Kata 工作区中已登记服务器或数据源的 SSH 连�
 ## Guardrails
 
 - 只使用 Kata 的 `ssh2` 检查能力，不执行任意远程命令、shell、脚本上传、服务重启、防火墙修改、配置变更或数据操作。
-- 凭据只保存在本机 `config/infra/credentials.yaml`；通过 `kata infra credentials set --username` 交互录入，不在命令参数、对话或日志中传递密码。
+- 凭据只保存在本机 `config/private/infrastructure/credentials.yaml`；通过 `kata infra credentials set --username` 交互录入，不在命令参数、对话或日志中传递密码。
 - host key 必须通过 `kata infra trust-host --fingerprint` 显式信任；不关闭校验，也不自动接受变化后的指纹。
 - 不自动把一次 connectivity 结果写成 `verified` 业务知识。
 
