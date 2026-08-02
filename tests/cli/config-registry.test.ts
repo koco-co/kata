@@ -159,7 +159,8 @@ describe("config registry", () => {
   test("validate flags legacy config path literals in tracked files", () => {
     const root = makeRoot();
     execSync("git init -q", { cwd: root, stdio: "ignore" });
-    writeFileSync(join(root, "README.md"), "参考 config/plugin/lanhu.yaml\n");
+    // 拼接避免测试源码本身被残留守卫扫到（植入对象是临时仓库的 README.md）。
+    writeFileSync(join(root, "README.md"), `参考 config/${"plugin"}/lanhu.yaml\n`);
     execSync("git add README.md", { cwd: root, stdio: "ignore" });
     const result = validateAllConfig(root);
     expect(

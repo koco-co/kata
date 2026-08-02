@@ -501,15 +501,9 @@ export function validateAllConfig(root: string = defaultRepoRoot()): ConfigValid
   return { ok: !issues.some((issue) => issue.level === "error"), issues };
 }
 
-/** 旧布局路径字面量（出现在代码/测试/文档中即视为残留，无兼容红线）。 */
-const LEGACY_CONFIG_PATTERNS = [
-  "config/repos/",
-  "config/plugin/",
-  "config/infra/",
-  "config/env/",
-  "config/lint/",
-  "config/xmind/",
-];
+/** 旧布局目录名；动态拼接避免守卫自身源码被误扫为残留。 */
+const LEGACY_CONFIG_DIRS = ["repos", "plugin", "infra", "env", "lint", "xmind"];
+const LEGACY_CONFIG_PATTERNS = LEGACY_CONFIG_DIRS.map((dir) => `config/${dir}/`);
 
 /**
  * 扫描已跟踪文件中出现的旧配置路径字面量。无 git 的临时根/非仓库直接跳过；
