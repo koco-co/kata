@@ -73,7 +73,7 @@ bunx playwright install
 Kata 不再自动加载根目录的 `.env`。配置按用途分目录存放，模板只提供字段和占位值：
 
 ```bash
-# DataAssets 平台 URL 与 Cookie
+# 平台 URL 与 Cookie
 kata env add ci63 --url https://platform.example
 printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
 kata env doctor ci63 --offline

@@ -73,7 +73,7 @@ bunx playwright install
 Kata no longer auto-loads a root `.env`. Configuration is split by purpose; examples contain fields and placeholders only:
 
 ```bash
-# DataAssets platform URL and cookie
+# Platform URL and cookie
 kata env add ci63 --url https://platform.example
 printf '%s' "$COOKIE" | kata env cookie set ci63 --stdin
 kata env doctor ci63 --offline

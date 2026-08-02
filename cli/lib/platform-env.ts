@@ -5,7 +5,6 @@ import {
   existsSync,
   lstatSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   renameSync,
   unlinkSync,
@@ -14,12 +13,17 @@ import {
 import { constants as osConstants } from "node:os";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { parse, stringify } from "yaml";
-import { environmentsDir } from "./config-paths.ts";
+import {
+  effectivePrivatePath,
+  environmentsDir,
+  privateFileRepoRoot,
+  privateInstanceFiles,
+} from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
-export const DATAASSETS_RESOLVED_ENV = "KATA_DATAASSETS_RESOLVED";
-export const DATAASSETS_CONFIG_ENV = "KATA_DATAASSETS_CONFIG";
+export const ACTIVE_ENV_RESOLVED_ENV = "KATA_ACTIVE_ENV_RESOLVED";
+export const ACTIVE_ENV_CONFIG_ENV = "KATA_ACTIVE_ENV_CONFIG";
 
 const ENV_NAME_RE = /^[a-z0-9][a-z0-9-]*$/;
 const PLACEHOLDER = "CHANGE_ME";
@@ -50,7 +54,7 @@ const SAFE_CHILD_ENV_KEYS = [
   "KATA_WORKSPACE_ROOT",
 ] as const;
 
-export interface DataAssetsEnvConfig {
+export interface PlatformEnvConfig {
   readonly schema_version: 2;
   readonly url: string;
   readonly auth: { readonly cookie: string };
@@ -68,11 +72,11 @@ export interface DataAssetsEnvConfig {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allow_write: boolean };
-  readonly automation?: DataAssetsAutomationConfig;
+  readonly automation?: PlatformAutomationConfig;
 }
 
 /** Environment-specific automation defaults; secrets and platform identity stay outside this node. */
-export interface DataAssetsAutomationConfig {
+export interface PlatformAutomationConfig {
   readonly cases?: string;
   readonly table_batch_suffix?: string;
   readonly table_partition?: string;
@@ -133,12 +137,12 @@ interface BatchDatasource {
   readonly type?: number;
 }
 
-export interface ResolvedDataAssetsEnv {
+export interface ResolvedPlatformEnv {
   readonly schemaVersion: 2;
   readonly env: string;
   readonly urls: {
     readonly baseUrl: string;
-    readonly dataAssetsBaseUrl: string;
+    readonly assetsBaseUrl: string;
     readonly offlineBaseUrl: string;
     readonly portalBaseUrl: string;
   };
@@ -166,7 +170,7 @@ export interface ResolvedDataAssetsEnv {
   >;
   readonly defaults: { readonly datasource: string };
   readonly safety: { readonly allowWrite: boolean };
-  readonly automation?: DataAssetsAutomationConfig;
+  readonly automation?: PlatformAutomationConfig;
   /** Non-fatal platform compatibility diagnostics collected during resolution. */
   readonly warnings?: readonly string[];
 }
@@ -177,13 +181,13 @@ export interface EnvFinding {
   readonly path: string;
 }
 
-export interface DataAssetsEnvContext {
+export interface PlatformEnvContext {
   readonly repoRoot?: string;
   readonly fetchImpl?: typeof fetch;
   readonly inheritEnv?: readonly string[];
 }
 
-function rootFrom(ctx?: DataAssetsEnvContext): string {
+function rootFrom(ctx?: PlatformEnvContext): string {
   if (ctx?.repoRoot) return resolve(ctx.repoRoot);
   const candidate = resolve(defaultRepoRoot());
   try {
@@ -198,7 +202,7 @@ function rootFrom(ctx?: DataAssetsEnvContext): string {
   return candidate;
 }
 
-export function assertDataAssetsEnvName(name: string): string {
+export function assertPlatformEnvName(name: string): string {
   const normalized = name
     .trim()
     .replace(/\.ya?ml$/i, "")
@@ -209,12 +213,16 @@ export function assertDataAssetsEnvName(name: string): string {
   return normalized;
 }
 
-export function dataAssetsEnvDir(root = defaultRepoRoot()): string {
+export function platformEnvDir(root = defaultRepoRoot()): string {
   return environmentsDir(root);
 }
 
-export function dataAssetsEnvPath(name: string, root = defaultRepoRoot()): string {
-  return join(dataAssetsEnvDir(root), `${assertDataAssetsEnvName(name)}.yaml`);
+export function platformEnvPath(name: string, root = defaultRepoRoot()): string {
+  return join(platformEnvDir(root), `${assertPlatformEnvName(name)}.yaml`);
+}
+
+export function effectivePlatformEnvPath(name: string, root: string): string {
+  return effectivePrivatePath(`environments/${assertPlatformEnvName(name)}.yaml`, root);
 }
 
 function mode(path: string): number {
@@ -248,7 +256,7 @@ function ensureEnvDir(root: string): string {
   const configDir = join(root, "config");
   assertNotSymlink(configDir, "config directory");
   if (!existsSync(configDir)) mkdirSync(configDir, { mode: ENV_DIR_MODE });
-  const envDir = dataAssetsEnvDir(root);
+  const envDir = platformEnvDir(root);
   assertNotSymlink(envDir, "environment directory");
   if (!existsSync(envDir)) mkdirSync(envDir, { recursive: true, mode: ENV_DIR_MODE });
   chmodSync(envDir, ENV_DIR_MODE);
@@ -298,7 +306,7 @@ function optionalNonNegativeInteger(value: unknown, path: string): number | unde
   return value;
 }
 
-function parseAutomationConfig(value: unknown): DataAssetsAutomationConfig | undefined {
+function parseAutomationConfig(value: unknown): PlatformAutomationConfig | undefined {
   if (value === undefined) return undefined;
   const automation = record(value, "automation");
   exactKeys(
@@ -468,7 +476,7 @@ function normalizeRootUrl(value: unknown): string {
   return url.origin;
 }
 
-function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
+function parseConfigText(text: string, path: string): PlatformEnvConfig {
   let raw: unknown;
   try {
     raw = parse(text);
@@ -512,7 +520,7 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
   if (typeof safety.allow_write !== "boolean")
     throw new Error("safety.allow_write must be boolean");
 
-  const parsedDatasources: DataAssetsEnvConfig["datasources"] = {};
+  const parsedDatasources: PlatformEnvConfig["datasources"] = {};
   for (const [key, value] of Object.entries(datasources)) {
     if (!ENV_NAME_RE.test(key)) throw new Error(`invalid datasource key: ${key}`);
     const datasource = record(value, `datasources.${key}`);
@@ -560,9 +568,9 @@ function parseConfigText(text: string, path: string): DataAssetsEnvConfig {
 }
 
 function assertSecureConfigPath(name: string, root: string): string {
-  const envDir = dataAssetsEnvDir(root);
+  const envDir = platformEnvDir(root);
   assertNoSymlinkPath(root, envDir, "environment directory");
-  const path = dataAssetsEnvPath(name, root);
+  const path = platformEnvPath(name, root);
   assertContained(root, path);
   if (!existsSync(envDir)) throw new Error(`environment directory not found: ${envDir}`);
   assertNotSymlink(envDir, "environment directory");
@@ -578,16 +586,15 @@ function assertSecureConfigPath(name: string, root: string): string {
   return path;
 }
 
-export function readDataAssetsEnvConfig(
-  name: string,
-  ctx?: DataAssetsEnvContext,
-): DataAssetsEnvConfig {
-  const root = rootFrom(ctx);
-  const path = assertSecureConfigPath(name, root);
+export function readPlatformEnvConfig(name: string, ctx?: PlatformEnvContext): PlatformEnvConfig {
+  const requestedRoot = rootFrom(ctx);
+  const effectivePath = effectivePlatformEnvPath(name, requestedRoot);
+  const ownerRoot = privateFileRepoRoot(effectivePath, requestedRoot);
+  const path = assertSecureConfigPath(name, ownerRoot);
   return parseConfigText(readFileSync(path, "utf8"), path);
 }
 
-function atomicWrite(path: string, config: DataAssetsEnvConfig): void {
+function atomicWrite(path: string, config: PlatformEnvConfig): void {
   const temp = join(dirname(path), `.${basename(path)}.${process.pid}.${randomUUID()}.tmp`);
   try {
     writeFileSync(temp, stringify(config, { lineWidth: 0 }), {
@@ -603,18 +610,19 @@ function atomicWrite(path: string, config: DataAssetsEnvConfig): void {
   }
 }
 
-export function addDataAssetsEnv(
+export function addPlatformEnv(
   name: string,
   url: string,
-  ctx?: DataAssetsEnvContext,
+  ctx?: PlatformEnvContext,
 ): { name: string; path: string; created: true } {
   const root = rootFrom(ctx);
-  const normalized = assertDataAssetsEnvName(name);
+  const normalized = assertPlatformEnvName(name);
+  const existing = effectivePlatformEnvPath(normalized, root);
+  if (existsSync(existing)) throw new Error(`environment already exists: ${normalized}`);
   const envDir = ensureEnvDir(root);
-  const path = dataAssetsEnvPath(normalized, root);
+  const path = platformEnvPath(normalized, root);
   assertContained(envDir, path);
-  if (existsSync(path)) throw new Error(`environment already exists: ${normalized}`);
-  const config: DataAssetsEnvConfig = {
+  const config: PlatformEnvConfig = {
     schema_version: 2,
     url: normalizeRootUrl(url),
     auth: { cookie: "" },
@@ -628,19 +636,15 @@ export function addDataAssetsEnv(
   return { name: normalized, path, created: true };
 }
 
-export function listDataAssetsEnvs(
-  ctx?: DataAssetsEnvContext,
+export function listPlatformEnvs(
+  ctx?: PlatformEnvContext,
 ): Array<{ name: string; url?: string; cookieConfigured: boolean; valid: boolean }> {
   const root = rootFrom(ctx);
-  const envDir = dataAssetsEnvDir(root);
-  if (!existsSync(envDir) || lstatSync(envDir).isSymbolicLink()) return [];
-  return readdirSync(envDir)
-    .filter((file) => file.endsWith(".yaml"))
-    .sort()
-    .map((file) => {
-      const name = file.replace(/\.yaml$/, "");
+  return privateInstanceFiles("environments", root)
+    .map((path) => basename(path, ".yaml"))
+    .map((name) => {
       try {
-        const config = readDataAssetsEnvConfig(name, { repoRoot: root });
+        const config = readPlatformEnvConfig(name, { repoRoot: root });
         return { name, url: config.url, cookieConfigured: config.auth.cookie !== "", valid: true };
       } catch {
         return { name, cookieConfigured: false, valid: false };
@@ -648,11 +652,8 @@ export function listDataAssetsEnvs(
     });
 }
 
-export function showDataAssetsEnv(
-  name: string,
-  ctx?: DataAssetsEnvContext,
-): Record<string, unknown> {
-  const config = readDataAssetsEnvConfig(name, ctx);
+export function showPlatformEnv(name: string, ctx?: PlatformEnvContext): Record<string, unknown> {
+  const config = readPlatformEnvConfig(name, ctx);
   return {
     ...config,
     auth: { cookie: config.auth.cookie ? "<redacted>" : "" },
@@ -680,7 +681,7 @@ function numberFromCookie(cookies: Map<string, string>, key: string): number | u
   return Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-function assertTenant(config: DataAssetsEnvConfig): Map<string, string> {
+function assertTenant(config: PlatformEnvConfig): Map<string, string> {
   if (!config.auth.cookie) throw new Error("cookie_missing");
   const cookies = cookieMap(config.auth.cookie);
   const actual = cookies.get("dt_tenant_name");
@@ -689,7 +690,7 @@ function assertTenant(config: DataAssetsEnvConfig): Map<string, string> {
   return cookies;
 }
 
-export function assertDataAssetsTenantCookie(config: DataAssetsEnvConfig): void {
+export function assertPlatformEnvTenantCookie(config: PlatformEnvConfig): void {
   assertTenant(config);
 }
 
@@ -755,7 +756,7 @@ class PlatformApiFailure extends Error {
 }
 
 async function post<T>(
-  config: DataAssetsEnvConfig,
+  config: PlatformEnvConfig,
   path: string,
   body: unknown,
   fetchImpl: typeof fetch,
@@ -837,7 +838,7 @@ function canUseMetadataDatasourceInventory(error: unknown): boolean {
 }
 
 async function fetchInventory(
-  config: DataAssetsEnvConfig,
+  config: PlatformEnvConfig,
   fetchImpl: typeof fetch,
 ): Promise<{
   qualityProjects: NamedProject[];
@@ -882,12 +883,12 @@ async function fetchInventory(
   };
 }
 
-export async function resolveDataAssetsEnv(
+export async function resolvePlatformEnv(
   name: string,
-  ctx?: DataAssetsEnvContext & { config?: DataAssetsEnvConfig },
-): Promise<ResolvedDataAssetsEnv> {
-  const normalized = assertDataAssetsEnvName(name);
-  const config = ctx?.config ?? readDataAssetsEnvConfig(normalized, ctx);
+  ctx?: PlatformEnvContext & { config?: PlatformEnvConfig },
+): Promise<ResolvedPlatformEnv> {
+  const normalized = assertPlatformEnvName(name);
+  const config = ctx?.config ?? readPlatformEnvConfig(normalized, ctx);
   const cookies = assertTenant(config);
   const fetchImpl = ctx?.fetchImpl ?? fetch;
   const inventory = await fetchInventory(config, fetchImpl);
@@ -918,7 +919,7 @@ export async function resolveDataAssetsEnv(
       )
     : [];
 
-  const resolvedDatasources: ResolvedDataAssetsEnv["datasources"] = {};
+  const resolvedDatasources: ResolvedPlatformEnv["datasources"] = {};
   for (const [key, expected] of Object.entries(config.datasources)) {
     const assets = exactOne(
       inventory.assetsDatasources,
@@ -973,7 +974,7 @@ export async function resolveDataAssetsEnv(
     env: normalized,
     urls: {
       baseUrl: config.url,
-      dataAssetsBaseUrl: `${config.url}/dataAssets`,
+      assetsBaseUrl: `${config.url}/dataAssets`,
       offlineBaseUrl: `${config.url}/batch`,
       portalBaseUrl: `${config.url}/portal`,
     },
@@ -999,11 +1000,11 @@ export async function resolveDataAssetsEnv(
   };
 }
 
-export async function discoverDataAssetsEnv(
+export async function discoverPlatformEnv(
   name: string,
-  ctx?: DataAssetsEnvContext & { cookie?: string },
+  ctx?: PlatformEnvContext & { cookie?: string },
 ): Promise<Record<string, unknown>> {
-  const stored = readDataAssetsEnvConfig(name, ctx);
+  const stored = readPlatformEnvConfig(name, ctx);
   const config =
     ctx?.cookie === undefined
       ? stored
@@ -1033,7 +1034,7 @@ export async function discoverDataAssetsEnv(
       )
     : [];
   return {
-    name: assertDataAssetsEnvName(name),
+    name: assertPlatformEnvName(name),
     tenant: config.guard.expected_tenant,
     qualityProjects: inventory.qualityProjects.map((item) => ({
       id: item.id,
@@ -1066,14 +1067,15 @@ export async function discoverDataAssetsEnv(
   };
 }
 
-export async function diagnoseDataAssetsEnv(
+export async function diagnosePlatformEnv(
   name: string,
-  options?: DataAssetsEnvContext & { offline?: boolean },
+  options?: PlatformEnvContext & { offline?: boolean },
 ): Promise<{ name: string; ok: boolean; online: boolean; findings: EnvFinding[] }> {
   const root = rootFrom(options);
-  const normalized = assertDataAssetsEnvName(name);
-  const path = dataAssetsEnvPath(normalized, root);
-  const dir = dataAssetsEnvDir(root);
+  const normalized = assertPlatformEnvName(name);
+  const path = effectivePlatformEnvPath(normalized, root);
+  const ownerRoot = privateFileRepoRoot(path, root);
+  const dir = dirname(path);
   const findings: EnvFinding[] = [];
   if (!existsSync(dir))
     findings.push({ code: "env_directory_missing", severity: "error", path: dir });
@@ -1087,11 +1089,11 @@ export async function diagnoseDataAssetsEnv(
   else {
     if (mode(path) !== ENV_FILE_MODE)
       findings.push({ code: "env_file_permissions", severity: "error", path });
-    if (isGitTracked(root, path))
+    if (isGitTracked(ownerRoot, path))
       findings.push({ code: "env_file_tracked", severity: "error", path });
   }
 
-  let config: DataAssetsEnvConfig | undefined;
+  let config: PlatformEnvConfig | undefined;
   if (findings.every((item) => !item.code.endsWith("missing") && !item.code.endsWith("symlink"))) {
     try {
       config = parseConfigText(readFileSync(path, "utf8"), path);
@@ -1119,7 +1121,7 @@ export async function diagnoseDataAssetsEnv(
   }
   if (!options?.offline && config && findings.every((item) => item.severity !== "error")) {
     try {
-      const resolved = await resolveDataAssetsEnv(normalized, { ...options, config });
+      const resolved = await resolvePlatformEnv(normalized, { ...options, config });
       for (const warning of resolved.warnings ?? []) {
         findings.push({ code: warning, severity: "warn", path: `${path}#datasources` });
       }
@@ -1139,18 +1141,18 @@ export async function diagnoseDataAssetsEnv(
   };
 }
 
-export async function setDataAssetsCookie(
+export async function setPlatformEnvCookie(
   name: string,
   cookie: string,
-  ctx?: DataAssetsEnvContext,
+  ctx?: PlatformEnvContext,
 ): Promise<{ name: string; configured: true; verified: true }> {
-  const normalized = assertDataAssetsEnvName(name);
+  const normalized = assertPlatformEnvName(name);
   const cleanCookie = normalizeCookieInput(cookie);
   const root = rootFrom(ctx);
-  const current = readDataAssetsEnvConfig(normalized, { repoRoot: root });
-  const candidate: DataAssetsEnvConfig = { ...current, auth: { cookie: cleanCookie } };
-  await resolveDataAssetsEnv(normalized, { ...ctx, repoRoot: root, config: candidate });
-  atomicWrite(dataAssetsEnvPath(normalized, root), candidate);
+  const current = readPlatformEnvConfig(normalized, { repoRoot: root });
+  const candidate: PlatformEnvConfig = { ...current, auth: { cookie: cleanCookie } };
+  await resolvePlatformEnv(normalized, { ...ctx, repoRoot: root, config: candidate });
+  atomicWrite(effectivePlatformEnvPath(normalized, root), candidate);
   return { name: normalized, configured: true, verified: true };
 }
 
@@ -1162,7 +1164,7 @@ function normalizeCookieInput(cookie: string): string {
   return cleanCookie;
 }
 
-function selectDataAssetsChildBaseEnv(
+function selectPlatformEnvChildBaseEnv(
   base: NodeJS.ProcessEnv,
   inheritEnv: readonly string[],
 ): NodeJS.ProcessEnv {
@@ -1178,32 +1180,32 @@ function selectDataAssetsChildBaseEnv(
   return selected;
 }
 
-export function buildDataAssetsChildEnv(
+export function buildPlatformEnvChildEnv(
   name: string,
-  resolved: ResolvedDataAssetsEnv,
-  ctx?: DataAssetsEnvContext,
+  resolved: ResolvedPlatformEnv,
+  ctx?: PlatformEnvContext,
   base: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
   const root = rootFrom(ctx);
   return {
-    ...selectDataAssetsChildBaseEnv(base, ctx?.inheritEnv ?? []),
-    [DATAASSETS_CONFIG_ENV]: dataAssetsEnvPath(name, root),
-    [DATAASSETS_RESOLVED_ENV]: JSON.stringify(resolved),
+    ...selectPlatformEnvChildBaseEnv(base, ctx?.inheritEnv ?? []),
+    [ACTIVE_ENV_CONFIG_ENV]: effectivePlatformEnvPath(name, root),
+    [ACTIVE_ENV_RESOLVED_ENV]: JSON.stringify(resolved),
     KATA_ACTIVE_PROJECT: "dataAssets",
   };
 }
 
-export async function runDataAssetsCommand(
+export async function runPlatformEnvCommand(
   name: string,
   command: readonly string[],
-  ctx?: DataAssetsEnvContext,
+  ctx?: PlatformEnvContext,
 ): Promise<number> {
   if (command.length === 0) throw new Error("kata env run requires a command after --");
-  const normalized = assertDataAssetsEnvName(name);
-  const resolved = await resolveDataAssetsEnv(normalized, ctx);
+  const normalized = assertPlatformEnvName(name);
+  const resolved = await resolvePlatformEnv(normalized, ctx);
   const child = spawn(command[0], command.slice(1), {
     cwd: process.cwd(),
-    env: buildDataAssetsChildEnv(normalized, resolved, ctx),
+    env: buildPlatformEnvChildEnv(normalized, resolved, ctx),
     stdio: "inherit",
   });
   const signals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGHUP"];

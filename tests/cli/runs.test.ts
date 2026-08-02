@@ -21,10 +21,7 @@ import {
   resolvePlaywrightOutputDir,
   resolvePlaywrightRunPath,
 } from "../../cli/lib/automation/playwright-run-path.ts";
-import {
-  buildDataAssetsChildEnv,
-  type ResolvedDataAssetsEnv,
-} from "../../cli/lib/dataassets-env.ts";
+import { buildPlatformEnvChildEnv, type ResolvedPlatformEnv } from "../../cli/lib/platform-env.ts";
 import { RUN_ID_RE, runIdType } from "../../cli/lib/run-id.ts";
 import { executeWithRunPath } from "../../cli/lib/runs-exec.ts";
 
@@ -227,9 +224,9 @@ describe("runs execution contract", () => {
 
   it("preserves run variables through kata env run child filtering", () => {
     const { root } = createProjectRoot();
-    const childEnv = buildDataAssetsChildEnv(
+    const childEnv = buildPlatformEnvChildEnv(
       "ci63",
-      { env: "ci63" } as ResolvedDataAssetsEnv,
+      { env: "ci63" } as ResolvedPlatformEnv,
       { repoRoot: root },
       {
         PATH: process.env.PATH,
@@ -241,7 +238,7 @@ describe("runs execution contract", () => {
 
     expect(childEnv.KATA_RUN_PATH).toBe("/tmp/kata-run");
     expect(childEnv.KATA_WORKSPACE_ROOT).toBe("/private/workspace");
-    expect(childEnv.KATA_DATAASSETS_ENV).toBeUndefined();
+    expect(childEnv.KATA_ACTIVE_ENV).toBeUndefined();
     expect(childEnv.SHOULD_NOT_BE_INHERITED).toBeUndefined();
   });
 

@@ -55,10 +55,6 @@ export interface PlaywrightAutomationConfig {
   };
 }
 
-interface PlaywrightAutomationYaml {
-  readonly playwright?: Record<string, unknown>;
-}
-
 const CONFIG_PATH = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../../config/automation/playwright.yaml",
@@ -375,6 +371,32 @@ function mergeOverrides(
   );
 }
 
+/** 解析并完整校验一份 Playwright 自动化 YAML 文档。 */
+export function parsePlaywrightAutomationConfigDocument(
+  document: unknown,
+  source: string,
+): PlaywrightAutomationConfig {
+  const root = record(document, source);
+  exactKeys(root, ["playwright"], source);
+  const values = record(root.playwright, `${source}.playwright`);
+  return parseCompleteValues(values, `${source}.playwright`);
+}
+
+/** 从任意显式路径加载配置，供 CLI 注册表与运行时共享同一校验器。 */
+export function loadPlaywrightAutomationConfigFile(
+  configPath: string,
+  source = configPath,
+): PlaywrightAutomationConfig {
+  if (!fs.existsSync(configPath)) throw new Error(`缺少公共 Playwright 配置: ${configPath}`);
+  let document: unknown;
+  try {
+    document = parse(fs.readFileSync(configPath, "utf8"));
+  } catch {
+    throw new Error(`${source} 不是合法 YAML: ${configPath}`);
+  }
+  return parsePlaywrightAutomationConfigDocument(document, source);
+}
+
 export function parsePlaywrightAutomationOverrides(
   values: Record<string, unknown>,
   source = "命令行 Playwright 配置.playwright",
@@ -440,19 +462,10 @@ export function readPlaywrightAutomationOverrides(
 export function loadPlaywrightAutomationConfig(options?: {
   readonly overrides?: PlaywrightAutomationOverrides;
 }): PlaywrightAutomationConfig {
-  if (!fs.existsSync(CONFIG_PATH)) {
-    throw new Error(`缺少公共 Playwright 配置: ${CONFIG_PATH}`);
-  }
-  let document: PlaywrightAutomationYaml;
-  try {
-    document = parse(fs.readFileSync(CONFIG_PATH, "utf8")) as PlaywrightAutomationYaml;
-  } catch {
-    throw new Error(`config/automation/playwright.yaml 不是合法 YAML: ${CONFIG_PATH}`);
-  }
-  const root = record(document, "config/automation/playwright.yaml");
-  exactKeys(root, ["playwright"], "config/automation/playwright.yaml");
-  const values = record(root.playwright, "playwright");
-  const config = parseCompleteValues(values, "playwright");
+  const config = loadPlaywrightAutomationConfigFile(
+    CONFIG_PATH,
+    "config/automation/playwright.yaml",
+  );
   const overrides = options?.overrides ?? readPlaywrightAutomationOverrides();
   return Object.keys(overrides).length > 0 ? mergeOverrides(config, overrides) : config;
 }

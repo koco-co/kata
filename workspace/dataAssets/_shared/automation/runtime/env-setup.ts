@@ -20,7 +20,7 @@ export function normalizeBaseUrl(product: string): string {
 }
 
 export function normalizeDataAssetsBaseUrl(): string {
-  return getEnvConfig().urls.dataAssetsBaseUrl;
+  return getEnvConfig().urls.assetsBaseUrl;
 }
 
 export function normalizeDataAssetsApiBaseUrl(baseUrl = getEnvConfig().urls.baseUrl): string {

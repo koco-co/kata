@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { execFileSync } from "node:child_process";
 import {
   chmodSync,
   existsSync,
@@ -24,6 +25,44 @@ function root(): string {
   mkdirSync(join(value, "config", "private", "integrations"), { recursive: true, mode: 0o700 });
   chmodSync(join(value, "config", "private", "integrations"), 0o700);
   return value;
+}
+
+function linkedRoot(): { main: string; linked: string; cleanup: () => void } {
+  const container = mkdtempSync(join(tmpdir(), "kata-plugin-worktree-"));
+  const main = join(container, "main");
+  const linked = join(container, "linked");
+  mkdirSync(main);
+  writeFileSync(join(main, "README.md"), "fixture\n");
+  execFileSync("git", ["init", "-q", "-b", "main", main]);
+  execFileSync("git", ["-C", main, "add", "README.md"]);
+  execFileSync("git", [
+    "-C",
+    main,
+    "-c",
+    "user.name=Kata Test",
+    "-c",
+    "user.email=kata@example.invalid",
+    "commit",
+    "-q",
+    "-m",
+    "fixture",
+  ]);
+  execFileSync("git", ["-C", main, "worktree", "add", "-q", "--detach", linked, "HEAD"]);
+  for (const repo of [main, linked]) {
+    mkdirSync(join(repo, "config", "private", "integrations"), {
+      recursive: true,
+      mode: 0o700,
+    });
+    chmodSync(join(repo, "config", "private", "integrations"), 0o700);
+  }
+  return {
+    main,
+    linked,
+    cleanup: () => {
+      execFileSync("git", ["-C", main, "worktree", "remove", "--force", linked]);
+      rmSync(container, { recursive: true, force: true });
+    },
+  };
 }
 
 describe("plugin configuration", () => {
@@ -54,6 +93,28 @@ describe("plugin configuration", () => {
     expect(config.is_enable).toBe(true);
     expect(config.enabled_events).toBeUndefined();
     expect(config.dingtalk?.is_enable).toBe(true);
+  });
+
+  test("resolves each integration file independently across linked and shared private roots", () => {
+    const fixture = linkedRoot();
+    try {
+      writeFileSync(
+        join(fixture.linked, "config", "private", "integrations", "lanhu.yaml"),
+        "cookie: local\n",
+        {
+          mode: 0o600,
+        },
+      );
+      writeFileSync(
+        join(fixture.main, "config", "private", "integrations", "zentao.yaml"),
+        "base_url: https://zentao.example.invalid\nusername: shared-user\n",
+        { mode: 0o600 },
+      );
+
+      expect(loadZentaoConfig(fixture.linked, {}).username).toBe("shared-user");
+    } finally {
+      fixture.cleanup();
+    }
   });
 
   test("keeps explicit notification allow-list and channel switch", () => {

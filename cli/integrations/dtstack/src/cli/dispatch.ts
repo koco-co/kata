@@ -53,7 +53,7 @@ function optionalPolicy(value: unknown, flag: string): "warn" | "fail" | undefin
 function resolveConfigPath(values: Record<string, unknown>): string | undefined {
   const explicit = (values.config as string | undefined) ?? process.env.DTSTACK_CONFIG;
   if (explicit) return explicit;
-  if (process.env.KATA_DATAASSETS_CONFIG) return undefined;
+  if (process.env.KATA_ACTIVE_ENV_CONFIG) return undefined;
   if (existsSync("dtstack-cli.yaml")) return "dtstack-cli.yaml";
   return undefined;
 }
@@ -64,11 +64,11 @@ function resolveConfigPath(values: Record<string, unknown>): string | undefined 
  */
 function resolveEnv(values: Record<string, unknown>, config?: DtStackCliConfig): string {
   let kataResolvedEnv: string | undefined;
-  if (process.env.KATA_DATAASSETS_RESOLVED) {
+  if (process.env.KATA_ACTIVE_ENV_RESOLVED) {
     try {
-      kataResolvedEnv = (JSON.parse(process.env.KATA_DATAASSETS_RESOLVED) as { env?: string }).env;
+      kataResolvedEnv = (JSON.parse(process.env.KATA_ACTIVE_ENV_RESOLVED) as { env?: string }).env;
     } catch {
-      throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
+      throw new Error("KATA_ACTIVE_ENV_RESOLVED is invalid JSON");
     }
   }
   return (

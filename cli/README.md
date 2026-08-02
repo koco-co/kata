@@ -19,7 +19,7 @@ Commands:
   cases           用例导入、构建与检查
   config          运行时配置检查
   runs            运行结果目录操作
-  env             管理本机私密的 DataAssets 平台环境
+  env             管理本机私密的平台环境
   repo            当前 Kata 仓库规范检查
   repos           查询 config/private/repositories.yaml 配置的源码仓库(.repos/ 本地克隆)
   knowledge       项目知识的查询、维护与索引
@@ -83,10 +83,10 @@ Options:
 
 Commands:
   list                按注册表列出全部配置族：路径、私密性、职责与 example 模板
-  show <family>       显示一个配置族的有效配置，敏感字段一律脱敏
-  validate [options]  校验全部配置族：结构、未知字段、example 完整性、权限
+  show <family>       显示一个配置族的有效配置；私密族仅输出整体脱敏占位符
+  validate [options]  校验全部配置族：运行时完整契约、未知字段、example、权限
   docs [options]      重写 config/README.md 生成区；--check 只校验不一致时退出码为 1
-  doctor [options]    检查配置目录、示例、权限、Schema 引用和旧路径
+  doctor [options]    检查实际生效的配置根、示例、权限、Schema 引用和旧路径
   help [command]      display help for command
 ```
 
@@ -114,7 +114,7 @@ Commands:
 ```text
 Usage: kata env [options] [command]
 
-管理本机私密的 DataAssets 平台环境
+管理本机私密的平台环境
 
 Options:
   -h, --help                         display help for command
@@ -457,7 +457,7 @@ Options:
 ```text
 Usage: kata config show [options] <family>
 
-显示一个配置族的有效配置，敏感字段一律脱敏
+显示一个配置族的有效配置；私密族仅输出整体脱敏占位符
 
 Arguments:
   family      配置族名，见 config list
@@ -471,7 +471,7 @@ Options:
 ```text
 Usage: kata config validate [options]
 
-校验全部配置族：结构、未知字段、example 完整性、权限
+校验全部配置族：运行时完整契约、未知字段、example、权限
 
 Options:
   --exit-code  存在错误时退出码为 1
@@ -495,7 +495,7 @@ Options:
 ```text
 Usage: kata config doctor [options]
 
-检查配置目录、示例、权限、Schema 引用和旧路径
+检查实际生效的配置根、示例、权限、Schema 引用和旧路径
 
 Options:
   --scope <scope>  检查范围: all 或 infra (default: "all")

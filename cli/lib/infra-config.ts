@@ -13,14 +13,15 @@ import {
 import { dirname, join, resolve } from "node:path";
 import { parse, stringify } from "yaml";
 import {
-  environmentsDir,
+  effectivePrivateDir,
+  effectivePrivatePath,
   environmentsExamplePath,
   infrastructureDir,
   infrastructureExamplePath,
-  integrationsDir,
+  privateConfigRoots,
+  privateFileRepoRoot,
   privateRoot,
   repositoriesExamplePath,
-  repositoriesPath,
 } from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
@@ -80,6 +81,16 @@ export function infraConfigPath(kind: InfraConfigKind, root: string = defaultRep
 
 export function infraExamplePath(kind: InfraConfigKind, root: string = defaultRepoRoot()): string {
   return infrastructureExamplePath(kind, root);
+}
+
+function effectiveInfraConfigPath(kind: InfraConfigKind, root: string = defaultRepoRoot()): string {
+  return effectivePrivatePath(`infrastructure/${kind}.yaml`, root);
+}
+
+function writableInfraConfigPath(kind: InfraConfigKind, root: string = defaultRepoRoot()): string {
+  const existing = effectiveInfraConfigPath(kind, root);
+  if (existsSync(existing)) return existing;
+  return join(effectivePrivateDir("infrastructure", root), `${kind}.yaml`);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -174,10 +185,12 @@ function parseCredentials(value: unknown, path: string): Record<string, Credenti
 }
 
 export function readInfraConfig(root: string = defaultRepoRoot()): InfraConfig {
-  assertNoSymlinkPath(resolve(root), infraDir(root), "infra directory");
-  const hostsPath = infraConfigPath("hosts", root);
-  const dataSourcesPath = infraConfigPath("data_sources", root);
-  const credentialsPath = infraConfigPath("credentials", root);
+  const hostsPath = effectiveInfraConfigPath("hosts", root);
+  const dataSourcesPath = effectiveInfraConfigPath("data_sources", root);
+  const credentialsPath = effectiveInfraConfigPath("credentials", root);
+  for (const path of [hostsPath, dataSourcesPath, credentialsPath]) {
+    assertNoSymlinkPath(privateFileRepoRoot(path, root), path, "infrastructure config");
+  }
   if (!existsSync(hostsPath)) throw new Error(`missing infrastructure config: ${hostsPath}`);
   if (!existsSync(dataSourcesPath)) {
     throw new Error(`missing infrastructure config: ${dataSourcesPath}`);
@@ -233,12 +246,13 @@ export function writeCredentialProfile(
   }
   requiredString(profile.username, "credential.username");
   requiredString(profile.password, "credential.password");
-  assertNoSymlinkPath(resolve(root), infraDir(root), "infra directory");
-  const path = infraConfigPath("credentials", root);
+  const path = writableInfraConfigPath("credentials", root);
+  const ownerRoot = privateFileRepoRoot(path, root);
+  assertNoSymlinkPath(ownerRoot, dirname(path), "infra directory");
   const current = readYamlObject(path);
   const credentials = isRecord(current.credentials) ? { ...current.credentials } : {};
   credentials[name] = { kind: "password", username: profile.username, password: profile.password };
-  writeYamlAtomic(path, { credentials }, root);
+  writeYamlAtomic(path, { credentials }, ownerRoot);
   return path;
 }
 
@@ -253,14 +267,15 @@ export function trustHostKey(
   if (!HOST_KEY_FINGERPRINT_RE.test(normalized)) {
     throw new Error("fingerprint must match SHA256:<43-char base64>");
   }
-  assertNoSymlinkPath(resolve(root), infraDir(root), "infra directory");
-  const path = infraConfigPath("hosts", root);
+  const path = writableInfraConfigPath("hosts", root);
+  const ownerRoot = privateFileRepoRoot(path, root);
+  assertNoSymlinkPath(ownerRoot, dirname(path), "infra directory");
   const current = readYamlObject(path);
   const hosts = isRecord(current.hosts) ? { ...current.hosts } : {};
   const host = hosts[name];
   if (!isRecord(host)) throw new Error(`unknown infrastructure host: ${name}`);
   hosts[name] = { ...host, host_key: normalized };
-  writeYamlAtomic(path, { hosts }, root);
+  writeYamlAtomic(path, { hosts }, ownerRoot);
   return path;
 }
 
@@ -338,17 +353,23 @@ export function runConfigDoctor(
   const scope = options.scope ?? "all";
   const issues: ConfigIssue[] = [];
   const checked: string[] = [];
-  const privateDir = privateRoot(root);
-  const envDir = environmentsDir(root);
-  const pluginDir = integrationsDir(root);
-  const infra = infraDir(root);
+  const privateRoots = privateConfigRoots(root);
+  const existingPrivateRoots = privateRoots.filter((path) => existsSync(path));
+  const checkedPrivateRoots =
+    existingPrivateRoots.length > 0 ? existingPrivateRoots : [privateRoot(root)];
+  const privateDir = checkedPrivateRoots[0];
+  const envDir = effectivePrivateDir("environments", root);
+  const pluginDir = effectivePrivateDir("integrations", root);
+  const infra = effectivePrivateDir("infrastructure", root);
   if (options.fix) {
-    assertNoSymlinkPath(root, infra, "infra directory");
+    const ownerRoot = privateFileRepoRoot(join(infra, ".doctor"), root);
+    assertNoSymlinkPath(ownerRoot, infra, "infra directory");
     mkdirSync(infra, { recursive: true, mode: 0o700 });
     chmodSync(infra, 0o700);
     if (scope === "all") {
       for (const dir of [privateDir, envDir, pluginDir]) {
-        assertNoSymlinkPath(root, dir, "private config directory");
+        const dirOwnerRoot = privateFileRepoRoot(join(dir, ".doctor"), root);
+        assertNoSymlinkPath(dirOwnerRoot, dir, "private config directory");
         mkdirSync(dir, { recursive: true, mode: 0o700 });
         chmodSync(dir, 0o700);
       }
@@ -362,7 +383,7 @@ export function runConfigDoctor(
   checked.push(infra);
   checkPrivateDir(infra, issues, scope === "infra");
   for (const kind of ["hosts", "data_sources", "credentials"] as const) {
-    const path = infraConfigPath(kind, root);
+    const path = effectiveInfraConfigPath(kind, root);
     checked.push(path);
     if (options.fix && existsSync(path) && !lstatSync(path).isSymbolicLink()) {
       chmodSync(path, 0o600);
@@ -371,7 +392,7 @@ export function runConfigDoctor(
   }
   if (
     ["hosts", "data_sources", "credentials"].every((kind) =>
-      existsSync(infraConfigPath(kind as InfraConfigKind, root)),
+      existsSync(effectiveInfraConfigPath(kind as InfraConfigKind, root)),
     )
   ) {
     try {
@@ -391,8 +412,8 @@ export function runConfigDoctor(
     if (existsSync(path)) issue(issues, "error", path, "legacy configuration path must be removed");
   }
   if (scope === "all") {
-    checked.push(privateDir, envDir, pluginDir);
-    checkPrivateDir(privateDir, issues, true);
+    checked.push(...checkedPrivateRoots, envDir, pluginDir);
+    for (const candidate of checkedPrivateRoots) checkPrivateDir(candidate, issues, true);
     checkPrivateDir(envDir, issues, true);
     checkPrivateDir(pluginDir, issues, true);
     checkTrackedPrivateFiles(root, ["config/private"], issues, checked);
@@ -404,7 +425,7 @@ export function runConfigDoctor(
     if (!existsSync(repositoriesExample)) {
       issue(issues, "error", repositoriesExample, "tracked example is missing");
     }
-    const repositories = repositoriesPath(root);
+    const repositories = effectivePrivatePath("repositories.yaml", root);
     checked.push(repositories);
     checkPrivatePath(repositories, issues, false, "private source-repository catalog");
   }

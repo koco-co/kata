@@ -39,7 +39,7 @@ Windows 克隆必须启用符号链接（`git config --global core.symlinks true
 
 项目不再使用根目录 `config.json`。不要从旧的 `config.example.json` 创建第二套配置。
 
-## DataAssets 环境
+## 平台环境
 
 每个平台使用一个本机私密文件：`config/private/environments/<env>.yaml`。先创建目录并收紧权限：
 

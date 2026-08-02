@@ -2,9 +2,11 @@ import { describe, expect, it } from "bun:test";
 import { execFileSync } from "node:child_process";
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -51,6 +53,50 @@ function writePrivate(root: string, name: string, value: unknown): void {
   chmodSync(path, 0o600);
 }
 
+function makeLinkedInfraWorktree(): { main: string; linked: string; cleanup: () => void } {
+  const container = mkdtempSync(join(tmpdir(), "kata-infra-worktree-"));
+  const main = join(container, "main");
+  const linked = join(container, "linked");
+  mkdirSync(main);
+  mkdirSync(join(main, "config", "examples", "infrastructure"), { recursive: true });
+  for (const name of ["hosts", "data_sources", "credentials"] as const) {
+    writeFileSync(
+      join(main, "config", "examples", "infrastructure", `${name}.example.yaml`),
+      `${name}: {}\n`,
+    );
+  }
+  writeFileSync(join(main, "README.md"), "fixture\n");
+  execFileSync("git", ["init", "-q", "-b", "main", main]);
+  execFileSync("git", ["-C", main, "add", "README.md", "config/examples"]);
+  execFileSync("git", [
+    "-C",
+    main,
+    "-c",
+    "user.name=Kata Test",
+    "-c",
+    "user.email=kata@example.invalid",
+    "commit",
+    "-q",
+    "-m",
+    "fixture",
+  ]);
+  execFileSync("git", ["-C", main, "worktree", "add", "-q", "--detach", linked, "HEAD"]);
+  mkdirSync(join(main, "config", "private", "infrastructure"), {
+    recursive: true,
+    mode: 0o700,
+  });
+  chmodSync(join(main, "config", "private"), 0o700);
+  chmodSync(join(main, "config", "private", "infrastructure"), 0o700);
+  return {
+    main,
+    linked,
+    cleanup: () => {
+      execFileSync("git", ["-C", main, "worktree", "remove", "--force", linked]);
+      rmSync(container, { recursive: true, force: true });
+    },
+  };
+}
+
 describe("infrastructure configuration", () => {
   it("keeps host, data source and credential profiles separate", () => {
     const root = makeRoot();
@@ -69,6 +115,37 @@ describe("infrastructure configuration", () => {
     });
     expect(readInfraConfig(root).hosts.app.credential_ref).toBe("shared");
     expect(readInfraConfig(root).data_sources.hive.port).toBe(10000);
+  });
+
+  it("reads and diagnoses shared infrastructure from a linked worktree", () => {
+    const fixture = makeLinkedInfraWorktree();
+    try {
+      writePrivate(fixture.main, "hosts", {
+        hosts: { app: { host: "192.0.2.10", port: 22, credential_ref: "shared" } },
+      });
+      writePrivate(fixture.main, "data_sources", {
+        data_sources: {
+          hive: { type: "hive", host: "192.0.2.10", port: 10000, credential_ref: "shared" },
+        },
+      });
+      writePrivate(fixture.main, "credentials", {
+        credentials: { shared: { kind: "password", username: "qa", password: "test-only" } },
+      });
+
+      expect(readInfraConfig(fixture.linked).data_sources.hive.port).toBe(10000);
+      const diagnosis = runConfigDoctor({ root: fixture.linked, scope: "infra" });
+      expect(diagnosis.ok).toBe(true);
+      expect(diagnosis.checked).toContain(
+        realpathSync(join(fixture.main, "config", "private", "infrastructure", "hosts.yaml")),
+      );
+      expect(diagnosis.checked).not.toContain(
+        join(fixture.linked, "config", "private", "infrastructure", "hosts.yaml"),
+      );
+      expect(runConfigDoctor({ root: fixture.linked, scope: "infra", fix: true }).ok).toBe(true);
+      expect(existsSync(join(fixture.linked, "config", "private"))).toBe(false);
+    } finally {
+      fixture.cleanup();
+    }
   });
 
   it("assigns type-specific default credential profiles when omitted", () => {

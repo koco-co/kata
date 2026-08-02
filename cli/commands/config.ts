@@ -18,13 +18,13 @@ export function registerConfig(program: Command): void {
 
   config
     .command("show")
-    .description("显示一个配置族的有效配置，敏感字段一律脱敏")
+    .description("显示一个配置族的有效配置；私密族仅输出整体脱敏占位符")
     .argument("<family>", "配置族名，见 config list")
     .action((family: string) => outputJson(showFamily(family)));
 
   config
     .command("validate")
-    .description("校验全部配置族：结构、未知字段、example 完整性、权限")
+    .description("校验全部配置族：运行时完整契约、未知字段、example、权限")
     .option("--exit-code", "存在错误时退出码为 1")
     .action((opts: { exitCode?: boolean }) => {
       const result = validateAllConfig();
@@ -44,7 +44,7 @@ export function registerConfig(program: Command): void {
 
   config
     .command("doctor")
-    .description("检查配置目录、示例、权限、Schema 引用和旧路径")
+    .description("检查实际生效的配置根、示例、权限、Schema 引用和旧路径")
     .option("--scope <scope>", "检查范围: all 或 infra", "all")
     .option("--fix", "只修复目录和权限，不创建凭据")
     .option("--exit-code", "存在错误时退出码为 1")

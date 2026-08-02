@@ -1,18 +1,18 @@
 import { dirname, resolve } from "node:path";
 import {
-  DATAASSETS_CONFIG_ENV,
-  DATAASSETS_RESOLVED_ENV,
-  assertDataAssetsTenantCookie,
-  assertDataAssetsEnvName,
-  dataAssetsEnvPath,
-  readDataAssetsEnvConfig,
-  type ResolvedDataAssetsEnv,
-  type DataAssetsAutomationConfig,
-} from "../../../../../cli/lib/dataassets-env";
+  ACTIVE_ENV_CONFIG_ENV,
+  ACTIVE_ENV_RESOLVED_ENV,
+  assertPlatformEnvTenantCookie,
+  assertPlatformEnvName,
+  effectivePlatformEnvPath,
+  readPlatformEnvConfig,
+  type ResolvedPlatformEnv,
+  type PlatformAutomationConfig,
+} from "../../../../../cli/lib/platform-env";
 
 export type RuntimeEnv = Record<string, string | undefined>;
 
-export interface DataAssetsDatasourceProfile {
+export interface PlatformDatasourceProfile {
   readonly enabled: boolean;
   readonly uiLabel: string;
   readonly preconditionType: "SparkThrift" | "Doris" | string;
@@ -31,7 +31,7 @@ export interface DataAssetsDatasourceProfile {
   readonly requiresOffline: boolean;
 }
 
-export interface DataAssetsRuntimeOptions {
+export interface PlatformRuntimeOptions {
   readonly defaultDatasource: string;
   readonly activeDatasources: readonly string[];
   readonly tablePrefix: string;
@@ -45,11 +45,11 @@ export interface DataAssetsRuntimeOptions {
   };
 }
 
-export interface DataAssetsEnvProfile {
+export interface PlatformEnvProfile {
   readonly schemaVersion: 2;
   readonly project: "dataAssets";
   readonly env: string;
-  readonly urls: ResolvedDataAssetsEnv["urls"];
+  readonly urls: ResolvedPlatformEnv["urls"];
   readonly auth: {
     readonly cookie: string;
     readonly tenantId?: number;
@@ -61,19 +61,19 @@ export interface DataAssetsEnvProfile {
     readonly quality: { readonly id: number; readonly name: string };
     readonly offline?: { readonly id: number; readonly name: string };
   };
-  readonly datasources: Record<string, DataAssetsDatasourceProfile>;
-  readonly automation?: DataAssetsAutomationConfig;
-  readonly runtime: DataAssetsRuntimeOptions;
+  readonly datasources: Record<string, PlatformDatasourceProfile>;
+  readonly automation?: PlatformAutomationConfig;
+  readonly runtime: PlatformRuntimeOptions;
 }
 
-export interface LoadDataAssetsProfileOptions {
+export interface LoadPlatformProfileOptions {
   readonly repoRoot?: string;
   readonly env?: RuntimeEnv;
-  readonly resolved?: ResolvedDataAssetsEnv;
+  readonly resolved?: ResolvedPlatformEnv;
 }
 
-function discoveryDataAssetsProfile(): DataAssetsEnvProfile {
-  const datasource = (name: string, typeId: number): DataAssetsDatasourceProfile => ({
+function discoveryDataAssetsProfile(): PlatformEnvProfile {
+  const datasource = (name: string, typeId: number): PlatformDatasourceProfile => ({
     enabled: true,
     uiLabel: name,
     preconditionType: name === "sparkthrift" ? "SparkThrift" : "Doris",
@@ -90,7 +90,7 @@ function discoveryDataAssetsProfile(): DataAssetsEnvProfile {
     env: "discovery",
     urls: {
       baseUrl: "http://discovery.invalid/dataAssets",
-      dataAssetsBaseUrl: "http://discovery.invalid/dataAssets",
+      assetsBaseUrl: "http://discovery.invalid/dataAssets",
       offlineBaseUrl: "http://discovery.invalid",
       portalBaseUrl: "http://discovery.invalid",
     },
@@ -151,7 +151,7 @@ export interface NamedAuthProfileGuard {
   readonly tenantName: string;
 }
 
-function parseResolved(value: string | undefined): ResolvedDataAssetsEnv {
+function parseResolved(value: string | undefined): ResolvedPlatformEnv {
   if (!value) {
     throw new Error(
       "DataAssets runtime is unresolved. Use `kata env run <name> -- <command...>` instead of starting Playwright directly.",
@@ -161,18 +161,18 @@ function parseResolved(value: string | undefined): ResolvedDataAssetsEnv {
   try {
     parsed = JSON.parse(value);
   } catch {
-    throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
+    throw new Error("KATA_ACTIVE_ENV_RESOLVED is invalid JSON");
   }
-  const resolved = parsed as Partial<ResolvedDataAssetsEnv>;
+  const resolved = parsed as Partial<ResolvedPlatformEnv>;
   if (resolved.schemaVersion !== 2 || !resolved.env || !resolved.urls || !resolved.projects) {
-    throw new Error("KATA_DATAASSETS_RESOLVED does not contain a v2 resolved environment");
+    throw new Error("KATA_ACTIVE_ENV_RESOLVED does not contain a v2 resolved environment");
   }
-  return resolved as ResolvedDataAssetsEnv;
+  return resolved as ResolvedPlatformEnv;
 }
 
-export function resolveDataAssetsEnvName(env: RuntimeEnv = process.env): string {
-  const resolved = env[DATAASSETS_RESOLVED_ENV];
-  if (resolved) return assertDataAssetsEnvName(parseResolved(resolved).env);
+export function resolvePlatformEnvName(env: RuntimeEnv = process.env): string {
+  const resolved = env[ACTIVE_ENV_RESOLVED_ENV];
+  if (resolved) return assertPlatformEnvName(parseResolved(resolved).env);
   throw new Error(
     "DataAssets environment is not selected. Use `kata env run <name> -- <command...>`.",
   );
@@ -184,30 +184,30 @@ function preconditionType(key: string): string {
   return key;
 }
 
-export function loadDataAssetsEnvProfile(
+export function loadPlatformEnvProfile(
   envName?: string,
-  opts?: LoadDataAssetsProfileOptions,
-): DataAssetsEnvProfile {
+  opts?: LoadPlatformProfileOptions,
+): PlatformEnvProfile {
   const runtimeEnv = opts?.env ?? process.env;
   if (runtimeEnv.KATA_DISCOVERY_ONLY === "1" && !opts?.resolved) {
     return discoveryDataAssetsProfile();
   }
-  const resolvedEnv = opts?.resolved ?? parseResolved(runtimeEnv[DATAASSETS_RESOLVED_ENV]);
-  const selected = assertDataAssetsEnvName(envName ?? resolveDataAssetsEnvName(runtimeEnv));
+  const resolvedEnv = opts?.resolved ?? parseResolved(runtimeEnv[ACTIVE_ENV_RESOLVED_ENV]);
+  const selected = assertPlatformEnvName(envName ?? resolvePlatformEnvName(runtimeEnv));
   if (resolvedEnv.env !== selected)
     throw new Error("resolved environment does not match selected environment");
-  const injectedPath = runtimeEnv[DATAASSETS_CONFIG_ENV];
+  const injectedPath = runtimeEnv[ACTIVE_ENV_CONFIG_ENV];
   const root = resolve(
     opts?.repoRoot ??
       // config/private/environments/<env>.yaml → repo root
       (injectedPath ? dirname(dirname(dirname(dirname(resolve(injectedPath))))) : process.cwd()),
   );
-  const expectedPath = dataAssetsEnvPath(selected, root);
+  const expectedPath = effectivePlatformEnvPath(selected, root);
   if (injectedPath && resolve(injectedPath) !== resolve(expectedPath)) {
-    throw new Error("KATA_DATAASSETS_CONFIG does not match the selected config/private/environments file");
+    throw new Error("KATA_ACTIVE_ENV_CONFIG does not match the selected config/private/environments file");
   }
-  const config = readDataAssetsEnvConfig(selected, { repoRoot: root });
-  const datasources: Record<string, DataAssetsDatasourceProfile> = {};
+  const config = readPlatformEnvConfig(selected, { repoRoot: root });
+  const datasources: Record<string, PlatformDatasourceProfile> = {};
   for (const [key, datasource] of Object.entries(resolvedEnv.datasources)) {
     datasources[key] = {
       enabled: true,
@@ -265,12 +265,12 @@ export function loadDataAssetsEnvProfile(
 
 export function resolveDataAssetsRuntime(
   env: RuntimeEnv = process.env,
-  opts?: Omit<LoadDataAssetsProfileOptions, "env">,
-): DataAssetsEnvProfile {
-  return loadDataAssetsEnvProfile(undefined, { ...opts, env });
+  opts?: Omit<LoadPlatformProfileOptions, "env">,
+): PlatformEnvProfile {
+  return loadPlatformEnvProfile(undefined, { ...opts, env });
 }
 
-export function getEnvConfig(): DataAssetsEnvProfile {
+export function getEnvConfig(): PlatformEnvProfile {
   return resolveDataAssetsRuntime();
 }
 
@@ -307,8 +307,8 @@ export function loadNamedDataAssetsAuthState(
   expected: NamedAuthProfileGuard,
   opts?: { readonly repoRoot?: string },
 ): PlaywrightCookieState {
-  const selected = assertDataAssetsEnvName(envName);
-  const config = readDataAssetsEnvConfig(selected, opts);
+  const selected = assertPlatformEnvName(envName);
+  const config = readPlatformEnvConfig(selected, opts);
   if (config.url !== expected.baseUrl) {
     throw new Error(`named auth environment ${selected} targets a different platform URL`);
   }
@@ -318,6 +318,6 @@ export function loadNamedDataAssetsAuthState(
   if (!config.auth.cookie.trim()) {
     throw new Error(`named auth environment ${selected} has no Cookie`);
   }
-  assertDataAssetsTenantCookie(config);
+  assertPlatformEnvTenantCookie(config);
   return cookieHeaderToPlaywrightState(`${config.url}/dataAssets`, config.auth.cookie);
 }

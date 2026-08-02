@@ -19,7 +19,7 @@ interface SqlProfile {
 }
 
 interface SqlProfilesFile {
-  profiles?: Record<string, SqlProfile>;
+  profiles: Record<string, SqlProfile>;
 }
 
 export interface SqlLintResult {
@@ -28,23 +28,131 @@ export interface SqlLintResult {
   readonly errors: string[];
 }
 
-/** Load and validate the SQL profiles contract file. */
+const PROFILE_KEYS = [
+  "datasource_types",
+  "required_placeholders",
+  "forbidden_fragments",
+  "required_fragments",
+  "required_patterns",
+  "forbidden_patterns",
+] as const;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function exactKeys(value: Record<string, unknown>, allowed: readonly string[], path: string): void {
+  const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
+  if (unknown.length > 0) throw new Error(`${path} 包含未知字段: ${unknown.join(", ")}`);
+}
+
+function stringArray(value: unknown, path: string, required = false): string[] | undefined {
+  if (value === undefined && !required) return undefined;
+  if (
+    !Array.isArray(value) ||
+    (required && value.length === 0) ||
+    value.some((item) => typeof item !== "string" || !item.trim())
+  ) {
+    throw new Error(`${path} 必须是${required ? "非空" : ""}字符串数组`);
+  }
+  return value.map((item) => (item as string).trim());
+}
+
+function patternArray(value: unknown, path: string): SqlPattern[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) throw new Error(`${path} 必须是数组`);
+  return value.map((item, index) => {
+    const itemPath = `${path}[${index}]`;
+    if (!isRecord(item)) throw new Error(`${itemPath} 必须是对象`);
+    exactKeys(item, ["name", "pattern"], itemPath);
+    if (typeof item.name !== "string" || !item.name.trim()) {
+      throw new Error(`${itemPath}.name 必须是非空字符串`);
+    }
+    if (typeof item.pattern !== "string" || !item.pattern.trim()) {
+      throw new Error(`${itemPath}.pattern 必须是非空字符串`);
+    }
+    try {
+      new RegExp(item.pattern, "isu");
+    } catch (error) {
+      throw new Error(
+        `${itemPath} SQL profile 正则无效(${item.name}): ${(error as Error).message}`,
+      );
+    }
+    return { name: item.name.trim(), pattern: item.pattern };
+  });
+}
+
+function parseProfile(value: unknown, path: string): SqlProfile {
+  if (!isRecord(value)) throw new Error(`${path} 必须是对象`);
+  exactKeys(value, PROFILE_KEYS, path);
+  return {
+    datasource_types: stringArray(value.datasource_types, `${path}.datasource_types`, true),
+    ...(value.required_placeholders === undefined
+      ? {}
+      : {
+          required_placeholders: stringArray(
+            value.required_placeholders,
+            `${path}.required_placeholders`,
+          ),
+        }),
+    ...(value.forbidden_fragments === undefined
+      ? {}
+      : {
+          forbidden_fragments: stringArray(
+            value.forbidden_fragments,
+            `${path}.forbidden_fragments`,
+          ),
+        }),
+    ...(value.required_fragments === undefined
+      ? {}
+      : {
+          required_fragments: stringArray(value.required_fragments, `${path}.required_fragments`),
+        }),
+    ...(value.required_patterns === undefined
+      ? {}
+      : { required_patterns: patternArray(value.required_patterns, `${path}.required_patterns`) }),
+    ...(value.forbidden_patterns === undefined
+      ? {}
+      : {
+          forbidden_patterns: patternArray(value.forbidden_patterns, `${path}.forbidden_patterns`),
+        }),
+  };
+}
+
+/** Load and deeply validate the SQL profiles contract file. */
 export function loadSqlProfilesFile(repoRoot = locateProjectRoot()): SqlProfilesFile {
   const configPath = sqlProfilesPath(repoRoot);
-  const config = parse(readFileSync(configPath, "utf8")) as SqlProfilesFile;
-  if (!config?.profiles || typeof config.profiles !== "object") {
+  const raw = parse(readFileSync(configPath, "utf8")) as unknown;
+  if (!isRecord(raw)) throw new Error(`SQL profiles 配置无效: ${configPath}`);
+  exactKeys(raw, ["profiles"], configPath);
+  if (!isRecord(raw.profiles) || Object.keys(raw.profiles).length === 0) {
     throw new Error(`SQL profiles 配置无效: ${configPath}`);
   }
-  return config;
+  const profiles: Record<string, SqlProfile> = {};
+  const datasourceOwners = new Map<string, string>();
+  for (const [name, value] of Object.entries(raw.profiles)) {
+    if (!name.trim()) throw new Error(`${configPath}.profiles 包含空 profile 名`);
+    const profile = parseProfile(value, `${configPath}.profiles.${name}`);
+    for (const datasourceType of profile.datasource_types ?? []) {
+      const existing = datasourceOwners.get(datasourceType);
+      if (existing) {
+        throw new Error(
+          `${configPath} 数据源类型 ${datasourceType} 同时属于 ${existing} 与 ${name}`,
+        );
+      }
+      datasourceOwners.set(datasourceType, name);
+    }
+    profiles[name] = profile;
+  }
+  return { profiles };
 }
 
 function loadProfile(profile: string, repoRoot = locateProjectRoot()): SqlProfile {
-  const configPath = resolve(repoRoot, "config/policies/sql-profiles.yaml");
-  const config = parse(readFileSync(configPath, "utf8")) as SqlProfilesFile;
-  const direct = config.profiles?.[profile];
+  const config = loadSqlProfilesFile(repoRoot);
+  const direct = config.profiles[profile];
   const result =
     direct ??
-    Object.values(config.profiles ?? {}).find((candidate) =>
+    Object.values(config.profiles).find((candidate) =>
       candidate.datasource_types?.includes(profile),
     );
   if (!result) throw new Error(`未知 SQL profile: ${profile}`);

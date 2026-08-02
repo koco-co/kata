@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadDataAssetsEnvProfile } from "../../../../../../_shared/automation/runtime/env-profile";
+import { loadPlatformEnvProfile } from "../../../../../../_shared/automation/runtime/env-profile";
 import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/automation/config/playwright";
 
 const preparedPreconditionGroups = new Set<string>();
@@ -112,7 +112,7 @@ function serializePreconditionTables(tables: readonly PrecondTableFixture[]): st
 }
 
 function loadSparkThriftPreconditionProfile(): SparkThriftPreconditionProfile {
-  const profile = loadDataAssetsEnvProfile();
+  const profile = loadPlatformEnvProfile();
   const datasource =
     Object.values(profile.datasources).find(
       (item) => item.preconditionType.toLowerCase() === "sparkthrift",

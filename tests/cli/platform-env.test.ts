@@ -1,12 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  type DataAssetsEnvConfig,
-  readDataAssetsEnvConfig,
-  resolveDataAssetsEnv,
-} from "../../cli/lib/dataassets-env.ts";
+  listPlatformEnvs,
+  type PlatformEnvConfig,
+  readPlatformEnvConfig,
+  resolvePlatformEnv,
+} from "../../cli/lib/platform-env.ts";
 
 function fetchMock(
   implementation: (input: string | URL | Request) => Promise<Response>,
@@ -23,7 +25,7 @@ function response(body: unknown): Response {
   });
 }
 
-function config(): DataAssetsEnvConfig {
+function config(): PlatformEnvConfig {
   return {
     schema_version: 2,
     url: "https://platform.example.test",
@@ -42,7 +44,82 @@ function config(): DataAssetsEnvConfig {
   };
 }
 
-describe("DataAssets environment datasource inventory compatibility", () => {
+function linkedEnvironmentRoot(): { main: string; linked: string; cleanup: () => void } {
+  const container = mkdtempSync(join(tmpdir(), "kata-platform-env-worktree-"));
+  const main = join(container, "main");
+  const linked = join(container, "linked");
+  mkdirSync(main);
+  writeFileSync(join(main, "README.md"), "fixture\n");
+  execFileSync("git", ["init", "-q", "-b", "main", main]);
+  execFileSync("git", ["-C", main, "add", "README.md"]);
+  execFileSync("git", [
+    "-C",
+    main,
+    "-c",
+    "user.name=Kata Test",
+    "-c",
+    "user.email=kata@example.invalid",
+    "commit",
+    "-q",
+    "-m",
+    "fixture",
+  ]);
+  execFileSync("git", ["-C", main, "worktree", "add", "-q", "--detach", linked, "HEAD"]);
+  const envDir = join(main, "config", "private", "environments");
+  mkdirSync(envDir, { recursive: true, mode: 0o700 });
+  chmodSync(join(main, "config", "private"), 0o700);
+  chmodSync(envDir, 0o700);
+  return {
+    main,
+    linked,
+    cleanup: () => {
+      execFileSync("git", ["-C", main, "worktree", "remove", "--force", linked]);
+      rmSync(container, { recursive: true, force: true });
+    },
+  };
+}
+
+describe("platform environment datasource inventory compatibility", () => {
+  test("reads and lists shared environments from a linked worktree", () => {
+    const fixture = linkedEnvironmentRoot();
+    try {
+      const path = join(fixture.main, "config", "private", "environments", "shared.yaml");
+      writeFileSync(
+        path,
+        [
+          "schema_version: 2",
+          "url: https://platform.example.invalid",
+          "auth:",
+          '  cookie: ""',
+          "guard:",
+          "  expected_tenant: tenant-a",
+          "projects:",
+          "  quality: quality-a",
+          "datasources:",
+          "  sparkthrift:",
+          "    name: spark-a",
+          "    database: database-a",
+          "defaults:",
+          "  datasource: sparkthrift",
+          "safety:",
+          "  allow_write: false",
+          "",
+        ].join("\n"),
+        { mode: 0o600 },
+      );
+      chmodSync(path, 0o600);
+
+      expect(readPlatformEnvConfig("shared", { repoRoot: fixture.linked }).url).toBe(
+        "https://platform.example.invalid",
+      );
+      expect(listPlatformEnvs({ repoRoot: fixture.linked }).map((item) => item.name)).toEqual([
+        "shared",
+      ]);
+    } finally {
+      fixture.cleanup();
+    }
+  });
+
   test("falls back to exact metadata sources for the known server class-loading failure", async () => {
     const paths: string[] = [];
     const fetchImpl = fetchMock(async (input) => {
@@ -70,7 +147,7 @@ describe("DataAssets environment datasource inventory compatibility", () => {
       }
     });
 
-    const resolved = await resolveDataAssetsEnv("fixture", {
+    const resolved = await resolvePlatformEnv("fixture", {
       config: config(),
       fetchImpl,
     });
@@ -110,7 +187,7 @@ describe("DataAssets environment datasource inventory compatibility", () => {
       }
     });
 
-    await expect(resolveDataAssetsEnv("fixture", { config: config(), fetchImpl })).rejects.toThrow(
+    await expect(resolvePlatformEnv("fixture", { config: config(), fetchImpl })).rejects.toThrow(
       "datasource_sparkthrift_assets_not_found",
     );
   });
@@ -122,7 +199,7 @@ describe("DataAssets environment datasource inventory compatibility", () => {
     mkdirSync(configDir, { recursive: true });
     symlinkSync(outside, join(configDir, "environments"));
     try {
-      expect(() => readDataAssetsEnvConfig("fixture", { repoRoot: root })).toThrow(/符号链接/);
+      expect(() => readPlatformEnvConfig("fixture", { repoRoot: root })).toThrow(/符号链接/);
     } finally {
       rmSync(join(configDir, "environments"), { force: true });
       rmSync(root, { recursive: true, force: true });

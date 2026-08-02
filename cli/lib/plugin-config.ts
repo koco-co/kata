@@ -10,9 +10,9 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { dirname, relative, resolve, sep } from "node:path";
 import { parse, stringify } from "yaml";
-import { integrationsDir, integrationsExamplePath, sharedPrivateRoot } from "./config-paths.ts";
+import { effectivePrivatePath, integrationsExamplePath } from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
 
@@ -66,20 +66,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function pluginDir(root: string = defaultRepoRoot()): string {
-  const local = integrationsDir(root);
-  if (existsSync(join(local, "lanhu.yaml")) || existsSync(join(local, "zentao.yaml"))) {
-    return local;
-  }
-  const shared = sharedPrivateRoot(root);
-  if (shared && existsSync(join(shared, "integrations"))) {
-    return join(shared, "integrations");
-  }
-  return local;
-}
-
 export function pluginConfigPath(name: PluginConfigName, root: string = defaultRepoRoot()): string {
-  return join(pluginDir(root), `${name}.yaml`);
+  return effectivePrivatePath(`integrations/${name}.yaml`, root);
 }
 
 export function pluginExamplePath(

@@ -18,17 +18,17 @@ export interface ExecuteTableOptions {
   tableName: string;
   /** 数据源类型：SparkThrift / Doris */
   datasource: "SparkThrift" | "Doris";
-  /** 质量项目名称，来自所选 DataAssets profile */
+  /** 质量项目名称，来自所选平台 profile */
   project: string;
-  /** 环境名，来自所选 DataAssets profile */
+  /** 环境名，来自所选平台 profile */
   env: string;
-  /** 数据库名，来自所选 DataAssets profile */
+  /** 数据库名，来自所选平台 profile */
   database: string;
-  /** 质量项目 ID（X-Valid-Project-ID / pid），来自所选 DataAssets profile */
+  /** 质量项目 ID（X-Valid-Project-ID / pid），来自所选平台 profile */
   projectId: number;
-  /** 数据源 ID（元数据同步用），来自所选 DataAssets profile */
+  /** 数据源 ID（元数据同步用），来自所选平台 profile */
   dataSourceId: string;
-  /** 数据源类型编号，来自所选 DataAssets profile */
+  /** 数据源类型编号，来自所选平台 profile */
   dataSourceType: number;
 }
 

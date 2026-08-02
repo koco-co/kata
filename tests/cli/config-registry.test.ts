@@ -17,6 +17,7 @@ import {
   familyByName,
   listFamilies,
   redactSecrets,
+  renderConfigDocsSection,
   showFamily,
   validateAllConfig,
 } from "../../cli/lib/config-registry.ts";
@@ -67,13 +68,21 @@ describe("config registry", () => {
       CONFIG_FAMILIES.filter((family) => family.role === "contract").map((f) => f.name),
     ).toEqual(["repo-policy", "cases-lint", "sql-profiles", "xmind-mapping"]);
     expect(familyByName("environments").instancesDir).toBe("config/private/environments");
+    for (const family of CONFIG_FAMILIES.filter((entry) => entry.private)) {
+      const targets = family.instancesDir
+        ? [`${family.instancesDir}/<name>.yaml`]
+        : family.files;
+      expect(family.templates.map((template) => template.target)).toEqual(targets);
+    }
     expect(() => familyByName("nope")).toThrow(/未知配置族/);
   });
 
   test("every registered example template exists in the repository", () => {
     for (const family of CONFIG_FAMILIES) {
-      for (const example of family.examples) {
-        expect(existsSync(join(process.cwd(), example)), `${example} 缺失`).toBe(true);
+      for (const template of family.templates) {
+        expect(existsSync(join(process.cwd(), template.example)), `${template.example} 缺失`).toBe(
+          true,
+        );
       }
     }
   });
@@ -104,7 +113,7 @@ describe("config registry", () => {
     ).not.toThrow();
   });
 
-  test("show hides ALL private-family values, keeping empty strings to signal configured state", () => {
+  test("show replaces the complete private-family payload instead of leaking values or map keys", () => {
     const root = makeRoot();
     writePrivate(
       root,
@@ -114,13 +123,22 @@ describe("config registry", () => {
     const shown = showFamily("integrations", root);
     expect(shown.configured).toBe(true);
     const lanhu = shown.files.find((f) => f.path.endsWith("lanhu.yaml"));
-    // 私密族整族隐藏：非空值一律 <redacted>，空串保留以区分「已配置/未填写」
-    expect(lanhu?.value).toMatchObject({
-      cookie: "<redacted>",
-      username: "<redacted>",
-      password: "",
-    });
+    expect(lanhu?.value).toBe("<redacted>");
     expect(shown.errors).toEqual([]);
+  });
+
+  test("show does not leak private numeric, boolean or dynamic-map topology", () => {
+    const root = makeRoot();
+    writePrivate(
+      root,
+      "config/private/infrastructure/hosts.yaml",
+      "hosts:\n  internal-host-alias:\n    host: 192.0.2.10\n    port: 2222\n    enabled: true\n",
+    );
+    const shown = showFamily("infrastructure", root);
+    const hosts = shown.files.find((file) => file.path.endsWith("hosts.yaml"));
+    expect(hosts?.value).toBe("<redacted>");
+    expect(JSON.stringify(shown)).not.toContain("internal-host-alias");
+    expect(JSON.stringify(shown)).not.toContain("2222");
   });
 
   test("show renders non-secret contract values verbatim", () => {
@@ -175,6 +193,52 @@ describe("config registry", () => {
     expect(readFileSync(readme, "utf8")).toContain("<!-- BEGIN GENERATED -->");
     const second = applyConfigDocs("config/README.md", root, { check: true });
     expect(second).toEqual({ ok: true, changed: false });
+  });
+
+  test("docs map each private file to its exact example instead of every family example", () => {
+    const generated = renderConfigDocsSection();
+    const lanhuRow = generated
+      .split("\n")
+      .find((line) => line.includes("config/private/integrations/lanhu.yaml"));
+    expect(lanhuRow).toContain("config/examples/integrations/lanhu.example.yaml");
+    expect(lanhuRow).not.toContain("zentao.example.yaml");
+    expect(lanhuRow).not.toContain("notify.example.yaml");
+
+    const hostsRow = generated
+      .split("\n")
+      .find((line) => line.includes("config/private/infrastructure/hosts.yaml"));
+    expect(hostsRow).toContain("config/examples/infrastructure/hosts.example.yaml");
+    expect(hostsRow).not.toContain("data_sources.example.yaml");
+    expect(hostsRow).not.toContain("credentials.example.yaml");
+  });
+
+  test("registry rejects Playwright fields that the runtime parser rejects", () => {
+    const root = makeRoot();
+    const path = join(root, "config", "automation", "playwright.yaml");
+    mkdirSync(join(root, "config", "automation"), { recursive: true });
+    writeFileSync(path, "playwright:\n  unknown_key: true\n");
+    expect(() => familyByName("automation").validateFile(path, root)).toThrow(/unknown_key/);
+  });
+
+  test("registry rejects malformed SQL profile regex before SQL lint execution", () => {
+    const root = makeRoot();
+    const path = join(root, "config", "policies", "sql-profiles.yaml");
+    mkdirSync(join(root, "config", "policies"), { recursive: true });
+    writeFileSync(
+      path,
+      "profiles:\n  broken-sql:\n    datasource_types: [Broken]\n    required_patterns:\n      - name: invalid-regex\n        pattern: '[unterminated'\n",
+    );
+    expect(() => familyByName("sql-profiles").validateFile(path, root)).toThrow(/正则无效/);
+  });
+
+  test("registry validates the nested ZenTao create contract when it is configured", () => {
+    const root = makeRoot();
+    const path = writePrivate(
+      root,
+      "config/private/integrations/zentao.yaml",
+      "base_url: https://zentao.example.invalid\ncreate:\n  assignee:\n    account: qa\n  opened_build: trunk\n",
+    );
+    expect(() => familyByName("integrations").validateFile(path, root)).toThrow(/create\.product/);
   });
 
   test("validate flags legacy config path literals in tracked files", () => {

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { createClientFromPage, extractCookieFromPage } from "../../src/adapters/playwright";
 
 const originalUrls = {
-  KATA_DATAASSETS_RESOLVED: process.env.KATA_DATAASSETS_RESOLVED,
+  KATA_ACTIVE_ENV_RESOLVED: process.env.KATA_ACTIVE_ENV_RESOLVED,
 };
 
 afterEach(() => {
@@ -50,8 +50,8 @@ describe("playwright adapter", () => {
   });
 
   test("requires a configured base URL instead of using a hardcoded host", async () => {
-    process.env.KATA_DATAASSETS_RESOLVED = JSON.stringify({ urls: { baseUrl: "http://x" } });
-    delete process.env.KATA_DATAASSETS_RESOLVED;
+    process.env.KATA_ACTIVE_ENV_RESOLVED = JSON.stringify({ urls: { baseUrl: "http://x" } });
+    delete process.env.KATA_ACTIVE_ENV_RESOLVED;
     await expect(createClientFromPage({} as never)).rejects.toThrow("kata env run");
   });
 });

@@ -70,12 +70,12 @@ export async function createClientFromPage(
   baseUrl?: string,
 ): Promise<DtStackClientLike> {
   let kataBaseUrl: string | undefined;
-  const resolvedRuntime = process.env.KATA_DATAASSETS_RESOLVED;
+  const resolvedRuntime = process.env.KATA_ACTIVE_ENV_RESOLVED;
   if (resolvedRuntime) {
     try {
       kataBaseUrl = (JSON.parse(resolvedRuntime) as { urls?: { baseUrl?: string } }).urls?.baseUrl;
     } catch {
-      throw new Error("KATA_DATAASSETS_RESOLVED is invalid JSON");
+      throw new Error("KATA_ACTIVE_ENV_RESOLVED is invalid JSON");
     }
   }
   const targetBaseUrl = baseUrl ?? kataBaseUrl;

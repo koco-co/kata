@@ -13,6 +13,8 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { parse } from "yaml";
+import { loadPlaywrightAutomationConfigFile } from "../../runtime/automation/config/playwright.ts";
+import { loadZentaoCreateConfig } from "../integrations/zentao/create.ts";
 import { loadSqlProfilesFile } from "./automation/sql.ts";
 import { loadCasesLintConfig } from "./cases/content-lint.ts";
 import {
@@ -21,9 +23,9 @@ import {
   privateInstanceFiles,
   sharedPrivateRoot,
 } from "./config-paths.ts";
-import { readDataAssetsEnvConfig } from "./dataassets-env.ts";
 import { loadSourceRepos } from "./git-source.ts";
-import { infraConfigPath, readInfraConfig } from "./infra-config.ts";
+import { readInfraConfig } from "./infra-config.ts";
+import { readPlatformEnvConfig } from "./platform-env.ts";
 import { loadLanhuConfig, loadNotifyConfig, loadZentaoConfig } from "./plugin-config.ts";
 import { readPolicy } from "./repository-policy.ts";
 import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
@@ -41,6 +43,13 @@ export type ConfigFamilyName =
   | "xmind-mapping"
   | "automation";
 
+export interface ConfigTemplateMapping {
+  /** 模板复制后的目标路径；多实例族使用 <name> 占位。 */
+  target: string;
+  /** tracked 脱敏模板路径。 */
+  example: string;
+}
+
 export interface ConfigFamilyEntry {
   name: ConfigFamilyName;
   /** 职责：契约（框架强制）、运行时行为、私密配置 */
@@ -53,8 +62,8 @@ export interface ConfigFamilyEntry {
   files: string[];
   /** 多实例目录（相对 repoRoot），如 environments 的 config/private/environments */
   instancesDir?: string;
-  /** example 模板（相对 repoRoot，全部 tracked） */
-  examples: string[];
+  /** 目标配置与 example 的精确一对一映射（相对 repoRoot，example 全部 tracked） */
+  templates: ConfigTemplateMapping[];
   /** 单文件深度加载：加载并校验一个配置文件，失败抛带路径的错误 */
   loadFile: (path: string, root: string) => unknown;
   /** 单文件校验：解析 + 结构 + 未知字段检查，失败抛带路径的错误 */
@@ -106,17 +115,7 @@ export function redactSecrets(value: unknown): unknown {
  */
 function projectForShow(family: ConfigFamilyEntry, value: unknown): unknown {
   if (!family.private) return value;
-  const hide = (item: unknown): unknown => {
-    if (typeof item === "string") return item === "" ? "" : "<redacted>";
-    if (Array.isArray(item)) return item.map(hide);
-    if (isRecord(item)) {
-      const out: Record<string, unknown> = {};
-      for (const [key, child] of Object.entries(item)) out[key] = hide(child);
-      return out;
-    }
-    return item;
-  };
-  return hide(value);
+  return value === undefined ? undefined : "<redacted>";
 }
 
 const EXAMPLES_ROOT = "config/examples";
@@ -154,7 +153,8 @@ function integrationValidate(path: string): void {
       : name === "zentao"
         ? ["base_url", "cookie", "username", "password", "create"]
         : ["base_url", "cookie", "username", "password"];
-  validateTopLevel(path, allowed);
+  const doc = validateTopLevel(path, allowed);
+  if (name === "zentao" && doc.create !== undefined) loadZentaoCreateConfig(path);
 }
 
 const INFRA_KINDS = ["hosts", "data_sources", "credentials"] as const;
@@ -168,7 +168,10 @@ function infraValidate(path: string, root: string): void {
   const key = kind === "hosts" ? "hosts" : kind === "data_sources" ? "data_sources" : "credentials";
   if (!isRecord(doc[key])) throw new Error(`${path} 缺 ${key} 对象`);
   // 私密三件套齐备时做深度校验
-  if (kind !== "credentials" && INFRA_KINDS.every((k) => existsSync(infraConfigPath(k, root)))) {
+  if (
+    kind !== "credentials" &&
+    INFRA_KINDS.every((k) => existsSync(effectivePrivatePath(`infrastructure/${k}.yaml`, root)))
+  ) {
     readInfraConfig(root);
   }
 }
@@ -181,8 +184,13 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     docs: "平台 URL、Cookie、租户、项目、数据源与环境自动化参数",
     files: [],
     instancesDir: "config/private/environments",
-    examples: [join(EXAMPLES_ROOT, "environments", "env.example.yaml")],
-    loadFile: (path, root) => readDataAssetsEnvConfig(basename(path, ".yaml"), { repoRoot: root }),
+    templates: [
+      {
+        target: "config/private/environments/<name>.yaml",
+        example: join(EXAMPLES_ROOT, "environments", "env.example.yaml"),
+      },
+    ],
+    loadFile: (path, root) => readPlatformEnvConfig(basename(path, ".yaml"), { repoRoot: root }),
     validateFile: (path, root) => {
       validateTopLevel(path, [
         "schema_version",
@@ -195,7 +203,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         "safety",
         "automation",
       ]);
-      readDataAssetsEnvConfig(basename(path, ".yaml"), { repoRoot: root });
+      readPlatformEnvConfig(basename(path, ".yaml"), { repoRoot: root });
     },
     validateExample: (path) => {
       const doc = validateTopLevel(path, [
@@ -236,12 +244,22 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
       "config/private/integrations/zentao.yaml",
       "config/private/integrations/notify.yaml",
     ],
-    examples: [
-      join(EXAMPLES_ROOT, "integrations", "lanhu.example.yaml"),
-      join(EXAMPLES_ROOT, "integrations", "zentao.example.yaml"),
-      join(EXAMPLES_ROOT, "integrations", "notify.example.yaml"),
+    templates: [
+      {
+        target: "config/private/integrations/lanhu.yaml",
+        example: join(EXAMPLES_ROOT, "integrations", "lanhu.example.yaml"),
+      },
+      {
+        target: "config/private/integrations/zentao.yaml",
+        example: join(EXAMPLES_ROOT, "integrations", "zentao.example.yaml"),
+      },
+      {
+        target: "config/private/integrations/notify.yaml",
+        example: join(EXAMPLES_ROOT, "integrations", "notify.example.yaml"),
+      },
     ],
     loadFile: (path, root) => {
+      integrationValidate(path);
       const name = basename(path, ".yaml");
       if (name === "lanhu") return loadLanhuConfig(root);
       if (name === "zentao") return loadZentaoConfig(root);
@@ -269,10 +287,19 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
       "config/private/infrastructure/data_sources.yaml",
       "config/private/infrastructure/credentials.yaml",
     ],
-    examples: [
-      join(EXAMPLES_ROOT, "infrastructure", "hosts.example.yaml"),
-      join(EXAMPLES_ROOT, "infrastructure", "data_sources.example.yaml"),
-      join(EXAMPLES_ROOT, "infrastructure", "credentials.example.yaml"),
+    templates: [
+      {
+        target: "config/private/infrastructure/hosts.yaml",
+        example: join(EXAMPLES_ROOT, "infrastructure", "hosts.example.yaml"),
+      },
+      {
+        target: "config/private/infrastructure/data_sources.yaml",
+        example: join(EXAMPLES_ROOT, "infrastructure", "data_sources.example.yaml"),
+      },
+      {
+        target: "config/private/infrastructure/credentials.yaml",
+        example: join(EXAMPLES_ROOT, "infrastructure", "credentials.example.yaml"),
+      },
     ],
     loadFile: (path, root) => {
       infraValidate(path, root);
@@ -298,7 +325,12 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: true,
     docs: "本机源码仓库路径、分支与筛选范围",
     files: ["config/private/repositories.yaml"],
-    examples: [join(EXAMPLES_ROOT, "repositories.example.yaml")],
+    templates: [
+      {
+        target: "config/private/repositories.yaml",
+        example: join(EXAMPLES_ROOT, "repositories.example.yaml"),
+      },
+    ],
     loadFile: (path, root) => {
       if (existsSync(join(root, "config", "private", "repositories.yaml"))) {
         return loadSourceRepos(root);
@@ -329,7 +361,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: false,
     docs: "仓库产物路由与命名契约（repo lint / bun run check 读取）",
     files: ["config/policies/repo-policy.yaml"],
-    examples: [],
+    templates: [],
     loadFile: (path, root) => {
       readPolicy(root);
       return readYaml(path);
@@ -348,7 +380,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: false,
     docs: "用例内容 lint 契约（first-step 入口模式、禁用词、数据源类型）",
     files: ["config/policies/cases-lint.yaml"],
-    examples: [],
+    templates: [],
     loadFile: (path, root) => {
       loadCasesLintConfig(root);
       return readYaml(path);
@@ -376,7 +408,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: false,
     docs: "SQL 方言契约（方言 profile、必需/禁用片段与占位符）",
     files: ["config/policies/sql-profiles.yaml"],
-    examples: [],
+    templates: [],
     loadFile: (path) => {
       const doc = readYaml(path);
       if (!isRecord(doc) || !isRecord(doc.profiles)) throw new Error(`${path} 缺 profiles 对象`);
@@ -399,7 +431,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: false,
     docs: "XMind 根标题与 ZenTao 模块 ID 映射契约",
     files: ["config/policies/xmind-mapping.yaml"],
-    examples: [],
+    templates: [],
     loadFile: (path, root) => {
       loadXmindMappingFile(root);
       return readYaml(path);
@@ -418,20 +450,21 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: false,
     docs: "Playwright 运行时行为设置（可被 --set 覆盖）",
     files: ["config/automation/playwright.yaml"],
-    examples: [join("config", "automation", "playwright.example.yaml")],
+    templates: [
+      {
+        target: "config/automation/playwright.yaml",
+        example: join("config", "automation", "playwright.example.yaml"),
+      },
+    ],
     loadFile: (path) => {
-      const doc = readYaml(path);
-      if (!isRecord(doc) || !isRecord(doc.playwright))
-        throw new Error(`${path} 缺 playwright 对象`);
-      return doc;
+      loadPlaywrightAutomationConfigFile(path);
+      return readYaml(path);
     },
     validateFile: (path) => {
-      const doc = validateTopLevel(path, ["playwright"]);
-      if (!isRecord(doc.playwright)) throw new Error(`${path} 缺 playwright 对象`);
+      loadPlaywrightAutomationConfigFile(path);
     },
     validateExample: (path) => {
-      const doc = validateTopLevel(path, ["playwright"]);
-      if (!isRecord(doc.playwright)) throw new Error(`${path} 缺 playwright 对象`);
+      loadPlaywrightAutomationConfigFile(path);
     },
     allowedKeys: ["playwright"],
   },
@@ -514,7 +547,7 @@ export function validateAllConfig(root: string = defaultRepoRoot()): ConfigValid
         issues.push({ level: "error", path, message: "私密文件权限必须为 0600" });
       }
     }
-    for (const example of family.examples) {
+    for (const example of [...new Set(family.templates.map((template) => template.example))]) {
       const path = join(root, example);
       if (!existsSync(path)) {
         issues.push({ level: "error", path, message: "example 模板缺失" });
@@ -629,7 +662,7 @@ export function listFamilies(): FamilySummary[] {
     docs: family.docs,
     files: family.files,
     instancesDir: family.instancesDir,
-    examples: family.examples,
+    examples: [...new Set(family.templates.map((template) => template.example))],
   }));
 }
 
@@ -650,18 +683,19 @@ export function renderConfigDocsSection(): string {
       family.role,
       family.private ? "私密" : "跟踪",
       family.docs,
-      family.examples.length > 0 ? family.examples.map((e) => `\`${e}\``).join("<br>") : "—",
+      family.templates.length > 0
+        ? [...new Set(family.templates.map((template) => template.example))]
+            .map((example) => `\`${example}\``)
+            .join("<br>")
+        : "—",
     ]),
   );
   // 私密族文件 ↔ 脱敏模板 对应表（由注册表派生，防手写区漂移）
-  const privateFiles = CONFIG_FAMILIES.filter((family) => family.private).flatMap((family) => {
-    const files = family.instancesDir
-      ? [`\`${family.instancesDir}/<name>.yaml\``]
-      : family.files.map((file) => `\`${file}\``);
-    const examples =
-      family.examples.length > 0 ? family.examples.map((e) => `\`${e}\``).join("<br>") : "—";
-    return files.map((file) => tableRow([file, examples, family.docs]));
-  });
+  const privateFiles = CONFIG_FAMILIES.filter((family) => family.private).flatMap((family) =>
+    family.templates.map((template) =>
+      tableRow([`\`${template.target}\``, `\`${template.example}\``, family.docs]),
+    ),
+  );
   return [
     DOCS_BEGIN,
     "",

@@ -5,21 +5,21 @@ import { join } from "node:path";
 import { stringify } from "yaml";
 import {
   cookieHeaderToPlaywrightState,
-  loadDataAssetsEnvProfile,
+  loadPlatformEnvProfile,
   loadNamedDataAssetsAuthState,
-  resolveDataAssetsEnvName,
+  resolvePlatformEnvName,
   resolveDataAssetsRuntime,
 } from "./env-profile";
-import type { ResolvedDataAssetsEnv } from "../../../../../cli/lib/dataassets-env";
+import type { ResolvedPlatformEnv } from "../../../../../cli/lib/platform-env";
 
 let root: string;
 
-const resolved: ResolvedDataAssetsEnv = {
+const resolved: ResolvedPlatformEnv = {
   schemaVersion: 2,
   env: "ltqc-local",
   urls: {
     baseUrl: "http://example.test",
-    dataAssetsBaseUrl: "http://example.test/dataAssets",
+    assetsBaseUrl: "http://example.test/dataAssets",
     offlineBaseUrl: "http://example.test/batch",
     portalBaseUrl: "http://example.test/portal",
   },
@@ -96,19 +96,19 @@ afterEach(() => rmSync(root, { recursive: true, force: true }));
 
 describe("DataAssets v2 runtime profile", () => {
   test("requires kata env run instead of an implicit default", () => {
-    expect(() => resolveDataAssetsEnvName({})).toThrow(/kata env run/);
-    expect(() => resolveDataAssetsEnvName({ KATA_DATAASSETS_ENV: "ltqc-local" })).toThrow(
+    expect(() => resolvePlatformEnvName({})).toThrow(/kata env run/);
+    expect(() => resolvePlatformEnvName({ KATA_ACTIVE_ENV: "ltqc-local" })).toThrow(
       /kata env run/,
     );
-    expect(() => loadDataAssetsEnvProfile("ltqc-local", { repoRoot: root, env: {} })).toThrow(
+    expect(() => loadPlatformEnvProfile("ltqc-local", { repoRoot: root, env: {} })).toThrow(
       /kata env run/,
     );
   });
 
   test("loads the private YAML cookie and synchronous resolved IDs", () => {
-    const profile = loadDataAssetsEnvProfile("ltqc-local", { repoRoot: root, resolved });
+    const profile = loadPlatformEnvProfile("ltqc-local", { repoRoot: root, resolved });
     expect(profile.schemaVersion).toBe(2);
-    expect(profile.urls.dataAssetsBaseUrl).toBe("http://example.test/dataAssets");
+    expect(profile.urls.assetsBaseUrl).toBe("http://example.test/dataAssets");
     expect(profile.auth.cookie).toContain("sid=test-cookie");
     expect(profile.projects.quality).toEqual({ id: 92, name: "pw_test" });
     expect(profile.datasources.sparkthrift.metadata.id).toBe(547);
@@ -119,11 +119,11 @@ describe("DataAssets v2 runtime profile", () => {
   test("resolves the name from secret-free child JSON", () => {
     const serialized = JSON.stringify(resolved);
     expect(serialized).not.toContain("test-cookie");
-    expect(resolveDataAssetsEnvName({ KATA_DATAASSETS_RESOLVED: serialized })).toBe("ltqc-local");
+    expect(resolvePlatformEnvName({ KATA_ACTIVE_ENV_RESOLVED: serialized })).toBe("ltqc-local");
     const profile = resolveDataAssetsRuntime(
       {
-        KATA_DATAASSETS_RESOLVED: serialized,
-        KATA_DATAASSETS_CONFIG: join(root, "config/private/environments/ltqc-local.yaml"),
+        KATA_ACTIVE_ENV_RESOLVED: serialized,
+        KATA_ACTIVE_ENV_CONFIG: join(root, "config/private/environments/ltqc-local.yaml"),
       },
       { repoRoot: root },
     );
@@ -134,8 +134,8 @@ describe("DataAssets v2 runtime profile", () => {
     expect(() =>
       resolveDataAssetsRuntime(
         {
-          KATA_DATAASSETS_RESOLVED: JSON.stringify(resolved),
-          KATA_DATAASSETS_CONFIG: join(root, "config/private/environments/other.yaml"),
+          KATA_ACTIVE_ENV_RESOLVED: JSON.stringify(resolved),
+          KATA_ACTIVE_ENV_CONFIG: join(root, "config/private/environments/other.yaml"),
         },
         { repoRoot: root },
       ),

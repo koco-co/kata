@@ -28,8 +28,8 @@ test("loadKataEnvironment reads URL and cookie from config/private/environments"
 
   try {
     const config = loadKataEnvironment("ci78", {
-      KATA_DATAASSETS_CONFIG: configPath,
-      KATA_DATAASSETS_RESOLVED: JSON.stringify({
+      KATA_ACTIVE_ENV_CONFIG: configPath,
+      KATA_ACTIVE_ENV_RESOLVED: JSON.stringify({
         env: "ci78",
         urls: { baseUrl: "https://resolved.example" },
       }),
