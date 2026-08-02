@@ -34,7 +34,7 @@ export function zentaoConfigPath(): string {
   return pluginConfigPath("zentao", repoRoot());
 }
 
-/** Read the ZenTao cookie from local plugin config, with an explicit env override. */
+/** Read the ZenTao cookie from the local private plugin config. */
 export function readCookie(): string | null {
   return loadZentaoConfig().cookie?.trim() || null;
 }

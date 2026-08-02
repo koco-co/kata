@@ -21,7 +21,7 @@ username: "your-username"
 password: "your-password"
 ```
 
-也可以通过 `KATA_ZENTAO_*` 环境变量做一次性覆盖。
+插件凭据仅从上述本机私密 YAML 读取，不提供环境变量覆盖。
 
 ## 获取 ZENTAO 凭证
 

@@ -12,7 +12,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   loadNotifyConfig,
   loadZentaoConfig,
@@ -66,6 +66,15 @@ function linkedRoot(): { main: string; linked: string; cleanup: () => void } {
 }
 
 describe("plugin configuration", () => {
+  test("documents private YAML as the sole ZenTao secret channel", () => {
+    const repo = resolve(import.meta.dir, "../..");
+    const readme = readFileSync(join(repo, "cli", "integrations", "zentao", "README.md"), "utf8");
+    const session = readFileSync(join(repo, "cli", "integrations", "zentao", "session.ts"), "utf8");
+
+    expect(readme).not.toContain("KATA_ZENTAO_");
+    expect(session).not.toContain("explicit env override");
+  });
+
   test("loads YAML values from the private config file", () => {
     const value = root();
     writeFileSync(
