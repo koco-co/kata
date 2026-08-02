@@ -31,11 +31,12 @@ prompts or the upstream staged-agent instructions as PRD content.
 ## Lock file policy
 
 Upstream ignores `uv.lock` (library convention); kata **tracks** it so every
-machine resolves the exact same dependency set. `../setup.sh` therefore
-installs with `uv sync --locked`, which fails instead of silently re-resolving
-when `uv.lock` is stale. After bumping dependencies in `pyproject.toml` (or
-refreshing against upstream), regenerate the lockfile with `uv lock` inside
-this directory and commit the updated `uv.lock` together with the change.
+machine resolves the exact same dependency set.
+`../../integrations/lanhu/mcp-bridge/setup.sh` therefore installs with
+`uv sync --locked`, which fails instead of silently re-resolving when `uv.lock`
+is stale. After bumping dependencies in `pyproject.toml` (or refreshing against
+upstream), regenerate the lockfile with `uv lock` inside this directory and
+commit the updated `uv.lock` together with the change.
 
 ## What was removed (and why)
 
@@ -47,9 +48,10 @@ Upstream maintenance scaffolding that is noise inside kata's runtime:
   `RELEASE_NOTES_v1.0.0.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`,
   `ai-install-guide.md`, `GET-COOKIE-TUTORIAL.md`, `README_EN.md`.
 - **Example env templates**: upstream examples are not copied; kata owns plugin
-  configuration in `config/private/integrations/lanhu.yaml` and injects explicit process variables.
+  configuration in `config/private/integrations/lanhu.yaml` and passes only its path to the bridge.
 - **Install scripts**: `easy-install.{bat,sh}`, `quickstart.{bat,sh}`,
-  `setup-env.{bat,sh}` — kata owns install via `../setup.sh` (`uv sync`).
+  `setup-env.{bat,sh}` — kata owns install via
+  `../../integrations/lanhu/mcp-bridge/setup.sh` (`uv sync`).
 - **Duplicate manifest**: `requirements.txt` (overlapped `pyproject.toml`
   dependencies and had drifted versions).
 - **Upstream community/CI**: `.github/` (issue/PR templates, funding, release

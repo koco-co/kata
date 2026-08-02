@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -16,7 +16,15 @@ const LANHU_REFRESH_PY = resolve(
   __dirname,
   "../../../cli/integrations/lanhu/mcp-bridge/refresh-cookie.py",
 );
-const LANHU_VENDOR_PY = resolve(__dirname, "../../../cli/vendor/lanhu-mcp/lanhu_mcp_server.py");
+const LANHU_CONFIG_VALUES_PY = resolve(
+  __dirname,
+  "../../../cli/integrations/lanhu/mcp-bridge/config_values.py",
+);
+const LANHU_VENDOR_DIR = resolve(__dirname, "../../../cli/vendor/lanhu-mcp");
+const LANHU_VENDOR_PY = resolve(LANHU_VENDOR_DIR, "lanhu_mcp_server.py");
+const LANHU_VENDOR_PROJECT = resolve(LANHU_VENDOR_DIR, "pyproject.toml");
+const LANHU_VENDOR_LOCK = resolve(LANHU_VENDOR_DIR, "uv.lock");
+const LANHU_VENDOR_NOTES = resolve(LANHU_VENDOR_DIR, "VENDOR.md");
 const PROJECT_ROOT = resolve(__dirname, "../../..");
 
 const TMP_DIR = join(tmpdir(), `lanhu-fetch-test-${process.pid}`);
@@ -43,6 +51,11 @@ describe("buildLanhuBridgeEnv", () => {
   it("passes the lanhu config path (not the cookie) to the bridge runtime env", () => {
     const env = buildLanhuBridgeEnv("/repo/config/private/integrations/lanhu.yaml", {
       EXISTING: "yes",
+      KATA_LANHU_COOKIE: "synthetic-cookie",
+      LANHU_COOKIE: "synthetic-cookie",
+      DDS_COOKIE: "synthetic-cookie",
+      KATA_LANHU_USERNAME: "synthetic-user",
+      KATA_LANHU_PASSWORD: "synthetic-password",
     });
 
     assert.equal(env.EXISTING, "yes");
@@ -51,6 +64,8 @@ describe("buildLanhuBridgeEnv", () => {
     assert.equal(env.KATA_LANHU_COOKIE, undefined);
     assert.equal(env.LANHU_COOKIE, undefined);
     assert.equal(env.DDS_COOKIE, undefined);
+    assert.equal(env.KATA_LANHU_USERNAME, undefined);
+    assert.equal(env.KATA_LANHU_PASSWORD, undefined);
   });
 });
 
@@ -81,6 +96,47 @@ describe("Lanhu bridge runtime paths", () => {
     assert.equal(refresh.includes("正在登录蓝湖 ({username})"), false);
     assert.equal(refresh.includes("sys.stdout.write(cookie)"), false);
     assert.ok(refresh.includes("KATA_LANHU_COOKIE_OUTPUT"));
+  });
+
+  it("normalizes YAML scalar values consistently before Python consumes them", () => {
+    const script = [
+      "import sys",
+      `sys.path.insert(0, ${JSON.stringify(resolve(LANHU_CONFIG_VALUES_PY, ".."))})`,
+      "from config_values import scalar_text",
+      'assert scalar_text(" value ") == "value"',
+      'assert scalar_text(123) == "123"',
+      'assert scalar_text(True) == "true"',
+      'assert scalar_text(None) == ""',
+    ].join("; ");
+
+    execFileSync("python3", ["-c", script], { cwd: PROJECT_ROOT, stdio: "pipe" });
+  });
+
+  it("keeps the vendored dependency lock synchronized with direct dependencies", () => {
+    const project = readFileSync(LANHU_VENDOR_PROJECT, "utf8");
+    const lock = readFileSync(LANHU_VENDOR_LOCK, "utf8");
+    const packageBlock = lock.match(
+      /\[\[package\]\]\nname = "lanhu-mcp-server"[\s\S]*?(?=\n\[\[package\]\])/,
+    )?.[0];
+
+    assert.match(project, /"pyyaml>=6\.0"/);
+    assert.ok(packageBlock, "uv.lock must contain the lanhu-mcp-server package block");
+    assert.match(packageBlock, /\{ name = "pyyaml" \}/);
+    assert.match(packageBlock, /\{ name = "pyyaml", specifier = ">=6\.0" \}/);
+  });
+
+  it("documents runnable commands after moving the vendor directory", () => {
+    const bridge = readFileSync(LANHU_BRIDGE_PY, "utf8");
+    const notes = readFileSync(LANHU_VENDOR_NOTES, "utf8");
+
+    assert.ok(
+      bridge.includes(
+        "uv run python ../../integrations/lanhu/mcp-bridge/bridge.py --url <lanhu_url>",
+      ),
+    );
+    assert.equal(notes.includes("`../setup.sh`"), false);
+    assert.ok(notes.includes("`../../integrations/lanhu/mcp-bridge/setup.sh`"));
+    assert.equal(notes.includes("injects explicit process variables"), false);
   });
 });
 

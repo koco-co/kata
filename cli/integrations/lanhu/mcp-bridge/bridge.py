@@ -4,7 +4,7 @@ Bridge script: imports LanhuExtractor from lanhu-mcp submodule,
 fetches PRD page content, and outputs structured JSON to stdout.
 
 Usage (from cli/vendor/lanhu-mcp directory):
-    uv run python ../bridge.py --url <lanhu_url> [--page-id <id>]
+    uv run python ../../integrations/lanhu/mcp-bridge/bridge.py --url <lanhu_url> [--page-id <id>]
 
 Environment:
     KATA_LANHU_CONFIG must point at config/private/integrations/lanhu.yaml;
@@ -23,6 +23,8 @@ from pathlib import Path
 from typing import List
 
 import yaml
+
+from config_values import scalar_text
 
 
 def _emit_error(message: str, code: str) -> None:
@@ -54,7 +56,7 @@ def _validate_env() -> None:
     """Ensure a usable Lanhu cookie is available from the config YAML, then mirror it
     for the vendored server (which reads LANHU_COOKIE / DDS_COOKIE at import time)."""
     data = _load_lanhu_config()
-    cookie = (data.get("cookie") or "").strip()
+    cookie = scalar_text(data.get("cookie"))
     if not cookie or cookie == "your_lanhu_cookie_here":
         _emit_error(
             f"lanhu cookie not configured in {os.getenv('KATA_LANHU_CONFIG', '')}.",

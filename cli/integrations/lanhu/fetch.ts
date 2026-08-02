@@ -247,11 +247,22 @@ interface BridgeCallError {
   isCookieError: boolean;
 }
 
+const LEGACY_LANHU_SECRET_ENV_KEYS = new Set([
+  "KATA_LANHU_COOKIE",
+  "LANHU_COOKIE",
+  "DDS_COOKIE",
+  "KATA_LANHU_USERNAME",
+  "KATA_LANHU_PASSWORD",
+]);
+
 export function buildLanhuBridgeEnv(
   configPath: string,
   baseEnv: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
-  return { ...baseEnv, KATA_LANHU_CONFIG: configPath };
+  const sanitized = Object.fromEntries(
+    Object.entries(baseEnv).filter(([key]) => !LEGACY_LANHU_SECRET_ENV_KEYS.has(key)),
+  );
+  return { ...sanitized, KATA_LANHU_CONFIG: configPath };
 }
 
 function parseBridgeCallError(err: unknown): BridgeCallError {
@@ -377,8 +388,7 @@ function refreshCookie(projectRoot: string, targetUrl: string): string | null {
       cwd: mcpDir,
       encoding: "utf8",
       env: {
-        ...process.env,
-        KATA_LANHU_CONFIG: pluginConfigPath("lanhu", projectRoot),
+        ...buildLanhuBridgeEnv(pluginConfigPath("lanhu", projectRoot)),
         KATA_LANHU_COOKIE_OUTPUT: outputPath,
       },
       stdio: ["ignore", "pipe", "pipe"],

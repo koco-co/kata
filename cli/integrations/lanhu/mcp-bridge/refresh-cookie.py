@@ -26,6 +26,8 @@ import tempfile
 
 import yaml
 
+from config_values import scalar_text
+
 
 def _emit_error(message: str, code: str) -> None:
     payload = {"error": message, "code": code}
@@ -43,8 +45,8 @@ def _resolve_credentials() -> tuple[str, str]:
             with open(config_path, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             if isinstance(data, dict):
-                username = (data.get("username") or "").strip()
-                password = (data.get("password") or "").strip()
+                username = scalar_text(data.get("username"))
+                password = scalar_text(data.get("password"))
         except OSError:
             username = password = ""
 
