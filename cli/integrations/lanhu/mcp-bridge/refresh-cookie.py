@@ -3,14 +3,15 @@
 Refresh Lanhu cookie by logging in via Playwright headless browser.
 
 Credential resolution order:
-  1. KATA_LANHU_USERNAME / KATA_LANHU_PASSWORD env vars
+  1. config/private/integrations/lanhu.yaml via KATA_LANHU_CONFIG
   2. Interactive prompt (stdin)
 
 After login, navigates to --target-url (if provided) to acquire
 project-scoped cookies, then writes the cookie to KATA_LANHU_COOKIE_OUTPUT.
 
 Usage:
-  KATA_LANHU_COOKIE_OUTPUT=/path/to/private-file uv run python refresh-cookie.py [--target-url URL]
+  KATA_LANHU_CONFIG=/path/to/lanhu.yaml KATA_LANHU_COOKIE_OUTPUT=/path/to/private-file \
+    uv run python refresh-cookie.py [--target-url URL]
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ import os
 import sys
 import tempfile
 
+import yaml
+
 
 def _emit_error(message: str, code: str) -> None:
     payload = {"error": message, "code": code}
@@ -31,8 +34,19 @@ def _emit_error(message: str, code: str) -> None:
 
 
 def _resolve_credentials() -> tuple[str, str]:
-    username = os.getenv("KATA_LANHU_USERNAME", "")
-    password = os.getenv("KATA_LANHU_PASSWORD", "")
+    # Prefer credentials from config/private/integrations/lanhu.yaml via KATA_LANHU_CONFIG.
+    username = ""
+    password = ""
+    config_path = os.getenv("KATA_LANHU_CONFIG", "")
+    if config_path:
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+            if isinstance(data, dict):
+                username = (data.get("username") or "").strip()
+                password = (data.get("password") or "").strip()
+        except OSError:
+            username = password = ""
 
     if username and password:
         return username, password
@@ -40,7 +54,7 @@ def _resolve_credentials() -> tuple[str, str]:
     # Interactive fallback
     if not sys.stdin.isatty():
         _emit_error(
-            "No credentials available. Configure Lanhu credentials or run interactively.",
+            "No credentials available. Configure Lanhu credentials in config/private/integrations/lanhu.yaml or run interactively.",
             "NO_CREDENTIALS",
         )
 

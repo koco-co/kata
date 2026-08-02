@@ -25,7 +25,7 @@ import { extname, join, resolve } from "node:path";
 import sharp from "sharp";
 import { writeFileAtomic } from "../../lib/atomic-writer.ts";
 import { assertFeatureNoSymlink, assertNoSymlinkPath } from "../../lib/features-layout.ts";
-import { loadLanhuConfig, updatePluginConfig } from "../../lib/plugin-config.ts";
+import { loadLanhuConfig, pluginConfigPath, updatePluginConfig } from "../../lib/plugin-config.ts";
 import { computePrdDigest, type PrdEvidence, type PrdEvidencePage } from "../../lib/prd.ts";
 import { repoRoot } from "../../lib/workspace-locator.ts";
 
@@ -248,15 +248,10 @@ interface BridgeCallError {
 }
 
 export function buildLanhuBridgeEnv(
-  cookie: string,
+  configPath: string,
   baseEnv: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
-  return {
-    ...baseEnv,
-    KATA_LANHU_COOKIE: cookie,
-    LANHU_COOKIE: cookie,
-    DDS_COOKIE: cookie,
-  };
+  return { ...baseEnv, KATA_LANHU_CONFIG: configPath };
 }
 
 function parseBridgeCallError(err: unknown): BridgeCallError {
@@ -288,7 +283,6 @@ function parseBridgeCallError(err: unknown): BridgeCallError {
 function tryCallBridgeListPages(
   projectRoot: string,
   rawUrl: string,
-  cookie: string,
 ): BridgeListOutput | BridgeCallError {
   const bridgeScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "bridge.py");
   const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
@@ -298,7 +292,7 @@ function tryCallBridgeListPages(
       ["run", "python", bridgeScript, "--url", rawUrl, "--list-pages"],
       {
         cwd: mcpDir,
-        env: buildLanhuBridgeEnv(cookie),
+        env: buildLanhuBridgeEnv(pluginConfigPath("lanhu", projectRoot)),
         encoding: "utf8",
         stdio: ["pipe", "pipe", "pipe"],
         timeout: 60_000,
@@ -311,14 +305,10 @@ function tryCallBridgeListPages(
   }
 }
 
-function callBridgeListPagesWithRetry(
-  projectRoot: string,
-  rawUrl: string,
-  cookie: string,
-): { listResult: BridgeListOutput; cookie: string } {
-  const result = tryCallBridgeListPages(projectRoot, rawUrl, cookie);
+function callBridgeListPagesWithRetry(projectRoot: string, rawUrl: string): BridgeListOutput {
+  const result = tryCallBridgeListPages(projectRoot, rawUrl);
   if ("pages" in result) {
-    return { listResult: result, cookie };
+    return result;
   }
 
   if (!result.isCookieError) {
@@ -333,9 +323,9 @@ function callBridgeListPagesWithRetry(
     );
   }
 
-  const retry = tryCallBridgeListPages(projectRoot, rawUrl, newCookie);
+  const retry = tryCallBridgeListPages(projectRoot, rawUrl);
   if ("pages" in retry) {
-    return { listResult: retry, cookie: newCookie };
+    return retry;
   }
 
   throw new LanhuIntegrationError(retry.code, retry.error);
@@ -345,7 +335,6 @@ function tryCallBridge(
   projectRoot: string,
   rawUrl: string,
   pageId: string | undefined,
-  cookie: string,
   pageNames?: string,
 ): BridgeOutput | BridgeCallError {
   const bridgeScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "bridge.py");
@@ -362,7 +351,7 @@ function tryCallBridge(
   try {
     const stdout = runCommand("uv", args, {
       cwd: mcpDir,
-      env: buildLanhuBridgeEnv(cookie),
+      env: buildLanhuBridgeEnv(pluginConfigPath("lanhu", projectRoot)),
       encoding: "utf8",
       stdio: ["pipe", "pipe", "pipe"],
       timeout: 180_000,
@@ -379,7 +368,6 @@ function tryCallBridge(
 function refreshCookie(projectRoot: string, targetUrl: string): string | null {
   const refreshScript = resolve(projectRoot, LANHU_BRIDGE_RELATIVE_DIR, "refresh-cookie.py");
   const mcpDir = resolve(projectRoot, LANHU_MCP_RELATIVE_DIR);
-  const config = loadLanhuConfig(projectRoot);
   const args = ["run", "python", refreshScript, "--target-url", targetUrl];
   const outputDir = mkdtempSync(join(tmpdir(), "kata-lanhu-cookie-"));
   const outputPath = join(outputDir, "cookie");
@@ -390,8 +378,7 @@ function refreshCookie(projectRoot: string, targetUrl: string): string | null {
       encoding: "utf8",
       env: {
         ...process.env,
-        ...(config.username ? { KATA_LANHU_USERNAME: config.username } : {}),
-        ...(config.password ? { KATA_LANHU_PASSWORD: config.password } : {}),
+        KATA_LANHU_CONFIG: pluginConfigPath("lanhu", projectRoot),
         KATA_LANHU_COOKIE_OUTPUT: outputPath,
       },
       stdio: ["ignore", "pipe", "pipe"],
@@ -414,10 +401,9 @@ function callBridgeWithRetry(
   projectRoot: string,
   rawUrl: string,
   pageId: string | undefined,
-  cookie: string,
   pageNames?: string,
 ): BridgeOutput {
-  const result = tryCallBridge(projectRoot, rawUrl, pageId, cookie, pageNames);
+  const result = tryCallBridge(projectRoot, rawUrl, pageId, pageNames);
 
   // Success on first try
   if ("pages" in result) {
@@ -439,8 +425,8 @@ function callBridgeWithRetry(
     );
   }
 
-  // Retry with new cookie
-  const retry = tryCallBridge(projectRoot, rawUrl, pageId, newCookie, pageNames);
+  // Retry with the refreshed cookie (bridge reads it back from the YAML)
+  const retry = tryCallBridge(projectRoot, rawUrl, pageId, pageNames);
   if ("pages" in retry) {
     return retry;
   }
@@ -554,8 +540,7 @@ export async function runPrdExtract(
     }
   }
 
-  let cookie = loadLanhuConfig(projectRoot).cookie ?? "";
-  if (!cookie) {
+  if (!loadLanhuConfig(projectRoot).cookie) {
     const newCookie = refreshCookie(projectRoot, rawUrl);
     if (!newCookie) {
       throw new LanhuIntegrationError(
@@ -563,12 +548,10 @@ export async function runPrdExtract(
         "config/private/integrations/lanhu.yaml 未配置 cookie 且自动登录失败",
       );
     }
-    cookie = newCookie;
   }
   ensureLanhuMcpReady(projectRoot);
-  const listCall = callBridgeListPagesWithRetry(projectRoot, rawUrl, cookie);
-  cookie = listCall.cookie;
-  const selected = listCall.listResult.pages.filter((page) => page.id === identity.pageId);
+  const listResult = callBridgeListPagesWithRetry(projectRoot, rawUrl);
+  const selected = listResult.pages.filter((page) => page.id === identity.pageId);
   if (selected.length !== 1) {
     throw new LanhuIntegrationError(
       "PAGE_NOT_FOUND",
@@ -584,7 +567,7 @@ export async function runPrdExtract(
     );
   }
 
-  const bridge = callBridgeWithRetry(projectRoot, rawUrl, identity.pageId, cookie);
+  const bridge = callBridgeWithRetry(projectRoot, rawUrl, identity.pageId);
   if (bridge.pages.length !== 1) {
     throw new LanhuIntegrationError(
       "PAGE_COUNT_MISMATCH",
@@ -632,7 +615,7 @@ export async function runPrdExtract(
     version_id: identity.versionId,
     page_id: identity.pageId,
     requirement_id: requirementId,
-    title: listCall.listResult.title,
+    title: listResult.title,
     pages: evidencePages,
   };
   const text = `${JSON.stringify(evidence, null, 2)}\n`;

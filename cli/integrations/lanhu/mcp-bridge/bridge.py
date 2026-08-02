@@ -7,7 +7,8 @@ Usage (from cli/integrations/lanhu/mcp-bridge/lanhu-mcp directory):
     uv run python ../bridge.py --url <lanhu_url> [--page-id <id>]
 
 Environment:
-    KATA_LANHU_COOKIE must be set before invocation.
+    KATA_LANHU_CONFIG must point at config/private/integrations/lanhu.yaml;
+    the cookie is read from that YAML (secrets never travel via env values).
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ import sys
 from pathlib import Path
 from typing import List
 
+import yaml
+
 
 def _emit_error(message: str, code: str) -> None:
     """Write structured error JSON to stderr and exit."""
@@ -29,18 +32,36 @@ def _emit_error(message: str, code: str) -> None:
     sys.exit(1)
 
 
-def _validate_env() -> None:
-    """Ensure KATA_LANHU_COOKIE is present in the environment."""
-    cookie = os.getenv("KATA_LANHU_COOKIE", "")
-    if not cookie or cookie == "your_lanhu_cookie_here":
+def _load_lanhu_config() -> dict:
+    """Read config/private/integrations/lanhu.yaml via KATA_LANHU_CONFIG."""
+    config_path = os.getenv("KATA_LANHU_CONFIG", "")
+    if not config_path:
         _emit_error(
-            "KATA_LANHU_COOKIE is not set or contains the default placeholder. "
-            "Export it before running this script.",
+            "KATA_LANHU_CONFIG is not set. Run via kata so the lanhu config path is provided.",
             "MISSING_COOKIE",
         )
-    # The vendored server reads LANHU_COOKIE at module import time; mirror the
-    # kata variable when the caller only exported KATA_LANHU_COOKIE.
-    os.environ.setdefault("LANHU_COOKIE", cookie)
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except OSError as e:
+        _emit_error(f"Failed to read lanhu config {config_path}: {e}", "MISSING_COOKIE")
+    if not isinstance(data, dict):
+        _emit_error(f"lanhu config is not an object: {config_path}", "MISSING_COOKIE")
+    return data
+
+
+def _validate_env() -> None:
+    """Ensure a usable Lanhu cookie is available from the config YAML, then mirror it
+    for the vendored server (which reads LANHU_COOKIE / DDS_COOKIE at import time)."""
+    data = _load_lanhu_config()
+    cookie = (data.get("cookie") or "").strip()
+    if not cookie or cookie == "your_lanhu_cookie_here":
+        _emit_error(
+            f"lanhu cookie not configured in {os.getenv('KATA_LANHU_CONFIG', '')}.",
+            "MISSING_COOKIE",
+        )
+    os.environ["LANHU_COOKIE"] = cookie
+    os.environ["DDS_COOKIE"] = cookie
 
 
 def _setup_sys_path() -> None:

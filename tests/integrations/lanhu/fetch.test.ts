@@ -43,13 +43,17 @@ afterEach(() => {
 });
 
 describe("buildLanhuBridgeEnv", () => {
-  it("passes refreshed kata cookie to lanhu-mcp runtime env names", () => {
-    const env = buildLanhuBridgeEnv("session=fresh-cookie", { EXISTING: "yes" });
+  it("passes the lanhu config path (not the cookie) to the bridge runtime env", () => {
+    const env = buildLanhuBridgeEnv("/repo/config/private/integrations/lanhu.yaml", {
+      EXISTING: "yes",
+    });
 
     assert.equal(env.EXISTING, "yes");
-    assert.equal(env.KATA_LANHU_COOKIE, "session=fresh-cookie");
-    assert.equal(env.LANHU_COOKIE, "session=fresh-cookie");
-    assert.equal(env.DDS_COOKIE, "session=fresh-cookie");
+    assert.equal(env.KATA_LANHU_CONFIG, "/repo/config/private/integrations/lanhu.yaml");
+    // 秘密值不再进入 env
+    assert.equal(env.KATA_LANHU_COOKIE, undefined);
+    assert.equal(env.LANHU_COOKIE, undefined);
+    assert.equal(env.DDS_COOKIE, undefined);
   });
 });
 
@@ -246,7 +250,7 @@ describe("CLI: invalid URL format", () => {
         {
           encoding: "utf8",
           cwd: root,
-          env: { ...process.env, KATA_LANHU_COOKIE: "fake-cookie-for-url-test" },
+          env: { ...process.env },
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -276,7 +280,7 @@ describe("CLI: invalid URL format", () => {
         {
           encoding: "utf8",
           cwd: root,
-          env: { ...process.env, KATA_LANHU_COOKIE: "fake-cookie-for-url-test" },
+          env: { ...process.env },
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
