@@ -7,6 +7,7 @@
  * worktree) also lives here, replacing the per-loader copies.
  */
 import { execFileSync } from "node:child_process";
+import { existsSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { repoRoot as locateRoot } from "./workspace-locator.ts";
 
@@ -115,4 +116,43 @@ export function sharedPrivateRoot(root?: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * 私密族的实例文件：合并本地与共享主工作树（按文件名去重）。
+ * relDir 相对 config/private（如 "environments"、"integrations"）。
+ * linked worktree 中，本地没有的实例从主工作树补齐。
+ */
+export function privateInstanceFiles(
+  relDir: string,
+  root?: string,
+  matcher: (name: string) => boolean = (name) => name.endsWith(".yaml"),
+): string[] {
+  const bases = [configRoot(root)];
+  const shared = sharedPrivateRoot(root);
+  if (shared) bases.push(shared);
+  const seen = new Set<string>();
+  const files: string[] = [];
+  for (const base of bases) {
+    const dir = join(base, "config", "private", relDir);
+    if (!existsSync(dir)) continue;
+    for (const name of readdirSync(dir).filter(matcher).sort()) {
+      if (seen.has(name)) continue;
+      seen.add(name);
+      files.push(join(dir, name));
+    }
+  }
+  return files;
+}
+
+/** 私密固定文件的有效路径：本地缺失时回退主工作树共享副本。 */
+export function effectivePrivatePath(relFile: string, root?: string): string {
+  const local = join(configRoot(root), relFile);
+  if (existsSync(local)) return local;
+  const shared = sharedPrivateRoot(root);
+  if (shared) {
+    const sharedFile = join(shared, relFile.replace(/^config\/private\//, ""));
+    if (existsSync(sharedFile)) return sharedFile;
+  }
+  return local;
 }

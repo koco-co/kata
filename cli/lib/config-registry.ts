@@ -15,7 +15,12 @@ import { basename, join, resolve } from "node:path";
 import { parse } from "yaml";
 import { loadSqlProfilesFile } from "./automation/sql.ts";
 import { loadCasesLintConfig } from "./cases/content-lint.ts";
-import { privateRoot as configPrivateRoot } from "./config-paths.ts";
+import {
+  privateRoot as configPrivateRoot,
+  effectivePrivatePath,
+  privateInstanceFiles,
+  sharedPrivateRoot,
+} from "./config-paths.ts";
 import { readDataAssetsEnvConfig } from "./dataassets-env.ts";
 import { loadSourceRepos } from "./git-source.ts";
 import { infraConfigPath, readInfraConfig } from "./infra-config.ts";
@@ -93,6 +98,25 @@ export function redactSecrets(value: unknown): unknown {
     return out;
   }
   return value;
+}
+
+/**
+ * 私密族的 show 投影：整族内容都是私密拓扑（仓库名/分支/客户/URL/数据源/JDBC 等），
+ * 值一律隐藏为占位符，仅保留空串以区分「已配置」与「未填写」。非私密族原样展示。
+ */
+function projectForShow(family: ConfigFamilyEntry, value: unknown): unknown {
+  if (!family.private) return value;
+  const hide = (item: unknown): unknown => {
+    if (typeof item === "string") return item === "" ? "" : "<redacted>";
+    if (Array.isArray(item)) return item.map(hide);
+    if (isRecord(item)) {
+      const out: Record<string, unknown> = {};
+      for (const [key, child] of Object.entries(item)) out[key] = hide(child);
+      return out;
+    }
+    return item;
+  };
+  return hide(value);
 }
 
 const EXAMPLES_ROOT = "config/examples";
@@ -359,8 +383,10 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
       return loadSqlProfilesFile(resolve(path, "..", "..", ".."));
     },
     validateFile: (path) => {
-      const doc = readYaml(path);
-      if (!isRecord(doc) || !isRecord(doc.profiles)) throw new Error(`${path} 缺 profiles 对象`);
+      const doc = validateTopLevel(path, ["profiles"]);
+      if (!isRecord(doc.profiles)) throw new Error(`${path} 缺 profiles 对象`);
+      // 深度校验：与运行时 lintSql 同一契约源（每个 profile 的结构/正则均校验）。
+      loadSqlProfilesFile(resolve(path, "..", "..", ".."));
     },
     validateExample: (path) => {
       throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
@@ -392,7 +418,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     private: false,
     docs: "Playwright 运行时行为设置（可被 --set 覆盖）",
     files: ["config/automation/playwright.yaml"],
-    examples: [],
+    examples: [join("config", "automation", "playwright.example.yaml")],
     loadFile: (path) => {
       const doc = readYaml(path);
       if (!isRecord(doc) || !isRecord(doc.playwright))
@@ -400,12 +426,12 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
       return doc;
     },
     validateFile: (path) => {
-      const doc = readYaml(path);
-      if (!isRecord(doc) || !isRecord(doc.playwright))
-        throw new Error(`${path} 缺 playwright 对象`);
+      const doc = validateTopLevel(path, ["playwright"]);
+      if (!isRecord(doc.playwright)) throw new Error(`${path} 缺 playwright 对象`);
     },
     validateExample: (path) => {
-      throw new Error(`${path} 不是 example 模板（运行时配置无模板）`);
+      const doc = validateTopLevel(path, ["playwright"]);
+      if (!isRecord(doc.playwright)) throw new Error(`${path} 缺 playwright 对象`);
     },
     allowedKeys: ["playwright"],
   },
@@ -449,12 +475,20 @@ export interface ConfigValidateResult {
 
 function familyInstances(family: ConfigFamilyEntry, root: string): string[] {
   if (family.instancesDir) {
+    if (family.private) {
+      // linked worktree：本地 + 主工作树共享实例合并（文件名去重）
+      const rel = family.instancesDir.replace(/^config\/private\//, "");
+      return privateInstanceFiles(rel, root);
+    }
     const dir = join(root, family.instancesDir);
     if (!existsSync(dir)) return [];
     return readdirSync(dir)
       .filter((file) => file.endsWith(".yaml"))
       .sort()
       .map((file) => join(dir, file));
+  }
+  if (family.private) {
+    return family.files.map((file) => effectivePrivatePath(file, root));
   }
   return family.files.map((file) => join(root, file));
 }
@@ -493,9 +527,14 @@ export function validateAllConfig(root: string = defaultRepoRoot()): ConfigValid
       }
     }
   }
-  const privateRoot = configPrivateRoot(root);
-  if (existsSync(privateRoot) && (statSync(privateRoot).mode & 0o777) !== 0o700) {
-    issues.push({ level: "error", path: privateRoot, message: "私密根目录权限必须为 0700" });
+  // 本地 + 共享主工作树两个私密根都要做 0700 检查
+  for (const privateRoot of [
+    configPrivateRoot(root),
+    ...(sharedPrivateRoot(root) ? [sharedPrivateRoot(root) as string] : []),
+  ]) {
+    if (existsSync(privateRoot) && (statSync(privateRoot).mode & 0o777) !== 0o700) {
+      issues.push({ level: "error", path: privateRoot, message: "私密根目录权限必须为 0700" });
+    }
   }
   issues.push(...scanLegacyConfigRefs(root));
   return { ok: !issues.some((issue) => issue.level === "error"), issues };
@@ -552,7 +591,11 @@ export function showFamily(name: string, root: string = defaultRepoRoot()): Fami
       continue;
     }
     try {
-      entries.push({ path, exists: true, value: redactSecrets(family.loadFile(path, root)) });
+      entries.push({
+        path,
+        exists: true,
+        value: projectForShow(family, family.loadFile(path, root)),
+      });
     } catch (error) {
       errors.push((error as Error).message);
       entries.push({ path, exists: true, value: undefined });
@@ -601,7 +644,7 @@ function tableRow(cells: string[]): string {
 
 /** 由注册表派生 README 生成区内容。 */
 export function renderConfigDocsSection(): string {
-  const rows = CONFIG_FAMILIES.map((family) =>
+  const familyRows = CONFIG_FAMILIES.map((family) =>
     tableRow([
       `\`${family.name}\``,
       family.role,
@@ -610,6 +653,15 @@ export function renderConfigDocsSection(): string {
       family.examples.length > 0 ? family.examples.map((e) => `\`${e}\``).join("<br>") : "—",
     ]),
   );
+  // 私密族文件 ↔ 脱敏模板 对应表（由注册表派生，防手写区漂移）
+  const privateFiles = CONFIG_FAMILIES.filter((family) => family.private).flatMap((family) => {
+    const files = family.instancesDir
+      ? [`\`${family.instancesDir}/<name>.yaml\``]
+      : family.files.map((file) => `\`${file}\``);
+    const examples =
+      family.examples.length > 0 ? family.examples.map((e) => `\`${e}\``).join("<br>") : "—";
+    return files.map((file) => tableRow([file, examples, family.docs]));
+  });
   return [
     DOCS_BEGIN,
     "",
@@ -617,7 +669,13 @@ export function renderConfigDocsSection(): string {
     "",
     tableRow(["族", "职责", "私密性", "说明", "example 模板"]),
     tableRow(["---", "---", "---", "---", "---"]),
-    ...rows,
+    ...familyRows,
+    "",
+    "私密配置与脱敏模板对应（由注册表派生，禁止手改）:",
+    "",
+    tableRow(["私密配置", "脱敏模板", "用途"]),
+    tableRow(["---", "---", "---"]),
+    ...privateFiles,
     "",
     DOCS_END,
   ].join("\n");

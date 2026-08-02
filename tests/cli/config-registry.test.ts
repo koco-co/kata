@@ -104,14 +104,35 @@ describe("config registry", () => {
     ).not.toThrow();
   });
 
-  test("show redacts secrets and reports missing files without crashing", () => {
+  test("show hides ALL private-family values, keeping empty strings to signal configured state", () => {
     const root = makeRoot();
-    writePrivate(root, "config/private/integrations/lanhu.yaml", "cookie: sid=1\nusername: qa\n");
+    writePrivate(
+      root,
+      "config/private/integrations/lanhu.yaml",
+      'cookie: sid=1\nusername: qa\npassword: ""\n',
+    );
     const shown = showFamily("integrations", root);
     expect(shown.configured).toBe(true);
     const lanhu = shown.files.find((f) => f.path.endsWith("lanhu.yaml"));
-    expect(lanhu?.value).toMatchObject({ cookie: "<redacted>", username: "qa" });
+    // 私密族整族隐藏：非空值一律 <redacted>，空串保留以区分「已配置/未填写」
+    expect(lanhu?.value).toMatchObject({
+      cookie: "<redacted>",
+      username: "<redacted>",
+      password: "",
+    });
     expect(shown.errors).toEqual([]);
+  });
+
+  test("show renders non-secret contract values verbatim", () => {
+    const root = makeRoot();
+    mkdirSync(join(root, "config", "policies"), { recursive: true });
+    writeFileSync(
+      join(root, "config", "policies", "repo-policy.yaml"),
+      "root:\n  allowed_files: [README.md]\nforbidden_globs: []\n",
+    );
+    const shown = showFamily("repo-policy", root);
+    const policy = shown.files.find((f) => f.path.endsWith("repo-policy.yaml"));
+    expect(policy?.value).toMatchObject({ root: { allowed_files: ["README.md"] } });
   });
 
   test("validate tolerates missing private files on a fresh clone", () => {

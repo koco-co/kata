@@ -80,6 +80,19 @@ keeps only redacted minimal fixtures.
 | `cases-lint` | contract | 跟踪 | 用例内容 lint 契约（first-step 入口模式、禁用词、数据源类型） | — |
 | `sql-profiles` | contract | 跟踪 | SQL 方言契约（方言 profile、必需/禁用片段与占位符） | — |
 | `xmind-mapping` | contract | 跟踪 | XMind 根标题与 ZenTao 模块 ID 映射契约 | — |
-| `automation` | runtime | 跟踪 | Playwright 运行时行为设置（可被 --set 覆盖） | — |
+| `automation` | runtime | 跟踪 | Playwright 运行时行为设置（可被 --set 覆盖） | `config/automation/playwright.example.yaml` |
+
+私密配置与脱敏模板对应（由注册表派生，禁止手改）:
+
+| 私密配置 | 脱敏模板 | 用途 |
+| --- | --- | --- |
+| `config/private/environments/<name>.yaml` | `config/examples/environments/env.example.yaml` | 平台 URL、Cookie、租户、项目、数据源与环境自动化参数 |
+| `config/private/integrations/lanhu.yaml` | `config/examples/integrations/lanhu.example.yaml`<br>`config/examples/integrations/zentao.example.yaml`<br>`config/examples/integrations/notify.example.yaml` | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 |
+| `config/private/integrations/zentao.yaml` | `config/examples/integrations/lanhu.example.yaml`<br>`config/examples/integrations/zentao.example.yaml`<br>`config/examples/integrations/notify.example.yaml` | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 |
+| `config/private/integrations/notify.yaml` | `config/examples/integrations/lanhu.example.yaml`<br>`config/examples/integrations/zentao.example.yaml`<br>`config/examples/integrations/notify.example.yaml` | Lanhu、ZenTao、通知（DingTalk/Feishu/WeCom/SMTP）集成配置 |
+| `config/private/infrastructure/hosts.yaml` | `config/examples/infrastructure/hosts.example.yaml`<br>`config/examples/infrastructure/data_sources.example.yaml`<br>`config/examples/infrastructure/credentials.example.yaml` | SSH 主机、数据源、凭据 profile 与已核验指纹 |
+| `config/private/infrastructure/data_sources.yaml` | `config/examples/infrastructure/hosts.example.yaml`<br>`config/examples/infrastructure/data_sources.example.yaml`<br>`config/examples/infrastructure/credentials.example.yaml` | SSH 主机、数据源、凭据 profile 与已核验指纹 |
+| `config/private/infrastructure/credentials.yaml` | `config/examples/infrastructure/hosts.example.yaml`<br>`config/examples/infrastructure/data_sources.example.yaml`<br>`config/examples/infrastructure/credentials.example.yaml` | SSH 主机、数据源、凭据 profile 与已核验指纹 |
+| `config/private/repositories.yaml` | `config/examples/repositories.example.yaml` | 本机源码仓库路径、分支与筛选范围 |
 
 <!-- END GENERATED -->
