@@ -1,6 +1,7 @@
-# Copy this file to sources.yaml and fill it with repositories approved for the
-# current workstation. Never commit the local sources.yaml: it may contain
-# internal names, branches, URLs, or customer-specific topology.
+# Copy this file to config/private/repositories.yaml and fill it with
+# repositories approved for the current workstation. Never commit the local
+# repositories.yaml: it may contain internal names, branches, URLs, or
+# customer-specific topology.
 repos:
   # 外部仓库标识，通常使用 group/repository；不填写真实内网地址。
   - name: group/repository
