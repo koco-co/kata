@@ -5,7 +5,7 @@ import {
   emitBusinessNotificationSafely,
   formatTaipeiTime,
   workspaceRelativePath,
-} from "../integrations/notify.ts";
+} from "../integrations/notify/index.ts";
 import {
   type FeatureDirEntry,
   featureIdentity,

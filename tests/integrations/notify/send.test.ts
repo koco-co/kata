@@ -19,7 +19,7 @@ import {
   retryNotification,
   showNotificationLedger,
   validateEventData,
-} from "../../../cli/integrations/notify.ts";
+} from "../../../cli/integrations/notify/index.ts";
 
 const repo = resolve(import.meta.dir, "../../..");
 const kata = join(repo, "cli", "bin", "kata.ts");

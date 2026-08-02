@@ -11,7 +11,7 @@ import {
   emitBusinessNotificationSafely,
   formatTaipeiTime,
   workspaceRelativePath,
-} from "../integrations/notify.ts";
+} from "../integrations/notify/index.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { lintCaseContent, loadCasesLintConfig } from "../lib/cases/content-lint.ts";
 import { type CaseExportFormat, caseExports, parseCaseExportName } from "../lib/cases/formats.ts";

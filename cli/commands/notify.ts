@@ -9,7 +9,7 @@ import {
   type NotificationEventType,
   retryNotification,
   showNotificationLedger,
-} from "../integrations/notify.ts";
+} from "../integrations/notify/index.ts";
 
 function parsePreviewData(raw: string): NotificationData {
   let parsed: unknown;

@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { emitBusinessNotification } from "../../cli/integrations/notify.ts";
+import { emitBusinessNotification } from "../../cli/integrations/notify/index.ts";
 
 function fixtureRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "kata-notify-path-"));

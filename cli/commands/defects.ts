@@ -15,7 +15,7 @@ import {
   formatTaipeiTime,
   type NotificationEventType,
   workspaceRelativePath,
-} from "../integrations/notify.ts";
+} from "../integrations/notify/index.ts";
 import { runFetch } from "../integrations/zentao/fetch.ts";
 import { outputJson } from "../lib/cli.ts";
 import {

@@ -15,7 +15,7 @@ import {
   emitBusinessNotificationSafely,
   formatTaipeiTime,
   workspaceRelativePath,
-} from "../integrations/notify.ts";
+} from "../integrations/notify/index.ts";
 import { writeFileAtomic } from "../lib/atomic-writer.ts";
 import { importCases, splitXmindCases } from "../lib/cases/importers.ts";
 import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
