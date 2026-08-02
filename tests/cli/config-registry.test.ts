@@ -69,9 +69,7 @@ describe("config registry", () => {
     ).toEqual(["repo-policy", "cases-lint", "sql-profiles", "xmind-mapping"]);
     expect(familyByName("environments").instancesDir).toBe("config/private/environments");
     for (const family of CONFIG_FAMILIES.filter((entry) => entry.private)) {
-      const targets = family.instancesDir
-        ? [`${family.instancesDir}/<name>.yaml`]
-        : family.files;
+      const targets = family.instancesDir ? [`${family.instancesDir}/<name>.yaml`] : family.files;
       expect(family.templates.map((template) => template.target)).toEqual(targets);
     }
     expect(() => familyByName("nope")).toThrow(/未知配置族/);
@@ -139,6 +137,27 @@ describe("config registry", () => {
     expect(hosts?.value).toBe("<redacted>");
     expect(JSON.stringify(shown)).not.toContain("internal-host-alias");
     expect(JSON.stringify(shown)).not.toContain("2222");
+  });
+
+  test("show redacts private loader errors that contain dynamic topology names", () => {
+    const root = makeRoot();
+    writePrivate(
+      root,
+      "config/private/infrastructure/hosts.yaml",
+      "hosts:\n  internal-host-alias:\n    port: 22\n    credential_ref: shared\n",
+    );
+    writePrivate(root, "config/private/infrastructure/data_sources.yaml", "data_sources: {}\n");
+    writePrivate(
+      root,
+      "config/private/infrastructure/credentials.yaml",
+      "credentials:\n  shared:\n    kind: password\n    username: qa\n    password: test-only\n",
+    );
+
+    const shown = showFamily("infrastructure", root);
+    expect(shown.errors).toEqual([
+      "infrastructure 私密配置加载失败；请运行 kata config validate 获取本机诊断",
+    ]);
+    expect(JSON.stringify(shown)).not.toContain("internal-host-alias");
   });
 
   test("show renders non-secret contract values verbatim", () => {

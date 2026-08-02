@@ -490,7 +490,7 @@ export function loadConfigFamily(
   root: string = defaultRepoRoot(),
 ): unknown {
   const entry = familyByName(family);
-  const path = join(root, instance);
+  const path = entry.private ? effectivePrivatePath(instance, root) : join(root, instance);
   if (!existsSync(path)) throw new Error(`配置不存在: ${path}`);
   return entry.loadFile(path, root);
 }
@@ -630,7 +630,10 @@ export function showFamily(name: string, root: string = defaultRepoRoot()): Fami
         value: projectForShow(family, family.loadFile(path, root)),
       });
     } catch (error) {
-      errors.push((error as Error).message);
+      const message = family.private
+        ? `${family.name} 私密配置加载失败；请运行 kata config validate 获取本机诊断`
+        : (error as Error).message;
+      if (!errors.includes(message)) errors.push(message);
       entries.push({ path, exists: true, value: undefined });
     }
   }
