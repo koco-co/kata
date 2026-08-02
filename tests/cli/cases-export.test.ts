@@ -15,7 +15,7 @@ cases:
     priority: P0
     tags: [模块A, 页面B, 分组C, 第四级]
     steps:
-      - { action: 操作一, expected: 预期一 }
+      - { action: 进入【数据质量 → 规则库配置】页面, expected: 页面入口展示 }
 `;
 
 function feature(): string {
