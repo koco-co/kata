@@ -1,4 +1,8 @@
+# 用例作者内容的全局强制规则。
+# 只能由 kata cases lint/build 读取；模型不得直接读取 config/ 下的配置文件。
+# 规则只作用于 title、precondition、steps.action/expected 和 tags，不检查 meta、需求证据与导入记录。
 forbidden_terms:
+  # 不允许用不确定词替代可执行的测试条件。
   uncertainty:
     - 可能
     - 或许
@@ -14,6 +18,7 @@ forbidden_terms:
     - 一般情况下
     - 理论上
     - 原则上
+  # 不允许用弱动作词逃避明确操作。
   weak_action:
     - 尝试
     - 试着
@@ -23,6 +28,7 @@ forbidden_terms:
     - 必要时
     - 按需
     - 适当
+  # 不允许用模糊的准备语句替代具体账号、表、字段和值。
   vague_setup:
     - 准备
     - 预置
@@ -39,6 +45,7 @@ forbidden_terms:
     - 测试字段
     - 测试账号
     - 测试用户
+  # 不允许用数量不明、对象不明或泛化对象描述测试范围。
   vague_object:
     - 类似
     - 相关
@@ -60,6 +67,7 @@ forbidden_terms:
     - 某张
     - 某目录
     - 任一表
+  # 普通功能用例不写登录状态；权限场景必须写明实际角色账号。
   login_state:
     - 已登录
     - 已登陆
@@ -67,6 +75,7 @@ forbidden_terms:
     - 登陆后
     - 先登录
     - 先登陆
+  # 预期必须描述可观察结果，禁止只写“正确/正常”等空泛结论。
   generic_assertion:
     - 数据正确
     - 结果正确
@@ -89,6 +98,7 @@ forbidden_terms:
     - UI展示正确
     - 符合预期
     - 无异常
+  # 不允许把流程残留、模型补充或占位分类写进正式用例。
   process_residue:
     - 用户确认补充
     - AI补充
@@ -96,11 +106,15 @@ forbidden_terms:
     - 待人工确认
     - 未分类
 
+# 首步骤必须独立描述页面入口；后续动作不得把入口和点击动作揉成一条。
 first_step_pattern: '^进入【[^】\n]+\s*→\s*[^】\n]+】页面(?:[。；;，,]|$)'
+# lint 报错中的固定预期与示例文本。
 first_step_expected: '进入【实际一级模块 → 实际页面】页面'
 first_step_example: '进入【数据质量 → 规则库配置】页面'
 
+# 需求没有声明数据源时，模型生成的默认类型；声明了其他类型时必须按声明使用对应方言。
 default_datasource_type: SparkThrift2.x
+# 允许出现在数据源语义块中的精确类型集合，大小写和别名均不自动纠正。
 datasource_types:
   - SparkThrift2.x
   - SparkThrift
@@ -124,12 +138,14 @@ datasource_types:
   - Lindorm
   - Kyuubi
 
+# 多表用例允许的角色集合；同一角色重复时由 CLI 要求追加两位序号。
 table_roles:
   - source
   - target
   - comparison
   - dimension
 
+# 没有 INSERT 时，只有写明这些空表语义才允许通过。
 empty_table_markers:
   - 该表为空表
   - 该表不写入数据

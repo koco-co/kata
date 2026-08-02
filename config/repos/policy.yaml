@@ -1,5 +1,7 @@
-# Repository-owned artifact policy. Private repository sources remain in sources.yaml.
+# 仓库产物路由和命名策略。CLI repository lint / kata run check 会读取本文件；
+# 私有源码仓库清单仍保存在未跟踪的 config/repos/sources.yaml。
 root:
+  # 根目录允许直接存在的受跟踪文件；新增根文件前必须同步本策略。
   allowed_files:
     - .gitattributes
     - .gitignore
@@ -18,6 +20,7 @@ root:
     - tsconfig.base.json
     - tsconfig.json
     - tsconfig.workspace.json
+  # 根目录允许存在的目录；产物必须落在这些目录之一。
   allowed_directories:
     - .agents
     - .claude
@@ -31,6 +34,7 @@ root:
     - runtime
     - tests
     - workspace
+  # 任何命中以下 glob 的路径都会被仓库检查拒绝，即使文件未被 Git 跟踪。
 forbidden_globs:
   - kata-automation-*.config.ts
   - kata-automation-config-*.ts
@@ -48,30 +52,40 @@ forbidden_globs:
   - workspace/*/_shared/fixtures/**
   - workspace/*/_shared/runtime/**
 artifacts:
+  # YAML 是用例唯一中间态；CSV/XMind/Markdown 等均为导入或导出产物。
   cases_yaml:
+    # 正式用例源文件的路径模板。
     route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml
+    # YAML 文件名必须与需求目录中的用例名称一致。
     filename: <name>.yaml
   case_import:
+    # 历史需求源文件的归档目录和允许扩展名。
     route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext>
     extensions: [csv, xlsx, md, xmind]
   case_export:
+    # 由 YAML 派生的交付文件目录和允许扩展名。
     route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>
     extensions: [csv, xlsx, md, xmind]
   automation_case:
+    # 正式 Playwright 源代码位置和文件命名规则。
     route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/
     filename: c0001-lowercase-english-kebab-slug.spec.ts
   automation_sql_template:
+    # 自动化 SQL 模板位置和小写英文文件名规则。
     route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/
     filename: lowercase-english-kebab.sql
   automation_run_temporary:
+    # 单次运行产生的临时目录；不得提交到 Git。
     route: workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/
     tracked: false
 shared_modules:
+  # 共享自动化模块根目录及其复用门槛。
   roots:
     - workspace/*/_shared/automation
   minimum_feature_consumers: 2
   page_domain_pattern: "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
 dependencies:
+  # 运行时代码的导入边界；违反时 repository lint 阻断。
   runtime_must_not_import: cli/
   forbidden_import_fragments:
     - runtime/cases/

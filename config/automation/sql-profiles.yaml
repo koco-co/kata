@@ -1,11 +1,19 @@
+# 自动化 SQL 方言校验 profile。
+# profiles 的键是 CLI 可接受的逻辑 profile 名；datasource_types 是可映射到该 profile 的
+# 数据源类型。required_patterns 必须全部命中，forbidden_patterns 任一命中即失败。
+# 本文件不保存连接信息，也不负责执行 SQL；实际连接由环境配置和自动化运行时处理。
 profiles:
+  # SparkThrift2.x 和 SparkThrift 的初始化 SQL。
   spark-sql:
+    # 数据源类型必须与用例中的“数据源类型”精确匹配。
     datasource_types: [SparkThrift2.x, SparkThrift]
+    # 公共表初始化必须可重复执行。
     required_patterns:
       - name: 可重复删除表
         pattern: '\bDROP\s+TABLE\s+IF\s+EXISTS\b'
       - name: 幂等创建表
         pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
+    # 禁止把 Doris/StarRocks 专用建表语法误写到 Spark SQL。
     forbidden_patterns:
       - name: Doris/StarRocks 分桶语法
         pattern: '\bDISTRIBUTED\s+BY\b'
@@ -16,6 +24,7 @@ profiles:
       - name: Doris/StarRocks 副本属性
         pattern: '["]replication_num["]'
 
+  # Hive 及其主版本的初始化 SQL。
   hive-sql:
     datasource_types: [Hive, Hive1.x, Hive2.x, Hive3.x]
     required_patterns:
@@ -29,6 +38,7 @@ profiles:
       - name: Doris/StarRocks OLAP 引擎语法
         pattern: '\bENGINE\s*=\s*OLAP\b'
 
+  # Doris 及其主版本的初始化 SQL。
   doris-sql:
     datasource_types: [Doris, Doris2.x, Doris3.x]
     required_patterns:
@@ -44,6 +54,7 @@ profiles:
       - name: Spark 数据源提供器语法
         pattern: '\bUSING\s+(?:PARQUET|ORC|TEXT|CSV|JSON)\b'
 
+  # StarRocks 3.x 的初始化 SQL。
   starrocks-sql:
     datasource_types: [StarRocks3.x]
     required_patterns:
@@ -59,6 +70,7 @@ profiles:
       - name: Spark 数据源提供器语法
         pattern: '\bUSING\s+(?:PARQUET|ORC|TEXT|CSV|JSON)\b'
 
+  # MySQL 的初始化 SQL。
   mysql-sql:
     datasource_types: [MySQL]
     required_patterns:
@@ -72,6 +84,7 @@ profiles:
       - name: Doris/StarRocks 分桶语法
         pattern: '\bDISTRIBUTED\s+BY\b|\b(?:DUPLICATE|AGGREGATE|UNIQUE)\s+KEY\b'
 
+  # PostgreSQL 兼容族的初始化 SQL。
   postgresql-sql:
     datasource_types: [PostgreSQL, GaussDB, GaussDB9.1, Vastbase]
     required_patterns:
@@ -85,6 +98,7 @@ profiles:
       - name: Doris/StarRocks 分桶语法
         pattern: '\bDISTRIBUTED\s+BY\b|\bENGINE\s*=\s*OLAP\b'
 
+  # Oracle 兼容族不支持 DROP/CREATE TABLE 的 IF EXISTS 子句，因此只校验基础语法并明确禁止这两个子句。
   oracle-sql:
     datasource_types: [Oracle, OceanBase, OceanBaseOracle]
     required_patterns:
@@ -100,6 +114,7 @@ profiles:
       - name: Doris/StarRocks 分桶语法
         pattern: '\bDISTRIBUTED\s+BY\b|\bENGINE\s*=\s*OLAP\b'
 
+  # Impala 初始化 SQL。
   impala-sql:
     datasource_types: [Impala]
     required_patterns:
@@ -108,6 +123,7 @@ profiles:
       - name: 幂等创建表
         pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
 
+  # Lindorm 初始化 SQL。
   lindorm-sql:
     datasource_types: [Lindorm]
     required_patterns:
@@ -116,6 +132,7 @@ profiles:
       - name: 幂等创建表
         pattern: '\bCREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b'
 
+  # Kyuubi 入口使用的 Spark/Hive 风格初始化 SQL。
   kyuubi-sql:
     datasource_types: [Kyuubi]
     required_patterns:

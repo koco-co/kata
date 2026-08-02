@@ -14,6 +14,22 @@ Keep private config directories at `0700` and every private non-example YAML at
 `0600`; `kata config doctor` checks both. Tracked public configuration under
 `config/xmind/`, the `*.example.yaml` templates, and this README belong in Git.
 
+每个敏感配置族都必须有对应的脱敏模板，模板只保留字段结构、默认行为和填写说明：
+
+| 私密配置 | 脱敏模板 | 用途 |
+| --- | --- | --- |
+| `env/<env>.yaml` | `env/env.example.yaml` | 平台 URL、Cookie、租户、项目、数据源和环境自动化参数 |
+| `infra/hosts.yaml` | `infra/hosts.example.yaml` | SSH 主机、端口、凭据引用和已核验指纹 |
+| `infra/data_sources.yaml` | `infra/data_sources.example.yaml` | 数据源类型、地址、端口、数据库和凭据引用 |
+| `infra/credentials.yaml` | `infra/credentials.example.yaml` | 服务器和数据源凭据 profile |
+| `plugin/lanhu.yaml` | `plugin/lanhu.example.yaml` | Lanhu Cookie 或账号密码 |
+| `plugin/zentao.yaml` | `plugin/zentao.example.yaml` | 禅道 Cookie、账号密码和创建映射 |
+| `plugin/notify.yaml` | `plugin/notify.example.yaml` | Webhook、签名密钥和 SMTP 通道 |
+| `repos/sources.yaml` | `repos/sources.example.yaml` | 本机源码仓库路径、分支和筛选范围 |
+
+`*.example.yaml` 可以安全阅读和复制，但不得填入真实地址、Cookie、密码、Webhook、
+签名密钥、SSH 指纹或内部仓库拓扑。已有本机私密文件不会由本次文档整理覆盖。
+
 Use the CLI to inspect and write configuration. This directory does not contain
 an additional Agent instruction layer.
 

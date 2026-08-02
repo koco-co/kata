@@ -1,7 +1,11 @@
 # Copy to hosts.yaml locally; do not commit the copied file.
 hosts:
   example-host:
+    # SSH 主机名或 IP；示例使用文档保留地址，不代表真实服务器。
     host: 192.0.2.10
+    # SSH 端口。
     port: 22
+    # 引用 credentials.yaml 中的凭据 profile 名称，不在这里填写密码。
     credential_ref: server-default
+    # 首次连接前通过 kata infra trust-host 写入已核验的指纹。
     host_key: "SHA256:replace-with-a-verified-fingerprint"

@@ -2,12 +2,19 @@
 # current workstation. Never commit the local sources.yaml: it may contain
 # internal names, branches, URLs, or customer-specific topology.
 repos:
+  # 外部仓库标识，通常使用 group/repository；不填写真实内网地址。
   - name: group/repository
+    # workspace/.repos 下的本地目录所属项目。
     project: dataAssets
+    # 本地 checkout 的相对路径，必须位于 .repos/ 下。
     path: .repos/group/repository
+    # kata repos prepare 使用的发布分支。
     branch: release/7.0
+    # 只有命中模块筛选的任务才会更新该仓库。
     modules: [数据标准]
+    # 只有命中客户筛选的任务才会更新该仓库。
     customers: [标品]
+    # writable=false 时，repos prepare 只允许读取或检查，不允许写入仓库。
     writable: false
 
 # 跨模块或跨客户的公共仓库须显式使用 "*"，不得省略筛选字段。

@@ -1,7 +1,13 @@
+# XMind 根节点映射。每个项目必须声明展示名称和固定的禅道模块 ID；
+# 用例导入/导出不会根据 feature 路径猜测缺失值。
 projects:
   dataAssets:
+    # XMind 根节点显示名称。
     root_name: 数据资产
+    # 需求模块的禅道模块 ID，作为导入/导出时的稳定映射。
     zentao_module_id: "23"
   batchWorks:
+    # XMind 根节点显示名称。
     root_name: 离线开发
+    # 需求模块的禅道模块 ID，作为导入/导出时的稳定映射。
     zentao_module_id: "24"
