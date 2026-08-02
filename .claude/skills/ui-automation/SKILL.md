@@ -17,7 +17,7 @@ description: 生成、修复、运行或验证 feature 目录中的 Playwright U
 ## Steps
 
 1. 查明事实
-   - 读取 feature YAML、环境清单（无环境名时先运行 `kata env list`，推荐 `ltqc-local` 并说明依据）、[workflows/prepare.md](workflows/prepare.md)、[workflows/implement.md](workflows/implement.md) 和 [workflows/deliver.md](workflows/deliver.md)。
+   - 读取 feature YAML、环境清单；无环境名时先运行 `kata env list`，根据当前任务证据选择并记录明确环境名；同时读取 [workflows/prepare.md](workflows/prepare.md)、[workflows/implement.md](workflows/implement.md) 和 [workflows/deliver.md](workflows/deliver.md)。
    - 不向用户询问可以从 `kata env list`、CLI、源码或当前 run 自行查明的事实；Cookie 只确认配置状态，不读取或回显值。
    - 完成条件：feature 路径、目标 Web 环境和待自动化 YAML 用例清单唯一，已有脚本与共享依赖已盘点。
 

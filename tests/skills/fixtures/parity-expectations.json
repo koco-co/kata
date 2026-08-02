@@ -18,10 +18,6 @@
         { "pattern": "<项目>:<版本目录>/<需求目录名>", "file": "workflows/create.md" }
       ],
       "testPoints": [{ "pattern": "cases/test-points.md", "file": "SKILL.md" }],
-      "placeholders": [
-        { "pattern": "${DataSourceA}", "file": "examples/cases.yaml" },
-        { "pattern": "${SchemaA}", "file": "prompts/worker.md" }
-      ],
       "createTableRule": [{ "pattern": "CREATE TABLE", "file": "examples/cases.yaml" }],
       "resolveCmd": [{ "pattern": "kata features resolve", "file": "workflows/create.md" }],
       "standingFlag": [{ "pattern": "--standing", "file": "workflows/create.md" }]
@@ -33,7 +29,6 @@
       "handoff": [{ "pattern": "handoff.md", "file": "workflows/deliver.md" }],
       "envRun": [{ "pattern": "kata env run", "file": "workflows/implement.md" }],
       "envList": [{ "pattern": "kata env list", "file": "SKILL.md" }],
-      "defaultEnv": [{ "pattern": "ltqc-local", "file": "SKILL.md" }],
       "scaffold": [{ "pattern": "kata automation scaffold", "file": "workflows/prepare.md" }],
       "runsNew": [{ "pattern": "kata runs new", "file": "SKILL.md" }],
       "runsExec": [

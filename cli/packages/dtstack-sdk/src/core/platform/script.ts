@@ -16,7 +16,7 @@ import type { DtStackClientLike } from "../http/client";
 
 const SCRIPT_NAME = "__kata_precond__";
 
-// BatchTaskStatus 终态码。ltqc-local 的 selectStatus 会短暂返回 16 后继续变成 4/5，
+// BatchTaskStatus 终态码。部分平台的 selectStatus 会短暂返回中间码后继续变成 4/5，
 // 因此 16 不能作为失败终态处理。
 const TERMINAL_STATUS = new Set([5, 7, 8, 9, 12, 13]);
 const SUCCESS_STATUS = new Set([5, 12]);
