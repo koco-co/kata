@@ -6,12 +6,17 @@ import { join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import {
   buildNotificationCard,
+  type EmailCardMessage,
   emitBusinessNotification,
   eventIdFor,
+  type FeishuInteractiveMessage,
+  type FormattedMessage,
   formatMarkdownMessage,
   formatTaipeiTime,
   listNotificationLedgers,
   NOTIFICATION_EVENTS,
+  type NotificationCard,
+  type NotificationCardRow,
   type NotificationData,
   type NotificationFetch,
   renderEmailCard,
@@ -74,6 +79,20 @@ function enableFeishuAndWecom(at: string): void {
 }
 
 describe("business notifications", () => {
+  it("keeps the pre-split public card type contract available from the index", () => {
+    const contract:
+      | [
+          FormattedMessage,
+          NotificationCardRow,
+          NotificationCard,
+          FeishuInteractiveMessage,
+          EmailCardMessage,
+        ]
+      | undefined = undefined;
+
+    assert.equal(contract, undefined);
+  });
+
   it("builds the shared result-card contract for all nine business events", () => {
     const context = {
       project: "dataAssets",

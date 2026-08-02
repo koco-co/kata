@@ -19,52 +19,6 @@ export interface FailedCase {
   message?: string;
 }
 
-export interface FormattedMessage {
-  title: string;
-  text: string;
-}
-
-export interface NotificationCardRow {
-  icon: string;
-  label: string;
-  value: string | number;
-}
-
-export interface NotificationCard {
-  status: "success" | "failed" | "waiting" | "warning";
-  emoji: "✅" | "❌" | "⏳" | "⚠️";
-  title: string;
-  subject: string;
-  rows: NotificationCardRow[];
-  callout?: string;
-  details?: string[];
-  footer: string;
-}
-
-export interface FeishuInteractiveMessage {
-  msg_type: "interactive";
-  card: {
-    schema: "2.0";
-    config: { update_multi: true };
-    body: {
-      direction: "vertical";
-      padding: string;
-      elements: Array<Record<string, unknown>>;
-    };
-    header: {
-      title: { tag: "plain_text"; content: string };
-      template: "green" | "red" | "orange" | "yellow";
-      padding: string;
-    };
-  };
-}
-
-export interface EmailCardMessage {
-  subject: string;
-  text: string;
-  html: string;
-}
-
 interface FieldSpec {
   readonly name: string;
   readonly type: "string" | "number" | "string[]" | "failed[]";

@@ -175,9 +175,14 @@ export {
 } from "./channels.ts";
 export {
   buildNotificationCard,
+  type EmailCardMessage,
   eventIdFor,
+  type FeishuInteractiveMessage,
+  type FormattedMessage,
   formatMarkdownMessage,
   formatTaipeiTime,
+  type NotificationCard,
+  type NotificationCardRow,
   renderEmailCard,
   renderFeishuCard,
   renderMarkdownCard,
