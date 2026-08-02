@@ -16,10 +16,7 @@ const LANHU_REFRESH_PY = resolve(
   __dirname,
   "../../../cli/integrations/lanhu/mcp-bridge/refresh-cookie.py",
 );
-const LANHU_VENDOR_PY = resolve(
-  __dirname,
-  "../../../cli/integrations/lanhu/mcp-bridge/lanhu-mcp/lanhu_mcp_server.py",
-);
+const LANHU_VENDOR_PY = resolve(__dirname, "../../../cli/vendor/lanhu-mcp/lanhu_mcp_server.py");
 const PROJECT_ROOT = resolve(__dirname, "../../..");
 
 const TMP_DIR = join(tmpdir(), `lanhu-fetch-test-${process.pid}`);

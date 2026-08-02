@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    "cli/integrations/dtstack"
+    "cli/packages/dtstack-sdk"
   ],
   "description": "AI-driven QA workflows for Claude Code and OpenAI Codex.",
   "author": "kata contributors",
@@ -21,7 +21,7 @@
     "kata": "cli/bin/kata.ts"
   },
   "scripts": {
-    "test:tools": "bun test --cwd cli/integrations/dtstack --timeout 30000",
+    "test:tools": "bun test --cwd cli/packages/dtstack-sdk --timeout 30000",
     "check": "bun cli/bin/kata.ts repo lint --exit-code && bun cli/bin/kata.ts config validate --exit-code && bun cli/bin/kata.ts config docs --check && bun run test:knowledge-lint && bun run test:cases-lint && biome check .",
     "check:fix": "biome check --fix .",
     "type-check": "tsc --noEmit",

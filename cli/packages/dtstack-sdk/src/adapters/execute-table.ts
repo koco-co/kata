@@ -35,7 +35,7 @@ export interface ExecuteTableOptions {
 export function resolveDtstackCliInvocation(): { command: string; argsPrefix: string[] } {
   const localBin = "./node_modules/.bin/dtstack-cli";
   if (existsSync(localBin)) return { command: localBin, argsPrefix: [] };
-  return { command: "bun", argsPrefix: ["cli/integrations/dtstack/src/cli.ts"] };
+  return { command: "bun", argsPrefix: ["cli/packages/dtstack-sdk/src/cli.ts"] };
 }
 
 /** Keep the SQL input inside the mkdtemp directory even when tableName is untrusted. */

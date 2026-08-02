@@ -5,5 +5,5 @@
     "types": ["node", "bun"]
   },
   "include": ["cli/**/*.ts", "runtime/**/*.ts", "tests/**/*.ts", "playwright.config.ts"],
-  "exclude": ["node_modules", "workspace", "cli/integrations/dtstack"]
+  "exclude": ["node_modules", "workspace", "cli/packages/dtstack-sdk"]
 }

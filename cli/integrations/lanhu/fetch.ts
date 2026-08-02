@@ -30,7 +30,7 @@ import { computePrdDigest, type PrdEvidence, type PrdEvidencePage } from "../../
 import { repoRoot } from "../../lib/workspace-locator.ts";
 
 const LANHU_BRIDGE_RELATIVE_DIR = "cli/integrations/lanhu/mcp-bridge";
-const LANHU_MCP_RELATIVE_DIR = `${LANHU_BRIDGE_RELATIVE_DIR}/lanhu-mcp`;
+const LANHU_MCP_RELATIVE_DIR = "cli/vendor/lanhu-mcp";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

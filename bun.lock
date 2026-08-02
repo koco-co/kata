@@ -31,7 +31,7 @@
         "typescript": "^6.0.3",
       },
     },
-    "cli/integrations/dtstack": {
+    "cli/packages/dtstack-sdk": {
       "name": "dtstack-sdk",
       "version": "0.1.0",
       "bin": {
@@ -237,7 +237,7 @@
 
     "detect-libc": ["detect-libc@2.1.2", "https://registry.npmmirror.com/detect-libc/-/detect-libc-2.1.2.tgz", {}, "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="],
 
-    "dtstack-sdk": ["dtstack-sdk@workspace:cli/integrations/dtstack"],
+    "dtstack-sdk": ["dtstack-sdk@workspace:cli/packages/dtstack-sdk"],
 
     "duplexer2": ["duplexer2@0.1.4", "https://registry.npmmirror.com/duplexer2/-/duplexer2-0.1.4.tgz", { "dependencies": { "readable-stream": "^2.0.2" } }, "sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA=="],
 

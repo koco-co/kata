@@ -13,7 +13,7 @@ describe("CLI command error boundary", () => {
 
   it("keeps DTStack dispatch reusable by returning errors to its root entry", () => {
     const dispatch = readFileSync(
-      resolve(import.meta.dir, "../../cli/integrations/dtstack/src/cli/dispatch.ts"),
+      resolve(import.meta.dir, "../../cli/packages/dtstack-sdk/src/cli/dispatch.ts"),
       "utf8",
     );
     expect(dispatch).not.toContain("process.exit(");

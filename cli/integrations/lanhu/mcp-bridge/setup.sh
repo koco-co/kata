@@ -2,7 +2,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MCP_DIR="$SCRIPT_DIR/lanhu-mcp"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../" && pwd)"
+MCP_DIR="$REPO_ROOT/cli/vendor/lanhu-mcp"
 VENV_DIR="$MCP_DIR/.venv"
 INSTALL_TIMEOUT_SECONDS=300
 

@@ -15,7 +15,7 @@ describe("execute-table adapter", () => {
     } else {
       expect(invocation).toEqual({
         command: "bun",
-        argsPrefix: ["cli/integrations/dtstack/src/cli.ts"],
+        argsPrefix: ["cli/packages/dtstack-sdk/src/cli.ts"],
       });
     }
   });

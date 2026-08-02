@@ -8,7 +8,7 @@
   "include": [
     "workspace/*/_shared/**/*.ts",
     "workspace/*/features/**/automation/**/*.ts",
-    "cli/integrations/dtstack/src/types/**/*.d.ts"
+    "cli/packages/dtstack-sdk/src/types/**/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }

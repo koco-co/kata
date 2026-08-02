@@ -3,7 +3,7 @@
 Bridge script: imports LanhuExtractor from lanhu-mcp submodule,
 fetches PRD page content, and outputs structured JSON to stdout.
 
-Usage (from cli/integrations/lanhu/mcp-bridge/lanhu-mcp directory):
+Usage (from cli/vendor/lanhu-mcp directory):
     uv run python ../bridge.py --url <lanhu_url> [--page-id <id>]
 
 Environment:
@@ -67,7 +67,8 @@ def _validate_env() -> None:
 def _setup_sys_path() -> None:
     """Add lanhu-mcp directory to sys.path so we can import the server module."""
     bridge_dir = Path(__file__).resolve().parent
-    lanhu_mcp_dir = bridge_dir / "lanhu-mcp"
+    repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+    lanhu_mcp_dir = repo_root / "cli" / "vendor" / "lanhu-mcp"
     if not lanhu_mcp_dir.is_dir():
         _emit_error(
             f"lanhu-mcp submodule not found at {lanhu_mcp_dir}",

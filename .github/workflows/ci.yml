@@ -30,4 +30,4 @@ jobs:
           bun-version: 1.3.x
       - run: bun install --frozen-lockfile
       - run: bun run ci
-      - run: bunx tsc --noEmit -p cli/integrations/dtstack/tsconfig.json
+      - run: bunx tsc --noEmit -p cli/packages/dtstack-sdk/tsconfig.json
