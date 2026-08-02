@@ -203,27 +203,11 @@ describe("CLI: --help", () => {
   });
 });
 
-describe("CLI: missing KATA_LANHU_COOKIE", () => {
-  it("exits 1 when KATA_LANHU_COOKIE is not set", () => {
+describe("CLI: missing cookie config", () => {
+  it("exits 1 when config/private/integrations/lanhu.yaml has no cookie", () => {
     // A fake repo root without config/private/integrations/lanhu.yaml guarantees "no cookie
     // configured" regardless of this machine's real private config.
     const { root: fakeRoot, feature } = createFakeProjectRoot("fake-root");
-
-    // Remove cookie/credential vars entirely: an explicit empty value falls back
-    // to the config file, which the fake root does not provide either.
-    const filteredEnv = Object.fromEntries(
-      Object.entries(process.env).filter(
-        ([k]) =>
-          ![
-            "KATA_LANHU_COOKIE",
-            "LANHU_COOKIE",
-            "DDS_COOKIE",
-            "KATA_LANHU_USERNAME",
-            "KATA_LANHU_PASSWORD",
-            "KATA_WORKSPACE_ROOT",
-          ].includes(k),
-      ),
-    );
 
     let exitCode = 0;
     let stderr = "";
@@ -233,7 +217,6 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
         {
           encoding: "utf8",
           cwd: fakeRoot,
-          env: filteredEnv,
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -245,8 +228,8 @@ describe("CLI: missing KATA_LANHU_COOKIE", () => {
 
     assert.equal(exitCode, 1, "should exit with code 1");
     assert.ok(
-      stderr.includes("KATA_LANHU_COOKIE") || stderr.includes("MISSING_COOKIE"),
-      `stderr should mention KATA_LANHU_COOKIE, got: ${stderr}`,
+      stderr.includes("lanhu.yaml") || stderr.includes("MISSING_COOKIE"),
+      `stderr should mention the lanhu config path, got: ${stderr}`,
     );
   });
 });

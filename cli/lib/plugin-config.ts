@@ -101,6 +101,7 @@ function readYamlObject(path: string, root: string): Record<string, unknown> {
   return isRecord(parsed) ? parsed : {};
 }
 
+/** 从 YAML 未知标量窄化到 string（数字/布尔转字面量，与历史行为一致）。 */
 function scalar(value: unknown): string | undefined {
   if (typeof value === "string") return value;
   if (typeof value === "number" || typeof value === "boolean") return String(value);
@@ -118,17 +119,6 @@ function booleanValue(value: unknown): boolean | undefined {
 function stringArray(value: unknown): string[] | undefined {
   if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) return undefined;
   return value.map((item) => item.trim()).filter(Boolean);
-}
-
-function envOverride(
-  configValue: unknown,
-  env: NodeJS.ProcessEnv,
-  key: string,
-): string | undefined {
-  const override = env[key];
-  // 空字符串视为未设置(如 `VAR=` 的 shell 导出),回落到配置文件值
-  if (override !== undefined && override !== "") return override;
-  return scalar(configValue);
 }
 
 function writeYamlAtomic(path: string, value: unknown, root: string): void {
@@ -186,35 +176,26 @@ function warnIfGitTracked(path: string, root: string): void {
   }
 }
 
-export function loadLanhuConfig(
-  root: string = defaultRepoRoot(),
-  env: NodeJS.ProcessEnv = process.env,
-): LanhuPluginConfig {
+export function loadLanhuConfig(root: string = defaultRepoRoot()): LanhuPluginConfig {
   const raw = readYamlObject(pluginConfigPath("lanhu", root), root);
   return {
-    cookie: envOverride(raw.cookie, env, "KATA_LANHU_COOKIE"),
-    username: envOverride(raw.username, env, "KATA_LANHU_USERNAME"),
-    password: envOverride(raw.password, env, "KATA_LANHU_PASSWORD"),
+    cookie: scalar(raw.cookie),
+    username: scalar(raw.username),
+    password: scalar(raw.password),
   };
 }
 
-export function loadZentaoConfig(
-  root: string = defaultRepoRoot(),
-  env: NodeJS.ProcessEnv = process.env,
-): ZentaoPluginConfig {
+export function loadZentaoConfig(root: string = defaultRepoRoot()): ZentaoPluginConfig {
   const raw = readYamlObject(pluginConfigPath("zentao", root), root);
   return {
-    base_url: envOverride(raw.base_url, env, "KATA_ZENTAO_BASE_URL"),
-    cookie: envOverride(raw.cookie, env, "KATA_ZENTAO_COOKIE"),
-    username: envOverride(raw.username, env, "KATA_ZENTAO_ACCOUNT"),
-    password: envOverride(raw.password, env, "KATA_ZENTAO_PASSWORD"),
+    base_url: scalar(raw.base_url),
+    cookie: scalar(raw.cookie),
+    username: scalar(raw.username),
+    password: scalar(raw.password),
   };
 }
 
-export function loadNotifyConfig(
-  root: string = defaultRepoRoot(),
-  env: NodeJS.ProcessEnv = process.env,
-): NotifyPluginConfig {
+export function loadNotifyConfig(root: string = defaultRepoRoot()): NotifyPluginConfig {
   const raw = readYamlObject(pluginConfigPath("notify", root), root);
   const dingtalk = isRecord(raw.dingtalk) ? raw.dingtalk : {};
   const feishu = isRecord(raw.feishu) ? raw.feishu : {};
@@ -225,38 +206,35 @@ export function loadNotifyConfig(
     enabled_events: stringArray(raw.enabled_events),
     dingtalk: {
       is_enable: booleanValue(dingtalk.is_enable) ?? true,
-      webhook_url: envOverride(dingtalk.webhook_url, env, "KATA_DINGTALK_WEBHOOK_URL"),
-      keyword: envOverride(dingtalk.keyword, env, "KATA_DINGTALK_KEYWORD"),
-      sign_secret: envOverride(dingtalk.sign_secret, env, "KATA_DINGTALK_SIGN_SECRET"),
+      webhook_url: scalar(dingtalk.webhook_url),
+      keyword: scalar(dingtalk.keyword),
+      sign_secret: scalar(dingtalk.sign_secret),
     },
     feishu: {
       is_enable: booleanValue(feishu.is_enable) ?? true,
-      webhook_url: envOverride(feishu.webhook_url, env, "KATA_FEISHU_WEBHOOK_URL"),
+      webhook_url: scalar(feishu.webhook_url),
     },
     wecom: {
       is_enable: booleanValue(wecom.is_enable) ?? true,
-      webhook_url: envOverride(wecom.webhook_url, env, "KATA_WECOM_WEBHOOK_URL"),
+      webhook_url: scalar(wecom.webhook_url),
     },
     smtp: {
       is_enable: booleanValue(smtp.is_enable) ?? true,
-      host: envOverride(smtp.host, env, "KATA_SMTP_HOST"),
-      port: envOverride(smtp.port, env, "KATA_SMTP_PORT"),
-      user: envOverride(smtp.user, env, "KATA_SMTP_USER"),
-      pass: envOverride(smtp.pass, env, "KATA_SMTP_PASS"),
-      from: envOverride(smtp.from, env, "KATA_SMTP_FROM"),
-      to: envOverride(smtp.to, env, "KATA_SMTP_TO"),
-      secure: envOverride(smtp.secure, env, "KATA_SMTP_SECURE"),
+      host: scalar(smtp.host),
+      port: scalar(smtp.port),
+      user: scalar(smtp.user),
+      pass: scalar(smtp.pass),
+      from: scalar(smtp.from),
+      to: scalar(smtp.to),
+      secure: scalar(smtp.secure),
     },
   };
 }
 
-export function loadPluginConfigs(
-  root: string = defaultRepoRoot(),
-  env: NodeJS.ProcessEnv = process.env,
-): PluginConfigSet {
+export function loadPluginConfigs(root: string = defaultRepoRoot()): PluginConfigSet {
   return {
-    lanhu: loadLanhuConfig(root, env),
-    zentao: loadZentaoConfig(root, env),
-    notify: loadNotifyConfig(root, env),
+    lanhu: loadLanhuConfig(root),
+    zentao: loadZentaoConfig(root),
+    notify: loadNotifyConfig(root),
   };
 }

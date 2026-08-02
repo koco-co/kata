@@ -66,16 +66,16 @@ function linkedRoot(): { main: string; linked: string; cleanup: () => void } {
 }
 
 describe("plugin configuration", () => {
-  test("loads YAML values and explicit environment overrides", () => {
+  test("loads YAML values from the private config file", () => {
     const value = root();
     writeFileSync(
       pluginConfigPath("zentao", value),
       "base_url: http://yaml\ncookie: yaml-cookie\nusername: yaml-user\n",
       { mode: 0o600 },
     );
-    const config = loadZentaoConfig(value, { KATA_ZENTAO_COOKIE: "env-cookie" });
+    const config = loadZentaoConfig(value);
     expect(config.base_url).toBe("http://yaml");
-    expect(config.cookie).toBe("env-cookie");
+    expect(config.cookie).toBe("yaml-cookie");
     expect(config.username).toBe("yaml-user");
     expect("schema_version" in config).toBe(false);
   });
@@ -111,7 +111,7 @@ describe("plugin configuration", () => {
         { mode: 0o600 },
       );
 
-      expect(loadZentaoConfig(fixture.linked, {}).username).toBe("shared-user");
+      expect(loadZentaoConfig(fixture.linked).username).toBe("shared-user");
     } finally {
       fixture.cleanup();
     }

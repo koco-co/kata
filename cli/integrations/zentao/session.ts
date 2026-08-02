@@ -72,8 +72,7 @@ export async function login(creds: ZentaoCreds, fetchFn: FetchFn): Promise<strin
   if (!creds.account || !creds.password) {
     throw Object.assign(
       new Error(
-        `禅道 cookie 已失效，且缺少账号密码，无法重新登录；请在 ${zentaoConfigPath()} 配置 username/password，` +
-          "或设置环境变量 KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD（cookie 可用 KATA_ZENTAO_COOKIE）",
+        `禅道 cookie 已失效，且缺少账号密码，无法重新登录；请在 ${zentaoConfigPath()} 配置 username/password`,
       ),
       { code: "ZENTAO_AUTH_MISSING" },
     );

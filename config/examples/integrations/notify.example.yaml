@@ -35,5 +35,5 @@ smtp:
   # 发件人与收件人地址。
   from: ""
   to: ""
-  # 是否在建立连接时启用 TLS（通常用于 465 端口）；KATA_SMTP_SECURE 可显式覆盖。
+  # 是否在建立连接时启用 TLS（通常用于 465 端口）。
   secure: false

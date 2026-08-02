@@ -104,8 +104,7 @@ export async function resolveSession(): Promise<string> {
   if (fallback) return fallback;
   throw Object.assign(
     new Error(
-      `缺少禅道凭据：请在 ${pluginConfigPath("zentao", repoRoot())} 配置 username/password 或 cookie，` +
-        "或设置环境变量 KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD / KATA_ZENTAO_COOKIE",
+      `缺少禅道凭据：请在 ${pluginConfigPath("zentao", repoRoot())} 配置 username/password 或 cookie`,
     ),
     { code: "NO_CREDENTIALS" },
   );

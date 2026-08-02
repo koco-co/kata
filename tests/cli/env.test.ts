@@ -18,13 +18,12 @@ function kata(root: string, args: string[]) {
   return spawnSync("bun", [KATA, ...args], { encoding: "utf8", cwd: root });
 }
 
-describe("plugin config env override", () => {
-  it("treats an empty-string env var as unset and falls back to the YAML value", () => {
+describe("plugin config", () => {
+  it("loads values from the private YAML regardless of process env", () => {
     const root = mkdtempSync(join(tmpdir(), "kata-plugin-env-"));
     mkdirSync(join(root, "config", "private", "integrations"), { recursive: true });
     writeFileSync(pluginConfigPath("zentao", root), "cookie: yaml-cookie\n");
-    expect(loadZentaoConfig(root, { KATA_ZENTAO_COOKIE: "" }).cookie).toBe("yaml-cookie");
-    expect(loadZentaoConfig(root, { KATA_ZENTAO_COOKIE: "env-cookie" }).cookie).toBe("env-cookie");
+    expect(loadZentaoConfig(root).cookie).toBe("yaml-cookie");
   });
 });
 

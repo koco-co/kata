@@ -38,8 +38,9 @@ kata infra inspect <host> --check connectivity --project <project>
 `policies/xmind-mapping.yaml` 是 XMind 根标题的唯一来源。每个受支持项目必须声明展示用
 `root_name` 和固定的 ZenTao 模块 ID；缺少映射时直接报错，渲染器不得从 feature 路径推断。
 
-运行时环境变量仅用于显式 CI 或一次性覆盖。仓库不会自动加载根目录 `.env`，也不提供旧
-dotenv 配置迁移。
+插件凭据只从 `config/private/integrations/` 读取，不提供环境变量覆盖；运行时环境变量仅保留给
+工作区根定位（`KATA_WORKSPACE_ROOT`）与平台环境执行（`kata env run` 注入）。仓库不会自动加载
+根目录 `.env`，也不提供旧 dotenv 配置迁移。
 
 ZenTao 拉取凭据与 `kata zentao create` 的产品、模块和负责人映射共用
 `private/integrations/zentao.yaml`；tracked example 同时说明两部分，不再维护第二份创建配置。

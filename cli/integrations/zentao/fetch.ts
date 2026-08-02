@@ -217,8 +217,7 @@ export async function runFetch(options: {
     throw new ZentaoIntegrationError(
       "ZENTAO_CONFIG_MISSING",
       `缺少必要的禅道配置：${missing.join(", ")}`,
-      `请在 ${pluginConfigPath("zentao", projectRoot)} 中配置 base_url，以及 cookie 或完整账号密码；` +
-        "也可设置环境变量 KATA_ZENTAO_BASE_URL / KATA_ZENTAO_COOKIE / KATA_ZENTAO_ACCOUNT / KATA_ZENTAO_PASSWORD",
+      `请在 ${pluginConfigPath("zentao", projectRoot)} 中配置 base_url，以及 cookie 或完整账号密码`,
     );
   }
 

@@ -123,10 +123,9 @@ describe("fetchAuthedBugJson", () => {
       }),
       (e: Error & { code?: string }) =>
         e.code === "ZENTAO_AUTH_MISSING" &&
-        // 报错必须列出尝试过的 yaml 路径与可补救的 env 变量名
+        // 报错必须列出尝试过的 yaml 路径与补救动作（env 变量覆盖已移除）
         e.message.includes("config/private/integrations/zentao.yaml") &&
-        e.message.includes("KATA_ZENTAO_ACCOUNT") &&
-        e.message.includes("KATA_ZENTAO_PASSWORD"),
+        e.message.includes("username/password"),
     );
   });
 });

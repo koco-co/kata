@@ -189,10 +189,7 @@ export async function runCreate(opts: {
   const projectRoot = repoRoot();
   const baseUrl = loadZentaoPluginConfig(projectRoot).base_url;
   if (!baseUrl) {
-    fail(
-      "ZENTAO_CONFIG_MISSING",
-      "缺少 config/private/integrations/zentao.yaml 的 base_url（或设置 KATA_ZENTAO_BASE_URL）",
-    );
+    fail("ZENTAO_CONFIG_MISSING", "缺少 config/private/integrations/zentao.yaml 的 base_url");
   }
   let report: BugReport;
   try {

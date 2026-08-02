@@ -329,7 +329,7 @@ function callBridgeListPagesWithRetry(
   if (!newCookie) {
     throw new LanhuIntegrationError(
       "COOKIE_REFRESH_FAILED",
-      "Cookie 刷新失败。请更新 config/private/integrations/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
+      "Cookie 刷新失败。请更新 config/private/integrations/lanhu.yaml 的账号密码",
     );
   }
 
@@ -435,7 +435,7 @@ function callBridgeWithRetry(
   if (!newCookie) {
     throw new LanhuIntegrationError(
       "COOKIE_REFRESH_FAILED",
-      "Cookie 刷新失败。请更新 config/private/integrations/lanhu.yaml，或配置 KATA_LANHU_USERNAME/KATA_LANHU_PASSWORD",
+      "Cookie 刷新失败。请更新 config/private/integrations/lanhu.yaml 的账号密码",
     );
   }
 
@@ -558,7 +558,10 @@ export async function runPrdExtract(
   if (!cookie) {
     const newCookie = refreshCookie(projectRoot, rawUrl);
     if (!newCookie) {
-      throw new LanhuIntegrationError("MISSING_COOKIE", "KATA_LANHU_COOKIE 未配置且自动登录失败");
+      throw new LanhuIntegrationError(
+        "MISSING_COOKIE",
+        "config/private/integrations/lanhu.yaml 未配置 cookie 且自动登录失败",
+      );
     }
     cookie = newCookie;
   }

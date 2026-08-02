@@ -31,21 +31,6 @@ const PROJECT_ROOT = resolve(__dirname, "../../../");
 
 const TMP_DIR = join(tmpdir(), `zentao-fetch-test-${process.pid}`);
 
-// Blank every KATA_ZENTAO_* knob so the CLI never picks up values exported by the
-// developer shell. Note: an empty string falls back to the yaml file value, so
-// env blanking alone cannot mask a real config — use makeFakeRoot() for that.
-function strippedZentaoEnv(): NodeJS.ProcessEnv {
-  return {
-    ...Object.fromEntries(
-      Object.entries(process.env).filter(([k]) => !k.startsWith("KATA_ZENTAO_")),
-    ),
-    KATA_ZENTAO_BASE_URL: "",
-    KATA_ZENTAO_COOKIE: "",
-    KATA_ZENTAO_ACCOUNT: "",
-    KATA_ZENTAO_PASSWORD: "",
-  };
-}
-
 // Minimal fake repo root (workspace/ + package.json) so locateProjectRoot resolves
 // there and config/private/integrations/zentao.yaml never exists — the missing-config branch is
 // deterministic regardless of this machine's real plugin config.
@@ -312,8 +297,8 @@ describe("CLI: --help", () => {
 
 // ─── CLI: missing env vars ────────────────────────────────────────────────────
 
-describe("CLI: missing env vars", () => {
-  it("exits 1 when KATA_ZENTAO_BASE_URL, KATA_ZENTAO_ACCOUNT, KATA_ZENTAO_PASSWORD are all missing", () => {
+describe("CLI: missing config", () => {
+  it("exits 1 when config/private/integrations/zentao.yaml is missing", () => {
     mkdirSync(TMP_DIR, { recursive: true });
     const fakeRoot = makeFakeRoot();
 
@@ -326,7 +311,6 @@ describe("CLI: missing env vars", () => {
         {
           encoding: "utf8",
           cwd: fakeRoot,
-          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -338,11 +322,8 @@ describe("CLI: missing env vars", () => {
 
     assert.equal(exitCode, 1, "should exit with code 1");
     assert.ok(
-      stderr.includes("KATA_ZENTAO_BASE_URL") ||
-        stderr.includes("KATA_ZENTAO_ACCOUNT") ||
-        stderr.includes("KATA_ZENTAO_PASSWORD") ||
-        stderr.includes("缺少"),
-      `should mention missing vars, got: ${stderr}`,
+      stderr.includes("缺少") && stderr.includes("base_url"),
+      `should mention the missing config, got: ${stderr}`,
     );
   });
 });
@@ -350,7 +331,7 @@ describe("CLI: missing env vars", () => {
 // ─── CLI: config root resolution（回归：fetch 必须以仓库根定位 config/private/integrations/zentao.yaml）───
 
 describe("CLI: config root resolution", () => {
-  it("points at <root>/config/private/integrations/zentao.yaml and names the env overrides", () => {
+  it("points at <root>/config/private/integrations/zentao.yaml", () => {
     mkdirSync(TMP_DIR, { recursive: true });
     const fakeRoot = makeFakeRoot();
 
@@ -363,7 +344,6 @@ describe("CLI: config root resolution", () => {
         {
           encoding: "utf8",
           cwd: fakeRoot,
-          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -383,14 +363,6 @@ describe("CLI: config root resolution", () => {
       !stderr.includes(join("cli", "config", "private", "integrations")),
       `hint must not resolve cli/ as config root, got: ${stderr}`,
     );
-    for (const name of [
-      "KATA_ZENTAO_BASE_URL",
-      "KATA_ZENTAO_COOKIE",
-      "KATA_ZENTAO_ACCOUNT",
-      "KATA_ZENTAO_PASSWORD",
-    ]) {
-      assert.ok(stderr.includes(name), `hint should mention ${name}, got: ${stderr}`);
-    }
   });
 });
 
@@ -418,7 +390,6 @@ describe("CLI: invalid bug ID format", () => {
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
-          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -447,7 +418,6 @@ describe("CLI: invalid bug ID format", () => {
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
-          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );
@@ -485,7 +455,6 @@ describe("CLI: invalid bug ID format", () => {
         {
           encoding: "utf8",
           cwd: PROJECT_ROOT,
-          env: strippedZentaoEnv(),
           stdio: ["pipe", "pipe", "pipe"],
         },
       );

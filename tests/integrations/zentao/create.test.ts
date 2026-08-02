@@ -167,7 +167,7 @@ function runCli(args: string[]): { code: number; stdout: string; stderr: string 
     const stdout = execFileSync("bun", [KATA_TS, "zentao", "create", ...args], {
       encoding: "utf8",
       cwd: cliRoot,
-      env: { ...process.env, KATA_ZENTAO_BASE_URL: "https://zentao.example.cn" },
+      env: { ...process.env },
       stdio: ["pipe", "pipe", "pipe"],
     });
     return { code: 0, stdout, stderr: "" };
