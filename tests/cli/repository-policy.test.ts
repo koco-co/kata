@@ -38,6 +38,7 @@ artifacts:
   case_export:
     route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>
     extensions: [csv, xlsx, md, xmind]
+    tracked: false
   automation_case:
     route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/
     filename_pattern: 'c\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.spec\.ts'
@@ -216,6 +217,31 @@ describe("repository policy", () => {
       { cwd: repoRoot },
     );
     expect(rootReport.status).toBe(0);
+  });
+
+  it("keeps derived case exports ignored and untracked", () => {
+    const repoRoot = resolve(import.meta.dir, "../..");
+    const policy = parse(
+      readFileSync(join(repoRoot, "config", "policies", "repo-policy.yaml"), "utf8"),
+    ) as {
+      artifacts: { case_export: { route: string; tracked: boolean } };
+    };
+    expect(policy.artifacts.case_export).toEqual({
+      route: "workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>",
+      extensions: ["csv", "xlsx", "md", "xmind"],
+      tracked: false,
+    });
+    const ignored = spawnSync(
+      "git",
+      [
+        "check-ignore",
+        "--no-index",
+        "--quiet",
+        "workspace/dataAssets/features/v1/a/cases/exports/a.xmind",
+      ],
+      { cwd: repoRoot },
+    );
+    expect(ignored.status).toBe(0);
   });
 
   it("rejects .gitkeep files once their directory contains real content", () => {

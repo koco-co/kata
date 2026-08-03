@@ -62,9 +62,10 @@ artifacts:
     route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext>
     extensions: [csv, xlsx, md, xmind]
   case_export:
-    # 由 YAML 派生的交付文件目录和允许扩展名。
+    # 由 YAML 派生的交付文件目录和允许扩展名；可随时由 build 重建，不进入 Git。
     route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>
     extensions: [csv, xlsx, md, xmind]
+    tracked: false
   automation_case:
     # 正式 Playwright 源代码位置和文件命名规则。
     route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/

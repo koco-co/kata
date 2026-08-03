@@ -74,6 +74,9 @@ export function readPolicy(repoRoot: string): RepositoryPolicy {
     if (rule.filename_pattern !== undefined && typeof rule.filename_pattern !== "string") {
       throw new Error(`仓库产物策略无效: artifacts.${name}.filename_pattern (${path})`);
     }
+    if (rule.tracked !== undefined && typeof rule.tracked !== "boolean") {
+      throw new Error(`仓库产物策略无效: artifacts.${name}.tracked (${path})`);
+    }
     if (typeof rule.filename_pattern === "string") {
       try {
         new RegExp(rule.filename_pattern);

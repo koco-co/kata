@@ -23,6 +23,8 @@ workspace/*/features/**/.process/
 workspace/*/features/**/runs/
 workspace/*/.state/
 workspace/*/features/**/.debug/
+# Cases exports are deterministic build products; keep the YAML as the only tracked source.
+workspace/*/features/**/cases/exports/**
 allure-results/
 /allure-report/
 test-results/

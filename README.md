@@ -119,7 +119,7 @@ chmod 600 config/private/environments/*.yaml config/private/integrations/*.yaml 
 
 ## 用例文件流
 
-历史用例只进入 `cases/imports/`，可编辑的唯一中间态是 `cases/<用例集>.yaml`，所有 CSV、XLSX、Markdown 和 XMind 派生产物只由 `kata cases build` 写入 `cases/exports/`。元数据记录具体文件名，而不是笼统格式：
+历史用例只进入 `cases/imports/`，可编辑的唯一中间态是 `cases/<用例集>.yaml`，所有 CSV、XLSX、Markdown 和 XMind 派生产物只由 `kata cases build` 写入 `cases/exports/`，且不进入 Git。元数据记录具体文件名，而不是笼统格式：
 
 ```yaml
 meta:
