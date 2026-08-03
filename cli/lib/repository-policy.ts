@@ -7,6 +7,14 @@ import { repoPolicyPath } from "./config-paths.ts";
 export interface RepositoryPolicy {
   root: { allowed_files: string[]; allowed_directories: string[] };
   forbidden_globs: string[];
+  artifacts: {
+    cases_yaml: ArtifactRule;
+    case_import: ArtifactRule;
+    case_export: ArtifactRule;
+    automation_case: ArtifactRule;
+    automation_sql_template: ArtifactRule;
+    automation_run_temporary: ArtifactRule;
+  };
   shared_modules?: {
     roots: string[];
     minimum_feature_consumers: number;
@@ -18,14 +26,26 @@ export interface RepositoryPolicy {
   };
 }
 
+interface ArtifactRule {
+  route: string;
+  extensions?: string[];
+  filename_pattern?: string;
+  tracked?: boolean;
+}
+
 export interface PolicyViolation {
   path: string;
   reason: string;
 }
 
-const AUTOMATION_CASE_RE = /^c\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.spec\.ts$/;
-const SQL_TEMPLATE_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*\.sql$/;
-const CASE_INPUT_EXTENSIONS = new Set(["csv", "xlsx", "md", "xmind"]);
+const ARTIFACT_NAMES = [
+  "cases_yaml",
+  "case_import",
+  "case_export",
+  "automation_case",
+  "automation_sql_template",
+  "automation_run_temporary",
+] as const;
 
 function normalize(path: string): string {
   return path.split("\\").join("/");
@@ -37,9 +57,30 @@ export function readPolicy(repoRoot: string): RepositoryPolicy {
   if (
     !parsed?.root ||
     !Array.isArray(parsed.root.allowed_files) ||
-    !Array.isArray(parsed.forbidden_globs)
+    !Array.isArray(parsed.root.allowed_directories) ||
+    !Array.isArray(parsed.forbidden_globs) ||
+    !parsed.artifacts
   ) {
     throw new Error(`仓库策略无效: ${path}`);
+  }
+  for (const name of ARTIFACT_NAMES) {
+    const rule = parsed.artifacts[name] as ArtifactRule | undefined;
+    if (!rule || typeof rule.route !== "string" || rule.route.trim() === "") {
+      throw new Error(`仓库产物策略无效: artifacts.${name}.route (${path})`);
+    }
+    if (rule.extensions !== undefined && !Array.isArray(rule.extensions)) {
+      throw new Error(`仓库产物策略无效: artifacts.${name}.extensions (${path})`);
+    }
+    if (rule.filename_pattern !== undefined && typeof rule.filename_pattern !== "string") {
+      throw new Error(`仓库产物策略无效: artifacts.${name}.filename_pattern (${path})`);
+    }
+    if (typeof rule.filename_pattern === "string") {
+      try {
+        new RegExp(rule.filename_pattern);
+      } catch {
+        throw new Error(`仓库产物策略无效: artifacts.${name}.filename_pattern (${path})`);
+      }
+    }
   }
   if (
     parsed.shared_modules &&
@@ -70,20 +111,78 @@ function extension(path: string): string {
   return dot === -1 ? "" : basename(path).slice(dot + 1);
 }
 
+function routePattern(route: string): RegExp {
+  let source = "^";
+  for (let index = 0; index < route.length; index += 1) {
+    const char = route[index] ?? "";
+    if (char === "<") {
+      const end = route.indexOf(">", index + 1);
+      if (end < 0) throw new Error(`仓库产物路由缺少占位符结束符: ${route}`);
+      source += "[^/]+";
+      index = end;
+      continue;
+    }
+    source += /[\\^$.*+?()[\]{}|]/.test(char) ? `\\${char}` : char;
+  }
+  return new RegExp(`${source}${route.endsWith("/") ? "[^/]+" : ""}$`);
+}
+
+function routePrefixPattern(route: string): RegExp {
+  const prefix = route.endsWith("/") ? route.slice(0, -1) : route.slice(0, route.lastIndexOf("/"));
+  let source = "^";
+  for (let index = 0; index < prefix.length; index += 1) {
+    const char = prefix[index] ?? "";
+    if (char === "<") {
+      const end = prefix.indexOf(">", index + 1);
+      if (end < 0) throw new Error(`仓库产物路由缺少占位符结束符: ${route}`);
+      source += "[^/]+";
+      index = end;
+      continue;
+    }
+    source += /[\\^$.*+?()[\]{}|]/.test(char) ? `\\${char}` : char;
+  }
+  return new RegExp(`${source}(?:/|$)`);
+}
+
+function artifactMatches(path: string, rule: ArtifactRule): boolean {
+  return routePattern(rule.route).test(path);
+}
+
+function artifactFilenameMatches(path: string, rule: ArtifactRule): boolean {
+  const pattern = rule.filename_pattern;
+  return pattern === undefined || new RegExp(`^(?:${pattern})$`).test(basename(path));
+}
+
+function artifactExtensionMatches(path: string, rule: ArtifactRule): boolean {
+  return rule.extensions === undefined || rule.extensions.includes(extension(path));
+}
+
 function isFeatureCasesPath(path: string): boolean {
   return /^workspace\/[^/]+\/features\/[^/]+\/[^/]+\/cases\//.test(path);
 }
 
-function casePathViolation(path: string): string | undefined {
+function casePathViolation(path: string, policy: RepositoryPolicy): string | undefined {
   if (!isFeatureCasesPath(path)) return undefined;
   const suffix = path.replace(/^.*?\/cases\//, "");
   if (suffix === "imports/.gitkeep" || suffix === "exports/.gitkeep") return undefined;
   if (suffix === "test-points.md") return undefined;
-  if (suffix.endsWith(".yaml") && !suffix.includes("/")) return undefined;
-  if (/^imports\/[^/]+$/.test(suffix) && CASE_INPUT_EXTENSIONS.has(extension(suffix)))
-    return undefined;
-  if (/^exports\/[^/]+$/.test(suffix) && CASE_INPUT_EXTENSIONS.has(extension(suffix)))
-    return undefined;
+  if (artifactMatches(path, policy.artifacts.cases_yaml)) return undefined;
+  if (artifactMatches(path, policy.artifacts.case_import)) {
+    if (
+      artifactFilenameMatches(path, policy.artifacts.case_import) &&
+      artifactExtensionMatches(path, policy.artifacts.case_import)
+    ) {
+      return undefined;
+    }
+  }
+  if (artifactMatches(path, policy.artifacts.case_export)) {
+    if (
+      artifactFilenameMatches(path, policy.artifacts.case_export) &&
+      artifactExtensionMatches(path, policy.artifacts.case_export)
+    ) {
+      return undefined;
+    }
+  }
   return "cases 仅允许根目录 YAML、test-points.md、imports/ 历史输入或 exports/ YAML 派生产物";
 }
 
@@ -296,17 +395,22 @@ export function checkRepositoryPolicy(
       }
     }
     if (forbidden) violations.push({ path, reason: `禁止路径: ${forbidden}` });
-    const caseReason = casePathViolation(path);
+    const caseReason = casePathViolation(path, policy);
     if (caseReason) violations.push({ path, reason: caseReason });
+    const automationCase = policy.artifacts.automation_case;
     if (
-      /\/automation\/tests\/cases\/[^/]+$/.test(path) &&
+      routePrefixPattern(automationCase.route).test(path) &&
       !["README.md", ".gitkeep"].includes(basename(path)) &&
-      !AUTOMATION_CASE_RE.test(basename(path))
+      (!artifactMatches(path, automationCase) || !artifactFilenameMatches(path, automationCase))
     ) {
-      violations.push({ path, reason: "正式自动化用例必须使用 c0001-english-slug.spec.ts" });
+      violations.push({ path, reason: "正式自动化用例必须使用 policy 声明的文件名规则" });
     }
-    if (/\/automation\/tests\/sql\/[^/]+$/.test(path) && !SQL_TEMPLATE_RE.test(basename(path))) {
-      violations.push({ path, reason: "SQL 模板必须使用 lowercase-english-kebab.sql" });
+    const automationSql = policy.artifacts.automation_sql_template;
+    if (
+      routePrefixPattern(automationSql.route).test(path) &&
+      (!artifactMatches(path, automationSql) || !artifactFilenameMatches(path, automationSql))
+    ) {
+      violations.push({ path, reason: "SQL 模板必须使用 policy 声明的文件名规则" });
     }
   }
   return [

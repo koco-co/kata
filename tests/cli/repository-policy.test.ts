@@ -9,7 +9,7 @@ import {
   trackedAndUntrackedPaths,
 } from "../../cli/lib/repository-policy.ts";
 
-const POLICY = `root:
+const POLICY = String.raw`root:
   allowed_files: [package.json]
   allowed_directories: [cli, config, runtime, workspace]
 forbidden_globs:
@@ -28,6 +28,25 @@ forbidden_globs:
   - workspace/*/_shared/pages/**
   - workspace/*/_shared/fixtures/**
   - workspace/*/_shared/runtime/**
+artifacts:
+  cases_yaml:
+    route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml
+    filename_pattern: '[^/]+\.yaml'
+  case_import:
+    route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext>
+    extensions: [csv, xlsx, md, xmind]
+  case_export:
+    route: workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>
+    extensions: [csv, xlsx, md, xmind]
+  automation_case:
+    route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/
+    filename_pattern: 'c\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.spec\.ts'
+  automation_sql_template:
+    route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/
+    filename_pattern: '[a-z0-9]+(?:-[a-z0-9]+)*\.sql'
+  automation_run_temporary:
+    route: workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/
+    tracked: false
 shared_modules:
   roots: [workspace/*/_shared/automation]
   minimum_feature_consumers: 2

@@ -56,7 +56,7 @@ artifacts:
     # 正式用例源文件的路径模板。
     route: workspace/<project>/features/<version>/<feature>/cases/<name>.yaml
     # YAML 文件名必须与需求目录中的用例名称一致。
-    filename: <name>.yaml
+    filename_pattern: '[^/]+\.yaml'
   case_import:
     # 历史需求源文件的归档目录和允许扩展名。
     route: workspace/<project>/features/<version>/<feature>/cases/imports/<name>.<ext>
@@ -68,11 +68,11 @@ artifacts:
   automation_case:
     # 正式 Playwright 源代码位置和文件命名规则。
     route: workspace/<project>/features/<version>/<feature>/automation/tests/cases/
-    filename: c0001-lowercase-english-kebab-slug.spec.ts
+    filename_pattern: 'c\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.spec\.ts'
   automation_sql_template:
     # 自动化 SQL 模板位置和小写英文文件名规则。
     route: workspace/<project>/features/<version>/<feature>/automation/tests/sql/
-    filename: lowercase-english-kebab.sql
+    filename_pattern: '[a-z0-9]+(?:-[a-z0-9]+)*\.sql'
   automation_run_temporary:
     # 单次运行产生的临时目录；不得提交到 Git。
     route: workspace/<project>/features/<version>/<feature>/runs/<run-id>/_tmp/

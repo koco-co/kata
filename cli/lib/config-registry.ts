@@ -6,8 +6,8 @@
  * region derive entirely from this table — adding a family means adding one
  * entry here and a validator, nothing else.
  *
- * Loaders are NOT migrated to `loadConfigFamily` yet (step 3); this registry is
- * the truth source for tooling and documentation.
+ * Runtime modules keep their focused typed loaders; this registry owns discovery,
+ * documentation and validation orchestration rather than acting as a universal loader.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -70,8 +70,6 @@ export interface ConfigFamilyEntry {
   validateFile: (path: string, root: string) => void;
   /** example 校验：解析 + 结构 + 未知字段检查 */
   validateExample: (path: string) => void;
-  /** 顶层允许的键（用于未知字段检查） */
-  allowedKeys: string[];
 }
 
 function readYaml(path: string): unknown {
@@ -126,19 +124,6 @@ function validateTopLevel(path: string, allowed: string[]): Record<string, unkno
   assertKnownKeys(doc, allowed, path);
   return doc;
 }
-
-const INTEGRATION_ALLOWED = [
-  "is_enable",
-  "enabled_events",
-  "dingtalk",
-  "feishu",
-  "wecom",
-  "smtp",
-  "base_url",
-  "cookie",
-  "username",
-  "password",
-] as const;
 
 function integrationValidate(path: string): void {
   const name = basename(path)
@@ -222,17 +207,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         throw new Error(`${path} 缺 auth.cookie`);
       }
     },
-    allowedKeys: [
-      "schema_version",
-      "url",
-      "auth",
-      "guard",
-      "projects",
-      "datasources",
-      "defaults",
-      "safety",
-      "automation",
-    ],
   },
   {
     name: "integrations",
@@ -275,7 +249,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
       else throw new Error(`${path} 不是受支持的集成配置名`);
     },
     validateExample: integrationValidate,
-    allowedKeys: [...INTEGRATION_ALLOWED],
   },
   {
     name: "infrastructure",
@@ -317,7 +290,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         kind === "hosts" ? "hosts" : kind === "data_sources" ? "data_sources" : "credentials";
       if (!isRecord(doc[key])) throw new Error(`${path} 缺 ${key} 对象`);
     },
-    allowedKeys: [...INFRA_KINDS],
   },
   {
     name: "repositories",
@@ -353,7 +325,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
         }
       });
     },
-    allowedKeys: ["repos"],
   },
   {
     name: "repo-policy",
@@ -372,7 +343,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     validateExample: (path) => {
       throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
     },
-    allowedKeys: ["root", "forbidden_globs"],
   },
   {
     name: "cases-lint",
@@ -391,16 +361,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     validateExample: (path) => {
       throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
     },
-    allowedKeys: [
-      "forbidden_terms",
-      "first_step_pattern",
-      "first_step_expected",
-      "first_step_example",
-      "default_datasource_type",
-      "datasource_types",
-      "table_roles",
-      "empty_table_markers",
-    ],
   },
   {
     name: "sql-profiles",
@@ -423,7 +383,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     validateExample: (path) => {
       throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
     },
-    allowedKeys: ["profiles"],
   },
   {
     name: "xmind-mapping",
@@ -442,7 +401,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     validateExample: (path) => {
       throw new Error(`${path} 不是 example 模板（契约文件无模板）`);
     },
-    allowedKeys: ["projects"],
   },
   {
     name: "automation",
@@ -466,7 +424,6 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     validateExample: (path) => {
       loadPlaywrightAutomationConfigFile(path);
     },
-    allowedKeys: ["playwright"],
   },
 ];
 
@@ -478,21 +435,6 @@ export function familyByName(name: string): ConfigFamilyEntry {
     );
   }
   return family;
-}
-
-/**
- * 统一加载入口：加载并校验一个配置族的单文件实例（多实例族取实例名对应的文件）。
- * 失败抛带路径的错误。敏感字段不脱敏——调用方展示前自行 redactSecrets。
- */
-export function loadConfigFamily(
-  family: ConfigFamilyName,
-  instance: string,
-  root: string = defaultRepoRoot(),
-): unknown {
-  const entry = familyByName(family);
-  const path = entry.private ? effectivePrivatePath(instance, root) : join(root, instance);
-  if (!existsSync(path)) throw new Error(`配置不存在: ${path}`);
-  return entry.loadFile(path, root);
 }
 
 export interface ConfigIssue {
