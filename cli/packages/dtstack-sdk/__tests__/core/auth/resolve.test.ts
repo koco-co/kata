@@ -13,8 +13,8 @@ describe("resolveSession", () => {
   test("uses DTSTACK_COOKIE env var when present", async () => {
     process.env.DTSTACK_COOKIE = "from-env=1";
     const out = await resolveSession({
-      env: "ci78",
-      config: { environments: { ci78: { baseUrl: "http://x" } }, datasources: {} },
+      env: "example-env",
+      config: { environments: { "example-env": { baseUrl: "http://x" } }, datasources: {} },
       doLogin: async () => sess("never-called"),
     });
     expect(out.cookie).toBe("from-env=1");
@@ -24,9 +24,9 @@ describe("resolveSession", () => {
   test("uses the cookie from the selected kata environment", async () => {
     delete process.env.DTSTACK_COOKIE;
     const out = await resolveSession({
-      env: "ci78",
+      env: "example-env",
       config: {
-        environments: { ci78: { baseUrl: "http://x", cookie: "from-config=1" } },
+        environments: { "example-env": { baseUrl: "http://x", cookie: "from-config=1" } },
         datasources: {},
       },
       doLogin: async () => sess("never-called"),
@@ -37,9 +37,11 @@ describe("resolveSession", () => {
   test("auto-logs-in when neither env var nor store has cookie", async () => {
     delete process.env.DTSTACK_COOKIE;
     const out = await resolveSession({
-      env: "ci78",
+      env: "example-env",
       config: {
-        environments: { ci78: { baseUrl: "http://x", login: { username: "u", password: "p" } } },
+        environments: {
+          "example-env": { baseUrl: "http://x", login: { username: "u", password: "p" } },
+        },
         datasources: {},
       },
       doLogin: async () => sess("fresh=1"),
@@ -53,8 +55,8 @@ describe("resolveSession", () => {
     delete process.env.DTSTACK_PASSWORD;
     expect(
       resolveSession({
-        env: "ci78",
-        config: { environments: { ci78: { baseUrl: "http://x" } }, datasources: {} },
+        env: "example-env",
+        config: { environments: { "example-env": { baseUrl: "http://x" } }, datasources: {} },
         doLogin: async () => sess("x"),
       }),
     ).rejects.toThrow(/no credentials/i);

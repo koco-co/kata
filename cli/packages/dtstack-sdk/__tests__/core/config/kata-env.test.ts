@@ -10,7 +10,7 @@ test("loadKataEnvironment reads URL and cookie from config/private/environments"
   const envDir = join(root, "config", "private", "environments");
   mkdirSync(envDir, { recursive: true, mode: 0o700 });
   chmodSync(envDir, 0o700);
-  const configPath = join(envDir, "ci78.yaml");
+  const configPath = join(envDir, "example-env.yaml");
   writeFileSync(
     configPath,
     stringify({
@@ -27,15 +27,15 @@ test("loadKataEnvironment reads URL and cookie from config/private/environments"
   );
 
   try {
-    const config = loadKataEnvironment("ci78", {
+    const config = loadKataEnvironment("example-env", {
       KATA_ACTIVE_ENV_CONFIG: configPath,
       KATA_ACTIVE_ENV_RESOLVED: JSON.stringify({
-        env: "ci78",
+        env: "example-env",
         urls: { baseUrl: "https://resolved.example" },
       }),
     });
     expect(config).toEqual({
-      name: "ci78",
+      name: "example-env",
       baseUrl: "https://resolved.example",
       cookie: "sid=from-config",
     });

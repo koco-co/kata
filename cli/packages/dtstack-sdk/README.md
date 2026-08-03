@@ -18,17 +18,17 @@ import { precondSetup } from "dtstack-sdk";
 session 文件。
 
 ```yaml
-defaultEnv: ci78
+defaultEnv: example-env
 environments:
-  ci78:
-    baseUrl: http://shuzhan63-test-ltqc.k8s.dtstack.cn
+  example-env:
+    baseUrl: https://example.invalid
     login:
-      username: admin@dtstack.com
+      username: user@example.invalid
       password: ${DTSTACK_PASSWORD}
 datasources:
-  doris-ci78:
+  doris-example-env:
     type: doris
-    host: 172.16.x.x
+    host: example.invalid
     port: 9030
     username: root
     password: ${DORIS_PASSWORD}

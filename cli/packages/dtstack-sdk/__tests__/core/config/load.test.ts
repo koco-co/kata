@@ -18,9 +18,9 @@ describe("loadConfig", () => {
     writeFileSync(
       file,
       `
-defaultEnv: ci78
+defaultEnv: example-env
 environments:
-  ci78:
+  example-env:
     baseUrl: http://x
     login:
       username: u
@@ -35,8 +35,8 @@ datasources:
 `,
     );
     const cfg = loadConfig(file);
-    expect(cfg.defaultEnv).toBe("ci78");
-    expect(cfg.environments.ci78.baseUrl).toBe("http://x");
+    expect(cfg.defaultEnv).toBe("example-env");
+    expect(cfg.environments["example-env"].baseUrl).toBe("http://x");
     expect(cfg.datasources.d1.port).toBe(9030);
   });
 
@@ -47,7 +47,7 @@ datasources:
       file,
       `
 environments:
-  ci78:
+  example-env:
     baseUrl: http://x
     login:
       username: u
@@ -56,7 +56,7 @@ datasources: {}
 `,
     );
     const cfg = loadConfig(file);
-    expect(cfg.environments.ci78.login?.password).toBe("secret");
+    expect(cfg.environments["example-env"].login?.password).toBe("secret");
     delete process.env.MY_PWD;
   });
 

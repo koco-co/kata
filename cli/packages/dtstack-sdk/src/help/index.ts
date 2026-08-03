@@ -18,7 +18,7 @@ COMMANDS
 
 GLOBAL OPTIONS
   -e, --env <name>     Environment name (resolution: --env > $ACTIVE_ENV >
-                       \`kata env run\` > $DTSTACK_DEFAULT_ENV > config defaultEnv > "ltqc")
+                       \`kata env run\` > $DTSTACK_DEFAULT_ENV > config defaultEnv > "example-env")
   -h, --help           Show help (use \`<command> -h\` for command-specific help)
   -v, --version        Show version
 
