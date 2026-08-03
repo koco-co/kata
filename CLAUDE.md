@@ -8,7 +8,7 @@
 
 ## 提交粒度
 - 按改动点分次 commit，消息风格参考既有 git 提交历史；不得整体一次性提交。
-- 消息格式 `<emoji> <type>: <中文摘要>`，emoji 与 type 对应沿用仓库历史：`✨ feat` `🐛 fix` `♻️ refactor` `📚 docs` `🧪 test` `🗑️ chore`。
+- 消息格式 `<emoji> <type>: <摘要>`；允许的完整映射为 `✨ feat` `🐛 fix` `♻️ refactor` `🧪 test` `📚 docs` `🎨 style` `⚡ perf` `🔧 chore` `🚨 security`，可用 `kata repo lint --commit-message "..."` 做轻量机械检查。
 
 ## 设计立场
 - 默认 dry-run，改变 Git 暂存区或外部系统须有显式开关；稳定 ID、用户内容与不可重建信息不得无提示覆盖。

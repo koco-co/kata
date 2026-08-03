@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import { validateCommitMessage } from "../lib/commit-message.ts";
 import { checkRepositoryPolicy, formatPolicyViolations } from "../lib/repository-policy.ts";
 import { repoRoot } from "../lib/workspace-locator.ts";
 
@@ -10,8 +11,15 @@ export function registerRepo(program: Command): void {
     .command("lint")
     .description("检查当前 Kata 仓库的目录、文件名与依赖边界")
     .option("--exit-code", "存在违规时退出码为 1")
-    .action((opts: { exitCode?: boolean }) => {
+    .option("--commit-message <subject>", "附加检查一条 Emoji Conventional Commit subject")
+    .action((opts: { exitCode?: boolean; commitMessage?: string }) => {
       const violations = checkRepositoryPolicy(repoRoot());
+      const commitMessageReason = opts.commitMessage
+        ? validateCommitMessage(opts.commitMessage)
+        : undefined;
+      if (commitMessageReason) {
+        violations.push({ path: "<commit-message>", reason: commitMessageReason });
+      }
       if (violations.length === 0) {
         process.stdout.write("[repository policy] ok\n");
         return;

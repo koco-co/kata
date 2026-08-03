@@ -671,8 +671,9 @@ Usage: kata repo lint [options]
 检查当前 Kata 仓库的目录、文件名与依赖边界
 
 Options:
-  --exit-code  存在违规时退出码为 1
-  -h, --help   display help for command
+  --exit-code                 存在违规时退出码为 1
+  --commit-message <subject>  附加检查一条 Emoji Conventional Commit subject
+  -h, --help                  display help for command
 ```
 
 ## kata repos prepare
