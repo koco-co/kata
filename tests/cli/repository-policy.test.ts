@@ -224,7 +224,7 @@ describe("repository policy", () => {
     const policy = parse(
       readFileSync(join(repoRoot, "config", "policies", "repo-policy.yaml"), "utf8"),
     ) as {
-      artifacts: { case_export: { route: string; tracked: boolean } };
+      artifacts: { case_export: { route: string; extensions: string[]; tracked: boolean } };
     };
     expect(policy.artifacts.case_export).toEqual({
       route: "workspace/<project>/features/<version>/<feature>/cases/exports/<name>.<ext>",
