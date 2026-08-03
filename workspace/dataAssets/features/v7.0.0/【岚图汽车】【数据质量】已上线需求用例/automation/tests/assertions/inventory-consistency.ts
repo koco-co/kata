@@ -3,10 +3,14 @@
 // 真实 UI 自动化（page-object 流程）留作带环境的 playwright-automation 单独任务，不在本层。
 
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
 
-export const INVENTORY_PATH =
-  "workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例/automation/tests/fixtures/launched-requirements-inventory.yaml";
+export const INVENTORY_PATH = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../fixtures/launched-requirements-inventory.yaml",
+);
 
 export type InventoryCase = {
   readonly id: string;

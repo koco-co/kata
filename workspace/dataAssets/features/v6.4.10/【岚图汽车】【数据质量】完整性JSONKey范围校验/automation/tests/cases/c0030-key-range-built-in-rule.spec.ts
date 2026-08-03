@@ -1,6 +1,6 @@
-import { waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../../flows/rule-set-flow";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { gotoBuiltInRuleBase, searchRuleBaseRule } from "../flows/rule-set-flow";
 
 test.setTimeout(600000);
 

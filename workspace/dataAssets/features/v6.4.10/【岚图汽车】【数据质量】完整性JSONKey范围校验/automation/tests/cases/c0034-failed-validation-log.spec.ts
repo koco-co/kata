@@ -1,12 +1,12 @@
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { ensureSavedScenarioRuleSet, SCENARIOS } from "../../flows/rule-set-flow";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { ensureSavedScenarioRuleSet, SCENARIOS } from "../flows/rule-set-flow";
 import {
   ensureRuleTasks,
   executeTaskFromList,
   FAIL_LOG_TASK_NAME,
   openTaskLogDrawer,
   waitForTaskInstanceFinished,
-} from "../../flows/rule-task-flow";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

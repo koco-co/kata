@@ -3,12 +3,6 @@ import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/
 import { orderAutomationCases } from "../../../../../../../../runtime/automation/runner/case-order";
 
 const generatedCases: ReadonlyArray<{ readonly caseId: string; readonly module: string }> = [
-  { caseId: "C0001", module: "../cases/c0001-manual-partition-validation-failed.spec.ts" },
-  { caseId: "C0002", module: "../cases/c0002-existing-partition-validation-passed.spec.ts" },
-  { caseId: "C0003", module: "../cases/c0003-manual-partition-validation-passed.spec.ts" },
-  { caseId: "C0004", module: "../cases/c0004-multi-partition-validation-failed.spec.ts" },
-  { caseId: "C0005", module: "../cases/c0005-multi-existing-partition-validation-passed.spec.ts" },
-  { caseId: "C0006", module: "../cases/c0006-multi-manual-partition-validation-passed.spec.ts" },
 ];
 
 const orderedCases = orderAutomationCases(

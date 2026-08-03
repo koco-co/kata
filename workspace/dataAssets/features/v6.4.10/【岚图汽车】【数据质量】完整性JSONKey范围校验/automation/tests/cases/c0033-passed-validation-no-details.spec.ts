@@ -1,4 +1,4 @@
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ensureRuleTasks,
   executeTaskFromList,
@@ -6,7 +6,7 @@ import {
   getTableRowByTaskName,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../flows/rule-task-flow";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

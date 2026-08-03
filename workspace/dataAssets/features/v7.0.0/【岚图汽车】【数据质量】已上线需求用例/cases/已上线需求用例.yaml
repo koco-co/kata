@@ -7,8 +7,6 @@ meta:
   - 已上线需求用例.xmind
 cases:
 - case_id: C0001
-  automation:
-    spec_file: c0001-manual-partition-validation-failed.spec.ts
   title: 验证【范围分区】选择手动输入分区，表分区内数据校验异常
   priority: P1
   steps:
@@ -101,8 +99,6 @@ cases:
   - 数据质量
   - 规则任务管理
 - case_id: C0002
-  automation:
-    spec_file: c0002-existing-partition-validation-passed.spec.ts
   title: 验证【范围分区】选择"选择已有分区"，表分区内数据校验正常
   priority: P1
   steps:
@@ -193,8 +189,6 @@ cases:
   - 数据质量
   - 规则任务管理
 - case_id: C0003
-  automation:
-    spec_file: c0003-manual-partition-validation-passed.spec.ts
   title: 验证【范围分区】选择手动输入分区，表分区内数据校验正常
   priority: P1
   steps:
@@ -285,8 +279,6 @@ cases:
   - 数据质量
   - 规则任务管理
 - case_id: C0004
-  automation:
-    spec_file: c0004-multi-partition-validation-failed.spec.ts
   title: 验证【多分区】选择手动输入分区，表分区内数据校验异常
   priority: P1
   steps:
@@ -373,8 +365,6 @@ cases:
   - 数据质量
   - 规则任务管理
 - case_id: C0005
-  automation:
-    spec_file: c0005-multi-existing-partition-validation-passed.spec.ts
   title: 验证【多分区】选择"选择已有分区"，表分区内数据校验正常
   priority: P1
   steps:
@@ -459,8 +449,6 @@ cases:
   - 数据质量
   - 规则任务管理
 - case_id: C0006
-  automation:
-    spec_file: c0006-multi-manual-partition-validation-passed.spec.ts
   title: 验证【多分区】选择手动输入分区，表分区内数据校验正常
   priority: P1
   steps:

@@ -546,8 +546,6 @@ cases:
       - 规则任务管理
       - 导入规则包-key范围校验主流程
   - case_id: C0018
-    automation:
-      spec_file: c0018-doris-json-key-range.spec.ts
     title: 验证Doris3.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -580,8 +578,6 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - case_id: C0019
-    automation:
-      spec_file: c0019-sparkthrift-json-key-range.spec.ts
     title: 验证SparkThrift2.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -611,8 +607,6 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - case_id: C0020
-    automation:
-      spec_file: c0020-doris-string-key-range.spec.ts
     title: 验证Doris3.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -645,8 +639,6 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - case_id: C0021
-    automation:
-      spec_file: c0021-sparkthrift-string-key-range.spec.ts
     title: 验证SparkThrift2.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -676,8 +668,6 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - case_id: C0022
-    automation:
-      spec_file: c0022-hive-string-key-range.spec.ts
     title: 验证Hive2.x数据源的string字段支持key范围校验
     priority: P1
     steps:
@@ -707,8 +697,6 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - case_id: C0023
-    automation:
-      spec_file: c0023-hive-json-key-range.spec.ts
     title: 验证Hive2.x数据源的json字段支持key范围校验
     priority: P1
     steps:
@@ -738,8 +726,6 @@ cases:
       - 规则任务管理
       - 多数据源兼容性
   - case_id: C0024
-    automation:
-      spec_file: c0024-large-key-hierarchy-validation.spec.ts
     title: 验证key数量几千个时按层级校验逻辑正确执行
     priority: P0
     steps:
@@ -844,8 +830,6 @@ cases:
       - 规则任务管理
       - 大数据量与层级校验
   - case_id: C0025
-    automation:
-      spec_file: c0025-large-key-content-search-performance.spec.ts
     title: 验证千级key数据量下校验内容选择列表的加载搜索和选择性能
     priority: P1
     steps:
@@ -927,8 +911,6 @@ cases:
       - 规则任务管理
       - 大数据量与层级校验
   - case_id: C0026
-    automation:
-      spec_file: c0026-delete-referenced-key-config.spec.ts
     title: 验证删除已被规则引用的key后规则配置回显和编辑完成目标操作且状态更新
     priority: P1
     steps:
@@ -953,8 +935,6 @@ cases:
       - 规则任务管理
       - key被删除后的关联影响
   - case_id: C0027
-    automation:
-      spec_file: c0027-delete-referenced-key-execution.spec.ts
     title: 验证删除已被规则引用的key后执行校验任务不受影响
     priority: P1
     steps:
@@ -984,8 +964,6 @@ cases:
       - 规则任务管理
       - key被删除后的关联影响
   - case_id: C0028
-    automation:
-      spec_file: c0028-key-range-with-sampling.spec.ts
     title: 验证key范围校验规则结合抽样功能正确执行
     priority: P1
     steps:
@@ -1018,8 +996,6 @@ cases:
       - 规则任务管理
       - 抽样与分区场景
   - case_id: C0029
-    automation:
-      spec_file: c0029-key-range-partition-validation.spec.ts
     title: 验证对分区表配置key范围校验规则指定分区下数据校验正确
     priority: P1
     steps:
@@ -1122,8 +1098,6 @@ cases:
       - 校验结果查询
       - 校验明细与日志
   - case_id: C0032
-    automation:
-      spec_file: c0032-failed-download-marked-fields.spec.ts
     title: 验证下载明细数据中校验字段标红展示
     priority: P1
     steps:

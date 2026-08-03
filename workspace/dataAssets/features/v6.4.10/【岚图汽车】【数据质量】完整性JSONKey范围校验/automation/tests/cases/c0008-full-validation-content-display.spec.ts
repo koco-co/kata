@@ -1,6 +1,6 @@
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { ensureSavedScenarioRuleSet, openScenarioEditor, SCENARIOS } from "../../flows/rule-set-flow";
-import { KEY_NAMES } from "../../fixtures/test-data";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { ensureSavedScenarioRuleSet, openScenarioEditor, SCENARIOS } from "../flows/rule-set-flow";
+import { KEY_NAMES } from "../fixtures/test-data";
 
 test.setTimeout(600000);
 

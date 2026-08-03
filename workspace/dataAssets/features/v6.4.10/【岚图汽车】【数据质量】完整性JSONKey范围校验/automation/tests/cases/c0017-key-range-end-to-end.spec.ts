@@ -1,8 +1,8 @@
-import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../../_shared/automation/runtime/env-setup";
-import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
+import { applyRuntimeCookies, buildDataAssetsUrl } from "../../../../../../_shared/automation/runtime/env-setup";
+import { selectAntOption, uniqueName, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 
 import { executeTableSQL } from "dtstack-sdk/adapters/execute-table";
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 
 import {
   ACTIVE_DATASOURCES,
@@ -14,8 +14,8 @@ import {
   resolveEffectiveQualityProjectId,
   setCurrentDatasource,
   TARGET_ENV,
-} from "../../fixtures/test-data";
-import type { MonitorDatasourceConfig } from "../../pages/rule-set-page";
+} from "../fixtures/test-data";
+import type { MonitorDatasourceConfig } from "../pages/rule-set-page";
 import {
   addKeyRangeRule,
   configureKeyRangeRule,
@@ -24,12 +24,12 @@ import {
   gotoRuleSetList,
   SPARKTHRIFT_MONITOR_DATASOURCE,
   saveRuleSet,
-} from "../../pages/rule-set-page";
+} from "../pages/rule-set-page";
 import {
   executeTaskFromList,
   getTableRowByTaskName,
   gotoValidationResults,
-} from "../../flows/rule-task-flow";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

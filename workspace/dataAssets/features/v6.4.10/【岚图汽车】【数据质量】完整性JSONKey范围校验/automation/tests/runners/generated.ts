@@ -3,16 +3,19 @@ import { loadPlaywrightAutomationConfig } from "../../../../../../../../runtime/
 import { orderAutomationCases } from "../../../../../../../../runtime/automation/runner/case-order";
 
 const generatedCases: ReadonlyArray<{ readonly caseId: string; readonly module: string }> = [
-  { caseId: "C0001", module: "../cases/规则集管理/c0001-key-range-single-field-selection.spec.ts" },
-  { caseId: "C0002", module: "../cases/规则集管理/c0002-include-exclude-method-results.spec.ts" },
-  { caseId: "C0004", module: "../cases/规则集管理/c0004-search-validation-content.spec.ts" },
-  { caseId: "C0013", module: "../cases/规则集管理/c0013-require-validation-field.spec.ts" },
-  { caseId: "C0014", module: "../cases/规则集管理/c0014-require-validation-content.spec.ts" },
-  { caseId: "C0015", module: "../cases/规则集管理/c0015-require-validation-method.spec.ts" },
-  { caseId: "C0017", module: "../cases/规则任务管理/c0017-key-range-end-to-end.spec.ts" },
-  { caseId: "C0033", module: "../cases/校验结果查询/c0033-passed-validation-no-details.spec.ts" },
-  { caseId: "C0034", module: "../cases/校验结果查询/c0034-failed-validation-log.spec.ts" },
-  { caseId: "C0035", module: "../cases/数据质量报告/c0035-passed-quality-report-columns.spec.ts" },
+  { caseId: "C0001", module: "../cases/c0001-key-range-single-field-selection.spec.ts" },
+  { caseId: "C0002", module: "../cases/c0002-include-exclude-method-results.spec.ts" },
+  { caseId: "C0004", module: "../cases/c0004-search-validation-content.spec.ts" },
+  { caseId: "C0008", module: "../cases/c0008-full-validation-content-display.spec.ts" },
+  { caseId: "C0013", module: "../cases/c0013-require-validation-field.spec.ts" },
+  { caseId: "C0014", module: "../cases/c0014-require-validation-content.spec.ts" },
+  { caseId: "C0015", module: "../cases/c0015-require-validation-method.spec.ts" },
+  { caseId: "C0017", module: "../cases/c0017-key-range-end-to-end.spec.ts" },
+  { caseId: "C0030", module: "../cases/c0030-key-range-built-in-rule.spec.ts" },
+  { caseId: "C0031", module: "../cases/c0031-failed-validation-details.spec.ts" },
+  { caseId: "C0033", module: "../cases/c0033-passed-validation-no-details.spec.ts" },
+  { caseId: "C0034", module: "../cases/c0034-failed-validation-log.spec.ts" },
+  { caseId: "C0035", module: "../cases/c0035-passed-quality-report-columns.spec.ts" },
 ];
 
 const orderedCases = orderAutomationCases(

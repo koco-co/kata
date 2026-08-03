@@ -1,20 +1,20 @@
-import { selectAntOption, waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
+import { selectAntOption, waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
 // spec: features/completeness-json-key-range/archive.md#case=t04-search-verify-content
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // META: {"id":"t4","priority":"P1","title":"验证校验内容下拉框支持输入关键词搜索查询"}
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { addRuleToPackage } from "../../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { addRuleToPackage } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
-} from "../../fixtures/test-data";
+} from "../fixtures/test-data";
 import {
   SCENARIOS,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../flows/rule-set-flow";
+} from "../flows/rule-set-flow";
 
 test.setTimeout(600000);
 

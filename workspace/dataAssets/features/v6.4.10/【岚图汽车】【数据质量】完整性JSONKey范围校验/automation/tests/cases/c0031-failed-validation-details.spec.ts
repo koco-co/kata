@@ -1,12 +1,12 @@
-import { waitForUiSettled } from "../../../../../../../../../runtime/automation/playwright";
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
+import { waitForUiSettled } from "../../../../../../../../runtime/automation/playwright";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
 import {
   ensureRuleTasks,
   executeTaskFromList,
   openTaskInstanceDetail,
   waitForTaskInstanceFinished,
   MAIN_TASK_NAME,
-} from "../../flows/rule-task-flow";
+} from "../flows/rule-task-flow";
 
 test.setTimeout(600000);
 

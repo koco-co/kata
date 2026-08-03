@@ -2,14 +2,14 @@
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // META: {"id":"t1","priority":"P0","title":"验证统计函数选择key范围校验后字段选择变为单选"}
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../../../../../../runtime/automation/playwright";
-import { addRuleToPackage } from "../../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../../../runtime/automation/playwright";
+import { addRuleToPackage } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
-} from "../../fixtures/test-data";
+} from "../fixtures/test-data";
 import {
   KEY_RANGE_RULE_NAME,
   openFunctionTooltip,
@@ -17,7 +17,7 @@ import {
   selectFieldValues,
   selectRuleFunction,
   startRuleSetDraft,
-} from "../../flows/rule-set-flow";
+} from "../flows/rule-set-flow";
 
 test.setTimeout(600000);
 

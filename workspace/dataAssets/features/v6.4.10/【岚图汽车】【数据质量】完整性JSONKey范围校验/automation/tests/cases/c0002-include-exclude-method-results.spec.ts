@@ -2,21 +2,21 @@
 // intent: SR-INTENT-MIGRATED
 // probe: SR-UI-PROBE-MIGRATED
 // META: {"id":"t2","priority":"P1","title":"验证校验方法切换（包含与不包含）规则保存和执行结果差异"}
-import { expect, test } from "../../../../../../../_shared/automation/fixtures/step-screenshot";
-import { selectAntOption } from "../../../../../../../../../runtime/automation/playwright";
-import { addRuleToPackage, saveRuleSet } from "../../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
+import { expect, test } from "../../../../../../_shared/automation/fixtures/step-screenshot";
+import { selectAntOption } from "../../../../../../../../runtime/automation/playwright";
+import { addRuleToPackage, saveRuleSet } from "../../../../../../_shared/automation/pages/data-quality/rule-set-editor";
 import {
   ACTIVE_DATASOURCES,
   clearCurrentDatasource,
   setCurrentDatasource,
-} from "../../fixtures/test-data";
+} from "../fixtures/test-data";
 import {
   assertOnlyTheseDetailRows,
   KEY_RANGE_RULE_NAME,
   openScenarioEditor,
   SCENARIOS,
   seedScenarioRuleSet,
-} from "../../flows/rule-set-flow";
+} from "../flows/rule-set-flow";
 import {
   executeTaskFromList,
   getTaskDetailRuleCard,
@@ -24,7 +24,7 @@ import {
   openTaskInstanceDetail,
   openTaskRuleDetailDataDrawer,
   waitForTaskInstanceFinished,
-} from "../../flows/rule-task-flow";
+} from "../flows/rule-task-flow";
 
 
 for (const datasource of ACTIVE_DATASOURCES) {
