@@ -226,7 +226,15 @@ describe("runs execution contract", () => {
     const { root } = createProjectRoot();
     const childEnv = buildPlatformEnvChildEnv(
       "ci63",
-      { env: "ci63" } as ResolvedPlatformEnv,
+      {
+        env: "ci63",
+        automation: {
+          doris_jdbc_url: "jdbc:secret",
+          doris_user: "secret-user",
+          doris_password: "secret-password",
+          cases: "1",
+        },
+      } as ResolvedPlatformEnv,
       { repoRoot: root },
       {
         PATH: process.env.PATH,
@@ -239,7 +247,23 @@ describe("runs execution contract", () => {
     expect(childEnv.KATA_RUN_PATH).toBe("/tmp/kata-run");
     expect(childEnv.KATA_WORKSPACE_ROOT).toBe("/private/workspace");
     expect(childEnv.KATA_ACTIVE_ENV).toBeUndefined();
+    expect(childEnv.KATA_ACTIVE_PROJECT).toBeUndefined();
     expect(childEnv.SHOULD_NOT_BE_INHERITED).toBeUndefined();
+    const resolved = JSON.parse(childEnv.KATA_ACTIVE_ENV_RESOLVED as string) as {
+      automation?: Record<string, unknown>;
+    };
+    expect(resolved.automation).toEqual({ cases: "1" });
+  });
+
+  it("passes an explicit project without inventing a default", () => {
+    const { root } = createProjectRoot();
+    const childEnv = buildPlatformEnvChildEnv(
+      "ci63",
+      { env: "ci63" } as ResolvedPlatformEnv,
+      { repoRoot: root, project: "customerProject" },
+      {},
+    );
+    expect(childEnv.KATA_ACTIVE_PROJECT).toBe("customerProject");
   });
 
   it("keeps failed run evidence and returns the child exit code", async () => {

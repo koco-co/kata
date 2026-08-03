@@ -5,22 +5,28 @@ import {
   resolvePlaywrightRunPath,
 } from "./cli/lib/automation/playwright-run-path.ts";
 import {
+  ACTIVE_ENV_CONFIG_ENV,
+  ACTIVE_ENV_RESOLVED_ENV,
+  assertPlatformEnvName,
+  effectivePlatformEnvPath,
+  type ResolvedPlatformEnv,
+  readPlatformEnvConfig,
+} from "./cli/lib/platform-env.ts";
+import { validateProjectName } from "./cli/lib/workspace-locator.ts";
+import {
   loadPlaywrightAutomationConfig,
   PLAYWRIGHT_AUTOMATION_REPO_ROOT,
   prepareAllureDirectories,
   resolveAllureDirectories,
 } from "./runtime/automation/config/playwright";
-import {
-  cookieHeaderToPlaywrightState,
-  resolveDataAssetsRuntime,
-} from "./workspace/dataAssets/_shared/automation/runtime/env-profile";
+import { cookieHeaderToPlaywrightState } from "./runtime/automation/playwright";
 
 export function resolveOutputDir(env: NodeJS.ProcessEnv = process.env): string {
   if (env.KATA_DISCOVERY_ONLY === "1") return "test-results/discovery";
   return resolvePlaywrightOutputDir(env);
 }
 
-// 根据 dataAssets env profile 解析运行时环境；URL 和 Cookie 只进入内存中的 Playwright storageState。
+// 根据显式平台环境解析运行时地址；URL 和 Cookie 只进入内存中的 Playwright storageState。
 const discoveryOnly = process.env.KATA_DISCOVERY_ONLY === "1";
 // discovery 模式只服务用例发现（--list）；拿它跑测试一律拒绝，避免结果写进 test-results/discovery
 if (discoveryOnly && !process.argv.includes("--list")) {
@@ -28,21 +34,54 @@ if (discoveryOnly && !process.argv.includes("--list")) {
     "[playwright.config] KATA_DISCOVERY_ONLY=1 only supports `playwright test --list`.",
   );
 }
-const project = process.env.KATA_ACTIVE_PROJECT ?? "dataAssets";
+const project = process.env.KATA_ACTIVE_PROJECT;
+if (!project) {
+  throw new Error(
+    "[playwright.config] KATA_ACTIVE_PROJECT is required; choose a workspace project.",
+  );
+}
+validateProjectName(project);
 const automationConfig = loadPlaywrightAutomationConfig();
-// 仅当激活项目就是 dataAssets 时才解析其 env profile；未设 KATA_ACTIVE_PROJECT 时不炸，
-// 真实执行仍由 resolvePlaywrightRunPath 的 KATA_RUN_PATH 硬闸拦截
-const profile =
-  !discoveryOnly && process.env.KATA_ACTIVE_PROJECT === "dataAssets"
-    ? resolveDataAssetsRuntime()
-    : undefined;
+function resolveGenericRuntime(env: NodeJS.ProcessEnv):
+  | {
+      readonly resolved: ResolvedPlatformEnv;
+      readonly cookie: string;
+    }
+  | undefined {
+  if (discoveryOnly) return undefined;
+  const raw = env[ACTIVE_ENV_RESOLVED_ENV];
+  if (!raw) throw new Error("[playwright.config] run through `kata env run <env> -- ...` first.");
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("[playwright.config] KATA_ACTIVE_ENV_RESOLVED is invalid JSON");
+  }
+  const resolved = parsed as Partial<ResolvedPlatformEnv>;
+  if (resolved.schemaVersion !== 2 || !resolved.env || !resolved.urls?.baseUrl) {
+    throw new Error("[playwright.config] resolved environment is incomplete");
+  }
+  const selected = assertPlatformEnvName(resolved.env);
+  const injectedPath = env[ACTIVE_ENV_CONFIG_ENV];
+  if (!injectedPath) throw new Error("[playwright.config] KATA_ACTIVE_ENV_CONFIG is required.");
+  if (resolve(injectedPath) !== resolve(effectivePlatformEnvPath(selected, process.cwd()))) {
+    throw new Error(
+      "[playwright.config] active environment config path does not match the selected environment",
+    );
+  }
+  const config = readPlatformEnvConfig(selected, { repoRoot: process.cwd() });
+  return { resolved: resolved as ResolvedPlatformEnv, cookie: config.auth.cookie };
+}
+
+const profile = resolveGenericRuntime(process.env);
 // cookieHeaderToPlaywrightState 返回 readonly 形状，与 use.storageState 要求
 // （playwright-core 内联定义、数组可变）不兼容；逐字段展开成可变对象，不做强转
 const storageState: PlaywrightTestOptions["storageState"] = profile
   ? {
-      cookies: cookieHeaderToPlaywrightState(profile.urls.baseUrl, profile.auth.cookie).cookies.map(
-        (cookie) => ({ ...cookie }),
-      ),
+      cookies: cookieHeaderToPlaywrightState(
+        profile.resolved.urls.baseUrl,
+        profile.cookie,
+      ).cookies.map((cookie) => ({ ...cookie })),
       origins: [],
     }
   : undefined;

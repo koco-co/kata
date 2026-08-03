@@ -643,6 +643,7 @@ Arguments:
   command                要运行的命令；建议在前面使用 --
 
 Options:
+  --project <name>       工作区项目名；用于项目级 Playwright 与 feature 发现
   --inherit-env <names>  额外继承的环境变量名，逗号分隔 (default: "")
   -h, --help             display help for command
 ```
@@ -980,7 +981,7 @@ Usage: kata automation run [options] <feature-path>
 
 Options:
   --env <name>                  平台环境名
-  --project <name>              工作区项目名 (default: "dataAssets")
+  --project <name>              工作区项目名（或使用 KATA_ACTIVE_PROJECT）
   --type <type>                 运行类型: preflight|run|selfrun|repair|baseline
                                 (default: "run")
   --set <path=value>            临时覆盖 YAML 配置，例如 automation.cases=1-72 (default:

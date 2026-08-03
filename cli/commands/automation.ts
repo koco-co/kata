@@ -26,12 +26,12 @@ import { parseAutomationSetEntries } from "../lib/automation/cli-overrides.ts";
 import { lintSqlFile, renderSql } from "../lib/automation/sql.ts";
 import { RUN_TYPES, type RunType } from "../lib/run-id.ts";
 import { executeWithRunPath } from "../lib/runs-exec.ts";
-import { locateProjectRoot } from "../lib/workspace-locator.ts";
+import { locateProjectRoot, validateProjectName } from "../lib/workspace-locator.ts";
 import { runRunsPath } from "./runs.ts";
 
 interface AutomationRunOptions {
   readonly env: string;
-  readonly project: string;
+  readonly project?: string;
   readonly type: string;
   readonly sortCases?: boolean;
   readonly workers?: string;
@@ -147,6 +147,11 @@ async function runAutomation(
   options: AutomationRunOptions,
   command: Command,
 ): Promise<void> {
+  const project = options.project ?? process.env.KATA_ACTIVE_PROJECT;
+  if (!project) {
+    throw new Error("kata automation run requires --project or KATA_ACTIVE_PROJECT");
+  }
+  validateProjectName(project);
   if (!RUN_TYPES.includes(options.type as RunType)) {
     throw new Error(`非法运行类型 "${options.type}"，可选: ${RUN_TYPES.join("|")}`);
   }
@@ -156,7 +161,7 @@ async function runAutomation(
     "命令行 Playwright 配置.playwright",
   );
   const config = loadPlaywrightAutomationConfig({ overrides: playwrightOverrides });
-  const feature = resolveAutomationFeature(featureSelector, options.project);
+  const feature = resolveAutomationFeature(featureSelector, project);
   const runnerPath = resolve(feature.dir, "automation/tests/runners/full.spec.ts");
   if (!existsSync(runnerPath)) throw new Error(`runner 不存在: ${runnerPath}`);
   if (options.type === "run" && !config.allure.enabled) {
@@ -164,7 +169,7 @@ async function runAutomation(
   }
   const automationOverrides = overrideFile.automation;
   const allocation = runRunsPath({
-    project: options.project,
+    project,
     featurePath: feature.relativePath,
     newRun: true,
     runType: options.type as RunType,
@@ -181,6 +186,8 @@ async function runAutomation(
     "env",
     "run",
     options.env,
+    "--project",
+    project,
     "--inherit-env",
     AUTOMATION_OVERRIDE_FILE_ENV,
     "--",
@@ -198,7 +205,7 @@ async function runAutomation(
     const exitCode = await executeWithRunPath({
       runId: allocation.runId,
       runPath: allocation.path,
-      project: options.project,
+      project,
       command: commandArgs,
       cwd: repoRoot,
       env: { [AUTOMATION_OVERRIDE_FILE_ENV]: overridePath },
@@ -259,7 +266,7 @@ export function registerAutomation(program: Command): void {
       "按完整 feature 路径执行 Playwright，并生成 Allure 结果与报告；需求专属参数使用 --set 临时覆盖",
     )
     .requiredOption("--env <name>", "平台环境名")
-    .option("--project <name>", "工作区项目名", "dataAssets")
+    .option("--project <name>", "工作区项目名（或使用 KATA_ACTIVE_PROJECT）")
     .option("--type <type>", `运行类型: ${RUN_TYPES.join("|")}`, "run")
     .addOption(
       new Option("--set <path=value>", "临时覆盖 YAML 配置，例如 automation.cases=1-72")

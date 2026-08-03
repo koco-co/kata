@@ -20,7 +20,7 @@ import {
   privateInstanceFiles,
 } from "./config-paths.ts";
 import { assertNoSymlinkPath } from "./features-layout.ts";
-import { repoRoot as defaultRepoRoot } from "./workspace-locator.ts";
+import { repoRoot as defaultRepoRoot, validateProjectName } from "./workspace-locator.ts";
 
 export const ACTIVE_ENV_RESOLVED_ENV = "KATA_ACTIVE_ENV_RESOLVED";
 export const ACTIVE_ENV_CONFIG_ENV = "KATA_ACTIVE_ENV_CONFIG";
@@ -185,6 +185,8 @@ export interface PlatformEnvContext {
   readonly repoRoot?: string;
   readonly fetchImpl?: typeof fetch;
   readonly inheritEnv?: readonly string[];
+  /** Explicit workspace project for commands that need project-scoped discovery. */
+  readonly project?: string;
 }
 
 function rootFrom(ctx?: PlatformEnvContext): string {
@@ -1180,6 +1182,23 @@ function selectPlatformEnvChildBaseEnv(
   return selected;
 }
 
+function normalizeChildProject(project: string | undefined): string | undefined {
+  if (project === undefined) return undefined;
+  const normalized = project.trim();
+  validateProjectName(normalized);
+  return normalized;
+}
+
+function resolvedForChild(resolved: ResolvedPlatformEnv): ResolvedPlatformEnv {
+  if (!resolved.automation) return resolved;
+  const automation = Object.fromEntries(
+    Object.entries(resolved.automation).filter(
+      ([key]) => !["doris_jdbc_url", "doris_user", "doris_password"].includes(key),
+    ),
+  ) as PlatformAutomationConfig;
+  return { ...resolved, automation };
+}
+
 export function buildPlatformEnvChildEnv(
   name: string,
   resolved: ResolvedPlatformEnv,
@@ -1187,11 +1206,12 @@ export function buildPlatformEnvChildEnv(
   base: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
   const root = rootFrom(ctx);
+  const project = normalizeChildProject(ctx?.project);
   return {
     ...selectPlatformEnvChildBaseEnv(base, ctx?.inheritEnv ?? []),
     [ACTIVE_ENV_CONFIG_ENV]: effectivePlatformEnvPath(name, root),
-    [ACTIVE_ENV_RESOLVED_ENV]: JSON.stringify(resolved),
-    KATA_ACTIVE_PROJECT: "dataAssets",
+    [ACTIVE_ENV_RESOLVED_ENV]: JSON.stringify(resolvedForChild(resolved)),
+    ...(project === undefined ? {} : { KATA_ACTIVE_PROJECT: project }),
   };
 }
 

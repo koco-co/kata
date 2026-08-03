@@ -63,4 +63,19 @@ describe("kata env", () => {
     const r = kata(root, ["env", "add", "demo", "--url", "not-a-url"]);
     expect(r.status).not.toBe(0);
   });
+
+  it("documents explicit project selection for env run", () => {
+    const root = proj();
+    const result = kata(root, ["env", "run", "--help"]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("--project <name>");
+  });
+
+  it("documents explicit project selection for automation run", () => {
+    const root = proj();
+    const result = kata(root, ["automation", "run", "--help"]);
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("--project <name>");
+    expect(result.stdout).not.toContain("dataAssets");
+  });
 });

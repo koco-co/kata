@@ -66,14 +66,18 @@ export function registerEnv(program: Command): void {
     .description("在线精确解析环境后运行命令")
     .argument("<name>", "环境名称")
     .argument("<command...>", "要运行的命令；建议在前面使用 --")
+    .option("--project <name>", "工作区项目名；用于项目级 Playwright 与 feature 发现")
     .option("--inherit-env <names>", "额外继承的环境变量名，逗号分隔", "")
     .allowUnknownOption(true)
-    .action(async (name: string, command: string[], opts: { inheritEnv: string }) => {
-      // commander 会吞掉字面量 `--` 并把其后 token 全数收进 variadic operand,无需再剥
-      process.exitCode = await runPlatformEnvCommand(name, command, {
-        inheritEnv: inheritedEnvNames(opts.inheritEnv),
-      });
-    });
+    .action(
+      async (name: string, command: string[], opts: { project?: string; inheritEnv: string }) => {
+        // commander 会吞掉字面量 `--` 并把其后 token 全数收进 variadic operand,无需再剥
+        process.exitCode = await runPlatformEnvCommand(name, command, {
+          project: opts.project,
+          inheritEnv: inheritedEnvNames(opts.inheritEnv),
+        });
+      },
+    );
 
   const cookie = env.command("cookie").description("管理环境 Cookie");
   cookie
