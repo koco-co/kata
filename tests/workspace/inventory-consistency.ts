@@ -9,7 +9,7 @@ import { parse } from "yaml";
 
 export const INVENTORY_PATH = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/launched-requirements-inventory.yaml",
+  "./fixtures/launched-requirements-inventory.yaml",
 );
 
 export type InventoryCase = {

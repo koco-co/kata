@@ -1,5 +1,12 @@
 import { describe, expect, it } from "bun:test";
-import { assertAreaConsistency } from "../../workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例/automation/tests/assertions/inventory-consistency.ts";
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { assertAreaConsistency } from "./inventory-consistency.ts";
+
+const FEATURE_DIR = resolve(
+  import.meta.dir,
+  "../../workspace/dataAssets/features/v7.0.0/【岚图汽车】【数据质量】已上线需求用例",
+);
 
 const expectations = [
   {
@@ -41,6 +48,10 @@ const expectations = [
 ] as const;
 
 describe("launched requirements inventory", () => {
+  it("does not expose static inventory checks as Playwright automation", () => {
+    expect(existsSync(join(FEATURE_DIR, "automation"))).toBe(false);
+  });
+
   for (const expectation of expectations) {
     it(`${expectation.area} area remains internally consistent`, () => {
       expect(assertAreaConsistency(expectation)).toHaveLength(expectation.total);
