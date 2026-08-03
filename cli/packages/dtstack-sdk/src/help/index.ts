@@ -18,7 +18,7 @@ COMMANDS
 
 GLOBAL OPTIONS
   -e, --env <name>     Environment name (resolution: --env > $ACTIVE_ENV >
-                       \`kata env run\` > $DTSTACK_DEFAULT_ENV > config defaultEnv > "example-env")
+                       \`kata env run\` > $DTSTACK_DEFAULT_ENV > config defaultEnv > "example")
   -h, --help           Show help (use \`<command> -h\` for command-specific help)
   -v, --version        Show version
 
@@ -35,7 +35,7 @@ ENVIRONMENT
   DTSTACK_COOKIE            Override cached cookie (CI use)
   DTSTACK_USERNAME / DTSTACK_PASSWORD   Auto-login fallback
   DTSTACK_CONFIG            Override default config file path
-  {ENV}_BASE_URL            Base URL for env, e.g. LTQC_BASE_URL
+  {ENV}_BASE_URL            Base URL for env, e.g. EXAMPLE_BASE_URL
 
 NOTE
   Playwright / platform API 场景建议使用：

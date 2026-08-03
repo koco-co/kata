@@ -60,7 +60,7 @@ function resolveConfigPath(values: Record<string, unknown>): string | undefined 
 
 /**
  * 解析环境名。
- * 优先级：--env 参数 > ACTIVE_ENV > DTSTACK_DEFAULT_ENV > config.defaultEnv > "example-env"
+ * 优先级：--env 参数 > ACTIVE_ENV > DTSTACK_DEFAULT_ENV > config.defaultEnv > "example"
  */
 function resolveEnv(values: Record<string, unknown>, config?: DtStackCliConfig): string {
   let kataResolvedEnv: string | undefined;
@@ -77,7 +77,7 @@ function resolveEnv(values: Record<string, unknown>, config?: DtStackCliConfig):
     kataResolvedEnv ??
     process.env.DTSTACK_DEFAULT_ENV ??
     config?.defaultEnv ??
-    "example-env"
+    "example"
   );
 }
 

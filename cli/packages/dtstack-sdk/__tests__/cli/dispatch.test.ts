@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 
-function runCli(
+function spawnCli(
   args: string[],
-  env: Record<string, string> = {},
+  env: NodeJS.ProcessEnv,
 ): Promise<{ stdout: string; stderr: string; code: number }> {
   return new Promise((resolve) => {
     const p = spawn("bun", ["run", "src/cli.ts", ...args], {
-      env: { ...process.env, DTSTACK_CLI_TEST_DRY: "1", ...env },
+      env,
     });
     let stdout = "";
     let stderr = "";
@@ -19,6 +19,13 @@ function runCli(
     });
     p.on("close", (code) => resolve({ stdout, stderr, code: code ?? 0 }));
   });
+}
+
+function runCli(
+  args: string[],
+  env: Record<string, string> = {},
+): Promise<{ stdout: string; stderr: string; code: number }> {
+  return spawnCli(args, { ...process.env, DTSTACK_CLI_TEST_DRY: "1", ...env });
 }
 
 describe("CLI dispatch (dry-run)", () => {
@@ -113,6 +120,21 @@ describe("CLI dispatch (dry-run)", () => {
       command: "project ensure",
       name: "p",
       engines: ["doris3", "default"],
+    });
+  });
+});
+
+describe("CLI environment fallback", () => {
+  test("uses a shell-safe default environment name", async () => {
+    const result = await spawnCli(["whoami"], {
+      PATH: process.env.PATH,
+      EXAMPLE_BASE_URL: "https://example.invalid",
+    });
+
+    expect(result).toEqual({
+      stdout: "no session for env=example\n",
+      stderr: "",
+      code: 0,
     });
   });
 });
