@@ -134,11 +134,25 @@ function integrationValidate(path: string): void {
   }
   const allowed =
     name === "notify"
-      ? ["is_enable", "enabled_events", "dingtalk", "feishu", "wecom", "smtp"]
+      ? ["enabled", "enabled_events", "dingtalk", "feishu", "wecom", "smtp"]
       : name === "zentao"
         ? ["base_url", "cookie", "username", "password", "create"]
         : ["base_url", "cookie", "username", "password"];
   const doc = validateTopLevel(path, allowed);
+  if (name === "notify") {
+    const nestedAllowed: Record<string, string[]> = {
+      dingtalk: ["enabled", "webhook_url", "keyword", "sign_secret"],
+      feishu: ["enabled", "webhook_url"],
+      wecom: ["enabled", "webhook_url"],
+      smtp: ["enabled", "host", "port", "user", "password", "from", "to", "secure"],
+    };
+    for (const [section, fields] of Object.entries(nestedAllowed)) {
+      const value = doc[section];
+      if (value === undefined) continue;
+      if (!isRecord(value)) throw new Error(`${path} 的 ${section} 必须是对象`);
+      assertKnownKeys(value, fields, `${path}:${section}`);
+    }
+  }
   if (name === "zentao" && doc.create !== undefined) loadZentaoCreateConfig(path);
 }
 

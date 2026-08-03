@@ -91,14 +91,14 @@ describe("config registry", () => {
       password: "pw",
       username: "qa",
       dingtalk: { webhook_url: "https://hook", keyword: "kata" },
-      smtp: { pass: "x", host: "smtp.example" },
+      smtp: { password: "x", host: "smtp.example" },
     }) as Record<string, unknown>;
     expect(out.auth).toEqual({ cookie: "<redacted>" });
     expect(out.password).toBe("<redacted>");
     expect(out.username).toBe("qa");
     expect((out.dingtalk as Record<string, unknown>).webhook_url).toBe("<redacted>");
     expect((out.dingtalk as Record<string, unknown>).keyword).toBe("kata");
-    expect((out.smtp as Record<string, unknown>).pass).toBe("<redacted>");
+    expect((out.smtp as Record<string, unknown>).password).toBe("<redacted>");
     expect((out.smtp as Record<string, unknown>).host).toBe("smtp.example");
   });
 
@@ -192,6 +192,19 @@ describe("config registry", () => {
     const result = validateAllConfig(root);
     expect(
       result.issues.some((issue) => issue.message.includes("未知字段: legacy_cookie_path")),
+    ).toBe(true);
+  });
+
+  test("validate rejects retired notification field spellings", () => {
+    const root = makeRoot();
+    writePrivate(
+      root,
+      "config/private/integrations/notify.yaml",
+      "enabled: true\ndingtalk:\n  enabled: true\nsmtp:\n  pass: local-only\n",
+    );
+    const result = validateAllConfig(root);
+    expect(
+      result.issues.some((issue) => issue.message.includes("notify.yaml:smtp 包含未知字段: pass")),
     ).toBe(true);
   });
 

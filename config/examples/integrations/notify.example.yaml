@@ -2,12 +2,12 @@
 # Copy to notify.yaml locally; do not commit the copied file.
 # `enabled_events` is intentionally empty: a local webhook alone never enables delivery.
 # 总开关；即使打开，enabled_events 为空也不会发送业务通知。
-is_enable: true
+enabled: true
 # 允许发送的事件名白名单；只填写确实需要外发的事件。
 enabled_events: []
 dingtalk:
   # 钉钉通道总开关。
-  is_enable: true
+  enabled: true
   # 钉钉机器人 Webhook，不要写入 Git。
   webhook_url: ""
   # 钉钉机器人关键词。
@@ -16,22 +16,22 @@ dingtalk:
   sign_secret: ""
 feishu:
   # 飞书通道总开关。
-  is_enable: true
+  enabled: true
   # 飞书机器人 Webhook，不要写入 Git。
   webhook_url: ""
 wecom:
   # 企业微信通道总开关。
-  is_enable: true
+  enabled: true
   # 企业微信机器人 Webhook，不要写入 Git。
   webhook_url: ""
 smtp:
   # SMTP 邮件通道总开关。
-  is_enable: true
+  enabled: true
   # SMTP 主机、端口和账号；密码字段不得提交。
   host: ""
   port: 587
   user: ""
-  pass: ""
+  password: ""
   # 发件人与收件人地址。
   from: ""
   to: ""

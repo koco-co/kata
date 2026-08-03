@@ -12,7 +12,7 @@ export function configAllows(
   config: NotifyPluginConfig,
   event: NotificationEventType,
 ): string | undefined {
-  if (config.is_enable === false) return "全局通知已关闭";
+  if (config.enabled === false) return "全局通知已关闭";
   if (!config.enabled_events || config.enabled_events.length === 0)
     return "enabled_events 未配置；未发送";
   if (!config.enabled_events.includes(event)) return `事件 ${event} 未在 enabled_events 中启用`;
@@ -121,7 +121,7 @@ async function deliverWecom(
 
 async function deliverEmail(config: NotifyPluginConfig, card: NotificationCard): Promise<void> {
   const smtp = config.smtp;
-  if (!smtp?.host || !smtp.user || !smtp.pass || !smtp.from || !smtp.to) {
+  if (!smtp?.host || !smtp.user || !smtp.password || !smtp.from || !smtp.to) {
     throw new DeliveryError("SMTP 配置不完整", false);
   }
   try {
@@ -132,7 +132,7 @@ async function deliverEmail(config: NotifyPluginConfig, card: NotificationCard):
       host: smtp.host,
       port: smtp.port ? Number(smtp.port) : 587,
       secure,
-      auth: { user: smtp.user, pass: smtp.pass },
+      auth: { user: smtp.user, pass: smtp.password },
     });
     await transporter.sendMail({
       from: smtp.from,
@@ -148,14 +148,14 @@ async function deliverEmail(config: NotifyPluginConfig, card: NotificationCard):
 
 export function enabledChannels(config: NotifyPluginConfig): ChannelName[] {
   const result: ChannelName[] = [];
-  if (config.dingtalk?.is_enable !== false && config.dingtalk?.webhook_url) result.push("dingtalk");
-  if (config.feishu?.is_enable !== false && config.feishu?.webhook_url) result.push("feishu");
-  if (config.wecom?.is_enable !== false && config.wecom?.webhook_url) result.push("wecom");
+  if (config.dingtalk?.enabled !== false && config.dingtalk?.webhook_url) result.push("dingtalk");
+  if (config.feishu?.enabled !== false && config.feishu?.webhook_url) result.push("feishu");
+  if (config.wecom?.enabled !== false && config.wecom?.webhook_url) result.push("wecom");
   if (
-    config.smtp?.is_enable !== false &&
+    config.smtp?.enabled !== false &&
     config.smtp?.host &&
     config.smtp.user &&
-    config.smtp.pass &&
+    config.smtp.password &&
     config.smtp.from &&
     config.smtp.to
   )

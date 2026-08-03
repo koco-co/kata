@@ -55,7 +55,7 @@ function enableDingtalk(at: string): void {
   mkdirSync(join(at, "config", "private", "integrations"), { recursive: true });
   writeFileSync(
     join(at, "config", "private", "integrations", "notify.yaml"),
-    "is_enable: true\nenabled_events:\n  - cases-built\ndingtalk:\n  is_enable: true\n  webhook_url: https://example.invalid/robot\n",
+    "enabled: true\nenabled_events:\n  - cases-built\ndingtalk:\n  enabled: true\n  webhook_url: https://example.invalid/robot\n",
   );
 }
 
@@ -64,14 +64,14 @@ function enableFeishuAndWecom(at: string): void {
   writeFileSync(
     join(at, "config", "private", "integrations", "notify.yaml"),
     [
-      "is_enable: true",
+      "enabled: true",
       "enabled_events:",
       "  - cases-built",
       "feishu:",
-      "  is_enable: true",
+      "  enabled: true",
       "  webhook_url: https://example.invalid/feishu",
       "wecom:",
-      "  is_enable: true",
+      "  enabled: true",
       "  webhook_url: https://example.invalid/wecom",
       "",
     ].join("\n"),

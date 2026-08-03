@@ -33,23 +33,23 @@ export interface ZentaoPluginConfig {
 
 export interface NotifyPluginConfig {
   /** Global notification switch. Missing values retain the safe documented default (true). */
-  is_enable?: boolean;
+  enabled?: boolean;
   /** Explicit event allow-list. Missing or empty means no real notification is sent. */
   enabled_events?: string[];
   dingtalk?: {
-    is_enable?: boolean;
+    enabled?: boolean;
     webhook_url?: string;
     keyword?: string;
     sign_secret?: string;
   };
-  feishu?: { is_enable?: boolean; webhook_url?: string };
-  wecom?: { is_enable?: boolean; webhook_url?: string };
+  feishu?: { enabled?: boolean; webhook_url?: string };
+  wecom?: { enabled?: boolean; webhook_url?: string };
   smtp?: {
-    is_enable?: boolean;
+    enabled?: boolean;
     host?: string;
     port?: string | number;
     user?: string;
-    pass?: string;
+    password?: string;
     from?: string;
     to?: string;
     secure?: string | boolean;
@@ -202,28 +202,28 @@ export function loadNotifyConfig(root: string = defaultRepoRoot()): NotifyPlugin
   const wecom = isRecord(raw.wecom) ? raw.wecom : {};
   const smtp = isRecord(raw.smtp) ? raw.smtp : {};
   return {
-    is_enable: booleanValue(raw.is_enable) ?? true,
+    enabled: booleanValue(raw.enabled) ?? true,
     enabled_events: stringArray(raw.enabled_events),
     dingtalk: {
-      is_enable: booleanValue(dingtalk.is_enable) ?? true,
+      enabled: booleanValue(dingtalk.enabled) ?? true,
       webhook_url: scalar(dingtalk.webhook_url),
       keyword: scalar(dingtalk.keyword),
       sign_secret: scalar(dingtalk.sign_secret),
     },
     feishu: {
-      is_enable: booleanValue(feishu.is_enable) ?? true,
+      enabled: booleanValue(feishu.enabled) ?? true,
       webhook_url: scalar(feishu.webhook_url),
     },
     wecom: {
-      is_enable: booleanValue(wecom.is_enable) ?? true,
+      enabled: booleanValue(wecom.enabled) ?? true,
       webhook_url: scalar(wecom.webhook_url),
     },
     smtp: {
-      is_enable: booleanValue(smtp.is_enable) ?? true,
+      enabled: booleanValue(smtp.enabled) ?? true,
       host: scalar(smtp.host),
       port: scalar(smtp.port),
       user: scalar(smtp.user),
-      pass: scalar(smtp.pass),
+      password: scalar(smtp.password),
       from: scalar(smtp.from),
       to: scalar(smtp.to),
       secure: scalar(smtp.secure),

@@ -99,9 +99,9 @@ describe("plugin configuration", () => {
     const config = loadNotifyConfig(value);
     expect(config.dingtalk?.webhook_url).toBe("http://hook");
     expect(config.smtp?.port).toBe("465");
-    expect(config.is_enable).toBe(true);
+    expect(config.enabled).toBe(true);
     expect(config.enabled_events).toBeUndefined();
-    expect(config.dingtalk?.is_enable).toBe(true);
+    expect(config.dingtalk?.enabled).toBe(true);
   });
 
   test("resolves each integration file independently across linked and shared private roots", () => {
@@ -130,13 +130,13 @@ describe("plugin configuration", () => {
     const value = root();
     writeFileSync(
       pluginConfigPath("notify", value),
-      "is_enable: false\nenabled_events: [cases-built]\ndingtalk:\n  is_enable: false\n",
+      "enabled: false\nenabled_events: [cases-built]\ndingtalk:\n  enabled: false\n",
       { mode: 0o600 },
     );
     const config = loadNotifyConfig(value);
-    expect(config.is_enable).toBe(false);
+    expect(config.enabled).toBe(false);
     expect(config.enabled_events).toEqual(["cases-built"]);
-    expect(config.dingtalk?.is_enable).toBe(false);
+    expect(config.dingtalk?.enabled).toBe(false);
   });
 
   test("updates a cookie atomically and keeps the file private", () => {
