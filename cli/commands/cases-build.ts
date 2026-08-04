@@ -214,8 +214,12 @@ function commitArtifacts(artifacts: DerivedArtifact[], featureDir: string): Case
   return { created, updated, unchanged, deleted: stale };
 }
 
-/** Build all declared derived artifacts for one feature directory. */
-export async function runCasesBuild(featureDir: string): Promise<CasesBuildReport> {
+/** 预检一个 feature：parse/validate/digest/content lint 全部通过后返回可渲染输入。 */
+function preflightFeature(featureDir: string): {
+  yamlPath: string;
+  name: string;
+  file: CasesFile;
+} {
   assertFeatureNoSymlink(featureDir);
   const { yamlPath, name } = findCasesYaml(featureDir);
   const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
@@ -236,6 +240,12 @@ export async function runCasesBuild(featureDir: string): Promise<CasesBuildRepor
         .join("\n")}`,
     );
   }
+  return { yamlPath, name, file };
+}
+
+/** Build all declared derived artifacts for one feature directory. */
+export async function runCasesBuild(featureDir: string): Promise<CasesBuildReport> {
+  const { file, name } = preflightFeature(featureDir);
   const artifacts = await renderArtifacts(file, featureDir, name);
   for (const artifact of artifacts) assertWritable(featurePaths(featureDir), artifact.path);
   return commitArtifacts(artifacts, featureDir);
@@ -257,16 +267,24 @@ export function registerCasesBuild(cases: Command): void {
     .action(
       async (requirementId: string | undefined, opts: { feature?: string; project?: string }) => {
         const targets = resolveBuildTargets(requirementId, opts);
-        for (const featureDir of targets) {
+        // 先对全部目标完成校验预检：任一目标失败时任何目标都不写入、不通知，
+        // 避免跨项目同 id 一半新一半旧的派生状态。
+        const preflighted = targets.map((featureDir) => ({
+          featureDir,
+          input: preflightFeature(featureDir),
+        }));
+        for (const { featureDir, input } of preflighted) {
           const startedAt = new Date();
-          const report = await runCasesBuild(featureDir);
+          const artifacts = await renderArtifacts(input.file, featureDir, input.name);
+          for (const artifact of artifacts) {
+            assertWritable(featurePaths(featureDir), artifact.path);
+          }
+          const report = commitArtifacts(artifacts, featureDir);
           for (const path of report.created) console.log(`created ${path}`);
           for (const path of report.updated) console.log(`updated ${path}`);
           for (const path of report.unchanged) console.log(`unchanged ${path}`);
           for (const path of report.deleted) console.log(`deleted ${path}`);
           if (report.created.length + report.updated.length > 0) {
-            const { yamlPath } = findCasesYaml(featureDir);
-            const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
             const projectDir = projectRootFromFeatureDir(featureDir);
             const { context } = renderContextForFeature(featureDir);
             const root = dirname(dirname(projectDir));
@@ -275,9 +293,9 @@ export function registerCasesBuild(cases: Command): void {
               {
                 project: projectDir.split(/[\\/]/).at(-1) ?? "",
                 version: context.version,
-                feature: file.meta.title,
+                feature: input.file.meta.title,
                 completed_at: formatTaipeiTime(),
-                case_count: file.cases.length,
+                case_count: input.file.cases.length,
                 created_count: report.created.length,
                 updated_count: report.updated.length,
                 artifact_paths: [...report.created, ...report.updated].map((path) =>

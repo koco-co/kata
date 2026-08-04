@@ -212,6 +212,29 @@ describe("kata cases build by requirement id", () => {
     }
   });
 
+  it("preflights every target before any write: one broken target blocks all artifacts", () => {
+    const root = workspaceRoot();
+    const valid = writeFeature(root, "dataAssets", "16019", "【模块】需求甲");
+    const broken = writeFeature(root, "batchWorks", "16019", "【模块】需求乙");
+    // 第二个目标在预检阶段失败：cases 为空触发 validateCases 报错
+    writeFileSync(join(broken, "cases", "需求名.yaml"), `meta:
+  title: 需求名
+  case_module_id: ""
+  requirement_id: "16019"
+cases: []
+`);
+    try {
+      const r = runBuild(["16019"], root);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("用例数为 0");
+      // 合法的第一个目标也不得写入任何产物
+      expect(existsSync(join(valid, "cases", "exports", "需求名.xmind"))).toBe(false);
+      expect(existsSync(join(valid, "cases", "exports"))).toBe(false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("fails when no feature declares the requirement id", () => {
     const root = workspaceRoot();
     writeFeature(root, "dataAssets", "16019", "【模块】需求名");
