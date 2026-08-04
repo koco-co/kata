@@ -7,508 +7,113 @@ meta:
     - python实时输出日志测试.xmind
 cases:
   - case_id: C0001
-    title: 验证py2agent任务运行支持实时打印任务运行日志
+    title: 验证【数据开发】-【周期任务】运行Python Agent任务，实时打印任务运行日志(Python2)
     priority: P0
     precondition: |-
-      -- 复杂py2任务
-
-      # -*- coding: utf-8 -*-
-      from __future__ import print_function
-      import sys, time
-
-      if sys.version_info[0] < 3:
-          # Py2：打印中文时编码为 UTF-8
-          def uprint(s):
-              sys.stdout.write((s if isinstance(s, str) else s.encode('utf-8')) + '\n')
-      else:
-          # Py3：正常打印
-          def uprint(s):
-              print(s)
-
-      count = 0  # 全局计数器
-
-      def hanoi_tower(num, a, b, c):
-          global count
-          if num == 1:
-              count += 1
-              uprint(u"第{}步: 第1个轮盘从:{}柱->{}柱".format(count, a, c))
-          else:
-              hanoi_tower(num - 1, a, c, b)
-              count += 1
-              uprint(u"第{}步: 第{}个轮盘从:{}柱->{}柱".format(count, num, a, c))
-              hanoi_tower(num - 1, b, a, c)
-          time.sleep(1)
-
-
-      if __name__ == "__main__":
-          hanoi_tower(5, u"A", u"B", u"C")
-          uprint(u"\n总移动步数: {}".format(count))
-
-
-      -- 简单py2任务
-      import time
-      for i in range(60):
-          print(i)
-          time.sleep(1)
+      1) 周期任务可选择运行 Python2 的节点标签 agent_py2
+      2) Python2 实时输出脚本为：
+         #!/usr/bin/env python2
+         # -*- coding: utf-8 -*-
+         from __future__ import print_function
+         import sys
+         import time
+         for index in range(1, 6):
+             sys.stdout.write("LOG_%02d\n" % index)
+             sys.stdout.flush()
+             time.sleep(2)
     steps:
-      - action: 进入【离线开发 → 周期任务-】页面
-        expected: 已进入【离线开发 → 周期任务-】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发-周期任务页面, 创建py2agent任务, 配置环境参数中的节点标签后, 临时运行py2复杂脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:24:59: 第2步: 第2个轮盘从:A柱->B柱
-          ........
-          2025-08-11 17:25:30: 第31步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:25:33: 总移动步数: 31
-          2025-08-11 17:25:34: rm: remove regular file ‘/tmp/tmp.wcw3JPhsMu’?
+      - action: 进入【数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建 Python2 Agent 周期任务 TaskB，节点标签选择 agent_py2
+        expected: 任务编辑器显示节点标签 agent_py2
+      - action: 填入实时输出脚本并点击「临时运行」
+        expected: 运行状态依次显示「正在提交」「运行中」
+      - action: 等待 LOG_02 出现后向上滚动日志面板
+        expected: 新日志到达时滚动位置保持在用户当前位置
+      - action: 等待任务完成
+        expected: 运行状态显示「成功」,日志按约 2 秒间隔依次出现 LOG_01～LOG_05
+      - action: 下载完整日志
+        expected: 下载日志包含 LOG_01～LOG_05 且顺序一致，并展示任务执行时长
+    tags: [数据开发, 周期任务, Python2日志]
 
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py2脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          第2步: 第2个轮盘从:A柱->B柱
-          ........
-          第31步: 第1个轮盘从:A柱->C柱
-          总移动步数: 31
-
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 创建py2agent任务, 临时运行py2简单脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2025-08-11 17:24:58: 2
-          ........
-          2025-08-11 17:25:35: 59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py2脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2
-          ........
-          59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-    tags:
-      - 数据开发-
-      - 周期任务-
   - case_id: C0002
-    title: 验证py3agent任务运行支持实时打印任务运行日志
+    title: 验证【数据开发】-【周期任务】运行Python Agent任务，实时打印任务运行日志(Python3)
     priority: P1
     precondition: |-
-      -- 复杂py3任务
-      # py测试脚本
-
-      count = 0
-
-      def hanoi_tower(num, a, b, c):
-          """
-          功能：输出num个轮盘移动的顺序并统计总步骤
-          :param num: 轮盘数量
-          :param a: A柱子
-          :param b: B柱子
-          :param c: C柱子
-          :return:
-          """
-          global count
-          if num == 1:
-              count += 1
-              print(f"第{count}步: 第1个轮盘从:{a}柱->{c}柱")
-          else:
-              hanoi_tower(num - 1, a, c, b)
-              count += 1
-              print(f"第{count}步: 第{num}个轮盘从:{a}柱->{c}柱")
-              hanoi_tower(num - 1, b, a, c)
-
-      hanoi_tower(5, "A", "B", "C")
-      print(f"\n总移动步数: {count}")
-
-
-      -- 简单py3任务
-      import time
-      for i in range(600000):
-          print(i)
-          # time.sleep(1)
+      1) 周期任务可选择运行 Python3 的节点标签 agent_py3
+      2) Python3 持续输出脚本为：
+         import time
+         for index in range(1, 6):
+             print(f"LOG_{index:02d}", flush=True)
+             time.sleep(2)
+      3) Python3 连续输出脚本为：
+         for index in range(60):
+             print(index, flush=True)
     steps:
-      - action: 进入【离线开发 → 周期任务-】页面
-        expected: 已进入【离线开发 → 周期任务-】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发-周期任务页面, 创建py3agent任务, 配置环境参数中的节点标签后, 临时运行py3复杂脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:24:59: 第2步: 第2个轮盘从:A柱->B柱
-          ........
-          2025-08-11 17:25:30: 第31步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:25:33: 总移动步数: 31
-          2025-08-11 17:25:34: rm: remove regular file ‘/tmp/tmp.wcw3JPhsMu’?
+      - action: 进入【数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建 Python3 Agent 周期任务 TaskD，节点标签选择 agent_py3
+        expected: 任务编辑器显示节点标签 agent_py3
+      - action: 填入持续输出脚本并点击「临时运行」
+        expected: 运行日志依次展示 LOG_01～LOG_05
+      - action: 使用连续输出脚本再次运行该任务
+        expected: 运行日志首行为 0、末行为 59且无缺号
+      - action: 下载两次运行日志
+        expected: 两个下载地址不同，文件内容分别与对应日志面板的总行数一致
+    tags: [数据开发, 周期任务, Python3日志]
 
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py3脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          第2步: 第2个轮盘从:A柱->B柱
-          ........
-          第31步: 第1个轮盘从:A柱->C柱
-          总移动步数: 31
-
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 创建py3agent任务, 临时运行py3简单脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2025-08-11 17:24:58: 2
-          ........
-          2025-08-11 17:25:35: 59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py3脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2
-          ........
-          59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-    tags:
-      - 数据开发-
-      - 周期任务-
   - case_id: C0003
-    title: 验证py2agent任务运行支持实时打印任务运行日志
+    title: 验证【数据开发】-【手动任务】运行Python Agent任务，实时打印任务运行日志(Python2)
     priority: P1
     precondition: |-
-      -- 复杂py2任务
-
-      # -*- coding: utf-8 -*-
-      from __future__ import print_function
-      import sys, time
-
-      if sys.version_info[0] < 3:
-          # Py2：打印中文时编码为 UTF-8
-          def uprint(s):
-              sys.stdout.write((s if isinstance(s, str) else s.encode('utf-8')) + '\n')
-      else:
-          # Py3：正常打印
-          def uprint(s):
-              print(s)
-
-      count = 0  # 全局计数器
-
-      def hanoi_tower(num, a, b, c):
-          global count
-          if num == 1:
-              count += 1
-              uprint(u"第{}步: 第1个轮盘从:{}柱->{}柱".format(count, a, c))
-          else:
-              hanoi_tower(num - 1, a, c, b)
-              count += 1
-              uprint(u"第{}步: 第{}个轮盘从:{}柱->{}柱".format(count, num, a, c))
-              hanoi_tower(num - 1, b, a, c)
-          time.sleep(1)
-
-
-      if __name__ == "__main__":
-          hanoi_tower(5, u"A", u"B", u"C")
-          uprint(u"\n总移动步数: {}".format(count))
-
-
-      -- 简单py2任务
-      import time
-      for i in range(60):
-          print(i)
-          time.sleep(1)
+      1) 手动任务可选择运行 Python2 的节点标签 agent_py2
+      2) Python2 持续输出脚本为：
+         #!/usr/bin/env python2
+         from __future__ import print_function
+         import sys
+         import time
+         for index in range(1, 6):
+             sys.stdout.write("LOG_%02d\n" % index)
+             sys.stdout.flush()
+             time.sleep(2)
+      3) Python2 连续输出脚本为：
+         from __future__ import print_function
+         for index in range(60):
+             print(index)
     steps:
-      - action: 进入【离线开发 → 手动任务-】页面
-        expected: 已进入【离线开发 → 手动任务-】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发-手动任务页面, 创建py2agent任务, 配置环境参数中的节点标签后, 临时运行py2复杂脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:24:59: 第2步: 第2个轮盘从:A柱->B柱
-          ........
-          2025-08-11 17:25:30: 第31步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:25:33: 总移动步数: 31
-          2025-08-11 17:25:34: rm: remove regular file ‘/tmp/tmp.wcw3JPhsMu’?
+      - action: 进入【数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 Python2 Agent 手动任务 TaskA，节点标签选择 agent_py2
+        expected: 任务编辑器显示节点标签 agent_py2
+      - action: 填入持续输出脚本并点击「运行」
+        expected: 运行日志依次展示 LOG_01～LOG_05
+      - action: 使用连续输出脚本再次运行该任务
+        expected: 运行日志首行为 0、末行为 59且无缺号
+      - action: 下载两次运行日志
+        expected: 两个下载地址不同，文件内容分别与对应日志面板的总行数一致
+    tags: [数据开发, 手动任务, Python2日志]
 
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py2脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          第2步: 第2个轮盘从:A柱->B柱
-          ........
-          第31步: 第1个轮盘从:A柱->C柱
-          总移动步数: 31
-
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 创建py2agent任务, 临时运行py2简单脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2025-08-11 17:24:58: 2
-          ........
-          2025-08-11 17:25:35: 59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py2脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2
-          ........
-          59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-    tags:
-      - 数据开发-
-      - 手动任务-
   - case_id: C0004
-    title: 验证py3agent任务运行支持实时打印任务运行日志
+    title: 验证【数据开发】-【手动任务】运行Python Agent任务，实时打印任务运行日志(Python3)
     priority: P0
     precondition: |-
-      # py测试脚本
-
-      count = 0
-
-      def hanoi_tower(num, a, b, c):
-          """
-          功能：输出num个轮盘移动的顺序并统计总步骤
-          :param num: 轮盘数量
-          :param a: A柱子
-          :param b: B柱子
-          :param c: C柱子
-          :return:
-          """
-          global count
-          if num == 1:
-              count += 1
-              print(f"第{count}步: 第1个轮盘从:{a}柱->{c}柱")
-          else:
-              hanoi_tower(num - 1, a, c, b)
-              count += 1
-              print(f"第{count}步: 第{num}个轮盘从:{a}柱->{c}柱")
-              hanoi_tower(num - 1, b, a, c)
-
-      hanoi_tower(5, "A", "B", "C")
-      print(f"\n总移动步数: {count}")
+      1) 手动任务可选择运行 Python3 的节点标签 agent_py3
+      2) Python3 实时输出脚本为：
+         import time
+         for index in range(1, 6):
+             print(f"LOG_{index:02d}", flush=True)
+             time.sleep(2)
     steps:
-      - action: 进入【离线开发 → 手动任务-】页面
-        expected: 已进入【离线开发 → 手动任务-】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发-手动任务页面, 创建py3agent任务, 配置环境参数中的节点标签后, 临时运行py3复杂脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:24:59: 第2步: 第2个轮盘从:A柱->B柱
-          ........
-          2025-08-11 17:25:30: 第31步: 第1个轮盘从:A柱->C柱
-          2025-08-11 17:25:33: 总移动步数: 31
-          2025-08-11 17:25:34: rm: remove regular file ‘/tmp/tmp.wcw3JPhsMu’?
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py3脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 第1步: 第1个轮盘从:A柱->C柱
-          第2步: 第2个轮盘从:A柱->B柱
-          ........
-          第31步: 第1个轮盘从:A柱->C柱
-          总移动步数: 31
-
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 创建py3agent任务, 临时运行py3简单脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2025-08-11 17:24:58: 2
-          ........
-          2025-08-11 17:25:35: 59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-      - action: 注释掉sleep等待, 重新临时运行py3脚本
-        expected: |-
-          1) 日志内容支持滚动, 不会被新的日志中断
-          2) pyagent日志内容格式约如下:
-          [17:24:12] <info> 正在提交...
-          [17:24:12] <info> 任务开始执行
-          ===========任务信息===========
-          ${py脚本内容}
-          ============================
-          [17:24:13] <info> 等待运行.....
-          [17:25:16] <info> 等待运行.....
-          2025-08-11 17:24:57: 0
-          1
-          2
-          ........
-          59
-
-          完整日志下载地址：logDownload
-
-          [17:25:39] <info> 任务执行时长：0h 1m 27s
-    tags:
-      - 数据开发-
-      - 手动任务-
+      - action: 进入【数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 Python3 Agent 手动任务 TaskC，节点标签选择 agent_py3
+        expected: 任务编辑器显示节点标签 agent_py3
+      - action: 填入实时输出脚本并点击「运行」
+        expected: 运行状态依次显示「正在提交」「运行中」
+      - action: 任务运行中刷新日志面板
+        expected: 已展示日志行不重复且继续追加后续行
+      - action: 等待任务完成
+        expected: 运行状态显示「成功」,日志按约 2 秒间隔依次出现 LOG_01～LOG_05
+      - action: 下载完整日志
+        expected: 下载日志包含 LOG_01～LOG_05 且顺序一致，并展示任务执行时长
+    tags: [数据开发, 手动任务, Python3日志]
