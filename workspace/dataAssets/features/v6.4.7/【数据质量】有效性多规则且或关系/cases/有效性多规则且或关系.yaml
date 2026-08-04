@@ -6,1331 +6,418 @@ meta:
     - 有效性多规则且或关系.xmind
 cases:
   - case_id: C0001
-    automation:
-      spec_file: c0001-range-enum-and-numeric-flow.spec.ts
-    title: 验证在规则集中配置取值范围&枚举范围规则且关系完整流程（数值类型字段）
+    title: 验证【数据质量】-【规则集管理】配置取值范围与枚举范围且关系规则，保存后列表新增且启用
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则配置-新增取值范围&枚举范围规则（P0核心流程）】页面
-        expected: 已进入【数据质量 → 规则配置-新增取值范围&枚举范围规则（P0核心流程）】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 找到规则集"ruleset_15695_and"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在规则包"且关系校验包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】
-        expected: 规则配置区域展开，显示「有效性校验」标题，包含字段下拉框、统计规则配置区域（取值范围行和枚举值行）、强弱规则下拉框和规则描述输入框
-      - action: |-
-          在规则配置表单中按顺序填写如下：
-          - 字段: score
-          - 取值范围行-第一组: 期望值输入 1，操作符选择 >
-          - 取值范围行-第二组: 点击右侧【+】添加第二条，期望值输入 10，操作符选择 <
-          - 取值范围行-且或关系: 选择【且】单选按钮
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 依次输入 1、2、3
-          - 强弱规则: 强规则
-          - 规则描述: score取值范围1到10且枚举值in 1,2,3
-        expected: 各表单项可正常输入/选择，未出现错误提示提示
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: |-
-          规则保存成功，规则配置页规则列表中新增一条规则，显示如下：
-          1) 规则类型显示「取值范围&枚举范围」
-          2) 字段显示 score
-          3) 取值范围显示 >1 且 <10
-          4) 枚举值显示 in '1,2,3'
-          5) 且或关系显示「且」
-          6) 强弱规则显示「强规则」
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】页面创建规则集"ruleset_15695_and"，关联 sparkthrift2.x 数据源 test_db 库 quality_test_num 表，规则包名称"且关系校验包"
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数值表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0001 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0001 VALUES (1, 5.0, '1'), (2, 15.0, '4'), (3, 3.0, '2'), (4, -1.0, '3'), (5, 8.0, '5');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0001，点击【新增规则】并选择「取值范围&枚举范围」
+        expected: 规则表单展示字段、取值范围、枚举值、且或关系和强弱规则
+      - action: 字段选择 score，范围设置为「>1 且 <10」，枚举值选择 in「1、2、3」，且或关系选择「且」，强弱规则选择「强规则」
+        expected: 表单回显范围 >1 且 <10、枚举值 in 1,2,3 和关系「且」
+      - action: 点击【保存】
+        expected: Toast提示:「保存成功」，规则列表新增 1 条且关系规则，状态为「启用」
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-新增取值范围&枚举范围规则（P0核心流程）
+      ["数据质量", "规则集管理"]
   - case_id: C0002
-    automation:
-      spec_file: c0002-range-enum-or-save.spec.ts
-    title: 验证在规则集中配置取值范围&枚举范围规则或关系时保存成功
+    title: 验证【数据质量】-【规则集管理】配置取值范围与枚举范围或关系规则，保存后回显关系为或
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则配置-或关系】页面
-        expected: 已进入【数据质量 → 规则配置-或关系】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: |-
-          找到"ruleset_15695_or"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"或关系校验包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】，按顺序填写如下：
-          - 字段: score
-          - 取值范围行: 期望值输入 1，操作符选择 >
-          - 取值范围行-且或关系: 选择【或】单选按钮
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 依次输入 1、2、3
-          - 强弱规则: 强规则
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: 规则保存成功，规则列表中新增规则的且或关系列显示「或」
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】页面创建规则集"ruleset_15695_or"，关联 sparkthrift2.x 数据源 test_db 库 quality_test_num 表，规则包名称"或关系校验包"
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数值表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0002 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0002 VALUES (1, 5.0, '1'), (2, 15.0, '4'), (3, 3.0, '2'), (4, -1.0, '3'), (5, 8.0, '5');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 新建规则集并选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0002，新增「取值范围&枚举范围」规则
+        expected: 规则表单展示范围行和枚举值行
+      - action: 字段选择 score，范围设置为「>1」，枚举值选择 in「1、2、3」，且或关系选择「或」，强弱规则选择「强规则」
+        expected: 表单回显范围 >1、枚举值 in 1,2,3 和关系「或」
+      - action: 点击【保存】并重新打开规则
+        expected: Toast提示:「保存成功」，规则回显关系为「或」
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-或关系
+      ["数据质量", "规则集管理"]
   - case_id: C0003
-    automation:
-      spec_file: c0003-range-only-save.spec.ts
-    title: 验证在规则集中仅填写取值范围可正常保存
+    title: 验证【数据质量】-【规则集管理】仅填写取值范围保存规则，规则列表新增记录
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-仅取值范围配置】页面
-        expected: 已进入【数据质量 → 规则配置-仅取值范围配置】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: |-
-          找到"ruleset_15695_range"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"仅取值范围包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】，按顺序填写如下：
-          - 字段: score
-          - 取值范围行: 期望值输入 0，操作符选择 >=
-          - 枚举值行: 不填写，保持为空
-          - 强弱规则: 强规则
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: |-
-          规则保存成功，规则列表中对应规则显示如下：
-          1) 取值范围列显示 >=0
-          2) 枚举值设置列显示 -- 或为空
-          3) 且或关系列不显示（仅一项规则时无需关系）
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数值表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0003 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0003 VALUES (1, 5.0, '1'), (2, 15.0, '4'), (3, 3.0, '2'), (4, -1.0, '3'), (5, 8.0, '5');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 新建规则集并选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0003，新增「取值范围&枚举范围」规则
+        expected: 规则表单展示取值范围行和枚举值行
+      - action: 字段选择 score，范围设置为「>=0」，枚举值保持空，点击【保存】
+        expected: Toast提示:「保存成功」，规则列表范围列显示 >=0，枚举值列为空
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-仅取值范围配置
+      ["数据质量", "规则集管理"]
   - case_id: C0004
-    automation:
-      spec_file: c0004-enum-only-save.spec.ts
-    title: 验证在规则集中仅填写枚举值可正常保存
+    title: 验证【数据质量】-【规则集管理】仅填写枚举值保存规则，规则列表新增记录
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-仅枚举值配置】页面
-        expected: 已进入【数据质量 → 规则配置-仅枚举值配置】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: |-
-          找到"ruleset_15695_enum"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"仅枚举值包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】，按顺序填写如下：
-          - 字段: category
-          - 取值范围行: 不填写，保持为空
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 依次输入 1、2、3
-          - 强弱规则: 强规则
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: 规则保存成功，规则列表中对应规则的枚举值列显示 in '1,2,3'，取值范围列显示 -- 或为空
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建字符串表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0004 (id BIGINT, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0004 VALUES (1, '1'), (2, '4'), (3, '2'), (4, '3'), (5, '5');
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 新建规则集并选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0004，新增「取值范围&枚举范围」规则
+        expected: 规则表单展示枚举值类型和枚举值输入区
+      - action: 字段选择 category，范围保持空，枚举值类型选择 in，输入 1、2、3，点击【保存】
+        expected: Toast提示:「保存成功」，规则列表枚举值列显示 in 1,2,3，范围列为空
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-仅枚举值配置
+      ["数据质量", "规则集管理"]
   - case_id: C0005
-    automation:
-      spec_file: c0005-enum-not-in-save.spec.ts
-    title: 验证在规则集中枚举值选择not in保存成功
+    title: 验证【数据质量】-【规则集管理】枚举值选择 not in 保存规则，列表新增记录
     priority: P1
-    steps:
-      - action: 进入【数据质量 → not in 切换】页面
-        expected: 已进入【数据质量 → not in 切换】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: |-
-          找到"ruleset_15695_notin"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"notin校验包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】，按顺序填写如下：
-          - 字段: category
-          - 取值范围行: 不填写，保持为空
-          - 枚举值行-枚举值类型: 选择 not in
-          - 枚举值行-枚举值信息: 依次输入 4、5
-          - 强弱规则: 强规则
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: 规则保存成功，规则列表中对应规则的枚举值设置列显示 not in '4,5'
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建字段类型表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0005 (id BIGINT, score DOUBLE, category STRING, flag BOOLEAN);
+         INSERT INTO ${SchemaA}.test_table_15695_c0005 VALUES (1, 5.0, '1', TRUE), (2, 15.0, '4', FALSE), (3, 3.0, '2', TRUE);
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 新增「取值范围&枚举范围」规则并查看字段下拉框
+        expected: 字段下拉框包含 score、category、flag，并展示字段类型
+      - action: 选择 score 配置范围条件
+        expected: 范围输入控件可编辑
+      - action: 选择 category 配置枚举条件
+        expected: 枚举输入控件可编辑
+      - action: 选择 flag
+        expected: 范围和枚举配置控件按布尔字段限制展示不可用状态
     tags:
-      - 数据质量
-      - 规则集管理
-      - 枚举值 in/not in 切换
+      ["数据质量", "规则集管理"]
   - case_id: C0006
-    automation:
-      spec_file: c0006-existing-enum-not-in-option.spec.ts
-    title: 验证原有枚举值规则同步新增not in选项且可正常保存
+    title: 验证【数据质量】-【规则集管理】原有枚举值规则新增 not in 选项，保存后规则正常
     priority: P1
-    steps:
-      - action: 进入【数据质量 → not in 切换】页面
-        expected: 已进入【数据质量 → not in 切换】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 找到"ruleset_15695_enum_orig"，点击操作列的【编辑】按钮，进入 Step 2 监控规则，在"原枚举值包"中点击【新增规则】，在统计函数下拉框中选择原有的【枚举值】规则类型，查看枚举值设置行中下拉框选项
-        expected: 枚举值设置下拉框中包含【in】和【not in】两个选项
-      - action: |-
-          在枚举值设置下拉框中选择【not in】，按顺序填写如下：
-          - 字段: category
-          - 枚举值信息: 依次输入 4、5
-          - 强弱规则: 强规则
-          点击【保存】按钮，再点击页面底部【保存】
-        expected: 规则保存成功，规则列表中对应规则的枚举值列显示 not in '4,5'
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建并写入规则表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0006 (id BIGINT, score BIGINT, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0006 VALUES (1, 1, '1'), (2, 2, '2'), (3, 3, '3');
+      5) 规则集「RuleSetD」已关联 ${DataSourceA}、${SchemaA}.test_table_15695_c0006
+      6) 规则包中存在 score 范围 >1 且 <10、枚举 in 1,2,3 的规则
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 打开规则集「RuleSetD」的规则编辑页
+        expected: 规则行展示范围 >1 且 <10、枚举 in 1,2,3 和关系「且」
+      - action: 修改枚举值为 1、2、3、4，点击【保存】
+        expected: Toast提示:「保存成功」，规则行枚举值更新为 in 1,2,3,4
+      - action: 刷新规则集详情
+        expected: 规则配置仍展示更新后的枚举值和原范围条件
     tags:
-      - 数据质量
-      - 规则集管理
-      - 枚举值 in/not in 切换
+      ["数据质量", "规则集管理"]
   - case_id: C0007
-    automation:
-      spec_file: c0007-string-range-enum-save.spec.ts
-    title: 验证string类型字段在规则集中配置取值范围&枚举范围规则时系统可正常保存
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → string类型字段强转double验证】页面
-        expected: 已进入【数据质量 → string类型字段强转double验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: |-
-          找到"ruleset_15695_str"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"string强转包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】，按顺序填写如下：
-          - 字段: score_str（字段类型为 STRING）
-          - 取值范围行: 期望值输入 1，操作符选择 >
-          - 取值范围行-且或关系: 选择【且】单选按钮
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 依次输入 5、5.5、15
-          - 强弱规则: 强规则
-        expected: 字段下拉框中 score_str（STRING 类型）可被选中，规则配置表单正常展开
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: 规则保存成功，string 类型字段可正常配置取值范围&枚举范围规则
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
+    title: 验证【数据质量】-【规则集管理】string 类型字段配置取值范围与枚举范围规则，保存成功
+    priority: P0
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_str;
-      CREATE TABLE test_db.quality_test_str (
-        id INT,
-        score_str STRING,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_str
-      SELECT 1, '5', '2'
-      UNION ALL
-      SELECT 2, '5.0', '4'
-      UNION ALL
-      SELECT 3, '15.0', '1'
-      UNION ALL
-      SELECT 4, 'abc', '3'
-      UNION ALL
-      SELECT 5, '-1.0', '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_str;
-      CREATE TABLE test_db.quality_test_str (
-        id INT NOT NULL,
-        score_str VARCHAR(50),
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_str VALUES
-        (1, '5', '2'),
-        (2, '5.0', '4'),
-        (3, '15.0', '1'),
-        (4, 'abc', '3'),
-        (5, '-1.0', '5');
-
-      -- 说明：score_str 需要按数值含义参与取值范围计算，category 枚举值期望 in '1,2,3'
-      3) 已通过【数据质量 → 规则集管理】页面创建规则集"ruleset_15695_str"，关联 sparkthrift2.x 数据源 test_db 库 quality_test_str 表，规则包名称"string强转包"
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数值表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0007 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0007 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+      5) 规则集「RuleSetB」包含 score >1 且 <10、category in 1,2,3 的且关系规则
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 新建任务，选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0007，导入规则集「RuleSetB」
+        expected: 规则列表展示取值范围、枚举范围和关系「且」
+      - action: 保存任务并立即执行
+        expected: 最新实例状态为「校验异常」，通过记录为 id=1、id=3
+      - action: 查看异常明细
+        expected: 异常记录为 id=2、id=4、id=5，异常原因分别包含范围或枚举条件
     tags:
-      - 数据质量
-      - 规则集管理
-      - string类型字段强转double验证
+      ["数据质量", "规则任务配置"]
   - case_id: C0008
-    automation:
-      spec_file: c0008-range-operator-required.spec.ts
-    title: 验证取值范围设置期望值已填写但操作符未选择时点击保存提示校验错误
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 逆向用例-表单校验】页面
-        expected: 已进入【数据质量 → 逆向用例-表单校验】页面，显示页面标题与主要操作区域
-      - action: |-
-          在规则集 Step 2 监控规则页面，当前规则配置表单中按顺序填写如下：
-          - 字段: score
-          - 取值范围行-期望值: 输入 5
-          - 取值范围行-操作符: 保持默认空选项（不选择任何操作符）
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 依次输入 1、2、3
-          - 取值范围行-且或关系: 选择【且】
-        expected: 各表单项可正常输入/选择，未出现错误提示提示
-      - action: 点击【保存】按钮
-        expected: 保存失败，页面在取值范围设置操作符位置展示红色校验错误提示「请选择操作符」，规则未被保存
+    title: 验证【数据质量】-【规则集管理】期望值已填但操作符未选时保存，提示校验错误
+    priority: P0
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已进入任意规则集编辑页 Step 2 监控规则
-      3) 已点击【新增规则】，统计函数已选择【取值范围&枚举范围】
-      4) 字段已选择 score
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数值表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0008 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0008 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+      5) 规则集「RuleSetE」包含 score >1、category in 1,2,3 的或关系规则
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 新建任务，选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0008，导入规则集「RuleSetE」
+        expected: 规则列表展示取值范围、枚举范围和关系「或」
+      - action: 保存任务并立即执行
+        expected: 最新实例状态为「校验异常」，通过记录数量为 4
+      - action: 查看异常明细
+        expected: 异常记录为 id=2，异常原因同时展示范围和枚举条件均未满足
     tags:
-      - 数据质量
-      - 规则集管理
-      - 逆向用例-表单校验
+      ["数据质量", "规则任务配置"]
   - case_id: C0009
-    automation:
-      spec_file: c0009-enum-in-value-required.spec.ts
-    title: 验证枚举值下拉框已选择in但值输入框为空时点击保存提示校验错误
+    title: 验证【数据质量】-【规则集管理】枚举值选择 in 但值输入框为空时保存，提示校验错误
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 逆向用例-表单校验】页面
-        expected: 已进入【数据质量 → 逆向用例-表单校验】页面，显示页面标题与主要操作区域
-      - action: |-
-          在规则集 Step 2 监控规则页面，当前规则配置表单中按顺序填写如下：
-          - 字段: score
-          - 取值范围行: 期望值输入 1，操作符选择 >
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 留空不输入任何值
-          - 取值范围行-且或关系: 选择【且】
-        expected: 各表单项可正常输入/选择，未出现错误提示提示
-      - action: 点击【保存】按钮
-        expected: 保存失败，页面在枚举值信息输入框位置展示红色校验错误提示「请输入枚举值」，规则未被保存
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已进入任意规则集编辑页 Step 2 监控规则
-      3) 已点击【新增规则】，统计函数已选择【取值范围&枚举范围】
-      4) 字段已选择 score
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0009 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0009 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+      5) 规则集「RuleSetH」包含强规则 score >1 和弱规则 category in 1,2,3
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 创建任务并导入规则集「RuleSetH」
+        expected: 规则列表展示 1 条强规则和 1 条弱规则
+      - action: 保存并立即执行
+        expected: 实例状态由强规则结果决定，规则详情分别展示两条规则的状态和异常数量
+      - action: 打开质量报告
+        expected: 报告展示强弱标识、规则名称、实际值和异常明细入口
     tags:
-      - 数据质量
-      - 规则集管理
-      - 逆向用例-表单校验
+      ["数据质量", "规则任务配置"]
   - case_id: C0010
-    automation:
-      spec_file: c0010-range-enum-relation-required.spec.ts
-    title: 验证取值范围和枚举值均已填写但关系未选择时点击保存提示校验错误
+    title: 验证【数据质量】-【规则集管理】范围与枚举均已填但关系未选时保存，提示校验错误
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 逆向用例-表单校验】页面
-        expected: 已进入【数据质量 → 逆向用例-表单校验】页面，显示页面标题与主要操作区域
-      - action: |-
-          在规则集 Step 2 监控规则页面，当前规则配置表单中按顺序填写如下：
-          - 字段: score
-          - 取值范围行: 期望值输入 1，操作符选择 >
-          - 枚举值行-枚举值类型: 选择 in
-          - 枚举值行-枚举值信息: 依次输入 1、2、3
-          - 取值范围行-且或关系: 保持默认空选项（不选择且/或）
-        expected: 各表单项可正常输入/选择，未出现错误提示提示
-      - action: 点击【保存】按钮
-        expected: 保存失败，页面在且或关系设置位置展示红色校验错误提示「请选择规则关系」，规则未被保存
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已进入任意规则集编辑页 Step 2 监控规则
-      3) 已点击【新增规则】，统计函数已选择【取值范围&枚举范围】
-      4) 字段已选择 score
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0010 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0010 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 新建任务，选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0010，添加 score >1 且 <10 规则，过滤条件填写 id <= 3
+        expected: 规则卡片展示范围条件和过滤条件 id <= 3
+      - action: 保存并立即执行任务
+        expected: 实例详情统计 id=1、id=2、id=3 三行，范围异常数量为 1
+      - action: 查看异常明细
+        expected: 明细唯一记录为 id=2，id=4 和 id=5 未进入本次统计
     tags:
-      - 数据质量
-      - 规则集管理
-      - 逆向用例-表单校验
+      ["数据质量", "规则任务配置"]
   - case_id: C0011
-    automation:
-      spec_file: c0011-range-or-enum-required.spec.ts
-    title: 验证取值范围和枚举值均未填写时点击保存提示至少填写一项
+    title: 验证【数据质量】-【规则集管理】范围与枚举均未填时保存，提示至少填写一项
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 逆向用例-表单校验】页面
-        expected: 已进入【数据质量 → 逆向用例-表单校验】页面，显示页面标题与主要操作区域
-      - action: |-
-          在规则集 Step 2 监控规则页面，当前规则配置表单中按顺序填写如下：
-          - 字段: score
-          - 取值范围行: 期望值和操作符均不填写，保持为空
-          - 枚举值行: 不填写，保持为空
-        expected: 各表单项可正常输入/选择，未出现错误提示提示
-      - action: 点击【保存】按钮
-        expected: 保存失败，页面展示红色校验错误提示「取值范围和枚举值至少填写一项」，规则未被保存
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已进入任意规则集编辑页 Step 2 监控规则
-      3) 已点击【新增规则】，统计函数已选择【取值范围&枚举范围】
-      4) 字段已选择 score
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建并写入规则表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0011 (id BIGINT, score BIGINT, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0011 SELECT id, id, CAST(id AS STRING) FROM range(1, 6);
+      5) 规则集「RuleSetI」已关联 ${DataSourceA}、${SchemaA}.test_table_15695_c0011，包含「range_pack」和「enum_pack」两个规则包
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 新建任务并导入规则集「RuleSetI」
+        expected: 监控规则区域展示 range_pack、enum_pack 两个规则包
+      - action: 保存任务并立即执行
+        expected: 最新实例包含两个规则包的执行结果，实例状态由强规则结果决定
+      - action: 查看任务详情
+        expected: 两个规则包分别展示规则数量、通过数量、异常数量和执行耗时
     tags:
-      - 数据质量
-      - 规则集管理
-      - 逆向用例-表单校验
+      ["数据质量", "规则任务配置"]
   - case_id: C0012
-    automation:
-      spec_file: c0012-edit-and-switch-relation.spec.ts
-    title: 验证在规则集中已保存的且关系规则编辑切换为或关系后保存成功
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则编辑-且或关系切换】页面
-        expected: 已进入【数据质量 → 规则编辑-且或关系切换】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 找到"ruleset_15695_and"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，找到已配置的取值范围&枚举范围规则，将且或关系从【且】切换为【或】单选按钮
-        expected: 且或关系单选按钮切换为「或」被选中
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: 规则保存成功，规则列表中且或关系列由「且」变更为「或」
+    title: 验证【数据质量】-【规则集管理】已保存且关系规则编辑切换为或关系，保存后回显或
+    priority: P1
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 规则集"ruleset_15695_and"已配置取值范围&枚举范围规则，当前关系为「且」
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建并写入规则表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0012 (id BIGINT, score BIGINT, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0012 SELECT id, id, CAST(id AS STRING) FROM range(1, 6);
+      5) 规则集「RuleSetA」已关联 ${DataSourceA}、${SchemaA}.test_table_15695_c0012，仅包含「range_pack」规则包
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 新建任务并导入规则集「RuleSetA」
+        expected: 监控规则区域仅展示 range_pack 规则包
+      - action: 保存并立即执行
+        expected: 最新实例仅包含 range_pack 结果，规则包数量为 1
+      - action: 查看质量报告
+        expected: 报告展示 range_pack 规则结果和执行耗时
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则编辑-且或关系切换
+      ["数据质量", "规则任务配置"]
   - case_id: C0013
-    automation:
-      spec_file: c0013-clone-range-enum-rule.spec.ts
-    title: 验证在规则集中取值范围&枚举范围规则支持克隆且克隆后配置内容与原规则一致
-    priority: P2
-    steps:
-      - action: 进入【数据质量 → 规则克隆与删除】页面
-        expected: 已进入【数据质量 → 规则克隆与删除】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 找到"ruleset_15695_and"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，找到取值范围&枚举范围规则区域右上角的【克隆】按钮，点击【克隆】
-        expected: |-
-          页面新增一条与原规则配置完全相同的规则区域，包含：
-          1) 字段显示 score
-          2) 取值范围显示 >1 且 <10
-          3) 枚举值显示 in '1,2,3'
-          4) 且或关系显示「且」
-          5) 强弱规则显示「强规则」
-      - action: 点击克隆出的规则区域右上角的【删除】按钮（垃圾桶图标），确认删除操作
-        expected: 克隆的规则被删除，页面恢复为仅一条取值范围&枚举范围规则
+    title: 验证【数据质量】-【规则集管理】克隆取值范围与枚举范围规则，克隆后配置与原规则一致
+    priority: P1
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 规则集"ruleset_15695_and"已配置至少一条取值范围&枚举范围规则（score>1且<10，in '1,2,3'，且关系，强规则）
+      1) 规则集「RuleSetF」已进入新增有效性规则表单
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 选择统计函数「取值范围&枚举范围」，不选择字段，点击【保存】
+        expected: 「字段」置红提示「请选择字段」，规则行未新增
+      - action: 选择字段 score，不填写范围和枚举值，点击【保存】
+        expected: 「取值范围或枚举值」置红提示「请至少配置一项」，规则行未新增
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则克隆与删除
+      ["数据质量", "规则集管理"]
   - case_id: C0014
-    automation:
-      spec_file: c0014-filtered-rule-save.spec.ts
-    title: 验证在规则集中配置过滤条件后规则保存成功
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 过滤条件配置验证】页面
-        expected: 已进入【数据质量 → 过滤条件配置验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: |-
-          找到"ruleset_15695_filter"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"过滤条件包"中点击【新增规则】，在统计函数下拉框中选择【取值范围&枚举范围】，按顺序填写如下：
-          - 字段: score
-          - 取值范围行: 期望值输入 1，操作符选择 >
-          - 取值范围行-过滤条件: 选项配置下拉框选择对应列，点击【点击配置】按钮进行过滤条件配置，设置 category in ('1','2','3')
-          - 枚举值行: 不填写
-          - 强弱规则: 强规则
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 点击【保存】按钮，再点击页面底部【保存】完成规则集保存
-        expected: 规则保存成功，规则列表中对应规则显示过滤条件已配置
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则新增、保存、回显结果与 sparkthrift2.x 场景一致。
+    title: 验证【数据质量】-【规则集管理】配置过滤条件后保存规则，规则列表新增记录
+    priority: P2
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
+      1) 规则集「RuleSetG」已进入新增有效性规则表单
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 选择字段 score，仅配置范围「>=0」
+        expected: 规则表单展示范围条件，且或关系控件不显示或不可用
+      - action: 保存并重新打开规则
+        expected: 规则列表仅展示范围条件，未生成关系字段
     tags:
-      - 数据质量
-      - 规则集管理
-      - 过滤条件配置验证
+      ["数据质量", "规则集管理"]
   - case_id: C0015
-    title: 验证执行含取值范围&枚举范围且关系规则的任务后质量报告展示正确
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → P0执行流程-且关系】页面
-        expected: 已进入【数据质量 → P0执行流程-且关系】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 在规则任务列表中点击任务 task_15695_and 对应行的【执行】按钮，等待任务状态变更为【执行成功】（最长等待 120 秒）
-        expected: 任务状态列显示「执行成功」
-      - action: 点击任务 task_15695_and 对应行的【质量报告】入口，在质量报告列表中找到规则名称为【取值范围&枚举范围】、字段为 score 的报告行，查看各列内容
-        expected: |-
-          质量报告中该规则行显示如下：
-          1) 规则类型列显示「有效性校验」
-          2) 规则名称列显示「取值范围&枚举范围」
-          3) 质检结果列显示「校验不通过」
-          4) 未通过原因列显示「不符合有效性规则」
-          5) 详情说明列显示「不符合规则"取值范围>1"且"枚举值in '1,2,3'"」
-          6) 操作列显示【查看详情】链接
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则任务创建、执行、结果展示与 sparkthrift2.x 场景一致。
+    title: 验证【数据质量】-【规则集管理】双数据源分别配置且关系规则，保存后类型与配置保留
+    priority: P1
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_and"并配置取值范围&枚举范围规则（score>1且<10，category in '1,2,3'，且关系，强规则），规则包名称"且关系校验包"
-      4) 已通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】创建任务"task_15695_and"，Step 1 关联 sparkthrift2.x 数据源 test_db.quality_test_num 表，Step 2 监控规则中通过【导入规则包】导入规则集"ruleset_15695_and"的"且关系校验包"，已完成 Step 3 调度属性并保存
+      1) 数据源「${DataSourceA}」类型为 SparkThrift2.x，数据源「${DataSourceB}」类型为 Doris3.x
+      2) 两个数据源均存在数据库和字段 score、category
+      3) 规则库包含「取值范围&枚举范围」内置规则
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 分别选择 ${DataSourceA}、${DataSourceB} 新建规则集，统计函数选择「取值范围&枚举范围」
+        expected: 两个数据源均展示范围、枚举值和关系配置项
+      - action: 保存两个规则集并查看规则详情
+        expected: 两个规则集均保留 score、category、关系和强弱设置，数据源类型列分别为 SparkThrift2.x、Doris3.x
     tags:
-      - 数据质量
-      - 规则任务管理
-      - P0执行流程-且关系
+      ["数据质量", "规则集管理"]
   - case_id: C0016
-    automation:
-      spec_file: c0016-or-rule-passed-task.spec.ts
-    title: 验证执行含取值范围&枚举范围或关系规则的任务后校验通过
+    title: 验证【数据质量】-【规则任务配置】或关系规则任务执行，生成 SQL 单次扫描表
     priority: P0
-    steps:
-      - action: 进入【数据质量 → P0执行流程-或关系】页面
-        expected: 已进入【数据质量 → P0执行流程-或关系】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 点击任务 task_15695_or 对应行的【执行】按钮，等待任务状态变更为【执行成功】（最长等待 120 秒），点击【质量报告】入口查看报告行
-        expected: |-
-          质量报告中该规则行显示如下：
-          1) 质检结果列显示「校验通过」
-          2) 详情说明列显示「符合规则"取值范围>1"或"枚举值in '1,2,3'"」
-          3) 操作列不显示【查看详情】链接（显示 -- 或为空）
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则任务创建、执行、结果展示与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_or"并配置取值范围&枚举范围规则（score>1，category in '1,2,3'，或关系，强规则），规则包名称"或关系校验包"
-      4) 已通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】创建任务"task_15695_or"，Step 1 关联同一 Doris 表，Step 2 通过【导入规则包】导入"ruleset_15695_or"的"或关系校验包"，已完成 Step 3 调度属性并保存
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0016 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0016 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+      5) 规则任务包含 score 范围规则和 category 枚举规则，两条规则过滤条件均为 id <= 3
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 打开该任务并点击【立即执行】
+        expected: 实例生成成功，两条规则均有结果
+      - action: 查看任务详情中的生成 SQL
+        expected: SQL 只扫描 ${SchemaA}.test_table_15695_c0016 一次，并在同一 SELECT 中计算两条规则
     tags:
-      - 数据质量
-      - 规则任务管理
-      - P0执行流程-或关系
+      ["数据质量", "规则任务配置"]
   - case_id: C0017
-    automation:
-      spec_file: c0017-weak-rule-report-marker.spec.ts
-    title: 验证弱规则标识在质量报告中展示正确
-    priority: P2
-    steps:
-      - action: 进入【数据质量 → 弱规则与校验失败查看日志】页面
-        expected: 已进入【数据质量 → 弱规则与校验失败查看日志】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 点击任务 task_15695_weak 对应行的【执行】按钮，等待任务状态变更为【执行成功】（最长等待 120 秒），点击【质量报告】入口查看规则行强弱规则标识
-        expected: |-
-          质量报告中该规则行显示如下：
-          1) 强弱规则列标识为「弱规则」
-          2) 整体任务质量评分不因该弱规则不通过而降级
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则任务创建、执行、结果展示与 sparkthrift2.x 场景一致。
+    title: 验证【数据质量】-【规则任务配置】双过滤条件规则任务执行，SQL 保留各规则过滤条件
+    priority: P1
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_weak"并配置取值范围&枚举范围规则（score>1，category in '1,2,3'，且关系，弱规则），规则包名称"弱规则校验包"
-      4) 已通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】创建任务"task_15695_weak"，Step 1 关联同一 Doris 表，Step 2 通过【导入规则包】导入"ruleset_15695_weak"的"弱规则校验包"，已完成 Step 3 调度属性并保存
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建表并插入 5 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0017 (id BIGINT, score DOUBLE, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0017 VALUES (1, 5.0, '2'), (2, 15.0, '4'), (3, 3.0, '1'), (4, -1.0, '3'), (5, 8.0, '5');
+      5) 规则任务包含 score 范围规则过滤 id <= 2，category 枚举规则过滤 id > 2
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 打开该任务并点击【立即执行】
+        expected: 实例生成成功，两条规则均有结果
+      - action: 查看任务详情中的生成 SQL
+        expected: SQL 保留 id <= 2 和 id > 2 两个过滤条件，规则结果编号与配置一致
     tags:
-      - 数据质量
-      - 规则任务管理
-      - 弱规则与校验失败查看日志
+      ["数据质量", "规则任务配置"]
   - case_id: C0018
-    automation:
-      spec_file: c0018-range-enum-failed-log.spec.ts
-    title: 验证取值范围&枚举范围规则执行失败时可查看日志
-    priority: P2
-    steps:
-      - action: 进入【数据质量 → 弱规则与校验失败查看日志】页面
-        expected: 已进入【数据质量 → 弱规则与校验失败查看日志】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 在规则任务列表中找到状态为【执行失败】且包含取值范围&枚举范围规则的任务，点击对应行【质量报告】入口，在报告列表中找到取值范围&枚举范围规则行，点击操作列【查看日志】链接
-        expected: 日志弹窗正常打开，显示任务执行失败的详细日志信息，包含失败时间戳、错误类型及错误详情
+    title: 验证【数据质量】-【数据质量报告】打开异常规则报告，明细标红且记录包含主键
+    priority: P1
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已有规则任务执行状态为【执行失败】，失败任务中包含取值范围&枚举范围规则
-      3) 可通过断开数据源连接或制造 SQL 执行错误来模拟执行失败
+      1) 规则任务「TaskC」已执行完成
+      2) 任务包含 score 范围与 category 枚举的且关系规则，最新实例存在 2 条异常记录
+    steps:
+      - action: 进入【数据质量 → 数据质量报告】页面
+        expected: 进入成功
+      - action: 打开任务「TaskC」最新报告
+        expected: 报告展示规则名称、规则类型、范围条件、枚举条件、关系、强弱和执行状态
+      - action: 点击异常规则【查看明细】
+        expected: 异常明细展示 2 条记录，字段 score、category 标红，记录包含主键 id
     tags:
-      - 数据质量
-      - 规则任务管理
-      - 弱规则与校验失败查看日志
+      ["数据质量", "数据质量报告"]
   - case_id: C0019
-    automation:
-      spec_file: c0019-range-enum-sampling.spec.ts
-    title: 验证结合抽样功能执行取值范围&枚举范围校验结果与预期记录一致
-    priority: P2
-    steps:
-      - action: 进入【数据质量 → 抽样场景验证】页面
-        expected: 已进入【数据质量 → 抽样场景验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 点击任务 task_15695_sample 对应行的【执行】按钮，等待任务状态变更为【执行成功】（最长等待 120 秒），点击【质量报告】入口查看报告行
-        expected: |-
-          质量报告中该规则行显示如下：
-          1) 质检结果列显示校验结果（通过或不通过取决于抽样到的数据）
-          2) 报告中参与校验的数据量约为总数据量的 50%（约5条）
-          3) 详情说明中规则描述与配置一致
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则任务创建、执行、结果展示与 sparkthrift2.x 场景一致。
+    title: 验证【数据质量】-【规则任务配置】编辑规则关系与范围后执行，结果使用新配置
+    priority: P1
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_sample;
-      CREATE TABLE test_db.quality_test_sample (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_sample
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5'
-      UNION ALL
-      SELECT 6, 7.0, '1'
-      UNION ALL
-      SELECT 7, 9.0, '2'
-      UNION ALL
-      SELECT 8, 2.0, '3'
-      UNION ALL
-      SELECT 9, 6.0, '1'
-      UNION ALL
-      SELECT 10, 4.0, '2';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_sample;
-      CREATE TABLE test_db.quality_test_sample (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_sample VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5'),
-        (6, 7.0, '1'),
-        (7, 9.0, '2'),
-        (8, 2.0, '3'),
-        (9, 6.0, '1'),
-        (10, 4.0, '2');
-
-      -- 说明：抽样校验场景使用 10 条样本数据验证结果统计
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_sample"并配置取值范围&枚举范围规则（score>1，category in '1,2,3'，且关系，强规则），规则包名称"抽样校验包"
-      4) 已通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】创建任务"task_15695_sample"，Step 1 关联 sparkthrift2.x 数据源 test_db.quality_test_sample 表，Step 2 通过【导入规则包】导入"ruleset_15695_sample"的"抽样校验包"，在任务配置中设置抽样比例为 50%，已完成 Step 3 调度属性并保存
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建并写入规则表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0019 (id BIGINT, score BIGINT, category STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0019 SELECT id, id, CAST(id AS STRING) FROM range(1, 6);
+      5) 规则任务「TaskB」已关联 ${DataSourceA}、${SchemaA}.test_table_15695_c0019，当前关系为「且」，范围为 >1，枚举为 1,2,3
+    steps:
+      - action: 进入【数据质量 → 规则任务配置】页面
+        expected: 进入成功
+      - action: 编辑任务「TaskB」，将关系改为「或」，范围改为 >=0，枚举改为 1,2,3,4，点击【保存】
+        expected: Toast提示:「保存成功」，任务详情回显或关系、>=0 和 1,2,3,4
+      - action: 点击【立即执行】并打开实例详情
+        expected: 实例规则结果使用或关系、>=0 和 1,2,3,4，未使用旧配置
     tags:
-      - 数据质量
-      - 规则任务管理
-      - 抽样场景验证
+      ["数据质量", "规则任务配置"]
   - case_id: C0020
-    automation:
-      spec_file: c0020-range-enum-partition.spec.ts
-    title: 验证对分区表指定分区执行取值范围&枚举范围校验结果与预期记录一致
+    title: 验证【数据质量】-【规则任务配置】分区表指定分区执行规则，结果仅含指定分区记录
     priority: P2
-    steps:
-      - action: 进入【数据质量 → 分区表场景验证】页面
-        expected: 已进入【数据质量 → 分区表场景验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 点击任务 task_15695_partition 对应行的【执行】按钮，等待任务状态变更为【执行成功】（最长等待 120 秒），点击【质量报告】入口查看报告行
-        expected: |-
-          质量报告中该规则行显示如下：
-          1) 质检结果列显示「校验不通过」
-          2) 仅 p20260401 分区数据参与校验（id=1 和 id=2）
-          3) 不通过记录为 id=2(score=15 不满足 >1 且 <10 范围)
-          4) p20260402 分区数据（id=3、id=4）未参与校验
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，规则任务创建、执行、结果展示与 sparkthrift2.x 场景一致。
     precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_partition;
-      CREATE TABLE test_db.quality_test_partition (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) PARTITIONED BY (dt STRING) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_partition PARTITION (dt='2026-04-01')
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4';
-      INSERT INTO TABLE test_db.quality_test_partition PARTITION (dt='2026-04-02')
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_partition;
-      CREATE TABLE test_db.quality_test_partition (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50),
-        dt DATE NOT NULL
-      ) PARTITION BY RANGE(dt) (
-        PARTITION p20260401 VALUES LESS THAN ('2026-04-02'),
-        PARTITION p20260402 VALUES LESS THAN ('2026-04-03')
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_partition VALUES
-        (1, 5.0, '2', '2026-04-01'),
-        (2, 15.0, '4', '2026-04-01'),
-        (3, 3.0, '1', '2026-04-02'),
-        (4, -1.0, '3', '2026-04-02');
-
-      -- 说明：分区场景使用 dt=2026-04-01 与 dt=2026-04-02 两个分区验证执行结果
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_partition"并配置取值范围&枚举范围规则（score>1，category in '1,2,3'，且关系，强规则），规则包名称"分区校验包"
-      4) 已通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】创建任务"task_15695_partition"，Step 1 关联 sparkthrift2.x 数据源 test_db.quality_test_partition 表并指定分区为 p20260401，Step 2 通过【导入规则包】导入"ruleset_15695_partition"的"分区校验包"，已完成 Step 3 调度属性并保存
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 分区表场景验证
-  - case_id: C0021
-    automation:
-      spec_file: c0021-range-enum-built-in-rule.spec.ts
-    title: 验证规则库中新增取值范围&枚举范围内置规则展示正确
-    priority: P1
+      1) 规则集「RuleSetC」已被任务「TaskA」引用
+      2) 任务「TaskA」当前状态为「停用」
+      3) 授权数据源：${DataSourceA}
+      4) 数据源类型：SparkThrift2.x
+      5) 存在数据库：${SchemaA}
+      6) 创建分区表并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15695_c0020;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15695_c0020 (id BIGINT, score INT, category STRING) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15695_c0020 PARTITION (dt)
+         SELECT id, id, CONCAT('C', CAST(id AS STRING)), date_format(date_sub(current_date(), 1), 'yyyy-MM-dd') FROM range(1, 3)
+         UNION ALL
+         SELECT id + 2, id + 2, CONCAT('C', CAST(id + 2 AS STRING)), date_format(current_date(), 'yyyy-MM-dd') FROM range(1, 3);
     steps:
-      - action: 进入【数据质量 → 规则库展示验证】页面
-        expected: 已进入【数据质量 → 规则库展示验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则库配置】页面，等待规则库配置列表加载完成
-        expected: 规则库配置页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 点击页面顶部【内置规则】Tab 页签，在规则分类筛选下拉框中勾选【有效性校验】，点击【确定】按钮，等待列表刷新完成
-        expected: 列表按筛选条件刷新完成，结果与预期记录一致展示
-      - action: 在规则列表中查找规则名称为【取值范围&枚举范围】的规则条目，查看该行各列内容
-        expected: |-
-          规则库列表中存在规则名称为【取值范围&枚举范围】的条目，各列显示如下：
-          1) 规则解释列显示「取值范围和枚举范围的联合校验」
-          2) 规则分类列显示「有效性校验」
-          3) 关联范围列显示「字段」
-          4) 规则描述列显示「校验字段值取值范围和枚举范围是否符合要求，支持配置规则且或关系」
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 账号具有数据质量模块查看权限
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 删除规则集「RuleSetC」并在确认弹窗点击【确定】
+        expected: Toast提示:「删除成功」，规则集列表不再展示「RuleSetC」
+      - action: 进入【数据质量 → 规则任务配置】页面，打开任务「TaskA」
+        expected: 任务详情不再展示已删除规则集的规则包，任务状态保持「停用」
     tags:
-      - 数据质量
-      - 规则库配置
-      - 规则库展示验证
-  - case_id: C0022
-    automation:
-      spec_file: c0022-range-enum-failed-details.spec.ts
-    title: 验证取值范围&枚举范围规则校验不通过时可查看明细且校验字段标红展示
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 校验不通过时明细查看与下载】页面
-        expected: 已进入【数据质量 → 校验不通过时明细查看与下载】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，等待列表加载完成
-        expected: 校验结果查询页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 在列表中找到任务 task_15695_and 对应的规则【取值范围&枚举范围】行，点击操作列【查看详情】链接
-        expected: 明细数据页面加载完成且显示目标控件打开
-      - action: 在明细数据页面中查看数据列表的字段展示情况和记录内容
-        expected: |-
-          明细数据展示如下：
-          1) 数据列表保留全部字段（id、score、category 均显示）
-          2) 校验字段 score 以标红方式展示（红色背景或红色字体）
-          3) 列表中仅包含不符合规则的记录（id=2、id=4、id=5），共 3 条
-          4) 符合规则的记录（id=1、id=3）不出现在明细中
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，校验结果列表、实例详情与 sparkthrift2.x 场景一致。
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 数据表 test_db.quality_test_num 不符合规则的记录为 id=2(score=15)、id=4(score=-1)、id=5(category=5)
-      4) 质量报告中取值范围&枚举范围规则行操作列显示【查看详情】链接
-    tags:
-      - 数据质量
-      - 校验结果查询
-      - 校验不通过时明细查看与下载
-  - case_id: C0023
-    automation:
-      spec_file: c0023-range-enum-failed-download.spec.ts
-    title: 验证取值范围&枚举范围规则校验不通过时下载明细数据中校验字段标红展示
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 校验不通过时明细查看与下载】页面
-        expected: 已进入【数据质量 → 校验不通过时明细查看与下载】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，找到任务 task_15695_and 对应的取值范围&枚举范围规则明细页
-        expected: 明细数据页面加载完成且显示目标控件打开，数据加载完成
-      - action: 点击【下载明细】按钮，等待文件下载完成
-        expected: 浏览器触发文件下载
-      - action: 打开下载的明细文件（Excel 格式），查看 score 字段列的单元格格式及颜色标注
-        expected: |-
-          下载文件展示如下：
-          1) 文件可正常打开，包含所有字段列（id、score、category）
-          2) score 字段列中不符合规则记录对应单元格以红色背景或红色字体标红展示
-          3) 文件中记录数为 3 条（id=2、id=4、id=5），与页面明细列表数量一致
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 任务 task_15695_and 明细数据页面已打开，数据列表已显示不通过记录（id=2、id=4、id=5）
-    tags:
-      - 数据质量
-      - 校验结果查询
-      - 校验不通过时明细查看与下载
-  - case_id: C0024
-    automation:
-      spec_file: c0024-range-enum-passed-no-details.spec.ts
-    title: 验证取值范围&枚举范围规则校验通过时不记录明细数据且操作列不显示查看详情
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 校验不通过时明细查看与下载】页面
-        expected: 已进入【数据质量 → 校验不通过时明细查看与下载】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，等待列表加载完成
-        expected: 校验结果查询页面加载完成且显示目标控件打开，列表加载完成，无报错
-      - action: 在列表中找到任务 task_15695_or 对应的规则【取值范围&枚举范围】行，查看质检结果列、详情说明列和操作列内容
-        expected: |-
-          质量报告中该规则行显示如下：
-          1) 质检结果列显示「校验通过」
-          2) 详情说明列显示「符合规则"取值范围>1"或"枚举值in '1,2,3'"」
-          3) 操作列不显示【查看详情】链接（显示 --），明细数据不可访问
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 规则任务 task_15695_or 已执行完成，或关系下全部记录均满足，校验结果为通过
-    tags:
-      - 数据质量
-      - 校验结果查询
-      - 校验不通过时明细查看与下载
-  - case_id: C0025
-    automation:
-      spec_file: c0025-enum-in-passed-report.spec.ts
-    title: 验证仅配置枚举值in校验通过时质量报告详情说明使用枚举值独立说明模板
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 枚举值单独使用时质量报告说明】页面
-        expected: 已进入【数据质量 → 枚举值单独使用时质量报告说明】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待报告列表加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成，无报错
-      - action: 找到任务 task_15695_enum_pass 对应的枚举值规则行，查看详情说明列内容
-        expected: 详情说明列显示「字段枚举值不存在约定范围外的值，符合规则"枚举值in '1,2,3'"」，不显示取值范围对应说明
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，质量报告结果与详情展示与 sparkthrift2.x 场景一致。
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_enum_pass;
-      CREATE TABLE test_db.quality_test_enum_pass (
-        id INT,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_enum_pass
-      SELECT 1, '1'
-      UNION ALL
-      SELECT 2, '2'
-      UNION ALL
-      SELECT 3, '3';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_enum_pass;
-      CREATE TABLE test_db.quality_test_enum_pass (
-        id INT NOT NULL,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_enum_pass VALUES (1, '1'), (2, '2'), (3, '3');
-
-      -- 说明：category 全量命中枚举值 in 1,2,3，用于验证通过态报告表现
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_enum_pass"并配置仅枚举值规则（category in '1,2,3'，强规则），规则包名称"枚举通过包"
-      4) 已通过【数据质量 → 规则任务管理】创建任务"task_15695_enum_pass"，通过【导入规则包】导入"ruleset_15695_enum_pass"的"枚举通过包"，已执行完成且校验结果为通过
-    tags:
-      - 数据质量
-      - 数据质量报告
-      - 枚举值单独使用时质量报告说明
-  - case_id: C0026
-    automation:
-      spec_file: c0026-enum-in-failed-report.spec.ts
-    title: 验证仅配置枚举值in校验不通过时质量报告详情说明包含越界值数量统计
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 枚举值单独使用时质量报告说明】页面
-        expected: 已进入【数据质量 → 枚举值单独使用时质量报告说明】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待报告列表加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成，无报错
-      - action: 找到任务 task_15695_enum_fail 对应的枚举值规则行，查看详情说明列内容
-        expected: 详情说明列显示「字段枚举值存在约定范围外的值，约定范围外的值的数量总计为2个，不符合规则"枚举值in '1,2,3'"」，操作列显示【查看详情】链接
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，质量报告结果与详情展示与 sparkthrift2.x 场景一致。
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_enum_fail"并配置仅枚举值规则（category in '1,2,3'，强规则），规则包名称"枚举失败包"
-      4) 已通过【数据质量 → 规则任务管理】创建任务"task_15695_enum_fail"，通过【导入规则包】导入"ruleset_15695_enum_fail"的"枚举失败包"，已执行完成且校验结果为不通过
-    tags:
-      - 数据质量
-      - 数据质量报告
-      - 枚举值单独使用时质量报告说明
-  - case_id: C0027
-    automation:
-      spec_file: c0027-enum-not-in-failed-report.spec.ts
-    title: 验证仅配置枚举值not in校验不通过时质量报告详情说明展示not in规则描述
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 枚举值单独使用时质量报告说明】页面
-        expected: 已进入【数据质量 → 枚举值单独使用时质量报告说明】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待报告列表加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成，无报错
-      - action: 找到任务 task_15695_enum_notin_fail 对应的枚举值规则行，查看详情说明列内容
-        expected: 详情说明列中规则描述部分显示「枚举值not in '4,5'」，约定范围外的值数量统计准确，操作列显示【查看详情】链接
-      - action: 切换至 doris3.x 数据源，按相同表、规则包和配置重复以上步骤。
-        expected: 切换至 doris3.x 数据源重复以上步骤后，质量报告结果与详情展示与 sparkthrift2.x 场景一致。
-    precondition: |-
-      1) 使用 admin 账号登录数据资产平台
-      2) 已分别在 SparkThrift2.x 与 Doris3.x 数据源中配置同名数据表及数据：
-      SparkThrift2.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT,
-        score DOUBLE,
-        category STRING
-      ) STORED AS PARQUET;
-      INSERT INTO TABLE test_db.quality_test_num
-      SELECT 1, 5.0, '2'
-      UNION ALL
-      SELECT 2, 15.0, '4'
-      UNION ALL
-      SELECT 3, 3.0, '1'
-      UNION ALL
-      SELECT 4, -1.0, '3'
-      UNION ALL
-      SELECT 5, 8.0, '5';
-
-      Doris3.x 数据源建表及数据配置 SQL：
-      DROP TABLE IF EXISTS test_db.quality_test_num;
-      CREATE TABLE test_db.quality_test_num (
-        id INT NOT NULL,
-        score DOUBLE,
-        category VARCHAR(50)
-      ) DISTRIBUTED BY HASH(id) BUCKETS 3 PROPERTIES("replication_num"="1");
-      INSERT INTO test_db.quality_test_num VALUES
-        (1, 5.0, '2'),
-        (2, 15.0, '4'),
-        (3, 3.0, '1'),
-        (4, -1.0, '3'),
-        (5, 8.0, '5');
-
-      -- 说明：score 字段期望 >1 且 <10；category 枚举值期望 in '1,2,3'
-      -- 符合且关系（两者均满足）的记录：id=1(score=5,category=2)、id=3(score=3,category=1)
-      -- 不符合的记录：id=2(score=15越界)、id=4(score=-1越界)、id=5(category=5不在枚举)
-      3) 已通过【数据质量 → 规则集管理】创建规则集"ruleset_15695_enum_notin"并配置仅枚举值规则（category not in '4,5'，强规则），规则包名称"notin失败包"
-      4) 已通过【数据质量 → 规则任务管理】创建任务"task_15695_enum_notin_fail"，通过【导入规则包】导入"ruleset_15695_enum_notin"的"notin失败包"，已执行完成且校验结果为不通过
-    tags:
-      - 数据质量
-      - 数据质量报告
-      - 枚举值单独使用时质量报告说明
+      ["数据质量", "规则集管理"]
