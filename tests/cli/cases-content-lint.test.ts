@@ -634,6 +634,37 @@ INSERT INTO legacy_table VALUES (1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6,
     expect(lintCaseContent(doc(testCase({ precondition: rangeSql })), config)).toEqual([]);
   });
 
+  it("counts only top-level VALUES row tuples, ignoring function arguments and quoted parens", () => {
+    const oneRowWithFunctions = `1) 建表语句：
+   CREATE TABLE \${SchemaA}.test_table_16178_c0001 (id BIGINT);
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 VALUES
+     (1, coalesce(null, 10), upper('a(b)c'), current_date());
+   SELECT * FROM \${SchemaA}.test_table_16178_c0001;`;
+    expect(
+      lintCaseContent(doc(testCase({ precondition: oneRowWithFunctions })), config).map(
+        (item) => item.rule,
+      ),
+    ).not.toContain("case_bulk_rows");
+
+    const sixRowsWithFunctions = `1) 建表语句：
+   CREATE TABLE \${SchemaA}.test_table_16178_c0001 (id BIGINT);
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 VALUES
+     (1, current_date()),
+     (2, current_date()),
+     (3, current_date()),
+     (4, current_date()),
+     (5, current_date()),
+     (6, current_date());`;
+    const withFunctions = lintCaseContent(
+      doc(testCase({ precondition: sixRowsWithFunctions })),
+      config,
+    );
+    expect(withFunctions.map((item) => item.rule)).toContain("case_bulk_rows");
+    expect(withFunctions.find((item) => item.rule === "case_bulk_rows")?.message).toContain(
+      "6 行",
+    );
+  });
+
   it("accepts a complete shell SQL generator but rejects scripts that execute external systems", () => {
     const generator = `1) 授权数据源：\${DataSourceA}
 2) 数据源类型：SparkThrift2.x

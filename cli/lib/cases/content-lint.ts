@@ -17,7 +17,6 @@ export interface CasesLintConfig {
   datasource_types: string[];
   table_roles: string[];
   empty_table_markers: string[];
-  title_condition_disallowed: string[];
   environment_placeholders: {
     project: string;
     datasource: string;
@@ -110,7 +109,6 @@ export function loadCasesLintConfig(repoRoot: string): CasesLintConfig {
     !strings(value.datasource_types) ||
     !strings(value.table_roles) ||
     !strings(value.empty_table_markers) ||
-    !strings(value.title_condition_disallowed) ||
     !stringRecord(value.environment_placeholders) ||
     !(["project", "datasource", "schema"] as const).every(
       (key) => typeof value.environment_placeholders?.[key] === "string",
@@ -381,10 +379,46 @@ function validateTableNames(
   return violations;
 }
 
+/** 统计 INSERT 中 VALUES 顶层 row tuple 数量：跳过字符串/注释内的括号与嵌套函数参数。 */
 function countValuesRows(text: string): number {
   let maximum = 0;
   for (const match of text.matchAll(/\bINSERT\s+INTO[\s\S]*?\bVALUES\b([\s\S]*?);/gi)) {
-    const rows = [...(match[1] ?? "").matchAll(/\([^()]*\)/g)].length;
+    const body = match[1] ?? "";
+    let depth = 0;
+    let rows = 0;
+    let quote: string | undefined;
+    let inLineComment = false;
+    for (let index = 0; index < body.length; index += 1) {
+      const char = body[index] ?? "";
+      const next = body[index + 1] ?? "";
+      if (inLineComment) {
+        if (char === "\n") inLineComment = false;
+        continue;
+      }
+      if (quote) {
+        if (char === "\\") {
+          index += 1;
+          continue;
+        }
+        if (char === quote) quote = undefined;
+        continue;
+      }
+      if (char === "-" && next === "-") {
+        inLineComment = true;
+        index += 1;
+        continue;
+      }
+      if (char === "'" || char === '"' || char === "`") {
+        quote = char;
+        continue;
+      }
+      if (char === "(") {
+        if (depth === 0) rows += 1;
+        depth += 1;
+        continue;
+      }
+      if (char === ")") depth = Math.max(0, depth - 1);
+    }
     maximum = Math.max(maximum, rows);
   }
   return maximum;
