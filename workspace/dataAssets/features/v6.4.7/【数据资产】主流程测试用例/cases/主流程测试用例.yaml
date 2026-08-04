@@ -813,7 +813,14 @@ cases:
     steps:
       - action: 进入【数据资产 → 规则任务配置】页面
         expected: 进入成功
-      - action: 点击【新建规则集】，监控对象选择 ${SchemaA}.test_table_none_c0030 并点击【下一步】
+      - action: |-
+          点击【新建规则集】，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_none_c0030
+          规则集描述：空
+          点击【下一步】
         expected: 进入规则配置页面
       - action: 下载规则模板，将前置样例 SQL 填入模板并上传
         expected: 上传成功，规则导入正确

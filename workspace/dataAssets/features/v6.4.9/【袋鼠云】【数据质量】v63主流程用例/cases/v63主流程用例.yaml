@@ -357,7 +357,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务配置】页面
         expected: 进入成功
-      - action: 点击【新建规则集】，选择 ${DataSourceC}、${SchemaC}、test_table_none_c0016，新增RuleB等于 3 的规则
+      - action: |-
+          点击【新建规则集】，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceC}
+          * 选择数据库：${SchemaC}
+          * 选择数据表：test_table_none_c0016
+          规则集描述：空
+          新增 RuleB 等于 3 的规则
         expected: 规则配置展示RuleB统计函数和期望值 3
       - action: 点击【保存】并【立即执行】
         expected: Toast提示:「保存成功」，最新实例状态为「运行完成」
