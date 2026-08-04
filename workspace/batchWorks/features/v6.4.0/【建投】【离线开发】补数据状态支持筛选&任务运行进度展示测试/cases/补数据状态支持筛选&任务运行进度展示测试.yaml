@@ -7,293 +7,245 @@ meta:
     - 补数据状态支持筛选&任务运行进度展示测试.xmind
 cases:
   - case_id: C0001
-    title: 验证「状态」筛选项显示&交互正确
+    title: 验证【周期任务】-【补数据实例】打开状态筛选面板，五个选项与重置确定按钮展示正确
     priority: P0
+    precondition: |-
+      1) 补数据实例列表至少存在 1 条记录
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入【运维中心-周期任务-补数据实例】页面, 点击状态旁的筛选icon, 检查筛选内容
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 点击「状态」列的筛选图标
         expected: |-
-          1) 支持等待运行、运行中、成功、取消、失败5种筛选状态
-          2) 重置和确定两个按钮
-          3) 重置默认置灰, 勾选任一状态后可点击重置按钮
-      - action: 选择状态筛选并点击【确定】，刷新页面
-        expected: 筛选条件清空
-      - action: 选择状态筛选，点击【重置】按钮
-        expected: 清除所有状态筛选，显示全部数据
-    tags:
-      - 运维中心-周期任务-补数据实例-
+          1) 展示「等待运行」「运行中」「成功」「取消」「失败」五个选项
+          2) 展示「重置」「确定」按钮
+          3) 未勾选状态时「重置」按钮禁用，勾选任一状态后「重置」按钮启用
+      - action: 勾选「成功」并点击「确定」，随后刷新页面
+        expected: 页面刷新后状态筛选条件清空，列表恢复展示全部记录
+      - action: 勾选「失败」后点击「重置」
+        expected: 五个状态均未勾选，列表恢复展示全部记录
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0002
-    title: 验证补数据实例状态校验(成功)
+    title: 验证【周期任务】-【补数据实例】批量补数据全部成功，批次状态依次为等待运行、运行中、成功
     priority: P0
     precondition: |-
-      1) 在【数据开发】中新建 3 个 MySQL 任务：
-      task01：SELECT sleep(10);
-      task02：SELECT sleep(20);
-      task03：SELECT sleep(30);
-
-      2) 保存并提交上述任务。
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：MySQL
+      3) 存在已提交至运维中心的日调度周期任务 TaskL，任务SQL为 SELECT SLEEP(10);
+      4) 存在已提交至运维中心的日调度周期任务 TaskD，任务SQL为 SELECT SLEEP(20);
+      5) 存在已提交至运维中心的日调度周期任务 TaskE，任务SQL为 SELECT SLEEP(30);
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入 【运维中心 → 周期任务 → 周期任务管理】 页面，勾选 task01、task02、task03，点击 补数据 按钮
-        expected: 右侧弹出「批量任务补数据」页面
-      - action: 在「批量任务补数据」弹窗中保持默认选项，点击 确定. 在补数据实例页面找到刚提交的 ${补数据实例} 记录，进入其详情页查看 3 个任务实例的状态
-        expected: ""
-      - action: |-
-          1) 确保 3 个任务实例的状态均为 等待运行。
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例状态为「等待运行」
-      - action: |-
-          1) 等待 3 个任务实例中至少有 1 个任务实例状态变为 运行中（其余状态任意）。
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例的状态为「运行中」
-      - action: |-
-          1) 等待 3 个任务实例均为 成功 状态。
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例的状态为「成功」
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 前往【运维中心 → 周期任务 → 周期任务管理】，勾选 TaskL、TaskD、TaskE 并对当日业务日期执行批量补数据
+        expected: 补数据实例列表新增包含3个任务实例的批次记录
+      - action: 在3个任务实例均为「等待运行」时查看批次状态
+        expected: 补数据批次状态为「等待运行」
+      - action: 在至少1个任务实例为「运行中」时查看批次状态
+        expected: 补数据批次状态为「运行中」
+      - action: 在3个任务实例均为「成功」时查看批次状态
+        expected: 补数据批次状态为「成功」
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0003
-    title: 验证补数据实例状态校验(失败)
+    title: 验证【周期任务】-【补数据实例】批量补数据含失败任务，批次状态依次为等待运行、运行中、失败
     priority: P1
     precondition: |-
-      1) 在【数据开发】中新建 3 个 MySQL 任务：
-      task04：SELECT sleep(10);
-      task05：SELECT sleep(20);
-      task06：SELECT sleep(30); 1 select;
-
-      2) 保存并提交上述任务。
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：MySQL
+      3) 存在已提交至运维中心的日调度周期任务 TaskJ，任务SQL为 SELECT SLEEP(10);
+      4) 存在已提交至运维中心的日调度周期任务 TaskC，任务SQL为 SELECT SLEEP(20);
+      5) 存在已提交至运维中心的日调度周期任务 TaskK，任务SQL为 SELECT missing_column FROM missing_table;
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入 【运维中心 → 周期任务 → 周期任务管理】 页面，勾选 task04、task05、task06，点击 补数据 按钮
-        expected: 右侧弹出「批量任务补数据」页面
-      - action: 在「批量任务补数据」弹窗中保持默认选项，点击 确定. 在补数据实例页面找到刚提交的 ${补数据实例} 记录，进入其详情页查看 3 个任务实例的状态
-        expected: ""
-      - action: |-
-          1) 确保 3 个任务实例的状态均为 等待运行。
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例状态为「等待运行」
-      - action: |-
-          1) 等待 3 个任务实例中至少有 1 个任务实例状态变为 运行中（其余状态任意）。
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例的状态为「运行中」
-      - action: |-
-          1) 等待task04、task05状态变为成功；task06状态变为失败。
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例的状态为「失败」
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 前往【运维中心 → 周期任务 → 周期任务管理】，勾选 TaskJ、TaskC、TaskK 并对当日业务日期执行批量补数据
+        expected: 补数据实例列表新增包含3个任务实例的批次记录
+      - action: 在3个任务实例均为「等待运行」时查看批次状态
+        expected: 补数据批次状态为「等待运行」
+      - action: 在至少1个任务实例为「运行中」时查看批次状态
+        expected: 补数据批次状态为「运行中」
+      - action: 在 TaskJ、TaskC 为「成功」且 TaskK 为「失败」时查看批次状态
+        expected: 补数据批次状态为「失败」
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0004
-    title: 验证补数据实例状态校验(取消)
+    title: 验证【周期任务】-【补数据实例】批量补数据取消部分实例后，批次状态为取消
     priority: P1
     precondition: |-
-      1) 在【数据开发】中新建 3 个 GP 任务：
-      task07：
-      SELECT pg_sleep(10);
-
-      task08：
-      SELECT pg_sleep(20);
-
-      task09：
-      SELECT pg_sleep(30);
-
-
-      2) 保存并提交上述任务。
-      ​
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Greenplum
+      3) 存在已提交至运维中心的日调度周期任务 TaskI，任务SQL为 SELECT pg_sleep(30);
+      4) 存在已提交至运维中心的日调度周期任务 TaskA，任务SQL为 SELECT pg_sleep(60);
+      5) 存在已提交至运维中心的日调度周期任务 TaskB，任务SQL为 SELECT pg_sleep(90);
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入 【运维中心 → 周期任务 → 周期任务管理】 页面，勾选 task07、task08、task09，点击 补数据 按钮
-        expected: 右侧弹出「批量任务补数据」页面
-      - action: 在「批量任务补数据」弹窗中保持默认选项，点击 确定. 在补数据实例页面找到刚提交的 ${补数据实例} 记录，进入其详情页查看 3 个任务实例的状态
-        expected: |-
-          1) 3 个任务实例的状态均为 等待运行
-          2) 补数据实例状态为「等待运行」
-      - action: |-
-          1) 确保task07任务实例的状态为运行中, task08手动取消, task09成功
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例的状态为「运行中」
-      - action: |-
-          1) 确保task08任务实例的状态为取消, task07和task09任务已结束(成功或失败)
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例的状态为「取消」
-      - action: |-
-          1) 确保 3个任务实例的状态均取消(杀死全部实例)
-          2) 返回「补数据实例」页面查看该补数据实例的状态。
-        expected: 补数据实例状态为 「取消」
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 前往【运维中心 → 周期任务 → 周期任务管理】，勾选 TaskI、TaskA、TaskB 并对当日业务日期执行批量补数据
+        expected: 补数据实例列表新增包含3个任务实例的批次记录
+      - action: 在 TaskI 为「运行中」时取消 TaskA
+        expected: TaskA 状态变为「取消」，批次状态保持「运行中」
+      - action: 在 TaskI、TaskB 均结束且批次内不存在「等待运行」「运行中」「失败」实例时查看批次状态
+        expected: 补数据批次状态为「取消」
+      - action: 新建相同任务范围的补数据批次并点击「取消全部」
+        expected: 3个任务实例和补数据批次的状态均为「取消」
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0005
-    title: 验证「状态」筛选功能正确(单选场景)
+    title: 验证【周期任务】-【补数据实例】单选状态筛选，列表仅展示对应状态的实例
     priority: P0
     precondition: |-
-      已有不同状态的补数据实例（运行中、成功、取消、失败、等待运行）。
-
-      任务和实例状态关联关系：
-      1. 等待运行：所有实例状态均为等待运行，则补数据实例的状态为等待运行。
-
-      2. 运行中：有运行中状态的实例，则补数据实例的状态为运行中。
-
-      3. 失败：没有等待中、运行中状态的实例，只要有一个失败状态实例，则补数据实例的状态即为失败。
-
-      4. 成功：所有实例的状态均为成功，则补数据实例的状态即为成功。
-
-      5. 取消：补数据实例存在手动取消或自动取消，任务变为取消状态
+      1) 补数据实例列表存在 supplement_waiting、supplement_running、supplement_success、supplement_cancel、supplement_failed，状态依次为「等待运行」「运行中」「成功」「取消」「失败」
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入【运维中心-周期任务-补数据实例】页面, 点击状态筛选框，仅勾选「运行中」→ 确定
-        expected: 仅显示状态为运行中的记录
-      - action: 点击状态筛选框，仅勾选「成功」→ 确定
-        expected: 仅显示状态为成功的记录
-      - action: 点击状态筛选框，仅勾选「取消」→ 确定
-        expected: 仅显示状态为取消的记录
-      - action: 点击状态筛选框，仅勾选「失败」→ 确定
-        expected: 仅显示状态为失败的记录
-      - action: 点击状态筛选框，仅勾选「等待运行」→ 确定
-        expected: 仅显示状态为等待运行的记录
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 仅勾选「等待运行」并点击「确定」
+        expected: 仅展示 supplement_waiting
+      - action: 仅勾选「运行中」并点击「确定」
+        expected: 仅展示 supplement_running
+      - action: 仅勾选「成功」并点击「确定」
+        expected: 仅展示 supplement_success
+      - action: 仅勾选「取消」并点击「确定」
+        expected: 仅展示 supplement_cancel
+      - action: 仅勾选「失败」并点击「确定」
+        expected: 仅展示 supplement_failed
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0006
-    title: 验证「状态」筛选功能正确(多选场景)
+    title: 验证【周期任务】-【补数据实例】多选状态筛选，列表仅展示勾选状态的实例
     priority: P1
     precondition: |-
-      已有不同状态的补数据实例（运行中、成功、取消、失败、等待运行）。
-
-      任务和实例状态关联关系：
-      1. 等待运行：所有实例状态均为等待运行，则补数据实例的状态为等待运行。
-
-      2. 运行中：有运行中状态的实例，则补数据实例的状态为运行中。
-
-      3. 失败：没有等待中、运行中状态的实例，只要有一个失败状态实例，则补数据实例的状态即为失败。
-
-      4. 成功：所有实例的状态均为成功，则补数据实例的状态即为成功。
-
-      5. 取消：补数据实例存在手动取消或自动取消，任务变为取消状态
+      1) 补数据实例列表存在 supplement_waiting、supplement_running、supplement_success、supplement_cancel、supplement_failed，状态依次为「等待运行」「运行中」「成功」「取消」「失败」
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入【运维中心-周期任务-补数据实例】页面, 点击状态筛选框，仅勾选「运行中 + 成功」→ 确定
-        expected: 显示状态为运行中或成功的记录
-      - action: 点击状态筛选框，仅勾选「失败 + 成功」→ 确定
-        expected: 显示状态为失败或成功的记录
-      - action: 点击状态筛选框，仅勾选「运行中 + 取消 + 失败」→ 确定
-        expected: 显示状态为运行中、取消、失败的记录
-      - action: 点击状态筛选框，仅勾选「等待运行 + 成功」→ 确定
-        expected: 显示状态为等待运行或成功的记录
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 勾选「运行中」「成功」并点击「确定」
+        expected: 仅展示 supplement_running、supplement_success
+      - action: 勾选「失败」「成功」并点击「确定」
+        expected: 仅展示 supplement_failed、supplement_success
+      - action: 勾选「运行中」「取消」「失败」并点击「确定」
+        expected: 仅展示 supplement_running、supplement_cancel、supplement_failed
+      - action: 勾选「等待运行」「成功」并点击「确定」
+        expected: 仅展示 supplement_waiting、supplement_success
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0007
-    title: 验证「状态」筛选功能正确(全选 / 全不选)
+    title: 验证【周期任务】-【补数据实例】全选或全不选状态筛选，列表展示全部实例
     priority: P1
     precondition: |-
-      已有不同状态的补数据实例（运行中、成功、取消、失败、等待运行）。
-
-      任务和实例状态关联关系：
-      1. 等待运行：所有实例状态均为等待运行，则补数据实例的状态为等待运行。
-
-      2. 运行中：有运行中状态的实例，则补数据实例的状态为运行中。
-
-      3. 失败：没有等待中、运行中状态的实例，只要有一个失败状态实例，则补数据实例的状态即为失败。
-
-      4. 成功：所有实例的状态均为成功，则补数据实例的状态即为成功。
-
-      5. 取消：补数据实例存在手动取消或自动取消，任务变为取消状态
+      1) 补数据实例列表存在 supplement_waiting、supplement_running、supplement_success、supplement_cancel、supplement_failed，状态依次为「等待运行」「运行中」「成功」「取消」「失败」
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入【运维中心-周期任务-补数据实例】页面, 点击状态筛选框，勾选全部状态（全选）→ 确定
-        expected: 显示所有补数据实例
-      - action: 点击状态筛选框，全部状态取消勾选（全不选）→ 确定
-        expected: 显示所有补数据实例
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 勾选五个状态并点击「确定」
+        expected: 列表展示 supplement_waiting、supplement_running、supplement_success、supplement_cancel、supplement_failed
+      - action: 取消勾选五个状态并点击「确定」
+        expected: 列表展示 supplement_waiting、supplement_running、supplement_success、supplement_cancel、supplement_failed
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0008
-    title: 验证「状态」筛选功能正确(2 条件筛选)
+    title: 验证【周期任务】-【补数据实例】状态与任务名称、业务日期、执行人组合筛选，列表仅展示符合条件实例
     priority: P0
     precondition: |-
-      已有不同状态的补数据实例（运行中、成功、取消、失败、等待运行）。
-
-      任务和实例状态关联关系：
-      1. 等待运行：所有实例状态均为等待运行，则补数据实例的状态为等待运行。
-
-      2. 运行中：有运行中状态的实例，则补数据实例的状态为运行中。
-
-      3. 失败：没有等待中、运行中状态的实例，只要有一个失败状态实例，则补数据实例的状态即为失败。
-
-      4. 成功：所有实例的状态均为成功，则补数据实例的状态即为成功。
-
-      5. 取消：补数据实例存在手动取消或自动取消，任务变为取消状态
+      1) 列表存在 supplement_filter_running，状态「运行中」，任务名称「TaskA」，业务日期为当日，执行人「filter_owner_a」
+      2) 列表存在 supplement_filter_success，状态「成功」，任务名称「TaskB」，业务日期为前一日，执行人「filter_owner_b」
+      3) 列表存在 supplement_filter_failed，状态「失败」，任务名称「TaskD」，业务日期为前一日，执行人「filter_owner_a」
+      4) 列表存在 supplement_filter_cancel，状态「取消」，任务名称「TaskC」，业务日期为当日，执行人「filter_owner_b」
     steps:
-      - action: 进入【离线开发 → 运维中心-周期任务-补数据实例-】页面
-        expected: 已进入【离线开发 → 运维中心-周期任务-补数据实例-】页面，显示页面标题与主要操作区域
-      - action: 进入【运维中心-周期任务-补数据实例】页面, 点击状态筛选框，勾选「运行中」，再输入任务名称${task_name} → 确定
-        expected: 仅显示状态为运行中且任务名称包含${task_name} 的记录
-      - action: 点击状态筛选框，勾选「失败 + 成功」，再选择业务日期${start_time}~${end_time} → 确定
-        expected: 仅显示状态为失败或成功，且在业务日期${start_time}~${end_time}内的记录
-      - action: 点击状态筛选框，勾选「取消 + 等待运行」，并按执行人${owner}筛选 → 确定
-        expected: 仅显示状态为取消或等待运行，且执行人为${owner}的记录
-    tags:
-      - 运维中心-周期任务-补数据实例-
+      - action: 进入【运维中心 → 周期任务 → 补数据实例】页面
+        expected: 进入成功
+      - action: 状态选择「运行中」，任务名称输入「TaskA」并确定
+        expected: 仅展示 supplement_filter_running
+      - action: 状态选择「失败」「成功」，业务日期选择前一日并确定
+        expected: 仅展示 supplement_filter_success、supplement_filter_failed
+      - action: 状态选择「取消」「运行中」，执行人选择「filter_owner_b」并确定
+        expected: 仅展示 supplement_filter_cancel
+    tags: ["运维中心", "周期任务", "补数据实例"]
+
   - case_id: C0009
-    title: 验证GP任务运行进度展示显示&交互正确
+    title: 验证【数据开发】-【周期任务】运行 GP 任务，展示实时执行时长与日志起止时间
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Greenplum
     steps:
-      - action: 进入【离线开发 → 周期任务-】页面
-        expected: 已进入【离线开发 → 周期任务-】页面，显示页面标题与主要操作区域
-      - action: 进入「数据开发-周期任务」页面, 创建GP任务
-        expected: 创建成功
-      - action: "执行测试语句: Select 1; 检查日志区域内容展示"
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: |-
+          新建Greenplum周期任务：
+          任务名称：TaskF
+          数据源：${DataSourceA}
+          SQL：SELECT pg_sleep(3);
+        expected: 打开任务编辑器并展示SQL执行区域、日志区域
+      - action: 点击「运行」并观察任务执行时长，任务结束后查看日志首尾时间
         expected: |-
-          1) 第一条日志记录时间为: ${start_time}, 最后一条日志记录时间为${end_time}
-          2) 初始时长为: 00:00, 每秒刷新一次, 最终格式为: 任务执行时长：${end_time - start_time}
-    tags:
-      - 数据开发-
-      - 周期任务-
+          1) 执行开始时展示「任务执行时长：00:00」并每秒更新
+          2) 任务结束后日志展示开始时间、结束时间
+          3) 最终任务执行时长等于结束时间与开始时间的差值
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0010
-    title: 验证Oushu任务运行进度展示显示&交互正确
+    title: 验证【数据开发】-【周期任务】运行 Oushu 任务，展示实时执行时长与日志起止时间
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Oushu
     steps:
-      - action: 进入【离线开发 → 周期任务-】页面
-        expected: 已进入【离线开发 → 周期任务-】页面，显示页面标题与主要操作区域
-      - action: 进入「数据开发-周期任务」页面, 创建Oushu任务
-        expected: 创建成功
-      - action: "执行测试语句: Select 1; 检查日志区域内容展示"
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: |-
+          新建Oushu周期任务：
+          任务名称：TaskH
+          数据源：${DataSourceA}
+          SQL：SELECT pg_sleep(3);
+        expected: 打开任务编辑器并展示SQL执行区域、日志区域
+      - action: 点击「运行」并观察任务执行时长，任务结束后查看日志首尾时间
         expected: |-
-          1) 第一条日志记录时间为: ${start_time}, 最后一条日志记录时间为${end_time}
-          2) 初始时长为: 00:00,  每秒刷新一次,最终格式为: 任务执行时长：${end_time - start_time}
-    tags:
-      - 数据开发-
-      - 周期任务-
+          1) 执行开始时展示「任务执行时长：00:00」并每秒更新
+          2) 任务结束后日志展示开始时间、结束时间
+          3) 最终任务执行时长等于结束时间与开始时间的差值
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0011
-    title: 验证GP任务运行进度展示显示&交互正确
+    title: 验证【数据开发】-【手动任务】运行 GP 任务，展示实时执行时长与日志起止时间
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Greenplum
     steps:
-      - action: 进入【离线开发 → 手动任务-】页面
-        expected: 已进入【离线开发 → 手动任务-】页面，显示页面标题与主要操作区域
-      - action: 进入「数据开发-手动任务」页面, 创建GP任务
-        expected: 创建成功
-      - action: "执行测试语句: Select 1; 检查日志区域内容展示"
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: |-
+          新建Greenplum手动任务：
+          任务名称：TaskE
+          数据源：${DataSourceA}
+          SQL：SELECT pg_sleep(3);
+        expected: 打开任务编辑器并展示SQL执行区域、日志区域
+      - action: 点击「运行」并观察任务执行时长，任务结束后查看日志首尾时间
         expected: |-
-          1) 第一条日志记录时间为: ${start_time}, 最后一条日志记录时间为${end_time}
-          2) 初始时长为: 00:00,  最终格式为: 任务执行时长：${end_time - start_time}
-    tags:
-      - 数据开发-
-      - 手动任务-
+          1) 执行开始时展示「任务执行时长：00:00」
+          2) 任务结束后日志展示开始时间、结束时间
+          3) 最终任务执行时长等于结束时间与开始时间的差值
+    tags: ["离线开发", "数据开发", "手动任务"]
+
   - case_id: C0012
-    title: 验证Oushu任务运行进度展示显示&交互正确
+    title: 验证【数据开发】-【手动任务】运行 Oushu 任务，展示实时执行时长与日志起止时间
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Oushu
     steps:
-      - action: 进入【离线开发 → 手动任务-】页面
-        expected: 已进入【离线开发 → 手动任务-】页面，显示页面标题与主要操作区域
-      - action: 进入「数据开发-手动任务」页面, 创建Oushu任务
-        expected: 创建成功
-      - action: "执行测试语句: Select 1; 检查日志区域内容展示"
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: |-
+          新建Oushu手动任务：
+          任务名称：TaskG
+          数据源：${DataSourceA}
+          SQL：SELECT pg_sleep(3);
+        expected: 打开任务编辑器并展示SQL执行区域、日志区域
+      - action: 点击「运行」并观察任务执行时长，任务结束后查看日志首尾时间
         expected: |-
-          1) 第一条日志记录时间为: ${start_time}, 最后一条日志记录时间为${end_time}
-          2) 初始时长为: 00:00,  最终格式为: 任务执行时长：${end_time - start_time}
-    tags:
-      - 数据开发-
-      - 手动任务-
+          1) 执行开始时展示「任务执行时长：00:00」
+          2) 任务结束后日志展示开始时间、结束时间
+          3) 最终任务执行时长等于结束时间与开始时间的差值
+    tags: ["离线开发", "数据开发", "手动任务"]
