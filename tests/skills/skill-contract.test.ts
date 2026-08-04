@@ -230,6 +230,16 @@ describe("skill contract", () => {
     expect(existsSync(join(skillDir("defect-analyze"), "templates/report.md"))).toBe(false);
   });
 
+  it("defect-analyze 只在用户明确要求缺陷分析时触发，普通 code review 不劫持", () => {
+    const content = readSkillContent("defect-analyze");
+    // 触发描述必须带「生成静态缺陷扫描报告」等明确交付物，不得用裸「diff/分支/MR/PR」自动触发
+    expect(content).toContain("生成静态缺陷扫描报告");
+    expect(content).toMatch(/用户明确要求[^\n]*静态缺陷扫描/);
+    // 负向：普通 code review 请求不得进入 scan 分支
+    expect(content).not.toMatch(/^\| diff、分支对、变更文件集、评审、MR、PR \| scan/m);
+    expect(content).not.toMatch(/扫描 diff、分支、MR 或 PR 中的静态缺陷/);
+  });
+
   it("ui-automation 明确已落地平台", () => {
     const skill = readSkillMd("ui-automation");
     expect(skill).toContain("Web 已落地");

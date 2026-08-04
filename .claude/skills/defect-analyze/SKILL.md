@@ -1,6 +1,6 @@
 ---
 name: defect-analyze
-description: 分析异常堆栈、console 报错和 HTTP 失败，裁决带冲突标记的文本，扫描 diff、分支、MR 或 PR 中的静态缺陷，或根据 ZenTao Bug ID/URL 生成 hotfix 回归报告。需要 YAML 回归用例时转 test-case；基础设施连通性问题转 infra-diagnose。
+description: 分析异常堆栈、console 报错和 HTTP 失败，裁决带冲突标记的文本，对明确指定的 diff、分支、MR 或 PR 生成静态缺陷扫描报告，或根据 ZenTao Bug ID/URL 生成 hotfix 回归报告。需要 YAML 回归用例时转 test-case；基础设施连通性问题转 infra-diagnose。
 ---
 
 # Outcome
@@ -13,7 +13,7 @@ description: 分析异常堆栈、console 报错和 HTTP 失败，裁决带冲�
 |---|---|---|---|
 | 异常堆栈、console 报错、HTTP 失败 | bug | [workflows/bug.md](workflows/bug.md) | `analyses/bug-report/<yyyymm>/<slug>.md` |
 | 带 `<<<<<<<` 等冲突标记的文本 | conflict | [workflows/conflict.md](workflows/conflict.md) | `analyses/conflict-report/<yyyymm>/<slug>.md` |
-| diff、分支对、变更文件集、评审、MR、PR | scan | [workflows/scan.md](workflows/scan.md) | `analyses/scan-report/<yyyymm>/<slug>.md` |
+| 用户明确要求静态缺陷扫描/审查的 diff、分支对、变更文件集、MR、PR（生成 `analyses/scan-report/` 报告） | scan | [workflows/scan.md](workflows/scan.md) | `analyses/scan-report/<yyyymm>/<slug>.md` |
 | ZenTao Bug ID 或 bug-view URL | hotfix | [workflows/hotfix.md](workflows/hotfix.md) | `analyses/hotfix-case/<yyyymm>/<slug>.md` |
 
 生成 YAML 或 XMind 回归用例时转 `test-case`。服务器或数据源 connectivity 问题转 `infra-diagnose`。
