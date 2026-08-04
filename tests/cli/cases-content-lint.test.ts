@@ -5,6 +5,7 @@ import {
   lintCaseYamlSource,
   loadCasesLintConfig,
 } from "../../cli/lib/cases/content-lint.ts";
+import { parseCasesYaml, validateCases } from "../../cli/lib/cases/parse.ts";
 import type { CaseItem, CasesFile } from "../../cli/lib/cases/types.ts";
 
 const repoRoot = resolve(import.meta.dir, "../..");
@@ -602,6 +603,29 @@ INSERT INTO legacy_table VALUES (1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6,
         (item) => item.rule,
       ),
     ).not.toContain("case_sql_table_name");
+  });
+
+  it("accepts the lint-suggested none id through parse, validate and content lint", () => {
+    const noneId = `meta: { title: 无需求 id 用例, requirement_id: "none", case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【数据质量】-【规则库配置】保存规则，列表新增记录并显示启用状态
+    priority: P0
+    precondition: |-
+      1) 授权数据源：\${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：\${SchemaA}
+      4) 建表语句：
+         DROP TABLE IF EXISTS \${SchemaA}.test_table_none_c0001;
+         CREATE TABLE IF NOT EXISTS \${SchemaA}.test_table_none_c0001 (id BIGINT);
+         INSERT INTO \${SchemaA}.test_table_none_c0001 VALUES (1);
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+`;
+    const parsed = parseCasesYaml(noneId);
+    expect(validateCases(parsed)).toEqual([]);
+    expect(lintCaseContent(parsed, config)).toEqual([]);
   });
 
   it("forbids RunSuffix in functional YAML", () => {
