@@ -1,5 +1,6 @@
 meta:
   title: v63回归
+  requirement_id: "none"
   case_module_id: ""
   exports:
     - v63回归.xmind
@@ -7,98 +8,134 @@ cases:
   - case_id: C0001
     automation:
       spec_file: c0001-rule-set-independent-run.spec.ts
-    title: 验证规则集创建后可独立运行并生成任务查询记录
+    title: 验证【数据资产】-【规则集创建与运行】创建规则集并导入 4 条明细 SQL 规则，立即执行后生成任务查询记录
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0001 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0001 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已配置规则集导入文件「v63规则集导入模板.xlsx」，内容如下：
+         Sheet: 规则内容
+         Title: 规则名称,规则描述,表名,字段名,校验SQL
+         Line1: v63_user_code_null,user_code 为空,test_table_none_c0001,user_code,SELECT id FROM ${SchemaA}.test_table_none_c0001 WHERE user_code IS NULL
+         另 3 条规则分别为 user_name 为空串、nick_name 重复、score 负值的明细查询 SQL
     steps:
       - action: 进入【数据资产 → 规则集创建与运行】页面
-        expected: 已进入【数据资产 → 规则集创建与运行】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，等待任务列表和规则集区域加载完成
         expected: 页面 URL 为 `#/dq/rule`，页面展示【新建监控规则】入口，规则集区域展示【新建规则集】入口
       - action: 在规则集区域点击【新建规则集】，等待规则集配置页加载完成
         expected: 进入【新建规则集】页面，步骤条展示【基础信息】【规则内容】【调度配置】
-      - action: 在【基础信息】中输入规则集名称“v63标品规则集”，等待名称唯一性校验完成
+      - action: 在【基础信息】中输入规则集名称「${RuleSetA}」，等待名称唯一性校验完成
         expected: 规则集名称输入框无重复名称报错
-      - action: 选择校验数据源为 SparkThrift 数据源
+      - action: 选择校验数据源为 ${DataSourceA}
         expected: 选择数据库下拉框开始加载
-      - action: 选择数据库 pw_test，输入规则集描述“v63标品规则集回归”
+      - action: 选择数据库 ${SchemaA}，输入规则集描述「${RuleSetA} 回归验证」
         expected: 基础信息展示校验数据源、数据库、规则集描述
       - action: 点击【下一步】，等待【规则内容】页面加载完成
         expected: 页面展示【导入规则】按钮和规则内容表格，表格列包含规则名称、规则描述、表名、字段名、校验 SQL、操作
-      - action: 点击【导入规则】，上传“v63规则集导入模板.xlsx”，点击导入弹窗【确定】，等待上传处理完成
+      - action: 点击【导入规则】，上传「v63规则集导入模板.xlsx」，点击导入弹窗【确定】，等待上传处理完成
         expected: 提示文件上传成功，规则内容表格展示 4 条导入规则
       - action: 查看规则内容表格中的规则名称
         expected: 规则名称展示 v63_user_code_null、v63_user_name_empty、v63_nick_name_duplicate、v63_score_negative
       - action: 查看规则内容表格中的表名和字段名
-        expected: 表名均为 dq_test_user_info_300，字段名包含 user_code、user_name、nick_name、score
+        expected: 表名均为 test_table_none_c0001，字段名包含 user_code、user_name、nick_name、score
       - action: 查看规则内容表格中的校验 SQL
-        expected: 4 条规则的校验 SQL 均非空，且与“v63规则集导入模板.xlsx”中的明细查询 SQL 一致
+        expected: |-
+          4 条规则的校验 SQL 均非空，明细如下：
+          `SELECT id FROM ${SchemaA}.test_table_none_c0001 WHERE user_code IS NULL`，查询结果：{user_code_null_cnt} 条
+          `SELECT id FROM ${SchemaA}.test_table_none_c0001 WHERE user_name = ''`，查询结果：{user_name_empty_cnt} 条
+          `SELECT id FROM ${SchemaA}.test_table_none_c0001 WHERE score < 0`，查询结果：{score_negative_cnt} 条
+          `SELECT nick_name FROM ${SchemaA}.test_table_none_c0001 GROUP BY nick_name HAVING COUNT(*) > 1`，查询结果：{nick_name_dup_cnt} 条
       - action: 点击【下一步】，等待【调度配置】页面加载完成
         expected: 页面展示调度配置、规则拼接包、资源组、高级配置、告警配置、实例生成方式
       - action: 设置实例生成方式为【立即生成】，规则拼接包保持默认 1，点击【完成】，等待返回规则任务配置页面
-        expected: 提示规则集创建完成，规则集列表或卡片展示“v63标品规则集”
-      - action: 在“v63标品规则集”卡片点击【立即执行】，等待提交完成
+        expected: 提示规则集创建完成，规则集列表或卡片展示「${RuleSetA}」
+      - action: 在「${RuleSetA}」卡片点击【立即执行】，等待提交完成
         expected: 页面提示稍后可在任务查询中查看详情，规则集卡片仍展示为可执行状态
-      - action: 进入【数据质量 → 任务实例查询】页面，按规则集名称“v63标品规则集”搜索并等待列表刷新完成
-        expected: 列表生成该规则集的执行记录，状态展示为校验通过或校验异常，状态与导入规则阈值一致
-    precondition: |-
-      已配置规则集导入文件“v63规则集导入模板.xlsx”。
-      文件表头与后端模板完全一致，包含 user_code 为空、user_name 为空串、nick_name 重复、score 负值 4 条明细 SQL 规则。
+      - action: 进入【数据质量 → 任务实例查询】页面，按规则集名称「${RuleSetA}」搜索并等待列表刷新完成
+        expected: 列表生成该规则集的执行记录，实例状态为「通过」或「校验异常」，与各规则明细查询结果一致
     tags:
-      - Part1 规则集与单表完整性/唯一性/自定义规则
-      - 规则集管理
+      - 数据资产
       - 规则集创建与运行
+      - 规则集管理
   - case_id: C0002
     automation:
       spec_file: c0002-rule-set-edit-delete-prompt.spec.ts
-    title: 验证规则集编辑规则内容和删除提示符合标品逻辑
+    title: 验证【数据资产】-【规则集变更与删除】编辑规则内容并删除规则集，编辑保存生效且删除前提示清除历史任务
     priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0002 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0002 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已创建规则集「${RuleSetA}」，包含 4 条导入规则
+      6) 已配置规则集更新文件「v63规则集导入模板-更新.xlsx」，内容如下：
+         Sheet: 规则内容
+         Title: 规则名称,规则描述,表名,字段名,校验SQL
+         Line1: v63_user_code_null,user_code 为空,test_table_none_c0002,user_code,SELECT id FROM ${SchemaA}.test_table_none_c0002 WHERE user_code IS NULL
+         共 5 条规则，在原 4 条规则基础上新增 1 条测试规则
     steps:
       - action: 进入【数据资产 → 规则集变更与删除】页面
-        expected: 已进入【数据资产 → 规则集变更与删除】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，等待规则集区域加载完成
-        expected: 规则集区域展示“v63标品规则集”
-      - action: 点击“v63标品规则集”卡片【编辑】，等待编辑规则集页面加载完成
+        expected: 规则集区域展示「${RuleSetA}」
+      - action: 点击「${RuleSetA}」卡片【编辑】，等待编辑规则集页面加载完成
         expected: 进入【编辑规则集】页面，步骤条展示基础信息、规则内容、调度配置
-      - action: 在【基础信息】修改规则集描述为“v63标品规则集回归-已编辑”，点击【下一步】，等待【规则内容】页面加载完成
+      - action: 在【基础信息】修改规则集描述为「${RuleSetA} 回归-已编辑」，点击【下一步】，等待【规则内容】页面加载完成
         expected: 规则内容表格展示该规则集已有导入规则
-      - action: 在【规则内容】点击【导入规则】，上传“v63规则集导入模板-更新.xlsx”，点击【确定】，等待上传完成
+      - action: 在【规则内容】点击【导入规则】，上传「v63规则集导入模板-更新.xlsx」，点击【确定】，等待上传完成
         expected: 规则内容表格刷新为 5 条规则
       - action: 删除规则内容表格中 1 条测试规则，点击删除确认弹窗【确定】，等待表格刷新完成
         expected: 表格剩余 4 条规则，被删除规则不再展示
       - action: 进入【调度配置】点击【完成】，等待返回规则任务配置页面
         expected: 提示规则集编辑完成
-      - action: 展开或查看“v63标品规则集”详情
-        expected: 基础信息中的规则集描述展示为“v63标品规则集回归-已编辑”，规则内容数量为 4
-      - action: 点击测试规则集卡片【删除】
+      - action: 展开或查看「${RuleSetA}」详情
+        expected: 基础信息中的规则集描述展示为「${RuleSetA} 回归-已编辑」，规则内容数量为 4
+      - action: 点击「${RuleSetA}」卡片【删除】
         expected: 弹出确认提示，提示删除规则集会同步清除历史任务
       - action: 点击【取消】关闭确认弹窗，等确认弹窗关闭
         expected: 规则集未删除，仍展示在规则集区域
-    precondition: |-
-      已创建规则集“v63标品规则集”。
-      已配置包含 5 条规则的更新文件“v63规则集导入模板-更新.xlsx”。
     tags:
-      - Part1 规则集与单表完整性/唯一性/自定义规则
-      - 规则集管理
+      - 数据资产
       - 规则集变更与删除
+      - 规则集管理
   - case_id: C0003
     automation:
       spec_file: c0003-field-integrity-rule-result.spec.ts
-    title: 验证单表完整性字段级规则直接添加后结果与预期记录一致
+    title: 验证【数据资产】-【完整性校验】添加单字段与多字段完整性规则并执行，实际值与统计 SQL 预期值一致
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0003 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0003 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 获取单字段空值/空串预期值，以及多字段 `and`、`or` 逻辑预期值：{user_code_null_cnt}、{user_code_null_rate}、{user_name_empty_cnt}、{user_name_empty_rate}、{user_code_remark_null_and_cnt}、{user_code_remark_null_and_rate}、{user_code_remark_null_or_cnt}、{user_code_remark_null_or_rate}、{user_name_remark_empty_and_cnt}、{user_name_remark_empty_and_rate}、{user_name_remark_empty_or_cnt}、{user_name_remark_empty_or_rate}
+      6) 规则库配置中的完整性校验处于开启状态
     steps:
       - action: 进入【数据资产 → 完整性校验】页面
-        expected: 已进入【数据资产 → 完整性校验】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，等待任务列表加载完成
         expected: 页面展示【新建监控规则】按钮，列表列包含表、规则名称、类型、数据源、执行周期、规则状态
       - action: 点击【新建监控规则】，等待【新建单表校验规则】页面加载完成
         expected: 步骤条展示【监控对象】【监控规则】【调度属性】
-      - action: 在【监控对象】输入规则名称“v63完整性字段级任务”
-        expected: 规则名称输入框展示“v63完整性字段级任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 在【监控对象】「规则名称」输入「${TaskA}」
+        expected: 规则名称输入框展示「${TaskA}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0003
         expected: 表单展示所选数据库和数据表，数据预览区域可查看表字段
       - action: 点击【下一步】，等待【监控规则】页面加载完成
         expected: 页面展示【添加规则】按钮和监控规则区域
@@ -106,135 +143,150 @@ cases:
         expected: 表单展示规则类型、字段、统计函数、校验方法、期望值、强弱规则配置项
       - action: 选择规则类型【完整性校验】，规则类型选择【字段级】，字段选择 user_code
         expected: 规则编辑表单展示字段 user_code 和统计规则配置区域
-      - action: 在统计规则中选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 `{user_code_null_cnt}`，强弱规则选择强规则，点击规则行【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示完整性校验、字段 user_code、空值数、期望值等于 `{user_code_null_cnt}`
+      - action: 在统计规则中选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 {user_code_null_cnt}，强弱规则选择强规则，点击规则行【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示完整性校验、字段 user_code、空值数、期望值等于 {user_code_null_cnt}
       - action: 再次点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
-      - action: 选择完整性校验字段级，字段选择 user_code，统计规则选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 `{user_code_null_rate}`，点击规则行【保存】，等待规则列表刷新完成
-        expected: 规则列表新增 user_code 空值率规则，期望值等于 `{user_code_null_rate}`
+      - action: 选择完整性校验字段级，字段选择 user_code，统计规则选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 {user_code_null_rate}，点击规则行【保存】，等待规则列表刷新完成
+        expected: 规则列表新增 user_code 空值率规则，期望值等于 {user_code_null_rate}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
-      - action: 选择完整性校验字段级，字段选择 user_name，统计规则选择【空串数】，期望值等于 `{user_name_empty_cnt}`，点击规则行【保存】，等待规则列表刷新完成
-        expected: 规则列表新增 user_name 空串数规则，期望值等于 `{user_name_empty_cnt}`
+      - action: 选择完整性校验字段级，字段选择 user_name，统计规则选择【空串数】，期望值等于 {user_name_empty_cnt}，点击规则行【保存】，等待规则列表刷新完成
+        expected: 规则列表新增 user_name 空串数规则，期望值等于 {user_name_empty_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
-      - action: 选择完整性校验字段级，字段选择 user_name，统计规则选择【空串率】，校验方法选择占比，期望值输入 `{user_name_empty_rate}`，点击规则行【保存】，等待规则列表刷新完成
-        expected: 规则列表新增 user_name 空串率规则，期望值等于 `{user_name_empty_rate}`
-      - action: 点击【添加规则】，等待规则编辑表单加载完成
-        expected: 新增规则编辑表单展示为空白可编辑状态
-      - action: 选择完整性校验字段级，字段同时选择 user_code 和 remark，字段间规则逻辑选择 and
-        expected: 字段选择框展示 user_code、remark 两个字段，字段间规则逻辑展示 and
-      - action: 统计函数选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 `{user_code_remark_null_and_cnt}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 and 空值数规则保存成功，规则卡片展示 user_code + remark、and、空值数、期望值等于 `{user_code_remark_null_and_cnt}`
+      - action: 选择完整性校验字段级，字段选择 user_name，统计规则选择【空串率】，校验方法选择占比，期望值输入 {user_name_empty_rate}，点击规则行【保存】，等待规则列表刷新完成
+        expected: 规则列表新增 user_name 空串率规则，期望值等于 {user_name_empty_rate}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_code 和 remark，字段间规则逻辑选择 and
         expected: 字段选择框展示 user_code、remark 两个字段，字段间规则逻辑展示 and
-      - action: 统计函数选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 `{user_code_remark_null_and_rate}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 and 空值率规则保存成功，规则卡片展示 user_code + remark、and、空值率、期望值等于 `{user_code_remark_null_and_rate}`
+      - action: 统计函数选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 {user_code_remark_null_and_cnt}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 and 空值数规则保存成功，规则卡片展示 user_code + remark、and、空值数、期望值等于 {user_code_remark_null_and_cnt}
+      - action: 点击【添加规则】，等待规则编辑表单加载完成
+        expected: 新增规则编辑表单展示为空白可编辑状态
+      - action: 选择完整性校验字段级，字段同时选择 user_code 和 remark，字段间规则逻辑选择 and
+        expected: 字段选择框展示 user_code、remark 两个字段，字段间规则逻辑展示 and
+      - action: 统计函数选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 {user_code_remark_null_and_rate}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 and 空值率规则保存成功，规则卡片展示 user_code + remark、and、空值率、期望值等于 {user_code_remark_null_and_rate}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_code 和 remark，字段间规则逻辑选择 or
         expected: 字段选择框展示 user_code、remark 两个字段，字段间规则逻辑展示 or
-      - action: 统计函数选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 `{user_code_remark_null_or_cnt}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 or 空值数规则保存成功，规则卡片展示 user_code + remark、or、空值数、期望值等于 `{user_code_remark_null_or_cnt}`
+      - action: 统计函数选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 {user_code_remark_null_or_cnt}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 or 空值数规则保存成功，规则卡片展示 user_code + remark、or、空值数、期望值等于 {user_code_remark_null_or_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_code 和 remark，字段间规则逻辑选择 or
         expected: 字段选择框展示 user_code、remark 两个字段，字段间规则逻辑展示 or
-      - action: 统计函数选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 `{user_code_remark_null_or_rate}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 or 空值率规则保存成功，规则卡片展示 user_code + remark、or、空值率、期望值等于 `{user_code_remark_null_or_rate}`
+      - action: 统计函数选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 {user_code_remark_null_or_rate}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 or 空值率规则保存成功，规则卡片展示 user_code + remark、or、空值率、期望值等于 {user_code_remark_null_or_rate}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_name 和 remark，字段间规则逻辑选择 and
         expected: 字段选择框展示 user_name、remark 两个字段，字段间规则逻辑展示 and
-      - action: 统计函数选择【空串数】，校验方法选择固定值，操作符选择等于，期望值输入 `{user_name_remark_empty_and_cnt}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 and 空串数规则保存成功，规则卡片展示 user_name + remark、and、空串数、期望值等于 `{user_name_remark_empty_and_cnt}`
+      - action: 统计函数选择【空串数】，校验方法选择固定值，操作符选择等于，期望值输入 {user_name_remark_empty_and_cnt}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 and 空串数规则保存成功，规则卡片展示 user_name + remark、and、空串数、期望值等于 {user_name_remark_empty_and_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_name 和 remark，字段间规则逻辑选择 and
         expected: 字段选择框展示 user_name、remark 两个字段，字段间规则逻辑展示 and
-      - action: 统计函数选择【空串率】，校验方法选择占比，操作符选择等于，期望值输入 `{user_name_remark_empty_and_rate}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 and 空串率规则保存成功，规则卡片展示 user_name + remark、and、空串率、期望值等于 `{user_name_remark_empty_and_rate}`
+      - action: 统计函数选择【空串率】，校验方法选择占比，操作符选择等于，期望值输入 {user_name_remark_empty_and_rate}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 and 空串率规则保存成功，规则卡片展示 user_name + remark、and、空串率、期望值等于 {user_name_remark_empty_and_rate}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_name 和 remark，字段间规则逻辑选择 or
         expected: 字段选择框展示 user_name、remark 两个字段，字段间规则逻辑展示 or
-      - action: 统计函数选择【空串数】，校验方法选择固定值，操作符选择等于，期望值输入 `{user_name_remark_empty_or_cnt}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 or 空串数规则保存成功，规则卡片展示 user_name + remark、or、空串数、期望值等于 `{user_name_remark_empty_or_cnt}`
+      - action: 统计函数选择【空串数】，校验方法选择固定值，操作符选择等于，期望值输入 {user_name_remark_empty_or_cnt}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 or 空串数规则保存成功，规则卡片展示 user_name + remark、or、空串数、期望值等于 {user_name_remark_empty_or_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择完整性校验字段级，字段同时选择 user_name 和 remark，字段间规则逻辑选择 or
         expected: 字段选择框展示 user_name、remark 两个字段，字段间规则逻辑展示 or
-      - action: 统计函数选择【空串率】，校验方法选择占比，操作符选择等于，期望值输入 `{user_name_remark_empty_or_rate}`，点击【保存】，等待规则列表刷新完成
-        expected: 多字段 or 空串率规则保存成功，规则卡片展示 user_name + remark、or、空串率、期望值等于 `{user_name_remark_empty_or_rate}`
+      - action: 统计函数选择【空串率】，校验方法选择占比，操作符选择等于，期望值输入 {user_name_remark_empty_or_rate}，点击【保存】，等待规则列表刷新完成
+        expected: 多字段 or 空串率规则保存成功，规则卡片展示 user_name + remark、or、空串率、期望值等于 {user_name_remark_empty_or_rate}
       - action: 点击【下一步】，等待【调度属性】页面加载完成
         expected: 页面展示调度配置、规则拼接包、资源组、告警配置、任务关联、实例生成方式
       - action: 实例生成方式选择【立即生成】，点击【保存】，等待任务列表刷新完成
-        expected: 任务列表展示“v63完整性字段级任务”
+        expected: 任务列表展示「${TaskA}」
       - action: 打开任务详情，点击【立即执行】，等待提交完成
-        expected: 页面提示稍后可在任务查询中查看详情，任务详情仍展示“v63完整性字段级任务”
-      - action: 进入【数据质量 → 任务实例查询】页面，搜索“v63完整性字段级任务”并等待列表刷新完成
-        expected: 最新实例状态为校验通过，详情中单字段、多字段 and、多字段 or 完整性规则实际值均等于执行前 SparkThrift 统计 SQL 的对应预期值
-    precondition: |-
-      已确认 dq_test_user_info_300 存在且已同步至数据质量，已执行通用前置条件中的基础统计 SQL 获取单字段空值/空串预期值，以及多字段 `and`、`or` 逻辑预期值。
-      规则库配置中的完整性校验处于开启状态。
+        expected: 页面提示稍后可在任务查询中查看详情，任务详情仍展示「${TaskA}」
+      - action: 进入【数据质量 → 任务实例查询】页面，搜索「${TaskA}」并等待列表刷新完成
+        expected: 最新实例状态为「通过」，详情中单字段、多字段 and、多字段 or 完整性规则实际值均等于执行前统计 SQL 的对应预期值
     tags:
-      - Part1 规则集与单表完整性/唯一性/自定义规则
-      - 规则任务配置
+      - 数据资产
       - 完整性校验
+      - 规则任务配置
   - case_id: C0004
     automation:
       spec_file: c0004-table-row-count-rule-result.spec.ts
-    title: 验证完整性表级表行数规则直接添加后结果与预期记录一致
+    title: 验证【数据资产】-【完整性校验】添加表行数规则并执行，期望值准确时通过且改错后校验异常
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0004 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0004 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 获取 {row_cnt}
     steps:
       - action: 进入【数据资产 → 完整性校验】页面
-        expected: 已进入【数据资产 → 完整性校验】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，等待任务列表加载完成
         expected: 页面展示【新建监控规则】按钮
       - action: 点击【新建监控规则】，等待【监控对象】页面加载完成
         expected: 步骤条停留在监控对象
-      - action: 输入规则名称“v63表行数任务”，选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskB}」，选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
-        expected: 表单展示所选表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0004
+        expected: 表单展示所选表 test_table_none_c0004
       - action: 点击【下一步】，等待【监控规则】页面加载完成
         expected: 页面展示【添加规则】按钮
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 表单展示规则类型、统计函数、校验方法、期望值、强弱规则配置项
       - action: 选择规则类型【完整性校验】，规则类型选择【表级】
         expected: 统计函数下拉框加载完成
-      - action: 统计函数选择【表行数】，校验方法选择固定值，操作符选择等于，期望值输入 `{row_cnt}`，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示表级、表行数、期望值等于 `{row_cnt}`
+      - action: 统计函数选择【表行数】，校验方法选择固定值，操作符选择等于，期望值输入 {row_cnt}，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示表级、表行数、期望值等于 {row_cnt}
       - action: 进入【调度属性】，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63表行数任务”创建成功
+        expected: 任务「${TaskB}」创建成功
       - action: 在任务详情点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例状态为校验通过，表行数实际值为 `{row_cnt}`
-      - action: 编辑该规则，将期望值改为大于 `{row_cnt}`，保存后重新立即执行
-        expected: 最新实例状态为校验异常，表行数实际值为 `{row_cnt}`，规则结果标记为不通过
-    precondition: 已确认 dq_test_user_info_300 存在且已同步至数据质量，已执行通用前置条件中的基础统计 SQL 获取 `{row_cnt}`。
+        expected: 最新实例状态为「通过」，表行数实际值为 {row_cnt}
+      - action: 编辑该规则，将期望值改为 {row_cnt}+1，保存后重新立即执行
+        expected: 最新实例状态为「校验异常」，表行数实际值为 {row_cnt}，规则结果标记为不通过
     tags:
-      - Part1 规则集与单表完整性/唯一性/自定义规则
-      - 规则任务配置
+      - 数据资产
       - 完整性校验
+      - 规则任务配置
   - case_id: C0005
-    title: 验证唯一性单字段和多字段重复统计结果与预期记录一致
+    title: 验证【数据资产】-【唯一性与自定义规则】添加单字段与多字段唯一性规则并执行，实际值与统计 SQL 预期值一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0005 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0005 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行重复统计 SQL 获取 {nick_name_dup_cnt}、{nick_name_dup_rate}、{user_type_status_dup_cnt}、{user_type_status_dup_rate}
+      6) 规则库配置中的唯一性校验处于开启状态
     steps:
       - action: 进入【数据资产 → 唯一性与自定义规则】页面
-        expected: 已进入【数据资产 → 唯一性与自定义规则】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63唯一性任务”
-        expected: 规则名称输入框展示“v63唯一性任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskC}」
+        expected: 规则名称输入框展示「${TaskC}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0005
         expected: 监控对象配置完成，数据预览区域可查看表字段
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
@@ -242,48 +294,54 @@ cases:
         expected: 表单展示规则类型、字段、统计函数、校验方法、期望值配置项
       - action: 选择规则类型【唯一性校验】，字段选择 nick_name
         expected: 统计函数根据单字段唯一性规则加载
-      - action: 统计函数选择【重复数】，校验方法选择固定值，操作符选择等于，期望值输入 `{nick_name_dup_cnt}`，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示 nick_name 重复数、期望值等于 `{nick_name_dup_cnt}`
+      - action: 统计函数选择【重复数】，校验方法选择固定值，操作符选择等于，期望值输入 {nick_name_dup_cnt}，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示 nick_name 重复数、期望值等于 {nick_name_dup_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
-      - action: 选择唯一性校验，字段选择 nick_name，统计函数选择【重复率】，校验方法选择占比，期望值输入 `{nick_name_dup_rate}`，点击【保存】，等待规则列表刷新完成
-        expected: 规则列表新增 nick_name 重复率规则，期望值等于 `{nick_name_dup_rate}`
+      - action: 选择唯一性校验，字段选择 nick_name，统计函数选择【重复率】，校验方法选择占比，期望值输入 {nick_name_dup_rate}，点击【保存】，等待规则列表刷新完成
+        expected: 规则列表新增 nick_name 重复率规则，期望值等于 {nick_name_dup_rate}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
       - action: 选择唯一性校验，字段同时选择 user_type 和 status
         expected: 多字段唯一性规则编辑区展示 user_type、status
-      - action: 统计函数选择【重复数】，校验方法选择固定值，操作符选择等于，期望值输入 `{user_type_status_dup_cnt}`，点击【保存】，等待规则列表刷新完成
+      - action: 统计函数选择【重复数】，校验方法选择固定值，操作符选择等于，期望值输入 {user_type_status_dup_cnt}，点击【保存】，等待规则列表刷新完成
         expected: 规则列表新增 user_type + status 多字段重复数规则
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增规则编辑表单展示为空白可编辑状态
-      - action: 选择唯一性校验，字段同时选择 user_type 和 status，统计函数选择【重复率】，校验方法选择占比，期望值输入 `{user_type_status_dup_rate}`，点击【保存】，等待规则列表刷新完成
+      - action: 选择唯一性校验，字段同时选择 user_type 和 status，统计函数选择【重复率】，校验方法选择占比，期望值输入 {user_type_status_dup_rate}，点击【保存】，等待规则列表刷新完成
         expected: 规则列表展示单字段重复数、单字段重复率、多字段重复数、多字段重复率 4 条规则
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63唯一性任务”创建成功
+        expected: 任务「${TaskC}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例状态为校验通过，nick_name 与 user_type + status 的重复数、重复率实际值均等于执行前 SparkThrift 统计 SQL 的对应预期值
-    precondition: |-
-      已执行通用前置条件中的重复统计 SQL，获取 `{nick_name_dup_cnt}`、`{nick_name_dup_rate}`、`{user_type_status_dup_cnt}`、`{user_type_status_dup_rate}`。
-      规则库配置中的唯一性校验处于开启状态。
+        expected: 最新实例状态为「通过」，nick_name 与 user_type + status 的重复数、重复率实际值均等于执行前统计 SQL 的对应预期值
     tags:
-      - Part1 规则集与单表完整性/唯一性/自定义规则
-      - 规则任务配置
+      - 数据资产
       - 唯一性与自定义规则
+      - 规则任务配置
   - case_id: C0006
-    title: 验证自定义 SQL 单表规则通过和不通过结果与预期记录一致
+    title: 验证【数据资产】-【唯一性与自定义规则】添加自定义 SQL 规则并执行，明细行数与统计 SQL 预期值一致
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0006 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0006 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 获取 {status_a_cnt}
     steps:
       - action: 进入【数据资产 → 唯一性与自定义规则】页面
-        expected: 已进入【数据资产 → 唯一性与自定义规则】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63自定义SQL任务”
-        expected: 规则名称输入框展示“v63自定义SQL任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskD}」
+        expected: 规则名称输入框展示「${TaskD}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0006
         expected: 监控对象配置完成，数据预览区域可查看表字段
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
@@ -291,36 +349,44 @@ cases:
         expected: 表单展示规则类型和自定义 SQL 配置项
       - action: 选择规则类型【自定义SQL】
         expected: 自定义 SQL 输入框和期望值配置项展示
-      - action: 输入 SQL：`SELECT id FROM dq_test_user_info_300 WHERE status='A'`
+      - action: 输入 SQL：`SELECT id FROM ${SchemaA}.test_table_none_c0006 WHERE status='A'`
         expected: SQL 输入框展示完整 SQL
-      - action: 校验方法选择固定值，操作符选择等于，期望值输入 `{status_a_cnt}`，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示自定义 SQL、期望值等于 `{status_a_cnt}`
+      - action: 校验方法选择固定值，操作符选择等于，期望值输入 {status_a_cnt}，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示自定义 SQL、期望值等于 {status_a_cnt}
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63自定义SQL任务”创建成功
+        expected: 任务「${TaskD}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例状态为校验通过，自定义 SQL 明细查询结果行数为 `{status_a_cnt}`
-      - action: 编辑规则，将期望值改为 `{status_a_cnt}+1` 后保存并重新立即执行
-        expected: 最新实例状态为校验异常，自定义 SQL 实际行数仍为 `{status_a_cnt}`
-    precondition: 已执行通用前置条件中的基础统计 SQL，获取 `{status_a_cnt}`。
+        expected: 最新实例状态为「通过」，自定义 SQL 明细查询结果行数为 {status_a_cnt}
+      - action: 编辑规则，将期望值改为 {status_a_cnt}+1 后保存并重新立即执行
+        expected: 最新实例状态为「校验异常」，自定义 SQL 实际行数仍为 {status_a_cnt}
     tags:
-      - Part1 规则集与单表完整性/唯一性/自定义规则
-      - 规则任务配置
+      - 数据资产
       - 唯一性与自定义规则
+      - 规则任务配置
   - case_id: C0007
-    title: 验证准确性求和求平均和正负零值比结果与预期记录一致
+    title: 验证【数据资产】-【准确性校验】添加求和求平均与正负零值比规则并执行，实际值与统计 SQL 预期值一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0007 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0007 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 获取 {score_sum}、{score_avg}、{score_negative_rate}、{score_zero_rate}、{score_positive_rate}
     steps:
       - action: 进入【数据资产 → 准确性校验】页面
-        expected: 已进入【数据资产 → 准确性校验】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63准确性任务”
-        expected: 规则名称输入框展示“v63准确性任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskE}」
+        expected: 规则名称输入框展示「${TaskE}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0007
         expected: 监控对象配置完成，数据预览区域可查看 score 字段
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
@@ -328,107 +394,122 @@ cases:
         expected: 表单展示规则类型、字段、统计函数、校验方法、期望值配置项
       - action: 选择规则类型【准确性校验】，字段选择 score
         expected: 准确性统计函数下拉框加载完成
-      - action: 在同一规则中依次添加统计函数【求和】等于 `{score_sum}`、【求平均】等于 `{score_avg}`、【负值比】等于 `{score_negative_rate}`、【零值比】等于 `{score_zero_rate}`、【正值比】等于 `{score_positive_rate}`
+      - action: 在同一规则中依次添加统计函数【求和】等于 {score_sum}、【求平均】等于 {score_avg}、【负值比】等于 {score_negative_rate}、【零值比】等于 {score_zero_rate}、【正值比】等于 {score_positive_rate}
         expected: 统计规则区域展示 5 条配置，字段均为 score
       - action: 强弱规则选择强规则，点击规则行【保存】，等待规则卡片保存完成
         expected: 规则卡片展示 score 字段的 5 条准确性统计配置
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63准确性任务”创建成功
+        expected: 任务「${TaskE}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例状态为校验通过，score 求和、平均值、负值比、零值比、正值比均等于执行前 SparkThrift 统计 SQL 的对应预期值
-      - action: 编辑规则，将 score 求和期望值改为 `{score_sum}+1` 后重新执行
-        expected: 最新实例状态为校验异常，score 求和实际值仍为 `{score_sum}`
-    precondition: 已执行通用前置条件中的基础统计 SQL，获取 `{score_sum}`、`{score_avg}`、`{score_negative_rate}`、`{score_zero_rate}`、`{score_positive_rate}`。
+        expected: 最新实例状态为「通过」，score 求和、平均值、负值比、零值比、正值比均等于执行前统计 SQL 的对应预期值
+      - action: 编辑规则，将 score 求和期望值改为 {score_sum}+1 后重新执行
+        expected: 最新实例状态为「校验异常」，score 求和实际值仍为 {score_sum}
     tags:
-      - Part2 单表准确性/规范性
-      - 规则任务配置
+      - 数据资产
       - 准确性校验
+      - 规则任务配置
   - case_id: C0008
-    title: 验证 string 数字字段强转 int 后各类规则结果与预期记录一致
+    title: 验证【数据资产】-【数据类型强转】string 数字字段强转 int 后配置各类规则并执行，实际值与统计 SQL 预期值一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0008 (id BIGINT, age_str STRING, score_str STRING, enum_num_str STRING, unique_num_str STRING);
+         INSERT INTO ${SchemaA}.test_table_none_c0008 VALUES (1, '25', '90.5', '0', 'A1'), (2, NULL, '-5.0', '1', 'B2'), (3, '17', '60.0', '2', 'C3'), (4, '22', '80.0', '0', 'D4'), (5, '28', '70.0', '1', 'E5');
+      5) 已执行强转统计 SQL 获取 {age_str_null_cnt}、{age_str_null_rate}、{score_str_sum}、{score_str_avg}、{score_str_negative_rate}、{score_str_zero_rate}、{score_str_positive_rate}、{age_str_range_invalid_cnt}、{enum_num_str_enum_invalid_cnt}、{enum_num_str_enum_cnt}、{unique_num_str_dup_cnt}、{unique_num_str_dup_rate}、{unique_num_str_non_dup_cnt}、{unique_num_str_non_dup_rate}、{score_str_positive_cnt}
+      6) 规则库配置中的完整性、准确性、规范性、唯一性和自定义 SQL 规则均处于开启状态
     steps:
       - action: 进入【数据资产 → 数据类型强转】页面
-        expected: 已进入【数据资产 → 数据类型强转】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63 string强转int专项任务”
-        expected: 规则名称输入框展示“v63 string强转int专项任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskF}」
+        expected: 规则名称输入框展示「${TaskF}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_string_cast_int
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0008
         expected: 监控对象配置完成，数据预览区域可查看 age_str、score_str、enum_num_str、unique_num_str 字段，字段类型均为 string
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
       - action: 点击【添加规则】，选择规则类型【完整性校验】，规则类型选择【字段级】，字段选择 age_str
         expected: 规则编辑表单展示字段 age_str 和完整性统计规则配置区域
-      - action: 统计函数选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 `{age_str_null_cnt}`，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示 age_str 空值数，期望值等于 `{age_str_null_cnt}`
-      - action: 点击【添加规则】，选择完整性校验字段级，字段选择 age_str，统计函数选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 `{age_str_null_rate}`，点击【保存】，等待规则列表刷新完成
-        expected: 规则列表新增 age_str 空值率规则，期望值等于 `{age_str_null_rate}`
+      - action: 统计函数选择【空值数】，校验方法选择固定值，操作符选择等于，期望值输入 {age_str_null_cnt}，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示 age_str 空值数，期望值等于 {age_str_null_cnt}
+      - action: 点击【添加规则】，选择完整性校验字段级，字段选择 age_str，统计函数选择【空值率】，校验方法选择占比，操作符选择等于，期望值输入 {age_str_null_rate}，点击【保存】，等待规则列表刷新完成
+        expected: 规则列表新增 age_str 空值率规则，期望值等于 {age_str_null_rate}
       - action: 点击【添加规则】，选择规则类型【准确性校验】，字段选择 score_str
         expected: 准确性统计函数下拉框加载完成，score_str 作为 string 类型数字字段可配置数值类统计函数
-      - action: 在同一规则中依次添加统计函数【求和】等于 `{score_str_sum}`、【求平均】等于 `{score_str_avg}`、【负值比】等于 `{score_str_negative_rate}`、【零值比】等于 `{score_str_zero_rate}`、【正值比】等于 `{score_str_positive_rate}`，点击【保存】
+      - action: 在同一规则中依次添加统计函数【求和】等于 {score_str_sum}、【求平均】等于 {score_str_avg}、【负值比】等于 {score_str_negative_rate}、【零值比】等于 {score_str_zero_rate}、【正值比】等于 {score_str_positive_rate}，点击【保存】
         expected: 规则卡片展示 score_str 的 5 条准确性统计配置，字段类型为 string，统计口径按 int 强转后的数值计算
       - action: 点击【添加规则】，选择规则类型【规范性校验】，字段选择 age_str，在【统计规则】第 1 行选择【数值-取值范围】
         expected: 统计规则行切换为取值范围输入形态
-      - action: 左边界操作符选择【>=】并输入 `0`，字段间关系选择【AND】，右边界操作符选择【<=】并输入 `120`，过滤条件保持为空，规则描述填写“age_str 强转 int 后范围需在 0 到 120”，点击【保存】
+      - action: 左边界操作符选择【>=】并输入 0，字段间关系选择【AND】，右边界操作符选择【<=】并输入 120，过滤条件保持为空，规则描述填写「age_str 强转 int 后范围需在 0 到 120」，点击【保存】
         expected: 规则卡片展示字段 age_str，统计规则为数值-取值范围，范围条件为 `age_str >= 0 AND age_str <= 120`
       - action: 点击【添加规则】，选择规范性校验，字段选择 enum_num_str，在【统计规则】第 1 行选择【数值-枚举范围】
         expected: 统计规则行展示数值枚举范围配置区
-      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 `0,1,2`，过滤条件保持为空，规则描述填写“enum_num_str 强转 int 后只能为 0、1、2”，点击【保存】
-        expected: 规则卡片展示字段 enum_num_str，统计规则为数值-枚举范围，枚举范围值为 `0,1,2`
-      - action: 点击【添加规则】，选择规范性校验，字段选择 enum_num_str，在【统计规则】第 1 行选择【数值-枚举个数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{enum_num_str_enum_cnt}`，点击【保存】
-        expected: 规则卡片展示字段 enum_num_str，统计规则为数值-枚举个数，期望值等于 `{enum_num_str_enum_cnt}`
-      - action: 点击【添加规则】，选择规范性校验，字段选择 age_str，在【统计规则】第 1 行选择【空值数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{age_str_null_cnt}`，点击【保存】
-        expected: 规则卡片展示 age_str 规范性空值数，期望值等于 `{age_str_null_cnt}`
-      - action: 点击【添加规则】，选择规范性校验，字段选择 unique_num_str，在【统计规则】第 1 行选择【重复数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{unique_num_str_dup_cnt}`，点击【保存】
-        expected: 规则卡片展示 unique_num_str 规范性重复数，期望值等于 `{unique_num_str_dup_cnt}`
+      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 0,1,2，过滤条件保持为空，规则描述填写「enum_num_str 强转 int 后只能为 0、1、2」，点击【保存】
+        expected: 规则卡片展示字段 enum_num_str，统计规则为数值-枚举范围，枚举范围值为 0,1,2
+      - action: 点击【添加规则】，选择规范性校验，字段选择 enum_num_str，在【统计规则】第 1 行选择【数值-枚举个数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {enum_num_str_enum_cnt}，点击【保存】
+        expected: 规则卡片展示字段 enum_num_str，统计规则为数值-枚举个数，期望值等于 {enum_num_str_enum_cnt}
+      - action: 点击【添加规则】，选择规范性校验，字段选择 age_str，在【统计规则】第 1 行选择【空值数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {age_str_null_cnt}，点击【保存】
+        expected: 规则卡片展示 age_str 规范性空值数，期望值等于 {age_str_null_cnt}
+      - action: 点击【添加规则】，选择规范性校验，字段选择 unique_num_str，在【统计规则】第 1 行选择【重复数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {unique_num_str_dup_cnt}，点击【保存】
+        expected: 规则卡片展示 unique_num_str 规范性重复数，期望值等于 {unique_num_str_dup_cnt}
       - action: 点击【添加规则】，选择规范性校验，字段选择 enum_num_str，在【统计规则】第 1 行选择【枚举值】
         expected: 统计规则行展示枚举值信息输入框
-      - action: 在枚举值信息输入框中录入枚举值字符串 `0,1,2`，过滤条件保持为空，规则描述填写“enum_num_str 强转 int 后枚举值限定为 0/1/2”，点击【保存】
+      - action: 在枚举值信息输入框中录入枚举值字符串 0,1,2，过滤条件保持为空，规则描述填写「enum_num_str 强转 int 后枚举值限定为 0/1/2」，点击【保存】
         expected: 规则列表展示 enum_num_str 枚举值信息规则
-      - action: 点击【添加规则】，选择规则类型【唯一性校验】，字段选择 unique_num_str，统计函数选择【重复数】，校验方法选择固定值，操作符选择等于，期望值输入 `{unique_num_str_dup_cnt}`，点击【保存】
-        expected: 规则卡片展示 unique_num_str 唯一性重复数，期望值等于 `{unique_num_str_dup_cnt}`
-      - action: 点击【添加规则】，选择唯一性校验，字段选择 unique_num_str，统计函数选择【重复率】，校验方法选择占比，操作符选择等于，期望值输入 `{unique_num_str_dup_rate}`，点击【保存】
-        expected: 规则列表新增 unique_num_str 唯一性重复率规则，期望值等于 `{unique_num_str_dup_rate}`
-      - action: 点击【添加规则】，选择唯一性校验，字段选择 unique_num_str，统计函数选择【非重复个数】，校验方法选择固定值，操作符选择等于，期望值输入 `{unique_num_str_non_dup_cnt}`，点击【保存】
-        expected: 规则列表新增 unique_num_str 非重复个数规则，期望值等于 `{unique_num_str_non_dup_cnt}`
-      - action: 点击【添加规则】，选择唯一性校验，字段选择 unique_num_str，统计函数选择【非重复占比】，校验方法选择占比，操作符选择等于，期望值输入 `{unique_num_str_non_dup_rate}`，点击【保存】
-        expected: 规则列表新增 unique_num_str 非重复占比规则，期望值等于 `{unique_num_str_non_dup_rate}`
-      - action: 点击【添加规则】，选择规则类型【自定义SQL】，输入 SQL：`SELECT id FROM dq_test_string_cast_int WHERE CAST(score_str AS INT) > 0`
+      - action: 点击【添加规则】，选择规则类型【唯一性校验】，字段选择 unique_num_str，统计函数选择【重复数】，校验方法选择固定值，操作符选择等于，期望值输入 {unique_num_str_dup_cnt}，点击【保存】
+        expected: 规则卡片展示 unique_num_str 唯一性重复数，期望值等于 {unique_num_str_dup_cnt}
+      - action: 点击【添加规则】，选择唯一性校验，字段选择 unique_num_str，统计函数选择【重复率】，校验方法选择占比，操作符选择等于，期望值输入 {unique_num_str_dup_rate}，点击【保存】
+        expected: 规则列表新增 unique_num_str 唯一性重复率规则，期望值等于 {unique_num_str_dup_rate}
+      - action: 点击【添加规则】，选择唯一性校验，字段选择 unique_num_str，统计函数选择【非重复个数】，校验方法选择固定值，操作符选择等于，期望值输入 {unique_num_str_non_dup_cnt}，点击【保存】
+        expected: 规则列表新增 unique_num_str 非重复个数规则，期望值等于 {unique_num_str_non_dup_cnt}
+      - action: 点击【添加规则】，选择唯一性校验，字段选择 unique_num_str，统计函数选择【非重复占比】，校验方法选择占比，操作符选择等于，期望值输入 {unique_num_str_non_dup_rate}，点击【保存】
+        expected: 规则列表新增 unique_num_str 非重复占比规则，期望值等于 {unique_num_str_non_dup_rate}
+      - action: 点击【添加规则】，选择规则类型【自定义SQL】，输入 SQL：`SELECT id FROM ${SchemaA}.test_table_none_c0008 WHERE CAST(score_str AS INT) > 0`
         expected: SQL 输入框展示完整 SQL，语句使用 string 类型 score_str 强转 int 后进行数值过滤
-      - action: 校验方法选择固定值，操作符选择等于，期望值输入 `{score_str_positive_cnt}`，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示自定义 SQL、期望值等于 `{score_str_positive_cnt}`
+      - action: 校验方法选择固定值，操作符选择等于，期望值输入 {score_str_positive_cnt}，强弱规则选择强规则，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示自定义 SQL、期望值等于 {score_str_positive_cnt}
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63 string强转int专项任务”创建成功
+        expected: 任务「${TaskF}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例状态为校验通过，完整性、准确性、规范性、唯一性和自定义 SQL 中的 string 数字字段强转 int 规则实际值均等于执行前 SparkThrift 统计 SQL 的对应预期值
+        expected: 最新实例状态为「通过」，完整性、准确性、规范性、唯一性和自定义 SQL 中的 string 数字字段强转 int 规则实际值均等于执行前统计 SQL 的对应预期值
       - action: 打开实例详情，查看规范性和自定义 SQL 规则明细
-        expected: age_str 数值范围不通过明细数等于 `{age_str_range_invalid_cnt}`；enum_num_str 非 `0/1/2` 明细数等于 `{enum_num_str_enum_invalid_cnt}`；自定义 SQL 明细查询结果行数等于 `{score_str_positive_cnt}`
-    precondition: |-
-      已确认 dq_test_string_cast_int 存在且已同步至数据质量，已执行通用前置条件中的强转统计 SQL 获取 `{age_str_null_cnt}`、`{age_str_null_rate}`、`{score_str_sum}`、`{score_str_avg}`、`{score_str_negative_rate}`、`{score_str_zero_rate}`、`{score_str_positive_rate}`、`{age_str_range_invalid_cnt}`、`{enum_num_str_enum_invalid_cnt}`、`{enum_num_str_enum_cnt}`、`{unique_num_str_dup_cnt}`、`{unique_num_str_dup_rate}`、`{unique_num_str_non_dup_cnt}`、`{unique_num_str_non_dup_rate}`、`{score_str_positive_cnt}`。
-      规则库配置中的完整性、准确性、规范性、唯一性和自定义 SQL 规则均处于开启状态。
+        expected: age_str 数值范围不通过明细数等于 {age_str_range_invalid_cnt}；enum_num_str 非 0/1/2 明细数等于 {enum_num_str_enum_invalid_cnt}；自定义 SQL 明细查询结果行数等于 {score_str_positive_cnt}
     tags:
-      - Part2 单表准确性/规范性
-      - 规则任务配置
+      - 数据资产
       - 数据类型强转
+      - 规则任务配置
   - case_id: C0009
-    title: 验证规范性数值范围和枚举类规则结果与预期记录一致
+    title: 验证【数据资产】-【规范性校验】添加数值范围枚举类规则并执行，明细数与统计 SQL 预期值一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0009 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0009 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 获取 {age_range_invalid_cnt}、{gender_enum_invalid_cnt}、{user_type_enum_cnt}、{user_type_enum_invalid_cnt}
     steps:
       - action: 进入【数据资产 → 规范性校验】页面
-        expected: 已进入【数据资产 → 规范性校验】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63规范性数值枚举任务”
-        expected: 规则名称输入框展示“v63规范性数值枚举任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskG}」
+        expected: 规则名称输入框展示「${TaskG}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0009
         expected: 监控对象配置完成，数据预览区域可查看 age、gender、user_type 字段
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
@@ -436,50 +517,58 @@ cases:
         expected: 表单展示【规范性校验】卡片，包含【字段】【统计规则】【强弱规则】【规则描述】【保存】【取消】
       - action: 规则类型选择【规范性校验】，字段选择 age，在【统计规则】第 1 行选择【数值-取值范围】
         expected: 统计规则行切换为取值范围输入形态，展示左边界操作符、左边界值、字段间关系、右边界操作符、右边界值和过滤条件
-      - action: 左边界操作符选择【>=】并输入 `0`，字段间关系选择【AND】，右边界操作符选择【<=】并输入 `120`，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“age 范围需在 0 到 120”，点击【保存】，等待规则卡片保存完成
+      - action: 左边界操作符选择【>=】并输入 0，字段间关系选择【AND】，右边界操作符选择【<=】并输入 120，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「age 范围需在 0 到 120」，点击【保存】，等待规则卡片保存完成
         expected: 规则卡片展示字段 age，统计规则为数值-取值范围，范围条件为 `age >= 0 AND age <= 120`
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
       - action: 字段选择 gender，在【统计规则】第 1 行选择【数值-枚举范围】
         expected: 统计规则行展示【期望值】配置区，期望值类型下拉包含【固定值】【占比】，操作符下拉展示 `=`、`!=`
-      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 `0,1,2`，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“gender 只能为 0、1、2”，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 gender，统计规则为数值-枚举范围，枚举范围值为 `0,1,2`
+      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 0,1,2，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「gender 只能为 0、1、2」，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 gender，统计规则为数值-枚举范围，枚举范围值为 0,1,2
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 user_type，在【统计规则】第 1 行选择【数值-枚举个数】，【期望值】类型选择【固定值】，操作符选择【=】，数值输入 `{user_type_enum_cnt}`，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 user_type，统计规则为数值-枚举个数，期望值为固定值等于 `{user_type_enum_cnt}`
+      - action: 字段选择 user_type，在【统计规则】第 1 行选择【数值-枚举个数】，【期望值】类型选择【固定值】，操作符选择【=】，数值输入 {user_type_enum_cnt}，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 user_type，统计规则为数值-枚举个数，期望值为固定值等于 {user_type_enum_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
       - action: 字段选择 user_type，在【统计规则】第 1 行选择【枚举值信息】
-        expected: 统计规则行展示枚举值信息输入框，支持以标签形式录入2 个枚举值
-      - action: 在枚举值信息输入框中录入枚举值字符串 `VIP,NORMAL,GUEST`
-        expected: 枚举值信息输入框展示已录入的枚举值字符串 `VIP,NORMAL,GUEST`
-      - action: 过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“user_type 只能为 VIP/NORMAL/GUEST”，点击【保存】，等待规则列表刷新完成
+        expected: 统计规则行展示枚举值信息输入框，支持以标签形式录入 2 个枚举值
+      - action: 在枚举值信息输入框中录入枚举值字符串 VIP,NORMAL,GUEST
+        expected: 枚举值信息输入框展示已录入的枚举值字符串 VIP,NORMAL,GUEST
+      - action: 过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「user_type 只能为 VIP/NORMAL/GUEST」，点击【保存】，等待规则列表刷新完成
         expected: 规则列表展示 age 数值-取值范围、gender 数值-枚举范围、user_type 数值-枚举个数、user_type 枚举值信息四条规范性规则
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63规范性数值枚举任务”创建成功
+        expected: 任务「${TaskG}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例生成后，age 越界明细数等于 `{age_range_invalid_cnt}`，gender 非 `0/1/2` 明细数等于 `{gender_enum_invalid_cnt}`，user_type 枚举个数等于 `{user_type_enum_cnt}`，user_type 非枚举值明细数等于 `{user_type_enum_invalid_cnt}`
-    precondition: 已执行通用前置条件中的基础统计 SQL，获取 `{age_range_invalid_cnt}`、`{gender_enum_invalid_cnt}`、`{user_type_enum_cnt}`、`{user_type_enum_invalid_cnt}`。
+        expected: 最新实例生成后，age 越界明细数等于 {age_range_invalid_cnt}，gender 非 0/1/2 明细数等于 {gender_enum_invalid_cnt}，user_type 枚举个数等于 {user_type_enum_cnt}，user_type 非枚举值明细数等于 {user_type_enum_invalid_cnt}
     tags:
-      - Part2 单表准确性/规范性
-      - 规则任务配置
+      - 数据资产
       - 规范性校验
+      - 规则任务配置
   - case_id: C0010
-    title: 验证规范性身份证手机号邮箱格式规则结果与预期记录一致
+    title: 验证【数据资产】-【规范性校验】添加身份证手机号邮箱格式规则并执行，符合与不符合数量与统计 SQL 预期值一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0010 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0010 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 获取 {id_card_valid_cnt}、{mobile_valid_cnt}、{email_valid_cnt}、{id_card_invalid_cnt}、{mobile_invalid_cnt}、{email_invalid_cnt}
     steps:
       - action: 进入【数据资产 → 规范性校验】页面
-        expected: 已进入【数据资产 → 规范性校验】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63规范性格式任务”
-        expected: 规则名称输入框展示“v63规范性格式任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskH}」
+        expected: 规则名称输入框展示「${TaskH}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0010
         expected: 监控对象配置完成，数据预览区域可查看 id_card_no、mobile_no、email 字段
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
@@ -487,40 +576,48 @@ cases:
         expected: 表单展示【规范性校验】卡片，包含【字段】【统计规则】【强弱规则】【规则描述】【保存】【取消】
       - action: 规则类型选择【规范性校验】，字段选择 id_card_no，在【统计规则】第 1 行选择【格式-身份证号】
         expected: 统计规则行展示【期望值】配置区，期望值类型下拉包含【固定值】【占比】，操作符下拉展示 `>`、`>=`、`=`、`<`、`<=`、`!=`
-      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 `{id_card_valid_cnt}`，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“身份证号格式需符合 18 位身份证规则”，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 id_card_no，统计规则为格式-身份证号，期望值为固定值等于 `{id_card_valid_cnt}`
+      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 {id_card_valid_cnt}，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「身份证号格式需符合 18 位身份证规则」，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 id_card_no，统计规则为格式-身份证号，期望值为固定值等于 {id_card_valid_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 mobile_no，在【统计规则】第 1 行选择【格式-手机号】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{mobile_valid_cnt}`，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“手机号需符合 11 位手机号格式”，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 mobile_no，统计规则为格式-手机号，期望值为固定值等于 `{mobile_valid_cnt}`
+      - action: 字段选择 mobile_no，在【统计规则】第 1 行选择【格式-手机号】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {mobile_valid_cnt}，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「手机号需符合 11 位手机号格式」，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 mobile_no，统计规则为格式-手机号，期望值为固定值等于 {mobile_valid_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 email，在【统计规则】第 1 行选择【格式-邮箱】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{email_valid_cnt}`，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“邮箱需符合标准邮箱格式”，点击【保存】，等待规则列表刷新完成
+      - action: 字段选择 email，在【统计规则】第 1 行选择【格式-邮箱】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {email_valid_cnt}，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「邮箱需符合标准邮箱格式」，点击【保存】，等待规则列表刷新完成
         expected: 规则列表展示身份证号、手机号、邮箱三条格式规则，三条规则均为固定值校验
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63规范性格式任务”创建成功
+        expected: 任务「${TaskH}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例生成后，身份证号、手机号、邮箱格式规则的符合格式数量分别等于 `{id_card_valid_cnt}`、`{mobile_valid_cnt}`、`{email_valid_cnt}`；不符合格式明细数分别等于 `{id_card_invalid_cnt}`、`{mobile_invalid_cnt}`、`{email_invalid_cnt}`
-    precondition: 已执行通用前置条件中的基础统计 SQL，获取 `{id_card_valid_cnt}`、`{mobile_valid_cnt}`、`{email_valid_cnt}`、`{id_card_invalid_cnt}`、`{mobile_invalid_cnt}`、`{email_invalid_cnt}`。
+        expected: 最新实例生成后，身份证号、手机号、邮箱格式规则的符合格式数量分别等于 {id_card_valid_cnt}、{mobile_valid_cnt}、{email_valid_cnt}；不符合格式明细数分别等于 {id_card_invalid_cnt}、{mobile_invalid_cnt}、{email_invalid_cnt}
     tags:
-      - Part2 单表准确性/规范性
-      - 规则任务配置
+      - 数据资产
       - 规范性校验
+      - 规则任务配置
   - case_id: C0011
-    title: 验证规范性字符串长度数据精度空值重复和枚举值规则结果与预期记录一致
+    title: 验证【数据资产】-【规范性校验】添加字符串长度数据精度空值重复枚举规则并执行，明细数与统计 SQL 预期值一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0011 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0011 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行基础统计 SQL 和重复统计 SQL 获取 {user_name_max_len}、{user_name_min_len}、{user_code_fixed_len_invalid_cnt}、{remark_null_cnt}、{nick_name_dup_cnt}、{status_enum_invalid_cnt}
     steps:
       - action: 进入【数据资产 → 规范性校验】页面
-        expected: 已进入【数据资产 → 规范性校验】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待监控对象页面加载完成
         expected: 进入新建单表校验规则流程
-      - action: 输入规则名称“v63规范性综合任务”
-        expected: 规则名称输入框展示“v63规范性综合任务”
-      - action: 选择 SparkThrift 数据源
+      - action: 「规则名称」输入「${TaskI}」
+        expected: 规则名称输入框展示「${TaskI}」
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0011
         expected: 监控对象配置完成，数据预览区域可查看 user_name、user_code、salary、remark、nick_name、status 字段
       - action: 点击【下一步】，等待监控规则页面加载完成
         expected: 页面展示【添加规则】按钮
@@ -528,72 +625,80 @@ cases:
         expected: 表单展示【规范性校验】卡片，包含【字段】【统计规则】【强弱规则】【规则描述】【保存】【取消】
       - action: 规则类型选择【规范性校验】，字段选择 user_name，在【统计规则】第 1 行选择【字符串最大长度】
         expected: 统计规则行展示【期望值】配置区，期望值类型下拉包含【固定值】【占比】
-      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 `{user_name_max_len}`，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“user_name 最大长度等于统计值”，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 user_name，统计规则为字符串最大长度，期望值为固定值等于 `{user_name_max_len}`
+      - action: 期望值类型选择【固定值】，操作符选择【=】，数值输入 {user_name_max_len}，过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「user_name 最大长度等于统计值」，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 user_name，统计规则为字符串最大长度，期望值为固定值等于 {user_name_max_len}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 user_name，在【统计规则】第 1 行选择【字符串最小长度】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{user_name_min_len}`，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 user_name，统计规则为字符串最小长度，期望值为固定值等于 `{user_name_min_len}`
+      - action: 字段选择 user_name，在【统计规则】第 1 行选择【字符串最小长度】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {user_name_min_len}，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 user_name，统计规则为字符串最小长度，期望值为固定值等于 {user_name_min_len}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 user_code，在【统计规则】第 1 行选择【字符串长度】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `11`，过滤条件保持为空，规则描述填写“user_code 长度固定为 11”，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 user_code，统计规则为字符串长度，期望长度为固定值等于 `11`
+      - action: 字段选择 user_code，在【统计规则】第 1 行选择【字符串长度】，期望值类型选择【固定值】，操作符选择【=】，数值输入 11，过滤条件保持为空，规则描述填写「user_code 长度固定为 11」，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 user_code，统计规则为字符串长度，期望长度为固定值等于 11
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
       - action: 字段选择 salary，在【统计规则】第 1 行选择【数据精度】
         expected: 统计规则行切换为数据精度输入形态，展示【小数点前】操作符和值、AND/OR 关系、【小数点后】操作符和值
-      - action: 【小数点前】操作符选择【=】并输入 `10`，关系选择【且】，【小数点后】操作符选择【=】并输入 `2`，过滤条件保持为空，规则描述填写“salary 数据精度为小数点前 10 位、小数点后 2 位”，点击【保存】，等待规则卡片保存完成
+      - action: 【小数点前】操作符选择【=】并输入 10，关系选择【且】，【小数点后】操作符选择【=】并输入 2，过滤条件保持为空，规则描述填写「salary 数据精度为小数点前 10 位、小数点后 2 位」，点击【保存】，等待规则卡片保存完成
         expected: 规则卡片展示字段 salary，统计规则为数据精度，精度条件为小数点前 `=10` 且小数点后 `=2`
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 remark，在【统计规则】第 1 行选择【空值数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{remark_null_cnt}`，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 remark，统计规则为空值数，期望值为固定值等于 `{remark_null_cnt}`
+      - action: 字段选择 remark，在【统计规则】第 1 行选择【空值数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {remark_null_cnt}，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 remark，统计规则为空值数，期望值为固定值等于 {remark_null_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
-      - action: 字段选择 nick_name，在【统计规则】第 1 行选择【重复数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 `{nick_name_dup_cnt}`，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
-        expected: 规则卡片展示字段 nick_name，统计规则为重复数，期望值为固定值等于 `{nick_name_dup_cnt}`
+      - action: 字段选择 nick_name，在【统计规则】第 1 行选择【重复数】，期望值类型选择【固定值】，操作符选择【=】，数值输入 {nick_name_dup_cnt}，过滤条件保持为空，点击【保存】，等待规则卡片保存完成
+        expected: 规则卡片展示字段 nick_name，统计规则为重复数，期望值为固定值等于 {nick_name_dup_cnt}
       - action: 点击【添加规则】，等待规则编辑表单加载完成
         expected: 新增【规范性校验】规则卡片展示为空白可编辑状态
       - action: 字段选择 status，在【统计规则】第 1 行选择【枚举值】
-        expected: 统计规则行展示枚举值信息输入框，支持以标签形式录入2 个枚举值
-      - action: 在枚举值信息输入框中录入枚举值字符串 `A,I,D`
-        expected: 枚举值信息输入框展示已录入的枚举值字符串 `A,I,D`
-      - action: 过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写“status 只能为 A/I/D”，点击【保存】，等待规则列表刷新完成
+        expected: 统计规则行展示枚举值信息输入框，支持以标签形式录入 2 个枚举值
+      - action: 在枚举值信息输入框中录入枚举值字符串 A,I,D
+        expected: 枚举值信息输入框展示已录入的枚举值字符串 A,I,D
+      - action: 过滤条件保持为空，强弱规则选择【弱规则】，规则描述填写「status 只能为 A/I/D」，点击【保存】，等待规则列表刷新完成
         expected: 规则列表展示最大字符串长度、最小字符串长度、固定字符串长度、数据精度、空值数、重复数、枚举值信息规则
       - action: 进入调度属性，实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
-        expected: 任务“v63规范性综合任务”创建成功
+        expected: 任务「${TaskI}」创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例生成后，user_name 最大/最小长度、remark 空值数、nick_name 重复数与执行前 SparkThrift 统计 SQL 一致；user_code 长度不符合明细数等于 `{user_code_fixed_len_invalid_cnt}`；status 非 `A/I/D` 明细数等于 `{status_enum_invalid_cnt}`
-    precondition: 已执行通用前置条件中的基础统计 SQL 和重复统计 SQL，获取 `{user_name_max_len}`、`{user_name_min_len}`、`{user_code_fixed_len_invalid_cnt}`、`{remark_null_cnt}`、`{nick_name_dup_cnt}`、`{status_enum_invalid_cnt}`。
+        expected: 最新实例生成后，user_name 最大/最小长度、remark 空值数、nick_name 重复数与执行前统计 SQL 一致；user_code 长度不符合明细数等于 {user_code_fixed_len_invalid_cnt}；status 非 A/I/D 明细数等于 {status_enum_invalid_cnt}
     tags:
-      - Part2 单表准确性/规范性
-      - 规则任务配置
+      - 数据资产
       - 规范性校验
+      - 规则任务配置
   - case_id: C0012
-    title: 验证同源数据对比规则创建和执行成功
+    title: 验证【数据资产】-【同源数据对比】配置同名映射与行数差异比对并执行，差异总数为 0
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0012 (id BIGINT, user_code STRING, user_name STRING, score DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0012 VALUES (1, 'U001', '张三', 90.50), (2, 'U002', '李四', 85.00), (3, 'U003', '王五', 60.00), (4, 'U004', '赵六', 70.00), (5, 'U005', '钱七', 55.50);
+      5) 同源比对使用 ${SchemaA}.test_table_none_c0012 同时作为主表和对照表
     steps:
       - action: 进入【数据资产 → 同源数据对比】页面
-        expected: 已进入【数据资产 → 同源数据对比】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待规则类型选择入口展示
         expected: 页面可选择单表校验规则或多表比对规则
       - action: 选择【多表比对规则】，等待新建多表比对规则页面加载完成
         expected: 步骤条展示【选择对比表】【选择字段】【执行配置】
-      - action: 在【选择对比表】输入规则名称“v63同源数据对比任务”
+      - action: 在【选择对比表】「规则名称」输入「${TaskJ}」
         expected: 规则名称输入框展示该名称
       - action: 选择对比类型【同源数据对比】
         expected: 主表和对照表区域展示同一数据源选择逻辑
-      - action: 主表选择 SparkThrift 数据源
+      - action: 主表选择 ${DataSourceA}
         expected: 主表数据库下拉框加载完成
-      - action: 主表选择数据库 pw_test
+      - action: 主表选择数据库 ${SchemaA}
         expected: 主表数据表下拉框加载完成
-      - action: 主表选择数据表 dq_test_user_info_300
+      - action: 主表选择数据表 ${SchemaA}.test_table_none_c0012
         expected: 主表信息展示完整
-      - action: 对照表选择同一 SparkThrift 数据源
+      - action: 对照表选择同一 ${DataSourceA}
         expected: 对照表数据库下拉框加载完成
-      - action: 对照表选择数据库 pw_test
+      - action: 对照表选择数据库 ${SchemaA}
         expected: 对照表数据表下拉框加载完成
-      - action: 对照表选择数据表 dq_test_user_info_300
+      - action: 对照表选择数据表 ${SchemaA}.test_table_none_c0012
         expected: 对照表信息展示完整
       - action: 点击【下一步】，等待【选择字段】页面加载完成
         expected: 页面提示通过连线配置字段映射，并展示【同名映射】能力
@@ -604,39 +709,53 @@ cases:
       - action: 勾选记录数差异比对，差异阈值配置为 0，点击【下一步】，等待执行配置页面加载完成
         expected: 进入执行配置页面
       - action: 实例生成方式选择【立即生成】，点击【保存】，等待任务列表刷新完成
-        expected: 多表比对任务“v63同源数据对比任务”创建成功
+        expected: 多表比对任务「${TaskJ}」创建成功
       - action: 点击任务【立即执行】，等待任务实例查询生成最新实例
-        expected: 最新实例状态为校验通过，整体校验差异总数为 0
-    precondition: |-
-      已确认 dq_test_user_info_300 已同步至数据质量。
-      同源比对使用 dq_test_user_info_300 同时作为主表和对照表。
+        expected: 最新实例状态为「通过」，整体校验差异总数为 0
     tags:
-      - Part3 多表规则、任务实例查询、质量报告
-      - 多表比对规则
+      - 数据资产
       - 同源数据对比
+      - 多表比对规则
   - case_id: C0013
-    title: 验证跨源数据对比仅配置行数差异比对(SparkThrift2.x不支持)
+    title: 验证【数据资产】-【跨源数据对比】配置行数差异比对并执行，两表记录一致时差异为 0
     priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0013_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0013_source (id BIGINT, user_code STRING, user_name STRING, score DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0013_source VALUES (1, 'U001', '张三', 90.50), (2, 'U002', '李四', 85.00), (3, 'U003', '王五', 60.00), (4, 'U004', '赵六', 70.00), (5, 'U005', '钱七', 55.50);
+      5) 授权数据源：${DataSourceB}
+      6) 数据源类型：SparkThrift
+      7) 存在数据库：${SchemaB}
+      8) 创建同结构数据表：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_none_c0013_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_none_c0013_target (id BIGINT, user_code STRING, user_name STRING, score DECIMAL(10,2));
+         INSERT INTO ${SchemaB}.test_table_none_c0013_target VALUES (1, 'U001', '张三', 90.50), (2, 'U002', '李四', 85.00), (3, 'U003', '王五', 60.00), (4, 'U004', '赵六', 70.00), (5, 'U005', '钱七', 55.50);
     steps:
       - action: 进入【数据资产 → 跨源数据对比】页面
-        expected: 已进入【数据资产 → 跨源数据对比】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 规则任务配置】页面，点击【新建监控规则】，等待规则类型选择入口展示
         expected: 页面可选择多表比对规则
       - action: 选择【多表比对规则】，等待【选择对比表】页面加载完成
         expected: 步骤条展示选择对比表、选择字段、执行配置
-      - action: 输入规则名称“v63跨源数据对比任务”
-        expected: 规则名称输入框展示“v63跨源数据对比任务”
+      - action: 「规则名称」输入「${TaskK}」
+        expected: 规则名称输入框展示「${TaskK}」
       - action: 选择对比类型【跨源数据对比】
         expected: 页面展示跨源数据对比说明，提示跨源比对内容仅支持行数差异比对
-      - action: 主表选择 SparkThrift 数据源
+      - action: 主表选择 ${DataSourceA}
         expected: 主表数据库下拉框加载完成
-      - action: 主表选择数据库 pw_test
+      - action: 主表选择数据库 ${SchemaA}
         expected: 主表数据表下拉框加载完成
-      - action: 主表选择数据表 dq_test_user_info_300
+      - action: 主表选择数据表 ${SchemaA}.test_table_none_c0013_source
         expected: 主表信息展示完整
-      - action: 对照表选择另一已授权数据源
-        expected: 对照表数据库下拉框加载完成；若无第二数据源，本用例记录为环境阻塞
-      - action: 对照表选择 dq_test_user_info_300 或同结构对照表
+      - action: 对照表选择 ${DataSourceB}
+        expected: 对照表数据库下拉框加载完成
+      - action: 对照表选择数据库 ${SchemaB}
+        expected: 对照表数据表下拉框加载完成
+      - action: 对照表选择数据表 ${SchemaB}.test_table_none_c0013_target
         expected: 对照表信息展示完整
       - action: 点击【下一步】，等待字段选择页面加载完成
         expected: 字段映射区域展示逻辑主键和差异设置
@@ -647,186 +766,219 @@ cases:
       - action: 实例生成方式选择【立即生成】，点击【保存】并等待任务列表刷新完成
         expected: 跨源数据对比任务创建成功
       - action: 点击【立即执行】，等待任务实例查询生成最新实例
-        expected: 若两表记录一致，实例状态为校验通过；若记录数不一致，实例状态为校验异常并展示行数差异
-    precondition: |-
-      已确认 dq_test_user_info_300 已同步至数据质量。
-      若标品环境只有一个 SparkThrift 数据源，可选择同类型的另一已授权 SparkThrift 数据源作为对照源；若无第二数据源，本用例记录为环境阻塞。
+        expected: 两表记录一致，实例状态为「通过」，行数差异为 0
     tags:
-      - Part3 多表规则、任务实例查询、质量报告
-      - 多表比对规则
+      - 数据资产
       - 跨源数据对比
+      - 多表比对规则
   - case_id: C0014
-    title: 验证任务实例查询支持搜索实例和查看规则明细
+    title: 验证【数据资产】-【搜索和明细】按任务名称搜索实例并查看规则明细，明细与明细查询 SQL 结果一致
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0014 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0014 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行规则任务「${TaskA}」（user_code 空值数规则，期望值 0），最新实例状态为「校验异常」且可查看明细
     steps:
       - action: 进入【数据资产 → 搜索和明细】页面
-        expected: 已进入【数据资产 → 搜索和明细】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 任务实例查询】页面，等待实例列表加载完成
         expected: 页面 URL 为 `#/dq/taskQuery`，列表展示表名、任务名称、执行时间、校验状态
-      - action: 在搜索条件输入任务名称“v63完整性字段级任务”，点击【查询】，等待列表刷新完成
+      - action: 在搜索条件输入任务名称「${TaskA}」，点击【查询】，等待列表刷新完成
         expected: 列表仅展示匹配该任务名称的实例记录
       - action: 点击实例表名或详情入口，等待详情抽屉加载完成
         expected: 抽屉展示任务基础信息、规则结果和校验未通过统计
       - action: 在 user_code 空值数规则卡片点击【查看明细】，等待明细表格加载完成
-        expected: 明细表格展示 user_code 为空的记录；明细数量和样例 id 与 `SELECT id FROM dq_test_user_info_300 WHERE user_code IS NULL LIMIT 20` 查询结果一致
+        expected: 明细表格展示 user_code 为空的记录；明细数量和样例 id 与 `SELECT id FROM ${SchemaA}.test_table_none_c0014 WHERE user_code IS NULL LIMIT 20` 查询结果一致
       - action: 点击【查看趋势】，等待趋势图加载完成
-        expected: 趋势图展示该规则最近执行记录，当前执行点实际值为 `{user_code_null_cnt}`
-    precondition: 已执行“v63完整性字段级任务”，任务实例查询中存在最新实例。
+        expected: 趋势图展示该规则最近执行记录，当前执行点实际值为 {user_code_null_cnt}
     tags:
-      - Part3 多表规则、任务实例查询、质量报告
-      - 任务实例查询
+      - 数据资产
       - 搜索和明细
+      - 任务实例查询
   - case_id: C0015
-    title: 验证任务实例查询展示通过异常和失败日志
+    title: 验证【数据资产】-【状态和日志】查看通过异常与失败实例，日志展示 SQL 执行失败原因
     priority: P2
+    precondition: |-
+      1) 已配置任务「${TaskB}」的校验结果为「通过」的实例，表行数实际值为 {row_cnt}
+      2) 已配置任务「${TaskC}」期望值改错后重新执行生成的「校验异常」实例，nick_name 重复数实际值为 {nick_name_dup_cnt}
+      3) 已配置 SQL 配置错误导致的运行失败实例
     steps:
       - action: 进入【数据资产 → 状态和日志】页面
-        expected: 已进入【数据资产 → 状态和日志】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 任务实例查询】页面，等待实例列表加载完成
         expected: 实例列表正常展示
-      - action: 搜索“v63表行数任务”并打开最新实例详情
-        expected: 实例状态为校验通过，表行数实际值为 `{row_cnt}`
-      - action: 搜索期望值被改错后的“v63唯一性任务”并打开最新实例详情
-        expected: 实例状态为校验异常，nick_name 重复数实际值为 `{nick_name_dup_cnt}`
+      - action: 搜索「${TaskB}」，打开编辑期望值前生成的实例详情
+        expected: 实例状态为「通过」，表行数实际值为 {row_cnt}
+      - action: 搜索期望值被改错后的「${TaskC}」并打开最新实例详情
+        expected: 实例状态为「校验异常」，nick_name 重复数实际值为 {nick_name_dup_cnt}
       - action: 搜索 SQL 配置错误的测试实例并打开详情
-        expected: 实例状态为运行失败或校验异常，详情中展示日志入口
+        expected: 实例状态为「运行失败」，详情中展示日志入口
       - action: 点击日志入口并等待日志内容加载完成
         expected: 日志展示 SQL 执行失败原因，错误信息与配置错误一致
-    precondition: 已配置校验通过实例、校验异常实例和 SQL 配置错误导致的运行失败实例。
     tags:
-      - Part3 多表规则、任务实例查询、质量报告
-      - 任务实例查询
+      - 数据资产
       - 状态和日志
+      - 任务实例查询
   - case_id: C0016
-    title: 验证质量报告生成后展示规则结果和数据准确性
+    title: 验证【数据资产】-【报告生成与详情】生成质量报告并查看规则结果，准确性格式规则结果与实例一致
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0016 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0016 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已执行任务「${TaskE}」和「${TaskH}」，任务实例查询中存在最新实例
     steps:
       - action: 进入【数据资产 → 报告生成与详情】页面
-        expected: 已进入【数据资产 → 报告生成与详情】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 质量报告】页面，等待报告列表加载完成
         expected: 页面 URL 为 `#/dq/qualityReport`，展示报告列表和生成报告入口
       - action: 点击生成报告入口，等待报告生成表单加载完成
         expected: 表单展示数据源、数据库、数据表、报告周期字段
-      - action: 选择 SparkThrift 数据源
+      - action: 选择 ${DataSourceA}
         expected: 数据库下拉框加载完成
-      - action: 选择数据库 pw_test
+      - action: 选择数据库 ${SchemaA}
         expected: 数据表下拉框加载完成
-      - action: 选择数据表 dq_test_user_info_300，报告周期选择一次性
+      - action: 选择数据表 ${SchemaA}.test_table_none_c0016，报告周期选择一次性
         expected: 表单中所选库表与已执行过的质量任务一致
       - action: 点击【确定】，等待报告生成任务提交完成
         expected: 提示报告生成任务提交成功
       - action: 轮询报告列表直到新报告记录出现
-        expected: 报告列表展示 dq_test_user_info_300 的最新报告记录
+        expected: 报告列表展示 test_table_none_c0016 的最新报告记录
       - action: 打开最新报告详情，等待详情页面加载完成
         expected: 报告详情展示数据源、数据库、数据表、报告生成时间和规则结果区域
       - action: 查看准确性规则结果
-        expected: score 求和、平均值、负值比、零值比、正值比均等于执行前 SparkThrift 统计 SQL 的对应预期值
+        expected: score 求和、平均值、负值比、零值比、正值比均等于执行前统计 SQL 的对应预期值
       - action: 查看格式规则结果
-        expected: 身份证号、手机号、邮箱格式规则的不通过数均等于执行前 SparkThrift 统计 SQL 的对应预期值，数据准确性统计与任务实例查询一致
-    precondition: 已执行“v63准确性任务”和“v63规范性格式任务”，任务实例查询中存在最新实例。
+        expected: 身份证号、手机号、邮箱格式规则的不通过数均等于执行前统计 SQL 的对应预期值，数据准确性统计与任务实例查询一致
     tags:
-      - Part3 多表规则、任务实例查询、质量报告
-      - 质量报告
+      - 数据资产
       - 报告生成与详情
+      - 质量报告
   - case_id: C0017
-    title: 验证项目信息新增表单校验和保存成功
+    title: 验证【数据资产】-【项目信息】新增项目并触发表单校验，超长标识被拦截且保存后列表展示新项目
     priority: P1
+    precondition: |-
+      1) 操作账号为租户管理员「${UserA}」，具备数据质量项目管理权限
     steps:
       - action: 进入【数据资产 → 项目信息】页面
-        expected: 已进入【数据资产 → 项目信息】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 项目管理】页面，等待项目列表加载完成
         expected: 页面 URL 为 `#/dq/project/projectList`，展示【创建项目】按钮和项目列表
       - action: 点击【创建项目】，等待创建项目弹窗加载完成
         expected: 弹窗展示项目名称、项目标识、管理员、项目描述字段
       - action: 项目名称输入 65 个字符，项目标识输入包含特殊字符的 65 个字符，不选择管理员，点击【确定】，等待表单校验完成
         expected: 项目名称提示不超过 64 个字符；项目标识提示不超过 64 个字符且只支持字母、数字、下划线；管理员提示请选择管理员用户
-      - action: 将项目名称改为“v63回归项目”，项目标识改为“v63_regression_project”，管理员选择当前登录用户，项目描述输入“v63回归项目描述”
+      - action: 将项目名称改为「${ProjectA}」，项目标识改为「v63_regression_project」，管理员选择「${UserA}」，项目描述输入「${ProjectA} 回归验证」
         expected: 表单字段展示输入值
       - action: 点击【确定】，等待项目列表刷新完成
-        expected: 提示创建成功，项目列表展示“v63回归项目”和项目标识“v63_regression_project”
-      - action: 使用项目名称“v63回归项目”搜索并等待列表刷新完成
+        expected: 提示创建成功，项目列表展示「${ProjectA}」和项目标识「v63_regression_project」
+      - action: 使用项目名称「${ProjectA}」搜索并等待列表刷新完成
         expected: 列表仅展示匹配的项目记录
-    precondition: 当前登录用户为租户管理员，具备数据质量项目管理权限。
     tags:
-      - Part4 项目信息、脏数据管理
-      - 项目管理
+      - 数据资产
       - 项目信息
+      - 项目管理
   - case_id: C0018
-    title: 验证项目信息编辑置顶和删除流程正确
+    title: 验证【数据资产】-【项目信息】编辑置顶与删除项目，编辑生效且取消删除后项目保留
     priority: P2
+    precondition: |-
+      1) 已创建项目「${ProjectA}」，该项目未被生产任务使用
     steps:
       - action: 进入【数据资产 → 项目信息】页面
-        expected: 已进入【数据资产 → 项目信息】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 项目管理】页面，等待项目列表加载完成
-        expected: 列表展示项目“v63回归项目”
+        expected: 列表展示项目「${ProjectA}」
       - action: 点击项目操作列【编辑】，等待编辑项目弹窗加载完成
         expected: 弹窗回显项目名称、项目标识、管理员、项目描述
-      - action: 将项目描述修改为“v63回归项目描述-已编辑”，点击【确定】，等待列表刷新完成
-        expected: 项目描述更新为“v63回归项目描述-已编辑”
+      - action: 将项目描述修改为「${ProjectA} 回归验证-已编辑」，点击【确定】，等待列表刷新完成
+        expected: 项目描述更新为「${ProjectA} 回归验证-已编辑」
       - action: 点击项目操作列【置顶】，等待列表刷新完成
-        expected: 项目“v63回归项目”展示在列表顶部
+        expected: 项目「${ProjectA}」展示在列表顶部
       - action: 点击项目操作列【删除】
         expected: 弹出删除确认，提示项目被删除后对应任务、规则将被删除且无法恢复
       - action: 点击【取消】关闭删除确认，等确认弹窗关闭
-        expected: 项目未删除，列表仍展示“v63回归项目”
-    precondition: 已创建项目“v63回归项目”，该项目未被生产任务使用。
+        expected: 项目未删除，列表仍展示「${ProjectA}」
     tags:
-      - Part4 项目信息、脏数据管理
-      - 项目管理
+      - 数据资产
       - 项目信息
+      - 项目管理
   - case_id: C0019
-    title: 验证脏数据独立存储开启后可查看和下载异常明细
+    title: 验证【数据资产】-【脏数据配置和明细】开启脏数据独立存储并执行任务，异常明细可查看与下载
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0019 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0019 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 已存在质量项目「${ProjectB}」
+      6) 规则任务「${TaskA}」包含 user_code 空值数规则（期望值 0，表中 user_code 存在空值），执行后实例状态为「校验异常」
     steps:
       - action: 进入【数据资产 → 脏数据配置和明细】页面
-        expected: 已进入【数据资产 → 脏数据配置和明细】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 项目管理】页面，等待项目列表加载完成
-        expected: 项目列表展示 test_007
-      - action: 进入 test_007 项目详情，切换到【脏数据管理】
+        expected: 项目列表展示「${ProjectB}」
+      - action: 进入「${ProjectB}」项目详情，切换到【脏数据管理】
         expected: 页面展示脏数据存储说明、数据源、数据源类型、脏数据存储库、数据存储时效、操作
       - action: 点击【开启】或【编辑】配置脏数据独立存储，等待配置弹窗加载完成
         expected: 弹窗展示校验数据源、是否存储到源库、脏数据存储库、数据存储时效字段
-      - action: 选择校验数据源为 SparkThrift 数据源
+      - action: 选择校验数据源为 ${DataSourceA}
         expected: 脏数据存储库下拉框加载完成
       - action: 是否存储到源库选择【是】
         expected: 脏数据存储库自动匹配源库或展示可选源库
       - action: 数据存储时效输入 90 天，点击【确定】，等待配置保存完成
         expected: 脏数据存储状态为开启，数据存储时效展示 90 天
-      - action: 重新执行“v63完整性字段级任务”，等待任务实例查询生成校验异常实例
-        expected: 最新实例状态为校验异常
+      - action: 重新执行「${TaskA}」，等待任务实例查询生成校验异常实例
+        expected: 最新实例状态为「校验异常」
       - action: 打开实例详情，点击【查看明细】，等待明细表格加载完成
-        expected: 明细数据展示 user_code 为空的记录；明细数量和样例 id 与 `SELECT id FROM dq_test_user_info_300 WHERE user_code IS NULL LIMIT 20` 查询结果一致
+        expected: 明细数据展示 user_code 为空的记录；明细数量和样例 id 与 `SELECT id FROM ${SchemaA}.test_table_none_c0019 WHERE user_code IS NULL LIMIT 20` 查询结果一致
       - action: 点击明细下载入口，等待下载任务完成
-        expected: 下载文件生成成功，文件内容包含 user_code 字段和 SparkThrift 明细查询中的样例 id
-    precondition: |-
-      已存在质量项目 test_007。
-      已执行会产生校验异常的“v63完整性字段级任务”。
+        expected: 下载文件生成成功，文件内容包含 user_code 字段和明细查询中的样例 id
     tags:
-      - Part4 项目信息、脏数据管理
-      - 脏数据管理
+      - 数据资产
       - 脏数据配置和明细
+      - 脏数据管理
   - case_id: C0020
-    title: 验证脏数据独立存储关闭后不再新增异常明细存储
+    title: 验证【数据资产】-【脏数据配置和明细】关闭脏数据独立存储并执行任务，不再新增明细且重新开启后恢复
     priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0020;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0020 (id BIGINT, user_code STRING, user_name STRING, nick_name STRING, score DECIMAL(10,2), user_type STRING, status STRING, age INT, gender INT, remark STRING, id_card_no STRING, mobile_no STRING, email STRING, salary DECIMAL(12,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0020 VALUES (1, 'U001', '张三', 'nick_a', 90.50, 'VIP', 'A', 25, 1, '备注1', '330102199001011234', '13800000001', 'a@test.com', 10000.00), (2, NULL, '李四', 'nick_a', -5.00, 'NORMAL', 'I', 30, 0, NULL, '330102199002021235', '13800000002', 'b@test.com', 20000.00), (3, 'U003', '', 'nick_c', 60.00, 'GUEST', 'D', 17, 1, '备注3', NULL, '13800000003', 'c@test.com', 30000.00), (4, 'U004', '王五', 'nick_d', 80.00, 'NORMAL', 'A', 22, 0, NULL, '330102199003031236', NULL, NULL, 40000.00), (5, 'U005', '', 'nick_e', 70.00, 'VIP', 'A', 28, 1, '备注5', '330102199004041237', '13800000005', 'e@test.com', NULL);
+      5) 项目「${ProjectB}」已开启脏数据独立存储，并已存在一条可查看明细的校验异常实例
     steps:
       - action: 进入【数据资产 → 脏数据配置和明细】页面
-        expected: 已进入【数据资产 → 脏数据配置和明细】页面，显示页面标题与主要操作区域
+        expected: 进入成功
       - action: 进入【数据质量 → 项目管理】页面，等待项目列表加载完成
-        expected: 项目列表展示 test_007
-      - action: 进入 test_007 项目详情，切换到【脏数据管理】
+        expected: 项目列表展示「${ProjectB}」
+      - action: 进入「${ProjectB}」项目详情，切换到【脏数据管理】
         expected: 脏数据存储状态为开启
       - action: 点击【关闭】，等待关闭操作完成
         expected: 提示关闭独立存储成功，脏数据存储状态为关闭
-      - action: 重新执行“v63完整性字段级任务”，等待任务实例查询生成校验异常实例
-        expected: 最新实例状态为校验异常
+      - action: 重新执行「${TaskA}」，等待任务实例查询生成校验异常实例
+        expected: 最新实例状态为「校验异常」
       - action: 打开最新实例详情查看明细入口
         expected: 最新实例不新增独立存储明细，历史实例已存储的明细仍可查看
       - action: 再次点击【开启】，等待配置弹窗加载完成
-        expected: 弹窗回显上一次保存的 SparkThrift 数据源和存储时效
+        expected: 弹窗回显上一次保存的 ${DataSourceA} 和存储时效
       - action: 点击【确定】，等待配置保存完成
-        expected: 脏数据存储状态为开启，后续校验异常实例恢复明细存
-    precondition: test_007 项目已开启脏数据独立存储，并已存在一条可查看明细的校验异常实例。
+        expected: 脏数据存储状态为开启，后续校验异常实例恢复明细存储
     tags:
-      - Part4 项目信息、脏数据管理
-      - 脏数据管理
+      - 数据资产
       - 脏数据配置和明细
+      - 脏数据管理
