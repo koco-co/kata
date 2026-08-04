@@ -1,5 +1,5 @@
 ---
-prd_digest: "sha256:08f4f3907991514a526bdaaa41c1d06b44e2216d928eb3785076c653f6758efa"
+prd_digest: "sha256:a770b51ff3fccd3dc14c7ff2a81b9c6e5639c01e0b76d92637b774a33a8df911"
 ---
 
 # 泸州老窖数据资产定制化回归测试点
