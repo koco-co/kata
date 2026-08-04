@@ -5,169 +5,172 @@ meta:
     - 下线行列级别权限配置.xmind
 cases:
   - case_id: C0001
-    title: 验证列级权限配置开关名称更新
+    title: 验证【数据安全】-【权限配置】查看列级权限配置开关，展示开关名称与悬停提示文案
     priority: P0
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
     steps:
-      - action: 进入【数据安全 → 开关配置】页面
-        expected: 已进入【数据安全 → 开关配置】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全 > 权限配置】页面
-        expected: 权限配置开关名称显示为「是否开启列级权限配置」
-      - action: 鼠标悬浮在开关提示图标上
-        expected: 悬浮提示显示「若不配置默认拥有该表的所有列级权限」
-    precondition: 登录系统，有数据安全权限配置权限
+      - action: 进入【数据安全 → 权限配置】页面
+        expected: 进入成功
+      - action: 查看权限配置开关及其提示图标
+        expected: 开关名称为「是否开启列级权限配置」，悬停提示为「若不配置默认拥有该表的所有列级权限」
     tags:
-      - 数据安全 — 下线行级权限
-      - UI 文案调整
-      - 开关配置
+      ["数据安全", "权限配置"]
   - case_id: C0002
-    title: 验证列级权限配置开关完成目标操作且状态更新
+    title: 验证【数据安全】-【权限配置】开启与关闭列级权限配置开关，开关状态刷新后保持
     priority: P1
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
+      2) 「是否开启列级权限配置」开关初始为关闭
     steps:
-      - action: 进入【数据安全 → 开关配置】页面
-        expected: 已进入【数据安全 → 开关配置】页面，显示页面标题与主要操作区域
-      - action: 切换「是否开启列级权限配置」开关到开启状态
-        expected: 开关正常开启，列级权限配置生效
-      - action: 切换开关到关闭状态
-        expected: 开关正常关闭
-    precondition: 进入权限配置页面
+      - action: 进入【数据安全 → 权限配置】页面
+        expected: 进入成功
+      - action: 开启「是否开启列级权限配置」并确认
+        expected: 开关为开启状态，刷新页面后仍为开启
+      - action: 关闭「是否开启列级权限配置」并确认
+        expected: 开关为关闭状态，刷新页面后仍为关闭
     tags:
-      - 数据安全 — 下线行级权限
-      - UI 文案调整
-      - 开关配置
+      ["数据安全", "权限配置"]
   - case_id: C0003
-    title: 验证配置行级权限按钮已隐藏
+    title: 验证【数据安全】-【权限分配】查看数据表操作项，不展示配置行级权限入口
     priority: P0
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
+      2) 权限分配列表存在数据表「permission_table_a」
     steps:
-      - action: 进入【数据安全 → 配置入口】页面
-        expected: 已进入【数据安全 → 配置入口】页面，显示页面标题与主要操作区域
-      - action: 查看权限配置页面中操作区域
-        expected: 原「配置行级权限」按钮不再显示
-    precondition: 进入权限配置页面
+      - action: 进入【数据安全 → 权限分配】页面
+        expected: 进入成功
+      - action: 查看数据表「permission_table_a」的操作项
+        expected: 不展示「配置行级权限」按钮或菜单项
     tags:
-      - 数据安全 — 下线行级权限
-      - 行级权限隐藏
-      - 配置入口
+      ["数据安全", "权限分配"]
   - case_id: C0004
-    title: 验证行级权限配置入口已隐藏
+    title: 验证【数据安全】-【权限分配】新增与编辑权限策略，表单不展示行级权限配置项
     priority: P0
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
+      2) 权限策略「column_policy_history」存在
     steps:
-      - action: 进入【数据安全 → 配置入口】页面
-        expected: 已进入【数据安全 → 配置入口】页面，显示页面标题与主要操作区域
-      - action: 查看页面中所有权限配置区域
-        expected: 行级权限配置入口全部隐藏
-    precondition: 进入权限配置页面
+      - action: 进入【数据安全 → 权限分配】页面
+        expected: 进入成功
+      - action: 点击「新增权限策略」并查看配置表单
+        expected: 表单不展示行级条件、行过滤表达式或行级权限入口
+      - action: 取消新增并编辑权限策略「column_policy_history」
+        expected: 编辑表单不展示行级条件、行过滤表达式或行级权限入口
     tags:
-      - 数据安全 — 下线行级权限
-      - 行级权限隐藏
-      - 配置入口
+      ["数据安全", "权限分配"]
   - case_id: C0005
-    title: 验证权限列表中行级权限列已隐藏
-    priority: P0
+    title: 验证【数据安全】-【权限分配】查看权限列表表头，不展示行级权限列
+    priority: P1
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
+      2) 权限分配列表存在至少一条记录
     steps:
-      - action: 进入【数据安全 → 列表展示】页面
-        expected: 已进入【数据安全 → 列表展示】页面，显示页面标题与主要操作区域
-      - action: 查看权限列表页面
-        expected: 列表中原行级权限列已隐藏，不再展示「行级权限」列
-    precondition: 进入权限列表页面
+      - action: 进入【数据安全 → 权限分配】页面
+        expected: 进入成功
+      - action: 查看列表表头和记录字段
+        expected: 表头及记录均不展示「行级权限」列
     tags:
-      - 数据安全 — 下线行级权限
-      - 行级权限隐藏
-      - 列表展示
+      ["数据安全", "权限分配"]
   - case_id: C0006
-    title: 验证申请权限时名称更新
+    title: 验证【数据安全】-【权限申请】进入单表权限配置步骤，配置区域名称展示为列级权限配置
     priority: P0
+    precondition: |-
+      1) 使用具有权限申请资格的账号进入数据资产平台
+      2) 可申请数据表「permission_table_a」
     steps:
-      - action: 进入【数据安全 → 审批页面调整】页面
-        expected: 已进入【数据安全 → 审批页面调整】页面，显示页面标题与主要操作区域
-      - action: 进入权限申请页面
-        expected: 权限申请页面的名称显示为「列级权限配置」
-    precondition: 有权限申请页面访问权限
+      - action: 进入【数据安全 → 权限申请】页面
+        expected: 进入成功
+      - action: 选择数据表「permission_table_a」并进入权限配置步骤
+        expected: 原行列级配置区域名称展示为「列级权限配置」
     tags:
-      - 数据安全 — 下线行级权限
-      - 审批页面调整
+      ["数据安全", "权限申请"]
   - case_id: C0007
-    title: 验证审批详情页面行级权限隐藏
+    title: 验证【数据安全】-【审批详情】打开历史权限申请单，不展示行级权限信息且列级权限仍展示
     priority: P1
+    precondition: |-
+      1) 使用审批人账号进入数据资产平台
+      2) 存在升级前提交的权限申请单「permission_apply_history」
+      3) 该申请单原配置包含行级权限和列级权限
     steps:
-      - action: 进入【数据安全 → 审批页面调整】页面
-        expected: 已进入【数据安全 → 审批页面调整】页面，显示页面标题与主要操作区域
-      - action: 进入审批详情页面
-        expected: 所有审批详情页面中行级权限对应信息（文案、列表列、数据）均已隐藏
-    precondition: 存在待审批的权限申请单
+      - action: 进入【数据安全 → 审批详情】页面
+        expected: 进入成功
+      - action: 打开申请单「permission_apply_history」
+        expected: 详情不展示行级权限文案、列表列和条件数据，列级权限信息仍展示
     tags:
-      - 数据安全 — 下线行级权限
-      - 审批页面调整
+      ["数据安全", "审批详情"]
   - case_id: C0008
-    title: 验证批量申请不支持列级权限
+    title: 验证【数据安全】-【权限申请】批量申请数据表权限，不展示列级权限控件并提示不支持
     priority: P1
+    precondition: |-
+      1) 使用具有权限申请资格的账号进入数据资产平台
+      2) 可申请数据表「permission_table_a」「permission_table_b」
     steps:
       - action: 进入【数据安全 → 权限申请】页面
-        expected: 已进入【数据安全 → 权限申请】页面，显示页面标题与主要操作区域
-      - action: 在权限申请页面选择「批量申请」操作
-        expected: 提示文案显示「若想申请表的列级权限，请针对具体表进行权限申请，批量操作不支持列级权限的申请」
-    precondition: 进入权限申请页面，有2 张表可选择
+        expected: 进入成功
+      - action: 批量勾选「permission_table_a」「permission_table_b」并点击「批量申请」
+        expected: 不展示列级权限选择控件，提示「若想申请表的列级权限，请针对具体表进行权限申请，批量操作不支持列级权限的申请」
     tags:
-      - 数据安全 — 下线行级权限
-      - 权限申请
+      ["数据安全", "权限申请"]
   - case_id: C0009
-    title: 验证单表支持列级权限申请
+    title: 验证【数据安全】-【权限申请】单表提交列级权限申请，申请单仅包含勾选字段
     priority: P1
+    precondition: |-
+      1) 使用具有权限申请资格的账号进入数据资产平台
+      2) 数据表「permission_table_a」包含字段「id」「name」「amount」
     steps:
       - action: 进入【数据安全 → 权限申请】页面
-        expected: 已进入【数据安全 → 权限申请】页面，显示页面标题与主要操作区域
-      - action: 在权限申请页面选择具体的数据表进行权限申请
-        expected: 支持选择列级权限进行申请
-    precondition: 进入权限申请页面
+        expected: 进入成功
+      - action: 选择数据表「permission_table_a」并进入「列级权限配置」
+        expected: 展示「id」「name」「amount」三个字段的复选框
+      - action: 勾选「id」「name」并提交申请
+        expected: 申请单中的列级权限为「id」「name」，不包含「amount」
     tags:
-      - 数据安全 — 下线行级权限
-      - 权限申请
+      ["数据安全", "权限申请"]
   - case_id: C0010
-    title: 验证已配置的行级权限继续生效
+    title: 验证【数据安全】-【权限分配】查看历史行级权限用户的数据预览，仅展示命中行级条件的记录
     priority: P2
+    precondition: |-
+      1) 升级前管理员为账号「UserA」配置数据表「permission_history_table」的行级权限：department='A'
+      2) 数据表「permission_history_table」包含记录「id=1, department=A」和「id=2, department=B」
+      3) 平台已从旧版本升级到当前版本
     steps:
-      - action: 进入【数据安全 → 历史配置兼容】页面
-        expected: 已进入【数据安全 → 历史配置兼容】页面，显示页面标题与主要操作区域
-      - action: 检查使用原行级权限控制的用户是否能正常访问数据
-        expected: 已有行级权限配置保留，权限控制继续生效
-      - action: 进入权限配置页面
-        expected: 前端不再显示行级权限的配置入口和按钮
-    precondition: 系统中前期已配置行级权限
+      - action: 进入【数据安全 → 权限分配】页面
+        expected: 进入成功
+      - action: 查看权限分配页面中的历史策略入口
+        expected: 不展示历史行级策略的新增或编辑入口
+      - action: 使用账号「UserA」查看数据表「permission_history_table」的数据预览
+        expected: 仅展示「id=1, department=A」，不展示「id=2, department=B」
     tags:
-      - 数据安全 — 下线行级权限
-      - 历史配置兼容
+      ["数据安全", "权限分配"]
   - case_id: C0011
-    title: 验证系统升级前有行级权限、升级后不可新增行级权限
+    title: 验证【数据安全】-【权限分配】升级后新增权限策略，不展示行级权限配置项
     priority: P2
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
+      2) 平台已从旧版本升级到当前版本
+      3) 升级前存在至少一条行级权限策略
     steps:
-      - action: 进入【数据安全 → 边界场景】页面
-        expected: 已进入【数据安全 → 边界场景】页面，显示页面标题与主要操作区域
-      - action: 以管理员身份登录系统，进入【数据安全 > 权限配置】页面
-        expected: 原行级权限入口隐藏，不存在新增行级权限的入口或按钮
-    precondition: 系统从旧版本升级到 6.3 版本，原系统已配置行级权限
+      - action: 进入【数据安全 → 权限分配】页面
+        expected: 进入成功
+      - action: 点击「新增权限策略」并检查全部配置步骤
+        expected: 不展示行级权限入口、行过滤表达式或行条件配置项
     tags:
-      - 数据安全 — 下线行级权限
-      - 边界场景
-  - case_id: C0012
-    title: 验证无权限用户访问数据安全页面
-    priority: P1
-    steps:
-      - action: 进入【数据安全 → 边界场景】页面
-        expected: 已进入【数据安全 → 边界场景】页面，显示页面标题与主要操作区域
-      - action: 直接访问数据安全权限配置页面 URL
-        expected: 页面提示无权限或跳转到首页，不展示任何配置内容
-    precondition: 登录用户无数据安全模块权限
-    tags:
-      - 数据安全 — 下线行级权限
-      - 边界场景
+      ["数据安全", "权限分配"]
   - case_id: C0013
-    title: 验证列级权限开关关闭时表权限控制
+    title: 验证【数据安全】-【权限配置】关闭列级权限开关后打开数据预览，展示全部字段
     priority: P1
+    precondition: |-
+      1) 使用管理员账号进入数据资产平台
+      2) 「是否开启列级权限配置」开关为关闭
+      3) 账号「UserB」拥有数据表「permission_table_a」的表级权限
+      4) 数据表「permission_table_a」包含字段「id」「name」「amount」
     steps:
-      - action: 进入【数据安全 → 边界场景】页面
-        expected: 已进入【数据安全 → 边界场景】页面，显示页面标题与主要操作区域
-      - action: 查看当前数据表的列级权限控制
-        expected: 不配置列级权限时，默认拥有该表的所有列级权限
-    precondition: 「是否开启列级权限配置」开关处于关闭状态
+      - action: 进入【数据安全 → 权限配置】页面
+        expected: 进入成功
+      - action: 查看「是否开启列级权限配置」
+        expected: 开关为关闭状态
+      - action: 使用账号「UserB」打开数据表「permission_table_a」的数据预览
+        expected: 展示「id」「name」「amount」全部字段
     tags:
-      - 数据安全 — 下线行级权限
-      - 边界场景
+      ["数据安全", "权限配置"]
