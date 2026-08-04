@@ -1475,7 +1475,7 @@ cases:
   steps:
   - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
-  - action: 打开「${TaskA}」调度配置并点击「启用」
+  - action: 打开「${TaskA}」的调度设置并点击「启用」
     expected: 调度状态显示「启用」,下一次运行时间显示今日 02:00
   - action: 查看调度运行记录
     expected: 运行记录新增 1 条,状态为「成功」
@@ -1493,7 +1493,7 @@ cases:
   steps:
   - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
-  - action: 打开「${TaskA}」调度配置并点击「启用」
+  - action: 打开「${TaskA}」的调度设置并点击「启用」
     expected: 调度状态显示「启用」,下一次运行时间显示今日 03:00
   - action: 查看调度运行记录
     expected: 运行记录新增 1 条,状态为「成功」
