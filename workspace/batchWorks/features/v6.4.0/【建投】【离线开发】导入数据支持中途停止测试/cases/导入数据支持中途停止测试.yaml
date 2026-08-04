@@ -36,7 +36,7 @@ cases:
       6) 建表完成后，该表为空表
       7) 行数据由 local_import_9245_c0001.csv 写入
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -67,6 +67,7 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0001; 返回100000
       - action: 使用相同文件和目标表执行「追加」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0001; 返回200000
+    tags: [数据开发, 周期任务, 本地数据导入]
 
   - case_id: C0002
     requirement_id: 9245
@@ -112,7 +113,7 @@ cases:
       6) 建表完成后，该表为空表
       7) 两张表均由 local_import_9245_c0002.csv 写入行数据
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -139,6 +140,7 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0002_comparison_01; 返回100000
       - action: 使用相同文件向 Duplicate Key 对照表执行「追加」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0002_comparison_01; 返回200000
+    tags: [数据开发, 周期任务, 本地数据导入]
 
   - case_id: C0003
     requirement_id: 9245
@@ -171,7 +173,7 @@ cases:
       7) 建表完成后，该表为空表
       8) 行数据由 local_import_9245_c0003.csv 写入
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -196,6 +198,7 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0003; 返回值大于100000且小于200000
       - action: 使用相同文件和目标表执行「覆盖」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0003; 返回100000
+    tags: [数据开发, 周期任务, 本地数据导入]
 
   - case_id: C0004
     requirement_id: 9245
@@ -233,7 +236,7 @@ cases:
       6) 建表完成后，该表为空表
       7) 行数据由 local_import_9245_c0004.csv 写入
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -262,6 +265,7 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0004; 返回100000
       - action: 使用相同文件和目标表执行「追加」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0004; 返回200000
+    tags: [数据开发, 周期任务, 本地数据导入]
 
   - case_id: C0005
     requirement_id: 9245
@@ -299,7 +303,7 @@ cases:
       7) 建表完成后，该表为空表
       8) 行数据由 local_import_9245_c0005.csv 写入
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -328,6 +332,7 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0005; 返回100000
       - action: 使用相同文件和目标表执行「追加」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0005; 返回200000
+    tags: [数据开发, 周期任务, 本地数据导入]
 
   - case_id: C0006
     requirement_id: 9245
@@ -365,7 +370,7 @@ cases:
       6) 建表完成后，该表为空表
       7) 行数据由 local_import_9245_c0006.csv 写入
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -394,6 +399,7 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0006; 返回100000
       - action: 使用相同文件和目标表执行「追加」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0006; 返回200000
+    tags: [数据开发, 周期任务, 本地数据导入]
 
   - case_id: C0007
     requirement_id: 9245
@@ -426,7 +432,7 @@ cases:
       7) 建表完成后，该表为空表
       8) 行数据由 local_import_9245_c0007.csv 写入
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 点击「导入」
         expected: 打开「本地数据导入」窗口
@@ -455,3 +461,4 @@ cases:
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0007; 返回100000
       - action: 使用相同文件和目标表执行「追加」导入
         expected: 导入完成，SELECT COUNT(*) FROM ${SchemaA}.test_table_9245_c0007; 返回200000
+    tags: [数据开发, 周期任务, 本地数据导入]
