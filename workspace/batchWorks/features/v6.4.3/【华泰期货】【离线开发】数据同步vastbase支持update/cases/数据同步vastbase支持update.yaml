@@ -47,7 +47,7 @@ cases:
           CREATE TABLE IF NOT EXISTS ${SchemaD}.test_table_15051_c0001_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
           INSERT INTO ${SchemaD}.test_table_15051_c0001_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: |-
           依次新建三条向导模式数据同步任务：
@@ -56,7 +56,7 @@ cases:
         expected: 三条任务均进入「选择目标」步骤，目标表识别主键 id
       - action: 分别展开三条任务的「主键冲突」下拉框
         expected: Inceptor、MySQL、Oracle 三种来源的下拉选项均包含「on duplicate key update」
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0002
     title: 验证【数据开发】-【周期任务】Inceptor 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
@@ -77,7 +77,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0002_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0002_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: |-
           新建向导模式数据同步周期任务：
@@ -92,7 +92,7 @@ cases:
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0002_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0003
     title: 验证【数据开发】-【周期任务】MySQL 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
@@ -113,7 +113,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0003_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0003_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: |-
           新建向导模式数据同步周期任务：
@@ -128,7 +128,7 @@ cases:
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0003_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0004
     title: 验证【数据开发】-【周期任务】Oracle 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
@@ -157,7 +157,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0004_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0004_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: |-
           新建向导模式数据同步周期任务：
@@ -172,7 +172,7 @@ cases:
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0004_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0005
     title: 验证【数据开发】-【周期任务】提交 update 数据同步任务，按周期调度运行成功
@@ -193,7 +193,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0005_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0005_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建并保存 MySQL 到 Vastbase 周期数据同步任务 TaskD，主键冲突选择「on duplicate key update」
         expected: 任务列表新增 TaskD，状态为「未提交」
@@ -204,7 +204,7 @@ cases:
           1) 补数据实例状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0005_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0006
     title: 验证【数据开发】-【周期任务】Spark 来源 Vastbase 目标，主键冲突不可选 update
@@ -225,13 +225,13 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0006_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0006_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建向导模式任务，来源选择 test_table_15051_c0006_source_01，目标选择 test_table_15051_c0006_target_01
         expected: 进入「选择目标」步骤，目标表识别主键 id
       - action: 展开「主键冲突」下拉框
         expected: 下拉选项不包含「on duplicate key update」
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0007
     title: 验证【数据开发】-【周期任务】MySQL 来源 Vastbase 目标，主键冲突选择 insert 任务运行成功
@@ -243,7 +243,7 @@ cases:
       4) 创建 MySQL 源表并插入冲突数据：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0007_source_01;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0007_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
-         INSERT INTO ${SchemaA}.test_table_15051_c0007_source_01 VALUES (1, 'Alice_new');
+         INSERT INTO ${SchemaA}.test_table_15051_c0007_source_01 VALUES (1, 'Alice_latest');
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：Vastbase
       7) 数据源 B 存在数据库：${SchemaB}
@@ -252,15 +252,15 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0007_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0007_target_01 VALUES (1, 'Alice_old');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建 MySQL 到 Vastbase 周期同步任务，主键冲突选择「insert」，脏数据阈值设置为 0，保存并运行
         expected: 任务状态为「失败」，日志包含目标表主键 id=1 冲突信息
       - action: 在 Vastbase 执行 SELECT id, name FROM ${SchemaB}.test_table_15051_c0007_target_01;
         expected: 查询结果为 (1, Alice_old)，目标记录未被覆盖
       - action: 进入【运维中心 → 周期实例】页面，打开该失败实例的脏数据
-        expected: 脏数据展示源记录 (1, Alice_new) 和主键冲突原因
-    tags: ["离线开发", "数据开发", "周期任务"]
+        expected: 脏数据展示源记录 (1, Alice_latest) 和主键冲突原因
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0008
     title: 验证【数据开发】-【周期任务】运行未映射字段的同步任务，目标端未映射字段保持不变
@@ -281,13 +281,13 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0008_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64), status VARCHAR(32));
          INSERT INTO ${SchemaB}.test_table_15051_c0008_target_01 VALUES (1, 'target_name', 'inactive');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 新建 MySQL 到 Vastbase 周期同步任务，主键冲突选择「on duplicate key update」，仅映射 id 和 status，保存并运行
         expected: 任务运行状态为「成功」
       - action: 在 Vastbase 执行 SELECT id, name, status FROM ${SchemaB}.test_table_15051_c0008_target_01;
         expected: 查询结果为 (1, target_name, active)，未映射的 name 保持 target_name
-    tags: ["离线开发", "数据开发", "周期任务"]
+    tags: ["数据开发", "周期任务"]
 
   - case_id: C0009
     title: 验证【数据开发】-【手动任务】Inceptor、MySQL、Oracle 来源 Vastbase 目标，主键冲突可选 update
@@ -329,7 +329,7 @@ cases:
           CREATE TABLE IF NOT EXISTS ${SchemaD}.test_table_15051_c0009_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
           INSERT INTO ${SchemaD}.test_table_15051_c0009_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: |-
           依次新建三条向导模式数据同步任务：
@@ -338,7 +338,7 @@ cases:
         expected: 三条任务均进入「选择目标」步骤，目标表识别主键 id
       - action: 分别展开三条任务的「主键冲突」下拉框
         expected: Inceptor、MySQL、Oracle 三种来源的下拉选项均包含「on duplicate key update」
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0010
     title: 验证【数据开发】-【手动任务】Inceptor 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
@@ -359,14 +359,14 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0010_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0010_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建 Inceptor 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
         expected: |-
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0010_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0011
     title: 验证【数据开发】-【手动任务】MySQL 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
@@ -387,14 +387,14 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0011_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0011_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
         expected: |-
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0011_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0012
     title: 验证【数据开发】-【手动任务】Oracle 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
@@ -423,14 +423,14 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0012_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0012_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建 Oracle 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
         expected: |-
           1) 任务运行状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0012_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0013
     title: 验证【运维中心】-【手动任务管理】手动运行 update 数据同步任务，实例运行成功
@@ -451,7 +451,7 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0013_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0013_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建并保存 MySQL 到 Vastbase 手动同步任务 TaskA，主键冲突选择「on duplicate key update」
         expected: 任务列表新增 TaskA，状态为「未提交」
@@ -462,7 +462,7 @@ cases:
           1) 手动实例状态：「成功」
           2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0013_target_01 ORDER BY id;
              查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0014
     title: 验证【数据开发】-【手动任务】Spark 来源 Vastbase 目标，主键冲突不可选 update
@@ -483,13 +483,13 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0014_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0014_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建向导模式任务，来源选择 test_table_15051_c0014_source_01，目标选择 test_table_15051_c0014_target_01
         expected: 进入「选择目标」步骤，目标表识别主键 id
       - action: 展开「主键冲突」下拉框
         expected: 下拉选项不包含「on duplicate key update」
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0015
     title: 验证【数据开发】-【手动任务】MySQL 来源 Vastbase 目标，主键冲突选择 insert 任务运行成功
@@ -501,7 +501,7 @@ cases:
       4) 创建 MySQL 源表并插入冲突数据：
          DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0015_source_01;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0015_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
-         INSERT INTO ${SchemaA}.test_table_15051_c0015_source_01 VALUES (1, 'Alice_new');
+         INSERT INTO ${SchemaA}.test_table_15051_c0015_source_01 VALUES (1, 'Alice_latest');
       5) 授权数据源 B：${DataSourceB}
       6) 数据源 B 类型：Vastbase
       7) 数据源 B 存在数据库：${SchemaB}
@@ -510,15 +510,15 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0015_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
          INSERT INTO ${SchemaB}.test_table_15051_c0015_target_01 VALUES (1, 'Alice_old');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「insert」，脏数据阈值设置为 0，保存并运行
         expected: 任务状态为「失败」，日志包含目标表主键 id=1 冲突信息
       - action: 在 Vastbase 执行 SELECT id, name FROM ${SchemaB}.test_table_15051_c0015_target_01;
         expected: 查询结果为 (1, Alice_old)，目标记录未被覆盖
       - action: 进入【运维中心 → 手动实例】页面，打开该失败实例的脏数据
-        expected: 脏数据展示源记录 (1, Alice_new) 和主键冲突原因
-    tags: ["离线开发", "数据开发", "手动任务"]
+        expected: 脏数据展示源记录 (1, Alice_latest) 和主键冲突原因
+    tags: ["数据开发", "手动任务"]
 
   - case_id: C0016
     title: 验证【数据开发】-【手动任务】运行未映射字段的同步任务，目标端未映射字段保持不变
@@ -539,10 +539,10 @@ cases:
          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0016_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64), status VARCHAR(32));
          INSERT INTO ${SchemaB}.test_table_15051_c0016_target_01 VALUES (1, 'target_name', 'inactive');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+      - action: 进入【数据开发 → 手动任务】页面
         expected: 进入成功
       - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，仅映射 id 和 status，保存并运行
         expected: 任务运行状态为「成功」
       - action: 在 Vastbase 执行 SELECT id, name, status FROM ${SchemaB}.test_table_15051_c0016_target_01;
         expected: 查询结果为 (1, target_name, active)，未映射的 name 保持 target_name
-    tags: ["离线开发", "数据开发", "手动任务"]
+    tags: ["数据开发", "手动任务"]
