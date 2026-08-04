@@ -1,3879 +1,628 @@
 meta:
-  title: 【规则任务配置优化】质量规则任务支持编辑分区信息
+  title: 质量规则任务支持编辑分区信息
   requirement_id: "15524"
-  case_module_id: "10192"
+  case_module_id: ""
   exports:
     - 规则任务支持编辑分区信息.xmind
 cases:
   - case_id: C0001
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择动态分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
-        expected: "数据预览成功: 暂无数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为动态分区并保存，新实例分区值为前一日和当日
+    priority: P0
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0001 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0001 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「手动输入」，配置值为 factory_date=20260115、sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 打开规则任务「TaskA」并点击【编辑】，将分区方式改为「动态分区」并保存
+        expected: Toast提示:「保存成功」，任务详情显示分区方式「动态分区」
+      - action: 打开规则任务「TaskA」的实例列表
+        expected: 新生成实例的分区值为前一日和当日日期，实例状态为「等待运行」
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 动态分区
+
   - case_id: C0002
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择已有分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为选择已有分区并保存，新实例仅扫描所选分区
+    priority: P0
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0002 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0002 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 分区列表可选择的值为 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「手动输入」，配置值为 factory_date=20260115、sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将分区方式改为「选择已有分区」并选择 factory_date=20260115、sale_date=20260201 后保存
+        expected: Toast提示:「保存成功」，任务详情显示两个已选分区值
+      - action: 打开规则任务「TaskA」的实例列表
+        expected: 新生成实例仅包含 factory_date=20260115、sale_date=20260201
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 已有分区
+
   - case_id: C0003
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 手动输入分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为手动输入并保存，旧实例停止且不再按旧分区执行
+    priority: P0
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date/sale_date = bdp.system.bizdate
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0003 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0003 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「动态分区」，存在状态为「等待运行」的实例
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将分区方式改为「手动输入」并填写 factory_date=20260115、sale_date=20260201 后保存
+        expected: Toast提示:「保存成功」，任务详情显示手动分区值 factory_date=20260115、sale_date=20260201
+      - action: 进入【数据质量 → 校验结果查询】页面并查看「TaskA」的未运行实例
+        expected: 实例状态依次显示「停止中」和「中途停止」，不再执行旧动态分区配置
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 实例状态
+
   - case_id: C0004
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 选择已有分区)
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为选择已有分区并保存，实例分区信息为所选分区值
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 3条数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: 1) 任务运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: 规则任务rule01详情页中, 分区配置变更成功
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: "分区配置变更成功, 变更范围:"
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: 表名悬浮提示中的分区配置信息
-      - action: 检查后续生成的rule01实例的详情页
-        expected: "规则详情页中, 表级报告中的表名和分区信息 后续生成的实例正常运行, 校验结果: 校验通过"
     precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0004 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0004 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 分区列表可选择的值为 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「动态分区」，存在状态为「等待运行」的实例
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将分区方式改为「选择已有分区」并选择 factory_date=20260115、sale_date=20260201 后保存
+        expected: Toast提示:「保存成功」，任务详情显示分区方式「选择已有分区」
+      - action: 打开规则任务「TaskA」的实例详情
+        expected: 实例分区信息为 factory_date=20260115、sale_date=20260201，实例状态为「等待运行」
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 已有分区
+
   - case_id: C0005
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 手动输入分区)
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为手动输入并保存，编辑页回显输入的分区值
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0005 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0005 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 分区列表包含 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将分区方式改为「手动输入」并填写 factory_date=20260116、sale_date=20260202 后保存
+        expected: Toast提示:「保存成功」，任务详情显示手动分区值 factory_date=20260116、sale_date=20260202
+      - action: 重新打开规则任务「TaskA」编辑页
+        expected: 分区方式为「手动输入」，两个分区输入框分别显示 20260116 和 20260202
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 手动分区
+
   - case_id: C0006
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 选择动态分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
-        expected: "数据预览成功: 暂无数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为动态分区并保存，新实例不再使用旧的固定分区值
+    priority: P0
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0006 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0006 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将分区方式改为「动态分区」并保存
+        expected: Toast提示:「保存成功」，任务详情显示分区方式「动态分区」
+      - action: 查看规则任务「TaskA」新生成实例
+        expected: 实例分区值使用前一日和当日日期，未保留旧的固定分区值
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 动态分区
+
   - case_id: C0007
-    title: 验证分区信息不变, 任务实例信息不变
-    priority: P2
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置不变
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "分区配置不变, 实例继续运行, 结果不变: 校验不通过"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置不变, 实例继续运行, 结果依旧不变: 校验不通过"
+    title: 验证【数据质量】-【规则任务管理】不修改分区配置直接保存，分区方式与分区值保持不变
+    priority: P1
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0007 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0007 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 分区列表包含 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 打开规则任务「TaskA」编辑页，不修改分区配置并点击【保存】
+        expected: Toast提示:「保存成功」，任务详情的分区方式和两个分区值保持不变
+      - action: 查看规则任务「TaskA」的已有实例
+        expected: 已有实例的分区信息和实例状态保持不变
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 一级分区
+      - 配置保持
+
   - case_id: C0008
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择动态分区)
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202/sale_date=20260202
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验不通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 暂无数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
-        expected: "分区配置变更成功, 变更范围:"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: 表名悬浮提示中的分区配置信息
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "规则详情页中, 表级报告中的表名和分区信息 后续生成的实例正常运行, 校验结果: 校验通过"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: ""
+    title: 验证【数据质量】-【规则任务管理】修改一级分区为手动输入并保留二级分区，实例分区信息同步更新
+    priority: P1
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0008 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0008 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」一级分区为「动态分区」、二级分区为手动输入 sale_date=20260202，存在状态为「等待运行」的实例
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将一级分区 factory_date 改为手动输入 20260116，保留二级分区 sale_date=20260202 后保存
+        expected: Toast提示:「保存成功」，任务详情显示一级分区 20260116 和二级分区 20260202
+      - action: 查看「TaskA」实例详情
+        expected: 实例分区信息同时包含 factory_date=20260116、sale_date=20260202
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 双分区
+
   - case_id: C0009
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择已有分区)
+    title: 验证【数据质量】-【规则任务管理】保留一级分区并修改二级分区为手动输入，实例分区信息同步更新
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0009 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0009 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」一级分区为手动输入 factory_date=20260115、二级分区为「动态分区」，存在状态为「等待运行」的实例
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，保留一级分区 factory_date=20260115，将二级分区 sale_date 改为手动输入 20260202 后保存
+        expected: Toast提示:「保存成功」，任务详情显示一级分区 20260115 和二级分区 20260202
+      - action: 查看「TaskA」实例详情
+        expected: 实例分区信息同时包含 factory_date=20260115、sale_date=20260202
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 双分区
+
   - case_id: C0010
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 手动输入分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
+    title: 验证【数据质量】-【规则任务管理】查看动态分区任务详情与最新实例，实例分区值为前一日和当日
+    priority: P0
     precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0010 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0010 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「动态分区」，调度周期为每天
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 打开规则任务「TaskA」详情并查看分区配置
+        expected: 分区配置显示动态日期表达式，未写入固定日期
+      - action: 查看最新执行实例
+        expected: 实例分区值为前一日和当日日期，执行状态为「运行成功」
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 调度
+
   - case_id: C0011
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 选择已有分区)
+    title: 验证【数据质量】-【规则任务管理】打开动态分区任务编辑页并取消，分区方式与表达式保持不变
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date/sale_date = bdp.system.bizdate
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0011 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0011 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」已保存动态分区配置，分区表达式为当前日期
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 打开规则任务「TaskA」编辑页
+        expected: 分区方式单选项选中「动态分区」，两个分区字段均回显当前日期表达式
+      - action: 点击【取消】
+        expected: 返回规则任务列表，「TaskA」的分区方式仍为「动态分区」
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 回显
+
   - case_id: C0012
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 手动输入分区)
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为动态分区并保存，旧实例停止且后续实例按动态分区生成
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202/sale_date=20260202
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验不通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 3条数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "分区配置变更成功, 变更范围:"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: 表名悬浮提示中的分区配置信息
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "规则详情页中, 表级报告中的表名和分区信息 后续生成的实例正常运行, 校验结果: 校验通过"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: ""
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0012 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0012 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「手动输入」，存在「等待运行」和「运行中」实例
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，改为动态分区并点击【保存】
+        expected: Toast提示:「保存成功」，旧的「等待运行」实例进入「停止中」
+      - action: 进入【数据质量 → 校验结果查询】页面查看「TaskA」实例
+        expected: 旧实例显示「中途停止」，后续实例按动态分区生成
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 实例状态
+
   - case_id: C0013
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 选择动态分区)
+    title: 验证【数据质量】-【规则任务管理】仅修改分区方式并保存，监控规则与调度周期保持不变
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
-        expected: "数据预览成功: 暂无数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0013 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0013 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」包含字段 final_price 的非空规则，调度周期为每天，分区方式为手动输入
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，仅将分区方式改为「动态分区」并保存
+        expected: Toast提示:「保存成功」，规则字段 final_price、非空规则和每天调度周期保持不变
+      - action: 查看规则任务「TaskA」详情
+        expected: 分区方式为「动态分区」，监控规则数量为 1，调度周期为每天
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 配置保持
+
   - case_id: C0014
-    title: 验证分区信息不变, 任务实例信息不变
-    priority: P2
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202/sale_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202/sale_date=20260202 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置不变
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "分区配置不变, 实例继续运行, 结果不变: 校验不通过"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: "分区配置不变, 实例继续运行, 结果依旧不变: 校验不通过"
+    title: 验证【数据质量】-【规则任务管理】选择不存在的分区并预览，预览显示暂无数据且保存禁用
+    priority: P1
     precondition: |-
-      1) 已存在规则任务, 监控规则配置如下
-      监控对象:
-      - 规则名称: rule01
-      - 数据表: dwd_voyah_vehicle_sales_dates
-      - 选择已有分区: factory_date=20260202/sale_date=20260202
-
-      监控规则: 引入规则包、规则类型(完整性校验)
-
-      完整性校验:
-      - 生效范围: 字段级
-      - 字段: final_price
-      - 统计函数: 字段取值校验
-      - 期望值: >= 0
-
-      调度属性:
-      - 调度周期: 时
-      - 生效日期: T~T+1
-      - 间隔时间: 1小时
-      - 其它默认
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0014 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0014 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 不存在 factory_date=20990101、sale_date=20990102 分区
+      6) 规则任务「TaskA」分区方式为「选择已有分区」
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，选择不存在的分区值 factory_date=20990101、sale_date=20990102 并点击【数据预览】
+        expected: 预览区域显示「暂无数据」，保存按钮保持禁用
+      - action: 返回规则任务列表
+        expected: 「TaskA」的原分区配置未改变
     tags:
+      - 数据质量
       - 规则任务管理
-      - 二级分区
-      - 二级分区
+      - 空数据
+
   - case_id: C0015
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择动态分区)
+    title: 验证【数据质量】-【规则任务管理】修改单分区任务为动态分区并保存，实例仅生成单级分区值
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
-        expected: "数据预览成功: 暂无数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建单分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0015;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0015 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0015 PARTITION (sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为手动输入，配置 sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，将分区方式改为「动态分区」并保存
+        expected: Toast提示:「保存成功」，任务详情只展示 sale_date 动态分区配置
+      - action: 查看最新实例详情
+        expected: 实例仅包含 sale_date 分区值，状态为「等待运行」
     tags:
+      - 数据质量
       - 规则任务管理
-      - 一级分区
-      - 二级分区
+      - 单分区
+
   - case_id: C0016
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择已有分区)
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验不通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 3条数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "分区配置变更成功, 变更范围:"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: 表名悬浮提示中的分区配置信息
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "规则详情页中, 表级报告中的表名和分区信息 后续生成的实例正常运行, 校验结果: 校验通过"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: ""
+    title: 验证【数据质量】-【规则任务管理】修改分区方式为选择已有分区并保存，实例展示两级分区值
+    priority: P1
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0016 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0016 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 分区列表包含 factory_date=20260115、sale_date=20260201
+      6) 规则任务「TaskA」分区方式为「手动输入」
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，选择「选择已有分区」并同时选择 factory_date=20260115、sale_date=20260201 后保存
+        expected: Toast提示:「保存成功」，任务详情显示两级分区均已选择
+      - action: 打开「TaskA」实例详情
+        expected: 分区信息同时显示 factory_date=20260115 和 sale_date=20260201
     tags:
+      - 数据质量
       - 规则任务管理
-      - 一级分区
-      - 二级分区
+      - 双分区
+
   - case_id: C0017
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 手动输入分区)
+    title: 验证【数据质量】-【规则任务管理】清空手动分区值并保存，输入框置红且保存禁用
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date = bdp.system.bizdate
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日、当日和 factory_date=20260115、sale_date=20260201 三个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0017 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0017 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), '20260115', '20260201' FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「选择已有分区」，已选 factory_date=20260115、sale_date=20260201
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 编辑规则任务「TaskA」，切换为「手动输入」并清空 sale_date 分区值后点击【保存】
+        expected: 「sale_date」置红提示「请输入分区值」，「保存」按钮禁用
+      - action: 点击【取消】
+        expected: 返回列表，「TaskA」的原分区方式和分区值保持不变
     tags:
+      - 数据质量
       - 规则任务管理
-      - 一级分区
-      - 二级分区
+      - 必填校验
+
   - case_id: C0018
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 选择已有分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
-    precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 二级分区
-  - case_id: C0019
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 手动输入分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115/sale_date=20260201 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
-    precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 二级分区
-  - case_id: C0020
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 选择动态分区)
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验不通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 暂无数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date/sale_date = bdp.system.bizdate , 点击数据预览"
-        expected: "分区配置变更成功, 变更范围:"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: 表名悬浮提示中的分区配置信息
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "规则详情页中, 表级报告中的表名和分区信息 后续生成的实例正常运行, 校验结果: 校验通过"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: ""
-    precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 二级分区
-  - case_id: C0021
-    title: 验证分区信息不变, 任务实例信息不变
+    title: 验证【数据质量】-【规则任务管理】克隆任务并修改分区方式，新任务按所选分区运行
     priority: P2
-    steps:
-      - action: 进入【数据质量 → 二级分区】页面
-        expected: 已进入【数据质量 → 二级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202/sale_date=20260202 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置不变
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验不通过
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0018 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0018 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」分区方式为「动态分区」，包含字段 final_price 非空规则
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 对「TaskA」点击【克隆】并将克隆任务名称改为「TaskB」
+        expected: 克隆编辑页回显动态分区和 final_price 非空规则
+      - action: 将「TaskB」分区方式改为「选择已有分区」，选择前一日和当日分区并保存
+        expected: Toast提示:「保存成功」，列表新增「TaskB」，分区方式为「选择已有分区」
     tags:
+      - 数据质量
       - 规则任务管理
-      - 一级分区
-      - 二级分区
-  - case_id: C0022
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择动态分区)
+      - 克隆
+
+  - case_id: C0019
+    title: 验证【数据质量】-【规则任务管理】修改实例生成方式为立即生成与动态分区并保存，新增一条等待运行实例
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
-        expected: "数据预览成功: 暂无数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0023
-    title: 验证分区信息改变, 任务实例信息改变(手动输入分区 ❯ 选择已有分区)
-    priority: P1
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0019 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0019 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」实例生成方式为「T+1生成」，分区方式为手动输入
     steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
+      - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 手动输入分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 运行成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: "校验结果: 校验不通过"
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "数据预览成功: 3条数据"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
-      - action: 检查后续生成的rule01实例的详情页
-        expected: ""
+      - action: 编辑「TaskA」，将实例生成方式改为「立即生成」、分区方式改为「动态分区」并保存
+        expected: Toast提示:「保存成功」，任务详情显示实例生成方式「立即生成」和动态分区
+      - action: 查看「TaskA」实例列表
+        expected: 列表新增 1 条实例，实例状态为「等待运行」且分区值为前一日和当日日期
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 实例生成
+
+  - case_id: C0020
+    title: 验证【数据质量】-【规则任务管理】关闭实例检测并修改为动态分区，实例数量不新增
+    priority: P2
     precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0024
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 手动输入分区)
-    priority: P0
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区，每个分区 3 条记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15524_c0020;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15524_c0020 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (factory_date STRING, sale_date STRING);
+         INSERT INTO ${SchemaA}.test_table_15524_c0020 PARTITION (factory_date, sale_date)
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyyMMdd'), date_format(date_sub(current_date(), 1), 'yyyyMMdd') FROM range(1, 4)
+         UNION ALL
+         SELECT id, CAST(id * 100 AS DECIMAL(10,2)), date_format(current_date(), 'yyyyMMdd'), date_format(current_date(), 'yyyyMMdd') FROM range(1, 4);
+      5) 规则任务「TaskA」实例生成方式为「立即生成」，分区方式为手动输入
     steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
+      - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date = bdp.system.bizdate
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验不通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 3条数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115 , 点击数据预览"
-        expected: "分区配置变更成功, 变更范围:"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: 表名悬浮提示中的分区配置信息
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: 规则详情页中, 表级报告中的表名和分区信息
-      - action: 检查后续生成的rule01实例的详情页
-        expected: "后续生成的实例正常运行, 校验结果: 校验通过"
-      - action: 检查后续rule01实例的校验结果
-        expected: ""
-    precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
+      - action: 编辑「TaskA」，将实例生成方式改为「关闭检测」、分区方式改为「动态分区」并保存
+        expected: Toast提示:「保存成功」，任务详情显示实例生成方式「关闭检测」和动态分区
+      - action: 查看「TaskA」实例列表
+        expected: 实例数量保持不变，不新增等待运行实例
     tags:
+      - 数据质量
       - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0025
-    title: 验证分区信息改变, 任务实例信息改变(选择动态分区 ❯ 选择已有分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择动态分区: factory_date = bdp.system.bizdate
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择已有分区: factory_date=20260115 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
-    precondition: |-
-      1) 选择动态分区需要额外执行DML语句:
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='${bdp.system.bizdate}', sale_date='${bdp.system.bizdate}')
-      VALUES
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -200.00, '成都交付中心', 3);
-
-
-      2) 建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0026
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 手动输入分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260115, 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
-    precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- 表名: 岚图汽车销售双日期分区表
-      -- 分区: factory_date (出厂日期) / sale_date (出售日期)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0027
-    title: 验证分区信息改变, 任务实例信息改变(选择已有分区 ❯ 选择动态分区)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 运行规则任务rule01, 立即执行
-        expected: 运行成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 选择动态分区: factory_date = bdp.system.bizdate , 点击数据预览"
-        expected: "数据预览成功: 暂无数据"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置变更成功
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: "实例停止运行, 实例状态依次变更: 【停止中】、【中途停止】"
-      - action: 检查后续生成的rule01实例的详情页
-        expected: |-
-          分区配置变更成功, 变更范围:
-          1) 表名悬浮提示中的分区配置信息
-          2) 规则详情页中, 表级报告中的表名和分区信息后续生成的实例正常运行, 校验结果: 校验通过
-    precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      -- =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0028
-    title: 验证分区信息不变, 任务实例信息不变
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 一级分区】页面
-        expected: 已进入【数据质量 → 一级分区】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: "新建监控规则, 配置如下:"
-        expected: 配置成功
-      - action: |-
-          监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-        expected: 运行成功
-      - action: |-
-          监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-        expected: "校验结果: 校验不通过"
-      - action: |-
-          调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: "数据预览成功: 3条数据"
-      - action: 运行规则任务rule01, 立即执行
-        expected: |-
-          1) 任务运行成功
-          2) 规则任务rule01详情页中, 分区配置不变
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "分区配置不变, 实例继续运行, 结果不变: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: 手动输入分区: factory_date=20260202 , 点击数据预览"
-        expected: "分区配置不变, 实例继续运行, 结果依旧不变: 校验不通过"
-      - action: 后面配置不变, 保存后再次运行任务
-        expected: ""
-      - action: 进入【校验结果查询】, 检查【运行中、等待运行】的rule01实例的详情页
-        expected: ""
-      - action: 检查后续生成的rule01实例的详情页
-        expected: ""
-    precondition: |-
-      建表语句如下:
-      =========================================================
-      -- 1. 建表语句 (DDL)
-      =========================================================
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-          order_id        STRING          COMMENT '销售订单号',
-          vin             STRING          COMMENT '车辆识别代码(VIN)',
-          car_model       STRING          COMMENT '车型名称',
-          guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-          final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-          dealer_name     STRING          COMMENT '交付中心',
-          order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-          factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-          sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-      -- =========================================================
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- =========================================================
-
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      -- 用于测试：基础的分区扫描功能
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-
-      SELECT * FROM dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 一级分区
-      - 一级分区
-  - case_id: C0029
-    title: 验证规则任务正常运行(关闭检测)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 运行方式】页面
-        expected: 已进入【数据质量 → 运行方式】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: T+1生成
-        expected: 配置成功
-      - action: 选择规则任务rule01, 关闭检测, 等待T+1生成
-        expected: 生成成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验通过"
-    precondition: |-
-      建表语句如下:
-      -- 1. 建表语句 (DDL)
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 运行方式
-  - case_id: C0030
-    title: 验证规则任务正常运行(立即生成)
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 运行方式】页面
-        expected: 已进入【数据质量 → 运行方式】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「立即生成」
-        expected: 配置成功
-      - action: 立即生成规则任务实例
-        expected: 生成成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: factory_date=20260115 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次立即生成任务
-        expected: 生成成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验通过"
-    precondition: |-
-      建表语句如下:
-      -- 1. 建表语句 (DDL)
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 运行方式
-  - case_id: C0031
-    title: 验证规则任务正常运行(T+1生成)
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 运行方式】页面
-        expected: 已进入【数据质量 → 运行方式】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: |-
-          新建监控规则, 配置如下:
-          1) 监控对象:
-          - 规则名称: rule01
-          - 数据表: dwd_voyah_vehicle_sales_dates
-          - 选择已有分区: factory_date=20260202
-          2) 监控规则: 完整性校验:
-          - 生效范围: 字段级
-          - 字段: final_price
-          - 统计函数: 字段取值校验
-          - 期望值: >= 0
-          3) 调度属性:
-          - 调度周期: 时
-          - 生效日期: T~T+1
-          - 间隔时间: 1小时
-          - 其它默认
-          - 实例生成方式: 「T+1生成」
-        expected: 配置成功
-      - action: 等待T+1生成规则任务实例
-        expected: 实例生成成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验不通过"
-      - action: "进入【规则任务管理】, 编辑rule01, 修改分区: factory_date=20260115 , 点击数据预览"
-        expected: "数据预览成功: 3条数据"
-      - action: 后面配置不变, 保存后再次等待T+1生成规则任务实例
-        expected: 实例生成成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验通过"
-      - action: 进入规则任务详情「编辑调度属性」配置页面, 将「T+1生成」, 改为「立即生成」后, 保存
-        expected: 配置变更成功
-      - action: 立即生成规则任务实例
-        expected: 生成成功
-      - action: 进入【校验结果查询】, 检查实例详情页面
-        expected: "校验结果: 校验通过"
-    precondition: |-
-      建表语句如下:
-      -- 1. 建表语句 (DDL)
-      DROP TABLE IF EXISTS dwd_voyah_vehicle_sales_dates;
-      CREATE TABLE IF NOT EXISTS dwd_voyah_vehicle_sales_dates (
-      order_id        STRING          COMMENT '销售订单号',
-      vin             STRING          COMMENT '车辆识别代码(VIN)',
-      car_model       STRING          COMMENT '车型名称',
-      guide_price     DECIMAL(20,2)   COMMENT '官方指导价',
-      final_price     DECIMAL(20,2)   COMMENT '最终成交价',
-      dealer_name     STRING          COMMENT '交付中心',
-      order_status    INT             COMMENT '状态: 3-已交付'
-      )
-      COMMENT '岚图汽车销售表-用于规则配置测试'
-      PARTITIONED BY (
-      factory_date    STRING          COMMENT '一级分区: 出厂日期 yyyyMMdd',
-      sale_date       STRING          COMMENT '二级分区: 出售日期 yyyyMMdd'
-      )
-      STORED AS ORC
-      TBLPROPERTIES ('orc.compress'='SNAPPY');
-
-
-      -- 2. 数据插入语句 (DML) - 共10条数据
-      -- 【场景A：正常数据】 4条
-      -- 出厂: 20260115 -> 出售: 20260201 (产销周期约半个月，正常)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260115', sale_date='20260201')
-      VALUES
-      ('ORD_20260201_001', 'LTV_FREE_001', '岚图FREE', 266900.00, 261900.00, '武汉交付中心', 3),
-      ('ORD_20260201_002', 'LTV_DREAM_002', '岚图梦想家', 369900.00, 365000.00, '杭州交付中心', 3),
-      ('ORD_20260201_003', 'LTV_PASSION_003', '岚图追光', 252800.00, 252800.00, '深圳交付中心', 3),
-      ('ORD_20260201_004', 'LTV_FREE_004', '岚图FREE', 266900.00, 260000.00, '成都交付中心', 3);
-
-      -- 【场景B：库存积压】 3条
-      -- 出厂: 20251220 -> 出售: 20260201 (去年生产今年卖，跨年跨月)
-      -- 用于测试：手动输入分区范围查询 (例如 factory_date  出售: 20260201 (出厂日期晚于出售日期，逻辑错误)
-      -- 用于测试：质量规则校验 (WHERE factory_date > sale_date 应该触发告警)
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260301', sale_date='20260201')
-      VALUES
-      ('ORD_ERR_001', 'LTV_FUTURE_001', '岚图FREE', 266900.00, 266900.00, '广州交付中心', 3),
-      ('ORD_ERR_002', 'LTV_FUTURE_002', '岚图梦想家', 369900.00, 369900.00, '西安交付中心', 3);
-
-      -- 【场景D：极速产销】 1条
-      -- 出厂: 20260201 -> 出售: 20260201 (当天生产当天卖)
-      -- 用于测试：边界值校验
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260201', sale_date='20260201')
-      VALUES
-      ('ORD_FAST_001', 'LTV_SPEED_001', '岚图追光', 252800.00, 252800.00, '武汉交付中心', 3);
-
-      -- 【场景E：字段级异常 (脏数据)】 4条
-      INSERT INTO TABLE dwd_voyah_vehicle_sales_dates PARTITION (factory_date='20260202', sale_date='20260202')
-      VALUES
-      -- 1. [NULL异常]: 车型名称为 NULL
-      ('ORD_ERR_NULL', 'LTV_NULL_VAL', NULL, 266900.00, 260000.00, '北京交付中心', 3),
-      -- 2. [空串异常]: 交付中心为 Empty String ('')
-      ('ORD_ERR_EMPTY', 'LTV_EMPTY_STR', '岚图追光', 252800.00, 252800.00, '', 3),
-      -- 3. [数值异常]: 最终成交价为负数 (-100.00)
-      ('ORD_ERR_NEG', 'LTV_NEG_PRICE', '岚图梦想家', 369900.00, -100.00, '成都交付中心', 3),
-      -- 4. [空值异常]: VIN码为纯空格 ('   '), 且官方指导价丢失
-      ('ORD_ERR_BLANK', '   ', '岚图FREE', NULL, 0.00, '重庆交付中心', 3);
-
-      -- 查询已创建的分区信息
-      SHOW PARTITIONS dwd_voyah_vehicle_sales_dates;
-    tags:
-      - 规则任务管理
-      - 运行方式
-  - case_id: C0032
-    title: 验证规则任务支持「实例生成方式」
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 运行方式】页面
-        expected: 已进入【数据质量 → 运行方式】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: 新建规则任务A, 配置监控对象、监控规则后, 检查调度属性页面
-        expected: "调度配置中新增字段: 实例生成方式"
-      - action: 检查实例生成方式配置项
-        expected: |-
-          1) 枚举: T+1生成(默认)、立即生成
-          2) 悬浮提示: 选中「T+1生成」，代表实例生成按照配置项设置的时间生成实例，默认是22：00；选中「立即生成」，代表提交后立即生成当天开始未来时间内的实例，之后的实例生成还是按照配置项设置的时间生成实例；
-      - action: 保存规则任务, 检查规则任务详情页
-        expected: "新增字段: 实例生成方式, 回显内容正确"
-      - action: 选择规则任务A, 进入任务详情页-「编辑调度属性」配置页面
-        expected: "调度配置中存在字段: 实例生成方式"
-      - action: 检查实例生成方式配置项
-        expected: |-
-          1) 枚举: T+1生成(默认)、立即生成
-          2) 悬浮提示: 选中「T+1生成」，代表实例生成按照配置项设置的时间生成实例，默认是22：00；选中「立即生成」，代表提交后立即生成当天开始未来时间内的实例，之后的实例生成还是按照配置项设置的时间生成实例；
-    precondition: 无
-    tags:
-      - 规则任务管理
-      - 运行方式
-  - case_id: C0033
-    title: 验证规则任务支持编辑分区操作
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 运行方式】页面
-        expected: 已进入【数据质量 → 运行方式】页面，显示页面标题与主要操作区域
-      - action: 进入【数据资产】-【数据质量】-【规则任务管理】页面
-        expected: 进入成功
-      - action: 选择规则任务A, 进入编辑页
-        expected: |-
-          1) 分区配置处于可编辑状态
-          2) 分区配置信息回显正常
-    precondition: 规则任务列表已存在监控对象为分区表的任务A
-    tags:
-      - 规则任务管理
-      - 运行方式
+      - 实例生成
