@@ -253,8 +253,16 @@ function validateNumberedBlock(text: string): string | undefined {
   return undefined;
 }
 
+// 表单字段编号(1) 字段名: 值)是单次表单填写的一部分，不算独立操作阶段
+const FORM_FIELD_LINE_RE = /^\d+\)\s+[^:：\n]+[:：]/;
 function numberedActionItemCount(action: string): number {
-  return action.split("\n").filter((line) => NUMBERED_LINE_RE.test(line.trimStart())).length;
+  return action
+    .split("\n")
+    .filter(
+      (line) =>
+        NUMBERED_LINE_RE.test(line.trimStart()) && !FORM_FIELD_LINE_RE.test(line.trimStart()),
+    )
+    .length;
 }
 
 function normalizedIdentifier(value: string): string {
@@ -293,7 +301,7 @@ function validateTableNames(
     return [
       makeViolation(
         "case_sql_table_name",
-        "涉及建表 SQL 的用例必须声明数字 requirement_id，以生成稳定表名",
+        '涉及建表 SQL 的用例必须声明数字 requirement_id 或 "none"，以生成稳定表名',
         "缺少 requirement_id",
       ),
     ];
@@ -431,7 +439,7 @@ const STABLE_TABLE_TOKEN_RE =
   /\btest_table_\d+_c\d{4}(?:_(?:source|target|comparison|dimension)(?:_\d{2,})?)?\b/gi;
 const FILE_TOKEN_RE = /\b[^\s，,。；;、]+\.(?:csv|xlsx|xls|sql)\b/gi;
 const BUSINESS_VALUE =
-  "(?:\\s*(?:[：:]\\s*)?(?:「([^」\\n]+)」|“([^”\\n]+)”|‘([^’\\n]+)’|\"([^\"\\n]+)\"|'([^'\\n]+)'|`([^`\\n]+)`)|(?:\\s*[：:]\\s*|\\s+)([A-Za-z][A-Za-z0-9_-]*))";
+  "(?:\\s*(?:[：:][^\\S\\n]*)?(?:「([^」\\n]+)」|“([^”\\n]+)”|‘([^’\\n]+)’|\"([^\"\\n]+)\"|'([^'\\n]+)'|`([^`\\n]+)`)|(?:[：:][^\\S\\n]*|\\s+)([A-Za-z][A-Za-z0-9_-]*))";
 
 function businessPattern(context: string): RegExp {
   return new RegExp(`${context}(?:为|输入)?${BUSINESS_VALUE}`, "g");
@@ -450,6 +458,11 @@ const BUSINESS_FIXTURE_RULES: BusinessFixtureRule[] = [
       businessPattern("(?:账号|用户|管理员)(?:名称)?"),
       /使用[^\n]*?\s([A-Za-z][A-Za-z0-9_-]*)\s+登录/g,
     ],
+  },
+  {
+    label: "用户组",
+    placeholderPrefix: "UserGroup",
+    patterns: [businessPattern("用户组(?:名称)?")],
   },
   {
     label: "标准编号",
@@ -710,7 +723,7 @@ function lintEnvironmentPlaceholders(
       addEnvironmentValue(values, "project", match[0], config);
     }
     for (const match of withoutStringLiterals.matchAll(
-      /\b(?:[A-Za-z][\w-]*_(?:demo|db|schema|target)|schema_[A-Za-z0-9][\w-]*)\b/gi,
+      /(?<!\bAS\s)\b(?:[A-Za-z][\w-]*_(?:demo|db|schema|target)|schema_[A-Za-z0-9][\w-]*)\b/gi,
     )) {
       addEnvironmentValue(values, "schema", match[0], config);
     }
@@ -771,7 +784,7 @@ function lintBusinessPlaceholders(item: CaseItem): CaseContentViolation[] {
   return [
     makeViolation(
       "case_business_placeholders",
-      "除稳定表名和文件名外，租户、用户、目录、标准编号、标准、规则集、规则、任务、报告等业务实例均使用语义占位符",
+      "除稳定表名和文件名外，租户、用户、用户组、目录、标准编号、标准、规则集、规则、任务、报告等业务实例均使用语义占位符",
       actual,
       `将具体业务实例替换为：${replacements}`,
     ),

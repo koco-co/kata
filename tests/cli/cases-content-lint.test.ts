@@ -135,6 +135,15 @@ describe("cases content lint", () => {
         (item) => item.rule === "case_business_placeholders",
       ),
     ).toBe(false);
+
+    const userGroup = testCase({
+      precondition: `1) 用户「UserA」和用户组「研发组」均存在`,
+    });
+    const groupViolation = lintCaseContent(doc(userGroup), config).find(
+      (item) => item.rule === "case_business_placeholders",
+    );
+    expect(groupViolation).toBeDefined();
+    expect(groupViolation?.message).toContain("研发组 → UserGroupA");
   });
 
   it("requires tags to start with the first navigation path and allows functional detail", () => {
@@ -396,6 +405,25 @@ describe("cases content lint", () => {
       config,
     );
     expect(separated.map((item) => item.rule)).not.toContain("case_action_atomicity");
+  });
+
+  it("treats numbered form fields inside one action as a single operation stage", () => {
+    const violations = lintCaseContent(
+      doc(
+        testCase({
+          steps: [
+            { action: "进入【离线开发 → 数据开发 → 函数管理】页面", expected: "进入成功" },
+            {
+              action:
+                "新建GaussDB 存储过程, 配置如下:\n1) 存储过程名称: proc_account_summary\n2) SQL:\nCREATE OR REPLACE PROCEDURE ${项目标识}.proc_account_summary();",
+              expected: "Toast提示: 创建成功",
+            },
+          ],
+        }),
+      ),
+      config,
+    );
+    expect(violations.map((item) => item.rule)).not.toContain("case_action_atomicity");
   });
 
   it("requires an exact datasource block, canonical type and paired placeholders", () => {
