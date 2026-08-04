@@ -1100,6 +1100,89 @@ function lintSqlExpected(item: CaseItem): CaseContentViolation[] {
 }
 
 /**
+ * 规则集新建表单必须按前端顺序列出全部配置项：
+ * *规则集名称、*选择数据源、*选择数据库、*选择数据表、规则集描述（可空但必须占位列出）。
+ * 只检查 action 文本中含「新建规则集」语义的块。
+ */
+const RULE_SET_FORM_FIELDS: { label: string; required: boolean }[] = [
+  { label: "规则集名称", required: true },
+  { label: "选择数据源", required: true },
+  { label: "选择数据库", required: true },
+  { label: "选择数据表", required: true },
+  { label: "规则集描述", required: false },
+];
+
+function lintRuleSetForm(action: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  if (!/新建规则集/.test(action)) return violations;
+
+  const missing: string[] = [];
+  const order: string[] = [];
+  for (const field of RULE_SET_FORM_FIELDS) {
+    if (new RegExp(field.label).test(action)) {
+      order.push(field.label);
+    } else if (field.required) {
+      missing.push(field.label);
+    }
+  }
+  // 校验配置项按前端顺序出现：缺失时按缺失项报；顺序错乱时单独报。
+  const expectedOrder = RULE_SET_FORM_FIELDS.map((field) => field.label);
+  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  if (missing.length > 0 || !ordered) {
+    violations.push(
+      makeViolation(
+        "case_rule_set_form",
+        "新建规则集表单必须按前端顺序列出全部配置项：*规则集名称、*选择数据源、*选择数据库、*选择数据表、规则集描述（可空也须占位列出）",
+        missing.length > 0
+          ? `缺少配置项：${missing.join("、")}`
+          : `配置项顺序错乱：${order.join(" → ")}`,
+        `在「新建规则集」action 中补齐全部配置项并按顺序列出：\n* 规则集名称：\n* 选择数据源：${"${DataSourceA}"}\n* 选择数据库：${"${SchemaA}"}\n* 选择数据表：\n规则集描述：`,
+      ),
+    );
+  }
+  return violations;
+}
+
+/** 调度属性表单配置项，顺序与前端一致；必填项必须出现，可空项占位列出。 */
+const SCHEDULE_FORM_FIELDS: { label: string; required: boolean }[] = [
+  { label: "调度周期", required: true },
+  { label: "规则拼接包", required: false },
+  { label: "资源组", required: false },
+  { label: "超时时间", required: false },
+  { label: "无需生成报告", required: false },
+];
+
+function lintScheduleForm(action: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  if (!/调度属性|调度配置/.test(action)) return violations;
+
+  const missing: string[] = [];
+  const order: string[] = [];
+  for (const field of SCHEDULE_FORM_FIELDS) {
+    if (new RegExp(field.label).test(action)) {
+      order.push(field.label);
+    } else if (field.required) {
+      missing.push(field.label);
+    }
+  }
+  const expectedOrder = SCHEDULE_FORM_FIELDS.map((field) => field.label);
+  const ordered = order.every((label, index) => label === expectedOrder[index]);
+  if (missing.length > 0 || !ordered) {
+    violations.push(
+      makeViolation(
+        "case_schedule_form",
+        "调度属性表单必须按前端顺序列出全部配置项：*调度周期（默认手动触发）、规则拼接包（最小值2）、资源组、超时时间、无需生成报告（可空项也须占位列出）",
+        missing.length > 0
+          ? `缺少配置项：${missing.join("、")}`
+          : `配置项顺序错乱：${order.join(" → ")}`,
+        `在「调度属性」action 中补齐全部配置项并按顺序列出：\n* 调度周期：手动触发\n规则拼接包：\n资源组：\n超时时间：不限制\n无需生成报告：勾选`,
+      ),
+    );
+  }
+  return violations;
+}
+
+/**
  * 前置条件只声明环境与数据准备；任何面向业务对象的配置操作（配置规则/规则集/规则任务、
  * 点击、新建、保存、引入等）必须写进 steps[].action。仅检查非缩进编号行，
  * SQL/脚本/文件内容的缩进行不在此列。
@@ -1111,7 +1194,7 @@ function lintPreconditionConfigAction(precondition: string): CaseContentViolatio
     /(配置|新建|创建(?:规则|任务|规则集)|点击|保存|引入|添加规则|勾选|填写|选择(?!数据源|数据库|数据表|分区)|设置(?!分区)|(?:立即|临时|手动)?执行(?:规则|任务|任务集|该规则|该任务)|删除|提交|下载)/;
   // 业务对象声明带配置明细：规则/规则集/规则任务的配置内容属于操作，不属于前置条件
   const objectWithDetail =
-    /存在(?:规则集|规则任务|规则|任务|规则包|监控任务|数据质量任务)[^。]*?(?:监控表|校验字段|排序字段|校验方法|维度字段|统计函数|过滤条件|规则[：:]|其中包含规则|强弱规则|期望值)/;
+    /存在(?:规则集|规则任务|规则|任务|规则包|监控任务|数据质量任务)[^。]*?(?:校验字段|排序字段|校验方法|维度字段|统计函数|过滤条件|规则[：:]|其中包含规则|强弱规则|期望值)/;
   for (const line of precondition.split("\n")) {
     const trimmed = line.trimStart();
     if (!/^\d+\)\s+/.test(trimmed)) continue;
@@ -1213,6 +1296,11 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
           step.action,
         ),
       );
+    }
+
+    for (const step of item.steps) {
+      violations.push(...lintRuleSetForm(step.action));
+      violations.push(...lintScheduleForm(step.action));
     }
 
     const actual = item.steps[0]?.action.trim() || "<空步骤>";

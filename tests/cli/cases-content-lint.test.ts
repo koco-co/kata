@@ -851,4 +851,80 @@ cases:
     });
     expect(lintCaseContent(doc(item), config)).toEqual([]);
   });
+
+  it("requires a complete rule set form in the new rule set action", () => {
+    const missing = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则集管理】页面", expected: "进入成功" },
+        {
+          action:
+            "点击「新建规则集」，填写规则集名称「RuleSetA」，选择 ${DataSourceA}、${SchemaA}、test_table_16178_c0001",
+          expected: "进入规则配置步骤",
+        },
+      ],
+    });
+    const rules = lintCaseContent(doc(missing), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_rule_set_form");
+    const violation = lintCaseContent(doc(missing), config).find(
+      (entry) => entry.rule === "case_rule_set_form",
+    );
+    expect(violation?.message).toContain("缺少配置项");
+    expect(violation?.message).toContain("规则集描述");
+
+    const complete = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则集管理】页面", expected: "进入成功" },
+        {
+          action: `点击「新建规则集」，配置如下：
+* 规则集名称：RuleSetA
+* 选择数据源：\${DataSourceA}
+* 选择数据库：\${SchemaA}
+* 选择数据表：test_table_16178_c0001
+规则集描述：维度字段验证
+点击「下一步」`,
+          expected: "进入规则配置步骤，基础信息回显规则集名称、描述、数据源、数据库和数据表",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+      "case_rule_set_form",
+    );
+  });
+
+  it("requires a complete schedule form in the schedule action", () => {
+    const missing = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: "配置「调度属性」，设置「规则拼接包」为「10」，保存规则",
+          expected: "规则保存成功",
+        },
+      ],
+    });
+    const rules = lintCaseContent(doc(missing), config).map((entry) => entry.rule);
+    expect(rules).toContain("case_schedule_form");
+    const violation = lintCaseContent(doc(missing), config).find(
+      (entry) => entry.rule === "case_schedule_form",
+    );
+    expect(violation?.message).toContain("缺少配置项");
+    expect(violation?.message).toContain("调度周期");
+
+    const complete = testCase({
+      steps: [
+        { action: "进入【数据质量 → 规则任务管理】页面", expected: "进入成功" },
+        {
+          action: `配置调度属性：
+* 调度周期：手动触发
+规则拼接包：10
+资源组：默认资源组
+超时时间：不限制
+无需生成报告：勾选`,
+          expected: "调度属性配置完成，规则任务保存成功，执行周期为手动触发",
+        },
+      ],
+    });
+    expect(lintCaseContent(doc(complete), config).map((entry) => entry.rule)).not.toContain(
+      "case_schedule_form",
+    );
+  });
 });
