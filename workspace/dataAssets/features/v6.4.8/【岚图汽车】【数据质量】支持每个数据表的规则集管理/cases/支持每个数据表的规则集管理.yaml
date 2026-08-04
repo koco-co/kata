@@ -279,17 +279,17 @@ cases:
     title: 验证【数据质量】-【规则集管理】新增编辑删除规则包，列表与提示同步更新(规则包CRUD)
     priority: P1
     precondition: |-
-      1) 规则集「RuleSetB」已创建，当前包含规则包「crud_pack」
-      2) 规则包名称「crud_pack_new」当前不存在
+      1) 规则集「RuleSetB」已创建，当前包含规则包「RuleSetB」
+      2) 规则包名称「RuleSetC」当前不存在
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 打开规则集「RuleSetB」，点击【新增规则包】，填写名称「crud_pack_new」并点击【保存】
-        expected: Toast提示:「保存成功」，规则包列表新增 crud_pack_new
-      - action: 编辑 crud_pack_new 名称为「crud_pack_edited」并保存
-        expected: Toast提示:「保存成功」，规则包名称更新为 crud_pack_edited
-      - action: 删除 crud_pack_edited 并确认
-        expected: Toast提示:「删除成功」，规则包列表不再展示 crud_pack_edited
+      - action: 打开规则集「RuleSetB」，点击【新增规则包】，填写名称「RuleSetC」并点击【保存】
+        expected: Toast提示:「保存成功」，规则包列表新增 RuleSetC
+      - action: 编辑 RuleSetC 名称为「RuleSetD」并保存
+        expected: Toast提示:「保存成功」，规则包名称更新为 RuleSetD
+      - action: 删除 RuleSetD 并确认
+        expected: Toast提示:「删除成功」，规则包列表不再展示 RuleSetD
     tags:
       - 数据质量
       - 规则集管理
@@ -388,12 +388,12 @@ cases:
          DROP TABLE IF EXISTS ${SchemaA}.test_table_15522_c0018;
          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15522_c0018 (id BIGINT, amount DECIMAL(10,2));
          INSERT INTO ${SchemaA}.test_table_15522_c0018 VALUES (1, 10.00), (2, 20.00);
-      5) 规则集「RuleSetM」已存在规则包「rule_crud_pack」，当前有 1 条规则
+      5) 规则集「RuleSetM」已存在规则包「rule_RuleSetB」，当前有 1 条规则
       6) 数据表为「${SchemaA}.test_table_15522_c0018」
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 在 rule_crud_pack 中新增规则，选择字段 amount、统计函数空值数并点击【保存】
+      - action: 在 rule_RuleSetB 中新增规则，选择字段 amount、统计函数空值数并点击【保存】
         expected: Toast提示:「保存成功」，规则数量由 1 变为 2
       - action: 编辑 amount 规则的期望值为 0 并保存
         expected: Toast提示:「保存成功」，规则行期望值更新为 0
