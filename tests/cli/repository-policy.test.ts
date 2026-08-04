@@ -85,6 +85,36 @@ describe("repository policy", () => {
     expect(policy.root.allowed_files).not.toContain("CONTRIBUTING.md");
   });
 
+  it("enforces the first-party source line limit with explicit exclusions", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-line-limit-"));
+    try {
+      mkdirSync(join(root, "config", "policies"), { recursive: true });
+      mkdirSync(join(root, "cli", "vendor"), { recursive: true });
+      writeFileSync(
+        join(root, "config", "policies", "repo-policy.yaml"),
+        `${POLICY}
+source_code:
+  max_lines: 5
+  excluded_globs:
+    - cli/vendor/**
+    - cli/generated.ts
+`,
+      );
+      writeFileSync(join(root, "package.json"), "{\"name\":\"kata\"}\n");
+      writeFileSync(join(root, "cli", "big.ts"), `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`);
+      writeFileSync(join(root, "cli", "small.ts"), "// ok\n");
+      writeFileSync(join(root, "cli", "generated.ts"), `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`);
+      writeFileSync(join(root, "cli", "vendor", "lib.ts"), `${Array.from({ length: 10 }, () => "// line").join("\n")}\n`);
+      const paths = ["package.json", "cli/big.ts", "cli/small.ts", "cli/generated.ts", "cli/vendor/lib.ts"];
+      const violations = checkRepositoryPolicy(root, paths);
+      const lineViolations = violations.filter((item) => item.reason.includes("超过上限"));
+      expect(lineViolations.map((item) => item.path)).toEqual(["cli/big.ts"]);
+      expect(lineViolations[0]?.reason).toContain("11 行超过上限 5");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("keeps business-case semantic repair rules in the shared agent authority", () => {
     const repoRoot = resolve(import.meta.dir, "../..");
     const claude = readFileSync(join(repoRoot, "CLAUDE.md"), "utf8");

@@ -24,6 +24,10 @@ export interface RepositoryPolicy {
     runtime_must_not_import: string;
     forbidden_import_fragments?: string[];
   };
+  source_code?: {
+    max_lines: number;
+    excluded_globs: string[];
+  };
 }
 
 interface ArtifactRule {
@@ -92,6 +96,14 @@ export function readPolicy(repoRoot: string): RepositoryPolicy {
       parsed.shared_modules.minimum_feature_consumers < 1)
   ) {
     throw new Error(`仓库共享模块策略无效: ${path}`);
+  }
+  if (
+    parsed.source_code &&
+    (!Number.isInteger(parsed.source_code.max_lines) ||
+      parsed.source_code.max_lines < 1 ||
+      !Array.isArray(parsed.source_code.excluded_globs))
+  ) {
+    throw new Error(`仓库源码行数策略无效: ${path}`);
   }
   return parsed;
 }
@@ -234,6 +246,7 @@ function policyGlobMatches(path: string, glob: string): boolean {
 }
 
 const CODE_PATH_RE = /\.(?:cts|mts|ts|tsx)$/;
+const FIRST_PARTY_CODE_RE = /\.(?:cts|mts|ts|tsx|js|mjs|cjs)$/;
 const STATIC_IMPORT_RE =
   /\b(?:import|export)\s+(?:type\s+)?(?:[^"'`;]*?\s+from\s*)?["']([^"']+)["']/g;
 const DYNAMIC_IMPORT_RE = /\b(?:import|require)\(\s*["']([^"']+)["']\s*\)/g;
@@ -377,6 +390,30 @@ function sharedModuleViolations(
   return violations;
 }
 
+function sourceCodeLineViolations(
+  repoRoot: string,
+  paths: string[],
+  policy: RepositoryPolicy,
+): PolicyViolation[] {
+  const config = policy.source_code;
+  if (!config) return [];
+  const violations: PolicyViolation[] = [];
+  for (const path of paths) {
+    if (!FIRST_PARTY_CODE_RE.test(path)) continue;
+    if (config.excluded_globs.some((glob) => policyGlobMatches(path, glob))) continue;
+    const absolute = resolve(repoRoot, path);
+    if (!existsSync(absolute) || statSync(absolute).isDirectory()) continue;
+    const lineCount = readFileSync(absolute, "utf8").split("\n").length;
+    if (lineCount > config.max_lines) {
+      violations.push({
+        path,
+        reason: `第一方源码 ${lineCount} 行超过上限 ${config.max_lines}；按业务域拆分后重新 lint`,
+      });
+    }
+  }
+  return violations;
+}
+
 export function checkRepositoryPolicy(
   repoRoot: string,
   inputPaths = trackedAndUntrackedPaths(repoRoot),
@@ -421,6 +458,7 @@ export function checkRepositoryPolicy(
     ...redundantGitkeepViolations(paths),
     ...dependencyViolations(root, paths, policy),
     ...sharedModuleViolations(root, paths, policy),
+    ...sourceCodeLineViolations(root, paths, policy),
   ].sort((a, b) => `${a.path}:${a.reason}`.localeCompare(`${b.path}:${b.reason}`));
 }
 
