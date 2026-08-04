@@ -1,514 +1,597 @@
 meta:
   title: 批量创建脱敏规则_批量进行脱敏应用
+  requirement_id: "14700"
   case_module_id: ""
   exports:
     - 批量创建脱敏规则_批量进行脱敏应用.xmind
 cases:
   - case_id: C0001
-    title: 验证
+    title: 验证【数据安全】-【数据脱敏管理】导入规则文件，列表新增4条规则(重复则跳过)
     priority: P0
+    precondition: |-
+      1) 创建导入文件 `mask_rules.csv`：
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: mask_all,全部脱敏,,,,,
+         Line2: mask_partial,部分脱敏,1,3,*, ,
+         Line3: mask_escape,转义,,,,ab,**
+         Line4: mask_algorithm,算法脱敏,,,,,
+      2) 文件中的 4 条规则名称在数据脱敏管理列表中不存在
     steps:
-      - action: 进入【数据安全 → -导入规则-脱敏方式】页面
-        expected: 已进入【数据安全 → -导入规则-脱敏方式】页面，显示页面标题与主要操作区域
-      - action: 在csv文件中新增一条规则
-        expected: 1. 该成功上传该文件
-      - action: 填写不存在的规则名称
-        expected: 点击【确定】，列表跟新展示添加的数据，值与csv文件中的记录完全相同
-      - action: 脱敏方式为全部脱敏
-        expected: 1. 该成功上传该文件
-      - action: 不填写脱敏起始位数
-        expected: 点击【确定】，列表跟新展示添加的数据，值与csv文件中的记录完全相同
-      - action: 脱敏替换符号为：*，
-        expected: 1. 该成功上传该文件
-      - action: 不填写原字符与替换字符
-        expected: 点击【确定】，列表跟新展示添加的数据，值与csv文件中的记录完全相同
-      - action: 在csv文件中新增一条规则
-        expected: 1. 该成功上传该文件
-      - action: 填写不存在的规则名称
-        expected: 点击【确定】，列表跟新展示添加的数据，值与csv文件中的记录完全相同
-      - action: 脱敏方式为部分脱敏
-        expected: ""
-      - action: 填写脱敏起始位数：1
-        expected: ""
-      - action: 填写脱敏结束位为：3
-        expected: ""
-      - action: 脱敏替换符号为：*，
-        expected: ""
-      - action: 不填写原字符与替换字符
-        expected: ""
-      - action: 在csv文件中新增一条规则
-        expected: ""
-      - action: 填写不存在的规则名称
-        expected: ""
-      - action: 脱敏方式为转义
-        expected: ""
-      - action: 不填写脱敏起始位与脱敏结束位
-        expected: ""
-      - action: 不填写脱敏替换符号
-        expected: ""
-      - action: 原字符为：ab,89,test
-        expected: ""
-      - action: 替换字符：**
-        expected: ""
-      - action: 在csv文件中新增一条规则
-        expected: ""
-      - action: 填写不存在的规则名称
-        expected: ""
-      - action: 脱敏方式为：算法脱敏
-        expected: ""
-      - action: 不填写脱敏起始位与脱敏结束位
-        expected: ""
-      - action: 不填写脱敏替换符号
-        expected: ""
-      - action: 不填写原字符
-        expected: ""
-      - action: 不填写替换字符
-        expected: ""
-    precondition: 使用导入规则进行上传csv文件
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，选择重复处理「重复则跳过」，上传 `mask_rules.csv` 并点击「确定」
+        expected: |-
+          1) Toast提示:「导入成功」
+          2) 列表新增「mask_all」「mask_partial」「mask_escape」「mask_algorithm」4 条规则
+      - action: 打开 4 条规则详情并核对脱敏参数
+        expected: |-
+          1) 「mask_all」脱敏效果为「全部脱敏」
+          2) 「mask_partial」脱敏效果为「部分脱敏」，起始位数为 1、结束位数为 3、替换符号为「*」
+          3) 「mask_escape」脱敏效果为「转义」，原字符为「ab」、替换字符为「**」
+          4) 「mask_algorithm」脱敏效果为「算法脱敏」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则-脱敏方式
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0002
-    title: 验证[导入脱敏表]完成目标操作且状态更新功能_取消
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表后取消，记录数保持不变(取消导入)
     priority: P1
+    precondition: |-
+      1) 数据脱敏管理列表存在规则「RuleD」，脱敏效果为「全部脱敏」
+      2) 脱敏应用列表当前记录数为 0
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏应用]页面，点击导入脱敏表，点击”取消“
-        expected: |-
-          1） 关闭弹窗
-          2） [脱敏应用]页面不增加数据
-      - action: 点击导入脱敏表，进入[导入规则]页面，点击”×“
-        expected: |-
-          1） 关闭弹窗
-          2） [脱敏应用]页面不增加数据
-    precondition: "[数据脱敏管理]页面至少有1条脱敏规则"
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」并点击「脱敏应用」
+        expected: 进入「脱敏应用」页面，展示「添加脱敏表」和「导入脱敏表」按钮
+      - action: 点击「导入脱敏表」，点击「取消」
+        expected: 弹窗关闭，脱敏应用列表记录数仍为 0
+      - action: 再次点击「导入脱敏表」，点击右上角「×」
+        expected: 弹窗关闭，脱敏应用列表记录数仍为 0
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0003
-    title: 验证[导入脱敏表]完成目标操作且状态更新_ 必填项未填_数据源&数据库&数据表&脱敏字段
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表必填项为空，提示导入错误且不新增记录(必填项未填)
     priority: P1
+    precondition: |-
+      1) 数据脱敏管理列表存在规则「RuleD」
+      2) 创建导入文件 `table_import_required.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ,${SchemaA},customer_info,phone
+         Line2: ${DataSourceA},,customer_info,phone
+         Line3: ${DataSourceA},${SchemaA},,phone
+         Line4: ${DataSourceA},${SchemaA},customer_info,
+         Line5: ${DataSourceA},${SchemaA},customer_info,phone
+      3) 授权数据源：${DataSourceA}
+      4) 数据源类型：SparkThrift2.x
+      5) 存在数据库：${SchemaA}
+      6) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0003 (id BIGINT, phone STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0003 VALUES (1, '13800000000');
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，[重复处理]任意选择一个，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写5条脱敏表记录： 第1条记录的[数据源名称]不填写，其他字段正常填写； 第2条记录的[数据库名称]不填写，其他字段正常填写； 第3条记录的[数据表名称]不填写，其他字段正常填写； 第4条记录的[脱敏字段]不填写，其他字段正常填写； 第5条记录正确填写所有字段； 保存该文件并上传，点击“确定”
-        expected: 1) 5条数据都导入失败 2）弹出提示弹窗： 导入表格中存在错误数据，请检查后重新导入，点击导出错误文件
-      - action: 点击导出错误文件，查看错误文件
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并点击「导入脱敏表」
+        expected: 打开「导入脱敏表」弹窗，展示上传文件控件
+      - action: 上传 `table_import_required.xlsx` 并点击「确定」
         expected: |-
-          1） 错误文件命名为：table_import_error_20240520.xlsx
-          2） 第1条记录[数据源名称]字段标红，并标注提示：必填项未填写 第2条记录[数据库名称]字段标红，并标注提示：必填项未填写 第3条记录[数据表名称]字段标红，并标注提示：必填项未填写 第4条记录[脱敏字段]字段标红，并标注提示：必填项未填写
-    precondition: "[数据脱敏管理]页面至少存在一条脱敏规则"
+          1) Toast提示:「导入表格中存在错误数据，请检查后重新导入」
+          2) 脱敏表列表不新增记录
+          3) 弹窗展示「导出错误文件」入口
+      - action: 点击「导出错误文件」并打开下载文件
+        expected: |-
+          1) 文件名为 `table_import_error.xlsx`
+          2) 第 1～4 条对应空字段单元格标红，并显示「必填项未填写」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0004
-    title: 验证[导入脱敏表]完成目标操作且状态更新_ 导入不存在的数据_数据源&数据库&数据表&脱敏字段
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏表对象不存在，错误单元格标红(对象不存在)
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据脱敏管理列表存在规则「RuleD」
+      5) 数据源「${DataSourceA}」中存在数据库「${SchemaA}」、数据表「customer_info」及字段「phone」
+      6) 创建导入文件 `table_import_not_found.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ${DataSourceB},${SchemaA},customer_info,phone
+         Line2: ${DataSourceA},${SchemaB},customer_info,phone
+         Line3: ${DataSourceA},${SchemaA},table_missing,phone
+         Line4: ${DataSourceA},${SchemaA},customer_info,field_missing
+      7) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0004_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0004_source (id BIGINT, phone STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0004_source VALUES (1, '13800000000');
+      8) 授权数据源：${DataSourceB}
+      9) 数据源类型：SparkThrift2.x
+      10) 存在数据库：${SchemaB}
+      11) 创建数据表，该表为空表：
+          DROP TABLE IF EXISTS ${SchemaB}.test_table_14700_c0004_target;
+          CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14700_c0004_target (id BIGINT, phone STRING);
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写5条脱敏表记录： 第1条记录的[数据源名称]填写一个未引入的数据源，其他字段正常填写； 第2条记录的[数据库名称]填写为不存在的数据库名称，其他字段正常填写； 第3条记录的[数据表名称]填写为不存在的数据表名称，其他字段正常填写； 第4条记录的[脱敏字段]填写为不存在的字段，其他字段正常填写； 第5条记录正确填写所有字段； 保存该文件并上传，点击“确定”
-        expected: 1） 5条数据都导入失败 2）弹出提示弹窗： 导入表格中存在错误数据，请检查后重新导入，点击导出错误文件
-      - action: 点击导出错误文件，查看错误文件
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并点击「导入脱敏表」
+        expected: 打开「导入脱敏表」弹窗，展示上传文件控件
+      - action: 上传 `table_import_not_found.xlsx` 并点击「确定」
         expected: |-
-          1） 错误文件命名为：table_import_error_20240520.xlsx
-          2） 第1条记录[数据源名称]字段标红，并标注提示：不存在的数据，请检查后输入 第2条记录[数据库名称]字段标红，并标注提示：不存在的数据，请检查后输入 第3条记录[数据表名称]字段标红，并标注提示：不存在的数据，请检查后输入 第4条记录[脱敏字段]字段标红，并标注提示：不存在的数据，请检查后输入
-    precondition: "[数据脱敏管理]页面至少存在一条脱敏规则"
+          1) Toast提示:「导入表格中存在错误数据，请检查后重新导入」
+          2) 脱敏表列表不新增记录
+          3) 弹窗展示「导出错误文件」入口
+      - action: 点击「导出错误文件」并打开下载文件
+        expected: |-
+          1) 第 1～4 条对应不存在对象的单元格标红
+          2) 每个错误单元格显示「不存在的数据，请检查后输入」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0005
-    title: 验证[导入脱敏表]完成目标操作且状态更新_四个字段都一致
+    title: 验证【数据安全】-【数据脱敏管理】导入重复脱敏表记录，标记数据已存在(重复记录)
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据脱敏管理列表存在规则「RuleD」
+      5) 脱敏表列表存在记录：数据源「${DataSourceA}」、数据库「${SchemaA}」、数据表「customer_info」、脱敏字段「phone」
+      6) 创建导入文件 `table_import_duplicate.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ${DataSourceA},${SchemaA},customer_info,phone
+      7) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0005 (id BIGINT, phone STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0005 VALUES (1, '13800000000');
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写1条脱敏表数据： 1）[数据源名称]填写为A，[数据库名称]填写为“B”，[数据表字段]填写为“C”,[脱敏字段]填写为“D”。 保存该文件并上传，点击“确定”
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并点击「导入脱敏表」
+        expected: 打开「导入脱敏表」弹窗
+      - action: 上传 `table_import_duplicate.xlsx` 并点击「确定」
         expected: |-
-          1） 脱敏表导入失败
-          2） 弹出提示弹窗
-      - action: 点击导出错误文件，查看文件内容
-        expected: |-
-          1） 错误文件命名为：table_import_error_20240520.xlsx
-          2） 填写重复的[脱敏字段]提示为：不存在的数据，请检查后输入
-    precondition: 脱敏表列表存在1条脱敏表记录数据源是A，数据库是B，数据表是C，脱敏字段是D，并开启该条脱敏表的血缘启动状态
+          1) Toast提示:「导入表格中存在错误数据，请检查后重新导入」
+          2) 错误文件入口可用，重复记录被标记为「数据已存在」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0006
-    title: 验证[导入脱敏表]完成目标操作且状态更新_脱敏字段不一致
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏字段不一致的记录，列表新增记录(脱敏字段不一致)
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据脱敏管理列表存在规则「RuleD」
+      5) 数据源「${DataSourceA}」的「${SchemaA}.customer_info」存在字段「phone」和「name」
+      6) 脱敏表列表存在 ${DataSourceA}/${SchemaA}/customer_info/phone 记录
+      7) 创建导入文件 `table_import_name.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ${DataSourceA},${SchemaA},customer_info,name
+      8) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0006 (id BIGINT, phone STRING, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0006 VALUES (1, '13800000000', 'Alice');
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写1条脱敏表数据： 1）[数据源名称]填写为A，[数据库名称]填写为“B”，[数据表字段]填写为“C”,[脱敏字段]填写为“D2”。 保存该文件并上传，点击“确定”
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并上传 `table_import_name.xlsx`
+        expected: Toast提示:「导入成功」，脱敏表列表新增 ${DataSourceA}/${SchemaA}/customer_info/name 记录
+      - action: 查看新增脱敏表记录
         expected: |-
-          1） 导入成功
-          2） 列表新增一条脱敏表的记录
-      - action: 查看该条脱敏表的信息
-        expected: |-
-          1） 数据源、数据库、数据表、脱敏字段信息和导入文件中填写的内容保持一致
-          2） 血缘启用状态是“关闭”
-    precondition: 脱敏表列表存在1条脱敏表记录数据源是A，数据库是B，数据表是C，脱敏字段是D1，并开启该条脱敏表的血缘状态，同时存在另一个数据源A，有数据库名是B，下面有一个数据表是C，下面有一个脱敏字段是D2
+          1) 数据源、数据库、数据表、脱敏字段分别为 ${DataSourceA}、${SchemaA}、customer_info、name
+          2) 血缘状态为「关闭」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0007
-    title: 验证[导入脱敏表]完成目标操作且状态更新_数据表不一致
+    title: 验证【数据安全】-【数据脱敏管理】导入数据表不一致的记录，列表新增记录(数据表不一致)
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据脱敏管理列表存在规则「RuleD」
+      5) 数据源「${DataSourceA}」的「${SchemaA}」中存在表「customer_archive」及字段「phone」
+      6) 创建导入文件 `table_import_archive.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ${DataSourceA},${SchemaA},customer_archive,phone
+      7) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0007 (id BIGINT, phone STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0007 VALUES (1, '13800000000');
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写1条脱敏表数据： 1）[数据源名称]填写为A，[数据库名称]填写为“B”，[数据表字段]填写为“C2”,[脱敏字段]填写为“D”。 保存该文件并上传，点击“确定”
-        expected: |-
-          1） 导入成功
-          2） 列表新增一条脱敏表的记录
-      - action: 查看该条脱敏表的信息
-        expected: |-
-          1） 数据源、数据库、数据表、脱敏字段信息和导入文件中填写的内容保持一致
-          2） 血缘启用状态是“关闭”
-    precondition: 脱敏表列表存在1条脱敏表记录数据源是A，数据库是B，数据表是C1，脱敏字段是D，并开启该条脱敏表的血缘状态，同时存在另一个数据源A，有数据库名是B，下面有一个数据表是C2，下面有一个脱敏字段是D
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并上传 `table_import_archive.xlsx`
+        expected: Toast提示:「导入成功」，列表新增 ${DataSourceA}/${SchemaA}/customer_archive/phone 记录
+      - action: 查看新增脱敏表记录
+        expected: 数据源、数据库、数据表、脱敏字段分别为 ${DataSourceA}、${SchemaA}、customer_archive、phone，血缘状态为「关闭」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0008
-    title: 验证[导入脱敏表]完成目标操作且状态更新_数据库不一致
+    title: 验证【数据安全】-【数据脱敏管理】导入数据库不一致的记录，列表新增记录(数据库不一致)
     priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 数据脱敏管理列表存在规则「RuleD」
+      5) 数据源「${DataSourceA}」中存在数据库「${SchemaA}」，且包含表「customer_info」字段「phone」
+      6) 创建导入文件 `table_import_archive_db.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ${DataSourceA},${SchemaA},customer_info,phone
+      7) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0008 (id BIGINT, phone STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0008 VALUES (1, '13800000000');
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写1条脱敏表数据： 1）[数据源名称]填写为A，[数据库名称]填写为“B2”，[数据表字段]填写为“C”,[脱敏字段]填写为“D”。 保存该文件并上传，点击“确定”
-        expected: |-
-          1） 导入成功
-          2） 列表新增一条脱敏表的记录
-      - action: 查看该条脱敏表的信息
-        expected: |-
-          1） 数据源、数据库、数据表、脱敏字段信息和导入文件中填写的内容保持一致
-          2） 血缘启用状态是“关闭”
-    precondition: 脱敏表列表存在1条脱敏表记录数据源是A，数据库是B1，数据表是C，脱敏字段是D，并开启该条脱敏表的血缘状态，同时存在另一个数据源A，有数据库名是B2，下面有一个数据表是C，下面有一个脱敏字段是D
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并上传 `table_import_archive_db.xlsx`
+        expected: Toast提示:「导入成功」，列表新增 ${DataSourceA}/${SchemaA}/customer_info/phone 记录
+      - action: 查看新增脱敏表记录
+        expected: 数据库为「${SchemaA}」，数据表为「customer_info」，脱敏字段为「phone」，血缘状态为「关闭」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0009
-    title: 验证[导入脱敏表]完成目标操作且状态更新_数据源不一致
+    title: 验证【数据安全】-【数据脱敏管理】导入未注册数据源，单元格标红提示(数据源未注册)
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建导入对象表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14700_c0009_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14700_c0009_source (id BIGINT, phone STRING);
+         INSERT INTO ${SchemaA}.test_table_14700_c0009_source VALUES (1, '13800000000');
+      5) 授权数据源：${DataSourceB}
+      6) 数据源类型：SparkThrift2.x
+      7) 存在数据库：${SchemaB}
+      8) 创建数据表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_14700_c0009_target;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14700_c0009_target (id BIGINT, phone STRING);
+      9) 数据脱敏管理列表存在规则「RuleD」
+      10) 数据源「${DataSourceB}」未引入数据资产平台
+      11) 创建导入文件 `table_import_unregistered.xlsx`：
+         Sheet: Sheet1
+         Title: 数据源名称,数据库名称,数据表名称,脱敏字段
+         Line1: ${DataSourceB},${SchemaB},customer_info,phone
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一条脱敏规则，点击[脱敏应用]，进入[脱敏引用]页面，点击[导入脱敏表]，点击“下载模板”，根据模板文件填写需要导入的脱敏表，填写1条脱敏表数据： 1）[数据源名称]填写为A2，[数据库名称]填写为“B”，[数据表名称]填写为“C”,[脱敏字段]填写为“D”。 保存该文件并上传，点击“确定”
-        expected: |-
-          1） 导入成功
-          2） 列表新增一条脱敏表的记录
-      - action: 查看该条脱敏表的信息
-        expected: |-
-          1） 数据源、数据库、数据表、脱敏字段信息和导入文件中填写的内容保持一致
-          2） 血缘启用状态是“关闭”
-    precondition: 脱敏表列表存在1条脱敏表记录，数据源是A1，数据库是B，数据表是C，脱敏字段是D，并开启该条脱敏表的血缘状态，同时存在另一个数据源A2（该数据源在脱敏表列表中不存在），有数据库名是B，下面有一个数据表是C，下面有一个脱敏字段是D
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并上传 `table_import_unregistered.xlsx`
+        expected: Toast提示:「导入表格中存在错误数据，请检查后重新导入」，列表不新增记录
+      - action: 点击「导出错误文件」并查看数据源单元格
+        expected: 数据源单元格标红并显示「不存在的数据，请检查后输入」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0010
-    title: 验证[上传文件]显示&交互正确
+    title: 验证【数据安全】-【数据脱敏管理】下载导入脱敏表模板，模板表头完整(下载模板)
     priority: P1
+    precondition: |-
+      1) 数据脱敏管理列表存在规则「RuleD」
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一个脱敏规则，点击[脱敏应用]按钮，进入【脱敏表】页面，点击[导入脱敏表]按钮查看[上传文件]
-        expected: 1） 必填
-      - action: 点击”下载模板“
-        expected: 脱敏表导入模板文件下载成功
-      - action: 查看脱敏表导入模板文件
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并点击「导入脱敏表」
+        expected: 弹窗展示必填上传文件控件、「下载模板」、「取消」、「确定」和关闭按钮
+      - action: 点击「下载模板」
+        expected: 下载文件名为 `table_import_template.xlsx`
+      - action: 打开模板文件
         expected: |-
-          1） 文件命名为：table_import_template.xlsx
-          2） 文件中的字段依次显示为：数据源名称、数据库名称、数据表名称、脱敏字段。（后面标注提示：必填）
-    precondition: "[数据脱敏管理]页面已经存在至少1条脱敏规则"
+          1) Sheet 名为「Sheet1」
+          2) 表头为「数据源名称、数据库名称、数据表名称、脱敏字段」，每列标注「必填」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0011
-    title: 验证[导入脱敏表]页面显示正确
+    title: 验证【数据安全】-【数据脱敏管理】打开导入脱敏表弹窗，展示字段与按钮(导入脱敏表弹窗)
     priority: P1
+    precondition: |-
+      1) 数据脱敏管理列表存在规则「RuleD」
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一个脱敏规则，点击[脱敏应用]，进入【脱敏表】页面，点击[导入脱敏表]按钮，查看[导入脱敏表]弹窗显示
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，进入「脱敏应用」并点击「导入脱敏表」
         expected: |-
-          1） title：导入脱敏表
-          2） 字段显示：上传文件
-          3） 按钮：取消、确定、×
-    precondition: "[数据脱敏管理]页面已经存在至少1条脱敏规则"
+          1) 弹窗标题为「导入脱敏表」
+          2) 字段为「上传文件」
+          3) 按钮为「取消」「确定」和「×」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0012
-    title: 验证[脱敏应用]页面显示正确
+    title: 验证【数据安全】-【数据脱敏管理】进入脱敏应用页面，展示两个入口(脱敏应用页)
     priority: P1
+    precondition: |-
+      1) 数据脱敏管理列表存在规则「RuleD」
     steps:
-      - action: 进入【数据安全 → -导入脱敏表】页面
-        expected: 已进入【数据安全 → -导入脱敏表】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，选择一个脱敏规则，点击[脱敏应用]，进入[脱敏应用]页面，查看页面显示
-        expected: "[添加脱敏表]右边新增一个[导入脱敏表]按钮"
-    precondition: "[数据脱敏管理]页面已经存在至少1条脱敏规则"
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 选择「RuleD」，点击「脱敏应用」
+        expected: 「脱敏应用」页面展示「添加脱敏表」和「导入脱敏表」两个入口
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -脱敏应用
-      - -导入脱敏表
+      ["数据安全", "数据脱敏管理"]
   - case_id: C0013
-    title: 验证[导入规则]完成目标操作且状态更新功能_取消
+    title: 验证【数据安全】-【数据脱敏管理】导入规则后取消，记录数保持不变(取消导入)
     priority: P1
-    steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，点击”取消“
-        expected: |-
-          1） 关闭弹窗
-          2） [数据脱敏管理]页面不增加数据
-      - action: 点击[导入规则]按钮，进入[导入规则]页面，点击”×“
-        expected: |-
-          1） 关闭弹窗
-          2） [数据脱敏管理]页面不增加数据
     precondition: 无
+    steps:
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，点击「取消」
+        expected: 弹窗关闭，规则列表记录数不变
+      - action: 再次点击「导入规则」，点击「×」
+        expected: 弹窗关闭，规则列表记录数不变
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0014
-    title: 验证[导入规则]完成目标操作且状态更新_导入新规则且重复则覆盖更新
+    title: 验证【数据安全】-【数据脱敏管理】导入新规则并覆盖更新，规则列表新增(重复则覆盖更新)
     priority: P0
+    precondition: |-
+      1) 规则名称「RuleC」在数据脱敏管理列表中不存在
+      2) 创建导入文件 `RuleC.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: RuleC,全部脱敏,,,,,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]选择“重复则覆盖更新”，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写一条脱敏规则，[规则名称]填写为列表尚不存在的规则名，正常填写剩下的字段，保存该文件并上传，点击“确定”
-        expected: |-
-          1） 导入成功
-          2） 列表新增一条脱敏规则的记录
-      - action: 选中新增的该条脱敏规则，点击[编辑]，查看回显的脱敏规则信息
-        expected: 1） [规则名称]与[脱敏效果]和导入文件中填写的内容保持一致
-    precondition: 无
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，选择「重复则覆盖更新」，上传 `RuleC.xlsx` 并点击「确定」
+        expected: Toast提示:「导入成功」，列表新增规则「RuleC」
+      - action: 打开「RuleC」详情
+        expected: 规则名称为「RuleC」，脱敏效果为「全部脱敏」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0015
-    title: 验证[导入规则]完成目标操作且状态更新_导入新规则且重复则跳过
+    title: 验证【数据安全】-【数据脱敏管理】导入新规则并跳过重复，规则列表新增(重复则跳过)
     priority: P1
+    precondition: |-
+      1) 规则名称「RuleE」在数据脱敏管理列表中不存在
+      2) 创建导入文件 `RuleE.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: RuleE,全部脱敏,,,,,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]选择“重复则跳过”，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写一条脱敏规则，[规则名称]填写为列表尚不存在的规则名，正常填写剩下的字段，保存该文件并上传，点击“确定”
-        expected: |-
-          1） 导入成功
-          2） 列表新增一条脱敏规则的记录
-      - action: 选中新增的该条脱敏规则，点击[编辑]，查看回显的脱敏规则信息
-        expected: 1） [规则名称]与[脱敏效果]和导入文件中填写的内容保持一致
-    precondition: 无
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，选择「重复则跳过」，上传 `RuleE.xlsx` 并点击「确定」
+        expected: Toast提示:「导入成功」，列表新增规则「RuleE」
+      - action: 打开「RuleE」详情
+        expected: 规则名称为「RuleE」，脱敏效果为「全部脱敏」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0016
-    title: 验证[导入规则]完成目标操作且状态更新_导入重名规则且重复则覆盖更新
+    title: 验证【数据安全】-【数据脱敏管理】导入重名规则覆盖更新，规则参数更新(覆盖更新)
     priority: P0
+    precondition: |-
+      1) 列表存在规则「RuleA」，脱敏效果为「全部脱敏」
+      2) 创建导入文件 `mask_named_rule_partial.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: RuleA,部分脱敏,1,2,*, ,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]选择“重复则覆盖更新”，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写一条[脱敏名称]也为“A”的脱敏规则，[脱敏效果]填写为“部分脱敏”，并正常填写剩下的字段，保存该文件并上传，点击“确定”
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，选择「重复则覆盖更新」，上传 `mask_named_rule_partial.xlsx` 并点击「确定」
+        expected: Toast提示:「导入成功」，列表中「RuleA」记录数仍为 1
+      - action: 打开「RuleA」详情
         expected: |-
-          1） 导入成功但重复则更新
-          2） 列表没有新增一条规则名称为“A”的记录
-      - action: 选中脱敏名称是“A”脱敏规则，点击[编辑]，查看回显的脱敏规则信息
-        expected: 1） [脱敏效果]已更新为“部分脱敏”且回显的“部分脱敏“设置和导入文件填写的一致
-    precondition: 脱敏规则列表已经存在一条规则名称为“A”同时脱敏效果为“全部脱敏”的脱敏规则
+          1) 脱敏效果更新为「部分脱敏」
+          2) 起始位数为 1、结束位数为 2、替换符号为「*」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0017
-    title: 验证[导入规则]完成目标操作且状态更新_导入重名规则的且重复则跳过
+    title: 验证【数据安全】-【数据脱敏管理】导入重名规则跳过，原规则参数不变(重复则跳过)
     priority: P1
+    precondition: |-
+      1) 列表存在规则「RuleB」，脱敏效果为「全部脱敏」
+      2) 创建导入文件 `mask_named_skip_partial.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: RuleB,部分脱敏,1,2,*, ,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]选择“重复则跳过”，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写一条[脱敏名称]也为“A”的脱敏规则，[脱敏效果]填写为“部分脱敏”，并正常填写剩下的字段，保存该文件并上传，点击“确定”
-        expected: |-
-          1） 导入成功但重复则跳过
-          2） 列表没有新增一条规则名称为“A”的记录
-      - action: 选中脱敏名称是“A”脱敏规则，点击[编辑]，查看回显的脱敏规则信息
-        expected: 1） [脱敏效果]为“全部脱敏”
-    precondition: 脱敏规则列表已经存在一条规则名称为“A”同时脱敏效果为“全部脱敏”的脱敏规则
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，选择「重复则跳过」，上传 `mask_named_skip_partial.xlsx` 并点击「确定」
+        expected: Toast提示:「导入成功」，列表中「RuleB」记录数仍为 1
+      - action: 打开「RuleB」详情
+        expected: 脱敏效果仍为「全部脱敏」，起始位数、结束位数和替换符号为空
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0018
-    title: 验证[导入规则]完成目标操作且状态更新_必填项未填
+    title: 验证【数据安全】-【数据脱敏管理】导入规则必填项为空，错误单元格标红(必填项未填)
     priority: P0
+    precondition: |-
+      1) 创建导入文件 `mask_required_error.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: ,全部脱敏,,,,,
+         Line2: mask_required_effect,,,,,,
+         Line3: mask_required_partial,部分脱敏,,,,,
+         Line4: mask_valid,全部脱敏,,,,,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: |-
-          进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]任意选一个，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写4条脱敏规则：
-          1） 第1条的[规则名称]不填写，其他字段正常填写
-          2） 第2条的[脱敏效果]不填写，其他字段正常填写
-          3） 第3条的[脱敏效果]填”部分脱敏“，[脱敏起始位数]、[脱敏结束位数]、[脱敏替换符号]均不填写，正常填写剩下的字段
-          4） 第4条正确填写所有字段。 保存该文件并上传，点击“确定”
-        expected: 1） 4条数据都导入失败 2）弹出提示信息：导入表格中存在错误数据，请检查后重新导入，点击导出错误文件
-      - action: 点击导出错误文件
-        expected: 错误文件下载成功
-      - action: 查看错误文件
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，上传 `mask_required_error.xlsx` 并点击「确定」
         expected: |-
-          1） 文件命名为：rule_import_error_20240520.xlsx
-          2） 第1条未填写的[规则名称]批注提示”必填项未填写“； 第2条未填写的[脱敏效果]批注提示”必填项未填写“； 第3条未填写的[脱敏起始位数]、[脱敏结束位数]、[脱敏替换符号]批注提示”必填项未填写“；
-    precondition: 无
+          1) Toast提示:「导入表格中存在错误数据，请检查后重新导入」
+          2) 4 条记录均不写入规则列表
+          3) 展示「导出错误文件」入口
+      - action: 点击「导出错误文件」并查看文件
+        expected: |-
+          1) 空规则名称、空脱敏效果单元格标红并显示「必填项未填写」
+          2) 部分脱敏记录的起始位数、结束位数和替换符号单元格标红并显示「必填项未填写」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0019
-    title: 验证[导入规则]完成目标操作且状态更新_错误文件&起步/结束位数超过127等错误数据
+    title: 验证【数据安全】-【数据脱敏管理】导入位数超限规则，错误单元格标红(位数错误)
     priority: P1
+    precondition: |-
+      1) 创建导入文件 `mask_position_error.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: mask_position_valid,全部脱敏,,,,,
+         Line2: mask_position_over,部分脱敏,128,-1,*, ,
+         Line3: mask_position_type,部分脱敏,text,2,*, ,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: |-
-          进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]任选一个，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写3条脱敏规则记录：
-          1） 第1条正确填写所有字段
-          2） 第2条的[脱敏效果]填写为部分脱敏，[起始位数]填写超过127的正整数，[结束位数]填写为负整数
-          3） 第3条脱敏规则[起始位数]填写非数值型数据，[结束位数]填写为小数数据，正确填写其他字段，保存该文件并上传，点击“确定”
-        expected: 1） 3条数据都导入失败 2）弹出提示信息：导入表格中存在错误数据，请检查后重新导入，点击导出错误文件
-      - action: 点击导出错误文件
-        expected: 错误文件下载成功
-      - action: 查看错误文件
-        expected: |-
-          1） 文件命名为：rule_import_error_20240520.xlsx
-          2） 第2条数据填写错误的[脱敏起始位数]、[脱敏结束位数]均被标红，并批注提示”错误数据，请查看填写规范“； 第3条数据填写错误的[脱敏起始位数]、[脱敏结束位数]均被标红，并批注提示”错误数据，请查看填写规范“；
-    precondition: 无
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，上传 `mask_position_error.xlsx` 并点击「确定」
+        expected: Toast提示:「导入表格中存在错误数据，请检查后重新导入」，展示「导出错误文件」入口
+      - action: 点击「导出错误文件」并查看文件
+        expected: 第 2、3 条的脱敏起始位数和结束位数错误单元格标红，并显示「错误数据，请查看填写规范」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0020
-    title: 验证[导入规则]完成目标操作且状态更新_错误文件&脱敏效果填写有误
+    title: 验证【数据安全】-【数据脱敏管理】导入脱敏效果填写错误，单元格标红(脱敏效果错误)
     priority: P1
+    precondition: |-
+      1) 创建导入文件 `mask_effect_error.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: mask_effect_valid,全部脱敏,,,,,
+         Line2: mask_effect_invalid,随机脱敏,,,,,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: |-
-          进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]任选一个，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写2条脱敏规则数据：
-          1） 第1条正确填写所有字段
-          2） 第2条的[脱敏效果]填写“全部脱敏”和“部分脱敏”之外的内容，正确填写其他字段。 保存该文件并上传，点击“确定”
-        expected: 1） 2条数据都导入失败 2）弹出提示信息：导入表格中存在错误数据，请检查后重新导入，点击导出错误文件
-      - action: 点击导出错误文件
-        expected: 错误文件下载成功
-      - action: 查看错误文件
-        expected: |-
-          1） 文件命名为：rule_import_error_20240520.xlsx
-          2） 第2条数据填写错误的[脱敏效果]被标红，并批注提示”错误数据，请查看填写规范“
-    precondition: 无
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，上传 `mask_effect_error.xlsx` 并点击「确定」
+        expected: Toast提示:「导入表格中存在错误数据，请检查后重新导入」，展示「导出错误文件」入口
+      - action: 点击「导出错误文件」并查看文件
+        expected: 第 2 条脱敏效果单元格标红，并显示「错误数据，请查看填写规范」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0021
-    title: 验证[导入规则]完成目标操作且状态更新_错误文件&规则名称过长
+    title: 验证【数据安全】-【数据脱敏管理】导入规则名称过长，单元格标红(名称过长)
     priority: P0
+    precondition: |-
+      1) 创建导入文件 `mask_name_length_error.xlsx`：
+         Sheet: Sheet1
+         Title: 规则名称,脱敏效果,脱敏起始位数,脱敏结束位数,脱敏替换符号,原字符,替换字符
+         Line1: mask_name_valid,全部脱敏,,,,,
+         Line2: mask_name_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,全部脱敏,,,,,
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: |-
-          进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，进入[导入规则]页面，[重复处理规则]任选一个，点击“下载模板”，根据模板文件填写需要导入的脱敏规则，填写2条脱敏规则记录：
-          1） 第1条正确填写所有字段
-          2） 第2条的[规则名称]填写长度超过128字符，正确填写其他字段。 保存该文件并上传，点击“确定”
-        expected: 1） 2条数据都导入失败 2）弹出提示信息：导入表格中存在错误数据，请检查后重新导入，点击导出错误文件
-      - action: 点击导出错误文件
-        expected: 错误文件下载成功
-      - action: 查看错误文件
-        expected: |-
-          1） 文件命名为：rule_import_error_20240520.xlsx
-          2） 第2条数据错误填写的[规则名称]被标红，并批注提示”错误数据，请查看填写规范“
-    precondition: 无
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」，上传 `mask_name_length_error.xlsx` 并点击「确定」
+        expected: Toast提示:「导入表格中存在错误数据，请检查后重新导入」，展示「导出错误文件」入口
+      - action: 点击「导出错误文件」并查看文件
+        expected: 第 2 条规则名称单元格标红，并显示「错误数据，请查看填写规范」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0022
-    title: 验证[上传文件]显示&交互正确
+    title: 验证【数据安全】-【数据脱敏管理】下载导入规则模板，模板表头完整(下载模板)
     priority: P1
-    steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，查看[上传文件]
-        expected: 1） 必填
-      - action: 点击”下载模板“
-        expected: 脱敏规则导入模板文件下载成功
-      - action: 查看脱敏规则导入模板文件
-        expected: |-
-          1） 文件命名为：rule_import_template.xlsx
-          2） 文件中的字段依次显示为：规则名称、脱敏效果（只能填写“全部脱敏”/“部分脱敏”）、脱敏起始位数、脱敏结束位数、脱敏替换符号，后面标注提示：“若脱敏效果为“部分脱敏”则必填，若脱敏效果为“全部脱敏”无需填写，且填写无效。”
     precondition: 无
+    steps:
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」
+        expected: 弹窗展示「重复处理规则」「上传文件」「下载模板」「取消」「确定」和关闭按钮
+      - action: 点击「下载模板」并打开文件
+        expected: |-
+          1) 文件名为 `rule_import_template.xlsx`
+          2) Sheet 名为「Sheet1」
+          3) 表头为「规则名称、脱敏效果、脱敏起始位数、脱敏结束位数、脱敏替换符号、原字符、替换字符」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0023
-    title: 验证[重复处理规则]显示&交互正确
+    title: 验证【数据安全】-【数据脱敏管理】选择重复处理规则，提示对应策略(重复处理规则)
     priority: P1
-    steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，查看[重复处理规则]
-        expected: |-
-          1） 单选、必填
-          2） 支持选择”重复则跳过“、”重复则覆盖更新“
-      - action: 选择[重复处理规则]任一选项，失焦
-        expected: 正常显示选择的内容
-      - action: 鼠标hover到[重复则跳过]的”？“icon
-        expected: 悬浮提示：规则名称重复则跳过
-      - action: 鼠标hover到[重复则覆盖更新]的”？“icon
-        expected: 悬浮提示：规则名称重复则覆盖更新
     precondition: 无
+    steps:
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」并查看「重复处理规则」
+        expected: |-
+          1) 「重复处理规则」为必填单选控件
+          2) 选项为「重复则跳过」和「重复则覆盖更新」
+      - action: 选择「重复则跳过」并查看提示图标
+        expected: Toast或悬浮提示:「规则名称重复则跳过」
+      - action: 选择「重复则覆盖更新」并查看提示图标
+        expected: Toast或悬浮提示:「规则名称重复则覆盖更新」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0024
-    title: 验证[导入规则]页面显示正确
+    title: 验证【数据安全】-【数据脱敏管理】打开导入规则弹窗，展示字段与按钮(导入规则弹窗)
     priority: P1
-    steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，点击[导入规则]按钮，查看[导入规则]弹窗显示
-        expected: |-
-          1） title：导入规则
-          2） 字段显示：重复处理规则、上传文件
-          3） 按钮：取消、确定、×
     precondition: 无
+    steps:
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 点击「导入规则」
+        expected: |-
+          1) 弹窗标题为「导入规则」
+          2) 字段为「重复处理规则」和「上传文件」
+          3) 按钮为「取消」「确定」和「×」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 导入规则
+
   - case_id: C0025
-    title: 验证查询完成目标操作且状态更新_根据规则名称
+    title: 验证【数据安全】-【数据脱敏管理】按规则名称搜索，列表仅展示匹配记录(规则查询)
     priority: P1
+    precondition: |-
+      1) 数据脱敏管理列表存在规则「RuleD」「mask_name_partial」和「encrypt_id」
     steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，[规则名称]搜索框输入”A“，点击搜索icon/回车
-        expected: 显示”规则名称“包含A的记录
-    precondition: "[数据脱敏管理]页面至少有1条脱敏规则记录"
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 在「规则名称」搜索框输入 `mask` 并点击搜索
+        expected: 列表仅展示规则名称包含 `mask` 的「RuleD」和「mask_name_partial」，不展示「encrypt_id」
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
+      - 规则查询
+
   - case_id: C0026
-    title: 验证[脱敏管理页面]页面显示正确
+    title: 验证【数据安全】-【数据脱敏管理】查看管理页面，展示搜索区与列表表头(页面展示)
     priority: P1
-    steps:
-      - action: 进入【数据安全 → -导入规则】页面
-        expected: 已进入【数据安全 → -导入规则】页面，显示页面标题与主要操作区域
-      - action: 进入【数据安全-数据脱敏管理】页面，查看页面显示
-        expected: |-
-          1） 增加规则名称搜索框
-          2） [新增规则]右边新增[导入规则]按钮
     precondition: 无
+    steps:
+      - action: 进入【数据安全 → 数据脱敏管理】页面
+        expected: 进入成功
+      - action: 查看页面操作区和列表表头
+        expected: |-
+          1) 搜索区展示「规则名称」输入框和「搜索」按钮
+          2) 「新增规则」右侧展示「导入规则」按钮
+          3) 列表展示规则名称、脱敏效果和操作列
     tags:
-      - 数据资产-数据安全-数据脱敏管理
-      - -导入规则
+      - 数据安全
+      - 数据脱敏管理
