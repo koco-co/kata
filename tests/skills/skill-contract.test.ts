@@ -2,6 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { parseCasesYaml } from "../../cli/lib/cases/parse.ts";
+import { validateCases } from "../../cli/lib/cases/schema.ts";
 import expectations from "./fixtures/parity-expectations.json";
 
 // 单源业务合同:声明矩阵只校验 Claude skill 树的内容。
@@ -69,9 +71,17 @@ function collectCliCommands(): Set<string> {
     const section = help.split(/^Commands:/m)[1];
     if (!section) continue;
     for (const line of section.split("\n")) {
-      const m = line.match(/^\s{2,}([a-z][a-z0-9-]*)(\s|$)/);
-      if (!m || m[1] === "help") continue;
-      const path = [...prefix, m[1]];
+      const tokens = line.trim().split(/\s+/);
+      const name = tokens[0] ?? "";
+      if (!/^[a-z][a-z0-9-]*$/.test(name) || name === "help") continue;
+      // commander 命令行格式：命令名后紧跟 [options]/<arg>，或空两格以上接描述列；
+      // 描述续行(如 "generated runner；…")仅空一格且第二词非参数，不得当作子命令。
+      const rest = line.slice(line.indexOf(name) + name.length);
+      const isArgs = /^ {1,2}(?:\[[^\]]*\]|<[^>]*>)/.test(rest);
+      const isAlone = /^\s*$/.test(rest);
+      const isDescGap = /^ {2,}\S/.test(rest);
+      if (!(isArgs || isAlone || isDescGap)) continue;
+      const path = [...prefix, name];
       const key = path.join(" ");
       if (registered.has(key)) continue;
       registered.add(key);
@@ -251,13 +261,53 @@ describe("skill contract", () => {
     expect(example).not.toContain("\n    automation:");
     expect(example).not.toMatch(/precondition:\s*同 C\d+/);
     expect(example).toContain(`INSERT INTO \${SchemaA}.test_table_15862_c0001`);
+    expect(validateCases(parseCasesYaml(example))).toEqual([]);
   });
 
   it("test-case 的导出元数据始终声明具体派生文件名", () => {
     const content = readSkillContent("test-case");
     const example = readFileSync(join(skillDir("test-case"), "examples/cases.yaml"), "utf8");
     expect(content).not.toContain("exports: [xmind]");
-    expect(example).toContain("- 需求名.xmind");
+    expect(example).toContain("单表校验规则支持枚举值个数统计.xmind");
+  });
+
+  it("test-case 编写规范文件存在且 cases.yaml 顶部索引的章节全部可解析", () => {
+    const examples = join(skillDir("test-case"), "examples");
+    expect(existsSync(join(examples, "best-practices.md"))).toBe(true);
+    expect(existsSync(join(examples, "case-scenario.md"))).toBe(false);
+    const caseYaml = readFileSync(join(examples, "cases.yaml"), "utf8");
+    const indexLines = caseYaml.split(/\r?\n/).filter((line) => line.startsWith("#"));
+    const indexed = indexLines.filter((line) => /best-practices\.md/.test(line));
+    expect(indexed.length).toBeGreaterThan(0);
+    const content = readFileSync(join(examples, "best-practices.md"), "utf8");
+    expect(content).not.toMatch(/<a\s+[^>]*\bid\s*=/i);
+    expect(content).not.toMatch(/<span\s+[^>]*\bid\s*=/i);
+    const referencedHeadings = [
+      "标题",
+      "前置条件",
+      "数据源、数据库和 SQL",
+      "表名",
+      "分区表",
+      "生成脚本",
+      "导入文件（五行以内）",
+      "步骤动作",
+      "预期",
+    ];
+    for (const heading of referencedHeadings) {
+      expect(content, `best-practices.md 缺少章节「${heading}」`).toMatch(
+        new RegExp(`^#{2,3} ${heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"),
+      );
+    }
+  });
+
+  it("test-case 强制规范提示只在 SKILL.md 声明一次", () => {
+    const mandatory =
+      "必须严格遵循 [examples/cases.yaml](examples/cases.yaml) 及 [examples/best-practices.md](examples/best-practices.md)。超出两份文件明确范围的禁止自行创建规范，必须给出建议并取得用户确认。";
+    const skill = readSkillMd("test-case");
+    const content = readSkillContent("test-case");
+    expect(skill.split(mandatory)).toHaveLength(2);
+    expect(content.split(mandatory)).toHaveLength(2);
+    expect(content).not.toContain("case-scenario.md");
   });
 
   it("流程型 Skill 的每个顶层步骤都有可检查完成条件", () => {

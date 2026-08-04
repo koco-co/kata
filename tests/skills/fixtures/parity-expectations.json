@@ -18,7 +18,7 @@
         { "pattern": "<项目>:<版本目录>/<需求目录名>", "file": "workflows/create.md" }
       ],
       "testPoints": [{ "pattern": "cases/test-points.md", "file": "SKILL.md" }],
-      "createTableRule": [{ "pattern": "CREATE TABLE", "file": "examples/cases.yaml" }],
+      "createTableRule": [{ "pattern": "CREATE TABLE", "file": "examples/best-practices.md" }],
       "resolveCmd": [{ "pattern": "kata features resolve", "file": "workflows/create.md" }],
       "standingFlag": [{ "pattern": "--standing", "file": "workflows/create.md" }]
     },

@@ -4,6 +4,7 @@ import { parse } from "yaml";
 import {
   type CasesLintConfig,
   lintCaseContent,
+  lintCaseYamlSource,
   loadCasesLintConfig,
 } from "./cases/content-lint.ts";
 import { parseCaseExportName } from "./cases/formats.ts";
@@ -36,7 +37,6 @@ export interface FeatureLintViolation {
 // 未确认点必须在写 yaml 前清零，产物里不允许出现「待确认」标记；
 // 「等待确认弹窗关闭」等操作步骤里的「待确认」子串不算未确认点。
 const PENDING_CONFIRM_RE = /(?<!等)待确认/;
-const REGULAR_TITLE_RE = /^验证/;
 const P0_MIN_CASES = 8;
 const P0_RATIO_MIN = 0.2;
 const P0_RATIO_MAX = 0.4;
@@ -146,6 +146,13 @@ function lintCaseSources(
     }
     if (!subjective) continue;
     try {
+      for (const violation of lintCaseYamlSource(text)) {
+        violations.push({
+          feature,
+          rule: violation.rule,
+          message: violation.message,
+        });
+      }
       const authored = parseCasesYaml(text);
       for (const violation of lintCaseContent(authored, contentConfig)) {
         violations.push({
@@ -158,15 +165,6 @@ function lintCaseSources(
       // Structural/YAML failures are owned by cases build; semantic lint starts after parsing.
     }
     const cases = Array.isArray(doc.cases) ? doc.cases : [];
-    for (const [index, item] of cases.entries()) {
-      if (typeof item.title === "string" && !REGULAR_TITLE_RE.test(item.title)) {
-        violations.push({
-          feature,
-          rule: "case_title_format",
-          message: `cases/${filename} 第 ${index + 1} 条标题须以「验证」开头: "${item.title}"`,
-        });
-      }
-    }
     const historicalImport =
       Array.isArray(doc.meta?.imports) &&
       doc.meta.imports.some((value) => typeof value === "string");

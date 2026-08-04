@@ -108,4 +108,5 @@ cases:
     expect(normalized).toContain("action: |-\n          配置如下:");
     expect(normalized).toContain("expected: |-\n          1) 成功\n          2) 返回");
   });
+
 });

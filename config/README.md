@@ -41,6 +41,12 @@ kata infra inspect <host> --check connectivity --project <project>
 `policies/xmind-mapping.yaml` 是 XMind 根标题的唯一来源。每个受支持项目必须声明展示用
 `root_name` 和固定的 ZenTao 模块 ID；缺少映射时直接报错，渲染器不得从 feature 路径推断。
 
+`policies/cases-lint.yaml` 只由 `kata cases lint` 和 `kata cases build` 加载，模型编写用例时不得
+直接读取它。模型的编写规范以 test-case Skill 的 `examples/cases.yaml` 及其引用的
+`examples/best-practices.md` 为准；policy 只负责机械阻断标题、前置条件、步骤、禁用词、数据源、
+SQL 方言、表名、批量数据、分区和导入文件等违规内容。`kata cases build` 在内容 lint 通过前
+不会写入 XMind 或其他派生产物。
+
 插件凭据只从 `config/private/integrations/` 读取，不提供环境变量覆盖；运行时环境变量仅保留给
 工作区根定位（`KATA_WORKSPACE_ROOT`）与平台环境执行（`kata env run` 注入）。仓库不会自动加载
 根目录 `.env`，也不提供旧 dotenv 配置迁移。
@@ -63,7 +69,7 @@ ZenTao 拉取凭据与 `kata zentao create` 的产品、模块和负责人映射
 | `infrastructure` | secret | 私密 | SSH 主机、数据源、凭据 profile 与已核验指纹 | `config/examples/infrastructure/hosts.example.yaml`<br>`config/examples/infrastructure/data_sources.example.yaml`<br>`config/examples/infrastructure/credentials.example.yaml` |
 | `repositories` | secret | 私密 | 本机源码仓库路径、分支与筛选范围 | `config/examples/repositories.example.yaml` |
 | `repo-policy` | contract | 跟踪 | 仓库产物路由与命名契约（repo lint / bun run check 读取） | — |
-| `cases-lint` | contract | 跟踪 | 用例内容 lint 契约（first-step 入口模式、禁用词、数据源类型） | — |
+| `cases-lint` | contract | 跟踪 | 用例内容硬闸（标题、前置条件、步骤、禁用词、数据与 SQL 契约） | — |
 | `sql-profiles` | contract | 跟踪 | SQL 方言契约（方言 profile、必需/禁用片段与占位符） | — |
 | `xmind-mapping` | contract | 跟踪 | XMind 根标题与 ZenTao 模块 ID 映射契约 | — |
 | `automation` | runtime | 跟踪 | Playwright 运行时行为设置（可被 --set 覆盖） | `config/automation/playwright.example.yaml` |

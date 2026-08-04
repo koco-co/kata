@@ -85,17 +85,16 @@ describe("features lint", () => {
     ).toBe(false);
   });
 
-  it("enforces authored active-case title and P0 ratio rules", () => {
+  it("enforces authored active-case P0 ratio rules", () => {
     const root = ws();
     const cases = Array.from({ length: 8 }, (_, index) => {
       const priority = index === 0 ? "P0" : "P1";
-      return `  - id: C${String(index + 1).padStart(4, "0")}\n    title: ${index === 0 ? "非验证标题" : `验证场景${index + 1}`}\n    priority: ${priority}`;
+      return `  - case_id: C${String(index + 1).padStart(4, "0")}\n    title: ${index === 0 ? "" : `验证场景${index + 1}在执行时展示确定结果`}\n    priority: ${priority}\n    precondition: 无\n    steps:\n      - action: 进入【资产盘点】页面\n        expected: 进入成功`;
     }).join("\n");
-    mkValidActive(root, `cases:\n${cases}\n`);
+    mkValidActive(root, `meta: { title: 需求, case_module_id: "" }\ncases:\n${cases}\n`);
     const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
       (v) => v.rule,
     );
-    expect(rules).toContain("case_title_format");
     expect(rules).toContain("p0_ratio");
   });
 
@@ -163,7 +162,16 @@ describe("features lint", () => {
     const workspaceRoot = ws();
     mkValidActive(
       workspaceRoot,
-      "cases:\n  - id: C0001\n    title: 非验证标题\n    priority: P1\n",
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 原始历史标题
+    priority: P1
+    precondition: 无
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 展示正常
+`,
     );
     const result = spawnSync(
       "bun",
@@ -175,7 +183,11 @@ describe("features lint", () => {
       },
     );
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain("case_title_format");
+    expect(result.stdout).toContain("case_forbidden_term");
+    expect(result.stdout).toContain("修复：");
+    expect(result.stdout).toContain(
+      "要求：语义级重写全部同类内容后重新执行 lint；未通过前不得交由用户验收!",
+    );
   });
 
   it("enforces global authored-case content rules without exposing a case location", () => {
@@ -205,8 +217,52 @@ cases:
     expect(violations.map((item) => item.rule)).toContain("case_forbidden_term");
     expect(violations.map((item) => item.rule)).toContain("case_first_step_navigation");
     const message = violations.map((item) => item.message).join("\n");
-    expect(message).toContain("实际: 点击新增按钮");
+    expect(message).toContain("实际：点击新增按钮");
     expect(message).not.toContain("C0001");
+  });
+
+  it("flags semicolon-packed preconditions in the authored YAML source", () => {
+    const root = ws();
+    mkValidActive(
+      root,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【编码配置】-【保存】展示保存结果
+    priority: P1
+    precondition: 1) 编码配置包含 L1 前缀 BD；L2/L3/L4/L5 使用独立前缀；目录 L1_01 已存在
+    steps:
+      - action: 进入【数据资产】页面
+        expected: 进入成功
+`,
+    );
+    const rules = runFeaturesLint({ project: "dataAssets", workspaceRoot: root }).violations.map(
+      (item) => item.rule,
+    );
+    expect(rules).toContain("case_precondition_semicolon");
+
+    const canonical = ws();
+    mkValidActive(
+      canonical,
+      `meta: { title: 需求, case_module_id: "" }
+cases:
+  - case_id: C0001
+    title: 验证【编码配置】-【保存】展示保存结果
+    priority: P1
+    precondition: |-
+      1) 编码配置包含 L1 前缀 BD
+      2) L2/L3/L4/L5 使用独立前缀
+      3) 目录 L1_01 已存在
+    steps:
+      - action: 进入【数据资产】页面
+        expected: 进入成功
+`,
+    );
+    const canonicalRules = runFeaturesLint({
+      project: "dataAssets",
+      workspaceRoot: canonical,
+    }).violations.map((item) => item.rule);
+    expect(canonicalRules).not.toContain("case_precondition_semicolon");
   });
 
   it("lints every workspace project through --all-projects", () => {

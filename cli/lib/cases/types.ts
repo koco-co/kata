@@ -63,7 +63,7 @@ export interface CaseItem {
   precondition?: string;
   /** 执行步骤与逐步预期 */
   steps: { action: string; expected: string }[];
-  /** 标签;首个起依次为 module/page/subgroup 层级路径 */
+  /** 标签；XMind 层级路径。 */
   tags?: string[];
   /** 证据关联(替代 .process/),如需求条目或截图路径 */
   source_ref?: string;

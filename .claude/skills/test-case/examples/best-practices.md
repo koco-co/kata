@@ -1,0 +1,228 @@
+# 用例编写规范
+
+本文件只规定 `title`、`precondition`、`steps[].action` 和 `steps[].expected` 的写法。示例中的占位名称、字段、数字和 SQL 必须替换为需求事实。
+
+## 标题
+
+所有用例标题必须使用统一公式：
+
+```yaml
+# 统一公式：验证【模块】-【功能点】<操作>，<可观测结果>(条件)
+title: 验证【单表校验规则】新建强规则并运行，触发强规则告警
+title: 验证【周期任务】同步Restful源，任务状态为成功(源URL未配置path)
+title: 验证【数据开发】-【周期任务】同步Restful源，任务状态为成功(未配置path)
+title: 验证【状态筛选】筛选任务列表，仅展示匹配状态任务(单选场景)
+```
+
+规则：
+
+- 前缀固定「验证」；对象用链式括号【模块】-【功能点】，每层一个【】、用 - 连接，最多两级；第三级起不写进标题（放 tags），标题内不用「」。
+- 操作是动词短语（新建、删除、导入、运行、筛选、同步…），不得省略。
+- 结果必须是可观测断言（列表新增、状态更新为、触发告警、Toast 提示、数量变化、字段值）；禁止通用空转词（功能正常/异常、完成目标操作且状态更新、配置后的显示等）。
+- 条件可选，一律写在标题末尾半角括号 (…) 内，多条件用 + 连接，括号内用纯文本；禁止「在…时」从句、下划线拼接和括号内嵌套【】。
+
+## 前置条件
+
+```yaml
+# 无
+precondition: 无
+
+# 一条
+precondition: |-
+  1) 存在名称为 RuleA 且状态为「启用」的规则
+
+# 多条
+precondition: |-
+  1) 存在名称为 RuleA 的规则
+  2) 该规则状态为「启用」
+  3) 规则库配置列表共 2 条记录
+
+# 角色账号
+precondition: |-
+  1) 使用租户管理员账号进入数据资产平台
+```
+
+### 数据源、数据库和 SQL
+
+```yaml
+# 单数据源
+precondition: |-
+  1) 授权数据源：${DataSourceA}
+  2) 数据源类型：SparkThrift2.x
+  3) 存在数据库：${SchemaA}
+  4) 创建数据表并插入 10k 行数据：
+     DROP TABLE IF EXISTS ${SchemaA}.test_table_13925_c0260;
+     CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13925_c0260 (
+       id BIGINT, code STRING, name STRING, amount DECIMAL(10,2)
+     );
+     INSERT INTO ${SchemaA}.test_table_13925_c0260
+     SELECT id, CONCAT('code_', CAST(id AS STRING)), CONCAT('name_', CAST(id AS STRING)), CAST(id AS DECIMAL(10,2))
+     FROM range(1, 10001);
+
+# 多数据源/多数据库
+precondition: |-
+  1) 授权数据源 A：${DataSourceA}
+  2) 数据源 A 类型：SparkThrift2.x
+  3) 数据源 A 存在数据库：${SchemaA}、${SchemaA2}
+  4) 在 ${SchemaA} 创建源表：
+     DROP TABLE IF EXISTS ${SchemaA}.test_table_14280_c0001_source_01;
+     CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14280_c0001_source_01 (id BIGINT, code STRING);
+     INSERT INTO ${SchemaA}.test_table_14280_c0001_source_01 VALUES (1, 'A001');
+  5) 在 ${SchemaA2} 创建目标表：
+     DROP TABLE IF EXISTS ${SchemaA2}.test_table_14280_c0001_target_01;
+     CREATE TABLE IF NOT EXISTS ${SchemaA2}.test_table_14280_c0001_target_01 (id BIGINT, code STRING);
+     INSERT INTO ${SchemaA2}.test_table_14280_c0001_target_01 VALUES (1, 'A001');
+  6) 授权数据源 B：${DataSourceB}
+  7) 数据源 B 类型：SparkThrift2.x
+  8) 数据源 B 存在数据库：${SchemaB}
+  9) 在 ${SchemaB} 创建对比表：
+     DROP TABLE IF EXISTS ${SchemaB}.test_table_14280_c0001_comparison_01;
+     CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14280_c0001_comparison_01 (id BIGINT, code STRING);
+     INSERT INTO ${SchemaB}.test_table_14280_c0001_comparison_01 VALUES (1, 'A001');
+```
+
+### 表名
+
+```text
+单表：test_table_13925_c0260
+源表：test_table_14280_c0001_source_01
+目标表：test_table_14280_c0001_target_01
+对比表：test_table_14280_c0001_comparison_01
+维表：test_table_14280_c0001_dimension_01
+同一角色 ≥2 张表：追加至少两位序号；超大集合可用 test_table_13925_c0260_source_00001～10000
+```
+
+### 分区表
+
+```yaml
+precondition: |-
+  1) 授权数据源：${DataSourceA}
+  2) 数据源类型：SparkThrift2.x
+  3) 存在数据库：${SchemaA}
+  4) 创建分区表并写入前一日和当日两个分区：
+     DROP TABLE IF EXISTS ${SchemaA}.test_table_13925_c0260;
+     CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_13925_c0260 (
+       id BIGINT, amount DECIMAL(10,2)
+     ) PARTITIONED BY (dt STRING);
+     INSERT INTO ${SchemaA}.test_table_13925_c0260 PARTITION (dt)
+     SELECT 1, CAST(100 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+     UNION ALL
+     SELECT 2, CAST(200 AS DECIMAL(10,2)), date_format(current_date(), 'yyyy-MM-dd');
+```
+
+### 生成脚本
+
+```yaml
+# Shell 生成 SQL
+precondition: |-
+  1) 授权数据源：${DataSourceA}
+  2) 数据源类型：SparkThrift2.x
+  3) 存在数据库：${SchemaA}
+  4) 使用以下 Shell 脚本生成 test_table_13925_c0260.sql：
+     #!/usr/bin/env bash
+     set -euo pipefail
+     output_file="test_table_13925_c0260.sql"
+     schema='${SchemaA}'
+     table="${schema}.test_table_13925_c0260"
+     {
+       printf 'DROP TABLE IF EXISTS %s;\n' "${table}"
+       printf 'CREATE TABLE IF NOT EXISTS %s (id BIGINT, code STRING);\n' "${table}"
+       printf 'INSERT INTO %s VALUES\n' "${table}"
+       for ((id=1; id<=100; id++)); do
+         separator=','
+         if (( id == 100 )); then separator=';'; fi
+         printf "(%d, 'code_%d')%s\n" "${id}" "${id}" "${separator}"
+       done
+     } > "${output_file}"
+  5) 复制 test_table_13925_c0260.sql 的内容，在 ${DataSourceA} 对应平台或底层执行
+
+# Shell 生成 CSV
+precondition: |-
+  1) 使用以下 Shell 脚本生成 rule_import_13925_c0260.csv：
+     #!/usr/bin/env bash
+     set -euo pipefail
+     output_file="rule_import_13925_c0260.csv"
+     printf '%s\n' '* 规则名称,规则描述,* 表名,表中文名,字段名,字段中文名,* 校验SQL(请输入不符合规则要求的明细数据查询SQL)' > "${output_file}"
+     for ((id=1; id<=100; id++)); do
+       printf '规则_%03d,规则描述_%03d,departments,部门表,amount,金额,SELECT * FROM departments WHERE id = %d\n' "${id}" "${id}" "${id}" >> "${output_file}"
+     done
+
+# Python 生成 XLSX
+precondition: |-
+  1) 使用以下 Python 脚本生成 rule_import_13925_c0260.xlsx：
+     from openpyxl import Workbook
+     output_file = "rule_import_13925_c0260.xlsx"
+     workbook = Workbook()
+     sheet = workbook.active
+     sheet.title = "Sheet1"
+     sheet.append(["规则名称", "规则描述", "表名", "字段名", "校验SQL"])
+     for index in range(1, 101):
+         sheet.append([f"规则_{index:03d}", f"规则描述_{index:03d}", "departments", "amount", f"SELECT * FROM departments WHERE id = {index}"])
+     workbook.save(output_file)
+```
+
+### 导入文件（五行以内）
+
+```yaml
+precondition: |-
+  1) 创建导入文件 rule_import_13925_c0260.xlsx：
+     Sheet: Sheet1
+     Title: * 规则名称, 规则描述, * 表名, 表中文名, 字段名, 字段中文名, * 校验SQL(请输入不符合规则要求的明细数据查询SQL)
+     Line1: RuleA, 金额字段不得为空, departments, 部门表, amount, 金额, SELECT * FROM departments WHERE amount IS NULL
+```
+
+## 步骤动作
+
+每个 `action` 只描述一个可独立验收的操作阶段；页面切换、提交、下载、核对、再次操作或状态变更必须拆成独立步骤。同一表单的多个字段可合并配置并一次提交。
+
+```yaml
+# 首步页面入口
+- action: 进入【资产盘点】页面
+  expected: 进入成功
+- action: 进入【数据质量 → 规则库配置】页面
+  expected: 进入成功
+
+# 单个操作
+- action: 点击「新增规则」
+  expected: 打开「新建规则」表单
+
+# 独立操作拆分 — 页面切换、下载、核对、再次操作各自独立
+- action: 点击「导出」，仅选择 L3「客户画像」，点击「确定」
+  expected: 导出任务范围仅包含 L3「客户画像」
+- action: 下载导出文件并打开
+  expected: 文件可正常打开
+- action: 核对导出文件的表头与记录
+  expected: 表头字段完整且记录仅属于 L3「客户画像」
+- action: 再次点击「导出」，全选一级目录「零售业务」下的全部 L3，点击「确定」
+  expected: 导出任务范围包含「零售业务」下的全部 L3
+
+# 表单配置 — 多字段可合并，一次提交在同一 action
+- action: |-
+    配置质量规则：
+    规则名称：RuleA
+    校验字段：amount
+    规则强弱：强规则
+    状态：启用
+  expected: Toast提示:「保存成功」,新增记录:RuleA 且状态为「启用」
+```
+
+## 预期
+
+使用可直接观察的执行结果：Toast 文本、控件状态、字段值、数量、执行状态或可执行查询结果。
+
+```yaml
+# 单个
+expected: 「规则名称」置红提示:「请输入规则名称」,「保存」按钮禁用
+
+# 多项
+expected: |-
+  1) 列表新增 RuleA
+  2) 状态显示为「启用」
+  3) 规则数量由 2 增加为 3
+
+# SQL 校验
+expected: |-
+  1) 任务状态：「成功」
+  2) 执行SQL：SELECT COUNT(*) FROM ${SchemaA}.test_table_13925_c0260;
+     查询结果：10000
+```

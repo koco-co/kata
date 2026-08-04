@@ -11,11 +11,12 @@ meta:
   exports: [交付用例.csv, 交付用例.xlsx, 交付用例.md, 交付用例.xmind]
 cases:
   - case_id: C0001
-    title: 验证用例一
+    title: 验证【数据质量】-【新建监控规则】创建规则，列表新增该规则
     priority: P0
-    tags: [模块A, 页面B, 分组C, 第四级]
+    precondition: 无
+    tags: [数据质量, 规则库配置, 新建监控规则]
     steps:
-      - { action: 进入【数据质量 → 规则库配置】页面, expected: 页面入口展示 }
+      - { action: 进入【数据质量 → 规则库配置 → 新建监控规则】页面, expected: 进入成功 }
 `;
 
 function feature(): string {
@@ -42,7 +43,7 @@ describe("kata cases build metadata exports", () => {
     expect(existsSync(join(out, "交付用例.xmind"))).toBe(true);
     expect(existsSync(join(out, "需求名.xmind"))).toBe(false);
     expect(existsSync(join(out, "历史导出.xmind"))).toBe(false);
-    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("所属层级4");
+    expect(readFileSync(join(out, "交付用例.csv"), "utf8")).toContain("所属层级3");
   });
 
   it("does not expose the old one-format export command", () => {

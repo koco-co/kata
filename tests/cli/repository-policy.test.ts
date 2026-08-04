@@ -83,6 +83,16 @@ describe("repository policy", () => {
     expect(policy.root.allowed_files).not.toContain("CONTRIBUTING.md");
   });
 
+  it("keeps business-case semantic repair rules in the shared agent authority", () => {
+    const repoRoot = resolve(import.meta.dir, "../..");
+    const claude = readFileSync(join(repoRoot, "CLAUDE.md"), "utf8");
+    const agents = readFileSync(join(repoRoot, "AGENTS.md"), "utf8");
+    expect(agents).toBe(claude);
+    expect(claude).toContain("必须结合 PRD、测试点、产品页面和项目知识逐条进行模型语义级修复");
+    expect(claude).toContain("禁止使用脚本、正则或批量文本替换机械改写业务用例");
+    expect(claude).toContain("脚本只可用于只读扫描、统计、lint、build 和派生产物生成");
+  });
+
   it("exposes the current-repository check through kata repo lint without a root script", () => {
     const repoRoot = resolve(import.meta.dir, "../..");
     expect(existsSync(join(repoRoot, "scripts", "check-repository-policy.ts"))).toBe(false);

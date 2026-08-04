@@ -362,7 +362,7 @@ export const CONFIG_FAMILIES: ConfigFamilyEntry[] = [
     name: "cases-lint",
     role: "contract",
     private: false,
-    docs: "用例内容 lint 契约（first-step 入口模式、禁用词、数据源类型）",
+    docs: "用例内容硬闸（标题、前置条件、步骤、禁用词、数据与 SQL 契约）",
     files: ["config/policies/cases-lint.yaml"],
     templates: [],
     loadFile: (path, root) => {

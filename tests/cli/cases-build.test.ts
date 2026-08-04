@@ -18,7 +18,7 @@ const YAML = `
 meta: { title: 需求名, case_module_id: "" }
 cases:
   - case_id: C0001
-    title: 验证规则配置在进入页面时展示规则列表
+    title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表
     priority: P0
     precondition: 无
     steps:
@@ -67,7 +67,7 @@ describe("kata cases build", () => {
       `meta: { title: 需求名, case_module_id: "" }
 cases:
   - case_id: C0001
-    title: 验证规则配置在新增时打开新增弹窗
+    title: 验证【数据质量】-【规则库配置】点击新增，打开新增弹窗
     priority: P0
     precondition: 准备测试数据
     steps:
@@ -153,7 +153,7 @@ const BUILD_YAML = (requirementId: string) => `meta:
   requirement_id: "${requirementId}"
 cases:
   - case_id: C0001
-    title: 验证规则配置在进入页面时展示规则列表
+    title: 验证【数据质量】-【规则库配置】进入页面，展示规则列表
     priority: P0
     precondition: 无
     steps:

@@ -96,6 +96,9 @@ forbidden_terms:
     - 逻辑正常
     - 功能逻辑正常
     - UI展示正确
+    - 校验通过
+    - 任务校验通过
+    - 功能异常
     - 符合预期
     - 无异常
   # 不允许把流程残留、模型补充或占位分类写进正式用例。
@@ -105,12 +108,46 @@ forbidden_terms:
     - AI生成
     - 待人工确认
     - 未分类
+  # 不允许把模板占位、续写指令或省略表达留在正式用例。
+  placeholder_residue:
+    - xxx
+    - XXX
+    - TODO
+    - TBD
+    - 待完善
+    - 待补齐
+    - 同上
+    - 同前
+    - 参照上例
+    - 见上文
+    - 省略
+    - ……
 
-# 首步骤必须独立描述页面入口；后续动作不得把入口和点击动作揉成一条。
-first_step_pattern: '^进入【[^】\n]+\s*→\s*[^】\n]+】页面(?:[。；;，,]|$)'
-# lint 报错中的固定预期与示例文本。
-first_step_expected: '进入【实际一级模块 → 实际页面】页面'
+# 每类禁词命中后的整改目标；CLI 只汇总命中表达，不泄露文件、用例或行号。
+forbidden_expectations:
+  uncertainty: 使用已经由需求、页面或项目知识确认的确定条件和结果
+  weak_action: 使用可直接执行的明确动作，不使用试探或条件式动作
+  vague_setup: 写明具体账号角色、对象名称、字段、值、数据量或可执行构造内容
+  vague_object: 写明确定对象、数量、范围和标识，不使用泛化指代
+  login_state: 普通功能用例不写登录状态；权限场景写明实际角色账号及进入的平台
+  generic_assertion: 写明 Toast 文本、控件状态、记录字段值、数量、状态或可执行查询结果；条件组合标题按规定格式书写
+  process_residue: 删除确认过程、生成来源和占位分类，只保留正式业务内容
+  placeholder_residue: 用需求事实替换模板占位、引用省略和续写标记
+
+# 首步骤必须独立描述一至三级真实菜单路径，不得把入口和点击动作揉成一条。
+first_step_pattern: '^进入【[^】\n→]+(?:\s*→\s*[^】\n→]+){0,2}】页面$'
+# lint 报错中的固定动作目标、示例和首步骤预期。
+first_step_expected: '进入【一至三级实际菜单路径】页面'
 first_step_example: '进入【数据质量 → 规则库配置】页面'
+first_step_result: '进入成功'
+
+# 显式 VALUES 或导入文件超过该行数后，必须改用集合生成语句或完整文件生成脚本。
+bulk_row_threshold: 5
+# 命中这些业务语义时，前置数据必须是至少两个动态日期分区的分区表。
+partition_case_terms:
+  - 分区
+  - 增量同步
+  - 分区扫描
 
 # 需求没有声明数据源时，模型生成的默认类型；声明了其他类型时必须按声明使用对应方言。
 default_datasource_type: SparkThrift2.x
@@ -149,3 +186,24 @@ table_roles:
 empty_table_markers:
   - 该表为空表
   - 该表不写入数据
+
+# 环境对象的实例名称必须由语义占位符承载；只有测试表名保留具体稳定值。
+# 该规则由 CLI 读取，模型只遵循 examples/cases.yaml 与 best-practices.md。
+environment_placeholders:
+  project: '^\$\{Project[A-Z]\}$'
+  datasource: '^\$\{DataSource[A-Z]\}$'
+  schema: '^\$\{Schema[A-Z]\d*\}$'
+environment_context_terms:
+  project:
+    - 项目
+    - 工程
+    - project
+  datasource:
+    - 数据源
+    - datasource
+  schema:
+    - 数据库
+    - 源库
+    - 目标库
+    - schema
+    - database

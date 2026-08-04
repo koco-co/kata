@@ -1,85 +1,61 @@
-# cases.yaml 样例（节选改写自真实需求，展示格式而非事实）
-# meta: 用例集业务元信息；版本和 feature 身份由所在目录路径推导。
+# 1. 标题统一公式：验证【模块】-【功能点】<操作>，<可观测结果>(条件)
+# 2-12. 前置条件、步骤、预期各类写法 → 见 best-practices.md
 meta:
   title: 单表校验规则支持枚举值个数统计
   requirement_id: "15862"
   case_module_id: ""
-  test_points_digest: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-  source: https://lanhuapp.com/web/#/item/project/... (需求设计稿链接)
-  exports:
-    - 需求名.xmind
+  source: "禅道需求 #15862"
+  # test_points_digest: sha256:<完整摘要>  （存在 cases/test-points.md 时必填）
+  # imports: 历史输入文件名                  （存在真实历史输入时声明）
+  # exports: 单表校验规则支持枚举值个数统计.xmind  （需要显式派生产物时声明）
+  # layout: requirements                     （聚合多个需求时声明）
 cases:
-  # case_id 从 C0001 递增；tags 按 模块/页面/功能点 层级写
   - case_id: C0001
-    title: 验证新建单表规则时统计函数可选「枚举值个数」并按枚举个数阈值告警
-    source_ref: TP-001
+    title: 验证【规则库配置】-【新建监控规则】配置枚举值个数强规则并运行，触发强规则告警
+    source_ref: TP-002
     priority: P0
     precondition: |-
-      数据源 A：
-      - 数据源：${DataSourceA}
-      - 数据源类型：SparkThrift2.x
-      - 数据库：${SchemaA}
-      - 初始化 SQL：
-          DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0001;
-          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0001 (
-            id BIGINT,
-            city STRING,
-            status INT
-          );
-          INSERT INTO ${SchemaA}.test_table_15862_c0001 VALUES
-            (1, 'beijing', 1),
-            (2, 'shanghai', 1);
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0001 (
+           id BIGINT,
+           city STRING,
+           status INT
+         );
+         INSERT INTO ${SchemaA}.test_table_15862_c0001 VALUES
+           (1, 'beijing', 1),
+           (2, 'shanghai', 2);
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
-        expected: 展示规则库配置列表与「新建监控规则」入口
-      - action: 点击「新建监控规则」-「单表校验规则」
-        expected: 弹出规则创建向导，进入第一步「监控对象」
+        expected: 进入成功
+      - action: 点击「新建监控规则」，选择「单表校验规则」
+        expected: 打开「单表校验规则」创建向导并进入「监控对象」步骤
       - action: |-
-          选择监控对象:
-          - 数据源: ${DataSourceA}
-          - 数据表: user_profile
+          配置监控对象：
+          数据源：${DataSourceA}
+          数据库：${SchemaA}
+          数据表：test_table_15862_c0001
           点击「下一步」
-        expected: 进入第二步「监控规则」，展示校验字段与统计函数配置区
+        expected: 进入「监控规则」步骤并展示校验字段与统计函数配置区
       - action: |-
-          添加规则:
-          - 校验字段: city
-          - 统计函数: 枚举值个数
-          - 校验方式: 固定值
-          - 比较符: >
-          - 阈值: 1
-          - 规则强弱: 强规则
-        expected: 规则项保存成功，列表展示「city / 枚举值个数 / 固定值 > 1」
-      - action: 点击「保存」，返回规则配置列表后点击该规则的「运行」
+          配置监控规则：
+          校验字段：city
+          统计函数：枚举值个数
+          校验方式：固定值
+          比较符：>
+          阈值：1
+          规则强弱：强规则
+        expected: 规则项展示「city / 枚举值个数 / 固定值 > 1 / 强规则」
+      - action: 点击「保存」
+        expected: Toast提示:「保存成功」,列表新增该规则且状态为「启用」
+      - action: 点击该规则「运行」
         expected: |-
-          1) 运行成功
-          2) city 有 2 个枚举值，大于阈值 1，运行结果产生强规则告警
+          1) 运行状态：「成功」
+          2) 告警类型：「强规则告警」
     tags:
       - 数据质量
-      - 规则配置
-      - 统计函数
-  - case_id: C0002
-    title: 验证「枚举值个数」不支持非字符类型字段时给出提示
-    source_ref: TP-002
-    priority: P1
-    precondition: |-
-      数据源 A：
-      - 数据源：${DataSourceA}
-      - 数据源类型：SparkThrift2.x
-      - 数据库：${SchemaA}
-      - 初始化 SQL：
-          DROP TABLE IF EXISTS ${SchemaA}.test_table_15862_c0002;
-          CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15862_c0002 (
-            id BIGINT,
-            status INT
-          );
-          INSERT INTO ${SchemaA}.test_table_15862_c0002 VALUES
-            (1, 1),
-            (2, 2);
-    steps:
-      - action: 进入【数据质量 → 规则库配置】页面
-        expected: 展示规则库配置列表与「新建监控规则」入口
-      - action: 进入单表校验规则第二步「监控规则」，校验字段选择 INT 类型的 status
-        expected: 统计函数下拉不出现「枚举值个数」；hover 提示「仅支持字符类型字段」
-    tags:
-      - 数据质量
-      - 规则配置
+      - 规则库配置
+    # automation.spec_file: 仅真实 Playwright 脚本存在时声明
