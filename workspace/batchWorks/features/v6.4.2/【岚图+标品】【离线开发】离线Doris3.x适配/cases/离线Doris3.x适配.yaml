@@ -8,1754 +8,618 @@ meta:
     - 离线Doris3.x适配.xmind
 cases:
   - case_id: C0001
-    title: 验证「数据源」页面正确展示Doris3.x版本信息
+    title: 验证【离线开发】-【数据源】引入并筛选Doris3.x数据源，列表仅展示该类型(数据源类型)
     priority: P2
-    precondition: 「公共管理-数据源中心」已存在一条Doris3.x类型的数据源记录
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 公共管理数据源中心存在该数据源，连接状态为「可用」
     steps:
       - action: 进入【离线开发 → 数据源】页面
-        expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据源」页面
         expected: 进入成功
-      - action: 点击「引入数据源」
-        expected: 弹出可用数据源弹窗
-      - action: 点击「数据源类型」下拉框
-        expected: 新增可选项「Doris3.x」
-      - action: 选择「Doris3.x」数据源并确定
-        expected: 数据源成功引入至离线平台
-      - action: 检查Doris 3.x数据源记录的类型字段值
-        expected: 显示为「Doris3.x」
-      - action: 点击「数据源类型」下拉框
-        expected: 新增可选项「Doris3.x」
-      - action: 选择Doris3.x
-        expected: 过滤出类型为「Doris3.x」的数据源记录
+      - action: 点击「引入数据源」并展开「数据源类型」
+        expected: 下拉列表包含「Doris3.x」选项
+      - action: 选择「${DataSourceA}」并确认引入
+        expected: 数据源列表新增「${DataSourceA}」，类型列为「Doris3.x」
+      - action: 在数据源类型筛选中选择「Doris3.x」
+        expected: 列表仅展示类型为「Doris3.x」的数据源
+    tags:
+      - 离线开发
+      - 数据源
+      - Doris3.x
+
   - case_id: C0002
-    title: 验证整库同步完成目标操作且状态更新(Doris3.x → Other)
+    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Doris3.x → Other)
     priority: P0
     precondition: |-
-      「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
-
-
-      DROP TABLE IF EXISTS example_primary_key_table;
-      CREATE TABLE example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      UNIQUE KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1",
-          "enable_unique_key_merge_on_write" = "true"
-      );
-
-
-
-      -- 插入第一条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
-
-      SELECT * FROM example_primary_key_table;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0002 (id BIGINT, name STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_14835_c0002 VALUES (1, 'A', 10.00), (2, 'B', 20.00), (3, 'C', 30.00);
+      5) 授权数据源：${DataSourceC}
+      6) 数据源类型：SparkThrift2.x
+      7) 存在数据库：${SchemaC}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaC}.test_table_14835_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_14835_c0002 (id BIGINT, name STRING, amount DECIMAL(10,2));
+      9) 目标数据库 ${DataSourceC}.${SchemaC} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据源」页面
+      - action: 进入【离线开发 → 数据源】页面
         expected: 进入成功
-      - action: 选择一条Doris3.x类型的数据源记录, 点击「整库同步」
-        expected: 进入整库同步页面
+      - action: 选择「${DataSourceA}」并点击「整库同步」
+        expected: 打开整库同步配置页，源端显示 ${DataSourceA}
       - action: |-
-          配置如下:
-          源表: 勾选${tableA}
-          目标: SparkThrift2.x
-          Schema: 选择${schemaA}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建SparkSQL任务, 执行SQL: SELECT * FROM ${schemaA}.${tableA};"
-        expected: 查询成功, 表记录与Doris3.x表记录一致
-      - action: |-
-          再次配置Doris3.x「整库同步」:
-          源表: 勾选${tableB}
-          目标: Hive2.x
-          Schema: ${schemaB}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建HiveSQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableB};"
-        expected: 查询成功, 表记录与Doris3.x表记录一致
-      - action: |-
-          再次配置Doris3.x「整库同步」:
-          源表: 勾选${tableC}
-          目标: Doris2.x
-          Schema: ${schemaC}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建DorisSQL任务, 执行SQL: SELECT * FROM ${schemaC}.${tableC};"
-        expected: 查询成功, 表记录与Doris3.x表记录一致
+          配置整库同步：
+          源库：${SchemaA}
+          源表：test_table_14835_c0002
+          目标数据源：${DataSourceC}
+          目标数据库：${SchemaC}
+          同步方式：全量
+          点击「发布任务」
+        expected: Toast提示:「发布成功」，同步历史新增 1 条记录且状态为「运行完成」
+      - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaC}.test_table_14835_c0002`
+        expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaC}.test_table_14835_c0002` 查询结果为 60.00
+    tags:
+      ["离线开发", "数据源"]
   - case_id: C0003
-    title: 验证整库同步完成目标操作且状态更新(Doris2.x → Other)
+    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Doris2.x → Other)
     priority: P2
     precondition: |-
-      「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
-
-
-      CREATE TABLE example_duplicate_table (
-          id LARGEINT NOT NULL,
-          name VARCHAR(255),
-          age TINYINT,
-          bio VARCHAR(65533),
-          birth_date DATE,
-          last_seen DATETIME,
-          is_active BOOLEAN,
-          height DECIMAL(3,2),
-          email VARCHAR(255),
-          registration_date DATETIME,
-          profile_picture STRING,
-          salary DOUBLE,
-          revision INT,
-          metadata STRING
-      )
-      DUPLICATE KEY (id)
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1"
-      );
-
-      -- 插入第一条数据
-      INSERT INTO example_duplicate_table (
-          id, name, age, bio, birth_date, last_seen, is_active, height,
-          email, registration_date, profile_picture, salary, revision, metadata
-      ) VALUES (
-          2001,
-          '陈芳',
-          29,
-          '前端工程师，热衷于用户体验优化。',
-          '1995-03-18',
-          '2025-06-04 11:45:00',
-          TRUE,
-          1. 65,
-          'chenfang@example.com',
-          '2024-04-10 11:45:00',
-          'https://example.com/pic/chenfang.jpg',
-          13000. 0,
-          1,
-          '{"技能": ["React", "Vue"], "城市": "上海"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO example_duplicate_table (
-          id, name, age, bio, birth_date, last_seen, is_active, height,
-          email, registration_date, profile_picture, salary, revision, metadata
-      ) VALUES (
-          2002,
-          '赵磊',
-          37,
-          '系统架构师，擅长分布式系统设计。',
-          '1988-11-05',
-          '2025-06-04 10:30:00',
-          TRUE,
-          1. 78,
-          'zhaolei@example.com',
-          '2024-09-18 16:00:00',
-          'https://example.com/pic/zhaolei.jpg',
-          18000. 0,
-          2,
-          '{"项目": ["微服务", "云平台"], "公司": "某大型IT公司"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO example_duplicate_table (
-          id, name, age, bio, birth_date, last_seen, is_active, height,
-          email, registration_date, profile_picture, salary, revision, metadata
-      ) VALUES (
-          2003,
-          '刘洋',
-          26,
-          '数据分析师，精通SQL与Python数据分析。',
-          '1999-07-22',
-          '2025-06-03 17:00:00',
-          FALSE,
-          1. 70,
-          'liuyang@example.com',
-          '2025-02-28 10:10:00',
-          'https://example.com/pic/liuyang.jpg',
-          11000. 0,
-          1,
-          '{"工具": ["Pandas", "Tableau"], "学历": "硕士"}'
-      );
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0003 (id BIGINT, name STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_14835_c0003 VALUES (1, 'A', 10.00), (2, 'B', 20.00), (3, 'C', 30.00);
+      5) 授权数据源：${DataSourceB}
+      6) 数据源类型：Hive2.x
+      7) 存在数据库：${SchemaB}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_14835_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14835_c0003 (id BIGINT, name STRING, amount DECIMAL(10,2));
+      9) 目标数据库 ${DataSourceB}.${SchemaB} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据源」页面
+      - action: 进入【离线开发 → 数据源】页面
         expected: 进入成功
-      - action: 选择一条Doris2.x类型的数据源记录, 点击「整库同步」
-        expected: 进入整库同步页面
-      - action: |-
-          配置如下:
-          源表: 勾选${tableA}
-          目标: SparkThrift2.x
-          Schema: 选择${schemaA}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建SparkSQL任务, 执行SQL: SELECT * FROM ${schemaA}.${tableA};"
-        expected: 查询成功, 表记录与Doris2.x表记录一致
-      - action: |-
-          再次配置Doris2.x「整库同步」:
-          源表: 勾选${tableB}
-          目标: Hive2.x
-          Schema: ${schemaB}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建HiveSQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableB};"
-        expected: 查询成功, 表记录与Doris2.x表记录一致
-      - action: |-
-          再次配置Doris2.x「整库同步」:
-          源表: 勾选${tableC}
-          目标: Doris3.x
-          Schema: ${schemaC}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建DorisSQL任务, 执行SQL: SELECT * FROM ${schemaC}.${tableC};"
-        expected: 查询成功, 表记录与Doris2.x表记录一致
+      - action: 选择「${DataSourceA}」并点击「整库同步」
+        expected: 打开整库同步配置页，源端显示 ${DataSourceA}
+      - action: 配置源库 ${SchemaA}、源表 test_table_14835_c0003、目标数据源 ${DataSourceB}、目标数据库 ${SchemaB}、同步方式「全量」，点击「发布任务」
+        expected: Toast提示:「发布成功」，同步历史新增记录且状态为「运行完成」
+      - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaB}.test_table_14835_c0003`
+        expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaB}.test_table_14835_c0003` 查询结果为 60.00
+    tags:
+      ["离线开发", "数据源"]
   - case_id: C0004
-    title: 验证整库同步完成目标操作且状态更新(Other → Doris3.x)
+    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Other → Doris3.x)
     priority: P1
     precondition: |-
-      「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
-      SR
-
-      CREATE TABLE sr_example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      PRIMARY KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1"
-      );
-
-
-      -- 插入第一条数据
-      INSERT INTO sr_example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO sr_example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO sr_example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
-
-      SELECT * from sr_example_primary_key_table;
-
-
-      MySQL
-      CREATE TABLE mysql_example_table (
-          id INT AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键ID',
-          name VARCHAR(255) NOT NULL COMMENT '用户名，不能为空',
-          age TINYINT UNSIGNED COMMENT '年龄，非负数',
-          bio TEXT COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '最后一次在线时间，默认当前时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高，单位米，保留两位小数',
-          email VARCHAR(255) UNIQUE COMMENT '邮箱，唯一',
-          registration_date DATETIME COMMENT '注册日期和时间',
-          salary DOUBLE COMMENT '薪资',
-          revision INT DEFAULT 1 COMMENT '版本号，默认1',
-          metadata JSON COMMENT '额外元数据信息，JSON格式'
-      );
-
-
-      INSERT INTO mysql_example_table (name, age, bio, birth_date, is_active, height, email, registration_date, salary, metadata)
-      VALUES
-      ('张三', 28, '热爱编程的软件工程师', '1997-05-30', TRUE, 1.75, 'zhangsan@example.com', '2020-01-01 10:00:00', 12000.50, '{"department":"研发部","level":"中级"}'),
-      ('李四', 34, '经验丰富的项目经理', '1989-08-15', TRUE, 1.80, 'lisi@example.com', '2019-03-12 09:30:00', 15000.75, '{"department":"项目管理部","level":"高级"}'),
-      ('王五', 22, '新晋的数据分析师', '2003-02-20', FALSE, 1.65, 'wangwu@example.com', '2022-06-01 14:20:00', 8000.00, '{"department":"数据分析部","level":"初级"}'),
-      ('赵六', 45, '资深的产品设计师', '1978-12-11', TRUE, 1.70, 'zhaoliu@example.com', '2018-07-23 16:45:00', 20000.00, '{"department":"产品设计部","level":"专家"}'),
-      ('孙七', 30, '专业的前端开发人员', '1995-04-04', TRUE, 1.78, 'sunqi@example.com', '2021-02-28 11:11:11', 13000.00, '{"department":"前端开发部","level":"中级"}'),
-      ('周八', 26, '移动应用开发者', '1999-11-22', FALSE, 1.68, 'zhouba@example.com', '2023-09-15 08:50:00', 9500.25, '{"department":"移动端开发部","level":"初级"}');
-
-
-      SELECT * from mysql_example_table;
+      1) 授权数据源：${DataSourceC}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaC}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaC}.test_table_14835_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_14835_c0004 (id BIGINT, name STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaC}.test_table_14835_c0004 VALUES (1, 'A', 10.00), (2, 'B', 20.00), (3, 'C', 30.00);
+      5) 授权数据源：${DataSourceA}
+      6) 数据源类型：Doris3.x
+      7) 存在数据库：${SchemaA}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0004 (id BIGINT, name STRING, amount DECIMAL(10,2));
+      9) 目标数据库 ${DataSourceA}.${SchemaA} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据源」页面
+      - action: 进入【离线开发 → 数据源】页面
         expected: 进入成功
-      - action: 选择一条Starrocks类型的数据源记录, 点击「整库同步」
-        expected: 进入整库同步页面
-      - action: |-
-          配置如下:
-          源表: 勾选${tableA}
-          目标: Doris3.x
-          Schema: 选择${schemaA}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建SR SQL任务, 执行SQL: SELECT * FROM ${schemaA}.${tableA};"
-        expected: 查询成功, 表记录与SR表记录一致
-      - action: 选择一条MySQL类型的数据源记录, 点击「整库同步」
-        expected: 进入整库同步页面
-      - action: |-
-          配置如下:
-          源表: 勾选${tableB}
-          目标: Doris3.x
-          Schema: 选择${schemaB}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建MySQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableB};"
-        expected: 查询成功, 表记录与MySQL表记录一致
+      - action: 选择「${DataSourceC}」并点击「整库同步」
+        expected: 打开整库同步配置页，源端显示 ${DataSourceC}
+      - action: 配置源库 ${SchemaC}、源表 test_table_14835_c0004、目标数据源 ${DataSourceA}、目标数据库 ${SchemaA}、同步方式「全量」，点击「发布任务」
+        expected: Toast提示:「发布成功」，同步历史新增记录且状态为「运行完成」
+      - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0004`
+        expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaA}.test_table_14835_c0004` 查询结果为 60.00
+    tags:
+      ["离线开发", "数据源"]
   - case_id: C0005
-    title: 验证整库同步完成目标操作且状态更新(Other → Doris2.x)
+    title: 验证【离线开发】-【数据源】配置整库同步任务，目标端同步3行数据(Other → Doris2.x)
     priority: P2
     precondition: |-
-      「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
-      SR
-
-      CREATE TABLE sr_example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      PRIMARY KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1"
-      );
-
-
-      -- 插入第一条数据
-      INSERT INTO sr_example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO sr_example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO sr_example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
-
-      SELECT * from sr_example_primary_key_table;
-
-
-      MySQL
-      CREATE TABLE mysql_example_table (
-          id INT AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键ID',
-          name VARCHAR(255) NOT NULL COMMENT '用户名，不能为空',
-          age TINYINT UNSIGNED COMMENT '年龄，非负数',
-          bio TEXT COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '最后一次在线时间，默认当前时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高，单位米，保留两位小数',
-          email VARCHAR(255) UNIQUE COMMENT '邮箱，唯一',
-          registration_date DATETIME COMMENT '注册日期和时间',
-          profile_picture BLOB COMMENT '头像图片二进制数据',
-          salary DOUBLE COMMENT '薪资',
-          revision INT DEFAULT 1 COMMENT '版本号，默认1',
-          metadata JSON COMMENT '额外元数据信息，JSON格式'
-      );
-
-
-      INSERT INTO mysql_example_table (name, age, bio, birth_date, is_active, height, email, registration_date, profile_picture, salary, metadata)
-      VALUES
-      ('张三', 28, '热爱编程的软件工程师', '1997-05-30', TRUE, 1.75, 'zhangsan@example.com', '2020-01-01 10:00:00', NULL, 12000.50, '{"department":"研发部","level":"中级"}'),
-      ('李四', 34, '经验丰富的项目经理', '1989-08-15', TRUE, 1.80, 'lisi@example.com', '2019-03-12 09:30:00', NULL, 15000.75, '{"department":"项目管理部","level":"高级"}'),
-      ('王五', 22, '新晋的数据分析师', '2003-02-20', FALSE, 1.65, 'wangwu@example.com', '2022-06-01 14:20:00', NULL, 8000.00, '{"department":"数据分析部","level":"初级"}'),
-      ('赵六', 45, '资深的产品设计师', '1978-12-11', TRUE, 1.70, 'zhaoliu@example.com', '2018-07-23 16:45:00', NULL, 20000.00, '{"department":"产品设计部","level":"专家"}'),
-      ('孙七', 30, '专业的前端开发人员', '1995-04-04', TRUE, 1.78, 'sunqi@example.com', '2021-02-28 11:11:11', NULL, 13000.00, '{"department":"前端开发部","level":"中级"}'),
-      ('周八', 26, '移动应用开发者', '1999-11-22', FALSE, 1.68, 'zhouba@example.com', '2023-09-15 08:50:00', NULL, 9500.25, '{"department":"移动端开发部","level":"初级"}');
-
-
-      SELECT * from mysql_example_table;
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0005 (id BIGINT, name STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_14835_c0005 VALUES (1, 'A', 10.00), (2, 'B', 20.00), (3, 'C', 30.00);
+      5) 授权数据源：${DataSourceB}
+      6) 数据源类型：Doris2.x
+      7) 存在数据库：${SchemaB}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_14835_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14835_c0005 (id BIGINT, name STRING, amount DECIMAL(10,2));
+      9) 目标数据库 ${DataSourceB}.${SchemaB} 已授权给离线开发项目
     steps:
-      - action: 进入【离线开发 → 整库同步完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → 整库同步完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据源」页面
+      - action: 进入【离线开发 → 数据源】页面
         expected: 进入成功
-      - action: 选择一条Starrocks类型的数据源记录, 点击「整库同步」
-        expected: 进入整库同步页面
-      - action: |-
-          配置如下:
-          源表: 勾选${tableA}
-          目标: Doris2.x
-          Schema: 选择${schemaA}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建SR SQL任务, 执行SQL: SELECT * FROM ${schemaA}.${tableA};"
-        expected: 查询成功, 表记录与SR表记录一致
-      - action: 选择一条MySQL类型的数据源记录, 点击「整库同步」
-        expected: 进入整库同步页面
-      - action: |-
-          配置如下:
-          源表: 勾选${tableB}
-          目标: Doris2.x
-          Schema: 选择${schemaB}
-          方式: 全量
-          日期、时间: 默认
-          并发配置: 整批上传
-          保存目录: 默认
-        expected: 配置成功
-      - action: 点击发布任务
-        expected: 发布成功, 「同步历史」新增同步记录
-      - action: "T+1后, 新建MySQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableB};"
-        expected: 查询成功, 表记录与MySQL表记录一致
+      - action: 选择「${DataSourceA}」并点击「整库同步」
+        expected: 打开整库同步配置页，源端显示 ${DataSourceA}
+      - action: 配置源库 ${SchemaA}、源表 test_table_14835_c0005、目标数据源 ${DataSourceB}、目标数据库 ${SchemaB}、同步方式「全量」，点击「发布任务」
+        expected: Toast提示:「发布成功」，同步历史新增记录且状态为「运行完成」
+      - action: 在目标端执行 `SELECT COUNT(*) FROM ${SchemaB}.test_table_14835_c0005`
+        expected: 查询结果为 3，`SELECT SUM(amount) FROM ${SchemaB}.test_table_14835_c0005` 查询结果为 60.00
+    tags:
+      ["离线开发", "数据源"]
   - case_id: C0006
-    title: 验证数据同步完成目标操作且状态更新(Doris3.x → Other、session模式)
+    title: 验证【离线开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Doris3.x → Other、session模式)
     priority: P0
     precondition: |-
-      1. 「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
-
-      2. 已存在Doris3.x表, 建表语句如下:
-      CREATE TABLE if not exists example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      UNIQUE KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1",
-          "enable_unique_key_merge_on_write" = "true"
-      );
-
-
-
-      -- 插入第一条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0006 (id BIGINT, order_no STRING, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_14835_c0006 VALUES (1, 'O1', 10.00), (2, 'O2', 20.00), (3, 'O3', 30.00);
+      5) 授权数据源：${DataSourceC}
+      6) 数据源类型：SparkThrift2.x
+      7) 存在数据库：${SchemaC}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaC}.test_table_14835_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_14835_c0006 (id BIGINT, order_no STRING, amount DECIMAL(10,2));
+      9) 目标数据库 ${DataSourceC}.${SchemaC} 已授权
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
-        expected: 已进入【离线开发 → 数据开发】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发」页面
+      - action: 进入【离线开发 → 数据同步】页面
         expected: 进入成功
-      - action: |-
-          新建周期任务:
-          名称: Doris2Other
-          类型: 数据同步
-          配置模式: 向导模式
-          向导模式: 无增量标识
-        expected: 新增成功
-      - action: |-
-          数据来源配置:
-          数据源: Doris3.x
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功, 点击「数据预览」可查看表数据
-      - action: |-
-          选择目标配置:
-          数据源: SparkThrift2.x
-          Schema: ${schemaB}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "新建SparkSQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与Doris3.x表记录一致
-      - action: |-
-          编辑数据同步任务Doris2Other的选择目标配置:
-          数据源: Hive2.x
-          Schema: ${schemaC}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: 其他配置保持不变, 保存任务后运行
-        expected: 编辑后的任务运行成功
-      - action: "新建HiveSQL任务, 执行SQL: SELECT * FROM ${schemaC}.${tableA};"
-        expected: 查询成功, 表记录与Doris3.x表记录一致
-      - action: |-
-          编辑数据同步任务Doris2Other的选择目标配置:
-          数据源: Doris2.x
-          Schema: ${schemaD}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: 其他配置保持不变, 保存任务后运行
-        expected: 编辑后的任务运行成功
-      - action: "新建DorisSQL任务, 执行SQL: SELECT * FROM ${schemaD}.${tableA};"
-        expected: 查询成功, 表记录与Doris3.x表记录一致
+      - action: 新建数据同步任务，源端选择 ${DataSourceA}.${SchemaA}.test_table_14835_c0006，目标端选择 ${DataSourceC}.${SchemaC}.test_table_14835_c0006
+        expected: 源表、目标表和字段映射区域展示完整
+      - action: 执行模式选择「session」，同步方式选择「全量」，点击「发布」
+        expected: Toast提示:「发布成功」，任务状态变为「运行完成」
+      - action: 执行 `SELECT COUNT(*) FROM ${SchemaC}.test_table_14835_c0006`
+        expected: 查询结果为 3，目标表字段 id、order_no、amount 均有值
+    tags:
+      - 离线开发
+      - 数据同步
+      - session模式
+
   - case_id: C0007
-    title: 验证数据同步完成目标操作且状态更新(Other → Doris3.x、per_job模式)
+    title: 验证【离线开发】-【数据同步】配置数据同步任务，目标端同步3行数据(Other → Doris3.x、perJob模式)
     priority: P1
     precondition: |-
-      1. 「离线开发-数据源」已存在Doris3.x、SparkThrift2.x、Hive2.x、Doris2.x类型的数据源记录
-
-      2. 已存在SparkThrift2.x表和Hive2.x表, 建表语句如下:
-      CREATE TABLE if not exists example_managed_table (
-          id INT,
-          name STRING,
-          age SMALLINT,
-          bio STRING,
-          birth_date DATE,
-          last_seen TIMESTAMP,
-          is_active BOOLEAN,
-          height DECIMAL(3,2),
-          email STRING,
-          registration_date TIMESTAMP,
-          profile_picture BINARY,
-          salary DOUBLE,
-          revision INT
-      )
-      COMMENT 'Example Managed Table'
-      ROW FORMAT DELIMITED
-      FIELDS TERMINATED BY ','
-      STORED AS TEXTFILE;
-
-
-      INSERT INTO TABLE example_managed_table VALUES
-      (1001, '张伟', 28, '热爱编程与开源技术，擅长Java和Python开发。', '1996-05-12', '2025-06-04 10:30:00', TRUE, 1.75, 'zhangwei@example.com', '2024-03-15 10:30:00', NULL, 12000.0, 1),
-      (1002, '李娜', 32, '资深产品经理，拥有多年互联网产品设计经验。', '1992-08-24', '2025-06-04 09:15:00', FALSE, 1.68, 'lina@example.com', '2024-07-22 09:15:00', NULL, 15000.0, 2),
-      (1003, '王强', 45, '企业高管，专注于战略规划与市场拓展。', '1980-01-30', '2025-06-03 18:45:00', TRUE, 1.80, 'wangqiang@example.com', '2025-01-10 14:20:00', NULL, 25000.0, 1);
-
-      Doris2.x表, 建表语句如下:
-      CREATE TABLE example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      UNIQUE KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1",
-          "enable_unique_key_merge_on_write" = "true"
-      );
-
-
-
-      -- 插入第一条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
+      1) 授权数据源：${DataSourceB}
+      2) 数据源类型：MySQL
+      3) 存在数据库：${SchemaB}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_14835_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_14835_c0007 (id BIGINT, order_no VARCHAR(32), amount DECIMAL(10,2));
+         INSERT INTO ${SchemaB}.test_table_14835_c0007 VALUES (1, 'O1', 10.00), (2, 'O2', 20.00), (3, 'O3', 30.00);
+      5) 授权数据源：${DataSourceA}
+      6) 数据源类型：Doris3.x
+      7) 存在数据库：${SchemaA}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0007 (id BIGINT, order_no VARCHAR(32), amount DECIMAL(10,2));
+      9) 目标数据库 ${DataSourceA}.${SchemaA} 已授权
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
-        expected: 已进入【离线开发 → 数据开发】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发」页面
+      - action: 进入【离线开发 → 数据同步】页面
         expected: 进入成功
-      - action: |-
-          新建周期任务:
-          名称: Other2Doris
-          类型: 数据同步
-          配置模式: 向导模式
-          向导模式: 无增量标识
-        expected: 新增成功
-      - action: |-
-          数据来源配置:
-          数据源: SparkThrift2.x
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功, 点击「数据预览」可查看表数据
-      - action: |-
-          选择目标配置:
-          数据源: Doris3.x
-          Schema: ${schemaB}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-          环境参数: 开启per_job模式(取消注释: flinkTaskRunMode=per_job)
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "执行DorisSQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与SparkThrift2.x表记录一致
-      - action: |-
-          编辑数据同步任务Other2Doris的数据来源配置:
-          数据源: Hive2.x
-          Schema: ${schemaC}
-          表名: ${tableC}
-        expected: 配置成功, 点击「数据预览」可查看表数据
-      - action: 其他配置保持不变, 保存任务后运行
-        expected: 编辑后的任务运行成功
-      - action: "执行DorisSQL: SELECT * FROM ${schemaB}.${tableC};"
-        expected: 查询成功, 表记录与Hive2.x表记录一致
-      - action: |-
-          编辑数据同步任务Other2Doris的数据来源配置:
-          数据源: Doris2.x
-          Schema: ${schemaD}
-          表名: ${tableD}
-        expected: 配置成功, 点击「数据预览」可查看表数据
-      - action: 其他配置保持不变, 保存任务后运行
-        expected: 编辑后的任务运行成功
-      - action: "执行DorisSQL: SELECT * FROM ${schemaB}.${tableD};"
-        expected: 查询成功, 表记录与Doris2.x表记录一致
+      - action: 新建数据同步任务，源端选择 ${DataSourceB}.${SchemaB}.test_table_14835_c0007，目标端选择 ${DataSourceA}.${SchemaA}.test_table_14835_c0007
+        expected: 源表、目标表和字段映射区域展示完整
+      - action: 执行模式选择「per_job」，同步方式选择「全量」，点击「发布」
+        expected: Toast提示:「发布成功」，任务状态变为「运行完成」
+      - action: 执行 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0007`
+        expected: 查询结果为 3，目标表 amount 汇总值与源表一致
+    tags:
+      - 离线开发
+      - 数据同步
+      - per_job模式
+
   - case_id: C0008
-    title: 验证 Doris3.x 同步任务导入前后配置语句执行有效
+    title: 验证【离线开发】-【数据同步】导入任务配置，任务详情保留源表目标表与执行模式(导入配置)
     priority: P1
     precondition: |-
-      建表语句
-      DROP TABLE IF EXISTS doris2_src_prepare;
-      CREATE TABLE doris2_src_prepare (
-          id INT,
-          v STRING
-      )
-      ENGINE=OLAP
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES("replication_num"="1");
-      INSERT INTO doris2_src_prepare VALUES (1,'x');
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0008 (id BIGINT, order_no STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0008 VALUES (1, 'O1');
+      5) 授权数据源：${DataSourceC}
+      6) 数据源类型：SparkThrift2.x
+      7) 存在数据库：${SchemaC}
+      8) 创建目标表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaC}.test_table_14835_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaC}.test_table_14835_c0008 (id BIGINT, order_no STRING);
+      9) 创建导入文件 `doris_sync_config.yaml`：
+         Title: source,target,mode
+         Line1: ${DataSourceA}.${SchemaA}.test_table_14835_c0008,${DataSourceC}.${SchemaC}.test_table_14835_c0008,session
     steps:
-      - action: 进入【离线开发 → 数据开发】页面
-        expected: 已进入【离线开发 → 数据开发】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发」页面
+      - action: 进入【离线开发 → 数据同步】页面
         expected: 进入成功
-      - action: 新建数据同步任务
-        expected: 新增成功
-      - action: |-
-          源端配置：
-          数据源: Doris2.x
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功
-      - action: |-
-          目标端配置：
-          数据源: Doris3.x
-          Schema: ${schemaB}
-          表:  一键生成目标表
-          导入前配置语句：TRUNCATE TABLE IF EXISTS ${schemaB}.${tableB};
-          导入后配置语句:  INSERT INTO ${schemaB}.${tableB} VALUES(2, 'done');
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "执行SQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与Doris2.x表记录一致
+      - action: 点击「导入任务配置」并上传 `doris_sync_config.yaml`
+        expected: 导入预览展示源端、目标端和执行模式，分别为 ${DataSourceA}.${SchemaA}.test_table_14835_c0008、${DataSourceC}.${SchemaC}.test_table_14835_c0008、session
+      - action: 点击「确认导入」并查看任务详情
+        expected: 任务详情保留源表、目标表和 session 执行模式，配置内容可编辑
+    tags:
+      - 离线开发
+      - 数据同步
+      - 导入配置
+
   - case_id: C0009
-    title: 验证「控制台」新增Doris3.x组件版本
+    title: 验证【离线开发】-【控制台】新增Doris3.x组件版本，列表新增且状态启用(组件版本)
     priority: P1
+    precondition: |-
+      1) 使用租户管理员账号进入离线开发控制台，具备组件版本管理权限
+      2) 组件列表中不存在版本「Doris3.x-3.0.3」
     steps:
-      - action: 进入【离线开发 → 控制台新增Doris3.x组件版本】页面
-        expected: 已进入【离线开发 → 控制台新增Doris3.x组件版本】页面，显示页面标题与主要操作区域
-      - action: 进入「控制台-多集群管理-集群配置-计算组件」
+      - action: 进入【离线开发 → 控制台】页面
         expected: 进入成功
-      - action: 组件配置添加Doris
-        expected: 添加成功
-      - action: 检查配置项
-        expected: 新增「组件版本」配置项, 位于组件名称下方
-      - action: 展开「组件版本」
-        expected: 默认选择2.x, 下拉支持选择2.x和3.x
+      - action: 点击「组件版本管理」并点击「新增」
+        expected: 打开新增组件版本表单，展示组件名称、版本号和备注字段
+      - action: 组件名称选择「Doris」，版本号输入「Doris3.x-3.0.3」，备注输入「离线适配」，点击「保存」
+        expected: Toast提示:「保存成功」，列表新增版本「Doris3.x-3.0.3」且状态为「启用」
+    tags:
+      - 离线开发
+      - 控制台
+      - 组件版本
+
   - case_id: C0010
-    title: "验证「创建项目」添加Doris 数据源显示目标记录及字段值(初始化方式: 创建)"
+    title: "验证【离线开发】-【项目管理】创建项目添加Doris3.x数据源，连接测试成功且详情展示(初始化方式: 创建)"
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0010 (id BIGINT);
+      5) 使用租户管理员账号进入离线开发项目管理，具备项目创建权限
+      6) 数据源连接信息为 host=doris3.example、port=8030、database=${SchemaA}，连接测试可返回成功
+      7) 项目名称「${ProjectB}」不存在
+    steps:
+      - action: 进入【离线开发 → 项目管理】页面
+        expected: 进入成功
+      - action: 点击「创建项目」，填写项目名称「${ProjectB}」并选择初始化方式「创建」
+        expected: 表单展示数据源类型、地址、端口、数据库、账号和密码字段
+      - action: 选择数据源类型「Doris3.x」，填写 host=doris3.example、port=8030、database=${SchemaA}，点击「连接测试」
+        expected: Toast提示:「连接成功」，连接测试状态为「成功」
+      - action: 点击「保存」并打开项目详情
+        expected: 项目列表新增「${ProjectB}」，详情展示数据源类型「Doris3.x」、地址 doris3.example、端口 8030、数据库 ${SchemaA}
+    tags:
+      - 离线开发
+      - 项目管理
+      - Doris3.x
+
+  - case_id: C0011
+    title: "验证【离线开发】-【项目管理】创建项目对接Doris3.x数据源，项目详情展示数据源(初始化方式: 对接)"
+    priority: P1
+    precondition: |-
+      1) 使用租户管理员账号进入离线开发项目管理，具备项目创建权限
+      2) 公共管理数据源中心存在「${DataSourceA}」，类型为 Doris3.x，连接状态为「可用」
+      3) 项目名称「${ProjectA}」不存在
+    steps:
+      - action: 进入【离线开发 → 项目管理】页面
+        expected: 进入成功
+      - action: 点击「创建项目」，填写项目名称「${ProjectA}」并选择初始化方式「对接」
+        expected: 表单展示可对接的数据源列表
+      - action: 选择「${DataSourceA}」并点击「保存」
+        expected: Toast提示:「保存成功」，项目详情展示数据源「${DataSourceA}」和类型「Doris3.x」
+    tags:
+      - 离线开发
+      - 项目管理
+      - 数据源对接
+
+  - case_id: C0012
+    title: "验证【离线开发】-【项目管理】创建项目不配置数据源，详情不包含数据源记录(初始化方式: 不创建且不对接)"
+    priority: P1
+    precondition: |-
+      1) 使用租户管理员账号进入离线开发项目管理，具备项目创建权限
+      2) 项目名称「${ProjectC}」不存在
+    steps:
+      - action: 进入【离线开发 → 项目管理】页面
+        expected: 进入成功
+      - action: 点击「创建项目」，填写项目名称「${ProjectC}」并选择初始化方式「不创建且不对接」
+        expected: 数据源配置区隐藏，表单不展示数据源选择项
+      - action: 点击「保存」并打开项目详情
+        expected: Toast提示:「保存成功」，项目详情不包含 Doris 数据源记录
+    tags:
+      - 离线开发
+      - 项目管理
+
+  - case_id: C0013
+    title: 验证【离线开发】-【数据开发】新建Doris SQL任务，任务保存且SQL完整(新建SQL任务)
     priority: P0
     precondition: |-
-      1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
-
-      2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0013 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0013 VALUES (1, 'A'), (2, 'B'), (3, 'C');
+      5) 项目「${ProjectD}」已创建并关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → 离线开发】页面
-        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发」页面
+      - action: 进入【离线开发 → 数据开发】页面
         expected: 进入成功
-      - action: 点击「创建项目」
-        expected: 进入创建项目页面
-      - action: |-
-          配置如下:
-          项目标识&项目名称: ${nameA}
-          计算引擎配置:
-          No.01: Doris2.x集群${ClusterA}、初始化方式: 「创建」
-          No.02: Doris3.x集群${ClusterB}、初始化方式: 「创建」
-        expected: 配置成功
-      - action: 点击「创建项目」
-        expected: 创建成功
-      - action: 进入「数据源」页面
-        expected: |-
-          进入成功, 数据源列表存在如下数据源记录:
-          1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
-          2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
-  - case_id: C0011
-    title: "验证「创建项目」添加Doris 数据源显示目标记录及字段值(初始化方式: 对接)"
-    priority: P2
+      - action: 点击「新建SQL任务」，选择项目「${ProjectD}」和 Doris3.x 引擎
+        expected: SQL编辑器打开，任务配置展示项目和引擎「Doris3.x」
+      - action: 输入 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0013`，点击「保存」
+        expected: Toast提示:「保存成功」，任务列表新增 SQL 任务且 SQL 内容完整保存
+    tags:
+      - 离线开发
+      - 数据开发
+      - SQL任务
+
+  - case_id: C0014
+    title: 验证【离线开发】-【数据开发】运行Doris SQL任务，结果集返回统计值(SQL执行)
+    priority: P0
     precondition: |-
-      1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
-
-      2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0014;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0014 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0014 VALUES (1, 'A'), (2, 'B'), (3, 'C');
+      5) 项目「${ProjectD}」存在任务「TaskA」
     steps:
-      - action: 进入【离线开发 → 离线开发】页面
-        expected: 已进入【离线开发 → 离线开发】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发」页面
+      - action: 进入【离线开发 → 数据开发】页面
         expected: 进入成功
-      - action: 点击「创建项目」
-        expected: 进入创建项目页面
-      - action: |-
-          配置如下:
-          项目标识&项目名称: ${nameA}
-          计算引擎配置:
-          No.01: Doris2.x集群${ClusterA}、初始化方式: 「对接已有Doris Schema」、${schemaA}、${表类目A}
-          No.02: Doris3.x集群${ClusterB}、初始化方式: 「对接已有Doris Schema」、${schemaB}、${表类目A}
-        expected: 配置成功
-      - action: 点击「创建项目」
-        expected: 创建成功
-      - action: 进入「数据源」页面
-        expected: |-
-          进入成功, 数据源列表存在如下数据源记录:
-          1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
-          2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
-  - case_id: C0012
-    title: "验证「创建项目」添加Doris数据源显示目标记录及字段值(初始化方式: 不创建且不对接)"
-    priority: P2
+      - action: 打开任务「TaskA」并点击「运行」
+        expected: Toast提示:「任务提交成功」，任务状态变为「运行中」
+      - action: 等待任务状态变为「运行完成」并查看结果
+        expected: 结果集包含一行，`COUNT(*)` 值为 3
+    tags:
+      - 离线开发
+      - 数据开发
+      - SQL执行
+
+  - case_id: C0015
+    title: 验证【离线开发】-【数据开发】输入错误语法运行任务，标记错误且运行失败(语法校验)
+    priority: P1
     precondition: |-
-      1) 「公共管理-控制台」中已分别存在Doris2.x、Doris3.x组件
-
-      2) Doris2.x 集群名称: ${ClusterA}、Doris3.x集群名称: ${ClusterB}
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0015;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0015 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0015 VALUES (1, 'A'), (2, 'B'), (3, 'C');
+      5) 项目「${ProjectD}」已关联 ${DataSourceA}
+      6) SQL编辑器可创建任务「TaskC」
     steps:
-      - action: 进入【离线开发 → 创建项目添加Doris数据源显示目标记录及字段值】页面
-        expected: 已进入【离线开发 → 创建项目添加Doris数据源显示目标记录及字段值】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发」页面
+      - action: 进入【离线开发 → 数据开发】页面
         expected: 进入成功
-      - action: 点击「创建项目」
-        expected: 进入创建项目页面
-      - action: |-
-          配置如下:
-          项目标识&项目名称: ${nameA}
-          计算引擎配置:
-          No.01: Doris2.x集群${ClusterA}、初始化方式:  「不创建且不对接 Schema」
-          No.02: Doris3.x集群${ClusterB}、初始化方式: 「不创建且不对接 Schema」
-        expected: 配置成功
-      - action: 点击「创建项目」
-        expected: 创建成功
-      - action: 进入「数据源」页面
-        expected: |-
-          进入成功, 数据源列表存在如下数据源记录:
-          1) 类型为Doris2.x, 数据源名称为${nameA}_DORIS_${ClusterA}的数据源记录
-          2) 类型为Doris3.x, 数据源名称为${nameA}_DORIS_${ClusterB}的数据源记录
-  - case_id: C0013
-    title: 验证「数据开发」Doris SQL任务创建完成目标操作且状态更新
-    priority: P2
-    precondition: "「离线开发-数据源」中已存在Doris 3.x Meta数据源, 数据源名称: ${ClusterA}"
+      - action: 新建任务「TaskC」，输入 `SELEC COUNT(*) FROM ${SchemaA}.test_table_14835_c0015`
+        expected: 编辑器标记语法错误位置，并展示「SELEC」关键字错误提示
+      - action: 点击「运行」
+        expected: Toast提示包含「SQL语法错误」，任务状态为「运行失败」
+    tags:
+      - 离线开发
+      - 数据开发
+      - SQL语法
+
+  - case_id: C0016
+    title: 验证【离线开发】-【数据开发】停止运行中任务，状态变为已停止且无新结果(任务停止)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 10000 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0016 (id BIGINT);
+         INSERT INTO ${SchemaA}.test_table_14835_c0016 SELECT id FROM range(1, 10001);
+      5) 项目「${ProjectD}」存在可运行任务「TaskB」
+    steps:
+      - action: 进入【离线开发 → 数据开发】页面
+        expected: 进入成功
+      - action: 运行「TaskB」，在任务状态为「运行中」时点击「停止」并确认
+        expected: Toast提示:「停止成功」，任务状态变为「已停止」
+      - action: 刷新任务列表并打开任务详情
+        expected: 任务状态仍为「已停止」，不产生新的结果集记录
+    tags:
+      - 离线开发
+      - 数据开发
+      - 任务停止
+
+  - case_id: C0017
+    title: 验证【离线开发】-【数据开发】运行含系统函数的SQL，结果集返回函数值(系统函数)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0017 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_14835_c0017 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
+      5) 项目「${ProjectD}」已关联 ${DataSourceA}
+    steps:
+      - action: 进入【离线开发 → 数据开发】页面
+        expected: 进入成功
+      - action: 新建 SQL 任务并输入 `SELECT DATE_FORMAT(CURRENT_DATE(), '%Y-%m-%d') AS today, SUM(amount) AS total FROM ${SchemaA}.test_table_14835_c0017`
+        expected: SQL编辑器保存成功
+      - action: 运行任务并查看结果集
+        expected: 结果集包含 today 日期字符串，total 值为 60.00
+    tags:
+      - 离线开发
+      - 数据开发
+      - 系统函数
+
+  - case_id: C0018
+    title: 验证【离线开发】-【数据开发】运行含自定义函数的SQL，结果集返回函数值(自定义函数)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0018 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0018 VALUES (1, 'alpha'), (2, 'beta');
+      5) 项目「${ProjectD}」已关联 ${DataSourceA}
+      6) ${DataSourceA} 已注册自定义函数 `mask_name`，输入 STRING，返回 STRING
+    steps:
+      - action: 进入【离线开发 → 数据开发】页面
+        expected: 进入成功
+      - action: 新建 SQL 任务并输入 `SELECT mask_name(name) AS masked_name FROM ${SchemaA}.test_table_14835_c0018 ORDER BY name`
+        expected: SQL编辑器保存成功，函数名未被标记为未知函数
+      - action: 运行任务并查看结果集
+        expected: 结果集包含 2 行 masked_name，值为 mask_name 函数返回值
+    tags:
+      - 离线开发
+      - 数据开发
+      - 自定义函数
+
+  - case_id: C0019
+    title: 验证【离线开发】-【数据源】查询Doris3.x数据表，预览数据并按条件筛选记录(表查询)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0019 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0019 VALUES (1, 'A'), (2, 'B');
+    steps:
+      - action: 进入【离线开发 → 数据源】页面
+        expected: 进入成功
+      - action: 选择「${DataSourceA}」的数据库 ${SchemaA} 和数据表 test_table_14835_c0019，点击「查询」
+        expected: 字段列表展示 id、name，数据预览展示 2 行记录
+      - action: 输入查询条件 `id = 2` 并执行
+        expected: 结果仅包含 id=2、name='B' 的 1 行记录
+    tags:
+      - 离线开发
+      - 数据源
+      - 表查询
+
+  - case_id: C0020
+    title: 验证【离线开发】-【数据源】同步元数据后查看字段，列表包含新增字段(元数据同步)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0020;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0020 (id BIGINT, name STRING);
+      5) 执行 `ALTER TABLE ${SchemaA}.test_table_14835_c0020 ADD COLUMN amount DECIMAL(10,2)` 后数据库字段包含 amount
+    steps:
+      - action: 进入【离线开发 → 数据源】页面
+        expected: 进入成功
+      - action: 选择「${DataSourceA}」并点击「同步元数据」
+        expected: Toast提示:「同步成功」，同步任务状态为「运行完成」
+      - action: 打开 ${SchemaA}.test_table_14835_c0020 字段详情
+        expected: 字段列表包含 id、name、amount，amount 类型为 DECIMAL(10,2)
+    tags:
+      - 离线开发
+      - 数据源
+      - 元数据同步
+
+  - case_id: C0021
+    title: 验证【离线开发】-【周期任务】创建Doris SQL调度任务，执行DDL成功且建表生效(DDL语法)
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0021;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0021 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0021 VALUES (1, 'A');
+      5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
         expected: 进入成功
-      - action: 右键「任务开发」, 选择Doris SQL任务
-        expected: 「新建周期任务-集群名称」中支持选择创建项目时对接的doris3.x集群名称
-      - action: |-
-          新建周期任务:
-          任务名称: ${nameA}
-          任务类型: Doris SQL
-          集群名称: ${ClusterA}
-        expected: 周期任务创建成功
-      - action: |-
-          进入「手动任务」, 新建手动任务:
-          任务名称: ${nameB}
-          任务类型: Doris SQL
-          集群名称: ${ClusterA}
-        expected: 手动任务创建成功
-      - action: |-
-          进入「临时查询」, 新建临时查询:
-          查询名称: ${nameC}
-          任务类型: Doris SQL
-          集群名称: ${ClusterA}
-        expected: 临时查询创建成功
-  - case_id: C0014
-    title: 验证 DorisSQL 任务可正常运行并返回结果
-    priority: P0
-    precondition: |-
-      1. 平台中已配置 Doris3.x 数据源，连接状态正常。
-      2. 配置测试语句, 建表语句如下:
-      DROP table if exists example_primary_key_table;
-      CREATE TABLE if not exists example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      UNIQUE KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1",
-          "enable_unique_key_merge_on_write" = "true"
-      );
+      - action: 创建 Doris SQL 调度任务，SQL 为 `CREATE TABLE IF NOT EXISTS ${SchemaA}.schedule_ddl_c0021 (id BIGINT, name STRING)`，调度周期选择「一次性」并发布
+        expected: Toast提示:「发布成功」，任务状态为「待运行」
+      - action: 立即运行任务并查看实例日志
+        expected: 实例状态为「运行完成」，日志包含 `CREATE TABLE` 执行成功
+      - action: 查询 `SHOW TABLES FROM ${SchemaA} LIKE 'schedule_ddl_c0021'`
+        expected: 查询结果包含 schedule_ddl_c0021
+    tags:
+      - 离线开发
+      - 周期任务
+      - DDL
 
-
-
-      -- 插入第一条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
-
-      select * from example_primary_key_table;
-    steps:
-      - action: 进入【离线开发 → DorisSQL 任务可正常运行并返回结果】页面
-        expected: 已进入【离线开发 → DorisSQL 任务可正常运行并返回结果】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 新建Doris SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示目标记录及字段值
-      - action: 进入「离线开发-数据开发-手动任务」页面
-        expected: 进入成功
-      - action: 新建Doris SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示目标记录及字段值
-      - action: 进入「离线开发-数据开发-临时查询」页面
-        expected: 进入成功
-      - action: 新建Doris SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示目标记录及字段值
-  - case_id: C0015
-    title: 验证 DorisSQL 语法提示完成目标操作且状态更新
-    priority: P2
-    precondition: Doris3.x 数据源中已存在表${tableA}, e.g. doris3_sql_run
-    steps:
-      - action: 进入【离线开发 → DorisSQL 语法提示完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → DorisSQL 语法提示完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 新建 DorisSQL 任务
-        expected: 创建成功
-      - action: 在编辑器中输入 SEL
-        expected: 自动提示补全 SELECT
-      - action: 输入 SELECT * FROM dor
-        expected: 提示补全表名 doris3_sql_run
-      - action: 输入系统函数前缀 CUR
-        expected: 自动提示 CURDATE() 、 CURTIME()
-  - case_id: C0016
-    title: 验证 DorisSQL 任务支持停止运行中的任务
-    priority: P1
-    precondition: |-
-      配置长时间执行 SQL：
-      DROP TABLE IF EXISTS doris3_sql_long;
-      CREATE TABLE doris3_sql_long (id INT)
-      ENGINE=OLAP
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES("replication_num"="1");
-      INSERT INTO doris3_sql_long SELECT * FROM numbers(10e7);
-    steps:
-      - action: 进入【离线开发 → DorisSQL 任务支持停止运行中的任务】页面
-        expected: 已进入【离线开发 → DorisSQL 任务支持停止运行中的任务】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 新建 DorisSQL 任务
-        expected: 创建成功
-      - action: 输入SQL测试语句并执行
-        expected: 运行成功, 控制台开始打印日志
-      - action: 点击「停止」
-        expected: 运行终止, 日志停止打印
-  - case_id: C0017
-    title: 验证 DorisSQL 支持系统函数调用
-    priority: P1
-    precondition: |-
-      已存在 doris3_sql_run 表。
-
-      DROP TABLE IF EXISTS doris3_sql_run;
-      CREATE TABLE doris3_sql_run (
-          id INT,
-          name STRING
-      )
-      ENGINE=OLAP
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES("replication_num"="1");
-      INSERT INTO doris3_sql_run VALUES (1,'a'),(2,'b');
-      SELECT * FROM doris3_sql_run;
-    steps:
-      - action: 进入【离线开发 → DorisSQL 支持系统函数调用】页面
-        expected: 已进入【离线开发 → DorisSQL 支持系统函数调用】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 新建 DorisSQL 任务
-        expected: 创建成功
-      - action: "输入测试语句: SELECT id, CURRENT_DATE() AS cur_date, NOW() AS cur_time FROM doris3_sql_run;"
-        expected: 执行成功, 返回两行数据
-      - action: 验证输出
-        expected: cur_date 与 cur_time 均为系统当前日期和时间
-  - case_id: C0018
-    title: 验证 DorisSQL 支持自定义函数
-    priority: P2
-    precondition: |-
-      离线平台已成功配置UDF函数
-
-      1. 通过show backends; 获取所有doris集群节点
-      2. 将jar包上传到所有doris集群节点中, 且保存目录路径一致
-
-      3. 新增自定义函数, 配置如下:
-       类名：com.digitaljx.HelloUDF
-       资源路径：file://${文件所在路径}, e.g. file:///root/doris_test/27_udf_test_SM4-1.0-SNAPSHOT.jar
-       返回参数类型：string
-       用途: 接收一个参数, 返回拼接上hello后的字符串
-       命令格式：${函数名称}(string), e.g. addStr(string)
-    steps:
-      - action: 进入【离线开发 → DorisSQL 支持自定义函数】页面
-        expected: 已进入【离线开发 → DorisSQL 支持自定义函数】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 新建 DorisSQL 任务
-        expected: 创建成功
-      - action: '输入测试语句: select addStr("test");并执行'
-        expected: "执行成功, 返回结果: hello test"
-  - case_id: C0019
-    title: 验证Doris3.x表查询完成目标操作且状态更新
-    priority: P2
-    precondition: 离线平台已对接2 个 Doris3.x 集群${ClusterA}，${ClusterB}, 均连接正常
-    steps:
-      - action: 进入【离线开发 → Doris3.x表查询完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → Doris3.x表查询完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-表查询」页面
-        expected: 进入成功
-      - action: 表类型中选择Doris
-        expected: 进入数据源名称列表页, 展示当前项目中已对接的Meta Doris集群列表
-      - action: 选择Doris3.x集群${ClusterA}
-        expected: 展示该集群下的Schema列表
-      - action: 选择${schemaA}
-        expected: 展示该schema下的table列表
-      - action: 选择${tableA}
-        expected: 展示该表的字段信息和数据预览
-      - action: 点击数据预览
-        expected: 展示表${tableA}的表记录
-  - case_id: C0020
-    title: 验证Doris3.x同步元数据完成目标操作且状态更新
-    priority: P0
-    precondition: |-
-      1. 离线平台中已配置 Doris3.x 集群数据源，连接状态正常。
-
-      2. Doris 集群中存在数据表(在底层创建, 而不是平台中创建, 离线项目标识为${schemaA})：
-
-      DROP TABLE IF EXISTS ${schemaA}.doris_meta_sync_test;
-      CREATE TABLE ${schemaA}.doris_meta_sync_test (
-          id INT,
-          name STRING,
-          dt DATE
-      )
-      ENGINE=OLAP
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES("replication_num"="1");
-
-      INSERT INTO ${schemaA}.doris_meta_sync_test VALUES (1,'a','2025-10-01');
-
-
-      DROP TABLE IF EXISTS ${schemaA}.doris_meta_sync_test2;
-      CREATE TABLE ${schemaA}.doris_meta_sync_test2 (
-          id INT,
-          name STRING,
-          dt DATE
-      )
-      ENGINE=OLAP
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES("replication_num"="1");
-
-      INSERT INTO ${schemaA}.doris_meta_sync_test2 VALUES (1,'a','2025-10-01');
-    steps:
-      - action: 进入【离线开发 → Doris3.x同步元数据完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → Doris3.x同步元数据完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-表查询」页面
-        expected: 进入成功
-      - action: 选择Doris-${schemaA}, 查询表doris_meta_sync_test
-        expected: 不存在表doris_meta_sync_test
-      - action: 进入「数据源」页面, 选择Meta Doris3.x数据源, 点击同步元数据
-        expected: 弹出同步元数据配置弹窗
-      - action: |-
-          配置如下:
-          选择表: 部分表, doris_meta_sync_test
-          表类目: ${资产数据地图下的表类目}
-        expected: 同步成功
-      - action: 再次进入表查询页面, 查询表doris_meta_sync_test
-        expected: 查询成功
-      - action: |-
-          进入「数据源」页面, 再次选择Doris3.x, 同步元数据, 配置如下:
-          选择表: 全部表
-          表类目: ${资产数据地图下的表类目}
-        expected: 同步成功
-      - action: 再次进入表查询页面, 查询表doris_meta_sync_test2
-        expected: 查询成功
-      - action: |-
-          底层删除两张表doris_meta_sync_test, doris_meta_sync_test2后, 再次同步元数据, 配置如下:
-          选择表: 全部表
-          表类目: ${资产数据地图下的表类目}
-        expected: 同步成功
-      - action: 进入表查询页面, 查询表doris_meta_sync_test和doris_meta_sync_test2
-        expected: 不存在
-  - case_id: C0021
-    title: 验证 DorisSQL任务调度功能运行正常(DDL语法)
-    priority: P0
-    precondition: |-
-      1. 平台中已配置 Doris3.x 数据源，连接状态正常。
-      2. 配置三个对接doris3.x的离线SQL任务：
-      ${task01}
-      DROP TABLE if exists user_profile;
-      CREATE TABLE IF NOT EXISTS user_profile (
-          id LARGEINT NOT NULL COMMENT '用户ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          salary DOUBLE COMMENT '薪资',
-          is_active BOOLEAN COMMENT '是否活跃',
-          revision INT COMMENT '版本号'
-      )
-      ENGINE=OLAP
-      UNIQUE KEY(id)
-      DISTRIBUTED BY HASH(id) BUCKETS 8
-      PROPERTIES (
-          "replication_num" = "3"
-      );
-
-
-      ${task02}
-      DROP TABLE if exists sales_records;
-      -- 分区表
-      CREATE TABLE sales_records (
-          order_id LARGEINT NOT NULL,
-          user_id LARGEINT NOT NULL,
-          sale_date DATE NOT NULL COMMENT '销售日期',
-          amount DECIMAL(12,2) COMMENT '金额',
-          region VARCHAR(50) COMMENT '地区'
-      )
-      ENGINE=OLAP
-      DUPLICATE KEY(order_id, user_id)
-      PARTITION BY RANGE(sale_date) (
-          PARTITION p2023 VALUES LESS THAN ('2024-01-01'),
-          PARTITION p2024 VALUES LESS THAN ('2025-01-01'),
-          PARTITION pmax VALUES LESS THAN MAXVALUE
-      )
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "2");
-
-
-      ${task03}
-      -- 增加列
-      ALTER TABLE user_profile ADD COLUMN department VARCHAR(100) COMMENT '所属部门';
-    steps:
-      - action: 进入【离线开发 → DorisSQL任务调度功能运行正常】页面
-        expected: 已进入【离线开发 → DorisSQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 并临时运行
-        expected: 运行成功
-      - action: 保存并提交到运维中心
-        expected: 提交成功
-      - action: 周期运行, 查看结果
-        expected: 运行成功, 周期任务实例中新增该任务的实例记录
-      - action: 补数据运行, 查看结果
-        expected: 运行成功, 补数据任务实例中新增该任务的实例记录
-      - action: 进入「离线开发-数据开发-手动任务」页面
-        expected: 进入成功
-      - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 提交到运维中心后手动运行
-        expected: 运行成功, 手动任务实例中新增该任务的实例记录
   - case_id: C0022
-    title: 验证 DorisSQL任务调度功能运行正常(DML语法)
+    title: 验证【离线开发】-【周期任务】创建Doris SQL调度任务，执行DML成功且写入数据(DML语法)
     priority: P1
     precondition: |-
-      1. 平台中已配置 Doris3.x 数据源，连接状态正常。
-      2. 当前离线项目中已存在Doris3.x表:
-
-      DROP TABLE if exists user_profile;
-      CREATE TABLE IF NOT EXISTS user_profile (
-          id LARGEINT NOT NULL COMMENT '用户ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          salary DOUBLE COMMENT '薪资',
-          is_active BOOLEAN COMMENT '是否活跃',
-          revision INT COMMENT '版本号'
-      )
-      ENGINE=OLAP
-      UNIQUE KEY(id)
-      DISTRIBUTED BY HASH(id) BUCKETS 8
-      PROPERTIES (
-          "replication_num" = "3"
-      );
-
-
-      DROP TABLE if exists sales_records;
-      -- 分区表
-      CREATE TABLE sales_records (
-          order_id LARGEINT NOT NULL,
-          user_id LARGEINT NOT NULL,
-          sale_date DATE NOT NULL COMMENT '销售日期',
-          amount DECIMAL(12,2) COMMENT '金额',
-          region VARCHAR(50) COMMENT '地区'
-      )
-      ENGINE=OLAP
-      DUPLICATE KEY(order_id, user_id)
-      PARTITION BY RANGE(sale_date) (
-          PARTITION p2023 VALUES LESS THAN ('2024-01-01'),
-          PARTITION p2024 VALUES LESS THAN ('2025-01-01'),
-          PARTITION pmax VALUES LESS THAN MAXVALUE
-      )
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "2");
-
-
-
-      3. 配置两个对接doris3.x的离线SQL任务：
-      ${task01}
-       INSERT INTO doris3x_test.user_profile
-      (id, registration_date, name, age, salary, is_active, revision)
-      VALUES
-      (1, '2023-01-01 10:00:00', 'Alice',   30, 12000, TRUE,  1),
-      (2, '2023-02-15 09:30:00', 'Bob',     25, 9000,  FALSE, 1),
-      (3, '2023-03-20 14:45:00', 'Charlie', 35, 15000, TRUE,  2);
-
-      ${task02}
-      INSERT INTO sales_records VALUES
-      (1001, 1, '2023-05-20', 199.99, 'East'),
-      (1002, 2, '2024-02-15', 299.50, 'West');
-
-      ${task03}
-      -- 条件更新
-      UPDATE user_profile SET salary = salary * 1.1 WHERE age > 30;
-
-      -- 条件删除
-      DELETE FROM sales_records WHERE sale_date < '2023-01-01';
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表，该表为空表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0022;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0022 (id BIGINT, name STRING);
+      5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → DorisSQL任务调度功能运行正常】页面
-        expected: 已进入【离线开发 → DorisSQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入【离线开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 并临时运行
-        expected: 运行成功
-      - action: 保存并提交到运维中心
-        expected: 提交成功
-      - action: 周期运行, 查看结果
-        expected: 运行成功, 周期任务实例中新增该任务的实例记录
-      - action: 补数据运行, 查看结果
-        expected: 运行成功, 补数据任务实例中新增该任务的实例记录
-      - action: 进入「离线开发-数据开发-手动任务」页面
-        expected: 进入成功
-      - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 提交到运维中心后手动运行
-        expected: 运行成功, 手动任务实例中新增该任务的实例记录
+      - action: 创建一次性 Doris SQL 调度任务，SQL 为 `INSERT INTO ${SchemaA}.test_table_14835_c0022 VALUES (1, 'A'), (2, 'B')` 并发布
+        expected: Toast提示:「发布成功」，任务状态为「待运行」
+      - action: 运行任务并查看实例结果
+        expected: 实例状态为「运行完成」
+      - action: 执行 `SELECT COUNT(*) FROM ${SchemaA}.test_table_14835_c0022`
+        expected: 查询结果为 2
+    tags:
+      - 离线开发
+      - 周期任务
+      - DML
+
   - case_id: C0023
-    title: 验证 DorisSQL任务调度功能运行正常(DQL语法)
+    title: 验证【离线开发】-【周期任务】创建Doris SQL调度任务，执行DQL返回结果集(DQL语法)
     priority: P1
     precondition: |-
-      1. 平台中已配置 Doris3.x 数据源，连接状态正常。
-      2. 当前离线项目中已存在Doris3.x表:
-
-      DROP TABLE if exists user_profile;
-      CREATE TABLE IF NOT EXISTS user_profile (
-          id LARGEINT NOT NULL COMMENT '用户ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          salary DOUBLE COMMENT '薪资',
-          is_active BOOLEAN COMMENT '是否活跃',
-          revision INT COMMENT '版本号'
-      )
-      ENGINE=OLAP
-      UNIQUE KEY(id)
-      DISTRIBUTED BY HASH(id) BUCKETS 8
-      PROPERTIES (
-          "replication_num" = "3"
-      );
-
-
-      DROP TABLE if exists sales_records;
-      -- 分区表
-      CREATE TABLE sales_records (
-          order_id LARGEINT NOT NULL,
-          user_id LARGEINT NOT NULL,
-          sale_date DATE NOT NULL COMMENT '销售日期',
-          amount DECIMAL(12,2) COMMENT '金额',
-          region VARCHAR(50) COMMENT '地区'
-      )
-      ENGINE=OLAP
-      DUPLICATE KEY(order_id, user_id)
-      PARTITION BY RANGE(sale_date) (
-          PARTITION p2023 VALUES LESS THAN ('2024-01-01'),
-          PARTITION p2024 VALUES LESS THAN ('2025-01-01'),
-          PARTITION pmax VALUES LESS THAN MAXVALUE
-      )
-      DISTRIBUTED BY HASH(order_id) BUCKETS 10
-      PROPERTIES (
-          "replication_num" = "2");
-
-
-      INSERT INTO user_profile VALUES
-      (1, '2023-01-01 10:00:00', 'Alice', 30, 12000, TRUE, 1),
-      (2, '2023-02-15 09:30:00', 'Bob', 25, 9000, FALSE, 1),
-      (3, '2023-03-20 14:45:00', 'Charlie', 35, 15000, TRUE, 2);
-
-      INSERT INTO sales_records VALUES
-      (1001, 1, '2023-05-20', 199.99, 'East'),
-      (1002, 2, '2024-02-15', 299.50, 'West');
-
-
-      3. 配置两个对接doris3.x的离线SQL任务：
-      ${task01}
-      -- 基础查询
-      SELECT name, age, salary
-      FROM user_profile
-      WHERE is_active = TRUE
-      ORDER BY salary DESC LIMIT 10;
-
-      ${task02}
-      -- 分组查询
-      SELECT region, SUM(amount) AS total_sales
-      FROM sales_records
-      WHERE sale_date BETWEEN '2023-01-01' AND '2023-12-31'
-      GROUP BY region;
-
-      -- 子查询
-      SELECT name, salary
-      FROM user_profile
-      WHERE salary > (SELECT AVG(salary) FROM user_profile);
-
-      -- join操作
-      SELECT u.name, s.amount, s.sale_date
-      FROM user_profile u JOIN sales_records s ON u.id = s.user_id
-      WHERE s.region = 'East';
-
-      ${task03}
-      -- 复杂聚合
-      SELECT
-          region,
-          YEAR(sale_date) AS year,
-          SUM(amount) AS total,
-          GROUPING(region) AS grp_region
-      FROM sales_records
-      GROUP BY ROLLUP(region, year);
-
-      -- CUBE
-      SELECT
-          is_active,
-          FLOOR(age/10)*10 AS age_group,
-          COUNT(*) AS user_count
-      FROM user_profile
-      GROUP BY CUBE(is_active, age_group);
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0023;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0023 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_14835_c0023 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
+      5) 项目「${ProjectD}」已关联 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → DorisSQL任务调度功能运行正常】页面
-        expected: 已进入【离线开发 → DorisSQL任务调度功能运行正常】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入【离线开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 并临时运行
-        expected: 运行成功
-      - action: 保存并提交到运维中心
-        expected: 提交成功
-      - action: 周期运行, 查看结果
-        expected: 运行成功, 周期任务实例中新增该任务的实例记录
-      - action: 补数据运行, 查看结果
-        expected: 运行成功, 补数据任务实例中新增该任务的实例记录
-      - action: 进入「离线开发-数据开发-手动任务」页面
-        expected: 进入成功
-      - action: 创建Doris SQL任务${task01}、${task02}、${task03}, 提交到运维中心后手动运行
-        expected: 运行成功, 手动任务实例中新增该任务的实例记录
+      - action: 创建一次性 Doris SQL 调度任务，SQL 为 `SELECT SUM(amount) AS total FROM ${SchemaA}.test_table_14835_c0023` 并发布
+        expected: Toast提示:「发布成功」，任务状态为「待运行」
+      - action: 运行任务并打开结果集
+        expected: 实例状态为「运行完成」，结果集 total 值为 60.00
+    tags:
+      - 离线开发
+      - 周期任务
+      - DQL
+
   - case_id: C0024
-    title: 验证项目维度数据库绑定账号完成目标操作且状态更新
-    priority: P2
+    title: 验证【离线开发】-【项目管理】为账号绑定数据库权限，账号下拉仅展示绑定数据库(数据库权限)
+    priority: P1
     precondition: |-
-      Doris 3.x 数据源已经配置root 和 test_user账号, test_user账号仅有lantu_test 权限
-
-
-
-      -- 1. 创建用户（密码自己换）
-      CREATE USER 'test_user'@'%' IDENTIFIED BY 'test123456';
-      -- 2. 建一个专用角色
-      CREATE ROLE 'test_role';
-      -- 3. 给这个角色授予 report_db 库的全部权限（含查询、导入、DDL）
-      GRANT ALL ON lantu_test.* TO ROLE 'test_role';
-      -- 4. 把角色授予用户
-      GRANT 'test_role' TO 'test_user'@'%';
-      -- 5. 立即生效
-      SET PROPERTY FOR 'test_user'@'%' 'resource.tags' = '*';
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_14835_c0024;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_14835_c0024 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_14835_c0024 VALUES (1, 'A');
+      5) 使用租户管理员账号进入离线开发项目管理，具备项目数据库权限配置权限
+      6) 项目「${ProjectD}」已关联 ${DataSourceA}
+      7) 可绑定数据库为 ${SchemaA}、doris_archive
+      8) 账号「UserA」已创建
     steps:
-      - action: 进入【离线开发 → 项目维度数据库绑定账号完成目标操作且状态更新】页面
-        expected: 已进入【离线开发 → 项目维度数据库绑定账号完成目标操作且状态更新】页面，显示页面标题与主要操作区域
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入【离线开发 → 项目管理】页面
         expected: 进入成功
-      - action: 新建 DorisSQL 任务
-        expected: 创建成功
-      - action: "执行SQL: SELECT * FROM ${schemaA}.${tableA};"
-        expected: 查询成功, 当前为root用户在执行
-      - action: 进入项目管理-项目设置-开发设置-Doris配置中，开启项目绑定数据库账号, 新增test_user账号
-        expected: 新增成功, 数据回显正常
-      - action: "执行SQL: SELECT * FROM ${schemaA}.${tableA};"
-        expected: 查询失败
-      - action: "执行SQL: SELECT * FROM lantu_test.${tableB};"
-        expected: 查询成功, 当前为test_user用户在执行
+      - action: 打开项目「${ProjectD}」的数据库权限配置，选择账号「UserA」
+        expected: 数据库多选列表展示 ${SchemaA}、doris_archive
+      - action: 仅勾选 ${SchemaA} 并点击「保存」
+        expected: Toast提示:「保存成功」，权限列表显示账号 UserA 仅绑定 ${SchemaA}
+      - action: 使用账号 UserA 打开 SQL 任务数据库下拉框
+        expected: 下拉框展示 ${SchemaA}，不展示 doris_archive
+    tags:
+      - 离线开发
+      - 项目管理
+      - 数据库权限
