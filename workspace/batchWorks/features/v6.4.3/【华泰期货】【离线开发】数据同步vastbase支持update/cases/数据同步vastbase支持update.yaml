@@ -8,680 +8,541 @@ meta:
     - 数据同步vastbase支持update.xmind
 cases:
   - case_id: C0001
-    title: 验证数据来源为inceptor、mysql、oracle数据源，vastbase作为目标端时，主键冲突支持可选update
+    title: 验证【数据开发】-【周期任务】向导模式 Inceptor、MySQL、Oracle 来源 Vastbase 目标，主键冲突可选 update
     priority: P0
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Hive2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在 Inceptor 创建源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0001_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0001_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15051_c0001_source_01 VALUES (1, 'inceptor');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：MySQL
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在 MySQL 创建源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0001_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0001_source_02 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0001_source_02 VALUES (1, 'mysql');
+      9) 授权数据源 C：${DataSourceC}
+      10) 数据源 C 类型：Oracle
+      11) 数据源 C 存在数据库：${SchemaC}
+      12) 在 Oracle 创建源表并插入 1 行数据：
+          BEGIN
+            EXECUTE IMMEDIATE 'DROP TABLE ${SchemaC}.test_table_15051_c0001_source_03';
+          EXCEPTION
+            WHEN OTHERS THEN
+              IF SQLCODE != -942 THEN RAISE; END IF;
+          END;
+          /
+          CREATE TABLE ${SchemaC}.test_table_15051_c0001_source_03 (id NUMBER PRIMARY KEY, name VARCHAR2(64));
+          INSERT INTO ${SchemaC}.test_table_15051_c0001_source_03 VALUES (1, 'oracle');
+          COMMIT;
+      13) 授权数据源 D：${DataSourceD}
+      14) 数据源 D 类型：Vastbase
+      15) 数据源 D 存在数据库：${SchemaD}
+      16) 在 Vastbase 创建目标表并插入 1 行数据：
+          DROP TABLE IF EXISTS ${SchemaD}.test_table_15051_c0001_target_01;
+          CREATE TABLE IF NOT EXISTS ${SchemaD}.test_table_15051_c0001_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+          INSERT INTO ${SchemaD}.test_table_15051_c0001_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
       - action: |-
-          选择数据来源分别选择inceptor/mysql/oracle
-          schema
-          表名：test_zhouqi_001
-          点击下一步
-        expected: 进入选择目标界面
-      - action: 点击主键冲突下拉框
-        expected: 展示on duplicate key update可选
-    tags:
-      - 周期任务
+          依次新建三条向导模式数据同步任务：
+          来源：${DataSourceA}.${SchemaA}.test_table_15051_c0001_source_01、${DataSourceB}.${SchemaB}.test_table_15051_c0001_source_02、${DataSourceC}.${SchemaC}.test_table_15051_c0001_source_03
+          目标：${DataSourceD}.${SchemaD}.test_table_15051_c0001_target_01
+        expected: 三条任务均进入「选择目标」步骤，目标表识别主键 id
+      - action: 分别展开三条任务的「主键冲突」下拉框
+        expected: Inceptor、MySQL、Oracle 三种来源的下拉选项均包含「on duplicate key update」
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0002
-    title: 验证数据来源为inceptor数据源，vastbase作为目标端时，主键冲突选择on duplicate key update任务正常运行
+    title: 验证【数据开发】-【周期任务】Inceptor 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
     priority: P0
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      inceptor建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT,
-          name VARCHAR(255),
-          PRIMARY KEY(id)
-      )
-      STORED AS ORC
-      TBLPROPERTIES (
-          'transactional' = 'true'
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'Bob');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Hive2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 Inceptor 源表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0002_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0002_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15051_c0002_source_01 VALUES (1, 'Alice_updated'), (3, 'Carol');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0002_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0002_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0002_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
       - action: |-
-          选择数据来源inceptor
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: 对应主键冲突的数据被update，未冲突的数据正常插入
-    tags:
-      - 周期任务
+          新建向导模式数据同步周期任务：
+          任务名称：TaskB
+          来源：${DataSourceA}.${SchemaA}.test_table_15051_c0002_source_01
+          目标：${DataSourceB}.${SchemaB}.test_table_15051_c0002_target_01
+          主键冲突：on duplicate key update
+          字段映射：id → id、name → name
+        expected: 字段映射区展示 id、name 两组映射，主键冲突值为「on duplicate key update」
+      - action: 保存并运行 TaskB
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0002_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0003
-    title: 验证数据来源为mysql数据源，vastbase作为目标端时，主键冲突选择on duplicate key update任务正常运行
+    title: 验证【数据开发】-【周期任务】MySQL 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
     priority: P0
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0003_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0003_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0003_source_01 VALUES (1, 'Alice_updated'), (3, 'Carol');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0003_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0003_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0003_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
       - action: |-
-          选择数据来源mysql
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: 对应主键冲突的数据被update，未冲突的数据正常插入
-    tags:
-      - 周期任务
+          新建向导模式数据同步周期任务：
+          任务名称：TaskC
+          来源：${DataSourceA}.${SchemaA}.test_table_15051_c0003_source_01
+          目标：${DataSourceB}.${SchemaB}.test_table_15051_c0003_target_01
+          主键冲突：on duplicate key update
+          字段映射：id → id、name → name
+        expected: 字段映射区展示 id、name 两组映射，主键冲突值为「on duplicate key update」
+      - action: 保存并运行 TaskC
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0003_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0004
-    title: 验证数据来源为oracle数据源，vastbase作为目标端时，主键冲突选择on duplicate key update任务正常运行
+    title: 验证【数据开发】-【周期任务】Oracle 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
     priority: P0
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      oracle建表语句：
-      CREATE TABLE test_table (
-          id NUMBER PRIMARY KEY,
-          name VARCHAR2(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'hello');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Oracle
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 Oracle 源表并插入 2 行数据：
+         BEGIN
+           EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15051_c0004_source_01';
+         EXCEPTION
+           WHEN OTHERS THEN
+             IF SQLCODE != -942 THEN RAISE; END IF;
+         END;
+         /
+         CREATE TABLE ${SchemaA}.test_table_15051_c0004_source_01 (id NUMBER PRIMARY KEY, name VARCHAR2(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0004_source_01 VALUES (1, 'Alice_updated');
+         INSERT INTO ${SchemaA}.test_table_15051_c0004_source_01 VALUES (3, 'Carol');
+         COMMIT;
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0004_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0004_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0004_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
       - action: |-
-          选择数据来源oracle
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: 对应主键冲突的数据被update，未冲突的数据正常插入
-    tags:
-      - 周期任务
+          新建向导模式数据同步周期任务：
+          任务名称：TaskE
+          来源：${DataSourceA}.${SchemaA}.test_table_15051_c0004_source_01
+          目标：${DataSourceB}.${SchemaB}.test_table_15051_c0004_target_01
+          主键冲突：on duplicate key update
+          字段映射：id → id、name → name
+        expected: 字段映射区展示 id、name 两组映射，主键冲突值为「on duplicate key update」
+      - action: 保存并运行 TaskE
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0004_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0005
-    title: 验证上述数据同步任务周期运行正常
+    title: 验证【数据开发】-【周期任务】提交 update 数据同步任务，按周期调度运行成功
     priority: P1
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0005_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0005_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0005_source_01 VALUES (1, 'Alice_updated'), (3, 'Carol');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0005_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0005_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0005_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 周期运行——】页面
-        expected: 已进入【离线开发 → 周期运行——】页面，显示页面标题与主要操作区域
-      - action: 上述任务提交至运维中心
-        expected: 任务提交成功
-      - action: 进入运维中心-周期任务管理，选择上述任务点击补数据
-        expected: 任务补数据运行成功
-    tags:
-      - 周期任务
-      - 周期运行——
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建并保存 MySQL 到 Vastbase 周期数据同步任务 TaskD，主键冲突选择「on duplicate key update」
+        expected: 任务列表新增 TaskD，状态为「未提交」
+      - action: 提交 TaskD 至运维中心
+        expected: Toast 提示：「提交成功」，任务状态更新为「已提交」
+      - action: 进入【运维中心 → 周期任务运维】页面，对该任务发起当日补数据并打开实例
+        expected: |-
+          1) 补数据实例状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0005_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0006
-    title: 验证数据来源为spark数据源，vastbase作为目标端时，主键冲突无法选择 update
-    priority: P1
+    title: 验证【数据开发】-【周期任务】Spark 来源 Vastbase 目标，主键冲突不可选 update
+    priority: P2
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      inceptor建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT,
-          name VARCHAR(255),
-          PRIMARY KEY(id)
-      )
-      STORED AS ORC
-      TBLPROPERTIES (
-          'transactional' = 'true'
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'Bob');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：SparkThrift2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 Spark 源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0006_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0006_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15051_c0006_source_01 VALUES (1, 'spark');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0006_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0006_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0006_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源选择spark
-          表名：test_zhouqi_001
-          点击下一步
-        expected: 进入选择目标界面
-      - action: 点击主键冲突下拉框
-        expected: 不展示on duplicate key update选项
-    tags:
-      - 周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建向导模式任务，来源选择 test_table_15051_c0006_source_01，目标选择 test_table_15051_c0006_target_01
+        expected: 进入「选择目标」步骤，目标表识别主键 id
+      - action: 展开「主键冲突」下拉框
+        expected: 下拉选项不包含「on duplicate key update」
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0007
-    title: 验证数据来源为mysql数据源，vastbase作为目标端时，主键冲突选择insert任务正常运行
+    title: 验证【数据开发】-【周期任务】MySQL 来源 Vastbase 目标，主键冲突选择 insert 任务运行成功
     priority: P1
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入冲突数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0007_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0007_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0007_source_01 VALUES (1, 'Alice_new');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入同主键数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0007_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0007_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0007_target_01 VALUES (1, 'Alice_old');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源mysql
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择insert
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: |-
-          勾选脏数据管理
-          脏数据表：dirty_01
-          点击下一步，点击保存，点击运行
-        expected: 任务运行失败，报错脏数据
-      - action: select查询vastbase数据表结果
-        expected: 表数据未改变，数据没有插入
-      - action: 进入运维中心查看脏数据表内容
-        expected: 展示脏数据：1, 'Alice'
-    tags:
-      - 周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建 MySQL 到 Vastbase 周期同步任务，主键冲突选择「insert」，脏数据阈值设置为 0，保存并运行
+        expected: 任务状态为「失败」，日志包含目标表主键 id=1 冲突信息
+      - action: 在 Vastbase 执行 SELECT id, name FROM ${SchemaB}.test_table_15051_c0007_target_01;
+        expected: 查询结果为 (1, Alice_old)，目标记录未被覆盖
+      - action: 进入【运维中心 → 周期实例】页面，打开该失败实例的脏数据
+        expected: 脏数据展示源记录 (1, Alice_new) 和主键冲突原因
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0008
-    title: 验证未映射字段保持不变
+    title: 验证【数据开发】-【周期任务】运行未映射字段的同步任务，目标端未映射字段保持不变
     priority: P1
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255),
-          bir VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice','mengfei');
-      INSERT INTO test_table VALUES (2, 'Bob','kako');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255),
-          bir VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu','mengfei_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke','kako_chongtu');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0008_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0008_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64), status VARCHAR(32));
+         INSERT INTO ${SchemaA}.test_table_15051_c0008_source_01 VALUES (1, 'source_name', 'active');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入同主键数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0008_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0008_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64), status VARCHAR(32));
+         INSERT INTO ${SchemaB}.test_table_15051_c0008_target_01 VALUES (1, 'target_name', 'inactive');
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源mysql
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置字段映射，name字段不进行映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: |-
-          对应主键冲突的数据被update，未冲突的数据正常插入，未映射的字段数据不做更改，结果应当是：
-          1, 'Alice','mengfei_chogntu'
-          2, 'Bob','kako'
-          3, 'keke','kako_chongtu'
-    tags:
-      - 周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建 MySQL 到 Vastbase 周期同步任务，主键冲突选择「on duplicate key update」，仅映射 id 和 status，保存并运行
+        expected: 任务运行状态为「成功」
+      - action: 在 Vastbase 执行 SELECT id, name, status FROM ${SchemaB}.test_table_15051_c0008_target_01;
+        expected: 查询结果为 (1, target_name, active)，未映射的 name 保持 target_name
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0009
-    title: 验证数据来源为inceptor、mysql、oracle数据源，vastbase作为目标端时，主键冲突支持可选on duplicate key update
+    title: 验证【数据开发】-【手动任务】Inceptor、MySQL、Oracle 来源 Vastbase 目标，主键冲突可选 update
     priority: P0
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Hive2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在 Inceptor 创建源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0009_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0009_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15051_c0009_source_01 VALUES (1, 'inceptor');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：MySQL
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在 MySQL 创建源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0009_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0009_source_02 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0009_source_02 VALUES (1, 'mysql');
+      9) 授权数据源 C：${DataSourceC}
+      10) 数据源 C 类型：Oracle
+      11) 数据源 C 存在数据库：${SchemaC}
+      12) 在 Oracle 创建源表并插入 1 行数据：
+          BEGIN
+            EXECUTE IMMEDIATE 'DROP TABLE ${SchemaC}.test_table_15051_c0009_source_03';
+          EXCEPTION
+            WHEN OTHERS THEN
+              IF SQLCODE != -942 THEN RAISE; END IF;
+          END;
+          /
+          CREATE TABLE ${SchemaC}.test_table_15051_c0009_source_03 (id NUMBER PRIMARY KEY, name VARCHAR2(64));
+          INSERT INTO ${SchemaC}.test_table_15051_c0009_source_03 VALUES (1, 'oracle');
+          COMMIT;
+      13) 授权数据源 D：${DataSourceD}
+      14) 数据源 D 类型：Vastbase
+      15) 数据源 D 存在数据库：${SchemaD}
+      16) 在 Vastbase 创建目标表并插入 1 行数据：
+          DROP TABLE IF EXISTS ${SchemaD}.test_table_15051_c0009_target_01;
+          CREATE TABLE IF NOT EXISTS ${SchemaD}.test_table_15051_c0009_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+          INSERT INTO ${SchemaD}.test_table_15051_c0009_target_01 VALUES (1, 'target');
     steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
       - action: |-
-          选择数据来源分别选择inceptor/mysql/oracle
-          schema
-          表名：test_zhouqi_001
-          点击下一步
-        expected: 进入选择目标界面
-      - action: 点击主键冲突下拉框
-        expected: 展示on duplicate key update可选
-    tags:
-      - 手动任务
+          依次新建三条向导模式数据同步任务：
+          来源：${DataSourceA}.${SchemaA}.test_table_15051_c0009_source_01、${DataSourceB}.${SchemaB}.test_table_15051_c0009_source_02、${DataSourceC}.${SchemaC}.test_table_15051_c0009_source_03
+          目标：${DataSourceD}.${SchemaD}.test_table_15051_c0009_target_01
+        expected: 三条任务均进入「选择目标」步骤，目标表识别主键 id
+      - action: 分别展开三条任务的「主键冲突」下拉框
+        expected: Inceptor、MySQL、Oracle 三种来源的下拉选项均包含「on duplicate key update」
+    tags: ["离线开发", "数据开发", "手动任务"]
+
   - case_id: C0010
-    title: 验证数据来源为inceptor数据源，vastbase作为目标端时，主键冲突选择on duplicate key update任务正常运行
-    priority: P0
-    precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      inceptor建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT,
-          name VARCHAR(255),
-          PRIMARY KEY(id)
-      )
-      STORED AS ORC
-      TBLPROPERTIES (
-          'transactional' = 'true'
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'Bob');
-    steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源inceptor
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: 对应主键冲突的数据被update，未冲突的数据正常插入
-    tags:
-      - 手动任务
-  - case_id: C0011
-    title: 验证数据来源为mysql数据源，vastbase作为目标端时，主键冲突选择on duplicate key update任务正常运行
-    priority: P0
-    precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke');
-    steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源mysql
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: 对应主键冲突的数据被update，未冲突的数据正常插入
-    tags:
-      - 手动任务
-  - case_id: C0012
-    title: 验证数据来源为oracle数据源，vastbase作为目标端时，主键冲突选择on duplicate key update任务正常运行
-    priority: P0
-    precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      oracle建表语句：
-      CREATE TABLE test_table (
-          id NUMBER PRIMARY KEY,
-          name VARCHAR2(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'hello');
-    steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源oracle
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
-        expected: 对应主键冲突的数据被update，未冲突的数据正常插入
-    tags:
-      - 手动任务
-  - case_id: C0013
-    title: 验证上述数据同步任务运维中心手动运行正常
+    title: 验证【数据开发】-【手动任务】Inceptor 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
     priority: P1
     precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Hive2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 Inceptor 源表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0010_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0010_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15051_c0010_source_01 VALUES (1, 'Alice_updated'), (3, 'Carol');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0010_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0010_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0010_target_01 VALUES (1, 'Alice'), (2, 'Bob');
     steps:
-      - action: 进入【离线开发 → 手动任务运行——】页面
-        expected: 已进入【离线开发 → 手动任务运行——】页面，显示页面标题与主要操作区域
-      - action: 上述任务提交至运维中心
-        expected: 任务提交成功
-      - action: 进入运维中心-手动任务管理，选择上述任务点击运行
-        expected: 任务运行成功
-    tags:
-      - 手动任务
-      - 手动任务运行——
-  - case_id: C0014
-    title: 验证数据来源为spark数据源，vastbase作为目标端时，主键冲突无法选择on duplicate key update
-    priority: P1
-    precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      inceptor建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT,
-          name VARCHAR(255),
-          PRIMARY KEY(id)
-      )
-      STORED AS ORC
-      TBLPROPERTIES (
-          'transactional' = 'true'
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'Bob');
-    steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源选择spark
-          表名：test_zhouqi_001
-          点击下一步
-        expected: 进入选择目标界面
-      - action: 点击主键冲突下拉框
-        expected: 不展示on duplicate key update选项
-    tags:
-      - 手动任务
-  - case_id: C0015
-    title: 验证数据来源为mysql数据源，vastbase作为目标端时，主键冲突选择insert任务正常运行
-    priority: P1
-    precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice');
-      INSERT INTO test_table VALUES (2, 'Bob');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke');
-    steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源mysql
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择insert
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置同字段映射，点击下一步
-        expected: 进入通道控制页面
-      - action: |-
-          勾选脏数据管理
-          脏数据表：dirty_01
-          点击下一步，点击保存，点击运行
-        expected: 任务运行失败，报错脏数据
-      - action: select查询vastbase数据表结果
-        expected: 表数据未改变，数据没有插入
-      - action: 进入运维中心查看脏数据表内容
-        expected: 展示脏数据：1, 'Alice'
-    tags:
-      - 手动任务
-  - case_id: C0016
-    title: 验证未映射字段保持不变
-    priority: P1
-    precondition: |-
-      vastbase建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255),
-          bir VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice','mengfei');
-      INSERT INTO test_table VALUES (2, 'Bob','kako');
-      SELECT * FROM test_table;
-      mysql建表语句：
-      DROP TABLE IF EXISTS test_table;
-      CREATE TABLE test_table (
-          id INT PRIMARY KEY,
-          name VARCHAR(255),
-          bir VARCHAR(255)
-      );
-      INSERT INTO test_table VALUES (1, 'Alice_chongtu','mengfei_chongtu');
-      INSERT INTO test_table VALUES (3, 'keke','kako_chongtu');
-    steps:
-      - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入数据开发模块，新建向导模式的数据同步任务
-        expected: 新建成功
-      - action: |-
-          选择数据来源mysql
-          schema
-          表名：前置表
-          点击下一步
-        expected: 进入选择目标界面
-      - action: |-
-          选择数据目标vastbase
-          schema
-          表名：前置表
-          主键冲突选择on duplicate key update
-          点击下一步
-        expected: 进入选择字段映射界面
-      - action: 配置字段映射，name字段不进行映射，点击下一步
-        expected: 进入通道控制页面
-      - action: 点击下一步，点击保存，点击运行
-        expected: 任务保存、运行成功
-      - action: select查询vastbase数据表结果
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 Inceptor 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
         expected: |-
-          对应主键冲突的数据被update，未冲突的数据正常插入，未映射的字段数据不做更改，结果应当是：
-          1, 'Alice','mengfei_chogntu'
-          2, 'Bob','kako'
-          3, 'keke','kako_chongtu'
-    tags:
-      - 手动任务
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0010_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "手动任务"]
+
+  - case_id: C0011
+    title: 验证【数据开发】-【手动任务】MySQL 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
+    priority: P1
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0011_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0011_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0011_source_01 VALUES (1, 'Alice_updated'), (3, 'Carol');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0011_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0011_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0011_target_01 VALUES (1, 'Alice'), (2, 'Bob');
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0011_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "手动任务"]
+
+  - case_id: C0012
+    title: 验证【数据开发】-【手动任务】Oracle 来源 Vastbase 目标，主键冲突选择 update 任务运行成功
+    priority: P1
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Oracle
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 Oracle 源表并插入 2 行数据：
+         BEGIN
+           EXECUTE IMMEDIATE 'DROP TABLE ${SchemaA}.test_table_15051_c0012_source_01';
+         EXCEPTION
+           WHEN OTHERS THEN
+             IF SQLCODE != -942 THEN RAISE; END IF;
+         END;
+         /
+         CREATE TABLE ${SchemaA}.test_table_15051_c0012_source_01 (id NUMBER PRIMARY KEY, name VARCHAR2(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0012_source_01 VALUES (1, 'Alice_updated');
+         INSERT INTO ${SchemaA}.test_table_15051_c0012_source_01 VALUES (3, 'Carol');
+         COMMIT;
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0012_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0012_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0012_target_01 VALUES (1, 'Alice'), (2, 'Bob');
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 Oracle 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，映射 id、name，保存并运行
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0012_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "手动任务"]
+
+  - case_id: C0013
+    title: 验证【运维中心】-【手动任务管理】手动运行 update 数据同步任务，实例运行成功
+    priority: P2
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0013_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0013_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0013_source_01 VALUES (1, 'Alice_updated'), (3, 'Carol');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 2 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0013_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0013_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0013_target_01 VALUES (1, 'Alice'), (2, 'Bob');
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建并保存 MySQL 到 Vastbase 手动同步任务 TaskA，主键冲突选择「on duplicate key update」
+        expected: 任务列表新增 TaskA，状态为「未提交」
+      - action: 提交 TaskA 至运维中心
+        expected: Toast 提示：「提交成功」，任务状态更新为「已提交」
+      - action: 进入【运维中心 → 手动任务运维】页面，选择该任务并点击「运行」
+        expected: |-
+          1) 手动实例状态：「成功」
+          2) 执行SQL：SELECT id, name FROM ${SchemaB}.test_table_15051_c0013_target_01 ORDER BY id;
+             查询结果：(1, Alice_updated)、(2, Bob)、(3, Carol)
+    tags: ["离线开发", "数据开发", "手动任务"]
+
+  - case_id: C0014
+    title: 验证【数据开发】-【手动任务】Spark 来源 Vastbase 目标，主键冲突不可选 update
+    priority: P2
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：SparkThrift2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 Spark 源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0014_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0014_source_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaA}.test_table_15051_c0014_source_01 VALUES (1, 'spark');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0014_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0014_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0014_target_01 VALUES (1, 'target');
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建向导模式任务，来源选择 test_table_15051_c0014_source_01，目标选择 test_table_15051_c0014_target_01
+        expected: 进入「选择目标」步骤，目标表识别主键 id
+      - action: 展开「主键冲突」下拉框
+        expected: 下拉选项不包含「on duplicate key update」
+    tags: ["离线开发", "数据开发", "手动任务"]
+
+  - case_id: C0015
+    title: 验证【数据开发】-【手动任务】MySQL 来源 Vastbase 目标，主键冲突选择 insert 任务运行成功
+    priority: P1
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入冲突数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0015_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0015_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaA}.test_table_15051_c0015_source_01 VALUES (1, 'Alice_new');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入同主键数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0015_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0015_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15051_c0015_target_01 VALUES (1, 'Alice_old');
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「insert」，脏数据阈值设置为 0，保存并运行
+        expected: 任务状态为「失败」，日志包含目标表主键 id=1 冲突信息
+      - action: 在 Vastbase 执行 SELECT id, name FROM ${SchemaB}.test_table_15051_c0015_target_01;
+        expected: 查询结果为 (1, Alice_old)，目标记录未被覆盖
+      - action: 进入【运维中心 → 手动实例】页面，打开该失败实例的脏数据
+        expected: 脏数据展示源记录 (1, Alice_new) 和主键冲突原因
+    tags: ["离线开发", "数据开发", "手动任务"]
+
+  - case_id: C0016
+    title: 验证【数据开发】-【手动任务】运行未映射字段的同步任务，目标端未映射字段保持不变
+    priority: P1
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建 MySQL 源表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15051_c0016_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15051_c0016_source_01 (id BIGINT PRIMARY KEY, name VARCHAR(64), status VARCHAR(32));
+         INSERT INTO ${SchemaA}.test_table_15051_c0016_source_01 VALUES (1, 'source_name', 'active');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Vastbase
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 创建 Vastbase 目标表并插入同主键数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15051_c0016_target_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15051_c0016_target_01 (id BIGINT PRIMARY KEY, name VARCHAR(64), status VARCHAR(32));
+         INSERT INTO ${SchemaB}.test_table_15051_c0016_target_01 VALUES (1, 'target_name', 'inactive');
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建 MySQL 到 Vastbase 手动同步任务，主键冲突选择「on duplicate key update」，仅映射 id 和 status，保存并运行
+        expected: 任务运行状态为「成功」
+      - action: 在 Vastbase 执行 SELECT id, name, status FROM ${SchemaB}.test_table_15051_c0016_target_01;
+        expected: 查询结果为 (1, target_name, active)，未映射的 name 保持 target_name
+    tags: ["离线开发", "数据开发", "手动任务"]
