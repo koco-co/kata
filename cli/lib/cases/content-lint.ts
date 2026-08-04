@@ -58,7 +58,8 @@ const CASE_TITLE_RE =
   /^验证【[^】]+】(?:-【[^】]+】)?[^【，()_]+，[^【，()_]+(?:\([^()【】_]+\))?$/;
 // 标题末尾括号必须是可判断的条件表达式：必须含比较/算术操作符（= ≠ ≥ ≤ > < + - * ÷）、
 // 逻辑连接（且、或）或状态断言（为空、非空、非已…等否定式）；纯数字、层级标签、功能点不算条件。
-const TITLE_CONDITION_OPERATOR_RE = /[=≠≥≤><+*÷-]|且|或|为空|非空|未配置|非(?:已|未|启|失效|发布|空)/;
+const TITLE_CONDITION_OPERATOR_RE =
+  /[=≠≥≤><+*÷-]|且|或|为空|非空|未配置|非(?:已|未|启|失效|发布|空)/;
 const NUMBERED_LINE_RE = /^(\d+)\)\s+\S/;
 const GENERATOR_COMMAND_RE = /^\s*(?:mysql|psql|sqlplus|beeline|spark-sql|hive|curl|wget|ssh)\b/im;
 
@@ -269,8 +270,7 @@ function numberedActionItemCount(action: string): number {
     .filter(
       (line) =>
         NUMBERED_LINE_RE.test(line.trimStart()) && !FORM_FIELD_LINE_RE.test(line.trimStart()),
-    )
-    .length;
+    ).length;
 }
 
 function normalizedIdentifier(value: string): string {
@@ -940,9 +940,7 @@ function lintDatasourceSql(
   // 数据准备 SQL（编号块标题含建表/初始化语义的缩进建表/写入语句）缺少配对占位符时，
   // 无法执行方言、表名与批量数据契约；任务配置、表解析语句、页面输入 SQL 不属于此列。
   const dataPrepHeading = DATA_PREP_HEADING_RE.test(precondition);
-  const blockSqlLines = precondition
-    .split("\n")
-    .filter((line) => BLOCK_SQL_RE.test(line));
+  const blockSqlLines = precondition.split("\n").filter((line) => BLOCK_SQL_RE.test(line));
   const hasBlockSql = dataPrepHeading && blockSqlLines.length > 0;
   if (pairLetters.size === 0 && hasBlockSql) {
     violations.push(
@@ -1101,6 +1099,40 @@ function lintSqlExpected(item: CaseItem): CaseContentViolation[] {
   return violations;
 }
 
+/**
+ * 前置条件只声明环境与数据准备；任何面向业务对象的配置操作（配置规则/规则集/规则任务、
+ * 点击、新建、保存、引入等）必须写进 steps[].action。仅检查非缩进编号行，
+ * SQL/脚本/文件内容的缩进行不在此列。
+ */
+function lintPreconditionConfigAction(precondition: string): CaseContentViolation[] {
+  const violations: CaseContentViolation[] = [];
+  // 显式配置动词：操作必须写进 steps[].action
+  const configVerb =
+    /(配置|新建|创建(?:规则|任务|规则集)|点击|保存|引入|添加规则|勾选|填写|选择(?!数据源|数据库|数据表|分区)|设置(?!分区)|(?:立即|临时|手动)?执行(?:规则|任务|任务集|该规则|该任务)|删除|提交|下载)/;
+  // 业务对象声明带配置明细：规则/规则集/规则任务的配置内容属于操作，不属于前置条件
+  const objectWithDetail =
+    /存在(?:规则集|规则任务|规则|任务|规则包|监控任务|数据质量任务)[^。]*?(?:监控表|校验字段|排序字段|校验方法|维度字段|统计函数|过滤条件|规则[：:]|其中包含规则|强弱规则|期望值)/;
+  for (const line of precondition.split("\n")) {
+    const trimmed = line.trimStart();
+    if (!/^\d+\)\s+/.test(trimmed)) continue;
+    const content = trimmed.replace(/^\d+\)\s+/, "");
+    // 完成状态声明（已/已经…配置/创建/执行/引入）是环境事实，放行
+    if (/已.{0,50}?(?:配置|创建|引入|执行|开启|设置|保存|生成|提交)/.test(content)) continue;
+    if (configVerb.test(content) || objectWithDetail.test(content)) {
+      violations.push(
+        makeViolation(
+          "case_precondition_config_action",
+          "前置条件只声明环境与数据准备（数据源授权、建表、插数、账号、已存在对象），不写配置操作；" +
+            "「配置监控对象/监控规则、新建规则集/规则任务、规则集内包含某规则配置、点击保存、引入规则包、立即执行」等必须写进 steps[].action",
+          trimmed,
+          "将配置操作改为 action 步骤：action 用块文本列出操作与字段配置，expected 写可观测结果",
+        ),
+      );
+    }
+  }
+  return violations;
+}
+
 /** Lint authored case semantics only; metadata, requirements and evidence fields are out of scope. */
 export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseContentViolation[] {
   const violations: CaseContentViolation[] = [];
@@ -1212,6 +1244,7 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
     const generatorProblem = generatorViolation(precondition);
     if (generatorProblem) violations.push(generatorProblem);
     violations.push(...lintImportFixture(precondition, config.bulk_row_threshold));
+    violations.push(...lintPreconditionConfigAction(precondition));
     const partitionProblem = lintPartitionFixture(item, config);
     if (partitionProblem) violations.push(partitionProblem);
     violations.push(...lintSqlExpected(item));

@@ -263,7 +263,7 @@ describe("cases content lint", () => {
     }
   });
 
-    it("rejects bracket content without a judge keyword and accepts judgment expressions", () => {
+  it("rejects bracket content without a judge keyword and accepts judgment expressions", () => {
     // 真条件必须含判断关键字：比较/算术操作符、且或、为空/非空 等
     const goodConditions = [
       "验证【状态筛选】筛选任务列表，仅展示匹配状态任务(状态 = 已发布)",
@@ -684,9 +684,7 @@ cases:
       config,
     );
     expect(withFunctions.map((item) => item.rule)).toContain("case_bulk_rows");
-    expect(withFunctions.find((item) => item.rule === "case_bulk_rows")?.message).toContain(
-      "6 行",
-    );
+    expect(withFunctions.find((item) => item.rule === "case_bulk_rows")?.message).toContain("6 行");
   });
 
   it("accepts a complete shell SQL generator but rejects scripts that execute external systems", () => {
@@ -819,5 +817,38 @@ cases:
     expect(lintCaseContent(doc(item), config).map((entry) => entry.rule)).toContain(
       "case_pure_api",
     );
+  });
+
+  it("rejects config actions and rule detail declarations in preconditions", () => {
+    const item = testCase({
+      precondition: `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 创建数据表并插入数据：
+   DROP TABLE IF EXISTS \${SchemaA}.test_table_16178_c0001;
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 VALUES (1, 10);
+5) 存在规则任务 TaskA，监控表 test_table_16178_c0001，规则：合理性校验-数据变化趋势，校验字段 sales，排序字段 month，校验方法单调递增，维度字段 vin
+6) 点击该规则任务「立即执行」`,
+    });
+    const rules = lintCaseContent(doc(item), config).map((entry) => entry.rule);
+    expect(rules.filter((rule) => rule === "case_precondition_config_action")).toHaveLength(2);
+  });
+
+  it("accepts data preparation verbs in preconditions", () => {
+    const item = testCase({
+      precondition: `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 创建数据表并插入 2 行数据：
+   DROP TABLE IF EXISTS \${SchemaA}.test_table_16178_c0001;
+   CREATE TABLE IF NOT EXISTS \${SchemaA}.test_table_16178_c0001 (id BIGINT);
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 VALUES (1), (2);
+5) 使用以下 Shell 脚本生成 test_table_16178_c0001.sql：
+   #!/usr/bin/env bash
+   set -euo pipefail
+   output_file="test_table_16178_c0001.sql"
+6) 复制 test_table_16178_c0001.sql 的内容，在 \${DataSourceA} 对应平台或底层执行`,
+    });
+    expect(lintCaseContent(doc(item), config)).toEqual([]);
   });
 });
