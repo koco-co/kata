@@ -52,9 +52,9 @@ const RUN_SUFFIX_RE = /\$\{RunSuffix\}/;
 // 禁止「在…时」从句、下划线拼接、通用断言词与括号内嵌套【】。
 const CASE_TITLE_RE =
   /^验证【[^】]+】(?:-【[^】]+】)?[^【，()_]+，[^【，()_]+(?:\([^()【】_]+\))?$/;
-// 标题末尾括号只能是真条件：至少两位连续数字、操作符或英文标识。
+// 标题末尾括号只能是真条件：至少两位连续数字、操作符或英文标识（含 Hive2.x 这类字母+数字组合）。
 // 单数字、泛类标签（黑名单由 title_condition_disallowed 提供）不算条件。
-const TITLE_CONDITION_ANCHOR_RE = /\d{2,}|[=!<>]|\b[a-zA-Z]{2,}\b/;
+const TITLE_CONDITION_ANCHOR_RE = /\d{2,}|[=!<>]|\b[a-zA-Z]{2,}(?:[a-zA-Z0-9.]*)/;
 const NUMBERED_LINE_RE = /^(\d+)\)\s+\S/;
 const GENERATOR_COMMAND_RE = /^\s*(?:mysql|psql|sqlplus|beeline|spark-sql|hive|curl|wget|ssh)\b/im;
 
