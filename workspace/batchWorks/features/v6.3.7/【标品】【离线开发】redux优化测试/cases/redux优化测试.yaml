@@ -1,95 +1,128 @@
 meta:
   title: 【标品】redux优化测试
-  case_module_id: '8888'
+  case_module_id: "8888"
   imports:
-  - 202506-离线开发v6.3.7.xmind
+    - 202506-离线开发v6.3.7.xmind
   exports:
-  - redux优化测试.xmind
+    - redux优化测试.xmind
 cases:
-- case_id: C0001
-  title: 验证「数据源-整库同步-数据源同步目标」中下拉框内的数据源页面展示步骤要求的字段、状态和结果
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 数据源同步目标】页面
-    expected: 已进入【离线开发 → 数据源同步目标】页面，显示页面标题与主要操作区域
-  - action: 进入「数据源-整库同步」页面, 点击「数据同步目标」下拉框, 检查下拉列表数据
-    expected: 下拉列表数据与「数据源」列表中的记录保持一致
-- case_id: C0002
-  title: 验证【数据开发】批量操作-数据源下拉框内的数据页面展示步骤要求的字段、状态和结果
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 批量操作】页面
-    expected: 已进入【离线开发 → 批量操作】页面，显示页面标题与主要操作区域
-  - action: 进入「数据开发-批量操作」页面, 点击「数据源」下拉框
-    expected: 下拉列表内容与「数据源」列表中的记录保持一致
-- case_id: C0003
-  title: 验证【数据开发】数据同步-来源和目标的数据源下拉框的数据页面展示步骤要求的字段、状态和结果
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 任务开发】页面
-    expected: 已进入【离线开发 → 任务开发】页面，显示页面标题与主要操作区域
-  - action: 进入「数据开发-周期任务」页面, 右击「任务开发」, 选择新建任务
-    expected: '1) 弹出「新建周期任务」弹窗
+  - case_id: C0001
+    title: 验证【数据源管理】-【整库同步】展开数据同步目标下拉框，选项名称、类型和可用状态与数据源管理列表一致
+    priority: P2
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 授权数据源 B：${DataSourceB}
+      4) 数据源 B 类型：Hive2.x
+      5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
+    steps:
+      - action: 进入【离线开发 → 数据源管理 → 整库同步】页面
+        expected: 进入成功
+      - action: 点击「数据同步目标」下拉框
+        expected: 下拉选项包含 ${DataSourceA}、${DataSourceB}，名称、类型和可用状态与数据源管理列表一致
+    tags: ["离线开发", "数据源管理", "整库同步"]
 
-      2) 「周期任务类型」 默认选中「数据同步」
+  - case_id: C0002
+    title: 验证【数据开发】-【批量操作】展开数据源下拉框，选项名称、类型和可用状态与数据源管理列表一致
+    priority: P2
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 授权数据源 B：${DataSourceB}
+      4) 数据源 B 类型：Hive2.x
+      5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 批量操作】页面
+        expected: 进入成功
+      - action: 点击「数据源」下拉框
+        expected: 下拉选项包含 ${DataSourceA}、${DataSourceB}，名称、类型和可用状态与数据源管理列表一致
+    tags: ["离线开发", "数据开发", "批量操作"]
 
-      3) 「周期任务名称」为空'
-  - action: 「周期任务名称」输入不重复且无特殊字符的内容, 其他选项保持默认, 点击「确定」
-    expected: 表单提交成功, 进入到「数据同步」任务
-  - action: 点击「数据源」下拉框, 检查下拉列表数据
-    expected: 下拉列表内容与「数据源」列表中的记录保持一致
-- case_id: C0004
-  title: 验证【数据开发】数据同步脚本模式-导入模版中的数据源下拉框的数据页面展示步骤要求的字段、状态和结果
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 任务开发】页面
-    expected: 已进入【离线开发 → 任务开发】页面，显示页面标题与主要操作区域
-  - action: 进入「数据开发-周期任务」页面, 右击「任务开发」, 新建一个「数据同步-脚本模式」任务
-    expected: '1) 弹出「新建周期任务」弹窗
+  - case_id: C0003
+    title: 验证【数据开发】-【数据同步】向导模式新建任务，来源与目标数据源下拉框仅列出对应类型数据源
+    priority: P2
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 授权数据源 B：${DataSourceB}
+      4) 数据源 B 类型：Hive2.x
+      5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: |-
+          新建数据同步周期任务：
+          任务名称：TaskB
+          配置模式：向导模式
+        expected: 打开数据同步任务编辑器并展示来源、目标配置区
+      - action: 来源类型选择「MySQL」并展开「数据源」下拉框
+        expected: 来源数据源下拉选项包含 ${DataSourceA} 且不包含类型为 Hive2.x 的 ${DataSourceB}
+      - action: 目标类型选择「Hive」并展开「数据源」下拉框
+        expected: 目标数据源下拉选项包含 ${DataSourceB} 且不包含类型为 MySQL 的 ${DataSourceA}
+    tags: ["离线开发", "数据开发", "周期任务"]
 
-      2) 「周期任务类型」 默认选中「数据同步」
+  - case_id: C0004
+    title: 验证【数据开发】-【数据同步】脚本模式导入模板，来源与目标数据源下拉框仅列出对应类型数据源
+    priority: P2
+    precondition: |-
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 授权数据源 B：${DataSourceB}
+      4) 数据源 B 类型：Hive2.x
+      5) ${DataSourceA}、${DataSourceB} 在数据源管理列表中的状态均为「可用」
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: |-
+          新建数据同步周期任务：
+          任务名称：TaskA
+          配置模式：脚本模式
+        expected: 打开脚本模式数据同步任务编辑器并展示「导入模板」按钮
+      - action: 点击「导入模板」
+        expected: 打开「导入模板」弹窗并展示来源类型、来源数据源、目标类型、目标数据源四个字段
+      - action: 来源类型选择「MySQL」并展开来源数据源下拉框
+        expected: 来源数据源下拉选项包含 ${DataSourceA} 且不包含 ${DataSourceB}
+      - action: 目标类型选择「Hive」并展开目标数据源下拉框
+        expected: 目标数据源下拉选项包含 ${DataSourceB} 且不包含 ${DataSourceA}
+    tags: ["离线开发", "数据开发", "周期任务"]
 
-      3) 「配置模式」选中「脚本模式」'
-  - action: 新建任务后, 点击「导入模版」
-    expected: '1) 弹出「导入模版」弹窗
+  - case_id: C0005
+    title: 验证【数据开发】-【FileCopy】打开任务并展开数据源下拉框，选项名称和可用状态与数据源管理列表一致
+    priority: P2
+    precondition: |-
+      1) 数据源管理列表存在名称为「redux_file_source」且状态为「可用」的记录
+      2) 存在名称为「redux_filecopy_c0005」的FileCopy周期任务
+    steps:
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 打开 redux_filecopy_c0005 并展开「数据源」下拉框
+        expected: 下拉选项包含「redux_file_source」，名称和可用状态与数据源管理列表一致
+    tags: ["离线开发", "数据开发", "周期任务"]
 
-      2) 展示字段: 来源类型、数据源、目标类型、数据源'
-  - action: '「来源类型」选择「数据源A(如: MySQL)」, 检查「数据源」的下拉框内容'
-    expected: 下拉列表内容与「数据源」列表中「数据源A(MySQL)」的所有数据源记录保持一致
-  - action: '「目标类型」选择「数据源A(如: MySQL)」, 检查「数据源」的下拉框内容'
-    expected: 下拉列表内容与「数据源」列表中「数据源A(MySQL)」的所有数据源记录保持一致
-- case_id: C0005
-  title: 验证【数据开发】fileCopy 任务中的数据源下拉框数据页面展示步骤要求的字段、状态和结果
-  priority: P2
-  precondition: 提前配置好filecopy任务
-  steps:
-  - action: 进入【离线开发 → 任务开发】页面
-    expected: 已进入【离线开发 → 任务开发】页面，显示页面标题与主要操作区域
-  - action: 进入「数据开发-周期任务」页面, 右击「任务开发」, 选择新建filecopy任务
-    expected: 新建成功
-  - action: 点击「数据源」下拉框, 检查下拉列表数据
-    expected: 下拉列表内容与「数据源」列表中的记录保持一致
-- case_id: C0006
-  title: 验证【数据地图】查找数据-项目名称页面展示步骤要求的字段、状态和结果
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 查找数据】页面
-    expected: 已进入【离线开发 → 查找数据】页面，显示页面标题与主要操作区域
-  - action: 进入「数据地图-查找数据」页面, 点击「项目名称」下拉框, 检查下拉列表数据
-    expected: 下拉列表内容与「数据源」列表中的记录保持一致
-- case_id: C0007
-  title: 验证【数据地图】数据表管理-项目名称页面展示步骤要求的字段、状态和结果
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 数据表管理】页面
-    expected: 已进入【离线开发 → 数据表管理】页面，显示页面标题与主要操作区域
-  - action: 进入「数据地图-数据表管理」页面, 点击「项目名称」下拉框, 检查下拉列表数据
-    expected: 下拉列表内容与「数据源」列表中的记录保持一致
-- case_id: C0008
-  title: 验证【创建项目】existAssets 接口是否多次调用
-  priority: P2
-  steps:
-  - action: 进入【离线开发 → 创建项目existAssets 接口是否多次调用】页面
-    expected: 已进入【离线开发 → 创建项目existAssets 接口是否多次调用】页面，显示页面标题与主要操作区域
-  - action: 进入「项目列表-创建项目」,检查进入「创建项目」页面调用的existAssets接口
-    expected: 仅调用一次existAssets接口
+  - case_id: C0006
+    title: 验证【数据地图】-【查找数据】展开项目名称下拉框，选项名称与项目列表一致
+    priority: P2
+    precondition: |-
+      1) 使用数据开发账号进入离线开发平台
+      2) 项目列表存在「redux_project_a」和「redux_project_b」
+      3) 数据开发账号是 redux_project_a、redux_project_b 的项目成员
+    steps:
+      - action: 进入【数据地图 → 查找数据】页面
+        expected: 进入成功
+      - action: 点击「项目名称」下拉框
+        expected: 下拉选项包含「redux_project_a」「redux_project_b」，项目名称与项目列表一致
+    tags: ["数据地图", "查找数据"]
+
+  - case_id: C0007
+    title: 验证【数据地图】-【数据表管理】展开项目名称下拉框，选项名称与项目列表一致
+    priority: P2
+    precondition: |-
+      1) 使用数据开发账号进入离线开发平台
+      2) 项目列表存在「redux_project_a」和「redux_project_b」
+      3) 数据开发账号是 redux_project_a、redux_project_b 的项目成员
+    steps:
+      - action: 进入【数据地图 → 数据表管理】页面
+        expected: 进入成功
+      - action: 点击「项目名称」下拉框
+        expected: 下拉选项包含「redux_project_a」「redux_project_b」，项目名称与项目列表一致
+    tags: ["数据地图", "数据表管理"]
