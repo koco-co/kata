@@ -240,7 +240,6 @@ describe("cases content lint", () => {
       "验证【单表校验规则】新建强规则并运行，触发强规则告警",
       "验证【周期任务】同步Restful源，任务状态为成功(源URL未配置path)",
       "验证【数据开发】-【周期任务】同步Restful源，任务状态为成功(未配置path)",
-      "验证【状态筛选】筛选任务列表，仅展示匹配状态任务(单选场景)",
       "验证【数据地图】搜索框输入，交互元素展示",
     ];
     for (const title of valid) {
@@ -263,13 +262,18 @@ describe("cases content lint", () => {
     }
   });
 
-    it("rejects bracket content that is a generic label instead of a real condition", () => {
+    it("rejects bracket content without a judge keyword and accepts judgment expressions", () => {
+    // 真条件必须含判断关键字：比较/算术操作符、且或、为空/非空 等
     const goodConditions = [
-      "验证【状态筛选】筛选任务，仅展示匹配任务(单选场景)",
-      "验证【单表校验规则】-【新建监控规则】保存枚举值规则，触发强规则告警(枚举值个数超过阈值)",
-      "验证【数据导出】导出任务，180秒内完成(10000行)",
+      "验证【状态筛选】筛选任务列表，仅展示匹配状态任务(状态 = 已发布)",
+      "验证【单表校验规则】-【新建监控规则】保存枚举值规则，触发强规则告警(枚举值个数 > 阈值)",
+      "验证【数据导出】导出任务，行数完整(行数 ≥ 10000)",
+      "验证【行权限】保存行条件，前端阻断第六个条件(行条件 ≤ 5)",
+      "验证【引用数据表】配置数据源并映射字段，读取源表数据(数据源 = Hive2.x)",
+      "验证【码表管理】新建码表填写上级代码，保存成功(上级代码为空)",
+      "验证【行条件】配置两条条件并选择且，只返回同时满足行(且)",
+      "验证【字段导入】导入缺字段文件，错误文件批注原因(字段名 = 空)",
       "验证【码表管理】引用数据表，读取成功(=操作符)",
-      "验证【行权限】保存行条件，前端阻断第六个条件(5条上限)",
     ];
     for (const title of goodConditions) {
       expect(lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule)).not.toContain(
@@ -283,6 +287,9 @@ describe("cases content lint", () => {
       "验证【目录管理】编辑目录保存，提交成功(通过)",
       "验证【数据地图】-【导入】上传L5字段文件，导入成功(L5导入失败)",
       "验证【资产盘点】查看数据表列表，展示完整字段(数据表结果)",
+      "验证【数据导出】导出任务，180秒内完成(10000行)",
+      "验证【行权限】保存行条件，前端阻断第六个条件(5条上限)",
+      "验证【标准属性管理】点击入口，展示tab按钮(新增页面)",
     ];
     for (const title of badLabels) {
       const rules = lintCaseContent(doc(testCase({ title })), config).map((i) => i.rule);
@@ -496,7 +503,7 @@ describe("cases content lint", () => {
     expect(violations.map((item) => item.message).join("\n")).toContain("未注册");
   });
 
-  it("requires SQL for a datasource/schema pair while keeping raw historical SQL outside the trigger", () => {
+  it("requires SQL for a datasource/schema pair and blocks unpaired SQL from bypassing contracts", () => {
     const pairWithoutSql = `1) 授权数据源：\${DataSourceA}
 2) 数据源类型：SparkThrift2.x
 3) 存在数据库：\${SchemaA}`;
@@ -506,13 +513,23 @@ describe("cases content lint", () => {
       ),
     ).toContain("case_datasource_sql");
 
-    const sqlWithoutPair = `DROP TABLE IF EXISTS legacy_table;
-CREATE TABLE IF NOT EXISTS legacy_table (id BIGINT);`;
-    expect(
-      lintCaseContent(doc(testCase({ precondition: sqlWithoutPair })), config).map(
-        (item) => item.rule,
-      ),
-    ).not.toContain("case_datasource_pair");
+    const sqlWithoutPair = `1) 建表语句：
+   DROP TABLE IF EXISTS legacy_table;
+   CREATE TABLE IF NOT EXISTS legacy_table (id BIGINT);`;
+    const unpaired = lintCaseContent(doc(testCase({ precondition: sqlWithoutPair })), config).map(
+      (item) => item.rule,
+    );
+    expect(unpaired).toContain("case_datasource_pair");
+    expect(unpaired).toContain("case_sql_table_name");
+
+    const unpairedSixValues = `${sqlWithoutPair}
+INSERT INTO legacy_table VALUES (1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6, 60);`;
+    const unpairedRows = lintCaseContent(
+      doc(testCase({ precondition: unpairedSixValues })),
+      config,
+    ).map((item) => item.rule);
+    expect(unpairedRows).toContain("case_datasource_pair");
+    expect(unpairedRows).toContain("case_bulk_rows");
 
     const datasourceOnly = `1) 授权数据源：\${DataSourceA}`;
     expect(

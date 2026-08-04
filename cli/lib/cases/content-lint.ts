@@ -44,6 +44,11 @@ interface DatasourceBlock {
 
 const SQL_STATEMENT_RE =
   /\b(?:CREATE\s+TABLE|INSERT\s+INTO|DROP\s+TABLE|ALTER\s+TABLE|MERGE\s+INTO|UPDATE\s+|DELETE\s+FROM)\b/i;
+/** 数据准备 SQL 块：编号条目的标题行含「建表语句/创建数据表/初始化」语义且 SQL 位于缩进行。 */
+const DATA_PREP_HEADING_RE =
+  /^\d+\)\s+[^\n]*(?:建表语句|创建数据表|建表|初始化|创建表|数据准备|准备数据|表结构如下|建表SQL)[：:（(]?\s*$/m;
+const BLOCK_SQL_RE =
+  /^\s{2,}(?:\b(?:CREATE\s+TABLE|INSERT\s+INTO|DROP\s+TABLE|ALTER\s+TABLE|MERGE\s+INTO|UPDATE\s+|DELETE\s+FROM)\b)/im;
 const DATASOURCE_RE = /\$\{DataSource([A-Z])\}/g;
 const SCHEMA_RE = /\$\{Schema([A-Z])\d*\}/g;
 const RUN_SUFFIX_RE = /\$\{RunSuffix\}/;
@@ -52,9 +57,9 @@ const RUN_SUFFIX_RE = /\$\{RunSuffix\}/;
 // 禁止「在…时」从句、下划线拼接、通用断言词与括号内嵌套【】。
 const CASE_TITLE_RE =
   /^验证【[^】]+】(?:-【[^】]+】)?[^【，()_]+，[^【，()_]+(?:\([^()【】_]+\))?$/;
-// 标题末尾括号只能是真条件：至少两位连续数字、操作符或英文标识（含 Hive2.x 这类字母+数字组合）。
-// 单数字、泛类标签（黑名单由 title_condition_disallowed 提供）不算条件。
-const TITLE_CONDITION_ANCHOR_RE = /\d{2,}|[=!<>]|\b[a-zA-Z]{2,}(?:[a-zA-Z0-9.]*)/;
+// 标题末尾括号必须是可判断的条件表达式：必须含比较/算术操作符（= ≠ ≥ ≤ > < + - * ÷）、
+// 逻辑连接（且、或）或状态断言（为空、非空、非已…等否定式）；纯数字、层级标签、功能点不算条件。
+const TITLE_CONDITION_OPERATOR_RE = /[=≠≥≤><+*÷-]|且|或|为空|非空|未配置|非(?:已|未|启|失效|发布|空)/;
 const NUMBERED_LINE_RE = /^(\d+)\)\s+\S/;
 const GENERATOR_COMMAND_RE = /^\s*(?:mysql|psql|sqlplus|beeline|spark-sql|hive|curl|wget|ssh)\b/im;
 
@@ -898,6 +903,41 @@ function lintDatasourceSql(
       ),
     );
   }
+  // 数据准备 SQL（编号块标题含建表/初始化语义的缩进建表/写入语句）缺少配对占位符时，
+  // 无法执行方言、表名与批量数据契约；任务配置、表解析语句、页面输入 SQL 不属于此列。
+  const dataPrepHeading = DATA_PREP_HEADING_RE.test(precondition);
+  const blockSqlLines = precondition
+    .split("\n")
+    .filter((line) => BLOCK_SQL_RE.test(line));
+  const hasBlockSql = dataPrepHeading && blockSqlLines.length > 0;
+  if (pairLetters.size === 0 && hasBlockSql) {
+    violations.push(
+      makeViolation(
+        "case_datasource_pair",
+        "出现数据源初始化 SQL（缩进块的建表或写入语句）时必须同时声明同字母的授权数据源与数据库占位符配对；否则方言、表名与批量数据契约无法校验",
+        `缩进 SQL 存在但未声明 \${DataSourceX}/\${SchemaX} 配对: ${compactActual(
+          blockSqlLines[0] ?? "",
+        )}`,
+        "在数据源前置条件中按编号声明授权数据源、数据源类型、存在数据库与完整 SQL，并复用相同字母的 ${DataSourceX}/${SchemaX}",
+      ),
+    );
+    violations.push(...validateTableNames(file, item, precondition, datasourceLetters, config));
+    const explicitRows = countValuesRows(precondition);
+    if (
+      explicitRows > config.bulk_row_threshold &&
+      !/\brange\s*\(/i.test(precondition) &&
+      !/使用以下\s+(?:Shell|Python)\s+脚本生成/.test(precondition)
+    ) {
+      violations.push(
+        makeViolation(
+          "case_bulk_rows",
+          `显式数据最多 ${config.bulk_row_threshold} 行；超过后使用当前方言的集合生成语句，方言不支持时在前置条件中给出完整文件生成脚本`,
+          `VALUES 显式写入 ${explicitRows} 行`,
+        ),
+      );
+    }
+    return violations;
+  }
   if (pairLetters.size === 0) return violations;
 
   const blocks = parseDatasourceBlocks(precondition);
@@ -1039,20 +1079,16 @@ export function lintCaseContent(file: CasesFile, config: CasesLintConfig): CaseC
         ),
       );
     }
-    // 括号条件必须是真条件（含数字/操作符/英文/阈值），不能用泛类标签
+    // 括号条件必须是可判断表达式：必须含比较/算术操作符、且或连接、为空/非空等判定词。
+    // 不含判定词的一律拦截，不受黑名单限制（黑名单只用于错误信息里的参考）。
     const parenMatch = item.title.match(/\(([^()]+)\)$/);
     if (parenMatch) {
       const condition = parenMatch[1].trim();
-      const matchesBlacklist = config.title_condition_disallowed.some(
-        (term) => condition.includes(term),
-      );
-      // 真条件至少含两位连续数字、操作符(=!=<>in)或英文标识
-      const isRealCondition = TITLE_CONDITION_ANCHOR_RE.test(condition);
-      if (matchesBlacklist && !isRealCondition) {
+      if (!TITLE_CONDITION_OPERATOR_RE.test(condition)) {
         violations.push(
           makeViolation(
             "case_title_condition",
-            `标题末尾括号应为真条件（含数字、操作符、阈值或参数名），"${condition}" 是泛类标签而非条件；无真条件时去掉括号，有用信息合并到标题正文`,
+            `标题末尾括号必须是可判断的条件表达式，必须含比较/算术操作符（= ≠ ≥ ≤ > < + - * ÷）、连接词（且、或）或状态断言（为空、非空）等判定关键字，如「行数 ≥ 10000」「期望值 ≠ 0」「数据源 = Hive2.x」「密码为空」；"${condition}" 不含判定关键字，无真条件时去掉括号，有用信息合并到标题正文`,
             condition,
           ),
         );
