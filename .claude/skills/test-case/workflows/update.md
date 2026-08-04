@@ -3,7 +3,7 @@
 ## Steps
 
 1. 确认权威源
-   - 只编辑 `cases/需求名.yaml`。CSV、XLSX、Markdown、XMind 原件归档到 `cases/imports/` 并先转为 YAML；`cases/exports/` 不手改。
+   - 只编辑 `cases/需求名.yaml`。CSV、XLSX、Markdown、XMind 原件归档到 `cases/imports/` 并先转为 YAML。
    - 读取 `prd/prd.md`、`cases/test-points.md` 和当前 YAML；纯格式修复也需确认不改变业务语义。
    - 完成条件：输入原件已保留，目标 YAML 唯一。
 
@@ -23,4 +23,4 @@
    kata cases build --feature <feature-dir>
    kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
    ```
-   - 完成条件：三个命令均成功，源 YAML、摘要链和 exports 一致；每个保持原样的条目有证据缺口说明。
+   - 完成条件：三个命令均成功；每个保持原样的条目有证据缺口说明。

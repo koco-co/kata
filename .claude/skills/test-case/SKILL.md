@@ -25,12 +25,12 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
    - 无业务证据的步骤保持待确认，不把历史用例或当前 UI 猜成需求事实。
    - 完成条件：PRD、测试点、YAML 权威链的变更范围和排除项明确。
 3. 执行
-   - create/update workflow 按确认范围维护 PRD、测试点和 YAML；只通过 `kata cases build` 生成 exports。
+   - create/update workflow 按确认范围维护 PRD、测试点和 YAML；派生产物仅由 `kata cases build` 生成。
    - **写 YAML 必须严格遵循 [examples/cases.yaml](examples/cases.yaml) 及 [examples/best-practices.md](examples/best-practices.md)。超出两份文件明确范围的禁止自行创建规范，必须给出建议并取得用户确认。**
    - 完成条件：每个测试点可追溯到 PRD，每条用例可追溯到测试点，不得伪造自动化映射或占位脚本。
 4. 验证
-   - 运行 `kata prd lint`、`kata cases build`、`kata cases lint --exit-code`，复读 YAML 摘要链及实际 exports。
-   - 完成条件：机械校验成功，派生物无手工改动，逐项标明已验证、缺业务证据未验证和明确排除项。
+   - 运行 `kata prd lint`、`kata cases build`、`kata cases lint --exit-code`。
+   - 完成条件：机械校验成功，逐项标明已验证、缺业务证据未验证和明确排除项。
 
 ## Delivery
 
@@ -42,8 +42,8 @@ description: 编写、更新、导入、同步或标准化 Kata 测试用例。L
 
 - 模型不得直接读取 `config/`；机械硬规则通过 `kata cases lint`/`kata cases build` 执行。
 - 需求事实不足时不猜菜单、字段、枚举、步骤或预期。
-- create 流程在发布确认前不写 `prd/prd.md`；正式产物不含「待确认」或模型工作提示。
-- YAML 是唯一用例源；不手改 `cases/exports/`，不为缺失自动化伪造 `spec_file` 或占位脚本。纯接口用例不纳入功能用例集。
+- create 流程在发布确认前不写 `prd/prd.md`。
+- YAML 是唯一用例源；不为缺失自动化伪造 `spec_file` 或占位脚本。纯接口用例不纳入功能用例集。
 - 环境与业务实例使用语义占位符，不写真实凭据、Cookie 或私密配置。
 
 ## References

@@ -16,7 +16,7 @@
    ```bash
    kata prd extract --url <含 docId/versionId/pageId 的完整链接> --feature <feature-dir>
    ```
-   - 产出 `prd/evidence/lanhu.json` 与 `prd/assets/`。相同 docId/versionId/pageId 且摘要和图片完整时使用缓存；版本变化或显式 `--force` 才重取。
+   - 产出 `prd/evidence/lanhu.json` 与 `prd/assets/`。
    - 非 Lanhu 材料也先整理为可追踪证据。提取失败时停止，不从 URL 或截图缺失区域猜需求。
    - 完成条件：原始来源、选中页面、文本摘要和引用图片均可追踪。
 
@@ -47,7 +47,7 @@
    ```
    - frontmatter 只允许 `source/source_url/requirement_id/evidence_digest`；正文使用稳定 `FR/BR/ER/AC/PD` ID，空章节跳过。
    - 刷新既有 PRD 时先比较 evidence digest，完成差异分析后才原子替换。
-   - 完成条件：`publish_confirmed`，lint 退出码为 0，正文无未决词或失效图片。
+   - 完成条件：`publish_confirmed`，lint 退出码为 0。
 
 7. 设计测试点
    - 只从最终 PRD 派生，逐项引用 `FR/BR/ER/AC/PD`；按 [../templates/test-points.md](../templates/test-points.md) 写 `cases/test-points.md`。
@@ -63,7 +63,7 @@
    kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code
    ```
    - 修复源 YAML 后重建。纯接口用例不纳入功能用例集；Playwright 用例只有存在真实脚本时才声明 `spec_file`，否则由 coverage 报告为 `unmapped`。
-   - 完成条件：build 与 lint 均成功，exports 与当前 YAML 同步。
+   - 完成条件：build 与 lint 均成功。
 
 9. 知识闭环
    - 只将跨需求复用、已确认且有来源的规则写回知识库；需求特有内容留在 PRD。冲突写 `conflicting`。
