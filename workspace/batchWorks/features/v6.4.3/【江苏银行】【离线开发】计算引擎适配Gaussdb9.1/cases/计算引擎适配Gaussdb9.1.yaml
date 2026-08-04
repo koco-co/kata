@@ -127,7 +127,7 @@ cases:
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}, 临时运行后, 保存并提交
         expected: 提交至运维中心
-      - action: 进入调度属性-任务间依赖, 给SQL任务添加依赖关系( ${TaskB}、${TaskC} -> ${TaskA} ) 后再次提交
+      - action: 进入「任务间依赖」配置, 给SQL任务添加依赖关系( ${TaskB}、${TaskC} -> ${TaskA} ) 后再次提交
         expected: 依赖添加成功
       - action: 周期运行, 查看结果
         expected: 周期任务实例中新增该任务的实例记录并运行成功
@@ -176,7 +176,7 @@ cases:
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}, 临时运行后, 保存并提交
         expected: 提交至运维中心
-      - action: 进入调度属性-任务间依赖, 给SQL任务添加依赖关系(${TaskC} -> ${TaskB} -> ${TaskA}) 后再次提交
+      - action: 进入「任务间依赖」配置, 给SQL任务添加依赖关系(${TaskC} -> ${TaskB} -> ${TaskA}) 后再次提交
         expected: 依赖添加成功
       - action: 周期运行, 查看结果
         expected: 周期任务实例中新增该任务的实例记录并运行成功
