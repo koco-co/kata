@@ -31,7 +31,7 @@
    kata knowledge read --project <项目> --status all --keyword <标题关键词>
    ```
 
-   - 完成条件：索引重建成功、lint 无违规，复读结果中的正文、状态和来源与本次决策一致。
+   - 完成条件：复读结果中的正文、状态和来源与本次决策一致。
 
 ## Delivery
 

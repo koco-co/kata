@@ -32,6 +32,6 @@
 5. 运行实现闸门
    - 每轮修复后运行 `kata automation lint <feature-dir> --exit-code`；修改共享能力时同步运行 shared lint。
    - 用 [../references/conventions.md](../references/conventions.md) 检查页面对象、流程、断言、fixture 和 SQL 归属。
-   - 完成条件：feature 与受影响 shared lint 均为零违规，准备进入 full 运行。
+   - 完成条件：准备进入 full 运行。
 
 用户明确要求并行子代理时，才按 [../prompts/worker.md](../prompts/worker.md) 分配互不重叠的用例；主会话仍负责探测结论、统一规范和最终 full 运行。

@@ -14,7 +14,7 @@
 3. 执行结构闸门
    - 运行 `kata cases lint --project <项目> --feature <版本目录/需求目录名> --exit-code`。
    - 运行 `kata automation normalize <feature-dir> --exit-code`、`kata automation lint <feature-dir> --exit-code` 和 `kata automation lint --shared --project <project> --exit-code`。
-   - 完成条件：所有命令退出码为 0；normalize 没有待应用迁移，feature 和 shared 均零违规。
+   - 完成条件：全部结构闸门通过。
 
 4. 写 handoff 并回复
    - 按 [../templates/handoff.md](../templates/handoff.md) 写 `runs/<run-id>/handoff.md`，详细程度参考 [../examples/handoff.md](../examples/handoff.md)。

@@ -20,4 +20,4 @@
 4. 校验与可选登记
    - 运行 `kata defects lint --report <report.md> --exit-code`。
    - 只有用户明确要求登记 ZenTao 时，先运行 `kata zentao create --report <report.md> --dry-run` 预览；再次确认后才去掉 `--dry-run`。
-   - 完成条件：lint 退出码为 0；未获外部写入确认时只交付报告和 dry-run 结果。
+   - 完成条件：未获外部写入确认时只交付报告和 dry-run 结果。

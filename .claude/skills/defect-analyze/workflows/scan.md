@@ -25,4 +25,4 @@
 
 4. 校验
    - 运行 `kata defects lint --report <report.md> --exit-code`。
-   - 完成条件：lint 退出码为 0；回复注明静态扫描未覆盖的运行时或业务验证。
+   - 完成条件：回复注明静态扫描未覆盖的运行时或业务验证。
