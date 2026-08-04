@@ -8,150 +8,166 @@ meta:
     - 本地数据导入- oracle.xmind
 cases:
   - case_id: C0001
-    title: 验证【本地数据导入】-【追加导入】上传字段文件并按追加模式导入，目标表保留 ID=99 且新增 ID=1、2 记录
+    title: 验证【数据开发】-【周期任务】上传字段文件并按追加模式导入，目标表保留 ID=99 且新增 ID=1、2 记录
     priority: P1
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0001」包含表头 ID,USERNAME,EMAIL,IS_ACTIVE 和记录「1,alice,alice@example.com,Y」「2,bob,bob@example.com,Y」
       3) Oracle 目标表「demo_user」已存在记录 ID=99
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传「oracle_rows_c0001」并选择 ${DataSourceA} 的「demo_user」表
         expected: 字段映射区域展示 ID、USERNAME、EMAIL、IS_ACTIVE 四个字段
       - action: 选择导入模式「追加」并提交导入
         expected: Toast提示:「导入成功」,demo_user 保留 ID=99 且新增 ID=1、2 两条记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 追加导入
 
   - case_id: C0002
-    title: 验证【本地数据导入】-【覆盖导入】上传字段文件并按覆盖模式导入，目标表仅保留 ID=1、2 记录
+    title: 验证【数据开发】-【周期任务】上传字段文件并按覆盖模式导入，目标表仅保留 ID=1、2 记录
     priority: P0
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0002」包含表头 ID,USERNAME,EMAIL 和记录「1,alice,alice@example.com」「2,bob,bob@example.com」
       3) Oracle 目标表「demo_user」已存在 ID=99 记录
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传「oracle_rows_c0002」并选择已存在的 Oracle 表「demo_user」
         expected: 字段映射区域展示 ID、USERNAME、EMAIL 三个字段
       - action: 选择导入模式「覆盖」并提交导入
         expected: Toast提示:「导入成功」,demo_user 仅保留 ID=1、2 两条记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 覆盖导入
 
   - case_id: C0003
-    title: 验证【本地数据导入】-【按位置匹配】上传乱序字段文件并按位置匹配导入，目标表记录 NAME 为 F 且 SEX 为 alice
+    title: 验证【数据开发】-【周期任务】上传乱序字段文件并按位置匹配导入，目标表记录 NAME 为 F 且 SEX 为 alice
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0003」表头顺序为 SEX,NAME，Line1 为「F,alice」
       3) Oracle 目标表「demo_user」包含字段 NAME、SEX
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传「oracle_rows_c0003」并选择按位置匹配
         expected: 第 1 个来源字段映射到 NAME，第 2 个来源字段映射到 SEX
       - action: 提交导入
         expected: Toast提示:「导入成功」,demo_user 的 NAME 为「F」且 SEX 为「alice」
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 按位置匹配
 
   - case_id: C0004
-    title: 验证【本地数据导入】-【按名称匹配】上传字段文件并按名称匹配导入，目标表新增记录 NAME 为 alice 且 SEX 为 F
+    title: 验证【数据开发】-【周期任务】上传字段文件并按名称匹配导入，目标表新增记录 NAME 为 alice 且 SEX 为 F
     priority: P0
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0004」表头为 NAME,SEX，Line1 为「alice,F」
       3) Oracle 目标表「demo_user」包含字段 NAME、SEX
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传「oracle_rows_c0004」并选择按名称匹配
         expected: NAME 映射到 NAME，SEX 映射到 SEX
       - action: 提交导入
         expected: Toast提示:「导入成功」,demo_user 新增记录的 NAME 为「alice」且 SEX 为「F」
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 按名称匹配
 
   - case_id: C0005
-    title: 验证【本地数据导入】-【页面配置】查看导入配置项，页面展示文件上传、数据源、目标表和追加/覆盖两个导入模式
+    title: 验证【数据开发】-【周期任务】查看导入配置项，页面展示文件上传、数据源、目标表和追加/覆盖两个导入模式
     priority: P2
     precondition: 1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 查看导入文件、目标数据源、目标表和导入模式配置项
         expected: 页面展示文件上传、${DataSourceA}、目标表选择和追加/覆盖两个导入模式
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
 
   - case_id: C0006
-    title: 验证【本地数据导入】-【文件格式】上传 .log 文件并提交导入，目标表新增 ID=1、USERNAME=alice 记录
+    title: 验证【数据开发】-【周期任务】上传 .log 文件并提交导入，目标表新增 ID=1、USERNAME=alice 记录
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0006」每行使用逗号分隔，首行包含 ID,USERNAME，Line1 为「1,alice」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0006.log」的文件并选择 ${DataSourceA}
         expected: 文件解析为 ID、USERNAME 两列，预览包含「1」「alice」
       - action: 提交导入
         expected: Toast提示:「导入成功」,目标表新增 ID=1、USERNAME=alice 记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 文件格式
 
   - case_id: C0007
-    title: 验证【本地数据导入】-【文件格式】上传 .txt 文件并提交导入，目标表新增 ID=1、USERNAME=alice 记录
+    title: 验证【数据开发】-【周期任务】上传 .txt 文件并提交导入，目标表新增 ID=1、USERNAME=alice 记录
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0007」首行包含 ID,USERNAME，Line1 为「1,alice」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0007.txt」的文件并选择 ${DataSourceA}
         expected: 文件解析为 ID、USERNAME 两列，预览包含「1」「alice」
       - action: 提交导入
         expected: Toast提示:「导入成功」,目标表新增 ID=1、USERNAME=alice 记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 文件格式
 
   - case_id: C0008
-    title: 验证【本地数据导入】-【文件格式】上传 .csv 文件并提交导入，目标表新增 ID=1 记录且 EMAIL 为 alice@example.com
+    title: 验证【数据开发】-【周期任务】上传 .csv 文件并提交导入，目标表新增 ID=1 记录且 EMAIL 为 alice@example.com
     priority: P0
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0008」首行包含 ID,USERNAME,EMAIL，Line1 为「1,alice,alice@example.com」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0008.csv」的文件并选择 ${DataSourceA}
         expected: 文件解析为 ID、USERNAME、EMAIL 三列，预览包含「alice@example.com」
       - action: 提交导入
         expected: Toast提示:「导入成功」,目标表新增 ID=1 的记录且 EMAIL 为「alice@example.com」
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 文件格式
 
   - case_id: C0009
-    title: 验证【本地数据导入】-【多Sheet】上传 .xls 文件并切换 Sheet2 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功(2 个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xls 文件并切换 Sheet2 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功(2 个sheet)
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
@@ -159,38 +175,42 @@ cases:
       3) Sheet1 的 Title 为 ID,USERNAME、Line1 为「1,alice」
       4) Sheet2 的 Title 为 ID,USERNAME、Line1 为「2,bob」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0009.xls」的文件并选择 Sheet1
         expected: Sheet 下拉框展示 Sheet1、Sheet2，预览展示 Sheet1 的「1,alice」
       - action: 切换到 Sheet2 并提交导入
         expected: 预览展示 Sheet2 的「2,bob」，Toast提示:「导入成功」
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 多Sheet
 
   - case_id: C0010
-    title: 验证【本地数据导入】-【多Sheet】上传 .xls 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功(单个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xls 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功(单个sheet)
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 工作簿「oracle_rows_c0010」仅包含 Sheet1
       3) Title 为 ID,USERNAME、Line1 为「1,alice」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0010.xls」的文件
         expected: Sheet 下拉框仅展示 Sheet1，预览展示「1,alice」
       - action: 提交导入
         expected: Toast提示:「导入成功」,目标表新增 ID=1、USERNAME=alice 记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 多Sheet
 
   - case_id: C0011
-    title: 验证【本地数据导入】-【多Sheet】上传 .xlsx 文件并选择 Sheet1 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功(2 个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xlsx 文件并选择 Sheet1 提交导入，Sheet 下拉框展示两个 Sheet 且导入成功(2 个sheet)
     priority: P0
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
@@ -198,50 +218,56 @@ cases:
       3) 两个 Sheet 的 Title 均为 ID,USERNAME
       4) Sheet1 的 Line1 为「1,alice」，Sheet2 的 Line1 为「2,bob」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0011.xlsx」的文件并查看 Sheet 下拉框
         expected: Sheet 下拉框展示 Sheet1、Sheet2
       - action: 选择 Sheet1 并提交导入
         expected: Toast提示:「导入成功」,目标表新增 ID=1、USERNAME=alice 记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 多Sheet
 
   - case_id: C0012
-    title: 验证【本地数据导入】-【多Sheet】上传 .xlsx 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功(单个sheet)
+    title: 验证【数据开发】-【周期任务】上传 .xlsx 文件并提交导入，Sheet 下拉框仅展示 Sheet1 且导入成功(单个sheet)
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 工作簿「oracle_rows_c0012」仅包含 Sheet1
       3) Title 为 ID,USERNAME，Line1 为「1,alice」
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0012.xlsx」的文件
         expected: Sheet 下拉框仅展示 Sheet1，预览展示 ID=1、USERNAME=alice
       - action: 提交导入
         expected: Toast提示:「导入成功」,目标表新增 ID=1、USERNAME=alice 记录
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 多Sheet
 
   - case_id: C0013
-    title: 验证【本地数据导入】-【大小上限】上传 500MB 1000 列文件并解析，解析结果包含 1000 个字段列且无大小超限提示(1000列+500M)
+    title: 验证【数据开发】-【周期任务】上传 500MB 1000 列文件并解析，解析结果包含 1000 个字段列且无大小超限提示(1000列+500M)
     priority: P2
     precondition: |-
       1) 离线项目「${ProjectA}」已授权 Oracle 数据源「${DataSourceA}」
       2) 文件「oracle_rows_c0013」包含 1000 个表头字段，文件大小为 500 MB
     steps:
-      - action: 进入【离线开发 → 本地数据导入】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
+      - action: 点击「导入」
+        expected: 打开「本地数据导入」窗口
       - action: 上传名为「oracle_rows_c0013.xlsx」的 500 MB 文件
         expected: 上传进度完成，文件未被前端拒绝
       - action: 查看文件解析结果
         expected: 解析结果包含 1000 个字段列，页面未展示大小超限提示
     tags:
-      - 离线开发
-      - 本地数据导入
+      - 数据开发
+      - 周期任务
       - 大小上限
