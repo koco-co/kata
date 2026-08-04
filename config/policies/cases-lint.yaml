@@ -130,7 +130,7 @@ forbidden_expectations:
   vague_setup: 写明具体账号角色、对象名称、字段、值、数据量或可执行构造内容
   vague_object: 写明确定对象、数量、范围和标识，不使用泛化指代
   login_state: 普通功能用例不写登录状态；权限场景写明实际角色账号及进入的平台
-  generic_assertion: 写明 Toast 文本、控件状态、记录字段值、数量、状态或可执行查询结果；条件组合标题按规定格式书写
+  generic_assertion: 写明 Toast 文本、控件状态、记录字段值、数量、状态或可执行查询结果；条件写在标题末尾半角括号内
   process_residue: 删除确认过程、生成来源和占位分类，只保留正式业务内容
   placeholder_residue: 用需求事实替换模板占位、引用省略和续写标记
 
