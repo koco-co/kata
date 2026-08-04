@@ -15,9 +15,9 @@ cases:
 
       2) GaussDB数据源名称: ${datasourceA}
     steps:
-      - action: 进入【离线开发 → 离线开发】页面
+      - action: 进入【项目管理 → 创建项目】页面
         expected: 进入成功
-      - action: 进入「离线开发」页面, 点击「创建项目」
+      - action: 进入「项目管理」页面, 点击「创建项目」
         expected: 进入创建项目页面
       - action: |-
           配置如下:
@@ -36,9 +36,9 @@ cases:
 
       2) GaussDB数据源名称: ${datasourceA}
     steps:
-      - action: 进入【离线开发 → 离线开发】页面
+      - action: 进入【项目管理 → 创建项目】页面
         expected: 进入成功
-      - action: 进入「离线开发」页面, 点击「创建项目」
+      - action: 进入「项目管理」页面, 点击「创建项目」
         expected: 进入创建项目页面
       - action: |-
           配置如下:
@@ -57,9 +57,9 @@ cases:
 
       2) GaussDB数据源名称: ${datasourceA}
     steps:
-      - action: 进入【离线开发 → 离线开发】页面
+      - action: 进入【项目管理 → 创建项目】页面
         expected: 进入成功
-      - action: 进入「离线开发」页面, 点击「创建项目」
+      - action: 进入「项目管理」页面, 点击「创建项目」
         expected: 进入创建项目页面
       - action: |-
           配置如下:
@@ -76,9 +76,9 @@ cases:
     precondition: |-
       1) 「离线开发-数据源」中已存在GaussDB Meta数据源, 数据源名称: ${datasourceA}
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 右键「任务开发」, 选择GaussDB SQL任务
         expected: 选择成功
@@ -121,9 +121,9 @@ cases:
          ${TaskC}
          CREATE INDEX if not exists idx_t_user_age ON t_user(age);
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}, 临时运行后, 保存并提交
         expected: 提交至运维中心
@@ -137,7 +137,7 @@ cases:
         expected: 补数据任务实例中新增该任务的实例记录并运行成功
       - action: 查看表结构
         expected: 表结构变更
-      - action: 进入「离线开发-数据开发-手动任务」页面
+      - action: 进入「数据开发-手动任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}并添加依赖关系后, 提交到运维中心手动运行
         expected: 手动任务实例中新增该任务的实例记录并运行成功
@@ -170,9 +170,9 @@ cases:
          ${TaskC}
          DELETE FROM t_user WHERE name = 'Alice';
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}, 临时运行后, 保存并提交
         expected: 提交至运维中心
@@ -182,7 +182,7 @@ cases:
         expected: 周期任务实例中新增该任务的实例记录并运行成功
       - action: 补数据运行, 查看结果
         expected: 补数据任务实例中新增该任务的实例记录并运行成功
-      - action: 进入「离线开发-数据开发-手动任务」页面
+      - action: 进入「数据开发-手动任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}并添加依赖关系后, 提交到运维中心手动运行
         expected: 手动任务实例中新增该任务的实例记录并运行成功
@@ -216,9 +216,9 @@ cases:
          GROUP BY age
          ORDER BY age;
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}, 临时运行后, 保存并提交
         expected: 提交至运维中心
@@ -226,7 +226,7 @@ cases:
         expected: 周期任务实例中新增该任务的实例记录并运行成功
       - action: 补数据运行, 查看结果
         expected: 补数据任务实例中新增该任务的实例记录并运行成功
-      - action: 进入「离线开发-数据开发-手动任务」页面
+      - action: 进入「数据开发-手动任务」页面
         expected: 进入成功
       - action: 创建GaussDB SQL任务${TaskA}、${TaskB}、${TaskC}后, 提交到运维中心手动运行
         expected: 手动任务实例中新增该任务的实例记录并运行成功
@@ -265,9 +265,9 @@ cases:
           WHERE c.relkind = 'r'
           AND has_table_privilege(c.oid, 'SELECT');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
         expected: 创建成功
@@ -335,17 +335,17 @@ cases:
          -- 查询所有列，验证插入
          SELECT * FROM bank_customer_account;
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
-        expected: 进入成功
-      - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
-        expected: 执行成功, 返回结果显示目标记录及字段值
-      - action: 进入「离线开发-数据开发-手动任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
         expected: 执行成功, 返回结果显示目标记录及字段值
-      - action: 进入「离线开发-数据开发-临时查询」页面
+      - action: 进入「数据开发-手动任务」页面
+        expected: 进入成功
+      - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
+        expected: 执行成功, 返回结果显示目标记录及字段值
+      - action: 进入「数据开发-临时查询」页面
         expected: 进入成功
       - action: 新建GaussDB SQL任务, 输入测试SQL语句并运行
         expected: 执行成功, 返回结果显示目标记录及字段值
@@ -362,9 +362,9 @@ cases:
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
          );
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
         expected: 创建成功
@@ -381,9 +381,9 @@ cases:
       1) 配置长时间执行 SQL：
          select pg_sleep(100);
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
         expected: 创建成功
@@ -467,9 +467,9 @@ cases:
          数组函数：array_except(anyarray, anyarray)、array_append(anyarray, anyelement)、array_prepend(anyelement, anyarray)、array_cat(anyarray, anyarray)
          日期函数：current_date、current_timestamp、trunc(arg1, arg2)、year()、timediff()、subtime(expr1,expr2)
     steps:
-      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-周期任务」页面
+      - action: 进入「数据开发-周期任务」页面
         expected: 进入成功
       - action: 新建 GaussDB SQL 任务
         expected: 创建成功
@@ -499,9 +499,9 @@ cases:
          (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
          (4, 1002, 50.00, 'other', '2025-11-17 13:00:00+08', 'EUR', 'Misc fee');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 函数管理】页面
+      - action: 进入【数据开发 → 函数管理】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-函数管理」页面
+      - action: 进入「数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 自定义函数, 右键「新建自定义函数」
         expected: |-
@@ -556,7 +556,7 @@ cases:
           4) 参数说明: 无
           5) 存储位置: 自定义函数
         expected: 添加成功
-      - action: 进入离线开发-周期任务, 创建gaussdb sql任务
+      - action: 进入「数据开发-周期任务」页面, 创建gaussdb sql任务
         expected: 创建成功
       - action: 执行建表语句并插入数据
         expected: 执行成功
@@ -577,9 +577,9 @@ cases:
     priority: P2
     precondition: 无
     steps:
-      - action: 进入【离线开发 → 数据开发 → 函数管理】页面
+      - action: 进入【数据开发 → 函数管理】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-函数管理」页面
+      - action: 进入「数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 自定义函数, 右键「新建自定义函数」
         expected: |-
@@ -627,9 +627,9 @@ cases:
     priority: P1
     precondition: 无
     steps:
-      - action: 进入【离线开发 → 数据开发 → 函数管理】页面
+      - action: 进入【数据开发 → 函数管理】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-函数管理」页面
+      - action: 进入「数据开发-函数管理」页面
         expected: 进入成功
       - action: |-
           新建GaussDB 自定义函数, 配置如下:
@@ -693,9 +693,9 @@ cases:
          (3, 1002, 500.00, 'deposit', '2025-11-17 12:00:00+08', 'EUR', 'Salary deposit'),
          (4, 1002, 50.00, 'other', '2025-11-17 13:00:00+08', 'EUR', 'Misc fee');
     steps:
-      - action: 进入【离线开发 → 数据开发 → 函数管理】页面
+      - action: 进入【数据开发 → 函数管理】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-函数管理」页面
+      - action: 进入「数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 存储过程, 右键「新建存储过程」
         expected: |-
@@ -744,7 +744,7 @@ cases:
           4) 参数说明: 无
           5) 存储位置: 存储过程
         expected: 添加成功
-      - action: 进入离线开发-周期任务, 创建gaussdb sql任务
+      - action: 进入「数据开发-周期任务」页面, 创建gaussdb sql任务
         expected: 创建成功
       - action: 执行建表语句并插入数据
         expected: 执行成功
@@ -765,9 +765,9 @@ cases:
     priority: P2
     precondition: 无
     steps:
-      - action: 进入【离线开发 → 数据开发 → 函数管理】页面
+      - action: 进入【数据开发 → 函数管理】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-函数管理」页面
+      - action: 进入「数据开发-函数管理」页面
         expected: 进入成功
       - action: 选择GaussDB SQL - 存储过程, 右键「新建存储过程」
         expected: |-
@@ -815,9 +815,9 @@ cases:
     priority: P1
     precondition: 无
     steps:
-      - action: 进入【离线开发 → 数据开发 → 函数管理】页面
+      - action: 进入【数据开发 → 函数管理】页面
         expected: 进入成功
-      - action: 进入「离线开发-数据开发-函数管理」页面
+      - action: 进入「数据开发-函数管理」页面
         expected: 进入成功
       - action: |-
           新建GaussDB 存储过程, 配置如下:
@@ -906,7 +906,7 @@ cases:
          -- 查询所有列，验证插入
          SELECT * FROM bank_customer_account;
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
+      - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
       - action: 进入projectA(测试项目) -> 数据开发-周期任务
         expected: 进入成功
@@ -940,7 +940,7 @@ cases:
       2) projectA(测试项目)已对接gaussdb数据源${datasourceA}
       3) projectB(生产项目)已对接gaussdb数据源${datasourceB}
     steps:
-      - action: 进入【离线开发 → 数据源】页面
+      - action: 进入【数据源】页面
         expected: 进入成功
       - action: 进入projectA(测试项目) -> 数据源
         expected: 进入成功
