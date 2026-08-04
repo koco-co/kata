@@ -8,12 +8,12 @@ cases:
 - case_id: C0001
   automation:
     spec_file: c0001-add-key-positive-flow-regex-check.spec.ts
-  title: 验证新增key完整正向流程（含正则测试）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】新增key并执行正则匹配测试，列表新增key且正则测试显示匹配成功(正向流程)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 新增key】页面
-    expected: 已进入【数据质量 → 新增key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: '页面标题显示「json格式校验管理」，列表正常展示，包含以下列：
 
       1) key
@@ -45,15 +45,12 @@ cases:
       4) 数据源类型（必选，默认选中「sparkthrift2.x」）
 
       弹窗中暂不显示「固定输入记录」输入框及「正则匹配测试」按钮'
-  - action: '在新增弹窗中填写表单, 内容如下:
-
-      - *key: userInfo
-
-      - *中文名称: 用户信息
-
-      - value格式: ^[a-zA-Z]+$
-
-      - 数据源类型: hive2.x'
+  - action: |-
+      在新增弹窗中填写表单，内容如下：
+      key：userInfo
+      中文名称：用户信息
+      value格式：^[a-zA-Z]+$
+      数据源类型：hive2.x
     expected: 各字段输入内容与填写值一致；value格式填写内容后，弹窗内动态显示「固定输入记录」输入框和「正则匹配测试」按钮
   - action: 在「固定输入记录」输入框中填写 testValue，点击【正则匹配测试】按钮
     expected: 正则匹配测试执行，显示匹配结果为「匹配成功」
@@ -67,9 +64,9 @@ cases:
       3) value格式显示 ^[a-zA-Z]+$
 
       4) 创建人为 admin（当前登录用户）'
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 当前数据质量模块通用配置下json格式校验管理列表已存在至少1条数据'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) json格式校验管理列表已存在至少1条数据
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -77,22 +74,21 @@ cases:
 - case_id: C0002
   automation:
     spec_file: c0002-add-key-empty-name-blocked.spec.ts
-  title: 验证新增key时key字段为空不可提交
+  title: 验证【数据质量】-【通用配置-json格式校验管理】新增key提交空key字段，输入框提示请输入key且数据未提交(key必填)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 新增key】页面
-    expected: 已进入【数据质量 → 新增key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面标题显示「json格式校验管理」，列表加载完成，显示已有key数据行
-  - action: '点击【新增】按钮，弹窗出现后填写表单, 内容如下:
-
-      - *key: （留空不填）
-
-      - 数据源类型: sparkthrift2.x（保持默认）
-
-      点击【确定】按钮'
+  - action: |-
+      点击【新增】按钮，弹窗出现后填写表单，内容如下：
+      key：留空不填
+      数据源类型：sparkthrift2.x（保持默认）
+      点击【确定】按钮
     expected: 表单校验触发，key输入框下方显示「请输入key」，弹窗不关闭，数据未提交
-  precondition: 1) 使用 admin 账号登录系统
+  precondition: |-
+    1) 使用 admin 账号登录系统
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -100,16 +96,17 @@ cases:
 - case_id: C0003
   automation:
     spec_file: c0003-add-key-name-over-255-blocked.spec.ts
-  title: 验证新增key时key字段输入超255字符不可提交
+  title: 验证【数据质量】-【通用配置-json格式校验管理】新增key输入256字符并提交，输入框提示长度不能超过255字符且数据未提交(key长度校验)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 新增key】页面
-    expected: 已进入【数据质量 → 新增key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面标题显示「json格式校验管理」，列表加载完成，显示已有key数据行
   - action: 点击【新增】按钮，在key输入框中输入256个字符（字母 a 重复256次），点击【确定】按钮
     expected: 表单校验触发，key输入框显示「长度不能超过255字符」，弹窗不关闭，数据未提交
-  precondition: 1) 使用 admin 账号登录系统
+  precondition: |-
+    1) 使用 admin 账号登录系统
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -117,22 +114,21 @@ cases:
 - case_id: C0004
   automation:
     spec_file: c0004-add-key-name-255-char-boundary.spec.ts
-  title: 验证新增key时key字段输入恰好255字符边界值可成功提交
+  title: 验证【数据质量】-【通用配置-json格式校验管理】新增key输入255字符并提交，列表新增255字符key记录(边界值)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 新增key】页面
-    expected: 已进入【数据质量 → 新增key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面标题显示「json格式校验管理」，列表加载完成，显示已有key数据行
-  - action: '点击【新增】按钮，填写表单, 内容如下:
-
-      - *key: （字母 a 重复255次）
-
-      - 数据源类型: sparkthrift2.x（保持默认）
-
-      点击【确定】按钮，等待接口响应完成'
+  - action: |-
+      点击【新增】按钮，填写表单，内容如下：
+      key：字母 a 重复255次
+      数据源类型：sparkthrift2.x（保持默认）
+      点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，包含255字符key的记录成功出现在列表中
-  precondition: 1) 使用 admin 账号登录系统
+  precondition: |-
+    1) 使用 admin 账号登录系统
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -140,12 +136,12 @@ cases:
 - case_id: C0005
   automation:
     spec_file: c0005-switch-data-source-types.spec.ts
-  title: 验证新增key时数据源类型三种选项可正常切换
+  title: 验证【数据质量】-【通用配置-json格式校验管理】切换数据源类型选项，下拉框回显所选类型且列表新增记录类型正确(三种类型切换)
   priority: P2
   steps:
-  - action: 进入【数据质量 → 新增key】页面
-    expected: 已进入【数据质量 → 新增key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面标题显示「json格式校验管理」，列表加载完成，显示已有key数据行
   - action: 点击【新增】按钮，查看数据源类型下拉框的默认值及可选项
     expected: '数据源类型默认值为「sparkthrift2.x」，下拉可选项包含且仅包含：
@@ -157,15 +153,14 @@ cases:
       3) doris3.x'
   - action: 依次点击选择「hive2.x」，再选择「doris3.x」，再选回「sparkthrift2.x」
     expected: 下拉框当前值显示为所选数据源类型名称
-  - action: '填写表单, 内容如下:
-
-      - *key: typeTestKey
-
-      - 数据源类型: doris3.x
-
-      点击【确定】按钮，等待接口响应完成'
+  - action: |-
+      填写表单，内容如下：
+      key：typeTestKey
+      数据源类型：doris3.x
+      点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表中新增记录数据源类型列显示「doris3.x」
-  precondition: 1) 使用 admin 账号登录系统
+  precondition: |-
+    1) 使用 admin 账号登录系统
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -173,26 +168,24 @@ cases:
 - case_id: C0006
   automation:
     spec_file: c0006-preserve-form-values-when-switching-source.spec.ts
-  title: 验证新增key表单中切换数据源类型后其余字段内容仍保留
+  title: 验证【数据质量】-【通用配置-json格式校验管理】切换数据源类型，表单其余字段内容保留(数据源类型切换)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 新增key】页面
-    expected: 已进入【数据质量 → 新增key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
-  - action: '点击【新增】按钮，在弹窗中填写表单内容如下：
-
-      - *key: switchTest
-
-      - 中文名称: 切换测试
-
-      - value格式: ^[a-z]+$
-
-      - 数据源类型: sparkthrift2.x（默认值）'
+  - action: |-
+      点击【新增】按钮，在弹窗中填写表单内容如下：
+      key：switchTest
+      中文名称：切换测试
+      value格式：^[a-z]+$
+      数据源类型：sparkthrift2.x（默认值）
     expected: 各字段显示已填写的内容，数据源类型显示「sparkthrift2.x」
   - action: 将数据源类型下拉框从「sparkthrift2.x」切换为「hive2.x」
     expected: 数据源类型切换为「hive2.x」，表单中其他字段（key、中文名称、value格式）内容仍保留填写时的原值，未被清空
-  precondition: 1) 使用 admin 账号登录系统
+  precondition: |-
+    1) 使用 admin 账号登录系统
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -200,24 +193,21 @@ cases:
 - case_id: C0007
   automation:
     spec_file: c0007-edit-key-and-save.spec.ts
-  title: 验证编辑key名称、value格式、数据源类型并保存生效
+  title: 验证【数据质量】-【通用配置-json格式校验管理】编辑key名称、value格式与数据源类型并保存，列表记录更新且更新人更新时间更新(编辑key)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 编辑key】页面
-    expected: 已进入【数据质量 → 编辑key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表显示key editTarget 的记录
   - action: 在key为 editTarget 的行，点击操作列的【编辑】按钮
     expected: 弹出编辑弹窗，key输入框显示当前值「editTarget」，value格式、数据源类型显示当前值
-  - action: '在编辑弹窗中修改表单, 内容如下:
-
-      - *key: editTargetV2
-
-      - value格式: ^\d{4}$
-
-      - 数据源类型: doris3.x
-
-      点击【确定】按钮，等待接口响应完成'
+  - action: |-
+      在编辑弹窗中修改表单，内容如下：
+      key：editTargetV2
+      value格式：^\d{4}$
+      数据源类型：doris3.x
+      点击【确定】按钮，等待接口响应完成
     expected: '弹窗关闭，列表刷新，原key editTarget 记录更新为：
 
       1) key显示 editTargetV2
@@ -229,9 +219,9 @@ cases:
       4) 更新人为 admin（当前登录用户）
 
       5) 更新时间字段不为空，且晚于编辑操作前的时间'
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 在json格式校验管理列表中已通过【新增】创建key为 editTarget、数据源类型为「sparkthrift2.x」的记录'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建 key 为 editTarget、数据源类型为「sparkthrift2.x」的记录
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -239,12 +229,12 @@ cases:
 - case_id: C0008
   automation:
     spec_file: c0008-add-child-key-flow.spec.ts
-  title: 验证新增子层级完整流程
+  title: 验证【数据质量】-【通用配置-json格式校验管理】新增子层级key，父级key展开显示子层级记录(新增子层级)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 新增子层级】页面
-    expected: 已进入【数据质量 → 新增子层级】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表显示 parentKey 记录
   - action: 在key为 parentKey 的行，点击操作列的【新增子层级】按钮
     expected: '弹出弹窗，标题为「新增子层级」，包含以下字段：
@@ -256,23 +246,20 @@ cases:
       3) value格式（非必填）
 
       弹窗中不包含数据源类型选项'
-  - action: '在弹窗中填写表单, 内容如下:
-
-      - *key: childKey
-
-      - *中文名称: 子层级键
-
-      - value格式: ^[0-9]+$
-
-      点击【确定】按钮，等待接口响应完成'
+  - action: |-
+      在弹窗中填写表单，内容如下：
+      key：childKey
+      中文名称：子层级键
+      value格式：^[0-9]+$
+      点击【确定】按钮，等待接口响应完成
     expected: '弹窗关闭，列表刷新，parentKey 行显示「+」展开图标，点击「+」后展开子层级，可见key为 childKey 的子层级记录：
 
       1) 中文名称显示「子层级键」
 
       2) value格式显示 ^[0-9]+$'
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 在json格式校验管理列表中已通过【新增】创建key为 parentKey 的第一层级记录'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建第一层级 key 为 parentKey 的记录
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -280,18 +267,18 @@ cases:
 - case_id: C0009
   automation:
     spec_file: c0009-fifth-level-child-button-disabled.spec.ts
-  title: 验证第5层级的新增子层级按钮是置灰、不可点击（disabled）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】查看第5层级key操作列，新增子层级按钮置灰禁用且编辑删除可用(第5层级)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 新增子层级】页面
-    expected: 已进入【数据质量 → 新增子层级】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 逐层点击「+」展开，依次展开第1层 level1Root 到第4层 level4Node，找到第5层key为 level5Key 的记录，查看其操作列
     expected: 第5层 level5Key 记录的操作列中，【新增子层级】按钮存在但处于置灰禁用状态（disabled），不可点击；【编辑】和【删除】按钮正常可用
-  precondition: "1) 使用 admin 账号登录系统\n2) 在json格式校验管理中已通过逐层【新增子层级】创建5层嵌套层级数据：\n   - 第1层key: level1Root\n   - 第2层key: level2Node（父级为\
-    \ level1Root）\n   - 第3层key: level3Node（父级为 level2Node）\n   - 第4层key: level4Node（父级为 level3Node）\n   - 第5层key: level5Key（父级为\
-    \ level4Node）"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过逐层【新增子层级】创建5层嵌套层级数据，第1层key为 level1Root，第2层key为 level2Node，第3层key为 level3Node，第4层key为 level4Node，第5层key为 level5Key
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -299,20 +286,20 @@ cases:
 - case_id: C0010
   automation:
     spec_file: c0010-delete-key-with-children-cascade.spec.ts
-  title: 验证单个删除含子层级的key会联动删除子层级数据
+  title: 验证【数据质量】-【通用配置-json格式校验管理】删除含子层级的key，子层级key联动删除(单个删除)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 删除key】页面
-    expected: 已进入【数据质量 → 删除key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，deleteParent 记录在列表中显示「+」图标
   - action: 在key为 deleteParent 的行，点击操作列的【删除】按钮
     expected: 弹出确认弹窗，提示文本为「请确认是否删除key信息，若存在子层级key信息会联动删除」
   - action: 点击确认弹窗中的【确认】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，deleteParent 记录从列表中消失，子层级 deleteChild 也不再存在
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 在json格式校验管理中已通过【新增】创建key为 deleteParent 的记录，并通过【新增子层级】为其创建子层级key为 deleteChild'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建 key 为 deleteParent 的记录，并通过【新增子层级】为其创建子层级 key 为 deleteChild
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -320,12 +307,12 @@ cases:
 - case_id: C0011
   automation:
     spec_file: c0011-batch-delete-keys-with-children.spec.ts
-  title: 验证批量删除2 条key（含子层级）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】批量删除2条key，记录从列表消失且子层级联动删除(批量删除)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 删除key】页面
-    expected: 已进入【数据质量 → 删除key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 在列表中勾选 batchKey1 和 batchKey2 两行的行选择框
     expected: 两行均显示勾选状态，列表上方出现批量操作栏
@@ -333,11 +320,10 @@ cases:
     expected: 弹出确认弹窗，提示文本为「请确认是否批量删除key信息，若存在子层级key信息会联动删除」
   - action: 点击确认弹窗中的【确认】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，batchKey1、batchKey2 均从列表消失，batchKey1 的子层级 batchKey1Child 也不再存在
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 在json格式校验管理列表中已通过【新增】创建key为 batchKey1 的记录，并通过【新增子层级】为其创建子层级key为 batchKey1Child
-
-    3) 已通过【新增】创建key为 batchKey2 的记录（无子层级）'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建 key 为 batchKey1 的记录，并通过【新增子层级】为其创建子层级 key 为 batchKey1Child
+    3) 已通过【新增】创建 key 为 batchKey2 的记录（无子层级）
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -345,12 +331,12 @@ cases:
 - case_id: C0012
   automation:
     spec_file: c0012-fuzzy-search-key-names.spec.ts
-  title: 验证key名模糊搜索功能（含子层级key命中）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】按key名模糊搜索，列表仅展示命中记录且子层级key可命中(模糊搜索)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 搜索与筛选】页面
-    expected: 已进入【数据质量 → 搜索与筛选】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表显示所有第一层级数据
   - action: 在搜索框中输入 orderInfo，等待搜索结果返回
     expected: 列表仅显示key包含 orderInfo 的第一层级记录，key名称中不含 orderInfo 的记录均不显示
@@ -358,11 +344,10 @@ cases:
     expected: 列表展示命中子层级的父级记录 orderInfo，点击「+」后可见 orderStatus 子层级记录
   - action: 清空搜索框，等待列表恢复
     expected: 列表恢复显示所有第一层级数据
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 在json格式校验管理列表中已通过【新增】创建key为 orderInfo 的第一层级记录
-
-    3) 已通过【新增子层级】为 orderInfo 创建子层级key为 orderStatus 的第二层级记录'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建第一层级 key 为 orderInfo 的记录
+    3) 已通过【新增子层级】为 orderInfo 创建子层级 key 为 orderStatus
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -370,24 +355,23 @@ cases:
 - case_id: C0013
   automation:
     spec_file: c0013-filter-by-data-source-type.spec.ts
-  title: 验证数据源类型筛选功能
+  title: 验证【数据质量】-【通用配置-json格式校验管理】按数据源类型筛选列表，仅展示匹配类型的记录(数据源类型筛选)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 搜索与筛选】页面
-    expected: 已进入【数据质量 → 搜索与筛选】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 在数据源类型筛选器中选择 SparkThrift，等待筛选结果返回
     expected: 列表仅显示数据源类型为 SparkThrift的记录
   - action: 清空筛选条件
     expected: 列表恢复显示所有记录
   - action: 依次切换Hive、Doris
-    expected: 筛选完成目标操作且状态更新
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) json格式校验管理列表中已存在由用户 admin@dtstack.com 创建的key记录，以及由用户 testUser01@dtstack.com 创建的key记录
-
-    3) 使用 testUser01 账号登录并在json格式校验管理页面创建对应key数据'
+    expected: 列表按所选数据源类型过滤展示
+  precondition: |-
+    1) 使用 UserA 账号登录系统
+    2) json格式校验管理列表中已存在由用户 UserA 创建的key记录，以及由用户 UserB 创建的key记录
+    3) 使用 UserB 账号登录并在json格式校验管理页面创建对应key数据
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -395,12 +379,12 @@ cases:
 - case_id: C0014
   automation:
     spec_file: c0014-expand-five-level-key-hierarchy.spec.ts
-  title: 验证5层层级展开下钻及展开图标显示逻辑
+  title: 验证【数据质量】-【通用配置-json格式校验管理】逐层展开5层层级key，每层仅展开当前子层级且末层无展开图标(层级展开)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 层级展开】页面
-    expected: 已进入【数据质量 → 层级展开】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: rootKey 行显示「+」展开图标，leafKey 行不显示「+」图标，列表展示条数按最外层级统计
   - action: 点击 rootKey 行的「+」图标
     expected: 仅展开当前子层级：显示第二层级子节点 level2Key，level2Key 行显示「+」图标（表明还有下级），不会自动展开 level2Key 以下的更深层级
@@ -410,9 +394,10 @@ cases:
     expected: 仅展开当前子层级：显示第四层级子节点 level4Key，level4Key 行显示「+」图标
   - action: 点击 level4Key 行的「+」图标
     expected: level4Key 展开，显示第五层级子节点 level5Key，level5Key 行无「+」图标（已是最末层级，第5层不支持新增子层级）
-  precondition: "1) 使用 admin 账号登录系统\n2) 在json格式校验管理列表中已通过逐层【新增子层级】创建5层嵌套数据：\n   - 第1层key: rootKey\n   - 第2层key: level2Key（父级为\
-    \ rootKey）\n   - 第3层key: level3Key（父级为 level2Key）\n   - 第4层key: level4Key（父级为 level3Key）\n   - 第5层key: level5Key（父级为 level4Key）\n\
-    3) 已通过【新增】创建key为 leafKey 的记录（无子层级）"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过逐层【新增子层级】创建5层嵌套数据，第1层key为 rootKey，第2层key为 level2Key，第3层key为 level3Key，第4层key为 level4Key，第5层key为 level5Key
+    3) 已通过【新增】创建 key 为 leafKey 的记录（无子层级）
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -420,12 +405,12 @@ cases:
 - case_id: C0015
   automation:
     spec_file: c0015-test-value-format-regex.spec.ts
-  title: 验证value格式有内容时正则测试控件显示及匹配通过失败场景
+  title: 验证【数据质量】-【通用配置-json格式校验管理】填写value格式并执行正则匹配测试，成功与失败场景均展示对应匹配结果(正则匹配测试)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 正则测试】页面
-    expected: 已进入【数据质量 → 正则测试】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击【新增】按钮，在弹窗中key输入框填写 regexTestKey，value格式输入框保持为空，查看弹窗内容
     expected: 弹窗中不显示「固定输入记录」输入框和「正则匹配测试」按钮
@@ -437,9 +422,9 @@ cases:
     expected: 显示匹配结果为「匹配失败」
   - action: 清空value格式输入框内容，查看弹窗变化
     expected: 「固定输入记录」输入框和「正则匹配测试」按钮隐藏
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 进入json格式校验管理页面'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 可进入json格式校验管理页面
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -447,16 +432,16 @@ cases:
 - case_id: C0016
   automation:
     spec_file: c0016-import-valid-file-skip-duplicates.spec.ts
-  title: 验证导入正确文件全流程（重复则跳过）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入正确格式文件，列表新增文件中的key及子层级(重复则跳过)
   priority: P0
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击列表右上角【导入】按钮
     expected: 弹出导入弹窗，标题为「导入标准」，包含「重复处理规则」选项（默认选中「重复则跳过」）和文件上传区域
-  - action: 确认重复处理规则为默认「重复则跳过」，在文件上传区域上传 json_format_import_template.xlsx 文件，点击【确定】按钮，等待校验和导入接口响应完成
+  - action: 确认重复处理规则选择重复则跳过（默认值），在文件上传区域上传 json_format_import_15696.xlsx 文件，点击【确定】按钮，等待校验和导入接口响应完成
     expected: '弹窗关闭，列表刷新，导入文件中的key数据成功出现在列表中：
 
       1) importKey1 出现在列表第一层级，中文名称显示「导入键一」，value格式显示 ^[a-z]+$
@@ -466,10 +451,14 @@ cases:
       3) importKey1 展开后显示子层级 subImport1，中文名称显示「子导入键一」
 
       4) importKey2的value格式列显示为空（-）'
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置符合模板格式的 XLSX 文件（共5个Sheet，缺少任意层级服务端报\"导入文件缺少层级\"），文件内容如下:\n   一层 Sheet（header: *\
-    \ key | 中文名称 | value格式）:\n   | importKey1 | 导入键一   | ^[a-z]+$  |\n   | importKey2 | 导入键二   |           |\n\n   二层 Sheet（header:\
-    \ * 第一层级key名 | * key | 中文名称 | value格式）:\n   | importKey1 | subImport1 | 子导入键一 | ^\\d+$ |\n\n   三层/四层/五层 Sheet: 仅含 header\
-    \ 行（无数据），必须存在"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: importKey1, 导入键一, ^[a-z]+$
+       Line2: importKey2, 导入键二,
+    3) 文件包含 5 个 Sheet（一层至五层），二层 Sheet 中 importKey1 含子层级记录 subImport1（中文名称 子导入键一），三层至五层仅含表头
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -477,12 +466,12 @@ cases:
 - case_id: C0017
   automation:
     spec_file: c0017-download-import-template.spec.ts
-  title: 验证导入模板下载功能
+  title: 验证【数据质量】-【通用配置-json格式校验管理】下载导入模板，文件含5个Sheet且列结构正确(模板下载)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击【导入】按钮，在导入弹窗中点击【下载模板】链接，等待文件下载完成
     expected: '浏览器下载文件，文件命名为 json_format_import_template.xlsx，打开文件后包含5个Sheet（分别对应一层、二层、三层、四层、五层）：
@@ -496,7 +485,8 @@ cases:
       4) 四层Sheet包含「* 第一层级key名」、「* 第二层级key名」、「* 第三层级key名」、「* key」、「中文名称」、「value格式」列
 
       5) 五层Sheet包含「* 第一层级key名」、「* 第二层级key名」、「* 第三层级key名」、「* 第四层级key名」、「* key」、「中文名称」、「value格式」列'
-  precondition: 1) 使用 admin 账号登录系统
+  precondition: |-
+    1) 使用 admin 账号登录系统
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -504,17 +494,22 @@ cases:
 - case_id: C0018
   automation:
     spec_file: c0018-duplicate-overwrite-rule.spec.ts
-  title: 验证重复处理规则「重复则覆盖更新」生效
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新，已存在key的value格式被更新(重复则覆盖更新)
   priority: P0
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，existKey 记录的value格式显示 ^[a-z]+$
   - action: 点击【导入】按钮，在导入弹窗中将重复处理规则切换为「重复则覆盖更新」，上传包含key existKey（value格式为 ^[A-Z]+$）的XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，existKey 记录的value格式更新为 ^[A-Z]+$
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已通过【新增】创建key为 existKey、value格式为 ^[a-z]+$ 的记录\n3) 配置 XLSX 导入文件，文件内容如下:\n\
-    \   一层 Sheet:\n   | *key     | 中文名称 | value格式  |\n   | existKey | 已有键   | ^[A-Z]+$   |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建 key 为 existKey、value格式为 ^[a-z]+$ 的记录
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: existKey, 已有键, ^[A-Z]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -522,17 +517,22 @@ cases:
 - case_id: C0019
   automation:
     spec_file: c0019-duplicate-skip-existing-key.spec.ts
-  title: 验证重复处理规则「重复则跳过」对已存在key不覆盖
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过，已存在key的value格式保持不变(重复则跳过)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，skipKey 记录的value格式显示 ^[a-z]+$
-  - action: 点击【导入】按钮，在导入弹窗中确认重复处理规则为「重复则跳过」（默认值），上传包含key skipKey（value格式为 ^[A-Z]+$）的XLSX文件，点击【确定】按钮，等待接口响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过（默认值），上传包含key skipKey（value格式为 ^[A-Z]+$）的XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，skipKey 记录的value格式仍为 ^[a-z]+$，未被覆盖
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已通过【新增】创建key为 skipKey、value格式为 ^[a-z]+$ 的记录\n3) 配置 XLSX 导入文件，文件内容如下:\n\
-    \   一层 Sheet:\n   | *key    | 中文名称 | value格式  |\n   | skipKey | 跳过键   | ^[A-Z]+$   |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建 key 为 skipKey、value格式为 ^[a-z]+$ 的记录
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: skipKey, 跳过键, ^[A-Z]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -540,19 +540,23 @@ cases:
 - case_id: C0020
   automation:
     spec_file: c0020-import-key-name-over-255-marked.spec.ts
-  title: 验证导入文件key名超255字符时标红并批注长度超限
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入含256字符key的文件，导入被拦截且错误文件单元格标红批注长度超限(key名超长)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击【导入】按钮，上传包含256字符key的XLSX文件，点击【确定】按钮，等待校验完成
     expected: 弹窗提示「导入表格中存在错误数据，请检查后重新导入」，并提供导出错误文件的入口，无法完成导入
   - action: 点击导出错误文件入口，等待文件下载完成
     expected: 下载文件命名为 json_format_error_YYYYMMDD.xlsx（YYYYMMDD为执行当天日期），打开文件后256字符key所在单元格显示红色标注，批注内容为「长度超限」
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置 XLSX 导入文件，文件内容如下:\n   一层 Sheet:\n   | *key                 | 中文名称 | value格式 |\n\
-    \   | bbb...（256个字母b）  | 超限测试 |           |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: bbb…（256个字母b）, 超限测试,
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -560,19 +564,23 @@ cases:
 - case_id: C0021
   automation:
     spec_file: c0021-import-required-field-missing-marked.spec.ts
-  title: 验证导入文件必填项未填写时标红并批注必填项未填写
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入key列为空的文件，导入被拦截且错误文件单元格标红批注必填项未填写(必填项缺失)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击【导入】按钮，上传key列为空的XLSX文件，点击【确定】按钮，等待校验完成
     expected: 弹窗提示「导入表格中存在错误数据，请检查后重新导入」，并提供【导出错误文件】入口，无法完成导入
   - action: 点击导出错误文件入口，等待文件下载完成，打开下载的错误文件
     expected: key列为空的单元格显示红色标注，批注内容为「必填项未填写」
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置 XLSX 导入文件，文件内容如下:\n   一层 Sheet:\n   | *key | 中文名称 | value格式 |\n   |      | 缺失键名\
-    \ | ^\\d+$    |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: , 缺失键名, ^\d+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -580,20 +588,24 @@ cases:
 - case_id: C0022
   automation:
     spec_file: c0022-import-parent-key-mismatch-marked.spec.ts
-  title: 验证导入文件二层key上一层级key名无法匹配时标红并批注提示
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入上一层key名不匹配的文件，导入被拦截且错误文件单元格标红批注无匹配(二层key父级不匹配)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击【导入】按钮，上传二层Sheet中上一层级key为 nonExistParentKey 的XLSX文件，点击【确定】按钮，等待校验完成
     expected: 弹窗提示「导入表格中存在错误数据，请检查后重新导入」，并提供【导出错误文件】入口，无法完成导入
   - action: 点击导出错误文件入口，等待文件下载完成，打开下载的错误文件
     expected: 二层Sheet中「*上一层级的key名」为 nonExistParentKey 的单元格显示红色标注，批注内容为「上一层级无相同key名匹配」
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置 XLSX 导入文件，文件内容如下:\n   一层 Sheet:\n   | *key      | 中文名称 | value格式 |\n   | realKey1\
-    \  | 真实键   |           |\n\n   二层 Sheet:\n   | *上一层级的key名   | *key       | 中文名称 | value格式 |\n   | nonExistParentKey  |\
-    \ orphanKey  | 孤儿键   |           |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: realKey1, 真实键,
+    3) 文件二层 Sheet 包含上一层级 key 为 nonExistParentKey 的记录 orphanKey（中文名称 孤儿键）
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -601,18 +613,20 @@ cases:
 - case_id: C0023
   automation:
     spec_file: c0023-reject-non-xlsx-import.spec.ts
-  title: 验证导入非xlsx格式文件时报错
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入csv格式文件，上传被拒绝并提示仅支持xlsx(文件格式校验)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
-  - action: 点击列表右上角【导入】按钮，在导入弹窗的文件上传区域选择 test_import.csv 文件
+  - action: 点击列表右上角【导入】按钮，在导入弹窗的文件上传区域选择 test_import_15696.csv 文件
     expected: 系统拒绝上传或提示文件格式错误，仅支持xlsx格式文件
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 配置一个非xlsx格式的文件，如 test_import.csv 或 test_import.txt'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 test_import_15696.csv：
+       Title: * key, 中文名称, value格式
+       Line1: importKey1, 导入键一,
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -620,17 +634,22 @@ cases:
 - case_id: C0024
   automation:
     spec_file: c0024-import-overwrite-conflicting-hierarchy.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则覆盖更新, 1~5层key存在相同 -> 报错)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且同层级key重复，导入失败提示同层级key不可重复(同层级重复)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
   - action: 点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传包含同层级重复key的XLSX文件，点击【确定】按钮
     expected: 导入失败，系统报错提示「同一个层级下的key名不可重复」，列表数据不变
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置 XLSX 导入文件，一层Sheet中包含两条相同key名的记录：\n   | *key   | 中文名称 | value格式 |\n   | dupKey |\
-    \ 重复键一 | ^[a-z]+$  |\n   | dupKey | 重复键二 | ^[0-9]+$  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: dupKey, 重复键一, ^[a-z]+$
+       Line2: dupKey, 重复键二, ^[0-9]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -638,17 +657,22 @@ cases:
 - case_id: C0025
   automation:
     spec_file: c0025-import-overwrite-existing-root-key-update.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则覆盖更新, 1层key已存在 -> 更新1层key)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且key已存在，一层key的value格式与中文名称被更新(一层key已存在)
   priority: P0
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，existKey1 的 value格式显示 ^[a-z]+$，中文名称显示「原始键」
   - action: 点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，existKey1 的 value格式更新为 ^[A-Z]+$，中文名称更新为「更新键」
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已通过【新增】创建1层key为 existKey1，value格式为 ^[a-z]+$，中文名称为「原始键」\n3) 配置 XLSX 导入文件，一层Sheet内容如下：\n\
-    \   | *key      | 中文名称 | value格式  |\n   | existKey1 | 更新键   | ^[A-Z]+$   |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建一层 key 为 existKey1，value格式为 ^[a-z]+$，中文名称为「原始键」
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: existKey1, 更新键, ^[A-Z]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -656,17 +680,22 @@ cases:
 - case_id: C0026
   automation:
     spec_file: c0026-import-overwrite-missing-root-key-add.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则覆盖更新, 1层key不存在 -> 新增1层key)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且key不存在，列表新增一层key(一层key不存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表中不存在 brandNewKey1
   - action: 点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，新增 brandNewKey1 出现在列表中，中文名称显示「全新键」，value格式显示 ^\d+$
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中不存在key为 brandNewKey1 的记录\n3) 配置 XLSX 导入文件，一层Sheet内容如下：\n   | *key   \
-    \      | 中文名称 | value格式 |\n   | brandNewKey1 | 全新键   | ^\\d+$     |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中不存在 key 为 brandNewKey1 的记录
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: brandNewKey1, 全新键, ^\d+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -674,18 +703,22 @@ cases:
 - case_id: C0027
   automation:
     spec_file: c0027-import-overwrite-existing-key-missing-value.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则覆盖更新, 2~5层上一层key存在+key存在+value不存在 -> 更新N层value)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且子层级key已存在，二层key的value格式被更新(二层key已存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，展开 parentA 后 childA 的 value格式显示为空（-）
   - action: 点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，展开 parentA 后 childA 的 value格式更新为 ^[0-9]+$，中文名称更新为「更新子键」
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已有如下数据：\n   - 第1层key: parentA\n   - 第2层key: childA（父级为 parentA，value格式为空）\n\
-    3) 配置 XLSX 导入文件，二层Sheet内容如下：\n   | *上一层级的key名 | *key   | 中文名称   | value格式 |\n   | parentA          | childA | 更新子键   |\
-    \ ^[0-9]+$  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中已有第1层 key 为 parentA，第2层 key 为 childA（父级为 parentA，value格式为空）
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 二层
+       Title: * 上一层级的key名, * key, 中文名称, value格式
+       Line1: parentA, childA, 更新子键, ^[0-9]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -693,17 +726,22 @@ cases:
 - case_id: C0028
   automation:
     spec_file: c0028-import-overwrite-missing-key-add-level.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则覆盖更新, 2~5层上一层key存在+key不存在 -> 新增N层key)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且子层级key不存在，父级key展开显示新增子层级(二层key不存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，parentB 行无「+」展开图标（无子层级）
   - action: 点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，parentB 行出现「+」展开图标，展开后显示新增的子层级 newChild1，中文名称显示「新增子键」，value格式显示 ^[a-z]+$
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已有1层key为 parentB（无子层级）\n3) 配置 XLSX 导入文件，二层Sheet内容如下：\n   | *上一层级的key名\
-    \ | *key      | 中文名称 | value格式 |\n   | parentB          | newChild1 | 新增子键 | ^[a-z]+$  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中已有第1层 key 为 parentB（无子层级）
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 二层
+       Title: * 上一层级的key名, * key, 中文名称, value格式
+       Line1: parentB, newChild1, 新增子键, ^[a-z]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -711,17 +749,22 @@ cases:
 - case_id: C0029
   automation:
     spec_file: c0029-import-overwrite-missing-parent-error.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则覆盖更新, 2~5层上一层key不存在 -> 报错)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则覆盖更新且上一层key不存在，导入失败且孤儿key未被导入(上一层key不存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
   - action: 点击【导入】按钮，将重复处理规则切换为「重复则覆盖更新」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 导入失败或部分失败，系统提示上一层级key名 missingParent 不存在，orphanKey1 未被导入
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中不存在key为 missingParent 的记录\n3) 配置 XLSX 导入文件，二层Sheet内容如下：\n   | *上一层级的key名\
-    \ | *key       | 中文名称 | value格式 |\n   | missingParent    | orphanKey1 | 孤儿键   | ^test$    |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中不存在 key 为 missingParent 的记录
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 二层
+       Title: * 上一层级的key名, * key, 中文名称, value格式
+       Line1: missingParent, orphanKey1, 孤儿键, ^test$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -729,17 +772,22 @@ cases:
 - case_id: C0030
   automation:
     spec_file: c0030-import-skip-conflicting-hierarchy.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则跳过, 1~5层key存在相同 -> 报错)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且同层级key重复，导入失败提示同层级key不可重复(同层级重复)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」（默认值），上传包含同层级重复key的XLSX文件，点击【确定】按钮
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过（默认值），上传包含同层级重复key的XLSX文件，点击【确定】按钮
     expected: 导入失败，系统报错提示「同一个层级下的key名不可重复」，列表数据不变
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置 XLSX 导入文件，一层Sheet中包含两条相同key名的记录：\n   | *key   | 中文名称 | value格式 |\n   | dupKey |\
-    \ 重复键一 | ^[a-z]+$  |\n   | dupKey | 重复键二 | ^[0-9]+$  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: dupKey, 重复键一, ^[a-z]+$
+       Line2: dupKey, 重复键二, ^[0-9]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -747,17 +795,22 @@ cases:
 - case_id: C0031
   automation:
     spec_file: c0031-import-skip-existing-root-key.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则跳过, 1层key已存在 -> 跳过不变)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且key已存在，已存在key的value格式与中文名称保持不变(一层key已存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，skipExist1 的 value格式显示 ^[a-z]+$，中文名称显示「原始键」
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，skipExist1 的 value格式仍为 ^[a-z]+$，中文名称仍为「原始键」，未被修改
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已通过【新增】创建1层key为 skipExist1，value格式为 ^[a-z]+$，中文名称为「原始键」\n3) 配置 XLSX 导入文件，一层Sheet内容如下：\n\
-    \   | *key       | 中文名称 | value格式 |\n   | skipExist1 | 修改键   | ^[A-Z]+$  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 已通过【新增】创建一层 key 为 skipExist1，value格式为 ^[a-z]+$，中文名称为「原始键」
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: skipExist1, 修改键, ^[A-Z]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -765,17 +818,22 @@ cases:
 - case_id: C0032
   automation:
     spec_file: c0032-import-skip-missing-root-key-add.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则跳过, 1层key不存在 -> 新增1层key)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且key不存在，列表新增一层key(一层key不存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表中不存在 skipNewKey1
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，新增 skipNewKey1 出现在列表中，中文名称显示「全新键」，value格式显示 ^\d+$
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中不存在key为 skipNewKey1 的记录\n3) 配置 XLSX 导入文件，一层Sheet内容如下：\n   | *key    \
-    \    | 中文名称 | value格式 |\n   | skipNewKey1 | 全新键   | ^\\d+$     |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中不存在 key 为 skipNewKey1 的记录
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: skipNewKey1, 全新键, ^\d+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -783,18 +841,22 @@ cases:
 - case_id: C0033
   automation:
     spec_file: c0033-import-skip-existing-key-missing-value.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则跳过, 2~5层上一层key存在+key存在+value不存在 -> 跳过不变)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且子层级key已存在，二层key的value格式保持不变(二层key已存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，展开 parentC 后 childC 的 value格式显示为空（-）
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，展开 parentC 后 childC 的 value格式仍为空（-），未被更新
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已有如下数据：\n   - 第1层key: parentC\n   - 第2层key: childC（父级为 parentC，value格式为空）\n\
-    3) 配置 XLSX 导入文件，二层Sheet内容如下：\n   | *上一层级的key名 | *key   | 中文名称 | value格式 |\n   | parentC          | childC | 修改子键 | ^[0-9]+$\
-    \  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中已有第1层 key 为 parentC，第2层 key 为 childC（父级为 parentC，value格式为空）
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 二层
+       Title: * 上一层级的key名, * key, 中文名称, value格式
+       Line1: parentC, childC, 修改子键, ^[0-9]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -802,17 +864,22 @@ cases:
 - case_id: C0034
   automation:
     spec_file: c0034-import-skip-missing-key-add-level.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则跳过, 2~5层上一层key存在+key不存在 -> 新增N层key)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且子层级key不存在，父级key展开显示新增子层级(二层key不存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，parentD 行无「+」展开图标（无子层级）
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，parentD 行出现「+」展开图标，展开后显示新增的子层级 newChild2，中文名称显示「新增子键」，value格式显示 ^[a-z]+$
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已有1层key为 parentD（无子层级）\n3) 配置 XLSX 导入文件，二层Sheet内容如下：\n   | *上一层级的key名\
-    \ | *key      | 中文名称 | value格式 |\n   | parentD          | newChild2 | 新增子键 | ^[a-z]+$  |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中已有第1层 key 为 parentD（无子层级）
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 二层
+       Title: * 上一层级的key名, * key, 中文名称, value格式
+       Line1: parentD, newChild2, 新增子键, ^[a-z]+$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -820,17 +887,22 @@ cases:
 - case_id: C0035
   automation:
     spec_file: c0035-import-skip-missing-parent-error.spec.ts
-  title: 验证导入完成目标操作且状态更新(重复则跳过, 2~5层上一层key不存在 -> 报错)
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入文件选择重复则跳过且上一层key不存在，导入失败且孤儿key未被导入(上一层key不存在)
   priority: P1
   steps:
   - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
-    expected: 已进入【数据质量 → 通用配置-json格式校验管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」，上传XLSX文件，点击【确定】按钮，等待接口响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过，上传XLSX文件，点击【确定】按钮，等待接口响应完成
     expected: 导入失败或部分失败，系统提示上一层级key名 noParent 不存在，orphanKey2 未被导入
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中不存在key为 noParent 的记录\n3) 配置 XLSX 导入文件，二层Sheet内容如下：\n   | *上一层级的key名 |\
-    \ *key       | 中文名称 | value格式 |\n   | noParent         | orphanKey2 | 孤儿键   | ^test$    |"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 列表中不存在 key 为 noParent 的记录
+    3) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 二层
+       Title: * 上一层级的key名, * key, 中文名称, value格式
+       Line1: noParent, orphanKey2, 孤儿键, ^test$
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -838,12 +910,12 @@ cases:
 - case_id: C0036
   automation:
     spec_file: c0036-export-key-list-file.spec.ts
-  title: 验证导出列表数据完整流程及文件命名
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导出key列表，文件命名正确且内容与列表一致(导出)
   priority: P0
   steps:
-  - action: 进入【数据质量 → 导出】页面
-    expected: 已进入【数据质量 → 导出】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 点击列表右上角【导出】按钮
     expected: 弹出确认弹窗，提示文本为「请确认是否导出列表数据」
@@ -869,9 +941,9 @@ cases:
       9) 层级关系
 
       数据内容与列表一致'
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) json格式校验管理列表中已存在至少2条数据'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) json格式校验管理列表中已存在至少2条数据
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -879,24 +951,22 @@ cases:
 - case_id: C0037
   automation:
     spec_file: c0037-export-filtered-results-only.spec.ts
-  title: 验证筛选后导出仅包含筛选结果数据
+  title: 验证【数据质量】-【通用配置-json格式校验管理】按创建人筛选后导出，文件仅包含筛选结果数据(筛选后导出)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 导出】页面
-    expected: 已进入【数据质量 → 导出】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
-  - action: 在创建人筛选器中选择 exportUser@dtstack.com，等待列表筛选结果返回
-    expected: 列表仅显示创建人为 exportUser@dtstack.com 的记录
+  - action: 在创建人筛选器中选择 UserA，等待列表筛选结果返回
+    expected: 列表仅显示创建人为 UserA 的记录
   - action: 点击【导出】按钮，在确认弹窗中点击【确认】，等待文件下载完成
-    expected: 下载文件仅包含创建人为 exportUser@dtstack.com 的记录，不包含其他用户的数据
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) json格式校验管理列表中已存在由用户 exportUser@dtstack.com 创建的key exportKey1
-
+    expected: 下载文件仅包含创建人为 UserA 的记录，不包含其他用户的数据
+  precondition: |-
+    1) 使用原账号登录系统
+    2) json格式校验管理列表中已存在由用户 UserA 创建的key exportKey1
     3) 列表中也存在由其他用户创建的数据
-
-    4) 使用 exportUser 账号登录系统，在json格式校验管理页面创建key exportKey1 数据后退出，切换回 admin 账号登录'
+    4) 使用 UserA 账号登录系统，在json格式校验管理页面创建key exportKey1 数据后退出，切换回原账号登录
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -904,18 +974,18 @@ cases:
 - case_id: C0038
   automation:
     spec_file: c0038-empty-search-state.spec.ts
-  title: 验证搜索无结果时的空状态展示
+  title: 验证【数据质量】-【通用配置-json格式校验管理】搜索不存在的key，列表显示空状态且总条数为0(搜索无结果)
   priority: P2
   steps:
-  - action: 进入【数据质量 → 空列表与分页】页面
-    expected: 已进入【数据质量 → 空列表与分页】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面打开，列表显示已有key数据
   - action: 在搜索框中输入 nonExistKeyXyz123，等待搜索结果返回
     expected: 列表显示空状态「暂无数据」，不显示任何记录行，分页区域显示总条数为0
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) json格式校验管理列表中已存在数据'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) json格式校验管理列表中已存在数据
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -923,20 +993,20 @@ cases:
 - case_id: C0039
   automation:
     spec_file: c0039-large-key-list-performance.spec.ts
-  title: 验证key数量达1000条以上时列表加载和搜索性能正常
+  title: 验证【数据质量】-【通用配置-json格式校验管理】在1000条key数据下搜索与翻页，列表5秒内加载且搜索结果3秒内返回(大数据量场景)
   priority: P2
   steps:
-  - action: 进入【数据质量 → 大数据量场景】页面
-    expected: 已进入【数据质量 → 大数据量场景】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面在5秒内加载完成，列表正常展示，分页区域显示总条数为1000以上，每页显示20条
   - action: 在搜索框中输入 key500，等待搜索结果返回
     expected: 搜索结果在3秒内返回，列表显示包含 key500 的记录
   - action: 点击分页区域的第2页按钮，等待列表数据加载
     expected: 翻页在3秒内完成，列表显示第21-40条数据，页面无卡顿
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) 使用批量导入功能导入1000条以上key数据（可通过Python脚本生成导入文件后上传）'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 使用批量导入功能导入1000条以上key数据（可通过Python脚本生成导入文件后上传）
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -944,18 +1014,18 @@ cases:
 - case_id: C0040
   automation:
     spec_file: c0040-large-key-download-limit.spec.ts
-  title: 验证大数据量场景key记录下载数量是否存在限制
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导出大数据量key记录，导出总数与列表总记录数一致(大数据量场景)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 大数据量场景】页面
-    expected: 已进入【数据质量 → 大数据量场景】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成，分页组件显示总记录数
   - action: 点击列表右上角【导出】按钮, 等待文件下载完成
     expected: 文件下载成功，打开下载的xlsx文件，核对导出的key记录总数与列表中显示的总记录数一致
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) json格式校验管理列表中已导入或新增100 条key记录（建议500条以上第一层级key）'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) json格式校验管理列表中已导入或新增100条key记录（建议500条以上第一层级key）
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -963,65 +1033,65 @@ cases:
 - case_id: C0041
   automation:
     spec_file: c0041-delete-referenced-key-preserves-rules.spec.ts
-  title: 验证删除已被完整性和有效性校验规则引用的key后规则不受影响
+  title: 验证【数据质量】-【通用配置-json格式校验管理】删除被规则引用的key，规则集配置不受影响且任务执行结果正常(key删除后关联影响)
   priority: P1
   steps:
-  - action: 进入【数据质量 → key删除后关联影响】页面
-    expected: 已进入【数据质量 → key删除后关联影响】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表中显示 key 为 refTestKey 的记录
-  - action: 进入【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中配置规则集名称=rule_set_json_config_del_test、关联 Doris 数据源 quality_test_db.json_ref_key_link_test
-      表，并新增规则包"json格式校验测试包"，点击【下一步】
+  - action: 进入【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中配置规则集名称=RuleSetA、关联 ${DataSourceA} 数据源的 ${SchemaA}.test_table_15696_c0041 表，并新增规则包「json格式校验测试包」，点击【下一步】
     expected: 规则集创建页面加载完成且显示目标控件打开，Step 1 配置项可正常填写，点击【下一步】后进入 Step 2 监控规则
-  - action: '在 Step 2 监控规则中点击【新增规则】，新增完整性校验规则，配置如下：
-
-      - *字段: info
-
-      - *统计函数: key范围校验
-
-      - *校验方法: 包含
-
-      - *校验内容: refTestKey
-
-      - 强弱规则: 强规则
-
-      - 规则描述: 无
-
+  - action: |-
+      在 Step 2 监控规则中点击【新增规则】，新增完整性校验规则，配置如下：
+      字段：info
+      统计函数：key范围校验
+      校验方法：包含
+      校验内容：refTestKey
+      强弱规则：强规则
+      规则描述：无
       点击规则行【保存】；再点击【新增规则】新增有效性校验规则，配置如下：
-
-      - *字段: info
-
-      - *统计规则: 格式-json格式校验
-
-      - *校验key: refTestKey
-
-      - 强弱规则: 强规则
-
-      - 规则描述: 无
-
-      点击规则行【保存】，再点击页面底部【保存】'
-    expected: 两条规则均保存成功，规则集列表中显示 rule_set_json_config_del_test
-  - action: 进入【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中配置规则名称=task_json_config_del_test，并关联同一 Doris 表，点击【下一步】
+      字段：info
+      统计规则：格式-json格式校验
+      校验key：refTestKey
+      强弱规则：强规则
+      规则描述：无
+      点击规则行【保存】，再点击页面底部【保存】
+    expected: 两条规则均保存成功，规则集列表中显示 RuleSetA
+  - action: 进入【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中配置规则名称=TaskA，并关联 ${DataSourceA} 数据源的 ${SchemaA}.test_table_15696_c0041 表，点击【下一步】
     expected: 规则任务创建页面加载完成且显示目标控件打开，Step 1 配置保存成功并进入 Step 2 监控规则
-  - action: 在 Step 2 监控规则中通过【导入规则包】导入规则集"rule_set_json_config_del_test"的"json格式校验测试包"，点击【下一步】进入 Step 3 调度属性后点击【保存】
-    expected: 导入的规则包内容正常展示，任务保存成功，规则任务列表中显示 task_json_config_del_test
-  - action: 返回【数据质量 → 通用配置】页面，在 key 为 refTestKey 的行点击操作列的【删除】按钮
+  - action: 在 Step 2 监控规则中通过【导入规则包】导入规则集 RuleSetA 的「json格式校验测试包」，点击【下一步】进入 Step 3 调度属性后点击【保存】
+    expected: 导入的规则包内容正常展示，任务保存成功，规则任务列表中显示 TaskA
+  - action: 返回【数据质量 → 通用配置-json格式校验管理】页面，在 key 为 refTestKey 的行点击操作列的【删除】按钮
     expected: 弹出确认弹窗，提示文本为「请确认是否删除key信息，若存在子层级key信息会联动删除」
   - action: 在删除确认弹窗中点击【确认】按钮，等待接口响应完成
     expected: 弹窗关闭，列表刷新，refTestKey 记录从列表中消失
-  - action: 进入【数据质量 → 规则集管理】页面，找到 rule_set_json_config_del_test，点击【编辑】进入 Step 2 监控规则查看已配置规则
+  - action: 进入【数据质量 → 规则集管理】页面，找到 RuleSetA，点击【编辑】进入 Step 2 监控规则查看已配置规则
     expected: Step 2 中仍正常展示完整性校验-key范围校验规则和有效性校验-value格式校验规则，规则配置的key范围/value格式字段显示原始配置值，页面未出现因 refTestKey 已删除导致的报错
-  - action: 进入【数据质量 → 规则任务管理】页面，找到 task_json_config_del_test，点击操作列的【立即执行】按钮
+  - action: 进入【数据质量 → 规则任务管理】页面，找到 TaskA，点击操作列的【立即执行】按钮
     expected: 页面弹出提示信息，提示任务已提交执行
-  - action: 进入【数据质量 → 校验结果查询】页面，找到 task_json_config_del_test 最新实例记录并打开实例详情
+  - action: 进入【数据质量 → 校验结果查询】页面，找到 TaskA 最新实例记录并打开实例详情
     expected: '1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
 
-      2) 实例详情中可正常查看完整性校验-key范围校验规则和有效性校验-value格式校验规则的执行结果，任务最新状态为「校验通过」
+      2) 实例详情中完整性校验-key范围校验规则和有效性校验-value格式校验规则的质检结果均显示「通过」
 
       3) 页面未出现因 refTestKey 已删除导致的异常报错'
-  precondition: "1) 使用 admin 账号登录系统\n2) 已执行以下 SQL 创建数据表并写入校验通过的数据：\n   CREATE TABLE quality_test_db.json_ref_key_link_test\
-    \ (\n     id INT,\n     info JSON\n   );\n   INSERT INTO quality_test_db.json_ref_key_link_test VALUES\n     (1, '{\"\
-    refTestKey\":\"Alpha\"}'),\n     (2, '{\"refTestKey\":\"Beta\"}');\n3) 已在【数据质量 → 通用配置】页面通过【新增】创建 json key 配置：key=refTestKey、中文名称=引用测试key、value格式=^[a-zA-Z]+$、数据源类型=doris3.x"
+  precondition: |-
+    1) 授权数据源：${DataSourceA}
+    2) 数据源类型：Doris3.x
+    3) 存在数据库：${SchemaA}
+    4) 创建数据表并灌入符合规则的数据：
+       DROP TABLE IF EXISTS ${SchemaA}.test_table_15696_c0041;
+       CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15696_c0041 (
+         id INT,
+         info JSON
+       );
+       INSERT INTO ${SchemaA}.test_table_15696_c0041 VALUES
+         (1, '{"refTestKey":"Alpha"}'),
+         (2, '{"refTestKey":"Beta"}');
+    5) 已在 json格式校验管理页面通过【新增】创建 key 配置：key 为 refTestKey，中文名称 引用测试key，value格式 ^[a-zA-Z]+$，数据源类型 doris3.x
+    6) 已创建规则集 RuleSetA，关联 ${SchemaA}.test_table_15696_c0041 并新增规则包「json格式校验测试包」，Step 2 已配置引用 refTestKey 的完整性校验与有效性校验规则
+    7) 已创建任务 TaskA，关联 ${SchemaA}.test_table_15696_c0041，Step 2 已导入规则包「json格式校验测试包」
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -1029,14 +1099,14 @@ cases:
 - case_id: C0042
   automation:
     spec_file: c0042-edit-add-form-consistency.spec.ts
-  title: 验证编辑页与新增页表单结构保持一致（字段顺序、必填项、title 拼接中文名称）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】对比新增与编辑弹窗，字段顺序与必填项一致且编辑title拼接中文名称(表单结构对比)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 编辑页与新增页表单结构对比】页面
-    expected: 已进入【数据质量 → 编辑页与新增页表单结构对比】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待json格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表正常展示
-  - action: 点击【新增】按钮，新增一条 key（key=structCmp_xxx，中文名称=结构对比测试）
+  - action: 点击【新增】按钮，新增一条 key（key=structCmpA，中文名称=结构对比测试）
     expected: 新增成功，key 在列表中可见，中文名称显示「结构对比测试」
   - action: 再次点击【新增】按钮，打开新增弹窗，记录弹窗 title、表单字段顺序（按 DOM 顺序采集所有 .ant-form-item-label label 文本）及必填项（含 ant-form-item-required 的字段）
     expected: 新增弹窗 title 为「新增」或「新建」；表单字段采集完成
@@ -1052,9 +1122,9 @@ cases:
       3) 新增 title 符合「新增/新建」格式
 
       4) 编辑 title 格式为「编辑 - {中文名称}」，含刚创建的「结构对比测试」'
-  precondition: '1) 使用 admin 账号登录系统
-
-    2) json格式校验管理页面可正常访问'
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) json格式校验管理页面可正常访问
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
@@ -1062,12 +1132,12 @@ cases:
 - case_id: C0043
   automation:
     spec_file: c0043-combined-export-filters.spec.ts
-  title: 验证筛选导出三种筛选组合的行为一致性（数据源类型单筛 / key 名模糊单筛 / 组合筛）
+  title: 验证【数据质量】-【通用配置-json格式校验管理】按数据源类型与key名组合筛选后导出，导出文件与筛选条件一致(筛选导出行为)
   priority: P1
   steps:
-  - action: 进入【数据质量 → 筛选导出行为一致性（已知产品 Bug）】页面
-    expected: 已进入【数据质量 → 筛选导出行为一致性（已知产品 Bug）】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待 json 格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表展示数据
   - action: 新增固定输入记录：hiveKey1/hiveKey2（类型=Hive2.x），sparkKey1/sparkKey2（类型=SparkThrift2.x）
     expected: 4 条固定输入记录创建成功
@@ -1077,38 +1147,42 @@ cases:
     expected: 【预期通过（正常）】导出文件包含 hiveKey1/hiveKey2，不含 sparkKey；所有行 key 列均包含 hivePrefix
   - action: 子场景C：清除搜索后，同时设置搜索框=hivePrefix + 数据源类型=Hive2.x；点击【导出】→ 确认 → 等待文件下载；读取导出 xlsx
     expected: 【预期失败（Bug C）】导出文件应同时满足：key 含 hivePrefix 且数据源类型=Hive2.x。实际：组合条件未正确应用，断言失败
-  precondition: "1) 使用 admin 账号登录系统\n2) json格式校验管理列表中已存在至少两种数据源类型（Hive2.x、SparkThrift2.x）的 key 数据各 >= 2 条\n   （脚本自动创建：hiveKey1、hiveKey2\
-    \ 类型=Hive2.x；sparkKey1、sparkKey2 类型=SparkThrift2.x）"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) json格式校验管理列表中已存在至少两种数据源类型（Hive2.x、SparkThrift2.x）的 key 数据各 2 条以上
+       （脚本自动创建：hiveKey1、hiveKey2 类型=Hive2.x；sparkKey1、sparkKey2 类型=SparkThrift2.x）
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
-  - 筛选导出行为一致性（已知产品 Bug）
+  - 筛选导出行为一致性
 - case_id: C0044
   automation:
     spec_file: c0044-import-second-sheet-parent-key-error-column.spec.ts
-  title: 验证导入 xlsx 第 2 个 sheet 页的第一层级 key 名不存在时，标红列应为「第一层级 key 名」而非「key」
+  title: 验证【数据质量】-【通用配置-json格式校验管理】导入二层父级key名不存在的文件，错误文件标红列应为第一层级key名(标红列校验)
   priority: P1
   steps:
-  - action: 进入【数据质量 → key】页面
-    expected: 已进入【数据质量 → key】页面，显示页面标题与主要操作区域
-  - action: 进入【数据质量 → 通用配置】页面，等待 json 格式校验管理列表数据加载完成
+  - action: 进入【数据质量 → 通用配置-json格式校验管理】页面
+    expected: 进入成功
+  - action: 等待json格式校验管理列表数据加载完成
     expected: 页面加载完成且显示目标控件加载，列表展示
-  - action: 构造合规 xlsx：一层 Sheet 含 `[keyA, 中文名A, ""]`；二层 Sheet 含 `[illegalParent, keyB, 中文名B, ""]`（illegalParent 故意不存在于一层），三至五层仅含
-      header 行
+  - action: 构造合规 xlsx：一层 Sheet 含 [keyA, 中文名A, 空]；二层 Sheet 含 [illegalParent, keyB, 中文名B, 空]（illegalParent 故意不存在于一层），三至五层仅含表头行
     expected: 文件创建成功，包含 5 个 Sheet，文件大小 > 0
-  - action: 点击【导入】按钮，确认重复处理规则为「重复则跳过」（默认值），上传该 xlsx 文件，点击【确定】按钮，等待校验响应完成
+  - action: 点击【导入】按钮，确认重复处理规则选择重复则跳过（默认值），上传该 xlsx 文件，点击【确定】按钮，等待校验响应完成
     expected: 导入弹窗正常打开，文件已选中；点击确定后触发后台校验
   - action: 等待校验反馈
     expected: 弹窗提示「导入表格中存在错误数据，请检查后重新导入」，并提供【导出错误文件】入口，无法完成导入
   - action: 点击【导出错误文件】按钮，等待文件下载完成
-    expected: 浏览器下载错误文件，文件名符合 `json_format_error_YYYYMMDD.xlsx` 格式
-  - action: 用 ExcelJS 读取错误文件，在二层 Sheet 中找到值为 `illegalParent` 的单元格（A 列「第一层级 key 名」），验证该单元格被标红（fill.fgColor.argb 含 FF0000 或含批注「上一层级无相同key名匹配」）；同时验证
-      B 列（「key」列）未被标红
+    expected: 浏览器下载错误文件，文件名符合 json_format_error_YYYYMMDD.xlsx 格式
+  - action: 用 ExcelJS 读取错误文件，在二层 Sheet 中找到值为 illegalParent 的单元格（A 列「第一层级 key 名」），验证该单元格被标红（fill.fgColor.argb 含 FF0000 或含批注「上一层级无相同key名匹配」）；同时验证 B 列（「key」列）未被标红
     expected: 【预期失败（Bug）】：期望 A 列「第一层级 key 名」单元格标红，B 列「key」单元格不标红；实际行为：A 列未标红，B 列「key」被误标红
-  precondition: "1) 使用 admin 账号登录系统\n2) 配置 XLSX 导入文件（5 个 Sheet 齐全，缺少任意层级服务端报\"导入文件缺少层级\"），文件内容如下：\n   一层 Sheet（header: * key\
-    \ | 中文名称 | value格式）:\n   | keyA | 中文名A | |\n\n   二层 Sheet（header: * 第一层级key名 | * key | 中文名称 | value格式）:\n   | illegalParent（故意不存在于一层）|\
-    \ keyB | 中文名B | |\n\n   三层/四层/五层 Sheet: 仅含 header 行，无数据行，必须存在"
+  precondition: |-
+    1) 使用 admin 账号登录系统
+    2) 创建导入文件 json_format_import_15696.xlsx：
+       Sheet: 一层
+       Title: * key, 中文名称, value格式
+       Line1: keyA, 中文名A,
+    3) 文件包含 5 个 Sheet（一层至五层），二层 Sheet 包含上一层级 key 为 illegalParent（故意不存在于一层）的记录 keyB（中文名称 中文名B），三层至五层仅含表头
   tags:
   - 数据质量
   - 通用配置-json格式校验管理
-  - 导入错误文件标红列校验（Bug 复现）
+  - 导入错误文件标红列校验
