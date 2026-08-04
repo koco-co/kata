@@ -1,1583 +1,562 @@
 meta:
-  title: 【数据资产】元数据、数据质量适配doris3.x
-  requirement_id: '15603'
-  case_module_id: '10306'
+  title: 元数据与数据质量适配 Doris3.x
+  requirement_id: "15603"
+  case_module_id: ""
   exports:
-  - 元数据_数据质量适配Doris3.xmind
+    - 元数据_数据质量适配Doris3.xmind
 cases:
-- case_id: C0001
-  title: 验证「平台管理」中 Doris 3.x 数据源质量项目授权完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 数据源管理】页面
-    expected: 已进入【数据资产 → 数据源管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【平台管理】-【数据源管理】页面
-    expected: 进入成功
-  - action: 点击「引入数据源」
-    expected: 显示平台中所有还未被引入至资产平台的数据源
-  - action: 选择${datasource1}数据源后引入
-    expected: 成功引入至资产平台
-  - action: 点击「质量项目授权」, 选择质量项目后确定
-    expected: 1) 质量项目授权成功
-  - action: 选择${datasource2}数据源后引入
-    expected: 资产平台其他模块都可以加载到该数据源
-  - action: 点击「质量项目授权」, 选择质量项目后确定
-    expected: 成功引入至资产平台
-  - action: ''
-    expected: 1) 质量项目授权成功
-  - action: ''
-    expected: 资产平台其他模块都可以加载到该数据源
-  precondition: '1) 「公共管理-数据源中心」已存在Doris 3.x数据源${datasource1}
+  - case_id: C0001
+    title: 验证【平台管理】-【数据源管理】引入 Doris3.x 数据源并授权质量项目，Toast 提示引入成功与授权成功
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据质量存在质量项目 ${ProjectA}
+    steps:
+      - action: 进入【平台管理 → 数据源管理】页面
+        expected: 进入成功
+      - action: 点击【引入数据源】，选择 ${DataSourceA} 并确认
+        expected: Toast提示:「引入成功」，列表新增 ${DataSourceA}，类型为 Doris3.x
+      - action: 在 ${DataSourceA} 操作列点击【质量项目授权】，选择 ${ProjectA} 并确认
+        expected: Toast提示:「授权成功」，授权项目列显示 ${ProjectA}
+    tags:
+      - 平台管理
+      - 数据源管理
+      - Doris3.x
 
-    2) 「离线开发」已存在Meta标识的Doris
+  - case_id: C0002
+    title: 验证【平台管理】-【数据源管理】打开带 Meta 标识的 Doris3.x 数据源详情，元数据同步自动新增周期任务且运行成功
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0002 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0002 VALUES (1, 'A', 10.00), (2, 'B', 20.00);
+      5) ${DataSourceA} 带 Meta 标识，来自离线项目 ${ProjectA}
+      6) 数据质量存在质量项目 ${ProjectB}，且 ${DataSourceA} 已授权 ${ProjectB}
+    steps:
+      - action: 进入【平台管理 → 数据源管理】页面
+        expected: 进入成功
+      - action: 搜索 ${DataSourceA} 并打开详情
+        expected: 数据源类型显示 Doris3.x，Meta 标识显示「是」，质量项目授权状态为「已授权」
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 自动新增周期同步任务，数据库为 ${SchemaA}，数据表范围为「全部」，周期为「周」，最新执行状态为「运行成功」
+    tags:
+      - 平台管理
+      - 数据源管理
+      - 元数据同步
 
-    3. x数据源${datasource2}'
-  tags:
-  - 平台管理
-  - 数据源管理
-- case_id: C0002
-  title: 验证 「元数据」中 Doris 3.x 从离线 Meta 到资产的自动引入与同步功能
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 数据源管理】页面
-    expected: 已进入【数据资产 → 数据源管理】页面，显示页面标题与主要操作区域
-  - action: 进入【离线开发】页面, 点击创建项目, 「计算引擎」中对接Doris 3.x集群, 其他必填项正常填写后, 点击「创建项目」
-    expected: 离线项目创建成功
-  - action: 进入离线项目, 点击「数据源」
-    expected: 1) 从数据开发界面切换到数据源界面, 展示已对接的数据源列表
-  - action: 进入【数据资产】-【平台管理】-【数据源管理】页面
-    expected: 存在带Meta标识的Doris 3.x数据源记录
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 1) 进入成功
-  - action: ''
-    expected: 资产平台自动引入离线平台中的带Meta标识的Doris 3.x数据源, 并且已授权给质量项目
-  - action: ''
-    expected: 1) 进入成功
-  - action: ''
-    expected: 自动为Doris 3.x数据源新增了一条周期同步任务, 并且自动「立即同步」一次
-  - action: ''
-    expected: '周期同步任务配置为: 数据库: ${离线平台中创建项目时指定的项目标识} 数据表: 「全部」 调度周期为「周」'
-  precondition: 控制台-多集群管理-计算组件中已配置Doris 3.x数据源
-  tags:
-  - 平台管理
-  - 数据源管理
-- case_id: C0003
-  title: 验证「脏数据管理」中 Doris 3.x 数据源处理脏数据完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 脏数据管理】页面
-    expected: 已进入【数据资产 → 脏数据管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【脏数据管理】页面
-    expected: 1) 进入成功
-  - action: 点击「编辑」按钮, 「数据存储时效」改为1天后确定
-    expected: 授权的质量项目的数据源默认开启脏数据存储
-  - action: 进入「规则任务配置」页面, 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 修改成功
-  - action: 配置「数据源」「数据库」「数据表」等信息，选择【完整性校验】规则
-    expected: 进入成功
-  - action: 「校验类型」选择「字段级」 「字段」选择「vin」 「统计函数」 选择「空值数」 「期望值」选择「=0」 「过滤条件」 无 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 选择成功，展示【完整性校验】规则配置项
-  - action: 保存后, 配置周期调度后完成新建监控规则
-    expected: 配置完成
-  - action: 立即执行
-    expected: 规则添加成功
-  - action: 第二天查看该脏数据表
-    expected: 1) 执行成功, 任务实例的状态由运行中 > 校验失败
-  - action: ''
-    expected: 脏数据表生成，且表字段值与步骤中列出的固定输入值一致
-  - action: ''
-    expected: 该脏数据表被删除
-  precondition: "Doris 3.x 数据源已成功接入数据资产平台，并完成元数据同步配置；\n\n建表语句如下:\nCREATE TABLE IF NOT EXISTS vehicle_sales (\n    sale_id\
-    \ BIGINT COMMENT '销售记录ID',\n    vin VARCHAR(17) COMMENT '车辆VIN码',\n    model_name VARCHAR(50) COMMENT '车型名称',\n    sale_price\
-    \ DECIMAL(18,2) COMMENT '销售价格(万元)',\n    sale_date DATE COMMENT '销售日期',\n    dealer_name VARCHAR(100) COMMENT '经销商名称',\n\
-    \    customer_name VARCHAR(50) COMMENT '客户姓名'\n)\nENGINE=OLAP\nDUPLICATE KEY(sale_id)\nDISTRIBUTED BY HASH(sale_id) BUCKETS\
-    \ 10\nPROPERTIES (\n    replication_num = 1);\n\nINSERT INTO vehicle_sales VALUES\n(1001, 'LFPHFDEB3R2S12345', '岚图FREE',\
-    \ 31.88, '2025-09-01', '武汉岚图中心', '张三'),\n(1002, 'LFPHFDEB3R2S12346', '岚图梦想家', 45.99, '2025-09-02', '北京岚图体验店', '李四');\n\
-    \nINSERT INTO vehicle_sales VALUES\n(1003, 'LFPHFDEB3R2S12347', '岚图追光', -5.00, '2025-09-03', '上海岚图空间', '王五'),  -- 价格非法\n\
-    (1004, '', '岚图FREE', 32.88, '2025-09-04', '广州岚图展厅', '赵六');               -- VIN为空"
-  tags:
-  - 数据质量
-  - 脏数据管理
-- case_id: C0004
-  title: 验证「质量报告」中 Doris 3.x 完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 质量报告】页面
-    expected: 已进入【数据资产 → 质量报告】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」等信息，选择【完整性校验】规则
-    expected: 选择成功，展示【完整性校验】规则配置项
-  - action: 「校验类型」选择「表级」 「统计函数」 选择「表行数」 「过滤条件」 无 「校验方法」选择「固定值」 「期望值」选择「>5」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，配置「调度属性」
-    expected: 调度属性配置完成
-  - action: 点击「完成」按钮
-    expected: 规则保存成功
-  - action: 立即运行、周期运行
-    expected: 任务实例状态由「运行中」 > 「校验通过」
-  - action: 进入【数据资产】-【数据质量】-【质量报告】页面
-    expected: 任务运行完成后, 自动生成对应质量报告
-  - action: 点击查看报告
-    expected: 下钻到数据表质量报告页面, 数据显示目标记录及字段值
-  precondition: 无
-  tags:
-  - 数据质量
-  - 质量报告
-- case_id: C0005
-  title: 验证「质量报告」中 Doris 3.x 数据源质量报告的查询完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 质量报告】页面
-    expected: 已进入【数据资产 → 质量报告】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【质量报告】页面
-    expected: 进入成功
-  - action: 输入报告名称 ${name}, 进行查询
-    expected: 查询出报告名称中所有包含${name}的记录
-  - action: 置空所有查询条件, 输入表名${name3}, 修改人${person3}, 进行查询
-    expected: 查询出表名包含${name3}且最近修改人为${person3}的规则记录
-  - action: 置空所有查询条件, 切换分页组件为「10条/页」
-    expected: 当前页面规则数量变更为10条
-  - action: 点击页码
-    expected: 跳转至对应的页码页面
-  - action: 点击“<”
-    expected: 向前翻页
-  - action: 点击“>”
-    expected: 向后翻页
-  - action: 切换每页展示数量
-    expected: 每页展示记录数为切换后的数量
-  precondition: 无
-  tags:
-  - 数据质量
-  - 质量报告
-- case_id: C0006
-  title: 验证「任务实例查询」中 Doris 3.x 数据源任务实例的查询完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 任务实例查询】页面
-    expected: 已进入【数据资产 → 任务实例查询】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【任务实例查询】页面
-    expected: 进入成功
-  - action: 输入表名/任务名称 ${name}, 进行查询
-    expected: 查询出「表」的表名中所有包含${name}的规则记录
-  - action: 置空所有查询条件, 输入不存在表名${name2}, 进行查询
-    expected: 显示「暂无数据」
-  - action: 置空所有查询条件, 输入表名${name3}, 修改人${person3}, 进行查询
-    expected: 查询出表名包含${name3}且最近修改人为${person3}的规则记录
-  - action: 置空所有查询条件, 勾选「我收藏的表」
-    expected: 查询出操作中仅为「取消收藏」的表
-  - action: 置空所有查询条件, 切换分页组件为「10条/页」
-    expected: 当前页面规则数量变更为10条
-  - action: 点击页码
-    expected: 跳转至对应的页码页面
-  - action: 点击“<”
-    expected: 向前翻页
-  - action: 点击“>”
-    expected: 向后翻页
-  - action: 切换每页展示数量
-    expected: 每页展示记录数为切换后的数量
-  precondition: 无
-  tags:
-  - 数据质量
-  - 任务实例查询
-- case_id: C0007
-  title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的周期调度设置完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 规则任务配置】页面
-    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」等信息，选择【完整性校验】规则
-    expected: 选择成功，展示【完整性校验】规则配置项
-  - action: 「校验类型」选择「表级」 「统计函数」 选择「表行数」 「过滤条件」 无 「校验方法」选择「固定值」 「期望值」选择「>5」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，保持默认「调度配置」
-    expected: 调度属性配置完成
-  - action: 点击「保存」按钮
-    expected: 规则保存成功
-  - action: 等待周期运行
-    expected: T+1 00:00 生成任务实例, 状态由「运行中」 > 「校验通过」
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part6;\n\
-    \nCREATE TABLE vehicle_info_part6 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part6 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\
-    \nSELECT * FROM vehicle_info_part6;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0008
-  title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的删除完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 规则任务配置】页面
-    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 选择一条规则任务, 点击删除按钮
-    expected: 删除成功
-  precondition: 已存在至少一条规则任务
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0009
-  title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的查询完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 规则任务配置】页面
-    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 输入表名${name}, 进行查询
-    expected: 查询出「表」的表名中所有包含${name}的规则记录
-  - action: 置空所有查询条件, 输入不存在表名${name2}, 进行查询
-    expected: 显示「暂无数据」
-  - action: 置空所有查询条件, 输入表名${name3}, 修改人${person3}, 进行查询
-    expected: 查询出表名包含${name3}且最近修改人为${person3}的规则记录
-  - action: 置空所有查询条件, 勾选「我收藏的表」
-    expected: 查询出操作中仅为「取消收藏」的表
-  - action: 置空所有查询条件, 切换分页组件为「10条/页」
-    expected: 当前页面规则数量变更为10条
-  - action: 点击页码
-    expected: 跳转至对应的页码页面
-  - action: 点击“<”
-    expected: 向前翻页
-  - action: 点击“>”
-    expected: 向后翻页
-  - action: 切换每页展示数量
-    expected: 每页展示记录数为切换后的数量
-  precondition: 已存在不同表名的规则任务>=11个
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0010
-  title: 验证「规则任务配置」中 Doris 3.x 数据源规则任务的编辑完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 规则任务配置】页面
-    expected: 已进入【数据资产 → 规则任务配置】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 选择规则${rule}, 点击「编辑」
-    expected: 进入编辑页面的「监控对象」部分
-  - action: 点击「下一步」
-    expected: 配置项回显内容为${最近保存的数据}
-  - action: '编辑「完整性校验」规则: 「校验类型」选择「单表」 「统计函数」 选择「表行数」 「过滤条件」 无 「校验方法」选择「固定值」 「期望值」选择「<5」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」'
-    expected: 支持修改规则名称
-  - action: 点击「保存」按钮
-    expected: 数据源/库/表呈现置灰状态, 不支持修改
-  - action: 点击「下一步」, 点击「完成」
-    expected: 进入编辑页面的「监控规则」部分
-  - action: 立即运行、周期运行
-    expected: 配置项回显内容为${最近保存的数据}
-  - action: ''
-    expected: 所有选项均支持修改
-  - action: ''
-    expected: 配置完成
-  - action: ''
-    expected: 规则配置保存正确
-  - action: ''
-    expected: 规则编辑成功
-  - action: ''
-    expected: 任务实例状态由「运行中」 > 「校验异常」
-  precondition: 「规则任务配置」页面已存在一条「完整性校验-单表校验」规则配置记录${rule}
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0011
-  title: 验证「规则任务配置」中 Doris 3.x 数据源「规则集」完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 规则集】页面
-    expected: 已进入【数据资产 → 规则集】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 成功进入【规则任务配置】页面，页面内容正常加载显示，无报错
-  - action: 点击【新建规则集】按钮，配置基础信息
-    expected: 进入规则集配置页面
-  - action: 导入规则集文件，点击【下一步】按钮
-    expected: 规则集文件导入成功，显示规则内容
-  - action: 点击【完成】按钮保存规则集
-    expected: 规则集保存成功
-  - action: 选择该规则集，点击【立即运行】按钮，等待任务执行完成
-    expected: 任务执行完成，校验结果为「不通过」
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part1;\n\
-    \nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\n-- p20251002 分区（2025-10-02）\nINSERT INTO vehicle_info_part1\
-    \ VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-02'),\n('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-02'),\n('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-02');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200001','追光','PHEV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-03'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-03'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03');\n\
-    \n-- p20251004 分区（2025-10-04）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-04'),\n('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-04'),\n\
-    ('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-04'),\n('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200011','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04');\n\nSELECT * FROM vehicle_info_part2;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0012
-  title: 验证「规则任务配置」中 Doris 3.x 数据源「多表比对规则」完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 多表比对规则】页面
-    expected: 已进入【数据资产 → 多表比对规则】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 成功进入【规则任务配置】页面，页面内容正常加载显示，无报错
-  - action: 点击【新建监控规则】按钮，选择「多表比对」规则类型
-    expected: 进入多表比对规则配置页面
-  - action: 配置源表和目标表，选择比对字段和比对规则
-    expected: 源表和目标表配置成功
-  - action: 点击【下一步】按钮, 点击【完成】按钮保存规则
-    expected: 规则保存成功
-  - action: 选择该规则，点击【立即运行】按钮，等待任务执行完成
-    expected: 任务执行完成，校验结果为「不通过」
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part1;\n\
-    \nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\n-- p20251002 分区（2025-10-02）\nINSERT INTO vehicle_info_part1\
-    \ VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-02'),\n('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-02'),\n('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-02');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200001','追光','PHEV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-03'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-03'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03');\n\
-    \n-- p20251004 分区（2025-10-04）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-04'),\n('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-04'),\n\
-    ('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-04'),\n('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200011','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04');\n\nSELECT * FROM vehicle_info_part2;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0013
-  title: 验证「规则任务配置」中 Doris 3.x 数据源「自定义SQL」完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 自定义SQL】页面
-    expected: 已进入【数据资产 → 自定义SQL】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」vehicle_info_part1等信息，选择【自定义SQL】规则
-    expected: 选择成功，展示【自定义SQL】规则配置项
-  - action: 「sql」输入「SELECT * FROM vehicle_info_part1 WHERE is_certific IS NULL;」 「校验方法」选择「固定值」 「期望值」选择「=1」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，配置「调度属性」
-    expected: 调度属性配置完成
-  - action: 点击「完成」按钮
-    expected: 规则保存成功
-  - action: 立即运行、周期运行
-    expected: 任务实例状态由「运行中」 > 「校验通过」
-  - action: '进入「规则任务配置」页面, 重新编辑任务规则: 「期望值」改为「=0」 其他保持不变, 重新运行'
-    expected: 任务实例详情弹窗中存在「校验通过」的标识
-  - action: 点击「查看明细」
-    expected: 不记录明细数据；
-  - action: 进入「离线开发-周期任务」页面, 执行DROP语句删除vehicle_info_part1表后, 返回资产平台重新运行规则任务
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: 点击「查看日志」
-    expected: 任务实例详情页面显示「校验未通过」标识, 可支持查看明细, 明细按照表和校验字段记录不符合规则的数值
-  - action: ''
-    expected: 展示校验表明细数据
-  - action: ''
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: ''
-    expected: 任务实例详情页面显示「校验失败」标识, 可支持查看日志
-  - action: ''
-    expected: 表已删除, Unknown table 'test_iqr_outliers'
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part1;\n\
-    \nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\n-- p20251002 分区（2025-10-02）\nINSERT INTO vehicle_info_part1\
-    \ VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-02'),\n('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-02'),\n('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-02');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200001','追光','PHEV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-03'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-03'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03');\n\
-    \n-- p20251004 分区（2025-10-04）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-04'),\n('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-04'),\n\
-    ('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-04'),\n('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200011','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04');\n\nSELECT * FROM vehicle_info_part2;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0014
-  title: 验证「规则任务配置」中 Doris 3.x 数据源「唯一性校验」完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 唯一性校验】页面
-    expected: 已进入【数据资产 → 唯一性校验】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」vehicle_info_part1等信息，选择【唯一性校验】规则
-    expected: 选择成功，展示【唯一性校验】规则配置项
-  - action: 「字段」选择「vin」 「统计函数」选择「重复数」 「校验方法」选择「固定值」 「期望值」选择「=0」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，配置「调度属性」
-    expected: 调度属性配置完成
-  - action: 点击「完成」按钮
-    expected: 规则保存成功
-  - action: 立即运行、周期运行
-    expected: 任务实例状态由「运行中」 > 「校验通过」
-  - action: '进入「规则任务配置」页面, 重新编辑任务规则: 「期望值」改为「>0」 其他保持不变, 重新运行'
-    expected: 任务实例详情弹窗中存在「校验通过」的标识
-  - action: 点击「查看明细」
-    expected: 不记录明细数据；
-  - action: 进入「离线开发-周期任务」页面, 执行DROP语句删除vehicle_info_part1表后, 返回资产平台重新运行规则任务
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: 点击「查看日志」
-    expected: 任务实例详情页面显示「校验未通过」标识, 可支持查看明细, 明细按照表和校验字段记录不符合规则的数值
-  - action: ''
-    expected: 展示校验表明细数据
-  - action: ''
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: ''
-    expected: 任务实例详情页面显示「校验失败」标识, 可支持查看日志
-  - action: ''
-    expected: 表已删除, Unknown table 'vehicle_info_part1'
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part1;\n\
-    \nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\n-- p20251002 分区（2025-10-02）\nINSERT INTO vehicle_info_part1\
-    \ VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-02'),\n('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-02'),\n('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-02');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200001','追光','PHEV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-03'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-03'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03');\n\
-    \n-- p20251004 分区（2025-10-04）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-04'),\n('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-04'),\n\
-    ('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-04'),\n('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200011','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04');\n\nSELECT * FROM vehicle_info_part2;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0015
-  title: 验证「规则任务配置」中 Doris 3.x 数据源「有效性校验」完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 有效性校验】页面
-    expected: 已进入【数据资产 → 有效性校验】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」vehicle_info_part1等信息，选择【有效性校验】规则
-    expected: 选择成功，展示【有效性校验】规则配置项
-  - action: 「字段」选择「vin」 「统计规则」选择「字符串长度」「固定值」「=16」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，配置「调度属性」
-    expected: 调度属性配置完成
-  - action: 点击「完成」按钮
-    expected: 规则保存成功
-  - action: 立即运行、周期运行
-    expected: 任务实例状态由「运行中」 > 「校验通过」
-  - action: '进入「规则任务配置」页面, 重新编辑任务规则: 「期望值」改为「>16」 其他保持不变, 重新运行'
-    expected: 任务实例详情弹窗中存在「校验通过」的标识
-  - action: 点击「查看明细」
-    expected: 不记录明细数据；
-  - action: 进入「离线开发-周期任务」页面, 执行DROP语句删除vehicle_info_part1表后, 返回资产平台重新运行规则任务
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: 点击「查看日志」
-    expected: 任务实例详情页面显示「校验未通过」标识, 可支持查看明细, 明细按照表和校验字段记录不符合规则的数值
-  - action: ''
-    expected: 展示校验表明细数据
-  - action: ''
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: ''
-    expected: 任务实例详情页面显示「校验失败」标识, 可支持查看日志
-  - action: ''
-    expected: 表已删除, Unknown table 'vehicle_info_part1'
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part1;\n\
-    \nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\n-- p20251002 分区（2025-10-02）\nINSERT INTO vehicle_info_part1\
-    \ VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-02'),\n('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-02'),\n('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-02'),\n\
-    ('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-02');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200001','追光','PHEV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-03'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-03'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-03');\n\
-    \n-- p20251004 分区（2025-10-04）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200006','追光','EV','H53a','长续航','四驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200007','追光','EV','H53a','长续航','两驱','N5',1,'2025-10-04'),\n('LDP91C60PE200008','梦想家','PHEV','H72','常规','四驱','N3',0,'2025-10-04'),\n\
-    ('LDP91C60PE200009','梦想家','PHEV','H72','常规','四驱','N5',1,'2025-10-04'),\n('LDP91C60PE200010','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04'),\n\
-    ('LDP91C60PE200011','梦想家','PHEV','H72','长续航','两驱','N3',1,'2025-10-04');\n\nSELECT * FROM vehicle_info_part2;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0016
-  title: 验证「规则任务配置」中 Doris 3.x 数据源 「完整性校验-表级」完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 表级】页面
-    expected: 已进入【数据资产 → 表级】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」等信息，选择【完整性校验】规则
-    expected: 选择成功，展示【完整性校验】规则配置项
-  - action: 「校验类型」选择「表级」 「统计函数」 选择「表行数」 「过滤条件」 无 「校验方法」选择「固定值」 「期望值」选择「>5」 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，「调度属性」默认配置
-    expected: 调度属性配置完成
-  - action: 点击「完成」按钮
-    expected: 规则保存成功
-  - action: 立即运行、周期运行
-    expected: 任务实例状态由「运行中」 > 「校验通过」
-  - action: 进入「规则任务配置」页面, 重新编辑任务规则, 将「期望值」改为「<5」, 其他保持不变, 重新运行
-    expected: 任务实例详情页面显示「校验未通过」标识
-  - action: 进入「离线开发-周期任务」页面, 执行DROP语句删除vehicle_info_part6表后, 返回资产平台重新运行规则任务
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: 点击「查看日志」
-    expected: 任务实例详情页面显示「校验失败」标识, 可支持查看日志
-  - action: ''
-    expected: 表已删除, Unknown table 'vehicle_info_part6'
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part6;\n\
-    \nCREATE TABLE vehicle_info_part6 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part6 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\
-    \nSELECT * FROM vehicle_info_part6;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0017
-  title: 验证「规则任务配置」中 Doris 3.x 数据源 「完整性校验-字段级」完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 字段级】页面
-    expected: 已进入【数据资产 → 字段级】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【规则任务配置】页面
-    expected: 进入成功
-  - action: 点击「新建监控规则」按钮，进入监控规则配置页面
-    expected: 进入成功
-  - action: 配置「数据源」「数据库」「数据表」等信息，选择【完整性校验】规则
-    expected: 选择成功，展示【完整性校验】规则配置项
-  - action: 「校验类型」选择「字段级」 「字段」选择「is_certific」 「统计函数」 选择「空值数」 「期望值」选择「=1」 「过滤条件」 无 「强弱规则」选择「弱规则」 「规则描述」输入「测试规则」
-    expected: 配置完成
-  - action: 点击「保存」按钮
-    expected: 规则配置保存正确
-  - action: 点击「下一步」，「调度属性」默认配置
-    expected: 调度属性配置完成
-  - action: 点击「完成」按钮
-    expected: 规则保存成功
-  - action: 立即运行、周期运行
-    expected: 任务实例状态由「运行中」 > 「校验通过」
-  - action: 进入「规则任务配置」页面, 重新编辑任务规则, 将「期望值」改为「=0」, 其他保持不变, 重新运行
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: 点击「查看明细」
-    expected: 任务实例详情页面显示「校验未通过」标识, 可支持查看明细
-  - action: 进入「离线开发-周期任务」页面, 执行DROP语句删除vehicle_info_part6表后, 返回资产平台重新运行规则任务
-    expected: 展示is_certific为--的行记录
-  - action: 点击「查看日志」
-    expected: 1) 任务实例状态由「运行中」 > 「校验异常」
-  - action: ''
-    expected: 任务实例详情页面显示「校验失败」标识, 可支持查看日志
-  - action: ''
-    expected: 表已删除, Unknown table 'vehicle_info_part6'
-  precondition: "「数据资产-平台管理-数据源管理」中已存在Doris 3.x数据源并且已授权.\n数据源下存在Doirs表, 可进入离线平台中创建并执行DorisSQL任务:\n\nDROP TABLE IF EXISTS vehicle_info_part6;\n\
-    \nCREATE TABLE vehicle_info_part6 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part6 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\
-    \nSELECT * FROM vehicle_info_part6;"
-  tags:
-  - 数据质量
-  - 规则任务配置
-- case_id: C0018
-  title: 验证「数据质量概览」页面中 Doris 3.x 数据源的规则任务统计页面展示步骤要求的字段、状态和结果
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 概览】页面
-    expected: 已进入【数据资产 → 概览】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【数据质量】-【概览】页面
-    expected: 进入成功，概览页面加载完成且显示目标控件加载
-  - action: 查看概览中的规则任务统计数据
-    expected: 1) 概览中的规则任务总数统计包含 Doris 3.x 数据源的任务
-  - action: 查看告警列表中的 Doris 3.x 对应记录
-    expected: 校验通过/校验失败/校验异常的统计数据准确反映 Doris 3.x 规则任务的执行结果
-  - action: 点击告警列表中 Doris 3.x 表的表名链接
-    expected: 如 Doris 3.x 规则任务存在告警，告警列表中正确展示告警记录，包含表名、告警次数等信息
-  - action: ''
-    expected: 跳转至对应的规则任务详情页面，展示该 Doris 3.x 表的规则配置和执行结果信息
-  precondition: '1) Doris 3.x 数据源已引入资产平台并授权给质量项目
+  - case_id: C0003
+    title: 验证【数据质量】-【脏数据管理】编辑数据源脏数据存储时效，列表展示保存后的时效与开启状态
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) ${DataSourceA} 已授权质量项目 ${ProjectA}，脏数据存储状态为「开启」
+      4) 当前用户具有脏数据配置权限
+    steps:
+      - action: 进入【数据质量 → 脏数据管理】页面
+        expected: 进入成功
+      - action: 编辑 ${DataSourceA} 的脏数据存储时效为 1 天并保存
+        expected: Toast提示:「保存成功」，列表显示存储时效 1 天
+      - action: 刷新脏数据管理页面
+        expected: ${DataSourceA} 仍显示存储状态「开启」和时效 1 天
+    tags:
+      - 数据质量
+      - 脏数据管理
+      - Doris3.x
 
-    2) 已配置并执行了至少一条 Doris
+  - case_id: C0004
+    title: 验证【元数据】-【元数据同步】执行 Doris3.x 数据表同步任务，数据目录展示表结构与字段数量
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0004 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0004 VALUES (1, 'A', 10.00), (2, 'B', 20.00);
+      5) 元数据同步任务「${TaskA}」已配置 ${SchemaA}.test_table_15603_c0004 的立即同步
+    steps:
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 进入成功
+      - action: 执行 ${TaskA} 的【立即同步】
+        expected: Toast提示:「同步成功」，任务状态为「运行成功」
+      - action: 进入【元数据 → 数据目录 → 数据表】页面并搜索 test_table_15603_c0004
+        expected: 列表展示 ${DataSourceA}.${SchemaA}.test_table_15603_c0004，字段数量为 3
+    tags:
+      - 元数据
+      - 元数据同步
+      - 数据目录
 
-    3. x 数据源的规则任务，且存在校验通过和校验失败的实例记录'
-  tags:
-  - 数据质量
-  - 概览
-- case_id: C0019
-  title: 验证「元数据管理」中 Doris 3.x 表详情页各tab信息展示完整性
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 元数据管理】页面
-    expected: 已进入【数据资产 → 元数据管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据管理】页面
-    expected: 进入成功
-  - action: 选择数据源类型为「Doris 3.x」的数据源，点击进入
-    expected: 进入成功，展示 Doris 3.x 数据源下的数据库列表
-  - action: 点击数据库，进入数据表页面，点击 vehicle_info_part1 表名进入表详情
-    expected: 进入 vehicle_info_part1 表详情页面
-  - action: 查看「基本信息」tab中的技术属性
-    expected: '技术属性正确展示: 表名、所属数据源(Doris 3.x)、所属数据库、表引擎、建表时间、最近同步时间等'
-  - action: 查看「基本信息」tab中的业务属性
-    expected: '业务属性正确展示: 表中文名、负责人等已维护的通用业务属性值与之前配置一致'
-  - action: 点击「字段信息」tab
-    expected: 1) 展示所有字段列表
-  - action: 点击「变更记录」tab
-    expected: '每个字段显示: 字段名、字段类型、字段注释等信息'
-  - action: ''
-    expected: 字段信息与实际 Doris 表结构一致
-  - action: ''
-    expected: 展示该表的元数据变更记录（如有），包含变更时间、变更类型、变更内容
-  precondition: '1) Doris 3.x 数据源已引入资产平台，元数据同步完成
+  - case_id: C0005
+    title: 验证【元数据】-【元数据同步】同步 Doris3.x 日期分区表，同步记录展示 2 个日期分区
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建按日期分区的数据表并写入前一日与当日分区：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0005 (
+           id BIGINT,
+           name STRING,
+           dt DATE
+         )
+         PARTITION BY RANGE (dt) ()
+         DISTRIBUTED BY HASH(id) BUCKETS 3
+         PROPERTIES (
+           "replication_num" = "1",
+           "dynamic_partition.enable" = "true",
+           "dynamic_partition.time_unit" = "DAY",
+           "dynamic_partition.start" = "-3",
+           "dynamic_partition.end" = "1",
+           "dynamic_partition.prefix" = "p"
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0005 VALUES
+           (1, 'A', DATE_SUB(CURRENT_DATE(), 1)),
+           (2, 'B', DATE_SUB(CURRENT_DATE(), 1)),
+           (3, 'C', CURRENT_DATE()),
+           (4, 'D', CURRENT_DATE());
+      5) 元数据同步任务「${TaskB}」已配置 ${SchemaA}.test_table_15603_c0005 的立即同步
+    steps:
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 进入成功
+      - action: 执行 ${TaskB} 的【立即同步】
+        expected: 同步任务状态为「运行成功」，同步记录显示 2 个日期分区
+      - action: 打开 test_table_15603_c0005 数据表详情
+        expected: 表结构展示分区字段 dt，分区列表包含前一日和当日日期
+    tags:
+      - 元数据
+      - 元数据同步
+      - 分区同步
 
-    2) 存在已同步的 Doris
+  - case_id: C0006
+    title: 验证【元数据】-【元数据同步】提交非法数据库名同步任务，数据库名称置红提示且提交按钮禁用
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 同步任务表单要求数据库名称仅包含字母、数字和下划线
+    steps:
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 进入成功
+      - action: 新增 ${DataSourceA} 同步任务，数据库名称输入「doris-db-invalid」并点击【提交】
+        expected: 「数据库名称」置红提示「仅支持字母、数字和下划线」，提交按钮禁用
+      - action: 将数据库名称改为「dorisdb」
+        expected: 红色提示消失，提交按钮恢复可用
+    tags:
+      - 元数据
+      - 元数据同步
+      - 必填校验
 
-    3. x 数据表 vehicle_info_part1，且已配置过业务属性'
-  tags:
-  - 元数据
-  - 元数据管理
-- case_id: C0020
-  title: 验证 「元数据」中 Doris 3.x 数据源删除库操作
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 元数据管理】页面
-    expected: 已进入【数据资产 → 元数据管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据管理】页面
-    expected: 进入成功
-  - action: 选择数据源类型为「Doris 3.x」的数据源, 点击进入
-    expected: 进入成功
-  - action: 点击数据库, 选择一条记录, 点击「删除」按钮
-    expected: 1) 弹出二次确认弹窗
-  - action: 输入「数据库名」后, 点击删除按钮
-    expected: 删除库表操作仅针对资产平台内生效，不会影响底层数据库表信息
-  - action: '进入「离线开发-数据开发-周期任务」, 创建DorisSQL任务, 执行查询语句: USE ${db_name};'
-    expected: 1) 弹窗关闭, 该表信息从资产平台中删除完成
-  - action: ''
-    expected: 可以通过元数据同步中, 重新将该库表同步至资产平台
-  - action: ''
-    expected: SQL任务运行成功, 源库仍存在
-  precondition: 「元数据管理」页面中已存在从离线平台中同步过来的Doris 3.x数据源
-  tags:
-  - 元数据
-  - 元数据管理
-- case_id: C0021
-  title: 验证 「元数据」中 Doris 3.x 数据表生命周期设置功能
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 元数据管理】页面
-    expected: 已进入【数据资产 → 元数据管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据管理】页面
-    expected: 进入成功
-  - action: 选择数据源类型为「Doris 3.x」的数据源, 点击进入
-    expected: 进入成功
-  - action: 点击数据库, 进入数据表页面, 选择一条记录, 点击「批量编辑生命周期」按钮
-    expected: 1) 弹出「批量编辑生命周期」弹窗
-  - action: 「生命周期」选择3天, 点击「确定」
-    expected: 支持修改Doris 3.x数据表的生命周期
-  - action: 点击「元数据管理」, 返回到数据源列表页面
-    expected: '生命周期支持: 3天/7天/30天/90天/365天/自定义'
-  - action: 选择数据源类型为Doris 3.x的数据源, 点击「批量编辑生命周期」
-    expected: 选择「自定义」后最大输入9999天
-  - action: 「生命周期」选择3天, 点击「确定」
-    expected: 弹窗关闭, 该表的「表生命周期」变更为3天
-  - action: ''
-    expected: 返回成功
-  - action: ''
-    expected: 弹出「批量修改生命周期」弹窗
-  - action: ''
-    expected: 1) 弹窗关闭, 该数据源下所有的「表生命周期」变更为3天
-  - action: ''
-    expected: 后续在该数据源内新增的数据表也会默认配置为3天
-  precondition: 「元数据管理」页面中已存在同步过来的Doris 3.x数据表记录
-  tags:
-  - 元数据
-  - 元数据管理
-- case_id: C0022
-  title: 验证 「元数据」中 Doris 3.x 数据源删除表操作
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 元数据管理】页面
-    expected: 已进入【数据资产 → 元数据管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据管理】页面
-    expected: 进入成功
-  - action: 选择数据源类型为「Doris 3.x」的数据源, 点击进入
-    expected: 进入成功
-  - action: 点击数据库, 进入数据表页面, 选择一条记录, 点击「删除」按钮
-    expected: '1) 弹出二次确认弹窗: 「确定删除表${table}吗?」'
-  - action: 「删除方式」选择「删除元数据表」, 输入${表名}后, 点击「确定」
-    expected: 删除方式支持删除元数据表和删除源表
-  - action: '进入「离线开发-数据开发-周期任务」, 创建DorisSQL任务, 执行查询语句: SELECT * FROM ${table};'
-    expected: 输入的表名一致后可删除表
-  - action: 返回「资产平台-元数据管理」中, 再次选择一条记录, 点击删除按钮, 选择「删除源表」, 输入${表名2}后, 点击「确定」
-    expected: 1) 弹窗关闭, 该表信息从资产平台及其他子产品中删除完成
-  - action: '进入「离线开发-数据开发-周期任务」, 创建DorisSQL任务, 执行查询语句: SELECT * FROM ${table2};'
-    expected: 可以通过元数据同步中, 重新将该表同步至资产平台
-  - action: ''
-    expected: SQL任务运行成功, 源表仍存在
-  - action: ''
-    expected: 弹窗关闭, 该表信息从源库中删除
-  - action: ''
-    expected: SQL任务运行失败, 源表不存在
-  precondition: 「元数据管理」页面中已存在从离线平台中同步过来的Doris 3.x数据源
-  tags:
-  - 元数据
-  - 元数据管理
-- case_id: C0023
-  title: 验证 「元数据」中 Doris 3.x 元模型配置完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 元模型管理】页面
-    expected: 已进入【数据资产 → 元模型管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元模型管理】页面
-    expected: 进入成功
-  - action: 下滑找到Doris 3.x元模型
-    expected: doris3.x元模型位置在2.x的右侧
-  - action: 点击「编辑元模型」
-    expected: Doris 3.x支持采集的技术属性信息和Doris 2.x保持一致
-  precondition: 资产平台已自动对接离线平台中带Meta标识的Doris 3.x数据源
-  tags:
-  - 元数据
-  - 元模型管理
-- case_id: C0024
-  title: 验证 「元数据」中 Doris 3.x 数据表业务/个性属性维护功能
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 元模型管理】页面
-    expected: 已进入【数据资产 → 元模型管理】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元模型管理】页面
-    expected: 进入成功
-  - action: 下滑找到Doris 3.x元模型, 点击「编辑元模型」
-    expected: '1) 展示的技术属性与Doris
+  - case_id: C0007
+    title: 验证【元数据】-【元数据同步】提交非法数据表名同步任务，数据表名称置红提示且提交按钮禁用
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 同步任务表单要求数据表名称仅包含字母、数字和下划线
+    steps:
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 进入成功
+      - action: 新增 ${DataSourceA} 同步任务，数据表名称输入「orders-invalid」并点击【提交】
+        expected: 「数据表名称」置红提示「仅支持字母、数字和下划线」，提交按钮禁用
+      - action: 将数据表名称改为「test_table_15603_c0007」
+        expected: 红色提示消失，提交按钮恢复可用
+    tags:
+      - 元数据
+      - 元数据同步
+      - 必填校验
 
-      2. x保持一致'
-  - action: 进入【数据资产】-【元数据】-【元数据管理】页面
-    expected: 支持维护通用业务属性、个性业务属性
-  - action: 选择数据源类型为「Doris 3.x」的数据源, 点击进入
-    expected: '通用业务属性默认存在两个字段: 表中文名和负责人'
-  - action: 点击数据库, 进入数据表页面, 选择一条记录, 点击「编辑」按钮
-    expected: 进入成功
-  - action: 「负责人」选择选项 「表中文名」输入测试 配置完成后, 点击保存
-    expected: 进入成功
-  - action: ''
-    expected: 1) 弹出「表元数据」弹窗
-  - action: ''
-    expected: 支持编辑通用业务属性中的字段值
-  - action: ''
-    expected: '返回数据表列表页面, toast提示: 业务属性保存成功, 数据表预览内容同步更新'
-  precondition: 「元数据管理」页面中已存在同步过来的Doris 3.x数据表记录
-  tags:
-  - 元数据
-  - 元模型管理
-- case_id: C0025
-  title: 验证 Doris 3.x 特有字段类型（JSON/ARRAY/MAP）的元数据采集正确性
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 元数据同步】页面
-    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 进入成功
-  - action: 新增周期同步任务，「数据源」选择 Doris 3.x 数据源，「数据库」选择建表所在数据库，「数据表」选择 doris3x_type_test
-    expected: 配置成功
-  - action: 点击「临时同步」按钮，等待同步完成
-    expected: 同步状态由「同步中」变更为「同步完成」
-  - action: 进入【数据资产】-【元数据】-【数据地图】页面，搜索「doris3x_type_test」
-    expected: 搜索结果中显示 doris3x_type_test 表记录，表来源显示 Doris 3.x
-  - action: 点击表名进入表详情页面，查看「字段信息」tab
-    expected: '1) 字段列表展示5个字段: id、json_data、map_data、arr_data、struct_data'
-  - action: ''
-    expected: '字段类型分别正确显示为: BIGINT、JSON、MAP<STRING,INT>、ARRAY<STRING>、STRUCTname:STRING,age:INT'
-  - action: ''
-    expected: '字段注释正确显示: 主键、JSON数据、MAP类型、数组类型、结构体类型'
-  - action: ''
-    expected: 特有字段类型未被截断或显示为Unknown
-  precondition: "| 1) Doris 3.x 数据源已引入资产平台\n2) 已在 Doris\n3. x 中创建包含特有字段类型的数据表:\nCREATE TABLE IF NOT EXISTS doris3x_type_test\
-    \ (\n    id BIGINT COMMENT '主键',\n    json_data JSON COMMENT 'JSON数据',\n    map_data MAP COMMENT 'MAP类型',\n    arr_data\
-    \ ARRAY COMMENT '数组类型',\n    struct_data STRUCT COMMENT '结构体类型'\n) ENGINE=OLAP\nDUPLICATE KEY(id)\nDISTRIBUTED BY HASH(id)\
-    \ BUCKETS 10\nPROPERTIES (replication_num = 1);"
-  tags:
-  - 元数据
-  - 元数据同步
-- case_id: C0026
-  title: 验证「元数据同步」中 Doris 3.x 周期同步任务的编辑与删除完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 元数据同步】页面
-    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 进入成功，列表中显示已配置的周期同步任务
-  - action: 选择 Doris 3.x 周期同步任务记录，点击「编辑」按钮
-    expected: 弹出编辑弹窗，展示当前同步任务的配置信息，数据源为 Doris 3.x
-  - action: 修改「数据表」选择范围为「全部」，修改「调度周期」为「天」，点击「确定」
-    expected: 1) 编辑成功，Toast提示操作成功
-  - action: 选择该条同步任务记录，点击「删除」按钮
-    expected: '列表中该任务的配置信息更新: 「数据表」显示为「全部」，「调度周期」显示为「天」'
-  - action: 在确认弹窗中，点击「确定」
-    expected: 弹出确认弹窗
-  - action: ''
-    expected: 1) 删除成功，Toast提示删除成功
-  - action: ''
-    expected: 列表中该条同步任务记录消失
-  precondition: 已存在一条 Doris 3.x 的周期同步任务，「数据表」选择范围为指定表，「调度周期」为「周」
-  tags:
-  - 元数据
-  - 元数据同步
-- case_id: C0027
-  title: 验证元数据同步后 Doris 3.x 表结构与字段信息采集正确性
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 元数据同步】页面
-    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 进入成功
-  - action: 新增周期同步任务，「数据源」选择 Doris 3.x 数据源，「数据库」选择建表所在的数据库，「数据表」选择 sync_verify_test
-    expected: 配置成功
-  - action: 点击「临时同步」按钮，等待同步完成
-    expected: 1) Toast提示「临时同步成功」
-  - action: 进入【数据资产】-【元数据】-【数据地图】页面，搜索「sync_verify_test」
-    expected: 同步状态由「同步中」变更为「同步完成」
-  - action: 点击表名进入表详情页面，查看「基本信息」
-    expected: 搜索结果中显示 sync_verify_test 表记录，表名右侧icon显示 Doris 3.x
-  - action: 查看「字段信息」tab
-    expected: 1) 「基本信息」中表名显示「sync_verify_test」
-  - action: ''
-    expected: 所属数据源显示正确的 Doris 3.x 数据源名称
-  - action: ''
-    expected: 所属数据库显示正确
-  - action: ''
-    expected: 表引擎、建表时间等技术属性正确展示
-  - action: ''
-    expected: '1) 字段列表展示5个字段: id、name、amount、created_date、status'
-  - action: ''
-    expected: '字段类型分别为: BIGINT、VARCHAR(100)、DECIMAL(18,2)、DATE、TINYINT'
-  - action: ''
-    expected: '字段注释(COMMENT)分别为: 主键ID、名称、金额、创建日期、状态'
-  - action: ''
-    expected: 字段信息与实际 Doris 建表语句完全一致
-  precondition: "| 1) Doris 3.x 数据源已引入资产平台\n2) 已在 Doris\n3. x 中创建数据表:\nCREATE TABLE IF NOT EXISTS sync_verify_test (\n   \
-    \ id BIGINT COMMENT '主键ID',\n    name VARCHAR(100) COMMENT '名称',\n    amount DECIMAL(18,2) COMMENT '金额',\n    created_date\
-    \ DATE COMMENT '创建日期',\n    status TINYINT COMMENT '状态'\n) ENGINE=OLAP\nDUPLICATE KEY(id)\nDISTRIBUTED BY HASH(id) BUCKETS\
-    \ 10\nPROPERTIES (replication_num = 1);"
-  tags:
-  - 元数据
-  - 元数据同步
-- case_id: C0028
-  title: 验证 「元数据」中 Doris 3.x 元数据周期同步完成目标操作且状态更新
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 元数据同步】页面
-    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 进入成功
-  - action: 点击「新增周期同步任务」
-    expected: 弹出「新增周期同步任务」弹窗
-  - action: '「数据源」: ${建表所在的Doris 3.x数据源} 「数据库」: ${建表所在的Doris 3.x数据库} 「数据表」: vehicle_info_part4 ~5'
-    expected: 配置成功
-  - action: 点击「下一步」, 保持默认选项, 点击「新增」按钮
-    expected: '1) 「新增周期同步任务」弹窗关闭, 并Toast提示: 新增周期同步任务成功'
-  - action: 进入数据地图页面, 查询关键词vehicle_info_part
-    expected: 同步状态为等待同步
-  - action: ''
-    expected: 等到第二天00:00, 同步状态变更为同步中, 等待一段时间后, 状态变更为同步完成
-  - action: ''
-    expected: 显示已同步的Doris 3.x的两张表
-  precondition: "1) 数据资产-平台管理-数据源管理中已存在Doris3.x数据源\n2) Doris3.x数据源已授权给质量项目\n3) Doris3.x底层数据源已存在数据表, 建表语句如下:\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part1;\n\nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200011','知音','EREV','H60','常规','两驱','N3',0,'2025-10-03'),\n\
-    ('LDP91C60PE200012','知音','EREV','H60','常规','两驱','N3',1,'2025-10-03'),\n('LDP91C60PE200013','知音','EREV','H60','长续航','四驱','N5',1,'2025-10-03'),\n\
-    ('LDP91C60PE200014','知音','EREV','H60','长续航','四驱','N5',NULL,'2025-10-03'),\n('LDP91C60PE200015','知音','EREV','H60','常规','四驱','N3',1,'2025-10-03');\n\
-    \nSELECT * FROM vehicle_info_part2;\n\nDROP TABLE IF EXISTS vehicle_info_part3;\n\nCREATE TABLE vehicle_info_part3 (\n\
-    \  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT\
-    \ '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT\
-    \ '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT\
-    \ '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'),\
-    \ ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS\
-    \ 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part3 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part3;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part4;\n\nCREATE TABLE vehicle_info_part4 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part4 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part4;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part5;\n\nCREATE TABLE vehicle_info_part5 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part5 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part5;"
-  tags:
-  - 元数据
-  - 元数据同步
-- case_id: C0029
-  title: 验证 「元数据」中 Doris 3.x 元数据临时同步完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 元数据同步】页面
-    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 进入成功
-  - action: 点击「新增周期同步任务」
-    expected: 弹出「新增周期同步任务」弹窗
-  - action: '「数据源」: ${建表所在的Doris 3.x数据源} 「数据库」: ${建表所在的Doris 3.x数据库} 「数据表」: vehicle_info_part1 ~3'
-    expected: 配置成功
-  - action: 点击「临时同步」按钮
-    expected: '1) 「新增周期同步任务」弹窗关闭, 并Toast提示: 临时同步成功'
-  - action: 进入数据地图页面, 查询关键词vehicle_info_part
-    expected: 同步状态为同步中, 等待一段时间后, 同步状态变更为同步完成
-  - action: ''
-    expected: 显示已同步的Doris 3.x的三张表
-  precondition: "1) 数据资产-平台管理-数据源管理中已存在Doris3.x数据源\n2) Doris3.x数据源已授权给质量项目\n3) Doris3.x底层数据源已存在数据表, 建表语句如下:\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part1;\n\nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200011','知音','EREV','H60','常规','两驱','N3',0,'2025-10-03'),\n\
-    ('LDP91C60PE200012','知音','EREV','H60','常规','两驱','N3',1,'2025-10-03'),\n('LDP91C60PE200013','知音','EREV','H60','长续航','四驱','N5',1,'2025-10-03'),\n\
-    ('LDP91C60PE200014','知音','EREV','H60','长续航','四驱','N5',NULL,'2025-10-03'),\n('LDP91C60PE200015','知音','EREV','H60','常规','四驱','N3',1,'2025-10-03');\n\
-    \nSELECT * FROM vehicle_info_part2;\n\nDROP TABLE IF EXISTS vehicle_info_part3;\n\nCREATE TABLE vehicle_info_part3 (\n\
-    \  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT\
-    \ '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT\
-    \ '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT\
-    \ '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'),\
-    \ ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS\
-    \ 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part3 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part3;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part4;\n\nCREATE TABLE vehicle_info_part4 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part4 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part4;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part5;\n\nCREATE TABLE vehicle_info_part5 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part5 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part5;"
-  tags:
-  - 元数据
-  - 元数据同步
-- case_id: C0030
-  title: 验证 「元数据」中 Doris 3.x 元数据同步任务中过滤规则的有效性
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 元数据同步】页面
-    expected: 已进入【数据资产 → 元数据同步】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面
-    expected: 进入成功
-  - action: 点击「自动同步」页签, 点击新增过滤规则
-    expected: 1) 从周期同步页面切换到自动同步页面
-  - action: '1) 配置内容如下: 规则名称: test_rule 自动同步过滤维度: 数据表表名 过滤内容: vehicle_info_part* 数据源:  Doirs 3.x 数据库: ${离线平台中创建项目时指定的项目标识}'
-    expected: 弹出「新增过滤规则」弹窗
-  - action: 配置完毕后,点击确定
-    expected: 新增过滤规则成功
-  - action: '1) 点击「周期同步」页签, 新增周期同步任务, 配置如下: 数据源:  Doirs 3.x 数据库: ${离线平台中创建项目时指定的项目标识} 数据表: vehicle_info_part6~10'
-    expected: '1) 「新增周期同步任务」弹窗关闭, 并Toast提示: 临时同步成功'
-  - action: 配置完毕后, 点击「临时同步」
-    expected: 同步状态为同步中, 等待一段时间后, 同步状态变更为同步完成
-  - action: 进入数据地图页面, 查询关键词vehicle_info_part
-    expected: 过滤规则已生效, 未显示vehicle_info_part6~10这五个Doris表
-  - action: 点击「自动同步」页签, 点击test_rule规则记录的「是否生效」按钮
-    expected: 'Toast提示: 自动同步规则切换状态成功，规则已关闭！'
-  - action: 点击「周期同步」页签, 点击Doris 3.x同步任务记录的立即同步按钮
-    expected: 同步状态为同步中, 等待一段时间后, 同步状态变更为同步完成
-  - action: 进入数据地图页面, 查询关键词vehicle_info_part
-    expected: 过滤规则已失效, 数据表成功同步至资产平台
-  precondition: "1) 资产平台已自动对接离线平台中带Meta标识的Doris 3.x数据源\n2) 在离线开发平台中创建DorisSQL任务并执行, 建表语句如下:\nDROP TABLE IF EXISTS vehicle_info_part6;\n\
-    \nCREATE TABLE vehicle_info_part6 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n\
-    \  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n\
-    \  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n\
-    \  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION\
-    \ p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n\
-    )\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO\
-    \ vehicle_info_part6 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n\
-    ('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\
-    \nSELECT * FROM vehicle_info_part6;\n\nDROP TABLE IF EXISTS vehicle_info_part7;\n\nCREATE TABLE vehicle_info_part7 (\n\
-    \  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT\
-    \ '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT\
-    \ '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT\
-    \ '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'),\
-    \ ('2025-10-04')),\n  PARTITION p20251004 VALUES [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS\
-    \ 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part7 VALUES\n('LDP91C60PE200011','知音','EREV','H60','常规','两驱','N3',0,'2025-10-03'),\n\
-    ('LDP91C60PE200012','知音','EREV','H60','常规','两驱','N3',1,'2025-10-03'),\n('LDP91C60PE200013','知音','EREV','H60','长续航','四驱','N5',1,'2025-10-03'),\n\
-    ('LDP91C60PE200014','知音','EREV','H60','长续航','四驱','N5',NULL,'2025-10-03'),\n('LDP91C60PE200015','知音','EREV','H60','常规','四驱','N3',1,'2025-10-03');\n\
-    \nSELECT * FROM vehicle_info_part7;\n\nDROP TABLE IF EXISTS vehicle_info_part8;\n\nCREATE TABLE vehicle_info_part8 (\n\
-    \  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT\
-    \ '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT\
-    \ '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT\
-    \ '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'),\
-    \ ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS\
-    \ 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part8 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part8;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part9;\n\nCREATE TABLE vehicle_info_part9 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part9 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part9;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part10;\n\nCREATE TABLE vehicle_info_part10 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part10 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part10;"
-  tags:
-  - 元数据
-  - 元数据同步
-- case_id: C0031
-  title: 验证「血缘分析」中 Doris 3.x 数据源的孤立血缘表（无血缘）统计完成目标操作且状态更新
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 血缘分析】页面
-    expected: 已进入【数据资产 → 血缘分析】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【血缘分析】页面
-    expected: 进入成功，展示已添加监控的数据库列表
-  - action: 点击「添加数据库」按钮
-    expected: 弹出「添加数据库」弹窗
-  - action: 「数据源」选择 Doris 3.x 数据源，「数据库」选择已同步的数据库，点击确定
-    expected: 添加成功，列表中新增一条 Doris 3.x 数据库记录，「数据源类型」列显示 Doris 3.x
-  - action: 查看列表中新增的 Doris 3.x 数据库记录的「表数量（总数）」和「表数量（无血缘）」列
-    expected: 1) 「表数量（总数）」列显示该数据库的总表数，与实际同步的表数一致
-  - action: 点击该数据库记录的「查看」按钮
-    expected: 「表数量（无血缘）」列显示无上下游血缘关系的孤立表数量
-  - action: ''
-    expected: 「表数量（无血缘）」≤「表数量（总数）」
-  - action: ''
-    expected: 跳转至该数据库下的表列表页，可查看各表的血缘状态详情
-  precondition: '1) Doris 3.x 数据源已引入资产平台，元数据同步完成
+  - case_id: C0008
+    title: 验证【元数据】-【数据表】维护表业务属性负责人，保存后详情展示负责人且刷新保留
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0008 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0008 VALUES (1, 'A'), (2, 'B');
+      5) ${SchemaA}.test_table_15603_c0008 已完成元数据同步，业务属性「业务负责人」当前为空
+      6) 当前用户具有业务属性维护权限
+    steps:
+      - action: 进入【元数据 → 数据目录 → 数据表】页面
+        expected: 进入成功
+      - action: 打开 test_table_15603_c0008 详情，将业务属性「业务负责人」设置为「李四」并保存
+        expected: Toast提示:「保存成功」，业务属性区域显示「业务负责人：李四」
+      - action: 刷新 test_table_15603_c0008 详情
+        expected: 「业务负责人」仍显示「李四」，更新时间已更新
+    tags:
+      - 元数据
+      - 数据目录
+      - 数据表
+      - 业务属性
 
-    2) Doris
+  - case_id: C0009
+    title: 验证【元数据】-【数据表】查看 Doris3.x 数据表结构与建表语句，字段列表展示 3 个字段及中文名
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0009;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0009 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0009 VALUES (1, 'A', 10.00), (2, 'B', 20.00);
+      5) ${SchemaA}.test_table_15603_c0009 已同步字段中文名「订单编号」「订单名称」「订单金额」
+    steps:
+      - action: 进入【元数据 → 数据目录 → 数据表】页面
+        expected: 进入成功
+      - action: 打开 test_table_15603_c0009 详情并查看「表结构」
+        expected: 字段列表展示 3 个字段的名称、Doris3.x 类型和中文名
+      - action: 查看「建表语句」区域
+        expected: 建表语句包含 id BIGINT、name STRING、amount DECIMAL(10,2)
+    tags:
+      - 元数据
+      - 数据目录
+      - 数据表
+      - 表结构
 
-    3. x 数据库中存在2 张表，部分表已通过离线任务建立血缘关系（如通过INSERT INTO/CREATE TABLE AS SELECT等SQL），部分表无任何上下游血缘关系'
-  tags:
-  - 元数据
-  - 血缘分析
-- case_id: C0032
-  title: 验证订阅 Doris 3.x 数据表后元数据发生变更时收到变更通知
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 订阅的数据】页面
-    expected: 已进入【数据资产 → 订阅的数据】页面，显示页面标题与主要操作区域
-  - action: '进入「离线开发-数据开发」，创建 DorisSQL 任务，执行SQL: ALTER TABLE vehicle_info_part1 ADD COLUMN test_notify_col VARCHAR(50) COMMENT
-      ''测试通知字段'';'
-    expected: DDL 变更执行成功
-  - action: 进入【数据资产】-【元数据】-【元数据同步】页面，找到包含 vehicle_info_part1 的同步任务，点击「立即同步」
-    expected: Toast提示同步成功，同步状态变为「同步中」
-  - action: 等待同步完成
-    expected: 同步状态由「同步中」变更为「同步完成」
-  - action: 查看系统通知/消息中心
-    expected: 1) 收到元数据变更通知
-  - action: ''
-    expected: 通知内容包含变更的表名 vehicle_info_part1
-  - action: ''
-    expected: 通知方式与订阅时设置的提醒方式一致
-  precondition: '1) 已订阅 Doris 3.x 数据表 vehicle_info_part1，提醒方式已配置
+  - case_id: C0010
+    title: 验证【元数据】-【数据表】导出 Doris3.x 数据表元数据，下载文件包含数据源数据库与字段信息
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0010;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0010 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0010 VALUES (1, 'A', 10.00), (2, 'B', 20.00);
+      5) ${SchemaA}.test_table_15603_c0010 已完成元数据同步
+      6) 浏览器下载目录可写
+    steps:
+      - action: 进入【元数据 → 数据目录 → 数据表】页面
+        expected: 进入成功
+      - action: 打开 test_table_15603_c0010 详情并点击【导出元数据】
+        expected: 下载 1 个 Excel 文件，文件名包含 test_table_15603_c0010
+      - action: 打开下载文件
+        expected: 文件包含数据源 ${DataSourceA}、数据库 ${SchemaA}、表名 test_table_15603_c0010 和 3 个字段类型
+    tags:
+      - 元数据
+      - 数据目录
+      - 数据表
+      - 导出
 
-    2) 离线开发中已对接 Doris
+  - case_id: C0011
+    title: 验证【数据质量】-【规则库配置】执行完整性非空规则，校验结果达标且空值数为 0
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0011 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0011 VALUES (1, 'A'), (2, 'B'), (3, 'C');
+      5) 规则任务「${TaskA}」配置完整性校验，字段为 name，期望空值数为 0
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 打开 ${TaskA} 详情并点击【立即执行】
+        expected: 任务状态为「运行成功」，结果状态为「达标」
+      - action: 打开校验结果详情
+        expected: 空值数为 0，异常明细数为 0
+    tags:
+      - 数据质量
+      - 规则库配置
+      - 完整性
 
-    3. x 集群'
-  tags:
-  - 元数据
-  - 订阅的数据
-- case_id: C0033
-  title: 验证修改 Doris 3.x 已订阅数据表的提醒方式完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 订阅的数据】页面
-    expected: 已进入【数据资产 → 订阅的数据】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【订阅的数据】页面
-    expected: 进入成功，列表中显示 vehicle_info_part1 的订阅记录
-  - action: 选择 vehicle_info_part1 记录，点击「修改提醒方式」按钮
-    expected: 弹出「修改提醒方式」弹窗，展示当前配置的提醒方式
-  - action: 修改提醒方式后，点击确定
-    expected: Toast提示「提醒方式修改成功!」，列表中该记录的「提醒方式」列更新为修改后的值
-  precondition: 1) 已订阅 Doris 3.x 数据表 vehicle_info_part1
-  tags:
-  - 元数据
-  - 订阅的数据
-- case_id: C0034
-  title: 验证取消订阅 Doris 3.x 数据表完成目标操作且状态更新
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 订阅的数据】页面
-    expected: 已进入【数据资产 → 订阅的数据】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【订阅的数据】页面
-    expected: 进入成功，列表中显示已订阅的数据表记录
-  - action: 在搜索框输入「vehicle_info_part1」进行查询
-    expected: 列表筛选，仅显示表名包含 vehicle_info_part1 的记录
-  - action: 选择 vehicle_info_part1 记录，点击「取消订阅」按钮
-    expected: 弹出确认弹窗，显示「确定取消订阅吗？」
-  - action: 在确认弹窗中，点击「取消订阅」按钮
-    expected: Toast提示「取消订阅成功！」，「订阅的数据」列表中 vehicle_info_part1 记录消失
-  - action: 进入【数据资产】-【元数据】-【数据地图】页面，搜索「vehicle_info_part1」并进入表详情
-    expected: 表详情页中按钮恢复为「订阅」状态（非「取消订阅」）
-  precondition: 1) 已订阅 Doris 3.x 数据表 vehicle_info_part1
-  tags:
-  - 元数据
-  - 订阅的数据
-- case_id: C0035
-  title: 验证订阅 Doris 3.x 数据表并在「订阅的数据」页面查看订阅记录
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 订阅的数据】页面
-    expected: 已进入【数据资产 → 订阅的数据】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【数据地图】页面
-    expected: 进入成功，页面加载完成且显示目标控件加载
-  - action: 在搜索框输入关键词「vehicle_info_part1」并查询
-    expected: 搜索结果中显示 vehicle_info_part1 数据表记录，表来源显示 Doris 3.x
-  - action: 点击「vehicle_info_part1」表名，进入表详情页面
-    expected: 进入表详情页面，展示基本信息、字段信息等tab
-  - action: 点击「订阅」按钮
-    expected: Toast提示「订阅成功!」，按钮状态变为「取消订阅」
-  - action: 进入【数据资产】-【元数据】-【订阅的数据】页面
-    expected: 1) 「订阅的数据」列表中显示 vehicle_info_part1 的订阅记录
-  - action: ''
-    expected: '记录中展示: 表名为「vehicle_info_part1」、表中文名、数据路径、提醒方式、订阅时间'
-  - action: ''
-    expected: 订阅时间为当前时间
-  precondition: '| 1) Doris 3.x 数据源已引入资产平台，元数据同步完成
+  - case_id: C0012
+    title: 验证【数据质量】-【规则库配置】执行非空规则并查看明细，异常明细定位到空值记录
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0012;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0012 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0012 VALUES (1, NULL), (2, 'Alice'), (3, 'Bob');
+      5) 规则任务「${TaskB}」配置 name 非空校验
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 打开 ${TaskB} 详情并点击【立即执行】
+        expected: 任务状态为「运行成功」，结果状态为「不达标」
+      - action: 点击【查看明细】
+        expected: 明细展示 id=1 的 name 为 NULL，异常数量为 1
+    tags:
+      - 数据质量
+      - 规则库配置
+      - 异常明细
 
-    2) 存在已同步的 Doris
+  - case_id: C0013
+    title: 验证【数据质量】-【规则库配置】执行有效性范围校验规则，结果达标且异常数量为 0
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0013;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0013 (
+           id BIGINT,
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0013 VALUES (1, 10.00), (2, 20.00), (3, 30.00);
+      5) 规则任务「${TaskC}」配置有效性校验，字段为 amount，范围为 0 至 100000
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 打开 ${TaskC} 详情并查看范围配置
+        expected: 最小值显示 0，最大值显示 100000，数据源类型显示 Doris3.x
+      - action: 点击【立即执行】并查看结果
+        expected: 结果状态为「达标」，异常数量为 0
+    tags:
+      - 数据质量
+      - 规则库配置
+      - 有效性
+      - 范围校验
 
-    3. x 数据表 vehicle_info_part1，该表尚未被当前用户订阅'
-  tags:
-  - 元数据
-  - 订阅的数据
-- case_id: C0036
-  title: 验证血缘解析（CREATE TABLE LIKE）
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 数据地图】页面
-    expected: 已进入【数据资产 → 数据地图】页面，显示页面标题与主要操作区域
-  - action: 进入「离线开发-数据开发-周期任务」页面
-    expected: 进入成功
-  - action: 新建 DorisSQL 任务, 并执行测试语句
-    expected: 执行成功
-  - action: '创建Doris任务B, 执行SQL:  CREATE TABLE doris_table_copy LIKE doris_table_template;'
-    expected: 执行成功
-  - action: 保存并提交
-    expected: 提交成功
-  - action: 查看任务B调度属性-任务间依赖
-    expected: 显示自动依赖于任务A
-  - action: 查看任务A,B的依赖视图
-    expected: 显示 doris_table_copy → doris_table_template 依赖箭头
-  - action: 进入「数据资产-元数据-数据地图」, 搜索表doris_table_copy
-    expected: 搜索成功
-  - action: 进入表详情页, 查看血缘关系和任务依赖
-    expected: 显示依赖于上游任务A中的表doris_table_template
-  precondition: "离线对接Meta Doris数据源并引入至资产平台\n\n建表语句\nDoris任务A\nCREATE TABLE if not exists doris_table_template (\n    id INT,\n\
-    \    name VARCHAR(100),\n    age TINYINT,\n    salary DECIMAL(10,2),\n    hire_date DATE,\n    create_time DATETIME\n\
-    )\nENGINE=OLAP\nDUPLICATE KEY(id)\nDISTRIBUTED BY HASH(id) BUCKETS 10\nPROPERTIES(\n    replication_num = 1\n);"
-  tags:
-  - 元数据
-  - 数据地图
-- case_id: C0037
-  title: 验证血缘解析（CREATE TABLE AS SELECT）
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 数据地图】页面
-    expected: 已进入【数据资产 → 数据地图】页面，显示页面标题与主要操作区域
-  - action: 进入「离线开发-数据开发-周期任务」页面
-    expected: 进入成功
-  - action: 新建 DorisSQL 任务, 并执行测试语句
-    expected: 执行成功
-  - action: '创建Doris任务B, 执行SQL:  CREATE TABLE doris_table_new PROPERTIES(replication_num = 1) AS SELECT * FROM doris_table_src;'
-    expected: 执行成功
-  - action: 保存并提交
-    expected: 提交成功
-  - action: 查看任务B调度属性-任务间依赖
-    expected: 显示自动依赖于任务A
-  - action: 查看任务A,B的依赖视图
-    expected: 显示 doris_table_new → doris_table_src 依赖箭头
-  - action: 进入「数据资产-元数据-数据地图」, 搜索表doris_table_new
-    expected: 搜索成功
-  - action: 进入表详情页, 查看血缘关系和任务依赖
-    expected: 显示依赖于上游任务A中的表doris_table_src
-  precondition: "离线对接Meta Doris数据源并引入至资产平台\n\n建表语句\nDoris任务A\nCREATE TABLE if not exists doris_table_src (\n    id INT,\n\
-    \    name VARCHAR(100),\n    age TINYINT,\n    salary DECIMAL(10,2),\n    hire_date DATE,\n    create_time DATETIME\n\
-    )\nENGINE=OLAP\nDUPLICATE KEY(id)\nDISTRIBUTED BY HASH(id) BUCKETS 10\nPROPERTIES(\n    replication_num = 1\n);"
-  tags:
-  - 元数据
-  - 数据地图
-- case_id: C0038
-  title: 验证血缘解析（INSERT OVERWRITE）
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 数据地图】页面
-    expected: 已进入【数据资产 → 数据地图】页面，显示页面标题与主要操作区域
-  - action: 进入「离线开发-数据开发-周期任务」页面
-    expected: 进入成功
-  - action: 新建 DorisSQL 任务, 并执行测试语句
-    expected: 执行成功
-  - action: '执行SQL:  INSERT OVERWRITE doris_table_b SELECT * FROM doris_table_a;'
-    expected: 执行成功
-  - action: 保存并提交
-    expected: 提交成功
-  - action: 查看任务B调度属性-任务间依赖
-    expected: 显示自动依赖于任务A
-  - action: 查看任务A,B的依赖视图
-    expected: 显示 doris_table_a → doris_table_b 依赖箭头
-  - action: 进入「数据资产-元数据-数据地图」, 搜索表doris_table_b
-    expected: 搜索成功
-  - action: 进入表详情页, 查看血缘关系和任务依赖
-    expected: 显示依赖于上游任务A中的表doris_table_a
-  precondition: '离线对接Meta Doris数据源并引入至资产平台
+  - case_id: C0014
+    title: 验证【数据质量】-【规则库配置】执行两表行数对比规则，两张表行数均为 3 且结果达标
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建对比源表与对比目标表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0014_source;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0014_source (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0014_source VALUES (1, 'A'), (2, 'B'), (3, 'C');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0014_comparison;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0014_comparison (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0014_comparison VALUES (1, 'A'), (2, 'B'), (3, 'C');
+      5) 规则任务「${TaskD}」配置两张表行数对比
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 打开 ${TaskD} 详情
+        expected: 规则详情展示 test_table_15603_c0014_source、test_table_15603_c0014_comparison 和行数对比项
+      - action: 点击【立即执行】并查看结果
+        expected: 结果状态为「达标」，两张表行数均为 3
+    tags:
+      - 数据质量
+      - 规则库配置
+      - 一致性
+      - 多表对比
 
+  - case_id: C0015
+    title: 验证【数据资产】-【数据地图】搜索 Doris3.x 数据表，结果展示 2 张表且详情展示类型与库表信息
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建两张数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0015_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0015_source_01 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0015_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0015_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0015_source_02 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0015_source_02 VALUES (1, 'B');
+      5) 两张表均已完成元数据同步
+    steps:
+      - action: 进入【数据资产 → 数据地图】页面
+        expected: 进入成功
+      - action: 选择资产类型「数据表」，搜索「test_table_15603_c0015」并点击【搜索】
+        expected: 结果展示 source_01、source_02 两条记录，数据源列均为 ${DataSourceA}
+      - action: 打开 source_01 详情
+        expected: 详情展示 Doris3.x 类型、数据库 ${SchemaA} 和表名 test_table_15603_c0015_source_01
+    tags:
+      - 数据资产
+      - 数据地图
+      - 搜索
 
-    测试语句
+  - case_id: C0016
+    title: 验证【元数据】-【元数据同步】创建过滤表同步任务并执行，同步记录仅包含选定的 2 张表
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建三张数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0016_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0016_source_01 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0016_source_01 VALUES (1, 'A');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0016_source_02;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0016_source_02 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0016_source_02 VALUES (1, 'B');
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0016_source_03;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0016_source_03 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0016_source_03 VALUES (1, 'C');
+      5) 数据表列表中只选择前两张表执行同步
+    steps:
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 进入成功
+      - action: 创建过滤表同步任务，选择 source_01、source_02 并提交
+        expected: Toast提示:「保存成功」，任务配置显示选定两张表
+      - action: 执行同步并查看结果
+        expected: 执行记录显示同步表数 2，source_03 未产生同步记录
+    tags:
+      - 元数据
+      - 元数据同步
+      - 过滤
 
-    DorisSQL任务A
+  - case_id: C0017
+    title: 验证【元数据】-【元数据同步】同步数据表负责人信息，数据表详情业务属性展示负责人
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0017 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0017 VALUES (1, 'A'), (2, 'B');
+      5) 元数据同步任务「${TaskE}」配置为同步表负责人信息，该表负责人为「王五」
+    steps:
+      - action: 进入【元数据 → 元数据同步】页面
+        expected: 进入成功
+      - action: 执行 ${TaskE} 同步任务
+        expected: 任务状态为「运行成功」，同步摘要包含负责人字段
+      - action: 打开 test_table_15603_c0017 数据表详情
+        expected: 业务属性「负责人」显示「王五」
+    tags:
+      - 元数据
+      - 元数据同步
+      - 负责人
 
-    DROP TABLE IF EXISTS doris_table_a;
+  - case_id: C0018
+    title: 验证【数据质量】-【规则库配置】配置规则任务的 Spark 参数并执行，执行日志展示参数且任务运行成功
+    priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0018 (
+           id BIGINT,
+           name STRING
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0018 VALUES (1, 'A'), (2, 'B'), (3, 'C');
+      5) 规则任务「${TaskF}」允许配置 Spark 参数
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 编辑 ${TaskF}，填写 spark.executor.memory=4g、spark.executor.cores=2 并保存
+        expected: Toast提示:「保存成功」，任务详情展示两个参数及对应值
+      - action: 点击【立即执行】并查看执行日志
+        expected: 日志参数区展示 spark.executor.memory=4g、spark.executor.cores=2，任务状态为「运行成功」
+    tags:
+      - 数据质量
+      - 规则库配置
+      - Spark参数
 
-    CREATE TABLE doris_table_a (id INT, val STRING)
+  - case_id: C0019
+    title: 验证【数据质量】-【质量报告】查看规则报告详情，展示字段总数达标数与异常明细
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 创建数据表并插入数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15603_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15603_c0019 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15603_c0019 VALUES (1, 'A', 500.00), (2, 'B', 800.00), (3, 'C', 50.00);
+      5) 规则任务「${TaskG}」执行完成，质量报告「${ReportA}」包含完整性和有效性规则，结果分别为「达标」和「不达标」
+      6) 报告字段总数为 2，达标字段数为 1，异常记录数为 2
+    steps:
+      - action: 进入【数据质量 → 质量报告】页面
+        expected: 进入成功
+      - action: 打开 ${ReportA} 详情
+        expected: 报告展示字段总数 2、达标字段数 1、异常记录数 2、达标率 50%
+      - action: 打开有效性规则明细
+        expected: 明细展示 2 条异常记录及字段值和异常原因
+    tags:
+      - 数据质量
+      - 质量报告
+      - 异常结果
 
-    ENGINE=OLAP
-
-    DISTRIBUTED BY HASH(id) BUCKETS 1
-
-    PROPERTIES(replication_num=1);
-
-
-    DorisSQL任务B
-
-    DROP TABLE IF EXISTS doris_table_b;
-
-    CREATE TABLE doris_table_b (id INT, val STRING)
-
-    ENGINE=OLAP
-
-    DISTRIBUTED BY HASH(id) BUCKETS 1
-
-    PROPERTIES(replication_num=1);'
-  tags:
-  - 元数据
-  - 数据地图
-- case_id: C0039
-  title: 验证血缘解析（INSERT INTO）
-  priority: P2
-  steps:
-  - action: 进入【数据资产 → 数据地图】页面
-    expected: 已进入【数据资产 → 数据地图】页面，显示页面标题与主要操作区域
-  - action: 进入「离线开发-数据开发-周期任务」页面
-    expected: 进入成功
-  - action: 新建 DorisSQL 任务, 并执行测试语句
-    expected: 执行成功
-  - action: '执行SQL:  INSERT INTO doris_table_b SELECT * FROM doris_table_a;'
-    expected: 执行成功
-  - action: 保存并提交
-    expected: 提交成功
-  - action: 查看任务B调度属性-任务间依赖
-    expected: 显示自动依赖于任务A
-  - action: 查看任务A,B的依赖视图
-    expected: 显示 doris_table_a → doris_table_b 依赖箭头
-  - action: 进入「数据资产-元数据-数据地图」, 搜索表doris_table_b
-    expected: 搜索成功
-  - action: 进入表详情页, 查看血缘关系和任务依赖
-    expected: 显示依赖于上游任务A中的表doris_table_a
-  precondition: '离线对接Meta Doris数据源并引入至资产平台
-
-
-    测试语句
-
-    DorisSQL任务A
-
-    DROP TABLE IF EXISTS doris_table_a;
-
-    CREATE TABLE doris_table_a (id INT, val STRING)
-
-    ENGINE=OLAP
-
-    DISTRIBUTED BY HASH(id) BUCKETS 1
-
-    PROPERTIES(replication_num=1);
-
-
-    DorisSQL任务B
-
-    DROP TABLE IF EXISTS doris_table_b;
-
-    CREATE TABLE doris_table_b (id INT, val STRING)
-
-    ENGINE=OLAP
-
-    DISTRIBUTED BY HASH(id) BUCKETS 1
-
-    PROPERTIES(replication_num=1);'
-  tags:
-  - 元数据
-  - 数据地图
-- case_id: C0040
-  title: 验证 「元数据」中 Doris 3.x 数据表查询和表数量显示目标记录及字段值
-  priority: P0
-  steps:
-  - action: 进入【数据资产 → 数据地图】页面
-    expected: 已进入【数据资产 → 数据地图】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【元数据】-【数据地图】页面
-    expected: 进入成功
-  - action: UI CHECK
-    expected: 「表来源」中新增Doris 3.x数据源, 并显示5条数据
-  - action: 点击「表来源」中的Doris 3.x
-    expected: 1) 跳转至数据表查询列表界面
-  - action: 进入「数据地图」主页面, 输入关键词vehicle_info_part 并查询
-    expected: 自动载入Doris 3.x数据源类型的查询结果, 显示5条数据表
-  - action: 选择Doris 3.x表进入表详情页面, 检查表来源显示
-    expected: 1) 显示5条Doris 3.x数据表
-  - action: ''
-    expected: 表名中的关键词被标红
-  - action: ''
-    expected: 表名右侧的icon显示Doris 3.x
-  - action: ''
-    expected: 表详情-基本信息-表来源中显示为Doris 3.x
-  precondition: "1) 数据资产-平台管理-数据源管理中已存在Doris3.x数据源\n2) Doris3.x数据源已授权给质量项目\n3) Doris3.x数据源已在「元数据同步」模块中自动同步或手动同步5条数据表, 建表语句如下:\n\
-    \nDROP TABLE IF EXISTS vehicle_info_part1;\n\nCREATE TABLE vehicle_info_part1 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part1 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part1;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part2;\n\nCREATE TABLE vehicle_info_part2 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251003 VALUES [('2025-10-03'), ('2025-10-04')),\n  PARTITION p20251004 VALUES\
-    \ [('2025-10-04'), ('2025-10-05'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251003 分区（2025-10-03）\nINSERT INTO vehicle_info_part2 VALUES\n('LDP91C60PE200011','知音','EREV','H60','常规','两驱','N3',0,'2025-10-03'),\n\
-    ('LDP91C60PE200012','知音','EREV','H60','常规','两驱','N3',1,'2025-10-03'),\n('LDP91C60PE200013','知音','EREV','H60','长续航','四驱','N5',1,'2025-10-03'),\n\
-    ('LDP91C60PE200014','知音','EREV','H60','长续航','四驱','N5',NULL,'2025-10-03'),\n('LDP91C60PE200015','知音','EREV','H60','常规','四驱','N3',1,'2025-10-03');\n\
-    \nSELECT * FROM vehicle_info_part2;\n\nDROP TABLE IF EXISTS vehicle_info_part3;\n\nCREATE TABLE vehicle_info_part3 (\n\
-    \  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT\
-    \ '动力类型',\n  car_config    STRING COMMENT '车型配置',\n  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT\
-    \ '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT\
-    \ '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'),\
-    \ ('2025-10-02')),\n  PARTITION p20251002 VALUES [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS\
-    \ 10\nPROPERTIES (\n  replication_num = 1\n);\n-- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part3 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part3;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part4;\n\nCREATE TABLE vehicle_info_part4 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part4 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part4;\n\nDROP TABLE\
-    \ IF EXISTS vehicle_info_part5;\n\nCREATE TABLE vehicle_info_part5 (\n  vin           VARCHAR(64) COMMENT '车辆唯一识别码',\n\
-    \  car_series    STRING COMMENT '车系',\n  car_power     STRING COMMENT '动力类型',\n  car_config    STRING COMMENT '车型配置',\n\
-    \  car_endurance STRING COMMENT '续航类型',\n  drive_type    STRING COMMENT '驱动形式',\n  car_equipment STRING COMMENT '车辆配置版本',\n\
-    \  is_certific   INT COMMENT '是否认证',\n  delivery_time DATE COMMENT '交付日期'\n)\nENGINE=OLAP\nDUPLICATE KEY(vin)\nPARTITION\
-    \ BY RANGE(delivery_time) (\n  PARTITION p20251001 VALUES [('2025-10-01'), ('2025-10-02')),\n  PARTITION p20251002 VALUES\
-    \ [('2025-10-02'), ('2025-10-03'))\n)\nDISTRIBUTED BY HASH(vin) BUCKETS 10\nPROPERTIES (\n  replication_num = 1\n);\n\
-    -- p20251001 分区（2025-10-01）\nINSERT INTO vehicle_info_part5 VALUES\n('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',0,'2025-10-01'),\n('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200004','追光','EV','H53a','常规','四驱','N3',NULL,'2025-10-01'),\n('LDP91C60PE200005','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200001','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n('LDP91C60PE200002','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01'),\n\
-    ('LDP91C60PE200003','追光','EV','H53a','常规','四驱','N3',1,'2025-10-01');\n\nSELECT * FROM vehicle_info_part5;"
-  tags:
-  - 元数据
-  - 数据地图
-- case_id: C0041
-  title: 验证 Doris 3.x 资产盘点页面显示目标记录及字段值
-  priority: P1
-  steps:
-  - action: 进入【数据资产 → 资产盘点】页面
-    expected: 已进入【数据资产 → 资产盘点】页面，显示页面标题与主要操作区域
-  - action: 进入【数据资产】-【资产盘点】页面
-    expected: 进入成功
-  - action: 检查「已接入数据源」
-    expected: 存在Doris 3.x数据源, 数据显示目标记录及字段值
-  - action: 检查「数据地图分布」
-    expected: 可选Doris 3.x数据源, 数据显示目标记录及字段值
-  - action: 检查「数据价值排行」
-    expected: 可选Doris 3.x数据源, 数据显示目标记录及字段值
-  - action: 检查「资源存储情况」
-    expected: 可选Doris 3.x数据源, 数据显示目标记录及字段值
-  - action: 检查「元数据变化趋势」
-    expected: 可选Doris 3.x数据源, 数据显示目标记录及字段值
-  precondition: 无
-  tags:
-  - 资产盘点
+  - case_id: C0020
+    title: 验证【平台管理】-【数据源管理】测试不可达 Doris3.x 数据源连接，提示连接失败且质量项目授权禁用
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源 A 类型：Doris3.x
+      3) 授权数据源：${DataSourceB}
+      4) 数据源 B 类型：Doris3.x
+      5) ${DataSourceB} 连接地址 doris.invalid.local:9030 不可达，尚未授权质量项目
+    steps:
+      - action: 进入【平台管理 → 数据源管理】页面
+        expected: 进入成功
+      - action: 点击 ${DataSourceB} 的【连接测试】
+        expected: Toast提示:「连接失败」，错误信息包含 doris.invalid.local:9030
+      - action: 点击 ${DataSourceB} 的【质量项目授权】
+        expected: 质量项目选择器禁用，不能为连接失败的数据源授权
+    tags:
+      - 平台管理
+      - 数据源管理
+      - 异常处理
