@@ -35,7 +35,7 @@ cases:
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 打开 hour_downstream_c0002 的「调度属性 → 任务间依赖」，点击「添加依赖」并选择 TaskQ
+      - action: 打开 hour_downstream_c0002 的「任务间依赖」配置，点击「添加依赖」并选择 TaskQ
         expected: 「依赖周期」默认选中「默认」，依赖推荐列表展示「依赖周期」「依赖方式」「选择周期」三列
       - action: 将「依赖周期」切换为「自定义」
         expected: 展示「依赖方式」，选项为「基于默认依赖周期的偏移」「优先寻找同小时的上游实例」，默认选中前者
@@ -60,7 +60,7 @@ cases:
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 打开 hour_downstream_c0003 的「调度属性 → 任务间依赖」，点击「添加依赖」并选择 TaskR
+      - action: 打开 hour_downstream_c0003 的「任务间依赖」配置，点击「添加依赖」并选择 TaskR
         expected: 依赖周期默认展示「自定义」，依赖方式默认展示「基于默认依赖周期的偏移」，选择周期默认展示 T-1
       - action: 保存任务后再次打开 hour_downstream_c0003 的依赖配置
         expected: 依赖周期、依赖方式、选择周期分别回显「自定义」「基于默认依赖周期的偏移」「T-1」
@@ -76,7 +76,7 @@ cases:
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 打开 hour_downstream_c0004 的「调度属性 → 任务间依赖」，点击「添加依赖」并选择 TaskS
+      - action: 打开 hour_downstream_c0004 的「任务间依赖」配置，点击「添加依赖」并选择 TaskS
         expected: 依赖周期默认展示「自定义」，依赖方式默认展示「优先寻找同小时的上游实例」，选择周期展示「-」
       - action: 保存任务后再次打开 hour_downstream_c0004 的依赖配置
         expected: 依赖周期、依赖方式、选择周期分别回显「自定义」「优先寻找同小时的上游实例」「-」
@@ -92,7 +92,7 @@ cases:
     steps:
       - action: 进入【数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 打开 TaskB 的「调度属性 → 任务间依赖」，点击「添加依赖」并选择 TaskA
+      - action: 打开 TaskB 的「任务间依赖」配置，点击「添加依赖」并选择 TaskA
         expected: 依赖周期使用系统默认值「默认」，「优先寻找同小时的上游实例」置灰且不可选择
       - action: 将鼠标悬停在置灰选项上
         expected: 提示所编辑任务与上游任务必须均为小时调度
