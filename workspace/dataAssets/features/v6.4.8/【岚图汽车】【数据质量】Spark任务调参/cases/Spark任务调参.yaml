@@ -19,7 +19,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0001，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0001，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.driver.maxResultSize=2g，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.maxResultSize=2g
@@ -43,7 +49,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0002，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0002，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 logLevel=ERROR，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 logLevel=ERROR
@@ -67,7 +79,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0003，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0003，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.speculation=true，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.speculation=true
@@ -91,7 +109,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0004，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0004，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.network.timeout=300s，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.network.timeout=300s
@@ -115,7 +139,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0005，为group_code配置重复值校验规则并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0005，为group_code配置重复值校验规则并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.sql.shuffle.partitions=10，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.sql.shuffle.partitions=10
@@ -139,7 +169,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0006，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0006，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.memory=1g 和 spark.yarn.executor.memoryOverhead=1024，确认配置并保存规则
         expected: 规则详情展示spark.executor.memory=1g和spark.yarn.executor.memoryOverhead=1024
@@ -163,7 +199,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0007，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0007，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.driver.memory=2g，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.memory=2g
@@ -187,7 +229,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0008，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0008，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.driver.cores=2，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.driver.cores=2
@@ -211,7 +259,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0009，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0009，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.memory=2g，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.executor.memory=2g
@@ -235,7 +289,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0010，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0010，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.instances=1、spark.executor.cores=2、spark.driver.cores=1，确认配置并保存规则
         expected: 规则详情回显三个参数及其配置值
@@ -259,7 +319,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0011，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0011，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，设置 spark.executor.instances=3，确认配置并保存规则
         expected: Toast提示:「保存成功」，规则详情的环境参数展示 spark.executor.instances=3
@@ -283,7 +349,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0012，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0012，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」
         expected: 默认内容包含spark.driver.cores=1、spark.driver.memory=1g、spark.driver.maxResultSize=1g、spark.executor.instances=1、spark.executor.cores=1、spark.executor.memory=1g、logLevel=INFO、spark.network.timeout=120s、spark.sql.shuffle.partitions=200、spark.speculation=false
@@ -332,7 +404,13 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则任务管理】页面
         expected: 进入成功
-      - action: 新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0014，完成监控规则配置并进入「调度属性」步骤
+      - action: |-
+          新建单表校验规则，监控对象选择 ${DataSourceA}.${SchemaA}.test_table_15532_c0014，完成监控规则配置并进入「调度属性」步骤，配置如下：
+          * 调度周期：手动触发
+          规则拼接包：2
+          资源组：默认资源组
+          超时时间：不限制
+          无需生成报告：勾选
         expected: 「调度属性」展示「环境参数配置」入口
       - action: 打开「环境参数配置」，将spark.executor.cores改为2并点击「取消」
         expected: 配置窗口关闭，重新打开后spark.executor.cores仍为1
