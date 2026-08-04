@@ -1,137 +1,195 @@
 meta:
   title: 任务时长限制
+  requirement_id: "none"
   case_module_id: ""
   exports:
     - 任务时长限制.xmind
 cases:
   - case_id: C0001
-    title: 验证编辑历史规则，配置「超时时间」功能正确
+    title: 验证【数据质量】-【规则任务管理】编辑历史规则配置超时时间为自定义并运行，运行超过 5 分钟任务被强制杀死且状态为中途停止
     priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0001 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0001 SELECT id, CAST(id AS DECIMAL(10,2)) FROM range(1, 1000001);
+      5) 存在历史规则任务「${TaskA}」，监控对象为 ${SchemaA}.test_table_none_c0001，其「调度属性」中「超时时间」为「不限制」
     steps:
-      - action: 进入【数据质量 → 编辑历史规则，配置超时时间功能正确】页面
-        expected: 已进入【数据质量 → 编辑历史规则，配置超时时间功能正确】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 选择「规则B」，点击编辑，进入「调度属性」页
-        expected: 页面加载完成且显示目标控件打开
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 打开规则任务「${TaskA}」点击【编辑】，进入「调度属性」页面
+        expected: 页面加载完成，展示「超时时间」配置区域
       - action: 查看「超时时间」区域
-        expected: 默认选择为「不限制」
-      - action: 编辑「超时时间」选择「自定义」
-        expected: 弹出时间配置框，可配置小时、分钟
-      - action: 配置为：00时05分，保存规则，且「调度属性」中配置「规则报告」为最新结果
-        expected: 规则保存成功
-      - action: 临时运行规则，查看实例详情及质量报告
-        expected: 运行时间超过5分钟，该任务被自动杀掉，不再运行，未生成质量报告
-      - action: 查看任务状态
-        expected: 显示为“中途停止”
-    precondition: 存在历史规则任务B
-  - case_id: C0002
-    title: 验证编辑不限制「超时时间」为自定义，功能正确
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 编辑不限制超时时间为自定义，功能正确】页面
-        expected: 已进入【数据质量 → 编辑不限制超时时间为自定义，功能正确】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 选择「规则A」，点击编辑，进入「调度属性」页
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看「超时时间」区域
-        expected: 显示为「不限制」
-      - action: 编辑「超时时间」选择「自定义」
-        expected: 弹出时间配置框，可配置小时、分钟
-      - action: 配置为：00时05分，保存规则，且「调度属性」中配置「规则报告」为最新结果
-        expected: 规则保存成功
-      - action: 临时运行规则，查看实例详情及质量报告
-        expected: 运行时间超过5分钟，该任务被自动杀掉，不再运行，未生成质量报告
-      - action: 查看任务状态
-        expected: 显示为“中途停止”
-    precondition: 存在规则A为不限制「超时时间」
-  - case_id: C0003
-    title: 验证不限制「超时时间」功能正确
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 不限制超时时间功能正确】页面
-        expected: 已进入【数据质量 → 不限制超时时间功能正确】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
-        expected: 监控对象配置成功； 进入「监控规则」配置页
-      - action: 正确配置「监控规则」，进入「调度属性」配置页
-        expected: 页面加载完成且显示目标控件打开
-      - action: 正确配置「调度属性」，「超时时间」选择「不限制」，保存规则，且「调度属性」中配置「规则报告」为最新结果
-        expected: 规则保存成功
-      - action: 临时运行规则，查看实例详情及质量报告
-        expected: 生成正确实例详情，质量报告展示正确
-    precondition: 无
-  - case_id: C0004
-    title: 验证运行时长小于「超时时间」功能正确
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 运行时长小于超时时间功能正确】页面
-        expected: 已进入【数据质量 → 运行时长小于超时时间功能正确】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
-        expected: 监控对象配置成功； 进入「监控规则」配置页
-      - action: 正确配置「监控规则」，进入「调度属性」配置页
-        expected: 页面加载完成且显示目标控件打开
-      - action: 正确配置「调度属性」，「超时时间」选择「自定义」
-        expected: 弹出时间配置框，可配置小时、分钟
-      - action: 配置为：10时00分，保存规则，且「调度属性」中配置「规则报告」为最新结果
-        expected: 规则保存成功
-      - action: 临时运行规则，查看实例详情及质量报告
-        expected: 运行时间小于10小时，生成正确实例详情，质量报告展示正确
-    precondition: 无
-  - case_id: C0005
-    title: 验证运行时长大于「超时时间」功能正确
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 运行时长大于超时时间功能正确】页面
-        expected: 已进入【数据质量 → 运行时长大于超时时间功能正确】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量-规则任务配置-监控对象」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 「规则名称」输入「test_rule」 「选择数据源」选择「${DATASOURCE}」 「选择数据库」选择「${DATABASE}」 「选择数据表」选择「${TABLE}」
-        expected: 监控对象配置成功； 进入「监控规则」配置页
-      - action: 正确配置「监控规则」，进入「调度属性」配置页
-        expected: 页面加载完成且显示目标控件打开
-      - action: 正确配置「调度属性」，「超时时间」选择「自定义」
-        expected: 弹出时间配置框，可配置小时、分钟
-      - action: 配置为：00时05分，保存规则，且「调度属性」中配置「规则报告」为最新结果
-        expected: 规则保存成功
-      - action: 临时运行规则，查看实例详情及质量报告
-        expected: 运行时间超过5分钟，该任务被自动杀掉，不再运行，未生成质量报告
-      - action: 查看任务状态
-        expected: 显示为“中途停止”
-    precondition: 无
-  - case_id: C0006
-    title: 验证「超时时间」配置内容交互
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 超时时间配置内容交互】页面
-        expected: 已进入【数据质量 → 超时时间配置内容交互】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量-规则任务管理-调度属性」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看区域配置内容
         expected: 默认选择「不限制」
-      - action: 鼠标悬浮“？”
-        expected: 悬浮提示：“任务运行时长大于超时时间时平台将对其强制杀死。”
+      - action: 「超时时间」选择「自定义」
+        expected: 弹出时间配置框，可配置小时、分钟
+      - action: 「超时时间」配置为 00 时 05 分，点击【保存】
+        expected: Toast 提示「保存成功」
+      - action: 临时运行规则任务，等待实例运行并查看任务状态
+        expected: 任务运行时长超过 5 分钟后被强制杀死，不再运行，状态展示「中途停止」，未生成质量报告
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
+  - case_id: C0002
+    title: 验证【数据质量】-【规则任务管理】编辑历史规则将超时时间由不限制改为自定义并运行，运行超过 5 分钟任务被强制杀死且状态为中途停止
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0002 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0002 SELECT id, CAST(id AS DECIMAL(10,2)) FROM range(1, 1000001);
+      5) 存在历史规则任务「${TaskB}」，监控对象为 ${SchemaA}.test_table_none_c0002，其「调度属性」中「超时时间」为「不限制」
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 打开规则任务「${TaskB}」点击【编辑】，进入「调度属性」页面
+        expected: 页面加载完成，展示「超时时间」配置区域
+      - action: 查看「超时时间」区域
+        expected: 默认选择「不限制」
+      - action: 「超时时间」选择「自定义」
+        expected: 弹出时间配置框，可配置小时、分钟
+      - action: 「超时时间」配置为 00 时 05 分，点击【保存】
+        expected: Toast 提示「保存成功」
+      - action: 临时运行规则任务，等待实例运行并查看任务状态
+        expected: 任务运行时长超过 5 分钟后被强制杀死，不再运行，状态展示「中途停止」，未生成质量报告
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
+  - case_id: C0003
+    title: 验证【数据质量】-【规则任务管理】新建规则任务配置超时时间为不限制并运行，生成正确实例与质量报告
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0003;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0003 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0003 VALUES (1, 10.00), (2, 20.00), (3, 30.00), (4, 40.00);
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击【新建监控规则】，「规则名称」输入「${TaskC}」，「选择数据源」选择 ${DataSourceA}，「选择数据库」选择 ${SchemaA}，「选择数据表」选择 ${SchemaA}.test_table_none_c0003
+        expected: 监控对象配置成功，进入「监控规则」配置页
+      - action: 添加「完整性校验」规则，规则类型选择「表级」，统计函数选择「表行数」，校验方法选择「固定值」，期望值输入 4
+        expected: 规则保存成功，进入「调度属性」配置页
+      - action: 「调度属性」中「超时时间」选择「不限制」，规则报告配置为「最新结果」，保存规则
+        expected: Toast 提示「保存成功」
+      - action: 临时运行规则任务，查看实例详情及质量报告
+        expected: 生成正确实例详情，实例状态展示「通过」，质量报告展示表行数实际值 4
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
+  - case_id: C0004
+    title: 验证【数据质量】-【规则任务管理】新建规则任务配置超时时间为自定义并运行，运行时长小于超时时间正常生成实例与质量报告
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0004;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0004 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0004 VALUES (1, 10.00), (2, 20.00), (3, 30.00), (4, 40.00);
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击【新建监控规则】，「规则名称」输入「${TaskD}」，「选择数据源」选择 ${DataSourceA}，「选择数据库」选择 ${SchemaA}，「选择数据表」选择 ${SchemaA}.test_table_none_c0004
+        expected: 监控对象配置成功，进入「监控规则」配置页
+      - action: 添加「完整性校验」规则，规则类型选择「表级」，统计函数选择「表行数」，校验方法选择「固定值」，期望值输入 4
+        expected: 规则保存成功，进入「调度属性」配置页
+      - action: 「调度属性」中「超时时间」选择「自定义」，配置为 10 时 00 分，规则报告配置为「最新结果」，保存规则
+        expected: Toast 提示「保存成功」
+      - action: 临时运行规则任务，查看实例详情及质量报告
+        expected: 任务运行时长小于 10 小时，生成正确实例详情，实例状态展示「通过」，质量报告展示表行数实际值 4
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
+  - case_id: C0005
+    title: 验证【数据质量】-【规则任务管理】新建规则任务配置超时时间为自定义并运行，运行时长超过超时时间任务被强制杀死且状态为中途停止
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0005;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0005 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0005 SELECT id, CAST(id AS DECIMAL(10,2)) FROM range(1, 1000001);
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击【新建监控规则】，「规则名称」输入「${TaskE}」，「选择数据源」选择 ${DataSourceA}，「选择数据库」选择 ${SchemaA}，「选择数据表」选择 ${SchemaA}.test_table_none_c0005
+        expected: 监控对象配置成功，进入「监控规则」配置页
+      - action: 添加「完整性校验」规则，规则类型选择「表级」，统计函数选择「表行数」，校验方法选择「固定值」，期望值输入 1000000
+        expected: 规则保存成功，进入「调度属性」配置页
+      - action: 「调度属性」中「超时时间」选择「自定义」，配置为 00 时 05 分，规则报告配置为「最新结果」，保存规则
+        expected: Toast 提示「保存成功」
+      - action: 临时运行规则任务，查看实例详情及质量报告
+        expected: 任务运行时长超过 5 分钟后被强制杀死，不再运行，状态展示「中途停止」，未生成质量报告
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
+  - case_id: C0006
+    title: 验证【数据质量】-【规则任务管理】查看调度属性超时时间配置区域，默认不限制且自定义可配置小时与分钟
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0006;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0006 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0006 VALUES (1, 10.00), (2, 20.00), (3, 30.00), (4, 40.00);
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击【新建监控规则】，完成监控对象与监控规则配置，进入「调度属性」页面
+        expected: 页面加载完成，展示「超时时间」配置区域
+      - action: 查看「超时时间」默认值
+        expected: 默认选择「不限制」
+      - action: 鼠标悬浮「超时时间」旁的“？”
+        expected: 悬浮提示「任务运行时长大于超时时间时平台将对其强制杀死。」
       - action: 选择「自定义」
         expected: 弹出时间配置框，可配置小时、分钟
       - action: 点击小时下拉框
-        expected: 可选择“00～23”
+        expected: 可选择「00」～「23」
       - action: 点击分钟下拉框
-        expected: 可选择“00～59”
-    precondition: 无
+        expected: 可选择「00」～「59」
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
   - case_id: C0007
-    title: 验证「调度属性」页面新增「超时时间」
+    title: 验证【数据质量】-【规则任务管理】查看调度属性页面，配置区域新增超时时间且可选不限制与自定义
     priority: P2
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建数据表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_none_c0007;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_none_c0007 (id BIGINT, amount DECIMAL(10,2));
+         INSERT INTO ${SchemaA}.test_table_none_c0007 VALUES (1, 10.00), (2, 20.00), (3, 30.00), (4, 40.00);
     steps:
-      - action: 进入【数据质量 → 超时时间】页面
-        expected: 已进入【数据质量 → 超时时间】页面，显示页面标题与主要操作区域
-      - action: 进入「资产-数据质量-规则任务管理-调度属性」页面
-        expected: 页面加载完成且显示目标控件打开
-      - action: 查看页面
-        expected: |-
-          1） 「调度配置」区域新增「超时时间」
-          2） 可选择「不限制」和「自定义」
-    precondition: 无
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 点击【新建监控规则】，完成监控对象与监控规则配置，进入「调度属性」页面
+        expected: 页面加载完成，展示「调度配置」区域
+      - action: 查看「调度配置」区域
+        expected: 1） 「调度配置」区域新增「超时时间」；2） 「超时时间」可选择「不限制」和「自定义」
+    tags:
+      - 数据质量
+      - 规则任务管理
+      - 超时时间
