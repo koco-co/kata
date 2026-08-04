@@ -8,360 +8,244 @@ meta:
     - 6.2引擎bug修复.xmind
 cases:
   - case_id: C0001
-    title: 验证HiveSQL任务正常运行
+    title: 验证【离线开发】-【周期任务】新建并运行HiveSQL任务，展示两分区统计且每分区行数均为1
     priority: P1
     precondition: |-
-      Hive分区表
-
-      CREATE TABLE example_partitioned_table (
-          id INT,
-          name STRING,
-          age SMALLINT,
-          bio STRING,
-          last_seen TIMESTAMP,
-          is_active BOOLEAN,
-          height DECIMAL(3,2),
-          email STRING,
-          registration_date TIMESTAMP,
-          profile_picture BINARY,
-          salary DOUBLE,
-          revision INT
-      )
-      COMMENT 'Example Partitioned Table'
-      PARTITIONED BY (birth_date DATE)
-      ROW FORMAT DELIMITED
-      FIELDS TERMINATED BY ','
-      STORED AS TEXTFILE;
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1994-06-14') VALUES
-      (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
-      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
-      (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Hive2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15008_c0001;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15008_c0001 (
+           id BIGINT,
+           name STRING
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15008_c0001 PARTITION (dt)
+         SELECT 1, 'previous_day', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'current_day', date_format(current_date(), 'yyyy-MM-dd');
     steps:
-      - action: 进入【离线开发 → HiveSQL任务正常运行】页面
-        expected: 已进入【离线开发 → HiveSQL任务正常运行】页面，显示页面标题与主要操作区域
-      - action: 进入离线开发-周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建HiveSQL任务
-        expected: 创建成功
-      - action: 执行HiveSQL语句
-        expected: 执行成功
-      - action: "查询: SELECT * FROM example_partitioned_table;"
-        expected: 查询成功
+      - action: |-
+          新建HiveSQL周期任务：
+          任务名称：TaskA
+          数据源：${DataSourceA}
+          SQL：SELECT dt, COUNT(*) AS row_count FROM ${SchemaA}.test_table_15008_c0001 GROUP BY dt ORDER BY dt;
+        expected: 任务编辑器展示分区统计SQL且语法检查无错误
+      - action: 保存并运行 TaskA
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 查询结果展示前一日、当日两个分区且每个分区的 row_count 均为 1
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0002
-    title: 验证数据同步任务正常运行(MySQL ❯ Hive)
+    title: 验证【离线开发】-【周期任务】新建并运行数据同步任务，目标表同步3行数据(MySQL→Hive)
     priority: P0
     precondition: |-
-      MySQL建表语句
-
-      CREATE TABLE example_table (
-          id INT AUTO_INCREMENT PRIMARY KEY COMMENT '自增主键ID',
-          name VARCHAR(255) NOT NULL COMMENT '用户名，不能为空',
-          age TINYINT UNSIGNED COMMENT '年龄，非负数',
-          bio TEXT COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '最后一次在线时间，默认当前时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高，单位米，保留两位小数',
-          email VARCHAR(255) UNIQUE COMMENT '邮箱，唯一',
-          registration_date DATETIME COMMENT '注册日期和时间',
-          profile_picture BLOB COMMENT '头像图片二进制数据',
-          salary DOUBLE COMMENT '薪资',
-          revision INT DEFAULT 1 COMMENT '版本号，默认1',
-          metadata JSON COMMENT '额外元数据信息，JSON格式'
-      );
-
-
-      INSERT INTO example_table (name, age, bio, birth_date, is_active, height, email, registration_date, profile_picture, salary, metadata)
-      VALUES
-      ('张三', 28, '热爱编程的软件工程师', '1997-05-30', TRUE, 1.75, 'zhangsan@example.com', '2020-01-01 10:00:00', NULL, 12000.50, '{"department":"研发部","level":"中级"}'),
-      ('李四', 34, '经验丰富的项目经理', '1989-08-15', TRUE, 1.80, 'lisi@example.com', '2019-03-12 09:30:00', NULL, 15000.75, '{"department":"项目管理部","level":"高级"}'),
-      ('王五', 22, '新晋的数据分析师', '2003-02-20', FALSE, 1.65, 'wangwu@example.com', '2022-06-01 14:20:00', NULL, 8000.00, '{"department":"数据分析部","level":"初级"}'),
-      ('赵六', 45, '资深的产品设计师', '1978-12-11', TRUE, 1.70, 'zhaoliu@example.com', '2018-07-23 16:45:00', NULL, 20000.00, '{"department":"产品设计部","level":"专家"}'),
-      ('孙七', 30, '专业的前端开发人员', '1995-04-04', TRUE, 1.78, 'sunqi@example.com', '2021-02-28 11:11:11', NULL, 13000.00, '{"department":"前端开发部","level":"中级"}'),
-      ('周八', 26, '移动应用开发者', '1999-11-22', FALSE, 1.68, 'zhouba@example.com', '2023-09-15 08:50:00', NULL, 9500.25, '{"department":"移动端开发部","level":"初级"}');
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：MySQL
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在 ${SchemaA} 创建MySQL源表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15008_c0002_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15008_c0002_source_01 (
+           id BIGINT PRIMARY KEY,
+           name VARCHAR(64),
+           amount DECIMAL(10,2)
+         );
+         INSERT INTO ${SchemaA}.test_table_15008_c0002_source_01 VALUES
+           (1, 'alpha', 10.00),
+           (2, 'beta', 20.00),
+           (3, 'gamma', 30.00);
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Hive2.x
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在 ${SchemaB} 创建写入权限校验表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15008_c0002_dimension_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15008_c0002_dimension_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15008_c0002_dimension_01 VALUES (1, 'permission_check');
+      9) ${SchemaB} 中不存在 test_table_15008_c0002_target_01
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入离线开发-周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建MySQL2Hive数据同步任务
-        expected: 创建成功
       - action: |-
-          源端配置：
-          数据源: MySQL
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功
-      - action: |-
-          选择目标配置:
-          数据源: Hive
-          Schema: ${schemaB}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "新建HiveSQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与MySQL表记录一致
+          新建数据同步周期任务：
+          任务名称：TaskD
+          来源类型：MySQL
+          来源数据源：${DataSourceA}
+          来源数据库：${SchemaA}
+          来源表：test_table_15008_c0002_source_01
+          目标类型：Hive
+          目标数据源：${DataSourceB}
+          目标数据库：${SchemaB}
+          目标表：test_table_15008_c0002_target_01
+          建表方式：一键生成目标表
+          写入模式：覆盖
+          字段映射：同名映射
+        expected: 映射区展示 id、name、amount 三个同名字段且目标表状态为「待创建」
+      - action: 保存并运行 TaskD
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT COUNT(*) FROM ${SchemaB}.test_table_15008_c0002_target_01;
+             查询结果：3
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0003
-    title: 验证数据同步任务正常运行(SR ❯ Hive)
+    title: 验证【离线开发】-【周期任务】新建并运行数据同步任务，目标表同步3行数据(StarRocks→Hive)
     priority: P2
     precondition: |-
-      SR建表语句
-      CREATE TABLE example_primary_key_table (
-          id LARGEINT NOT NULL COMMENT '主键 ID',
-          registration_date DATETIME NOT NULL COMMENT '注册时间',
-          name VARCHAR(255) COMMENT '用户名',
-          age TINYINT COMMENT '年龄',
-          bio VARCHAR(65533) COMMENT '个人简介',
-          birth_date DATE COMMENT '出生日期',
-          last_seen DATETIME COMMENT '最后在线时间',
-          is_active BOOLEAN COMMENT '是否活跃',
-          height DECIMAL(3,2) COMMENT '身高（米）',
-          email VARCHAR(255) COMMENT '邮箱',
-          profile_picture STRING COMMENT '头像图片',
-          salary DOUBLE COMMENT '薪资',
-          revision INT COMMENT '修订版本号',
-          metadata STRING COMMENT '元数据'
-      )
-      PRIMARY KEY (id, registration_date)
-      PARTITION BY RANGE (registration_date) (
-          PARTITION p2020 VALUES LESS THAN ("2021-01-01 00:00:00"),
-          PARTITION p2021 VALUES LESS THAN ("2022-01-01 00:00:00"),
-          PARTITION p2022 VALUES LESS THAN ("2023-01-01 00:00:00"),
-          PARTITION p2023 VALUES LESS THAN ("2024-01-01 00:00:00"),
-          PARTITION pmax VALUES LESS THAN ("9999-12-31 00:00:00")
-      )
-      DISTRIBUTED BY HASH(id) BUCKETS 1
-      PROPERTIES (
-          "replication_num" = "1"
-      );
-
-
-      -- 插入第一条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5001,
-          '2024-03-15 10:30:00',
-          '杨帆',
-          28,
-          '数据库管理员，专长MySQL与PostgreSQL优化。',
-          '1996-06-10',
-          '2025-06-04 10:00:00',
-          TRUE,
-          1. 74,
-          'yangfan@example.com',
-          'https://example.com/pic/yangfan.jpg',
-          13000. 0,
-          1,
-          '{"经验": "DBA", "公司": "某金融机构"}'
-      );
-
-      -- 插入第二条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5002,
-          '2024-07-22 09:15:00',
-          '孙倩',
-          31,
-          'UX设计师，关注用户行为与界面交互设计。',
-          '1993-04-18',
-          '2025-06-04 09:30:00',
-          TRUE,
-          1. 65,
-          'sunqian@example.com',
-          'https://example.com/pic/sunqian.jpg',
-          15000. 0,
-          2,
-          '{"技能": ["Figma", "Sketch"], "城市": "杭州"}'
-      );
-
-      -- 插入第三条数据
-      INSERT INTO example_primary_key_table (
-          id, registration_date, name, age, bio, birth_date, last_seen, is_active, height,
-          email, profile_picture, salary, revision, metadata
-      ) VALUES (
-          5003,
-          '2025-01-10 14:20:00',
-          '马超',
-          42,
-          '技术总监，具备多年团队管理与项目规划经验。',
-          '1982-11-05',
-          '2025-06-03 18:45:00',
-          TRUE,
-          1. 78,
-          'machao@example.com',
-          'https://example.com/pic/machao.jpg',
-          24000. 0,
-          1,
-          '{"经历": ["创业", "大厂"], "国家": "中国"}'
-      );
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：StarRocks3.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在 ${SchemaA} 创建StarRocks源表并插入 3 行数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15008_c0003_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15008_c0003_source_01 (
+           id BIGINT,
+           name VARCHAR(64),
+           amount DECIMAL(10,2)
+         ) PRIMARY KEY (id)
+         DISTRIBUTED BY HASH(id) BUCKETS 1
+         PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaA}.test_table_15008_c0003_source_01 VALUES
+           (1, 'alpha', 10.00),
+           (2, 'beta', 20.00),
+           (3, 'gamma', 30.00);
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：Hive2.x
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在 ${SchemaB} 创建写入权限校验表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15008_c0003_dimension_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15008_c0003_dimension_01 (id BIGINT, name STRING);
+         INSERT INTO ${SchemaB}.test_table_15008_c0003_dimension_01 VALUES (1, 'permission_check');
+      9) ${SchemaB} 中不存在 test_table_15008_c0003_target_01
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入离线开发-周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建SR2Hive数据同步任务
-        expected: 创建成功
       - action: |-
-          源端配置：
-          数据源: SR
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功
-      - action: |-
-          选择目标配置:
-          数据源: Hive
-          Schema: ${schemaB}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "新建HiveSQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与SR表记录一致
+          新建数据同步周期任务：
+          任务名称：TaskE
+          来源类型：StarRocks
+          来源数据源：${DataSourceA}
+          来源数据库：${SchemaA}
+          来源表：test_table_15008_c0003_source_01
+          目标类型：Hive
+          目标数据源：${DataSourceB}
+          目标数据库：${SchemaB}
+          目标表：test_table_15008_c0003_target_01
+          建表方式：一键生成目标表
+          写入模式：覆盖
+          字段映射：同名映射
+        expected: 映射区展示 id、name、amount 三个同名字段且目标表状态为「待创建」
+      - action: 保存并运行 TaskE
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT COUNT(*) FROM ${SchemaB}.test_table_15008_c0003_target_01;
+             查询结果：3
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0004
-    title: 验证数据同步任务正常运行(Hive ❯ MySQL)
+    title: 验证【离线开发】-【周期任务】新建并运行数据同步任务，目标表同步2行数据(Hive→MySQL)
     priority: P2
     precondition: |-
-      Hive建表语句
-
-      CREATE TABLE example_partitioned_table (
-        id INT,
-        name STRING,
-        age SMALLINT,
-        bio STRING,
-        last_seen TIMESTAMP,
-        is_active BOOLEAN,
-        height DECIMAL(3,2),
-        email STRING,
-        registration_date TIMESTAMP,
-        profile_picture BINARY,
-        salary DOUBLE,
-        revision INT
-      )
-      COMMENT 'Example Partitioned Table'
-      PARTITIONED BY (birth_date DATE)
-      ROW FORMAT DELIMITED
-      FIELDS TERMINATED BY ','
-      STORED AS TEXTFILE;
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1994-06-14') VALUES
-      (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
-      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
-      (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Hive2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在 ${SchemaA} 创建分区源表并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15008_c0004_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15008_c0004_source_01 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15008_c0004_source_01 PARTITION (dt)
+         SELECT 1, 'previous_day', CAST(10 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'current_day', CAST(20 AS DECIMAL(10,2)), date_format(current_date(), 'yyyy-MM-dd');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：MySQL
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在 ${SchemaB} 创建写入权限校验表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15008_c0004_dimension_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15008_c0004_dimension_01 (id BIGINT PRIMARY KEY, name VARCHAR(64));
+         INSERT INTO ${SchemaB}.test_table_15008_c0004_dimension_01 VALUES (1, 'permission_check');
+      9) ${SchemaB} 中不存在 test_table_15008_c0004_target_01
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入离线开发-周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建Hive2MySQL数据同步任务
-        expected: 创建成功
       - action: |-
-          源端配置：
-          数据源: Hive
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功
-      - action: |-
-          选择目标配置:
-          数据源: MySQL
-          Schema: ${schemaB}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "新建MySQL任务, 执行SQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与Hive表记录一致
+          新建数据同步周期任务：
+          任务名称：TaskB
+          来源类型：Hive
+          来源数据源：${DataSourceA}
+          来源数据库：${SchemaA}
+          来源表：test_table_15008_c0004_source_01
+          目标类型：MySQL
+          目标数据源：${DataSourceB}
+          目标数据库：${SchemaB}
+          目标表：test_table_15008_c0004_target_01
+          建表方式：一键生成目标表
+          写入模式：覆盖
+          字段映射：同名映射
+        expected: 映射区展示 id、name、amount、dt 四个同名字段且目标表状态为「待创建」
+      - action: 保存并运行 TaskB
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT COUNT(*) FROM ${SchemaB}.test_table_15008_c0004_target_01;
+             查询结果：2
+    tags: ["离线开发", "数据开发", "周期任务"]
+
   - case_id: C0005
-    title: 验证数据同步任务正常运行(Hive ❯ SR)
+    title: 验证【离线开发】-【周期任务】新建并运行数据同步任务，目标表同步2行数据(Hive→StarRocks)
     priority: P0
     precondition: |-
-      Hive建表语句
-
-      CREATE TABLE example_partitioned_table (
-        id INT,
-        name STRING,
-        age SMALLINT,
-        bio STRING,
-        last_seen TIMESTAMP,
-        is_active BOOLEAN,
-        height DECIMAL(3,2),
-        email STRING,
-        registration_date TIMESTAMP,
-        profile_picture BINARY,
-        salary DOUBLE,
-        revision INT
-      )
-      COMMENT 'Example Partitioned Table'
-      PARTITIONED BY (birth_date DATE)
-      ROW FORMAT DELIMITED
-      FIELDS TERMINATED BY ','
-      STORED AS TEXTFILE;
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1994-06-14') VALUES
-      (3001, '黄娟', 30, 'UI设计师，注重界面美观与交互体验。', '2025-06-04 10:00:00', TRUE, 1.62, 'huangjuan@example.com', '2024-12-12 08:30:00', NULL, 14000.0, 1);
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1985-02-08') VALUES
-      (3002, '周杰', 40, '高级运维工程师，熟悉Kubernetes与云计算。', '2025-06-04 09:30:00', TRUE, 1.76, 'zhoujie@example.com', '2025-01-05 14:00:00', NULL, 20000.0, 2);
-
-      INSERT INTO TABLE example_partitioned_table PARTITION (birth_date = '1992-09-19') VALUES
-      (3003, '徐丽', 33, '市场营销专家，擅长品牌推广与社交媒体运营。', '2025-06-03 15:20:00', FALSE, 1.67, 'xuli@example.com', '2024-11-30 13:15:00', NULL, 16000.0, 1);
+      1) 授权数据源 A：${DataSourceA}
+      2) 数据源 A 类型：Hive2.x
+      3) 数据源 A 存在数据库：${SchemaA}
+      4) 在 ${SchemaA} 创建分区源表并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15008_c0005_source_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15008_c0005_source_01 (
+           id BIGINT,
+           name STRING,
+           amount DECIMAL(10,2)
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO ${SchemaA}.test_table_15008_c0005_source_01 PARTITION (dt)
+         SELECT 1, 'previous_day', CAST(10 AS DECIMAL(10,2)), date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'current_day', CAST(20 AS DECIMAL(10,2)), date_format(current_date(), 'yyyy-MM-dd');
+      5) 授权数据源 B：${DataSourceB}
+      6) 数据源 B 类型：StarRocks3.x
+      7) 数据源 B 存在数据库：${SchemaB}
+      8) 在 ${SchemaB} 创建写入权限校验表并插入 1 行数据：
+         DROP TABLE IF EXISTS ${SchemaB}.test_table_15008_c0005_dimension_01;
+         CREATE TABLE IF NOT EXISTS ${SchemaB}.test_table_15008_c0005_dimension_01 (
+           id BIGINT,
+           name VARCHAR(64)
+         ) PRIMARY KEY (id)
+         DISTRIBUTED BY HASH(id) BUCKETS 1
+         PROPERTIES ("replication_num" = "1");
+         INSERT INTO ${SchemaB}.test_table_15008_c0005_dimension_01 VALUES (1, 'permission_check');
+      9) ${SchemaB} 中不存在 test_table_15008_c0005_target_01
     steps:
-      - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入离线开发-周期任务
+      - action: 进入【离线开发 → 数据开发 → 周期任务】页面
         expected: 进入成功
-      - action: 创建Hive2SR数据同步任务
-        expected: 创建成功
       - action: |-
-          源端配置：
-          数据源: Hive
-          Schema: ${schemaA}
-          表名: ${tableA}
-        expected: 配置成功
-      - action: |-
-          选择目标配置:
-          数据源: SR
-          Schema: ${schemaB}
-          表名: 一键生成目标表
-          写入模式: 覆盖
-        expected: 配置成功
-      - action: |-
-          其他配置:
-          字段映射: 同名映射
-          通道控制: 默认
-        expected: 配置成功
-      - action: 保存任务后运行
-        expected: 运行成功
-      - action: "新建SR任务, 执行SQL: SELECT * FROM ${schemaB}.${tableA};"
-        expected: 查询成功, 表记录与Hive表记录一致
+          新建数据同步周期任务：
+          任务名称：TaskC
+          来源类型：Hive
+          来源数据源：${DataSourceA}
+          来源数据库：${SchemaA}
+          来源表：test_table_15008_c0005_source_01
+          目标类型：StarRocks
+          目标数据源：${DataSourceB}
+          目标数据库：${SchemaB}
+          目标表：test_table_15008_c0005_target_01
+          建表方式：一键生成目标表
+          写入模式：覆盖
+          字段映射：同名映射
+        expected: 映射区展示 id、name、amount、dt 四个同名字段且目标表状态为「待创建」
+      - action: 保存并运行 TaskC
+        expected: |-
+          1) 任务运行状态：「成功」
+          2) 执行SQL：SELECT COUNT(*) FROM ${SchemaB}.test_table_15008_c0005_target_01;
+             查询结果：2
+    tags: ["离线开发", "数据开发", "周期任务"]
