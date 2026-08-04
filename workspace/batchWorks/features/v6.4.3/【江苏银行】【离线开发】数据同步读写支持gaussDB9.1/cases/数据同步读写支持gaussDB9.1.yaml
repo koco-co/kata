@@ -7,2729 +7,2999 @@ meta:
   exports:
   - 数据同步读写支持gaussDB9.1.xmind
 cases:
-- case_id: C0001
-  title: 验证支持引入GaussDB数据源完成目标操作且状态更新
-  priority: P1
-  precondition: '1. 成功进入测试项目
-
-    2. 数据源中心存在授权给离线计算的GaussDB数据源'
-  steps:
-  - action: 进入【离线开发 → 引入--】页面
-    expected: 已进入【离线开发 → 引入--】页面，显示页面标题与主要操作区域
-  - action: 点击数据源--引入数据源
-    expected: 当前页面弹窗引入数据源列表
-  - action: 点击数据源类型下拉框
-    expected: 展示GaussDB选项
-  - action: 选择GaussDB类型的数据源
-    expected: GaussDB的对应信息在离线项目页面中正确回显，对应字段详见prd
-  - action: 选中GaussDB数据源，点击确定
-    expected: 引入GaussDB数据源成功，当前弹窗关闭
-  tags:
-  - 数据源
-  - 引入--
-- case_id: C0002
-  title: 验证数据源中心修改GaussDB配置（jdbc、高可用配置）同步至离线对应数据同步任务
-  priority: P0
-  precondition: 离线测试项目中已经成功引入GaussDB数据源
-  steps:
-  - action: 进入【离线开发 → 配置同步任务--】页面
-    expected: 已进入【离线开发 → 配置同步任务--】页面，显示页面标题与主要操作区域
-  - action: 进入数据源中心，编辑已经引入到离线项目中且已经被任务引用的GaussDB数据源，如修改jdbc、高可用配置，查看离线数据同步任务中对应的GaussDB信息
-    expected: 离线数据同步任务中的GaussDB数据源信息、高可用配置同步修改
-  tags:
-  - 数据源
-  - 配置同步任务--
-- case_id: C0003
-  title: 验证数据源中心修改GaussDB配置（描述、jdbc）同步至离线数据源
-  priority: P1
-  precondition: 离线测试项目中已经成功引入GaussDB数据源
-  steps:
-  - action: 进入【离线开发 → 配置同步数据源--】页面
-    expected: 已进入【离线开发 → 配置同步数据源--】页面，显示页面标题与主要操作区域
-  - action: 进入数据源中心，编辑已经引入到离线项目中的GaussDB数据源，如修改描述、jdbc等，查看离线中对应的GaussDB数据源信息
-    expected: 离线中的GaussDB数据源信息同步修改
-  tags:
-  - 数据源
-  - 配置同步数据源--
-- case_id: C0004
-  title: 验证已经在任务中使用的GaussDB数据源取消引入--取消失败
-  priority: P1
-  precondition: 验证已经在任务中使用的GaussDB数据源取消引入--取消失败
-  steps:
-  - action: 进入【离线开发 → 引入取消--】页面
-    expected: 已进入【离线开发 → 引入取消--】页面，显示页面标题与主要操作区域
-  - action: 点击已经被任务使用的GaussDB数据源后的操作，点击取消引入
-    expected: 弹出二次确认弹窗
-  - action: 点击确定
-    expected: 取消引入失败，页面弹出对应的提示信息
-  tags:
-  - 数据源
-  - 引入取消--
-- case_id: C0005
-  title: 验证未在任务中使用的GaussDB数据源取消引入--取消成功
-  priority: P1
-  precondition: '1. 成功进入测试项目
-
-    2. 数据源中心存在授权给离线计算的GaussDB数据源，且该数据源未在离线任务中使用'
-  steps:
-  - action: 进入【离线开发 → 引入取消--】页面
-    expected: 已进入【离线开发 → 引入取消--】页面，显示页面标题与主要操作区域
-  - action: 点击未被使用的GaussDB数据源后的操作，点击取消引入
-    expected: 弹出二次确认弹窗
-  - action: 点击确定
-    expected: 取消引入成功
-  tags:
-  - 数据源
-  - 引入取消--
-- case_id: C0006
-  title: 验证筛选GaussDB数据源完成目标操作且状态更新
-  priority: P2
-  precondition: 离线测试项目中已经成功引入GaussDB数据源
-  steps:
-  - action: 进入【离线开发 → 数据源】页面
-    expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
-  - action: 点击数据源页面筛选按钮
-    expected: 显示数据源类型列表，新增GaussDB数据源类型，顺序与数据源中心一致
-  - action: 选中GaussDB，点击确定
-    expected: GaussDB类型的数据源被成功筛选出来，对应信息正确回显，类型正确展示GaussDB
-  - action: 在搜索框中输入GaussDB名称
-    expected: 满足条件的GaussDB数据源被筛选出来
-  tags:
-  - 数据源
-- case_id: C0007
-  title: 验证GaussDB数据源在测试项目中映射配置完成目标操作且状态更新
-  priority: P0
-  precondition: '1. 离线测试项目与生产项目中已经成功引入GaussDB数据源
-
-    2. 当前项目（测试项目）已经成功绑定发布目标项目'
-  steps:
-  - action: 进入【离线开发 → 数据源】页面
-    expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
-  - action: 点击GaussDB数据源后的操作
-    expected: 操作支持取消引入和映射配置
-  - action: 点击GaussDB数据源后的操作--映射配置
-    expected: 当前页面弹出GaussDB数据源映射配置弹窗，在本项目文本框下显示的为用户名
-  - action: 点击发布目标
-    expected: 下拉弹窗中显示出生产项目中成功引入的GaussDB数据源
-  - action: 选择其中一个，点击确定
-    expected: 映射配置弹窗关闭，GaussDB数据源映射配置关系设置成功，GaussDB映射关系变更为“已配置”
-  tags:
-  - 数据源
-- case_id: C0008
-  title: 验证在生产项目中GaussDB数据源不支持配置映射功能
-  priority: P1
-  precondition: '1. 离线测试项目中已经成功引入GaussDB数据源
-
-    2. 当前项目作为生产项目'
-  steps:
-  - action: 进入【离线开发 → 数据源】页面
-    expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
-  - action: 进入生产项目，点击GaussDB数据源后的操作
-    expected: 操作支持取消引入，无映射配置选项
-  tags:
-  - 数据源
-- case_id: C0009
-  title: 验证控制台配置计算组件后，创建项目正常产生对应meta数据源
-  priority: P0
-  precondition: 1. 控制台已经配置对应组件
-  steps:
-  - action: 进入【离线开发 → 数据源】页面
-    expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
-  - action: 进入离线-点击创建项目
-    expected: 进入创建项目界面
-  - action: 勾选GaussDB数据源，其余必填项默认填写，点击确定
-    expected: 项目创建完成
-  - action: 点击项目名称进入项目-进入数据源
-    expected: GaussDB数据源正常展示为meta数据源
-  tags:
-  - 数据源
-- case_id: C0010
-  title: 验证不包含任何schema的GaussDB数据源引入后无法选择schema
-  priority: P2
-  precondition: '1. 离线测试项目与生产项目中已经成功引入GaussDB数据源
-
-    2. 当前项目（测试项目）已经成功绑定发布目标项目'
-  steps:
-  - action: 进入【离线开发 → 数据源】页面
-    expected: 已进入【离线开发 → 数据源】页面，显示页面标题与主要操作区域
-  - action: 引入一个没有任何schema的GaussDB数据源
-    expected: 引入成功
-  - action: 创建数据同步任务，选择上述所引入数据源，点击schema下拉框
-    expected: 数据源选择成功，schema下拉框为空
-  tags:
-  - 数据源
-- case_id: C0011
-  title: 验证GaussDB正常进行整库同步
-  priority: P0
-  precondition: 1. 控制台已经配置对应组件
-  steps:
-  - action: 进入【离线开发 → 整库同步--源--】页面
-    expected: 已进入【离线开发 → 整库同步--源--】页面，显示页面标题与主要操作区域
-  - action: 进入数据源-点击GaussDB操作列整库同步按钮
-    expected: 进入整库同步界面
-  - action: '勾选需要整库同步的表
-
-      选择数据同步目标（如mysql）、schema
-
-      同步方式：全量
-
-      并发配置：整批上传
-
-      保存目录：默认
-
-      点击发布任务'
-    expected: 任务发布完成
-  - action: 进入数据开发界面查看对应目录下内容
-    expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
-  - action: 数据同步任务点击临时运行
-    expected: 任务运行成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据源
-  - 整库同步--源--
-- case_id: C0012
-  title: 验证GaussDB正常进行整库同步
-  priority: P1
-  precondition: 1. 控制台已经配置对应组件
-  steps:
-  - action: 进入【离线开发 → 整库同步--目标（引入数据源）--】页面
-    expected: 已进入【离线开发 → 整库同步--目标（引入数据源）--】页面，显示页面标题与主要操作区域
-  - action: 进入数据源-点击mysql操作列整库同步按钮
-    expected: 进入整库同步界面
-  - action: '勾选需要整库同步的表
-
-      选择数据同步目标为GaussDB（引入数据源）、schema
-
-      同步方式：全量
-
-      并发配置：整批上传
-
-      保存目录：默认
-
-      点击发布任务'
-    expected: 任务发布完成
-  - action: 进入数据开发界面查看对应目录下内容
-    expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
-  - action: 数据同步任务点击临时运行
-    expected: 任务运行成功
-  - action: 查看目标表数据
-    expected: 成功从mysql中表同步过来，包括各类型字段值
-  tags:
-  - 数据源
-  - 整库同步--目标（引入数据源）--
-- case_id: C0013
-  title: 验证GaussDB正常进行整库同步
-  priority: P1
-  precondition: 1. 控制台已经配置对应组件
-  steps:
-  - action: 进入【离线开发 → 整库同步--目标（meta数据源）--】页面
-    expected: 已进入【离线开发 → 整库同步--目标（meta数据源）--】页面，显示页面标题与主要操作区域
-  - action: 进入数据源-点击mysql操作列整库同步按钮
-    expected: 进入整库同步界面
-  - action: '勾选需要整库同步的表
-
-      选择数据同步目标为GaussDB（meta数据源）、schema
-
-      同步方式：全量
-
-      并发配置：整批上传
-
-      保存目录：默认
-
-      点击发布任务'
-    expected: 任务发布完成
-  - action: 进入数据开发界面查看对应目录下内容
-    expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
-  - action: 进入资产-元数据-数据表查看
-    expected: 目标库所建表被正常同步至资产，表信息与预期值一致结果
-  - action: 进入离线-数据地图查看
-    expected: 目标库所建表语句正常进入数据地图，表信息与预期值一致结果
-  - action: 数据同步任务点击临时运行
-    expected: 任务运行成功
-  - action: 查看目标表数据
-    expected: 成功从mysql中表同步过来，包括各类型字段值
-  tags:
-  - 数据源
-  - 整库同步--目标（meta数据源）--
-- case_id: C0014
-  title: 验证GaussDB数据源分区表数据预览正常预览
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_fenqu_001(id INT,name VARCHAR(255)) partitioned by (bir int);
-
-
-    INSERT INTO test_yulan_001 partition(bir=1) VALUES (1,''mengfei''),(2,''kako'');
-
-    INSERT INTO test_yulan_001 partition(bir=2) VALUES (3,''lala''),(4,''puxi'');'
-  steps:
-  - action: 进入【离线开发 → 数据预览--数据过滤--】页面
-    expected: 已进入【离线开发 → 数据预览--数据过滤--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: 配置数据来源为{GaussDB}数据源，选择表test_fenqu_001
-    expected: 表配置成功
-  - action: 数据过滤输入id > 1，点击数据预览按钮
-    expected: 下拉展示当前所选表id > 1的前三条数据
-  tags:
-  - 数据开发
-  - 数据来源
-  - 数据预览--数据过滤--
-- case_id: C0015
-  title: 验证数据同步任务选择自定义sql数据同步正常
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_zidingyi_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_zidingyi_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_zidingyi_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);\n\n查询sql内容：\nSELECT *\nFROM test_zidingyi_001;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE;\n\nSELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE\nGROUP BY shop_id;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    ORDER BY pay_decli DESC;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\nWHERE pay_decli BETWEEN\
-    \ 100 AND 300;"
-  steps:
-  - action: 进入【离线开发 → 多种类型自定义sql--】页面
-    expected: 已进入【离线开发 → 多种类型自定义sql--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      勾选自定义sql
-
-      输入sql内容：前置条件查询sql依次校验
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zidingyi_002
-
-      点击下一步'
-    expected: '进入选择字段映射界面
-
-      源字段为源表的所有字段
-
-      可正常进行添加常量、修改、删除、字段转换等'
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 数据来源
-  - 多种类型自定义sql--
-- case_id: C0016
-  title: 验证GaussDB数据源分区表数据预览正常预览
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_fenqu_001(id INT,name VARCHAR(255)) partitioned by (bir int);
-
-
-    INSERT INTO test_yulan_001 partition(bir=1) VALUES (1,''mengfei''),(2,''kako'');
-
-    INSERT INTO test_yulan_001 partition(bir=2) VALUES (3,''lala''),(4,''puxi'');'
-  steps:
-  - action: 进入【离线开发 → 自定义sql--数据预览--】页面
-    expected: 已进入【离线开发 → 自定义sql--数据预览--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: 配置数据来源为{GaussDB}数据源，选择表test_fenqu_001
-    expected: 表配置成功
-  - action: 选择自定义sql-输入select * from test_fenqu_01 where id > 1，点击数据预览按钮
-    expected: 下拉展示当前所选表id > 1的前三条数据
-  tags:
-  - 数据开发
-  - 数据来源
-  - 自定义sql--数据预览--
-- case_id: C0017
-  title: 验证数据同步任务选择自定义sql（meta数据源）数据同步正常
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_zidingyi_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_zidingyi_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_zidingyi_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);\n\n查询sql内容：\nSELECT *\nFROM test_zidingyi_001;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE;\n\nSELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE\nGROUP BY shop_id;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    ORDER BY pay_decli DESC;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\nWHERE pay_decli BETWEEN\
-    \ 100 AND 300;"
-  steps:
-  - action: 进入【离线开发 → 自定义sql--meta--】页面
-    expected: 已进入【离线开发 → 自定义sql--meta--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（meta数据源）
-
-      勾选自定义sql
-
-      输入sql内容：前置条件查询sql依次校验
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zidingyi_002
-
-      点击下一步'
-    expected: '进入选择字段映射界面
-
-      源字段为源表的所有字段
-
-      可正常进行添加常量、修改、删除、字段转换等'
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 数据来源
-  - 自定义sql--meta--
-- case_id: C0018
-  title: 验证数据同步任务选择自定义sql字段映射正常配置
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_zidingyi_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_zidingyi_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_zidingyi_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);\n\n查询sql内容：\nSELECT *\nFROM test_zidingyi_001;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE;\n\nSELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE\nGROUP BY shop_id;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    ORDER BY pay_decli DESC;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\nWHERE pay_decli BETWEEN\
-    \ 100 AND 300;"
-  steps:
-  - action: 进入【离线开发 → 自定义sql--字段映射--】页面
-    expected: 已进入【离线开发 → 自定义sql--字段映射--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（meta数据源）
-
-      勾选自定义sql
-
-      输入sql内容：前置条件查询sql依次校验
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zidingyi_002
-
-      点击下一步'
-    expected: '进入选择字段映射界面
-
-      源字段为源表的所有字段
-
-      可正常进行添加常量、修改、删除、字段转换等'
-  tags:
-  - 数据开发
-  - 数据来源
-  - 自定义sql--字段映射--
-- case_id: C0019
-  title: 验证数据来源选择自定义sql时，源表切分键正常使用生效
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_qiefen_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_qiefen_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_qiefen_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 自定义sql-切分键-】页面
-    expected: 已进入【离线开发 → 自定义sql-切分键-】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      勾选自定义sql
-
-      输入sql内容：select * from test_qiefen_01;
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_qiefen_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 正常配置映射，点击下一步
-    expected: 进入通道控制页面
-  - action: '点击勾选开启并发，源表切分键输入id
-
-      点击下一步，点击保存，进行临时运行'
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 数据来源
-  - 自定义sql-切分键-
-- case_id: C0020
-  title: 验证不选择schema正常选择表
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → schema非必选框校验--】页面
-    expected: 已进入【离线开发 → schema非必选框校验--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      直接点击表名下拉框'
-    expected: 下拉框展示GaussDB内的所有表
-  tags:
-  - 数据开发
-  - 数据来源
-  - schema非必选框校验--
-- case_id: C0021
-  title: 验证选择表名后再次选择schema，表名正常清空
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 表名清空--】页面
-    expected: 已进入【离线开发 → 表名清空--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      选择表'
-    expected: 表选择成功
-  - action: 点击选择schema
-    expected: 已选择的表被清空，表下拉框展示所选schema下的所有表
-  tags:
-  - 数据开发
-  - 数据来源
-  - 表名清空--
-- case_id: C0022
-  title: 验证向导模式读GaussDB（meta数据源）schema页面展示步骤要求的字段、状态和结果
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → meta数据源--】页面
-    expected: 已进入【离线开发 → meta数据源--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（meta数据源）
-
-      数据库
-
-      schema'
-    expected: 只展示当前项目同名schema
-  tags:
-  - 数据开发
-  - 数据来源
-  - meta数据源--
-- case_id: C0023
-  title: 验证schema下拉框校验--检查向导模式写GaussDBschema下拉框展示数据正常
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 选择目标】页面
-    expected: 已进入【离线开发 → 选择目标】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      点击schema下拉框'
-    expected: 可选范围为数据库连接用户下的所有schema
-  tags:
-  - 数据开发
-  - 选择目标
-- case_id: C0024
-  title: 验证表名下拉框校验--检查向导模式写GaussDB表名下拉框展示数据正常
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 选择目标】页面
-    expected: 已进入【离线开发 → 选择目标】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      点击表名下拉框'
-    expected: 可选范围为所选schema连接用户下的所有表
-  tags:
-  - 数据开发
-  - 选择目标
-- case_id: C0025
-  title: 验证不选择schema正常选择表
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → schema非必选框校验--】页面
-    expected: 已进入【离线开发 → schema非必选框校验--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据来源
-
-      数据库
-
-      直接点击表名下拉框'
-    expected: 下拉框展示GaussDB内的所有表
-  tags:
-  - 数据开发
-  - 选择目标
-  - schema非必选框校验--
-- case_id: C0026
-  title: 验证选择表名后再次选择schema，表名正常清空
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 表名清空--】页面
-    expected: 已进入【离线开发 → 表名清空--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据来源
-
-      数据库
-
-      选择表'
-    expected: 表选择成功
-  - action: 点击选择schema
-    expected: 已选择的表被清空，表下拉框展示所选schema下的所有表
-  tags:
-  - 数据开发
-  - 选择目标
-  - 表名清空--
-- case_id: C0027
-  title: 验证向导模式写GaussDB（meta数据源）schema页面展示步骤要求的字段、状态和结果
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → meta数据源--】页面
-    expected: 已进入【离线开发 → meta数据源--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据来源（meta数据源）
-
-      数据库
-
-      schema'
-    expected: 只展示当前项目同名schema
-  tags:
-  - 数据开发
-  - 选择目标
-  - meta数据源--
-- case_id: C0028
-  title: 验证选择schema后建表，表数据正常更新
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 表数据更新--】页面
-    expected: 已进入【离线开发 → 表数据更新--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      点击表名下拉框'
-    expected: 下拉框展示GaussDB内指定schema的所有表
-  - action: 新建一张hive表
-    expected: 表新建成功
-  - action: 返回创建数据同步任务界面，点击表名下拉框
-    expected: 下拉框展示新增表
-  tags:
-  - 数据开发
-  - 选择目标
-  - 表数据更新--
-- case_id: C0029
-  title: 验证schema框模糊搜索--检查向导模式写GaussDBschema下拉框模糊搜索正常
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 选择目标】页面
-    expected: 已进入【离线开发 → 选择目标】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema：模糊搜索schema例如-test'
-    expected: 展示所有包含test字样的schema
-  tags:
-  - 数据开发
-  - 选择目标
-- case_id: C0030
-  title: 验证表名框模糊搜索--检查向导模式写GaussDB表名下拉框模糊搜索正常
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 选择目标】页面
-    expected: 已进入【离线开发 → 选择目标】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：模糊搜索表名例如-test'
-    expected: 展示所有包含test字样的表名
-  tags:
-  - 数据开发
-  - 选择目标
-- case_id: C0031
-  title: 验证主键冲突选择insert正常生效
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_fugai_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_fugai_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_fugai_001 VALUES (1,''mengfei''),(2,''kako''),(3,''lala''),(4,''puxi'');'
-  steps:
-  - action: 进入【离线开发 → 主键冲突--insert--】页面
-    expected: 已进入【离线开发 → 主键冲突--insert--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_fugai_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_fugai_002
-
-      主键冲突：insert
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 当主键/约束冲突，报脏数据
-  tags:
-  - 数据开发
-  - 选择目标
-  - 主键冲突--insert--
-- case_id: C0032
-  title: 验证主键冲突选择update正常生效
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_fugai_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_fugai_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_fugai_001 VALUES (1,''mengfei''),(2,''kako''),(3,''lala''),(4,''puxi'');'
-  steps:
-  - action: 进入【离线开发 → 主键冲突--update--】页面
-    expected: 已进入【离线开发 → 主键冲突--update--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_fugai_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_fugai_002
-
-      主键冲突：update
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 当主键/约束冲突，update数据，未映射的字段值不变
-  tags:
-  - 数据开发
-  - 选择目标
-  - 主键冲突--update--
-- case_id: C0033
-  title: 验证字段映射添加常量字段正常同步
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_changliang_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_changliang_002(id INT,name VARCHAR(255)，bir VARCHAR(255));
-
-
-    INSERT INTO test_changliang_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 常量字段--】页面
-    expected: 已进入【离线开发 → 常量字段--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_changliang_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 点击添加常量，输入名称、值为${bdp.system.currenttime}，类型选择timestamp
-    expected: 常量添加成功
-  - action: 配置正确的映射，同时常量字段映射至bir字段，点击下一步
-    expected: 进入通道控制页面
-  - action: 下一步，点击确定，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从GaussDB中表数据同步过来，bir字段列数据为全局参数值${bdp.system.currenttime}
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 常量字段--
-- case_id: C0034
-  title: 验证向导模式读GaussDB，写hive数据，源表与目标表中字段个数不一致，同步任务同步成功
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_changliang_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_changliang_002(id INT,name VARCHAR(255)，bir VARCHAR(255));
-
-
-    INSERT INTO test_changliang_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 映射字段个数不一致同步--】页面
-    expected: 已进入【离线开发 → 映射字段个数不一致同步--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_changliang_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置正确的映射，点击下一步
-    expected: '源表与目标表字段映射成功，其中目标表中bir字段没有产生映射关系
-
-      进入通道控制页面'
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，bir字段值为null
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 映射字段个数不一致同步--
-- case_id: C0035
-  title: 验证数据同步任务，编辑字段的字段类型后通过字段刷新类型正常转换
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_shuaxin_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_shuaxin_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_shuaxin_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 字段刷新--】页面
-    expected: 已进入【离线开发 → 字段刷新--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_shuaxin_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_shuaxin_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射
-    expected: 字段映射配置成功
-  - action: '修改目标表name字段的字段类型为int
-
-      参考sql
-
-      ALTER TABLE test_shuaxin_002
-
-      CHANGE COLUMN name name INT;'
-    expected: 字段类型修改成功
-  - action: 返回字段映射界面，点击字段刷新
-    expected: 目标表字段中name字段类型变成int，连线消失
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 字段刷新--
-- case_id: C0036
-  title: 验证字段映射同行映射完成目标操作且状态更新
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_tonghang_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_tonghang_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_tonghang_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 同行映射--】页面
-    expected: 已进入【离线开发 → 同行映射--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_tonghang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_tonghang_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击同行映射
-    expected: '字段映射成功
-
-      其中bir字段无映射关系
-
-      映射关系当为不同的数据类型，如int-varchar'
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 同行映射--
-- case_id: C0037
-  title: 验证字段映射同名映射完成目标操作且状态更新
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_tongming_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_tongming_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_tongming_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 同名映射--】页面
-    expected: 已进入【离线开发 → 同名映射--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_tongming_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_tongming_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击同名映射
-    expected: '字段映射成功
-
-      其中bir字段无映射关系
-
-      映射关系当为不同的数据类型，如int-varchar'
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 同名映射--
-- case_id: C0038
-  title: 验证字段映射同名映射完成目标操作且状态更新
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_paiban_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_paiban_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_paiban_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 自动排版--】页面
-    expected: 已进入【离线开发 → 自动排版--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_paiban_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_paiban_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段交叉映射，点击自动排版
-    expected: '字段排版成功
-
-      其中bir字段无映射关系
-
-      映射关系当为不同的数据类型，如int-varchar
-
-      字段位置交叉关系变为同行关系'
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 自动排版--
-- case_id: C0039
-  title: 验证单字段转换正常
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_zhuanhuan_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_zhuanhuan_002(id INT,name VARCHAR(255)，bir date);
-
-
-    INSERT INTO test_zhuanhuan_001 VALUES (1,''2025-01-01''),(2,''2025-02-02'');
-
-
-    资源管理已经上传转换包string-date'
-  steps:
-  - action: 进入【离线开发 → 单字段转换--】页面
-    expected: 已进入【离线开发 → 单字段转换--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_zhuanhuan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zhuanhuan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射name-bir，点击name字段操作列修改按钮
-    expected: 弹框显示修改字段
-  - action: '转换方式选择已上传的资源包，输入
-
-      类名
-
-      转换后类型：date
-
-      点击确定、下一步'
-    expected: '配置成功，字段转换显示包名称
-
-      进入通道控制页面'
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，name字段转换为date类型，同步成功
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 单字段转换--
-- case_id: C0040
-  title: 验证批量字段转换正常
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_piliangzhuanhuan_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_piliangzhuanhuan_002(id INT,name VARCHAR(255)，bir date);
-
-
-    INSERT INTO test_piliangzhuanhuan_001 VALUES (1,''2025-01-01''),(2,''2025-02-02'');
-
-
-    资源管理已经上传转换包string-date'
-  steps:
-  - action: 进入【离线开发 → 批量字段转换--】页面
-    expected: 已进入【离线开发 → 批量字段转换--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_piliangzhuanhuan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_piliangzhuanhuan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射name-bir，点击批量字段转换按钮
-    expected: 弹框显示修改字段
-  - action: '转换方式选择已上传的资源包，输入
-
-      字段选择：name
-
-      类名
-
-      点击确定、下一步'
-    expected: '配置成功，字段转换显示包名称
-
-      进入通道控制页面'
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，name字段转换为date类型，同步成功
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 批量字段转换--
-- case_id: C0041
-  title: 验证编辑映射后切换其他任务再切换回来连线依旧保持
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_changliang_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_changliang_002(id INT,name VARCHAR(255)，bir VARCHAR(255));
-
-
-    INSERT INTO test_changliang_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 编辑连线保持--】页面
-    expected: 已进入【离线开发 → 编辑连线保持--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_changliang_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_changliang_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置正确的映射
-    expected: 映射配置完成
-  - action: 切换至其他任务界面，再次切换回来
-    expected: 连线依然存在
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段映射
-  - 编辑连线保持--
-- case_id: C0042
-  title: 验证断点续传--GaussDB作为目标数据源支持断点续传
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_duandian_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_duandian_002(id INT,name VARCHAR(255)，bir VARCHAR(255));
-
-
-    INSERT INTO test_duandian_002 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 通道控制】页面
-    expected: 已进入【离线开发 → 通道控制】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duandian_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duandian_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: '勾选断点续传功能
-
-      点击下一步，点击保存，进行临时运行'
-    expected: 任务运行失败后会从失败的点进行继续同步（需要询问开发制造异常中断场景）
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 通道控制
-- case_id: C0043
-  title: 验证脏数据管理-脏数据能正常保存，任务能正常运行
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_zangshuju_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_zangshuju_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_zangshuju_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 通道控制】页面
-    expected: 已进入【离线开发 → 通道控制】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_zangshuju_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zangshuju_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 将name字段映射至id，点击下一步
-    expected: 进入通道控制页面
-  - action: '点击勾选脏数据管理，脏数据写入hive表填写dirty_01
-
-      点击下一步，点击保存，进行临时运行'
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 数据没有从源同步过来
-  - action: 进入运维中心-脏数据管理
-    expected: 展示一张脏数据表dirty_01
-  - action: 点击表名查看表内数据
-    expected: 包含上述同步脏数据：name字段内容
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 通道控制
-- case_id: C0044
-  title: 验证数据来源选择自定义sql时，源表切分键正常使用生效
-  priority: P2
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_qiefen_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_qiefen_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_qiefen_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 开启并发-】页面
-    expected: 已进入【离线开发 → 开启并发-】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      勾选自定义sql
-
-      输入sql内容：select * from test_qiefen_01;
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_qiefen_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 正常配置映射，点击下一步
-    expected: 进入通道控制页面
-  - action: '点击勾选开启并发，源表切分键输入id
-
-      点击下一步，点击保存，进行临时运行'
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 通道控制
-  - 开启并发-
-- case_id: C0045
-  title: 验证周期任务--检查向导模式读GaussDB，GaussDB表中有多类型字段，写GaussDB数据同步任务同步成功
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 任务类型】页面
-    expected: 已进入【离线开发 → 任务类型】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 任务类型
-- case_id: C0046
-  title: 验证手动任务--检查向导模式读GaussDB，GaussDB表中有多类型字段，写GaussDB数据同步手动任务同步成功
-  priority: P0
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 任务类型】页面
-    expected: 已进入【离线开发 → 任务类型】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，进入手动任务菜单页-新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 任务类型
-- case_id: C0047
-  title: 验证向导模式读GaussDB，写GaussDB数据，源表中字段值含有null，同步任务同步成功
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_null_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_null_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_null_001 VALUES (1,''mengfei''),(2,null);'
-  steps:
-  - action: 进入【离线开发 → 含有null值同步--】页面
-    expected: 已进入【离线开发 → 含有null值同步--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_null_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_null_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括null值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段数据
-  - 含有null值同步--
-- case_id: C0048
-  title: 验证向导模式读GaussDB，写GaussDB数据，源表中字段值含有null，同步任务同步成功
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_kong_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_kong_002(id INT,name VARCHAR(255));
-
-
-    INSERT INTO test_kong_001 VALUES (1,''mengfei''),(2,'' '');'
-  steps:
-  - action: 进入【离线开发 → 含有空值同步--】页面
-    expected: 已进入【离线开发 → 含有空值同步--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_kong_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_kong_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括空值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 字段数据
-  - 含有空值同步--
-- case_id: C0049
-  title: 验证脚本模式，来源类型支持GaussDB数据源
-  priority: P2
-  precondition: 当前项目中已经成功引入GaussDB数据源
-  steps:
-  - action: 进入【离线开发 → 来源脚本模版--】页面
-    expected: 已进入【离线开发 → 来源脚本模版--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建脚本模式的数据同步任务
-    expected: 新建成功
-  - action: 点击导入模版
-    expected: 当前页面弹窗导入模版弹窗
-  - action: 点击来源类型下拉框
-    expected: 来源数据下拉框中支持GaussDB数据源
-  - action: 目标类型选择已存在数据源后点击导入
-    expected: '脚本模版导入成功
-
-      通过修改部分内容后任务可直接运行'
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 脚本模式
-  - 来源脚本模版--
-- case_id: C0050
-  title: 验证脚本模式，目标类型支持GaussDB数据源
-  priority: P2
-  precondition: 当前项目中已经成功引入GaussDB数据源
-  steps:
-  - action: 进入【离线开发 → 目标脚本模版--】页面
-    expected: 已进入【离线开发 → 目标脚本模版--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建脚本模式的数据同步任务
-    expected: 新建成功
-  - action: 点击导入模版
-    expected: 当前页面弹窗导入模版弹窗
-  - action: 点击目标类型下拉框
-    expected: 目标源数据下拉框中支持GaussDB数据源
-  - action: 来源类型选择已存在数据源后点击导入
-    expected: '脚本模版导入成功
-
-      通过修改部分内容后任务可直接运行'
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 脚本模式
-  - 目标脚本模版--
-- case_id: C0051
-  title: 验证脚本模式中添加hadoopUserName后任务运行用户正确切换
-  priority: P2
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_duoziduan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_duoziduan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_duoziduan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → hadoop_conf修改--】页面
-    expected: 已进入【离线开发 → hadoop_conf修改--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击转换为脚本
-    expected: 正常转为脚本模式
-  - action: 添加"hadoopConfig":root参数，点击保存
-    expected: 任务修改、保存成
-  - action: 进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值，yarn上查看application用户为root
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 脚本模式
-  - hadoop_conf修改--
-- case_id: C0052
-  title: 验证配置GaussDB作为来源及目标数据源的任务，删除任务后还原配置依然存在
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_huanyuan_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_huanyuan_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_huanyuan_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);"
-  steps:
-  - action: 进入【离线开发 → 还原--】页面
-    expected: 已进入【离线开发 → 还原--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_huanyuan_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_huanyuan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存
-    expected: 任务保存成功
-  - action: 删除任务-移至回收站
-    expected: 任务删除成功
-  - action: 进入回收站，还原该任务
-    expected: 任务还原至对应目录下，重新打开该任务，配置依然存在
-  - action: 进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 其他
-  - 还原--
-- case_id: C0053
-  title: 验证修改数据同步任务配置后，版本对比正常显示对比区别
-  priority: P1
-  precondition: 存在已创建成功且包含GaussDB的数据同步任务test_banben_01
-  steps:
-  - action: 进入【离线开发 → 版本对比--】页面
-    expected: 已进入【离线开发 → 版本对比--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，点击进入数据同步任务test_banben_01
-    expected: 打开成功
-  - action: 修改GaussDBschema、表信息，点击保存
-    expected: 修改、保存成功
-  - action: 点击基础属性-勾选当前版本与上一版本的数据，点击版本对比
-    expected: 弹窗展示两个版本的对比，高亮展示修改、删除内容，如schema、表数据
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 其他
-  - 版本对比--
-- case_id: C0054
-  title: 验证配置增量同步的数据同步任务正常运行
-  priority: P1
-  precondition: 存在已创建成功且包含GaussDB的数据同步任务test_banben_01
-  steps:
-  - action: 进入【离线开发 → 增量同步--】页面
-    expected: 已进入【离线开发 → 增量同步--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式、有增量标识的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_001
-
-      增量标识字段--下拉框（只支持数值/Timestamp类型）：id
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  - action: 往源表继续插入数据，id值比原数值都大
-    expected: 数据插入成功
-  - action: 再次运行数据同步任务
-    expected: 任务运行成功，源表内新增数据成功增量同步至目标表
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 其他
-  - 增量同步--
-- case_id: C0055
-  title: 验证配置增量同步的数据同步任务正常运行
-  priority: P1
-  precondition: "1. 当前项目中已经成功引入GaussDB数据源\n2. GaussDB中存在含有2 个字段的表，如建表语句为\nCREATE TABLE IF NOT EXISTS test_zidingyi_001 (\n\
-    \    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n    shop_id STRING COMMENT '店铺id',\n\
-    \    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n    pay_date DATE COMMENT '支付日期',\n\
-    \    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n)\nCOMMENT '销售订单明细表';\nCREATE TABLE\
-    \ IF NOT EXISTS test_zidingyi_002 (\n    order_header_id STRING COMMENT '订单头id',\n    order_date BIGINT COMMENT '订单日期',\n\
-    \    shop_id STRING COMMENT '店铺id',\n    customer_id STRING COMMENT '客户id',\n    order_status BIGINT COMMENT '订单状态',\n\
-    \    pay_date DATE COMMENT '支付日期',\n    pay_boolen BOOLEAN COMMENT '是否支付',\n    pay_decli DECIMAL(10,2) COMMENT '支付金额'\n\
-    )\nCOMMENT '销售订单明细表';\n表数据插入：\nINSERT INTO test_zidingyi_001 VALUES\n('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02',\
-    \ TRUE, 199.99),\n('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),\n('OH003', 20250103, 'S001', 'C003',\
-    \ 0, NULL, FALSE, 0.00),\n('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),\n('OH005', 20250105, 'S002',\
-    \ 'C005', 1, '2025-01-06', TRUE, 120.00),\n('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),\n('OH007', 20250107,\
-    \ 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),\n('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),\n('OH009',\
-    \ 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),\n('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE,\
-    \ 260.45);\n\n查询sql内容：\nSELECT *\nFROM test_zidingyi_001;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE;\n\nSELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count\nFROM test_zidingyi_001\n\
-    WHERE pay_boolen = TRUE\nGROUP BY shop_id;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\n\
-    ORDER BY pay_decli DESC;\n\nSELECT order_header_id, customer_id, pay_decli\nFROM test_zidingyi_001\nWHERE pay_decli BETWEEN\
-    \ 100 AND 300;"
-  steps:
-  - action: 进入【离线开发 → 增量同步--自定义sql--】页面
-    expected: 已进入【离线开发 → 增量同步--自定义sql--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式、有增量标识的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      勾选自定义sql
-
-      输入sql内容：前置条件查询sql依次校验
-
-      增量标识--输入框：id
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_duoziduan_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，进行临时运行
-    expected: 配置以及环境无误的话，任务成功
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  - action: 往源表继续插入数据，id值比原数值都大
-    expected: 数据插入成功
-  - action: 再次运行数据同步任务
-    expected: 任务运行成功，源表内新增数据成功增量同步至目标表
-  tags:
-  - 数据开发
-  - 基础性功能点
-  - 其他
-  - 增量同步--自定义sql--
-- case_id: C0056
-  title: 验证数据同步任务数据开发流程组合（hive-mysql）
-  priority: P0
-  precondition: '资源管理已存在资源jar包--可用于id类型转换为string类型
-
-
-    建表语句：
-
-    CREATE TABLE if NOT EXISTS test_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_002(id INT,name VARCHAR(255) );
-
-    INSERT INTO test_001 VALUES (1,''mengfei''),(2,''kako'');
-
-
-    写入前语句：
-
-    ALTER TABLE test_002
-
-    ADD COLUMN bir INT DEFAULT 1;
-
-    写入后语句：
-
-    DELETE FROM test_002
-
-    WHERE id = 1;'
-  steps:
-  - action: 进入【离线开发 → 流程组合--】页面
-    expected: 已进入【离线开发 → 流程组合--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，进入周期任务菜单页--新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（hive-meta数据源）
-
-      数据库
-
-      schema
-
-      表名：test_001
-
-      分区：dt=${bdp.system.bizdate}
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: 点击一键生成目标表，表名修改为test_002
-    expected: 建表成功
-  - action: '选择数据目标（mysql-meta数据源）
-
-      数据库
-
-      schema
-
-      表名：test_002
-
-      presql、postsql：前置条件内的前后配置语句
-
-      主键冲突：replace into
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: '添加常量字段：bir-999-int
-
-      修改源字段name格式化：yyyy-MM-dd
-
-      修改源字段id字段转换：选择前置条件配置资源
-
-      点击字段刷新-同行映射，点击下一步'
-    expected: 进入通道控制页面
-  - action: '同步速率上限：5
-
-      开启并发：读2写2
-
-      开启脏数据管理：表-dirty_01，生命周期-1天，最大容忍数-10条，脏数记录比例-50%
-
-      点击下一步，点击保存，点击临时运行'
-    expected: 任务运行成功，数据成功从{GaussDB}中表同步过来，包括各类型字段值
-  - action: 点击转换为脚本
-    expected: 数据同步任务由向导模式转为脚本模式，各个配置对应字段值、状态和详情内容与保存输入一致显示，字段无缺失
-  tags:
-  - 数据开发
-  - 数据同步全流程
-  - 流程组合--
-- case_id: C0057
-  title: 验证数据同步任务数据开发全流程
-  priority: P1
-  precondition: '建表语句：
-
-    CREATE TABLE if NOT EXISTS test_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_002(id INT,name VARCHAR(255) );
-
-    INSERT INTO test_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 全流程--】页面
-    expected: 已进入【离线开发 → 全流程--】页面，显示页面标题与主要操作区域
-  - action: 数据源中心新增GaussDB，新增时授权离线项目
-    expected: GaussDB新增完成
-  - action: 控制台配置GaussDB计算引擎，执行连通性测试
-    expected: 计算引擎配置完成，连通性通过
-  - action: 进入离线-创建项目（xiangmu_01）-勾选GaussDB，选择创建选项来创建schema，填写其余必填项，点击保存
-    expected: 项目创建完成，进入数据源查看-GaussDB为meta数据源，数据源内新增一个与项目名称同名的schema
-  - action: 再次创建项目（xiangmu_02）-勾选GaussDB，选择创建选项来创建schema，填写其余必填项，点击保存（注意：需要与xiangmu_01数据源选择一致，不可多或少）
-    expected: 项目创建完成，进入数据源查看-GaussDB为meta数据源，数据源内新增一个与项目名称同名的schema
-  - action: 进入上述所创建项目（xiangmu_01）-项目管理-项目设置-发布目标，点击立即绑定
-    expected: 弹窗展示绑定发布目标，选择xiangmu_02后点击确定绑定成功
-  - action: 进入上述所创建项目（xiangmu_01）-项目管理-项目设置-开发设置，点击资源组下方按钮配置映射
-    expected: 弹窗展示资源组映射目标，选择xiangmu_02后点击确定绑定成功
-  - action: 进入上述所创建项目（xiangmu_01）-数据源-点击所创建的meta数据源操作列映射配置，发布目标选择xiangmu_02对应meta数据源，点击确定
-    expected: 配置映射成功，映射状态为已配置
-  - action: 进入上述所创建项目（xiangmu_01）-数据源，点击引入数据源，勾选上述数据源中心所创建的数据源，点击确定
-    expected: 数据源引入成功
-  - action: 进入上述所创建项目（xiangmu_02）-数据源，点击引入数据源，勾选上述数据源中心所创建的数据源，点击确定
-    expected: 数据源引入成功
-  - action: 进入上述所创建的项目（xiangmu_01）-进入数据开发模块，进入周期任务菜单页--新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源（上述创建的meta数据源）
-
-      数据库
-
-      schema
-
-      表名：test_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标（上述引入的数据源）
-
-      数据库
-
-      schema
-
-      表名：test_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击临时运行
-    expected: 任务运行成功，数据成功从{GaussDB}中表同步过来，包括各类型字段值
-  - action: 点击转换为脚本
-    expected: 数据同步任务由向导模式转为脚本模式，数据源对应字段值、状态和详情内容与保存输入一致显示，字段无缺失
-  - action: '修改调度属性
-
-      实例生成方式：立即生成
-
-      具体时间：（当前时间的十七分钟后）
-
-      点击保存、点击右上角提交'
-    expected: 任务提交成功
-  - action: 进入运维中心-周期任务管理，选择该任务点击操作列补数据-当前任务
-    expected: 右侧弹窗展示补数据配置界面
-  - action: 全部默认点击确定
-    expected: 弹窗提示查看补数据结果框，点击查看后进入补数据实例界面，展示补数据实例，实例状态依次为等待提交、等待运行、运行中、成功
-  - action: 进入周期任务实例查看
-    expected: 展示上述任务周期运行实例，达到上述调度属性所修改时间后开始运行，最终状态为运行成功
-  - action: 进入数据开发当前任务界面，点击发布
-    expected: 进入发布管理界面-创建发布包
-  - action: 勾选当前任务，点击打包，输入发布描述，点击确定
-    expected: 自动跳转发布至目标项目
-  - action: 点击所创建发布包操作列导出按钮，选择保存目录点击确定
-    expected: 发布包导出到本地
-  - action: 点击所创建发布包操作列发布按钮
-    expected: 发布状态由待发布转为发布成功
-  - action: 进入项目xiangmu_02-数据开发-周期任务菜单页
-    expected: 上述数据同步任务发布至本项目，点击临时运行可正常运行
-  - action: 删除上述所同步过来的数据同步任务
-    expected: 任务删除成功
-  - action: 进入发布管理界面-发布至本项目，点击导入发布包，选择上文导出的发布包，点击确定
-    expected: 发布至本项目列表新增一条发布包
-  - action: 点击操作列发布按钮
-    expected: 发布状态由待发布转为发布成功
-  - action: 进入数据开发-周期任务菜单页
-    expected: 上述数据同步任务发布至本项目，点击临时运行可正常运行
-  tags:
-  - 数据开发
-  - 数据同步全流程
-  - 全流程--
-- case_id: C0058
-  title: 验证数据同步GaussDB发布至目标项目功能
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. 当前项目中存在新建成功的写GaussDB向导模式的数据同步任务
-
-    3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）'
-  steps:
-  - action: 进入【离线开发 → 一键发布--】页面
-    expected: 已进入【离线开发 → 一键发布--】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务
-  - action: 查看该任务
-    expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的GaussDB的数据源
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  tags:
-  - 发布
-  - 一键发布--
-- case_id: C0059
-  title: 验证数据同步写GaussDB导入导出包功能
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. 当前项目中存在新建成功的写GaussDB向导模式的数据同步任务
-
-    3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）'
-  steps:
-  - action: 进入【离线开发 → 导入导出发布--】页面
-    expected: 已进入【离线开发 → 导入导出发布--】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击导出
-    expected: 导出包成功
-  - action: 进入发布项目-发布-发布至本项目-导入发布包，选择步骤四导出的包
-    expected: 弹出发布包检查弹窗
-  - action: 勾选已知晓风险，继续导入
-    expected: 环境配置无误的话，导入发布包成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务
-  - action: 查看该任务
-    expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的GaussDB的数据源
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  tags:
-  - 发布
-  - 导入导出发布--
-- case_id: C0060
-  title: 验证数据同步GaussDB来源使用自定义sql时，发布至目标项目功能
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. 当前项目中存在新建成功的读GaussDB向导模式的数据同步任务（同时来源配置方式为自定义sql）
-
-    3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）'
-  steps:
-  - action: 进入【离线开发 → 自定义sql--】页面
-    expected: 已进入【离线开发 → 自定义sql--】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务（来源配置方式为自定义sql）右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务
-  - action: 查看该任务
-    expected: '该任务的来源数据源与目标数据源均替换为与测试环境配置映射的GaussDB的数据源
-
-      配置方式为自定义sql，sql框内容与源任务一致'
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  tags:
-  - 发布
-  - 自定义sql--
-- case_id: C0061
-  title: 验证数据同步GaussDB与表一起发布正常
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. 当前项目中存在新建成功的读GaussDB向导模式的数据同步任务
-
-    3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）4.存在非数据同步配置的hive、mysql表：test_hive_01、test_mysql_01，表内各包含五条数据'
-  steps:
-  - action: 进入【离线开发 → 表、任务同时发布--】页面
-    expected: 已进入【离线开发 → 表、任务同时发布--】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务、表test_hive_01、test_mysql_01，点击打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务、表
-  - action: 查看该任务
-    expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的GaussDB的数据源
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  - action: 执行查询语句查询表
-    expected: 表正确查询、表内数据为空
-  tags:
-  - 发布
-  - 表、任务同时发布--
-- case_id: C0062
-  title: 验证多数据同步GaussDB任务一起发布正常
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. 当前项目中存在2 个新建成功的读GaussDB向导模式的数据同步任务
-
-    3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）'
-  steps:
-  - action: 进入【离线开发 → 多任务同时发布--】页面
-    expected: 已进入【离线开发 → 多任务同时发布--】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选2 个数据同步任务，点击打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的2 个任务
-  - action: 查看对应任务
-    expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的GaussDB的数据源
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  tags:
-  - 发布
-  - 多任务同时发布--
-- case_id: C0063
-  title: 验证数据同步GaussDB任务为脚本模式时发布正常
-  priority: P1
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. 当前项目中存在新建成功的读GaussDB向导模式的数据同步任务（脚本模式）
-
-    3. 当前项目已经成功绑定发布目标项目，且GaussDB数据源成功配置了映射配置（发布目标）'
-  steps:
-  - action: 进入【离线开发 → 脚本模式发布--】页面
-    expected: 已进入【离线开发 → 脚本模式发布--】页面，显示页面标题与主要操作区域
-  - action: 点击上述数据同步任务（脚本模式）右上方的“发布”
-    expected: 进入任务发布页面
-  - action: 勾选该数据同步任务打包
-    expected: 弹出创建发布包弹窗
-  - action: 输入正确的发布描述，点击确定
-    expected: 创建包完成，进入发布至目标项目页面
-  - action: 选择步骤三打的发布包，点击发布
-    expected: 映射配置配置与环境信息配置无误的话，发布成功
-  - action: 进入生产项目-数据开发查看
-    expected: 有从测试项目发布过来的任务
-  - action: 查看该任务
-    expected: '该任务的来源数据源与目标数据源均替换为与测试环境配置映射的GaussDB的数据源
-
-      各个参数配置项与来源均一致'
-  - action: 临时运行该任务
-    expected: 配置无误的情况下运行成功
-  - action: 查看该数据同步任务中目标表中的数据
-    expected: 成功从源表中同步过来
-  tags:
-  - 发布
-  - 脚本模式发布--
-- case_id: C0064
-  title: 验证手动任务提交至运维中心正常运行
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_shoudong_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_shoudong_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_shoudong_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 手动任务--周期运行--】页面
-    expected: 已进入【离线开发 → 手动任务--周期运行--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，进入手动任务菜单页--新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_shoudong_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_shoudong_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击提交
-    expected: 任务保存、提交成功
-  - action: 进入运维中心-手动任务管理，选择该任务点击运行
-    expected: 提示手动任务实例生成
-  - action: 进入运维中心-手动任务实例
-    expected: 手动任务实例运行成功
-  - action: 点击实例名称-查看更多详情
-    expected: '分为四个菜单
-
-      属性：正确展示实例的1 条基础配置及信息详情
-
-      操作记录：展示实例的修改记录
-
-      代码：该数据同步任务脚本化展示
-
-      运行记录：包含实例诊断、数据同步性能、日志
-
-      以上四个菜单对应信息展示完全、结果值与预期值一致'
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 运维中心
-  - 手动任务--周期运行--
-- case_id: C0065
-  title: 验证读、写GaussDB的数据同步任务周期运行成功
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_zhouqi_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_zhouqi_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_zhouqi_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 周期运行--】页面
-    expected: 已进入【离线开发 → 周期运行--】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_zhouqi_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_zhouqi_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击提交
-    expected: 任务保存、提交成功
-  - action: 待到该任务生成周期实例后，进入运维中心-周期实例，查看该周期实例运行结果
-    expected: 配置无误的话周期运行成功
-  - action: 点击实例名称-查看更多详情
-    expected: '分为四个菜单
-
-      属性：正确展示实例的1 条基础配置及信息详情
-
-      操作记录：展示实例的修改记录
-
-      代码：该数据同步任务脚本化展示
-
-      运行记录：包含实例诊断、数据同步性能、日志
-
-      以上四个菜单对应信息展示完全、结果值与预期值一致'
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 运维中心
-  - 周期运行--
-- case_id: C0066
-  title: 验证补数据运行--检查向导模式读GaussDB，GaussDB表中有多类型字段，写hive数据同步任务同步成功
-  priority: P0
-  precondition: '1. 当前项目中已经成功引入GaussDB数据源
-
-    2. GaussDB中存在含有2 个字段的表，如建表语句为
-
-    CREATE TABLE if NOT EXISTS test_bushuju_001(id INT,name VARCHAR(255));
-
-    CREATE TABLE if NOT EXISTS test_bushuju_002(id INT,name VARCHAR(255) bir VARCHAR(255));
-
-
-    INSERT INTO test_bushuju_001 VALUES (1,''mengfei''),(2,''kako'');'
-  steps:
-  - action: 进入【离线开发 → 运维中心】页面
-    expected: 已进入【离线开发 → 运维中心】页面，显示页面标题与主要操作区域
-  - action: 进入数据开发模块，新建向导模式的数据同步任务
-    expected: 新建成功
-  - action: '选择数据来源
-
-      数据库
-
-      schema
-
-      表名：test_bushuju_001
-
-      点击下一步'
-    expected: 进入选择目标界面
-  - action: '选择数据目标
-
-      数据库
-
-      schema
-
-      表名：test_bushuju_002
-
-      点击下一步'
-    expected: 进入选择字段映射界面
-  - action: 配置同字段映射，点击下一步
-    expected: 进入通道控制页面
-  - action: 点击下一步，点击保存，点击提交
-    expected: 任务保存、提交成功
-  - action: 进入运维中心-任务管理，选择该任务，点击该任务后操作列的按任务补数据
-    expected: 弹出补数据弹窗
-  - action: 勾选该任务，其他选项默认初始化设置，点击确定
-    expected: 补数据实例生成成功
-  - action: 进入运维中心-补数据实例，查看补数据实例状态
-    expected: 当前任务补数据实例状态为成功
-  - action: 点击实例名称-查看更多详情
-    expected: '分为四个菜单
-
-      属性：正确展示实例的1 条基础配置及信息详情
-
-      操作记录：展示实例的修改记录
-
-      代码：该数据同步任务脚本化展示
-
-      运行记录：包含实例诊断、数据同步性能、日志
-
-      以上四个菜单对应信息展示完全、结果值与预期值一致'
-  - action: 查看目标表数据
-    expected: 成功从{GaussDB}中表同步过来，包括各类型字段值
-  tags:
-  - 运维中心
+  - case_id: C0001
+    title: 验证【数据源】-【引入数据源】引入GaussDB数据源，列表新增且类型展示GaussDB
+    priority: P1
+    precondition: |-
+      1) 已成功进入测试项目
+      2) 数据源中心存在授权给离线计算的 GaussDB 数据源
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击「引入数据源」
+        expected: 打开引入数据源弹窗并展示数据源列表
+      - action: 点击数据源类型下拉框
+        expected: 下拉选项包含 GaussDB
+      - action: 选择 GaussDB 类型的数据源
+        expected: GaussDB 的对应信息在离线项目页面中正确回显
+      - action: 选中 GaussDB 数据源，点击「确定」
+        expected: Toast提示:「引入成功」,弹窗关闭且列表新增该 GaussDB 数据源
+    tags:
+      - 数据源
+      - 引入数据源
+
+  - case_id: C0002
+    title: 验证【平台管理】-【数据源中心】修改GaussDB的jdbc与高可用配置，数据同步任务中信息同步更新
+    priority: P0
+    precondition: |-
+      1) 离线测试项目中已经成功引入 GaussDB 数据源
+    steps:
+      - action: 进入【平台管理 → 数据源中心】页面
+        expected: 进入成功
+      - action: 编辑已经被任务引用的 GaussDB 数据源，修改 jdbc、高可用配置，查看离线数据同步任务中对应的 GaussDB 信息
+        expected: 离线数据同步任务中的 GaussDB 数据源信息、高可用配置同步修改
+    tags:
+      - 平台管理
+      - 数据源中心
+
+  - case_id: C0003
+    title: 验证【平台管理】-【数据源中心】修改GaussDB的描述与jdbc，离线数据源信息同步更新
+    priority: P1
+    precondition: |-
+      1) 离线测试项目中已经成功引入 GaussDB 数据源
+    steps:
+      - action: 进入【平台管理 → 数据源中心】页面
+        expected: 进入成功
+      - action: 编辑已经引入到离线项目中的 GaussDB 数据源，修改描述、jdbc 等，查看离线中对应的 GaussDB 数据源信息
+        expected: 离线中的 GaussDB 数据源信息同步修改
+    tags:
+      - 平台管理
+      - 数据源中心
+
+  - case_id: C0004
+    title: 验证【数据源】取消已被任务使用的GaussDB数据源引入，弹二次确认且取消失败
+    priority: P1
+    precondition: |-
+      1) 存在已被任务使用的 GaussDB 数据源
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击已被任务使用的 GaussDB 数据源操作列的「取消引入」
+        expected: 弹出二次确认弹窗
+      - action: 点击「确定」
+        expected: 取消引入失败，页面弹出对应的提示信息
+    tags:
+      - 数据源
+      - 取消引入
+
+  - case_id: C0005
+    title: 验证【数据源】取消未被任务使用的GaussDB数据源引入，弹二次确认且取消成功
+    priority: P1
+    precondition: |-
+      1) 已成功进入测试项目
+      2) 数据源中心存在授权给离线计算的 GaussDB 数据源，且该数据源未在离线任务中使用
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击未被使用的 GaussDB 数据源操作列的「取消引入」
+        expected: 弹出二次确认弹窗
+      - action: 点击「确定」
+        expected: 取消引入成功
+    tags:
+      - 数据源
+      - 取消引入
+
+  - case_id: C0006
+    title: 验证【数据源】筛选GaussDB类型数据源，列表仅展示对应数据源且支持名称搜索
+    priority: P2
+    precondition: |-
+      1) 离线测试项目中已经成功引入 GaussDB 数据源
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击数据源页面筛选按钮
+        expected: 显示数据源类型列表，新增 GaussDB 数据源类型，顺序与数据源中心一致
+      - action: 选中 GaussDB，点击「确定」
+        expected: GaussDB 类型的数据源被成功筛选出来，对应信息正确回显，类型正确展示 GaussDB
+      - action: 在搜索框中输入 GaussDB 名称
+        expected: 满足条件的 GaussDB 数据源被筛选出来
+    tags:
+      - 数据源
+
+  - case_id: C0007
+    title: 验证【数据源】配置GaussDB数据源映射关系，发布目标选择后映射状态为已配置
+    priority: P0
+    precondition: |-
+      1) 离线测试项目与生产项目中已经成功引入 GaussDB 数据源
+      2) 当前项目（测试项目）已经成功绑定发布目标项目
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击 GaussDB 数据源操作列的「映射配置」
+        expected: 操作支持取消引入和映射配置
+      - action: 点击「映射配置」
+        expected: 弹出 GaussDB 数据源映射配置弹窗，在本项目文本框下显示的为用户名
+      - action: 点击「发布目标」
+        expected: 下拉弹窗中显示出生产项目中成功引入的 GaussDB 数据源
+      - action: 选择其中一个，点击「确定」
+        expected: 映射配置弹窗关闭，GaussDB 数据源映射配置关系设置成功，映射关系变更为「已配置」
+    tags:
+      - 数据源
+
+  - case_id: C0008
+    title: 验证【数据源】生产项目中GaussDB数据源操作列仅展示取消引入，无映射配置选项
+    priority: P1
+    precondition: |-
+      1) 离线测试项目中已经成功引入 GaussDB 数据源
+      2) 当前项目作为生产项目
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 进入生产项目，点击 GaussDB 数据源操作列的「操作」
+        expected: 操作支持取消引入，无映射配置选项
+    tags:
+      - 数据源
+
+  - case_id: C0009
+    title: 验证【项目管理】-【创建项目】勾选GaussDB数据源创建项目，数据源列表新增对应meta数据源
+    priority: P0
+    precondition: |-
+      1) 控制台已经配置对应组件
+    steps:
+      - action: 进入【项目管理 → 创建项目】页面
+        expected: 进入成功
+      - action: 进入「项目管理」页面, 点击「创建项目」
+        expected: 进入创建项目界面
+      - action: 勾选 GaussDB 数据源，其余必填项默认填写，点击「确定」
+        expected: 项目创建完成
+      - action: 点击项目名称进入项目的数据源页面
+        expected: GaussDB 数据源正常展示为 meta 数据源
+    tags:
+      - 项目管理
+      - 创建项目
+
+  - case_id: C0010
+    title: 验证【数据源】引入无schema的GaussDB数据源，同步任务schema下拉框为空
+    priority: P2
+    precondition: |-
+      1) 离线测试项目中已经成功引入 GaussDB 数据源
+      2) 当前项目（测试项目）已经成功绑定发布目标项目
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 引入一个没有任何 schema 的 GaussDB 数据源
+        expected: 引入成功
+      - action: 创建数据同步任务，选择上述所引入数据源，点击 schema 下拉框
+        expected: 数据源选择成功，schema 下拉框为空
+    tags:
+      - 数据源
+
+  - case_id: C0011
+    title: 验证【数据源】-【整库同步】GaussDB作为来源整库同步，任务运行成功且目标表数据一致
+    priority: P0
+    precondition: |-
+      1) 控制台已经配置对应组件
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击 GaussDB 操作列「整库同步」按钮
+        expected: 进入整库同步界面
+      - action: |-
+          勾选需要整库同步的表
+          选择数据同步目标（如 mysql）、schema
+          同步方式：全量
+          并发配置：整批上传
+          保存目录：默认
+          点击发布任务
+        expected: 任务发布完成
+      - action: 进入数据开发界面查看对应目录下内容
+        expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
+      - action: 数据同步任务点击临时运行
+        expected: 任务运行成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据源
+      - 整库同步
+
+  - case_id: C0012
+    title: 验证【数据源】-【整库同步】GaussDB引入数据源作为目标整库同步，任务运行成功且目标表数据一致
+    priority: P1
+    precondition: |-
+      1) 控制台已经配置对应组件
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击 mysql 操作列「整库同步」按钮
+        expected: 进入整库同步界面
+      - action: |-
+          勾选需要整库同步的表
+          选择数据同步目标为 GaussDB（引入数据源）、schema
+          同步方式：全量
+          并发配置：整批上传
+          保存目录：默认
+          点击发布任务
+        expected: 任务发布完成
+      - action: 进入数据开发界面查看对应目录下内容
+        expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
+      - action: 数据同步任务点击临时运行
+        expected: 任务运行成功
+      - action: 查看目标表数据
+        expected: 成功从 mysql 中表同步过来，包括各类型字段值
+    tags:
+      - 数据源
+      - 整库同步
+
+  - case_id: C0013
+    title: 验证【数据源】-【整库同步】GaussDB meta数据源作为目标整库同步，任务运行成功且表同步至资产
+    priority: P1
+    precondition: |-
+      1) 控制台已经配置对应组件
+    steps:
+      - action: 进入【数据源】页面
+        expected: 进入成功
+      - action: 点击 mysql 操作列「整库同步」按钮
+        expected: 进入整库同步界面
+      - action: |-
+          勾选需要整库同步的表
+          选择数据同步目标为 GaussDB（meta 数据源）、schema
+          同步方式：全量
+          并发配置：整批上传
+          保存目录：默认
+          点击发布任务
+        expected: 任务发布完成
+      - action: 进入数据开发界面查看对应目录下内容
+        expected: 包含整库同步所创建的数据同步任务，表名为所配置表表名，目标库新建对应表
+      - action: 进入资产-元数据-数据表查看
+        expected: 目标库所建表被正常同步至资产，表信息与预期值一致结果
+      - action: 进入数据地图查看
+        expected: 目标库所建表语句正常进入数据地图，表信息与预期值一致结果
+      - action: 数据同步任务点击临时运行
+        expected: 任务运行成功
+      - action: 查看目标表数据
+        expected: 成功从 mysql 中表同步过来，包括各类型字段值
+    tags:
+      - 数据源
+      - 整库同步
+
+  - case_id: C0014
+    title: 验证【数据开发】-【数据同步】向导模式配置GaussDB来源表并数据预览，展示过滤后前三条数据
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在分区表 test_fenqu_001，按业务日期 bir 分区并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS test_fenqu_001;
+         CREATE TABLE IF NOT EXISTS test_fenqu_001 (id INT, name VARCHAR(255)) PARTITIONED BY (bir STRING);
+         INSERT INTO test_fenqu_001 PARTITION (bir)
+         SELECT 1, 'mengfei', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'kako', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 3, 'lala', date_format(current_date(), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 4, 'puxi', date_format(current_date(), 'yyyy-MM-dd');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: 配置数据来源为 GaussDB 数据源，选择表 test_fenqu_001
+        expected: 表配置成功
+      - action: 数据过滤输入 id > 1，点击数据预览按钮
+        expected: 下拉展示当前所选表 id > 1 的前三条数据
+    tags:
+      - 数据开发
+      - 数据同步
+      - 数据预览
+
+  - case_id: C0015
+    title: 验证【数据开发】-【数据同步】向导模式自定义sql读取GaussDB同步，任务运行成功且目标表数据一致
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_zidingyi_001、test_zidingyi_002，建表语句为：
+         DROP TABLE IF EXISTS test_zidingyi_001;
+         CREATE TABLE IF NOT EXISTS test_zidingyi_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_zidingyi_002;
+         CREATE TABLE IF NOT EXISTS test_zidingyi_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_zidingyi_001 插入 10 行数据：
+         INSERT INTO test_zidingyi_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+      4) 查询 sql 内容：
+         SELECT * FROM test_zidingyi_001;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 WHERE pay_boolen = TRUE;
+         SELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count FROM test_zidingyi_001 WHERE pay_boolen = TRUE GROUP BY shop_id;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 ORDER BY pay_decli DESC;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 WHERE pay_decli BETWEEN 100 AND 300;
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          勾选自定义sql
+          输入 sql 内容：前置条件查询 sql 依次校验
+          点击下一步
+        expected: |-
+          1) 进入选择目标界面
+          2) 执行SQL：SELECT * FROM test_zidingyi_001;
+             查询结果：10 行
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_zidingyi_002
+          点击下一步
+        expected: |-
+          进入选择字段映射界面
+          源字段为源表的所有字段
+          可正常进行添加常量、修改、删除、字段转换等
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 自定义sql
+
+  - case_id: C0016
+    title: 验证【数据开发】-【数据同步】自定义sql配置并数据预览，展示过滤后前三条数据
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在分区表 test_fenqu_001，按业务日期 bir 分区并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS test_fenqu_001;
+         CREATE TABLE IF NOT EXISTS test_fenqu_001 (id INT, name VARCHAR(255)) PARTITIONED BY (bir STRING);
+         INSERT INTO test_fenqu_001 PARTITION (bir)
+         SELECT 1, 'mengfei', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'kako', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 3, 'lala', date_format(current_date(), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 4, 'puxi', date_format(current_date(), 'yyyy-MM-dd');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: 配置数据来源为 GaussDB 数据源，选择表 test_fenqu_001
+        expected: 表配置成功
+      - action: 选择自定义sql，输入 select * from test_fenqu_001 where id > 1，点击数据预览按钮
+        expected: 下拉展示当前所选表 id > 1 的前三条数据
+    tags:
+      - 数据开发
+      - 数据同步
+      - 自定义sql
+      - 数据预览
+
+  - case_id: C0017
+    title: 验证【数据开发】-【数据同步】自定义sql读取GaussDB meta数据源同步，任务运行成功且目标表数据一致
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_zidingyi_001、test_zidingyi_002，建表语句为：
+         DROP TABLE IF EXISTS test_zidingyi_001;
+         CREATE TABLE IF NOT EXISTS test_zidingyi_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_zidingyi_002;
+         CREATE TABLE IF NOT EXISTS test_zidingyi_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_zidingyi_001 插入 10 行数据：
+         INSERT INTO test_zidingyi_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+      4) 查询 sql 内容：
+         SELECT * FROM test_zidingyi_001;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 WHERE pay_boolen = TRUE;
+         SELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count FROM test_zidingyi_001 WHERE pay_boolen = TRUE GROUP BY shop_id;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 ORDER BY pay_decli DESC;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 WHERE pay_decli BETWEEN 100 AND 300;
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源（meta 数据源）
+          勾选自定义sql
+          输入 sql 内容：前置条件查询 sql 依次校验
+          点击下一步
+        expected: |-
+          1) 进入选择目标界面
+          2) 执行SQL：SELECT * FROM test_zidingyi_001;
+             查询结果：10 行
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_zidingyi_002
+          点击下一步
+        expected: |-
+          进入选择字段映射界面
+          源字段为源表的所有字段
+          可正常进行添加常量、修改、删除、字段转换等
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 自定义sql
+      - meta数据源
+
+  - case_id: C0018
+    title: 验证【数据开发】-【数据同步】自定义sql配置字段映射，可添加常量、修改与删除映射
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_zidingyi_001、test_zidingyi_002，建表语句为：
+         DROP TABLE IF EXISTS test_zidingyi_001;
+         CREATE TABLE IF NOT EXISTS test_zidingyi_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_zidingyi_002;
+         CREATE TABLE IF NOT EXISTS test_zidingyi_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_zidingyi_001 插入 10 行数据：
+         INSERT INTO test_zidingyi_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+      4) 查询 sql 内容：
+         SELECT * FROM test_zidingyi_001;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 WHERE pay_boolen = TRUE;
+         SELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count FROM test_zidingyi_001 WHERE pay_boolen = TRUE GROUP BY shop_id;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 ORDER BY pay_decli DESC;
+         SELECT order_header_id, customer_id, pay_decli FROM test_zidingyi_001 WHERE pay_decli BETWEEN 100 AND 300;
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源（meta 数据源）
+          勾选自定义sql
+          输入 sql 内容：前置条件查询 sql 依次校验
+          点击下一步
+        expected: |-
+          1) 进入选择目标界面
+          2) 执行SQL：SELECT * FROM test_zidingyi_001;
+             查询结果：10 行
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_zidingyi_002
+          点击下一步
+        expected: |-
+          进入选择字段映射界面
+          源字段为源表的所有字段
+          可正常进行添加常量、修改、删除、字段转换等
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 自定义sql
+
+  - case_id: C0019
+    title: 验证【数据开发】-【数据同步】自定义sql开启并发并配置切分键，任务运行成功
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_qiefen_001、test_qiefen_002，建表语句为：
+         DROP TABLE IF EXISTS test_qiefen_001;
+         CREATE TABLE IF NOT EXISTS test_qiefen_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_qiefen_002;
+         CREATE TABLE IF NOT EXISTS test_qiefen_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_qiefen_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          勾选自定义sql
+          输入 sql 内容：select * from test_qiefen_001;
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_qiefen_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 正常配置映射，点击下一步
+        expected: 进入通道控制页面
+      - action: |-
+          点击勾选开启并发，源表切分键输入 id
+          点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 自定义sql
+      - 切分键
+
+  - case_id: C0020
+    title: 验证【数据开发】-【数据同步】来源不选择schema直接选表，表下拉框展示GaussDB全部表
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          直接点击表名下拉框
+        expected: 下拉框展示 GaussDB 内的所有表
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0021
+    title: 验证【数据开发】-【数据同步】来源选择表后再次选择schema，已选表被清空
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          选择表
+        expected: 表选择成功
+      - action: 点击选择 schema
+        expected: 已选择的表被清空，表下拉框展示所选 schema 下的所有表
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0022
+    title: 验证【数据开发】-【数据同步】向导模式读GaussDB meta数据源，schema仅展示当前项目同名schema
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源（meta 数据源）
+          数据库
+          schema
+        expected: 只展示当前项目同名 schema
+    tags:
+      - 数据开发
+      - 数据同步
+      - meta数据源
+
+  - case_id: C0023
+    title: 验证【数据开发】-【数据同步】向导模式写GaussDB展开schema下拉框，展示连接用户全部schema
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          点击 schema 下拉框
+        expected: 可选范围为数据库连接用户下的所有 schema
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0024
+    title: 验证【数据开发】-【数据同步】向导模式写GaussDB展开表名下拉框，展示所选schema全部表
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          点击表名下拉框
+        expected: 可选范围为所选 schema 连接用户下的所有表
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0025
+    title: 验证【数据开发】-【数据同步】目标不选择schema直接选表，表下拉框展示GaussDB全部表
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据来源
+          数据库
+          直接点击表名下拉框
+        expected: 下拉框展示 GaussDB 内的所有表
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0026
+    title: 验证【数据开发】-【数据同步】目标选择表后再次选择schema，已选表被清空
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据来源
+          数据库
+          选择表
+        expected: 表选择成功
+      - action: 点击选择 schema
+        expected: 已选择的表被清空，表下拉框展示所选 schema 下的所有表
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0027
+    title: 验证【数据开发】-【数据同步】向导模式写GaussDB meta数据源，schema仅展示当前项目同名schema
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据来源（meta 数据源）
+          数据库
+          schema
+        expected: 只展示当前项目同名 schema
+    tags:
+      - 数据开发
+      - 数据同步
+      - meta数据源
+
+  - case_id: C0028
+    title: 验证【数据开发】-【数据同步】选择schema后新建表，表名下拉框展示新增表
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          点击表名下拉框
+        expected: 下拉框展示 GaussDB 内指定 schema 的所有表
+      - action: 新建一张 hive 表
+        expected: 表新建成功
+      - action: 返回创建数据同步任务界面，点击表名下拉框
+        expected: 下拉框展示新增表
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0029
+    title: 验证【数据开发】-【数据同步】目标schema下拉框模糊搜索，展示包含关键字的所有schema
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema 下拉框输入关键字 test 模糊搜索
+        expected: 展示名称包含 test 的所有 schema
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0030
+    title: 验证【数据开发】-【数据同步】目标表名下拉框模糊搜索，展示包含关键字的所有表名
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名下拉框输入关键字 test 模糊搜索
+        expected: 展示名称包含 test 的所有表名
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0031
+    title: 验证【数据开发】-【数据同步】主键冲突选择insert，冲突时脏数据记录且任务失败
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_fugai_001、test_fugai_002，建表语句为：
+         DROP TABLE IF EXISTS test_fugai_001;
+         CREATE TABLE IF NOT EXISTS test_fugai_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_fugai_002;
+         CREATE TABLE IF NOT EXISTS test_fugai_002 (id INT, name VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_fugai_001 VALUES (1, 'mengfei'), (2, 'kako'), (3, 'lala'), (4, 'puxi');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_fugai_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_fugai_002
+          主键冲突：insert
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 当主键/约束冲突，报脏数据
+    tags:
+      - 数据开发
+      - 数据同步
+      - 主键冲突
+      - insert
+
+  - case_id: C0032
+    title: 验证【数据开发】-【数据同步】主键冲突选择update，冲突时数据更新且未映射字段不变
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_fugai_001、test_fugai_002，建表语句为：
+         DROP TABLE IF EXISTS test_fugai_001;
+         CREATE TABLE IF NOT EXISTS test_fugai_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_fugai_002;
+         CREATE TABLE IF NOT EXISTS test_fugai_002 (id INT, name VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_fugai_001 VALUES (1, 'mengfei'), (2, 'kako'), (3, 'lala'), (4, 'puxi');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_fugai_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_fugai_002
+          主键冲突：update
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 当主键/约束冲突，update 数据，未映射的字段值不变
+    tags:
+      - 数据开发
+      - 数据同步
+      - 主键冲突
+      - update
+
+  - case_id: C0033
+    title: 验证【数据开发】-【数据同步】字段映射添加常量字段，目标表常量列写入全局参数值
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_changliang_001、test_changliang_002，建表语句为：
+         DROP TABLE IF EXISTS test_changliang_001;
+         CREATE TABLE IF NOT EXISTS test_changliang_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_changliang_002;
+         CREATE TABLE IF NOT EXISTS test_changliang_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_changliang_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_changliang_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_changliang_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 点击添加常量，输入名称、值为 ${bdp.system.currenttime}，类型选择 timestamp
+        expected: 常量添加成功
+      - action: 配置正确的映射，同时常量字段映射至 bir 字段，点击下一步
+        expected: 进入通道控制页面
+      - action: 下一步，点击确定，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表数据同步过来，bir 字段列数据为全局参数值 ${bdp.system.currenttime}
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 常量字段
+
+  - case_id: C0034
+    title: 验证【数据开发】-【数据同步】源表与目标表字段个数不一致，同步成功且未映射字段为null
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_changliang_001、test_changliang_002，建表语句为：
+         DROP TABLE IF EXISTS test_changliang_001;
+         CREATE TABLE IF NOT EXISTS test_changliang_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_changliang_002;
+         CREATE TABLE IF NOT EXISTS test_changliang_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_changliang_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_changliang_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_changliang_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置正确的映射，点击下一步
+        expected: |-
+          源表与目标表字段映射成功，其中目标表中 bir 字段没有产生映射关系
+          进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，bir 字段值为 null
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+
+  - case_id: C0035
+    title: 验证【数据开发】-【数据同步】编辑字段类型后点击字段刷新，字段类型更新且连线消失
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_shuaxin_001、test_shuaxin_002，建表语句为：
+         DROP TABLE IF EXISTS test_shuaxin_001;
+         CREATE TABLE IF NOT EXISTS test_shuaxin_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_shuaxin_002;
+         CREATE TABLE IF NOT EXISTS test_shuaxin_002 (id INT, name VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_shuaxin_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_shuaxin_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_shuaxin_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射
+        expected: 字段映射配置成功
+      - action: |-
+          修改目标表 name 字段的字段类型为 int
+          参考 sql
+          ALTER TABLE test_shuaxin_002
+          CHANGE COLUMN name name INT;
+        expected: 字段类型修改成功
+      - action: 返回字段映射界面，点击字段刷新
+        expected: 目标表字段中 name 字段类型变成 int，连线消失
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 字段刷新
+
+  - case_id: C0036
+    title: 验证【数据开发】-【数据同步】点击同行映射，字段按行对齐且未映射字段无连线
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_tonghang_001、test_tonghang_002，建表语句为：
+         DROP TABLE IF EXISTS test_tonghang_001;
+         CREATE TABLE IF NOT EXISTS test_tonghang_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_tonghang_002;
+         CREATE TABLE IF NOT EXISTS test_tonghang_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_tonghang_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_tonghang_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_tonghang_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击同行映射
+        expected: |-
+          字段映射成功
+          其中 bir 字段无映射关系
+          映射关系当为不同的数据类型，如 int-varchar
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 同行映射
+
+  - case_id: C0037
+    title: 验证【数据开发】-【数据同步】点击同名映射，同名字段自动映射
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_tongming_001、test_tongming_002，建表语句为：
+         DROP TABLE IF EXISTS test_tongming_001;
+         CREATE TABLE IF NOT EXISTS test_tongming_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_tongming_002;
+         CREATE TABLE IF NOT EXISTS test_tongming_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_tongming_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_tongming_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_tongming_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击同名映射
+        expected: |-
+          字段映射成功
+          其中 bir 字段无映射关系
+          映射关系当为不同的数据类型，如 int-varchar
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 同名映射
+
+  - case_id: C0038
+    title: 验证【数据开发】-【数据同步】点击自动排版，交叉映射字段排版为同行关系
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_paiban_001、test_paiban_002，建表语句为：
+         DROP TABLE IF EXISTS test_paiban_001;
+         CREATE TABLE IF NOT EXISTS test_paiban_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_paiban_002;
+         CREATE TABLE IF NOT EXISTS test_paiban_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_paiban_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_paiban_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_paiban_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段交叉映射，点击自动排版
+        expected: |-
+          字段排版成功
+          其中 bir 字段无映射关系
+          映射关系当为不同的数据类型，如 int-varchar
+          字段位置交叉关系变为同行关系
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 自动排版
+
+  - case_id: C0039
+    title: 验证【数据开发】-【数据同步】单字段转换选择资源包，目标字段类型转换成功
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_zhuanhuan_001、test_zhuanhuan_002，建表语句为：
+         DROP TABLE IF EXISTS test_zhuanhuan_001;
+         CREATE TABLE IF NOT EXISTS test_zhuanhuan_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_zhuanhuan_002;
+         CREATE TABLE IF NOT EXISTS test_zhuanhuan_002 (id INT, name VARCHAR(255), bir date);
+      3) 插入数据：
+         INSERT INTO test_zhuanhuan_001 VALUES (1, '2025-01-01'), (2, '2025-02-02');
+      4) 资源管理已经上传转换包 string-date
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_zhuanhuan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_zhuanhuan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射 name-bir，点击 name 字段操作列修改按钮
+        expected: 弹框显示修改字段
+      - action: |-
+          转换方式选择已上传的资源包，输入
+          类名
+          转换后类型：date
+          点击确定、下一步
+        expected: |-
+          配置成功，字段转换显示包名称
+          进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，name 字段转换为 date 类型，同步成功
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 单字段转换
+
+  - case_id: C0040
+    title: 验证【数据开发】-【数据同步】批量字段转换选择资源包，目标字段类型转换成功
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_piliangzhuanhuan_001、test_piliangzhuanhuan_002，建表语句为：
+         DROP TABLE IF EXISTS test_piliangzhuanhuan_001;
+         CREATE TABLE IF NOT EXISTS test_piliangzhuanhuan_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_piliangzhuanhuan_002;
+         CREATE TABLE IF NOT EXISTS test_piliangzhuanhuan_002 (id INT, name VARCHAR(255), bir date);
+      3) 插入数据：
+         INSERT INTO test_piliangzhuanhuan_001 VALUES (1, '2025-01-01'), (2, '2025-02-02');
+      4) 资源管理已经上传转换包 string-date
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_piliangzhuanhuan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_piliangzhuanhuan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射 name-bir，点击批量字段转换按钮
+        expected: 弹框显示修改字段
+      - action: |-
+          转换方式选择已上传的资源包，输入
+          字段选择：name
+          类名
+          点击确定、下一步
+        expected: |-
+          配置成功，字段转换显示包名称
+          进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，name 字段转换为 date 类型，同步成功
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+      - 批量字段转换
+
+  - case_id: C0041
+    title: 验证【数据开发】-【数据同步】编辑映射后切换其他任务再切回，连线保持
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_changliang_001、test_changliang_002，建表语句为：
+         DROP TABLE IF EXISTS test_changliang_001;
+         CREATE TABLE IF NOT EXISTS test_changliang_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_changliang_002;
+         CREATE TABLE IF NOT EXISTS test_changliang_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_changliang_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_changliang_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_changliang_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置正确的映射
+        expected: 映射配置完成
+      - action: 切换至其他任务界面，再次切换回来
+        expected: 连线依然存在
+    tags:
+      - 数据开发
+      - 数据同步
+      - 字段映射
+
+  - case_id: C0042
+    title: 验证【数据开发】-【数据同步】勾选断点续传，任务失败后从断点继续同步
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duandian_001、test_duandian_002，建表语句为：
+         DROP TABLE IF EXISTS test_duandian_001;
+         CREATE TABLE IF NOT EXISTS test_duandian_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_duandian_002;
+         CREATE TABLE IF NOT EXISTS test_duandian_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_duandian_002 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duandian_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_duandian_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: |-
+          勾选断点续传功能
+          点击下一步，点击保存，进行临时运行
+        expected: 任务运行失败后会从失败的点进行继续同步（需要询问开发制造异常中断场景）
+    tags:
+      - 数据开发
+      - 数据同步
+      - 通道控制
+      - 断点续传
+
+  - case_id: C0043
+    title: 验证【数据开发】-【数据同步】勾选脏数据管理并写入hive表，脏数据表展示冲突记录
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_zangshuju_001、test_zangshuju_002，建表语句为：
+         DROP TABLE IF EXISTS test_zangshuju_001;
+         CREATE TABLE IF NOT EXISTS test_zangshuju_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_zangshuju_002;
+         CREATE TABLE IF NOT EXISTS test_zangshuju_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_zangshuju_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_zangshuju_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_zangshuju_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 将 name 字段映射至 id，点击下一步
+        expected: 进入通道控制页面
+      - action: |-
+          点击勾选脏数据管理，脏数据写入 hive 表填写 dirty_01
+          点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 数据没有从源同步过来
+      - action: 进入运维中心-脏数据管理
+        expected: 展示一张脏数据表 dirty_01
+      - action: 点击表名查看表内数据
+        expected: 包含上述同步脏数据：name 字段内容
+    tags:
+      - 数据开发
+      - 数据同步
+      - 通道控制
+      - 脏数据管理
+
+  - case_id: C0044
+    title: 验证【数据开发】-【数据同步】自定义sql开启并发并输入切分键，任务运行成功
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_qiefen_001、test_qiefen_002，建表语句为：
+         DROP TABLE IF EXISTS test_qiefen_001;
+         CREATE TABLE IF NOT EXISTS test_qiefen_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_qiefen_002;
+         CREATE TABLE IF NOT EXISTS test_qiefen_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_qiefen_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          勾选自定义sql
+          输入 sql 内容：select * from test_qiefen_001;
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_qiefen_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 正常配置映射，点击下一步
+        expected: 进入通道控制页面
+      - action: |-
+          点击勾选开启并发，源表切分键输入 id
+          点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 通道控制
+      - 开启并发
+
+  - case_id: C0045
+    title: 验证【数据开发】-【周期任务】向导模式读GaussDB多类型字段写GaussDB，同步任务运行成功
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_duoziduan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 周期任务
+      - 数据同步
+
+  - case_id: C0046
+    title: 验证【数据开发】-【手动任务】向导模式读GaussDB多类型字段写GaussDB，同步任务运行成功
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 进入手动任务菜单页，新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_duoziduan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 手动任务
+      - 数据同步
+
+  - case_id: C0047
+    title: 验证【数据开发】-【数据同步】源表字段值含null同步，目标表保留null值
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_null_001、test_null_002，建表语句为：
+         DROP TABLE IF EXISTS test_null_001;
+         CREATE TABLE IF NOT EXISTS test_null_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_null_002;
+         CREATE TABLE IF NOT EXISTS test_null_002 (id INT, name VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_null_001 VALUES (1, 'mengfei'), (2, null);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_null_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_null_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括 null 值
+    tags:
+      - 数据开发
+      - 数据同步
+      - null值同步
+
+  - case_id: C0048
+    title: 验证【数据开发】-【数据同步】源表字段值含空值同步，目标表保留空值
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_kong_001、test_kong_002，建表语句为：
+         DROP TABLE IF EXISTS test_kong_001;
+         CREATE TABLE IF NOT EXISTS test_kong_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_kong_002;
+         CREATE TABLE IF NOT EXISTS test_kong_002 (id INT, name VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_kong_001 VALUES (1, 'mengfei'), (2, ' ');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_kong_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_kong_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括空值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 空值同步
+
+  - case_id: C0049
+    title: 验证【数据开发】-【数据同步】脚本模式导入来源模版，来源类型支持GaussDB数据源
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建脚本模式的数据同步任务
+        expected: 新建成功
+      - action: 点击导入模版
+        expected: 当前页面弹窗导入模版弹窗
+      - action: 点击来源类型下拉框
+        expected: 来源数据下拉框中支持 GaussDB 数据源
+      - action: 目标类型选择已存在数据源后点击导入
+        expected: |-
+          脚本模版导入成功
+          通过修改部分内容后任务可直接运行
+    tags:
+      - 数据开发
+      - 数据同步
+      - 脚本模式
+
+  - case_id: C0050
+    title: 验证【数据开发】-【数据同步】脚本模式导入目标模版，目标类型支持GaussDB数据源
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建脚本模式的数据同步任务
+        expected: 新建成功
+      - action: 点击导入模版
+        expected: 当前页面弹窗导入模版弹窗
+      - action: 点击目标类型下拉框
+        expected: 目标源数据下拉框中支持 GaussDB 数据源
+      - action: 来源类型选择已存在数据源后点击导入
+        expected: |-
+          脚本模版导入成功
+          通过修改部分内容后任务可直接运行
+    tags:
+      - 数据开发
+      - 数据同步
+      - 脚本模式
+
+  - case_id: C0051
+    title: 验证【数据开发】-【数据同步】添加hadoopConfig参数并运行，yarn上任务运行用户切换为root
+    priority: P2
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_duoziduan_001、test_duoziduan_002，建表语句为：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_duoziduan_001 插入 10 行数据：
+         INSERT INTO test_duoziduan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_duoziduan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，点击转换为脚本
+        expected: 正常转为脚本模式
+      - action: 添加 "hadoopConfig":root 参数，点击保存
+        expected: 任务修改、保存成功
+      - action: 进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值，yarn 上查看 application 运行用户为 ${UserA}
+    tags:
+      - 数据开发
+      - 数据同步
+      - 脚本模式
+
+  - case_id: C0052
+    title: 验证【数据开发】-【数据同步】删除任务移至回收站后还原，任务配置保留
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_huanyuan_001、test_huanyuan_002，建表语句为：
+         DROP TABLE IF EXISTS test_huanyuan_001;
+         CREATE TABLE IF NOT EXISTS test_huanyuan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+         DROP TABLE IF EXISTS test_huanyuan_002;
+         CREATE TABLE IF NOT EXISTS test_huanyuan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      3) test_huanyuan_001 插入 10 行数据：
+         INSERT INTO test_huanyuan_001 VALUES
+           ('OH001', 20250101, 'S001', 'C001', 1, '2025-01-02', TRUE, 199.99),
+           ('OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, 59.50),
+           ('OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, 0.00),
+           ('OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, 350.75),
+           ('OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, 120.00),
+           ('OH006', 20250106, 'S004', 'C006', 3, NULL, FALSE, 0.00),
+           ('OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, 499.00),
+           ('OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, 0.00),
+           ('OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, 80.20),
+           ('OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, 260.45);
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_huanyuan_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_huanyuan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存
+        expected: 任务保存成功
+      - action: 删除任务-移至回收站
+        expected: 任务删除成功
+      - action: 进入回收站，还原该任务
+        expected: 任务还原至对应目录下，重新打开该任务，配置依然存在
+      - action: 进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+
+  - case_id: C0053
+    title: 验证【数据开发】-【数据同步】修改任务配置后点击版本对比，弹窗高亮展示差异
+    priority: P1
+    precondition: |-
+      1) 存在已创建成功且包含 GaussDB 的数据同步任务 TaskA
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击进入数据同步任务 TaskA
+        expected: 打开成功
+      - action: 修改 GaussDB schema、表信息，点击保存
+        expected: 修改、保存成功
+      - action: 点击基础属性-勾选当前版本与上一版本的数据，点击版本对比
+        expected: 弹窗展示两个版本的对比，高亮展示修改、删除内容，如 schema、表数据
+    tags:
+      - 数据开发
+      - 数据同步
+      - 版本对比
+
+  - case_id: C0054
+    title: 验证【数据开发】-【数据同步】配置增量标识并运行，新增数据增量同步至目标表
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在分区表 test_duoziduan_001，按业务日期 dt 分区并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           id INT,
+           name VARCHAR(255)
+         ) PARTITIONED BY (dt STRING);
+         INSERT INTO test_duoziduan_001 PARTITION (dt)
+         SELECT 1, 'mengfei', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'kako', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 3, 'lala', date_format(current_date(), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 4, 'puxi', date_format(current_date(), 'yyyy-MM-dd');
+      3) GaussDB 中存在目标表 test_duoziduan_002：
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式、有增量标识的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_duoziduan_001
+          增量标识字段--下拉框（只支持数值/Timestamp类型）：id
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_duoziduan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+      - action: 往源表继续插入数据，id 值比原数值都大
+        expected: 数据插入成功
+      - action: 再次运行数据同步任务
+        expected: 任务运行成功，源表内新增数据成功增量同步至目标表
+    tags:
+      - 数据开发
+      - 数据同步
+      - 增量同步
+
+  - case_id: C0055
+    title: 验证【数据开发】-【数据同步】自定义sql配置增量标识并运行，新增数据增量同步至目标表
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在分区表 test_duoziduan_001，按业务日期 dt 分区并写入前一日和当日两个分区：
+         DROP TABLE IF EXISTS test_duoziduan_001;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_001 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额',
+           dt STRING
+         ) PARTITIONED BY (dt);
+         INSERT INTO test_duoziduan_001 PARTITION (dt)
+         SELECT order_header_id, order_date, shop_id, customer_id, order_status, pay_date, pay_boolen, pay_decli, date_format(date_sub(current_date(), 1), 'yyyy-MM-dd') FROM (
+           SELECT 'OH001' AS order_header_id, 20250101 AS order_date, 'S001' AS shop_id, 'C001' AS customer_id, 1 AS order_status, '2025-01-02' AS pay_date, TRUE AS pay_boolen, CAST(199.99 AS DECIMAL(10,2)) AS pay_decli
+           UNION ALL SELECT 'OH002', 20250102, 'S002', 'C002', 1, '2025-01-03', TRUE, CAST(59.50 AS DECIMAL(10,2))
+           UNION ALL SELECT 'OH003', 20250103, 'S001', 'C003', 0, NULL, FALSE, CAST(0.00 AS DECIMAL(10,2))
+           UNION ALL SELECT 'OH004', 20250104, 'S003', 'C004', 2, '2025-01-05', TRUE, CAST(350.75 AS DECIMAL(10,2))
+           UNION ALL SELECT 'OH005', 20250105, 'S002', 'C005', 1, '2025-01-06', TRUE, CAST(120.00 AS DECIMAL(10,2))
+         ) t;
+         INSERT INTO test_duoziduan_001 PARTITION (dt)
+         SELECT order_header_id, order_date, shop_id, customer_id, order_status, pay_date, pay_boolen, pay_decli, date_format(current_date(), 'yyyy-MM-dd') FROM (
+           SELECT 'OH006' AS order_header_id, 20250106 AS order_date, 'S004' AS shop_id, 'C006' AS customer_id, 3 AS order_status, NULL AS pay_date, FALSE AS pay_boolen, CAST(0.00 AS DECIMAL(10,2)) AS pay_decli
+           UNION ALL SELECT 'OH007', 20250107, 'S003', 'C007', 1, '2025-01-08', TRUE, CAST(499.00 AS DECIMAL(10,2))
+           UNION ALL SELECT 'OH008', 20250108, 'S002', 'C008', 0, NULL, FALSE, CAST(0.00 AS DECIMAL(10,2))
+           UNION ALL SELECT 'OH009', 20250109, 'S005', 'C009', 2, '2025-01-10', TRUE, CAST(80.20 AS DECIMAL(10,2))
+           UNION ALL SELECT 'OH010', 20250110, 'S001', 'C010', 1, '2025-01-11', TRUE, CAST(260.45 AS DECIMAL(10,2))
+         ) t;
+      3) GaussDB 中存在目标表 test_duoziduan_002：
+         DROP TABLE IF EXISTS test_duoziduan_002;
+         CREATE TABLE IF NOT EXISTS test_duoziduan_002 (
+           order_header_id STRING COMMENT '订单头id',
+           order_date BIGINT COMMENT '订单日期',
+           shop_id STRING COMMENT '店铺id',
+           customer_id STRING COMMENT '客户id',
+           order_status BIGINT COMMENT '订单状态',
+           pay_date DATE COMMENT '支付日期',
+           pay_boolen BOOLEAN COMMENT '是否支付',
+           pay_decli DECIMAL(10,2) COMMENT '支付金额'
+         ) COMMENT '销售订单明细表';
+      4) 查询 sql 内容：
+         SELECT * FROM test_duoziduan_001;
+         SELECT order_header_id, customer_id, pay_decli FROM test_duoziduan_001 WHERE pay_boolen = TRUE;
+         SELECT shop_id, SUM(pay_decli) AS total_amount, COUNT(*) AS order_count FROM test_duoziduan_001 WHERE pay_boolen = TRUE GROUP BY shop_id;
+         SELECT order_header_id, customer_id, pay_decli FROM test_duoziduan_001 ORDER BY pay_decli DESC;
+         SELECT order_header_id, customer_id, pay_decli FROM test_duoziduan_001 WHERE pay_decli BETWEEN 100 AND 300;
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式、有增量标识的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          勾选自定义sql
+          输入 sql 内容：前置条件查询 sql 依次校验
+          增量标识--输入框：id
+          点击下一步
+        expected: |-
+          1) 进入选择目标界面
+          2) 执行SQL：SELECT * FROM test_duoziduan_001;
+             查询结果：10 行
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_duoziduan_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，进行临时运行
+        expected: 配置以及环境无误的话，任务成功
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+      - action: 往源表继续插入数据，id 值比原数值都大
+        expected: 数据插入成功
+      - action: 再次运行数据同步任务
+        expected: 任务运行成功，源表内新增数据成功增量同步至目标表
+    tags:
+      - 数据开发
+      - 数据同步
+      - 增量同步
+      - 自定义sql
+
+  - case_id: C0056
+    title: 验证【数据开发】-【周期任务】向导模式组合配置数据同步任务，运行成功且转换为脚本回显一致
+    priority: P0
+    precondition: |-
+      1) 资源管理已存在资源 jar 包，可用于 id 类型转换为 string 类型
+      2) 建表语句：
+         DROP TABLE IF EXISTS test_001;
+         CREATE TABLE IF NOT EXISTS test_001 (id INT, name VARCHAR(255)) PARTITIONED BY (dt STRING);
+         DROP TABLE IF EXISTS test_002;
+         CREATE TABLE IF NOT EXISTS test_002 (id INT, name VARCHAR(255));
+      3) 写入前一日和当日两个分区：
+         INSERT INTO test_001 PARTITION (dt)
+         SELECT 1, 'mengfei', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 2, 'kako', date_format(date_sub(current_date(), 1), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 3, 'lala', date_format(current_date(), 'yyyy-MM-dd')
+         UNION ALL
+         SELECT 4, 'puxi', date_format(current_date(), 'yyyy-MM-dd');
+      4) 写入前语句：
+         ALTER TABLE test_002
+         ADD COLUMN bir INT DEFAULT 1;
+      5) 写入后语句：
+         DELETE FROM test_002
+         WHERE id = 1;
+    steps:
+      - action: 进入【数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 进入周期任务菜单页，新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源（hive-meta 数据源）
+          数据库
+          schema
+          表名：test_001
+          分区：dt=${bdp.system.bizdate}
+          点击下一步
+        expected: 进入选择目标界面
+      - action: 点击一键生成目标表，表名修改为 test_002
+        expected: 建表成功
+      - action: |-
+          选择数据目标（mysql-meta 数据源）
+          数据库
+          schema
+          表名：test_002
+          presql、postsql：前置条件内的前后配置语句
+          主键冲突：replace into
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: |-
+          添加常量字段：bir-999-int
+          修改源字段 name 格式化：yyyy-MM-dd
+          修改源字段 id 字段转换：选择前置条件配置资源
+          点击字段刷新-同行映射，点击下一步
+        expected: 进入通道控制页面
+      - action: |-
+          同步速率上限：5
+          开启并发：读2写2
+          开启脏数据管理：表-dirty_01，生命周期-1天，最大容忍数-10条，脏数记录比例-50%
+          点击下一步，点击保存，点击临时运行
+        expected: 任务运行成功，数据成功从 GaussDB 中表同步过来，包括各类型字段值
+      - action: 点击转换为脚本
+        expected: 数据同步任务由向导模式转为脚本模式，各个配置对应字段值、状态和详情内容与保存输入一致显示，字段无缺失
+    tags:
+      - 数据开发
+      - 周期任务
+      - 数据同步
+
+  - case_id: C0057
+    title: 验证【数据开发】-【周期任务】数据同步任务全流程创建、发布与补数据运行，发布包导入导出后任务可运行
+    priority: P1
+    precondition: |-
+      1) 建表语句：
+         DROP TABLE IF EXISTS test_001;
+         CREATE TABLE IF NOT EXISTS test_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_002;
+         CREATE TABLE IF NOT EXISTS test_002 (id INT, name VARCHAR(255));
+      2) 插入数据：
+         INSERT INTO test_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 数据源中心新增 GaussDB 数据源，新增时授权离线项目
+        expected: GaussDB 新增完成
+      - action: 控制台配置 GaussDB 计算引擎，执行连通性测试
+        expected: 计算引擎配置完成，连通性通过
+      - action: 进入「项目管理」页面, 创建项目（xiangmu_01）：勾选 GaussDB，选择创建选项来创建 schema，填写其余必填项，点击保存
+        expected: 项目创建完成，进入数据源查看 - GaussDB 为 meta 数据源，数据源内新增一个与项目名称同名的 schema
+      - action: 再次创建项目（xiangmu_02）：勾选 GaussDB，选择创建选项来创建 schema，填写其余必填项，点击保存（注意：需要与 xiangmu_01 数据源选择一致，不可多或少）
+        expected: 项目创建完成，进入数据源查看 - GaussDB 为 meta 数据源，数据源内新增一个与项目名称同名的 schema
+      - action: 进入上述所创建项目（xiangmu_01）-项目管理-项目设置-发布目标，点击立即绑定
+        expected: 弹窗展示绑定发布目标，选择 xiangmu_02 后点击确定绑定成功
+      - action: 进入上述所创建项目（xiangmu_01）-项目管理-项目设置-开发设置，点击资源组下方按钮配置映射
+        expected: 弹窗展示资源组映射目标，选择 xiangmu_02 后点击确定绑定成功
+      - action: 进入上述所创建项目（xiangmu_01）-数据源-点击所创建的 meta 数据源操作列映射配置，发布目标选择 xiangmu_02 对应 meta 数据源，点击确定
+        expected: 配置映射成功，映射状态为已配置
+      - action: 进入上述所创建项目（xiangmu_01）-数据源，点击引入数据源，勾选上述数据源中心所创建的数据源，点击确定
+        expected: 数据源引入成功
+      - action: 进入上述所创建项目（xiangmu_02）-数据源，点击引入数据源，勾选上述数据源中心所创建的数据源，点击确定
+        expected: 数据源引入成功
+      - action: 进入上述所创建的项目（xiangmu_01）-数据开发模块-周期任务菜单页，新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源（上述创建的 meta 数据源）
+          数据库
+          schema
+          表名：test_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标（上述引入的数据源）
+          数据库
+          schema
+          表名：test_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，点击临时运行
+        expected: 任务运行成功，数据成功从 GaussDB 中表同步过来，包括各类型字段值
+      - action: 点击转换为脚本
+        expected: 数据同步任务由向导模式转为脚本模式，数据源对应字段值、状态和详情内容与保存输入一致显示，字段无缺失
+      - action: |-
+          修改调度属性
+          实例生成方式：立即生成
+          具体时间：（当前时间的十七分钟后）
+          点击保存、点击右上角提交
+        expected: 任务提交成功
+      - action: 进入运维中心-周期任务管理，选择该任务点击操作列补数据-当前任务
+        expected: 右侧弹窗展示补数据配置界面
+      - action: 全部默认点击确定
+        expected: 弹窗提示查看补数据结果框，点击查看后进入补数据实例界面，展示补数据实例，实例状态依次为等待提交、等待运行、运行中、成功
+      - action: 进入周期任务实例查看
+        expected: 展示上述任务周期运行实例，达到上述调度属性所修改时间后开始运行，最终状态为运行成功
+      - action: 进入数据开发当前任务界面，点击发布
+        expected: 进入发布管理界面-创建发布包
+      - action: 勾选当前任务，点击打包，输入发布描述，点击确定
+        expected: 自动跳转发布至目标项目
+      - action: 点击所创建发布包操作列导出按钮，选择保存目录点击确定
+        expected: 发布包导出到本地
+      - action: 点击所创建发布包操作列发布按钮
+        expected: 发布状态由待发布转为发布成功
+      - action: 进入项目 xiangmu_02-数据开发-周期任务菜单页
+        expected: 上述数据同步任务发布至本项目，点击临时运行可正常运行
+      - action: 删除上述所同步过来的数据同步任务
+        expected: 任务删除成功
+      - action: 进入发布管理界面-发布至本项目，点击导入发布包，选择上文导出的发布包，点击确定
+        expected: 发布至本项目列表新增一条发布包
+      - action: 点击操作列发布按钮
+        expected: 发布状态由待发布转为发布成功
+      - action: 进入数据开发-周期任务菜单页
+        expected: 上述数据同步任务发布至本项目，点击临时运行可正常运行
+    tags:
+      - 数据开发
+      - 周期任务
+      - 数据同步
+
+  - case_id: C0058
+    title: 验证【数据开发】-【数据同步】一键发布数据同步任务，目标项目任务可运行
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) 当前项目中存在新建成功的写 GaussDB 向导模式的数据同步任务
+      3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击上述数据同步任务右上方的「发布」
+        expected: 进入任务发布页面
+      - action: 勾选该数据同步任务打包
+        expected: 弹出创建发布包弹窗
+      - action: 输入正确的发布描述，点击确定
+        expected: 创建包完成，进入发布至目标项目页面
+      - action: 选择步骤三打的发布包，点击发布
+        expected: 映射配置配置与环境信息配置无误的话，发布成功
+      - action: 进入生产项目-数据开发查看
+        expected: 有从测试项目发布过来的任务
+      - action: 查看该任务
+        expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的 GaussDB 的数据源
+      - action: 临时运行该任务
+        expected: 配置无误的情况下运行成功
+      - action: 查看该数据同步任务中目标表中的数据
+        expected: 成功从源表中同步过来
+    tags:
+      - 数据开发
+      - 数据同步
+      - 一键发布
+
+  - case_id: C0059
+    title: 验证【数据开发】-【数据同步】导入导出发布包发布任务，目标项目任务可运行
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) 当前项目中存在新建成功的写 GaussDB 向导模式的数据同步任务
+      3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击上述数据同步任务右上方的「发布」
+        expected: 进入任务发布页面
+      - action: 勾选该数据同步任务打包
+        expected: 弹出创建发布包弹窗
+      - action: 输入正确的发布描述，点击确定
+        expected: 创建包完成，进入发布至目标项目页面
+      - action: 选择步骤三打的发布包，点击导出
+        expected: 导出包成功
+      - action: 进入发布项目-发布-发布至本项目-导入发布包，选择步骤四导出的包
+        expected: 弹出发布包检查弹窗
+      - action: 勾选已知晓风险，继续导入
+        expected: 环境配置无误的话，导入发布包成功
+      - action: 进入生产项目-数据开发查看
+        expected: 有从测试项目发布过来的任务
+      - action: 查看该任务
+        expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的 GaussDB 的数据源
+      - action: 临时运行该任务
+        expected: 配置无误的情况下运行成功
+      - action: 查看该数据同步任务中目标表中的数据
+        expected: 成功从源表中同步过来
+    tags:
+      - 数据开发
+      - 数据同步
+      - 导入导出发布
+
+  - case_id: C0060
+    title: 验证【数据开发】-【数据同步】自定义sql任务发布，目标项目sql内容与源任务一致
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) 当前项目中存在新建成功的读 GaussDB 向导模式的数据同步任务（来源配置方式为自定义sql）
+      3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击上述数据同步任务（来源配置方式为自定义sql）右上方的「发布」
+        expected: 进入任务发布页面
+      - action: 勾选该数据同步任务打包
+        expected: 弹出创建发布包弹窗
+      - action: 输入正确的发布描述，点击确定
+        expected: 创建包完成，进入发布至目标项目页面
+      - action: 选择步骤三打的发布包，点击发布
+        expected: 映射配置配置与环境信息配置无误的话，发布成功
+      - action: 进入生产项目-数据开发查看
+        expected: 有从测试项目发布过来的任务
+      - action: 查看该任务
+        expected: |-
+          该任务的来源数据源与目标数据源均替换为与测试环境配置映射的 GaussDB 的数据源
+          配置方式为自定义sql，sql 框内容与源任务一致
+      - action: 临时运行该任务
+        expected: 配置无误的情况下运行成功
+      - action: 查看该数据同步任务中目标表中的数据
+        expected: 成功从源表中同步过来
+    tags:
+      - 数据开发
+      - 数据同步
+      - 自定义sql
+      - 发布
+
+  - case_id: C0061
+    title: 验证【数据开发】-【数据同步】任务与表同时打包发布，目标项目任务与表均存在
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) 当前项目中存在新建成功的读 GaussDB 向导模式的数据同步任务
+      3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
+      4) 存在非数据同步配置的 hive、mysql 表：test_hive_01、test_mysql_01，表内各包含五条数据
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击上述数据同步任务右上方的「发布」
+        expected: 进入任务发布页面
+      - action: 勾选该数据同步任务、表 test_hive_01、test_mysql_01，点击打包
+        expected: 弹出创建发布包弹窗
+      - action: 输入正确的发布描述，点击确定
+        expected: 创建包完成，进入发布至目标项目页面
+      - action: 选择步骤三打的发布包，点击发布
+        expected: 映射配置配置与环境信息配置无误的话，发布成功
+      - action: 进入生产项目-数据开发查看
+        expected: 有从测试项目发布过来的任务、表
+      - action: 查看该任务
+        expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的 GaussDB 的数据源
+      - action: 临时运行该任务
+        expected: 配置无误的情况下运行成功
+      - action: 查看该数据同步任务中目标表中的数据
+        expected: 成功从源表中同步过来
+      - action: 执行查询语句查询表
+        expected: 表正确查询、表内数据为空
+    tags:
+      - 数据开发
+      - 数据同步
+      - 发布
+
+  - case_id: C0062
+    title: 验证【数据开发】-【数据同步】多任务同时打包发布，目标项目新增全部任务
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) 当前项目中存在 2 个新建成功的读 GaussDB 向导模式的数据同步任务
+      3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击上述数据同步任务右上方的「发布」
+        expected: 进入任务发布页面
+      - action: 勾选 2 个数据同步任务，点击打包
+        expected: 弹出创建发布包弹窗
+      - action: 输入正确的发布描述，点击确定
+        expected: 创建包完成，进入发布至目标项目页面
+      - action: 选择步骤三打的发布包，点击发布
+        expected: 映射配置配置与环境信息配置无误的话，发布成功
+      - action: 进入生产项目-数据开发查看
+        expected: 有从测试项目发布过来的 2 个任务
+      - action: 查看对应任务
+        expected: 该任务的来源数据源与目标数据源均替换为与测试环境配置映射的 GaussDB 的数据源
+      - action: 临时运行该任务
+        expected: 配置无误的情况下运行成功
+      - action: 查看该数据同步任务中目标表中的数据
+        expected: 成功从源表中同步过来
+    tags:
+      - 数据开发
+      - 数据同步
+      - 发布
+
+  - case_id: C0063
+    title: 验证【数据开发】-【数据同步】脚本模式任务发布，目标项目参数配置与来源一致
+    priority: P1
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) 当前项目中存在新建成功的读 GaussDB 向导模式的数据同步任务（脚本模式）
+      3) 当前项目已经成功绑定发布目标项目，且 GaussDB 数据源成功配置了映射配置（发布目标）
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 点击上述数据同步任务（脚本模式）右上方的「发布」
+        expected: 进入任务发布页面
+      - action: 勾选该数据同步任务打包
+        expected: 弹出创建发布包弹窗
+      - action: 输入正确的发布描述，点击确定
+        expected: 创建包完成，进入发布至目标项目页面
+      - action: 选择步骤三打的发布包，点击发布
+        expected: 映射配置配置与环境信息配置无误的话，发布成功
+      - action: 进入生产项目-数据开发查看
+        expected: 有从测试项目发布过来的任务
+      - action: 查看该任务
+        expected: |-
+          该任务的来源数据源与目标数据源均替换为与测试环境配置映射的 GaussDB 的数据源
+          各个参数配置项与来源均一致
+      - action: 临时运行该任务
+        expected: 配置无误的情况下运行成功
+      - action: 查看该数据同步任务中目标表中的数据
+        expected: 成功从源表中同步过来
+    tags:
+      - 数据开发
+      - 数据同步
+      - 脚本模式
+      - 发布
+
+  - case_id: C0064
+    title: 验证【数据开发】-【手动任务】手动任务提交至运维中心运行，实例详情四菜单展示
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_shoudong_001、test_shoudong_002，建表语句为：
+         DROP TABLE IF EXISTS test_shoudong_001;
+         CREATE TABLE IF NOT EXISTS test_shoudong_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_shoudong_002;
+         CREATE TABLE IF NOT EXISTS test_shoudong_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_shoudong_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 进入手动任务菜单页，新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_shoudong_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_shoudong_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，点击提交
+        expected: 任务保存、提交成功
+      - action: 进入运维中心-手动任务管理，选择该任务点击运行
+        expected: 提示手动任务实例生成
+      - action: 进入运维中心-手动任务实例
+        expected: 手动任务实例运行成功
+      - action: 点击实例名称-查看更多详情
+        expected: |-
+          分为四个菜单
+          属性：正确展示实例的 1 条基础配置及信息详情
+          操作记录：展示实例的修改记录
+          代码：该数据同步任务脚本化展示
+          运行记录：包含实例诊断、数据同步性能、日志
+          以上四个菜单对应信息展示完全、结果值与预期值一致
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 手动任务
+      - 运维中心
+
+  - case_id: C0065
+    title: 验证【数据开发】-【数据同步】任务提交后周期运行，实例详情四菜单展示
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_zhouqi_001、test_zhouqi_002，建表语句为：
+         DROP TABLE IF EXISTS test_zhouqi_001;
+         CREATE TABLE IF NOT EXISTS test_zhouqi_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_zhouqi_002;
+         CREATE TABLE IF NOT EXISTS test_zhouqi_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_zhouqi_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【数据开发 → 数据同步】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_zhouqi_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_zhouqi_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，点击提交
+        expected: 任务保存、提交成功
+      - action: 待到该任务生成周期实例后，进入运维中心-周期实例，查看该周期实例运行结果
+        expected: 配置无误的话周期运行成功
+      - action: 点击实例名称-查看更多详情
+        expected: |-
+          分为四个菜单
+          属性：正确展示实例的 1 条基础配置及信息详情
+          操作记录：展示实例的修改记录
+          代码：该数据同步任务脚本化展示
+          运行记录：包含实例诊断、数据同步性能、日志
+          以上四个菜单对应信息展示完全、结果值与预期值一致
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 数据开发
+      - 数据同步
+      - 运维中心
+
+  - case_id: C0066
+    title: 验证【运维中心】-【周期任务】任务按任务补数据，补数据实例运行成功
+    priority: P0
+    precondition: |-
+      1) 当前项目中已经成功引入 GaussDB 数据源
+      2) GaussDB 中存在表 test_bushuju_001、test_bushuju_002，建表语句为：
+         DROP TABLE IF EXISTS test_bushuju_001;
+         CREATE TABLE IF NOT EXISTS test_bushuju_001 (id INT, name VARCHAR(255));
+         DROP TABLE IF EXISTS test_bushuju_002;
+         CREATE TABLE IF NOT EXISTS test_bushuju_002 (id INT, name VARCHAR(255), bir VARCHAR(255));
+      3) 插入数据：
+         INSERT INTO test_bushuju_001 VALUES (1, 'mengfei'), (2, 'kako');
+    steps:
+      - action: 进入【运维中心】页面
+        expected: 进入成功
+      - action: 新建向导模式的数据同步任务
+        expected: 新建成功
+      - action: |-
+          选择数据来源
+          数据库
+          schema
+          表名：test_bushuju_001
+          点击下一步
+        expected: 进入选择目标界面
+      - action: |-
+          选择数据目标
+          数据库
+          schema
+          表名：test_bushuju_002
+          点击下一步
+        expected: 进入选择字段映射界面
+      - action: 配置同字段映射，点击下一步
+        expected: 进入通道控制页面
+      - action: 点击下一步，点击保存，点击提交
+        expected: 任务保存、提交成功
+      - action: 进入运维中心-任务管理，选择该任务，点击该任务后操作列的按任务补数据
+        expected: 弹出补数据弹窗
+      - action: 勾选该任务，其他选项默认初始化设置，点击确定
+        expected: 补数据实例生成成功
+      - action: 进入运维中心-补数据实例，查看补数据实例状态
+        expected: 当前任务补数据实例状态为成功
+      - action: 点击实例名称-查看更多详情
+        expected: |-
+          分为四个菜单
+          属性：正确展示实例的 1 条基础配置及信息详情
+          操作记录：展示实例的修改记录
+          代码：该数据同步任务脚本化展示
+          运行记录：包含实例诊断、数据同步性能、日志
+          以上四个菜单对应信息展示完全、结果值与预期值一致
+      - action: 查看目标表数据
+        expected: 成功从 GaussDB 中表同步过来，包括各类型字段值
+    tags:
+      - 运维中心
+      - 补数据
