@@ -426,6 +426,21 @@ describe("cases content lint", () => {
     expect(violations.map((item) => item.rule)).not.toContain("case_action_atomicity");
   });
 
+  it("flags custom project names with legacy/new/demo suffixes", () => {
+    const violations = lintCaseContent(
+      doc(
+        testCase({
+          steps: [
+            { action: "进入【数据质量】页面", expected: "进入成功" },
+            { action: "新建项目 quality_menu_legacy 并打开", expected: "打开成功" },
+          ],
+        }),
+      ),
+      config,
+    );
+    expect(violations.map((item) => item.rule)).toContain("case_environment_placeholders");
+  });
+
   it("requires an exact datasource block, canonical type and paired placeholders", () => {
     const alias = validSparkPrecondition.replace("SparkThrift2.x", "sparkthrift2.x");
     const mismatched = validSparkPrecondition.replaceAll(`\${SchemaA}`, `\${SchemaB}`);

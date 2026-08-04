@@ -722,6 +722,15 @@ function lintEnvironmentPlaceholders(
     )) {
       addEnvironmentValue(values, "project", match[0], config);
     }
+    // 自定义项目命名（如 quality_menu_legacy/order_new/xxx_demo）按项目名处理；排除表名与文件名
+    const withoutProjectTables = withoutStringLiterals
+      .replace(/\btest_table_(?:\d+|none)_\w*\b/gi, " ")
+      .replace(/\b[\w.-]+\.(?:csv|xlsx|xls|sql)\b/gi, " ");
+    for (const match of withoutProjectTables.matchAll(
+      /\b[A-Za-z][A-Za-z0-9_-]*(?:_legacy|_new|_demo|_test|_prod|_dev|_stage)\b/gi,
+    )) {
+      addEnvironmentValue(values, "project", match[0], config);
+    }
     // test_table_ 开头的表名不是 schema 实例
     const withoutSchemaLikeTables = withoutStringLiterals.replace(
       /\btest_table_(?:\d+|none)_c\d{4}(?:_(?:source|target|comparison|dimension)(?:_\d{2,})?)?\b/gi,
