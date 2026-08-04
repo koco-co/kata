@@ -8,6 +8,8 @@ import {
   checkRepositoryPolicy,
   trackedAndUntrackedPaths,
 } from "../../cli/lib/repository-policy.ts";
+import { validateCommitMessage } from "../../cli/lib/commit-message.ts";
+import { commitSubjectsInRange } from "../../cli/commands/repo.ts";
 
 const POLICY = String.raw`root:
   allowed_files: [package.json]
@@ -357,5 +359,37 @@ describe("repository policy", () => {
     expect(violations.some((item) => item.path.endsWith("/pages/data-quality/task-page.ts"))).toBe(
       false,
     );
+  });
+
+  it("validates every commit subject in a range through commitSubjectsInRange", () => {
+    const root = mkdtempSync(join(tmpdir(), "kata-commit-range-"));
+    try {
+      execFileSync("git", ["init", "-q", "-b", "main", root]);
+      execFileSync("git", ["-C", root, "config", "user.name", "Kata Test"]);
+      execFileSync("git", ["-C", root, "config", "user.email", "kata@example.invalid"]);
+      writeFileSync(join(root, "package.json"), "{\"name\":\"kata\"}\n");
+      execFileSync("git", ["-C", root, "add", "package.json"]);
+      execFileSync("git", ["-C", root, "commit", "-q", "-m", "✨ feat: base"]);
+      const base = execFileSync("git", ["-C", root, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+      execFileSync("git", ["-C", root, "commit", "-q", "--allow-empty", "-m", "🐛 fix: valid"]);
+      execFileSync("git", ["-C", root, "commit", "-q", "--allow-empty", "-m", "bad subject"]);
+
+      const subjects = commitSubjectsInRange(base, "HEAD", root);
+      expect(subjects.map((entry) => entry.subject)).toEqual([
+        "bad subject",
+        "🐛 fix: valid",
+      ]);
+      const reasons = subjects
+        .map((entry) => validateCommitMessage(entry.subject))
+        .filter((reason): reason is string => Boolean(reason));
+      expect(reasons).toEqual(["提交消息必须使用 <emoji> <type>: <摘要> 格式"]);
+
+      const filtered = commitSubjectsInRange(base, "HEAD~1", root);
+      expect(filtered.map((entry) => entry.subject)).toEqual(["🐛 fix: valid"]);      expect(filtered.every((entry) => validateCommitMessage(entry.subject) === undefined)).toBe(
+        true,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

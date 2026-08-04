@@ -680,6 +680,8 @@ Usage: kata repo lint [options]
 Options:
   --exit-code                 存在违规时退出码为 1
   --commit-message <subject>  附加检查一条 Emoji Conventional Commit subject
+  --commit-range <base>..<head>
+                              逐条校验该提交范围内的每个 subject
   -h, --help                  display help for command
 ```
 
