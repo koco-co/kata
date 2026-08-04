@@ -19,7 +19,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_10181_c0001，添加单字段时间差校验：字段和排序字段选择 event_time，阈值 <= 60 秒，保存并立即执行
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10181_c0001
+          规则集描述：空
+          添加单字段时间差校验：字段和排序字段选择 event_time，阈值 <= 60 秒，保存并立即执行
         expected: Toast提示:「保存成功」，规则实例状态为「不达标」，失败记录数为 1
       - action: 进入【数据质量 → 校验结果查询】页面
         expected: 最新实例状态为「不达标」
@@ -45,7 +52,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_10181_c0002，添加单字段时间差校验：字段和排序字段选择 event_time，阈值 <= 60 秒，保存并立即执行
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetB
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10181_c0002
+          规则集描述：空
+          添加单字段时间差校验：字段和排序字段选择 event_time，阈值 <= 60 秒，保存并立即执行
         expected: Toast提示:「保存成功」，规则实例状态为「达标」，失败记录数为 0
       - action: 进入【数据质量 → 校验结果查询】页面
         expected: 最新实例状态为「达标」
@@ -71,7 +85,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_10181_c0003，添加单字段时间差校验：字段和排序字段选择 event_time_text，阈值 = 1 秒，保存并立即执行
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetC
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10181_c0003
+          规则集描述：空
+          添加单字段时间差校验：字段和排序字段选择 event_time_text，阈值 = 1 秒，保存并立即执行
         expected: 规则实例状态为「失败」
       - action: 打开执行日志
         expected: 日志包含 event_time_text 值 invalid-time 无法转换为时间戳
