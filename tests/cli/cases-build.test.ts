@@ -11,18 +11,19 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { declaredRequirementIds } from "../../cli/lib/cases/requirement-locate.ts";
 import { computePrdDigest } from "../../cli/lib/prd.ts";
 
 const YAML = `
 meta: { title: 需求名, case_module_id: "" }
 cases:
   - case_id: C0001
-    title: 验证用例一
+    title: 验证规则配置在进入页面时展示规则列表
     priority: P0
     precondition: 无
     steps:
       - action: 进入【数据质量 → 规则库配置】页面
-        expected: 展示规则库配置列表
+        expected: 进入成功
 `;
 
 function feature(): string {
@@ -66,7 +67,7 @@ describe("kata cases build", () => {
       `meta: { title: 需求名, case_module_id: "" }
 cases:
   - case_id: C0001
-    title: 验证用例一
+    title: 验证规则配置在新增时打开新增弹窗
     priority: P0
     precondition: 准备测试数据
     steps:
@@ -143,5 +144,128 @@ cases:
       rmSync(join(d, "cases"), { force: true });
       rmSync(outside, { recursive: true, force: true });
     }
+  });
+});
+
+const BUILD_YAML = (requirementId: string) => `meta:
+  title: 需求名
+  case_module_id: ""
+  requirement_id: "${requirementId}"
+cases:
+  - case_id: C0001
+    title: 验证规则配置在进入页面时展示规则列表
+    priority: P0
+    precondition: 无
+    steps:
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+`;
+
+function workspaceRoot(): string {
+  return mkdtempSync(join(tmpdir(), "kata-cb-ws-"));
+}
+
+function writeFeature(
+  root: string,
+  project: string,
+  requirementId: string,
+  dirName: string,
+): string {
+  const featureDir = join(root, project, "features", "v1.0", dirName);
+  mkdirSync(join(featureDir, "cases"), { recursive: true });
+  writeFileSync(join(featureDir, "cases", "需求名.yaml"), BUILD_YAML(requirementId));
+  return featureDir;
+}
+
+function runBuild(args: string[], workspace?: string) {
+  return spawnSync("bun", ["cli/bin/kata.ts", "cases", "build", ...args], {
+    encoding: "utf8",
+    env: workspace ? { ...process.env, KATA_WORKSPACE_ROOT: workspace } : process.env,
+  });
+}
+
+describe("kata cases build by requirement id", () => {
+  it("builds the feature whose yaml declares the requirement id", () => {
+    const root = workspaceRoot();
+    const featureDir = writeFeature(root, "dataAssets", "16019", "【模块】需求名");
+    try {
+      const r = runBuild(["16019"], root);
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("created");
+      expect(existsSync(join(featureDir, "cases", "exports", "需求名.xmind"))).toBe(true);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("builds every matching feature across projects", () => {
+    const root = workspaceRoot();
+    const a = writeFeature(root, "dataAssets", "16019", "【模块】需求甲");
+    const b = writeFeature(root, "batchWorks", "16019", "【模块】需求乙");
+    try {
+      const r = runBuild(["16019"], root);
+      expect(r.status).toBe(0);
+      expect(existsSync(join(a, "cases", "exports", "需求名.xmind"))).toBe(true);
+      expect(existsSync(join(b, "cases", "exports", "需求名.xmind"))).toBe(true);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("fails when no feature declares the requirement id", () => {
+    const root = workspaceRoot();
+    writeFeature(root, "dataAssets", "16019", "【模块】需求名");
+    try {
+      const r = runBuild(["99999"], root);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("未找到 requirement_id=99999");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects combining --feature with a requirement id", () => {
+    const r = runBuild(["16019", "--feature", "x"]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("只能指定一个");
+  });
+
+  it("requires either --feature or a requirement id", () => {
+    const r = runBuild([]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("必须指定 <requirementId> 或 --feature");
+  });
+
+  it("rejects a non-digit requirement id", () => {
+    const r = runBuild(["abc"]);
+    expect(r.status).not.toBe(0);
+    expect(r.stderr).toContain("需求 id 必须是数字");
+  });
+});
+
+describe("declaredRequirementIds", () => {
+  it("extracts meta, requirements and per-case requirement ids", () => {
+    expect(
+      declaredRequirementIds(`meta: { requirement_id: "16019", case_module_id: "" }
+requirements:
+  - { requirement_id: "2001", title: r1, source: s }
+cases:
+  - case_id: C0001
+    title: t
+    priority: P0
+    requirement_id: "2002"
+    steps: [{ action: a, expected: e }]
+`),
+    ).toEqual(expect.arrayContaining(["16019", "2001", "2002"]));
+  });
+
+  it("accepts unquoted numeric ids and ignores non-digit ids", () => {
+    expect(declaredRequirementIds("meta: { requirement_id: 16019 }")).toEqual(["16019"]);
+    expect(declaredRequirementIds("meta: { requirement_id: abc }")).toEqual([]);
+  });
+
+  it("ignores malformed or empty yaml", () => {
+    expect(declaredRequirementIds("meta: [unclosed")).toEqual([]);
+    expect(declaredRequirementIds("")).toEqual([]);
   });
 });
