@@ -8,7 +8,7 @@ meta:
     - 泸州老窖.csv
   exports:
     - 资产定制化代码剥离.xmind
-  test_points_digest: sha256:a77f9aa632aeb0129d10ffd5cf0d4bb4aa44098f5428d661e9b1f028efc502d3
+  test_points_digest: sha256:3dc4e5596d276e5e9fd7394cd3d547b7c93abfbd0f8134627a50fa9e981ec1c0
 requirements:
   - requirement_id: '13176'
     title: 【数据资产目录】数据资产编码管理
@@ -9127,3 +9127,186 @@ cases:
     tags:
       - 数据安全
       - 数据权限管理
+  - requirement_id: '13550'
+    title: 验证【L1～L3导出】导出无子目录的L1或L2目录，对应目录sheet为空且其他层级sheet正常生成(无子目录数据)
+    priority: P1
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+      2) 已存在L1_ExportEmpty、L2_ExportEmpty_01、L3_ExportEmpty_001 三个层级目录
+      3) L2_ExportEmpty_01 下无任何 L3 子目录
+      4) L3_ExportEmpty_001 下无任何绑定数据表或标准
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 点击导出，选择 L2_ExportEmpty_01 目录范围并确认
+        expected: L2 sheet 导出正常含该目录记录，L3 sheet 不生成或为空
+      - action: 点击导出，选择 L3_ExportEmpty_001 目录范围并确认
+        expected: 导出成功且 L3 sheet 仅含该目录记录
+    source_ref: TP-101
+    case_id: C0314
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
+  - requirement_id: '13550'
+    title: 验证【L1～L3导出】传入不存在的catalogIds导出，接口返回目录不存在错误且不生成文件(catalogIds无效)
+    priority: P0
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 通过接口传入不存在或已删除的 catalogIds 发起导出
+        expected: 返回 BizException "目录不存在" 且不生成导出文件
+    source_ref: TP-101
+    case_id: C0315
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
+  - requirement_id: '13925'
+    title: 验证【L4/L5导出】导出异步任务异常且redis key不清理，轮询超时后用户可见错误且不挂死(任务异常终止)
+    priority: P0
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+      2) 数据源：${DataSourceA}
+      3) 数据源类型：SparkThrift2.x
+      4) 数据库 test_schema_13925_c0316 中存在表 test_table_13925_c0316，字段为 id BIGINT、code STRING、amount DECIMAL(10,2)
+      5) 固定行记录为 (1,"C001",100.00)、(2,"C002",200.00)。
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 进入成功
+      - action: 发起 L4 导出任务并模拟导出异步线程异常
+        expected: 导出 finish 接口始终返回未完成，前端轮询超时后提示导出失败且页面不再挂等待态
+    source_ref: TP-102
+    case_id: C0316
+    tags:
+      - 资产盘点
+  - requirement_id: '13178'
+    title: 验证【目录管理】使用非管理员账号进入已发布目录详情，发布下线与删除按钮禁用且无法通过接口执行(非管理员阻断)
+    priority: P0
+    precondition: |-
+      1) 使用数开账号和访客账号进入泸州老窖数据资产平台
+      2) 已存在已发布状态 L1/L2/L3 目录各一个
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 点击已发布L1目录操作列
+        expected: 发布、下线与删除按钮不可见或置灰
+      - action: 以访客账号重复上述操作
+        expected: 发布、下线与删除按钮不可见或置灰
+      - action: 以数开账号通过接口直接调发布/下线/删除
+        expected: 接口返回权限不足错误
+    source_ref: TP-103
+    case_id: C0317
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
+  - requirement_id: '13178'
+    title: 验证【目录管理】叠加筛选状态草稿与负责人再加自定义属性查询L3目录，列表只返回同时满足三项条件的记录(叠加查询)
+    priority: P1
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+      2) 已存在 5 个草稿态 L3 目录、5 个已发布 L3 目录
+      3) 草稿态目录中有 2 个负责人为 UserA
+      4) 已配置枚举型自定义属性 AssetType 值为"基础信息"和"分析类"
+      5) 负责人为 UserA 且 AssetType 为"基础信息"的草稿 L3 目录有 1 个
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 筛选状态为草稿、负责人为 UserA、自定义属性 AssetType 为基础信息
+        expected: 列表只显示同时满足三项条件的 L3 目录（预期 1 条）
+      - action: 清空自定义属性条件
+        expected: 列表显示满足状态草稿与负责人 UserA 的目录（预期 2 条）
+    source_ref: TP-104
+    case_id: C0318
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
+  - requirement_id: '13551'
+    title: 验证【L4导出】按数据源类型与资产目录叠加筛选后导出L4数据表，文件只包含符合筛选条件的记录且字段完整(筛选导出)
+    priority: P1
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+      2) 数据源：${DataSourceA}
+      3) 数据源类型：SparkThrift2.x
+      4) 数据库 test_schema_13551_c0319 中存在表 test_table_13551_c0319_a 和 test_table_13551_c0319_b，字段均为 id BIGINT、code STRING、name STRING
+      5) test_table_13551_c0319_a 绑定到 L3 目录 CatalogA，test_table_13551_c0319_b 未绑定目录
+    steps:
+      - action: 进入【资产盘点】页面
+        expected: 进入成功
+      - action: 筛选数据源类型为 SparkThrift2.x、数据资产目录为 CatalogA
+        expected: 列表只展示 test_table_13551_c0319_a
+      - action: 点击导出，选择 L4 维度并确认
+        expected: 导出文件只包含 test_table_13551_c0319_a，不包含未绑定目录的表
+      - action: 核对导出文件字段
+        expected: 表头包含编码、数据源、数据库、数据表、L3目录编码、表中文名、表负责人、状态、数据资产目录等完整字段
+    source_ref: TP-105
+    case_id: C0319
+    tags:
+      - 资产盘点
+  - requirement_id: '13178'
+    title: 验证【目录管理】使用非管理员账号点击目录导入导出按钮，按钮禁用或弹窗提示权限不足(非管理员导入导出阻断)
+    priority: P1
+    precondition: |-
+      1) 使用数开账号和访客账号进入泸州老窖数据资产平台
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 以数开账号点击导入按钮并选择文件
+        expected: 导入按钮不可见或点击后提示权限不足
+      - action: 以数开账号点击导出按钮
+        expected: 导出按钮不可见或点击后提示权限不足
+      - action: 以访客账号重复上述操作
+        expected: 导入导出按钮不可见或提示权限不足
+    source_ref: TP-106
+    case_id: C0320
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
+  - requirement_id: '13178'
+    title: 验证【目录管理】创建超过100个L3目录后拖动排序调整第50与第51个位置，刷新后顺序保持(大数据量拖拽)
+    priority: P2
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+      2) L3 目录列表已有超过 100 条草稿态目录，编号 L3_Drag_001 至 L3_Drag_120
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 翻页至第 2 页确认数据存在
+        expected: 第 2 页正常展示 L3 目录
+      - action: 将 L3_Drag_050 拖动至 L3_Drag_051 之后并释放
+        expected: 列表即时更新，L3_Drag_050 显示在 L3_Drag_051 之后
+      - action: 刷新页面
+        expected: 拖动后的顺序保持不变，树形目录对应节点顺序同步
+    source_ref: TP-107
+    case_id: C0321
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
+  - requirement_id: '13178'
+    title: 验证【目录管理】点击已发布L3目录编辑保存，提交失败提示已发布目录不可编辑且状态不变(已发布编辑阻断)
+    priority: P1
+    precondition: |-
+      1) 使用管理员账号进入泸州老窖数据资产平台
+      2) 已存在已发布 L3 目录 CatalogA、已下线 L3 目录 CatalogB
+      3) 已存在已发布 L4 数据表和已发布数据标准
+    steps:
+      - action: 进入【元数据 → 数据目录 → 目录管理】页面
+        expected: 进入成功
+      - action: 点击已发布 CatalogA 目录编辑按钮修改中文名并保存
+        expected: 提交失败，提示已发布目录不可编辑或按钮本身禁用
+      - action: 进入已下线 CatalogB 目录关联数据表操作
+        expected: 无法选择已下线目录进行关联或提示该目录未发布
+      - action: 进入已下线 CatalogB 目录关联标准操作
+        expected: 无法选择已下线目录进行标准关联或提示该目录未发布
+    source_ref: TP-108
+    case_id: C0322
+    tags:
+      - 元数据
+      - 数据目录
+      - 目录管理
