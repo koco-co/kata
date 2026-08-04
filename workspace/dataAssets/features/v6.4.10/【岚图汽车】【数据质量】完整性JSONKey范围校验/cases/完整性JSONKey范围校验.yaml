@@ -8,1242 +8,451 @@ cases:
   - case_id: C0001
     automation:
       spec_file: c0001-key-range-single-field-selection.spec.ts
-    title: 验证统计函数选择key范围校验后字段选择变为单选
+    title: 验证【数据质量】-【规则集管理】选择 key 范围校验统计函数，字段选择框切换为单选
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到规则集"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 在规则包"key范围校验测试包"中点击【新增规则】，先在统计函数下拉列表中选择一个普通统计函数"空值数"，在字段选择框中同时勾选"id"和"info"两个字段
-        expected: 字段选择框支持多选，可同时勾选2 个字段
-      - action: 将统计函数切换为"key范围校验"，观察字段选择框的变化及统计函数标签旁的悬浮提示图标
-        expected: |-
-          1) 切换为key范围校验后，统计函数标签旁出现悬浮提示图标，鼠标悬浮显示文案"当选择key范围校验时，字段仅支持单选"
-          2) 字段选择框变为单选模式，并保留原多选中的首个字段"id"
-      - action: 在字段选择框中先选择"info"，再选择"id"
-        expected: 字段选择框只允许选择一个字段，选择"id"后"info"自动取消，最终只有"id"一个字段被选中
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）、key2（年龄）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+      1) 通用配置 → JSON 格式校验管理中存在 key1（姓名）、key2（年龄）
+      2) 规则集「RuleSetF」已关联字段 info，规则包为「key范围规则包」
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 编辑规则集「RuleSetF」的「key范围规则包」，新增一条规则并选择统计函数「空值数」
+        expected: 字段选择框支持同时选择 id、info 两个字段
+      - action: 将统计函数切换为「key范围校验」
+        expected: 字段选择框切换为单选模式，统计函数旁展示提示「选择 key 范围校验时字段仅支持单选」
+      - action: 先选择 info，再选择 id
+        expected: 字段选择框始终只保留 1 个字段，最终选中 id
     tags:
       - 数据质量
       - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - JSONKey范围校验
+
   - case_id: C0002
     automation:
       spec_file: c0002-include-exclude-method-results.spec.ts
-    title: 验证校验方法切换（包含与不包含）规则保存和执行结果差异
+    title: 验证【数据质量】-【规则任务管理】切换包含与不包含校验方法并执行，异常明细与校验方法一致
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: |-
-          找到"rule_set_method_switch"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"method_switch包"中点击【新增规则】，配置如下：
-          - *统计函数: key范围校验
-          - *字段: info（string类型）
-          - *校验方法: 包含
-          - *校验内容: key1（姓名）和 key2（年龄）
-          - 强弱规则: 强规则
-          - 规则描述: 无
-          点击【保存】按钮，再点击页面底部【保存】
-        expected: 页面提示保存成功，规则列表中显示新增的规则行
-      - action: 进入【数据质量 → 规则任务管理】页面，找到"task_json_method_switch"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_json_method_switch"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1（含key1和key2）质检结果=校验通过
-          3) id=2（仅含key1，缺key2）质检结果=校验不通过，未通过原因=key范围校验未通过
-      - action: 返回规则集管理，编辑"rule_set_method_switch"，进入 Step 2 编辑该规则，将校验方法由"包含"改为"不包含"，点击【保存】
-        expected: 规则保存成功，校验方法显示为"不包含"
-      - action: 返回【数据质量 → 规则任务管理】页面，再次点击"task_json_method_switch"的【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_json_method_switch"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1（含key1和key2，违反不包含规则）质检结果=校验不通过，详情说明=不符合规则key范围不包含"key1-key2"
-          3) id=2（仅含key1，部分包含）质检结果=校验不通过，详情说明=不符合规则key范围不包含"key1-key2"
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key数据：key1（姓名）、key2（年龄）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】完成规则集"rule_set_method_switch"创建：Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range、规则集描述=无，并新增规则包"method_switch包"；点击【下一步】进入 Step 2 监控规则，确认规则包已创建后点击页面底部【保存】，规则集创建成功
-      3) 已在SparkThrift2.x表test_json_key_range中插入以下数据：
-         INSERT INTO test_json_key_range VALUES
-           (1, '{"key1":"张三","key2":25}'),
-           (2, '{"key1":"李四"}');
-      4) 已通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】完成任务"task_json_method_switch"创建：Step 1 基础信息中规则名称=task_json_method_switch、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集管理中已配置的"method_switch包"；点击【下一步】进入 Step 3 调度属性，保持默认配置后点击【保存】，任务创建成功
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建 JSON 字段表并插入 2 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0002;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0002 (id BIGINT, info STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0002 VALUES (1, '{"key1":"张三","key2":25}'), (2, '{"key1":"李四"}');
+      5) JSON 格式校验管理中存在 key1、key2
+      6) 规则包「包含规则包」已关联 info 字段
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 新建规则任务，选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0002，引用「包含规则包」，校验方法选择「包含」并选择 key1、key2
+        expected: 规则任务展示 info 字段、包含方法和 key1、key2
+      - action: 保存任务并点击【立即执行】
+        expected: 最新实例状态为「校验异常」，id=1 状态为「通过」，id=2 状态为「不通过」
+      - action: 将校验方法改为「不包含」并再次执行
+        expected: 最新实例状态为「校验异常」，id=1 和 id=2 均为「不通过」，详情说明包含 key1、key2 范围不满足不包含条件
     tags:
       - 数据质量
-      - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 规则任务管理
+      - 包含与不包含
+
   - case_id: C0003
-    title: 验证校验内容支持多选和全选操作
+    automation:
+      spec_file: c0003-key-range-select-all.spec.ts
+    title: 验证【数据质量】-【规则集管理】多选与全选校验内容，6 个 key 全部选中并回显
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，点击校验内容下拉框，等待下拉列表加载完成
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 在校验内容下拉框中依次勾选"key1（姓名）"、"key2（年龄）"、"key3（性别）"三个选项
-        expected: 勾选3个key后，下拉框内显示已选中3项，各key名前复选框呈选中状态
-      - action: 点击下拉框顶部的【全部】选项
-        expected: 点击"全部"后，所有6个key（key1、key2、key3、key11、key22、key33）全部被勾选，"全部"选项呈全选状态
-      - action: 再次点击【全部】选项
-        expected: 所有key全部取消勾选，"全部"选项恢复未选状态
-      - action: 重新勾选"key1（姓名）"和"key11（省份）"，点击【确认】按钮，查看校验内容回显
-        expected: 确认后，规则配置中校验内容回显格式为"key1;key11"（同层级key用";"拼接，不同层级配置组用"-"分隔）
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护以下key数据：
-         第一层级：key1（姓名）、key2（年龄）、key3（性别）
-         第二层级：key11（省份）、key22（城市）、key33（区县）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+      1) JSON 格式校验管理中存在第一层 key1（姓名）、key2（年龄）、key3（性别）和第二层 key11（省份）、key22（城市）、key33（区县）
+      2) 规则集「RuleSetF」已关联字段 info
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 编辑「RuleSetF」并新增 key 范围校验规则
+        expected: 规则编辑区域展示字段、校验方法和校验内容控件
+      - action: 在校验内容下拉框勾选 key1、key2、key3
+        expected: 下拉框已选数量为 3，三个 key 的复选框为选中状态
+      - action: 点击【全部】再点击【确认】
+        expected: 第一层和第二层共 6 个 key 均为选中状态，规则表单回显 6 个 key
+      - action: 再次打开下拉框点击【全部】
+        expected: 6 个 key 全部取消选中，已选数量为 0
     tags:
       - 数据质量
       - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 全选
+
   - case_id: C0004
     automation:
       spec_file: c0004-search-validation-content.spec.ts
-    title: 验证校验内容下拉框支持输入关键词搜索查询
+    title: 验证【数据质量】-【规则集管理】输入关键词搜索校验内容，下拉框命中过滤并展示暂无数据
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，点击校验内容下拉框，等待下拉列表加载完成
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 在校验内容下拉框内的搜索输入框中输入"key1"
-        expected: 下拉列表过滤显示包含"key1"的结果：key1（姓名）、key11（省份），其余key不显示
-      - action: 清空搜索框内容，输入"省份"
-        expected: 下拉列表过滤显示包含"省份"的结果：key11（省份），其余key不显示
-      - action: 清空搜索框内容，输入"xyz_not_exist"
-        expected: 下拉列表显示"暂无数据"，不显示任何key选项
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护以下key数据：
-         第一层级：key1（姓名）、key2（年龄）、key3（性别）
-         第二层级：key11（省份）、key22（城市）、key33（区县）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+      1) JSON 格式校验管理中存在 key1（姓名）、key11（省份）、key2（年龄）
+      2) 规则集「RuleSetF」已关联字段 info
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 编辑「RuleSetF」并打开 key 范围校验规则的校验内容下拉框
+        expected: 下拉框展示 key 搜索输入框
+      - action: 输入「key1」
+        expected: 下拉框展示 key1、key11，不展示 key2
+      - action: 清空搜索框并输入「省份」
+        expected: 下拉框仅展示 key11（省份）
+      - action: 清空搜索框并输入「not_exist_key」
+        expected: 下拉框显示「暂无数据」
     tags:
       - 数据质量
       - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 搜索
+
   - case_id: C0005
-    title: 验证key数据量超过200条时默认加载前200条及搜索功能
+    automation:
+      spec_file: c0005-key-range-default-200-search.spec.ts
+    title: 验证【数据质量】-【规则集管理】加载超过 200 条的校验内容下拉框，默认展示前 200 条且搜索可命中未加载 key
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，点击校验内容下拉框，等待列表加载完成
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 滚动下拉列表到底部，观察可见的key条目总数
-        expected: 下拉框中最多显示200条key数据（key_001至key_200），滚动到底部不再追加加载
-      - action: 在搜索框中输入"key_201"，等待搜索结果加载
-        expected: 搜索结果与预期记录一致返回"key_201"，不受前200条默认加载限制
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面批量维护超过200条key数据，前200条为key_001至key_200，第201条起为key_201、key_202等，通用配置导入文件生成脚本如下:
-
-      import openpyxl
-
-      wb = openpyxl.Workbook()
-      ws1 = wb.active
-      ws1.title = "一层"
-      ws1.append(["key", "中文名称", "value格式"])
-      for i in range(1, 251):
-          ws1.append([f"key_{i:03d}", f"测试key{i}", ""])
-
-      wb.save("json_key_range_import_250.xlsx")
-      print("已生成 json_key_range_import_250.xlsx，共250条一层key数据")
-
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+      1) 使用以下 Python 脚本生成 json_key_range_import_250.xlsx：
+         from openpyxl import Workbook
+         workbook = Workbook()
+         sheet = workbook.active
+         sheet.title = "一层"
+         sheet.append(["key", "中文名称", "value格式"])
+         for index in range(1, 251):
+             sheet.append([f"key_{index:03d}", f"名称{index}", ""])
+         workbook.save("json_key_range_import_250.xlsx")
+      2) 在 JSON 格式校验管理中导入 json_key_range_import_250.xlsx，导入后 key_001 至 key_250 均存在
+      3) 规则集「RuleSetF」已关联字段 info
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 编辑「RuleSetF」并打开 key 范围校验规则的校验内容下拉框
+        expected: 下拉框展示 key_001 至 key_200，共 200 条
+      - action: 滚动下拉框到底部
+        expected: 下拉框仍展示 200 条，未自动追加 key_201 至 key_250
+      - action: 在搜索框输入「key_201」
+        expected: 搜索结果展示 key_201，且结果数量为 1
     tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-key范围校验基础功能
+      ["数据质量", "规则集管理"]
   - case_id: C0006
-    title: 验证校验内容回显格式为同层级key用横线拼接不同层级用分号分隔
+    automation:
+      spec_file: c0006-key-range-display-format.spec.ts
+    title: 验证【数据质量】-【规则集管理】保存多层级校验内容，回显为同层横线拼接与层级分号分隔
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，打开校验内容下拉框，在第一层级勾选"key1（姓名）"和"key2（年龄）"，在第二层级勾选"key11（省份）"和"key22（城市）"，点击【确认】
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 查看规则配置表单中"校验内容"字段的回显内容
-        expected: 校验内容回显格式为"key1-key2;key11-key22"，同层级key用"-"连接，不同层级配置组之间用";"分隔
-      - action: 点击【保存】按钮，等待保存成功后再次点击该规则行进入编辑页面，查看已保存的校验内容展示
-        expected: 已保存的规则中校验内容回显仍为"key1-key2;key11-key22"，格式不变
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key数据：
-         第一层级：key1（姓名）、key2（年龄）
-         第二层级：key11（省份）、key22（城市）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+      1) JSON 格式校验管理中存在第一层 key1、key2 和第二层 key11、key22
+      2) 规则集「RuleSetF」已关联字段 info
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 编辑「RuleSetF」并打开 key 范围校验规则的校验内容下拉框
+        expected: 下拉框展示第一层和第二层 key
+      - action: 第一层勾选 key1、key2，第二层勾选 key11、key22，点击【确认】
+        expected: 校验内容回显为「key1-key2;key11-key22」
+      - action: 点击【保存】后重新打开规则
+        expected: 校验内容仍回显「key1-key2;key11-key22」，同层级使用「-」，层级组使用「;」
     tags:
       - 数据质量
       - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 层级回显
+
   - case_id: C0007
-    title: 验证数据质量报告中校验内容默认显示前两个悬浮展示全部
+    automation:
+      spec_file: c0007-key-range-report-tooltip.spec.ts
+    title: 验证【数据质量】-【数据质量报告】查看校验内容列，默认展示前两个 key 且悬浮展示全部
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待报告列表加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成
-      - action: 找到"task_json_key_range_tooltip_report"对应的最新报告，点击进入报告详情页，定位到 key范围校验规则行的"校验内容"/"详情说明"列
-        expected: 报告详情页正常打开，可定位到 key范围校验规则行
-      - action: 观察"校验内容"列在非悬浮状态下的显示内容
-        expected: |-
-          1) 校验内容列默认仅展示前两个key信息
-          2) 显示形如"key1-key2..."（或符合源码截断样式），超出部分以省略号"..."截断显示
-      - action: 将鼠标悬浮在"校验内容"列的文本上，等待tooltip出现
-        expected: 鼠标悬浮后，tooltip中完整展示全部4个key信息："key1-key2;key11-key22"
     precondition: |-
-      1) 已在SparkThrift2.x数据源 pw_test 库执行以下建表和灌数SQL：
-         DROP TABLE IF EXISTS pw_test.test_json_key_range;
-         CREATE TABLE pw_test.test_json_key_range (
-           id INT,
-           info STRING
-         ) STORED AS PARQUET;
-         INSERT INTO TABLE pw_test.test_json_key_range
-         SELECT 1, '{"key1":"张三","key2":25,"key11":"广东","key22":"深圳"}'
-         UNION ALL
-         SELECT 2, '{"key1":"李四"}';
-      2) 已在【通用配置 → json格式校验管理】页面维护key数据：第一层级 key1（姓名）、key2（年龄）；第二层级 key11（省份）、key22（城市）
-      3) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，关联 SparkThrift2.x 数据源的 pw_test.test_json_key_range 表，新增规则包"key范围校验测试包"，进入 Step 2 监控规则点击【新增规则】，配置 字段=info、统计函数=key范围校验、校验方法=包含、校验内容=key1-key2;key11-key22（共4个key），点击规则行【保存】并保存规则集
-      4) 已通过【数据质量 → 规则任务管理】创建任务"task_json_key_range_tooltip_report"并通过【导入规则包】导入"key范围校验测试包"，保存任务后点击表名展开抽屉，点击【立即执行】；待【校验结果查询】中生成成功实例后，进入【数据质量 → 数据质量报告】列表生成对应报告记录（异步轮询，约15分钟）
+      1) 规则任务「TaskB」已执行完成，规则校验内容为「key1-key2;key11-key22」
+      2) 质量报告列表存在该任务的最新报告
+    steps:
+      - action: 进入【数据质量 → 数据质量报告】页面
+        expected: 进入成功
+      - action: 打开「TaskB」最新报告详情
+        expected: 报告详情展示 key 范围校验规则行
+      - action: 查看校验内容列的默认文本
+        expected: 默认文本展示前两个 key，超出部分使用截断符
+      - action: 将鼠标悬浮在校验内容列
+        expected: Tooltip完整展示「key1-key2;key11-key22」
     tags:
       - 数据质量
-      - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 数据质量报告
+      - Tooltip
+
   - case_id: C0008
     automation:
-      spec_file: c0008-full-validation-content-display.spec.ts
-    title: 验证规则集管理与规则任务管理中校验内容全量展示无截断（反向用例）
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，查看"key范围校验测试包"中已配置的key范围校验规则行的"校验内容"列
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 观察"校验内容"列在非悬浮状态下的显示内容
-        expected: 校验内容列直接完整展示全部4个key信息"key1-key2;key11-key22"，不显示省略号，不依赖悬浮提示
-      - action: 进入【数据质量 → 规则任务管理】页面，找到"task_json_key_range_tooltip_full"并打开规则配置，查看已导入规则的"校验内容"
-        expected: 规则任务管理中同样完整展示"key1-key2;key11-key22"，不截断，不显示省略号
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
+      spec_file: c0008-json-string-field-types.spec.ts
+    title: 验证【数据质量】-【规则任务管理】执行 JSON 与 string 字段 key 范围规则，异常记录包含缺失 key 行
+    priority: P0
     precondition: |-
-      1) 已在SparkThrift2.x数据源 pw_test 库执行以下建表和灌数SQL：
-         DROP TABLE IF EXISTS pw_test.test_json_key_range;
-         CREATE TABLE pw_test.test_json_key_range (
-           id INT,
-           info STRING
-         ) STORED AS PARQUET;
-         INSERT INTO TABLE pw_test.test_json_key_range
-         SELECT 1, '{"key1":"张三"}';
-      2) 已在【通用配置 → json格式校验管理】页面维护key数据：第一层级 key1（姓名）、key2（年龄）；第二层级 key11（省份）、key22（城市）
-      3) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，关联 SparkThrift2.x 数据源的 pw_test.test_json_key_range 表，新增规则包"key范围校验测试包"，进入 Step 2 监控规则点击【新增规则】，配置 字段=info、统计函数=key范围校验、校验方法=包含、校验内容=key1-key2;key11-key22（共4个key），点击规则行【保存】并保存规则集
-      4) 已通过【数据质量 → 规则任务管理】创建任务"task_json_key_range_tooltip_full"并通过【导入规则包】导入"key范围校验测试包"，保存任务
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建 JSON 字段表并插入 2 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0008;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0008 (id BIGINT, info STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0008 VALUES (1, '{"key1":"A","key2":"B"}'), (2, '{"key1":"C"}');
+      5) JSON 格式校验管理中存在 key1、key2
+      6) 规则包「key范围执行包」已关联 info 字段
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 新建规则任务，选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0008，引用「key范围执行包」，校验方法选择「包含」并选择 key1、key2
+        expected: 规则任务保存成功，任务列表新增「key范围执行任务」
+      - action: 点击【立即执行】并打开最新实例
+        expected: 实例状态为「校验异常」，异常记录包含 id=2
+      - action: 将字段类型切换为 JSON 兼容字段并再次保存执行
+        expected: 规则任务仍生成实例，字段类型与 key 范围规则匹配
     tags:
       - 数据质量
-      - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 规则任务管理
+      - JSON字段
+      - 字符串字段
+
   - case_id: C0009
-    title: 验证校验内容标签旁悬浮提示文案正确
+    title: 验证【数据质量】-【规则集管理】不选择字段保存 key 范围校验规则，字段置红提示请选择字段
     priority: P1
+    precondition: |-
+      1) JSON 格式校验管理中存在 key1、key2
+      2) 规则集「RuleSetF」已进入新增规则表单
     steps:
-      - action: 进入【数据质量 → 规则配置-key范围校验基础功能】页面
-        expected: 已进入【数据质量 → 规则配置-key范围校验基础功能】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 将鼠标悬浮在"校验内容"标签旁的提示图标上，等待tooltip出现
-        expected: tooltip显示文案为"校验内容key信息需要在通用配置模块维护。"，文案完全匹配，无多余空格或乱码
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 在新增规则表单选择统计函数「key范围校验」，不选择字段并点击【保存】
+        expected: 「字段」置红提示「请选择字段」，规则行不新增
     tags:
       - 数据质量
       - 规则集管理
-      - 规则配置-key范围校验基础功能
+      - 必填校验
+
   - case_id: C0010
-    title: 验证json类型字段可成功配置key范围校验规则
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则配置-字段类型限制】页面
-        expected: 已进入【数据质量 → 规则配置-字段类型限制】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_field_type_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"字段类型测试包"中点击【新增规则】，统计函数选择"key范围校验"，展开字段选择列表
-        expected: 字段下拉列表中，STRING类型字段"info"可正常选择，INT类型字段"age"置灰不可选
-      - action: |-
-          选择"info"（STRING类型字段），在规则配置表单中按顺序配置如下：
-          - *校验方法: 包含
-          - *校验内容: key1（姓名）
-          - 强弱规则: 强规则
-          - 规则描述: 无
-          点击【保存】按钮
-        expected: 保存成功，规则配置参数展示区显示字段=info、统计函数=key范围校验
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
+    title: 验证【数据质量】-【规则集管理】不选择校验内容或校验方法保存规则，分别置红提示必填
+    priority: P1
     precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_field_type（含字段 info（STRING类型）、name（VARCHAR类型）、age（INT类型）），规则包名称"字段类型测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"字段类型测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_field_type_test"创建
-      2) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）、key2（年龄）
+      1) JSON 格式校验管理中存在 key1、key2
+      2) 规则集「RuleSetF」已进入新增规则表单，字段为 info
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 选择统计函数「key范围校验」和字段 info，不选择校验内容，点击【保存】
+        expected: 「校验内容」置红提示「请选择校验内容」，规则行不新增
+      - action: 选择 key1、key2，清空校验方法后点击【保存】
+        expected: 「校验方法」置红提示「请选择校验方法」，规则行不新增
     tags:
       - 数据质量
       - 规则集管理
-      - 规则配置-字段类型限制
+      - 必填校验
+
   - case_id: C0011
-    title: 验证string类型字段可成功配置key范围校验规则
+    title: 验证【数据质量】-【规则任务管理】导入 string 字段规则集并执行 key 范围校验，异常明细定位到缺 key 记录
     priority: P0
-    steps:
-      - action: 进入【数据质量 → 规则配置-字段类型限制】页面
-        expected: 已进入【数据质量 → 规则配置-字段类型限制】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_field_type_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"字段类型测试包"中点击【新增规则】，统计函数选择"key范围校验"，展开字段选择列表
-        expected: 字段下拉列表中string类型字段"extra_info"可正常选择（不置灰）
-      - action: |-
-          在字段下拉框中选择"extra_info"（string类型），在规则配置表单中按顺序配置如下：
-          - *校验方法: 包含
-          - *校验内容: key1（姓名）
-          - 强弱规则: 强规则
-          - 规则描述: 无
-          点击【保存】按钮
-        expected: 保存成功，规则配置参数展示区显示字段=extra_info提示
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_field_type（含 extra_info（VARCHAR类型，存储STRING字符串）），规则包名称"字段类型测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"字段类型测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 extra_info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_field_type_test"创建
-      2) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）、key2（年龄）
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建 JSON 字段表并插入 3 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0011;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0011 (id BIGINT, info STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0011 VALUES (1, '{"key1":"A","key2":"B"}'), (2, '{"key1":"C"}'), (3, '{"key1":"D","key2":"E"}');
+      5) 规则集「RuleSetE」包含 info 字段的 key 范围规则，校验内容为 key1-key2
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 新建监控规则，选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0011，导入规则集「RuleSetE」
+        expected: 监控规则表格展示 key 范围规则和校验内容 key1-key2
+      - action: 保存任务并点击【立即执行】
+        expected: 最新实例状态为「校验异常」，异常数量为 1
+      - action: 打开实例详情
+        expected: 异常明细定位到 id=2，字段 info 标红
     tags:
       - 数据质量
-      - 规则集管理
-      - 规则配置-字段类型限制
+      - 规则任务管理
+      - 规则包导入
+
   - case_id: C0012
-    title: 验证非json和string类型字段选择key范围校验后任务执行报错
+    title: 验证【数据质量】-【规则库配置】查看 key 范围校验内置规则，列表与详情展示配置说明
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-字段类型限制】页面
-        expected: 已进入【数据质量 → 规则配置-字段类型限制】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_field_type_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"字段类型测试包"中点击【新增规则】，统计函数选择【key范围校验】，展开字段选择下拉框，依次查看INT类型字段"age"、DATE类型字段"create_date"、BIGINT类型字段"user_id"的可选状态
-        expected: |-
-          1) 字段下拉框中"age"（INT）、"create_date"（DATE）、"user_id"（BIGINT）均**可正常选择**（不置灰）
-          2) 前端在配置阶段不对字段类型做拦截
-      - action: 选择"age"（INT类型）字段，校验方法选择【包含】，校验内容勾选"key1（姓名）"，点击规则行【保存】，再点击页面底部【保存】
-        expected: 规则集保存成功，未出现前端校验拦截
-      - action: 进入【数据质量 → 规则任务管理】页面，找到"task_field_type_invalid"，按提示重新【导入规则包】拉取最新规则后保存任务；点击任务行的表名展开抽屉，点击【立即执行】
-        expected: 页面提示"操作成功，稍后可在任务查询中查看详情"
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_field_type_invalid"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录
-          2) 该规则行**校验异常**（任务运行失败或校验未通过），错误信息提示字段类型不支持 key 范围校验
-      - action: 使用 Doris3.x 数据源重复以上步骤，将 `age`/`create_date`/`user_id` 改为 Doris3.x 对应类型（`INT`/`DATE`/`BIGINT`），其余 UI 操作不变；预期结果与 SparkThrift2.x 一致
-        expected: Doris3.x 数据源下，UI 同样允许选择非 json/string 字段，但执行后【校验结果查询】中报错信息一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_field_type（含INT类型字段"age"、DATE类型字段"create_date"、BIGINT类型字段"user_id"），规则包名称"字段类型测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"字段类型测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 age，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_field_type_test"创建
-    tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-字段类型限制
-  - case_id: C0013
-    automation:
-      spec_file: c0013-require-validation-field.spec.ts
-    title: 验证未选择字段时保存key范围校验规则提示必填
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-表单校验（逆向）】页面
-        expected: 已进入【数据质量 → 规则配置-表单校验（逆向）】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 不选择任何字段，校验方法选择"包含"，校验内容勾选"key1（姓名）"，直接点击【保存】
-        expected: 保存失败，字段选择框下方显示红色错误提示"请选择字段"，页面不跳转，规则未被保存
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
-      2) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）
-    tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-表单校验（逆向）
-  - case_id: C0014
-    automation:
-      spec_file: c0014-require-validation-content.spec.ts
-    title: 验证未选择校验内容时保存key范围校验规则提示必填
-    priority: P1
+      1) 规则库配置中已发布 key 范围校验内置规则
+      2) JSON 格式校验管理中存在 key1、key2
     steps:
-      - action: 进入【数据质量 → 规则配置-表单校验（逆向）】页面
-        expected: 已进入【数据质量 → 规则配置-表单校验（逆向）】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，校验方法选择"包含"
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 不选择任何校验内容（校验内容选择框保持空），直接点击【保存】
-        expected: 保存失败，校验内容选择框下方显示红色错误提示"请选择校验内容"，页面不跳转，规则未被保存
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
-      2) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）、key2（年龄）
-    tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-表单校验（逆向）
-  - case_id: C0015
-    automation:
-      spec_file: c0015-require-validation-method.spec.ts
-    title: 验证未选择校验方法时保存key范围校验规则提示必填
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置-表单校验（逆向）】页面
-        expected: 已进入【数据质量 → 规则配置-表单校验（逆向）】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"key范围校验测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，校验内容勾选"key1（姓名）"
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 清空校验方法下拉框（若默认有值则手动清除），直接点击【保存】
-        expected: 保存失败，校验方法下拉框下方显示红色错误提示"请选择校验方法"，页面不跳转，规则未被保存
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_key_range_test"创建
-      2) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）
-    tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置-表单校验（逆向）
-  - case_id: C0016
-    title: 验证规则配置参数卡片完整展示所有字段
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则配置参数展示】页面
-        expected: 已进入【数据质量 → 规则配置参数展示】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_key_range_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面
-        expected: 规则集编辑页正常打开，Step 2 监控规则页面加载完成，已有配置回显正确
-      - action: 找到"key范围校验测试包"中已配置的key范围校验规则，点击规则行展开查看参数详情卡片，逐项核对各参数字段
-        expected: |-
-          规则配置参数卡片完整展示以下所有字段且内容正确：
-          1) 规则类型=字段级
-          2) 字段=info
-          3) 统计函数=key范围校验
-          4) 过滤条件=id > 0
-          5) 校验方法=包含
-          6) 校验内容=key1-key2;key11-key22
-          7) 强弱规则=强规则
-          8) 规则描述=测试key范围校验规则
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已通过【数据质量 → 规则集管理】在规则集"rule_set_key_range_test"的"key范围校验测试包"中配置并保存以下规则：
-         - *字段: info（string类型）
-         - *统计函数: key范围校验
-         - 过滤条件: id > 0
-         - *校验方法: 包含
-         - *校验内容: key1-key2;key11-key22
-         - 强弱规则: 强规则
-         - 规则描述: 测试key范围校验规则
-    tags:
-      - 数据质量
-      - 规则集管理
-      - 规则配置参数展示
-  - case_id: C0017
-    automation:
-      spec_file: c0017-key-range-end-to-end.spec.ts
-    title: 验证key范围校验完整：规则集配置+导入规则包+执行任务+在校验结果查询中查看实例结果
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 导入规则包-key范围校验主流程】页面
-        expected: 已进入【数据质量 → 导入规则包-key范围校验主流程】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: |-
-          点击【新建规则集】，在 Step 1 基础信息中配置如下：
-          - *选择数据源: SparkThrift2.x
-          - *选择数据库: pw_test
-          - *选择数据表: test_json_key_range
-          - 规则集描述: 无
-          - *规则包名称: key范围校验测试包（点击【新增】按钮添加）
-          点击【下一步】
-        expected: Step 1 基础信息校验通过，进入 Step 2 监控规则页面
-      - action: |-
-          在 Step 2 监控规则中，在"key范围校验测试包"下点击【新增规则】，配置如下：
-          - *规则类型: 字段级
-          - *字段: info
-          - *统计函数: key范围校验
-          - 过滤条件: 无
-          - *校验方法: 包含
-          - *校验内容: key1（姓名）和 key2（年龄）
-          - 强弱规则: 强规则
-          - 规则描述: 无
-          点击规则行的【保存】按钮，再点击页面底部【保存】
-        expected: 规则集保存成功，规则集列表新增 test_json_key_range 表对应的规则集记录，规则包"key范围校验测试包"下显示已保存的 key范围校验规则
-      - action: |-
-          进入【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中配置如下：
-          - *规则名称: task_json_key_range_test
-          - *选择数据源: SparkThrift2.x
-          - *选择数据库: pw_test
-          - *选择数据表: test_json_key_range
-          点击【下一步】
-        expected: Step 1 基础信息校验通过，进入 Step 2 监控规则页面
-      - action: 在 Step 2 监控规则中，点击【导入规则包】，选择规则集管理中已配置的"key范围校验测试包"并确认导入
-        expected: 规则包导入成功，Step 2 监控规则页面显示已导入的 key范围校验规则
-      - action: 点击【下一步】进入 Step 3 调度属性，填写调度属性后点击【保存】
-        expected: 规则任务创建成功，返回任务列表可见"task_json_key_range_test"
-      - action: 在规则任务列表中找到"task_json_key_range_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_json_key_range_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称、执行时间与本次操作匹配
-          2) 实例详情中该规则行整体质检结果显示为校验不通过，可进入失败明细查看不通过数据
-          3) 「查看明细」中仅展示校验不通过的数据，不展示校验通过数据；失败明细包含 id=2（`{"key1":"李四"}`）与 id=3（`{"key2":30,"key11":"北京","key22":"朝阳"}`）两行，对应列标红
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面，通过【新增】按钮维护如下key数据（含多层级）：
-         第一层级：key1（姓名）、key2（年龄）
-         第二层级：key11（省份）、key22（城市）
-      2) 已在SparkThrift2.x 数据源中执行如下建表及灌数SQL：
-         CREATE TABLE test_json_key_range (
-           id INT,
-           info STRING
-         );
-         INSERT INTO test_json_key_range VALUES
-           (1, '{"key1":"张三","key2":25,"key11":"广东","key22":"深圳"}'),
-           (2, '{"key1":"李四"}'),
-           (3, '{"key2":30,"key11":"北京","key22":"朝阳"}');
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 导入规则包-key范围校验主流程
-  - case_id: C0018
-    title: 验证Doris3.x数据源的json字段支持key范围校验
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 多数据源兼容性】页面
-        expected: 已进入【数据质量 → 多数据源兼容性】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_doris_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_doris_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1（含key1和key2）质检结果=校验通过
-          3) id=2（缺key2）质检结果=校验不通过
-    precondition: |-
-      1) 已在Doris3.x数据源中执行以下SQL：
-         CREATE TABLE doris_json_test (
-           id INT,
-           data JSON
-         ) DISTRIBUTED BY HASH(id) BUCKETS 3
-         PROPERTIES("replication_num" = "1");
-         INSERT INTO doris_json_test VALUES
-           (1, '{"key1":"A","key2":"B"}'),
-           (2, '{"key1":"C"}');
-      2) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      3) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_doris_test"创建：Step 1 基础信息中关联Doris3.x数据源的doris_json_test表，并新增规则包"doris兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（json类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      4) 已通过【数据质量 → 规则任务管理】页面完成任务"task_doris_test"创建：Step 1 基础信息中规则名称=task_doris_test，并关联同一Doris3.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_doris_test"的"doris兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 多数据源兼容性
-  - case_id: C0019
-    title: 验证SparkThrift2.x数据源的json字段支持key范围校验
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 多数据源兼容性】页面
-        expected: 已进入【数据质量 → 多数据源兼容性】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_spark_test"，点击【立即执行】
-        expected: 页面弹出提示信息，提示任务已提交执行
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_spark_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1质检结果=校验通过
-          3) id=2质检结果=校验不通过
-    precondition: |-
-      1) SparkThrift2.x数据源已配置并连接正常
-      2) 已在该数据源中执行以下SQL：
-         CREATE TABLE spark_json_test (id INT, data STRING);
-         INSERT INTO spark_json_test VALUES
-           (1, '{"key1":"X","key2":"Y"}'),
-           (2, '{"key1":"Z"}');
-      3) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      4) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_spark_test"创建：Step 1 基础信息中关联SparkThrift2.x数据源的spark_json_test表，并新增规则包"spark兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（string类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      5) 已通过【数据质量 → 规则任务管理】页面完成任务"task_spark_test"创建：Step 1 基础信息中规则名称=task_spark_test，并关联同一SparkThrift2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_spark_test"的"spark兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 多数据源兼容性
-  - case_id: C0020
-    title: 验证Doris3.x数据源的string字段支持key范围校验
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 多数据源兼容性】页面
-        expected: 已进入【数据质量 → 多数据源兼容性】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_doris_test"，点击【立即执行】
-        expected: 页面弹出提示信息，提示任务已提交执行
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_doris_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1（含key1和key2）质检结果=校验通过
-          3) id=2（缺key2）质检结果=校验不通过
-    precondition: |-
-      1) 已在Doris3.x数据源中执行以下SQL：
-         CREATE TABLE doris_json_test (
-           id INT,
-           data JSON
-         ) DISTRIBUTED BY HASH(id) BUCKETS 3
-         PROPERTIES("replication_num" = "1");
-         INSERT INTO doris_json_test VALUES
-           (1, '{"key1":"A","key2":"B"}'),
-           (2, '{"key1":"C"}');
-      2) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      3) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_doris_test"创建：Step 1 基础信息中关联Doris3.x数据源的doris_json_test表，并新增规则包"doris兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（json类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      4) 已通过【数据质量 → 规则任务管理】页面完成任务"task_doris_test"创建：Step 1 基础信息中规则名称=task_doris_test，并关联同一Doris3.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_doris_test"的"doris兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 多数据源兼容性
-  - case_id: C0021
-    title: 验证SparkThrift2.x数据源的string字段支持key范围校验
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 多数据源兼容性】页面
-        expected: 已进入【数据质量 → 多数据源兼容性】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_spark_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_spark_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1质检结果=校验通过
-          3) id=2质检结果=校验不通过
-    precondition: |-
-      1) SparkThrift2.x数据源已配置并连接正常
-      2) 已在该数据源中执行以下SQL：
-         CREATE TABLE spark_json_test (id INT, data STRING);
-         INSERT INTO spark_json_test VALUES
-           (1, '{"key1":"X","key2":"Y"}'),
-           (2, '{"key1":"Z"}');
-      3) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      4) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_spark_test"创建：Step 1 基础信息中关联SparkThrift2.x数据源的spark_json_test表，并新增规则包"spark兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（string类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      5) 已通过【数据质量 → 规则任务管理】页面完成任务"task_spark_test"创建：Step 1 基础信息中规则名称=task_spark_test，并关联同一SparkThrift2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_spark_test"的"spark兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 多数据源兼容性
-  - case_id: C0022
-    title: 验证Hive2.x数据源的string字段支持key范围校验
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 多数据源兼容性】页面
-        expected: 已进入【数据质量 → 多数据源兼容性】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_hive_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_hive_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1质检结果=校验通过
-          3) id=2质检结果=校验不通过
-    precondition: |-
-      1) Hive2.x数据源已配置并连接正常
-      2) 已在该数据源中执行以下SQL：
-         CREATE TABLE hive_json_test (id INT, data STRING);
-         INSERT INTO hive_json_test VALUES
-           (1, '{"key1":"M","key2":"N"}'),
-           (2, '{"key1":"P"}');
-      3) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      4) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_hive_test"创建：Step 1 基础信息中关联Hive2.x数据源的hive_json_test表，并新增规则包"hive兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（string类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      5) 已通过【数据质量 → 规则任务管理】页面完成任务"task_hive_test"创建：Step 1 基础信息中规则名称=task_hive_test，并关联同一Hive2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_hive_test"的"hive兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 多数据源兼容性
-  - case_id: C0023
-    title: 验证Hive2.x数据源的json字段支持key范围校验
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 多数据源兼容性】页面
-        expected: 已进入【数据质量 → 多数据源兼容性】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_hive_test"，点击【立即执行】
-        expected: 页面弹出提示信息，提示任务已提交执行
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_hive_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=1（含key1和key2）质检结果=校验通过
-          3) id=2（缺key2）质检结果=校验不通过
-    precondition: |-
-      1) Hive2.x数据源已配置并连接正常
-      2) 已在该数据源中执行以下SQL：
-         CREATE TABLE hive_json_test (id INT, data STRING);
-         INSERT INTO hive_json_test VALUES
-           (1, '{"key1":"M","key2":"N"}'),
-           (2, '{"key1":"P"}');
-      3) 已在【通用配置 → json格式校验管理】页面维护key1、key2
-      4) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_hive_test"创建：Step 1 基础信息中关联Hive2.x数据源的hive_json_test表，并新增规则包"hive兼容性测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=data（string类型，内容为JSON）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      5) 已通过【数据质量 → 规则任务管理】页面完成任务"task_hive_test"创建：Step 1 基础信息中规则名称=task_hive_test，并关联同一Hive2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_hive_test"的"hive兼容性测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 多数据源兼容性
-  - case_id: C0024
-    title: 验证key数量几千个时按层级校验逻辑正确执行
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 大数据量与层级校验】页面
-        expected: 已进入【数据质量 → 大数据量与层级校验】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_large_key_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_json_large_key_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=30（含key_l1_001和key_l2_001）=校验通过
-          3) id=31（缺key_l2_001）=校验不通过
-          4) id=32（不含任何目标key）=校验不通过
-          5) 层级匹配逻辑正确，第一层级key不与第二层级key混淆
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面批量维护含1200条key的5层数据：
-         一层200条（key_l1_001至key_l1_200）、二层300条（key_l2_001至key_l2_300）、三层300条（key_l3_001至key_l3_300）、四层200条（key_l4_001至key_l4_200）、五层200条（key_l5_001至key_l5_200）
-         通用配置导入文件生成脚本如下:
-
-      from openpyxl import Workbook
-
-      FORMATS = ["^[a-zA-Z]+$", "^[0-9]+$", "^[a-zA-Z0-9_]+$", "^\\d{4}$", "^\\d{4}-\\d{2}-\\d{2}$", "^[\\u4e00-\\u9fa5]+$", "^.{1,50}$", "^(true|false)$"]
-      def fmt(i): return FORMATS[i % len(FORMATS)]
-
-      wb = Workbook()
-      # 一层 Sheet
-      ws1 = wb.active
-      ws1.title = "一层"
-      ws1.append(["key", "中文名称", "value格式"])
-      L1 = [f"key_l1_{i:03d}" for i in range(1, 201)]
-      for i, k in enumerate(L1, 1):
-          ws1.append([k, f"一层key{i}", fmt(i)])
-
-      # 二层 Sheet
-      ws2 = wb.create_sheet("二层")
-      ws2.append(["第一层级key名", "key", "中文名称", "value格式"])
-      L2 = []
-      for i in range(1, 301):
-          parent = L1[(i - 1) % 100]
-          k = f"key_l2_{i:03d}"
-          ws2.append([parent, k, f"二层key{i}", fmt(i)])
-          L2.append((parent, k))
-
-      # 三层 Sheet
-      ws3 = wb.create_sheet("三层")
-      ws3.append(["第一层级key名", "第二层级key名", "key", "中文名称", "value格式"])
-      L3 = []
-      for i in range(1, 301):
-          l1p, l2p = L2[(i - 1) % 100]
-          k = f"key_l3_{i:03d}"
-          ws3.append([l1p, l2p, k, f"三层key{i}", fmt(i)])
-          L3.append((l1p, l2p, k))
-
-      # 四层 Sheet
-      ws4 = wb.create_sheet("四层")
-      ws4.append(["第一层级key名", "第二层级key名", "第三层级key名", "key", "中文名称", "value格式"])
-      L4 = []
-      for i in range(1, 201):
-          l1p, l2p, l3p = L3[(i - 1) % 100]
-          k = f"key_l4_{i:03d}"
-          ws4.append([l1p, l2p, l3p, k, f"四层key{i}", fmt(i)])
-          L4.append((l1p, l2p, l3p, k))
-
-      # 五层 Sheet
-      ws5 = wb.create_sheet("五层")
-      ws5.append(["第一层级key名", "第二层级key名", "第三层级key名", "第四层级key名", "key", "中文名称", "value格式"])
-      for i in range(1, 201):
-          l1p, l2p, l3p, l4p = L4[(i - 1) % 100]
-          k = f"key_l5_{i:03d}"
-          ws5.append([l1p, l2p, l3p, l4p, k, f"五层key{i}", fmt(i)])
-
-      wb.save("json_key_range_import_1200.xlsx")
-      print("已生成 json_key_range_import_1200.xlsx，共1200条key数据（一层200+二层300+三层300+四层200+五层200），value格式已填充")
-
-      2) 已在SparkThrift2.x表中执行以下灌数SQL：
-         INSERT INTO test_json_key_range VALUES
-           (30, '{"key_l1_001":"v1","key_l2_001":"v2"}'),
-           (31, '{"key_l1_001":"v3"}'),
-           (32, '{"key_other":"v4"}');
-         SparkThrift2.x表100 条json数据灌数脚本如下:
-
-      lines = []
-      lines.append("INSERT INTO test_json_key_range VALUES")
-      for i in range(30, 1030):
-          keys = [f'"key_l1_{(i % 1000) + 1:03d}": "v{i}"', f'"key_l2_{(i % 2000) + 1:03d}": "v{i}"'] if i % 3 != 0 else [f'"key_l1_{(i % 1000) + 1:03d}": "v{i}"']
-          json_str = "{" + ", ".join(keys) + "}"
-          comma = "," if i < 1029 else ";"
-          lines.append(f"  ({i}, '{json_str}'){comma}")
-
-      with open("insert_json_key_range_1000.sql", "w") as f:
-          f.write("\n".join(lines))
-      print("已生成 insert_json_key_range_1000.sql，共1000条INSERT记录")
-
-      3) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_large_key_test"创建：Step 1 基础信息中关联上述SparkThrift2.x表，并新增规则包"大数据量测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=info、统计函数=key范围校验、校验方法=包含、校验内容=key_l1_001和key_l2_001；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      4) 已通过【数据质量 → 规则任务管理】页面完成任务"task_json_large_key_test"创建：Step 1 基础信息中规则名称=task_json_large_key_test，并关联同一SparkThrift2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_large_key_test"的"大数据量测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 大数据量与层级校验
-  - case_id: C0025
-    title: 验证千级key数据量下校验内容选择列表的加载搜索和选择性能
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 大数据量与层级校验】页面
-        expected: 已进入【数据质量 → 大数据量与层级校验】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则集管理】页面，等待规则集列表加载完成
-        expected: 规则集管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"rule_set_large_key_perf"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，在"大数据量性能测试包"中点击【新增规则】，统计函数选择"key范围校验"，字段选择"info"，点击校验内容下拉框，等待列表加载完成
-        expected: 校验内容下拉列表在3秒内加载完成，默认展示前200条key数据，页面无卡顿
-      - action: 在搜索框中输入"key_l2_999"，等待搜索结果返回
-        expected: 搜索结果在2秒内返回，正确显示"key_l2_999"，搜索响应无明显延迟
-      - action: 勾选搜索到的"key_l2_999"，清空搜索框，再搜索并勾选"key_l1_500"，点击【确认】
-        expected: 两个key均成功选中，校验内容回显"key_l1_500;key_l2_999"，选择操作流畅无卡顿
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面批量维护含1200条key的5层数据：
-         一层200条（key_l1_001至key_l1_200）、二层300条（key_l2_001至key_l2_300）、三层300条（key_l3_001至key_l3_300）、四层200条（key_l4_001至key_l4_200）、五层200条（key_l5_001至key_l5_200）
-         通用配置导入文件生成脚本如下:
-
-      from openpyxl import Workbook
-
-      FORMATS = ["^[a-zA-Z]+$", "^[0-9]+$", "^[a-zA-Z0-9_]+$", "^\\d{4}$", "^\\d{4}-\\d{2}-\\d{2}$", "^[\\u4e00-\\u9fa5]+$", "^.{1,50}$", "^(true|false)$"]
-      def fmt(i): return FORMATS[i % len(FORMATS)]
-
-      wb = Workbook()
-      # 一层 Sheet
-      ws1 = wb.active
-      ws1.title = "一层"
-      ws1.append(["key", "中文名称", "value格式"])
-      L1 = [f"key_l1_{i:03d}" for i in range(1, 201)]
-      for i, k in enumerate(L1, 1):
-          ws1.append([k, f"一层key{i}", fmt(i)])
-
-      # 二层 Sheet
-      ws2 = wb.create_sheet("二层")
-      ws2.append(["第一层级key名", "key", "中文名称", "value格式"])
-      L2 = []
-      for i in range(1, 301):
-          parent = L1[(i - 1) % 100]
-          k = f"key_l2_{i:03d}"
-          ws2.append([parent, k, f"二层key{i}", fmt(i)])
-          L2.append((parent, k))
-
-      # 三层 Sheet
-      ws3 = wb.create_sheet("三层")
-      ws3.append(["第一层级key名", "第二层级key名", "key", "中文名称", "value格式"])
-      L3 = []
-      for i in range(1, 301):
-          l1p, l2p = L2[(i - 1) % 100]
-          k = f"key_l3_{i:03d}"
-          ws3.append([l1p, l2p, k, f"三层key{i}", fmt(i)])
-          L3.append((l1p, l2p, k))
-
-      # 四层 Sheet
-      ws4 = wb.create_sheet("四层")
-      ws4.append(["第一层级key名", "第二层级key名", "第三层级key名", "key", "中文名称", "value格式"])
-      L4 = []
-      for i in range(1, 201):
-          l1p, l2p, l3p = L3[(i - 1) % 100]
-          k = f"key_l4_{i:03d}"
-          ws4.append([l1p, l2p, l3p, k, f"四层key{i}", fmt(i)])
-          L4.append((l1p, l2p, l3p, k))
-
-      # 五层 Sheet
-      ws5 = wb.create_sheet("五层")
-      ws5.append(["第一层级key名", "第二层级key名", "第三层级key名", "第四层级key名", "key", "中文名称", "value格式"])
-      for i in range(1, 201):
-          l1p, l2p, l3p, l4p = L4[(i - 1) % 100]
-          k = f"key_l5_{i:03d}"
-          ws5.append([l1p, l2p, l3p, l4p, k, f"五层key{i}", fmt(i)])
-
-      wb.save("json_key_range_perf_import_1200.xlsx")
-      print("已生成 json_key_range_perf_import_1200.xlsx，共1200条key数据（一层200+二层300+三层300+四层200+五层200），value格式已填充")
-
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range（含json字段 info），规则包名称"大数据量性能测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"大数据量性能测试包"中点击【新增规则】，统计函数选择【非空值数】，字段选择 info，点击规则行【保存】，再点击页面底部【保存】完成规则集"rule_set_large_key_perf"创建
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 大数据量与层级校验
-  - case_id: C0026
-    title: 验证删除已被规则引用的key后规则配置回显和编辑完成目标操作且状态更新
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → key被删除后的关联影响】页面
-        expected: 已进入【数据质量 → key被删除后的关联影响】页面，显示页面标题与主要操作区域
-      - action: 进入【通用配置 → json格式校验管理】页面，等待列表加载完成
-        expected: json格式校验管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"key_del_2（测试名2）"，点击操作列的【删除】按钮，在确认弹窗中点击【确定】，等待删除成功提示
-        expected: key_del_2删除成功，列表中不再显示key_del_2
-      - action: 进入【数据质量 → 规则集管理】页面，找到"rule_set_key_del_test"，点击操作列的【编辑】按钮，进入 Step 2 监控规则页面，查看已配置的key范围校验规则的校验内容回显
-        expected: 校验内容回显中key_del_2已被自动移除，剩余key_del_1和key_del_3正常显示
-      - action: 点击该规则的【编辑】按钮，打开校验内容下拉框，观察可选key列表
-        expected: 校验内容下拉框中不再显示key_del_2，key_del_1和key_del_3正常展示可选，编辑完成目标操作且状态更新可用
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key数据：key_del_1（测试名1）、key_del_2（测试名2）、key_del_3（测试名3）
-      2) 已通过【数据质量 → 规则集管理】在规则集"rule_set_key_del_test"的规则包中配置key范围校验规则：字段=info、校验方法=包含、校验内容=key_del_1-key_del_2-key_del_3，已保存规则集
-      3) 已通过【数据质量 → 规则任务管理】创建任务"task_json_key_del_test"，通过【导入规则包】引用上述规则集，已完成保存
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - key被删除后的关联影响
-  - case_id: C0027
-    title: 验证删除已被规则引用的key后执行校验任务不受影响
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → key被删除后的关联影响】页面
-        expected: 已进入【数据质量 → key被删除后的关联影响】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到”task_json_key_exec_test”，点击该任务行的表名展开抽屉，点击【立即执行】
-        expected: 页面提示”操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到”task_json_key_exec_test”最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中 id=40 质检结果=校验通过
-          3) 页面未出现引用已删除 key 的报错信息，规则结果可正常展示
-      - action: 使用 Doris3.x 数据源重复以上步骤，将 `info` 字段类型从 SparkThrift2.x 的 `STRING` 改为 Doris3.x 的 `JSON`，其余 UI 操作不变；预期结果与 SparkThrift2.x 一致
-        expected: Doris3.x 数据源下，删除被引用 key 后任务执行结果与 SparkThrift2.x 一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key数据：key_exec_1（名称1）、key_exec_2（名称2）
-      2) 已通过【数据质量 → 规则集管理】页面在规则集"rule_set_key_exec_test"的目标规则包中点击【新增规则】，配置字段=info、统计函数=key范围校验、校验方法=包含、校验内容=key_exec_1和key_exec_2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集保存成功
-      3) 已通过【数据质量 → 规则任务管理】页面完成任务"task_json_key_exec_test"创建：Step 1 基础信息中规则名称=task_json_key_exec_test，并关联上述规则集对应的数据表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】引用上述规则集中的目标规则包；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-      4) 已在SparkThrift2.x表中插入数据：
-         INSERT INTO test_json_key_range VALUES
-           (40, '{"key_exec_1":"a","key_exec_2":"b"}');
-      5) 已在通用配置中删除key_exec_2
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - key被删除后的关联影响
-  - case_id: C0028
-    title: 验证key范围校验规则结合抽样功能正确执行
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 抽样与分区场景】页面
-        expected: 已进入【数据质量 → 抽样与分区场景】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_sampling_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_json_sampling_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 实例详情中抽样行数显示为10
-          3) 校验结果基于抽样的10条数据进行判定
-          4) 校验通过和不通过的结果与抽样数据实际内容一致
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）、key2（年龄）
-      2) 已在SparkThrift2.x表test_json_sampling中插入100条数据，其中50条包含key1和key2，50条仅包含key1：
-         CREATE TABLE test_json_sampling (
-           id INT,
-           info STRING
-         );
-         -- 插入100条数据（id=1~50含key1和key2，id=51~100仅含key1）
-      3) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_sampling_test"创建：Step 1 基础信息中关联 SparkThrift2.x 数据源的test_json_sampling表，并新增规则包"抽样测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=info、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      4) 已通过【数据质量 → 规则任务管理】页面完成任务"task_json_sampling_test"创建：Step 1 基础信息中规则名称=task_json_sampling_test，并关联同一SparkThrift2.x表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_sampling_test"的"抽样测试包"；点击【下一步】进入 Step 3 调度属性，将抽样行数设置为10后点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 抽样与分区场景
-  - case_id: C0029
-    title: 验证对分区表配置key范围校验规则指定分区下数据校验正确
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 抽样与分区场景】页面
-        expected: 已进入【数据质量 → 抽样与分区场景】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则任务管理】页面，等待规则任务列表加载完成
-        expected: 规则任务管理页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_partition_test"，点击【立即执行】
-        expected: 页面提示“操作成功，稍后可在任务查询中查看详情”
-      - action: 进入【数据质量 → 校验结果查询】页面，找到"task_json_partition_test"最新实例记录并打开实例详情
-        expected: |-
-          1) 本次执行生成新的实例记录，任务名称与执行时间与本次操作匹配
-          2) 仅校验dt=20260401分区下的数据（id=1和id=2）
-          3) id=1（含key1和key2）质检结果=校验通过
-          4) id=2（仅含key1，缺key2）质检结果=校验不通过
-          5) dt=20260402分区的数据（id=3）不参与本次校验
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在【通用配置 → json格式校验管理】页面维护key1（姓名）、key2（年龄）
-      2) 已在Hive数据源中执行以下SQL创建分区表并灌数：
-         CREATE TABLE hive_json_partition (
-           id INT,
-           info STRING
-         ) PARTITIONED BY (dt STRING);
-         ALTER TABLE hive_json_partition ADD PARTITION (dt='20260401');
-         ALTER TABLE hive_json_partition ADD PARTITION (dt='20260402');
-         INSERT INTO hive_json_partition PARTITION (dt='20260401') VALUES
-           (1, '{"key1":"张三","key2":25}'),
-           (2, '{"key1":"李四"}');
-         INSERT INTO hive_json_partition PARTITION (dt='20260402') VALUES
-           (3, '{"key1":"王五","key2":30}');
-      3) 已通过【数据质量 → 规则集管理】页面完成规则集"rule_set_partition_test"创建：Step 1 基础信息中关联Hive数据源的hive_json_partition表，并新增规则包"分区测试包"；点击【下一步】进入 Step 2 监控规则，点击【新增规则】，配置字段=info（string类型）、统计函数=key范围校验、校验方法=包含、校验内容=key1和key2、过滤条件=指定分区dt=20260401；点击规则行的【保存】按钮，再点击页面底部【保存】，规则集创建成功
-      4) 已通过【数据质量 → 规则任务管理】页面完成任务"task_json_partition_test"创建：Step 1 基础信息中规则名称=task_json_partition_test，并关联同一Hive分区表；点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入规则集"rule_set_partition_test"的"分区测试包"；点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功
-    tags:
-      - 数据质量
-      - 规则任务管理
-      - 抽样与分区场景
-  - case_id: C0030
-    automation:
-      spec_file: c0030-key-range-built-in-rule.spec.ts
-    title: 验证规则库中新增key范围校验内置规则展示信息正确
-    priority: P1
-    steps:
-      - action: 进入【数据质量 → 规则库-内置规则展示】页面
-        expected: 已进入【数据质量 → 规则库-内置规则展示】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 规则库配置】页面，等待规则库列表加载完成
-        expected: 规则库配置页面加载完成且显示目标控件打开，列表加载完成
-      - action: 在规则分类筛选中选择"完整性校验"，在列表中查找"key范围校验"规则
-        expected: 规则库完整性校验分类下可找到"key范围校验"规则
-      - action: 点击"key范围校验"规则行查看规则详情
-        expected: |-
-          规则详情显示：
-          1) 规则名称=key范围校验
-          2) 规则解释=对数据中包含的key范围校验
-          3) 规则分类=完整性校验
-          4) 关联范围=字段
-          5) 规则描述=校验json类型的字段中key名是否完整，对key的范围进行校验
-      - action: 返回规则列表，将鼠标悬浮在"key范围校验"的统计函数名称旁的提示图标上，等待tooltip出现
-        expected: 悬浮提示内容为"对数据中包含的key范围校验"，与规则库中"规则解释"字段内容一致
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 当前环境为v6.3岚图定制化分支
-      2) 数据质量模块规则库功能可用
+      - action: 进入【数据质量 → 规则库配置】页面
+        expected: 进入成功
+      - action: 点击【内置规则】Tab并搜索「key范围校验」
+        expected: 列表展示规则名称、规则说明、规则类型、适用字段类型和启用状态
+      - action: 打开规则详情
+        expected: 详情展示字段单选限制、校验方法和校验内容配置说明
     tags:
       - 数据质量
       - 规则库配置
-      - 规则库-内置规则展示
-  - case_id: C0031
-    automation:
-      spec_file: c0031-failed-validation-details.spec.ts
-    title: 验证校验不通过时查看明细：标题、字段标红及全字段展示
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 校验明细与日志】页面
-        expected: 已进入【数据质量 → 校验明细与日志】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，等待页面加载完成
-        expected: 校验结果查询页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_key_range_test"最新执行记录，找到质检结果为"校验不通过"的规则行
-        expected: 目标规则行可正常定位，数据展示完整
-      - action: 点击该规则行操作列的【查看明细】按钮，等待明细弹窗加载完成
-        expected: 成功打开明细页面，页面加载不报错
-      - action: 观察明细页面的标题文案、数据列表字段列数、以及id=10记录的"info"字段展示样式
-        expected: |-
-          1) 明细标题显示"查看"完整性校验-key范围校验"明细"
-          2) 数据列表展示原表全部字段（id、info等）
-          3) id=10记录的"info"字段内容以红色字体或红色背景高亮标红展示
-          4) 不符合要求的数据（id=10）出现在列表中
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已在SparkThrift2.x表test_json_key_range中插入数据：
-         INSERT INTO test_json_key_range VALUES (10, '{"key1":"王五"}');
-         （仅含key1，缺key2）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成该任务最新实例记录
-      3) id=10记录质检结果为"校验不通过"
-    tags:
-      - 数据质量
-      - 校验结果查询
-      - 校验明细与日志
-  - case_id: C0032
-    title: 验证下载明细数据中校验字段标红展示
+      - 内置规则
+
+  - case_id: C0013
+    title: 验证【数据质量】-【规则集管理】在千级 key 中搜索选择并保存规则，校验内容回显命中 key
     priority: P1
+    precondition: |-
+      1) JSON 格式校验管理中存在第一层 key_001 至 key_500、第二层 key_501 至 key_1000
+      2) 规则集「RuleSetH」已关联字段 info
     steps:
-      - action: 进入【数据质量 → 校验明细与日志】页面
-        expected: 已进入【数据质量 → 校验明细与日志】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，等待页面加载完成
-        expected: 校验结果查询页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_key_range_test"结果记录，点击校验不通过规则行操作列的【查看明细】按钮，等待明细页加载完成
-        expected: 明细数据页面加载完成且显示目标控件打开，数据加载完成
-      - action: 点击明细页面右上角的【下载明细】按钮，等待文件下载完成
-        expected: 文件成功下载，文件格式为Excel（.xlsx）
-      - action: 打开下载的Excel文件，查看校验字段（info列）中不符合规则记录的单元格样式
-        expected: Excel文件中，不符合规则记录的"info"字段对应单元格呈红色背景或红色字体标注，与页面展示一致
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成最新实例记录，且存在校验不通过规则行
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 编辑「RuleSetH」并打开 key 范围校验规则的校验内容下拉框
+        expected: 下拉框按层级展示 1000 个 key，首屏加载完成
+      - action: 搜索 key_750 并选择该 key，点击【确认】和【保存】
+        expected: 规则保存成功，校验内容回显包含 key_750
+      - action: 打开关联任务并立即执行
+        expected: 实例生成成功，规则详情展示 key_750
     tags:
-      - 数据质量
-      - 校验结果查询
-      - 校验明细与日志
-  - case_id: C0033
-    automation:
-      spec_file: c0033-passed-validation-no-details.spec.ts
-    title: 验证校验通过时结果查询页不显示明细入口
+      ["数据质量", "规则集管理"]
+  - case_id: C0014
+    title: 验证【数据质量】-【JSON格式校验管理】删除规则引用的 key，规则集保留引用且不被改写
     priority: P1
-    steps:
-      - action: 进入【数据质量 → 校验明细与日志】页面
-        expected: 已进入【数据质量 → 校验明细与日志】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，等待页面加载完成
-        expected: 校验结果查询页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_key_range_test"最新执行记录
-        expected: 执行记录正常展示，可定位到目标记录
-      - action: 找到质检结果为"校验通过"的规则行，查看操作列
-        expected: 质检结果为"校验通过"的规则行，操作列显示"--"，不显示【查看明细】按钮，无法进入明细页
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
     precondition: |-
-      1) 已在SparkThrift2.x表test_json_key_range中插入数据：
-         INSERT INTO test_json_key_range VALUES (20, '{"key1":"赵六","key2":35}');
-         （包含key1和key2）
-      2) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成该任务最新实例记录
-      3) id=20记录质检结果为"校验通过"
-    tags:
-      - 数据质量
-      - 校验结果查询
-      - 校验明细与日志
-  - case_id: C0034
-    automation:
-      spec_file: c0034-failed-validation-log.spec.ts
-    title: 验证校验失败时支持查看日志
-    priority: P2
+      1) JSON 格式校验管理中存在 key1、key2
+      2) 规则集「RuleSetB」的规则内容引用 key1、key2
     steps:
-      - action: 进入【数据质量 → 校验明细与日志】页面
-        expected: 已进入【数据质量 → 校验明细与日志】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 校验结果查询】页面，等待页面加载完成
-        expected: 校验结果查询页面加载完成且显示目标控件打开，列表加载完成
-      - action: 找到"task_json_fail_test"，找到执行状态为"执行失败"的记录行
-        expected: 目标记录可正常定位，执行状态与实际一致
-      - action: 点击该记录行操作列的【查看日志】按钮，等待日志内容加载
-        expected: 日志弹窗正常打开，显示任务执行失败的错误日志内容，日志内容包含报错时间戳和错误描述信息
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"故障测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"故障测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择已配置但随后被删除的 key（如 key_deleted_test），点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_fail_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"故障测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功；随后在通用配置中删除 key_deleted_test，再执行任务"task_json_fail_test"，任务执行失败；在【数据质量 → 校验结果查询】页面已生成该任务执行状态为"执行失败"的实例记录
+      - action: 进入【数据质量 → JSON格式校验管理】页面
+        expected: 进入成功
+      - action: 删除 key2 并确认删除
+        expected: Toast提示:「删除成功」，key2 不再出现在可选 key 列表
+      - action: 进入【数据质量 → 规则集管理】页面，编辑「RuleSetB」
+        expected: 规则编辑页仍展示已保存的 key1-key2 引用，引用状态可识别
+      - action: 保存规则集
+        expected: Toast提示:「保存成功」，规则内容未被静默改写
     tags:
       - 数据质量
-      - 校验结果查询
-      - 校验明细与日志
-  - case_id: C0035
-    automation:
-      spec_file: c0035-passed-quality-report-columns.spec.ts
-    title: 验证质量报告中校验通过行的各列展示内容正确
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 质量报告-展示验证】页面
-        expected: 已进入【数据质量 → 质量报告-展示验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待页面加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成
-      - action: 找到"task_json_key_range_test"，查看最新一次执行的报告详情
-        expected: 报告详情页正常打开，数据加载完成
-      - action: 找到质检结果为"校验通过"的规则行，逐列查看各字段值
-        expected: |-
-          该规则行各列展示正确：
-          1) 规则类型列=完整性校验
-          2) 规则名称列=key范围校验
-          3) 字段类型列=json
-          4) 质检结果=校验通过
-          5) 未通过原因列=--
-          6) 详情说明列=符合规则key范围包含"key1-key2"
-          7) 操作列=--
-      - action: 使用 Doris3.x 数据源重复以上步骤，将 `info` 字段类型从 SparkThrift2.x 的 `STRING` 改为 Doris3.x 的 `JSON`，其余 UI 操作不变；预期结果与 SparkThrift2.x 一致
-        expected: Doris3.x 数据源下，质量报告校验通过行各列展示与 SparkThrift2.x 一致
-    precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成对应实例记录
-      2) 存在质检结果为"校验通过"的记录
-    tags:
-      - 数据质量
-      - 数据质量报告
-      - 质量报告-展示验证
-  - case_id: C0036
-    title: 验证质量报告中校验不通过行的各列展示内容正确
-    priority: P0
-    steps:
-      - action: 进入【数据质量 → 质量报告-展示验证】页面
-        expected: 已进入【数据质量 → 质量报告-展示验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待页面加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成
-      - action: 找到"task_json_key_range_test"，查看最新一次执行的报告详情
-        expected: 报告详情页正常打开，数据加载完成
-      - action: 找到质检结果为"校验不通过"的规则行，逐列查看各字段值，并点击操作列的【查看详情】按钮
-        expected: |-
-          该规则行各列展示正确：
-          1) 规则类型列=完整性校验
-          2) 规则名称列=key范围校验
-          3) 字段类型列=json
-          4) 质检结果=校验不通过
-          5) 未通过原因列=key范围校验未通过
-          6) 详情说明列=不符合规则key范围包含"key1-key2"
-          7) 操作列显示【查看详情】按钮，点击后跳转至明细页
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: |-
-      1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"key范围校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"key范围校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_key_range_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"key范围校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成对应实例记录
-      2) 存在质检结果为"校验不通过"的记录
-    tags:
-      - 数据质量
-      - 数据质量报告
-      - 质量报告-展示验证
-  - case_id: C0037
-    title: 验证质量报告中不包含校验方法的详情说明格式正确
+      - JSON格式校验管理
+      - 引用关系
+
+  - case_id: C0015
+    title: 验证【数据质量】-【规则任务管理】开启百分比抽样执行 key 范围规则，实例详情展示抽样数量与结果
     priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建 JSON 字段表并插入 6 行：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0015;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0015 (id BIGINT, info STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0015 SELECT id, CASE WHEN id % 2 = 0 THEN '{"key1":"A","key2":"B"}' ELSE '{"key1":"A"}' END FROM range(1, 7);
+      5) 规则集「RuleSetC」包含 info 字段的 key 范围规则
     steps:
-      - action: 进入【数据质量 → 质量报告-展示验证】页面
-        expected: 已进入【数据质量 → 质量报告-展示验证】页面，显示页面标题与主要操作区域
-      - action: 进入【数据质量 → 数据质量报告】页面，等待页面加载完成
-        expected: 数据质量报告页面加载完成且显示目标控件打开，报告列表加载完成
-      - action: 找到"task_json_not_include_test"，查看最新一次执行的报告详情
-        expected: 报告详情页正常打开，数据加载完成
-      - action: 分别查看校验通过行和校验不通过行的"详情说明"列内容
-        expected: |-
-          1) 校验通过行：详情说明=符合规则key范围不包含"key1-key2"
-          2) 校验不通过行：详情说明=不符合规则key范围不包含"key1-key2"
-          3) 两者格式均正确体现"不包含"校验方法
-      - action: 使用 Doris3.x 数据源重复以上步骤，验证结果一致
-        expected: 使用 Doris3.x 数据源执行后结果与 SparkThrift2.x 数据源一致
-    precondition: 1) 已通过【数据质量 → 规则集管理】页面，点击【新建规则集】，在 Step 1 基础信息中选择数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，规则包名称"不包含校验测试包"，点击【下一步】进入 Step 2 监控规则，在规则包"不包含校验测试包"中点击【新增规则】，统计函数选择【key范围校验】，字段选择 info，校验方法选择【不包含】，校验内容选择 key1 和 key2，点击规则行【保存】，再点击页面底部【保存】完成规则集创建；并通过【数据质量 → 规则任务管理】页面，点击【新建监控规则】，在 Step 1 基础信息中规则名称=task_json_not_include_test、数据源=SparkThrift2.x、数据库=pw_test、数据表=test_json_key_range，点击【下一步】进入 Step 2 监控规则，通过【导入规则包】导入"不包含校验测试包"，点击【下一步】进入 Step 3 调度属性，点击【保存】，任务创建成功并已执行完成；在【数据质量 → 校验结果查询】页面已生成对应实例记录，且实例详情中同时存在校验通过行和校验不通过行
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 新建监控规则，选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0015，开启百分比抽样并导入「RuleSetC」
+        expected: 抽样设置展示为启用，规则列表展示 key 范围规则
+      - action: 保存任务并立即执行
+        expected: 实例状态为「运行完成」或「校验异常」，实例详情展示抽样数量和 key 范围结果
+      - action: 查看生成 SQL
+        expected: SQL 包含抽样函数或临时抽样表，结果记录数量不超过抽样行数
+    tags:
+      ["数据质量", "规则任务管理"]
+  - case_id: C0016
+    title: 验证【数据质量】-【规则任务管理】按当日分区执行 key 范围规则，生成 SQL 仅含当日分区过滤条件
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建分区表并插入前一日和当日数据：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0016;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0016 (id BIGINT, info STRING, dt DATE) PARTITIONED BY (dt);
+         INSERT INTO ${SchemaA}.test_table_15693_c0016 SELECT id, '{"key1":"A"}', DATE_SUB(CURRENT_DATE(), 1) FROM range(1, 4);
+         INSERT INTO ${SchemaA}.test_table_15693_c0016 SELECT id, '{"key1":"A","key2":"B"}', CURRENT_DATE() FROM range(4, 7);
+      5) 规则集「RuleSetA」包含 info 字段 key1-key2 包含规则
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 新建监控规则，选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0016，选择当日分区并导入「RuleSetA」
+        expected: 任务分区条件展示当日日期值
+      - action: 保存任务并立即执行
+        expected: 最新实例状态为「运行完成」，异常数量为 0
+      - action: 查看生成 SQL
+        expected: SQL 包含当日分区过滤条件，结果不包含前一日分区记录
+    tags:
+      ["数据质量", "规则任务管理"]
+  - case_id: C0017
+    title: 验证【数据质量】-【规则任务管理】执行 key 范围规则并查看异常明细，记录定位到缺失 key 行
+    priority: P0
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建 JSON 字段表并插入异常记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0017;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0017 (id BIGINT, info STRING, remark STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0017 VALUES (1, '{"key1":"A"}', 'r1'), (2, '{"key1":"A","key2":"B"}', 'r2');
+      5) 规则集「RuleSetD」包含 info 字段 key1-key2 包含规则
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 创建任务并选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0017，导入「RuleSetD」
+        expected: 任务规则列表展示 key 范围规则
+      - action: 保存并立即执行任务，打开最新实例
+        expected: 实例状态为「校验异常」，异常数量为 1
+      - action: 点击异常规则【查看明细】
+        expected: 详情标题包含规则名称，info 字段标红，记录包含 id、info、remark 全部字段
+    tags:
+      ["数据质量", "规则任务管理"]
+  - case_id: C0018
+    title: 验证【数据质量】-【规则任务管理】Doris3.x 数据源 json 字段执行 key 范围规则，异常实例定位到缺失 key 记录
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：Doris3.x
+      3) 存在数据库：${SchemaA}
+      4) 创建 JSON 字段表并插入满足条件记录：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0018;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0018 (id BIGINT, info STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0018 VALUES (1, '{"key1":"A","key2":"B"}'), (2, '{"key1":"C","key2":"D"}');
+      5) 规则集「RuleSetG」包含 info 字段 key1-key2 包含规则
+    steps:
+      - action: 进入【数据质量 → 规则任务管理】页面
+        expected: 进入成功
+      - action: 创建任务并选择 ${DataSourceA}、${SchemaA}.test_table_15693_c0018，导入「RuleSetG」
+        expected: 任务规则列表展示 key 范围规则
+      - action: 保存并立即执行任务
+        expected: 最新实例状态为「运行完成」，异常数量为 0
+      - action: 进入【数据质量 → 校验结果查询】页面打开该实例
+        expected: 结果行展示通过状态，不展示异常明细入口
+    tags:
+      ["数据质量", "规则任务管理"]
+  - case_id: C0019
+    title: 验证【数据质量】-【校验结果查询】查看失败实例日志，日志展示规则名称与失败原因
+    priority: P1
+    precondition: |-
+      1) 授权数据源：${DataSourceA}
+      2) 数据源类型：SparkThrift2.x
+      3) 存在数据库：${SchemaA}
+      4) 创建并写入 JSON 字段表：
+         DROP TABLE IF EXISTS ${SchemaA}.test_table_15693_c0019;
+         CREATE TABLE IF NOT EXISTS ${SchemaA}.test_table_15693_c0019 (id BIGINT, info STRING);
+         INSERT INTO ${SchemaA}.test_table_15693_c0019 VALUES (1, '{"key1":"A","key2":"B"}');
+      5) 规则任务「TaskA」已关联 ${DataSourceA}、${SchemaA}.test_table_15693_c0019，包含 key 范围校验规则
+    steps:
+      - action: 进入【数据质量 → 校验结果查询】页面
+        expected: 进入成功
+      - action: 打开「TaskA」最新失败实例
+        expected: 实例详情展示失败状态和【查看日志】入口
+      - action: 点击【查看日志】
+        expected: 日志展示任务名称、规则名称、失败时间和 key 范围校验失败原因
     tags:
       - 数据质量
-      - 数据质量报告
-      - 质量报告-展示验证
+      - 校验结果查询
+      - 执行日志
+
+  - case_id: C0020
+    title: 验证【数据质量】-【规则集管理】Doris3.x 与 Hive2.x 数据源配置 key 范围规则，两类数据源均保留配置
+    priority: P1
+    precondition: |-
+      1) 数据源「${DataSourceA}」类型为 Doris3.x，数据源「${DataSourceB}」类型为 Hive2.x
+      2) 两个数据源均存在 JSON 字段表和字段 info
+      3) JSON 格式校验管理中存在 key1、key2
+    steps:
+      - action: 进入【数据质量 → 规则集管理】页面
+        expected: 进入成功
+      - action: 分别选择 ${DataSourceA}、${DataSourceB} 创建规则集并配置 info 字段 key 范围校验
+        expected: 两个数据源均展示 key 范围校验统计函数，字段选择框按数据源字段类型提供选项
+      - action: 保存两个规则集并在规则任务管理中分别导入执行
+        expected: 两个任务均生成实例记录，实例详情显示对应数据源类型
+      - action: 查看规则配置详情
+        expected: Doris3.x、Hive2.x 规则配置均保留 key1、key2，数据源类型未被替换
+    tags:
+      ["数据质量", "规则集管理"]
