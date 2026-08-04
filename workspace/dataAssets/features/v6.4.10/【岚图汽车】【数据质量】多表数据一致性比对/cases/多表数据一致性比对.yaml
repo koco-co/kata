@@ -22,7 +22,15 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，监控对象选择 ${SchemaA}.test_table_10183_c0001_source_01，添加多表数据一致性比对，主键选择 id，字段映射 user_name→user_name、age→age，对比表选择 ${SchemaA}.test_table_10183_c0001_comparison_01 并保存执行
+      - action: |-
+          新建规则集并配置监控对象：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10183_c0001_source_01
+          规则集描述：空
+          添加多表数据一致性比对，主键选择 id，字段映射 user_name→user_name、age→age，对比表选择 test_table_10183_c0001_comparison_01
+          保存并执行
         expected: 规则实例状态为「不达标」，不一致记录数为 1
       - action: 进入【数据质量 → 校验结果查询】页面并打开该实例的【查看明细】
         expected: 明细展示 id=2，user_name 为 Bob/Bobby，age 为 30/31
@@ -50,7 +58,15 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${SchemaA}.test_table_10183_c0002_source_01，添加多表数据一致性比对，主键选择 id，字段映射 user_name→user_name、age→age，对比表选择 ${SchemaA}.test_table_10183_c0002_comparison_01 并保存执行
+      - action: |-
+          新建规则集并配置监控对象：
+          * 规则集名称：RuleSetB
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_10183_c0002_source_01
+          规则集描述：空
+          添加多表数据一致性比对，主键选择 id，字段映射 user_name→user_name、age→age，对比表选择 test_table_10183_c0002_comparison_01
+          保存并执行
         expected: 规则实例状态为「达标」，不一致记录数为 0
       - action: 进入【数据质量 → 校验结果查询】页面并打开实例详情
         expected: 质量报告展示两张表行数均为 2，规则结果为「达标」，【查看明细】按钮不可用
