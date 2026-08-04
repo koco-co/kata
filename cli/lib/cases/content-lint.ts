@@ -722,7 +722,12 @@ function lintEnvironmentPlaceholders(
     )) {
       addEnvironmentValue(values, "project", match[0], config);
     }
-    for (const match of withoutStringLiterals.matchAll(
+    // test_table_ 开头的表名不是 schema 实例
+    const withoutSchemaLikeTables = withoutStringLiterals.replace(
+      /\btest_table_(?:\d+|none)_c\d{4}(?:_(?:source|target|comparison|dimension)(?:_\d{2,})?)?\b/gi,
+      " ",
+    );
+    for (const match of withoutSchemaLikeTables.matchAll(
       /(?<!\bAS\s)\b(?:[A-Za-z][\w-]*_(?:demo|db|schema|target)|schema_[A-Za-z0-9][\w-]*)\b/gi,
     )) {
       addEnvironmentValue(values, "schema", match[0], config);
