@@ -19,7 +19,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集，选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0001，点击【新增规则】并选择「取值范围&枚举范围」
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetA
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15695_c0001
+          规则集描述：空
+          点击【新增规则】并选择「取值范围&枚举范围」
         expected: 规则表单展示字段、取值范围、枚举值、且或关系和强弱规则
       - action: 字段选择 score，范围设置为「>1 且 <10」，枚举值选择 in「1、2、3」，且或关系选择「且」，强弱规则选择「强规则」
         expected: 表单回显范围 >1 且 <10、枚举值 in 1,2,3 和关系「且」
@@ -41,7 +48,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集并选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0002，新增「取值范围&枚举范围」规则
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetB
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15695_c0002
+          规则集描述：空
+          新增「取值范围&枚举范围」规则
         expected: 规则表单展示范围行和枚举值行
       - action: 字段选择 score，范围设置为「>1」，枚举值选择 in「1、2、3」，且或关系选择「或」，强弱规则选择「强规则」
         expected: 表单回显范围 >1、枚举值 in 1,2,3 和关系「或」
@@ -63,7 +77,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集并选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0003，新增「取值范围&枚举范围」规则
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetC
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15695_c0003
+          规则集描述：空
+          新增「取值范围&枚举范围」规则
         expected: 规则表单展示取值范围行和枚举值行
       - action: 字段选择 score，范围设置为「>=0」，枚举值保持空，点击【保存】
         expected: Toast提示:「保存成功」，规则列表范围列显示 >=0，枚举值列为空
@@ -83,7 +104,14 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 新建规则集并选择 ${DataSourceA}、${SchemaA}.test_table_15695_c0004，新增「取值范围&枚举范围」规则
+      - action: |-
+          新建规则集，配置基础信息：
+          * 规则集名称：RuleSetD
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15695_c0004
+          规则集描述：空
+          新增「取值范围&枚举范围」规则
         expected: 规则表单展示枚举值类型和枚举值输入区
       - action: 字段选择 category，范围保持空，枚举值类型选择 in，输入 1、2、3，点击【保存】
         expected: Toast提示:「保存成功」，规则列表枚举值列显示 in 1,2,3，范围列为空
@@ -312,7 +340,15 @@ cases:
     steps:
       - action: 进入【数据质量 → 规则集管理】页面
         expected: 进入成功
-      - action: 分别选择 ${DataSourceA}、${DataSourceB} 新建规则集，统计函数选择「取值范围&枚举范围」
+      - action: |-
+          分别选择 ${DataSourceA}、${DataSourceB} 新建规则集，配置基础信息如下：
+          * 规则集名称：RuleSetE
+          * 选择数据源：${DataSourceA}
+          * 选择数据库：${SchemaA}
+          * 选择数据表：test_table_15695_c0015
+          规则集描述：空
+          统计函数选择「取值范围&枚举范围」
+          对 ${DataSourceB} 数据源重复上述规则集基础信息配置
         expected: 两个数据源均展示范围、枚举值和关系配置项
       - action: 保存两个规则集并查看规则详情
         expected: 两个规则集均保留 score、category、关系和强弱设置，数据源类型列分别为 SparkThrift2.x、Doris3.x
