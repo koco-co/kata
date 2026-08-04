@@ -10,7 +10,7 @@ cases:
     steps:
       - action: 进入【数据质量】页面
         expected: 进入成功
-      - action: 新建项目 quality_menu_new 并打开项目左侧菜单
+      - action: 新建项目 ${ProjectA} 并打开项目左侧菜单
         expected: |-
           1） 「概览」名称改为「总览」
           2） 「规则任务配置」名称改为「规则任务管理」
@@ -24,7 +24,7 @@ cases:
     steps:
       - action: 进入【数据质量】页面
         expected: 进入成功
-      - action: 打开版本升级前创建的项目 quality_menu_legacy 并查看左侧菜单
+      - action: 打开版本升级前创建的项目 ${ProjectB} 并查看左侧菜单
         expected: |-
           1） 「概览」名称改为「总览」
           2） 「规则任务配置」名称改为「规则任务管理」
@@ -32,4 +32,4 @@ cases:
           4） 「质量报告」名称改为「数据质量报告」
           5） 新增一级菜单「规则集管理」
     precondition: |-
-      1) 存在版本升级前创建的数据质量项目 quality_menu_legacy
+      1) 存在版本升级前创建的数据质量项目 ${ProjectB}
