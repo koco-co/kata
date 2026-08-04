@@ -1,0 +1,24 @@
+{
+  "contract": "kata.prd.evidence/v1",
+  "source": "lanhu",
+  "source_url": "https://lanhuapp.com/web/#/item/project/product?tid=24a1c6b2-a52e-454c-8d51-8aff866598b1&pid=7de90493-e80f-4592-a263-38fb2d2e98c0&corpId=null&versionId=3ad3e69d-1464-4ebc-a48f-ee51c593a070&docId=39a7f277-38a7-4cc3-a489-2cff4eb5c1d4&docType=axure&pageId=981d305c6ef14bc09f13faf0b1c89fb8&image_id=39a7f277-38a7-4cc3-a489-2cff4eb5c1d4&parentId=e160cfd4-a57b-402a-a9c0-b687021d14f9",
+  "doc_id": "39a7f277-38a7-4cc3-a489-2cff4eb5c1d4",
+  "version_id": "3ad3e69d-1464-4ebc-a48f-ee51c593a070",
+  "page_id": "981d305c6ef14bc09f13faf0b1c89fb8",
+  "requirement_id": "16209",
+  "title": "数据资产V7.0.1",
+  "pages": [
+    {
+      "id": "981d305c6ef14bc09f13faf0b1c89fb8",
+      "name": "16209【数据标准】标准目录编辑",
+      "path": "资产V7.0.1/16209【数据标准】标准目录编辑",
+      "text": "16209【数据标准】标准目录编辑\n开发版本：6.2及以上标品\n【需求背景】\n当前仅下线后才支持编辑修改标准信息，但用户存在针对已上线标准高频修改【标准目录】的场景，需要增加目录的单独编辑入口\n【需求内容】\n【已上线】状态的标准增加【修改目录】按钮，点击后弹窗展示“标准目录”编辑框，支持编辑修改目录\n增加【修改目录】按钮，点击后弹窗支持修改保存目录\n修改目录\n标准目录：\n请选择\n取消\n保存\n保存完成后，toast提示“\n✅\n标准目录保存成功”",
+      "assets": [
+        "981d305c6ef14bc09f13faf0b1c89fb8-overview.svg",
+        "981d305c6ef14bc09f13faf0b1c89fb8-detail-2.svg",
+        "981d305c6ef14bc09f13faf0b1c89fb8-detail-3.svg",
+        "981d305c6ef14bc09f13faf0b1c89fb8-detail-4.svg"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+meta:
+  title: 【数据标准】标准目录编辑
+  requirement_id: "16209"
+  case_module_id: ""
+  source: "蓝湖需求 #16209"
+  test_points_digest: "sha256:8fbd7b44099a5e95fd6496c9c9227fef6d208ef7bf18b9dfbe1405298905b2fb"
+  exports:
+    - 标准目录编辑.xmind
+cases:
+  - case_id: C0001
+    title: 验证【标准定义】-【已上线标准】点击修改目录，弹窗仅展示标准目录必填项与保存取消按钮
+    source_ref: TP-001
+    priority: P0
+    precondition: |-
+      1) 存在同级末级标准目录 CatalogA 和 CatalogB
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA，状态为「已上线」
+      - action: 查看标准 StandardA 的操作项
+        expected: 操作项包含「下线」「复制」「修改目录」
+      - action: 点击「修改目录」
+        expected: 弹出标题为「修改目录」的弹窗，弹窗仅展示必填项「标准目录」及「取消」「保存」按钮
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0002
+    title: 验证【标准定义】-【已上线标准】修改目录保存，详情目录与筛选列表同步更新
+    source_ref: TP-002
+    priority: P0
+    precondition: |-
+      1) 存在同级末级标准目录 CatalogA 和 CatalogB
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA，所属目录为 CatalogA，状态为「已上线」
+      - action: 点击标准 StandardA 的「修改目录」，将「标准目录」由 CatalogA 修改为 CatalogB，点击「保存」
+        expected: Toast提示:「标准目录保存成功」，弹窗关闭，标准定义列表自动刷新
+      - action: 点击标准名称 StandardA 打开详情，在「标准信息」页签查看「标准目录」和状态
+        expected: 「标准目录」展示 CatalogB，状态展示「已上线」
+      - action: 关闭标准详情，在左侧标准目录树选择 CatalogA
+        expected: 列表中不存在标准 StandardA
+      - action: 在左侧标准目录树选择 CatalogB
+        expected: 列表中展示标准 StandardA，所属目录为 CatalogB
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0003
+    title: 验证【标准定义】-【已上线标准】修改目录保存，标准保持已上线且操作项不变
+    source_ref: TP-003
+    priority: P0
+    precondition: |-
+      1) 存在同级末级标准目录 CatalogA 和 CatalogB
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA，状态为「已上线」
+      - action: 点击标准 StandardA 的「修改目录」，将「标准目录」由 CatalogA 修改为 CatalogB，点击「保存」
+        expected: Toast提示:「标准目录保存成功」
+      - action: 刷新标准定义列表查看标准 StandardA 的状态
+        expected: 状态仍为「已上线」
+      - action: 查看标准 StandardA 的操作项
+        expected: 操作项仍包含「下线」「复制」「修改目录」
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0004
+    title: 验证【标准定义】-【已上线标准】修改目录保存，版本记录新增且对比仅体现目录变化
+    source_ref: TP-004
+    priority: P1
+    precondition: |-
+      1) 存在同级末级标准目录 CatalogA 和 CatalogB
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA
+      - action: 点击标准 StandardA 的「修改目录」，将「标准目录」由 CatalogA 修改为 CatalogB，点击「保存」
+        expected: Toast提示:「标准目录保存成功」
+      - action: 点击标准名称 StandardA 打开详情，在「版本记录」页签查看版本记录
+        expected: 版本记录新增一条记录
+      - action: 点击该版本记录的「版本对比」
+        expected: 版本对比仅显示「标准目录」由 CatalogA 变为 CatalogB，其他字段无差异
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0005
+    title: 验证【标准定义】-【已上线标准】修改目录后取消，原目录状态与版本记录均不变
+    source_ref: TP-005
+    priority: P1
+    precondition: |-
+      1) 存在同级末级标准目录 CatalogA 和 CatalogB
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA，所属目录为 CatalogA，状态为「已上线」
+      - action: 点击标准 StandardA 的「修改目录」，将「标准目录」由 CatalogA 修改为 CatalogB，点击「取消」
+        expected: 弹窗关闭
+      - action: 查看标准 StandardA 的所属目录与状态
+        expected: 所属目录仍为 CatalogA，状态仍为「已上线」
+      - action: 点击标准名称 StandardA 打开详情，在「版本记录」页签查看版本记录
+        expected: 版本记录未新增记录
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0006
+    title: 验证【标准定义】-【已上线标准】修改目录未选目录保存，字段提示必填且保存被阻止
+    source_ref: TP-006
+    priority: P1
+    precondition: |-
+      1) 存在同级末级标准目录 CatalogA 和 CatalogB
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA
+      - action: 点击标准 StandardA 的「修改目录」，不选择「标准目录」，点击「保存」
+        expected: 「标准目录」字段提示必填校验，保存被阻止
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0007
+    title: 验证【标准定义】-【待上线与待审批标准】查看操作项，不提供修改目录入口
+    source_ref: TP-007
+    priority: P1
+    precondition: |-
+      1) 存在末级标准目录 CatalogA
+      2) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「待上线」
+      3) 标准 StandardB 唯一存在，标准编号为 StandardCodeB，所属目录为 CatalogA，状态为「待审批」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA，状态为「待上线」
+      - action: 查看标准 StandardA 的操作项
+        expected: 操作项不展示「修改目录」，其余操作按钮保持不变
+      - action: 在标准名称搜索框输入 StandardB 并执行搜索
+        expected: 列表仅展示标准 StandardB，状态为「待审批」
+      - action: 查看标准 StandardB 的操作项
+        expected: 操作项不展示「修改目录」，其余操作按钮保持不变
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
+
+  - case_id: C0008
+    title: 验证【标准定义】-【仅查看权限用户】查看操作项，无法执行修改目录
+    source_ref: TP-008
+    priority: P1
+    precondition: |-
+      1) 使用账号 UserA 登录，仅具备「数据标准-标准定义」查看权限，不具备操作权限
+      2) 存在同级末级标准目录 CatalogA 和 CatalogB
+      3) 标准 StandardA 唯一存在，标准编号为 StandardCodeA，所属目录为 CatalogA，状态为「已上线」
+    steps:
+      - action: 进入【数据标准 → 标准管理 → 标准定义】页面
+        expected: 进入成功
+      - action: 在标准名称搜索框输入 StandardA 并执行搜索
+        expected: 列表仅展示标准 StandardA
+      - action: 查看标准 StandardA 的操作项
+        expected: 操作项不展示可用的「修改目录」入口（按钮隐藏或置灰不可点击），无法完成目录变更
+    tags:
+      - 数据标准
+      - 标准管理
+      - 标准定义
