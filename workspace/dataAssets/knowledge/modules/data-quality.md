@@ -1,10 +1,10 @@
 ---
 title: 数据质量模块业务规则（产品级）
 type: module
-tags: [数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束]
+tags: [数据质量, 规则类型, 统计函数, 校验语义, 规则集, 多表比对, 自定义SQL, 字段类型约束, 自定义调度日期, 调度周期]
 status: verified
-source: 源码 customltem/dt-center-assets + customltem/dt-insight-studio @ main(65f8e9ec8) 2026-06-24；live zszq 2026-06-23；用户口述 2026-04~2026-06；用户反馈 2026-06-29；用户确认迁移前置数据规则 2026-07-30
-updated: 2026-07-30
+source: 源码 customltem/dt-center-assets + customltem/dt-insight-studio @ main(65f8e9ec8) 2026-06-24；live zszq 2026-06-23；用户口述 2026-04~2026-06；用户反馈 2026-06-29；用户确认迁移前置数据规则 2026-07-30；自定义调度周期语义 源码@20cf405d/4d22d4ca 2026-08-04
+updated: 2026-08-04
 ---
 
 # 数据质量模块业务规则（产品级）
@@ -100,3 +100,15 @@ updated: 2026-07-30
 - §1~§8 的语义产品通用；**菜单/字段文案、容量上限、维表关联等定制项随环境不同**，以 `sites/<host>/dom-dataAssets.md` 为准。
 - **岚图汽车专属**（源码 `customltem/`，仅岚图）：菜单为「规则库配置/规则集管理/规则任务管理/校验结果查询/数据质量报告/通用配置」；「通用配置→报告关联维表设置」有车辆数/车系/车型/动力类型关联字段；规则集容量 20 包 × 每包 10 规则；JSON 格式校验（完整性=key 存在性、有效性=value 正确性）。这些**不适用标品**。
 - **标品（如浙商证券 zszq）**：左导航「概览/规则配置/任务查询/实时校验/项目管理」，规则集+多表比对都在「规则配置」页内，无独立「质量报告」菜单。详见 `sites/shuzhan60-test-zszq/dom-dataAssets.md`。
+
+## 10. 自定义调度周期（质量任务关联自定义调度日期）
+
+产品级语义（6.3 标品实现，出处：前端 `customltem/dt-insight-studio@4d22d4ca`，后端 `customltem/dt-center-assets@20cf405d`；语义以历史用例 v6.1.4 #6778 批次验证）。**写自定义调度相关用例前必读**。
+
+- **调度周期下拉**：规则任务（单表校验/多表比对）调度属性「调度周期」下拉提供「自定义调度日期」（前端 `PERIOD_TYPE.SCHEDULE_CALENDAR=6`），位于「月」与「手动触发」之间；单表校验另有「自动关联离线任务周期」「手动关联离线任务周期」。出处 `views/valid/ruleConfig/edit/stepThree.tsx`、`views/valid/dataCheck/edit/stepThree.tsx`。
+- **日历格式（`CalenderTimeFormat`，`common/.../enums/CalenderTimeFormat.java`）**：`年月日`=`yyyyMMdd`、`年月日时分`=`yyyyMMddHHmm`。**年月日格式日历 → 调度属性展示「具体时间」配置；年月日时分格式 → 不展示「具体时间」**（时间已含在日历中）。出处 `components/scheduleConf/components/scheduleTime/index.tsx` 的 SCHEDULE_CALENDAR 分支（`calendar?.calenderTimeFormat === 'yyyyMMddHHmm'` 时不渲染具体时间）。
+- **「自定义调度日期」字段**：下拉选择已存在的日历，未选择时「预览」按钮置灰；选择后「预览」弹窗展示日历网格（命中日期高亮）与该日历最后一次调度时间（近 10 天标红）。出处 `components/scheduleConf/components/scheduleTime/calendarForm/index.tsx`、`components/scheduleConf/components/scheduleCalendarPreview/index.tsx`。
+- **日历维护入口**：`控制台-全局配置-自定义调度日期配置`（引擎侧 `DAGScheduleX` CalenderController/UploadController）。日历由上传 Excel 日期文件（可含 `yyyyMMdd` 或 `yyyyMMddHHmm`）或指定数据源表生成；名称唯一、数量有上限、日期不得重复/非法。日历 CRUD 不在数据资产前端仓库，用例前置声明日历已存在即可。
+- **实例生成**：质量任务保存时后端把 `scheduleConf.calenderId`/`expendTime` 透传给调度引擎（`ScheduleTaskService`），引擎按日历日期生成任务实例。**日历命中日期生成并运行实例；未命中日期不生成**。年月日格式任务在「具体时间」执行（`toTriggerTime` 用 `expendTime` 拼接），年月日时分格式任务按日历的日期+时间执行。
+- **任务实例状态**（`MonitorStatus`，任务查询列）：等待运行(0)/运行中(1)/运行失败(2)/校验通过(3)/校验不通过(4)/关联任务失败(5)/取消(6)/冻结(7)/已提交(8)/提交失败(9)/停止中(10)/校验异常(11)/校验中(12)/已停止(13)。前端任务查询「状态」筛选项文案：等待运行/运行中/校验通过/停止中/中途停止/校验异常/关联任务失败/取消/冻结（`TASK_STATUS.STOP_HALFWAY=13` 即「中途停止」）。**用例措辞禁用「校验通过」**（lint 禁词），实例结果用「任务状态为运行成功/运行失败」+「结果状态为达标/不达标」表述。
+- **停止交互**：运行中实例操作列有「停止」（确认弹窗「请确认是否停止该质量任务？停止后将不会保留本次运行结果。」）；停止后状态流转「中途停止」，操作列变「运行」，「表」/「任务名称」不可点击。出处 `views/valid/taskQuery/index.tsx`（RUNNING→停止、STOP_HALFWAY→运行，表名列 `disabled={status===STOP_HALFWAY}`）。
