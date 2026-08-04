@@ -7,514 +7,343 @@ meta:
     - 同步任务restful源端优化.xmind
 cases:
   - case_id: C0001
-    title: 验证「数据开发-周期任务」「数据来源-Path」显示&交互正确
+    title: 验证【数据开发】-【周期任务】新建同步任务选择 RESTful 来源，展示 Path 输入框并校验格式
     priority: P0
+    precondition: |-
+      1) 周期任务支持新建数据同步任务
+      2) 数据源中心存在 RESTful 数据源 ${DataSourceA}，支持 POST 请求
     steps:
-      - action: 进入【离线开发 → Path】页面
-        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务，【数据来源】步骤“数据源”选择restful数据源，查看页面显示
-        expected: |-
-          1） “数据源”下方新增字段：Path
-          2） 「Path」置灰提示：请填写后端服务路径
-      - action: 「Path」输入少于2个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入大于200个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入2-200个字符，包含非法字符（除/、英文、数字、下划线、连字符外的字符）
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符但不以/开头
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符且以/开头
-        expected: 输入框正常回显已输入内容
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建数据同步任务，在「数据来源」步骤选择 ${DataSourceA}
+        expected: 「数据源」下方展示「Path」输入框，提示「请填写后端服务路径」
+      - action: 在「Path」输入少于 2 个字符或超过 200 个字符
+        expected: 「Path」置红提示:「路径长度请限制在2-200个字符」
+      - action: 在「Path」输入不以「/」开头或包含非法字符的 2 至 200 个字符
+        expected: 「Path」置红提示:「只能 / 开头，支持英文，数字，下划线，连字符(-)」
+      - action: 在「Path」输入以「/」开头且只包含允许字符的 2 至 200 个字符
+        expected: 「Path」回显输入内容且无格式错误提示
+
   - case_id: C0002
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url未配置path
+    title: 验证【数据开发】-【周期任务】RESTful 来源未配置 Path 时运行失败，配置 Path 后同步成功
     priority: P0
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) 后端服务 Path「/api/gateway/test/post」返回 3 条固定记录
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行失败
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行成功，数据均正常写入目标数据源中
+        expected: 进入成功
+      - action: 新建数据同步任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 保存成功，临时运行记录显示失败
+      - action: 提交任务 A 并执行补数据
+        expected: 任务 A 提交成功，补数据运行记录显示失败
+      - action: 新建数据同步任务 B，来源选择 ${DataSourceA}，Path 填写「/api/gateway/test/post」，目标选择 ${DataSourceB}，保存并临时运行
+        expected: 任务 B 保存成功，临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 提交任务 B 并执行补数据
+        expected: 任务 B 提交成功，补数据运行记录显示成功，目标数据源新增 3 条记录
+
   - case_id: C0003
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url已配置path
+    title: 验证【数据开发】-【周期任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 后运行失败
     priority: P0
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/post
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) 地址 Path 返回 3 条固定记录，另一个 Path「/api/gateway/test/other」返回 0 条记录
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行失败
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 保存成功，临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 提交任务 A 并执行补数据
+        expected: 任务 A 提交成功，补数据运行记录显示成功
+      - action: 新建任务 B，来源选择 ${DataSourceA}，Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 保存成功，临时运行记录显示失败，目标数据源不新增记录
+      - action: 提交任务 B 并执行补数据
+        expected: 任务 B 提交成功，补数据运行记录显示失败
+
   - case_id: C0004
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url未配置path&请求参数
+    title: 验证【数据开发】-【周期任务】RESTful 来源未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) Path「/api/gateway/test/get」返回 3 条固定记录，带 query 参数时返回 3 条固定记录
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行失败
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行成功，数据均正常写入目标数据源中
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务C，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中
-      - action: 提交并补数据运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 补数据运行成功，数据均正常写入目标数据源中
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，配置请求参数后保存并临时运行
+        expected: 任务 A 保存成功，临时运行记录显示失败
+      - action: 提交任务 A 并执行补数据
+        expected: 任务 A 提交成功，补数据运行记录显示失败
+      - action: 新建任务 B，Path 填写「/api/gateway/test/get」，不配置请求参数，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 新建任务 C，Path 填写「/api/gateway/test/get」并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示成功，目标数据源新增 3 条记录
+
   - case_id: C0005
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url已配置path&请求参数
+    title: 验证【数据开发】-【周期任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/get?number=1
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) 地址接口返回 3 条固定记录，Path「/api/gateway/test/other」返回 0 条记录
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行失败
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务C，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 补数据运行失败
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，不配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 新建任务 B，Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，目标数据源不新增记录
+      - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示失败
+
   - case_id: C0006
-    title: 验证「数据开发-周期任务」「选择目标-Path」显示&交互正确
+    title: 验证【数据开发】-【周期任务】新建同步任务选择 RESTful 目标，展示 Path 输入框并校验格式
     priority: P1
+    precondition: |-
+      1) 周期任务支持新建数据同步任务
+      2) 数据源中心存在 RESTful 目标数据源 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → Path】页面
-        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务，【选择目标】步骤“数据同步目标”选择restful数据源，查看页面显示
-        expected: |-
-          1） “数据同步目标”下方新增字段：Path
-          2） 「Path」置灰提示：请填写后端服务路径
-      - action: 「Path」输入少于2个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入大于200个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入2-200个字符，包含非法字符（除/、英文、数字、下划线、连字符外的字符）
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符但不以/开头
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符且以/开头
-        expected: 输入框正常回显已输入内容
+      - action: 进入【离线开发 → 周期任务】页面
+        expected: 进入成功
+      - action: 新建数据同步任务，在「选择目标」步骤选择 ${DataSourceA}
+        expected: 「数据同步目标」下方展示「Path」输入框，提示「请填写后端服务路径」
+      - action: 在「Path」输入少于 2 个字符或超过 200 个字符
+        expected: 「Path」置红提示:「路径长度请限制在2-200个字符」
+      - action: 在「Path」输入不以「/」开头或包含非法字符的 2 至 200 个字符
+        expected: 「Path」置红提示:「只能 / 开头，支持英文，数字，下划线，连字符(-)」
+      - action: 在「Path」输入「/api/gateway/test/put」
+        expected: 「Path」回显输入内容且无格式错误提示
+
   - case_id: C0007
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url未配置path
+    title: 验证【数据开发】-【周期任务】RESTful 目标未配置 Path 时运行失败，配置 Path 后同步成功
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) 后端服务 Path「/api/gateway/test/post」接收记录并返回状态码 200
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行失败
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行成功，数据均正常写入restful数据源中
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 临时运行记录显示失败
+      - action: 新建任务 B，目标 Path 填写「/api/gateway/test/post」，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
+      - action: 提交任务 B 并执行补数据
+        expected: 补数据运行记录显示成功，接口累计接收 3 条记录
+
   - case_id: C0008
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url已配置path
+    title: 验证【数据开发】-【周期任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 后运行失败
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/post
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行成功，数据均正常写入restful数据源中
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行失败
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
+      - action: 新建任务 B，目标 Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，接口未接收记录
+
   - case_id: C0009
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url未配置path&请求参数
+    title: 验证【数据开发】-【周期任务】RESTful 目标未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
     priority: P0
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) Path「/api/gateway/test/get」接收记录并返回状态码 200，带 query 参数时返回状态码 200
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行失败
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行成功，数据均正常写入restful数据源中
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务C，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并补数据运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 补数据运行成功，数据均正常写入restful数据源中
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示失败
+      - action: 新建任务 B，Path 填写「/api/gateway/test/get」，不配置请求参数，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
+      - action: 新建任务 C，Path 填写「/api/gateway/test/get」并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示成功，接口接收 3 条记录
+
   - case_id: C0010
-    title: 验证「数据开发-周期任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url已配置path&请求参数
+    title: 验证【数据开发】-【周期任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
     priority: P0
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/get?number=1
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
       - action: 进入【离线开发 → 周期任务】页面
-        expected: 已进入【离线开发 → 周期任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并补数据运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 补数据运行成功，数据均正常写入restful数据源中
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 补数据运行失败
-      - action: 进入【离线开发-数据开发-周期任务】页面，新建数据同步任务C，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行失败
-      - action: 提交并补数据运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 补数据运行失败
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空且不配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
+      - action: 新建任务 B，Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，接口未接收记录
+      - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示失败
+
   - case_id: C0011
-    title: 验证「数据开发-手动任务」「数据来源-Path」显示&交互正确
+    title: 验证【数据开发】-【手动任务】新建同步任务选择 RESTful 来源，展示 Path 输入框并校验格式
     priority: P1
+    precondition: |-
+      1) 手动任务支持新建数据同步任务
+      2) 数据源中心存在 RESTful 数据源 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → Path】页面
-        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务，【数据来源】步骤“数据源”选择restful数据源，查看页面显示
-        expected: |-
-          1） “数据源”下方新增字段：Path
-          2） 「Path」置灰提示：请填写后端服务路径
-      - action: 「Path」输入少于2个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入大于200个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入2-200个字符，包含非法字符（除/、英文、数字、下划线、连字符外的字符）
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符但不以/开头
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符且以/开头
-        expected: 输入框正常回显已输入内容
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建数据同步任务，在「数据来源」步骤选择 ${DataSourceA}
+        expected: 「数据源」下方展示「Path」输入框，提示「请填写后端服务路径」
+      - action: 在「Path」输入少于 2 个字符、超过 200 个字符、不以「/」开头或包含非法字符的内容
+        expected: 分别显示长度或字符范围错误提示
+      - action: 在「Path」输入「/api/gateway/test/manual」
+        expected: 「Path」回显输入内容且无格式错误提示
+
   - case_id: C0012
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url未配置path
+    title: 验证【数据开发】-【手动任务】RESTful 来源未配置 Path 时运行失败，配置 Path 后同步成功
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) Path「/api/gateway/test/manual-post」返回 3 条固定记录
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行失败
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行成功，数据均正常写入目标数据源中
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 临时运行记录显示失败
+      - action: 新建任务 B，Path 填写「/api/gateway/test/manual-post」，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 提交任务 B 并手动运行
+        expected: 手动运行记录显示成功，目标数据源新增 3 条记录
+
   - case_id: C0013
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_post_数据源url已配置path
+    title: 验证【数据开发】-【手动任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 后运行失败
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-post
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) 地址 Path 返回 3 条固定记录，另一个 Path「/api/gateway/test/other」返回 0 条记录
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行失败
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 新建任务 B，Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，目标数据源不新增记录
+      - action: 提交任务 A 并手动运行
+        expected: 手动运行记录显示成功，目标数据源新增 3 条记录
+
   - case_id: C0014
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url未配置path&请求参数
+    title: 验证【数据开发】-【手动任务】RESTful 来源未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
     priority: P0
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) Path「/api/gateway/test/manual-get」返回 3 条固定记录，带 query 参数时返回 3 条固定记录
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行失败
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行成功，数据均正常写入目标数据源中
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务C，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中
-      - action: 提交并手动运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 手动运行成功，数据均正常写入目标数据源中
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示失败
+      - action: 新建任务 B，Path 填写「/api/gateway/test/manual-get」，不配置请求参数，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 新建任务 C，Path 填写「/api/gateway/test/manual-get」并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示成功，目标数据源新增 3 条记录
+
   - case_id: C0015
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_restful2other_get_数据源url已配置path&请求参数
+    title: 验证【数据开发】-【手动任务】RESTful 来源地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-get?number=1
+      2) 存在可写入的目标数据源 ${DataSourceB}
+      3) 地址 Path 返回 3 条固定记录，另一个 Path「/api/gateway/test/other」返回 0 条记录
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行成功，数据均正常写入目标数据源中（数据来源为数据源中心所配置的url对应的接口）
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【数据来源】步骤“数据源”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行失败
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务C，【数据来源】步骤“数据源”选择restful数据源，“Path”为空，“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 手动运行失败
+        expected: 进入成功
+      - action: 新建任务 A，来源选择 ${DataSourceA}，Path 为空且不配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，目标数据源新增 3 条记录
+      - action: 新建任务 B，Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，目标数据源不新增记录
+      - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示失败
+
   - case_id: C0016
-    title: 验证「数据开发-手动任务」「选择目标-Path」显示&交互正确
+    title: 验证【数据开发】-【手动任务】新建同步任务选择 RESTful 目标，展示 Path 输入框并校验格式
     priority: P1
+    precondition: |-
+      1) 手动任务支持新建数据同步任务
+      2) 数据源中心存在 RESTful 目标数据源 ${DataSourceA}
     steps:
-      - action: 进入【离线开发 → Path】页面
-        expected: 已进入【离线开发 → Path】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务，【选择目标】步骤“数据同步目标”选择restful数据源，查看页面显示
-        expected: |-
-          1） “数据同步目标”下方新增字段：Path
-          2） 「Path」置灰提示：请填写后端服务路径
-      - action: 「Path」输入少于2个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入大于200个字符
-        expected: 输入框下方红字提示：“路径长度请限制在2-200个字符”
-      - action: 「Path」输入2-200个字符，包含非法字符（除/、英文、数字、下划线、连字符外的字符）
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符但不以/开头
-        expected: 输入框下方红字提示：“只能 / 开头，支持英文，数字，下划线，连字符(-)”
-      - action: 「Path」输入2-200个合法字符且以/开头
-        expected: 输入框正常回显已输入内容
+      - action: 进入【离线开发 → 手动任务】页面
+        expected: 进入成功
+      - action: 新建数据同步任务，在「选择目标」步骤选择 ${DataSourceA}
+        expected: 「数据同步目标」下方展示「Path」输入框，提示「请填写后端服务路径」
+      - action: 在「Path」输入少于 2 个字符、超过 200 个字符、不以「/」开头或包含非法字符的内容
+        expected: 分别显示长度或字符范围错误提示
+      - action: 在「Path」输入「/api/gateway/test/manual-put」
+        expected: 「Path」回显输入内容且无格式错误提示
+
   - case_id: C0017
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url未配置path
+    title: 验证【数据开发】-【手动任务】RESTful 目标未配置 Path 时运行失败，配置 Path 后同步成功
     priority: P0
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL未包含path，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) Path「/api/gateway/test/manual-post」接收记录并返回状态码 200
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行失败
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行成功，数据均正常写入restful数据源中
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 临时运行记录显示失败
+      - action: 新建任务 B，目标 Path 填写「/api/gateway/test/manual-post」，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
+      - action: 提交任务 B 并手动运行
+        expected: 手动运行记录显示成功，接口接收 3 条记录
+
   - case_id: C0018
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_post_数据源url已配置path
+    title: 验证【数据开发】-【手动任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 后运行失败
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为post，URL已包含path，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_0409_default
+    precondition: |-
+      1) 数据源中心存在 POST RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-post
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行成功，数据均正常写入restful数据源中
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行失败
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
+      - action: 新建任务 B，目标 Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，接口未接收记录
+
   - case_id: C0019
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url未配置path&请求参数
+    title: 验证【数据开发】-【手动任务】RESTful 目标未配置 Path 或配置请求参数时运行失败，仅配置 Path 后同步成功
     priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81，地址不含 Path 和请求参数
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) Path「/api/gateway/test/manual-get」接收记录并返回状态码 200，带 query 参数时返回状态码 200
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，“请求参数”正常输入，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行失败
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行成功，数据均正常写入restful数据源中
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务C，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（例如/api/gateway/test/mt_test/wytest_get），“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并手动运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 手动运行成功，数据均正常写入restful数据源中
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示失败
+      - action: 新建任务 B，Path 填写「/api/gateway/test/manual-get」，不配置请求参数，保存并临时运行
+        expected: 任务 B 临时运行记录显示成功，接口接收 3 条记录
+      - action: 新建任务 C，Path 填写「/api/gateway/test/manual-get」并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示成功，接口接收 3 条记录
+
   - case_id: C0020
-    title: 验证「数据开发-手动任务」数据同步完成目标操作且状态更新_other2restful_get_数据源url已配置path&请求参数
-    priority: P1
-    precondition: 数据源中心已创建restful数据源（可来源于api）：数据源的请求方式为get，URL未包含path&请求参数，例如：http://172.16.115.247:81/api/gateway/test/mt_test/wytest_get?number=
+    title: 验证【数据开发】-【手动任务】RESTful 目标地址已含 Path 时留空沿用，另配 Path 或请求参数后运行失败
+    priority: P0
+    precondition: |-
+      1) 数据源中心存在 GET RESTful 目标数据源 ${DataSourceA}，请求地址为 http://restful.example.test:81/api/gateway/test/manual-get?number=1
+      2) 存在包含 3 条固定记录的源数据表 source_table
+      3) 地址 Path 接收记录并返回状态码 200，另一个 Path「/api/gateway/test/other」返回状态码 404
     steps:
       - action: 进入【离线开发 → 手动任务】页面
-        expected: 已进入【离线开发 → 手动任务】页面，显示页面标题与主要操作区域
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务A，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务A保存成功
-          2） 临时运行成功，数据均正常写入restful数据源中
-      - action: 提交并手动运行数据同步任务A
-        expected: |-
-          1） 数据同步任务A提交成功
-          2） 手动运行成功，数据均正常写入restful数据源中
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务B，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”配置对应的后端服务路径（与数据源中心的path不一致，例如：/api/gateway/test/mt_test/wytest_0409_default），其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务B
-        expected: |-
-          1） 数据同步任务B保存成功
-          2） 手动运行失败
-      - action: 进入【离线开发-数据开发-手动任务】页面，新建数据同步任务C，【选择目标】步骤“数据同步目标”选择restful数据源，“Path”为空，“请求参数”正常配置，其余内容正常填写，保存并临时运行
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 临时运行失败
-      - action: 提交并手动运行数据同步任务C
-        expected: |-
-          1） 数据同步任务C保存成功
-          2） 手动运行失败
+        expected: 进入成功
+      - action: 新建任务 A，目标选择 ${DataSourceA}，Path 为空且不配置请求参数，保存并临时运行
+        expected: 任务 A 临时运行记录显示成功，接口接收 3 条记录
+      - action: 新建任务 B，Path 填写「/api/gateway/test/other」，保存并临时运行
+        expected: 任务 B 临时运行记录显示失败，接口未接收记录
+      - action: 新建任务 C，Path 为空并配置请求参数，保存并临时运行
+        expected: 任务 C 临时运行记录显示失败
