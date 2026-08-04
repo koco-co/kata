@@ -1068,9 +1068,15 @@ function lintPartitionFixture(
   const hasPreviousDate =
     /date_(?:sub|add)\s*\(\s*current_date\s*\(\s*\)\s*,\s*-?1\s*\)/i.test(precondition) ||
     /current_date\s*-\s*interval\s+'1\s+day'/i.test(precondition);
+  // 当日分区必须来自独立表达式；先剔除已被前一日表达式命中的片段，避免
+  // date_sub(current_date(), 1) 里的 current_date 被误当成当日分区证据。
+  const withoutPreviousDateExpr = precondition.replace(
+    /date_(?:sub|add)\s*\(\s*current_date\s*\(\s*\)\s*,\s*-?1\s*\)|current_date\s*-\s*interval\s+'1\s+day'/gi,
+    "",
+  );
   const hasCurrentDate =
-    /date_format\s*\(\s*current_date\s*\(\s*\)/i.test(precondition) ||
-    /\bcurrent_date\b(?!\s*-\s*interval)/i.test(precondition);
+    /date_format\s*\(\s*current_date\s*\(\s*\)/i.test(withoutPreviousDateExpr) ||
+    /\bcurrent_date\b(?!\s*-\s*interval)/i.test(withoutPreviousDateExpr);
   if (hasPartitionTable && hasPreviousDate && hasCurrentDate) return undefined;
   return makeViolation(
     "case_partition_fixture",

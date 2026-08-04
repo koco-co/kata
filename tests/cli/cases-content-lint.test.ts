@@ -728,6 +728,35 @@ INSERT INTO legacy_table VALUES (1, 10), (2, 20), (3, 30), (4, 40), (5, 50), (6,
     expect(
       lintCaseContent(doc({ ...partitionCase, precondition: validGaussPartition }), config),
     ).toEqual([]);
+
+    const previousOnly = `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 创建分区表并写入前一日分区：
+   DROP TABLE IF EXISTS \${SchemaA}.test_table_16178_c0001;
+   CREATE TABLE \${SchemaA}.test_table_16178_c0001 (id BIGINT, dt STRING) PARTITIONED BY (dt STRING);
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 PARTITION (dt)
+   SELECT 1, date_format(date_sub(current_date(), 1), 'yyyy-MM-dd');`;
+    const previousViolation = lintCaseContent(
+      doc({ ...partitionCase, precondition: previousOnly }),
+      config,
+    ).find((item) => item.rule === "case_partition_fixture");
+    expect(previousViolation).toBeDefined();
+    expect(previousViolation?.message).toContain("当日动态分区=否");
+
+    const currentOnly = `1) 授权数据源：\${DataSourceA}
+2) 数据源类型：SparkThrift2.x
+3) 存在数据库：\${SchemaA}
+4) 创建分区表并写入当日分区：
+   DROP TABLE IF EXISTS \${SchemaA}.test_table_16178_c0001;
+   CREATE TABLE \${SchemaA}.test_table_16178_c0001 (id BIGINT, dt STRING) PARTITIONED BY (dt STRING);
+   INSERT INTO \${SchemaA}.test_table_16178_c0001 PARTITION (dt)
+   SELECT 1, date_format(current_date(), 'yyyy-MM-dd');`;
+    expect(
+      lintCaseContent(doc({ ...partitionCase, precondition: currentOnly }), config).map(
+        (item) => item.rule,
+      ),
+    ).toContain("case_partition_fixture");
   });
 
   it("requires complete inline import data and script generation above five rows", () => {
