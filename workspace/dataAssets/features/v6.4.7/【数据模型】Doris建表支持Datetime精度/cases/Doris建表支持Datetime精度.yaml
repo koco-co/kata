@@ -5,76 +5,66 @@ meta:
     - Doris建表支持Datetime精度.xmind
 cases:
   - case_id: C0001
-    title: 验证历史DATETIME字段精度正确
+    title: 验证【数据模型】-【规范建表】查看历史DATETIME字段精度，精度显示0且编辑时不可修改
     priority: P1
     steps:
-      - action: 进入【数据模型 → 历史DATETIME字段精度正确】页面
-        expected: 已进入【数据模型 → 历史DATETIME字段精度正确】页面，显示页面标题与主要操作区域
-      - action: 进入数据地图，搜索table1，查看表详情
-        expected: 字段新增精度列，col1的精度值为0，其他字段展示--
-      - action: 进入「数据模型-规范建表」，编辑table1，查看字段
-        expected: 新增精度列，col1的精度值为0，不可编辑，其他字段展示--
-    precondition: 历史已存在doris表table1，字段col1的字段类型为DTATETIME
-  - case_id: C0002
-    title: 验证doris编辑表功能
-    priority: P1
-    steps:
-      - action: 进入【数据模型 → doris编辑表功能】页面
-        expected: 已进入【数据模型 → doris编辑表功能】页面，显示页面标题与主要操作区域
-      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，填写信息
-        expected: 进入表结构步骤
-      - action: 新增2 个字段，col1、col2选择DATETIME、DATETIMEV2类型
-        expected: 主键后新增精度列，col1、col2精度默认为0
-      - action: col1精度为0，col2精度为6，建表
-        expected: 建表成功
-      - action: 编辑模型查看展示
+      - action: 进入【数据地图】页面
+        expected: 进入成功
+      - action: 在数据地图搜索 table1 并查看表结构
+        expected: 展示「精度」列，DATETIME 字段 col1 的精度为 0，非日期时间字段精度显示「--」
+      - action: 前往【数据模型 → 规范建表】编辑 table1
         expected: |-
-          1） col1字段类型为DATETIME，精度为0，精度不可编辑
-          2） col2字段类型为DATETIME，精度为6，精度不可编辑
-          3） 其他字段精度展示--
-      - action: 新增字段col3，col4，字段类型选择DATETIME、DATETIMEV2类型
-        expected: 可填写精度信息
-    precondition: 无
+          DATETIME 字段 col1 的精度为 0 且编辑时不可修改，非日期时间字段精度显示「--」
+    precondition: |-
+      1) Doris 数据表 table1 已纳管，字段 col1 类型为 DATETIME，字段 id 类型为 BIGINT
+  - case_id: C0002
+    title: 验证【数据模型】-【规范建表】编辑模型表新增DATETIME字段，精度默认0且保存成功
+    priority: P1
+    steps:
+      - action: 进入【数据模型 → 规范建表】页面
+        expected: 进入成功
+      - action: 编辑 Doris 模型表 datetime_edit_table，新增 col1、col2，类型分别选择 DATETIME、DATETIMEV2，精度填写 0、6 并保存
+        expected: |-
+          1) 选择日期时间类型后新增「精度」列且默认值为 0
+          2) Toast提示:「保存成功」
+      - action: 重新打开 datetime_edit_table 模型表编辑页
+        expected: col1 显示 DATETIME / 0，col2 显示 DATETIMEV2 / 6，已保存字段精度不可修改；新增 col3、col4 时精度输入框可编辑
+    precondition: |-
+      1) 已存在 Doris 模型表 datetime_edit_table，主键字段为 id BIGINT
   - case_id: C0003
-    title: 验证DATETIMEV2、DATETIME类型设置精度后，建表成功
+    title: 验证【数据模型】-【规范建表】新建主键表设置DATETIME精度，建表成功且表结构展示精度
     priority: P0
     steps:
       - action: 进入【数据模型 → 规范建表】页面
-        expected: 已进入【数据模型 → 规范建表】页面，显示页面标题与主要操作区域
-      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，填写信息
-        expected: 进入表结构步骤
-      - action: 新增2 个字段，col1、col2选择DATETIME、DATETIMEV2类型
-        expected: 主键后新增精度列，col1、col2精度默认为0
-      - action: col1精度为0，col2精度为6，建表
-        expected: 建表成功
-      - action: 查看表详情页
-        expected: 字段新增精度列，col1字段类型为DATETIME，精度为0；col2字段类型为DATETIME，精度为6；其他字段精度展示--
+        expected: 进入成功
+      - action: 新建 Doris 主键表 datetime_precision_table，新增 col1、col2，类型分别选择 DATETIME、DATETIMEV2，精度填写 0、6 并提交建表
+        expected: |-
+          1) 日期时间字段右侧展示「精度」列且默认值为 0
+          2) Toast提示:「建表成功」,新增模型表:「datetime_precision_table」
+      - action: 打开 datetime_precision_table 表详情查看表结构
+        expected: 表结构显示 col1 为 DATETIME / 0、col2 为 DATETIMEV2 / 6，非日期时间字段的精度显示「--」
     precondition: 无
   - case_id: C0004
-    title: 验证DATETIMEV2、DATETIME类型支持设置精度
+    title: 验证【数据模型】-【规范建表】设置DATETIME精度0~6，合法值保留且非法值置红禁用建表
     priority: P1
     steps:
       - action: 进入【数据模型 → 规范建表】页面
-        expected: 已进入【数据模型 → 规范建表】页面，显示页面标题与主要操作区域
-      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，填写信息
-        expected: 进入表结构步骤
-      - action: 新增2 个字段，col1、col2选择DATETIME、DATETIMEV2类型
-        expected: 主键后新增精度列，col1、col2精度默认为0，其他字段精度展示--
-      - action: 精度输入0、1、2、3、4、5、6
-        expected: 允许输入
-      - action: 精度输入小数、英文、特殊字符、负数、大于6的整数
-        expected: 不允许输入
+        expected: 进入成功
+      - action: 新建 Doris 表并新增 DATETIME 字段 col1、DATETIMEV2 字段 col2，分别输入精度 0、1、2、3、4、5、6
+        expected: 输入 0～6 的整数时精度框保留输入值且建表按钮可用
+      - action: 在 col1、col2 精度框依次输入 1.5、ABC、@、-1、7
+        expected: |-
+          精度框置红提示「请输入 0～6 的整数」，非法值存在时「建表」按钮禁用
     precondition: 无
   - case_id: C0005
-    title: 验证doris建表，字段类型新增DATETIMEV2
+    title: 验证【数据模型】-【规范建表】展开字段类型列表，DATETIME后展示DATETIMEV2且切换类型不清空
     priority: P1
     steps:
-      - action: 进入【数据模型 → doris建表，字段类型新增DATETIMEV2】页面
-        expected: 已进入【数据模型 → doris建表，字段类型新增DATETIMEV2】页面，显示页面标题与主要操作区域
-      - action: 进入「数据模型-规范建表」，新建表，选择doris数据源，选择主键表，点击下一步
-        expected: 进入表结构步骤
-      - action: 新增字段，查看数据类型
-        expected: 数据类型DATETIME下方新增类型为“DATETIMEV2”；
-      - action: 切换明细表/模型表，查看数据类型
-        expected: 数据类型DATETIME下方新增类型为“DATETIMEV2”；
+      - action: 进入【数据模型 → 规范建表】页面
+        expected: 进入成功
+      - action: 新建 Doris 表并选择「主键表」，在表结构步骤展开字段类型
+        expected: 字段类型列表在 DATETIME 后展示 DATETIMEV2，选择 DATETIMEV2 后精度输入框默认值为 0
+      - action: 将表类型依次切换为「明细表」「模型表」并展开字段类型
+        expected: |-
+          两种表类型的字段类型列表均在 DATETIME 后展示 DATETIMEV2，切换表类型后已选 DATETIMEV2 不被清空
     precondition: 无
