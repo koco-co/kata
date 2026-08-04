@@ -19,6 +19,7 @@ import { parseCasesYaml, validateCases } from "../lib/cases/parse.ts";
 import { renderCsv } from "../lib/cases/render-csv.ts";
 import { renderMarkdown } from "../lib/cases/render-md.ts";
 import { renderXlsx } from "../lib/cases/render-xlsx.ts";
+import { locateFeaturesByRequirementId } from "../lib/cases/requirement-locate.ts";
 import type { CaseRenderContext, CasesFile } from "../lib/cases/types.ts";
 import { renderXmindBuffer } from "../lib/cases/xmind/render.ts";
 import {
@@ -58,6 +59,24 @@ export function resolveFeatureInput(feature: string, project?: string): string {
       `--feature 不是路径；使用相对 features/ 的完整路径时必须同时提供 --project: ${feature}`,
     );
   return resolveFeatureEntry(locateProject(project).featuresDir, feature).dir;
+}
+
+/** 解析 build 目标:--feature 路径或按需求 id 定位(二选一)。 */
+function resolveBuildTargets(
+  requirementId: string | undefined,
+  opts: { feature?: string; project?: string },
+): string[] {
+  if (opts.feature && requirementId) {
+    throw new Error("--feature 与 <requirementId> 只能指定一个");
+  }
+  if (opts.feature) return [resolveFeatureInput(opts.feature, opts.project)];
+  if (!requirementId) throw new Error("必须指定 <requirementId> 或 --feature");
+  if (!/^\d+$/.test(requirementId)) throw new Error(`需求 id 必须是数字: ${requirementId}`);
+  const matches = locateFeaturesByRequirementId(requirementId, { project: opts.project });
+  if (matches.length === 0) {
+    throw new Error(`未找到 requirement_id=${requirementId} 的用例(${opts.project ?? "全部项目"})`);
+  }
+  return matches.map((match) => match.featureDir);
 }
 
 function renderContextForFeature(featureDir: string): {
@@ -227,44 +246,52 @@ export function registerCasesBuild(cases: Command): void {
   cases
     .command("build")
     .description(
-      "按 YAML meta.exports 中的文件名生成派生产物；缺省仅生成同名 XMind；requirements 布局按需求生成多个 L1",
+      "用例内容 lint 通过后按 YAML meta.exports 生成派生产物；缺省生成同名 XMind；requirements 布局生成多个 L1；传需求 id 简写定位 feature",
     )
-    .requiredOption("--feature <dir>", "feature 目录路径")
-    .option("--project <name>", "项目名；feature 传相对 features/ 的完整路径时必填")
-    .action(async (opts: { feature: string; project?: string }) => {
-      const featureDir = resolveFeatureInput(opts.feature, opts.project);
-      const startedAt = new Date();
-      const report = await runCasesBuild(featureDir);
-      for (const path of report.created) console.log(`created ${path}`);
-      for (const path of report.updated) console.log(`updated ${path}`);
-      for (const path of report.unchanged) console.log(`unchanged ${path}`);
-      for (const path of report.deleted) console.log(`deleted ${path}`);
-      if (report.created.length + report.updated.length > 0) {
-        const { yamlPath } = findCasesYaml(featureDir);
-        const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
-        const projectDir = projectRootFromFeatureDir(featureDir);
-        const { context } = renderContextForFeature(featureDir);
-        const root = dirname(dirname(projectDir));
-        const result = await emitBusinessNotificationSafely(
-          "cases-built",
-          {
-            project: projectDir.split(/[\\/]/).at(-1) ?? "",
-            version: context.version,
-            feature: file.meta.title,
-            completed_at: formatTaipeiTime(),
-            case_count: file.cases.length,
-            created_count: report.created.length,
-            updated_count: report.updated.length,
-            artifact_paths: [...report.created, ...report.updated].map((path) =>
-              workspaceRelativePath(root, path),
-            ),
-            duration_ms: Date.now() - startedAt.getTime(),
-          },
-          { root },
-        );
-        process.stderr.write(
-          `[notify] cases-built: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
-        );
-      }
-    });
+    .argument("[requirementId]", "需求 id；按 cases YAML 中 requirement_id 字段定位 feature")
+    .option("--feature <dir>", "feature 目录路径；与 <requirementId> 二选一")
+    .option(
+      "--project <name>",
+      "项目名；feature 传相对 features/ 的完整路径时必填；按需求 id 定位时可限定项目",
+    )
+    .action(
+      async (requirementId: string | undefined, opts: { feature?: string; project?: string }) => {
+        const targets = resolveBuildTargets(requirementId, opts);
+        for (const featureDir of targets) {
+          const startedAt = new Date();
+          const report = await runCasesBuild(featureDir);
+          for (const path of report.created) console.log(`created ${path}`);
+          for (const path of report.updated) console.log(`updated ${path}`);
+          for (const path of report.unchanged) console.log(`unchanged ${path}`);
+          for (const path of report.deleted) console.log(`deleted ${path}`);
+          if (report.created.length + report.updated.length > 0) {
+            const { yamlPath } = findCasesYaml(featureDir);
+            const file = parseCasesYaml(readFileSync(yamlPath, "utf8"));
+            const projectDir = projectRootFromFeatureDir(featureDir);
+            const { context } = renderContextForFeature(featureDir);
+            const root = dirname(dirname(projectDir));
+            const result = await emitBusinessNotificationSafely(
+              "cases-built",
+              {
+                project: projectDir.split(/[\\/]/).at(-1) ?? "",
+                version: context.version,
+                feature: file.meta.title,
+                completed_at: formatTaipeiTime(),
+                case_count: file.cases.length,
+                created_count: report.created.length,
+                updated_count: report.updated.length,
+                artifact_paths: [...report.created, ...report.updated].map((path) =>
+                  workspaceRelativePath(root, path),
+                ),
+                duration_ms: Date.now() - startedAt.getTime(),
+              },
+              { root },
+            );
+            process.stderr.write(
+              `[notify] cases-built: ${result.state}${result.reason ? ` (${result.reason})` : ""}\n`,
+            );
+          }
+        }
+      },
+    );
 }
