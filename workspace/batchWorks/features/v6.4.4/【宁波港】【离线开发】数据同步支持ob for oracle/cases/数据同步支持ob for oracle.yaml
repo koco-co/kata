@@ -14,14 +14,13 @@ cases:
     1) 数据源中心存在类型为「OceanBaseOracle」的数据源「${DataSourceA}」
     2) 「${DataSourceA}」已授权给离线项目「${ProjectA}」
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 点击「引入数据源」并打开数据源类型下拉框
     expected: 下拉选项包含「OBOracle」
   - action: 选择「OBOracle」并勾选「${DataSourceA}」后点击「确定」
     expected: Toast提示:「引入成功」,列表新增「${DataSourceA}」且类型显示「OBOracle」
   tags:
-  - 离线开发
   - 数据源
   - 引入数据源
 - case_id: C0002
@@ -35,7 +34,7 @@ cases:
     expected: 进入成功
   - action: 编辑「${DataSourceA}」，将 JDBC 地址改为 `jdbc:oceanbase://ob-15077-new:2883`、描述改为「OBOracle-15077-new」并点击「保存」
     expected: Toast提示:「保存成功」,数据源列表显示新 JDBC 地址和新描述
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 查看「${DataSourceA}」详情
     expected: JDBC 地址为 `jdbc:oceanbase://ob-15077-new:2883`,描述为「OBOracle-15077-new」
@@ -50,14 +49,13 @@ cases:
     1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
     2) 任务「${TaskA}」使用「${DataSourceA}」作为来源数据源
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 点击「${DataSourceA}」操作列的「取消引入」
     expected: 打开二次确认弹窗
   - action: 点击确认弹窗中的「确定」
     expected: Toast提示:「数据源正在被任务使用，无法取消引入」,「${DataSourceA}」仍在列表中
   tags:
-  - 离线开发
   - 数据源
   - 取消引入
 - case_id: C0004
@@ -67,12 +65,11 @@ cases:
     1) 离线项目「${ProjectA}」已引入「${DataSourceA}」
     2) 离线项目中不存在引用「${DataSourceA}」的任务
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 点击「${DataSourceA}」操作列的「取消引入」并点击「确定」
     expected: Toast提示:「取消引入成功」,列表不再显示「${DataSourceA}」
   tags:
-  - 离线开发
   - 数据源
   - 取消引入
 - case_id: C0005
@@ -81,7 +78,7 @@ cases:
   precondition: |-
     1) 离线项目「${ProjectA}」已引入「${DataSourceA}」和「${DataSourceC}」
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 打开筛选下拉框并选择数据源类型「OBOracle」
     expected: 下拉框显示「OBOracle」已选
@@ -90,7 +87,6 @@ cases:
   - action: 在搜索框输入 `${DataSourceA}`
     expected: 列表保留 1 条名称为「${DataSourceA}」的记录
   tags:
-  - 离线开发
   - 数据源
   - 筛选
 - case_id: C0006
@@ -100,7 +96,7 @@ cases:
     1) 测试项目「${ProjectA}」和生产项目「${ProjectB}」均已引入「${DataSourceA}」
     2) 测试项目已绑定发布目标「${ProjectB}」
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 点击测试项目中「${DataSourceA}」操作列的「映射配置」
     expected: 打开映射配置弹窗，本项目数据源名称显示「${DataSourceA}」
@@ -109,7 +105,6 @@ cases:
   - action: 切换至生产项目查看「${DataSourceA}」操作列
     expected: 生产项目仅显示「取消引入」,不显示「映射配置」
   tags:
-  - 离线开发
   - 数据源
   - 数据源映射
 - case_id: C0007
@@ -123,7 +118,7 @@ cases:
     expected: 进入成功
   - action: 查看「ob-oracle-component-15077」
     expected: 组件类型显示「OBOracle」,状态显示「启用」
-  - action: 进入【离线开发 → 项目管理】页面
+  - action: 进入【项目管理】页面
     expected: 进入成功
   - action: 点击「新建项目」，填写项目名称「${ProjectC}」并选择 OBOracle 组件后点击「确定」
     expected: Toast提示:「创建成功」,项目列表新增「${ProjectC}」
@@ -140,16 +135,15 @@ cases:
     1) 数据源中心存在名称为「${DataSourceE}」、类型为「OceanBaseOracle」的数据源
     2) 「${DataSourceE}」的可用 schema 列表为空
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 引入「${DataSourceE}」并点击「确定」
     expected: Toast提示:「引入成功」,列表新增「${DataSourceE}」
-  - action: 进入【离线开发 → 任务开发】页面并新建数据同步任务
+  - action: 进入【数据开发 → 任务开发】页面并新建数据同步任务
     expected: 进入成功
   - action: 在来源数据源选择「${DataSourceE}」并打开 schema 下拉框
     expected: schema 下拉框无可选项
   tags:
-  - 离线开发
   - 数据源
   - OceanBaseOracle
 - case_id: C0009
@@ -184,20 +178,19 @@ cases:
          code STRING
        );
   steps:
-  - action: 进入【离线开发 → 数据源】页面
+  - action: 进入【数据源】页面
     expected: 进入成功
   - action: 点击「${DataSourceA}」操作列的「整库同步」
     expected: 打开整库同步配置页
   - action: 选择 schema「${SchemaA}」、表「test_table_15077_c0009_source_01」、目标数据源「${DataSourceB}」并点击「发布任务」
     expected: Toast提示:「发布成功」,任务列表新增 1 条同步任务
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 点击该任务的「临时运行」
     expected: 运行状态：「成功」
   - action: 查看目标表「${SchemaB}.test_table_15077_c0009_target_01」记录
     expected: 目标表记录数为 2，字段 id 的值为 1、2
   tags:
-  - 离线开发
   - 数据源
   - 整库同步
 - case_id: C0010
@@ -217,7 +210,7 @@ cases:
        );
        INSERT INTO ${SchemaC}.test_table_15077_c0010 VALUES (1, 'A001'), (2, 'A002');
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建数据同步任务，来源选择「${DataSourceC}.${SchemaC}.test_table_15077_c0010」，目标选择非 Meta 数据源「${DataSourceA}」
     expected: 来源表和目标数据源显示在任务配置中
@@ -226,7 +219,7 @@ cases:
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 整库同步
 - case_id: C0011
@@ -248,7 +241,7 @@ cases:
        INSERT INTO ${SchemaB}.test_table_15077_c0011 VALUES (2, 'A002');
     7) 授权数据源 D：${DataSourceD}
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建数据同步任务，来源选择「${DataSourceB}.${SchemaB}.test_table_15077_c0011」，目标选择 Meta 数据源「${DataSourceD}」
     expected: 来源表和目标数据源显示在任务配置中
@@ -257,7 +250,7 @@ cases:
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 整库同步
 - case_id: C0012
@@ -283,14 +276,14 @@ cases:
        INSERT INTO ${SchemaA}.test_table_15077_c0012 VALUES (2, 'A002');
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建数据同步任务，来源选择「${DataSourceA}.${SchemaA}.test_table_15077_c0012」
     expected: 来源表字段列表显示 id、code
   - action: 点击「数据预览」
     expected: 预览结果包含 2 行，第一行 id=1、code=A001，第二行 id=2、code=A002
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 数据预览
 - case_id: C0013
@@ -315,14 +308,14 @@ cases:
        INSERT INTO ${SchemaA}.test_table_15077_c0013 VALUES (1, 'A001');
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建数据同步任务并选择来源「${DataSourceA}」
     expected: 显示 schema 下拉框
   - action: 打开 schema 下拉框
     expected: 下拉选项包含「${SchemaA}」「${SchemaA2}」且无重复项
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - Schema下拉框
 - case_id: C0014
@@ -347,14 +340,14 @@ cases:
        INSERT INTO ${SchemaA}.test_table_15077_c0014 VALUES (1, 'A001');
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建数据同步任务并选择来源「${DataSourceA}」
     expected: 显示 schema 下拉框
   - action: 在 schema 搜索框输入 `${SchemaA}`
     expected: 下拉列表仅保留「${SchemaA}」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - Schema下拉框
 - case_id: C0015
@@ -391,14 +384,14 @@ cases:
        INSERT INTO ${SchemaA}.test_table_15077_c0015_source_02 VALUES (2, 'A002');
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建数据同步任务，来源选择「${DataSourceA}」和 schema「${SchemaA}」
     expected: 表名下拉框可用
   - action: 打开表名下拉框
     expected: 下拉选项包含「test_table_15077_c0015_source_01」「test_table_15077_c0015_source_02」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 表选择
 - case_id: C0016
@@ -433,14 +426,14 @@ cases:
          code STRING
        );
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建任务，来源选择「${DataSourceA}.${SchemaA}.test_table_15077_c0016_source_01」，目标 schema 选择「${SchemaB2}」并点击「建表」
     expected: 目标建表 SQL 包含字段 id，目标 schema 显示「${SchemaB2}」
   - action: 点击「保存」并「临时运行」
     expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 建表
 - case_id: C0017
@@ -475,7 +468,7 @@ cases:
          amount DECIMAL(10,2)
        );
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建任务并选择「自定义SQL」，输入 `SELECT id, amount FROM ${SchemaA}.test_table_15077_c0017_source_01 WHERE amount >= 20`
     expected: SQL 编辑器显示完整查询语句
@@ -484,7 +477,7 @@ cases:
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表仅包含 id=2、amount=20.00
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 自定义SQL
 - case_id: C0018
@@ -523,14 +516,14 @@ cases:
        );
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建来源「${DataSourceA}.${SchemaA}.test_table_15077_c0018_source_01」到目标 schema「${SchemaA2}」的同步任务
     expected: 字段映射中 code 字段允许空值
   - action: 发布任务并点击「临时运行」
     expected: 运行状态：「成功」,目标表第 1 行 code 值为 NULL
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - NULL值
@@ -570,14 +563,14 @@ cases:
        );
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建来源「${DataSourceA}.${SchemaA}.test_table_15077_c0019_source_01」到目标 schema「${SchemaA2}」的同步任务
     expected: 字段映射显示 code 字段
   - action: 发布任务并点击「临时运行」
     expected: 运行状态：「成功」,目标表第 1 行 code 值为空字符串
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 空字符串
@@ -610,14 +603,14 @@ cases:
        COMMIT;
     5) 任务并发配置为 2，目标 schema 为「${SchemaA2}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 在自定义 SQL 中选择源表字段 id 作为切分键并设置并发数 2
     expected: 切分键显示 id,并发数显示 2
   - action: 保存、发布并运行任务
     expected: 运行状态：「成功」,任务运行日志显示 2 个切分区间
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 自定义SQL
   - 切分键
@@ -653,14 +646,14 @@ cases:
        );
        INSERT INTO ${SchemaB}.test_table_15077_c0021_source_01 VALUES (1, 'NEW');
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 Hive 到 OBOracle 任务，在「主键冲突」选择「Insert」
     expected: 目标写入策略显示「Insert」
   - action: 发布并运行任务
     expected: 任务状态显示「失败」,日志包含主键 1 已存在
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 主键冲突
   - Insert
@@ -696,14 +689,14 @@ cases:
        );
        INSERT INTO ${SchemaB}.test_table_15077_c0022_source_01 VALUES (1, 'NEW');
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 Hive 到 OBOracle 任务，在「主键冲突」选择「Update」
     expected: 目标写入策略显示「Update」
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标表 id=1 的 code 更新为 NEW
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 主键冲突
   - Update
@@ -744,14 +737,14 @@ cases:
        );
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 OBOracle 到 OBOracle 任务，在字段映射中新增常量字段 source_tag，值为 `LZ-15077`
     expected: 映射列表新增 source_tag，常量值显示 `LZ-15077`
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标表每条记录 source_tag 值为 `LZ-15077`
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 常量字段
@@ -788,14 +781,14 @@ cases:
          amount DECIMAL(10,2)
        );
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 OBOracle 到 Hive 任务并打开字段映射
     expected: 映射列表显示来源字段 id、code 和目标字段 id、code、amount
   - action: 将 amount 映射为常量 `0.00`，保存并运行任务
     expected: 运行状态：「成功」,目标表 amount 值为 `0.00`
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 常量字段
@@ -830,7 +823,7 @@ cases:
        );
        INSERT INTO ${SchemaB}.test_table_15077_c0025_source_01 VALUES (1, '10.50');
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 Hive 到 OBOracle 任务，将来源 amount STRING 映射至目标 amount NUMBER(10,2)
     expected: 映射关系显示 STRING → NUMBER(10,2)
@@ -839,7 +832,7 @@ cases:
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标表 amount 值为 `10.50`
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 类型转换
@@ -879,14 +872,14 @@ cases:
        );
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 OBOracle 到 OBOracle 任务并打开字段映射
     expected: id 映射至 id,code 映射至 code
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标表记录数与来源表相同
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
 - case_id: C0027
@@ -924,14 +917,14 @@ cases:
        );
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 在字段映射中对 code 配置转换函数 UPPER 并映射至 code_upper
     expected: 映射表达式显示 UPPER(code) → code_upper
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标字段 code_upper 值为 A001
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 字段转换
@@ -974,14 +967,14 @@ cases:
        );
        COMMIT;
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 在字段映射中同时选中 code、name、city 并配置转换函数 UPPER
     expected: 3 条映射表达式均显示 UPPER(字段名)
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标表 3 个字段值分别为 A001、ALICE、NINGBO
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 字段转换
@@ -992,14 +985,14 @@ cases:
     1) 离线项目存在任务「${TaskA}」和「${TaskB}」
     2) 「${TaskA}」字段 code 已映射至目标字段 target_code
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」的字段映射，将 code 连线至 target_code
     expected: 映射连线连接 code 和 target_code
   - action: 切换到「${TaskB}」再切回「${TaskA}」
     expected: 「${TaskA}」仍显示 code → target_code 连线
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 字段映射
   - 任务切换
@@ -1010,7 +1003,7 @@ cases:
     1) 来源数据源「${DataSourceB}」中表「test_table_15077_c0030_source_01」含 100 行记录，id=1..100
     2) 目标数据源为「${DataSourceA}」，任务「${TaskA}」已配置断点续传
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」的通道控制并勾选「断点续传」
     expected: 「断点续传」开关显示为开启
@@ -1019,7 +1012,7 @@ cases:
   - action: 再次点击「运行」
     expected: 运行状态：「成功」,目标表最终记录数为 100
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 通道控制
   - 断点续传
@@ -1055,7 +1048,7 @@ cases:
        INSERT INTO ${SchemaB}.test_table_15077_c0031_source_01 VALUES (1, NULL);
        INSERT INTO ${SchemaB}.test_table_15077_c0031_source_01 VALUES (2, 10.00);
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开任务通道控制并勾选「脏数据管理」和「记录保存」
     expected: 「脏数据管理」和「记录保存」开关均为开启
@@ -1064,7 +1057,7 @@ cases:
   - action: 查看脏数据表
     expected: 脏数据表包含 id=1 且 amount=NULL 的记录
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 通道控制
   - 脏数据管理
@@ -1074,14 +1067,14 @@ cases:
   precondition: |-
     1) 数据源中心存在类型为「OceanBaseOracle」的数据源「${DataSourceA}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建脚本模式任务并打开「导入模板」
     expected: 打开模板导入弹窗
   - action: 打开来源类型下拉框
     expected: 下拉选项包含「OBOracle」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 脚本模式
   - 导入模板
@@ -1091,14 +1084,14 @@ cases:
   precondition: |-
     1) 数据源中心存在类型为「OceanBaseOracle」的数据源「${DataSourceA}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建脚本模式任务并打开「导入模板」
     expected: 打开模板导入弹窗
   - action: 打开目标类型下拉框
     expected: 下拉选项包含「OBOracle」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 脚本模式
   - 导入模板
@@ -1109,14 +1102,14 @@ cases:
     1) 离线项目名称：「${ProjectA}」
     2) 脚本模式任务「${TaskA}」运行配置中的 Hadoop 用户名为空
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」运行配置并填写 Hadoop 用户名 `${UserA}`
     expected: 配置表单显示 `${UserA}`
   - action: 点击「保存」并「临时运行」
     expected: 运行日志中的执行用户为 `${UserA}`
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 脚本模式
   - 运行用户
@@ -1127,7 +1120,7 @@ cases:
     1) 离线项目已引入来源「${DataSourceA}」和目标「${DataSourceF}」
     2) 任务「${TaskA}」来源、目标和字段映射均已保存
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」，记录来源、目标、schema 和字段映射后点击「删除」
     expected: Toast提示:「删除成功」,任务列表不再显示「${TaskA}」
@@ -1136,7 +1129,7 @@ cases:
   - action: 打开还原后的任务
     expected: 来源、目标、schema 和字段映射与删除前一致
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 任务管理
   - 还原
@@ -1147,14 +1140,14 @@ cases:
     1) 任务「${TaskA}」已保存版本 V1，来源表为「test_table_15077_c0036_source_01」
     2) V1 的目标字段映射为 code → code
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」，将目标字段改为 target_code 并保存为 V2
     expected: 版本列表新增 V2
   - action: 点击「版本对比」并选择 V1、V2
     expected: 差异列表显示 code → code 变更为 code → target_code
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 版本管理
   - 版本对比
@@ -1187,7 +1180,7 @@ cases:
        COMMIT;
     5) 目标 schema 为「${SchemaA2}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建任务，选择来源库表并将同步模式切换为「增量」
     expected: 显示分区字段 dt 和增量分区选择控件
@@ -1196,7 +1189,7 @@ cases:
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表仅新增当日分区记录
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 增量模式
   - 分区扫描
@@ -1229,14 +1222,14 @@ cases:
        COMMIT;
     5) 目标 schema 为「${SchemaA2}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建任务并选择「自定义SQL」，输入按 dt 过滤当日分区的查询
     expected: SQL 编辑器显示 dt 过滤条件,同步模式显示「增量」
   - action: 发布并运行任务
     expected: 运行状态：「成功」,目标表记录仅来自当日分区
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 增量模式
   - 自定义SQL
@@ -1273,7 +1266,7 @@ cases:
        INSERT INTO ${SchemaB}.test_table_15077_c0039_source_01 VALUES (1, 'A001');
        INSERT INTO ${SchemaB}.test_table_15077_c0039_source_01 VALUES (2, 'A002');
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 Hive 到 OBOracle 任务，完成来源、目标、字段映射和通道控制配置
     expected: 配置面板显示来源、目标、字段映射和通道控制均已填写
@@ -1282,7 +1275,7 @@ cases:
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 数据开发流程
 - case_id: C0040
@@ -1309,7 +1302,7 @@ cases:
        COMMIT;
     5) 目标 schema 为「${SchemaA2}」且不存在同名目标表
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 新建 OBOracle 到 OBOracle 任务并完成来源、目标、字段映射配置
     expected: 任务配置显示来源和目标均为 OBOracle
@@ -1318,7 +1311,7 @@ cases:
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 数据开发流程
 - case_id: C0041
@@ -1328,14 +1321,14 @@ cases:
     1) 已保存 Hive 到 OBOracle 任务「${TaskA}」，来源表含 id=1、id=2 两行
     2) 发布目标项目为「${ProjectB}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 选中「${TaskA}」并点击「一键发布」
     expected: Toast提示:「发布成功」,发布记录目标项目为「${ProjectB}」
   - action: 在目标项目打开任务并点击「临时运行」
     expected: 运行状态：「成功」,目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 任务发布
   - 一键发布
@@ -1372,14 +1365,14 @@ cases:
        );
     9) 自定义 SQL 任务「${TaskA}」来源为「${DataSourceA}.${SchemaA}.test_table_15077_c0042_source_01」，目标为 Hive 数据源「${DataSourceB}」的 schema「${SchemaB2}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」并点击「发布任务」
     expected: Toast提示:「发布成功」,任务状态显示「未运行」
   - action: 点击「临时运行」
     expected: 运行状态：「成功」,目标表存在自定义 SQL 返回字段
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 任务发布
   - 自定义SQL
@@ -1428,14 +1421,14 @@ cases:
          code STRING
        );
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 选中两条数据同步任务并点击「批量发布」
     expected: Toast提示:「发布成功」,发布记录包含 2 条任务
   - action: 在任务列表分别点击两条任务的「临时运行」
     expected: 两条任务运行状态均为「成功」,每张目标表记录数为 2
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 任务发布
   - 批量发布
@@ -1446,12 +1439,12 @@ cases:
     1) 离线项目「${ProjectA}」存在任务「${TaskA}」和「${TaskB}」，来源均为「${DataSourceA}」
     2) 两条任务目标均为 Hive 数据源「${DataSourceB}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 勾选「${TaskA}」和「${TaskB}」并点击「批量发布」
     expected: Toast提示:「发布成功」,发布结果列表包含 2 条成功记录
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 任务发布
   - 批量操作
@@ -1462,14 +1455,14 @@ cases:
     1) 脚本模式任务「${TaskA}」来源为「${DataSourceA}」
     2) 目标为 Hive 数据源「${DataSourceB}」
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」并点击「发布任务」
     expected: Toast提示:「发布成功」,任务状态显示「未运行」
   - action: 点击「临时运行」
     expected: 运行状态：「成功」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 脚本模式
   - 任务发布
@@ -1480,14 +1473,14 @@ cases:
     1) 任务「${TaskA}」来源为「${DataSourceA}」、目标为「${DataSourceB}」
     2) 调度周期为每天 02:00，下一次调度时间为今日 02:00
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」调度配置并点击「启用」
     expected: 调度状态显示「启用」,下一次运行时间显示今日 02:00
   - action: 查看调度运行记录
     expected: 运行记录新增 1 条,状态为「成功」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 调度
   - 任务运行
@@ -1498,14 +1491,14 @@ cases:
     1) 任务「${TaskA}」来源为「${DataSourceB}」、目标为「${DataSourceA}」
     2) 调度周期为每天 03:00，下一次调度时间为今日 03:00
   steps:
-  - action: 进入【离线开发 → 任务开发】页面
+  - action: 进入【数据开发 → 任务开发】页面
     expected: 进入成功
   - action: 打开「${TaskA}」调度配置并点击「启用」
     expected: 调度状态显示「启用」,下一次运行时间显示今日 03:00
   - action: 查看调度运行记录
     expected: 运行记录新增 1 条,状态为「成功」
   tags:
-  - 离线开发
+  - 数据开发
   - 任务开发
   - 调度
   - 任务运行
